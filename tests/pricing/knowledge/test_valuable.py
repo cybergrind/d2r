@@ -49,3 +49,31 @@ def test_sazabi_uber_merc_context_survives_into_report():
     assert 'merc' in text
     assert 'Sazabi' in text
     assert 'Cham Rune' in text
+
+
+def test_shaftstop_watch_requires_matching_softcore_ethereal_build():
+    from types import SimpleNamespace
+
+    from pricing.knowledge.assessment.policies.value_watch import matching_watches
+
+    rows = json.loads(Path('pricing/data/appraisal-value-watch.json').read_text())['rows']
+    shaft = [r for r in rows if r['name'] == 'Shaftstop']
+    assert not matching_watches(shaft, SimpleNamespace(ethereal=False))
+    matched = matching_watches(shaft, SimpleNamespace(ethereal=True))
+    assert len(matched) == 1
+    assert matched[0]['details']['priority'] == 'build_demand'
+    assert all('ethereal' in c['original_label'] for c in matched[0]['details']['build_contexts'])
+
+
+def test_perfect_roll_watch_prose_does_not_qualify_an_unchecked_copy():
+    from types import SimpleNamespace
+
+    from pricing.knowledge.assessment.policies.value_watch import matching_watches
+
+    watch = {
+        'kind': 'value_watch',
+        'name': 'Example',
+        'rarity': 'unique',
+        'details': {'priority': 'valuable_candidate', 'local_conditions': 'Value in perfect rolls'},
+    }
+    assert not matching_watches([watch], SimpleNamespace(ethereal=False))

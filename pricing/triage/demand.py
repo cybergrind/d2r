@@ -79,7 +79,10 @@ def demand_for(item, evidence):
     return [
         r
         for r in evidence.get(key, [])
-        if (r['ethereal'] is None or r['ethereal'] is item.get('ethereal'))
+        # A name-level watch is research context, not a reviewed use for this copy.
+        # Its prose may describe a different mode, ethereal variant or perfect roll.
+        if r.get('kind') != 'value_watch'
+        and (r['ethereal'] is None or r['ethereal'] is item.get('ethereal'))
         and matches(item, {'conditions': r.get('base_conditions', {})})
     ]
 

@@ -8,7 +8,13 @@ from pricing.triage.market_demand import qualify
     [
         ({'previous_listings': 10, 'current_listings': 10, 'disappeared': 0}, False, 'vendor'),
         ({'previous_listings': 10, 'current_listings': 10, 'disappeared': 0}, True, 'slow'),
-        ({'previous_listings': 10, 'current_listings': 9, 'disappeared': 1}, False, 'slow'),
+        ({'previous_listings': 10, 'current_listings': 9, 'disappeared': 1}, False, 'vendor'),
+        ({'previous_listings': 10, 'current_listings': 9, 'uncensored_disappeared': 1}, False, 'slow'),
+        (
+            {'previous_listings': 10, 'current_listings': 9, 'disappeared': 1, 'censored_disappeared': 1},
+            False,
+            'vendor',
+        ),
         ({'buyers': 1}, False, 'slow'),
         (None, False, 'slow'),
         ({'previous_listings': 0, 'current_listings': 10, 'disappeared': 0}, False, 'slow'),
@@ -73,7 +79,8 @@ def test_agreement_keeps_unmeasured_sell_cohorts_and_censored_absence_visible():
     }
     result = agreement({'active': ['sell', 'vendor'], 'missing': ['sell'], 'strong': ['vendor']}, measured)
     assert result['sell_cohorts'] == 2
-    assert result['sell_supported_share'] == 0.5
+    assert result['sell_supported_share'] == 0
+    assert result['sell_supported_only_by_censored_absence'] == 1
     assert result['sell_unmeasured'] == ['missing']
     assert result['vendor_strong_share'] == 0.5
 

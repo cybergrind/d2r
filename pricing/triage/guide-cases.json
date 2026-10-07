@@ -24844,6 +24844,46 @@
     "classification_reason": "Item or variant trade guidance: Natalya's Soul (set boots)"
   },
   {
+    "id": "guides/pricing.html#s8:39",
+    "source": "guides/pricing.html#s8",
+    "heading": "8 \u00b7 Worked examples \u2014 your own drops, 2026-09-18",
+    "kind": "worked",
+    "cells": [
+      "Ethereal Shaftstop, Mesh Armor, 197% enhanced defense, unsocketed",
+      "2026-10-07: explicit Dream Paladin Hybrid/Ubers and Lightning Strike Amazon mercenary variants use ethereal Shaftstop. Keep its ask cohort separate from the non-ethereal copy; October 4 ethereal Q1 asks are 31.4 Ist from 12 sellers. Censored page-zero absence is not a sale.",
+      "SELL (slow); ethereal build demand, no confirmed liquidity"
+    ],
+    "resolved_cells": [
+      "Ethereal Shaftstop, Mesh Armor, 197% enhanced defense, unsocketed",
+      "2026-10-07: explicit Dream Paladin Hybrid/Ubers and Lightning Strike Amazon mercenary variants use ethereal Shaftstop. Keep its ask cohort separate from the non-ethereal copy; October 4 ethereal Q1 asks are 31.4 Ist from 12 sellers. Censored page-zero absence is not a sale.",
+      "SELL (slow); ethereal build demand, no confirmed liquidity"
+    ],
+    "description": "Ethereal Shaftstop, Mesh Armor, 197% enhanced defense, unsocketed",
+    "text": "Ethereal Shaftstop, Mesh Armor, 197% enhanced defense, unsocketed2026-10-07: explicit Dream Paladin Hybrid/Ubers and Lightning Strike Amazon mercenary variants use ethereal Shaftstop. Keep its ask cohort separate from the non-ethereal copy; October 4 ethereal Q1 asks are 31.4 Ist from 12 sellers. Censored page-zero absence is not a sale.SELL (slow); ethereal build demand, no confirmed liquidity",
+    "expected": null,
+    "examples": [
+      {
+        "spec": {
+          "base": "Mesh Armor",
+          "rarity": "unique",
+          "name": "Shaftstop",
+          "ethereal": true,
+          "sockets": 0,
+          "stats": {
+            "16:0": 197
+          }
+        },
+        "expected": [
+          "sell",
+          "slow"
+        ],
+        "rationale": "Steering 14: separate ordinary non-ethereal rolls from ethereal mercenary use."
+      }
+    ],
+    "classification": "verdict",
+    "classification_reason": "Item or variant trade guidance: Ethereal Shaftstop, Mesh Armor, 197% enhanced defense, unsocketed"
+  },
+  {
     "id": "guides/pricing.html#s9:1",
     "source": "guides/pricing.html#s9",
     "heading": "9 \u00b7 False positives \u2014 looks valuable, is not",
@@ -27525,6 +27565,37 @@
     ],
     "classification": "verdict",
     "classification_reason": "Item or variant trade guidance: Magic Demon Heart with 43 life and 37% fire resistance but no Necromancer skills: VENDOR (live case, 2026-10-06). Life and resistance do not"
+  },
+  {
+    "id": "guides/pricing.html#s9:13",
+    "source": "guides/pricing.html#s9",
+    "heading": "9 \u00b7 False positives \u2014 looks valuable, is not",
+    "kind": "false_positive",
+    "cells": [],
+    "resolved_cells": [],
+    "description": "Non-ethereal Shaftstop, Mesh Armor, 197% enhanced defense, unsocketed: VENDOR. Ordinary roll (197% of 180\u2013220); value is in ethereal or 218%+ copies. Review 2026-10-07: October 4 SC/NL asks separate native Enhanced Defense (property 425) from total defense, upgraded Boneweave and sockets. Require three sellers on each side and at least a threefold median premium. Ordinary-group asks at or below 1 Ist do not establish demand; only an uncensored disappearance or buyer for that same roll group can override this disposition. The older Hardcore value-watch note does not apply to this copy.",
+    "text": "Non-ethereal Shaftstop, Mesh Armor, 197% enhanced defense, unsocketed: VENDOR. Ordinary roll (197% of 180\u2013220); value is in ethereal or 218%+ copies. Review 2026-10-07: October 4 SC/NL asks separate native Enhanced Defense (property 425) from total defense, upgraded Boneweave and sockets. Require three sellers on each side and at least a threefold median premium. Ordinary-group asks at or below 1 Ist do not establish demand; only an uncensored disappearance or buyer for that same roll group can override this disposition. The older Hardcore value-watch note does not apply to this copy.",
+    "expected": null,
+    "examples": [
+      {
+        "spec": {
+          "base": "Mesh Armor",
+          "rarity": "unique",
+          "name": "Shaftstop",
+          "ethereal": false,
+          "sockets": 0,
+          "stats": {
+            "16:0": 197
+          }
+        },
+        "expected": [
+          "vendor"
+        ],
+        "rationale": "Steering 14: separate ordinary non-ethereal rolls from ethereal mercenary use."
+      }
+    ],
+    "classification": "verdict",
+    "classification_reason": "Item or variant trade guidance: Non-ethereal Shaftstop, Mesh Armor, 197% enhanced defense, unsocketed: VENDOR. Ordinary roll (197% of 180\u2013220); value is in ethereal or 218%"
   },
   {
     "id": "guides/pricing-primer.html#twin:1",

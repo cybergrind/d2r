@@ -1,0 +1,19 @@
+[
+  {
+    "category": "uniques",
+    "name": "Shaftstop",
+    "conditions": {
+      "ethereal": false,
+      "base_code": "xhn",
+      "sockets": 0,
+      "socket_contents": "empty"
+    },
+    "property": "425",
+    "label": "Enhanced Defense",
+    "min": 180,
+    "max": 220,
+    "valuable_min": 218,
+    "alternative": "ethereal or 218%+ copies",
+    "source": "guides/pricing.html#shaftstop-roll-review"
+  }
+]

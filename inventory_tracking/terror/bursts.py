@@ -42,6 +42,17 @@ class Burst:
         return f'{self.t:10.1f}  area {self.area:3}  {what:>5}  {found or "nothing known nearby"}'
 
 
+def unit_of(event) -> Unit | None:
+    """The hostile live monster of a `seen` event, with what it showed; None for allies and corpses."""
+    if 'x' not in event or event.get('mode') in DEAD_MODES or event.get('txt_id') is None:
+        return None
+    if stat(event, ALIGNMENT_STAT):
+        return None
+    found = modifiers(event)
+    unit = Unit(event['unit_id'], event['txt_id'], event['x'], event['y'], found, aura(event))
+    return replace(unit, owner=AURA_MODIFIER in found)
+
+
 def bursts(events, *, share=SHARE, window=WINDOW, reach=REACH) -> list[Burst]:
     units: dict[int, tuple[int, Unit]] = {}  # unit id -> (area, monster), alive
     recent: deque[tuple[float, int]] = deque()  # (t, life) within the window
@@ -51,11 +62,9 @@ def bursts(events, *, share=SHARE, window=WINDOW, reach=REACH) -> list[Burst]:
         if kind == 'left_game':
             units.clear()
             recent.clear()
-        elif kind == 'seen' and 'x' in event and event.get('mode') not in DEAD_MODES:
-            if not stat(event, ALIGNMENT_STAT) and event.get('txt_id') is not None:
-                found_modifiers = modifiers(event)
-                unit = Unit(unit_id, event['txt_id'], event['x'], event['y'], found_modifiers, aura(event))
-                units[unit_id] = (event['area'], replace(unit, owner=AURA_MODIFIER in found_modifiers))
+        elif kind == 'seen':
+            if (unit := unit_of(event)) is not None:
+                units[unit_id] = (event['area'], unit)
         elif kind in ('back', 'gone') and unit_id in units:
             area, unit = units[unit_id]
             units[unit_id] = (area, replace(unit, x=event['x'], y=event['y']))

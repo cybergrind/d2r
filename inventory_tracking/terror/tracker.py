@@ -176,6 +176,7 @@ class ZoneTracker:
         # hostile unit id -> (txt id, modifiers, aura) as first seen: what makes a pack deadly (danger.py)
         self.traits: dict[int, tuple[int, tuple[int, ...], tuple[int, int] | None]] = {}
         self.bands: dict[int, dict[int, str]] = {}  # area -> unit id -> its pack's band on the last pass
+        self.player_states: frozenset[int] = frozenset()  # states.txt ids on the player, as last read
         # leader's unit id -> (area, kind, txt id, x, y, name) as first seen: the level's elite groups (elites.py)
         self.elites: dict[int, tuple[int, str, int, int, int, str | None]] = {}
         self.layouts: dict[int, tuple] = {}  # area -> its rooms (levels/model.py Room), from the level guide
@@ -404,9 +405,11 @@ class ZoneTracker:
         if group:
             self.area_count(event['area']).seen.add(unit_id)
 
-    def track(self, monsters, location=None, complete=True):
+    def track(self, monsters, location=None, complete=True, states=None):
         """Follow live monsters: `monsters` are the units present this pass (terror/monsters.py),
-        `location` the player's, `complete` whether the walk reached every unit."""
+        `location` the player's, `complete` whether the walk reached every unit, `states` the
+        states on the player (curses, chill: they raise every pack, danger.py)."""
+        self.player_states = states or frozenset()
         # Only units the client holds now: one that left its range keeps its dot, but the game frees
         # its path and reuses the memory for other units, missiles included (RCA 2026-10-05).
         self.paths = {monster.unit_id: monster.path for monster in monsters if monster.path}
@@ -462,7 +465,9 @@ class ZoneTracker:
             if where == area and unit_id in self.traits:
                 txt_id, found, carried = self.traits[unit_id]
                 units.append(Unit(unit_id, txt_id, x, y, found, carried, AURA_MODIFIER in found))
-        found = packs(units, held=self.bands.get(area))  # a marked pack keeps its mark near the line
+        found = packs(
+            units, held=self.bands.get(area), player=self.player_states
+        )  # a marked pack keeps its mark near the line
         self.bands[area] = {unit_id: pack.band for pack in found if pack.band for unit_id in pack.members}
         return found
 

@@ -285,6 +285,17 @@ def assess(item, tables, *, today=None):
             verdict, reason = 'check', 'fewer than three comparable sellers; price is reference only'
     if label := (band or {}).get('comparison', {}).get('label'):
         reason += f' · comparable-or-worse {label}'
+    from pricing.triage.named_roll_placement import lookup as roll_placement, ordinary_has_demand
+
+    placement = roll_placement(item, tables.get('named_roll_placements', []))
+    if placement:
+        reason = placement['reason']
+        if not placement['valid']:
+            verdict, band, price, liquidity = 'check', None, None, 'none'
+        else:
+            band = placement['band']
+            price, bucket, liquidity = band['q1_ist'], band['bucket'], band['liquidity']
+            verdict = 'vendor' if price < tables['rules']['keep_ist'] else 'sell' if liquidity == 'liquid' else 'slow'
     own_use = next((r for r in tables['own']['rows'] if matches(item, r)), None)
     if own_use and (
         verdict in ('vendor', 'self')
@@ -305,6 +316,14 @@ def assess(item, tables, *, today=None):
     elif verdict == 'sell' and price is not None and price < 1 and not fungible(item) and not demand:
         verdict = 'slow'
         reason += '; no endgame demand evidence'
+    if placement and placement['valid']:
+        reason = placement['reason']
+        if placement['group'] == 'ordinary' and placement['ordinary_floor']:
+            verdict = (
+                'slow'
+                if price >= tables['rules']['keep_ist'] and ordinary_has_demand(placement, market_demand)
+                else 'vendor'
+            )
     if own_use and verdict == 'vendor':
         verdict, reason = 'self', own_use.get('label', 'own-build rule')
     if verdict in ('vendor', 'self') and tables.get('learned_index'):
@@ -360,6 +379,7 @@ def assess(item, tables, *, today=None):
         'keep_ist': tables['rules']['keep_ist'],
         'decision_ist': price,
         'roll_comparison': comparison,
+        'roll_placement': placement,
         'preparation': socket_preparation,
         'sale_mode': sale_mode,
         'own_use': own_use,
@@ -389,6 +409,7 @@ def prepare_tables(bands, rules, own):
         'bands': {(b['category'], b['name'].casefold(), b['bucket']): b for b in bands['bands']},
         'own': own,
         'roll_models': bands.get('roll_models', []),
+        'named_roll_placements': bands.get('named_roll_placements', []),
         'demand': bands.get('demand', {}),
         'market_demand': bands.get('market_demand', {}),
         'base_socket_inferences': bands.get('base_socket_inferences', {}),

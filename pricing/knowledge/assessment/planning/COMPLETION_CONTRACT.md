@@ -33,12 +33,12 @@ levelling characters. Keep price: 0.25 Ist, inclusive.
 
 | Measure | Target | Now |
 |---|---|---|
-| Guide worked examples and false-positive rows | 100% pass | 36/36 and 18/18 |
-| Guide table rows that are verdict or own-use rows | every row classified with a reason; at least 95% pass | all classified and executing; 402 of 404 pass (99.50%) |
-| Listing replay, valuable seller votes flagged | at least 85% | 82.82% (bases 77.82%, rare 45.07%, magic 55.74%); evidence-backed CHECK counts for all types; scorer removed after zero added held-out votes |
-| Cheap listings flagged SELL or slow / CHECK; a cheap listing in a cohort where at least 90% of sellers ask the keep price is not a false flag | at most 10% / 25% | 10.37% (over) / 17.68% |
+| Guide worked examples and false-positive rows | 100% pass | 34/37 and 16/19 |
+| Guide table rows that are verdict or own-use rows | every row classified with a reason; at least 95% pass | all classified and executing; 349 of 404 pass (86.39%); prior unsupported-demand expectations retained as failures |
+| Listing replay, valuable seller votes flagged | at least 85% | 63.82%; priced SELL/slow 50.94%; denominator unchanged; unsupported demand removed (see PLAN §8) |
+| Cheap listings flagged SELL or slow / CHECK; a cheap listing in a cohort where at least 90% of sellers ask the keep price is not a false flag | at most 10% / 25% | 2.44% / 17.68% |
 | Named corpus drops that end as CHECK | at most 15% | 12.0% |
-| SELL cohorts with turnover or buyers | at least 80%, over an interval of seven days or more | unmeasured (one-day interval) |
+| SELL cohorts with turnover or buyers | at least 80%, over an interval of seven days or more | seven-day measure unverified; current one-day support 1/115, censored absence excluded |
 | Speed | under 50 ms per item; a ten-item identify pass under 1 s | latest live one-item pass 69.0 ms; prior three-item pass 57.5 ms; required ten-item pass unverified |
 
 A measure counts as met only from a score file produced by the current code and tables. A
@@ -53,10 +53,11 @@ PLAN.md "Steering 14" (2026-10-06 23:55), in this order, with the Steering 9 rul
 2. Report the 982 valuable votes vendored for lack of demand as their own miss cause; flag
    none of them. Whether they stay in the denominator is the user's decision after the
    seven-day pull of 2026-10-10 or -11.
-3. Rare and magic: authored patterns only, largest missed families first (481 votes short
-   of 85%). The paid-property scorer is removed and is not rebuilt.
-4. Base variants priced from existing listings (391 votes).
-5. Named roll placement and the two remaining guide rows.
+3. Named roll placement and demand per roll group, following the October 7 amendments;
+   Shaftstop is the first implemented case. Review deciding stats against guides and variants.
+4. Rare and magic: authored patterns only, largest missed families first. The paid-property
+   scorer is removed and is not rebuilt.
+5. Base variants priced from existing listings; reconcile guide expectations alongside.
 6. Evidence-backed CHECK counts as attention for all item types (user, 2026-10-06);
    priced SELL/slow is reported separately. Cheap SELL and demand: at the weekly pull.
 

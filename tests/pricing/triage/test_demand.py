@@ -63,6 +63,22 @@ def test_watch_and_socket_demand_union_excludes_floor_only():
     assert demand_for({'name': 'Insert', 'category': 'uniques', 'ethereal': False}, evidence)
 
 
+def test_unqualified_value_watch_is_not_variant_demand():
+    watches = [
+        {
+            'name': 'Example',
+            'rarity': 'unique',
+            'details': {
+                'priority': 'valuable_candidate',
+                'guide_conditions': 'Medium Value in Hardcore; ethereal mercenary use',
+            },
+        }
+    ]
+    evidence = compile_demand([mention('Ubers', side='merc', original_label='Example (ethereal)')], watches)
+    assert not demand_for({'name': 'Example', 'category': 'uniques', 'ethereal': False}, evidence)
+    assert demand_for({'name': 'Example', 'category': 'uniques', 'ethereal': True}, evidence)
+
+
 def test_supported_sale_precedes_own_use_without_losing_the_note():
     item = {'name': 'Example', 'category': 'uniques', 'ethereal': False}
     data = tables([listing(i, 0.6, ethereal=False) for i in range(10)])

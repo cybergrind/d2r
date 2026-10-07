@@ -1,6 +1,8 @@
 """Burst events from the probe log: much life lost at once, with the packs that stood there."""
 
-from inventory_tracking.terror.bursts import bursts
+import json
+
+from inventory_tracking.terror.bursts import bursts, main, read
 
 
 def life(t, value, most=1000, x=5000, y=5000):
@@ -39,3 +41,24 @@ def test_dead_and_far_monsters_are_not_part_of_the_burst():
     (burst,) = bursts(events)
 
     assert burst.packs == ()
+
+
+def test_monsters_are_taken_where_the_log_last_put_them_and_another_game_starts_empty():
+    moved = [{'event': 'back', 'unit_id': n, 'x': 5020 + 2 * n, 'y': 5000} for n in range(8)]
+    events = [*(archer(n, x=9000) for n in range(8)), *moved, life(1.0, 1000), life(1.5, 500)]
+    assert [pack.count for pack in bursts(events)[0].packs] == [8]
+
+    left = [*(archer(n) for n in range(8)), {'event': 'left_game', 't': 0.5}, life(1.0, 1000), life(1.5, 500)]
+    assert bursts(left)[0].packs == ()
+
+
+def test_the_script_lists_the_bursts_of_each_log_and_skips_a_line_cut_off(tmp_path, capsys):
+    log = tmp_path / 'terror-probe.jsonl'
+    events = [*(archer(n) for n in range(8)), life(1.0, 1000), life(1.5, 500)]
+    log.write_text('\n'.join(json.dumps(event) for event in events) + '\n{"event": "li')
+
+    assert len(list(read(log))) == 10
+    assert main([str(log)]) == 0
+    out = capsys.readouterr().out
+    assert 'Dark Ranger x8 · Fanaticism [deadly 12.6]' in out
+    assert out.endswith('1 burst event in 1 log\n')

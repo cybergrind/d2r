@@ -10,7 +10,9 @@ With a tracker (tracker.py) the same events drive the Terror Zone card: `tick` p
 current Herald group's lines while D2R is focused.
 
 Events: area (entered; level Room2 count), rooms (newly loaded Room2s), life (the player's life,
-whenever it changed: burst research, terror/bursts.py), seen (first sight, with data/stats), died
+whenever it changed: burst research, terror/bursts.py), around (every second with live monsters
+within a screen: their live positions and modes with the player's life and states, the statistics behind
+the threat level, terror/exposure.py), seen (first sight, with data/stats), died
 (alive -> dead/dying mode: one kill), gone (dropped from the client; alive or not), back
 (reappeared), summary (every few seconds), left_game (menu: the ledger resets), mark, and
 elite_kill / shard (a pack leader's death, a Worldstone Shard first seen on the ground: terror/shards.py).
@@ -22,8 +24,11 @@ import threading
 from typing import Any
 
 from inventory_tracking.common import LOG, timestamp
-from inventory_tracking.native.layout import DEAD_MODES
+from inventory_tracking.native.layout import DEAD_MODES, TOWN_IDS
 from inventory_tracking.terror.monsters import Monster, MonsterSnapshot, observe_monsters
+
+
+AROUND_REACH = 60  # world units: about a screen, the reach of what can hurt the player now
 
 
 def distance(monster: Monster, location) -> int:
@@ -31,8 +36,8 @@ def distance(monster: Monster, location) -> int:
 
 
 class MonsterLedger:
-    def __init__(self, *, summary_seconds=10.0):
-        self.summary_seconds = summary_seconds
+    def __init__(self, *, summary_seconds=10.0, around_seconds=1.0):
+        self.summary_seconds, self.around_seconds = summary_seconds, around_seconds
         self.reset()
 
     def reset(self):
@@ -45,6 +50,7 @@ class MonsterLedger:
         self.level_rooms: dict[int, int | None] = {}
         self.next_summary: float | None = None
         self.life: tuple[int, int] | None = None  # the player's life as last logged
+        self.next_around = -math.inf
 
     @property
     def known(self) -> set[int]:
@@ -74,6 +80,20 @@ class MonsterLedger:
             self.life = snapshot.player_life
             position = {'x': location.x, 'y': location.y}
             events.append({'event': 'life', 't': t, 'area': here, 'life': self.life[0], 'max': self.life[1]} | position)
+        if snapshot.player_life is not None and here not in TOWN_IDS and now >= self.next_around:
+            near = [
+                [m.unit_id, m.txt_id, m.mode, m.x, m.y]
+                for m in snapshot.monsters
+                if m.mode not in DEAD_MODES and m.area in (None, here) and distance(m, location) <= AROUND_REACH
+            ]
+            if near:  # allies too: the reader tells them apart by their `seen` event
+                self.next_around = now + self.around_seconds
+                life, most = snapshot.player_life
+                events.append(
+                    {'event': 'around', 't': t, 'area': here, 'x': location.x, 'y': location.y}
+                    | {'life': life, 'max': most, 'near': near}
+                    | ({} if snapshot.player_states is None else {'states': sorted(snapshot.player_states)})
+                )
         rooms = self.rooms.setdefault(here, set())
         new_rooms = snapshot.room2s - rooms
         if new_rooms:
@@ -170,6 +190,7 @@ class TerrorProbe:
         capture_lock: threading.Lock,
         poll_interval,
         summary_seconds=10.0,
+        around_seconds=1.0,
         observe=observe_monsters,
         tracker=None,
         display=None,
@@ -182,7 +203,7 @@ class TerrorProbe:
     ):
         self.source, self.output, self.capture_lock = source, output, capture_lock
         self.poll_interval, self.observe = poll_interval, observe
-        self.ledger = MonsterLedger(summary_seconds=summary_seconds)
+        self.ledger = MonsterLedger(summary_seconds=summary_seconds, around_seconds=around_seconds)
         self.level = None  # level pointer whose Room2s were counted
         self.last_poll = -math.inf
         self.last_warning = None
@@ -233,7 +254,7 @@ class TerrorProbe:
             self.tracker.apply(events)
             if location is not None and snapshot.level_rooms is not None:
                 self.tracker.level_read(location.area_id, snapshot.level_rooms, snapshot.level_hex or '')
-            self.tracker.track(snapshot.monsters, snapshot.location, snapshot.complete)
+            self.tracker.track(snapshot.monsters, snapshot.location, snapshot.complete, states=snapshot.player_states)
         if self.bosses is not None:
             self.bosses.apply(self.source.images.get('identity') or {'pid': self.source.pid}, events)
         self.card = self.card_lines(self.tracker, snapshot.location, snapshot.player_level)

@@ -61,7 +61,7 @@ def test_named_watch_prose_is_not_a_base_predicate():
             }
         ],
     )
-    assert demand_for({'category': 'uniques', 'name': 'Example', 'ethereal': False}, evidence)
+    assert not demand_for({'category': 'uniques', 'name': 'Example', 'ethereal': False}, evidence)
 
 
 def test_explicit_variant_base_does_not_require_the_older_recommended_shortlist():

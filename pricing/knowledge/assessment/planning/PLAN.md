@@ -321,6 +321,51 @@ Order of work:
    tiers, staff skill combinations, body armour socket counts). No fallback below three sellers.
 5. **Named roll placement** (57 votes) and the two remaining guide rows, after items 1–4.
 
+**Amendment, 2026-10-07 01:40 (live finding, unique Shaftstop, Mesh Armor, not ethereal, 197%
+enhanced defense, shown "SELL (slow) 0.789 Ist · 18 sellers" with a "valuable candidate" block).**
+The ethereal split is right (not ethereal: lower quartile 0.789, 18 sellers; ethereal: 31.4,
+12 sellers; asks of 2026-10-04). Three things are wrong, and they belong to item 2:
+
+- "Demand supported" came from two sources that prove nothing for this copy: a value-watch
+  note with `ethereal: None` whose text is about Hardcore and ethereal mercenary use, and six
+  disappearances that are all censored (page-zero churn). Across the table, 190 of 192 SELL
+  cohorts are supported only by censored absence. A censored disappearance and a note from
+  another mode or variant are not a demand signal; every build record here names the
+  ethereal copy.
+- No roll placement: 197% and 220% get the same verdict, while listed non-ethereal copies at
+  215% or less ask 0.2–1.0 Ist and copies at 218–220% ask 4–11 Ist.
+- The "valuable candidate" block is printed without checking its own conditions (ethereal).
+
+Expected for this drop: VENDOR, reason "ordinary roll, not ethereal; value is in ethereal or
+218%+ copies". Add it to `guides/pricing.html` §9 with an ethereal counter-example in §8.
+
+**Amendment, 2026-10-07 02:30 (user: "dig deeper into other uniques ... we need better rolls").**
+Shaftstop is the common case, not an exception. Offline count over unsocketed unique and set
+listings, one lowest ask per seller, cohorts of 8+ sellers (488 cohorts; asks of 2026-09-24
+to 2026-10-04): in 230 cohorts the copies in the top tenth of one roll's observed range ask
+at least three times the median of the rest. In 105 of them ordinary copies ask 1 Ist or
+less while top copies ask five times that or more. Of 2,854 low-roll listings in the 230
+cohorts the engine says SELL or slow for 2,142; a roll comparison is attached to 431. Of the
+user's own 96 low-roll drops in these cohorts, 51 are SELL or slow, 20 with a roll comparison.
+
+The price shown is not the error: the cohort lower quartile matches what low-roll copies
+ask (8 cohorts differ by 1.5 times or more: Natalya's Totem, Griswold's Edge, Bloodfist,
+Hellfire Torch, Herald of Zakarum, Fleshripper, ethereal Bonehew, Ars Tor'Baalos). The
+error is the label. Low-roll asks cluster on the listing floor (0.568, 0.674, 0.789, 1.0
+Ist) and nothing shows they are taken. So item 5 (named roll placement) moves to item 3,
+before rare and magic patterns, with these rules:
+
+- Where top-roll copies ask three times the rest or more, the verdict line names the roll
+  and where the drop sits: "ordinary roll (197% of 180–220); value starts at 218%".
+- An ordinary-roll copy in such a cohort whose low-roll asks are 1 Ist or less is VENDOR
+  unless there is an uncensored disappearance or a buyer for low-roll copies; this is the
+  demand rule of item 2 applied per roll group, not per name.
+- The deciding roll is checked against the guides before it is used: the scan picks the
+  stat with the largest ratio, and a defense value can stand in for an upgraded base, an
+  ethereal copy mislabelled, or sockets (Trang-Oul's Girth, Giant Skull, Magefist).
+- The 2,142 listings become "valuable" votes only for their top-roll group; report how many
+  low-roll votes the replay currently counts as valuable before changing anything.
+
 Not to do: no new learned or statistical flagging of rares and magics; no verdict raised to
 move the measure; no change to what counts as "valuable" without the user.
 
@@ -1192,30 +1237,32 @@ Decisions needed from the user:
    minutes, paced) to measure turnover? Add a hotkey that marks the last verdict as wrong?
 
 ## 8. Status
-2026-10-06 — Current contract governs; Steering 13 executed, completion unproven.
-- Paid scorer removed from live verdicts, table loader and table build; 70 cached models removed.
-  Diagnostic fitting requires ≥30 matching corpus drops, full paid sets supported by ≥3 sellers,
-  and matching ethereal/socket/base-tier conditions. Secondary pairs cannot replace listed skills.
-- Three global seller folds: 5 models fitted per fold; 3/4/4 deployable. All-seller fit: 5 deployable.
-  Added valuable rare/magic seller votes: 0 out-of-sample and 0 in-sample; below 200, scorer removed.
-  Diagnostic code retained for the reproducible decision in score-listings.json, not live appraisal.
-- Current all-type evidence-backed attention 18248/22033 (82.82%); SELL/slow 15409/22033 (69.94%).
-  Old 81.07% included unsupported scorer highlights; loss retained for correctness, not tuned away.
-  Rare 1006/2232 (45.07%), magic 719/1290 (55.74%); authored patterns only. Five additional seller/cohort votes follow new pattern boundaries.
-- User accepted evidence-backed CHECK for every type. Bases 3368/4328 (77.82%); priced base votes remain 2834.
-  2839 valuable CHECK votes count; 36 lack sufficient matched evidence and do not. Need 481 more votes for 85%.
-  No verdict or price was raised merely to change the metric; ten-item timing still precedes further scoring work.
-- Guide rows 402/404 (99.50%); all execute. Retained all 15 bare +2-grimoire fixtures as explicit negatives after source review.
-  Worked 36/36 and false positives 18/18 pass, including Crown and Demon Heart.
-  Remaining guide failures: Heraldic/Aerin 45-resistance shields and Paladin aura/30-life charms; do not infer prices from mismatched variants.
-- Cheap SELL/slow 17/164 (10.37%, FAIL), CHECK 29/164 (17.68%).
-  Approved 90% cohort rule unchanged; demand decisions await authorized October 10–11 pull.
-- Corpus CHECK: rare 9/274 (3.28%), magic 14/622 (2.25%), named 66/549 (12.02%).
-- Tests: 600 triage passed with the all-type attention metric and current guide fixes.
-  Targeted lint/format clean. Seller-fold and duplicate-seller combination regressions pass.
-- Live five-item 6984.7-ms stall: identify queues now exclude detail warm-up/publication work.
-  Latest live pass 20:01:57 UTC: one item 69.0 ms; prior three-item pass 57.5 ms. Ten-item gate still open.
-  Small-table reloads reuse market data: own-only 0.30 ms, rules-only 42 ms vs 821.12 ms full load.
-- Demand seven-day interval remains unmeasured; only one-day observations exist.
-- Next: Steering 12 live ten-item timing; guide corrections alongside. Named rolls after timing.
+2026-10-07 — Steering 14 and its Shaftstop/unique-roll amendments govern; unfinished.
+- User prioritized bad unique assessments. Censored page-zero disappearance no longer supports
+  demand or the SELL-support score. Unqualified name-level value-watch notes are not build uses.
+- Conditional named watch prose cannot create a valuable-candidate block without satisfying its
+  conditions; explicit matching endgame build contexts may still produce a build-demand note.
+- Saved Shaftstop captures 6d727fb43b0c (197 ED), 756258ce7ad2 (208), bd60b11d0216 (201):
+  non-ethereal Mesh Armor, unsocketed, now VENDOR with ordinary-roll range and 218+ threshold.
+  Native ED is 180–220. Reviewed groups: ordinary 5 sellers, Q1 0.568/median 0.789 Ist;
+  218+ 4 sellers, Q1 3.237/median 4.053 Ist, October 4 asks. Upgraded/ethereal/socketed excluded.
+  Ethereal mercenary counter-example and non-ethereal false-positive added to pricing.html.
+- Reusable named-roll placement compiles only authored, sourced configurations with ≥3 sellers
+  per group and ≥3x median premium. Ordinary ≤1-Ist group requires its own uncensored/buyer
+  evidence to escape VENDOR; name-level demand cannot rescue it. Other named rolls remain to review.
+- Pre-change diagnostic (latest scoped rows, known ethereal, unsocketed, 8+ sellers): 440 cohorts,
+  250 exploratory premium candidates; 3052 ordinary listings, 2569 asking ≥0.25, 2184 SELL/slow.
+  These are diagnostic listing counts, not a change to the valuable-vote denominator or new rules.
+- Current replay: attention 14062/22033 (63.82%), priced SELL/slow 11223/22033 (50.94%).
+  Down from 82.82% because unsupported demand was removed; keep correction, do not inflate verdicts.
+  no_demand_evidence: uniques 3262, sets 659, bases 860, runewords 285, magic 23, runes 4 (5093).
+- Cheap SELL/slow 4/164 (2.44%); CHECK 29/164 (17.68%). Denominator unchanged.
+  SELL demand support: 1/115 cohorts; 113 have censored-only disappearance, excluded from support.
+- Guide score: 349/404 table rows; worked 34/37, false positives 16/19. Old expectations relying
+  on censored churn or unqualified watch demand now fail; retain failures for evidence review.
+- Validation: 949 triage/appraisal/watch tests passed; subsequent targeted watch and roll-demand
+  checks passed (5 and 25). KB index/source fingerprints reconciled without changing watch rows.
+- Scorer remains removed. No live pulls; seven-day demand check still due October 10–11.
+- Next: finish Steering 14 replay speed gate, review other named premium rolls against guides,
+  reconcile affected guide expectations, then authored rare/magic patterns and base variant gaps.
 Every Current contract measure must pass together before completion.

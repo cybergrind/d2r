@@ -43,8 +43,10 @@ RUN_ENDS = frozenset((NIHLATHAKS_TEMPLE, 110, 111))
 # (user, 2026-10-06): the Pandemonium Fortress is a run end for a while after the character
 # came to it from act 3 (Kurast Docks to Durance of Hate Level 3). A game that started in the
 # Fortress, or a return from the act 4 levels, is not.
-# An Andariel run ends on her level once she is dead (user, 2026-10-07): her corpse in the unit
-# table says so. Before the kill, or with the corpse out of the loaded rooms, Win+X prebuffs.
+# An Andariel run ends on her level once she is dead (user, 2026-10-07): the character on the
+# level with no live Andariel in the unit table. No corpse is asked for: hers leaves the table
+# 19 s after the kill (host). She is in the table from 86 units away; further off, at the
+# stairs before the fight, Win+X leaves the game too.
 CATACOMBS_4 = 37
 ANDARIEL = 156  # as in terror/bosses.py
 PANDEMONIUM_FORTRESS = 103
@@ -79,6 +81,11 @@ CREATE_LIMIT = 12.0  # seconds from Enter for the new game to exist
 LOAD_MIN = 8.5  # seconds from Enter before the first key in a new game
 LOAD_LIMIT = 40.0  # seconds from Enter the first summon may take
 CLEAR = 7.0  # world units around the Defiler that must be empty before Consume
+# A tall monster drawn below the Defiler covers it: the bound demon (class 189) stood 8 world
+# units off, 3 across and 11 down the screen in iso units (x - y, x + y), and Consume took it
+# with the pointer on the Defiler (host, 01:46 on 2026-10-07). So nothing may stand in this
+# column either: so far to a side, so far below (its body rises over the aim) and above.
+COVER_ACROSS, COVER_BELOW, COVER_ABOVE = 9.0, 26.0, 8.0
 CONSUME_ATTEMPTS = 3
 FIELD_ATTEMPTS = 6  # about eight seconds for the lobby to come up
 
@@ -122,8 +129,14 @@ def bystanders(world: World, but: int | None = None) -> list[Monster]:
     return [m for m in world.monsters if m.txt_id not in (DEFILER, HIRELING_CLASS_ID) and m.unit_id != but]
 
 
+def in_the_way(monster: Monster, x: float, y: float) -> bool:
+    """Whether the pointer on a Defiler at (x, y) might be on this monster instead."""
+    dx, dy = monster.x - x, monster.y - y
+    return math.hypot(dx, dy) < CLEAR or (abs(dx - dy) < COVER_ACROSS and -COVER_ABOVE < dx + dy < COVER_BELOW)
+
+
 def crowd(world: World, x: float, y: float) -> list[Monster]:
-    return [m for m in bystanders(world) if math.hypot(m.x - x, m.y - y) < CLEAR]
+    return [m for m in bystanders(world) if in_the_way(m, x, y)]
 
 
 def open_spots(run: Run, world: World) -> list[tuple[float, float]]:
@@ -180,8 +193,9 @@ def summon_defiler(run: Run, *, until: float | None = None) -> Monster:
 
 def consume(run: Run, defiler: Monster) -> None:
     """Consume this Defiler and nothing else. Consume once took the bound demon with the pointer
-    on the Defiler (host, 20:51 on 2026-10-06), so the key is pressed only while nothing else
-    stands within CLEAR of the Defiler; if it stays crowded, another Defiler is summoned
+    on the Defiler (host, 20:51 on 2026-10-06, and again 01:46 on 2026-10-07), so the key is
+    pressed only while nothing else stands near the Defiler or where its body would be drawn
+    over it (`in_the_way`); if it stays crowded, another Defiler is summoned
     somewhere open (that cancels an active Consume, which is about to be cast anew anyway). Afterwards the Defiler
     must be the one gone."""
     for _ in range(CONSUME_ATTEMPTS):
@@ -410,7 +424,7 @@ def run_ended(run: Run, world: World) -> bool:
     if world.player.area in RUN_ENDS:
         return True
     if world.player.area == CATACOMBS_4:
-        return ANDARIEL in world.corpses
+        return all(monster.txt_id != ANDARIEL for monster in world.monsters)
     if world.player.area != PANDEMONIUM_FORTRESS or run.arrival is None:
         return False
     previous, seconds = run.arrival()

@@ -108,7 +108,7 @@ def build(tables: dict[str, list[dict[str, str]]], misc: dict, source: str) -> d
         'items': {str(misc[code]['classid']): [code, misc[code]['name']] for code in codes},
         'mixes': mixes,
         'classes': kept,
-        'groups': {group: names for group, names in sorted(groups.items())},
+        'groups': dict(sorted(groups.items())),
         'monsters': {
             row['*hcIdx']: [
                 row['TreasureClassChamp(H)'],

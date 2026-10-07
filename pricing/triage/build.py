@@ -79,6 +79,10 @@ def main():
     rules = json.loads((ROOT / 'pricing/data/triage/rules.json').read_text())
     document = build_bands(rows, catalog, rules=rules['rows'], policies=rules.get('policies', []))
     document['base_socket_inferences'] = socket_inferences
+    from pricing.triage.named_roll_placement import compile_placements
+
+    placements = json.loads((ROOT / 'pricing/triage/named-roll-placements.json').read_text())
+    document['named_roll_placements'] = compile_placements(rows, placements)
     from pricing.triage.demand import compile_demand
 
     demand = json.loads((ROOT / 'pricing/data/appraisal-demand.json').read_text())['rows']

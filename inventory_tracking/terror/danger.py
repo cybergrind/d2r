@@ -1,11 +1,22 @@
 """Deadly packs: which groups of live monsters can kill by burst (danger-plan.md; user, 2026-10-06).
 
-A monster's threat is its type's Hell damage (terror/data/threats.json: multiples of the monster
-level's base damage, physical and elemental apart) times what raises it: its own modifiers
-(monster data +0x20.., inherited ones on minions, the Terror Zone's forced one on plain
-monsters), the aura it stands in (stat 350 on first sight, or an aura owner within the aura's
-range), and curses nearby. Ranged attackers count in full, since all of them hit at once from
-off screen; of melee attackers only a few reach the player, and each counts for less.
+A monster's threat is the product of three things (user, 2026-10-07):
+
+- its hit: the type's Hell damage (terror/data/threats.json: multiples of the monster level's
+  base damage, physical and elemental apart), raised by its own modifiers (monster data +0x20..,
+  inherited ones on minions, the Terror Zone's forced one on plain monsters), the aura it stands
+  in (stat 350 on first sight, or an aura owner within the aura's range) and curses nearby;
+- its rate: Extra Fast, Fanatic, Multiple Shots;
+- its reach: whether the hit lands at all. A ranged attacker's does, from off screen, so it
+  counts in full. A melee attacker has to catch the player: one no faster than `still` never
+  does and scores nothing whatever raises its hit (zombies, skeletons), one as fast as the
+  player's run always does, and of those only a few stand next to the player at once. Extra
+  Fast, Teleportation and a Holy Freeze on the player are what turn slow melee into a threat.
+
+The player's own states (monsters.py `player_states`) count as facts, for every pack: Amplify
+Damage and Decrepify raise physical damage, Lower Resist and Conviction elemental, and a chilled,
+frozen or decrepified player is reached by melee. A curse or Conviction that is on the player is
+not counted again for its source standing near, which is only the guess made before it lands.
 
 Monsters within LINK of each other are one pack and its score is the sum, so density is the
 score itself: two archer packs standing together are one deadly pack.
@@ -28,9 +39,27 @@ from inventory_tracking.config import Config
 DATA = Path(__file__).parent / 'data' / 'threats.json'
 
 # monumod.txt ids
-STRONG, FAST, CURSED, FIRE, LIGHTNING, COLD, MULTISHOT, FANATIC, BERSERKER = 5, 6, 7, 9, 17, 18, 29, 37, 39
+STRONG, FAST, CURSED, FIRE, LIGHTNING, COLD, TELEPORT, MULTISHOT, FANATIC, BERSERKER = (
+    5,
+    6,
+    7,
+    9,
+    17,
+    18,
+    26,
+    29,
+    37,
+    39,
+)
 # skills.txt ids of the auras (threats.json `auras`)
 MIGHT, BLESSED_AIM, FANATICISM, CONVICTION, HOLY_FREEZE, HOLY_FIRE, HOLY_SHOCK = 98, 108, 122, 123, 365, 368, 369
+# states.txt ids, on the player
+FROZEN, AMPLIFIED, CHILLED, SLOWED, CONVICTED, HOLY_FROZEN, DECREPIFIED, LOWER_RESIST = 1, 9, 11, 24, 29, 44, 60, 61
+STATES = {
+    FROZEN: 'Frozen', AMPLIFIED: 'Amplify Damage on you', CHILLED: 'Chilled', SLOWED: 'Slowed',
+    CONVICTED: 'Conviction', HOLY_FROZEN: 'Holy Freeze', DECREPIFIED: 'Decrepify on you',
+    LOWER_RESIST: 'Lower Resist on you',
+}  # fmt: skip
 AIMED_AT_PLAYER = frozenset((CONVICTION, HOLY_FREEZE))  # never a stat on monsters: they act on the player
 
 
@@ -51,8 +80,24 @@ class DangerConfig(Config):
     # The share of elemental damage that gets through: resistances at the Hell cap of 75%. To be
     # replaced by the character's own resistances (danger-plan.md, phase 6).
     resisted: float = 0.25
-    melee: float = 0.35  # a melee attacker's share of a ranged one's threat
+    melee: float = 0.5  # the share of a ranged one's threat of a melee attacker that reaches the player
     melee_count: int = 8  # melee attackers of a pack that reach the player at once
+    # Reach of a melee attacker by its speed (monstats Velocity / Run, the unit of the player's
+    # own 6 walking and 9 running): none up to `still`, full from `player_run`, linear between.
+    still: float = 3.0  # zombies, skeletons, mummies, brutes
+    player_run: float = 9.0
+    fast_move: float = 2.0  # Extra Fast: movement speed factor (an estimate)
+    slowed: float = 0.7  # the player's run under Holy Freeze
+    arrives: float = (
+        0.5  # the least reach of one that teleports, charges or leaps: it arrives, then hits at its own pace
+    )
+    frenzy: float = 1.5  # attacks per second factor of a Frenzy user
+    # Families whose one hit is far above their monstats number, as a factor on it. Souls: four
+    # plain Gloams took 18% of the life within a second (probe log 20261006T161833Z, area 77),
+    # as much as fourteen slingers under Fanaticism in the same log.
+    # Abyss Knights: six took 18% twice at a score of 8.4 (20261006T175752Z, area 107); their bolt
+    # is a skill, the number a stand-in. Undead dolls blow up when killed (no log event: an estimate).
+    hard: Mapping[str, float] = {'willowisp1': 5.0, 'doomknight2': 1.25, 'bonefetish1': 2.0}
     physical: Mapping[int, float] = {STRONG: 2.0, BERSERKER: 2.0}  # own modifier -> physical damage factor
     speed: Mapping[int, float] = {FAST: 1.25, FANATIC: 1.25}  # own modifier -> attacks per second factor
     added: Mapping[int, float] = {FIRE: 0.5, LIGHTNING: 0.5, COLD: 0.3}  # own modifier -> elemental damage added
@@ -62,6 +107,11 @@ class DangerConfig(Config):
     conviction: float = 3.0  # elemental damage factor: resistances 75% -> about 25% at aura level 9
     holy_freeze: float = 1.2  # everything: the player is slowed
     curse: float = 1.5  # physical damage factor near a curse source (Amplify Damage, Decrepify)
+    # The player's own states. Physical: Amplify Damage takes 100% of the physical resistance,
+    # Decrepify 50%. Elemental: Lower Resist takes about as much resistance as Conviction.
+    player_physical: Mapping[int, float] = {AMPLIFIED: 2.0, DECREPIFIED: 1.5}
+    player_elemental: Mapping[int, float] = {LOWER_RESIST: 2.5}
+    player_slowed: tuple[int, ...] = (DECREPIFIED, HOLY_FROZEN, FROZEN, CHILLED, SLOWED)  # the first found is named
 
 
 DANGER = DangerConfig()
@@ -77,6 +127,9 @@ class Threat:
     magic: float = 0.0  # magic damage: neither resisted nor raised by physical auras
     ranged: bool = False
     curses: tuple[str, ...] = ()
+    speed: float = 0.0  # the faster of walk and run; the player walks at 6 and runs at 9
+    closes: bool = False  # Charge, Leap: it arrives whatever its speed
+    frenzy: bool = False
 
 
 @dataclass(frozen=True)
@@ -96,7 +149,8 @@ def table(path: Path = DATA) -> Table:
     monsters = {
         int(txt_id): Threat(
             row['name'], row['family'], row['physical'], row['elemental'], row.get('magic', 0.0),
-            row.get('ranged', False), tuple(row.get('curses', ())),
+            row.get('ranged', False), tuple(row.get('curses', ())), row.get('speed', 0.0),
+            row.get('closes', False), row.get('frenzy', False),
         )
         for txt_id, row in data['monsters'].items()
     }  # fmt: skip
@@ -137,8 +191,11 @@ def near(a: Unit, b: Unit, reach: float) -> bool:
     return math.hypot(a.x - b.x, a.y - b.y) <= reach
 
 
-def threat(unit: Unit, units, threats: Table, config: DangerConfig) -> tuple[float, dict[str, float]]:
-    """(threat, reason -> the factor it raised the threat by) of one monster among `units`."""
+def threat(
+    unit: Unit, units, threats: Table, config: DangerConfig, player=frozenset()
+) -> tuple[float, dict[str, float]]:
+    """(threat, reason -> the factor it raised the threat by) of one monster among `units`, for a
+    player with the states `player` (states.txt ids)."""
     row = threats.monsters.get(unit.txt_id)
     if row is None:
         return 0.0, {}
@@ -149,7 +206,8 @@ def threat(unit: Unit, units, threats: Table, config: DangerConfig) -> tuple[flo
             reasons[name] = reasons.get(name, 1.0) * factor
         return value * factor
 
-    physical, elemental = row.physical, row.elemental * config.resisted
+    hard = config.hard.get(row.family, 1)
+    physical, elemental, magic = row.physical * hard, row.elemental * hard * config.resisted, row.magic * hard
     auras = {unit.aura[0]} if unit.aura and not unit.owner else set()
     for other in units:
         if other.owner and other.aura:
@@ -161,31 +219,65 @@ def threat(unit: Unit, units, threats: Table, config: DangerConfig) -> tuple[flo
         name = threats.modifiers.get(modifier, str(modifier))
         physical = apply(physical, config.physical.get(modifier, 1), name)
         if modifier in config.added:
-            before = physical + elemental + row.magic
+            before = physical + elemental + magic
             elemental += config.added[modifier] * config.resisted
             reasons[name] = (before + config.added[modifier] * config.resisted) / before if before else 1.0
     for skill in sorted(auras):
         name = threats.auras[skill][0]
         physical = apply(physical, config.aura_physical.get(skill, 1), name)
         if skill in config.aura_added:
-            before = physical + elemental + row.magic
+            before = physical + elemental + magic
             elemental += config.aura_added[skill] * config.resisted
             reasons[name] = (before + config.aura_added[skill] * config.resisted) / before if before else 1.0
-    if CONVICTION in auras:
+    if CONVICTION in auras or CONVICTED in player:
         elemental = apply(elemental, config.conviction, threats.auras[CONVICTION][0])
+    for state in sorted(player):
+        elemental = apply(elemental, config.player_elemental.get(state, 1), STATES.get(state, str(state)))
     cursers = [o for o in units if near(unit, o, config.curse_reach)]
-    if any(CURSED in o.modifiers for o in cursers):
+    if cursed := [state for state in sorted(player) if state in config.player_physical]:
+        worst = max(cursed, key=lambda state: config.player_physical[state])
+        physical = apply(physical, config.player_physical[worst], STATES[worst])
+    elif any(CURSED in o.modifiers for o in cursers):
         physical = apply(physical, config.curse, threats.modifiers.get(CURSED, 'Cursed'))
     elif curses := [c for o in cursers if (found := threats.monsters.get(o.txt_id)) for c in found.curses]:
         physical = apply(physical, config.curse, curses[0])
-    total = physical + elemental + row.magic
+    total = (physical + elemental + magic) * (config.frenzy if row.frenzy else 1)
     for modifier in unit.modifiers:
         total = apply(total, config.speed.get(modifier, 1), threats.modifiers.get(modifier, str(modifier)))
         if modifier == MULTISHOT and row.ranged:
             total = apply(total, config.multishot, threats.modifiers.get(modifier, 'Multiple Shots'))
     if HOLY_FREEZE in auras:
         total = apply(total, config.holy_freeze, threats.auras[HOLY_FREEZE][0])
-    return total * (1 if row.ranged else config.melee), reasons
+    if row.ranged:
+        return total, reasons
+    slow = threats.auras[HOLY_FREEZE][0] if HOLY_FREEZE in auras else None
+    slow = slow or next((STATES[state] for state in config.player_slowed if state in player), None)
+    return total * config.melee * melee_reach(unit, row, slow, threats, config, reasons), reasons
+
+
+def melee_reach(unit: Unit, row: Threat, slow: str | None, threats: Table, config: DangerConfig, reasons) -> float:
+    """The share of a melee attacker's hits that land, 0..1: by its speed against the player's.
+    What raised it is added to `reasons` (all of it, for a monster that had no reach without)."""
+
+    def share(speed: float, run: float) -> float:
+        return min(max((speed - config.still) / (run - config.still), 0.0), 1.0)
+
+    found = max(share(row.speed, config.player_run), config.arrives if row.closes else 0.0)
+    steps = []  # (reason, the reach with it)
+    speed, run = row.speed, config.player_run
+    if FAST in unit.modifiers:
+        speed *= config.fast_move
+        steps.append((threats.modifiers.get(FAST, 'Extra Fast'), share(speed, run)))
+    if slow:  # what slows the player
+        run *= config.slowed
+        steps.append((slow, share(speed, run)))
+    if TELEPORT in unit.modifiers:
+        steps.append((threats.modifiers.get(TELEPORT, 'Teleportation'), config.arrives))
+    for name, raised in steps:
+        if raised > found:
+            reasons[name] = reasons.get(name, 1.0) * (raised / found if found else math.inf)
+            found = raised
+    return found
 
 
 def clusters(units, link: float) -> list[list[Unit]]:
@@ -225,15 +317,22 @@ def band_of(score: float, counted, held: Mapping[int, str], config: DangerConfig
 
 
 def packs(
-    units, *, threats: Table | None = None, config: DangerConfig = DANGER, held: Mapping[int, str] | None = None
+    units,
+    *,
+    threats: Table | None = None,
+    config: DangerConfig = DANGER,
+    held: Mapping[int, str] | None = None,
+    player=frozenset(),
 ) -> list[Pack]:
     """The packs among `units` (live hostile monsters of one level), the highest score first.
-    `held`: unit id -> the band its pack had on the last pass."""
+    `held`: unit id -> the band its pack had on the last pass; `player`: the states on the
+    player (states.txt ids)."""
+    player = frozenset(player)
     threats = threats or table()
     units = list(units)
     result = []
     for group in clusters(units, config.link):
-        scored = [(unit, *threat(unit, units, threats, config)) for unit in group]
+        scored = [(unit, *threat(unit, units, threats, config, player)) for unit in group]
         ranged = [s for s in scored if s[1] and threats.monsters[s[0].txt_id].ranged]
         melee = sorted((s for s in scored if s[1] and not threats.monsters[s[0].txt_id].ranged), key=lambda s: -s[1])[
             : config.melee_count

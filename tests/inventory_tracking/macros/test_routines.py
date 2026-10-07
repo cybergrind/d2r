@@ -344,6 +344,16 @@ def test_a_defiler_the_demon_walked_up_to_is_replaced_by_one_in_the_open():
     assert sorted(m.txt_id for m in game.world.monsters) == [700, 744]
 
 
+def test_a_tall_demon_drawn_below_the_defiler_is_not_consumed_in_its_place():
+    # Host, 01:46 on 2026-10-07: 8 world units apart, the demon below the Defiler on the screen.
+    defiler = Monster(60, 744, 1, 4997.0, 4995.0, 0xFFFFFFFF)
+    demon = replace(BOUND_DEMON, x=5001.0, y=5002.0)
+    game = Game(world(monsters=(demon, defiler)))
+    prebuff(game.run())
+    assert game.pressed() == ['q', '6', 'q', 'g', 'r']  # another Defiler, in the open
+    assert sorted(m.txt_id for m in game.world.monsters) == [700, 744]
+
+
 def test_a_defiler_is_not_summoned_next_to_the_demon():
     demon_on_the_right = replace(BOUND_DEMON, x=5004.0, y=4993.0)  # where the first summon spot is
     game = Game(world(monsters=(demon_on_the_right,)))
@@ -388,8 +398,8 @@ def test_without_a_journey_the_fortress_is_an_ordinary_place():
     assert game.pressed() == ['q', '6', 'q', 'g', 'r']
 
 
-def test_on_andariels_level_with_her_dead_the_macro_leaves_and_makes_the_next_game():
-    game = Game(world(37, corpses=frozenset((156,))))
+def test_on_andariels_level_without_her_the_macro_leaves_and_makes_the_next_game():
+    game = Game(world(37, monsters=(Monster(71, 58, 1, 5020.0, 5020.0, 0xFFFFFFFF),)))  # a minion is left
     run_macro(game.run(), lambda w: dict(KEYS))
     keys = game.pressed()
     assert keys[0] == 'Escape'
@@ -397,15 +407,9 @@ def test_on_andariels_level_with_her_dead_the_macro_leaves_and_makes_the_next_ga
     assert game.world.game_name == 'cyber33'
 
 
-@pytest.mark.parametrize(
-    ('area', 'corpses'),
-    [
-        (37, frozenset()),  # Andariel alive, or not in the loaded rooms
-        (37, frozenset((58,))),  # only her minions are dead
-        (36, frozenset((156,))),  # not her level
-    ],
-)
-def test_before_andariel_is_dead_the_macro_only_prebuffs(area, corpses):
-    game = Game(world(area, corpses=corpses))
+@pytest.mark.parametrize('area', [37, 36])  # her level with her alive; another level without her
+def test_with_andariel_alive_or_on_another_level_the_macro_only_prebuffs(area):
+    andariel = (Monster(70, 156, 1, 5040.0, 5040.0, 0xFFFFFFFF),) if area == 37 else ()
+    game = Game(world(area, monsters=andariel))
     run_macro(game.run(), lambda w: dict(KEYS))
     assert game.pressed() == ['q', '6', 'q', 'g', 'r']

@@ -296,8 +296,16 @@ Differences from the design above, and what is still open:
   buff's 0x80-byte record is logged before and after each cast ("Consume record"), to find the
   field with the time left; with it the cast could be skipped while plenty remains.
 
-- 2026-10-07, Andariel run (user): Win+X on Catacombs Level 4 (area 37) with Andariel dead is a run
-  end: leave, create the next game, prebuff. "Dead" is her corpse (monster 156 in a dead mode) in
-  the unit table, read in the same pass as the live monsters (`World.corpses`). With her alive, or
-  her corpse not in the loaded rooms, Win+X there prebuffs as anywhere else. Scripted tests only;
-  open on the host: that her corpse stays in the unit table while the character is on the level.
+- 2026-10-07, Andariel run (user): Win+X on Catacombs Level 4 (area 37) with no live Andariel
+  (monster 156) in the unit table is a run end: leave, create the next game, prebuff. With her
+  alive in the table it prebuffs. No corpse is asked for (user, after two host runs): hers leaves
+  the unit table 19 s after the kill, and a service started after the kill never saw it. She is in
+  the table from 86 units away; further off before the fight, Win+X leaves the game. Scripted
+  tests only.
+
+- 2026-10-07 01:46, bound demon consumed again (host): the demon (class 189) stood 8 world units
+  from the standing Defiler, past the 7-unit clearance, but below it on the screen (3 iso units
+  across, 11 down), so its body covered the pointer. Clearance is now also a screen column around
+  the Defiler (`routines.in_the_way`: 9 across, 26 below, 8 above, in x - y / x + y units); the
+  same test picks the open summon spots. The numbers are from this one case, not measured sprite
+  sizes. Still open and the real protection: read the unit under the pointer before the key.

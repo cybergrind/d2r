@@ -896,7 +896,7 @@
       "source": {
         "path": "pricing/data/appraisal-value-watch.json",
         "locator": "/rows/19",
-        "sha256": "e8e9f77dc464dd01c733648cc57532d9ae57747e0a3949f9f5c4050e368ae0a1",
+        "sha256": "23ca31fedd086efcc9730d3980918130478ebbaf4c29ea73d7f917d9cb8fa12e",
         "date": "2026-09-26"
       }
     },
@@ -1130,7 +1130,7 @@
       "source": {
         "path": "pricing/data/appraisal-value-watch.json",
         "locator": "/rows/82",
-        "sha256": "e8e9f77dc464dd01c733648cc57532d9ae57747e0a3949f9f5c4050e368ae0a1",
+        "sha256": "23ca31fedd086efcc9730d3980918130478ebbaf4c29ea73d7f917d9cb8fa12e",
         "date": "2026-09-26"
       }
     },
@@ -1143,7 +1143,7 @@
       "source": {
         "path": "pricing/data/appraisal-value-watch.json",
         "locator": "/rows/151",
-        "sha256": "e8e9f77dc464dd01c733648cc57532d9ae57747e0a3949f9f5c4050e368ae0a1",
+        "sha256": "23ca31fedd086efcc9730d3980918130478ebbaf4c29ea73d7f917d9cb8fa12e",
         "date": "2026-09-26"
       }
     },
@@ -1156,7 +1156,7 @@
       "source": {
         "path": "pricing/data/appraisal-value-watch.json",
         "locator": "/rows/36",
-        "sha256": "e8e9f77dc464dd01c733648cc57532d9ae57747e0a3949f9f5c4050e368ae0a1",
+        "sha256": "23ca31fedd086efcc9730d3980918130478ebbaf4c29ea73d7f917d9cb8fa12e",
         "date": "2026-09-26"
       }
     },
@@ -1169,7 +1169,7 @@
       "source": {
         "path": "pricing/data/appraisal-value-watch.json",
         "locator": "/rows/165",
-        "sha256": "e8e9f77dc464dd01c733648cc57532d9ae57747e0a3949f9f5c4050e368ae0a1",
+        "sha256": "23ca31fedd086efcc9730d3980918130478ebbaf4c29ea73d7f917d9cb8fa12e",
         "date": "2026-09-26"
       }
     },
@@ -1208,7 +1208,7 @@
       "source": {
         "path": "pricing/data/appraisal-value-watch.json",
         "locator": "/rows/163",
-        "sha256": "e8e9f77dc464dd01c733648cc57532d9ae57747e0a3949f9f5c4050e368ae0a1",
+        "sha256": "23ca31fedd086efcc9730d3980918130478ebbaf4c29ea73d7f917d9cb8fa12e",
         "date": "2026-09-26"
       }
     },

@@ -446,6 +446,14 @@ class IdentifyWorker:
                 LOG.info('Identify baseline: %d of %d carried items unidentified', len(current), len(items))
                 return []
             newly = {unit_id for unit_id in previous - current if unit_id in items}
+            if current != previous:
+                LOG.info(
+                    'Identify transition: unidentified %d -> %d; identified %d; left carried inventory %d',
+                    len(previous),
+                    len(current),
+                    len(newly),
+                    len(previous - current - set(items)),
+                )
             if self.gambling() or not town:
                 newly |= {unit_id for unit_id, item in items.items() if item['identified'] and unit_id not in held}
             return sorted(newly)

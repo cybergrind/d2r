@@ -16,7 +16,9 @@ def matching_watches(rows, facts):
         conditions = row.get('details', {}).get('native_conditions')
         if conditions is None:
             if row.get('kind') != 'affixed_value_watch':
-                matched.append(row)
+                qualified = named_watch(row, facts)
+                if qualified is not None:
+                    matched.append(qualified)
             continue
         if (
             facts.identified is not True
@@ -58,6 +60,41 @@ def matching_watches(rows, facts):
             ):
                 matched.append(row)
     return softcore_watches(matched)
+
+
+def named_watch(row, facts):
+    """Conditional prose is not a trade qualification for every copy of a name."""
+    details = row.get('details', {})
+    conditions = details.get('local_conditions') or details.get('guide_conditions') or ''
+    if not conditions:
+        return row
+    from pricing.triage.demand import EXCLUDED
+
+    contexts = []
+    for context in details.get('build_contexts', []):
+        if '/variants/' not in context.get('source_locator', '') or EXCLUDED.search(context.get('variant') or ''):
+            continue
+        label = (context.get('original_label') or '').casefold()
+        if any(marker in label for marker in HARDCORE_LABEL_MARKERS):
+            continue
+        ethereal = False if 'non-ethereal' in label else True if 'ethereal' in label else None
+        if ethereal is not None and ethereal is not facts.ethereal:
+            continue
+        contexts.append(context)
+    if not contexts:
+        return None
+    builds = sorted({c['build'] for c in contexts})
+    return row | {
+        'details': details
+        | {
+            'priority': 'build_demand',
+            'build_contexts': contexts,
+            'builds': builds,
+            'build_count': len(builds),
+            'local_conditions': None,
+            'guide_conditions': None,
+        }
+    }
 
 
 def matching_raw_conditions(conditions, stats):

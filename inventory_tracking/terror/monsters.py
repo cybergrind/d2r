@@ -41,6 +41,9 @@ FULL_STATS = 0xE8
 BASE_STATS = 0x30
 LEVEL_STAT = 12
 LIFE_STAT, MAX_LIFE_STAT = 6, 7  # raw values are life x 256
+# The player's states: 32 a word beside its stats. State 208 (Consume) is bit 0x10000 at +0xB48
+# (tracking/consume.py, verified 2026-09-21), so state 0 is bit 0 at +0xB30; ids are states.txt rows.
+STATES, STATES_SIZE = 0xB30, 0x20
 LEVEL_SIZE = 0x400  # as the Win+C research dump (levels/research.py)
 
 Bounds = tuple[int, int, int, int]
@@ -71,6 +74,7 @@ class MonsterSnapshot:
     level_hex: str | None = None  # the level struct, read only on entering a level (R1 research)
     player_level: int | None = None  # character level (stat 12): the Terror Zone's level follows it
     player_life: tuple[int, int] | None = None  # (life, most life) now: burst research (danger-plan.md R4)
+    player_states: frozenset[int] | None = None  # states.txt ids on the player now (curses, chill); None: unread
     items: tuple[ItemSighting, ...] | None = None  # item units of the watched classes; None: not read
 
 
@@ -139,8 +143,23 @@ def player_level(read, table_address) -> int | None:
     return max((level for level in levels if 0 < level < 100), default=None)
 
 
+def player_states(read, table_address) -> frozenset[int] | None:
+    """The states (states.txt ids) set on the player unit with the most life; None when unreadable."""
+    found = _players(read, table_address)
+    if not found:
+        return None
+    bits = int.from_bytes(read(max(found, key=lambda player: player[1])[2] + STATES, STATES_SIZE), 'little')
+    return frozenset(state for state in range(8 * STATES_SIZE) if bits >> state & 1)
+
+
 def player_life(read, table_address) -> tuple[int, int] | None:
     """(life, most life) of the player unit with the most life; None when none is readable."""
+    found = _players(read, table_address)
+    return max(found, key=lambda player: player[1])[:2] if found else None
+
+
+def _players(read, table_address) -> list[tuple[int, int, int]]:
+    """(life, most life, stats pointer) of every player unit whose life is readable."""
     heads = struct.unpack('<128Q', read(table_address, 1024))
     found = []
     for unit in walk_units(read, heads, 0)['units']:
@@ -152,8 +171,8 @@ def player_life(read, table_address) -> tuple[int, int] | None:
                 s['id']: s['raw'] >> 8 for s in stats if s['layer'] == 0 and s['id'] in (LIFE_STAT, MAX_LIFE_STAT)
             }
             if values.get(MAX_LIFE_STAT, 0) > 0:
-                found.append((values.get(LIFE_STAT, 0), values[MAX_LIFE_STAT]))
-    return max(found, key=lambda life: life[1]) if found else None
+                found.append((values.get(LIFE_STAT, 0), values[MAX_LIFE_STAT], unit['stats_pointer']))
+    return found
 
 
 def loaded_rooms(read, room1, level, *, max_rooms=MAX_LOADED) -> frozenset[Bounds]:
@@ -213,17 +232,19 @@ def observe_monsters(pid, images, capture, *, known, counted_level, item_classes
                     level_rooms, level_hex = level_entry(read, location.level)
             monsters, complete = monster_units(read, table, known=known)
             rooms = loaded_rooms(read, room1, location.level)
-            level = life = None
+            level = life = states = None
             with contextlib.suppress(OSError, ValueError, struct.error):
                 level = player_level(read, table)
             with contextlib.suppress(OSError, ValueError, struct.error):
                 life = player_life(read, table)
+            with contextlib.suppress(OSError, ValueError, struct.error):
+                states = player_states(read, table)
             items = None
             if item_classes:
                 with contextlib.suppress(OSError, ValueError, struct.error):
                     items = tuple(item_units(read, table, item_classes))
             snapshot = MonsterSnapshot(
-                location, rooms, level_rooms, tuple(monsters), complete, level_hex, level, life, items
+                location, rooms, level_rooms, tuple(monsters), complete, level_hex, level, life, states, items
             )
     finally:
         os.close(fd)

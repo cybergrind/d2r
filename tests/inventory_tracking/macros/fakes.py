@@ -189,6 +189,11 @@ class Game:
     def pet_under_pointer(self):
         """Consume takes the demon nearest the pointer, the bound one as readily as a Defiler."""
         x, y = self.under_pointer()
+        # The bound demon is tall: drawn below the pointer, its body still covers it (host, 2026-10-07).
+        for m in self.world.monsters:
+            across, down = (m.x - m.y) - (x - y), (m.x + m.y) - (x + y)
+            if m.txt_id == 700 and abs(across) < 6 and 0 <= down < 18:
+                return m.unit_id
         near = [m for m in self.world.monsters if m.txt_id in (744, 700) and math.hypot(m.x - x, m.y - y) < 5]
         return min(near, key=lambda m: math.hypot(m.x - x, m.y - y)).unit_id if near else None
 

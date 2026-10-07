@@ -168,8 +168,46 @@ Done, with tests (tests/inventory_tracking/terror, hud, osd):
 - **R4, first half**: the probe logs the player's life whenever it changed (`life` events), and
   `terror/bursts.py` lists the bursts (30% of life within a second, deaths) with the packs
   nearby and their bands. No log has `life` events yet.
+- **Reach** (2026-10-07, user: slow zombies were marked, they cannot burst anyone): a threat is
+  hit x rate x reach. Melee reach comes from the type's speed (`threats.json` `speed`, the
+  faster of monstats `Velocity` and `Run`): none up to 3 (zombies, skeletons, mummies), full from
+  the player's run of 9, linear between (cows at 5: a third); Extra Fast doubles the speed, Holy
+  Freeze slows the player to 0.7, Teleportation gives at least half. A melee attacker that
+  reaches counts 0.5 of a ranged one (was a flat 0.35 for all). Souls hit five times their
+  monstats number (`hard`): four plain Gloams took 18% of the life in a second. Replay of the
+  38 logs of 2026-10-06 (packs within 100 units of the player every 3 s): 180 of 3,479 marked
+  (was 137 of 3,358); every marked pack of speed 5 or less carries Extra Fast or Holy Freeze.
+  The seven life drops of 15% in a second there: slingers under Fanaticism (deadly, twice), four
+  Gloams (now caution), six Abyss Knights (8.4, unmarked, twice), four Extra Fast Ghouls (7.5,
+  unmarked), five Foul Crows or seven imps (unmarked).
+- **Statistics** (2026-10-07, user: collect statistics and set the threat level from them): the
+  probe logs an `around` event every second (`APPRAISAL.terror_around_seconds`) while live
+  monsters stand within 60 units of the player outside towns: their live positions and modes
+  with the player's life. `terror/exposure.py` turns two such events in a row into a sample and
+  prints the life lost per second at each model score (do the bands hold the heavy seconds?)
+  and per monster type beside the model's threat (`off`: above 1 underrated, below 1
+  overrated; least squares over all samples). No log has `around` events yet; the factors in
+  `danger.py` are to be set from these tables once a few hours of play are in.
+- **The player's own states** (2026-10-07, user): `monsters.py` `player_states` reads the state
+  bits beside the player's stats (stats +0xB30, 32 a word; derived from Consume's verified bit,
+  state 208 = 0x10000 at +0xB48; other states not yet seen live). Ids are states.txt rows:
+  Amplify Damage 9 (physical x2), Decrepify 60 (x1.5, and slowed), Lower Resist 61 (elemental
+  x2.5), Conviction 29 (x3 without its owner in sight), chill 11 / freeze 1 / Holy Freeze 44 /
+  slowed 24 (melee reaches). A curse that is on the player replaces the guess from its source
+  standing near. The states go to the tracker every pass and into each `around` sample;
+  `exposure.py` prints the life lost per second under each.
+- **Known nasty monsters** (2026-10-07): `threats.json` keeps `closes` (Charge, Leap: reach at
+  least 0.5) and `frenzy` (attacks x1.5). `hard`: souls x5, Abyss Knights x1.25 (six took 18%
+  twice), undead dolls x2 (they blow up when killed; no log event). Highest plain packs of six
+  now: Oblivion Knights 16, souls 14, Hell Temptress / Vile Witch 11, Abyss Knights 10.5, Claw
+  Vipers 10; fast melee (Hell Lords, Pit Lords, lancers) 7-8, marked once Extra Strong or under
+  an aura. Replay of the 2026-10-06 logs: 197 of 3,689 sampled packs marked; of the seven drops
+  of 15% in a second, slingers under Fanaticism, the Gloams and the Abyss Knights are marked,
+  four Extra Fast Ghouls (7.5) and five Foul Crows (6) are not.
 
 Open:
+
+- Charge, Leap and Frenzy users reach faster than their speed says; not modelled.
 
 - Nothing was seen in-game yet: colours, the filled mark and the arrow range are untried.
 - Tune factors and bands from `bursts.py` once new logs exist (phase 6); then the character's

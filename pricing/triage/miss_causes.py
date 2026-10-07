@@ -4,6 +4,11 @@ from collections import Counter, defaultdict
 
 
 def cause(item, result, tables):
+    placement = result.get('roll_placement') or {}
+    if result.get('verdict') == 'vendor' and placement.get('group') == 'ordinary' and placement.get('ordinary_floor'):
+        return 'no_demand_evidence'
+    if result.get('verdict') == 'vendor' and result.get('reason') == 'no build use, turnover or observed buyers':
+        return 'no_demand_evidence'
     if result.get('verdict') == 'self':
         return 'own_use_only'
     if result.get('sale_mode') == 'accumulate':

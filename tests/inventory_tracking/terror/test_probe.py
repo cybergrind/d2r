@@ -395,3 +395,41 @@ def test_elite_kills_and_shard_drops_are_logged_with_the_probes_events(tmp_path)
     assert (written[4]['kind'], written[4]['terrorized']) == ('champion', False)
     assert (written[5]['code'], written[5]['from'], written[5]['area']) == ('xa5', 5, 108)
     assert asked[0] == {674, 675, 676, 677, 678}
+
+
+def test_what_stands_around_the_player_is_sampled_with_the_life():
+    # The statistics behind the threat level (terror/exposure.py): live positions and modes.
+    ledger = MonsterLedger(around_seconds=1.0)
+
+    def around(now, *monsters, location=PLAYER, life=(900, 1450)):
+        snap = replace(snapshot(*monsters, location=location), player_life=life)
+        return [e for e in ledger.update(snap, now) if e['event'] == 'around']
+
+    first = around(1.0, alive(5), alive(6, x=5300), dead(7))
+    assert first == [
+        {'event': 'around', 't': 1.0, 'area': 108, 'x': 5000, 'y': 5000, 'life': 900, 'max': 1450}
+        | {'near': [[5, 156, 1, 5030, 5040]]}
+    ]
+    assert around(1.5, alive(5)) == []  # once per `around_seconds`
+    assert [e['near'] for e in around(2.0, alive(5, x=5010))] == [[[5, 156, 1, 5010, 5040]]]
+    assert around(3.5) == []  # nobody near
+    assert around(5.0, alive(5), location=Location(109, 0x500000, 5000, 5000)) == []  # town
+    assert around(6.5, alive(5), life=None) == []
+
+
+def test_the_players_states_go_into_the_sample_and_to_the_tracker(tmp_path):
+    ledger = MonsterLedger()
+    snap = replace(snapshot(alive(5)), player_life=(900, 1450), player_states=frozenset((60, 9)))
+
+    (around,) = [e for e in ledger.update(snap, 1.0) if e['event'] == 'around']
+
+    assert around['states'] == [9, 60]
+
+    tracker = ZoneTracker()
+    probe = TerrorProbe(
+        Source(), tmp_path / 'log.jsonl', capture_lock=threading.Lock(), poll_interval=0, tracker=tracker,
+        observe=lambda *args, **kwargs: snap,
+    )  # fmt: skip
+    probe.poll(1.0)
+
+    assert tracker.player_states == frozenset((9, 60))

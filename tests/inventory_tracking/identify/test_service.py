@@ -156,6 +156,35 @@ def test_first_read_is_a_baseline_and_newly_identified_items_are_assessed(parts)
     assert latest['items'][0]['verdict'] == 'keep'
 
 
+@pytest.mark.parametrize('batch_sizes', [(10,), (3, 7)])
+def test_cain_batch_preserves_every_transition_and_logs_counts(parts, caplog, batch_sizes):
+    worker, state, _, _, output = parts
+    state['probe'] = probe_result() | {
+        'items': {str(i): {'identified': False, 'quality': 4, 'txt_id': 351} for i in range(1, 11)}
+    }
+    caplog.set_level(logging.INFO)
+    assert worker.poll(100.0)
+    wait(worker)
+    seen = set()
+    for step, count in enumerate(batch_sizes, start=1):
+        before = 10 - len(seen)
+        ids = {str(i) for i in range(len(seen) + 1, len(seen) + count + 1)}
+        for unit_id in ids:
+            state['probe']['items'][unit_id]['identified'] = True
+        assert worker.poll(100.0 + step)
+        wait(worker)
+        result = json.loads((output / 'identify-latest.json').read_text())
+        assert set(result['unit_ids']) == ids
+        assert {str(item['unit_id']) for item in result['items']} == ids
+        assert result['timing']['items'] == count
+        assert (
+            f'Identify transition: unidentified {before} -> {before - count}; '
+            f'identified {count}; left carried inventory 0'
+        ) in caplog.text
+        seen |= ids
+    assert seen == {str(i) for i in range(1, 11)}
+
+
 def test_unchanged_inventory_and_items_that_left_do_nothing(parts):
     worker, state, _, notifications, _ = parts
     assert worker.poll(100.0)

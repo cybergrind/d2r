@@ -16,7 +16,15 @@ def built(*rows, names=None):
 def test_a_melee_monster_counts_its_strongest_attack_and_its_elements_by_their_chance():
     row = monstats(A1MaxD_H=120, A2MaxD_H=150, El1Mode='A1', El1Type='cold', El1MaxD_H=80, El1Pct_H=50)
 
-    assert built(row)['1'] == {'name': 'Name', 'family': 'family', 'physical': 1.5, 'elemental': 0.4, 'magic': 0.0}
+    assert built(row)['1'] == {
+        'name': 'Name', 'family': 'family', 'physical': 1.5, 'elemental': 0.4, 'magic': 0.0, 'speed': 0,
+    }  # fmt: skip
+
+
+def test_a_monster_keeps_the_faster_of_its_walk_and_its_run():
+    # Zombies: Velocity 1, Run 3. What a melee attacker needs to reach a player at all (danger.py).
+    assert built(monstats(Velocity=1, Run=3))['1']['speed'] == 3
+    assert built(monstats(Velocity=8, Run=7))['1']['speed'] == 8
 
 
 def test_a_ranged_monster_counts_the_attack_that_fires_its_missile():
@@ -41,7 +49,7 @@ def test_a_caster_whose_damage_is_in_a_skill_counts_its_swing_as_magic_and_names
 
     assert built(knight)['1'] == {
         'name': 'Name', 'family': 'family', 'physical': 0.0, 'elemental': 0.0, 'magic': 1.35,
-        'ranged': True, 'curses': ['Decrepify'],
+        'speed': 0, 'ranged': True, 'curses': ['Decrepify'],
     }  # fmt: skip
 
 
@@ -68,3 +76,11 @@ def test_auras_keep_their_range_and_monster_auras_their_plain_name():
 
 def test_tables_are_tab_separated_with_a_header_row():
     assert table('Id\tNameStr\nfallen1\tFallen\n') == [{'Id': 'fallen1', 'NameStr': 'Fallen'}]
+
+
+def test_skills_that_close_the_distance_or_double_the_swings_are_kept():
+    horde = monstats(A1MaxD_H=110, Velocity=1, Run=5, Skill1='Self-resurrect', Skill2='Charge')
+    lord = monstats(A1MaxD_H=150, Run=9, Skill1='BloodLordFrenzy')
+
+    assert (built(horde)['1'].get('closes'), built(horde)['1'].get('frenzy')) == (True, None)
+    assert (built(lord)['1'].get('closes'), built(lord)['1'].get('frenzy')) == (None, True)

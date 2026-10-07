@@ -3,7 +3,9 @@
 Per monster type the numbers the danger model (terror/danger.py) weighs: Hell physical, elemental
 and magic damage as multiples of the monster level's base damage (monlvl.txt `DM(H)`; monstats
 damage columns are percents of it; d2data's monstats.json has the same values, 2026-10-06),
-whether it attacks from range (then the numbers are the ranged attack's), and the curses it casts. Also
+whether it attacks from range (then the numbers are the ranged attack's), how fast it moves (the
+faster of `Velocity` and `Run`: what a melee attacker needs to reach the player), whether a skill
+closes the distance for it (Charge, Leap) or doubles its swings (Frenzy), and the curses it casts. Also
 the auras an aura-enchanted monster can carry (skills.txt rows by id, with their range) and the
 names of the unique modifiers (monumod.txt ids).
 
@@ -35,6 +37,8 @@ ALL_MODES = (*ATTACKS, 'SC', 'S2')
 # Families (monstats BaseId) that fight from range though `rangedtype` is empty: their attack is
 # a skill (Hydra, Unholy Bolt, the Doom Caster's missile).
 EXTRA_RANGED = frozenset(('councilmember1', 'baalhighpriest', 'unraveler1', 'radament', 'fingermage1'))
+CLOSING = frozenset(('Charge', 'SerpentCharge', 'MonLeap', 'MonLeapAttack'))  # reach the player whatever their speed
+FRENZY = frozenset(('MonFrenzy', 'BloodLordFrenzy', 'Goatman Frenzy'))
 CURSES = frozenset(('Amplify Damage', 'Decrepify', 'Lower Resist'))
 # The auras seen on aura-enchanted monsters in the probe logs (stat 350, 2026-10-06).
 AURAS = ('Might', 'Blessed Aim', 'Fanaticism', 'Conviction', 'MonHolyFreeze', 'MonHolyFire', 'MonHolyShock')
@@ -104,9 +108,14 @@ def monster(row, names) -> dict:
         'physical': round(physical / 100, 2),
         'elemental': round(elemental / 100, 2),
         'magic': round(magic / 100, 2),
+        'speed': max(number(row, 'Velocity'), number(row, 'Run')),
     }
     if ranged:
         result['ranged'] = True
+    if skills & CLOSING:
+        result['closes'] = True
+    if skills & FRENZY:
+        result['frenzy'] = True
     if curses := sorted(skills & CURSES):
         result['curses'] = curses
     return result

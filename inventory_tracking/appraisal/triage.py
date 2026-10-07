@@ -38,10 +38,12 @@ def price_description(triage):
         if quantity > 1
         else ''
     )
-    comparison = f' · {triage["reason"]}' if triage.get('roll_comparison') else ''
+    comparison = f' · {triage["reason"]}' if triage.get('roll_comparison') or triage.get('roll_placement') else ''
     if label := band.get('comparison', {}).get('label'):
         comparison = f' · comparable-or-worse {label}'
     unsupported = triage['verdict'] == 'vendor' and price >= triage.get('keep_ist', 0.25)
+    if unsupported:
+        comparison = ''
     prefix = f'{triage["reason"]} · reference ' if unsupported else ''
     if band.get('price_basis') == 'base_floor':
         prefix += 'at least '

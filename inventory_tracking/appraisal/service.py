@@ -606,6 +606,7 @@ def run_service(args, directory, report):
                             capture_lock=worker.capture_lock,
                             poll_interval=APPRAISAL.terror_probe_interval,
                             summary_seconds=APPRAISAL.terror_summary_seconds,
+                            around_seconds=APPRAISAL.terror_around_seconds,
                             tracker=zones,
                             display=(
                                 (lambda lines: publish_layer(args.hud_scene, 'terror', terror_widgets(lines)))

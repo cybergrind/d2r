@@ -5,7 +5,7 @@ def qualify(verdict, price, guide_use, observation):
     if verdict not in ('sell', 'slow') or price is None:
         return verdict, None
     observation = observation or {}
-    signal = bool(guide_use or observation.get('buyers', 0) or observation.get('disappeared', 0))
+    signal = bool(guide_use or observation.get('buyers', 0) or observation.get('uncensored_disappeared', 0))
     measured = observation.get('previous_listings', 0) > 0 and 'current_listings' in observation
     if price < 1:
         if measured and not signal:
@@ -54,7 +54,7 @@ def agreement(verdicts, report):
     supported, strong = set(), set()
     for key in sells | vendors:
         observed, bid = cohorts.get(key, {}), buyers.get(key, {})
-        if observed.get('disappeared', 0) or bid.get('buyers', 0):
+        if observed.get('uncensored_disappeared', 0) or bid.get('buyers', 0):
             supported.add(key)
         old, gone = observed.get('previous_listings', 0), observed.get('uncensored_disappeared', 0)
         if (gone >= 3 and old > 0 and gone / old >= 0.2) or bid.get('buyers', 0) >= 3:
@@ -63,7 +63,7 @@ def agreement(verdicts, report):
         'sell_cohorts': len(sells),
         'sell_supported_share': len(sells & supported) / len(sells) if sells else None,
         'sell_supported_only_by_censored_absence': sum(
-            key in supported
+            cohorts.get(key, {}).get('disappeared', 0) > 0
             and not cohorts.get(key, {}).get('uncensored_disappeared', 0)
             and not buyers.get(key, {}).get('buyers', 0)
             for key in sells
@@ -74,5 +74,5 @@ def agreement(verdicts, report):
         'vendor_strong_cohorts': sorted(vendors & strong),
         'strong_cohorts': len(strong),
         'strong_definition': 'At least 3 uncensored disappearances and 20% of old listings, or 3 independent buyers.',
-        'interpretation': 'SELL support includes page-zero churn; it is a turnover hint, not confirmed sales.',
+        'interpretation': 'Only uncensored disappearances or scoped buyers support demand; neither proves a sale.',
     }

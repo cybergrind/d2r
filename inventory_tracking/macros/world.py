@@ -99,7 +99,6 @@ class World:
     view: int = 255  # the byte at VIEW_RVA: 0 while a game loads
     player: Player | None = None
     monsters: tuple[Monster, ...] = ()  # alive, with a position
-    corpses: frozenset[int] = frozenset()  # classes of the dead monsters still in the unit table
 
     @property
     def quit_menu(self) -> bool:
@@ -175,14 +174,11 @@ class GameMemory:
         # another character in view is not handled.
         return min(found, key=lambda p: p.unit_id) if len({p.name for p in found}) == 1 else None
 
-    def _monsters(self) -> tuple[tuple[Monster, ...], frozenset[int]]:
+    def _monsters(self) -> tuple[Monster, ...]:
         heads = struct.unpack('<128Q', self.read(self.table + MONSTER_UNIT * 1024, 1024))
-        found, corpses = [], set()
+        found = []
         for unit in walk_units(self.read, heads, MONSTER_UNIT)['units']:
-            if unit['mode'] in DEAD_MODES:
-                corpses.add(unit['txt_id'])
-                continue
-            if not unit['path_pointer'] or not unit['data_pointer']:
+            if unit['mode'] in DEAD_MODES or not unit['path_pointer'] or not unit['data_pointer']:
                 continue
             try:
                 path = self.read(unit['path_pointer'], 8)
@@ -194,7 +190,7 @@ class GameMemory:
                 with contextlib.suppress(OSError, ValueError):
                     raw = self.read(unit['address'], 0x160) + self.read(unit['data_pointer'], 0x80)
             found.append(Monster(unit['unit_id'], unit['txt_id'], unit['mode'], *position(path), owner, raw))
-        return tuple(found), frozenset(corpses)
+        return tuple(found)
 
     def hands(self) -> tuple[str, ...]:
         """Base codes of what the character holds in the weapon set in hand; () when unreadable."""
@@ -246,14 +242,13 @@ class GameMemory:
     def world(self) -> World:
         panels = self.read(self.base + UI_PANELS_RVA, UI_PANELS_SIZE)
         in_game = panels[IN_GAME] == 1
-        player, monsters, corpses = None, (), frozenset()
+        player, monsters = None, ()
         if in_game:
             try:
                 player = self._player()
-                if player is not None:
-                    monsters, corpses = self._monsters()
+                monsters = self._monsters() if player is not None else ()
             except OSError, ValueError, struct.error:
-                player, monsters, corpses = None, (), frozenset()
+                player, monsters = None, ()
         return World(
             in_game=in_game,
             open_panels=tuple(name for name, offset in OPEN_PANELS.items() if panels[offset] == 1),
@@ -263,5 +258,4 @@ class GameMemory:
             view=self.read(self.base + VIEW_RVA, 1)[0],
             player=player,
             monsters=monsters,
-            corpses=corpses,
         )

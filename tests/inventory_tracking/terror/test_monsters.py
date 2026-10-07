@@ -9,6 +9,7 @@ from inventory_tracking.terror.monsters import (
     monster_units,
     player_level,
     player_life,
+    player_states,
 )
 
 
@@ -168,3 +169,25 @@ def test_the_player_life_is_stats_6_and_7_of_the_full_list_in_whole_points():
 
     struct.pack_into('<Q', memory.blocks[TABLE], 1 * 8, 0)
     assert player_life(memory.read, TABLE) is None
+
+
+def test_the_player_states_are_the_bits_set_beside_its_stats():
+    # State 208 (Consume) is bit 0x10000 at stats +0xB48 (tracking/consume.py): 32 states a word from +0xB30.
+    memory = Memory()
+    address, stat_block = 0x700000, 0x710000
+    header = memory.block(address, 0x160)
+    struct.pack_into('<IIII', header, 0, 0, 7, 1, 1)
+    struct.pack_into('<Q', header, 0x88, stat_block)
+    full = bytearray(16)
+    stat_list(memory, full, stat_block + 0x2000, [(6, 812 << 8), (7, 1450 << 8)])
+    block = memory.block(stat_block, 0xC00)
+    block[0xE8:0xF8] = full
+    struct.pack_into('<I', block, 0xB30, 1 << 9)  # Amplify Damage
+    struct.pack_into('<I', block, 0xB34, 1 << (60 - 32))  # Decrepify
+    struct.pack_into('<I', block, 0xB48, 0x10000)
+    struct.pack_into('<Q', memory.block(TABLE, 1024), 1 * 8, address)
+
+    assert player_states(memory.read, TABLE) == frozenset((9, 60, 208))
+
+    struct.pack_into('<Q', memory.blocks[TABLE], 1 * 8, 0)
+    assert player_states(memory.read, TABLE) is None

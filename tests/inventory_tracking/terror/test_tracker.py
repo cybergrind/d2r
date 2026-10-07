@@ -714,3 +714,18 @@ def test_a_stored_game_joined_late_is_merged_into_what_was_counted_since(tmp_pat
     assert tracker.next_tier == 2
     assert tracker.elite_line(7, []) == 'Elites: 1 killed · 0 alive of 7-9'
     assert tracker_for(store, 0xBBBB).elite_line(7, []) is not None  # saved as one game
+
+
+def test_the_players_own_curse_marks_the_packs_around_it():
+    tracker = ZoneTracker()
+    tracker.apply(archers(5))
+    assert [dot.kind for dot in tracker.map_dots(7)] == ['mob'] * 5
+
+    tracker.track([], states=frozenset((9,)))  # Amplify Damage
+
+    assert [dot.kind for dot in tracker.map_dots(7)] == ['caution'] * 5
+
+    tracker.track([], states=None)  # unreadable: nothing is known of the player
+    tracker.bands.clear()
+
+    assert [dot.kind for dot in tracker.map_dots(7)] == ['mob'] * 5
