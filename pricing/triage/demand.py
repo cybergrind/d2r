@@ -6,6 +6,7 @@ from collections import defaultdict
 
 CATEGORIES = {'unique': 'uniques', 'set': 'sets', 'runeword': 'runewords'}
 EXCLUDED = re.compile(r'starter|budget|hardcore|levell?ing|guide mention|main alternatives', re.I)
+BUILD_EXCLUDED = re.compile(r'starter|budget|hardcore|levell?ing|guide mention', re.I)
 
 
 def compile_demand(rows, watches=()):
@@ -15,8 +16,9 @@ def compile_demand(rows, watches=()):
         variant = row.get('variant', '')
         if (
             not variant
-            or EXCLUDED.search(variant)
-            or '/variants/' not in row.get('source_locator', '')
+            or BUILD_EXCLUDED.search(variant)
+            or re.search(r'\bhardcore\b', row.get('original_label', ''), re.I)
+            or not any(section in row.get('source_locator', '') for section in ('/variants/', '/slots/', '/merc/'))
             or row.get('source_id') != 'pricing/data/wp-a-builds.json'
             or details.get('recommended') is not True
             or details.get('resolution_status') != 'resolved'
@@ -83,7 +85,7 @@ def demand_for(item, evidence):
         # Its prose may describe a different mode, ethereal variant or perfect roll.
         if r.get('kind') != 'value_watch'
         and (r['ethereal'] is None or r['ethereal'] is item.get('ethereal'))
-        and matches(item, {'conditions': r.get('base_conditions', {})})
+        and matches(item, {'conditions': r.get('base_conditions', {}), 'properties': r.get('properties', {})})
     ]
 
 

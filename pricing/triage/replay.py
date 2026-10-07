@@ -66,6 +66,9 @@ def listing_score(rows, tables, *, diagnostic_scorer=None):
                 'valuable': int(valuable),
                 'flagged_valuable': int(valuable and attention),
                 'sell_flagged_valuable': int(valuable and flag),
+                'demand_unmeasured_valuable': int(
+                    valuable and verdict == 'slow' and result['reason'] == 'demand unmeasured'
+                ),
                 'checks_valuable': int(valuable and verdict == 'check'),
                 'evidence_backed_checks_valuable': int(valuable and attention and verdict == 'check'),
                 'cheap': int(cheap),

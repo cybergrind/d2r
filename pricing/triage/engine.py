@@ -313,9 +313,10 @@ def assess(item, tables, *, today=None):
         verdict, qualification = qualify(verdict, price, bool(demand or own_use), market_demand)
         if qualification:
             reason = qualification
-    elif verdict == 'sell' and price is not None and price < 1 and not fungible(item) and not demand:
-        verdict = 'slow'
-        reason += '; no endgame demand evidence'
+    elif verdict in ('sell', 'slow') and price is not None and price < 1 and not fungible(item):
+        from pricing.triage.market_demand import qualify
+
+        verdict, reason = qualify(verdict, price, bool(demand or own_use), None)
     if placement and placement['valid']:
         reason = placement['reason']
         if placement['group'] == 'ordinary' and placement['ordinary_floor']:

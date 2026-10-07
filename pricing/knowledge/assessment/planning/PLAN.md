@@ -1278,32 +1278,33 @@ Decisions needed from the user:
    minutes, paced) to measure turnover? Add a hotkey that marks the last verdict as wrong?
 
 ## 8. Status
-2026-10-07 — Steering 14 and its Shaftstop/unique-roll amendments govern; unfinished.
-- User prioritized bad unique assessments. Censored page-zero disappearance no longer supports
-  demand or the SELL-support score. Unqualified name-level value-watch notes are not build uses.
-- Conditional named watch prose cannot create a valuable-candidate block without satisfying its
-  conditions; explicit matching endgame build contexts may still produce a build-demand note.
-- Saved Shaftstop captures 6d727fb43b0c (197 ED), 756258ce7ad2 (208), bd60b11d0216 (201):
-  non-ethereal Mesh Armor, unsocketed, now VENDOR with ordinary-roll range and 218+ threshold.
-  Native ED is 180–220. Reviewed groups: ordinary 5 sellers, Q1 0.568/median 0.789 Ist;
-  218+ 4 sellers, Q1 3.237/median 4.053 Ist, October 4 asks. Upgraded/ethereal/socketed excluded.
-  Ethereal mercenary counter-example and non-ethereal false-positive added to pricing.html.
-- Reusable named-roll placement compiles only authored, sourced configurations with ≥3 sellers
-  per group and ≥3x median premium. Ordinary ≤1-Ist group requires its own uncensored/buyer
-  evidence to escape VENDOR; name-level demand cannot rescue it. Other named rolls remain to review.
-- Pre-change diagnostic (latest scoped rows, known ethereal, unsocketed, 8+ sellers): 440 cohorts,
-  250 exploratory premium candidates; 3052 ordinary listings, 2569 asking ≥0.25, 2184 SELL/slow.
-  These are diagnostic listing counts, not a change to the valuable-vote denominator or new rules.
-- Current replay: attention 14062/22033 (63.82%), priced SELL/slow 11223/22033 (50.94%).
-  Down from 82.82% because unsupported demand was removed; keep correction, do not inflate verdicts.
-  no_demand_evidence: uniques 3262, sets 659, bases 860, runewords 285, magic 23, runes 4 (5093).
-- Cheap SELL/slow 4/164 (2.44%); CHECK 29/164 (17.68%). Denominator unchanged.
-  SELL demand support: 1/115 cohorts; 113 have censored-only disappearance, excluded from support.
-- Guide score: 349/404 table rows; worked 34/37, false positives 16/19. Old expectations relying
-  on censored churn or unqualified watch demand now fail; retain failures for evidence review.
-- Validation: 949 triage/appraisal/watch tests passed; subsequent targeted watch and roll-demand
-  checks passed (5 and 25). KB index/source fingerprints reconciled without changing watch rows.
-- Scorer remains removed. No live pulls; seven-day demand check still due October 10–11.
-- Next: finish Steering 14 replay speed gate, review other named premium rolls against guides,
-  reconcile affected guide expectations, then authored rare/magic patterns and base variant gaps.
+2026-10-07 — Steering 15 items 1, 2 and 4 applied; overall contract unfinished.
+- Guide SELL/slow examples compile to variant-specific demand; explicit recommended build slots,
+  mercenary slots and variants count. Ethereal, sockets, base and property constraints are retained.
+- Under-1-Ist cohorts without guide/build demand, buyers or uncensored disappearance are slow
+  "demand unmeasured" until a valid observation spans at least 168 hours; identify/HUD text is neutral.
+  Measured inactivity still permits VENDOR. Censored page-zero churn remains excluded.
+- One fresh replay: guide table 349/404 → 402/404 (99.50%); worked 34/37 → 36/37;
+  false-positive rows 16/19 → 18/19. The latter two targets remain unmet; expectations unchanged.
+- Remaining failures: Husoldal Evo (pricing.html#s8:33), Ceremonial Spear/Pike
+  (primer#miss:16/4,/7) expect VENDOR but return demand unmeasured. Separate item-policy review
+  is needed; no demand-rule exception added to force them through.
+  Existing table gaps remain: Heraldic/Aerin Shield 4os/45-res variants lack matched prices
+  (primer#miss:5/8,/9); Offensive/Defensive Aura 30-life charms lack matching patterns
+  (primer#s4-1:11/3,/4). Seven failing examples occupy four guide rows.
+- Valuable attention 14062/22033 (63.82%) → 19150/22033 (86.92%) including unmeasured slow;
+  excluding those 3746 votes: 15404/22033 (69.91%), versus 63.82% before.
+  Priced SELL/slow 11223/22033 (50.94%) → 16311/22033 (74.03%); denominator unchanged.
+- Cheap SELL/slow 4/164 (2.44%) → 19/164 (11.59%), now above the 10% target because the
+  unmeasured-demand rule restores slow verdicts; no verdicts tuned to recover the score.
+  Cheap CHECK stays 29/164 (17.68%). no_demand_evidence votes 5093 → 5 (ordinary Shaftstop).
+- Saved Shaftstop 6d727fb43b0c (197 ED), 756258ce7ad2 (208), bd60b11d0216 (201) remain
+  VENDOR with ordinary-roll reasons. Named CHECK 11.85%; SELL demand support 1/138 cohorts;
+  136 censored-only cohorts excluded. Seven-day support remains unverified.
+- Validation: required triage/appraisal suite 956 passed; identify-focused tests passed; touched
+  Python files Ruff-clean. Guide HTML, guide expectations and named-roll placement hashes unchanged.
+- Local bands demand and three score files refreshed; no live pulls, commits, handoff/status edits
+  or other queue work. Neutral HUD verified by tests, not a live in-game run.
+- This bounded task stops with residual failures reported as requested; broader completion is not
+  claimed. Other named rolls, speed, rare/magic and base-variant queue work was not started.
 Every Current contract measure must pass together before completion.

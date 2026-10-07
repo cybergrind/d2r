@@ -32,7 +32,7 @@ from typing import Any
 
 from inventory_tracking.appraisal.owned import AT_LEAST_AS_GOOD, multiple_copy_use, owned_summary
 from inventory_tracking.appraisal.presentation import item_tone
-from inventory_tracking.appraisal.triage import LABELS, TONES, description
+from inventory_tracking.appraisal.triage import LABELS, TONES, demand_unmeasured, description, tone as triage_tone
 from inventory_tracking.common import LOG, timestamp
 from inventory_tracking.identify.attention import (
     actionable_roles,
@@ -254,7 +254,18 @@ def result_lines(result) -> list[StyledLine]:
     order = verdict_order(result['items'])
     items = sorted(result['items'], key=lambda i: order.index(i['verdict']))
     tally = counts(items)
-    tone = next((VERDICT_TONES[v] for v in order if v != 'vendor' and tally[v]), Tone.METADATA)
+
+    def item_tone(item):
+        return (
+            triage_tone(item['triage'] | {'verdict': item['verdict']})
+            if 'triage' in item
+            else VERDICT_TONES[item['verdict']]
+        )
+
+    tone = next(
+        (item_tone(i) for i in items if i['verdict'] != 'vendor' and item_tone(i) != Tone.DEFAULT),
+        Tone.DEFAULT if any(demand_unmeasured(i.get('triage', {})) for i in items) else Tone.METADATA,
+    )
     summary = ' · '.join(f'{tally[v]} {v}' for v in order)
     lines = [StyledLine(f'Identified {len(items)} — {summary}', tone)]
     # Only items with something particular get a row; vendor items are just counted.
@@ -266,14 +277,20 @@ def result_lines(result) -> list[StyledLine]:
                 f'{LABELS.get(item["verdict"], item["verdict"].upper()):6s} {item["name"]}: {stats}', Tone(item['tone'])
             )
         )
-        lines.append(
-            StyledLine(f'       {item["reason"]}', (TONES if 'triage' in item else VERDICT_TONES)[item['verdict']])
-        )
-    if slow := [i for i in items if i['verdict'] == 'slow']:
+        lines.append(StyledLine(f'       {item["reason"]}', item_tone(item)))
+    for unmeasured in (False, True):
+        slow = [i for i in items if i['verdict'] == 'slow' and demand_unmeasured(i.get('triage', {})) == unmeasured]
+        if not slow:
+            continue
         prices = [i.get('triage', {}).get('decision_ist') for i in slow]
         prices = [p for p in prices if type(p) in (int, float)]
         price_text = f', cheapest asks {min(prices):g}-{max(prices):g} Ist' if prices else ''
-        lines.append(StyledLine(f'{len(slow)} slow{price_text} · details: Alt+D', TONES['slow']))
+        label = ' · demand unmeasured' if unmeasured else ''
+        lines.append(
+            StyledLine(
+                f'{len(slow)} slow{price_text}{label} · details: Alt+D', Tone.DEFAULT if unmeasured else TONES['slow']
+            )
+        )
     if len(shown) > SHOWN_ITEMS:
         lines.append(StyledLine(f'+{len(shown) - SHOWN_ITEMS} more; full list in identify-latest.json'))
     if result['issues']:

@@ -71,6 +71,10 @@ def summarize(observations):
             'valuable': tally['valuable'],
             'recall': tally['flagged_valuable'] / tally['valuable'] if tally['valuable'] else None,
             'sell_recall': tally['sell_flagged_valuable'] / tally['valuable'] if tally['valuable'] else None,
+            'recall_without_unmeasured': (tally['flagged_valuable'] - tally['demand_unmeasured_valuable'])
+            / tally['valuable']
+            if tally['valuable']
+            else None,
             'cheap_false_positive_rate': tally['flagged_cheap'] / tally['cheap'] if tally['cheap'] else None,
             'cheap_check_rate': tally['checks_cheap'] / tally['cheap'] if tally['cheap'] else None,
         }

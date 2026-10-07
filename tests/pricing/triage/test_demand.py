@@ -21,10 +21,10 @@ def mention(variant='Standard', **fields):
 
 
 def test_demand_requires_explicit_endgame_variant_and_preserves_merc_ethereal_requirement():
-    for variant in ('Starter', 'Budget', 'Hardcore', 'Leveling', 'Main alternatives', 'Guide mention'):
+    for variant in ('Starter', 'Budget', 'Hardcore', 'Leveling', 'Guide mention'):
         assert compile_demand([mention(variant)]) == {}
     assert compile_demand([mention(details={'recommended': False})]) == {}
-    assert compile_demand([mention(source_locator='/build-a/slots/Helmets/0')]) == {}
+    assert compile_demand([mention(source_locator='/build-a/slots/Helmets/0')])
     evidence = compile_demand([mention('Ubers', side='merc', original_label='Example (ethereal)')])
     assert demand_for({'name': 'Example', 'category': 'uniques', 'ethereal': True}, evidence)
     assert not demand_for({'name': 'Example', 'category': 'uniques', 'ethereal': False}, evidence)
@@ -37,9 +37,9 @@ def test_sub_ist_named_sell_requires_demand_but_keeps_ask_band():
     result = assess(item, data)
     assert result['verdict'] == 'slow'
     assert result['decision_ist'] == 0.6
-    assert 'endgame demand' in result['reason']
+    assert result['reason'] == 'demand unmeasured'
     data['demand'] = compile_demand([mention()])
-    assert assess(item, data)['verdict'] == 'sell'
+    assert assess(item, data)['verdict'] == 'slow'
     # Demand does not establish a price, and cannot rescue a below-threshold item.
     assert assess(item, tables([]) | {'demand': data['demand']})['verdict'] != 'sell'
     cheap = tables([listing(i, 0.1, ethereal=False) for i in range(10)]) | {'demand': data['demand']}
@@ -92,7 +92,7 @@ def test_supported_sale_precedes_own_use_without_losing_the_note():
     assert 'asks 0.6 Ist' in headline(result)
     assert 'Own use: Own charm' in headline(result)
     data['demand'] = compile_demand([mention()])
-    assert assess(item, data)['verdict'] == 'sell'
+    assert assess(item, data)['verdict'] == 'slow'
 
 
 def test_no_demand_review_list_uses_supported_leaf_cohorts():
@@ -105,3 +105,10 @@ def test_no_demand_review_list_uses_supported_leaf_cohorts():
     assert rows[0]['ethereal'] is False
     assert cohorts_without_demand(data | {'demand': compile_demand([mention()])}) == []
     assert cohorts_without_demand(tables([listing(i, 0.6, ethereal=False) for i in range(9)])) == []
+
+
+def test_recommended_build_lists_are_demand_and_keep_ethereal_variant():
+    rows = [mention('Main alternatives', source_locator='/build-a/slots/Helmet/0', original_label='Example (ethereal)')]
+    evidence = compile_demand(rows)
+    assert demand_for({'name': 'Example', 'category': 'uniques', 'ethereal': True}, evidence)
+    assert not demand_for({'name': 'Example', 'category': 'uniques', 'ethereal': False}, evidence)

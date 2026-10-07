@@ -1,16 +1,25 @@
 """Demand qualification from completed offline measurements, never seller count alone."""
 
+from math import isfinite
+
 
 def qualify(verdict, price, guide_use, observation):
     if verdict not in ('sell', 'slow') or price is None:
         return verdict, None
     observation = observation or {}
     signal = bool(guide_use or observation.get('buyers', 0) or observation.get('uncensored_disappeared', 0))
-    measured = observation.get('previous_listings', 0) > 0 and 'current_listings' in observation
+    hours = observation.get('maximum_interval_hours')
+    measured = (
+        observation.get('previous_listings', 0) > 0
+        and 'current_listings' in observation
+        and type(hours) in (int, float)
+        and isfinite(hours)
+        and hours >= 7 * 24
+    )
     if price < 1:
         if measured and not signal:
             return 'vendor', 'no build use, turnover or observed buyers'
-        return 'slow', 'sub-1-Ist equipment; demand supported' if signal else 'demand not established'
+        return 'slow', 'sub-1-Ist equipment; demand supported' if signal else 'demand unmeasured'
     if verdict == 'sell' and not signal:
         return 'slow', 'no build use, turnover or observed buyers'
     return verdict, None

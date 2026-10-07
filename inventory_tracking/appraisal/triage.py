@@ -13,6 +13,14 @@ TONES = {
 }
 
 
+def demand_unmeasured(triage):
+    return triage.get('verdict') == 'slow' and triage.get('reason') == 'demand unmeasured'
+
+
+def tone(triage):
+    return Tone.DEFAULT if demand_unmeasured(triage) else TONES[triage['verdict']]
+
+
 def price_description(triage):
     if triage['verdict'] == 'check':
         return triage['reason']
@@ -54,6 +62,8 @@ def price_description(triage):
 
 def description(triage):
     text = price_description(triage)
+    if demand_unmeasured(triage) and 'demand unmeasured' not in text:
+        text += ' · demand unmeasured'
     if triage['verdict'] in ('sell', 'slow') and (own := triage.get('own_use')):
         text += ' · Own use: ' + own.get('label', 'own-build rule')
     if options := triage.get('preparation'):

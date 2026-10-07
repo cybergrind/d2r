@@ -29,16 +29,16 @@ levelling characters. Keep price: 0.25 Ist, inclusive.
 - Live pulls only through `pricing/tools/`, paced, with the scope filters. The weekly page-0
   pull is authorized; the next is due 2026-10-10 or -11.
 
-### Measures (score files in `inventory_tracking/corpus/data/`, values of 2026-10-06)
+### Measures (score files in `inventory_tracking/corpus/data/`, values of 2026-10-07)
 
 | Measure | Target | Now |
 |---|---|---|
-| Guide worked examples and false-positive rows | 100% pass | 34/37 and 16/19 |
-| Guide table rows that are verdict or own-use rows | every row classified with a reason; at least 95% pass | all classified and executing; 349 of 404 pass (86.39%); prior unsupported-demand expectations retained as failures |
-| Listing replay, valuable seller votes flagged | at least 85% | 63.82%; priced SELL/slow 50.94%; denominator unchanged; unsupported demand removed (see PLAN §8) |
-| Cheap listings flagged SELL or slow / CHECK; a cheap listing in a cohort where at least 90% of sellers ask the keep price is not a false flag | at most 10% / 25% | 2.44% / 17.68% |
-| Named corpus drops that end as CHECK | at most 15% | 12.0% |
-| SELL cohorts with turnover or buyers | at least 80%, over an interval of seven days or more | seven-day measure unverified; current one-day support 1/115, censored absence excluded |
+| Guide worked examples and false-positive rows | 100% pass | 36/37 and 18/19; residual demand-unmeasured cases retained (PLAN §8) |
+| Guide table rows that are verdict or own-use rows | every row classified with a reason; at least 95% pass | all classified and executing; 402 of 404 pass (99.50%); expectations unchanged |
+| Listing replay, valuable seller votes flagged | at least 85% | 86.92% including demand-unmeasured slow; 69.91% excluding its 3746 votes; priced SELL/slow 74.03%; 22033 votes unchanged (PLAN §8) |
+| Cheap listings flagged SELL or slow / CHECK; a cheap listing in a cohort where at least 90% of sellers ask the keep price is not a false flag | at most 10% / 25% | 11.59% (19/164) / 17.68% (29/164); unmeasured slow restores cheap flags |
+| Named corpus drops that end as CHECK | at most 15% | 11.85% |
+| SELL cohorts with turnover or buyers | at least 80%, over an interval of seven days or more | seven-day measure unverified; current one-day support 1/138, censored absence excluded |
 | Speed | under 50 ms per item; a ten-item identify pass under 1 s | latest live one-item pass 69.0 ms; prior three-item pass 57.5 ms; required ten-item pass unverified |
 
 A measure counts as met only from a score file produced by the current code and tables. A

@@ -134,9 +134,9 @@ class ItemAssessment:
             return cls(tuple(lines))
         result = record['result']
         if triage := result.get('triage'):
-            from inventory_tracking.appraisal.triage import TONES, headline
+            from inventory_tracking.appraisal.triage import headline, tone
 
-            add(headline(triage), TONES[triage['verdict']])
+            add(headline(triage), tone(triage))
         commodity = commodity_lines(result)
         if commodity is not None:
             for line in commodity:

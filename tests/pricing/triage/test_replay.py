@@ -214,3 +214,16 @@ def test_unreadable_or_impossible_deciding_roll_does_not_count_as_attention():
     }
     for roll, expected in ((150, True), (None, False), (250, False)):
         assert evidence_backed_check({'properties': {'510': roll}}, result, tables) is expected
+
+
+def test_unmeasured_attention_is_separate_and_seller_weighted():
+    from tests.pricing.triage.test_named_bands import tables
+
+    rows = [listing(i, 0.5, ethereal=False) for i in range(3)]
+    data = tables(rows)
+    rows.append(rows[0] | {'listing_id': 'duplicate'})
+    result = listing_score(rows, data)['overall']
+    assert result['valuable'] == 3
+    assert result['demand_unmeasured_valuable'] == 3
+    assert result['recall'] == 1
+    assert result['recall_without_unmeasured'] == 0

@@ -92,6 +92,9 @@ def main():
 
     recommended_bases = json.loads((ROOT / 'pricing/data/wp-a-bases.json').read_text())
     document['demand'].update(compile_bases(recommended_bases, utility, document['demand']))
+    from pricing.triage.guide_demand import load as guide_demand, merge as merge_demand
+
+    document['demand'] = merge_demand(document['demand'], guide_demand())
     definitions = json.loads((ROOT / 'pricing/data/appraisal-definitions.json').read_text())['rows']
     guide_rules = guide_rolls((ROOT / 'guides/pricing.html').read_text(), 'guides/pricing.html#s8')
     reports = analyze(rows, definitions, metadata(), coarse=True, guide_rules=guide_rules)

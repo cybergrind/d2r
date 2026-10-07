@@ -41,7 +41,10 @@ def test_base_demand_preserves_supported_sale_but_never_supplies_a_price():
     item = from_listing(rows[0])
     result = assess(item, tables)
     key = cohort_key(item, result, None, tables)
-    tables['market_demand'] = {'complete': True, 'cohorts': {key: {'previous_listings': 3, 'current_listings': 3}}}
+    tables['market_demand'] = {
+        'complete': True,
+        'cohorts': {key: {'previous_listings': 3, 'current_listings': 3, 'maximum_interval_hours': 168}},
+    }
     assert assess(item, tables)['verdict'] == 'vendor'
     tables['demand'] = demand
     result = assess(item, tables)

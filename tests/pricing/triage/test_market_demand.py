@@ -21,6 +21,8 @@ from pricing.triage.market_demand import qualify
     ],
 )
 def test_cheap_equipment_uses_demand_but_missing_measurements_are_not_inactivity(observation, guide, expected):
+    if observation is not None:
+        observation = observation | {'maximum_interval_hours': 168}
     verdict, _ = qualify('sell', 0.5, guide, observation)
     assert verdict == expected
 
@@ -54,7 +56,9 @@ def test_published_measurement_changes_engine_verdict_without_losing_own_use():
     key = cohort_key(item, old, band, tables)
     document['market_demand'] = {
         'complete': True,
-        'cohorts': {key: {'previous_listings': 10, 'current_listings': 10, 'disappeared': 0}},
+        'cohorts': {
+            key: {'previous_listings': 10, 'current_listings': 10, 'disappeared': 0, 'maximum_interval_hours': 168}
+        },
         'buyers': {},
     }
     tables = prepare_tables(document, rules, own)
@@ -98,3 +102,22 @@ def test_vendor_with_above_threshold_asks_explains_missing_demand_in_headline():
         }
     )
     assert 'no build use, turnover or observed buyers' in text
+
+
+@pytest.mark.parametrize('hours', [None, 0, 24, 167.99])
+def test_sub_ist_without_seven_day_instrument_is_unmeasured(hours):
+    observed = {
+        'previous_listings': 10,
+        'current_listings': 9,
+        'disappeared': 1,
+        'censored_disappeared': 1,
+        'maximum_interval_hours': hours,
+    }
+    assert qualify('sell', 0.5, False, observed) == ('slow', 'demand unmeasured')
+
+
+def test_seven_day_absence_of_signal_can_vendor_but_guide_or_buyers_prevent_it():
+    observed = {'previous_listings': 10, 'current_listings': 10, 'maximum_interval_hours': 168}
+    assert qualify('sell', 0.5, False, observed)[0] == 'vendor'
+    assert qualify('sell', 0.5, True, observed)[0] == 'slow'
+    assert qualify('sell', 0.5, False, observed | {'buyers': 1})[0] == 'slow'
