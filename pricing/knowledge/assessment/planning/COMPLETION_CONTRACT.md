@@ -46,20 +46,23 @@ number that goes down is reverted or explained in PLAN.md section 8.
 
 ### Queue
 
-PLAN.md "Steering 14" (2026-10-06 23:55), in this order, with the Steering 9 rules of pace:
+PLAN.md "Steering 15" (2026-10-07 09:45) first, then "Steering 14" with its amendments, with
+the Steering 9 rules of pace:
 
-1. Speed: record a ten-item pass by replaying captured identify items through the live
+1. Repair the demand rule: a guide row, build list or primer base entry is demand; a cohort
+   with no seven-day turnover measurement is "demand unmeasured" (slow, no highlight), not
+   VENDOR. Guide rows return to 402/404 or better and worked/false-positive rows to 100%
+   without editing guide expectations to fit the rule.
+2. Named roll placement continues from the authored file, own drops first; the Shaftstop
+   captures stay VENDOR. Censored churn stays excluded from demand support.
+3. Speed: record a ten-item pass by replaying captured identify items through the live
    service path; bring the one-item pass from 69.0 ms under 50 ms.
-2. Report the 982 valuable votes vendored for lack of demand as their own miss cause; flag
-   none of them. Whether they stay in the denominator is the user's decision after the
-   seven-day pull of 2026-10-10 or -11.
-3. Named roll placement and demand per roll group, following the October 7 amendments;
-   Shaftstop is the first implemented case. Review deciding stats against guides and variants.
 4. Rare and magic: authored patterns only, largest missed families first. The paid-property
    scorer is removed and is not rebuilt.
-5. Base variants priced from existing listings; reconcile guide expectations alongside.
+5. Base variants priced from existing listings.
 6. Evidence-backed CHECK counts as attention for all item types (user, 2026-10-06);
-   priced SELL/slow is reported separately. Cheap SELL and demand: at the weekly pull.
+   priced SELL/slow is reported separately. Whether cohorts with no demand after the
+   seven-day pull of 2026-10-10 or -11 leave the "valuable" count is the user's decision.
 
 ### Stopping rule
 

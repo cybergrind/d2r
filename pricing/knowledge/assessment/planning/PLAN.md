@@ -278,7 +278,48 @@ comparable seller count; refreshed/coarsened cohorts must not silently undo the 
 
 ## 4. Work packages
 
-### Steering 14 (progress check, 2026-10-06 23:55) — governs; Steering 9 pace rules stand
+### Steering 15 (progress check, 2026-10-07 09:45) — governs; goes before the rest of Steering 14
+
+The Shaftstop fix was right for Shaftstop and wrong as a general rule. Score of 02:39:
+
+| Measure | Before (2026-10-06 23:00) | Now |
+|---|---|---|
+| Guide table rows | 402/404 | 349/404 (86.4%, below the 95% target) |
+| Worked examples / false positives | 36/36, 18/18 | 34/37, 16/19 (target 100%) |
+| Valuable seller votes flagged | 82.82% | 63.82% (uniques 58%, sets 35%, bases 63%) |
+| Cheap SELL or slow | 10.37% | 2.44% (now meets the target) |
+| SELL cohorts with demand support | 99% by censored churn | 1 of 115 |
+
+Cause: `market_demand.qualify` now vendors every cohort under 1 Ist that has no build use,
+no buyer and no uncensored disappearance. With a one-day interval an uncensored disappearance
+almost never exists (1 cohort of 115), so the rule vendors by absence of an instrument, not
+by evidence. 5,093 valuable votes are vendored this way, and 158 of the 163 failing guide rows
+fail with this one reason: runeword bases (Thresher, Giant Thresher, Cryptic Axe, Colossus
+Voulge, Berserker Axe, Mage Plate, Wire Fleece, Grand Matron Bow), the Warlock set
+(Horazon's), The Oculus, Titan's Revenge, Bloodpact Shard.
+
+The contract already settles this: the guides are the answer key for demand. Order of work:
+
+1. **A guide row is demand.** An item, base or variant that a guide row expects as SELL or
+   slow, or that a build list or the primer's base section names, has demand. The
+   vendor-for-no-demand rule may not fire on it. Do not edit the guide expectations to fit
+   the new rule; a guide row changes only with listing evidence and a dated pass.
+2. **"Unmeasured" is not "none".** Where the turnover instrument has no interval of seven
+   days, the missing uncensored disappearance says nothing. Such a cohort under 1 Ist with
+   no guide or build demand is `slow`, reason "demand unmeasured", shown without highlight
+   colour, not VENDOR. It becomes VENDOR only after a seven-day pull shows no disappearance
+   and no buyer (first possible 2026-10-10 or -11).
+3. **Keep what was right**: censored churn is not demand support; a note from another mode or
+   variant is not build use; the valuable-candidate block checks its conditions; Shaftstop
+   placement stays. Named roll placement (Steering 14 amendment of 02:30) continues from the
+   authored file `named-roll-placements.json`, largest own-drop counts first: Raven Frost,
+   Gheed's Fortune, Halaberd's Reign, Frostwind, Natalya's Shadow, Goldwrap, Infernostride.
+4. **Exit check for items 1–3**: guide rows back to 402/404 or better, worked and false
+   positives 100%, and the three Shaftstop captures still VENDOR. Report attention with and
+   without the "demand unmeasured" slow votes.
+5. Then Steering 14 items 1 (speed replay), 3 (rare and magic patterns), 4 (base variants).
+
+### Steering 14 (progress check, 2026-10-06 23:55) — after Steering 15; Steering 9 pace rules stand
 
 Steering 13 is executed and verified: the scorer is out of the live verdict, the table build and
 the cache; its two tests pass (1,007 tests pass across triage, appraisal and identify); Crown and
