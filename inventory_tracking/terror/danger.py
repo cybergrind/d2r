@@ -14,9 +14,11 @@ A monster's threat is the product of three things (user, 2026-10-07):
   Fast, Teleportation and a Holy Freeze on the player are what turn slow melee into a threat.
 
 The player's own states (monsters.py `player_states`) count as facts, for every pack: Amplify
-Damage and Decrepify raise physical damage, Lower Resist and Conviction elemental, and a chilled,
-frozen or decrepified player is reached by melee. A curse or Conviction that is on the player is
-not counted again for its source standing near, which is only the guess made before it lands.
+Damage and Decrepify raise physical damage, Lower Resist and Conviction elemental, and a frozen,
+decrepified or Holy Frozen player is reached by melee (a chill is not counted: marked Ghoul packs
+took 0.29% of the life a second with it and 0.68% without, probe logs to 2026-10-07). A curse or
+Conviction that is on the player is not counted again for its source standing near, which is only
+the guess made before it lands.
 
 Monsters within LINK of each other are one pack and its score is the sum, so density is the
 score itself: two archer packs standing together are one deadly pack.
@@ -86,19 +88,31 @@ class DangerConfig(Config):
     # own 6 walking and 9 running): none up to `still`, full from `player_run`, linear between.
     still: float = 3.0  # zombies, skeletons, mummies, brutes
     player_run: float = 9.0
-    fast_move: float = 2.0  # Extra Fast: movement speed factor (an estimate)
+    # Extra Fast: movement speed factor (an estimate). Was 2.0: Extra Fast Ghouls were the most
+    # marked packs of the probe logs to 2026-10-07 at a quarter of the other marked packs' life lost.
+    fast_move: float = 1.5
     slowed: float = 0.7  # the player's run under Holy Freeze
     arrives: float = (
         0.5  # the least reach of one that teleports, charges or leaps: it arrives, then hits at its own pace
     )
     frenzy: float = 1.5  # attacks per second factor of a Frenzy user
-    # Families whose one hit is far above their monstats number, as a factor on it. Souls: four
+    # Families (monstats BaseId) or single types (by name, which comes first) whose hit is not
+    # their monstats number, as a factor on it. Souls: four
     # plain Gloams took 18% of the life within a second (probe log 20261006T161833Z, area 77),
     # as much as fourteen slingers under Fanaticism in the same log.
     # Abyss Knights: six took 18% twice at a score of 8.4 (20261006T175752Z, area 107); their bolt
     # is a skill, the number a stand-in. Undead dolls blow up when killed (no log event: an estimate).
-    hard: Mapping[str, float] = {'willowisp1': 5.0, 'doomknight2': 1.25, 'bonefetish1': 2.0}
-    physical: Mapping[int, float] = {STRONG: 2.0, BERSERKER: 2.0}  # own modifier -> physical damage factor
+    # From the `around` samples to 2026-10-07 (77 minutes, Catacombs 2-4; exposure.py): where Tainted
+    # were the highest pack 2.1 times the life of other types at the same score went unwarned and
+    # 3.5 times warned, and they stood in 12 of the 21 seconds that took 15%, while the Afflicted
+    # of the same family and numbers lost 0.8 times. Dark Ones: 0.2 times the model's average
+    # per monster over 27,720 monster-seconds.
+    hard: Mapping[str, float] = {
+        'willowisp1': 5.0, 'doomknight2': 1.25, 'bonefetish1': 2.0, 'Tainted': 2.0, 'fallen1': 0.5,
+    }  # fmt: skip
+    # Own modifier -> physical damage factor. Extra Strong was 2.0: packs named for it lost 0.7
+    # times the life of others at their score (392 s, the same samples).
+    physical: Mapping[int, float] = {STRONG: 1.5, BERSERKER: 2.0}
     speed: Mapping[int, float] = {FAST: 1.25, FANATIC: 1.25}  # own modifier -> attacks per second factor
     added: Mapping[int, float] = {FIRE: 0.5, LIGHTNING: 0.5, COLD: 0.3}  # own modifier -> elemental damage added
     multishot: float = 2.0  # Multiple Shots on a ranged attacker
@@ -109,9 +123,11 @@ class DangerConfig(Config):
     curse: float = 1.5  # physical damage factor near a curse source (Amplify Damage, Decrepify)
     # The player's own states. Physical: Amplify Damage takes 100% of the physical resistance,
     # Decrepify 50%. Elemental: Lower Resist takes about as much resistance as Conviction.
-    player_physical: Mapping[int, float] = {AMPLIFIED: 2.0, DECREPIFIED: 1.5}
+    # Amplify Damage was 2.0: packs named for it lost 0.6 times the life of others at their score
+    # (552 s of the `around` samples to 2026-10-07).
+    player_physical: Mapping[int, float] = {AMPLIFIED: 1.5, DECREPIFIED: 1.5}
     player_elemental: Mapping[int, float] = {LOWER_RESIST: 2.5}
-    player_slowed: tuple[int, ...] = (DECREPIFIED, HOLY_FROZEN, FROZEN, CHILLED, SLOWED)  # the first found is named
+    player_slowed: tuple[int, ...] = (DECREPIFIED, HOLY_FROZEN, FROZEN, SLOWED)  # the first found is named
 
 
 DANGER = DangerConfig()
@@ -206,7 +222,7 @@ def threat(
             reasons[name] = reasons.get(name, 1.0) * factor
         return value * factor
 
-    hard = config.hard.get(row.family, 1)
+    hard = config.hard.get(row.name, config.hard.get(row.family, 1))
     physical, elemental, magic = row.physical * hard, row.elemental * hard * config.resisted, row.magic * hard
     auras = {unit.aura[0]} if unit.aura and not unit.owner else set()
     for other in units:

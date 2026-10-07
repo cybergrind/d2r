@@ -4,7 +4,7 @@ import json
 
 import pytest
 
-from inventory_tracking.terror.exposure import by_score, by_state, by_type, main, samples
+from inventory_tracking.terror.exposure import by_pack, by_score, by_state, by_type, main, samples
 
 
 GLOAM, GHOUL, DARK_RANGER = 118, 7, 160
@@ -104,20 +104,53 @@ def test_rare_types_are_left_out_and_a_type_the_model_scores_nothing_has_no_fact
     assert all_rows['Ghoul'].threat > 0
 
 
-def test_the_script_prints_the_three_tables_or_says_that_nothing_was_logged_yet(tmp_path, capsys):
+def test_a_sample_is_warned_when_a_mark_was_shown_or_in_old_logs_when_the_replay_marks_it():
+    six = [seen(n, GLOAM) for n in range(1, 7)]  # six Gloams score 14: deadly
+    old = [*six, around(0.0, 1000, *range(1, 7)), around(1.0, 900, *range(1, 7))]
+    unshown = [*six, around(0.0, 1000, *range(1, 7)) | {'marked': {}}, around(1.0, 900, *range(1, 7))]
+    shown = [seen(1, GLOAM), around(0.0, 1000, 1) | {'marked': {'caution': [1]}}, around(1.0, 900, 1)]
+
+    assert [(s.pack, s.warned) for events in (old, unshown, shown) for s in samples(events)] == [
+        ('Gloam', True), ('Gloam', False), ('Gloam', True),
+    ]  # fmt: skip
+
+
+def test_a_pack_type_is_held_against_the_other_types_at_its_score_warned_and_unwarned_apart():
+    def stand(start, unit_id, lost, *, marked):
+        looks = [around(start + t, 1000 - lost * t, unit_id) | {'marked': marked} for t in range(3)]
+        return [*looks, around(start + 9.0, 1000, unit_id)]  # the pause ends the samples
+
+    events = [seen(1, GLOAM), seen(2, DARK_RANGER), seen(3, GHOUL)]
+    events += stand(0.0, 1, 100, marked={}) + stand(20.0, 2, 10, marked={}) + stand(40.0, 3, 10, marked={})
+    events += stand(60.0, 1, 100, marked={'caution': [1]})  # nothing else was warned of: no one to be held against
+
+    rows = {(row.name, row.warned): row for row in by_pack(samples(events), edges=(100.0,), min_seconds=2.0)}
+
+    assert [(row.name, row.verdict) for row in by_pack(samples(events), edges=(100.0,), min_seconds=2.0)][:2] == [
+        ('Gloam', 'underrated'), ('Dark Ranger', 'overrated'),
+    ]  # fmt: skip
+    gloam = rows['Gloam', False]
+    assert (gloam.seconds, gloam.lost, gloam.expected, gloam.off) == pytest.approx((2.0, 0.1, 0.01, 10))
+    assert rows['Dark Ranger', False].off == pytest.approx(0.01 / 0.055)
+    assert (rows['Gloam', True].expected, rows['Gloam', True].off, rows['Gloam', True].verdict) == (None, None, '')
+    assert by_pack(samples(events), edges=(100.0,), min_seconds=3.0)[0].verdict == ''  # too few seconds to call
+
+
+def test_the_script_prints_the_four_tables_or_says_that_nothing_was_logged_yet(tmp_path, capsys):
     log, empty = tmp_path / 'terror-probe.jsonl', tmp_path / 'old.jsonl'
     events = [seen(1, GLOAM), seen(2, GLOAM)]
     events += [around(float(t), 1000 - 100 * t, 1, 2) | {'states': [61]} for t in range(4)]
     log.write_text('\n'.join(json.dumps(event) for event in events))
     empty.write_text(json.dumps(seen(1, GLOAM)))
 
-    assert main([str(log), '--min-seconds', '0']) == 0
+    assert main([str(log), '--min-seconds', '0', '--min-pack-seconds', '0']) == 0
     out = capsys.readouterr().out
     assert out.startswith('3 samples, 3 s with monsters within a screen, in 1 logs')
     lines = [line.split() for line in out.splitlines()]
     assert ['9-12', '3', '10.00%', '10%'] in lines  # two Gloams under Lower Resist score 11.9
     assert ['Gloam', '6', '5.94', '5.000%', '1.0x'] in lines
     assert ['Lower', 'Resist', '3', '10.00%'] in lines
+    assert ['Gloam', 'yes', '3', '11.9', '10.00%'] in lines  # the only type: nothing to hold it against
 
     assert main([str(empty)]) == 0
     assert 'No `around` events yet' in capsys.readouterr().out

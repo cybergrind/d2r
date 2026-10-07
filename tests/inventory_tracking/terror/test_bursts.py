@@ -2,7 +2,7 @@
 
 import json
 
-from inventory_tracking.terror.bursts import bursts, main, read
+from inventory_tracking.terror.bursts import bursts, log_paths, main, read
 
 
 def life(t, value, most=1000, x=5000, y=5000):
@@ -62,3 +62,13 @@ def test_the_script_lists_the_bursts_of_each_log_and_skips_a_line_cut_off(tmp_pa
     out = capsys.readouterr().out
     assert 'Dark Ranger x8 · Fanaticism [deadly 12.6]' in out
     assert out.endswith('1 burst event in 1 log\n')
+
+
+def test_a_pattern_the_shell_left_alone_names_every_log_it_matches(tmp_path):
+    logs = [tmp_path / run / 'terror-probe.jsonl' for run in ('a', 'b')]
+    for log in logs:
+        log.parent.mkdir()
+        log.write_text('')
+
+    assert log_paths([tmp_path / '*' / 'terror-probe.jsonl', logs[0]]) == [*logs, logs[0]]
+    assert log_paths([tmp_path / 'none' / '*.jsonl']) == []

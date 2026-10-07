@@ -120,7 +120,7 @@ def test_own_modifiers_raise_the_monster_that_carries_them():
     plain, strong = top(group(DARK_RANGER, 1)), top(group(DARK_RANGER, 1, modifiers=(STRONG,)))
     multishot = top(group(DARK_RANGER, 1, modifiers=(MULTISHOT,)))
 
-    assert (strong.score, strong.reasons) == (2 * plain.score, ('Extra Strong',))
+    assert (strong.score, strong.reasons) == (pytest.approx(1.5 * plain.score), ('Extra Strong',))
     assert multishot.score == 2 * plain.score
     # Multiple Shots is nothing on a melee attacker.
     assert top(group(HELL_BOVINE, 1, modifiers=(MULTISHOT,))).score == top(group(HELL_BOVINE, 1)).score
@@ -175,16 +175,17 @@ def test_a_pack_to_be_careful_with_is_held_too_and_a_mark_is_not_passed_on_by_a_
     assert packs(plain, held={1: 'deadly', 2: 'deadly'})[0].band is None  # most of the pack was unmarked
 
 
-AMPLIFIED, CHILLED, CONVICTED, DECREPIFIED, LOWER_RESIST = 9, 11, 29, 60, 61  # states.txt ids, on the player
+FROZEN, AMPLIFIED, CHILLED, CONVICTED, DECREPIFIED, LOWER_RESIST = 1, 9, 11, 29, 60, 61  # states.txt ids, on the player
 
 
 def test_a_curse_on_the_player_raises_every_pack_and_is_named():
-    archers, souls = group(DARK_RANGER, 5), group(GLOAM, 2)
+    archers, souls = group(DARK_RANGER, 7), group(GLOAM, 2)
 
     amplified = packs(archers, player={AMPLIFIED})[0]
     lowered = packs(souls, player={LOWER_RESIST})[0]
 
-    assert (amplified.score, amplified.reasons) == (2 * top(archers).score, ('Amplify Damage on you',))
+    assert amplified.score == pytest.approx(1.5 * top(archers).score, abs=0.01)
+    assert amplified.reasons == ('Amplify Damage on you',)
     assert amplified.band == 'caution'
     assert (lowered.score > 2 * top(souls).score, lowered.reasons) == (True, ('Lower Resist on you',))
     assert packs(souls, player={AMPLIFIED})[0].score == top(souls).score  # lightning is not physical
@@ -214,11 +215,12 @@ def test_conviction_on_the_player_counts_without_its_owner_in_sight_and_only_onc
 def test_a_slowed_player_is_reached_by_melee():
     cows = group(HELL_BOVINE, 8)
 
-    chilled, decrepified = packs(cows, player={CHILLED})[0], packs(cows, player={DECREPIFIED})[0]
+    frozen, decrepified = packs(cows, player={FROZEN})[0], packs(cows, player={DECREPIFIED})[0]
 
-    assert (chilled.score > 1.5 * top(cows).score, chilled.reasons) == (True, ('Chilled',))
-    assert decrepified.score > 1.5 * chilled.score  # slower, and physical damage raised
-    assert packs(group(DARK_RANGER, 4), player={CHILLED})[0].score == top(group(DARK_RANGER, 4)).score
+    assert (frozen.score > 1.5 * top(cows).score, frozen.reasons) == (True, ('Frozen',))
+    assert decrepified.score > 1.4 * frozen.score  # as slow, and physical damage raised
+    assert packs(group(DARK_RANGER, 4), player={FROZEN})[0].score == top(group(DARK_RANGER, 4)).score
+    assert packs(cows, player={CHILLED})[0].score == top(cows).score  # a chill alone lets no zombie catch up
 
 
 REANIMATED_HORDE, PROWLING_DEAD_SPEED, HELL_LORD, ABYSS_KNIGHT, UNDEAD_STYGIAN_DOLL = 437, 5, 509, 311, 216
@@ -231,10 +233,10 @@ def test_what_is_known_of_nasty_monsters_is_in_their_threat():
     # Charge: a horde walks at 5 and still arrives.
     assert (horde.speed, horde.closes) == (PROWLING_DEAD_SPEED, True)
     assert top(group(REANIMATED_HORDE, 1)).score == pytest.approx(horde.physical * DANGER.melee * DANGER.arrives)
-    # Frenzy: half as many swings again; a plain pack stays unmarked, an Extra Strong one is deadly.
+    # Frenzy: half as many swings again; a plain pack stays unmarked, an Extra Strong one is not.
     swing = lord.physical + lord.elemental * DANGER.resisted
     assert top(group(HELL_LORD, 8)).score == pytest.approx(8 * swing * DANGER.melee * DANGER.frenzy)
-    assert (top(group(HELL_LORD, 8)).band, top(group(HELL_LORD, 8, modifiers=(STRONG,))).band) == (None, 'deadly')
+    assert (top(group(HELL_LORD, 8)).band, top(group(HELL_LORD, 8, modifiers=(STRONG,))).band) == (None, 'caution')
     # Six Abyss Knights took 18% of the life within a second, twice (probe log 20261006T175752Z).
     assert top(group(ABYSS_KNIGHT, 6)).band == 'caution'
     # Undead dolls blow up when killed.
@@ -271,7 +273,8 @@ def test_every_type_of_the_bundled_table_follows_the_three_rules():
     for txt_id, row in threats.monsters.items():
         unit = Unit(1, txt_id, 1000, 1000)
         value, reasons = threat(unit, [unit], threats, DANGER)
-        hit = (row.physical + row.elemental * DANGER.resisted + row.magic) * DANGER.hard.get(row.family, 1)
+        hard = DANGER.hard.get(row.name, DANGER.hard.get(row.family, 1))
+        hit = (row.physical + row.elemental * DANGER.resisted + row.magic) * hard
         assert reasons == {}, row.name
         if row.ranged:  # reach: a ranged hit always lands
             assert value == pytest.approx(hit), row.name
@@ -302,7 +305,9 @@ def test_all_that_raises_a_pack_is_counted_together_and_the_strongest_reasons_ar
 
     pack = packs(cows, player={AMPLIFIED})[0]
 
-    hit = 1.8 * 2 * 2 * 2  # Extra Strong, Might, Amplify Damage
-    assert pack.score == pytest.approx(8 * hit * 1.25 * DANGER.melee * 1.0)  # a cow at 5 x 2 runs past 9
+    hit = 1.8 * 1.5 * 2 * 1.5  # Extra Strong, Might, Amplify Damage
+    assert pack.score == pytest.approx(
+        8 * hit * 1.25 * DANGER.melee * 0.75, abs=0.01
+    )  # a cow at 5 x 1.5: (7.5 - 3) / 6
     assert pack.band == 'deadly'
     assert set(pack.reasons) == {'Extra Strong', 'Might', 'Amplify Damage on you', 'Extra Fast'}

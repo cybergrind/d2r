@@ -563,9 +563,9 @@ def test_plain_archers_stay_plain_dots_and_a_pack_to_be_careful_with_is_caution(
     tracker.apply(archers(4))
     assert [dot.kind for dot in tracker.map_dots(7)] == ['mob'] * 4
 
-    tracker.apply(archers(6, start=200, x=7000, modifiers=(5,)))  # the zone's Extra Strong on each
+    tracker.apply(archers(7, start=200, x=7000, modifiers=(5,)))  # the zone's Extra Strong on each
 
-    assert [dot.kind for dot in tracker.map_dots(7)] == [*['mob'] * 4, *['caution'] * 6]
+    assert [dot.kind for dot in tracker.map_dots(7)] == [*['mob'] * 4, *['caution'] * 7]
     assert tracker.danger_lines(7) == []
 
 
@@ -611,9 +611,9 @@ def test_a_deadly_pack_stays_marked_while_it_is_killed_down_to_a_weak_one():
 def test_the_leader_of_a_pack_to_be_careful_with_stays_a_leader_dot():
     tracker = ZoneTracker()
     leader = {**seen(50, 7, data_hex=monster_data(0x08, (5,))), 'txt_id': 160}
-    tracker.apply([at(leader, 5000, 5010), *archers(5, modifiers=(5,))])
+    tracker.apply([at(leader, 5000, 5010), *archers(6, modifiers=(5,))])
 
-    assert [dot.kind for dot in tracker.map_dots(7)] == ['caution'] * 5 + ['leader']
+    assert [dot.kind for dot in tracker.map_dots(7)] == ['caution'] * 6 + ['leader']
 
 
 def elite(unit_id, x, y, *, flags=0x08, txt_id=160, area=7, super_id=0, stats=()):
@@ -718,14 +718,14 @@ def test_a_stored_game_joined_late_is_merged_into_what_was_counted_since(tmp_pat
 
 def test_the_players_own_curse_marks_the_packs_around_it():
     tracker = ZoneTracker()
-    tracker.apply(archers(5))
-    assert [dot.kind for dot in tracker.map_dots(7)] == ['mob'] * 5
+    tracker.apply(archers(7))
+    assert [dot.kind for dot in tracker.map_dots(7)] == ['mob'] * 7
 
     tracker.track([], states=frozenset((9,)))  # Amplify Damage
 
-    assert [dot.kind for dot in tracker.map_dots(7)] == ['caution'] * 5
+    assert [dot.kind for dot in tracker.map_dots(7)] == ['caution'] * 7
 
     tracker.track([], states=None)  # unreadable: nothing is known of the player
     tracker.bands.clear()
 
-    assert [dot.kind for dot in tracker.map_dots(7)] == ['mob'] * 5
+    assert [dot.kind for dot in tracker.map_dots(7)] == ['mob'] * 7

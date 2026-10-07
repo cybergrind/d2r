@@ -204,6 +204,35 @@ Done, with tests (tests/inventory_tracking/terror, hud, osd):
   an aura. Replay of the 2026-10-06 logs: 197 of 3,689 sampled packs marked; of the seven drops
   of 15% in a second, slingers under Fanaticism, the Gloams and the Abyss Knights are marked,
   four Extra Fast Ghouls (7.5) and five Foul Crows (6) are not.
+- **Zombies over-marked** (2026-10-07, user: zombies are marked far more often than they are
+  dangerous). Replay of the 3,683 `around` samples in the 93 logs: zombies were the most marked
+  family (129 of 1,179 packs, nearly all Ghouls in the Catacombs) at 0.25%/s of life lost at
+  scores 9-12 against 1.19%/s for every other type. Extra Fast was behind 103 of the marks and
+  Chilled behind 45 (0.29%/s with it, 0.68%/s without). `fast_move` 2.0 → 1.5 and Chilled is no
+  longer a state that lets melee reach: 65 of 1,161 zombie packs marked. Amplify Damage x2 is
+  left as it is (0.37%/s under it against 0.45%/s with no state, but only 712 s).
+- **Discrepancy** (2026-10-07, user: calculate and log where the danger level and the life lost
+  disagree; a marked pack makes the player careful, which lowers the harm). The probe adds
+  `marked` to every `around` event: the bands shown on its monsters as of the last pass (empty
+  with `danger_marks` off). `exposure.py` prints a fourth table, by the type of the highest
+  pack, warned and unwarned seconds apart: the life lost against what all other types lost at
+  the same score and the same warned state, `underrated` / `overrated` from a factor of 2 with
+  60 s behind it. Logs without `marked` use the replayed band. First run: warned Ghouls 0.4x
+  (80 s) and warned Dark Ones 0.3x (69 s) overrated, unwarned Tainted 1.9x (518 s).
+- **Factors from the measurements** (2026-10-07, user: adjust the numbers to the measurements;
+  77 minutes of `around` samples, Catacombs 2-4 only). By the reason a pack is named for, life
+  lost against all samples at the same score: Amplify Damage on you 0.6x (552 s), Extra Strong
+  0.7x (392 s): both 2.0 → 1.5. By type: Dark Ones 0.2x per monster (27,720 monster-seconds):
+  `hard` `fallen1` 0.5. Tainted 2.1x unwarned (518 s), 3.5x warned, in 12 of the 21 seconds
+  that took 15%, while the Afflicted (same family, same monstats) are at 0.8x: `hard` now takes
+  a type's name before its family, `Tainted` 2.0. After: the loss rises with the score in every
+  band (0.23 / 0.55 / 0.75 / 1.10 / 1.26 / 1.50 %/s; the top bands fell off before), the marked
+  8.2% of the seconds hold 21.3% of the life lost (was 8.8% and 18.9%), 6 of the 21 heavy
+  seconds are marked (was 5), no pack type is called off. Bands unchanged (caution 8 would mark
+  11.5% for 25.0%, no further heavy second). Not touched for want of seconds: Multiple Shots
+  1.9x (127 s) and Lightning Enchanted 2.4x (91 s), both mostly on Tainted; Might 0.7x (120 s).
+  15 of the 21 heavy seconds are still unmarked, most at scores 3-9 with Tainted or enchanted
+  Dark One packs: the model ranks, it does not yet catch bursts.
 
 Open:
 

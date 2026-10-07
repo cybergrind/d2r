@@ -11,8 +11,9 @@ current Herald group's lines while D2R is focused.
 
 Events: area (entered; level Room2 count), rooms (newly loaded Room2s), life (the player's life,
 whenever it changed: burst research, terror/bursts.py), around (every second with live monsters
-within a screen: their live positions and modes with the player's life and states, the statistics behind
-the threat level, terror/exposure.py), seen (first sight, with data/stats), died
+within a screen: their live positions and modes with the player's life and states, and `marked`,
+the danger marks the player was shown on them: the statistics behind the threat level,
+terror/exposure.py), seen (first sight, with data/stats), died
 (alive -> dead/dying mode: one kill), gone (dropped from the client; alive or not), back
 (reappeared), summary (every few seconds), left_game (menu: the ledger resets), mark, and
 elite_kill / shard (a pack leader's death, a Worldstone Shard first seen on the ground: terror/shards.py).
@@ -244,6 +245,7 @@ class TerrorProbe:
         elif snapshot.level_rooms is not None:
             self.level = location.level
         events = self.ledger.update(snapshot, now)
+        self.note_marks(events)
         if self.shards is not None:
             events += self.shards.update(events, now, items=snapshot.items, area=location and location.area_id)
         for event in events:
@@ -284,6 +286,22 @@ class TerrorProbe:
 
     def mark(self, now):
         self.write([self.ledger.mark(now)])
+
+    def note_marks(self, events):
+        """Each `around` event gets the danger marks shown on its monsters as of the last pass:
+        a warned player is more careful, so the life lost by a marked pack is not that of an
+        unmarked one (user, 2026-10-07)."""
+        if self.tracker is None:
+            return
+        for event in events:
+            if event['event'] != 'around':
+                continue
+            bands = self.tracker.bands.get(event['area'], {}) if self.danger else {}
+            marked: dict[str, list[int]] = {}
+            for unit_id, *_ in event['near']:
+                if unit_id in bands:
+                    marked.setdefault(bands[unit_id], []).append(unit_id)
+            event['marked'] = marked
 
     def write(self, events):
         if not events:

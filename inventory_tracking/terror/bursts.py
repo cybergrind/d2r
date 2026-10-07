@@ -10,6 +10,7 @@ positions are those of the log (first sight, `back`, `gone`), not the live ones.
 """
 
 import argparse
+import glob
 import json
 import math
 from collections import deque
@@ -24,6 +25,7 @@ from inventory_tracking.terror.tracker import ALIGNMENT_STAT, AURA_MODIFIER, aur
 SHARE = 0.3  # of the most life
 WINDOW = 1.0  # seconds
 REACH = 100  # world units around the player: about a screen and a half
+LOGS = Path(__file__).parents[1] / 'runs' / 'alt-d' / '*' / 'terror-probe.jsonl'  # every run of `make serve`
 
 
 @dataclass(frozen=True)
@@ -96,10 +98,20 @@ def read(path: Path):
                 continue  # a line cut off by a stopped service
 
 
+def log_paths(given) -> list[Path]:
+    """The probe logs named by `given`: files, or patterns the shell left alone; none given is
+    every log of the service's runs."""
+    found: list[Path] = []
+    for path in given or [LOGS]:
+        found += [path] if path.exists() else sorted(Path(name) for name in glob.glob(str(path)))
+    return found
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument('logs', nargs='+', type=Path, help='terror-probe.jsonl files')
+    parser.add_argument('logs', nargs='*', type=Path, help='terror-probe.jsonl files (default: every run)')
     args = parser.parse_args(argv)
+    args.logs = log_paths(args.logs)
     total = 0
     for path in args.logs:
         found = bursts(read(path))

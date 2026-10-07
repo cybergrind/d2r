@@ -433,3 +433,21 @@ def test_the_players_states_go_into_the_sample_and_to_the_tracker(tmp_path):
     probe.poll(1.0)
 
     assert tracker.player_states == frozenset((9, 60))
+
+
+def test_the_sample_carries_the_danger_marks_the_player_was_shown(tmp_path):
+    snap = replace(snapshot(alive(5), alive(6)), player_life=(900, 1450))
+
+    def logged(**options):
+        tracker = ZoneTracker()
+        tracker.bands[snap.location.area_id] = {5: 'deadly', 77: 'caution'}  # 77 is not within the screen
+        log = tmp_path / f'{len(options)}.jsonl'
+        probe = TerrorProbe(
+            Source(), log, capture_lock=threading.Lock(), poll_interval=0, tracker=tracker,
+            observe=lambda *args, **kwargs: snap, **options,
+        )  # fmt: skip
+        probe.poll(1.0)
+        return next(e for e in map(json.loads, log.read_text().splitlines()) if e['event'] == 'around')
+
+    assert logged()['marked'] == {'deadly': [5]}
+    assert logged(danger=False)['marked'] == {}  # the marks are off: nothing was shown
