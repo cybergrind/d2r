@@ -39,7 +39,12 @@ class FakeConnection:
         return codes
 
     def any_key_held(self):
-        return self.held or bool(self.down)
+        return bool(self.held_keys())
+
+    def held_keys(self):
+        """`held`: True for some key of the player's, or the names of the keys that are down."""
+        other = {1} if self.held is True else {self.keycodes([name.encode()])[0] for name in self.held or ()}
+        return frozenset(self.down) | other
 
     def focused_window_pid(self):
         return 1

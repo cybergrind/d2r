@@ -22,6 +22,7 @@ class KeyConnection(Protocol):
 
     def keycodes(self, names: Sequence[bytes]) -> list[int] | None: ...
     def any_key_held(self) -> bool: ...
+    def held_keys(self) -> frozenset[int]: ...
     def focused_window_pid(self) -> int | None: ...
     def press(self, key: int) -> bool: ...
     def release(self, key: int) -> bool: ...
@@ -48,9 +49,15 @@ class X11Connection:
         return keys if all(keys) else None
 
     def any_key_held(self) -> bool:
+        return bool(self.held_keys())
+
+    def held_keys(self) -> frozenset[int]:
+        """Key codes down right now, synthetic presses of any client included."""
         keymap = ctypes.create_string_buffer(32)
         self.x11.XQueryKeymap(self.display, keymap)
-        return any(keymap.raw)
+        return frozenset(
+            index * 8 + bit for index, byte in enumerate(keymap.raw) if byte for bit in range(8) if byte >> bit & 1
+        )
 
     def _window_pid(self, window: int, atom: int) -> int | None:
         actual, count, remaining = ctypes.c_ulong(), ctypes.c_ulong(), ctypes.c_ulong()

@@ -3,7 +3,7 @@
 Every action first checks that the game still has the focus, that no key is physically held
 and that the pointer is where the macro left it: a player who touches the keyboard or the
 mouse stops the macro (`Abort`) before the next event is sent. Pointer targets are fractions
-of the game window.
+of the game window. Keys the OSD presses on its own (`allow`) are not the player's.
 """
 
 from collections.abc import Callable
@@ -38,11 +38,21 @@ class Actuator:
         self.focused = focused
         self.pace = pace
         self.left_at: tuple[int, int] | None = None  # where the macro last put the pointer
+        self.allowed: frozenset[int] = frozenset()  # key codes that may be down: see `allow`
+
+    def allow(self, *names: str) -> None:
+        """Keys another service presses by itself are not the player's. The OSD turns Show Items
+        on a second or two into a new game, and its `z` stopped the first summon there (host,
+        13:11 on 2026-10-07, and seven runs before it)."""
+        self.allowed |= frozenset(self.keys.keycodes([name.encode() for name in names]) or ())
+
+    def key_held(self) -> bool:
+        return bool(self.keys.held_keys() - self.allowed)
 
     def guard(self) -> None:
         if not self.focused():
             raise Abort('the game lost the focus')
-        if self.keys.any_key_held():
+        if self.key_held():
             raise Abort('a key was pressed')
         if self.left_at is not None:
             now = self.keys.pointer()
@@ -52,7 +62,7 @@ class Actuator:
     def wait_released(self, timeout: float = 1.5, step: float = 0.03) -> None:
         """The hotkey that started the macro is still down for a moment."""
         waited = 0.0
-        while self.keys.any_key_held():
+        while self.key_held():
             if waited >= timeout:
                 raise Abort('a key is held')
             self.pace.sleep(step)

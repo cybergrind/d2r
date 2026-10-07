@@ -139,6 +139,20 @@ def crowd(world: World, x: float, y: float) -> list[Monster]:
     return [m for m in bystanders(world) if in_the_way(m, x, y)]
 
 
+def log_crowd(world: World, unit: int) -> None:
+    """Research: what stands in the Defiler's way, as class and offset from it in world units."""
+    target = next((m for m in defilers(world) if m.unit_id == unit), None)
+    near = (
+        [
+            f'class {m.txt_id} at ({m.x - target.x:+.1f}, {m.y - target.y:+.1f})'
+            for m in crowd(world, target.x, target.y)
+        ]
+        if target is not None
+        else []
+    )
+    LOG.info('Macro: the Defiler is crowded by %s; summoning another', ', '.join(near) or 'nothing now')
+
+
 def open_spots(run: Run, world: World) -> list[tuple[float, float]]:
     """SUMMON_SPOTS, those with nobody near first: a Defiler next to the bound demon cannot be
     consumed safely."""
@@ -149,14 +163,16 @@ def open_spots(run: Run, world: World) -> list[tuple[float, float]]:
     return sorted(SUMMON_SPOTS, key=lambda spot: bool(crowd(world, *world_point(player, *spot, aspect))))
 
 
-def summon_defiler(run: Run, *, until: float | None = None) -> Monster:
+def summon_defiler(run: Run, *, until: float | None = None, skip: int = 0) -> Monster:
     """Summon one Defiler. `until` (a clock time) keeps trying that long: a game that has just
-    come up takes no input for a while, and the summon appearing is what shows it does."""
+    come up takes no input for a while, and the summon appearing is what shows it does.
+    `skip` starts that many spots further on, for a Defiler that replaces a crowded one."""
     start = run.world()
     before = {monster.unit_id for monster in defilers(start)}
     # A spot that cannot be walked on takes no summon (user, 2026-10-06): try the next one.
     world, spot = None, SUMMON_SPOTS[0]
     spots = open_spots(run, start)
+    spots = spots[skip % len(spots) :] + spots[: skip % len(spots)]
     while world is None and spots:
         spot = spots.pop(0)
         run.actuator.move(*spot, scatter=(40, 25))
@@ -197,16 +213,17 @@ def consume(run: Run, defiler: Monster) -> None:
     pressed only while nothing else stands near the Defiler or where its body would be drawn
     over it (`in_the_way`); if it stays crowded, another Defiler is summoned
     somewhere open (that cancels an active Consume, which is about to be cast anew anyway). Afterwards the Defiler
-    must be the one gone."""
-    for _ in range(CONSUME_ATTEMPTS):
+    must be the one gone. Each replacement goes to another spot: three in a row at the first
+    one were all crowded, twice over (host, 13:08 on 2026-10-07, Rogue Encampment)."""
+    for attempt in range(CONSUME_ATTEMPTS):
 
         def clear(w: World, unit: int = defiler.unit_id) -> bool:
             target = next((m for m in defilers(w) if m.unit_id == unit), None)
             return target is None or not crowd(w, target.x, target.y)
 
         if run.seen(clear, 1.0) is None:
-            LOG.info('Macro: the Defiler is crowded; summoning another')
-            defiler = summon_defiler(run)
+            log_crowd(run.world(), defiler.unit_id)
+            defiler = summon_defiler(run, skip=attempt + 1)
             continue
         world = run.world()
         target = next((m for m in defilers(world) if m.unit_id == defiler.unit_id), None)

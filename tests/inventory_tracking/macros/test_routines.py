@@ -71,6 +71,21 @@ def test_a_held_key_stops_the_macro_before_anything_is_sent():
     assert game.keys.events == []
 
 
+def test_a_key_the_osd_presses_does_not_stop_the_macro():
+    # Host, 13:11 on 2026-10-07: the OSD's Show Items `z` was down at the first summon of a new game.
+    game = Game(world())
+    game.keys.held = ('z',)
+    run = game.run()
+    with pytest.raises(Abort, match='key'):
+        run.actuator.tap('q')
+    run.actuator.allow('z')
+    prebuff(run)
+    assert game.world.player.consume
+    game.keys.held = ('z', 'w')
+    with pytest.raises(Abort, match='key'):
+        run.actuator.tap('q')
+
+
 def test_a_moved_mouse_stops_the_macro():
     game = Game(world())
     run = game.run()
@@ -342,6 +357,22 @@ def test_a_defiler_the_demon_walked_up_to_is_replaced_by_one_in_the_open():
     assert game.pressed() == ['q', 'q', '6', 'q', 'g', 'r']
     assert game.world.player.consume
     assert sorted(m.txt_id for m in game.world.monsters) == [700, 744]
+
+
+def test_a_crowded_defiler_is_replaced_at_another_spot_each_time():
+    game = Game(world(monsters=(BOUND_DEMON,)))
+    follow(game, times=2)
+    react, summons = game.keys.on_event, []
+
+    def on_event(event):
+        if event == ('key', 'q'):
+            summons.append(game.keys.fraction())
+        react(event)
+
+    game.keys.on_event = on_event
+    prebuff(game.run())
+    assert len({(round(x, 1), round(y, 1)) for x, y in summons[:3]}) == 3
+    assert game.world.player.consume
 
 
 def test_a_tall_demon_drawn_below_the_defiler_is_not_consumed_in_its_place():

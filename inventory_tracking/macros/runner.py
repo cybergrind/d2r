@@ -15,6 +15,7 @@ from pathlib import Path
 from inventory_tracking.common import LOG
 from inventory_tracking.config import INPUT
 from inventory_tracking.input.focus import FocusTracker, owns_process
+from inventory_tracking.input.keybindings import show_items_key
 from inventory_tracking.input.keyboard import X11Keyboard
 from inventory_tracking.macros.actuator import Abort, Actuator
 from inventory_tracking.macros.engine import Run
@@ -139,19 +140,24 @@ class MacroRunner:
                 def focused() -> bool:
                     return focus(session) and owns_process(keys.focused_window_pid(), session)
 
+                pace = Pace(random.Random())
+                actuator = Actuator(keys, focused, pace)
+
                 def key_names(world):
                     if world.player is None:
                         raise Abort('not in a game')
+                    show_items = show_items_key(self.saved_games, world.player.name)
+                    if show_items:
+                        actuator.allow(show_items)
                     try:
                         bindings = character_bindings(self.saved_games, world.player.name)
                         return skill_keys(world.slots, bindings, SKILLS)
                     except (OSError, ValueError) as exc:
                         raise Abort(str(exc)) from exc
 
-                pace = Pace(random.Random())
                 run = Run(
                     memory.world,
-                    Actuator(keys, focused, pace),
+                    actuator,
                     pace,
                     cancelled=cancelled,
                     say=self._say,

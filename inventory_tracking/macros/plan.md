@@ -283,6 +283,17 @@ Differences from the design above, and what is still open:
   open ones first), and after three tries the macro stops without pressing. Research logged
   on each Consume: image addresses holding (monster, Defiler id) with the pointer on it, to
   find the "unit under the pointer" record and require it before the key.
+- 2026-10-07, "a key was pressed" in a new game (host, 13:11, and seven earlier runs): the key
+  was the OSD's own Show Items press (`z`, 1.5 s into a game, retried every 2 s), down at the
+  moment of the macro's first summon or just after Consume; the timestamps in `osd.log` agree
+  to 20 ms. The guard now reads which keys are down (`held_keys`) and leaves out the
+  character's Show Items key (`Actuator.allow`); every other key still stops the macro. The
+  OSD's potion keys are not left out yet: no stop has been traced to one.
+- 2026-10-07, three crowded Defilers in a row, twice (host, 13:08, Rogue Encampment by the
+  stash): every replacement was summoned at the first spot again, which read as open, and
+  was crowded there again. Each replacement now starts one spot further on, and the log
+  names what crowds the Defiler (class and offset). What it was is not known: unconfirmed
+  whether the bound demon or a walking town resident.
 
 - 2026-10-06, act 4 after act 3 (user: Mephisto and other act 3 runs step into act 4 before Save and
   Exit): the Pandemonium Fortress (103) is a run end while the character came to it from an act 3
