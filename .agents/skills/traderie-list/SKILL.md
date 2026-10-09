@@ -14,6 +14,12 @@ listing; otherwise fill the form and leave the last click to them.
   in to Traderie. Check with `curl -s http://127.0.0.1:8333/json/version`.
 - The browser holds the player's other tabs (mail, chat, work). **Touch only tabs the script opens.**
   Never read, navigate or close a tab you did not open.
+- **Never take the desktop focus and never open a browser window** (player, 2026-10-09). The tools open
+  their tabs as background tabs in the window that holds the marker tab `about:blank#traderie-tools`,
+  and stop when there is no such tab; the player then opens that address in the window to use. Do not
+  use `/json/new`, `window.open`, `Target.createTarget` with `newWindow`, `Target.activateTarget` or
+  `Page.bringToFront`: each of them moved the focus on niri. Read-only checks can use a hidden tab
+  instead (`traderie_notifications.mjs`).
 - The item must be on the trade mule (`CyberTrade`). Read what is there from the collection database:
   `inventory_tracking/runs/collection/collection.sqlite`, tables `items` and `placements`
   (`gone_at is null`, `owner = 'CyberTrade'`); `stat_lines` holds the decoded rolls.
@@ -72,7 +78,7 @@ node pricing/tools/traderie_edit.mjs <listing id> --price "Ist Rune:6" --submit 
 - Repeat `--price` to ask for several runes together. The old price rows are removed first.
 - A listing with an "Or" alternative makes the tool stop; edit those by hand.
 - Without `--submit` each run leaves one open tab with the new price filled in, for the player to save.
-- The `--submit` path of this tool has not been exercised yet (2026-10-09): check the listing afterwards.
+- `--submit` saved three prices on 2026-10-09; still read the listings back afterwards.
 
 ## Reviewing active listings
 
@@ -98,7 +104,7 @@ runs it with `--watch` and shows unread notifications on the HUD, also while the
 
 ## Tools
 
-All three share `pricing/tools/traderie_browser.mjs` (opens one new tab, real mouse and key events,
+All three share `pricing/tools/traderie_browser.mjs` (opens one background tab in the tools window, real mouse and key events,
 select helpers, price rows). Add further Traderie actions (mark sold, relist, remove) as new small
 scripts on that module, each with a fill-and-verify default and an explicit `--submit`.
 
