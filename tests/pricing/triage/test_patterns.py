@@ -18,9 +18,9 @@ def test_vendor_boots_explain_unmet_combination_without_claiming_no_listings():
     }
     result = assess(item, tables)
     assert result['verdict'] == 'vendor'
-    assert '20 FRW + three resistances' in result['reason']
-    assert 'fire resistance 8 of 20' in result['reason']
-    assert '0 of 3' in result['reason']
+    assert '20 FRW + two resistances of 30+' in result['reason']
+    assert 'fire resistance 8 of 30' in result['reason']
+    assert '0 of 2' in result['reason']
     assert 'no listings' not in result['reason']
     supported = item | {'properties': {'480': 20, '427': 25, '428': 25, '426': 25}}
     assert assess(supported, tables)['verdict'] == 'check'

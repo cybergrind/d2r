@@ -90,7 +90,7 @@ class MapCard:
     rooms: tuple[tuple[int, int, int, int], ...]  # x, y, width, height in tiles
     player: tuple[float, float]
     pois: tuple[MapPoi, ...] = ()
-    route: tuple[tuple[float, float], ...] = ()  # player → room centres → POI, in tiles (mazes only)
+    route: tuple[tuple[float, float], ...] = ()  # player → teleport hops → POI, in tiles
     room_kinds: tuple[str, ...] = ()  # per room: 'room' or 'edge' (outdoor level border); empty = all 'room'
     walkable: tuple[tuple[int, int, int, int, str], ...] = ()  # x, y, w, h tiles, packed sub-tiles (levels/model.py)
     visited: tuple[int, ...] = ()  # per room: ever loaded 0/1; empty = unshaded

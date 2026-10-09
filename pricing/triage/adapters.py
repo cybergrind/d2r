@@ -174,6 +174,15 @@ def from_drop(observation):
     properties = expanded_properties(facts.properties)
     if (poison := poison_total(facts)) is not None:
         properties.setdefault('518', poison)
+    if facts.rarity in AFFIXED and type(properties.get('446')) is int:
+        # The captured blocking stat is base + affix; sellers list the affix bonus alone.
+        from pricing.knowledge.definition_store import catalog
+
+        bonus = properties['446'] - catalog().shield_base_blocks.get(facts.base_code, 0)
+        if bonus > 0:
+            properties['446'] = bonus
+        else:
+            properties.pop('446')
     if (level := required_level(facts)) is not None:
         properties['796'] = level
     defense = facts.stats.get('31:0', {})

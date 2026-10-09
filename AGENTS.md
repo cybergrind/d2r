@@ -14,6 +14,7 @@ the Anya shop. Everything is quoted in **Ist = 1**. Numbers are dated snapshots 
 | asks why the loot filter shows/hides something, or wants a filter change | `.agents/skills/lootfilter/SKILL.md` | — |
 | asks to refresh prices, pull Traderie / diablo2.io, rebuild data, extend a guide, run the plan | `.agents/skills/pricing-refresh/SKILL.md` | — |
 | asks to update/audit the offline KB, fold in research, or check base-variant coverage | `.agents/skills/update-kb/SKILL.md` | online refresh unless requested |
+| asks to clear the shared stash, organise mules, decide what to drop or where an item goes | `.agents/skills/mules/SKILL.md` | online refresh; the guides |
 
 The appraise skill's report has a "why the filter shows it" part; it links to the filter skill only for the
 rule table, so an appraisal never needs the whole filter skill.

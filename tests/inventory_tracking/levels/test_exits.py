@@ -133,3 +133,21 @@ def test_a_town_marks_only_its_way_out_to_the_wilderness():
         103: 'Outer Steppes',
         109: 'Bloody Foothills',
     }
+
+
+def test_a_town_marks_its_waypoint_where_the_layout_puts_it():
+    # User, 2026-10-07. 'Act 1 - Town 1' (preset 1) has four layouts, each with its own waypoint;
+    # the town is read as 8x8 chunks sharing the preset's bounds.
+    def town(variant):
+        block = (5000, 5000, 56, 40)
+        return snapshot_of(1, Room(1, 5000, 5000, 8, 8, variant, block), Room(1, 5008, 5000, 8, 8, variant, block))
+
+    def waypoints(snapshot):
+        return [(poi.label, poi.spot) for poi in guide_level(None, snapshot).pois if poi.kind == 'waypoint']
+
+    assert waypoints(town(0)) == [('Waypoint', (5022.8, 5001.8))]
+    assert waypoints(town(2)) == [('Waypoint', (5023.8, 5018.8))]
+    assert waypoints(town(None)) == []  # the layout is not read yet: no guess
+    lut_gholein = snapshot_of(40, Room(301, 5000, 5000, 8, 8, None, (5000, 5000, 56, 56)))
+    assert waypoints(lut_gholein) == [('Waypoint', (5013.8, 5016.8))]  # both layouts agree
+    assert waypoints(snapshot_of(13, Room(CAVE_TREASURE_2, 100, 200, 24, 24, 0))) == []  # towns only

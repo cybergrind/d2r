@@ -223,16 +223,25 @@ def measure(widget, *, scale: float, limit: tuple[int, int] | None = None) -> tu
     return renderer.measure(widget.payload, scale, limit) if renderer else (0, 0)
 
 
-def draw_scene(cr, boxes, *, scale: float):
+def draw_scene(cr, boxes, *, scale: float, dimmed=(), dim_alpha: float = 1.0):
+    """Widgets in the slots `dimmed` are drawn at `dim_alpha` of their own opacity."""
     for widget, (x, y, width, height) in boxes:
         renderer = RENDERERS.get(widget.kind)
         if renderer is None:
             continue
+        faint = widget.slot in dimmed
         cr.save()
         try:
             cr.new_path()  # save/restore keeps the path: the last widget's pen position would join this one's shapes
             cr.translate(x, y)
-            renderer.draw(cr, width, height, widget.payload, scale)
+            if faint:
+                cr.push_group()
+            try:
+                renderer.draw(cr, width, height, widget.payload, scale)
+            finally:
+                if faint:
+                    cr.pop_group_to_source()
+                    cr.paint_with_alpha(dim_alpha)
         except Exception:  # one broken widget never blanks the rest of the HUD
             LOG.exception('HUD widget %s (%s) failed to draw', widget.id, widget.kind)
         finally:

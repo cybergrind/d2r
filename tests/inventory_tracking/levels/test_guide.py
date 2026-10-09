@@ -270,7 +270,7 @@ def test_show_in_an_unguided_level_draws_just_the_map():
     snapshot = replay('arcane_summoner_s')
     guide, shown, _ = make_guide([])
     guide.observe = lambda pid, images, capture, rooms=False: (
-        Location(1, 0x1000, snapshot.location.x, snapshot.location.y),
+        Location(39, 0x1000, snapshot.location.x, snapshot.location.y),
         list(snapshot.rooms) if rooms else [],
     )
 

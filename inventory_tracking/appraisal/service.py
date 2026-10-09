@@ -65,7 +65,14 @@ from inventory_tracking.collection.store import DEFAULT_DATABASE as COLLECTION_D
 from inventory_tracking.collection.watch import StashWatcher
 from inventory_tracking.common import LOG, configure_logging, log_to_file, timestamp
 from inventory_tracking.config import APPRAISAL, SHOW_ITEMS
-from inventory_tracking.hud.process import card_widgets, guide_widgets, hud_process, loot_widgets, terror_widgets
+from inventory_tracking.hud.process import (
+    PanelBeacon,
+    card_widgets,
+    guide_widgets,
+    hud_process,
+    loot_widgets,
+    terror_widgets,
+)
 from inventory_tracking.hud.scene import DEFAULT_SCENE, publish_layer
 from inventory_tracking.identify.service import IdentifyWorker
 from inventory_tracking.levels.dump import (
@@ -77,6 +84,7 @@ from inventory_tracking.levels.evidence import DEFAULT_EVIDENCE, EvidenceLog
 from inventory_tracking.levels.guide import LevelGuide
 from inventory_tracking.levels.memory import observe_walkable, observe_waypoints
 from inventory_tracking.levels.walls import WallLibrary
+from inventory_tracking.loot.materials import material_classes
 from inventory_tracking.loot.watch import RuneWatcher
 from inventory_tracking.macros.runner import REQUEST_PREFIX as MACRO_PREFIX, MacroRunner
 from inventory_tracking.native.session import GameNotReady, GameProcessUnavailable
@@ -597,6 +605,7 @@ def run_service(args, directory, report):
                             shrine_types=frozenset(APPRAISAL.shrine_marks),
                             super_chests=APPRAISAL.super_chest_marks,
                             unique_minimum=APPRAISAL.unique_minimum if APPRAISAL.unique_marks else None,
+                            materials=material_classes(APPRAISAL.material_marks),
                         )
                     terror = None
                     if args.terror_probe:
@@ -627,6 +636,11 @@ def run_service(args, directory, report):
                             lambda now: collector.request(now, now, trigger='stash-closed'),
                             poll_interval=args.stash_poll_seconds,
                         )
+                    panel_beacon = (
+                        PanelBeacon(source, lambda widgets: publish_layer(args.hud_scene, 'panels', widgets))
+                        if args.osd
+                        else None
+                    )
                     watching = 'watching vendor stock' if args.shop_auto else 'no automatic shop watch'
                     stash_note = 'collecting on stash close' if stash else 'no stash watch'
                     identify_note = 'assessing on identify' if args.identify_auto else 'no identify watch'
@@ -663,6 +677,8 @@ def run_service(args, directory, report):
                                     terror.tick()
                             with timer.step('macro'):
                                 macro.poll(time.monotonic())
+                            if panel_beacon is not None:
+                                panel_beacon.poll(time.monotonic())
                             try:
                                 data = server.recv(256)
                             except TimeoutError:
@@ -689,7 +705,16 @@ def run_service(args, directory, report):
                         identify.dismiss()
                         if guide is not None:
                             guide.dismiss()
-                        for producer in ('appraisal', 'cards', 'identify', 'levels', 'loot', 'macro', 'terror'):
+                        for producer in (
+                            'appraisal',
+                            'cards',
+                            'identify',
+                            'levels',
+                            'loot',
+                            'macro',
+                            'panels',
+                            'terror',
+                        ):
                             publish_layer(args.hud_scene, producer, [])
                         for pending in (shop.future, identify.future):
                             if pending:

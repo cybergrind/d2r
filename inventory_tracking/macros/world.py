@@ -16,6 +16,8 @@ from inventory_tracking.levels.memory import pointer
 from inventory_tracking.native.layout import (
     DEAD_MODES,
     LEVEL_AREA_ID,
+    LIFE_STAT,
+    MAX_LIFE_STAT,
     PANEL_FLAGS,
     PATH_ROOM1,
     ROOM1_ROOM2,
@@ -24,7 +26,7 @@ from inventory_tracking.native.layout import (
     UI_PANELS_RVA,
     UI_PANELS_SIZE,
 )
-from inventory_tracking.native.units import walk_units
+from inventory_tracking.native.units import read_stats, walk_units
 from inventory_tracking.tracking.consume import read_consume
 
 
@@ -52,6 +54,7 @@ MONSTER_OWNER = 84  # monster data u32[21]: the owning player's unit id (native/
 MONSTER_UNIT = 1
 DATA_RVA, DATA_SIZE = 0x197A000, 0xC98000  # the image's writable data (record probe)
 ITEM_UNIT = 4
+FULL_STATS = 0xE8  # the unit's full stat list (native/units.py describe_player)
 EQUIPPED_MODE = 1
 ITEM_OWNER, ITEM_BODY_LOCATION = 0x0C, 0x54  # item data (native/units.py describe_item)
 # The weapon set in hand; the other set sits at 11 and 12 (config.py: staff 4 -> 11 on swap).
@@ -131,6 +134,51 @@ def position(path: bytes) -> tuple[float, float]:
     return x + x_fraction / 65536, y + y_fraction / 65536
 
 
+def plausible_life(read, stats_pointer: int) -> bool:
+    """Whether the unit's full stat list holds a life within a positive maximum (tracking/state.py)."""
+    try:
+        stats = read_stats(read, stats_pointer + FULL_STATS)
+    except OSError, ValueError, struct.error:
+        return False
+    life = [s['raw'] for s in stats if s['layer'] == 0 and s['id'] == LIFE_STAT]
+    most = [s['raw'] for s in stats if s['layer'] == 0 and s['id'] == MAX_LIFE_STAT]
+    return len(life) == len(most) == 1 and 0 <= life[0] <= most[0] and most[0] > 0
+
+
+def local_player(read, table: int) -> Player | None:
+    """The character played, among the player units; None in menus or when it cannot be told."""
+    heads = struct.unpack('<128Q', read(table, 1024))
+    found = []
+    for unit in walk_units(read, heads, 0)['units']:
+        if not unit['path_pointer']:
+            continue
+        try:
+            path = read(unit['path_pointer'], 0x28)
+            room1 = struct.unpack_from('<Q', path, PATH_ROOM1)[0]
+            level = pointer(read, pointer(read, room1 + ROOM1_ROOM2) + ROOM2_LEVEL)
+            area = struct.unpack('<I', read(level + LEVEL_AREA_ID, 4))[0]
+            name = decode_name(read(unit['data_pointer'], 16))
+        except OSError, ValueError, struct.error:
+            continue
+        consume, node = None, b''
+        try:
+            buff = read_consume(read, unit['stats_pointer'])
+            consume = buff.active
+            if buff.effect_id:
+                node = read(buff.effect_id, 0x80)
+        except OSError, ValueError, struct.error:
+            pass
+        player = Player(unit['unit_id'], name, unit['mode'], area, *position(path), consume, node)
+        found.append((player, unit['stats_pointer']))
+    # Several player units may stand for the one character: the shared stash tabs carry its name
+    # and no life (collection/research.md). With other players in the game (user, 2026-10-08)
+    # the character is the one unit with a plausible life; another player's unit has none.
+    if len({player.name for player, _ in found}) == 1:
+        return min((player for player, _ in found), key=lambda p: p.unit_id)
+    alive = [player for player, stats in found if plausible_life(read, stats)]
+    return alive[0] if len(alive) == 1 else None
+
+
 class GameMemory:
     """Keeps /proc/<pid>/mem open for one macro run."""
 
@@ -148,31 +196,7 @@ class GameMemory:
         return data
 
     def _player(self) -> Player | None:
-        heads = struct.unpack('<128Q', self.read(self.table, 1024))
-        found = []
-        for unit in walk_units(self.read, heads, 0)['units']:
-            if not unit['path_pointer']:
-                continue
-            try:
-                path = self.read(unit['path_pointer'], 0x28)
-                room1 = struct.unpack_from('<Q', path, PATH_ROOM1)[0]
-                level = pointer(self.read, pointer(self.read, room1 + ROOM1_ROOM2) + ROOM2_LEVEL)
-                area = struct.unpack('<I', self.read(level + LEVEL_AREA_ID, 4))[0]
-                name = decode_name(self.read(unit['data_pointer'], 16))
-            except OSError, ValueError, struct.error:
-                continue
-            consume, node = None, b''
-            try:
-                buff = read_consume(self.read, unit['stats_pointer'])
-                consume = buff.active
-                if buff.effect_id:
-                    node = self.read(buff.effect_id, 0x80)
-            except OSError, ValueError, struct.error:
-                pass
-            found.append(Player(unit['unit_id'], name, unit['mode'], area, *position(path), consume, node))
-        # Several player units may stand for the one character (levels/memory.py); a game with
-        # another character in view is not handled.
-        return min(found, key=lambda p: p.unit_id) if len({p.name for p in found}) == 1 else None
+        return local_player(self.read, self.table)
 
     def _monsters(self) -> tuple[Monster, ...]:
         heads = struct.unpack('<128Q', self.read(self.table + MONSTER_UNIT * 1024, 1024))

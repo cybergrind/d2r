@@ -2,7 +2,15 @@
 
 import struct
 
-from inventory_tracking.hud.live import Entrance, LiveUnits, follow, ground_payload_of, position
+from inventory_tracking.hud.live import (
+    Entrance,
+    LiveUnits,
+    OpenPanels,
+    follow,
+    ground_payload_of,
+    panel_source,
+    position,
+)
 from inventory_tracking.hud.scene import Widget
 
 
@@ -120,3 +128,55 @@ def test_the_map_card_player_follows_the_live_position():
     assert moved[0][0].payload['map']['map']['rooms'] == [[0, 0, 8, 8]]
     assert card['map']['map']['player'] == [20.0, 30.0]
     assert moved[1] == boxes[1]
+
+
+FLAGS = 0x3000
+
+
+def panel_bytes(*names):
+    from inventory_tracking.native.layout import PANEL_FLAGS, UI_PANELS_SIZE
+
+    raw = bytearray(UI_PANELS_SIZE)
+    for name in names:
+        raw[PANEL_FLAGS[name]] = 1
+    return bytes(raw)
+
+
+def panels(memory, names=('inventory', 'mercenary')):
+    def read(fd, size, address):
+        data = memory.get(address, OSError('unmapped'))
+        if isinstance(data, Exception):
+            raise data
+        return data
+
+    return OpenPanels(names, open_memory=lambda pid: 100 + pid, read=read)
+
+
+def test_an_open_item_panel_is_read_at_the_published_address(monkeypatch):
+    monkeypatch.setattr('os.close', lambda fd: None)
+
+    assert panels({FLAGS: panel_bytes('mercenary')}).reading([7, FLAGS])
+    assert panels({FLAGS: panel_bytes('inventory', 'stash')}).reading([7, FLAGS])
+    # panels the player does not read items in, and no panel at all
+    assert not panels({FLAGS: panel_bytes('belt_rows', 'chat')}).reading([7, FLAGS])
+    assert not panels({FLAGS: panel_bytes()}).reading([7, FLAGS])
+
+
+def test_nothing_is_dimmed_when_the_flags_cannot_be_trusted(monkeypatch):
+    monkeypatch.setattr('os.close', lambda fd: None)
+
+    def refuse(pid):
+        raise PermissionError('ptrace scope')
+
+    assert not panels({}).reading(None)  # no producer names the game
+    assert not panels({}).reading([7, FLAGS])  # the game is gone
+    assert not panels({FLAGS: b'\x02' + panel_bytes('inventory')[1:]}).reading([7, FLAGS])  # not a flag array
+    assert not OpenPanels(('inventory',), open_memory=refuse).reading([7, FLAGS])
+
+
+def test_the_panel_source_is_taken_out_of_the_scene_before_layout():
+    source = Widget('panels', 'panels', 'panels', {'live': [7, FLAGS]})
+    card = Widget('map', 'guide', 'map', {'lines': [], 'map': None})
+
+    assert panel_source([card, source]) == ([7, FLAGS], [card])
+    assert panel_source([card]) == (None, [card])

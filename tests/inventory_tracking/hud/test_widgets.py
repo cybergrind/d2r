@@ -219,3 +219,21 @@ def test_a_card_drawn_before_the_ground_marks_leaves_no_line_to_a_mark():
         return bytes(surface.get_data())[(22 + h) * surface.get_stride() :]  # the rows below the card and its edge
 
     assert drawn([(card, (100, 20, w, h)), (ground, (0, 0, 800, 450))]) == drawn([(ground, (0, 0, 800, 450))])
+
+
+def test_dimmed_slots_are_drawn_faint_and_the_assessment_card_stays_as_it_is():
+    # Reading an item tooltip (user, 2026-10-07): the map, arrows and zone stats fade; an Alt+D card does not.
+    terror = Widget('terror', 'text', 'terror', text_widget([StyledLine('Killed 0 / 172')]).payload)
+    card = text_widget([StyledLine('Keep')])
+
+    def corner_alpha(widget, **dim):
+        w, h = measure(widget, scale=1.0)
+        surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, w, h)
+        draw_scene(cairo.Context(surface), [(widget, (0, 0, w, h))], scale=1.0, **dim)
+        surface.flush()
+        return surface.get_data()[(h // 2) * surface.get_stride() + 3 * 4 + 3]  # card background, left edge
+
+    dim = {'dimmed': ('terror', 'guide'), 'dim_alpha': 0.2}
+    assert corner_alpha(terror) > 200
+    assert 0 < corner_alpha(terror, **dim) < 70
+    assert corner_alpha(card, **dim) == corner_alpha(card)

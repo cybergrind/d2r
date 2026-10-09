@@ -50,6 +50,8 @@ NATIVE_PROPERTIES = {
     '112:0': '534',  # Flee percentage, raw 128 means 100%
     '151:120': '859',  # Meditation aura level when equipped
     '97:9': '1210',  # Critical Strike (Any Class), not Amazon staffmod 858
+    '252:0': '431',  # Self-repair; decoded seconds per point, the number sellers enter (20 or 33)
+    '253:0': '563',  # Replenishes quantity
 }
 
 

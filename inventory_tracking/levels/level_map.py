@@ -1,4 +1,4 @@
-"""Build the OSD map card for a level: every Room2, the player, the handler's POIs and a route, in tiles."""
+"""Build the OSD map card for a level: every Room2, the player, the handler's POIs and a teleport route, in tiles."""
 
 import re
 from collections.abc import Iterable
@@ -40,17 +40,17 @@ def build_map(
     `pid` (the game process) lets the HUD follow the player between cards when the location has its path.
     `whole` draws a big level whole instead of the part around the player (osd/level_map.py).
 
-    The route leads to the first POI reachable through doorways (mazes only; levels/route.py).
+    The route is the teleport path to the first POI reachable over rooms (levels/route.py).
     """
     where = location or snapshot.location
     player = (where.x / TILE_UNITS, where.y / TILE_UNITS)
     pois = tuple(pois)
     marks = tuple(MapPoi(p.label, p.kind, *(p.spot or centre(p.room))) for p in pois)
     path: tuple[tuple[float, float], ...] = ()
-    for poi, mark in zip(pois, marks, strict=True):
-        rooms = route(snapshot.rooms, player, poi.room)
-        if rooms:
-            path = (player, *(centre(room) for room in rooms[1:-1]), (mark.x, mark.y))
+    for mark in marks:
+        hops = route(snapshot.rooms, player, (mark.x, mark.y))
+        if hops:
+            path = tuple(hops)
             break
     return MapCard(
         rooms=tuple((r.x, r.y, r.width, r.height) for r in snapshot.rooms),

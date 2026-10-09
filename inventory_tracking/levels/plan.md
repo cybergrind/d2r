@@ -417,6 +417,17 @@ recomputed on every live position update. There's no route in Temple levels (chu
   room and ends in the Next room; every step crosses a shared edge with matching doorways.
 - Green: `route` in `level_map.py`; the path is drawn on the map card.
 
+Replaced 2026-10-09 (user: "assume we have teleport"; the stairs were one teleport away and the
+route went all around the maze). `levels/route.py` now routes for a teleporting player: walls and
+doorways are ignored, only void (no Room2) blocks, and a teleport crosses void up to `REACH` = 4
+tiles (half a screen, geometry.py's ~40 world units). The route is the straight line when it stays
+over rooms, else Dijkstra over preset instances whose rectangles are within `REACH` of each other
+(centre distances), pulled tight so straight passable hops replace detours. Every level with rooms
+gets a route now, Temple quadrants included. On the fixtures the doorway walk was 1.3-1.7x the
+straight line; 8 of 10 fixture routes are now one straight hop, Tower Cellar 4 and WSK 2 round a
+void of 8 and 17 tiles in 3-4 hops; under 1 ms each. The doorway BFS stays in git history.
+`REACH` is an estimate to confirm in game (a hop that fails to land shortens it).
+
 ### Phase 7: more levels (each one file of one or two lines, confirmed from evidence)
 
 Started 2026-09-30: `handlers/jail.py` covers Barracks (stairs down), Jail 1–2 (stairs down +

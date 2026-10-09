@@ -3,7 +3,8 @@
 Anchored to all edges with exclusive zone 0, it covers exactly niri's workspace view, so niri's
 window positions are canvas coordinates. It reads the scene every refresh, lays widgets out in
 game-window slots, redraws only when the layout changes, and unmaps when there is nothing to
-show (or the game is not focused), so a fullscreen game keeps direct scanout.
+show (or the game is not focused), so a fullscreen game keeps direct scanout. While an item
+panel is open (hud/live.py OpenPanels, read every frame) the slots of `dim_slots` are drawn faint.
 """
 
 import signal
@@ -12,7 +13,7 @@ import time
 from inventory_tracking.common import LOG
 from inventory_tracking.config import HUD, OSD
 from inventory_tracking.hud.layout import Slot, game_rect, place, scale_for, slot_limit
-from inventory_tracking.hud.live import Entrance, LiveUnits, follow, ground_payload_of
+from inventory_tracking.hud.live import Entrance, LiveUnits, OpenPanels, follow, ground_payload_of, panel_source
 from inventory_tracking.hud.scene import read_scene
 from inventory_tracking.hud.widgets import draw_scene, measure
 from inventory_tracking.osd.monitor import GameOutput, choose_monitor
@@ -51,10 +52,16 @@ def run(scene_dir, config=HUD, *, monitor_index=OSD.monitor):
         )
         monitors = Gdk.Display.get_default().get_monitors()
         game_output = GameOutput()
-        state = {'boxes': [], 'scale': 1.0, 'key': None, 'monitor': None, 'ground': None}
-        live, entrance = LiveUnits(), Entrance()
+        state = {'boxes': [], 'scale': 1.0, 'key': None, 'monitor': None, 'ground': None, 'panels': None, 'dim': False}
+        live, entrance, panels = LiveUnits(), Entrance(), OpenPanels(config.dim_panels)
         area.set_draw_func(
-            lambda _a, cr, _w, _h: draw_scene(cr, follow(state['boxes'], state['ground']), scale=state['scale'])
+            lambda _a, cr, _w, _h: draw_scene(
+                cr,
+                follow(state['boxes'], state['ground']),
+                scale=state['scale'],
+                dimmed=config.dim_slots if state['dim'] else (),
+                dim_alpha=config.dim_alpha,
+            )
         )
 
         def follow_units(*_):
@@ -64,8 +71,9 @@ def run(scene_dir, config=HUD, *, monitor_index=OSD.monitor):
             age = entrance.age(payload, time.monotonic())
             if age is not None and age < config.ground.arrow_seconds:  # the arrows are still moving out
                 ground = {**(ground or payload), 'age': age}
-            if ground != state['ground']:
-                state['ground'] = ground
+            dim = panels.reading(state['panels'])
+            if ground != state['ground'] or dim != state['dim']:
+                state.update(ground=ground, dim=dim)
                 area.queue_draw()
             return GLib.SOURCE_CONTINUE
 
@@ -78,7 +86,7 @@ def run(scene_dir, config=HUD, *, monitor_index=OSD.monitor):
             return geometry.width, geometry.height
 
         def refresh():
-            widgets = read_scene(scene_dir, now=time.monotonic())
+            state['panels'], widgets = panel_source(read_scene(scene_dir, now=time.monotonic()))
             boxes, scale = [], state['scale']
             if widgets:
                 output = game_output()

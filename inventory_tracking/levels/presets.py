@@ -1,5 +1,5 @@
 """Bundled LvlPrest Def and level names (data/level_presets.json, built by build_presets.py) and
-preset warp spots (data/preset_warps.json, built by build_warps.py)."""
+preset warp and waypoint spots (data/preset_warps.json, built by build_warps.py)."""
 
 import json
 from pathlib import Path
@@ -10,7 +10,9 @@ PRESET_NAMES: dict[int, str] = {int(k): v for k, v in _TABLE['presets'].items()}
 LEVEL_NAMES: dict[int, str] = {int(k): v for k, v in _TABLE['levels'].items()}
 DISPLAY_NAMES: dict[int, str] = {int(k): v for k, v in _TABLE['names'].items()}
 LEVEL_LINKS: dict[int, tuple[int, ...]] = {int(k): tuple(v) for k, v in _TABLE['links'].items()}
-_WARPS = json.loads((Path(__file__).parent / 'data' / 'preset_warps.json').read_text())['warps']
+_SPOTS = json.loads((Path(__file__).parent / 'data' / 'preset_warps.json').read_text())
+_WARPS = _SPOTS['warps']
+_WAYPOINTS = _SPOTS['waypoints']
 
 
 def preset_name(preset: int) -> str:
@@ -36,3 +38,12 @@ def warp_spots(preset: int, variant: int | None) -> dict[int, tuple[float, float
     """Warp slot -> centre of its tiles from the preset origin, for one DS1 variant; {} unknown."""
     slots = _WARPS.get(str(preset), {}).get(str(variant), {}) if variant is not None else {}
     return {int(slot): (x, y) for slot, (x, y) in slots.items()}
+
+
+def waypoint_spot(preset: int, variant: int | None) -> tuple[float, float] | None:
+    """The preset's waypoint from the preset origin, in tiles, for one DS1 variant; None unknown.
+    An unread variant still answers when every variant puts it in the same place (Lut Gholein)."""
+    variants = _WAYPOINTS.get(str(preset), {})
+    known = variants.values() if variant is None else [variants[str(variant)]] if str(variant) in variants else []
+    spots = {(x, y) for x, y in known}
+    return next(iter(spots)) if len(spots) == 1 else None

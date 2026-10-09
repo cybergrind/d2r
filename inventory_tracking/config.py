@@ -3,7 +3,7 @@
 from collections.abc import Mapping
 from pathlib import Path
 from types import MappingProxyType
-from typing import Annotated, Self
+from typing import Annotated, Literal, Self
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationInfo, field_serializer, field_validator, model_validator
 
@@ -339,6 +339,9 @@ class AppraisalConfig(Config):
     # 2.5 takes in Harlequin Crest and The Stone of Jordan (user, 2026-10-06; both 2.58 on 2026-09-18).
     unique_minimum: Annotated[float, Field(ge=0)] = 2.5
     super_chest_marks: bool = True  # point at closed glowing chests (object class 397)
+    # Other drops to point at, by group (loot/materials.py): Worldstone Shards, flawless and perfect
+    # gems, the Colossal Ancients' statues, the Pandemonium keys (user, 2026-10-07).
+    material_marks: tuple[Literal['shards', 'gems', 'statues', 'keys'], ...] = ('shards', 'gems', 'statues', 'keys')
     terror_probe: bool = True  # record monster sightings/kills to terror-probe.jsonl (terror/probe.py research)
     terror_probe_interval: Positive = 0.25  # seconds between monster-table reads
     terror_summary_seconds: Positive = 10.0  # seconds between per-area summary events
@@ -414,8 +417,9 @@ class HudConfig(Config):
         'map': HudSlot(x=0.5, y=0.15, centered=True),
         # Alt+D / shop / identify card: at most 45% of the window wide.
         'assessment': HudSlot(x=0.2, y=0.12, max_width=0.45),
-        # Valuable runes on the ground: the left edge, where the guide card was above them.
-        'loot': HudSlot(x=0.03, y=0.34),
+        # Valuable drops on the ground: a third of the way in from the left edge (user, 2026-10-07;
+        # before that at the edge, x=0.03).
+        'loot': HudSlot(x=0.33, y=0.34),
         # Terror Zone card (terror/tracker.py): right of the widest Alt+D card, at the top (user, 2026-10-04),
         # and left of the game's own corner text (user, 2026-10-06).
         'terror': HudSlot(x=0.68, y=0.02, max_width=0.2),
@@ -423,6 +427,12 @@ class HudConfig(Config):
         'ground': HudSlot(x=0, y=0),
     }
     ground: HudGroundConfig = HudGroundConfig()
+    # While one of these panels is open the player is reading items, not navigating, so the
+    # widgets of `dim_slots` are drawn at `dim_alpha` of their opacity (user, 2026-10-07). The
+    # 'assessment' slot (Alt+D / shop / identify cards) is about those items and stays as it is.
+    dim_panels: tuple[str, ...] = ('inventory', 'stash', 'cube', 'npc_shop', 'mercenary')
+    dim_slots: tuple[str, ...] = ('guide', 'map', 'ground', 'terror', 'loot')
+    dim_alpha: Annotated[float, Field(ge=0, le=1)] = 0.15
 
 
 HUD = HudConfig()

@@ -17,7 +17,9 @@ are waiting to name (ExitsHandler.exits) is left to them. The kind is a guess fr
 numbers, which grow along the story: a lower-numbered level is the way back.
 
 Towns. A town marks only its way out to the wilderness (user, 2026-10-06): Lut Gholein's sewer
-ladders and the Harem were noise, its gate to the Rocky Waste is in one of two places.
+ladders and the Harem were noise, its gate to the Rocky Waste is in one of two places. And its
+waypoint (user, 2026-10-07), an object the town's DS1 file places (presets.waypoint_spot): known
+on entry, before the game streams the object (the Rogue Encampment has four layouts).
 """
 
 import math
@@ -27,7 +29,7 @@ from dataclasses import replace
 
 from inventory_tracking.levels.handler import Handler, instances
 from inventory_tracking.levels.model import Guidance, LevelSnapshot, Poi, Room
-from inventory_tracking.levels.presets import display_name, linked_level, warp_spots
+from inventory_tracking.levels.presets import display_name, linked_level, warp_spots, waypoint_spot
 from inventory_tracking.levels.spots import WAYS_OUT
 
 
@@ -82,6 +84,17 @@ def border_exits(snapshot: LevelSnapshot, skip: Iterable[int] = ()) -> tuple[Poi
     return tuple(pois)
 
 
+def preset_waypoints(snapshot: LevelSnapshot) -> tuple[Poi, ...]:
+    """One 'waypoint' POI per preset instance whose DS1 file places a waypoint, on the waypoint."""
+    pois = []
+    for room, _ in instances(snapshot.rooms):
+        spot = waypoint_spot(room.preset, room.variant)
+        if spot is not None:
+            x, y = origin(room)
+            pois.append(Poi('Waypoint', room, 'waypoint', (x + spot[0], y + spot[1])))
+    return tuple(pois)
+
+
 def marks_a_way_out(poi: Poi) -> bool:
     return poi.kind in WAYS_OUT or poi.spot is not None
 
@@ -106,4 +119,5 @@ def guide_level(handler: Handler | None, snapshot: LevelSnapshot) -> Guidance:
     wanted = TOWN_WAYS_OUT.get(snapshot.location.area_id)
     if wanted is None:
         return guidance
-    return replace(guidance, pois=tuple(poi for poi in guidance.pois if poi.area in wanted))
+    ways_out = tuple(poi for poi in guidance.pois if poi.area in wanted)
+    return replace(guidance, pois=(*ways_out, *preset_waypoints(snapshot)))

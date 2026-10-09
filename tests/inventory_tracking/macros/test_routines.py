@@ -393,6 +393,106 @@ def test_a_defiler_is_not_summoned_next_to_the_demon():
     assert sorted(m.txt_id for m in game.world.monsters) == [700, 744]
 
 
+def test_townsfolk_by_the_defiler_do_not_stop_consume():
+    # Host, 19:43 on 2026-10-07 (Rogue Encampment): Kashya (class 150) 8 and 12 units from the
+    # Defiler was "too close" three summons in a row, and Consume was never pressed.
+    game = Game(world())
+    react = game.keys.on_event
+
+    def on_event(event):  # she stands that far from every Defiler, wherever it lands
+        react(event)
+        if event == ('key', 'q'):
+            defiler = next(m for m in game.world.monsters if m.txt_id == 744)
+            kashya = Monster(8, 150, 1, defiler.x + 8, defiler.y + 12, 0xFFFFFFFF)
+            others = tuple(m for m in game.world.monsters if m.txt_id != 150)
+            game.world = replace(game.world, monsters=(*others, kashya))
+
+    game.keys.on_event = on_event
+    prebuff(game.run())
+    assert game.pressed() == ['q', '6', 'q', 'g', 'r']
+
+
+def test_consume_is_aimed_where_the_defiler_stands_after_it_walked():
+    # User, 2026-10-07: the summoned Defiler moves, and Consume pressed where it was misses.
+    game = Game(world())
+    react, walked = game.keys.on_event, []
+
+    def on_event(event):
+        react(event)
+        if event == ('key', 'q') and not walked:  # it walks off as soon as it has landed
+            walked.append(True)
+            moved = tuple(replace(m, x=m.x - 9, y=m.y + 2) if m.txt_id == 744 else m for m in game.world.monsters)
+            game.world = replace(game.world, monsters=moved)
+
+    game.keys.on_event = on_event
+    steps, move = [], game.keys.move_pointer
+
+    def move_pointer(x, y):  # and takes two more steps while the pointer is on its way to it
+        steps.append((x, y))
+        if len(walked) < 3 and len(steps) % 3 == 0 and '6' not in game.pressed() and game.pressed() == ['q']:
+            walked.append(True)
+            moved = tuple(replace(m, x=m.x + 3) if m.txt_id == 744 else m for m in game.world.monsters)
+            game.world = replace(game.world, monsters=moved)
+        return move(x, y)
+
+    game.keys.move_pointer = move_pointer
+    prebuff(game.run())
+    assert len(walked) == 3
+    assert game.pressed() == ['q', '6', 'q', 'g', 'r']
+    assert game.world.player.consume
+
+
+def test_consume_is_not_pressed_at_a_defiler_that_never_stands_still():
+    # The pointer would be where the Defiler was, and the bound demon may stand there (user,
+    # 2026-10-07: the demon must never be consumed by accident).
+    game = Game(world(monsters=(BOUND_DEMON,)))
+    run = game.run()
+    move, steps = run.actuator.move, [3.0, -3.0]
+
+    def restless(x, y, **scatter):  # three units to and fro, once per pointer move
+        move(x, y, **scatter)
+        steps.reverse()
+        walked = tuple(replace(m, x=m.x + steps[0]) if m.txt_id == 744 else m for m in game.world.monsters)
+        game.world = replace(game.world, monsters=walked)
+
+    run.actuator.move = restless
+    with pytest.raises(Abort, match='keeps walking'):
+        prebuff(run)
+    assert '6' not in game.pressed()
+    assert 700 in [m.txt_id for m in game.world.monsters]
+
+
+def deaf_to_consume(game, times):
+    """The game does nothing on the first `times` Consume keys."""
+    react, left = game.keys.on_event, [times]
+
+    def on_event(event):
+        if event == ('key', '6') and left[0]:
+            left[0] -= 1
+            return
+        react(event)
+
+    game.keys.on_event = on_event
+
+
+def test_a_consume_that_changed_nothing_is_pressed_again():
+    # Host, 20:04 on 2026-10-07: the key went down on a still Defiler, which stood on with no buff.
+    game = Game(world(monsters=(BOUND_DEMON,)))
+    deaf_to_consume(game, 1)
+    prebuff(game.run())
+    assert game.pressed() == ['q', '6', '6', 'q', 'g', 'r']
+    assert game.world.player.consume
+    assert sorted(m.txt_id for m in game.world.monsters) == [700, 744]
+
+
+def test_consume_gives_up_after_three_presses_that_changed_nothing():
+    game = Game(world())
+    deaf_to_consume(game, 99)
+    with pytest.raises(Abort, match='Consume: not seen'):
+        prebuff(game.run())
+    assert game.pressed() == ['q', '6', '6', '6']
+
+
 def arrived(game, previous, seconds):
     run = game.run()
     run.arrival = lambda: (previous, seconds)

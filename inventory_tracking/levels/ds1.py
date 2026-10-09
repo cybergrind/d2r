@@ -19,6 +19,7 @@ from collections import defaultdict
 SPECIAL = (10, 11)
 WARP_SLOTS = 8
 MONSTER = 1  # object type: a monster, by its row in monpreset.txt
+OBJECT = 2  # object type: an object, by its Index among its act's rows of objpreset.txt
 
 
 def _read(data: bytes):
@@ -64,6 +65,15 @@ def monster_presets(data: bytes) -> tuple[int, list[tuple[int, int, int]]]:
     champion packs stood within 0-21 units of their object."""
     _layers, _width, act, objects = _read(data)
     return act, [(found, x, y) for kind, found, x, y in objects if kind == MONSTER]
+
+
+def object_presets(data: bytes) -> tuple[int, list[tuple[int, int, int]]]:
+    """(act, 0-based; [(id, x, y)]) of the file's objects: `id` is the objpreset.txt Index among
+    its act's rows, x and y are sub-tiles (world units) from the preset origin. Checked on
+    2026-10-07 against the Catacombs 2 waypoint seen in memory (evidence 35/20261005T064253):
+    the file says (19, 24), the object stood at (20, 26)."""
+    _layers, _width, act, objects = _read(data)
+    return act, [(found, x, y) for kind, found, x, y in objects if kind == OBJECT]
 
 
 def warp_tiles(data: bytes) -> dict[int, list[tuple[int, int]]]:

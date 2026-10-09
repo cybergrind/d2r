@@ -95,7 +95,7 @@ Done as planned, plus:
 
 ### More producers (2026-09-30)
 
-- **Ground runes** (`inventory_tracking/loot/`, producer `loot`, slot `loot` at (0.03, 0.34)): serve's
+- **Ground runes** (`inventory_tracking/loot/`, producer `loot`, slot `loot` at (0.33, 0.34)): serve's
   `RuneWatcher` polls item units in ground modes 3 (on the ground) and 5 (dropping), keeps runes
   at or above `APPRAISAL.rune_minimum` (default r16 = Io and up, user 2026-09-30), and
   shows them as arrow rows (the guide card without a map), highest rune first. Each new rune is
@@ -111,6 +111,11 @@ Done as planned, plus:
   +0x10 is the shrine table pointer. MapAssist's byte-packed +0x0C is wrong on this build. Unused
   shrines (mode 0) of `APPRAISAL.shrine_marks` (default 18 = Gem) are listed above the runes in the
   `loot` card. Still unconfirmed: that a used shrine leaves mode 0.
+- **Materials** (user, 2026-10-07): Worldstone Shards, flawless and perfect gems, the Colossal
+  Ancients' statues and the keys of Terror, Hate and Destruction on the ground are rows of the same
+  card, named by the item (`loot/materials.py`: item codes resolved through the decoder's bases).
+  `APPRAISAL.material_marks` picks the groups (`shards`, `gems`, `statues`, `keys`; all by default).
+  Not yet seen in game. The `loot` slot moved from x 0.03 to 0.33 the same day.
 
 ### Phase 3: inventory OSD text widgets and the repair mark
 

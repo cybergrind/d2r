@@ -196,6 +196,7 @@ def magic_patterns(add):
             {'conditions': {'base_name': {'in': bases}, 'sockets': sockets}},
             source='guides/pindle-anya.html#s5 (plain magic socket bases)',
         )
+    # Not covered by the 30 FRW circlet gate: its low rolls keep a 20 / 20 Tiara as a near miss.
     add(
         'circ',
         'magic',
@@ -205,13 +206,6 @@ def magic_patterns(add):
         labels={'480': 'faster run/walk', '441': 'all resistances'},
         source='guides/pindle-anya.html#s5 (30 FRW + 30 all resistances)',
     )
-    for prop, minimum, suffix in (('480', 30, 'Speed'), ('461', 26, 'Luck'), ('418', 81, 'Whale')):
-        add(
-            'circ',
-            'magic',
-            f"Artisan's circlet of {suffix}",
-            {**stats(**{prop: minimum}), 'conditions': {'sockets': 3, 'base_name': {'in': ['Tiara', 'Diadem']}}},
-        )
     add(
         'shie',
         'magic',
@@ -255,105 +249,548 @@ def physical_weapon_patterns(add):
     from inventory_tracking.items.metadata import metadata
     from pricing.knowledge.assessment.mechanics.base_tiers import base_tier
 
-    # Shared physical patterns supported by scoped 2026-10-03 asks. These
-    # are review candidates, not sufficient evidence for a numerical price.
-    sellers = {'swor': 8, 'axe': 8, 'mace': 5, 'club': 2, 'spea': 2, 'bow': 10, 'xbow': 3}
-    # Hammers are a separate native type within the guide's mace weapon class.
-    # Only the guide-backed Fool's combination is added for them, without a price.
-    for family, count in (sellers | {'hamm': None}).items():
-        bases = sorted(
-            b['name'] for b in metadata()['bases'].values() if b['type'] == family and base_tier(b['code']) == 'Elite'
-        )
-        ranged = family in ('bow', 'xbow')
-        conditions = {'base_name': {'in': bases}}
-        support = None
-        if not ranged:
-            # Phase Blades supply durability intrinsically, including non-ethereal
-            # copies. Other melee bases still need ethereal damage and a remedy.
-            support = counted(
-                1,
-                {'conditions': {'base_name': 'Phase Blade', 'ethereal': {'in': [False, True]}}},
-                {
-                    'conditions': {'ethereal': True},
-                    **counted(
-                        1,
-                        stats(**{'431': 1}),
-                        {'properties': {'432': True}},
-                        {'conditions': {'sockets': {'min': 1}}},
-                    ),
-                },
-            )
-        if count is not None:
-            add(
-                family,
-                'rare',
-                'Elite physical weapon: damage + speed' + ('' if ranged else ' + durability solution'),
-                {**stats(**{'510': 300, '457': 20 if ranged else 30}), 'conditions': conditions},
-                support,
-                source={
-                    'path': 'pricing/raw/traderie/pull-20261003/',
-                    'reviewed_at': '2026-10-03',
-                    'scope': 'SC/NL/PC/RotW',
-                    'kind': 'paid_pattern',
-                    'independent_sellers': count,
-                },
-            )
-        if family in ('swor', 'axe', 'mace', 'hamm'):
-            add(
-                family,
-                'rare',
-                "Elite Fool's weapon: scaling damage and attack rating + damage + speed + durability solution",
-                {
-                    **stats(**{'510': 200, '457': 30, '535': 1, '536': 1}),
-                    'conditions': conditions,
-                },
-                support,
-                source={
-                    'path': 'pricing/raw/traderie/pull-20261003/',
-                    'reviewed_at': '2026-10-03',
-                    'scope': 'SC/NL/PC/RotW',
-                    'kind': 'paid_pattern',
-                    'independent_sellers': {'swor': 9, 'axe': 5, 'mace': 2}.get(family),
-                    'observed_ed_band': [200, 299],
-                }
-                if family != 'hamm'
-                else {
-                    'path': 'guides/pricing.html#s2-yellow',
-                    'kind': 'guide_pattern',
-                },
-            )
+    # Scoped 2026-10-08 cache, one vote per seller: enhanced damage is the gate.
+    # Under half of the priced sellers list attack speed, a durability remedy or
+    # both level-scaling stats, and normal/exceptional bases are listed alongside
+    # elite ones (rares can be upgraded). Review candidates, never a price.
+    def source(sellers, lowest):
+        return {
+            'path': 'pricing/data/appraisal-market.jsonl',
+            'guide': 'guides/pricing.html#s2-yellow',
+            'reviewed_at': '2026-10-08',
+            'scope': 'SC/NL/PC/RotW',
+            'kind': 'paid_pattern',
+            'priced_sellers': sellers,
+            'lowest_ask_ist': lowest,
+        }
 
-
-def throwing_weapon_patterns(add):
-    from inventory_tracking.items.metadata import metadata
-    from pricing.knowledge.assessment.mechanics.base_tiers import base_tier
-
-    # Double Throw's mastery replenishes quantity on critical strikes. Unlike
-    # melee durability or Amazon throwing use, a replenish affix is not required.
-    for family in ('taxe', 'tkni', 'jave'):
+    # family: (priced sellers at or above the gate, their lowest ask in Ist)
+    ethereal = {
+        'swor': (84, 9.3),
+        'axe': (59, 5.9),
+        'mace': (33, 11.4),
+        'hamm': (22, 11.4),
+        'club': (21, 11.4),
+        'scep': (19, 57.1),
+        'h2h': (34, 5.9),
+        'h2h2': (34, 22.8),
+        'spea': (6, 45.7),
+        'pole': (6, 34.3),
+        'jave': (60, 4.1),
+        'ajav': (15, 11.4),
+        'taxe': (20, 11.4),
+        'tkni': (14, 22.8),
+    }
+    # Bows cannot be ethereal; Amazon javelins and class claws are also listed
+    # non-ethereal. Crossbows below 300% have three priced sellers at 1 Ist.
+    plain = {
+        'bow': (200, 69, 4.1),
+        'abow': (200, 24, 5.9),
+        'xbow': (300, 18, 9.3),
+        'ajav': (200, 21, 1.0),
+        'h2h2': (200, 6, 22.8),
+    }
+    gates = [(family, True, 200, evidence) for family, evidence in ethereal.items()]
+    gates += [(family, False, damage, evidence) for family, (damage, *evidence) in plain.items()]
+    for family, is_ethereal, damage, evidence in gates:
         for elite in (True, False):
             bases = sorted(
                 b['name']
                 for b in metadata()['bases'].values()
-                if b['type'] == family and base_tier(b['code']) in (('Elite',) if elite else ('Normal', 'Exceptional'))
+                if b['type'] == family and (base_tier(b['code']) == 'Elite') == elite
             )
+            if not bases:
+                continue
             add(
                 family,
                 'rare',
-                'Double Throw: ethereal damage + speed' + ('; review upgrade costs' if not elite else ''),
-                {
-                    **stats(**{'510': 300, '457': 30}),
-                    'conditions': {'ethereal': True, 'base_name': {'in': bases}},
-                },
-                source={
-                    'guide': 'pricing/raw/mr/guides__double-throw-barbarian-guide.html',
-                    'market': 'pricing/raw/traderie/',
-                    'reviewed_at': '2026-10-03',
-                    'scope': 'SC/NL/PC/RotW',
-                    'kind': 'paid_pattern',
-                    'query': 'rare throwing weapons, ethereal, ED >= 300, IAS >= 30',
-                },
+                'Physical weapon: '
+                + ('ethereal, ' if is_ethereal else '')
+                + f'{damage}%+ enhanced damage'
+                + ('' if elite else '; review upgrade costs'),
+                {**stats(**{'510': damage}), 'conditions': {'ethereal': is_ethereal, 'base_name': {'in': bases}}},
+                labels={'510': 'enhanced damage'},
+                source=source(*evidence),
             )
+    # Phase Blades are intrinsically indestructible, so non-ethereal copies keep
+    # the 2026-10-03/04 reviewed gates: speed, and Fool's scaling below 300%.
+    phase_blade = {'base_name': 'Phase Blade', 'ethereal': False}
+    for label, required in (
+        ('Phase Blade: damage + speed', {'510': 300, '457': 30}),
+        ("Phase Blade: Fool's scaling + damage + speed", {'510': 200, '457': 30, '535': 1, '536': 1}),
+    ):
+        add(
+            'swor',
+            'rare',
+            label,
+            {**stats(**required), 'conditions': phase_blade},
+            source={
+                'path': 'pricing/raw/traderie/pull-20261003/',
+                'reviewed_at': '2026-10-04',
+                'scope': 'SC/NL/PC/RotW',
+                'kind': 'paid_pattern',
+            },
+        )
+
+
+def belt_patterns(add):
+    # Ethereal self-repairing gloves, boots and belts are listed by 12, 5 and 13
+    # priced sellers, but assessment.ethereal_use prices those slots as
+    # non-ethereal before rules run, so no ethereal pattern is added for them.
+    # Scoped 2026-10-08 cache, one vote per seller. Recovery is the gate and
+    # needs one companion roll; life is a companion, not a second gate.
+    def source(sellers, lowest, own_drops):
+        return {
+            'path': 'pricing/data/appraisal-market.jsonl',
+            'guide': 'guides/pricing.html#s2-yellow',
+            'reviewed_at': '2026-10-08',
+            'scope': 'SC/NL/PC/RotW',
+            'kind': 'paid_pattern',
+            'priced_sellers': sellers,
+            'lowest_ask_ist': lowest,
+            'own_drops_matched': own_drops,
+        }
+
+    add(
+        'belt',
+        'rare',
+        '24 FHR belt + strength, life or a resistance',
+        stats(**{'430': 24}),
+        counted(1, stats(**{'437': 15}), stats(**{'418': 30}), resist(20)),
+        relax_support=False,
+        source=source(71, 0.1, '2 of 38'),
+    )
+    add(
+        'belt',
+        'rare',
+        '17 FHR belt + life or strength',
+        stats(**{'430': 17}),
+        counted(1, stats(**{'418': 40}), stats(**{'437': 20})),
+        relax_support=False,
+        source=source(20, 1.0, '0 of 38'),
+    )
+    add(
+        'belt',
+        'rare',
+        'Strength belt + a resistance',
+        stats(**{'437': 25}),
+        resist(20),
+        relax_support=False,
+        source=source(8, 1.0, '0 of 38'),
+    )
+
+
+def market_source(sellers, lowest, own_drops):
+    """Scoped 2026-10-08 cache, one vote per seller; own_drops is the match rate among stored captures."""
+    return {
+        'path': 'pricing/data/appraisal-market.jsonl',
+        'guide': 'guides/pricing.html#s2-yellow',
+        'reviewed_at': '2026-10-08',
+        'scope': 'SC/NL/PC/RotW',
+        'kind': 'paid_pattern',
+        'priced_sellers': sellers,
+        'lowest_ask_ist': lowest,
+        'own_drops_matched': own_drops,
+    }
+
+
+def glove_patterns(add):
+    # A skill prefix is not required: 20 IAS with two useful companions is
+    # listed by 38 priced sellers (lower quartile 11 Ist). One companion is not
+    # enough: its lower quartile is 1 Ist and it matches ordinary drops.
+    companions = [
+        *(stats(**{prop: 20}) for prop in RESISTS),
+        stats(**{'462': 3}),
+        stats(**{'463': 3}),
+        stats(**{'437': 15}),
+        stats(**{'429': 15}),
+        stats(**{'461': 15}),
+    ]
+    add(
+        'glov',
+        'rare',
+        '20 IAS gloves + two of resistance, leech, strength, dexterity or magic find',
+        stats(**{'457': 20}),
+        counted(2, *companions),
+        relax_support=False,
+        source=market_source(38, 0.2, '0 of 60'),
+    )
+    add(
+        'glov',
+        'rare',
+        '+2 Passive and Magic skills + 10 IAS',
+        stats(**{'455': 2, '457': 10}),
+        source=market_source(6, 11.4, '0 of 60'),
+    )
+
+
+SHIELD_SUFFIXES = ('418', '419', '420', '430')
+
+
+def socketed_magic_patterns(add):
+    # Sockets plus a suffix are the gate on magic armor: sellers list every base
+    # tier, but none lists a bare four-socket body armor or shield (0 of 249 and
+    # 0 of 74 listings). Three-socket helms need life (plain ones ask under 1 Ist).
+    add(
+        'tors',
+        'magic',
+        'Magic body armor: four sockets + a life, FHR, mana, dexterity, strength or damage-reduction suffix',
+        {'conditions': {'sockets': 4}},
+        counted(1, *(stats(**{prop: 1}) for prop in ('418', '430', '419', '429', '437', '435'))),
+        source=market_source(63, 0.7, '0 of 4'),
+    )
+    add(
+        'shie',
+        'magic',
+        'Magic shield: four sockets + a Deflecting, life, mana, energy or FHR suffix',
+        {'conditions': {'sockets': 4}},
+        counted(1, stats(**{'446': 20}), *(stats(**{prop: 1}) for prop in SHIELD_SUFFIXES)),
+        source=market_source(17, 9.3, '0 of 4'),
+    )
+    for sockets, sellers, lowest in ((3, 20, 2.6), (2, 4, 5.9)):
+        add(
+            'shie',
+            'magic',
+            f'Magic shield of Deflecting: {sockets} sockets',
+            {**stats(**{'446': 20}), 'conditions': {'sockets': sockets}},
+            source=market_source(sellers, lowest, '0 of 4'),
+        )
+    add(
+        'helm',
+        'magic',
+        'Magic helm: three sockets + life',
+        {**stats(**{'418': 30}), 'conditions': {'sockets': 3}},
+        source=market_source(12, 0.8, '0 of 2'),
+    )
+    for label, required, sellers, lowest in (
+        ('Ethereal self-repairing magic helm', {**stats(**{'431': 1}), 'conditions': {'ethereal': True}}, 8, 11.4),
+        ('Ethereal magic helm: two sockets', {'conditions': {'ethereal': True, 'sockets': 2}}, 6, 34.3),
+    ):
+        add('helm', 'magic', label, required, source=market_source(sellers, lowest, '0 of 2'))
+    add(
+        'tors',
+        'magic',
+        'Ethereal magic body armor: two sockets',
+        {'conditions': {'ethereal': True, 'sockets': 2}},
+        source=market_source(3, 171.3, '0 of 4'),
+    )
+
+
+def circlet_and_boot_patterns(add):
+    from pricing.triage.import_class_rules import skill_prefixes
+
+    trees = [prop for kinds in skill_prefixes().values() for prop in kinds['tree']] + ['1546', '1547', '1548']
+    # Rare circlets: the class prefix alone is listed by 33 priced sellers the
+    # older FCR-centred rules missed; trees and +1 class still need 20 FCR.
+    for prop in CLASS_SKILLS:
+        add(
+            'circ', 'rare', 'Rare circlet: +2 class skills', stats(**{prop: 2}), source=market_source(33, 0.1, '0 of 9')
+        )
+        add(
+            'circ',
+            'rare',
+            'Rare circlet: +1 class skills + 20 FCR',
+            stats(**{prop: 1, '520': 20}),
+            source=market_source(8, 11.4, '0 of 9'),
+        )
+    for prop in trees:
+        add(
+            'circ',
+            'rare',
+            'Rare circlet: +2 skill tree + 20 FCR',
+            stats(**{prop: 2, '520': 20}),
+            source=market_source(19, 0.3, '0 of 9'),
+        )
+    add(
+        'circ',
+        'rare',
+        'Rare circlet: 30 FRW + 20 FCR',
+        stats(**{'480': 30, '520': 20}),
+        source=market_source(13, 11.4, '0 of 9'),
+    )
+    # Rare boots: high resistances carry them with reduced or no run speed.
+    for label, required, count, sellers, lowest, own in (
+        ('Rare boots: three resistances of 30+', {}, 3, 6, 9.3, '0 of 40'),
+        ('Rare boots: 30 FRW + a resistance of 30+', stats(**{'480': 30}), 1, 6, 11.4, '1 of 40'),
+        ('Rare boots: 20 FRW + two resistances of 30+', stats(**{'480': 20}), 2, 7, 9.3, '0 of 40'),
+    ):
+        add(
+            'boot',
+            'rare',
+            label,
+            required,
+            counted(count, *(stats(**{prop: 30}) for prop in RESISTS)),
+            relax_support=False,
+            source=market_source(sellers, lowest, own),
+        )
+
+
+def remaining_type_patterns(add):
+    """Scoped 2026-10-08 cache, one vote per seller: the types the earlier passes left on default vendor."""
+    from pricing.triage.import_class_rules import skill_prefixes
+
+    trees = [prop for kinds in skill_prefixes().values() for prop in kinds['tree']] + ['1546', '1547', '1548']
+    ethereal = {'conditions': {'ethereal': True}}
+    self_repair = {**stats(**{'431': 1}), **ethereal}
+    two_sockets = {'conditions': {'sockets': {'min': 2}}}
+
+    # Magic swords: +3 Warcries is the whole market (Call to Arms substitutes).
+    for label, required, sellers, lowest in (
+        ('Magic sword: +3 Warcries', stats(**{'406': 3}), 40, 0.2),
+        ('Ethereal magic sword: 200+ enhanced damage', {**stats(**{'510': 200}), **ethereal}, 4, 11.4),
+        ('Ethereal self-repairing magic sword', self_repair, 4, 11.4),
+    ):
+        add('swor', 'magic', label, required, source=market_source(sellers, lowest, '0 of 0'))
+    # Rare helms, body armor and shields sell as mercenary or socket bases:
+    # two sockets, or ethereal with self-repair. Plain ones ask under 1 Ist.
+    for family, noun, socketed, repairing in (
+        ('helm', 'helm', (26, 0.2), (18, 0.2)),
+        ('tors', 'body armor', (21, 1.0), (16, 1.0)),
+        ('shie', 'shield', (11, 4.1), (8, 13.7)),
+        ('ashd', 'Paladin shield', (15, 1.0), (2, 114.2)),
+    ):
+        own = '0 of 3' if family == 'ashd' else '0 of 0'
+        add(family, 'rare', f'Rare {noun}: two sockets', two_sockets, source=market_source(*socketed, own))
+        add(family, 'rare', f'Ethereal self-repairing rare {noun}', self_repair, source=market_source(*repairing, own))
+    add(
+        'ashd',
+        'rare',
+        'Rare Paladin shield: 40+ all resistances',
+        stats(**{'441': 40}),
+        source=market_source(6, 0.8, '0 of 3'),
+    )
+    add(
+        'ashd',
+        'magic',
+        'Magic Paladin shield: four sockets + a Deflecting, life, mana, energy or FHR suffix',
+        {'conditions': {'sockets': 4}},
+        counted(1, stats(**{'446': 20}), *(stats(**{prop: 1}) for prop in SHIELD_SUFFIXES)),
+        source=market_source(11, 11.4, '0 of 6'),
+    )
+    # Rare javelins: ethereal ones are paid well below the 200 ED melee gate.
+    for label, required, sellers, lowest in (
+        (
+            'Ethereal rare javelin: 120+ enhanced damage + 20 IAS',
+            {**stats(**{'510': 120, '457': 20}), **ethereal},
+            37,
+            4.1,
+        ),
+        ('Ethereal rare javelin that replenishes quantity', {**stats(**{'563': 1}), **ethereal}, 24, 9.3),
+        (
+            'Non-ethereal rare javelin: 200+ enhanced damage',
+            {**stats(**{'510': 200}), 'conditions': {'ethereal': False}},
+            5,
+            22.8,
+        ),
+    ):
+        add('jave', 'rare', label, required, source=market_source(sellers, lowest, '0 of 0'))
+    add(
+        'staf',
+        'rare',
+        'Rare staff with Teleport charges',
+        stats(**{'526': 1}),
+        source=market_source(6, 22.8, '0 of 1'),
+    )
+    # Amulets. A skill roll needs company: bare +2 class asks 1 Ist and
+    # matches two stored drops; with one companion the lowest ask is 11 Ist.
+    amulet = [
+        stats(**{'520': 10}),
+        stats(**{'418': 40}),
+        stats(**{'400': 60}),
+        counted(1, stats(**{'441': 15}), *(stats(**{prop: 30}) for prop in RESISTS)),
+        stats(**{'437': 20}),
+        stats(**{'429': 15}),
+        stats(**{'461': 20}),
+        stats(**{'416': 4}),
+        stats(**{'462': 5}),
+        stats(**{'463': 5}),
+    ]
+    rolls = 'cast rate, life, mana, resistance, strength, dexterity, magic find, minimum damage or leech'
+    for prop in CLASS_SKILLS:
+        for rarity, sellers, lowest, own in (('rare', 16, 11.4, '0 of 20'), ('crafted', 31, 0.3, '0 of 0')):
+            add(
+                'amul',
+                rarity,
+                f'Amulet: +2 class skills + one of {rolls}',
+                stats(**{prop: 2}),
+                counted(1, *amulet),
+                relax_support=False,
+                source=market_source(sellers, lowest, own),
+            )
+        add(
+            'amul',
+            'rare',
+            f'Amulet: +1 class skills + two of {rolls}',
+            stats(**{prop: 1}),
+            counted(2, *amulet),
+            relax_support=False,
+            source=market_source(11, 34.3, '0 of 20'),
+        )
+    magic_suffix = counted(
+        1, stats(**{'520': 10}), stats(**{'418': 80}), stats(**{'437': 25}), stats(**{'429': 25}), stats(**{'461': 30})
+    )
+    # Cast rate stays with the reviewed caster trees in magic_patterns.
+    circlet_suffix = counted(
+        1,
+        stats(**{'418': 80}),
+        stats(**{'437': 25}),
+        stats(**{'429': 25}),
+        stats(**{'461': 30}),
+        stats(**{'413': 20}),
+    )
+    for prop in trees:
+        for rarity, sellers, lowest, own in (('rare', 17, 5.2, '0 of 20'), ('crafted', 7, 0.7, '0 of 0')):
+            add(
+                'amul',
+                rarity,
+                f'Amulet: +2 skill tree + two of {rolls}',
+                stats(**{prop: 2}),
+                counted(2, *amulet),
+                relax_support=False,
+                source=market_source(sellers, lowest, own),
+            )
+        add(
+            'amul',
+            'magic',
+            'Magic amulet: +3 skill tree + cast rate, 80+ life, 25+ strength or dexterity, or 30+ magic find',
+            stats(**{prop: 3}),
+            magic_suffix,
+            relax_support=False,
+            source=market_source(14, 2.6, '0 of 82'),
+        )
+        add(
+            'circ',
+            'magic',
+            'Magic circlet: +3 skill tree + 80+ life, 25+ strength or dexterity, 30+ MF or 20+ damage reduction',
+            stats(**{prop: 3}),
+            circlet_suffix,
+            relax_support=False,
+            source=market_source(6, 2.6, '0 of 15'),
+        )
+        add(
+            'glov',
+            'crafted',
+            'Crafted gloves: +2 skill tree + 20 IAS',
+            stats(**{prop: 2, '457': 20}),
+            source=market_source(23, 1.0, '0 of 0'),
+        )
+    # Magic gloves below +3: only Javelin and Martial Arts are listed with
+    # 20 IAS; no seller lists +2 Passive and Magic (guides/pricing.html §8).
+    for prop, tree, sellers, lowest in (('456', 'Javelin and Spear', 9, 0.4), ('410', 'Martial Arts', 5, 1.0)):
+        add(
+            'glov',
+            'magic',
+            f'Magic gloves: +2 {tree} skills + 20 IAS',
+            stats(**{prop: 2, '457': 20}),
+            source=market_source(sellers, lowest, '0 of 69'),
+        )
+    add('circ', 'magic', 'Magic circlet: 30 FRW', stats(**{'480': 30}), source=market_source(7, 11.4, '0 of 15'))
+    # Rare jewels: two useful rolls. None of 13 stored rare jewels has two.
+    jewel = [
+        stats(**{'510': 20}),
+        stats(**{'448': 8}),
+        stats(**{'416': 8}),
+        stats(**{'437': 6}),
+        stats(**{'429': 7}),
+        stats(**{'441': 8}),
+        *(stats(**{prop: 22}) for prop in RESISTS),
+        stats(**{'430': 7}),
+        stats(**{'457': 15}),
+        stats(**{'418': 15}),
+    ]
+    add(
+        'jewl',
+        'rare',
+        'Rare jewel: two of enhanced damage, flat damage, strength, dexterity, resistance, FHR, IAS or life',
+        {},
+        counted(2, *jewel),
+        relax_support=False,
+        source=market_source(28, 5.9, '0 of 13'),
+    )
+    # Crafted items: the recipe supplies part of the roll, so gates are looser
+    # than the rare ones and every craft is looked at once anyway.
+    add('belt', 'crafted', 'Crafted belt: 24 FHR', stats(**{'430': 24}), source=market_source(20, 5.9, '0 of 1'))
+    add('belt', 'crafted', 'Crafted belt: 20+ strength', stats(**{'437': 20}), source=market_source(15, 9.8, '0 of 1'))
+    ring = [
+        stats(**{'437': 18}),
+        stats(**{'429': 10}),
+        stats(**{'418': 40}),
+        stats(**{'400': 60}),
+        stats(**{'416': 6}),
+        counted(1, stats(**{'441': 8}), *(stats(**{prop: 25}) for prop in RESISTS)),
+        stats(**{'462': 5}),
+        stats(**{'463': 5}),
+        stats(**{'520': 10}),
+        stats(**{'417': 7}),
+    ]
+    add(
+        'ring',
+        'crafted',
+        'Crafted ring: three of strength, dexterity, life, mana, minimum damage, resistance, leech, FCR or replenish',
+        {},
+        counted(3, *ring),
+        relax_support=False,
+        source=market_source(30, 5.9, '0 of 2'),
+    )
+    add(
+        'ring',
+        'crafted',
+        'Crafted ring: 18+ strength + one more useful roll',
+        stats(**{'437': 18}),
+        counted(1, *ring[1:]),
+        relax_support=False,
+        source=market_source(10, 8.2, '0 of 2'),
+    )
+    glove = [
+        *(stats(**{prop: 20}) for prop in RESISTS),
+        stats(**{'462': 3}),
+        stats(**{'463': 3}),
+        stats(**{'437': 15}),
+        stats(**{'429': 15}),
+        stats(**{'461': 15}),
+    ]
+    add(
+        'glov',
+        'crafted',
+        'Crafted gloves: 20 IAS + one of resistance, leech, strength, dexterity or magic find',
+        stats(**{'457': 20}),
+        counted(1, *glove),
+        relax_support=False,
+        source=market_source(17, 1.0, '0 of 0'),
+    )
+    add(
+        'glov',
+        'crafted',
+        'Crafted gloves: two of resistance, leech, strength, dexterity or magic find',
+        {},
+        counted(2, *glove),
+        relax_support=False,
+        source=market_source(6, 22.8, '0 of 0'),
+    )
+    add(
+        'boot',
+        'crafted',
+        'Crafted boots: 30 FRW + a 30+ resistance, 20+ magic find, 9+ dexterity or 10 FHR',
+        stats(**{'480': 30}),
+        counted(
+            1,
+            *(stats(**{prop: 30}) for prop in RESISTS),
+            stats(**{'461': 20}),
+            stats(**{'429': 9}),
+            stats(**{'430': 10}),
+        ),
+        relax_support=False,
+        source=market_source(24, 0.8, '0 of 0'),
+    )
+    add(
+        'boot',
+        'crafted',
+        'Crafted boots: 20 FRW + two resistances of 30+',
+        stats(**{'480': 20}),
+        counted(2, *(stats(**{prop: 30}) for prop in RESISTS)),
+        relax_support=False,
+        source=market_source(4, 91.4, '0 of 0'),
+    )
 
 
 def market_equipment_patterns(add):
@@ -368,28 +805,10 @@ def market_equipment_patterns(add):
             23,
         ),
         ('belt', 'rare', '24 FHR + life + strength', stats(**{'430': 24, '418': 40, '437': 15}), None, 5),
-        (
-            'belt',
-            'crafted',
-            'Blood belt: 24 FHR + life + 10 open wounds + leech',
-            stats(**{'430': 24, '418': 40, '566': 10, '462': 1}),
-            None,
-            4,
-        ),
-        (
-            'glov',
-            'rare',
-            '+2 Passive and Magic skills + 20 IAS + attribute or resistance',
-            stats(**{'455': 2, '457': 20}),
-            counted(1, stats(**{'437': 15}), stats(**{'429': 15}), resist(20)),
-            12,
-        ),
     ]
     evidence_examples = {
         ('boot', 'rare'): ['1002422783093', '1002355993308', '1002342705143'],
         ('belt', 'rare'): ['1002255459224', '1002348777356', '1002487337128'],
-        ('belt', 'crafted'): ['3560328050', '1255750539', '1002446630637'],
-        ('glov', 'rare'): ['1121080165', '87687217', '1002381300750'],
     }
     for family, rarity, label, required, support, sellers in patterns:
         add(
@@ -591,6 +1010,9 @@ def affixed_rules():
             counted(2, *(stats(**{prop: 25}) for prop in RESISTS)),
             source=source,
         )
+        if rarity == 'crafted':
+            # A crafted belt is already gated by 24 FHR alone.
+            continue
         add(
             'belt',
             rarity,
@@ -713,7 +1135,11 @@ def affixed_rules():
     market_equipment_patterns(add)
     magic_patterns(add)
     physical_weapon_patterns(add)
-    throwing_weapon_patterns(add)
+    belt_patterns(add)
+    glove_patterns(add)
+    socketed_magic_patterns(add)
+    circlet_and_boot_patterns(add)
+    remaining_type_patterns(add)
     return rows
 
 

@@ -1,4 +1,5 @@
-"""Valuable runes and expensive uniques on the ground, from streamed item units (only items near the player exist).
+"""Valuable runes, materials (loot/materials.py) and expensive uniques on the ground, from streamed
+item units (only items near the player exist).
 
 Item modes: 0 stored, 1 equipped, 2 belt (confirmed here, layout.py/layout_notes.md); 3 on
 the ground and 5 dropping per MapAssist ItemMode. Position is the item's static path x/y
@@ -62,6 +63,14 @@ class GroundUnique:
     x: int
     y: int
     table_id: int | None = field(default=None, compare=False)  # ItemData +0x34 as read, for the log
+
+
+@dataclass(frozen=True)
+class GroundMaterial:
+    label: str
+    unit_id: int
+    x: int
+    y: int
 
 
 @dataclass(frozen=True)
@@ -165,6 +174,15 @@ def ground_runes(read, table_address, *, minimum: str) -> list[GroundRune]:
     return runes
 
 
+def ground_materials(read, table_address, classes: dict[int, str]) -> list[GroundMaterial]:
+    """Ground items of the given classes (class ID -> label, loot/materials.py)."""
+    return [
+        GroundMaterial(classes[item.class_id], item.unit_id, item.x, item.y)
+        for item in item_units(read, table_address, classes)
+        if item.mode in GROUND_MODES
+    ]
+
+
 def ground_uniques(read, table_address, *, minimum: float) -> list[GroundUnique]:
     """Unique- and set-quality ground items whose base has such an item asking `minimum` Ist or more."""
     heads = struct.unpack('<128Q', read(table_address + ITEM_UNIT * 1024, 1024))
@@ -195,8 +213,9 @@ def observe_ground(
     shrine_types: frozenset[int],
     super_chests: bool = True,
     unique_minimum: float | None = None,
-) -> tuple[Location | None, list[GroundRune], list[GroundUnique | Shrine | SuperChest]]:
-    """(location, valuable runes, marked spots: expensive uniques, wanted shrines, then super chests)."""
+    materials: dict[int, str] | None = None,
+) -> tuple[Location | None, list[GroundRune], list[GroundUnique | GroundMaterial | Shrine | SuperChest]]:
+    """(location, valuable runes, marked spots: expensive uniques, materials, wanted shrines, then super chests)."""
     tables = {x['table_address'] for x in capture['unit_table_candidates']}
     if len(tables) != 1:
         raise ValueError('Expected one freshly scanned unit table address')
@@ -210,8 +229,9 @@ def observe_ground(
         shrines = nearby_shrines(read, table, types=shrine_types) if location and shrine_types else []
         chests = nearby_super_chests(read, table) if location and super_chests else []
         uniques = ground_uniques(read, table, minimum=unique_minimum) if location and unique_minimum is not None else []
+        found = ground_materials(read, table, materials) if location and materials else []
     finally:
         os.close(fd)
     if identity(pid) != token:
         raise ValueError('Game process changed during the ground read')
-    return location, runes, [*uniques, *shrines, *chests]
+    return location, runes, [*uniques, *found, *shrines, *chests]

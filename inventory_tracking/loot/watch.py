@@ -1,5 +1,5 @@
-"""Show valuable runes and expensive uniques on the ground, wanted shrines and super chests (streamed, often off-screen)
-as HUD arrow rows.
+"""Show valuable runes, materials and expensive uniques on the ground, wanted shrines and super chests
+(streamed, often off-screen) as HUD arrow rows.
 
 Polled from `serve` like the level guide: never waits for the capture lock, reads only when
 D2R is focused, logs each new rune once, and clears the card when nothing is in range.
@@ -28,11 +28,13 @@ class RuneWatcher:
         shrine_types: frozenset[int] = frozenset(),
         super_chests: bool = True,
         unique_minimum: float | None = None,
+        materials: dict[int, str] | None = None,
         observe=observe_ground,
     ):
         self.source, self.capture_lock, self.focused, self.display = source, capture_lock, focused, display
         self.poll_interval, self.minimum, self.observe = poll_interval, minimum, observe
         self.shrine_types, self.super_chests, self.unique_minimum = shrine_types, super_chests, unique_minimum
+        self.materials = materials
         self.last_poll = -math.inf
         self.visible = []
         self.seen: set[int] = set()
@@ -55,6 +57,7 @@ class RuneWatcher:
                 shrine_types=self.shrine_types,
                 super_chests=self.super_chests,
                 unique_minimum=self.unique_minimum,
+                materials=self.materials,
             )
         except Exception as exc:
             text = f'Rune watch: read failed: {exc}'

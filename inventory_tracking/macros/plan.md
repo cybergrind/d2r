@@ -14,6 +14,10 @@ CybergrindAA. It reads where the character is and picks a routine:
 | anywhere else in a game, town or not | `prebuff`: the full prebuff, without leaving the game |
 | not in a game, or another character | nothing; the HUD says why |
 
+A game with other players in it is fine (2026-10-08): the character is the one player unit
+with a plausible life, as in the collection path; shared stash tabs and other players' units
+have none (`world.local_player`).
+
 Full prebuff, in town after the new game loads: Summon Defiler → Consume (the Defiler, not the
 bound demon) → Summon Defiler → Hex: Purge → Psychic Ward.
 
@@ -294,6 +298,31 @@ Differences from the design above, and what is still open:
   was crowded there again. Each replacement now starts one spot further on, and the log
   names what crowds the Defiler (class and offset). What it was is not known: unconfirmed
   whether the bound demon or a walking town resident.
+- 2026-10-07, "something stays too close" five times (host, 19:37 to 19:43, Rogue Encampment):
+  the log now names the crowd. Of 16 crowded Defilers, 13 had Kashya (150), Warriv (155) or
+  Cain (265) in the crowd, 5 of them nobody else; the bound demon (Pit Lord, 361) was in 11. Seven
+  were crowded only by the cover column added that morning, not by the 7-unit circle. Each
+  crowded verdict waits a second and summons again, so three in a row is five seconds and a
+  stop. Consume itself was as before: pressed about 0.35 s after the summon on both days, 3
+  misses in 111 (10-06) and 3 in 71 (10-07). Changes: townsfolk (`TOWN_NPCS`, monstats npc = 1)
+  no longer count as bystanders (assumed, not seen: Consume cannot take them); skipping spots
+  keeps the open ones first; and Consume is aimed after the character is ready, at the Defiler
+  as it stands, following it if it walked during the pointer move (`aim_at`; user: the Defiler
+  moves). A Defiler that never stands still through four aims is not consumed: the pointer
+  would be where it was, and the bound demon may stand there (user: never consume the demon).
+  Not yet run on the host.
+- 2026-10-07, "Consume: not seen in 2.5s" at 20:04 (host, new game, Rogue Encampment), with the
+  changes above running: the key went down 0.34 s after the summon, as in the three runs before
+  it that worked; no drift was logged. The monster probe shows the Defiler standing where it
+  landed (2, -8 from the character) with no death, and all 11 units alive afterwards: Consume
+  did nothing and the bound demon was not touched. Why is not known: the log held nothing
+  about the scene. Not the weapon swap before it (10 of 11 swapped runs worked) and not the
+  OSD's Show Items key (same timing in runs that worked). It is the miss seen all along: 7 of
+  186 presses over two days. The probe also shows consumed Defilers dying where they were
+  first seen, so in 0.35 s a Defiler does not walk. Now a press that changed nothing (Defiler
+  there, buff off) is logged with the scene (`log_miss`: modes, the mercenary, townsfolk, the
+  pointer) and made again under the same checks, three presses at most; anything else stops
+  as before.
 
 - 2026-10-06, act 4 after act 3 (user: Mephisto and other act 3 runs step into act 4 before Save and
   Exit): the Pandemonium Fortress (103) is a run end while the character came to it from an act 3
@@ -320,3 +349,8 @@ Differences from the design above, and what is still open:
   the Defiler (`routines.in_the_way`: 9 across, 26 below, 8 above, in x - y / x + y units); the
   same test picks the open summon spots. The numbers are from this one case, not measured sprite
   sizes. Still open and the real protection: read the unit under the pointer before the key.
+- Host, 2026-10-08: in a game joined by other players the macro said "not in a game". The
+  player lookup wanted one character name among the player units, and another player's unit
+  carries its own. Now, with several names, the character is the one unit with a plausible
+  life (`tracking/state.select_player`'s rule; `Caras` in collection/research.md R3 had none).
+  Not yet confirmed on the host.

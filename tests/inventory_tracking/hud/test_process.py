@@ -46,10 +46,11 @@ def test_marked_map_dots_also_become_ground_marks_over_the_whole_game_window():
     assert (HUD.slots['ground'].x, HUD.slots['ground'].y) == (0, 0)
 
 
-def test_map_slot_is_centred_at_the_top_of_the_window():
-    slot = HUD.slots['map']  # user, 2026-10-04
-    assert (slot.x, slot.centered) == (0.5, True)
-    assert slot.y <= 0.03
+def test_map_slot_is_centred_in_the_upper_part_of_the_window():
+    # Centred (user, 2026-10-04) and moved down from the top edge (fc798cb, 2026-10-05).
+    slot = HUD.slots['map']
+    assert (slot.x, slot.centered, slot.upward) == (0.5, True, False)
+    assert slot.y < 0.25
 
 
 def test_only_one_canvas_runs_per_scene_directory(tmp_path):
@@ -106,8 +107,8 @@ def test_rune_rows_become_a_loot_widget_without_a_map():
     assert loot_widgets([]) == []
 
 
-def test_loot_slot_sits_at_the_left_edge_above_the_guide_card():
-    assert HUD.slots['loot'].x < 0.1
+def test_loot_slot_sits_a_third_of_the_way_in_above_the_guide_card():
+    assert HUD.slots['loot'].x == 0.33  # user, 2026-10-07; at the left edge before
     assert HUD.slots['loot'].y < HUD.slots['guide'].y - 0.4  # five guide rows are ~0.23 of the window tall
 
 
@@ -132,3 +133,32 @@ def test_terror_card_is_a_text_widget_in_its_own_top_right_slot():
     # Left of the game's own corner text (clock, game, level, difficulty: from about 0.91 of the
     # width in the user's screenshot, 2026-10-06), however wide the card gets.
     assert slot.x + slot.max_width <= 0.9
+
+
+def test_the_panel_layer_names_the_flag_array_and_is_republished_before_its_lease_ends():
+    from inventory_tracking.hud.process import PanelBeacon
+    from inventory_tracking.hud.scene import LEASE_SECONDS
+    from inventory_tracking.native.layout import UI_PANELS_RVA
+
+    class Source:
+        pid, images = 7, {'candidate_base': 0x140000000}
+
+    published = []
+    beacon = PanelBeacon(Source, published.append)
+
+    beacon.poll(10.0)
+    beacon.poll(10.1)
+    assert [(w.kind, w.slot, w.payload) for w in published[0]] == [
+        ('panels', 'panels', {'live': [7, 0x140000000 + UI_PANELS_RVA]})
+    ]
+    assert len(published) == 1
+    Source.pid = 8  # the game was restarted
+    beacon.poll(10.0 + LEASE_SECONDS / 2)
+    assert len(published) == 2
+    assert published[1][0].payload['live'][0] == 8
+
+
+def test_the_assessment_slot_is_never_dimmed():
+    assert 'assessment' not in HUD.dim_slots
+    assert {'guide', 'map', 'ground', 'terror', 'loot'} <= set(HUD.dim_slots)
+    assert {'inventory', 'mercenary'} <= set(HUD.dim_panels)

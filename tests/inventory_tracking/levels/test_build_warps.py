@@ -17,15 +17,27 @@ def test_each_variant_gets_the_centre_of_its_warp_tiles(tmp_path):
         'b': {'Def': 52, 'Name': 'no warps', 'File1': 'Act1/Caves/N.ds1', 'File2': '0'},
     }
     (tmp_path / 'json' / 'lvlprest.json').write_text(json.dumps(presets))
+    objects = {'119': {'Class': 'WaypointOutsideAct1', 'OperateFn': 23}, '1': {'Class': 'Fountain', 'OperateFn': 0}}
+    (tmp_path / 'json' / 'objects.json').write_text(json.dumps(objects))
+    rows = {
+        '0': {'Index': 0, 'Act': 1, 'ObjectClass': 'Fountain'},
+        '37': {'Index': 37, 'Act': 1, 'ObjectClass': 'WaypointOutsideAct1'},
+        '200': {'Index': 0, 'Act': 2, 'ObjectClass': 'WaypointOutsideAct1'},  # another act's row 0
+    }
+    (tmp_path / 'json' / 'objpreset.json').write_text(json.dumps(rows))
     w = 3
     cells, orientations = [0] * (w * w), [0] * (w * w)
     for index in (3, 4):  # tiles (0, 1) and (1, 1)
         cells[index], orientations[index] = cell(5), 10
     files = {
         'data/global/tiles/act1/caves/w.ds1': ds1(2, 2, [(cells, orientations)]),
-        'data/global/tiles/act1/caves/n.ds1': ds1(2, 2, [([0] * 9, [0] * 9)]),
+        # A fountain (row 0) and a waypoint (row 37) at sub-tiles (19, 24).
+        'data/global/tiles/act1/caves/n.ds1': ds1(
+            2, 2, [([0] * 9, [0] * 9)], objects=[(2, 0, 5, 5, 0), (2, 37, 19, 24, 0)]
+        ),
     }
 
     table = build(tmp_path, files.__getitem__)
 
     assert table['warps'] == {'51': {'0': {'5': [1.0, 1.5]}}}
+    assert table['waypoints'] == {'51': {'1': [3.8, 4.8]}, '52': {'0': [3.8, 4.8]}}

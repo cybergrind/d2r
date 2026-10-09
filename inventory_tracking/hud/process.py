@@ -9,7 +9,8 @@ from pathlib import Path
 from inventory_tracking.common import LOG
 from inventory_tracking.hud.ground import ground_payload
 from inventory_tracking.hud.payloads import card_payload, guide_payload
-from inventory_tracking.hud.scene import Widget
+from inventory_tracking.hud.scene import LEASE_SECONDS, Widget
+from inventory_tracking.native.layout import UI_PANELS_RVA
 from inventory_tracking.osd.level_map import MapCard
 from inventory_tracking.presentation import StyledLine
 
@@ -55,6 +56,25 @@ def loot_widgets(lines) -> list[Widget]:
 def terror_widgets(lines) -> list[Widget]:
     """The Terror Zone card (terror/tracker.py) as a text widget in the 'terror' slot."""
     return [Widget('terror', 'text', 'terror', card_payload(lines))] if lines else []
+
+
+class PanelBeacon:
+    """Tells the canvas where the game's open-panel flags are, so it can read them every frame and
+    dim the HUD while the player reads items (hud/live.py OpenPanels). Republished well inside the
+    lease; `source` is asked each time, so a restarted game is followed."""
+
+    INTERVAL = LEASE_SECONDS / 3
+
+    def __init__(self, source, publish):
+        self.source, self.publish = source, publish
+        self.last: float | None = None
+
+    def poll(self, now: float) -> None:
+        if self.last is not None and now - self.last < self.INTERVAL:
+            return
+        self.last = now
+        address = self.source.images['candidate_base'] + UI_PANELS_RVA
+        self.publish([Widget('panels', 'panels', 'panels', {'live': [self.source.pid, address]})])
 
 
 @contextmanager

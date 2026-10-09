@@ -23,6 +23,10 @@ The rule table with the reason per rule: `guides/warlock.html` §6. Pickup rules
   rule to a base-code list instead (Lean2 does this for uniques/sets; drop `equipmentCategory` from such a
   rule, since category OR codes would re-show everything).
 - Within a rule: rarity AND quality AND (categories OR item codes).
+- `filterEtherealSocketed: false` does **not** exclude ethereal items: Lean's unique rule (flag false) let
+  six ethereal uniques through 2026-09-29…10-07 (collection DB: Bladebuckle, Shadow Killer, Tearhaunch…).
+  The flag only adds gray items, so the filter cannot show a base non-ethereal-only or ethereal-only; eth
+  vs non-eth is decided after pickup (KB: eth gloves/boots/belts price as non-eth).
 - `equipmentRarity: ["normal"]` also matches gray socketed/ethereal white bases;
   `filterEtherealSocketed: true` matches gray items. "hiQuality + flag, no normal" = show Superior and gray
   bases, hide plain 0os whites.
@@ -45,6 +49,12 @@ The rule table with the reason per rule: `guides/warlock.html` §6. Pickup rules
    thread" is not "worthless": check `pricing/data/wp-b-prices.json` rare/magic buckets and
    `wp-a-blues.json` first. Rare class items with staff-mods, rare Warlock daggers, rare Amazon
    javelins/spears and magic gloves stay shown (the 2026-09-18 audit hid them and was reverted).
+   2026-10-09 audit: a rare paid pattern in `pricing/triage/import_class_rules.py` is **asks only**; before
+   showing or hiding a rare family, check demand — Traderie buy side (`listings?item=<id>&selling=false`, scoped
+   props) and offers received (`total_offers` in the raw pulls), plus diablo2.io `activesold=1`. Verified that day:
+   normal-tier daggers (Dagger/Dirk/Poignard/Rondel), wands and the eleven non-elite Paladin shield bases have no
+   rare buyers and ~0 offers → hidden; all claws (`assas`) and the elite scepters (7sc 7ws 7qs) draw offers at the
+   Legend Spike rate → shown. Evidence: `pricing/raw/traderie/buy-side-20261009/`, warlock guide §6 review log.
 3. After editing: keep `guides/warlock.html` §6 rule table in sync, and log a dated pass in its Review log.
 4. Verify in-game with Alt after import; the game's toggle for "Show Items" resets every game (no fix).
 5. Another session sometimes edits `guides/warlock.html` and `lootfilter/warlock_lean.json` concurrently;

@@ -9,6 +9,85 @@ from pricing.triage.build import ROOT
 SOURCE = 'guides/pricing.html §2 blue/yellow and §7; PLAN.md §3.8'
 
 
+CLASS_ITEMS = {
+    'phlm': 'Barbarian',
+    'pelt': 'Druid',
+    'head': 'Necromancer',
+    'wand': 'Necromancer',
+    'orb': 'Sorceress',
+    'ashd': 'Paladin',
+    'scep': 'Paladin',
+    'h2h': 'Assassin',
+    'h2h2': 'Assassin',
+    'ajav': 'Amazon',
+}
+
+
+TREES = {
+    'Barbarian': ('Combat Skills', 'Masteries', 'Warcries'),
+    'Druid': ('Summoning Skills', 'Shape Shifting Skills', 'Elemental Skills'),
+    'Necromancer': ('Curses', 'Poison and Bone Skills', 'Summoning Skills'),
+    'Sorceress': ('Fire Skills', 'Lightning Skills', 'Cold Skills'),
+    'Paladin': ('Combat Skills', 'Offensive Auras', 'Defensive Auras'),
+    'Assassin': ('Traps', 'Shadow Disciplines', 'Martial Arts'),
+    'Amazon': ('Bow and Crossbow Skills', 'Passive and Magic Skills', 'Javelin and Spear Skills'),
+}
+
+
+# Skills that are the best skill on the +5 listings of two or more priced
+# sellers, by the skill's tree (scoped 2026-10-08 cache).
+PAID_SKILLS = {
+    'phlm': {
+        'Warcries': ('Battle Orders', 'Battle Command', 'War Cry', 'Grim Ward'),
+        'Masteries': ('Increased Speed',),
+    },
+    'pelt': {
+        'Elemental Skills': ('Tornado', 'Armageddon', 'Hurricane', 'Volcano'),
+        'Summoning Skills': ('Summon Grizzly',),
+        'Shape Shifting Skills': ('Fury', 'Shock Wave', 'Fire Claws'),
+    },
+    'head': {'Poison and Bone Skills': ('Poison Nova', 'Bone Spirit', 'Bone Spear')},
+    'wand': {'Poison and Bone Skills': ('Bone Spear', 'Poison Nova', 'Bone Spirit')},
+    'orb': {
+        'Lightning Skills': (
+            'Chain Lightning',
+            'Lightning',
+            'Nova',
+            'Lightning Mastery',
+            'Thunder Storm',
+            'Energy Shield',
+        ),
+        'Fire Skills': ('Enchant', 'Fire Ball', 'Hydra', 'Meteor', 'Fire Wall', 'Fire Mastery'),
+        'Cold Skills': ('Blizzard', 'Frozen Orb', 'Cold Mastery'),
+    },
+    'scep': {'Combat Skills': ('Fist of the Heavens', 'Blessed Hammer')},
+    'h2h2': {'Traps': ('Lightning Sentry',), 'Shadow Disciplines': ('Venom', 'Fade')},
+}
+# Priced sellers at +5 or more to one skill: (magic, rare).
+PAID_SKILL_SELLERS = {
+    'phlm': (34, 46),
+    'pelt': (37, 40),
+    'head': (51, 17),
+    'wand': (19, 5),
+    'orb': (91, 39),
+    'scep': (13, 2),
+    'h2h2': (34, 8),
+}
+
+
+def skill_prefixes():
+    """Class-wide and skill-tree property ids by class, read from the market property labels."""
+    properties = json.loads((ROOT / 'pricing/data/appraisal-properties.json').read_text())['properties']
+    by_label = {(entry.get('labels') or [''])[0]: prop for prop, entry in properties.items()}
+    return {
+        owner: {
+            'class': {by_label[f'+{{{{value}}}} to {owner} Skill Levels']: f'{owner} skills'},
+            'tree': {by_label[f'+{{{{value}}}} to {tree} ({owner} Only)']: tree for tree in trees},
+        }
+        for owner, trees in TREES.items()
+    }
+
+
 def class_rules():
     rows = []
 
@@ -23,9 +102,10 @@ def class_rules():
         low_rolls=None,
         labels=None,
         bucket=None,
+        any_base=False,
     ):
         conditions = dict(conditions or {})
-        if family == 'knif':
+        if family == 'knif' and not any_base:
             conditions['base_name'] = {
                 'in': [
                     'Blade',
@@ -61,61 +141,169 @@ def class_rules():
             }
         )
 
-    for category in ('magic', 'rare'):
-        # PLAN §3.8 explicitly requires the class-skill gate; guide §7 supplies paid staffmods.
-        for skill in ('1565', '1579', '1561'):
-            supports = (
-                ({'457': 20},)
-                if category == 'magic'
-                else ({'448': 1}, {'418': 1}, {'427': 1}, {'428': 1}, {'426': 1}, {'401': 1})
+    # Scoped 2026-10-08 cache, one vote per seller. Warlock daggers and grimoires
+    # are gated by the class or tree prefix. Casters list every dagger base, so
+    # skill patterns are not base-restricted.
+    warlock_source = {
+        'path': 'pricing/data/appraisal-market.jsonl',
+        'guide': 'guides/pricing.html#s7',
+        'reviewed_at': '2026-10-08',
+        'scope': 'SC/NL/PC/RotW',
+        'kind': 'paid_pattern',
+    }
+    trees = {'1546': 'Demon Skills', '1547': 'Eldritch Skills', '1548': 'Chaos Skills'}
+    for category, sellers, tree_level, tree_sellers in (('magic', 3, 3, 3), ('rare', 6, 2, 7)):
+        add(
+            'knif',
+            category,
+            'Warlock dagger: +2 Warlock skills',
+            {'1862': 2},
+            labels={'1862': 'Warlock skills'},
+            source=warlock_source | {'priced_sellers': sellers},
+            any_base=True,
+        )
+        for tree, label in trees.items():
+            add(
+                'knif',
+                category,
+                f'Warlock dagger: +{tree_level} {label}',
+                {tree: tree_level},
+                labels={tree: label},
+                source=warlock_source | {'priced_sellers_across_trees': tree_sellers},
+                any_base=True,
             )
-            for support in supports:
-                add(
-                    'knif',
-                    category,
-                    'Warlock class skills + paid staffmod + supporting affix',
-                    {'1862': 2, skill: 3, **support},
-                )
-            if category == 'rare':
-                add(
-                    'knif',
-                    category,
-                    'Warlock class skills + paid staffmod + socket',
-                    {'1862': 2, skill: 3},
-                    {'sockets': {'min': 1}},
-                )
         rows.append(
             {
                 'family': 'knif',
                 'category': category,
                 'default_reason': (
-                    'needs +2 Warlock, a paid staffmod and supporting affix; staffmods alone are not paid'
+                    'needs +2 Warlock, a full tree prefix or an ethereal high-damage roll; staffmods alone are not paid'
                 ),
                 'source': SOURCE,
                 'imported_class_rule': True,
             }
         )
-        # +2 class / +3 Battle Orders is specifically priced in the guide.
-        add('phlm', category, 'Barbarian skills + Battle Orders switch helm', {'403': 2, '765': 3})
-        if category == 'magic':
-            add('phlm', category, 'Warcries + Battle Orders switch helm', {'406': 3, '765': 3})
-        for skill in ('1024', '756'):
-            for support in ({'449': 1}, {'446': 1}):
-                add('head', category, 'Necromancer skills + paid staffmod + blocking', {'498': 2, skill: 3, **support})
-            add('head', category, 'Necromancer skills + paid staffmod + sockets', {'498': 2, skill: 3}, {'sockets': 2})
-        add('orb', category, 'Sorceress skills + 20 faster cast rate', {'514': 2, '520': 20})
-        for support in ({'418': 1}, {'441': 1}, {'520': 1}):
-            add('grim', category, 'Warlock grimoire class skills + supporting affix', {'1862': 2, **support})
-        add('grim', category, 'Warlock grimoire class skills + two sockets', {'1862': 2}, {'sockets': 2})
-        for family in ('h2h', 'h2h2'):
-            for skill in ('1073', '1116', '1077'):
-                for prefix in ({'519': 2}, {'408': 3}):
-                    add(
-                        family,
-                        category,
-                        'Assassin skills + trap staffmod + attack speed',
-                        {**prefix, skill: 3, '457': 40},
-                    )
+    add(
+        'knif',
+        'magic',
+        'Echoing dagger: +3 Warcries for buff switch',
+        {'406': 3},
+        labels={'406': 'Warcries'},
+        source=warlock_source | {'priced_sellers': 3},
+        any_base=True,
+    )
+    # Thirty-one priced sellers ask at least 9 Ist for ethereal rare daggers with
+    # 200%+ enhanced damage; under half of them list leech or attack speed.
+    for ethereal, damage, sellers in ((True, 200, 31), (False, 300, 3)):
+        add(
+            'knif',
+            'rare',
+            'Physical dagger: ' + ('ethereal, ' if ethereal else '') + f'{damage}%+ enhanced damage',
+            {'510': damage},
+            {'ethereal': ethereal},
+            labels={'510': 'enhanced damage'},
+            source=warlock_source | {'priced_sellers': sellers},
+            any_base=True,
+        )
+    paid_grimoire = ('1558', '1578', '1577', '1579', '1559', '1554', '1553')
+    for category, sellers in (('magic', 7), ('rare', 40)):
+        add(
+            'grim',
+            category,
+            'Warlock grimoire: +2 Warlock skills',
+            {'1862': 2},
+            labels={'1862': 'Warlock skills'},
+            source=warlock_source | {'priced_sellers': sellers},
+        )
+    for tree, label in trees.items():
+        add(
+            'grim',
+            'rare',
+            f'Warlock grimoire: +2 {label} with a +3 paid staffmod',
+            {tree: 2},
+            support={'count': 1, 'of': [{'properties': {skill: {'min': 3}}} for skill in paid_grimoire]},
+            labels={tree: label},
+            source=warlock_source | {'priced_sellers_across_trees': 6},
+        )
+    # Summed skill gate (scoped 2026-10-08 cache, reviewed 2026-10-09). A class
+    # item is listed for one skill, so the prefix and the staffmod count only
+    # together: +5 to a single paid skill from the class prefix or the skill's
+    # own tree prefix plus the staffmod. Under +5 the pooled magic listings ask
+    # a 10-Ist median against 69 at +5 and 91 at +6 and draw 3 offers on 84
+    # listings. PAID_SKILLS holds the skills that are the best skill on the
+    # listings of two or more priced sellers; a skill that only rides along on
+    # a listing sold for another one is not in it.
+    prefixes = skill_prefixes()
+    properties = json.loads((ROOT / 'pricing/data/appraisal-properties.json').read_text())['properties']
+    skill_ids = {(entry.get('labels') or [''])[0]: prop for prop, entry in properties.items()}
+    summed_source = warlock_source | {'reviewed_at': '2026-10-09', 'guide': 'guides/pricing.html#s2-blue'}
+    for family, sellers in PAID_SKILL_SELLERS.items():
+        owner = CLASS_ITEMS[family]
+        (class_prop,) = prefixes[owner]['class']
+        tree_props = {label: prop for prop, label in prefixes[owner]['tree'].items()}
+        paid = {
+            tree: {skill_ids[f'+{{{{value}}}} to {skill} ({owner} Only)']: skill for skill in skills}
+            for tree, skills in PAID_SKILLS[family].items()
+        }
+        every = {prop: skill for skills in paid.values() for prop, skill in skills.items()}
+        for category, priced in zip(('magic', 'rare'), sellers, strict=True):
+            source = summed_source | {'priced_sellers_at_five': priced}
+
+            shapes = [(class_prop, f'{owner} skills', 2, every, 3)]
+            for tree, skills in paid.items():
+                shapes.append((tree_props[tree], tree, 2, skills, 3))
+                if category == 'magic':
+                    shapes.append((tree_props[tree], tree, 3, skills, 2))
+            for prefix, label, level, skills, staffmod in shapes:
+                add(
+                    family,
+                    category,
+                    f'{owner} item: +{level + staffmod} to a paid skill (+{level} {label} and a +{staffmod} skill)',
+                    {prefix: level},
+                    support={'count': 1, 'of': [{'properties': {skill: {'min': staffmod}}} for skill in skills]},
+                    labels={prefix: label} | skills,
+                    source=source,
+                )
+    # These class items carry no staffmods, so their prefix is the whole skill roll.
+    for family, category, minimum, sellers, lowest in (
+        ('ashd', 'rare', 2, 15, 0.8),
+        ('h2h', 'rare', 2, 6, 4.1),
+        ('ajav', 'magic', 2, 7, 1.0),
+    ):
+        owner = CLASS_ITEMS[family]
+        for prop, label in prefixes[owner]['class'].items():
+            add(
+                family,
+                category,
+                f'{owner} item: +{minimum} {label}',
+                {prop: minimum},
+                labels={prop: label},
+                source=warlock_source | {'priced_sellers': sellers, 'lowest_ask_ist': lowest},
+            )
+    # Rare class items under +5 are still listed with two sockets: Barbarian
+    # helms, pelts and elite-type claws draw offers as often as the skill route.
+    for family, label, sellers, lowest in (
+        ('phlm', 'Rare Barbarian helm: two sockets', 17, 11.4),
+        ('pelt', 'Rare pelt: two sockets', 9, 11.4),
+        ('h2h2', 'Rare claw: two sockets', 9, 22.8),
+    ):
+        add(
+            family,
+            'rare',
+            label,
+            {},
+            {'sockets': {'min': 2}},
+            source=warlock_source | {'priced_sellers': sellers, 'lowest_ask_ist': lowest},
+        )
+    add(
+        'phlm',
+        'rare',
+        'Ethereal self-repairing Barbarian helm',
+        {'431': 1},
+        {'ethereal': True},
+        source=warlock_source | {'priced_sellers': 11, 'lowest_ask_ist': 22.8},
+    )
+    for category in ('magic', 'rare'):
         add(
             'ajav',
             category,
@@ -124,22 +312,6 @@ def class_rules():
             bucket='amazon-class-javelin-speed' if category == 'magic' else None,
             low_rolls={'453': 1} if category == 'magic' else None,
             labels={'453': 'Amazon skills'},
-        )
-    for prefix in ({'519': 2}, {'408': 3}):
-        add(
-            'h2h2',
-            'magic',
-            'Trap claw: skill prefix + 3 Lightning Sentry + two sockets',
-            prefix | {'1073': 3},
-            {'sockets': 2},
-            source={
-                'path': 'pricing/raw/traderie/pull-20261003/',
-                'reviewed_at': '2026-10-04',
-                'scope': 'SC/NL/PC/RotW',
-                'kind': 'paid_pattern',
-                'independent_sellers': 9,
-                'guide': 'guides/pricing.html §2 blue class items',
-            },
         )
     # Lancer's prefix stacks with native Amazon javelin skills; +2 Amazon is
     # an alternative prefix, not a prerequisite for the 6/40 combination.
@@ -173,21 +345,6 @@ def class_rules():
                 'imported_class_rule': True,
             }
         )
-    add(
-        'grim',
-        'rare',
-        'Warlock grimoire: +2 class skills, +3 Abyss and +2 Apocalypse',
-        {'1862': 2, '1579': 3, '1578': 2},
-        labels={'1862': 'Warlock skills', '1579': 'Abyss', '1578': 'Apocalypse'},
-        source={
-            'guide': 'guides/pricing.html#s7',
-            'reviewed_at': '2026-10-06',
-            'kind': 'guide_pattern_with_sparse_asks',
-            'scope': 'SC/NL/PC/RotW',
-            'listing_ids': ['1002369489640', '1002384011704'],
-            'independent_sellers': 2,
-        },
-    )
     # The cached Fire Blast planner names the complete claw, including its staffmods.
     # Demand permits review; it supplies no Non-Ladder asking-price estimate.
     add(
@@ -204,26 +361,8 @@ def class_rules():
             'kind': 'build_demand',
         },
     )
-    # Scoped scepter asks: four Combat-prefix sellers, two class-prefix
-    # sellers pair +3 Fist of the Heavens with Redemption or cast rate.
-    for prefix, minimum in (('442', 2), ('443', 3)):
-        for support, value in (('1047', 1), ('520', 10)):
-            add(
-                'scep',
-                'magic',
-                'Paladin skills + Fist of the Heavens + Redemption or cast rate',
-                {prefix: minimum, '581': 3, support: value},
-                labels={'581': 'Fist of the Heavens', '1047': 'Redemption', '520': 'faster cast rate'},
-                source={
-                    'path': 'pricing/raw/traderie/pull-20261003/',
-                    'guide': 'guides/pricing.html §2 class-item combinations',
-                    'reviewed_at': '2026-10-03',
-                    'scope': 'SC/NL/PC/RotW',
-                    'kind': 'paid_pattern',
-                    'prefix': prefix,
-                    'support': support,
-                },
-            )
+    # Fool's scaling damage with 200% ED and 30 IAS is the one claw pattern the
+    # enhanced-damage gates miss: a non-ethereal claw below the elite types.
     from inventory_tracking.items.metadata import metadata
     from pricing.knowledge.assessment.mechanics.base_tiers import base_tier
 
@@ -268,78 +407,9 @@ def class_rules():
                         },
                     )
 
-    # Guide §2 yellow: elite Paladin shields need the class prefix, a
-    # resistance/block-rate gate, and two further supporting rolls.
-    paladin_bases = sorted(
-        b['name'] for b in metadata()['bases'].values() if b['type'] == 'ashd' and base_tier(b['code']) == 'Elite'
-    )
-    for gate in ('441', '449'):
-        supporting = [
-            {'properties': {'446': {'min': 20}}},
-            {'properties': {'430': {'min': 1}}},
-            {'properties': {'418': {'min': 1}}},
-            {'conditions': {'sockets': {'min': 1}}},
-        ]
-        if gate == '449':
-            supporting.append({'properties': {'441': {'min': 1}}})
-        add(
-            'ashd',
-            'rare',
-            'Elite Paladin shield: class skills, resistance or block rate and two supporting rolls',
-            {'442': 2, gate: 1},
-            {'base_name': {'in': paladin_bases}},
-            {'count': 2, 'of': supporting},
-        )
-    # Guide class-prefix/staffmod shape, checked against scoped 2026-10-03
-    # cached asks: rare Tornado/Armageddon 20/5 independent sellers; magic
-    # Elemental Tornado/Armageddon 9/6, Shapeshifting Fire Claws 3, Summon Grizzly 5.
-    # October 4 recheck: rare +2 Druid/+3 Tornado has 3 life-only and
-    # 7 socket-only supporting seller patterns; two supports are not required.
-    pelt_source = {
-        'path': 'pricing/raw/traderie/pull-20261003/',
-        'guide': 'guides/pricing.html#s2-yellow',
-        'reviewed_at': '2026-10-03',
-        'scope': 'SC/NL/PC/RotW',
-        'kind': 'paid_pattern',
-    }
-    pelt_labels = {'972': 'Tornado', '976': 'Armageddon', '966': 'Fire Claws', '974': 'Summon Grizzly'}
-    for spell in ('972', '976'):
-        add(
-            'pelt',
-            'rare',
-            'Druid skills + paid spell + supporting rolls',
-            {'488': 2, spell: 3},
-            support={
-                'count': 1 if spell == '972' else 2,
-                'of': [
-                    {'properties': {'430': {'min': 1}}},
-                    {'properties': {'418': {'min': 1}}},
-                    {'conditions': {'sockets': {'min': 1}}},
-                    {
-                        'at_least': {
-                            'count': 1,
-                            'of': [{'properties': {prop: {'min': 1}}} for prop in ('427', '428', '426', '401')],
-                        }
-                    },
-                ],
-            },
-            source=pelt_source | {'spell': spell, 'prefix': '488'},
-            low_rolls={spell: 1},
-            labels=pelt_labels,
-        )
-    for tree, spell in (('487', '972'), ('487', '976'), ('486', '966'), ('485', '974')):
-        add(
-            'pelt',
-            'magic',
-            'Druid tree + matching paid spell + two sockets',
-            {tree: 3, spell: 3},
-            {'sockets': 2},
-            source=pelt_source | {'spell': spell, 'prefix': tree},
-            low_rolls={spell: 1},
-            labels=pelt_labels,
-        )
-    for tree in ('1546', '1547', '1548'):
-        add('grim', 'magic', 'Warlock tree + all resistances', {tree: 3, '441': 1})
+    # Guide-named "of the Magus" orb: class skills with 20 FCR, with or without a staffmod.
+    for category in ('magic', 'rare'):
+        add('orb', category, 'Sorceress skills + 20 faster cast rate', {'514': 2, '520': 20})
     for skill, minimum in (('453', 2), ('456', 3)):
         add(
             'aspe',
@@ -363,42 +433,6 @@ def class_rules():
             ],
         },
     )
-    # Scoped cached asks reviewed 2026-10-03: all six matching tree/spell pairs
-    # have priced sellers with FCR or two sockets. This establishes the pattern,
-    # not a price for an arbitrary orb with additional/missing secondary mods.
-    orb_labels = {
-        '944': 'Enchant',
-        '602': 'Fire Ball',
-        '948': 'Nova',
-        '1049': 'Lightning',
-        '598': 'Chain Lightning',
-        '703': 'Blizzard',
-    }
-    for tree, spells in (('515', ('944', '602')), ('516', ('948', '1049', '598')), ('517', ('703',))):
-        for spell in spells:
-            for support in ('fcr', 'sockets'):
-                add(
-                    'orb',
-                    'magic',
-                    'Sorceress tree + matching spell + cast rate or two sockets',
-                    {tree: 3, spell: 3, **({'520': 20} if support == 'fcr' else {})},
-                    {'sockets': 2} if support == 'sockets' else None,
-                    low_rolls={spell: 1},
-                    labels=orb_labels,
-                    source={
-                        'path': 'pricing/raw/traderie/pull-20261003/',
-                        'reviewed_at': '2026-10-03',
-                        'scope': 'SC/NL/PC/RotW',
-                        'kind': 'paid_pattern',
-                        'query': {
-                            'category': 'magic',
-                            'family': 'orb',
-                            'tree': tree,
-                            'spell': spell,
-                            'support': support,
-                        },
-                    },
-                )
     return rows
 
 
@@ -413,7 +447,6 @@ def main():
             {
                 'class_rules': len(rows),
                 'price_patterns': sum(bool(r.get('bucket')) for r in rows),
-                'new_types_enabled': 0,
             }
         )
     )

@@ -181,3 +181,30 @@ def test_item_units_of_a_class_are_returned_in_every_mode():
     found = item_units(memory.read, TABLE, {674, 678})
 
     assert found == [ItemSighting(678, 5, 0, 0, 0), ItemSighting(678, 128 + 5, 5, 25500, 5400)]
+
+
+def test_wanted_materials_on_the_ground_are_named():
+    from inventory_tracking.loot.ground import GroundMaterial, ground_materials
+    from inventory_tracking.loot.materials import material_classes
+
+    memory = Memory()
+    heads = memory.block(ITEMS, 1024)
+    specs = [
+        (676, 3, 25500, 5400),  # a shard on the ground
+        (586, 0, 1, 1),  # a perfect sapphire in the inventory
+        (584, 3, 25510, 5410),  # a plain sapphire: not wanted
+        (679, 5, 25520, 5420),  # a statue still dropping
+    ]
+    previous = 0
+    for index, spec in reversed(list(enumerate(specs))):
+        address, _ = item(memory, index, *spec)
+        struct.pack_into('<Q', memory.blocks[address], 0x158, previous)
+        previous = address
+    struct.pack_into('<Q', heads, 5 * 8, previous)
+
+    found = ground_materials(memory.read, TABLE, material_classes(['shards', 'gems', 'statues']))
+
+    assert found == [
+        GroundMaterial('Southern Worldstone Shard', 5, 25500, 5400),
+        GroundMaterial("Talic's Anguish", 128 * 3 + 5, 25520, 5420),
+    ]

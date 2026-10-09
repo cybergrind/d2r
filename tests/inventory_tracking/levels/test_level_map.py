@@ -52,12 +52,14 @@ def test_maze_map_carries_the_route_from_player_to_stairs():
     assert card.route[-1] == (card.pois[0].x, card.pois[0].y)
 
 
-def test_temple_map_has_no_route():
+def test_temple_map_routes_too_now_that_teleport_ignores_doorways():
     snapshot = replay('halls_of_pain_live')
 
     card = build_map(snapshot, handler_for(123).guide(snapshot).pois)
 
-    assert card.route == ()
+    assert len(card.route) >= 2
+    assert card.route[0] == card.player
+    assert card.route[-1] == (card.pois[0].x, card.pois[0].y)
 
 
 def test_outdoor_edge_presets_are_marked_as_edges():

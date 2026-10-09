@@ -201,3 +201,27 @@ def test_native_flags_use_market_booleans_without_truthy_coercion(raw, stat, pro
     else:
         assert item['properties'].get(prop) is not True
         assert guide['properties'].get(prop) is not True
+
+
+def test_self_repair_and_replenish_reach_the_market_properties_rules_match_on():
+    from pricing.knowledge.assessment.adapters.market_projection import market_properties
+
+    # Sellers enter the seconds-per-point number (20 or 33), which is the decoded value.
+    assert market_properties()['252:0'] == '431'
+    assert market_properties()['253:0'] == '563'
+
+
+@pytest.mark.parametrize(('raw', 'bonus', 'verdict'), [(24, None, 'vendor'), (44, 20, 'check')])
+def test_captured_shield_block_total_loses_its_base_before_matching_deflecting(raw, bonus, verdict):
+    # Charsi's Artisan's Tower Shield of Charged Bolt (2026-10-09): 24 is the base, not Deflecting.
+    from inventory_tracking.items.metadata import decode_stats
+    from pricing.triage.engine import Tables, assess
+
+    base = next(b for b in metadata()['bases'].values() if b['name'] == 'Tower Shield')
+    decoded, affixes, _ = decode_stats([{'id': 20, 'layer': 0, 'raw': raw}], base=base)
+    captured = observation(base['code'], rarity='magic', ethereal=False, sockets=3, socket_contents='empty')
+    captured['item']['affixes'] = affixes
+    captured['decoded_stats'] = decoded
+    item = from_drop(captured)
+    assert item['properties'].get('446') == bonus
+    assert assess(item, Tables().load())['verdict'] == verdict
