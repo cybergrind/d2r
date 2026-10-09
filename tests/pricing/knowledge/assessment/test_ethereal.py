@@ -11,8 +11,11 @@ from pricing.knowledge.assessment.ethereal import ethereal_preference
 from tests.pricing.knowledge.assessment.test_base_use import capture
 
 
-def unique(name, ethereal):
-    return ItemFacts(name, None, None, None, 'unique', None, True, ethereal, 0, 'empty', [], True)
+TYPES = {"Andariel's Visage": 'helm', 'War Traveler': 'boot', 'Sandstorm Trek': 'boot', "Death's Fathom": 'orb'}
+
+
+def unique(name, ethereal, rarity='unique'):
+    return ItemFacts(name, None, None, TYPES.get(name), rarity, None, True, ethereal, 0, 'empty', [], True)
 
 
 @pytest.mark.parametrize(
@@ -41,6 +44,17 @@ def test_ethereal_rule_reaches_terminal_osd_and_compatibility_styles(name, ether
     assert line.text == ('Ethereal: yes' if ethereal else 'Ethereal: no')
     assert roll_styles(record).get(line.text, PALETTE[Tone.DEFAULT]) == PALETTE[expected]
     assert document.to_rich().plain == document.to_text()
+
+
+@pytest.mark.parametrize('item_type', ['glov', 'boot', 'belt'])
+@pytest.mark.parametrize('rarity', ['unique', 'rare', 'magic', 'normal'])
+def test_any_ethereal_gloves_boots_or_belt_is_avoided_without_naming_the_item(item_type, rarity):
+    facts = replace(unique('Unlisted item', True, rarity), item_type=item_type)
+    preference = ethereal_preference(facts)
+    assert preference['preference'] == 'avoid'
+    assert preference['source'].endswith('itemtypes.json')
+    assert ethereal_preference(replace(facts, item_type='helm')) is None
+    assert ethereal_preference(replace(facts, stats={'152:0': {'raw': 1}})) is None  # indestructible
 
 
 def test_base_rules_exclude_bad_sockets_magic_items_and_unknown_flags():

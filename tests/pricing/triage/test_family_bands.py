@@ -131,14 +131,19 @@ def test_magic_skill_gloves_price_only_matching_skill_base_and_modifier_cohort(s
     assert result['decision_ist'] == 4
     assert result['band']['sellers'] == 3
     assert result['verdict'] == 'slow'
-    for changes in (
-        {'ethereal': True, 'properties': rows[0]['properties'] | {'738': True}},
-        {'properties': {**{k: v for k, v in rows[0]['properties'].items() if k != skill}, '456': 3}},
-    ):
-        other = from_listing(rows[0] | changes)
-        result = assess(other, tables)
-        assert result['verdict'] == 'check'
-        assert result['band'] is None
+    # Gloves have no ethereal use (no mercenary slot, no socket, unrepairable), so an
+    # ethereal copy is priced as the plain one and the headline says so.
+    ethereal = assess(
+        from_listing(rows[0] | {'ethereal': True, 'properties': rows[0]['properties'] | {'738': True}}), tables
+    )
+    assert ethereal['decision_ist'] == 4
+    assert ethereal['ethereal_basis'].startswith('priced as non-ethereal')
+    other = from_listing(
+        rows[0] | {'properties': {**{k: v for k, v in rows[0]['properties'].items() if k != skill}, '456': 3}}
+    )
+    result = assess(other, tables)
+    assert result['verdict'] == 'check'
+    assert result['band'] is None
     for changes in (
         {'name': 'Heavy Gloves', 'base_code': bases['Heavy Gloves']},
         {'properties': rows[0]['properties'] | {'427': 10}},

@@ -27,6 +27,32 @@ def test_non_ethereal_drop_never_borrows_ethereal_or_unknown_asks():
     assert assess({'category': 'uniques', 'name': 'Example', 'ethereal': True}, tables(rows))['verdict'] == 'slow'
 
 
+def test_ethereal_gloves_boots_and_belts_are_priced_exactly_like_the_normal_copy():
+    # Magefist on 2026-10-04: hundreds of ordinary asks around 1 Ist, seven ethereal
+    # asks at Lo/Ber/Zod prices. Gloves have no ethereal use, so the ethereal cohort
+    # cannot set the price; the drop gets the same verdict as a non-ethereal one.
+    rows = [
+        {**listing(i, price), 'ethereal': eth, 'properties': {**listing(i)['properties'], '738': eth}}
+        for i, (price, eth) in enumerate(
+            [(0.674, None), (0.789, None), (2.585, None), (11.421, True), (11.421, True), (79.947, True)]
+        )
+    ]
+    for family in ('glov', 'boot', 'belt'):
+        item = {'category': 'uniques', 'name': 'Example', 'ethereal': True, 'family': family}
+        result = assess(item, tables(rows))
+        normal = assess(item | {'ethereal': False}, tables(rows))
+        assert (result['verdict'], result['band'], result['reference_band']) == (
+            normal['verdict'],
+            normal['band'],
+            normal['reference_band'],
+        )
+        assert result['ethereal_basis'].startswith('priced as non-ethereal')
+        assert normal['ethereal_basis'] is None
+    weapon = assess({'category': 'uniques', 'name': 'Example', 'ethereal': True, 'family': 'dagg'}, tables(rows))
+    assert weapon['verdict'] == 'slow'
+    assert weapon['ethereal_basis'] is None
+
+
 def test_roll_bands_are_disjoint_and_take_precedence_over_name():
     rules = [
         {'category': 'uniques', 'name': 'Example', 'bucket': 'perfect', 'properties': {'425': 120}},

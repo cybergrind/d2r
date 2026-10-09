@@ -1,10 +1,12 @@
 """Reviewed ethereal preferences, not price multipliers or zero-value verdicts."""
 
 from pricing.knowledge.assessment.base_use import BASE_QUALITIES, MERC_WORDS, recipe_index
+from pricing.knowledge.assessment.ethereal_use import REASON, SOURCE, no_ethereal_use
 
 
-# Source-specific rules are deliberately explicit: caster weapons, mixed-use
-# armor and unknown items must not inherit a blanket ethereal penalty.
+# Premiums are item-specific and deliberately explicit: caster weapons, mixed-use
+# armor and unknown items must not inherit a blanket ethereal verdict. The only
+# generic rule is the slot one in ethereal_use: no mercenary slot, no socket, no repair.
 UNIQUE_PREFERENCES = {
     "Andariel's Visage": ('preferred', 'Mercenary defense premium.', 'wp-i-uniques-misc.json/UQ-andariel-s-visage'),
     "Titan's Revenge": (
@@ -18,26 +20,6 @@ UNIQUE_PREFERENCES = {
         'Physical damage premium for the mercenary.',
         'wp-a-builds.json/ethereal Reaper',
     ),
-    'War Traveler': (
-        'avoid',
-        'Player boots cannot be repaired when ethereal or socketed with Zod.',
-        'wp-i-uniques-misc.json/UQ-war-traveler',
-    ),
-    'Arachnid Mesh': (
-        'avoid',
-        'Player belt cannot be repaired when ethereal or socketed with Zod.',
-        'wp-i-uniques-misc.json/UQ-arachnid-mesh',
-    ),
-    'Chance Guards': (
-        'avoid',
-        'Player gloves cannot be repaired when ethereal or socketed with Zod.',
-        'wp-i-uniques-misc.json/UQ-chance-guards',
-    ),
-    'Magefist': (
-        'avoid',
-        'Player gloves cannot be repaired when ethereal or socketed with Zod.',
-        'wp-i-uniques-misc.json/UQ-magefist',
-    ),
 }
 
 
@@ -49,14 +31,15 @@ def _general_preference(facts):
         return None
     if facts.rarity == 'unique' and facts.name in UNIQUE_PREFERENCES:
         preference, reason, source = UNIQUE_PREFERENCES[facts.name]
-        if preference == 'avoid':
-            if not facts.capture_complete:
-                return None
-            # Native indestructible/self-repair exceptions override a generic
-            # durability disadvantage, including socket-granted indestructible.
-            if any(facts.stats.get(f'{stat}:0', {}).get('raw', 0) > 0 for stat in (152, 252)):
-                return None
         return {'preference': preference, 'reason': reason, 'source': 'pricing/data/' + source}
+    if no_ethereal_use(facts.item_type):
+        if not facts.capture_complete:
+            return None
+        # Native indestructible/self-repair exceptions override the slot's
+        # durability disadvantage, including socket-granted indestructible.
+        if any(facts.stats.get(f'{stat}:0', {}).get('raw', 0) > 0 for stat in (152, 252)):
+            return None
+        return {'preference': 'avoid', 'reason': REASON, 'source': SOURCE}
     if facts.item_type not in ('pole', 'spea'):
         return None
     if facts.runeword:

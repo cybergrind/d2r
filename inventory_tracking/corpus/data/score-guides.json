@@ -1,15 +1,15 @@
 {
   "classifications": {
-    "verdict": 411,
+    "verdict": 415,
     "own-use": 49,
     "pickup": 39,
     "context": 86
   },
   "table_score": {
-    "total": 404,
-    "evaluated": 404,
-    "passed": 402,
-    "accuracy": 0.995049504950495
+    "total": 407,
+    "evaluated": 407,
+    "passed": 405,
+    "accuracy": 0.995085995085995
   },
   "pickup": [
     {
@@ -210,10 +210,10 @@
   ],
   "groups": {
     "verdict": {
-      "total": 355,
-      "evaluated": 355,
-      "passed": 353,
-      "accuracy": 0.9943661971830986
+      "total": 358,
+      "evaluated": 358,
+      "passed": 356,
+      "accuracy": 0.994413407821229
     },
     "own-use": {
       "total": 49,
@@ -228,10 +228,10 @@
       "accuracy": 0.972972972972973
     },
     "false_positive": {
-      "total": 19,
+      "total": 20,
       "evaluated": 19,
       "passed": 18,
-      "accuracy": 0.9473684210526315
+      "accuracy": 0.9
     }
   },
   "context": [
@@ -666,7 +666,16 @@
       "reason": "Table group heading for the affixed items that follow"
     }
   ],
-  "unresolved": [],
+  "unresolved": [
+    {
+      "id": "guides/pricing.html#s9:14",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": "Concrete item and expected outcome not yet transcribed: Item or variant trade guidance: Ethereal gloves, boots or belts quoted at ethereal-unique asks. Live case 2026-10-04: ethereal Magefist (20% ED) was headlined SELL (slow) a"
+    }
+  ],
   "failures": [
     {
       "id": "guides/pricing.html#s8:33",
@@ -888,7 +897,8 @@
           "retained_median_ist": 0.837,
           "minimum_interval_hours": 27.461544663333335,
           "maximum_interval_hours": 27.461544663333335
-        }
+        },
+        "ethereal_basis": null
       },
       "unmet_conditions": [
         "verdict: expected ['vendor'], got 'slow'"
@@ -976,7 +986,8 @@
           "retained_median_ist": 0.568,
           "minimum_interval_hours": 27.457787403333334,
           "maximum_interval_hours": 27.457787403333334
-        }
+        },
+        "ethereal_basis": null
       },
       "unmet_conditions": [
         "verdict: expected ['check', 'sell', 'slow', 'self'], got 'vendor'"
@@ -1064,7 +1075,8 @@
           "retained_median_ist": null,
           "minimum_interval_hours": 27.459142055555557,
           "maximum_interval_hours": 27.459142055555557
-        }
+        },
+        "ethereal_basis": null
       },
       "unmet_conditions": [
         "verdict: expected ['check', 'sell', 'slow', 'self'], got 'vendor'"
@@ -1168,7 +1180,8 @@
           "retained_median_ist": 1.0,
           "minimum_interval_hours": 27.458647958333334,
           "maximum_interval_hours": 27.458647958333334
-        }
+        },
+        "ethereal_basis": null
       },
       "unmet_conditions": [
         "verdict: expected ['vendor'], got 'slow'"
@@ -1272,7 +1285,8 @@
           "retained_median_ist": null,
           "minimum_interval_hours": 27.458636427222224,
           "maximum_interval_hours": 27.458636427222224
-        }
+        },
+        "ethereal_basis": null
       },
       "unmet_conditions": [
         "verdict: expected ['vendor'], got 'slow'"
@@ -1354,7 +1368,8 @@
           "retained_median_ist": null,
           "minimum_interval_hours": 27.4598819725,
           "maximum_interval_hours": 27.4598819725
-        }
+        },
+        "ethereal_basis": null
       },
       "unmet_conditions": [
         "verdict: expected ['check', 'sell', 'slow', 'self'], got 'vendor'"
@@ -1436,7 +1451,8 @@
           "retained_median_ist": null,
           "minimum_interval_hours": 27.4598819725,
           "maximum_interval_hours": 27.4598819725
-        }
+        },
+        "ethereal_basis": null
       },
       "unmet_conditions": [
         "verdict: expected ['check', 'sell', 'slow', 'self'], got 'vendor'"
@@ -1445,9 +1461,9 @@
   ],
   "exact_verdict_score": {
     "mode": "triage",
-    "labelled": 593,
+    "labelled": 665,
     "worth": 94,
-    "checks": 1377,
+    "checks": 1511,
     "check_recall": 1.0,
     "recall": 1.0,
     "keeps": 6,
@@ -1460,7 +1476,7 @@
       "sell\u2192sell": 6,
       "slow\u2192slow": 88,
       "vendor\u2192slow": 3,
-      "vendor\u2192vendor": 398
+      "vendor\u2192vendor": 470
     },
     "missed": [],
     "false_keeps": []

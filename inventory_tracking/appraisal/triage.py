@@ -64,6 +64,8 @@ def description(triage):
     text = price_description(triage)
     if demand_unmeasured(triage) and 'demand unmeasured' not in text:
         text += ' · demand unmeasured'
+    if triage.get('ethereal_basis'):
+        text += ' · ' + triage['ethereal_basis']
     if triage['verdict'] in ('sell', 'slow') and (own := triage.get('own_use')):
         text += ' · Own use: ' + own.get('label', 'own-build rule')
     if options := triage.get('preparation'):

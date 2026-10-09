@@ -4,6 +4,7 @@ import json
 from datetime import UTC, date, datetime
 from pathlib import Path
 
+from pricing.knowledge.assessment.ethereal_use import market_item
 from pricing.triage.bands import ethereal_bucket, quantity_bucket
 from pricing.triage.commodity_lots import (
     accumulation,
@@ -66,6 +67,7 @@ def matches(item, rule):
 
 
 def variant_name_band(item, tables):
+    item, _ = market_item(item)
     category, name = item.get('category'), str(item.get('name', '')).casefold()
     bucket = quantity_bucket(item.get('quantity', 1))
     reference = tables['bands'].get((category, name, bucket)) or {}
@@ -86,8 +88,12 @@ def variant_name_band(item, tables):
 
 def assess(item, tables, *, today=None):
     today = today or datetime.now(UTC).date()
-    rows = rule_candidates(item, tables['rule_index']) if 'rule_index' in tables else tables['rules']['rows']
-    rules = [r for r in rows if matches(item, r)]
+    # Rules, own-use and patterns judge the item as captured; market evidence is
+    # looked up for the copy that trades the same (an ethereal glove as a plain one).
+    captured = item
+    item, ethereal_basis = market_item(item)
+    rows = rule_candidates(captured, tables['rule_index']) if 'rule_index' in tables else tables['rules']['rows']
+    rules = [r for r in rows if matches(captured, r)]
     category, name = item.get('category'), str(item.get('name', '')).casefold()
     name_bucket = quantity_bucket(item.get('quantity', 1))
     reference = tables['bands'].get((category, name, name_bucket))
@@ -156,10 +162,10 @@ def assess(item, tables, *, today=None):
             reference, band, bucket, sale_mode = reference, single, 'name', 'individual'
     premium = any(r.get('premium') is True for r in rules)
     pattern_rows = (
-        rule_candidates(item, tables['pattern_index']) if 'pattern_index' in tables else tables['rules']['rows']
+        rule_candidates(captured, tables['pattern_index']) if 'pattern_index' in tables else tables['rules']['rows']
     )
-    socket_preparation = preparation(item, tables['rules'])
-    patterns = matched_patterns(item, pattern_rows, socket_preparation=socket_preparation)
+    socket_preparation = preparation(captured, tables['rules'])
+    patterns = matched_patterns(captured, pattern_rows, socket_preparation=socket_preparation)
     if (reference or {}).get('named_cohorts') is not None:
         from pricing.triage.named_cohorts import lookup as cohort_band
 
@@ -200,7 +206,7 @@ def assess(item, tables, *, today=None):
     ):
         verdict, reason = 'vendor', 'below keep price'
     elif patterns:
-        verdict, reason = 'check', min((check_reason(item, r) for r in patterns), key=len)
+        verdict, reason = 'check', min((check_reason(captured, r) for r in patterns), key=len)
     elif (
         category in ('magic', 'rare', 'crafted')
         and price is not None
@@ -217,7 +223,7 @@ def assess(item, tables, *, today=None):
         and price >= tables['rules']['keep_ist']
     ):
         verdict, reason = 'check', 'fewer than three sellers for the matched base variant; price is reference only'
-    elif any(matches(item, r) for r in tables['own']['rows']):
+    elif any(matches(captured, r) for r in tables['own']['rows']):
         verdict, reason = 'self', 'own-build rule'
     else:
         verdict, reason = (
@@ -296,7 +302,7 @@ def assess(item, tables, *, today=None):
             band = placement['band']
             price, bucket, liquidity = band['q1_ist'], band['bucket'], band['liquidity']
             verdict = 'vendor' if price < tables['rules']['keep_ist'] else 'sell' if liquidity == 'liquid' else 'slow'
-    own_use = next((r for r in tables['own']['rows'] if matches(item, r)), None)
+    own_use = next((r for r in tables['own']['rows'] if matches(captured, r)), None)
     if own_use and (
         verdict in ('vendor', 'self')
         or (verdict == 'check' and category in NAMED and price is None and not patterns and comparison is None)
@@ -304,7 +310,7 @@ def assess(item, tables, *, today=None):
         verdict, reason = 'self', own_use.get('label', 'own-build rule')
     from pricing.triage.demand import demand_for
 
-    demand = demand_for(item, tables.get('demand', {}))
+    demand = demand_for(captured, tables.get('demand', {}))
     market_demand = None
     if tables.get('market_demand', {}).get('complete') and not fungible(item):
         from pricing.triage.market_demand import lookup, qualify
@@ -342,7 +348,7 @@ def assess(item, tables, *, today=None):
     if verdict == 'vendor' and reason == 'no listings' and category in ('magic', 'rare', 'crafted'):
         from pricing.triage.patterns import vendor_reason
 
-        reason = vendor_reason(item, pattern_rows)
+        reason = vendor_reason(captured, pattern_rows)
     if category == 'affixed_unknown':
         from pricing.triage.unknown_affixed import review_pattern
 
@@ -386,6 +392,7 @@ def assess(item, tables, *, today=None):
         'own_use': own_use,
         'demand': demand,
         'market_demand': market_demand,
+        'ethereal_basis': ethereal_basis,
     }
 
 
