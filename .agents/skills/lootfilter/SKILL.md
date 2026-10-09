@@ -5,8 +5,12 @@ description: Explain or change the D2R in-game loot filter profiles in lootfilte
 
 # Loot filter
 
-Profiles: `lootfilter/warlock_lean.json` (profile "Warlock Lean", 13 rules, the one in use; "SHOW Craft Bases ARMOR" = craft-only fodder the player may disable) and
+Profiles: `lootfilter/warlock_lean.json` (profile "Warlock Lean", 13 rules; "SHOW Craft Bases ARMOR" = craft-only fodder the player may disable),
+`lootfilter/warlock_lean_v2.json` (profile "Warlock Lean2", 16 rules, 2026-10-09: Lean with uniques and sets shown **by base**;
+**generated** by `uv run --offline python -m inventory_tracking.loot.build_filter`, never hand-edited — edit Lean, then regenerate;
+`lootfilter/warlock_lean_v2.names.json` says per unique/set name whether it shows and why) and
 `lootfilter/warlock_echoing_strike.json` (profile "General (ALL)", 23 rules, the older per-class one).
+"Why is unique X hidden?" → look its name up in the names sidecar; the evidence rules are in the generator's docstring.
 The rule table with the reason per rule: `guides/warlock.html` §6. Pickup rules the filter implements:
 `guides/pindle-anya.html` §3 (`PK-*`) and `pricing/data/wp-d-pickup.json` (a `why` per key);
 `guides/warlock.html` §5 = the subset that matters for this build.
@@ -15,6 +19,9 @@ The rule table with the reason per rule: `guides/warlock.html` §6. Pickup rules
 
 - **Show always beats Hide; rule order is irrelevant.** Working pattern: one "HIDE All" rule plus Show
   exceptions.
+  Consequence: an item kind cannot be hidden "by base" while a broad Show rule covers it; narrow the Show
+  rule to a base-code list instead (Lean2 does this for uniques/sets; drop `equipmentCategory` from such a
+  rule, since category OR codes would re-show everything).
 - Within a rule: rarity AND quality AND (categories OR item codes).
 - `equipmentRarity: ["normal"]` also matches gray socketed/ethereal white bases;
   `filterEtherealSocketed: true` matches gray items. "hiQuality + flag, no normal" = show Superior and gray
@@ -24,6 +31,7 @@ The rule table with the reason per rule: `guides/warlock.html` §6. Pickup rules
   non-equipment), `gems`, `runes`, `potis`, `uberm`, `terrt`, `absol`; `goldFilterValue` = pile threshold.
 - **Import limits**: top-level `name` ≤ 13 chars or the game says "invalid profile code"; rule names
   ≤ 32 chars, characters `[A-Za-z0-9 _\-/.,]`; keep armor and weapon item codes in separate rules.
+  A rule with 107 item codes imports fine (Lean2, 2026-10-09), so code-list length is not a known limit.
 
 ## Rules for changing it
 

@@ -1,0 +1,716 @@
+{
+  "name": "Warlock Lean2",
+  "rules": [
+    {
+      "name": "HIDE All - Gold too",
+      "enabled": true,
+      "ruleType": "hide",
+      "filterEtherealSocketed": true,
+      "equipmentRarity": [
+        "rare",
+        "lowQuality",
+        "set",
+        "unique",
+        "magic",
+        "hiQuality",
+        "normal"
+      ],
+      "equipmentQuality": [
+        "normal",
+        "exceptional",
+        "elite"
+      ],
+      "equipmentCategory": [
+        "acce",
+        "weap",
+        "armo"
+      ],
+      "itemCategory": [
+        "misc"
+      ],
+      "goldFilterValue": 5037
+    },
+    {
+      "name": "SHOW Important Mats and Items",
+      "enabled": true,
+      "ruleType": "show",
+      "filterEtherealSocketed": true,
+      "equipmentRarity": [
+        "rare",
+        "lowQuality",
+        "set",
+        "unique",
+        "magic",
+        "hiQuality",
+        "normal"
+      ],
+      "equipmentQuality": [
+        "normal",
+        "exceptional",
+        "elite"
+      ],
+      "equipmentCategory": [
+        "acce"
+      ],
+      "itemCategory": [
+        "uberm",
+        "runes",
+        "terrt",
+        "absol"
+      ],
+      "itemCode": [
+        "gzv",
+        "glw",
+        "glg",
+        "glr",
+        "glb",
+        "gly",
+        "skl",
+        "gpv",
+        "gpw",
+        "gpg",
+        "gpr",
+        "gpb",
+        "gpy",
+        "skz"
+      ]
+    },
+    {
+      "name": "SHOW Healing and Full Rejuv",
+      "enabled": true,
+      "ruleType": "show",
+      "filterEtherealSocketed": false,
+      "itemCode": [
+        "hp5",
+        "rvl"
+      ]
+    },
+    {
+      "name": "SHOW Unique ARMOR",
+      "enabled": true,
+      "ruleType": "show",
+      "filterEtherealSocketed": false,
+      "equipmentRarity": [
+        "unique"
+      ],
+      "equipmentQuality": [
+        "normal",
+        "exceptional",
+        "elite"
+      ],
+      "equipmentItemCode": [
+        "aar",
+        "baa",
+        "bac",
+        "bad",
+        "bae",
+        "bhm",
+        "brs",
+        "buc",
+        "cap",
+        "ci2",
+        "ci3",
+        "crn",
+        "dra",
+        "drb",
+        "drd",
+        "dre",
+        "fhl",
+        "fld",
+        "ful",
+        "gts",
+        "hbl",
+        "hbt",
+        "hgl",
+        "hla",
+        "lgl",
+        "mbl",
+        "mbt",
+        "mgl",
+        "msk",
+        "nea",
+        "nee",
+        "nef",
+        "pa9",
+        "pac",
+        "pae",
+        "qui",
+        "rng",
+        "skp",
+        "stu",
+        "tbl",
+        "tbt",
+        "tgl",
+        "uap",
+        "uar",
+        "uh9",
+        "uhb",
+        "uhg",
+        "uhm",
+        "uit",
+        "ulc",
+        "uld",
+        "ulm",
+        "umb",
+        "umc",
+        "umg",
+        "uml",
+        "uow",
+        "upk",
+        "upl",
+        "urn",
+        "ush",
+        "usk",
+        "utb",
+        "utc",
+        "uts",
+        "utu",
+        "uui",
+        "uul",
+        "uvb",
+        "uvc",
+        "uvg",
+        "vbt",
+        "vgl",
+        "wa6",
+        "wac",
+        "wae",
+        "waf",
+        "xap",
+        "xea",
+        "xh9",
+        "xhb",
+        "xhm",
+        "xhn",
+        "xkp",
+        "xla",
+        "xlb",
+        "xlm",
+        "xlt",
+        "xmb",
+        "xml",
+        "xow",
+        "xpk",
+        "xpl",
+        "xrn",
+        "xrs",
+        "xsh",
+        "xsk",
+        "xtb",
+        "xtg",
+        "xtp",
+        "xui",
+        "xul",
+        "xvb",
+        "zhb",
+        "zlb",
+        "ztb",
+        "zvb"
+      ]
+    },
+    {
+      "name": "SHOW Unique WEAPONS",
+      "enabled": true,
+      "ruleType": "show",
+      "filterEtherealSocketed": false,
+      "equipmentRarity": [
+        "unique"
+      ],
+      "equipmentQuality": [
+        "normal",
+        "exceptional",
+        "elite"
+      ],
+      "equipmentItemCode": [
+        "6cs",
+        "6hx",
+        "6l7",
+        "6lw",
+        "6rx",
+        "6sw",
+        "6ws",
+        "72a",
+        "72h",
+        "7b7",
+        "7b8",
+        "7ba",
+        "7bk",
+        "7bl",
+        "7br",
+        "7bt",
+        "7bw",
+        "7cl",
+        "7cr",
+        "7cs",
+        "7dg",
+        "7di",
+        "7fl",
+        "7ga",
+        "7gd",
+        "7gi",
+        "7gl",
+        "7gm",
+        "7gs",
+        "7gw",
+        "7ha",
+        "7kr",
+        "7ls",
+        "7lw",
+        "7m7",
+        "7mp",
+        "7mt",
+        "7o7",
+        "7p7",
+        "7pa",
+        "7s7",
+        "7s8",
+        "7sb",
+        "7sc",
+        "7sm",
+        "7sp",
+        "7sr",
+        "7ta",
+        "7ts",
+        "7wa",
+        "7wb",
+        "7wc",
+        "7wh",
+        "7ws",
+        "8hx",
+        "8l8",
+        "8lb",
+        "8ls",
+        "8lw",
+        "8rx",
+        "8s8",
+        "8ss",
+        "8ws",
+        "9ax",
+        "9ba",
+        "9bw",
+        "9fc",
+        "9p9",
+        "9sb",
+        "9sr",
+        "9st",
+        "9ta",
+        "9tk",
+        "9tw",
+        "9wh",
+        "9wn",
+        "9ws",
+        "am9",
+        "ama",
+        "amb",
+        "amd",
+        "amf",
+        "bld",
+        "dgr",
+        "gwn",
+        "hax",
+        "lbb",
+        "lbw",
+        "mac",
+        "oba",
+        "obc",
+        "obf",
+        "scp",
+        "ssd",
+        "ywn"
+      ]
+    },
+    {
+      "name": "SHOW Set ARMOR",
+      "enabled": true,
+      "ruleType": "show",
+      "filterEtherealSocketed": false,
+      "equipmentRarity": [
+        "set"
+      ],
+      "equipmentQuality": [
+        "normal",
+        "exceptional",
+        "elite"
+      ],
+      "equipmentItemCode": [
+        "ba5",
+        "cap",
+        "chn",
+        "ci3",
+        "crn",
+        "dr8",
+        "ghm",
+        "gth",
+        "hbl",
+        "hbt",
+        "hgl",
+        "hla",
+        "hlm",
+        "kit",
+        "lbl",
+        "lgl",
+        "mbl",
+        "mbt",
+        "msk",
+        "ne9",
+        "paf",
+        "stu",
+        "tbt",
+        "tow",
+        "uar",
+        "ucl",
+        "uh9",
+        "uhm",
+        "uld",
+        "ulg",
+        "ult",
+        "umc",
+        "upl",
+        "urn",
+        "usk",
+        "utb",
+        "utc",
+        "uth",
+        "uts",
+        "uui",
+        "uul",
+        "vbl",
+        "vbt",
+        "vgl",
+        "wad",
+        "xap",
+        "xhb",
+        "xhg",
+        "xhl",
+        "xhm",
+        "xlg",
+        "xmb",
+        "xmg",
+        "xpl",
+        "xsk",
+        "xtb",
+        "xtg",
+        "xul",
+        "xvg",
+        "zhb",
+        "zmb",
+        "ztb",
+        "zvb"
+      ]
+    },
+    {
+      "name": "SHOW Set WEAPONS",
+      "enabled": true,
+      "ruleType": "show",
+      "filterEtherealSocketed": false,
+      "equipmentRarity": [
+        "set"
+      ],
+      "equipmentQuality": [
+        "normal",
+        "exceptional",
+        "elite"
+      ],
+      "equipmentItemCode": [
+        "6cs",
+        "7gd",
+        "7ls",
+        "7m7",
+        "7ma",
+        "7qr",
+        "7wd",
+        "7ws",
+        "9mt",
+        "amc",
+        "bst",
+        "kri",
+        "oba"
+      ]
+    },
+    {
+      "name": "SHOW Rare ARMOR",
+      "enabled": true,
+      "ruleType": "show",
+      "filterEtherealSocketed": false,
+      "equipmentRarity": [
+        "rare"
+      ],
+      "equipmentQuality": [
+        "normal",
+        "exceptional",
+        "elite"
+      ],
+      "equipmentCategory": [
+        "glove",
+        "boots",
+        "belts",
+        "circl",
+        "warlo",
+        "barbh",
+        "necro",
+        "druid"
+      ],
+      "equipmentItemCode": [
+        "pab",
+        "pac",
+        "pae",
+        "paf"
+      ]
+    },
+    {
+      "name": "SHOW Rare WEAPONS",
+      "enabled": true,
+      "ruleType": "show",
+      "filterEtherealSocketed": false,
+      "equipmentRarity": [
+        "rare"
+      ],
+      "equipmentQuality": [
+        "normal",
+        "exceptional",
+        "elite"
+      ],
+      "equipmentCategory": [
+        "circl",
+        "sorce"
+      ],
+      "equipmentItemCode": [
+        "kri",
+        "bld",
+        "9kr",
+        "9bl",
+        "7kr",
+        "7bl",
+        "9lw",
+        "9tw",
+        "7lw",
+        "7tw",
+        "amb",
+        "amc",
+        "7cr",
+        "7wa",
+        "7gd",
+        "am9",
+        "amd",
+        "ame",
+        "7di",
+        "7dg",
+        "amf",
+        "7ws"
+      ]
+    },
+    {
+      "name": "SHOW Magic ARMOR",
+      "enabled": true,
+      "ruleType": "show",
+      "filterEtherealSocketed": false,
+      "equipmentRarity": [
+        "magic"
+      ],
+      "equipmentQuality": [
+        "normal",
+        "exceptional",
+        "elite"
+      ],
+      "equipmentCategory": [
+        "circl",
+        "warlo",
+        "druid",
+        "barbh"
+      ],
+      "equipmentItemCode": [
+        "uit",
+        "pab",
+        "pac",
+        "utp",
+        "uui",
+        "utu",
+        "uar",
+        "ne1",
+        "ne5",
+        "nef",
+        "lgl",
+        "vgl",
+        "mgl",
+        "tgl",
+        "hgl",
+        "xlg",
+        "xvg",
+        "xmg",
+        "xtg",
+        "xhg",
+        "ulg",
+        "uvg",
+        "umg",
+        "utg",
+        "uhg"
+      ]
+    },
+    {
+      "name": "SHOW Magic WEAPONS",
+      "enabled": true,
+      "ruleType": "show",
+      "filterEtherealSocketed": false,
+      "equipmentRarity": [
+        "magic"
+      ],
+      "equipmentQuality": [
+        "normal",
+        "exceptional",
+        "elite"
+      ],
+      "equipmentCategory": [
+        "circl"
+      ],
+      "equipmentItemCode": [
+        "kri",
+        "bld",
+        "9kr",
+        "9bl",
+        "7kr",
+        "7bl",
+        "9lw",
+        "9tw",
+        "7lw",
+        "7tw",
+        "am5",
+        "ama",
+        "amf",
+        "wsp",
+        "obc",
+        "7di",
+        "7dg",
+        "obd",
+        "obe",
+        "obf",
+        "7ws"
+      ]
+    },
+    {
+      "name": "SHOW Craft Bases ARMOR",
+      "enabled": true,
+      "ruleType": "show",
+      "filterEtherealSocketed": false,
+      "equipmentRarity": [
+        "magic"
+      ],
+      "equipmentQuality": [
+        "normal",
+        "exceptional",
+        "elite"
+      ],
+      "equipmentItemCode": [
+        "lbt",
+        "xlb",
+        "ulb",
+        "vbl",
+        "zvb",
+        "uvc"
+      ]
+    },
+    {
+      "name": "SHOW Bases ARMOR",
+      "enabled": true,
+      "ruleType": "show",
+      "filterEtherealSocketed": true,
+      "equipmentRarity": [
+        "hiQuality",
+        "normal"
+      ],
+      "equipmentQuality": [
+        "normal",
+        "exceptional",
+        "elite"
+      ],
+      "equipmentCategory": [
+        "warlo"
+      ],
+      "equipmentItemCode": [
+        "pab",
+        "pac",
+        "pa1",
+        "ci0",
+        "ci1"
+      ]
+    },
+    {
+      "name": "SHOW Bases ARMOR Gray",
+      "enabled": true,
+      "ruleType": "show",
+      "filterEtherealSocketed": true,
+      "equipmentRarity": [
+        "hiQuality"
+      ],
+      "equipmentQuality": [
+        "normal",
+        "exceptional",
+        "elite"
+      ],
+      "equipmentCategory": [
+        "warlo"
+      ],
+      "equipmentItemCode": [
+        "xrn",
+        "xtp",
+        "uit",
+        "uui",
+        "utp",
+        "utu",
+        "uar"
+      ]
+    },
+    {
+      "name": "SHOW Bases WEAPONS",
+      "enabled": true,
+      "ruleType": "show",
+      "filterEtherealSocketed": true,
+      "equipmentRarity": [
+        "hiQuality",
+        "normal"
+      ],
+      "equipmentQuality": [
+        "normal",
+        "exceptional",
+        "elite"
+      ],
+      "equipmentItemCode": [
+        "7kr",
+        "7bl",
+        "fla",
+        "9tw",
+        "7tw"
+      ]
+    },
+    {
+      "name": "SHOW Bases WEAPONS Gray",
+      "enabled": true,
+      "ruleType": "show",
+      "filterEtherealSocketed": true,
+      "equipmentRarity": [
+        "hiQuality"
+      ],
+      "equipmentQuality": [
+        "normal",
+        "exceptional",
+        "elite"
+      ],
+      "equipmentItemCode": [
+        "7cr",
+        "7wa",
+        "7gd",
+        "7s8",
+        "7wc",
+        "7pa",
+        "7h7",
+        "7vo",
+        "7br",
+        "amd",
+        "amb",
+        "amc",
+        "crs",
+        "kri",
+        "9kr"
+      ]
+    }
+  ]
+}
