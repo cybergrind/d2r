@@ -41,6 +41,11 @@ Codex additionally has implicit invocation disabled in agents/openai.yaml.
 - diablo2.io trade search through pricing/tools/d2io_search.py with ladder=2 hc=2 plat_pc=1
   legacy_resu=2; activesold=1 for sold-search evidence. Inspect the actual record before calling
   it a fill. Wait at least 30 seconds between requests; retry an empty page at most once.
+- Traderie **trades** (accepted and completed offers, the only real sales record) through
+  `node pricing/tools/traderie_trades.mjs <slug>…` in the player's own browser (hidden background
+  target, no focus change, ≥ 15 s between products) and `python3 pricing/tools/traderie_trades.py`
+  to summarise. Use it when the question is "what did it sell for", not "what is asked". The
+  listings API's `completed=true` flag is NOT a sale: it includes expired listings (2026-10-09).
 - No generic price guides, Reddit, d2jsp or other-mode PC threads as price evidence.
   Maxroll establishes build demand, not prices.
 

@@ -472,8 +472,7 @@
       ],
       "equipmentCategory": [
         "circl",
-        "sorce",
-        "assas"
+        "sorce"
       ],
       "equipmentItemCode": [
         "kri",
@@ -482,6 +481,10 @@
         "9bl",
         "7kr",
         "7bl",
+        "9lw",
+        "9tw",
+        "7lw",
+        "7tw",
         "amb",
         "amc",
         "7cr",
@@ -674,7 +677,11 @@
         "elite"
       ],
       "equipmentItemCode": [
+        "kri",
+        "9kr",
         "7kr",
+        "bld",
+        "9bl",
         "7bl",
         "fla",
         "9tw",
@@ -707,9 +714,7 @@
         "amd",
         "amb",
         "amc",
-        "crs",
-        "kri",
-        "9kr"
+        "crs"
       ]
     }
   ]

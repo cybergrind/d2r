@@ -425,7 +425,17 @@ class HudConfig(Config):
         'terror': HudSlot(x=0.68, y=0.02, max_width=0.2),
         # Ground marks (hud/ground.py): the whole game window.
         'ground': HudSlot(x=0, y=0),
+        # Unread Traderie notifications (hud/traderie.py): centred at the top edge, between the
+        # corner portraits and the Terror Zone card.
+        'traderie': HudSlot(x=0.5, y=0.02, max_width=0.3, centered=True),
     }
+    # Slots also shown while the game is not focused or not running; they are then laid out on
+    # the whole working area of the focused output instead of the game window.
+    desktop_slots: tuple[str, ...] = ('traderie',)
+    # The output (niri connector name) the desktop slots are drawn on, on their own surface and
+    # only there (user, 2026-10-09: Traderie on the laptop panel, the game's HUD on DP-5). None,
+    # or an output that is not connected: they share the game's canvas instead.
+    desktop_output: str | None = 'eDP-1'
     ground: HudGroundConfig = HudGroundConfig()
     # While one of these panels is open the player is reading items, not navigating, so the
     # widgets of `dim_slots` are drawn at `dim_alpha` of their opacity (user, 2026-10-07). The
@@ -436,3 +446,16 @@ class HudConfig(Config):
 
 
 HUD = HudConfig()
+
+
+class TraderieConfig(Config):
+    """Traderie notifications card (hud/traderie.py), read through the player's own browser."""
+
+    enabled: bool = True
+    port: Annotated[int, Field(gt=0, lt=65536)] = 8333  # the browser's DevTools (remote debugging) port
+    poll_seconds: Positive = 60  # between reloads of the reader's hidden tab
+    stale_seconds: Positive = 300  # no successful check for this long is said on the card
+    max_lines: Annotated[int, Field(gt=0)] = 3  # messages listed under the count
+
+
+TRADERIE = TraderieConfig()

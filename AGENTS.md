@@ -1,8 +1,8 @@
 # D2R appraisal repo — agent instructions (core)
 
 Diablo II: Resurrected pricing / farming knowledge base for one player: **Softcore · Non-Ladder · PC ·
-Reign of the Warlock (RotW)**, playing an **Echoing Strike Warlock**, farming Pindleskin, Hell cows and
-the Anya shop. Everything is quoted in **Ist = 1**. Numbers are dated snapshots (mostly 2026-09-18).
+Reign of the Warlock (RotW)**, playing an **Echoing Strike Warlock**. Farming rotates between runs (bosses, Pindleskin,
+Hell cows, the Anya shop…); do not assume a particular run. The farm guide covers Pindle/Anya only. Everything is quoted in **Ist = 1**. Numbers are dated snapshots (mostly 2026-09-18).
 
 ## Pick the skill for the task, then read only that file
 
@@ -15,6 +15,7 @@ the Anya shop. Everything is quoted in **Ist = 1**. Numbers are dated snapshots 
 | asks to refresh prices, pull Traderie / diablo2.io, rebuild data, extend a guide, run the plan | `.agents/skills/pricing-refresh/SKILL.md` | — |
 | asks to update/audit the offline KB, fold in research, or check base-variant coverage | `.agents/skills/update-kb/SKILL.md` | online refresh unless requested |
 | asks to clear the shared stash, organise mules, decide what to drop or where an item goes | `.agents/skills/mules/SKILL.md` | online refresh; the guides |
+| asks to list an item on Traderie, post a listing, or review their active listings | `.agents/skills/traderie-list/SKILL.md` | online refresh unless requested |
 
 The appraise skill's report has a "why the filter shows it" part; it links to the filter skill only for the
 rule table, so an appraisal never needs the whole filter skill.
@@ -43,7 +44,8 @@ not resume them, do not regenerate their artifacts, and do not append to `handof
 
 1. **The repo is the price source, not the web.** Never web-search for prices: generic price guides,
    d2jsp, diablofans, d2rgear, reddit, and "PC:" threads from other modes are a different economy.
-   Outside sources are only the Traderie JSON API and diablo2.io trade search, through `pricing/tools/`,
+   Outside sources are only the Traderie JSON API (asks, buy side, and the Recent Trades read through the
+   player's browser by `traderie_trades.mjs`) and diablo2.io trade search, through `pricing/tools/`,
    with the scope filters (Traderie props 799 softcore / 800 Non-Ladder / 798 PC / 1854 RotW; diablo2.io
    `ladder=2 hc=2 plat_pc=1 legacy_resu=2`). Maxroll guides are the source for *demand*, never for prices.
 2. **Not named in a build list ≠ worthless.** Before "vendor" on a rare, magic class item, unique or
@@ -77,5 +79,5 @@ Follow [development practices](development.md) for code changes.
 - `pricing/data/*.json` — ladder (`wp-f-ladder.json`), base buckets (`wp-b-prices.json`), uniques/sets/misc
   (`wp-i-uniques-misc.json`), jewels/charms (`wp-h-jewels-charms.json`), builds (`wp-a-builds.json`,
   `wp-a-blues.json`, `wp-a-variants/`), pickup rules (`wp-d-pickup.json`), session addendum.
-- `pricing/tools/` — `traderie.py`, `pricecheck.py` (name → ask band in one call), `d2io_search.py`, `fetch.sh`, `html2text.py`, `tables.py`, rebuild scripts.
+- `pricing/tools/` — `traderie.py`, `pricecheck.py` (name → ask band in one call), `d2io_search.py`, `fetch.sh`, `html2text.py`, `tables.py`, rebuild scripts; `traderie_list.mjs` / `traderie_edit.mjs` / `traderie_listings.mjs` post, reprice and read the player's Traderie listings in their browser; `traderie_notifications.mjs` reads their notifications (`make serve` shows unread ones on the HUD, `inventory_tracking/hud/traderie.py`).
 - `pricing/raw/` — cached pulls (git-ignored, ~200 MB). `lootfilter/` — in-game filter profiles.

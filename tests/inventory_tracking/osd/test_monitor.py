@@ -114,3 +114,20 @@ def test_floating_game_position_is_kept_and_tiled_has_none():
     output()
     assert output.window_position is None
     assert output.window_size == (1920, 1182)
+
+
+def test_focused_output_is_read_from_niri_and_cached_briefly():
+    from inventory_tracking.osd.monitor import FocusedOutput
+
+    now = [0.0]
+    query = Mock(side_effect=[json.dumps({'name': 'DP-5'}), json.dumps(None), OSError('gone')])
+    output = FocusedOutput(query=query, clock=lambda: now[0])
+
+    assert output() == 'DP-5'
+    assert output() == 'DP-5'
+    assert query.call_count == 1
+    assert query.call_args.args[0] == ['niri', 'msg', '--json', 'focused-output']
+    now[0] = 1
+    assert output() is None  # no output focused
+    now[0] = 2
+    assert output() is None  # niri unreachable

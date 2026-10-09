@@ -1,7 +1,17 @@
 import json
 import socket
+from contextlib import nullcontext
+
+import pytest
 
 from inventory_tracking.appraisal import service as appraisal_service
+
+
+@pytest.fixture(autouse=True)
+def no_canvas_or_browser(monkeypatch):
+    """`serve` starts the HUD canvas and the Traderie watch before it finds the game; tests start neither."""
+    for name in ('hud_process', 'traderie_watch'):
+        monkeypatch.setattr(appraisal_service, name, lambda *_: nullcontext())
 
 
 def test_request_uses_local_socket_without_game_access(tmp_path):
@@ -77,6 +87,8 @@ def test_worker_defaults_to_publication_but_explicit_database_stays_legacy(tmp_p
 
 
 def test_serve_waits_for_game_process_before_attaching(tmp_path, monkeypatch, capsys):
+    from contextlib import nullcontext
+
     import pytest
 
     from inventory_tracking.native.session import GameNotReady, GameProcessUnavailable
@@ -99,6 +111,10 @@ def test_serve_waits_for_game_process_before_attaching(tmp_path, monkeypatch, ca
 
     monkeypatch.setattr(appraisal_service.LiveReader, 'connect', connect)
     monkeypatch.setattr(appraisal_service.time, 'sleep', sleep)
+    # The canvas and the Traderie watch start before the game is found.
+    started = []
+    for name in ('hud_process', 'traderie_watch'):
+        monkeypatch.setattr(appraisal_service, name, lambda *_, name=name: started.append(name) or nullcontext())
     with pytest.raises(ValueError, match='unsupported build'):
         appraisal_service.main(
             [
@@ -113,6 +129,7 @@ def test_serve_waits_for_game_process_before_attaching(tmp_path, monkeypatch, ca
         )
     assert len(attempts) == 5
     assert states == ['waiting'] * 4
+    assert started == ['hud_process', 'traderie_watch']
     out = capsys.readouterr().out
     assert out.count('Waiting for D2R.exe') == 1
     assert out.count('Waiting for a character in game') == 1

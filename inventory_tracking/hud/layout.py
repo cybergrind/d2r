@@ -45,6 +45,11 @@ def game_rect(canvas_size, *, window_size, position) -> GameRect | None:
     return GameRect(0, canvas_size[1] - height, width, height)
 
 
+def desktop_rect(canvas_size) -> GameRect:
+    """The whole canvas: where HUD.desktop_slots are laid out while the game is not focused."""
+    return GameRect(0, 0, int(canvas_size[0]), int(canvas_size[1]))
+
+
 def scale_for(height: float, *, reference_height: float) -> float:
     return min(2.0, max(0.6, height / reference_height))
 

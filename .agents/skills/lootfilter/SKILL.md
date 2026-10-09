@@ -50,7 +50,7 @@ The rule table with the reason per rule: `guides/warlock.html` §6. Pickup rules
    `wp-a-blues.json` first. Rare class items with staff-mods, rare Warlock daggers, rare Amazon
    javelins/spears and magic gloves stay shown (the 2026-09-18 audit hid them and was reverted).
    2026-10-09 audit: a rare paid pattern in `pricing/triage/import_class_rules.py` is **asks only**; before
-   showing or hiding a rare family, check demand — Traderie buy side (`listings?item=<id>&selling=false`, scoped
+   showing or hiding a family, check trades (`pricing/tools/traderie_trades.mjs`, the Recent Trades tab) and demand — Traderie buy side (`listings?item=<id>&selling=false`, scoped
    props) and offers received (`total_offers` in the raw pulls), plus diablo2.io `activesold=1`. Verified that day:
    normal-tier daggers (Dagger/Dirk/Poignard/Rondel), wands and the eleven non-elite Paladin shield bases have no
    rare buyers and ~0 offers → hidden; all claws (`assas`) and the elite scepters (7sc 7ws 7qs) draw offers at the

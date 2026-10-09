@@ -146,3 +146,22 @@ Constraints if this is revisited:
   itself on every frame (`live` = pid + path address in the ground payload, from `Location.path`)
   and redraws when it changed. Monster positions still arrive at the terror probe's 0.25 s.
   Open: the sub-unit fraction at path +0x00/+0x04 is the classic layout, not confirmed in D2R.
+
+### Traderie notifications and desktop slots (2026-10-09, user request)
+
+- `hud/traderie.py`: `serve` runs `pricing/tools/traderie_notifications.mjs --watch`, which reads the
+  player's notifications through their browser (DevTools port `TRADERIE.port`, one hidden tab; the
+  site sends the request itself, the login token is never read). Unread ones are a text card in the
+  `traderie` slot until they are read on Traderie. A failed check or no answer for
+  `TRADERIE.stale_seconds` hides the card. `--no-traderie` turns it off.
+- `HUD.desktop_slots` (`traderie`) are drawn on a second layer-shell surface (`d2r-hud-desktop`) on
+  `HUD.desktop_output` (eDP-1, user 2026-10-09), whatever has the focus, and not over the game.
+  Without that output they fall back to the game's canvas: in the game window while it is focused,
+  otherwise on the output the canvas is on (first the focused one, `osd/monitor.py`
+  `FocusedOutput`; it does not follow the focus, which flickered). Every other slot still needs
+  the game's focus.
+- `serve` now starts the canvas and the watch before it waits for the game. The watch renews its
+  lease from its own thread.
+- Checked live 2026-10-09 with a browser focused and no game: the canvas mapped for a test card
+  and unmapped when it was cleared. Not seen yet: a real unread notification, and the card over
+  the running game (the slot may need moving).

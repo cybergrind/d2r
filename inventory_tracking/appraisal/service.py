@@ -64,7 +64,7 @@ from inventory_tracking.collection.service import (
 from inventory_tracking.collection.store import DEFAULT_DATABASE as COLLECTION_DATABASE
 from inventory_tracking.collection.watch import StashWatcher
 from inventory_tracking.common import LOG, configure_logging, log_to_file, timestamp
-from inventory_tracking.config import APPRAISAL, SHOW_ITEMS
+from inventory_tracking.config import APPRAISAL, SHOW_ITEMS, TRADERIE
 from inventory_tracking.hud.process import (
     PanelBeacon,
     card_widgets,
@@ -74,6 +74,7 @@ from inventory_tracking.hud.process import (
     terror_widgets,
 )
 from inventory_tracking.hud.scene import DEFAULT_SCENE, publish_layer
+from inventory_tracking.hud.traderie import traderie_watch
 from inventory_tracking.identify.service import IdentifyWorker
 from inventory_tracking.levels.dump import (
     DEFAULT_OUTPUT as LEVEL_OUTPUT,
@@ -405,6 +406,12 @@ def run_service(args, directory, report):
                 backend = PublishedAppraisal(args.publication_store) if args.publication_store else None
                 recent = RecentObservations(stored_observations(args.output))
                 with ExitStack() as starting:
+                    # The canvas and the Traderie watch run from the start: notifications are
+                    # shown while this process still waits for the game.
+                    starting.enter_context(hud_process(args.hud_scene, args.osd, directory / 'hud.log'))
+                    starting.enter_context(
+                        traderie_watch(args.hud_scene, args.osd and args.traderie, directory / 'traderie.log')
+                    )
                     # Loading the KB and the first lookups take seconds in each lookup process, so
                     # they start first and warm up while this process loads the KB and finds the game.
                     warm, startup_generation = (), None
@@ -443,7 +450,6 @@ def run_service(args, directory, report):
                 source = AppraisalCapture(pid, images, capture, reconnect=connect)
 
                 with (
-                    hud_process(args.hud_scene, args.osd, directory / 'hud.log'),
                     ThreadPoolExecutor(max_workers=1, thread_name_prefix='appraisal-kb') as pool,
                     ThreadPoolExecutor(max_workers=1, thread_name_prefix='collection') as collection_pool,
                     ThreadPoolExecutor(max_workers=1, thread_name_prefix='shop') as shop_pool,
@@ -451,7 +457,7 @@ def run_service(args, directory, report):
                     ThreadPoolExecutor(
                         max_workers=APPRAISAL.identify_lookup_processes, thread_name_prefix='identify-lookup'
                     ) as identify_lookup_pool,
-                    lookups,  # the lookup processes and their warmers, started above
+                    lookups,  # the canvas, the lookup processes and their warmers, started above
                 ):
                     shop = None
                     identify = None
@@ -755,6 +761,12 @@ def main(argv=None):
         action=argparse.BooleanOptionalAction,
         default=APPRAISAL.rune_marks,
         help='serve: HUD arrows to valuable runes on the ground (APPRAISAL.rune_minimum and up)',
+    )
+    parser.add_argument(
+        '--traderie',
+        action=argparse.BooleanOptionalAction,
+        default=TRADERIE.enabled,
+        help='serve: HUD card for unread Traderie notifications, read through the browser (hud/traderie.py)',
     )
     parser.add_argument(
         '--hud-scene', type=Path, default=DEFAULT_SCENE, help='HUD scene directory (inventory_tracking/hud)'

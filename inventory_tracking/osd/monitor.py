@@ -53,6 +53,29 @@ class GameOutput:
         return json.loads(self.query(['niri', 'msg', '--json', command], timeout=INPUT.focus_timeout, text=True))
 
 
+class FocusedOutput:
+    """The connector name of niri's focused output, for what the HUD shows without the game."""
+
+    def __init__(self, *, query=subprocess.check_output, clock=time.monotonic):
+        self.query, self.clock = query, clock
+        self.checked_at = -float('inf')
+        self.output: str | None = None
+
+    def __call__(self):
+        now = self.clock()
+        if 0 <= now - self.checked_at < 0.5:
+            return self.output
+        self.checked_at, self.output = now, None
+        try:
+            command = ['niri', 'msg', '--json', 'focused-output']
+            focused = json.loads(self.query(command, timeout=INPUT.focus_timeout, text=True))
+            name = focused.get('name') if isinstance(focused, dict) else None
+            self.output = name if isinstance(name, str) and name else None
+        except OSError, ValueError, subprocess.SubprocessError:
+            pass
+        return self.output
+
+
 def choose_monitor(monitors, index, output):
     if index is not None:
         return monitors.get_item(index) if 0 <= index < monitors.get_n_items() else None

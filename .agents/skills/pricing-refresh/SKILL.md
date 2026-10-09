@@ -49,11 +49,20 @@ python3 pricing/tools/traderie.py runes Pul Um Mal Ist Gul Vex Ohm Lo Sur Ber Ja
 python3 pricing/tools/d2io_search.py "<keyword>" ladder=2 hc=2 plat_pc=1 activesold=1 legacy_resu=2 --out pricing/raw/d2io/search-<x>.html
 python3 pricing/tools/d2io_search.py --parse pricing/raw/d2io/search-<x>.html   # re-parse a cached page
 pricing/tools/fetch.sh <url> <outfile>                                 # browser UA, skips if cached
+node pricing/tools/traderie_trades.mjs kris legend-spike [--wait 15]   # Recent Trades (accepted+completed offers) via the player's browser → pricing/raw/traderie/recent-<date>/
+python3 pricing/tools/traderie_trades.py [files]                       # trades/day, paid Ist by rarity, sockets, staff-mods
 python3 pricing/tools/html2text.py <file.html> ["keyword" [context]]   # guides and cached pages as text
 python3 pricing/tools/tables.py <file.html>                            # maxroll gear tables
 ```
 Item ids already used: `pricing/tools/wp_b_ids.txt`. diablo2.io: keywords are mandatory, ≥ 30 s
 between searches (guest flood control), retry once on an empty page, page 2 is `&start=30`.
+A 26-query batch at 36 s spacing with one 40 s retry still lost about half its pages (2026-10-09); for
+batches space ≥ 60 s and treat "pages: ?" as no data, not as zero matches. Traderie buy side:
+`listings?item=<id>&page=0&selling=false&prop_799=softcore&prop_800=false&prop_798=PC&prop_1854=reign+of+the+warlock`
+(5 s spacing was fine for 46 calls); `total_offers` on sell listings is the other demand signal.
+Trades: only the Recent Trades tab (offers `accepted=true&completed=true`, needs the player's session, hence
+the browser tool). `listings?…&completed=true` is not a sales record: matched against older pulls, a cluster
+of those listings closed 19–21 days after their last update, i.e. expiry (2026-10-09).
 Traderie: `prices[].group` — same group summed, different groups are OR-alternatives (take the
 cheapest); rune/gem asks are per whole stack; one vote per `seller_id`; a bucket with 47 listings from
 6 sellers is a wall, not a market. Cached pulls: `pricing/raw/traderie/<slug>.json` (bare list) and

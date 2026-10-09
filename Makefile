@@ -2,7 +2,7 @@
 UV ?= uv run --offline
 COLLECTION_HTML ?= inventory_tracking/runs/collection/collection.html
 
-.PHONY: export open serve collect equipped status test hud
+.PHONY: export open serve collect equipped status test hud traderie-preview
 
 ## export: write the searchable single-file HTML from the collection database
 export:
@@ -15,11 +15,15 @@ osd:
 hud:
 	$(UV) python -m inventory_tracking.hud
 
+## traderie-preview: show a sample Traderie notifications card for 30 s (works without the game or `serve`)
+traderie-preview:
+	$(UV) python -m inventory_tracking.hud.traderie
+
 ## open: export, then open the page in the default browser
 open: export
 	xdg-open $(COLLECTION_HTML)
 
-## serve: start the Alt+D / Win+S / Win+D / Win+C worker (collects on stash close; Win+C re-shows the level map and dumps level memory; Win+X runs the prebuff macro)
+## serve: start the Alt+D / Win+S / Win+D / Win+C worker (collects on stash close; Win+C re-shows the level map and dumps level memory; Win+X runs the prebuff macro; shows unread Traderie notifications, also without the game)
 serve:
 	$(UV) python -m inventory_tracking.appraisal_service serve
 
