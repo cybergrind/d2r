@@ -17,7 +17,8 @@ from pathlib import Path
 
 DATA = Path(__file__).parent / 'data' / 'doors.json'
 CLOSED_MODE = 0  # object mode NU: never operated; 1 is opening, 2 opened
-FOOTPRINT_SLACK = 1.0  # world units around the footprint's half extent
+FOOTPRINT_SLACK = 1.0  # world units past the footprint's ends along the door: the frame
+THICKNESS_SLACK = 0.5  # world units to each side of the door's thin side
 
 
 @cache
@@ -41,9 +42,21 @@ class Door:
 
     @property
     def radius(self) -> float:
-        size = door_sizes().get(self.txt_id, (1, 1))
-        return max(size) / 2 + FOOTPRINT_SLACK
+        """Half the door's longer side with the slack: how far from it the door can matter at all."""
+        return max(self.extent)
+
+    @property
+    def extent(self) -> tuple[float, float]:
+        """The half extents (x, y) of what the closed door blocks: its footprint, a little longer for
+        the frame and a little thicker. A door is a line across its doorway, not a square: with the
+        square of its longer side every shot from 1.5 units before Andariel's door (7 x 1) read
+        blocked, at monsters on the character's own side too, and attack mode stood for ten seconds
+        among thirty of them (host, 21:18 on 2026-10-10, Catacombs 3)."""
+        wide, deep = door_sizes().get(self.txt_id, (1, 1))
+        slack = (FOOTPRINT_SLACK, THICKNESS_SLACK) if wide >= deep else (THICKNESS_SLACK, FOOTPRINT_SLACK)
+        return wide / 2 + slack[0], deep / 2 + slack[1]
 
     def blocks(self, point: tuple[float, float]) -> bool:
         """Whether a closed door stands over `point` (world units)."""
-        return self.closed and abs(point[0] - self.x) <= self.radius and abs(point[1] - self.y) <= self.radius
+        across, along = self.extent
+        return self.closed and abs(point[0] - self.x) <= across and abs(point[1] - self.y) <= along

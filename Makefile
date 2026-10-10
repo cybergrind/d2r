@@ -42,3 +42,17 @@ status:
 ## test: collection tests
 test:
 	$(UV) pytest tests/inventory_tracking/collection -q
+
+.PHONY: combat-viz combat-view combat-view-check
+
+## combat-viz: export every combat take for the replay viewer (combat_viewer/README.md) to inventory_tracking/runs/combat/viz
+combat-viz:
+	$(UV) python -m inventory_tracking.combat.viz inventory_tracking/runs/combat
+
+## combat-view: open the replay viewer (Godot 4) on the exported takes
+combat-view:
+	godot --path combat_viewer
+
+## combat-view-check: drive the viewer headless through every exported take and every key (prints SCRIPT ERROR lines, if any)
+combat-view-check:
+	godot --headless --path combat_viewer --script res://tests/drive.gd

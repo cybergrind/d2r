@@ -1,6 +1,7 @@
 """Valuable drops other than runes, by item class: Worldstone Shards, flawless and perfect
 gems, the Colossal Ancients' statues and the Pandemonium keys (user, 2026-10-07), and charms of
-every size and quality, since a charm's worth shows only once identified (user, 2026-10-10).
+every size and quality, since a charm's worth shows only once identified (user, 2026-10-10), and the
+four essences the act bosses drop (the Token of Absolution's parts; user, 2026-10-10 night).
 
 Class IDs and names come from the item decoder's bases (items/metadata.py, the game's classid
 column), by item code. The statues' table names are placeholders ('Uber Ancient Summon Material
@@ -26,6 +27,7 @@ GROUPS = {
     'statues': r'ua[1-5]',
     'keys': r'pk[1-3]',
     'charms': r'cm[1-3]',
+    'essences': r'tes|ceh|bet|fed',  # Twisted, Charged, Burning, Festering (verified against the bases)
 }
 
 

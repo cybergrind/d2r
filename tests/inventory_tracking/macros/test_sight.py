@@ -99,3 +99,18 @@ def test_the_flight_layer_decides_the_shot_where_a_grid_has_one():
     assert clear_shot(flown, (1.0, 2.0), (45.0, 2.0)) is False
     walked = Ground((Walkable(0, 0, 10, 1, flown.grids[0].cells),))  # an old grid: cells only
     assert clear_shot(walked, (1.0, 2.0), (30.0, 2.0)) is False
+
+
+def test_a_closed_door_is_a_line_across_its_doorway_not_a_square_around_it():
+    # host, 21:18 on 2026-10-10 (Catacombs 3): the character stood 1.5 units before Andariel's door
+    # (class 47, 7 x 1 sub-tiles, at 22545, 9610) and every shot read blocked, also at the monsters on
+    # its own side of the door.
+    door = Door(1, 47, 0, 22545.0, 9610.0)
+    here = (22545.5, 9608.5)
+    assert clear_shot(Ground(()), here, (22548.5, 9602.5), (door,))  # 6.7 away, on the character's side
+    assert clear_shot(Ground(()), here, (22536.7, 9602.4), (door,))  # 10.7 away, the same side
+    assert not clear_shot(Ground(()), here, (22544.5, 9612.4), (door,))  # 4 away, behind the door
+    assert not clear_shot(Ground(()), here, (22539.5, 9616.5), (door,))  # 10 away, behind it, at a slant
+    assert clear_shot(Ground(()), (22552.0, 9606.0), (22552.0, 9616.0), (door,))  # past the door's end: no door there
+    assert door.extent == (4.5, 1.0)
+    assert Door(1, 15, 0, 0.0, 0.0).extent == (1.0, 2.5)  # a door that stands the other way (1 x 3)

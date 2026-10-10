@@ -182,6 +182,8 @@ class Game:
         self.hover_known = True  # the game's record of the unit under the pointer can be read
         self.deaf_picks = 0  # clicks on a drop the game takes nothing from (a cast was ending)
         self.pick_above = 14.0  # classic pixels a drop is clicked above its ground (host, 2026-10-10)
+        self.label_above = {}  # unit id -> the same for one drop: a pile shifts its labels (host, 21:10)
+        self.belt_after = {}  # drops picked up so far -> the belt from then on (a potion lands in it)
 
     def react(self, event):
         self.read()
@@ -276,6 +278,8 @@ class Game:
                 elif drop is not None:
                     self.picked.append(drop.label)
                     self.loot = replace(self.loot, drops=tuple(d for d in self.loot.drops if d is not drop))
+                    if len(self.picked) in self.belt_after:
+                        self.loot = replace(self.loot, belt=self.belt_after[len(self.picked)])
                     self.world = replace(w, player=replace(w.player, x=drop.x, y=drop.y))
                 elif math.dist((gx, gy), (w.player.x, w.player.y)) < 40:  # a click on the ground: a walk there
                     self.walks.append((gx, gy))
@@ -284,9 +288,9 @@ class Game:
     def drop_under_pointer(self):
         """The drop whose ground the pointer is on (`pick_above` pixels above it), within a walk."""
         gx, gy = self.ground_under_pointer()
-        lift = self.pick_above / 16
         player = self.world.player
         for drop in self.loot.drops:
+            lift = self.label_above.get(drop.unit_id, self.pick_above) / 16
             near = math.dist((gx + lift, gy + lift), (drop.x, drop.y)) < 0.5
             if near and math.dist((player.x, player.y), (drop.x, drop.y)) < 40:
                 return drop

@@ -1257,3 +1257,37 @@ Not done, and why: the fight's loop is not replayed against recorded input (hold
 chosen live: the pieces have traces, the loop does not); the hunt's fakes still advance the clock
 only through sleeps; the test files were not split or renamed; the damage per hit was not refitted
 (the fit takes read 14-19% low) and the gate's bars were left alone.
+
+## Note, 2026-10-10 late night: the replay viewer
+
+Built (user: "wire simulator into visualization ... use godot ... visually see played games and check
+some places where things were improved"):
+
+- `combat/viz.py` exports a take as one JSON file for the viewer: the situation per game tick (the
+  character, monsters with their recorded life, companions, doors, the pointer, the wall grid), the
+  recorded casts and each policy's (`live` and `yield` by default) through `simulate` with their
+  blades (`echoing_strike.cast`), simulated life curves, deaths and scores, and per policy the
+  moments where it and the recorded play differ most (`combat/viz_moments.py`: 3 second windows by
+  life taken either way, policy casts while the player did not cast, recorded casts that touched
+  nothing, elites dying a second or more apart). `make combat-viz` exports every take with five or
+  more full casts to `runs/combat/viz/` with an `index.json`: 71 takes, 13 MB, 42 s; the largest
+  file is 1.18 MB (20261009T212147Z-108, 7992 ticks, 287 monsters).
+- `combat_viewer/` is a Godot 4.7 project (GDScript only) that reads those files: a take list with
+  each policy's gain, the level in the game's isometric projection, the recorded run (orange) and a
+  policy run (blue) side by side or overlaid, playback 0.25x to 8x with a scrub bar marking casts,
+  kills and moments, running totals with their difference, and the moments list to jump to and loop.
+  `make combat-view` opens it; the file layout and the keys are in `combat_viewer/README.md`.
+
+Verified: `tests/.../combat/test_viz.py` and `test_viz_moments.py` (63 tests: the schema, ticks and
+tracks against `Situation`, scores against `compare`, deaths and life, blades against the mechanics,
+walls and doors against the level map, moments, determinism); the gains in the index equal the
+scoreboard's; every script parses in Godot 4.7.2; `make combat-view-check` opened all 71 takes headless
+and pressed every key with no script error; six pictures of the real window (the list, side by side,
+overlaid, a level with walls, a level without, fitted) were looked at.
+
+Not verified: nobody has watched it play or used the mouse in it (wheel zoom, drag pan, clicking the
+scrub bar and the moments list, the folder dialog are untested by hand); the pictures were taken in
+a 1280 x 1422 window, not at 2560 x 1440. The viewer shows what the simulator says: on a take whose
+gate fails (46 of the 71) the comparison is only as good as the model, and the side panel says so.
+A monster's simulated life rounds up to one thousandth while it lives, so a bar never reads empty
+before its death tick.

@@ -194,7 +194,10 @@ def monster_name(txt: int) -> str:
 
 
 def permille(points: float, full: float) -> int:
-    return round(1000 * min(max(points, 0.0), full) / full) if full else 0
+    """Life `points` in thousandths of `full`; a monster with any life left has at least one (zero is dead)."""
+    if not full or points <= 0.0:
+        return 0
+    return max(1, round(1000 * min(points, full) / full))
 
 
 def monsters(situation: Situation, frame: Frame) -> list[dict[str, Any]]:

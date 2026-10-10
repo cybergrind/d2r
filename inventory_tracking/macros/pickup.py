@@ -1,13 +1,17 @@
 """The pickup step: one thing that is not fighting (user, 2026-10-10), the first that applies:
 
-1. A valuable item on the ground is picked up: what the loot marks point at (runes from the
-   configured minimum, materials, bases of expensive uniques; loot/ground.py), the nearest first.
+1. A valuable item on the ground is picked up: every rune, and what the loot marks point at
+   (materials with the keys and essences, bases of expensive uniques; loot/ground.py), the nearest first.
 2. A super healing or full rejuvenation potion (never a smaller or plain one) near the character is
    picked up when the belt is missing one of its kind (tracking/belt.py `column_shortages`: a column
    holds what its lowest potion is, an empty one rejuvenation).
 3. With the belt full, life missing and such a potion near: one of the same kind is drunk from the
    belt's hotkey row and the one on the ground picked up in its place.
 4. Nothing of those: the press is a seek step (hunt.Hunter.seek: toward the next elite, attack mode on).
+
+In a pile the game stacks the labels: the item under the pointer is read from the game before a
+click (`take`), another potion of the kind wanted serves as well, and one not wanted is never clicked.
+One press takes every potion the belt is short of (PICKS at most), one valuable, or one drink.
 
 A drop within PICK_UNITS and in view is clicked and the character walks to it; one further off is
 hopped toward first (teleport.hop_toward, with the level's rooms and walls). Potions are only taken
@@ -23,7 +27,7 @@ holds with nothing under the pointer.
 """
 
 import math
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 
 from inventory_tracking.combat.policy import RUN_MODES
@@ -52,6 +56,12 @@ DRINK_BELOW = 0.7  # of the life: under it a potion is drunk to make room for th
 # aims start that much higher and go round it. With them four of four items were picked up (18:46 to
 # 18:54): three at the first aim, one at the second after a click the game took nothing from.
 ITEM_AIMS = ((0, -14), (0, -24), (0, -6), (-10, -14), (10, -14), (0, -34), (0, 2))
+# Further aims only looked at, never clicked blind: in a pile the game stacks the labels, and the item
+# wanted is under the pointer well above its ground or to a side. A press clicked whatever lay at the
+# first aims and took a potion nobody wanted (host, 21:10 on 2026-10-10: a full rejuvenation with the
+# belt full of them, between two healing potions).
+PILE_AIMS = ((0, -44), (-20, -24), (20, -24), (0, -54), (-20, -44), (20, -44), (0, -64), (-30, -14), (30, -14))
+PICKS = 4  # potions one press picks up at most, while the belt is still short and one lies near
 PICK_SECONDS = 1.5  # for the item to leave the ground after the click, plus the walk at WALK_SPEED
 WALK_SPEED = 6.0  # world units a second, on the slow side
 CLICKS = 2  # clicks on an aim that has the item under it
@@ -68,9 +78,10 @@ class Plan:
 
 
 def wanted() -> dict:
-    """What counts as valuable: the loot marks' own settings (config.AppraisalConfig)."""
+    """What counts as valuable: the loot marks' own settings (config.AppraisalConfig), and every rune
+    from `pickup_rune_minimum` (all of them: the marks point only at the dearer ones)."""
     return {
-        'rune_minimum': APPRAISAL.rune_minimum,
+        'rune_minimum': APPRAISAL.pickup_rune_minimum,
         'unique_minimum': APPRAISAL.unique_minimum if APPRAISAL.unique_marks else None,
         'materials': material_classes(APPRAISAL.material_marks),
     }
@@ -133,14 +144,17 @@ def approach(run: Run, drop: Drop, level: Level | None, key_names) -> None:
             return
 
 
-def take(run: Run, drop: Drop) -> None:
-    """Click `drop` until it leaves the ground. With the game's record of the unit under the pointer
-    (`run.hovered`) the aims are first only looked at, and the one that has the item under it is
-    clicked, CLICKS times if need be (a click made while a cast ends is swallowed: the character
-    neither walks nor picks up). Without the record, or when no aim shows the item, every aim is
-    clicked in turn."""
+def take(run: Run, drop: Drop, alike: Sequence[Drop] = (), others: Sequence[Drop] = ()) -> Drop:
+    """Click `drop`, or one of `alike` (drops that serve as well: the same kind), until one leaves the
+    ground; the one that did. With the game's record of the unit under the pointer (`run.hovered`)
+    the aims are first only looked at, and one that has such an item under it is clicked, CLICKS times
+    if need be (a click made while a cast ends is swallowed: the character neither walks nor picks
+    up). An aim with one of `others` under it (the rest of what lies there) is never clicked: that item
+    is not wanted. Without the record, or when no aim shows the item, the nearer aims are clicked in turn."""
+    serves = {found.unit_id: found for found in (drop, *alike)}
+    unwanted = {found.unit_id for found in others}
     for blind in (False, True) if run.hovered is not None else (True,):
-        for aim in ITEM_AIMS:
+        for aim in ITEM_AIMS if blind else (*ITEM_AIMS, *PILE_AIMS):
             player = run.world().player
             rect = run.actuator.keys.focused_window_rect()
             if player is None or rect is None:
@@ -155,12 +169,12 @@ def take(run: Run, drop: Drop) -> None:
             if run.hovered is not None:
                 run.pace.sleep(HOVER_SECONDS)
                 over = run.hovered()
-            on_item = over == (ITEM_UNIT, drop.unit_id)
-            if not blind and not on_item:
-                continue
-            for _ in range(CLICKS if on_item else 1):
-                if click(run, drop, aim, over):
-                    return
+            under = serves.get(over[1]) if over is not None and over[0] == ITEM_UNIT else None
+            if under is None and (not blind or (over is not None and over[0] == ITEM_UNIT and over[1] in unwanted)):
+                continue  # nothing wanted there to see, or an item not wanted lies under the pointer
+            for _ in range(CLICKS if under is not None else 1):
+                if click(run, under or drop, aim, over):
+                    return under or drop
         if not blind:
             LOG.info(
                 'Macro: no aim had %s under the pointer, or its clicks took nothing; clicking every aim', drop.label
@@ -220,12 +234,24 @@ def pick_up(run: Run, level: Level | None, key_names, otherwise: Callable[[], No
     if plan is None:
         otherwise()
         return False
-    drop = plan.drop
-    if plan.drink is not None:
-        run.say(f'Drinking ({plan.drink}) to make room for {drop.label}')
-        run.actuator.tap(plan.drink)
-        run.pause('key')
-    run.say(f'Picking up {drop.label}, {math.dist(here, (drop.x, drop.y)):.0f} away')
-    approach(run, drop, level if level is not None and level.area == player.area else None, key_names)
-    take(run, drop)
+    level = level if level is not None and level.area == player.area else None
+    for _ in range(PICKS):
+        drop = plan.drop
+        if plan.drink is not None:
+            run.say(f'Drinking ({plan.drink}) to make room for {drop.label}')
+            run.actuator.tap(plan.drink)
+            run.pause('key')
+        run.say(f'Picking up {drop.label}, {math.dist(here, (drop.x, drop.y)):.0f} away')
+        approach(run, drop, level, key_names)
+        alike = [found for found in loot.drops if found.kind == drop.kind and found is not drop]
+        took = take(run, drop, alike, [found for found in loot.drops if found.kind != drop.kind])
+        if took.kind == VALUABLE or plan.drink is not None or run.loot is None:
+            break  # one valuable a press (the next may be a walk away); one drink a press
+        # The belt may want more of what lies here: two potions drunk are two picked up in one press.
+        player, _ = ready(run)
+        loot, here = run.loot(), (player.x, player.y)
+        again = choose(loot, here)
+        if again is None or again.drop.kind == VALUABLE or again.drink is not None:
+            break
+        plan = again
     return True

@@ -150,3 +150,61 @@ def test_a_far_valuable_without_a_level_map_stops_with_the_distance():
     play = game(Drop(60, 5090.0, 5000.0, 'Jah Rune', VALUABLE))
     with pytest.raises(Abort, match='Jah Rune is 90 away and there is no level map to hop by'):
         pick_up(play.run(), None, keys, nothing)
+
+
+# --- a pile (host, 21:10 on 2026-10-10: a press took a rejuvenation nobody wanted between two healing potions) ---
+
+
+def test_in_a_pile_the_potion_not_wanted_is_never_clicked(caplog):
+    juv = Drop(52, HP_NEAR.x, HP_NEAR.y, 'a full rejuvenation potion', REJUVENATION)
+    play = game(juv, HP_NEAR, belt=SHORT_HP)
+    play.label_above[HP_NEAR.unit_id] = 44.0  # its label is stacked above the other's
+    with caplog.at_level('INFO'):
+        assert pick_up(play.run(), LEVEL, keys, nothing)
+    assert play.picked == ['a healing potion']
+
+
+def test_a_potion_not_wanted_is_not_clicked_blind_either():
+    # No aim shows the healing potion at all: the press gives up before it takes the other one.
+    juv = Drop(52, HP_NEAR.x, HP_NEAR.y, 'a full rejuvenation potion', REJUVENATION)
+    play = game(juv, HP_NEAR, belt=SHORT_HP)
+    play.label_above[HP_NEAR.unit_id] = 400.0
+    with pytest.raises(Abort, match='no click picked up a healing potion'):
+        pick_up(play.run(), LEVEL, keys, nothing)
+    assert play.picked == []
+
+
+def test_another_potion_of_the_kind_wanted_under_the_pointer_serves_as_well():
+    other = Drop(53, HP_NEAR.x, HP_NEAR.y, 'another healing potion', HEALING)
+    play = game(HP_NEAR, other, belt=SHORT_HP)
+    play.label_above[HP_NEAR.unit_id] = 400.0  # only the other one's label can be found
+    play.belt_after = {1: FULL}
+    assert pick_up(play.run(), LEVEL, keys, nothing)
+    assert play.picked == ['another healing potion']
+
+
+def test_one_press_picks_up_every_potion_the_belt_is_short_of():
+    # user, 2026-10-10: two potions drunk, one press: both healing potions, not the rejuvenation between.
+    second = Drop(54, 5004.0, 5005.0, 'a second healing potion', HEALING)
+    play = game(HP_NEAR, JUV_NEAR, second, belt=SHORT_HP)
+    play.belt_after = {2: FULL}  # the belt is full once two were picked up
+    assert pick_up(play.run(), LEVEL, keys, nothing)
+    assert sorted(play.picked) == ['a healing potion', 'a second healing potion']
+
+
+def test_one_press_picks_up_one_valuable():
+    other = Drop(55, 5004.0, 5005.0, 'Ber Rune', VALUABLE)
+    play = game(RUNE, other)
+    assert pick_up(play.run(), LEVEL, keys, nothing)
+    assert len(play.picked) == 1
+
+
+def test_the_pickup_step_wants_every_rune_and_the_essences_and_keys():
+    # user, 2026-10-10 night. The HUD's marks keep their own, higher rune minimum.
+    from inventory_tracking.config import APPRAISAL
+    from inventory_tracking.macros.pickup import wanted
+
+    found = wanted()
+    assert found['rune_minimum'] == 'r01'
+    assert APPRAISAL.rune_minimum != 'r01'
+    assert {'Key of Terror', 'Festering Essence of Destruction'} <= set(found['materials'].values())

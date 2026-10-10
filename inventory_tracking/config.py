@@ -332,6 +332,8 @@ class AppraisalConfig(Config):
     level_walls: bool = True  # draw walkable tiles of loaded rooms on the level map
     rune_marks: bool = True  # HUD arrows to valuable runes on the ground (streamed, often off-screen)
     rune_minimum: Annotated[str, Field(pattern=r'^r(0[1-9]|[12][0-9]|3[0-3])$')] = 'r16'  # Io and up (user, 2026-09-30)
+    # The pickup step takes every rune (user, 2026-10-10 night); the marks above stay at `rune_minimum`.
+    pickup_rune_minimum: Annotated[str, Field(pattern=r'^r(0[1-9]|[12][0-9]|3[0-3])$')] = 'r01'
     rune_poll_interval: Positive = 0.5
     shrine_marks: tuple[int, ...] = (18,)  # shrine types to point at (d2data shrines.json; 18 = Gem)
     unique_marks: bool = True  # also point at unique drops whose base has an expensive unique (loot/uniques.py)
@@ -340,13 +342,15 @@ class AppraisalConfig(Config):
     unique_minimum: Annotated[float, Field(ge=0)] = 2.5
     super_chest_marks: bool = True  # point at closed glowing chests (object class 397)
     # Other drops to point at, by group (loot/materials.py): Worldstone Shards, flawless and perfect
-    # gems, the Colossal Ancients' statues, the Pandemonium keys (user, 2026-10-07), charms (user, 2026-10-10).
-    material_marks: tuple[Literal['shards', 'gems', 'statues', 'keys', 'charms'], ...] = (
+    # gems, the Colossal Ancients' statues, the Pandemonium keys (user, 2026-10-07), charms (user, 2026-10-10),
+    # the bosses' essences.
+    material_marks: tuple[Literal['shards', 'gems', 'statues', 'keys', 'charms', 'essences'], ...] = (
         'shards',
         'gems',
         'statues',
         'keys',
         'charms',
+        'essences',  # user, 2026-10-10 night
     )
     terror_probe: bool = True  # record monster sightings/kills to terror-probe.jsonl (terror/probe.py research)
     terror_probe_interval: Positive = 0.25  # seconds between monster-table reads

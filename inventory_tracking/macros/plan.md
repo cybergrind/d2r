@@ -1396,3 +1396,61 @@ Charm and a Flawless Amethyst, the door of each level took its click 0.6 s after
   firing spot inside the room and landed in the doorway; the second got in. Not changed.
 - Fights log few "casts seen" (2 in 2.4 s with 13 down): the count is of the character leaving and
   entering a cast, and a held input chains casts without leaving. A log number only.
+
+### A pile of potions: the one not wanted was taken (21:10, 2026-10-10)
+
+Run `20261010T180707Z-06dd5189`; the user drank two healing potions and pressed the pickup step by
+eight drops: it took a healing potion, then a full rejuvenation the belt had no room to want, then
+the second healing potion, in 6 s. The log: no aim had the chosen potion under the pointer, so
+every aim was clicked blind, and the record of the unit under the pointer named a different item at
+each click (four ids): in a pile the game stacks the labels, and the clicks took whatever lay there.
+
+- `pickup.take` knows what else lies there: another drop of the kind wanted under the pointer is
+  clicked and counts (`alike`); an aim with a listed drop of another kind under it is never clicked,
+  in the looking pass or the blind one (`others`). An item the list does not hold (gold, a plain
+  item) does not stop a blind click, so a stale record cannot stop every aim.
+- Nine more aims are looked at before any blind click (`PILE_AIMS`: up to 64 pixels above the
+  ground and 30 to a side), where a stacked label may be. They are never clicked blind.
+- One press now takes every potion the belt is short of, `PICKS` (4) at most, looking at the belt
+  again after each; still one valuable a press and one drink a press.
+
+Five tests on a scripted pile (a label shifted 44 pixels up behind an unwanted potion; a label that
+cannot be found at all: the press gives up with nothing taken; another potion of the kind serving;
+two potions in one press; one valuable a press). Not seen in the game yet. Still unknown: where the
+game really puts a stacked label; the first run with a pile will show which aim found it.
+
+### Attack mode on and nothing attacked: a door as a square (21:18, 2026-10-10)
+
+Run `20261010T181433Z-e945ba1c`, Catacombs 3. A seek step landed at (22545.5, 9608.5), 1.5 units
+before Andariel's closed door (object 47 at 22545, 9610), and for ten seconds the mode logged "none
+in reach; nearest ... 4 away, shot blocked" with thirty hostiles round the character; the user's
+press of the toggle turned the mode off, which is how they saw it had been on.
+
+Replayed from the take: every shot from that spot was stopped by the door, also at monsters on the
+character's own side of it. `Door.blocks` was a square of half the door's longer side plus one unit
+each way: 9 x 9 units for this door of 7 x 1 sub-tiles. A door now blocks its footprint, one unit
+longer at each end for the frame and half a unit thicker to each side (`Door.extent`: 4.5 x 1.0 for
+this one). A test holds the recorded positions: clear at the two monsters on the character's side,
+blocked at the two behind the door, clear past the door's end.
+
+The note of 20:56 called the "shot blocked at 4 to 9 units" of that run real. For its first position
+it was (a wall cell and the door between); for the second, 2.5 units from a 1 x 4 door, the square
+(radius 3) held the character too, so part of that wait was this fault.
+
+Also in this run, not changed: three stops on "the game lost the focus" (21:17:41 in a pickup,
+21:18:03 twice at a fight's start, 0.1 s apart), each with the pointer near the window's left edge
+(x 2049 and 2146; the window begins at 1920). The mode went on 0.3 s later each time. Cause not
+known: the hand crossing to the other screen, or a window there taking the focus under the pointer.
+
+### Every rune, the essences and the keys for the pickup step (2026-10-10 night)
+
+User: "add essences/keys to valuable items, so we would pick them up", and "I'd like to pick up all
+runes". The Pandemonium keys were valuable already (`loot/materials.py` `keys`, codes pk1 to pk3).
+New: a group `essences` (codes tes, ceh, bet, fed, checked against the item bases: classes 669 to
+672), on by default in `material_marks`, so the HUD points at them too; and
+`pickup_rune_minimum = 'r01'` for the pickup step alone, while the HUD's rune marks stay at
+`rune_minimum` (Io and up). Not seen in the game yet.
+
+The game of 21:24 in the same log ran on the service started at 21:14, so before the door fix and
+the pile fix: its "shot blocked" at 9 and 10 units and its two "lost the focus" stops (21:25:43,
+pointer at x 2367) say nothing new.
