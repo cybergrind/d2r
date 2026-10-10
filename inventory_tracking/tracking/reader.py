@@ -6,7 +6,7 @@ nothing: "unit table unavailable; enter a game with a character". The table's RV
 the build, so a successful scan is remembered per executable sha256, the build gate's own
 fingerprint and not the capture's hash, which is of the memory image (`unit-table.json` beside the
 run directories) and a later attach in the lobby takes it from there (user, 2026-10-10: `make serve`
-restarted in the lobby, then Win+X did nothing because nothing had attached).
+restarted in the lobby, then the macro request did nothing because nothing had attached).
 """
 
 import json

@@ -18,7 +18,7 @@ from inventory_tracking.macros.skills import (
     TELEPORT,
 )
 from inventory_tracking.macros.timing import Pace
-from inventory_tracking.macros.world import Monster, Player, Teleport, World
+from inventory_tracking.macros.world import Loot, Monster, Player, Teleport, World
 
 
 KEYS = {SUMMON_DEFILER: 'q', CONSUME: '6', HEX_PURGE: 'g', PSYCHIC_WARD: 'r', SWAP_WEAPONS: 'c', TELEPORT: 't'}
@@ -177,6 +177,11 @@ class Game:
         self.repeats = True  # a held skill input casts again and again (the game); False: once per press
         self.struck_hold = None  # the press the last cast came from (hold_serial)
         self.reading = False
+        self.loot = Loot()  # the drops, the belt and the life (the pickup step); a click on a drop's ground picks it up
+        self.picked = []  # labels of the drops picked up
+        self.hover_known = True  # the game's record of the unit under the pointer can be read
+        self.deaf_picks = 0  # clicks on a drop the game takes nothing from (a cast was ending)
+        self.pick_above = 14.0  # classic pixels a drop is clicked above its ground (host, 2026-10-10)
 
     def react(self, event):
         self.read()
@@ -212,6 +217,10 @@ class Game:
                 x, y = self.under_pointer()
                 foes = [m for m in w.monsters if m.txt_id not in (744, 700) and math.hypot(m.x - x, m.y - y) < 4]
                 self.marks.append(min(foes, key=lambda m: math.hypot(m.x - x, m.y - y)).unit_id if foes else None)
+            elif key in '1234' and w.in_game:  # a belt column: its potion is drunk, the life is full
+                belt = list(self.loot.belt)
+                belt[int(key) - 1] = None
+                self.loot = replace(self.loot, belt=tuple(belt), life=self.loot.max_life)
             elif key == 'Escape':
                 panels = () if w.open_panels else ('quit_menu',)
                 self.world = replace(w, open_panels=panels)
@@ -262,9 +271,26 @@ class Game:
                     and math.dist((w.player.x, w.player.y), door) < 30
                 ):
                     self.world = replace(w, player=replace(w.player, area=self.next_area, x=door[0], y=door[1]))
+                elif (drop := self.drop_under_pointer()) is not None and self.deaf_picks:
+                    self.deaf_picks -= 1
+                elif drop is not None:
+                    self.picked.append(drop.label)
+                    self.loot = replace(self.loot, drops=tuple(d for d in self.loot.drops if d is not drop))
+                    self.world = replace(w, player=replace(w.player, x=drop.x, y=drop.y))
                 elif math.dist((gx, gy), (w.player.x, w.player.y)) < 40:  # a click on the ground: a walk there
                     self.walks.append((gx, gy))
                     self.world = replace(w, player=replace(w.player, x=gx, y=gy))
+
+    def drop_under_pointer(self):
+        """The drop whose ground the pointer is on (`pick_above` pixels above it), within a walk."""
+        gx, gy = self.ground_under_pointer()
+        lift = self.pick_above / 16
+        player = self.world.player
+        for drop in self.loot.drops:
+            near = math.dist((gx + lift, gy + lift), (drop.x, drop.y)) < 0.5
+            if near and math.dist((player.x, player.y), (drop.x, drop.y)) < 40:
+                return drop
+        return None
 
     def held_input(self):
         """The Echoing Strike input held right now, as `react` names it, or None."""
@@ -292,13 +318,14 @@ class Game:
         foes = [m for m in w.monsters if m.txt_id not in (744, 700) and off_line(m) < STRIKE_RANGE]
         hit = min(foes, key=off_line) if foes else None
         self.strikes.append((hit.unit_id if hit else None, (x, y)))
-        monsters = w.monsters
+        monsters, dead = w.monsters, w.dead
         if hit is not None:
             left = self.toughness.get(hit.unit_id, 1) - 1
             self.toughness[hit.unit_id] = left
             if left <= 0:
                 monsters = tuple(m for m in monsters if m.unit_id != hit.unit_id)
-        self.world = replace(w, monsters=monsters, player=replace(w.player, mode=7))
+                dead = dead | {hit.unit_id}  # it lies there: a kill, not a unit that only left memory
+        self.world = replace(w, monsters=monsters, dead=dead, player=replace(w.player, mode=7))
         self.acting_until = self.clock.now + ACTING_SECONDS
 
     def under_pointer(self):
@@ -340,7 +367,10 @@ class Game:
             say=self.said.append,
             hands=lambda: self.sets[0],
             teleport=lambda: self.staff,
+            loot=lambda: self.loot,
         )
+        if self.hover_known:
+            run.hovered = lambda: (4, drop.unit_id) if (drop := self.drop_under_pointer()) else (0, 0)
         run.keys = dict(KEYS)
         run.prebuff_hands = frozenset(PREBUFF_SET)
         run.battle_hands = frozenset(PREBUFF_SET)

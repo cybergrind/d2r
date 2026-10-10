@@ -7,13 +7,14 @@ binding) records only what the character and the mercenary wear. `shop <timestam
 a Win+D shop check (`request --shop`). `level <timestamp>` (`request --level`, Win+C) shows
 the level map card again (fresh position, any level; a double press pins or unpins it) and
 dumps the current level's room/unit structures for research (runs/level/). `macro <timestamp>`
-(`request --macro`, Win+X) runs the macro for where the character is, or cancels a running one
-(inventory_tracking/macros/plan.md); `teleport <timestamp>` (`request --teleport`, KP_4) takes one
+(`request --macro`, the macro request) runs the macro for where the character is, or cancels a running one
+(inventory_tracking/macros/plan.md); `teleport <timestamp>` (`request --teleport`, the teleport step) takes one
 step toward the level card's mark: a teleport as far as the screen allows, or a walk into a near
 door (inventory_tracking/macros/teleport.py); `hunt elites <timestamp>` (`request --hunt-elites`,
-KP_2) takes one step toward the nearest elite, else toward an unexplored room, and `hunt any
-<timestamp>` (`request --hunt-any`, KP_3) toggles attack mode, which kills whatever comes into reach
-while the player moves about (macros/hunt.py). The level card is
+the seek step) takes one step toward the nearest elite, else toward an unexplored room, and `hunt any
+<timestamp>` (`request --hunt-any`, the attack mode toggle) toggles attack mode, which kills whatever comes into reach
+while the player moves about (macros/hunt.py); `pickup <timestamp>` (`request --pickup`, the pickup step) picks up
+a valuable drop or a potion the belt wants, else does a seek step (macros/pickup.py). The level card is
 drawn on the HUD canvas (inventory_tracking/hud, started with the overlay), so it can show
 next to an Alt+D assessment. With `--shop-auto` (default) the worker also watches loaded
 vendor stock and scans it by itself when its first gear item changes; see
@@ -100,6 +101,8 @@ from inventory_tracking.macros.runner import (
     HUNT_ANY_PREFIX,
     HUNT_ELITES,
     HUNT_ELITES_PREFIX,
+    PICKUP,
+    PICKUP_PREFIX,
     REQUEST_PREFIX as MACRO_PREFIX,
     TELEPORT,
     TELEPORT_PREFIX,
@@ -321,14 +324,16 @@ def dispatch(
             requested = float(text[len('disagree ') :])
             return bool(disagree and 0 <= now - requested <= 1 and disagree())
         if text.startswith(MACRO_PREFIX):
-            # Win+X: run the macro for where the character is; a press while one runs cancels it.
+            # The macro request: run the macro for where the character is; a press while one runs cancels it.
             return macro is not None and macro.request(float(text[len(MACRO_PREFIX) :]), now)
         if text.startswith(TELEPORT_PREFIX):
-            # KP_4: one step toward the level card's mark (teleport or a walk into the door).
+            # The teleport step: one step toward the level card's mark (teleport or a walk into the door).
             return macro is not None and macro.request(float(text[len(TELEPORT_PREFIX) :]), now, TELEPORT)
-        if text.startswith(HUNT_ELITES_PREFIX):  # KP_2
+        if text.startswith(HUNT_ELITES_PREFIX):  # the seek step
             return macro is not None and macro.request(float(text[len(HUNT_ELITES_PREFIX) :]), now, HUNT_ELITES)
-        if text.startswith(HUNT_ANY_PREFIX):  # KP_3
+        if text.startswith(PICKUP_PREFIX):  # the pickup step
+            return macro is not None and macro.request(float(text[len(PICKUP_PREFIX) :]), now, PICKUP)
+        if text.startswith(HUNT_ANY_PREFIX):  # the attack mode toggle
             return macro is not None and macro.request(float(text[len(HUNT_ANY_PREFIX) :]), now, HUNT_ANY)
         if text.startswith(SHOP_PREFIX):
             return shop is not None and shop.request(float(text[len(SHOP_PREFIX) :]), now)
@@ -625,8 +630,8 @@ def run_service(args, directory, report):
                             observe_waypoints=observe_waypoints,
                             pinned=APPRAISAL.level_guide_pinned,
                         )
-                        macro.target = guide.target  # KP_4 moves toward the card's first mark
-                        # KP_2/KP_3: the level's rooms and walls, what the tracker remembers alive, explored rooms.
+                        macro.target = guide.target  # the teleport step moves toward the card's first mark
+                        # The seek step and attack mode: the level's rooms and walls, remembered elites, explored rooms.
                         macro.hunter = Hunter(
                             guide.level,
                             zones.remembered if zones is not None else None,
@@ -834,14 +839,23 @@ def main(argv=None):
         action='store_true',
         help='request: send Win+C instead (show the level map again and dump level memory)',
     )
-    requests.add_argument('--macro', action='store_true', help='request: send Win+X instead (run or cancel the macro)')
     requests.add_argument(
-        '--teleport', action='store_true', help='request: send KP_4 instead (one step toward the level map mark)'
+        '--macro', action='store_true', help='request: the macro request instead (run or cancel the macro)'
     )
     requests.add_argument(
-        '--hunt-elites', action='store_true', help='request: send KP_2 instead (one step toward the nearest elite)'
+        '--teleport',
+        action='store_true',
+        help='request: the teleport step instead (one step toward the level map mark)',
     )
-    requests.add_argument('--hunt-any', action='store_true', help='request: send KP_3 instead (attack mode on/off)')
+    requests.add_argument(
+        '--hunt-elites', action='store_true', help='request: the seek step instead (one step toward the nearest elite)'
+    )
+    requests.add_argument('--hunt-any', action='store_true', help='request: the attack mode toggle instead')
+    requests.add_argument(
+        '--pickup',
+        action='store_true',
+        help='request: the pickup step instead (pick up a valuable or a potion, else a seek step)',
+    )
     parser.add_argument('--level-output', type=Path, default=LEVEL_OUTPUT, help='Win+C level dump runs')
     parser.add_argument(
         '--combat-record',
@@ -912,6 +926,8 @@ def main(argv=None):
                 if args.hunt_elites
                 else HUNT_ANY_PREFIX
                 if args.hunt_any
+                else PICKUP_PREFIX
+                if args.pickup
                 else EQUIPMENT_PREFIX
                 if args.equipped
                 else REQUEST_PREFIX

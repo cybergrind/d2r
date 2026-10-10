@@ -1,7 +1,7 @@
 """The policies of combat/policy.py through a take's situation (combat/plan.md stage 5).
 
 `compare` runs the recorded casts and each candidate closed loop on the same situation and scores
-them by blade plus linked points per combat second (the policy-dependent terms, review.md):
+them by blade plus linked points per combat second (the policy-dependent terms):
 
 - `slots`: the line sweep at exactly the recorded cast frames (the aim alone);
 - `yield`: the line sweep whenever the character is free, never while the recorded character ran
@@ -62,7 +62,7 @@ def policy_score(situation: Situation, outcome: Outcome) -> dict[str, Any]:
         )
     )
     seconds = combat_frames / 25.0 or 1.0
-    placement = outcome.blade_damage + sum(outcome.linked_damage.values())
+    placement = outcome.placement  # the life taken, not the blows: overkill earns nothing
     full = score(situation, outcome)
     full.update(combat_seconds=round(seconds, 1), placement_points=round(placement))
     full['placement_per_combat_second'] = round(placement / seconds)

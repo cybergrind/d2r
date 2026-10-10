@@ -9,7 +9,8 @@ from tests.inventory_tracking.levels.fixtures import replay
 
 CAVE_TREASURE_2 = 104  # 'Act 1 - Cave Treasure 2', the whole of Cave Level 2: warp slot 1 at (4.5, 5.5)
 GRAVEYARD = 108  # 'Act 1 - Graveyard': warp slots 0 (Crypt) and 1 (Mausoleum)
-CAVE_LEVEL_2, BURIAL_GROUNDS = 13, 17
+TOWER_2 = 164  # 'Act 1 - Tower 2', the whole of the Forgotten Tower: warp slots 0 and 1
+CAVE_LEVEL_2, BURIAL_GROUNDS, FORGOTTEN_TOWER = 13, 17, 20
 
 
 def snapshot_of(area, *rooms):
@@ -37,6 +38,15 @@ def test_each_warp_of_one_preset_is_named_for_its_own_level():
         ('Crypt', 'stairs', (12.5, 27.5)),
         ('Mausoleum', 'stairs', (11.5, 6.5)),
     ]
+
+
+def test_the_way_on_comes_before_the_way_back():
+    # The Forgotten Tower (20) is one preset with both doors: slot 0 Black Marsh, slot 1 the cellar.
+    room = Room(TOWER_2, 0, 0, 8, 8, 0, (0, 0, 8, 8))
+
+    pois = guide_level(None, snapshot_of(FORGOTTEN_TOWER, room)).pois
+
+    assert marks(pois) == [('Tower Cellar 1', 'stairs'), ('Black Marsh', 'previous')]
 
 
 def test_a_chunked_preset_is_one_way_out():

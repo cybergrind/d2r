@@ -1,8 +1,8 @@
 """Send one hotkey request to the running service, fast: the standard library only, no package imports.
 
 The compositor spawns a process per key press. `appraisal_service request` imports the whole service
-before it sends (0.35 s measured on 2026-10-09), too slow for a key pressed again and again (KP_4,
-macros/teleport.py; KP_2/KP_3, macros/hunt.py). This file starts in about 10 ms:
+before it sends (0.35 s measured on 2026-10-09), too slow for a step asked for again and again (macros/teleport.py,
+macros/hunt.py). This file starts in about 10 ms:
 
     .venv/bin/python -S /mnt/extra/1000/games/d2r/inventory_tracking/request.py teleport
 
@@ -27,10 +27,11 @@ PREFIXES = {
     'disagree': 'disagree ',  # Alt+Shift+D
     'shop': 'shop ',  # Win+D
     'level': 'level ',  # Win+C
-    'macro': 'macro ',  # Win+X
-    'teleport': 'teleport ',  # KP_4 (Win+T before)
-    'hunt-elites': 'hunt elites ',  # KP_2: one step toward the nearest elite
-    'hunt-any': 'hunt any ',  # KP_3: attack mode on/off
+    'macro': 'macro ',  # the macro request
+    'teleport': 'teleport ',  # the teleport step
+    'hunt-elites': 'hunt elites ',  # the seek step: one step toward the nearest elite
+    'hunt-any': 'hunt any ',  # the attack mode toggle: attack mode on/off
+    'pickup': 'pickup ',  # the pickup step: pick up a valuable or a potion, else a seek step
 }
 DEFAULT_SOCKET = Path(os.environ.get('XDG_RUNTIME_DIR', f'/run/user/{os.getuid()}')) / 'd2r-appraisal.sock'
 

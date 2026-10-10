@@ -9,7 +9,10 @@ On exit the file is emptied; niri watches included files and reloads on both wri
 The include is the config's last line: a later bind overrides an earlier one for the same key
 (niri wiki, Configuration: Include), so Mod+C is the level map while the service runs and the
 user's own `center-column` otherwise. The keypad keys are named by their raw keysyms, the level
-without Num Lock, because that is what niri matches (macros/plan.md, KP_4).
+without Num Lock, because that is what niri matches (macros/plan.md).
+
+This file is the one place that names keys: the rest of the code speaks of the actions (the macro
+request, the teleport, seek and pickup steps, the attack mode toggle), since the keys will change.
 """
 
 import logging
@@ -38,7 +41,11 @@ BINDS = {
     'KP_Left': 'teleport',  # keypad 4
     'KP_Down': 'hunt-elites',  # keypad 2
     'KP_Next': 'hunt-any',  # keypad 3
+    'KP_End': 'pickup',  # keypad 1
 }
+# X key names a step binding may leave down when its request arrives: the keypad keys above under either
+# Num Lock state (the compositor swallows them, but a release can come late) and the Mod key.
+STEP_KEYS = ('KP_4', 'KP_Left', 'KP_2', 'KP_Down', 'KP_3', 'KP_Next', 'KP_1', 'KP_End', 'Super_L', 'Super_R')
 HEADER = '// Written by `make serve` (inventory_tracking/input/compositor.py); edits are overwritten.\n'
 IDLE = HEADER + '// The service is not running: no hotkeys.\n'
 

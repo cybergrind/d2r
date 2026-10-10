@@ -933,3 +933,231 @@ again, none "showed nothing".
 
 Tests: `test_a_key_the_player_taps_during_a_fight_leaves_the_strike_held`,
 `test_a_swipe_of_the_hand_across_the_screen_does_not_stop_the_step`. Full suite 2710 passed.
+
+### The run of 18:14 (2026-10-10): a swap for every elite pack
+
+Log `runs/alt-d/20261010T151330Z-4372106b`, takes `151436Z-36` (standing 23%, 5316 points/s) and
+`151510Z-37` (31%, 4630). The door in 0.22 s; three clicks made again, one each. No key yields and
+no step stopped by the mouse (the fixes for both were live).
+
+- **Seven swaps to the main weapons in 80 s**, one after nearly every KP_2 stop: any elite made a
+  pack "tough". Each time the fight ran 0.9 s with the staff, stopped, swapped (0.25-0.75 s), and was
+  over 0.2-1.5 s later (once with nothing left to strike); the next KP_2 swapped the staff back.
+  Now `tough` is life alone: `TOUGH_POINTS` (40,000) in reach, an elite's points counted
+  `ELITE_LIFE` (2, the Hell multiplier) times. A Catacombs pack is 15,000-30,000.
+- **"a key was pressed" 1.8 s into Win+X**, in the lobby while the next game was being created (the
+  take had closed, so the key is not on record). The stop now names the key code.
+
+Full suite 2710 passed.
+
+### The run of 18:21 (2026-10-10): the life-only tough rule live
+
+Log `runs/alt-d/20261010T152009Z-eadc9465`, takes `152100Z-35` (standing 19%, 3983 points/s: the
+lowest standing share on level 1 so far, 21-92% before), `152148Z-36` (22%, 4167), `152239Z-37`
+(27%, 7879). Doors 0.21 and 0.17 s. Four swaps to the main weapons in three levels (seven in two the
+run before). Four clicks made again (one twice).
+
+- Two fights stopped for the main weapons and no swap followed: the pack was tough when the fight
+  began and no longer a second later. `fight` now asks `tough` again when the swap is due and fights
+  on when the answer is no.
+- The Win+X stop in the lobby names its key now: code 133, Super_L, down again about 1.5 s after the
+  press that started the macro (third run in a row). User, same evening: intentional, Win
+  alone is how they stop the next game from being created. Nothing to change.
+
+Full suite 2711 passed.
+
+### KP_1: pick up, else KP_4 (user, 2026-10-10 evening)
+
+Asked for: one key for the non-battle action, one-off per press: pick up a valuable item (the ones
+already marked), walking or teleporting by distance; pick up a potion when the belt is missing one;
+drink and pick up when life is missing and the belt is full; never walk half a map for a potion;
+during a fight, wait until the pack is dead; with nothing to pick up, act as KP_4.
+
+Built (`macros/pickup.py`, module text has the rules and constants):
+
+- `GameMemory.loot` (world.py) reads, in the macro's own thread: the drops the loot marks show
+  (the same functions and settings as loot/watch.py: runes from `rune_minimum`, `material_marks`,
+  bases of uniques from `unique_minimum`), healing and rejuvenation potions on the ground, the
+  character's belt by cell and its life.
+- `choose`: nearest valuable; else a potion within `POTION_UNITS` (25) of a kind the belt is short
+  of (`column_shortages`), rejuvenation first; else, belt full and life under `DRINK_BELOW` (70%), a
+  potion of the kind lying near is drunk from the hotkey row (`INPUT.column_keys`) and the one on
+  the ground picked up; else `step_toward`.
+- `approach` / `take`: within `PICK_UNITS` (20) and in view the drop's ground is clicked (then 10
+  classic pixels above and below, `ITEM_AIMS`); further off, up to `HOPS` (4) teleports toward it by
+  the level map first. The item leaving the ground is the proof; every try is logged ("Macro:
+  picked up ...", "... still on the ground after the click ...").
+- Runner: routine `pickup`, a step key like KP_4 (the same key during its step queues one more).
+  During attack mode it does not cancel the mode: `Hunter.after_fight` is set and the mode pauses
+  itself the next time nothing is in reach (`step_aside`), the pickup runs, the mode resumes.
+- Key: niri `KP_End` (keypad 1 by raw keysym) -> `request.py pickup` -> `pickup <monotonic>`.
+
+Unconfirmed on the host: that a left click on the ground under an item picks it up with Show Items
+on (labels may sit elsewhere and take the click); the belt cell read (path x of a belt item, as
+tracking/state.py reads it; the "belt short (rejuvenation, healing)" in the "Macro: pickup:" log
+line shows what was read); item positions on the ground (loot/ground.py's own caveat). The first
+host presses should be read against those log lines.
+
+Tests: `test_pickup.py` (11), `test_kp_1_during_attack_mode_waits_for_the_fight_and_the_mode_resumes_after`,
+`test_a_step_waiting_for_the_fight_gets_its_turn_when_nothing_is_left_in_reach`. Full suite 2724 passed.
+
+### Action names, the pickup step's fallback, and its first host presses (2026-10-10, 18:41 and after)
+
+**Names (user: "use names for actions instead of hotkeys in code/comments, we're going to revamp
+hotkeys").** Code, comments and test names now speak of the macro request, the teleport step, the
+seek step, the attack mode toggle and the pickup step. The keys are named in one file,
+`input/compositor.py` (`BINDS`, and `STEP_KEYS`, the key names a step binding may leave down, which
+the runner allows). The Makefile's help line keeps the keys, being the user's reference. The dated
+notes above keep the key names they were written with: KP_4 = teleport step, KP_2 = seek step,
+KP_3 = attack mode toggle, KP_1 = pickup step, Win+X = macro request.
+
+**The pickup step with nothing to pick up is a seek step** (user), not a teleport step: toward the
+next elite, attack mode on after it (`pick_up(..., otherwise)`, the runner passes `Hunter.seek`).
+
+**First host presses of the pickup step (18:41, log `runs/alt-d/20261010T154020Z-e8b28c67`): nothing
+picked up.** A Large Charm at (22709, 6597): the read was right (5 drops, the position, life
+1813/1813, belt full), the walk was made, and six clicks left it on the ground. Where the character
+ended after each click against where the click was meant to land: 9 to 21 classic pixels below the
+item every time (the aims were 0, -10 and +10 down). So a click lands about 14 pixels lower than
+`ground_fraction` says for a spot this near, and the item was never under the pointer. Changed:
+`ITEM_AIMS` starts 14 pixels above the item's ground and goes round that (seven aims); a miss is
+called as soon as the character has stood 0.4 s after the click (a miss took 1.9-3.2 s); each try
+logs whether the game holds a (item type, unit id) pair anywhere in its data while the pointer is on
+the aim ("hover [...]"), to find a hover record the click could wait for. Still unconfirmed that a
+click on the item itself, rather than on its label, picks it up.
+
+**A seek step that clicked under the character's feet** (18:38:02, log `...153209Z-8cf6b9de`:
+"Walking 1 toward the elite", "the character did not move"): the firing spot was 0.6 units from the
+character while the shot from its exact place read blocked. A firing spot nearer than `MOVED` is
+now "in reach: attack mode takes it".
+
+That run (takes `153249Z-35` to `153825Z-37`, two games): standing 15-26%, 3350-7418 points/s,
+doors 0.15-0.21 s. Full suite 2725 passed.
+
+### A prebuff in the middle of a level (host, 18:47-18:48 on 2026-10-10; user: "consume stopped working")
+
+Log `runs/alt-d/20261010T154652Z-2795d203`, take `154734Z-36` (the Defilers' modes per frame).
+The macro request among monsters: the standing Defiler was "crowded" by hostile monsters (classes
+361, 135), another was summoned, crowded again, three in a row, and the press stopped with "Consume
+was not pressed". A second press 5 s later summoned two more before it consumed one.
+
+What the take shows, and the user's rule for it: beside the bound demon the character has two demon
+slots, and an active Consume holds one. Each Defiler summoned with both taken ended the oldest: the
+first extra one the Consume in force (cast at the start of the game), the later ones the oldest
+Defiler (its mode goes to 0, then 12, the frame the new one appears). The first press therefore left
+the character with two Defilers and no Consume.
+
+Fix: a hostile monster is not a bystander (`routines.bystanders`): Consume cannot take it. Only the
+character's own units (allied or owned: the bound demon) and monsters whose stats could not be read
+make a Defiler crowded. In a level the standing Defiler is now consumed where it stands and the one
+that stays out is summoned after, the order of a new game.
+
+Not settled: the second press ended with the Consume read as active and one older Defiler standing,
+and the user saw no buff after it. Nothing was summoned afterwards in the take. Whether a Defiler
+older than the Consume matters is unknown; with the fix that state should not arise in a level.
+
+Test: `test_hostile_monsters_around_the_defiler_do_not_make_it_crowded`.
+
+### The pickup step picks up (host, 18:46-18:54 on 2026-10-10), and the hover record
+
+Logs `runs/alt-d/20261010T154652Z-2795d203` and `...155224Z-c6fddb5e`. With the aims 14 pixels
+higher, four of four items were picked up: a Large Charm (2.9 away), two Western Worldstone Shards
+(5.1 and 16.5 away) at the first aim, 0.01-0.6 s after the click; a Flawless Skull at the second
+aim, after a first click from which the character neither walked nor picked it up (attack mode's
+last cast was ending). About forty presses with nothing to pick up went on as seek steps.
+
+The whole-data search for (item type, unit id) under the pointer found the same single address on
+all five clicks, two games and three levels: image RVA `0x1E010A4` (`world.HOVER_RVA`,
+`GameMemory.hovered`). `take` now looks before it clicks: an aim is clicked only when the record
+names the item, twice if the first click takes nothing; when no aim shows the item, or without the
+record, every aim is clicked as before. The 13 MB search per click is gone from the step.
+Unknown: what the record holds with nothing under the pointer (the log line "under the pointer
+(type, id)" on each click shows it).
+
+The belt read "short (0, 0)" on every press and potions lay about each time: consistent with a
+full belt, not yet seen with a gap.
+
+### "We're not moving anywhere" (host, 19:19 on 2026-10-10, Catacombs 1)
+
+Log `runs/alt-d/20261010T161751Z-b673644a`: from 19:19:06 on, twenty-two seek steps in a row (some
+through the pickup step) stopped with "no footing in view brings the character nearer to the elite
+122", the character at (22667.5, 6636.5), the firing spot 45 units east at (22712.6, 6638.1).
+
+Replayed from the take's `level.json` (`runs/combat/20261010T161836Z-35`): between the two lies 42
+units of ground nobody can stand on. The potential (`teleport.Way`) said 9.4 tiles to go, straight
+across, by a hop onto tile (4537, 1328), 21 units straight down the screen from the character. The
+view ends at the skill bar 18 units down (23 up, 22 to a side): that tile is never in view from
+there, so no landing took anything off the way and every press stopped. The potential counted
+`REACH_TILES` (five tiles) every way.
+
+Fix: the potential's hops are those the view shows (`hop_in_view`, for a 16:9 window, half a tile of
+slack for where on its tile the character stands). On the same data the way from that spot is 14.2
+tiles and four landings in a row bring the character to the firing spot, round the gap. A mark the
+view-shaped hops cannot reach at all now stops with "no way over the rooms" at once.
+
+Test: `test_the_potential_plans_no_hop_the_view_cannot_show`.
+
+The same log, other things seen (19:17-19:23):
+
+- The pickup step took a healing potion with the belt one short ("belt short (0, 1)", "(0, 0)" after):
+  the belt read and the potion rule work on the host. Two clicks at the first aim took nothing though
+  the hover record named the potion (the character stood 0.7 from it and shuffled); the second aim
+  took it.
+- "the Defiler is crowded by class 361" is the bound demon (monstats 361, megademon2, a Pit Lord), not
+  a hostile: it was the crowd in four of the five lines of the 18:48 prebuff too (one was a Banished,
+  class 135, which the hostile rule now leaves out). So a prebuff with the demon near still summons
+  replacements and ends with the Consume cast and a Defiler older than it standing. Open question to
+  the user: is that state good, or must the standing Defiler be summoned after the Consume?
+- "loaded game: not seen in 40s" after Creating cyber21 (19:22): the game did not come up in time.
+
+### The teleport step stuck 16 units from a door (host, 19:29 on 2026-10-10, Catacombs 1)
+
+Log `runs/alt-d/20261010T162744Z-78ffd146`: sixteen teleport steps in a row stopped with "no footing
+in view brings the character nearer to Next level", the character at (22762, 6586), the door marked
+at (22772.5, 6597.5), its remembered entry at (22773.5, 6600.5).
+
+Replayed from `runs/combat/20261010T162810Z-35/level.json`: the entry was drawn at 0.8407 of the
+window's height, a hair below the view's 0.84, so the landing fell back on the spots beside the door
+and took the one nearest the character. That one, (4554.9, 1318.4) in tiles, has footing but lies on
+a tile whose centre is the wall the stairs sit in: the way gives it no cost (infinite), the landing
+came out as "no gain", and nothing else was tried. `landing` now drops every spot that does not take
+`MIN_GAIN` off the way before it chooses, beside the door or not. On the same data: one hop to 7.4
+from the mark, then the hop onto the entry.
+
+Test: `test_a_spot_beside_the_door_the_way_does_not_count_is_not_the_landing`. Full suite 2730 passed.
+
+### "We have jumped twice around the entrance" (user, 19:32 on 2026-10-10)
+
+With the landing fix live (log `runs/alt-d/20261010T163147Z-b55e51ce`), both doors were taken, each
+by a hop beside the door (5.7 and 6.5 from the mark), a second hop onto the remembered spot 3 from
+it, then the click: three requests for the last ten units.
+
+`step_toward` now clicks the door when the remembered spot is within `ENTRY_WALK` (9 units) over
+ground known to be walkable all the way (`clear_walk`): the click walks those steps, as it did
+before the spot was known, and the second hop is not made. With a wall on the line (the stairs'
+own block, when the first hop lands on its far side) the hop onto the spot stays.
+
+Tests: `test_a_remembered_spot_a_few_steps_off_over_open_ground_is_walked_to_by_the_click`,
+`test_a_remembered_spot_behind_a_wall_is_still_hopped_onto`. Full suite 2732 passed.
+
+### Only full rejuvenation potions (user, 19:37 on 2026-10-10)
+
+Log `runs/alt-d/20261010T163615Z-baf2dbe0`: with the belt one rejuvenation short, two pickup steps
+went for "a rejuvenation potion" (class 530, the plain one) and fourteen clicks took nothing; the
+record of the unit under the pointer named a monster and an object, never the potion (it may be
+hidden by the loot filter, which would leave nothing to click). The user wants full ones only.
+`GameMemory.loot` now lists class 531 alone as a rejuvenation drop. Healing potions of every size
+are still listed.
+
+### The run of 19:39 (2026-10-10): clean, one swallowed walk click
+
+Log `runs/alt-d/20261010T163858Z-335f235d`, takes `163953Z-35` (standing 15%, 3528 points/s),
+`164040Z-36` (14%, 6062), `164132Z-37` (17%, 7551): the lowest standing shares of a whole game so
+far. A full rejuvenation potion was picked up with the belt one short (plain ones no longer listed);
+38 pickup steps with nothing to take went on as seek steps; both doors in 0.18-0.25 s; no step
+stopped on footing.
+
+One seek step stopped: "Walking 7 toward the elite", "the character did not move", right after
+attack mode was paused in the middle of a fight. `hunt.walk_to` now waits for the character to be
+free (`routines.settle`) and makes the click a second time if nothing moved. Test:
+`test_a_walk_click_the_game_swallows_is_made_again`.

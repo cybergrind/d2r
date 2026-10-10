@@ -323,7 +323,7 @@ class LevelGuide:
         return [*pointer_lines([pointer(poi, location) for poi in pois]), card]
 
     def target(self) -> Target | None:
-        """The shown card's first mark, the one the first arrow line points at (Win+T, macros/teleport.py).
+        """The shown card's first mark, the one the first arrow line points at (the teleport step, macros/teleport.py).
         None with no card up or nothing marked. Read from the macro's thread: one reference, no lock."""
         shown = self.shown
         if shown is None or not shown[1]:
@@ -336,7 +336,7 @@ class LevelGuide:
 
     def level(self) -> Level | None:
         """The shown card's level: its rooms and the walls read so far, for a macro that chooses its own
-        mark (KP_2/KP_3, macros/hunt.py). None with no card up. Read from the macro's thread."""
+        mark (the seek step and attack mode, macros/hunt.py). None with no card up. Read from the macro's thread."""
         shown = self.shown
         if shown is None:
             return None

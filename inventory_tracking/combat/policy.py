@@ -17,9 +17,10 @@ player is moving it casts nothing (takeover with yield; `yields=False` is the fr
 simulator scores for comparison).
 
 `NearestPolicy`, the hunt's rule of 2026-10-09: the elite first, then the nearest monster within
-STRIKE_REACH with a clear line, the focal point AIM_BEYOND past it. It is the baseline the line
-sweep is compared with on the same takes, and what the hunt falls back to when the sweep finds no
-line worth casting at a monster that is in reach.
+STRIKE_REACH with a clear line, the focal point AIM_BEYOND past it. It is the historical baseline the
+line sweep is compared with on the same takes. The live fight's own fallback (macros/hunt.py
+`Hunter.choose`, for a monster in reach the sweep finds no line for) is a rule of the same shape over
+the blades' full REACH, not this class.
 """
 
 import math

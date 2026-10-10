@@ -408,6 +408,17 @@ def test_a_crowded_defiler_is_replaced_at_another_spot_each_time():
     assert game.world.player.consume
 
 
+def test_hostile_monsters_around_the_defiler_do_not_make_it_crowded():
+    # Host, 18:48 on 2026-10-10, a prebuff in the middle of a level: the monsters beside the standing
+    # Defiler had four more summoned, which ended the Consume in force, and the press stopped.
+    defiler = Monster(60, 744, 1, 4997.0, 4995.0, 0xFFFFFFFF)
+    hostile = Monster(61, 361, 1, 5000.0, 4996.0, 0xFFFFFFFF, life=900, max_life=900)
+    game = Game(world(monsters=(BOUND_DEMON, defiler, hostile)))
+    prebuff(game.run())
+    assert game.pressed() == ['6', 'q', 'g', 'r']  # the standing Defiler consumed, one summoned after
+    assert game.world.player.consume
+
+
 def test_a_tall_demon_drawn_below_the_defiler_is_not_consumed_in_its_place():
     # Host, 01:46 on 2026-10-07: 8 world units apart, the demon below the Defiler on the screen.
     defiler = Monster(60, 744, 1, 4997.0, 4995.0, 0xFFFFFFFF)

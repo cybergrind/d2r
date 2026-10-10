@@ -10,9 +10,9 @@ The Chaos Sanctum has no warp (levels.json Warp1 = -1): the bridge's far end is 
 Evidence of 2026-10-09 (runs/levels/evidence/107): Bridge 1 at tile row 1168, the two Bridge 2
 presets at 1144 and 1120, the player in the Sanctum at row 1111 right after row 1120 in the River.
 So the mark is the far edge of the last Bridge 2 (the one furthest from Bridge 1), half a tile
-beyond it, as a door to walk into: KP_4 teleports along the bridge and the last press clicks across
-(user, 2026-10-09: repeated KP_4 must bring the character to the Chaos Sanctuary). It is the first
-mark, so KP_4 points at it; Hephasto is a side trip.
+beyond it, as a door to walk into: the teleport step goes along the bridge and the last one clicks across
+(user, 2026-10-09: repeated teleport steps must bring the character to the Chaos Sanctuary). It is the first
+mark, so the teleport step points at it; Hephasto is a side trip.
 """
 
 import math

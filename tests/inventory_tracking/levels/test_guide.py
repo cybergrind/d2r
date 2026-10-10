@@ -676,7 +676,7 @@ def test_the_rooms_of_an_entered_level_are_handed_on():
     assert got[-1][1] > 0
 
 
-def test_the_target_is_the_first_mark_of_the_shown_card_for_win_t():
+def test_the_target_is_the_first_mark_of_the_shown_card_for_the_teleport_step():
     guide, _, _ = make_guide([40, 74])
     assert guide.target() is None
 

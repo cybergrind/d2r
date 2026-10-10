@@ -15,9 +15,14 @@ from inventory_tracking.config import RESOURCE_READER
 from inventory_tracking.items.metadata import item_base
 from inventory_tracking.levels.doors import Door, door_sizes
 from inventory_tracking.levels.memory import pointer
+from inventory_tracking.loot.ground import GROUND_MODES, ground_materials, ground_runes, ground_uniques, item_units
+from inventory_tracking.loot.runes import rune_name
 from inventory_tracking.native.layout import (
+    BELT_ITEM_MODE,
+    BELT_SIZE,
     CHARGED_SKILL_STAT,
     DEAD_MODES,
+    HEALING_POTIONS,
     LEVEL_AREA_ID,
     LIFE_STAT,
     MAX_LIFE_STAT,
@@ -55,6 +60,10 @@ TRACE_RVAS = (
 # after Enter in the recording and 6.2 s and 6.6 s in two traced host runs (2026-10-06), where
 # the first key was accepted. 0x1EB118D moves with it.
 VIEW_RVA = 0x1EB3465
+# (unit type, unit id) of the unit under the pointer: the one address the whole-data search found holding
+# the item's pair on each of the pickup step's first five clicks (host, 18:46-18:54 on 2026-10-10), on
+# three levels and two games. What it holds with nothing under the pointer is not known.
+HOVER_RVA = 0x1E010A4
 IN_GAME = 0x00  # byte of the panel array: 1 in a game, 0 from Save and Exit to the next game
 MONSTER_OWNER = 84  # monster data u32[21]: the owning player's unit id (native/mercenary.py)
 MONSTER_DATA = 0x58  # monster data bytes read per live monster: the type flags and the owner lie within
@@ -136,8 +145,35 @@ class Monster:
 
     @property
     def leader(self) -> bool:
-        """A unique, champion or super unique: what KP_2 hunts (macros/hunt.py); minions are not."""
+        """A unique, champion or super unique: what the seek step hunts (macros/hunt.py); minions are not."""
         return bool(self.flags & LEADER_FLAGS) and not self.flags & MINION_FLAG
+
+
+# The only rejuvenation potion worth a belt cell (user, 2026-10-10: "we need a full rejuv potion
+# instead"); a plain one (530) lay where fourteen clicks could not take it (host, 19:37).
+FULL_REJUVENATION = 531
+VALUABLE, HEALING, REJUVENATION = 'valuable', 'healing', 'rejuvenation'  # what a drop is to the pickup step
+
+
+@dataclass(frozen=True)
+class Drop:
+    """An item on the ground worth a walk: one the loot marks point at, or a potion the belt may want."""
+
+    unit_id: int
+    x: float  # world units
+    y: float
+    label: str
+    kind: str  # VALUABLE, HEALING or REJUVENATION
+
+
+@dataclass(frozen=True)
+class Loot:
+    """What the pickup step decides on (macros/pickup.py): the drops near the character, its belt and its life."""
+
+    drops: tuple[Drop, ...] = ()
+    belt: tuple[int | None, ...] = (None,) * BELT_SIZE  # item class by cell; the first four are the hotkey row
+    life: int = 0  # whole points; 0 when unreadable
+    max_life: int = 0
 
 
 @dataclass(frozen=True)
@@ -160,6 +196,7 @@ class World:
     player: Player | None = None
     monsters: tuple[Monster, ...] = ()  # alive, with a position
     doors: tuple[Door, ...] = ()  # door objects streamed around the character, open or closed
+    dead: frozenset[int] = frozenset()  # unit ids of the monsters lying dead (a kill, where a unit only gone is not)
 
     @property
     def quit_menu(self) -> bool:
@@ -207,9 +244,17 @@ def monsters(read, table: int, *, dead: bool = False) -> tuple[Monster, ...]:
     """The live monsters with a position: type flags and owner from the monster data, ally by the
     alignment stat (unreadable stats: not an ally). Dead ones (unless `dead`) and those without a
     path are left out."""
+    return monsters_and_dead(read, table, dead=dead)[0]
+
+
+def monsters_and_dead(read, table: int, *, dead: bool = False) -> tuple[tuple[Monster, ...], frozenset[int]]:
+    """`monsters`, and the unit ids of the monsters lying dead (from the same walk of the unit table)."""
     heads = struct.unpack('<128Q', read(table + MONSTER_UNIT * 1024, 1024))
     found = []
+    corpses = set()
     for unit in walk_units(read, heads, MONSTER_UNIT)['units']:
+        if unit['mode'] in DEAD_MODES:
+            corpses.add(unit['unit_id'])
         if (unit['mode'] in DEAD_MODES and not dead) or not unit['path_pointer'] or not unit['data_pointer']:
             continue
         try:
@@ -231,7 +276,7 @@ def monsters(read, table: int, *, dead: bool = False) -> tuple[Monster, ...]:
                 raw = read(unit['address'], 0x160) + read(unit['data_pointer'], 0x80)
         monster = Monster(unit['unit_id'], unit['txt_id'], unit['mode'], *position(path), owner, data[TYPE_FLAGS])
         found.append(replace(monster, ally=ally, life=life, max_life=max_life, raw=raw, stats_at=unit['stats_pointer']))
-    return tuple(found)
+    return tuple(found), frozenset(corpses)
 
 
 def doors(read, table: int) -> tuple[Door, ...]:
@@ -399,8 +444,8 @@ class GameMemory:
     def _player(self) -> Player | None:
         return local_player(self.read, self.table)
 
-    def _monsters(self) -> tuple[Monster, ...]:
-        return monsters(self.read, self.table)
+    def _monsters(self) -> tuple[tuple[Monster, ...], frozenset[int]]:
+        return monsters_and_dead(self.read, self.table)
 
     def _doors(self) -> tuple[Door, ...]:
         return doors(self.read, self.table)
@@ -417,6 +462,49 @@ class GameMemory:
 
     def stats(self, stats_at: int) -> dict[int, int]:
         return unit_stats(self.read, stats_at)
+
+    def loot(self, *, rune_minimum: str, unique_minimum: float | None, materials: dict[int, str]) -> Loot:
+        """The drops the loot marks would show (loot/ground.py, the same rules), the potions on the
+        ground, the character's belt and life. An empty Loot when the character cannot be read."""
+        try:
+            player = self._player()
+            if player is None:
+                return Loot()
+            read, table = self.read, self.table
+            drops = [
+                Drop(rune.unit_id, rune.x, rune.y, rune_name(rune.class_id), VALUABLE)
+                for rune in ground_runes(read, table, minimum=rune_minimum)
+            ]
+            marked = [*ground_materials(read, table, materials)] if materials else []
+            if unique_minimum is not None:
+                marked += ground_uniques(read, table, minimum=unique_minimum)
+            drops += [Drop(item.unit_id, item.x, item.y, item.label, VALUABLE) for item in marked]
+            for potion in item_units(read, table, HEALING_POTIONS | {FULL_REJUVENATION}):
+                if potion.mode in GROUND_MODES:
+                    kind = REJUVENATION if potion.class_id == FULL_REJUVENATION else HEALING
+                    drops.append(
+                        Drop(
+                            potion.unit_id,
+                            potion.x,
+                            potion.y,
+                            f'a {"full rejuvenation" if kind == REJUVENATION else kind} potion',
+                            kind,
+                        )
+                    )
+            belt: list[int | None] = [None] * BELT_SIZE
+            heads = struct.unpack('<128Q', read(table + ITEM_UNIT * 1024, 1024))
+            for unit in walk_units(read, heads, ITEM_UNIT)['units']:
+                if unit['mode'] != BELT_ITEM_MODE or not unit['data_pointer'] or not unit['path_pointer']:
+                    continue
+                if struct.unpack_from('<I', read(unit['data_pointer'], 0x60), ITEM_OWNER)[0] != player.unit_id:
+                    continue
+                cell = struct.unpack_from('<H', read(unit['path_pointer'], 0x18), 0x10)[0]
+                if cell < BELT_SIZE:
+                    belt[cell] = unit['txt_id']
+            stats = unit_stats(read, player.stats_at) if player.stats_at else {}
+            return Loot(tuple(drops), tuple(belt), stats.get(LIFE_STAT, 0) >> 8, stats.get(MAX_LIFE_STAT, 0) >> 8)
+        except OSError, ValueError, struct.error:
+            return Loot()
 
     def _equipped(self):
         """(unit, item data) of what the character wears; ValueError/OSError when unreadable."""
@@ -459,8 +547,16 @@ class GameMemory:
             return None
         return None
 
-    def hover_candidates(self, unit_id: int) -> list[str]:
-        """Research: image addresses holding (monster type, this unit id), as the record of the
+    def hovered(self) -> tuple[int, int] | None:
+        """(unit type, unit id) the game holds for the unit under the pointer (HOVER_RVA); None when unreadable."""
+        try:
+            unit_type, unit_id = struct.unpack('<II', self.read(self.base + HOVER_RVA, 8))
+        except OSError, ValueError, struct.error:
+            return None
+        return unit_type, unit_id
+
+    def hover_candidates(self, unit_id: int, unit_type: int = MONSTER_UNIT) -> list[str]:
+        """Research: image addresses holding (unit type, this unit id), as the record of the
         unit under the pointer would while the pointer is on it. Never raises."""
         try:
             data = b''.join(
@@ -469,7 +565,7 @@ class GameMemory:
             )
         except OSError:
             return []
-        wanted, found, at = struct.pack('<II', MONSTER_UNIT, unit_id), [], -1
+        wanted, found, at = struct.pack('<II', unit_type, unit_id), [], -1
         while len(found) < 8 and (at := data.find(wanted, at + 1)) >= 0:
             found.append(hex(DATA_RVA + at))
         return found
@@ -488,14 +584,14 @@ class GameMemory:
     def world(self) -> World:
         panels = self.read(self.base + UI_PANELS_RVA, UI_PANELS_SIZE)
         in_game = panels[IN_GAME] == 1
-        player, monsters, doors = None, (), ()
+        player, monsters, doors, dead = None, (), (), frozenset()
         if in_game:
             try:
                 player = self._player()
-                monsters = self._monsters() if player is not None else ()
+                monsters, dead = self._monsters() if player is not None else ((), frozenset())
                 doors = self._doors() if player is not None else ()
             except OSError, ValueError, struct.error:
-                player, monsters, doors = None, (), ()
+                player, monsters, doors, dead = None, (), (), frozenset()
         return World(
             in_game=in_game,
             open_panels=tuple(name for name, offset in OPEN_PANELS.items() if panels[offset] == 1),
@@ -506,4 +602,5 @@ class GameMemory:
             player=player,
             monsters=monsters,
             doors=doors,
+            dead=dead,
         )

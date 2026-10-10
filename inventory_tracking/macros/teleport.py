@@ -1,4 +1,4 @@
-"""KP_4: one step toward the level card's mark, a teleport as far as the screen allows or, at the
+"""The teleport step: one step toward the level card's mark, a teleport as far as the screen allows or, at the
 door to the next level, a walk into it. The history of each rule is in macros/plan.md.
 
 The mark is the first one on the card (levels/guide.py `target`). Teleport is found, not assumed:
@@ -7,7 +7,7 @@ set says whether to swap first and how many charges are left. Without a staff th
 it is (an oskill) and the character moving is the proof. The staff is left in hand afterwards: the
 next press needs it too.
 
-The key is pressed again and again with Win held: the pointer flicks rather than glides, nothing
+The step is asked for again and again: the pointer flicks rather than glides, nothing
 waits at the end, the mouse may drift under the player's hand (POINTER_DRIFT), and a press during a
 step queues one more step (runner).
 
@@ -39,6 +39,7 @@ from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.routines import (
     BODY_LIFT,
+    FEET,
     UNIT_PIXELS,
     press_skill,
     screen_fraction,
@@ -78,6 +79,10 @@ DOOR_TOOK: dict[int, tuple[int, int]] = {}  # area -> the aim that took its door
 # the mark sits in). The last hop lands on that spot, and the click from there is the step in.
 DEFAULT_ENTRIES = Path('inventory_tracking/runs/macros/door-entries.json')
 ENTRY_MAX = 6.0  # world units from the mark: a last position further off is not the door's own spot
+# World units: the remembered spot this near over open ground is walked to by the click on the door, not
+# hopped onto (user, 2026-10-10: "we have jumped twice around the entrance": a hop beside the door, a
+# hop onto the spot 6 units on, then the click).
+ENTRY_WALK = 9.0
 ENTRY_NEAR = 4.0  # world units from the remembered spot: near enough to click the door from
 WALK_POLL = 0.04  # seconds between looks while the character walks into a door (one game frame)
 
@@ -149,6 +154,7 @@ MIN_GAIN = 3.0  # world units a hop must take off the way to go, or it is not ma
 # while tapping the key, and a swipe never stops a step (400 still stopped two in the Catacombs); the
 # aim is checked and made again instead (`Actuator.aim`).
 POINTER_DRIFT = 10**6
+VIEW_ASPECT = 16 / 9  # the window the potential's hops are planned for (2560 x 1418 on the host)
 REACH_TILES = 5  # tiles one hop of the potential may span: about the view's shorter half (26 units)
 
 
@@ -173,6 +179,24 @@ def footing(ground: Ground, point: Point) -> bool | None:
     return centre and all(known is not False for known in around)
 
 
+def hop_in_view(dx: int, dy: int) -> bool:
+    """Whether a hop of (dx, dy) tiles lands in view from anywhere on the tile it starts from. The view
+    is not round: it shows 23 world units up the screen and 18 down to the skill bar, so a gap that is
+    crossed going up may not be crossed coming down. The potential counted five tiles every way, and a
+    seek step stood still for good where the only way on was 21 units straight down the screen (host,
+    19:19 on 2026-10-10, Catacombs 1)."""
+    across, down = (dx - dy) * TILE_UNITS, (dx + dy) * TILE_UNITS  # as routines.screen_fraction
+    (left, right), (top, bottom) = VIEW
+    slack = TILE_UNITS / 2  # the character stands anywhere on its tile, the spot anywhere on the other
+    wide, high = UNIT_PIXELS[0] / VIEW_ASPECT, UNIT_PIXELS[1]
+    return (
+        left <= FEET[0] + (across - slack) * wide
+        and FEET[0] + (across + slack) * wide <= right
+        and top <= FEET[1] + (down - slack) * high
+        and FEET[1] + (down + slack) * high <= bottom
+    )
+
+
 class Way:
     """The way to go from any spot, in tiles: a potential over the landable tiles of the level,
     Dijkstra from the mark's tile with hops of at most REACH_TILES between landable tiles, walls in
@@ -192,11 +216,12 @@ class Way:
         self.mark = target.point
         mark = (math.floor(target.point[0]), math.floor(target.point[1]))
         landable.add(mark)
+        # (dx, dy) leads from a tile to one a hop may come from: the hop itself is (-dx, -dy).
         offsets = [
             (dx, dy, math.hypot(dx, dy))
             for dx in range(-REACH_TILES, REACH_TILES + 1)
             for dy in range(-REACH_TILES, REACH_TILES + 1)
-            if 0 < math.hypot(dx, dy) <= REACH_TILES
+            if 0 < math.hypot(dx, dy) <= REACH_TILES and hop_in_view(-dx, -dy)
         ]
         self.cost = {mark: 0.0}
         queue = [(0.0, mark)]
@@ -235,7 +260,7 @@ class Way:
                 self.to_go(centre) + math.dist(point, centre)
                 for dx in range(-REACH_TILES, REACH_TILES + 1)
                 for dy in range(-REACH_TILES, REACH_TILES + 1)
-                if (tx + dx, ty + dy) in self.cost
+                if (tx + dx, ty + dy) in self.cost and hop_in_view(dx, dy)
                 for centre in [(tx + dx + 0.5, ty + dy + 0.5)]
                 if math.dist(point, centre) <= REACH_TILES
             ),
@@ -289,6 +314,11 @@ def landing(target: Target, player: Player, way: Way, aspect: float) -> tuple[Po
         if not in_view(ground_fraction(player, *scaled(point), aspect)) or not landable(target, way, point):
             continue
         found.append((way.to_go(point), math.dist(point, start), point))
+    # Only spots that take MIN_GAIN off the way: a spot beside the door with footing on a tile the way
+    # does not count (its centre in the wall the stairs sit in) was the nearest "beside" spot, came out
+    # as no gain, and sixteen teleport steps in a row stopped 16 units from the door (host, 19:29 on
+    # 2026-10-10, Catacombs 1).
+    found = [entry for entry in found if now - entry[0] >= MIN_GAIN / TILE_UNITS]
     if not found:
         return None
     beside = [entry for entry in found if math.dist(scaled(entry[2]), scaled(target.point)) <= APPROACH + 1.0]
@@ -296,8 +326,6 @@ def landing(target: Target, player: Player, way: Way, aspect: float) -> tuple[Po
         cost, _, spot = min(beside, key=lambda entry: entry[1])
     else:
         cost, _, spot = min(found)
-    if now - cost < MIN_GAIN / TILE_UNITS:
-        return None
     return spot, now - cost
 
 
@@ -419,8 +447,20 @@ def ready(run: Run) -> tuple[Player, tuple[int, int, int, int]]:
     return world.player, rect
 
 
+def clear_walk(ground: Ground, start: Point, end: Point, reach: float) -> bool:
+    """Whether `end` is within `reach` of `start` over ground known to be walkable all the way (world units)."""
+    away = math.dist(start, end)
+    if away > reach:
+        return False
+    steps = max(1, math.ceil(away * 2))
+    return all(
+        ground.walkable(start[0] + (end[0] - start[0]) * k / steps, start[1] + (end[1] - start[1]) * k / steps)
+        for k in range(steps + 1)
+    )
+
+
 def step_toward(run: Run, target: Target | None, key_names) -> None:
-    """One press of KP_4. `key_names(world, skills)` gives the key per skill (runner)."""
+    """One teleport step. `key_names(world, skills)` gives the key per skill (runner)."""
     player, rect = ready(run)
     if target is None:
         raise Abort('nothing is marked on the level card (Win+C shows it)')
@@ -431,6 +471,8 @@ def step_toward(run: Run, target: Target | None, key_names) -> None:
     entry = entry_spot(target)
     if entry is not None and math.dist(here, scaled(entry)) <= ENTRY_NEAR:
         at_door = True  # on the door's own spot: clicked from here
+    elif entry is not None and clear_walk(Ground(target.ground), here, scaled(entry), ENTRY_WALK):
+        at_door = True  # a few steps straight to the spot: the click walks them, and a hop is saved
     elif entry is not None and entry_in_view(target, player, way_for(target), aspect) is not None:
         at_door = False  # the spot is a hop away: onto it first, however near the door is
     else:

@@ -51,7 +51,7 @@ def row(situation: Situation, *, policies: bool = True) -> dict[str, Any]:
 def totals(rows: dict[str, dict[str, Any]]) -> dict[str, Any]:
     scored = {name: found for name, found in rows.items() if 'gate' in found}
     summary: dict[str, Any] = {'takes': len(scored), 'passing': sum(found['passes'] for found in scored.values())}
-    for side in ('fit', 'holdout'):
+    for side in ('fit', 'holdout', 'unknown'):
         mine = [found for found in scored.values() if found['side'] == side]
         summary[side] = {'takes': len(mine), 'passing': sum(found['passes'] for found in mine)}
     for mode in MODES:
@@ -90,11 +90,15 @@ def build(directory: Path, *, policies: bool = True, write: bool = True) -> dict
     for path in sorted(
         p for p in directory.iterdir() if (p / 'frames.jsonl').exists() or (p / 'frames.jsonl.gz').exists()
     ):
-        situation = cut(Take.load(path))
+        take = Take.load(path)
+        situation = cut(take)
         if len(situation.casts) < LEAST_CASTS:
             rows[path.name] = {'skipped': f'{len(situation.casts)} full casts'}
             continue
-        rows[path.name] = {'side': 'fit' if path.name in fitted else 'holdout', **row(situation, policies=policies)}
+        # By the recording, not the directory: a trimmed or renamed fit take is still a fit take, and a
+        # take that does not say where it came from is on neither side.
+        side = 'unknown' if take.recording is None else 'fit' if take.recording in fitted else 'holdout'
+        rows[path.name] = {'side': side, **row(situation, policies=policies)}
     target = directory / SCOREBOARD
     before = json.loads(target.read_text()) if target.exists() else None
     board = {'takes': rows, 'totals': totals(rows), 'changes': changes(before, rows)}

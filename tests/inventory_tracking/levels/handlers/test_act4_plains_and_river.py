@@ -50,7 +50,7 @@ def test_river_of_flame_marks_hephasto_the_sanctum_and_the_way_back():
     guidance = handler_for(107).guide(LevelSnapshot(Location(107, 0, 40, 40), rooms))
 
     assert rows(guidance) == [
-        ('Chaos Sanctum', 'stairs', 'Act 4 - Bridge 2'),  # first: KP_4 points at it
+        ('Chaos Sanctum', 'stairs', 'Act 4 - Bridge 2'),  # first: the teleport step points at it
         ('Hephasto', 'target', 'Act 4 - Lava Forge W'),
         ('City of the Damned', 'previous', 'Act 4 - Lava Warp N'),
     ]

@@ -1,12 +1,12 @@
-"""KP_3 toggles attack mode; KP_2 steps toward the nearest unique or champion and leaves attack
-mode on. The history of each rule is in macros/plan.md.
+"""Attack mode and the seek step. The toggle turns attack mode on and off; the seek step goes toward
+the nearest unique or champion and leaves attack mode on. The history of each rule is in macros/plan.md.
 
 Attack mode (`Hunter.attack_mode`, a run that lives until cancelled): everything within the blades'
 REACH with a clear shot (sight.py: the flight layer of the read grids, closed doors) is fought while
 the player moves about as they like. The mouse, the keyboard and the character's own moves and casts
-are not cancels: only KP_3 again or Win+X ends it, the game being left, or MISSES_IN_A_ROW fights
+are not cancels: only its toggle or the macro request ends it, the game being left, or MISSES_IN_A_ROW fights
 that stopped one after another. The player's hand is on the mouse all along, so the actuator aims
-once and casts at once (`Actuator.steady` off). KP_4 and KP_2 work meanwhile: the runner pauses the
+once and casts at once (`Actuator.steady` off). the teleport and seek steps work meanwhile: the runner pauses the
 mode for the step and resumes it after (runner.py).
 
 A fight (`Hunter.fight`) is one hold of the input that has Echoing Strike: the right mouse button
@@ -22,7 +22,7 @@ and blocks it until the character has gone and stands again; a click made while 
 the game may have swallowed, is made again for the player. A held key or a running character makes
 the mode wait.
 
-KP_2 (`Hunter.seek`, one press one step): toward the nearest elite the game holds in memory or the
+The seek step (`Hunter.seek`, one request one step): toward the nearest elite the game holds in memory or the
 terror tracker remembers alive in this level, onto the nearest spot with a shot at it
 (sight.firing_spots, within STRIKE_REACH), by a click when that is within WALK_UNITS over clear
 ground, by a teleport hop otherwise (teleport.hop_toward). None known: the unexplored room nearest by
@@ -30,6 +30,7 @@ the way (the potential from the character's own tile). An elite already in reach
 """
 
 import math
+import threading
 from collections.abc import Callable
 from contextlib import ExitStack
 from dataclasses import dataclass
@@ -58,11 +59,21 @@ from inventory_tracking.macros.routines import (
     on_screen,
     press_skill,
     screen_fraction,
+    settle,
     take_battle_weapons,
 )
 from inventory_tracking.macros.sight import clear_shot, firing_spots, in_reach
 from inventory_tracking.macros.skills import DEATH_MARK, ECHOING_STRIKE, SIGIL_LETHARGY, SWAP_WEAPONS, skill_name
-from inventory_tracking.macros.teleport import WALK_SECONDS, Way, ground_fraction, hop_toward, in_view, moved, ready
+from inventory_tracking.macros.teleport import (
+    MOVED,
+    WALK_SECONDS,
+    Way,
+    ground_fraction,
+    hop_toward,
+    in_view,
+    moved,
+    ready,
+)
 from inventory_tracking.macros.world import NO_OWNER, Monster, World
 from inventory_tracking.native.layout import TILE_UNITS
 from inventory_tracking.terror.tracker import UNKILLABLE
@@ -70,6 +81,7 @@ from inventory_tracking.terror.tracker import UNKILLABLE
 
 SIGIL_SECONDS = 10.0  # between two sigils under the same monster
 DEATH_MARK_SECONDS = 8.0  # between two Death Marks; the debuff lasts 125 + 13/level frames (skills.txt)
+WALK_CLICKS = 2  # clicks for one walk to a firing spot
 WALK_UNITS = 10.0  # a firing spot this near, over clear ground, is walked to, not teleported to (as NEAR_WARP)
 RETAP_SECONDS = 0.25  # the held input idle this long between casts: released and pressed again
 FIGHT_SECONDS = 60.0  # one fight ends here at the latest; attack mode looks again right after
@@ -87,7 +99,8 @@ MOVE_RETRY = 0.3  # seconds between two clicks made for the player
 MOVE_CLICKS = 2  # clicks made for the player per move asked for
 MOVE_SECONDS = 2.0  # a move asked for that has shown nothing after this long is dropped
 MOVED_UNITS = 1.0  # world units the character has gone: the move is under way
-TOUGH_POINTS = 40_000.0  # life points in reach from which a pack is worth the main weapons (or any elite)
+TOUGH_POINTS = 40_000.0  # life points in reach from which a pack is worth the main weapons
+ELITE_LIFE = 2.0  # a unique's or champion's life in Hell, in its type's points (the tables hold the plain monster's)
 MAIN_AFTER = 1.0  # seconds after a step before the main weapons are swapped in for a fight
 SWAP_RETRY_SECONDS = 5.0  # after a swap to the main weapons that did not come
 INPUT_SECONDS = 1.0  # Echoing Strike on no input for this long (another skill selected) before it is a stopped fight
@@ -179,13 +192,15 @@ class Hunter:
         self.left_down = False  # the left mouse button at the last look
         self.fresh_press = False  # a press seen since `nap` last began
         self.casting = False  # a cast runs or the strike input is held: a click now may be swallowed
+        # The pickup step during attack mode (runner): the mode pauses itself once nothing is left in reach.
+        self.after_fight = threading.Event()
 
     def known_level(self, player) -> Level | None:
         level = self.level() if self.level is not None else None
         return level if level is not None and level.area == player.area else None
 
     def seek(self, run: Run, key_names) -> None:
-        """One press of KP_2: a move toward the nearest elite, or into the unexplored."""
+        """One seek step: a move toward the nearest elite, or into the unexplored."""
         player, rect = ready(run)
         if player.in_town:
             raise Abort('in town: nothing to hunt')
@@ -215,6 +230,11 @@ class Hunter:
         spot, name = quarry
         target = self.firing_target(level, ground, here, spot, name, doors)
         goal = (target.point[0] * TILE_UNITS, target.point[1] * TILE_UNITS)
+        if math.dist(here, goal) < MOVED:
+            # Already on a firing spot (the shot from the character's exact place may still read blocked):
+            # a click under its feet moves nothing and would stop the step.
+            run.say(f'{name} is in reach: attack mode takes it')
+            return
         if math.dist(here, goal) <= WALK_UNITS and clear_shot(ground, here, goal, doors):
             walk_to(run, goal, player, aspect, name)
         else:
@@ -234,7 +254,7 @@ class Hunter:
         return min(kept, key=lambda found: math.dist(here, found)), 'the remembered elite'
 
     def attack_mode(self, run: Run, key_names) -> None:
-        """KP_3: fight whatever comes into reach until cancelled. Every pause the mode makes, in its own
+        """Attack mode: fight whatever comes into reach until cancelled. Every pause the mode makes, in its own
         loop and inside a mark, a sigil or a swap, looks at the left mouse button every SLICE
         (`watchful`), so no click of the player's goes unseen."""
         plain = run.pace.sleep
@@ -256,14 +276,15 @@ class Hunter:
 
     def _attack_mode(self, run: Run, key_names) -> None:
         misses, logged_at = 0, -math.inf
-        entered = run.clock()  # the mode starts anew after every KP_4 and KP_2 step
+        self.after_fight.clear()  # a wait left over from a run that ended another way
+        entered = run.clock()  # the mode starts anew after every teleport and seek step
         unready_since: float | None = None  # since when Echoing Strike has been on no input (see below)
         run.say('Attack mode on')
         while True:
             world = run.world()  # Abort('cancelled') when the runner ends the mode
-            self.score.note(run.clock(), world.player, hostiles(world))
+            self.score.note(run.clock(), world.player, hostiles(world), world.dead)
             if not world.in_game:
-                # The lobby or the menu: the mode ends, so Win+X there starts the macro at once.
+                # The lobby or the menu: the mode ends, so the macro request there starts the macro at once.
                 raise Abort('attack mode off: the game was left')
             player = world.player
             self.casting = player is not None and player.mode in ACTING
@@ -273,6 +294,7 @@ class Hunter:
                 self.nap(run, FRAME)
                 continue
             if player is None or world.open_panels or player.in_town or self.moving(run, world):
+                self.step_aside()
                 self.nap(run, POLL)  # the player's move (a key, the left button, a run): waited through
                 continue
             level = self.known_level(player)
@@ -280,6 +302,7 @@ class Hunter:
             here = (player.x, player.y)
             foes = hostiles(world)
             if not any(in_reach(ground, here, (m.x, m.y), REACH, world.doors) for m in foes):
+                self.step_aside()
                 if foes and run.clock() - logged_at >= IDLE_LOG_SECONDS:
                     logged_at = run.clock()
                     nearest = min(foes, key=lambda m: math.dist(here, (m.x, m.y)))
@@ -307,7 +330,7 @@ class Hunter:
                     continue
             try:
                 # The main weapons for a tough pack, and only once the mode has run MAIN_AFTER since the
-                # last step: a swap after every hop of a chain of KP_2 presses, and the staff back for the
+                # last step: a swap after every hop of a chain of seek steps, and the staff back for the
                 # next, costs more standing than it gains. A fight begun earlier is fought with what is
                 # held and stops for the swap at that time.
                 reachable = [m for m in foes if in_reach(ground, here, (m.x, m.y), REACH, world.doors)]
@@ -325,6 +348,13 @@ class Hunter:
                 if misses >= MISSES_IN_A_ROW:
                     raise Abort(f'attack mode off: {misses} fights stopped in a row, the last on "{stop}"') from stop
                 self.nap(run, POLL)
+
+    def step_aside(self) -> None:
+        """Nothing is being fought: a step that waited for the fight (the pickup step) gets its turn, as a cancel
+        the runner reads as a pause."""
+        if self.after_fight.is_set():
+            self.after_fight.clear()
+            raise Abort('cancelled')
 
     def firing_target(self, level: Level, ground: Ground, here, mob, name: str, doors=()) -> Target:
         """The target of a hop toward `mob`: the nearest spot on a room with a shot at it, or the monster
@@ -478,12 +508,13 @@ class Hunter:
         )  # fmt: skip
 
     def tough(self, world: World, reachable: list[Monster]) -> bool:
-        """Whether what is in reach is worth a swap to the main weapons: an elite, or TOUGH_POINTS of
-        life between them."""
+        """Whether what is in reach is worth a swap to the main weapons: TOUGH_POINTS of life between
+        them, an elite's counted ELITE_LIFE times. An elite alone is not: the Catacombs packs died
+        within a second or two of the swap, which costs most of a second there and back."""
         if world.player is None:
             return False
         seen = observe(world.player, reachable, ())
-        return any(foe.elite for foe in seen.foes.values()) or sum(f.left for f in seen.foes.values()) >= TOUGH_POINTS
+        return sum(foe.left * (ELITE_LIFE if foe.elite else 1.0) for foe in seen.foes.values()) >= TOUGH_POINTS
 
     def moving(self, run: Run, world: World, *, keys: bool = True) -> str | None:
         """Why the pointer is the player's right now, or None: a key of theirs is down, the left mouse
@@ -563,16 +594,18 @@ class Hunter:
                 if why is not None:
                     ended = f'Yielded ({why})'
                     break
-                if until is not None and run.clock() >= until:
-                    ended = 'Stopping for the main weapons'  # attack mode takes them and fights on
-                    break
                 here = (player.x, player.y)
                 foes = hostiles(world)
-                self.score.note(run.clock(), player, foes)
+                self.score.note(run.clock(), player, foes, world.dead)
                 reachable = [m for m in foes if in_reach(ground, here, (m.x, m.y), REACH, world.doors)]
                 if not reachable:
                     ended = 'Nothing left in reach'
                     break
+                if until is not None and run.clock() >= until:
+                    if self.tough(world, reachable):
+                        ended = 'Stopping for the main weapons'  # attack mode takes them and fights on
+                        break
+                    until = None  # what is left is not worth the swap any more: fought on as it is
                 if again is not None and run.actuator.key_held():
                     # A key of the player's (a skill of their own, a potion): the strike stays held, as
                     # their own hand would hold it, and the macro's own aims and keys wait for the release.
@@ -681,7 +714,12 @@ def walk_to(run: Run, goal, player, aspect: float, name: str) -> None:
     if not in_view(where):
         raise Abort(f'the spot near {name} is not in view')
     run.say(f'Walking {math.dist((player.x, player.y), goal):.0f} toward {name}')
-    run.actuator.aim(*where, scatter=(4, 3))
-    run.actuator.click()
-    if run.seen(lambda w: w.player is not None and moved(w.player, player), WALK_SECONDS) is None:
-        raise Abort('the character did not move')
+    # A click made while attack mode's last cast ends is swallowed (host, 19:40 on 2026-10-10: "Walking 7",
+    # "the character did not move"): the character is waited free first and the click made twice at most.
+    for _ in range(WALK_CLICKS):
+        settle(run)
+        run.actuator.aim(*where, scatter=(4, 3))
+        run.actuator.click()
+        if run.seen(lambda w: w.player is not None and moved(w.player, player), WALK_SECONDS) is not None:
+            return
+    raise Abort('the character did not move')

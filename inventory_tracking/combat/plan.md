@@ -1040,3 +1040,69 @@ What the session's log showed, fixed the same evening (macros/hunt.py):
   the right button still holds Teleport (or Death Mark) for a moment after the macro's own cast. The
   mode now waits up to INPUT_SECONDS (1 s) for the skill to come back before that counts.
 - The line's log line was written every frame for a monster beyond STRIKE_REACH; once per monster now.
+
+### The review of 2026-10-10 evening (`review.md` at the repository root) and what was taken from it
+
+The earlier `combat/review.md` named above was deleted; its findings are in this plan and in git.
+The new review (eight findings, a cleanup table, a sequence) was read against the code; findings 1,
+3, 4 and 5 were checked and hold as written. Done from it so far:
+
+- **Finding 1, shutdown restarting attack mode:** `MacroRunner.close` is final (`closed`: nothing
+  pending, no attack mode resumed, no request starts a run). The single-owner scheduler it proposes
+  is not built.
+- **Finding 4, fit or held out by the recording:** `Take.recording` (a trim's manifest carries it
+  through further trims; a recorder's directory is named by its start), and the scoreboard sides by
+  it: the `chaos-manual` fixture is `fit`, a take that does not say where it came from `unknown`.
+- Cleanup: the stale "the player attacked" reason, the `NearestPolicy` description, a dangling
+  `review.md` reference.
+
+Open, in the review's order: effective damage against raw blows in the score (3), deaths against
+disappearances in the live score (5), the versioned timeline and area segments (6), the controller
+shared by the game and the replay (2), input ownership and yielding (7), one viewport for planning
+and aiming (8). Findings 3 and 5 move pinned numbers and the gate's thresholds, so they wait for a
+decision rather than being slipped in.
+
+### Review findings 3 and 5: the life taken, and kills that are kills (2026-10-10 night, user: "go ahead")
+
+**Finding 3, effective damage.** `sim/engine.hurt` still records each blow as struck (the bags per
+source, `dealt_by` for the life curves, the amount Health Link shares), and beside it the life the
+blow took off the monster: `Outcome.removed` per source (`BLADES`, `COMPANIONS`, `LINK`,
+`EXPLOSIONS`; Death Mark's share is inside its source), `effective_damage`, `placement`. The score's
+`damage_points`, `damage_per_second` and the per-source points, the policy yardstick
+(`placement_per_combat_second`) and the gate's `damage_ratio` are the life taken;
+`raw_damage_points` keeps the blows. Thresholds are unchanged.
+
+The scoreboard over the 63 takes in `runs/combat`, before and after (same takes, same model):
+
+| | blows (before) | life taken (after) |
+|---|---|---|
+| takes passing the gate | 29 | 24 |
+| fit takes passing (3 Chaos) | 2 | 0 (ratios 0.81, 0.85, 0.83) |
+| damage ratio, change per take | | median -0.07 (-0.23 to -0.03) |
+| yield gain on passing takes | median +19.3% (4.2 to 65.3) | median +19.6% (4.6 to 43.5) |
+| yield gain on the three manual Chaos takes | 13.8, 13.8, 15.1% | 12.6, 10.1, 13.3% |
+
+Nine takes changed sides: seven now fail on a damage ratio of 0.80-0.85 (the two Chaos fit takes
+among them), two that failed on too much damage now pass. Read plainly: about seven points of the
+simulated damage were overkill, and without them the model deals 15-19% less than the record in the
+Chaos Sanctuary, at the edge of the 15% band it was fitted to sit inside. The policy's gain over the
+recorded casts held on the manual takes (a tenth to an eighth) and lost its largest values (65% to
+40%, 59% to 44%): those were finishing blows counted at full size. The fixtures' pinned numbers
+moved with it (ratios 0.92 to 0.87 and 1.01 to 0.94, yield gains 13.1 to 9.8% and 18.1 to 8.7%).
+
+Not done, and the next thing the numbers ask for: the damage per hit refitted against the life
+taken (and the roll spread the plan already lists), then the thresholds looked at again. Until then
+"24 of 63 pass" is the honest count.
+
+**Finding 5, kills.** `World.dead` (macros/world.py) carries the unit ids of the monsters lying in a
+dead mode, from the same walk of the unit table. `LiveScore.note(..., dead)` counts a hostile that
+was near and is now among them as a kill with the life it had left; one that only left memory is
+`gone`, counted beside the kills and worth nothing (the recorder's `kill` and `gone`). An interval
+is combat when a live hostile was near at its start, so the interval the last monster dies in
+counts. Another level or another character unit starts from nothing. The HUD's "Last minute" line
+will read lower than before where teleports used to add kills.
+
+Tests: `test_a_finishing_blow_scores_the_life_it_took_not_its_size`,
+`test_a_marked_finishing_blow_takes_no_more_than_the_life_left`, and in `test_score.py` the death
+against the disappearance, the last monster's interval, the new level or game. The assertion that a
+disappearance is a kill is gone. Full suite 2740 passed.

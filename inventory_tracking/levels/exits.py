@@ -51,7 +51,9 @@ def kind_for(area: int, target: int) -> str:
 
 
 def warp_exits(snapshot: LevelSnapshot) -> tuple[Poi, ...]:
-    """One POI per (preset instance, level behind its warps), on the warp tiles."""
+    """One POI per (preset instance, level behind its warps), on the warp tiles; the ways on before
+    the ways back, so a level without a handler leads with its next level (the Forgotten Tower's one
+    preset holds both: slot 0 Black Marsh, slot 1 Tower Cellar 1)."""
     area = snapshot.location.area_id
     pois = []
     for room, _ in instances(snapshot.rooms):
@@ -64,7 +66,7 @@ def warp_exits(snapshot: LevelSnapshot) -> tuple[Poi, ...]:
         for target, found in spots.items():
             spot = (x + sum(s[0] for s in found) / len(found), y + sum(s[1] for s in found) / len(found))
             pois.append(Poi(short_name(target), room, kind_for(area, target), spot, target))
-    return tuple(pois)
+    return tuple(sorted(pois, key=lambda poi: poi.kind == 'previous'))
 
 
 def border_exits(snapshot: LevelSnapshot, skip: Iterable[int] = ()) -> tuple[Poi, ...]:

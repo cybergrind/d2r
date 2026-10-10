@@ -2,6 +2,7 @@
 
 import gzip
 import json
+import re
 from collections.abc import Iterator
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -128,6 +129,9 @@ def lines(path: Path) -> Iterator[dict[str, Any]]:
                 yield json.loads(line)
 
 
+RECORDING_NAME = re.compile(r'\d{8}T\d{6}Z-\d+')  # a recorder's directory: start time and area
+
+
 @dataclass
 class Take:
     directory: Path
@@ -148,6 +152,17 @@ class Take:
             list(lines(directory / 'units.jsonl')),
             list(lines(directory / 'missiles.jsonl')),
         )
+
+    @property
+    def recording(self) -> str | None:
+        """The name of the recording this take is or was cut from, whatever its directory is called now:
+        a trim carries it in its manifest, a recording is named by its start (RECORDING_NAME). None when
+        neither says."""
+        cut = self.manifest.get('trimmed') or {}
+        root = cut.get('recording') or cut.get('take')
+        if root:
+            return root
+        return self.directory.name if RECORDING_NAME.fullmatch(self.directory.name) else None
 
     @property
     def seconds(self) -> float:
@@ -229,6 +244,8 @@ def trim(take: Take, first: int, last: int, target: Path) -> Path:
             handle.writelines(json.dumps(record, separators=(',', ':')) + '\n' for record in records)
     manifest = {k: v for k, v in take.manifest.items() if k != 'census'}
     manifest['trimmed'] = {'take': take.directory.name, 'frames': [first, last]}
+    if take.recording is not None:
+        manifest['trimmed']['recording'] = take.recording  # kept through a trim of a trim
     (target / 'manifest.json').write_text(json.dumps(manifest, indent=1, sort_keys=True))
     level, packed = take.directory / 'level.json', take.directory / 'level.json.gz'
     if level.exists():

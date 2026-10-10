@@ -1,4 +1,4 @@
-"""Win+T on a scripted level: a teleport as far as the screen shows, or a walk into a near door.
+"""The teleport step on a scripted level: a teleport as far as the screen shows, or a walk into a near door.
 
 The character stands at world (5000, 5000), tile (1000, 1000), in an 8x8 room; the mark lies east.
 In view (teleport.VIEW, the classic projection) a hop straight east reaches about 26 world units:
@@ -13,7 +13,15 @@ import pytest
 from inventory_tracking.levels.model import Ground, Room, Target, Walkable, pack_cells, pack_tiles
 from inventory_tracking.macros import teleport
 from inventory_tracking.macros.actuator import Abort
-from inventory_tracking.macros.teleport import NEAR_WARP, footing, step_toward
+from inventory_tracking.macros.teleport import (
+    NEAR_WARP,
+    Way,
+    approaches,
+    footing,
+    hop_in_view,
+    landing,
+    step_toward,
+)
 from inventory_tracking.macros.world import Teleport
 from tests.inventory_tracking.macros.fakes import KEYS, SLOTS, Game, player, world
 
@@ -235,6 +243,39 @@ def test_a_character_on_a_tile_whose_centre_is_a_pit_still_has_a_way():
     assert play.pressed() == ['t']
 
 
+def test_the_potential_plans_no_hop_the_view_cannot_show():
+    # Host, 19:19 on 2026-10-10, Catacombs 1: the only way on was a landing 21 units straight down the
+    # screen, below where the view ends at the skill bar; the potential counted it as one hop and twenty
+    # seek steps in a row found "no footing in view".
+    assert hop_in_view(-3, -3)  # 21 units straight up the screen
+    assert not hop_in_view(3, 3)  # the same straight down
+    assert hop_in_view(2, 2)
+    assert hop_in_view(2, -3)  # and to a side
+    # Two rooms a gap apart, the second straight down the screen from the first: no way from the first
+    # to a mark in the second, and a way back up from the second.
+    upper, lower = Room(1, 1000, 1000, 2, 2), Room(2, 1004, 1004, 2, 2)
+    down = Way(Target(109, (upper, lower), (1004.5, 1004.5), 'below', 'mark', False, ()))
+    up = Way(Target(109, (upper, lower), (1001.5, 1001.5), 'above', 'mark', False, ()))
+    assert down.from_here((1001.5, 1001.5)) == math.inf
+    assert up.from_here((1004.5, 1004.5)) < math.inf
+
+
+def test_a_spot_beside_the_door_the_way_does_not_count_is_not_the_landing():
+    # Host, 19:29 on 2026-10-10, Catacombs 1: the "beside the door" spot nearest the character had
+    # footing but lay on a tile whose centre was wall, so the way gave it no cost; the landing came
+    # out as no gain and sixteen teleport steps in a row stopped 16 units from the door.
+    door = Target(109, (HERE, *EAST), (1003.5, 1000.5), 'Next level', 'stairs', True, ())
+    way = Way(door)
+    nearest = min(approaches(door), key=lambda spot: math.dist(spot, (1000.0, 1000.0)))
+    real = way.to_go
+    way.to_go = lambda point: math.inf if math.dist(point, nearest) < 0.3 else real(point)
+    found = landing(door, player(), way, 2560 / 1418)
+    assert found is not None
+    spot, gain = found
+    assert math.dist(spot, nearest) >= 0.3
+    assert gain > 0.5
+
+
 def test_a_pointer_found_off_the_aim_is_aimed_again_before_the_key(caplog):
     play = game()
     hand = {'drags': 3, 'reads_since_move': 0}  # the hand drags the pointer off right after each of three moves
@@ -352,6 +393,30 @@ def test_a_door_within_a_walk_but_off_its_remembered_spot_is_hopped_onto_first()
     step_toward(play.run(), mark, keys)
     assert play.pressed() == ['t']
     assert math.dist((play.world.player.x, play.world.player.y), (5007.5, 5005.5)) < 1.5
+
+
+def test_a_remembered_spot_a_few_steps_off_over_open_ground_is_walked_to_by_the_click():
+    # user, 2026-10-10: "we have jumped twice around the entrance": a hop beside the door, a hop onto its
+    # spot 6 units on, then the click. The click walks those steps itself.
+    door = (1001.3, 1000.3)  # world (5006.5, 5001.5); its spot 3 south of it, 7.9 from the character
+    mark = replace(target(door, warp=True), ground=(SOLID,))
+    teleport.ENTRIES.learn(mark, (0.0, 3.0))
+    play = game()
+    play.door = door
+    step_toward(play.run(), mark, keys)
+    assert play.pressed() == []  # no hop
+    assert play.world.player.area == 110
+
+
+def test_a_remembered_spot_behind_a_wall_is_still_hopped_onto():
+    door = (1001.3, 1000.3)
+    rows = ''.join('0' if 23 <= col <= 24 else '1' for col in range(40)) * 40  # a wall at world x 5003-5004
+    mark = replace(target(door, warp=True), ground=(Walkable(996, 996, 8, 8, pack_cells(rows)),))
+    teleport.ENTRIES.learn(mark, (0.0, 3.0))
+    play = game()
+    step_toward(play.run(), mark, keys)
+    assert play.pressed() == ['t']
+    assert math.dist((play.world.player.x, play.world.player.y), (5006.5, 5004.5)) < 1.5
 
 
 def test_door_entries_are_kept_in_a_file_across_games(tmp_path):

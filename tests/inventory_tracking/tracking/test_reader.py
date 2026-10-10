@@ -133,7 +133,7 @@ def test_game_image_not_found_yet_is_retried_as_not_ready(tmp_path, images):
 
 def test_the_unit_table_is_remembered_per_build_and_taken_from_the_cache_in_the_menus(tmp_path):
     # user, 2026-10-10: `make serve` restarted in the lobby never attached (the signature's code page is
-    # still encrypted there), so Win+X did nothing. The table's RVA is a constant of the build.
+    # still encrypted there), so the macro request did nothing. The table's RVA is a constant of the build.
     from inventory_tracking.native.session import GameNotReady
 
     cache = tmp_path / 'unit-table.json'

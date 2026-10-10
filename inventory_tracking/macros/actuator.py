@@ -72,7 +72,8 @@ class Actuator:
         if not self.focused():
             raise Abort('the game lost the focus')
         if self.key_held():
-            raise Abort('a key was pressed')
+            codes = sorted(self.keys.held_keys() - self.allowed - self.holding)
+            raise Abort(f'a key was pressed (key code {", ".join(map(str, codes)) or "?"})')
         if self.left_at is not None:
             now = self.keys.pointer()
             if now is None or max(abs(now[0] - self.left_at[0]), abs(now[1] - self.left_at[1])) > self.drift:

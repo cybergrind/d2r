@@ -27,6 +27,7 @@ from inventory_tracking.macros.skills import (
 )
 from inventory_tracking.macros.world import (
     DEFILER_CLASS as DEFILER,
+    NO_OWNER,
     TRACE_RVAS,
     Monster,
     Player,
@@ -37,7 +38,7 @@ from inventory_tracking.native.layout import HIRELING_CLASS_ID
 
 
 NIHLATHAKS_TEMPLE = 121
-# Where a farming run ends, so Win+X there leaves the game: Pindleskin's Temple, and for the
+# Where a farming run ends, so the macro request there leaves the game: Pindleskin's Temple, and for the
 # Eldritch and Shenk run (user, 2026-10-06) the Frigid Highlands above its waypoint and the
 # Bloody Foothills below it. The whole level counts, not only the part near the waypoint.
 RUN_ENDS = frozenset((NIHLATHAKS_TEMPLE, 110, 111))
@@ -48,7 +49,7 @@ RUN_ENDS = frozenset((NIHLATHAKS_TEMPLE, 110, 111))
 # An Andariel run ends on her level once she is dead (user, 2026-10-07): the character on the
 # level with no live Andariel in the unit table. No corpse is asked for: hers leaves the table
 # 19 s after the kill (host). She is in the table from 86 units away; further off, at the
-# stairs before the fight, Win+X leaves the game too.
+# stairs before the fight, the macro request leaves the game too.
 CATACOMBS_4 = 37
 ANDARIEL = 156  # as in terror/bosses.py
 PANDEMONIUM_FORTRESS = 103
@@ -157,12 +158,18 @@ def defilers(world: World) -> list[Monster]:
 
 
 def bystanders(world: World, but: int | None = None) -> list[Monster]:
-    """Every living monster Consume might take in place of the Defiler: the bound demon cannot
-    be told from the rest (summons carry no owner), so all count but the mercenary and townsfolk."""
+    """Every living monster Consume might take in place of the Defiler: the character's own (the
+    bound demon: allied or owned) and any whose stats could not be read, but the mercenary and
+    townsfolk. A hostile monster is not one: Consume cannot take it, and in the middle of a level
+    the monsters around made every Defiler "crowded", so that four more were summoned, each ending
+    the Consume in force or the oldest Defiler, and the press stopped (host, 18:48 on 2026-10-10)."""
     return [
         m
         for m in world.monsters
-        if m.txt_id not in (DEFILER, HIRELING_CLASS_ID) and m.txt_id not in TOWN_NPCS and m.unit_id != but
+        if m.txt_id not in (DEFILER, HIRELING_CLASS_ID)
+        and m.txt_id not in TOWN_NPCS
+        and m.unit_id != but
+        and (m.ally or m.owner != NO_OWNER or not m.max_life)
     ]
 
 
@@ -467,8 +474,10 @@ def log_consume(run: Run, when: str) -> None:
 def prebuff(run: Run, *, fresh: LoadTrace | None = None) -> None:
     """End with a newly cast Consume and one Defiler out. Consume is always cast, never taken
     as good because it is active: how long it has left is not known, and it ran out in the
-    middle of a run (user, 2026-10-06). A second Defiler summoned while one stands cancels
-    Consume (user, 2026-10-06), so a standing Defiler is the one consumed, never summoned over."""
+    middle of a run (user, 2026-10-06). The bound demon aside, the character has two demon slots
+    and an active Consume holds one (user, 2026-10-10): a Defiler summoned with both taken ends
+    the oldest, the Consume included. So a standing Defiler is the one consumed, never summoned
+    over, and the Defiler that stays out is summoned after the Consume."""
     take_prebuff_weapons(run, until=None if fresh is None else fresh.started + LOAD_LIMIT)
     log_consume(run, 'before')
     if fresh is not None:  # a new game: nothing is out, and the first summon may have to wait

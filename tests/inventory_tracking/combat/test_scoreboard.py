@@ -10,8 +10,8 @@ from pathlib import Path
 import pytest
 
 from inventory_tracking.combat.scoreboard import build, changes, lines
-from inventory_tracking.combat.sim.engine import curves, gate, simulate, verdict
-from inventory_tracking.combat.sim.policy import YIELD, candidate, run_policy
+from inventory_tracking.combat.sim.engine import curves, gate, score, simulate, verdict
+from inventory_tracking.combat.sim.policy import YIELD, candidate, policy_score, run_policy
 from inventory_tracking.combat.sim.situation import MonsterTrack, Situation, cut, describe
 from inventory_tracking.combat.takes import Take, trim
 
@@ -41,7 +41,7 @@ def test_the_line_sweep_beats_the_recorded_casts_on_both_fixtures_without_a_cast
     for name in ('chaos-manual', 'catacombs-macro'):
         found = board['takes'][name]['policies']
         assert found['yield']['gain'] == PINNED[f'{name} yield']
-        assert found['yield']['gain'] > 0.1
+        assert found['yield']['gain'] > 0.05
         assert found['yield']['casts_while_recorded_running'] == 0
         assert found['free']['gain'] >= found['yield']['gain'] - 0.01
     # The player's own play: the sweep's aim alone (the recorded cast frames) and its lines whenever free
@@ -59,16 +59,22 @@ def test_the_policys_first_casts_on_the_chaos_fixture_are_pinned():
 
 
 def test_the_scoreboard_marks_fit_and_held_out_takes_and_prints_a_line_per_take(board, monkeypatch):
-    assert {found['side'] for found in board['takes'].values()} == {'holdout'}
+    # By the recording a fixture was cut from, not its directory's name (review.md, finding 4): the Chaos
+    # fixture is a cut of a take the numbers were fitted on.
+    assert {name: found['side'] for name, found in board['takes'].items()} == {
+        'chaos-manual': 'fit',
+        'catacombs-macro': 'holdout',
+    }
     assert board['totals']['takes'] == board['totals']['passing'] == 2
-    assert board['totals']['yield_gain_on_passing']['least'] > 0.1
+    assert board['totals']['yield_gain_on_passing']['least'] > 0.05
     text = lines(board)
     assert text[0].startswith('catacombs-macro')
     assert ' pass ' in text[0]
     import inventory_tracking.combat.scoreboard as module
 
-    monkeypatch.setattr(module, 'fit_takes', lambda: frozenset(('chaos-manual',)))
-    assert build(FIXTURES, policies=False, write=False)['takes']['chaos-manual']['side'] == 'fit'
+    monkeypatch.setattr(module, 'fit_takes', lambda: frozenset(('20261010T114636Z-37',)))
+    sides = {name: found['side'] for name, found in build(FIXTURES, policies=False, write=False)['takes'].items()}
+    assert sides == {'chaos-manual': 'holdout', 'catacombs-macro': 'fit'}
 
 
 def test_the_scoreboard_says_what_changed_since_the_one_before(board):
@@ -94,9 +100,40 @@ def test_a_trimmed_take_keeps_its_window_and_reads_back(tmp_path):
     take = Take.load(FIXTURES / 'catacombs-macro')
     small = Take.load(trim(take, 100, 200, tmp_path / 'cut'))
     assert [small.frames[0]['n'], small.frames[-1]['n']] == [100, 200]
-    assert small.manifest['trimmed'] == {'take': 'catacombs-macro', 'frames': [100, 200]}
+    assert small.manifest['trimmed'] == {
+        'take': 'catacombs-macro',
+        'frames': [100, 200],
+        'recording': '20261010T114636Z-37',
+    }
+    assert small.recording == take.recording == '20261010T114636Z-37'  # through a trim of a trim
+    smaller = Take.load(trim(small, 120, 150, tmp_path / 'renamed'))
+    assert smaller.recording == '20261010T114636Z-37'
+    assert Take(tmp_path / 'my-notes', {}).recording is None  # says nothing of where it came from
+    assert Take(tmp_path / '20261009T212147Z-108', {}).recording == '20261009T212147Z-108'
     assert all(small.frames[0]['t'] <= event['t'] <= small.frames[-1]['t'] for event in small.events)
     assert describe(cut(small))['walls']  # the level map came along
+
+
+# --- the life taken, not the blows (review.md, finding 3) ---
+
+
+def test_a_finishing_blow_scores_the_life_it_took_not_its_size():
+    situation = lone(100.0, None, [])
+    weak = simulate(situation, [(0, (5000.0, 5010.0))], lambda txt: 100.0, **OFF)
+    strong = simulate(situation, [(0, (5000.0, 5010.0))], lambda txt: 1000.0, **OFF)
+    assert strong.total_damage > weak.total_damage  # the blows differ, and stay on record
+    assert strong.effective_damage == weak.effective_damage == 100.0  # the monster had 100 to lose
+    for outcome in (weak, strong):
+        found = policy_score(situation, outcome)
+        assert found['damage_points'] == found['placement_points'] == 100
+    assert score(situation, strong)['raw_damage_points'] == round(strong.total_damage)
+
+
+def test_a_marked_finishing_blow_takes_no_more_than_the_life_left():
+    situation = lone(100.0, None, [])
+    situation.marks = [(0, 1)]
+    marked = simulate(situation, [(0, (5000.0, 5010.0))], lambda txt: 90.0, **{**OFF, 'mark': (0.5, 500)})
+    assert marked.effective_damage == 100.0  # 135 struck with the mark, 100 there to take
 
 
 # --- the two-sided gate ---
@@ -174,11 +211,11 @@ def test_with_mortal_off_a_monster_lives_as_long_as_the_record_shows_it():
 
 PINNED: dict = {
     'chaos casts': 29,
-    'chaos ratio': 0.92,
+    'chaos ratio': 0.87,  # the life taken over the life lost on record; 0.92 while the blows were counted
     'chaos explained': {'median': 1.0, 'mean': 0.87},
     'chaos bias': 0.002,
-    'catacombs ratio': 1.01,
-    'chaos-manual yield': 0.131,
-    'catacombs-macro yield': 0.181,
+    'catacombs ratio': 0.94,  # 1.01 with the blows
+    'chaos-manual yield': 0.098,  # 0.131 with the blows: a third of the gain was overkill
+    'catacombs-macro yield': 0.087,  # 0.181 with the blows: half of it was
     'chaos first casts': [(2755, 7758.1, 5302.0), (2764, 7753.6, 5297.2), (2787, 7759.0, 5281.7)],
 }

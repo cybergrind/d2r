@@ -186,11 +186,14 @@ class ExitsHandler(Handler):
     A gap is named by the level behind it (Room.leads_to, readable only once the player has been
     near that edge); the last unknown gap takes the last unseen exit by elimination; any other
     gap is a plain 'Exit'. Missing or extra gaps are not problems: the gaps are what the level has.
+    `pois_first` puts the `pois` specs before the gaps: the first mark is the one the teleport step
+    follows (Black Marsh's Forgotten Tower).
     """
 
     exits: tuple[Exit, ...] = ()
     gap: str = ACT1_GAP
     gap_variants: tuple[int, ...] = (3, 4)
+    pois_first: bool = False
 
     def guide(self, snapshot: LevelSnapshot) -> Guidance:
         gaps = [
@@ -212,4 +215,5 @@ class ExitsHandler(Handler):
         pois = [Poi(e.label, named[e], e.kind, area=e.area) for e in self.exits if e in named]
         pois += [Poi('Exit', room, 'exit') for room in unknown]
         rest = super().guide(snapshot)
-        return Guidance((*pois, *rest.pois), rest.problems)
+        order = (*rest.pois, *pois) if self.pois_first else (*pois, *rest.pois)
+        return Guidance(order, rest.problems)

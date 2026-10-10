@@ -395,7 +395,7 @@ Durance 2 waypoint) is now skipped silently instead of logged as a problem.
 | Tower Cellar 1–4 | 21–24 | `tower_cellar.py` | `stairs_down('Act 1 - Crypt')` | Crypt family |
 | Tower Cellar 5 | 25 | `tower_cellar.py` | `Act 1 - Crypt Countess X` | — |
 | Durance of Hate 1–2 | 100, 101 | `durance_of_hate.py` | `stairs_down('Act 3 - Mephisto')` (+ waypoint dot on 101) | Mephisto family |
-| Black Marsh | 6 | `black_marsh.py` | `Act 1 - Tower 1` (tower entrance); exits Tamoe Highland + Dark Wood (ExitsHandler, unconfirmed 2026-10-01); waypoint not markable (object, loaded rooms only) | outdoor room lists |
+| Black Marsh | 6 | `black_marsh.py` | `Act 1 - Tower 1` (tower entrance, the level's first mark since 2026-10-10: the teleport step follows it down to Tower Cellar 5); exits Tamoe Highland + Dark Wood (ExitsHandler, unconfirmed 2026-10-01); waypoint not markable (object, loaded rooms only) | outdoor room lists |
 | Tamoe Highland, Pit 1 | 7, 12 | `pit.py` | exits Monastery Gate + Black Marsh (ExitsHandler, unconfirmed 2026-10-01); `Act 1 - (Cave Entrance\|Wild Cliff Cave Left/Right)`; `stairs_down('Act 1 - Cave', word='Down')` + way back | Act 1 Cave family |
 | Rocky Waste, Stony Tomb 1–2 | 41, 55, 59 | `stony_tomb.py` | `Act 2 - Desert Tomb 1`; `stairs_down('Act 2 - Tomb')`; Treasure + Creeping Feature (Leatherarm) on 59 | Act 2 Tomb family |
 | Lower Kurast | 79 | `lower_kurast.py` | every `Act 3 - Slums 16x16` of DS1 variant 1 (bonfire camp, a super chest in each of its two shacks); `PoiSpec(variants=…, each=True)`, none is fine | — |

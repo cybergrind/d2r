@@ -73,6 +73,9 @@ def fitted_mana(situation: Situation, pool: float, cost: float) -> tuple[float, 
     return (pool, needed if needed != math.inf else 0.0, cost)
 
 
+BLADES, COMPANIONS, LINK, EXPLOSIONS = 'blades', 'companions', 'link', 'explosions'
+
+
 @dataclass
 class Outcome:
     deaths: dict[int, int] = field(default_factory=dict)  # monster unit -> frame it died in the simulation
@@ -82,6 +85,10 @@ class Outcome:
     linked_damage: dict[int, float] = field(default_factory=dict)  # monster unit -> points shared through Health Link
     explosion_damage: dict[int, float] = field(default_factory=dict)  # monster unit -> points from Hex Purge explosions
     mark_damage: dict[int, float] = field(default_factory=dict)  # monster unit -> the extra points Death Mark added
+    # Source (BLADES, COMPANIONS, LINK, EXPLOSIONS) -> the life it took off the monsters. The bags above hold
+    # the blows as struck (a 1,000-point blow on a monster with 100 left is 1,000 there, 100 here): the
+    # blows are what Health Link shares and what the life curves follow; the life taken is the score.
+    removed: dict[str, float] = field(default_factory=dict)
     contacts: int = 0
     casts: int = 0
     cast_frames: list[tuple[int, Point]] = field(default_factory=list)  # (birth frame, focal) of every cast made
@@ -94,7 +101,18 @@ class Outcome:
         return sum(self.damage.values())
 
     @property
+    def effective_damage(self) -> float:
+        """The life the simulation took off the monsters, from every source."""
+        return sum(self.removed.values())
+
+    @property
+    def placement(self) -> float:
+        """The life the blades took, directly and through the link: what the aim decides."""
+        return self.removed.get(BLADES, 0.0) + self.removed.get(LINK, 0.0)
+
+    @property
     def total_damage(self) -> float:
+        """The blows as struck, overkill included (a diagnostic; the score is `effective_damage`)."""
         extra = sum(self.companion_damage.values()) + sum(self.linked_damage.values())
         return self.blade_damage + extra + sum(self.explosion_damage.values()) + sum(self.mark_damage.values())
 
@@ -183,6 +201,13 @@ def simulate(
     linked: set[int] = set()
     hexed: set[int] = set()  # monsters a blade has hit: Hex Purge's debuff on them
 
+    sources = {
+        id(outcome.damage): BLADES,
+        id(outcome.companion_damage): COMPANIONS,
+        id(outcome.linked_damage): LINK,
+        id(outcome.explosion_damage): EXPLOSIONS,
+    }
+
     def hurt(unit: int, dealt: float, frame: int, bag: dict[int, float]) -> None:
         bag[unit] = bag.get(unit, 0.0) + dealt
         taken = dealt
@@ -190,6 +215,8 @@ def simulate(
             taken = dealt * (1 + more_damage)
             outcome.mark_damage[unit] = outcome.mark_damage.get(unit, 0.0) + taken - dealt
         outcome.dealt_by.setdefault(unit, []).append((frame, taken))
+        source = sources[id(bag)]
+        outcome.removed[source] = outcome.removed.get(source, 0.0) + min(taken, max(life[unit], 0.0))
         if not link_overkill:
             dealt = min(dealt, max(life[unit], 0.0))  # the link shares what the victim lost, not the blow
         life[unit] -= taken
@@ -272,21 +299,24 @@ def simulate(
 
 
 def score(situation: Situation, outcome: Outcome) -> dict[str, Any]:
-    """Effective damage per second over the situation and kills per minute."""
+    """Effective damage per second over the situation and kills per minute. The damage is the life
+    taken off the monsters (`Outcome.removed`), per source with Death Mark's share inside each; the
+    blows as struck, overkill and all, are `raw_damage_points`."""
     seconds = situation.seconds or 1.0
     return {
         'kills': len(outcome.deaths),
         'kills_per_minute': round(len(outcome.deaths) / seconds * 60, 1),
-        'damage_points': round(outcome.total_damage),
-        'blade_damage_points': round(outcome.blade_damage),
-        'companion_damage_points': round(sum(outcome.companion_damage.values())),
-        'linked_damage_points': round(sum(outcome.linked_damage.values())),
-        'explosion_damage_points': round(sum(outcome.explosion_damage.values())),
+        'damage_points': round(outcome.effective_damage),
+        'raw_damage_points': round(outcome.total_damage),
+        'blade_damage_points': round(outcome.removed.get(BLADES, 0.0)),
+        'companion_damage_points': round(outcome.removed.get(COMPANIONS, 0.0)),
+        'linked_damage_points': round(outcome.removed.get(LINK, 0.0)),
+        'explosion_damage_points': round(outcome.removed.get(EXPLOSIONS, 0.0)),
         'death_mark_points': round(sum(outcome.mark_damage.values())),
         'mana_low': round(outcome.mana_low) if outcome.mana_low != math.inf else None,
         'casts_refused_for_mana': outcome.casts_refused,
         'blades_walled': outcome.blades_walled,
-        'damage_per_second': round(outcome.total_damage / seconds),
+        'damage_per_second': round(outcome.effective_damage / seconds),
         'contacts': outcome.contacts,
         'casts': outcome.casts,
     }
@@ -407,7 +437,7 @@ def gate(situation: Situation, outcome: Outcome) -> dict[str, Any]:
             'mean': round(statistics.fmean(explained), 2) if explained else None,
         },
         'kill_order_agreement': round(concordant / order_pairs, 2) if order_pairs else None,
-        'damage_ratio': round(outcome.total_damage / situation.recorded_damage, 2)
+        'damage_ratio': round(outcome.effective_damage / situation.recorded_damage, 2)
         if situation.recorded_damage
         else None,
         'life_curves': curves(situation, outcome),

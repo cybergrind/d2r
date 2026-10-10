@@ -1,4 +1,4 @@
-"""KP_3 attack mode and KP_2 seeking on a scripted level.
+"""Attack mode and the seek step on a scripted level.
 
 The character stands at world (5000, 5000), tile (1000, 1000), in an 8x8 room with a corridor east
 (as test_teleport.py), on Durance of Hate Level 2 (101; the fakes' 109 is Harrogath, a town, where
@@ -12,6 +12,7 @@ from itertools import pairwise
 
 import pytest
 
+from inventory_tracking.combat.mechanics.tables import points_of
 from inventory_tracking.combat.policy import Choice
 from inventory_tracking.levels.model import Level, Room, Walkable, pack_cells
 from inventory_tracking.macros.actuator import Abort
@@ -19,6 +20,7 @@ from inventory_tracking.macros.hunt import (
     MISSES_IN_A_ROW,
     SIGIL_SECONDS,
     STRIKE_REACH,
+    TOUGH_POINTS,
     Hunter,
     hostiles,
 )
@@ -196,7 +198,7 @@ def test_a_fight_takes_the_monsters_in_reach_one_after_another_and_leaves_the_fa
     attack_mode(play, hunter(play), until=10.0)
 
     assert [unit for unit, _ in play.strikes] == [11, 11, 11, 11, 10, 10]  # the elite first, then the rest
-    assert [m.unit_id for m in play.world.monsters] == [12]  # out of reach: KP_2's business
+    assert [m.unit_id for m in play.world.monsters] == [12]  # out of reach: the seek step's business
     assert 'Nothing left in reach: 2 down in 6 casts' in play.said
 
 
@@ -240,7 +242,7 @@ def test_attack_mode_fights_what_comes_into_reach_later_and_ignores_the_mouse_an
 
 
 def test_the_players_own_casts_and_teleports_never_end_attack_mode():
-    # Twice on the host the mode ended "you attacked" seconds after KP_3, before any fight, while the
+    # Twice on the host the mode ended "you attacked" seconds after the attack mode toggle, before any fight, while the
     # player only moved toward the monsters (21:17 on 2026-10-09).
     play = game()
 
@@ -317,6 +319,21 @@ def test_a_key_the_player_taps_during_a_fight_leaves_the_strike_held(caplog):
     assert sum(text.startswith('Echoing Strike') for text in play.said) == 1  # one hold through the tap
 
 
+def test_a_step_waiting_for_the_fight_gets_its_turn_when_nothing_is_left_in_reach():
+    # The pickup step during attack mode (runner): the mode goes on striking and pauses itself after the kill.
+    play = game(foe(11, 5010.0, 5004.0))
+    play.toughness[11] = 3
+    hunt = hunter(play)
+    run = play.run()
+    run.actuator.drift, run.actuator.steady = 10**6, False
+    play.arrivals.append((0.05, hunt.after_fight.set))
+    with pytest.raises(Abort, match='cancelled'):
+        hunt.attack_mode(run, keys)
+    assert not run.cancelled.is_set()  # the mode's own pause, not the runner's cancel
+    assert len(play.strikes) == 3  # the monster was killed first
+    assert not hunt.after_fight.is_set()
+
+
 def test_attack_mode_waits_through_town_panels_and_menus():
     play = game(area=109)  # Harrogath
     play.world = replace(play.world, open_panels=('inventory',))
@@ -324,8 +341,8 @@ def test_attack_mode_waits_through_town_panels_and_menus():
     assert play.said == ['Attack mode on']
 
 
-def test_leaving_the_game_ends_attack_mode_so_win_x_in_the_lobby_runs_the_macro_at_once():
-    # user, 2026-10-10: the mode idled on in the lobby (no player: wait) and Win+X there only turned it off.
+def test_leaving_the_game_ends_attack_mode_so_a_macro_request_in_the_lobby_runs_the_macro_at_once():
+    # user, 2026-10-10: the mode idled on in the lobby (no player: wait) and the macro request there only turned it off.
     play = game()
     run = play.run()
     run.actuator.drift, run.actuator.steady = 10**6, False
@@ -380,7 +397,7 @@ def test_the_left_mouse_button_down_is_the_players_move():
     assert play.strikes == []
 
 
-# --- seeking (KP_2) ---
+# --- the seek step ---
 
 
 def test_seeking_hops_onto_a_firing_ring_around_the_nearest_elite_the_game_holds():
@@ -413,6 +430,23 @@ def test_a_firing_spot_a_few_units_away_is_walked_to_not_teleported_to():
     assert play.said[0].startswith('Walking 8 toward the elite 19 (10)')
 
 
+def test_a_walk_click_the_game_swallows_is_made_again():
+    # Host, 19:40 on 2026-10-10: "Walking 7 toward the elite", "the character did not move".
+    play = game(foe(10, 5025.0, 5000.0, CHAMPION))  # the firing ring 8 from the character: a walk
+    real, heard = play.keys.on_event, []
+
+    def deaf_once(event):
+        if event[0] == 'click' and not heard:
+            heard.append(event)
+            return
+        real(event)
+
+    play.keys.on_event = deaf_once
+    hunter(play).seek(play.run(), keys)
+    assert play.pressed() == []
+    assert len(play.walks) == 1  # the second click walked the character
+
+
 def test_a_short_way_over_a_wall_is_still_a_teleport():
     rows = ['.' * 25 + '#' + '.' * 14] * 40  # a wall at world x = 5005
     wall = Walkable(996, 996, 8, 8, pack_cells(''.join('0' if c == '#' else '1' for row in rows for c in row)))
@@ -425,13 +459,26 @@ def test_a_short_way_over_a_wall_is_still_a_teleport():
 
 def test_an_elite_already_in_reach_is_only_named():
     play = game(foe(10, 5008.0, 5000.0, CHAMPION))
-    hunter(play).seek(play.run(), keys)  # no step: the attack mode KP_2 leaves on takes it (runner.py)
+    hunter(play).seek(play.run(), keys)  # no step: the attack mode the seek step leaves on takes it (runner.py)
+    assert play.said == ['the elite 19 (10) is in reach: attack mode takes it']
+    assert play.keys.events == []
+
+
+def test_a_firing_spot_under_the_characters_feet_is_no_walk(monkeypatch):
+    # The run of 18:38 on 2026-10-10: "Walking 1 toward the elite", a click under the feet, "the
+    # character did not move". The shot read blocked from the exact place, clear from 0.6 units beside it.
+    from inventory_tracking.macros import hunt as hunt_module
+
+    play = game(foe(10, 5014.0, 5000.0, CHAMPION))
+    monkeypatch.setattr(hunt_module, 'in_reach', lambda *args: False)
+    monkeypatch.setattr(hunt_module, 'firing_spots', lambda *args: [(5000.5, 5000.3)])
+    hunter(play).seek(play.run(), keys)
     assert play.said == ['the elite 19 (10) is in reach: attack mode takes it']
     assert play.keys.events == []
 
 
 def test_without_an_elite_the_hop_goes_to_the_nearest_unexplored_room():
-    play = game(foe(11, 5020.0, 5000.0))  # a plain monster is not what KP_2 seeks
+    play = game(foe(11, 5020.0, 5000.0))  # a plain monster is not what the seek step seeks
     explored = {(HERE.x, HERE.y, 8, 8), (EAST[0].x, EAST[0].y, 8, 8)}
     hunter(play, explored=explored).seek(play.run(), keys)
 
@@ -498,7 +545,7 @@ def test_a_monster_behind_a_closed_door_is_not_struck_until_the_door_opens():
 
 
 def test_a_line_whose_focal_point_is_off_the_screen_is_aimed_along_as_far_as_the_screen_goes(caplog):
-    # Host, 16:57 on 2026-10-10: after KP_2 five fights in a row stopped "is out of view", attack mode
+    # Host, 16:57 on 2026-10-10: after the seek step five fights in a row stopped "is out of view", attack mode
     # ended and the character stood beside the monsters. The line is what matters: the pointer goes on it.
     play = game(foe(10, 5012.0, 5012.0))  # in reach (17 units), low on the screen
     hunt = hunter(play)
@@ -513,7 +560,7 @@ def test_a_line_whose_focal_point_is_off_the_screen_is_aimed_along_as_far_as_the
 
 
 def test_a_skill_still_on_the_button_after_a_hop_is_waited_out_not_a_stopped_fight(caplog):
-    # Host, 2026-10-10: right after every KP_2 hop the right button still held Teleport for a moment.
+    # Host, 2026-10-10: right after every seek hop the right button still held Teleport for a moment.
     play = game(foe(10, 5008.0, 5000.0), slots=(*HUNT_SLOTS[:13], None, *HUNT_SLOTS[14:]))
     play.world = replace(play.world, player=player(101, right_skill=54))
 
@@ -547,23 +594,31 @@ def test_an_elite_within_the_blades_reach_is_attack_modes_not_a_walk_toward_it()
     assert [unit for unit, _ in play.strikes] == [10]
 
 
+def tough_pack():
+    """Enough monsters around (5008, 5000) for the main weapons: over TOUGH_POINTS of life in reach."""
+    count = int(TOUGH_POINTS / points_of(19, 101)) + 1
+    return [foe(100 + i, 5004.0 + i % 8, 4996.0 + i // 8) for i in range(count)]
+
+
 def test_the_main_weapons_are_taken_for_a_fight_once_the_mode_has_run_a_second():
     # user, 2026-10-10: the main set has the skill levels and the damage; the other one is for teleporting.
     play = game()
-    play.sets.reverse()  # the staff's set in hand, as after KP_4 or KP_2
-    attack_mode(play, hunter(play), until=6.0, events=[(2.0, appear(play, foe(10, 5008.0, 5000.0, CHAMPION)))])
+    play.sets.reverse()  # the staff's set in hand, as after a teleport or seek step
+    attack_mode(play, hunter(play), until=6.0, events=[(2.0, appear(play, *tough_pack()))])
     assert play.pressed()[0] == 'c'  # the swap before anything else
     assert play.pressed().count('c') == 1
     assert play.sets[0] == PREBUFF_SET
     assert 'Main weapons for the fight' in play.said
-    assert [unit for unit, _ in play.strikes] == [10]
+    assert play.strikes
 
 
 def test_a_fight_right_after_a_step_starts_with_what_is_held_and_stops_for_the_main_weapons_a_second_in():
-    # Host, 17:26 on 2026-10-10: a swap after every hop of a chain of KP_2 presses, and the staff back for
+    # Host, 17:26 on 2026-10-10: a swap after every hop of a chain of seek steps, and the staff back for
     # the next one, left the character standing 63% of the frames it had a target.
-    play = game(foe(10, 5008.0, 5000.0, CHAMPION))
-    play.toughness[10] = 1000
+    pack = tough_pack()
+    play = game(*pack)
+    for monster in pack:
+        play.toughness[monster.unit_id] = 1000
     play.sets.reverse()
     attack_mode(play, hunter(play), until=4.0)
     keys_pressed = play.pressed()
@@ -572,7 +627,24 @@ def test_a_fight_right_after_a_step_starts_with_what_is_held_and_stops_for_the_m
     assert play.sets[0] == PREBUFF_SET
     stop = play.said.index(next(text for text in play.said if text.startswith('Stopping for the main weapons')))
     assert play.said.index('Main weapons for the fight') > stop
-    assert play.said.count('Echoing Strike (key 7) at the elite 19 (10), life unknown') == 2  # before and after
+    assert sum(text.startswith('Echoing Strike (key 7)') for text in play.said) == 2  # before and after
+
+
+def test_a_pack_no_longer_tough_when_the_swap_is_due_is_fought_on_without_a_stop():
+    # The run of 18:21 on 2026-10-10: two fights stopped for the main weapons and no swap followed.
+    pack = tough_pack()
+    play = game(*pack)
+    survivor = pack[0].unit_id
+    play.toughness[survivor] = 1000
+    play.sets.reverse()
+
+    def thin_out():
+        play.world = replace(play.world, monsters=tuple(m for m in play.world.monsters if m.unit_id == survivor))
+
+    attack_mode(play, hunter(play), until=4.0, events=[(0.5, thin_out)])
+    assert 'c' not in play.pressed()
+    assert not [text for text in play.said if text.startswith('Stopping for the main weapons')]
+    assert sum(text.startswith('Echoing Strike (key 7)') for text in play.said) == 1
 
 
 def test_a_character_the_macros_do_not_know_keeps_what_it_holds():
@@ -585,22 +657,18 @@ def test_a_character_the_macros_do_not_know_keeps_what_it_holds():
 
 
 def test_a_plain_pack_is_fought_with_what_is_held_and_a_big_one_gets_the_main_weapons():
-    # user, 2026-10-10: the swap to the main weapons only for tougher packs (an elite, or a lot of life).
-    from inventory_tracking.combat.mechanics.tables import points_of
-    from inventory_tracking.macros.hunt import TOUGH_POINTS
-
+    # user, 2026-10-10: the swap to the main weapons only for tougher packs. A lone elite is not one: the
+    # Catacombs packs died within a second or two of the swap (the run of 18:14).
     play = game()
     play.sets.reverse()
-    few = [foe(10 + i, 5006.0 + i, 5000.0) for i in range(3)]
+    few = [foe(10, 5006.0, 5000.0, CHAMPION), *(foe(11 + i, 5007.0 + i, 5000.0) for i in range(2))]
     attack_mode(play, hunter(play), until=6.0, events=[(2.0, appear(play, *few))])
     assert 'c' not in play.pressed()
     assert play.strikes
 
-    count = int(TOUGH_POINTS / points_of(19, 101)) + 1
-    many = [foe(100 + i, 5004.0 + i % 8, 4996.0 + i // 8) for i in range(count)]
     play = game()
     play.sets.reverse()
-    attack_mode(play, hunter(play), until=6.0, events=[(2.0, appear(play, *many))])
+    attack_mode(play, hunter(play), until=6.0, events=[(2.0, appear(play, *tough_pack()))])
     assert play.pressed()[0] == 'c'
 
 

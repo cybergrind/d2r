@@ -15,9 +15,9 @@ def test_tower_entrance_is_found_in_the_outdoor_room_list():
     guidance = handler.guide(snapshot)
 
     assert [(p.label, preset_name(p.room.preset)) for p in guidance.pois] == [
+        ('Forgotten Tower', 'Act 1 - Tower 1'),  # first: the mark the teleport step follows
         ('Exit', 'Act 1 - Wild Border 2'),  # two gaps; the fixture predates Room.leads_to
         ('Exit', 'Act 1 - Wild Border 3'),
-        ('Forgotten Tower', 'Act 1 - Tower 1'),
     ]
     assert guidance.problems == ()
     assert handler.confirmed
@@ -32,8 +32,8 @@ def test_black_marsh_names_its_gaps_once_they_are_seen():
     guidance = handler_for(6).guide(LevelSnapshot(Location(6, 0, 4, 4), rooms))
 
     assert [(p.label, p.kind) for p in guidance.pois] == [
+        ('Forgotten Tower', 'stairs'),
         ('Tamoe Highland', 'stairs'),
         ('Dark Wood', 'previous'),
-        ('Forgotten Tower', 'stairs'),
     ]
     assert guidance.problems == ()
