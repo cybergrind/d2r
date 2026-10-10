@@ -2,6 +2,8 @@
 
 import base64
 import binascii
+import math
+from collections.abc import Iterable
 from dataclasses import dataclass, field
 from functools import lru_cache
 
@@ -71,6 +73,24 @@ def unpack_cells(cells: str, count: int) -> str | None:
     return f'{int.from_bytes(raw, "big"):0{len(raw) * 8}b}'[:count]
 
 
+def pack_masks(values: Iterable[int]) -> str:
+    """Raw u16 collision masks, row by row -> base64 (little-endian u16 each)."""
+    data = b''.join(int(value).to_bytes(2, 'little') for value in values)
+    return base64.b64encode(data).decode() if data else ''
+
+
+@lru_cache(maxsize=4096)
+def unpack_masks(masks: str, count: int) -> tuple[int, ...] | None:
+    """Packed masks -> one u16 per sub-tile; None when absent or not `count` of them."""
+    try:
+        raw = base64.b64decode(masks, validate=True)
+    except binascii.Error, ValueError:
+        return None
+    if not count or len(raw) != count * 2:
+        return None
+    return tuple(int.from_bytes(raw[i : i + 2], 'little') for i in range(0, len(raw), 2))
+
+
 def pack_tiles(tiles: str, width: int) -> str:
     """'1'/'0' per tile, row by row -> packed sub-tiles, each tile filling its 5x5 (old wall library)."""
     rows = (tiles[start : start + width] for start in range(0, len(tiles), width))
@@ -87,6 +107,59 @@ class Walkable:
     width: int
     height: int
     cells: str
+    # Where a missile flies, one bit per sub-tile as `cells` (1 = flies): the block-missile bit of the
+    # collision mask (native/layout.py), since 2026-10-10 (the blades fly over block-walk cells). '' when
+    # unknown (old level maps): callers fall back to `cells` or to nothing, as they say.
+    flight: str = ''
+    # The raw u16 collision masks per sub-tile, row by row (`pack_masks`), when read from the game: research
+    # into the bits (combat/plan.md). '' when unknown (the wall library, old level maps).
+    masks: str = ''
+
+
+class Ground:
+    """Walkability of world points from the loaded rooms' sub-tile grids, indexed by tile (one
+    sub-tile is one world unit). None where no grid covers the point (room not loaded, no walls read)."""
+
+    def __init__(self, grids: Iterable[Walkable]) -> None:
+        self.grids = tuple(grids)
+        self.by_tile = {
+            (x, y): grid
+            for grid in self.grids
+            for x in range(grid.x, grid.x + grid.width)
+            for y in range(grid.y, grid.y + grid.height)
+        }
+
+    def __len__(self) -> int:
+        return len(self.grids)
+
+    def walkable(self, x: float, y: float) -> bool | None:
+        return self._bit(x, y, 'cells')
+
+    def flyable(self, x: float, y: float) -> bool | None:
+        """Whether a missile flies through the sub-tile at a world point; None where no grid covers it
+        or the grid has no flight layer (an old level map)."""
+        return self._bit(x, y, 'flight')
+
+    def _bit(self, x: float, y: float, layer: str) -> bool | None:
+        grid = self.by_tile.get((math.floor(x / TILE_UNITS), math.floor(y / TILE_UNITS)))
+        if grid is None:
+            return None
+        columns, rows = grid.width * TILE_UNITS, grid.height * TILE_UNITS
+        bits = unpack_cells(getattr(grid, layer), columns * rows)
+        if bits is None:
+            return None
+        return bits[int(y - grid.y * TILE_UNITS) * columns + int(x - grid.x * TILE_UNITS)] == '1'
+
+    def mask(self, x: float, y: float) -> int | None:
+        """The raw collision mask of the sub-tile at a world point; None where no grid has masks."""
+        grid = self.by_tile.get((math.floor(x / TILE_UNITS), math.floor(y / TILE_UNITS)))
+        if grid is None:
+            return None
+        columns, rows = grid.width * TILE_UNITS, grid.height * TILE_UNITS
+        values = unpack_masks(grid.masks, columns * rows)
+        if values is None:
+            return None
+        return values[int(y - grid.y * TILE_UNITS) * columns + int(x - grid.x * TILE_UNITS)]
 
 
 @dataclass(frozen=True)
@@ -119,3 +192,25 @@ class Guidance:
 
     pois: tuple[Poi, ...] = ()
     problems: tuple[str, ...] = ()
+
+
+@dataclass(frozen=True)
+class Level:
+    """The current level as the level guide knows it, for a macro that picks its own mark (macros/hunt.py)."""
+
+    area: int
+    rooms: tuple[Room, ...]
+    ground: tuple[Walkable, ...] = ()  # walkable sub-tiles of the loaded rooms, when the walls were read
+
+
+@dataclass(frozen=True)
+class Target:
+    """The level card's first mark, for a macro that moves the character toward it (macros/teleport.py)."""
+
+    area: int
+    rooms: tuple[Room, ...]
+    point: tuple[float, float]  # tiles
+    label: str
+    kind: str
+    warp: bool = False  # the point is the warp tile itself (levels/spots.py): a door to walk into
+    ground: tuple[Walkable, ...] = ()  # walkable sub-tiles of the loaded rooms, when the walls were read

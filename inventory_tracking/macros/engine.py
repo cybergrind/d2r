@@ -11,7 +11,7 @@ from threading import Event
 
 from inventory_tracking.macros.actuator import Abort, Actuator
 from inventory_tracking.macros.timing import Pace
-from inventory_tracking.macros.world import World
+from inventory_tracking.macros.world import Teleport, World
 
 
 POLL = 0.03
@@ -28,6 +28,7 @@ class Run:
         cancelled: Event | None = None,
         say: Callable[[str], None] = lambda text: None,
         hands: Callable[[], tuple[str, ...]] | None = None,
+        teleport: Callable[[], Teleport | None] | None = None,
     ) -> None:
         self.read = read
         self.actuator = actuator
@@ -37,7 +38,9 @@ class Run:
         self.say = say
         self.keys: dict[int, str] = {}
         self.hands = hands  # base codes of the weapon set in hand (world.GameMemory.hands)
+        self.teleport = teleport  # the worn Teleport staff (world.GameMemory.teleport)
         self.prebuff_hands: frozenset[str] = frozenset()  # the set the buffs are cast with
+        self.battle_hands: frozenset[str] = frozenset()  # the main set: fought with, and held when a game is left
         self.research: Callable[[int], list[str]] | None = None  # world.GameMemory.hover_candidates
         # (level before this one, seconds since it was left), journey.Journey.arrival
         self.arrival: Callable[[], tuple[int | None, float]] | None = None

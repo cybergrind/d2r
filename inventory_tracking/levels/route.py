@@ -68,6 +68,28 @@ def pull_tight(rooms: Sequence[Room], points: list[Point], reach: float = REACH)
     return tight
 
 
+def shortest(nodes: list[Room], source: Room, points: dict[Room, Point], reach: float) -> tuple[dict, dict]:
+    """Dijkstra from `source` over instances within `reach` of each other, between their `points`:
+    (cost per reached instance, the instance before each)."""
+    cost = {source: 0.0}
+    previous: dict[Room, Room | None] = {source: None}
+    queue = [(0.0, 0, source)]
+    tie = 1  # rooms don't order; break equal costs by insertion
+    while queue:
+        here_cost, _, here = heapq.heappop(queue)
+        if here_cost > cost[here]:
+            continue
+        for there in nodes:
+            if there == here or gap(here, there) > reach:
+                continue
+            there_cost = here_cost + math.dist(points[here], points[there])
+            if there_cost < cost.get(there, math.inf):
+                cost[there], previous[there] = there_cost, here
+                heapq.heappush(queue, (there_cost, tie, there))
+                tie += 1
+    return cost, previous
+
+
 def route(rooms: Iterable[Room], tile: Point, goal: Point, reach: float = REACH) -> list[Point] | None:
     """Teleport hops from `tile` to `goal` (both in tiles): the points to draw, or None off the rooms."""
     rooms = list(rooms)
@@ -79,27 +101,12 @@ def route(rooms: Iterable[Room], tile: Point, goal: Point, reach: float = REACH)
         return [tile, goal]
     points = {node: centre(node) for node in nodes}
     points[start], points[end] = tile, goal
-    cost = {start: 0.0}
-    previous: dict[Room, Room | None] = {start: None}
-    queue = [(0.0, 0, start)]
-    tie = 1  # rooms don't order; break equal costs by insertion
-    while queue:
-        here_cost, _, here = heapq.heappop(queue)
-        if here == end:
-            path = []
-            step: Room | None = here
-            while step is not None:
-                path.append(points[step])
-                step = previous[step]
-            return pull_tight(rooms, path[::-1], reach)
-        if here_cost > cost[here]:
-            continue
-        for there in nodes:
-            if there == here or gap(here, there) > reach:
-                continue
-            there_cost = here_cost + math.dist(points[here], points[there])
-            if there_cost < cost.get(there, math.inf):
-                cost[there], previous[there] = there_cost, here
-                heapq.heappush(queue, (there_cost, tie, there))
-                tie += 1
-    return None
+    previous = shortest(nodes, start, points, reach)[1]
+    if end not in previous:
+        return None
+    path = []
+    step: Room | None = end
+    while step is not None:
+        path.append(points[step])
+        step = previous[step]
+    return pull_tight(rooms, path[::-1], reach)

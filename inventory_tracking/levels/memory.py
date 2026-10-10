@@ -4,8 +4,9 @@ import contextlib
 import os
 import struct
 
-from inventory_tracking.levels.model import Location, Room, Walkable, pack_cells
+from inventory_tracking.levels.model import Location, Room, Walkable, pack_cells, pack_masks
 from inventory_tracking.native.layout import (
+    COLLISION_BLOCK_MISSILE,
     COLLISION_BLOCK_WALK,
     COLLISION_BOUNDS,
     COLLISION_MASK,
@@ -134,7 +135,8 @@ def tiles_from_mask(x, y, w, h, mask) -> Walkable:
     such as most of a Lower Kurast hut.
     """
     cells = pack_cells(''.join('0' if value & COLLISION_BLOCK_WALK else '1' for value in mask))
-    return Walkable(x // 5, y // 5, w // 5, h // 5, cells)
+    flight = pack_cells(''.join('0' if value & COLLISION_BLOCK_MISSILE else '1' for value in mask))
+    return Walkable(x // 5, y // 5, w // 5, h // 5, cells, flight, pack_masks(mask))
 
 
 def loaded_walkable(read, room1, level, *, max_rooms=MAX_LOADED) -> list[Walkable]:

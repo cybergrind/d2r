@@ -3,20 +3,22 @@
 // the player's own logged-in browser. This is the only trade record Traderie has: listing asks and the
 // `completed` listing flag are not sales (completed listings include ones that expired, 2026-10-09 check).
 //
-//   node pricing/tools/traderie_trades.mjs <product slug>... [--port 8333] [--out DIR] [--wait 15]
+//   node pricing/tools/traderie_trades.mjs <product slug or catalog id>... [--port 8333] [--out DIR] [--wait 15] [--skip-existing]
 //
 // Each slug (Traderie product URL name: kris, legend-spike, bone-wand, harlequin-crest…) loads
 //   https://traderie.com/diablo2resurrected/product/<slug>/recent?prop_Mode=softcore&prop_Ladder=false&prop_Game version=reign of the warlock
 // in a hidden background target: no tab in the tab strip, no focus change, closed afterwards. Only the
 // offers and price-history answers the page requests are saved, as DIR/<slug>.json; the page's other
-// requests (account, notifications) are discarded. Slugs are loaded --wait seconds apart (default 15).
+// requests (account, notifications) are discarded. Slugs are loaded --wait seconds apart (default 15);
+// --skip-existing leaves products whose DIR/<slug>.json already exists alone (resume a long run).
 // The site returns the 20 newest trades per page. Summarise with pricing/tools/traderie_trades.py.
-import { writeFileSync, mkdirSync } from 'node:fs';
+import { writeFileSync, mkdirSync, existsSync } from 'node:fs';
 const args = process.argv.slice(2);
 const option = (name, fallback) => (args.includes(name) ? args[args.indexOf(name) + 1] : fallback);
 const port = option('--port', '8333');
 const outDir = option('--out', `pricing/raw/traderie/recent-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}`);
 const wait = Number(option('--wait', '15')) * 1000;
+const skipExisting = args.includes('--skip-existing');
 const slugs = args.filter((a, i) => !a.startsWith('--') && !['--port', '--out', '--wait'].includes(args[i - 1]));
 if (!slugs.length) { console.error('usage: traderie_trades.mjs <slug>... [--port 8333] [--out DIR] [--wait 15]'); process.exit(2); }
 const KEEP = /\/api\/diablo2resurrected\/(offers\?|items\/prices\?)/;
@@ -38,6 +40,7 @@ ws.addEventListener('message', async event => {
   }
 });
 for (const [i, slug] of slugs.entries()) {
+  if (skipExisting && existsSync(`${outDir}/${slug}.json`)) continue;
   bodies = [];
   const url = `https://traderie.com/diablo2resurrected/product/${slug}/recent?prop_Mode=softcore&prop_Ladder=false&prop_Game%20version=reign%20of%20the%20warlock`;
   const created = await send('Target.createTarget', { url: 'about:blank', hidden: true, background: true });

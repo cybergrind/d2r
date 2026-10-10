@@ -36,12 +36,12 @@ from inventory_tracking.common import LOG
 from inventory_tracking.levels.evidence import evidence_record
 from inventory_tracking.levels.exits import guide_level
 from inventory_tracking.levels.geometry import Pointer, pointer
-from inventory_tracking.levels.level_map import build_map
+from inventory_tracking.levels.level_map import build_map, centre
 from inventory_tracking.levels.memory import observe_level
-from inventory_tracking.levels.model import Guidance, LevelSnapshot, Location
+from inventory_tracking.levels.model import Guidance, Level, LevelSnapshot, Location, Target
 from inventory_tracking.levels.registry import handler_for
 from inventory_tracking.levels.session import LevelMemory, layout_key
-from inventory_tracking.levels.spots import on_waypoint, pinpoint
+from inventory_tracking.levels.spots import WAYS_OUT, on_waypoint, pinpoint
 from inventory_tracking.osd.level_map import KIND_TONES
 from inventory_tracking.presentation import StyledLine, Tone
 
@@ -321,6 +321,36 @@ class LevelGuide:
             whole=self.whole,
         )
         return [*pointer_lines([pointer(poi, location) for poi in pois]), card]
+
+    def target(self) -> Target | None:
+        """The shown card's first mark, the one the first arrow line points at (Win+T, macros/teleport.py).
+        None with no card up or nothing marked. Read from the macro's thread: one reference, no lock."""
+        shown = self.shown
+        if shown is None or not shown[1]:
+            return None
+        snapshot, pois = shown
+        poi = on_waypoint(pois[0], self.waypoints)
+        warp = poi.kind in WAYS_OUT and poi.spot is not None
+        point = poi.spot or centre(poi.room)
+        return Target(snapshot.location.area_id, snapshot.rooms, point, poi.label, poi.kind, warp, self._ground())
+
+    def level(self) -> Level | None:
+        """The shown card's level: its rooms and the walls read so far, for a macro that chooses its own
+        mark (KP_2/KP_3, macros/hunt.py). None with no card up. Read from the macro's thread."""
+        shown = self.shown
+        if shown is None:
+            return None
+        snapshot, _ = shown
+        return Level(snapshot.location.area_id, snapshot.rooms, self._ground())
+
+    def _ground(self) -> tuple:
+        """The walkable grids read so far, copied while the service thread may add to them."""
+        for _ in range(3):
+            try:
+                return tuple(self.walls.values())
+            except RuntimeError:  # changed size during iteration
+                continue
+        return ()
 
     def dismiss(self):
         self.visible, self.pinned = None, False

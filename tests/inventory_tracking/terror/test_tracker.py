@@ -729,3 +729,17 @@ def test_the_players_own_curse_marks_the_packs_around_it():
     tracker.bands.clear()
 
     assert [dot.kind for dot in tracker.map_dots(7)] == ['mob'] * 7
+
+
+def test_remembered_hostiles_of_an_area_say_which_are_leaders_and_leave_allies_out():
+    tracker = ZoneTracker()
+    tracker.apply([
+        at(seen(1, 6, data_hex=CHAMPION_DATA), 5000, 5010),
+        at(seen(2, 6, data_hex=PLAIN_DATA), 5020, 5030),
+        at(seen(3, 6, stats=[(172, 2)], data_hex=PLAIN_DATA), 5001, 5001),  # the mercenary
+        at(seen(4, 11, data_hex=PLAIN_DATA), 100, 100),  # another level
+    ])  # fmt: skip
+    tracker.apply([died(2, 6)])
+
+    assert tracker.remembered(6) == [(1, 5000.0, 5010.0, True)]
+    assert tracker.remembered(11) == [(4, 100.0, 100.0, False)]

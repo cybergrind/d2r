@@ -62,10 +62,12 @@ def test_worthwhile_bases_are_shown_and_evidence_free_low_bases_are_hidden(built
     [bverrit] = [r['base_codes'] for r in metadata()['identities']['unique'].values() if r['name'] == 'Bverrit Keep']
     assert not set(bverrit) & set(unique_armor['equipmentItemCode'])  # Tower Shield: nothing in the KB wants it
     assert 'rin' not in unique_armor['equipmentItemCode']  # accessories stay with the accessories rule
-    assert names['unique']['hidden']['Bverrit Keep'].startswith('Normal base')
+    assert names['unique']['hidden']['Bverrit Keep'].startswith('1 trades in 30 days, median 0.79 Ist')  # trade record
+    assert names['trades']['items_covered'] > 500
     assert names['unique']['shown']["Blackhorn's Face"] == 'shares its base with a shown item'  # Hellwarden's Will
-    assert 'asks' in names['unique']['shown']['Harlequin Crest']
-    assert 'uar' in rule(profile, 'SHOW Set ARMOR')['equipmentItemCode']  # Sacred Armor: IK Soul Cage, elite
+    assert 'trades in 30 days' in names['unique']['shown']['Harlequin Crest']
+    assert 'uar' not in rule(profile, 'SHOW Set ARMOR')['equipmentItemCode']  # IK Soul Cage sells for two gems
+    assert names['set']['hidden']["Immortal King's Soul Cage"].startswith('20 trades in 30 days, median 0.12 Ist')
 
 
 def test_evidence_names_every_reason():
@@ -84,7 +86,46 @@ def test_evidence_names_every_reason():
     assert reasons['Harlequin Crest'] == [
         'asks 2.58 Ist (2026-09-18)',
         'named by 2 maxroll build guide(s)',
-        'in a maxroll planner loadout',
         'elite base',
+        'in a maxroll planner loadout',
     ]
     assert reasons['The Gnasher'] == []
+
+
+def test_trade_record_replaces_asks_demand_and_elite_guarantee_but_not_self_use():
+    sources = {
+        'asks': {
+            'date': '2026-09-18',
+            'bases': {
+                '1': {'code': 'urn', 'uniques': [{'id': 1, 'name': 'Crown of Ages', 'high': 1027.0}], 'sets': []}
+            },
+        },
+        'demand': {'Crown of Ages': {'a'}, 'Stormlash': {'b'}},
+        'builds': set(),
+        'recommended': {'Tarnhelm', 'Bloodfist'},
+        'owned': {'Bloodfist'},
+        'trades': {
+            'Crown of Ages': {'last_30d': 1, 'median_ist': 400.0, 'date': '2026-10-09'},  # too few sales
+            'Stormlash': {'last_30d': 0, 'median_ist': None, 'date': '2026-10-09'},  # elite, never trades
+            'Tarnhelm': {'last_30d': 0, 'median_ist': None, 'date': '2026-10-09'},
+            'Bloodfist': {
+                'last_30d': 20,
+                'median_ist': 0.13,
+                'date': '2026-10-09',
+            },  # leveling piece, owned, sells for a gem
+            'The Gnasher': {'last_30d': 4, 'median_ist': 0.12, 'date': '2026-10-09'},  # sells, for nothing
+            'Nagelring': {'last_30d': 9, 'median_ist': 0.79, 'date': '2026-10-09'},
+            'Cranebeak': {'last_30d': 1, 'last_90d': 3, 'median_ist': 3.66, 'date': '2026-10-09'},  # slow but dear
+        },
+    }
+    reasons = evidence('unique', sources)
+    assert reasons['Crown of Ages'] == []
+    assert reasons['Stormlash'] == []
+    assert reasons['Tarnhelm'] == ['leveling recommendation, not owned yet']
+    assert reasons['Bloodfist'] == []
+    assert reasons['The Gnasher'] == []
+    assert reasons['Nagelring'] == ['9 trades in 30 days, median 0.79 Ist (Traderie Recent Trades 2026-10-09)']
+    assert reasons['Cranebeak'] == [
+        'slow but dear: 3 trades in 90 days, median 3.66 Ist (Traderie Recent Trades 2026-10-09)'
+    ]
+    assert reasons['Bverrit Keep'] == []  # not covered by the trade record: the old rules, which find nothing

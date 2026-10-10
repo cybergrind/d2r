@@ -6,14 +6,30 @@ from dataclasses import replace
 
 from inventory_tracking.macros.actuator import Actuator
 from inventory_tracking.macros.engine import Run
-from inventory_tracking.macros.skills import CONSUME, HEX_PURGE, PSYCHIC_WARD, SUMMON_DEFILER, SWAP_WEAPONS
+from inventory_tracking.macros.skills import (
+    CONSUME,
+    DEATH_MARK,
+    ECHOING_STRIKE,
+    HEX_PURGE,
+    PSYCHIC_WARD,
+    SIGIL_LETHARGY,
+    SUMMON_DEFILER,
+    SWAP_WEAPONS,
+    TELEPORT,
+)
 from inventory_tracking.macros.timing import Pace
-from inventory_tracking.macros.world import Monster, Player, World
+from inventory_tracking.macros.world import Monster, Player, Teleport, World
 
 
-KEYS = {SUMMON_DEFILER: 'q', CONSUME: '6', HEX_PURGE: 'g', PSYCHIC_WARD: 'r', SWAP_WEAPONS: 'c'}
+KEYS = {SUMMON_DEFILER: 'q', CONSUME: '6', HEX_PURGE: 'g', PSYCHIC_WARD: 'r', SWAP_WEAPONS: 'c', TELEPORT: 't'}
+KEYS[SIGIL_LETHARGY] = 'Button9'  # mouse 5, as CybergrindAA's key file
+KEYS[ECHOING_STRIKE] = '7'  # bound by the user on 2026-10-09 so Quick Cast aims it with the pointer
+KEYS[DEATH_MARK] = 'd'
+STRIKE_RANGE = 4.0  # world units: a monster this near the blades' line to the pointer is struck
+ACTING_SECONDS = 0.3  # the cast animation
 PREBUFF_SET, OTHER_SET = ('fla', 'uit'), ('6cs', 'wa3')  # Heart of the Oak + Spirit; Naj's Puzzler + Codex
 SLOTS = (379, 390, 375, 384, 389, 220, 393, 377, None, 382, 387, 54, 381, None, None, None)
+HUNT_SLOTS = (*SLOTS[:13], ECHOING_STRIKE, *SLOTS[14:])  # with Echoing Strike on a key, as since 2026-10-09
 WINDOW = (1920, 0, 2560, 1418)
 
 
@@ -23,9 +39,12 @@ class FakeConnection:
     def __init__(self):
         self.events = []
         self.down = []
+        self.buttons_down = set()
+        self.hold_serial = 0  # counts presses of keys and buttons: a game casting once per press looks at it
         self.held = False
         self.at = (2500, 900)
         self.names = {}
+        self.shift = False  # Shift was down at the last left click
         self.on_event = lambda event: None
 
     def keycodes(self, names):
@@ -55,6 +74,9 @@ class FakeConnection:
     def pointer(self):
         return self.at
 
+    def pointer_state(self):
+        return (*self.at, 0)
+
     def move_pointer(self, x, y):
         self.at = (x, y)
         return True
@@ -65,7 +87,11 @@ class FakeConnection:
 
     def press(self, code):
         self.down.append(code)
+        self.hold_serial += 1
         return True
+
+    def down_names(self):
+        return {name for name, value in self.names.items() if value in self.down}
 
     def release(self, code):
         if code in self.down:
@@ -74,8 +100,16 @@ class FakeConnection:
         return True
 
     def button(self, button, down):
-        if not down:
-            self._emit(('click', self.fraction()))
+        """A release is ('click', window fraction) for the left button, ('button', n, fraction, held
+        key names) for any other; `shift` says whether Shift was down for the left click."""
+        if down:
+            self.buttons_down.add(button)
+            self.hold_serial += 1
+            return True
+        self.buttons_down.discard(button)
+        names = tuple(name for name, value in self.names.items() if value in self.down)
+        self.shift = 'Shift_L' in names
+        self._emit(('click', self.fraction()) if button == 1 else ('button', button, self.fraction(), names))
         return True
 
     def sync(self):
@@ -129,6 +163,20 @@ class Game:
         self.loaded = 0.0  # when the game came up
         self.blocked = lambda x, y: False  # window fractions where a summon cannot stand
         self.deaf_clicks = 0  # clicks the lobby ignores while it is still coming up
+        self.staff: Teleport | None = None  # the worn Teleport staff; None: Teleport as a skill, if in a slot
+        self.door: tuple[float, float] | None = None  # a warp, in tiles: a click near it walks the character in
+        self.door_above = 0.0  # classic pixels (600 high) the door is clicked above its tile; 0: on the ground
+        self.next_area = 110
+        self.sigils = []  # ground points Sigil: Lethargy was cast at
+        self.strikes = []  # (unit id or None, ground point) per Shift+click
+        self.toughness = {}  # unit id -> strikes it survives (default: dies to the first)
+        self.acting_until = None  # the cast animation: the player's mode is 7 until then
+        self.arrivals = []  # (clock time, callable): what happens in the game on its own, in time order
+        self.marks = []  # unit ids Death Mark was cast on (the monster nearest the pointer), or None
+        self.walks = []  # ground points clicked in a game: the character walks there at once
+        self.repeats = True  # a held skill input casts again and again (the game); False: once per press
+        self.struck_hold = None  # the press the last cast came from (hold_serial)
+        self.reading = False
 
     def react(self, event):
         self.read()
@@ -151,6 +199,19 @@ class Game:
                         self.world = replace(w, game_name=name + key)
             elif key == 'c':
                 self.sets.reverse()
+                if self.staff is not None:
+                    self.staff = replace(self.staff, in_hand=not self.staff.in_hand)
+            elif key == 't':
+                charged = self.staff is not None and self.staff.in_hand and self.staff.charges > 0
+                if charged or (self.staff is None and 54 in w.slots):
+                    x, y = self.ground_under_pointer()
+                    self.world = replace(w, player=replace(w.player, x=x, y=y))
+                    if self.staff is not None:
+                        self.staff = replace(self.staff, charges=self.staff.charges - 1)
+            elif key == 'd' and DEATH_MARK in w.slots:
+                x, y = self.under_pointer()
+                foes = [m for m in w.monsters if m.txt_id not in (744, 700) and math.hypot(m.x - x, m.y - y) < 4]
+                self.marks.append(min(foes, key=lambda m: math.hypot(m.x - x, m.y - y)).unit_id if foes else None)
             elif key == 'Escape':
                 panels = () if w.open_panels else ('quit_menu',)
                 self.world = replace(w, open_panels=panels)
@@ -172,6 +233,16 @@ class Game:
                 if hit is not None:
                     left = tuple(m for m in w.monsters if m.unit_id != hit)
                     self.world = replace(w, monsters=left, player=replace(w.player, consume=True))
+        elif event[0] == 'button' and event[1] == 9 and w.in_game:
+            self.sigils.append(self.ground_under_pointer())
+        elif event[0] == 'held':  # a skill input down while the character is free: the game casts it
+            if event[1] in ('7', 'Button3') or w.player.left_skill == ECHOING_STRIKE:
+                self.strike()
+            else:  # the plain attack, in place: an animation and nothing hit (host, 20:07 on 2026-10-09)
+                self.world = replace(w, player=replace(w.player, mode=7))
+                self.acting_until = self.clock.now + ACTING_SECONDS
+        elif event[0] == 'click' and w.in_game and self.keys.shift:
+            pass
         elif event[0] == 'click':
             x, y = event[1]
             if w.quit_menu and abs(x - 0.5) < 0.08 and abs(y - 0.438) < 0.02:
@@ -181,6 +252,54 @@ class Game:
                     self.deaf_clicks -= 1
                 else:
                     self.field_focused = True
+            elif w.in_game:
+                gx, gy = self.ground_under_pointer()
+                door = None if self.door is None else (self.door[0] * 5, self.door[1] * 5)
+                lift = self.door_above / 16  # a pixel down the screen is 1/16 of a unit along both axes
+                if (
+                    door
+                    and math.dist((gx + lift, gy + lift), door) < 5
+                    and math.dist((w.player.x, w.player.y), door) < 30
+                ):
+                    self.world = replace(w, player=replace(w.player, area=self.next_area, x=door[0], y=door[1]))
+                elif math.dist((gx, gy), (w.player.x, w.player.y)) < 40:  # a click on the ground: a walk there
+                    self.walks.append((gx, gy))
+                    self.world = replace(w, player=replace(w.player, x=gx, y=gy))
+
+    def held_input(self):
+        """The Echoing Strike input held right now, as `react` names it, or None."""
+        w, keys = self.world, self.keys
+        if '7' in keys.down_names() and ECHOING_STRIKE in w.slots:
+            return '7'
+        if 3 in keys.buttons_down and w.player.right_skill == ECHOING_STRIKE:
+            return 'Button3'
+        if 1 in keys.buttons_down and 'Shift_L' in keys.down_names():
+            return 'Shift+click'
+        return None
+
+    def strike(self):
+        """Echoing Strike toward the pointer: the blades fly from the character to the ground under it
+        and meet there; the hostile nearest their line, within STRIKE_RANGE of it, takes a hit."""
+        w = self.world
+        x, y = self.ground_under_pointer()
+        p = (w.player.x, w.player.y)
+
+        def off_line(m):
+            length = math.dist(p, (x, y)) or 1.0
+            t = max(0.0, min(1.0, ((m.x - p[0]) * (x - p[0]) + (m.y - p[1]) * (y - p[1])) / length**2))
+            return math.dist((m.x, m.y), (p[0] + (x - p[0]) * t, p[1] + (y - p[1]) * t))
+
+        foes = [m for m in w.monsters if m.txt_id not in (744, 700) and off_line(m) < STRIKE_RANGE]
+        hit = min(foes, key=off_line) if foes else None
+        self.strikes.append((hit.unit_id if hit else None, (x, y)))
+        monsters = w.monsters
+        if hit is not None:
+            left = self.toughness.get(hit.unit_id, 1) - 1
+            self.toughness[hit.unit_id] = left
+            if left <= 0:
+                monsters = tuple(m for m in monsters if m.unit_id != hit.unit_id)
+        self.world = replace(w, monsters=monsters, player=replace(w.player, mode=7))
+        self.acting_until = self.clock.now + ACTING_SECONDS
 
     def under_pointer(self):
         """World position drawn under the pointer (the inverse of routines.screen_fraction)."""
@@ -188,6 +307,15 @@ class Game:
         aspect = WINDOW[2] / WINDOW[3]
         a = (fx - 0.5) * aspect * 600 / 16
         b = (fy - 0.494 + 0.035) * 600 / 8
+        p = self.world.player
+        return p.x + (a + b) / 2, p.y + (b - a) / 2
+
+    def ground_under_pointer(self):
+        """World position of the ground under the pointer (the inverse of teleport.ground_fraction)."""
+        fx, fy = self.keys.fraction()
+        aspect = WINDOW[2] / WINDOW[3]
+        a = (fx - 0.5) * aspect * 600 / 16
+        b = (fy - 0.494) * 600 / 8
         p = self.world.player
         return p.x + (a + b) / 2, p.y + (b - a) / 2
 
@@ -211,15 +339,31 @@ class Game:
             clock=self.clock,
             say=self.said.append,
             hands=lambda: self.sets[0],
+            teleport=lambda: self.staff,
         )
         run.keys = dict(KEYS)
         run.prebuff_hands = frozenset(PREBUFF_SET)
+        run.battle_hands = frozenset(PREBUFF_SET)
         return run
 
     def read(self):
         if self.loaded_at is not None and self.clock.now >= self.loaded_at:
             self.deaf, self.loaded, self.loaded_at = False, self.loaded_at, None
             self.world = replace(self.world, view=254)
+        while self.arrivals and self.clock.now >= self.arrivals[0][0]:
+            self.arrivals.pop(0)[1]()
+        if self.acting_until is not None and self.clock.now >= self.acting_until:
+            self.acting_until = None  # one neutral frame between casts
+            self.world = replace(self.world, player=replace(self.world.player, mode=5))
+        elif self.acting_until is None and self.world.in_game and not self.deaf and not self.reading:
+            held = self.held_input()
+            if held and (self.repeats or self.struck_hold != self.keys.hold_serial):
+                self.struck_hold = self.keys.hold_serial
+                self.reading = True
+                try:
+                    self.keys.on_event(('held', held))
+                finally:
+                    self.reading = False
         return self.world
 
     def pressed(self):

@@ -1,3 +1,4 @@
+import json
 from unittest.mock import patch
 
 import pytest
@@ -128,3 +129,40 @@ def test_game_image_not_found_yet_is_retried_as_not_ready(tmp_path, images):
         pytest.raises(GameNotReady, match='game image unavailable'),
     ):
         reader.connect(tmp_path)
+
+
+def test_the_unit_table_is_remembered_per_build_and_taken_from_the_cache_in_the_menus(tmp_path):
+    # user, 2026-10-10: `make serve` restarted in the lobby never attached (the signature's code page is
+    # still encrypted there), so Win+X did nothing. The table's RVA is a constant of the build.
+    from inventory_tracking.native.session import GameNotReady
+
+    cache = tmp_path / 'unit-table.json'
+    captured = {
+        'status': 'captured', 'base': 0x1000, 'sha256': 'of this memory image', 'identity': {'pid': 12},
+        'unit_table_candidates': [{'signature_address': 0x1234, 'table_rva': 0x500, 'table_address': 0x1500}],
+    }  # fmt: skip
+    in_menus = dict(captured, base=0x7000, sha256='of another image', unit_table_candidates=[])
+    patches = (
+        patch('inventory_tracking.tracking.reader.select_game_process', return_value=12),
+        patch(
+            'inventory_tracking.tracking.reader.inspect_game',
+            return_value={'memory_access': True, 'executable_fingerprint': {'sha256': 'supported'}, 'identity': {}},
+        ),
+        patch('inventory_tracking.tracking.reader.SUPPORTED_SHA256', 'supported'),
+        patch('inventory_tracking.tracking.reader.inspect_images', return_value={'status': 'candidate'}),
+    )
+    with patches[0], patches[1], patches[2], patches[3]:
+        with patch('inventory_tracking.tracking.reader.capture_image', return_value=dict(captured)):
+            LiveReader(tmp_path / 'run1', table_cache=cache).connect(tmp_path)
+        assert json.loads(cache.read_text()) == {'supported': {'table_rva': 0x500, 'signature_rva': 0x234}}
+        with patch('inventory_tracking.tracking.reader.capture_image', return_value=dict(in_menus)):
+            _, _, capture = LiveReader(tmp_path / 'run2', table_cache=cache).connect(tmp_path)
+        assert capture['unit_table_candidates'] == [
+            {'signature_address': 0x7234, 'table_rva': 0x500, 'table_address': 0x7500}
+        ]
+        cache.write_text(json.dumps({'an older build': {'table_rva': 0x900, 'signature_rva': 0x1}}))
+        with (
+            patch('inventory_tracking.tracking.reader.capture_image', return_value=dict(in_menus)),
+            pytest.raises(GameNotReady, match='unit table unavailable'),
+        ):
+            LiveReader(tmp_path / 'run3', table_cache=cache).connect(tmp_path)

@@ -78,6 +78,17 @@ def strip(path, document):
     Path(path).write_text(json.dumps(document, indent=1))
 
 
+def item_name(document):
+    """The traded item's name as the offers record it (named items have no rarity property)."""
+    for answer in document['api']:
+        if '/offers?' in answer['url'] and answer['body']:
+            for offer in json.loads(answer['body'], strict=False).get('offers', []):
+                item = (offer.get('listing') or {}).get('item') or {}
+                if isinstance(item, dict) and item.get('name'):
+                    return item['name']
+    return None
+
+
 def trades(document, now):
     offers = {}
     for answer in document['api']:
@@ -95,7 +106,7 @@ def trades(document, now):
                 'days_ago': (now - closed).days,
                 'paid': paid,
                 'paid_text': paid_text,
-                'rarity': props.get(RARITY),
+                'rarity': props.get(RARITY) or 'named',
                 'sockets': props.get(SOCKETS),
                 'eth': props.get(ETHEREAL),
                 'mods': {label(k): v for k, v in props.items() if k in STAFFMOD_IDS or k == WARLOCK_SKILLS},
@@ -112,7 +123,7 @@ def report(name, rows):
     rarities = dict(collections.Counter(r['rarity'] for r in rows))
     rate = f'~{len(rows) / span:.1f}/day'
     print(f'== {name}: {len(rows)} trades (newest page), oldest {rows[-1]["when"]} → {rate}; {rarities}')
-    for rarity in ('normal', 'superior', 'magic', 'rare', 'unique', 'set'):
+    for rarity in ('normal', 'superior', 'magic', 'rare', 'unique', 'set', 'named'):
         sub = [r for r in rows if r['rarity'] == rarity]
         if not sub:
             continue
@@ -134,7 +145,7 @@ def main(paths):
     for path in paths or sorted(glob.glob('pricing/raw/traderie/recent-*/*.json')):
         document = load_json(path)
         strip(path, document)
-        report(Path(path).stem, trades(document, now))
+        report(item_name(document) or Path(path).stem, trades(document, now))
 
 
 if __name__ == '__main__':

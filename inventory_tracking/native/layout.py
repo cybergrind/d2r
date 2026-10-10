@@ -103,6 +103,11 @@ ROOM1_COLLISION = 0x38
 COLLISION_BOUNDS = 0x00
 COLLISION_MASK = 0x20
 COLLISION_BLOCK_WALK = 0x0001
+# Stops a missile (D2MOO COLLIDE_BLOCK_MISSILE). Empirical, Catacombs takes of 2026-10-10 11:44 UTC
+# (combat/plan.md): the recorded blades crossed 931 cells of 0x0001 alone 148 times and the 26.8k
+# cells with 0x0004 set 26 times (7 at door units whose state had changed since the masks were read).
+COLLISION_BLOCK_MISSILE = 0x0004
+COLLISION_DOOR = 0x0800  # a door unit stands on the cell (D2MOO COLLIDE_DOOR)
 
 # Preset object behind each Room2 preset record. Confirmed 2026-09-30 across 10 Win+C dumps
 # (Arcane, Tower Cellar 1, Halls of Pain, Halls of Vaught): record +0x08 points at an object

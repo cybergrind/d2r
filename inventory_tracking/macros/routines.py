@@ -11,6 +11,8 @@ Defiler out, then Hex: Purge and Psychic Ward.
 
 import math
 import os
+from collections.abc import Callable
+from dataclasses import dataclass
 
 from inventory_tracking.common import LOG
 from inventory_tracking.macros.actuator import Abort
@@ -53,10 +55,26 @@ PANDEMONIUM_FORTRESS = 103
 ACT_3 = range(75, 103)
 ARRIVAL_SECONDS = 180.0
 SKILLS = (SUMMON_DEFILER, CONSUME, HEX_PURGE, PSYCHIC_WARD, SWAP_WEAPONS)
-# Character -> base codes of the weapon set the buffs are cast with. CybergrindAA: Heart of the
-# Oak (Flail) and Spirit (Monarch), not the Naj's Puzzler set (user, 2026-10-06; codes from the
-# collection capture of the equipped items).
-CHARACTERS = {'CybergrindAA': frozenset(('fla', 'uit'))}
+
+
+@dataclass(frozen=True)
+class Loadout:
+    """A character's weapon sets by what they are for, as base codes of what is held."""
+
+    prebuff: frozenset[str]  # the set the buffs are cast with
+    battle: frozenset[str]  # the main set: the one to fight with, and to leave a game with
+
+
+# CybergrindAA: Heart of the Oak (Flail) and Spirit (Monarch) for both; the other set holds Naj's Puzzler,
+# worn for its Teleport charges only (user, 2026-10-06; codes from the collection capture of the equipped
+# items). The two differ once Teleport comes from Enigma and the other set is the prebuff one (user,
+# 2026-10-10): what casts Teleport is read from the game (teleport.take_teleport: a worn staff with
+# charges, else the skill), so only this table changes then.
+SWAP_TRIES = 3  # presses of Swap Weapons before the swap is given up
+SWAP_SETTLE = 0.2  # seconds the character stands free before the first press of a swap
+SWAP_WAIT = 0.5  # seconds a swap is given to show before the key is pressed again
+HEART_OF_THE_OAK = frozenset(('fla', 'uit'))
+CHARACTERS = {'CybergrindAA': Loadout(prebuff=HEART_OF_THE_OAK, battle=HEART_OF_THE_OAK)}
 
 # Window fractions. The screenshots (2000 x 1125) show the whole 2560 x 1440 output, whose top
 # 22 pixels are the desktop bar, not the game window: y = (shot_y * 1.28 - 22) / 1418. Taking
@@ -128,6 +146,9 @@ def press_skill(run: Run, skill: int) -> None:
     if ready.player is not None and ready.player.mode in DEAD:
         raise Abort('the character is dead')
     run.say(NAMES[skill])
+    LOG.info(
+        'Macro: %s on %s, player mode %s', NAMES[skill], run.keys[skill], ready.player.mode if ready.player else None
+    )
     run.actuator.tap(run.keys[skill])
 
 
@@ -361,33 +382,79 @@ class LoadTrace:
         )
 
 
-def take_prebuff_weapons(run: Run, *, until: float | None = None) -> None:
-    """Have the set the buffs are cast with in hand (user, 2026-10-06), swapping if the other
-    one is. The set is left in hand afterwards. `until` as in `summon_defiler`."""
-    wanted = run.prebuff_hands
-    if run.hands is None or not wanted:
-        return
-
-    def in_hand(timeout: float) -> bool:
-        deadline = run.clock() + timeout
+def swap_until(run: Run, in_hand: Callable[[], bool], tries: int = SWAP_TRIES) -> bool:
+    """Press Swap Weapons until `in_hand()` says the wanted set is held, at most `tries` times, each
+    given SWAP_WAIT to show. The game drops a swap pressed in the last moments of a cast or right after
+    a teleport lands, though the character already reads as free (host, 2026-10-10 17:26: five swaps
+    in one run pressed 0.05-0.4 s after a cast never came, each waited on for 1.2 s). A swap that came
+    shows within 0.3 s, so a press that shows nothing in SWAP_WAIT was dropped and is made again."""
+    settle(run)
+    for _ in range(tries):
+        press_skill(run, SWAP_WEAPONS)
+        deadline = run.clock() + SWAP_WAIT
         while True:
             run.world()  # a cancel stops here
-            if wanted & set(run.hands()):
+            if in_hand():
                 return True
             if run.clock() >= deadline:
-                return False
+                break
             run.pace.sleep(0.03)
+    return False
 
-    if in_hand(0):
-        return
+
+def settle(run: Run, seconds: float = SWAP_SETTLE, limit: float = 1.0) -> None:
+    """Wait until the character has read as free for `seconds` on end (`limit` at most): the first swap
+    pressed right behind a cast was dropped more often than not (host, 17:46 on 2026-10-10: nine of
+    eleven swaps took a second press, half a second each)."""
+    began = free_since = run.clock()
     while True:
-        press_skill(run, SWAP_WEAPONS)
-        if in_hand(1.2):
-            break
+        world = run.world()
+        now = run.clock()
+        if world.player is None or world.player.mode in ACTING:
+            free_since = now
+        if now - free_since >= seconds or now - began >= limit:
+            return
+        run.pace.sleep(0.02)
+
+
+def take_weapons(run: Run, wanted: frozenset[str], what: str, *, until: float | None = None) -> None:
+    """Have the weapon set holding `wanted` (base codes) in hand, swapping if the other one is; it is
+    left in hand afterwards. `until` as in `summon_defiler`. Nothing known to want, or the hands
+    unreadable: nothing is done."""
+    hands = run.hands
+    if hands is None or not wanted:
+        return
+
+    def in_hand() -> bool:
+        return bool(wanted & set(hands()))
+
+    run.world()  # a cancel stops here
+    if in_hand():
+        return
+    while not swap_until(run, in_hand):
         if until is None or run.clock() >= until:
-            raise Abort('the prebuff weapons are not in hand after a swap')
+            raise Abort(f'the {what} weapons are not in hand after a swap')
         run.pause('screen')
     run.pause('key')
+
+
+def take_prebuff_weapons(run: Run, *, until: float | None = None) -> None:
+    """The set the buffs are cast with in hand (user, 2026-10-06)."""
+    take_weapons(run, run.prebuff_hands, 'prebuff', until=until)
+
+
+def take_battle_weapons(run: Run) -> None:
+    """The main set in hand: for a fight, and before a game is left (user, 2026-10-10: the other set
+    is for teleporting only, and the character should not be saved holding it). A swap that does not
+    come is logged, not a stop: the fight and the exit go on with what is held."""
+    if run.hands is None or not run.battle_hands or not run.hands() or run.battle_hands & set(run.hands()):
+        return
+    try:
+        take_weapons(run, run.battle_hands, 'main')
+    except Abort as stop:
+        if run.cancelled.is_set():
+            raise
+        LOG.info('Macro: %s; going on with what is held', stop)
 
 
 def log_consume(run: Run, when: str) -> None:
@@ -428,6 +495,7 @@ def leave_game(run: Run) -> None:
         world = run.world()
     if world.open_panels:
         raise Abort(f'{world.open_panels[0]} stays open')
+    take_battle_weapons(run)
     run.say('Save and Exit')
     run.actuator.tap('Escape')
     run.expect('quit menu', lambda w: w.quit_menu, 2)
@@ -503,7 +571,8 @@ def character_keys(run: Run, key_names) -> dict[int, str]:
         raise Abort('not in a game')
     if world.player.name not in CHARACTERS:
         raise Abort(f'no macro for {world.player.name}')
-    run.prebuff_hands = CHARACTERS[world.player.name]
+    run.prebuff_hands = CHARACTERS[world.player.name].prebuff
+    run.battle_hands = CHARACTERS[world.player.name].battle
     return key_names(world)
 
 

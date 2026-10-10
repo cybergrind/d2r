@@ -7,7 +7,14 @@ import struct
 
 import pytest
 
-from inventory_tracking.input.keybindings import SHOW_ITEMS, action_keys, key_file, show_items_key, x11_name
+from inventory_tracking.input.keybindings import (
+    SHOW_ITEMS,
+    action_keys,
+    button_number,
+    key_file,
+    show_items_key,
+    x11_name,
+)
 
 
 def key_data(*records, header=37):
@@ -36,13 +43,24 @@ def test_records_give_the_primary_key_first_and_skip_unbound_slots():
         (0xC0, 'grave'),
         (0x09, 'Tab'),
         (0x20, 'space'),
-        (0x100, None),
+        (0x100, 'Button2'),  # the middle mouse button
+        (0x101, 'Button8'),  # mouse 4
+        (0x102, 'Button9'),  # mouse 5: CybergrindAA's Sigil: Lethargy (2026-10-09)
+        (0x103, 'Button4'),  # wheel up
+        (0x104, 'Button5'),
         (0x1009, None),
     ],
 )
 def test_virtual_key_codes_become_x11_key_names(code, name):
-    # 0x100 and up are mouse buttons and modifier combinations: not something to press.
+    # 0x1000 and up are modifier combinations: not something to press.
     assert x11_name(code) == name
+
+
+def test_button_names_give_their_x11_button_and_keys_give_none():
+    assert button_number('Button9') == 9
+    assert button_number('Button') is None
+    assert button_number('KP_5') is None
+    assert button_number('b') is None
 
 
 def test_the_key_file_is_the_characters_own_not_a_longer_name_sharing_its_start(tmp_path):
@@ -73,3 +91,21 @@ def test_modifier_keys_are_never_the_show_items_key(tmp_path):
 
     assert show_items_key(tmp_path, 'Alt') == 'z'
     assert show_items_key(tmp_path, 'Shift') is None
+
+
+@pytest.mark.parametrize(
+    ('code', 'name'),
+    [
+        (0x65, 'KP_5'),  # VK_NUMPAD5: the user's Teleport key (2026-10-09)
+        (0x60, 'KP_0'),
+        (0x69, 'KP_9'),
+        (0x0C, 'KP_Begin'),  # the same key with Num Lock off
+        (0x6B, 'KP_Add'),
+        (0x6F, 'KP_Divide'),
+        (0x21, 'Prior'),
+        (0x2E, 'Delete'),
+        (0x1B, 'Escape'),
+    ],
+)
+def test_keypad_and_navigation_keys_have_x11_names(code, name):
+    assert x11_name(code) == name

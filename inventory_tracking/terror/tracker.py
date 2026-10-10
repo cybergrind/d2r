@@ -549,6 +549,15 @@ class ZoneTracker:
                 self.explored.setdefault(location.area_id, set()).update(near)
                 return
 
+    def remembered(self, area: int) -> list[tuple[int, float, float, bool]]:
+        """(unit id, x, y, leader) of the hostile monsters alive in `area` at their last seen position,
+        world units: what the hunt teleports toward when none is in reach (macros/hunt.py)."""
+        return [
+            (unit_id, float(x), float(y), unit_id in self.leaders)
+            for unit_id, (where, x, y) in self.positions.items()
+            if where == area and unit_id not in self.allies
+        ]
+
     def visited_rooms(self, area: int) -> set[tuple]:
         """Bounds of the rooms of `area` the player was in or next to: the map dims the others."""
         return self.explored.get(area, set())

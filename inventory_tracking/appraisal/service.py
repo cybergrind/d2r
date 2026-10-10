@@ -8,7 +8,12 @@ a Win+D shop check (`request --shop`). `level <timestamp>` (`request --level`, W
 the level map card again (fresh position, any level; a double press pins or unpins it) and
 dumps the current level's room/unit structures for research (runs/level/). `macro <timestamp>`
 (`request --macro`, Win+X) runs the macro for where the character is, or cancels a running one
-(inventory_tracking/macros/plan.md). The level card is
+(inventory_tracking/macros/plan.md); `teleport <timestamp>` (`request --teleport`, KP_4) takes one
+step toward the level card's mark: a teleport as far as the screen allows, or a walk into a near
+door (inventory_tracking/macros/teleport.py); `hunt elites <timestamp>` (`request --hunt-elites`,
+KP_2) takes one step toward the nearest elite, else toward an unexplored room, and `hunt any
+<timestamp>` (`request --hunt-any`, KP_3) toggles attack mode, which kills whatever comes into reach
+while the player moves about (macros/hunt.py). The level card is
 drawn on the HUD canvas (inventory_tracking/hud, started with the overlay), so it can show
 next to an Alt+D assessment. With `--shop-auto` (default) the worker also watches loaded
 vendor stock and scans it by itself when its first gear item changes; see
@@ -63,6 +68,7 @@ from inventory_tracking.collection.service import (
 )
 from inventory_tracking.collection.store import DEFAULT_DATABASE as COLLECTION_DATABASE
 from inventory_tracking.collection.watch import StashWatcher
+from inventory_tracking.combat.record import CombatRecorder
 from inventory_tracking.common import LOG, configure_logging, log_to_file, timestamp
 from inventory_tracking.config import APPRAISAL, SHOW_ITEMS, TRADERIE
 from inventory_tracking.hud.process import (
@@ -76,6 +82,7 @@ from inventory_tracking.hud.process import (
 from inventory_tracking.hud.scene import DEFAULT_SCENE, publish_layer
 from inventory_tracking.hud.traderie import traderie_watch
 from inventory_tracking.identify.service import IdentifyWorker
+from inventory_tracking.input.compositor import hotkeys
 from inventory_tracking.levels.dump import (
     DEFAULT_OUTPUT as LEVEL_OUTPUT,
     REQUEST_PREFIX as LEVEL_PREFIX,
@@ -87,7 +94,17 @@ from inventory_tracking.levels.memory import observe_walkable, observe_waypoints
 from inventory_tracking.levels.walls import WallLibrary
 from inventory_tracking.loot.materials import material_classes
 from inventory_tracking.loot.watch import RuneWatcher
-from inventory_tracking.macros.runner import REQUEST_PREFIX as MACRO_PREFIX, MacroRunner
+from inventory_tracking.macros.hunt import Hunter
+from inventory_tracking.macros.runner import (
+    HUNT_ANY,
+    HUNT_ANY_PREFIX,
+    HUNT_ELITES,
+    HUNT_ELITES_PREFIX,
+    REQUEST_PREFIX as MACRO_PREFIX,
+    TELEPORT,
+    TELEPORT_PREFIX,
+    MacroRunner,
+)
 from inventory_tracking.native.session import GameNotReady, GameProcessUnavailable
 from inventory_tracking.osd.__main__ import positive_float
 from inventory_tracking.reports import create_run, publish
@@ -306,6 +323,13 @@ def dispatch(
         if text.startswith(MACRO_PREFIX):
             # Win+X: run the macro for where the character is; a press while one runs cancels it.
             return macro is not None and macro.request(float(text[len(MACRO_PREFIX) :]), now)
+        if text.startswith(TELEPORT_PREFIX):
+            # KP_4: one step toward the level card's mark (teleport or a walk into the door).
+            return macro is not None and macro.request(float(text[len(TELEPORT_PREFIX) :]), now, TELEPORT)
+        if text.startswith(HUNT_ELITES_PREFIX):  # KP_2
+            return macro is not None and macro.request(float(text[len(HUNT_ELITES_PREFIX) :]), now, HUNT_ELITES)
+        if text.startswith(HUNT_ANY_PREFIX):  # KP_3
+            return macro is not None and macro.request(float(text[len(HUNT_ANY_PREFIX) :]), now, HUNT_ANY)
         if text.startswith(SHOP_PREFIX):
             return shop is not None and shop.request(float(text[len(SHOP_PREFIX) :]), now)
         if text.startswith(LEVEL_PREFIX):
@@ -406,6 +430,8 @@ def run_service(args, directory, report):
                 backend = PublishedAppraisal(args.publication_store) if args.publication_store else None
                 recent = RecentObservations(stored_observations(args.output))
                 with ExitStack() as starting:
+                    # Under the lock, so a second worker that is refused never clears the first one's binds.
+                    starting.enter_context(hotkeys())
                     # The canvas and the Traderie watch run from the start: notifications are
                     # shown while this process still waits for the game.
                     starting.enter_context(hud_process(args.hud_scene, args.osd, directory / 'hud.log'))
@@ -599,6 +625,24 @@ def run_service(args, directory, report):
                             observe_waypoints=observe_waypoints,
                             pinned=APPRAISAL.level_guide_pinned,
                         )
+                        macro.target = guide.target  # KP_4 moves toward the card's first mark
+                        # KP_2/KP_3: the level's rooms and walls, what the tracker remembers alive, explored rooms.
+                        macro.hunter = Hunter(
+                            guide.level,
+                            zones.remembered if zones is not None else None,
+                            zones.visited_rooms if zones is not None else None,
+                        )
+                    combat = None
+                    if args.combat_record:
+                        combat = CombatRecorder(
+                            source,
+                            capture_lock=worker.capture_lock,
+                            output=args.output.parent / 'combat',
+                            areas=frozenset(APPRAISAL.combat_areas),
+                            rate=APPRAISAL.combat_rate,
+                            level=guide.level if guide is not None else None,
+                            macro_working=lambda: macro.working,
+                        )
                     runes = None
                     if args.rune_marks and args.osd:
                         runes = RuneWatcher(
@@ -683,6 +727,8 @@ def run_service(args, directory, report):
                                     terror.tick()
                             with timer.step('macro'):
                                 macro.poll(time.monotonic())
+                            if combat is not None:
+                                combat.poll(time.monotonic())
                             if panel_beacon is not None:
                                 panel_beacon.poll(time.monotonic())
                             try:
@@ -707,6 +753,8 @@ def run_service(args, directory, report):
                             timer.finish()
                     finally:
                         macro.close()
+                        if combat is not None:
+                            combat.close()
                         shop.dismiss()
                         identify.dismiss()
                         if guide is not None:
@@ -787,7 +835,20 @@ def main(argv=None):
         help='request: send Win+C instead (show the level map again and dump level memory)',
     )
     requests.add_argument('--macro', action='store_true', help='request: send Win+X instead (run or cancel the macro)')
+    requests.add_argument(
+        '--teleport', action='store_true', help='request: send KP_4 instead (one step toward the level map mark)'
+    )
+    requests.add_argument(
+        '--hunt-elites', action='store_true', help='request: send KP_2 instead (one step toward the nearest elite)'
+    )
+    requests.add_argument('--hunt-any', action='store_true', help='request: send KP_3 instead (attack mode on/off)')
     parser.add_argument('--level-output', type=Path, default=LEVEL_OUTPUT, help='Win+C level dump runs')
+    parser.add_argument(
+        '--combat-record',
+        action=argparse.BooleanOptionalAction,
+        default=APPRAISAL.combat_record,
+        help='serve: record takes of play in the configured levels under runs/combat (combat/record.py)',
+    )
     parser.add_argument(
         '--level-evidence', type=Path, default=DEFAULT_EVIDENCE, help='evidence saved on each guided level entry'
     )
@@ -845,6 +906,12 @@ def main(argv=None):
                 if args.level
                 else MACRO_PREFIX
                 if args.macro
+                else TELEPORT_PREFIX
+                if args.teleport
+                else HUNT_ELITES_PREFIX
+                if args.hunt_elites
+                else HUNT_ANY_PREFIX
+                if args.hunt_any
                 else EQUIPMENT_PREFIX
                 if args.equipped
                 else REQUEST_PREFIX

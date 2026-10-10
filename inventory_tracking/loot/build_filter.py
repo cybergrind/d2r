@@ -6,19 +6,24 @@ hiding a unique "by base" means listing the bases worth showing: four Show rules
 into armor and weapons; item codes only, no category) replace the one rule that showed every gold and green item.
 Rings, amulets, jewels and charms stay shown by the accessories rule.
 
-A named item is worth showing when any of these holds; everything else of normal or exceptional base is
-hidden, and a base shared with a shown item stays shown:
-- its good-roll ask (loot/data/uniques.json, the dated Traderie table) is at least ASK_MINIMUM Ist,
-  the pricing primer's 2026-10-04 floor;
-- a maxroll build guide names it (pricing/data/appraisal-demand.json, the knowledge index's demand rows,
-  or the planner loadouts in wp-a-variants/index.json);
-- the knowledge base recommends it for leveling (pricing/data/appraisal-recommendations.json);
-- its base is elite: the ask table prices too few elite uniques to call the rest worthless.
+A named item is worth showing when any of these holds; everything else is hidden, and a base shared with
+a shown item stays shown:
+- it trades: pricing/data/named-trades.json (Traderie Recent Trades, read by pricing/tools/traderie_trades.mjs
+  and summarised by named_trades.py) shows at least TRADES_PER_MONTH sales in the last 30 days, at a median
+  of ASK_MINIMUM Ist or more when priced — or any sale in the last 90 days at a median of SLOW_MINIMUM Ist;
+- a maxroll planner loadout equips it (wp-a-variants/index.json): build demand, kept even when it does not sell;
+- the knowledge base recommends it for leveling (pricing/data/appraisal-recommendations.json) and the player
+  does not own a copy yet (collection database, one of each is kept on the mules): a leveling piece that sells
+  for a perfect gem is not picked up twice.
+For an item the trades file does not cover, the older ask-based reasons apply instead: a good-roll ask of at
+least ASK_MINIMUM Ist (loot/data/uniques.json), a maxroll guide mention (appraisal-demand.json), or an elite
+base (the ask table prices too few elite uniques to call the rest worthless).
 
 Run: uv run --offline python -m inventory_tracking.loot.build_filter
 """
 
 import json
+import sqlite3
 from pathlib import Path
 
 from inventory_tracking.items.metadata import metadata
@@ -35,7 +40,11 @@ ASKS = Path('inventory_tracking/loot/data/uniques.json')
 DEMAND = Path('pricing/data/appraisal-demand.json')
 BUILDS = Path('pricing/data/wp-a-variants/index.json')
 RECOMMENDATIONS = Path('pricing/data/appraisal-recommendations.json')
+TRADES = Path('pricing/data/named-trades.json')
+COLLECTION = Path('inventory_tracking/runs/collection/collection.sqlite')
 ASK_MINIMUM = 0.25
+TRADES_PER_MONTH = 3
+SLOW_MINIMUM = 1.0  # Ist: a dear item that sells only now and then is still worth the pickup
 TABLES = {'unique': 'uniques', 'set': 'sets'}  # decoder identity table -> ask table kind
 CATEGORIES = {'armor': 'ARMOR', 'weapons': 'WEAPONS'}  # the decoder's base categories
 
@@ -67,22 +76,39 @@ def demand_builds(rows) -> dict[str, set[str]]:
     return builds
 
 
+def trade_reason(row: dict) -> str | None:
+    """Why a traded item is worth showing, or None when the market does not take it."""
+    median = row['median_ist']
+    source = f'(Traderie Recent Trades {row.get("date", "")})'
+    if row['last_30d'] >= TRADES_PER_MONTH and (median is None or median >= ASK_MINIMUM):
+        paid = f', median {median:.2f} Ist' if median is not None else ''
+        return f'{row["last_30d"]} trades in 30 days{paid} {source}'
+    if median is not None and median >= SLOW_MINIMUM and row.get('last_90d', 0) >= 1:
+        return f'slow but dear: {row["last_90d"]} trades in 90 days, median {median:.2f} Ist {source}'
+    return None
+
+
 def evidence(table: str, sources: dict) -> dict[str, list[str]]:
     """Name -> why the item is worth showing (empty: nothing in the knowledge base says so)."""
     highs = asks(sources['asks'], TABLES[table])
+    traded = sources.get('trades', {})
     reasons = {}
     for name, codes in named_items(table).items():
         why = []
-        if highs.get(name, 0.0) >= ASK_MINIMUM:
-            why.append(f'asks {highs[name]:.2f} Ist ({sources["asks"]["date"]})')
-        if builds := sources['demand'].get(name):
-            why.append(f'named by {len(builds)} maxroll build guide(s)')
+        if name in traded:
+            if reason := trade_reason(traded[name]):
+                why.append(reason)
+        else:
+            if highs.get(name, 0.0) >= ASK_MINIMUM:
+                why.append(f'asks {highs[name]:.2f} Ist ({sources["asks"]["date"]})')
+            if builds := sources['demand'].get(name):
+                why.append(f'named by {len(builds)} maxroll build guide(s)')
+            if base_tier(codes[0]) == 'Elite':
+                why.append('elite base')
         if name in sources['builds']:
             why.append('in a maxroll planner loadout')
-        if name in sources['recommended']:
-            why.append('leveling recommendation')
-        if base_tier(codes[0]) == 'Elite':
-            why.append('elite base')
+        if name in sources['recommended'] and name not in sources.get('owned', ()):
+            why.append('leveling recommendation, not owned yet')
         reasons[name] = why
     return reasons
 
@@ -114,7 +140,7 @@ def rules(table: str, codes: dict[str, set[str]]) -> list[dict]:
     ]
 
 
-def visibility(table: str, reasons: dict[str, list[str]], codes: dict[str, set[str]]) -> dict[str, dict]:
+def visibility(table: str, reasons: dict[str, list[str]], codes: dict[str, set[str]], sources: dict) -> dict[str, dict]:
     """Shown and hidden names with the reason, for the guide and "why is X hidden" questions."""
     categories = {base['code']: base['category'] for base in metadata()['bases'].values()}
     shown, hidden = {}, {}
@@ -125,9 +151,30 @@ def visibility(table: str, reasons: dict[str, list[str]], codes: dict[str, set[s
             shown[name] = 'shares its base with a shown item'
         elif categories[bases[0]] not in codes:
             shown[name] = 'accessory: shown by SHOW Important Mats and Items'
+        elif name in sources.get('trades', {}):
+            row = sources['trades'][name]
+            paid = f', median {row["median_ist"]:.2f} Ist' if row['median_ist'] is not None else ''
+            owned = ' (owned)' if name in sources.get('owned', ()) else ''
+            hidden[name] = f'{row["last_30d"]} trades in 30 days{paid}; no loadout or unowned leveling use{owned}'
         else:
             hidden[name] = f'{base_tier(bases[0]) or "unknown"} base, no ask, demand or leveling evidence'
     return {'shown': dict(sorted(shown.items())), 'hidden': dict(sorted(hidden.items()))}
+
+
+def load_owned(path: Path = COLLECTION) -> set[str]:
+    """Unique and set names the player already holds, from the collection database; empty without one."""
+    if not path.exists():
+        return set()
+    with sqlite3.connect(path) as db:
+        return {row[0] for row in db.execute("select distinct name from items where rarity in ('unique', 'set')")}
+
+
+def load_trades(path: Path = TRADES) -> dict[str, dict]:
+    """Name -> trade summary row, with the pull date on each row; empty when no trades file exists yet."""
+    if not path.exists():
+        return {}
+    document = json.loads(path.read_text())
+    return {row['name']: {**row, 'date': document.get('date', '')} for row in document['items']}
 
 
 def load_sources() -> dict:
@@ -138,6 +185,8 @@ def load_sources() -> dict:
         'demand': demand_builds(demand['rows'] if isinstance(demand, dict) else demand),
         'builds': set(json.loads(BUILDS.read_text())),
         'recommended': {row['name'] for row in (recommended['rows'] if isinstance(recommended, dict) else recommended)},
+        'trades': load_trades(),
+        'owned': load_owned(),
     }
 
 
@@ -148,17 +197,24 @@ def build(template: dict, sources: dict) -> tuple[dict, dict]:
         reasons = evidence(table, sources)
         codes = shown_codes(table, reasons)
         replacement.extend(rules(table, codes))
-        names[table] = visibility(table, reasons, codes)
+        names[table] = visibility(table, reasons, codes, sources)
     position = next(i for i, rule in enumerate(template['rules']) if rule['name'] == REPLACED_RULE)
     profile = {
         **template,
         'name': PROFILE_NAME,
         'rules': template['rules'][:position] + replacement + template['rules'][position + 1 :],
     }
+    trade_rows = sources.get('trades', {})
     sidecar = {
         'source': f'{TEMPLATE} with {REPLACED_RULE} narrowed by inventory_tracking.loot.build_filter',
         'asks_date': sources['asks']['date'],
         'ask_minimum_ist': ASK_MINIMUM,
+        'trades': {
+            'items_covered': len(trade_rows),
+            'date': next(iter(trade_rows.values()))['date'] if trade_rows else None,
+            'rule': f'at least {TRADES_PER_MONTH} trades in 30 days at a median of {ASK_MINIMUM} Ist or more, '
+            f'or any trade in 90 days at a median of {SLOW_MINIMUM} Ist or more',
+        },
         **names,
     }
     return profile, sidecar

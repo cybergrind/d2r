@@ -340,8 +340,14 @@ class AppraisalConfig(Config):
     unique_minimum: Annotated[float, Field(ge=0)] = 2.5
     super_chest_marks: bool = True  # point at closed glowing chests (object class 397)
     # Other drops to point at, by group (loot/materials.py): Worldstone Shards, flawless and perfect
-    # gems, the Colossal Ancients' statues, the Pandemonium keys (user, 2026-10-07).
-    material_marks: tuple[Literal['shards', 'gems', 'statues', 'keys'], ...] = ('shards', 'gems', 'statues', 'keys')
+    # gems, the Colossal Ancients' statues, the Pandemonium keys (user, 2026-10-07), charms (user, 2026-10-10).
+    material_marks: tuple[Literal['shards', 'gems', 'statues', 'keys', 'charms'], ...] = (
+        'shards',
+        'gems',
+        'statues',
+        'keys',
+        'charms',
+    )
     terror_probe: bool = True  # record monster sightings/kills to terror-probe.jsonl (terror/probe.py research)
     terror_probe_interval: Positive = 0.25  # seconds between monster-table reads
     terror_summary_seconds: Positive = 10.0  # seconds between per-area summary events
@@ -351,6 +357,9 @@ class AppraisalConfig(Config):
     danger_marks: bool = True  # deadly packs: own map dots, ground marks and a warning row (terror/danger.py)
     terror_card: bool = True  # HUD card: next Herald tier, group kills, breakpoint and spawn odds
     boss_stats: bool = True  # Terror card slot: kills, average time between kills and time since the last, per boss
+    combat_record: bool = True  # record takes of play in combat_areas for combat/plan.md (combat/record.py)
+    combat_areas: tuple[int, ...] = (108, 35, 36, 37, 38)  # Chaos Sanctuary (2026-10-09), Catacombs 1-4 (2026-10-10)
+    combat_rate: Positive = 25.0  # frames per second sampled; the engine's rate
     terror_card_unconfirmed: bool = (
         False  # also show it before any monster says terrorized or not (marked "unconfirmed")
     )

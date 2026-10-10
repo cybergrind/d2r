@@ -1,0 +1,64 @@
+{
+ "source": "takes 20261009T203733Z, 210919Z, 212147Z (Chaos Sanctuary, Hell): recorded life drops matched to emulated contacts (fitted focal, radius 2.0, lag 20 frames), divided by the contact weights (first blade of a cast per monster and leg 1.0, duplicates 0.1); points from monlvl HP(H) 4637 x MinHP..MaxHP(H) mean",
+ "dated": "2026-10-10",
+ "default": 1700,
+ "points_per_contact": {
+  "310": 1772,
+  "362": 2585,
+  "306": 1334,
+  "312": 1222,
+  "243": 2295
+ },
+ "companions_source": "the same three takes: recorded drops with no blade contact within the lag, attributed to the nearest companion (mercenary 338, bound demon 361, Defiler 744) when within its reach, divided by the frames that companion had a live hostile within reach; reach 6 units (the demon's and the mercenary's unmatched drops lie 3-9 units from them at the quartiles)",
+ "companions": {
+  "361": {
+   "name": "bound demon (Pit Lord)",
+   "reach": 6.0,
+   "points_per_frame": 72.0
+  },
+  "338": {
+   "name": "Act 2 mercenary",
+   "reach": 6.0,
+   "points_per_frame": 104.0
+  },
+  "744": {
+   "name": "Defiler",
+   "reach": 6.0,
+   "points_per_frame": 15.0
+  }
+ },
+ "health_link": {
+  "source": "skills.txt 405 Health Link, the Defiler's aura (Summon Defiler sumskill1): aura range 25, up to calc2 linked units (about 5 at Summon Defiler 20), Damage % Linked calc1 = 110*L*(60-20)/(100*(L+6))+20 (54% at L=20); the takes show monsters 5-10 units from a blade victim taking a third to a half of its drop in the same frame (2026-10-10)",
+  "range": 25.0,
+  "links": 5,
+  "share": 0.5
+ },
+ "hex_purge": {
+  "source": "skills.txt 389 Hex Purge: blades put hexpurgedebuff on what they hit; the hextrigger fires Hex Purge Explosion (404, magic damage EMin/EMax on 389, aura range 4). Trigger taken as the hexed monster's death: in three takes a fifth of the drops no blade, companion or link explains fall within 12 units of a kill of the previous 15 frames (three times the chance by position), 6 units from the corpse at the median, 300-1000 points per victim on average (2026-10-10)",
+  "radius": 8.0,
+  "points": 400.0
+ },
+ "death_mark": {
+  "source": "skills.txt 375 Death Mark: auratargetstate death_mark lowers the target's normal and magic damage reduction by ln12 = Param1 -5 + Param2 -2 per level (31 points at level 13, the level the blades' data record shows for Echoing Strike) for ln34 = 125 + 13 per level frames (294 at 13); the mark goes on the hostile nearest the pointer at the press of its key, 'd' for CybergrindAA (2026-10-10)",
+  "level": 13,
+  "more_damage": 0.31,
+  "frames": 294,
+  "target_radius": 4.0,
+  "key": "d"
+ },
+ "mana": {
+  "source": "skills.txt 388: mana 14 + lvlmana 1 per level above 1, manashift 7 (the columns are in 1/128 of 256ths: cost = (14 + 12) * 2^7 / 256 = 13 at level 13). Pool and regeneration are ASSUMPTIONS until a take records the character's mana (the recorder writes it from 2026-10-10 10:00 UTC on; the take of 06:30 read stat 9 maxmana for it): a full pool regenerates in 120 s in the classic game; the pool of 800 is a placeholder (2026-10-10)",
+  "pool": 503.0,
+  "regen_seconds": 120.0,
+  "cost": 13.0,
+  "assumed": true,
+  "recorded": "Catacombs takes of 2026-10-10 11:24 UTC: maximum mana 503, each cast -13, the pool refilled within frames by gains of 4-22 at hits and kills (mana per hit / after kill), never below 472 in levels 2-3 and from 354 back to 503 in level 1; mana did not limit the attack mode's casting. The regeneration stays the classic assumption; the gains per hit are not modelled",
+  "limits": false,
+  "limits_note": "2026-10-10: the recorded mana (Catacombs takes) never limited casting and the gains per hit and kill are not modelled, so the pool is off by default; `combat policy --mana <pool>` or `--mana fit` turns a pool on"
+ },
+ "fit_takes": [
+  "20261009T203733Z-108",
+  "20261009T210919Z-108",
+  "20261009T212147Z-108"
+ ]
+}

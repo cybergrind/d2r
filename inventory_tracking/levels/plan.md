@@ -478,7 +478,20 @@ Unchanged: multi-warp presets, bosses/chests/waypoints (objects, not warps; Nihl
 also holds the way back), outdoor gaps (8x8 border rooms, no warp tile), rooms without a DS1
 variant (older fixture rows). Temple files: file 0 = slot 2, file 1 = slot 3, as kurast.py says.
 
-## Done when
+### River of Flame: the Chaos Sanctum first, at the bridge's end — 2026-10-09
+
+The user asked that repeated KP_4 presses in the River of Flame bring the character into the Chaos
+Sanctuary. The handler marked 'Chaos Sanctum' on Bridge 1 (the bridge's start) and after Hephasto, so
+KP_4 pointed at Hephasto. The Sanctum has no warp (levels.json Warp1 = -1): the bridge's far end is
+the level border. From the 2026-10-09 evidence (Bridge 1 at row 1168, Bridge 2 at 1144 and 1120,
+the player in the Sanctum at row 1111), `handlers/river_of_flame.RiverOfFlame` now puts the mark
+half a tile beyond the far edge of the Bridge 2 furthest from Bridge 1, on the side away from it,
+kind 'stairs' with a spot and area 108: the level guide hands it to KP_4 as a door, hops go along
+the bridge and the last press clicks across. It is the first mark; Hephasto and the Warp N follow.
+Without a bridge the guidance says 'Chaos Sanctum: no bridge found'. Direction is taken from the
+presets' placement, not assumed north.
+
+
 
 - `levels/` holds the framework; `levels/handlers/` holds one small file per level or chain,
   discovered automatically.

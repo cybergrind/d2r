@@ -308,12 +308,30 @@ def test_the_prebuff_set_in_hand_is_left_alone():
     assert 'c' not in game.pressed()
 
 
-def test_weapons_the_profile_does_not_know_stop_the_macro_after_one_swap():
+def test_weapons_the_profile_does_not_know_stop_the_macro_after_the_swaps():
     game = Game(world(112))
     game.sets = [OTHER_SET, ('wnd', 'buc')]
     with pytest.raises(Abort, match='weapons'):
         run_macro(game.run(), lambda w: dict(KEYS))
-    assert game.pressed() == ['c']
+    assert game.pressed() == ['c', 'c', 'c']  # SWAP_TRIES: the game drops a swap now and then
+
+
+def test_a_swap_the_game_dropped_is_pressed_again():
+    # Host, 17:26 on 2026-10-10: swaps pressed just after a cast never came and were waited on for 1.2 s.
+    game = Game(world(112))
+    game.sets = [OTHER_SET, PREBUFF_SET]
+    react, dropped = game.keys.on_event, []
+
+    def on_event(event):
+        if event == ('key', 'c') and not dropped:
+            dropped.append(event)  # the first press is lost
+            return
+        react(event)
+
+    game.keys.on_event = on_event
+    run_macro(game.run(), lambda w: dict(KEYS))
+    assert game.pressed()[:3] == ['c', 'c', 'q']
+    assert game.sets[0] == PREBUFF_SET
 
 
 def test_in_a_new_game_the_swap_comes_before_the_first_summon():
@@ -321,7 +339,22 @@ def test_in_a_new_game_the_swap_comes_before_the_first_summon():
     game.sets = [OTHER_SET, PREBUFF_SET]
     run_macro(game.run(), lambda w: dict(KEYS))
     keys = game.pressed()
-    assert keys[keys.index('Return') + 1 :] == ['c', 'q', '6', 'q', 'g', 'r']
+    # user, 2026-10-10: the main weapons are taken before Save and Exit, so the new game starts with them.
+    assert keys.index('c') < keys.index('Escape')
+    assert keys[keys.index('Return') + 1 :] == ['q', '6', 'q', 'g', 'r']
+    assert game.sets[0] == PREBUFF_SET
+
+
+def test_a_swap_that_does_not_come_does_not_keep_the_macro_from_leaving(caplog):
+    from inventory_tracking.macros.routines import leave_game
+
+    game = Game(world(121))
+    game.sets = [OTHER_SET, ('xxx',)]  # neither set is the main one: the swap changes nothing known
+    with caplog.at_level('INFO'):
+        leave_game(game.run())
+    assert game.pressed() == ['c', 'c', 'c', 'Escape']
+    assert not game.world.in_game
+    assert any('the main weapons are not in hand after a swap; going on' in r.message for r in caplog.records)
 
 
 def follow(game, times=99):

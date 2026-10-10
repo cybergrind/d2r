@@ -29,6 +29,7 @@ class KeyConnection(Protocol):
     def sync(self) -> None: ...
     def focused_window_rect(self) -> tuple[int, int, int, int] | None: ...
     def pointer(self) -> tuple[int, int] | None: ...
+    def pointer_state(self) -> tuple[int, int, int] | None: ...
     def move_pointer(self, x: int, y: int) -> bool: ...
     def button(self, button: int, down: bool) -> bool: ...
 
@@ -184,6 +185,11 @@ class X11Connection:
 
     def pointer(self) -> tuple[int, int] | None:
         """Pointer position in root coordinates."""
+        found = self.pointer_state()
+        return found[:2] if found is not None else None
+
+    def pointer_state(self) -> tuple[int, int, int] | None:
+        """(x, y, button mask) of the pointer: the mask's bits 8.. are buttons 1.. held down."""
         root, child = ctypes.c_ulong(), ctypes.c_ulong()
         x, y, inner_x, inner_y = ctypes.c_int(), ctypes.c_int(), ctypes.c_int(), ctypes.c_int()
         mask = ctypes.c_uint()
@@ -198,7 +204,7 @@ class X11Connection:
             ctypes.byref(inner_y),
             ctypes.byref(mask),
         )
-        return (x.value, y.value) if found else None
+        return (x.value, y.value, mask.value) if found else None
 
     def move_pointer(self, x: int, y: int) -> bool:
         return bool(self.xtst.XTestFakeMotionEvent(self.display, -1, x, y, 0))

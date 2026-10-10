@@ -98,6 +98,7 @@ def test_selected_material_uses_ownerless_stack_decoder():
     assert observation['item']['quantity'] == 15
     assert 'Quantity: 15' in [stat['text'] for stat in observation['decoded_stats']]
     from pricing.triage.adapters import from_drop
+
     assert from_drop(observation)['quantity'] == 15
     assert observation['source']['container']['name'] == 'Materials stash'
 
@@ -110,6 +111,7 @@ def test_production_material_capture_does_not_read_an_inventory_grid():
     blocks = {r['address']: bytes.fromhex(r['raw_hex']) for r in records}
     widget = s['after']['widgets']['mouse']
     widget['raw_hex'] = blocks[widget['address']].hex()
+
     def read(address, size):
         assert len(blocks[address]) == size
         return blocks[address]

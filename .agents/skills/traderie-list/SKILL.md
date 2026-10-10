@@ -105,7 +105,8 @@ runs it with `--watch` and shows unread notifications on the HUD, also while the
 ## Tools
 
 All three share `pricing/tools/traderie_browser.mjs` (opens one background tab in the tools window, real mouse and key events,
-select helpers, price rows). Add further Traderie actions (mark sold, relist, remove) as new small
+select helpers, price rows). `traderie_relist.mjs <profile> [<listing>...] [--all] [--submit]` clicks the
+"Relist" button of expired listings (no ids = list the expired ones, click nothing). Add further Traderie actions (mark sold, remove) as new small
 scripts on that module, each with a fill-and-verify default and an explicit `--submit`.
 
 ## Report

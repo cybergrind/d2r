@@ -50,9 +50,38 @@ def test_river_of_flame_marks_hephasto_the_sanctum_and_the_way_back():
     guidance = handler_for(107).guide(LevelSnapshot(Location(107, 0, 40, 40), rooms))
 
     assert rows(guidance) == [
+        ('Chaos Sanctum', 'stairs', 'Act 4 - Bridge 2'),  # first: KP_4 points at it
         ('Hephasto', 'target', 'Act 4 - Lava Forge W'),
-        ('Chaos Sanctum', 'stairs', 'Act 4 - Bridge 1'),
         ('City of the Damned', 'previous', 'Act 4 - Lava Warp N'),
     ]
+    assert guidance.pois[0].spot == (96.5, 12.0)  # beyond the far (east) edge of the bridge laid out eastward
+    assert guidance.pois[0].area == 108
     assert guidance.problems == ()
     assert not any(handler_for(area).confirmed for area in (105, 107))
+
+
+def test_the_chaos_sanctum_mark_is_beyond_the_north_end_of_the_bridge_as_in_the_game():
+    # The 2026-10-09 evidence: Bridge 1 at row 1168, Bridge 2 at 1144 and 1120 (chunks of 24x24 presets),
+    # the player entered the Sanctum at row 1111.
+    def chunks(preset, bx, by):
+        return [Room(preset, bx + 8 * i, by + 8 * j, 8, 8, 0, (bx, by, 24, 24)) for i in range(3) for j in range(3)]
+
+    rooms = (
+        *chunks(855, 1548, 1168),
+        *chunks(856, 1548, 1144),
+        *chunks(856, 1548, 1120),
+        Room(853, 1500, 1200, 24, 24),
+    )
+    guidance = handler_for(107).guide(LevelSnapshot(Location(107, 0, 7800, 5900), rooms))
+
+    chaos = guidance.pois[0]
+    assert (chaos.label, chaos.kind, chaos.spot) == ('Chaos Sanctum', 'stairs', (1560.0, 1119.5))
+    assert (chaos.room.x, chaos.room.y, chaos.room.width, chaos.room.height) == (1548, 1120, 24, 24)
+
+
+def test_without_the_bridge_the_river_still_marks_hephasto_and_says_so():
+    rooms = (Room(836, 0, 0, 24, 24), Room(853, 24, 0, 24, 24), Room(852, 96, 0, 24, 24))
+    guidance = handler_for(107).guide(LevelSnapshot(Location(107, 0, 40, 40), rooms))
+
+    assert rows(guidance)[0] == ('Hephasto', 'target', 'Act 4 - Lava Forge W')
+    assert guidance.problems == ('Chaos Sanctum: no bridge found',)

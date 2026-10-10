@@ -114,7 +114,7 @@ Done as planned, plus:
 - **Materials** (user, 2026-10-07): Worldstone Shards, flawless and perfect gems, the Colossal
   Ancients' statues and the keys of Terror, Hate and Destruction on the ground are rows of the same
   card, named by the item (`loot/materials.py`: item codes resolved through the decoder's bases).
-  `APPRAISAL.material_marks` picks the groups (`shards`, `gems`, `statues`, `keys`; all by default).
+  `APPRAISAL.material_marks` picks the groups (`shards`, `gems`, `statues`, `keys`, `charms`; all by default).
   Not yet seen in game. The `loot` slot moved from x 0.03 to 0.33 the same day.
 
 ### Phase 3: inventory OSD text widgets and the repair mark

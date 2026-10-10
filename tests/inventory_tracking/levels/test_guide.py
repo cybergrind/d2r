@@ -674,3 +674,30 @@ def test_the_rooms_of_an_entered_level_are_handed_on():
 
     assert got[-1][0] == 74
     assert got[-1][1] > 0
+
+
+def test_the_target_is_the_first_mark_of_the_shown_card_for_win_t():
+    guide, _, _ = make_guide([40, 74])
+    assert guide.target() is None
+
+    guide.poll(1.0)
+    guide.poll(2.0)
+    target = guide.target()
+
+    assert (target.area, target.label, target.kind, target.warp) == (74, 'Summoner', 'target', False)
+    assert target.ground == ()  # no walls read by this guide
+    assert len(target.rooms) == 61
+    room = guide.shown[1][0].room  # the Summoner's arm, marked at its centre (no warp there)
+    assert target.point == (room.x + room.width / 2, room.y + room.height / 2)
+
+
+def test_the_level_is_the_shown_cards_rooms_and_walls_for_the_hunt_keys():
+    guide, _, _ = make_guide([40, 74])
+    assert guide.level() is None
+
+    guide.poll(1.0)
+    guide.poll(2.0)
+    level = guide.level()
+
+    assert (level.area, len(level.rooms), level.ground) == (74, 61, ())
+    assert level.rooms == guide.target().rooms

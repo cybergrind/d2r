@@ -6,9 +6,12 @@ loaded_walkable). A preset room's walls come from its DS1 file, so every live re
 game or a later one, is drawn from the library. Generated terrain (preset 0) and rooms without a
 readable variant are never learned. A later sighting of the same key replaces the earlier one.
 
-The file (schema 2) holds packed sub-tiles (model.pack_cells). A schema 1 file held one cell per
-tile; it is read with each tile filling its 5x5, so those rooms keep their coarse walls until a
-live read or a dump (`main`) replaces them.
+The file (schema 2) holds packed sub-tiles (model.pack_cells) and, since 2026-10-10, the flight
+layer per layout (`flight`: where a missile flies, native/layout.py COLLISION_BLOCK_MISSILE) with a
+door's cells (COLLISION_DOOR) kept open, since the door units say whether one stands closed
+(levels/doors.py) and the learned layout must not keep a door shut forever. A schema 1 file held
+one cell per tile; it is read with each tile filling its 5x5, so those rooms keep their coarse
+walls until a live read or a dump (`main`) replaces them.
 """
 
 import json
@@ -19,8 +22,15 @@ from pathlib import Path
 
 from inventory_tracking.common import LOG
 from inventory_tracking.levels.memory import tiles_from_mask
-from inventory_tracking.levels.model import Room, Walkable, pack_tiles, unpack_cells
-from inventory_tracking.native.layout import COLLISION_BOUNDS, COLLISION_MASK, ROOM1_COLLISION, TILE_UNITS
+from inventory_tracking.levels.model import Room, Walkable, pack_cells, pack_tiles, unpack_cells, unpack_masks
+from inventory_tracking.native.layout import (
+    COLLISION_BLOCK_MISSILE,
+    COLLISION_BOUNDS,
+    COLLISION_DOOR,
+    COLLISION_MASK,
+    ROOM1_COLLISION,
+    TILE_UNITS,
+)
 from inventory_tracking.reports import publish
 
 
@@ -40,19 +50,28 @@ def tile_width(key: str) -> int:
     return int(key.rsplit(':', 1)[1].split('x')[0])
 
 
+def learned_flight(grid: Walkable) -> str:
+    """The flight layer to keep for a layout: from the raw masks with door cells open, else as read."""
+    values = unpack_masks(grid.masks, grid.width * grid.height * TILE_UNITS**2) if grid.masks else None
+    if values is None:
+        return grid.flight
+    return pack_cells(''.join('1' if v & COLLISION_DOOR or not v & COLLISION_BLOCK_MISSILE else '0' for v in values))
+
+
 class WallLibrary:
     def __init__(self, path: Path = DEFAULT_WALLS):
         self.path = path
         try:
             data = json.loads(path.read_text())
             self.cells: dict[str, str] = data['layouts']
+            self.flight: dict[str, str] = data.get('flight', {})
             if data.get('schema_version') == 1:
                 self.cells = {key: pack_tiles(cells, tile_width(key)) for key, cells in self.cells.items()}
         except FileNotFoundError:
-            self.cells = {}
+            self.cells, self.flight = {}, {}
         except (ValueError, KeyError, TypeError) as exc:
             LOG.warning('Wall library %s unreadable, starting empty: %s', path, exc)
-            self.cells = {}
+            self.cells, self.flight = {}, {}
 
     def learn(self, rooms: Iterable[Room], grids: Iterable[Walkable]) -> int:
         """Save each grid under its room's layout key; the number of grids with a learnable room."""
@@ -64,12 +83,15 @@ class WallLibrary:
             if key is None:
                 continue
             learned += 1
-            if self.cells.get(key) != grid.cells:
+            flight = learned_flight(grid)
+            if self.cells.get(key) != grid.cells or (flight and self.flight.get(key) != flight):
                 self.cells[key] = grid.cells
+                if flight:
+                    self.flight[key] = flight
                 changed = True
         if changed:
             self.path.parent.mkdir(parents=True, exist_ok=True)
-            publish(self.path, {'schema_version': SCHEMA_VERSION, 'layouts': self.cells})
+            publish(self.path, {'schema_version': SCHEMA_VERSION, 'layouts': self.cells, 'flight': self.flight})
         return learned
 
     def known(self, rooms: Iterable[Room]) -> list[Walkable]:
@@ -78,7 +100,10 @@ class WallLibrary:
             key = layout_key(room)
             cells = self.cells.get(key) if key else None
             if cells is not None and unpack_cells(cells, room.width * room.height * TILE_UNITS**2):
-                found.append(Walkable(room.x, room.y, room.width, room.height, cells))
+                flight = self.flight.get(key or '', '')
+                if not unpack_cells(flight, room.width * room.height * TILE_UNITS**2):
+                    flight = ''
+                found.append(Walkable(room.x, room.y, room.width, room.height, cells, flight))
         return found
 
 

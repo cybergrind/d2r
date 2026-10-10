@@ -82,7 +82,9 @@ def test_a_research_dump_teaches_the_library(tmp_path):
     library = WallLibrary(tmp_path / 'walls.json')
 
     assert learn_from_dumps(library, [path]) == 1
-    assert library.known([Room(CAVE_EW, 7, 7, 2, 1, 1, (7, 7, 2, 1))]) == [Walkable(7, 7, 2, 1, pack_tiles('10', 2))]
+    assert library.known([Room(CAVE_EW, 7, 7, 2, 1, 1, (7, 7, 2, 1))]) == [
+        Walkable(7, 7, 2, 1, pack_tiles('10', 2), pack_tiles('11', 2))  # the dump's masks: nothing stops a missile
+    ]
 
 
 def test_a_wall_one_sub_tile_thick_is_kept(tmp_path):
@@ -110,3 +112,22 @@ def test_a_library_of_whole_tiles_is_read_as_sub_tiles_and_saved_that_way(tmp_pa
     library.learn([new], [Walkable(0, 0, 1, 1, pack_cells('1' * 25))])
     assert json.loads(path.read_text())['schema_version'] == 2
     assert WallLibrary(path).known([old]) == [Walkable(0, 0, 2, 1, pack_cells('1111100000' * 5))]
+
+
+def test_the_flight_layer_is_learned_from_the_masks_with_door_cells_open(tmp_path):
+    from inventory_tracking.levels.model import pack_cells, pack_masks
+
+    # A 1x1 room: the west column blocks walking and missiles (0x5), the east one is a closed door
+    # (0x0807, missile-blocking now) that must not stay shut in the library, the rest is floor.
+    mask = [0x0005 if c == 0 else 0x0807 if c == 4 else 0x0000 for _ in range(5) for c in range(5)]
+    cells = pack_cells(''.join('0' if v & 0x1 else '1' for v in mask))
+    flight = pack_cells(''.join('0' if v & 0x4 else '1' for v in mask))
+    room = Room(500, 100, 200, 1, 1, 2, (100, 200, 1, 1))
+    path = tmp_path / 'walls.json'
+    WallLibrary(path).learn([room], [Walkable(100, 200, 1, 1, cells, flight, pack_masks(mask))])
+
+    [known] = WallLibrary(path).known([room])
+    assert known.cells == cells
+    assert known.masks == ''
+    assert known.flight == pack_cells(''.join('0' if c == 0 else '1' for _ in range(5) for c in range(5)))
+    assert WallLibrary(path).known([Room(500, 7, 7, 1, 1, 2, (7, 7, 1, 1))])[0].flight == known.flight

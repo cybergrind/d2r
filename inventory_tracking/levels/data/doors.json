@@ -1,0 +1,180 @@
+{
+ "source": "third-parties/d2data json/objects.json rows with IsDoor = 1: class id -> name and SizeX/SizeY in sub-tiles (2026-10-10)",
+ "doors": {
+  "13": {
+   "class": "DoorGateLeft",
+   "size": [
+    1,
+    3
+   ]
+  },
+  "14": {
+   "class": "DoorGateRight",
+   "size": [
+    3,
+    1
+   ]
+  },
+  "15": {
+   "class": "DoorWoodenLeft",
+   "size": [
+    1,
+    3
+   ]
+  },
+  "16": {
+   "class": "DoorWoodenRight",
+   "size": [
+    3,
+    1
+   ]
+  },
+  "23": {
+   "class": "DoorCourtyardDoubleLeft",
+   "size": [
+    1,
+    7
+   ]
+  },
+  "24": {
+   "class": "DoorCourtyardDoubleRight",
+   "size": [
+    7,
+    1
+   ]
+  },
+  "25": {
+   "class": "DoorCathedralDouble",
+   "size": [
+    9,
+    1
+   ]
+  },
+  "27": {
+   "class": "DoorMonasteryDoubleRight",
+   "size": [
+    7,
+    1
+   ]
+  },
+  "47": {
+   "class": "AndarielDoor",
+   "size": [
+    7,
+    1
+   ]
+  },
+  "62": {
+   "class": "DoorSmallCathedralLeft",
+   "size": [
+    1,
+    4
+   ]
+  },
+  "63": {
+   "class": "DoorSmallCathedralRight",
+   "size": [
+    4,
+    1
+   ]
+  },
+  "64": {
+   "class": "DoorWoodenLeft2",
+   "size": [
+    1,
+    4
+   ]
+  },
+  "75": {
+   "class": "DockDoor",
+   "size": [
+    1,
+    3
+   ]
+  },
+  "91": {
+   "class": "TombDoorLeft",
+   "size": [
+    1,
+    7
+   ]
+  },
+  "92": {
+   "class": "TombDoorRight",
+   "size": [
+    7,
+    1
+   ]
+  },
+  "98": {
+   "class": "TombDoorLeft2",
+   "size": [
+    1,
+    7
+   ]
+  },
+  "99": {
+   "class": "TombDoorRight2",
+   "size": [
+    7,
+    1
+   ]
+  },
+  "229": {
+   "class": "SlimeDoor1",
+   "size": [
+    7,
+    1
+   ]
+  },
+  "230": {
+   "class": "SlimeDoor2",
+   "size": [
+    1,
+    7
+   ]
+  },
+  "290": {
+   "class": "DesertIronGrateDoorLeft",
+   "size": [
+    1,
+    3
+   ]
+  },
+  "291": {
+   "class": "DesertIronGrateDoorRight",
+   "size": [
+    3,
+    1
+   ]
+  },
+  "292": {
+   "class": "DesertWoodenGrateDoorLeft",
+   "size": [
+    1,
+    3
+   ]
+  },
+  "293": {
+   "class": "DesertWoodenGrateDoorRight",
+   "size": [
+    3,
+    1
+   ]
+  },
+  "294": {
+   "class": "DesertWoodenDoorLeft",
+   "size": [
+    1,
+    3
+   ]
+  },
+  "295": {
+   "class": "DesertWoodenDoorRight",
+   "size": [
+    3,
+    1
+   ]
+  }
+ }
+}
