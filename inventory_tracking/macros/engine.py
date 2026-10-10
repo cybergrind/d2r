@@ -9,7 +9,7 @@ import time
 from collections.abc import Callable
 from threading import Event
 
-from inventory_tracking.macros.actuator import Abort, Actuator
+from inventory_tracking.macros.actuator import Abort, Actuator, Cancelled
 from inventory_tracking.macros.timing import Pace
 from inventory_tracking.macros.world import Loot, Teleport, World
 
@@ -51,7 +51,7 @@ class Run:
 
     def world(self) -> World:
         if self.cancelled.is_set():
-            raise Abort('cancelled')
+            raise Cancelled
         try:
             world = self.read()
         except (OSError, ValueError) as exc:
@@ -82,5 +82,5 @@ class Run:
 
     def pause(self, kind: str) -> None:
         if self.cancelled.is_set():
-            raise Abort('cancelled')
+            raise Cancelled
         self.pace.pause(kind)

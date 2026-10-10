@@ -1,5 +1,78 @@
 # Combat: recorded play, replay, and a scored auto-attack — plan (2026-10-09)
 
+## Current contract (2026-10-10)
+
+**What runs today**
+
+- Recorder (`combat/record.py`): inside `serve`, samples the game about 25 times a second while the
+  character is in a recorded area (Chaos Sanctuary, the Catacombs). One take per stay in a level.
+- Takes (`combat/takes.py`): the one reader of the take files; a trim keeps its source recording.
+- Mechanics (`combat/mechanics/`, `combat/data/damage.json`): blade flight, convergence and walls
+  checked against recorded blades; points per contact, companions, Health Link, Hex Purge, Death
+  Mark and mana.
+- Simulator (`combat/sim/`): replays a take with monsters open loop on their recorded paths; the
+  policy under test picks the casts. Its frames are game ticks, 25 a second, from the samples'
+  timestamps (`combat/timeline.py`): a late sample takes the ticks it was late by with it. The
+  `live` candidate is the aim the game's fight runs; the rest of the fight (holds, swaps, marks
+  chosen live) is not replayed.
+- Controller (`combat/controller.py`): the fight's decisions apart from the game: where to cast
+  (`aim_choice`: the policy's line, else straight at what is in reach, always a focal point the
+  window lets the pointer reach), whose the pointer is (`Aim`), the held strike input (`CastWatch`)
+  and the move the player asked for (`serve`). The game's fight and the simulator both ask it.
+- Shared policy (`combat/policy.py`): one decision for the simulator and the game. `LinePolicy`
+  sweeps lines through the live hostiles and yields while the player moves. `NearestPolicy` is only
+  the historical baseline.
+- Live attack and seek (`macros/hunt.py`): attack mode holds one strike input through a fight and
+  keeps the pointer on the line the controller picks. The player's left button or a walk ends the
+  fight at once; a key of theirs does not (the strike stays held and the macro's own aims wait).
+  Only the mode's own toggle or the macro request ends the mode. The seek step goes toward the
+  nearest elite and leaves the mode on.
+- Live score (`combat/score.py`): points lost per combat second and kills per minute over the last
+  minute, on the HUD card. A kill is a hostile now among the dead; one that only vanishes is counted
+  apart and is worth nothing.
+- Scoreboard (`combat/scoreboard.py`): every take through the gate and the policies, in one file.
+
+**How it is measured**
+
+- Command: `uv run python -m inventory_tracking.combat gate <takes directory>`. A take passes when,
+  on the blades' side (monsters no companion came within 8 units of, at least five of them): the
+  life explained by each recorded kill has median 1.0 and mean at least 0.8; the simulated life
+  taken is within 15% of the recorded damage; the life-curve bias is within 0.1 of a life
+  (`sim/engine.py`, `verdict`).
+- Takes are "fit" (three Chaos Sanctuary takes, `data/damage.json` `fit_takes`), "held out", or
+  "unknown" without a recording identity.
+- Latest (2026-10-10 late night, frames as game ticks): 23 of 63 takes pass (24 before the ticks,
+  29 before the damage moved to life taken). Of the three fit Chaos takes one passes; their damage
+  ratios are 0.81, 0.86 and 0.83. Gain over the recorded casts on passing takes: `yield` median
+  +19.1% (+5.0 to +42.8%), `live` (what the game's fight aims) median +19.0%.
+- Live (2026-10-10 13:57-13:59 UTC, `combat compare`, held-strike fight): Catacombs 1 stood with a
+  target 29% of the frames (59% in the earlier macro takes), 3644 points per combat second (2608)
+  and 79 kills a minute (58). The player's Chaos play stands 12-21%. The stage 6 bar (ten sessions
+  a side in one level) is not met: no level has both sides yet.
+
+**Unresolved**
+
+- The simulator scores the fight's aim (the sweep, the fallback target, the window), not the rest
+  of the fight: holds and retaps, the weapon swap, marks and sigils chosen live and yielding to
+  clicks have traces of their own (`tests/.../combat/test_controller.py`) but are not replayed
+  against recorded input. Simulated marks are still the recorded ones (review.md finding 2).
+- Takes: the pointer a recorded cast took is still looked up by sample number, not by tick; a
+  trim keeps the summary counts of the take it was cut from; rows of schema 1 with vitals read
+  from the wrong stats are named (`takes.SCHEMAS`), not converted (review.md finding 6).
+- The fakes the hunt's tests run on advance the clock only through sleeps and start casts as a
+  side effect of a read, so they show the order of actions, not how long a memory read or a
+  policy decision keeps a click waiting (review.md finding 7).
+- Damage per contact is a mean standing in for a roll; the per-hit damage still has to be refitted
+  against the life taken (night note).
+- The Catacombs blades run ahead of the record by about 0.10 of a life, the companions by 0.2-0.3
+  (evening gate note).
+- Mana does not limit casting in the takes; its regeneration is the classic assumption, and the
+  limit is off by default.
+- Assist mode (the policy never moves the pointer) is not built; whether takeover with yield feels
+  right in hand is the user's verdict, not yet given.
+
+Everything below is the dated history: stages as first planned, then notes in order. Later notes supersede earlier ones.
+
 Goal (user, 2026-10-09 night): an auto-attack that is measurably better than the player's own
 Echoing Strike play and never gets in the way of moving. The way there is data: record how the
 player really plays, rebuild the situations in a simulator whose Echoing Strike behaves like the
@@ -11,6 +84,8 @@ client of its policy at the end. Red/green TDD throughout (development.md); ever
 a dated snapshot; every stage ends with a dated note in this file.
 
 ## What exists and is reused
+
+*Superseded 2026-10-10 in part: missiles are read now, from unit slots 3 and 9 (see the first takes below).*
 
 - Memory reader (`macros/world.py`): the local player (position, mode, left/right skill, area),
   monsters (unit id, type, mode, position, owner, flags, alignment, life/max life) and items, from
@@ -128,7 +203,7 @@ the recording wins and the disagreement is a dated note. Expect to iterate here:
 the foundation everything after stands on, and its tests are the regression guard for later
 mechanics findings.
 
-## Stage 4 — Simulator: replayable situations and a score
+## (historical) Stage 4 — Simulator: replayable situations and a score
 
 What: `combat/sim/`:
 
@@ -212,7 +287,7 @@ calibration work before more tuning.
 
 ```
 inventory_tracking/combat/
-  plan.md            this file; review.md: an outside review of 2026-10-10 and what it changed
+  plan.md            this file; review.md: an outside review of 2026-10-10 and what it changed (deleted; in git history)
   record.py          sampler, take writer (CombatRecorder in serve)
   takes.py           take format: reading (gzip too), the typed frame rows, summary, timeline, trim
   analysis.py        play metrics and the manual baseline (`combat analyse`)
@@ -241,6 +316,8 @@ tests/inventory_tracking/combat/  mirrors the modules; fixtures/ holds two singl
 
 ## Risks and open questions
 
+*Superseded 2026-10-10 in part: the missile layout is known now (see 'Second take and the missiles'); the other bullets stand.*
+
 - The missile record layout on our build is unknown; Stage 1 cannot finish without it.
 - RotW skill behaviour is not in any reconstructed source; the recordings are the truth.
 - Online latency blurs contact and life drop; all matching uses windows and the simulator sweeps
@@ -251,6 +328,8 @@ tests/inventory_tracking/combat/  mirrors the modules; fixtures/ holds two singl
   movement if takeover-with-yield still feels intrusive.
 
 ## Stage 1 progress (2026-10-09 night)
+
+*Superseded in part: the host runs that followed (see 'First take' below).*
 
 Zone: Chaos Sanctuary first (user). Written and tested, nothing run on the host yet:
 
@@ -434,7 +513,9 @@ error (`validate`), the hit model's agreement with the recorded drops (`calibrat
 metrics (`analyse`). The next piece is the situation cutter and the open-loop replay of the
 recorded inputs, whose kill order and times against the take are the calibration gate.
 
-### Stage 4: the simulator and its first gate run (2026-10-10)
+### (historical) Stage 4: the simulator and its first gate run (2026-10-10)
+
+*Superseded 2026-10-10: kill counts and kill times are diagnostics, not criteria (see the review note below).*
 
 `combat/sim/situation.py` cuts a situation from a take (the character's recorded positions, the
 hostiles' recorded paths open loop, each monster's points from the tables and its life fraction
@@ -507,6 +588,8 @@ matched drops.
 
 ### Hex Purge and Health Link (user, 2026-10-10)
 
+*Superseded 2026-10-10: Hex Purge's explosion is modelled now (see the next section).*
+
 The user named two more sources of damage: Hex Purge (a buff the prebuff casts, "doing AoE
 damage") and the companion's aura "that makes mobs share a portion of damage".
 
@@ -578,7 +661,7 @@ reads low on 212147 (0.67): a fixed offset, not disorder (order 0.98-0.99). The 
 step is to subtract that lag in the gate and to fit the link share and the per-contact points
 jointly on the life explained, then Death Mark.
 
-### Review of 2026-10-10 (`review.md`) and what it changed
+### Review of 2026-10-10 (`review.md`) (deleted; in git history) and what it changed
 
 The review found one bug and several fair points; taken, with the numbers rerun:
 
@@ -631,6 +714,8 @@ point.
 
 ### Stage 5: the input model and the first policy (2026-10-10)
 
+*Superseded 2026-10-10: mana and walls are in the model now (see 'Link-aware weighting' and 'Walls and closed doors').*
+
 **Input model** (`sim/input.py`): a press casts at once when the character is free, a press
 during a cast queues one more, a held button casts again as soon as the cast ends; the cast
 occupies CAST_FRAMES, the blades appear BIRTH_LAG = 5 frames after the cast starts, and the focal
@@ -680,6 +765,8 @@ pool and regeneration, walls from the level grids, and then the live scorer (sta
 
 ### Link-aware weighting, closed loop, mana (2026-10-10)
 
+*Superseded 2026-10-10: the recorded pool (503) replaces the 800 placeholder; see 'Three single-level Catacombs takes'.*
+
 The policy now runs inside the engine's frame loop (`simulate(..., policy=)`, a callable from a
 `View`: the live hostiles with their remaining points as the simulation has them, the linked
 set, the marked set, the mana) instead of planning on the record: it sees monsters die as the
@@ -719,6 +806,8 @@ breaks the fluency rule; yield at 14-15% is the candidate to take live. The clas
 assumption and the `fit` are stopgaps until the recorded mana replaces them.
 
 ### Walls and closed doors (user, 2026-10-10: the Catacombs runs shot through walls and closed doors; KP_2 landed where nothing could be shot)
+
+*Superseded 2026-10-10: the live line of sight tests the flight layer, not the walk bit (see 'The missile bit').*
 
 The live hunt's line of sight (`macros/sight.py`) read only the block-walk bit of the loaded rooms'
 collision grids and counted every cell no grid covers as clear. Three changes, live and in the
@@ -847,6 +936,8 @@ Yield casts nothing while the record ran in any take. Open: the missile collisio
 next take's masks; the companion model in sparse levels; the hit model's recall.
 
 ### The missile bit, and three more takes (2026-10-10 11:44-11:47 UTC, `20261010T1144..1146Z-35/36/37`)
+
+*Superseded 2026-10-10: the attack-mode toggle works both ways, and the live fight aims by the line policy, not the nearest monster (see 'Architecture check').*
 
 The first takes with raw masks. Per cell value, the recorded blades crossed cells of 0x0001 alone
 (block walk, 931 cells) 148 times and flew on; cells with 0x0004 set (26.8k, mostly 0x0005) 26
@@ -1043,7 +1134,7 @@ What the session's log showed, fixed the same evening (macros/hunt.py):
 
 ### The review of 2026-10-10 evening (`review.md` at the repository root) and what was taken from it
 
-The earlier `combat/review.md` named above was deleted; its findings are in this plan and in git.
+The earlier `combat/review.md` (deleted; in git history) named above was deleted; its findings are in this plan and in git.
 The new review (eight findings, a cleanup table, a sequence) was read against the code; findings 1,
 3, 4 and 5 were checked and hold as written. Done from it so far:
 
@@ -1106,3 +1197,63 @@ Tests: `test_a_finishing_blow_scores_the_life_it_took_not_its_size`,
 `test_a_marked_finishing_blow_takes_no_more_than_the_life_left`, and in `test_score.py` the death
 against the disappearance, the last monster's interval, the new level or game. The assertion that a
 disappearance is a kill is gone. Full suite 2740 passed.
+
+### The rest of the review: lifecycle, timeline, window, controller (2026-10-10 late night)
+
+`review.md` findings 2, 6, 7 and 8, the rest of 1, and its cleanup table. Small pieces (the timeline
+and viewport modules, the tests of each change, the contract sections at the top of both plans) were
+written by helper agents from written briefs; the integration, the live fight loop and the scoreboard
+were done in the main session. 2862 tests pass (2740 before); nothing was run in the game.
+
+- **Timeline (finding 6).** `combat/timeline.py`: `ticks` maps a take's sample numbers to game ticks
+  from the timestamps (a sample advances one tick, plus one per whole tick it is late by beyond 0.75
+  of a tick, so an evenly sampled take keeps its numbers). `sim/situation.cut` builds the situation
+  in ticks (`in_ticks`): what a sample showed is held through the ticks the next one skipped, 12 at
+  most, a monster only when the next sample still has it. Frames of another level than the
+  situation's are left out; the CLI's `--area` takes the longest stay; the strike button held at
+  the first frame is a press there; a take recorded faster than 25 a second is refused. The
+  recorder writes `schema: 2` and `Take.load` refuses a schema it does not know (`takes.SCHEMAS`).
+  The 63 scored takes held 4069 ticks without a sample; the worst single-level take ran 10% short
+  before (51.3 s on the clock, 46.6 s of frames).
+- **Window (finding 8).** `macros/view.py` `Viewport(aspect)` owns the projection, the two screen
+  limits, `hop_in_view` and the focal point the pointer can reach. `teleport.Way` and `way_for`
+  take it (the way is planned for the window the hop is made in, the cache keyed by it); the
+  routines' and teleport's helpers delegate to it. On the host's 2560 x 1418 window the way was
+  planned for 16:9 (1.778) before and is planned for 1.805 now: marginally more reach sideways.
+- **Controller (findings 2 and 7).** `combat/controller.py`: `aim_choice` (the policy's line, else
+  the elite or the nearest in reach, through `Observation.aimable`), `Aim`, `CastWatch`, `serve` and
+  `Move`, moved out of `Hunter.fight`, `choose` and `serve_move` with their constants. `LinePolicy`
+  scores a line with the focal point the window lets the pointer reach (16 units straight down the
+  screen at most), not one the aim shortened after the choice. The simulator's new `live`
+  candidate (`LiveAim`) is that decision; the observation it and every policy get holds the doors
+  of the decision frame, not of five frames later. `Pace.watched` replaces the overwritten
+  `pace.sleep`; the idle hold is pressed again only after the look at the player's move; the
+  actuator's re-press checks the focus first and presses nothing into another window.
+- **Lifecycle (finding 1).** The runner's transitions (a request, a run's end and its successor,
+  shutdown) are made under one lock; `Cancelled(Abort)` replaces the `'cancelled'` message text as
+  the pause protocol. A test with the hand-over slowed down fails without the lock.
+- **Cleanup.** `link_overkill` is gone from `simulate` (no caller; the experiment is the note
+  above); the hover scan at each Consume runs only with `D2R_MACRO_RESEARCH` set; two timeline
+  helpers nothing used were dropped.
+
+Scoreboard, the same 63 takes, against the run after findings 3 and 5:
+
+| | Before | After |
+| --- | --- | --- |
+| Takes passing | 24 | 23 |
+| Fit takes passing | 0 of 3 | 1 of 3 (ratios 0.81, 0.86, 0.83) |
+| `yield` gain on passing takes, median | +19.6% | +19.1% (+5.0 to +42.8%) |
+| `live` gain on passing takes, median | not scored | +19.0% |
+
+One fit take passes now and two Catacombs takes fail now ("blades run ahead" by 0.108 and 0.11
+against the 0.1 bar). Twenty-two yield gains moved by two points or more, both ways (+26% to +44%
+on the take that ran 10% short; +42% to +22% on the mixed-level take of 06:30, which is now its
+Catacombs 1 frames only). `live` differs from `yield` on 21 takes, by -2.6 to +1.9 points: the
+fallback and the window change little of what the sweep scores. Fixtures: Chaos yield 0.099 (0.098),
+Catacombs yield 0.038 (0.087: 0.042 from the ticks, the rest from the doors of the decision frame),
+Catacombs ratio 0.96 (0.94).
+
+Not done, and why: the fight's loop is not replayed against recorded input (holds, swaps, marks
+chosen live: the pieces have traces, the loop does not); the hunt's fakes still advance the clock
+only through sleeps; the test files were not split or renamed; the damage per hit was not refitted
+(the fit takes read 14-19% low) and the gate's bars were left alone.

@@ -3,6 +3,84 @@
 Plan, 2026-10-06. First version implemented the same day (see Status); not yet run in the game. Companion to the
 [input design](../input/design.md), which this package builds on.
 
+## Current contract (2026-10-10)
+What the code does today, per the module docstrings of the macro modules and input/compositor.py.
+Where a dated note below disagrees, those docstrings and this section win. The bindings are in
+input/compositor.py; no key is named here.
+
+The actions
+- The macro request (routines.py). Runs the routine for where the character stands: in Nihlathak's
+  Temple, the Frigid Highlands, the Bloody Foothills, the Fortress just after act 3, or Catacombs
+  Level 4 with Andariel dead, it leaves the game and creates the next one; in the lobby it creates
+  the next game; then it prebuffs. Anywhere else it prebuffs where the character stands.
+- The teleport step (teleport.py). One hop, or one walk into a door, toward the first mark on the
+  level card. A hop lands on footing in view that leaves the shortest way to the mark. A door is
+  clicked, never teleported onto. Teleport comes from a staff with charges, or from a skill slot.
+- The seek step (hunt.py, `Hunter.seek`). One step toward the nearest unique, champion or super
+  unique, live or remembered: a walk when the firing spot is close over clear ground, else a
+  teleport hop. With none known, toward the nearest unexplored room. Attack mode is on after it.
+- The attack mode toggle (hunt.py, `Hunter.attack_mode`). Starts or stops a run that fights what is
+  in reach, the elite first. The strike is one held input for the fight, with the pointer on the
+  line the combat policy picks (combat/policy.py). Death Mark goes on the strongest monster in
+  reach; Sigil: Lethargy goes under an elite.
+- The pickup step (pickup.py). The first rule that applies: pick up the nearest valuable ground
+  item; pick up a healing or full rejuvenation potion when the belt is short of that kind; with the
+  belt full and life low, drink one and pick up one; otherwise a seek step. During attack mode it
+  waits for the fight to end.
+
+Rules that hold across actions
+- Every transition of the runner (a request, a run ending and what follows it, shutdown) is made
+  under one lock: a run and a request never both start a successor, and shutdown is final
+  (runner.py). A cancel is the exception type `Cancelled`, not a message text.
+- One window shape (`view.Viewport`) decides what a hop may span, where a landing may be and where a
+  cast may be aimed: the way is planned for the window the hop is made in (2026-10-10 night).
+- What is fought is within the blades' reach with a clear shot (REACH, 22 units); a firing spot the
+  seek step goes to is within STRIKE_REACH (20). A hop of the way spans at most REACH_TILES and
+  lands in view: both hold.
+- A request cancels the running action, except a step's own request during that step, which queues
+  one more step (runner.py). The teleport and seek steps pause attack mode for their step, then
+  resume it; the pickup step waits for the fight to end.
+- Attack mode ends only on its own toggle, the macro request, the game being left, or
+  MISSES_IN_A_ROW fights stopped one after another (hunt.py). The player's moves, casts and mouse
+  use do not end it. A key the player holds makes it wait before a fight, but does not end a fight
+  under way (2026-10-10, 18:01).
+- The player's move comes before any strike: a left click releases the strike and blocks it until
+  the character has gone and stands again. A click the game may have swallowed during a cast is made
+  again for the player (hunt.py, 2026-10-10 evening).
+- The main weapon set is swapped in only for a tough pack (hunt.py): life alone, 40,000 life points
+  of monsters in reach (TOUGH_POINTS), an elite's life counted ELITE_LIFE (2) times (2026-10-10,
+  18:14).
+- Prebuff and demon slots: beside the bound demon there are two demon slots, and an active Consume
+  holds one. A prebuff consumes the standing Defiler where it stands, then summons its replacement,
+  and Consume is cast on every prebuff (2026-10-06; 2026-10-10, 18:47). A hostile monster next to a
+  Defiler is not a crowd: Consume cannot take it.
+- A hop must gain way: the landing takes the most off the way, and a hop taking less than MIN_GAIN
+  (3 units) is not made (2026-10-09, 18:02). The way counts only hops the view can show (2026-10-10,
+  19:19).
+- The pointer is checked against where the macro left it; Actuator.aim makes the aim again (three
+  tries). The teleport step's allowance is unlimited (teleport.POINTER_DRIFT, 2026-10-10, 18:01).
+- Every action first checks focus and that no key is physically held (actuator.py). A step goes on
+  only on evidence from the game; pauses never stand in for it (engine.py).
+
+Unresolved
+- Review finding 2: the simulator scores the fight's aim (combat/controller.py `LiveAim`), not the
+  rest of the fight: holds, retaps, the weapon swap, marks and sigils chosen live and the yield to a
+  click are not replayed against recorded input.
+- Review finding 7: the fakes under the hunt's tests advance the clock only through sleeps, so the
+  tests show the order of actions, not how long a memory read or a decision keeps a click waiting.
+- Pointer swinging: with near-equal lines the choice flips every 0.2 to 0.5 s (2026-10-10, 18:01).
+  Preferring the line already aimed along is proposed, not tried.
+- A Defiler summoned before Consume and left standing: whether it costs the buff is unknown
+  (2026-10-10, 18:47). Open question to the user (19:19): is that state acceptable, or must the
+  standing Defiler be summoned after the Consume?
+- "loaded game: not seen in 40s" after creating cyber21 (2026-10-10, 19:22); the cause is not in the
+  notes.
+- Pickup: the belt cell of a belt item (its path x) is unconfirmed, and what the hover record holds
+  with nothing under the pointer is not known (2026-10-10, 18:46 to 18:54).
+
+Everything below is the dated history: the first plan, then notes in order. Later notes supersede
+earlier ones.
+
 ## Goal
 
 One hotkey, Win+X, handled by `make serve`, does the chores between Pindleskin runs for
@@ -81,7 +159,11 @@ makes; d2go's offsets are starting points only.
 - The panel array is not all zero with nothing open (+0x00, +0x0A, +0x0C, +0x12, +0x14, +0x1B
   were set in town), so "nothing open" must test the named flags only.
 
-## Design
+## (historical) Design
+
+*Superseded 2026-10-10: see Current contract. The Status of 2026-10-06 ("Differences from the
+design above") has the routines as plain functions of a `Run` in `routines.py`, not a package of
+step objects.*
 
 ```
 inventory_tracking/macros/
@@ -98,7 +180,10 @@ inventory_tracking/macros/
 tests/inventory_tracking/macros/…
 ```
 
-### Engine
+### (historical) Engine
+
+*Superseded by the Status of 2026-10-06 and the engine.py docstring: a routine is a plain function
+of a `Run` that calls `run.expect`, not a list of step objects.*
 
 A routine is a list of steps. A step has three parts, and the engine owns the loop:
 
@@ -206,6 +291,10 @@ further (menus, lobby, game creation).
   routine outside town.
 
 ## Status (2026-10-06)
+
+*Partly superseded: the bullet "Prebuff is a goal, not a fixed sequence" (a standing Defiler is
+consumed or kept) is replaced by the 2026-10-06 "Consume is always cast" note and the 2026-10-10
+prebuff note on demon slots. See Current contract.*
 
 Built: `timing.py`, `actuator.py`, `world.py`, `skills.py`, `engine.py`, `routines.py`,
 `runner.py`, `probe.py`; `request --macro` and `macro <t>` in the service; pointer events in
@@ -355,7 +444,11 @@ Differences from the design above, and what is still open:
   life (`tracking/state.select_player`'s rule; `Caras` in collection/research.md R3 had none).
   Not yet confirmed on the host.
 
-## Win+T: one step toward the level card's mark (2026-10-09)
+## (historical) Win+T: one step toward the level card's mark (2026-10-09)
+
+*Superseded 2026-10-10: see Current contract. The binding changed, the door's walk distance went
+from 20 units to 10 (`NEAR_WARP`, 2026-10-09 evening), and the drift allowance changed later. The
+hop and door rules are otherwise as written, and the later notes give the values now in use.*
 
 User: a hotkey that teleports as far as possible toward the target, found dynamically (whether
 Teleport is available, which key, which weapon set), and that walks into the door when it is close
@@ -388,7 +481,10 @@ instead of teleporting next to it. Built the same day in `teleport.py`, scripted
   door makes the game walk around) are untested in the game; so is the charge read on the swap
   set, which the OSD's Teleport widget reads the same way.
 
-### Pressed again and again (host, 2026-10-09 17:44–17:46)
+### (historical) Pressed again and again (host, 2026-10-09 17:44–17:46)
+
+*Superseded in part: the 60-pixel drift allowance became 400 px (2026-10-09 evening), then
+unlimited (2026-10-10, 18:01).*
 
 The first build was unusable (user): "a key is held" twice (Win still down), six hops that each
 gained about 15 world units on a 465-unit way with 5–8 s between them, the door walk stopped by "the
@@ -409,7 +505,10 @@ mouse was moved", and a press during a step cancelled it. Changes:
   or Win+T during a prebuff, cancels. No throttle on Win+T.
 - Nothing waits after the hop; the evidence (the character moved) ends the step.
 
-### Landings (host, 2026-10-09 17:53, Durance): aimed against landed
+### (historical) Landings (host, 2026-10-09 17:53, Durance): aimed against landed
+
+*Superseded 2026-10-09, 18:02: the landing is searched over the whole view, not only along the
+route's first leg (see the next section).*
 
 User: some teleports landed far off and some were aimed over wide gaps. A Room2 rectangle is not
 ground: it holds walls, pits and chasms, and a teleport aimed at one lands wherever the game finds
@@ -423,7 +522,10 @@ a steady offset means the projection scale (`routines.UNIT_PIXELS`, verified onl
 character) is off at range; a landing on the far side of a wall means the footing margin is small.
 The 17:53 hops gained 22, 19, 6, 15, 28 and 23 units, so the 6-unit one is the first to look at.
 
-### The whole view, not the leg (host, 2026-10-09 18:02)
+### (historical) The whole view, not the leg (host, 2026-10-09 18:02)
+
+*Superseded 2026-10-09, 18:18: the way is a potential over landable tiles (`Way`). The way to go
+from route points described here was replaced (see Tile potential below).*
 
 The first logged hop had the projection 0.7 units off at 18.8 units (aimed (17748.8, 7112.6), landed
 (17749.5, 7112.5)), so aim is not the problem. The ten presses after it all stopped with "nothing to
@@ -436,7 +538,10 @@ it). A hop is made only if it takes `MIN_GAIN` (3 units) off the way; else "no f
 the character nearer to …". The log line says how much a hop took off the way ("… off the way").
 Cost on the Durance 2 fixture with 48 grids of 8x8 rooms: 38 ms per landing search, 0.5 ms for the route.
 
-### A potential, not straight lines (host, 2026-10-09 18:10, Durance 2 game cyber5)
+### (historical) A potential, not straight lines (host, 2026-10-09 18:10, Durance 2 game cyber5)
+
+*Superseded 2026-10-09, 18:18: the room potential (`route.distances`) was removed again. See Tile
+potential below.*
 
 Game cyber4 chained nine hops of 24–30 units and walked into the door, every landing within 1.1
 units of its aim. Game cyber5 stalled after two hops ("no footing in view brings the character
@@ -485,7 +590,11 @@ keysym, the key's level without Num Lock (`src/input/mod.rs`, `raw_latin_sym_or_
 `find_bind`), and the keypad 4's raw keysym is `KP_Left`. The niri line is `KP_Left` now; the game,
 which gets the key when niri does not take it, still sees KP_4. The arrow key is `Left`, no clash.
 
-## Hunting: KP_2 (elites) and KP_3 (any mob), 2026-10-09 evening
+## (historical) Hunting: KP_2 (elites) and KP_3 (any mob), 2026-10-09 evening
+
+*Superseded in part: from 2026-10-09 late, the attack mode toggle runs its own loop, and the seek
+step goes toward uniques, champions and super uniques only. See the Attack mode sections below and
+Current contract.*
 
 User request: two more keys built on the teleport step. Both first kill what stands in reach; when
 nothing does, KP_2 teleports toward the nearest unique, champion or super unique, KP_3 toward the
@@ -494,7 +603,10 @@ room, where more will show. Kills are Echoing Strike (skill 388), with Sigil: Le
 under elites first. One press is one step, as with KP_4: an attack burst, or one hop. The same
 key during a step queues one more; any other macro key cancels.
 
-### What was found (installed game, key file and sources, 2026-10-09)
+### (historical) What was found (installed game, key file and sources, 2026-10-09)
+
+*Superseded 2026-10-09, see First host presses below: Echoing Strike was not on the left click on
+the host. It is cast by its skill key or by the mouse button that holds it.*
 
 - **Echoing Strike is the left-click skill**: it is in no skill slot of `CybergrindAA` (the slot
   table in the macro records: slots 0-12 hold 379, 390, 375, 384, 389, 220, 393, 377, -, 382,
@@ -523,7 +635,11 @@ key during a step queues one more; any other macro key cancels.
   position (`positions`) and which are leaders (`leaders`); the level guide's rooms minus the
   tracker's `explored` bounds are the unexplored rooms.
 
-### Design
+### (historical) Design
+
+*Superseded in part, 2026-10-09 late and 2026-10-10 (Attack mode sections below and Current
+contract): the attack mode toggle is a run, the seek step goes toward uniques, champions and super
+uniques, and the strike is one held input.*
 
 `macros/sight.py` — pure geometry over `Ground`: `clear_shot(ground, start, end)` samples the
 line every half unit; `firing_spots(ground, mob, reach)` are the points on rings around the
@@ -558,7 +674,11 @@ gives `level()` (area, rooms, ground without a mark); the tracker gives `remembe
    evidence; fake game reacts (a sigil at the pointer, a strike kills what is under it).
 5. Wiring: runner routines, service, `request.py`, niri, Makefile comment, plan.
 
-### Status (2026-10-09, late evening): implemented, not yet pressed in the game
+### (historical) Status (2026-10-09, late evening): implemented, not yet pressed in the game
+
+*Superseded 2026-10-09 late (see Attack mode on KP_3 below): the seek step only moves, and the
+attack mode toggle runs its own loop. The runner no longer treats the seek step like the teleport
+step.*
 
 All five steps are in the tree. `world.monsters()` reads flags and alignment for every live monster
 (tests build units with champion, minion, ally and owned flags). `sight.py` and `hunt.py` are
@@ -605,7 +725,10 @@ Nothing new is needed in the game's bindings; Num Lock on, as for KP_4.
   action (teleport, door click, sigil, strike) uses it. BURST is 3: the hand moved the mouse past
   the drift allowance during the 2.4-second bursts of four.
 
-### One press, one fight (user, 2026-10-09 late evening)
+### (historical) One press, one fight (user, 2026-10-09 late evening)
+
+*Superseded 2026-10-10 evening ("KP_2 turns attack mode on"): the fight is one held strike on the
+combat policy's line, not bursts per aim.*
 
 "Try to kill mobs without continuously smashing the button if there are mobs in killing radius":
 `Hunter.fight` loops while something stands in reach, the elite first, then the nearest, a burst of
@@ -626,7 +749,10 @@ working session. Not resolved offline: the "did not move" log line now adds the 
 slot table, the staff (charges, in hand), the player's mode and the right skill, and every skill
 press logs its key and the mode before it.
 
-### Watch after the step, and Death Mark (user, 2026-10-09 late)
+### (historical) Watch after the step, and Death Mark (user, 2026-10-09 late)
+
+*Superseded 2026-10-09 late (see Attack mode on KP_3 below): the watch after a step is gone, and
+attack mode runs until its toggle. The Death Mark rule still holds (hunt.py).*
 
 The lost teleports were the game dropping the Teleport hotkey (user): the slot check catches it when
 the slot table shows it, and the "did not move" line prints the table otherwise.
@@ -661,7 +787,10 @@ WALK_UNITS (10, as NEAR_WARP) over clear ground (sight.clear_shot from the chara
 clicked, and the character walking is the evidence (`walk_to`); a wall between keeps the teleport.
 The HUD says "Walking 8 toward the monster 19 (11)".
 
-### Attack mode on KP_3, seeking on KP_2 (user, 2026-10-09 late: "still quite clunky")
+### (historical) Attack mode on KP_3, seeking on KP_2 (user, 2026-10-09 late: "still quite clunky")
+
+*Superseded in part: the player's own casts no longer end attack mode (section "Attack mode on the
+host", 2026-10-09), and the seek step turns attack mode on (2026-10-10 evening).*
 
 The step-then-watch design is gone. KP_3 toggles **attack mode** (`Hunter.attack_mode`, runner
 `ATTACK`): a run that lives until cancelled, looking every POLL for a hostile in reach and fighting
@@ -703,7 +832,10 @@ mode sat silent: the MARGIN now applies at both ends. And the mode said nothing 
 logs every IDLE_LOG_SECONDS what it sees ("idle: N hostiles, none in reach; nearest … away, shot
 clear/blocked") so a silent mode can be read in the log.
 
-### The burst cast the player's way (user, 2026-10-09 night)
+### (historical) The burst cast the player's way (user, 2026-10-09 night)
+
+*Superseded 2026-10-10 evening ("KP_2 turns attack mode on"): `Hunter.attack` and `aim_beyond` are
+gone. The fight is one held strike on the combat policy's line.*
 
 "It doesn't cast with the same speed as when I just hold the mouse button and aim": a tap per cast
 with a wait for the animation between and pauses around the aim was slower than the game's own
@@ -806,7 +938,10 @@ orientation under the same preset), the walk's log line shows the new offset and
   character did not move" 1.6 s later, twice). An elite within the blades' reach (22.1) with a clear
   shot is now "in reach" for KP_2, and attack mode engages at that same reach instead of 20.
 
-### The main weapons for fights and for leaving (user, 2026-10-10 evening)
+### (historical) The main weapons for fights and for leaving (user, 2026-10-10 evening)
+
+*Superseded in part: attack mode no longer takes the main set before each fight. It is swapped in
+only for a tough pack ("The player's move before any strike" and "The run of 18:14").*
 
 User: swap to the main weapon before Save and Exit; fight with the main weapon (more skill levels,
 more damage) and use the other set only to teleport; keep it dynamic, since Teleport will come from
@@ -842,6 +977,9 @@ Enigma later and the other set will then be the prebuff one.
   sigils: the clock for the first strike now starts after them.
 
 ### The player's move before any strike; the main weapons for tough packs only (user, 2026-10-10 evening)
+
+*Partly superseded: "tough" was an elite in reach or 40,000 life points. In "The run of 18:14" it
+became life alone (TOUGH_POINTS 40,000, with an elite's life counted ELITE_LIFE times).*
 
 User: "movement in auto-attack mode is quite clunky: I need to click several times to move, because
 echoing strike prevents the movement ... some kind of priority queue, to make movement have priority
@@ -966,7 +1104,10 @@ run before). Four clicks made again (one twice).
 
 Full suite 2711 passed.
 
-### KP_1: pick up, else KP_4 (user, 2026-10-10 evening)
+### (historical) KP_1: pick up, else KP_4 (user, 2026-10-10 evening)
+
+*Superseded 2026-10-10, 18:41 (see "Action names" below): with nothing to pick up the step is a
+seek step, not a teleport step.*
 
 Asked for: one key for the non-battle action, one-off per press: pick up a valuable item (the ones
 already marked), walking or teleporting by distance; pick up a potion when the belt is missing one;
@@ -1161,3 +1302,97 @@ One seek step stopped: "Walking 7 toward the elite", "the character did not move
 attack mode was paused in the middle of a fight. `hunt.walk_to` now waits for the character to be
 free (`routines.settle`) and makes the click a second time if nothing moved. Test:
 `test_a_walk_click_the_game_swallows_is_made_again`.
+
+### The Forgotten Tower run of 20:05 (2026-10-10; user: "teleport accuracy in tower sub-par")
+
+Log `runs/alt-d/20261010T170512Z-dc293596/probe.log`, Black Marsh to Tower Cellar 5.
+
+- The hops are accurate: every teleport toward a door landed within 0.8 units of its aim (one 6.2).
+  The time went at the doors. The stairs down in Tower Cellar 1, 2 and 3 (presets 143, 144, 146:
+  'Crypt Next' W, E, N) each took the third aim, (-50, -45), after 1.4 s on (0, 0) and 1.4 s on
+  (0, -45): 3.0 s a door against 0.5 s for a first-aim door. The tower's door in Black Marsh
+  (preset 163) took the second, (0, -45). The Catacombs stairs take (0, 0) (41 of 41 in the logs).
+- The aim that took a door was kept per area, in memory: each cellar level started over. It is now
+  kept per preset like the entry spot (`AIMS`, `runs/macros/door-aims.json`), behind `KNOWN_AIMS`,
+  the aims read from this log (preset 145, 'Crypt Next S', assumed like the other three).
+- In Tower Cellar 5 the only mark is the stairs back up, and the step after arriving clicked them (the
+  mouse moving stopped it). A step toward a 'previous' mark now stops with "the only way marked is
+  back to …".
+- The card: Black Marsh leads with the Forgotten Tower (`ExitsHandler.pois_first`), and a level
+  without a handler lists its ways on before its ways back (the Forgotten Tower itself).
+
+### The tower run of 20:12 (2026-10-10; user: "teleport locations are still off", potions, Win+X)
+
+Log `runs/alt-d/20261010T171057Z-6dd75801/probe.log`, with `KNOWN_AIMS` live.
+
+- The cellar stairs took the first click, (-50, -45), in 0.17 to 0.26 s on each of the four levels, twice
+  with no step at all, from 1.1 and 5.6 units. So where the level changes is not always a spot the
+  character is walked to: it may be where it stood. The door's entry is now where the character
+  stood at the click when the first click took (a spot proven to work), else where the level
+  changed, as before.
+- The tower's door in Black Marsh: the hop landed on the remembered spot (-3.9, -0.6), a place the
+  character had only walked through, and none of the four aims took in 5.5 s. The next press, from
+  (0, -4) where the ground clicks had left the character, took (0, -45) in 0.28 s. Why the first
+  press failed is not known: the log did not say what was under the pointer. Now each door click
+  logs the unit under the pointer and where the character stands after a miss; an aim with a
+  monster or an item under it (the mercenary and the summons land beside the character after a
+  hop) is left for last; after all the aims the first is made once more from where the character
+  ended up. The entry of preset 163 in `door-entries.json` was set by hand to (0, -4).
+- UNCONFIRMED: what the hover record holds over a door (unit type 5?). The next log says; if it
+  does, the aims can be looked at first and only the one on the door clicked, as pickup.take does.
+- One hop right after arriving in Tower Cellar 1 did not move the character (20:12:49, 0.5 s after
+  the door); the next press did. Not changed.
+- Potions (user: "only super hp or full rejuv"): the pickup step went for smaller healing potions,
+  which the loot filter hides, and 9 clicks took nothing (20:12, 20:13). `GameMemory.loot` lists
+  class 606 alone as a healing drop (`SUPER_HEALING`).
+- Win+X on Tower Cellar 5 with no live Countess (class 45 with the super unique flag) leaves the
+  game, makes the next one and prebuffs, as on Andariel's level (`routines.run_ended`). As there,
+  the request before she is in the unit table leaves too.
+- The same door at 20:17 (same log): from (+5, +5), behind the tower, (0, -45) and (0, 0) missed and
+  (-50, -45) took after a 22-unit walk round it; the level changed at (-2.6, 0). All three level
+  changes were west of the mark ((-3.9, -0.6), (-3, -3), (-2.6, 0)): the way in is from there, and
+  the one click that took at once was made from (0, -4). `door-aims.json` for preset 163 was set
+  back to (0, -45), the aim of that click, by hand.
+
+### The rest of the review: one lock, one window, the controller apart (2026-10-10 late night)
+
+The detail and the scoreboard are in `combat/plan.md` under the same date. For the macros:
+
+- **Runner.** Every transition is made under one lock, so a request arriving while a run hands
+  over to its successor waits for the hand-over (a test slows it down; without the lock a teleport
+  step started beside attack mode). A cancel is `Cancelled(Abort)`; the runner no longer reads the
+  message text. Shutdown stays final.
+- **Window.** `macros/view.py` `Viewport` is the one projection. `Way(target, view)` plans hops for
+  the window they are made in and `way_for` keeps one potential per window; before, the way was
+  planned for 16:9 whatever the window.
+- **Fight.** The decisions are in `combat/controller.py` and the loop in `Hunter.fight` asks them:
+  where to cast, whose the pointer is, the held input, the player's move. Three changes of
+  behaviour, none seen in the game yet: a line is chosen by the focal point the pointer can reach
+  (a monster low on the screen was scored with a focal point the aim then shortened); the idle
+  hold is pressed again only after the look at the player's click; a re-press is not made when the
+  game has lost the focus.
+- **Pace.** `Pace.watched(look, every, clock)` is how attack mode sees a click during any pause;
+  `pace.sleep` is no longer overwritten.
+- **Consume.** The scan for the unit under the pointer runs only with `D2R_MACRO_RESEARCH` set.
+
+To watch for in the next run: fights against monsters low on the screen (the line may differ), a
+click during a fight in a game that casts once per press, and hops in a window that is not 16:9.
+
+### The first run on the reworked code (20:56, 2026-10-10)
+
+Run `20261010T175558Z-e84efc83`, cyber28: Catacombs 1 to 3 in 2 min 38 s from the game's creation to
+Save and Exit, on the code of the note above (the lock, the window, the controller). No failed
+macro, no fight stopped on an error, no "nothing in view to aim at"; the pickup step took a Grand
+Charm and a Flawless Amethyst, the door of each level took its click 0.6 s after the walk began.
+
+- **Two seek steps stopped "the mouse is being moved"** (20:57:35 and 20:58:20): three aims in 0.4 s,
+  each found 500 to 1100 pixels off, the hand sweeping the mouse while the key was tapped. The
+  hand has the length of a move (three to six steps and the pause after) to carry the pointer off.
+  `Actuator.aim`'s last try is now `jump`: the pointer put there in one step and looked at at once.
+  A test with a hand that moves the pointer during every pause passes on the third try.
+- **"Shot blocked" at 4 to 9 units** (20:57:16 to 20:57:21, 46 hostiles, the character idle 5 s until
+  two seek steps): replayed from the take, the monsters stood behind a closed door (object 64 at
+  22650, 6630) and the wall beside it. The block is real. The first seek step's hop aimed at a
+  firing spot inside the room and landed in the doorway; the second got in. Not changed.
+- Fights log few "casts seen" (2 in 2.4 s with 13 down): the count is of the character leaving and
+  entering a cast, and a held input chains casts without leaving. A log number only.

@@ -17,17 +17,19 @@ from inventory_tracking.combat.sim.engine import fitted_mana, replay
 from inventory_tracking.combat.sim.input import validate_inputs
 from inventory_tracking.combat.sim.policy import compare
 from inventory_tracking.combat.sim.situation import cut, describe
-from inventory_tracking.combat.takes import Take, player_of, timeline, trim
+from inventory_tracking.combat.takes import Take, timeline, trim
+from inventory_tracking.combat.timeline import longest_visit
 
 
 def window(take: Take, area: int | None):
-    """The whole take, or the frames of `area` (first to last) when one is asked for."""
+    """The whole take, or its longest stay in `area` when one is asked for (a take before 2026-10-10
+    may come back to a level: one map and one monster level hold for one stay only)."""
     if area is None:
         return cut(take)
-    frames = [f['n'] for f in take.frames if (player := player_of(f)) is not None and player.area == area]
-    if not frames:
+    stay = longest_visit(take.frames, area)
+    if stay is None:
         raise SystemExit(f'no frames in area {area}')
-    return cut(take, frames[0], frames[-1], area=area)
+    return cut(take, *stay, area=area)
 
 
 def main(argv=None) -> int:
@@ -57,7 +59,7 @@ def main(argv=None) -> int:
     parser.add_argument(
         '--area',
         type=int,
-        help='simulate/policy/inputs: only the frames in this area (a take before 2026-10-10 may span levels)',
+        help='simulate/policy/inputs: the longest stay in this area (a take before 2026-10-10 may span levels)',
     )
     parser.add_argument('--frames', type=int, nargs=2, help='trim: the first and last frame numbers')
     parser.add_argument('--to', type=Path, help='trim: the directory of the trimmed take')

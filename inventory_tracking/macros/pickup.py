@@ -2,9 +2,9 @@
 
 1. A valuable item on the ground is picked up: what the loot marks point at (runes from the
    configured minimum, materials, bases of expensive uniques; loot/ground.py), the nearest first.
-2. A healing or full rejuvenation potion (never a plain one) near the character is picked up when the belt is
-   missing one of its kind (tracking/belt.py `column_shortages`: a column holds what its lowest
-   potion is, an empty one rejuvenation).
+2. A super healing or full rejuvenation potion (never a smaller or plain one) near the character is
+   picked up when the belt is missing one of its kind (tracking/belt.py `column_shortages`: a column
+   holds what its lowest potion is, an empty one rejuvenation).
 3. With the belt full, life missing and such a potion near: one of the same kind is drunk from the
    belt's hotkey row and the one on the ground picked up in its place.
 4. Nothing of those: the press is a seek step (hunt.Hunter.seek: toward the next elite, attack mode on).
@@ -34,7 +34,7 @@ from inventory_tracking.loot.materials import material_classes
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.routines import UNIT_PIXELS
-from inventory_tracking.macros.teleport import ground_fraction, hop_toward, in_view, ready
+from inventory_tracking.macros.teleport import HOVER_SECONDS, ground_fraction, hop_toward, in_view, ready
 from inventory_tracking.macros.world import HEALING, REJUVENATION, VALUABLE, Drop, Loot
 from inventory_tracking.models import PotionType
 from inventory_tracking.native.layout import BELT_COLUMNS, TILE_UNITS
@@ -54,7 +54,6 @@ DRINK_BELOW = 0.7  # of the life: under it a potion is drunk to make room for th
 ITEM_AIMS = ((0, -14), (0, -24), (0, -6), (-10, -14), (10, -14), (0, -34), (0, 2))
 PICK_SECONDS = 1.5  # for the item to leave the ground after the click, plus the walk at WALK_SPEED
 WALK_SPEED = 6.0  # world units a second, on the slow side
-HOVER_SECONDS = 0.06  # for the game to note what is under the pointer after it moved (a frame or two)
 CLICKS = 2  # clicks on an aim that has the item under it
 STOOD_SECONDS = 0.4  # the character standing this long after a click with the item still there: a miss
 POLL = 0.05

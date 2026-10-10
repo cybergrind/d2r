@@ -17,6 +17,10 @@ finds no line for is aimed at directly, the elite first, then the nearest, AIM_B
 elite gets Sigil: Lethargy under it once per SIGIL_SECONDS, the strongest monster in reach Death Mark
 once per DEATH_MARK_SECONDS. The main weapon set is swapped in for a tough pack only (`tough`).
 
+What the fight decides from what it sees and the clock (where to cast, whose the pointer is, the
+held input, the move asked for) is combat/controller.py, apart from the game; this module reads the
+game, asks it and acts.
+
 The player's move comes before any strike (`sense`, `serve_move`): a left click releases the strike
 and blocks it until the character has gone and stands again; a click made while a cast ran, which
 the game may have swallowed, is made again for the player. A held key or a running character makes
@@ -33,10 +37,21 @@ import math
 import threading
 from collections.abc import Callable
 from contextlib import ExitStack
-from dataclasses import dataclass
 
+from inventory_tracking.combat.controller import (
+    CLICK,
+    GAVE_UP,
+    MOVE_CLICKS,
+    NO_CAST,
+    PENDING,
+    RETAP,
+    Aim,
+    CastWatch,
+    Move,
+    aim_choice,
+    serve,
+)
 from inventory_tracking.combat.policy import (
-    AIM_BEYOND,
     REACH,
     RUN_MODES,
     STRIKE_REACH,
@@ -49,7 +64,7 @@ from inventory_tracking.combat.score import LiveScore
 from inventory_tracking.common import LOG
 from inventory_tracking.levels.model import Ground, Level, Room, Target
 from inventory_tracking.levels.route import room_at
-from inventory_tracking.macros.actuator import Abort
+from inventory_tracking.macros.actuator import Abort, Cancelled
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.routines import (
     ACTING,
@@ -74,6 +89,7 @@ from inventory_tracking.macros.teleport import (
     moved,
     ready,
 )
+from inventory_tracking.macros.view import Viewport
 from inventory_tracking.macros.world import NO_OWNER, Monster, World
 from inventory_tracking.native.layout import TILE_UNITS
 from inventory_tracking.terror.tracker import UNKILLABLE
@@ -83,29 +99,18 @@ SIGIL_SECONDS = 10.0  # between two sigils under the same monster
 DEATH_MARK_SECONDS = 8.0  # between two Death Marks; the debuff lasts 125 + 13/level frames (skills.txt)
 WALK_CLICKS = 2  # clicks for one walk to a firing spot
 WALK_UNITS = 10.0  # a firing spot this near, over clear ground, is walked to, not teleported to (as NEAR_WARP)
-RETAP_SECONDS = 0.25  # the held input idle this long between casts: released and pressed again
 FIGHT_SECONDS = 60.0  # one fight ends here at the latest; attack mode looks again right after
 POLL = 0.1  # seconds between looks in attack mode while nothing is fought
 FRAME = 0.04  # seconds between looks during a fight: one game frame, so a move of the player's is yielded to at once
 DECIDE_SECONDS = 0.12  # between two askings of the policy while its monster lives (a decision costs up to 50 ms)
-REAIM_UNITS = 1.0  # the focal point this far from where the pointer was put: aimed again
-STRAY_PIXELS = 25  # the pointer this far from where it was put (the player's hand): aimed again
 SIGHT = 30.0  # world units: hostiles further off are not part of the decision
-HAND_REST = 0.2  # seconds the pointer must rest where the player's hand left it before it is aimed again
 SLICE = 0.01  # seconds between looks at the left mouse button while the mode waits or fights
-MOVE_SETTLE = 0.12  # seconds the character stands free after a move was asked for before the click is made again
-MOVE_QUIET = 0.4  # seconds the strikes wait on a click the game took and that has moved nothing
-MOVE_RETRY = 0.3  # seconds between two clicks made for the player
-MOVE_CLICKS = 2  # clicks made for the player per move asked for
-MOVE_SECONDS = 2.0  # a move asked for that has shown nothing after this long is dropped
-MOVED_UNITS = 1.0  # world units the character has gone: the move is under way
 TOUGH_POINTS = 40_000.0  # life points in reach from which a pack is worth the main weapons
 ELITE_LIFE = 2.0  # a unique's or champion's life in Hell, in its type's points (the tables hold the plain monster's)
 MAIN_AFTER = 1.0  # seconds after a step before the main weapons are swapped in for a fight
 SWAP_RETRY_SECONDS = 5.0  # after a swap to the main weapons that did not come
 INPUT_SECONDS = 1.0  # Echoing Strike on no input for this long (another skill selected) before it is a stopped fight
 MISSES_IN_A_ROW = 5  # fights that stopped one after another before attack mode gives up
-CAST_SECONDS = 0.8  # for the first cast animation to show after the press
 IDLE_LOG_SECONDS = 3.0  # between log lines on what attack mode sees while nothing is in reach
 
 Remembered = Callable[[int], list[tuple[int, float, float, bool]]]  # area -> (unit id, x, y, leader)
@@ -153,20 +158,6 @@ def strike_input(run: Run, world: World, key_names) -> tuple[tuple[str, ...], st
         f'Echoing Strike is on no skill key and on neither mouse button '
         f'(left {skill_name(player.left_skill)}, right {skill_name(player.right_skill)})'
     )
-
-
-@dataclass
-class Move:
-    """A move the player asked for with the left mouse button while attack mode ran."""
-
-    at: float  # clock time of the press
-    pixel: tuple[int, int] | None  # where the pointer was (root coordinates)
-    origin: tuple[float, float] | None = None  # where the character stood, once read
-    under_way: bool = False  # the character has been seen going
-    free_at: float | None = None  # since when the character has stood free with the button up
-    swallowed: bool = False  # pressed while a cast ran or the strike was held: the game may not have taken it
-    clicks: int = 0  # clicks made for the player
-    clicked_at: float = -math.inf
 
 
 class Hunter:
@@ -256,23 +247,9 @@ class Hunter:
     def attack_mode(self, run: Run, key_names) -> None:
         """Attack mode: fight whatever comes into reach until cancelled. Every pause the mode makes, in its own
         loop and inside a mark, a sigil or a swap, looks at the left mouse button every SLICE
-        (`watchful`), so no click of the player's goes unseen."""
-        plain = run.pace.sleep
-
-        def watchful(seconds: float) -> None:
-            until = run.clock() + seconds
-            while True:
-                self.sense(run)
-                left = until - run.clock()
-                if left <= 0:
-                    return
-                plain(min(SLICE, left))
-
-        run.pace.sleep = watchful
-        try:
+        (`Pace.watched`), so no click of the player's goes unseen."""
+        with run.pace.watched(lambda: self.sense(run), SLICE, run.clock):
             self._attack_mode(run, key_names)
-        finally:
-            run.pace.sleep = plain
 
     def _attack_mode(self, run: Run, key_names) -> None:
         misses, logged_at = 0, -math.inf
@@ -281,7 +258,7 @@ class Hunter:
         unready_since: float | None = None  # since when Echoing Strike has been on no input (see below)
         run.say('Attack mode on')
         while True:
-            world = run.world()  # Abort('cancelled') when the runner ends the mode
+            world = run.world()  # Cancelled when the runner ends the mode
             self.score.note(run.clock(), world.player, hostiles(world), world.dead)
             if not world.in_game:
                 # The lobby or the menu: the mode ends, so the macro request there starts the macro at once.
@@ -354,7 +331,7 @@ class Hunter:
         the runner reads as a pause."""
         if self.after_fight.is_set():
             self.after_fight.clear()
-            raise Abort('cancelled')
+            raise Cancelled
 
     def firing_target(self, level: Level, ground: Ground, here, mob, name: str, doors=()) -> Target:
         """The target of a hop toward `mob`: the nearest spot on a room with a shot at it, or the monster
@@ -379,7 +356,7 @@ class Hunter:
         ]
         if not rooms:
             raise Abort('the level is explored and nothing is left to hunt')
-        origin = Way(Target(level.area, level.rooms, here, 'here', 'explore', False, level.ground))
+        origin = Way(Target(level.area, level.rooms, here, 'here', 'explore', False, level.ground), Viewport.of(rect))
         best: tuple[float, Room, tuple[int, int]] | None = None
         for room in rooms:
             for x in range(room.x, room.x + room.width):
@@ -446,47 +423,30 @@ class Hunter:
             run.pace.sleep(min(SLICE, left))
 
     def serve_move(self, run: Run, world: World) -> None:
-        """The move the player asked for comes before any strike. The game takes no click while a
-        cast runs, and a click is over before the cast is: so the strike input is let go at the press
-        (the caller), nothing is cast while the move is pending, and when the character stands free
-        with the button up and has not gone anywhere, a click the cast may have swallowed is made
-        again for the player where they made it (a walk, an item picked up, a door: whatever was under
-        the pointer), MOVE_CLICKS times at most. The move is done when the character has gone and
-        stands again, or dropped after MOVE_SECONDS with nothing to show."""
-        move, player, now = self.move, world.player, run.clock()
+        """The move the player asked for comes before any strike (combat/controller.py `serve`): it is
+        waited for, and a click a cast may have swallowed is made again for the player where they made
+        it (a walk, an item picked up, a door: whatever was under the pointer)."""
+        move, player = self.move, world.player
         if move is None or player is None:
             self.move = None
             return
-        here = (player.x, player.y)
-        if move.origin is None:
-            move.origin = here
-        if player.mode in RUN_MODES or math.dist(here, move.origin) > MOVED_UNITS:
-            move.under_way = True
-        if move.under_way:
-            if player.mode not in RUN_MODES and not self.left_down:
-                self.move = None  # arrived: the strikes may go on
+        todo = serve(
+            move, run.clock(), (player.x, player.y),
+            running=player.mode in RUN_MODES, acting=player.mode in ACTING, left_down=self.left_down,
+        )  # fmt: skip
+        if todo == PENDING:
             return
-        if self.left_down or player.mode in ACTING:
-            move.free_at = None  # the button still down (the game sees it), or the cast still running
-            if now - move.at > MOVE_SECONDS and not self.left_down:
-                self.move = None
-            return
-        if move.free_at is None:
-            move.free_at = now
-        if not move.swallowed:
-            # The character was free at the press: the game took the click, and a click that moves nothing
-            # (an item picked up, a chest) is not made again. The strikes wait MOVE_QUIET for a walk to show.
-            if now - move.at >= MOVE_QUIET:
-                self.move = None
-            return
-        if now - move.free_at < MOVE_SETTLE or now - move.clicked_at < MOVE_RETRY:
-            return
-        if move.clicks >= MOVE_CLICKS or now - move.at > MOVE_SECONDS or move.pixel is None:
-            LOG.info('Macro: the move asked for %.1fs ago showed nothing after %d clicks', now - move.at, move.clicks)
+        if todo != CLICK:
+            if todo == GAVE_UP:
+                LOG.info(
+                    'Macro: the move asked for %.1fs ago showed nothing after %d clicks',
+                    run.clock() - move.at, move.clicks,
+                )  # fmt: skip
             self.move = None
             return
         keys = run.actuator.keys
         back = keys.pointer()
+        assert move.pixel is not None
         try:
             keys.move_pointer(*move.pixel)
             keys.sync()
@@ -500,8 +460,7 @@ class Hunter:
             LOG.info('Macro: the click for the player was not made (%s)', stop)
             self.move = None
             return
-        move.clicks += 1
-        move.clicked_at = run.clock()
+        move.clicked(run.clock())
         LOG.info(
             'Macro: the click the cast swallowed made again at %s, %.2fs after the press (%d of %d)',
             move.pixel, move.clicked_at - move.at, move.clicks, MOVE_CLICKS,
@@ -529,22 +488,23 @@ class Hunter:
             return 'the character is on the move'
         return None
 
-    def choose(self, world: World, foes: list[Monster], reachable: list[Monster], ground: Ground) -> Choice:
-        """Where to cast now: the policy's line over the hostiles in sight (combat/policy.py, the one
-        the simulator scores), else straight at what is in reach: the elite first, then the nearest,
-        AIM_BEYOND past it (a monster in reach is never left standing for want of a line)."""
+    def choose(
+        self, world: World, foes: list[Monster], reachable: list[Monster], ground: Ground, view: Viewport
+    ) -> Choice:
+        """Where to cast now (combat/controller.py `aim_choice`, the decision the simulator scores as
+        `live`): the policy's line over the hostiles in sight, else straight at what is in reach, and
+        a focal point the window lets the pointer reach."""
         player = world.player
         assert player is not None
         here = (player.x, player.y)
         near = [m for m in foes if math.dist(here, (m.x, m.y)) <= SIGHT]
         companions = [m for m in world.monsters if m.ally or m.owner != NO_OWNER]
-        found = self.policy(observe(player, near, companions, ground, world.doors))
-        if found is not None:
-            return found
-        prey = min(reachable, key=lambda m: (not m.leader, math.dist(here, (m.x, m.y))))
-        away = math.dist(here, (prey.x, prey.y)) or 1.0
-        beyond = (prey.x + (prey.x - here[0]) / away * AIM_BEYOND, prey.y + (prey.y - here[1]) / away * AIM_BEYOND)
-        return Choice(beyond, prey.unit_id, 0.0)
+        seen = observe(
+            player, near, companions, ground, world.doors, aimable=lambda focal: view.reachable_focal(here, focal)
+        )
+        found = aim_choice(self.policy, seen, [m.unit_id for m in reachable])
+        assert found is not None  # the caller has something in reach
+        return found
 
     def fight(self, run: Run, ground: Ground, aspect: float, key_names, until: float | None = None) -> None:
         """Strike while anything is in reach and the player stands: one hold of the strike input
@@ -554,15 +514,15 @@ class Hunter:
         weapons), or after FIGHT_SECONDS."""
         started = run.clock()
         held, how = strike_input(run, run.world(), key_names)  # before any cast: no key, no fight
-        casts = down = 0
-        acting, idle_since, began = False, None, started
+        down = 0
+        cast = CastWatch(started)  # the casts seen since the press (combat/controller.py)
         choice: Choice | None = None
         decided_at = -math.inf
-        aimed: tuple[tuple[float, float], tuple[float, float]] | None = None  # (focal, the character's place)
+        aim = Aim((run.actuator.keys.pointer(), -math.inf))  # where the pointer was put, and the player's hand
+        view = Viewport(aspect)
         again: Callable[[], None] | None = None
         watched: set[int] = set()  # the hostiles seen in reach while the input was held
         lined: int | None = None  # the monster the line last logged went through
-        hand: tuple[tuple[int, int] | None, float] = (run.actuator.keys.pointer(), -math.inf)  # pointer, since when
         ended = f'Fight stopped after {FIGHT_SECONDS:.0f}s'
         with ExitStack() as stack:
             while run.clock() - started < FIGHT_SECONDS:
@@ -575,25 +535,19 @@ class Hunter:
                 alive = {m.unit_id for m in world.monsters}
                 down += len(watched - alive)
                 watched &= alive
-                if again is not None:
-                    if player.mode in ACTING:
-                        casts += not acting
-                        acting, idle_since = True, None
-                    else:
-                        acting = False
-                        if not casts and run.clock() - began > CAST_SECONDS:
-                            raise Abort(f'no cast seen after the {how} (Echoing Strike not on {how}?)')
-                        if idle_since is None:
-                            idle_since = run.clock()
-                        elif run.clock() - idle_since > RETAP_SECONDS:
-                            again()
-                            idle_since = None
+                held_input = cast.step(run.clock(), player.mode in ACTING) if again is not None else None
+                if held_input == NO_CAST:
+                    raise Abort(f'no cast seen after the {how} (Echoing Strike not on {how}?)')
                 self.casting = again is not None or player.mode in ACTING
                 self.sense(run)
                 why = 'a move was asked for' if self.move is not None else self.moving(run, world, keys=again is None)
                 if why is not None:
                     ended = f'Yielded ({why})'
                     break
+                if held_input == RETAP and again is not None:
+                    # After the look at the player's move, never before it: a click just made is yielded
+                    # to with the input let go, not answered with a new press (review.md, finding 7).
+                    again()
                 here = (player.x, player.y)
                 foes = hostiles(world)
                 self.score.note(run.clock(), player, foes, world.dead)
@@ -614,39 +568,31 @@ class Hunter:
                         break
                     continue
                 if choice is None or choice.unit not in alive or run.clock() - decided_at >= DECIDE_SECONDS:
-                    choice, decided_at = self.choose(world, foes, reachable, ground), run.clock()
+                    choice, decided_at = self.choose(world, foes, reachable, ground, view), run.clock()
                 prey = next(m for m in foes if m.unit_id == choice.unit)
                 if run.clock() - self.marked_at > DEATH_MARK_SECONDS and DEATH_MARK in world.slots:
                     strongest = max(reachable, key=lambda m: (m.leader, m.max_life, -math.dist(here, (m.x, m.y))))
                     self.casting = True  # the mark's own cast swallows a click as a strike does
                     self.death_mark(run, strongest, aspect, key_names)
-                    aimed = None
-                    began = run.clock() if not casts else began  # the mark's own cast is no missing strike
+                    aim.forget()
+                    cast.excuse(run.clock())  # the mark's own cast is no missing strike
                 if prey.leader and run.clock() - self.sigiled.get(prey.unit_id, -math.inf) > SIGIL_SECONDS:
                     self.casting = True
                     self.sigil(run, world, prey, aspect, key_names)
-                    aimed = None
-                    began = run.clock() if not casts else began
+                    aim.forget()
+                    cast.excuse(run.clock())
                 pointer, left_at = run.actuator.keys.pointer(), run.actuator.left_at
-                strayed = pointer is None or left_at is None or math.dist(pointer, left_at) > STRAY_PIXELS
-                if pointer != hand[0]:
-                    hand = (pointer, run.clock())  # the pointer is somewhere new
-                # The player's hand is taking the pointer somewhere (to click a spot): it is not pulled
-                # back to the line until it has rested HAND_REST, or the click would land on the line.
-                busy_hand = strayed and aimed is not None and run.clock() - hand[1] < HAND_REST
-                stale = aimed is None or strayed or math.dist(aimed[0], choice.focal) > REAIM_UNITS or aimed[1] != here
-                if stale and not busy_hand:
-                    where = aim_in_view(player, choice.focal, aspect)
+                if aim.due(run.clock(), pointer, left_at, choice.focal, here):
+                    where = view.aim(here, choice.focal)
                     if where is None:
                         ended = f'Nothing in view to aim at ({label(prey)} is off the screen)'
                         break
                     run.actuator.aim(*where, scatter=(3, 3))
-                    aimed = (choice.focal, here)
-                    hand = (run.actuator.keys.pointer(), hand[1])  # put there by the macro: no news of the hand
+                    aim.put(choice.focal, here, run.actuator.keys.pointer())
                 if again is None:
                     run.say(f'Echoing Strike ({how}) at {label(prey)}, {life(prey)}')
                     again = stack.enter_context(run.actuator.hold(*held))
-                    began = run.clock()
+                    cast.began = run.clock()
                     self.casting = True  # the strike is held from here to the end of the fight
                 if prey.unit_id != lined:
                     lined = prey.unit_id
@@ -661,9 +607,9 @@ class Hunter:
                     break
         down += len(watched - {m.unit_id for m in run.world().monsters})
         seconds = run.clock() - started
-        LOG.info('Macro: fight (%s): %d casts seen in %.1fs, %d down; %s', how, casts, seconds, down, ended)
-        run.say(f'{ended}: {down} down in {casts} casts')
-        if casts:
+        LOG.info('Macro: fight (%s): %d casts seen in %.1fs, %d down; %s', how, cast.casts, seconds, down, ended)
+        run.say(f'{ended}: {down} down in {cast.casts} casts')
+        if cast.casts:
             run.say(f'Last minute: {self.score.line()}')  # the HUD card's standing line between fights
 
     def sigil(self, run: Run, world: World, prey: Monster, aspect: float, key_names) -> None:
@@ -694,18 +640,6 @@ class Hunter:
         self.marked_at = run.clock()
         run.say(f'Death Mark on {label(target)}, {life(target)}')
         run.pause('key')
-
-
-def aim_in_view(player, focal: tuple[float, float], aspect: float) -> tuple[float, float] | None:
-    """Where to put the pointer for a cast at `focal` (window fractions): the focal point's ground, or,
-    when that is off the screen, the furthest point of the same line that is on it (the blades fly
-    their 22 units along the line whatever the focal distance; only where they meet moves)."""
-    dx, dy = focal[0] - player.x, focal[1] - player.y
-    for share in (1.0, 0.85, 0.7, 0.55, 0.4, 0.25):
-        where = ground_fraction(player, player.x + dx * share, player.y + dy * share, aspect)
-        if on_screen(where):
-            return where
-    return None
 
 
 def walk_to(run: Run, goal, player, aspect: float, name: str) -> None:

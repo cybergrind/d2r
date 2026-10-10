@@ -22,7 +22,6 @@ from inventory_tracking.native.layout import (
     BELT_SIZE,
     CHARGED_SKILL_STAT,
     DEAD_MODES,
-    HEALING_POTIONS,
     LEVEL_AREA_ID,
     LIFE_STAT,
     MAX_LIFE_STAT,
@@ -152,6 +151,9 @@ class Monster:
 # The only rejuvenation potion worth a belt cell (user, 2026-10-10: "we need a full rejuv potion
 # instead"); a plain one (530) lay where fourteen clicks could not take it (host, 19:37).
 FULL_REJUVENATION = 531
+# The only healing potion worth one (user, 2026-10-10: "only super hp or full rejuv"): the smaller sizes
+# were gone for, and the loot filter hides them, so no click took them (host, 20:12 and 20:13).
+SUPER_HEALING = 606
 VALUABLE, HEALING, REJUVENATION = 'valuable', 'healing', 'rejuvenation'  # what a drop is to the pickup step
 
 
@@ -479,7 +481,7 @@ class GameMemory:
             if unique_minimum is not None:
                 marked += ground_uniques(read, table, minimum=unique_minimum)
             drops += [Drop(item.unit_id, item.x, item.y, item.label, VALUABLE) for item in marked]
-            for potion in item_units(read, table, HEALING_POTIONS | {FULL_REJUVENATION}):
+            for potion in item_units(read, table, {SUPER_HEALING, FULL_REJUVENATION}):
                 if potion.mode in GROUND_MODES:
                     kind = REJUVENATION if potion.class_id == FULL_REJUVENATION else HEALING
                     drops.append(
@@ -487,7 +489,7 @@ class GameMemory:
                             potion.unit_id,
                             potion.x,
                             potion.y,
-                            f'a {"full rejuvenation" if kind == REJUVENATION else kind} potion',
+                            f'a {"full rejuvenation" if kind == REJUVENATION else "super healing"} potion',
                             kind,
                         )
                     )

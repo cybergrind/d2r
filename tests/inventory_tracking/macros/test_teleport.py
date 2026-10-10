@@ -31,11 +31,6 @@ EAST = tuple(Room(2 + i, 1004 + 8 * i, 996, 8, 8) for i in range(4))  # a corrid
 STAFF = Teleport(10, 20, True)
 
 
-@pytest.fixture(autouse=True)
-def no_doors_taken_yet():
-    teleport.DOOR_TOOK.clear()
-
-
 def keys(_world, skills):
     return {skill: KEYS[skill] for skill in skills}
 
@@ -106,6 +101,44 @@ def test_the_click_that_took_a_levels_door_is_tried_first_next_time():
         step_toward(play.run(), target(play.door, warp=True), keys)
     assert [event[0] for event in play.keys.events] == ['click']
     assert play.world.player.area == 110
+
+
+def test_a_door_whose_aim_the_logs_gave_is_clicked_there_first():
+    stairs = Room(144, 996, 996, 8, 8)  # 'Act 1 - Crypt Next E': the stairs down in the Tower Cellar
+    mark = Target(21, (stairs,), (1001.5, 1000.5), 'Next level', 'stairs', True)
+    assert teleport.door_aims(mark)[0] == (-50, -45)
+    teleport.AIMS.learn(mark, (0, -45))  # what took it last goes before what the logs gave
+    assert teleport.door_aims(mark)[:2] == ((0, -45), (0, 0))
+
+
+def test_a_door_aim_with_a_monster_under_it_is_left_for_last():
+    # The mercenary lands beside the character after a hop: a click on it is not a click on the door.
+    play = game()
+    play.door = (1001.5, 1000.5)
+    run = play.run()
+    looks = iter([(1, 77), (0, 0), (0, 0), (0, 0), (0, 0)])  # a monster under the first aim only
+    run.hovered = lambda: next(looks)
+    step_toward(run, target(play.door, warp=True), keys)
+    assert play.world.player.area == 110
+    assert teleport.AIMS.offset(target(play.door, warp=True)) == (0.0, -45.0)  # the next aim: the first was not clicked
+
+
+def test_one_click_from_where_the_character_stands_makes_that_spot_the_doors_entry():
+    # Tower Cellar: the stairs took the click from 5.6 units without a step.
+    play = game()
+    play.door = (1001.0, 1000.0)  # world (5005, 5000), 5 from the character
+    mark = target(play.door, warp=True)
+    step_toward(play.run(), mark, keys)
+    assert teleport.ENTRIES.offset(mark) == (-5.0, 0.0)
+
+
+def test_the_way_back_is_not_walked_into():
+    # Tower Cellar 5: the stairs up to level 4 are the only mark, and the step after arriving took them.
+    play = game()
+    back = Target(109, (HERE,), (1001.5, 1000.5), 'Tower Cellar 4', 'previous', True)
+    with pytest.raises(Abort, match='back to Tower Cellar 4'):
+        step_toward(play.run(), back, keys)
+    assert play.keys.events == []
 
 
 def test_a_door_no_click_takes_is_reported():
@@ -326,6 +359,23 @@ def test_a_swipe_of_the_hand_across_the_screen_does_not_stop_the_step(caplog):
     assert sum('aiming again' in r.message for r in caplog.records) == 1
 
 
+def test_a_hand_that_keeps_sweeping_the_mouse_is_beaten_by_a_jump_of_the_pointer(caplog):
+    # Two seek steps stopped "the mouse is being moved" after three aims in 0.4 s (host, 20:57 and 20:58
+    # on 2026-10-10): the hand carries the pointer off during every pause of a move. The last try has none.
+    play = game()
+    sleep = play.clock.sleep
+
+    def sweeping(seconds):
+        play.keys.at = (play.keys.at[0] + 200, play.keys.at[1] + 40)  # the hand, whenever the macro waits
+        sleep(seconds)
+
+    play.clock.sleep = sweeping
+    with caplog.at_level('INFO'):
+        step_toward(play.run(), target((1003.0, 1000.0)), keys)
+    assert play.pressed() == ['t']
+    assert sum('aiming again' in r.message for r in caplog.records) == 2
+
+
 # --- the door's own spot (user, 2026-10-10: the last hop left a walk round the stairs) ---
 
 
@@ -358,7 +408,7 @@ def test_a_walk_into_a_door_is_logged_and_where_the_level_changed_is_remembered(
     )
     assert lines[1].startswith('Macro: door Next level: in after ')
     assert ' from (5000.0, 5000.0) to (5007.5, 5005.5); ' in lines[1]  # after the seconds and the units walked
-    assert lines[1].endswith('the level changed 3.0 from the mark, at +0.0, +3.0 from it (the entry remembered)')
+    assert lines[1].endswith('the entry at +0.0, +3.0 from the mark, 3.0 away (remembered)')
 
 
 def test_a_level_change_far_from_the_mark_teaches_nothing():

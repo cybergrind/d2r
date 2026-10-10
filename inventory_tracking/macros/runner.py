@@ -20,6 +20,7 @@ request.
 """
 
 import math
+import os
 import random
 import threading
 import time
@@ -33,7 +34,7 @@ from inventory_tracking.input.focus import FocusTracker, owns_process
 from inventory_tracking.input.keybindings import show_items_key
 from inventory_tracking.input.keyboard import X11Keyboard
 from inventory_tracking.levels.model import Target
-from inventory_tracking.macros.actuator import Abort, Actuator
+from inventory_tracking.macros.actuator import Abort, Actuator, Cancelled
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.hunt import Hunter
 from inventory_tracking.macros.journey import Journey
@@ -55,6 +56,7 @@ STEPS = frozenset((TELEPORT, HUNT_ELITES, PICKUP))  # one press is one step; the
 ATTACK = HUNT_ANY  # the attack mode toggle
 THROTTLE = 0.3  # seconds between accepted macro requests (a bounce is not a cancel)
 CARD_SECONDS = 4.0
+RESEARCH_ENV = 'D2R_MACRO_RESEARCH'  # set: log which bytes name the unit under the pointer at a Consume
 JOURNEY_SECONDS = 1.0  # how often the game and level are noted between presses
 
 
@@ -91,41 +93,43 @@ class MacroRunner:
         self.attack_mode = False  # the attack run is wanted, now or once the current step is done
         self.closed = False  # `close` was called: nothing starts any more
         self.pending: str | None = None  # a step asked for during attack mode: runs once the mode has paused
+        self.lock = threading.RLock()  # every transition: a request, a run's end and its successor, shutdown
 
     def request(self, requested_at: float, now: float, routine: str = PREBUFF) -> bool:
         """Start `routine` (PREBUFF or a step), or toggle attack mode (HUNT_ANY). While a run works, a
         request cancels it, except a step's own request during the step (one more step) and a step
         during attack mode (the mode pauses for it and resumes after; the pickup step waits for the
         fight); the macro request during attack mode ends the mode and runs the macro once it has stopped."""
-        if self.closed or not math.isfinite(requested_at) or not 0 <= now - requested_at <= 1:
-            return False
-        if routine == PREBUFF and now - self.last_request < THROTTLE:
-            return False
-        self.last_request = now
-        if routine == ATTACK:
-            return self._toggle_attack_mode()
-        if routine == PREBUFF:
-            self.attack_mode = False  # the macro request ends it
-        if routine == HUNT_ELITES:
-            self.attack_mode = True  # the mode follows the seek step
-        if self.working:
-            if routine in STEPS and self.routine == routine:
-                self.again = True
-            elif self.routine == ATTACK and routine == PICKUP and self.hunter is not None:
-                self.pending = routine  # after the fight: the mode pauses itself once nothing is in reach
-                self.hunter.after_fight.set()
-            elif self.routine == ATTACK:
-                self.pending = routine  # the mode pauses for the step, or ends for the macro
-                self.cancelled.set()
-            else:
-                self.cancelled.set()
+        with self.lock:
+            if self.closed or not math.isfinite(requested_at) or not 0 <= now - requested_at <= 1:
+                return False
+            if routine == PREBUFF and now - self.last_request < THROTTLE:
+                return False
+            self.last_request = now
+            if routine == ATTACK:
+                return self._toggle_attack_mode()
+            if routine == PREBUFF:
+                self.attack_mode = False  # the macro request ends it
+            if routine == HUNT_ELITES:
+                self.attack_mode = True  # the mode follows the seek step
+            if self.working:
+                if routine in STEPS and self.routine == routine:
+                    self.again = True
+                elif self.routine == ATTACK and routine == PICKUP and self.hunter is not None:
+                    self.pending = routine  # after the fight: the mode pauses itself once nothing is in reach
+                    self.hunter.after_fight.set()
+                elif self.routine == ATTACK:
+                    self.pending = routine  # the mode pauses for the step, or ends for the macro
+                    self.cancelled.set()
+                else:
+                    self.cancelled.set()
+                return True
+            self._start(routine)
             return True
-        self._start(routine)
-        return True
 
     def _toggle_attack_mode(self) -> bool:
         """The attack mode toggle: the mode on or off. On while a step works, it follows the step; off
-        while it works, it is cancelled."""
+        while it works, it is cancelled. Under the lock (`request`)."""
         self.attack_mode = not self.attack_mode
         if not self.attack_mode:
             if self.working and self.routine == ATTACK:
@@ -136,6 +140,7 @@ class MacroRunner:
         return True
 
     def _start(self, routine: str) -> None:
+        """A run of `routine` on its own thread. Under the lock."""
         if self.closed:
             return
         self.generation += 1
@@ -174,11 +179,13 @@ class MacroRunner:
     def close(self) -> None:
         """Shutdown is final: the run is cancelled and nothing follows it (no pending step, no attack
         mode resumed, no queued repeat), and no request starts another."""
-        self.closed = True
-        self.attack_mode, self.pending, self.again = False, None, False
-        self.cancelled.set()
-        if self.thread is not None:
-            self.thread.join(timeout=3)
+        with self.lock:
+            self.closed = True
+            self.attack_mode, self.pending, self.again = False, None, False
+            self.cancelled.set()
+            thread = self.thread
+        if thread is not None:
+            thread.join(timeout=3)  # outside the lock: the run's end takes it
         if self.focus is not None:
             self.focus.close()
 
@@ -187,38 +194,57 @@ class MacroRunner:
         self.display([f'Macro: {text}'])
 
     def _guarded(self, cancelled: threading.Event, routine: str, generation: int) -> None:
+        failed = False
         try:
-            self.execute(cancelled, routine)
-            while self.again and not cancelled.is_set():
-                self.again = False
+            while True:
                 self.execute(cancelled, routine)
+                with self.lock:
+                    if self.again and not cancelled.is_set():
+                        self.again = False  # the step's own request came during it: one more step
+                        continue
+                    if routine == ATTACK:
+                        self.attack_mode = False  # the mode returned on its own: the toggle follows
+                    if self._follow(routine):
+                        return
+                break
+        except Cancelled as stop:
             if routine == ATTACK:
-                self.attack_mode = False  # the mode returned on its own: the toggle follows
-        except Abort as stop:
-            if routine == ATTACK and str(stop) == 'cancelled':
-                self._say('Attack mode off' if not self.attack_mode else 'Attack mode paused')
+                self._say('Attack mode paused' if self.attack_mode else 'Attack mode off')
             else:
                 LOG.info('Macro stopped: %s', stop)
                 self.display([f'Macro stopped: {stop}'])
-                if routine == ATTACK:
-                    self.attack_mode = False  # the mode ended on its own: the game was left, or it gave up
+        except Abort as stop:
+            LOG.info('Macro stopped: %s', stop)
+            self.display([f'Macro stopped: {stop}'])
+            failed = True
         except Exception as exc:
             LOG.exception('Macro failed')
             self.display([f'Macro failed: {exc}'])
-            if routine == ATTACK:
-                self.attack_mode = False
-        finally:
-            self.working = False
-        following, self.pending = self.pending, None
-        if following is not None:
-            self._start(following)
-            return
-        if self.attack_mode and routine != ATTACK:
-            self._start(ATTACK)  # the step is done: the mode resumes
-            return
+            failed = True
+        else:
+            failed = None  # ended and followed above: only the card is left
+        if failed is not None:
+            with self.lock:
+                if failed and routine == ATTACK:
+                    self.attack_mode = False  # the mode ended on its own: the game was left, or it gave up
+                if self._follow(routine):
+                    return
         time.sleep(CARD_SECONDS)
         if self.generation == generation:  # no newer run owns the card
             self.display([])
+
+    def _follow(self, routine: str) -> bool:
+        """The run of `routine` is over: start what follows it, if anything, and say whether something
+        did. A step asked for during attack mode comes first, then the mode a step paused. Under the
+        lock, in one piece with `working` going off: a request sees either the run or its successor."""
+        self.working = False
+        following, self.pending = self.pending, None
+        if following is None and self.attack_mode and routine != ATTACK:
+            following = ATTACK  # the step is done: the mode resumes
+        if following is None or self.closed:
+            return False
+        self._start(following)
+        return True
 
     def _execute(self, cancelled: threading.Event, routine: str) -> None:
         with self.capture_lock:
@@ -268,7 +294,8 @@ class MacroRunner:
                     teleport=memory.teleport,
                     loot=lambda: memory.loot(**wanted()),
                 )
-                run.research = memory.hover_candidates
+                if os.environ.get(RESEARCH_ENV):
+                    run.research = memory.hover_candidates  # a scan of the whole data section per Consume
                 run.hovered = memory.hovered
                 run.arrival = lambda: self.journey.arrival(time.monotonic())
                 if routine == TELEPORT:

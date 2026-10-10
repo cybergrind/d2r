@@ -69,6 +69,9 @@ class Observation:
     mana: float = math.inf
     marked: frozenset[int] = frozenset()  # the monsters under Death Mark
     frame: int = 0  # the simulator's frame (0 in the game)
+    # The focal point the pointer can really be put on for a wanted one (the window shows less than the
+    # blades reach: macros/view.py), or None when no point of that line can; None here: any focal point.
+    aimable: Callable[[Point], Point | None] | None = None
 
 
 @dataclass(frozen=True)
@@ -159,6 +162,13 @@ class LinePolicy:
             for offset in self.offsets:
                 distance = max(MIN_FOCAL, min(away + offset, self.reach - 1))
                 focal = (seen.origin[0] + ux * distance, seen.origin[1] + uy * distance)
+                if seen.aimable is not None:
+                    # The line is scored with the focal point the cast will have, not one off the screen
+                    # that the aim would shorten after the choice (review.md, finding 8).
+                    reached = seen.aimable(focal)
+                    if reached is None:
+                        continue
+                    focal = reached
                 worth = virtual_cast(
                     seen.origin, focal, seen.foes, seen.linked, seen.share, self.damage_of, blocked=seen.blocked,
                     elite_weight=self.elite_weight,
@@ -231,6 +241,7 @@ def observe(
     doors: Sequence[Any] = (),
     *,
     moving: bool = False,
+    aimable: Callable[[Point], Point | None] | None = None,
 ) -> Observation:
     """The observation of the running game: `player` and the monsters are macros/world.py records
     (`hostiles` the ones that may be struck, `companions` the character's own units). A monster's
@@ -242,4 +253,4 @@ def observe(
     link_range, links, share = link_table()
     defilers = [(c.x, c.y) for c in companions if c.txt_id == DEFILER]
     linked = linked_set(defilers, {unit: foe.at for unit, foe in foes.items()}, link_range, links)
-    return Observation((player.x, player.y), foes, linked, share, walls(ground, doors), moving)
+    return Observation((player.x, player.y), foes, linked, share, walls(ground, doors), moving, aimable=aimable)

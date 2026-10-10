@@ -32,6 +32,7 @@ from inventory_tracking.macros.world import NO_OWNER, GameMemory, World
 from inventory_tracking.native.layout import DEAD_MODES
 
 
+SCHEMA = 2  # the rows' layout (takes.py `SCHEMAS`): written to the manifest since 2026-10-10 night
 FRAME_RATE = 25.0  # the engine's frames per second
 AREAS = frozenset((108,))  # Chaos Sanctuary
 IDLE_SECONDS = 3.0  # out of the areas or out of a game this long: the take closes
@@ -280,7 +281,7 @@ class Recorder:
         player = sample.world.player
         name = time.strftime('%Y%m%dT%H%M%SZ', time.gmtime()) + f'-{area}'
         manifest = {
-            'started_at': timestamp(), 'area': area, 'rate': self.rate,
+            'started_at': timestamp(), 'area': area, 'rate': self.rate, 'schema': SCHEMA,
             'character': player.name if player else None,
             'slots': list(sample.world.slots), 'left_skill': player.left_skill if player else None,
             'right_skill': player.right_skill if player else None, **self.manifest(),

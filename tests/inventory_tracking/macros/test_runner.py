@@ -1,7 +1,9 @@
 import threading
+import time
 
 from inventory_tracking.macros import runner as runner_module
-from inventory_tracking.macros.actuator import Abort
+from inventory_tracking.macros.actuator import Abort, Cancelled
+from inventory_tracking.macros.hunt import Hunter
 from inventory_tracking.macros.runner import MacroRunner
 
 
@@ -22,7 +24,7 @@ def test_a_press_during_a_run_cancels_it(monkeypatch):
 
     def execute(cancelled, routine):
         assert cancelled.wait(5)
-        raise Abort('cancelled')
+        raise Cancelled
 
     runner = make(execute, shown)
     assert runner.request(10.0, 10.1)
@@ -107,7 +109,7 @@ def test_a_press_right_after_a_step_starts_the_next_while_the_card_still_shows(m
 def test_a_macro_request_during_a_teleport_step_cancels_it():
     def execute(cancelled, routine):
         assert cancelled.wait(5)
-        raise Abort('cancelled')
+        raise Cancelled
 
     runner = make(execute, [])
     runner.request(10.0, 10.1, 'teleport')
@@ -125,7 +127,7 @@ def test_a_seek_request_during_its_own_step_queues_one_more_and_a_teleport_reque
         if routine == 'hunt any':  # the mode the seek step leaves on
             attacking.set()
             assert cancelled.wait(5)
-            raise Abort('cancelled')
+            raise Cancelled
         if len(steps) == 1:
             assert go_on.wait(5)
         assert not cancelled.is_set()
@@ -141,7 +143,7 @@ def test_a_seek_request_during_its_own_step_queues_one_more_and_a_teleport_reque
 
     def cancelled_step(cancelled, routine):
         assert cancelled.wait(5)
-        raise Abort('cancelled')
+        raise Cancelled
 
     runner = make(cancelled_step, [])
     assert runner.request(20.0, 20.1, 'hunt elites')
@@ -160,7 +162,7 @@ def test_the_toggle_turns_attack_mode_on_and_off(monkeypatch):
     def execute(cancelled, routine):
         assert routine == 'hunt any'
         assert cancelled.wait(5)
-        raise Abort('cancelled')
+        raise Cancelled
 
     runner = make(execute, shown)
     assert runner.request(10.0, 10.1, 'hunt any')
@@ -188,7 +190,7 @@ def test_a_seek_request_does_its_step_and_turns_attack_mode_on(monkeypatch):
         if routine == 'hunt any':
             attacking.set()
             assert cancelled.wait(5)
-            raise Abort('cancelled')
+            raise Cancelled
         if len(runs) == 1:
             raise Abort('no level map for this level yet')  # a step that stops still leaves the mode on
 
@@ -216,7 +218,7 @@ def test_a_step_during_attack_mode_pauses_it_and_it_resumes_after(monkeypatch):
             if len(runs) > 1:
                 resumed.set()
             assert cancelled.wait(5)
-            raise Abort('cancelled')
+            raise Cancelled
 
     runner = make(execute, [])
     assert runner.request(10.0, 10.1, 'hunt any')
@@ -242,7 +244,7 @@ def test_a_pickup_request_during_attack_mode_waits_for_the_fight_and_the_mode_re
             if len(runs) > 1:
                 resumed.set()
                 assert cancelled.wait(5)
-                raise Abort('cancelled')
+                raise Cancelled
             assert fight_over.wait(5)  # the fight goes on: the press does not cancel it
             assert not cancelled.is_set()
             assert hunter.after_fight.is_set()
@@ -270,7 +272,7 @@ def test_closing_during_a_seek_step_starts_nothing_after_it(monkeypatch):
         runs.append(routine)
         started.set()
         assert cancelled.wait(5)
-        raise Abort('cancelled')
+        raise Cancelled
 
     runner = make(execute, [])
     assert runner.request(10.0, 10.1, 'hunt elites')
@@ -293,7 +295,7 @@ def test_closing_with_a_pickup_waiting_for_the_fight_drops_it(monkeypatch):
         runs.append(routine)
         started.set()
         assert cancelled.wait(5)
-        raise Abort('cancelled')
+        raise Cancelled
 
     runner = make(execute, [])
     runner.hunter = Hunter()
@@ -314,7 +316,7 @@ def test_a_macro_request_ends_attack_mode_and_runs_the_macro(monkeypatch):
         runs.append(routine)
         if routine == 'hunt any':
             assert cancelled.wait(5)
-            raise Abort('cancelled')
+            raise Cancelled
         done.set()
 
     runner = make(execute, [])
@@ -347,3 +349,106 @@ def test_attack_mode_ending_on_its_own_turns_the_toggle_off(monkeypatch):
     runner.thread.join(5)
     assert not runner.attack_mode
     assert ['Macro stopped: attack mode off: the game was left'] in shown
+
+
+def test_requests_racing_a_runs_end_never_leave_two_runs_acting(monkeypatch):
+    # review.md, finding 1: `working` went off before the successor was chosen, so a request and the
+    # ending run could each start one. Steps that end at once, under a storm of requests.
+    monkeypatch.setattr(runner_module, 'CARD_SECONDS', 0)
+    acting, most, runs = [0], [0], [0]
+    guard = threading.Lock()
+
+    def execute(cancelled, routine):
+        with guard:
+            acting[0] += 1
+            most[0] = max(most[0], acting[0])
+            runs[0] += 1
+        cancelled.wait(0.0005)
+        with guard:
+            acting[0] -= 1
+        if cancelled.is_set():
+            raise Cancelled
+
+    runner = make(execute, [])
+    runner.hunter = Hunter()
+    routines = ('teleport', 'hunt elites', 'hunt any', 'pickup', 'teleport', 'prebuff')
+
+    def press(offset):
+        for index in range(300):
+            now = 10.0 + offset + index
+            runner.request(now, now, routines[(index + offset) % len(routines)])
+            time.sleep(0.0003)  # about a run's length: requests land before, during and at the end of runs
+
+    pressers = [threading.Thread(target=press, args=(offset,)) for offset in range(3)]
+    for presser in pressers:
+        presser.start()
+    for presser in pressers:
+        presser.join(10)
+    runner.close()
+    assert runs[0] > 10
+    assert most[0] == 1
+
+
+def test_a_request_after_close_and_a_run_ending_after_close_start_nothing(monkeypatch):
+    monkeypatch.setattr(runner_module, 'CARD_SECONDS', 0)
+    runs, started, release = [], threading.Event(), threading.Event()
+
+    def execute(cancelled, routine):
+        runs.append(routine)
+        started.set()
+        assert release.wait(5)  # still working when the service closes, and deaf to the cancel
+
+    runner = make(execute, [])
+    assert runner.request(10.0, 10.1, 'hunt elites')  # attack mode is to follow the step
+    assert started.wait(5)
+    thread = runner.thread
+    closer = threading.Thread(target=runner.close)
+    closer.start()
+    assert not runner.request(10.3, 10.4, 'teleport')
+    release.set()
+    closer.join(5)
+    thread.join(5)
+    assert runs == ['hunt elites']
+    assert runner.thread is thread
+    assert not runner.working
+
+
+def test_a_request_while_a_run_hands_over_to_its_successor_waits_for_the_handover(monkeypatch):
+    # review.md, finding 1: the seek step is over and attack mode is being started after it; a teleport
+    # request in that moment must find the mode (and pause it), not an idle runner to start beside it.
+    monkeypatch.setattr(runner_module, 'CARD_SECONDS', 0)
+    acting, most, runs = [0], [0], []
+    guard, handing_over, teleported = threading.Lock(), threading.Event(), threading.Event()
+
+    def execute(cancelled, routine):
+        with guard:
+            acting[0] += 1
+            most[0] = max(most[0], acting[0])
+            runs.append(routine)
+        try:
+            if routine == 'hunt any':
+                assert cancelled.wait(5)
+                raise Cancelled
+            if routine == 'teleport':
+                teleported.set()
+        finally:
+            with guard:
+                acting[0] -= 1
+
+    runner = make(execute, [])
+    start = runner._start
+
+    def slow_start(routine):
+        if routine == 'hunt any':
+            handing_over.set()
+            time.sleep(0.05)  # the request below arrives in here
+        start(routine)
+
+    runner._start = slow_start
+    assert runner.request(10.0, 10.1, 'hunt elites')
+    assert handing_over.wait(5)
+    assert runner.request(10.2, 10.3, 'teleport')
+    assert teleported.wait(5)
+    runner.close()
+    assert runs[:3] == ['hunt elites', 'hunt any', 'teleport']
+    assert most[0] == 1

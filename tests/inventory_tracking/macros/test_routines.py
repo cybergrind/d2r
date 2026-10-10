@@ -582,6 +582,22 @@ def test_on_andariels_level_without_her_the_macro_leaves_and_makes_the_next_game
     assert game.world.game_name == 'cyber33'
 
 
+def test_on_the_countess_level_without_her_the_macro_leaves_and_makes_the_next_game():
+    stalker = Monster(71, 45, 1, 5020.0, 5020.0, 0xFFFFFFFF)  # a Dark Stalker of her class, not her
+    game = Game(world(25, monsters=(stalker,)))
+    run_macro(game.run(), lambda w: dict(KEYS))
+    keys = game.pressed()
+    assert keys[0] == 'Escape'
+    assert game.world.game_name == 'cyber33'
+
+
+def test_with_the_countess_alive_the_macro_only_prebuffs():
+    countess = Monster(70, 45, 1, 5040.0, 5040.0, 0xFFFFFFFF, flags=0x0A)  # the flags her sightings carry
+    game = Game(world(25, monsters=(countess,)))
+    run_macro(game.run(), lambda w: dict(KEYS))
+    assert game.pressed() == ['q', '6', 'q', 'g', 'r']
+
+
 @pytest.mark.parametrize('area', [37, 36])  # her level with her alive; another level without her
 def test_with_andariel_alive_or_on_another_level_the_macro_only_prebuffs(area):
     andariel = (Monster(70, 156, 1, 5040.0, 5040.0, 0xFFFFFFFF),) if area == 37 else ()

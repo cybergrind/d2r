@@ -2,6 +2,13 @@
 monsters' recorded paths (open loop: they move as they did, whatever the simulated damage), the
 companions' recorded paths (the mercenary and the pets, whose damage the engine models as a rate),
 the recorded casts with their focal points, and the recorded kills to compare with.
+
+A situation's frames are game ticks, 25 a second, not the recorder's sample numbers: a sample that
+came late takes the ticks it was late by with it (combat/timeline.py), and what stood in the sample
+before it is held through them, so a cast's cadence, a blade's flight and the seconds a score is
+divided by are the game's (review.md, finding 6: a take with 28 late samples ran 10% short). The
+frames of another level than the situation's are left out, and the strike button held when the
+situation starts is a press at its first frame. `Situation.ticks` maps a take's frame numbers to ticks.
 """
 
 import bisect
@@ -10,6 +17,7 @@ import json
 import math
 from collections.abc import Callable
 from dataclasses import dataclass, field
+from itertools import pairwise
 from typing import Any
 
 from inventory_tracking.combat.mechanics.damage import DAMAGE
@@ -19,6 +27,7 @@ from inventory_tracking.combat.mechanics.tables import monster_points, points_of
 from inventory_tracking.combat.mechanics.validate import full_casts
 from inventory_tracking.combat.policy import walls
 from inventory_tracking.combat.takes import LIFE_SCALE, Take, ground_under_pointer, monsters_of, player_of
+from inventory_tracking.combat.timeline import GAME_RATE, HOLD_TICKS, button_down, ticks
 from inventory_tracking.levels.doors import Door
 from inventory_tracking.levels.model import Ground, Walkable
 from inventory_tracking.macros.routines import BODY_LIFT
@@ -80,6 +89,8 @@ class Situation:
     ground: Ground | None = None  # the level's walkable grids (level.json beside the take), when the guide had them
     doors: dict[int, tuple[Door, ...]] = field(default_factory=dict)  # frame -> the door units seen then
     drops: dict[int, list[tuple[int, float]]] = field(default_factory=dict)  # monster unit -> [(frame, points lost)]
+    ticks: dict[int, int] = field(default_factory=dict)  # the take's frame number -> this situation's frame
+    late_ticks: int = 0  # game ticks without a sample of this level: late samples, and time spent in another level
 
     def __post_init__(self) -> None:
         self.player_frames = sorted(self.player)
@@ -98,7 +109,7 @@ class Situation:
 
     @property
     def seconds(self) -> float:
-        return (self.end - self.start) / 25.0
+        return (self.end - self.start) / GAME_RATE
 
 
 def load_ground(take: Take) -> Ground | None:
@@ -150,12 +161,21 @@ def death_marks(take: Take, frames, hostiles, aspect: float, radius: float = 4.0
 
 
 def cut(take: Take, start: int | None = None, end: int | None = None, area: int | None = None) -> Situation:
-    """The situation between frame numbers `start` and `end` (the whole take by default); `area`
-    defaults to the take's."""
-    frames = [f for f in take.frames if (start is None or f['n'] >= start) and (end is None or f['n'] <= end)]
+    """The situation between the take's frame numbers `start` and `end` (the whole take by default),
+    in game ticks; `area` defaults to the take's, and frames in another level are left out."""
+    rate = float(take.manifest.get('rate') or GAME_RATE)
+    if rate > GAME_RATE:
+        raise ValueError(f'the take was recorded at {rate:g} samples a second: more than the game has frames')
+    area = int(take.manifest.get('area', 108)) if area is None else area
+    frames = [
+        f
+        for f in take.frames
+        if (start is None or f['n'] >= start)
+        and (end is None or f['n'] <= end)
+        and ((found := player_of(f)) is None or found.area == area)
+    ]
     if not frames:
         raise ValueError('no frames in the window')
-    area = int(take.manifest.get('area', 108)) if area is None else area
     start, end = frames[0]['n'], frames[-1]['n']
     rect = next((f['rect'] for f in take.frames if f.get('rect')), [0, 0, 2560, 1418])
     aspect = rect[2] / rect[3]
@@ -180,12 +200,13 @@ def cut(take: Take, start: int | None = None, end: int | None = None, area: int 
                     track.elite = m.elite
                     monsters[m.unit] = track
                 track.path[f['n']] = m.at
-    frame_of = {f['t']: f['n'] for f in take.frames}
+    kept = set(players) | {f['n'] for f in frames}
+    frame_of = {f['t']: f['n'] for f in take.frames if f['n'] in kept}
     damage = 0.0
     drops: dict[int, list[tuple[int, float]]] = {}
     for event in take.events:
         n = frame_of.get(event['t'])
-        if n is None or not start <= n <= end:
+        if n is None:
             continue
         if event['event'] == 'kill' and event['unit'] in monsters:
             monsters[event['unit']].recorded_death = n
@@ -196,7 +217,7 @@ def cut(take: Take, start: int | None = None, end: int | None = None, area: int 
     txt_ids = {m['unit_id']: m['txt_id'] for m in take.missiles} or None
     casts = []
     for n, blades in full_casts(take.frames, txt_ids, least_frames=1):
-        if start <= n <= end and n in players:
+        if n in players:
             casts.append(Cast(n, pointer_focal(by_n, n, aspect), focal_point(blades)))
     marks = death_marks(take, frames, hostiles, aspect)
     ground = load_ground(take)
@@ -206,21 +227,59 @@ def cut(take: Take, start: int | None = None, end: int | None = None, area: int 
     presses = [
         (frame_of[e['t']], bool(e['down']))
         for e in take.events
-        if e['event'] == 'button'
-        and e['button'] == STRIKE_BUTTON
-        and e['t'] in frame_of
-        and start <= frame_of[e['t']] <= end
+        if e['event'] == 'button' and e['button'] == STRIKE_BUTTON and e['t'] in frame_of
     ]
-    return Situation(
+    if button_down(frames[0], STRIKE_BUTTON) and (start, True) not in presses:
+        presses.insert(0, (start, True))  # held when the situation starts: the press was before it
+    situation = Situation(
         start, end, area, aspect, player, monsters, casts, damage, companions, unknown, marks, modes, presses, pointer,
         ground, doors, drops,
     )  # fmt: skip
+    return in_ticks(situation, frames)
+
+
+def in_ticks(situation: Situation, frames: list[dict[str, Any]]) -> Situation:
+    """`situation`, built over the take's frame numbers, in game ticks: every frame number becomes its
+    tick, and what a sample showed is held through the ticks the next one skipped, HOLD_TICKS at most
+    (a monster only when the next sample still has it; a longer hole stays a hole: nothing is known
+    of it)."""
+    tick = ticks(frames)
+    order = [tick[f['n']] for f in frames]
+    skipped = [(a, b) for a, b in pairwise(order) if 1 < b - a <= HOLD_TICKS + 1]
+
+    def timed[T](series: dict[int, T], *, both: bool = False) -> dict[int, T]:
+        out = {tick[n]: value for n, value in series.items()}
+        for before, after in skipped:
+            if before in out and (after in out or not both):
+                for between in range(before + 1, after):
+                    out[between] = out[before]
+        return out
+
+    for track in situation.monsters.values():
+        track.path = timed(track.path, both=True)
+        track.recorded_death = None if track.recorded_death is None else tick[track.recorded_death]
+    for companion in situation.companions.values():
+        companion.path = timed(companion.path, both=True)
+    situation.start, situation.end = order[0], order[-1]
+    situation.player = timed(situation.player)
+    situation.player_frames = sorted(situation.player)
+    situation.modes = timed(situation.modes)
+    situation.pointer = timed(situation.pointer)
+    situation.doors = timed(situation.doors)
+    situation.casts = [Cast(tick[c.frame], c.pointer, c.fitted) for c in situation.casts]
+    situation.marks = [(tick[n], unit) for n, unit in situation.marks]
+    situation.presses = [(tick[n], down) for n, down in situation.presses]
+    situation.drops = {unit: [(tick[n], lost) for n, lost in found] for unit, found in situation.drops.items()}
+    situation.ticks = tick
+    situation.late_ticks = (order[-1] - order[0]) - (len(order) - 1)
+    return situation
 
 
 def describe(situation: Situation) -> dict[str, Any]:
     return {
         'frames': [situation.start, situation.end],
         'seconds': round(situation.seconds, 1),
+        'late_ticks': situation.late_ticks,
         'monsters': len(situation.monsters),
         'recorded_kills': sum(1 for t in situation.monsters.values() if t.recorded_death is not None),
         'casts': len(situation.casts),

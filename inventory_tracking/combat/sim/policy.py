@@ -8,21 +8,27 @@ them by blade plus linked points per combat second (the policy-dependent terms):
   (what the game runs: takeover with yield);
 - `free`: the line sweep whenever free, the record's runs ignored (the ceiling, not fluent);
 - `nearest`: the hunt's rule of 2026-10-09 (the elite first, then the nearest, one unit past),
-  whenever free: the live macro's aim before the line sweep reached the game.
+  whenever free: the live macro's aim before the line sweep reached the game;
+- `live`: the aim the game's fight runs today (combat/controller.py `LiveAim`): `yield`'s sweep with
+  the focal points the window lets the pointer reach, and straight at a monster in reach when the
+  sweep finds no line (review.md, finding 2: `yield` alone is not what the game casts).
 """
 
 import math
 from dataclasses import dataclass
 from typing import Any
 
+from inventory_tracking.combat.controller import LiveAim
 from inventory_tracking.combat.policy import RUN_MODES, Choice, LinePolicy, NearestPolicy, Observation, Policy
 from inventory_tracking.combat.sim.engine import Outcome, gate, score, simulate
 from inventory_tracking.combat.sim.input import BIRTH_LAG
 from inventory_tracking.combat.sim.situation import Situation
+from inventory_tracking.combat.timeline import GAME_RATE
+from inventory_tracking.macros.view import Viewport
 
 
-FREE, YIELD, SLOTS, NEAREST = 'free', 'yield', 'slots', 'nearest'
-MODES = (SLOTS, YIELD, FREE, NEAREST)
+FREE, YIELD, SLOTS, NEAREST, LIVE = 'free', 'yield', 'slots', 'nearest', 'live'
+MODES = (SLOTS, YIELD, FREE, NEAREST, LIVE)
 COMBAT_REACH = 30.0  # a frame with a live hostile this near is combat time (analysis.py)
 
 
@@ -41,6 +47,8 @@ def candidate(situation: Situation, mode: str, **options: Any) -> Policy:
     """The policy `compare` runs under `mode`; `options` go to the policy (damage_of, offsets...)."""
     if mode == NEAREST:
         return NearestPolicy(**options)
+    if mode == LIVE:
+        return LiveAim(LinePolicy(yields=True, **options), Viewport(situation.aspect).reachable_focal)
     if mode == SLOTS:
         return AtSlots(LinePolicy(yields=False, **options), frozenset(c.frame - BIRTH_LAG for c in situation.casts))
     return LinePolicy(yields=mode == YIELD, **options)
@@ -61,7 +69,7 @@ def policy_score(situation: Situation, outcome: Outcome) -> dict[str, Any]:
             for t in situation.monsters.values()
         )
     )
-    seconds = combat_frames / 25.0 or 1.0
+    seconds = combat_frames / GAME_RATE or 1.0
     placement = outcome.placement  # the life taken, not the blows: overkill earns nothing
     full = score(situation, outcome)
     full.update(combat_seconds=round(seconds, 1), placement_points=round(placement))

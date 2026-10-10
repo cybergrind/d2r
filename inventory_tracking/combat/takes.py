@@ -14,6 +14,12 @@ from inventory_tracking.native.layout import DEAD_MODES
 
 
 Point = tuple[float, float]
+# The layouts a take's rows have had, by the manifest's `schema` (a take without one is 1). The readers
+# below take both: a row of schema 1 is a prefix of schema 2's.
+SCHEMAS = {
+    1: 'before 2026-10-10: `p` may end at the skills (no vitals), or carry vitals read from the wrong stats',
+    2: '`p` ends with life, max life, mana, max mana in whole points (stats 6-9); `d` holds the doors',
+}
 LIFE_SCALE = 128  # the client's life fraction: a monster's life in a frame is 0-128 of its maximum
 
 
@@ -144,7 +150,7 @@ class Take:
     @classmethod
     def load(cls, directory: Path) -> Take:
         manifest = json.loads((directory / 'manifest.json').read_text())
-        return cls(
+        take = cls(
             directory,
             manifest,
             list(lines(directory / 'frames.jsonl')),
@@ -152,6 +158,8 @@ class Take:
             list(lines(directory / 'units.jsonl')),
             list(lines(directory / 'missiles.jsonl')),
         )
+        take.schema  # noqa: B018 (refuses rows this reader does not know)
+        return take
 
     @property
     def recording(self) -> str | None:
@@ -163,6 +171,14 @@ class Take:
         if root:
             return root
         return self.directory.name if RECORDING_NAME.fullmatch(self.directory.name) else None
+
+    @property
+    def schema(self) -> int:
+        """The layout of the rows (SCHEMAS); a newer one than this reader knows is refused."""
+        found = int(self.manifest.get('schema', 1))
+        if found not in SCHEMAS:
+            raise ValueError(f'{self.directory.name}: rows of schema {found}, which this reader does not know')
+        return found
 
     @property
     def seconds(self) -> float:

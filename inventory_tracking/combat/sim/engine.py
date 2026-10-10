@@ -129,7 +129,6 @@ def simulate(
     policy: Policy | None = None,
     mana: tuple[float, float, float] | None = None,
     mortal: bool = True,
-    link_overkill: bool = True,
 ) -> Outcome:
     """Run the situation frame by frame: the given `casts` ((blade birth frame, focal point)) and,
     with a `policy`, the casts it asks for when the character is free and the mana allows (the
@@ -217,8 +216,6 @@ def simulate(
         outcome.dealt_by.setdefault(unit, []).append((frame, taken))
         source = sources[id(bag)]
         outcome.removed[source] = outcome.removed.get(source, 0.0) + min(taken, max(life[unit], 0.0))
-        if not link_overkill:
-            dealt = min(dealt, max(life[unit], 0.0))  # the link shares what the victim lost, not the blow
         life[unit] -= taken
         if mortal and life[unit] <= 0.0 and situation.monsters[unit].points > 0:
             outcome.deaths[unit] = frame
@@ -253,7 +250,7 @@ def simulate(
                 },
                 frozenset(linked),
                 share,
-                situation.blocked_at(frame + BIRTH_LAG),
+                situation.blocked_at(frame),  # the doors as they stand at the decision, not at the blades' birth
                 situation.modes.get(frame) in RUN_MODES,
                 current,
                 frozenset(unit for unit, until in marked_until.items() if frame <= until),

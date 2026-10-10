@@ -5,7 +5,8 @@ One seeded generator and an injected `sleep`, so tests are exact and take no tim
 
 import random
 import time
-from collections.abc import Callable
+from collections.abc import Callable, Iterator
+from contextlib import contextmanager
 
 
 # Seconds (shortest, longest) by what was just done.
@@ -23,7 +24,35 @@ POINTER_STEP = (0.007, 0.018)
 class Pace:
     def __init__(self, rng: random.Random | None = None, sleep: Callable[[float], None] = time.sleep) -> None:
         self.rng = rng or random.Random()
-        self.sleep = sleep
+        self.plain_sleep = sleep
+        self.look: Callable[[], object] | None = None  # called before and every `every` seconds of a sleep
+        self.every = 0.0
+        self.clock: Callable[[], float] = time.monotonic
+
+    def sleep(self, seconds: float) -> None:
+        """Sleep `seconds`; while `watched`, in slices with a look before each and one at the end."""
+        if self.look is None:
+            self.plain_sleep(seconds)
+            return
+        until = self.clock() + seconds
+        while True:
+            self.look()
+            left = until - self.clock()
+            if left <= 0:
+                return
+            self.plain_sleep(min(self.every, left))
+
+    @contextmanager
+    def watched(self, look: Callable[[], object], every: float, clock: Callable[[], float]) -> Iterator[None]:
+        """Within the block every pause made through this pace, whoever makes it (a routine's own
+        waits, a key hold, a pointer step), calls `look` every `every` seconds: attack mode looks at
+        the player's mouse button there, so no click goes unseen while the macro waits on something."""
+        before = (self.look, self.every, self.clock)
+        self.look, self.every, self.clock = look, every, clock
+        try:
+            yield
+        finally:
+            self.look, self.every, self.clock = before
 
     def between(self, low: float, high: float) -> float:
         """A duration in [low, high], most often in its lower half."""

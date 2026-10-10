@@ -29,6 +29,14 @@ class Abort(Exception):
     """The macro stops here; the message is shown to the player."""
 
 
+class Cancelled(Abort):
+    """The run was asked to stop: by a request (runner.py) or, for attack mode, by a step that waited
+    for the fight to be over. The runner tells this from a failure by the type, not the message."""
+
+    def __init__(self, message: str = 'cancelled') -> None:
+        super().__init__(message)
+
+
 def eased_path(start, end, steps: int, rng) -> list[tuple[int, int]]:
     """Points from `start` to `end`: slow, fast, slow, with a little sideways wobble on the way."""
     points = []
@@ -148,8 +156,11 @@ class Actuator:
 
         def again() -> None:
             nonlocal pressed
-            self._release(pressed)
+            released, pressed = pressed, []
+            self._release(released)
             self.pace.hold()
+            if not self.focused():
+                raise Abort('the game lost the focus')  # nothing is pressed into another window
             pressed = self._press(inputs)
 
         try:
@@ -189,11 +200,17 @@ class Actuator:
 
     def aim(self, x: float, y: float, *, scatter: tuple[int, int] = (4, 3)) -> None:
         """A quick move to the window fraction (x, y) that holds: moved again, up to AIM_TRIES times,
-        while the pointer is found more than AIM_TOLERANCE pixels off where it was put. With `steady`
-        off (attack mode: the player's hand works the mouse all along) the move is made once and not
-        checked: the game takes the pointer where the key finds it a moment later."""
+        while the pointer is found more than AIM_TOLERANCE pixels off where it was put. The last try
+        is a jump straight there, looked at at once: a hand sweeping the mouse carries the pointer off
+        during a move's steps and the pause after it, three times in 0.4 s (host, 20:57 and 20:58 on
+        2026-10-10, two seek steps stopped), and has no time to in a jump. With `steady` off (attack
+        mode: the player's hand works the mouse all along) the move is made once and not checked: the
+        game takes the pointer where the key finds it a moment later."""
         for attempt in range(AIM_TRIES):
-            self.move(x, y, scatter=scatter, quick=True)
+            if attempt == AIM_TRIES - 1 and self.steady:
+                self.jump(x, y, scatter=scatter)
+            else:
+                self.move(x, y, scatter=scatter, quick=True)
             if not self.steady:
                 return
             now, goal = self.keys.pointer(), self.left_at
@@ -201,6 +218,22 @@ class Actuator:
                 return
             LOG.info('Macro: the pointer was found at %s, %s aimed (try %d); aiming again', now, goal, attempt + 1)
         raise Abort('the mouse is being moved')
+
+    def jump(self, x: float, y: float, *, scatter: tuple[int, int] = (4, 3)) -> None:
+        """Put the pointer at the window fraction (x, y) in one step, with no pause after."""
+        self.guard()
+        rect = self.keys.focused_window_rect()
+        if rect is None:
+            raise Abort('no game window or pointer position')
+        rng = self.pace.rng
+        goal = (
+            rect[0] + round(rect[2] * x) + rng.randint(-scatter[0], scatter[0]),
+            rect[1] + round(rect[3] * y) + rng.randint(-scatter[1], scatter[1]),
+        )
+        if not self.keys.move_pointer(*goal):
+            raise Abort('a pointer move failed')
+        self.keys.sync()
+        self.left_at = goal
 
     def click(self, *holding: str) -> None:
         """A left click where the pointer is, with the named keys held (Shift: attack in place)."""

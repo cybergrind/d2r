@@ -37,16 +37,9 @@ from inventory_tracking.levels.model import Ground, Target
 from inventory_tracking.levels.route import Point, room_at
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.engine import Run
-from inventory_tracking.macros.routines import (
-    BODY_LIFT,
-    FEET,
-    UNIT_PIXELS,
-    press_skill,
-    screen_fraction,
-    swap_until,
-    world_point,
-)
+from inventory_tracking.macros.routines import press_skill, swap_until, world_point
 from inventory_tracking.macros.skills import SWAP_WEAPONS, TELEPORT
+from inventory_tracking.macros.view import UNIT_PIXELS, VIEW, Viewport
 from inventory_tracking.macros.world import Player
 from inventory_tracking.native.layout import TILE_UNITS
 
@@ -72,7 +65,19 @@ WALK_SECONDS = 1.5  # the first step of a walk
 # from is not known here.
 DOOR_AIMS = ((0, 0), (0, -45), (-50, -45), (50, -45))
 DOOR_SECONDS = 1.2  # a click on a door at most NEAR_WARP away, then the new level: 0.2 to 0.35 s in the log
-DOOR_TOOK: dict[int, tuple[int, int]] = {}  # area -> the aim that took its door last, tried first next time
+# The aim that takes a door, by `Entries.key`, where the saved logs say: tried first. A door's box hangs
+# from its picture, so the aim goes with the preset, not the level. Tower Cellar 1-3 (host, 20:05 on
+# 2026-10-10): the stairs down took (-50, -45) in each of the W, E and N presets, after 1.4 s lost on
+# each of the two aims before it; S is taken to be the same. The Forgotten Tower in Black Marsh took
+# (0, -45). A door learnt since (`AIMS`) goes before these.
+KNOWN_AIMS = {
+    'preset 143:stairs': (-50, -45),
+    'preset 144:stairs': (-50, -45),
+    'preset 145:stairs': (-50, -45),
+    'preset 146:stairs': (-50, -45),
+    'preset 163:stairs': (0, -45),
+}
+DEFAULT_AIMS = Path('inventory_tracking/runs/macros/door-aims.json')
 # Where the character stood when a door took it, relative to the warp point the level card marks (world
 # units), remembered per door and kept across games: the game walks a clicked character to one spot beside
 # the stairs before the level changes (the Catacombs: 3 units "south" of the mark, round a block of walls
@@ -85,6 +90,11 @@ ENTRY_MAX = 6.0  # world units from the mark: a last position further off is not
 ENTRY_WALK = 9.0
 ENTRY_NEAR = 4.0  # world units from the remembered spot: near enough to click the door from
 WALK_POLL = 0.04  # seconds between looks while the character walks into a door (one game frame)
+HOVER_SECONDS = 0.06  # for the game to note what is under the pointer after it moved (a frame or two)
+# Unit types of the record of the unit under the pointer that are not a door: a monster (the mercenary
+# and the summons land beside the character after a hop), an item. An aim with one of them under it is
+# left for last: the click would go to that unit.
+IN_THE_WAY = frozenset((1, 4))
 
 
 class Entries:
@@ -134,6 +144,7 @@ class Entries:
 
 
 ENTRIES = Entries(DEFAULT_ENTRIES)
+AIMS = Entries(DEFAULT_AIMS)  # the aim that took each door last, kept the same way
 
 
 def entry_spot(target: Target) -> Point | None:
@@ -145,27 +156,23 @@ def entry_spot(target: Target) -> Point | None:
     return (door[0] + offset[0]) / TILE_UNITS, (door[1] + offset[1]) / TILE_UNITS
 
 
-# Where ground can be clicked, as window fractions: inside the view, above the skill bar. Wider than
-# routines.AIM_LIMITS (a cast on a unit): the bottom bar covers about the lowest sixth of the window.
-VIEW = ((0.03, 0.97), (0.05, 0.84))
 VIEW_STEP = 0.03  # of the window, between the landing spots tried across the view
 MIN_GAIN = 3.0  # world units a hop must take off the way to go, or it is not made
 # Pixels the pointer may differ from where the macro put it: any. The player's hand works the mouse
 # while tapping the key, and a swipe never stops a step (400 still stopped two in the Catacombs); the
 # aim is checked and made again instead (`Actuator.aim`).
 POINTER_DRIFT = 10**6
-VIEW_ASPECT = 16 / 9  # the window the potential's hops are planned for (2560 x 1418 on the host)
+HOST_VIEW = Viewport()  # the window a potential is planned for when none is given (16:9, the host's)
 REACH_TILES = 5  # tiles one hop of the potential may span: about the view's shorter half (26 units)
 
 
 def in_view(point: tuple[float, float]) -> bool:
-    return all(low <= value <= high for value, (low, high) in zip(point, VIEW, strict=True))
+    return Viewport().in_view(point)
 
 
 def ground_fraction(player: Player, x: float, y: float, aspect: float) -> tuple[float, float]:
-    """Where the ground at world (x, y) is drawn: `screen_fraction` without the lift onto a body."""
-    across, down = screen_fraction(player, x, y, aspect)
-    return across, down + BODY_LIFT
+    """Where the ground at world (x, y) is drawn (view.py): no lift onto a body."""
+    return Viewport(aspect).ground((player.x, player.y), x, y)
 
 
 def footing(ground: Ground, point: Point) -> bool | None:
@@ -179,32 +186,26 @@ def footing(ground: Ground, point: Point) -> bool | None:
     return centre and all(known is not False for known in around)
 
 
-def hop_in_view(dx: int, dy: int) -> bool:
+def hop_in_view(dx: int, dy: int, view: Viewport = HOST_VIEW) -> bool:
     """Whether a hop of (dx, dy) tiles lands in view from anywhere on the tile it starts from. The view
     is not round: it shows 23 world units up the screen and 18 down to the skill bar, so a gap that is
     crossed going up may not be crossed coming down. The potential counted five tiles every way, and a
     seek step stood still for good where the only way on was 21 units straight down the screen (host,
-    19:19 on 2026-10-10, Catacombs 1)."""
-    across, down = (dx - dy) * TILE_UNITS, (dx + dy) * TILE_UNITS  # as routines.screen_fraction
-    (left, right), (top, bottom) = VIEW
-    slack = TILE_UNITS / 2  # the character stands anywhere on its tile, the spot anywhere on the other
-    wide, high = UNIT_PIXELS[0] / VIEW_ASPECT, UNIT_PIXELS[1]
-    return (
-        left <= FEET[0] + (across - slack) * wide
-        and FEET[0] + (across + slack) * wide <= right
-        and top <= FEET[1] + (down - slack) * high
-        and FEET[1] + (down + slack) * high <= bottom
-    )
+    19:19 on 2026-10-10, Catacombs 1). The window's own shape decides (`view`): a narrower window
+    shows less to the sides (review.md, finding 8)."""
+    return view.hop_in_view(dx, dy)
 
 
 class Way:
     """The way to go from any spot, in tiles: a potential over the landable tiles of the level,
     Dijkstra from the mark's tile with hops of at most REACH_TILES between landable tiles, walls in
     between or not (a teleport crosses them). A tile is landable when its centre has footing by the
-    read grids, or lies on a room no grid covers; the mark's tile always is."""
+    read grids, or lies on a room no grid covers; the mark's tile always is. A hop is one the window
+    shows (`view`, the same value the landing is chosen under), so every hop planned can be made."""
 
-    def __init__(self, target: Target) -> None:
+    def __init__(self, target: Target, view: Viewport = HOST_VIEW) -> None:
         ground = Ground(target.ground)
+        self.view = view
         self.rooms = target.rooms
         landable: set[tuple[int, int]] = set()
         for room in self.rooms:
@@ -221,7 +222,7 @@ class Way:
             (dx, dy, math.hypot(dx, dy))
             for dx in range(-REACH_TILES, REACH_TILES + 1)
             for dy in range(-REACH_TILES, REACH_TILES + 1)
-            if 0 < math.hypot(dx, dy) <= REACH_TILES and hop_in_view(-dx, -dy)
+            if 0 < math.hypot(dx, dy) <= REACH_TILES and view.hop_in_view(-dx, -dy)
         ]
         self.cost = {mark: 0.0}
         queue = [(0.0, mark)]
@@ -260,7 +261,7 @@ class Way:
                 self.to_go(centre) + math.dist(point, centre)
                 for dx in range(-REACH_TILES, REACH_TILES + 1)
                 for dy in range(-REACH_TILES, REACH_TILES + 1)
-                if (tx + dx, ty + dy) in self.cost and hop_in_view(dx, dy)
+                if (tx + dx, ty + dy) in self.cost and self.view.hop_in_view(dx, dy)
                 for centre in [(tx + dx + 0.5, ty + dy + 0.5)]
                 if math.dist(point, centre) <= REACH_TILES
             ),
@@ -269,9 +270,10 @@ class Way:
 
 
 @lru_cache(maxsize=4)
-def way_for(target: Target) -> Way:
-    """The potential of a target, kept across presses: rooms, grids and mark rarely change within a level."""
-    return Way(target)
+def way_for(target: Target, view: Viewport = HOST_VIEW) -> Way:
+    """The potential of a target under a window's shape, kept across presses: rooms, grids, mark and
+    window rarely change within a level."""
+    return Way(target, view)
 
 
 def spots_in_view(player: Player, aspect: float):
@@ -371,15 +373,22 @@ def take_teleport(run: Run, key_names) -> None:
     run.pause('key')
 
 
-def door_aims(area: int) -> tuple[tuple[int, int], ...]:
-    took = DOOR_TOOK.get(area)
+def door_aims(target: Target) -> tuple[tuple[int, int], ...]:
+    """DOOR_AIMS with the one that took this door before first: learnt (`AIMS`), else from KNOWN_AIMS."""
+    learnt = AIMS.offset(target)
+    took = (round(learnt[0]), round(learnt[1])) if learnt is not None else KNOWN_AIMS.get(Entries.key(target))
     return DOOR_AIMS if took is None else (took, *(aim for aim in DOOR_AIMS if aim != took))
 
 
 def walk_into(run: Run, target: Target, player: Player, aspect: float) -> None:
     """Click the door and watch the walk: where the mark is, where the character started, how long and
     how far it walked and where it stood when the level changed (the last hop's landing is judged by
-    the walk it leaves). That last spot is remembered as the door's entry."""
+    the walk it leaves). The door's entry is where the character stood at the click when the first
+    click took (a spot the door is proven to take a click from: the cellar stairs took it from 5.6
+    units without a step), else where it stood when the level changed. An aim with another unit under
+    the pointer waits for the others; after them all the first is made once more, from where the
+    clicks on the ground left the character (the tower's door in Black Marsh, host, 20:12 on
+    2026-10-10: nothing took from the remembered spot, the same aim took on the next press)."""
     door = scaled(target.point)
     if not in_view(ground_fraction(player, *door, aspect)):
         raise Abort(f'{target.label} is not in view')
@@ -392,32 +401,48 @@ def walk_into(run: Run, target: Target, player: Player, aspect: float) -> None:
         'not known yet' if known is None else f'remembered {known[0]:+.1f}, {known[1]:+.1f} from the mark',
     )  # fmt: skip
     began = run.clock()
-    last, walked = start, 0.0
-    for aim in door_aims(target.area):
+    last, walked, clicks = start, 0.0, 0
+
+    def aim_at(aim: tuple[int, int]) -> bool:
         across, down = ground_fraction(player, *door, aspect)
         where = (across + aim[0] * UNIT_PIXELS[0] / 16 / aspect, down + aim[1] * UNIT_PIXELS[1] / 8)
         if not in_view(where):
-            continue
+            return False
         run.actuator.aim(*where, scatter=(4, 3))
+        return True
+
+    def under() -> tuple[int, int] | None:
+        if run.hovered is None:
+            return None
+        run.pace.sleep(HOVER_SECONDS)
+        return run.hovered()
+
+    def click(aim: tuple[int, int], over: tuple[int, int] | None) -> bool:
+        """One click where the pointer is; whether the level changed."""
+        nonlocal player, last, walked, clicks
+        clicks += 1
+        stood = (player.x, player.y)
         run.actuator.click()
         deadline = run.clock() + DOOR_SECONDS
         while True:
             world = run.world()
             now = world.player
             if now is None or now.area != target.area:
-                DOOR_TOOK[target.area] = aim
+                AIMS.learn(target, aim)
                 offset = (last[0] - door[0], last[1] - door[1])
-                LOG.info('Macro: the door took the click %s pixels from its tiles', aim)
+                if clicks == 1 and math.dist(stood, door) <= ENTRY_MAX:
+                    offset = (stood[0] - door[0], stood[1] - door[1])  # proven: one click from here is the step in
+                LOG.info('Macro: the door took the click %s pixels from its tiles; under the pointer %s', aim, over)
                 LOG.info(
-                    'Macro: door %s: in after %.2fs, walked %.1f from (%.1f, %.1f) to (%.1f, %.1f); the level '
-                    'changed %.1f from the mark, at %+.1f, %+.1f from it (the entry %s)',
-                    target.label, run.clock() - began, walked, *start, *last, math.hypot(*offset), *offset,
+                    'Macro: door %s: in after %.2fs, walked %.1f from (%.1f, %.1f) to (%.1f, %.1f); the entry '
+                    'at %+.1f, %+.1f from the mark, %.1f away (%s)',
+                    target.label, run.clock() - began, walked, *start, *last, *offset, math.hypot(*offset),
                     'remembered' if math.hypot(*offset) <= ENTRY_MAX else 'not remembered: too far from the mark',
                 )  # fmt: skip
                 if math.hypot(*offset) <= ENTRY_MAX:
                     ENTRIES.learn(target, offset)
                 run.say(f'{target.label}: there')
-                return
+                return True
             here = (now.x, now.y)
             walked += math.dist(here, last)
             last = here
@@ -425,7 +450,27 @@ def walk_into(run: Run, target: Target, player: Player, aspect: float) -> None:
                 break
             run.pace.sleep(WALK_POLL)
         player = run.world().player or player  # the click on the ground walked the character
-        LOG.info('Macro: the door did not take the click %s pixels from its tiles', aim)
+        LOG.info(
+            'Macro: the door did not take the click %s pixels from its tiles; under the pointer %s; the character '
+            'now at (%.1f, %.1f)',
+            aim, over, player.x, player.y,
+        )  # fmt: skip
+        return False
+
+    aims = door_aims(target)
+    waiting = []
+    for aim in aims:
+        if not aim_at(aim):
+            continue
+        over = under()
+        if over is not None and over[0] in IN_THE_WAY:
+            LOG.info('Macro: the aim %s pixels from the door has the unit %s under it; left for last', aim, over)
+            waiting.append(aim)
+        elif click(aim, over):
+            return
+    for aim in (*waiting, *aims[:1]):
+        if aim_at(aim) and click(aim, under()):
+            return
     raise Abort(f'no click took {target.label}')
 
 
@@ -466,6 +511,10 @@ def step_toward(run: Run, target: Target | None, key_names) -> None:
         raise Abort('nothing is marked on the level card (Win+C shows it)')
     if target.area != player.area:
         raise Abort('the level card is for another level')
+    if target.kind == 'previous':
+        # The way back is the first mark only where nothing leads on: the step after the door into
+        # Tower Cellar 5 clicked the stairs back up to level 4 (host, 20:06 on 2026-10-10).
+        raise Abort(f'the only way marked is back to {target.label}')
     aspect = rect[2] / rect[3]
     here = (player.x, player.y)
     entry = entry_spot(target)
@@ -473,7 +522,7 @@ def step_toward(run: Run, target: Target | None, key_names) -> None:
         at_door = True  # on the door's own spot: clicked from here
     elif entry is not None and clear_walk(Ground(target.ground), here, scaled(entry), ENTRY_WALK):
         at_door = True  # a few steps straight to the spot: the click walks them, and a hop is saved
-    elif entry is not None and entry_in_view(target, player, way_for(target), aspect) is not None:
+    elif entry is not None and entry_in_view(target, player, way_for(target, Viewport(aspect)), aspect) is not None:
         at_door = False  # the spot is a hop away: onto it first, however near the door is
     else:
         at_door = target.warp and math.dist(here, scaled(target.point)) <= NEAR_WARP
@@ -487,7 +536,7 @@ def hop_toward(run: Run, target: Target, player: Player, rect: tuple[int, int, i
     """One teleport toward `target`: the landing in view that leaves the shortest way (the hunt
     keys use it too, macros/hunt.py)."""
     aspect = rect[2] / rect[3]
-    way = way_for(target)
+    way = way_for(target, Viewport(aspect))
     if way.from_here((player.x / TILE_UNITS, player.y / TILE_UNITS)) == math.inf:
         raise Abort(f'no way over the rooms to {target.label}')
     found = landing(target, player, way, aspect)

@@ -54,7 +54,8 @@ def casts_from_presses(
 def validate_inputs(take, situation) -> dict[str, Any]:
     """Predicted births from the recorded presses against the recorded blades' births."""
     txt_ids = {m['unit_id']: m['txt_id'] for m in take.missiles} or None
-    recorded = sorted(n for n, _ in full_casts(take.frames, txt_ids, least_frames=1))
+    births = (n for n, _ in full_casts(take.frames, txt_ids, least_frames=1))
+    recorded = sorted(situation.ticks[n] for n in births if n in situation.ticks)  # in the situation's ticks
     predicted = sorted(
         frame for frame, _ in casts_from_presses(situation.presses, situation.pointer.get, situation.end)
     )

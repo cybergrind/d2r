@@ -706,6 +706,26 @@ def test_a_click_made_during_a_cast_stops_the_strike_and_is_made_again_when_the_
     assert order[2].startswith('Echoing Strike')  # and on with the fight once the character stands again
 
 
+@pytest.mark.parametrize('at', [1.0, 1.1, 1.2, 1.3, 1.37])
+def test_no_strike_is_pressed_while_the_players_button_is_down(at):
+    # review.md, finding 7: the idle hold was pressed again before the look at the player's click, so a
+    # click could be answered with a new press. A game that casts once per press asks for one every 0.25 s.
+    play = game(foe(10, 5008.0, 5000.0))
+    play.repeats = False
+    play.toughness[10] = 1000
+    presses, press = [], play.keys.press
+
+    def noting(code):
+        presses.append((play.clock.now, code))
+        return press(code)
+
+    play.keys.press = noting
+    attack_mode(play, hunter(play), until=3.0, events=[left_click(play, at, seconds=0.3)])
+    strike = play.keys.names['7']
+    assert [when for when, code in presses if code == strike and when < at]  # it was striking before
+    assert not [when for when, code in presses if code == strike and at + 0.02 <= when < at + 0.3]
+
+
 def test_a_click_the_game_took_is_not_made_again():
     play = game(foe(10, 5008.0, 5000.0))
     play.toughness[10] = 1000

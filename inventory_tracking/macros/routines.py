@@ -2,7 +2,7 @@
 
 `run_macro` picks by place (plan.md, decisions of 2026-10-06): where a run ends (Nihlathak's
 Temple, Frigid Highlands, Bloody Foothills, the Fortress just after act 3, Catacombs Level 4
-with Andariel dead) leave the game,
+with Andariel dead, Tower Cellar Level 5 with the Countess dead) leave the game,
 create the next one and prebuff; in the lobby create the next game and prebuff; anywhere else
 prebuff where the character stands.
 Prebuff: cast Consume anew on a Defiler (a standing one, else a summoned one), leave one
@@ -25,6 +25,7 @@ from inventory_tracking.macros.skills import (
     SUMMON_DEFILER,
     SWAP_WEAPONS,
 )
+from inventory_tracking.macros.view import AIM_LIMITS, BODY_LIFT, FEET, UNIT_PIXELS, Viewport  # noqa: F401
 from inventory_tracking.macros.world import (
     DEFILER_CLASS as DEFILER,
     NO_OWNER,
@@ -52,6 +53,12 @@ RUN_ENDS = frozenset((NIHLATHAKS_TEMPLE, 110, 111))
 # stairs before the fight, the macro request leaves the game too.
 CATACOMBS_4 = 37
 ANDARIEL = 156  # as in terror/bosses.py
+# A Countess run ends the same way (user, 2026-10-10): Tower Cellar Level 5 with no live Countess in
+# the unit table. She has no class of her own: the super unique among the level's Dark Stalkers
+# (terror/bosses.py).
+TOWER_CELLAR_5 = 25
+COUNTESS = 45
+SUPER_UNIQUE_FLAG = 0x02  # the monster's type flags, as terror/bosses.py
 PANDEMONIUM_FORTRESS = 103
 ACT_3 = range(75, 103)
 ARRIVAL_SECONDS = 180.0
@@ -85,13 +92,6 @@ SAVE_AND_EXIT = (0.5, 0.438)
 GAME_NAME_FIELD = (0.8, 0.158)  # right of the text, so the caret lands at its end
 # Right of the character, where the user summons; then other sides, a Defiler's width apart.
 SUMMON_SPOTS = ((0.66, 0.42), (0.36, 0.44), (0.5, 0.26), (0.64, 0.62), (0.4, 0.64))
-# Where the character's feet are drawn. Host run 17:38, 2026-10-06: two summons landed 0.027 and
-# 0.020 of the height above the pointer with 0.47 here, and within 0.003 across.
-FEET = (0.5, 0.494)
-BODY_LIFT = 0.035  # aim this much of the window height above a unit's feet
-# The classic isometric view: a world unit is 16 x 8 pixels at a 600-pixel-high view.
-UNIT_PIXELS = (16 / 600, 8 / 600)
-AIM_LIMITS = ((0.08, 0.92), (0.08, 0.8))  # stay off the window edge and the skill bar
 
 # Player modes that are an action under way: attacks, casts, skill sequences (classic table).
 ACTING = frozenset((7, 8, 10, 11, 12, 13, 14, 15, 16, 18))
@@ -122,23 +122,17 @@ FIELD_ATTEMPTS = 6  # about eight seconds for the lobby to come up
 
 
 def screen_fraction(player: Player, x: float, y: float, aspect: float) -> tuple[float, float]:
-    """Where a unit at world (x, y) is drawn, as window fractions; `aspect` is width / height."""
-    dx, dy = x - player.x, y - player.y
-    return (
-        FEET[0] + (dx - dy) * UNIT_PIXELS[0] / aspect,
-        FEET[1] + (dx + dy) * UNIT_PIXELS[1] - BODY_LIFT,
-    )
+    """Where a unit at world (x, y) is drawn, as window fractions; `aspect` is width / height (view.py)."""
+    return Viewport(aspect).body((player.x, player.y), x, y)
 
 
 def world_point(player: Player, x: float, y: float, aspect: float) -> tuple[float, float]:
     """The ground point drawn at window fraction (x, y): the inverse of `screen_fraction` for feet."""
-    across = (x - FEET[0]) * aspect / UNIT_PIXELS[0]
-    down = (y - FEET[1]) / UNIT_PIXELS[1]
-    return player.x + (across + down) / 2, player.y + (down - across) / 2
+    return Viewport(aspect).world((player.x, player.y), x, y)
 
 
 def on_screen(point: tuple[float, float]) -> bool:
-    return all(low <= value <= high for value, (low, high) in zip(point, AIM_LIMITS, strict=True))
+    return Viewport().on_screen(point)
 
 
 def press_skill(run: Run, skill: int) -> None:
@@ -592,6 +586,8 @@ def run_ended(run: Run, world: World) -> bool:
         return True
     if world.player.area == CATACOMBS_4:
         return all(monster.txt_id != ANDARIEL for monster in world.monsters)
+    if world.player.area == TOWER_CELLAR_5:
+        return not any(m.txt_id == COUNTESS and m.flags & SUPER_UNIQUE_FLAG for m in world.monsters)
     if world.player.area != PANDEMONIUM_FORTRESS or run.arrival is None:
         return False
     previous, seconds = run.arrival()
