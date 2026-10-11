@@ -1431,3 +1431,137 @@ fight took 0.8 s of its full life at 4 to 16 units and 0.9 s at 16 to 22 (402 fi
 
 Constant `RUN_SPEED`, comment, parenthesis:
 (the takes of 2026-10-10: 15 to 21)
+
+## Note, 2026-10-12: monsters that walk and strike by themselves (`sim/monsters.py`), first fit
+
+User, 2026-10-12: implement the movement logic from the research, for a near-real simulation of the
+fight of Tower Cellar 5 (macros/plan.md, the battle replay).
+
+What the take (20261011T195037Z-25, 24 s, its `paths.jsonl`) shows of Blood Clan (55, AI Goatman)
+and Devilkin (21, AI Fallen):
+
+- **Awareness.** Further than 20 units from their nearest target they stand 88 to 100% of the
+  frames; within it they walk 60 to 85% of them, toward the target (cosine +0.9).
+- **Pace.** A chasing Blood Clan (Velocity 7) makes 7.5 to 8.3 units a second: 1.1 a point, as the
+  threat scenarios had it from another take. A Devilkin (Velocity 6) makes 14.0, toward and away.
+- **Target** (the path record's target unit): a Blood Clan's is the character in 1061 of 1136
+  samples; a Devilkin's the demon in 342 and the character in 184.
+- **Stop distance** (the record's byte 0xBD): 14 or 5 for a Blood Clan, 12, 14 or 5 for a Devilkin.
+  Read as half units it fits what is seen: an approach that ends about 7 units off, then a charge to
+  striking distance (2.8 to 3.2 units at a strike's start). Four charges in the take: an inference.
+- **Strikes** start 2.8 to 3.2 units from the target (Devilkin 1.5 to 3.0).
+- **The Herald** (elite Blood Clan 2960229440): `lightunique` missiles in the frames from 17.6 s on,
+  78, then 122, then 255 in 0.4 s windows as it was struck more: Lightning Enchanted, the "lightning
+  that was damaging" the player saw. It stood in mode 4 from 19.8 s for 5 s, 8.4 units off; the
+  character's last 1051 life went at 23.06 s with it there. The cold nova of 8.67 s (-239) is the
+  first elite's (`coldunique`). The blows of the model's melee monsters are not what killed.
+
+The model: `Pack` of `Walker`s, each thinking by its monstats row (`AI`, `aip1`, `aip2`, `aip3`,
+`aidel`, `Velocity`, `A1MinD(H)`, `A1MaxD(H)`, added to `data/tables.json`): aware within 20 units,
+the Blood Clan for the character and the others for the nearest; a walk straight at the target at
+Velocity times 1.1 for 22 frames; a hold 7 units off (6.5 for a Devilkin) left with a chance of 30
+in 100 a think; a strike of 16 frames whose blow lands at the 8th if the target is still within 3.2.
+
+Against the take (`tests/.../scenarios/battle/test_monsters_fit.py`: started every half second,
+the take's character and companions as targets; mean units from the monster's real place):
+
+| Seconds on | Model | Left where it stood | Straight at the character |
+|---|---|---|---|
+| 1 | 2.5 | 2.0 | 10.4 |
+| 2 | 3.8 | 2.9 | 17.2 |
+| 4 | 5.6 | 4.2 | 19.7 |
+
+Blood Clan alone: 2.8 / 4.1 / 4.6 against 2.8 / 4.5 / 6.5 left standing. Devilkin: 2.4 / 3.6 / 5.9
+against 1.5 / 1.9 / 3.3 (a strict xfail): it closes 3.6 units in 2 s where the model closes 9.9.
+
+Not near-real yet. What it needs, in order: (1) the fit over the many takes that have path
+records, not one fight (the Fallen AI, the charge's odds, the hold's length); (2) the unique's
+enchantments as damage (Lightning Enchanted here: what killed); (3) walls and bodies in the way;
+(4) the character's side closed too (its moves and casts answered by these monsters), which is
+the battle the decision engine is to be judged in.
+
+## Note, 2026-10-12 (later): Lightning Enchanted damage, and recording what hurts the character
+
+User: "do the lightning enchanted damage, and we need to record such things and use it in our threat
+calculation and tests"; earlier: "it has some kind of aura, like lightning that were damaging".
+
+**A correction of the note above.** "Lightning Enchanted here: what killed" and the missile counts
+"78, then 122, then 255" are wrong. Counted per spark in the take 20261011T195037Z-25:
+
+- The Herald (2960229440: unique Blood Clan, tier 2, Aura Enchanted 30, Stone Skin 28, Lightning
+  Enchanted 17; eight minions with 28 and 17) let 88 sparks (`lightunique`, 195) go in 11 releases of
+  8, one to each 45 degrees. A spark makes 0.48 units a frame (Vel 12), turns 45 degrees to a side
+  about every 6 frames (9.7 units a second outward), is gone after 77 frames 26 to 31 units out, or
+  on the first body: three of every release ended 0.2 s out, on the companions beside the Herald.
+  This ring of sparks at every few blade hits is what looks like an aura.
+- One spark of the 88 came within 2.5 units of the character. At the death (23.06 s, 1051 points
+  gone in one frame) the nearest was 4.1 units off and flying away.
+- At the death the Herald was in attack mode with the character as its path target, drawn 8.9 units
+  off, and a minion was in attack mode 3.2 off. 3.1 s earlier 210 points went with the Herald alone
+  striking, 7.7 units off: its swings land from further than they look (or the client draws it
+  where it is not).
+- By the tables the Herald's blow is 161 to 296 physical (monlvl DM(H) at level 75 x 65..120% x 1.66
+  unique x 1.75 tier 2) plus 66 to 100% of that as lightning: 592 raw at the most; a minion's 184.
+  Both in one frame: 776. The blow that killed took 1051 or more. **What made it is not known.**
+  Not ruled out: a curse or a state on the character (not recorded), a boost of the Herald the tables
+  read here do not show, more than one swing landing in a frame.
+- The Herald's stat 350/351 (the aura's skill and level on other aura owners) read 484 and 28; skills.txt
+  of the install ends at 428. Its minions showed 115 (Vigor) level 16. What aura it carried is open.
+
+**Recorded since today** (combat/record.py, macros/world.py `Monster.modifiers`):
+
+- `units.jsonl`: `mods`, each monster's enchantments (monster data +0x20..0x28);
+- the manifest: `character_stats`, the character's own stat list (its resistances);
+- `events.jsonl`: a `hurt` at every drop of the character's life of 5 points or more: what was lost and
+  left, `by` (the suspects: hostiles striking or aimed at the character within 12 units, anything within
+  4.5; each with type, flags, mode, distance, whether its path record names the character, and its
+  enchantments) and `near` (the missiles within 3 units that can hurt: `harmless_missiles` of
+  data/tables.json, 325 ids that collide with nothing and carry no damage or are the character's own,
+  are left out).
+- `takes.trim` keeps the head of each path record (0x80 bytes), so a fixture knows the targets.
+
+`combat/hurts.py` derives the same rows from the older takes (enchantments from the terror probe logs)
+and `python -m inventory_tracking.combat.hurts` prints them by who struck alone. All 499 takes with
+path records to 2026-10-11 (1,794 drops, 95 with one monster striking alone and no missile by; points
+the character lost, after its defences):
+
+| Rank, enchantment | n | p50 | p90 | max |
+|---|---|---|---|---|
+| leader, Lightning Enchanted | 4 | 98 | 210 | 210 |
+| minion, Lightning Enchanted | 3 | 110 | 144 | 144 |
+| leader, Fire Enchanted | 3 | 80 | 178 | 178 |
+| minion, Fire Enchanted | 5 | 19 | 129 | 129 |
+| minion, Cold Enchanted | 4 | 67 | 86 | 86 |
+| leader, none of the three | 9 | 35 | 252 | 252 |
+| minion, none | 8 | 26 | 94 | 94 |
+| plain, none | 51 | 35 | 92 | 320 |
+| plain, Extra Strong | 5 | 109 | 227 | 227 |
+
+Seven Lightning Enchanted blows at a median of about 100 against 35 without: three times, where the
+tables give 1.4 to 1.8 before the lightning is resisted. Too few to set a factor by, and of other
+monster types; the takes from now on settle it.
+
+**The simulator** (combat/sim/monsters.py): a `Walker` has `level`, `flags`, `mods` and `tier`; a `Blow`
+has `parts` by kind of damage and `taken(resists)`. Physical points are DM(H) x the row's percent x
+rank x Extra Strong x Herald tier; Lightning, Fire and Cold Enchanted add monumod's share of them
+(66..100% a unique, 33..50% a minion, a champion and, assumed, a Terror Zone's plain monster). The
+bonuses are multiplied (not known to be right) and the share being of the blow is the classic rule,
+not read from this client. `Pack.struck(unit, frame)` lets a Lightning Enchanted monster's sparks go
+(a third of the frames it is struck in, 10 frames apart at least); they fly as measured and end on
+the first target within 2 units for 2 x level - 1 of lightning (the missile's level taken to be the
+monster's: an assumption). Tests: tests/inventory_tracking/combat/test_monsters.py and
+scenarios/battle/test_enchanted.py (the take's sparks against the model's: the median distance out
+at 1 s within 1.0 unit, at 2.8 s within 2.5; a strict xfail that the blow that killed is within what
+the pack deals by the tables).
+
+**The threat score** (terror/danger.py; the tracker hands on the type flags and stat 367): a pack
+leader's hit x 1.66; a Herald's by its tier (x 1.5 to 2.5) and its minions' (x 1.1 to 1.5), named
+"Herald" and "Herald's minion"; an elemental enchantment adds 0.83 (a leader) or 0.415 of the
+monster's own physical hit, where it added a flat 0.5 of the level's base damage (0.3 for cold)
+whatever the monster. The Tower Cellar pack scores 5.27 (3.65 before), under the 9.0 of "caution":
+a strict xfail in tests/inventory_tracking/terror/test_danger.py says the pack that killed is not
+marked. Not tuned to mark it: one death and seven blows are not a measurement.
+
+Open: the character's states at a drop (curses, Conviction) are not recorded; the threat scenes
+(tests/.../scenarios/threat) do not use the enchantments yet; the monsters are still not wired
+into a fight the macro plays (the list of the note above, items 1, 3 and 4).

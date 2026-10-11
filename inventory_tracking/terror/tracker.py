@@ -182,6 +182,7 @@ class ZoneTracker:
         self.leaders: set[int] = set()  # unique, champion and super unique monsters (not minions)
         # hostile unit id -> (txt id, modifiers, aura) as first seen: what makes a pack deadly (danger.py)
         self.traits: dict[int, tuple[int, tuple[int, ...], tuple[int, int] | None]] = {}
+        self.ranks: dict[int, tuple[int, int]] = {}  # hostile unit id -> (type flags, Herald tier) as first seen
         self.bands: dict[int, dict[int, str]] = {}  # area -> unit id -> its pack's band on the last pass
         self.player_states: frozenset[int] = frozenset()  # states.txt ids on the player, as last read
         # leader's unit id -> (area, kind, txt id, x, y, name) as first seen: the level's elite groups (elites.py)
@@ -398,6 +399,7 @@ class ZoneTracker:
                     self.elites[unit_id] = (event['area'], kind, event['txt_id'], event['x'], event['y'], name)
             if event.get('txt_id') is not None:
                 self.traits[unit_id] = (event['txt_id'], modifiers(event), aura(event))
+                self.ranks[unit_id] = (flags, stat(event, HERALD_TIER_STAT))
         tier = stat(event, HERALD_TIER_STAT)
         if tier:
             known = unit_id in self.herald_units  # seen before the game was rejoined
@@ -471,7 +473,8 @@ class ZoneTracker:
         for unit_id, (where, x, y) in self.positions.items():
             if where == area and unit_id in self.traits:
                 txt_id, found, carried = self.traits[unit_id]
-                units.append(Unit(unit_id, txt_id, x, y, found, carried, AURA_MODIFIER in found))
+                flags, tier = self.ranks.get(unit_id, (0, 0))
+                units.append(Unit(unit_id, txt_id, x, y, found, carried, AURA_MODIFIER in found, flags, tier))
         found = packs(
             units, held=self.bands.get(area), player=self.player_states
         )  # a marked pack keeps its mark near the line

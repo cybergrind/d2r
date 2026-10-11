@@ -236,10 +236,33 @@ def timeline(take: Take, *, every: float = 5.0) -> list[str]:
     return out
 
 
+PATH_HEAD = 0x80  # bytes of a path record a trim keeps: the position, the target point and the target unit
+
+
+def path_heads(paths: list[dict[str, Any]], start: float, end: float) -> list[dict[str, Any]]:
+    """The path records up to `end`, each cut to PATH_HEAD and left out where the head past the position is
+    as the unit's last. Those before `start` are kept: a record is written only when it changes."""
+    last: dict[int, str] = {}
+    found = []
+    for row in paths:
+        if row['t'] > end:
+            break
+        changed = []
+        for unit, record in row['m']:
+            head = record[: 2 * PATH_HEAD]
+            if last.get(unit) != head[16:]:
+                last[unit] = head[16:]
+                changed.append([unit, head])
+        if changed:
+            found.append({**row, 'm': changed})
+    return found
+
+
 def trim(take: Take, first: int, last: int, target: Path) -> Path:
     """Frames `first` to `last` of a take as a small take under `target`: the frames, the events in
-    their time, the units and missiles seen in them, the manifest and the level map, gzipped. A cut
-    of real play small enough to check in as a test fixture."""
+    their time, the units and missiles seen in them, the heads of the path records (who each monster
+    was after), the manifest and the level map, gzipped. A cut of real play small enough to check in
+    as a test fixture."""
     frames = [f for f in take.frames if first <= f['n'] <= last]
     if not frames:
         raise ValueError('no frames in the window')
@@ -256,6 +279,7 @@ def trim(take: Take, first: int, last: int, target: Path) -> Path:
             for m in take.missiles
             if m['unit_id'] in blades
         ],
+        'paths': path_heads(take.paths, start, end),
     }
     for name, records in parts.items():
         with gzip.open(target / f'{name}.jsonl.gz', 'wt', encoding='utf-8') as handle:

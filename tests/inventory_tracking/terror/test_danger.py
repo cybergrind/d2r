@@ -311,3 +311,79 @@ def test_all_that_raises_a_pack_is_counted_together_and_the_strongest_reasons_ar
     )  # a cow at 5 x 1.5: (7.5 - 3) / 6
     assert pack.band == 'deadly'
     assert set(pack.reasons) == {'Extra Strong', 'Might', 'Amplify Damage on you', 'Extra Fast'}
+
+
+# -- rank, Herald tier and what an enchantment adds (2026-10-12) ----------------------------------------
+
+BLOOD_CLAN = 55
+UNIQUE_FLAG, CHAMPION_FLAG, MINION_FLAG = 0x08, 0x04, 0x10
+LIGHTNING, FIRE, COLD, STONE_SKIN = 17, 9, 18, 28
+
+
+def one(txt_id=BLOOD_CLAN, **traits):
+    return threat(Unit(1, txt_id, 1000, 1000, **traits), [], table(), DANGER)
+
+
+def test_a_pack_leader_hits_harder_than_its_type_and_a_minion_does_not():
+    plain, _ = one()
+    assert one(flags=UNIQUE_FLAG)[0] == pytest.approx(DANGER.leader * plain)
+    assert one(flags=CHAMPION_FLAG)[0] == pytest.approx(DANGER.leader * plain)
+    assert one(flags=MINION_FLAG) == (plain, {})
+    assert one(flags=UNIQUE_FLAG)[1] == {}  # every leader has it: no reason to name
+
+
+def test_a_herald_and_its_minions_hit_harder_by_the_tier_and_say_so():
+    plain, _ = one()
+    herald, why = one(flags=UNIQUE_FLAG, tier=2)
+    assert herald == pytest.approx(plain * DANGER.leader * 1.75)  # the Terror Zone's config: +75% at tier 2
+    assert why == {'Herald': 1.75}
+    minion, why = one(flags=MINION_FLAG, tier=2)
+    assert (minion, why) == (pytest.approx(plain * 1.2), {"Herald's minion": 1.2})
+    assert one(flags=UNIQUE_FLAG, tier=5)[0] > one(flags=UNIQUE_FLAG, tier=1)[0] > one(flags=UNIQUE_FLAG)[0]
+
+
+def test_an_elemental_enchantment_adds_a_share_of_the_monsters_own_hit_by_its_rank():
+    row = table().monsters[BLOOD_CLAN]
+    reach = one()[0] / (row.physical + row.elemental * DANGER.resisted)  # what a melee attacker's hit counts for
+    plain, _ = one()
+    for modifier, name in ((LIGHTNING, 'Lightning Enchanted'), (FIRE, 'Fire Enchanted'), (COLD, 'Cold Enchanted')):
+        # monumod's constants: 33 to 50% of the hit for a minion, cut by the character's resistance.
+        minion, why = one(flags=MINION_FLAG, modifiers=(modifier,))
+        assert minion - plain == pytest.approx(row.physical * 0.415 * DANGER.resisted * reach)
+        assert why == {name: pytest.approx(minion / plain)}
+        # 66 to 100% for a unique, of a hit its rank has raised already.
+        leader, _ = one(flags=UNIQUE_FLAG, modifiers=(modifier,))
+        added = row.physical * DANGER.leader * 0.83 * DANGER.resisted * reach
+        assert leader - DANGER.leader * plain == pytest.approx(added)
+    # A harder hitter's enchantment adds more: it is a share of the hit, not a number of its own.
+    weak = one(FALLEN, modifiers=(LIGHTNING,))[0] - one(FALLEN)[0]
+    strong = one(HELL_BOVINE, modifiers=(LIGHTNING,))[0] - one(HELL_BOVINE)[0]
+    assert strong > weak >= 0
+
+
+def herald_pack():
+    """The pack the character died to in Tower Cellar 5 (2026-10-11): a tier 2 Herald, a unique Blood
+    Clan with Aura Enchanted, Stone Skin and Lightning Enchanted, and eight minions with the last two."""
+    herald = Unit(1, BLOOD_CLAN, 1000, 1000, (AURA, STONE_SKIN, LIGHTNING), None, True, UNIQUE_FLAG, 2)
+    minions = [
+        Unit(2 + n, BLOOD_CLAN, 1002 + 2 * n, 1002, (STONE_SKIN, LIGHTNING), None, False, MINION_FLAG, 2)
+        for n in range(8)
+    ]
+    return [herald, *minions]
+
+
+def test_the_herald_pack_of_tower_cellar_5_scores_more_for_its_rank_tier_and_enchantment():
+    pack = top(herald_pack())
+    bare = top([Unit(unit.unit_id, unit.txt_id, unit.x, unit.y) for unit in herald_pack()])
+    assert pack.score > 1.4 * bare.score
+    assert pack.label == 'Blood Clan x9'  # no single reason is behind enough of the score to be named
+
+
+@pytest.mark.xfail(
+    strict=True,
+    reason='the pack killed the character (a blow of 1051 points or more with the Herald and a minion striking), '
+    'and by the tables it is a melee pack of ordinary hits: the score stays under the line to be careful at. '
+    'What made that blow is not known (combat/plan.md, 2026-10-12); the takes now record what is needed to find it',
+)
+def test_the_pack_that_killed_the_character_is_marked():
+    assert top(herald_pack()).band is not None

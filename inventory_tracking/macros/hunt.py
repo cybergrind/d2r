@@ -1201,6 +1201,7 @@ class Hunter:
         counted = 0  # the casts seen up to the last look
         ended = f'Fight stopped after {FIGHT_SECONDS:.0f}s'
         with ExitStack() as stack:
+            stack.callback(setattr, self.rotation, 'let_go', None)
             while run.clock() - started < FIGHT_SECONDS:
                 world = run.world()
                 player = world.player
@@ -1317,6 +1318,7 @@ class Hunter:
                 if again is None:
                     run.say(f'Echoing Strike ({how}) at {label(prey)}, {life(prey)}')
                     again = stack.enter_context(run.actuator.hold(*held))
+                    self.rotation.let_go = getattr(again, 'release', None)  # for a key under the strike
                     cast.began = run.clock()
                     self.casting = True  # the strike is held from here to the end of the fight
                 if prey.unit_id != lined:

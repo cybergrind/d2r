@@ -87,6 +87,9 @@ NO_OWNER = 0xFFFFFFFF
 # Monster data byte +0x1A (terror/tracker.py, probe logs 2026-10-02/03): 0x08 unique (Heralds too),
 # 0x04 champion, 0x02 super unique, 0x10 a minion of one of those.
 TYPE_FLAGS = 0x1A
+# Monster data bytes from +0x20: its special modifiers (monumod ids; 0 = none), the enchantments of a
+# unique and what its minions inherit (terror/tracker.py FIRST_MODIFIER, MODIFIER_SLOTS).
+MODIFIERS = slice(0x20, 0x29)
 LEADER_FLAGS = 0x02 | 0x04 | 0x08
 MINION_FLAG = 0x10
 ALIGNMENT_STAT = 172  # non-zero on allies: summons, the mercenary (terror/tracker.py)
@@ -171,6 +174,7 @@ class Monster:
     raw: bytes = field(default=b'', compare=False, repr=False)  # unit and monster data, Defilers only
     stats_at: int = field(default=0, compare=False, repr=False)  # the unit's stat list, for a full read
     path: bytes = field(default=b'', compare=False, repr=False)  # the whole path record, on request (PATH_RECORD)
+    modifiers: tuple[int, ...] = field(default=(), compare=False)  # monumod ids: Lightning Enchanted is 17
 
     @property
     def leader(self) -> bool:
@@ -322,7 +326,7 @@ def monsters_and_dead(
                 raw = read(unit['address'], 0x160) + read(unit['data_pointer'], 0x80)
         monster = Monster(unit['unit_id'], unit['txt_id'], unit['mode'], *position(path), owner, data[TYPE_FLAGS])
         monster = replace(monster, ally=ally, life=life, max_life=max_life, raw=raw, stats_at=unit['stats_pointer'])
-        found.append(replace(monster, path=record))
+        found.append(replace(monster, path=record, modifiers=tuple(mod for mod in data[MODIFIERS] if mod)))
     return tuple(found), frozenset(corpses)
 
 

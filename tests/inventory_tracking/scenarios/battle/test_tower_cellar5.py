@@ -10,12 +10,25 @@ import functools
 import pytest
 
 from inventory_tracking.combat.takes import monsters_of
+from inventory_tracking.macros.routines import press_skill
 from tests.inventory_tracking.scenarios.battle import evidence, tower_cellar5 as battle
 from tests.inventory_tracking.scenarios.battle.replay import Replay, character
 
 
 HERALD = 2960229440
-AS_IT_WAS = {'inventory_tracking.macros.hunt.GATHER_CLEAR': 0.0}  # the sweep's rule of that evening
+
+
+def key_as_it_was(rotation, run, skill):
+    """A key under the strike as that evening: pressed once a look found the character free, the strike held."""
+    press_skill(run, skill)
+
+
+# The rules of that evening, where today's differ: the sweep stopped for a drop with hostiles beside it,
+# and a key under the held strike waited for a free instant (rotation.Rotation.key lets the strike go now).
+AS_IT_WAS = {
+    'inventory_tracking.macros.hunt.GATHER_CLEAR': 0.0,
+    'inventory_tracking.macros.rotation.Rotation.key': key_as_it_was,
+}
 END = 22.7  # just before the teleport key (22.77 s), whose handling has changed since
 
 

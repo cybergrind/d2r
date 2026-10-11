@@ -103,7 +103,8 @@ def test_attack_mode_strikes_a_monster_in_reach_by_the_skill_key_until_it_dies(m
     # The strike goes first and the mark under it (the logs of 2026-10-10: the mark and the sigil cast
     # first held the first strike back 0.3 to 0.7 s). The strike is let go and pressed again under the
     # mark's cast, so the game has it waiting when the mark is out; the last release ends the fight.
-    assert play.pressed() == ['d', '7', '7']
+    # (A key reads as pressed at its release: the strike is let go for the mark, which is why it is first.)
+    assert play.pressed() == ['7', 'd', '7']
     assert [unit for unit, _ in play.strikes] == [10, 10]
     # The blades meet at the pointer: the policy's focal point, on a lone monster where it stands; a
     # cast that flies while the pointer is on its body for the mark meets there.
@@ -655,7 +656,7 @@ def test_a_fight_right_after_a_step_starts_with_what_is_held_and_stops_for_the_m
     play.sets.reverse()
     attack_mode(play, hunter(play), until=4.0)
     keys_pressed = play.pressed()
-    assert keys_pressed[0] == 'd'  # the mark and the strike at once, no swap first
+    assert keys_pressed[:2] == ['7', 'd']  # the strike, let go for the mark under it: no swap first
     assert keys_pressed.count('c') == 1
     assert play.sets[0] == PREBUFF_SET
     stop = play.said.index(next(text for text in play.said if text.startswith('Stopping for the main weapons')))

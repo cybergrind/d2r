@@ -164,6 +164,13 @@ class Actuator:
         self.holding |= own
         self.holding_buttons |= own_buttons
 
+        def release() -> None:
+            """Let the keys go; `again` presses them anew. For a cast of the macro's own under a held
+            strike: held, the character is free only for an instant between two casts."""
+            nonlocal pressed
+            released, pressed = pressed, []
+            self._release(released)
+
         def again() -> None:
             nonlocal pressed
             released, pressed = pressed, []
@@ -179,6 +186,7 @@ class Actuator:
                 return
             pressed = self._press(inputs)
 
+        again.release = release  # type: ignore[attr-defined]
         try:
             yield again
         finally:

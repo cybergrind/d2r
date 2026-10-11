@@ -3358,3 +3358,35 @@ What the reproduction itself showed about the fight (for the decision engine):
   1.9 s old and the loop's `else` logs without having waited. The two Sigil lines are real waits.
 
 Still outside: after the teleport key (22.77 s) the code is today's; the world is open loop.
+
+## 2026-10-12 12:00 — a key under the held strike without the wait; the new baseline for the Herald fight
+
+user: "try to implement fix and check what the new baseline we can achieve for the same situation".
+
+**The fix.** A cast of the macro's own under the strike (Sigil: Lethargy, Engorge, Death Mark, Hex:
+Purge) no longer waits for a look to fall into the instant between two casts (1.1 s and 1.4 s in
+Tower Cellar 5): `Rotation.key` lets the strike go (`again.release`, new on `Actuator.hold`) and
+presses the key at once (`routines.press_through`); `resume` presses the strike again as before.
+The key's own cast is known by its skill on the right button (Quick Cast shows it there: 0.12 s
+for the Sigil and Engorge, 0.37 s for Blade Warp in the take), or by the character casting for longer
+than one cast (0.45 s); when the cast before ends and neither shows within 0.09 s, the key is pressed
+again. The scripted game of the tests keeps a skill key that comes during a cast and casts it after
+(`fakes.Game.kept`), with its skill on the right button meanwhile. Not played yet.
+
+**The baseline** (`scenarios/battle/baseline.py`, `test_baseline.py`). The replay is open loop, so
+the moment is played in the stance harness: the monsters where the take has them, standing still and
+not striking, the production aim, the simulator's blades.
+
+- The Herald's life: fitted to the 36/128 the recorded strikes took by 19.0 s it is 105,800 points,
+  11 times the 9,473 the model gives an elite Blood Clan there (`ELITE_LIFE` 2).
+- With the recorded strikes the fitted model leaves it 84/128 at the death (the game: 82/128).
+- **Striking all the time from its arrival (13.5 s): dead 10.4 s on, at 23.9 s**, 0.8 s after the
+  character died; 12/128 left at the moment of the death, against 82/128.
+- From the potion stop (18.2 s, 111/128, 12.7 units off): 8.8 s more in the model; 4.0 s at the
+  rate the game showed in its last 1.5 s of strikes (34/128), which is the moment of the death.
+- So the two fixes turn a Herald that was never close to dead into one that dies at about the time
+  the character did. They do not by themselves keep the character alive: its last 1000 life went
+  in 0.8 s with the Herald 9 units off. That is the stand's and the escape's to settle.
+- The model's misfit, kept as a strict xfail: 28/128 off the Herald by 17.1 s where the game took
+  2/128 (17 units off behind its pack; the harness lets the blades through), and too little once it
+  was near. One number was fitted; the shape was not.

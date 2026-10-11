@@ -9,6 +9,11 @@ first sight: level, defence, resistances for stage 3), `missiles.jsonl` (each mi
 record on first sight: the layout research of stage 1) and `events.jsonl` (casts, hits, kills,
 unloads, button and key changes, derived while recording). Reads only; nothing touches the game.
 
+Since 2026-10-12 a take also holds what hurts the character (user: "we need to record such things"):
+each unit's enchantments (`mods`, monumod ids) in `units.jsonl`, the character's own stat list in the
+manifest (`character_stats`: its resistances, which a blow's size is cut by) and a `hurt` event at
+every drop of its life, with who was striking and what flew by (combat/hurts.py).
+
 `Recorder.step` is the per-frame logic with the clock injected; `Recorder.run` paces it on its
 own thread with its own memory handle and display connection (`LiveSampler`), bound to the game
 by `poll` from the service loop as the macro runner is.
@@ -24,11 +29,12 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from inventory_tracking.combat import hurts
 from inventory_tracking.common import LOG, timestamp
 from inventory_tracking.input.keyboard import X11Keyboard
 from inventory_tracking.levels.model import Level
 from inventory_tracking.macros.routines import ACTING
-from inventory_tracking.macros.world import NO_OWNER, GameMemory, World
+from inventory_tracking.macros.world import NO_OWNER, GameMemory, Player, World
 from inventory_tracking.native.layout import DEAD_MODES
 
 
@@ -105,6 +111,9 @@ class Take:
         self.acting = False
         self.mask = 0
         self.keys: frozenset[int] = frozenset()
+        self.mods: dict[int, tuple[int, ...]] = {}  # unit id -> its enchantments, as first seen
+        # The frame before: the character's unit and life, the hostiles and the missiles (a blow lands between two)
+        self.before: tuple[int, int, hurts.Point, list[hurts.Foe], list[tuple[int, hurts.Point]]] | None = None
         self.write_manifest()
 
     def write_manifest(self) -> None:
@@ -149,7 +158,11 @@ class Take:
         if player is not None:
             at = (round(player.x, 2), round(player.y, 2))
             character = [player.unit_id, player.mode, player.area, *at, player.left_skill, player.right_skill]
-            character += self.vitals(player)  # life, max life, mana, max mana (whole points), since 2026-10-10
+            vitals = self.vitals(player)
+            character += vitals  # life, max life, mana, max mana (whole points), since 2026-10-10
+            self.hurt(clock, sample, player, vitals[0], vitals[1])
+        else:
+            self.before = None
         line = {
             't': round(clock, 3),
             'n': self.count,
@@ -170,6 +183,24 @@ class Take:
             self.manifest.setdefault('census', []).append({'t': round(clock, 3), 'slots': sample.census})
             LOG.info('Combat take %s: unit table census %s', self.directory.name, sample.census)
         self.derive(clock, sample)
+
+    def hurt(self, clock: float, sample: Sample, player: Player, life: int, max_life: int) -> None:
+        """A `hurt` event when the character's life fell since the frame before (combat/hurts.py)."""
+        foes = [
+            hurts.Foe(
+                m.unit_id, m.txt_id, m.flags, m.mode, m.x, m.y,
+                hurts.target_unit(m.path) if m.path else None, self.mods.setdefault(m.unit_id, m.modifiers),
+            )
+            for m in sample.world.monsters
+            if not m.ally and m.owner == NO_OWNER and m.mode not in DEAD_MODES
+        ]  # fmt: skip
+        flying = [(x['txt_id'], hurts.missile_point(x['path'])) for x in sample.missiles if len(x['path']) >= 16]
+        before, self.before = self.before, (player.unit_id, life, (player.x, player.y), foes, flying)
+        if before is None or before[0] != player.unit_id or not max_life or before[1] - life < hurts.HURT_LEAST:
+            return
+        by = hurts.suspects(player.unit_id, before[2], [*before[3], *foes])
+        found = hurts.row(before[1] - life, life, max_life, by, hurts.beside(before[2], before[4]))
+        self.event(clock, 'hurt', macro=sample.macro, **found)
 
     def write_paths(self, clock: float, monsters) -> None:
         """Research (combat/plan.md, monster movement): the whole path record of each monster that
@@ -199,6 +230,7 @@ class Take:
                 self.seen_units.add(m.unit_id)
                 unit: dict[str, Any] = {'t': round(clock, 3), 'unit': m.unit_id, 'txt': m.txt_id, 'flags': m.flags}
                 unit.update(owner=m.owner, ally=m.ally, max_life=m.max_life, stats=self.stats(m.stats_at))
+                unit['mods'] = list(m.modifiers)
                 self.units.write(json.dumps(unit) + '\n')
             before = self.life.get(m.unit_id)
             if before is not None and m.max_life and m.life < before[1]:
@@ -299,6 +331,8 @@ class Recorder:
             'slots': list(sample.world.slots), 'left_skill': player.left_skill if player else None,
             'right_skill': player.right_skill if player else None, **self.manifest(),
         }  # fmt: skip
+        if player is not None and player.stats_at:
+            manifest['character_stats'] = {str(stat): value for stat, value in self.stats(player.stats_at).items()}
         self.take = Take(self.output / name, manifest, self.stats)
         self.write_level(self.take, now)
         LOG.info('Combat take %s opened in area %d', name, area)

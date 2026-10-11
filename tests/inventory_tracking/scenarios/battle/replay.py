@@ -368,7 +368,11 @@ class Replay:
         patched = []
         for path, value in self.script.patches.items():
             module, name = path.rsplit('.', 1)
-            owner = importlib.import_module(module)
+            try:
+                owner = importlib.import_module(module)
+            except ModuleNotFoundError:  # a class's attribute: 'package.module.Class.name'
+                outer, inner = module.rsplit('.', 1)
+                owner = getattr(importlib.import_module(outer), inner)
             patched.append((owner, name, getattr(owner, name)))
             setattr(owner, name, value)
         try:

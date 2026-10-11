@@ -31,6 +31,7 @@ KEYS[ENGORGE] = 'e'
 KEYS[BLADE_WARP] = 'w'
 STRIKE_RANGE = 4.0  # world units: a monster this near the blades' line to the pointer is struck
 ACTING_SECONDS = 0.3  # the cast animation
+KEPT_KEYS = frozenset('dq6gew')  # the Quick Cast skill keys of the fakes' character but Teleport (`keeps_keys`)
 PREBUFF_SET, OTHER_SET = ('fla', 'uit'), ('6cs', 'wa3')  # Heart of the Oak + Spirit; Naj's Puzzler + Codex
 SLOTS = (379, 390, 375, 384, 389, 220, 393, 377, None, 382, 387, 54, 381, None, None, None)
 HUNT_SLOTS = (*SLOTS[:13], ECHOING_STRIKE, *SLOTS[14:])  # with Echoing Strike on a key, as since 2026-10-09
@@ -197,6 +198,8 @@ class Game:
         # a cast is kept and cast when that cast is over (with the pointer where it is then), or dropped.
         self.keeps_keys = None
         self.kept_hop = False
+        self.kept = []  # inputs that came during a cast: each is cast when the one before is over
+        self.home_skill = None  # (the right button's skill before a kept key's cast,), while that cast runs
         self.hops_cast_at = []  # clock times the game cast a kept Teleport key
         self.slipped_picks = 0  # clicks on a drop's label that walk the character to the ground behind it
         self.pick_above = 14.0  # classic pixels a drop is clicked above its ground (host, 2026-10-10)
@@ -215,6 +218,19 @@ class Game:
 
     def react(self, event):
         self.read()
+        if self.acting_until is not None and self.kept_by_the_game(event):
+            self.kept.append(event)  # cast when the cast under way is over (`read`)
+            return
+        self.act(event)
+
+    def kept_by_the_game(self, event) -> bool:
+        """Whether the game keeps this input for the end of the cast under way: a Quick Cast skill key
+        or the sigil's mouse button (the client's two-entry queue, macros/plan.md 2026-10-12)."""
+        if not self.world.in_game or self.deaf or len(self.kept) >= 2:
+            return False
+        return (event[0] == 'key' and event[1] in KEPT_KEYS) or (event[0] == 'button' and event[1] == 9)
+
+    def act(self, event):
         w = self.world
         if self.deaf:
             self.ignored.append(event)
@@ -457,8 +473,22 @@ class Game:
             self.hop()
             self.hops_cast_at.append(self.clock.now)
             self.acting_until = self.clock.now + ACTING_SECONDS
+        elif self.acting_until is not None and self.clock.now >= self.acting_until and self.kept:
+            self.acting_until = None
+            event = self.kept.pop(0)
+            self.act(event)  # the key kept during the cast: its own cast begins, no neutral frame shown
+            self.acting_until = self.clock.now + ACTING_SECONDS
+            # Quick Cast: the key's skill is on the right button for its cast, the one before after it.
+            name = event[1] if event[0] == 'key' else f'Button{event[1]}'
+            cast = next((skill for skill, key in KEYS.items() if key == name), None)
+            if self.home_skill is None:
+                self.home_skill = (self.world.player.right_skill,)
+            self.world = replace(self.world, player=replace(self.world.player, mode=7, right_skill=cast))
         elif self.acting_until is not None and self.clock.now >= self.acting_until:
             self.acting_until = None  # one neutral frame between casts
+            if self.home_skill is not None:
+                self.world = replace(self.world, player=replace(self.world.player, right_skill=self.home_skill[0]))
+                self.home_skill = None
             self.world = replace(self.world, player=replace(self.world.player, mode=5))
         elif self.acting_until is None and self.world.in_game and not self.deaf and not self.reading:
             held = self.held_input()

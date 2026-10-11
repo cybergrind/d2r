@@ -3,7 +3,8 @@
 A monster's threat is the product of three things (user, 2026-10-07):
 
 - its hit: the type's Hell damage (terror/data/threats.json: multiples of the monster level's
-  base damage, physical and elemental apart), raised by its own modifiers (monster data +0x20..,
+  base damage, physical and elemental apart), raised by its rank (a unique's or champion's own
+  bonus, a Herald's tier and its minions'), by its own modifiers (monster data +0x20..,
   inherited ones on minions, the Terror Zone's forced one on plain monsters), the aura it stands
   in (stat 350 on first sight, or an aura owner within the aura's range) and curses nearby;
 - its rate: Extra Fast, Fanatic, Multiple Shots;
@@ -39,6 +40,9 @@ from inventory_tracking.config import Config
 
 
 DATA = Path(__file__).parent / 'data' / 'threats.json'
+# Monster data byte +0x1A (macros/world.py TYPE_FLAGS): 0x02 super unique, 0x04 champion, 0x08 unique
+# (Heralds too), 0x10 a minion of one of those.
+LEADER_FLAGS, MINION_FLAG = 0x02 | 0x04 | 0x08, 0x10
 
 # monumod.txt ids
 STRONG, FAST, CURSED, FIRE, LIGHTNING, COLD, TELEPORT, MULTISHOT, FANATIC, BERSERKER = (
@@ -114,7 +118,21 @@ class DangerConfig(Config):
     # times the life of others at their score (392 s, the same samples).
     physical: Mapping[int, float] = {STRONG: 1.5, BERSERKER: 2.0}
     speed: Mapping[int, float] = {FAST: 1.25, FANATIC: 1.25}  # own modifier -> attacks per second factor
-    added: Mapping[int, float] = {FIRE: 0.5, LIGHTNING: 0.5, COLD: 0.3}  # own modifier -> elemental damage added
+    # An elemental enchantment adds a share of the monster's own physical hit to each of its hits, by
+    # rank: monumod.txt's constants, "Elemental Min..Max Damage % Bonus (Hell)" 66..100 for a unique and
+    # 33..50 for a champion or a unique's minion (taken for a Terror Zone's plain monster too), the
+    # middle of each. Before 2026-10-12 a flat 0.5 of the level's base damage (0.3 for cold) whatever
+    # the monster: a Lightning Enchanted Herald then added to its hit what a Fallen's would.
+    elements: tuple[int, ...] = (FIRE, LIGHTNING, COLD)
+    enchanted: float = 0.415
+    enchanted_unique: float = 0.83
+    # The hit of a unique, a super unique or a champion (difficultylevels.txt Hell: UniqueDamageBonus
+    # and ChampionDamageBonus, both 66).
+    leader: float = 1.66
+    # A Herald's hit and its minions', by tier (the Terror Zone's config of the installed game,
+    # herald_damage_boost_percent and minion_damage_boost_percent; terror_zones/data).
+    herald: Mapping[int, float] = {1: 1.5, 2: 1.75, 3: 2.0, 4: 2.25, 5: 2.5}
+    herald_minion: Mapping[int, float] = {1: 1.1, 2: 1.2, 3: 1.3, 4: 1.4, 5: 1.5}
     multishot: float = 2.0  # Multiple Shots on a ranged attacker
     aura_physical: Mapping[int, float] = {MIGHT: 2.0, FANATICISM: 1.75, BLESSED_AIM: 1.2}
     aura_added: Mapping[int, float] = {HOLY_FIRE: 0.3, HOLY_SHOCK: 0.4}  # elemental damage added to each attack
@@ -185,6 +203,17 @@ class Unit:
     modifiers: tuple[int, ...] = ()  # monumod ids, monster data +0x20..
     aura: tuple[int, int] | None = None  # (skill, level) of stats 350/351 when the skill is an aura
     owner: bool = False  # aura enchanted: the aura is its own
+    flags: int = 0  # the type flags of the monster data (+0x1A): unique, champion, minion
+    tier: int = 0  # stat 367: the tier of the Herald it is, or whose minion it is; 0 for neither
+
+    @property
+    def minion(self) -> bool:
+        return bool(self.flags & MINION_FLAG)
+
+    @property
+    def leader(self) -> bool:
+        """A unique, a super unique or a champion itself."""
+        return bool(self.flags & LEADER_FLAGS) and not self.minion
 
 
 @dataclass(frozen=True)
@@ -223,7 +252,13 @@ def threat(
         return value * factor
 
     hard = config.hard.get(row.name, config.hard.get(row.family, 1))
+    hard *= config.leader if unit.leader else 1  # not named: every pack leader has it
     physical, elemental, magic = row.physical * hard, row.elemental * hard * config.resisted, row.magic * hard
+    if unit.tier:
+        boost = (config.herald_minion if not unit.leader else config.herald).get(unit.tier, 1)
+        physical, elemental, magic = physical * boost, elemental * boost, magic * boost
+        if boost != 1 and physical + elemental + magic:
+            reasons['Herald' if unit.leader else "Herald's minion"] = boost
     auras = {unit.aura[0]} if unit.aura and not unit.owner else set()
     for other in units:
         if other.owner and other.aura:
@@ -234,10 +269,12 @@ def threat(
     for modifier in unit.modifiers:
         name = threats.modifiers.get(modifier, str(modifier))
         physical = apply(physical, config.physical.get(modifier, 1), name)
-        if modifier in config.added:
+    for modifier in unit.modifiers:  # after all that raises the physical hit: the enchantment adds a share of it
+        if modifier in config.elements and physical:
             before = physical + elemental + magic
-            elemental += config.added[modifier] * config.resisted
-            reasons[name] = (before + config.added[modifier] * config.resisted) / before if before else 1.0
+            added = physical * (config.enchanted_unique if unit.leader else config.enchanted) * config.resisted
+            elemental += added
+            reasons[threats.modifiers.get(modifier, str(modifier))] = (before + added) / before
     for skill in sorted(auras):
         name = threats.auras[skill][0]
         physical = apply(physical, config.aura_physical.get(skill, 1), name)

@@ -14,7 +14,7 @@ from inventory_tracking.combat.stance import BLADES_A_CAST
 from inventory_tracking.common import LOG
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.engine import Run
-from inventory_tracking.macros.routines import ACTING, on_screen, press_skill, screen_fraction
+from inventory_tracking.macros.routines import ACTING, on_screen, press_through, screen_fraction
 from inventory_tracking.macros.skills import DEATH_MARK, ENGORGE, HEX_PURGE, SIGIL_LETHARGY
 from inventory_tracking.macros.teleport import HOVER_SECONDS, ground_fraction
 from inventory_tracking.macros.travel import MONSTER_UNIT_TYPE, label, life
@@ -55,6 +55,14 @@ class Rotation:
         self.engorged_at = -math.inf  # clock time of the last Engorge (or of the last look for a corpse)
         self.purged_at = -math.inf  # clock time of the last Hex: Purge cast
         self.purges_unseen = 0  # casts of it in a row that the character's state did not show after
+        self.let_go: Callable[[], None] | None = None  # releases the held strike (actuator.hold), while one is held
+
+    def key(self, run: Run, skill: int) -> None:
+        """A cast of the macro's own under the strike: the strike is let go (`let_go`, the fight's) and
+        the key pressed at once (routines.press_through); `resume` presses the strike again."""
+        if self.let_go is not None:
+            self.let_go()
+        press_through(run, skill)
 
     def sigil_due(self, run: Run, prey: Monster) -> bool:
         return prey.leader and run.clock() - self.sigiled.get(prey.unit_id, -math.inf) > SIGIL_SECONDS
@@ -69,7 +77,7 @@ class Rotation:
             self.sigiled[prey.unit_id] = run.clock() - SIGIL_SECONDS + 1.0
             return
         run.actuator.aim(*where, scatter=(4, 3))
-        press_skill(run, SIGIL_LETHARGY)
+        self.key(run, SIGIL_LETHARGY)
         self.sigiled[prey.unit_id] = run.clock()
 
     def engorge_due(self, run: Run, world: World) -> bool:
@@ -122,7 +130,7 @@ class Rotation:
                         'Macro: no Engorge at (%.1f, %.1f): under the pointer %s, not the corpse %d', x, y, over, unit
                     )
                     continue
-            press_skill(run, ENGORGE)
+            self.key(run, ENGORGE)
             self.engorged_at = run.clock()
             LOG.info(
                 'Macro: Engorge on the corpse %d at (%.1f, %.1f), %.1f away; under the pointer %s',
@@ -168,7 +176,7 @@ class Rotation:
         if self.purges_unseen == HEX_TRIES:
             LOG.warning('Macro: Hex: Purge cast %d times and the state does not show it', HEX_TRIES)
         run.keys.update(key_names(world, (HEX_PURGE,)))
-        press_skill(run, HEX_PURGE)
+        self.key(run, HEX_PURGE)
         self.purged_at = run.clock()
         self.purges_unseen += 1
 
@@ -184,6 +192,6 @@ class Rotation:
         run.actuator.aim(*point, scatter=(3, 3))
         if all(m.unit_id != target.unit_id for m in run.world().monsters):
             return  # it died under the strike while the pointer went over: no mark on a corpse
-        press_skill(run, DEATH_MARK)
+        self.key(run, DEATH_MARK)
         self.marked_at = run.clock()
         run.say(f'Death Mark on {label(target)}, {life(target)}')

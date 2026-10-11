@@ -208,6 +208,42 @@ def press_skill(run: Run, skill: int, poll: float = 0.03, *, wait: bool = True) 
     run.actuator.tap(run.keys[skill])
 
 
+QUEUED_SECONDS = 0.09  # after a cast's end, for the cast of a key pressed during it to show
+THROUGH_POLL = 0.01
+ONE_CAST = 0.45  # seconds no single cast of the character lasts (0.36 to 0.39 s recorded): longer, a second one ran
+
+
+def press_through(run: Run, skill: int) -> None:
+    """The skill's key pressed at once, also during a cast: the game keeps a Quick Cast key that comes
+    during a cast and casts it on the first frame the character is free (the client's code, read on
+    2026-10-12, macros/plan.md). When that cast ends and none follows within QUEUED_SECONDS the game
+    did not keep the press, and it is pressed again, the character being free then. With `press_skill`
+    alone a key under the held strike waited for a look to fall into the instant between two casts:
+    1.1 s for a Sigil and 1.4 s for an Engorge in the fight of Tower Cellar 5 (22:50:44 and :47 on
+    2026-10-11), the strike's aim frozen meanwhile; the caller lets the strike go first."""
+    world = run.world()
+    busy = world.player is not None and world.player.mode in ACTING
+    press_skill(run, skill, THROUGH_POLL, wait=not busy)
+    if not busy:
+        return
+    tapped = run.clock()
+
+    def shown(w: World) -> bool:
+        # A Quick Cast key puts its skill on the right button for its cast (Sigil: Lethargy 0.12 s,
+        # Engorge 0.12 s, Blade Warp 0.37 s in the take of Tower Cellar 5): the cast is the key's.
+        return w.player is not None and w.player.right_skill == skill
+
+    over = run.seen(lambda w: shown(w) or (w.player is not None and w.player.mode not in ACTING), 2.5, THROUGH_POLL)
+    if over is None or shown(over) or run.clock() - tapped > ONE_CAST:
+        return  # its cast was seen, or the character cast for longer than the one cast that was under way
+    taken = run.seen(
+        lambda w: shown(w) or (w.player is not None and w.player.mode in ACTING), QUEUED_SECONDS, THROUGH_POLL
+    )
+    if taken is None:
+        LOG.info('Macro: the game did not keep the %s key pressed during the cast before: pressed again', NAMES[skill])
+        press_skill(run, skill, THROUGH_POLL)
+
+
 def defilers(world: World) -> list[Monster]:
     return [monster for monster in world.monsters if monster.txt_id == DEFILER]
 
