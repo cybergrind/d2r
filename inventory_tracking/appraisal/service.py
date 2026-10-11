@@ -30,6 +30,7 @@ entering a guided level (levels/handlers/) shows an arrow to its target. With `-
 import argparse
 import fcntl
 import json
+import math
 import os
 import shutil
 import socket
@@ -47,6 +48,7 @@ from typing import Any
 
 from inventory_tracking.appraisal.cache import database_revision
 from inventory_tracking.appraisal.capture import AppraisalCapture, RecentFocus
+from inventory_tracking.appraisal.hotkeys import Hotkeys
 from inventory_tracking.appraisal.loop_timing import PassTimer
 from inventory_tracking.appraisal.material_sets import recorded_set
 from inventory_tracking.appraisal.owned import owned_copies
@@ -97,6 +99,7 @@ from inventory_tracking.levels.walls import WallLibrary
 from inventory_tracking.loot.materials import material_classes
 from inventory_tracking.loot.watch import RuneWatcher
 from inventory_tracking.macros.hunt import Hunter
+from inventory_tracking.macros.latency import FILE as LATENCY_FILE, Trace
 from inventory_tracking.macros.runner import (
     HUNT_ANY,
     HUNT_ANY_PREFIX,
@@ -301,6 +304,20 @@ def publish_request(directory, record: dict[str, Any], *, notifications=True):
         notify('Appraisal unavailable', detail)
 
 
+# The macro's datagrams: handed to the runner the moment they are read (appraisal/hotkeys.py).
+MACRO_ROUTINES = (
+    (MACRO_PREFIX, None),
+    (TELEPORT_PREFIX, TELEPORT),
+    (HUNT_ELITES_PREFIX, HUNT_ELITES),
+    (PICKUP_PREFIX, PICKUP),
+    (HUNT_ANY_PREFIX, HUNT_ANY),
+)
+
+
+def for_macro(data: bytes) -> bool:
+    return data.startswith(tuple(prefix.encode('ascii') for prefix, _ in MACRO_ROUTINES))
+
+
 def dispatch(
     data: bytes,
     now: float,
@@ -313,6 +330,7 @@ def dispatch(
     terror=None,
     disagree=None,
     macro=None,
+    notes: dict[str, object] | None = None,
 ) -> bool:
     """Route `shop <t>`, `collect <t>`, `equipped <t>`, `level <t>` and bare Alt+D timestamps to their workers.
 
@@ -324,18 +342,19 @@ def dispatch(
         if text.startswith('disagree '):
             requested = float(text[len('disagree ') :])
             return bool(disagree and 0 <= now - requested <= 1 and disagree())
-        if text.startswith(MACRO_PREFIX):
-            # The macro request: run the macro for where the character is; a press while one runs cancels it.
-            return macro is not None and macro.request(float(text[len(MACRO_PREFIX) :]), now)
-        if text.startswith(TELEPORT_PREFIX):
-            # The teleport step: one step toward the level card's mark (teleport or a walk into the door).
-            return macro is not None and macro.request(float(text[len(TELEPORT_PREFIX) :]), now, TELEPORT)
-        if text.startswith(HUNT_ELITES_PREFIX):  # the seek step
-            return macro is not None and macro.request(float(text[len(HUNT_ELITES_PREFIX) :]), now, HUNT_ELITES)
-        if text.startswith(PICKUP_PREFIX):  # the pickup step
-            return macro is not None and macro.request(float(text[len(PICKUP_PREFIX) :]), now, PICKUP)
-        if text.startswith(HUNT_ANY_PREFIX):  # the attack mode toggle
-            return macro is not None and macro.request(float(text[len(HUNT_ANY_PREFIX) :]), now, HUNT_ANY)
+        for prefix, routine in MACRO_ROUTINES:
+            # The macro request (the macro for where the character is; a press while one runs cancels
+            # it), the teleport, seek and pickup steps and the attack mode toggle (macros/runner.py).
+            if text.startswith(prefix):
+                stamp, *took = text[len(prefix) :].split()
+                extra = dict(notes or {})
+                if len(took) == 2:  # the request script's own start (request.py `startup`)
+                    extra.update(spawn_ms=float(took[0]), spawn_cpu_ms=float(took[1]))
+                if macro is None:
+                    return False
+                if routine is None:
+                    return macro.request(float(stamp), now, **extra)
+                return macro.request(float(stamp), now, routine, **extra)
         if text.startswith(SHOP_PREFIX):
             return shop is not None and shop.request(float(text[len(SHOP_PREFIX) :]), now)
         if text.startswith(LEVEL_PREFIX):
@@ -611,6 +630,7 @@ def run_service(args, directory, report):
                         capture_lock=worker.capture_lock,
                         saved_games=SHOW_ITEMS.saved_games,
                         display=display_macro,
+                        trace=Trace(directory / LATENCY_FILE),
                     )
                     # Per-game monster/Herald state: the Terror card and the level map shading.
                     zones = ZoneTracker(args.output / 'terror-games.json') if args.terror_probe else None
@@ -709,6 +729,21 @@ def run_service(args, directory, report):
                         flush=True,
                     )
                     timer = PassTimer(APPRAISAL.slow_loop_seconds)
+
+                    def macro_key(data, received):
+                        step, since = timer.current
+                        notes = {'pass': step, 'pass_ms': round(1000 * (received - since), 1)} if step else None
+                        dispatch(data, received, worker, collector, macro=macro, notes=notes)
+
+                    keys = Hotkeys(server, for_macro, macro_key)
+
+                    def level_now():
+                        if guide is not None:
+                            guide.last_poll = -math.inf  # its next poll reads, whatever its interval
+                        keys.wake()
+
+                    macro.hurry = level_now
+                    keys.start()
                     try:
                         while True:
                             with timer.step('appraisal'):
@@ -740,11 +775,8 @@ def run_service(args, directory, report):
                                 combat.poll(time.monotonic())
                             if panel_beacon is not None:
                                 panel_beacon.poll(time.monotonic())
-                            try:
-                                data = server.recv(256)
-                            except TimeoutError:
-                                data = None
-                            if data is not None:
+                            data = keys.get(APPRAISAL.poll_interval)
+                            if data:  # not a wake (`Hotkeys.wake`)
                                 with timer.step('hotkey'):
                                     dispatch(
                                         data,
@@ -761,6 +793,7 @@ def run_service(args, directory, report):
                                     )
                             timer.finish()
                     finally:
+                        keys.close()
                         macro.close()
                         if combat is not None:
                             combat.close()

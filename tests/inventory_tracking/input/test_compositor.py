@@ -73,3 +73,53 @@ def test_niri_accepts_the_generated_config(config):
         assert bound
         done = subprocess.run(['niri', 'validate', '-c', str(config)], capture_output=True, text=True, check=False)
         assert done.returncode == 0, done.stderr
+
+
+def test_the_teleport_key_is_sent_by_the_compiled_sender_and_the_others_are_not():
+    # user, 2026-10-12: only the teleport key moves to the new mechanism for now.
+    text = compositor.binds_text('/venv/python', '/repo/request.py', '/run/d2r-send', '/run/service.sock')
+    assert '    KP_Left repeat=false { spawn "/run/d2r-send" "teleport " "/run/service.sock"; }\n' in text
+    assert text.count('/run/d2r-send') == 1
+    assert text.count('/repo/request.py') == len(compositor.BINDS) - 1
+
+
+@pytest.mark.skipif(shutil.which('cc') is None, reason='no C compiler')
+def test_the_compiled_sender_speaks_the_services_dialect(tmp_path):
+    import socket
+    import time
+
+    from inventory_tracking.appraisal import service
+
+    binary = compositor.build_sender(tmp_path)
+    assert binary is not None
+    endpoint = tmp_path / 'service.sock'
+    with socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM) as server:
+        server.bind(str(endpoint))
+        server.settimeout(2)
+        before = time.monotonic()
+        assert subprocess.run([binary, 'teleport ', str(endpoint)], timeout=5, check=False).returncode == 0
+        data = server.recv(256)
+    asked = []
+
+    class Macro:
+        def request(self, *args, **notes):
+            asked.append((args, notes))
+            return True
+
+    assert service.for_macro(data)
+    assert service.dispatch(data, time.monotonic(), None, None, macro=Macro())
+    ((stamp, _now, routine), notes) = asked[0]
+    assert routine == 'teleport'
+    assert before <= stamp <= time.monotonic()
+    assert 0 <= notes['spawn_ms'] < 1000
+    assert 0 <= notes['spawn_cpu_ms'] < 1000
+    assert subprocess.run([binary, 'teleport ', str(tmp_path / 'none.sock')], timeout=5, check=False).returncode == 1
+
+
+def test_without_a_compiler_the_binds_keep_the_script(monkeypatch, tmp_path):
+    def missing(*args, **kwargs):
+        raise FileNotFoundError('cc')
+
+    monkeypatch.setattr(compositor.subprocess, 'run', missing)
+    assert compositor.build_sender(tmp_path) is None
+    assert 'd2r-send' not in compositor.binds_text(compiled=compositor.build_sender(tmp_path))

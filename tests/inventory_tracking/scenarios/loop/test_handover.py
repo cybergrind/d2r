@@ -17,7 +17,7 @@ from inventory_tracking.loot.materials import material_classes
 from inventory_tracking.macros.actuator import Cancelled
 from inventory_tracking.macros.hunt import SLICE
 from inventory_tracking.macros.pickup import pick_up
-from inventory_tracking.macros.runner import ATTACK, TELEPORT, MacroRunner
+from inventory_tracking.macros.runner import ATTACK, TELEPORT, TRAVEL_QUIET, MacroRunner
 from inventory_tracking.macros.teleport import Way, landing
 from inventory_tracking.macros.view import Viewport
 from inventory_tracking.macros.world import ITEM_UNIT, TRACE_RVAS, GameMemory, Player, monsters_and_dead
@@ -65,7 +65,8 @@ def test_attack_mode_is_back_the_moment_a_step_is_over():
         assert runner.request(10.0, 10.1, ATTACK)
         assert runner.request(10.3, 10.4, TELEPORT)  # the mode pauses for the step
         assert back.wait(5)
-        assert resumed[0] - ended[0] < 0.5
+        # After a teleport step it stays out TRAVEL_QUIET, for the next press of a player travelling.
+        assert resumed[0] - ended[0] < TRAVEL_QUIET + 0.5
     finally:
         runner.close()
 

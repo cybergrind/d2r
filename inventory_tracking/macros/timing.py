@@ -14,7 +14,9 @@ PAUSES = {
     'key': (0.09, 0.26),  # between two skill keys, on top of waiting for the cast itself
     'type': (0.06, 0.17),  # between typed characters
     'aim': (0.1, 0.24),  # pointer arrived, before the key or click
-    'flick': (0.03, 0.09),  # the same for a quick move (the teleport step, pressed again and again)
+    'flick': (0.03, 0.09),  # the same for a quick move (a step the macro makes by itself)
+    # after the pointer was put down in one step for a key the player has just pressed (`Actuator.snap`)
+    'snap': (0.008, 0.016),
     'screen': (0.35, 0.75),  # a menu or screen has just appeared
 }
 HOLD = (0.045, 0.11)

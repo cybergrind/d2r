@@ -218,8 +218,13 @@ func _draw_player() -> void:
 	var radius: float = _body_radius() * 1.1
 	if not _own_paths():
 		var at: Vector2 = to_screen(TakeData.position(data.player, tick))
-		draw_circle(at, radius + 3.0, Palette.PLAYER_RING)
-		draw_circle(at, radius, Palette.PLAYER)
+		if TakeData.in_spans(data.player_dead, tick):
+			draw_circle(at, radius + 3.0, Palette.DEAD)
+			_draw_cross(at, radius * 1.6, Palette.LIFE)
+		else:
+			draw_circle(at, radius + 3.0, Palette.PLAYER_RING)
+			draw_circle(at, radius, Palette.PLAYER)
+		_draw_vitals(at, radius)
 		return
 	# Each run's character, ringed in the run's colour; overlaid ones that stand together are one.
 	var first: Vector2 = data.character_at(shown[0], tick)
@@ -230,6 +235,21 @@ func _draw_player() -> void:
 		var at: Vector2 = to_screen(here)
 		draw_circle(at, radius + 3.5, colors[i])
 		draw_circle(at, radius, Palette.PLAYER)
+
+
+## The character's life over its mana as two bars above it, each against the most it could hold.
+func _draw_vitals(at: Vector2, radius: float) -> void:
+	if not data.has_vitals():
+		return
+	var bar: Vector2 = Vector2(maxf(radius * 5.0, 44.0), 5.0)
+	var corner: Vector2 = at - Vector2(bar.x * 0.5, radius + 20.0)
+	var rows: Array = [["life", "max_life", Palette.LIFE], ["mana", "max_mana", Palette.MANA]]
+	for i: int in range(rows.size()):
+		var most: int = data.vital_at(rows[i][1], tick)
+		var share: float = clampf(float(data.vital_at(rows[i][0], tick)) / float(most), 0.0, 1.0) if most > 0 else 0.0
+		var top: Vector2 = corner + Vector2(0.0, (bar.y + 1.0) * i)
+		draw_rect(Rect2(top, bar), Color(Palette.BACKGROUND, 0.85))
+		draw_rect(Rect2(top, Vector2(bar.x * share, bar.y)), rows[i][2])
 
 
 ## A run's own walk: the trail so far, and each move it made (a line from where it was decided to
@@ -346,6 +366,17 @@ func _draw_monsters() -> void:
 			else:
 				draw_circle(at, size_here, Palette.MONSTER)
 				draw_arc(at, size_here, 0.0, TAU, 16, Palette.BACKGROUND, 1.5)
+		else:
+			# Dead in every run shown, alive in the game: an outline, so what was really there stays visible.
+			if elite:
+				draw_polyline(PackedVector2Array([
+					at + Vector2(0, -size_here), at + Vector2(size_here, 0),
+					at + Vector2(0, size_here), at + Vector2(-size_here, 0), at + Vector2(0, -size_here),
+				]), Palette.ELITE, 2.0)
+			else:
+				draw_arc(at, size_here, 0.0, TAU, 16, Palette.MONSTER, 2.0)
+		if int(monster["herald"]) > 0:
+			draw_arc(at, size_here + 5.0, 0.0, TAU, 24, Palette.MOMENT, 2.0)
 		var top: float = at.y - size_here - 6.0 - bar.y * shown.size()
 		for i: int in range(shown.size()):
 			var run: Dictionary = shown[i]
@@ -361,12 +392,11 @@ func _draw_monsters() -> void:
 			draw_rect(Rect2(corner, bar), Palette.BACKGROUND)
 			draw_rect(Rect2(corner, Vector2(bar.x * life, bar.y)), colors[i])
 			draw_rect(Rect2(corner, bar), Color(Palette.BACKGROUND, 0.9), false, 1.0)
-		if alive_somewhere:
-			var recorded_life: Dictionary = monster["recorded_life"]
-			var life0: int = monster["life0"]
-			var recorded: float = float(TakeData.step_at(recorded_life, tick, life0)) / 1000.0
-			var under: Vector2 = Vector2(at.x - bar.x * 0.5, top + bar.y * shown.size() + 1.0)
-			draw_rect(Rect2(under, Vector2(bar.x * recorded, 2.0)), Palette.TEXT_DIM)
+		var recorded_life: Dictionary = monster["recorded_life"]
+		var life0: int = monster["life0"]
+		var recorded: float = float(TakeData.step_at(recorded_life, tick, life0)) / 1000.0
+		var under: Vector2 = Vector2(at.x - bar.x * 0.5, top + bar.y * shown.size() + 1.0)
+		draw_rect(Rect2(under, Vector2(bar.x * recorded, 2.0 if alive_somewhere else bar.y)), Palette.TEXT_DIM)
 		if _hover.x >= 0.0 and at.distance_to(_hover) < nearest_gap:
 			nearest_gap = at.distance_to(_hover)
 			nearest = monster
@@ -386,7 +416,9 @@ func _draw_hover(monster: Dictionary, font: Font) -> void:
 	var name: String = monster["name"]
 	var points: float = monster["points"]
 	var elite: bool = monster["elite"]
-	var lines: Array[String] = ["%s%s, %d life" % [name, " (elite)" if elite else "", int(points)]]
+	var herald: int = monster["herald"]
+	var kind: String = " (Herald, tier %d)" % herald if herald > 0 else " (elite)" if elite else ""
+	var lines: Array[String] = ["%s%s, %d life" % [name, kind, int(points)]]
 	var line_colors: Array[Color] = [Palette.TEXT]
 	for i: int in range(shown.size()):
 		var run: Dictionary = shown[i]

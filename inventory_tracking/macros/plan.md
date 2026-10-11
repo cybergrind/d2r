@@ -2974,3 +2974,387 @@ Refactor, in order:
   N from its firing spot", whatever the cause.
 - Tests: `test_a_firing_spot_a_few_units_off_behind_a_corner_is_still_gone_to` (failed before the
   change), `test_a_seek_step_that_moves_nothing_says_so`.
+
+## 2026-10-11 21:55 — the Countess's mark had no shot at her; the teleport step goes for the boss
+
+- Tower Cellar 5, 20:14:32 to 20:15:41 (take `20261011T171432Z-25`), 69 s to the Countess's death
+  against 15 s and 6 s in the takes before and after. A sub-agent's breakdown (scratch
+  `tmp/agent_a/`): strike cast for 1.1 s in all; 38.2 s with the game window out of focus
+  (20:14:50 to 20:15:28, the Super key both ways); about 13 s of the seek step refusing to move
+  (21:30 above); 4.1 s at the mark with nothing in reach.
+- Under all of it: the mark. `tower_cellar.py` puts it where the map variant's DS1 file places her,
+  (21, 70) and (65, 15) units from the level's origin. Over the 56 recorded visits she was first
+  seen 2 to 29 units from it; this time at (36, 46), 29 from the mark and beyond the wall of her
+  room (y = 55). The teleport step's third hop stood 21.5 from her with a clear line; the fourth
+  went on to the mark; the press after said "At Countess".
+- `Hunter.boss_step`, asked by the teleport step before `step_toward`: on a handler's own mark
+  (kind 'target'), with a boss or super unique in sight within `BOSS_MARK_UNITS` (60) of the mark
+  and no shot at it from the mark (`sight.in_reach`), the step goes onto a firing spot at the boss
+  (`Hunter.go`), or stays when the character has the shot. A mark that has the shot (Nihlathak's
+  and the Summoner's stands) is gone to as before.
+- Not changed: in attack mode, with something in reach and the window out of focus, the mode waits
+  without a log line (5.5 s of that take).
+
+## 2026-10-11 22:10 — the Countess fights against the simulator (sub-agent, scratch `tmp/agent_b/`)
+
+- `combat policy`/`simulate` on takes `20261011T171057Z-25`, `171432Z-25`, `171738Z-25`: all pass
+  the calibration gate (damage ratio 0.95, 0.89, 1.01). From the first strike to her death the
+  recorded casts did 0.97 to 1.02 of the `live` policy's damage on the two baselines; the policy's
+  aim at the recorded cast times gains +0.9%, -3.6%, -1.0%. The gap is time without a cast.
+- Slow fight: `stance.camp` offered a place worth 54587 against 0 for 60.8 of the 69 s; from the
+  stuck spot the stance harness kills her in 1.7 to 3.2 s (4 to 5.5 s for the fight, against 69).
+  It is only asked once a pickup press has started the sweep.
+- Fast fight: she went 128 to 3/128 in 1.3 s and took 2.3 s more to die (35% of the fight): from
+  then the recorded casts did not pass through her. The policy scores a line by the life left on
+  it, so an elite nearly dead is worth less than a fresh minion (lines worth 6274 against 3469
+  through her). Not changed; a candidate rule: finish a boss or elite under some share of its life.
+- Simulator gaps named: the Countess gets a plain monster's life (`ELITE_LIFE` is not applied in
+  `sim/situation.cut`; the record implies 3 to 5 times), no fitted damage rows for area 25, travel
+  and other casts cost nothing.
+- The sub-agent's `combat analyse` runs left `analysis.json` in those three take directories.
+
+## 2026-10-11 22:40 — latency plan: from the key press to the first input (not implemented)
+
+The player's report: a teleport step sometimes arrives late, as if queued. What a press passes through,
+and what is measured today:
+
+| # | Stage | Measured today | Seen by a log? |
+|---|---|---|---|
+| 1 | key → compositor → process spawn → Python start → stamp | spawn to exit 33–41 ms (30 runs, idle machine) | no: the stamp is taken after Python has started |
+| 2 | datagram waits in the socket for the service loop | "N ms old": teleport mean 16 ms, 17% ≥ 20 ms, 4% ≥ 100 ms, max 715 ms (4,685 presses, all logs) | yes, but includes nothing of stage 1 |
+| 3 | `MacroRunner.request`: start, queue (`again`, `pending`) or cancel | — | only the request line |
+| 4 | run setup: thread, `capture_lock`, X connection, `GameMemory`, bindings file, loot read, card, route | first step after attack mode: 440 ms from request to first key (21:02:33) | no |
+| 5 | paced input: pointer move, 'flick' pause 30–90 ms, key hold 45–110 ms | by design | no |
+| 6 | game: cast frames, landing seen | landed line | partly |
+
+Known causes, before any new measurement:
+
+- The service loop is one thread: every pass runs all polls (appraisal, shop, identify, stash, level
+  map, runes, terror probe, macro, combat, panel) and only then reads **one** datagram. 59 passes
+  today took over 0.5 s (worst 674 ms); the level map was the largest part in 33, stash 12, runes 7,
+  terror probe 6. A press during such a pass waits for it; two presses wait two passes.
+- A request older than 1 s is dropped with no log line.
+- A press during a step sets `again`: the next step starts only after the current one has seen its
+  landing. That is a queue by design, and it is where "arrives later" is felt most.
+- Each step builds its run anew (X connection, memory handle, key bindings, loot, route).
+- `request.py` costs ~35 ms per press, not the 10 ms its docstring says.
+
+Steps:
+
+1. **Trace** (`macros/latency.py`): one record per press with monotonic marks — `stamp` (script),
+   `received` (after `recv`), `accepted` (and how: started, queued behind what, cancelled what,
+   dropped and why), `thread`, `ready` (run built), `planned` (target chosen), `first_input` (first
+   key or button down in the actuator), `landed`. Written as one JSON line to `latency.jsonl` beside
+   probe.log and one log line over a threshold. Marks via a `Run.mark(name)` hook, a no-op in tests.
+2. **Stage 1**: the script also sends `/proc/self/stat` start time (process start → stamp), and the
+   service reads the key's own event time where it can (evdev read-only listener on the keypad, or
+   the combat recorder's key events, which already see the step keys) to get key → stamp.
+3. **Contention**: with each record, the service pass that was running when the datagram arrived
+   (its step names and times), the `capture_lock` wait, process CPU time and involuntary context
+   switches (`resource.getrusage`) over the step, the load average. Drop lines are logged.
+4. **Report** (`python -m inventory_tracking.macros.latency <run dir>`): per routine and per state
+   (idle, during a step, during attack mode) the p50/p90/p99/max of each stage and of the total, the
+   worst 20 presses with their records, and the share each stage holds.
+5. **Budget and a test**: total p50 ≤ 80 ms, p99 ≤ 150 ms from the key to the first input while
+   idle; a replay test drives the service loop with a fake slow poller and fails when a datagram
+   waits more than 10 ms.
+6. **Fixes, in the order the report ranks them** (candidates now):
+   a. Hotkeys on their own thread: a blocking `recv` that dispatches at once (the runner already
+      has its lock); the pollers keep their loop. Removes stage 2 whatever the pollers do.
+   b. A run kept warm between steps: one X connection, one memory handle, the bindings and the
+      route cached per level and game.
+   c. A press during a step: plan the next hop while the current one is in flight and fire it on
+      the landing frame, instead of starting over after it.
+   d. The pollers themselves: the level map's 150–400 ms passes off the loop thread or cut down.
+   e. Stage 1: a resident sender (a small daemon the binding pokes, or evdev read in the service)
+      instead of a Python start per press.
+   f. Pauses: review 'flick' and the key hold for the step keys only.
+
+## 2026-10-11 23:40 — latency: the trace, the hotkey thread, the hop planned during the cast
+
+Done from the plan above (steps 1 to 5, fixes a and c; b disproved in part; d to f wait for a traced run):
+
+- **Trace** (`macros/latency.py`): one JSON line per press in `latency.jsonl` beside probe.log:
+  marks after the stamp (`received`, `accepted`, `thread`, `locked`, `ready`, `settled`, `planned`,
+  `first_move`, `first_key`, `landed`, `done`), what ran when it came, the outcome (started, queued
+  behind what, cancelled what, dropped and why), how its run ended, the service step under way when
+  it came, the run thread's CPU and involuntary switches, the load. A first input 150 ms or more
+  after the stamp is logged as "slow press". Hooks: `Run.mark`, `Actuator.mark`.
+- **Script start**: `request.py` adds to a macro datagram the milliseconds since its process began
+  (from /proc, to a 10 ms tick) and its CPU. The key itself cannot be timed: the compositor
+  swallows it, and /dev/input needs the `input` group (the user is not in it).
+- **Dropped requests** are logged ("request teleport dropped: N ms old") and traced.
+- **Report**: `uv run --offline python -m inventory_tracking.macros.latency [run dir ...]` (default:
+  the latest run): per routine and state the p50/p90/p99/max of each stage, the budget (stamp to
+  first input, idle: p50 80 ms, p99 150 ms; my numbers), the 20 slowest presses.
+- **Fix a** (`appraisal/hotkeys.py`): the socket is read on its own thread; a macro datagram goes to
+  the runner at once, the others queue for the loop. Test: a macro key is handled while the loop's
+  thread reads nothing.
+- **Fix c**, from what the logs and takes of 2026-10-11 already show: 2,002 of 2,025 teleport presses
+  came during a step, so the hop cycle is what is felt. The game moves the character 283 ms after
+  the key and ends the cast at 388 ms (3,300 hops, 40 ms frames); the macro's next key came 567 ms
+  after the one before (landing seen at 311, the next hop said at +159, the key at +98). `settled`
+  now takes a landing seen under 0.6 s ago, with the character still on it, as the place to plan
+  from, so the landing is chosen and the pointer moved during the cast's tail; the key still waits
+  for the cast's end (`press_skill`). Expected: about 400 to 450 ms a hop; to be read from the trace.
+- **Fix b, measured without the game**: an X connection 0.2 ms, the key bindings 0.2 ms, the Show
+  Items key 0.2 ms: not worth keeping warm. The memory reads, the capture lock and the route are
+  not measured yet (`locked`, `ready`, `planned` in the trace).
+- Baseline to compare with: stamp to the Teleport key, idle p50 168 ms, p90 367, p99 777 (23
+  presses); during a step p50 286, p90 482, p99 748 (2,002).
+- Open after one traced run: d (the slow polls, only if `locked` or the CPU share shows them), e (a
+  resident sender, if `spawn_ms` is large), f (the 30–90 ms pause and the pointer path of a hop,
+  about 100 ms a hop: the player's call), and the 30 ms look interval in `Run.seen`.
+
+## 2026-10-12 00:30 — latency: the first traced session (21:26, 74 presses, Tower Cellar)
+
+Read with `python -m inventory_tracking.macros.latency`:
+
+- **Socket wait 0 ms** at every quantile (was mean 16 ms, 4% over 100): the hotkey thread works.
+- **Script start 57 ms** (p50; CPU 48 to 54 ms of it) on every press: the largest fixed cost. Its
+  imports were the cost (argparse alone 7 ms and `_colorize` 9.5 ms under it, subprocess, pathlib; the
+  bare interpreter starts in 6 ms). `request.py` now imports os, socket, sys and time only and reads
+  its arguments by hand: spawn to exit 35 → 18 ms on the failing path here, less when it sends.
+- **Attack mode between two teleport presses**: 37 of 74 presses found the mode running ("attack
+  mode pauses for it"); the next press of a player travelling comes 40 to 700 ms after the step before
+  is over. Their stamp to Teleport key: p50 250 ms, to 587. At 21:26:46 the press came at .687, the
+  mode pressed a strike at .849 and the Teleport key waited for that cast until 47.273.
+  - `Actuator.guard` and a held key's `again` raise `Cancelled` for a run asked to stop: no input
+    after the request.
+  - `TRAVEL_QUIET` 0.2 s: after a teleport step the mode resumes that much later (it needs 0.3 s to
+    its first strike anyway); a press in between starts its step at once. Not after a seek step.
+- Key to key over the session: p10 444, p50 647, p90 1006 ms (31 hops); the 900 to 1100 group are
+  the hops that waited for a strike. To be compared in the next session.
+- Left: `cast before over` between two queued hops is 36 ms p50 but 87 to 650 in some (the fresh
+  landing did not apply; not looked into yet); `route` 16 ms p50, 80 to 90 p90 (25% of hops);
+  `pointer and pause` about 100 ms (the player's call); capture lock 0 ms p50, 30 ms worst.
+
+## 2026-10-12 01:10 — latency: the second traced session (21:35, 80 presses)
+
+- Script start 57 → 31 ms (p50). Socket wait 0 ms. Key to key p50 647 → 559 ms (29 hops); p90 the
+  same (1033): those hops followed a fight or a level change.
+- Presses within TRAVEL_QUIET of the step before: the step's thread began 1 ms after the request,
+  stamp to Teleport key 134 to 205 ms (8 presses). After it: 30 to 130 ms for the mode to stop, and
+  100 to 290 ms more when a strike was in flight.
+- Between two queued hops: settle 15 to 38 ms (9 of 13), route 7 to 24 (9 of 13; 69 to 86 the
+  first hop of a way), pointer and pause 69 to 124. Fix c holds: the hop is aimed during the cast.
+- The press on arriving in a level took 580 ms to its click (21:36:39, Tower Cellar 1): `card_for`
+  waited for the service's half-second look at the level. It now asks for the look at once
+  (`Run.hurry` → the level guide's next poll reads, and `Hotkeys.wake` ends the loop's 0.2 s wait).
+- Left, the player's call: TRAVEL_QUIET longer (0.5 s covers most travelling presses; the first
+  strike after a hop that much later), and the pointer path and pause before the key (~100 ms).
+
+## 2026-10-12 02:10 — the teleport key at once; the queue by priority, with limits
+
+user, 2026-10-12: human-like delays are for what the macro does by itself; the teleport key is to
+work instantly. And: a priority queue for all interactions, with expirations ("teleporting after 2
+seconds is way too late, maybe even lower").
+
+- `Actuator.snap`: the pointer put at the landing in one step, 8 to 16 ms, then the key (was a path
+  of 3 to 6 steps and a 30 to 90 ms pause: 70 to 125 ms of every hop). Still looked at and put again
+  when a hand carried it off. Only the hop's key (`hop_toward`); the door click, the pickups and all
+  the macro does unasked keep their pace.
+- The hop's landing and the cast's end are looked for every 10 ms (`HOP_POLL`; 30 ms before).
+- `TRAVEL_QUIET` 0.2 → 0.5 s.
+- `macros/waiting.py` `Waiting`: one waiting request per routine, taken by `PRIORITY` (teleport,
+  seek, the macro, pickup), each good until its press plus `EXPIRES` (teleport 1.0 s, seek 1.5, the
+  macro 3.0, pickup 2.0; the pickup that waits for a fight has no limit). It replaces the runner's
+  `again`, `pending` and `waiting`. What waited too long is dropped with "Macro: teleport dropped:
+  it waited N ms too long" and `ended: expired` in the trace. A step key during attack mode no
+  longer displaces another step that waits (teleport first, the seek step after); any key but
+  pickup gives up a waiting pickup, as it ends the sweep.
+- Inside a run: `Run.in_time` stops the teleport step at its start and before the hop's pointer
+  when the press is older than its limit ("the hop dropped: N ms too long after its key").
+- Not played yet. To watch in the next trace: landings stay on their aim with the 8 to 16 ms pause
+  (0.0 to 0.6 units off so far), and how many presses expire.
+
+## 2026-10-12 03:00 — the teleport key: what is left between the press and the key (22:11 session)
+
+user, 2026-10-12: "it cannot be a game issue, when I'm doing it by hand it feels instant"; only the
+teleport key moves to a new mechanism for now; look at how the game handles key presses in code.
+
+- 22:11 session, 57 teleport presses: stamp to Teleport key 54 to 100 ms for half, 214 to 290 for a
+  third (the cast before was still going), nothing expired. Landings as before (2 of 61 over 3 units;
+  1 or 2 of about 50 in each of three sessions before `snap`).
+- A clean press (54 to 96 ms) was: 20 to 44 ms from the run built to the place settled, 8 to 24 the
+  landing, 8 to 14 the staff, 13 to 19 the pointer and key; each of about six looks at the game read
+  every monster. The hop's looks are light now (`GameMemory.world(light=True)`, `Run.lightly`): the
+  player, the panels, the slots; the Blade Warp it may ask for still sees the whole game. The trace
+  notes `reads` and `read_ms` per press.
+- `input/sender.c` → `$XDG_RUNTIME_DIR/d2r-send`, built by `compositor.build_sender` when the
+  hotkeys are installed; the teleport key spawns it (0.7 ms from spawn to exit against 31 ms for
+  request.py in game). Other keys keep request.py; without a compiler so does teleport.
+- Open: how the client takes a skill key during a cast (queued? held key repeated per frame? where the
+  pointer is sampled). A sub-agent reads the client in Binary Ninja; the 214 to 290 ms group depends
+  on the answer (press and hold through the cast's end instead of waiting for it and tapping).
+
+## 2026-10-12 04:00 — how the client takes a skill key, and the Teleport key pressed during a cast
+
+Read from the client's code by a sub-agent (offline dumps through `pricing/raw/re/d2re.py`, base
+0x140000000; Binary Ninja had another file open). Confirmed in code unless said:
+
+- Key messages are edge-driven (down 0x10010, up 0x10011, handlers 0x140158640 / 0x1401587a0); OS
+  key repeat is discarded; no minimum hold: a down and an up in one pump both count. Pointer moves
+  come in the same message stream, in order.
+- A Quick Cast key goes through 0x140153f30(slot, down) to 0x1400d7f80, into a **two-entry queue**
+  per player at image offset 0x1F6ADE4 (0x14 bytes each: slot, released slot, started, release
+  sent, start time, key-down time). The processor 0x1400d8650 runs at every key event and once per
+  rendered frame and issues the cast of entry 0 the first time the mode is none of 7, 8, 10, 18.
+- With entry 0 taken, a press goes to entry 1 only when entry 0 started over 160 ms ago (Teleport's
+  value in the skill table at 0x141f6b658, +0x34), else it is dropped; entry 1 expires 400 ms after
+  its key-down; a third press is dropped. One Quick Cast key held at a time (0x1F6AD70).
+- A held key repeats through the per-frame tick after 200 ms, with the pointer read each frame.
+- Inferred, not proven: the pointer is read when the cast is issued, not at key-down (the entries
+  hold no coordinates; the issuer 0x1400d60b0 is on a page still encrypted in every dump,
+  0x1400d6000 to 0x1400d6fff). Unknown: whether entry 0 stays taken through its own cast.
+
+Changed, for the Teleport key only (`teleport.press_hop`):
+
+- The key is pressed at once, also during the cast before; the game casts it at that cast's end.
+  When the cast ends and no cast follows within 90 ms (`QUEUED_SECONDS`), the game did not keep
+  the press: pressed again then (the old way), logged "the game did not keep the Teleport key".
+- `settled` no longer waits out a cast that moves the character nowhere (right skill neither
+  Teleport nor Blade Warp): a strike of attack mode.
+- Trace marks `key_in_cast` and `key_again`: how many presses came during a cast and how many of
+  them the game dropped. That also answers the open point about entry 0.
+- Would settle the rest: a dump taken after quick-casting in a game (decrypts 0x1400d6000), or a
+  1 kHz log of 0x1F6AD70 to 0x1F6AE0C during hand-pressed Teleports.
+
+## 2026-10-12 05:00 — the death in Tower Cellar 5 (22:50:37 to 22:51:00, take 20261011T195037Z-25)
+
+user: "it looked like it was bad positioned/actions rather than clear damage"; "if we actually
+damaged herald it would be dead within 10 seconds, but we've spent a lot of time firing into wall or
+not firing at all".
+
+What the take and the log show (23.1 s from the stairs to the death):
+
+- The Herald: the elite Blood Clan 2960229440 (class 55), seen from +13.1 s with nine minions, 17
+  units off. (Class 361 beside the character all along is its own bound demon.)
+- Striking time: 9.2 s of the 23.1 (11 Echoing Strike casts). The rest: four Blade Warps to "a
+  better place" (about 2.3 s), 4.5 s walking to one with three restarts by pickup presses (+2.1 to
+  +6.6), three 1.0 s waits "still on the right button 1.0s after its key" (Sigil twice, Blade Warp
+  once: the skill-key guard of 2026-10-11), Engorge, and 4.9 s of the potion pickup.
+- Two strike casts hit nothing (+9.1, +9.5: held after the Sigil wait with no new line); one line
+  was at an elite with no clear shot (in_reach False from where the character stood).
+- The Herald took 2/128 in the first 3.7 s it was fought (16 to 17 units off, two strikes along its
+  line and three short ones at minions near the character), then 34/128 in 1.5 s once it had closed to
+  11 to 13 units (+17.5 to +19.0). At that rate it had 4 s to live.
+- At +18.2, life 1156/1783, the sweep stopped the fight for a super healing potion 15 away, four
+  hostiles within 10 units; a potion was drunk to make room; the clicks took nothing for 4.9 s (a
+  monster over the label). The Herald walked up to 9 units and the last 1000 life went in 0.8 s at
+  +23.1. The teleport key pressed at +22.8 waited behind the pickup. The clicks went on 4.7 s
+  over the body.
+- Hit rate against distance, all takes of the afternoon: 10 hits per 100 unit-frames at 8 to 10
+  units, 5.6 at 16 to 18, 3.8 at 20 to 22: a slope, not a cliff. Why the two strikes along the
+  Herald's line at 17 units gave one hit is not found (its minions stood between).
+
+Changed:
+
+- `Hunter.gather(run, here, foes)`: the sweep does not stop for a drop while a hostile is within
+  `GATHER_CLEAR` (12 units) of the character or the drop; "the sweep leaves … for later".
+- A teleport press during a pickup stops the pickup and the step follows at once (was: waits behind
+  it). The step itself still takes a valuable near first (`worth_a_stop`).
+- The pickup's clicks stop when the character is dead.
+
+Not changed, candidates: the stand ("Standing well: no better place within 24" three times at 16
+to 17 units from a full-life Herald, and the warps into the middle of the pack); a skill key under
+the held strike (the client keeps the key until the character is idle, which under a held strike is
+never: the strike has to be let go for it, instead of the 1.0 s wait); the pickup press inside a
+fight (`asked_step`), which still stops the fight when there is something to pick up.
+
+## 2026-10-12 07:00 — the battle replay: the death in Tower Cellar 5 as a test ("red" first)
+
+user, 2026-10-12: re-create the situation for the simulator and tests; first red, "a test that
+reproduces every aspect of this battle in the precise details => reproduces every action", then the
+decision engine and action priorities are thought over against it.
+
+`tests/inventory_tracking/scenarios/battle/`:
+
+- `fixtures/tower-cellar5-herald/`: the take trimmed to 28 s (`combat trim`, 225 KB) and the
+  service's log of the same seconds (`probe.log`).
+- `replay.py` `Replay`: the game is the record, open loop (each look gets the take's frame of that
+  moment: the character, the monsters and their life, the doors); the macro is production, closed
+  loop: `MacroRunner` with its queue, `Hunter.attack_mode` (sweep, rotation), `pick_up`, on the
+  take's clock, which moves when the macro sleeps. The player's keys come at their logged times.
+  A `Script` gives what a take does not hold (drops, belt, staff, skill keys, the unit under the
+  pointer, what the hunt remembered) and the rules as they were (`patches`).
+- The clock is held to the record: when the macro does the next thing it did in the game, the
+  clock is set to that line's time (`Capture`, within 0.35 s). Without it the replay drifts by the
+  tens of milliseconds every pause differs by, and a decision made 60 ms late sees another world.
+- `evidence.py`: a log read as `Action`s (kind, what, place) by one table of patterns, for the
+  record and the replay alike; `compare` lines them up (difflib) and prints the table of both.
+- `tower_cellar5.py`: this battle's script. Assumed, each said in the file: the belt's first, second
+  and fourth columns, the second potion's place, when the two fell (7.5 s in).
+- `test_tower_cellar5.py`: the fixture's facts (death at 23.1 s, the Herald from 13.1 s, 82/128 at the
+  death, 14 presses); the fatal decision replayed (the sweep stops for the potion at 18.2 s, the
+  drink, the pickup, the first click that takes nothing); 60% or more of all actions the same and in
+  order (63% now: 88 same, 23 missing, 29 extra over 22.7 s); with today's rule the sweep leaves the
+  potion; and one strict xfail, `test_every_recorded_action_is_replayed`.
+
+What does not reproduce yet, and why where known:
+
+- 2.93 s: "the step is dropped (the character is on the move)" for the recorded walk. The game was
+  read 130 ms before the log line (the stance's computing); the replay computes in no time and
+  reads the frame of the log line's moment. Reads are not timed in the log.
+- 7.8 to 10.3 s: the 1.0 s key wait after the Sigil and the Engorge at 10.2 s do not come (Engorge
+  comes at 17.3 s on another corpse). Not found yet; the rotation's state carried into the level is
+  only partly seeded (the last Engorge).
+- 10.65 and 12.96 s: two Blade Warps "did not move": the replay pressed them 1.2 s and 0.2 s before
+  the game did (the missing wait above), and the record's character moves at the game's time.
+- Four strike lines go through another monster than recorded, all within 0.3 s of a monster
+  entering or dying.
+- After 22.77 s (the teleport key) the code is today's: the pickup is cancelled for it.
+
+The two limits of this kind of replay: (1) open loop: once the macro does something else, the world
+no longer answers it; a better decision cannot be played here, only seen to differ. A closed-loop
+battle (the monsters walking and striking by a model fitted to this take) is the next thing to
+build for "green". (2) What the macro saw between two log lines is the take's 25 frames a second,
+not what it read at its own moments.
+
+## 2026-10-12 10:00 — the battle replay brought to the game: 108 of 110 actions
+
+user: "we need to reproduce it closer to what we had in the reality". A review from another session
+(the gate regressed and flapped mid-work, the clock snapping made the drift partly self-fulfilling,
+the 12.74 s press, the Engorge seeding) is answered by the same changes.
+
+The replay now runs free: its clock is held to no log line (that snapping and the read pinning
+tried on the way are removed). What changed is how the recorded world is read:
+
+- **A frame is stamped after it was read** (`FRAME_LATE` 20 ms; 15 to 25 give the same replay): the
+  character stands at 2.93 s where the frame of 2.94 s has it; the last monster is out of reach for
+  the look before 12.76 s and in the frames from 12.79 s (the review's "12.74 s press": timing, not
+  a change of rule); Blade Warp's key, pressed at 1.559 s, is down first in the frame of 1.573 s.
+- **The nearest frame**, not the one before.
+- **The character's mode at a skill key is the one the macro logged** (`Script.modes`): under the
+  held strike the character is free for less than a frame between two casts, and the take's cast of
+  6.7 s is one of 2.3 s with the log's "Sigil: Lethargy on Button9, player mode 1" 1.1 s into it.
+- **The instants it waited through are hidden** (`Script.busy`, `brief_gap`): between the macro's
+  line before a key and the key, a free instant of two frames at most between two casts was not
+  one of its looks (it would have pressed). The Engorge of 10.2 s went down at the fourth such
+  instant, 1.4 s after its wait began; the Sigil of 7.8 s after 1.1 s.
+- **The skills on the buttons at such a look** are those of the frame before it.
+- **One flicker of the standing character's place** (`PLACES`): 12576.49 in the frames, 12576.50 in
+  one look, which made the walk of 2.93 s count (1.99 against 2.0 units) half a second after it ended.
+- **A look costs 8 ms**; **the macro's own presses fall where the take's are** (`hold_to`, within
+  0.35 s: without it 86 of 110).
+- The Engorge seed (the last one 13.9 s before the take) was enough once the fight of 4.08 s matched.
+
+Result (`test_tower_cellar5.py`, 8 passed and 1 strict xfail, 3.6 s; the same on every run):
+
+- 108 of the 110 recorded actions of the 22.7 s are replayed in order; the median action is 19 ms
+  from its recorded moment, nine in ten within 83 ms, the worst 0.22 s.
+- The one difference: at 13.67 s the game struck through the monster 740045072 (worth 32327) and
+  the replay through 46244625 (worth 32048). The lines are 0.9% apart; the game read the frame of
+  13.48 s and the replay reads that of 13.52 s.
+- With today's rule (`GATHER_CLEAR`) the sweep leaves the potion.
+
+What the reproduction itself showed about the fight (for the decision engine):
+
+- A decision's line follows its look by 20 to 200 ms (the stance and the aim are computed
+  meanwhile): the strike of 13.67 s was aimed by what was read at 13.47 s.
+- A skill key under the held strike is not pressed until a look happens to fall into the instant
+  between two casts: 1.1 s for the Sigil, 1.4 s for the Engorge, with the strike's aim frozen.
+- "Blade Warp still on the right button 1.0s after its key" (14.87 s) is no wait: the key was
+  1.9 s old and the loop's `else` logs without having waited. The two Sigil lines are real waits.
+
+Still outside: after the teleport key (22.77 s) the code is today's; the world is open loop.

@@ -68,6 +68,14 @@ folder whose index names no source (the stance comparisons below) has nothing to
 - A monster's life bar is its life **in that run's simulation**. The thin grey bar under it is the
   life the game recorded. A monster killed in a run turns into a cross in that run's colour and
   fades; it keeps walking in the other run until it dies there or the recording loses it.
+- A monster every shown run has killed but the game still had alive stays on screen as an outline with
+  its recorded life as a grey bar: the simulation was wrong about it, and it could still hurt the
+  character. A Herald has a yellow ring and its tier in its name.
+- The character's own life (red) and mana (violet) are two bars above it, each against the most it
+  could hold, and in numbers beside the clock (takes since 2026-10-10). Where it died it turns into a
+  red cross on grey and stays one while it lies dead; the clock line says DEAD. On the scrub bar the
+  strip above the ruler is its life over time, a red line through the lanes marks each death, and
+  the time it lay dead is shaded.
 - Elites are pink diamonds. Companions are green. The white cross is where the recorded pointer was.
 - A cast draws a line from the caster to its focal point (a ring) while its blades fly; a dashed line
   when its blades touched nothing.
@@ -109,9 +117,13 @@ Conventions:
  "contact_radius": 20,             // file units: a blade this near a monster touches it
  "player": {"seen": ..., "k": ...,         // a track
             "mode": [tick, mode, ...],     // step series of the character's mode
-            "run": [[first, last], ...]},  // spans the recorded character was walking or running
+            "run": [[first, last], ...],   // spans the recorded character was walking or running
+            "dead": [[first, last], ...],  // spans it was dying or lying dead; a span's first tick is the death
+            "life": [tick, points, ...], "max_life": [...],   // step series in whole points; all four are
+            "mana": [tick, points, ...], "max_mana": [...]},  // empty for a take before 2026-10-10
  "pointer": track,                 // the ground under the recorded pointer
  "monsters": [{"unit": 123, "txt": 310, "name": "Ghoul", "elite": false,
+               "herald": null,     // its tier when it is a Terror Zone Herald
                "points": 5200,     // life points at full health
                "life0": 1000,      // thousandths of `points` it had when first seen
                "seen": ..., "k": ...,                     // its recorded path while alive

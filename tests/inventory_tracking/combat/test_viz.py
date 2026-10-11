@@ -509,3 +509,58 @@ def test_one_take_with_too_few_casts_is_listed_as_left_out(chaos, tmp_path, monk
     index = json.loads((tmp_path / viz.INDEX).read_text())
     assert index['takes'] == []
     assert list(index['left_out']) == ['chaos-manual']
+
+
+def player_frames(tmp_path, rows) -> Take:
+    """A take of schema 2 holding only the character: one frame per row of `rows`, 25 a second."""
+    frames = [
+        {'t': 100.0 + n / 25, 'n': n, 'p': row, 'm': [], 'x': [], 'in': [None, None, None, None, None, []]}
+        for n, row in enumerate(rows, 1)
+    ]
+    return Take(tmp_path, {'area': 25, 'schema': 2, 'rate': 25.0}, frames)
+
+
+def test_the_characters_death_and_vitals_are_cut_from_the_frames(tmp_path):
+    # 20261011T195037Z-25: the character dies (mode 0, life 0), then the recorder follows its corpse,
+    # a unit of its own lying dead (mode 17) with no life at the same place.
+    alive = [[7, 1, 25, 10.0, 10.0, 0, 373, life, 1367, 200, 206] for life in (1367, 900, 900)]
+    dying = [[7, 0, 25, 10.0, 10.0, 0, 373, 0, 1367, 200, 206]] * 2
+    # Its first row is not yet lying (mode 5).
+    corpse = [[3, mode, 25, 10.0, 10.0, 0, 0, 0, 0, 0, 0] for mode in (5, 17)]
+    situation = cut(player_frames(tmp_path, alive + dying + corpse))
+    assert viz.spans(tick for tick, mode in situation.modes.items() if mode in (0, 17)) == [[4, 7]]
+    assert viz.vitals(situation) == {
+        'life': [1, 1367, 2, 900, 4, 0],
+        'max_life': [1, 1367],
+        'mana': [1, 200],
+        'max_mana': [1, 206],
+    }
+
+
+def test_a_corpse_recorded_in_the_characters_place_is_not_the_character(tmp_path):
+    # 20261011T195630Z-25: the corpse of an earlier death was recorded until the character picked it up.
+    corpse = [[3, 17, 25, 50.0, 50.0, 0, 0, 0, 0, 0, 0]] * 3
+    alive = [[7, 1, 25, 10.0, 10.0, 0, 373, 1071, 1367, 200, 206]] * 2
+    situation = cut(player_frames(tmp_path, corpse + alive + corpse))
+    assert sorted(situation.player) == [4, 5]
+    assert set(situation.modes.values()) == {1}
+
+
+def test_a_take_without_vitals_exports_empty_series(chaos):
+    player = chaos.data['player']
+    assert player['dead'] == []
+    assert (player['life'], player['max_life'], player['mana'], player['max_mana']) == ([], [], [], [])
+
+
+def test_a_herald_is_the_pack_leader_carrying_the_tier_stat(tmp_path):
+    # 20261011T195037Z-25: the Herald (flags 0x08) and its minions (0x10) all carry stat 367.
+    units = [
+        {'unit': 1, 'txt': 55, 'flags': 0x08, 'stats': {'367': 2}},
+        {'unit': 2, 'txt': 55, 'flags': 0x10, 'stats': {'367': 2}},
+        {'unit': 3, 'txt': 55, 'flags': 0x08, 'stats': {}},
+    ]
+    assert viz.heralds(Take(tmp_path, {}, units=units)) == {1: 2}
+
+
+def test_the_fixtures_have_no_heralds(case):
+    assert {row['herald'] for row in case.data['monsters']} == {None}

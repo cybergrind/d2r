@@ -15,7 +15,8 @@ import bisect
 import gzip
 import json
 import math
-from collections.abc import Callable
+from collections import Counter
+from collections.abc import Callable, Iterable
 from dataclasses import dataclass, field
 from itertools import pairwise
 from typing import Any
@@ -27,11 +28,12 @@ from inventory_tracking.combat.mechanics.movement import Route, route_of
 from inventory_tracking.combat.mechanics.tables import monster_points, points_of
 from inventory_tracking.combat.mechanics.validate import full_casts
 from inventory_tracking.combat.policy import walls
-from inventory_tracking.combat.takes import LIFE_SCALE, Take, ground_under_pointer, monsters_of, player_of
+from inventory_tracking.combat.takes import LIFE_SCALE, PlayerRow, Take, ground_under_pointer, monsters_of, player_of
 from inventory_tracking.combat.timeline import GAME_RATE, HOLD_TICKS, button_down, ticks
 from inventory_tracking.levels.doors import Door
 from inventory_tracking.levels.model import Ground, Walkable
 from inventory_tracking.macros.routines import BODY_LIFT
+from inventory_tracking.native.layout import CORPSE_MODE, PLAYER_DEAD_MODES
 
 
 Point = tuple[float, float]
@@ -94,6 +96,8 @@ class Situation:
     late_ticks: int = 0  # game ticks without a sample of this level: late samples, and time spent in another level
     # monster unit -> frame -> the route it was walking then (a take with paths.jsonl; mechanics/movement.py)
     routes: dict[int, dict[int, Route]] = field(default_factory=dict)
+    # frame -> the character's life, most life, mana, most mana in whole points (a take of schema 2, where read)
+    vitals: dict[int, tuple[int, int, int, int]] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         self.player_frames = sorted(self.player)
@@ -180,6 +184,27 @@ def routes_of(take: Take, frames: list[dict[str, Any]]) -> dict[int, dict[int, R
     return routes
 
 
+def own_rows(frames: Iterable[dict[str, Any]], vitals: bool) -> dict[int, PlayerRow]:
+    """The character's row by frame number. Until 2026-10-11 the recorder followed a corpse the
+    character had left on the level instead of the character: another player unit, without life
+    (told only where the rows hold `vitals`). Its rows are left out, except right after the
+    character's own death, where the corpse lies where it died: there they stand for the dead
+    character."""
+    found = [(f['n'], row) for f in frames if (row := player_of(f)) is not None]
+    living = Counter(row.unit for _, row in found if row.max_life) if vitals else Counter()
+    own = living.most_common(1)[0][0] if living else None
+    rows: dict[int, PlayerRow] = {}
+    dead = False
+    for n, row in found:
+        if own is not None and row.unit != own and not row.max_life:
+            if not dead:
+                continue
+            row = row._replace(mode=CORPSE_MODE)
+        dead = row.mode in PLAYER_DEAD_MODES
+        rows[n] = row
+    return rows
+
+
 def cut(take: Take, start: int | None = None, end: int | None = None, area: int | None = None) -> Situation:
     """The situation between the take's frame numbers `start` and `end` (the whole take by default),
     in game ticks; `area` defaults to the take's, and frames in another level are left out."""
@@ -200,7 +225,12 @@ def cut(take: Take, start: int | None = None, end: int | None = None, area: int 
     rect = next((f['rect'] for f in take.frames if f.get('rect')), [0, 0, 2560, 1418])
     aspect = rect[2] / rect[3]
     by_n = {f['n']: f for f in take.frames}
-    players = {f['n']: found for f in frames if (found := player_of(f)) is not None}
+    players = own_rows(frames, vitals=take.schema >= 2)
+    vitals = {
+        n: (found.life or 0, found.max_life, found.mana or 0, found.max_mana or 0)
+        for n, found in players.items()
+        if take.schema >= 2 and found.max_life
+    }
     player = {n: found.at for n, found in players.items()}
     modes = {n: found.mode for n, found in players.items()}
     pointer = {f['n']: ground for f in frames if (ground := ground_under_pointer(f, aspect)) is not None}
@@ -253,7 +283,7 @@ def cut(take: Take, start: int | None = None, end: int | None = None, area: int 
         presses.insert(0, (start, True))  # held when the situation starts: the press was before it
     situation = Situation(
         start, end, area, aspect, player, monsters, casts, damage, companions, unknown, marks, modes, presses, pointer,
-        ground, doors, drops, routes=routes_of(take, frames),
+        ground, doors, drops, routes=routes_of(take, frames), vitals=vitals,
     )  # fmt: skip
     return in_ticks(situation, frames)
 
@@ -286,6 +316,7 @@ def in_ticks(situation: Situation, frames: list[dict[str, Any]]) -> Situation:
     situation.modes = timed(situation.modes)
     situation.pointer = timed(situation.pointer)
     situation.doors = timed(situation.doors)
+    situation.vitals = timed(situation.vitals)
     situation.routes = {unit: timed(found, both=True) for unit, found in situation.routes.items()}
     situation.casts = [Cast(tick[c.frame], c.pointer, c.fitted) for c in situation.casts]
     situation.marks = [(tick[n], unit) for n, unit in situation.marks]

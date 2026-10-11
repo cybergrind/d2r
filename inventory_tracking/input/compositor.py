@@ -55,11 +55,48 @@ def default_config() -> Path:
     return Path(home) / 'niri' / 'config.kdl'
 
 
-def binds_text(python: str = sys.executable, sender: str = request.__file__) -> str:
-    """The binds section: each key spawns the fast sender (request.py) with its kind."""
-    lines = [
-        f'    {key} repeat=false {{ spawn "{python}" "-S" "{sender}" "{kind}"; }}\n' for key, kind in BINDS.items()
-    ]
+# The kinds sent by the compiled sender when it could be built (sender.c): the teleport key only for
+# now (user, 2026-10-12: "I don't want to move all keypresses to the new mechanism, let's start with
+# teleport"). The others keep request.py.
+COMPILED = frozenset(('teleport',))
+SENDER_SOURCE = Path(__file__).with_name('sender.c')
+
+
+def build_sender(directory: Path | None = None) -> str | None:
+    """Compile sender.c into the runtime directory; its path, or None when there is no compiler or
+    the build fails (the binds then use request.py)."""
+    directory = directory or Path(request.DEFAULT_SOCKET).parent
+    target = directory / 'd2r-send'
+    try:
+        done = subprocess.run(
+            ['cc', '-O2', '-o', str(target), str(SENDER_SOURCE)],
+            capture_output=True,
+            text=True,
+            timeout=30,
+            check=False,
+        )
+    except OSError, subprocess.SubprocessError:
+        return None
+    if done.returncode != 0:
+        LOG.warning('The compiled hotkey sender was not built: %s', done.stderr.strip()[:300])
+        return None
+    return str(target)
+
+
+def binds_text(
+    python: str = sys.executable,
+    sender: str = request.__file__,
+    compiled: str | None = None,
+    endpoint: str = str(request.DEFAULT_SOCKET),
+) -> str:
+    """The binds section: each key spawns a sender with its kind: request.py, or for the COMPILED
+    kinds the binary `compiled` (sender.c) with the kind's datagram prefix and the socket."""
+    lines = []
+    for key, kind in BINDS.items():
+        if compiled is not None and kind in COMPILED:
+            lines.append(f'    {key} repeat=false {{ spawn "{compiled}" "{request.PREFIXES[kind]}" "{endpoint}"; }}\n')
+        else:
+            lines.append(f'    {key} repeat=false {{ spawn "{python}" "-S" "{sender}" "{kind}"; }}\n')
     return f'{HEADER}binds {{\n{"".join(lines)}}}\n'
 
 
@@ -96,7 +133,7 @@ def hotkeys(config: Path | None = None) -> Generator[bool]:
     target = config.with_name(HOTKEYS_FILE)
     try:
         # The file first: the include line must never name binds that are not there yet.
-        target.write_text(binds_text())
+        target.write_text(binds_text(compiled=build_sender()))
         added = ensure_include(config)
     except OSError as exc:
         LOG.warning('Could not install the niri hotkeys: %s', exc)

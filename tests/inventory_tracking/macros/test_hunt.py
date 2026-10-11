@@ -979,8 +979,11 @@ def test_a_pickup_asked_for_in_a_fight_with_gold_within_a_jump_stops_the_fight_f
     assert '5221 gold first' in caplog.text
 
 
-def test_the_sweep_stops_for_something_to_pick_up_without_a_press(caplog):
+def test_the_sweep_stops_for_something_to_pick_up_without_a_press(caplog, monkeypatch):
     # user, 2026-10-11: "when doing KP_1 auto-movement, we should also auto-pickup items/gold"
+    from inventory_tracking.macros import hunt as hunt_module
+
+    monkeypatch.setattr(hunt_module, 'GATHER_CLEAR', 0.0)  # the monsters here are not beside the drop (its own test)
     caplog.set_level(logging.INFO)
     play = row(tough=1000)
     hunt = hunter(play)
@@ -1013,7 +1016,10 @@ def test_without_the_sweep_the_mode_does_not_stop_for_what_lies_on_the_ground():
     assert asked == []
 
 
-def test_the_sweep_stops_for_one_drop_twice_at_most():
+def test_the_sweep_stops_for_one_drop_twice_at_most(monkeypatch):
+    from inventory_tracking.macros import hunt as hunt_module
+
+    monkeypatch.setattr(hunt_module, 'GATHER_CLEAR', 0.0)  # the monsters here are not beside the drop (its own test)
     play = row(tough=1000)
     play.loot = replace(play.loot, drops=(Drop(60, 5010.0, 5006.0, '5221 gold', 'gold', (0, 0)),))
     hunt = hunter(play)
@@ -1762,3 +1768,76 @@ def test_a_seek_step_that_moves_nothing_says_so(monkeypatch):
     monkeypatch.setattr(hunt_module, 'hop_toward', lambda *args: None)  # a hop that does nothing, whatever the cause
     hunter(play).seek(play.run(), keys)
     assert play.said[-1] == 'No move toward the elite 19 (10): 4 from its firing spot'
+
+
+def boss_card(play, mark=(1010.5, 1000.5)):
+    from inventory_tracking.levels.model import Target
+
+    return Target(play.world.player.area, ROOMS, mark, 'Countess', 'target', False, ())
+
+
+def test_the_teleport_step_goes_for_a_boss_its_mark_has_no_shot_at(monkeypatch):
+    # Tower Cellar 5, 20:14:33 on 2026-10-11: the Countess 29 from her mark, behind a wall.
+    from inventory_tracking.macros import hunt as hunt_module
+
+    countess = foe(10, 5025.0, 5030.0, 0x02, txt_id=45)  # a super unique, 32 from the mark at (5052.5, 5002.5)
+    play = game(countess)
+    play.staff = replace(STAFF, charges=40)
+    monkeypatch.setattr(hunt_module, 'in_reach', lambda *args: False)  # no shot from the mark, none from here
+    monkeypatch.setattr(hunt_module, 'firing_spots', lambda *args: [(5020.0, 5012.0)])
+    hunt = hunter(play)
+    assert hunt.boss_step(play.run(), boss_card(play), keys)
+    assert play.pressed()  # a jump toward the firing spot at her
+    assert math.dist((play.world.player.x, play.world.player.y), (5020.0, 5012.0)) < 12.0
+
+
+def test_the_teleport_step_stays_when_the_boss_is_in_reach_and_the_mark_has_no_shot(monkeypatch):
+    from inventory_tracking.macros import hunt as hunt_module
+
+    play = game(foe(10, 5015.0, 5000.0, 0x02, txt_id=45))
+    marks = iter([False, True])  # no shot from the mark; one from where the character stands
+    monkeypatch.setattr(hunt_module, 'in_reach', lambda *args: next(marks))
+    assert hunter(play).boss_step(play.run(), boss_card(play), keys)
+    assert play.keys.events == []
+    assert play.said[-1].endswith('is in reach: attack mode takes it')
+
+
+def test_the_teleport_step_goes_to_a_mark_with_a_shot_at_its_boss_and_to_any_other_mark_as_ever(monkeypatch):
+    from inventory_tracking.levels.model import Target
+    from inventory_tracking.macros import hunt as hunt_module
+
+    play = game(foe(10, 5060.0, 5000.0, 0x02, txt_id=45))
+    monkeypatch.setattr(hunt_module, 'in_reach', lambda *args: True)  # the stand has the shot
+    hunt = hunter(play)
+    assert not hunt.boss_step(play.run(), boss_card(play), keys)
+    monkeypatch.setattr(hunt_module, 'in_reach', lambda *args: False)
+    stairs = Target(play.world.player.area, ROOMS, (1010.5, 1000.5), 'Next level', 'stairs', True, ())
+    assert not hunt.boss_step(play.run(), stairs, keys)
+    assert not hunter(game()).boss_step(game().run(), boss_card(play), keys)  # no boss in sight
+    far = game(foe(10, 5200.0, 5000.0, 0x02, txt_id=45))  # a super unique far from the mark is not its boss
+    assert not hunter(far).boss_step(far.run(), boss_card(far), keys)
+
+
+def test_the_sweep_does_not_stop_for_a_drop_with_a_hostile_beside_it_or_the_character(caplog):
+    # Tower Cellar 5, 22:50:55 on 2026-10-11: the sweep stopped for a potion 15 away with four hostiles
+    # within 10 units; the clicks took nothing for 5 s with a monster over the label, no strike was
+    # made meanwhile, and the character died there.
+    caplog.set_level(logging.INFO)
+    play = row(tough=1000)
+    play.loot = replace(play.loot, drops=(Drop(60, 5010.0, 5006.0, '5221 gold', 'gold', (0, 0)),))
+    hunt = hunter(play)
+    asked = []
+    hunt.pick = lambda: asked.append(True)
+    run = play.run()
+    hunt.sweep.start(run.clock())
+    here = (5000.0, 5000.0)
+    foe = play.world.monsters[0]
+    for at in ((5004.0, 5003.0), (5014.0, 5010.0)):  # beside the character, beside the drop
+        hunt.gather_looked = -math.inf
+        hunt.gather(run, here, [replace(foe, x=at[0], y=at[1])])
+    assert asked == []
+    assert 'the sweep leaves 5221 gold for later: 1 hostiles within 12' in caplog.text
+    hunt.gather_looked = -math.inf
+    with pytest.raises(Abort, match='cancelled'):
+        hunt.gather(run, here, [replace(foe, x=5040.0, y=5040.0)])  # the place is clear: stopped for
+    assert asked == [True]

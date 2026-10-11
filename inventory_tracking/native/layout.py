@@ -57,6 +57,9 @@ LIFE_FRACTION_MAX = 32768
 # Act 2 hireling (monstats) and the animation modes that mean dead or dying.
 HIRELING_CLASS_ID = 338
 DEAD_MODES = frozenset((0, 12))
+# A player unit dying and lying dead; the corpse it leaves on the level is a player unit of its own, lying dead.
+CORPSE_MODE = 17
+PLAYER_DEAD_MODES = frozenset((0, CORPSE_MODE))
 
 # Belt: sixteen cells, four hotkey columns, items in mode 2 with path y == 0.
 BELT_SIZE = 16

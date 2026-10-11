@@ -16,7 +16,7 @@ def test_pauses_stay_in_their_range_and_vary(kind):
     low, high = PAUSES[kind]
     assert low <= min(slept)
     assert max(slept) <= high
-    assert len({round(value, 4) for value in slept}) > 150
+    assert len({round(value, 5) for value in slept}) > 150
     assert sum(slept) / len(slept) < (low + high) / 2  # mostly the quick half
 
 

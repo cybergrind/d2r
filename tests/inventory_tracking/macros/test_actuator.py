@@ -121,3 +121,26 @@ def test_again_with_the_focus_kept_works_for_a_mouse_button():
         ('button-down', 3),
         ('button-up', 3),
     ]
+
+
+def test_a_run_asked_to_stop_makes_no_further_input():
+    # Tower Cellar 1, 21:26:46 on 2026-10-11: attack mode pressed a strike 160 ms after the teleport
+    # step's request, and the step waited for the strike's cast to end before its own key.
+    import threading
+
+    from inventory_tracking.macros.actuator import Cancelled
+
+    actuator, keys, _ = make()
+    actuator.cancelled = threading.Event()
+    code = keys.keycodes([b'7'])[0]
+
+    def stop_then_again(again):
+        actuator.cancelled.set()
+        again()
+
+    with pytest.raises(Cancelled), actuator.hold('7') as again:
+        stop_then_again(again)
+    assert keys.events == [('press', code), ('release', code)]
+    with pytest.raises(Cancelled):
+        actuator.tap('7')
+    assert len(keys.events) == 2

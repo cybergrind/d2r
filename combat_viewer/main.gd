@@ -272,6 +272,7 @@ func _open_take(path: String) -> void:
 	)
 	_timeline.set_range(data.start, data.end)
 	_timeline.set_running(data.player_run)
+	_timeline.set_character(data.player_dead, data.vitals["life"], data.vitals["max_life"])
 	playing = false
 	looping = false
 	_panel.set_loop(false)
@@ -375,7 +376,10 @@ func _show_tick(force: bool) -> void:
 	var elapsed: float = float(tick - data.start) / data.rate
 	_panel.set_totals(elapsed, data.totals(_recorded, tick), data.totals(_policy, tick))
 	var moving: String = "  (the player is moving)" if TakeData.in_spans(data.player_run, tick) else ""
-	_time_label.text = "%s / %s   tick %d%s" % [_clock(elapsed), _clock(data.seconds), tick, moving]
+	var vitals: String = data.vitals_text(tick)
+	_time_label.text = "%s / %s   tick %d%s%s" % [
+		_clock(elapsed), _clock(data.seconds), tick, moving, "" if vitals.is_empty() else "   " + vitals
+	]
 
 
 ## Follow: each side-by-side view centres on its own run's character, the overlay on the policy's.

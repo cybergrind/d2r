@@ -45,7 +45,7 @@ from inventory_tracking.loot.materials import material_classes
 from inventory_tracking.loot.shown import pickup_rules
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.engine import Run
-from inventory_tracking.macros.routines import ACTING, UNIT_PIXELS, press_skill
+from inventory_tracking.macros.routines import ACTING, DEAD, UNIT_PIXELS, press_skill
 from inventory_tracking.macros.skills import BLADE_WARP
 from inventory_tracking.macros.teleport import HOVER_SECONDS, ground_fraction, hop_toward, in_view, ready
 from inventory_tracking.macros.world import GOLD, HEALING, REJUVENATION, VALUABLE, Drop, Loot, has_room
@@ -406,6 +406,9 @@ def click(run: Run, drop: Drop, aim: tuple[int, int], over: tuple[int, int] | No
             )  # fmt: skip
             run.say(f'{drop.label}: picked up')
             return True
+        if walker is not None and walker.mode in DEAD:
+            # Tower Cellar 5, 22:51:00 on 2026-10-11: the clicks went on 4.7 s over the body.
+            raise Abort('the character is dead')
         place = None if walker is None or walker.mode in RUN_MODES else (walker.x, walker.y)
         if place is None or stood is None or stood[0] != place:
             stood = None if place is None else (place, run.clock())

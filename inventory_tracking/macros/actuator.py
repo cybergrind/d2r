@@ -8,6 +8,7 @@ of the game window. Keys the OSD presses on its own (`allow`) are not the player
 
 from collections.abc import Callable, Iterator
 from contextlib import contextmanager
+from threading import Event
 
 from inventory_tracking.common import LOG
 from inventory_tracking.input.keybindings import button_number
@@ -61,6 +62,8 @@ class Actuator:
         self.allowed: frozenset[int] = frozenset()  # key codes that may be down: see `allow`
         self.holding: frozenset[int] = frozenset()  # key codes this actuator holds down itself (`hold`)
         self.holding_buttons: frozenset[int] = frozenset()  # mouse buttons it holds down itself
+        self.mark: Callable[[str], None] = lambda name: None  # a moment of the press's trace (latency.py)
+        self.cancelled: Event | None = None  # the run's: set, no further input is made (`guard`)
 
     def allow(self, *names: str) -> None:
         """Keys another service presses by itself are not the player's. The OSD turns Show Items
@@ -77,6 +80,12 @@ class Actuator:
         return bool(state and state[2] & (1 << (7 + button))) and button not in self.holding_buttons
 
     def guard(self) -> None:
+        # A run asked to stop makes no further input. Attack mode looked at the request only at its
+        # next read of the game, and a strike it had worked out went down after the teleport step's
+        # press: that step then waited for the strike's cast to end (Tower Cellar 1, 21:26:46 on
+        # 2026-10-11: the press at .687, the strike at .849, the Teleport key at 47.273).
+        if self.cancelled is not None and self.cancelled.is_set():
+            raise Cancelled
         if not self.focused():
             raise Abort('the game lost the focus')
         if self.key_held():
@@ -115,6 +124,7 @@ class Actuator:
                 self._release(pressed)
                 raise Abort('a key press failed')
         self.keys.sync()
+        self.mark('first_key')
         return pressed
 
     def _release(self, pressed: list[tuple[bool, int]]) -> None:
@@ -158,6 +168,8 @@ class Actuator:
             nonlocal pressed
             released, pressed = pressed, []
             self._release(released)
+            if self.cancelled is not None and self.cancelled.is_set():
+                raise Cancelled  # nothing is pressed again for a run asked to stop
             self.pace.hold()
             if not self.focused():
                 raise Abort('the game lost the focus')  # nothing is pressed into another window
@@ -194,6 +206,7 @@ class Actuator:
         )
         distance = max(abs(goal[0] - start[0]), abs(goal[1] - start[1]))
         steps = max(3, min(6, distance // 150)) if quick else max(4, min(18, distance // 45))
+        self.mark('first_move')
         for point in eased_path(start, goal, steps, rng):
             if not self.keys.move_pointer(*point):
                 raise Abort('a pointer move failed')
@@ -223,6 +236,25 @@ class Actuator:
             LOG.info('Macro: the pointer was found at %s, %s aimed (try %d); aiming again', now, goal, attempt + 1)
         raise Abort('the mouse is being moved')
 
+    def snap(self, x: float, y: float, *, scatter: tuple[int, int] = (4, 3)) -> None:
+        """The pointer put at the window fraction (x, y) in one step and held there, for a key the
+        player has just pressed: the press is the player's own, and what follows it is to come at
+        once (user, 2026-10-12: human-like delays are for what the macro does by itself; the
+        teleport key is to work instantly). `aim`'s path and pause took 70 to 125 ms of every hop.
+        Looked at after a few milliseconds and put again when a hand has carried it off; the last
+        try is looked at at once, as `aim`'s is."""
+        for attempt in range(AIM_TRIES):
+            self.jump(x, y, scatter=scatter)
+            if attempt < AIM_TRIES - 1 or not self.steady:
+                self.pace.pause('snap')
+            if not self.steady:
+                return
+            now, goal = self.keys.pointer(), self.left_at
+            if now is None or goal is None or max(abs(now[0] - goal[0]), abs(now[1] - goal[1])) <= AIM_TOLERANCE:
+                return
+            LOG.info('Macro: the pointer was found at %s, %s aimed (try %d); aiming again', now, goal, attempt + 1)
+        raise Abort('the mouse is being moved')
+
     def jump(self, x: float, y: float, *, scatter: tuple[int, int] = (4, 3)) -> None:
         """Put the pointer at the window fraction (x, y) in one step, with no pause after."""
         self.guard()
@@ -234,6 +266,7 @@ class Actuator:
             rect[0] + round(rect[2] * x) + rng.randint(-scatter[0], scatter[0]),
             rect[1] + round(rect[3] * y) + rng.randint(-scatter[1], scatter[1]),
         )
+        self.mark('first_move')
         if not self.keys.move_pointer(*goal):
             raise Abort('a pointer move failed')
         self.keys.sync()

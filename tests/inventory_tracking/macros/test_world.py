@@ -104,12 +104,12 @@ class Memory:
         raise ValueError(f'Unmapped or unreadable range at {address:#x}')
 
 
-def character(memory, index, name, *, life=None, area=109):
+def character(memory, index, name, *, life=None, area=109, mode=1):
     """A player unit in bucket 1; `life` = (life, most life) in whole points, None for none readable."""
     unit_id = 128 * index + 1
     address, data, path, stats = (base + index * 0x400 for base in (0x200000, 0x300000, 0x400000, 0x600000))
     header = memory.block(address, 0x160)
-    struct.pack_into('<IIII', header, 0, 0, 7, unit_id, 1)
+    struct.pack_into('<IIII', header, 0, 0, 7, unit_id, mode)
     struct.pack_into('<QQQ', header, 0x10, data, 0, 0)
     struct.pack_into('<Q', header, 0x38, path)
     struct.pack_into('<Q', header, 0x88, stats)
@@ -161,6 +161,34 @@ def test_the_character_is_found_in_a_game_with_other_players():
     player = local_player(memory.read, TABLE)
     assert player is not None
     assert (player.unit_id, player.name) == (129, 'CybergrindAA')
+
+
+def test_the_character_is_found_beside_the_corpse_it_left_on_the_level():
+    # 2026-10-11, Tower Cellar Level 5: the corpse of an earlier death is a player unit named like the
+    # character, dead (mode 17), without life and with the lower unit id; a take followed it for 1:56.
+    memory = Memory()
+    chain(
+        memory,
+        [
+            character(memory, 0, 'CybergrindAA', mode=17),
+            character(memory, 1, 'CybergrindAA', life=(1367, 1367)),
+            character(memory, 2, 'CybergrindAA'),
+        ],
+    )
+    player = local_player(memory.read, TABLE)
+    assert player is not None
+    assert (player.unit_id, player.mode) == (129, 1)
+
+
+def test_the_dead_character_is_itself_not_an_older_corpse():
+    memory = Memory()
+    chain(
+        memory,
+        [character(memory, 0, 'CybergrindAA', mode=17), character(memory, 1, 'CybergrindAA', life=(0, 1367), mode=17)],
+    )
+    player = local_player(memory.read, TABLE)
+    assert player is not None
+    assert player.unit_id == 129
 
 
 def test_no_character_when_none_or_several_have_life():

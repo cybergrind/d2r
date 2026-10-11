@@ -368,7 +368,7 @@ def test_a_spot_beside_the_door_the_way_does_not_count_is_not_the_landing():
 
 def test_a_pointer_found_off_the_aim_is_aimed_again_before_the_key(caplog):
     play = game()
-    hand = {'drags': 3, 'reads_since_move': 0}  # the hand drags the pointer off right after each of three moves
+    hand = {'drags': 2, 'reads_since_move': 0}  # the hand drags the pointer off right after each of two moves
     real_move, real_pointer = play.keys.move_pointer, play.keys.pointer
 
     def move_pointer(x, y):
@@ -547,6 +547,7 @@ def test_door_entries_are_kept_in_a_file_across_games(tmp_path):
 
 def test_the_card_of_the_level_just_left_is_waited_out():
     # 15 of 116 logged exits: the step asked for on arrival stopped with "the level card is for another level".
+    import contextlib
     from types import SimpleNamespace
 
     from inventory_tracking.macros.teleport import CARD_SECONDS, card_for
@@ -560,10 +561,21 @@ def test_the_card_of_the_level_just_left_is_waited_out():
         clock=lambda: clock.now,
         world=lambda: SimpleNamespace(player=SimpleNamespace(area=36)),
         pace=SimpleNamespace(sleep=sleep),
+        hurry=None,
+        lightly=contextlib.nullcontext,
     )
     old, new = SimpleNamespace(area=35), SimpleNamespace(area=36)
     assert card_for(run, lambda: new if clock.now >= 0.37 else old) is new
     assert 0.37 <= clock.now < 0.5
+    # Tower Cellar 1, 21:36:39 on 2026-10-11: the press on arrival waited 580 ms for the service's
+    # half-second look at the level. The step asks for that look, once, and only when it has to wait.
+    asked = []
+    run.hurry = lambda: asked.append(clock.now)
+    assert card_for(run, lambda: new) is new
+    assert asked == []
+    started = clock.now
+    assert card_for(run, lambda: new if asked and clock.now >= asked[0] + 0.1 else old) is new
+    assert asked == [started]
     clock.now = 0.0
     assert card_for(run, lambda: old) is old  # never read: the step says so, CARD_SECONDS later
     assert CARD_SECONDS <= clock.now < CARD_SECONDS + 0.1
@@ -724,3 +736,140 @@ def test_a_hop_does_not_wait_long_for_a_character_the_player_keeps_running():
     started = run.clock()
     assert teleport.settled(run, running) == running
     assert run.clock() - started <= teleport.SETTLE_SECONDS + 0.1
+
+
+def test_the_next_hop_is_planned_from_a_fresh_landing_without_waiting_for_the_casts_end():
+    # 2026-10-11, 3,300 hops: the character moves 283 ms after the key and the cast ends at 388 ms, and
+    # the next key went down 567 ms after the one before, 180 ms of it the wait for the cast's end
+    # before the landing was chosen and the pointer moved. The key waits for the end by itself.
+    play = game()
+    step_toward(play.run(), target((1003.0, 1000.0)), keys)
+    ((x, y, _at),) = teleport.LANDING
+    casting = replace(play.world.player, x=x, y=y, mode=10)
+    play.world = replace(play.world, player=casting)
+    play.acting_until = None  # the cast goes on: nothing ends it here
+    run = play.run()
+    started = run.clock()
+    assert teleport.settled(run, casting) == casting
+    assert run.clock() == started
+
+
+def test_a_landing_that_is_old_or_not_where_the_character_is_does_not_stand_for_its_place():
+    play = game()
+    casting = replace(play.world.player, mode=10, right_skill=54)  # a Teleport that has not landed
+    free = replace(casting, mode=1)
+    for place in ((casting.x + 5.0, casting.y, 0.0), (casting.x, casting.y, -1.0)):
+        play.world = replace(play.world, player=casting)
+        play.arrivals.append((play.clock.now + 0.2, lambda: setattr(play, 'world', replace(play.world, player=free))))
+        teleport.LANDING[:] = [(place[0], place[1], play.clock.now + place[2])]
+        run = play.run()
+        started = run.clock()
+        assert teleport.settled(run, casting) == free
+        assert run.clock() - started >= 0.2
+
+
+def test_the_teleport_keys_pointer_is_put_in_one_step_with_a_few_milliseconds_before_the_key():
+    # user, 2026-10-12: the press is the player's own, and the hop is to follow at once; the pointer's
+    # path and the pause after it took 70 to 125 ms of every hop (13 queued hops, 21:35 on 2026-10-11).
+    play = game()
+    moves, slept = [], []
+    real_move, sleep = play.keys.move_pointer, play.clock.sleep
+
+    def move_pointer(x, y):
+        moves.append((x, y, play.clock.now))
+        return real_move(x, y)
+
+    def sleeping(seconds):
+        slept.append((play.clock.now, seconds))
+        sleep(seconds)
+
+    play.keys.move_pointer, play.clock.sleep = move_pointer, sleeping
+    run = play.run()
+    marks = {}
+    run.actuator.mark = lambda name: marks.setdefault(name, play.clock.now)
+    step_toward(run, target((1003.0, 1000.0)), keys)
+    assert play.pressed() == ['t']
+    assert len(moves) == 1
+    assert marks['first_key'] - marks['first_move'] <= 0.02
+
+
+def test_a_hop_looks_at_the_game_without_its_monsters_but_for_the_warp_it_asks():
+    # 22:11 on 2026-10-11: a teleport step looked at the game about six times before its key, and every
+    # look walked all the monsters: 54 to 96 ms from the press to the key with nothing else in the way.
+    play = game()
+    run = play.run()
+    looks, read = [], run.read
+
+    def look():
+        looks.append(run.light > 0)
+        return read()
+
+    run.read = look
+    asked = []
+
+    def warp(target, player, spot):
+        asked.append(run.light)
+        run.world()  # a Blade Warp looks for a clear line: it needs the monsters
+        return False
+
+    step_toward(run, target((1003.0, 1000.0)), keys, None, warp)
+    assert play.pressed() == ['t']
+    assert asked == [0]
+    assert looks.count(False) == 1
+    assert len(looks) > 3
+    assert run.light == 0
+
+
+def casting_game(keeps, cast_left=0.2):
+    """A game whose character is in a cast for `cast_left` more seconds, and what it does with a key then."""
+    play = game()
+    play.keeps_keys = keeps
+    play.world = replace(play.world, player=replace(play.world.player, mode=7))
+    play.acting_until = play.clock.now + cast_left
+    taps, press = [], play.keys.press
+
+    def pressing(code):
+        if code == play.keys.names['t']:
+            taps.append(play.clock.now)
+        return press(code)
+
+    play.keys.press = pressing
+    return play, taps
+
+
+def test_the_teleport_key_is_pressed_during_the_cast_before_and_the_game_casts_it_at_its_end():
+    # user, 2026-10-12: by hand the key feels instant. The client keeps a Quick Cast key that comes
+    # during a cast and casts it on the first free frame (its code, read that day); the macro waited to
+    # see the cast's end and tapped then, 214 to 290 ms from press to key for a third of the presses.
+    play, taps = casting_game(keeps=True)
+    over = play.acting_until
+    step_toward(play.run(), target((1003.0, 1000.0)), keys)
+    assert len(taps) == 1
+    assert taps[0] < over - 0.1  # at once: not at the cast's end
+    assert play.hops_cast_at == [pytest.approx(over, abs=0.02)]
+    assert math.dist((play.world.player.x, play.world.player.y), (5015.0, 5000.0)) < 3
+
+
+def test_a_teleport_key_the_game_did_not_keep_is_pressed_again_when_the_cast_is_over(caplog):
+    # The client drops a press under 160 ms after the cast before began while its entry is held, and a third one.
+    play, taps = casting_game(keeps=False)
+    over = play.acting_until
+    with caplog.at_level('INFO'):
+        step_toward(play.run(), target((1003.0, 1000.0)), keys)
+    assert len(taps) == 2
+    assert taps[0] < over - 0.1
+    assert over <= taps[1] <= over + 0.2
+    assert 'did not keep the Teleport key' in caplog.text
+    assert play.hops_cast_at == []
+    assert math.dist((play.world.player.x, play.world.player.y), (5015.0, 5000.0)) < 3
+
+
+def test_a_hop_is_planned_during_a_cast_that_takes_the_character_nowhere():
+    # A strike of attack mode: the character stands where the hop will start; the key waits for nothing.
+    play = game()
+    striking = replace(play.world.player, mode=10, right_skill=388)
+    play.world = replace(play.world, player=striking)
+    run = play.run()
+    started = run.clock()
+    assert teleport.settled(run, striking) == striking
+    assert run.clock() == started

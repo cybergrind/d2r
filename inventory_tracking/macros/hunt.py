@@ -42,7 +42,7 @@ the way (the potential from the character's own tile). An elite already in reach
 
 import math
 import threading
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from contextlib import ExitStack
 from dataclasses import dataclass, field
 
@@ -90,6 +90,7 @@ from inventory_tracking.macros.routines import (
     ACTING,
     CHARACTERS,
     DEAD,
+    SUPER_UNIQUE_FLAG,
     TOWN_NPCS,
     take_battle_weapons,
 )
@@ -154,6 +155,8 @@ FOLLOW_STEPS = 12
 FOLLOW_SECONDS = 8.0  # since the press or the sweep's last step
 WARP_CHARGES = 15  # with fewer charges on the staff the teleport step hops by Blade Warp where it can
 WARP_RETRY = 3.0  # seconds the teleport step leaves Blade Warp alone after one that moved nobody
+BOSS_MARK_UNITS = 60.0  # world units from a level's mark: a boss or super unique this near is the one it marks
+GATHER_CLEAR = 12.0  # world units: no hostile this near the character or a drop when the sweep stops for it
 HOLD_SIGHT = 40.0  # world units: a valuable this near that the sweep does not take is stayed by
 HOLD_UNITS = 25.0  # the sweep's own steps end no further than this from it
 GATHER_CHECK = 0.3  # seconds between two looks of the sweep for something to pick up
@@ -311,6 +314,7 @@ class Hunter:
         self.unwait: Callable[[], None] | None = None  # tells the runner the press has nothing to pick up after all
         self.pick: Callable[[], None] | None = None  # the runner's: the pickup step runs once the mode has paused
         self.gather_looked = -math.inf  # clock time of the sweep's last look for something to pick up
+        self.gather_waited = -math.inf  # clock time the sweep last said it leaves a drop for later
         self.gathered: dict[int, int] = {}  # unit id -> times the sweep stopped for it
         self.held: Drop | None = None  # the valuable in sight the sweep stays by (`gather`, `leaves`)
         self.held_said: set[int] = set()  # the drops that staying was said for
@@ -451,6 +455,44 @@ class Hunter:
         by = 'Walking' if found.skill is None else skill_name(found.skill)
         run.say(f'{by} toward {name}' + (f': the Teleport staff has {left} charges left' if low else ''))
         self.travel.make(run, found, world, aspect, key_names, ground, name=name)
+        return True
+
+    def boss_step(self, run: Run, target: Target, key_names) -> bool:
+        """The teleport step on a level whose mark is a boss's place, with the boss in sight and no
+        shot at it from the mark: the step goes onto a firing spot at the boss itself, or stays when
+        the character has the shot already. Whether the step was taken here. Tower Cellar 5, 20:14:33
+        on 2026-10-11: the Countess stood 29 units from the place her map gives her, behind a wall
+        (over 56 visits she was first seen 2 to 29 from it); the third hop had a clear line to her at
+        21.5, the fourth went on to the mark, and the next press said "At Countess" with nothing in
+        reach."""
+        if target.warp or target.kind != 'target':
+            return False  # a door, a room to explore, a drop: only a handler's own mark (levels/handler.py `target`)
+        player, rect = ready(run)
+        world = run.world()
+        level = self.known_level(player)
+        if level is None or level.area != target.area:
+            return False
+        mark = (target.point[0] * TILE_UNITS, target.point[1] * TILE_UNITS)
+        bosses = [
+            m
+            for m in self.foes(world, run.clock())
+            if (m.txt_id in BOSSES or m.flags & SUPER_UNIQUE_FLAG) and math.dist(mark, (m.x, m.y)) <= BOSS_MARK_UNITS
+        ]
+        if not bosses:
+            return False
+        boss = min(bosses, key=lambda m: math.dist(mark, (m.x, m.y)))
+        ground, at = Ground(level.ground), (boss.x, boss.y)
+        if in_reach(ground, mark, at, REACH, world.doors):
+            return False  # the mark is a stand with a shot at it: the step goes there as ever
+        here = (player.x, player.y)
+        LOG.info(
+            'Macro: no shot at %s from the mark of %s, %.0f from it: the step goes for the boss, %.0f away',
+            label(boss), target.label, math.dist(mark, at), math.dist(here, at),
+        )  # fmt: skip
+        if in_reach(ground, here, at, REACH, world.doors):
+            run.say(f'{label(boss)} is in reach: attack mode takes it')
+            return True
+        self.go(run, level, ground, player, rect, at, label(boss), world.doors, key_names)
         return True
 
     def warp_hop(self, run: Run, target: Target, player, spot: Point, key_names) -> bool:
@@ -606,7 +648,7 @@ class Hunter:
             )  # fmt: skip
         return True
 
-    def gather(self, run: Run, here: Point) -> None:
+    def gather(self, run: Run, here: Point, foes: Sequence[Monster] = ()) -> None:
         """The sweep picks up on its way (user, 2026-10-11: "when doing KP_1 auto-movement, we should also
         auto-pickup items/gold"): with the sweep on and something the pickup step would take
         (pickup.choose), the mode pauses for that step as for a press (Cancelled) and sweeps on after.
@@ -620,6 +662,22 @@ class Hunter:
         self.gather_looked = now
         loot = unshunned(run.loot(), now)
         plan = choose(loot, here)
+        if plan is not None:
+            # Not with a hostile beside the character or the drop: the stop ends the fight for the
+            # walk and the clicks. Tower Cellar 5, 22:50:55 on 2026-10-11: the sweep stopped for a
+            # potion 15 away with four hostiles within 10 (eight a second later), the clicks took
+            # nothing for 5 s with a monster over the label, and the character died there, the
+            # last 1000 of its life in under a second. The drop waits until the place is clear.
+            drop = (plan.drop.x, plan.drop.y)
+            close = [m for m in foes if min(math.dist((m.x, m.y), here), math.dist((m.x, m.y), drop)) <= GATHER_CLEAR]
+            if close:
+                if now - self.gather_waited >= WAIT_LOG_SECONDS:
+                    self.gather_waited = now
+                    LOG.info(
+                        'Macro: the sweep leaves %s for later: %d hostiles within %.0f of it or the character',
+                        plan.drop.label, len(close), GATHER_CLEAR,
+                    )  # fmt: skip
+                plan = None
         # A valuable in sight the sweep does not take (no room for it, or its clicks took nothing) is
         # stayed by: the Tower, 17:56:14 on 2026-10-11, a Grand Charm came down 20 away, the sweep
         # said nothing, jumped twice and stood 31 from it; the player went back for it by hand.
@@ -855,7 +913,7 @@ class Hunter:
             foes = self.foes(world, run.clock())
             if not any(in_reach(ground, here, (m.x, m.y), REACH, world.doors) for m in foes):
                 self.step_aside()
-                self.gather(run, here)
+                self.gather(run, here, foes)
                 if self.sweep.steps and foes and self.follow_on(run, world, foes, ground, key_names):
                     continue
                 if foes and run.clock() - logged_at >= IDLE_LOG_SECONDS:
@@ -1192,7 +1250,7 @@ class Hunter:
                         ended = 'Stepping to a better place'
                         break
                 if self.sweep.steps:
-                    self.gather(run, here)
+                    self.gather(run, here, foes)
                 if self.sweep.due(run.clock()):
                     # The sweep: a better place is gone to without a press.
                     self.sweep.looked = run.clock()

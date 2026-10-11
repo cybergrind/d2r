@@ -546,3 +546,17 @@ def test_a_label_44_pixels_up_is_seen_from_afar_without_a_walk_past_the_item(cap
     line = next(r.message for r in caplog.records if 'aims for Ist Rune' in r.message)
     assert line.endswith('(0, -34) (0, 0); (0, -44) wanted clicked')
     assert play.walks == []
+
+
+def test_the_clicks_stop_when_the_character_is_dead():
+    # Tower Cellar 5, 22:51:00 on 2026-10-11: the pickup clicked on for 4.7 s over the body.
+    play = Game(world())
+    play.loot = replace(play.loot, drops=(Drop(60, 5004.0, 5002.0, 'Ist Rune', VALUABLE, (1, 1)),))
+    play.deaf_picks = 100
+
+    def dies():
+        play.world = replace(play.world, player=replace(play.world.player, mode=17))
+
+    play.arrivals.append((0.3, dies))
+    with pytest.raises(Abort, match='the character is dead'):
+        pick_up(play.run(), LEVEL, keys, nothing)

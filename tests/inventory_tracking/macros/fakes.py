@@ -193,10 +193,25 @@ class Game:
         self.picked = []  # labels of the drops picked up
         self.hover_known = True  # the game's record of the unit under the pointer can be read
         self.deaf_picks = 0  # clicks on a drop the game takes nothing from (a cast was ending)
+        # None: Teleport is cast the moment its key comes, as most tests want it. True/False: a key during
+        # a cast is kept and cast when that cast is over (with the pointer where it is then), or dropped.
+        self.keeps_keys = None
+        self.kept_hop = False
+        self.hops_cast_at = []  # clock times the game cast a kept Teleport key
         self.slipped_picks = 0  # clicks on a drop's label that walk the character to the ground behind it
         self.pick_above = 14.0  # classic pixels a drop is clicked above its ground (host, 2026-10-10)
         self.label_above = {}  # unit id -> the same for one drop: a pile shifts its labels (host, 21:10)
         self.belt_after = {}  # drops picked up so far -> the belt from then on (a potion lands in it)
+
+    def hop(self):
+        """Teleport: the character is where the pointer's ground is, if the skill can be cast."""
+        w = self.world
+        charged = self.staff is not None and self.staff.in_hand and self.staff.charges > 0
+        if charged or (self.staff is None and 54 in w.slots):
+            x, y = self.ground_under_pointer()
+            self.world = replace(w, player=replace(w.player, x=x, y=y))
+            if self.staff is not None:
+                self.staff = replace(self.staff, charges=self.staff.charges - 1)
 
     def react(self, event):
         self.read()
@@ -221,13 +236,11 @@ class Game:
                 self.sets.reverse()
                 if self.staff is not None:
                     self.staff = replace(self.staff, in_hand=not self.staff.in_hand)
+            elif key == 't' and self.keeps_keys is not None and self.acting_until is not None:
+                # During a cast: the game keeps the key and casts it when the cast is over, or drops it.
+                self.kept_hop = self.keeps_keys
             elif key == 't':
-                charged = self.staff is not None and self.staff.in_hand and self.staff.charges > 0
-                if charged or (self.staff is None and 54 in w.slots):
-                    x, y = self.ground_under_pointer()
-                    self.world = replace(w, player=replace(w.player, x=x, y=y))
-                    if self.staff is not None:
-                        self.staff = replace(self.staff, charges=self.staff.charges - 1)
+                self.hop()
             elif key == 'd' and DEATH_MARK in w.slots:
                 x, y = self.under_pointer()
                 foes = [m for m in w.monsters if m.txt_id not in (744, 700) and math.hypot(m.x - x, m.y - y) < 4]
@@ -439,7 +452,12 @@ class Game:
             self.world = replace(self.world, view=254)
         while self.arrivals and self.clock.now >= self.arrivals[0][0]:
             self.arrivals.pop(0)[1]()
-        if self.acting_until is not None and self.clock.now >= self.acting_until:
+        if self.acting_until is not None and self.clock.now >= self.acting_until and self.kept_hop:
+            self.kept_hop = False  # the key kept during the cast: cast now, no neutral frame shown
+            self.hop()
+            self.hops_cast_at.append(self.clock.now)
+            self.acting_until = self.clock.now + ACTING_SECONDS
+        elif self.acting_until is not None and self.clock.now >= self.acting_until:
             self.acting_until = None  # one neutral frame between casts
             self.world = replace(self.world, player=replace(self.world.player, mode=5))
         elif self.acting_until is None and self.world.in_game and not self.deaf and not self.reading:

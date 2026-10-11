@@ -40,11 +40,13 @@ from inventory_tracking.macros.actuator import Abort, Actuator, Cancelled
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.hunt import Hunter
 from inventory_tracking.macros.journey import Journey
+from inventory_tracking.macros.latency import Press, Trace
 from inventory_tracking.macros.pickup import pick_up, wanted, worth_a_stop
 from inventory_tracking.macros.routines import SKILLS, run_macro
 from inventory_tracking.macros.skills import character_bindings, skill_keys
 from inventory_tracking.macros.teleport import LOST_KEY, card_for, step_toward
 from inventory_tracking.macros.timing import Pace
+from inventory_tracking.macros.waiting import Waiting
 from inventory_tracking.macros.world import GameMemory
 from inventory_tracking.models import SessionIdentity
 
@@ -56,9 +58,25 @@ PREBUFF, TELEPORT, HUNT_ELITES, HUNT_ANY = 'prebuff', 'teleport', 'hunt elites',
 PICKUP = 'pickup'  # the pickup step: pick up what is worth it, else a seek step (pickup.py)
 STEPS = frozenset((TELEPORT, HUNT_ELITES, PICKUP))  # one press is one step; the same key queues another
 ATTACK = HUNT_ANY  # the attack mode toggle
+# What waits for the run working now, the first to go first: where the player wants to be, then what
+# to fight, then the macro, then what lies on the ground.
+PRIORITY = (TELEPORT, HUNT_ELITES, PREBUFF, PICKUP)
+# Seconds after its press a request is still worth beginning, and a hop still worth its key (user,
+# 2026-10-12: "teleporting after 2 seconds is way too late, maybe even lower"). Of the teleport
+# presses that waited for a step, 90% had their key within 0.48 s and the slowest two took 0.7 and
+# 1.5 s (21:26 and 21:35 on 2026-10-11). The pickup step that waits for a fight to end has no limit.
+EXPIRES = {TELEPORT: 1.0, HUNT_ELITES: 1.5, PREBUFF: 3.0, PICKUP: 2.0}
 THROTTLE = 0.3  # seconds between accepted macro requests (a bounce is not a cancel)
 CARD_SECONDS = 4.0
 RESEARCH_ENV = 'D2R_MACRO_RESEARCH'  # set: log which bytes name the unit under the pointer at a Consume
+# Seconds attack mode stays out after a teleport step before it resumes. The next press of a player
+# travelling came 40 to 700 ms after the step before was over (30 presses, 21:26 on 2026-10-11), found
+# the mode running and waited for it to stop, with a strike of its own in flight up to 0.4 s longer:
+# half of those presses took over 250 ms to their Teleport key. The mode needs 0.3 s to its first
+# strike after it starts anyway. 0.2 s at first: 8 of 34 such presses came within it and went to their
+# key in 134 to 205 ms; most came 200 to 600 ms after (21:35 that day), hence 0.5 (user, 2026-10-12:
+# the teleport key is to work instantly).
+TRAVEL_QUIET = 0.5
 JOURNEY_SECONDS = 1.0  # how often the game and level are noted between presses
 
 
@@ -73,6 +91,7 @@ class MacroRunner:
         execute: Callable[..., None] | None = None,
         place: Callable[[], tuple[str | None, int | None]] | None = None,
         staff_in_hand: Callable[[], bool | None] | None = None,
+        trace: Trace | None = None,
     ) -> None:
         self.source = source
         self.capture_lock = capture_lock
@@ -94,22 +113,36 @@ class MacroRunner:
         self.supers: Callable[[int], list[tuple[float, float]]] | None = None  # terror tracker's `supers`
         self.working = False  # a run is acting (the thread lives on a while to show its last card)
         self.routine = PREBUFF
-        self.again = False  # the step key pressed during its step: one more step after it
         self.generation = 0
         self.attack_mode = False  # the attack run is wanted, now or once the current step is done
         self.closed = False  # `close` was called: nothing starts any more
-        self.pending: str | None = None  # a step asked for during attack mode: runs once the mode has paused
+        self.trace = trace or Trace()  # how long each press takes (latency.py)
+        # the requests whose run has not begun: a step's own key during it, a step during attack mode (waiting.py)
+        self.queue = Waiting(PRIORITY, self.trace)
+        self.deadline = math.inf  # the run working now is worth its input until then (EXPIRES)
+        self.press: Press | None = None  # the press of the run working now
+        self.hurry: Callable[[], None] | None = None  # the service reads the level now (teleport.card_for)
+        self.quiet_until = -math.inf  # attack mode resumes no sooner (TRAVEL_QUIET)
         self.lock = threading.RLock()  # every transition: a request, a run's end and its successor, shutdown
 
-    def request(self, requested_at: float, now: float, routine: str = PREBUFF) -> bool:
+    def request(
+        self, requested_at: float, now: float, routine: str = PREBUFF, **notes: object
+    ) -> bool:
         """Start `routine` (PREBUFF or a step), or toggle attack mode (HUNT_ANY). While a run works, a
         request cancels it, except a step's own request during the step (one more step) and a step
         during attack mode (the mode pauses for it and resumes after; the pickup step waits for the
         fight); the macro request during attack mode ends the mode and runs the macro once it has stopped."""
         with self.lock:
+            during = self.routine if self.working else None
+            press = self.trace.press(routine, requested_at, now, during=during, **notes)
             if self.closed or not math.isfinite(requested_at) or not 0 <= now - requested_at <= 1:
+                if not self.closed:
+                    # Never silent: a press that did nothing is what "unresponsive" looks like.
+                    LOG.warning('Macro: request %s dropped: %.0f ms old', routine, 1000 * (now - requested_at))
+                self.trace.close(press, outcome='dropped: closed' if self.closed else 'dropped: too old')
                 return False
             if routine == PREBUFF and now - self.last_request < THROTTLE:
+                self.trace.close(press, outcome='dropped: a bounce')
                 return False
             self.last_request = now
             LOG.info(
@@ -117,11 +150,18 @@ class MacroRunner:
                 routine, 1000 * (now - requested_at), self.routine if self.working else 'nothing runs',
             )  # fmt: skip
             if routine == ATTACK:
-                return self._toggle_attack_mode()
+                toggled = self._toggle_attack_mode()
+                press.mark('accepted')
+                self.trace.close(press, outcome='attack mode on' if self.attack_mode else 'attack mode off')
+                return toggled
             if routine == PREBUFF:
                 self.attack_mode = False  # the macro request ends it
             if routine == HUNT_ELITES:
                 self.attack_mode = True  # the mode follows the seek step
+            # Good until: the limit counts from the press, on the clock the queue reads.
+            until = time.monotonic() + EXPIRES.get(routine, math.inf) - (now - requested_at)
+            if routine != PICKUP:
+                self.queue.drop(PICKUP, 'the player moved on')  # as the sweep below: no walk back for it
             if routine != PICKUP and self.hunter is not None:
                 # A teleport or seek step, the macro: the player takes the character somewhere, and
                 # the sweep a pickup request started (hunt.py) must not walk it back (Tower Cellar 3,
@@ -129,39 +169,59 @@ class MacroRunner:
                 self.hunter.sweep.end()
             if self.working:
                 if routine in STEPS and self.routine == routine:
-                    self.again = True
+                    self._wait(press, 'queued behind its own step', until)
                 elif routine == TELEPORT and self.routine == PICKUP:
-                    # Not cancelled: the teleport step follows the pickup (that Ring, 17:35:18 on
-                    # 2026-10-11: the press came 30 ms after the sweep had stopped for it).
-                    self.pending = routine
+                    # The pickup stops and the teleport step follows at once. The step itself takes a
+                    # valuable near before it hops (`worth_a_stop`: that Ring, 17:35:18 on 2026-10-11,
+                    # when the press cancelled its pickup and the next steps left the level without
+                    # it); a potion is not worth the wait. Tower Cellar 5, 22:51:00 that day: the
+                    # press to get out came while the pickup clicked 5 s at a potion among eight
+                    # monsters, waited behind it, and the character died 0.4 s later.
+                    self.cancelled.set()
+                    self._wait(press, 'the pickup stops for it', until)
                 elif self.routine == ATTACK and routine == PICKUP and self.hunter is not None:
                     # After the fight: the mode pauses itself once nothing is in reach. Inside a fight the
                     # press is also a step to a better stand, and the mode drops the wait (`_unwait`)
                     # when there is nothing to pick up.
-                    self.pending = routine
                     self.hunter.unwait = self._unwait
                     self.hunter.after_fight.set()
                     self.hunter.step_asked.set()
+                    self._wait(press, 'waits for the fight', math.inf)  # however long the fight takes
                 elif self.routine == ATTACK:
-                    self.pending = routine  # the mode pauses for the step, or ends for the macro
-                    self.cancelled.set()
+                    self.cancelled.set()  # the mode pauses for the step, or ends for the macro
+                    self._wait(press, 'attack mode pauses for it', until)
                 else:
                     self.cancelled.set()
+                    press.mark('accepted')
+                    self.trace.close(press, outcome=f'cancelled {self.routine}')
                 return True
+            self._wait(press, 'started', until)
             self._start(routine)
             return True
+
+    def _wait(self, press: Press, outcome: str, until: float) -> None:
+        """`press` leads to a run that has not begun: it waits in the queue for it, good until `until`
+        (`_start` takes it). Under the lock."""
+        press.mark('accepted')
+        press.notes['outcome'] = outcome
+        self.queue.put(press.routine, until, press)
+
+    @property
+    def pending(self) -> str | None:
+        """The routine that follows the run working now, if one waits."""
+        ranked = sorted(self.queue.entries, key=PRIORITY.index)
+        return ranked[0] if ranked else None
 
     def _pick(self) -> None:
         """The sweep found something to pick up (hunt.py `gather`): the pickup step follows the mode's pause."""
         with self.lock:
-            if self.pending is None and not self.closed:
-                self.pending = PICKUP
+            if not self.queue.entries and not self.closed:
+                self.queue.put(PICKUP)
 
     def _unwait(self) -> None:
         """The pickup step that waited for the fight is not wanted any more (hunt.py `asked_step`)."""
         with self.lock:
-            if self.pending == PICKUP:
-                self.pending = None
+            self.queue.drop(PICKUP, 'not wanted any more')
 
     def _toggle_attack_mode(self) -> bool:
         """The attack mode toggle: the mode on or off. On while a step works, it follows the step; off
@@ -180,9 +240,12 @@ class MacroRunner:
         if self.closed:
             return
         self.generation += 1
-        self.cancelled, self.routine, self.again, self.working = threading.Event(), routine, False, True
+        self.cancelled, self.routine, self.working = threading.Event(), routine, True
         self.thread = threading.Thread(
-            target=self._guarded, args=(self.cancelled, routine, self.generation), name='macro', daemon=True
+            target=self._guarded,
+            args=(self.cancelled, routine, self.generation, *self.queue.take(routine)),
+            name='macro',
+            daemon=True,
         )
         self.thread.start()
 
@@ -240,7 +303,8 @@ class MacroRunner:
         mode resumed, no queued repeat), and no request starts another."""
         with self.lock:
             self.closed = True
-            self.attack_mode, self.pending, self.again = False, None, False
+            self.attack_mode = False
+            self.queue.clear('the service closed')
             self.cancelled.set()
             thread = self.thread
         if thread is not None:
@@ -252,14 +316,35 @@ class MacroRunner:
         LOG.info('Macro: %s', text)
         self.display([f'Macro: {text}'])
 
-    def _guarded(self, cancelled: threading.Event, routine: str, generation: int) -> None:
+    def _guarded(
+        self,
+        cancelled: threading.Event,
+        routine: str,
+        generation: int,
+        until: float = math.inf,
+        press: Press | None = None,
+    ) -> None:
         failed = False
         try:
             while True:
-                self.execute(cancelled, routine)
+                self.press, self.deadline = press, until
+                self.trace.begin(press)
+                if routine == ATTACK and cancelled.wait(max(0.0, self.quiet_until - time.monotonic())):
+                    raise Cancelled
+                ended = 'done'
+                try:
+                    self.execute(cancelled, routine)
+                except Cancelled:
+                    ended = 'cancelled'
+                    raise
+                except Exception as exc:
+                    ended = f'stopped: {exc}'
+                    raise
+                finally:
+                    self.trace.close(press, ended=ended)
                 with self.lock:
-                    if self.again and not cancelled.is_set():
-                        self.again = False  # the step's own request came during it: one more step
+                    if not cancelled.is_set() and self.queue.first() == routine:
+                        until, press = self.queue.take(routine)  # the step's own request came during it
                         continue
                     if routine == ATTACK:
                         self.attack_mode = False  # the mode returned on its own: the toggle follows
@@ -284,6 +369,7 @@ class MacroRunner:
             failed = None  # ended and followed above: only the card is left
         if failed is not None:
             with self.lock:
+                self.queue.drop(routine, 'the step before it stopped')  # no repeat of a step that did
                 if failed and routine == ATTACK:
                     self.attack_mode = False  # the mode ended on its own: the game was left, or it gave up
                 if self._follow(routine):
@@ -297,16 +383,25 @@ class MacroRunner:
         did. A step asked for during attack mode comes first, then the mode a step paused. Under the
         lock, in one piece with `working` going off: a request sees either the run or its successor."""
         self.working = False
-        following, self.pending = self.pending, None
+        following = self.queue.first()
         if following is None and self.attack_mode and routine != ATTACK:
             following = ATTACK  # the step is done: the mode resumes
         if following is None or self.closed:
             return False
+        if routine == TELEPORT and following == ATTACK:
+            self.quiet_until = time.monotonic() + TRAVEL_QUIET
         self._start(following)
         return True
 
     def _execute(self, cancelled: threading.Event, routine: str) -> None:
+        press = self.press
+
+        def mark(name: str) -> None:
+            if press is not None:
+                press.mark(name)
+
         with self.capture_lock:
+            mark('locked')
             self.source.ensure_connected()
             pid, images, capture = self.source.pid, self.source.images, self.source.capture
         tables = {found['table_address'] for found in capture['unit_table_candidates']}
@@ -318,6 +413,16 @@ class MacroRunner:
             self.focus.wait_ready(timeout=1)
         focus = self.focus
         memory = GameMemory(pid, images['candidate_base'], next(iter(tables)))
+        reads = [0, 0.0]  # how many looks at the game this run took, and their seconds (latency.py)
+
+        def look():
+            began = time.perf_counter()
+            try:
+                return memory.world(light=run.light > 0)
+            finally:
+                reads[0] += 1
+                reads[1] += time.perf_counter() - began
+
         try:
             with X11Keyboard().connect(exclusive=False) as keys:
                 if keys is None:
@@ -328,6 +433,8 @@ class MacroRunner:
 
                 pace = Pace(random.Random())
                 actuator = Actuator(keys, focused, pace)
+                actuator.mark = mark
+                actuator.cancelled = cancelled
                 if routine in STEPS or routine == ATTACK:
                     actuator.allow(*STEP_KEYS)  # the binding's own keys; the macro request waits for a release instead
 
@@ -344,7 +451,7 @@ class MacroRunner:
                         raise Abort(str(exc)) from exc
 
                 run = Run(
-                    memory.world,
+                    look,
                     actuator,
                     pace,
                     cancelled=cancelled,
@@ -357,10 +464,14 @@ class MacroRunner:
                     run.research = memory.hover_candidates  # a scan of the whole data section per Consume
                 run.hovered = memory.hovered
                 run.hover_note = memory.hover_note
+                run.mark = mark
+                run.hurry = self.hurry
+                run.deadline = self.deadline
                 run.warps = memory.warps
                 run.corpses = memory.corpses
                 run.arrival = lambda: self.journey.arrival(time.monotonic())
                 run.supers = self.supers
+                mark('ready')
                 if routine == TELEPORT:
                     walker = self.hunter
                     drop = worth_a_stop(run) if walker is not None else None
@@ -370,10 +481,12 @@ class MacroRunner:
                         # The step does not leave a valuable behind: this press takes it, the next hops.
                         LOG.info('Macro: the teleport step takes %s first', drop.label)
                         pick_up(run, walker.level() if walker.level is not None else None, key_names, lambda: None)
+                    elif (card := card_for(run, self.target)) is not None and walker.boss_step(run, card, key_names):
+                        pass  # the boss stands where its mark has no shot at it: the step went for the boss
                     else:
                         step_toward(
                             run,
-                            card_for(run, self.target),
+                            card,
                             key_names,
                             lambda target: walker.foot_step(run, target, key_names),
                             lambda target, player, spot: walker.warp_hop(run, target, player, spot, key_names),
@@ -398,3 +511,5 @@ class MacroRunner:
                     run_macro(run, key_names)
         finally:
             memory.close()
+            if press is not None:
+                press.notes.update(reads=reads[0], read_ms=round(1000 * reads[1], 1))

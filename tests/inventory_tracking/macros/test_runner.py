@@ -530,23 +530,68 @@ def test_a_game_begun_with_the_staff_in_hand_is_said_once():
     assert len(shown) == 2
 
 
-def test_a_teleport_request_during_a_pickup_follows_it_instead_of_cancelling(monkeypatch):
-    # Tower Cellar, 17:35:18 on 2026-10-11: the press came 30 ms after the sweep had stopped for a
-    # Ring, cancelled the pickup, and the next steps left the level without it.
+def test_a_teleport_request_during_a_pickup_stops_it_and_the_step_follows_at_once(monkeypatch):
+    # Tower Cellar 5, 22:51:00 on 2026-10-11: the press to get out waited behind a pickup that clicked
+    # 5 s at a potion among eight monsters, and the character died 0.4 s after it. (The Ring of
+    # 17:35:18 that day, whose pickup such a press cancelled, is the teleport step's own business
+    # now: it takes a valuable near before it hops, pickup.worth_a_stop.)
     monkeypatch.setattr(runner_module, 'CARD_SECONDS', 0)
-    steps, go_on = [], threading.Event()
+    steps, stepped = [], threading.Event()
 
     def execute(cancelled, routine):
         steps.append(routine)
         if routine == 'pickup':
-            assert go_on.wait(5)
-            assert not cancelled.is_set()
+            assert cancelled.wait(5)  # the pickup is told to stop
+            raise Cancelled
+        stepped.set()
 
     runner = make(execute, [])
     assert runner.request(10.0, 10.1, 'pickup')
     assert runner.request(10.2, 10.3, 'teleport')
-    go_on.set()
-    deadline = time.monotonic() + 5
-    while len(steps) < 2 and time.monotonic() < deadline:
-        time.sleep(0.01)
+    assert stepped.wait(5)
     assert steps == ['pickup', 'teleport']
+
+
+def test_attack_mode_stays_out_a_moment_after_a_teleport_step_and_a_press_in_it_goes_at_once(monkeypatch):
+    # 21:26 on 2026-10-11: the next press of a player travelling came 40 to 700 ms after the step
+    # before, found the mode running again and waited for it and its strike: half took over 250 ms.
+    monkeypatch.setattr(runner_module, 'CARD_SECONDS', 0)
+    monkeypatch.setattr(runner_module, 'TRAVEL_QUIET', 30.0)
+    runs, first, second = [], threading.Event(), threading.Event()
+
+    def execute(cancelled, routine):
+        runs.append(routine)
+        if routine == 'hunt any':
+            assert cancelled.wait(5)
+            raise Cancelled
+        (second if first.is_set() else first).set()
+
+    runner = make(execute, [])
+    assert runner.request(10.0, 10.1, 'hunt any')
+    assert runner.request(10.3, 10.4, 'teleport')
+    assert first.wait(5)
+    time.sleep(0.05)  # the step is over: the mode is to follow, and holds back
+    assert runs == ['hunt any', 'teleport']
+    assert runner.request(10.6, 10.7, 'teleport')  # in the quiet: no mode ran, the step goes
+    assert second.wait(5)
+    assert runs == ['hunt any', 'teleport', 'teleport']
+    runner.close()
+
+
+def test_attack_mode_resumes_at_once_after_a_seek_step(monkeypatch):
+    monkeypatch.setattr(runner_module, 'CARD_SECONDS', 0)
+    monkeypatch.setattr(runner_module, 'TRAVEL_QUIET', 30.0)
+    runs, resumed = [], threading.Event()
+
+    def execute(cancelled, routine):
+        runs.append(routine)
+        if routine == 'hunt any':
+            resumed.set()
+            assert cancelled.wait(5)
+            raise Cancelled
+
+    runner = make(execute, [])
+    assert runner.request(10.0, 10.1, 'hunt elites')
+    assert resumed.wait(5)
+    assert runs == ['hunt elites', 'hunt any']
+    runner.close()

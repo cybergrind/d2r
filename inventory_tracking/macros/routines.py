@@ -185,10 +185,17 @@ def quick_cast_over(run: Run, skill: int) -> None:
     run.quick = None
 
 
-def press_skill(run: Run, skill: int) -> None:
-    """Press the skill's key once the character is free to act."""
+def press_skill(run: Run, skill: int, poll: float = 0.03, *, wait: bool = True) -> None:
+    """Press the skill's key once the character is free to act, looked for every `poll` seconds.
+    `wait` off: pressed now, whatever the character does; the game keeps a Quick Cast key pressed
+    during a cast and casts it when that cast is over (teleport.press_hop)."""
     quick_cast_over(run, skill)
-    ready = run.expect('character ready', lambda w: w.player is not None and w.player.mode not in ACTING, 2.5)
+    if wait:
+        ready = run.expect(
+            'character ready', lambda w: w.player is not None and w.player.mode not in ACTING, 2.5, poll
+        )
+    else:
+        ready = run.world()
     if ready.player is not None and ready.player.mode in DEAD:
         raise Abort('the character is dead')
     home = ready.player.right_skill if ready.player is not None else None

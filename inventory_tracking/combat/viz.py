@@ -42,10 +42,12 @@ from inventory_tracking.combat.timeline import GAME_RATE
 from inventory_tracking.combat.viz_moments import Trace, find_moments
 from inventory_tracking.levels.model import Ground, unpack_cells
 from inventory_tracking.levels.presets import display_name
-from inventory_tracking.native.layout import TILE_UNITS
+from inventory_tracking.native.layout import PLAYER_DEAD_MODES, TILE_UNITS
 
 
 Point = tuple[float, float]
+HERALD_TIER_STAT = '367'  # a stat id as units.jsonl keys it (terror/tracker.py HERALD_TIER_STAT)
+UNIQUE_FLAG = 0x08  # a unit's type flags: a unique, the Herald among its pack
 SCHEMA = 1
 SCALE = 10  # file units to a world unit: positions are kept to a tenth
 RECORDED = 'recorded'
@@ -136,6 +138,16 @@ def steps(values: Iterable[tuple[int, Any]]) -> list[Any]:
     return out
 
 
+def vitals(situation: Situation) -> dict[str, list[int]]:
+    """The character's life and mana as step series in whole points, with the most it could hold;
+    empty where the take has none (before 2026-10-10)."""
+    found = sorted(situation.vitals.items())
+    return {
+        name: steps((tick, row[index]) for tick, row in found)
+        for index, name in enumerate(('life', 'max_life', 'mana', 'max_mana'))
+    }
+
+
 def walls(ground: Ground | None, frame: Frame) -> dict[str, Any] | None:
     """The level's grids as one picture, a byte a cell (a world unit), row by row: UNREAD where no room
     was read, FLOOR, LOW (blocks walking, a blade flies over it), WALL (stops a blade). Deflated, base64."""
@@ -213,9 +225,20 @@ def permille(points: float, full: float) -> int:
     return max(1, round(1000 * min(points, full) / full))
 
 
-def monsters(situation: Situation, frame: Frame) -> list[dict[str, Any]]:
-    """Each hostile: its recorded path while alive, its type, and its life as the take recorded it (a
-    step series of thousandths of its full points, from the recorded drops) with the recorded kill."""
+def heralds(take: Take) -> dict[int, int]:
+    """The take's Heralds, unit -> tier: the pack leaders carrying the Herald tier stat (their minions
+    carry it too; terror/tracker.py)."""
+    return {
+        row['unit']: int(tier)
+        for row in take.units
+        if (tier := (row.get('stats') or {}).get(HERALD_TIER_STAT)) and row.get('flags', 0) & UNIQUE_FLAG
+    }
+
+
+def monsters(situation: Situation, frame: Frame, herald_tiers: Mapping[int, int]) -> list[dict[str, Any]]:
+    """Each hostile: its recorded path while alive, its type, its Herald tier if it is one, and its
+    life as the take recorded it (a step series of thousandths of its full points, from the recorded
+    drops) with the recorded kill."""
     out = []
     for unit in sorted(situation.monsters):
         found = situation.monsters[unit]
@@ -230,6 +253,7 @@ def monsters(situation: Situation, frame: Frame) -> list[dict[str, Any]]:
                 'txt': found.txt,
                 'name': monster_name(found.txt),
                 'elite': found.elite,
+                'herald': herald_tiers.get(unit),
                 'points': round(found.points),
                 'life0': permille(found.life_at_start * found.points, found.points),
                 **track(found.path, frame),
@@ -398,9 +422,11 @@ def export(take: Take, policies: Sequence[str] = POLICIES, progress: Progress = 
             **track(situation.player, frame),
             'mode': steps(sorted(situation.modes.items())),
             'run': spans(tick for tick, mode in situation.modes.items() if mode in RUN_MODES),
+            'dead': spans(tick for tick, mode in situation.modes.items() if mode in PLAYER_DEAD_MODES),
+            **vitals(situation),
         },
         'pointer': track(situation.pointer, frame),
-        'monsters': monsters(situation, frame),
+        'monsters': monsters(situation, frame, heralds(take)),
         'companions': [
             {'unit': unit, 'txt': found.txt, 'name': monster_name(found.txt), **track(found.path, frame)}
             for unit, found in sorted(situation.companions.items())

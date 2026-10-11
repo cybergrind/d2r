@@ -43,6 +43,7 @@ from inventory_tracking.native.layout import (
     MAX_LIFE_STAT,
     PANEL_FLAGS,
     PATH_ROOM1,
+    PLAYER_DEAD_MODES,
     ROOM1_ROOM2,
     ROOM2_LEVEL,
     STAFF_CLASS_IDS,
@@ -570,7 +571,11 @@ def local_player(read, table: int) -> Player | None:
     # Several player units may stand for the one character: the shared stash tabs carry its name
     # and no life (collection/research.md). With other players in the game (user, 2026-10-08)
     # the character is the one unit with a plausible life; another player's unit has none.
+    # A corpse left on the level also carries the name, dead and without life, and may have the
+    # lowest unit id (2026-10-11): with a dead unit among them the ones with a life go first.
     if len({player.name for player, _ in found}) == 1:
+        if any(player.mode in PLAYER_DEAD_MODES for player, _ in found):
+            found = [(player, stats) for player, stats in found if plausible_life(read, stats)] or found
         return min((player for player, _ in found), key=lambda p: p.unit_id)
     alive = [player for player, stats in found if plausible_life(read, stats)]
     return alive[0] if len(alive) == 1 else None
@@ -794,15 +799,20 @@ class GameMemory:
             player = None
         return name, player.area if player is not None else None
 
-    def world(self) -> World:
+    def world(self, light: bool = False) -> World:
+        """The game as it is now. `light`: without the monsters and the doors, for a step that only
+        asks where the character is and what it does. A teleport step looked at the game about six
+        times before its key, 54 to 96 ms in all with nothing else in the way (22:11 on 2026-10-11),
+        and every look walked all the monsters."""
         panels = self.read(self.base + UI_PANELS_RVA, UI_PANELS_SIZE)
         in_game = panels[IN_GAME] == 1
         player, monsters, doors, dead = None, (), (), frozenset()
         if in_game:
             try:
                 player = self._player()
-                monsters, dead = self._monsters() if player is not None else ((), frozenset())
-                doors = self._doors() if player is not None else ()
+                if not light:
+                    monsters, dead = self._monsters() if player is not None else ((), frozenset())
+                    doors = self._doors() if player is not None else ()
             except OSError, ValueError, struct.error:
                 player, monsters, doors, dead = None, (), (), frozenset()
         return World(

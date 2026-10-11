@@ -15,6 +15,7 @@ def no_hop_landed_yet(monkeypatch):
     """The game the last hop landed in and the targets the far way failed for are kept per process:
     none carried from test to test."""
     monkeypatch.setattr(teleport, 'LANDED', [])
+    monkeypatch.setattr(teleport, 'LANDING', [])
     monkeypatch.setattr(teleport, 'FAR_FAILED', {})
 
 

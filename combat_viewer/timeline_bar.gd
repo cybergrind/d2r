@@ -17,7 +17,9 @@ const MOMENT_TOP := 0.0
 const REC_TOP := MOMENT_H
 const POL_TOP := REC_TOP + LANE_H
 const RUN_TOP := POL_TOP + LANE_H
-const RULER_TOP := RUN_TOP + RUN_H
+const LIFE_TOP := RUN_TOP + RUN_H + 2.0
+const LIFE_H := 16.0  # the character's life against its most, when the take has it
+const RULER_TOP := LIFE_TOP + LIFE_H
 const CAST_BOTTOM_FRAC := 2.0 / 3.0  # casts sit in the upper two thirds of a lane
 const KILL_TOP := 18.0  # kill triangles start in the lower third of a lane
 const KILL_HALF_W := 3.5
@@ -34,6 +36,9 @@ var _policy_kills: PackedInt32Array = PackedInt32Array()
 var _recorded_moves: Array = []  # [t0, t1] pairs of the runs' own moves, when the file has them
 var _policy_moves: Array = []
 var _running: PackedInt32Array = PackedInt32Array()
+var _dead: PackedInt32Array = PackedInt32Array()
+var _life: Dictionary = {}  # step series: the character's life, and the most it could hold
+var _max_life: Dictionary = {}
 var _moments: PackedInt32Array = PackedInt32Array()
 var _moment_selected: int = -1
 var _loop_first: int = -1
@@ -46,7 +51,7 @@ var _emitted: int = 0  # the last tick sent by seek_requested
 
 ## Sets up the control's size, input and focus.
 func _init() -> void:
-	custom_minimum_size = Vector2(0, 110)
+	custom_minimum_size = Vector2(0, 128)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	focus_mode = Control.FOCUS_NONE
 
@@ -78,6 +83,15 @@ func set_moves(recorded_moves: Array, policy_moves: Array) -> void:
 ## Sets the ticks the recorded character was moving, as flat [first, last, first, last, ...] pairs.
 func set_running(spans: PackedInt32Array) -> void:
 	_running = spans
+	queue_redraw()
+
+
+## Sets the spans the recorded character was dying or dead (flat pairs) and its life and most life as
+## step series ({"t", "v"}; empty ones draw no life strip).
+func set_character(dead: PackedInt32Array, life: Dictionary, max_life: Dictionary) -> void:
+	_dead = dead
+	_life = life
+	_max_life = max_life
 	queue_redraw()
 
 
@@ -175,6 +189,8 @@ func _draw() -> void:
 		var rect: Rect2 = _span_rect(_running[2 * k], _running[2 * k + 1], RUN_TOP, RUN_H, 1.0)
 		draw_rect(rect, Color(Palette.TEXT_DIM, 0.5), true)
 
+	_draw_life()
+
 	# 6. Time ruler.
 	_draw_ruler(w)
 
@@ -185,9 +201,37 @@ func _draw() -> void:
 		var loop_rect: Rect2 = Rect2(x0, REC_TOP, maxf(x1 - x0, 2.0), POL_TOP + LANE_H - REC_TOP)
 		draw_rect(loop_rect, Palette.MOMENT, false, 2.0)
 
+	# Each death: a line through the lanes where the character began to die.
+	for k: int in range(_dead.size() >> 1):
+		var death_x: float = _x_of(_dead[2 * k])
+		draw_rect(Rect2(death_x - 1.0, REC_TOP, 2.0, LIFE_TOP + LIFE_H - REC_TOP), Palette.LIFE, true)
+
 	# 8. Cursor, last.
 	var cursor_x: float = _x_of(clampi(_tick, _first, _last))
 	draw_rect(Rect2(cursor_x - 1.0, 0.0, 2.0, h), Palette.CURSOR, true)
+
+
+## The life strip: the character's life as a share of its most, step by step, and the dead spans dimmed.
+func _draw_life() -> void:
+	for k: int in range(_dead.size() >> 1):
+		draw_rect(_span_rect(_dead[2 * k], _dead[2 * k + 1], LIFE_TOP, LIFE_H, 2.0), Color(Palette.LIFE, 0.25), true)
+	if _life.is_empty() or _max_life.is_empty():
+		return
+	var ticks: PackedInt32Array = _life["t"]
+	var values: PackedInt32Array = _life["v"]
+	var most_ticks: PackedInt32Array = _max_life["t"]
+	var most_values: PackedInt32Array = _max_life["v"]
+	if ticks.is_empty() or most_values.is_empty():
+		return
+	for i: int in range(ticks.size()):
+		var until: int = ticks[i + 1] if i + 1 < ticks.size() else _last
+		var most: int = most_values[clampi(most_ticks.bsearch(ticks[i], false) - 1, 0, most_values.size() - 1)]
+		if most <= 0 or until < _first:
+			continue
+		var height: float = LIFE_H * clampf(float(values[i]) / float(most), 0.0, 1.0)
+		var x0: float = _x_of(maxi(ticks[i], _first))
+		var x1: float = _x_of(mini(until, _last))
+		draw_rect(Rect2(x0, LIFE_TOP + LIFE_H - height, maxf(x1 - x0, 1.0), height), Color(Palette.LIFE, 0.8), true)
 
 
 ## Rectangle for a tick span, at least min_w wide.

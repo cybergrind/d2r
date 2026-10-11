@@ -22,6 +22,8 @@ var contact_radius: float = 2.0
 var bounds: Rect2 = Rect2()
 var player: Dictionary = {}
 var player_run: PackedInt32Array = PackedInt32Array()
+var player_dead: PackedInt32Array = PackedInt32Array()  # spans the recorded character was dying or dead
+var vitals: Dictionary = {}  # "life", "max_life", "mana", "max_mana" -> step series in whole points
 var pointer: Dictionary = {}
 var monsters: Array[Dictionary] = []
 var companions: Array[Dictionary] = []
@@ -74,6 +76,9 @@ func _decode(raw: Dictionary) -> void:
 	var raw_player: Dictionary = raw.get("player", {})
 	player = _track(raw_player, scale)
 	player_run = _spans(raw_player.get("run", []))
+	player_dead = _spans(raw_player.get("dead", []))
+	for name: String in ["life", "max_life", "mana", "max_mana"]:
+		vitals[name] = _steps(raw_player.get(name, []))
 	pointer = _track(raw.get("pointer", {}), scale)
 	monsters.clear()
 	var raw_monsters: Array = raw.get("monsters", [])
@@ -87,6 +92,7 @@ func _decode(raw: Dictionary) -> void:
 		monster["txt"] = int(found.get("txt", 0))
 		monster["name"] = str(found.get("name", ""))
 		monster["elite"] = bool(found.get("elite", false))
+		monster["herald"] = 0 if found.get("herald") == null else int(found["herald"])
 		monster["points"] = float(found.get("points", 0))
 		monster["life0"] = int(found.get("life0", 1000))
 		monster["recorded_death"] = -1 if death == null else int(death)
@@ -334,6 +340,27 @@ static func step_at(series: Dictionary, tick: int, before: int) -> int:
 	var values: PackedInt32Array = series["v"]
 	var index: int = ticks.bsearch(tick, false) - 1
 	return before if index < 0 else values[index]
+
+
+## Whether the take recorded the character's life and mana (takes since 2026-10-10).
+func has_vitals() -> bool:
+	return not (vitals["max_life"]["t"] as PackedInt32Array).is_empty()
+
+
+## The character's `name` ("life", "max_life", "mana", "max_mana") at `tick` in whole points; 0 before
+## its first entry.
+func vital_at(name: String, tick: int) -> int:
+	return step_at(vitals[name], tick, 0)
+
+
+## The character's life and mana at `tick` in words; "" for a take without them.
+func vitals_text(tick: int) -> String:
+	if not has_vitals():
+		return "DEAD" if in_spans(player_dead, tick) else ""
+	var text: String = "life %d / %d   mana %d / %d" % [
+		vital_at("life", tick), vital_at("max_life", tick), vital_at("mana", tick), vital_at("max_mana", tick)
+	]
+	return "DEAD   " + text if in_spans(player_dead, tick) else text
 
 
 ## How many of the ascending `ticks` are at or before `tick`.

@@ -40,9 +40,9 @@ from inventory_tracking.levels.route import Point, room_at
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.routines import ACTING, press_skill, settle, swap_until, world_point
-from inventory_tracking.macros.skills import SWAP_WEAPONS, TELEPORT
+from inventory_tracking.macros.skills import BLADE_WARP, SWAP_WEAPONS, TELEPORT
 from inventory_tracking.macros.view import CORNER_BOTTOM, UNIT_PIXELS, VIEW, Viewport
-from inventory_tracking.macros.world import Player, Warp
+from inventory_tracking.macros.world import Player, Warp, World
 from inventory_tracking.native.layout import TILE_UNITS
 
 
@@ -111,6 +111,18 @@ LOST_KEY = (
 # is named only in a game no hop has landed in yet (`LANDED`).
 REPRESS_SECONDS = 0.6
 LANDED: list[str] = []  # the game the last hop landed in
+# Where and when the last hop was seen to land. The next hop is planned and aimed from there at once,
+# during the rest of that cast: the key itself waits for the cast's end (routines.press_skill). The
+# game moves the character 283 ms after the key and ends the cast at 388 ms (3,300 hops recorded on
+# 2026-10-11), and the next key went down 567 ms after the one before: 180 ms of every hop were the
+# wait for the cast's end before the planning and the pointer's move.
+LANDING: list[tuple[float, float, float]] = []
+HOP_POLL = 0.01  # seconds between looks for a hop's landing and its cast's end (30 ms otherwise, engine.POLL)
+# Seconds after the cast before is over within which a kept key's cast shows (the game issues it on its
+# next frame, or the one after when the press sat in its second entry).
+QUEUED_SECONDS = 0.09
+MOVING = frozenset((TELEPORT, BLADE_WARP))  # the casts that end with the character somewhere else
+LANDING_FRESH = 0.6  # seconds a landing stands for where the character is, if it is still there
 HOVER_SECONDS = 0.06  # for the game to note what is under the pointer after it moved (a frame or two)
 # Unit types of the record of the unit under the pointer that are not a door: a monster (the mercenary
 # and the summons land beside the character after a hop), an item. An aim with one of them under it is
@@ -624,11 +636,18 @@ def card_for(run: Run, read: Callable[[], Target | None] | None, seconds: float 
     to 2026-10-10, and after both stairs of the first Worldstone Keep run)."""
     if read is None:
         return None
-    until = run.clock() + seconds
+    until, hurried = run.clock() + seconds, False
     while True:
-        target, player = read(), run.world().player
+        with run.lightly():
+            target, player = read(), run.world().player
         if player is None or (target is not None and target.area == player.area) or run.clock() >= until:
             return target
+        if not hurried and run.hurry is not None:
+            # The service looks at the level every half second and sleeps up to 0.2 s between its
+            # passes: asked to look now (Tower Cellar 1, 21:36:39 on 2026-10-11: the press on arrival
+            # took 580 ms to its click, the others in that session 140 to 200).
+            hurried = True
+            run.hurry()
         run.pace.sleep(CARD_POLL)
 
 
@@ -642,7 +661,9 @@ def step_toward(
     """One teleport step. `key_names(world, skills)` gives the key per skill (runner). `afoot` makes the
     step without Teleport (the runner: a Blade Warp or a walk) when the staff has no charge left;
     `warp` makes a hop by Blade Warp where it can (`hop_toward`)."""
-    player, rect = ready(run)
+    with run.lightly():
+        player, rect = ready(run)
+    run.in_time('the step')
     if target is None:
         raise Abort('nothing is marked on the level card (Win+C shows it)')
     if target.area != player.area:
@@ -704,11 +725,50 @@ def settled(run: Run, player: Player) -> Player:
     was still under way, the place was the one before: the walk's end or that hop's landing then
     counted as this hop's landing, and every hop after was aimed from the place before its own
     (Halls of Death's Calling, 12:32:17 on 2026-10-11: twelve of sixteen hops off by 6 to 26 units)."""
-    free = run.seen(lambda w: w.player is not None and w.player.mode not in ACTING, READY_SECONDS)
+    now = run.world().player
+    if now is not None and LANDING:
+        x, y, at = LANDING[0]
+        if 0 <= run.clock() - at <= LANDING_FRESH and math.dist((now.x, now.y), (x, y)) < MOVED:
+            return now  # the hop before has landed here: its cast's tail moves the character no more
+    if now is not None and now.mode in ACTING and now.right_skill not in MOVING:
+        # A cast that takes the character nowhere (a strike of attack mode): it stands where the hop
+        # will start, and the key can be pressed during the cast (`press_hop`).
+        return now
+    free = run.seen(lambda w: w.player is not None and w.player.mode not in ACTING, READY_SECONDS, HOP_POLL)
     if free is None:
         return player
     still = run.seen(lambda w: w.player is not None and w.player.mode not in WALKING | ACTING, SETTLE_SECONDS)
     return (still or run.world()).player or player
+
+
+def press_hop(run: Run, arrived: Callable[[World], bool]) -> None:
+    """The Teleport key, pressed at once, also during the cast before: the game keeps a Quick Cast
+    key that comes during a cast and casts it on the first frame the character is free, with the
+    pointer where it is then (the client's code, read on 2026-10-12: two entries at image offset
+    0x1F6ADE4, filled at key-down, the cast issued by the per-frame processor at 0x1400d8650 once
+    the mode is none of 7, 8, 10, 18). That is why the key feels instant by hand (user, that day).
+    The macro waited to see the cast's end and tapped then: a third of the presses of 22:11 on
+    2026-10-11 took 214 to 290 ms to their key for it. The game does not keep every press (one
+    under 160 ms after the cast before began with its entry still held, or a third one): when the
+    cast before ends and none follows within QUEUED_SECONDS, the key is pressed again."""
+    world = run.world()
+    busy = world.player is not None and world.player.mode in ACTING
+    press_skill(run, TELEPORT, HOP_POLL, wait=not busy)
+    if not busy:
+        return
+    run.mark('key_in_cast')  # in the press's trace (latency.py): how often, and how often the game kept it
+    over = run.seen(
+        lambda w: arrived(w) or (w.player is not None and w.player.mode not in ACTING), READY_SECONDS, HOP_POLL
+    )
+    if over is None or arrived(over):
+        return
+    taken = run.seen(
+        lambda w: arrived(w) or (w.player is not None and w.player.mode in ACTING), QUEUED_SECONDS, HOP_POLL
+    )
+    if taken is None:
+        LOG.info('Macro: the game did not keep the Teleport key pressed during the cast before: pressed again')
+        run.mark('key_again')
+        press_skill(run, TELEPORT, HOP_POLL)
 
 
 def hop_toward(
@@ -719,11 +779,30 @@ def hop_toward(
     key_names,
     warp: Callable[[Target, Player, tuple[float, float]], bool] | None = None,
 ) -> None:
+    """`_hop_toward`, with the game looked at lightly (`Run.lightly`) but for the `warp` it asks."""
+    light = run.light
+    try:
+        _hop_toward(run, target, player, rect, key_names, warp, light)
+    finally:
+        run.light = light
+
+
+def _hop_toward(
+    run: Run,
+    target: Target,
+    player: Player,
+    rect: tuple[int, int, int, int],
+    key_names,
+    warp: Callable[[Target, Player, tuple[float, float]], bool] | None,
+    light: int,
+) -> None:
     """One teleport toward `target`: the landing in view that leaves the shortest way (the hunt
     keys use it too, macros/hunt.py). `warp(target, player, landing)` is asked first to make the hop
     another way (the teleport step: a Blade Warp over open ground, which costs the staff no charge)
     and says whether it did."""
+    run.light = light + 1  # where the character is and what it does: no monsters, no doors
     player = settled(run, player)
+    run.mark('settled')
     # Not for a room to explore: its point is the tile of it nearest by the way, and standing a tile
     # short of it is not standing in it (Halls of Vaught, 15:10:20 on 2026-10-11: one tile from the room,
     # "the character is beside it" for 17 presses, the room never seen).
@@ -760,6 +839,7 @@ def hop_toward(
     if found is None:
         raise Abort(f'no footing in view brings the character nearer to {target.label}')
     spot, gain = found
+    run.mark('planned')
     if math.dist(scaled(spot), (player.x, player.y)) < MOVED:
         # The best landing is where the character stands (a press more than the way needed, beside
         # Nihlathak at 12:25:45 on 2026-10-11): a hop there shows no move, and the step waited 2.2 s
@@ -767,16 +847,19 @@ def hop_toward(
         LOG.info('Macro: no hop toward %s: the landing is where the character stands', target.label)
         run.say(f'At {target.label}')
         return
+    run.light = light  # a Blade Warp looks for a clear line: the whole game
     if warp is not None and warp(target, player, scaled(spot)):
         return
+    run.light = light + 1
     take_teleport(run, key_names)
     left = math.dist(spot, target.point) * TILE_UNITS
     staff = run.teleport() if run.teleport is not None else None
     charges = f', {staff.charges} charges' if staff is not None else ''
     run.say(f'Teleport toward {target.label}: {left:.0f} left after this{charges}')
-    run.actuator.aim(*ground_fraction(player, *scaled(spot), aspect), scatter=(4, 3))
-    press_skill(run, TELEPORT)
+    run.in_time('the hop')  # a hop long after its key is a surprise, not a step
+    run.actuator.snap(*ground_fraction(player, *scaled(spot), aspect), scatter=(4, 3))
     aim = scaled(spot)
+    press_hop(run, lambda w: w.player is not None and landed_from(w.player, player, aim))
     if target.warp:
         door, entry = scaled(target.point), entry_spot(target)
         LOG.info(
@@ -798,12 +881,12 @@ def hop_toward(
         now = run.teleport() if run.teleport is not None else None
         return staff is not None and now is not None and now.in_hand and now.charges == staff.charges > 0
 
-    seen = run.seen(arrived, REPRESS_SECONDS)
+    seen = run.seen(arrived, REPRESS_SECONDS, HOP_POLL)
     if seen is None and unspent():
         LOG.info(
             'Macro: teleport %s; nothing %.1fs after the key, no charge spent: pressed again', where, REPRESS_SECONDS
         )
-        press_skill(run, TELEPORT)
+        press_skill(run, TELEPORT, HOP_POLL)
     now = run.teleport() if run.teleport is not None else None
     spent = staff is not None and now is not None and now.charges < staff.charges
     if seen is None and spent and not target.warp and math.dist(aim, (player.x, player.y)) <= 2 * SPOT_NEAR:
@@ -812,7 +895,7 @@ def hop_toward(
         LOG.info('Macro: teleport %s; no move, the charge spent: the spot is taken', where)
         run.say(f'At {target.label}')
         return
-    if seen is None and run.seen(arrived, HOP_SECONDS) is None:
+    if seen is None and run.seen(arrived, HOP_SECONDS, HOP_POLL) is None:
         after, now = run.world(), run.teleport() if run.teleport is not None else None
         LOG.info(
             'Macro: teleport %s; the character did not move: key %s, slots %s, staff %s, mode now %s, right skill %s',
@@ -828,9 +911,11 @@ def hop_toward(
                 raise Abort('Teleport: the game took neither of two presses (no charge spent)')
             raise Abort(LOST_KEY)
         raise Abort('Teleport: the character did not move (no charges, nowhere to land?)')
+    run.mark('landed')
     LANDED[:] = [run.world().game_name]
     landed = run.world().player
     if landed is not None:
+        LANDING[:] = [(landed.x, landed.y, run.clock())]
         off = (landed.x - aim[0], landed.y - aim[1])
         LOG.info(
             'Macro: teleport %s; landed at (%.1f, %.1f), off by %.1f (%+.1f, %+.1f)',

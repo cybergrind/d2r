@@ -14,13 +14,16 @@ class PassTimer:
     def __init__(self, threshold: float, *, clock=time.monotonic):
         self.threshold, self.clock = threshold, clock
         self.steps: dict[str, float] = {}
+        self.current: tuple[str | None, float] = (None, 0.0)  # the step under way and when it began
 
     @contextmanager
     def step(self, name: str):
         started = self.clock()
+        self.current = (name, started)
         try:
             yield
         finally:
+            self.current = (None, started)
             self.steps[name] = self.steps.get(name, 0.0) + self.clock() - started
 
     def finish(self) -> float:
