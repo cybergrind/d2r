@@ -1,0 +1,135 @@
+{
+ "name": "20261010T205403Z-23-235418",
+ "log_time": "2026-10-10 23:54:18,645",
+ "take": "20261010T205403Z-23",
+ "area": 23,
+ "in_fight": false,
+ "logged": {
+  "in_reach": 2,
+  "near": 2,
+  "decision": "no better stand"
+ },
+ "player": [
+  12605.51,
+  8135.12
+ ],
+ "hostiles": [
+  {
+   "unit": 1694369130,
+   "txt": 21,
+   "at": [
+    12616.61,
+    8136.22
+   ],
+   "life": 0.9844,
+   "elite": false
+  },
+  {
+   "unit": 1550985200,
+   "txt": 21,
+   "at": [
+    12619.5,
+    8132.5
+   ],
+   "life": 0.9922,
+   "elite": false
+  }
+ ],
+ "companions": [
+  {
+   "unit": 798136757,
+   "txt": 361,
+   "at": [
+    12600.5,
+    8139.5
+   ]
+  },
+  {
+   "unit": 1625535062,
+   "txt": 744,
+   "at": [
+    12600.5,
+    8139.5
+   ]
+  },
+  {
+   "unit": 1596273514,
+   "txt": 338,
+   "at": [
+    12600.1,
+    8139.9
+   ]
+  }
+ ],
+ "doors": [],
+ "ground": [
+  {
+   "x": 2532,
+   "y": 1616,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAf//3/AB///f8AH//9/wAf//3/AB///f8AH//9/wAf//3/AB///f8AH////wAf////AB4f//8AHh/9/wAf//3/AB///f8AH//9/wAf//3/AB///f8AH//9/wAf//3/AB5/nAAAHn+cAAAf//wAAB///AAAH//8AAAf//wAAB///AAAH//8AAAf//wAAB///AA=",
+   "flight": "+AAAAAD4AAAAAPgAAAAA+AAAAAD4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAf//3/AB///f8AH//9/wAf//3/AB///f8AH//9/wAf//3/AB///f8AH////wAf////AB////8AH//9/wAf//3/AB///f8AH//9/wAf//3/AB///f8AH//9/wAf//3/AB5/nAAAHn+cAAAf//wAAB///AAAH//8AAAf//wAAB///AAAH//8AAAf//wAAB///AA="
+  },
+  {
+   "x": 2532,
+   "y": 1624,
+   "width": 8,
+   "height": 8,
+   "cells": "AB///AAAH//8AAAf//wAAB///AAAH//8AAAf//wAAB8P/AAAHw/8AAAf//wAAB///AAAD//8APvP///v+////+/7////7/v////v+////+/7////7/v////v+////+/////////////////////7////7/v////v+////+/7////7/v////v+////+/7////7/v////vA/5/n+AD/n+f4AP////gA////+AD////4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "+B///AD4H//8APgf//wA+B///AD4H//8AAAf//wAAB///AAAH//8AAAf//wAAB///AAAD//8APvP///v+////+/7////7/v////v+////+/7////7/v////v+////+/////////////////////7////7/v////v+////+/7////7/v////v+////+/7////7/v////vA/5/n+AD/n+f4AP////gA////+AD////4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+  },
+  {
+   "x": 2524,
+   "y": 1624,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP///////////////////////////8///PP/z//88//////z//////P/////////////////////////////////////////z//8///P//z/////////////////////AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "+AAAAAD4AAAAAPgAAAAA+AAAAAD4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP///////////////////////////8///P//z//8////////////////////////////////////////////////////////z//8///P//z/////////////////////AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+  },
+  {
+   "x": 2516,
+   "y": 1624,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB///AAAH//8AAAf//wAAB///AAADnOcAP/Oc5////////////////////////////P/////8//////z//////P/////////////////////////////////////////////////////////////////////////AB5znAAAHnOcAAAf//wAAB///AAAH//8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "+AAAAAD4AAAAAPgAAAAA+AAAAAD4AAAAAAAAAAAAAB///AAAH//8AAAf//wAAB///AAADnOcAP/Oc5//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////AB5znAAAHnOcAAAf//wAAB///AAAH//8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+  },
+  {
+   "x": 2508,
+   "y": 1624,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "+AAAAAD4AAAAAPgAAAAA+AAAAAD4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+  }
+ ],
+ "after": {
+  "player_at": {
+   "1.0": [
+    12605.51,
+    8135.12
+   ],
+   "2.0": [
+    12605.51,
+    8135.12
+   ],
+   "3.0": [
+    12574.5,
+    8133.5
+   ],
+   "5.0": [
+    12512.5,
+    8132.5
+   ]
+  },
+  "alive_at": {
+   "1.0": 1,
+   "2.0": 0,
+   "3.0": 0,
+   "5.0": 0
+  },
+  "cleared_seconds": 1.44,
+  "casts": 1
+ }
+}

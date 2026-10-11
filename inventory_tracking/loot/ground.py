@@ -32,6 +32,7 @@ from inventory_tracking.items.identity import (
 )
 from inventory_tracking.levels.memory import player_location
 from inventory_tracking.levels.model import Location
+from inventory_tracking.loot.materials import appraised_classes
 from inventory_tracking.loot.runes import is_valuable_rune
 from inventory_tracking.loot.shrines import SHRINE_NAMES
 from inventory_tracking.loot.uniques import BASES, unique_drop
@@ -174,13 +175,28 @@ def ground_runes(read, table_address, *, minimum: str) -> list[GroundRune]:
     return runes
 
 
-def ground_materials(read, table_address, classes: dict[int, str]) -> list[GroundMaterial]:
-    """Ground items of the given classes (class ID -> label, loot/materials.py)."""
-    return [
-        GroundMaterial(classes[item.class_id], item.unit_id, item.x, item.y)
-        for item in item_units(read, table_address, classes)
-        if item.mode in GROUND_MODES
-    ]
+def ground_materials(read, table_address, classes: dict[int, str], appraised=frozenset()) -> list[GroundMaterial]:
+    """Ground items of the given classes (class ID -> label, loot/materials.py). Of the `appraised`
+    classes only the unidentified ones: an identified charm on the ground is one the player read and
+    dropped (an item whose flags cannot be read counts as unidentified)."""
+    heads = struct.unpack('<128Q', read(table_address + ITEM_UNIT * 1024, 1024))
+    found = []
+    for unit in walk_units(read, heads, ITEM_UNIT)['units']:
+        if unit['txt_id'] not in classes or unit['mode'] not in GROUND_MODES:
+            continue
+        try:
+            x, y = static_position(read, unit) if unit['path_pointer'] else (0, 0)
+        except OSError, ValueError:
+            continue
+        if unit['txt_id'] in appraised and unit['data_pointer']:
+            try:
+                flags = struct.unpack_from('<I', read(unit['data_pointer'], ITEM_DATA_SIZE), FLAGS_OFFSET)[0]
+            except OSError, ValueError:
+                flags = 0
+            if flags & IDENTIFIED_FLAG:
+                continue
+        found.append(GroundMaterial(classes[unit['txt_id']], unit['unit_id'], x, y))
+    return found
 
 
 def ground_uniques(read, table_address, *, minimum: float) -> list[GroundUnique]:
@@ -229,7 +245,7 @@ def observe_ground(
         shrines = nearby_shrines(read, table, types=shrine_types) if location and shrine_types else []
         chests = nearby_super_chests(read, table) if location and super_chests else []
         uniques = ground_uniques(read, table, minimum=unique_minimum) if location and unique_minimum is not None else []
-        found = ground_materials(read, table, materials) if location and materials else []
+        found = ground_materials(read, table, materials, appraised_classes()) if location and materials else []
     finally:
         os.close(fd)
     if identity(pid) != token:

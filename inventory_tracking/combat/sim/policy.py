@@ -11,7 +11,9 @@ them by blade plus linked points per combat second (the policy-dependent terms):
   whenever free: the live macro's aim before the line sweep reached the game;
 - `live`: the aim the game's fight runs today (combat/controller.py `LiveAim`): `yield`'s sweep with
   the focal points the window lets the pointer reach, and straight at a monster in reach when the
-  sweep finds no line (review.md, finding 2: `yield` alone is not what the game casts).
+  sweep finds no line (review.md, finding 2: `yield` alone is not what the game casts);
+- `lead`: `live` with the lines laid and scored where the monsters' routes have them as the blades fly
+  (mechanics/movement.py); only a take with path records tells it from `live`, so it is not in MODES.
 """
 
 import math
@@ -27,7 +29,7 @@ from inventory_tracking.combat.timeline import GAME_RATE
 from inventory_tracking.macros.view import Viewport
 
 
-FREE, YIELD, SLOTS, NEAREST, LIVE = 'free', 'yield', 'slots', 'nearest', 'live'
+FREE, YIELD, SLOTS, NEAREST, LIVE, LEAD = 'free', 'yield', 'slots', 'nearest', 'live', 'lead'
 MODES = (SLOTS, YIELD, FREE, NEAREST, LIVE)
 COMBAT_REACH = 30.0  # a frame with a live hostile this near is combat time (analysis.py)
 
@@ -47,8 +49,9 @@ def candidate(situation: Situation, mode: str, **options: Any) -> Policy:
     """The policy `compare` runs under `mode`; `options` go to the policy (damage_of, offsets...)."""
     if mode == NEAREST:
         return NearestPolicy(**options)
-    if mode == LIVE:
-        return LiveAim(LinePolicy(yields=True, **options), Viewport(situation.aspect).reachable_focal)
+    if mode in (LIVE, LEAD):
+        sweep = LinePolicy(yields=True, lead=BIRTH_LAG if mode == LEAD else None, **options)
+        return LiveAim(sweep, Viewport(situation.aspect).reachable_focal)
     if mode == SLOTS:
         return AtSlots(LinePolicy(yields=False, **options), frozenset(c.frame - BIRTH_LAG for c in situation.casts))
     return LinePolicy(yields=mode == YIELD, **options)

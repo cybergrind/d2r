@@ -145,7 +145,7 @@ class Actuator:
         mouse button on a skill: the game casts it again and again at its own rate and takes the
         pointer where it is at each cast (user, 2026-10-09 night). The keys this actuator holds are
         not the player's for `guard`. Yields a callable that releases and presses again, for a game
-        that casts once per press."""
+        that casts once per press; it leaves the keys up when the left mouse button is down by then."""
         inputs = self._inputs(names)
         own = frozenset(code for is_button, code in inputs if not is_button)
         own_buttons = frozenset(code for is_button, code in inputs if is_button)
@@ -161,6 +161,10 @@ class Actuator:
             self.pace.hold()
             if not self.focused():
                 raise Abort('the game lost the focus')  # nothing is pressed into another window
+            if self.button_held(1):
+                # The player's click came down between the release and the press: no press over it
+                # (review.md, finding 7; the caller's next look at the button yields to the click).
+                return
             pressed = self._press(inputs)
 
         try:

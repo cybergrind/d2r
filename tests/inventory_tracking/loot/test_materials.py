@@ -7,7 +7,7 @@ def test_each_group_names_its_item_classes():
     assert sorted(material_classes(['shards']).values())[0] == 'Deep Worldstone Shard'
     assert material_classes(['keys']) == {662: 'Key of Terror', 663: 'Key of Hate', 664: 'Key of Destruction'}
     assert material_classes(['statues'])[683] == "Worusk's End"  # the table says 'Uber Ancient Summon Material Act5'
-    assert [len(material_classes([group])) for group in GROUPS] == [5, 14, 5, 3, 3, 4]
+    assert [len(material_classes([group])) for group in GROUPS] == [5, 14, 5, 3, 3, 4, 1, 1, 1]
 
 
 def test_charms_are_the_three_sizes():

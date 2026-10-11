@@ -208,3 +208,23 @@ def test_wanted_materials_on_the_ground_are_named():
         GroundMaterial('Southern Worldstone Shard', 5, 25500, 5400),
         GroundMaterial("Talic's Anguish", 128 * 3 + 5, 25520, 5420),
     ]
+
+
+def test_an_identified_charm_on_the_ground_is_one_the_player_dropped():
+    # user, 2026-10-10 night: a small charm read, found bad and dropped was offered for pickup again
+    from inventory_tracking.items.identity import IDENTIFIED_FLAG
+    from inventory_tracking.loot.ground import ground_materials
+    from inventory_tracking.loot.materials import appraised_classes, material_classes
+
+    classes = material_classes(['charms', 'gems'])
+    charm = next(class_id for class_id, name in classes.items() if name == 'Small Charm')
+    memory = Memory()
+    fresh, fresh_id = unique_item(memory, 0, charm, 3, quality=4)
+    read, _ = unique_item(memory, 1, charm, 3, quality=4, flags=IDENTIFIED_FLAG)
+    gem, gem_id = unique_item(memory, 2, 586, 3, quality=2, flags=IDENTIFIED_FLAG)  # a gem is not appraised
+    chain(memory, [fresh, read, gem])
+
+    found = ground_materials(memory.read, TABLE, classes, appraised_classes())
+
+    assert [(item.label, item.unit_id) for item in found] == [('Small Charm', fresh_id), (classes[586], gem_id)]
+    assert len(ground_materials(memory.read, TABLE, classes)) == 3

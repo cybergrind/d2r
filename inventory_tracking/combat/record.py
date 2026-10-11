@@ -92,6 +92,8 @@ class Take:
         self.events = (directory / 'events.jsonl').open('w', encoding='utf-8')
         self.units = (directory / 'units.jsonl').open('w', encoding='utf-8')
         self.missiles = (directory / 'missiles.jsonl').open('w', encoding='utf-8')
+        self.paths = (directory / 'paths.jsonl').open('w', encoding='utf-8')
+        self.path_rest: dict[int, bytes] = {}  # unit id -> its path record past the position, as last written
         self.count, self.late = 0, 0
         self.started: float | None = None
         self.last_clock: float | None = None
@@ -163,10 +165,21 @@ class Take:
             'rect': list(sample.rect) if sample.rect else None,
         }
         self.frames.write(json.dumps(line, separators=(',', ':')) + '\n')
+        self.write_paths(clock, world.monsters)
         if sample.census is not None:
             self.manifest.setdefault('census', []).append({'t': round(clock, 3), 'slots': sample.census})
             LOG.info('Combat take %s: unit table census %s', self.directory.name, sample.census)
         self.derive(clock, sample)
+
+    def write_paths(self, clock: float, monsters) -> None:
+        """Research (combat/plan.md, monster movement): the whole path record of each monster that
+        carries one (`combat_paths`), when it differs from the last one written past the position."""
+        changed = [m for m in monsters if m.path and self.path_rest.get(m.unit_id) != m.path[8:]]
+        if not changed:
+            return
+        self.path_rest.update((m.unit_id, m.path[8:]) for m in changed)
+        row = {'t': round(clock, 3), 'n': self.count, 'm': [[m.unit_id, m.path.hex()] for m in changed]}
+        self.paths.write(json.dumps(row, separators=(',', ':')) + '\n')
 
     def derive(self, clock: float, sample: Sample) -> None:
         world = sample.world
@@ -213,7 +226,7 @@ class Take:
         self.keys = sample.keys
 
     def close(self, reason: str) -> None:
-        for handle in (self.frames, self.events, self.units, self.missiles):
+        for handle in (self.frames, self.events, self.units, self.missiles, self.paths):
             handle.close()
         duration = (self.last_clock - self.started) if self.started is not None and self.last_clock is not None else 0.0
         summary = {'frames': self.count, 'late_frames': self.late, 'seconds': round(duration, 3), 'events': self.counts}
@@ -331,8 +344,13 @@ class LiveSampler:
     service loop, and its own display connection opened on the recorder's thread."""
 
     def __init__(
-        self, macro_working: Callable[[], bool] = lambda: False, clock: Callable[[], float] = time.monotonic
+        self,
+        macro_working: Callable[[], bool] = lambda: False,
+        clock: Callable[[], float] = time.monotonic,
+        *,
+        paths: bool = False,
     ) -> None:
+        self.paths = paths  # also read each monster's whole path record (movement research)
         self.memory: GameMemory | None = None
         self.bound: tuple[int, int, int] | None = None
         self.keys = None
@@ -377,7 +395,7 @@ class LiveSampler:
             try:
                 world = memory.world()
                 if world.in_game and world.player is not None:
-                    world = dataclasses.replace(world, monsters=memory.all_monsters())
+                    world = dataclasses.replace(world, monsters=memory.all_monsters(paths=self.paths))
                 missiles = memory.missiles() if world.in_game else []
                 if world.in_game and self.clock() - self.census_at >= CENSUS_SECONDS:
                     self.census_at = self.clock()
@@ -406,9 +424,10 @@ class CombatRecorder:
         level: Callable[[], Level | None] | None = None,
         macro_working: Callable[[], bool] = lambda: False,
         poll_interval: float = 1.0,
+        paths: bool = False,
     ) -> None:
         self.source, self.capture_lock = source, capture_lock
-        self.sampler = LiveSampler(macro_working)
+        self.sampler = LiveSampler(macro_working, paths=paths)
         self.recorder = Recorder(
             self.sampler, output=output, areas=areas, rate=rate, level=level, stats=self.sampler.stats,
             manifest=lambda: {'keys': {str(code): name for code, name in self.sampler.name_keys().items()}},

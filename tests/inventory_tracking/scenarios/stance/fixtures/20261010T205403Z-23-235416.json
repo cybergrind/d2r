@@ -1,0 +1,168 @@
+{
+ "name": "20261010T205403Z-23-235416",
+ "log_time": "2026-10-10 23:54:16,342",
+ "take": "20261010T205403Z-23",
+ "area": 23,
+ "in_fight": true,
+ "logged": {
+  "in_reach": 4,
+  "near": 14,
+  "decision": "no better stand"
+ },
+ "player": [
+  12577.5,
+  8147.75
+ ],
+ "hostiles": [
+  {
+   "unit": 1730461445,
+   "txt": 21,
+   "at": [
+    12608.75,
+    8141.79
+   ],
+   "life": 1.0,
+   "elite": false
+  },
+  {
+   "unit": 3460939274,
+   "txt": 21,
+   "at": [
+    12589.0,
+    8141.5
+   ],
+   "life": 1.0,
+   "elite": false
+  },
+  {
+   "unit": 3878558867,
+   "txt": 21,
+   "at": [
+    12559.98,
+    8144.72
+   ],
+   "life": 1.0,
+   "elite": false
+  },
+  {
+   "unit": 3163798549,
+   "txt": 21,
+   "at": [
+    12587.5,
+    8143.5
+   ],
+   "life": 0.0391,
+   "elite": false
+  },
+  {
+   "unit": 3648103583,
+   "txt": 21,
+   "at": [
+    12550.59,
+    8140.5
+   ],
+   "life": 1.0,
+   "elite": false
+  },
+  {
+   "unit": 2302640474,
+   "txt": 21,
+   "at": [
+    12589.39,
+    8147.86
+   ],
+   "life": 1.0,
+   "elite": false
+  }
+ ],
+ "companions": [
+  {
+   "unit": 798136757,
+   "txt": 361,
+   "at": [
+    12557.5,
+    8140.5
+   ]
+  },
+  {
+   "unit": 1625535062,
+   "txt": 744,
+   "at": [
+    12557.5,
+    8140.5
+   ]
+  },
+  {
+   "unit": 1596273514,
+   "txt": 338,
+   "at": [
+    12583.36,
+    8144.64
+   ]
+  }
+ ],
+ "doors": [],
+ "ground": [
+  {
+   "x": 2524,
+   "y": 1624,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP///////////////////////////8///PP/z//88//////z//////P/////////////////////////////////////////z//8///P//z/////////////////////AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "+AAAAAD4AAAAAPgAAAAA+AAAAAD4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP///////////////////////////8///P//z//8////////////////////////////////////////////////////////z//8///P//z/////////////////////AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+  },
+  {
+   "x": 2516,
+   "y": 1624,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB///AAAH//8AAAf//wAAB///AAADnOcAP/Oc5////////////////////////////P/////8//////z//////P/////////////////////////////////////////////////////////////////////////AB5znAAAHnOcAAAf//wAAB///AAAH//8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "+AAAAAD4AAAAAPgAAAAA+AAAAAD4AAAAAAAAAAAAAB///AAAH//8AAAf//wAAB///AAADnOcAP/Oc5//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////AB5znAAAHnOcAAAf//wAAB///AAAH//8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+  },
+  {
+   "x": 2508,
+   "y": 1624,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "+AAAAAD4AAAAAPgAAAAA+AAAAAD4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+  },
+  {
+   "x": 2500,
+   "y": 1624,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD//AAAAP/8AAAA//wAAAD//AAAAHOcAH/+c5//f/////9//////3//////f/////9//////3//////f/////9//////3//////f/////9//////3//////f/////9//////3//////f/////9//////3//////AADznAAAAPOcAAAA//wAAAD//AAAAP/8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "+AAAAAD4AAAAAPgAAAAA+AAAAAD4AAAAAAAAAAAAAAD//AAAAP/8AAAA//wAAAD//AAAAHOcAH/+c5//f/////9//////3//////f/////9//////3//////f/////9//////3//////f/////9//////3//////f/////9//////3//////f/////9//////3//////AADznAAAAPOcAAAA//wAAAD//AAAAP/8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+  }
+ ],
+ "after": {
+  "player_at": {
+   "1.0": [
+    12577.5,
+    8147.75
+   ],
+   "2.0": [
+    12603.32,
+    8137.03
+   ],
+   "3.0": [
+    12605.51,
+    8135.12
+   ],
+   "5.0": [
+    12574.5,
+    8133.5
+   ]
+  },
+  "alive_at": {
+   "1.0": 3,
+   "2.0": 1,
+   "3.0": 1,
+   "5.0": 1,
+   "8.0": 0
+  },
+  "cleared_seconds": 5.91,
+  "casts": 7
+ }
+}

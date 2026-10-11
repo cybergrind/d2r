@@ -12,9 +12,11 @@ from inventory_tracking.input.keybindings import MODIFIERS, action_keys, key_fil
 
 SUMMON_DEFILER = 377
 CONSUME = 381
+ENGORGE = 379  # skills.txt: cast on a corpse, heals the pets and lowers the damage they take for a while
 BIND_DEMON = 382
 PSYCHIC_WARD = 387
 HEX_PURGE = 389
+BLADE_WARP = 390  # skills.txt: "hurl an astral weapon that teleports you to its impact"; needs a melee weapon
 TELEPORT = 54  # from a charged staff or an oskill alike; the slot table holds it either way
 # The hunt keys (macros/hunt.py). Echoing Strike was in no slot of CybergrindAA until the user put it
 # on `7` (2026-10-09 evening) so that Quick Cast casts it at the pointer like any skill; before that
@@ -30,10 +32,12 @@ ACTIONS = {SWAP_WEAPONS: 44}
 NAMES = {
     SUMMON_DEFILER: 'Summon Defiler',
     CONSUME: 'Consume',
+    ENGORGE: 'Engorge',
     BIND_DEMON: 'Bind Demon',
     PSYCHIC_WARD: 'Psychic Ward',
     HEX_PURGE: 'Hex: Purge',
     TELEPORT: 'Teleport',
+    BLADE_WARP: 'Blade Warp',
     ATTACK: 'Attack',
     ECHOING_STRIKE: 'Echoing Strike',
     SIGIL_LETHARGY: 'Sigil: Lethargy',

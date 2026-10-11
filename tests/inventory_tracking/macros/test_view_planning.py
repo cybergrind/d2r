@@ -114,3 +114,65 @@ def test_repeated_landings_reach_the_mark_under_each_window(aspect):
             break
     assert history[-1] < 6
     assert all(later <= earlier for earlier, later in pairwise(history))
+
+
+# --- the far potential: a band of no footing five tiles wide (Far Oasis's cliffs, 2026-10-11) ---
+
+
+def cliff_target(mark):
+    """Two plateaus of 8 x 8 tiles each side of a cliff 5 tiles wide with no footing, one room over all."""
+    from inventory_tracking.levels.model import Walkable, pack_cells
+
+    row = '1' * 40 + '0' * 25 + '1' * 40  # sub-tiles: 8 tiles of ground, 5 of cliff, 8 of ground
+    cells = pack_cells(row * 40)
+    room = Room(1, 1000, 1000, 21, 8)
+    return Target(43, (room,), mark, 'mark', 'mark', False, (Walkable(1000, 1000, 21, 8, cells, cells),))
+
+
+def test_the_far_way_hops_a_cliff_five_tiles_wide_up_the_screen_and_the_near_way_cannot():
+    view = Viewport(2560 / 1418)
+    west = cliff_target((1004.5, 1004.5))  # the mark on the west plateau: the hop over goes -x, up the screen
+    start = (1016.5, 1004.5)
+    assert Way(west, view).from_here(start) == math.inf  # no ramp in this room: no way at all
+    far = Way(west, view, far=True)
+    assert far.from_here(start) < 14
+
+
+def test_down_the_screen_the_window_shows_too_little_for_that_hop():
+    view = Viewport(2560 / 1418)
+    east = cliff_target((1016.5, 1004.5))  # the hop over goes +x: 30 units down and right, 26 are shown
+    assert Way(east, view, far=True).from_here((1004.5, 1004.5)) == math.inf
+    assert view.hop_between(-6, 0)
+    assert not view.hop_between(6, 0)
+    assert not view.hop_in_view(-6, 0)  # counted from anywhere on both tiles it never was
+
+
+# --- aims beside the skill bar (user, 2026-10-11: "let the macro try the corners") ---
+
+
+def test_a_teleport_may_be_aimed_beside_the_skill_bar_and_not_over_it(corners):
+    view = Viewport(2560 / 1418)
+    assert view.hop_view((0.9, 0.93))  # the right corner
+    assert view.hop_view((0.1, 0.93))
+    assert not view.hop_view((0.5, 0.93))  # the bar
+    assert not view.hop_view((0.75, 0.93))  # still the bar, with room to spare
+    assert not view.hop_view((0.9, 0.97))  # the window's edge
+    assert view.hop_view((0.5, 0.8))  # the plain view as ever
+    assert not view.in_view((0.9, 0.93))  # a click on the ground or an item stays above the bar
+    # Far Oasis, 02:16 on 2026-10-11: the cast at this pointer did nothing, the one further out landed.
+    assert not view.hop_view((385 / 2560, 1308 / 1418))
+    assert view.hop_view((2300 / 2560, 1303 / 1418))
+    assert not Viewport(4 / 3).hop_view((0.97, 0.93))  # a narrow window: the bar reaches its edges
+
+
+def test_with_the_corners_the_cliff_is_hopped_down_the_screen_too(corners):
+    view = Viewport(2560 / 1418)
+    east = cliff_target((1016.5, 1004.5))
+    assert Way(east, view, far=True).from_here((1004.5, 1004.5)) < 14
+    assert view.hop_between(6, 0)
+
+
+def test_without_the_corners_nothing_changes():
+    view = Viewport(2560 / 1418)
+    assert not view.hop_view((0.9, 0.93))
+    assert not view.hop_between(6, 0)

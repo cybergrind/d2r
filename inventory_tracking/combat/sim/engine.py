@@ -245,7 +245,13 @@ def simulate(
             seen = Observation(
                 situation.player_at(frame),
                 {
-                    unit: Foe(situation.monsters[unit].txt, where, life[unit], situation.monsters[unit].elite)
+                    unit: Foe(
+                        situation.monsters[unit].txt,
+                        where,
+                        life[unit],
+                        situation.monsters[unit].elite,
+                        situation.routes.get(unit, {}).get(frame),
+                    )
                     for unit, where in live.items()
                 },
                 frozenset(linked),

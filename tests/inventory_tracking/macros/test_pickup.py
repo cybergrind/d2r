@@ -138,6 +138,23 @@ def test_a_potion_is_drunk_first_when_the_belt_is_full_and_the_life_is_low():
     assert play.said[0] == 'Drinking (1) to make room for a healing potion'
 
 
+def test_a_drink_the_game_did_not_take_is_pressed_again_and_then_given_up():
+    # Frigid Highlands, 03:00:04 on 2026-10-11: the belt stayed full after the key and six clicks
+    # on the potion took nothing.
+    play = game(HP_NEAR, life=500)
+    react, lost = play.keys.on_event, [1]
+    play.keys.on_event = lambda event: lost.pop() if event == ('key', '1') and lost else react(event)
+    pick_up(play.run(), LEVEL, keys, nothing)
+    assert play.picked == ['a healing potion']
+
+    play = game(HP_NEAR, life=500)
+    react = play.keys.on_event
+    play.keys.on_event = lambda event: None if event == ('key', '1') else react(event)
+    with pytest.raises(Abort, match='the potion on 1 was not drunk'):
+        pick_up(play.run(), LEVEL, keys, nothing)
+    assert play.picked == []
+
+
 def test_with_nothing_to_pick_up_the_press_does_what_it_was_given_instead():
     play = game(JUV_NEAR)  # the belt is full and the life is too
     done = []
@@ -208,3 +225,93 @@ def test_the_pickup_step_wants_every_rune_and_the_essences_and_keys():
     assert found['rune_minimum'] == 'r01'
     assert APPRAISAL.rune_minimum != 'r01'
     assert {'Key of Terror', 'Festering Essence of Destruction'} <= set(found['materials'].values())
+
+
+def test_the_pickup_step_wants_every_ring_jewel_and_amulet_though_the_marks_do_not_point_at_them():
+    # user, 2026-10-10 night
+    from inventory_tracking.config import APPRAISAL
+    from inventory_tracking.loot.materials import material_classes
+    from inventory_tracking.macros.pickup import wanted
+
+    assert {'Ring', 'Jewel', 'Amulet'} <= set(wanted()['materials'].values())
+    assert not {'Ring', 'Jewel', 'Amulet'} & set(material_classes(APPRAISAL.material_marks).values())
+
+
+def test_a_drop_no_click_picks_up_is_given_up_after_three_aims_and_left_alone_for_a_while():
+    # Worldstone Keep 3, 22:16 on 2026-10-10: 30 clicks in 21 s on a Large Charm that was under the
+    # pointer every time, and nothing else was done meanwhile.
+    from inventory_tracking.macros import pickup
+
+    pickup.SHUNNED.clear()
+    play = game(RUNE)
+    play.deaf_picks = 999
+    with pytest.raises(Abort, match='no click picked it up'):
+        pick_up(play.run(), LEVEL, keys, nothing)
+    assert 999 - play.deaf_picks == pickup.MISSED_AIMS * pickup.CLICKS
+    asked = []
+    assert not pick_up(play.run(), LEVEL, keys, lambda: asked.append(1))  # the next press does something else
+    assert asked == [1]
+    pickup.SHUNNED.clear()
+
+
+def test_a_valuable_the_inventory_has_no_room_for_is_left_and_said_so():
+    # user, 2026-10-10 night: with a full inventory an Ort Rune took none of 6 clicks, a Large Charm
+    # none of 30. A Large Charm takes one cell across and two down.
+    full = ('##########',) * 4
+    one_cell = ('##########', '#####.####', '##########', '##########')
+    charm = Drop(70, 5008.0, 5003.0, 'Large Charm', VALUABLE, (1, 2))
+    assert choose(Loot((RUNE,), FULL, 1000, 1000, full), ORIGIN) is None
+    assert choose(Loot((RUNE, charm), FULL, 1000, 1000, one_cell), ORIGIN) == Plan(RUNE)
+    assert choose(Loot((charm,), FULL, 1000, 1000, one_cell), ORIGIN) is None
+    assert choose(Loot((charm,), FULL, 1000, 1000, None), ORIGIN) == Plan(charm)  # unread: tried as before
+
+    play = game(charm)
+    play.loot = Loot((charm,), FULL, 1000, 1000, one_cell)
+    # The press stops and says so; it does not go on to the seek step, which would leave the drop.
+    with pytest.raises(Abort, match='inventory full: no room for Large Charm'):
+        pick_up(play.run(), LEVEL, keys, nothing)
+    assert play.picked == []
+
+    play = game(charm, HP_NEAR, belt=SHORT_HP)  # a potion the belt wants is still taken, and the room said
+    play.loot = Loot((charm, HP_NEAR), SHORT_HP, 1000, 1000, one_cell)
+    assert pick_up(play.run(), LEVEL, keys, nothing)
+    assert play.picked == ['a healing potion']
+    assert 'Inventory full: no room for Large Charm' in play.said
+
+
+def test_a_potion_for_the_belt_is_still_taken_with_a_full_inventory():
+    full = ('##########',) * 4
+    assert choose(Loot((RUNE, HP_NEAR), SHORT_HP, 1000, 1000, full), ORIGIN) == Plan(HP_NEAR)
+
+
+def test_a_far_drop_no_aim_shows_is_walked_up_to_before_any_aim_is_clicked_unseen():
+    # Tower Cellar 4, 23:11 on 2026-10-10: a Grand Charm 16 away showed at none of the aims, and the
+    # first click made anyway had a corpse under it.
+    import math
+
+    far = Drop(80, 5012.0, 5010.0, 'Grand Charm', VALUABLE, (1, 3))
+    play = game(far)
+    play.label_above[80] = 300  # its label is nowhere the aims look
+    with pytest.raises(Abort):
+        pick_up(play.run(), LEVEL, keys, nothing)
+    assert math.dist(play.walks[0], (far.x, far.y)) < 1.5  # the first click: the walk up to it
+
+
+def test_an_aim_is_taken_only_once_the_character_stands():
+    # Black Marsh, 01:13 on 2026-10-11: a pickup begun under a walk of attack mode's sent the character
+    # 18 units past a shard and back, 6 s for an item 14 away.
+    from dataclasses import replace
+
+    from inventory_tracking.macros.pickup import STAND_SECONDS, standing
+
+    play = Game(world(area=101))
+    play.world = replace(play.world, player=replace(play.world.player, mode=3))
+    stop = lambda: setattr(play, 'world', replace(play.world, player=replace(play.world.player, mode=1)))  # noqa: E731
+    play.arrivals.append((0.4, stop))
+    run = play.run()
+    assert standing(run).mode == 1
+    assert 0.4 <= play.clock.now < 0.5
+    play.world = replace(play.world, player=replace(play.world.player, mode=3))
+    began = play.clock.now
+    assert standing(run).mode == 3  # it never stood: the aim is taken anyway after STAND_SECONDS
+    assert play.clock.now - began >= STAND_SECONDS

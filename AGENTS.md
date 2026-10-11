@@ -58,6 +58,14 @@ not resume them, do not regenerate their artifacts, and do not append to `handof
 6. Edit guides in place (body = settled truth) and log changes as a dated pass in the guide's Review log
    (conventions in `guides/planning-with-html.html`). Do not commit unless asked.
 
+## Binary Ninja (reverse engineering the game client)
+
+The user runs Binary Ninja ("binja") with an MCP server for reading the game's code and data:
+
+- URL: `http://127.0.0.1:24642/mcp` (streamable HTTP), authorization disabled.
+- It is up only while Binary Ninja is running with the server started. When a task needs it and it
+  does not answer, ask the user to launch it; do not treat it as unavailable.
+
 ## Development
 
 Follow [development practices](development.md) for code changes.

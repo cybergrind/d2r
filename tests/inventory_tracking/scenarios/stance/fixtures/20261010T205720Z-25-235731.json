@@ -1,0 +1,236 @@
+{
+ "name": "20261010T205720Z-25-235731",
+ "log_time": "2026-10-10 23:57:31,494",
+ "take": "20261010T205720Z-25",
+ "area": 25,
+ "in_fight": false,
+ "logged": {
+  "in_reach": 0,
+  "near": 7,
+  "decision": "no better stand"
+ },
+ "player": [
+  12529.71,
+  11076.17
+ ],
+ "hostiles": [
+  {
+   "unit": 818329373,
+   "txt": 21,
+   "at": [
+    12536.5,
+    11092.5
+   ],
+   "life": 1.0,
+   "elite": false
+  },
+  {
+   "unit": 3638404006,
+   "txt": 21,
+   "at": [
+    12534.5,
+    11088.5
+   ],
+   "life": 1.0,
+   "elite": false
+  },
+  {
+   "unit": 1636675130,
+   "txt": 21,
+   "at": [
+    12532.5,
+    11094.5
+   ],
+   "life": 1.0,
+   "elite": false
+  },
+  {
+   "unit": 2444986189,
+   "txt": 21,
+   "at": [
+    12533.5,
+    11091.5
+   ],
+   "life": 1.0,
+   "elite": true
+  },
+  {
+   "unit": 1819193811,
+   "txt": 21,
+   "at": [
+    12536.5,
+    11088.5
+   ],
+   "life": 1.0,
+   "elite": false
+  },
+  {
+   "unit": 3752073437,
+   "txt": 21,
+   "at": [
+    12534.5,
+    11037.5
+   ],
+   "life": 1.0,
+   "elite": false
+  },
+  {
+   "unit": 2788636905,
+   "txt": 21,
+   "at": [
+    12536.5,
+    11090.5
+   ],
+   "life": 1.0,
+   "elite": false
+  },
+  {
+   "unit": 3273366644,
+   "txt": 21,
+   "at": [
+    12532.5,
+    11088.5
+   ],
+   "life": 1.0,
+   "elite": false
+  }
+ ],
+ "companions": [
+  {
+   "unit": 1626452611,
+   "txt": 744,
+   "at": [
+    12525.5,
+    11078.5
+   ]
+  },
+  {
+   "unit": 1737756085,
+   "txt": 361,
+   "at": [
+    12530.5,
+    11073.5
+   ]
+  },
+  {
+   "unit": 3475512170,
+   "txt": 338,
+   "at": [
+    12526.56,
+    11075.56
+   ]
+  }
+ ],
+ "doors": [],
+ "ground": [
+  {
+   "x": 2508,
+   "y": 2224,
+   "width": 8,
+   "height": 6,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+   "flight": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+  },
+  {
+   "x": 2500,
+   "y": 2224,
+   "width": 8,
+   "height": 6,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+   "flight": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+  },
+  {
+   "x": 2516,
+   "y": 2216,
+   "width": 8,
+   "height": 8,
+   "cells": "P8/z/P8/z/P8///////////////////////////////////////////////////////AAAAHAP/AB////8AH////wAf////AB////8AH////wAf////AB////8AH////wAf////AB////8AH////wAf////AB////8AH////wAf////AB////8AH////wAf////AB////8AH////wAf////AB////8AH////wAf//wAAA///AADz//8AAP///wAA////AAD///8=",
+   "flight": "P8/z/P8/z/P8///////////////////////////////////////////////////////AAAAHAP/AB////8AH////wAf////AB////8AH////wAf////AB////8AH////wAf////AB////8AH////wAf////AB////8AH////wAf////AB////8AH////wAf////AB////8AH////wAf////AB////8AH////wAf//wAAA///AADz//8AAP///wAA////AAD///8="
+  },
+  {
+   "x": 2508,
+   "y": 2216,
+   "width": 8,
+   "height": 8,
+   "cells": "/8AAAf//wAAB///AAAH//8AAAf//wAAB/8AAAAH//8AAAf//wAAB///AAAH//8AAAf//wAAAAf/AAAH//8AAAf//wAAB///AAAH//8AAAf/////9//////3//////f/////9//////z//////P///////////////////////////////////////////////////////////f/////9//////3//////f/////9/wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "/8AAAf//wAAB///AAAH//8AAAf//wAAB/8AAAAH//8AAAf//wAAB///AAAH//8AAAf//wAAAAf/AAAH//8AAAf//wAAB///AAAH//8AAAf/////9//////3//////f/////9//////z//////P///////////////////////////////////////////////////////////f/////9//////3//////f/////9/wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+  },
+  {
+   "x": 2500,
+   "y": 2216,
+   "width": 8,
+   "height": 8,
+   "cells": "AAD///8AAP///wAA////AAD///8AAP///wAAAAABAAAAAf8AAAAB/wAAAAH/AAAAAf8AAAAB/wAAAAH/AAAAAf8AAAAB/wAAAAH/AAAAAf8AAAAB/wAAAAH/AAAAAf8AAAAB/wAAAAH/AAAAAf8AAAAB/wAAAAH/AAAAAf8AAAAB/wAAAAH/AAAAAf8AAAAB/wAAAAH/AAAAAf8AAAAB/wAAAAH/AAAAAf8AAAAB/wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "AAD///8AAP///wAA////AAD///8AAP///wAAAAABAAAAAf8AAAAB/wAAAAH/AAAAAf8AAAAB/wAAAAH/AAAAAf8AAAAB/wAAAAH/AAAAAf8AAAAB/wAAAAH/AAAAAf8AAAAB/wAAAAH/AAAAAf8AAAAB/wAAAAH/AAAAAf8AAAAB/wAAAAH/AAAAAf8AAAAB/wAAAAH/AAAAAf8AAAAB/wAAAAH/AAAAAf8AAAAB/wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+  },
+  {
+   "x": 2516,
+   "y": 2208,
+   "width": 8,
+   "height": 8,
+   "cells": "/8AH////wAf////AB////8AH////wAf////AB////8AH////wAf////AB////8AH///AAAAHAP///////////////////////////////////////////////////////////z/P8/z/P8/z/P////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8=",
+   "flight": "/8AH////wAf////AB////8AH////wAf////AB////8AH////wAf////AB////8AH///AAAAHAP///////////////////////////////////////////////////////////z/P8/z/P8/z/P////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 2508,
+   "y": 2208,
+   "width": 8,
+   "height": 8,
+   "cells": "/////f/////9//////3//////f/////9///AAAH//8AAAf//wAAB///AAAH//8AAAf//wAAAAf/AAAH//8AAAf//wAAB///AAAH/wAAAAf//wAAB///AAAH//8AAAf//wAAB///AAAD//8AH/P//wAf////AB////8AH////wAf////AB////8AH////wAf////AB////8AH////wAf////AB////8AH////wAf////AB////8AH////wAf////AB////8AH//8=",
+   "flight": "/////f/////9//////3//////f/////9///AAAH//8AAAf//wAAB///AAAH//8AAAf//wAAAAf/AAAH//8AAAf//wAAB///AAAH/wAAAAf//wAAB///AAAH//8AAAf//wAAB///AAAD//8AH/P//wAf////AB////8AH////wAf////AB////8AH////wAf////AB////8AH////wAf////AB////8AH////wAf////AB////8AH////wAf////AB////8AH//8="
+  },
+  {
+   "x": 2500,
+   "y": 2208,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAf8AAAAB/wAAAAH/AAAAAf8AAAAB/wAAAAH/AAAAAf8AAAAB/wAAAAH/AAAAAf8AAAAB/wAAAAH/AAAAAf8AAAAB/wAAAAH/AAAAAAEAAP///wAA////AAD///8AAP///wAA////AAD///8AAP///wAA////AAD///8AAP///wAA////AAD///8AAP///wAA////AAD///8AAP///wAA////AAD///8AAP///wAA////AAD///8AAP///wAA////AAD///8=",
+   "flight": "AAAAAf8AAAAB/wAAAAH/AAAAAf8AAAAB/wAAAAH/AAAAAf8AAAAB/wAAAAH/AAAAAf8AAAAB/wAAAAH/AAAAAf8AAAAB/wAAAAH/AAAAAAEAAP///wAA////AAD///8AAP///wAA////AAD///8AAP///wAA////AAD///8AAP///wAA////AAD///8AAP///wAA////AAD///8AAP///wAA////AAD///8AAP///wAA////AAD///8AAP///wAA////AAD///8="
+  },
+  {
+   "x": 2508,
+   "y": 2200,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP////3//////f/////9//////3//////P/////8//////////////////////////////////////////////////////8=",
+   "flight": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP////3//////f/////9//////3//////P/////8//////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 2500,
+   "y": 2200,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAH/AAAAAf8AAAAB/wAAAAH/AAAAAf8AAAAB/wAAAAH/AAAAAf8AAAAB/wAAAAH/AAAAAf8AAAAB/wAAAAH/AAAAAf8=",
+   "flight": "+AAAAAD4AAAAAPgAAAAA+AAAAAD4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAH/AAAAAf8AAAAB/wAAAAH/AAAAAf8AAAAB/wAAAAH/AAAAAf8AAAAB/wAAAAH/AAAAAf8AAAAB/wAAAAH/AAAAAf8="
+  }
+ ],
+ "after": {
+  "player_at": {
+   "1.0": [
+    12538.5,
+    11088.5
+   ],
+   "2.0": [
+    12538.5,
+    11088.5
+   ],
+   "3.0": [
+    12538.5,
+    11088.5
+   ],
+   "5.0": [
+    12547.5,
+    11077.5
+   ]
+  },
+  "alive_at": {
+   "1.0": 4,
+   "2.0": 0,
+   "3.0": 0,
+   "5.0": 1,
+   "8.0": 1
+  },
+  "cleared_seconds": 1.37,
+  "casts": 3
+ }
+}

@@ -11,7 +11,7 @@ from threading import Event
 
 from inventory_tracking.macros.actuator import Abort, Actuator, Cancelled
 from inventory_tracking.macros.timing import Pace
-from inventory_tracking.macros.world import Loot, Teleport, World
+from inventory_tracking.macros.world import Loot, Teleport, Warp, World
 
 
 POLL = 0.03
@@ -44,9 +44,14 @@ class Run:
         self.prebuff_hands: frozenset[str] = frozenset()  # the set the buffs are cast with
         self.battle_hands: frozenset[str] = frozenset()  # the main set: fought with, and held when a game is left
         self.hovered: Callable[[], tuple[int, int] | None] | None = None  # world.GameMemory.hovered
+        # the monsters lying dead as (unit id, x, y), world units (world.GameMemory.corpses): Engorge needs one
+        self.corpses: Callable[[], tuple[tuple[int, float, float], ...]] | None = None
+        self.warps: Callable[[], tuple[Warp, ...]] | None = None  # the doors loaded (world.GameMemory.warps)
         self.research: Callable[..., list[str]] | None = None  # world.GameMemory.hover_candidates
         # (level before this one, seconds since it was left), journey.Journey.arrival
         self.arrival: Callable[[], tuple[int | None, float]] | None = None
+        # where the super uniques seen on a level were last seen, world units (terror.tracker.ZoneTracker.supers)
+        self.supers: Callable[[int], list[tuple[float, float]]] | None = None
         self.observe: Callable[[World], None] | None = None  # sees every world read
 
     def world(self) -> World:

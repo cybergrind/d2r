@@ -12,6 +12,7 @@ from inventory_tracking.macros.skills import (
     skill_keys,
 )
 from inventory_tracking.macros.world import (
+    PATH_RECORD,
     decode_slots,
     doors,
     local_player,
@@ -235,6 +236,22 @@ def test_dead_monsters_are_read_on_request_with_their_stat_list_address():
     assert [(m.unit_id, m.mode) for m in found] == [(2, 1), (514, 12)]
     assert unit_stats(memory.read, found[0].stats_at) == {12: 85}
     assert unit_stats(memory.read, 0x1) == {}
+
+
+def test_the_whole_path_record_is_read_on_request_and_its_absence_keeps_the_monster():
+    memory = Memory()
+    units = [monster(memory, 0, 19), monster(memory, 1, 19)]
+    whole = memory.block(0x900000, PATH_RECORD)  # the first monster's record, readable to its end
+    struct.pack_into('<HHHH', whole, 0, 0, 5010, 0, 5020)
+    struct.pack_into('<HH', whole, 0x10, 5033, 5044)
+    heads = memory.block(TABLE + 1024, 1024)
+    struct.pack_into('<Q', memory.blocks[units[0]], 0x158, units[1])
+    struct.pack_into('<Q', heads, 2 * 8, units[0])
+
+    assert [m.path for m in monsters(memory.read, TABLE)] == [b'', b'']
+    found = monsters(memory.read, TABLE, paths=True)
+    assert [(m.unit_id, m.x, len(m.path)) for m in found] == [(2, 5010.0, PATH_RECORD), (130, 5011.0, 0)]
+    assert struct.unpack_from('<HH', found[0].path, 0x10) == (5033, 5044)
 
 
 def missile(memory, address, path, unit_id, slot):

@@ -42,9 +42,26 @@ def test_wsk_3_standing_in_the_stairs_up_is_here_not_a_problem():
     assert len(build_map(snapshot, guidance.pois).route) >= 2
 
 
-def test_labels_along_the_chain_and_no_handler_in_the_throne_room():
+def test_labels_along_the_chain():
     assert [s.label for s in handler_for(128).pois] == ['Next level', 'Arreat Summit']
     assert [s.label for s in handler_for(129).pois] == ['Next level', 'Waypoint', 'Worldstone Keep 1']
     assert [s.label for s in handler_for(130).pois] == ['Next level', 'Worldstone Keep 2']
-    assert handler_for(131) is None
+    assert [s.label for s in handler_for(131).pois] == ['Throne']
+    assert not handler_for(131).confirmed
     assert all(handler_for(area).confirmed for area in (128, 129, 130))  # user checked 2026-09-30
+
+
+def test_the_throne_of_destruction_marks_the_hall_before_the_throne():
+    # user, 2026-10-10 night: teleport steps rush to Baal's hall. levels.txt puts the level at tile
+    # (3000, 1000), 40 x 52 tiles; the layout file seats Baal at (90, 11) units, the hall below him.
+    import math
+
+    from inventory_tracking.levels.model import LevelSnapshot, Location, Room
+
+    block = (3000, 1000, 40, 52)
+    rooms = tuple(Room(1086, 3000 + 8 * i, 1000 + 8 * j, 8, 8, 0, block) for i in range(5) for j in range(6))
+    guidance = handler_for(131).guide(LevelSnapshot(Location(131, 0, 15102, 5242), rooms))
+    [poi] = guidance.pois
+    assert (poi.label, poi.kind) == ('Throne', 'target')
+    assert math.dist(poi.point, (15094, 5040)) <= 5
+    assert guidance.problems == ()

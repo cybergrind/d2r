@@ -230,6 +230,51 @@ def test_a_step_during_attack_mode_pauses_it_and_it_resumes_after(monkeypatch):
     runner.thread.join(5)
 
 
+def test_a_pickup_request_during_attack_mode_asks_for_a_step_and_is_dropped_when_the_mode_says_so(monkeypatch):
+    # The press inside a fight is a step to a better stand; with nothing on the ground the mode tells
+    # the runner that no pickup step (and so no seek step) is to follow the fight.
+    from inventory_tracking.macros.hunt import Hunter
+
+    monkeypatch.setattr(runner_module, 'CARD_SECONDS', 0)
+    runs, asked = [], threading.Event()
+    hunter = Hunter()
+
+    def execute(cancelled, routine):
+        runs.append(routine)
+        assert asked.wait(5)
+        assert hunter.step_asked.is_set()
+        assert hunter.after_fight.is_set()
+        hunter.unwait()
+        assert cancelled.wait(5)
+        raise Cancelled
+
+    runner = make(execute, [])
+    runner.hunter = hunter
+    assert runner.request(10.0, 10.1, 'hunt any')
+    assert runner.request(10.3, 10.4, 'pickup')
+    assert runner.pending == 'pickup'
+    asked.set()
+    runner.request(11.0, 11.1, 'hunt any')  # the toggle: the mode off
+    runner.thread.join(5)
+    assert runner.pending is None
+    assert runs == ['hunt any']
+
+
+def test_a_teleport_or_seek_request_ends_the_sweep_and_a_pickup_request_does_not(monkeypatch):
+    # Tower Cellar 3, 2026-10-11: the sweep walked the character back between two teleport steps.
+    from inventory_tracking.macros.hunt import Hunter
+
+    monkeypatch.setattr(runner_module, 'CARD_SECONDS', 0)
+    runner = make(lambda cancelled, routine: None, [])
+    runner.hunter = Hunter()
+    for routine, left in (('pickup', 5), ('teleport', 0), ('hunt elites', 0), ('prebuff', 0)):
+        runner.hunter.follow = 5
+        runner.last_request = -1e9
+        assert runner.request(10.0, 10.1, routine)
+        runner.thread.join(5)
+        assert runner.hunter.follow == left, routine
+
+
 def test_a_pickup_request_during_attack_mode_waits_for_the_fight_and_the_mode_resumes_after(monkeypatch):
     # user, 2026-10-10: the pickup is queued behind the killing, not put before it.
     from inventory_tracking.macros.hunt import Hunter
@@ -452,3 +497,34 @@ def test_a_request_while_a_run_hands_over_to_its_successor_waits_for_the_handove
     runner.close()
     assert runs[:3] == ['hunt elites', 'hunt any', 'teleport']
     assert most[0] == 1
+
+
+def test_a_game_begun_with_the_staff_in_hand_is_said_once():
+    # user, 2026-10-11: "teleport was broken because I exit game without switching to main hand".
+    shown = []
+    place = ['game 1', 6]
+    held = [None]
+    runner = MacroRunner(
+        None,
+        capture_lock=threading.Lock(),
+        saved_games=None,
+        display=shown.append,
+        execute=lambda cancelled, routine: None,
+        place=lambda: tuple(place),
+        staff_in_hand=lambda: held[0],
+    )
+    runner.poll(10.0)
+    assert shown == []  # the hands are not readable yet: looked at again
+    held[0] = True
+    runner.poll(12.0)
+    assert len(shown) == 1
+    assert 'began with the staff in hand' in shown[0][0]
+    assert 'bind it again' in shown[0][0]
+    runner.poll(14.0)
+    assert len(shown) == 1  # once a game
+    place[0], held[0] = 'game 2', False
+    runner.poll(16.0)
+    assert len(shown) == 1  # the main weapons in hand: nothing to say
+    place[0], held[0] = 'game 3', True
+    runner.poll(18.0)
+    assert len(shown) == 2

@@ -29,8 +29,9 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from inventory_tracking.combat.mechanics.damage import DEFILER, damage_table, link_table
-from inventory_tracking.combat.mechanics.echoing_strike import BLADES, OUT_FRAMES, RANGE, cast
+from inventory_tracking.combat.mechanics.echoing_strike import BLADES, LIFE, OUT_FRAMES, RANGE, SPEED, cast
 from inventory_tracking.combat.mechanics.hits import CONTACT_RADIUS
+from inventory_tracking.combat.mechanics.movement import Route
 from inventory_tracking.combat.mechanics.tables import points_of
 
 
@@ -56,6 +57,11 @@ class Foe:
     at: Point
     left: float  # life points left
     elite: bool = False  # a unique, champion or super unique
+    route: Route | None = None  # the waypoints it is walking, when the observer read them (mechanics/movement.py)
+
+    def ahead(self, frames: int) -> Point:
+        """Where it is `frames` from now: along its route, else where it stands."""
+        return self.route.after(self.at, frames) if self.route is not None else self.at
 
 
 @dataclass
@@ -94,20 +100,28 @@ def virtual_cast(
     radius: float = CONTACT_RADIUS,
     blocked: Callable[[Point], bool] | None = None,
     elite_weight: float = 1.0,
+    lead: int | None = None,
 ) -> float:
-    """Points one cast would take off the monsters where they stand, out and back: the duplicate
+    """Points one cast would take off the monsters where they stand (with `lead`, the frames from now
+    to the blades' first frame: where each one's route has it as the blades fly), out and back: the duplicate
     rule, each contact capped by what the monster has left, and the link's spread to the other
     linked monsters, each capped by its own points; `blocked` are the walls the blades stop at. Points
     taken off an elite count `elite_weight` times (the worth of a line, not damage)."""
     left = {unit: foe.left for unit, foe in foes.items()}
     total = 0.0
     first: set[tuple[int, str]] = set()
+    walkers = (
+        {unit: [foe.ahead(lead + k) for k in range(LIFE)] for unit, foe in foes.items() if foe.route is not None}
+        if lead is not None
+        else {}
+    )
     for path in cast(origin, focal, lambda k: origin, blocked):
         touched: set[tuple[int, str]] = set()
         for k, position in enumerate(path):
             leg = 'out' if k <= OUT_FRAMES else 'back'
             for unit, foe in foes.items():
-                if (unit, leg) in touched or left[unit] <= 0 or math.dist(position, foe.at) > radius:
+                where = walkers[unit][k] if unit in walkers else foe.at
+                if (unit, leg) in touched or left[unit] <= 0 or math.dist(position, where) > radius:
                     continue
                 touched.add((unit, leg))
                 dealt = damage_of(foe.txt) * (DUPLICATE if (unit, leg) in first else 1.0)
@@ -144,6 +158,9 @@ class LinePolicy:
     offsets: tuple[float, ...] = OFFSETS
     damage_of: Callable[[int], float] = field(default_factory=damage_table)
     elite_weight: float = ELITE_WEIGHT
+    # Frames from the decision to the blades' first frame: lines are laid and scored where the monsters'
+    # routes have them as the blades fly. None: where they stand (the game's fight until it reads routes).
+    lead: int | None = None
 
     def __call__(self, seen: Observation) -> Choice | None:
         if self.yields and seen.moving:
@@ -155,10 +172,13 @@ class LinePolicy:
         """The best line through the live hostiles."""
         best: Choice | None = None
         for unit, foe in seen.foes.items():
-            away = math.dist(foe.at, seen.origin)
+            at = foe.at
+            if self.lead is not None:  # through where it is when a blade gets as far as it stands now
+                at = foe.ahead(self.lead + min(round(math.dist(at, seen.origin) / SPEED), OUT_FRAMES))
+            away = math.dist(at, seen.origin)
             if away > self.reach or away == 0:
                 continue
-            ux, uy = (foe.at[0] - seen.origin[0]) / away, (foe.at[1] - seen.origin[1]) / away
+            ux, uy = (at[0] - seen.origin[0]) / away, (at[1] - seen.origin[1]) / away
             for offset in self.offsets:
                 distance = max(MIN_FOCAL, min(away + offset, self.reach - 1))
                 focal = (seen.origin[0] + ux * distance, seen.origin[1] + uy * distance)
@@ -171,7 +191,7 @@ class LinePolicy:
                     focal = reached
                 worth = virtual_cast(
                     seen.origin, focal, seen.foes, seen.linked, seen.share, self.damage_of, blocked=seen.blocked,
-                    elite_weight=self.elite_weight,
+                    elite_weight=self.elite_weight, lead=self.lead,
                 )  # fmt: skip
                 if worth > (best.worth if best is not None else 0.0):
                     best = Choice(focal, unit, worth)

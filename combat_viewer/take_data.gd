@@ -224,7 +224,26 @@ func _run(raw: Dictionary, scale: float) -> Dictionary:
 		deaths[str(unit)] = int(raw_deaths[unit])
 		death_ticks.append(int(raw_deaths[unit]))
 	death_ticks.sort()
+	var own_player: Variant = raw.get("player")
+	var moves: Array[Dictionary] = []
+	var raw_moves: Variant = raw.get("moves")
+	if typeof(raw_moves) == TYPE_ARRAY:
+		var listed: Array = raw_moves
+		for item: Variant in listed:
+			var step: Dictionary = item
+			var from: Array = step.get("from", [0, 0])
+			var to: Array = step.get("to", [0, 0])
+			moves.append({
+				"t0": int(step.get("t0", 0)),
+				"t1": int(step.get("t1", step.get("t0", 0))),
+				"from": Vector2(float(from[0]), float(from[1])) / scale,
+				"to": Vector2(float(to[0]), float(to[1])) / scale,
+				"hop": bool(step.get("hop", false)),
+				"walk": int(step.get("walk", 0)),
+			})
 	return {
+		"player": _track(own_player, scale) if typeof(own_player) == TYPE_DICTIONARY else {},
+		"moves": moves,
 		"name": str(raw.get("name", "?")),
 		"label": str(raw.get("label", "")),
 		"policy": bool(raw.get("policy", false)),
@@ -287,6 +306,20 @@ static func position(track: Dictionary, tick: int) -> Vector2:
 		return Vector2.ZERO
 	var index: int = ticks.bsearch(tick, false) - 1
 	return points[clampi(index, 0, points.size() - 1)]
+
+
+## Where the character stands in `run` at `tick`: the run's own track when it has one, else the take's.
+func character_at(run: Dictionary, tick: int) -> Vector2:
+	var own: Dictionary = run.get("player", {})
+	if own.is_empty() or (own["t"] as PackedInt32Array).is_empty():
+		return position(player, tick)
+	return position(own, tick)
+
+
+## Whether `run` has a character path of its own.
+static func has_own_player(run: Dictionary) -> bool:
+	var own: Dictionary = run.get("player", {})
+	return not own.is_empty() and not (own["t"] as PackedInt32Array).is_empty()
 
 
 ## The last tick a track's thing was seen at, or -1.

@@ -3,7 +3,8 @@ holding what stood where at every game tick, the recorded casts and each policy'
 the simulator on the same situation, and the moments where the two differ most.
 
 `python -m inventory_tracking.combat.viz <take directory>` writes `<take>.json` and refreshes
-`index.json` beside it; with a directory of takes it exports every take that holds enough full
+`index.json` beside it, printing each stage as `[2/6] the recorded casts` (the viewer runs this for
+one take and shows the line); with a directory of takes it exports every take that holds enough full
 casts and writes the index of all of them. The files go to `runs/combat/viz/` (git-ignored) unless
 `--out` says otherwise. The viewer reads nothing else.
 
@@ -22,7 +23,7 @@ import base64
 import json
 import math
 import zlib
-from collections.abc import Iterable, Mapping, Sequence
+from collections.abc import Callable, Iterable, Mapping, Sequence
 from concurrent.futures import ProcessPoolExecutor
 from dataclasses import asdict
 from pathlib import Path
@@ -61,6 +62,18 @@ LABELS = {
     'slots': "policy 'slots': the line sweep at the recorded cast ticks",
     'nearest': "policy 'nearest': the elite first, then the nearest (the old macro)",
 }
+
+
+Progress = Callable[[str], None]  # told the name of each stage as it starts
+
+
+def quiet(_stage: str) -> None:
+    pass
+
+
+def stages(policies: Sequence[str]) -> int:
+    """How many stages `write` names for these policies."""
+    return 4 + len(policies)
 
 
 class Frame:
@@ -334,11 +347,13 @@ def run(
     return found, Trace(name, sorted(taken.items()), counts, dict(outcome.deaths))
 
 
-def export(take: Take, policies: Sequence[str] = POLICIES) -> dict[str, Any]:
+def export(take: Take, policies: Sequence[str] = POLICIES, progress: Progress = quiet) -> dict[str, Any]:
     """The take as the viewer's file (combat_viewer/README.md): the situation per tick, the recorded
     run, a run per policy, and each policy's moments against the recorded run."""
+    progress('the situation per tick')
     situation = cut(take)
     frame = Frame(situation.player.values())
+    progress('the recorded casts')
     recorded_casts = [(c.frame, c.fitted) for c in situation.casts]
     manual = simulate(situation, recorded_casts)
     base = policy_score(situation, manual)['placement_per_combat_second']
@@ -347,6 +362,7 @@ def export(take: Take, policies: Sequence[str] = POLICIES) -> dict[str, Any]:
     moments = {}
     elites = frozenset(unit for unit, monster in situation.monsters.items() if monster.elite)
     for mode in policies:
+        progress(f'policy {mode}')
         outcome = run_policy(situation, candidate(situation, mode))
         found, trace = run(situation, mode, outcome, frame, base)
         runs.append(found)
@@ -427,12 +443,17 @@ def dumps(data: Any) -> str:
     return json.dumps(data, separators=(',', ':'))
 
 
-def write(directory: Path, out: Path = OUT, policies: Sequence[str] = POLICIES) -> dict[str, Any] | None:
-    """Export the take in `directory` to `out`; its index entry, or None when it holds too few casts."""
+def write(
+    directory: Path, out: Path = OUT, policies: Sequence[str] = POLICIES, progress: Progress = quiet
+) -> dict[str, Any] | None:
+    """Export the take in `directory` to `out`; its index entry, or None when it holds too few casts.
+    `progress` hears each of the `stages(policies)` stages as it starts."""
+    progress('reading the take')
     take = Take.load(directory)
-    data = export(take, policies)
+    data = export(take, policies, progress)
     if len(data['runs'][0]['casts']) < LEAST_CASTS:
         return None
+    progress('writing the file')
     out.mkdir(parents=True, exist_ok=True)
     text = dumps(data)
     file = f'{directory.name}.json'
@@ -440,14 +461,39 @@ def write(directory: Path, out: Path = OUT, policies: Sequence[str] = POLICIES) 
     return entry(data, file, len(text.encode()))
 
 
-def write_index(out: Path, entries: Iterable[Mapping[str, Any]], *, merge: bool = False) -> Path:
-    """`index.json` in `out` listing `entries` by take name; with `merge` the takes already listed stay."""
+def write_index(
+    out: Path,
+    entries: Iterable[Mapping[str, Any]],
+    *,
+    source: Path | None = None,
+    left_out: Mapping[str, str] | None = None,
+    merge: bool = False,
+) -> Path:
+    """`index.json` in `out` listing `entries` by take name, the directory the takes are in (`source`)
+    and the takes left out with why; with `merge` what is already listed stays, a take moving to the
+    side it is now on."""
     target = out / INDEX
-    found = {}
+    found: dict[str, Any] = {}
+    skipped: dict[str, str] = {}
+    known = None
     if merge and target.exists():
-        found = {row['take']: row for row in json.loads(target.read_text())['takes']}
-    found.update({row['take']: row for row in entries})
-    target.write_text(json.dumps({'schema': SCHEMA, 'takes': [found[name] for name in sorted(found)]}, indent=1))
+        before = json.loads(target.read_text())
+        found = {row['take']: row for row in before['takes']}
+        skipped = dict(before.get('left_out') or {})
+        known = before.get('source')
+    for row in entries:
+        found[row['take']] = row
+        skipped.pop(row['take'], None)
+    for name, why in (left_out or {}).items():
+        skipped[name] = why
+        found.pop(name, None)
+    index = {
+        'schema': SCHEMA,
+        'source': str(source.resolve()) if source else known,
+        'takes': [found[name] for name in sorted(found)],
+        'left_out': dict(sorted(skipped.items())),
+    }
+    target.write_text(json.dumps(index, indent=1))
     return target
 
 
@@ -475,8 +521,31 @@ def write_all(takes: Path, out: Path = OUT, policies: Sequence[str] = POLICIES, 
             results = list(pool.map(_write, work))
     else:
         results = [_write(job) for job in work]
-    write_index(out, [found for _, found, _ in results if found])
-    return {name: why for name, _, why in results if why}
+    left_out = {name: why for name, _, why in results if why}
+    write_index(out, [found for _, found, _ in results if found], source=takes, left_out=left_out)
+    return left_out
+
+
+def one(directory: Path, out: Path, policies: Sequence[str]) -> int:
+    """Export one take, printing each stage, and put the outcome in the index; the exit status."""
+    total = stages(policies)
+    count = 0
+
+    def progress(stage: str) -> None:
+        nonlocal count
+        count += 1
+        print(f'[{count}/{total}] {stage}', flush=True)
+
+    found = write(directory, out, policies, progress)
+    out.mkdir(parents=True, exist_ok=True)
+    if found is None:
+        why = f'fewer than {LEAST_CASTS} full casts'
+        write_index(out, [], source=directory.parent, left_out={directory.name: why}, merge=True)
+        print(f'{directory.name}: {why}, nothing written')
+        return 1
+    write_index(out, [found], source=directory.parent, merge=True)
+    print(f'{out / found["file"]}: {found["bytes"] / 1e6:.2f} MB')
+    return 0
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -495,13 +564,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     if unknown:
         parser.error(f'unknown policies: {", ".join(unknown)}')
     if is_take(args.path):
-        found = write(args.path, args.out, policies)
-        if found is None:
-            print(f'{args.path.name}: fewer than {LEAST_CASTS} full casts, nothing written')
-            return 1
-        write_index(args.out, [found], merge=True)
-        print(f'{args.out / found["file"]}: {found["bytes"] / 1e6:.2f} MB')
-        return 0
+        return one(args.path, args.out, policies)
     left_out = write_all(args.path, args.out, policies, args.jobs)
     index = json.loads((args.out / INDEX).read_text())['takes']
     for row in index:

@@ -1,5 +1,6 @@
 """Bundled LvlPrest Def and level names (data/level_presets.json, built by build_presets.py) and
-preset warp and waypoint spots (data/preset_warps.json, built by build_warps.py)."""
+preset warp and waypoint spots (data/preset_warps.json, built by build_warps.py), and the boxes
+doors take clicks in (data/warp_boxes.json, built by build_warp_boxes.py)."""
 
 import json
 from pathlib import Path
@@ -13,6 +14,7 @@ LEVEL_LINKS: dict[int, tuple[int, ...]] = {int(k): tuple(v) for k, v in _TABLE['
 _SPOTS = json.loads((Path(__file__).parent / 'data' / 'preset_warps.json').read_text())
 _WARPS = _SPOTS['warps']
 _WAYPOINTS = _SPOTS['waypoints']
+_BOXES = json.loads((Path(__file__).parent / 'data' / 'warp_boxes.json').read_text())['boxes']
 
 
 def preset_name(preset: int) -> str:
@@ -47,3 +49,10 @@ def waypoint_spot(preset: int, variant: int | None) -> tuple[float, float] | Non
     known = variants.values() if variant is None else [variants[str(variant)]] if str(variant) in variants else []
     spots = {(x, y) for x, y in known}
     return next(iter(spots)) if len(spots) == 1 else None
+
+
+def warp_box(warp: int) -> tuple[int, int, int, int] | None:
+    """(left, top, right, bottom) of the box a door of lvlwarp Id `warp` takes clicks in, classic
+    pixels from the door unit's place on screen; None when unknown."""
+    box = _BOXES.get(str(warp))
+    return (box[0], box[1], box[2], box[3]) if box else None

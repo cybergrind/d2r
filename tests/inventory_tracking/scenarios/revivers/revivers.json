@@ -1,0 +1,2093 @@
+{
+ "dated": "2026-10-10",
+ "source": "pricing/raw/game-excel (dumped 2026-10-06): monstats, skills, levels, superuniques, strings",
+ "rules": {
+  "FallenShaman": {
+   "chance": "aip1(H)",
+   "range": "aip4(H)",
+   "raises": "corpses whose BaseId is fallen1 or fallenshaman1 (other shamans too), never a unique or champion"
+  },
+  "GreaterMummy": {
+   "chance": "aip2(H)",
+   "range": "aip5(H)",
+   "flag": "lUndead",
+   "raises": "corpses of any lUndead monster on its side, champions too, never a unique; it also heals them"
+  },
+  "FetishShaman": {
+   "chance": "aip1(H)",
+   "range": "aip5(H)",
+   "raises": "corpses whose BaseId is fetish1 or fetishblow1; it walks to the corpse and raises from close by (aip3(H) against the squared distance); with aip2(H) 3 uniques and champions too"
+  }
+ },
+ "raised": {
+  "FallenShaman": [
+   {
+    "txt": 19,
+    "id": "fallen1"
+   },
+   {
+    "txt": 20,
+    "id": "fallen2"
+   },
+   {
+    "txt": 21,
+    "id": "fallen3"
+   },
+   {
+    "txt": 22,
+    "id": "fallen4"
+   },
+   {
+    "txt": 23,
+    "id": "fallen5"
+   },
+   {
+    "txt": 58,
+    "id": "fallenshaman1"
+   },
+   {
+    "txt": 59,
+    "id": "fallenshaman2"
+   },
+   {
+    "txt": 60,
+    "id": "fallenshaman3"
+   },
+   {
+    "txt": 61,
+    "id": "fallenshaman4"
+   },
+   {
+    "txt": 62,
+    "id": "fallenshaman5"
+   },
+   {
+    "txt": 642,
+    "id": "fallen6"
+   },
+   {
+    "txt": 643,
+    "id": "fallen7"
+   },
+   {
+    "txt": 644,
+    "id": "fallen8"
+   },
+   {
+    "txt": 645,
+    "id": "fallenshaman6"
+   },
+   {
+    "txt": 646,
+    "id": "fallenshaman7"
+   },
+   {
+    "txt": 647,
+    "id": "fallenshaman8"
+   }
+  ],
+  "GreaterMummy": [
+   {
+    "txt": 0,
+    "id": "skeleton1"
+   },
+   {
+    "txt": 1,
+    "id": "skeleton2"
+   },
+   {
+    "txt": 2,
+    "id": "skeleton3"
+   },
+   {
+    "txt": 3,
+    "id": "skeleton4"
+   },
+   {
+    "txt": 4,
+    "id": "skeleton5"
+   },
+   {
+    "txt": 5,
+    "id": "zombie1"
+   },
+   {
+    "txt": 6,
+    "id": "zombie2"
+   },
+   {
+    "txt": 7,
+    "id": "zombie3"
+   },
+   {
+    "txt": 8,
+    "id": "zombie4"
+   },
+   {
+    "txt": 9,
+    "id": "zombie5"
+   },
+   {
+    "txt": 38,
+    "id": "wraith1"
+   },
+   {
+    "txt": 39,
+    "id": "wraith2"
+   },
+   {
+    "txt": 40,
+    "id": "wraith3"
+   },
+   {
+    "txt": 41,
+    "id": "wraith4"
+   },
+   {
+    "txt": 42,
+    "id": "wraith5"
+   },
+   {
+    "txt": 96,
+    "id": "mummy1"
+   },
+   {
+    "txt": 97,
+    "id": "mummy2"
+   },
+   {
+    "txt": 98,
+    "id": "mummy3"
+   },
+   {
+    "txt": 99,
+    "id": "mummy4"
+   },
+   {
+    "txt": 100,
+    "id": "mummy5"
+   },
+   {
+    "txt": 111,
+    "id": "vulture2"
+   },
+   {
+    "txt": 118,
+    "id": "willowisp1"
+   },
+   {
+    "txt": 119,
+    "id": "willowisp2"
+   },
+   {
+    "txt": 120,
+    "id": "willowisp3"
+   },
+   {
+    "txt": 121,
+    "id": "willowisp4"
+   },
+   {
+    "txt": 170,
+    "id": "sk_archer1"
+   },
+   {
+    "txt": 171,
+    "id": "sk_archer2"
+   },
+   {
+    "txt": 172,
+    "id": "sk_archer3"
+   },
+   {
+    "txt": 173,
+    "id": "sk_archer4"
+   },
+   {
+    "txt": 174,
+    "id": "sk_archer5"
+   },
+   {
+    "txt": 212,
+    "id": "bonefetish1"
+   },
+   {
+    "txt": 213,
+    "id": "bonefetish2"
+   },
+   {
+    "txt": 214,
+    "id": "bonefetish3"
+   },
+   {
+    "txt": 215,
+    "id": "bonefetish4"
+   },
+   {
+    "txt": 216,
+    "id": "bonefetish5"
+   },
+   {
+    "txt": 274,
+    "id": "skmage_pois1"
+   },
+   {
+    "txt": 275,
+    "id": "skmage_pois2"
+   },
+   {
+    "txt": 276,
+    "id": "skmage_pois3"
+   },
+   {
+    "txt": 277,
+    "id": "skmage_pois4"
+   },
+   {
+    "txt": 304,
+    "id": "fingermage1"
+   },
+   {
+    "txt": 305,
+    "id": "fingermage2"
+   },
+   {
+    "txt": 306,
+    "id": "fingermage3"
+   },
+   {
+    "txt": 310,
+    "id": "doomknight1"
+   },
+   {
+    "txt": 311,
+    "id": "doomknight2"
+   },
+   {
+    "txt": 312,
+    "id": "doomknight3"
+   },
+   {
+    "txt": 363,
+    "id": "necroskeleton"
+   },
+   {
+    "txt": 364,
+    "id": "necromage"
+   },
+   {
+    "txt": 365,
+    "id": "griswold"
+   },
+   {
+    "txt": 379,
+    "id": "skmage_cold1"
+   },
+   {
+    "txt": 380,
+    "id": "skmage_cold2"
+   },
+   {
+    "txt": 381,
+    "id": "skmage_cold3"
+   },
+   {
+    "txt": 382,
+    "id": "skmage_cold4"
+   },
+   {
+    "txt": 383,
+    "id": "skmage_fire1"
+   },
+   {
+    "txt": 384,
+    "id": "skmage_fire2"
+   },
+   {
+    "txt": 385,
+    "id": "skmage_fire3"
+   },
+   {
+    "txt": 386,
+    "id": "skmage_fire4"
+   },
+   {
+    "txt": 387,
+    "id": "skmage_ltng1"
+   },
+   {
+    "txt": 388,
+    "id": "skmage_ltng2"
+   },
+   {
+    "txt": 389,
+    "id": "skmage_ltng3"
+   },
+   {
+    "txt": 390,
+    "id": "skmage_ltng4"
+   },
+   {
+    "txt": 436,
+    "id": "reanimatedhorde1"
+   },
+   {
+    "txt": 437,
+    "id": "reanimatedhorde2"
+   },
+   {
+    "txt": 438,
+    "id": "reanimatedhorde3"
+   },
+   {
+    "txt": 439,
+    "id": "reanimatedhorde4"
+   },
+   {
+    "txt": 440,
+    "id": "reanimatedhorde5"
+   },
+   {
+    "txt": 620,
+    "id": "skmage_fire5"
+   },
+   {
+    "txt": 621,
+    "id": "skmage_fire6"
+   },
+   {
+    "txt": 622,
+    "id": "skmage_ltng5"
+   },
+   {
+    "txt": 623,
+    "id": "skmage_ltng6"
+   },
+   {
+    "txt": 624,
+    "id": "skmage_cold5"
+   },
+   {
+    "txt": 625,
+    "id": "skmage_pois5"
+   },
+   {
+    "txt": 626,
+    "id": "skmage_pois6"
+   },
+   {
+    "txt": 631,
+    "id": "wraith6"
+   },
+   {
+    "txt": 632,
+    "id": "wraith7"
+   },
+   {
+    "txt": 633,
+    "id": "wraith8"
+   },
+   {
+    "txt": 639,
+    "id": "willowisp5"
+   },
+   {
+    "txt": 640,
+    "id": "willowisp6"
+   },
+   {
+    "txt": 641,
+    "id": "willowisp7"
+   },
+   {
+    "txt": 648,
+    "id": "skeleton6"
+   },
+   {
+    "txt": 649,
+    "id": "skeleton7"
+   },
+   {
+    "txt": 690,
+    "id": "bonefetish6"
+   },
+   {
+    "txt": 691,
+    "id": "bonefetish7"
+   },
+   {
+    "txt": 692,
+    "id": "fingermage4"
+   },
+   {
+    "txt": 693,
+    "id": "fingermage5"
+   },
+   {
+    "txt": 698,
+    "id": "reanimatedhorde6"
+   },
+   {
+    "txt": 699,
+    "id": "dkfig1"
+   },
+   {
+    "txt": 700,
+    "id": "dkfig2"
+   },
+   {
+    "txt": 701,
+    "id": "dkmag1"
+   },
+   {
+    "txt": 702,
+    "id": "dkmag2"
+   },
+   {
+    "txt": 703,
+    "id": "mummy6"
+   },
+   {
+    "txt": 713,
+    "id": "dkmag3"
+   },
+   {
+    "txt": 725,
+    "id": "skeleton8"
+   },
+   {
+    "txt": 727,
+    "id": "skmage_fire7"
+   },
+   {
+    "txt": 728,
+    "id": "skmage_ltng7"
+   },
+   {
+    "txt": 729,
+    "id": "skmage_cold6"
+   },
+   {
+    "txt": 730,
+    "id": "skmage_pois7"
+   },
+   {
+    "txt": 732,
+    "id": "wraith9"
+   },
+   {
+    "txt": 733,
+    "id": "willowisp8"
+   },
+   {
+    "txt": 736,
+    "id": "darkelder"
+   }
+  ],
+  "FetishShaman": [
+   {
+    "txt": 141,
+    "id": "fetish1"
+   },
+   {
+    "txt": 142,
+    "id": "fetish2"
+   },
+   {
+    "txt": 143,
+    "id": "fetish3"
+   },
+   {
+    "txt": 144,
+    "id": "fetish4"
+   },
+   {
+    "txt": 145,
+    "id": "fetish5"
+   },
+   {
+    "txt": 396,
+    "id": "fetishblow1"
+   },
+   {
+    "txt": 397,
+    "id": "fetishblow2"
+   },
+   {
+    "txt": 398,
+    "id": "fetishblow3"
+   },
+   {
+    "txt": 399,
+    "id": "fetishblow4"
+   },
+   {
+    "txt": 400,
+    "id": "fetishblow5"
+   },
+   {
+    "txt": 656,
+    "id": "fetish6"
+   },
+   {
+    "txt": 657,
+    "id": "fetish7"
+   },
+   {
+    "txt": 658,
+    "id": "fetish8"
+   },
+   {
+    "txt": 659,
+    "id": "fetishblow6"
+   },
+   {
+    "txt": 660,
+    "id": "fetishblow7"
+   },
+   {
+    "txt": 661,
+    "id": "fetishblow8"
+   }
+  ]
+ },
+ "revivers": [
+  {
+   "txt": 58,
+   "id": "fallenshaman1",
+   "name": "Fallen Shaman",
+   "ai": "FallenShaman",
+   "herald": true,
+   "areas": [
+    {
+     "area": 3,
+     "name": "Cold Plains",
+     "level": 68,
+     "zone": "Act1-ColdPlains"
+    },
+    {
+     "area": 8,
+     "name": "Den of Evil",
+     "level": 79,
+     "zone": "Act1-BloodMoor"
+    }
+   ],
+   "skill": "Resurrect",
+   "skill_id": 181,
+   "raise_chance": 55,
+   "raise_range": 26,
+   "think_frames": 13,
+   "raise_frames": 24,
+   "raises": "corpses whose BaseId is fallen1 or fallenshaman1 (other shamans too), never a unique or champion",
+   "minions": [
+    "fallen1"
+   ],
+   "undead": null
+  },
+  {
+   "txt": 59,
+   "id": "fallenshaman2",
+   "name": "Carver Shaman",
+   "ai": "FallenShaman",
+   "herald": true,
+   "areas": [
+    {
+     "area": 6,
+     "name": "Black Marsh",
+     "level": 69,
+     "zone": "Act1-Tower"
+    },
+    {
+     "area": 38,
+     "name": "Tristram",
+     "level": 76,
+     "zone": "Act1-Tristram"
+    }
+   ],
+   "skill": "Resurrect",
+   "skill_id": 181,
+   "raise_chance": 65,
+   "raise_range": 26,
+   "think_frames": 13,
+   "raise_frames": 20,
+   "raises": "corpses whose BaseId is fallen1 or fallenshaman1 (other shamans too), never a unique or champion",
+   "minions": [
+    "fallen2"
+   ],
+   "undead": null
+  },
+  {
+   "txt": 60,
+   "id": "fallenshaman3",
+   "name": "Devilkin Shaman",
+   "ai": "FallenShaman",
+   "herald": true,
+   "areas": [
+    {
+     "area": 27,
+     "name": "Outer Cloister",
+     "level": 70,
+     "zone": "Act1-Monastery"
+    },
+    {
+     "area": 28,
+     "name": "Barracks",
+     "level": 70,
+     "zone": "Act1-Jail"
+    }
+   ],
+   "skill": "Resurrect",
+   "skill_id": 181,
+   "raise_chance": 75,
+   "raise_range": 28,
+   "think_frames": 13,
+   "raise_frames": 17,
+   "raises": "corpses whose BaseId is fallen1 or fallenshaman1 (other shamans too), never a unique or champion",
+   "minions": [
+    "fallen3"
+   ],
+   "undead": null
+  },
+  {
+   "txt": 61,
+   "id": "fallenshaman4",
+   "name": "Dark Shaman",
+   "ai": "FallenShaman",
+   "herald": true,
+   "areas": [
+    {
+     "area": 33,
+     "name": "Cathedral",
+     "level": 72,
+     "zone": "Act1-Catacombs"
+    },
+    {
+     "area": 34,
+     "name": "Catacombs Level 1",
+     "level": 72,
+     "zone": "Act1-Catacombs"
+    },
+    {
+     "area": 35,
+     "name": "Catacombs Level 2",
+     "level": 73,
+     "zone": "Act1-Catacombs"
+    }
+   ],
+   "skill": "Resurrect",
+   "skill_id": 181,
+   "raise_chance": 85,
+   "raise_range": 30,
+   "think_frames": 13,
+   "raise_frames": 15,
+   "raises": "corpses whose BaseId is fallen1 or fallenshaman1 (other shamans too), never a unique or champion",
+   "minions": [
+    "fallen4"
+   ],
+   "undead": null
+  },
+  {
+   "txt": 62,
+   "id": "fallenshaman5",
+   "name": "Warped Shaman",
+   "ai": "FallenShaman",
+   "herald": true,
+   "areas": [],
+   "skill": "Resurrect",
+   "skill_id": 181,
+   "raise_chance": 90,
+   "raise_range": 30,
+   "think_frames": 13,
+   "raise_frames": 14,
+   "raises": "corpses whose BaseId is fallen1 or fallenshaman1 (other shamans too), never a unique or champion",
+   "minions": [
+    "fallen5"
+   ],
+   "undead": null
+  },
+  {
+   "txt": 101,
+   "id": "unraveler1",
+   "name": "Hollow One",
+   "ai": "GreaterMummy",
+   "herald": true,
+   "areas": [
+    {
+     "area": 56,
+     "name": "Halls of the Dead Level 1",
+     "level": 79,
+     "zone": "Act2-DryHills"
+    },
+    {
+     "area": 57,
+     "name": "Halls of the Dead Level 2",
+     "level": 81,
+     "zone": "Act2-DryHills"
+    },
+    {
+     "area": 60,
+     "name": "Halls of the Dead Level 3",
+     "level": 82,
+     "zone": "Act2-DryHills"
+    }
+   ],
+   "skill": "Resurrect2",
+   "skill_id": 327,
+   "raise_chance": 40,
+   "raise_range": 31,
+   "think_frames": 13,
+   "raise_frames": 32,
+   "raises": "corpses of any lUndead monster on its side, champions too, never a unique; it also heals them",
+   "minions": [
+    "skeleton2"
+   ],
+   "undead": "high"
+  },
+  {
+   "txt": 102,
+   "id": "unraveler2",
+   "name": "Guardian",
+   "ai": "GreaterMummy",
+   "herald": true,
+   "areas": [
+    {
+     "area": 45,
+     "name": "Valley of Snakes",
+     "level": 77,
+     "zone": null
+    },
+    {
+     "area": 58,
+     "name": "Claw Viper Temple Level 1",
+     "level": 82,
+     "zone": "Act2-LostCity"
+    },
+    {
+     "area": 61,
+     "name": "Claw Viper Temple Level 2",
+     "level": 83,
+     "zone": "Act2-LostCity"
+    }
+   ],
+   "skill": "Resurrect2",
+   "skill_id": 327,
+   "raise_chance": 45,
+   "raise_range": 31,
+   "think_frames": 13,
+   "raise_frames": 29,
+   "raises": "corpses of any lUndead monster on its side, champions too, never a unique; it also heals them",
+   "minions": [
+    "skeleton3"
+   ],
+   "undead": "high"
+  },
+  {
+   "txt": 103,
+   "id": "unraveler3",
+   "name": "Unraveler",
+   "ai": "GreaterMummy",
+   "herald": true,
+   "areas": [
+    {
+     "area": 66,
+     "name": "Tal Rasha's Tomb",
+     "level": 80,
+     "zone": "Act2-TalRashas"
+    },
+    {
+     "area": 67,
+     "name": "Tal Rasha's Tomb",
+     "level": 80,
+     "zone": "Act2-TalRashas"
+    },
+    {
+     "area": 68,
+     "name": "Tal Rasha's Tomb",
+     "level": 80,
+     "zone": "Act2-TalRashas"
+    },
+    {
+     "area": 69,
+     "name": "Tal Rasha's Tomb",
+     "level": 80,
+     "zone": "Act2-TalRashas"
+    },
+    {
+     "area": 70,
+     "name": "Tal Rasha's Tomb",
+     "level": 80,
+     "zone": "Act2-TalRashas"
+    },
+    {
+     "area": 71,
+     "name": "Tal Rasha's Tomb",
+     "level": 80,
+     "zone": "Act2-TalRashas"
+    },
+    {
+     "area": 72,
+     "name": "Tal Rasha's Tomb",
+     "level": 80,
+     "zone": "Act2-TalRashas"
+    },
+    {
+     "area": 73,
+     "name": "Duriel's Lair",
+     "level": 80,
+     "zone": null
+    }
+   ],
+   "skill": "Resurrect2",
+   "skill_id": 327,
+   "raise_chance": 50,
+   "raise_range": 31,
+   "think_frames": 13,
+   "raise_frames": 26,
+   "raises": "corpses of any lUndead monster on its side, champions too, never a unique; it also heals them",
+   "minions": [
+    "skeleton4"
+   ],
+   "undead": "high"
+  },
+  {
+   "txt": 104,
+   "id": "unraveler4",
+   "name": "Horadrim Ancient",
+   "ai": "GreaterMummy",
+   "herald": true,
+   "areas": [
+    {
+     "area": 92,
+     "name": "Sewers Level 1",
+     "level": 85,
+     "zone": "Act3-Kurast"
+    },
+    {
+     "area": 93,
+     "name": "Sewers Level 2",
+     "level": 85,
+     "zone": "Act3-Kurast"
+    }
+   ],
+   "skill": "Resurrect2",
+   "skill_id": 327,
+   "raise_chance": 55,
+   "raise_range": 31,
+   "think_frames": 13,
+   "raise_frames": 24,
+   "raises": "corpses of any lUndead monster on its side, champions too, never a unique; it also heals them",
+   "minions": [
+    "skeleton5"
+   ],
+   "undead": "high"
+  },
+  {
+   "txt": 105,
+   "id": "unraveler5",
+   "name": "Unraveler",
+   "ai": "GreaterMummy",
+   "herald": true,
+   "areas": [],
+   "skill": "Resurrect2",
+   "skill_id": 327,
+   "raise_chance": 55,
+   "raise_range": 31,
+   "think_frames": 13,
+   "raise_frames": 24,
+   "raises": "corpses of any lUndead monster on its side, champions too, never a unique; it also heals them",
+   "minions": [],
+   "undead": "high"
+  },
+  {
+   "txt": 229,
+   "id": "radament",
+   "name": "Radament",
+   "ai": "GreaterMummy",
+   "herald": false,
+   "areas": [],
+   "skill": "Resurrect2",
+   "skill_id": 327,
+   "raise_chance": 55,
+   "raise_range": 31,
+   "think_frames": 13,
+   "raise_frames": 24,
+   "raises": "corpses of any lUndead monster on its side, champions too, never a unique; it also heals them",
+   "minions": [
+    "skeleton4"
+   ],
+   "undead": "high"
+  },
+  {
+   "txt": 278,
+   "id": "fetishshaman1",
+   "name": "RatMan Shaman",
+   "ai": "FetishShaman",
+   "herald": true,
+   "areas": [],
+   "skill": "Resurrect2",
+   "skill_id": 327,
+   "raise_chance": 45,
+   "raise_range": 50,
+   "think_frames": 13,
+   "raise_frames": 29,
+   "raises": "corpses whose BaseId is fetish1 or fetishblow1; it walks to the corpse and raises from close by (aip3(H) against the squared distance); with aip2(H) 3 uniques and champions too",
+   "minions": [
+    "fetish1",
+    "fetishblow1"
+   ],
+   "undead": null,
+   "raise_close": 4.2
+  },
+  {
+   "txt": 279,
+   "id": "fetishshaman2",
+   "name": "Fetish Shaman",
+   "ai": "FetishShaman",
+   "herald": true,
+   "areas": [
+    {
+     "area": 77,
+     "name": "Great Marsh",
+     "level": 80,
+     "zone": "Act3-GreatMarsh"
+    }
+   ],
+   "skill": "Resurrect2",
+   "skill_id": 327,
+   "raise_chance": 45,
+   "raise_range": 50,
+   "think_frames": 13,
+   "raise_frames": 29,
+   "raises": "corpses whose BaseId is fetish1 or fetishblow1; it walks to the corpse and raises from close by (aip3(H) against the squared distance); with aip2(H) 3 uniques and champions too",
+   "minions": [
+    "fetish2",
+    "fetishblow2"
+   ],
+   "undead": null,
+   "raise_close": 4.4
+  },
+  {
+   "txt": 280,
+   "id": "fetishshaman3",
+   "name": "Flayer Shaman",
+   "ai": "FetishShaman",
+   "herald": true,
+   "areas": [
+    {
+     "area": 78,
+     "name": "Flayer Jungle",
+     "level": 80,
+     "zone": "Act3-FlayerJungle"
+    },
+    {
+     "area": 88,
+     "name": "Flayer Dungeon Level 1",
+     "level": 81,
+     "zone": "Act3-FlayerJungle"
+    },
+    {
+     "area": 89,
+     "name": "Flayer Dungeon Level 2",
+     "level": 82,
+     "zone": "Act3-FlayerJungle"
+    },
+    {
+     "area": 91,
+     "name": "Flayer Dungeon Level 3",
+     "level": 83,
+     "zone": "Act3-FlayerJungle"
+    }
+   ],
+   "skill": "Resurrect2",
+   "skill_id": 327,
+   "raise_chance": 45,
+   "raise_range": 50,
+   "think_frames": 13,
+   "raise_frames": 29,
+   "raises": "corpses whose BaseId is fetish1 or fetishblow1; it walks to the corpse and raises from close by (aip3(H) against the squared distance); with aip2(H) 3 uniques and champions too",
+   "minions": [
+    "fetish3",
+    "fetishblow3"
+   ],
+   "undead": null,
+   "raise_close": 4.5
+  },
+  {
+   "txt": 281,
+   "id": "fetishshaman4",
+   "name": "Soul Killer Shaman",
+   "ai": "FetishShaman",
+   "herald": true,
+   "areas": [
+    {
+     "area": 78,
+     "name": "Flayer Jungle",
+     "level": 80,
+     "zone": "Act3-FlayerJungle"
+    },
+    {
+     "area": 88,
+     "name": "Flayer Dungeon Level 1",
+     "level": 81,
+     "zone": "Act3-FlayerJungle"
+    },
+    {
+     "area": 89,
+     "name": "Flayer Dungeon Level 2",
+     "level": 82,
+     "zone": "Act3-FlayerJungle"
+    },
+    {
+     "area": 91,
+     "name": "Flayer Dungeon Level 3",
+     "level": 83,
+     "zone": "Act3-FlayerJungle"
+    }
+   ],
+   "skill": "Resurrect2",
+   "skill_id": 327,
+   "raise_chance": 45,
+   "raise_range": 50,
+   "think_frames": 13,
+   "raise_frames": 29,
+   "raises": "corpses whose BaseId is fetish1 or fetishblow1; it walks to the corpse and raises from close by (aip3(H) against the squared distance); with aip2(H) 3 uniques and champions too",
+   "minions": [
+    "fetish4",
+    "fetishblow4"
+   ],
+   "undead": null,
+   "raise_close": 4.6
+  },
+  {
+   "txt": 282,
+   "id": "fetishshaman5",
+   "name": "Stygian Doll Shaman",
+   "ai": "FetishShaman",
+   "herald": true,
+   "areas": [],
+   "skill": "Resurrect2",
+   "skill_id": 327,
+   "raise_chance": 45,
+   "raise_range": 50,
+   "think_frames": 13,
+   "raise_frames": 29,
+   "raises": "corpses whose BaseId is fetish1 or fetishblow1; it walks to the corpse and raises from close by (aip3(H) against the squared distance); with aip2(H) 3 uniques and champions too",
+   "minions": [
+    "fetish5",
+    "fetishblow5"
+   ],
+   "undead": null,
+   "raise_close": 4.7
+  },
+  {
+   "txt": 645,
+   "id": "fallenshaman6",
+   "name": "Carver Shaman",
+   "ai": "FallenShaman",
+   "herald": true,
+   "areas": [
+    {
+     "area": 112,
+     "name": "Arreat Plateau",
+     "level": 81,
+     "zone": "Act5-ArreatPlateau"
+    },
+    {
+     "area": 118,
+     "name": "Glacial Caves Level 1",
+     "level": 82,
+     "zone": "Act5-AncientsWay"
+    }
+   ],
+   "skill": "Resurrect",
+   "skill_id": 181,
+   "raise_chance": 90,
+   "raise_range": 30,
+   "think_frames": 13,
+   "raise_frames": 14,
+   "raises": "corpses whose BaseId is fallen1 or fallenshaman1 (other shamans too), never a unique or champion",
+   "minions": [
+    "fallen6"
+   ],
+   "undead": null
+  },
+  {
+   "txt": 646,
+   "id": "fallenshaman7",
+   "name": "Devilkin Shaman",
+   "ai": "FallenShaman",
+   "herald": true,
+   "areas": [
+    {
+     "area": 122,
+     "name": "Halls of Anguish",
+     "level": 83,
+     "zone": "Act5-Halls"
+    }
+   ],
+   "skill": "Resurrect",
+   "skill_id": 181,
+   "raise_chance": 90,
+   "raise_range": 30,
+   "think_frames": 13,
+   "raise_frames": 14,
+   "raises": "corpses whose BaseId is fallen1 or fallenshaman1 (other shamans too), never a unique or champion",
+   "minions": [
+    "fallen7"
+   ],
+   "undead": null
+  },
+  {
+   "txt": 647,
+   "id": "fallenshaman8",
+   "name": "Dark Shaman",
+   "ai": "FallenShaman",
+   "herald": true,
+   "areas": [
+    {
+     "area": 125,
+     "name": "Hell1",
+     "level": 85,
+     "zone": "Act5-BloodyFoothils"
+    }
+   ],
+   "skill": "Resurrect",
+   "skill_id": 181,
+   "raise_chance": 90,
+   "raise_range": 30,
+   "think_frames": 13,
+   "raise_frames": 14,
+   "raises": "corpses whose BaseId is fallen1 or fallenshaman1 (other shamans too), never a unique or champion",
+   "minions": [
+    "fallen8"
+   ],
+   "undead": null
+  },
+  {
+   "txt": 662,
+   "id": "fetishshaman6",
+   "name": "Flayer Shaman",
+   "ai": "FetishShaman",
+   "herald": true,
+   "areas": [
+    {
+     "area": 124,
+     "name": "Halls of Vaught",
+     "level": 84,
+     "zone": "Act5-Halls"
+    }
+   ],
+   "skill": "Resurrect2",
+   "skill_id": 327,
+   "raise_chance": 45,
+   "raise_range": 50,
+   "think_frames": 13,
+   "raise_frames": 29,
+   "raises": "corpses whose BaseId is fetish1 or fetishblow1; it walks to the corpse and raises from close by (aip3(H) against the squared distance); with aip2(H) 3 uniques and champions too",
+   "minions": [
+    "fetish6",
+    "fetishblow6"
+   ],
+   "undead": null,
+   "raise_close": 4.7
+  },
+  {
+   "txt": 663,
+   "id": "fetishshaman7",
+   "name": "Stygian Doll Shaman",
+   "ai": "FetishShaman",
+   "herald": true,
+   "areas": [],
+   "skill": "Resurrect2",
+   "skill_id": 327,
+   "raise_chance": 45,
+   "raise_range": 50,
+   "think_frames": 13,
+   "raise_frames": 29,
+   "raises": "corpses whose BaseId is fetish1 or fetishblow1; it walks to the corpse and raises from close by (aip3(H) against the squared distance); with aip2(H) 3 uniques and champions too",
+   "minions": [
+    "fetish7",
+    "fetishblow7"
+   ],
+   "undead": null,
+   "raise_close": 4.7
+  },
+  {
+   "txt": 664,
+   "id": "fetishshaman8",
+   "name": "Soul Killer Shaman",
+   "ai": "FetishShaman",
+   "herald": true,
+   "areas": [
+    {
+     "area": 128,
+     "name": "The Worldstone Keep Level 1",
+     "level": 85,
+     "zone": "Act5-WorldstoneKeep"
+    }
+   ],
+   "skill": "Resurrect2",
+   "skill_id": 327,
+   "raise_chance": 45,
+   "raise_range": 50,
+   "think_frames": 13,
+   "raise_frames": 29,
+   "raises": "corpses whose BaseId is fetish1 or fetishblow1; it walks to the corpse and raises from close by (aip3(H) against the squared distance); with aip2(H) 3 uniques and champions too",
+   "minions": [
+    "fetish8",
+    "fetishblow8"
+   ],
+   "undead": null,
+   "raise_close": 4.7
+  },
+  {
+   "txt": 667,
+   "id": "unraveler6",
+   "name": "Guardian",
+   "ai": "GreaterMummy",
+   "herald": true,
+   "areas": [
+    {
+     "area": 123,
+     "name": "Halls of Death's Calling",
+     "level": 84,
+     "zone": "Act5-Halls"
+    }
+   ],
+   "skill": "Resurrect2",
+   "skill_id": 327,
+   "raise_chance": 55,
+   "raise_range": 31,
+   "think_frames": 13,
+   "raise_frames": 24,
+   "raises": "corpses of any lUndead monster on its side, champions too, never a unique; it also heals them",
+   "minions": [],
+   "undead": "high"
+  },
+  {
+   "txt": 668,
+   "id": "unraveler7",
+   "name": "Unraveler",
+   "ai": "GreaterMummy",
+   "herald": true,
+   "areas": [
+    {
+     "area": 126,
+     "name": "Hell2",
+     "level": 85,
+     "zone": "Act5-ArreatPlateau"
+    }
+   ],
+   "skill": "Resurrect2",
+   "skill_id": 327,
+   "raise_chance": 55,
+   "raise_range": 31,
+   "think_frames": 13,
+   "raise_frames": 24,
+   "raises": "corpses of any lUndead monster on its side, champions too, never a unique; it also heals them",
+   "minions": [],
+   "undead": "high"
+  },
+  {
+   "txt": 669,
+   "id": "unraveler8",
+   "name": "Horadrim Ancient",
+   "ai": "GreaterMummy",
+   "herald": true,
+   "areas": [
+    {
+     "area": 129,
+     "name": "The Worldstone Keep Level 2",
+     "level": 85,
+     "zone": "Act5-WorldstoneKeep"
+    }
+   ],
+   "skill": "Resurrect2",
+   "skill_id": 327,
+   "raise_chance": 55,
+   "raise_range": 31,
+   "think_frames": 13,
+   "raise_frames": 24,
+   "raises": "corpses of any lUndead monster on its side, champions too, never a unique; it also heals them",
+   "minions": [],
+   "undead": "high"
+  },
+  {
+   "txt": 670,
+   "id": "unraveler9",
+   "name": "Horadrim Ancient",
+   "ai": "GreaterMummy",
+   "herald": true,
+   "areas": [
+    {
+     "area": 131,
+     "name": "Throne of Destruction",
+     "level": 85,
+     "zone": "Act5-WorldstoneKeep"
+    }
+   ],
+   "skill": "Resurrect2",
+   "skill_id": 327,
+   "raise_chance": 55,
+   "raise_range": 31,
+   "think_frames": 13,
+   "raise_frames": 24,
+   "raises": "corpses of any lUndead monster on its side, champions too, never a unique; it also heals them",
+   "minions": [],
+   "undead": "high"
+  }
+ ],
+ "self_revivers": [
+  {
+   "txt": 436,
+   "id": "reanimatedhorde1",
+   "name": "Rot Walker",
+   "ai": "ReanimatedHorde",
+   "herald": true,
+   "areas": [
+    {
+     "area": 114,
+     "name": "Cellar of Pity",
+     "level": 83,
+     "zone": "Act5-CrystallinePassage"
+    },
+    {
+     "area": 115,
+     "name": "Crystalized Cavern Level 2",
+     "level": 83,
+     "zone": "Act5-GlacialTrail"
+    }
+   ],
+   "skill": "Self-resurrect",
+   "aip8": 15
+  },
+  {
+   "txt": 437,
+   "id": "reanimatedhorde2",
+   "name": "Reanimated Horde",
+   "ai": "ReanimatedHorde",
+   "herald": true,
+   "areas": [
+    {
+     "area": 118,
+     "name": "Glacial Caves Level 1",
+     "level": 82,
+     "zone": "Act5-AncientsWay"
+    }
+   ],
+   "skill": "Self-resurrect",
+   "aip8": 15
+  },
+  {
+   "txt": 438,
+   "id": "reanimatedhorde3",
+   "name": "Prowling Dead",
+   "ai": "ReanimatedHorde",
+   "herald": true,
+   "areas": [
+    {
+     "area": 122,
+     "name": "Halls of Anguish",
+     "level": 83,
+     "zone": "Act5-Halls"
+    },
+    {
+     "area": 124,
+     "name": "Halls of Vaught",
+     "level": 84,
+     "zone": "Act5-Halls"
+    }
+   ],
+   "skill": "Self-resurrect",
+   "aip8": 15
+  },
+  {
+   "txt": 439,
+   "id": "reanimatedhorde4",
+   "name": "Unholy Corpse",
+   "ai": "ReanimatedHorde",
+   "herald": true,
+   "areas": [],
+   "skill": "Self-resurrect",
+   "aip8": 15
+  },
+  {
+   "txt": 440,
+   "id": "reanimatedhorde5",
+   "name": "Defiled Warrior",
+   "ai": "ReanimatedHorde",
+   "herald": true,
+   "areas": [],
+   "skill": "Self-resurrect",
+   "aip8": 15
+  },
+  {
+   "txt": 698,
+   "id": "reanimatedhorde6",
+   "name": "Unholy Corpse",
+   "ai": "ReanimatedHorde",
+   "herald": true,
+   "areas": [
+    {
+     "area": 127,
+     "name": "Hell3",
+     "level": 85,
+     "zone": "Act5-FrozenTundra"
+    },
+    {
+     "area": 128,
+     "name": "The Worldstone Keep Level 1",
+     "level": 85,
+     "zone": "Act5-WorldstoneKeep"
+    }
+   ],
+   "skill": "Self-resurrect",
+   "aip8": null
+  }
+ ],
+ "spawners": [
+  {
+   "txt": 68,
+   "id": "sandmaggot1",
+   "name": "Sand Maggot",
+   "ai": "SandMaggot",
+   "herald": false,
+   "areas": [
+    {
+     "area": 43,
+     "name": "Far Oasis",
+     "level": 76,
+     "zone": "Act2-FarOasis"
+    },
+    {
+     "area": 62,
+     "name": "Maggot Lair Level 1",
+     "level": 84,
+     "zone": "Act2-FarOasis"
+    },
+    {
+     "area": 63,
+     "name": "Maggot Lair Level 2",
+     "level": 84,
+     "zone": "Act2-FarOasis"
+    },
+    {
+     "area": 64,
+     "name": "Maggot Lair Level 3",
+     "level": 85,
+     "zone": "Act2-FarOasis"
+    }
+   ],
+   "spawns": "maggotegg1",
+   "spawns_txt": 190
+  },
+  {
+   "txt": 69,
+   "id": "sandmaggot2",
+   "name": "Rock Worm",
+   "ai": "SandMaggot",
+   "herald": false,
+   "areas": [
+    {
+     "area": 62,
+     "name": "Maggot Lair Level 1",
+     "level": 84,
+     "zone": "Act2-FarOasis"
+    },
+    {
+     "area": 63,
+     "name": "Maggot Lair Level 2",
+     "level": 84,
+     "zone": "Act2-FarOasis"
+    },
+    {
+     "area": 64,
+     "name": "Maggot Lair Level 3",
+     "level": 85,
+     "zone": "Act2-FarOasis"
+    }
+   ],
+   "spawns": "maggotegg2",
+   "spawns_txt": 191
+  },
+  {
+   "txt": 70,
+   "id": "sandmaggot3",
+   "name": "Devourer",
+   "ai": "SandMaggot",
+   "herald": false,
+   "areas": [
+    {
+     "area": 46,
+     "name": "Canyon of the Magi",
+     "level": 79,
+     "zone": "Act2-TalRashas"
+    }
+   ],
+   "spawns": "maggotegg3",
+   "spawns_txt": 192
+  },
+  {
+   "txt": 71,
+   "id": "sandmaggot4",
+   "name": "Giant Lamprey",
+   "ai": "SandMaggot",
+   "herald": false,
+   "areas": [
+    {
+     "area": 84,
+     "name": "Spider Cave",
+     "level": 85,
+     "zone": "Act3-SpiderForest"
+    },
+    {
+     "area": 85,
+     "name": "Spider Cavern",
+     "level": 79,
+     "zone": "Act3-SpiderForest"
+    }
+   ],
+   "spawns": "maggotegg4",
+   "spawns_txt": 193
+  },
+  {
+   "txt": 72,
+   "id": "sandmaggot5",
+   "name": "Blood Maggot",
+   "ai": "SandMaggot",
+   "herald": false,
+   "areas": [
+    {
+     "area": 107,
+     "name": "River of Flame",
+     "level": 85,
+     "zone": "Act4-RiverOfFlame"
+    }
+   ],
+   "spawns": "maggotegg5",
+   "spawns_txt": 194
+  },
+  {
+   "txt": 190,
+   "id": "maggotegg1",
+   "name": "Sand Maggot Egg",
+   "ai": "MaggotEgg",
+   "herald": false,
+   "areas": [],
+   "spawns": "maggotbaby1",
+   "spawns_txt": 180
+  },
+  {
+   "txt": 191,
+   "id": "maggotegg2",
+   "name": "Rock Worm Egg",
+   "ai": "MaggotEgg",
+   "herald": false,
+   "areas": [],
+   "spawns": "maggotbaby2",
+   "spawns_txt": 181
+  },
+  {
+   "txt": 192,
+   "id": "maggotegg3",
+   "name": "Devourer Egg",
+   "ai": "MaggotEgg",
+   "herald": false,
+   "areas": [],
+   "spawns": "maggotbaby3",
+   "spawns_txt": 182
+  },
+  {
+   "txt": 193,
+   "id": "maggotegg4",
+   "name": "Giant Lamprey Egg",
+   "ai": "MaggotEgg",
+   "herald": false,
+   "areas": [],
+   "spawns": "maggotbaby4",
+   "spawns_txt": 183
+  },
+  {
+   "txt": 194,
+   "id": "maggotegg5",
+   "name": "Blood Maggot Egg",
+   "ai": "MaggotEgg",
+   "herald": false,
+   "areas": [],
+   "spawns": "maggotbaby5",
+   "spawns_txt": 184
+  },
+  {
+   "txt": 206,
+   "id": "crownest1",
+   "name": "Foul Crow Nest",
+   "ai": "FoulCrowNest",
+   "herald": false,
+   "areas": [
+    {
+     "area": 4,
+     "name": "Stony Field",
+     "level": 68,
+     "zone": "Act1-Tristram"
+    }
+   ],
+   "spawns": "foulcrow1",
+   "spawns_txt": 15
+  },
+  {
+   "txt": 207,
+   "id": "crownest2",
+   "name": "Blood Hawk Nest",
+   "ai": "FoulCrowNest",
+   "herald": false,
+   "areas": [
+    {
+     "area": 6,
+     "name": "Black Marsh",
+     "level": 69,
+     "zone": "Act1-Tower"
+    }
+   ],
+   "spawns": "foulcrow2",
+   "spawns_txt": 16
+  },
+  {
+   "txt": 208,
+   "id": "crownest3",
+   "name": "Black Raptor Nest",
+   "ai": "FoulCrowNest",
+   "herald": false,
+   "areas": [
+    {
+     "area": 43,
+     "name": "Far Oasis",
+     "level": 76,
+     "zone": "Act2-FarOasis"
+    }
+   ],
+   "spawns": "foulcrow3",
+   "spawns_txt": 17
+  },
+  {
+   "txt": 209,
+   "id": "crownest4",
+   "name": "Cloud Stalker Nest",
+   "ai": "FoulCrowNest",
+   "herald": false,
+   "areas": [],
+   "spawns": "foulcrow4",
+   "spawns_txt": 18
+  },
+  {
+   "txt": 228,
+   "id": "sarcophagus",
+   "name": "Mummy Sarcophagus",
+   "ai": "Sarcophagus",
+   "herald": false,
+   "areas": [],
+   "spawns": "mummy1",
+   "spawns_txt": 96
+  },
+  {
+   "txt": 267,
+   "id": "bloodraven",
+   "name": "Blood Raven",
+   "ai": "BloodRaven",
+   "herald": false,
+   "areas": [],
+   "spawns": "zombie2",
+   "spawns_txt": 6
+  },
+  {
+   "txt": 284,
+   "id": "maggotqueen1",
+   "name": "Sand Maggot Queen",
+   "ai": "SandMaggotQueen",
+   "herald": false,
+   "areas": [],
+   "spawns": "sandmaggot1",
+   "spawns_txt": 68
+  },
+  {
+   "txt": 285,
+   "id": "maggotqueen2",
+   "name": "Rock Worm Queen",
+   "ai": "SandMaggotQueen",
+   "herald": false,
+   "areas": [],
+   "spawns": "sandmaggot2",
+   "spawns_txt": 69
+  },
+  {
+   "txt": 286,
+   "id": "maggotqueen3",
+   "name": "Devourer Queen",
+   "ai": "SandMaggotQueen",
+   "herald": false,
+   "areas": [],
+   "spawns": "sandmaggot3",
+   "spawns_txt": 70
+  },
+  {
+   "txt": 287,
+   "id": "maggotqueen4",
+   "name": "Giant Lamprey Queen",
+   "ai": "SandMaggotQueen",
+   "herald": false,
+   "areas": [],
+   "spawns": "sandmaggot4",
+   "spawns_txt": 71
+  },
+  {
+   "txt": 288,
+   "id": "maggotqueen5",
+   "name": "Blood Maggot Queen",
+   "ai": "SandMaggotQueen",
+   "herald": false,
+   "areas": [],
+   "spawns": "sandmaggot5",
+   "spawns_txt": 72
+  },
+  {
+   "txt": 298,
+   "id": "vilemother1",
+   "name": "Flesh Spawner",
+   "ai": "VileMother",
+   "herald": true,
+   "areas": [
+    {
+     "area": 104,
+     "name": "Outer Steppes",
+     "level": 82,
+     "zone": "Act4_OuterSteppes"
+    },
+    {
+     "area": 105,
+     "name": "Plains of Despair",
+     "level": 83,
+     "zone": "Act4_OuterSteppes"
+    }
+   ],
+   "spawns": "vilechild1",
+   "spawns_txt": 301
+  },
+  {
+   "txt": 299,
+   "id": "vilemother2",
+   "name": "Stygian Hag",
+   "ai": "VileMother",
+   "herald": true,
+   "areas": [
+    {
+     "area": 106,
+     "name": "City of the Damned",
+     "level": 84,
+     "zone": "Act4-RiverOfFlame"
+    }
+   ],
+   "spawns": "vilechild2",
+   "spawns_txt": 302
+  },
+  {
+   "txt": 300,
+   "id": "vilemother3",
+   "name": "Grotesque",
+   "ai": "VileMother",
+   "herald": true,
+   "areas": [
+    {
+     "area": 107,
+     "name": "River of Flame",
+     "level": 85,
+     "zone": "Act4-RiverOfFlame"
+    }
+   ],
+   "spawns": "vilechild3",
+   "spawns_txt": 303
+  },
+  {
+   "txt": 321,
+   "id": "evilhole1",
+   "name": "Dummy",
+   "ai": "EvilHole",
+   "herald": false,
+   "areas": [],
+   "spawns": "fallen1",
+   "spawns_txt": 19
+  },
+  {
+   "txt": 484,
+   "id": "minionspawner1",
+   "name": "Demon Portal",
+   "ai": "MinionSpawner",
+   "herald": false,
+   "areas": [],
+   "spawns": "minion1",
+   "spawns_txt": 453
+  },
+  {
+   "txt": 485,
+   "id": "minionspawner2",
+   "name": "Demon Portal",
+   "ai": "MinionSpawner",
+   "herald": false,
+   "areas": [],
+   "spawns": "minion2",
+   "spawns_txt": 454
+  },
+  {
+   "txt": 486,
+   "id": "minionspawner3",
+   "name": "Demon Portal",
+   "ai": "MinionSpawner",
+   "herald": false,
+   "areas": [],
+   "spawns": "minion3",
+   "spawns_txt": 455
+  },
+  {
+   "txt": 487,
+   "id": "minionspawner4",
+   "name": "Demon Portal",
+   "ai": "MinionSpawner",
+   "herald": false,
+   "areas": [],
+   "spawns": "minion4",
+   "spawns_txt": 456
+  },
+  {
+   "txt": 488,
+   "id": "minionspawner5",
+   "name": "Demon Portal",
+   "ai": "MinionSpawner",
+   "herald": false,
+   "areas": [],
+   "spawns": "minion5",
+   "spawns_txt": 457
+  },
+  {
+   "txt": 489,
+   "id": "minionspawner6",
+   "name": "Demon Portal",
+   "ai": "MinionSpawner",
+   "herald": false,
+   "areas": [],
+   "spawns": "minion6",
+   "spawns_txt": 458
+  },
+  {
+   "txt": 490,
+   "id": "minionspawner7",
+   "name": "Demon Portal",
+   "ai": "MinionSpawner",
+   "herald": false,
+   "areas": [],
+   "spawns": "minion7",
+   "spawns_txt": 459
+  },
+  {
+   "txt": 491,
+   "id": "minionspawner8",
+   "name": "Demon Portal",
+   "ai": "MinionSpawner",
+   "herald": false,
+   "areas": [],
+   "spawns": "minion8",
+   "spawns_txt": 460
+  },
+  {
+   "txt": 528,
+   "id": "evilhut",
+   "name": "Evil Demon Hut",
+   "ai": "GenericSpawner",
+   "herald": false,
+   "areas": [],
+   "spawns": "imp1",
+   "spawns_txt": 492
+  },
+  {
+   "txt": 537,
+   "id": "ancientstatue1",
+   "name": "Ancient Statue 1",
+   "ai": "AncientStatue",
+   "herald": false,
+   "areas": [],
+   "spawns": "ancientbarb1",
+   "spawns_txt": 540
+  },
+  {
+   "txt": 538,
+   "id": "ancientstatue2",
+   "name": "Ancient Statue 2",
+   "ai": "AncientStatue",
+   "herald": false,
+   "areas": [],
+   "spawns": "ancientbarb2",
+   "spawns_txt": 541
+  },
+  {
+   "txt": 539,
+   "id": "ancientstatue3",
+   "name": "Ancient Statue 3",
+   "ai": "AncientStatue",
+   "herald": false,
+   "areas": [],
+   "spawns": "ancientbarb3",
+   "spawns_txt": 542
+  },
+  {
+   "txt": 675,
+   "id": "vilemother4",
+   "name": "Grotesque",
+   "ai": "VileMother",
+   "herald": true,
+   "areas": [
+    {
+     "area": 123,
+     "name": "Halls of Death's Calling",
+     "level": 84,
+     "zone": "Act5-Halls"
+    }
+   ],
+   "spawns": "vilechild4",
+   "spawns_txt": 677
+  },
+  {
+   "txt": 676,
+   "id": "vilemother5",
+   "name": "Flesh Spawner",
+   "ai": "VileMother",
+   "herald": true,
+   "areas": [
+    {
+     "area": 128,
+     "name": "The Worldstone Keep Level 1",
+     "level": 85,
+     "zone": "Act5-WorldstoneKeep"
+    }
+   ],
+   "spawns": "vilechild5",
+   "spawns_txt": 678
+  },
+  {
+   "txt": 679,
+   "id": "sandmaggot6",
+   "name": "Blood Maggot",
+   "ai": "SandMaggot",
+   "herald": true,
+   "areas": [
+    {
+     "area": 123,
+     "name": "Halls of Death's Calling",
+     "level": 84,
+     "zone": "Act5-Halls"
+    }
+   ],
+   "spawns": "maggotegg6",
+   "spawns_txt": 681
+  },
+  {
+   "txt": 681,
+   "id": "maggotegg6",
+   "name": "Blood Maggot Egg",
+   "ai": "MaggotEgg",
+   "herald": false,
+   "areas": [],
+   "spawns": "maggotbaby6",
+   "spawns_txt": 680
+  },
+  {
+   "txt": 710,
+   "id": "demonspawner",
+   "name": "Evil Demon Hut",
+   "ai": "MinionSpawner",
+   "herald": false,
+   "areas": [],
+   "spawns": "megademon5",
+   "spawns_txt": 687
+  },
+  {
+   "txt": 711,
+   "id": "demonhole",
+   "name": "Dummy",
+   "ai": "EvilHole",
+   "herald": false,
+   "areas": [],
+   "spawns": "megademon6",
+   "spawns_txt": 712
+  },
+  {
+   "txt": 716,
+   "id": "sandmaggot7",
+   "name": "Blood Maggot",
+   "ai": "SandMaggot",
+   "herald": true,
+   "areas": [
+    {
+     "area": 134,
+     "name": "Pandemonium Run 2",
+     "level": 83,
+     "zone": null
+    }
+   ],
+   "spawns": "maggotegg6",
+   "spawns_txt": 681
+  },
+  {
+   "txt": 745,
+   "id": "colossal1",
+   "name": "Talic",
+   "ai": "ColossalWhirlwind",
+   "herald": false,
+   "areas": [],
+   "spawns": "colbarbwhirl",
+   "spawns_txt": 748
+  },
+  {
+   "txt": 746,
+   "id": "colossal2",
+   "name": "Madawc",
+   "ai": "ColossalThrow",
+   "herald": false,
+   "areas": [],
+   "spawns": "colbarbthrow",
+   "spawns_txt": 749
+  },
+  {
+   "txt": 747,
+   "id": "colossal3",
+   "name": "Korlic",
+   "ai": "ColossalLeap",
+   "herald": false,
+   "areas": [],
+   "spawns": "colbarbfrenzy",
+   "spawns_txt": 750
+  }
+ ],
+ "super_uniques": [
+  {
+   "name": "Bishibosh",
+   "class": "fallenshaman1"
+  },
+  {
+   "name": "Radament",
+   "class": "radament"
+  },
+  {
+   "name": "Ancient Kaa the Soulless",
+   "class": "unraveler3"
+  },
+  {
+   "name": "Witch Doctor Endugu",
+   "class": "fetishshaman4"
+  },
+  {
+   "name": "Colenzo the Annihilator",
+   "class": "fallenshaman5"
+  },
+  {
+   "name": "Achmel the Cursed",
+   "class": "unraveler5"
+  }
+ ]
+}

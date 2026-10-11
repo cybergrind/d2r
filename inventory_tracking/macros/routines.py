@@ -41,8 +41,13 @@ from inventory_tracking.native.layout import HIRELING_CLASS_ID
 NIHLATHAKS_TEMPLE = 121
 # Where a farming run ends, so the macro request there leaves the game: Pindleskin's Temple, and for the
 # Eldritch and Shenk run (user, 2026-10-06) the Frigid Highlands above its waypoint and the
-# Bloody Foothills below it. The whole level counts, not only the part near the waypoint.
+# Bloody Foothills below it. On those two only within BOSS_UNITS of where a super unique of the level
+# was last seen, Eldritch or Shenk (user, 2026-10-11: the request in the middle of a terrorized Frigid
+# Highlands, 550 units from Eldritch, left the game where a prebuff was meant). Without the tracker's
+# word on the level's super uniques the whole level counts, as before.
 RUN_ENDS = frozenset((NIHLATHAKS_TEMPLE, 110, 111))
+BOSS_LEVELS = frozenset((110, 111))
+BOSS_UNITS = 100.0
 # Mephisto and other act 3 runs end with a step into act 4, so the next game starts there
 # (user, 2026-10-06): the Pandemonium Fortress is a run end for a while after the character
 # came to it from act 3 (Kurast Docks to Durance of Hate Level 3). A game that started in the
@@ -110,13 +115,15 @@ CONSUME_ATTEMPTS = 3
 # if it moved this many world units while the pointer travelled, the pointer follows (user, 2026-10-07).
 AIM_DRIFT = 1.0
 AIM_TRIES = 4
-# monstats.txt rows with npc = 1 (installed game, 2026-10-07): townsfolk. Consume cannot take them,
-# yet Kashya, Warriv and Cain stand where a new game starts and were in 13 of the 16 logged crowds
-# (host, 2026-10-07), which stopped five prebuffs in the Rogue Encampment.
+# monstats.txt rows with npc = 1 or inTown = 1 (installed game, 2026-10-07): townsfolk. Consume cannot
+# take them, yet Kashya, Warriv and Cain stand where a new game starts and were in 13 of the 16 logged
+# crowds (host, 2026-10-07), which stopped five prebuffs in the Rogue Encampment. Checked against the
+# table again on 2026-10-11: 528 (evilhut, the imps' hut) and 540 (ancientbarb1) stood here with neither
+# flag and killable = 1, so the hunt never struck a hut (user: "we don't target demon huts at all").
 TOWN_NPCS = frozenset((
     146, 147, 148, 150, 152, 154, 155, 175, 176, 177, 178, 185, 195, 196, 197, 198, 199, 200, 201, 202,
     203, 204, 205, 210, 244, 245, 246, 251, 252, 253, 254, 255, 257, 264, 265, 266, 270, 272, 294, 296,
-    297, 331, 367, 377, 378, 405, 406, 408, 512, 513, 514, 515, 516, 521, 522, 528, 538, 539, 540,
+    297, 331, 367, 377, 378, 405, 406, 408, 512, 513, 514, 515, 516, 521, 522, 538, 539,
 ))  # fmt: skip
 FIELD_ATTEMPTS = 6  # about eight seconds for the lobby to come up
 
@@ -582,6 +589,18 @@ def character_keys(run: Run, key_names) -> dict[int, str]:
 def run_ended(run: Run, world: World) -> bool:
     if world.player is None:
         return False
+    if world.player.area in BOSS_LEVELS and run.supers is not None:
+        here = (world.player.x, world.player.y)
+        seen = run.supers(world.player.area)
+        near = [spot for spot in seen if math.dist(here, spot) <= BOSS_UNITS]
+        LOG.info(
+            'Macro: %d super uniques seen on level %d, %d within %.0f',
+            len(seen),
+            world.player.area,
+            len(near),
+            BOSS_UNITS,
+        )
+        return bool(near)
     if world.player.area in RUN_ENDS:
         return True
     if world.player.area == CATACOMBS_4:

@@ -15,7 +15,7 @@ from inventory_tracking.combat.mechanics.validate import validate
 from inventory_tracking.combat.scoreboard import build, lines
 from inventory_tracking.combat.sim.engine import fitted_mana, replay
 from inventory_tracking.combat.sim.input import validate_inputs
-from inventory_tracking.combat.sim.policy import compare
+from inventory_tracking.combat.sim.policy import LEAD, MODES, compare
 from inventory_tracking.combat.sim.situation import cut, describe
 from inventory_tracking.combat.takes import Take, timeline, trim
 from inventory_tracking.combat.timeline import longest_visit
@@ -90,7 +90,8 @@ def main(argv=None) -> int:
         elif args.mana is not None:
             wanted = float(args.mana)
             options['mana'] = (wanted, wanted / (pool / regen) if pool and regen and wanted else 0.0, cost)
-        report = compare(situation, **options)
+        modes = (*MODES, LEAD) if situation.routes else MODES  # a take with path records: the lead too
+        report = compare(situation, modes, **options)
         report['mana_model'] = options.get('mana', mana_table())
         print(json.dumps(report, indent=1))
         return 0

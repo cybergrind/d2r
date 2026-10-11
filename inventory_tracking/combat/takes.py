@@ -146,6 +146,7 @@ class Take:
     events: list[dict[str, Any]] = field(default_factory=list)
     units: list[dict[str, Any]] = field(default_factory=list)
     missiles: list[dict[str, Any]] = field(default_factory=list)
+    paths: list[dict[str, Any]] = field(default_factory=list)  # the monsters' path records, when recorded
 
     @classmethod
     def load(cls, directory: Path) -> Take:
@@ -157,6 +158,7 @@ class Take:
             list(lines(directory / 'events.jsonl')),
             list(lines(directory / 'units.jsonl')),
             list(lines(directory / 'missiles.jsonl')),
+            list(lines(directory / 'paths.jsonl')),
         )
         take.schema  # noqa: B018 (refuses rows this reader does not know)
         return take

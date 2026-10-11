@@ -475,3 +475,37 @@ def test_spans_group_sorted_ticks_into_inclusive_runs():
 def test_steps_keep_only_the_changes_and_the_last_value_at_a_tick():
     assert viz.steps([(1, 4), (2, 4), (3, 5), (3, 6), (7, 6)]) == [1, 4, 3, 6]
     assert viz.steps([]) == []
+
+
+def test_the_index_names_the_source_and_what_was_left_out(tmp_path):
+    takes = tmp_path / 'takes'
+    viz.write_index(tmp_path, [{'take': 'alpha'}], source=takes, left_out={'gamma': 'fewer than 5 full casts'})
+    index = json.loads((tmp_path / viz.INDEX).read_text())
+    assert index['source'] == str(takes.resolve())
+    assert index['left_out'] == {'gamma': 'fewer than 5 full casts'}
+
+
+def test_a_merged_take_moves_to_the_side_it_is_now_on_and_the_source_stays(tmp_path):
+    viz.write_index(tmp_path, [{'take': 'alpha'}], source=tmp_path / 'takes', left_out={'gamma': 'too short'})
+    viz.write_index(tmp_path, [{'take': 'gamma'}], left_out={'alpha': 'too short'}, merge=True)
+    index = json.loads((tmp_path / viz.INDEX).read_text())
+    assert [row['take'] for row in index['takes']] == ['gamma']
+    assert index['left_out'] == {'alpha': 'too short'}
+    assert index['source'] == str((tmp_path / 'takes').resolve())
+
+
+def test_one_take_prints_every_stage_in_order(chaos, tmp_path, capsys):
+    assert viz.main([str(chaos.directory), '--out', str(tmp_path)]) == 0
+    lines = [line for line in capsys.readouterr().out.splitlines() if line.startswith('[')]
+    total = viz.stages(viz.POLICIES)
+    assert [line.split(']')[0] for line in lines] == [f'[{count}/{total}' for count in range(1, total + 1)]
+    assert lines[3] == f'[4/{total}] policy live'
+    assert json.loads((tmp_path / viz.INDEX).read_text())['source'] == str(chaos.directory.parent.resolve())
+
+
+def test_one_take_with_too_few_casts_is_listed_as_left_out(chaos, tmp_path, monkeypatch):
+    monkeypatch.setattr(viz, 'LEAST_CASTS', 10**6)
+    assert viz.main([str(chaos.directory), '--out', str(tmp_path)]) == 1
+    index = json.loads((tmp_path / viz.INDEX).read_text())
+    assert index['takes'] == []
+    assert list(index['left_out']) == ['chaos-manual']

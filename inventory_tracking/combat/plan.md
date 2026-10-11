@@ -6,15 +6,17 @@
 
 - Recorder (`combat/record.py`): inside `serve`, samples the game about 25 times a second while the
   character is in a recorded area (Chaos Sanctuary, the Catacombs). One take per stay in a level.
+  Since 2026-10-11 a take also holds the monsters' path records (`paths.jsonl`, `combat_paths`).
 - Takes (`combat/takes.py`): the one reader of the take files; a trim keeps its source recording.
 - Mechanics (`combat/mechanics/`, `combat/data/damage.json`): blade flight, convergence and walls
   checked against recorded blades; points per contact, companions, Health Link, Hex Purge, Death
-  Mark and mana.
+  Mark and mana. `mechanics/movement.py`: a walking monster's route, read from its path record.
 - Simulator (`combat/sim/`): replays a take with monsters open loop on their recorded paths; the
   policy under test picks the casts. Its frames are game ticks, 25 a second, from the samples'
   timestamps (`combat/timeline.py`): a late sample takes the ticks it was late by with it. The
   `live` candidate is the aim the game's fight runs; the rest of the fight (holds, swaps, marks
-  chosen live) is not replayed.
+  chosen live) is not replayed. `lead` is `live` aiming where the routes put the monsters as the
+  blades fly; only `combat policy` on a take with path records runs it, the game's fight does not.
 - Controller (`combat/controller.py`): the fight's decisions apart from the game: where to cast
   (`aim_choice`: the policy's line, else straight at what is in reach, always a focal point the
   window lets the pointer reach), whose the pointer is (`Aim`), the held strike input (`CastWatch`)
@@ -68,6 +70,9 @@
   (evening gate note).
 - Mana does not limit casting in the takes; its regeneration is the classic assumption, and the
   limit is off by default.
+- The lead (2026-10-11): one take, +7.8% against `live` +6.7%, and that take fails the gate. Not in
+  the game's fight until several takes with path records say the same; the monsters' AI (when one
+  stops or starts walking) is located in the client but not modelled.
 - Assist mode (the policy never moves the pointer) is not built; whether takeover with yield feels
   right in hand is the user's verdict, not yet given.
 
@@ -304,11 +309,12 @@ inventory_tracking/combat/
     echoing_strike.py  the blades: spawn, convergence, range, return (cast, focal_point, errors)
     validate.py      the emulation's position error against recorded blades (`combat validate`)
     hits.py          contacts and their match to recorded drops (`combat calibrate`)
+    movement.py      a walking monster's route from its path record, and where it is some frames on
   sim/
     situation.py     a situation cut from a take: player, monsters, companions, casts, recorded kills and drops
     engine.py        simulate, score, the gate (life explained, damage ratio, life curves), replay (`combat simulate`)
     input.py         presses to casts (`combat inputs`)
-    policy.py        the policies through a situation: slots, yield, free, nearest (`combat policy`)
+    policy.py        the policies through a situation: slots, yield, free, nearest, live, lead (`combat policy`)
   __main__.py        combat replay | analyse | validate | calibrate | simulate | inputs | policy | gate | compare | trim
 macros/hunt.py       the policy's client in the game: one held strike on the policy's line, yielding to the player
 tests/inventory_tracking/combat/  mirrors the modules; fixtures/ holds two single casts and two trimmed takes
@@ -1291,3 +1297,112 @@ a 1280 x 1422 window, not at 2560 x 1440. The viewer shows what the simulator sa
 gate fails (46 of the 71) the comparison is only as good as the model, and the side panel says so.
 A monster's simulated life rounds up to one thousandth while it lives, so a bar never reads empty
 before its death tick.
+
+### 2026-10-10 21:45 run (Catacombs 2–4): blades stepped over thin walls
+
+- Reported: the fight fired for a long time away from the monsters. Take `20261010T184303Z-36`,
+  39–42.5 s in: 3.3 s of casts due north at a monster behind a wall one cell thick, while two
+  monsters stood in the open to the south-east.
+- Cause: `mechanics/echoing_strike.cast` asked `blocked` only at each frame's position. A blade
+  flies 1.12 units a frame and a cell is 1, so two of the five blades were counted as passing the
+  wall and the line through the monster behind it scored 5610 against 5019 for the right one.
+- Fix: `stopped` looks at the middle of each step as well as its end, out and back. On the recorded
+  frames the choice is now the monster in the open. Test:
+  `test_a_blade_does_not_step_over_a_wall_one_cell_thick`.
+- Scoreboard after (80 takes now): 28 pass, fit 1 of 3, yield gain on passing takes median +20.0%,
+  live +19.9%.
+- The 21:35 run before it was clean: the aim's jump landed on both moving-pointer tries, and every
+  "shot blocked" replayed was a wall cell (recorded blades do not cross them), none a door.
+
+## Note, 2026-10-11: where a monster will be (the client's code, the path record, the lead)
+
+User, 2026-10-11: read the monsters' movement code in the client to predict movement and miss less.
+
+### The client's code (Binary Ninja on `pricing/raw/re/D2R-decrypted.exe`)
+
+Addresses are of the build dumped on 2026-10-11; a game update moves them.
+
+- The file: `D2R.exe` with every code page a memory dump shows decrypted patched in
+  (`pricing/tools/grow.py`, `make grow`: dumps the running game and merges; prints the address ranges
+  that ran for the first time, which also locates the code of whatever was just done in the game).
+  3820 of 5580 code pages on 2026-10-11. An online game added 20 pages, offline games 200: the
+  monsters' AI runs in the client only offline.
+- The AI table: `0x141d18800` in `.data`, 174 entries of 0x20 bytes, the think function first. Entry 3
+  (`sub_14048d710`) reads as the classic Zombie AI, which is what monstats AI id + 1 would give; only
+  that entry was decompiled, so the indexing is an inference. `monai.txt` is not among the dumped
+  tables (`pricing/raw/game-excel`) and the AI names are not in the client, so the monsters of the
+  takes are not yet mapped to their functions.
+- That function: out of combat, a roll of 0-99 under `aip1` walks to the target, else the monster
+  idles `aip2` frames; in combat, a roll under `aip3` attacks, else it idles `aip2` frames. The
+  monstats row holds `aip1` at 0x90, `aip2` at 0x96, `aip3` at 0x9C, `aip4` at 0xA2, a u16 per
+  difficulty. The rolls use the unit's own seed (unit + 0x28, 0x2C; multiplier `0x6AC690C5`); nothing
+  reads the seed yet.
+- Idle (`sub_140425300`): neutral mode and the next think at the game's frame plus the delay.
+  Walk to target (`sub_140425550`): the target and a stop distance into the path record, then the
+  pathfinder (`sub_1403d9690`); with no route, a 70% roll for a helper not yet read (`sub_140425c30`),
+  else 10 frames idle.
+- Not found: the function that steps a unit along its path each frame, and the velocity fields.
+
+### The path record (unit + 0x38), confirmed on the Far Oasis take
+
+| Offset | Field |
+|---|---|
+| 0x00-0x07 | position: x and y, each a u16 fraction then a u16 cell |
+| 0x10, 0x12 | the point walked to (u16 cells) |
+| 0x30, 0x34 | the waypoint being walked to, and how many there are (u32) |
+| 0x50 | path type |
+| 0x70, 0x78, 0x7C | target unit: pointer, type, id |
+| 0xBC-0xBF | stop distance fields |
+| 0xC8 | the waypoints, u16 x and y cells (78 by the classic layout) |
+
+The first three rows and the last were checked against the recorded positions; the others are as the
+code writes them. A walking monster goes straight to its current waypoint, which is in the record
+from the frame the walk starts. About two thirds of the moving samples had one waypoint, the rest up
+to 11.
+
+Recorder: `macros/world.py` reads 0x240 bytes of each monster's record (`PATH_RECORD`), the take
+writes a row to `paths.jsonl` when a record changes past the position. `combat_paths` is on by
+default, `--no-combat-paths` turns it off. The record changes on most frames of a walk: 18 MB beside
+21.5 MB of frames for 176 s (`20261010T224210Z-43`), so a take is about twice the size. It can be cut
+to the fields above.
+
+### Speed
+
+Median speed in walk mode over the takes to 2026-10-10 is the monstats `Velocity` in world units a
+second: doomknight1 6.01 for 6, fingermage3 10.06 for 10, megademon3 10.25 for 10, doomknight3 8.17
+for 8, vampire5 9.00 for 9, skeleton2 4.03 for 4. Not explained: megademon2 at 26 for 10, zombies in
+run mode at 2.5 for a Run of 4, Diablo at 2.1 for 6, several Fallen and Goatman rows 5-25% fast. A
+single frame's speed is noisy (doomknight1: 3 to 9 around the 6).
+
+### Prediction (Far Oasis take, moving hostiles, about 9,500 samples a horizon)
+
+Error in world units between where the model puts a monster and where it was.
+
+| Frames ahead | Stay put | Last three frames carried on | Waypoints at monstats speed |
+|---|---|---|---|
+| 5 | 1.03 mean, 13% over 2 | 0.47, 4% | 0.54, 1% |
+| 10 | 1.84, 37% | 1.10, 18% | 1.02, 15% |
+| 15 | 2.50, 49% | 1.82, 33% | 1.46, 24% |
+
+A monster not walking stays within 0.3 units on average at all three. What is left of the waypoint
+error is not broken down; the likely parts are a monster that stops to attack or think again inside
+the window, and a real speed other than the monstats row's.
+
+### In the simulator (`mechanics/movement.py`, `policy.py` `lead`, `sim/policy.py` `lead`)
+
+- `Route` (the waypoints still ahead, units a frame) from a record by `route_of`; `Route.after` walks it.
+- A situation cut from a take with path records carries each hostile's route per tick
+  (`Situation.routes`); the engine puts it on the `Foe` the policy sees.
+- `LinePolicy(lead=frames to the blades' first frame)`: a line is laid through where the monster is
+  when a blade gets as far as it stands now, and each blade frame is scored against the monster's
+  place at that frame. Off (None) by default: the game's fight is unchanged.
+- `combat policy <take>` adds the `lead` row when the take has routes. The scoreboard does not run it:
+  older takes have no routes.
+- Far Oasis take: recorded casts 2587 points per combat second (272 casts); `live` 2760, +6.7% (167
+  casts); `lead` 2789, +7.8% (177 casts). The take fails the gate (damage ratio 0.85, blades ahead by
+  0.125). One point on one take is within noise. In that take about 83% of the hostile samples were
+  standing or attacking, and the lead changes nothing for those; that this is why the gain is small
+  is not measured.
+
+Next: with several takes that have path records, `lead` against `live` across them, split by how many
+hostiles were walking; then the live aim (`macros/hunt.py` would read the routes), if it holds.

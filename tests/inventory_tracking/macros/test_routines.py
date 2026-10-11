@@ -294,6 +294,29 @@ def test_by_the_frigid_highlands_waypoint_the_macro_leaves_and_makes_the_next_ga
     assert game.world.game_name == 'cyber33'
 
 
+@pytest.mark.parametrize('area', [110, 111])
+def test_far_from_eldritch_and_shenk_the_macro_only_prebuffs(area):
+    # A terrorized Frigid Highlands, 02:45 on 2026-10-11: the request 550 units from where Eldritch
+    # died left the game. The character stands at (5000, 5000).
+    for seen in ([], [(5400.0, 5300.0)]):
+        game = Game(world(area))
+        run = game.run()
+        run.supers = lambda level, seen=seen: seen if level == area else [(5000.0, 5000.0)]
+        run_macro(run, lambda w: dict(KEYS))
+        assert 'Escape' not in game.pressed()
+        assert game.world.game_name == 'cyber32'
+
+
+@pytest.mark.parametrize('area', [110, 111])
+def test_near_where_the_levels_super_unique_was_seen_the_macro_leaves(area):
+    game = Game(world(area))
+    run = game.run()
+    run.supers = lambda level: [(5400.0, 5300.0), (5060.0, 5040.0)]
+    run_macro(run, lambda w: dict(KEYS))
+    assert game.pressed()[0] == 'Escape'
+    assert game.world.game_name == 'cyber33'
+
+
 def test_the_other_weapon_set_in_hand_is_swapped_away_before_the_first_cast_and_not_back():
     game = Game(world(112))
     game.sets = [OTHER_SET, PREBUFF_SET]

@@ -1,0 +1,280 @@
+{
+ "name": "20261010T205658Z-24-235710",
+ "log_time": "2026-10-10 23:57:10,337",
+ "take": "20261010T205658Z-24",
+ "area": 24,
+ "in_fight": true,
+ "logged": {
+  "in_reach": 5,
+  "near": 19,
+  "decision": "no better stand"
+ },
+ "player": [
+  12532.5,
+  9638.5
+ ],
+ "hostiles": [
+  {
+   "unit": 2866023425,
+   "txt": 162,
+   "at": [
+    12513.5,
+    9633.5
+   ],
+   "life": 1.0,
+   "elite": false
+  },
+  {
+   "unit": 1973950467,
+   "txt": 162,
+   "at": [
+    12517.75,
+    9625.5
+   ],
+   "life": 1.0,
+   "elite": false
+  },
+  {
+   "unit": 3947900934,
+   "txt": 162,
+   "at": [
+    12515.5,
+    9630.5
+   ],
+   "life": 1.0,
+   "elite": false
+  },
+  {
+   "unit": 3466264970,
+   "txt": 21,
+   "at": [
+    12532.5,
+    9604.5
+   ],
+   "life": 1.0,
+   "elite": false
+  },
+  {
+   "unit": 4137721869,
+   "txt": 162,
+   "at": [
+    12520.5,
+    9641.5
+   ],
+   "life": 1.0,
+   "elite": false
+  },
+  {
+   "unit": 3174433557,
+   "txt": 21,
+   "at": [
+    12529.5,
+    9604.5
+   ],
+   "life": 1.0,
+   "elite": false
+  },
+  {
+   "unit": 3443621915,
+   "txt": 162,
+   "at": [
+    12514.5,
+    9647.5
+   ],
+   "life": 0.5156,
+   "elite": false
+  },
+  {
+   "unit": 1517028907,
+   "txt": 21,
+   "at": [
+    12529.5,
+    9608.5
+   ],
+   "life": 1.0,
+   "elite": false
+  },
+  {
+   "unit": 3129147447,
+   "txt": 162,
+   "at": [
+    12519.5,
+    9650.5
+   ],
+   "life": 0.4219,
+   "elite": false
+  },
+  {
+   "unit": 1947730365,
+   "txt": 162,
+   "at": [
+    12517.5,
+    9652.5
+   ],
+   "life": 0.5703,
+   "elite": false
+  },
+  {
+   "unit": 1733132485,
+   "txt": 21,
+   "at": [
+    12534.5,
+    9604.5
+   ],
+   "life": 1.0,
+   "elite": false
+  },
+  {
+   "unit": 3034057814,
+   "txt": 21,
+   "at": [
+    12532.5,
+    9607.5
+   ],
+   "life": 1.0,
+   "elite": false
+  },
+  {
+   "unit": 2852913374,
+   "txt": 162,
+   "at": [
+    12515.5,
+    9648.5
+   ],
+   "life": 0.5703,
+   "elite": false
+  },
+  {
+   "unit": 3895460730,
+   "txt": 162,
+   "at": [
+    12518.5,
+    9651.5
+   ],
+   "life": 0.6797,
+   "elite": true
+  }
+ ],
+ "companions": [
+  {
+   "unit": 1626452611,
+   "txt": 744,
+   "at": [
+    12538.5,
+    9636.5
+   ]
+  },
+  {
+   "unit": 1737756085,
+   "txt": 361,
+   "at": [
+    12522.5,
+    9641.5
+   ]
+  },
+  {
+   "unit": 3475512170,
+   "txt": 338,
+   "at": [
+    12550.5,
+    9640.5
+   ]
+  }
+ ],
+ "doors": [],
+ "ground": [
+  {
+   "x": 2516,
+   "y": 1916,
+   "width": 8,
+   "height": 8,
+   "cells": "AB///AAAH//8AAAf//wAAB///AAAH//8AAAf//wAAB4f/AAAHh/8AAAf//wAAB///AAAD//8APvP///v+////+/7////7/v////v+////+/7////7/v////v+////+/////////////////////7////7/v////v+////+/7////7/v////v+////+/7////7/v////vA/5/n+AD/n+f4AP////gA////+AD////4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "+B///AD4H//8APgf//wA+B///AD4H//8AAAf//wAAB///AAAH//8AAAf//wAAB///AAAD//8APvP///v+////+/7////7/v////v+////+/7////7/v////v+////+/////////////////////7////7/v////v+////+/7////7/v////v+////+/7////7/v////vA/5/n+AD/n+f4AP////gA////+AD////4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+  },
+  {
+   "x": 2508,
+   "y": 1916,
+   "width": 8,
+   "height": 8,
+   "cells": "AB///AAAH//8AAAf//wAAB///AAAH//8AAAf//wAAB4f/AAAHh/8AAAf//wAAB///AAAABwAAP///////////////////////////8///PP/z//88//////z//////P/////////////////////////////////////////z//8///P//z/////////////////////AAAcAAAAH//8AAAf//wAAB///AAAH//8AAAf//wAAB///AAAH//8AAAf//wAAB///AA=",
+   "flight": "+B///AD4H//8APgf//wA+B///AD4H//8AAAf//wAAB///AAAH//8AAAf//wAAB///AAAABwAAP///////////////////////////8///P//z//8////////////////////////////////////////////////////////z//8///P//z/////////////////////AAAcAAAAH//8AAAf//wAAB///AAAH//8AAAf//wAAB///AAAH//8AAAf//wAAB///AA="
+  },
+  {
+   "x": 2508,
+   "y": 1908,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP///////////////////////////8///P//z//8////////////////////////////////////////////////////////z//8///P//z/////////////////////AAAcAAAAH//8AAAf//wAAB///AAAH//8AAAf//wAAB8P/AAAHw/8AAAf//wAAB///AA=",
+   "flight": "+AAAAAD4AAAAAPgAAAAA+AAAAAD4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP///////////////////////////8///P//z//8////////////////////////////////////////////////////////z//8///P//z/////////////////////AAAcAAAAH//8AAAf//wAAB///AAAH//8AAAf//wAAB///AAAH//8AAAf//wAAB///AA="
+  },
+  {
+   "x": 2500,
+   "y": 1916,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAf////AB////8AH////wAf////AB///P8AH//8/wAf////AB////8AH////wAf////AB////8AH////wAf////AB////8AH//8/wAf//z/AB////8AH////wAf////AAAcAAAAH//8AAAf//wAAB///AAAH//8AAAf//wAAB///AAAH//8AAAf//wAAB///AA=",
+   "flight": "+AAAAAD4AAAAAPgAAAAA+AAAAAD4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAf////AB////8AH////wAf////AB///P8AH//8/wAf////AB////8AH////wAf////AB////8AH////wAf////AB////8AH//8/wAf//z/AB////8AH////wAf////AAAcAAAAH//8AAAf//wAAB///AAAH//8AAAf//wAAB///AAAH//8AAAf//wAAB///AA="
+  },
+  {
+   "x": 2500,
+   "y": 1924,
+   "width": 8,
+   "height": 8,
+   "cells": "AB///AAAH//8AAAf//wAAB///AAAH//8AAAf//wAAB///AAAH//8AAAf//wAAB///AAAA4AAAAP///3/A////f8D///9/wP///3/A////f8D///9/wP///3/A////f8D/////wP/////A/////8D///9/wP///3/A////f8D///9/wP///3/A////f8D///9/wP///3/A////AAD///8AAP///wAA////AAD///8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "+B///AD4H//8APgf//wA+B///AD4H//8AAAf//wAAB///AAAH//8AAAf//wAAB///AAAA4AAAAP///3/A////f8D///9/wP///3/A////f8D///9/wP///3/A////f8D/////wP/////A/////8D///9/wP///3/A////f8D///9/wP///3/A////f8D///9/wP///3/A////AAD///8AAP///wAA////AAD///8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+  },
+  {
+   "x": 2508,
+   "y": 1924,
+   "width": 8,
+   "height": 8,
+   "cells": "AB///AAAH//8AAAf//wAAB///AAAH//8AAAf//wAAB///AAAH//8AAAf//wAAB///AAAABwAAP/////g/////+D/////4P/////g/P///OD8/h/84Pz+H//g/P///+D/////4P////zg//4f/OD//h//4P/////g/////+D////84P////zg/////+D/////4P/////gAAAcAAAAH//8AAAf//wAAB///AAAH//8AAAf//wAAB4f/AAAHh/8AAAf//wAAB///AA=",
+   "flight": "+B///AD4H//8APgf//wA+B///AD4H//8AAAf//wAAB///AAAH//8AAAf//wAAB///AAAABwAAP/////g/////+D/////4P/////g/////OD////84P/////g/////+D/////4P////zg/////OD/////4P/////g/////+D////84P////zg/////+D/////4P/////gAAAcAAAAH//8AAAf//wAAB///AAAH//8AAAf//wAAB///AAAH//8AAAf//wAAB///AA="
+  },
+  {
+   "x": 2500,
+   "y": 1908,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD//AAAAP/8AAAA//wAAAD//AAAAHOcAH/+c5//f/////9//////3//////f/////9//////3//////f/////9//////3//////f/////9//////3//////f/////9//////3//////f/////9//////3//////AADznAAAAPOcAAAA//wAAAD//AAAAP/8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "+AAAAAD4AAAAAPgAAAAA+AAAAAD4AAAAAAAAAAAAAAD//AAAAP/8AAAA//wAAAD//AAAAHOcAH/+c5//f/////9//////3//////f/////9//////3//////f/////9//////3//////f/////9//////3//////f/////9//////3//////f/////9//////3//////AADznAAAAPOcAAAA//wAAAD//AAAAP/8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+  },
+  {
+   "x": 2508,
+   "y": 1932,
+   "width": 8,
+   "height": 8,
+   "cells": "AB///AAAH//8AAAf//wAAB///AAAH//8AAAf//wAAB///AAAH//8AAAf//wAAB///AAAH//8AAAf//wAAB///AAAH//8AAAf//wAAAAH/AAAAAf8AAAAB/wAAAAH/AAAAAf8AAAAA/wAA//z/+AD////4AP////gA////+AD////4AP////gA////+AD////4AP////gAB5/nAAAHn+cAAAf//wAAB///AAAH//8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "+B///AD4H//8APgf//wA+B///AD4H//8AAAf//wAAB///AAAH//8AAAf//wAAB///AAAH//8AAAf//wAAB///AAAH//8AAAf//wAAAAH/AAAAAf8AAAAB/wAAAAH/AAAAAf8AAAAA/wAA//z/+AD////4AP////gA////+AD////4AP////gA////+AD////4AP////gAB5/nAAAHn+cAAAf//wAAB///AAAH//8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+  }
+ ],
+ "after": {
+  "player_at": {
+   "1.0": [
+    12532.5,
+    9638.5
+   ],
+   "2.0": [
+    12532.5,
+    9638.5
+   ],
+   "3.0": [
+    12532.5,
+    9638.5
+   ],
+   "5.0": [
+    12524.57,
+    9637.75
+   ]
+  },
+  "alive_at": {
+   "1.0": 11,
+   "2.0": 9,
+   "3.0": 9,
+   "5.0": 8,
+   "8.0": 2
+  },
+  "cleared_seconds": 8.63,
+  "casts": 7
+ }
+}

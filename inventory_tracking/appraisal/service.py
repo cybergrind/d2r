@@ -632,6 +632,7 @@ def run_service(args, directory, report):
                         )
                         macro.target = guide.target  # the teleport step moves toward the card's first mark
                         # The seek step and attack mode: the level's rooms and walls, remembered elites, explored rooms.
+                        macro.supers = zones.supers if zones is not None else None
                         macro.hunter = Hunter(
                             guide.level,
                             zones.remembered if zones is not None else None,
@@ -647,6 +648,7 @@ def run_service(args, directory, report):
                             rate=APPRAISAL.combat_rate,
                             level=guide.level if guide is not None else None,
                             macro_working=lambda: macro.working,
+                            paths=args.combat_paths,
                         )
                     runes = None
                     if args.rune_marks and args.osd:
@@ -857,6 +859,12 @@ def main(argv=None):
         help='request: the pickup step instead (pick up a valuable or a potion, else a seek step)',
     )
     parser.add_argument('--level-output', type=Path, default=LEVEL_OUTPUT, help='Win+C level dump runs')
+    parser.add_argument(
+        '--combat-paths',
+        action=argparse.BooleanOptionalAction,
+        default=APPRAISAL.combat_paths,
+        help="serve: also write the monsters' path records to the takes (paths.jsonl; movement research)",
+    )
     parser.add_argument(
         '--combat-record',
         action=argparse.BooleanOptionalAction,

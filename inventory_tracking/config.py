@@ -143,7 +143,8 @@ class BeltWidgetConfig(Config):
 
 class TeleportWidgetConfig(Config):
     enabled: bool = True
-    low_percent: Percent = 20
+    # Shown outside town at or below this many charges left (user, 2026-10-10: at 20, not at 13 of 69).
+    low_charges: Annotated[int, Field(ge=0)] = 20
     show_repair_in_town: bool = True
 
 
@@ -352,6 +353,8 @@ class AppraisalConfig(Config):
         'charms',
         'essences',  # user, 2026-10-10 night
     )
+    # Groups the pickup step takes besides the marked ones: every ring, jewel and amulet (user, 2026-10-10 night).
+    pickup_also: tuple[Literal['rings', 'jewels', 'amulets'], ...] = ('rings', 'jewels', 'amulets')
     terror_probe: bool = True  # record monster sightings/kills to terror-probe.jsonl (terror/probe.py research)
     terror_probe_interval: Positive = 0.25  # seconds between monster-table reads
     terror_summary_seconds: Positive = 10.0  # seconds between per-area summary events
@@ -362,8 +365,39 @@ class AppraisalConfig(Config):
     terror_card: bool = True  # HUD card: next Herald tier, group kills, breakpoint and spawn odds
     boss_stats: bool = True  # Terror card slot: kills, average time between kills and time since the last, per boss
     combat_record: bool = True  # record takes of play in combat_areas for combat/plan.md (combat/record.py)
-    combat_areas: tuple[int, ...] = (108, 35, 36, 37, 38)  # Chaos Sanctuary (2026-10-09), Catacombs 1-4 (2026-10-10)
+    # Chaos Sanctuary (2026-10-09), Catacombs 1-4 (2026-10-10), Worldstone Keep 1-3 and the Throne
+    # (levels.txt 128-131; the first run there, 2026-10-10 night, left no take to read).
+    # Tower Cellar 1-5 (levels handler areas 21-25): the Tower runs of 2026-10-10 left none either.
+    # Black Marsh (levels.txt 6): the run of 2026-10-11 00:25 left none (user: two minutes for seconds of work).
+    # Far Oasis (levels.txt 43): the path-record probe of 2026-10-11 01:30 left no take.
+    # Frigid Highlands (levels.txt 111): the terrorized run of 2026-10-11 02:40 left none (the huts: are they struck?).
+    # Durance of Hate 1-3 (levels.txt 100-102): the 22 s standstill of 2026-10-11 03:09 on level 2 left none.
+    combat_areas: tuple[int, ...] = (
+        108,
+        35,
+        36,
+        37,
+        38,
+        128,
+        129,
+        130,
+        131,
+        21,
+        22,
+        23,
+        24,
+        25,
+        6,
+        43,
+        111,
+        100,
+        101,
+        102,
+    )
     combat_rate: Positive = 25.0  # frames per second sampled; the engine's rate
+    # Movement research: also write each monster's whole path record to the take's paths.jsonl when it
+    # changes (about 1 KB a monster a change; on for every take since 2026-10-11, size not yet measured).
+    combat_paths: bool = True
     terror_card_unconfirmed: bool = (
         False  # also show it before any monster says terrorized or not (marked "unconfirmed")
     )

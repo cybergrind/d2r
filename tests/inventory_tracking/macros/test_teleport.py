@@ -22,7 +22,7 @@ from inventory_tracking.macros.teleport import (
     landing,
     step_toward,
 )
-from inventory_tracking.macros.world import Teleport
+from inventory_tracking.macros.world import Teleport, Warp
 from tests.inventory_tracking.macros.fakes import KEYS, SLOTS, Game, player, world
 
 
@@ -86,11 +86,35 @@ def test_a_doorway_drawn_above_its_tile_is_clicked_there_when_the_ground_does_no
     # Worldstone Keep's stairs (host, 01:32 on 2026-10-10): the teleport landed on the warp tile and
     # the click on the ground under the character's feet moved nobody.
     play = game(player=player(x=5007.5, y=5002.5))
-    play.door, play.door_above = (1001.5, 1000.5), 60
+    play.door, play.door_above, play.hover_known = (1001.5, 1000.5), 60, False
     step_toward(play.run(), target(play.door, warp=True), keys)
-    assert [event[0] for event in play.keys.events] == ['click', 'click']
+    # the click on the ground moved nobody and is made again (a cast may have swallowed it), then the aim above
+    assert [event[0] for event in play.keys.events] == ['click', 'click', 'click']
     assert play.world.player.area == 110
     assert play.said == ['Walking into Next level, 0 away', 'Next level: there']
+
+
+def test_an_aim_without_the_door_under_the_pointer_is_not_clicked():
+    # The tower's door in Black Marsh (host, 22:43 on 2026-10-10): three clicks on the ground beside the
+    # door walked the character round the entrance for 6 s; the game's record had no tile under them.
+    play = game(player=player(x=5007.5, y=5002.5))
+    play.door, play.door_above = (1001.5, 1000.5), 60
+    step_toward(play.run(), target(play.door, warp=True), keys)
+    assert [event[0] for event in play.keys.events] == ['click']
+    assert play.walks == []
+    assert play.world.player.area == 110
+
+
+def test_a_door_the_record_never_shows_is_clicked_at_every_aim_after_two_looks(caplog):
+    play = game()
+    play.door = (1001.5, 1000.5)
+    run = play.run()
+    run.hovered = lambda: (2, 7)  # the record still holds the waypoint taken in town
+    with caplog.at_level('INFO'):
+        step_toward(run, target(play.door, warp=True), keys)
+    assert [event[0] for event in play.keys.events] == ['click']
+    assert play.world.player.area == 110
+    assert any('no door under the pointer at the aims' in r.message for r in caplog.records)
 
 
 def test_the_click_that_took_a_levels_door_is_tried_first_next_time():
@@ -111,12 +135,34 @@ def test_a_door_whose_aim_the_logs_gave_is_clicked_there_first():
     assert teleport.door_aims(mark)[:2] == ((0, -45), (0, 0))
 
 
+def test_a_door_the_game_shows_is_clicked_in_the_middle_of_its_own_box():
+    # The tower's door in Black Marsh (the running game, 23:02 on 2026-10-10): the door unit (lvlwarp Id
+    # 10, box -10, -50 to 140, 30) at (15651, 5385), the mark at (15657.5, 5387.5).
+    tower = Warp(1593147781, 10, 15651.0, 5385.0)
+    assert teleport.box_aim((15657.5, 5387.5), (tower,)) == (1, -82)
+    assert teleport.box_aim((15657.5, 5387.5), (Warp(7, 11, 10004.0, 8003.0),)) is None  # another level's door
+    assert teleport.box_aim((15657.5, 5387.5), (Warp(7, 999, 15651.0, 5385.0),)) is None  # no box known
+    mark = Target(6, (HERE,), (3131.5, 1077.5), 'Forgotten Tower', 'stairs', True)
+    assert teleport.door_aims(mark, (tower,))[0] == (1, -82)
+
+
+def test_the_doors_own_box_is_the_first_click():
+    play = game(player=player(x=5007.5, y=5002.5))
+    play.door, play.door_above = (1001.5, 1000.5), 82  # only the box takes: 82 pixels above the tiles
+    run = play.run()
+    run.warps = lambda: (Warp(3, 10, 5001.0, 5000.0),)  # 6.5, 2.5 units from the mark, as the tower's
+    step_toward(run, target(play.door, warp=True), keys)
+    assert [event[0] for event in play.keys.events] == ['click']
+    assert play.walks == []
+    assert play.world.player.area == 110
+
+
 def test_a_door_aim_with_a_monster_under_it_is_left_for_last():
     # The mercenary lands beside the character after a hop: a click on it is not a click on the door.
     play = game()
     play.door = (1001.5, 1000.5)
     run = play.run()
-    looks = iter([(1, 77), (0, 0), (0, 0), (0, 0), (0, 0)])  # a monster under the first aim only
+    looks = iter([(1, 77), (5, 9)])  # a monster under the first aim, the door under the next
     run.hovered = lambda: next(looks)
     step_toward(run, target(play.door, warp=True), keys)
     assert play.world.player.area == 110
@@ -211,8 +257,20 @@ def test_an_open_panel_stops_the_step():
 
 def test_a_teleport_that_moves_nobody_is_reported():
     play = game()
+    play.staff = None  # Teleport as a skill of the character's own
     play.keys.on_event = lambda event: None  # the game ignores the key
     with pytest.raises(Abort, match='did not move'):
+        step_toward(play.run(), target((1003.0, 1000.0)), keys)
+
+
+def test_a_key_that_casts_nothing_with_the_staff_in_hand_is_named_as_teleport_off_its_key():
+    # user, 2026-10-11: a game left with the staff in hand loses Teleport's key in the next one; three
+    # steps in a row "did not move" at 01:26 that night until it was bound again.
+    play = game()
+    assert play.staff is not None
+    assert play.staff.in_hand
+    play.keys.on_event = lambda event: None  # the key is bound to nothing: no charge is spent
+    with pytest.raises(Abort, match='Teleport is off its key: bind it again'):
         step_toward(play.run(), target((1003.0, 1000.0)), keys)
     assert play.pressed() == ['t']
 
@@ -382,6 +440,7 @@ def test_a_hand_that_keeps_sweeping_the_mouse_is_beaten_by_a_jump_of_the_pointer
 def walking_game(door, entry, *, after=(0.6, 0.9)):
     """A game whose door walks the clicked character to `entry` (world units) and then changes the level."""
     play = game()
+    play.hover_known = False  # the walk is timed from the first click
     start = play.clock.now
 
     def arrive():
@@ -485,3 +544,70 @@ def test_door_entries_are_kept_in_a_file_across_games(tmp_path):
     assert teleport.Entries.key(target((900.0, 900.0), warp=True, area=36)) == 'area 36:stairs'  # on no room
     (tmp_path / 'broken.json').write_text('{')
     assert teleport.Entries(tmp_path / 'broken.json').offset(mark) is None
+
+
+def test_the_card_of_the_level_just_left_is_waited_out():
+    # 15 of 116 logged exits: the step asked for on arrival stopped with "the level card is for another level".
+    from types import SimpleNamespace
+
+    from inventory_tracking.macros.teleport import CARD_SECONDS, card_for
+
+    clock = SimpleNamespace(now=0.0)
+
+    def sleep(seconds):
+        clock.now += seconds
+
+    run = SimpleNamespace(
+        clock=lambda: clock.now,
+        world=lambda: SimpleNamespace(player=SimpleNamespace(area=36)),
+        pace=SimpleNamespace(sleep=sleep),
+    )
+    old, new = SimpleNamespace(area=35), SimpleNamespace(area=36)
+    assert card_for(run, lambda: new if clock.now >= 0.37 else old) is new
+    assert 0.37 <= clock.now < 0.5
+    clock.now = 0.0
+    assert card_for(run, lambda: old) is old  # never read: the step says so, CARD_SECONDS later
+    assert CARD_SECONDS <= clock.now < CARD_SECONDS + 0.1
+    assert card_for(run, None) is None
+
+
+def test_a_door_click_a_cast_swallowed_is_made_again_at_the_same_aim():
+    # Tower Cellar (host, 23:35 on 2026-10-10): attack mode's strike 0.7 s before the click on the stairs;
+    # the character stood where it was, two aims off the door followed, 4.77 s in all.
+    play = game()
+    play.door, play.swallowed_clicks = (1001.0, 1000.0), 1
+    began = play.clock.now
+    step_toward(play.run(), target(play.door, warp=True), keys)
+    assert play.world.player.area == 110
+    assert [event[0] for event in play.keys.events] == ['click', 'click']
+    assert play.walks == []
+    assert play.clock.now - began < 1.0
+
+
+def test_a_walk_under_way_when_the_hop_begins_is_not_its_landing():
+    # "landed ..., off by 24" 0.2 s after the key (Tower, 2026-10-10; Black Marsh, 2026-10-11): the
+    # character was walking when the hop began, and the walk's movement was taken for the landing.
+    from inventory_tracking.macros.teleport import landed_from
+
+    since = player(x=5000.0, y=5000.0)
+    aim = (5025.0, 5000.0)
+    assert not landed_from(replace(since, x=5003.0, mode=3), since, aim)  # still running: the walk
+    assert not landed_from(replace(since, x=5001.0, mode=1), since, aim)  # has not moved
+    assert landed_from(replace(since, x=5024.5, mode=1), since, aim)  # stands somewhere else: landed
+    assert landed_from(replace(since, x=5024.5, mode=3), since, aim)  # at the aim, whatever its mode
+    assert landed_from(replace(since, area=since.area + 1), since, aim)
+
+
+def test_a_hop_aimed_beside_the_skill_bar_that_moves_nothing_turns_the_corners_off(corners):
+    # Whether the game takes a cast aimed there is not known: the first that does nothing settles it.
+    from inventory_tracking.macros import teleport, view
+
+    play = game()
+    play.keys.on_event = lambda event: None  # the game takes no cast
+    mark = target((1005.5, 1000.5))  # 5.5 tiles down and right: only a corner shows that
+    with pytest.raises(Abort, match='beside the skill bar'):
+        step_toward(play.run(), mark, keys)
+    assert view.CORNERS == [False]
+    assert teleport.CORNERS is view.CORNERS
+    with pytest.raises(Abort, match=r'Teleport is off its key|did not move'):
+        step_toward(play.run(), mark, keys)  # the next is aimed in the plain view, and judged as ever

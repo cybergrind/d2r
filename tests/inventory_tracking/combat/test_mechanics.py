@@ -100,3 +100,12 @@ def test_a_blade_stops_at_a_wall_and_does_not_come_back():
     assert all(len(b) == LIFE for b in free)
     assert all(len(b) < 10 for b in walled)  # about nine units of flight before the wall
     assert all(max(p[1] for p in b) < 5010.0 for b in walled)
+
+
+def test_a_blade_does_not_step_over_a_wall_one_cell_thick():
+    # Catacombs 3, 2026-10-10 21:43: a blade flies 1.12 units a frame, and frame positions alone
+    # missed a wall one cell deep, so the fight aimed at a monster behind it.
+    origin, focal = (5000.5, 5000.5), (5000.5, 5015.5)
+    for wall in (5005, 5006, 5007, 5008, 5009):
+        thin = cast(origin, focal, lambda frame: origin, blocked=lambda p, wall=wall: int(p[1]) == wall)
+        assert all(point[1] < wall for path in thin for point in path), wall

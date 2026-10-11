@@ -44,6 +44,17 @@ def test_allies_never_count():
     assert tracker.count('Black Marsh').seen == set()
 
 
+def test_a_siege_door_or_wall_never_counts_and_is_not_remembered():
+    # monstats neverCount (barricadedoor1, barricadewall1): no kill of the zone, nothing to go back to.
+    tracker = ZoneTracker()
+    tracker.apply([at({**seen(7, 6, data_hex=PLAIN_DATA), 'txt_id': 432}, 5000, 5000)])
+    tracker.apply([at({**seen(8, 6, data_hex=PLAIN_DATA), 'txt_id': 524}, 5010, 5000), died(8, 6)])
+
+    assert tracker.count('Black Marsh').killed == 0
+    assert tracker.count('Black Marsh').seen == set()
+    assert tracker.remembered(6) == []
+
+
 def test_a_revived_monster_counts_one_kill():
     # Fallen Shamans revive their Fallen: same unit id, dead again (Blood Moor, 2026-10-03 logs).
     tracker = ZoneTracker()
@@ -743,3 +754,17 @@ def test_remembered_hostiles_of_an_area_say_which_are_leaders_and_leave_allies_o
 
     assert tracker.remembered(6) == [(1, 5000.0, 5010.0, True)]
     assert tracker.remembered(11) == [(4, 100.0, 100.0, False)]
+
+
+def test_the_super_uniques_of_a_level_are_given_where_last_seen_dead_or_alive():
+    tracker = ZoneTracker()
+    tracker.apply([
+        elite(1, 3780, 5110, flags=0x0A, txt_id=453, area=111, super_id=1),
+        elite(2, 3700, 5000, flags=0x0C, txt_id=453, area=111),  # a champion
+        elite(3, 100, 100, flags=0x0A, txt_id=479, area=110, super_id=2),
+    ])  # fmt: skip
+    tracker.apply([died(1, 111)])
+
+    assert tracker.supers(111) == [(3780.0, 5110.0)]
+    assert tracker.supers(110) == [(100.0, 100.0)]
+    assert tracker.supers(109) == []

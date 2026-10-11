@@ -1,0 +1,208 @@
+{
+ "name": "20261010T205403Z-23-235414",
+ "log_time": "2026-10-10 23:54:14,186",
+ "take": "20261010T205403Z-23",
+ "area": 23,
+ "in_fight": true,
+ "logged": {
+  "in_reach": 2,
+  "near": 17,
+  "decision": "no better stand"
+ },
+ "player": [
+  12577.5,
+  8147.75
+ ],
+ "hostiles": [
+  {
+   "unit": 1730461445,
+   "txt": 21,
+   "at": [
+    12610.5,
+    8141.5
+   ],
+   "life": 1.0,
+   "elite": false
+  },
+  {
+   "unit": 3460939274,
+   "txt": 21,
+   "at": [
+    12603.25,
+    8140.46
+   ],
+   "life": 1.0,
+   "elite": false
+  },
+  {
+   "unit": 3878558867,
+   "txt": 21,
+   "at": [
+    12552.65,
+    8147.5
+   ],
+   "life": 1.0,
+   "elite": false
+  },
+  {
+   "unit": 3163798549,
+   "txt": 21,
+   "at": [
+    12601.72,
+    8143.59
+   ],
+   "life": 1.0,
+   "elite": false
+  },
+  {
+   "unit": 3648103583,
+   "txt": 21,
+   "at": [
+    12549.4,
+    8143.4
+   ],
+   "life": 1.0,
+   "elite": false
+  },
+  {
+   "unit": 3999021351,
+   "txt": 21,
+   "at": [
+    12549.76,
+    8139.68
+   ],
+   "life": 1.0,
+   "elite": false
+  },
+  {
+   "unit": 4239962703,
+   "txt": 21,
+   "at": [
+    12558.08,
+    8141.58
+   ],
+   "life": 1.0,
+   "elite": false
+  },
+  {
+   "unit": 2302640474,
+   "txt": 21,
+   "at": [
+    12604.51,
+    8148.46
+   ],
+   "life": 1.0,
+   "elite": false
+  },
+  {
+   "unit": 1694369130,
+   "txt": 21,
+   "at": [
+    12611.65,
+    8143.35
+   ],
+   "life": 1.0,
+   "elite": false
+  },
+  {
+   "unit": 193864958,
+   "txt": 21,
+   "at": [
+    12596.64,
+    8137.92
+   ],
+   "life": 1.0,
+   "elite": false
+  }
+ ],
+ "companions": [
+  {
+   "unit": 798136757,
+   "txt": 361,
+   "at": [
+    12577.5,
+    8147.5
+   ]
+  },
+  {
+   "unit": 1625535062,
+   "txt": 744,
+   "at": [
+    12574.5,
+    8144.5
+   ]
+  },
+  {
+   "unit": 1596273514,
+   "txt": 338,
+   "at": [
+    12577.9,
+    8147.9
+   ]
+  }
+ ],
+ "doors": [],
+ "ground": [
+  {
+   "x": 2524,
+   "y": 1624,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP///////////////////////////8///PP/z//88//////z//////P/////////////////////////////////////////z//8///P//z/////////////////////AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "+AAAAAD4AAAAAPgAAAAA+AAAAAD4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP///////////////////////////8///P//z//8////////////////////////////////////////////////////////z//8///P//z/////////////////////AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+  },
+  {
+   "x": 2516,
+   "y": 1624,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB///AAAH//8AAAf//wAAB///AAADnOcAP/Oc5////////////////////////////P/////8//////z//////P/////////////////////////////////////////////////////////////////////////AB5znAAAHnOcAAAf//wAAB///AAAH//8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "+AAAAAD4AAAAAPgAAAAA+AAAAAD4AAAAAAAAAAAAAB///AAAH//8AAAf//wAAB///AAADnOcAP/Oc5//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////AB5znAAAHnOcAAAf//wAAB///AAAH//8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+  },
+  {
+   "x": 2508,
+   "y": 1624,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "+AAAAAD4AAAAAPgAAAAA+AAAAAD4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+  },
+  {
+   "x": 2500,
+   "y": 1624,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD//AAAAP/8AAAA//wAAAD//AAAAHOcAH/+c5//f/////9//////3//////f/////9//////3//////f/////9//////3//////f/////9//////3//////f/////9//////3//////f/////9//////3//////AADznAAAAPOcAAAA//wAAAD//AAAAP/8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "+AAAAAD4AAAAAPgAAAAA+AAAAAD4AAAAAAAAAAAAAAD//AAAAP/8AAAA//wAAAD//AAAAHOcAH/+c5//f/////9//////3//////f/////9//////3//////f/////9//////3//////f/////9//////3//////f/////9//////3//////f/////9//////3//////AADznAAAAPOcAAAA//wAAAD//AAAAP/8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+  }
+ ],
+ "after": {
+  "player_at": {
+   "1.0": [
+    12577.5,
+    8147.75
+   ],
+   "2.0": [
+    12577.5,
+    8147.75
+   ],
+   "3.0": [
+    12577.5,
+    8147.75
+   ],
+   "5.0": [
+    12605.51,
+    8135.12
+   ]
+  },
+  "alive_at": {
+   "1.0": 9,
+   "2.0": 8,
+   "3.0": 4,
+   "5.0": 2,
+   "8.0": 1
+  },
+  "cleared_seconds": 8.02,
+  "casts": 9
+ }
+}

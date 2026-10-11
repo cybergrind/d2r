@@ -298,7 +298,9 @@ index) and `block` (whole-preset bounds) from the preset object. Handlers group 
 instance, place variant presets with `target(..., sides=...)`, and report a target that is the
 whole area around the player. New fixtures: `halls_of_pain_nw_down`, `halls_of_vaught_nihlw`.
 Vaught's letter is Nihlathak's side (user: west and north in two games; confirmed). Tower Cellar 5
-stays without a Countess arrow (user, 2026-09-30: fine as is).
+had no Countess arrow (user, 2026-09-30: fine as is) until 2026-10-10: the user asked for the guide
+to lead to her room, so the mark is where the layout's DS1 file places her (`PoiSpec.boss`, spots
+from terror/data/elites.json), the level's first mark, ahead of the stairs back up.
 
 - Red: `level_map` payload tests on both Arcane fixtures. There are 61 room diamonds, the player
   is in the centre room and the Summoner dot is at the north/east tip. The projection is
@@ -322,7 +324,7 @@ Status 2026-09-30 (user checked in game; fixtures from evidence/dumps):
 | Halls of Vaught | confirmed (NihlW fixture; user saw W and N) | halls_of_vaught_nihlw |
 | Durance of Hate 1–2 | confirmed (Durance 2 seen; same handler for 1) | durance_of_hate_2 |
 | Black Marsh | confirmed (user, 2026-09-30); user notes no walls or impassable areas on the map | black_marsh |
-| Tower Cellar 5 | no arrow by design (the Countess preset is the whole level); user fine with it | — |
+| Tower Cellar 5 | Countess marked at her DS1 spot per layout (2026-10-10); arrow not checked in game yet | tower_cellar_5_a, tower_cellar_5_b |
 | Catacombs 1–3 | confirmed (user, 2026-09-30; levels 2–3 seen) | catacombs_2, catacombs_3 |
 | Worldstone Keep 1–3 | confirmed (user, 2026-09-30; levels 2–3 seen) | worldstone_keep_2, worldstone_keep_3 |
 | Jail 1–3 | confirmed (user checked all levels, 2026-09-30) | jail_1, jail_2, jail_3 |
@@ -393,16 +395,17 @@ Durance 2 waypoint) is now skipped silently instead of logged as a problem.
 | Halls of Anguish/Pain | 122, 123 | `halls.py` | `Act 5 - Temple (NE\|NW\|SW) Down` | Temple family |
 | Halls of Vaught | 124 | `halls_of_vaught.py` | `Act 5 - Temple Final Room` (Nihlathak) | — |
 | Tower Cellar 1–4 | 21–24 | `tower_cellar.py` | `stairs_down('Act 1 - Crypt')` | Crypt family |
-| Tower Cellar 5 | 25 | `tower_cellar.py` | `Act 1 - Crypt Countess X` | — |
+| Tower Cellar 5 | 25 | `tower_cellar.py` | `Act 1 - Crypt Countess X`, `boss='The Countess'` | — |
 | Durance of Hate 1–2 | 100, 101 | `durance_of_hate.py` | `stairs_down('Act 3 - Mephisto')` (+ waypoint dot on 101) | Mephisto family |
+| Durance of Hate 3 | 102 | `durance_of_hate.py` | `Act 3 - Mephisto Complex`, `at=(40, 65)` (Mephisto, 2026-10-11) | — |
 | Black Marsh | 6 | `black_marsh.py` | `Act 1 - Tower 1` (tower entrance, the level's first mark since 2026-10-10: the teleport step follows it down to Tower Cellar 5); exits Tamoe Highland + Dark Wood (ExitsHandler, unconfirmed 2026-10-01); waypoint not markable (object, loaded rooms only) | outdoor room lists |
 | Tamoe Highland, Pit 1 | 7, 12 | `pit.py` | exits Monastery Gate + Black Marsh (ExitsHandler, unconfirmed 2026-10-01); `Act 1 - (Cave Entrance\|Wild Cliff Cave Left/Right)`; `stairs_down('Act 1 - Cave', word='Down')` + way back | Act 1 Cave family |
 | Rocky Waste, Stony Tomb 1–2 | 41, 55, 59 | `stony_tomb.py` | `Act 2 - Desert Tomb 1`; `stairs_down('Act 2 - Tomb')`; Treasure + Creeping Feature (Leatherarm) on 59 | Act 2 Tomb family |
 | Lower Kurast | 79 | `lower_kurast.py` | every `Act 3 - Slums 16x16` of DS1 variant 1 (bonfire camp, a super chest in each of its two shacks); `PoiSpec(variants=…, each=True)`, none is fine | — |
 
 For each: evidence file → fixture → red replay test → `confirmed=True`. Durance of Hate 3 (102)
-is one fixed room (`Mephisto Complex`) with no room-level target, so it's deferred until a
-fixed in-room offset has its own evidence.
+is one fixed room (`Mephisto Complex`) with no room-level target; since 2026-10-11 it marks
+Mephisto at a fixed in-room offset (see the 2026-10-11 pass below), unconfirmed.
 
 ### Phase 6: route on the map (Tower Cellar first) — done 2026-09-30
 
@@ -501,3 +504,20 @@ presets' placement, not assumed north.
   by fixtures.
 - The map card shows rooms, a live player dot and POI dots in game. The Tower Cellar route draws.
 - `layout_notes.md` and the memory note are updated with dated evidence for each new level.
+
+### 2026-10-10 late night: the Throne and Diablo's star as first marks
+
+User: the teleport step should rush to Baal's throne room and to Diablo. `PoiSpec.at` puts a mark a
+fixed number of world units from a preset's origin, for presets with one layout.
+- Throne of Destruction (131, 'Act 5 - ThroneRoom'): (94, 40), the middle of the hall below
+  `baalthrone` at (90, 11) (expansion/baallair/wthrone.ds1, read from the install).
+- Chaos Sanctuary (108, 'Act 4 - Diablo Heart'): `DiabloStart` at (53, 53) (act4/diab/heart.ds1).
+Both unconfirmed: neither level has a dump, so the tests build the rooms from levels.txt.
+
+### 2026-10-11: Mephisto as the first mark on Durance of Hate 3
+
+User: the last Durance level must target Mephisto's location. Same `PoiSpec.at` mark:
+- Durance of Hate 3 (102, 'Act 3 - Mephisto Complex'): the monster `mephisto` (monpreset.txt, act 3
+  row 22) at (40, 65) (Act3/Travincal/MephComp.ds1, read from the install; one layout).
+Unconfirmed: the level has no dump, so the test builds the rooms from levels.txt. This replaces the
+earlier deferral of level 102 ("no room-level target").

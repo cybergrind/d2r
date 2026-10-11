@@ -61,6 +61,18 @@ func _init() -> void:
 	])
 	for name: String in data.policy_names():
 		print("moments for %s: %d" % [name, data.moments_of(name).size()])
+	var moves_text: PackedStringArray = PackedStringArray()
+	var own_paths: bool = false
+	for run: Dictionary in data.runs:
+		var moves: Array[Dictionary] = run["moves"]
+		own_paths = own_paths or TakeData.has_own_player(run) or not moves.is_empty()
+		moves_text.append("%s %d" % [run["name"], moves.size()])
+		if TakeData.has_own_player(run):
+			var at: Vector2 = data.character_at(run, middle)
+			if not data.bounds.grow(50.0).has_point(at):
+				problems.append("%s: its character at %s is far outside the bounds" % [run["name"], at])
+	if own_paths:
+		print("moves: ", ", ".join(moves_text))
 	for problem: String in problems:
 		print("PROBLEM ", problem)
 	quit(1 if not problems.is_empty() else 0)

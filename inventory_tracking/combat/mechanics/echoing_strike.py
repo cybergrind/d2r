@@ -50,13 +50,25 @@ def aim_frame(origin: Point, focal: Point) -> tuple[Point, Point]:
     return along, (-along[1], along[0])
 
 
+def stopped(blocked: Callable[[Point], bool] | None, before: Point, after: Point) -> bool:
+    """Whether a blade flying from `before` to `after` in one frame meets a wall: at the step's
+    middle or its end. A step is SPEED = 1.12 units and a cell 1, so the end alone let blades
+    through walls one cell thick (Catacombs 3, 2026-10-10 21:43: the fight aimed 3 s at a monster
+    behind such a wall, as two of the five blades were counted as reaching it)."""
+    if blocked is None:
+        return False
+    middle = ((before[0] + after[0]) / 2, (before[1] + after[1]) / 2)
+    return blocked(middle) or blocked(after)
+
+
 def cast(
     origin: Point, focal: Point, player_at: Callable[[int], Point], blocked: Callable[[Point], bool] | None = None
 ) -> list[list[Point]]:
     """The five blades' positions per frame from the spawn (frame 0), left to right across the
     aim line. `player_at(frame)` is where the caster stands then, the return leg's target. A blade
     that reaches a point `blocked` says is a wall (missiles.txt CollideType 3) ends there, out or
-    back, and does not return."""
+    back, and does not return; the middle of each frame's step is looked at too, as a blade flies
+    further in a frame than a wall one cell thick is deep (`stopped`)."""
     along, across = aim_frame(origin, focal)
     blades = []
     for lateral in LATERAL:
@@ -69,7 +81,7 @@ def cast(
         path = [start]
         for k in range(1, OUT_FRAMES + 1):
             point = (start[0] + heading[0] * SPEED * k, start[1] + heading[1] * SPEED * k)
-            if blocked is not None and blocked(point):
+            if stopped(blocked, path[-1], point):
                 break
             path.append(point)
         else:
@@ -80,7 +92,7 @@ def cast(
                 if gap < HOME:
                     break
                 x, y = x + (px - x) / gap * SPEED, y + (py - y) / gap * SPEED
-                if blocked is not None and blocked((x, y)):
+                if stopped(blocked, path[-1], (x, y)):
                     break
                 path.append((x, y))
         blades.append(path)

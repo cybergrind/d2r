@@ -7,9 +7,11 @@ from dataclasses import replace
 from inventory_tracking.macros.actuator import Actuator
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.skills import (
+    BLADE_WARP,
     CONSUME,
     DEATH_MARK,
     ECHOING_STRIKE,
+    ENGORGE,
     HEX_PURGE,
     PSYCHIC_WARD,
     SIGIL_LETHARGY,
@@ -25,6 +27,8 @@ KEYS = {SUMMON_DEFILER: 'q', CONSUME: '6', HEX_PURGE: 'g', PSYCHIC_WARD: 'r', SW
 KEYS[SIGIL_LETHARGY] = 'Button9'  # mouse 5, as CybergrindAA's key file
 KEYS[ECHOING_STRIKE] = '7'  # bound by the user on 2026-10-09 so Quick Cast aims it with the pointer
 KEYS[DEATH_MARK] = 'd'
+KEYS[ENGORGE] = 'e'
+KEYS[BLADE_WARP] = 'w'
 STRIKE_RANGE = 4.0  # world units: a monster this near the blades' line to the pointer is struck
 ACTING_SECONDS = 0.3  # the cast animation
 PREBUFF_SET, OTHER_SET = ('fla', 'uit'), ('6cs', 'wa3')  # Heart of the Oak + Spirit; Naj's Puzzler + Codex
@@ -165,9 +169,16 @@ class Game:
         self.deaf_clicks = 0  # clicks the lobby ignores while it is still coming up
         self.staff: Teleport | None = None  # the worn Teleport staff; None: Teleport as a skill, if in a slot
         self.door: tuple[float, float] | None = None  # a warp, in tiles: a click near it walks the character in
+        self.swallowed_clicks = 0  # clicks in a game the game takes no notice of (a cast ends)
         self.door_above = 0.0  # classic pixels (600 high) the door is clicked above its tile; 0: on the ground
         self.next_area = 110
         self.sigils = []  # ground points Sigil: Lethargy was cast at
+        self.engorges = []  # ground points Engorge was cast at
+        self.purges = []  # clock times Hex: Purge was cast
+        self.unhurt = set()  # unit ids a hit takes no life from (a bird in the air, an immune)
+        self.warps = []  # ground points Blade Warp took the character to
+        self.warp_lands = True  # a Blade Warp moves the character
+        self.purge_shows = True  # the character's state shows the buff after a cast
         self.strikes = []  # (unit id or None, ground point) per Shift+click
         self.toughness = {}  # unit id -> strikes it survives (default: dies to the first)
         self.acting_until = None  # the cast animation: the player's mode is 7 until then
@@ -239,6 +250,17 @@ class Game:
                     monsters=(*kept, Monster(self.next_unit, 744, 1, x, y, 0xFFFFFFFF)),
                     player=replace(w.player, consume=buffed),
                 )
+            elif key == 'e':
+                self.engorges.append(self.ground_under_pointer())
+            elif key == 'w' and BLADE_WARP in w.slots and self.warp_lands:
+                # Blade Warp: the character is where the pointer's ground is (what a run in the game has to show)
+                x, y = self.ground_under_pointer()
+                self.warps.append((x, y))
+                self.world = replace(w, player=replace(w.player, x=x, y=y))
+            elif key == 'g' and w.in_game:  # Hex: Purge: the buff is on (where the test reads its state at all)
+                self.purges.append(self.clock.now)
+                if w.player.hex_purge is not None and self.purge_shows:
+                    self.world = replace(w, player=replace(w.player, hex_purge=True))
             elif key == '6':
                 hit = self.consume_takes or self.pet_under_pointer()
                 if hit is not None:
@@ -263,15 +285,12 @@ class Game:
                     self.deaf_clicks -= 1
                 else:
                     self.field_focused = True
+            elif w.in_game and self.swallowed_clicks:
+                self.swallowed_clicks -= 1  # a cast was ending: the game takes no notice
             elif w.in_game:
                 gx, gy = self.ground_under_pointer()
                 door = None if self.door is None else (self.door[0] * 5, self.door[1] * 5)
-                lift = self.door_above / 16  # a pixel down the screen is 1/16 of a unit along both axes
-                if (
-                    door
-                    and math.dist((gx + lift, gy + lift), door) < 5
-                    and math.dist((w.player.x, w.player.y), door) < 30
-                ):
+                if door and self.door_under_pointer():
                     self.world = replace(w, player=replace(w.player, area=self.next_area, x=door[0], y=door[1]))
                 elif (drop := self.drop_under_pointer()) is not None and self.deaf_picks:
                     self.deaf_picks -= 1
@@ -284,6 +303,22 @@ class Game:
                 elif math.dist((gx, gy), (w.player.x, w.player.y)) < 40:  # a click on the ground: a walk there
                     self.walks.append((gx, gy))
                     self.world = replace(w, player=replace(w.player, x=gx, y=gy))
+
+    def door_under_pointer(self) -> bool:
+        """Whether the pointer is on the door (`door_above` pixels above its tile), within a walk."""
+        if self.door is None:
+            return False
+        gx, gy = self.ground_under_pointer()
+        door, player = (self.door[0] * 5, self.door[1] * 5), self.world.player
+        lift = self.door_above / 16  # a pixel down the screen is 1/16 of a unit along both axes
+        return math.dist((gx + lift, gy + lift), door) < 5 and math.dist((player.x, player.y), door) < 30
+
+    def unit_under_pointer(self) -> tuple[int, int]:
+        """(unit type, unit id) under the pointer: a door's tile, a drop, else nothing."""
+        if self.door_under_pointer():
+            return (5, 1)
+        drop = self.drop_under_pointer()
+        return (4, drop.unit_id) if drop else (0, 0)
 
     def drop_under_pointer(self):
         """The drop whose ground the pointer is on (`pick_above` pixels above it), within a walk."""
@@ -326,6 +361,9 @@ class Game:
         if hit is not None:
             left = self.toughness.get(hit.unit_id, 1) - 1
             self.toughness[hit.unit_id] = left
+            if left > 0 and hit.max_life and hit.life > 1 and hit.unit_id not in self.unhurt:
+                # A hit that does not kill shows in the life the client has of it.
+                monsters = tuple(replace(m, life=m.life - 1) if m.unit_id == hit.unit_id else m for m in monsters)
             if left <= 0:
                 monsters = tuple(m for m in monsters if m.unit_id != hit.unit_id)
                 dead = dead | {hit.unit_id}  # it lies there: a kill, not a unit that only left memory
@@ -374,7 +412,7 @@ class Game:
             loot=lambda: self.loot,
         )
         if self.hover_known:
-            run.hovered = lambda: (4, drop.unit_id) if (drop := self.drop_under_pointer()) else (0, 0)
+            run.hovered = self.unit_under_pointer
         run.keys = dict(KEYS)
         run.prebuff_hands = frozenset(PREBUFF_SET)
         run.battle_hands = frozenset(PREBUFF_SET)

@@ -1,0 +1,264 @@
+{
+ "name": "20261010T204653Z-23-234702",
+ "log_time": "2026-10-10 23:47:02,594",
+ "take": "20261010T204653Z-23",
+ "area": 23,
+ "in_fight": false,
+ "logged": {
+  "in_reach": 1,
+  "near": 3,
+  "decision": "a stand at (12731.4, 8062.1), 12 away, its line worth 4734 against 1578 here"
+ },
+ "player": [
+  12742.5,
+  8057.5
+ ],
+ "hostiles": [
+  {
+   "unit": 1432560516,
+   "txt": 21,
+   "at": [
+    12715.5,
+    8067.5
+   ],
+   "life": 1.0,
+   "elite": false
+  },
+  {
+   "unit": 2865137416,
+   "txt": 21,
+   "at": [
+    12713.5,
+    8076.5
+   ],
+   "life": 1.0,
+   "elite": false
+  },
+  {
+   "unit": 3429413003,
+   "txt": 21,
+   "at": [
+    12716.5,
+    8076.5
+   ],
+   "life": 1.0,
+   "elite": true
+  },
+  {
+   "unit": 324372110,
+   "txt": 21,
+   "at": [
+    12724.5,
+    8089.5
+   ],
+   "life": 1.0,
+   "elite": false
+  },
+  {
+   "unit": 1972178449,
+   "txt": 21,
+   "at": [
+    12719.5,
+    8077.5
+   ],
+   "life": 1.0,
+   "elite": false
+  },
+  {
+   "unit": 3100746007,
+   "txt": 21,
+   "at": [
+    12713.5,
+    8074.5
+   ],
+   "life": 1.0,
+   "elite": true
+  },
+  {
+   "unit": 648744220,
+   "txt": 21,
+   "at": [
+    12728.5,
+    8091.5
+   ],
+   "life": 1.0,
+   "elite": false
+  },
+  {
+   "unit": 3944356898,
+   "txt": 21,
+   "at": [
+    12713.5,
+    8078.5
+   ],
+   "life": 1.0,
+   "elite": false
+  },
+  {
+   "unit": 1297488440,
+   "txt": 21,
+   "at": [
+    12727.5,
+    8088.5
+   ],
+   "life": 1.0,
+   "elite": false
+  },
+  {
+   "unit": 716280258,
+   "txt": 21,
+   "at": [
+    12722.78,
+    8066.55
+   ],
+   "life": 1.0,
+   "elite": false
+  },
+  {
+   "unit": 4130617413,
+   "txt": 21,
+   "at": [
+    12717.5,
+    8073.5
+   ],
+   "life": 1.0,
+   "elite": false
+  },
+  {
+   "unit": 162177863,
+   "txt": 21,
+   "at": [
+    12724.5,
+    8085.5
+   ],
+   "life": 1.0,
+   "elite": false
+  },
+  {
+   "unit": 358131937,
+   "txt": 21,
+   "at": [
+    12712.5,
+    8068.5
+   ],
+   "life": 1.0,
+   "elite": false
+  },
+  {
+   "unit": 2594976880,
+   "txt": 21,
+   "at": [
+    12712.5,
+    8064.5
+   ],
+   "life": 1.0,
+   "elite": false
+  }
+ ],
+ "companions": [
+  {
+   "unit": 2804749569,
+   "txt": 744,
+   "at": [
+    12742.5,
+    8057.5
+   ]
+  },
+  {
+   "unit": 1766854024,
+   "txt": 338,
+   "at": [
+    12742.9,
+    8057.1
+   ]
+  },
+  {
+   "unit": 883427012,
+   "txt": 361,
+   "at": [
+    12742.9,
+    8057.1
+   ]
+  }
+ ],
+ "doors": [],
+ "ground": [
+  {
+   "x": 2532,
+   "y": 1616,
+   "width": 8,
+   "height": 8,
+   "cells": "AB///AAAH//8AAAf//wAAB///AAAH//8AAAf//wAAB8P/AAAHw/8AAAf//wAAB///AAAABwAAP///////////////////////////M///P/8z//8//z//////P//////////////////////////////////////////////z//8///P//z/////////////////////AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "+B///AD4H//8APgf//wA+B///AD4H//8AAAf//wAAB///AAAH//8AAAf//wAAB///AAAABwAAP///////////////////////////8///P//z//8////////////////////////////////////////////////////////z//8///P//z/////////////////////AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+  },
+  {
+   "x": 2532,
+   "y": 1608,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB///AAAH//8AAAf//wAAB///AAAHnOcAP/ec53//9///f//3//9///f//3//N///fP83//98/zf//3z/N///fP/////////////////////3//9///f//3//9///f//3//9///f//3//9///f//3//9///f//3/AB///AAAH//8AAAf//wAAB///AAAH//8AAAf//wAAB///AAAH//8AAAf//wAAB///AA=",
+   "flight": "+AAAAAD4AAAAAPgAAAAA+AAAAAD4AAAAAAAAAAAAAB///AAAH//8AAAf//wAAB///AAAHnOcAP/ec53//9///f//3//9///f//3//9///f//3//9///f//3//9///f//////////////////////3//9///f//3//9///f//3//9///f//3//9///f//3//9///f//3/AB///AAAH//8AAAf//wAAB///AAAH//8AAAf//wAAB///AAAH//8AAAf//wAAB///AA="
+  },
+  {
+   "x": 2540,
+   "y": 1616,
+   "width": 8,
+   "height": 8,
+   "cells": "AB///AAAH//8AAAf//wAAB///AAAH//8AAAf//wAAB/w/AAAH/D8AAAf//wAAB///AAAHn+cAP/ef5wA/9///AD/3//8AP/f//wA/9///AD/3/D8AP/f8PwA/9///AD////8AP//P/wA//8//AD/3z/8AP/fP/wA/9///AD/3//8AP/f//wA/9///AD/3//8AP/f//wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "+B///AD4H//8APgf//wA+B///AD4H//8AAAf//wAAB///AAAH//8AAAf//wAAB///AAAHn+cAP/ef5wA/9///AD/3//8AP/f//wA/9///AD/3//8AP/f//wA/9///AD////8AP////wA/////AD/3//8AP/f//wA/9///AD/3//8AP/f//wA/9///AD/3//8AP/f//wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+  },
+  {
+   "x": 2540,
+   "y": 1608,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP///////////////////////////8///P//z//8////////////////////////////////////////////////////////z//8///P//z/////////////////////AAAcAAAAH//8AAAf//wAAB///AAAH//8AAAf//wAAB///AAAH//8AAAf//wAAB///AA=",
+   "flight": "+AAAAAD4AAAAAPgAAAAA+AAAAAD4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP///////////////////////////8///P//z//8////////////////////////////////////////////////////////z//8///P//z/////////////////////AAAcAAAAH//8AAAf//wAAB///AAAH//8AAAf//wAAB///AAAH//8AAAf//wAAB///AA="
+  },
+  {
+   "x": 2548,
+   "y": 1608,
+   "width": 8,
+   "height": 8,
+   "cells": "AB///AAAH//8AAAf//wAAB///AAAH//8AAAf//wAAB///AAAH//8AAAf//wAAB///AAAD//8AP/P//wA/////AD////8AP////wA/////AD////8AP////wA/////AD////8AP////wA/////AD////8AP////wA/////AD////8AP////wA/////AD////8AP////wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "+B///AD4H//8APgf//wA+B///AD4H//8AAAf//wAAB///AAAH//8AAAf//wAAB///AAAD//8AP/P//wA/////AD////8AP////wA/////AD////8AP////wA/////AD////8AP////wA/////AD////8AP////wA/////AD////8AP////wA/////AD////8AP////wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+  },
+  {
+   "x": 2548,
+   "y": 1600,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB///AAAH//8AAAf//wAAB///AAAH//8AAAf//wAAB///AAAH//8AAAf//wAAA///AADz///4AP////gA////+AD////4APP//zgA8///OAD////4AP////gA////+ADz//84APP//zgA////+AD////4AP////gAB///AAAH//8AAAf//wAAB///AAAH//8AAAAHAAAAB///AAAH//8AAAf//wAAB///AA=",
+   "flight": "+AAAAAD4AAAAAPgAAAAA+AAAAAD4AAAAAAAAAAAAAB///AAAH//8AAAf//wAAB///AAAH//8AAAf//wAAB///AAAH//8AAAf//wAAA///AADz///4AP////gA////+AD////4APP//zgA8///OAD////4AP////gA////+ADz//84APP//zgA////+AD////4AP////gAB///AAAH//8AAAf//wAAB///AAAH//8AAAAHAAAAB///AAAH//8AAAf//wAAB///AA="
+  }
+ ],
+ "after": {
+  "player_at": {
+   "1.0": [
+    12730.5,
+    8063.5
+   ],
+   "2.0": [
+    12730.5,
+    8063.5
+   ],
+   "3.0": [
+    12730.5,
+    8063.5
+   ],
+   "5.0": [
+    12730.5,
+    8063.5
+   ]
+  },
+  "alive_at": {
+   "1.0": 14,
+   "2.0": 12,
+   "3.0": 9,
+   "5.0": 5,
+   "8.0": 1
+  },
+  "cleared_seconds": 2.03,
+  "casts": 2
+ }
+}

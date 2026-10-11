@@ -21,7 +21,7 @@ class TeleportWidget(SampleWidget[TeleportWidgetConfig]):
             and location.value is not None
             and location.value.in_town
         )
-        low = charges.current * 100 < charges.maximum * self.config.low_percent
+        low = charges.current <= self.config.low_charges
         if repair or low:
             return (f'tele {charges.current}/{charges.maximum}' + (' repair' if repair else ''),)
         return ()

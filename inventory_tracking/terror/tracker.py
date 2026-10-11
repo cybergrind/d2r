@@ -78,6 +78,12 @@ UNKILLABLE = frozenset((
     368, 369, 401, 405, 406, 408, 414, 450, 451, 452, 511, 512, 513, 514, 515, 516, 517, 518, 519, 520, 521, 527,
     537, 538, 539, 543, 545, 556, 559, 567, 568, 569, 574, 734, 737,
 ))  # fmt: skip
+# The act 5 siege works that are monsters: barricadedoor1/2, prisondoor, barricadewall1/2 (monstats.txt
+# of the installed game, 2026-10-11: AI Idle, neverCount 1, no experience). They stand still, strike
+# nothing and are no kill of a Terror Zone; Frigid Highlands, 02:40 on 2026-10-11 (user: "too focused on
+# killing doors"): 15 of them died to lines aimed at them, a door line read "worth 26787" (a unit
+# without a life row is given the area's base points). Kept with the allies: not counted, not remembered.
+BARRICADES = frozenset((432, 433, 434, 524, 525))
 # The client drops live monsters about 8-24 tiles away; nearer than this (world units) it holds
 # them (probe log 2026-10-05: 3 of 1233 live monsters vanished closer).
 HELD_RANGE = 40
@@ -366,7 +372,7 @@ class ZoneTracker:
 
     def saw(self, event):
         unit_id, group = event['unit_id'], group_of(event['area'])
-        if stat(event, ALIGNMENT_STAT):
+        if stat(event, ALIGNMENT_STAT) or event.get('txt_id') in BARRICADES:
             self.allies.add(unit_id)
             return
         if event.get('txt_id') in UNKILLABLE:
@@ -548,6 +554,14 @@ class ZoneTracker:
                 }
                 self.explored.setdefault(location.area_id, set()).update(near)
                 return
+
+    def supers(self, area: int) -> list[tuple[float, float]]:
+        """Where each super unique seen in `area` this game was last seen, dead or alive, world units."""
+        return [
+            (float(x), float(y))
+            for where, kind, _, x, y, _ in self.elites.values()
+            if where == area and kind == 'super'
+        ]
 
     def remembered(self, area: int) -> list[tuple[int, float, float, bool]]:
         """(unit id, x, y, leader) of the hostile monsters alive in `area` at their last seen position,

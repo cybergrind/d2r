@@ -6,16 +6,22 @@ it stays at the same address through the lobby and into the next game.
 """
 
 import contextlib
+import functools
+import json
 import os
 import re
 import struct
+from contextlib import suppress
 from dataclasses import dataclass, field, replace
+from pathlib import Path
 
+from inventory_tracking.collection.capture import read_owner_grids
 from inventory_tracking.config import RESOURCE_READER
 from inventory_tracking.items.metadata import item_base
 from inventory_tracking.levels.doors import Door, door_sizes
 from inventory_tracking.levels.memory import pointer
 from inventory_tracking.loot.ground import GROUND_MODES, ground_materials, ground_runes, ground_uniques, item_units
+from inventory_tracking.loot.materials import appraised_classes
 from inventory_tracking.loot.runes import rune_name
 from inventory_tracking.native.layout import (
     BELT_ITEM_MODE,
@@ -90,9 +96,14 @@ MISSILE_SLOTS = (3, 9)
 UNIT_SLOTS = 12
 MISSILE_RECORD = 0x160  # bytes of a missile unit record dumped
 MISSILE_PATH = 0x30  # bytes of its path record dumped
+# A monster's whole path record, for the movement research (combat/plan.md): after the position come
+# the target point (0x10, 0x12), the waypoint count (0x34), the target unit (0x70) and, by the classic
+# layout, the waypoints near 0xC8 (read from the client's code 2026-10-11; not yet checked live).
+PATH_RECORD = 0x240
 MISSILE_DATA = 0x80  # bytes of its data record (pUnitData) dumped on first sight: skill, velocity, target?
 DATA_RVA, DATA_SIZE = 0x197A000, 0xC98000  # the image's writable data (record probe)
 ITEM_UNIT = 4
+TILE_UNIT = 5  # doors: warp tiles, with a static path like an object's
 FULL_STATS = 0xE8  # the unit's full stat list (native/units.py describe_player)
 EQUIPPED_MODE = 1
 ITEM_OWNER, ITEM_BODY_LOCATION = 0x0C, 0x54  # item data (native/units.py describe_item)
@@ -101,6 +112,12 @@ HANDS = frozenset((4, 5))
 # An item's full stat list, where a staff's charged skills are (tracking/resources.py select_teleport).
 TELEPORT_STATS = RESOURCE_READER.teleport_stats_offset
 DEFILER_CLASS = 744
+# The state bits of a unit, 32 to a word: tracking/consume.py reads state 208 (states.txt `consume`)
+# as bit 16 of this word, so it holds states 192-223, and state 202 (`hexpurge`, the aurastate of skill
+# 389) is its bit 10. Read from the tables on 2026-10-11; not yet seen to change in the game.
+STATE_FLAGS = 0xB48
+HEX_PURGE_BIT = 1 << (202 - 192)
+LYING_DEAD = 12  # monster mode: dead, the death animation (mode 0) over
 # Flags that mean something is open over the game view; the array also holds bytes that are
 # set with nothing open (Show Items, belt rows and unnamed ones).
 OPEN_PANELS = {name: offset for name, offset in PANEL_FLAGS.items() if name != 'belt_rows'}
@@ -121,6 +138,7 @@ class Player:
     stats_at: int = field(
         default=0, compare=False, repr=False
     )  # the unit's stat list (combat/record.py reads life and mana)
+    hex_purge: bool | None = None  # the Hex: Purge buff is on the character; None when unreadable
 
     @property
     def in_town(self) -> bool:
@@ -141,6 +159,7 @@ class Monster:
     max_life: int = 0
     raw: bytes = field(default=b'', compare=False, repr=False)  # unit and monster data, Defilers only
     stats_at: int = field(default=0, compare=False, repr=False)  # the unit's stat list, for a full read
+    path: bytes = field(default=b'', compare=False, repr=False)  # the whole path record, on request (PATH_RECORD)
 
     @property
     def leader(self) -> bool:
@@ -166,6 +185,7 @@ class Drop:
     y: float
     label: str
     kind: str  # VALUABLE, HEALING or REJUVENATION
+    size: tuple[int, int] = (1, 1)  # cells across and down it takes in the inventory (loot/data/sizes.json)
 
 
 @dataclass(frozen=True)
@@ -176,6 +196,8 @@ class Loot:
     belt: tuple[int | None, ...] = (None,) * BELT_SIZE  # item class by cell; the first four are the hotkey row
     life: int = 0  # whole points; 0 when unreadable
     max_life: int = 0
+    # The inventory's rows, '.' a free cell and '#' a taken one (collection/capture.py grids); None: unread.
+    room: tuple[str, ...] | None = None
 
 
 @dataclass(frozen=True)
@@ -242,14 +264,16 @@ def plausible_life(read, stats_pointer: int) -> bool:
     return len(life) == len(most) == 1 and 0 <= life[0] <= most[0] and most[0] > 0
 
 
-def monsters(read, table: int, *, dead: bool = False) -> tuple[Monster, ...]:
+def monsters(read, table: int, *, dead: bool = False, paths: bool = False) -> tuple[Monster, ...]:
     """The live monsters with a position: type flags and owner from the monster data, ally by the
     alignment stat (unreadable stats: not an ally). Dead ones (unless `dead`) and those without a
-    path are left out."""
-    return monsters_and_dead(read, table, dead=dead)[0]
+    path are left out. `paths`: each with its whole path record, where it can be read to its end."""
+    return monsters_and_dead(read, table, dead=dead, paths=paths)[0]
 
 
-def monsters_and_dead(read, table: int, *, dead: bool = False) -> tuple[tuple[Monster, ...], frozenset[int]]:
+def monsters_and_dead(
+    read, table: int, *, dead: bool = False, paths: bool = False
+) -> tuple[tuple[Monster, ...], frozenset[int]]:
     """`monsters`, and the unit ids of the monsters lying dead (from the same walk of the unit table)."""
     heads = struct.unpack('<128Q', read(table + MONSTER_UNIT * 1024, 1024))
     found = []
@@ -259,8 +283,12 @@ def monsters_and_dead(read, table: int, *, dead: bool = False) -> tuple[tuple[Mo
             corpses.add(unit['unit_id'])
         if (unit['mode'] in DEAD_MODES and not dead) or not unit['path_pointer'] or not unit['data_pointer']:
             continue
+        record = b''
+        if paths:
+            with contextlib.suppress(OSError, ValueError):
+                record = read(unit['path_pointer'], PATH_RECORD)
         try:
-            path = read(unit['path_pointer'], 8)
+            path = record[:8] or read(unit['path_pointer'], 8)
             data = read(unit['data_pointer'], MONSTER_DATA)
         except OSError, ValueError:
             continue
@@ -277,8 +305,62 @@ def monsters_and_dead(read, table: int, *, dead: bool = False) -> tuple[tuple[Mo
             with contextlib.suppress(OSError, ValueError):
                 raw = read(unit['address'], 0x160) + read(unit['data_pointer'], 0x80)
         monster = Monster(unit['unit_id'], unit['txt_id'], unit['mode'], *position(path), owner, data[TYPE_FLAGS])
-        found.append(replace(monster, ally=ally, life=life, max_life=max_life, raw=raw, stats_at=unit['stats_pointer']))
+        monster = replace(monster, ally=ally, life=life, max_life=max_life, raw=raw, stats_at=unit['stats_pointer'])
+        found.append(replace(monster, path=record))
     return tuple(found), frozenset(corpses)
+
+
+def corpses(read, table: int) -> tuple[tuple[int, float, float], ...]:
+    """The monsters lying dead (mode 12, the death animation over) as (unit id, x, y), world units.
+    Its own walk of the unit table: asked for now and then (Engorge), not at every look at the world."""
+    heads = struct.unpack('<128Q', read(table + MONSTER_UNIT * 1024, 1024))
+    found = []
+    for unit in walk_units(read, heads, MONSTER_UNIT)['units']:
+        if unit['mode'] != LYING_DEAD or not unit['path_pointer']:
+            continue
+        with contextlib.suppress(OSError, ValueError):
+            found.append((unit['unit_id'], *position(read(unit['path_pointer'], 8))))
+    return tuple(found)
+
+
+INVENTORY_GRID = 2  # the carried inventory among a player's grids (collection/capture.py GRID_CONTAINERS)
+
+
+@functools.cache
+def item_sizes() -> dict[int, tuple[int, int]]:
+    table = json.loads((Path(__file__).parents[1] / 'loot' / 'data' / 'sizes.json').read_text())
+    return {int(class_id): (size[0], size[1]) for class_id, size in table['sizes'].items()}
+
+
+def item_size(class_id: int | None) -> tuple[int, int]:
+    """Inventory cells (across, down) of an item class; one cell when the class is not known."""
+    return item_sizes().get(class_id, (1, 1)) if class_id is not None else (1, 1)
+
+
+def inventory_rows(read, table: int, player_id: int) -> tuple[str, ...] | None:
+    """The carried inventory's rows, '.' a free cell; None when it cannot be read."""
+    try:
+        heads = struct.unpack('<128Q', read(table, 1024))
+        unit = next((u for u in walk_units(read, heads, 0)['units'] if u['unit_id'] == player_id), None)
+        grid = read_owner_grids(read, unit).get(INVENTORY_GRID) if unit is not None else None
+    except OSError, ValueError, struct.error:
+        return None
+    if grid is None:
+        return None
+    width, cells = grid['width'], grid['cells']
+    return tuple(''.join('#' if cells[y * width + x] else '.' for x in range(width)) for y in range(grid['height']))
+
+
+def has_room(rows: tuple[str, ...] | None, size: tuple[int, int]) -> bool:
+    """Whether a free block of `size` cells is left in the rows; True when they were not read."""
+    if rows is None:
+        return True
+    across, down = size
+    return any(
+        all(rows[y + dy][x + dx] == '.' for dy in range(down) for dx in range(across))
+        for y in range(len(rows) - down + 1)
+        for x in range(len(rows[0]) - across + 1)
+    )
 
 
 def doors(read, table: int) -> tuple[Door, ...]:
@@ -295,6 +377,33 @@ def doors(read, table: int) -> tuple[Door, ...]:
             continue
         x, y = struct.unpack_from('<I', path, 0x10)[0] & 0xFFFF, struct.unpack_from('<I', path, 0x14)[0] & 0xFFFF
         found.append(Door(unit['unit_id'], unit['txt_id'], unit['mode'], float(x), float(y)))
+    return tuple(found)
+
+
+@dataclass(frozen=True)
+class Warp:
+    """A door: a warp tile unit of the loaded rooms."""
+
+    unit_id: int
+    warp: int  # its lvlwarp Id (levels/presets.warp_box)
+    x: float  # world units: what the door's click box hangs from
+    y: float
+
+
+def warps(read, table: int) -> tuple[Warp, ...]:
+    """The doors among the streamed units. Seen on 2026-10-10 in the Forgotten Tower: the way out
+    (Id 11) and the stairs down (Id 12), with the two doors of the levels just left still listed."""
+    heads = struct.unpack('<128Q', read(table + TILE_UNIT * 1024, 1024))
+    found = []
+    for unit in walk_units(read, heads, TILE_UNIT)['units']:
+        if not unit['path_pointer']:
+            continue
+        try:
+            path = read(unit['path_pointer'], OBJECT_PATH)
+        except OSError, ValueError:
+            continue
+        x, y = struct.unpack_from('<I', path, 0x10)[0] & 0xFFFF, struct.unpack_from('<I', path, 0x14)[0] & 0xFFFF
+        found.append(Warp(unit['unit_id'], unit['txt_id'], float(x), float(y)))
     return tuple(found)
 
 
@@ -405,6 +514,9 @@ def local_player(read, table: int) -> Player | None:
         except OSError, ValueError, struct.error:
             pass
         left, right = mouse_skills(read, unit['address'])
+        purge = None
+        with suppress(OSError, ValueError, struct.error):
+            purge = bool(struct.unpack('<I', read(unit['stats_pointer'] + STATE_FLAGS, 4))[0] & HEX_PURGE_BIT)
         player = Player(
             unit['unit_id'],
             name,
@@ -416,6 +528,7 @@ def local_player(read, table: int) -> Player | None:
             left,
             right,
             unit['stats_pointer'],
+            purge,
         )
         found.append((player, unit['stats_pointer']))
     # Several player units may stand for the one character: the shared stash tabs carry its name
@@ -452,12 +565,24 @@ class GameMemory:
     def _doors(self) -> tuple[Door, ...]:
         return doors(self.read, self.table)
 
-    def all_monsters(self) -> tuple[Monster, ...]:
+    def all_monsters(self, *, paths: bool = False) -> tuple[Monster, ...]:
         """Live and dead monsters with a position (the recorder tells a death from an unload)."""
-        return monsters(self.read, self.table, dead=True)
+        return monsters(self.read, self.table, dead=True, paths=paths)
 
     def missiles(self) -> list[dict]:
         return missiles(self.read, self.table)
+
+    def corpses(self) -> tuple[tuple[int, float, float], ...]:
+        try:
+            return corpses(self.read, self.table)
+        except OSError, ValueError, struct.error:
+            return ()
+
+    def warps(self) -> tuple[Warp, ...]:
+        try:
+            return warps(self.read, self.table)
+        except OSError, ValueError, struct.error:
+            return ()
 
     def census(self) -> list[dict]:
         return unit_census(self.read, self.table)
@@ -477,10 +602,16 @@ class GameMemory:
                 Drop(rune.unit_id, rune.x, rune.y, rune_name(rune.class_id), VALUABLE)
                 for rune in ground_runes(read, table, minimum=rune_minimum)
             ]
-            marked = [*ground_materials(read, table, materials)] if materials else []
+            marked = [*ground_materials(read, table, materials, appraised_classes())] if materials else []
             if unique_minimum is not None:
                 marked += ground_uniques(read, table, minimum=unique_minimum)
-            drops += [Drop(item.unit_id, item.x, item.y, item.label, VALUABLE) for item in marked]
+            # One drop per unit: a unique ring is both a ring and a marked unique (the unique's label wins).
+            labelled = {item.unit_id: item for item in marked}
+            drops += [Drop(item.unit_id, item.x, item.y, item.label, VALUABLE) for item in labelled.values()]
+            heads = struct.unpack('<128Q', read(table + ITEM_UNIT * 1024, 1024))
+            items = walk_units(read, heads, ITEM_UNIT)['units']
+            classes = {unit['unit_id']: unit['txt_id'] for unit in items}
+            drops = [replace(drop, size=item_size(classes.get(drop.unit_id))) for drop in drops]
             for potion in item_units(read, table, {SUPER_HEALING, FULL_REJUVENATION}):
                 if potion.mode in GROUND_MODES:
                     kind = REJUVENATION if potion.class_id == FULL_REJUVENATION else HEALING
@@ -494,8 +625,7 @@ class GameMemory:
                         )
                     )
             belt: list[int | None] = [None] * BELT_SIZE
-            heads = struct.unpack('<128Q', read(table + ITEM_UNIT * 1024, 1024))
-            for unit in walk_units(read, heads, ITEM_UNIT)['units']:
+            for unit in items:
                 if unit['mode'] != BELT_ITEM_MODE or not unit['data_pointer'] or not unit['path_pointer']:
                     continue
                 if struct.unpack_from('<I', read(unit['data_pointer'], 0x60), ITEM_OWNER)[0] != player.unit_id:
@@ -504,7 +634,13 @@ class GameMemory:
                 if cell < BELT_SIZE:
                     belt[cell] = unit['txt_id']
             stats = unit_stats(read, player.stats_at) if player.stats_at else {}
-            return Loot(tuple(drops), tuple(belt), stats.get(LIFE_STAT, 0) >> 8, stats.get(MAX_LIFE_STAT, 0) >> 8)
+            return Loot(
+                tuple(drops),
+                tuple(belt),
+                stats.get(LIFE_STAT, 0) >> 8,
+                stats.get(MAX_LIFE_STAT, 0) >> 8,
+                inventory_rows(read, table, player.unit_id),
+            )
         except OSError, ValueError, struct.error:
             return Loot()
 

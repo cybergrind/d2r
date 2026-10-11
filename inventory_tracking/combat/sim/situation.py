@@ -23,6 +23,7 @@ from typing import Any
 from inventory_tracking.combat.mechanics.damage import DAMAGE
 from inventory_tracking.combat.mechanics.echoing_strike import focal_point
 from inventory_tracking.combat.mechanics.hits import hostiles_by_frame, pointer_focal
+from inventory_tracking.combat.mechanics.movement import Route, route_of
 from inventory_tracking.combat.mechanics.tables import monster_points, points_of
 from inventory_tracking.combat.mechanics.validate import full_casts
 from inventory_tracking.combat.policy import walls
@@ -91,6 +92,8 @@ class Situation:
     drops: dict[int, list[tuple[int, float]]] = field(default_factory=dict)  # monster unit -> [(frame, points lost)]
     ticks: dict[int, int] = field(default_factory=dict)  # the take's frame number -> this situation's frame
     late_ticks: int = 0  # game ticks without a sample of this level: late samples, and time spent in another level
+    # monster unit -> frame -> the route it was walking then (a take with paths.jsonl; mechanics/movement.py)
+    routes: dict[int, dict[int, Route]] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         self.player_frames = sorted(self.player)
@@ -158,6 +161,23 @@ def death_marks(take: Take, frames, hostiles, aspect: float, radius: float = 4.0
         if near and min(near)[0] <= radius:
             found.append((n, min(near)[1]))
     return found
+
+
+def routes_of(take: Take, frames: list[dict[str, Any]]) -> dict[int, dict[int, Route]]:
+    """Per hostile monster and frame number, the route its path record held then: a record stands
+    from the frame it was written at until the monster's next one."""
+    rows = iter(sorted(take.paths, key=lambda row: row['n']))
+    row = next(rows, None)
+    records: dict[int, bytes] = {}
+    routes: dict[int, dict[int, Route]] = {}
+    for f in frames if take.paths else ():
+        while row is not None and row['n'] <= f['n']:
+            records.update((unit, bytes.fromhex(record)) for unit, record in row['m'])
+            row = next(rows, None)
+        for m in monsters_of(f):
+            if m.hostile and m.unit in records and (route := route_of(records[m.unit], m.txt, m.mode)) is not None:
+                routes.setdefault(m.unit, {})[f['n']] = route
+    return routes
 
 
 def cut(take: Take, start: int | None = None, end: int | None = None, area: int | None = None) -> Situation:
@@ -233,7 +253,7 @@ def cut(take: Take, start: int | None = None, end: int | None = None, area: int 
         presses.insert(0, (start, True))  # held when the situation starts: the press was before it
     situation = Situation(
         start, end, area, aspect, player, monsters, casts, damage, companions, unknown, marks, modes, presses, pointer,
-        ground, doors, drops,
+        ground, doors, drops, routes=routes_of(take, frames),
     )  # fmt: skip
     return in_ticks(situation, frames)
 
@@ -266,6 +286,7 @@ def in_ticks(situation: Situation, frames: list[dict[str, Any]]) -> Situation:
     situation.modes = timed(situation.modes)
     situation.pointer = timed(situation.pointer)
     situation.doors = timed(situation.doors)
+    situation.routes = {unit: timed(found, both=True) for unit, found in situation.routes.items()}
     situation.casts = [Cast(tick[c.frame], c.pointer, c.fitted) for c in situation.casts]
     situation.marks = [(tick[n], unit) for n, unit in situation.marks]
     situation.presses = [(tick[n], down) for n, down in situation.presses]
@@ -288,5 +309,6 @@ def describe(situation: Situation) -> dict[str, Any]:
         'death_marks': len(situation.marks),
         'walls': situation.ground is not None and len(situation.ground) > 0,
         'door_frames': len(situation.doors),
+        'monsters_with_routes': len(situation.routes),
         'recorded_damage_points': round(situation.recorded_damage),
     }

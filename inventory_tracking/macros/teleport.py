@@ -29,18 +29,20 @@ them next (DOOR_AIMS).
 import heapq
 import json
 import math
+from collections.abc import Callable
 from functools import lru_cache
 from pathlib import Path
 
 from inventory_tracking.common import LOG
 from inventory_tracking.levels.model import Ground, Target
+from inventory_tracking.levels.presets import warp_box
 from inventory_tracking.levels.route import Point, room_at
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.engine import Run
-from inventory_tracking.macros.routines import press_skill, swap_until, world_point
+from inventory_tracking.macros.routines import press_skill, settle, swap_until, world_point
 from inventory_tracking.macros.skills import SWAP_WEAPONS, TELEPORT
-from inventory_tracking.macros.view import UNIT_PIXELS, VIEW, Viewport
-from inventory_tracking.macros.world import Player
+from inventory_tracking.macros.view import CORNER_BOTTOM, CORNERS, UNIT_PIXELS, VIEW, Viewport
+from inventory_tracking.macros.world import Player, Warp
 from inventory_tracking.native.layout import TILE_UNITS
 
 
@@ -53,6 +55,7 @@ NEAR_WARP = 10.0
 APPROACH = 6.5
 WARP_TILES = 5.0
 BEARINGS = 16
+WALKING = frozenset((2, 3, 6))  # the character's modes while it goes somewhere on foot (combat/policy.py RUN_MODES)
 MOVED = 2.0  # world units the character must have moved for a teleport or a walk to count
 HOP_SECONDS = 1.5  # a teleport resolves well within this
 WALK_SECONDS = 1.5  # the first step of a walk
@@ -69,13 +72,15 @@ DOOR_SECONDS = 1.2  # a click on a door at most NEAR_WARP away, then the new lev
 # from its picture, so the aim goes with the preset, not the level. Tower Cellar 1-3 (host, 20:05 on
 # 2026-10-10): the stairs down took (-50, -45) in each of the W, E and N presets, after 1.4 s lost on
 # each of the two aims before it; S is taken to be the same. The Forgotten Tower in Black Marsh took
-# (0, -45). A door learnt since (`AIMS`) goes before these.
+# (-50, -45) four times on 2026-10-10 and missed it twice, (0, -45) once of three, (0, 0) never: all
+# guesses round a box that is 42 to 122 pixels above the tiles. The door's own box (`box_aim`) goes
+# before these, and a door learnt since (`AIMS`) next.
 KNOWN_AIMS = {
     'preset 143:stairs': (-50, -45),
     'preset 144:stairs': (-50, -45),
     'preset 145:stairs': (-50, -45),
     'preset 146:stairs': (-50, -45),
-    'preset 163:stairs': (0, -45),
+    'preset 163:stairs': (-50, -45),
 }
 DEFAULT_AIMS = Path('inventory_tracking/runs/macros/door-aims.json')
 # Where the character stood when a door took it, relative to the warp point the level card marks (world
@@ -90,11 +95,31 @@ ENTRY_MAX = 6.0  # world units from the mark: a last position further off is not
 ENTRY_WALK = 9.0
 ENTRY_NEAR = 4.0  # world units from the remembered spot: near enough to click the door from
 WALK_POLL = 0.04  # seconds between looks while the character walks into a door (one game frame)
+LOST_KEY = (
+    'Teleport is off its key: bind it again (the skill list, the pointer on Teleport, the key). '
+    'It is lost when a game is left with the staff in hand'
+)
 HOVER_SECONDS = 0.06  # for the game to note what is under the pointer after it moved (a frame or two)
 # Unit types of the record of the unit under the pointer that are not a door: a monster (the mercenary
 # and the summons land beside the character after a hop), an item. An aim with one of them under it is
 # left for last: the click would go to that unit.
 IN_THE_WAY = frozenset((1, 4))
+# The unit type of a door (a warp tile) in that record. In the logs to 2026-10-10 each of the 31 clicks
+# a door took had a tile in the record, and none of the 4 made with an object in it took: those were
+# clicks on the ground, each walking the character off for 1.4 s (the tower's door in Black Marsh,
+# host, 22:43 on 2026-10-10: 6 s around the entrance). The record keeps the last unit when the pointer
+# is on nothing, so a tile in it may be the door just come through: such an aim is clicked as before.
+TILE_UNIT = 5
+# A click made while a cast ends is swallowed: the character neither walks nor goes in. Tower Cellar,
+# host, 23:26 and 23:35 on 2026-10-10: attack mode's strike 0.04 s and 0.7 s before the click on the
+# stairs, the character where it stood 1.4 s later, then two aims off the door and 4.8 s in all; the
+# same aim from the same spot took in 0.23 s in the next game. So the character is waited free
+# (`settle`) and a click that moved nobody is made again, STILL_SECONDS on, before the next aim is tried.
+DOOR_CLICKS = 2
+# A character that has not moved this long after a click was not sent anywhere (a door took one in 0.37 s at most).
+STILL_SECONDS = 0.5
+WARP_NEAR = 12.0  # world units from the mark to its door unit (the tower's in Black Marsh: 7.0)
+LOOKS = 2  # times the aims are looked at for a door under them before one is clicked without (0.14 s an aim)
 
 
 class Entries:
@@ -164,6 +189,16 @@ MIN_GAIN = 3.0  # world units a hop must take off the way to go, or it is not ma
 POINTER_DRIFT = 10**6
 HOST_VIEW = Viewport()  # the window a potential is planned for when none is given (16:9, the host's)
 REACH_TILES = 5  # tiles one hop of the potential may span: about the view's shorter half (26 units)
+# The far potential: hops of up to FAR_TILES, counted from tile centre to tile centre (`hop_between`),
+# so a band of no footing five tiles wide is crossed where the window shows the other side. Far Oasis,
+# 01:58 on 2026-10-11 (user: "not using tp to move between sections and trying to tp through the
+# stairs"; it works in some Act 2 areas that cliffs split): the cliff between two plateaus is 25
+# units of no footing and the potential, with five tiles from anywhere on a tile, went round by the
+# ramp. Hops really made: 229 of 2,282 were over 30 units, the longest 32. Up and left the window
+# shows 31 units, down and right 26, so a cliff may be crossed one way and not the other. A target the
+# far potential found no landing for is planned the old way from then on (`FAR_FAILED`).
+FAR_TILES = 6
+FAR_FAILED: set[tuple[int, int, int]] = set()
 
 
 def in_view(point: tuple[float, float]) -> bool:
@@ -203,8 +238,10 @@ class Way:
     read grids, or lies on a room no grid covers; the mark's tile always is. A hop is one the window
     shows (`view`, the same value the landing is chosen under), so every hop planned can be made."""
 
-    def __init__(self, target: Target, view: Viewport = HOST_VIEW) -> None:
-        ground = Ground(target.ground)
+    def __init__(self, target: Target, view: Viewport = HOST_VIEW, far: bool = False) -> None:
+        # Kept for the landing: built once here, where it was built anew for each of the 800-odd spots a
+        # landing looks at (47-150 ms of every hop, and the recorder's late frames before a hop).
+        ground = self.ground = Ground(target.ground)
         self.view = view
         self.rooms = target.rooms
         landable: set[tuple[int, int]] = set()
@@ -218,11 +255,13 @@ class Way:
         mark = (math.floor(target.point[0]), math.floor(target.point[1]))
         landable.add(mark)
         # (dx, dy) leads from a tile to one a hop may come from: the hop itself is (-dx, -dy).
+        self.reach = reach = FAR_TILES if far else REACH_TILES
+        self.sees = sees = view.hop_between if far else view.hop_in_view
         offsets = [
             (dx, dy, math.hypot(dx, dy))
-            for dx in range(-REACH_TILES, REACH_TILES + 1)
-            for dy in range(-REACH_TILES, REACH_TILES + 1)
-            if 0 < math.hypot(dx, dy) <= REACH_TILES and view.hop_in_view(-dx, -dy)
+            for dx in range(-reach, reach + 1)
+            for dy in range(-reach, reach + 1)
+            if 0 < math.hypot(dx, dy) <= reach and sees(-dx, -dy)
         ]
         self.cost = {mark: 0.0}
         queue = [(0.0, mark)]
@@ -259,36 +298,39 @@ class Way:
         return min(
             (
                 self.to_go(centre) + math.dist(point, centre)
-                for dx in range(-REACH_TILES, REACH_TILES + 1)
-                for dy in range(-REACH_TILES, REACH_TILES + 1)
-                if (tx + dx, ty + dy) in self.cost and self.view.hop_in_view(dx, dy)
+                for dx in range(-self.reach, self.reach + 1)
+                for dy in range(-self.reach, self.reach + 1)
+                if (tx + dx, ty + dy) in self.cost and self.sees(dx, dy)
                 for centre in [(tx + dx + 0.5, ty + dy + 0.5)]
-                if math.dist(point, centre) <= REACH_TILES
+                if math.dist(point, centre) <= self.reach
             ),
             default=math.inf,
         )
 
 
-@lru_cache(maxsize=4)
-def way_for(target: Target, view: Viewport = HOST_VIEW) -> Way:
+@lru_cache(maxsize=8)
+def way_for(target: Target, view: Viewport = HOST_VIEW, far: bool = False) -> Way:
     """The potential of a target under a window's shape, kept across presses: rooms, grids, mark and
     window rarely change within a level."""
-    return Way(target, view)
+    return Way(target, view, far)
 
 
 def spots_in_view(player: Player, aspect: float):
     """Ground points drawn across the view, in tiles, VIEW_STEP of the window apart."""
-    (left, right), (top, bottom) = VIEW
-    columns, rows = int((right - left) / VIEW_STEP) + 1, int((bottom - top) / VIEW_STEP) + 1
+    (left, right), (top, _) = VIEW
+    view = Viewport(aspect)
+    columns, rows = int((right - left) / VIEW_STEP) + 1, int((CORNER_BOTTOM - top) / VIEW_STEP) + 1
     for column in range(columns):
         for row in range(rows):
-            x, y = world_point(player, left + column * VIEW_STEP, top + row * VIEW_STEP, aspect)
-            yield x / TILE_UNITS, y / TILE_UNITS
+            across, down = left + column * VIEW_STEP, top + row * VIEW_STEP
+            if view.hop_view((across, down)):  # the rows beside the skill bar too, while the corners are on
+                x, y = world_point(player, across, down, aspect)
+                yield x / TILE_UNITS, y / TILE_UNITS
 
 
 def landable(target: Target, way: Way, point: Point) -> bool:
     """Whether a hop may be aimed at `point` (tiles): footing by the read grids, else a room's rectangle."""
-    known = footing(Ground(target.ground), point)
+    known = footing(way.ground, point)
     return known if known is not None else way.on_rooms(point)
 
 
@@ -313,7 +355,7 @@ def landing(target: Target, player: Player, way: Way, aspect: float) -> tuple[Po
     for point in candidates:
         if target.warp and math.dist(scaled(point), scaled(target.point)) < WARP_TILES:
             continue  # the warp's own tiles: a hop onto them lands anywhere beside
-        if not in_view(ground_fraction(player, *scaled(point), aspect)) or not landable(target, way, point):
+        if not way.view.hop_view(ground_fraction(player, *scaled(point), aspect)) or not landable(target, way, point):
             continue
         found.append((way.to_go(point), math.dist(point, start), point))
     # Only spots that take MIN_GAIN off the way: a spot beside the door with footing on a tile the way
@@ -348,6 +390,15 @@ def moved(player: Player, since: Player) -> bool:
     return player.area != since.area or math.dist((player.x, player.y), (since.x, since.y)) >= MOVED
 
 
+def landed_from(player: Player, since: Player, aim: Point) -> bool:
+    """Whether a hop aimed at `aim` (world units) has taken the character there: it has moved, and it
+    stands or is near the aim. A character walking when the hop began moves before the hop does: the
+    walk was taken for the landing ("landed …, off by 24" 0.2 s after the key, 2026-10-10 and after)."""
+    if not moved(player, since):
+        return False
+    return player.area != since.area or player.mode not in WALKING or math.dist((player.x, player.y), aim) < MOVED
+
+
 def take_teleport(run: Run, key_names) -> None:
     """Have the Teleport key in `run.keys` and the staff that casts it in hand, if a staff it is."""
     world = run.world()
@@ -373,11 +424,30 @@ def take_teleport(run: Run, key_names) -> None:
     run.pause('key')
 
 
-def door_aims(target: Target) -> tuple[tuple[int, int], ...]:
-    """DOOR_AIMS with the one that took this door before first: learnt (`AIMS`), else from KNOWN_AIMS."""
+def box_aim(door: Point, warps: tuple[Warp, ...]) -> tuple[int, int] | None:
+    """The middle of the click box of the door unit nearest `door` (the mark, world units), in classic
+    pixels from the mark; None when no door unit is within WARP_NEAR of it or its box is not known.
+    The tower's door in Black Marsh (host, 2026-10-10): the unit 6.5, 2.5 units from the mark, the box
+    42 to 122 pixels above it, the aims 45 above on its edge (5 of 9 took)."""
+    near = [warp for warp in warps if math.dist((warp.x, warp.y), door) <= WARP_NEAR]
+    if not near:
+        return None
+    warp = min(near, key=lambda found: math.dist((found.x, found.y), door))
+    box = warp_box(warp.warp)
+    if box is None:
+        return None
+    dx, dy = warp.x - door[0], warp.y - door[1]
+    return round((dx - dy) * 16 + (box[0] + box[2]) / 2), round((dx + dy) * 8 + (box[1] + box[3]) / 2)
+
+
+def door_aims(target: Target, warps: tuple[Warp, ...] = ()) -> tuple[tuple[int, int], ...]:
+    """The aims to try in turn: the middle of the door's own click box when the game shows the door
+    (`box_aim`), then the one that took this door before (learnt, `AIMS`, else from KNOWN_AIMS), then
+    the rest of DOOR_AIMS."""
     learnt = AIMS.offset(target)
     took = (round(learnt[0]), round(learnt[1])) if learnt is not None else KNOWN_AIMS.get(Entries.key(target))
-    return DOOR_AIMS if took is None else (took, *(aim for aim in DOOR_AIMS if aim != took))
+    first = [aim for aim in (box_aim(scaled(target.point), warps), took) if aim is not None]
+    return tuple(dict.fromkeys((*first, *DOOR_AIMS)))
 
 
 def walk_into(run: Run, target: Target, player: Player, aspect: float) -> None:
@@ -385,7 +455,9 @@ def walk_into(run: Run, target: Target, player: Player, aspect: float) -> None:
     how far it walked and where it stood when the level changed (the last hop's landing is judged by
     the walk it leaves). The door's entry is where the character stood at the click when the first
     click took (a spot the door is proven to take a click from: the cellar stairs took it from 5.6
-    units without a step), else where it stood when the level changed. An aim with another unit under
+    units without a step), else where it stood when the level changed. With the game's record of the
+    unit under the pointer (`run.hovered`) an aim is clicked only with a door under it; the aims that
+    show none are looked at once more, then clicked as they are. An aim with another unit under
     the pointer waits for the others; after them all the first is made once more, from where the
     clicks on the ground left the character (the tower's door in Black Marsh, host, 20:12 on
     2026-10-10: nothing took from the remembered spot, the same aim took on the next press)."""
@@ -418,12 +490,26 @@ def walk_into(run: Run, target: Target, player: Player, aspect: float) -> None:
         return run.hovered()
 
     def click(aim: tuple[int, int], over: tuple[int, int] | None) -> bool:
+        """A click where the pointer is, with the character free of its last cast, made again when it
+        moved nobody; whether the level changed."""
+        for again in range(DOOR_CLICKS):
+            settle(run, 0.0, STILL_SECONDS)
+            stood = (player.x, player.y)
+            if press(aim, over):
+                return True
+            if math.dist((player.x, player.y), stood) >= MOVED:
+                break  # a click on the ground: the door is not under this aim
+            if again + 1 < DOOR_CLICKS:
+                LOG.info('Macro: the click %s pixels from the door moved nobody; made again', aim)
+        return False
+
+    def press(aim: tuple[int, int], over: tuple[int, int] | None) -> bool:
         """One click where the pointer is; whether the level changed."""
         nonlocal player, last, walked, clicks
         clicks += 1
         stood = (player.x, player.y)
         run.actuator.click()
-        deadline = run.clock() + DOOR_SECONDS
+        deadline, still, stirred = run.clock() + DOOR_SECONDS, run.clock() + STILL_SECONDS, False
         while True:
             world = run.world()
             now = world.player
@@ -446,8 +532,9 @@ def walk_into(run: Run, target: Target, player: Player, aspect: float) -> None:
             here = (now.x, now.y)
             walked += math.dist(here, last)
             last = here
-            if run.clock() >= deadline:
-                break
+            stirred = stirred or here != stood
+            if run.clock() >= deadline or (run.clock() >= still and not stirred):
+                break  # no way in, or nobody moved: the click was swallowed
             run.pace.sleep(WALK_POLL)
         player = run.world().player or player  # the click on the ground walked the character
         LOG.info(
@@ -457,18 +544,27 @@ def walk_into(run: Run, target: Target, player: Player, aspect: float) -> None:
         )  # fmt: skip
         return False
 
-    aims = door_aims(target)
-    waiting = []
-    for aim in aims:
-        if not aim_at(aim):
-            continue
-        over = under()
-        if over is not None and over[0] in IN_THE_WAY:
-            LOG.info('Macro: the aim %s pixels from the door has the unit %s under it; left for last', aim, over)
-            waiting.append(aim)
-        elif click(aim, over):
-            return
-    for aim in (*waiting, *aims[:1]):
+    aims = door_aims(target, run.warps() if run.warps is not None else ())
+    waiting, unseen = [], list(aims)
+    for _ in range(LOOKS):
+        looked, unseen = unseen, []
+        for aim in looked:
+            if not aim_at(aim):
+                continue
+            over = under()
+            if over is None or over[0] == TILE_UNIT:
+                if click(aim, over):
+                    return
+            elif over[0] in IN_THE_WAY:
+                LOG.info('Macro: the aim %s pixels from the door has the unit %s under it; left for last', aim, over)
+                waiting.append(aim)
+            else:
+                unseen.append(aim)
+        if not unseen:
+            break
+    if unseen:
+        LOG.info('Macro: no door under the pointer at the aims %s after %d looks; clicking them', unseen, LOOKS)
+    for aim in (*unseen, *waiting, *aims[:1]):
         if aim_at(aim) and click(aim, under()):
             return
     raise Abort(f'no click took {target.label}')
@@ -504,6 +600,25 @@ def clear_walk(ground: Ground, start: Point, end: Point, reach: float) -> bool:
     )
 
 
+CARD_POLL = 0.05
+CARD_SECONDS = 1.2  # for the level card to follow the character into a new level (0.84 s the longest logged)
+
+
+def card_for(run: Run, read: Callable[[], Target | None] | None, seconds: float = CARD_SECONDS) -> Target | None:
+    """The level card's mark, waited for while the card is still the level just left: the service
+    reads the new level's card 0.37 s after the arrival at the median (57 logged arrivals), and a
+    step asked for meanwhile stopped with "the level card is for another level" (15 of 116 exits
+    to 2026-10-10, and after both stairs of the first Worldstone Keep run)."""
+    if read is None:
+        return None
+    until = run.clock() + seconds
+    while True:
+        target, player = read(), run.world().player
+        if player is None or (target is not None and target.area == player.area) or run.clock() >= until:
+            return target
+        run.pace.sleep(CARD_POLL)
+
+
 def step_toward(run: Run, target: Target | None, key_names) -> None:
     """One teleport step. `key_names(world, skills)` gives the key per skill (runner)."""
     player, rect = ready(run)
@@ -536,10 +651,29 @@ def hop_toward(run: Run, target: Target, player: Player, rect: tuple[int, int, i
     """One teleport toward `target`: the landing in view that leaves the shortest way (the hunt
     keys use it too, macros/hunt.py)."""
     aspect = rect[2] / rect[3]
-    way = way_for(target, Viewport(aspect))
-    if way.from_here((player.x / TILE_UNITS, player.y / TILE_UNITS)) == math.inf:
-        raise Abort(f'no way over the rooms to {target.label}')
-    found = landing(target, player, way, aspect)
+    # The far potential first (hops over a cliff the window shows across), the old one when that
+    # finds no landing from here, and from then on for this target.
+    key = (target.area, math.floor(target.point[0]), math.floor(target.point[1]))
+    here = (player.x / TILE_UNITS, player.y / TILE_UNITS)
+    found = None
+    if key not in FAR_FAILED:
+        way = way_for(target, Viewport(aspect), True)
+        found = landing(target, player, way, aspect) if way.from_here(here) < math.inf else None
+        if found is None:
+            if len(FAR_FAILED) > 64:
+                FAR_FAILED.clear()
+            FAR_FAILED.add(key)
+            LOG.info(
+                'Macro: no landing by the far way to %s from (%.1f, %.1f): the near way',
+                target.label,
+                player.x,
+                player.y,
+            )
+    if found is None:
+        way = way_for(target, Viewport(aspect))
+        if way.from_here(here) == math.inf:
+            raise Abort(f'no way over the rooms to {target.label}')
+        found = landing(target, player, way, aspect)
     if found is None:
         raise Abort(f'no footing in view brings the character nearer to {target.label}')
     spot, gain = found
@@ -564,14 +698,25 @@ def hop_toward(run: Run, target: Target, player: Player, rect: tuple[int, int, i
         f'{len(target.ground)} grids, '
         f'pointer {run.actuator.keys.pointer()} in {rect}'
     )
-    if run.seen(lambda w: w.player is not None and moved(w.player, player), HOP_SECONDS) is None:
+    if run.seen(lambda w: w.player is not None and landed_from(w.player, player, aim), HOP_SECONDS) is None:
         after, now = run.world(), run.teleport() if run.teleport is not None else None
         LOG.info(
             'Macro: teleport %s; the character did not move: key %s, slots %s, staff %s, mode now %s, right skill %s',
             where, run.keys.get(TELEPORT), world_slots(after), now,
             after.player.mode if after.player else None, after.player.right_skill if after.player else None,
         )  # fmt: skip
-        raise Abort('Teleport: the character did not move (no charges, no mana, nowhere to land?)')
+        if not in_view(ground_fraction(player, *aim, aspect)) and CORNERS[0]:
+            # Aimed beside the skill bar and nothing came: the game takes no cast there after all.
+            CORNERS[0] = False
+            way_for.cache_clear()
+            LOG.info('Macro: a teleport aimed beside the skill bar did nothing: the corners are left alone from now on')
+            raise Abort('Teleport: nothing came of an aim beside the skill bar (not tried there again)')
+        if staff is not None and now is not None and now.in_hand and now.charges == staff.charges > 0:
+            # The staff in hand, no charge spent: the key cast nothing. The game drops Teleport from its
+            # key when a game is left with the staff in hand (user, 2026-10-11; 01:26 that night: three
+            # steps in a row, until the key was bound again in the skill list).
+            raise Abort(LOST_KEY)
+        raise Abort('Teleport: the character did not move (no charges, nowhere to land?)')
     landed = run.world().player
     if landed is not None:
         off = (landed.x - aim[0], landed.y - aim[1])

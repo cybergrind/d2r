@@ -21,6 +21,17 @@ UNIT_PIXELS = (16 / 600, 8 / 600)
 AIM_LIMITS = ((0.08, 0.92), (0.08, 0.8))  # stay off the window edge and the skill bar
 # Where ground may be clicked: inside the window's edges and above the skill bar.
 VIEW = ((0.03, 0.97), (0.05, 0.84))
+# A teleport may also be aimed beside the skill bar, down to CORNER_BOTTOM, where the window shows
+# ground left and right of it (user, 2026-10-11: let the macro try the corners; with them the window
+# shows 34 units down the screen where it showed 26, and a cliff 25 units wide is hopped going down as
+# it is going up). The bar is taken as HUD_HALF window heights to each side of the middle, by what the
+# game took (Far Oasis, 02:16 on 2026-10-11, the host's 2560 x 1418): casts aimed 0.67, 0.69, 0.72 and
+# 0.85 heights from the middle, 0.89 to 0.92 down, landed on the spot; one 0.63 from the middle did
+# nothing. A hop aimed there that moves nothing turns them off for the session (teleport.hop_toward,
+# `CORNERS`).
+CORNER_BOTTOM = 0.95
+HUD_HALF = 0.70
+CORNERS = [True]  # one switch for every Viewport; a list so it is changed in place
 DEFAULT_ASPECT = 16 / 9  # the host's 2560 x 1418 window
 # Shares of the aim's line tried in turn, the furthest first, when the focal point is off the screen.
 SHARES = (1.0, 0.85, 0.7, 0.55, 0.4, 0.25)
@@ -91,6 +102,23 @@ class Viewport:
             and top <= FEET[1] + (down - slack) * high
             and FEET[1] + (down + slack) * high <= bottom
         )
+
+    def hop_view(self, point: Point) -> bool:
+        """Whether a teleport may be aimed at a window fraction: inside `VIEW`, or beside the skill bar
+        down to CORNER_BOTTOM while the corners are on."""
+        if _inside(point, VIEW):
+            return True
+        (left, right), (_, bottom) = VIEW
+        across, down = point
+        beside = abs(across - 0.5) >= HUD_HALF / self.aspect
+        return CORNERS[0] and beside and left <= across <= right and bottom < down <= CORNER_BOTTOM
+
+    def hop_between(self, dx: int, dy: int) -> bool:
+        """Whether a hop of (dx, dy) tiles from a tile's centre to another's lands where a teleport may
+        be aimed (`hop_view`): `hop_in_view` without its slack for where on the two tiles the hop begins
+        and ends."""
+        across, down = (dx - dy) * TILE_UNITS, (dx + dy) * TILE_UNITS
+        return self.hop_view((FEET[0] + across * UNIT_PIXELS[0] / self.aspect, FEET[1] + down * UNIT_PIXELS[1]))
 
     def aim(self, origin: Point, focal: Point) -> Point | None:
         """The window fraction to put the pointer on for a cast at world `focal`, or None.

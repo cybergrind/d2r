@@ -9,6 +9,8 @@ quadrant) count as one match, and the POI covers the whole preset. A preset that
 DS1 variants can place its POI by variant: `sides` maps the file index (lvlprest File1..
 order) to the edge of the preset the POI is on (map axes, north = -y). `variants` restricts a
 spec to some DS1 variants, and `each` marks every matching instance instead of requiring one.
+`boss` puts the POI on a super unique the preset's DS1 file places (terror/data/elites.json).
+`at` puts it on a fixed spot of a preset that has one layout (the Throne's hall, Diablo's star).
 
 A level with logic that doesn't fit a pattern can subclass Handler and override `guide`.
 """
@@ -21,6 +23,7 @@ from inventory_tracking.levels.model import Guidance, LevelSnapshot, Poi, Room
 from inventory_tracking.levels.presets import preset_name
 from inventory_tracking.levels.spots import pinpoint
 from inventory_tracking.native.layout import TILE_UNITS
+from inventory_tracking.terror import elites
 
 
 @dataclass(frozen=True)
@@ -35,6 +38,8 @@ class PoiSpec:
     variants: tuple[int, ...] = ()  # only these DS1 variants (file index) match; empty = any
     each: bool = False  # mark every matching instance (none is fine), e.g. Lower Kurast's camps
     warp: bool = False  # an entrance of another kind (a side trip as 'target'): mark its warp tile too
+    boss: str = ''  # the POI is where the preset's DS1 file places this super unique (terror/elites.py)
+    at: tuple[float, float] | None = None  # the POI is this far (world units) from the preset's origin
 
     def matches(self, name: str) -> bool:
         return re.fullmatch(self.pattern, name) is not None
@@ -65,10 +70,26 @@ class Handler:
                     side = spec.sides[room.variant]
                     inset = SIDE_INSET if spec.inset is None else spec.inset
                     pois.append(Poi(spec.label, side_room(room, side, inset), spec.kind))
+            elif len(found) == 1 and spec.at is not None:
+                room = found[0]
+                pois.append(
+                    Poi(
+                        spec.label,
+                        marker_room(room, room.x + spec.at[0] / TILE_UNITS, room.y + spec.at[1] / TILE_UNITS),
+                        spec.kind,
+                    )
+                )
+            elif len(found) == 1 and spec.boss:
+                room = boss_room(found[0], spec.boss)
+                if room is None:
+                    problems.append(f'{spec.label}: {spec.boss} is not in the layout (variant {found[0].variant})')
+                else:
+                    pois.append(Poi(spec.label, room, spec.kind))
             elif len(found) == 1 and whole_level_around(groups[0], snapshot):
-                # The target is a whole-level layout the player stands in (Tower Cellar 5's
-                # Countess): no direction. Any smaller preset the player stands in (the waypoint
-                # they arrived by, WSK's 16x16 stairs) is a normal POI, shown as "here".
+                # The target is a whole-level layout the player stands in: no direction (Tower
+                # Cellar 5 until its handler named the Countess as `boss`). Any smaller preset the
+                # player stands in (the waypoint they arrived by, WSK's 16x16 stairs) is a normal
+                # POI, shown as "here".
                 if spec.optional:
                     continue
                 problems.append(
@@ -120,10 +141,30 @@ def side_room(room: Room, side: str, inset: float = SIDE_INSET) -> Room:
     """An 8x8 marker room `inset` inside one edge of `room` (x grows east, y grows south)."""
     fx = {'E': 1 - inset, 'W': inset}.get(side, 0.5)
     fy = {'S': 1 - inset, 'N': inset}.get(side, 0.5)
-    x, y = round(room.x + room.width * fx) - 4, round(room.y + room.height * fy) - 4
+    return marker_room(room, room.x + room.width * fx, room.y + room.height * fy)
+
+
+def marker_room(room: Room, x: float, y: float) -> Room:
+    """An 8x8 marker room of `room`'s preset centred on a tile point."""
     # The block keeps the preset's origin, so a warp spot (levels/spots.py) still finds its tile.
     block = room.block or (room.x, room.y, room.width, room.height)
-    return Room(room.preset, x, y, 8, 8, room.variant, block)
+    return Room(room.preset, round(x) - 4, round(y) - 4, 8, 8, room.variant, block)
+
+
+def boss_room(room: Room, name: str) -> Room | None:
+    """A marker room on the super unique `name` as `room`'s DS1 file places it; None when the
+    variant is unread or its file has no such monster."""
+    if room.variant is None:
+        return None
+    spots = [
+        (x, y)
+        for kind, found, x, y in elites.table().presets.get((room.preset, room.variant), ())
+        if kind == 'super' and found == name
+    ]
+    if len(spots) != 1:
+        return None
+    ((x, y),) = spots
+    return marker_room(room, room.x + x / TILE_UNITS, room.y + y / TILE_UNITS)
 
 
 def target(
@@ -137,12 +178,14 @@ def target(
     sides: Iterable[str] = (),
     kind: str = 'target',
     inset: float | None = None,
+    boss: str = '',
+    at: tuple[float, float] | None = None,
 ) -> Handler:
     """One POI: the unique room (or preset instance) whose preset name fully matches `preset`.
 
     kind='stairs' when the target leads to the next level (an entrance or an exit quadrant).
     """
-    spec = PoiSpec(label, preset, kind, sides=tuple(sides), inset=inset)
+    spec = PoiSpec(label, preset, kind, sides=tuple(sides), inset=inset, boss=boss, at=at)
     return Handler(name, frozenset(areas), (spec, *extra), confirmed)
 
 

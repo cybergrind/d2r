@@ -8,7 +8,8 @@ to the appraisal socket:
 - `hunt elites <monotonic>`, the seek step: one step toward the nearest elite (hunt.py); attack mode
   is on after it.
 - `hunt any <monotonic>`, the attack mode toggle (hunt.py).
-- `pickup <monotonic>`, the pickup step: pick up what is worth it, else a seek step (pickup.py).
+- `pickup <monotonic>`, the pickup step: pick up what is worth it, else a step toward the hostiles
+  near, else a seek step (pickup.py, hunt.py `step`); inside a fight also a step to a better stand.
 
 A run works on its own thread with its own memory handle and X connection. A request while a run
 works cancels it, except a step's own request during the step, which queues one more: steps are
@@ -41,7 +42,7 @@ from inventory_tracking.macros.journey import Journey
 from inventory_tracking.macros.pickup import pick_up, wanted
 from inventory_tracking.macros.routines import SKILLS, run_macro
 from inventory_tracking.macros.skills import character_bindings, skill_keys
-from inventory_tracking.macros.teleport import step_toward
+from inventory_tracking.macros.teleport import LOST_KEY, card_for, step_toward
 from inventory_tracking.macros.timing import Pace
 from inventory_tracking.macros.world import GameMemory
 from inventory_tracking.models import SessionIdentity
@@ -70,6 +71,7 @@ class MacroRunner:
         display: Callable[[list[str]], None] = lambda lines: None,
         execute: Callable[..., None] | None = None,
         place: Callable[[], tuple[str | None, int | None]] | None = None,
+        staff_in_hand: Callable[[], bool | None] | None = None,
     ) -> None:
         self.source = source
         self.capture_lock = capture_lock
@@ -82,10 +84,13 @@ class MacroRunner:
         self.last_request = -math.inf
         self.journey = Journey()
         self.place = place or self._place
+        self.staff_in_hand = staff_in_hand or self._staff_in_hand
+        self.staff_checked: str | None = None  # the game whose first look at the hands is done
         self.last_poll = -math.inf
         self.unread = False
         self.target: Callable[[], Target | None] | None = None  # the level card's mark (levels/guide.py)
         self.hunter: Hunter | None = None  # the seek step's and attack mode's state and sources (hunt.py)
+        self.supers: Callable[[int], list[tuple[float, float]]] | None = None  # terror tracker's `supers`
         self.working = False  # a run is acting (the thread lives on a while to show its last card)
         self.routine = PREBUFF
         self.again = False  # the step key pressed during its step: one more step after it
@@ -106,18 +111,32 @@ class MacroRunner:
             if routine == PREBUFF and now - self.last_request < THROTTLE:
                 return False
             self.last_request = now
+            LOG.info(
+                'Macro: request %s, %.0f ms old, while %s',
+                routine, 1000 * (now - requested_at), self.routine if self.working else 'nothing runs',
+            )  # fmt: skip
             if routine == ATTACK:
                 return self._toggle_attack_mode()
             if routine == PREBUFF:
                 self.attack_mode = False  # the macro request ends it
             if routine == HUNT_ELITES:
                 self.attack_mode = True  # the mode follows the seek step
+            if routine != PICKUP and self.hunter is not None:
+                # A teleport or seek step, the macro: the player takes the character somewhere, and
+                # the sweep a pickup request started (hunt.py) must not walk it back (Tower Cellar 3,
+                # 2026-10-11 00:49: it walked 25 units back between two teleport steps to the stairs).
+                self.hunter.follow = 0
             if self.working:
                 if routine in STEPS and self.routine == routine:
                     self.again = True
                 elif self.routine == ATTACK and routine == PICKUP and self.hunter is not None:
-                    self.pending = routine  # after the fight: the mode pauses itself once nothing is in reach
+                    # After the fight: the mode pauses itself once nothing is in reach. Inside a fight the
+                    # press is also a step to a better stand, and the mode drops the wait (`_unwait`)
+                    # when there is nothing to pick up.
+                    self.pending = routine
+                    self.hunter.unwait = self._unwait
                     self.hunter.after_fight.set()
+                    self.hunter.step_asked.set()
                 elif self.routine == ATTACK:
                     self.pending = routine  # the mode pauses for the step, or ends for the macro
                     self.cancelled.set()
@@ -126,6 +145,12 @@ class MacroRunner:
                 return True
             self._start(routine)
             return True
+
+    def _unwait(self) -> None:
+        """The pickup step that waited for the fight is not wanted any more (hunt.py `asked_step`)."""
+        with self.lock:
+            if self.pending == PICKUP:
+                self.pending = None
 
     def _toggle_attack_mode(self) -> bool:
         """The attack mode toggle: the mode on or off. On while a step works, it follows the step; off
@@ -156,8 +181,19 @@ class MacroRunner:
             return
         self.last_poll = now
         try:
-            self.journey.note(*self.place(), now)
+            game, area = self.place()
+            self.journey.note(game, area, now)
             self.unread = False
+            if game is None:
+                self.staff_checked = None
+            elif game != self.staff_checked and area is not None:
+                # A game begun with the staff in hand was left that way, and the game then drops
+                # Teleport from its key (user, 2026-10-11): said once, before the first step fails.
+                held = self.staff_in_hand()
+                if held is not None:
+                    self.staff_checked = game
+                    if held and not self.working:
+                        self._say(f'This game began with the staff in hand. {LOST_KEY}')
         except Exception as exc:
             if not self.unread:  # once per outage, not once a second
                 LOG.info('Macro: the level could not be noted (%s)', exc)
@@ -173,6 +209,18 @@ class MacroRunner:
         memory = GameMemory(self.source.pid, self.source.images['candidate_base'], next(iter(tables)))
         try:
             return memory.place()
+        finally:
+            memory.close()
+
+    def _staff_in_hand(self) -> bool | None:
+        """Whether the Teleport staff is in the set in hand; None without a staff or when unreadable."""
+        tables = {found['table_address'] for found in self.source.capture['unit_table_candidates']}
+        if len(tables) != 1:
+            return None
+        memory = GameMemory(self.source.pid, self.source.images['candidate_base'], next(iter(tables)))
+        try:
+            staff = memory.teleport()
+            return None if staff is None else staff.in_hand
         finally:
             memory.close()
 
@@ -297,15 +345,18 @@ class MacroRunner:
                 if os.environ.get(RESEARCH_ENV):
                     run.research = memory.hover_candidates  # a scan of the whole data section per Consume
                 run.hovered = memory.hovered
+                run.warps = memory.warps
+                run.corpses = memory.corpses
                 run.arrival = lambda: self.journey.arrival(time.monotonic())
+                run.supers = self.supers
                 if routine == TELEPORT:
-                    step_toward(run, self.target() if self.target is not None else None, key_names)
+                    step_toward(run, card_for(run, self.target), key_names)
                 elif routine == PICKUP:
                     hunter = self.hunter
                     if hunter is None:
                         raise Abort('no level guide to hunt with')
                     level = hunter.level() if hunter.level is not None else None
-                    if not pick_up(run, level, key_names, lambda: hunter.seek(run, key_names)):
+                    if not pick_up(run, level, key_names, lambda: hunter.step(run, key_names)):
                         self.attack_mode = True  # nothing to pick up: the press was a seek step, the mode follows
                 elif routine in (HUNT_ELITES, ATTACK):
                     if self.hunter is None:

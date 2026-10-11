@@ -1454,3 +1454,716 @@ New: a group `essences` (codes tes, ceh, bet, fed, checked against the item base
 The game of 21:24 in the same log ran on the service started at 21:14, so before the door fix and
 the pile fix: its "shot blocked" at 9 and 10 units and its two "lost the focus" stops (21:25:43,
 pointer at x 2367) say nothing new.
+
+### 2026-10-10 night: the pickup step takes rings and jewels
+
+- User: pick up rings, jewels and all runes. Runes were already all taken (`pickup_rune_minimum`).
+- `loot/materials.GROUPS` has `rings` (`rin`) and `jewels` (`jew`), codes checked against the bases;
+  config `pickup_also` names them for the pickup step only, so the HUD's marks do not point at
+  every ring. `world.loot` keeps one drop per unit (a unique ring is a ring and a marked unique).
+- Not yet seen in the game.
+
+### 2026-10-10 22:14 run: Worldstone Keep 2 to the Throne (the first run outside the Catacombs)
+
+No take exists: `combat_areas` did not hold the Keep. It does now (128-131), so the next run records.
+
+Changes from the run (user):
+- **Hydras** (monstats hydra1-3, txt 351-353) are not hostiles (`hunt.HYDRAS`). The Council's fire
+  heads never die; at 22:18:37 the fight held the strike on them for 11 s until attack mode was
+  switched off, and the held strike kept the player from moving away.
+- **Amulets** join `pickup_also` (group `amulets`, code `amu`).
+- **Identified charms, rings, jewels and amulets on the ground are left alone**
+  (`materials.APPRAISED`, `ground_materials(..., appraised)`): one read and dropped by the player
+  was offered again. The HUD marks follow the same rule.
+- **A drop no click picks up is given up** after `MISSED_AIMS` = 3 aims that had it under the
+  pointer, and left alone for `SHUN_SECONDS` = 30. At 22:16:13 a Large Charm took 30 clicks in 21 s
+  at 16 aims, the item under the pointer each time, the character walking to and past it; the
+  player picked it up by hand 4 s after. Cause unknown (no take). Potions showed the same twice
+  (22:15:33, 22:19:13): two clicks at (0, -14) walked to the potion, the click at (0, -24) took it.
+
+Where the run stuck, from the log (not fixed here):
+- "the level card is for another level" after both stairs (22:15:52, 22:17:07).
+- 22:15:52: "Teleport: the character did not move" 10 s after arriving in Keep 3.
+- 22:17:34: "Echoing Strike is on no skill key and on neither mouse button (right Teleport)", twice,
+  then a swap: the fight found the teleport staff in hand.
+- 22:15:17: a player's move "showed nothing after 2 clicks" (both swallowed by casts).
+- Black Souls (txt 640, physical resistance 90): four fights in a row with 0 down at 22:15:28.
+- Idle with hostiles "shot blocked" for 7 s (22:15:06) and 11 × 3 s lines on one monster 45-64 away
+  (22:17:45, 22:19:35): attack mode does not move, so nothing happens until the player does.
+
+### 2026-10-10 night: synthetic situations (five sub-agents)
+
+`tests/inventory_tracking/scenarios/{revivers,threat,navigation,exits,loop}/`: situations as tests,
+with what fails today marked `xfail(strict)` and the measured numbers in the reason (71 xfails in
+all; the whole suite is 3163 passed). No production change came with them. Each directory has its
+evidence pass over the logs and takes as a module. The proposals are in the session report; the
+ones with the best ground are: build `Ground` once per landing (47-150 ms a hop), strike before
+Death Mark and the sigil (0.3-0.7 s on 190 of 405 fight starts), wait for the new level's card
+instead of stopping (15 stops in 116 exits), an immunity flag and a threat weight on the aim line,
+and repositioning when a reviver cannot be hit.
+
+### 2026-10-10 late night: the first three scenario proposals, Engorge, potion aims
+
+User: do the first three proposals, step by step; then the requests from the second Worldstone run.
+
+1. **One `Ground` per landing** (`teleport.Way.ground`, used by `landable`): was built for each of
+   about 810 spots, 47-150 ms a hop. Three scenario xfails pass.
+2. **The strike before Death Mark and the sigil** (`hunt.fight`, `FIRST_STRIKE_SECONDS`): they are
+   cast under the held strike once a cast is out (or 0.3 s after the press). The first cast flies
+   unmarked; a mark is not cast on a monster that died meanwhile. The eight tests that pinned the
+   old order were rewritten. A race this exposed is closed in `actuator.hold`: the press-again skips
+   the press when the player's left button is down by then (review.md, finding 7).
+3. **The step waits for the new level's card** (`teleport.card_for`, up to `CARD_SECONDS` = 1.2):
+   no "the level card is for another level" stop for a press made on arrival.
+4. **Engorge** (skills.txt 379, on a corpse; user): under the held strike, on the nearest corpse in
+   view within 20 units, when a demon of the character's is under 70% of its life (every 4 s at
+   most) and every 15 s for the buff. `world.corpses` is its own walk, asked for only then. A demon
+   is an allied or owned monster that is no hireling, or a Defiler. Unconfirmed in the game:
+   whether the pointer on a corpse's ground selects it, and whether a used corpse still serves; the
+   log line names the unit under the pointer for that.
+5. **Potions are clicked at (0, -24) first** (`pickup.take`): 14 of 16 potions went there, and 10
+   clicks at (0, -14) only walked the character to the potion.
+
+Scenario xfails: 71 at the start, 63 now (two more passed with the door-click work of another
+session the same night).
+
+Open, from the 22:25 and 22:39 runs (both before these changes were loaded):
+- An Ort Rune under the pointer with the character standing on it took none of 6 clicks (22:41,
+  Tower Cellar), like the Large Charm of 22:16. A full inventory would explain both; the pickup
+  step does not look at the inventory's room.
+- Movement inside a fight (user: needed; today's is clunky under the held strike): not started.
+
+### 2026-10-10 late night: the pickup step looks at the inventory's room
+
+User: the inventory was full when the Ort Rune (22:41) and the Large Charm (22:16) took no click.
+- `world.loot` reads the carried inventory's grid (`collection.capture.read_owner_grids`, grid 2)
+  into `Loot.room`, and each drop's cells from `loot/data/sizes.json` (weapons, armor and misc.txt
+  `invwidth`/`invheight`, built by `loot/build_sizes.py` from the install) into `Drop.size`.
+- `pickup.choose` leaves a valuable with no free block of its size. With nothing else to pick up the
+  press stops with "inventory full: no room for …" and does not go on to the seek step, which
+  would teleport away from the drop (user); with a potion the belt wants it takes the potion and
+  says the same. Unread rows: as before.
+- Not yet seen in the game. A potion the belt has no column for would go to the inventory; the
+  step only takes potions the belt is short of, so that case does not arise.
+- Later (user): make room by itself, moving items into the Horadric Cube. Not started; it needs
+  the cube's grid (grid 5 of the same reader), the inventory panel opened and items dragged.
+
+### 2026-10-10 23:00: the tower's door in Black Marsh, and where a door takes a click
+
+Logs `runs/alt-d/20261010T193944Z-5aaf616f` (22:43: 6.08 s at the door, five clicks) and
+`...195222Z-84f7f137` (22:59: 3.32 s, three clicks; 22:56: 0.78 s, one click).
+
+- The hover record holds a door as (5, unit id), and it keeps the last unit when the pointer is
+  on nothing: at 22:59 it named the tower's door through two clicks that walked the character on
+  the ground (the last hop's aim had been on the door). At 22:43 it held an object from town.
+  `walk_into` now clicks an aim only with a tile in the record, looks twice, then clicks as before:
+  that stops the clicks with a stale object or nothing, not those with a stale door.
+- A door is a unit of type 5 in the unit table (slot 5), class = lvlwarp Id, with a static path
+  like an object's. Read from the running game at 23:02: the tower's door (Id 10) at (15651, 5385),
+  the mark at (15657.5, 5387.5); in the Forgotten Tower the way out (Id 11) at (10004, 8003) and
+  the stairs down (Id 12) at (10002, 8013), mark (10002.5, 8012.5).
+- lvlwarp.txt gives the box a door takes clicks in, classic pixels from that unit's place on
+  screen (`levels/data/warp_boxes.json`). For the tower's door the box is 42 to 122 pixels above
+  the mark and 74 left to 76 right of it: the aims 45 above were on its lower edge (5 of 9 took
+  that day), the one on the tiles never took. For the stairs down in the tower the box holds the
+  tiles, and (0, 0) took both times.
+- `door_aims` now leads with the middle of the door's own box (`box_aim`, from `Run.warps`), then
+  the aim learnt, then the old guesses. UNCONFIRMED in game: the next log's first click on each
+  door says whether the box is right (the aim logged is the box's middle, e.g. (1, -82) at the tower).
+- Not changed: a click that hits the door from its far side walks the character round for more
+  than DOOR_SECONDS (1.2 s), and the next aim then interrupts the walk.
+
+### 2026-10-10 23:08 run: the Tower to the Countess (user: too many mistakes at the end)
+
+On the service of 23:08, before "inventory full" stopped the press. No take: the Tower was not in
+`combat_areas` (Cellar 1-5 added now). What the log shows from Cellar 4 on:
+- 23:11:28 Grand Charm, 4.2 s: 16 aims looked at from 16 away and none had it (2.4 s), a click made
+  anyway with a corpse under the pointer walked the character up, the next aim took it. Now
+  (`pickup.take`): from over `NEAR_UNITS` = 6 only the nearer aims are looked at, then the
+  character walks up (`walk_up`), then every aim, and only then are aims clicked unseen.
+- 23:11:32 "no room for Amulet", then the seek step teleported 18 units away from it. Fixed after
+  that service was started (the press stops there).
+- 23:11:50 a hop logged "landed … off by 24.0" 0.19 s after the key: the character was walking when
+  the hop began, and the walk's movement was taken for the landing. Not fixed (teleport.py is being
+  worked on by another session).
+- 23:11:58 and 23:12:20, "Main weapons for the fight": two swaps in Cellar 5, each after a hop
+  with the staff, 0.7 to 1.5 s without a strike.
+- 23:12:12 Engorge 0.3 s after a Death Mark, at a corpse 1.7 from the character with the marked,
+  live monster under the pointer. Now (`hunt.engorge`): the two nearest corpses are looked at and
+  the key is pressed only when no live monster and no item label is under the pointer;
+  `world.corpses` gives the unit ids for that. Of the 12 casts logged that evening 11 named a
+  monster under the pointer and one an item; which of the 11 were the corpse is not known.
+- Idle with hostiles 14 to 23 away and "shot blocked": 4 s at 23:12:07, 5 s at 23:12:15, 8 s at
+  23:12:27. Attack mode stands; the player walked. This is the movement inside a fight still to do.
+
+### Plan: a step inside the fight, asked for with the pickup key (2026-10-10 late night; not built)
+
+User: plan movement inside a fight; the pickup key "feels too clunky when waiting to finish the
+distant mob: if we're in a fight we can use it as a signal that we might reposition", which also
+keeps the rule that the mode never gets in the way of the player's own moves.
+
+So the mode still never moves on its own. One press of the pickup key while hostiles are near is
+one step to a better place to stand; the strike goes on from there.
+
+Measured on the 45 service logs of 2026-10-10 (scripts were scratch, numbers only):
+- Attack mode idle with hostiles within 30 units and none in reach: 383 stretches, 1605 s in all,
+  median 3 s, 84 of 6 s or more. The nearest was "shot blocked" on 630 of 862 such log lines.
+- Of the time a fight's line went through some monster, 19% was through one 20 or more units away
+  and 25% through one 16 to 20 away (the blades fly 22). 247 of 750 fights ended on a monster 18 or
+  more away.
+- The character runs 20 units a second (15 to 21, five runs of 0.5 s or more in the takes): a step
+  of 8 units is 0.4 s, of 12 units 0.6 s, plus the cast that has to end first.
+- How long a pickup press waited for its fight cannot be read: the request's arrival is not logged.
+
+**What the pickup key does, by what is around (new rows marked):**
+
+| Around the character | Today | Planned |
+|---|---|---|
+| Nothing hostile within `ENGAGE_UNITS` (30) | pick up, else a seek step | the same |
+| A fight on (something in reach) | waits for the fight, then picks up, else seeks | **steps now** to a better stand if there is one; a valuable seen on the ground at the press is still picked up after the fight; no seek step follows |
+| Hostiles near, none in reach (the idle stretches) | pick up, else a seek step toward an elite or an unexplored room | pick up; else **a step to the nearest spot with a shot** at them (a walk within `STEP_UNITS`, else a hop to a firing spot as the seek step does for an elite) |
+
+A press with no better place says so on the card ("Standing well") and moves nothing.
+
+**Stage 1, the decision (`combat/stance.py`, pure, scored by the simulator like the policy):**
+`stand(seen, here, ground, doors) -> Stand | None`.
+- Candidates: three rings of 16 bearings within `STEP_UNITS` (12) of the character, with footing
+  and a straight walkable way from where it stands (no closed door on it).
+- Worth of a candidate, cheap pass: the life-weighted hostiles it has in reach with a clear shot
+  (`sight.in_reach`), an elite counted as the policy counts it. The best three then get the
+  policy's own line worth from there (`LinePolicy.choose` on the observation moved to the spot; one
+  asking costs up to 50 ms, so not all 48).
+- Cost: `KEEP_AWAY` (6 units) from every hostile or the candidate is dropped; fewer hostiles within
+  8 units breaks ties; then the shorter walk.
+- A step is worth it when nothing is in reach from here and something is from there, or when the
+  line there is worth `STEP_GAIN` (1.3) times the line here. Both numbers are to be set from the
+  simulator, not guessed: the revivers scenarios (of the 5 the flagged sweep leaves short, a move
+  to a plain firing spot mends 3) and the threat scenes that want a step (`a_step_out_of_the_pincer`,
+  `low_life_in_melee_breaks_contact`).
+- Budget: one decision under 250 ms, measured in scenarios/loop.
+
+**Stage 2, the act (`Hunter.reposition`, runner):**
+- Runner: a pickup request during attack mode sets `Hunter.step_asked` beside `after_fight`
+  (today's wait). The fight loop and the idle loop read it at their next look.
+- The step itself is the move machinery the mode already has for the player's own click
+  (`controller.Move`, `serve`, `serve_move`): the strike is let go, the click is made on the spot
+  once the cast has ended, twice at most, the strike is pressed again when the character stands.
+  To check before building on it: that the macro's own click is not read back as a press of the
+  player's (`sense`).
+- The player's hand wins: a left press of theirs, a held key or a character already on the move
+  drops the step.
+- No teleport inside a fight while Teleport is on the staff: the swap there and back cost 0.7 to
+  1.5 s without a strike in the Tower run. The mover is one function so a hop can replace the walk
+  when Teleport is on the main weapons.
+- Log, for the next run's reading: the request's arrival, the spot, what was in reach before and
+  after, seconds from the press to the first cast from the new spot.
+
+**Stage 3, on the host:** a press in a fight with a pack half behind a wall; a press with the last
+monster 20 away; a press in an idle stretch with monsters round a corner; a press with a rune on
+the ground mid-fight (step now, rune after); a press while walking by hand (nothing happens).
+
+**Later, each on its own evidence:** a threat and reviver weight in the candidate's worth (the
+tables are test data today: scenarios/revivers/revivers.json, scenarios/threat/threat_table.json);
+a step away at low life; the step taken unasked in the idle stretches (a config switch, off).
+
+Open, the user's call: whether a press in a fight keeps the pickup waiting when a valuable lies on
+the ground (planned: yes), and whether the idle step should ever come unasked (planned: no).
+
+### Stage 1 of the step inside the fight: the decision (2026-10-10 late night; user: yes to both open points)
+
+Settled: a press in a fight steps now and the valuable seen at the press is still picked up after
+the fight; the step never comes unasked.
+
+Built: `combat/stance.py` `stand(seen, policy, barred, aimable) -> Stand | None`, with `no_footing`
+(the walk's counterpart of `policy.walls`) and nothing wired to the game yet. Differences from the
+plan above, each from a measurement:
+- The cheap pass is `lined`, the best straight line from the spot, not a count of what is in reach:
+  with a pack in the open every spot reaches all of it and the shortlist was the four nearest spots.
+- `STEP_GAIN` is 2.0, not 1.3. Asked at every decision in the 17 reviver scenarios (harder than one
+  press; a move costs the harness 1 s): 1.3 met 10 and made 3 fights slower in 16 moves, 1.5 met 11
+  with 2 slower in 15 moves, 2.0 and 3.0 met 12 with none slower in 3 moves; today's aim meets 9.
+  Mended by one step each: `shaman_behind_a_wall`, `shaman_out_of_reach`,
+  `unraveler_raises_from_out_of_reach`. Not mended by a step alone: the closed cell, two revivers
+  that raise each other, the `tough_` packs (scenarios/stance/test_revivers.py).
+- The shortlist is 4 spots and the policy is given only what a blade from the spot can touch. One
+  decision: 144 ms at the median (200 at most) with 30 hostiles in the open, 228 (334) with 60;
+  one asking of the policy alone is 37 and 100 ms there. Stage 2 has the fight's own last choice
+  for the line from here and need not ask again.
+- No worth for the distance to a monster: the last plain monster of a fight took 0.8 s of its full
+  life at 4 to 16 units and 0.9 s at 16 to 22 (402 fights, logs of 2026-10-10). So a press with one
+  far monster in reach and a clear line answers "Standing well"; the wait of the pickup step for a
+  far monster is not a matter of where the character stands. What made those waits long is not
+  known (the request's arrival is not logged): stage 2 logs it.
+
+Not looked at: the threat scenes (a step out of a pincer, low life): they want a worth for danger,
+which is the later stage. Tests: combat/test_stance.py (9), scenarios/stance (19).
+
+### Stage 2 of the step inside the fight: the pickup request takes it (2026-10-10 late night)
+
+Built, not yet run in the game:
+- Runner: a pickup request during attack mode sets `Hunter.step_asked` beside `after_fight`, and
+  every accepted request is logged with its age and what ran ("Macro: request pickup, 12 ms old,
+  while hunt any"): the wait of a press can be read from the next log.
+- In a fight (`Hunter.asked_step`, at the fight's next look): with nothing to pick up
+  (`pickup.choose` is None) the wait is dropped (`after_fight` cleared, the runner's pending step
+  taken back through `unwait`), so no pickup and no seek step follow the fight. `better_stand`
+  asks combat/stance.py; a stand found ends the fight with "Stepping to a better stand", and
+  `take_step` walks there with `walk_to` (the seek step's walk: the cast is waited out, two clicks
+  at most), unless the player moves: a press of theirs, a held key, a character already going. No
+  stand: "Standing well: no better spot within 12", and the hold goes on. Not the `Move`/`serve`
+  machinery the plan named: `walk_to` already does what was wanted of it, and the macro's own click
+  is not read as the player's (`Actuator.button_held`).
+- With nothing in reach the press is the pickup step as before, and its "else" is `Hunter.step`
+  instead of the seek step: with hostiles within `ENGAGE_UNITS` (30) the better stand a walk away;
+  else, none of them in reach, the nearest firing spot at the nearest (`go`, the seek step's own
+  walk-or-hop, split out of `seek`); with something in reach and no better stand "Standing well";
+  with none near the seek step.
+- Logged per step: hostiles in reach and near, the spot, its line's worth against the line here,
+  whether a pickup follows, and "first cast N s after the step".
+
+Known gap: `policy.walls` stops no blade on a grid without a flight layer while `sight.clear_shot`
+falls back to the walk bit there; the stand follows the policy. Level maps read since 2026-10-10
+11:44 UTC have the layer.
+
+To verify on the host: the five presses of stage 3 above. Tests: test_hunt.py (7 new),
+test_runner.py (1 new).
+
+### 2026-10-10 23:36: the tower run after the door boxes; clicks a cast swallowed
+
+Log `runs/alt-d/20261010T202552Z-582f4e7d` (three tower runs, 23:26 to 23:36).
+
+- The door's own box works: the tower's door in Black Marsh took the first click all three times
+  ((1, -82), 0.21 to 0.28 s); the stairs into the cellar ((-26, -35)) 0.50 s three times; the stairs
+  down ((-40, -39)) 11 of 13 first clicks, 0.23 to 0.43 s.
+- The two misses (23:26:56 'Crypt Next N', 23:35:51 'Crypt Next W', 4.8 s each): attack mode fired
+  an Echoing Strike 0.04 s and 0.7 s before the click; the character stood where it was 1.4 s
+  later (the click was swallowed), the old aims (0, 0) and (0, -45) followed (both off this door's
+  box) and (-50, -45) took. The same aim from the same spot of the same preset took in 0.23 s at 23:32.
+- `walk_into` now waits the character free before a door click (`settle`, no longer than
+  STILL_SECONDS) and makes a click again when nobody has moved 0.5 s after it (DOOR_CLICKS = 2),
+  before any other aim. UNCONFIRMED in game.
+
+### The step looks for the pack, not the next monster (2026-10-11; user: "didn't really advance into effective positioning")
+
+User, after the Tower runs of 23:45-23:57: the step picked up monsters in one or two groups and spent
+several seconds where moving close to the whole group would have cleared it in under a second;
+reproduce the situations with sub-agents, bring a better strategy, test it.
+
+The log of that service (20261010T204511Z): 48 presses with hostiles near. The first rule answered
+"no better stand" 27 times of the 39 that have a take, 14 of them with at most half of the hostiles
+within 30 units in reach, and its steps were 8 or 12 units, toward the next monster.
+
+Two sub-agents (Haiku), files of their own under tests/inventory_tracking/scenarios/stance/:
+- `build_fixtures.py`, `fixtures/` (39 moments, 270 KB): the frame of each logged press from its
+  take, the hostiles, companions, doors, the grids within 60 units, and what the game then did.
+- `harness.py`: the moment replayed frame by frame with the production aim and the emulated blades;
+  a walk costs 0.36 s and its way at 20 units a second, a hop 1.5 s. Monsters stand still, which the
+  recorded ones did not (they came to the character: the recorded fights ended in 3.0 s at the median
+  with no step at all), so the seconds compare strategies with each other only.
+
+The new decision, `combat/stance.py` `camp` (the module text has the rules): every place within 24
+units with footing, in view, a way on foot of at most 1.4 times the straight line (round a corner:
+the game finds it from one click), no hostile within 6; its worth is what the next 3 s of casting
+take from there after the way, counted as best straight lines cast after cast, and up to as much
+again for having all in reach dead early. A place 1.25 times where the character stands is gone to.
+One decision took 5 ms at the median and 10 at most on the moments (the first rule: 144 to 200).
+
+And the mode follows on (`Hunter.follow_on`): after a press, for 8 s, up to two more steps, each
+only when nothing is in reach and hostiles are near, dropped by any move of the player's. This is
+the one place the mode moves without a press of its own; `FOLLOW_STEPS = 0` turns it off.
+
+Measured on the 39 moments, 15 s each, "cleared" = every hostile that stood within 30 units dead:
+
+| strategy | cleared | seconds in all | points in the first 3 s |
+|---|---|---|---|
+| no step | 8 | 476 | 155k |
+| the first rule | 26 | 255 | 316k |
+| `camp`, one step | 29 | 226 | 397k |
+| `camp` and the follow-on steps | 34 | 181 | 397k |
+| the same with a teleport allowed | 36 | 162 | |
+
+The best single walk found by trying every place also cleared 29, in 58 s where `camp` took 70 on
+the 28 both cleared. The reviver scenarios: 12 of 17 met, none slower, as the first rule at 2.0.
+Tried and dropped: counting each point by the seconds left when it is taken (as many cleared, 6% less
+in the first 3 s); no step while what is in reach dies within two casts (one more moment cleared,
+12% less in the first 3 s, one reviver scenario lost). Settings that changed the seconds by under
+1%: CAMP_GAIN 1.1 to 1.5, KEEP_AWAY 4, CAMP_GRID 2, HORIZON 4 (HORIZON 2 cleared 26).
+
+Known: at one moment (23:56:16) the step leaves two monsters in reach for a pack of more points 22
+away. A teleport is not taken by the step (the decision can count one: `hop=True`); the press with
+nothing in reach and no place on foot still hops to a firing spot as before (`Hunter.go`).
+
+Tests: combat/test_stance.py (11), scenarios/stance (fixtures 118, harness 7, moments 42, revivers
+19), test_hunt.py (3 new for the follow-on steps). Full suite 3398 passed.
+
+### The sweep, and the comparisons in the viewer (2026-10-11 night; user: Black Marsh, "two minutes for seconds of work")
+
+The run (service 20261010T204511Z, 00:24:56 to 00:25:56, still on the first rule; no take: Black
+Marsh was not in `combat_areas`, it is now): 49 hostiles in the open, 59 kills in 60 s, 25 presses
+of the pickup request and 5 of the teleport step, 12 fights of 29.3 s in all. The presses in a
+fight were answered "no better stand" with 2 of 50, 1 of 32, 1 of 15 hostiles in reach: the fight
+picked at the nearest pack's edge from 20 units, and the next pack waited for a press.
+
+Cast cadence, from the blades' births in the 30 Tower takes of that night (363 casts): two casts
+in a fight are 0.40 s apart at the median, and 28% of the gaps are over 0.9 s; with every gap at
+0.36 s the casting would take 112 s of the 235 s it took. The 88 long gaps by what the log shows
+between the casts: the mode paused for a step, 41 (52 s lost); Death Mark, 16 (18 s: about 1.1 s
+a mark); nothing logged, 15 (18 s); a walk, 5; Engorge, 4; a sigil, 2. Not acted on yet; Death
+Mark's second is the next thing to look at.
+
+Built: the follow-on steps are a sweep (`Hunter.follow_on`, `sweep_to`, `toward`, and the look in
+`fight` every `FOLLOW_CHECK` = 0.7 s). After a press of the pickup request the mode goes to a
+better place whenever `camp` finds one, in a fight too, and with nothing in reach strides
+(`STRIDE` = 16 units, to end `STAND_OFF` = 14 short) toward the nearest hostile within
+`SWEEP_UNITS` = 60; until nothing hostile is that near, the player moves by hand, `FOLLOW_STEPS`
+= 12 steps are taken or `FOLLOW_SECONDS` = 8 pass with no step. On foot only: in the open-field
+scenario hops for strides over 12 units took as long as walking them.
+
+Open field (scenarios/stance/test_open_field.py; five packs of ten of the Marsh's monsters over
+90 units, standing still, six fields, 60 s): no step 3.5 kills of 50; the first rule pressed at
+every decision 26.7; `camp` at every decision 38.8; the sweep all 50 in 32.6 s, of which 18 s are
+its 49 casts.
+
+The viewer (two Sonnet sub-agents): `scenarios/stance/export_viz.py` writes each recorded moment
+as a viewer file with one run per strategy (`make stance-viz`, `make stance-view`); the harness's
+`play` takes a `Trace`. combat_viewer reads two optional fields of a run, `player` (its own
+character track) and `moves` (README, "The exported file"), draws each view's own character, the
+moves and the trail, and names the left run by its label. `first_rule.py` keeps the first rule as
+the reference run. Checked headless on the 39 files (no script error) and by one picture.
+
+### Death Mark's second, Hex: Purge kept on, and the first runs with the sweep (2026-10-11, 01:00)
+
+**Death Mark** (user: look at its cost). 101 marks in the takes of 2026-10-10 night: the casts before
+and after a mark are 1.26 s apart at the median (0.40 s without one). The key goes down 0.15 s after
+the last blades, the mark's own cast ends 0.42 s after the key, and then the character stood free
+0.37 s at the median (0.08 at the first quartile, 0.62 at the ninth decile) before the next strike:
+the hold's own press-again waits `RETAP_SECONDS` of idling. A sigil: 1.56 s between the casts.
+- `Hunter.resume`: after a mark, a sigil, Engorge or Hex: Purge in a fight, the strike is let go
+  and pressed again as soon as that cast shows (0.25 s at most), so the game has it waiting. The
+  `pause('key')` after each of them is gone. Unconfirmed in the game: that a press made under
+  another skill's cast is taken up when it ends (the input model says so for the strike's own).
+- `worth_a_mark`: Death Mark makes one monster take more damage (skills.txt 375: 5 + 2 a level
+  per cent, for 125 + 13 a level frames) and costs about two casts; only a monster with more than
+  `MARK_CASTS` = 4 casts of life is marked. A plain monster of the Marsh or the Tower has a third
+  to one cast of life, an elite of the Chaos Sanctuary 2.5: the marks of that night (monster 20 at
+  109/128 and the like) would not be cast now.
+
+**Hex: Purge** (user: "if we don't have active hex-purge we should activate it: without it there is
+no damage"). `world.Player.hex_purge`: state 202 (states.txt `hexpurge`, the aurastate of skill
+389), bit 10 of the state word tracking/consume.py already reads for state 208. Attack mode casts
+it whenever that reads off: between fights at once, in a fight under the strike. A cast the state
+does not show is tried once more, then every 60 s, with a warning in the log: the bit comes from
+the tables and has not been seen to change in the game yet. The first run will show it (the log
+line "Hex: Purge" at the start of a mode whose buff is on would be the sign it reads wrong).
+
+**Black Marsh, 00:50:36, the first run with the sweep** (take 20261010T215036Z-6): 67.6 s, 88 kills,
+47 casts (19 s of casting at 0.4 s each); two packs, each gone in 12 to 15 s. The time between
+casts beyond 0.4 s: 20.5 s in 3 gaps where a key press paused the mode (14 s of them idle after the
+sweep ended at 00:50:56: "7 hostiles, none in reach; nearest 55 away, shot blocked"), 7.6 s in 6
+sweep walks, 3.5 s in 3 Death Marks, 7.6 s before the first cast and 9 s after the last.
+**Tower Cellar 3, 00:48:39** (take 20261010T214839Z-23; user: not optimal, stuck at one moment):
+- 00:48:53 "sweeping with 14 hostiles near and none in reach: no better place", the nearest 38 away
+  behind a wall: the sweep ended and waited for a press.
+- 00:48:59 the sweep left a fight with an elite (3 of 17 in reach) for a place 24 units and 1.6 s
+  away worth 1.7 times; the player pressed the teleport step a second later.
+- 00:49:01 between two teleport steps toward the stairs the sweep walked the character 25 units
+  back toward two monsters: the moment it stuck.
+Fixed: a teleport or seek request (and the macro) ends the sweep (`runner.request`); with nothing
+in reach and no place or stride on foot, the sweep makes the seek step's own move onto a firing
+spot at the nearest hostile (`Hunter.go`: a walk or a teleport hop; so the sweep can now spend
+staff charges); a stride of under 8 units that ends behind a wall is not taken; a place the sweep
+leaves a fight for unasked must be worth `SWEEP_GAIN` = 1.5 times (two of that run's six such
+steps were for 1.27 and 1.34). Seen and left: with the staff in hand a chain of teleport steps
+covers 26 units in 0.8 s, faster than the walk the open-field scenario assumed against it (1.5 s
+with the swaps); the sweep still walks its strides.
+
+### The sweep's strides are jumps (2026-10-11, 01:30; user: teleport hops or Blade Warp, Blade Warp preferred until Enigma)
+
+`Hunter.toward` gives a stride as a jump of up to `JUMP_REACH` = 26 units (the longest of the full
+length, three quarters and half that is in view and lands on footing) when `jump_by` names a skill
+that needs no weapon swap, and `Hunter.jump` makes it (pointer on the ground there, the key, the
+character seen elsewhere within 1.5 s):
+1. Blade Warp (skills.txt 390, "hurl an astral weapon that teleports you to its impact": any melee
+   weapon, mana 15, casting delay 20 frames; missile 707 Vel 36 for 20 frames, half again the
+   strike's blades' 24, so about 33 units) when it is in a slot, its delay is over and no wall is on
+   the blade's line;
+2. else Teleport when the staff is in hand with charges, or it is the character's own skill;
+3. else the walk of 16 as before.
+A stride under 8 units is walked. A jump that moves nothing leaves that skill alone for 30 s. The
+places `camp` finds are still walked to (they are often round a corner, and under 24 units).
+
+Unconfirmed in the game, and what the first run's log lines ("Blade Warp aimed at … landed at …,
+off by …, N s after the key") are for: where a Blade Warp aimed at open ground lands (the pointer,
+the end of its range, or the first monster on its line), how long it takes, and whether the
+strike's skill is back on the right button at once after it.
+
+Tests: test_hunt.py (5 new). The fake game lands a Blade Warp on the pointer's ground.
+
+### Black Marsh, 01:13: the movement was fighting itself (2026-10-11; user: attack stopped once, clunky moves and pickups, "something is wrong with our movement calculation")
+
+The run (service of 01:04, so with the sweep, Hex: Purge and the mark rule, without the jumps; take
+20261010T221305Z-6; 40 to 76 hostiles about). What the log shows:
+- **Attack stopped**, 01:13:48-58 and 01:14:36-40: a step's walk said "the character did not move"
+  after about 4 s (`walk_to`: two clicks, 1.5 s each, a second to settle), and the next look chose
+  the same place again. Nothing was cast meanwhile; the user toggled the mode at 01:14:40.
+- **Steps for little, back and forth**: with 6 to 10 hostiles in reach the mode left for places 9
+  to 25 units away worth 1.29 to 1.48 times (south at 01:13:13 and :18, back north at :22, east at
+  :26, west at :33), each 1 to 1.6 s of walking and about 1 s more to the first cast. The worth is
+  counted with the monsters standing where they are; these came to the character.
+- **Presses against the sweep**: the pickup request (25 presses in 40 s) with nothing to pick up
+  paused the mode, walked a step of its own from wherever the sweep's walk had got to, or sought an
+  elite and explored by teleport, and the sweep walked back.
+- **Pickups**: a shard 14 away took 6 s (01:13:27), the character sent 18 units past it and back;
+  a ring was passed twice (01:14:23). Both began under a walk: the aim was taken while the character
+  ran, so the click landed off by the way it went meanwhile. Before the ring a hop was logged
+  "landed, off by 28" 0.2 s after the key (the walk again), and a second hop followed.
+
+Changed:
+1. `step_walk`: a step's walk is one click and 0.7 s; not clicked with a live monster under the
+   pointer (the left button attacks it). A place a step failed for is left alone 10 s; two failures
+   in a row end the sweep.
+2. A step of 8 units or more is a jump when the character can make one (`take_step`: `jump_by`;
+   Blade Warp over a clear line, else Teleport without a swap), places `camp` finds included.
+3. `SWEEP_GAIN` = 2.0, and a step asked for inside a fight needs it too.
+4. `Hunter.step` (the pickup request with nothing to pick up): with hostiles within 60 units it
+   starts the sweep and moves nothing itself; the mode takes the steps. No walk of its own, no
+   seek or exploring while hostiles are that near.
+5. `pickup.standing`: an aim is taken once the character stands (1.5 s at most).
+6. `teleport.landed_from`: a hop has landed when the character has moved and stands, or is at the
+   aim; a walk under way is not it. (teleport.py is also worked on by another session.)
+
+Not yet in a run: the jumps (Blade Warp's landing is unconfirmed), and all of the above.
+
+### Black Marsh, 01:26: the first run with the jumps (2026-10-11; take 20261010T222623Z-6)
+
+153.5 s, 138 kills, 148 casts (59 s of casting at 0.4 s each), 67 presses of the pickup request.
+- **Blade Warp lands on the pointer.** 31 jumps of 9.5 to 24 units: off by 1.0 at the median, 2.8 at
+  most; 0.35 s and 45 units a second after the key (0.79 s at the median); the key 0.39 s after the
+  decision, the first cast 0.17 s after the landing. 8 Teleports from the staff in hand: 0.31 s after
+  the key. So a Blade Warp of 19 units is about 1.35 s from decision to cast, a Teleport about 0.9.
+  Blade Warp stays first (it spends no charges; the staff went from 69 to 44 in the run).
+- The steps inside a fight were for 2 to 16 times the worth, with 1 to 5 hostiles in reach; none
+  failed for the walk ("No step" once: a monster under the pointer). Three pickups, each one click.
+- **Stuck once, 01:26:37-49:** three seek steps in a row pressed the Teleport key and nothing came
+  (staff in hand, 50 charges before and after, mode 1 and the right skill unchanged through each).
+  The player then opened the skill list, pressed the key there, and the fourth step teleported to
+  the same spot. The slot table in memory showed Teleport on its key all along. Not understood; the
+  first teleport of that game, right after the first weapon swap. 14.8 s without a cast.
+- Time between casts beyond 0.4 s: 53.2 s in 25 gaps with a Blade Warp in them (travel between
+  packs: 2 to 30 hostiles alive at a time), 14.8 s the teleports that did nothing, 9.4 s a pickup.
+
+Changed: `Hunter.jump` no longer waits for the character itself before the aim (`press_skill`
+does) and takes a landing by `teleport.landed_from` (one Teleport jump was logged "landed, off by
+33.7" under a walk); the stopped teleport step's message asks whether Teleport is still on its key.
+
+### Teleport off its key, and the seek step's order (2026-10-11, 02:00; user)
+
+**Teleport's key** (user: "teleport was broken because I exit game without switching to main hand:
+detect that and ask to bind teleport, or bind automatically if possible"). The game drops Teleport
+from its key when a game is left with the staff in hand; the slot table in memory still shows it.
+- `runner.poll`: a game whose first readable look at the hands finds the staff in hand is said once
+  on the card ("This game began with the staff in hand. Teleport is off its key: bind it again…"),
+  unless a run is working.
+- `teleport.hop_toward`: a key that moves nothing with the staff in hand and no charge spent stops
+  the step with that same text (`LOST_KEY`), not "the character did not move".
+- The macro's own Save and Exit takes the main weapons first already (`routines.leave_game`).
+- Not bound automatically. What the player did at 01:26:43 (take 20261010T222623Z-6): a click on the
+  right skill's button at (0.534, 0.951) of the window, the pointer on Teleport's icon at (0.5285,
+  0.581), the key, a click on the button again. The icon's place moves with the skills the list
+  holds and nothing read from memory says what is under the pointer there, so a wrong skill would
+  take the key unseen. Possible on request, checked by a Teleport that then casts.
+
+**The seek step for a Terror Zone** (user: "exploring somewhat random in different directions… kill
+mobs to reach the breakpoint more efficiently"). A level's completion is the share of rooms loaded
+times kills over hostiles seen (terror/chance.py): every room and every kill, elite or not.
+- What the 01:13 log shows of the wandering: the pickup request's seek went to a remembered elite
+  100 to 130 units off across unexplored rooms and plain packs, then explored from there, and the
+  sweep walked between.
+- `Hunter.seek(any_hostile=True)`, what the pickup request now asks for: the nearest known hostile
+  of any kind (live, else remembered by the tracker), unless the nearest unexplored room is more
+  than a room (40 units) nearer; else that room. The seek step proper still goes to elites first.
+- `Hunter.frontier`: the unexplored room is the nearest by the way plus up to `TURN_TILES` = 8 for
+  turning back from the last explore step's heading. Replayed on five recorded layouts (Black Marsh
+  three times, Catacombs 2 twice; rooms marked as the tracker marks them, hops of 5 tiles): nearest
+  alone 196 hops and 128 radians of turning, with the turn counted 200 hops and 68 radians. A count
+  for rooms with explored neighbours ("finish the pocket") made it longer (202 to 206 hops) and
+  was left out. So the order was not costing hops; the gain is fewer turns back.
+- `Hunter.vanished`: a remembered monster that is not live within 25 units of where it was seen is
+  not gone to again (elites too).
+
+### What the strikes do nothing to is left alone (2026-10-11, 02:20; user: Far Oasis, the birds in the air)
+
+User: "we've spent a lot of time hunting for birds that weren't on land, effectively immortal; keep
+in mind if an enemy is in a similar state (it looks similar to hydras)". Take 20261010T224210Z-43
+(175.9 s): 33 Undead Scavengers (monstats 111, MonType vulture), 32 killed, 73 hits. Of the hits 55
+came while the bird walked, attacked or was struck (modes 2, 3, 4, 9: 1,797 frames) and 12 in modes
+1 and 8 (8,807 frames): those two are the bird in the air. The log of that run has 48 lines laid
+through a bird, most at 128/128.
+- By type: `hostiles` leaves out a vulture (`VULTURES`: vulture1-5 of the tables) in mode 1 or 8.
+  On the ground it is a hostile like any other.
+- By what is seen, for whatever else is in such a state (something burrowed, an immune):
+  `Hunter.untouched`. A monster whose life reads, that was the line's monster for `UNTOUCHED_CASTS`
+  = 4 casts and shows the life it had, is no hostile for `UNTOUCHABLE_SECONDS` = 20: not fought,
+  not swept toward, not sought (`Hunter.foes`), and said once on the card ("… takes no damage: left
+  alone"). Then it is tried again. A monster whose life goes down at all starts the count anew.
+The fake game now takes a point of the client's life off a monster that survives a hit (`unhurt`
+names the ones it does not).
+
+### Hops over a cliff: the far potential (2026-10-11, 02:40; user: Far Oasis, "not using tp to move between sections and trying to tp through the stairs")
+
+Take 20261010T225724Z-43. The cliff between two plateaus is a band of no footing 5 tiles (25
+units) wide. `Way` planned hops of at most `REACH_TILES` = 5 tiles, each counted in view from
+anywhere on its two tiles (`hop_in_view`), so no hop spanned the band and the way went round by the
+ramp: at 01:58:00 three hops north-east to it for a room 15 tiles east. Hops really made, all
+logs: 2,282 landed, 229 of over 30 units, the longest 32.
+- `Way(target, view, far=True)`: hops of up to `FAR_TILES` = 6, in view from tile centre to tile
+  centre (`Viewport.hop_between`). `hop_toward` plans by it first; when it finds no landing from
+  where the character stands, the old potential takes over for that target (`FAR_FAILED`).
+- On the take's ground: west over the cliff 3 hops where the old way took 7; east over it the
+  same 4 or 8 hops as before, by the ramp. The window shows 31 units up and to the left of the
+  character and 26 down and to the right (VIEW ends at 0.84 of the height, above the skill bar),
+  and going east the hop is 30 units down the screen. Whether the game takes a cast aimed lower
+  than that beside the bar (the corners of a 2560-wide window show ground there) is not known: no
+  hop was ever aimed below 0.84.
+- The navigation scenarios: across-and-back 13 -> 11 hops, down-the-screen 8 -> 6 (the band 20
+  units deep is hopped over), the Catacombs wall 21 units thick before the stairs room is hopped
+  over (three strict xfails gone, with their two route-length ones); recorded-door-1725 12 -> 13
+  hops (the far way fails once on it and the near way takes over), the others unchanged.
+The sweep's own strides are not planned by this: a Blade Warp needs a clear line and a walk a way
+on foot, so across a cliff the sweep still ends in `Hunter.go`, which is this hop.
+
+### Teleports aimed beside the skill bar (2026-10-11, 03:00; user: "yes, let the macro try the corners")
+
+`Viewport.hop_view`: a teleport may be aimed inside `VIEW` or, beside the skill bar, down to
+`CORNER_BOTTOM` = 0.95 of the height where the aim is at least `HUD_HALF` = 0.56 window heights
+from the middle (the bar taken as about 0.48: a guess with room to spare). `landing` and the far
+potential (`hop_between`) use it; clicks on the ground and on items, and the sweep's jumps, stay
+inside `VIEW`. With it the window shows 34 units down the screen instead of 26.
+- On the Far Oasis take: east over the cliff from further south 3 hops (one of them aimed beside
+  the bar) where it was 8 by the ramp.
+- Unconfirmed in the game: that a cast aimed there is taken. The first hop aimed there that moves
+  nothing turns the corners off for the session (`view.CORNERS`, the potentials planned with them
+  forgotten) and stops with "nothing came of an aim beside the skill bar"; the next press is
+  planned in the plain view. A lost Teleport key reads the same on such a hop, and shows as itself
+  on the next.
+- Under test the corners are off unless a test asks for them (the `corners` fixture): the pinned
+  routes are the plain view's until a run has shown the game takes these aims. With them on, the
+  navigation scenarios came out shorter still (around-the-void, recorded-door-1725, recorded-hunt-1848
+  met their reference counts).
+
+### The explore step follows a tour (2026-10-11, 03:30; user: "better with exploration now, but not perfect, too many back-and-forward iterations ... simulate what was the optimal way on this map")
+
+The Far Oasis run of 02:16 (take `20261010T231634Z-43`, 96 rooms, 3.5 minutes): west along the middle,
+south, east along the south, then eight hops back from the south-east corner to the middle, north-west,
+east along the north, and at the end fourteen hops across the whole map for a strip of three rooms on
+the west edge it had passed two rooms from at 02:17:11 (and 92 to 93 rooms "explored of 96": the rest
+have no ground a teleport lands on, and the rule went only to rooms it could land in).
+- The rule was not random any more, but it had no plan: the nearest unexplored room by the way, a turn
+  counted as up to 8 tiles more. That leaves strips behind and comes back for them.
+- `macros/tour.py` `tour`: the places to stand so that every unexplored room is seen (a place shows its
+  room and the rooms touching it, as terror/tracker.py marks them), in a short order from where the
+  character stands: a cover chosen greedily, ordered nearest-first, shortened by turning stretches
+  around and moving, dropping and shifting stops. Straight lines between room centres; 1 to 4 ms for
+  96 rooms. `Hunter.frontier` takes its first stop, by the stop's tile nearest by the way; planned anew
+  at every explore step (fights move the character), the tour before kept unless the new one is
+  `KEEP_TILES` = 8 shorter. The heading and `TURN_TILES` are gone.
+- A room no teleport lands in is seen from a room beside it; a room no standable room touches is left.
+- Replayed with nothing to fight (tests/inventory_tracking/scenarios/explore: the hunt's own choice,
+  the teleport's own landing over the read ground; the old rule kept as `nearest_rule.py`), Far Oasis,
+  hops and rooms seen of 96:
+
+  | from                               | nearest room | tour     |
+  | where the run came in              | 53, 90       | 46, 96   |
+  | the south-east corner (02:18:06)   | 53, 94       | 43, 96   |
+  | the north-west (02:18:45)          | 51, 89       | 42, 96   |
+
+  (aims beside the skill bar on, as narrowed below; off, as under test: 62/89, 57/94, 52/89 against 49, 46, 49 with all
+  96.) From each of the run's own explore decisions, with what it had seen by then, the tour had 3 to
+  10 hops less left than the old rule in the first half, and as many in the last quarter.
+- In the abstract (hops of 5.5 tiles in straight lines, four starts each on Far Oasis, Black Marsh,
+  Catacombs 2 and Tower Cellar 3): nearest room 612 hops, tour 442.
+- Not changed: a known hostile still goes before the tour when it is not a room's worth further than
+  the first stop (`ROOM_UNITS`), and a fight takes the character where the monsters are.
+
+### What the game took beside the skill bar (same run)
+
+Four teleports were aimed beside the bar. Those 0.67, 0.72 and 0.85 window heights from the middle
+(0.89 to 0.92 down) landed on the spot (one read 24 off because it was read before the character
+arrived); the one at 0.63 (pointer 385 px from the left edge, 0.92 down) did nothing, and turned the
+corners off for the rest of that session as written. `HUD_HALF` 0.56 -> 0.70: on 2560 x 1418 the outer
+11% each side, and none in a 4:3 window.
+
+### Frigid Highlands terrorized: doors, huts, and where the game is left (2026-10-11, 04:00; user: "too focused on killing doors; we don't target demon huts at all; win-x closed game ... only near eldritch")
+
+The run of 02:40 (log `20261010T233922Z-b0852dea`; no combat take, level 111 was not recorded).
+- Doors and walls. barricadedoor1/2 (432, 433), prisondoor (434), barricadewall1/2 (524, 525) are
+  monsters to the client: killable, AI Idle, `neverCount` 1, no experience (monstats.txt of the
+  installed game). 37 lines were aimed at them and 15 died; each counts 6,400 to 8,600 points to a
+  line, as much as a Blunderbore. `terror.tracker.BARRICADES`: no hostile for the hunt (not fought,
+  swept or sought toward) and kept with the tracker's allies (not counted as seen or killed, not
+  remembered). The Barricade Tower (435, AI SiegeTower, no `neverCount`) stays a hostile.
+- Huts. The Evil hut (528, AI GenericSpawner, spawns imp1, killable, 14,000 to 17,000 points) stood in
+  `routines.TOWN_NPCS` by mistake, with neither `npc` nor `inTown` in the table, so it never was a
+  hostile: the seek step went to its remembered place ("0 hostiles" 34 units from it) and fought the
+  imps it made. 540 (ancientbarb1) stood there the same way. Both taken out. Three of the run's five
+  huts died to lines aimed at other monsters, so the blades do strike them; whether a line can be
+  aimed at one (its place may read as no ground) is not known: level 111 is now in `combat_areas`.
+- The macro request. `run_ended` took the whole of levels 110 and 111 as the end of the Eldritch and
+  Shenk run; the request at (3260, 4932), 550 units from where Eldritch died, left the game where a
+  prebuff was meant. Now on those two levels only within `BOSS_UNITS` = 100 of where a super unique
+  of the level was last seen this game (`ZoneTracker.supers`, through `Run.supers`); anywhere else
+  it is the prebuff. Without the tracker the whole level counts, as before.
+
+### The second Frigid Highlands run ran the old code; the staff ran dry (2026-10-11, 04:20)
+
+The run of 02:48 to 02:57 is in the same log as the one before (`20261010T233922Z-b0852dea`, the
+service started at 02:39): no "the first of N stops" line, 31 lines aimed at doors and walls, no
+combat take. Nothing of the tour, the doors, the huts or the leave rule was in it.
+- New in it: 36 teleports toward monsters and rooms took the staff from 69 charges to none by 02:55,
+  and the next ten presses stopped with "the Teleport staff has no charges left".
+- `Hunter.afoot`: with the charges gone the seek step (toward a monster's firing spot or the tour's
+  next stop) is a Blade Warp of up to `JUMP_REACH` straight toward it over a clear line with footing,
+  else one click's walk of `STRIDE`; with neither it stops and says so. Not a route: across a cliff
+  or around a wall it stops, where the teleport would have hopped.
+
+### The first Frigid Highlands run on the new code (2026-10-11, 04:40; log `20261010T235738Z-73c5e1c4`, take `20261010T235913Z-111`, 103 s)
+
+- Doors and walls: no line aimed at one; four of the six seen ended at full life, two were grazed.
+- Huts: a line was aimed at the Evil hut 2765459647 ("worth 6770", 16 away) and it died (128 -> 0 in
+  the take), so a hut can be aimed at. The second hut was still alive when the game was left.
+- The macro request was not pressed in the level: the leave rule is untested in the game.
+- Walk steps refused for "a monster is under the pointer there": six in the run, five within three
+  seconds at 03:00:01. The first two were aimed 2 and 3 units from the Defiler and the mercenary; the
+  next had nothing alive within 8 units of the aim, so the game's name of the unit under the pointer
+  seems to stay after the pointer has left it. `step_walk` now minds only monsters a click attacks
+  (`attackable`: not the character's own, not an ally) that stand within `HOVER_UNITS` = 12 of the
+  ground aimed at.
+- A drink that did not take: at 03:00:04 the belt key went out 0.3 s after a teleport, the belt
+  stayed full, and six clicks on two super healing potions took nothing in 6.4 s; the next press, the
+  belt one short by then, took one in 0.44 s. `pickup.drink` looks at the belt after the key, presses
+  once more after `DRINK_SECONDS` = 0.6, and then stops with "the potion on N was not drunk".
+- One Blade Warp moved nothing (02:59:42, 1.6 s); one Death Mauler at 25/128 was left alone as taking
+  no damage after four casts. Not looked into.
+
+### Durance of Hate 2: 22 seconds on one spot (2026-10-11, 05:00; user: "a strange movement lag, when we were stuck and wasn't able to move anywhere")
+
+Log `20261011T000449Z-44a7c9ed`, 03:09:13 to 03:09:34; no combat take (levels 100-102 were not
+recorded; now in `combat_areas`).
+- What the log and the terror probe show: at 03:09:12.26 the sweep clicked a walk of 23 units from
+  (17821.5, 6819.5); the character got 5 units, to (17816, 6818), and stayed there in mode 3 (run)
+  until 03:09:34. The Defiler stood within 2 units of it the whole time and the bound demon (361)
+  5 to 6 units off on the line of the walk. The game went on: life rose 1098 -> 1813 at its usual
+  rate, four monsters near died, the pets moved. Three teleport requests pressed the weapon swap six
+  times with no swap ("the Teleport staff is not in hand after the swaps"). At 03:09:34 the character
+  stood 9 units away in mode 1 and everything worked again.
+- Why it stood is not known: the left button's state was not logged, and nothing recorded the level.
+  The macro's own clicks are released in a `finally`; whether the game counted a button as down is
+  not shown by anything kept.
+- What the macro added to it: attack mode yields to "the character is on the move" (`RUN_MODES`),
+  so for those 22 s it cast nothing and logged nothing, with 5 to 27 hostiles near.
+- `Hunter.moving`: a character in a walking or running mode that has not moved `MOVED` units for
+  `RUN_IN_PLACE` = 1.5 s is not on the move: said once ("runs in place at ... not waited for") and
+  the mode fights, sweeps and steps again. A held key and the left button down are waited for as
+  before, and what the mode waits for is now logged every `WAIT_LOG_SECONDS` = 3 with the place and
+  the mode, so the next standstill names its reason.
+- Unknown: whether a cast or a jump of the mode's frees the character. The next one will show it.

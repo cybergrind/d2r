@@ -12,6 +12,7 @@ const MapView := preload("res://map_view.gd")
 const TimelineBar := preload("res://timeline_bar.gd")
 const SidePanel := preload("res://side_panel.gd")
 const TakeList := preload("res://take_list.gd")
+const Exporter := preload("res://exporter.gd")
 
 const DEFAULT_DIRECTORY := "../inventory_tracking/runs/combat/viz"
 const INDEX := "index.json"
@@ -39,6 +40,7 @@ var _right: Control
 var _timeline: Control
 var _panel: PanelContainer
 var _list: PanelContainer
+var _exporter: Node
 var _dialog: FileDialog
 var _play_button: Button
 var _speed_label: Label
@@ -164,7 +166,14 @@ func _build() -> void:
 	_list.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_list.take_chosen.connect(_on_take_chosen)
 	_list.browse_requested.connect(_browse)
+	_list.export_requested.connect(_on_export_requested)
+	_list.refresh_requested.connect(_show_list)
 	add_child(_list)
+
+	_exporter = Exporter.new()
+	_exporter.progressed.connect(_on_export_progressed)
+	_exporter.finished.connect(_on_export_finished)
+	add_child(_exporter)
 
 	_dialog = FileDialog.new()
 	_dialog.access = FileDialog.ACCESS_FILESYSTEM
@@ -214,6 +223,25 @@ func _browse() -> void:
 
 func _on_take_chosen(path: String) -> void:
 	_open_take(path)
+
+
+func _on_export_requested(take_directory: String, policies: PackedStringArray) -> void:
+	var take: String = take_directory.get_file()
+	if _exporter.is_pending(take):
+		return
+	_list.set_export_state(take, "waiting")
+	_exporter.request(take_directory, directory, policies)
+
+
+func _on_export_progressed(take: String, done: int, total: int, stage: String) -> void:
+	_list.set_export_state(take, "%d/%d %s" % [done, total, stage])
+
+
+## The exporter rewrote the index: show it again, with what went wrong on the take's row if it failed.
+func _on_export_finished(take: String, ok: bool, message: String) -> void:
+	_list.set_export_state(take, "" if ok else "failed: %s" % message)
+	if _list.visible:
+		_open_directory(directory)
 
 
 func _open_take(path: String) -> void:
@@ -286,6 +314,7 @@ func _choose_policy(name: String) -> void:
 	var recorded_deaths: PackedInt32Array = _recorded["death_ticks"]
 	var policy_deaths: PackedInt32Array = _policy["death_ticks"]
 	_timeline.set_marks(recorded_casts, policy_casts, recorded_deaths, policy_deaths)
+	_timeline.set_moves(_recorded["moves"], _policy["moves"])
 	_show_runs()
 	_show_tick(true)
 
@@ -339,8 +368,7 @@ func _show_tick(force: bool) -> void:
 	if now == tick and not force:
 		return
 	tick = now
-	if camera["follow"]:
-		camera["center"] = TakeData.position(data.player, tick)
+	_follow_character()
 	_left.set_tick(tick)
 	_right.set_tick(tick)
 	_timeline.set_tick(tick)
@@ -348,6 +376,20 @@ func _show_tick(force: bool) -> void:
 	_panel.set_totals(elapsed, data.totals(_recorded, tick), data.totals(_policy, tick))
 	var moving: String = "  (the player is moving)" if TakeData.in_spans(data.player_run, tick) else ""
 	_time_label.text = "%s / %s   tick %d%s" % [_clock(elapsed), _clock(data.seconds), tick, moving]
+
+
+## Follow: each side-by-side view centres on its own run's character, the overlay on the policy's.
+func _follow_character() -> void:
+	_left.shift = Vector2.ZERO
+	_right.shift = Vector2.ZERO
+	if not camera["follow"]:
+		return
+	if overlay:
+		camera["center"] = data.character_at(_policy, tick)
+		return
+	var mine: Vector2 = data.character_at(_recorded, tick)
+	camera["center"] = mine
+	_right.shift = data.character_at(_policy, tick) - mine
 
 
 func _clock(seconds: float) -> String:
@@ -406,6 +448,9 @@ func _fit() -> void:
 
 func _on_camera_changed() -> void:
 	var follow: bool = camera["follow"]
+	if not follow:
+		_left.shift = Vector2.ZERO
+		_right.shift = Vector2.ZERO
 	_follow_button.set_pressed_no_signal(follow)
 	_left.queue_redraw()
 	_right.queue_redraw()

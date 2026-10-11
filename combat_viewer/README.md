@@ -18,12 +18,32 @@ make combat-view    # open the viewer
 ```
 
 One take: `uv run --offline python -m inventory_tracking.combat.viz inventory_tracking/runs/combat/<take>`
-(it also refreshes `index.json`). Other policies: `--policies live,yield,free,nearest,slots`.
+(a few seconds; it prints each stage as `[4/6] policy live` and refreshes `index.json`). Other policies: `--policies live,yield,free,nearest,slots`.
 Elsewhere: `--out <directory>`, then `godot --path combat_viewer -- <directory>` or the viewer's
 "Choose folder" button.
 
-The viewer needs Godot 4.4 or later (written for 4.7) and reads only the exported JSON: no Python at
-view time. It looks for `../inventory_tracking/runs/combat/viz/index.json` from the project directory.
+The viewer needs Godot 4.4 or later (written for 4.7) and plays only the exported JSON. It looks for
+`../inventory_tracking/runs/combat/viz/index.json` from the project directory.
+
+## The take list
+
+The list opens newest first and shows every take in the folder the index was exported from (its
+`source`), not only the exported ones: a take without a file is dim, and its Export column says
+`not exported` (never tried, for instance recorded after the last `make combat-viz`) or why the
+exporter left it out (`fewer than 5 full casts`).
+
+- **Enter** or a double-click opens a take; on a take without a file it exports it.
+- **E** (or "Export chosen") runs the exporter again for the chosen take, exported or not: the way to
+  see a change to the simulator or a policy on one take without `make combat-viz`. The Export column
+  shows the stage it is at (`4/6 policy live`); when it ends the row is read again from the index, or
+  says `failed:` with the exporter's last line. Several takes can be asked for; they run one at a time.
+- "Export new" asks for every take that was never tried.
+- **R** reads the folder again: takes recorded or exported since the list was opened appear, with the
+  order and the chosen take kept.
+
+The viewer runs `uv --directory <repository> run --offline python -m inventory_tracking.combat.viz
+<take> --out <the folder shown>` for this, with the policies the take was last exported with. A
+folder whose index names no source (the stance comparisons below) has nothing to export.
 
 ## Keys
 
@@ -112,7 +132,8 @@ Conventions:
 }
 ```
 
-A RUN is one pass of the simulator over the situation:
+A RUN is one pass of the simulator over the situation (the two optional fields at its end are only
+in stance comparisons, below):
 
 ```
 {"name": "recorded" | "live" | "yield" | ...,
@@ -129,7 +150,12 @@ A RUN is one pass of the simulator over the situation:
  "taken": [tick, total, ...],      // step series: life points taken so far, every source
  "score": {"placement_per_combat_second": 2854, "placement_points": 205000, "combat_seconds": 71.9,
            "life_taken": 230000, "kills": 32, "casts": 14, "contacts": 61, "blades_walled": 0,
-           "gain": 0.359 | null}}  // gain over the recorded run; null for the recorded run
+           "gain": 0.359 | null},  // gain over the recorded run; null for the recorded run
+ "player": {"seen": ..., "k": ...},   // optional: this run's own character path (a track); without it
+                                      // the run uses the top-level `player`
+ "moves": [{"t0": 12, "t1": 46, "from": [x, y], "to": [x, y], "hop": false, "walk": 123}]}
+                                      // optional: each step the strategy took, decided at tick t0,
+                                      // arriving at t1; `hop` is a teleport (the character jumps at t1)
 ```
 
 A BLADE is `[x0, y0, x1, y1, n, dx, dy, dx, dy, ...]`: at the cast's tick `t` it is at (x0, y0), it
@@ -149,9 +175,35 @@ life in 3.0 s", "value": 50163.3}`; the list is sorted by `first`. Kinds
 | `miss` | recorded casts in a row that touched nothing | how many |
 | `kill` | an elite dies at least a second apart in the two runs | seconds the policy was earlier (negative: later) |
 
-`index.json` beside the takes: `{"schema": 1, "takes": [{"take", "file", "bytes", "area", "area_name",
-"started_at", "seconds", "ticks", "monsters", "recorded_kills", "gate_passes", "runs": {name: score},
-"moments": {policy: count}}]}`.
+`index.json` beside the takes: `{"schema": 1, "source": "<the folder of take directories>" | null,
+"takes": [{"take", "file", "bytes", "area", "area_name", "started_at", "seconds", "ticks", "monsters",
+"recorded_kills", "gate_passes", "runs": {name: score}, "moments": {policy: count}}],
+"left_out": {"<take>": "<why it has no file>"}}`. The viewer lists the take directories of `source`
+(those holding `frames.jsonl`) that `takes` does not, from each one's `manifest.json`.
+
+## Stance comparisons
+
+A second kind of file, same schema 1, compares where to stand rather than what to cast: the monsters
+stand still, and each run (`recorded`, `stay`, `step`, `follow`, `hop`) has its own character path
+and its `moves`. The top-level `pointer` track is empty, the recorded run has no life series or death,
+and each policy has one moment spanning the file. The files are short (about 15 seconds).
+
+```
+uv run --offline python -m tests.inventory_tracking.scenarios.stance.export_viz
+godot --path combat_viewer -- ../inventory_tracking/runs/combat/viz-stance
+```
+
+The first writes `inventory_tracking/runs/combat/viz-stance/` (with its `index.json`); the second opens
+its take list. Godot runs in the project directory, so a relative path starts at `combat_viewer/`
+(hence the `../`); an absolute path works too, and one file's `.json` opens that take directly.
+
+In these files each view draws its run's character where that run has it: the left view the recorded
+run's, the right one the policy's; overlaid, both characters, each ringed in its run's colour (they
+are drawn as one when they stand together). Casts start from the run's character. Each move is a thin
+line in the run's colour from `from` to `to` (dashed for a hop) with a ring at `to`, shown from `t0`:
+bright until `t1`, dim after; the path walked so far is a faint trail. On the scrub bar each move is a
+short bar at the foot of its run's lane. **F** follows each view's own character (overlaid: the policy's).
+The panel's legend shows each run's label, its number of moves and `score.combat_seconds` as "cleared in".
 
 ## The scripts
 
@@ -162,10 +214,12 @@ life in 3.0 s", "value": 50163.3}`; the list is sorted by `first`. Kinds
 | `map_view.gd` | one isometric view of the level at a tick, for one run or both |
 | `timeline_bar.gd` | the scrub bar with casts, kills and moments |
 | `side_panel.gd` | the legend, scores, running totals and the moments list |
-| `take_list.gd` | the opening list of takes |
+| `take_list.gd` | the opening list of takes, exported or not |
+| `exporter.gd` | runs the exporter for one take at a time and passes its stages on |
 | `palette.gd` | every colour |
 | `tests/smoke.gd` | a headless check of the decoder: `godot --headless --path combat_viewer --script res://tests/smoke.gd -- <take.json>` |
 | `tests/drive.gd` | the whole viewer driven headless: every listed take opened, every key above pressed (`make combat-view-check`) |
+| `tests/export.gd` | the take list and the exporter driven headless: prints the list's size and first rows, then with `--take=<name>` exports that take through the viewer: `godot --headless --path combat_viewer --script res://tests/export.gd -- <directory> --take=<name>` |
 
 ## Checking it
 
@@ -173,4 +227,5 @@ life in 3.0 s", "value": 50163.3}`; the list is sorted by `first`. Kinds
 - The viewer without a person: `make combat-view-check` prints one line of state per key and per take; a
   script error would show as a `SCRIPT ERROR` line.
 - A picture without a person: `godot --path combat_viewer -- <take.json> --tick=1040 --policy=live
-  --overlay --fit --shot=tmp/combat_viewer/shot.png` opens the window, saves what it shows and quits.
+  --overlay --fit --shot=$PWD/tmp/combat_viewer/shot.png` opens the window, saves what it shows and quits
+  (give `--shot` and the take as absolute paths, or relative to `combat_viewer/`).

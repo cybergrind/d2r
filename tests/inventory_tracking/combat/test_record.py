@@ -3,6 +3,7 @@ events derived from them, the late-frame count; all on a scripted sample sequenc
 
 import json
 import threading
+from dataclasses import replace
 
 from inventory_tracking.combat.record import IDLE_SECONDS, LEVEL_SECONDS, Recorder, Sample
 from inventory_tracking.combat.takes import Take, timeline
@@ -130,6 +131,24 @@ def test_frames_carry_the_world_the_input_and_the_level_map(tmp_path):
     assert take.units[0]['unit'] == 7
     assert take.units[0]['stats'] == {'12': 85}
     assert take.missiles[0]['unit_id'] == 3
+
+
+def test_path_records_are_written_when_they_change_past_the_position(tmp_path):
+    def moved(position, rest):
+        return Sample(world(monsters=[replace(foe(7, 100), path=position + rest), foe(8, 100)]), [], None, None)
+
+    rec = recorder(
+        tmp_path, Script(moved(b'A' * 8, b'\x01\x02'), moved(b'B' * 8, b'\x01\x02'), moved(b'B' * 8, b'\x03'))
+    )
+    for now in (1.0, 1.04, 1.08):
+        rec.step(now)
+    rec.close('test')
+    rows = [json.loads(line) for line in (next(tmp_path.iterdir()) / 'paths.jsonl').read_text().splitlines()]
+    # The position alone (the first 8 bytes) is in the frames already; the monster without a record is left out.
+    assert rows == [
+        {'t': 1.0, 'n': 1, 'm': [[7, (b'A' * 8 + b'\x01\x02').hex()]]},
+        {'t': 1.08, 'n': 3, 'm': [[7, (b'B' * 8 + b'\x03').hex()]]},
+    ]
 
 
 def test_the_vitals_are_life_max_life_mana_and_max_mana_not_the_stamina(tmp_path):

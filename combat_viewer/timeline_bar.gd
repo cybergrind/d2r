@@ -31,6 +31,8 @@ var _recorded_casts: PackedInt32Array = PackedInt32Array()
 var _policy_casts: PackedInt32Array = PackedInt32Array()
 var _recorded_kills: PackedInt32Array = PackedInt32Array()
 var _policy_kills: PackedInt32Array = PackedInt32Array()
+var _recorded_moves: Array = []  # [t0, t1] pairs of the runs' own moves, when the file has them
+var _policy_moves: Array = []
 var _running: PackedInt32Array = PackedInt32Array()
 var _moments: PackedInt32Array = PackedInt32Array()
 var _moment_selected: int = -1
@@ -63,6 +65,13 @@ func set_marks(recorded_casts: PackedInt32Array, policy_casts: PackedInt32Array,
 	_policy_casts = policy_casts
 	_recorded_kills = recorded_kills
 	_policy_kills = policy_kills
+	queue_redraw()
+
+
+## Sets the moves (dictionaries with "t0", "t1") of the two runs; empty arrays draw nothing.
+func set_moves(recorded_moves: Array, policy_moves: Array) -> void:
+	_recorded_moves = recorded_moves
+	_policy_moves = policy_moves
 	queue_redraw()
 
 
@@ -157,6 +166,9 @@ func _draw() -> void:
 	_draw_lane(REC_TOP, _recorded_casts, _recorded_kills, Palette.RECORDED, "recorded")
 	_draw_lane(POL_TOP, _policy_casts, _policy_kills, Palette.POLICY, "policy")
 
+	_draw_moves(REC_TOP, _recorded_moves, Palette.RECORDED)
+	_draw_moves(POL_TOP, _policy_moves, Palette.POLICY)
+
 	# 5. Running band.
 	var run_pairs: int = _running.size() >> 1
 	for k: int in range(run_pairs):
@@ -207,6 +219,14 @@ func _draw_lane(top: float, casts: PackedInt32Array, kills: PackedInt32Array, co
 	draw_rect(Rect2(1.0, top + 1.0, PAD + label_size.x + 4.0, LANE_H - 2.0), Color(Palette.PANEL, 0.85), true)
 	draw_string(font, Vector2(PAD, top + LANE_H * 0.5 + font_size * 0.35), label,
 			HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, color)
+
+
+## A run's moves as short bars along the bottom of its lane, from the decision to the arrival.
+func _draw_moves(top: float, moves: Array, color: Color) -> void:
+	for item: Variant in moves:
+		var step: Dictionary = item
+		var rect: Rect2 = _span_rect(int(step["t0"]), int(step["t1"]), top + LANE_H - 6.0, 4.0, 3.0)
+		draw_rect(rect, Color(color, 0.9), true)
 
 
 ## Tick marks and minute:second labels under the lanes, labelled from the first tick.

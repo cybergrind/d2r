@@ -82,8 +82,8 @@ func set_take(title: String, subtitle: String) -> void:
 
 ## The two runs' final scores (each dictionary has "name", "label" and "score"; a recorded gain is null).
 func set_runs(recorded: Dictionary, policy: Dictionary) -> void:
-	_recorded_legend.text = str(recorded.get("label", RECORDED_LABEL_FALLBACK))
-	_policy_legend.text = str(policy.get("label", POLICY_NAME_FALLBACK))
+	_recorded_legend.text = _legend_text(recorded, RECORDED_LABEL_FALLBACK)
+	_policy_legend.text = _legend_text(policy, POLICY_NAME_FALLBACK)
 	var policy_name: String = str(policy.get("name", POLICY_NAME_FALLBACK))
 	for header: Label in _policy_headers:
 		header.text = policy_name
@@ -179,6 +179,24 @@ func _build_legend() -> VBoxContainer:
 	_policy_legend = _make_label(POLICY_NAME_FALLBACK, Palette.TEXT)
 	box.add_child(_legend_row(Palette.POLICY, _policy_legend))
 	return box
+
+
+## A run's label (the fallback when the file has none); for a run with a path of its own also its
+## number of moves and the seconds it took to clear (score.combat_seconds, when there).
+func _legend_text(run: Dictionary, fallback: String) -> String:
+	var text: String = str(run.get("label", ""))
+	if text.is_empty():
+		text = fallback
+	var moves: Variant = run.get("moves")
+	var own: Variant = run.get("player")
+	var has_path: bool = own is Dictionary and not (own as Dictionary).is_empty()
+	if moves is Array and (has_path or not (moves as Array).is_empty()):
+		var count: int = (moves as Array).size()
+		text += "  ·  %d move%s" % [count, "" if count == 1 else "s"]
+		var seconds: Variant = _score(run).get("combat_seconds", null)
+		if seconds is float or seconds is int:
+			text += "  ·  cleared in %.1f s" % float(seconds)
+	return text
 
 
 func _legend_row(color: Color, text_label: Label) -> HBoxContainer:

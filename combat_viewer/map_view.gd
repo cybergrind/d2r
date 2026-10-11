@@ -14,12 +14,14 @@ const ZOOM_MIN := 0.15
 const ZOOM_MAX := 6.0
 const FADE_TICKS := 50  # a death's cross fades over two seconds
 const HOVER_PIXELS := 18.0
+const TOGETHER := 1.0  # world units: overlaid characters closer than this are drawn as one
 const BLADE_REACH := 22.1  # world units a blade flies out (mechanics/echoing_strike.py RANGE)
 
 var data: RefCounted = null
 var shown: Array[Dictionary] = []  # the runs drawn here: one, or two when overlaid
 var colors: Array[Color] = []  # a colour per run in `shown`
 var tick: int = 0
+var shift: Vector2 = Vector2.ZERO  # added to the shared camera's centre: this view follows another character
 var camera: Dictionary = {"center": Vector2.ZERO, "zoom": 1.1, "follow": true}
 
 var _dragging: bool = false
@@ -63,6 +65,11 @@ func fit() -> void:
 	camera_changed.emit()
 
 
+func _center() -> Vector2:
+	var center: Vector2 = camera["center"]
+	return center + shift
+
+
 func _zoom() -> float:
 	var zoom: float = camera["zoom"]
 	return zoom
@@ -70,14 +77,14 @@ func _zoom() -> float:
 
 ## A world point (file origin) on this control.
 func to_screen(world: Vector2) -> Vector2:
-	var center: Vector2 = camera["center"]
+	var center: Vector2 = _center()
 	var d: Vector2 = world - center
 	return size * 0.5 + Vector2((d.x - d.y) * UNIT.x, (d.x + d.y) * UNIT.y) * _zoom()
 
 
 ## The world point drawn at a point of this control.
 func to_world(screen: Vector2) -> Vector2:
-	var center: Vector2 = camera["center"]
+	var center: Vector2 = _center()
 	var d: Vector2 = (screen - size * 0.5) / _zoom()
 	var across: float = d.x / UNIT.x
 	var down: float = d.y / UNIT.y
@@ -137,6 +144,8 @@ func _draw() -> void:
 	_draw_pointer()
 	_draw_companions()
 	for i: int in range(shown.size()):
+		_draw_moves(shown[i], colors[i])
+	for i: int in range(shown.size()):
 		_draw_casts(shown[i], colors[i])
 	_draw_monsters()
 	_draw_player()
@@ -169,8 +178,11 @@ func _draw_ground() -> void:
 		else:
 			draw_rect(box, Palette.DOOR_OPEN, false, 0.25)
 	if TakeData.seen(data.player, tick) or tick >= data.start:
-		var stand: Vector2 = TakeData.position(data.player, tick)
-		draw_arc(stand, BLADE_REACH, 0.0, TAU, 72, Color(Palette.TEXT_DIM, 0.28), 0.12)
+		for run: Dictionary in shown:
+			var stand: Vector2 = data.character_at(run, tick)
+			draw_arc(stand, BLADE_REACH, 0.0, TAU, 72, Color(Palette.TEXT_DIM, 0.28), 0.12)
+			if not _own_paths():
+				break
 	draw_set_transform_matrix(Transform2D.IDENTITY)
 
 
@@ -194,11 +206,64 @@ func _draw_companions() -> void:
 		draw_rect(Rect2(at - Vector2(radius, radius), Vector2(radius, radius) * 2.0), Palette.BACKGROUND, false, 1.5)
 
 
+## Whether any shown run has a character path of its own (a stance comparison).
+func _own_paths() -> bool:
+	for run: Dictionary in shown:
+		if TakeData.has_own_player(run):
+			return true
+	return false
+
+
 func _draw_player() -> void:
-	var at: Vector2 = to_screen(TakeData.position(data.player, tick))
 	var radius: float = _body_radius() * 1.1
-	draw_circle(at, radius + 3.0, Palette.PLAYER_RING)
-	draw_circle(at, radius, Palette.PLAYER)
+	if not _own_paths():
+		var at: Vector2 = to_screen(TakeData.position(data.player, tick))
+		draw_circle(at, radius + 3.0, Palette.PLAYER_RING)
+		draw_circle(at, radius, Palette.PLAYER)
+		return
+	# Each run's character, ringed in the run's colour; overlaid ones that stand together are one.
+	var first: Vector2 = data.character_at(shown[0], tick)
+	for i: int in range(shown.size()):
+		var here: Vector2 = data.character_at(shown[i], tick)
+		if i > 0 and here.distance_to(first) <= TOGETHER:
+			continue
+		var at: Vector2 = to_screen(here)
+		draw_circle(at, radius + 3.5, colors[i])
+		draw_circle(at, radius, Palette.PLAYER)
+
+
+## A run's own walk: the trail so far, and each move it made (a line from where it was decided to
+## where it ends, a marker there; bright from its decision to its arrival, dim after).
+func _draw_moves(run: Dictionary, color: Color) -> void:
+	if not TakeData.has_own_player(run):
+		return
+	var own: Dictionary = run["player"]
+	var ticks: PackedInt32Array = own["t"]
+	var points: PackedVector2Array = own["p"]
+	var upto: int = TakeData.count_until(ticks, tick)
+	if upto > 0:
+		var trail: PackedVector2Array = PackedVector2Array()
+		for k: int in range(upto):
+			trail.append(to_screen(points[k]))
+		trail.append(to_screen(data.character_at(run, tick)))
+		draw_polyline(trail, Color(color, 0.35), 2.0)
+	var moves: Array[Dictionary] = run["moves"]
+	for step: Dictionary in moves:
+		var t0: int = step["t0"]
+		if t0 > tick:
+			break
+		var t1: int = step["t1"]
+		var active: bool = tick <= t1
+		var from: Vector2 = to_screen(step["from"])
+		var to: Vector2 = to_screen(step["to"])
+		var line: Color = Color(color, 0.9 if active else 0.4)
+		var hop: bool = step["hop"]
+		if hop:
+			draw_dashed_line(from, to, line, 1.5, 6.0)
+		else:
+			draw_line(from, to, line, 1.5)
+		draw_arc(to, 6.0, 0.0, TAU, 20, line, 2.0)
+		draw_circle(to, 2.0, line)
 
 
 func _body_radius() -> float:
@@ -224,6 +289,8 @@ func _draw_casts(run: Dictionary, color: Color) -> void:
 		var origin: Vector2 = found["o"]
 		var focal: Vector2 = found["f"]
 		var touched: int = found["n"]
+		if TakeData.has_own_player(run):
+			origin = data.character_at(run, birth - birth_lag)
 		var from: Vector2 = to_screen(origin)
 		var to: Vector2 = to_screen(focal)
 		var fade: float = 1.0 if age < 0 else clampf(1.0 - float(age) / float(blade_life), 0.25, 1.0)
@@ -360,7 +427,10 @@ func _draw_titles() -> void:
 		var run: Dictionary = shown[i]
 		var policy: bool = run["policy"]
 		var run_name: String = run["name"]
-		var text: String = ("POLICY: %s" % run_name) if policy else "RECORDED: the player's casts"
+		var label: String = run["label"]
+		var text: String = "POLICY: %s" % run_name
+		if not policy:
+			text = label if not label.is_empty() else "RECORDED: the player's casts"
 		texts.append(text)
 		widest = maxf(widest, font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x)
 	var box: Rect2 = Rect2(Vector2(8, 8), Vector2(widest + 44.0, line_height * texts.size() + 10.0))
