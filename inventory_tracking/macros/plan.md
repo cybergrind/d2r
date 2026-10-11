@@ -2871,3 +2871,106 @@ armours, Phase Blade, Berserker Axe, Caduceus, Flail, Crystal Sword); the 2x4 on
   label: 62 at (0, -24), 5 at (0, -54), 2 at (0, -34), 1 at (0, -14), 1 at (-10, -14).
 - `pickup.LOOK_AIMS` = 24, 54, 34, 14 and 84 pixels up is now what `take` looks at first, from afar
   too; the other aims follow after the walk up. The clicks made unseen keep `ITEM_AIMS`.
+
+## 2026-10-11 20:00 — the teleport step warps only to spare the last charges
+
+- User: "KP_4 when forcing blade warp is way too slow ... prefer tp for longer distances, until
+  around 15 charges, then use blade warp in priority; this is only for charges." Measured that
+  day: a warp hop 0.8 to 1.0 s for 18 to 20 units, a Teleport hop 0.6 s for 30.
+- `Hunter.warp_hop` now makes the hop by Blade Warp only with fewer than `WARP_CHARGES` (15) on the
+  staff; then it waits out the skill's whole casting delay and takes any stride the blade's line
+  allows (`WARP_WAIT` and `WARP_HOP` are gone). With 15 or more, and with Teleport as the
+  character's own skill, every hop is a Teleport as before 18:05. The empty staff goes as at 19:25.
+
+## 2026-10-11 20:15 — the whole column above an item is looked at before a walk
+
+- Tower Cellar 5, 19:38:28 (session `20261011T162602Z-3a9c8fba`): a Ring (0.6 s) and a Tal Rune
+  (0.5 s) went at once; the Sol Rune between them took 3.4 s and the player pressed pickup five
+  more times. From 8 away the five aims showed a potion's label at 24 and 34 pixels up and nothing
+  at 54, 14 and 84; the walk up ran 3.5 past the rune (1.8 s); the label was then found 44 pixels
+  up, the fifteenth aim.
+- `pickup.LOOK_AIMS` is now the column from 14 to 84 pixels up in steps of 10, the usual places
+  first (24, 54, 34, 44, 14, 64, 74, 84): eight looks before any walk.
+
+## 2026-10-11 20:45 — RCA: the teleport step goes round where a hop leads across (not implemented)
+
+Tower Cellar 3, 19:54:44 (take `20261011T165443Z-23`, session `20261011T165201Z-e05d3cea`): the
+stairs 50 units from the entrance, the step took 8 hops round (way 187). The player then hopped by
+hand between the two rooms, both ways, in one hop each (frames t+17.4 and t+22.9, pointer steady
+through the cast):
+
+- up: from (12712.5, 8047.5) with the pointer at (0.515, 0.0085) of the window, landed at
+  (12693.5, 8028.5), 26.9 away. `view.VIEW` lets an aim go no higher than 0.05.
+- down: from (12693.5, 8028.5) with the pointer at (0.508, 0.8745), landed at (12712.5, 8047.5).
+  The pointer's ground, (12707.8, 8042.8), is in the wall between the rooms: the game put the
+  character on the nearest open ground, 6.7 further. `view.VIEW` ends at 0.84 there.
+
+Causes, each checked with a breadth-first search over the take's own grid at world-unit precision
+(scratch `proto2.py`; hops to within 9 of the stairs):
+
+| planner | Cellar 3, 19:54 | Cellar 1, 18:24 |
+|---|---|---|
+| as now (aims 0.05 to 0.84 down, onto walkable ground) | 7 | 6 |
+| aims up to the window's top edge (0.008) | 3 | 6 |
+| a blocked aim lands on open ground within 7 units | 3 | 3 |
+| both, and 0.875 down in the middle | 2 | 3 |
+
+1. The aim limits are the macro's own margins, not the game's: 0.05 at the top costs 3 units of
+   reach up the screen (23.5 against 26.9), and that was the width of this wall.
+2. A landing is planned only where the aim itself has footing (`teleport.footing`, a 3 by 3 of
+   walkable units; `landable`). The game moves a blocked aim to open ground nearby: in the takes
+   of 10-10 and 10-11, 5 hops with a steady pointer were aimed at blocked ground and landed 1.0
+   to 8.9 from the aim; the macro's own logs have landings "off by 4.0" and more.
+3. `Way` counts hops between tile centres (5 units) and `landing` wants `MIN_GAIN` off the way, so a
+   step to a room's corner that makes the long hop possible is never taken for its own sake.
+
+Evidence is thin on 2 (five hops) and on the limits (two hops at the top, two at the bottom).
+Before a refactor: record what the game does. A press-time record per hop of the pointer, the aim's
+ground, whether it is walkable, and the landing is in every take already for hops made by hand.
+
+Refactor, in order:
+- a. `view.py`: the aim envelope from recorded hops, not margins (top 0.008; the middle bottom
+  0.875; the sides and the bar's corners as measured), one place, used by `hop_view`.
+- b. `teleport.py`: a landing model `lands(ground, aim) -> spot | None` (the aim when open, else
+  the nearest open ground within a measured radius) in place of `footing`/`landable`; `landing`
+  scores where the hop ends, and the hop's log compares the model's spot with the real one.
+- c. `Way`: nodes finer than a tile (half tiles: about 4 times the nodes, built once per level and
+  target) and edges "an aim in the envelope from here lands there" by the model of b; cost in
+  hops. `MIN_GAIN` then applies to hops left, not units.
+- d. Scenarios from these two takes (`tests/inventory_tracking/scenarios/navigation`): Cellar 3 in
+  at most 3 hops, Cellar 1 in at most 3.
+
+## 2026-10-11 21:10 — attack mode stopped: a Sigil left on the right button
+
+- Tower Cellar 1 (20:00:14) and Cellar 5 (20:00:59), session `20261011T165201Z-e05d3cea`: 60
+  fights stopped with "Echoing Strike is on no skill key and on neither mouse button (left Attack,
+  right Sigil: Lethargy)", attack mode off after each five; the player put the strike back by hand.
+- Take `20261011T170007Z-21`, frames from t+5.0: the strike held on the right button; Sigil:
+  Lethargy tapped at about t+5.8 (Button9) under it; the right skill read Echoing Strike (388)
+  until t+6.33, when the sweep's Teleport key went down: Sigil (393) in that frame, Teleport (54)
+  for the cast, and Sigil after it for good. Quick Cast puts a key's skill on the button and the
+  one before back; the Sigil had waited behind the held strike, came on as the next key came, and
+  the game took it for "the one before".
+- `routines.press_skill` now notes the key it taps (`Run.quick`: skill, the right skill before,
+  when, whether the macro held a key or button) and `quick_cast_over`, before another skill's key,
+  waits for that skill to have been on the button and gone again: `QUICK_SECONDS` (1.0) at most
+  when it was tapped under a hold, `QUICK_UNSEEN` (0.35) when not and it never showed.
+- Not recoverable by the macro when it does happen: Echoing Strike is on no key in this setup, so
+  nothing can put it back. With the strike on a key as well (it was on 7 on 2026-10-09) the fight
+  holds that key instead (`strike_input`) and the button's skill does not matter.
+
+## 2026-10-11 21:30 — the seek step stood still a few units from its firing spot
+
+- Tower Cellar 5, 20:14:45 to 20:15:33 (session `20261011T170912Z-ae02ce19`): eight seek presses,
+  each "hunting the elite 45 at (12536.5, 11046.5), 12 away ..., firing spot (12533.4, 11053.9)",
+  "no hop toward the elite: the character is beside it", "At the elite", and attack mode behind it
+  "16 hostiles, none in reach; nearest ... 8 away, shot blocked" for 50 s.
+- Cause: the rule of 12:56 that day in `teleport.hop_toward` (within `SPOT_NEAR`, 5, of the mark: no
+  hop). The firing spot was 4.1 away with no clear line to it (so `Hunter.go` did not walk) and no
+  shot from where the character stood. A mark one stands at is arrived at 5 away; a spot a shot is
+  wanted from is not.
+- `hop_toward`: the rule no longer holds for targets of kind 'hunt' (as it did not for 'explore').
+  `Hunter.go`: a step that ends where it began logs a warning and says "No move toward <monster>:
+  N from its firing spot", whatever the cause.
+- Tests: `test_a_firing_spot_a_few_units_off_behind_a_corner_is_still_gone_to` (failed before the
+  change), `test_a_seek_step_that_moves_nothing_says_so`.

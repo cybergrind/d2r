@@ -401,6 +401,15 @@ class Hunter:
             step_walk(run, goal, player, rect[2] / rect[3], attackable(run.world()), name=name, clicks=WALK_CLICKS)
         elif not self.afoot(run, ground, player, rect, goal, name, key_names):
             hop_toward(run, target, player, rect, key_names)
+        # A step that ends where it began is said and logged as such: with the monster out of reach
+        # the mode behind it has nothing to do either, and the press looked dead (that corner).
+        now = run.world().player
+        if now is not None and now.area == player.area and math.dist((now.x, now.y), here) < MOVED:
+            LOG.warning(
+                'Macro: the step toward %s moved nothing: at (%.1f, %.1f), the spot (%.1f, %.1f) %.1f away',
+                name, *here, *goal, math.dist(here, goal),
+            )  # fmt: skip
+            run.say(f'No move toward {name}: {math.dist(here, goal):.0f} from its firing spot')
 
     @staticmethod
     def charges(run: Run) -> int | None:
@@ -446,10 +455,8 @@ class Hunter:
 
     def warp_hop(self, run: Run, target: Target, player, spot: Point, key_names) -> bool:
         """The teleport step's hop toward the landing `spot` made by Blade Warp, and whether it was
-        (user, 2026-10-11: "we should more use blade warp on open locations on KP_4, we're using a lot
-        of charges"): with the blade's line to the landing clear and at least WARP_HOP of the way
-        within its reach. Its casting delay is waited out up to WARP_WAIT; a longer one, a wall,
-        or a warp that moved nobody leaves the hop to Teleport."""
+        with fewer than WARP_CHARGES on the staff and the blade's line to the landing clear. Its
+        casting delay is waited out; a wall, or a warp that moved nobody, leaves the hop to Teleport."""
         world = run.world()
         rect = run.actuator.keys.focused_window_rect()
         if BLADE_WARP not in world.slots or world.player is None or rect is None or key_names is None:

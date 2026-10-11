@@ -3,16 +3,24 @@
 Every region and game mode has its own count of Stones of Jordan sold, in six steps; at the sixth
 Diablo walks in that region's games. `serve` asks diablo2.io's tracker (fed by d2emu.com) every
 `poll_seconds` and shows the regions of the player's mode at `minimum_progress` or more as a text card
-in the Traderie slot, with or without the game. The tracker bans an address that asks a few times a
-minute (HTTP 429, Cloudflare 1015: four requests in a minute on 2026-10-11), so the poll is slow, and
-a failed check keeps the last answer.
+in the Traderie slot, with or without the game.
 
-Rows are told apart by `ver`: the page lists 1 as LoD and 2 as RotW, and the answer without a `ver`
-parameter held only `ver` 1 rows, equal to the page's LoD table. UNCONFIRMED: that the `ver=2` parameter
-returns the RotW rows (the ban came first). Rows of another version or mode are never shown, so a
-wrong parameter gives a card that says nothing was found, not another economy's progress.
+The tracker bans an address that asks a few times a minute (HTTP 429, Cloudflare 1015: four requests
+in a minute on 2026-10-11, and the ban outlasted the evening's restarts of `serve`). So the last answer
+and the time of the next request are kept in a file (`cache`, under runs/): a restart shows the stored
+answer and asks again only when `poll_seconds` have passed since it. A refused or failed request is
+not repeated before the answer's Retry-After, or without one before `poll_seconds` doubled per failure
+in a row up to `backoff_seconds`; that wait is in the file too, so a restart does not ask early.
+
+The source is diablo2.io's public API (its forum topic t906872, read 2026-10-11): `ver` 1 = LoD, 2 =
+RotW; `ladder` 2 = Non-Ladder; `hc` 2 = Softcore; requests at least 60 s apart; and the app must show
+"Data courtesy of diablo2.io" by the data, which is the card's last line. d2emu.com, which feeds the
+tracker, gives its own API only to holders of a token it grants on request (its terms), so it is not
+asked. Rows of another version or mode are never shown: an answer without the player's rows is a
+failed check.
 """
 
+import email.utils
 import json
 import threading
 import time
@@ -27,20 +35,57 @@ from inventory_tracking.config import DCLONE
 from inventory_tracking.hud.payloads import card_payload
 from inventory_tracking.hud.scene import LEASE_SECONDS, Widget, publish_layer
 from inventory_tracking.presentation import StyledLine, Tone
+from inventory_tracking.reports import publish
 
 
 PRODUCER = 'dclone'
 REGIONS = {'1': 'Americas', '2': 'Europe', '3': 'Asia'}
 STEPS = 6
+CREDIT = 'Data courtesy of diablo2.io'  # the API's condition of use
 # The same browser user agent as pricing/tools/fetch.sh: diablo2.io answers it.
 USER_AGENT = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0 Safari/537.36'
+
+
+class Refused(OSError):
+    """A request the tracker did not answer, with the wait it asked for (Retry-After), if any."""
+
+    def __init__(self, reason: str, retry_after: float | None = None):
+        super().__init__(reason)
+        self.retry_after = retry_after
+
+
+def retry_after(value: str | None, wall: float) -> float | None:
+    """Seconds to wait from a Retry-After header: a number of seconds or an HTTP date."""
+    if not value:
+        return None
+    try:
+        return max(float(value), 0.0)
+    except ValueError:
+        pass
+    try:
+        return max(email.utils.parsedate_to_datetime(value).timestamp() - wall, 0.0)
+    except TypeError, ValueError:
+        return None
 
 
 def fetch(config=DCLONE) -> list:
     query = urllib.parse.urlencode({'ver': config.version, 'ladder': config.ladder, 'hc': config.hardcore})
     request = urllib.request.Request(f'{config.url}?{query}', headers={'User-Agent': USER_AGENT})
-    with urllib.request.urlopen(request, timeout=30) as answer:
-        return json.loads(answer.read())
+    try:
+        with urllib.request.urlopen(request, timeout=30) as answer:
+            return json.loads(answer.read())
+    except urllib.error.HTTPError as error:
+        wait = retry_after(error.headers.get('Retry-After'), time.time())
+        raise Refused(f'HTTP {error.code} {error.reason}', wait) from error
+
+
+def stored(path: Path) -> dict:
+    """The cache file: 'answer' with 'fetched_at', and 'retry_at' (epoch seconds), each when known."""
+    try:
+        record = json.loads(path.read_text())
+    except OSError, ValueError:
+        return {}
+    return record if isinstance(record, dict) else {}
 
 
 def progress(answer, config=DCLONE) -> dict[str, tuple[int, int]]:
@@ -90,8 +135,8 @@ class Progress:
             LOG.warning('Uber Diablo progress unavailable: %s', error)
         self.error = error
 
-    def lines(self, now: float, wall: float) -> list[StyledLine]:
-        """`now` on the clock of `feed`; `wall` in epoch seconds, for the age of a region's last change."""
+    def lines(self, now: float) -> list[StyledLine]:
+        """`now` and the `now` of `feed` in epoch seconds, as the tracker's own times are."""
         close = sorted(
             ((step, region, changed) for region, (step, changed) in self.regions.items()),
             key=lambda entry: (-entry[0], entry[1]),
@@ -106,7 +151,8 @@ class Progress:
             )
             for step, region, _ in close
         ]
-        lines += [StyledLine(f'{region}: changed {ago(wall - changed)}', Tone.METADATA) for _, region, changed in close]
+        lines += [StyledLine(f'{region}: changed {ago(now - changed)}', Tone.METADATA) for _, region, changed in close]
+        lines.append(StyledLine(CREDIT, Tone.METADATA))
         waited = now - self.checked_at
         if waited > self.config.stale_seconds:
             lines.append(
@@ -119,21 +165,41 @@ def dclone_widgets(lines) -> list[Widget]:
     return [Widget('dclone', 'text', 'traderie', card_payload(lines))] if lines else []
 
 
-def follow(
-    state: Progress, publish, stop, *, ask=fetch, clock=time.monotonic, wall=time.time, interval=LEASE_SECONDS / 3
-):
-    """Ask the tracker every `poll_seconds` and publish the card every `interval`, until `stop` is set."""
-    due = clock()
+def follow(state: Progress, publish_card, stop, *, ask=fetch, wall=time.time, interval=LEASE_SECONDS / 3):
+    """Show the stored answer, ask the tracker when a request is due and publish the card every
+    `interval`, until `stop` is set."""
+    config = state.config
+    record = stored(config.cache)
+    if 'answer' in record:
+        state.feed(record['answer'], float(record.get('fetched_at', 0.0)))
+    due = max(float(record.get('fetched_at', 0.0)) + config.poll_seconds, float(record.get('retry_at', 0.0)))
+    failures = 0
     while not stop.is_set():
-        if clock() >= due:
-            due = clock() + state.config.poll_seconds
+        now = wall()
+        if now >= due:
             try:
-                state.feed(ask(state.config), clock())
+                answer = ask(config)
+                state.feed(answer, now)
             except (OSError, ValueError) as error:  # no network, HTTP 429, a page that is not JSON
-                state.fail(str(error) or type(error).__name__)
-        publish(dclone_widgets(state.lines(clock(), wall())))
+                failures += 1
+                asked = getattr(error, 'retry_after', None)
+                wait = min(config.poll_seconds * 2**failures, config.backoff_seconds) if asked is None else asked
+                due = now + max(wait, config.poll_seconds)
+                state.fail(f'{error or type(error).__name__}; next request in {(due - now) / 60:.0f} min')
+                record = record | {'retry_at': due}
+            else:
+                # An answer without the player's rows is kept out of the file: `feed` called it a failure.
+                failures, due = 0, now + config.poll_seconds
+                if state.error is None:
+                    record = {'answer': answer, 'fetched_at': now}
+            try:
+                config.cache.parent.mkdir(parents=True, exist_ok=True)
+                publish(config.cache, record)
+            except OSError as error:
+                LOG.warning('Uber Diablo progress could not be stored: %s', error)
+        publish_card(dclone_widgets(state.lines(now)))
         stop.wait(interval)
-    publish([])
+    publish_card([])
 
 
 @contextmanager

@@ -700,3 +700,45 @@ def test_in_the_arcane_sanctuary_away_from_a_dead_summoner_the_macro_only_prebuf
     run_macro(run, lambda w: dict(KEYS))
     assert 'Escape' not in game.pressed()
     assert game.world.game_name == 'cyber32'
+
+
+def quick_run(rights, quick):
+    """A run whose character shows `rights` on the right button, one a look, 0.1 s apart."""
+    from types import SimpleNamespace
+
+    state = SimpleNamespace(now=0.0, looks=0)
+
+    def world():
+        right = rights[min(state.looks, len(rights) - 1)]
+        state.looks += 1
+        return SimpleNamespace(player=SimpleNamespace(right_skill=right, mode=1))
+
+    def sleep(_seconds):
+        state.now += 0.1
+
+    return SimpleNamespace(quick=quick, clock=lambda: state.now, world=world, pace=SimpleNamespace(sleep=sleep)), state
+
+
+def test_a_skill_key_waits_for_the_one_before_to_give_the_right_button_back():
+    # Tower Cellar 1, 20:00:12 on 2026-10-11: Sigil: Lethargy tapped under the held strike came onto
+    # the button 0.5 s later, as Teleport's key went down, and stayed there: attack mode stopped.
+    from inventory_tracking.macros.routines import QUICK_SECONDS, quick_cast_over
+    from inventory_tracking.macros.skills import ECHOING_STRIKE, SIGIL_LETHARGY, TELEPORT
+
+    strike, sigil = ECHOING_STRIKE, SIGIL_LETHARGY
+    run, state = quick_run([strike, strike, strike, strike, strike, sigil, sigil, strike], (sigil, strike, 0.0, True))
+    quick_cast_over(run, TELEPORT)
+    assert state.looks == 8  # through the wait under the strike, the cast, and the strike back
+    assert run.quick is None
+
+    run, state = quick_run([strike], (sigil, strike, 0.0, True))  # it never shows: not for ever
+    quick_cast_over(run, TELEPORT)
+    assert QUICK_SECONDS <= state.now < QUICK_SECONDS + 0.2
+
+    run, state = quick_run([strike], (sigil, strike, 0.0, False))  # nothing was held: a short wait only
+    quick_cast_over(run, TELEPORT)
+    assert state.now < 0.5
+
+    run, state = quick_run([sigil], (TELEPORT, strike, 0.0, True))  # the same key again: no wait
+    quick_cast_over(run, TELEPORT)
+    assert state.looks == 0

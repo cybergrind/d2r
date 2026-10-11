@@ -173,7 +173,12 @@ every 300 s for RotW / Softcore / Non-Ladder and shows the regions at 4/6 or mor
 in the Traderie slot ("Uber Diablo 5/6 Europe", then when each last changed), with or without the
 game; `--no-dclone` turns it off, `config.DCLONE` holds the mode, poll and threshold. Each change of a
 region's step is a log line. On 2026-10-11 the page showed RotW SC Non-Ladder at Asia 3/6, Americas
-1/6, Europe 1/6. UNCONFIRMED: the `ver=2` parameter (the address was banned for asking five times in
-two minutes before it could be tried; the answer without it held LoD rows only). Rows are filtered by
-`ver` on our side, so a wrong parameter shows as "Uber Diablo progress unavailable: no row of this
-version and mode" in the log and no card, never as LoD's progress.
+1/6, Europe 1/6. `ver=2` is RotW per the API's own forum topic (t906872).
+
+The first evening `serve` logged "HTTP Error 429" (20:07): every restart asked at once, on top of the
+day's exploring. Since then (the same day): the last answer and the time of the next request are kept in
+`runs/dclone/cache.json`, a restart shows the stored answer and asks only when 300 s have passed since
+it, and a refused request waits for its Retry-After, or without one 600 s doubling per failure in a
+row up to an hour, across restarts too. The API's terms ask for requests at least 60 s apart and the
+line "Data courtesy of diablo2.io" by the data: the card's last line. d2emu.com's own API needs a
+token granted on request, so it is not used.

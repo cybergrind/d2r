@@ -533,7 +533,12 @@ class DCloneConfig(Config):
     version: str = '2'
     ladder: str = '2'
     hardcore: str = '2'
-    poll_seconds: Positive = 300  # the tracker bans an address that asks a few times a minute
+    poll_seconds: Positive = 300  # between requests; the tracker bans an address that asks a few times a minute
+    # After a refused or failed request the wait doubles per failure in a row up to this, unless the
+    # tracker names its own (Retry-After).
+    backoff_seconds: Positive = 3600
+    # The last answer and the time of the next request, kept across restarts of `serve`.
+    cache: Path = Path(__file__).resolve().parent / 'runs' / 'dclone' / 'cache.json'
     stale_seconds: Positive = 1800  # no successful check for this long is said on the card
     minimum_progress: Annotated[int, Field(ge=1, le=6)] = 4  # of 6 steps: a region this close is shown
 

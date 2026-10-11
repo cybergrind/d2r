@@ -85,7 +85,11 @@ ITEM_AIMS = ((0, -24), (0, -14), (0, -6), (-10, -14), (10, -14), (0, -34), (0, 2
 # 2026-10-11 that ended on a label seen (the hover flag set), 62 had it 24 pixels up, 5 at 54, 2 at
 # 34, 1 at 14 and 1 at (-10, -14): in a pile the next label sits 30 pixels higher. With 54 the ninth
 # aim after a walk up to the item, a Tir Rune took 3.8 s and Rare Chain Gloves 4.6 s (19:10 that day).
-LOOK_AIMS = ((0, -24), (0, -54), (0, -34), (0, -14), (0, -84))
+# The whole column above the item, every 10 pixels, is looked at before any walk: a Sol Rune among
+# three potions and another rune (Tower Cellar 5, 19:38:29 on 2026-10-11) had a potion's label at 24
+# and 34 and its own at 44, which was the fifteenth aim, after a walk past it: 3.4 s and five more
+# presses of the player's.
+LOOK_AIMS = ((0, -24), (0, -54), (0, -34), (0, -44), (0, -14), (0, -64), (0, -74), (0, -84))
 MOVED_UNITS = 1.0  # the character this far from where an aim was taken: the pointer is on other ground by now
 # Further aims only looked at, never clicked blind: in a pile the game stacks the labels, and the item
 # wanted is under the pointer well above its ground or to a side. A press clicked whatever lay at the

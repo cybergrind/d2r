@@ -115,6 +115,8 @@ SUMMON_SPOTS = ((0.66, 0.42), (0.36, 0.44), (0.5, 0.26), (0.64, 0.62), (0.4, 0.6
 
 # Player modes that are an action under way: attacks, casts, skill sequences (classic table).
 ACTING = frozenset((7, 8, 10, 11, 12, 13, 14, 15, 16, 18))
+QUICK_SECONDS = 1.0  # at most, for the skill key before to give the right button back (that Sigil: 0.9 s)
+QUICK_UNSEEN = 0.35  # a key tapped with nothing held whose skill never showed on the button: not waited for
 DEAD = frozenset((0, 17))
 CREATE_LIMIT = 12.0  # seconds from Enter for the new game to exist
 LOAD_MIN = 8.5  # seconds from Enter before the first key in a new game
@@ -157,11 +159,41 @@ def on_screen(point: tuple[float, float]) -> bool:
     return Viewport().on_screen(point)
 
 
+def quick_cast_over(run: Run, skill: int) -> None:
+    """Wait for the skill key tapped before this one to be done with the right mouse button. A key
+    with Quick Cast puts its skill on the button for the cast and the one from before back after.
+    Tower Cellar 1, 20:00:12 on 2026-10-11: Sigil: Lethargy tapped under the held strike was still
+    waiting when Teleport's key came 0.4 s later; the game put the Sigil on the button, took it for
+    "the one from before" and left it there, and attack mode stopped ("Echoing Strike is on no skill
+    key and on neither mouse button") until the player put the strike back by hand; twice that game."""
+    if run.quick is None or run.quick[0] == skill:
+        return
+    before, home, tapped, held = run.quick
+    seen = False
+    while run.clock() - tapped < QUICK_SECONDS:
+        player = run.world().player
+        if player is None or player.right_skill is None or home is None:
+            break
+        seen = seen or player.right_skill == before
+        if seen and player.right_skill == home:
+            break  # it was on the button and is off it again
+        if not seen and not held and player.mode not in ACTING and run.clock() - tapped >= QUICK_UNSEEN:
+            break  # never came on: cast without the button showing it, or not taken at all
+        run.pace.sleep(0.02)
+    else:
+        LOG.info('Macro: %s still on the right button %.1fs after its key', NAMES[before], QUICK_SECONDS)
+    run.quick = None
+
+
 def press_skill(run: Run, skill: int) -> None:
     """Press the skill's key once the character is free to act."""
+    quick_cast_over(run, skill)
     ready = run.expect('character ready', lambda w: w.player is not None and w.player.mode not in ACTING, 2.5)
     if ready.player is not None and ready.player.mode in DEAD:
         raise Abort('the character is dead')
+    home = ready.player.right_skill if ready.player is not None else None
+    held = bool(run.actuator.holding or run.actuator.holding_buttons)  # under a held strike the game makes it wait
+    run.quick = (skill, home, run.clock(), held) if home != skill else None
     run.say(NAMES[skill])
     LOG.info(
         'Macro: %s on %s, player mode %s', NAMES[skill], run.keys[skill], ready.player.mode if ready.player else None

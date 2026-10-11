@@ -1636,9 +1636,9 @@ def open_step(play, hunt):
     step_toward(run, target, keys, None, lambda t, player, spot: hunt.warp_hop(run, t, player, spot, keys))
 
 
-def test_over_open_ground_the_teleport_step_hops_by_blade_warp_and_keeps_the_charge():
-    # user, 2026-10-11: "we should more use blade warp on open locations on KP_4, we're using a lot of charges".
-    play = game()
+def test_with_few_charges_left_the_teleport_step_hops_by_blade_warp_over_open_ground():
+    # user, 2026-10-11: "prefer tp for longer distances, until around 15 charges, then blade warp in priority".
+    play = game()  # the staff of these tests holds 10 charges
     open_step(play, hunter(play))
     assert play.pressed() == [KEYS[BLADE_WARP]]
     assert play.world.player.x >= 5000.0 + 15.0
@@ -1646,18 +1646,25 @@ def test_over_open_ground_the_teleport_step_hops_by_blade_warp_and_keeps_the_cha
     assert any(said.startswith('Blade Warp toward the mark') for said in play.said)
 
 
-def test_the_teleport_step_waits_out_the_end_of_blade_warps_delay_and_teleports_within_the_rest():
-    play = game()
-    hunt = hunter(play)
-    hunt.travel.warped_at = play.clock.now - (WARP_DELAY - 0.2)  # 0.2 s of the delay left: waited out
-    open_step(play, hunt)
-    assert play.pressed() == [KEYS[BLADE_WARP]]
+def test_with_charges_to_spare_the_teleport_step_is_a_teleport():
+    # user, 2026-10-11 evening: "KP_4 when forcing blade warp is way too slow".
+    from inventory_tracking.macros.hunt import WARP_CHARGES
 
+    for charges, key in ((WARP_CHARGES, KEYS[TELEPORT]), (WARP_CHARGES - 1, KEYS[BLADE_WARP])):
+        play = game()
+        play.staff = replace(STAFF, charges=charges)
+        open_step(play, hunter(play))
+        assert play.pressed() == [key]
+
+
+def test_with_few_charges_left_the_teleport_step_waits_out_blade_warps_whole_delay():
     play = game()
     hunt = hunter(play)
     hunt.travel.warped_at = play.clock.now  # just warped: presses come faster than the delay
+    began = play.clock.now
     open_step(play, hunt)
-    assert play.pressed() == [KEYS[TELEPORT]]
+    assert play.pressed() == [KEYS[BLADE_WARP]]
+    assert play.clock.now - began >= WARP_DELAY
 
 
 def test_without_blade_warp_on_the_bar_the_teleport_step_is_a_teleport():
@@ -1724,3 +1731,34 @@ def test_with_the_staff_empty_the_teleport_step_goes_along_the_way_by_blade_warp
     assert play.pressed() == [KEYS[BLADE_WARP]]
     assert afoot == []
     assert any('0 charges left' in said for said in play.said)
+
+
+def test_a_firing_spot_a_few_units_off_behind_a_corner_is_still_gone_to(monkeypatch):
+    # Tower Cellar 5, 20:14:45 on 2026-10-11: the firing spot 4.1 from the character, no clear line
+    # to it and no shot from where it stood. Seven seek presses said "the character is beside it"
+    # and moved nothing, while attack mode went on with "none in reach".
+    from inventory_tracking.macros import hunt as hunt_module
+
+    play = game(foe(10, 5012.0, 5000.0, CHAMPION))
+    play.staff = replace(STAFF, charges=40)
+    monkeypatch.setattr(hunt_module, 'in_reach', lambda *args: False)
+    monkeypatch.setattr(hunt_module, 'clear_shot', lambda *args: False)
+    monkeypatch.setattr(hunt_module, 'firing_spots', lambda *args: [(5004.0, 5001.0)])
+    start = (play.world.player.x, play.world.player.y)
+    hunter(play).seek(play.run(), keys)
+    assert play.pressed() == [KEYS[TELEPORT]]
+    assert math.dist((play.world.player.x, play.world.player.y), start) >= 2.0
+    assert not any(said.startswith('At ') for said in play.said)
+
+
+def test_a_seek_step_that_moves_nothing_says_so(monkeypatch):
+    from inventory_tracking.macros import hunt as hunt_module
+
+    play = game(foe(10, 5012.0, 5000.0, CHAMPION))
+    play.staff = replace(STAFF, charges=40)
+    monkeypatch.setattr(hunt_module, 'in_reach', lambda *args: False)
+    monkeypatch.setattr(hunt_module, 'clear_shot', lambda *args: False)
+    monkeypatch.setattr(hunt_module, 'firing_spots', lambda *args: [(5004.0, 5001.0)])
+    monkeypatch.setattr(hunt_module, 'hop_toward', lambda *args: None)  # a hop that does nothing, whatever the cause
+    hunter(play).seek(play.run(), keys)
+    assert play.said[-1] == 'No move toward the elite 19 (10): 4 from its firing spot'

@@ -483,7 +483,7 @@ def test_every_aim_of_a_pickup_is_logged_with_what_was_under_it(caplog):
     with caplog.at_level('INFO'):
         pick_up(run, LEVEL, keys, nothing)
     line = next(r.message for r in caplog.records if 'aims for Ist Rune' in r.message)
-    seen = '(0, -24) (0, 0) [flag 0x1]; (0, -54) (0, 0) [flag 0x1]; (0, -34) (0, 0) [flag 0x1]'
+    seen = '; '.join(f'(0, {down}) (0, 0) [flag 0x1]' for down in (-24, -54, -34, -44))
     assert line.endswith(seen + '; (0, -14) wanted [flag 0x1] clicked')
 
 
@@ -535,3 +535,14 @@ def test_the_label_of_a_pile_30_pixels_higher_is_the_second_place_looked_at(capl
     line = next(r.message for r in caplog.records if 'aims for Ist Rune' in r.message)
     assert line.endswith('(0, -24) (0, 0); (0, -54) wanted clicked')
     assert play.walks == []  # seen from where the character stood: no walk up to it first
+
+
+def test_a_label_44_pixels_up_is_seen_from_afar_without_a_walk_past_the_item(caplog):
+    # Tower Cellar 5, 19:38:29 on 2026-10-11: a Sol Rune's label at 44 pixels up was the fifteenth aim.
+    play = game(RUNE)
+    play.pick_above = 44.0
+    with caplog.at_level('INFO'):
+        pick_up(play.run(), LEVEL, keys, nothing)
+    line = next(r.message for r in caplog.records if 'aims for Ist Rune' in r.message)
+    assert line.endswith('(0, -34) (0, 0); (0, -44) wanted clicked')
+    assert play.walks == []

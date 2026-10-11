@@ -727,7 +727,11 @@ def hop_toward(
     # Not for a room to explore: its point is the tile of it nearest by the way, and standing a tile
     # short of it is not standing in it (Halls of Vaught, 15:10:20 on 2026-10-11: one tile from the room,
     # "the character is beside it" for 17 presses, the room never seen).
-    beside = not target.warp and target.kind != 'explore'
+    # Nor for a firing spot at a monster: a few units short of it the shot may still be blocked, and
+    # then nothing moved at all (Tower Cellar 5, 20:14:45 on 2026-10-11: the spot 4.1 away round a
+    # corner, seven seek steps "beside it", attack mode with none in reach). The place that is
+    # arrived at SPOT_NEAR away is a mark one stands at, not one a shot is wanted from.
+    beside = not target.warp and target.kind not in ('explore', 'hunt')
     if beside and math.dist(scaled(target.point), (player.x, player.y)) <= SPOT_NEAR:
         # A press more than the way needed, 3.5 from Nihlathak's spot with him on it (12:56:41 on
         # 2026-10-11): the hop spent a charge, moved nothing, and the step waited 2.3 s for a move
