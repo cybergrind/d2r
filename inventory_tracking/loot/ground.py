@@ -34,6 +34,7 @@ from inventory_tracking.levels.memory import player_location
 from inventory_tracking.levels.model import Location
 from inventory_tracking.loot.materials import appraised_classes
 from inventory_tracking.loot.runes import is_valuable_rune
+from inventory_tracking.loot.shown import shown_label
 from inventory_tracking.loot.shrines import SHRINE_NAMES
 from inventory_tracking.loot.uniques import BASES, unique_drop
 from inventory_tracking.native.layout import OBJECT_SHRINE_TABLE, OBJECT_SHRINE_TYPE
@@ -196,6 +197,26 @@ def ground_materials(read, table_address, classes: dict[int, str], appraised=fro
             if flags & IDENTIFIED_FLAG:
                 continue
         found.append(GroundMaterial(classes[unit['txt_id']], unit['unit_id'], x, y))
+    return found
+
+
+def ground_shown(read, table_address, rules) -> list[GroundMaterial]:
+    """Ground items a rule of the loot filter shows (loot/shown.py `pickup_rules`)."""
+    heads = struct.unpack('<128Q', read(table_address + ITEM_UNIT * 1024, 1024))
+    classes = frozenset().union(*(rule.classes for rule in rules))
+    found = []
+    for unit in walk_units(read, heads, ITEM_UNIT)['units']:
+        if unit['mode'] not in GROUND_MODES or unit['txt_id'] not in classes:
+            continue
+        try:
+            data = read(unit['data_pointer'], ITEM_DATA_SIZE)
+            x, y = static_position(read, unit)
+        except OSError, ValueError:
+            continue
+        quality, flags = (struct.unpack_from('<I', data, offset)[0] for offset in (QUALITY_OFFSET, FLAGS_OFFSET))
+        label = shown_label(rules, unit['txt_id'], quality, flags)
+        if label is not None:
+            found.append(GroundMaterial(label, unit['unit_id'], x, y))
     return found
 
 

@@ -2583,3 +2583,291 @@ Session `20261011T114952Z`, games of 14:50 and 14:53.
   later. `pickup.standing` now also waits for the cast to end before an aim is taken.
 - 14:54:08 the sweep went for a potion 9.8 away with Nihlathak alive, from the stand into the
   pavilion; the life went from 64% to 57% there (it was 62% on arrival). Left as it is.
+
+## 2026-10-11 (15:35): stuck one tile from a room; the staff's charges; seek hops by Blade Warp
+
+Session `20261011T120004Z`, the game ending 15:10:31. User: "in the end we stuck"; "track number of tp
+charges when using staff, and leverage warp more when low on charges, or use warp if we have 0 charges".
+
+- Stuck: from 15:10:20 seventeen presses read "exploring toward room 864 at (2548, 1016), 1 tiles by
+  the way" then "no hop toward an unexplored room: the character is beside it". The `SPOT_NEAR` guard
+  of 13:00 took one tile from the room's nearest tile for being there; the room is only seen from
+  inside. The guard no longer applies to a target of the kind 'explore'.
+- Charges: that game took the staff from 69 to 2. `travel.LOW_CHARGES` (10): with fewer, the sweep's
+  jumps leave Teleport out (`Travel.jumps`) and the seek step goes by `Hunter.afoot` (a Blade Warp or
+  a walk straight toward the goal), hopping only where neither leads on. With none left the teleport
+  step itself goes that way too (`teleport.step_toward(afoot=)`, the runner gives `Hunter.foot_step`);
+  before it stopped with "no charges left".
+- A sub-agent's analysis of the two games before (15:00 and 15:05; scripts in the job's tmp/paths):
+  after the boss 18 charges for 78 kills in 63 s against 8 for 83 in 73 s; all 13 seek hops of the
+  15:05 game were followed by no kill before the next move; 8 of them had a clear blade line (78 of
+  106 over the day's 26 games on the level). Taken from it: `afoot` now makes a seek hop by Blade
+  Warp whenever the stride straight at the goal is one, whatever the staff holds. Not taken yet:
+  not leaving a fight with one hurt monster in reach (six of ten departures left with exactly one
+  in reach; a straggler fetched later cost a charge and 6.6 s); remembered hostiles before unexplored
+  rooms (`ROOM_UNITS`; 4 charges, 0 kills at 15:05:44); waiting out a nearly finished Blade Warp
+  delay instead of a Teleport (1 charge). Its estimate for an ordered route: about 7 charges, 50 s.
+
+## 2026-10-11 (15:45): the low-charge rules in the game; the Blade Warp's delay waited out
+
+Session `20261011T122606Z`, the game of 15:27:28 to 15:30:15 (begun with 47 charges, 29 left at the boss).
+
+- After the boss: 135 kills in 150 s for the 29 charges. Before the staff ran low (19 charges): 11
+  sweep jumps by Teleport and 8 seek hops, against 4 seek steps by Blade Warp. Under `LOW_CHARGES`: 8
+  seek steps by Blade Warp and 5 walked, 9 hops where neither led on (the goal 50 to 170 units off
+  and a wall on the straight line), then with none left two Blade Warps and a walk toward a room, and
+  the stop "no charges left, and no Blade Warp or walk leads toward an unexplored room" (15:30:11).
+  The room one tile off was entered this time.
+- `afoot` now waits out the Blade Warp's delay (0.8 s at most) when the line toward the goal is clear,
+  instead of taking the hop: the presses came 0.5 s apart.
+- 15:35:01 the next game: "Teleport is off its key" (the game before was left with the empty staff in hand).
+- 15:35:26 a Dol Rune 0.7 from the character: two clicks 14 pixels above its ground walked the
+  character 3 and 7 units off with the rune named as under the pointer; the third (24 pixels above,
+  from 7 away) took it, 1.3 s. Not looked into.
+
+## 2026-10-11 (15:50): the Summoner's run end
+
+User: "win-x at summoner's location should go save/exit -> new game -> prebuff".
+
+- `routines.run_ended`: the Arcane Sanctuary (74) joins the Halls of Vaught through `BOSS_OF` (level ->
+  boss class; the Summoner is 250): with him alive, or not seen in this game, or further than
+  `BOSS_UNITS` from where he was last seen, the request prebuffs; beside where he died it leaves.
+  UNCONFIRMED: that the tracker (`run.supers`) notes him as it does Nihlathak.
+
+## 2026-10-11 (16:05): the Summoner's mark
+
+User: "summoners location north in guide is far too away to damage him" (session `20261011T124116Z`, 15:43).
+
+- The mark was the middle of the arm's end room (60 x 60 units). The teleport step stopped 11 from it
+  at (25458.5, 5037.5) ("no footing in view brings the character nearer to Summoner", 15:43:32), the
+  Summoner 25 away with a clear shot and the blades reaching 22; the player walked up and killed him
+  from 4.5 (15:43:40).
+- He stood at (25440.7, 5020.9): (20.7, 20.9) from the origin of the room, preset 527 'Summoner S' at
+  tile (5084, 1000), the arm at the north end (the same room as the fixture arcane_summoner_s). The
+  file SummS.ds1 has its one monster at (20, 20). The mark is now that place for each of the four
+  files (`arcane_sanctuary.SUMMONER_AT`, `PoiSpec.at_in`); W, E and N are from the files only.
+- No footing is known there (the level was not recorded; 74 is in `combat_areas` now), so how near
+  the last hop lands is to be seen.
+
+## 2026-10-11 (16:15): the Summoner's mark in the game; his run end
+
+Session `20261011T125004Z`, take `125055Z-74` (the same arm as before, room at tile (5084, 1000)).
+
+- The mark: the last hop read "2 left after this" (15:51:55.54) and the first strike went through him
+  2.2 away (56.61); dead at 57.27.
+- The macro request at 15:52:28, 69 units from where he died: "0 super uniques seen on level 74", and
+  it prebuffed. His record carries the unique flag only (type flags 0x08; the probe's elite_kill
+  says kind "unique"), so `ZoneTracker.supers` did not give him. It now gives a boss of
+  terror/bosses.py `BOSSES` as well.
+
+## 2026-10-11 (16:25): the Summoner's stand
+
+User: "for all boss farms use the same strategy and teleport not in boss and his group, but slightly offset
+the point - so we would more effectively farm it; make adjustment for summoner".
+
+- Takes `124718Z-74`, `125055Z-74`, `125553Z-74` (file S) and `125715Z-74` (file E): he stood at
+  (20.5, 20.5) and (20.5, 35.5) from the room's origin, the files' own monster places; E is confirmed
+  with it. The macro request beside his corpse left the game (15:58:15: "1 super uniques seen on
+  level 74, 1 within 100").
+- The mark is now `STAND` (10, 15) from his spot (`arcane_sanctuary.py`): the landing below the two
+  ramps from his platform's corner. Scored over the four takes among the places 10 to 19 from him
+  with footing and a clear line: from there 1, 16 of 18, 10 of 16 and 5 of 7 of the hostiles within
+  45 of him were in reach with a line, and 0, 0, 4 and 3 stood nearer than 10. A place on the
+  platform's west side (10 west of him) had fewer near (0, 0, 2, 2) and 2 to 6 in reach.
+- Stands so far: Nihlathak (13:55), the Throne (13:55, unseen in game), the Summoner. The other
+  bosses' marks are their own spots or rooms; each needs a recorded run to place a stand.
+
+## 2026-10-11 (16:40): a drop in a pile of twelve that no aim showed
+
+Session `20261011T125527Z`, Arcane Sanctuary, 16:03:45 to 16:04:06. User: "we were struggled with picking items up".
+
+- A Flawless Diamond at (25201, 5506) among 12 drops (gold, potions, a Ring, a Ral Rune): four presses
+  in 21 s. Each looked at the 16 aims (2.4 s), found the diamond under none, clicked unseen (three of
+  those clicks had a monster under the pointer) and stopped with "no click picked up Flawless
+  Diamond"; the next press chose the diamond again. The Ring (at 34 pixels above its ground) and the
+  rune (at (-20, -24)) went in between; the player took the diamond and the gold by hand.
+- `pickup.take` now, with `PILE_DROPS` or more other drops within `PILE_UNITS` of the one wanted,
+  looks on at `pile_aims`: the column above it as high as that many labels stack (10 pixels each),
+  then columns 20 to 60 pixels to the sides, `PILE_MORE` aims at most; never clicked unseen. An aim
+  with a monster under the pointer is not clicked unseen any more. A drop no click took is left
+  alone for `SHUN_MISS` (8 s), so the next press takes what lies beside it.
+- Where the game puts a label in a pile is not known; the aims are a guess at "up, then sideways".
+  The line "picked up ... after the click (x, y) pixels from its ground" of the next pile says.
+- `ruff format` (0.16.8) rewrites `# noqa: CODE` into `# ruff: ignore[rule-name]`, which `ruff check`
+  then refuses (RUF102, names need lint.preview): put back by hand in routines.py and test_pickup.py.
+
+## 2026-10-11 17:15 — pickups in a pile: the higher aim first, no second click on a stale pointer
+
+- Black Marsh and the Tower (session `20261011T131039Z-a3a536c6`, 16:52 to 16:56; takes
+  `20261011T135304Z-25`, `20261011T135542Z-25`). An Eth Rune 8 away, under the pointer at the aim 14
+  pixels up: the click ran the character 9 units to the ground behind the label, the second click on
+  the same screen spot 8 more, and the aim 24 pixels up took it from 9.5 away (2.5 s in all). A Tal
+  Rune 15 away showed at no aim from there; the click on its ground ran 5 units past it (2.7 s).
+  Runes two and three of a pile each needed a press of their own, attack mode back on in between.
+- Every log so far, first click with the item under the pointer: taken 101 times of 111 at 24
+  pixels up, 87 of 130 at 14, 0 of 21 at 6. The click lands lower than the label shows, so
+  `ITEM_AIMS` now starts at (0, -24) for every kind (it did for potions only).
+- `pickup.take`: after a click that moved the character more than `MOVED_UNITS` the same aim is not
+  clicked again where the pointer was left; the next aim is taken from where the character stands.
+- `pickup.pick_up`: one press goes on to the next valuable while it lies within `PILE_UNITS` (10) of
+  the character, `PICKS` at most. Gold after a valuable is still the next press (the sweep stops for
+  it by itself); both piles of this run were gone once the character had walked over them.
+- Not changed: the walk up to a far drop still clicks its ground and overruns it by a few units. An
+  aim 14 pixels higher is where the labels of the pile are: it took a potion nobody wanted in the tests.
+
+## 2026-10-11 17:40 — the record of the unit under the pointer is a leftover; every aim logged
+
+- Black Marsh and the Tower, 16:56 to 17:06 (session `20261011T131039Z-a3a536c6`; played before the
+  restart at 17:07, so without the 17:15 changes). 21 pickups took the first click. Three did not:
+  an Amn Rune (17:01:02, two clicks at 14 pixels up walked 4 and 4 units, the aim 24 up took it), a
+  pile of three runes (17:03:34: six clicks "with the item under the pointer" walked the character
+  9 to 15 units each way for 8.4 s and the press gave up; the player took them), a 5,024 gold pile
+  (16:58:38: no aim showed it in 3.3 s, the blind clicks took nothing).
+- Cause, as far as the logs go: `GameMemory.hovered` reads a record that keeps the last unit after
+  the pointer has left it (travel.step_walk and teleport.walk_into already said so for monsters and
+  the waypoint). The pointer is moved in steps, crosses the label and stops on the ground under it;
+  the record still names the item and the click is a walk. That is why lower aims fail more (0 of 21
+  at 6 pixels up, 87 of 130 at 14, 101 of 111 at 24).
+- The record is 16 bytes of a table (`hover/legacy.py`: active, type, id). In the three images in
+  `pricing/raw/re` the word before type and id is 0 with a unit in them, and the last word is
+  0x130013 twice and 0x150015 once. `hovered` now reads all 16 and, once that first word has been
+  seen set in the run, returns None while it is not. UNCONFIRMED in game: the process is not
+  readable from the agent's sandbox. Until the word is seen set nothing changes.
+- Every pickup now logs one line "aims for <item> (unit N) ...: (x, y) what [flag .. type .. id ..
+  tail ..] clicked; ..." with every aim looked at, whatever the end (user: "log all failed
+  attempts"). The next run's lines say whether the flag is live: "flag 0x1" at the aims that took
+  the item and "flag 0x0" at the ones that walked; "flag never seen set" throughout means it is
+  not, and then the tail word is the next thing to look at.
+
+## 2026-10-11 17:50 — the hover record's flag is confirmed
+
+- Black Marsh and the Tower, 17:20 to 17:23 (session `20261011T142008Z-30325107`): five pickups, all
+  taken; four at the first aim (24 pixels up) in 0.3 to 0.9 s. At each of the 5 aims whose click took
+  the item the record read flag 0x101; at 7 aims of a Flawless Sapphire looked for from 14 away it
+  read flag 0 with the id of an item picked up earlier (the leftover), and none was clicked for it.
+- `GameMemory.hovered` now returns None whenever the flag is 0, from the first read on (it waited
+  to see the flag set once in the run; a run is one press, so that covered little).
+- Still slow: a drop further than `NEAR_UNITS` whose label shows at no aim is walked up to first
+  (that Sapphire: 2.7 s, 2.4 of them the walk).
+
+### The pickup step takes what the loot filter shows gold or green, and small rares (user, 2026-10-11)
+
+The filter (Lean2) against the pickup step: accessories, runes, gems, materials, gold and potions
+agreed. Unique and set items did not: the step took one only when its base had an item asking 2.5
+Ist or more in `loot/data/uniques.json` (asks of 2026-09-18, 63 bases), so 43 of the filter's 177
+unique bases and 13 of its 30 set bases; Tomb Reaver (4.55 Ist median fill, 2026-10-09), Shaftstop,
+Tyrael's Might, Steelrend and every Chronicle gap were left on the ground.
+
+Built (`loot/shown.py`, `loot/ground.py` `ground_qualities`, `GameMemory.loot(qualities=)`):
+- Unique and set drops whose base is in the filter's unique and set Show rules, read from
+  `lootfilter/warlock_lean_v2.json` itself (config `pickup_filter_named`). Regenerating the filter
+  changes the pickup with it. The 2.5 Ist rule of the marks stays beside it (its label wins).
+- Rare circlets, gloves, boots, belts and grimoires (config `pickup_rare_types`).
+- An identified one on the ground is left: the player read and dropped it.
+The HUD marks are unchanged. Magic items and white bases stay manual. Not yet pressed on the host.
+
+## 2026-10-11 18:05 — the teleport step: a valuable first, and Blade Warp over open ground
+
+- Black Marsh and the Tower, 17:28 to 17:37 (session `20261011T142839Z-186eb9ca`). 22 pickups, 20 at
+  the first aim; the hover flag read 0x101 at every aim that took an item.
+- Missed (user: "we have missed more important unique and moved away"): Tower Cellar, 17:35:18.138
+  the sweep stopped for a Ring 29 away; a teleport request 28 ms later cancelled that pickup; the
+  next step landed 6.5 from the Ring and two more went down the stairs. (The log names it "Ring";
+  whether it was unique it does not say.)
+- `runner.request`: a teleport request while the pickup step works no longer cancels it, the step
+  follows the pickup. The teleport step itself first asks `pickup.worth_a_stop`: a valuable with
+  room for it within `STOP_UNITS` (40), or a gold pile within a jump, is picked up by that press
+  (`STOP_TRIES` = 2 presses a drop at most; potions never hold the step).
+- Charges (user: "we should more use blade warp on open locations on KP_4"): `teleport.hop_toward`
+  takes `warp`, asked with the landing it chose before the Teleport; the runner passes
+  `Hunter.warp_hop`: a Blade Warp along the line to that landing when the line is clear
+  (`sight.clear_shot`) and the stride is `WARP_HOP` (15) or more, up to `JUMP_REACH` (26; the hop's
+  own landings are up to about 30). Up to `WARP_WAIT` (0.35 s) of the skill's casting delay is waited
+  out; with more left the hop is a Teleport, so fast presses alternate. A warp that moved nobody
+  falls back to Teleport in the same press. Only the teleport step: seek steps have `afoot`.
+- UNSEEN in game. To judge: the share of "Blade Warp toward ..." lines among the step's hops in
+  Black Marsh, and whether the shorter stride (26 against 30) and the wait cost more presses.
+
+## 2026-10-11 18:30 — the sweep stays by a valuable it does not take
+
+- Black Marsh and the Tower, 17:55 to 17:57 (session `20261011T145509Z-1eab7318`). The teleport
+  step's hops: 9 by Blade Warp ("... charges kept"), seen in game for the first time; the staff
+  went from 67 to 50 on the way to the Countess. Four drops at her (Io, Sol, Key of Terror, Shael)
+  went in one press, 1.7 s, each at the first aim.
+- Missed (user: "we shouldn't move away from valuable drops"; "stay in radius, clear around to be
+  safe"): 17:56:14.58 a Grand Charm was marked at (12616, 11120), 20 from the character; the sweep
+  never stopped for it, jumped at 17:56:15.5 and 17:56:17.2 and stood 31 away; the player walked
+  back and had it at 17:56:28. Why `gather` did not stop is not in the log. `pickup.choose` leaves
+  out a valuable the inventory has no room for, and `gather` said nothing then; the inventory held
+  16 items and five more from the Countess, and a Grand Charm wants a free 1 by 3. NOT PROVEN.
+- `Hunter.gather` now keeps `held`: the nearest valuable within `HOLD_SIGHT` (40), with or without
+  room. When it is not picked up (no room, or `GATHER_TRIES` used up) the sweep says once
+  "Staying by <item>: the inventory has no room for it" (or "no click took it") and logs it.
+  `Hunter.leaves` then refuses every step of the sweep's own that ends more than `HOLD_UNITS` (25)
+  from it (`next_step`, and the walk onto a firing spot in `follow_on`): what is in reach from
+  inside that radius is still fought. The player's own steps (teleport, seek) are not held back.
+- The next such case logs "the sweep stays by <item>, N away: <why>", which settles the cause.
+
+**The same day, later (user: "add items that shown in our filter. prefer smaller types", "items that are
+usable for warlock"):** the pickup step now reads every equipment Show rule of the filter, not only
+the unique and set ones (`loot/shown.py` `filter_rules`, `pickup_rules`, `shown_label`; `ground_shown`;
+`GameMemory.loot(shown=)`): rare, magic, and the white and gray bases, matched as the game matches
+them (rarity AND (category OR code); the gray flag adds ethereal or socketed white items). Below set
+quality only bases of at most `pickup_shown_cells` (4) inventory cells are taken: grimoires of every
+quality, the dagger line, class helms, gloves, boots, belts, circlets, orbs, claws, javelins; a Monarch,
+the armours and the big weapons stay the player's click. Config `pickup_filter_shown`,
+`pickup_shown_cells` replace `pickup_filter_named`, `pickup_rare_types`. A white item is always
+identified, so one the player drops in the field is offered again. Not yet pressed on the host.
+
+## 2026-10-11 18:45 — the teleport step's Blade Warp after one that failed
+
+- Black Marsh and the Tower, 18:07 to 18:09 (session `20261011T150723Z-30650768`; started before
+  the 18:30 change, so without the sweep's stay by a valuable). 46 hops of the teleport step, 3 by
+  Blade Warp: the third warp (18:07:38) moved nobody, `Travel.jump_failed` then left the skill out
+  for `JUMP_DISTRUST` (30 s) and every hop after was a Teleport (69 charges down to 51 at the
+  Tower's door). `Hunter.warp_hop` now leaves Blade Warp alone for `WARP_RETRY` (3 s) after such a
+  warp and clears the mark for itself. On all of 2026-10-11, 44 of 447 warps moved nobody.
+- Cost seen: a warp hop took 0.8 to 1.0 s for 18 to 20 units (the stride was the 0.75 one both
+  times), a Teleport hop 0.6 s for 30; the failed warp 1.7 s before its Teleport. The first Teleport
+  after warps also swapped weapons (0.27 s): the warps were made with the battle set in hand.
+- A Flawless Skull was not picked up (18:07:48 to 18:07:51): the pointer was found 150 to 1100
+  pixels from every aim ("the pointer was found at ...", ten times: the player's hand on the
+  mouse), five aims were looked at in 2.2 s, then the item was out of view and the press ended with
+  "no click picked up". The hover flag read 0x100 over another item there (0x101 over a wanted
+  one): any non-zero value counts as live.
+
+`pickup_shown_cells` is 6 since the same evening (user): the 2x3 bases are taken too (Monarch, body
+armours, Phase Blade, Berserker Axe, Caduceus, Flail, Crystal Sword); the 2x4 ones stay manual.
+
+## 2026-10-11 19:25 — no click on a valuable without room; the teleport step with an empty staff
+
+- Black Marsh and the Tower, three games 18:57 to 19:03 (session `20261011T154424Z-faf41e47`). 17
+  pickups, all taken; 14 at the first aim. The teleport step: 91 Teleports and 59 Blade Warps (2
+  warps moved nobody and fell back). Charges: 30 at the start (not repaired), 0 in the second game's
+  Black Marsh, 66 after the repair; the third game took 69 to 31.
+- Tower Cellar 5, 19:03:28: an Ith Rune beside a Rare Horned Helm the inventory had no room for.
+  `pick_up` passed the helm to `take` as `alike` (the same kind), so it was clicked four times
+  (3.5 s) before the rune's label was found 54 pixels up. `alike` is now only what there is room
+  for; the rest of the kind goes with `others` and is never clicked.
+- Black Marsh, 18:59:44: with 0 charges the step went straight toward the tower by Blade Warp
+  twice, then stopped twice with "no Blade Warp or walk leads toward Forgotten Tower"; the player
+  went to town for a repair. `step_toward` with an empty staff now first asks for the hop along the
+  way (`hop_toward` with `warp`; `Hunter.empty_hop`: a Blade Warp toward the landing after its
+  whole casting delay, else one click's walk, else it stops), then goes straight as before.
+- The sweep's stay by a valuable (18:30) had no case: nothing lay that was not picked up, except
+  that helm, where the player's pickup press stopped with "Inventory full".
+
+## 2026-10-11 19:45 — the label is looked for where it usually is
+
+- Black Marsh and the Tower, three games 19:05 to 19:10 (session `20261011T154424Z-faf41e47`).
+  The sweep's stay by a valuable was seen for the first time: "Staying by Eth Rune: the inventory
+  has no room for it" (19:06:15; a Unique Fuscina had gone in at 19:05:41), four steps refused
+  ("no step to ..., 29 from it"); the player's 13 pickup presses each stopped with "inventory
+  full". Again by a Flawless Sapphire and a Magic Tome. So the Grand Charm of 17:56 was most likely
+  the same: no room.
+- Two slow pickups: a Tir Rune (19:10:21, 3.8 s) and Rare Chain Gloves (19:10:38, 4.6 s): seven
+  aims from afar showed nothing, the walk up took 2.1 and 2.8 s, and the label was at the ninth
+  aim after it, 54 pixels up. Of 71 pickups since the hover flag (17:20) that ended on a seen
+  label: 62 at (0, -24), 5 at (0, -54), 2 at (0, -34), 1 at (0, -14), 1 at (-10, -14).
+- `pickup.LOOK_AIMS` = 24, 54, 34, 14 and 84 pixels up is now what `take` looks at first, from afar
+  too; the other aims follow after the walk up. The clicks made unseen keep `ITEM_AIMS`.

@@ -95,6 +95,7 @@ from inventory_tracking.macros.routines import (
 )
 from inventory_tracking.macros.sight import clear_shot, firing_spots, in_reach
 from inventory_tracking.macros.skills import (
+    BLADE_WARP,
     DEATH_MARK,
     ECHOING_STRIKE,
     ENGORGE,
@@ -111,7 +112,9 @@ from inventory_tracking.macros.teleport import (
 )
 from inventory_tracking.macros.tour import Bounds, tour
 from inventory_tracking.macros.travel import (
+    JUMP_REACH,
     LOW_CHARGES,
+    WARP_DELAY,
     Point,
     Step,
     Travel,
@@ -122,7 +125,7 @@ from inventory_tracking.macros.travel import (
     step_walk,
 )
 from inventory_tracking.macros.view import Viewport
-from inventory_tracking.macros.world import NO_OWNER, Monster, World
+from inventory_tracking.macros.world import NO_OWNER, VALUABLE, Drop, Monster, World, has_room
 from inventory_tracking.native.layout import TILE_UNITS
 from inventory_tracking.terror.bosses import BOSSES
 from inventory_tracking.terror.tracker import BARRICADES, UNKILLABLE
@@ -149,6 +152,10 @@ SIGHT = 30.0  # world units: hostiles further off are not part of the decision
 # SWEEP_UNITS, the player moves by hand, FOLLOW_STEPS are taken or FOLLOW_SECONDS pass with no step.
 FOLLOW_STEPS = 12
 FOLLOW_SECONDS = 8.0  # since the press or the sweep's last step
+WARP_CHARGES = 15  # with fewer charges on the staff the teleport step hops by Blade Warp where it can
+WARP_RETRY = 3.0  # seconds the teleport step leaves Blade Warp alone after one that moved nobody
+HOLD_SIGHT = 40.0  # world units: a valuable this near that the sweep does not take is stayed by
+HOLD_UNITS = 25.0  # the sweep's own steps end no further than this from it
 GATHER_CHECK = 0.3  # seconds between two looks of the sweep for something to pick up
 GATHER_TRIES = 2  # times the sweep stops for one drop
 GATHER_SECONDS = 3.0  # a pickup step's time, added to the sweep's own so that it goes on after
@@ -305,6 +312,9 @@ class Hunter:
         self.pick: Callable[[], None] | None = None  # the runner's: the pickup step runs once the mode has paused
         self.gather_looked = -math.inf  # clock time of the sweep's last look for something to pick up
         self.gathered: dict[int, int] = {}  # unit id -> times the sweep stopped for it
+        self.held: Drop | None = None  # the valuable in sight the sweep stays by (`gather`, `leaves`)
+        self.held_said: set[int] = set()  # the drops that staying was said for
+        self.held_logged = -math.inf
         self.stepping: Step | None = None  # the step the fight stopped for
         self.sweep = Sweep()
         self.step_asked_at: float | None = None  # clock time of a step taken, until the first cast after it
@@ -408,6 +418,18 @@ class Hunter:
         low = left is not None and left < LOW_CHARGES
         world = run.world()
         aspect = rect[2] / rect[3]
+        # A Blade Warp just made: its casting delay is waited out when the line toward the goal is
+        # clear, as presses come faster than it (0.5 s apart against 0.8 s: in the game of 15:27 on
+        # 2026-10-11, 8 seek hops by Teleport to 4 by Blade Warp before the staff ran low).
+        here = (player.x, player.y)
+        away = math.dist(here, goal)
+        wait = WARP_DELAY - (run.clock() - self.travel.warped_at)
+        if 0 < wait <= WARP_DELAY and BLADE_WARP in world.slots and away > MOVED:
+            reach = min(1.0, JUMP_REACH / away)
+            end = (here[0] + (goal[0] - here[0]) * reach, here[1] + (goal[1] - here[1]) * reach)
+            if clear_shot(ground, here, end, world.doors):
+                run.pace.sleep(wait)
+                world = run.world()
         found = self.travel.stride(run, world, ground, aspect, goal)
         if found is not None and found.skill != BLADE_WARP and not low:
             return False  # a walk, or a Teleport of the stride's own: the hop plans a better one
@@ -420,6 +442,75 @@ class Hunter:
         by = 'Walking' if found.skill is None else skill_name(found.skill)
         run.say(f'{by} toward {name}' + (f': the Teleport staff has {left} charges left' if low else ''))
         self.travel.make(run, found, world, aspect, key_names, ground, name=name)
+        return True
+
+    def warp_hop(self, run: Run, target: Target, player, spot: Point, key_names) -> bool:
+        """The teleport step's hop toward the landing `spot` made by Blade Warp, and whether it was
+        (user, 2026-10-11: "we should more use blade warp on open locations on KP_4, we're using a lot
+        of charges"): with the blade's line to the landing clear and at least WARP_HOP of the way
+        within its reach. Its casting delay is waited out up to WARP_WAIT; a longer one, a wall,
+        or a warp that moved nobody leaves the hop to Teleport."""
+        world = run.world()
+        rect = run.actuator.keys.focused_window_rect()
+        if BLADE_WARP not in world.slots or world.player is None or rect is None or key_names is None:
+            return False
+        left = self.charges(run)
+        if left == 0:
+            return self.empty_hop(run, target, player, spot, key_names)
+        # Only to spare the last charges (user, 2026-10-11 evening: "KP_4 when forcing blade warp is
+        # way too slow ... prefer tp for longer distances, until around 15 charges, then blade warp
+        # in priority; this is only for charges"): a warp hop took 0.8 to 1.0 s for 18 to 20 units,
+        # a Teleport hop 0.6 s for 30.
+        if left is None or left >= WARP_CHARGES:
+            return False
+        wait = WARP_DELAY - (run.clock() - self.travel.warped_at)
+        failed = self.travel.jump_failed.get(BLADE_WARP, -math.inf)
+        if wait > WARP_DELAY or run.clock() - failed < WARP_RETRY:
+            return False
+        # One warp that moved nobody does not take the skill from the step for JUMP_DISTRUST as it
+        # does from the sweep: Black Marsh, 18:07:38 on 2026-10-11, the third hop's warp failed and
+        # the 43 hops after it were Teleports (3 warps in the game). 44 of 447 warps failed that day.
+        self.travel.jump_failed.pop(BLADE_WARP, None)
+        ground = Ground(target.ground)
+        here = (player.x, player.y)
+        if not clear_shot(ground, here, spot, world.doors):
+            return False
+        if wait > 0:
+            run.pace.sleep(wait)
+            world = run.world()
+        aspect = rect[2] / rect[3]
+        found = self.travel.stride(run, world, ground, aspect, spot)
+        if found is None or found.skill != BLADE_WARP:
+            return False
+        run.say(f'Blade Warp toward {target.label}: {left} charges kept')
+        try:
+            self.travel.make(run, found, world, aspect, key_names, ground, name=target.label)
+        except Abort as stop:
+            if run.cancelled.is_set():
+                raise
+            LOG.info('Macro: no Blade Warp toward %s (%s): the hop is a Teleport', target.label, stop)
+            return False
+        return True
+
+    def empty_hop(self, run: Run, target: Target, player, spot: Point, key_names) -> bool:
+        """The teleport step's hop with the staff empty: a Blade Warp toward the landing the way gives
+        (its casting delay waited out), else one click's walk toward it; made, or the step stops."""
+        rect = run.actuator.keys.focused_window_rect()
+        if rect is None:
+            raise Abort('no game window')
+        wait = WARP_DELAY - (run.clock() - self.travel.warped_at)
+        if 0 < wait <= WARP_DELAY:
+            run.pace.sleep(wait)
+        self.travel.jump_failed.pop(BLADE_WARP, None)
+        world = run.world()
+        ground = Ground(target.ground)
+        aspect = rect[2] / rect[3]
+        found = self.travel.stride(run, world, ground, aspect, spot)
+        if found is None:
+            raise Abort(f'no Blade Warp or walk leads along the way to {target.label}')
+        by = 'Walking' if found.skill is None else skill_name(found.skill)
+        run.say(f'{by} toward {target.label}: the Teleport staff has 0 charges left')
+        self.travel.make(run, found, world, aspect, key_names, ground, name=target.label)
         return True
 
     def foot_step(self, run: Run, target: Target, key_names) -> None:
@@ -485,9 +576,28 @@ class Hunter:
         no such place, a stride toward the nearest hostile (`toward`). None: stay."""
         self.sweep.forget(run.clock())
         place = self.better_stand(world, foes, ground, aspect, SWEEP_GAIN if fighting else CAMP_GAIN, run)
-        if place is not None:
-            return Step.to(place)
-        return None if fighting or not foes else self.toward(run, world, foes, ground, aspect)
+        found = Step.to(place) if place is not None else None
+        if found is None and not fighting and foes:
+            found = self.toward(run, world, foes, ground, aspect)
+        if found is not None and self.leaves(found.spot, run.clock()):
+            return None
+        return found
+
+    def leaves(self, spot: Point, now: float) -> bool:
+        """Whether a step of the sweep's own to `spot` would leave the valuable it stays by (`held`):
+        further than HOLD_UNITS from it. The sweep clears what it reaches from within that radius
+        (user, 2026-10-11: "we shouldn't move away from valuable drops", "stay in radius, clear
+        around to be safe")."""
+        held = self.held
+        if held is None or math.dist(spot, (held.x, held.y)) <= HOLD_UNITS:
+            return False
+        if now - self.held_logged >= 1.0:
+            self.held_logged = now
+            LOG.info(
+                'Macro: the sweep stays by %s at (%.0f, %.0f): no step to (%.1f, %.1f), %.0f from it',
+                held.label, held.x, held.y, *spot, math.dist(spot, (held.x, held.y)),
+            )  # fmt: skip
+        return True
 
     def gather(self, run: Run, here: Point) -> None:
         """The sweep picks up on its way (user, 2026-10-11: "when doing KP_1 auto-movement, we should also
@@ -496,12 +606,28 @@ class Hunter:
         A drop is stopped for GATHER_TRIES times at most: one no click takes must not hold the mode."""
         now = run.clock()
         if self.pick is None or run.loot is None or not self.sweep.steps or now > self.sweep.until:
+            self.held = None
             return
         if now - self.gather_looked < GATHER_CHECK:
             return
         self.gather_looked = now
-        plan = choose(unshunned(run.loot(), now), here)
+        loot = unshunned(run.loot(), now)
+        plan = choose(loot, here)
+        # A valuable in sight the sweep does not take (no room for it, or its clicks took nothing) is
+        # stayed by: the Tower, 17:56:14 on 2026-10-11, a Grand Charm came down 20 away, the sweep
+        # said nothing, jumped twice and stood 31 from it; the player went back for it by hand.
+        near = [d for d in loot.drops if d.kind == VALUABLE and math.dist(here, (d.x, d.y)) <= HOLD_SIGHT]
+        self.held = min(near, key=lambda d: math.dist(here, (d.x, d.y))) if near else None
         if plan is None or self.gathered.get(plan.drop.unit_id, 0) >= GATHER_TRIES:
+            held = self.held
+            if held is not None and held.unit_id not in self.held_said:
+                if len(self.held_said) > 200:
+                    self.held_said.clear()
+                self.held_said.add(held.unit_id)
+                why = 'the inventory has no room for it' if not has_room(loot.room, held.size) else 'no click took it'
+                away = math.dist(here, (held.x, held.y))
+                LOG.info('Macro: the sweep stays by %s, %.0f away: %s', held.label, away, why)
+                run.say(f'Staying by {held.label}: {why}')
             return
         if len(self.gathered) > 200:
             self.gathered.clear()
@@ -544,6 +670,8 @@ class Hunter:
         # A wall between: onto a firing spot at the nearest, as the seek step goes to an elite, with
         # the pointer held as a step holds it (the mode itself aims once and casts at once).
         nearest = min(near, key=lambda m: math.dist(here, (m.x, m.y)))
+        if self.leaves((nearest.x, nearest.y), run.clock()):
+            return False
         self.sweep.spend(run.clock())
         drift, steady = run.actuator.drift, run.actuator.steady
         run.actuator.drift, run.actuator.steady = POINTER_DRIFT, True

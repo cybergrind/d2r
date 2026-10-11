@@ -165,3 +165,15 @@ Constraints if this is revisited:
 - Checked live 2026-10-09 with a browser focused and no game: the canvas mapped for a test card
   and unmapped when it was cleared. Not seen yet: a real unread notification, and the card over
   the running game (the slot may need moving).
+
+### Uber Diablo progress card (user, 2026-10-11)
+
+`hud/dclone.py`: `serve` asks diablo2.io's Diablo Clone tracker (`dclone_api.php`, fed by d2emu.com)
+every 300 s for RotW / Softcore / Non-Ladder and shows the regions at 4/6 or more as a card stacked
+in the Traderie slot ("Uber Diablo 5/6 Europe", then when each last changed), with or without the
+game; `--no-dclone` turns it off, `config.DCLONE` holds the mode, poll and threshold. Each change of a
+region's step is a log line. On 2026-10-11 the page showed RotW SC Non-Ladder at Asia 3/6, Americas
+1/6, Europe 1/6. UNCONFIRMED: the `ver=2` parameter (the address was banned for asking five times in
+two minutes before it could be tried; the answer without it held LoD rows only). Rows are filtered by
+`ver` on our side, so a wrong parameter shows as "Uber Diablo progress unavailable: no row of this
+version and mode" in the log and no card, never as LoD's progress.

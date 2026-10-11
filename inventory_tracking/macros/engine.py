@@ -44,6 +44,7 @@ class Run:
         self.prebuff_hands: frozenset[str] = frozenset()  # the set the buffs are cast with
         self.battle_hands: frozenset[str] = frozenset()  # the main set: fought with, and held when a game is left
         self.hovered: Callable[[], tuple[int, int] | None] | None = None  # world.GameMemory.hovered
+        self.hover_note: Callable[[], str] | None = None  # the record it read last, whole (world.GameMemory.hover_note)
         # the monsters lying dead as (unit id, x, y), world units (world.GameMemory.corpses): Engorge needs one
         self.corpses: Callable[[], tuple[tuple[int, float, float], ...]] | None = None
         self.warps: Callable[[], tuple[Warp, ...]] | None = None  # the doors loaded (world.GameMemory.warps)

@@ -71,7 +71,8 @@ from inventory_tracking.collection.store import DEFAULT_DATABASE as COLLECTION_D
 from inventory_tracking.collection.watch import StashWatcher
 from inventory_tracking.combat.record import CombatRecorder
 from inventory_tracking.common import LOG, configure_logging, log_to_file, timestamp
-from inventory_tracking.config import APPRAISAL, SHOW_ITEMS, TRADERIE
+from inventory_tracking.config import APPRAISAL, DCLONE, SHOW_ITEMS, TRADERIE
+from inventory_tracking.hud.dclone import dclone_watch
 from inventory_tracking.hud.process import (
     PanelBeacon,
     card_widgets,
@@ -443,6 +444,7 @@ def run_service(args, directory, report):
                     starting.enter_context(
                         traderie_watch(args.hud_scene, args.osd and args.traderie, directory / 'traderie.log')
                     )
+                    starting.enter_context(dclone_watch(args.hud_scene, args.osd and args.dclone))
                     # Loading the KB and the first lookups take seconds in each lookup process, so
                     # they start first and warm up while this process loads the KB and finds the game.
                     warm, startup_generation = (), None
@@ -822,6 +824,12 @@ def main(argv=None):
         action=argparse.BooleanOptionalAction,
         default=TRADERIE.enabled,
         help='serve: HUD card for unread Traderie notifications, read through the browser (hud/traderie.py)',
+    )
+    parser.add_argument(
+        '--dclone',
+        action=argparse.BooleanOptionalAction,
+        default=DCLONE.enabled,
+        help='serve: HUD card for regions where Uber Diablo is close to walking (hud/dclone.py)',
     )
     parser.add_argument(
         '--hud-scene', type=Path, default=DEFAULT_SCENE, help='HUD scene directory (inventory_tracking/hud)'

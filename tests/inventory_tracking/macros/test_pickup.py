@@ -6,6 +6,9 @@ Level 2 (101). The belt is sixteen cells, the first four the hotkey row; 606 is 
 Potion and 531 a Full Rejuvenation Potion.
 """
 
+import math
+from dataclasses import replace
+
 import pytest
 
 from inventory_tracking.levels.model import Level, Room
@@ -92,12 +95,34 @@ def test_a_valuable_far_off_is_hopped_toward_and_then_clicked():
 
 def test_an_aim_without_the_item_under_it_is_not_clicked_and_the_next_one_is(caplog):
     play = game(RUNE)
-    play.pick_above = 24.0
+    play.pick_above = 14.0  # the second aim: the first looks 24 pixels up
     with caplog.at_level('INFO'):
         pick_up(play.run(), LEVEL, keys, nothing)
     assert play.picked == ['Ist Rune']
     assert play.walks == []  # no click on bare ground: the character went nowhere else
+    assert any('picked up Ist Rune' in r.message and '(0, -14) pixels' in r.message for r in caplog.records)
+
+
+def test_the_aim_24_pixels_up_is_the_first_for_a_valuable_too(caplog):
+    # Every log up to 2026-10-11: the first click took the item 101 times of 111 there, 87 of 130 at 14.
+    play = game(RUNE)
+    play.pick_above = 19.0  # the label under both aims
+    with caplog.at_level('INFO'):
+        pick_up(play.run(), LEVEL, keys, nothing)
     assert any('picked up Ist Rune' in r.message and '(0, -24) pixels' in r.message for r in caplog.records)
+
+
+def test_a_click_that_walked_the_character_is_not_made_again_where_the_pointer_was_left(caplog):
+    # The Tower, 16:53:14 on 2026-10-11: an Eth Rune under the pointer, the click ran the character 9
+    # units to the ground behind the label, and the second click on the same spot 8 more.
+    play = game(RUNE)
+    play.slipped_picks = 1
+    with caplog.at_level('INFO'):
+        pick_up(play.run(), LEVEL, keys, nothing)
+    assert play.picked == ['Ist Rune']
+    # One walk from the click that slipped; a second only as the walk up to the rune itself.
+    assert all(math.dist(walk, (RUNE.x, RUNE.y)) < 2.0 for walk in play.walks[1:])
+    assert len(play.walks) <= 2
 
 
 def test_a_click_the_game_takes_nothing_from_is_made_again_on_the_same_aim(caplog):
@@ -115,17 +140,17 @@ def test_a_click_the_game_takes_nothing_from_is_made_again_on_the_same_aim(caplo
 def test_without_the_hover_record_every_aim_is_clicked_in_turn(caplog):
     play = game(RUNE)
     play.hover_known = False
-    play.pick_above = 24.0
+    play.pick_above = 14.0
     with caplog.at_level('INFO'):
         pick_up(play.run(), LEVEL, keys, nothing)
     assert play.picked == ['Ist Rune']
-    assert any('still on the ground after the click (0, -14)' in r.message for r in caplog.records)
-    assert any('picked up Ist Rune' in r.message and '(0, -24) pixels' in r.message for r in caplog.records)
+    assert any('still on the ground after the click (0, -24)' in r.message for r in caplog.records)
+    assert any('picked up Ist Rune' in r.message and '(0, -14) pixels' in r.message for r in caplog.records)
 
 
 def test_a_drop_no_click_takes_is_reported():
     play = game(RUNE)
-    play.pick_above = 80.0
+    play.pick_above = 300.0
     with pytest.raises(Abort, match='no click picked up Ist Rune'):
         pick_up(play.run(), LEVEL, keys, nothing)
 
@@ -209,11 +234,20 @@ def test_one_press_picks_up_every_potion_the_belt_is_short_of():
     assert sorted(play.picked) == ['a healing potion', 'a second healing potion']
 
 
-def test_one_press_picks_up_one_valuable():
-    other = Drop(55, 5004.0, 5005.0, 'Ber Rune', VALUABLE)
+def test_one_press_picks_up_one_valuable_when_the_next_is_a_walk_away():
+    other = Drop(55, RUNE.x + 15.0, RUNE.y, 'Ber Rune', VALUABLE)
     play = game(RUNE, other)
     assert pick_up(play.run(), LEVEL, keys, nothing)
     assert len(play.picked) == 1
+
+
+def test_one_press_picks_up_the_valuables_of_a_pile():
+    # The Tower, 16:55:50 on 2026-10-11: three runes within 5 units took three presses.
+    names = enumerate(('Tal', 'El'))
+    others = [Drop(55 + n, RUNE.x + 2.0 * n, RUNE.y + 3.0, f'{name} Rune', VALUABLE) for n, name in names]
+    play = game(RUNE, *others, HP_NEAR)
+    assert pick_up(play.run(), LEVEL, keys, nothing)
+    assert sorted(play.picked) == ['El Rune', 'Ist Rune', 'Tal Rune']
 
 
 def test_the_pickup_step_wants_every_rune_and_the_essences_and_keys():
@@ -235,6 +269,16 @@ def test_the_pickup_step_wants_every_ring_jewel_and_amulet_though_the_marks_do_n
 
     assert {'Ring', 'Jewel', 'Amulet'} <= set(wanted()['materials'].values())
     assert not {'Ring', 'Jewel', 'Amulet'} & set(material_classes(APPRAISAL.material_marks).values())
+
+
+def test_the_pickup_step_wants_what_the_loot_filter_shows_the_smaller_bases_below_set_quality():
+    # user, 2026-10-11
+    from inventory_tracking.config import APPRAISAL
+    from inventory_tracking.loot.shown import pickup_rules
+    from inventory_tracking.macros.pickup import wanted
+
+    assert APPRAISAL.pickup_shown_cells == 6
+    assert wanted()['shown'] == pickup_rules(6) != ()
 
 
 def test_a_drop_no_click_picks_up_is_given_up_after_three_aims_and_left_alone_for_a_while():
@@ -394,3 +438,100 @@ def test_an_aim_is_taken_only_once_the_cast_under_way_is_over():
     play.arrivals.append((0.3, over))
     assert standing(play.run()).mode == 1
     assert 0.3 <= play.clock.now < 0.4
+
+
+def test_in_a_big_pile_the_label_is_looked_for_further_up_and_to_the_sides(caplog):
+    # Arcane Sanctuary, 16:03:45 on 2026-10-11: a Flawless Diamond among 12 drops showed at none of the 16
+    # aims, four presses running; the clicks made unseen had a monster under them.
+    from inventory_tracking.macros.pickup import ITEM_AIMS, PILE_AIMS, PILE_MORE, pile_aims
+
+    more = pile_aims(11)
+    assert (0, -174) in more
+    assert (0, -184) not in more
+    assert (-40, -34) in more
+    assert not set(more) & {*ITEM_AIMS, *PILE_AIMS}
+    assert len(more) <= PILE_MORE
+
+    diamond = Drop(70, 5005.0, 5003.0, 'Flawless Diamond', VALUABLE)
+    crowd = [Drop(80 + i, 5004.0 + i % 3, 5002.0 + i // 3, f'potion {i}', HEALING) for i in range(6)]
+    play = game(diamond, *crowd)
+    play.label_above[70] = 104  # its label, pushed up by the pile
+    with caplog.at_level('INFO'):
+        assert pick_up(play.run(), LEVEL, keys, nothing)
+    assert play.picked == ['Flawless Diamond']
+    assert any('(0, -104) pixels' in r.message for r in caplog.records)
+
+
+def test_a_drop_no_click_took_is_left_for_the_next_press_which_takes_what_lies_beside_it():
+    # The same pile: four presses went to the diamond while a Ring and a rune lay beside it.
+    diamond = Drop(70, 5003.0, 5002.0, 'Flawless Diamond', VALUABLE)
+    ring = Drop(71, 5009.0, 5006.0, 'Ring', VALUABLE)
+    play = game(diamond, ring)
+    play.label_above[70] = 400  # nowhere an aim looks
+    with pytest.raises(Abort, match='no click picked up Flawless Diamond'):
+        pick_up(play.run(), LEVEL, keys, nothing)
+    assert pick_up(play.run(), LEVEL, keys, nothing)
+    assert play.picked == ['Ring']
+
+
+def test_every_aim_of_a_pickup_is_logged_with_what_was_under_it(caplog):
+    # user, 2026-10-11: "log all failed attempts": the aims only looked at left no trace.
+    play = game(RUNE)
+    play.pick_above = 14.0
+    run = play.run()
+    run.hover_note = lambda: 'flag 0x1'
+    with caplog.at_level('INFO'):
+        pick_up(run, LEVEL, keys, nothing)
+    line = next(r.message for r in caplog.records if 'aims for Ist Rune' in r.message)
+    seen = '(0, -24) (0, 0) [flag 0x1]; (0, -54) (0, 0) [flag 0x1]; (0, -34) (0, 0) [flag 0x1]'
+    assert line.endswith(seen + '; (0, -14) wanted [flag 0x1] clicked')
+
+
+def test_the_aims_are_logged_when_the_pickup_fails_too(caplog):
+    play = game(RUNE)
+    play.pick_above = 300.0
+    with caplog.at_level('INFO'), pytest.raises(Abort):
+        pick_up(play.run(), LEVEL, keys, nothing)
+    line = next(r.message for r in caplog.records if 'aims for Ist Rune' in r.message)
+    assert line.count('blind') == 7
+
+
+def test_a_teleport_step_stops_for_a_valuable_in_reach_and_for_gold_but_not_for_a_potion():
+    # Tower Cellar, 17:35:18 on 2026-10-11: teleport steps passed 6.5 from a Ring and left the level.
+    from inventory_tracking.macros.pickup import STOP_TRIES, STOP_UNITS, STOPPED, worth_a_stop
+
+    STOPPED.clear()
+    ring = Drop(70, 5029.0, 5004.0, 'Ring', VALUABLE)
+    assert worth_a_stop(game(ring, HP_NEAR, belt=SHORT_HP).run()) is ring
+    assert worth_a_stop(game(HP_NEAR, belt=SHORT_HP).run()) is None
+    far = Drop(71, 5000.0 + STOP_UNITS + 5, 5000.0, 'Ring', VALUABLE)
+    assert worth_a_stop(game(far).run()) is None
+    gold = Drop(72, 5010.0, 5000.0, '6000 gold', GOLD)
+    assert worth_a_stop(game(gold).run()) is gold
+    # One no click takes does not hold the step: after STOP_TRIES steps for it the step hops.
+    STOPPED.clear()
+    play = game(ring)
+    assert [worth_a_stop(play.run()) is ring for _ in range(STOP_TRIES + 1)] == [True] * STOP_TRIES + [False]
+    STOPPED.clear()
+
+
+def test_a_valuable_with_no_room_for_it_is_not_clicked_in_place_of_the_one_wanted():
+    # Tower Cellar 5, 19:03:28 on 2026-10-11: a Rare Horned Helm with no room for it lay beside an Ith
+    # Rune and took four clicks, 3.5 s.
+    helm = Drop(81, RUNE.x, RUNE.y, 'Rare Horned Helm', VALUABLE, (2, 2))
+    play = game(RUNE, helm)
+    play.loot = replace(play.loot, room=('#.##', '####'))
+    play.label_above[RUNE.unit_id] = 44.0  # the helm's label lies where the rune's would
+    pick_up(play.run(), LEVEL, keys, nothing)
+    assert play.picked == ['Ist Rune']  # the scripted game would hand the helm over to a click on it
+
+
+def test_the_label_of_a_pile_30_pixels_higher_is_the_second_place_looked_at(caplog):
+    # 71 pickups, 17:20 to 19:11 on 2026-10-11: the label was 24 pixels up 62 times and 54 up 5 times.
+    play = game(RUNE)
+    play.pick_above = 54.0
+    with caplog.at_level('INFO'):
+        pick_up(play.run(), LEVEL, keys, nothing)
+    line = next(r.message for r in caplog.records if 'aims for Ist Rune' in r.message)
+    assert line.endswith('(0, -24) (0, 0); (0, -54) wanted clicked')
+    assert play.walks == []  # seen from where the character stood: no walk up to it first

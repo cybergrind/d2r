@@ -40,7 +40,7 @@ from inventory_tracking.macros.actuator import Abort, Actuator, Cancelled
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.hunt import Hunter
 from inventory_tracking.macros.journey import Journey
-from inventory_tracking.macros.pickup import pick_up, wanted
+from inventory_tracking.macros.pickup import pick_up, wanted, worth_a_stop
 from inventory_tracking.macros.routines import SKILLS, run_macro
 from inventory_tracking.macros.skills import character_bindings, skill_keys
 from inventory_tracking.macros.teleport import LOST_KEY, card_for, step_toward
@@ -130,6 +130,10 @@ class MacroRunner:
             if self.working:
                 if routine in STEPS and self.routine == routine:
                     self.again = True
+                elif routine == TELEPORT and self.routine == PICKUP:
+                    # Not cancelled: the teleport step follows the pickup (that Ring, 17:35:18 on
+                    # 2026-10-11: the press came 30 ms after the sweep had stopped for it).
+                    self.pending = routine
                 elif self.routine == ATTACK and routine == PICKUP and self.hunter is not None:
                     # After the fight: the mode pauses itself once nothing is in reach. Inside a fight the
                     # press is also a step to a better stand, and the mode drops the wait (`_unwait`)
@@ -352,14 +356,28 @@ class MacroRunner:
                 if os.environ.get(RESEARCH_ENV):
                     run.research = memory.hover_candidates  # a scan of the whole data section per Consume
                 run.hovered = memory.hovered
+                run.hover_note = memory.hover_note
                 run.warps = memory.warps
                 run.corpses = memory.corpses
                 run.arrival = lambda: self.journey.arrival(time.monotonic())
                 run.supers = self.supers
                 if routine == TELEPORT:
                     walker = self.hunter
-                    afoot = None if walker is None else lambda target: walker.foot_step(run, target, key_names)
-                    step_toward(run, card_for(run, self.target), key_names, afoot)
+                    drop = worth_a_stop(run) if walker is not None else None
+                    if walker is None:
+                        step_toward(run, card_for(run, self.target), key_names)
+                    elif drop is not None:
+                        # The step does not leave a valuable behind: this press takes it, the next hops.
+                        LOG.info('Macro: the teleport step takes %s first', drop.label)
+                        pick_up(run, walker.level() if walker.level is not None else None, key_names, lambda: None)
+                    else:
+                        step_toward(
+                            run,
+                            card_for(run, self.target),
+                            key_names,
+                            lambda target: walker.foot_step(run, target, key_names),
+                            lambda target, player, spot: walker.warp_hop(run, target, player, spot, key_names),
+                        )
                 elif routine == PICKUP:
                     hunter = self.hunter
                     if hunter is None:

@@ -672,3 +672,31 @@ def test_in_the_halls_of_vaught_away_from_a_dead_nihlathak_the_macro_only_prebuf
     run_macro(run, lambda w: dict(KEYS))
     assert 'Escape' not in game.pressed()
     assert game.world.game_name == 'cyber32'
+
+
+def test_beside_the_dead_summoner_the_macro_leaves_and_makes_the_next_game():
+    # user, 2026-10-11: "win-x at summoner's location should go save/exit -> new game -> prebuff"
+    game = Game(world(74))
+    run = game.run()
+    run.supers = lambda level: [(5010.0, 5005.0)]
+    run_macro(run, lambda w: dict(KEYS))
+    assert game.pressed()[0] == 'Escape'
+    assert game.world.game_name == 'cyber33'
+
+
+@pytest.mark.parametrize(
+    ('monsters', 'seen'),
+    [
+        ((Monster(70, 250, 1, 5010.0, 5005.0, 0xFFFFFFFF),), [(5010.0, 5005.0)]),  # alive beside the character
+        ((), []),  # not found yet: the wrong arm, or on the way
+        ((), [(5400.0, 5300.0)]),  # killed, and the character far from there
+        ((), None),  # no tracker to say where he was
+    ],
+)
+def test_in_the_arcane_sanctuary_away_from_a_dead_summoner_the_macro_only_prebuffs(monsters, seen):
+    game = Game(world(74, monsters=monsters))
+    run = game.run()
+    run.supers = None if seen is None else lambda level: seen
+    run_macro(run, lambda w: dict(KEYS))
+    assert 'Escape' not in game.pressed()
+    assert game.world.game_name == 'cyber32'

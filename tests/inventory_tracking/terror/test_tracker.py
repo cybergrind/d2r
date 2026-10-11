@@ -768,3 +768,15 @@ def test_the_super_uniques_of_a_level_are_given_where_last_seen_dead_or_alive():
     assert tracker.supers(111) == [(3780.0, 5110.0)]
     assert tracker.supers(110) == [(100.0, 100.0)]
     assert tracker.supers(109) == []
+
+
+def test_a_boss_with_the_unique_flag_only_counts_among_the_levels_super_uniques():
+    # The Summoner, 15:51 on 2026-10-11: type flags 0x08, and the macro request 69 units from where he
+    # died read "0 super uniques seen on level 74" and only prebuffed.
+    tracker = ZoneTracker()
+    tracker.apply([
+        elite(1, 25440, 5020, flags=0x08, txt_id=250, area=74),
+        elite(2, 25400, 5080, flags=0x08, txt_id=40, area=74),  # a unique pack's leader
+    ])  # fmt: skip
+    tracker.apply([died(1, 74)])
+    assert tracker.supers(74) == [(25440.0, 5020.0)]

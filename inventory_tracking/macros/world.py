@@ -25,12 +25,14 @@ from inventory_tracking.loot.ground import (
     GROUND_MODES,
     ground_materials,
     ground_runes,
+    ground_shown,
     ground_uniques,
     item_units,
     static_position,
 )
 from inventory_tracking.loot.materials import appraised_classes
 from inventory_tracking.loot.runes import rune_name
+from inventory_tracking.loot.shown import ShownRule
 from inventory_tracking.native.layout import (
     BELT_ITEM_MODE,
     BELT_SIZE,
@@ -580,6 +582,7 @@ class GameMemory:
     def __init__(self, pid: int, base: int, table: int) -> None:
         self.base, self.table = base, table
         self.fd = os.open(f'/proc/{pid}/mem', os.O_RDONLY)
+        self.hover_raw: tuple[int, int, int, int] | None = None  # the last record read whole (`hovered`)
 
     def close(self) -> None:
         os.close(self.fd)
@@ -631,6 +634,7 @@ class GameMemory:
         unique_minimum: float | None,
         materials: dict[int, str],
         gold_minimum: int | None = None,
+        shown: tuple[ShownRule, ...] = (),
     ) -> Loot:
         """The drops the loot marks would show (loot/ground.py, the same rules), the potions on the
         ground, the character's belt and life. An empty Loot when the character cannot be read."""
@@ -644,9 +648,12 @@ class GameMemory:
                 for rune in ground_runes(read, table, minimum=rune_minimum)
             ]
             marked = [*ground_materials(read, table, materials, appraised_classes())] if materials else []
+            if shown:
+                marked += ground_shown(read, table, shown)
             if unique_minimum is not None:
                 marked += ground_uniques(read, table, minimum=unique_minimum)
-            # One drop per unit: a unique ring is both a ring and a marked unique (the unique's label wins).
+            # One drop per unit: a unique ring is both a ring and a marked unique (the unique's label wins,
+            # as it does over the label of a base the filter shows).
             labelled = {item.unit_id: item for item in marked}
             drops += [Drop(item.unit_id, item.x, item.y, item.label, VALUABLE) for item in labelled.values()]
             heads = struct.unpack('<128Q', read(table + ITEM_UNIT * 1024, 1024))
@@ -736,12 +743,30 @@ class GameMemory:
         return None
 
     def hovered(self) -> tuple[int, int] | None:
-        """(unit type, unit id) the game holds for the unit under the pointer (HOVER_RVA); None when unreadable."""
+        """(unit type, unit id) the game holds for the unit under the pointer (HOVER_RVA); None when
+        unreadable, and when the record is known to be a leftover.
+
+        The record keeps the last unit after the pointer has left it: of the pickup clicks made with
+        the item "under the pointer" up to 2026-10-11, 87 of 130 took it at the aim 14 pixels above
+        its ground and none of 21 at 6 (the pointer crosses the label on its way and stops on the
+        ground below; the click then walks the character there). The record is 16 bytes in a table
+        (hover/legacy.py: active, type, id; the three memory images in pricing/raw/re hold 0 in the
+        first word with a unit in the next two). Confirmed in game, the Tower, 17:21 on 2026-10-11:
+        the word read 0x101 at each of the 5 aims whose click took the item and 0 at the 7 aims that
+        still named an item picked up before. The whole record is kept for the log (`hover_note`)."""
         try:
-            unit_type, unit_id = struct.unpack('<II', self.read(self.base + HOVER_RVA, 8))
+            flag, unit_type, unit_id, tail = struct.unpack('<IIII', self.read(self.base + HOVER_RVA - 4, 16))
         except OSError, ValueError, struct.error:
             return None
-        return unit_type, unit_id
+        self.hover_raw = (flag, unit_type, unit_id, tail)
+        return (unit_type, unit_id) if flag else None
+
+    def hover_note(self) -> str:
+        """The record `hovered` read last, whole, for a log line."""
+        if self.hover_raw is None:
+            return 'unread'
+        flag, unit_type, unit_id, tail = self.hover_raw
+        return f'flag {flag:#x} type {unit_type} id {unit_id} tail {tail:#x}'
 
     def hover_candidates(self, unit_id: int, unit_type: int = MONSTER_UNIT) -> list[str]:
         """Research: image addresses holding (unit type, this unit id), as the record of the

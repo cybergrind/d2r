@@ -528,3 +528,25 @@ def test_a_game_begun_with_the_staff_in_hand_is_said_once():
     place[0], held[0] = 'game 3', True
     runner.poll(18.0)
     assert len(shown) == 2
+
+
+def test_a_teleport_request_during_a_pickup_follows_it_instead_of_cancelling(monkeypatch):
+    # Tower Cellar, 17:35:18 on 2026-10-11: the press came 30 ms after the sweep had stopped for a
+    # Ring, cancelled the pickup, and the next steps left the level without it.
+    monkeypatch.setattr(runner_module, 'CARD_SECONDS', 0)
+    steps, go_on = [], threading.Event()
+
+    def execute(cancelled, routine):
+        steps.append(routine)
+        if routine == 'pickup':
+            assert go_on.wait(5)
+            assert not cancelled.is_set()
+
+    runner = make(execute, [])
+    assert runner.request(10.0, 10.1, 'pickup')
+    assert runner.request(10.2, 10.3, 'teleport')
+    go_on.set()
+    deadline = time.monotonic() + 5
+    while len(steps) < 2 and time.monotonic() < deadline:
+        time.sleep(0.01)
+    assert steps == ['pickup', 'teleport']

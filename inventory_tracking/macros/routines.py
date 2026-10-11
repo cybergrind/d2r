@@ -46,7 +46,7 @@ NIHLATHAKS_TEMPLE = 121
 # Highlands, 550 units from Eldritch, left the game where a prebuff was meant). Without the tracker's
 # word on the level's super uniques the whole level counts, as before.
 RUN_ENDS = frozenset((NIHLATHAKS_TEMPLE, 110, 111))
-BOSS_LEVELS = frozenset((110, 111, 124))
+BOSS_LEVELS = frozenset((110, 111, 124, 74))
 BOSS_UNITS = 100.0
 # Mephisto and other act 3 runs end with a step into act 4, so the next game starts there
 # (user, 2026-10-06): the Pandemonium Fortress is a run end for a while after the character
@@ -69,6 +69,15 @@ COUNTESS = 45
 # the halls on the way to him, it prebuffs.
 HALLS_OF_VAUGHT = 124
 NIHLATHAK = 526  # as in terror/bosses.py
+# A Summoner run ends the same way (user, 2026-10-11: "win-x at summoner's location should go
+# save/exit -> new game -> prebuff"): the Arcane Sanctuary with no live Summoner in the unit table,
+# within BOSS_UNITS of where he was last seen (the tracker gives him with the level's super uniques,
+# though he carries the unique flag only: terror/tracker.py `supers`).
+ARCANE_SANCTUARY = 74
+SUMMONER = 250  # monstats.txt `summoner`
+# The level -> its boss: with him alive the macro request never leaves, and without the tracker's
+# word on where he was seen it does not leave either.
+BOSS_OF = {HALLS_OF_VAUGHT: NIHLATHAK, ARCANE_SANCTUARY: SUMMONER}
 SUPER_UNIQUE_FLAG = 0x02  # the monster's type flags, as terror/bosses.py
 PANDEMONIUM_FORTRESS = 103
 ACT_3 = range(75, 103)
@@ -599,7 +608,8 @@ def character_keys(run: Run, key_names) -> dict[int, str]:
 def run_ended(run: Run, world: World) -> bool:
     if world.player is None:
         return False
-    if world.player.area == HALLS_OF_VAUGHT and any(m.txt_id == NIHLATHAK for m in world.monsters):
+    boss = BOSS_OF.get(world.player.area)
+    if boss is not None and any(m.txt_id == boss for m in world.monsters):
         return False
     if world.player.area in BOSS_LEVELS and run.supers is not None:
         here = (world.player.x, world.player.y)
@@ -615,7 +625,7 @@ def run_ended(run: Run, world: World) -> bool:
         return bool(near)
     if world.player.area in RUN_ENDS:
         return True
-    if world.player.area == HALLS_OF_VAUGHT:
+    if boss is not None:
         return False  # without the tracker's word on where he was seen: no leaving in the middle of the halls
     if world.player.area == CATACOMBS_4:
         return all(monster.txt_id != ANDARIEL for monster in world.monsters)

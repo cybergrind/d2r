@@ -426,11 +426,11 @@ def test_seeking_hops_onto_a_firing_ring_around_the_nearest_elite_the_game_holds
     play = game(foe(10, 5030.0, 5000.0, CHAMPION), foe(11, 5020.0, 5000.0))
     hunter(play).seek(play.run(), keys)
 
-    assert play.pressed() == ['t']
+    assert play.pressed() == [KEYS[BLADE_WARP]]  # a clear line: no charge, no swap
     assert play.strikes == []
     landed = (play.world.player.x, play.world.player.y)
     assert STRIKE_REACH - 4 <= math.dist(landed, (5030.0, 5000.0)) <= STRIKE_REACH  # on a firing ring
-    assert play.said[0].startswith('Teleport toward the elite 19 (10)')
+    assert play.said[0].startswith('Blade Warp toward the elite 19 (10)')
 
 
 def test_seeking_ignores_plain_monsters_and_takes_a_remembered_elite():
@@ -438,8 +438,8 @@ def test_seeking_ignores_plain_monsters_and_takes_a_remembered_elite():
     remembered = [(77, 5030.0, 5002.0, True), (78, 5010.0, 5000.0, False)]
     hunter(play, remembered=remembered).seek(play.run(), keys)
 
-    assert play.pressed() == ['t']
-    assert play.said[0].startswith('Teleport toward the remembered elite')
+    assert play.pressed() == [KEYS[BLADE_WARP]]  # a clear line: no charge, no swap
+    assert play.said[0].startswith('Blade Warp toward the remembered elite')
 
 
 def test_a_firing_spot_a_few_units_away_is_walked_to_not_teleported_to():
@@ -504,9 +504,9 @@ def test_without_an_elite_the_hop_goes_to_the_nearest_unexplored_room():
     explored = {(HERE.x, HERE.y, 8, 8), (EAST[0].x, EAST[0].y, 8, 8)}
     hunter(play, explored=explored).seek(play.run(), keys)
 
-    assert play.pressed() == ['t']
-    assert play.world.player.x > 5020.0  # toward EAST[1], the nearest unexplored room
-    assert play.said[0].startswith('Teleport toward an unexplored room')
+    assert play.pressed() == [KEYS[BLADE_WARP]]  # a clear line: no charge, no swap
+    assert play.world.player.x > 5015.0  # toward EAST[1], the nearest unexplored room
+    assert play.said[0].startswith('Blade Warp toward an unexplored room')
 
 
 def test_exploring_picks_the_room_nearest_by_the_way_not_the_nearest_lava_island():
@@ -518,8 +518,8 @@ def test_exploring_picks_the_room_nearest_by_the_way_not_the_nearest_lava_island
     explored = {(HERE.x, HERE.y, 8, 8), (EAST[0].x, EAST[0].y, 8, 8)}
     Hunter(lambda: Level(101, rooms), None, lambda area: explored).seek(play.run(), keys)
 
-    assert play.pressed() == ['t']
-    assert play.world.player.x > 5020.0  # east along the corridor, toward EAST[1]
+    assert play.pressed() == [KEYS[BLADE_WARP]]  # a clear line: no charge, no swap
+    assert play.world.player.x > 5015.0  # east along the corridor, toward EAST[1]
     assert abs(play.world.player.y - 5000.0) < 10.0
 
 
@@ -1450,6 +1450,21 @@ def test_low_on_charges_the_seek_step_spares_the_staff_and_still_hops_where_noth
     assert play.staff.charges == 4
 
 
+def test_a_seek_step_waits_out_the_blade_warps_delay_over_a_clear_line_and_spends_no_charge():
+    # The game of 15:27 on 2026-10-11: presses came 0.5 s apart, under the 0.8 s delay, and 8 seek
+    # hops went by Teleport to 4 by Blade Warp before the staff ran low.
+    explored = {(HERE.x, HERE.y, 8, 8), (EAST[0].x, EAST[0].y, 8, 8)}
+    play = game()
+    hunt = hunter(play, explored=explored)
+    run = play.run()
+    hunt.travel.warped_at = run.clock() - 0.3
+    began = run.clock()
+    hunt.seek(run, keys)
+    assert play.pressed() == [KEYS[BLADE_WARP]]
+    assert play.staff.charges == STAFF.charges
+    assert 0.5 <= run.clock() - began < 2.0
+
+
 def test_a_walk_step_minds_only_a_monster_a_click_attacks_that_stands_where_it_is_aimed():
     # Frigid Highlands, 03:00 on 2026-10-11: walks refused with the pointer on the Defiler, and with
     # nothing alive near the aim (the game still named the unit hovered before).
@@ -1610,3 +1625,102 @@ def test_a_bird_in_the_air_is_no_hostile_and_one_on_the_ground_is():
     )
     other = replace(foe(4, 5010.0, 5000.0), mode=1)  # any other monster standing: a hostile
     assert [m.unit_id for m in hostiles(world(monsters=(flying, gliding, walking, other), slots=HUNT_SLOTS))] == [3, 4]
+
+
+def open_step(play, hunt):
+    from inventory_tracking.levels.model import Target
+    from inventory_tracking.macros.teleport import step_toward
+
+    run = play.run()
+    target = Target(101, ROOMS, (1012.5, 1000.5), 'the mark', 'poi', False, ())
+    step_toward(run, target, keys, None, lambda t, player, spot: hunt.warp_hop(run, t, player, spot, keys))
+
+
+def test_over_open_ground_the_teleport_step_hops_by_blade_warp_and_keeps_the_charge():
+    # user, 2026-10-11: "we should more use blade warp on open locations on KP_4, we're using a lot of charges".
+    play = game()
+    open_step(play, hunter(play))
+    assert play.pressed() == [KEYS[BLADE_WARP]]
+    assert play.world.player.x >= 5000.0 + 15.0
+    assert play.staff.charges == STAFF.charges
+    assert any(said.startswith('Blade Warp toward the mark') for said in play.said)
+
+
+def test_the_teleport_step_waits_out_the_end_of_blade_warps_delay_and_teleports_within_the_rest():
+    play = game()
+    hunt = hunter(play)
+    hunt.travel.warped_at = play.clock.now - (WARP_DELAY - 0.2)  # 0.2 s of the delay left: waited out
+    open_step(play, hunt)
+    assert play.pressed() == [KEYS[BLADE_WARP]]
+
+    play = game()
+    hunt = hunter(play)
+    hunt.travel.warped_at = play.clock.now  # just warped: presses come faster than the delay
+    open_step(play, hunt)
+    assert play.pressed() == [KEYS[TELEPORT]]
+
+
+def test_without_blade_warp_on_the_bar_the_teleport_step_is_a_teleport():
+    slots = tuple(None if skill == BLADE_WARP else skill for skill in HUNT_SLOTS)
+    play = game(slots=slots)
+    open_step(play, hunter(play))
+    assert play.pressed() == [KEYS[TELEPORT]]
+
+
+def test_the_sweep_stays_by_a_valuable_it_cannot_take_and_says_so(caplog):
+    # The Tower, 17:56:14 on 2026-10-11: a Grand Charm came down 20 away, the sweep jumped twice and
+    # stood 31 from it without a word (user: "we shouldn't move away from valuable drops", "stay in
+    # radius, clear around").
+    caplog.set_level(logging.INFO)
+    play, hunt = far_one()
+    charm = Drop(60, 4990.0, 5000.0, 'Grand Charm', 'valuable', (1, 3))
+    play.loot = replace(play.loot, drops=(charm,), room=('####', '####'))
+    hunt.pick = lambda: None
+    swept(play, hunt)
+    assert math.dist((play.world.player.x, play.world.player.y), (charm.x, charm.y)) <= 25.0
+    assert play.warps == []
+    assert 'Staying by Grand Charm: the inventory has no room for it' in play.said
+    assert 'the sweep stays by Grand Charm' in caplog.text
+
+
+def test_the_sweep_still_steps_within_the_radius_of_the_valuable_it_stays_by():
+    play, hunt = far_one()
+    charm = Drop(60, 5012.0, 5000.0, 'Grand Charm', 'valuable', (1, 3))
+    play.loot = replace(play.loot, drops=(charm,), room=('####', '####'))
+    hunt.pick = lambda: None
+    swept(play, hunt)
+    assert play.warps
+    assert math.dist(play.warps[0], (charm.x, charm.y)) <= 25.0
+
+
+def test_a_warp_that_moved_nobody_keeps_the_teleport_step_off_blade_warp_for_a_moment_only():
+    # Black Marsh, 18:07:38 on 2026-10-11: the third hop's warp failed and the 43 after it were Teleports.
+    play = game()
+    hunt = hunter(play)
+    hunt.travel.jump_failed[BLADE_WARP] = play.clock.now - 1.0
+    open_step(play, hunt)
+    assert play.pressed() == [KEYS[TELEPORT]]
+
+    play = game()
+    hunt = hunter(play)
+    hunt.travel.jump_failed[BLADE_WARP] = play.clock.now - 5.0  # the sweep leaves it alone for 30 s
+    open_step(play, hunt)
+    assert play.pressed() == [KEYS[BLADE_WARP]]
+
+
+def test_with_the_staff_empty_the_teleport_step_goes_along_the_way_by_blade_warp_or_stops():
+    # Black Marsh, 18:59:44 on 2026-10-11: straight toward the tower nothing led, and the step stopped.
+    from inventory_tracking.levels.model import Target
+    from inventory_tracking.macros.teleport import step_toward
+
+    play = game()
+    play.staff = replace(STAFF, charges=0)
+    hunt = hunter(play)
+    hunt.travel.warped_at = play.clock.now  # its delay is waited out: no Teleport can take the hop
+    run = play.run()
+    target = Target(101, ROOMS, (1012.5, 1000.5), 'the mark', 'poi', False, ())
+    afoot = []
+    step_toward(run, target, keys, afoot.append, lambda t, player, spot: hunt.warp_hop(run, t, player, spot, keys))
+    assert play.pressed() == [KEYS[BLADE_WARP]]
+    assert afoot == []
+    assert any('0 charges left' in said for said in play.said)

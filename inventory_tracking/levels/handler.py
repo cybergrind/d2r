@@ -40,6 +40,8 @@ class PoiSpec:
     warp: bool = False  # an entrance of another kind (a side trip as 'target'): mark its warp tile too
     boss: str = ''  # the POI is where the preset's DS1 file places this super unique (terror/elites.py)
     at: tuple[float, float] | None = None  # the POI is this far (world units) from the preset's origin
+    # As `at`, by the preset's name, for a POI in one of several presets (the Summoner's four arms).
+    at_in: tuple[tuple[str, tuple[float, float]], ...] = ()
     stand: tuple[int, int] = (0, 0)  # tiles from the `sides` spot to where the mark goes: a place to fight from
 
     def matches(self, name: str) -> bool:
@@ -73,12 +75,13 @@ class Handler:
                     spot = side_room(room, side, inset)
                     spot = replace(spot, x=spot.x + spec.stand[0], y=spot.y + spec.stand[1])
                     pois.append(Poi(spec.label, spot, spec.kind))
-            elif len(found) == 1 and spec.at is not None:
+            elif len(found) == 1 and (spec.at or dict(spec.at_in).get(preset_name(found[0].preset))) is not None:
                 room = found[0]
+                at = spec.at or dict(spec.at_in)[preset_name(room.preset)]
                 pois.append(
                     Poi(
                         spec.label,
-                        marker_room(room, room.x + spec.at[0] / TILE_UNITS, room.y + spec.at[1] / TILE_UNITS),
+                        marker_room(room, room.x + at[0] / TILE_UNITS, room.y + at[1] / TILE_UNITS),
                         spec.kind,
                     )
                 )
@@ -184,12 +187,16 @@ def target(
     boss: str = '',
     at: tuple[float, float] | None = None,
     stand: tuple[int, int] = (0, 0),
+    at_in: dict[str, tuple[float, float]] | None = None,
 ) -> Handler:
     """One POI: the unique room (or preset instance) whose preset name fully matches `preset`.
 
     kind='stairs' when the target leads to the next level (an entrance or an exit quadrant).
     """
-    spec = PoiSpec(label, preset, kind, sides=tuple(sides), inset=inset, boss=boss, at=at, stand=stand)
+    spec = PoiSpec(
+        label, preset, kind, sides=tuple(sides), inset=inset, boss=boss, at=at, stand=stand,
+        at_in=tuple((at_in or {}).items()),
+    )  # fmt: skip
     return Handler(name, frozenset(areas), (spec, *extra), confirmed)
 
 

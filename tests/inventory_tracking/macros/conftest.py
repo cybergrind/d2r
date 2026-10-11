@@ -1,6 +1,6 @@
 import pytest
 
-from inventory_tracking.macros import teleport, view
+from inventory_tracking.macros import pickup, teleport, view
 
 
 @pytest.fixture(autouse=True)
@@ -16,6 +16,12 @@ def no_hop_landed_yet(monkeypatch):
     none carried from test to test."""
     monkeypatch.setattr(teleport, 'LANDED', [])
     monkeypatch.setattr(teleport, 'FAR_FAILED', {})
+
+
+@pytest.fixture(autouse=True)
+def no_drop_left_alone(monkeypatch):
+    """The drops the pickup step leaves alone for a while are kept per process: none from test to test."""
+    monkeypatch.setattr(pickup, 'SHUNNED', {})
 
 
 @pytest.fixture(autouse=True)

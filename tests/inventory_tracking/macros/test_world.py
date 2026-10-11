@@ -314,3 +314,29 @@ def test_door_objects_are_read_with_their_mode_and_static_position():
         (16, 2, 7801.0, 5600.0, False),
     ]
     assert found[0].radius == 2.5  # 1 x 3 sub-tiles: half of 3, plus the slack
+
+
+def hover_memory(records):
+    from inventory_tracking.macros.world import HOVER_RVA, GameMemory
+
+    memory = object.__new__(GameMemory)
+    memory.base, memory.hover_raw = 0x1000, None
+    reads = iter(records)
+
+    def read(address, size):
+        assert (address, size) == (0x1000 + HOVER_RVA - 4, 16)
+        return struct.pack('<IIII', *next(reads))
+
+    memory.read = read
+    return memory
+
+
+def test_a_hover_record_without_its_flag_is_a_leftover():
+    # The record keeps the last unit after the pointer has left it: 43 of 130 clicks at the aim 14
+    # pixels up walked the character to the ground under the label (logs up to 2026-10-11).
+    # The Tower, 17:21 on 2026-10-11: 0x101 at the 5 aims that took the item, 0 at 7 that named an old one.
+    memory = hover_memory([(0x101, 4, 77, 0x130013), (0, 4, 77, 0x130013), (0x101, 1, 5, 0x130013)])
+    assert memory.hovered() == (4, 77)
+    assert memory.hovered() is None
+    assert memory.hover_note() == 'flag 0x0 type 4 id 77 tail 0x130013'
+    assert memory.hovered() == (1, 5)

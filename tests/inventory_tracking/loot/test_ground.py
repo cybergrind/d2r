@@ -228,3 +228,31 @@ def test_an_identified_charm_on_the_ground_is_one_the_player_dropped():
 
     assert [(item.label, item.unit_id) for item in found] == [('Small Charm', fresh_id), (classes[586], gem_id)]
     assert len(ground_materials(memory.read, TABLE, classes)) == 3
+
+
+def test_drops_a_rule_of_the_loot_filter_shows_are_named():
+    # user, 2026-10-11: the pickup step takes what the loot filter shows
+    from inventory_tracking.items.identity import IDENTIFIED_FLAG
+    from inventory_tracking.items.metadata import metadata
+    from inventory_tracking.loot.ground import GroundMaterial, ground_shown
+    from inventory_tracking.loot.shown import ShownRule
+
+    by_code = {base['code']: int(class_id) for class_id, base in metadata()['bases'].items()}
+    axe, circlet = by_code['7pa'], by_code['ci0']
+    rules = (ShownRule(frozenset({7}), False, frozenset({axe})), ShownRule(frozenset({6}), False, frozenset({circlet})))
+    memory = Memory()
+    specs = [
+        (axe, 3, {}),  # the unique on the ground
+        (axe, 3, {'quality': 6}),  # a rare of the unique's base: not shown
+        (circlet, 5, {'quality': 6}),  # the rare, still dropping
+        (circlet, 3, {'quality': 6, 'flags': IDENTIFIED_FLAG}),  # read and dropped by the player
+        (circlet, 0, {'quality': 6}),  # one in the stash
+        (by_code['hax'], 3, {}),  # a unique the filter hides
+    ]
+    units = [unique_item(memory, index, class_id, mode, **extra) for index, (class_id, mode, extra) in enumerate(specs)]
+    chain(memory, [address for address, _ in units])
+
+    assert ground_shown(memory.read, TABLE, rules) == [
+        GroundMaterial('Unique Cryptic Axe', units[0][1], 25500, 5400),
+        GroundMaterial('Rare Circlet', units[2][1], 25502, 5400),
+    ]

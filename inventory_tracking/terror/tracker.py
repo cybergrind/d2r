@@ -43,6 +43,7 @@ from inventory_tracking.levels.geometry import Pointer
 from inventory_tracking.native.layout import DEAD_MODES, TILE_UNITS, TOWN_IDS
 from inventory_tracking.osd.level_map import MapPoi
 from inventory_tracking.terror import elites
+from inventory_tracking.terror.bosses import BOSSES
 from inventory_tracking.terror.chance import Level, group_completion, odds
 from inventory_tracking.terror.danger import Pack, Unit, packs, table
 from inventory_tracking.terror.zones import GROUPS, HeraldGroup, group_of, group_population
@@ -556,11 +557,14 @@ class ZoneTracker:
                 return
 
     def supers(self, area: int) -> list[tuple[float, float]]:
-        """Where each super unique seen in `area` this game was last seen, dead or alive, world units."""
+        """Where each super unique seen in `area` this game was last seen, dead or alive, world units.
+        And each boss (terror/bosses.py): the Summoner carries the unique flag only (his record on
+        2026-10-11, 15:51: type flags 0x08), and the macro request beside his corpse found "0 super
+        uniques seen on level 74"."""
         return [
             (float(x), float(y))
-            for where, kind, _, x, y, _ in self.elites.values()
-            if where == area and kind == 'super'
+            for where, kind, txt_id, x, y, _ in self.elites.values()
+            if where == area and (kind == 'super' or txt_id in BOSSES)
         ]
 
     def remembered(self, area: int) -> list[tuple[int, float, float, bool]]:

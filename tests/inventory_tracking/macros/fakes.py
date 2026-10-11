@@ -193,6 +193,7 @@ class Game:
         self.picked = []  # labels of the drops picked up
         self.hover_known = True  # the game's record of the unit under the pointer can be read
         self.deaf_picks = 0  # clicks on a drop the game takes nothing from (a cast was ending)
+        self.slipped_picks = 0  # clicks on a drop's label that walk the character to the ground behind it
         self.pick_above = 14.0  # classic pixels a drop is clicked above its ground (host, 2026-10-10)
         self.label_above = {}  # unit id -> the same for one drop: a pile shifts its labels (host, 21:10)
         self.belt_after = {}  # drops picked up so far -> the belt from then on (a potion lands in it)
@@ -295,6 +296,10 @@ class Game:
                     self.world = replace(w, player=replace(w.player, area=self.next_area, x=door[0], y=door[1]))
                 elif (drop := self.drop_under_pointer()) is not None and self.deaf_picks:
                     self.deaf_picks -= 1
+                elif drop is not None and self.slipped_picks:
+                    self.slipped_picks -= 1  # the click landed under the label: a walk to that ground
+                    self.walks.append((gx, gy))
+                    self.world = replace(w, player=replace(w.player, x=gx, y=gy))
                 elif drop is not None:
                     self.picked.append(drop.label)
                     self.loot = replace(self.loot, drops=tuple(d for d in self.loot.drops if d is not drop))

@@ -355,6 +355,13 @@ class AppraisalConfig(Config):
     )
     # Groups the pickup step takes besides the marked ones: every ring, jewel and amulet (user, 2026-10-10 night).
     pickup_also: tuple[Literal['rings', 'jewels', 'amulets'], ...] = ('rings', 'jewels', 'amulets')
+    # The pickup step also takes the equipment the loot filter shows (loot/shown.py; user, 2026-10-11):
+    # unique and set items of any size, and of the rare, magic and white ones the bases of at most this
+    # many inventory cells ("prefer smaller types"). 6 (user, the same day; 4 before) takes in Monarchs,
+    # body armours, Phase Blades and the other 2x3 bases and leaves the 2x4 ones: polearms, Colossus
+    # Blades, Zakarum Shields, the Amazon bows and spears.
+    pickup_filter_shown: bool = True
+    pickup_shown_cells: Annotated[int, Field(ge=1, le=8)] = 6
     # A gold pile of at least this much is gone to by the pickup step (user, 2026-10-11: "gold >5k"); None: none is.
     pickup_gold_minimum: int | None = 5000
     terror_probe: bool = True  # record monster sightings/kills to terror-probe.jsonl (terror/probe.py research)
@@ -375,6 +382,7 @@ class AppraisalConfig(Config):
     # Frigid Highlands (levels.txt 111): the terrorized run of 2026-10-11 02:40 left none (the huts: are they struck?).
     # Durance of Hate 1-3 (levels.txt 100-102): the 22 s standstill of 2026-10-11 03:09 on level 2 left none.
     # Halls of Anguish, Death's Calling and Vaught (levels.txt 122-124): the Nihlathak run of 2026-10-11 left none.
+    # Arcane Sanctuary (levels.txt 74): the Summoner run of 2026-10-11 15:43 left none (where does he stand?).
     combat_areas: tuple[int, ...] = (
         108,
         35,
@@ -399,6 +407,7 @@ class AppraisalConfig(Config):
         122,
         123,
         124,
+        74,
     )
     combat_rate: Positive = 25.0  # frames per second sampled; the engine's rate
     # Movement research: also write each monster's whole path record to the take's paths.jsonl when it
@@ -512,3 +521,21 @@ class TraderieConfig(Config):
 
 
 TRADERIE = TraderieConfig()
+
+
+class DCloneConfig(Config):
+    """Uber Diablo progress card (hud/dclone.py), from diablo2.io's Diablo Clone tracker."""
+
+    enabled: bool = True
+    url: str = 'https://diablo2.io/dclone_api.php'
+    # The player's economy in the tracker's own codes: ver 2 = RotW (1 = LoD), ladder 2 = Non-Ladder,
+    # hc 2 = Softcore.
+    version: str = '2'
+    ladder: str = '2'
+    hardcore: str = '2'
+    poll_seconds: Positive = 300  # the tracker bans an address that asks a few times a minute
+    stale_seconds: Positive = 1800  # no successful check for this long is said on the card
+    minimum_progress: Annotated[int, Field(ge=1, le=6)] = 4  # of 6 steps: a region this close is shown
+
+
+DCLONE = DCloneConfig()

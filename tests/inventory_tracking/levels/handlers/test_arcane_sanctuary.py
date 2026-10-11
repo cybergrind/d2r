@@ -25,3 +25,15 @@ def test_summoner_is_found_in_every_orientation(fixture, preset, arrow, compass)
     found = pointer(poi, snapshot.location)
     assert (found.arrow, found.compass) == (arrow, compass)
     assert handler.confirmed
+
+
+def test_the_mark_is_a_stand_beside_the_summoner_not_the_rooms_middle():
+    # 15:43 on 2026-10-11: the step stopped 11 from the room's middle, and he stood at
+    # (25440.7, 5020.9), 25 from the character with the blades reaching 22. Same room as the fixture.
+    # Then (user): not on the boss and his group, slightly offset: the landing below the two ramps,
+    # 10 east and 15 south of his spot, 18 units from him.
+    [handler] = HANDLERS
+    [poi] = handler.guide(replay('arcane_summoner_s')).pois
+    assert poi.room.center == (25440 + 10, 5020 + 15)
+    [poi] = handler.guide(replay('arcane_summoner_w')).pois
+    assert poi.room.center == (5168 * 5 + 35 + 10, 1084 * 5 + 20 + 15)

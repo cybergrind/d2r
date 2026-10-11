@@ -1,7 +1,9 @@
 """The pickup step: one thing that is not fighting (user, 2026-10-10), the first that applies:
 
 1. A valuable item on the ground is picked up: every rune, and what the loot marks point at
-   (materials with the keys and essences, bases of expensive uniques; loot/ground.py), the nearest first.
+   (materials with the keys and essences, bases of expensive uniques; loot/ground.py), and the equipment
+   the loot filter shows: unique and set items, and the smaller rare, magic and white ones, with what a
+   Warlock uses among them (loot/shown.py), the nearest first.
    Then a gold pile of `pickup_gold_minimum` or more within one jump: a Blade Warp onto it, and a
    click on it if that did not take it.
 2. A super healing or full rejuvenation potion (never a smaller or plain one) near the character is
@@ -14,7 +16,8 @@
 
 In a pile the game stacks the labels: the item under the pointer is read from the game before a
 click (`take`), another potion of the kind wanted serves as well, and one not wanted is never clicked.
-One press takes every potion the belt is short of (PICKS at most), one valuable, or one drink.
+One press takes every potion the belt is short of (PICKS at most), the valuables lying within
+PILE_UNITS of one another (as many), or one drink.
 
 A drop within PICK_UNITS and in view is clicked and the character walks to it; one further off is
 hopped toward first (teleport.hop_toward, with the level's rooms and walls). Potions are only taken
@@ -39,6 +42,7 @@ from inventory_tracking.common import LOG
 from inventory_tracking.config import APPRAISAL, INPUT
 from inventory_tracking.levels.model import Level, Target
 from inventory_tracking.loot.materials import material_classes
+from inventory_tracking.loot.shown import pickup_rules
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.routines import ACTING, UNIT_PIXELS, press_skill
@@ -72,12 +76,33 @@ DRINK_BELOW = 0.7  # of the life: under it a potion is drunk to make room for th
 # click lands about 14 pixels lower than `ground_fraction` says and the item was never under it. The
 # aims start that much higher and go round it. With them four of four items were picked up (18:46 to
 # 18:54): three at the first aim, one at the second after a click the game took nothing from.
-ITEM_AIMS = ((0, -14), (0, -24), (0, -6), (-10, -14), (10, -14), (0, -34), (0, 2))
+# The aim 24 pixels up comes first: in every log up to 2026-10-11 the first click with the item under
+# the pointer took it 101 times of 111 there and 87 of 130 at 14 pixels up (none of 21 at 6): the click
+# lands lower than the pointer shows the label, so an aim on the label's lower edge walks the character
+# to the ground behind it (an Eth Rune in the Tower, 16:53:14: two such clicks ran 17 units past it).
+ITEM_AIMS = ((0, -24), (0, -14), (0, -6), (-10, -14), (10, -14), (0, -34), (0, 2))
+# Where the label is looked for first, from afar too. Of the 71 pickups from 17:20 to 19:11 on
+# 2026-10-11 that ended on a label seen (the hover flag set), 62 had it 24 pixels up, 5 at 54, 2 at
+# 34, 1 at 14 and 1 at (-10, -14): in a pile the next label sits 30 pixels higher. With 54 the ninth
+# aim after a walk up to the item, a Tir Rune took 3.8 s and Rare Chain Gloves 4.6 s (19:10 that day).
+LOOK_AIMS = ((0, -24), (0, -54), (0, -34), (0, -14), (0, -84))
+MOVED_UNITS = 1.0  # the character this far from where an aim was taken: the pointer is on other ground by now
 # Further aims only looked at, never clicked blind: in a pile the game stacks the labels, and the item
 # wanted is under the pointer well above its ground or to a side. A press clicked whatever lay at the
 # first aims and took a potion nobody wanted (host, 21:10 on 2026-10-10: a full rejuvenation with the
 # belt full of them, between two healing potions).
 PILE_AIMS = ((0, -44), (-20, -24), (20, -24), (0, -54), (-20, -44), (20, -44), (0, -64), (-30, -14), (30, -14))
+# In a pile of many drops the label of one is pushed further still: a Flawless Diamond among 12 drops
+# showed at none of the 16 aims, four presses running (Arcane Sanctuary, 16:03:45 to 16:04:06 on
+# 2026-10-11; the clicks made unseen had a monster under them), and the player took it by hand. With
+# PILE_DROPS or more drops within PILE_UNITS of the one wanted, the looks go on up the column above it
+# and to both sides (`pile_aims`), never clicked unseen.
+PILE_DROPS = 3
+PILE_UNITS = 10.0
+PILE_MORE = 30  # further aims looked at for one drop at most (0.06 s each)
+# A drop no click took is left alone this long, so that the next press takes the rest of the pile
+# first (four presses went to that diamond while gold and a rune lay beside it).
+SHUN_MISS = 8.0
 STAND_SECONDS = 1.5  # for the character to come to a stand before an aim is taken
 NEAR_UNITS = 6.0  # world units: a drop further off is walked up to before every aim is tried
 PICKS = 4  # potions one press picks up at most, while the belt is still short and one lies near
@@ -91,9 +116,13 @@ CLICKS = 2  # clicks on an aim that has the item under it
 MISSED_AIMS = 3
 SHUN_SECONDS = 30.0
 SHUNNED: dict[int, float] = {}  # unit id -> the clock until which the pickup step leaves the drop alone
+STOP_UNITS = 40.0  # world units: a valuable this near holds a teleport step back (`worth_a_stop`)
+STOP_TRIES = 2
+STOPPED: dict[int, int] = {}  # unit id -> the teleport steps that went for the drop instead of hopping
 STOOD_SECONDS = 0.4  # the character standing this long after a click with the item still there: a miss
 POLL = 0.05
 ITEM_UNIT = 4
+MONSTER_UNIT = 1  # in the record of the unit under the pointer
 KINDS = {HEALING: PotionType.HEALING, REJUVENATION: PotionType.REJUVENATION}
 
 
@@ -106,12 +135,14 @@ class Plan:
 def wanted() -> dict:
     """What counts as valuable: the loot marks' own settings (config.AppraisalConfig), and every rune
     from `pickup_rune_minimum` (all of them: the marks point only at the dearer ones) and the groups
-    of `pickup_also` (every ring and jewel), which the marks do not point at."""
+    of `pickup_also` (every ring and jewel), which the marks do not point at, and the equipment the
+    loot filter shows: unique and set items of any size, the rest up to `pickup_shown_cells` (loot/shown.py)."""
     return {
         'rune_minimum': APPRAISAL.pickup_rune_minimum,
         'unique_minimum': APPRAISAL.unique_minimum if APPRAISAL.unique_marks else None,
         'materials': material_classes((*APPRAISAL.material_marks, *APPRAISAL.pickup_also)),
         'gold_minimum': APPRAISAL.pickup_gold_minimum,
+        'shown': pickup_rules(APPRAISAL.pickup_shown_cells) if APPRAISAL.pickup_filter_shown else (),
     }
 
 
@@ -177,6 +208,16 @@ def approach(run: Run, drop: Drop, level: Level | None, key_names) -> None:
             return
 
 
+def pile_aims(crowd: int) -> tuple[tuple[int, int], ...]:
+    """Aims beyond ITEM_AIMS and PILE_AIMS for a drop among `crowd` others: the column above it as high
+    as that many labels stack, then columns to both sides, the nearer first."""
+    top = -64 - 10 * min(crowd, 12)
+    known = {*ITEM_AIMS, *PILE_AIMS, *LOOK_AIMS}
+    column = [(0, down) for down in range(-74, top - 1, -10)]
+    sides = [(across, down) for across in (-40, 40, -60, 60, -20, 20) for down in range(-14, top - 1, -20)]
+    return tuple(aim for aim in (*column, *sides) if aim not in known)[:PILE_MORE]
+
+
 def take(run: Run, drop: Drop, alike: Sequence[Drop] = (), others: Sequence[Drop] = ()) -> Drop:
     """Click `drop`, or one of `alike` (drops that serve as well: the same kind), until one leaves the
     ground; the one that did. With the game's record of the unit under the pointer (`run.hovered`)
@@ -186,21 +227,42 @@ def take(run: Run, drop: Drop, alike: Sequence[Drop] = (), others: Sequence[Drop
     is not wanted. Without the record, or when no aim shows the item, the nearer aims are clicked in turn."""
     serves = {found.unit_id: found for found in (drop, *alike)}
     unwanted = {found.unit_id for found in others}
+    # Every aim of this take and what the record held there, logged whatever the end (user,
+    # 2026-10-11: "log all failed attempts"): the aims only looked at left no trace before.
+    looked: list[str] = []
+    try:
+        return _take(run, drop, serves, unwanted, looked, alike, others)
+    finally:
+        LOG.info(
+            'Macro: aims for %s (unit %d) at (%.1f, %.1f), %d wanted and %d other drops: %s',
+            drop.label, drop.unit_id, drop.x, drop.y, len(serves), len(unwanted), '; '.join(looked) or 'none',
+        )  # fmt: skip
+
+
+def _take(
+    run: Run,
+    drop: Drop,
+    serves: dict[int, Drop],
+    unwanted: set[int],
+    looked: list[str],
+    alike: Sequence[Drop],
+    others: Sequence[Drop],
+) -> Drop:
     missed = 0
-    # A potion is taken by the click 24 pixels above its ground more often than by the first aim: in
-    # the logs from 21:00 on 2026-10-10, 14 of 16 potions went at (0, -24) and 1 at (0, -14), where 10
-    # clicks had the potion under the pointer and only walked the character to it. Valuables are the
-    # other way round (12 at -14, 3 at -24), so they keep the order.
-    first = ITEM_AIMS if drop.kind == VALUABLE else (ITEM_AIMS[1], ITEM_AIMS[0], *ITEM_AIMS[2:])
+    first: tuple[tuple[int, int], ...] = LOOK_AIMS
     here = run.world().player
     far = here is not None and math.dist((here.x, here.y), (drop.x, drop.y)) > NEAR_UNITS
     # From afar the item is looked for at the nearer aims only; when none shows it the character walks
     # up to it and every aim is looked at again, and only then are aims clicked without the item seen
     # under them. Tower Cellar 4, 23:11 on 2026-10-10: a Grand Charm 16 away showed at none of 16 aims
     # (2.4 s), the first click made anyway had a corpse under it, and from 2 away the next aim took it.
-    looks = [(first, False), ((*first, *PILE_AIMS), True)] if far else [((*first, *PILE_AIMS), False)]
-    stages = [*((aims, walk, False) for aims, walk in looks), (first, False, True)]
-    for aims, walk, blind in stages if run.hovered is not None else [(first, False, True)]:
+    every: tuple[tuple[int, int], ...] = (*first, *(aim for aim in (*ITEM_AIMS, *PILE_AIMS) if aim not in first))
+    looks = [(first, False), (every, True)] if far else [(every, False)]
+    crowd = sum(math.dist((drop.x, drop.y), (other.x, other.y)) <= PILE_UNITS for other in (*alike, *others))
+    if crowd >= PILE_DROPS:
+        looks.append((pile_aims(crowd), False))
+    stages = [*((aims, walk, False) for aims, walk in looks), (ITEM_AIMS, False, True)]
+    for aims, walk, blind in stages if run.hovered is not None else [(ITEM_AIMS, False, True)]:
         if walk and walk_up(run, drop):
             return drop
         for aim in aims:
@@ -219,11 +281,22 @@ def take(run: Run, drop: Drop, alike: Sequence[Drop] = (), others: Sequence[Drop
                 run.pace.sleep(HOVER_SECONDS)
                 over = run.hovered()
             under = serves.get(over[1]) if over is not None and over[0] == ITEM_UNIT else None
+            what = 'wanted' if under is not None else 'unread or nothing' if over is None else f'{over}'
+            note = '' if run.hover_note is None else f' [{run.hover_note()}]'
+            looked.append(f'{aim} {"blind " if blind else ""}{what}{note}')
             if under is None and (not blind or (over is not None and over[0] == ITEM_UNIT and over[1] in unwanted)):
                 continue  # nothing wanted there to see, or an item not wanted lies under the pointer
+            if under is None and over is not None and over[0] == MONSTER_UNIT:
+                continue  # a click there is on the monster (or its corpse), not on the drop
             for _ in range(CLICKS if under is not None else 1):
+                looked[-1] += ' clicked'
                 if click(run, under or drop, aim, over):
                     return under or drop
+                now = run.world().player
+                if now is None or math.dist((player.x, player.y), (now.x, now.y)) > MOVED_UNITS:
+                    # The click walked the character: the pointer is no longer where the aim was
+                    # taken, and a second click there walks further off (8 units, that Eth Rune).
+                    break
             missed += under is not None
             if missed >= MISSED_AIMS:
                 SHUNNED[drop.unit_id] = run.clock() + SHUN_SECONDS
@@ -232,6 +305,7 @@ def take(run: Run, drop: Drop, alike: Sequence[Drop] = (), others: Sequence[Drop
             LOG.info(
                 'Macro: no aim had %s under the pointer, or its clicks took nothing; clicking every aim', drop.label
             )
+    SHUNNED[drop.unit_id] = run.clock() + SHUN_MISS
     raise Abort(f'no click picked up {drop.label}')
 
 
@@ -344,6 +418,28 @@ def click(run: Run, drop: Drop, aim: tuple[int, int], over: tuple[int, int] | No
     return False
 
 
+def worth_a_stop(run: Run) -> Drop | None:
+    """What a teleport step picks up before it leaves: a valuable the inventory has room for within
+    STOP_UNITS, or a gold pile within a jump; each STOP_TRIES times at most, so that one no click
+    takes cannot hold the step. Tower Cellar, 17:35:18 on 2026-10-11: the sweep had stopped for a
+    Ring 29 away, a teleport step cancelled that pickup 30 ms later, the next landed 6.5 from the
+    Ring and two more left the level (user: "we have missed more important unique and moved away")."""
+    player = run.world().player
+    if run.loot is None or player is None:
+        return None
+    here = (player.x, player.y)
+    plan = choose(unshunned(run.loot(), run.clock()), here)
+    if plan is None or plan.drop.kind not in (VALUABLE, GOLD):
+        return None
+    drop = plan.drop
+    if math.dist(here, (drop.x, drop.y)) > STOP_UNITS or STOPPED.get(drop.unit_id, 0) >= STOP_TRIES:
+        return None
+    if len(STOPPED) > 200:
+        STOPPED.clear()
+    STOPPED[drop.unit_id] = STOPPED.get(drop.unit_id, 0) + 1
+    return drop
+
+
 def unshunned(loot: Loot, now: float) -> Loot:
     """`loot` without the drops a press gave up on less than SHUN_SECONDS ago."""
     for unit in [unit for unit, until in SHUNNED.items() if until <= now]:
@@ -414,15 +510,29 @@ def pick_up(run: Run, level: Level | None, key_names, otherwise: Callable[[], No
             drink(run, plan.drink, loot)
         run.say(f'Picking up {drop.label}, {math.dist(here, (drop.x, drop.y)):.0f} away')
         approach(run, drop, level, key_names)
-        alike = [found for found in loot.drops if found.kind == drop.kind and found is not drop]
-        took = take(run, drop, alike, [found for found in loot.drops if found.kind != drop.kind])
-        if took.kind == VALUABLE or plan.drink is not None or run.loot is None:
-            break  # one valuable a press (the next may be a walk away); one drink a press
+        # What serves as well: the same kind, with room for it. A Rare Horned Helm the inventory had no
+        # room for lay beside an Ith Rune (Tower Cellar 5, 19:03:28 on 2026-10-11): it was under the
+        # pointer at two aims and clicked four times, 3.5 s, before the rune's own label was found.
+        alike = [
+            found
+            for found in loot.drops
+            if found.kind == drop.kind and found is not drop and has_room(loot.room, found.size)
+        ]
+        serving = {found.unit_id for found in (drop, *alike)}
+        took = take(run, drop, alike, [found for found in loot.drops if found.unit_id not in serving])
+        if plan.drink is not None or run.loot is None:
+            break  # one drink a press
         # The belt may want more of what lies here: two potions drunk are two picked up in one press.
+        # And a pile of valuables is one press: the Tower, 16:53 and 16:55 on 2026-10-11, two runes
+        # and then three within 5 units took a press each, with attack mode back on in between.
         player, _ = ready(run)
         loot, here = unshunned(run.loot(), run.clock()), (player.x, player.y)
         again = choose(loot, here)
-        if again is None or again.drop.kind == VALUABLE or again.drink is not None:
+        if again is None or again.drop.kind == GOLD or again.drink is not None:
             break
+        if VALUABLE in (took.kind, again.drop.kind) and (
+            again.drop.kind != took.kind or math.dist(here, (again.drop.x, again.drop.y)) > PILE_UNITS
+        ):
+            break  # the next valuable is a walk away, or what is left is of another kind: the next press
         plan = again
     return True

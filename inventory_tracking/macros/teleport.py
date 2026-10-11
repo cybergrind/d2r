@@ -632,9 +632,16 @@ def card_for(run: Run, read: Callable[[], Target | None] | None, seconds: float 
         run.pace.sleep(CARD_POLL)
 
 
-def step_toward(run: Run, target: Target | None, key_names, afoot: Callable[[Target], None] | None = None) -> None:
+def step_toward(
+    run: Run,
+    target: Target | None,
+    key_names,
+    afoot: Callable[[Target], None] | None = None,
+    warp: Callable[[Target, Player, tuple[float, float]], bool] | None = None,
+) -> None:
     """One teleport step. `key_names(world, skills)` gives the key per skill (runner). `afoot` makes the
-    step without Teleport (the runner: a Blade Warp or a walk) when the staff has no charge left."""
+    step without Teleport (the runner: a Blade Warp or a walk) when the staff has no charge left;
+    `warp` makes a hop by Blade Warp where it can (`hop_toward`)."""
     player, rect = ready(run)
     if target is None:
         raise Abort('nothing is marked on the level card (Win+C shows it)')
@@ -659,9 +666,20 @@ def step_toward(run: Run, target: Target | None, key_names, afoot: Callable[[Tar
     if at_door:
         walk_into(run, target, player, aspect)
     elif afoot is not None and staff is not None and staff.charges == 0:
-        afoot(target)  # user, 2026-10-11: "use warp if we have 0 charges"
+        # user, 2026-10-11: "use warp if we have 0 charges". Along the way first (`warp`, which with an
+        # empty staff makes the hop or stops), then straight toward the mark: Black Marsh, 18:59:44
+        # that day, two warps straight toward the tower and then "no Blade Warp or walk leads" there.
+        try:
+            if warp is None:
+                raise Abort('no way but Teleport is given')
+            hop_toward(run, target, player, rect, key_names, warp)
+        except Abort as stop:
+            if run.cancelled.is_set():
+                raise
+            LOG.info('Macro: no step along the way with the staff empty (%s); straight toward %s', stop, target.label)
+            afoot(target)
     else:
-        hop_toward(run, target, player, rect, key_names)
+        hop_toward(run, target, player, rect, key_names, warp)
 
 
 def far_banned(key: tuple[int, int, int], now: float) -> bool:
@@ -693,9 +711,18 @@ def settled(run: Run, player: Player) -> Player:
     return (still or run.world()).player or player
 
 
-def hop_toward(run: Run, target: Target, player: Player, rect: tuple[int, int, int, int], key_names) -> None:
+def hop_toward(
+    run: Run,
+    target: Target,
+    player: Player,
+    rect: tuple[int, int, int, int],
+    key_names,
+    warp: Callable[[Target, Player, tuple[float, float]], bool] | None = None,
+) -> None:
     """One teleport toward `target`: the landing in view that leaves the shortest way (the hunt
-    keys use it too, macros/hunt.py)."""
+    keys use it too, macros/hunt.py). `warp(target, player, landing)` is asked first to make the hop
+    another way (the teleport step: a Blade Warp over open ground, which costs the staff no charge)
+    and says whether it did."""
     player = settled(run, player)
     # Not for a room to explore: its point is the tile of it nearest by the way, and standing a tile
     # short of it is not standing in it (Halls of Vaught, 15:10:20 on 2026-10-11: one tile from the room,
@@ -735,6 +762,8 @@ def hop_toward(run: Run, target: Target, player: Player, rect: tuple[int, int, i
         # for one with attack mode held back behind it.
         LOG.info('Macro: no hop toward %s: the landing is where the character stands', target.label)
         run.say(f'At {target.label}')
+        return
+    if warp is not None and warp(target, player, scaled(spot)):
         return
     take_teleport(run, key_names)
     left = math.dist(spot, target.point) * TILE_UNITS
