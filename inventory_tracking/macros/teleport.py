@@ -39,9 +39,9 @@ from inventory_tracking.levels.presets import warp_box
 from inventory_tracking.levels.route import Point, room_at
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.engine import Run
-from inventory_tracking.macros.routines import press_skill, settle, swap_until, world_point
+from inventory_tracking.macros.routines import ACTING, press_skill, settle, swap_until, world_point
 from inventory_tracking.macros.skills import SWAP_WEAPONS, TELEPORT
-from inventory_tracking.macros.view import CORNER_BOTTOM, CORNERS, UNIT_PIXELS, VIEW, Viewport
+from inventory_tracking.macros.view import CORNER_BOTTOM, UNIT_PIXELS, VIEW, Viewport
 from inventory_tracking.macros.world import Player, Warp
 from inventory_tracking.native.layout import TILE_UNITS
 
@@ -56,7 +56,12 @@ APPROACH = 6.5
 WARP_TILES = 5.0
 BEARINGS = 16
 WALKING = frozenset((2, 3, 6))  # the character's modes while it goes somewhere on foot (combat/policy.py RUN_MODES)
+READY_SECONDS = 2.5  # for the cast before to end, as a skill's key waits (routines.py `press_skill`)
+SETTLE_SECONDS = 0.5  # for a walk to end before a hop is planned from where the character stands
 MOVED = 2.0  # world units the character must have moved for a teleport or a walk to count
+# World units from a spot that is not a door: the character is there. A hop onto the spot itself lands beside it or
+# not at all when a monster stands on it (Nihlathak on his: no move from 3.5 away at 12:56:41 on 2026-10-11).
+SPOT_NEAR = 5.0  # one tile, as the route scenarios count an arrival (scenarios/navigation/harness.py ARRIVE)
 HOP_SECONDS = 1.5  # a teleport resolves well within this
 WALK_SECONDS = 1.5  # the first step of a walk
 # Where a door is clicked, in classic pixels (600 high; across, down) from the ground at the centre
@@ -99,6 +104,13 @@ LOST_KEY = (
     'Teleport is off its key: bind it again (the skill list, the pointer on Teleport, the key). '
     'It is lost when a game is left with the staff in hand'
 )
+# A press the game drops: Worldstone Keep 3, 03:12:00 on 2026-10-11, the 21st hop of a chain (the
+# request pressed six times in 1.5 s) cast nothing, was waited for HOP_SECONDS and named as the lost
+# key; the same aim landed 0.5 s later. A hop lands 0.31 s after its key at the median, so with the
+# staff in hand and no charge spent after REPRESS_SECONDS the key is pressed once more. The lost key
+# is named only in a game no hop has landed in yet (`LANDED`).
+REPRESS_SECONDS = 0.6
+LANDED: list[str] = []  # the game the last hop landed in
 HOVER_SECONDS = 0.06  # for the game to note what is under the pointer after it moved (a frame or two)
 # Unit types of the record of the unit under the pointer that are not a door: a monster (the mercenary
 # and the summons land beside the character after a hop), an item. An aim with one of them under it is
@@ -188,17 +200,18 @@ MIN_GAIN = 3.0  # world units a hop must take off the way to go, or it is not ma
 # aim is checked and made again instead (`Actuator.aim`).
 POINTER_DRIFT = 10**6
 HOST_VIEW = Viewport()  # the window a potential is planned for when none is given (16:9, the host's)
-REACH_TILES = 5  # tiles one hop of the potential may span: about the view's shorter half (26 units)
-# The far potential: hops of up to FAR_TILES, counted from tile centre to tile centre (`hop_between`),
-# so a band of no footing five tiles wide is crossed where the window shows the other side. Far Oasis,
-# 01:58 on 2026-10-11 (user: "not using tp to move between sections and trying to tp through the
-# stairs"; it works in some Act 2 areas that cliffs split): the cliff between two plateaus is 25
-# units of no footing and the potential, with five tiles from anywhere on a tile, went round by the
-# ramp. Hops really made: 229 of 2,282 were over 30 units, the longest 32. Up and left the window
-# shows 31 units, down and right 26, so a cliff may be crossed one way and not the other. A target the
-# far potential found no landing for is planned the old way from then on (`FAR_FAILED`).
+REACH_TILES = 5  # tiles one hop of the near potential may span, from anywhere on a tile (`hop_in_view`)
+# The far potential, the one a hop is planned by: hops of up to FAR_TILES, counted from tile centre to
+# tile centre where the window lets a teleport be aimed (`Viewport.hop_between`), so a band of no
+# footing five tiles wide is crossed where the window shows the other side. Up and left the window
+# shows 31 units, down and right 26 (34 beside the skill bar), so a cliff may be crossed one way and
+# not the other. It counts hops the character cannot make from where on its tile it stands; when it
+# finds no landing, the near potential (every hop of which can be made) takes the target over for
+# FAR_DISTRUST seconds: for the target and not for the place, since the two potentials do not agree
+# on which way is nearer and a hop by each in turn could go back and forth.
 FAR_TILES = 6
-FAR_FAILED: set[tuple[int, int, int]] = set()
+FAR_DISTRUST = 30.0
+FAR_FAILED: dict[tuple[int, int, int], float] = {}  # (area, the target's tile) -> clock time the far way failed
 
 
 def in_view(point: tuple[float, float]) -> bool:
@@ -619,8 +632,9 @@ def card_for(run: Run, read: Callable[[], Target | None] | None, seconds: float 
         run.pace.sleep(CARD_POLL)
 
 
-def step_toward(run: Run, target: Target | None, key_names) -> None:
-    """One teleport step. `key_names(world, skills)` gives the key per skill (runner)."""
+def step_toward(run: Run, target: Target | None, key_names, afoot: Callable[[Target], None] | None = None) -> None:
+    """One teleport step. `key_names(world, skills)` gives the key per skill (runner). `afoot` makes the
+    step without Teleport (the runner: a Blade Warp or a walk) when the staff has no charge left."""
     player, rect = ready(run)
     if target is None:
         raise Abort('nothing is marked on the level card (Win+C shows it)')
@@ -641,34 +655,72 @@ def step_toward(run: Run, target: Target | None, key_names) -> None:
         at_door = False  # the spot is a hop away: onto it first, however near the door is
     else:
         at_door = target.warp and math.dist(here, scaled(target.point)) <= NEAR_WARP
+    staff = run.teleport() if run.teleport is not None else None
     if at_door:
         walk_into(run, target, player, aspect)
+    elif afoot is not None and staff is not None and staff.charges == 0:
+        afoot(target)  # user, 2026-10-11: "use warp if we have 0 charges"
     else:
         hop_toward(run, target, player, rect, key_names)
+
+
+def far_banned(key: tuple[int, int, int], now: float) -> bool:
+    """Whether the far way to this target failed less than FAR_DISTRUST seconds ago."""
+    failed = FAR_FAILED.get(key)
+    if failed is not None and now - failed >= FAR_DISTRUST:
+        del FAR_FAILED[key]
+        return False
+    return failed is not None
+
+
+def ban_far(key: tuple[int, int, int], now: float) -> None:
+    for old in [old for old, failed in FAR_FAILED.items() if now - failed >= FAR_DISTRUST]:
+        del FAR_FAILED[old]
+    FAR_FAILED[key] = now
+
+
+def settled(run: Run, player: Player) -> Player:
+    """The character where the hop will start from: once the cast before is over and a walk has
+    ended (a walk still going after SETTLE_SECONDS is the player's: the hop goes from where it is).
+    The hop is planned and its landing judged from this place. Taken while a walk or the hop before
+    was still under way, the place was the one before: the walk's end or that hop's landing then
+    counted as this hop's landing, and every hop after was aimed from the place before its own
+    (Halls of Death's Calling, 12:32:17 on 2026-10-11: twelve of sixteen hops off by 6 to 26 units)."""
+    free = run.seen(lambda w: w.player is not None and w.player.mode not in ACTING, READY_SECONDS)
+    if free is None:
+        return player
+    still = run.seen(lambda w: w.player is not None and w.player.mode not in WALKING | ACTING, SETTLE_SECONDS)
+    return (still or run.world()).player or player
 
 
 def hop_toward(run: Run, target: Target, player: Player, rect: tuple[int, int, int, int], key_names) -> None:
     """One teleport toward `target`: the landing in view that leaves the shortest way (the hunt
     keys use it too, macros/hunt.py)."""
+    player = settled(run, player)
+    # Not for a room to explore: its point is the tile of it nearest by the way, and standing a tile
+    # short of it is not standing in it (Halls of Vaught, 15:10:20 on 2026-10-11: one tile from the room,
+    # "the character is beside it" for 17 presses, the room never seen).
+    beside = not target.warp and target.kind != 'explore'
+    if beside and math.dist(scaled(target.point), (player.x, player.y)) <= SPOT_NEAR:
+        # A press more than the way needed, 3.5 from Nihlathak's spot with him on it (12:56:41 on
+        # 2026-10-11): the hop spent a charge, moved nothing, and the step waited 2.3 s for a move
+        # with attack mode held back behind it.
+        LOG.info('Macro: no hop toward %s: the character is beside it', target.label)
+        run.say(f'At {target.label}')
+        return
     aspect = rect[2] / rect[3]
-    # The far potential first (hops over a cliff the window shows across), the old one when that
-    # finds no landing from here, and from then on for this target.
-    key = (target.area, math.floor(target.point[0]), math.floor(target.point[1]))
     here = (player.x / TILE_UNITS, player.y / TILE_UNITS)
+    key = (target.area, math.floor(target.point[0]), math.floor(target.point[1]))
     found = None
-    if key not in FAR_FAILED:
+    if not far_banned(key, run.clock()):
         way = way_for(target, Viewport(aspect), True)
         found = landing(target, player, way, aspect) if way.from_here(here) < math.inf else None
         if found is None:
-            if len(FAR_FAILED) > 64:
-                FAR_FAILED.clear()
-            FAR_FAILED.add(key)
+            ban_far(key, run.clock())
             LOG.info(
-                'Macro: no landing by the far way to %s from (%.1f, %.1f): the near way',
-                target.label,
-                player.x,
-                player.y,
-            )
+                'Macro: no landing by the far way to %s from (%.1f, %.1f): the near way for %.0fs',
+                target.label, player.x, player.y, FAR_DISTRUST,
+            )  # fmt: skip
     if found is None:
         way = way_for(target, Viewport(aspect))
         if way.from_here(here) == math.inf:
@@ -677,6 +729,13 @@ def hop_toward(run: Run, target: Target, player: Player, rect: tuple[int, int, i
     if found is None:
         raise Abort(f'no footing in view brings the character nearer to {target.label}')
     spot, gain = found
+    if math.dist(scaled(spot), (player.x, player.y)) < MOVED:
+        # The best landing is where the character stands (a press more than the way needed, beside
+        # Nihlathak at 12:25:45 on 2026-10-11): a hop there shows no move, and the step waited 2.2 s
+        # for one with attack mode held back behind it.
+        LOG.info('Macro: no hop toward %s: the landing is where the character stands', target.label)
+        run.say(f'At {target.label}')
+        return
     take_teleport(run, key_names)
     left = math.dist(spot, target.point) * TILE_UNITS
     staff = run.teleport() if run.teleport is not None else None
@@ -698,25 +757,45 @@ def hop_toward(run: Run, target: Target, player: Player, rect: tuple[int, int, i
         f'{len(target.ground)} grids, '
         f'pointer {run.actuator.keys.pointer()} in {rect}'
     )
-    if run.seen(lambda w: w.player is not None and landed_from(w.player, player, aim), HOP_SECONDS) is None:
+
+    def arrived(w) -> bool:
+        return w.player is not None and landed_from(w.player, player, aim)
+
+    def unspent() -> bool:
+        now = run.teleport() if run.teleport is not None else None
+        return staff is not None and now is not None and now.in_hand and now.charges == staff.charges > 0
+
+    seen = run.seen(arrived, REPRESS_SECONDS)
+    if seen is None and unspent():
+        LOG.info(
+            'Macro: teleport %s; nothing %.1fs after the key, no charge spent: pressed again', where, REPRESS_SECONDS
+        )
+        press_skill(run, TELEPORT)
+    now = run.teleport() if run.teleport is not None else None
+    spent = staff is not None and now is not None and now.charges < staff.charges
+    if seen is None and spent and not target.warp and math.dist(aim, (player.x, player.y)) <= 2 * SPOT_NEAR:
+        # A charge spent on a short hop onto a spot and no move: the spot is taken (above), and the
+        # character is as near as it gets. Not waited out with a fight held back behind the step.
+        LOG.info('Macro: teleport %s; no move, the charge spent: the spot is taken', where)
+        run.say(f'At {target.label}')
+        return
+    if seen is None and run.seen(arrived, HOP_SECONDS) is None:
         after, now = run.world(), run.teleport() if run.teleport is not None else None
         LOG.info(
             'Macro: teleport %s; the character did not move: key %s, slots %s, staff %s, mode now %s, right skill %s',
             where, run.keys.get(TELEPORT), world_slots(after), now,
             after.player.mode if after.player else None, after.player.right_skill if after.player else None,
         )  # fmt: skip
-        if not in_view(ground_fraction(player, *aim, aspect)) and CORNERS[0]:
-            # Aimed beside the skill bar and nothing came: the game takes no cast there after all.
-            CORNERS[0] = False
-            way_for.cache_clear()
-            LOG.info('Macro: a teleport aimed beside the skill bar did nothing: the corners are left alone from now on')
-            raise Abort('Teleport: nothing came of an aim beside the skill bar (not tried there again)')
         if staff is not None and now is not None and now.in_hand and now.charges == staff.charges > 0:
-            # The staff in hand, no charge spent: the key cast nothing. The game drops Teleport from its
-            # key when a game is left with the staff in hand (user, 2026-10-11; 01:26 that night: three
-            # steps in a row, until the key was bound again in the skill list).
+            # The staff in hand, no charge spent: the key cast nothing, twice. The game drops Teleport
+            # from its key when a game is left with the staff in hand (user, 2026-10-11; 01:26 that
+            # night: three steps in a row, until the key was bound again in the skill list). In a game
+            # a hop has landed in the key is not lost.
+            if after.game_name in LANDED:
+                raise Abort('Teleport: the game took neither of two presses (no charge spent)')
             raise Abort(LOST_KEY)
         raise Abort('Teleport: the character did not move (no charges, nowhere to land?)')
+    LANDED[:] = [run.world().game_name]
     landed = run.world().player
     if landed is not None:
         off = (landed.x - aim[0], landed.y - aim[1])

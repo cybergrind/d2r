@@ -17,7 +17,7 @@ A level with logic that doesn't fit a pattern can subclass Handler and override 
 
 import re
 from collections.abc import Iterable
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 from inventory_tracking.levels.model import Guidance, LevelSnapshot, Poi, Room
 from inventory_tracking.levels.presets import preset_name
@@ -40,6 +40,7 @@ class PoiSpec:
     warp: bool = False  # an entrance of another kind (a side trip as 'target'): mark its warp tile too
     boss: str = ''  # the POI is where the preset's DS1 file places this super unique (terror/elites.py)
     at: tuple[float, float] | None = None  # the POI is this far (world units) from the preset's origin
+    stand: tuple[int, int] = (0, 0)  # tiles from the `sides` spot to where the mark goes: a place to fight from
 
     def matches(self, name: str) -> bool:
         return re.fullmatch(self.pattern, name) is not None
@@ -69,7 +70,9 @@ class Handler:
                 else:
                     side = spec.sides[room.variant]
                     inset = SIDE_INSET if spec.inset is None else spec.inset
-                    pois.append(Poi(spec.label, side_room(room, side, inset), spec.kind))
+                    spot = side_room(room, side, inset)
+                    spot = replace(spot, x=spot.x + spec.stand[0], y=spot.y + spec.stand[1])
+                    pois.append(Poi(spec.label, spot, spec.kind))
             elif len(found) == 1 and spec.at is not None:
                 room = found[0]
                 pois.append(
@@ -180,12 +183,13 @@ def target(
     inset: float | None = None,
     boss: str = '',
     at: tuple[float, float] | None = None,
+    stand: tuple[int, int] = (0, 0),
 ) -> Handler:
     """One POI: the unique room (or preset instance) whose preset name fully matches `preset`.
 
     kind='stairs' when the target leads to the next level (an entrance or an exit quadrant).
     """
-    spec = PoiSpec(label, preset, kind, sides=tuple(sides), inset=inset, boss=boss, at=at)
+    spec = PoiSpec(label, preset, kind, sides=tuple(sides), inset=inset, boss=boss, at=at, stand=stand)
     return Handler(name, frozenset(areas), (spec, *extra), confirmed)
 
 

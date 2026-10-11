@@ -46,7 +46,7 @@ NIHLATHAKS_TEMPLE = 121
 # Highlands, 550 units from Eldritch, left the game where a prebuff was meant). Without the tracker's
 # word on the level's super uniques the whole level counts, as before.
 RUN_ENDS = frozenset((NIHLATHAKS_TEMPLE, 110, 111))
-BOSS_LEVELS = frozenset((110, 111))
+BOSS_LEVELS = frozenset((110, 111, 124))
 BOSS_UNITS = 100.0
 # Mephisto and other act 3 runs end with a step into act 4, so the next game starts there
 # (user, 2026-10-06): the Pandemonium Fortress is a run end for a while after the character
@@ -63,6 +63,12 @@ ANDARIEL = 156  # as in terror/bosses.py
 # (terror/bosses.py).
 TOWER_CELLAR_5 = 25
 COUNTESS = 45
+# A Nihlathak run ends where he was killed (user, 2026-10-11: the request beside his corpse, 13 s
+# after the kill, only prebuffed): the Halls of Vaught with no live Nihlathak in the unit table, within
+# BOSS_UNITS of where he was last seen (the level's only super unique). Not seen in this game, in
+# the halls on the way to him, it prebuffs.
+HALLS_OF_VAUGHT = 124
+NIHLATHAK = 526  # as in terror/bosses.py
 SUPER_UNIQUE_FLAG = 0x02  # the monster's type flags, as terror/bosses.py
 PANDEMONIUM_FORTRESS = 103
 ACT_3 = range(75, 103)
@@ -564,7 +570,11 @@ def create_next_game(run: Run, last: str) -> LoadTrace:
     marked = run.seen(lambda w: w.view == 0, 3) is not None
     run.expect('town', lambda w: w.player is not None and w.player.in_town and bool(w.monsters), 45)
     if marked:
-        run.expect('loaded game', lambda w: w.view != 0, LOAD_LIMIT)
+        if run.seen(lambda w: w.view != 0, LOAD_LIMIT) is None:
+            # 12:33 and 12:47 on 2026-10-11: the character stood in town the whole wait, both times with
+            # the player in another window from the load on. Whether the byte waits for the focus is not known.
+            away = '' if run.actuator.focused() else ' (the game window is not in front)'
+            raise Abort(f'loaded game: not seen in {LOAD_LIMIT:g}s{away}')
     else:
         LOG.warning('Macro: no loading mark; waiting %ss from Enter', LOAD_MIN)
         while run.clock() - trace.started < LOAD_MIN:
@@ -589,6 +599,8 @@ def character_keys(run: Run, key_names) -> dict[int, str]:
 def run_ended(run: Run, world: World) -> bool:
     if world.player is None:
         return False
+    if world.player.area == HALLS_OF_VAUGHT and any(m.txt_id == NIHLATHAK for m in world.monsters):
+        return False
     if world.player.area in BOSS_LEVELS and run.supers is not None:
         here = (world.player.x, world.player.y)
         seen = run.supers(world.player.area)
@@ -603,6 +615,8 @@ def run_ended(run: Run, world: World) -> bool:
         return bool(near)
     if world.player.area in RUN_ENDS:
         return True
+    if world.player.area == HALLS_OF_VAUGHT:
+        return False  # without the tracker's word on where he was seen: no leaving in the middle of the halls
     if world.player.area == CATACOMBS_4:
         return all(monster.txt_id != ANDARIEL for monster in world.monsters)
     if world.player.area == TOWER_CELLAR_5:

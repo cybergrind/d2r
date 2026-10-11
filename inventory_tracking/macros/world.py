@@ -16,11 +16,19 @@ from dataclasses import dataclass, field, replace
 from pathlib import Path
 
 from inventory_tracking.collection.capture import read_owner_grids
+from inventory_tracking.common import LOG
 from inventory_tracking.config import RESOURCE_READER
 from inventory_tracking.items.metadata import item_base
 from inventory_tracking.levels.doors import Door, door_sizes
 from inventory_tracking.levels.memory import pointer
-from inventory_tracking.loot.ground import GROUND_MODES, ground_materials, ground_runes, ground_uniques, item_units
+from inventory_tracking.loot.ground import (
+    GROUND_MODES,
+    ground_materials,
+    ground_runes,
+    ground_uniques,
+    item_units,
+    static_position,
+)
 from inventory_tracking.loot.materials import appraised_classes
 from inventory_tracking.loot.runes import rune_name
 from inventory_tracking.native.layout import (
@@ -174,6 +182,11 @@ FULL_REJUVENATION = 531
 # were gone for, and the loot filter hides them, so no click took them (host, 20:12 and 20:13).
 SUPER_HEALING = 606
 VALUABLE, HEALING, REJUVENATION = 'valuable', 'healing', 'rejuvenation'  # what a drop is to the pickup step
+GOLD = 'gold'  # a pile the character takes by standing on it: gone to, never clicked
+GOLD_CLASS = 538  # misc.txt `gld` (items/data/item_metadata.json bases)
+GOLD_STAT = 14  # itemstatcost.txt `gold`: a pile's amount
+BASE_STATS = 0x30  # the unit's own stat list (terror/monsters.py)
+GOLD_SEEN: dict[int, int] = {}  # unit id -> amount, of the piles read
 
 
 @dataclass(frozen=True)
@@ -184,7 +197,7 @@ class Drop:
     x: float  # world units
     y: float
     label: str
-    kind: str  # VALUABLE, HEALING or REJUVENATION
+    kind: str  # VALUABLE, GOLD, HEALING or REJUVENATION
     size: tuple[int, int] = (1, 1)  # cells across and down it takes in the inventory (loot/data/sizes.json)
 
 
@@ -407,6 +420,27 @@ def warps(read, table: int) -> tuple[Warp, ...]:
     return tuple(found)
 
 
+def gold_amount(read, unit: dict) -> int:
+    """The gold in a pile on the ground; 0 when it cannot be read. Which of the unit's two stat lists
+    holds it is not known yet (2026-10-11), so both are read and the first sight of a pile is logged."""
+    if unit['unit_id'] in GOLD_SEEN:
+        return GOLD_SEEN[unit['unit_id']]  # a pile's amount does not change, and the loot is read often
+    for name, offset in (('full', FULL_STATS), ('base', BASE_STATS)):
+        try:
+            stats = read_stats(read, unit['stats_pointer'] + offset) if unit['stats_pointer'] else []
+        except OSError, ValueError, struct.error:
+            continue
+        amount = next((s['raw'] for s in stats if s['id'] == GOLD_STAT and s['layer'] == 0), 0)
+        if amount:
+            if len(GOLD_SEEN) > 500:
+                GOLD_SEEN.clear()
+            GOLD_SEEN[unit['unit_id']] = amount
+            if amount >= 1000:
+                LOG.info('Macro: gold pile %d: %d gold (the %s stat list)', unit['unit_id'], amount, name)
+            return amount
+    return 0
+
+
 def unit_stats(read, stats_at: int) -> dict[int, int]:
     """A unit's full stat list as {stat id: raw value} (layer 0 only); {} when unreadable."""
     try:
@@ -590,7 +624,14 @@ class GameMemory:
     def stats(self, stats_at: int) -> dict[int, int]:
         return unit_stats(self.read, stats_at)
 
-    def loot(self, *, rune_minimum: str, unique_minimum: float | None, materials: dict[int, str]) -> Loot:
+    def loot(
+        self,
+        *,
+        rune_minimum: str,
+        unique_minimum: float | None,
+        materials: dict[int, str],
+        gold_minimum: int | None = None,
+    ) -> Loot:
         """The drops the loot marks would show (loot/ground.py, the same rules), the potions on the
         ground, the character's belt and life. An empty Loot when the character cannot be read."""
         try:
@@ -612,6 +653,15 @@ class GameMemory:
             items = walk_units(read, heads, ITEM_UNIT)['units']
             classes = {unit['unit_id']: unit['txt_id'] for unit in items}
             drops = [replace(drop, size=item_size(classes.get(drop.unit_id))) for drop in drops]
+            for unit in items:
+                if gold_minimum is None or unit['txt_id'] != GOLD_CLASS:
+                    continue
+                if unit['mode'] not in GROUND_MODES or not unit['path_pointer']:
+                    continue
+                amount = gold_amount(read, unit)
+                if amount >= gold_minimum:
+                    x, y = static_position(read, unit)
+                    drops.append(Drop(unit['unit_id'], x, y, f'{amount} gold', GOLD, (0, 0)))
             for potion in item_units(read, table, {SUPER_HEALING, FULL_REJUVENATION}):
                 if potion.mode in GROUND_MODES:
                     kind = REJUVENATION if potion.class_id == FULL_REJUVENATION else HEALING

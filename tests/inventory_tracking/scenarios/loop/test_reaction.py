@@ -28,9 +28,9 @@ from tests.inventory_tracking.scenarios.loop.helpers import (
 @pytest.fixture
 def marks_all(monkeypatch):
     """Death Mark on whatever is strongest, as before 2026-10-11: these tests are about the mark's timing."""
-    from inventory_tracking.macros import hunt as hunt_module
+    from inventory_tracking.macros import rotation as rotation_module
 
-    monkeypatch.setattr(hunt_module, 'MARK_CASTS', 0)
+    monkeypatch.setattr(rotation_module, 'MARK_CASTS', 0)
 
 
 CAST = 0.36  # the fakes' cast: 0.3 s of animation and the free frame before the next (0.36 s in the takes too)

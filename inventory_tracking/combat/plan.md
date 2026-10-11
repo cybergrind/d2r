@@ -1406,3 +1406,28 @@ the window, and a real speed other than the monstats row's.
 
 Next: with several takes that have path records, `lead` against `live` across them, split by how many
 hostiles were walking; then the live aim (`macros/hunt.py` would read the routes), if it holds.
+
+### Where to stand: how `camp` came about (moved from stance.py, 2026-10-11)
+
+Moved verbatim from the module docstring of `inventory_tracking/combat/stance.py` and from the comment of
+one of its constants. Nothing was changed except line wrapping.
+
+Module docstring, first line, the fragment after "one decision for the simulator and for the game,":
+as the policy is for where to cast (macros/plan.md, "a step inside the fight", 2026-10-10 and 2026-10-11).
+
+Module docstring, the `taken` paragraph, parenthesis:
+(Counting each point by the seconds left when it is taken instead cleared as many of the recorded moments and took 6% less in the first 3 s.)
+
+Module docstring, history paragraph:
+History, 2026-10-10: the first rule looked 12 units along straight walks and asked for a line worth
+twice the line from here (one cast, not the fight). At the 39 moments cut from the Tower runs of that
+night it answered "no better stand" 27 times, 14 of them with at most half of the hostiles within 30
+units in reach, and every step it took was 8 or 12 units (scenarios/stance).
+
+Module docstring, the paragraph on the distance to the monster:
+Not in the worth, on the evidence so far: the distance to the monster. The last plain monster of a
+fight took 0.8 s of its full life at 4 to 16 units and 0.9 s at 16 to 22 (402 fights in the logs of
+2026-10-10), so a far monster in reach with a clear line is no reason to step.
+
+Constant `RUN_SPEED`, comment, parenthesis:
+(the takes of 2026-10-10: 15 to 21)

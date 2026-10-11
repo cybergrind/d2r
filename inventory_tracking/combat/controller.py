@@ -20,10 +20,20 @@ these steps, Death Mark and the sigil, and the weapon swap.
 """
 
 import math
-from collections.abc import Callable, Iterable
+from collections.abc import Callable, Collection, Iterable
 from dataclasses import dataclass
 
-from inventory_tracking.combat.policy import AIM_BEYOND, REACH, Choice, Observation, Point, Policy, clear_line
+from inventory_tracking.combat.policy import (
+    AIM_BEYOND,
+    MIN_SCORE,
+    REACH,
+    Choice,
+    LinePolicy,
+    Observation,
+    Point,
+    Policy,
+    clear_line,
+)
 
 
 RETAP_SECONDS = 0.25  # the held input idle this long between casts: released and pressed again
@@ -41,11 +51,19 @@ MOVED_UNITS = 1.0  # world units the character has gone: the move is under way
 Pixel = tuple[int, int]
 
 
-def aim_choice(policy: Policy, seen: Observation, reachable: Iterable[int]) -> Choice | None:
+def aim_choice(
+    policy: Policy, seen: Observation, reachable: Iterable[int], first: Collection[int] = ()
+) -> Choice | None:
     """Where to cast now: the policy's line over what is seen, else straight at one of `reachable`
     (unit ids within the blades' reach with a clear shot): the elite first, then the nearest,
     AIM_BEYOND past it, so a monster in reach is never left standing for want of a line. The focal
-    point is one the pointer can be put on (`seen.aimable`); None with nothing reachable to cast at."""
+    point is one the pointer can be put on (`seen.aimable`); None with nothing reachable to cast at.
+    `first` are the monsters to kill before the rest (a boss): the best line laid through one of
+    them is taken while there is one, whatever another line is worth."""
+    if first and isinstance(policy, LinePolicy) and not (policy.yields and seen.moving):
+        through = policy.choose(seen, through=first)
+        if through is not None and through.worth >= MIN_SCORE:
+            return through
     found = policy(seen)
     if found is not None:
         return found

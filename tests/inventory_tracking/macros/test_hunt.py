@@ -6,6 +6,7 @@ there is nothing to hunt). Monsters are placed in world units; flags 0x0C make a
 runs until cancelled: the game's `arrivals` script what happens meanwhile, cancelling included.
 """
 
+import logging
 import math
 from dataclasses import replace
 from itertools import pairwise
@@ -14,26 +15,24 @@ import pytest
 
 from inventory_tracking.combat.mechanics.tables import points_of
 from inventory_tracking.combat.policy import REACH, Choice
-from inventory_tracking.combat.stance import CAMP_REACH, Camp
-from inventory_tracking.levels.model import Level, Room, Walkable, pack_cells
+from inventory_tracking.combat.stance import CAMP_REACH
+from inventory_tracking.levels.model import Ground, Level, Room, Walkable, pack_cells
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.hunt import (
     FOLLOW_SECONDS,
-    HEX_DISTRUST,
-    JUMP_REACH,
     MISSES_IN_A_ROW,
     RUN_IN_PLACE,
-    SIGIL_SECONDS,
     STRIKE_REACH,
     SWEEP_UNITS,
     TOUGH_POINTS,
     UNTOUCHABLE_SECONDS,
     UNTOUCHED_CASTS,
-    WARP_DELAY,
     Hunter,
     hostiles,
 )
+from inventory_tracking.macros.rotation import HEX_DISTRUST, SIGIL_SECONDS
 from inventory_tracking.macros.skills import ATTACK, BLADE_WARP, ECHOING_STRIKE, TELEPORT
+from inventory_tracking.macros.travel import JUMP_REACH, WARP_DELAY, Step, attackable, step_walk
 from inventory_tracking.macros.world import VALUABLE, Drop, Monster, Teleport
 from tests.inventory_tracking.macros.fakes import HUNT_SLOTS, KEYS, PREBUFF_SET, Game, player, world
 
@@ -41,9 +40,9 @@ from tests.inventory_tracking.macros.fakes import HUNT_SLOTS, KEYS, PREBUFF_SET,
 @pytest.fixture
 def marks_all(monkeypatch):
     """Death Mark on whatever is strongest, as before 2026-10-11: these tests are about the mark's timing."""
-    from inventory_tracking.macros import hunt as hunt_module
+    from inventory_tracking.macros import rotation as rotation_module
 
-    monkeypatch.setattr(hunt_module, 'MARK_CASTS', 0)
+    monkeypatch.setattr(rotation_module, 'MARK_CASTS', 0)
 
 
 HERE = Room(1, 996, 996, 8, 8)
@@ -865,7 +864,7 @@ def test_no_engorge_without_a_demon_or_without_a_corpse():
 
 
 def test_a_healthy_demon_is_engorged_now_and_then_for_the_buff():
-    from inventory_tracking.macros.hunt import ENGORGE_SECONDS
+    from inventory_tracking.macros.rotation import ENGORGE_SECONDS
 
     demon = Monster(50, 744, 1, 5003.0, 5003.0, 1, life=1000, max_life=1000)
     play = game(foe(10, 5008.0, 5000.0), demon)
@@ -942,21 +941,123 @@ def test_a_step_asked_for_where_the_character_stands_well_moves_nothing():
     assert sum(text.startswith('Echoing Strike') for text in play.said) == 1  # the hold went on through it
 
 
-def test_a_step_asked_for_with_a_valuable_on_the_ground_still_picks_it_up_after_the_fight():
-    play = row(tough=3)
+def test_a_pickup_asked_for_in_a_fight_with_a_valuable_on_the_ground_stops_the_fight_for_it(caplog):
+    # Halls of Vaught, 11:58:28 on 2026-10-11: the press with a Flawless Topaz 27 units away was three
+    # Blade Warps to better places, 60 units from it, and the wait for the fight's end was lost on the way.
+    caplog.set_level(logging.INFO)
+    play = row(tough=1000)
     play.loot = replace(play.loot, drops=(Drop(50, 5003.0, 5003.0, 'Ist Rune', VALUABLE),))
     hunt = hunter(play)
     dropped = []
     hunt.unwait = lambda: dropped.append(True)
     run = play.run()
     run.actuator.drift, run.actuator.steady = 10**6, False
-    play.arrivals.append((0.1, ask(hunt)))
+    play.arrivals.append((0.5, ask(hunt)))
     with pytest.raises(Abort, match='cancelled'):
         hunt.attack_mode(run, keys)
     assert not run.cancelled.is_set()  # the mode paused itself for the pickup step
-    assert dropped == []
-    assert len(moves(play)) >= 1
-    assert play.world.monsters == ()  # after the kill
+    assert dropped == []  # the runner's pickup step stays wanted
+    assert moves(play) == []  # no step to a better place first
+    assert len(play.world.monsters) == 6  # the fight was not waited out
+    assert 'Ist Rune first' in caplog.text
+
+
+def test_a_pickup_asked_for_in_a_fight_with_gold_within_a_jump_stops_the_fight_for_it(caplog):
+    # Halls of Vaught, 13:57:08 on 2026-10-11: 5221 gold 12 away waited for the fight's end through
+    # three presses; the fourth and the sweep were two Blade Warps away from it, and it was left.
+    caplog.set_level(logging.INFO)
+    play = row(tough=1000)
+    play.loot = replace(play.loot, drops=(Drop(60, 5010.0, 5006.0, '5221 gold', 'gold', (0, 0)),))
+    hunt = hunter(play)
+    run = play.run()
+    run.actuator.drift, run.actuator.steady = 10**6, False
+    play.arrivals.append((0.5, ask(hunt)))
+    with pytest.raises(Abort, match='cancelled'):
+        hunt.attack_mode(run, keys)
+    assert not run.cancelled.is_set()
+    assert moves(play) == []  # no step to a better place first
+    assert '5221 gold first' in caplog.text
+
+
+def test_the_sweep_stops_for_something_to_pick_up_without_a_press(caplog):
+    # user, 2026-10-11: "when doing KP_1 auto-movement, we should also auto-pickup items/gold"
+    caplog.set_level(logging.INFO)
+    play = row(tough=1000)
+    hunt = hunter(play)
+    asked = []
+    hunt.pick = lambda: asked.append(True)
+    run = play.run()
+    run.actuator.drift, run.actuator.steady = 10**6, False
+    hunt.sweep.start(run.clock())
+
+    def drop():
+        play.loot = replace(play.loot, drops=(Drop(60, 5010.0, 5006.0, '5221 gold', 'gold', (0, 0)),))
+
+    play.arrivals.append((0.5, drop))
+    with pytest.raises(Abort, match='cancelled'):
+        hunt.attack_mode(run, keys)
+    assert not run.cancelled.is_set()  # the mode paused itself
+    assert asked == [True]  # and asked the runner for the pickup step
+    assert hunt.sweep.steps  # the sweep goes on after it
+    assert hunt.sweep.until > run.clock()
+    assert 'the sweep stops for 5221 gold' in caplog.text
+
+
+def test_without_the_sweep_the_mode_does_not_stop_for_what_lies_on_the_ground():
+    play = row(tough=1000)
+    play.loot = replace(play.loot, drops=(Drop(60, 5010.0, 5006.0, '5221 gold', 'gold', (0, 0)),))
+    hunt = hunter(play)
+    asked = []
+    hunt.pick = lambda: asked.append(True)
+    attack_mode(play, hunt, until=2.0)
+    assert asked == []
+
+
+def test_the_sweep_stops_for_one_drop_twice_at_most():
+    play = row(tough=1000)
+    play.loot = replace(play.loot, drops=(Drop(60, 5010.0, 5006.0, '5221 gold', 'gold', (0, 0)),))
+    hunt = hunter(play)
+    asked = []
+    hunt.pick = lambda: asked.append(True)
+    for _ in range(3):
+        run = play.run()
+        run.actuator.drift, run.actuator.steady = 10**6, False
+        hunt.sweep.start(run.clock())
+        hunt.gather_looked = -math.inf
+        if len(asked) < 2:
+            with pytest.raises(Abort):
+                hunt.gather(run, (5000.0, 5000.0))
+        else:
+            hunt.gather(run, (5000.0, 5000.0))
+    assert asked == [True, True]
+
+
+def test_a_step_left_over_from_the_last_run_of_the_mode_is_not_taken():
+    # 11:58:20 on 2026-10-11: a step chosen on the level before, the mode stopped before taking it,
+    # was a Teleport aimed 10,084 units away on arrival beside Nihlathak.
+    play = game(foe(11, 5012.0, 5000.0))
+    play.toughness[11] = 1000
+    hunt = hunter(play)
+    hunt.stepping = Step((9000.0, 9000.0))
+    attack_mode(play, hunt, until=2.0)
+    assert moves(play) == []
+
+
+def test_a_boss_in_reach_has_the_line_laid_through_it_before_a_better_one():
+    # user, 2026-10-11: Nihlathak first if he can be struck (he was, 5 s after the arrival beside him).
+    play = game(foe(10, 5006.0, 5000.0, txt_id=526), foe(11, 5000.0, 5009.0), foe(12, 5000.0, 5016.0))
+    play.toughness.update({10: 100, 11: 100, 12: 100})
+    attack_mode(play, hunter(play), until=1.0)
+    assert play.strikes[0][0] == 10
+
+
+def test_a_boss_in_reach_gets_the_main_weapons_before_the_first_strike():
+    play = game(foe(10, 5006.0, 5000.0, txt_id=526))
+    play.toughness[10] = 1000
+    play.sets.reverse()  # the staff's set in hand, as after the seek step that ended beside it
+    attack_mode(play, hunter(play), until=3.0)
+    assert play.pressed()[0] == 'c'
+    assert play.sets[0] == PREBUFF_SET
 
 
 def test_the_players_own_move_drops_the_step():
@@ -964,13 +1065,13 @@ def test_the_players_own_move_drops_the_step():
     hunt = hunter(play)
     run = play.run()
     run.actuator.drift, run.actuator.steady = 10**6, False
-    hunt.stepping = Camp((5008.5, 4991.5), 3.0, 1.0, 0.96, 12.0)
+    hunt.stepping = Step((5008.5, 4991.5))
     play.keys.held = True  # a key of the player's is down
-    hunt.follow = 2
+    hunt.sweep.steps = 2
     hunt.take_step(run, ASPECT)
     assert play.walks == []
     assert hunt.stepping is None
-    assert hunt.follow == 0  # and no step of the mode's own after the player's
+    assert hunt.sweep.steps == 0  # and no step of the mode's own after the player's
 
 
 def test_the_pickup_request_with_hostiles_near_starts_the_sweep_and_moves_nothing_itself():
@@ -980,7 +1081,7 @@ def test_the_pickup_request_with_hostiles_near_starts_the_sweep_and_moves_nothin
     hunt = hunter(play)
     hunt.step(play.run(), keys)
     assert moves(play) == []
-    assert hunt.follow > 0
+    assert hunt.sweep.steps > 0
     attack_mode(play, hunt, until=4.0)
     assert len(moves(play)) >= 1
     assert play.world.monsters == ()
@@ -994,7 +1095,7 @@ def test_the_pickup_request_with_no_hostile_near_is_the_seek_step(monkeypatch):
     hunt.step(play.run(), keys)
     assert sought == [{'any_hostile': True}]  # a Terror Zone counts every kill: any known monster, or a room
     assert moves(play) == []
-    assert hunt.follow == 0
+    assert hunt.sweep.steps == 0
 
 
 def beside(play, unit, east):
@@ -1066,16 +1167,16 @@ def test_a_step_that_fails_is_over_within_a_second_and_its_place_is_left_alone()
     run = play.run()
     run.actuator.drift, run.actuator.steady = 10**6, False
     play.keys.on_event = lambda event: None  # the game takes no click: nothing moves
-    hunt.stepping = Camp((5004.0, 4996.0), 3.0, 1.0, 0.6, 5.7)
-    hunt.follow = 5
+    hunt.stepping = Step((5004.0, 4996.0))
+    hunt.sweep.steps = 5
     before = play.clock.now
     hunt.take_step(run, ASPECT, keys)
     assert play.clock.now - before < 1.5
-    assert [spot for spot, _ in hunt.shunned] == [(5004.0, 4996.0)]
-    assert hunt.follow == 5  # one failure: the sweep goes on elsewhere
-    hunt.stepping = Camp((5004.0, 5006.0), 3.0, 1.0, 0.6, 7.2)
+    assert [spot for spot, _ in hunt.sweep.shunned] == [(5004.0, 4996.0)]
+    assert hunt.sweep.steps == 5  # one failure: the sweep goes on elsewhere
+    hunt.stepping = Step((5004.0, 5006.0))
     hunt.take_step(run, ASPECT, keys)
-    assert hunt.follow == 0  # two in a row: the sweep ends, the fight goes on where it stands
+    assert hunt.sweep.steps == 0  # two in a row: the sweep ends, the fight goes on where it stands
     assert any(text.startswith('No step') for text in play.said)
 
 
@@ -1132,11 +1233,12 @@ def test_death_mark_is_not_spent_on_a_monster_a_cast_or_two_kills():
 
 
 def test_death_mark_goes_on_a_monster_that_outlives_the_casts_it_costs(monkeypatch):
-    from inventory_tracking.macros import hunt as hunt_module
 
     play = game(foe(10, 5008.0, 5000.0))
     play.toughness[10] = 1000
-    monkeypatch.setattr(hunt_module, 'MARK_CASTS', 0.1)  # this monster's type has a third of a cast of life
+    from inventory_tracking.macros import rotation as rotation_module
+
+    monkeypatch.setattr(rotation_module, 'MARK_CASTS', 0.1)  # this monster's type has a third of a cast of life
     attack_mode(play, hunter(play), until=3.0)
     assert play.marks == [10]
 
@@ -1146,28 +1248,30 @@ def test_the_sweep_goes_to_a_firing_spot_when_a_wall_stands_between(monkeypatch)
     # place", the nearest 38 away behind a wall, and the sweep ended there.
     cells = ''.join('1' * 28 + '00' + '1' * 10 for _ in range(40))
     play = game(foe(11, 5016.0, 5000.0))
+    play.staff = replace(STAFF, in_hand=False)  # no jump over the wall: a blade needs a clear line
     hunt = hunter(play, ground=(Walkable(996, 996, 8, 8, pack_cells(cells), pack_cells(cells)),))
-    hunt.follow, hunt.follow_until = 3, 100.0
+    hunt.sweep.steps, hunt.sweep.until = 3, 100.0
     gone = []
     monkeypatch.setattr(hunt, 'go', lambda run, level, ground, player, rect, mob, name, *rest: gone.append(mob))
     attack_mode(play, hunt, until=0.5)
     assert gone[0] == (5016.0, 5000.0)
     assert play.walks == []
-    assert hunt.follow < 3
+    assert hunt.sweep.steps < 3
 
 
 def test_a_way_the_sweep_does_not_find_ends_it(monkeypatch):
     cells = ''.join('1' * 28 + '00' + '1' * 10 for _ in range(40))
     play = game(foe(11, 5016.0, 5000.0))
+    play.staff = replace(STAFF, in_hand=False)  # no jump over the wall: a blade needs a clear line
     hunt = hunter(play, ground=(Walkable(996, 996, 8, 8, pack_cells(cells), pack_cells(cells)),))
-    hunt.follow, hunt.follow_until = 3, 100.0
+    hunt.sweep.steps, hunt.sweep.until = 3, 100.0
 
     def no_way(*args):
         raise Abort('the character did not move')
 
     monkeypatch.setattr(hunt, 'go', no_way)
     attack_mode(play, hunt, until=2.0)
-    assert hunt.follow == 0
+    assert hunt.sweep.steps == 0
 
 
 # --- a stride is a jump: Blade Warp, else Teleport without a swap, else a walk (user, 2026-10-11) ---
@@ -1180,7 +1284,7 @@ def far_one(**changes):
 
 
 def swept(play, hunt, until=4.0):
-    hunt.follow, hunt.follow_until = 6, 100.0
+    hunt.sweep.steps, hunt.sweep.until = 6, 100.0
     attack_mode(play, hunt, until=until)
 
 
@@ -1198,16 +1302,16 @@ def test_a_stride_is_a_blade_warp_onto_open_ground_short_of_the_monster():
 def test_within_blade_warps_casting_delay_the_next_stride_goes_another_way():
     play, hunt = far_one()
     run = play.run()
-    assert hunt.jump_by(run, play.world) == BLADE_WARP
-    hunt.warped_at = play.clock.now
-    assert hunt.jump_by(run, play.world) == TELEPORT  # the staff is in hand: no swap
+    assert hunt.travel.jump_by(run, play.world) == BLADE_WARP
+    hunt.travel.warped_at = play.clock.now
+    assert hunt.travel.jump_by(run, play.world) == TELEPORT  # the staff is in hand: no swap
     play.staff = replace(STAFF, in_hand=False)
-    assert hunt.jump_by(run, play.world) is None  # walked
+    assert hunt.travel.jump_by(run, play.world) is None  # walked
     play.clock.now += WARP_DELAY
-    assert hunt.jump_by(run, play.world) == BLADE_WARP
+    assert hunt.travel.jump_by(run, play.world) == BLADE_WARP
     play.staff = None  # Teleport as the character's own skill (Enigma)
-    hunt.warped_at = play.clock.now
-    assert hunt.jump_by(run, play.world) == TELEPORT
+    hunt.travel.warped_at = play.clock.now
+    assert hunt.travel.jump_by(run, play.world) == TELEPORT
 
 
 def test_a_blade_warp_that_moves_nothing_is_left_alone_and_the_stride_is_made_another_way():
@@ -1245,7 +1349,7 @@ def test_no_blade_warp_through_a_wall_and_none_onto_ground_without_footing():
     )
     play = game(foe(11, 5050.0, 5000.0))
     hunt = hunter(play, ground=ground)
-    hunt.follow, hunt.follow_until = 6, 100.0
+    hunt.sweep.steps, hunt.sweep.until = 6, 100.0
     gone = []
     hunt.go = lambda run, level, ground, player, rect, mob, name, *rest: gone.append(mob)
     attack_mode(play, hunt, until=1.0)
@@ -1326,11 +1430,29 @@ def test_with_the_staffs_charges_gone_the_seek_step_goes_by_blade_warp_and_else_
     assert play.said[-1].startswith('Walking')
 
 
+def test_low_on_charges_the_seek_step_spares_the_staff_and_still_hops_where_nothing_else_leads():
+    # user, 2026-10-11: "leverage warp more when low on charges". A level cleared after Nihlathak took
+    # the staff from 69 to 2 that day (15:10).
+    explored = {(HERE.x, HERE.y, 8, 8), (EAST[0].x, EAST[0].y, 8, 8)}
+    play = game()
+    play.staff = replace(STAFF, charges=5)
+    hunter(play, explored=explored).seek(play.run(), keys)
+    assert play.pressed() == [KEYS[BLADE_WARP]]
+    assert play.staff.charges == 5
+    assert any('the Teleport staff has 5 charges left' in said for said in play.said)
+
+    play = game()
+    play.staff = replace(STAFF, charges=5)
+    hunt = hunter(play, explored=explored)
+    hunt.travel.stride = lambda *args, **kwargs: None  # a wall: no Blade Warp, no walk
+    hunt.seek(play.run(), keys)
+    assert KEYS[TELEPORT] in play.pressed()
+    assert play.staff.charges == 4
+
+
 def test_a_walk_step_minds_only_a_monster_a_click_attacks_that_stands_where_it_is_aimed():
     # Frigid Highlands, 03:00 on 2026-10-11: walks refused with the pointer on the Defiler, and with
     # nothing alive near the aim (the game still named the unit hovered before).
-    from inventory_tracking.macros.hunt import attackable, step_walk
-
     near, far = foe(11, 5013.0, 5000.0), foe(12, 5060.0, 5000.0)
     pet = foe(13, 5011.0, 5000.0, ally=True)
     for over, refused in (((1, 11), True), ((1, 12), False), ((1, 13), False), ((0, 0), False)):
@@ -1362,6 +1484,62 @@ def test_a_character_running_in_place_is_not_waited_for():
     standing = replace(play.world, player=replace(play.world.player, mode=1))
     assert hunt.moving(run, standing) is None
     assert hunt.moving(run, play.world) == 'the character is on the move'  # and anew after a stop
+
+
+# --- one travel: the way a step was chosen for is the way it is made (review of 2026-10-11) ---
+
+
+def test_a_place_is_chosen_with_the_jump_that_reaches_it_and_gone_to_by_it():
+    play = game(foe(11, 5032.0, 5000.0))
+    hunt, run = hunter(play), play.run()
+    place = hunt.better_stand(play.world, hostiles(play.world), Ground(()), ASPECT, run=run)
+    assert place is not None
+    assert place.skill == BLADE_WARP
+    assert hunt.better_stand(play.world, hostiles(play.world), Ground(()), ASPECT) is not None  # on foot, without
+    hunt.stepping = Step.to(place)
+    hunt.take_step(run, ASPECT, keys, Ground(()))
+    assert play.pressed() == [KEYS[BLADE_WARP]]
+    assert math.dist((play.world.player.x, play.world.player.y), place.spot) < 2
+
+
+def test_a_step_chosen_as_a_walk_is_walked_however_far():
+    # `take_step` turned any walk of 8 units or more into a jump, whatever the place was chosen for.
+    play = game()
+    hunt, run = hunter(play), play.run()
+    hunt.stepping = Step((5012.0, 5000.0))
+    hunt.take_step(run, ASPECT, keys, Ground(()))
+    assert play.pressed() == []
+    assert len(play.walks) == 1
+
+
+def test_a_jump_that_cannot_be_made_any_more_is_made_by_the_next_skill_or_walked():
+    slots = tuple(None if skill == BLADE_WARP else skill for skill in HUNT_SLOTS)
+    play = game(slots=slots)
+    hunt, run = hunter(play), play.run()
+    hunt.stepping = Step((5012.0, 5000.0), BLADE_WARP)
+    hunt.take_step(run, ASPECT, keys, Ground(()))
+    assert play.pressed() == [KEYS[TELEPORT]]  # the staff is in hand: no swap
+
+    play = game(slots=slots)
+    play.staff = replace(STAFF, in_hand=False)
+    hunt, run = hunter(play), play.run()
+    hunt.stepping = Step((5012.0, 5000.0), BLADE_WARP)
+    hunt.take_step(run, ASPECT, keys, Ground(()))
+    assert play.pressed() == []
+    assert len(play.walks) == 1
+
+
+def test_the_sweeps_one_look_strides_only_when_nothing_is_in_reach():
+    # A monster past any place worth going to: with nothing in reach the look is a stride toward
+    # it; in a fight (something else in reach) there is no place worth twice this one, and no stride.
+    play = game(foe(11, 5055.0, 5000.0))
+    hunt, run = hunter(play), play.run()
+    foes = hostiles(play.world)
+    stride = hunt.next_step(run, play.world, foes, Ground(()), ASPECT, fighting=False)
+    assert stride is not None
+    assert stride.camp is None
+    assert stride.skill == BLADE_WARP
+    assert hunt.next_step(run, play.world, foes, Ground(()), ASPECT, fighting=True) is None
 
 
 def test_exploring_goes_to_stand_beside_a_room_no_teleport_lands_in():
@@ -1418,7 +1596,7 @@ def test_the_sweep_and_the_seek_do_not_go_to_what_is_left_alone():
     play = game(foe(10, 5040.0, 5000.0, life=128, max_life=128))
     hunt = hunter(play)
     hunt.untouchable[10] = 100.0
-    hunt.follow, hunt.follow_until = 5, 100.0
+    hunt.sweep.steps, hunt.sweep.until = 5, 100.0
     attack_mode(play, hunt, until=3.0)
     assert moves(play) == []
     assert hunt.quarry(101, (5000.0, 5000.0), hunt.foes(play.world, play.clock.now), any_hostile=True) is None

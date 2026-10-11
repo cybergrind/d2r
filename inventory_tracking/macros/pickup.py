@@ -2,12 +2,15 @@
 
 1. A valuable item on the ground is picked up: every rune, and what the loot marks point at
    (materials with the keys and essences, bases of expensive uniques; loot/ground.py), the nearest first.
+   Then a gold pile of `pickup_gold_minimum` or more within one jump: a Blade Warp onto it, and a
+   click on it if that did not take it.
 2. A super healing or full rejuvenation potion (never a smaller or plain one) near the character is
    picked up when the belt is missing one of its kind (tracking/belt.py `column_shortages`: a column
    holds what its lowest potion is, an empty one rejuvenation).
 3. With the belt full, life missing and such a potion near: one of the same kind is drunk from the
    belt's hotkey row and the one on the ground picked up in its place.
-4. Nothing of those: the press is a seek step (hunt.Hunter.seek: toward the next elite, attack mode on).
+4. Nothing of those: the press is hunt.Hunter.step: with hostiles near it starts the sweep (attack mode
+   then moves on its own), else it is a seek step toward any hostile or the next room of the tour.
 
 In a pile the game stacks the labels: the item under the pointer is read from the game before a
 click (`take`), another potion of the kind wanted serves as well, and one not wanted is never clicked.
@@ -17,8 +20,9 @@ A drop within PICK_UNITS and in view is clicked and the character walks to it; o
 hopped toward first (teleport.hop_toward, with the level's rooms and walls). Potions are only taken
 from POTION_UNITS around the character: nobody walks half a map for one. The click goes to the
 item, a little above the ground it lies on, then round that (ITEM_AIMS); the item leaving the ground
-is the proof, and each try logs where it aimed. During attack mode the press waits for the fight:
-the runner starts this once nothing is left in reach (runner.py, hunt.Hunter.after_fight).
+is the proof, and each try logs where it aimed. During attack mode a press with something to pick
+up stops the fight for it at once (hunt.Hunter.asked_step; since 2026-10-11 for gold and potions as
+for valuables); with nothing to pick up it asks the fight for a better stand.
 
 On the host (2026-10-10): the drops, their positions and the life read right, and a click on the
 item itself picks it up with Show Items on. UNCONFIRMED: the belt cell of a belt item (its path x,
@@ -37,14 +41,21 @@ from inventory_tracking.levels.model import Level, Target
 from inventory_tracking.loot.materials import material_classes
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.engine import Run
-from inventory_tracking.macros.routines import UNIT_PIXELS
+from inventory_tracking.macros.routines import ACTING, UNIT_PIXELS, press_skill
+from inventory_tracking.macros.skills import BLADE_WARP
 from inventory_tracking.macros.teleport import HOVER_SECONDS, ground_fraction, hop_toward, in_view, ready
-from inventory_tracking.macros.world import HEALING, REJUVENATION, VALUABLE, Drop, Loot, has_room
+from inventory_tracking.macros.world import GOLD, HEALING, REJUVENATION, VALUABLE, Drop, Loot, has_room
 from inventory_tracking.models import PotionType
 from inventory_tracking.native.layout import BELT_COLUMNS, TILE_UNITS
 from inventory_tracking.tracking.belt import column_shortages, potion_kind
 
 
+# Gold is taken by standing on it, so it is gone to and never clicked (user, 2026-10-11: "blade warp to
+# location would be enough"): a Blade Warp onto the pile, and a click on it when the pile is too near
+# for one or the jump did not take it. Only a pile within one jump is worth it.
+GOLD_UNITS = 26.0  # travel.JUMP_REACH
+GOLD_WALK = 6.0  # world units: a pile this near is walked onto
+GOLD_SECONDS = 0.9  # for the pile to leave the ground after the key (a Blade Warp of 23 units lands in 0.81 s)
 POTION_UNITS = 25.0  # world units: a potion further off is not worth the walk
 PICK_UNITS = 20.0  # a drop this near, in view, is clicked (the character walks); further, hopped toward
 HOPS = 4  # teleports toward one drop per press at most
@@ -100,6 +111,7 @@ def wanted() -> dict:
         'rune_minimum': APPRAISAL.pickup_rune_minimum,
         'unique_minimum': APPRAISAL.unique_minimum if APPRAISAL.unique_marks else None,
         'materials': material_classes((*APPRAISAL.material_marks, *APPRAISAL.pickup_also)),
+        'gold_minimum': APPRAISAL.pickup_gold_minimum,
     }
 
 
@@ -114,7 +126,10 @@ def choose(loot: Loot, here: tuple[float, float]) -> Plan | None:
     valuables = [drop for drop in loot.drops if drop.kind == VALUABLE and has_room(loot.room, drop.size)]
     if valuables:
         return Plan(min(valuables, key=away))
-    near = sorted((drop for drop in loot.drops if drop.kind != VALUABLE and away(drop) <= POTION_UNITS), key=away)
+    gold = [drop for drop in loot.drops if drop.kind == GOLD and away(drop) <= GOLD_UNITS]
+    if gold:
+        return Plan(min(gold, key=away))
+    near = sorted((drop for drop in loot.drops if drop.kind in KINDS and away(drop) <= POTION_UNITS), key=away)
     if not near:
         return None
     rejuvenation, healing = column_shortages(loot.belt)
@@ -220,15 +235,61 @@ def take(run: Run, drop: Drop, alike: Sequence[Drop] = (), others: Sequence[Drop
     raise Abort(f'no click picked up {drop.label}')
 
 
+def collect(run: Run, drop: Drop, key_names, others: Sequence[Drop] = ()) -> bool:
+    """Go for a gold pile: a Blade Warp onto it, which may take it; if not, or for a pile too near
+    to jump to, it is clicked like any item (`others`: what else lies there and is not wanted)."""
+    player, rect = ready(run)
+    world = run.world()
+    where = ground_fraction(player, drop.x, drop.y, rect[2] / rect[3])
+    away = math.dist((player.x, player.y), (drop.x, drop.y))
+    if not in_view(where):
+        raise Abort(f'{drop.label} is not in view')
+    if away > GOLD_WALK and BLADE_WARP in world.slots and key_names is not None:
+        run.keys.update(key_names(world, (BLADE_WARP,)))
+        run.actuator.aim(*where, scatter=(2, 2))
+        began = run.clock()
+        press_skill(run, BLADE_WARP)
+        # Landing on a pile has not taken one yet (7210 at 13:30:30 and 5283 at 13:43:43 on 2026-10-11,
+        # both with the character 0.7 from it; the click after took the second in 0.07 s), so the
+        # wait is only for the landing.
+        start = (player.x, player.y)
+        run.seen(
+            lambda w: (
+                not on_ground(run, drop) or (w.player is not None and math.dist(start, (w.player.x, w.player.y)) > 2)
+            ),
+            GOLD_SECONDS,
+        )
+        gone = not on_ground(run, drop)
+        now = run.world().player
+        LOG.info(
+            'Macro: Blade Warp onto %s at (%.1f, %.1f), %.1f from (%.1f, %.1f); the character at %s %.2fs after: %s',
+            drop.label, drop.x, drop.y, away, player.x, player.y,
+            None if now is None else (round(now.x, 1), round(now.y, 1)), run.clock() - began,
+            'taken' if gone else 'still on the ground',
+        )  # fmt: skip
+        if gone:
+            run.say(f'{drop.label}: picked up')
+            return True
+    # Standing where the record puts the pile did not take it (Halls of Vaught, 13:30:30 on 2026-10-11:
+    # the jump landed 0.7 from a pile of 7210 and a click on that ground walked 1.2 more, the pile
+    # still there; user: "bad coordinates"). So the pile is then clicked like any item, where the
+    # game says it is under the pointer (`take`), and the log has the aim that took it.
+    take(run, drop, others=others)
+    return True
+
+
 def standing(run: Run):
     """The character once it stands (STAND_SECONDS at most): an aim taken while it runs is off by
     the way it goes before the click, and the click walks it past the item. Black Marsh, 01:13 on
     2026-10-11: a shard 14 away took 6 s, the character sent 18 units past it and back; a ring was
-    passed twice. Both pickups began under a walk of attack mode's."""
+    passed twice. Both pickups began under a walk of attack mode's. And once its cast is over: a click
+    made under a cast is swallowed, and the miss is only seen STOOD_SECONDS later (three of the sweep's
+    own pickups on 2026-10-11, 14:51 to 14:54, a Ring and two potions: the first click on each took
+    nothing with the item under the pointer and the character not moving, 0.65 s each)."""
     until = run.clock() + STAND_SECONDS
     while True:
         player = run.world().player
-        if player is None or player.mode not in RUN_MODES or run.clock() >= until:
+        if player is None or player.mode not in RUN_MODES | ACTING or run.clock() >= until:
             return player
         run.pace.sleep(0.02)
 
@@ -329,8 +390,22 @@ def pick_up(run: Run, level: Level | None, key_names, otherwise: Callable[[], No
             raise Abort(f'inventory full: no room for {named}')
         run.say(f'Inventory full: no room for {named}')
     if plan is None:
+        near = [drop for drop in loot.drops if drop.kind in KINDS and math.dist(here, (drop.x, drop.y)) <= POTION_UNITS]
+        if near:
+            # Three super healing potions with the belt's healing columns full and the life whole
+            # read to the player as a pickup that failed (13:47:09 on 2026-10-11): said, then.
+            named = ', '.join(sorted({drop.label for drop in near}))
+            LOG.info(
+                'Macro: pickup: %s near, none the belt has a place for (short %s)', named, column_shortages(loot.belt)
+            )
+            run.say(f'Not picked up: the belt has no place for {named}')
         otherwise()
         return False
+    if plan.drop.kind == GOLD:
+        run.say(f'Going for {plan.drop.label}, {math.dist(here, (plan.drop.x, plan.drop.y)):.0f} away')
+        if not collect(run, plan.drop, key_names, [found for found in loot.drops if found is not plan.drop]):
+            raise Abort(f'{plan.drop.label} was not taken by standing on it')
+        return True
     level = level if level is not None and level.area == player.area else None
     for _ in range(PICKS):
         drop = plan.drop

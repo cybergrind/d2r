@@ -22,7 +22,8 @@ from functools import cache
 
 from inventory_tracking.combat import stance
 from inventory_tracking.combat.policy import LinePolicy
-from inventory_tracking.macros.hunt import STAND_OFF, STRIDE
+from inventory_tracking.macros.hunt import STAND_OFF
+from inventory_tracking.macros.travel import STRIDE
 from inventory_tracking.macros.view import Viewport
 
 from .first_rule import stand

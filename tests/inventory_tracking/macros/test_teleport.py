@@ -239,7 +239,6 @@ def test_teleport_as_a_skill_needs_no_staff():
         (STAFF, SLOTS, target((1003.0, 1000.0), area=110), 'another level'),
         (STAFF, SLOTS, None, 'level card'),
         (STAFF, SLOTS, target((1014.0, 1000.0), (HERE,)), 'no way over the rooms'),  # the mark is off the rooms
-        (STAFF, SLOTS, target((1000.5, 1000.0)), 'no footing in view brings'),  # already there, nothing to gain
     ],
 )
 def test_nothing_is_pressed_when_the_step_cannot_be_taken(staff, slots, mark, message):
@@ -272,7 +271,7 @@ def test_a_key_that_casts_nothing_with_the_staff_in_hand_is_named_as_teleport_of
     play.keys.on_event = lambda event: None  # the key is bound to nothing: no charge is spent
     with pytest.raises(Abort, match='Teleport is off its key: bind it again'):
         step_toward(play.run(), target((1003.0, 1000.0)), keys)
-    assert play.pressed() == ['t']
+    assert play.pressed() == ['t', 't']  # pressed once more before it is given up
 
 
 PIT = Walkable(996, 996, 8, 8, pack_tiles('11111100' * 8, 8))  # the room's two eastern tile columns are a pit
@@ -598,16 +597,130 @@ def test_a_walk_under_way_when_the_hop_begins_is_not_its_landing():
     assert landed_from(replace(since, area=since.area + 1), since, aim)
 
 
-def test_a_hop_aimed_beside_the_skill_bar_that_moves_nothing_turns_the_corners_off(corners):
-    # Whether the game takes a cast aimed there is not known: the first that does nothing settles it.
-    from inventory_tracking.macros import teleport, view
+def test_a_press_the_game_drops_is_pressed_again_and_the_lost_key_is_not_named_after_a_hop_landed():
+    # Worldstone Keep 3, 03:12:00 on 2026-10-11: the 21st hop of a chain cast nothing and was named
+    # as the lost key; the same aim landed half a second later.
+    play = game()
+    react, dropped = play.keys.on_event, [1]
+    play.keys.on_event = lambda event: dropped.pop() if event == ('key', 't') and dropped else react(event)
+    step_toward(play.run(), target((1040.0, 1000.0)), keys)
+    assert play.pressed() == ['t', 't']  # the first press never reached the game, the second landed
+    assert play.world.player.x > 5000.0
+
+    play.keys.on_event = lambda event: None
+    with pytest.raises(Abort, match='took neither of two presses'):
+        step_toward(play.run(), target((1040.0, 1000.0)), keys)
+
+
+def test_a_hop_aimed_beside_the_skill_bar_that_moves_nothing_is_judged_like_any_other(corners):
+    # The corners are confirmed in the game: a failed hop there is a lost key or the like, not a reason
+    # to stop aiming there.
+    from inventory_tracking.macros import view
 
     play = game()
     play.keys.on_event = lambda event: None  # the game takes no cast
     mark = target((1005.5, 1000.5))  # 5.5 tiles down and right: only a corner shows that
-    with pytest.raises(Abort, match='beside the skill bar'):
+    with pytest.raises(Abort, match=r'Teleport is off its key|did not move|took neither'):
         step_toward(play.run(), mark, keys)
-    assert view.CORNERS == [False]
-    assert teleport.CORNERS is view.CORNERS
-    with pytest.raises(Abort, match=r'Teleport is off its key|did not move'):
-        step_toward(play.run(), mark, keys)  # the next is aimed in the plain view, and judged as ever
+    assert view.CORNERS == [True]
+
+
+def test_a_far_way_failure_gives_the_target_to_the_near_way_for_a_while_only():
+    # For the target, wherever the character then stands: the two potentials do not agree on which way
+    # is nearer, and a hop by each in turn could go back and forth.
+    from inventory_tracking.macros import teleport
+
+    mark, other = (3, 1010, 1000), (3, 1040, 1000)
+    teleport.ban_far(mark, 100.0)
+    assert teleport.far_banned(mark, 100.0 + teleport.FAR_DISTRUST - 1)
+    assert not teleport.far_banned(other, 101.0)
+    assert not teleport.far_banned(mark, 100.0 + teleport.FAR_DISTRUST)
+    assert mark not in teleport.FAR_FAILED
+    teleport.ban_far(mark, 200.0)
+    teleport.ban_far(other, 240.0)  # adding prunes what has expired
+    assert list(teleport.FAR_FAILED) == [other]
+
+
+def test_a_hop_whose_landing_is_where_the_character_stands_is_not_made(monkeypatch):
+    # Beside Nihlathak, 12:25:45 on 2026-10-11: one press more than the way needed. The landing came
+    # out 0.7 units from the character (7.8 off the way, as the way counts its cells); the key spent a
+    # charge and the step waited 2.2 s for a move, with attack mode held back behind it.
+    monkeypatch.setattr(teleport, 'landing', lambda target, player, way, aspect: ((1000.1, 1000.1), 1.5))
+    play = game()
+    step_toward(play.run(), target((1000.1, 1000.1)), keys)
+    assert play.pressed() == []
+    assert play.staff.charges == 10
+    assert play.said[-1] == 'At Next level'
+
+
+def test_beside_a_spot_that_is_not_a_door_no_hop_is_made():
+    # 12:56:41 on 2026-10-11: a press more than the way needed, 3.5 units from Nihlathak's spot with
+    # him standing on it. The hop spent a charge and moved nothing; the step waited 2.3 s and stopped.
+    play = game()
+    step_toward(play.run(), target((1000.5, 1000.5)), keys)
+    assert play.pressed() == []
+    assert play.staff.charges == 10
+    assert play.said[-1] == 'At Next level'
+
+
+def test_a_spot_further_off_is_still_hopped_to():
+    play = game()
+    step_toward(play.run(), target((1002.0, 1000.0)), keys)
+    assert play.pressed() == ['t']
+
+
+def test_a_short_hop_onto_a_taken_spot_that_moves_nobody_ends_the_step_at_once():
+    # 12:46:08 on 2026-10-11: 7.6 units from Nihlathak's spot the hop onto it left the character where
+    # it stood, and the fight began 0.76 s later.
+    play = game()
+
+    def taken(event):
+        if event == ('key', 't'):
+            play.staff = replace(play.staff, charges=play.staff.charges - 1)  # cast, and nowhere to land
+
+    play.keys.on_event = taken
+    began = play.clock.now
+    step_toward(play.run(), target((1001.5, 1000.0)), keys)
+    assert play.said[-1] == 'At Next level'
+    assert play.clock.now - began < 1.0
+
+
+def test_a_room_to_explore_one_tile_off_is_still_hopped_into():
+    # Halls of Vaught, 15:10:20 on 2026-10-11: one tile short of an unexplored room the step said "the
+    # character is beside it" 17 times and the room was never seen.
+    play = game()
+    room = Target(109, (HERE, *EAST), (1001.0, 1000.0), 'an unexplored room', 'explore', False)
+    step_toward(play.run(), room, keys)
+    assert play.pressed() == ['t']
+
+
+def test_with_the_staff_empty_the_teleport_step_goes_the_way_it_is_given_instead():
+    # user, 2026-10-11: "use warp if we have 0 charges"
+    play = game(Teleport(0, 20, True))
+    went = []
+    step_toward(play.run(), target((1003.0, 1000.0)), keys, went.append)
+    assert [mark.label for mark in went] == ['Next level']
+    assert play.pressed() == []
+
+
+def test_a_hop_is_planned_from_where_a_walk_under_way_ends():
+    # Halls of Death's Calling, 12:32:17 on 2026-10-11: the step began while the sweep's walk was going.
+    # The walk's end counted as the hop's landing, and every hop after was aimed from the place before
+    # its own: twelve of sixteen landed 6 to 26 units off, two of them the last ones at the door.
+    play = game()
+    walking = replace(play.world.player, mode=3)
+    play.world = replace(play.world, player=walking)
+    stopped = replace(walking, x=5010.0, y=5000.0, mode=1)
+    play.arrivals.append((0.2, lambda: setattr(play, 'world', replace(play.world, player=stopped))))
+    run = play.run()
+    assert teleport.settled(run, walking) == stopped
+
+
+def test_a_hop_does_not_wait_long_for_a_character_the_player_keeps_running():
+    play = game()
+    running = replace(play.world.player, mode=3)
+    play.world = replace(play.world, player=running)
+    run = play.run()
+    started = run.clock()
+    assert teleport.settled(run, running) == running
+    assert run.clock() - started <= teleport.SETTLE_SECONDS + 0.1

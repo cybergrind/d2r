@@ -4,9 +4,11 @@ from inventory_tracking.macros import teleport, view
 
 
 @pytest.fixture(autouse=True)
-def no_far_ways_given_up(monkeypatch):
-    """The targets the far potential failed for are kept per process: none carried from test to test."""
-    monkeypatch.setattr(teleport, 'FAR_FAILED', set())
+def no_hop_landed_yet(monkeypatch):
+    """The game the last hop landed in and the targets the far way failed for are kept per process:
+    none carried from test to test."""
+    monkeypatch.setattr(teleport, 'LANDED', [])
+    monkeypatch.setattr(teleport, 'FAR_FAILED', {})
 
 
 @pytest.fixture(autouse=True)
@@ -15,7 +17,6 @@ def no_corners(monkeypatch):
     shown the game takes them: the routes pinned here are the ones the plain view gives. The tests of
     the corners themselves turn them on (`corners`)."""
     monkeypatch.setattr(view, 'CORNERS', [False])
-    monkeypatch.setattr(teleport, 'CORNERS', view.CORNERS)
     teleport.way_for.cache_clear()
     yield
     teleport.way_for.cache_clear()

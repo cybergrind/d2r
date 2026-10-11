@@ -6,12 +6,14 @@ from inventory_tracking.combat.policy import Foe, LinePolicy, Observation
 from inventory_tracking.combat.stance import (
     CAMP_REACH,
     CAST_SECONDS,
+    ENGAGE,
     HOP_SECONDS,
     HORIZON,
     KEEP_AWAY,
     RUN_SPEED,
     WALK_LATENCY,
     Field,
+    Jump,
     camp,
     no_footing,
     taken,
@@ -155,3 +157,48 @@ def test_footing_is_what_the_grids_show_walkable_and_no_closed_door():
     assert door is not None
     assert door((11.0, 0.0))
     assert not door((9.0, 0.0))
+
+
+# --- a place is priced by the way the character will take there (`Jump`) ---
+
+WARP = Jump(skill=390, seconds=0.35, speed=45.0, reach=26.0, least=8.0, line=True)
+BLINK = Jump(skill=54, seconds=0.31, speed=math.inf, reach=26.0, least=8.0, line=False)
+
+
+def test_a_place_a_jump_reaches_is_priced_by_the_jump_and_names_its_skill():
+    seen = Observation(HERE, {1: foe(30, 0)})
+    walked, jumped = camp(seen, POLICY), camp(seen, POLICY, jumps=(WARP, BLINK))
+    assert walked is not None
+    assert jumped is not None
+    assert walked.skill is None
+    assert jumped.skill == WARP.skill  # the preferred of the two that reach it
+    away = math.dist(HERE, jumped.spot)
+    assert jumped.seconds == WARP.takes(away) < WALK_LATENCY + away / RUN_SPEED
+
+
+def test_a_blade_is_not_thrown_through_a_wall_and_a_teleport_goes_over_it():
+    wall = box(4, -30, 6, 30)
+    seen = Observation(HERE, {1: foe(30, 0)}, blocked=wall)
+    assert camp(seen, POLICY, wall, jumps=(WARP,)) is None
+    over = camp(seen, POLICY, wall, jumps=(WARP, BLINK))
+    assert over is not None
+    assert over.skill == BLINK.skill
+    assert over.spot[0] > HERE[0] + 6
+
+
+def test_a_place_nearer_than_a_jumps_least_is_walked_to():
+    for east in (23, 24, 26, 30):
+        found = camp(Observation(HERE, {1: foe(east, 0)}), POLICY, jumps=(WARP, BLINK))
+        assert found is not None
+        assert (found.skill is None) == (math.dist(HERE, found.spot) < WARP.least)
+        if found.skill is None:
+            assert found.seconds == WALK_LATENCY + found.walk / RUN_SPEED
+
+
+def test_of_two_places_a_jump_makes_as_good_the_one_at_the_distance_a_fight_is_best_begun_from():
+    # A teleport takes as long to any place: without this the first place found wins, at the very
+    # end of the blades' flight, where a step of the monster's is a miss.
+    monster = (HERE[0] + 40, HERE[1])
+    found = camp(Observation(HERE, {1: foe(40, 0)}), POLICY, jumps=(BLINK,))
+    assert found is not None
+    assert abs(math.dist(found.spot, monster) - ENGAGE) <= 3

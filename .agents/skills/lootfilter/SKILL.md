@@ -8,7 +8,8 @@ description: Explain or change the D2R in-game loot filter profiles in lootfilte
 Profiles: `lootfilter/warlock_lean.json` (profile "Warlock Lean", 13 rules; "SHOW Craft Bases ARMOR" = craft-only fodder the player may disable),
 `lootfilter/warlock_lean_v2.json` (profile "Warlock Lean2", 16 rules, 2026-10-09: Lean with uniques and sets shown **by base**,
 from **sales** (`pricing/data/named-trades.json`: 3+ trades in 30 days at a median ≥ 0.25 Ist, or 1+ in 90 days at ≥ 1 Ist),
-planner loadouts, and leveling items the collection DB says are not owned; **generated** by
+planner loadouts, leveling items the collection DB says are not owned, and (2026-10-11) items the character's Chronicle lacks —
+the player runs `uv run -m inventory_tracking.probes.chronicle` in a game from their own terminal, then the generator; **generated** by
 `uv run --offline python -m inventory_tracking.loot.build_filter`, never hand-edited — edit Lean, then regenerate;
 refresh the trade record with `node pricing/tools/traderie_trades.mjs <catalog ids> --out pricing/raw/traderie/recent-named-<date>`
 then `uv run --offline python pricing/tools/named_trades.py <that dir>`;

@@ -8,6 +8,15 @@ in two games; the NihlW game rules out "the side the layout opens to", which wou
 Game 3 (NihlE, dump 20260930T144010Z-ca3068d4) saw Nihlathak himself at 94% across the preset,
 mid-height: the marker sits 6% inside the edge (the generic 15% left it 40 units short, so a
 Win+C next to him pointed back). The four layouts mirror each other; only NihlE is measured.
+
+The mark is not his spot but a place to fight him from (user, 2026-10-11: "position our last jump
+somewhere off the main mob pack, to avoid heavy damage"; the teleport step ends there, and after a
+pickup or a sweep it goes back there). In the twenty takes of that day he stood in a pillared
+pavilion of about 20 x 20 units with his pack, the same way round in all four layouts: from 14 west
+and north of the side's spot to 6 east and south of it, himself 0.5 to 4.5 west and 3.5 to 4.5
+north. East of the pavilion a strip 12 wide was empty of monsters on arrival in each layout. The
+mark is 3 tiles east and 1 north of the spot: 15.5 to 19.5 units from him, footing and a clear line
+to every part of the pavilion in each layout's take (the pillars do not stop a blade).
 """
 
 from inventory_tracking.levels.handler import target
@@ -21,6 +30,7 @@ HANDLERS = [
         preset=r'Act 5 - Temple Final Room',
         sides=('E', 'N', 'S', 'W'),
         inset=0.06,
+        stand=(3, -1),
         confirmed=True,
     )
 ]

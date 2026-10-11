@@ -24,7 +24,7 @@ the blades' full REACH, not this class.
 """
 
 import math
-from collections.abc import Callable, Iterable, Sequence
+from collections.abc import Callable, Collection, Iterable, Sequence
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -168,10 +168,12 @@ class LinePolicy:
         best = self.choose(seen)
         return best if best is not None and best.worth >= MIN_SCORE else None
 
-    def choose(self, seen: Observation) -> Choice | None:
-        """The best line through the live hostiles."""
+    def choose(self, seen: Observation, through: Collection[int] | None = None) -> Choice | None:
+        """The best line through the live hostiles; with `through`, of the lines laid through those."""
         best: Choice | None = None
         for unit, foe in seen.foes.items():
+            if through is not None and unit not in through:
+                continue
             at = foe.at
             if self.lead is not None:  # through where it is when a blade gets as far as it stands now
                 at = foe.ahead(self.lead + min(round(math.dist(at, seen.origin) / SPEED), OUT_FRAMES))

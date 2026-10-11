@@ -3,30 +3,63 @@
 Plan, 2026-10-06. First version implemented the same day (see Status); not yet run in the game. Companion to the
 [input design](../input/design.md), which this package builds on.
 
-## Current contract (2026-10-10)
+## Current contract (2026-10-11)
 What the code does today, per the module docstrings of the macro modules and input/compositor.py.
 Where a dated note below disagrees, those docstrings and this section win. The bindings are in
 input/compositor.py; no key is named here.
 
 The actions
-- The macro request (routines.py). Runs the routine for where the character stands: in Nihlathak's
-  Temple, the Frigid Highlands, the Bloody Foothills, the Fortress just after act 3, or Catacombs
-  Level 4 with Andariel dead, it leaves the game and creates the next one; in the lobby it creates
-  the next game; then it prebuffs. Anywhere else it prebuffs where the character stands.
+- The macro request (routines.py). Runs the routine for where the character stands. It leaves the
+  game and creates the next one in Nihlathak's Temple; in the Frigid Highlands and the Bloody
+  Foothills only within BOSS_UNITS (100) of where the terror tracker last saw a super unique of the
+  level (the whole level counts when the tracker has none on record); in the Fortress within 180 s
+  of coming from act 3; in Catacombs Level 4 with no Andariel in the unit table; in Tower Cellar
+  Level 5 with no live Countess. In the lobby it creates the next game. Then it prebuffs: Consume
+  anew on a standing Defiler (else a summoned one), a Defiler left out, Hex: Purge, Psychic Ward.
+  Anywhere else it prebuffs where the character stands. It ends attack mode.
 - The teleport step (teleport.py). One hop, or one walk into a door, toward the first mark on the
-  level card. A hop lands on footing in view that leaves the shortest way to the mark. A door is
-  clicked, never teleported onto. Teleport comes from a staff with charges, or from a skill slot.
-- The seek step (hunt.py, `Hunter.seek`). One step toward the nearest unique, champion or super
-  unique, live or remembered: a walk when the firing spot is close over clear ground, else a
-  teleport hop. With none known, toward the nearest unexplored room. Attack mode is on after it.
+  level card. A hop lands on footing in view that leaves the shortest way to the mark. The far way
+  is planned first (hops of up to FAR_TILES, 6, so a band of no footing the window shows across is
+  crossed); when it finds no landing, the near way (REACH_TILES, 5), and the far way is left alone
+  for that place and mark for 30 s. "In view" includes the corners: the ground beside the skill bar,
+  down to 0.95 of the window height. A door is clicked, never teleported onto. Teleport comes from
+  a staff with charges, swapped in and left in hand, or from a skill slot when no staff is known.
+  With the staff out of charges the step stops and says so.
+- The seek step (hunt.py, `Hunter.seek`). One step toward the nearest elite (unique, champion or
+  super unique), live in memory first, else remembered alive by the terror tracker; one already in
+  reach is only named. With none known, toward the first stop of the room tour (below). The step
+  goes onto the nearest spot with a shot at the target (within STRIKE_REACH): a walk click when it
+  is within WALK_UNITS (10) over clear ground, else a teleport hop. With the staff out of charges
+  it is a Blade Warp of up to JUMP_REACH (26) straight toward the spot over a clear line, else one
+  click's walk of STRIDE (16), else the step stops. Attack mode is on after it.
+- The room tour (tour.py). The places to stand so that every unexplored room is seen (standing in a
+  room shows it and the rooms touching it), as a short path from where the character stands. The
+  first stop is the next one gone to. The tour is planned again at every step and the one before is
+  kept unless the new one is KEEP_TILES (8) shorter. With nothing unexplored the step stops and
+  says so.
 - The attack mode toggle (hunt.py, `Hunter.attack_mode`). Starts or stops a run that fights what is
   in reach, the elite first. The strike is one held input for the fight, with the pointer on the
-  line the combat policy picks (combat/policy.py). Death Mark goes on the strongest monster in
-  reach; Sigil: Lethargy goes under an elite.
-- The pickup step (pickup.py). The first rule that applies: pick up the nearest valuable ground
-  item; pick up a healing or full rejuvenation potion when the belt is short of that kind; with the
-  belt full and life low, drink one and pick up one; otherwise a seek step. During attack mode it
-  waits for the fight to end.
+  line the combat policy picks (combat/policy.py). Hex: Purge is cast whenever the character's
+  state does not show it (tried again after HEX_RETRY, 3 s; after HEX_TRIES, 2, casts the state
+  never showed, only every HEX_DISTRUST, 60 s). Death Mark goes on the strongest monster in reach
+  every 8 s, only when it outlives MARK_CASTS (4) casts of its line. Sigil: Lethargy goes under an
+  elite every 10 s. Engorge goes on a corpse in view within 20 when a demon of the character's is
+  out and under 70% of its life (every 4 s) or the last Engorge is 15 s old. The strike is pressed
+  first and these are cast under it.
+- The pickup request (pickup.py). The first rule that applies: pick up the nearest valuable ground
+  item (one the inventory has no room for is left, and with only such items on the ground the
+  press stops saying the inventory is full); pick up a healing or full rejuvenation potion within
+  25 units when the belt is short of that kind; with the belt full and life under 70%, drink one
+  and pick up one (the belt must change within 0.6 s of the key; the key is pressed once more,
+  then the press stops). A drop within 20 units and in view is clicked; one further off is hopped
+  toward first (four hops at most). A drop whose clicks took nothing is left alone for 30 s.
+  With nothing to pick up: hostiles within SWEEP_UNITS (60) start the sweep and the step moves
+  nothing itself; with none that near it is a seek step toward the nearest hostile of any kind or
+  the tour's first stop. Attack mode is on after it.
+- During attack mode the pickup request does not move the character itself. With something to pick
+  up it waits for the fight to end; inside a fight it also asks for one step to a better place to
+  stand (combat/stance.py `camp`, worth SWEEP_GAIN, 2, times where the character stands). With
+  nothing to pick up the wait is dropped.
 
 Rules that hold across actions
 - Every transition of the runner (a request, a run ending and what follows it, shutdown) is made
@@ -39,11 +72,39 @@ Rules that hold across actions
   lands in view: both hold.
 - A request cancels the running action, except a step's own request during that step, which queues
   one more step (runner.py). The teleport and seek steps pause attack mode for their step, then
-  resume it; the pickup step waits for the fight to end.
+  resume it; the pickup request during attack mode is as above. The teleport step, the seek step
+  and the macro request also end any sweep.
 - Attack mode ends only on its own toggle, the macro request, the game being left, or
-  MISSES_IN_A_ROW fights stopped one after another (hunt.py). The player's moves, casts and mouse
-  use do not end it. A key the player holds makes it wait before a fight, but does not end a fight
-  under way (2026-10-10, 18:01).
+  MISSES_IN_A_ROW (5) fights stopped one after another (hunt.py). The player's moves, casts and mouse
+  use do not end it. It yields to the player's own moves: a key held, the left button down, or the
+  character walking or running makes it wait before a fight and ends a fight under way, except a
+  held key, which does not end a fight under way. A character in a walking or running mode that has
+  not moved for RUN_IN_PLACE (1.5 s) is not waited for (2026-10-10, 18:01).
+- What is no hostile, so not fought, swept toward or sought: allies and units owned by someone
+  (summons, the mercenary), townsfolk, the monsters the terror tracker lists as unkillable, siege
+  doors and walls (BARRICADES), the Council's cast hydras, a vulture in the air, and a monster the
+  strikes do nothing to: one that was the line's monster for UNTOUCHED_CASTS (4) casts and shows
+  the life it had is left alone for UNTOUCHABLE_SECONDS (20), then tried again. A remembered
+  monster not where it was seen (within 25 units of the character and not among the live ones) is
+  not gone to again.
+- The seek order with the pickup request: the nearest known hostile (live, else remembered) goes
+  first, unless it is more than ROOM_UNITS (40) further than the tour's first stop, which then goes
+  first. The seek step for elites does not weigh the tour against an elite: an elite first.
+- A step is made by the first of these that applies: a Blade Warp (a melee weapon, no swap, 0.8 s
+  between two; a clear line to the spot), else Teleport when it needs no swap (the staff in hand with
+  charges, or the skill as the character's own), else a walk click. A jump is JUMP_LEAST (8) to
+  JUMP_REACH (26) units, in view, onto footing; a shorter stride is walked. A walk is one click,
+  not made with a monster under the pointer, and the character must be seen moving within 0.7 s. A
+  jump that moved nobody leaves that skill alone for 30 s. A walk that failed leaves its place
+  alone for 10 s; two steps in a row failing end the sweep. The seek step's hops are the teleport
+  step's (swap in the staff if needed).
+- The sweep (hunt.py `step`, `follow_on`): after the pickup request with hostiles near, attack mode
+  takes steps by itself, with nothing in reach to a better place worth SWEEP_GAIN (2) times where
+  the character stands, else a stride toward the nearest hostile within SWEEP_UNITS, ending
+  STAND_OFF (14) short of it, else (a wall between) the seek step's move onto a firing spot. In a
+  fight it looks for a better place every FOLLOW_CHECK (0.7 s). It ends when nothing hostile is
+  within SWEEP_UNITS, the player moves by hand, FOLLOW_STEPS (12) steps are taken, FOLLOW_SECONDS
+  (8) pass with no step, two steps fail in a row, or no way to the nearest hostile is found.
 - The player's move comes before any strike: a left click releases the strike and blocks it until
   the character has gone and stands again. A click the game may have swallowed during a cast is made
   again for the player (hunt.py, 2026-10-10 evening).
@@ -2167,3 +2228,358 @@ recorded; now in `combat_areas`).
   before, and what the mode waits for is now logged every `WAIT_LOG_SECONDS` = 3 with the place and
   the mode, so the next standstill names its reason.
 - Unknown: whether a cast or a jump of the mode's frees the character. The next one will show it.
+
+### Worldstone Keep and Arachnid Lair runs (2026-10-11, 05:20; log `20261011T001027Z-ea0b8ceb`, two games 03:11 to 03:21)
+
+No complaint came with them; read for stops and lost time.
+- One hop of a chain of 21 (Worldstone Keep 3, 03:12:00, the request pressed six times in 1.5 s) cast
+  nothing: waited for 1.5 s, then stopped as "Teleport is off its key". The same aim landed 0.5 s
+  later, so the key was not lost; the game dropped one press. `hop_toward` now presses once more when
+  nothing came `REPRESS_SECONDS` = 0.6 after the key with the staff in hand and no charge spent, and
+  names the lost key only in a game no hop has landed in yet (`LANDED`); else "the game took neither
+  of two presses".
+- An Eth Rune took four clicks and 4.8 s (03:12:54): the character ran onto it, 18 units past it and
+  back, with "the pointer was found at ... aiming again" between: the pointer was not where it was
+  put (the player's hand on the mouse, most likely). Nothing changed.
+- Arachnid Lair: 67 kills, 03:16:06 to 03:17:19, ended with "the level is explored and nothing is
+  left to hunt". Worldstone Keep 2: 63 kills in 40 s. One walk refused for a monster under the
+  pointer (a hostile, 03:16:30), two steps that moved nothing.
+
+### Where the hunt's numbers came from (moved from the comments of hunt.py, 2026-10-11)
+
+- `HYDRAS`: monstats.txt hydra1-3 (AI Hydra, no life of their own): the fire heads the Council casts stand as hostile monsters and never die. Worldstone Keep, 2026-10-10: the fight held the strike on them for 11 s, and the held strike kept the player from moving away.
+- `VULTURES`, `AIRBORNE`: monstats.txt MonType `vulture` (vulture1-5: combat/data/tables.json): in the air the blades pass through them. Far Oasis, take 20261010T224210Z-43 (user: "a lot of time hunting for birds that weren't on land"): 33 Undead Scavengers took 73 hits, 55 of them walking, attacking or struck (modes 2, 3, 4, 9: 1,797 frames) and 12 in modes 1 and 8 (8,807 frames), so those two are the bird in the air.
+- `ENGORGE_SECONDS` (and the Engorge constants below it): Engorge (skills.txt 379, cast on a corpse): heals the character's demons 30% of their life and more and lowers the damage they take for 125 + 75 per level frames (user, 2026-10-10 night: use it to buff and heal the demon). Cast under the held strike like Death Mark: when a demon is hurt, and now and then for the buff. Unconfirmed in the game: whether a corpse some other skill used still serves.
+- `HEX_RETRY`, `HEX_DISTRUST`, `HEX_TRIES`: Hex: Purge (skills.txt 389, a buff of 3600 + 300 per level frames): the strikes do their damage through it (user, 2026-10-11: "without it there is no damage"), so attack mode casts it whenever the character's state does not show it. A cast the state does not show afterwards is tried once more, then only every HEX_DISTRUST seconds: the bit is read from the tables, not yet seen in the game.
+- `MARK_CASTS`: Death Mark makes one monster take more damage for 125 + 13 per level frames, and costs the strike about 0.9 s (101 marks in the takes of 2026-10-10: its own cast of 0.42 s, then the strike idle 0.37 s at the median before it was pressed again). So only a monster that outlives MARK_CASTS casts is marked, an elite or not, and the strike is pressed again under the mark's cast (`resume`). At the 45% a mark of level 20 adds (Param1 and Param2: 5 + 2 a level) it pays from about four casts.
+- `DECIDE_SECONDS`: between two askings of the policy while its monster lives (a decision costs up to 50 ms)
+- `SWEEP_GAIN`: A place a fight is left for, asked for or not, has to be worth this many times where the character stands (with nothing in reach: stance.CAMP_GAIN). The worth is counted with the monsters standing where they are, and in the game they come to the character. Black Marsh, 2026-10-11: at 00:50 two of six such steps were for 1.27 and 1.34 times; at 01:13, with 40 to 76 hostiles about, steps of 9 to 25 units were taken for 1.29 to 1.48 times with 6 to 10 hostiles in reach, back and forth.
+- `STEP_WALK_SECONDS`: A walk of the mode's own is one click and a short wait: `walk_to` (two clicks, 1.5 s each, a second to settle) took 4 s to say "the character did not move", twice in a row at 01:13:48 and at 01:14:36 for the same place, with nothing cast meanwhile (user: "auto-attacking has stopped"). A place a step failed for is left alone for SHUN_SECONDS, and two failures in a row end the sweep.
+- `RUN_IN_PLACE`: A character in a walking or running mode that has not moved for this long is not going anywhere, and the mode stops waiting for it. Durance of Hate 2, 03:09:13 on 2026-10-11 (user: "a strange movement lag, when we were stuck"): the character stood at (17816, 6818) in mode 3 (run) for 22 s after a walk of the sweep's that got 5 units of its 23, the Defiler and the bound demon standing on it and in its way; three weapon swaps did nothing, the life went up as ever and monsters around died. The mode yields to a character on the move, so it cast nothing and logged nothing for those 22 s.
+- `ROOM_UNITS`, `VANISH_UNITS`: The seek step's order (user, 2026-10-11: "exploring somewhat random in different directions"; a Terror Zone's completion is the rooms seen times the kills, terror/chance.py). The unexplored room is the first stop of a tour that shows every unexplored room (macros/tour.py; the nearest room by the way, with a turn counted as some tiles more, left strips behind and went back for them). A remembered monster that is not where it was seen (within VANISH_UNITS of the character and not among the live ones) is not gone to again.
+- `UNTOUCHED_CASTS`, `UNTOUCHABLE_SECONDS`: A monster the strikes do nothing to is left alone (user, 2026-10-11: Far Oasis, "a lot of time hunting for birds that weren't on land, effectively immortal"; like the Council's hydras, but by what is seen, not by type: a bird in the air, something burrowed, an immune). One that was the line's monster for UNTOUCHED_CASTS casts and shows the life it had is no hostile for UNTOUCHABLE_SECONDS: not fought, not swept or sought toward. Then it is tried again (the bird lands).
+- `JUMP_REACH`: A stride is a jump when the character can make one without a weapon swap (user, 2026-10-11): Blade Warp first (skills.txt 390: a thrown blade the character is teleported to, any melee weapon, a casting delay of 20 frames; missiles.txt 707 `bladewarp`: Vel 36 for 20 frames, half again the strike's blades, so some 33 units), else Teleport when it is in hand or a skill of the character's own (Enigma). A chain of teleport steps covered 26 units in 0.8 s in the Marsh run; the walk takes 1.6. Black Marsh, 01:26 on 2026-10-11, the first run with them: 31 Blade Warps of 9.5 to 24 units all landed on the pointer's ground (off by 2.8 at most, 1.0 at the median), 0.35 s and 45 units a second after the key (0.79 s at the median), the first cast 0.17 s after the landing; 8 Teleports from the staff in hand landed 0.31 s after the key. Blade Warp stays first (user): it spends no charges.
+
+### The review of the movement work: what was done and what waits (2026-10-11, 06:00; `review.md` at the repo root)
+
+Done, with the suite green:
+- Context 1. The contract at the top of this file is rewritten from the code (2026-10-11). The history
+  in the comments of `hunt.py`'s constants and in the header of `combat/stance.py` is moved, verbatim,
+  to the section above and to the end of combat/plan.md; the comments say what the numbers mean.
+  `ENGAGE_UNITS` is gone. The docstrings of runner.py and pickup.py say what the pickup request does now.
+- Context 2. `hunt.Step` (a spot, the skill it is jumped by or None for a walk, the `Camp` it came
+  from) is the move order; `Camp` is the place decision only. `stride_line` and `stand_line` each
+  print their own kind, so a skill id is no longer logged as a count of casts.
+- Architecture 2, first part. `hunt.Sweep` holds what the sweep remembers (steps left, its deadline,
+  its last look, failures in a row, the shunned places) with `start`, `end`, `spend`, `due`,
+  `failed`, `shuns`. The loops still ask it at the same places as before.
+- Architecture 3. A hop aimed beside the skill bar that moves nothing no longer turns the corners off
+  (11 of 11 landed in the runs of 03:11 to 03:21; both turn-offs seen were something else).
+  `FAR_FAILED` is a failure at a place for `FAR_DISTRUST` = 30 s: target and the character's tile.
+- Architecture 5. The fight keeps its aim only on a monster that is a foe now (`foes`), where it
+  looked the unit up among all live monsters and then among the foes.
+
+Waiting, in the order to take them (each changes what the character does, so each wants a run in
+the game after it):
+1. One travel function (walk, Blade Warp over a clear line, Teleport) with the seconds each takes,
+   shared by `take_step`, `afoot`, `go` and the door hop; `camp` priced with those seconds, so that
+   `take_step` does not turn a walk it chose into a jump. `toward` becomes the fallback inside that
+   choice. `walk_to` and `step_walk` become one click with one retry rule.
+2. `frontier` planned with the potential the hop travels by (the far way), then one potential whose
+   hop is what the window shows from each tile, and `FAR_FAILED` goes.
+3. The sweep asking one chooser from every place it looks (`follow_on`, the fight's look, `asked_step`).
+4. `Hunter` split into the cast rotation, the sweep and travel.
+Not taken up: `Field.clear` calling `policy.clear_line` (it reads the cells it has cached; the tick
+cost is pinned), and moving the retired rules, the 39 moments, and the threat and reviver tables
+out of the test tree (the viewer comparison and the tests on them were asked for; the user's call).
+
+### Review stage 1: one travel, and the place priced by it (2026-10-11, 06:40)
+
+- `stance.Jump` (skill, seconds at no distance, units a second, reach, least, whether it needs a clear
+  line) and `camp(..., jumps=...)`: a place a jump reaches is priced by the first jump that does
+  (Blade Warp 0.35 s + 45 units a second over a clear line, Teleport in hand 0.31 s; `Hunter.jumps`),
+  and walked to only when none does or it is nearer than `JUMP_LEAST`. `Camp.skill` names it.
+- A teleport takes as long to any place, so of two places within `AS_GOOD` = 2% of each other's worth
+  that a jump reaches, the one whose furthest counted hostile is nearest `ENGAGE` = 14 units away is
+  taken (the first found was at the end of the blades' flight; the nearest to the pack is in its
+  strikes). Places walked to are compared as before: the simulator's moments are unchanged.
+- `Hunter.travel` makes a `Step` by the way it names; a jump that cannot be made any more goes to
+  the next skill that can, else a walk. `take_step` no longer turns a walk of 8 units or more into a
+  jump: the choice is `camp`'s. `stride` is the one straight stride (`toward` to the nearest hostile
+  with a stand-off, `afoot` to a goal). `walk_to` is gone: `step_walk` with `clicks` (two for a
+  firing spot), the hover check and one wait rule.
+- New in behavior: with the staff in hand a place across a wall is jumped to by Teleport where the
+  sweep went to a firing spot by the seek step's hop; a place is no longer picked for its short walk
+  when the character jumps there anyway.
+
+### Review stage 2: exploration planned by the hop's potential; the far-way ban stays, per target (2026-10-11, 07:10)
+
+- `Hunter.frontier` costs the rooms with the far potential, the one `hop_toward` plans a hop by.
+  Far Oasis replay from the run's three places: 46, 42, 42 hops for all 96 rooms (46, 43, 42 before).
+- One potential in place of two was tried and is not kept. With only the far one (tile centre to tile
+  centre, six tiles) `recorded-door-1725` stops with "no footing in view brings the character nearer":
+  it counts a hop the character cannot make from where on its tile it stands. With the window's slack
+  (from anywhere on a tile) six tiles never fit, and the 25-unit cliff is not crossed. So the near
+  potential stays as what takes over when the far one finds no landing.
+- That takeover is kept for the target for `FAR_DISTRUST` = 30 s, not for the character's tile (as
+  it was for an hour this morning): the two potentials do not agree on which way is nearer, and a
+  hop by each in turn could go back and forth. In 266 hops of the last six sessions the far way
+  never failed to find a landing.
+
+### Review stages 3 and 4: one look for the sweep; the hunt in three modules (2026-10-11, 07:50)
+
+- Stage 3. `Hunter.next_step` is the sweep's one look for a move, from all three places it looks
+  (`follow_on` with nothing in reach, the fight's own look, a request inside a fight): the place
+  worth going to, at `SWEEP_GAIN` in a fight and `CAMP_GAIN` with nothing in reach, and with nothing
+  in reach and no such place a stride toward the nearest hostile. `step_line` logs either kind.
+- Stage 4. `macros/travel.py`: `Step`, `Travel` (`jumps`, `jump_by`, `jump`, `make`, `stride`; when
+  Blade Warp was last cast and which jump last moved nothing), `step_walk`, `attackable`, the jump
+  and walk numbers. `macros/rotation.py`: `Rotation` (Hex: Purge, Death Mark, the sigil, Engorge,
+  `resume`; when each was last cast) and their numbers. `Hunter` keeps the seek step, the sweep,
+  attack mode's loop and the fight (1,440 lines to 1,080), with `self.travel` and `self.rotation`.
+  No behavior changed in this stage; tests of the two modules are in test_travel.py and
+  test_rotation.py, the rest still in test_hunt.py.
+- All four stages are untested in the game. What to watch on the first run: places jumped to (the
+  log says "a jump by Blade Warp of N (0.6s)" where it said "a walk of N"), the distance to the pack
+  after a Teleport jump (about 14), and a walk that stays a walk when no jump reaches.
+
+## 2026-10-11 (11:50): a Nihlathak run ends beside his corpse
+
+Run `20261011T084411Z-d0dc44c6` (Halls of Death's Calling, then Halls of Vaught, both terrorized), the
+first on the code of review stages 1–4: the log names "a jump by Teleport of 13 (0.3s)" and "a jump by
+Blade Warp of 21 (0.8s)" for places, walks stayed walks (16 and 23 units), nothing stopped.
+
+- User: the macro request on Nihlathak's spot with him dead should leave, make the next game and
+  prebuff. At 11:48:05, 13 s after the kill and 11 units from it, it only prebuffed: level 124 was not
+  a run end. Now `run_ended` (routines.py): on the Halls of Vaught with no live Nihlathak (class 526) in
+  the unit table and within `BOSS_UNITS` of where the tracker last saw the level's super unique
+  (his type flags read 0x0a in the probe, the Countess's value). Not seen yet, far from the
+  corpse, or no tracker: a prebuff.
+- Levels 122–124 are recorded as combat takes from now (config `combat_areas`); this run left none.
+- Not looked into: 11:49:06 "cyber1 was not created" after the request in the lobby (the game had
+  been left by hand).
+
+## 2026-10-11 (12:00): a valuable before the fight, a boss before the pack, a stale step
+
+Run `20261011T085559Z-5f524f3e`, take `20261011T085814Z-124` (Halls of Vaught, 116 s, 154 kills).
+User: it feels not so effective damage- and target-wise; Nihlathak first if he can be struck; killing
+trash interrupts pickups, and once a valuable was left on the ground for a hunt.
+
+- Measured, the take is not worse than the ones before it: 59% of the time in the cast mode and 2.24
+  kills per second of it (the same level at 11:53: 61% and 2.10; Far Oasis 53–71% and 1.8–2.0). The
+  other 41%: about twenty Blade Warps of 0.5–1.3 s, 8 s of pickup walks, and gaps of 0.3–0.6 s.
+- The valuable: a Flawless Topaz marked at 11:58:27, the press at 28.3 inside the fight. The press
+  was a step to a better place ("pickup after: True"), then two more Blade Warps, 60 units from the
+  drop, where the wait was dropped ("pickup after: False"); the player walked back for it at 11:58:41.
+  Now `asked_step` (hunt.py): a pickup press inside a fight with a valuable the inventory has room for
+  stops the fight for the pickup step at once (`Cancelled`, the mode's own pause; `_attack_mode`
+  lets it through its handler for stopped fights). A potion still waits for the fight's end.
+- The boss: on arrival beside Nihlathak (11:58:18.97) the first line went through an Ice Spawn, the
+  fight stopped for the main weapons 1.3 s in, and the first line through him came at 24.7, 5.7 s
+  after the arrival. Now a boss in reach (terror/bosses.py `BOSSES`) has the line laid through it
+  (`aim_choice(first=)`, `LinePolicy.choose(through=)`; the simulator's `live` passes none), and the
+  main weapons are swapped in before the first strike, without the `MAIN_AFTER` wait.
+- A bug: at 11:58:20.5 a Teleport "aimed at (10037.5, 14888.5), 10084.7 from" the character. It was a
+  step chosen on the level before (the press at 11:58:05), which a teleport request cancelled before
+  it was taken; `take_step` took it after the next fight. `_attack_mode` now drops such a step on entry.
+- Seen and left: 11:58:29–37, eight seconds and seven kills on lines worth 2–7 thousand with 1–5 of
+  about 30 hostiles in reach and "no better place within 24" (the packs stood about 45 away, two steps
+  off; the stride toward them is taken only with nothing in reach). No Flayer Shaman is counted as a
+  kill in the take: it turns into a Flayer (class 662 to 656, the same unit) and that Flayer read
+  128/128 through four casts.
+
+## 2026-10-11 (12:26): no attack for three seconds beside Nihlathak
+
+Run `20261011T092428Z-a0d298e6`. The hop that reached him landed at 12:25:45.05 ("3 left after this").
+A teleport press made at 45.02, during that hop, ran one more step: the best landing was 0.7 units from
+the character, the key was pressed (a charge spent, 51 to 50) and the step waited for a move of
+`MOVED` (2.0) until 47.45, "the character did not move". Attack mode came on then, the main weapons
+at once (the boss rule of 12:00), and the first strike through Nihlathak at 48.20: 3.1 s after the
+landing, 2.2 of them that wait. He died at 52.57.
+
+`hop_toward` (teleport.py) now makes no hop when the landing is under `MOVED` from the character:
+"At <mark>", no key, no charge, and the step ends so the mode follows.
+
+## 2026-10-11 (12:33): hops aimed from the place before, and Nihlathak's focus
+
+Run `20261011T093127Z-a6809cd7`, takes `20261011T093213Z-123` and `20261011T093226Z-124`.
+
+- User: bad teleports around the next level, two jumps wasted. Twelve of the sixteen hops on level 123
+  landed 6 to 26 units off their aim, the last two at the door (aimed at the entry, landed 18 and 17
+  off, on its far side). The take's frames give the order: the step began at 12:32:16.6 while the
+  sweep's walk (12:32:15.97, "Walking 12") was still going. The hop's key went down at 17.47; the walk
+  ended at (10016.5, 14869.5), over `MOVED` from where the step had read the character and standing,
+  so `landed_from` took it for the landing 10 ms after the key. The next step read its place and
+  aimed the pointer while that teleport was in flight (landed 17.74), then pressed its key from the
+  real landing with the pointer aimed from the place before; that teleport's landing was in turn the
+  next step's "landing", and so on down the chain. On level 124 every hop began from a standing
+  character and landed within 1.6.
+  Now `hop_toward` reads the character through `settled` (teleport.py): once the cast before is over
+  (`READY_SECONDS`) and a walk has ended (`SETTLE_SECONDS` 0.5; a walk still going is the player's and
+  the hop goes from where it is). On level 124 the steps already began 0.1 s after the landing, so
+  the wait costs nothing there. `travel.py`'s own jumps are not changed.
+- User: Nihlathak was not focused. The record says he was: the first line (12:32:31.85) went through
+  him, 18.4 units away with 25 other monsters inside 22, and stayed until he died at 35.46; his life
+  first fell at 32.84. The main weapons were in hand before the first strike. Nothing changed.
+- 12:33:29 "loaded game: not seen in 40s" after "Creating cyber7": not looked into.
+
+## 2026-10-11 (12:50): three Nihlathak runs after the `settled` hop; the load that "never ends"
+
+Session `20261011T094429Z`, games cyber8 to cyber10, takes `094510Z-123` to `094646Z-124`.
+
+- Hops: 58 over the three runs, 52 landed within 1 unit of the aim, the other six 2.5 to 9.7 off. The 9.7
+  was the last hop of the second run (12:46:07.67, aimed 7.6 away at (12895.0, 5210.0), the character
+  stayed at (12897, 5219), 0.76 s): the hop before it had also come down 5.3 south of its aim, so
+  the ground there did not take a landing though the map says footing. Not looked into further.
+- Nihlathak: the first strike went through him in all three (8.6, 15.3 and 5.7 away) with the main
+  weapons in hand; dead 1.7 s, 4.1 s and 1.8 s after the first strike. From the hunt request on the
+  first level to the request that left the game: 19.7 s, 25.7 s, 28.1 s (the last two with 4.7 s and
+  5.6 s of standing after the fight).
+- The no-hop guard (12:26 note) stopped one queued press at Nihlathak (12:46:51.43); the valuable-first
+  pickup took a Flawless Amethyst with 7 of 9 hostiles in reach in 0.47 s (12:46:56.29).
+- Engorge was refused at both looks in every one of the three fights ("under the pointer" a live
+  monster); over today's Nihlathak sessions 11 cast, 25 refused. Each pair of looks holds the pointer
+  off the strike's line about 0.45 s. Not changed.
+- The Teleport staff went from 69 charges to 12 over the three runs (19 to 21 a run).
+- "loaded game: not seen in 40s" (12:33:29 after cyber7, 12:47:49 after cyber10): both times the game
+  was made and the character stood in Harrogath for the whole wait (the probe's life records at
+  (5098, 5023); at 12:32:50 the identify baseline was read), and both times the player wrote a message
+  in another window within 20 to 50 s of the request (12:33:39, 12:47:26). The seven creations today
+  after which play went on all loaded in 4.8 to 9.4 s. So the view byte (`world.VIEW_RVA`) seems to
+  stay 0 while the game's window is not in front; not proven, no record of the focus is kept. The
+  stop now says "(the game window is not in front)" when that is so at the limit
+  (`create_next_game`). Keys are not sent to another window in any case (`Actuator`).
+
+## 2026-10-11 (13:00): no attack for 2.6 s on arrival at Nihlathak, again
+
+Session `20261011T095605Z`, take `095635Z-124`. User: "the same issue: on arrival to him we weren't attacking at all".
+
+- 12:56:40.87 the last hop landed at (12527.5, 5212.5), 3.5 from Nihlathak's spot (12525.0, 5210.0),
+  with him 9.9 away. A press more was queued (40.77). Its hop was aimed at the spot itself, 3.5 away:
+  over `MOVED`, so the 12:26 guard ("the landing is where the character stands") let it through. The
+  key went down at 41.10, a charge was spent (53 to 52), the character did not move, and the step
+  waited out `REPRESS_SECONDS` + `HOP_SECONDS` and stopped at 43.43 ("the character did not move").
+  Attack mode came on then; first strike 44.05, Nihlathak dead 47.25.
+  The same hop at 12:46:07.67 (7.6 from the spot) left the character within 2.2 and cost 0.76 s.
+- Now (`hop_toward`): within `SPOT_NEAR` (5.0, one tile, the arrival of the route scenarios) of a spot
+  that is not a door no hop is made ("At ..."); and a hop of at most 2 x `SPOT_NEAR` onto such a spot
+  that spent a charge and showed no move in `REPRESS_SECONDS` ends the step there, without the 1.5 s
+  more and the stop. The parametrized "already there: no footing in view" stop is gone with it.
+
+## 2026-10-11 (13:25): gold piles in the pickup step
+
+User: "probably we also should pickup gold >5k"; "we don't need to click on it, blade warp to location would be enough".
+
+- `world.loot` gives a ground pile of gold (class 538, `gld`) of at least `pickup_gold_minimum` (config,
+  5000; None: none) as a drop of the kind `GOLD`, labelled with its amount (stat 14, `gold`), taking no
+  inventory room. The amount is looked for in the unit's full stat list, then its own (`gold_amount`);
+  the first read of a pile of 1000 or more is logged with the list it came from. UNCONFIRMED on the
+  host: that the amount is in either list.
+- `pickup.choose`: after the valuables and before the potions, the nearest such pile within `GOLD_UNITS`
+  (26, one jump). `pickup.collect`: a Blade Warp onto the pile (pointer on its ground), the pile leaving
+  the ground within `GOLD_SECONDS` the proof; nearer than `GOLD_WALK` (6), or when the jump did not
+  take it, one click on its ground for the walk. No walls are looked at for the jump. A pile neither
+  takes is left alone for `SHUN_SECONDS`.
+- Gold does not stop a fight (only a valuable does, hunt.py `asked_step`): asked for in one, it waits
+  for the fight like a potion.
+
+## 2026-10-11 (13:40): the gold pile the jump did not take
+
+Session `20261011T102523Z`. User: "we had bad coordinates to gold pile and failed to grab it; probably we need to use
+in-game position, not label position".
+
+- The amount reads: every pile's came from the full stat list (1025 to 9013 gold, six piles logged).
+- 13:30:29.29 a pile of 7210 read at (12898, 5208), 6.3 away. The Blade Warp put the character at
+  (12898.5, 5208.5), 0.7 from that place, and the pile stayed; a click on that ground walked it to
+  (12899.7, 5208.5), the pile still there; the press stopped. The place is the item's own path
+  position (`loot.ground.static_position`), the one every clicked pickup goes by, not a label's. So
+  either the pile was not there, or standing 0.7 away after a jump does not take gold; the record
+  cannot tell which. A pile of 9013 in the game before (13:28:31 to 34) went while the character
+  walked about picking up a Magefist.
+- Now `collect` clicks the pile like any item (`take`: the aims round it, the game's own record of the
+  item under the pointer) when the jump did not take it within `GOLD_SECONDS` (0.9), and at once for a
+  pile nearer than `GOLD_WALK`. The "picked up ... pixels from its ground, from ... away" line of the
+  next pile will show how far the pile is from where it is read.
+
+## 2026-10-11 (13:55): the teleport step ends at a stand off the pack (Nihlathak, the Throne)
+
+User: "position our last jump somewhere off the main mob pack, to avoid heavy damage; similar for the
+worldthrone room: west-north off actual throne. We end in the desired position; KP_1 when there is
+something to pick up or kill; KP_4 again to stand in the predefined position."
+
+- The level's mark is what the teleport step goes to, so the mark moved; nothing in the macros changed.
+  At the mark the step makes no hop (`SPOT_NEAR`, 13:00 note), and from further off it hops back.
+- Halls of Vaught (`levels/handlers/halls_of_vaught.py`, `stand=(3, -1)` tiles from the side's spot;
+  `PoiSpec.stand` is new): east of the pavilion Nihlathak and his pack stand in, 15.5 to 19.5 units
+  from him. Measured on the twenty takes of the day: the pack within about 12 of the spot, the strip
+  east of the pavilion empty on arrival in each layout; footing and a clear line from the stand to all
+  of the pavilion in each. The lowest life in those takes was 40% to 68% in eight of twenty, landing
+  8 to 18 from the spot among the pack.
+- Throne of Destruction (`worldstone_keep.py`, `THRONE_STAND` (82, 14), was the hall's middle (94, 40)):
+  north-west of where 153 wave monsters first appeared in the two takes of 00:12 and 00:18 (around
+  (90, 25)); nine in ten of those places in a clear line, 85% within 20 units.
+- Not done: the way back to the stand is a Teleport (a swap to the staff and back, a charge) however
+  near; a Blade Warp would do within a jump.
+- Session `20261011T103721Z` (four games): no pile of 5000 gold or more lay on the ground, so the gold
+  click of 13:40 is still untried.
+
+## 2026-10-11 (14:00): "we weren't able to pickup potions and gold"
+
+Session `20261011T103721Z`, the game of 13:46:48 (cyber26), with the gold click of 13:40 loaded.
+
+- Gold: the piles on the ground were 4454 and 1287, under `pickup_gold_minimum` (5000); none was gone for.
+  The game before had the first pile over it: 5283 at (12707, 5023), 7.9 away (13:43:42.67). The
+  Blade Warp landed 0.7 from it and it stayed (as the 7210 at 13:30); the click 24 pixels above its
+  ground took it in 0.07 s. So the pile is where it is read, and landing on it does not take it.
+  `collect` now waits only for the landing (not `GOLD_SECONDS` for the pile to go) before the click:
+  1.45 s from the press to the gold in hand then, of which 0.5 s was that wait.
+- Potions: after the Flawless Amethyst the press read "3 drops (healing), belt short (1, 0)": three super
+  healing potions, the belt missing one rejuvenation and no healing, the life whole. By the rules
+  none is taken (a healing potion has no place in the belt). The seven presses after that each
+  became the fight's step or the sweep, which took the character 90 units off. Now the press says
+  "Not picked up: the belt has no place for ..." before it goes on.
+- The belt was one rejuvenation short all session ((1, 2), (1, 1), (1, 0)): no full rejuvenation
+  potion lay near at any press.
+
+## 2026-10-11 (14:10): gold left behind by the steps of the presses that asked for it
+
+Session `20261011T105456Z`, the game of 13:56:48. User: "we left gold on the ground and moved away,
+probably we can plan and move better, especially for effortless/valuable pickups".
+
+- 13:57:07.97 a pile of 5221 was first read, the character at the stand (12540.5, 5205.5), 8 of 21
+  hostiles in reach. The press and the two after it: "no better place; pickup after: True" (the
+  pickup waited for the fight's end). The fourth (09.54) found a better place: a Blade Warp of 19,
+  then the sweep one of 16. At 12.85 the pile was further than `GOLD_UNITS` and the wait was dropped
+  ("pickup after: False"); fifteen more presses found nothing.
+- Now any pickup the press finds (`pickup.choose`: a valuable, gold within a jump, a potion the belt
+  wants) stops the fight at once, as only a valuable did (12:00 note). The wait for the fight's end
+  (`after_fight`) is still set by the runner but `asked_step` no longer leaves it standing with
+  something to pick up.
+- The same game: "Not picked up: the belt has no place for a super healing potion" was said once
+  (13:57:22.65, belt full); and the stand held ("no hop toward Nihlathak: the character is beside it").
+
+## 2026-10-11 (14:25): the sweep picks up on its way
+
+User: "probably when doing KP_1 auto-movement, we should also auto-pickup items/gold".
+
+- `Hunter.gather` (hunt.py): with the sweep on, every `GATHER_CHECK` (0.3 s) in a fight and with nothing
+  in reach, what the pickup step would take (`pickup.choose`: a valuable with room for it, gold of
+  `pickup_gold_minimum` within a jump, a potion the belt wants) pauses the mode for that step, as a
+  press does: the runner's `_pick` makes the pickup step pending and the mode raises Cancelled. The
+  sweep's time is extended by `GATHER_SECONDS` so that it goes on after the step. One drop is stopped
+  for `GATHER_TRIES` (2) times at most. Without the sweep (no pickup press yet, or the player's own
+  move ended it) nothing is picked up unasked.
+
+## 2026-10-11 (14:57): the sweep's pickups in the game; the first click under a cast
+
+Session `20261011T114952Z`, games of 14:50 and 14:53.
+
+- The stand: Nihlathak fought from (12724, 5022) with the life never under 98% (14:50); "no hop toward
+  Nihlathak: the character is beside it" for the press more in both games.
+- `gather` stopped the sweep for a Ring, 6526 gold, a Jewel, a Flawless Diamond and two super healing
+  potions, and the sweep went on each time. Gold by the press: 7832 from 16 away in 1.0 s.
+- The first click on the Ring and on both potions took nothing with the item under the pointer and the
+  character standing (the mode's cast was still going when it paused); the second took each, 0.65 s
+  later. `pickup.standing` now also waits for the cast to end before an aim is taken.
+- 14:54:08 the sweep went for a potion 9.8 away with Nihlathak alive, from the stand into the
+  pavilion; the life went from 64% to 57% there (it was 62% on arrival). Left as it is.

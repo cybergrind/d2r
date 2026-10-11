@@ -16,7 +16,8 @@ D2DATA = Path('third-parties/d2data/json/base')
 
 @pytest.fixture(scope='module')
 def built():
-    return build(json.loads(build_filter.TEMPLATE.read_text()), load_sources())
+    # without the Chronicle: what it lacks changes with every find
+    return build(json.loads(build_filter.TEMPLATE.read_text()), {**load_sources(), 'chronicle': None})
 
 
 def rule(profile, name):
@@ -129,3 +130,47 @@ def test_trade_record_replaces_asks_demand_and_elite_guarantee_but_not_self_use(
         'slow but dear: 3 trades in 90 days, median 3.66 Ist (Traderie Recent Trades 2026-10-09)'
     ]
     assert reasons['Bverrit Keep'] == []  # not covered by the trade record: the old rules, which find nothing
+
+
+def test_an_item_the_chronicle_lacks_is_shown_until_it_is_found():
+    sources = {
+        'asks': {'date': '2026-09-18', 'bases': {}},
+        'demand': {},
+        'builds': set(),
+        'recommended': set(),
+        'trades': {
+            name: {'last_30d': 20, 'median_ist': 0.06, 'date': '2026-10-09'}
+            for name in ('The Gnasher', 'Deathspade', 'Horadric Staff', 'Cold Rupture')
+        },
+        'chronicle': {'Deathspade'},
+    }
+    reasons = evidence('unique', sources)
+    assert reasons['The Gnasher'] == ['not in the Chronicle yet']
+    assert reasons['Deathspade'] == []  # found
+    assert reasons['Horadric Staff'] == []  # a quest item: no monster drops it
+    assert reasons['Cold Rupture'] == []  # the game keeps it out of the Chronicle
+    assert evidence('unique', {**sources, 'chronicle': None})['The Gnasher'] == []  # no dump, no reason
+
+
+def test_the_chronicle_is_read_by_name_and_is_absent_without_a_dump(tmp_path):
+    dump = tmp_path / 'chronicle.json'
+    assert build_filter.load_chronicle(dump) is None
+    entries = {'unique': [{'name': 'Deathspade'}], 'set': [{'name': "Civerb's Ward"}], 'runeword': [{'name': None}]}
+    dump.write_text(json.dumps({'entries': entries}))
+    assert build_filter.load_chronicle(dump) == {'Deathspade', "Civerb's Ward"}
+
+
+def test_the_profile_goes_to_the_clipboard_when_wl_copy_is_there(monkeypatch):
+    sent = []
+
+    def run(command, *, input, **_):
+        sent.append((command, input))
+        return type('Done', (), {'returncode': 0})()
+
+    monkeypatch.setattr(build_filter.subprocess, 'run', run)
+    monkeypatch.setattr(build_filter.shutil, 'which', lambda name: None)
+    assert build_filter.copy('{}') is False
+    assert sent == []
+    monkeypatch.setattr(build_filter.shutil, 'which', lambda name: '/usr/bin/wl-copy')
+    assert build_filter.copy('{}') is True
+    assert sent == [(['wl-copy'], b'{}')]

@@ -48,7 +48,7 @@ def test_unknown_variant_is_a_problem():
     assert guidance.problems == ('Nihlathak: layout variant unknown',)
 
 
-def test_the_marker_is_where_nihlathak_stands_so_walking_up_to_him_keeps_the_arrow():
+def test_the_marker_is_a_stand_beside_nihlathaks_pavilion_and_walking_up_to_him_keeps_the_arrow():
     # Game 3 (fixture halls_of_vaught_nihle, variant 0 = NihlE): Win+C dump 20260930T144010Z-ca3068d4
     # saw Nihlathak at (12894, 5205), 94% across the 84x84 preset. With the generic 15% inset the
     # marker sat 40 units short of him, and the Win+C next to him pointed back "west".
@@ -60,7 +60,22 @@ def test_the_marker_is_where_nihlathak_stands_so_walking_up_to_him_keeps_the_arr
     [poi] = handler_for(124).guide(snapshot).pois
     cx, cy = poi.room.center
 
-    assert abs(cx - 12894) <= 5
-    assert abs(cy - 5205) <= 25
+    # user, 2026-10-11: the last jump lands off the main pack. The mark is 3 tiles east and 1 north of
+    # the side's spot (12895, 5210): east of the pavilion he stands in, 15.5 units from him here.
+    assert (cx, cy) == (12910, 5205)
     assert pointer(poi, snapshot.location).compass == 'east'
     assert pointer(poi, Location(124, 0, 12877, 5216)).compass == 'east'
+
+
+def test_the_stand_is_the_same_way_from_the_spot_in_every_layout():
+    # The pavilion lies the same way round in all four layouts (takes of 2026-10-11), so the stand does too.
+    [handler] = HANDLERS
+    snapshot = replay('halls_of_vaught_nihlw')
+    block = next(r.block for r in snapshot.rooms if r.block)
+    centre = ((block[0] + block[2] / 2) * 5, (block[1] + block[3] / 2) * 5)
+    stands = []
+    for variant in range(4):
+        rooms = tuple(Room(r.preset, r.x, r.y, r.width, r.height, variant, r.block) for r in snapshot.rooms)
+        [poi] = handler.guide(LevelSnapshot(snapshot.location, rooms)).pois
+        stands.append((poi.room.center[0] - centre[0], poi.room.center[1] - centre[1]))
+    assert stands == [(200, -5), (15, -190), (15, 180), (-170, -5)]

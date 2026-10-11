@@ -51,7 +51,7 @@ def test_labels_along_the_chain():
     assert all(handler_for(area).confirmed for area in (128, 129, 130))  # user checked 2026-09-30
 
 
-def test_the_throne_of_destruction_marks_the_hall_before_the_throne():
+def test_the_throne_of_destruction_marks_a_stand_north_west_of_where_the_waves_appear():
     # user, 2026-10-10 night: teleport steps rush to Baal's hall. levels.txt puts the level at tile
     # (3000, 1000), 40 x 52 tiles; the layout file seats Baal at (90, 11) units, the hall below him.
     import math
@@ -63,5 +63,6 @@ def test_the_throne_of_destruction_marks_the_hall_before_the_throne():
     guidance = handler_for(131).guide(LevelSnapshot(Location(131, 0, 15102, 5242), rooms))
     [poi] = guidance.pois
     assert (poi.label, poi.kind) == ('Throne', 'target')
-    assert math.dist(poi.point, (15094, 5040)) <= 5
+    # user, 2026-10-11: "west-north off actual throne"; the waves appear around (90, 25) units
+    assert math.dist(poi.point, (15082, 5014)) <= 3
     assert guidance.problems == ()

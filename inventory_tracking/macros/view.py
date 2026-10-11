@@ -27,8 +27,8 @@ VIEW = ((0.03, 0.97), (0.05, 0.84))
 # it is going up). The bar is taken as HUD_HALF window heights to each side of the middle, by what the
 # game took (Far Oasis, 02:16 on 2026-10-11, the host's 2560 x 1418): casts aimed 0.67, 0.69, 0.72 and
 # 0.85 heights from the middle, 0.89 to 0.92 down, landed on the spot; one 0.63 from the middle did
-# nothing. A hop aimed there that moves nothing turns them off for the session (teleport.hop_toward,
-# `CORNERS`).
+# nothing. Confirmed in the game: 11 of 11 hops aimed there landed (03:11 to 03:21 on 2026-10-11).
+# `CORNERS` is the switch (tests turn it off for the plain view).
 CORNER_BOTTOM = 0.95
 HUD_HALF = 0.70
 CORNERS = [True]  # one switch for every Viewport; a list so it is changed in place

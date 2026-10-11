@@ -11,7 +11,7 @@ import pytest
 from inventory_tracking.levels.model import Level, Room
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.pickup import POTION_UNITS, Plan, choose, pick_up
-from inventory_tracking.macros.world import HEALING, REJUVENATION, VALUABLE, Drop, Loot, Teleport
+from inventory_tracking.macros.world import GOLD, HEALING, REJUVENATION, VALUABLE, Drop, Loot, Teleport
 from tests.inventory_tracking.macros.fakes import KEYS, SLOTS, Game, world
 
 
@@ -315,3 +315,82 @@ def test_an_aim_is_taken_only_once_the_character_stands():
     began = play.clock.now
     assert standing(run).mode == 3  # it never stood: the aim is taken anyway after STAND_SECONDS
     assert play.clock.now - began >= STAND_SECONDS
+
+
+# --- gold: gone to, never clicked (user, 2026-10-11: "pickup gold >5k", "blade warp to location would be enough") ---
+
+PILE = Drop(60, 5015.0, 5000.0, '7200 gold', GOLD, (0, 0))
+
+
+def test_gold_comes_after_a_valuable_and_before_a_potion_and_only_within_a_jump():
+    far = Drop(61, 5040.0, 5000.0, '9000 gold', GOLD, (0, 0))
+    short = Loot((PILE, far, JUV_NEAR), (HP, HP, JUV, None) * 4, 1000, 1000)
+    assert choose(short, ORIGIN) == Plan(PILE)
+    assert choose(Loot((PILE, RUNE)), ORIGIN) == Plan(RUNE)
+    assert choose(Loot((far,)), ORIGIN) is None
+
+
+def test_gold_is_taken_with_a_full_inventory():
+    assert choose(Loot((PILE,), room=('#' * 10,) * 4), ORIGIN) == Plan(PILE)
+
+
+def test_a_gold_pile_is_jumped_onto_by_blade_warp_and_not_clicked():
+    play = game(PILE)
+    assert pick_up(play.run(), LEVEL, keys, nothing)
+    assert play.pressed() == ['w']
+    assert play.warps == [pytest.approx((5015.0, 5000.0), abs=1.5)]
+    assert play.picked == ['7200 gold']
+    assert not any(event[0] == 'click' for event in play.keys.events)
+    assert play.said[-1] == '7200 gold: picked up'
+
+
+def test_a_gold_pile_a_few_steps_away_is_clicked():
+    play = game(Drop(60, 5004.0, 5000.0, '7200 gold', GOLD, (0, 0)))
+    assert pick_up(play.run(), LEVEL, keys, nothing)
+    assert play.pressed() == []
+    assert play.picked == ['7200 gold']
+
+
+def test_gold_the_jump_did_not_take_is_clicked_like_any_item(caplog):
+    # Halls of Vaught, 13:30:30 on 2026-10-11: the jump landed 0.7 from where the pile was read to be,
+    # and it stayed on the ground; a click on that ground took nothing either.
+    play = game(PILE)
+    play.gold_radius = 0.0
+    with caplog.at_level('INFO'):
+        assert pick_up(play.run(), LEVEL, keys, nothing)
+    assert play.pressed() == ['w']
+    assert play.picked == ['7200 gold']
+    assert any('picked up 7200 gold' in r.message for r in caplog.records)
+
+
+def test_a_jump_that_does_not_land_is_followed_by_a_click_on_the_gold():
+    play = game(PILE)
+    play.warp_lands = False
+    assert pick_up(play.run(), LEVEL, keys, nothing)
+    assert play.pressed() == ['w']
+    assert play.picked == ['7200 gold']
+
+
+def test_potions_the_belt_has_no_place_for_are_named_when_a_press_takes_nothing():
+    # Halls of Vaught, 13:47:09 on 2026-10-11: three super healing potions, the belt short of one
+    # rejuvenation only, the life whole; to the player the press had failed to pick them up.
+    play = game(HP_NEAR, belt=(HP, HP, JUV, None) + (HP, HP, JUV, JUV) * 3)
+    said = []
+    assert not pick_up(play.run(), LEVEL, keys, lambda: said.extend(play.said))
+    assert said[-1] == 'Not picked up: the belt has no place for a healing potion'
+    assert play.picked == []
+
+
+def test_an_aim_is_taken_only_once_the_cast_under_way_is_over():
+    # 14:51 to 14:54 on 2026-10-11: the sweep's own pickups began under the strike's cast, and the first
+    # click on a Ring and on two potions was swallowed, 0.65 s each before the miss showed.
+    from dataclasses import replace
+
+    from inventory_tracking.macros.pickup import standing
+
+    play = Game(world(area=101))
+    play.world = replace(play.world, player=replace(play.world.player, mode=10))
+    over = lambda: setattr(play, 'world', replace(play.world, player=replace(play.world.player, mode=1)))  # noqa: E731
+    play.arrivals.append((0.3, over))
+    assert standing(play.run()).mode == 1
+    assert 0.3 <= play.clock.now < 0.4

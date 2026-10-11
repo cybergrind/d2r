@@ -275,6 +275,23 @@ def test_a_game_that_never_takes_input_stops_the_macro():
     assert game.clock.now < 60
 
 
+def test_a_load_that_never_ends_with_the_player_in_another_window_says_so():
+    # 12:33 and 12:47 on 2026-10-11: the player went to another window while the game loaded
+    game = Game(world(121))
+    game.loading_seconds = 500.0
+    react = game.keys.on_event
+
+    def leave(event):
+        react(event)
+        if event == ('key', 'Return'):
+            game.focused = False
+
+    game.keys.on_event = leave
+    with pytest.raises(Abort, match='the game window is not in front'):
+        run_macro(game.run(), lambda w: dict(KEYS))
+    assert game.pressed()[-1] == 'Return'
+
+
 def test_a_game_that_is_not_created_stops_the_macro_soon():
     game = Game(world(121))
     react = game.keys.on_event
@@ -627,3 +644,31 @@ def test_with_andariel_alive_or_on_another_level_the_macro_only_prebuffs(area):
     game = Game(world(area, monsters=andariel))
     run_macro(game.run(), lambda w: dict(KEYS))
     assert game.pressed() == ['q', '6', 'q', 'g', 'r']
+
+
+def test_beside_the_dead_nihlathak_the_macro_leaves_and_makes_the_next_game():
+    # 11:48 on 2026-10-11: the request 11 units from where he died 13 s before only prebuffed.
+    game = Game(world(124))
+    run = game.run()
+    run.supers = lambda level: [(5010.0, 5005.0)]
+    run_macro(run, lambda w: dict(KEYS))
+    assert game.pressed()[0] == 'Escape'
+    assert game.world.game_name == 'cyber33'
+
+
+@pytest.mark.parametrize(
+    ('monsters', 'seen'),
+    [
+        ((Monster(70, 526, 1, 5010.0, 5005.0, 0xFFFFFFFF),), [(5010.0, 5005.0)]),  # alive beside the character
+        ((), []),  # not found yet
+        ((), [(5400.0, 5300.0)]),  # killed, and the character far from there
+        ((), None),  # no tracker to say where he was
+    ],
+)
+def test_in_the_halls_of_vaught_away_from_a_dead_nihlathak_the_macro_only_prebuffs(monsters, seen):
+    game = Game(world(124, monsters=monsters))
+    run = game.run()
+    run.supers = None if seen is None else lambda level: seen
+    run_macro(run, lambda w: dict(KEYS))
+    assert 'Escape' not in game.pressed()
+    assert game.world.game_name == 'cyber32'

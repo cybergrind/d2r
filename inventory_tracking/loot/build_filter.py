@@ -14,16 +14,22 @@ a shown item stays shown:
 - a maxroll planner loadout equips it (wp-a-variants/index.json): build demand, kept even when it does not sell;
 - the knowledge base recommends it for leveling (pricing/data/appraisal-recommendations.json) and the player
   does not own a copy yet (collection database, one of each is kept on the mules): a leveling piece that sells
-  for a perfect gem is not picked up twice.
+  for a perfect gem is not picked up twice;
+- the Chronicle does not have it yet (user, 2026-10-11): the character's Chronicle as read from the game by
+  inventory_tracking.probes.chronicle, for the items the game lists there and monsters drop. Rerun the probe
+  and this generator as it fills; without a Chronicle file the reason is not used.
 For an item the trades file does not cover, the older ask-based reasons apply instead: a good-roll ask of at
 least ASK_MINIMUM Ist (loot/data/uniques.json), a maxroll guide mention (appraisal-demand.json), or an elite
 base (the ask table prices too few elite uniques to call the rest worthless).
 
 Run: uv run --offline python -m inventory_tracking.loot.build_filter
+The profile is also put on the clipboard (wl-copy), ready for the game's import.
 """
 
 import json
+import shutil
 import sqlite3
+import subprocess
 from pathlib import Path
 
 from inventory_tracking.items.metadata import metadata
@@ -42,6 +48,7 @@ BUILDS = Path('pricing/data/wp-a-variants/index.json')
 RECOMMENDATIONS = Path('pricing/data/appraisal-recommendations.json')
 TRADES = Path('pricing/data/named-trades.json')
 COLLECTION = Path('inventory_tracking/runs/collection/collection.sqlite')
+CHRONICLE = Path('inventory_tracking/runs/chronicle/chronicle.json')
 ASK_MINIMUM = 0.25
 TRADES_PER_MONTH = 3
 SLOW_MINIMUM = 1.0  # Ist: a dear item that sells only now and then is still worth the pickup
@@ -55,6 +62,15 @@ def named_items(table: str) -> dict[str, list[str]]:
         row['name']: row['base_codes']
         for row in metadata()['identities'][table].values()
         if row['game_definition'].get('spawnable') != 0 and row['base_codes']
+    }
+
+
+def chronicled(table: str) -> set[str]:
+    """Names the Chronicle can hold and a monster can drop: not switched off there, not a quest item (level 0)."""
+    return {
+        row['name']
+        for row in metadata()['identities'][table].values()
+        if not row['game_definition'].get('disableChronicle') and row['game_definition'].get('lvl')
     }
 
 
@@ -92,6 +108,8 @@ def evidence(table: str, sources: dict) -> dict[str, list[str]]:
     """Name -> why the item is worth showing (empty: nothing in the knowledge base says so)."""
     highs = asks(sources['asks'], TABLES[table])
     traded = sources.get('trades', {})
+    found = sources.get('chronicle')
+    missing = set() if found is None else chronicled(table) - found
     reasons = {}
     for name, codes in named_items(table).items():
         why = []
@@ -109,6 +127,8 @@ def evidence(table: str, sources: dict) -> dict[str, list[str]]:
             why.append('in a maxroll planner loadout')
         if name in sources['recommended'] and name not in sources.get('owned', ()):
             why.append('leveling recommendation, not owned yet')
+        if name in missing:
+            why.append('not in the Chronicle yet')
         reasons[name] = why
     return reasons
 
@@ -169,6 +189,14 @@ def load_owned(path: Path = COLLECTION) -> set[str]:
         return {row[0] for row in db.execute("select distinct name from items where rarity in ('unique', 'set')")}
 
 
+def load_chronicle(path: Path = CHRONICLE) -> set[str] | None:
+    """Unique and set names in the character's Chronicle (probes/chronicle.py); None without a dump."""
+    if not path.exists():
+        return None
+    entries = json.loads(path.read_text())['entries']
+    return {row['name'] for table in TABLES for row in entries[table]}
+
+
 def load_trades(path: Path = TRADES) -> dict[str, dict]:
     """Name -> trade summary row, with the pull date on each row; empty when no trades file exists yet."""
     if not path.exists():
@@ -187,6 +215,7 @@ def load_sources() -> dict:
         'recommended': {row['name'] for row in (recommended['rows'] if isinstance(recommended, dict) else recommended)},
         'trades': load_trades(),
         'owned': load_owned(),
+        'chronicle': load_chronicle(),
     }
 
 
@@ -220,12 +249,33 @@ def build(template: dict, sources: dict) -> tuple[dict, dict]:
     return profile, sidecar
 
 
+def copy(text: str) -> bool:
+    """Put the profile on the Wayland clipboard; False without wl-copy or a display to copy to."""
+    if shutil.which('wl-copy') is None:
+        return False
+    try:
+        # wl-copy stays behind to serve the clipboard: it must not inherit a pipe someone waits on
+        done = subprocess.run(
+            ['wl-copy'],
+            input=text.encode(),
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            timeout=5,
+            check=False,
+        )
+        return done.returncode == 0
+    except subprocess.TimeoutExpired:
+        return False
+
+
 def main() -> int:
     profile, sidecar = build(json.loads(TEMPLATE.read_text()), load_sources())
     publish(OUTPUT, profile)
     publish(NAMES, sidecar)
     for table in TABLES:
         print(f'{table}: {len(sidecar[table]["shown"])} shown, {len(sidecar[table]["hidden"])} hidden')
+    copied = copy(OUTPUT.read_text())
+    print(f'{OUTPUT}: {"copied to the clipboard" if copied else "not copied (no wl-copy or no display)"}')
     return 0
 
 

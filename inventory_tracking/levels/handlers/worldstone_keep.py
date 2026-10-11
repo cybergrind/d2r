@@ -10,15 +10,20 @@ Throne of Destruction (131): the mark is the hall before Baal's throne, so telep
 there (user, 2026-10-10 night). The layout file (expansion/baallair/wthrone.ds1, read from the
 install 2026-10-10) seats `baalthrone` at (90, 11) units from the preset's origin, at the head of a
 hall whose torches stand at x 89 and 99 from y 24 to 64; the mark is the hall's middle, (94, 40).
-In the two runs of that night the waves were fought from (74 to 102, 26 to 50). Unconfirmed: the
-level has no dump yet, so how its rooms read (one block or not) is not known.
+In the two runs of that night the waves were fought from (74 to 102, 26 to 50).
+
+Since 2026-10-11 the mark is a place to fight the waves from, north-west of where they appear (user:
+"west-north off actual throne"; the teleport step ends there and goes back there after a pickup).
+In the two takes of 2026-10-11 (00:12 and 00:18) 153 wave monsters were first seen around
+(90, 25), nine in ten within x 77 to 97 and y 18 to 31. From (82, 14) nine in ten of those places
+are in a clear line, 85% within 20 units and 1% within 8; the nearest was 5.7 away.
 """
 
 from inventory_tracking.levels.handler import previous, stairs_down, target, waypoint
 
 
 BAAL = 'Act 5 - Baal'
-THRONE_HALL = (94, 40)
+THRONE_STAND = (82, 14)
 
 HANDLERS = [
     stairs_down('Worldstone Keep 1', areas={128}, family=BAAL, extra=[previous(BAAL, 'Arreat Summit')], confirmed=True),
@@ -32,5 +37,5 @@ HANDLERS = [
     stairs_down(
         'Worldstone Keep 3', areas={130}, family=BAAL, extra=[previous(BAAL, 'Worldstone Keep 2')], confirmed=True
     ),
-    target('Throne of Destruction', areas={131}, label='Throne', preset=r'Act 5 - ThroneRoom', at=THRONE_HALL),
+    target('Throne of Destruction', areas={131}, label='Throne', preset=r'Act 5 - ThroneRoom', at=THRONE_STAND),
 ]

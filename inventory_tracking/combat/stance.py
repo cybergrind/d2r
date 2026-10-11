@@ -1,28 +1,14 @@
-"""Where to stand for the next casts: one decision for the simulator and for the game, as the policy
-is for where to cast (macros/plan.md, "a step inside the fight", 2026-10-10 and 2026-10-11).
+"""Where to stand in a fight: one decision for the simulator and for the game.
 
-`camp` is asked when the player asks for a step (the pickup request while hostiles are near). It
-looks at the places within CAMP_REACH of the character that have footing, no hostile within
-KEEP_AWAY and a way there on foot (`Field.ways`: round a corner too, up to DETOUR times the straight
-line; the game finds that way from one click), and counts for each what the next HORIZON seconds
-of casting would take from there (`taken`), the way there being seconds without a cast. The place
-that takes the most is worth going to when it takes CAMP_GAIN times what the character takes from
-where it stands.
+`camp` picks the place within CAMP_REACH of the character, with footing, no hostile within KEEP_AWAY
+and a walk there (`Field.ways`), that takes the most points from the next HORIZON seconds of casting
+(`taken`). Casting is modelled as the best straight line through the hostiles in reach, BLADES_A_CAST
+blades off each one on it per cast; a place where all in reach die early counts up to double. The walk
+there costs its seconds without a cast, or a HOP_SECONDS teleport. The place is chosen only when it takes
+CAMP_GAIN times what the character takes where it stands. The distance to a monster is not counted.
+Pure: no game access.
 
-`taken` does not fly the blades: cast after cast, the best straight line through the hostiles in
-reach with a clear line takes BLADES_A_CAST blades off each one on it. The points taken count, and
-up to as much again for having all in reach dead early: a pack that dies in two casts after a
-second's walk beats picking at its edge from here. (Counting each point by the seconds left when it
-is taken instead cleared as many of the recorded moments and took 6% less in the first 3 s.)
-
-History, 2026-10-10: the first rule looked 12 units along straight walks and asked for a line worth
-twice the line from here (one cast, not the fight). At the 39 moments cut from the Tower runs of that
-night it answered "no better stand" 27 times, 14 of them with at most half of the hostiles within 30
-units in reach, and every step it took was 8 or 12 units (scenarios/stance).
-
-Not in the worth, on the evidence so far: the distance to the monster. The last plain monster of a
-fight took 0.8 s of its full life at 4 to 16 units and 0.9 s at 16 to 22 (402 fights in the logs of
-2026-10-10), so a far monster in reach with a clear line is no reason to step.
+History and measurements: combat/plan.md.
 """
 
 import heapq
@@ -40,8 +26,10 @@ KEEP_AWAY = 6.0  # units: no place with a hostile this near
 WAY_SAMPLE = 0.5  # units between the points looked at along a straight walk
 HORIZON = 3.0  # seconds the worth of a place is counted over: the pack should be dead well within them
 CAST_SECONDS = 0.36  # one cast of a held strike (combat/sim/input.py CAST_FRAMES at 25 frames a second)
-RUN_SPEED = 20.0  # units a second (the takes of 2026-10-10: 15 to 21)
+RUN_SPEED = 20.0  # units a second
 WALK_LATENCY = 0.36  # seconds before a walk begins: the cast that has to end, and the click
+ENGAGE = 14.0  # units from the furthest hostile counted on that a jump is best ended at
+AS_GOOD = 0.02  # two places whose worth differs by less than this share are as good
 HOP_SECONDS = 1.5  # a teleport with the staff: the swap there, the hop, the swap back (the Tower run: 0.7 to 1.5 s)
 CAMP_REACH = 24.0  # units from the character a place is looked for (the window shows 23 up and 18 down)
 CAMP_GRID = 3.0  # units between the places looked at
@@ -92,8 +80,24 @@ class Camp:
     here: float  # the same from where the character stands
     seconds: float  # the way there
     walk: float  # units of the way (the straight line for a hop)
-    hop: bool = False  # by teleport: no walk gets there, or the walk is slower
+    hop: bool = False  # by a teleport or a jump: no walk gets there, or the walk is slower
     casts: int = 0  # casts until nothing is left in its reach, as counted (0: more than the horizon holds)
+    skill: int | None = None  # the jump it is priced by (`Jump.skill`); None: a walk, or the plain `hop`
+
+
+@dataclass(frozen=True)
+class Jump:
+    """A way to a place the character has besides walking: a skill that puts it there."""
+
+    skill: int
+    seconds: float  # from the key to standing there, at no distance
+    speed: float  # units a second on top of that (math.inf: there at once)
+    reach: float  # units it carries at most
+    least: float  # a place nearer than this is walked to
+    line: bool  # whether it needs a clear line there (a thrown blade), as a shot does
+
+    def takes(self, away: float) -> float:
+        return self.seconds + away / self.speed
 
 
 class Field:
@@ -219,6 +223,7 @@ def camp(
     hop: bool = False,
     shown: Callable[[Point], bool] | None = None,
     gain: float = CAMP_GAIN,
+    jumps: Sequence[Jump] = (),
 ) -> Camp | None:
     """The place worth going to from where the character stands, or None when it stands well: the
     place within CAMP_REACH where the next HORIZON seconds take the most, the way there counted
@@ -226,12 +231,14 @@ def camp(
     line leads there; with `hop` every other place with footing is a teleport of HOP_SECONDS away,
     and so is a walked one when the hop is faster. `shown(spot)`: whether the window shows the spot
     (a click or a hop needs it); None: every spot. `gain`: how many times the worth of where the
-    character stands a place has to be."""
+    character stands a place has to be. `jumps`: the skills the character can jump by now, the
+    preferred first: a place one of them reaches is priced by the first that does (and walked to only
+    when none does), so the place is chosen for the way the character will take there."""
     origin = seen.origin
     field = Field(seen.blocked, barred)
     here, _ = taken(seen, policy, field, origin, 0.0)
     ways = field.ways(origin, CAMP_REACH)
-    best: tuple[float, Camp] | None = None
+    best: tuple[float, float, Camp] | None = None  # (worth, the furthest hostile it counts on, the place)
     count = int(CAMP_REACH // CAMP_GRID)
     for i in range(-count, count + 1):
         for j in range(-count, count + 1):
@@ -250,12 +257,34 @@ def camp(
             by_hop = hop and seconds > HOP_SECONDS
             if by_hop:
                 seconds = HOP_SECONDS
+            jump = next(
+                (
+                    jump
+                    for jump in jumps
+                    if jump.least <= straight <= jump.reach and (not jump.line or field.clear(origin, spot))
+                ),
+                None,
+            )
+            if jump is not None:
+                seconds, by_hop = jump.takes(straight), True
             if seconds >= HORIZON:
                 continue
             worth, casts = taken(seen, policy, field, spot, seconds)
-            if worth >= max(MIN_SCORE, gain * here) and (best is None or worth > best[0]):
-                best = (
-                    worth,
-                    Camp(spot, worth, here, seconds, straight if by_hop or walked is None else walked, by_hop, casts),
-                )
-    return best[1] if best is not None else None
+            if worth < max(MIN_SCORE, gain * here):
+                continue
+            # Of two places as good (a jump takes as long to any of them) the one whose furthest hostile
+            # is nearest ENGAGE away: at the end of the blades' flight a step of a monster's is a miss,
+            # and next to the pack is where it strikes.
+            edge = max(
+                (away for foe in seen.foes.values() if (away := math.dist(spot, foe.at)) <= policy.reach), default=0.0
+            )
+            close = AS_GOOD if jump is not None else 0.0  # a walk's seconds already tell two places apart
+            if (
+                best is None
+                or worth > best[0] * (1 + close)
+                or (close and worth >= best[0] * (1 - close) and abs(edge - ENGAGE) < abs(best[1] - ENGAGE))
+            ):
+                units = straight if by_hop or walked is None else walked
+                skill = jump.skill if jump is not None else None
+                best = (worth, edge, Camp(spot, worth, here, seconds, units, by_hop, casts, skill))
+    return best[2] if best is not None else None

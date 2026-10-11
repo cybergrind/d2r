@@ -268,11 +268,11 @@ def test_a_teleport_or_seek_request_ends_the_sweep_and_a_pickup_request_does_not
     runner = make(lambda cancelled, routine: None, [])
     runner.hunter = Hunter()
     for routine, left in (('pickup', 5), ('teleport', 0), ('hunt elites', 0), ('prebuff', 0)):
-        runner.hunter.follow = 5
+        runner.hunter.sweep.steps = 5
         runner.last_request = -1e9
         assert runner.request(10.0, 10.1, routine)
         runner.thread.join(5)
-        assert runner.hunter.follow == left, routine
+        assert runner.hunter.sweep.steps == left, routine
 
 
 def test_a_pickup_request_during_attack_mode_waits_for_the_fight_and_the_mode_resumes_after(monkeypatch):

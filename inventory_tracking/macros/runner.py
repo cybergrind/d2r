@@ -5,11 +5,12 @@ to the appraisal socket:
 
 - `macro <monotonic>`, the macro request: the routine for where the character is (routines.py).
 - `teleport <monotonic>`, the teleport step: one step toward the level card's mark (teleport.py).
-- `hunt elites <monotonic>`, the seek step: one step toward the nearest elite (hunt.py); attack mode
-  is on after it.
+- `hunt elites <monotonic>`, the seek step: one step toward the nearest elite, else into the room
+  tour's next stop (hunt.py); attack mode is on after it.
 - `hunt any <monotonic>`, the attack mode toggle (hunt.py).
-- `pickup <monotonic>`, the pickup step: pick up what is worth it, else a step toward the hostiles
-  near, else a seek step (pickup.py, hunt.py `step`); inside a fight also a step to a better stand.
+- `pickup <monotonic>`, the pickup step: pick up what is worth it, else with hostiles near the sweep
+  (attack mode moves on its own), else a seek step toward any hostile or the tour's next stop
+  (pickup.py, hunt.py `step`); inside a fight also a step to a better stand.
 
 A run works on its own thread with its own memory handle and X connection. A request while a run
 works cancels it, except a step's own request during the step, which queues one more: steps are
@@ -125,7 +126,7 @@ class MacroRunner:
                 # A teleport or seek step, the macro: the player takes the character somewhere, and
                 # the sweep a pickup request started (hunt.py) must not walk it back (Tower Cellar 3,
                 # 2026-10-11 00:49: it walked 25 units back between two teleport steps to the stairs).
-                self.hunter.follow = 0
+                self.hunter.sweep.end()
             if self.working:
                 if routine in STEPS and self.routine == routine:
                     self.again = True
@@ -145,6 +146,12 @@ class MacroRunner:
                 return True
             self._start(routine)
             return True
+
+    def _pick(self) -> None:
+        """The sweep found something to pick up (hunt.py `gather`): the pickup step follows the mode's pause."""
+        with self.lock:
+            if self.pending is None and not self.closed:
+                self.pending = PICKUP
 
     def _unwait(self) -> None:
         """The pickup step that waited for the fight is not wanted any more (hunt.py `asked_step`)."""
@@ -350,7 +357,9 @@ class MacroRunner:
                 run.arrival = lambda: self.journey.arrival(time.monotonic())
                 run.supers = self.supers
                 if routine == TELEPORT:
-                    step_toward(run, card_for(run, self.target), key_names)
+                    walker = self.hunter
+                    afoot = None if walker is None else lambda target: walker.foot_step(run, target, key_names)
+                    step_toward(run, card_for(run, self.target), key_names, afoot)
                 elif routine == PICKUP:
                     hunter = self.hunter
                     if hunter is None:
@@ -363,6 +372,7 @@ class MacroRunner:
                         raise Abort('no level guide to hunt with')
                     if routine == ATTACK:
                         actuator.drift, actuator.steady = 10**6, False  # the player's hand is on the mouse all along
+                        self.hunter.pick = self._pick
                         self.hunter.attack_mode(run, key_names)
                     else:
                         self.hunter.seek(run, key_names)

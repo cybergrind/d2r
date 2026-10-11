@@ -160,6 +160,7 @@ class Game:
         self.field_focused = False
         self.sets = [PREBUFF_SET, OTHER_SET]  # the first is in hand
         self.loading_seconds = 6.0
+        self.gold_radius = 3.0  # world units from a gold pile at which standing takes it; 0: only a click does
         self.view_marks = True  # the view byte goes to 0 while the game loads
         self.ignored = []
         self.deaf = False  # the loading screen: the game exists and takes no input
@@ -419,6 +420,15 @@ class Game:
         return run
 
     def read(self):
+        here = self.world.player
+        if here is not None and any(d.kind == 'gold' for d in self.loot.drops):  # gold is taken by standing on it
+            on = [
+                d
+                for d in self.loot.drops
+                if d.kind == 'gold' and math.dist((d.x, d.y), (here.x, here.y)) < self.gold_radius
+            ]
+            self.picked += [d.label for d in on]
+            self.loot = replace(self.loot, drops=tuple(d for d in self.loot.drops if d not in on))
         if self.loaded_at is not None and self.clock.now >= self.loaded_at:
             self.deaf, self.loaded, self.loaded_at = False, self.loaded_at, None
             self.world = replace(self.world, view=254)
