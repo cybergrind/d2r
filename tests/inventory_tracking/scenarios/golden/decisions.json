@@ -1,0 +1,8076 @@
+{
+ "aim:20261010T204605Z-21-234607:-": {
+  "focal": [
+   12636.5,
+   5332.5
+  ],
+  "unit": 2275509142,
+  "worth": 14472.047
+ },
+ "aim:20261010T204632Z-22-234638:-": {
+  "focal": [
+   12593.57,
+   6530.76
+  ],
+  "unit": 3087631994,
+  "worth": 18261.0
+ },
+ "aim:20261010T204632Z-22-234640:-": {
+  "focal": [
+   12591.5,
+   6523.5
+  ],
+  "unit": 1593907407,
+  "worth": 11433.879
+ },
+ "aim:20261010T204653Z-23-234702:-": {
+  "focal": [
+   12723.341,
+   8066.292
+  ],
+  "unit": 716280258,
+  "worth": 1578.0
+ },
+ "aim:20261010T204733Z-25-234739:-": null,
+ "aim:20261010T204733Z-25-234800:-": {
+  "focal": [
+   12539.38,
+   11104.034
+  ],
+  "unit": 116394411,
+  "worth": 5713.25
+ },
+ "aim:20261010T204733Z-25-234801:-": {
+  "focal": [
+   12539.45,
+   11104.95
+  ],
+  "unit": 1862343344,
+  "worth": 5663.383
+ },
+ "aim:20261010T204733Z-25-234803:-": {
+  "focal": [
+   12540.784,
+   11103.333
+  ],
+  "unit": 116394411,
+  "worth": 2072.383
+ },
+ "aim:20261010T204733Z-25-234805:-": null,
+ "aim:20261010T204733Z-25-234807:-": null,
+ "aim:20261010T204733Z-25-234809:-": {
+  "focal": [
+   12564.5,
+   11107.9
+  ],
+  "unit": 2765455757,
+  "worth": 675.719
+ },
+ "aim:20261010T204733Z-25-234810:-": null,
+ "aim:20261010T204733Z-25-234812:-": {
+  "focal": [
+   12585.5,
+   11092.5
+  ],
+  "unit": 2259422317,
+  "worth": 6472.867
+ },
+ "aim:20261010T205120Z-25-235126:-": null,
+ "aim:20261010T205314Z-21-235321:-": {
+  "focal": [
+   12708.46,
+   5063.54
+  ],
+  "unit": 1047117720,
+  "worth": 1509.0
+ },
+ "aim:20261010T205314Z-21-235323:-": {
+  "focal": [
+   12680.5,
+   5061.5
+  ],
+  "unit": 3656591356,
+  "worth": 3345.031
+ },
+ "aim:20261010T205314Z-21-235324:-": {
+  "focal": [
+   12710.49,
+   5060.51
+  ],
+  "unit": 1047117720,
+  "worth": 1509.0
+ },
+ "aim:20261010T205314Z-21-235328:-": {
+  "focal": [
+   12648.54,
+   5064.05
+  ],
+  "unit": 1882558362,
+  "worth": 14248.0
+ },
+ "aim:20261010T205314Z-21-235333:-": null,
+ "aim:20261010T205403Z-23-235414:-": {
+  "focal": [
+   12558.08,
+   8141.58
+  ],
+  "unit": 4239962703,
+  "worth": 3278.0
+ },
+ "aim:20261010T205403Z-23-235416:-": {
+  "focal": [
+   12559.98,
+   8144.72
+  ],
+  "unit": 3878558867,
+  "worth": 2428.0
+ },
+ "aim:20261010T205403Z-23-235417:-": {
+  "focal": [
+   12583.55,
+   8147.62
+  ],
+  "unit": 2302640474,
+  "worth": 1578.0
+ },
+ "aim:20261010T205403Z-23-235418:-": {
+  "focal": [
+   12613.625,
+   8135.924
+  ],
+  "unit": 1694369130,
+  "worth": 3119.016
+ },
+ "aim:20261010T205432Z-25-235446:-": {
+  "focal": [
+   12533.5,
+   11069.46
+  ],
+  "unit": 1882732281,
+  "worth": 6120.0
+ },
+ "aim:20261010T205432Z-25-235451:-": null,
+ "aim:20261010T205557Z-22-235601:-": null,
+ "aim:20261010T205557Z-22-235605:-": {
+  "focal": [
+   12558.06,
+   6726.5
+  ],
+  "unit": 463176170,
+  "worth": 3103.832
+ },
+ "aim:20261010T205557Z-22-235612:-": null,
+ "aim:20261010T205557Z-22-235614:-": {
+  "focal": [
+   12600.958,
+   6640.04
+  ],
+  "unit": 837234359,
+  "worth": 7995.0
+ },
+ "aim:20261010T205557Z-22-235615:-": {
+  "focal": [
+   12601.232,
+   6643.088
+  ],
+  "unit": 837234359,
+  "worth": 13440.0
+ },
+ "aim:20261010T205557Z-22-235616:-": {
+  "focal": [
+   12592.22,
+   6641.56
+  ],
+  "unit": 3564743597,
+  "worth": 3505.664
+ },
+ "aim:20261010T205629Z-23-235645:-": null,
+ "aim:20261010T205629Z-23-235649:-": {
+  "focal": [
+   12680.5,
+   8194.53
+  ],
+  "unit": 2686168027,
+  "worth": 4539.0
+ },
+ "aim:20261010T205629Z-23-235652:-": null,
+ "aim:20261010T205658Z-24-235701:-": null,
+ "aim:20261010T205658Z-24-235706:-": null,
+ "aim:20261010T205658Z-24-235707:-": null,
+ "aim:20261010T205658Z-24-235710:-": {
+  "focal": [
+   12519.5,
+   9650.5
+  ],
+  "unit": 3129147447,
+  "worth": 12212.301
+ },
+ "aim:20261010T205720Z-25-235731:-": null,
+ "aim:threat-bovines_closing_from_two_sides:-": {
+  "focal": [
+   5009.0,
+   5000.0
+  ],
+  "unit": 1,
+  "worth": 9860.0
+ },
+ "aim:threat-dolls_on_the_character:-": {
+  "focal": [
+   5004.0,
+   5000.0
+  ],
+  "unit": 1,
+  "worth": 11823.0
+ },
+ "aim:threat-dolls_running_in:-": {
+  "focal": [
+   5000.0,
+   4987.0
+  ],
+  "unit": 0,
+  "worth": 23800.0
+ },
+ "aim:threat-dying_gloam_fresh_hulk:-": {
+  "focal": [
+   5012.0,
+   5000.0
+  ],
+  "unit": 1,
+  "worth": 4760.0
+ },
+ "aim:threat-equal_lines_far_and_in_contact:-": {
+  "focal": [
+   5016.0,
+   5000.0
+  ],
+  "unit": 1,
+  "worth": 9520.0
+ },
+ "aim:threat-ghosts_in_front_of_archers:-": {
+  "focal": [
+   5006.0,
+   5000.0
+  ],
+  "unit": 0,
+  "worth": 10578.0
+ },
+ "aim:threat-gloams_behind_hulks:-": {
+  "focal": [
+   5014.0,
+   5000.0
+  ],
+  "unit": 0,
+  "worth": 19040.0
+ },
+ "aim:threat-herald_with_minions:-": {
+  "focal": [
+   5000.0,
+   4988.0
+  ],
+  "unit": 10,
+  "worth": 14280.0
+ },
+ "aim:threat-low_life_in_melee:-": {
+  "focal": [
+   5004.0,
+   5000.0
+  ],
+  "unit": 1,
+  "worth": 11900.0
+ },
+ "aim:threat-low_life_two_dying_gloams:-": {
+  "focal": [
+   5000.0,
+   5014.0
+  ],
+  "unit": 1,
+  "worth": 405.68
+ },
+ "aim:threat-low_life_under_knights:-": {
+  "focal": [
+   4988.0,
+   4988.0
+  ],
+  "unit": 1,
+  "worth": 3421.6
+ },
+ "aim:threat-might_elite_beside_minions:-": {
+  "focal": [
+   5013.0,
+   5000.0
+  ],
+  "unit": 0,
+  "worth": 28952.0
+ },
+ "aim:threat-stone_skin_elite_soaks:-": {
+  "focal": [
+   5006.0,
+   5000.0
+  ],
+  "unit": 1,
+  "worth": 9185.0
+ },
+ "aim:threat-stone_skin_zone:-": {
+  "focal": [
+   5017.808,
+   5001.979
+  ],
+  "unit": 3,
+  "worth": 13430.0
+ },
+ "aim:threat-venom_lords_and_casters:-": {
+  "focal": [
+   5013.0,
+   5000.0
+  ],
+  "unit": 0,
+  "worth": 21714.0
+ },
+ "aim:threat-witch_and_soul_beside_tanky_elite:-": {
+  "focal": [
+   5012.0,
+   5000.0
+  ],
+  "unit": 1,
+  "worth": 9520.0
+ },
+ "around:20261010T205314Z-21-235321:goal-14-units-bearing-0+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12708.5,
+   5062.5
+  ]
+ },
+ "around:20261010T205314Z-21-235321:goal-14-units-bearing-0+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12708.5,
+   5062.5
+  ]
+ },
+ "around:20261010T205314Z-21-235321:goal-14-units-bearing-3+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12692.5,
+   5062.5
+  ]
+ },
+ "around:20261010T205314Z-21-235321:goal-14-units-bearing-3+warp-ready": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12692.5,
+   5062.5
+  ]
+ },
+ "around:20261010T205314Z-21-235321:goal-14-units-bearing-4+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12692.5,
+   5062.5
+  ]
+ },
+ "around:20261010T205314Z-21-235321:goal-14-units-bearing-4+warp-ready": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12692.5,
+   5062.5
+  ]
+ },
+ "around:20261010T205314Z-21-235321:goal-20-units-bearing-0+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12708.5,
+   5062.5
+  ]
+ },
+ "around:20261010T205314Z-21-235321:goal-20-units-bearing-0+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12708.5,
+   5062.5
+  ]
+ },
+ "around:20261010T205314Z-21-235321:goal-20-units-bearing-1+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12708.5,
+   5062.5
+  ]
+ },
+ "around:20261010T205314Z-21-235321:goal-20-units-bearing-1+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12708.5,
+   5062.5
+  ]
+ },
+ "around:20261010T205314Z-21-235321:goal-20-units-bearing-3+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12692.5,
+   5062.5
+  ]
+ },
+ "around:20261010T205314Z-21-235321:goal-20-units-bearing-3+warp-ready": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12692.5,
+   5062.5
+  ]
+ },
+ "around:20261010T205314Z-21-235321:goal-20-units-bearing-4+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12692.5,
+   5062.5
+  ]
+ },
+ "around:20261010T205314Z-21-235321:goal-20-units-bearing-4+warp-ready": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12692.5,
+   5062.5
+  ]
+ },
+ "around:20261010T205314Z-21-235321:goal-20-units-bearing-7+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12710.5,
+   5060.5
+  ]
+ },
+ "around:20261010T205314Z-21-235321:goal-20-units-bearing-7+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12710.5,
+   5060.5
+  ]
+ },
+ "around:20261010T205314Z-21-235321:goal-26-units-bearing-0+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12708.5,
+   5062.5
+  ]
+ },
+ "around:20261010T205314Z-21-235321:goal-26-units-bearing-0+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12708.5,
+   5062.5
+  ]
+ },
+ "around:20261010T205314Z-21-235321:goal-26-units-bearing-1+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12708.5,
+   5062.5
+  ]
+ },
+ "around:20261010T205314Z-21-235321:goal-26-units-bearing-1+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12708.5,
+   5062.5
+  ]
+ },
+ "around:20261010T205314Z-21-235321:goal-26-units-bearing-3+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12692.5,
+   5062.5
+  ]
+ },
+ "around:20261010T205314Z-21-235321:goal-26-units-bearing-3+warp-ready": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12692.5,
+   5062.5
+  ]
+ },
+ "around:20261010T205314Z-21-235321:goal-26-units-bearing-4+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12692.5,
+   5062.5
+  ]
+ },
+ "around:20261010T205314Z-21-235321:goal-26-units-bearing-4+warp-ready": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12692.5,
+   5062.5
+  ]
+ },
+ "around:20261010T205314Z-21-235321:goal-26-units-bearing-5+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12690.5,
+   5060.5
+  ]
+ },
+ "around:20261010T205314Z-21-235321:goal-26-units-bearing-5+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12690.5,
+   5060.5
+  ]
+ },
+ "around:20261010T205314Z-21-235321:goal-26-units-bearing-7+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12710.5,
+   5060.5
+  ]
+ },
+ "around:20261010T205314Z-21-235321:goal-26-units-bearing-7+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12710.5,
+   5060.5
+  ]
+ },
+ "around:20261010T205314Z-21-235321:goal-32-units-bearing-0+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12708.5,
+   5062.5
+  ]
+ },
+ "around:20261010T205314Z-21-235321:goal-32-units-bearing-0+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12708.5,
+   5062.5
+  ]
+ },
+ "around:20261010T205314Z-21-235321:goal-32-units-bearing-1+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12708.5,
+   5062.5
+  ]
+ },
+ "around:20261010T205314Z-21-235321:goal-32-units-bearing-1+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12708.5,
+   5062.5
+  ]
+ },
+ "around:20261010T205314Z-21-235321:goal-32-units-bearing-3+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12692.5,
+   5062.5
+  ]
+ },
+ "around:20261010T205314Z-21-235321:goal-32-units-bearing-3+warp-ready": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12692.5,
+   5062.5
+  ]
+ },
+ "around:20261010T205314Z-21-235321:goal-32-units-bearing-4+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12692.5,
+   5062.5
+  ]
+ },
+ "around:20261010T205314Z-21-235321:goal-32-units-bearing-4+warp-ready": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12692.5,
+   5062.5
+  ]
+ },
+ "around:20261010T205557Z-22-235612:goal-14-units-bearing-5+warp-delay": null,
+ "around:20261010T205557Z-22-235612:goal-14-units-bearing-5+warp-ready": null,
+ "around:20261010T205557Z-22-235612:goal-14-units-bearing-6+warp-delay": null,
+ "around:20261010T205557Z-22-235612:goal-14-units-bearing-6+warp-ready": null,
+ "around:20261010T205557Z-22-235612:goal-20-units-bearing-5+warp-delay": null,
+ "around:20261010T205557Z-22-235612:goal-20-units-bearing-5+warp-ready": null,
+ "around:20261010T205557Z-22-235612:goal-20-units-bearing-6+warp-delay": null,
+ "around:20261010T205557Z-22-235612:goal-20-units-bearing-6+warp-ready": null,
+ "around:20261010T205557Z-22-235612:goal-26-units-bearing-1+warp-delay": null,
+ "around:20261010T205557Z-22-235612:goal-26-units-bearing-1+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12606.5,
+   6668.5
+  ]
+ },
+ "around:20261010T205557Z-22-235612:goal-26-units-bearing-5+warp-delay": null,
+ "around:20261010T205557Z-22-235612:goal-26-units-bearing-5+warp-ready": null,
+ "around:20261010T205557Z-22-235612:goal-26-units-bearing-6+warp-delay": null,
+ "around:20261010T205557Z-22-235612:goal-26-units-bearing-6+warp-ready": null,
+ "around:20261010T205557Z-22-235612:goal-32-units-bearing-6+warp-delay": null,
+ "around:20261010T205557Z-22-235612:goal-32-units-bearing-6+warp-ready": null,
+ "around:20261010T205557Z-22-235614:goal-14-units-bearing-2+warp-delay": null,
+ "around:20261010T205557Z-22-235614:goal-14-units-bearing-2+warp-ready": null,
+ "around:20261010T205557Z-22-235614:goal-20-units-bearing-2+warp-delay": null,
+ "around:20261010T205557Z-22-235614:goal-20-units-bearing-2+warp-ready": null,
+ "around:20261010T205557Z-22-235614:goal-20-units-bearing-5+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12593.5,
+   6635.5
+  ]
+ },
+ "around:20261010T205557Z-22-235614:goal-20-units-bearing-5+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12593.5,
+   6635.5
+  ]
+ },
+ "around:20261010T205557Z-22-235614:goal-20-units-bearing-6+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12602.5,
+   6632.5
+  ]
+ },
+ "around:20261010T205557Z-22-235614:goal-20-units-bearing-6+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12602.5,
+   6632.5
+  ]
+ },
+ "around:20261010T205557Z-22-235614:goal-26-units-bearing-2+warp-delay": null,
+ "around:20261010T205557Z-22-235614:goal-26-units-bearing-2+warp-ready": null,
+ "around:20261010T205557Z-22-235614:goal-26-units-bearing-6+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12602.5,
+   6632.5
+  ]
+ },
+ "around:20261010T205557Z-22-235614:goal-26-units-bearing-6+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12601.5,
+   6625.5
+  ]
+ },
+ "around:20261010T205557Z-22-235614:goal-32-units-bearing-2+warp-delay": null,
+ "around:20261010T205557Z-22-235614:goal-32-units-bearing-2+warp-ready": null,
+ "around:20261010T205557Z-22-235614:goal-32-units-bearing-6+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12602.5,
+   6632.5
+  ]
+ },
+ "around:20261010T205557Z-22-235614:goal-32-units-bearing-6+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12601.5,
+   6625.5
+  ]
+ },
+ "due:engorge:demon-hurt+cast-4s": false,
+ "due:engorge:demon-hurt+cast-just": false,
+ "due:engorge:demon-hurt+cast-long": true,
+ "due:engorge:demon-hurt+cast-never": true,
+ "due:engorge:demon-hurt+cast-never+corpses-unread": false,
+ "due:engorge:demon-unread+cast-4s": false,
+ "due:engorge:demon-unread+cast-just": false,
+ "due:engorge:demon-unread+cast-long": true,
+ "due:engorge:demon-unread+cast-never": true,
+ "due:engorge:demon-whole+cast-4s": false,
+ "due:engorge:demon-whole+cast-just": false,
+ "due:engorge:demon-whole+cast-long": true,
+ "due:engorge:demon-whole+cast-never": true,
+ "due:engorge:no-demon+cast-4s": false,
+ "due:engorge:no-demon+cast-just": false,
+ "due:engorge:no-demon+cast-long": false,
+ "due:engorge:no-demon+cast-never": false,
+ "due:mark:champion+life-128": true,
+ "due:mark:champion+life-64": false,
+ "due:mark:champion+life-8": false,
+ "due:mark:plain+life-128": false,
+ "due:mark:plain+life-64": false,
+ "due:mark:plain+life-8": false,
+ "due:purge:absent+cast-4s+unseen-0": true,
+ "due:purge:absent+cast-4s+unseen-2": false,
+ "due:purge:absent+cast-just+unseen-0": false,
+ "due:purge:absent+cast-just+unseen-2": false,
+ "due:purge:absent+cast-long+unseen-0": true,
+ "due:purge:absent+cast-long+unseen-2": true,
+ "due:purge:absent+cast-never+unseen-0": true,
+ "due:purge:absent+cast-never+unseen-2": true,
+ "due:purge:present+cast-4s+unseen-0": false,
+ "due:purge:present+cast-4s+unseen-2": false,
+ "due:purge:present+cast-just+unseen-0": false,
+ "due:purge:present+cast-just+unseen-2": false,
+ "due:purge:present+cast-long+unseen-0": false,
+ "due:purge:present+cast-long+unseen-2": false,
+ "due:purge:present+cast-never+unseen-0": false,
+ "due:purge:present+cast-never+unseen-2": false,
+ "due:purge:unknown+cast-4s+unseen-0": false,
+ "due:purge:unknown+cast-4s+unseen-2": false,
+ "due:purge:unknown+cast-just+unseen-0": false,
+ "due:purge:unknown+cast-just+unseen-2": false,
+ "due:purge:unknown+cast-long+unseen-0": false,
+ "due:purge:unknown+cast-long+unseen-2": false,
+ "due:purge:unknown+cast-never+unseen-0": false,
+ "due:purge:unknown+cast-never+unseen-2": false,
+ "due:sigil:champion+cast-just": false,
+ "due:sigil:champion+cast-long": true,
+ "due:sigil:champion+cast-never": true,
+ "due:sigil:plain+cast-just": false,
+ "due:sigil:plain+cast-long": false,
+ "due:sigil:plain+cast-never": false,
+ "due:ward:absent+cast-4s+unseen-0+fighting": false,
+ "due:ward:absent+cast-4s+unseen-0+idle": true,
+ "due:ward:absent+cast-4s+unseen-2+fighting": false,
+ "due:ward:absent+cast-4s+unseen-2+idle": false,
+ "due:ward:absent+cast-just+unseen-0+fighting": false,
+ "due:ward:absent+cast-just+unseen-0+idle": false,
+ "due:ward:absent+cast-just+unseen-2+fighting": false,
+ "due:ward:absent+cast-just+unseen-2+idle": false,
+ "due:ward:absent+cast-long+unseen-0+fighting": true,
+ "due:ward:absent+cast-long+unseen-0+idle": true,
+ "due:ward:absent+cast-long+unseen-2+fighting": true,
+ "due:ward:absent+cast-long+unseen-2+idle": true,
+ "due:ward:absent+cast-never+unseen-0+fighting": true,
+ "due:ward:absent+cast-never+unseen-0+idle": true,
+ "due:ward:absent+cast-never+unseen-2+fighting": true,
+ "due:ward:absent+cast-never+unseen-2+idle": true,
+ "due:ward:present+cast-4s+unseen-0+fighting": false,
+ "due:ward:present+cast-4s+unseen-0+idle": false,
+ "due:ward:present+cast-4s+unseen-2+fighting": false,
+ "due:ward:present+cast-4s+unseen-2+idle": false,
+ "due:ward:present+cast-just+unseen-0+fighting": false,
+ "due:ward:present+cast-just+unseen-0+idle": false,
+ "due:ward:present+cast-just+unseen-2+fighting": false,
+ "due:ward:present+cast-just+unseen-2+idle": false,
+ "due:ward:present+cast-long+unseen-0+fighting": false,
+ "due:ward:present+cast-long+unseen-0+idle": false,
+ "due:ward:present+cast-long+unseen-2+fighting": false,
+ "due:ward:present+cast-long+unseen-2+idle": false,
+ "due:ward:present+cast-never+unseen-0+fighting": false,
+ "due:ward:present+cast-never+unseen-0+idle": false,
+ "due:ward:present+cast-never+unseen-2+fighting": false,
+ "due:ward:present+cast-never+unseen-2+idle": false,
+ "due:ward:unknown+cast-4s+unseen-0+fighting": false,
+ "due:ward:unknown+cast-4s+unseen-0+idle": false,
+ "due:ward:unknown+cast-4s+unseen-2+fighting": false,
+ "due:ward:unknown+cast-4s+unseen-2+idle": false,
+ "due:ward:unknown+cast-just+unseen-0+fighting": false,
+ "due:ward:unknown+cast-just+unseen-0+idle": false,
+ "due:ward:unknown+cast-just+unseen-2+fighting": false,
+ "due:ward:unknown+cast-just+unseen-2+idle": false,
+ "due:ward:unknown+cast-long+unseen-0+fighting": false,
+ "due:ward:unknown+cast-long+unseen-0+idle": false,
+ "due:ward:unknown+cast-long+unseen-2+fighting": false,
+ "due:ward:unknown+cast-long+unseen-2+idle": false,
+ "due:ward:unknown+cast-never+unseen-0+fighting": false,
+ "due:ward:unknown+cast-never+unseen-0+idle": false,
+ "due:ward:unknown+cast-never+unseen-2+fighting": false,
+ "due:ward:unknown+cast-never+unseen-2+idle": false,
+ "jumps:synthetic:staff-away69+warp-delay": [],
+ "jumps:synthetic:staff-away69+warp-failed": [],
+ "jumps:synthetic:staff-away69+warp-ready": [
+  {
+   "least": 8.0,
+   "line": true,
+   "reach": 26.0,
+   "seconds": 0.35,
+   "skill": 390,
+   "speed": 45.0
+  }
+ ],
+ "jumps:synthetic:staff-away69+warp-teleport-failed": [
+  {
+   "least": 8.0,
+   "line": true,
+   "reach": 26.0,
+   "seconds": 0.35,
+   "skill": 390,
+   "speed": 45.0
+  }
+ ],
+ "jumps:synthetic:staff-hand0+warp-delay": [],
+ "jumps:synthetic:staff-hand0+warp-failed": [],
+ "jumps:synthetic:staff-hand0+warp-ready": [
+  {
+   "least": 8.0,
+   "line": true,
+   "reach": 26.0,
+   "seconds": 0.35,
+   "skill": 390,
+   "speed": 45.0
+  }
+ ],
+ "jumps:synthetic:staff-hand0+warp-teleport-failed": [
+  {
+   "least": 8.0,
+   "line": true,
+   "reach": 26.0,
+   "seconds": 0.35,
+   "skill": 390,
+   "speed": 45.0
+  }
+ ],
+ "jumps:synthetic:staff-hand10+warp-delay": [
+  {
+   "least": 8.0,
+   "line": false,
+   "reach": 26.0,
+   "seconds": 0.31,
+   "skill": 54,
+   "speed": "inf"
+  }
+ ],
+ "jumps:synthetic:staff-hand10+warp-failed": [
+  {
+   "least": 8.0,
+   "line": false,
+   "reach": 26.0,
+   "seconds": 0.31,
+   "skill": 54,
+   "speed": "inf"
+  }
+ ],
+ "jumps:synthetic:staff-hand10+warp-ready": [
+  {
+   "least": 8.0,
+   "line": true,
+   "reach": 26.0,
+   "seconds": 0.35,
+   "skill": 390,
+   "speed": 45.0
+  },
+  {
+   "least": 8.0,
+   "line": false,
+   "reach": 26.0,
+   "seconds": 0.31,
+   "skill": 54,
+   "speed": "inf"
+  }
+ ],
+ "jumps:synthetic:staff-hand10+warp-teleport-failed": [
+  {
+   "least": 8.0,
+   "line": true,
+   "reach": 26.0,
+   "seconds": 0.35,
+   "skill": 390,
+   "speed": 45.0
+  }
+ ],
+ "jumps:synthetic:staff-hand14+warp-delay": [
+  {
+   "least": 8.0,
+   "line": false,
+   "reach": 26.0,
+   "seconds": 0.31,
+   "skill": 54,
+   "speed": "inf"
+  }
+ ],
+ "jumps:synthetic:staff-hand14+warp-failed": [
+  {
+   "least": 8.0,
+   "line": false,
+   "reach": 26.0,
+   "seconds": 0.31,
+   "skill": 54,
+   "speed": "inf"
+  }
+ ],
+ "jumps:synthetic:staff-hand14+warp-ready": [
+  {
+   "least": 8.0,
+   "line": true,
+   "reach": 26.0,
+   "seconds": 0.35,
+   "skill": 390,
+   "speed": 45.0
+  },
+  {
+   "least": 8.0,
+   "line": false,
+   "reach": 26.0,
+   "seconds": 0.31,
+   "skill": 54,
+   "speed": "inf"
+  }
+ ],
+ "jumps:synthetic:staff-hand14+warp-teleport-failed": [
+  {
+   "least": 8.0,
+   "line": true,
+   "reach": 26.0,
+   "seconds": 0.35,
+   "skill": 390,
+   "speed": 45.0
+  }
+ ],
+ "jumps:synthetic:staff-hand15+warp-delay": [
+  {
+   "least": 8.0,
+   "line": false,
+   "reach": 26.0,
+   "seconds": 0.31,
+   "skill": 54,
+   "speed": "inf"
+  }
+ ],
+ "jumps:synthetic:staff-hand15+warp-failed": [
+  {
+   "least": 8.0,
+   "line": false,
+   "reach": 26.0,
+   "seconds": 0.31,
+   "skill": 54,
+   "speed": "inf"
+  }
+ ],
+ "jumps:synthetic:staff-hand15+warp-ready": [
+  {
+   "least": 8.0,
+   "line": true,
+   "reach": 26.0,
+   "seconds": 0.35,
+   "skill": 390,
+   "speed": 45.0
+  },
+  {
+   "least": 8.0,
+   "line": false,
+   "reach": 26.0,
+   "seconds": 0.31,
+   "skill": 54,
+   "speed": "inf"
+  }
+ ],
+ "jumps:synthetic:staff-hand15+warp-teleport-failed": [
+  {
+   "least": 8.0,
+   "line": true,
+   "reach": 26.0,
+   "seconds": 0.35,
+   "skill": 390,
+   "speed": 45.0
+  }
+ ],
+ "jumps:synthetic:staff-hand69+warp-delay": [
+  {
+   "least": 8.0,
+   "line": false,
+   "reach": 26.0,
+   "seconds": 0.31,
+   "skill": 54,
+   "speed": "inf"
+  }
+ ],
+ "jumps:synthetic:staff-hand69+warp-failed": [
+  {
+   "least": 8.0,
+   "line": false,
+   "reach": 26.0,
+   "seconds": 0.31,
+   "skill": 54,
+   "speed": "inf"
+  }
+ ],
+ "jumps:synthetic:staff-hand69+warp-ready": [
+  {
+   "least": 8.0,
+   "line": true,
+   "reach": 26.0,
+   "seconds": 0.35,
+   "skill": 390,
+   "speed": 45.0
+  },
+  {
+   "least": 8.0,
+   "line": false,
+   "reach": 26.0,
+   "seconds": 0.31,
+   "skill": 54,
+   "speed": "inf"
+  }
+ ],
+ "jumps:synthetic:staff-hand69+warp-teleport-failed": [
+  {
+   "least": 8.0,
+   "line": true,
+   "reach": 26.0,
+   "seconds": 0.35,
+   "skill": 390,
+   "speed": 45.0
+  }
+ ],
+ "jumps:synthetic:staff-hand9+warp-delay": [],
+ "jumps:synthetic:staff-hand9+warp-failed": [],
+ "jumps:synthetic:staff-hand9+warp-ready": [
+  {
+   "least": 8.0,
+   "line": true,
+   "reach": 26.0,
+   "seconds": 0.35,
+   "skill": 390,
+   "speed": 45.0
+  }
+ ],
+ "jumps:synthetic:staff-hand9+warp-teleport-failed": [
+  {
+   "least": 8.0,
+   "line": true,
+   "reach": 26.0,
+   "seconds": 0.35,
+   "skill": 390,
+   "speed": 45.0
+  }
+ ],
+ "jumps:synthetic:staff-none+warp-delay": [
+  {
+   "least": 8.0,
+   "line": false,
+   "reach": 26.0,
+   "seconds": 0.31,
+   "skill": 54,
+   "speed": "inf"
+  }
+ ],
+ "jumps:synthetic:staff-none+warp-failed": [
+  {
+   "least": 8.0,
+   "line": false,
+   "reach": 26.0,
+   "seconds": 0.31,
+   "skill": 54,
+   "speed": "inf"
+  }
+ ],
+ "jumps:synthetic:staff-none+warp-ready": [
+  {
+   "least": 8.0,
+   "line": true,
+   "reach": 26.0,
+   "seconds": 0.35,
+   "skill": 390,
+   "speed": 45.0
+  },
+  {
+   "least": 8.0,
+   "line": false,
+   "reach": 26.0,
+   "seconds": 0.31,
+   "skill": 54,
+   "speed": "inf"
+  }
+ ],
+ "jumps:synthetic:staff-none+warp-teleport-failed": [
+  {
+   "least": 8.0,
+   "line": true,
+   "reach": 26.0,
+   "seconds": 0.35,
+   "skill": 390,
+   "speed": 45.0
+  }
+ ],
+ "landing:across-and-back:far+corners-off": [
+  [
+   4538.484,
+   1627.856
+  ],
+  5.175
+ ],
+ "landing:across-and-back:far+corners-on": [
+  [
+   4539.384,
+   1628.756
+  ],
+  5.862
+ ],
+ "landing:across-and-back:near+corners-off": [
+  [
+   4538.484,
+   1627.856
+  ],
+  4.818
+ ],
+ "landing:across-and-back:near+corners-on": [
+  [
+   4539.384,
+   1628.756
+  ],
+  5.122
+ ],
+ "landing:around-the-void:far+corners-off": [
+  [
+   4517.109,
+   1627.681
+  ],
+  5.119
+ ],
+ "landing:around-the-void:far+corners-on": [
+  [
+   4517.109,
+   1627.681
+  ],
+  5.119
+ ],
+ "landing:around-the-void:near+corners-off": [
+  [
+   4517.109,
+   1627.681
+  ],
+  5.31
+ ],
+ "landing:around-the-void:near+corners-on": [
+  [
+   4517.109,
+   1627.681
+  ],
+  5.31
+ ],
+ "landing:corner-east:far+corners-off": [
+  [
+   4531.334,
+   1339.706
+  ],
+  4.655
+ ],
+ "landing:corner-east:far+corners-on": [
+  [
+   4531.334,
+   1339.706
+  ],
+  4.655
+ ],
+ "landing:corner-east:near+corners-off": [
+  [
+   4529.309,
+   1337.681
+  ],
+  4.657
+ ],
+ "landing:corner-east:near+corners-on": [
+  [
+   4529.309,
+   1337.681
+  ],
+  4.657
+ ],
+ "landing:corner-west:far+corners-off": [
+  [
+   4550.506,
+   1338.684
+  ],
+  6.099
+ ],
+ "landing:corner-west:far+corners-on": [
+  [
+   4550.506,
+   1338.684
+  ],
+  6.099
+ ],
+ "landing:corner-west:near+corners-off": [
+  [
+   4550.506,
+   1338.684
+  ],
+  6.099
+ ],
+ "landing:corner-west:near+corners-on": [
+  [
+   4550.506,
+   1338.684
+  ],
+  6.099
+ ],
+ "landing:dead-end:far+corners-off": [
+  [
+   4515.509,
+   1377.681
+  ],
+  5.268
+ ],
+ "landing:dead-end:far+corners-on": [
+  [
+   4516.409,
+   1378.581
+  ],
+  5.811
+ ],
+ "landing:dead-end:near+corners-off": [
+  [
+   4515.509,
+   1377.681
+  ],
+  5.303
+ ],
+ "landing:dead-end:near+corners-on": [
+  [
+   4516.409,
+   1378.581
+  ],
+  5.905
+ ],
+ "landing:down-the-screen-narrow:far+corners-off": [
+  [
+   4516.745,
+   1344.145
+  ],
+  4.223
+ ],
+ "landing:down-the-screen-narrow:far+corners-on": [
+  [
+   4516.745,
+   1344.145
+  ],
+  4.223
+ ],
+ "landing:down-the-screen-narrow:near+corners-off": [
+  [
+   4516.745,
+   1344.145
+  ],
+  4.223
+ ],
+ "landing:down-the-screen-narrow:near+corners-on": [
+  [
+   4516.745,
+   1344.145
+  ],
+  4.223
+ ],
+ "landing:down-the-screen:far+corners-off": [
+  [
+   4516.416,
+   1345.374
+  ],
+  5.271
+ ],
+ "landing:down-the-screen:far+corners-on": [
+  [
+   4517.069,
+   1345.621
+  ],
+  5.04
+ ],
+ "landing:down-the-screen:near+corners-off": [
+  [
+   4516.416,
+   1345.374
+  ],
+  5.429
+ ],
+ "landing:down-the-screen:near+corners-on": [
+  [
+   4516.416,
+   1345.374
+  ],
+  5.429
+ ],
+ "landing:last-hop-short:far+corners-off": [
+  [
+   4510.7,
+   1918.89
+  ],
+  5.772
+ ],
+ "landing:last-hop-short:far+corners-on": [
+  [
+   4510.7,
+   1918.89
+  ],
+  5.772
+ ],
+ "landing:last-hop-short:near+corners-off": [
+  [
+   4510.7,
+   1918.89
+  ],
+  5.772
+ ],
+ "landing:last-hop-short:near+corners-on": [
+  [
+   4510.7,
+   1918.89
+  ],
+  5.772
+ ],
+ "landing:recorded-door-1658:far+corners-off": [
+  [
+   4529.791,
+   1310.349
+  ],
+  4.791
+ ],
+ "landing:recorded-door-1658:far+corners-on": [
+  [
+   4530.691,
+   1311.249
+  ],
+  5.082
+ ],
+ "landing:recorded-door-1658:near+corners-off": [
+  [
+   4529.791,
+   1310.349
+  ],
+  4.791
+ ],
+ "landing:recorded-door-1658:near+corners-on": [
+  [
+   4530.691,
+   1311.249
+  ],
+  5.013
+ ],
+ "landing:recorded-door-1725:far+corners-off": [
+  [
+   4509.325,
+   1317.315
+  ],
+  3.953
+ ],
+ "landing:recorded-door-1725:far+corners-on": [
+  [
+   4510.406,
+   1317.584
+  ],
+  4.629
+ ],
+ "landing:recorded-door-1725:near+corners-off": [
+  [
+   4509.325,
+   1317.315
+  ],
+  3.908
+ ],
+ "landing:recorded-door-1725:near+corners-on": [
+  [
+   4510.406,
+   1317.584
+  ],
+  4.629
+ ],
+ "landing:recorded-door-1837:far+corners-off": [
+  [
+   4526.863,
+   1351.027
+  ],
+  5.127
+ ],
+ "landing:recorded-door-1837:far+corners-on": [
+  [
+   4526.863,
+   1351.027
+  ],
+  5.127
+ ],
+ "landing:recorded-door-1837:near+corners-off": [
+  [
+   4526.863,
+   1351.027
+  ],
+  5.232
+ ],
+ "landing:recorded-door-1837:near+corners-on": [
+  [
+   4526.863,
+   1351.027
+  ],
+  5.232
+ ],
+ "landing:recorded-hunt-1848:far+corners-off": [
+  [
+   4519.131,
+   1608.109
+  ],
+  4.135
+ ],
+ "landing:recorded-hunt-1848:far+corners-on": [
+  [
+   4519.581,
+   1608.559
+  ],
+  4.572
+ ],
+ "landing:recorded-hunt-1848:near+corners-off": [
+  [
+   4517.484,
+   1609.306
+  ],
+  3.885
+ ],
+ "landing:recorded-hunt-1848:near+corners-on": [
+  [
+   4519.581,
+   1608.559
+  ],
+  4.238
+ ],
+ "landing:recorded-hunt-2124:far+corners-off": [
+  [
+   4521.416,
+   1346.524
+  ],
+  3.483
+ ],
+ "landing:recorded-hunt-2124:far+corners-on": [
+  [
+   4521.416,
+   1346.524
+  ],
+  3.483
+ ],
+ "landing:recorded-hunt-2124:near+corners-off": [
+  [
+   4521.416,
+   1346.524
+  ],
+  3.522
+ ],
+ "landing:recorded-hunt-2124:near+corners-on": [
+  [
+   4521.416,
+   1346.524
+  ],
+  3.522
+ ],
+ "landing:u-detour:far+corners-off": [
+  [
+   4538.713,
+   1607.277
+  ],
+  5.871
+ ],
+ "landing:u-detour:far+corners-on": [
+  [
+   4538.713,
+   1607.277
+  ],
+  5.871
+ ],
+ "landing:u-detour:near+corners-off": [
+  [
+   4538.713,
+   1607.277
+  ],
+  6.02
+ ],
+ "landing:u-detour:near+corners-on": [
+  [
+   4538.713,
+   1607.277
+  ],
+  6.02
+ ],
+ "landing:unloaded-room:far+corners-off": [
+  [
+   4529.791,
+   1310.349
+  ],
+  4.994
+ ],
+ "landing:unloaded-room:far+corners-on": [
+  [
+   4530.691,
+   1311.249
+  ],
+  5.549
+ ],
+ "landing:unloaded-room:near+corners-off": [
+  [
+   4529.791,
+   1310.349
+  ],
+  4.791
+ ],
+ "landing:unloaded-room:near+corners-on": [
+  [
+   4530.691,
+   1311.249
+  ],
+  5.281
+ ],
+ "landing:up-the-screen:far+corners-off": [
+  [
+   4512.309,
+   1922.881
+  ],
+  6.777
+ ],
+ "landing:up-the-screen:far+corners-on": [
+  [
+   4512.309,
+   1922.881
+  ],
+  6.777
+ ],
+ "landing:up-the-screen:near+corners-off": [
+  [
+   4512.309,
+   1922.881
+  ],
+  6.825
+ ],
+ "landing:up-the-screen:near+corners-on": [
+  [
+   4512.309,
+   1922.881
+  ],
+  6.825
+ ],
+ "pickup:charm-one-cell:-": null,
+ "pickup:charm-room-unread:-": {
+  "drink": null,
+  "drop": {
+   "kind": "valuable",
+   "label": "Large Charm",
+   "size": [
+    1,
+    2
+   ],
+   "unit_id": 70,
+   "x": 5008.0,
+   "y": 5003.0
+  }
+ },
+ "pickup:drink-for-healing:-": {
+  "drink": "1",
+  "drop": {
+   "kind": "healing",
+   "label": "a healing potion",
+   "size": [
+    1,
+    1
+   ],
+   "unit_id": 51,
+   "x": 5006.0,
+   "y": 4996.0
+  }
+ },
+ "pickup:drink-for-rejuvenation:-": {
+  "drink": "3",
+  "drop": {
+   "kind": "rejuvenation",
+   "label": "a full rejuvenation potion",
+   "size": [
+    1,
+    1
+   ],
+   "unit_id": 52,
+   "x": 4995.0,
+   "y": 5004.0
+  }
+ },
+ "pickup:gold-before-potion:-": {
+  "drink": null,
+  "drop": {
+   "kind": "gold",
+   "label": "7200 gold",
+   "size": [
+    0,
+    0
+   ],
+   "unit_id": 60,
+   "x": 5015.0,
+   "y": 5000.0
+  }
+ },
+ "pickup:gold-too-far:-": null,
+ "pickup:gold-with-no-room:-": {
+  "drink": null,
+  "drop": {
+   "kind": "gold",
+   "label": "7200 gold",
+   "size": [
+    0,
+    0
+   ],
+   "unit_id": 60,
+   "x": 5015.0,
+   "y": 5000.0
+  }
+ },
+ "pickup:life-unreadable:-": null,
+ "pickup:not-hurt-enough-to-drink:-": null,
+ "pickup:potion-the-belt-has:-": null,
+ "pickup:potion-the-belt-misses:-": {
+  "drink": null,
+  "drop": {
+   "kind": "healing",
+   "label": "a healing potion",
+   "size": [
+    1,
+    1
+   ],
+   "unit_id": 51,
+   "x": 5006.0,
+   "y": 4996.0
+  }
+ },
+ "pickup:potion-too-far:-": null,
+ "pickup:potion-with-no-room:-": {
+  "drink": null,
+  "drop": {
+   "kind": "healing",
+   "label": "a healing potion",
+   "size": [
+    1,
+    1
+   ],
+   "unit_id": 51,
+   "x": 5006.0,
+   "y": 4996.0
+  }
+ },
+ "pickup:potions-full-belt:-": null,
+ "pickup:rune-and-charm-one-cell:-": {
+  "drink": null,
+  "drop": {
+   "kind": "valuable",
+   "label": "Ist Rune",
+   "size": [
+    1,
+    1
+   ],
+   "unit_id": 50,
+   "x": 5008.0,
+   "y": 5003.0
+  }
+ },
+ "pickup:rune-no-room:-": null,
+ "pickup:valuable-before-gold:-": {
+  "drink": null,
+  "drop": {
+   "kind": "valuable",
+   "label": "Ist Rune",
+   "size": [
+    1,
+    1
+   ],
+   "unit_id": 50,
+   "x": 5008.0,
+   "y": 5003.0
+  }
+ },
+ "pickup:valuable-before-potion-nearest-first:-": {
+  "drink": null,
+  "drop": {
+   "kind": "valuable",
+   "label": "Ist Rune",
+   "size": [
+    1,
+    1
+   ],
+   "unit_id": 50,
+   "x": 5008.0,
+   "y": 5003.0
+  }
+ },
+ "stand:20261010T204605Z-21-234607:staff-hand69+warp-delay": {
+  "casts": 2,
+  "here": 23882.198,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12640.5,
+   5308.5
+  ],
+  "walk": 24.0,
+  "worth": 35748.796
+ },
+ "stand:20261010T204605Z-21-234607:staff-hand69+warp-ready": {
+  "casts": 2,
+  "here": 23882.198,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12640.5,
+   5308.5
+  ],
+  "walk": 24.0,
+  "worth": 35748.796
+ },
+ "stand:20261010T204605Z-21-234607:staff-hand9+warp-delay": null,
+ "stand:20261010T204605Z-21-234607:staff-hand9+warp-ready": null,
+ "stand:20261010T204605Z-21-234607:staff-none+warp-delay": {
+  "casts": 2,
+  "here": 23882.198,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12640.5,
+   5308.5
+  ],
+  "walk": 24.0,
+  "worth": 35748.796
+ },
+ "stand:20261010T204605Z-21-234607:staff-none+warp-ready": {
+  "casts": 2,
+  "here": 23882.198,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12640.5,
+   5308.5
+  ],
+  "walk": 24.0,
+  "worth": 35748.796
+ },
+ "stand:20261010T204632Z-22-234638:staff-hand69+warp-delay": null,
+ "stand:20261010T204632Z-22-234638:staff-hand69+warp-ready": null,
+ "stand:20261010T204632Z-22-234638:staff-hand9+warp-delay": null,
+ "stand:20261010T204632Z-22-234638:staff-hand9+warp-ready": null,
+ "stand:20261010T204632Z-22-234638:staff-none+warp-delay": null,
+ "stand:20261010T204632Z-22-234638:staff-none+warp-ready": null,
+ "stand:20261010T204632Z-22-234640:staff-hand69+warp-delay": null,
+ "stand:20261010T204632Z-22-234640:staff-hand69+warp-ready": null,
+ "stand:20261010T204632Z-22-234640:staff-hand9+warp-delay": null,
+ "stand:20261010T204632Z-22-234640:staff-hand9+warp-ready": null,
+ "stand:20261010T204632Z-22-234640:staff-none+warp-delay": null,
+ "stand:20261010T204632Z-22-234640:staff-none+warp-ready": null,
+ "stand:20261010T204653Z-23-234702:staff-hand69+warp-delay": {
+  "casts": 2,
+  "here": 2966.64,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12733.5,
+   8063.5
+  ],
+  "walk": 10.817,
+  "worth": 10456.88
+ },
+ "stand:20261010T204653Z-23-234702:staff-hand69+warp-ready": {
+  "casts": 3,
+  "here": 2966.64,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12724.5,
+   8054.5
+  ],
+  "walk": 18.248,
+  "worth": 9699.44
+ },
+ "stand:20261010T204653Z-23-234702:staff-hand9+warp-delay": {
+  "casts": 3,
+  "here": 2966.64,
+  "hop": false,
+  "seconds": 1.084,
+  "skill": null,
+  "spot": [
+   12730.5,
+   8063.5
+  ],
+  "walk": 14.485,
+  "worth": 16140.777
+ },
+ "stand:20261010T204653Z-23-234702:staff-hand9+warp-ready": {
+  "casts": 3,
+  "here": 2966.64,
+  "hop": true,
+  "seconds": 0.561,
+  "skill": 390,
+  "spot": [
+   12733.5,
+   8060.5
+  ],
+  "walk": 9.487,
+  "worth": 9171.718
+ },
+ "stand:20261010T204653Z-23-234702:staff-none+warp-delay": {
+  "casts": 2,
+  "here": 2966.64,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12733.5,
+   8063.5
+  ],
+  "walk": 10.817,
+  "worth": 10456.88
+ },
+ "stand:20261010T204653Z-23-234702:staff-none+warp-ready": {
+  "casts": 3,
+  "here": 2966.64,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12724.5,
+   8054.5
+  ],
+  "walk": 18.248,
+  "worth": 9699.44
+ },
+ "stand:20261010T204733Z-25-234739:staff-hand69+warp-delay": {
+  "casts": 1,
+  "here": 0.0,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12592.5,
+   11072.5
+  ],
+  "walk": 18.974,
+  "worth": 2789.006
+ },
+ "stand:20261010T204733Z-25-234739:staff-hand69+warp-ready": {
+  "casts": 1,
+  "here": 0.0,
+  "hop": true,
+  "seconds": 0.772,
+  "skill": 390,
+  "spot": [
+   12592.5,
+   11072.5
+  ],
+  "walk": 18.974,
+  "worth": 2547.447
+ },
+ "stand:20261010T204733Z-25-234739:staff-hand9+warp-delay": {
+  "casts": 1,
+  "here": 0.0,
+  "hop": false,
+  "seconds": 1.209,
+  "skill": null,
+  "spot": [
+   12586.5,
+   11078.5
+  ],
+  "walk": 16.971,
+  "worth": 2318.837
+ },
+ "stand:20261010T204733Z-25-234739:staff-hand9+warp-ready": {
+  "casts": 1,
+  "here": 0.0,
+  "hop": true,
+  "seconds": 0.772,
+  "skill": 390,
+  "spot": [
+   12592.5,
+   11072.5
+  ],
+  "walk": 18.974,
+  "worth": 2547.447
+ },
+ "stand:20261010T204733Z-25-234739:staff-none+warp-delay": {
+  "casts": 1,
+  "here": 0.0,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12592.5,
+   11072.5
+  ],
+  "walk": 18.974,
+  "worth": 2789.006
+ },
+ "stand:20261010T204733Z-25-234739:staff-none+warp-ready": {
+  "casts": 1,
+  "here": 0.0,
+  "hop": true,
+  "seconds": 0.772,
+  "skill": 390,
+  "spot": [
+   12592.5,
+   11072.5
+  ],
+  "walk": 18.974,
+  "worth": 2547.447
+ },
+ "stand:20261010T204733Z-25-234800:staff-hand69+warp-delay": null,
+ "stand:20261010T204733Z-25-234800:staff-hand69+warp-ready": null,
+ "stand:20261010T204733Z-25-234800:staff-hand9+warp-delay": null,
+ "stand:20261010T204733Z-25-234800:staff-hand9+warp-ready": null,
+ "stand:20261010T204733Z-25-234800:staff-none+warp-delay": null,
+ "stand:20261010T204733Z-25-234800:staff-none+warp-ready": null,
+ "stand:20261010T204733Z-25-234801:staff-hand69+warp-delay": {
+  "casts": 5,
+  "here": 7574.99,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12548.5,
+   11099.5
+  ],
+  "walk": 17.493,
+  "worth": 15354.326
+ },
+ "stand:20261010T204733Z-25-234801:staff-hand69+warp-ready": {
+  "casts": 5,
+  "here": 7574.99,
+  "hop": true,
+  "seconds": 0.709,
+  "skill": 390,
+  "spot": [
+   12548.5,
+   11096.5
+  ],
+  "walk": 16.155,
+  "worth": 13779.379
+ },
+ "stand:20261010T204733Z-25-234801:staff-hand9+warp-delay": {
+  "casts": 5,
+  "here": 7574.99,
+  "hop": false,
+  "seconds": 1.084,
+  "skill": null,
+  "spot": [
+   12545.5,
+   11096.5
+  ],
+  "walk": 14.485,
+  "worth": 12298.207
+ },
+ "stand:20261010T204733Z-25-234801:staff-hand9+warp-ready": {
+  "casts": 5,
+  "here": 7574.99,
+  "hop": true,
+  "seconds": 0.709,
+  "skill": 390,
+  "spot": [
+   12548.5,
+   11096.5
+  ],
+  "walk": 16.155,
+  "worth": 13779.379
+ },
+ "stand:20261010T204733Z-25-234801:staff-none+warp-delay": {
+  "casts": 5,
+  "here": 7574.99,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12548.5,
+   11099.5
+  ],
+  "walk": 17.493,
+  "worth": 15354.326
+ },
+ "stand:20261010T204733Z-25-234801:staff-none+warp-ready": {
+  "casts": 5,
+  "here": 7574.99,
+  "hop": true,
+  "seconds": 0.709,
+  "skill": 390,
+  "spot": [
+   12548.5,
+   11096.5
+  ],
+  "walk": 16.155,
+  "worth": 13779.379
+ },
+ "stand:20261010T204733Z-25-234803:staff-hand69+warp-delay": {
+  "casts": 2,
+  "here": 2298.08,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12548.5,
+   11099.5
+  ],
+  "walk": 17.493,
+  "worth": 11700.247
+ },
+ "stand:20261010T204733Z-25-234803:staff-hand69+warp-ready": {
+  "casts": 2,
+  "here": 2298.08,
+  "hop": true,
+  "seconds": 0.648,
+  "skill": 390,
+  "spot": [
+   12545.5,
+   11096.5
+  ],
+  "walk": 13.416,
+  "worth": 10904.201
+ },
+ "stand:20261010T204733Z-25-234803:staff-hand9+warp-delay": {
+  "casts": 2,
+  "here": 2298.08,
+  "hop": false,
+  "seconds": 0.934,
+  "skill": null,
+  "spot": [
+   12542.5,
+   11096.5
+  ],
+  "walk": 11.485,
+  "worth": 10230.621
+ },
+ "stand:20261010T204733Z-25-234803:staff-hand9+warp-ready": {
+  "casts": 2,
+  "here": 2298.08,
+  "hop": true,
+  "seconds": 0.648,
+  "skill": 390,
+  "spot": [
+   12545.5,
+   11096.5
+  ],
+  "walk": 13.416,
+  "worth": 10904.201
+ },
+ "stand:20261010T204733Z-25-234803:staff-none+warp-delay": {
+  "casts": 2,
+  "here": 2298.08,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12548.5,
+   11099.5
+  ],
+  "walk": 17.493,
+  "worth": 11700.247
+ },
+ "stand:20261010T204733Z-25-234803:staff-none+warp-ready": {
+  "casts": 2,
+  "here": 2298.08,
+  "hop": true,
+  "seconds": 0.648,
+  "skill": 390,
+  "spot": [
+   12545.5,
+   11096.5
+  ],
+  "walk": 13.416,
+  "worth": 10904.201
+ },
+ "stand:20261010T204733Z-25-234805:staff-hand69+warp-delay": {
+  "casts": 2,
+  "here": 0.0,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12548.5,
+   11099.5
+  ],
+  "walk": 17.493,
+  "worth": 2278.861
+ },
+ "stand:20261010T204733Z-25-234805:staff-hand69+warp-ready": {
+  "casts": 2,
+  "here": 0.0,
+  "hop": true,
+  "seconds": 0.739,
+  "skill": 390,
+  "spot": [
+   12548.5,
+   11099.5
+  ],
+  "walk": 17.493,
+  "worth": 2082.279
+ },
+ "stand:20261010T204733Z-25-234805:staff-hand9+warp-delay": {
+  "casts": 2,
+  "here": 0.0,
+  "hop": false,
+  "seconds": 0.996,
+  "skill": null,
+  "spot": [
+   12542.5,
+   11099.5
+  ],
+  "walk": 12.728,
+  "worth": 1964.133
+ },
+ "stand:20261010T204733Z-25-234805:staff-hand9+warp-ready": {
+  "casts": 2,
+  "here": 0.0,
+  "hop": true,
+  "seconds": 0.739,
+  "skill": 390,
+  "spot": [
+   12548.5,
+   11099.5
+  ],
+  "walk": 17.493,
+  "worth": 2082.279
+ },
+ "stand:20261010T204733Z-25-234805:staff-none+warp-delay": {
+  "casts": 2,
+  "here": 0.0,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12548.5,
+   11099.5
+  ],
+  "walk": 17.493,
+  "worth": 2278.861
+ },
+ "stand:20261010T204733Z-25-234805:staff-none+warp-ready": {
+  "casts": 2,
+  "here": 0.0,
+  "hop": true,
+  "seconds": 0.739,
+  "skill": 390,
+  "spot": [
+   12548.5,
+   11099.5
+  ],
+  "walk": 17.493,
+  "worth": 2082.279
+ },
+ "stand:20261010T204733Z-25-234807:staff-hand69+warp-delay": {
+  "casts": 2,
+  "here": 0.0,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12561.5,
+   11100.5
+  ],
+  "walk": 21.213,
+  "worth": 23198.303
+ },
+ "stand:20261010T204733Z-25-234807:staff-hand69+warp-ready": {
+  "casts": 2,
+  "here": 0.0,
+  "hop": true,
+  "seconds": 0.821,
+  "skill": 390,
+  "spot": [
+   12561.5,
+   11100.5
+  ],
+  "walk": 21.213,
+  "worth": 20811.237
+ },
+ "stand:20261010T204733Z-25-234807:staff-hand9+warp-delay": {
+  "casts": 2,
+  "here": 0.0,
+  "hop": false,
+  "seconds": 1.472,
+  "skill": null,
+  "spot": [
+   12561.5,
+   11100.5
+  ],
+  "walk": 22.243,
+  "worth": 17773.858
+ },
+ "stand:20261010T204733Z-25-234807:staff-hand9+warp-ready": {
+  "casts": 2,
+  "here": 0.0,
+  "hop": true,
+  "seconds": 0.821,
+  "skill": 390,
+  "spot": [
+   12561.5,
+   11100.5
+  ],
+  "walk": 21.213,
+  "worth": 20811.237
+ },
+ "stand:20261010T204733Z-25-234807:staff-none+warp-delay": {
+  "casts": 2,
+  "here": 0.0,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12561.5,
+   11100.5
+  ],
+  "walk": 21.213,
+  "worth": 23198.303
+ },
+ "stand:20261010T204733Z-25-234807:staff-none+warp-ready": {
+  "casts": 2,
+  "here": 0.0,
+  "hop": true,
+  "seconds": 0.821,
+  "skill": 390,
+  "spot": [
+   12561.5,
+   11100.5
+  ],
+  "walk": 21.213,
+  "worth": 20811.237
+ },
+ "stand:20261010T204733Z-25-234809:staff-hand69+warp-delay": {
+  "casts": 2,
+  "here": 1270.351,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12559.5,
+   11101.5
+  ],
+  "walk": 12.369,
+  "worth": 11586.908
+ },
+ "stand:20261010T204733Z-25-234809:staff-hand69+warp-ready": {
+  "casts": 2,
+  "here": 1270.351,
+  "hop": true,
+  "seconds": 0.625,
+  "skill": 390,
+  "spot": [
+   12559.5,
+   11101.5
+  ],
+  "walk": 12.369,
+  "worth": 10852.821
+ },
+ "stand:20261010T204733Z-25-234809:staff-hand9+warp-delay": {
+  "casts": 2,
+  "here": 1270.351,
+  "hop": false,
+  "seconds": 1.022,
+  "skill": null,
+  "spot": [
+   12559.5,
+   11101.5
+  ],
+  "walk": 13.243,
+  "worth": 9926.665
+ },
+ "stand:20261010T204733Z-25-234809:staff-hand9+warp-ready": {
+  "casts": 2,
+  "here": 1270.351,
+  "hop": true,
+  "seconds": 0.625,
+  "skill": 390,
+  "spot": [
+   12559.5,
+   11101.5
+  ],
+  "walk": 12.369,
+  "worth": 10852.821
+ },
+ "stand:20261010T204733Z-25-234809:staff-none+warp-delay": {
+  "casts": 2,
+  "here": 1270.351,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12559.5,
+   11101.5
+  ],
+  "walk": 12.369,
+  "worth": 11586.908
+ },
+ "stand:20261010T204733Z-25-234809:staff-none+warp-ready": {
+  "casts": 2,
+  "here": 1270.351,
+  "hop": true,
+  "seconds": 0.625,
+  "skill": 390,
+  "spot": [
+   12559.5,
+   11101.5
+  ],
+  "walk": 12.369,
+  "worth": 10852.821
+ },
+ "stand:20261010T204733Z-25-234810:staff-hand69+warp-delay": {
+  "casts": 3,
+  "here": 0.0,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12569.5,
+   11105.5
+  ],
+  "walk": 10.817,
+  "worth": 18481.046
+ },
+ "stand:20261010T204733Z-25-234810:staff-hand69+warp-ready": {
+  "casts": 2,
+  "here": 0.0,
+  "hop": true,
+  "seconds": 0.59,
+  "skill": 390,
+  "spot": [
+   12566.5,
+   11108.5
+  ],
+  "walk": 10.817,
+  "worth": 16225.668
+ },
+ "stand:20261010T204733Z-25-234810:staff-hand9+warp-delay": {
+  "casts": 3,
+  "here": 0.0,
+  "hop": false,
+  "seconds": 0.934,
+  "skill": null,
+  "spot": [
+   12569.5,
+   11105.5
+  ],
+  "walk": 11.485,
+  "worth": 15978.431
+ },
+ "stand:20261010T204733Z-25-234810:staff-hand9+warp-ready": {
+  "casts": 2,
+  "here": 0.0,
+  "hop": true,
+  "seconds": 0.59,
+  "skill": 390,
+  "spot": [
+   12566.5,
+   11108.5
+  ],
+  "walk": 10.817,
+  "worth": 16225.668
+ },
+ "stand:20261010T204733Z-25-234810:staff-none+warp-delay": {
+  "casts": 3,
+  "here": 0.0,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12569.5,
+   11105.5
+  ],
+  "walk": 10.817,
+  "worth": 18481.046
+ },
+ "stand:20261010T204733Z-25-234810:staff-none+warp-ready": {
+  "casts": 2,
+  "here": 0.0,
+  "hop": true,
+  "seconds": 0.59,
+  "skill": 390,
+  "spot": [
+   12566.5,
+   11108.5
+  ],
+  "walk": 10.817,
+  "worth": 16225.668
+ },
+ "stand:20261010T204733Z-25-234812:staff-hand69+warp-delay": null,
+ "stand:20261010T204733Z-25-234812:staff-hand69+warp-ready": null,
+ "stand:20261010T204733Z-25-234812:staff-hand9+warp-delay": null,
+ "stand:20261010T204733Z-25-234812:staff-hand9+warp-ready": null,
+ "stand:20261010T204733Z-25-234812:staff-none+warp-delay": null,
+ "stand:20261010T204733Z-25-234812:staff-none+warp-ready": null,
+ "stand:20261010T205120Z-25-235126:staff-hand69+warp-delay": {
+  "casts": 1,
+  "here": 0.0,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12617.5,
+   11062.5
+  ],
+  "walk": 18.198,
+  "worth": 13763.184
+ },
+ "stand:20261010T205120Z-25-235126:staff-hand69+warp-ready": {
+  "casts": 1,
+  "here": 0.0,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12617.5,
+   11062.5
+  ],
+  "walk": 18.198,
+  "worth": 13763.184
+ },
+ "stand:20261010T205120Z-25-235126:staff-hand9+warp-delay": {
+  "casts": 1,
+  "here": 0.0,
+  "hop": false,
+  "seconds": 0.66,
+  "skill": null,
+  "spot": [
+   12629.5,
+   11065.5
+  ],
+  "walk": 6.0,
+  "worth": 12859.41
+ },
+ "stand:20261010T205120Z-25-235126:staff-hand9+warp-ready": {
+  "casts": 1,
+  "here": 0.0,
+  "hop": true,
+  "seconds": 0.627,
+  "skill": 390,
+  "spot": [
+   12623.5,
+   11068.5
+  ],
+  "walk": 12.451,
+  "worth": 12945.438
+ },
+ "stand:20261010T205120Z-25-235126:staff-none+warp-delay": {
+  "casts": 1,
+  "here": 0.0,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12617.5,
+   11062.5
+  ],
+  "walk": 18.198,
+  "worth": 13763.184
+ },
+ "stand:20261010T205120Z-25-235126:staff-none+warp-ready": {
+  "casts": 1,
+  "here": 0.0,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12617.5,
+   11062.5
+  ],
+  "walk": 18.198,
+  "worth": 13763.184
+ },
+ "stand:20261010T205314Z-21-235321:staff-hand69+warp-delay": {
+  "casts": 3,
+  "here": 2836.92,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12688.5,
+   5051.5
+  ],
+  "walk": 17.493,
+  "worth": 16088.132
+ },
+ "stand:20261010T205314Z-21-235321:staff-hand69+warp-ready": {
+  "casts": 3,
+  "here": 2836.92,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12688.5,
+   5051.5
+  ],
+  "walk": 17.493,
+  "worth": 16088.132
+ },
+ "stand:20261010T205314Z-21-235321:staff-hand9+warp-delay": {
+  "casts": 4,
+  "here": 2836.92,
+  "hop": false,
+  "seconds": 0.784,
+  "skill": null,
+  "spot": [
+   12691.5,
+   5060.5
+  ],
+  "walk": 8.485,
+  "worth": 15075.884
+ },
+ "stand:20261010T205314Z-21-235321:staff-hand9+warp-ready": {
+  "casts": 3,
+  "here": 2836.92,
+  "hop": false,
+  "seconds": 1.326,
+  "skill": null,
+  "spot": [
+   12688.5,
+   5051.5
+  ],
+  "walk": 19.314,
+  "worth": 12543.559
+ },
+ "stand:20261010T205314Z-21-235321:staff-none+warp-delay": {
+  "casts": 3,
+  "here": 2836.92,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12688.5,
+   5051.5
+  ],
+  "walk": 17.493,
+  "worth": 16088.132
+ },
+ "stand:20261010T205314Z-21-235321:staff-none+warp-ready": {
+  "casts": 3,
+  "here": 2836.92,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12688.5,
+   5051.5
+  ],
+  "walk": 17.493,
+  "worth": 16088.132
+ },
+ "stand:20261010T205314Z-21-235323:staff-hand69+warp-delay": null,
+ "stand:20261010T205314Z-21-235323:staff-hand69+warp-ready": null,
+ "stand:20261010T205314Z-21-235323:staff-hand9+warp-delay": null,
+ "stand:20261010T205314Z-21-235323:staff-hand9+warp-ready": null,
+ "stand:20261010T205314Z-21-235323:staff-none+warp-delay": null,
+ "stand:20261010T205314Z-21-235323:staff-none+warp-ready": null,
+ "stand:20261010T205314Z-21-235324:staff-hand69+warp-delay": null,
+ "stand:20261010T205314Z-21-235324:staff-hand69+warp-ready": null,
+ "stand:20261010T205314Z-21-235324:staff-hand9+warp-delay": null,
+ "stand:20261010T205314Z-21-235324:staff-hand9+warp-ready": null,
+ "stand:20261010T205314Z-21-235324:staff-none+warp-delay": null,
+ "stand:20261010T205314Z-21-235324:staff-none+warp-ready": null,
+ "stand:20261010T205314Z-21-235328:staff-hand69+warp-delay": {
+  "casts": 2,
+  "here": 10996.12,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12655.5,
+   5055.5
+  ],
+  "walk": 16.971,
+  "worth": 38759.373
+ },
+ "stand:20261010T205314Z-21-235328:staff-hand69+warp-ready": {
+  "casts": 2,
+  "here": 10996.12,
+  "hop": true,
+  "seconds": 0.539,
+  "skill": 390,
+  "spot": [
+   12661.5,
+   5061.5
+  ],
+  "walk": 8.485,
+  "worth": 36976.896
+ },
+ "stand:20261010T205314Z-21-235328:staff-hand9+warp-delay": {
+  "casts": 2,
+  "here": 10996.12,
+  "hop": false,
+  "seconds": 0.66,
+  "skill": null,
+  "spot": [
+   12661.5,
+   5067.5
+  ],
+  "walk": 6.0,
+  "worth": 36029.84
+ },
+ "stand:20261010T205314Z-21-235328:staff-hand9+warp-ready": {
+  "casts": 2,
+  "here": 10996.12,
+  "hop": true,
+  "seconds": 0.539,
+  "skill": 390,
+  "spot": [
+   12661.5,
+   5061.5
+  ],
+  "walk": 8.485,
+  "worth": 36976.896
+ },
+ "stand:20261010T205314Z-21-235328:staff-none+warp-delay": {
+  "casts": 2,
+  "here": 10996.12,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12655.5,
+   5055.5
+  ],
+  "walk": 16.971,
+  "worth": 38759.373
+ },
+ "stand:20261010T205314Z-21-235328:staff-none+warp-ready": {
+  "casts": 2,
+  "here": 10996.12,
+  "hop": true,
+  "seconds": 0.539,
+  "skill": 390,
+  "spot": [
+   12661.5,
+   5061.5
+  ],
+  "walk": 8.485,
+  "worth": 36976.896
+ },
+ "stand:20261010T205314Z-21-235333:staff-hand69+warp-delay": {
+  "casts": 1,
+  "here": 0.0,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12678.5,
+   5125.5
+  ],
+  "walk": 18.974,
+  "worth": 5361.98
+ },
+ "stand:20261010T205314Z-21-235333:staff-hand69+warp-ready": {
+  "casts": 1,
+  "here": 0.0,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12681.5,
+   5122.5
+  ],
+  "walk": 17.493,
+  "worth": 5361.98
+ },
+ "stand:20261010T205314Z-21-235333:staff-hand9+warp-delay": {
+  "casts": 1,
+  "here": 0.0,
+  "hop": false,
+  "seconds": 1.296,
+  "skill": null,
+  "spot": [
+   12681.5,
+   5122.5
+  ],
+  "walk": 18.728,
+  "worth": 4369.666
+ },
+ "stand:20261010T205314Z-21-235333:staff-hand9+warp-ready": {
+  "casts": 1,
+  "here": 0.0,
+  "hop": true,
+  "seconds": 0.772,
+  "skill": 390,
+  "spot": [
+   12678.5,
+   5125.5
+  ],
+  "walk": 18.974,
+  "worth": 4897.573
+ },
+ "stand:20261010T205314Z-21-235333:staff-none+warp-delay": {
+  "casts": 1,
+  "here": 0.0,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12678.5,
+   5125.5
+  ],
+  "walk": 18.974,
+  "worth": 5361.98
+ },
+ "stand:20261010T205314Z-21-235333:staff-none+warp-ready": {
+  "casts": 1,
+  "here": 0.0,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12681.5,
+   5122.5
+  ],
+  "walk": 17.493,
+  "worth": 5361.98
+ },
+ "stand:20261010T205403Z-23-235414:staff-hand69+warp-delay": {
+  "casts": 5,
+  "here": 5554.56,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12592.5,
+   8150.5
+  ],
+  "walk": 15.25,
+  "worth": 12276.84
+ },
+ "stand:20261010T205403Z-23-235414:staff-hand69+warp-ready": {
+  "casts": 5,
+  "here": 5554.56,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12592.5,
+   8150.5
+  ],
+  "walk": 15.25,
+  "worth": 12276.84
+ },
+ "stand:20261010T205403Z-23-235414:staff-hand9+warp-delay": {
+  "casts": 2,
+  "here": 5554.56,
+  "hop": false,
+  "seconds": 1.209,
+  "skill": null,
+  "spot": [
+   12589.5,
+   8135.5
+  ],
+  "walk": 16.971,
+  "worth": 10707.971
+ },
+ "stand:20261010T205403Z-23-235414:staff-hand9+warp-ready": {
+  "casts": 4,
+  "here": 5554.56,
+  "hop": false,
+  "seconds": 1.472,
+  "skill": null,
+  "spot": [
+   12598.5,
+   8150.5
+  ],
+  "walk": 22.243,
+  "worth": 9745.311
+ },
+ "stand:20261010T205403Z-23-235414:staff-none+warp-delay": {
+  "casts": 5,
+  "here": 5554.56,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12592.5,
+   8150.5
+  ],
+  "walk": 15.25,
+  "worth": 12276.84
+ },
+ "stand:20261010T205403Z-23-235414:staff-none+warp-ready": {
+  "casts": 5,
+  "here": 5554.56,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12592.5,
+   8150.5
+  ],
+  "walk": 15.25,
+  "worth": 12276.84
+ },
+ "stand:20261010T205403Z-23-235416:staff-hand69+warp-delay": null,
+ "stand:20261010T205403Z-23-235416:staff-hand69+warp-ready": null,
+ "stand:20261010T205403Z-23-235416:staff-hand9+warp-delay": null,
+ "stand:20261010T205403Z-23-235416:staff-hand9+warp-ready": null,
+ "stand:20261010T205403Z-23-235416:staff-none+warp-delay": null,
+ "stand:20261010T205403Z-23-235416:staff-none+warp-ready": null,
+ "stand:20261010T205403Z-23-235417:staff-hand69+warp-delay": {
+  "casts": 1,
+  "here": 2966.64,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12559.5,
+   8147.5
+  ],
+  "walk": 18.0,
+  "worth": 5802.309
+ },
+ "stand:20261010T205403Z-23-235417:staff-hand69+warp-ready": {
+  "casts": 2,
+  "here": 2966.64,
+  "hop": true,
+  "seconds": 0.59,
+  "skill": 390,
+  "spot": [
+   12568.5,
+   8141.5
+  ],
+  "walk": 10.817,
+  "worth": 4933.491
+ },
+ "stand:20261010T205403Z-23-235417:staff-hand9+warp-delay": {
+  "casts": 2,
+  "here": 2966.64,
+  "hop": false,
+  "seconds": 0.66,
+  "skill": null,
+  "spot": [
+   12571.5,
+   8147.5
+  ],
+  "walk": 6.0,
+  "worth": 4860.24
+ },
+ "stand:20261010T205403Z-23-235417:staff-hand9+warp-ready": {
+  "casts": 2,
+  "here": 2966.64,
+  "hop": true,
+  "seconds": 0.59,
+  "skill": 390,
+  "spot": [
+   12568.5,
+   8141.5
+  ],
+  "walk": 10.817,
+  "worth": 4933.491
+ },
+ "stand:20261010T205403Z-23-235417:staff-none+warp-delay": {
+  "casts": 1,
+  "here": 2966.64,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12559.5,
+   8147.5
+  ],
+  "walk": 18.0,
+  "worth": 5802.309
+ },
+ "stand:20261010T205403Z-23-235417:staff-none+warp-ready": {
+  "casts": 2,
+  "here": 2966.64,
+  "hop": true,
+  "seconds": 0.59,
+  "skill": 390,
+  "spot": [
+   12568.5,
+   8141.5
+  ],
+  "walk": 10.817,
+  "worth": 4933.491
+ },
+ "stand:20261010T205403Z-23-235418:staff-hand69+warp-delay": null,
+ "stand:20261010T205403Z-23-235418:staff-hand69+warp-ready": null,
+ "stand:20261010T205403Z-23-235418:staff-hand9+warp-delay": null,
+ "stand:20261010T205403Z-23-235418:staff-hand9+warp-ready": null,
+ "stand:20261010T205403Z-23-235418:staff-none+warp-delay": null,
+ "stand:20261010T205403Z-23-235418:staff-none+warp-ready": null,
+ "stand:20261010T205432Z-25-235446:staff-hand69+warp-delay": {
+  "casts": 2,
+  "here": 8835.053,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12542.5,
+   11088.5
+  ],
+  "walk": 17.493,
+  "worth": 23137.829
+ },
+ "stand:20261010T205432Z-25-235446:staff-hand69+warp-ready": {
+  "casts": 2,
+  "here": 8835.053,
+  "hop": true,
+  "seconds": 0.739,
+  "skill": 390,
+  "spot": [
+   12542.5,
+   11088.5
+  ],
+  "walk": 17.493,
+  "worth": 21141.876
+ },
+ "stand:20261010T205432Z-25-235446:staff-hand9+warp-delay": {
+  "casts": 2,
+  "here": 8835.053,
+  "hop": false,
+  "seconds": 1.296,
+  "skill": null,
+  "spot": [
+   12542.5,
+   11088.5
+  ],
+  "walk": 18.728,
+  "worth": 18545.663
+ },
+ "stand:20261010T205432Z-25-235446:staff-hand9+warp-ready": {
+  "casts": 2,
+  "here": 8835.053,
+  "hop": true,
+  "seconds": 0.739,
+  "skill": 390,
+  "spot": [
+   12542.5,
+   11088.5
+  ],
+  "walk": 17.493,
+  "worth": 21141.876
+ },
+ "stand:20261010T205432Z-25-235446:staff-none+warp-delay": {
+  "casts": 2,
+  "here": 8835.053,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12542.5,
+   11088.5
+  ],
+  "walk": 17.493,
+  "worth": 23137.829
+ },
+ "stand:20261010T205432Z-25-235446:staff-none+warp-ready": {
+  "casts": 2,
+  "here": 8835.053,
+  "hop": true,
+  "seconds": 0.739,
+  "skill": 390,
+  "spot": [
+   12542.5,
+   11088.5
+  ],
+  "walk": 17.493,
+  "worth": 21141.876
+ },
+ "stand:20261010T205432Z-25-235451:staff-hand69+warp-delay": {
+  "casts": 1,
+  "here": 0.0,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12532.5,
+   11093.5
+  ],
+  "walk": 19.144,
+  "worth": 16464.37
+ },
+ "stand:20261010T205432Z-25-235451:staff-hand69+warp-ready": {
+  "casts": 1,
+  "here": 0.0,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12532.5,
+   11093.5
+  ],
+  "walk": 19.144,
+  "worth": 16464.37
+ },
+ "stand:20261010T205432Z-25-235451:staff-hand9+warp-delay": {
+  "casts": 1,
+  "here": 0.0,
+  "hop": false,
+  "seconds": 1.367,
+  "skill": null,
+  "spot": [
+   12538.5,
+   11087.5
+  ],
+  "walk": 20.142,
+  "worth": 13198.967
+ },
+ "stand:20261010T205432Z-25-235451:staff-hand9+warp-ready": {
+  "casts": 1,
+  "here": 0.0,
+  "hop": false,
+  "seconds": 1.367,
+  "skill": null,
+  "spot": [
+   12538.5,
+   11087.5
+  ],
+  "walk": 20.142,
+  "worth": 13198.967
+ },
+ "stand:20261010T205432Z-25-235451:staff-none+warp-delay": {
+  "casts": 1,
+  "here": 0.0,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12532.5,
+   11093.5
+  ],
+  "walk": 19.144,
+  "worth": 16464.37
+ },
+ "stand:20261010T205432Z-25-235451:staff-none+warp-ready": {
+  "casts": 1,
+  "here": 0.0,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12532.5,
+   11093.5
+  ],
+  "walk": 19.144,
+  "worth": 16464.37
+ },
+ "stand:20261010T205557Z-22-235601:staff-hand69+warp-delay": {
+  "casts": 1,
+  "here": 0.0,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12552.5,
+   6741.5
+  ],
+  "walk": 19.209,
+  "worth": 5314.898
+ },
+ "stand:20261010T205557Z-22-235601:staff-hand69+warp-ready": {
+  "casts": 1,
+  "here": 0.0,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12552.5,
+   6741.5
+  ],
+  "walk": 19.209,
+  "worth": 5314.898
+ },
+ "stand:20261010T205557Z-22-235601:staff-hand9+warp-delay": null,
+ "stand:20261010T205557Z-22-235601:staff-hand9+warp-ready": null,
+ "stand:20261010T205557Z-22-235601:staff-none+warp-delay": {
+  "casts": 1,
+  "here": 0.0,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12552.5,
+   6741.5
+  ],
+  "walk": 19.209,
+  "worth": 5314.898
+ },
+ "stand:20261010T205557Z-22-235601:staff-none+warp-ready": {
+  "casts": 1,
+  "here": 0.0,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12552.5,
+   6741.5
+  ],
+  "walk": 19.209,
+  "worth": 5314.898
+ },
+ "stand:20261010T205557Z-22-235605:staff-hand69+warp-delay": {
+  "casts": 1,
+  "here": 255.122,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12547.5,
+   6717.5
+  ],
+  "walk": 15.0,
+  "worth": 5514.475
+ },
+ "stand:20261010T205557Z-22-235605:staff-hand69+warp-ready": {
+  "casts": 1,
+  "here": 255.122,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12568.5,
+   6729.5
+  ],
+  "walk": 21.213,
+  "worth": 5514.475
+ },
+ "stand:20261010T205557Z-22-235605:staff-hand9+warp-delay": {
+  "casts": 2,
+  "here": 255.122,
+  "hop": false,
+  "seconds": 0.51,
+  "skill": null,
+  "spot": [
+   12547.5,
+   6729.5
+  ],
+  "walk": 3.0,
+  "worth": 4935.093
+ },
+ "stand:20261010T205557Z-22-235605:staff-hand9+warp-ready": {
+  "casts": 1,
+  "here": 255.122,
+  "hop": true,
+  "seconds": 0.683,
+  "skill": 390,
+  "spot": [
+   12547.5,
+   6717.5
+  ],
+  "walk": 15.0,
+  "worth": 5128.22
+ },
+ "stand:20261010T205557Z-22-235605:staff-none+warp-delay": {
+  "casts": 1,
+  "here": 255.122,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12547.5,
+   6717.5
+  ],
+  "walk": 15.0,
+  "worth": 5514.475
+ },
+ "stand:20261010T205557Z-22-235605:staff-none+warp-ready": {
+  "casts": 1,
+  "here": 255.122,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12568.5,
+   6729.5
+  ],
+  "walk": 21.213,
+  "worth": 5514.475
+ },
+ "stand:20261010T205557Z-22-235612:staff-hand69+warp-delay": {
+  "casts": 3,
+  "here": 0.0,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12602.5,
+   6644.5
+  ],
+  "walk": 10.817,
+  "worth": 24912.44
+ },
+ "stand:20261010T205557Z-22-235612:staff-hand69+warp-ready": {
+  "casts": 3,
+  "here": 0.0,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12602.5,
+   6644.5
+  ],
+  "walk": 10.817,
+  "worth": 24912.44
+ },
+ "stand:20261010T205557Z-22-235612:staff-hand9+warp-delay": {
+  "casts": 3,
+  "here": 0.0,
+  "hop": false,
+  "seconds": 1.051,
+  "skill": null,
+  "spot": [
+   12599.5,
+   6641.5
+  ],
+  "walk": 13.828,
+  "worth": 24638.977
+ },
+ "stand:20261010T205557Z-22-235612:staff-hand9+warp-ready": {
+  "casts": 3,
+  "here": 0.0,
+  "hop": false,
+  "seconds": 1.051,
+  "skill": null,
+  "spot": [
+   12599.5,
+   6641.5
+  ],
+  "walk": 13.828,
+  "worth": 24638.977
+ },
+ "stand:20261010T205557Z-22-235612:staff-none+warp-delay": {
+  "casts": 3,
+  "here": 0.0,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12602.5,
+   6644.5
+  ],
+  "walk": 10.817,
+  "worth": 24912.44
+ },
+ "stand:20261010T205557Z-22-235612:staff-none+warp-ready": {
+  "casts": 3,
+  "here": 0.0,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12602.5,
+   6644.5
+  ],
+  "walk": 10.817,
+  "worth": 24912.44
+ },
+ "stand:20261010T205557Z-22-235614:staff-hand69+warp-delay": {
+  "casts": 3,
+  "here": 5442.6,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12594.5,
+   6641.5
+  ],
+  "walk": 10.817,
+  "worth": 18091.177
+ },
+ "stand:20261010T205557Z-22-235614:staff-hand69+warp-ready": {
+  "casts": 3,
+  "here": 5442.6,
+  "hop": true,
+  "seconds": 0.59,
+  "skill": 390,
+  "spot": [
+   12594.5,
+   6641.5
+  ],
+  "walk": 10.817,
+  "worth": 16990.911
+ },
+ "stand:20261010T205557Z-22-235614:staff-hand9+warp-delay": {
+  "casts": 3,
+  "here": 5442.6,
+  "hop": false,
+  "seconds": 0.934,
+  "skill": null,
+  "spot": [
+   12594.5,
+   6641.5
+  ],
+  "walk": 11.485,
+  "worth": 15641.356
+ },
+ "stand:20261010T205557Z-22-235614:staff-hand9+warp-ready": {
+  "casts": 3,
+  "here": 5442.6,
+  "hop": true,
+  "seconds": 0.59,
+  "skill": 390,
+  "spot": [
+   12594.5,
+   6641.5
+  ],
+  "walk": 10.817,
+  "worth": 16990.911
+ },
+ "stand:20261010T205557Z-22-235614:staff-none+warp-delay": {
+  "casts": 3,
+  "here": 5442.6,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12594.5,
+   6641.5
+  ],
+  "walk": 10.817,
+  "worth": 18091.177
+ },
+ "stand:20261010T205557Z-22-235614:staff-none+warp-ready": {
+  "casts": 3,
+  "here": 5442.6,
+  "hop": true,
+  "seconds": 0.59,
+  "skill": 390,
+  "spot": [
+   12594.5,
+   6641.5
+  ],
+  "walk": 10.817,
+  "worth": 16990.911
+ },
+ "stand:20261010T205557Z-22-235615:staff-hand69+warp-delay": {
+  "casts": 3,
+  "here": 10190.4,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12594.5,
+   6644.5
+  ],
+  "walk": 9.487,
+  "worth": 22539.827
+ },
+ "stand:20261010T205557Z-22-235615:staff-hand69+warp-ready": {
+  "casts": 3,
+  "here": 10190.4,
+  "hop": true,
+  "seconds": 0.561,
+  "skill": 390,
+  "spot": [
+   12594.5,
+   6644.5
+  ],
+  "walk": 9.487,
+  "worth": 21313.491
+ },
+ "stand:20261010T205557Z-22-235615:staff-hand9+warp-delay": {
+  "casts": 3,
+  "here": 10190.4,
+  "hop": false,
+  "seconds": 0.872,
+  "skill": null,
+  "spot": [
+   12594.5,
+   6644.5
+  ],
+  "walk": 10.243,
+  "worth": 19791.376
+ },
+ "stand:20261010T205557Z-22-235615:staff-hand9+warp-ready": {
+  "casts": 3,
+  "here": 10190.4,
+  "hop": true,
+  "seconds": 0.561,
+  "skill": 390,
+  "spot": [
+   12594.5,
+   6644.5
+  ],
+  "walk": 9.487,
+  "worth": 21313.491
+ },
+ "stand:20261010T205557Z-22-235615:staff-none+warp-delay": {
+  "casts": 3,
+  "here": 10190.4,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12594.5,
+   6644.5
+  ],
+  "walk": 9.487,
+  "worth": 22539.827
+ },
+ "stand:20261010T205557Z-22-235615:staff-none+warp-ready": {
+  "casts": 3,
+  "here": 10190.4,
+  "hop": true,
+  "seconds": 0.561,
+  "skill": 390,
+  "spot": [
+   12594.5,
+   6644.5
+  ],
+  "walk": 9.487,
+  "worth": 21313.491
+ },
+ "stand:20261010T205557Z-22-235616:staff-hand69+warp-delay": {
+  "casts": 1,
+  "here": 6169.969,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12624.5,
+   6641.5
+  ],
+  "walk": 21.84,
+  "worth": 10286.9
+ },
+ "stand:20261010T205557Z-22-235616:staff-hand69+warp-ready": {
+  "casts": 1,
+  "here": 6169.969,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12624.5,
+   6641.5
+  ],
+  "walk": 21.84,
+  "worth": 10286.9
+ },
+ "stand:20261010T205557Z-22-235616:staff-hand9+warp-delay": {
+  "casts": 1,
+  "here": 6169.969,
+  "hop": false,
+  "seconds": 1.472,
+  "skill": null,
+  "spot": [
+   12624.5,
+   6644.5
+  ],
+  "walk": 22.243,
+  "worth": 8043.985
+ },
+ "stand:20261010T205557Z-22-235616:staff-hand9+warp-ready": {
+  "casts": 1,
+  "here": 6169.969,
+  "hop": true,
+  "seconds": 0.883,
+  "skill": 390,
+  "spot": [
+   12627.5,
+   6647.5
+  ],
+  "walk": 24.0,
+  "worth": 9180.367
+ },
+ "stand:20261010T205557Z-22-235616:staff-none+warp-delay": {
+  "casts": 1,
+  "here": 6169.969,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12624.5,
+   6641.5
+  ],
+  "walk": 21.84,
+  "worth": 10286.9
+ },
+ "stand:20261010T205557Z-22-235616:staff-none+warp-ready": {
+  "casts": 1,
+  "here": 6169.969,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12624.5,
+   6641.5
+  ],
+  "walk": 21.84,
+  "worth": 10286.9
+ },
+ "stand:20261010T205629Z-23-235645:staff-hand69+warp-delay": {
+  "casts": 1,
+  "here": 0.0,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12682.5,
+   8175.5
+  ],
+  "walk": 12.0,
+  "worth": 15876.571
+ },
+ "stand:20261010T205629Z-23-235645:staff-hand69+warp-ready": {
+  "casts": 1,
+  "here": 0.0,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12682.5,
+   8175.5
+  ],
+  "walk": 12.0,
+  "worth": 15876.571
+ },
+ "stand:20261010T205629Z-23-235645:staff-hand9+warp-delay": {
+  "casts": 1,
+  "here": 0.0,
+  "hop": false,
+  "seconds": 0.851,
+  "skill": null,
+  "spot": [
+   12682.5,
+   8172.5
+  ],
+  "walk": 9.828,
+  "worth": 14263.829
+ },
+ "stand:20261010T205629Z-23-235645:staff-hand9+warp-ready": {
+  "casts": 1,
+  "here": 0.0,
+  "hop": true,
+  "seconds": 0.561,
+  "skill": 390,
+  "spot": [
+   12679.5,
+   8172.5
+  ],
+  "walk": 9.487,
+  "worth": 15129.453
+ },
+ "stand:20261010T205629Z-23-235645:staff-none+warp-delay": {
+  "casts": 1,
+  "here": 0.0,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12682.5,
+   8175.5
+  ],
+  "walk": 12.0,
+  "worth": 15876.571
+ },
+ "stand:20261010T205629Z-23-235645:staff-none+warp-ready": {
+  "casts": 1,
+  "here": 0.0,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12682.5,
+   8175.5
+  ],
+  "walk": 12.0,
+  "worth": 15876.571
+ },
+ "stand:20261010T205629Z-23-235649:staff-hand69+warp-delay": null,
+ "stand:20261010T205629Z-23-235649:staff-hand69+warp-ready": null,
+ "stand:20261010T205629Z-23-235649:staff-hand9+warp-delay": null,
+ "stand:20261010T205629Z-23-235649:staff-hand9+warp-ready": null,
+ "stand:20261010T205629Z-23-235649:staff-none+warp-delay": null,
+ "stand:20261010T205629Z-23-235649:staff-none+warp-ready": null,
+ "stand:20261010T205629Z-23-235652:staff-hand69+warp-delay": {
+  "casts": 2,
+  "here": 0.0,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12713.5,
+   8180.5
+  ],
+  "walk": 12.369,
+  "worth": 60156.88
+ },
+ "stand:20261010T205629Z-23-235652:staff-hand69+warp-ready": {
+  "casts": 2,
+  "here": 0.0,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12722.5,
+   8174.5
+  ],
+  "walk": 21.213,
+  "worth": 60156.88
+ },
+ "stand:20261010T205629Z-23-235652:staff-hand9+warp-delay": {
+  "casts": 2,
+  "here": 0.0,
+  "hop": false,
+  "seconds": 0.872,
+  "skill": null,
+  "spot": [
+   12710.5,
+   8180.5
+  ],
+  "walk": 10.243,
+  "worth": 53352.834
+ },
+ "stand:20261010T205629Z-23-235652:staff-hand9+warp-ready": {
+  "casts": 2,
+  "here": 0.0,
+  "hop": true,
+  "seconds": 0.561,
+  "skill": 390,
+  "spot": [
+   12710.5,
+   8180.5
+  ],
+  "walk": 9.487,
+  "worth": 57120.973
+ },
+ "stand:20261010T205629Z-23-235652:staff-none+warp-delay": {
+  "casts": 2,
+  "here": 0.0,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12713.5,
+   8180.5
+  ],
+  "walk": 12.369,
+  "worth": 60156.88
+ },
+ "stand:20261010T205629Z-23-235652:staff-none+warp-ready": {
+  "casts": 2,
+  "here": 0.0,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12722.5,
+   8174.5
+  ],
+  "walk": 21.213,
+  "worth": 60156.88
+ },
+ "stand:20261010T205658Z-24-235701:staff-hand69+warp-delay": {
+  "casts": 4,
+  "here": 0.0,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12553.5,
+   9634.5
+  ],
+  "walk": 24.0,
+  "worth": 30562.458
+ },
+ "stand:20261010T205658Z-24-235701:staff-hand69+warp-ready": {
+  "casts": 4,
+  "here": 0.0,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12553.5,
+   9634.5
+  ],
+  "walk": 24.0,
+  "worth": 30562.458
+ },
+ "stand:20261010T205658Z-24-235701:staff-hand9+warp-delay": {
+  "casts": 4,
+  "here": 0.0,
+  "hop": false,
+  "seconds": 1.476,
+  "skill": null,
+  "spot": [
+   12562.5,
+   9640.5
+  ],
+  "walk": 22.314,
+  "worth": 22179.82
+ },
+ "stand:20261010T205658Z-24-235701:staff-hand9+warp-ready": {
+  "casts": 4,
+  "here": 0.0,
+  "hop": false,
+  "seconds": 1.476,
+  "skill": null,
+  "spot": [
+   12562.5,
+   9640.5
+  ],
+  "walk": 22.314,
+  "worth": 22179.82
+ },
+ "stand:20261010T205658Z-24-235701:staff-none+warp-delay": {
+  "casts": 4,
+  "here": 0.0,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12553.5,
+   9634.5
+  ],
+  "walk": 24.0,
+  "worth": 30562.458
+ },
+ "stand:20261010T205658Z-24-235701:staff-none+warp-ready": {
+  "casts": 4,
+  "here": 0.0,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12553.5,
+   9634.5
+  ],
+  "walk": 24.0,
+  "worth": 30562.458
+ },
+ "stand:20261010T205658Z-24-235706:staff-hand69+warp-delay": {
+  "casts": 2,
+  "here": 0.0,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12533.5,
+   9638.5
+  ],
+  "walk": 20.125,
+  "worth": 11430.405
+ },
+ "stand:20261010T205658Z-24-235706:staff-hand69+warp-ready": {
+  "casts": 2,
+  "here": 0.0,
+  "hop": true,
+  "seconds": 0.797,
+  "skill": 390,
+  "spot": [
+   12533.5,
+   9638.5
+  ],
+  "walk": 20.125,
+  "worth": 10309.872
+ },
+ "stand:20261010T205658Z-24-235706:staff-hand9+warp-delay": {
+  "casts": 2,
+  "here": 0.0,
+  "hop": false,
+  "seconds": 1.446,
+  "skill": null,
+  "spot": [
+   12533.5,
+   9638.5
+  ],
+  "walk": 21.728,
+  "worth": 8816.83
+ },
+ "stand:20261010T205658Z-24-235706:staff-hand9+warp-ready": {
+  "casts": 2,
+  "here": 0.0,
+  "hop": true,
+  "seconds": 0.797,
+  "skill": 390,
+  "spot": [
+   12533.5,
+   9638.5
+  ],
+  "walk": 20.125,
+  "worth": 10309.872
+ },
+ "stand:20261010T205658Z-24-235706:staff-none+warp-delay": {
+  "casts": 2,
+  "here": 0.0,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12533.5,
+   9638.5
+  ],
+  "walk": 20.125,
+  "worth": 11430.405
+ },
+ "stand:20261010T205658Z-24-235706:staff-none+warp-ready": {
+  "casts": 2,
+  "here": 0.0,
+  "hop": true,
+  "seconds": 0.797,
+  "skill": 390,
+  "spot": [
+   12533.5,
+   9638.5
+  ],
+  "walk": 20.125,
+  "worth": 10309.872
+ },
+ "stand:20261010T205658Z-24-235707:staff-hand69+warp-delay": {
+  "casts": 4,
+  "here": 0.0,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12527.5,
+   9647.5
+  ],
+  "walk": 17.493,
+  "worth": 39767.449
+ },
+ "stand:20261010T205658Z-24-235707:staff-hand69+warp-ready": {
+  "casts": 4,
+  "here": 0.0,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12527.5,
+   9647.5
+  ],
+  "walk": 17.493,
+  "worth": 39767.449
+ },
+ "stand:20261010T205658Z-24-235707:staff-hand9+warp-delay": {
+  "casts": 4,
+  "here": 0.0,
+  "hop": false,
+  "seconds": 1.414,
+  "skill": null,
+  "spot": [
+   12527.5,
+   9647.5
+  ],
+  "walk": 21.071,
+  "worth": 29441.448
+ },
+ "stand:20261010T205658Z-24-235707:staff-hand9+warp-ready": {
+  "casts": 5,
+  "here": 0.0,
+  "hop": true,
+  "seconds": 0.69,
+  "skill": 390,
+  "spot": [
+   12527.5,
+   9641.5
+  ],
+  "walk": 15.297,
+  "worth": 32843.846
+ },
+ "stand:20261010T205658Z-24-235707:staff-none+warp-delay": {
+  "casts": 4,
+  "here": 0.0,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12527.5,
+   9647.5
+  ],
+  "walk": 17.493,
+  "worth": 39767.449
+ },
+ "stand:20261010T205658Z-24-235707:staff-none+warp-ready": {
+  "casts": 4,
+  "here": 0.0,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12527.5,
+   9647.5
+  ],
+  "walk": 17.493,
+  "worth": 39767.449
+ },
+ "stand:20261010T205658Z-24-235710:staff-hand69+warp-delay": {
+  "casts": 3,
+  "here": 18298.225,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12508.5,
+   9638.5
+  ],
+  "walk": 24.0,
+  "worth": 34566.884
+ },
+ "stand:20261010T205658Z-24-235710:staff-hand69+warp-ready": {
+  "casts": 3,
+  "here": 18298.225,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12508.5,
+   9638.5
+  ],
+  "walk": 24.0,
+  "worth": 34566.884
+ },
+ "stand:20261010T205658Z-24-235710:staff-hand9+warp-delay": {
+  "casts": 4,
+  "here": 18298.225,
+  "hop": false,
+  "seconds": 0.701,
+  "skill": null,
+  "spot": [
+   12526.5,
+   9638.5
+  ],
+  "walk": 6.828,
+  "worth": 25042.457
+ },
+ "stand:20261010T205658Z-24-235710:staff-hand9+warp-ready": {
+  "casts": 4,
+  "here": 18298.225,
+  "hop": false,
+  "seconds": 0.701,
+  "skill": null,
+  "spot": [
+   12526.5,
+   9638.5
+  ],
+  "walk": 6.828,
+  "worth": 25042.457
+ },
+ "stand:20261010T205658Z-24-235710:staff-none+warp-delay": {
+  "casts": 3,
+  "here": 18298.225,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12508.5,
+   9638.5
+  ],
+  "walk": 24.0,
+  "worth": 34566.884
+ },
+ "stand:20261010T205658Z-24-235710:staff-none+warp-ready": {
+  "casts": 3,
+  "here": 18298.225,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12508.5,
+   9638.5
+  ],
+  "walk": 24.0,
+  "worth": 34566.884
+ },
+ "stand:20261010T205720Z-25-235731:staff-hand69+warp-delay": {
+  "casts": 1,
+  "here": 0.0,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12547.5,
+   11079.5
+  ],
+  "walk": 18.099,
+  "worth": 14630.85
+ },
+ "stand:20261010T205720Z-25-235731:staff-hand69+warp-ready": {
+  "casts": 1,
+  "here": 0.0,
+  "hop": true,
+  "seconds": 0.752,
+  "skill": 390,
+  "spot": [
+   12547.5,
+   11079.5
+  ],
+  "walk": 18.099,
+  "worth": 13417.012
+ },
+ "stand:20261010T205720Z-25-235731:staff-hand9+warp-delay": {
+  "casts": 1,
+  "here": 0.0,
+  "hop": false,
+  "seconds": 1.234,
+  "skill": null,
+  "spot": [
+   12544.5,
+   11082.5
+  ],
+  "walk": 17.485,
+  "worth": 12093.745
+ },
+ "stand:20261010T205720Z-25-235731:staff-hand9+warp-ready": {
+  "casts": 1,
+  "here": 0.0,
+  "hop": true,
+  "seconds": 0.752,
+  "skill": 390,
+  "spot": [
+   12547.5,
+   11079.5
+  ],
+  "walk": 18.099,
+  "worth": 13417.012
+ },
+ "stand:20261010T205720Z-25-235731:staff-none+warp-delay": {
+  "casts": 1,
+  "here": 0.0,
+  "hop": true,
+  "seconds": 0.31,
+  "skill": 54,
+  "spot": [
+   12547.5,
+   11079.5
+  ],
+  "walk": 18.099,
+  "worth": 14630.85
+ },
+ "stand:20261010T205720Z-25-235731:staff-none+warp-ready": {
+  "casts": 1,
+  "here": 0.0,
+  "hop": true,
+  "seconds": 0.752,
+  "skill": 390,
+  "spot": [
+   12547.5,
+   11079.5
+  ],
+  "walk": 18.099,
+  "worth": 13417.012
+ },
+ "step:20261010T204605Z-21-234607:staff-hand69+warp-ready": null,
+ "step:20261010T204605Z-21-234607:staff-hand9+warp-delay": null,
+ "step:20261010T204605Z-21-234607:staff-hand9+warp-ready": null,
+ "step:20261010T204632Z-22-234638:staff-hand69+warp-ready": null,
+ "step:20261010T204632Z-22-234638:staff-hand9+warp-delay": null,
+ "step:20261010T204632Z-22-234638:staff-hand9+warp-ready": null,
+ "step:20261010T204632Z-22-234640:staff-hand69+warp-ready": null,
+ "step:20261010T204632Z-22-234640:staff-hand9+warp-delay": null,
+ "step:20261010T204632Z-22-234640:staff-hand9+warp-ready": null,
+ "step:20261010T204653Z-23-234702:staff-hand69+warp-ready": {
+  "camp": {
+   "casts": 3,
+   "here": 2966.64,
+   "hop": true,
+   "seconds": 0.31,
+   "skill": 54,
+   "spot": [
+    12724.5,
+    8054.5
+   ],
+   "walk": 18.248,
+   "worth": 9699.44
+  },
+  "skill": 54,
+  "spot": [
+   12724.5,
+   8054.5
+  ]
+ },
+ "step:20261010T204653Z-23-234702:staff-hand9+warp-delay": {
+  "camp": {
+   "casts": 3,
+   "here": 2966.64,
+   "hop": false,
+   "seconds": 1.084,
+   "skill": null,
+   "spot": [
+    12730.5,
+    8063.5
+   ],
+   "walk": 14.485,
+   "worth": 16140.777
+  },
+  "skill": null,
+  "spot": [
+   12730.5,
+   8063.5
+  ]
+ },
+ "step:20261010T204653Z-23-234702:staff-hand9+warp-ready": {
+  "camp": {
+   "casts": 3,
+   "here": 2966.64,
+   "hop": true,
+   "seconds": 0.561,
+   "skill": 390,
+   "spot": [
+    12733.5,
+    8060.5
+   ],
+   "walk": 9.487,
+   "worth": 9171.718
+  },
+  "skill": 390,
+  "spot": [
+   12733.5,
+   8060.5
+  ]
+ },
+ "step:20261010T204733Z-25-234739:staff-hand69+warp-ready": {
+  "camp": {
+   "casts": 1,
+   "here": 0.0,
+   "hop": true,
+   "seconds": 0.772,
+   "skill": 390,
+   "spot": [
+    12592.5,
+    11072.5
+   ],
+   "walk": 18.974,
+   "worth": 2547.447
+  },
+  "skill": 390,
+  "spot": [
+   12592.5,
+   11072.5
+  ]
+ },
+ "step:20261010T204733Z-25-234739:staff-hand9+warp-delay": {
+  "camp": {
+   "casts": 1,
+   "here": 0.0,
+   "hop": false,
+   "seconds": 1.209,
+   "skill": null,
+   "spot": [
+    12586.5,
+    11078.5
+   ],
+   "walk": 16.971,
+   "worth": 2318.837
+  },
+  "skill": null,
+  "spot": [
+   12586.5,
+   11078.5
+  ]
+ },
+ "step:20261010T204733Z-25-234739:staff-hand9+warp-ready": {
+  "camp": {
+   "casts": 1,
+   "here": 0.0,
+   "hop": true,
+   "seconds": 0.772,
+   "skill": 390,
+   "spot": [
+    12592.5,
+    11072.5
+   ],
+   "walk": 18.974,
+   "worth": 2547.447
+  },
+  "skill": 390,
+  "spot": [
+   12592.5,
+   11072.5
+  ]
+ },
+ "step:20261010T204733Z-25-234800:staff-hand69+warp-ready": null,
+ "step:20261010T204733Z-25-234800:staff-hand9+warp-delay": null,
+ "step:20261010T204733Z-25-234800:staff-hand9+warp-ready": null,
+ "step:20261010T204733Z-25-234801:staff-hand69+warp-ready": null,
+ "step:20261010T204733Z-25-234801:staff-hand9+warp-delay": null,
+ "step:20261010T204733Z-25-234801:staff-hand9+warp-ready": null,
+ "step:20261010T204733Z-25-234803:staff-hand69+warp-ready": {
+  "camp": {
+   "casts": 2,
+   "here": 2298.08,
+   "hop": true,
+   "seconds": 0.648,
+   "skill": 390,
+   "spot": [
+    12545.5,
+    11096.5
+   ],
+   "walk": 13.416,
+   "worth": 10904.201
+  },
+  "skill": 390,
+  "spot": [
+   12545.5,
+   11096.5
+  ]
+ },
+ "step:20261010T204733Z-25-234803:staff-hand9+warp-delay": {
+  "camp": {
+   "casts": 2,
+   "here": 2298.08,
+   "hop": false,
+   "seconds": 0.934,
+   "skill": null,
+   "spot": [
+    12542.5,
+    11096.5
+   ],
+   "walk": 11.485,
+   "worth": 10230.621
+  },
+  "skill": null,
+  "spot": [
+   12542.5,
+   11096.5
+  ]
+ },
+ "step:20261010T204733Z-25-234803:staff-hand9+warp-ready": {
+  "camp": {
+   "casts": 2,
+   "here": 2298.08,
+   "hop": true,
+   "seconds": 0.648,
+   "skill": 390,
+   "spot": [
+    12545.5,
+    11096.5
+   ],
+   "walk": 13.416,
+   "worth": 10904.201
+  },
+  "skill": 390,
+  "spot": [
+   12545.5,
+   11096.5
+  ]
+ },
+ "step:20261010T204733Z-25-234805:staff-hand69+warp-ready": {
+  "camp": {
+   "casts": 2,
+   "here": 0.0,
+   "hop": true,
+   "seconds": 0.739,
+   "skill": 390,
+   "spot": [
+    12548.5,
+    11099.5
+   ],
+   "walk": 17.493,
+   "worth": 2082.279
+  },
+  "skill": 390,
+  "spot": [
+   12548.5,
+   11099.5
+  ]
+ },
+ "step:20261010T204733Z-25-234805:staff-hand9+warp-delay": {
+  "camp": {
+   "casts": 2,
+   "here": 0.0,
+   "hop": false,
+   "seconds": 0.996,
+   "skill": null,
+   "spot": [
+    12542.5,
+    11099.5
+   ],
+   "walk": 12.728,
+   "worth": 1964.133
+  },
+  "skill": null,
+  "spot": [
+   12542.5,
+   11099.5
+  ]
+ },
+ "step:20261010T204733Z-25-234805:staff-hand9+warp-ready": {
+  "camp": {
+   "casts": 2,
+   "here": 0.0,
+   "hop": true,
+   "seconds": 0.739,
+   "skill": 390,
+   "spot": [
+    12548.5,
+    11099.5
+   ],
+   "walk": 17.493,
+   "worth": 2082.279
+  },
+  "skill": 390,
+  "spot": [
+   12548.5,
+   11099.5
+  ]
+ },
+ "step:20261010T204733Z-25-234807:staff-hand69+warp-ready": {
+  "camp": {
+   "casts": 2,
+   "here": 0.0,
+   "hop": true,
+   "seconds": 0.821,
+   "skill": 390,
+   "spot": [
+    12561.5,
+    11100.5
+   ],
+   "walk": 21.213,
+   "worth": 20811.237
+  },
+  "skill": 390,
+  "spot": [
+   12561.5,
+   11100.5
+  ]
+ },
+ "step:20261010T204733Z-25-234807:staff-hand9+warp-delay": {
+  "camp": {
+   "casts": 2,
+   "here": 0.0,
+   "hop": false,
+   "seconds": 1.472,
+   "skill": null,
+   "spot": [
+    12561.5,
+    11100.5
+   ],
+   "walk": 22.243,
+   "worth": 17773.858
+  },
+  "skill": null,
+  "spot": [
+   12561.5,
+   11100.5
+  ]
+ },
+ "step:20261010T204733Z-25-234807:staff-hand9+warp-ready": {
+  "camp": {
+   "casts": 2,
+   "here": 0.0,
+   "hop": true,
+   "seconds": 0.821,
+   "skill": 390,
+   "spot": [
+    12561.5,
+    11100.5
+   ],
+   "walk": 21.213,
+   "worth": 20811.237
+  },
+  "skill": 390,
+  "spot": [
+   12561.5,
+   11100.5
+  ]
+ },
+ "step:20261010T204733Z-25-234809:staff-hand69+warp-ready": {
+  "camp": {
+   "casts": 2,
+   "here": 1270.351,
+   "hop": true,
+   "seconds": 0.625,
+   "skill": 390,
+   "spot": [
+    12559.5,
+    11101.5
+   ],
+   "walk": 12.369,
+   "worth": 10852.821
+  },
+  "skill": 390,
+  "spot": [
+   12559.5,
+   11101.5
+  ]
+ },
+ "step:20261010T204733Z-25-234809:staff-hand9+warp-delay": {
+  "camp": {
+   "casts": 2,
+   "here": 1270.351,
+   "hop": false,
+   "seconds": 1.022,
+   "skill": null,
+   "spot": [
+    12559.5,
+    11101.5
+   ],
+   "walk": 13.243,
+   "worth": 9926.665
+  },
+  "skill": null,
+  "spot": [
+   12559.5,
+   11101.5
+  ]
+ },
+ "step:20261010T204733Z-25-234809:staff-hand9+warp-ready": {
+  "camp": {
+   "casts": 2,
+   "here": 1270.351,
+   "hop": true,
+   "seconds": 0.625,
+   "skill": 390,
+   "spot": [
+    12559.5,
+    11101.5
+   ],
+   "walk": 12.369,
+   "worth": 10852.821
+  },
+  "skill": 390,
+  "spot": [
+   12559.5,
+   11101.5
+  ]
+ },
+ "step:20261010T204733Z-25-234810:staff-hand69+warp-ready": {
+  "camp": {
+   "casts": 2,
+   "here": 0.0,
+   "hop": true,
+   "seconds": 0.59,
+   "skill": 390,
+   "spot": [
+    12566.5,
+    11108.5
+   ],
+   "walk": 10.817,
+   "worth": 16225.668
+  },
+  "skill": 390,
+  "spot": [
+   12566.5,
+   11108.5
+  ]
+ },
+ "step:20261010T204733Z-25-234810:staff-hand9+warp-delay": {
+  "camp": {
+   "casts": 3,
+   "here": 0.0,
+   "hop": false,
+   "seconds": 0.934,
+   "skill": null,
+   "spot": [
+    12569.5,
+    11105.5
+   ],
+   "walk": 11.485,
+   "worth": 15978.431
+  },
+  "skill": null,
+  "spot": [
+   12569.5,
+   11105.5
+  ]
+ },
+ "step:20261010T204733Z-25-234810:staff-hand9+warp-ready": {
+  "camp": {
+   "casts": 2,
+   "here": 0.0,
+   "hop": true,
+   "seconds": 0.59,
+   "skill": 390,
+   "spot": [
+    12566.5,
+    11108.5
+   ],
+   "walk": 10.817,
+   "worth": 16225.668
+  },
+  "skill": 390,
+  "spot": [
+   12566.5,
+   11108.5
+  ]
+ },
+ "step:20261010T204733Z-25-234812:staff-hand69+warp-ready": null,
+ "step:20261010T204733Z-25-234812:staff-hand9+warp-delay": null,
+ "step:20261010T204733Z-25-234812:staff-hand9+warp-ready": null,
+ "step:20261010T205120Z-25-235126:staff-hand69+warp-ready": {
+  "camp": {
+   "casts": 1,
+   "here": 0.0,
+   "hop": true,
+   "seconds": 0.31,
+   "skill": 54,
+   "spot": [
+    12617.5,
+    11062.5
+   ],
+   "walk": 18.198,
+   "worth": 13763.184
+  },
+  "skill": 54,
+  "spot": [
+   12617.5,
+   11062.5
+  ]
+ },
+ "step:20261010T205120Z-25-235126:staff-hand9+warp-delay": {
+  "camp": {
+   "casts": 1,
+   "here": 0.0,
+   "hop": false,
+   "seconds": 0.66,
+   "skill": null,
+   "spot": [
+    12629.5,
+    11065.5
+   ],
+   "walk": 6.0,
+   "worth": 12859.41
+  },
+  "skill": null,
+  "spot": [
+   12629.5,
+   11065.5
+  ]
+ },
+ "step:20261010T205120Z-25-235126:staff-hand9+warp-ready": {
+  "camp": {
+   "casts": 1,
+   "here": 0.0,
+   "hop": true,
+   "seconds": 0.627,
+   "skill": 390,
+   "spot": [
+    12623.5,
+    11068.5
+   ],
+   "walk": 12.451,
+   "worth": 12945.438
+  },
+  "skill": 390,
+  "spot": [
+   12623.5,
+   11068.5
+  ]
+ },
+ "step:20261010T205314Z-21-235321:staff-hand69+warp-ready": {
+  "camp": {
+   "casts": 3,
+   "here": 2836.92,
+   "hop": true,
+   "seconds": 0.31,
+   "skill": 54,
+   "spot": [
+    12688.5,
+    5051.5
+   ],
+   "walk": 17.493,
+   "worth": 16088.132
+  },
+  "skill": 54,
+  "spot": [
+   12688.5,
+   5051.5
+  ]
+ },
+ "step:20261010T205314Z-21-235321:staff-hand9+warp-delay": {
+  "camp": {
+   "casts": 4,
+   "here": 2836.92,
+   "hop": false,
+   "seconds": 0.784,
+   "skill": null,
+   "spot": [
+    12691.5,
+    5060.5
+   ],
+   "walk": 8.485,
+   "worth": 15075.884
+  },
+  "skill": null,
+  "spot": [
+   12691.5,
+   5060.5
+  ]
+ },
+ "step:20261010T205314Z-21-235321:staff-hand9+warp-ready": {
+  "camp": {
+   "casts": 3,
+   "here": 2836.92,
+   "hop": false,
+   "seconds": 1.326,
+   "skill": null,
+   "spot": [
+    12688.5,
+    5051.5
+   ],
+   "walk": 19.314,
+   "worth": 12543.559
+  },
+  "skill": null,
+  "spot": [
+   12688.5,
+   5051.5
+  ]
+ },
+ "step:20261010T205314Z-21-235323:staff-hand69+warp-ready": null,
+ "step:20261010T205314Z-21-235323:staff-hand9+warp-delay": null,
+ "step:20261010T205314Z-21-235323:staff-hand9+warp-ready": null,
+ "step:20261010T205314Z-21-235324:staff-hand69+warp-ready": null,
+ "step:20261010T205314Z-21-235324:staff-hand9+warp-delay": null,
+ "step:20261010T205314Z-21-235324:staff-hand9+warp-ready": null,
+ "step:20261010T205314Z-21-235328:staff-hand69+warp-ready": {
+  "camp": {
+   "casts": 2,
+   "here": 10996.12,
+   "hop": true,
+   "seconds": 0.539,
+   "skill": 390,
+   "spot": [
+    12661.5,
+    5061.5
+   ],
+   "walk": 8.485,
+   "worth": 36976.896
+  },
+  "skill": 390,
+  "spot": [
+   12661.5,
+   5061.5
+  ]
+ },
+ "step:20261010T205314Z-21-235328:staff-hand9+warp-delay": {
+  "camp": {
+   "casts": 2,
+   "here": 10996.12,
+   "hop": false,
+   "seconds": 0.66,
+   "skill": null,
+   "spot": [
+    12661.5,
+    5067.5
+   ],
+   "walk": 6.0,
+   "worth": 36029.84
+  },
+  "skill": null,
+  "spot": [
+   12661.5,
+   5067.5
+  ]
+ },
+ "step:20261010T205314Z-21-235328:staff-hand9+warp-ready": {
+  "camp": {
+   "casts": 2,
+   "here": 10996.12,
+   "hop": true,
+   "seconds": 0.539,
+   "skill": 390,
+   "spot": [
+    12661.5,
+    5061.5
+   ],
+   "walk": 8.485,
+   "worth": 36976.896
+  },
+  "skill": 390,
+  "spot": [
+   12661.5,
+   5061.5
+  ]
+ },
+ "step:20261010T205314Z-21-235333:staff-hand69+warp-ready": {
+  "camp": {
+   "casts": 1,
+   "here": 0.0,
+   "hop": true,
+   "seconds": 0.31,
+   "skill": 54,
+   "spot": [
+    12681.5,
+    5122.5
+   ],
+   "walk": 17.493,
+   "worth": 5361.98
+  },
+  "skill": 54,
+  "spot": [
+   12681.5,
+   5122.5
+  ]
+ },
+ "step:20261010T205314Z-21-235333:staff-hand9+warp-delay": {
+  "camp": {
+   "casts": 1,
+   "here": 0.0,
+   "hop": false,
+   "seconds": 1.296,
+   "skill": null,
+   "spot": [
+    12681.5,
+    5122.5
+   ],
+   "walk": 18.728,
+   "worth": 4369.666
+  },
+  "skill": null,
+  "spot": [
+   12681.5,
+   5122.5
+  ]
+ },
+ "step:20261010T205314Z-21-235333:staff-hand9+warp-ready": {
+  "camp": {
+   "casts": 1,
+   "here": 0.0,
+   "hop": true,
+   "seconds": 0.772,
+   "skill": 390,
+   "spot": [
+    12678.5,
+    5125.5
+   ],
+   "walk": 18.974,
+   "worth": 4897.573
+  },
+  "skill": 390,
+  "spot": [
+   12678.5,
+   5125.5
+  ]
+ },
+ "step:20261010T205403Z-23-235414:staff-hand69+warp-ready": {
+  "camp": {
+   "casts": 5,
+   "here": 5554.56,
+   "hop": true,
+   "seconds": 0.31,
+   "skill": 54,
+   "spot": [
+    12592.5,
+    8150.5
+   ],
+   "walk": 15.25,
+   "worth": 12276.84
+  },
+  "skill": 54,
+  "spot": [
+   12592.5,
+   8150.5
+  ]
+ },
+ "step:20261010T205403Z-23-235414:staff-hand9+warp-delay": null,
+ "step:20261010T205403Z-23-235414:staff-hand9+warp-ready": null,
+ "step:20261010T205403Z-23-235416:staff-hand69+warp-ready": null,
+ "step:20261010T205403Z-23-235416:staff-hand9+warp-delay": null,
+ "step:20261010T205403Z-23-235416:staff-hand9+warp-ready": null,
+ "step:20261010T205403Z-23-235417:staff-hand69+warp-ready": null,
+ "step:20261010T205403Z-23-235417:staff-hand9+warp-delay": null,
+ "step:20261010T205403Z-23-235417:staff-hand9+warp-ready": null,
+ "step:20261010T205403Z-23-235418:staff-hand69+warp-ready": null,
+ "step:20261010T205403Z-23-235418:staff-hand9+warp-delay": null,
+ "step:20261010T205403Z-23-235418:staff-hand9+warp-ready": null,
+ "step:20261010T205432Z-25-235446:staff-hand69+warp-ready": {
+  "camp": {
+   "casts": 2,
+   "here": 8835.053,
+   "hop": true,
+   "seconds": 0.739,
+   "skill": 390,
+   "spot": [
+    12542.5,
+    11088.5
+   ],
+   "walk": 17.493,
+   "worth": 21141.876
+  },
+  "skill": 390,
+  "spot": [
+   12542.5,
+   11088.5
+  ]
+ },
+ "step:20261010T205432Z-25-235446:staff-hand9+warp-delay": {
+  "camp": {
+   "casts": 2,
+   "here": 8835.053,
+   "hop": false,
+   "seconds": 1.296,
+   "skill": null,
+   "spot": [
+    12542.5,
+    11088.5
+   ],
+   "walk": 18.728,
+   "worth": 18545.663
+  },
+  "skill": null,
+  "spot": [
+   12542.5,
+   11088.5
+  ]
+ },
+ "step:20261010T205432Z-25-235446:staff-hand9+warp-ready": {
+  "camp": {
+   "casts": 2,
+   "here": 8835.053,
+   "hop": true,
+   "seconds": 0.739,
+   "skill": 390,
+   "spot": [
+    12542.5,
+    11088.5
+   ],
+   "walk": 17.493,
+   "worth": 21141.876
+  },
+  "skill": 390,
+  "spot": [
+   12542.5,
+   11088.5
+  ]
+ },
+ "step:20261010T205432Z-25-235451:staff-hand69+warp-ready": {
+  "camp": {
+   "casts": 1,
+   "here": 0.0,
+   "hop": true,
+   "seconds": 0.31,
+   "skill": 54,
+   "spot": [
+    12532.5,
+    11093.5
+   ],
+   "walk": 19.144,
+   "worth": 16464.37
+  },
+  "skill": 54,
+  "spot": [
+   12532.5,
+   11093.5
+  ]
+ },
+ "step:20261010T205432Z-25-235451:staff-hand9+warp-delay": {
+  "camp": {
+   "casts": 1,
+   "here": 0.0,
+   "hop": false,
+   "seconds": 1.367,
+   "skill": null,
+   "spot": [
+    12538.5,
+    11087.5
+   ],
+   "walk": 20.142,
+   "worth": 13198.967
+  },
+  "skill": null,
+  "spot": [
+   12538.5,
+   11087.5
+  ]
+ },
+ "step:20261010T205432Z-25-235451:staff-hand9+warp-ready": {
+  "camp": {
+   "casts": 1,
+   "here": 0.0,
+   "hop": false,
+   "seconds": 1.367,
+   "skill": null,
+   "spot": [
+    12538.5,
+    11087.5
+   ],
+   "walk": 20.142,
+   "worth": 13198.967
+  },
+  "skill": null,
+  "spot": [
+   12538.5,
+   11087.5
+  ]
+ },
+ "step:20261010T205557Z-22-235601:staff-hand69+warp-ready": {
+  "camp": {
+   "casts": 1,
+   "here": 0.0,
+   "hop": true,
+   "seconds": 0.31,
+   "skill": 54,
+   "spot": [
+    12552.5,
+    6741.5
+   ],
+   "walk": 19.209,
+   "worth": 5314.898
+  },
+  "skill": 54,
+  "spot": [
+   12552.5,
+   6741.5
+  ]
+ },
+ "step:20261010T205557Z-22-235601:staff-hand9+warp-delay": null,
+ "step:20261010T205557Z-22-235601:staff-hand9+warp-ready": null,
+ "step:20261010T205557Z-22-235605:staff-hand69+warp-ready": {
+  "camp": {
+   "casts": 1,
+   "here": 255.122,
+   "hop": true,
+   "seconds": 0.31,
+   "skill": 54,
+   "spot": [
+    12568.5,
+    6729.5
+   ],
+   "walk": 21.213,
+   "worth": 5514.475
+  },
+  "skill": 54,
+  "spot": [
+   12568.5,
+   6729.5
+  ]
+ },
+ "step:20261010T205557Z-22-235605:staff-hand9+warp-delay": {
+  "camp": {
+   "casts": 2,
+   "here": 255.122,
+   "hop": false,
+   "seconds": 0.51,
+   "skill": null,
+   "spot": [
+    12547.5,
+    6729.5
+   ],
+   "walk": 3.0,
+   "worth": 4935.093
+  },
+  "skill": null,
+  "spot": [
+   12547.5,
+   6729.5
+  ]
+ },
+ "step:20261010T205557Z-22-235605:staff-hand9+warp-ready": {
+  "camp": {
+   "casts": 1,
+   "here": 255.122,
+   "hop": true,
+   "seconds": 0.683,
+   "skill": 390,
+   "spot": [
+    12547.5,
+    6717.5
+   ],
+   "walk": 15.0,
+   "worth": 5128.22
+  },
+  "skill": 390,
+  "spot": [
+   12547.5,
+   6717.5
+  ]
+ },
+ "step:20261010T205557Z-22-235612:staff-hand69+warp-ready": {
+  "camp": {
+   "casts": 3,
+   "here": 0.0,
+   "hop": true,
+   "seconds": 0.31,
+   "skill": 54,
+   "spot": [
+    12602.5,
+    6644.5
+   ],
+   "walk": 10.817,
+   "worth": 24912.44
+  },
+  "skill": 54,
+  "spot": [
+   12602.5,
+   6644.5
+  ]
+ },
+ "step:20261010T205557Z-22-235612:staff-hand9+warp-delay": {
+  "camp": {
+   "casts": 3,
+   "here": 0.0,
+   "hop": false,
+   "seconds": 1.051,
+   "skill": null,
+   "spot": [
+    12599.5,
+    6641.5
+   ],
+   "walk": 13.828,
+   "worth": 24638.977
+  },
+  "skill": null,
+  "spot": [
+   12599.5,
+   6641.5
+  ]
+ },
+ "step:20261010T205557Z-22-235612:staff-hand9+warp-ready": {
+  "camp": {
+   "casts": 3,
+   "here": 0.0,
+   "hop": false,
+   "seconds": 1.051,
+   "skill": null,
+   "spot": [
+    12599.5,
+    6641.5
+   ],
+   "walk": 13.828,
+   "worth": 24638.977
+  },
+  "skill": null,
+  "spot": [
+   12599.5,
+   6641.5
+  ]
+ },
+ "step:20261010T205557Z-22-235614:staff-hand69+warp-ready": {
+  "camp": {
+   "casts": 3,
+   "here": 5442.6,
+   "hop": true,
+   "seconds": 0.59,
+   "skill": 390,
+   "spot": [
+    12594.5,
+    6641.5
+   ],
+   "walk": 10.817,
+   "worth": 16990.911
+  },
+  "skill": 390,
+  "spot": [
+   12594.5,
+   6641.5
+  ]
+ },
+ "step:20261010T205557Z-22-235614:staff-hand9+warp-delay": {
+  "camp": {
+   "casts": 3,
+   "here": 5442.6,
+   "hop": false,
+   "seconds": 0.934,
+   "skill": null,
+   "spot": [
+    12594.5,
+    6641.5
+   ],
+   "walk": 11.485,
+   "worth": 15641.356
+  },
+  "skill": null,
+  "spot": [
+   12594.5,
+   6641.5
+  ]
+ },
+ "step:20261010T205557Z-22-235614:staff-hand9+warp-ready": {
+  "camp": {
+   "casts": 3,
+   "here": 5442.6,
+   "hop": true,
+   "seconds": 0.59,
+   "skill": 390,
+   "spot": [
+    12594.5,
+    6641.5
+   ],
+   "walk": 10.817,
+   "worth": 16990.911
+  },
+  "skill": 390,
+  "spot": [
+   12594.5,
+   6641.5
+  ]
+ },
+ "step:20261010T205557Z-22-235615:staff-hand69+warp-ready": {
+  "camp": {
+   "casts": 3,
+   "here": 10190.4,
+   "hop": true,
+   "seconds": 0.561,
+   "skill": 390,
+   "spot": [
+    12594.5,
+    6644.5
+   ],
+   "walk": 9.487,
+   "worth": 21313.491
+  },
+  "skill": 390,
+  "spot": [
+   12594.5,
+   6644.5
+  ]
+ },
+ "step:20261010T205557Z-22-235615:staff-hand9+warp-delay": null,
+ "step:20261010T205557Z-22-235615:staff-hand9+warp-ready": {
+  "camp": {
+   "casts": 3,
+   "here": 10190.4,
+   "hop": true,
+   "seconds": 0.561,
+   "skill": 390,
+   "spot": [
+    12594.5,
+    6644.5
+   ],
+   "walk": 9.487,
+   "worth": 21313.491
+  },
+  "skill": 390,
+  "spot": [
+   12594.5,
+   6644.5
+  ]
+ },
+ "step:20261010T205557Z-22-235616:staff-hand69+warp-ready": null,
+ "step:20261010T205557Z-22-235616:staff-hand9+warp-delay": null,
+ "step:20261010T205557Z-22-235616:staff-hand9+warp-ready": null,
+ "step:20261010T205629Z-23-235645:staff-hand69+warp-ready": {
+  "camp": {
+   "casts": 1,
+   "here": 0.0,
+   "hop": true,
+   "seconds": 0.31,
+   "skill": 54,
+   "spot": [
+    12682.5,
+    8175.5
+   ],
+   "walk": 12.0,
+   "worth": 15876.571
+  },
+  "skill": 54,
+  "spot": [
+   12682.5,
+   8175.5
+  ]
+ },
+ "step:20261010T205629Z-23-235645:staff-hand9+warp-delay": {
+  "camp": {
+   "casts": 1,
+   "here": 0.0,
+   "hop": false,
+   "seconds": 0.851,
+   "skill": null,
+   "spot": [
+    12682.5,
+    8172.5
+   ],
+   "walk": 9.828,
+   "worth": 14263.829
+  },
+  "skill": null,
+  "spot": [
+   12682.5,
+   8172.5
+  ]
+ },
+ "step:20261010T205629Z-23-235645:staff-hand9+warp-ready": {
+  "camp": {
+   "casts": 1,
+   "here": 0.0,
+   "hop": true,
+   "seconds": 0.561,
+   "skill": 390,
+   "spot": [
+    12679.5,
+    8172.5
+   ],
+   "walk": 9.487,
+   "worth": 15129.453
+  },
+  "skill": 390,
+  "spot": [
+   12679.5,
+   8172.5
+  ]
+ },
+ "step:20261010T205629Z-23-235649:staff-hand69+warp-ready": null,
+ "step:20261010T205629Z-23-235649:staff-hand9+warp-delay": null,
+ "step:20261010T205629Z-23-235649:staff-hand9+warp-ready": null,
+ "step:20261010T205629Z-23-235652:staff-hand69+warp-ready": {
+  "camp": {
+   "casts": 2,
+   "here": 0.0,
+   "hop": true,
+   "seconds": 0.31,
+   "skill": 54,
+   "spot": [
+    12722.5,
+    8174.5
+   ],
+   "walk": 21.213,
+   "worth": 60156.88
+  },
+  "skill": 54,
+  "spot": [
+   12722.5,
+   8174.5
+  ]
+ },
+ "step:20261010T205629Z-23-235652:staff-hand9+warp-delay": {
+  "camp": {
+   "casts": 2,
+   "here": 0.0,
+   "hop": false,
+   "seconds": 0.872,
+   "skill": null,
+   "spot": [
+    12710.5,
+    8180.5
+   ],
+   "walk": 10.243,
+   "worth": 53352.834
+  },
+  "skill": null,
+  "spot": [
+   12710.5,
+   8180.5
+  ]
+ },
+ "step:20261010T205629Z-23-235652:staff-hand9+warp-ready": {
+  "camp": {
+   "casts": 2,
+   "here": 0.0,
+   "hop": true,
+   "seconds": 0.561,
+   "skill": 390,
+   "spot": [
+    12710.5,
+    8180.5
+   ],
+   "walk": 9.487,
+   "worth": 57120.973
+  },
+  "skill": 390,
+  "spot": [
+   12710.5,
+   8180.5
+  ]
+ },
+ "step:20261010T205658Z-24-235701:staff-hand69+warp-ready": {
+  "camp": {
+   "casts": 4,
+   "here": 0.0,
+   "hop": true,
+   "seconds": 0.31,
+   "skill": 54,
+   "spot": [
+    12553.5,
+    9634.5
+   ],
+   "walk": 24.0,
+   "worth": 30562.458
+  },
+  "skill": 54,
+  "spot": [
+   12553.5,
+   9634.5
+  ]
+ },
+ "step:20261010T205658Z-24-235701:staff-hand9+warp-delay": {
+  "camp": {
+   "casts": 4,
+   "here": 0.0,
+   "hop": false,
+   "seconds": 1.476,
+   "skill": null,
+   "spot": [
+    12562.5,
+    9640.5
+   ],
+   "walk": 22.314,
+   "worth": 22179.82
+  },
+  "skill": null,
+  "spot": [
+   12562.5,
+   9640.5
+  ]
+ },
+ "step:20261010T205658Z-24-235701:staff-hand9+warp-ready": {
+  "camp": {
+   "casts": 4,
+   "here": 0.0,
+   "hop": false,
+   "seconds": 1.476,
+   "skill": null,
+   "spot": [
+    12562.5,
+    9640.5
+   ],
+   "walk": 22.314,
+   "worth": 22179.82
+  },
+  "skill": null,
+  "spot": [
+   12562.5,
+   9640.5
+  ]
+ },
+ "step:20261010T205658Z-24-235706:staff-hand69+warp-ready": {
+  "camp": {
+   "casts": 2,
+   "here": 0.0,
+   "hop": true,
+   "seconds": 0.797,
+   "skill": 390,
+   "spot": [
+    12533.5,
+    9638.5
+   ],
+   "walk": 20.125,
+   "worth": 10309.872
+  },
+  "skill": 390,
+  "spot": [
+   12533.5,
+   9638.5
+  ]
+ },
+ "step:20261010T205658Z-24-235706:staff-hand9+warp-delay": {
+  "camp": {
+   "casts": 2,
+   "here": 0.0,
+   "hop": false,
+   "seconds": 1.446,
+   "skill": null,
+   "spot": [
+    12533.5,
+    9638.5
+   ],
+   "walk": 21.728,
+   "worth": 8816.83
+  },
+  "skill": null,
+  "spot": [
+   12533.5,
+   9638.5
+  ]
+ },
+ "step:20261010T205658Z-24-235706:staff-hand9+warp-ready": {
+  "camp": {
+   "casts": 2,
+   "here": 0.0,
+   "hop": true,
+   "seconds": 0.797,
+   "skill": 390,
+   "spot": [
+    12533.5,
+    9638.5
+   ],
+   "walk": 20.125,
+   "worth": 10309.872
+  },
+  "skill": 390,
+  "spot": [
+   12533.5,
+   9638.5
+  ]
+ },
+ "step:20261010T205658Z-24-235707:staff-hand69+warp-ready": {
+  "camp": {
+   "casts": 4,
+   "here": 0.0,
+   "hop": true,
+   "seconds": 0.31,
+   "skill": 54,
+   "spot": [
+    12527.5,
+    9647.5
+   ],
+   "walk": 17.493,
+   "worth": 39767.449
+  },
+  "skill": 54,
+  "spot": [
+   12527.5,
+   9647.5
+  ]
+ },
+ "step:20261010T205658Z-24-235707:staff-hand9+warp-delay": {
+  "camp": {
+   "casts": 4,
+   "here": 0.0,
+   "hop": false,
+   "seconds": 1.414,
+   "skill": null,
+   "spot": [
+    12527.5,
+    9647.5
+   ],
+   "walk": 21.071,
+   "worth": 29441.448
+  },
+  "skill": null,
+  "spot": [
+   12527.5,
+   9647.5
+  ]
+ },
+ "step:20261010T205658Z-24-235707:staff-hand9+warp-ready": {
+  "camp": {
+   "casts": 5,
+   "here": 0.0,
+   "hop": true,
+   "seconds": 0.69,
+   "skill": 390,
+   "spot": [
+    12527.5,
+    9641.5
+   ],
+   "walk": 15.297,
+   "worth": 32843.846
+  },
+  "skill": 390,
+  "spot": [
+   12527.5,
+   9641.5
+  ]
+ },
+ "step:20261010T205658Z-24-235710:staff-hand69+warp-ready": null,
+ "step:20261010T205658Z-24-235710:staff-hand9+warp-delay": null,
+ "step:20261010T205658Z-24-235710:staff-hand9+warp-ready": null,
+ "step:20261010T205720Z-25-235731:staff-hand69+warp-ready": {
+  "camp": {
+   "casts": 1,
+   "here": 0.0,
+   "hop": true,
+   "seconds": 0.752,
+   "skill": 390,
+   "spot": [
+    12547.5,
+    11079.5
+   ],
+   "walk": 18.099,
+   "worth": 13417.012
+  },
+  "skill": 390,
+  "spot": [
+   12547.5,
+   11079.5
+  ]
+ },
+ "step:20261010T205720Z-25-235731:staff-hand9+warp-delay": {
+  "camp": {
+   "casts": 1,
+   "here": 0.0,
+   "hop": false,
+   "seconds": 1.234,
+   "skill": null,
+   "spot": [
+    12544.5,
+    11082.5
+   ],
+   "walk": 17.485,
+   "worth": 12093.745
+  },
+  "skill": null,
+  "spot": [
+   12544.5,
+   11082.5
+  ]
+ },
+ "step:20261010T205720Z-25-235731:staff-hand9+warp-ready": {
+  "camp": {
+   "casts": 1,
+   "here": 0.0,
+   "hop": true,
+   "seconds": 0.752,
+   "skill": 390,
+   "spot": [
+    12547.5,
+    11079.5
+   ],
+   "walk": 18.099,
+   "worth": 13417.012
+  },
+  "skill": 390,
+  "spot": [
+   12547.5,
+   11079.5
+  ]
+ },
+ "tough:20261010T204605Z-21-234607:-": true,
+ "tough:20261010T204632Z-22-234638:-": false,
+ "tough:20261010T204632Z-22-234640:-": true,
+ "tough:20261010T204653Z-23-234702:-": false,
+ "tough:20261010T204733Z-25-234739:-": false,
+ "tough:20261010T204733Z-25-234800:-": false,
+ "tough:20261010T204733Z-25-234801:-": false,
+ "tough:20261010T204733Z-25-234803:-": false,
+ "tough:20261010T204733Z-25-234805:-": false,
+ "tough:20261010T204733Z-25-234807:-": false,
+ "tough:20261010T204733Z-25-234809:-": false,
+ "tough:20261010T204733Z-25-234810:-": false,
+ "tough:20261010T204733Z-25-234812:-": true,
+ "tough:20261010T205120Z-25-235126:-": false,
+ "tough:20261010T205314Z-21-235321:-": false,
+ "tough:20261010T205314Z-21-235323:-": false,
+ "tough:20261010T205314Z-21-235324:-": false,
+ "tough:20261010T205314Z-21-235328:-": false,
+ "tough:20261010T205314Z-21-235333:-": false,
+ "tough:20261010T205403Z-23-235414:-": false,
+ "tough:20261010T205403Z-23-235416:-": false,
+ "tough:20261010T205403Z-23-235417:-": false,
+ "tough:20261010T205403Z-23-235418:-": false,
+ "tough:20261010T205432Z-25-235446:-": false,
+ "tough:20261010T205432Z-25-235451:-": false,
+ "tough:20261010T205557Z-22-235601:-": false,
+ "tough:20261010T205557Z-22-235605:-": true,
+ "tough:20261010T205557Z-22-235612:-": false,
+ "tough:20261010T205557Z-22-235614:-": false,
+ "tough:20261010T205557Z-22-235615:-": false,
+ "tough:20261010T205557Z-22-235616:-": false,
+ "tough:20261010T205629Z-23-235645:-": false,
+ "tough:20261010T205629Z-23-235649:-": false,
+ "tough:20261010T205629Z-23-235652:-": false,
+ "tough:20261010T205658Z-24-235701:-": false,
+ "tough:20261010T205658Z-24-235706:-": false,
+ "tough:20261010T205658Z-24-235707:-": false,
+ "tough:20261010T205658Z-24-235710:-": true,
+ "tough:20261010T205720Z-25-235731:-": false,
+ "toward:20261010T204733Z-25-234739:staff-hand0+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12562.5,
+   11066.5
+  ]
+ },
+ "toward:20261010T204733Z-25-234739:staff-hand0+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12562.5,
+   11066.5
+  ]
+ },
+ "toward:20261010T204733Z-25-234739:staff-hand14+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12562.5,
+   11066.5
+  ]
+ },
+ "toward:20261010T204733Z-25-234739:staff-hand14+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12562.5,
+   11066.5
+  ]
+ },
+ "toward:20261010T204733Z-25-234739:staff-hand69+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12562.5,
+   11066.5
+  ]
+ },
+ "toward:20261010T204733Z-25-234739:staff-hand69+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12562.5,
+   11066.5
+  ]
+ },
+ "toward:20261010T204733Z-25-234739:staff-hand9+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12562.5,
+   11066.5
+  ]
+ },
+ "toward:20261010T204733Z-25-234739:staff-hand9+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12562.5,
+   11066.5
+  ]
+ },
+ "toward:20261010T204733Z-25-234739:staff-none+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12562.5,
+   11066.5
+  ]
+ },
+ "toward:20261010T204733Z-25-234739:staff-none+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12562.5,
+   11066.5
+  ]
+ },
+ "toward:20261010T204733Z-25-234805:staff-hand0+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12546.076,
+   11099.408
+  ]
+ },
+ "toward:20261010T204733Z-25-234805:staff-hand0+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12546.076,
+   11099.408
+  ]
+ },
+ "toward:20261010T204733Z-25-234805:staff-hand14+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12546.076,
+   11099.408
+  ]
+ },
+ "toward:20261010T204733Z-25-234805:staff-hand14+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12546.076,
+   11099.408
+  ]
+ },
+ "toward:20261010T204733Z-25-234805:staff-hand69+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12546.076,
+   11099.408
+  ]
+ },
+ "toward:20261010T204733Z-25-234805:staff-hand69+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12546.076,
+   11099.408
+  ]
+ },
+ "toward:20261010T204733Z-25-234805:staff-hand9+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12546.076,
+   11099.408
+  ]
+ },
+ "toward:20261010T204733Z-25-234805:staff-hand9+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12546.076,
+   11099.408
+  ]
+ },
+ "toward:20261010T204733Z-25-234805:staff-none+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12546.076,
+   11099.408
+  ]
+ },
+ "toward:20261010T204733Z-25-234805:staff-none+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12546.076,
+   11099.408
+  ]
+ },
+ "toward:20261010T204733Z-25-234807:staff-hand0+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12554.535,
+   11103.218
+  ]
+ },
+ "toward:20261010T204733Z-25-234807:staff-hand0+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12554.535,
+   11103.218
+  ]
+ },
+ "toward:20261010T204733Z-25-234807:staff-hand14+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12554.535,
+   11103.218
+  ]
+ },
+ "toward:20261010T204733Z-25-234807:staff-hand14+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12554.535,
+   11103.218
+  ]
+ },
+ "toward:20261010T204733Z-25-234807:staff-hand69+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12554.535,
+   11103.218
+  ]
+ },
+ "toward:20261010T204733Z-25-234807:staff-hand69+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12554.535,
+   11103.218
+  ]
+ },
+ "toward:20261010T204733Z-25-234807:staff-hand9+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12554.535,
+   11103.218
+  ]
+ },
+ "toward:20261010T204733Z-25-234807:staff-hand9+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12554.535,
+   11103.218
+  ]
+ },
+ "toward:20261010T204733Z-25-234807:staff-none+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12554.535,
+   11103.218
+  ]
+ },
+ "toward:20261010T204733Z-25-234807:staff-none+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12554.535,
+   11103.218
+  ]
+ },
+ "toward:20261010T204733Z-25-234810:staff-hand0+warp-delay": null,
+ "toward:20261010T204733Z-25-234810:staff-hand0+warp-ready": null,
+ "toward:20261010T204733Z-25-234810:staff-hand14+warp-delay": null,
+ "toward:20261010T204733Z-25-234810:staff-hand14+warp-ready": null,
+ "toward:20261010T204733Z-25-234810:staff-hand69+warp-delay": null,
+ "toward:20261010T204733Z-25-234810:staff-hand69+warp-ready": null,
+ "toward:20261010T204733Z-25-234810:staff-hand9+warp-delay": null,
+ "toward:20261010T204733Z-25-234810:staff-hand9+warp-ready": null,
+ "toward:20261010T204733Z-25-234810:staff-none+warp-delay": null,
+ "toward:20261010T204733Z-25-234810:staff-none+warp-ready": null,
+ "toward:20261010T205120Z-25-235126:staff-hand0+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12625.841,
+   11068.254
+  ]
+ },
+ "toward:20261010T205120Z-25-235126:staff-hand0+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12625.841,
+   11068.254
+  ]
+ },
+ "toward:20261010T205120Z-25-235126:staff-hand14+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12625.841,
+   11068.254
+  ]
+ },
+ "toward:20261010T205120Z-25-235126:staff-hand14+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12625.841,
+   11068.254
+  ]
+ },
+ "toward:20261010T205120Z-25-235126:staff-hand69+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12625.841,
+   11068.254
+  ]
+ },
+ "toward:20261010T205120Z-25-235126:staff-hand69+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12625.841,
+   11068.254
+  ]
+ },
+ "toward:20261010T205120Z-25-235126:staff-hand9+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12625.841,
+   11068.254
+  ]
+ },
+ "toward:20261010T205120Z-25-235126:staff-hand9+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12625.841,
+   11068.254
+  ]
+ },
+ "toward:20261010T205120Z-25-235126:staff-none+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12625.841,
+   11068.254
+  ]
+ },
+ "toward:20261010T205120Z-25-235126:staff-none+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12625.841,
+   11068.254
+  ]
+ },
+ "toward:20261010T205314Z-21-235333:staff-hand0+warp-delay": null,
+ "toward:20261010T205314Z-21-235333:staff-hand0+warp-ready": null,
+ "toward:20261010T205314Z-21-235333:staff-hand14+warp-delay": null,
+ "toward:20261010T205314Z-21-235333:staff-hand14+warp-ready": null,
+ "toward:20261010T205314Z-21-235333:staff-hand69+warp-delay": null,
+ "toward:20261010T205314Z-21-235333:staff-hand69+warp-ready": null,
+ "toward:20261010T205314Z-21-235333:staff-hand9+warp-delay": null,
+ "toward:20261010T205314Z-21-235333:staff-hand9+warp-ready": null,
+ "toward:20261010T205314Z-21-235333:staff-none+warp-delay": null,
+ "toward:20261010T205314Z-21-235333:staff-none+warp-ready": null,
+ "toward:20261010T205432Z-25-235451:staff-hand0+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12531.175,
+   11065.99
+  ]
+ },
+ "toward:20261010T205432Z-25-235451:staff-hand0+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12531.175,
+   11065.99
+  ]
+ },
+ "toward:20261010T205432Z-25-235451:staff-hand14+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12531.175,
+   11065.99
+  ]
+ },
+ "toward:20261010T205432Z-25-235451:staff-hand14+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12531.175,
+   11065.99
+  ]
+ },
+ "toward:20261010T205432Z-25-235451:staff-hand69+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12531.175,
+   11065.99
+  ]
+ },
+ "toward:20261010T205432Z-25-235451:staff-hand69+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12531.175,
+   11065.99
+  ]
+ },
+ "toward:20261010T205432Z-25-235451:staff-hand9+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12531.175,
+   11065.99
+  ]
+ },
+ "toward:20261010T205432Z-25-235451:staff-hand9+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12531.175,
+   11065.99
+  ]
+ },
+ "toward:20261010T205432Z-25-235451:staff-none+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12531.175,
+   11065.99
+  ]
+ },
+ "toward:20261010T205432Z-25-235451:staff-none+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12531.175,
+   11065.99
+  ]
+ },
+ "toward:20261010T205557Z-22-235601:staff-hand0+warp-delay": null,
+ "toward:20261010T205557Z-22-235601:staff-hand0+warp-ready": null,
+ "toward:20261010T205557Z-22-235601:staff-hand14+warp-delay": null,
+ "toward:20261010T205557Z-22-235601:staff-hand14+warp-ready": null,
+ "toward:20261010T205557Z-22-235601:staff-hand69+warp-delay": null,
+ "toward:20261010T205557Z-22-235601:staff-hand69+warp-ready": null,
+ "toward:20261010T205557Z-22-235601:staff-hand9+warp-delay": null,
+ "toward:20261010T205557Z-22-235601:staff-hand9+warp-ready": null,
+ "toward:20261010T205557Z-22-235601:staff-none+warp-delay": null,
+ "toward:20261010T205557Z-22-235601:staff-none+warp-ready": null,
+ "toward:20261010T205557Z-22-235612:staff-hand0+warp-delay": null,
+ "toward:20261010T205557Z-22-235612:staff-hand0+warp-ready": null,
+ "toward:20261010T205557Z-22-235612:staff-hand14+warp-delay": null,
+ "toward:20261010T205557Z-22-235612:staff-hand14+warp-ready": null,
+ "toward:20261010T205557Z-22-235612:staff-hand69+warp-delay": null,
+ "toward:20261010T205557Z-22-235612:staff-hand69+warp-ready": null,
+ "toward:20261010T205557Z-22-235612:staff-hand9+warp-delay": null,
+ "toward:20261010T205557Z-22-235612:staff-hand9+warp-ready": null,
+ "toward:20261010T205557Z-22-235612:staff-none+warp-delay": null,
+ "toward:20261010T205557Z-22-235612:staff-none+warp-ready": null,
+ "toward:20261010T205629Z-23-235645:staff-hand0+warp-delay": null,
+ "toward:20261010T205629Z-23-235645:staff-hand0+warp-ready": null,
+ "toward:20261010T205629Z-23-235645:staff-hand14+warp-delay": null,
+ "toward:20261010T205629Z-23-235645:staff-hand14+warp-ready": null,
+ "toward:20261010T205629Z-23-235645:staff-hand69+warp-delay": null,
+ "toward:20261010T205629Z-23-235645:staff-hand69+warp-ready": null,
+ "toward:20261010T205629Z-23-235645:staff-hand9+warp-delay": null,
+ "toward:20261010T205629Z-23-235645:staff-hand9+warp-ready": null,
+ "toward:20261010T205629Z-23-235645:staff-none+warp-delay": null,
+ "toward:20261010T205629Z-23-235645:staff-none+warp-ready": null,
+ "toward:20261010T205629Z-23-235652:staff-hand0+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12710.041,
+   8181.066
+  ]
+ },
+ "toward:20261010T205629Z-23-235652:staff-hand0+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12710.041,
+   8181.066
+  ]
+ },
+ "toward:20261010T205629Z-23-235652:staff-hand14+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12710.041,
+   8181.066
+  ]
+ },
+ "toward:20261010T205629Z-23-235652:staff-hand14+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12710.041,
+   8181.066
+  ]
+ },
+ "toward:20261010T205629Z-23-235652:staff-hand69+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12710.041,
+   8181.066
+  ]
+ },
+ "toward:20261010T205629Z-23-235652:staff-hand69+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12710.041,
+   8181.066
+  ]
+ },
+ "toward:20261010T205629Z-23-235652:staff-hand9+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12710.041,
+   8181.066
+  ]
+ },
+ "toward:20261010T205629Z-23-235652:staff-hand9+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12710.041,
+   8181.066
+  ]
+ },
+ "toward:20261010T205629Z-23-235652:staff-none+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12710.041,
+   8181.066
+  ]
+ },
+ "toward:20261010T205629Z-23-235652:staff-none+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12710.041,
+   8181.066
+  ]
+ },
+ "toward:20261010T205658Z-24-235701:staff-hand0+warp-delay": null,
+ "toward:20261010T205658Z-24-235701:staff-hand0+warp-ready": null,
+ "toward:20261010T205658Z-24-235701:staff-hand14+warp-delay": null,
+ "toward:20261010T205658Z-24-235701:staff-hand14+warp-ready": null,
+ "toward:20261010T205658Z-24-235701:staff-hand69+warp-delay": null,
+ "toward:20261010T205658Z-24-235701:staff-hand69+warp-ready": null,
+ "toward:20261010T205658Z-24-235701:staff-hand9+warp-delay": null,
+ "toward:20261010T205658Z-24-235701:staff-hand9+warp-ready": null,
+ "toward:20261010T205658Z-24-235701:staff-none+warp-delay": null,
+ "toward:20261010T205658Z-24-235701:staff-none+warp-ready": null,
+ "toward:20261010T205658Z-24-235706:staff-hand0+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12539.248,
+   9645.144
+  ]
+ },
+ "toward:20261010T205658Z-24-235706:staff-hand0+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12539.248,
+   9645.144
+  ]
+ },
+ "toward:20261010T205658Z-24-235706:staff-hand14+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12539.248,
+   9645.144
+  ]
+ },
+ "toward:20261010T205658Z-24-235706:staff-hand14+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12539.248,
+   9645.144
+  ]
+ },
+ "toward:20261010T205658Z-24-235706:staff-hand69+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12539.248,
+   9645.144
+  ]
+ },
+ "toward:20261010T205658Z-24-235706:staff-hand69+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12539.248,
+   9645.144
+  ]
+ },
+ "toward:20261010T205658Z-24-235706:staff-hand9+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12539.248,
+   9645.144
+  ]
+ },
+ "toward:20261010T205658Z-24-235706:staff-hand9+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12539.248,
+   9645.144
+  ]
+ },
+ "toward:20261010T205658Z-24-235706:staff-none+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12539.248,
+   9645.144
+  ]
+ },
+ "toward:20261010T205658Z-24-235706:staff-none+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12539.248,
+   9645.144
+  ]
+ },
+ "toward:20261010T205658Z-24-235707:staff-hand0+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12533.099,
+   9641.245
+  ]
+ },
+ "toward:20261010T205658Z-24-235707:staff-hand0+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12533.099,
+   9641.245
+  ]
+ },
+ "toward:20261010T205658Z-24-235707:staff-hand14+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12533.099,
+   9641.245
+  ]
+ },
+ "toward:20261010T205658Z-24-235707:staff-hand14+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12533.099,
+   9641.245
+  ]
+ },
+ "toward:20261010T205658Z-24-235707:staff-hand69+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12533.099,
+   9641.245
+  ]
+ },
+ "toward:20261010T205658Z-24-235707:staff-hand69+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12533.099,
+   9641.245
+  ]
+ },
+ "toward:20261010T205658Z-24-235707:staff-hand9+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12533.099,
+   9641.245
+  ]
+ },
+ "toward:20261010T205658Z-24-235707:staff-hand9+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12533.099,
+   9641.245
+  ]
+ },
+ "toward:20261010T205658Z-24-235707:staff-none+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12533.099,
+   9641.245
+  ]
+ },
+ "toward:20261010T205658Z-24-235707:staff-none+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12533.099,
+   9641.245
+  ]
+ },
+ "toward:20261010T205720Z-25-235731:staff-hand0+warp-delay": null,
+ "toward:20261010T205720Z-25-235731:staff-hand0+warp-ready": null,
+ "toward:20261010T205720Z-25-235731:staff-hand14+warp-delay": null,
+ "toward:20261010T205720Z-25-235731:staff-hand14+warp-ready": null,
+ "toward:20261010T205720Z-25-235731:staff-hand69+warp-delay": null,
+ "toward:20261010T205720Z-25-235731:staff-hand69+warp-ready": null,
+ "toward:20261010T205720Z-25-235731:staff-hand9+warp-delay": null,
+ "toward:20261010T205720Z-25-235731:staff-hand9+warp-ready": null,
+ "toward:20261010T205720Z-25-235731:staff-none+warp-delay": null,
+ "toward:20261010T205720Z-25-235731:staff-none+warp-ready": null,
+ "toward:lone-18-units-bearing-0:staff-hand0+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12578.5,
+   11066.5
+  ]
+ },
+ "toward:lone-18-units-bearing-0:staff-hand0+warp-ready": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12578.5,
+   11066.5
+  ]
+ },
+ "toward:lone-18-units-bearing-0:staff-hand14+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12578.5,
+   11066.5
+  ]
+ },
+ "toward:lone-18-units-bearing-0:staff-hand14+warp-ready": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12578.5,
+   11066.5
+  ]
+ },
+ "toward:lone-18-units-bearing-0:staff-hand69+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12578.5,
+   11066.5
+  ]
+ },
+ "toward:lone-18-units-bearing-0:staff-hand69+warp-ready": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12578.5,
+   11066.5
+  ]
+ },
+ "toward:lone-18-units-bearing-0:staff-hand9+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12578.5,
+   11066.5
+  ]
+ },
+ "toward:lone-18-units-bearing-0:staff-hand9+warp-ready": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12578.5,
+   11066.5
+  ]
+ },
+ "toward:lone-18-units-bearing-0:staff-none+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12578.5,
+   11066.5
+  ]
+ },
+ "toward:lone-18-units-bearing-0:staff-none+warp-ready": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12578.5,
+   11066.5
+  ]
+ },
+ "toward:lone-18-units-bearing-1:staff-hand0+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12577.328,
+   11069.328
+  ]
+ },
+ "toward:lone-18-units-bearing-1:staff-hand0+warp-ready": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12577.328,
+   11069.328
+  ]
+ },
+ "toward:lone-18-units-bearing-1:staff-hand14+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12577.328,
+   11069.328
+  ]
+ },
+ "toward:lone-18-units-bearing-1:staff-hand14+warp-ready": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12577.328,
+   11069.328
+  ]
+ },
+ "toward:lone-18-units-bearing-1:staff-hand69+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12577.328,
+   11069.328
+  ]
+ },
+ "toward:lone-18-units-bearing-1:staff-hand69+warp-ready": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12577.328,
+   11069.328
+  ]
+ },
+ "toward:lone-18-units-bearing-1:staff-hand9+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12577.328,
+   11069.328
+  ]
+ },
+ "toward:lone-18-units-bearing-1:staff-hand9+warp-ready": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12577.328,
+   11069.328
+  ]
+ },
+ "toward:lone-18-units-bearing-1:staff-none+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12577.328,
+   11069.328
+  ]
+ },
+ "toward:lone-18-units-bearing-1:staff-none+warp-ready": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12577.328,
+   11069.328
+  ]
+ },
+ "toward:lone-18-units-bearing-2:staff-hand0+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12574.5,
+   11070.5
+  ]
+ },
+ "toward:lone-18-units-bearing-2:staff-hand0+warp-ready": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12574.5,
+   11070.5
+  ]
+ },
+ "toward:lone-18-units-bearing-2:staff-hand14+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12574.5,
+   11070.5
+  ]
+ },
+ "toward:lone-18-units-bearing-2:staff-hand14+warp-ready": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12574.5,
+   11070.5
+  ]
+ },
+ "toward:lone-18-units-bearing-2:staff-hand69+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12574.5,
+   11070.5
+  ]
+ },
+ "toward:lone-18-units-bearing-2:staff-hand69+warp-ready": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12574.5,
+   11070.5
+  ]
+ },
+ "toward:lone-18-units-bearing-2:staff-hand9+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12574.5,
+   11070.5
+  ]
+ },
+ "toward:lone-18-units-bearing-2:staff-hand9+warp-ready": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12574.5,
+   11070.5
+  ]
+ },
+ "toward:lone-18-units-bearing-2:staff-none+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12574.5,
+   11070.5
+  ]
+ },
+ "toward:lone-18-units-bearing-2:staff-none+warp-ready": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12574.5,
+   11070.5
+  ]
+ },
+ "toward:lone-18-units-bearing-3:staff-hand0+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12571.672,
+   11069.328
+  ]
+ },
+ "toward:lone-18-units-bearing-3:staff-hand0+warp-ready": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12571.672,
+   11069.328
+  ]
+ },
+ "toward:lone-18-units-bearing-3:staff-hand14+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12571.672,
+   11069.328
+  ]
+ },
+ "toward:lone-18-units-bearing-3:staff-hand14+warp-ready": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12571.672,
+   11069.328
+  ]
+ },
+ "toward:lone-18-units-bearing-3:staff-hand69+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12571.672,
+   11069.328
+  ]
+ },
+ "toward:lone-18-units-bearing-3:staff-hand69+warp-ready": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12571.672,
+   11069.328
+  ]
+ },
+ "toward:lone-18-units-bearing-3:staff-hand9+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12571.672,
+   11069.328
+  ]
+ },
+ "toward:lone-18-units-bearing-3:staff-hand9+warp-ready": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12571.672,
+   11069.328
+  ]
+ },
+ "toward:lone-18-units-bearing-3:staff-none+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12571.672,
+   11069.328
+  ]
+ },
+ "toward:lone-18-units-bearing-3:staff-none+warp-ready": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12571.672,
+   11069.328
+  ]
+ },
+ "toward:lone-18-units-bearing-4:staff-hand0+warp-delay": null,
+ "toward:lone-18-units-bearing-4:staff-hand0+warp-ready": null,
+ "toward:lone-18-units-bearing-4:staff-hand14+warp-delay": null,
+ "toward:lone-18-units-bearing-4:staff-hand14+warp-ready": null,
+ "toward:lone-18-units-bearing-4:staff-hand69+warp-delay": null,
+ "toward:lone-18-units-bearing-4:staff-hand69+warp-ready": null,
+ "toward:lone-18-units-bearing-4:staff-hand9+warp-delay": null,
+ "toward:lone-18-units-bearing-4:staff-hand9+warp-ready": null,
+ "toward:lone-18-units-bearing-4:staff-none+warp-delay": null,
+ "toward:lone-18-units-bearing-4:staff-none+warp-ready": null,
+ "toward:lone-18-units-bearing-5:staff-hand0+warp-delay": null,
+ "toward:lone-18-units-bearing-5:staff-hand0+warp-ready": null,
+ "toward:lone-18-units-bearing-5:staff-hand14+warp-delay": null,
+ "toward:lone-18-units-bearing-5:staff-hand14+warp-ready": null,
+ "toward:lone-18-units-bearing-5:staff-hand69+warp-delay": null,
+ "toward:lone-18-units-bearing-5:staff-hand69+warp-ready": null,
+ "toward:lone-18-units-bearing-5:staff-hand9+warp-delay": null,
+ "toward:lone-18-units-bearing-5:staff-hand9+warp-ready": null,
+ "toward:lone-18-units-bearing-5:staff-none+warp-delay": null,
+ "toward:lone-18-units-bearing-5:staff-none+warp-ready": null,
+ "toward:lone-18-units-bearing-6:staff-hand0+warp-delay": null,
+ "toward:lone-18-units-bearing-6:staff-hand0+warp-ready": null,
+ "toward:lone-18-units-bearing-6:staff-hand14+warp-delay": null,
+ "toward:lone-18-units-bearing-6:staff-hand14+warp-ready": null,
+ "toward:lone-18-units-bearing-6:staff-hand69+warp-delay": null,
+ "toward:lone-18-units-bearing-6:staff-hand69+warp-ready": null,
+ "toward:lone-18-units-bearing-6:staff-hand9+warp-delay": null,
+ "toward:lone-18-units-bearing-6:staff-hand9+warp-ready": null,
+ "toward:lone-18-units-bearing-6:staff-none+warp-delay": null,
+ "toward:lone-18-units-bearing-6:staff-none+warp-ready": null,
+ "toward:lone-18-units-bearing-7:staff-hand0+warp-delay": null,
+ "toward:lone-18-units-bearing-7:staff-hand0+warp-ready": null,
+ "toward:lone-18-units-bearing-7:staff-hand14+warp-delay": null,
+ "toward:lone-18-units-bearing-7:staff-hand14+warp-ready": null,
+ "toward:lone-18-units-bearing-7:staff-hand69+warp-delay": null,
+ "toward:lone-18-units-bearing-7:staff-hand69+warp-ready": null,
+ "toward:lone-18-units-bearing-7:staff-hand9+warp-delay": null,
+ "toward:lone-18-units-bearing-7:staff-hand9+warp-ready": null,
+ "toward:lone-18-units-bearing-7:staff-none+warp-delay": null,
+ "toward:lone-18-units-bearing-7:staff-none+warp-ready": null,
+ "toward:lone-24-units-bearing-0:staff-hand0+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12584.5,
+   11066.5
+  ]
+ },
+ "toward:lone-24-units-bearing-0:staff-hand0+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12584.5,
+   11066.5
+  ]
+ },
+ "toward:lone-24-units-bearing-0:staff-hand14+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12584.5,
+   11066.5
+  ]
+ },
+ "toward:lone-24-units-bearing-0:staff-hand14+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12584.5,
+   11066.5
+  ]
+ },
+ "toward:lone-24-units-bearing-0:staff-hand69+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12584.5,
+   11066.5
+  ]
+ },
+ "toward:lone-24-units-bearing-0:staff-hand69+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12584.5,
+   11066.5
+  ]
+ },
+ "toward:lone-24-units-bearing-0:staff-hand9+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12584.5,
+   11066.5
+  ]
+ },
+ "toward:lone-24-units-bearing-0:staff-hand9+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12584.5,
+   11066.5
+  ]
+ },
+ "toward:lone-24-units-bearing-0:staff-none+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12584.5,
+   11066.5
+  ]
+ },
+ "toward:lone-24-units-bearing-0:staff-none+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12584.5,
+   11066.5
+  ]
+ },
+ "toward:lone-24-units-bearing-1:staff-hand0+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12581.571,
+   11073.571
+  ]
+ },
+ "toward:lone-24-units-bearing-1:staff-hand0+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12581.571,
+   11073.571
+  ]
+ },
+ "toward:lone-24-units-bearing-1:staff-hand14+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12581.571,
+   11073.571
+  ]
+ },
+ "toward:lone-24-units-bearing-1:staff-hand14+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12581.571,
+   11073.571
+  ]
+ },
+ "toward:lone-24-units-bearing-1:staff-hand69+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12581.571,
+   11073.571
+  ]
+ },
+ "toward:lone-24-units-bearing-1:staff-hand69+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12581.571,
+   11073.571
+  ]
+ },
+ "toward:lone-24-units-bearing-1:staff-hand9+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12581.571,
+   11073.571
+  ]
+ },
+ "toward:lone-24-units-bearing-1:staff-hand9+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12581.571,
+   11073.571
+  ]
+ },
+ "toward:lone-24-units-bearing-1:staff-none+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12581.571,
+   11073.571
+  ]
+ },
+ "toward:lone-24-units-bearing-1:staff-none+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12581.571,
+   11073.571
+  ]
+ },
+ "toward:lone-24-units-bearing-2:staff-hand0+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12574.5,
+   11076.5
+  ]
+ },
+ "toward:lone-24-units-bearing-2:staff-hand0+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12574.5,
+   11076.5
+  ]
+ },
+ "toward:lone-24-units-bearing-2:staff-hand14+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12574.5,
+   11076.5
+  ]
+ },
+ "toward:lone-24-units-bearing-2:staff-hand14+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12574.5,
+   11076.5
+  ]
+ },
+ "toward:lone-24-units-bearing-2:staff-hand69+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12574.5,
+   11076.5
+  ]
+ },
+ "toward:lone-24-units-bearing-2:staff-hand69+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12574.5,
+   11076.5
+  ]
+ },
+ "toward:lone-24-units-bearing-2:staff-hand9+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12574.5,
+   11076.5
+  ]
+ },
+ "toward:lone-24-units-bearing-2:staff-hand9+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12574.5,
+   11076.5
+  ]
+ },
+ "toward:lone-24-units-bearing-2:staff-none+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12574.5,
+   11076.5
+  ]
+ },
+ "toward:lone-24-units-bearing-2:staff-none+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12574.5,
+   11076.5
+  ]
+ },
+ "toward:lone-24-units-bearing-3:staff-hand0+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12567.429,
+   11073.571
+  ]
+ },
+ "toward:lone-24-units-bearing-3:staff-hand0+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12567.429,
+   11073.571
+  ]
+ },
+ "toward:lone-24-units-bearing-3:staff-hand14+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12567.429,
+   11073.571
+  ]
+ },
+ "toward:lone-24-units-bearing-3:staff-hand14+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12567.429,
+   11073.571
+  ]
+ },
+ "toward:lone-24-units-bearing-3:staff-hand69+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12567.429,
+   11073.571
+  ]
+ },
+ "toward:lone-24-units-bearing-3:staff-hand69+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12567.429,
+   11073.571
+  ]
+ },
+ "toward:lone-24-units-bearing-3:staff-hand9+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12567.429,
+   11073.571
+  ]
+ },
+ "toward:lone-24-units-bearing-3:staff-hand9+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12567.429,
+   11073.571
+  ]
+ },
+ "toward:lone-24-units-bearing-3:staff-none+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12567.429,
+   11073.571
+  ]
+ },
+ "toward:lone-24-units-bearing-3:staff-none+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12567.429,
+   11073.571
+  ]
+ },
+ "toward:lone-24-units-bearing-4:staff-hand0+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12564.5,
+   11066.5
+  ]
+ },
+ "toward:lone-24-units-bearing-4:staff-hand0+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12564.5,
+   11066.5
+  ]
+ },
+ "toward:lone-24-units-bearing-4:staff-hand14+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12564.5,
+   11066.5
+  ]
+ },
+ "toward:lone-24-units-bearing-4:staff-hand14+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12564.5,
+   11066.5
+  ]
+ },
+ "toward:lone-24-units-bearing-4:staff-hand69+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12564.5,
+   11066.5
+  ]
+ },
+ "toward:lone-24-units-bearing-4:staff-hand69+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12564.5,
+   11066.5
+  ]
+ },
+ "toward:lone-24-units-bearing-4:staff-hand9+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12564.5,
+   11066.5
+  ]
+ },
+ "toward:lone-24-units-bearing-4:staff-hand9+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12564.5,
+   11066.5
+  ]
+ },
+ "toward:lone-24-units-bearing-4:staff-none+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12564.5,
+   11066.5
+  ]
+ },
+ "toward:lone-24-units-bearing-4:staff-none+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12564.5,
+   11066.5
+  ]
+ },
+ "toward:lone-24-units-bearing-5:staff-hand0+warp-delay": null,
+ "toward:lone-24-units-bearing-5:staff-hand0+warp-ready": null,
+ "toward:lone-24-units-bearing-5:staff-hand14+warp-delay": null,
+ "toward:lone-24-units-bearing-5:staff-hand14+warp-ready": null,
+ "toward:lone-24-units-bearing-5:staff-hand69+warp-delay": null,
+ "toward:lone-24-units-bearing-5:staff-hand69+warp-ready": null,
+ "toward:lone-24-units-bearing-5:staff-hand9+warp-delay": null,
+ "toward:lone-24-units-bearing-5:staff-hand9+warp-ready": null,
+ "toward:lone-24-units-bearing-5:staff-none+warp-delay": null,
+ "toward:lone-24-units-bearing-5:staff-none+warp-ready": null,
+ "toward:lone-24-units-bearing-6:staff-hand0+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12574.5,
+   11056.5
+  ]
+ },
+ "toward:lone-24-units-bearing-6:staff-hand0+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12574.5,
+   11056.5
+  ]
+ },
+ "toward:lone-24-units-bearing-6:staff-hand14+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12574.5,
+   11056.5
+  ]
+ },
+ "toward:lone-24-units-bearing-6:staff-hand14+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12574.5,
+   11056.5
+  ]
+ },
+ "toward:lone-24-units-bearing-6:staff-hand69+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12574.5,
+   11056.5
+  ]
+ },
+ "toward:lone-24-units-bearing-6:staff-hand69+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12574.5,
+   11056.5
+  ]
+ },
+ "toward:lone-24-units-bearing-6:staff-hand9+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12574.5,
+   11056.5
+  ]
+ },
+ "toward:lone-24-units-bearing-6:staff-hand9+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12574.5,
+   11056.5
+  ]
+ },
+ "toward:lone-24-units-bearing-6:staff-none+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12574.5,
+   11056.5
+  ]
+ },
+ "toward:lone-24-units-bearing-6:staff-none+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12574.5,
+   11056.5
+  ]
+ },
+ "toward:lone-24-units-bearing-7:staff-hand0+warp-delay": null,
+ "toward:lone-24-units-bearing-7:staff-hand0+warp-ready": null,
+ "toward:lone-24-units-bearing-7:staff-hand14+warp-delay": null,
+ "toward:lone-24-units-bearing-7:staff-hand14+warp-ready": null,
+ "toward:lone-24-units-bearing-7:staff-hand69+warp-delay": null,
+ "toward:lone-24-units-bearing-7:staff-hand69+warp-ready": null,
+ "toward:lone-24-units-bearing-7:staff-hand9+warp-delay": null,
+ "toward:lone-24-units-bearing-7:staff-hand9+warp-ready": null,
+ "toward:lone-24-units-bearing-7:staff-none+warp-delay": null,
+ "toward:lone-24-units-bearing-7:staff-none+warp-ready": null,
+ "toward:lone-34-units-bearing-0:staff-hand0+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12590.5,
+   11066.5
+  ]
+ },
+ "toward:lone-34-units-bearing-0:staff-hand0+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12594.5,
+   11066.5
+  ]
+ },
+ "toward:lone-34-units-bearing-0:staff-hand14+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12594.5,
+   11066.5
+  ]
+ },
+ "toward:lone-34-units-bearing-0:staff-hand14+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12594.5,
+   11066.5
+  ]
+ },
+ "toward:lone-34-units-bearing-0:staff-hand69+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12594.5,
+   11066.5
+  ]
+ },
+ "toward:lone-34-units-bearing-0:staff-hand69+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12594.5,
+   11066.5
+  ]
+ },
+ "toward:lone-34-units-bearing-0:staff-hand9+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12590.5,
+   11066.5
+  ]
+ },
+ "toward:lone-34-units-bearing-0:staff-hand9+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12594.5,
+   11066.5
+  ]
+ },
+ "toward:lone-34-units-bearing-0:staff-none+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12594.5,
+   11066.5
+  ]
+ },
+ "toward:lone-34-units-bearing-0:staff-none+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12594.5,
+   11066.5
+  ]
+ },
+ "toward:lone-34-units-bearing-1:staff-hand0+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12585.814,
+   11077.814
+  ]
+ },
+ "toward:lone-34-units-bearing-1:staff-hand0+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12585.107,
+   11077.107
+  ]
+ },
+ "toward:lone-34-units-bearing-1:staff-hand14+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12585.107,
+   11077.107
+  ]
+ },
+ "toward:lone-34-units-bearing-1:staff-hand14+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12585.107,
+   11077.107
+  ]
+ },
+ "toward:lone-34-units-bearing-1:staff-hand69+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12585.107,
+   11077.107
+  ]
+ },
+ "toward:lone-34-units-bearing-1:staff-hand69+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12585.107,
+   11077.107
+  ]
+ },
+ "toward:lone-34-units-bearing-1:staff-hand9+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12585.814,
+   11077.814
+  ]
+ },
+ "toward:lone-34-units-bearing-1:staff-hand9+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12585.107,
+   11077.107
+  ]
+ },
+ "toward:lone-34-units-bearing-1:staff-none+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12585.107,
+   11077.107
+  ]
+ },
+ "toward:lone-34-units-bearing-1:staff-none+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12585.107,
+   11077.107
+  ]
+ },
+ "toward:lone-34-units-bearing-2:staff-hand0+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12574.5,
+   11082.5
+  ]
+ },
+ "toward:lone-34-units-bearing-2:staff-hand0+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12574.5,
+   11086.5
+  ]
+ },
+ "toward:lone-34-units-bearing-2:staff-hand14+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12574.5,
+   11086.5
+  ]
+ },
+ "toward:lone-34-units-bearing-2:staff-hand14+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12574.5,
+   11086.5
+  ]
+ },
+ "toward:lone-34-units-bearing-2:staff-hand69+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12574.5,
+   11086.5
+  ]
+ },
+ "toward:lone-34-units-bearing-2:staff-hand69+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12574.5,
+   11086.5
+  ]
+ },
+ "toward:lone-34-units-bearing-2:staff-hand9+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12574.5,
+   11082.5
+  ]
+ },
+ "toward:lone-34-units-bearing-2:staff-hand9+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12574.5,
+   11086.5
+  ]
+ },
+ "toward:lone-34-units-bearing-2:staff-none+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12574.5,
+   11086.5
+  ]
+ },
+ "toward:lone-34-units-bearing-2:staff-none+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12574.5,
+   11086.5
+  ]
+ },
+ "toward:lone-34-units-bearing-3:staff-hand0+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12563.186,
+   11077.814
+  ]
+ },
+ "toward:lone-34-units-bearing-3:staff-hand0+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12563.893,
+   11077.107
+  ]
+ },
+ "toward:lone-34-units-bearing-3:staff-hand14+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12563.893,
+   11077.107
+  ]
+ },
+ "toward:lone-34-units-bearing-3:staff-hand14+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12563.893,
+   11077.107
+  ]
+ },
+ "toward:lone-34-units-bearing-3:staff-hand69+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12563.893,
+   11077.107
+  ]
+ },
+ "toward:lone-34-units-bearing-3:staff-hand69+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12563.893,
+   11077.107
+  ]
+ },
+ "toward:lone-34-units-bearing-3:staff-hand9+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12563.186,
+   11077.814
+  ]
+ },
+ "toward:lone-34-units-bearing-3:staff-hand9+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12563.893,
+   11077.107
+  ]
+ },
+ "toward:lone-34-units-bearing-3:staff-none+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12563.893,
+   11077.107
+  ]
+ },
+ "toward:lone-34-units-bearing-3:staff-none+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12563.893,
+   11077.107
+  ]
+ },
+ "toward:lone-34-units-bearing-4:staff-hand0+warp-delay": null,
+ "toward:lone-34-units-bearing-4:staff-hand0+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12564.5,
+   11066.5
+  ]
+ },
+ "toward:lone-34-units-bearing-4:staff-hand14+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12564.5,
+   11066.5
+  ]
+ },
+ "toward:lone-34-units-bearing-4:staff-hand14+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12564.5,
+   11066.5
+  ]
+ },
+ "toward:lone-34-units-bearing-4:staff-hand69+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12564.5,
+   11066.5
+  ]
+ },
+ "toward:lone-34-units-bearing-4:staff-hand69+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12564.5,
+   11066.5
+  ]
+ },
+ "toward:lone-34-units-bearing-4:staff-hand9+warp-delay": null,
+ "toward:lone-34-units-bearing-4:staff-hand9+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12564.5,
+   11066.5
+  ]
+ },
+ "toward:lone-34-units-bearing-4:staff-none+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12564.5,
+   11066.5
+  ]
+ },
+ "toward:lone-34-units-bearing-4:staff-none+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12564.5,
+   11066.5
+  ]
+ },
+ "toward:lone-34-units-bearing-5:staff-hand0+warp-delay": null,
+ "toward:lone-34-units-bearing-5:staff-hand0+warp-ready": null,
+ "toward:lone-34-units-bearing-5:staff-hand14+warp-delay": null,
+ "toward:lone-34-units-bearing-5:staff-hand14+warp-ready": null,
+ "toward:lone-34-units-bearing-5:staff-hand69+warp-delay": null,
+ "toward:lone-34-units-bearing-5:staff-hand69+warp-ready": null,
+ "toward:lone-34-units-bearing-5:staff-hand9+warp-delay": null,
+ "toward:lone-34-units-bearing-5:staff-hand9+warp-ready": null,
+ "toward:lone-34-units-bearing-5:staff-none+warp-delay": null,
+ "toward:lone-34-units-bearing-5:staff-none+warp-ready": null,
+ "toward:lone-34-units-bearing-6:staff-hand0+warp-delay": null,
+ "toward:lone-34-units-bearing-6:staff-hand0+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12574.5,
+   11056.5
+  ]
+ },
+ "toward:lone-34-units-bearing-6:staff-hand14+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12574.5,
+   11046.5
+  ]
+ },
+ "toward:lone-34-units-bearing-6:staff-hand14+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12574.5,
+   11056.5
+  ]
+ },
+ "toward:lone-34-units-bearing-6:staff-hand69+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12574.5,
+   11046.5
+  ]
+ },
+ "toward:lone-34-units-bearing-6:staff-hand69+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12574.5,
+   11056.5
+  ]
+ },
+ "toward:lone-34-units-bearing-6:staff-hand9+warp-delay": null,
+ "toward:lone-34-units-bearing-6:staff-hand9+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12574.5,
+   11056.5
+  ]
+ },
+ "toward:lone-34-units-bearing-6:staff-none+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12574.5,
+   11046.5
+  ]
+ },
+ "toward:lone-34-units-bearing-6:staff-none+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12574.5,
+   11056.5
+  ]
+ },
+ "toward:lone-34-units-bearing-7:staff-hand0+warp-delay": null,
+ "toward:lone-34-units-bearing-7:staff-hand0+warp-ready": null,
+ "toward:lone-34-units-bearing-7:staff-hand14+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12588.642,
+   11052.358
+  ]
+ },
+ "toward:lone-34-units-bearing-7:staff-hand14+warp-ready": null,
+ "toward:lone-34-units-bearing-7:staff-hand69+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12588.642,
+   11052.358
+  ]
+ },
+ "toward:lone-34-units-bearing-7:staff-hand69+warp-ready": null,
+ "toward:lone-34-units-bearing-7:staff-hand9+warp-delay": null,
+ "toward:lone-34-units-bearing-7:staff-hand9+warp-ready": null,
+ "toward:lone-34-units-bearing-7:staff-none+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12588.642,
+   11052.358
+  ]
+ },
+ "toward:lone-34-units-bearing-7:staff-none+warp-ready": null,
+ "toward:lone-46-units-bearing-0:staff-hand0+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12590.5,
+   11066.5
+  ]
+ },
+ "toward:lone-46-units-bearing-0:staff-hand0+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12594.0,
+   11066.5
+  ]
+ },
+ "toward:lone-46-units-bearing-0:staff-hand14+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12594.0,
+   11066.5
+  ]
+ },
+ "toward:lone-46-units-bearing-0:staff-hand14+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12594.0,
+   11066.5
+  ]
+ },
+ "toward:lone-46-units-bearing-0:staff-hand69+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12594.0,
+   11066.5
+  ]
+ },
+ "toward:lone-46-units-bearing-0:staff-hand69+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12594.0,
+   11066.5
+  ]
+ },
+ "toward:lone-46-units-bearing-0:staff-hand9+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12590.5,
+   11066.5
+  ]
+ },
+ "toward:lone-46-units-bearing-0:staff-hand9+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12594.0,
+   11066.5
+  ]
+ },
+ "toward:lone-46-units-bearing-0:staff-none+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12594.0,
+   11066.5
+  ]
+ },
+ "toward:lone-46-units-bearing-0:staff-none+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12594.0,
+   11066.5
+  ]
+ },
+ "toward:lone-46-units-bearing-1:staff-hand0+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12585.814,
+   11077.814
+  ]
+ },
+ "toward:lone-46-units-bearing-1:staff-hand0+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12583.692,
+   11075.692
+  ]
+ },
+ "toward:lone-46-units-bearing-1:staff-hand14+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12583.692,
+   11075.692
+  ]
+ },
+ "toward:lone-46-units-bearing-1:staff-hand14+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12583.692,
+   11075.692
+  ]
+ },
+ "toward:lone-46-units-bearing-1:staff-hand69+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12583.692,
+   11075.692
+  ]
+ },
+ "toward:lone-46-units-bearing-1:staff-hand69+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12583.692,
+   11075.692
+  ]
+ },
+ "toward:lone-46-units-bearing-1:staff-hand9+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12585.814,
+   11077.814
+  ]
+ },
+ "toward:lone-46-units-bearing-1:staff-hand9+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12583.692,
+   11075.692
+  ]
+ },
+ "toward:lone-46-units-bearing-1:staff-none+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12583.692,
+   11075.692
+  ]
+ },
+ "toward:lone-46-units-bearing-1:staff-none+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12583.692,
+   11075.692
+  ]
+ },
+ "toward:lone-46-units-bearing-2:staff-hand0+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12574.5,
+   11082.5
+  ]
+ },
+ "toward:lone-46-units-bearing-2:staff-hand0+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12574.5,
+   11086.0
+  ]
+ },
+ "toward:lone-46-units-bearing-2:staff-hand14+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12574.5,
+   11086.0
+  ]
+ },
+ "toward:lone-46-units-bearing-2:staff-hand14+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12574.5,
+   11086.0
+  ]
+ },
+ "toward:lone-46-units-bearing-2:staff-hand69+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12574.5,
+   11086.0
+  ]
+ },
+ "toward:lone-46-units-bearing-2:staff-hand69+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12574.5,
+   11086.0
+  ]
+ },
+ "toward:lone-46-units-bearing-2:staff-hand9+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12574.5,
+   11082.5
+  ]
+ },
+ "toward:lone-46-units-bearing-2:staff-hand9+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12574.5,
+   11086.0
+  ]
+ },
+ "toward:lone-46-units-bearing-2:staff-none+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12574.5,
+   11086.0
+  ]
+ },
+ "toward:lone-46-units-bearing-2:staff-none+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12574.5,
+   11086.0
+  ]
+ },
+ "toward:lone-46-units-bearing-3:staff-hand0+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12563.186,
+   11077.814
+  ]
+ },
+ "toward:lone-46-units-bearing-3:staff-hand0+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12565.308,
+   11075.692
+  ]
+ },
+ "toward:lone-46-units-bearing-3:staff-hand14+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12565.308,
+   11075.692
+  ]
+ },
+ "toward:lone-46-units-bearing-3:staff-hand14+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12565.308,
+   11075.692
+  ]
+ },
+ "toward:lone-46-units-bearing-3:staff-hand69+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12565.308,
+   11075.692
+  ]
+ },
+ "toward:lone-46-units-bearing-3:staff-hand69+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12565.308,
+   11075.692
+  ]
+ },
+ "toward:lone-46-units-bearing-3:staff-hand9+warp-delay": {
+  "camp": null,
+  "skill": null,
+  "spot": [
+   12563.186,
+   11077.814
+  ]
+ },
+ "toward:lone-46-units-bearing-3:staff-hand9+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12565.308,
+   11075.692
+  ]
+ },
+ "toward:lone-46-units-bearing-3:staff-none+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12565.308,
+   11075.692
+  ]
+ },
+ "toward:lone-46-units-bearing-3:staff-none+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12565.308,
+   11075.692
+  ]
+ },
+ "toward:lone-46-units-bearing-4:staff-hand0+warp-delay": null,
+ "toward:lone-46-units-bearing-4:staff-hand0+warp-ready": null,
+ "toward:lone-46-units-bearing-4:staff-hand14+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12548.5,
+   11066.5
+  ]
+ },
+ "toward:lone-46-units-bearing-4:staff-hand14+warp-ready": null,
+ "toward:lone-46-units-bearing-4:staff-hand69+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12548.5,
+   11066.5
+  ]
+ },
+ "toward:lone-46-units-bearing-4:staff-hand69+warp-ready": null,
+ "toward:lone-46-units-bearing-4:staff-hand9+warp-delay": null,
+ "toward:lone-46-units-bearing-4:staff-hand9+warp-ready": null,
+ "toward:lone-46-units-bearing-4:staff-none+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12548.5,
+   11066.5
+  ]
+ },
+ "toward:lone-46-units-bearing-4:staff-none+warp-ready": null,
+ "toward:lone-46-units-bearing-5:staff-hand0+warp-delay": null,
+ "toward:lone-46-units-bearing-5:staff-hand0+warp-ready": null,
+ "toward:lone-46-units-bearing-5:staff-hand14+warp-delay": null,
+ "toward:lone-46-units-bearing-5:staff-hand14+warp-ready": null,
+ "toward:lone-46-units-bearing-5:staff-hand69+warp-delay": null,
+ "toward:lone-46-units-bearing-5:staff-hand69+warp-ready": null,
+ "toward:lone-46-units-bearing-5:staff-hand9+warp-delay": null,
+ "toward:lone-46-units-bearing-5:staff-hand9+warp-ready": null,
+ "toward:lone-46-units-bearing-5:staff-none+warp-delay": null,
+ "toward:lone-46-units-bearing-5:staff-none+warp-ready": null,
+ "toward:lone-46-units-bearing-6:staff-hand0+warp-delay": null,
+ "toward:lone-46-units-bearing-6:staff-hand0+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12574.5,
+   11053.5
+  ]
+ },
+ "toward:lone-46-units-bearing-6:staff-hand14+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12574.5,
+   11040.5
+  ]
+ },
+ "toward:lone-46-units-bearing-6:staff-hand14+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12574.5,
+   11053.5
+  ]
+ },
+ "toward:lone-46-units-bearing-6:staff-hand69+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12574.5,
+   11040.5
+  ]
+ },
+ "toward:lone-46-units-bearing-6:staff-hand69+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12574.5,
+   11053.5
+  ]
+ },
+ "toward:lone-46-units-bearing-6:staff-hand9+warp-delay": null,
+ "toward:lone-46-units-bearing-6:staff-hand9+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12574.5,
+   11053.5
+  ]
+ },
+ "toward:lone-46-units-bearing-6:staff-none+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12574.5,
+   11040.5
+  ]
+ },
+ "toward:lone-46-units-bearing-6:staff-none+warp-ready": {
+  "camp": null,
+  "skill": 390,
+  "spot": [
+   12574.5,
+   11053.5
+  ]
+ },
+ "toward:lone-46-units-bearing-7:staff-hand0+warp-delay": null,
+ "toward:lone-46-units-bearing-7:staff-hand0+warp-ready": null,
+ "toward:lone-46-units-bearing-7:staff-hand14+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12588.289,
+   11052.711
+  ]
+ },
+ "toward:lone-46-units-bearing-7:staff-hand14+warp-ready": null,
+ "toward:lone-46-units-bearing-7:staff-hand69+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12588.289,
+   11052.711
+  ]
+ },
+ "toward:lone-46-units-bearing-7:staff-hand69+warp-ready": null,
+ "toward:lone-46-units-bearing-7:staff-hand9+warp-delay": null,
+ "toward:lone-46-units-bearing-7:staff-hand9+warp-ready": null,
+ "toward:lone-46-units-bearing-7:staff-none+warp-delay": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12588.289,
+   11052.711
+  ]
+ },
+ "toward:lone-46-units-bearing-7:staff-none+warp-ready": null
+}

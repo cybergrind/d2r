@@ -1,0 +1,630 @@
+[
+ [
+  0.15,
+  "Macro: request hunt any, 0 ms old, while nothing runs"
+ ],
+ [
+  0.15,
+  "Macro: Attack mode on"
+ ],
+ [
+  0.16,
+  "Macro: request pickup, 0 ms old, while hunt any"
+ ],
+ [
+  0.27,
+  "Macro: Attack mode paused"
+ ],
+ [
+  0.27,
+  "Macro: pickup: 0 drops (none), belt short (0, 0), life 1697/1818; nothing to pick up"
+ ],
+ [
+  0.29,
+  "Macro: step asked with 16 hostiles near, from (15692.5, 5455.1): the sweep takes it"
+ ],
+ [
+  0.29,
+  "Macro: Attack mode on"
+ ],
+ [
+  0.61,
+  "Macro: Echoing Strike (right click) at the elite 16 (929016492), 128/128"
+ ],
+ [
+  0.77,
+  "Macro: line through the elite 16 (929016492), 128/128, 6.7 away, focal (15684.5, 5462.5), worth 4232, pointer (2858, 645)"
+ ],
+ [
+  0.82,
+  "Macro: sweeping in the fight with 2 of 23 hostiles in reach, from (15690.5, 5459.5): a place at (15684.5, 5474.5), a jump by Blade Warp of 16 (0.7s), worth 37411 against 7956 here, 4 casts"
+ ],
+ [
+  0.83,
+  "Macro: fight (right click): 1 casts seen in 0.3s, 0 down; Stepping to a better place"
+ ],
+ [
+  0.83,
+  "Macro: Stepping to a better place: 0 down in 1 casts"
+ ],
+ [
+  0.83,
+  "Macro: Last minute: 0 points/s, 0 kills/min over 0.7s of combat"
+ ],
+ [
+  1.45,
+  "Macro: Blade Warp"
+ ],
+ [
+  1.45,
+  "Macro: Blade Warp on s, player mode 1"
+ ],
+ [
+  2.85,
+  "Macro: Blade Warp aimed at (15684.5, 5474.5), 16.2 from (15690.5, 5459.5); landed at (15684.5, 5475.5), off by 1.0, 1.93s after the key"
+ ],
+ [
+  2.96,
+  "Macro: Echoing Strike (right click) at the monster 1 (3219566271), 128/128"
+ ],
+ [
+  3.02,
+  "Macro: line through the monster 1 (3219566271), 128/128, 5.2 away, focal (15680.5, 5475.8), worth 16469, pointer (3037, 634)"
+ ],
+ [
+  3.07,
+  "Macro: first cast 0.22s after the step"
+ ],
+ [
+  3.23,
+  "Macro: Blade Warp still on the right button 1.0s after its key"
+ ],
+ [
+  3.24,
+  "Macro: Engorge"
+ ],
+ [
+  3.24,
+  "Macro: Engorge on a, player mode 10"
+ ],
+ [
+  3.4,
+  "Macro: Engorge on the corpse 464500054 at (15681.5, 5463.5), 12.4 away; under the pointer None"
+ ],
+ [
+  3.59,
+  "Macro: line through the monster 1 (1840955221), 128/128, 20.6 away, focal (15670.9, 5486.6), worth 16682, pointer (2269, 651)"
+ ],
+ [
+  4.25,
+  "Macro: Engorge still on the right button 1.0s after its key"
+ ],
+ [
+  4.78,
+  "Macro: Sigil: Lethargy"
+ ],
+ [
+  4.78,
+  "Macro: Sigil: Lethargy on Button9, player mode 1"
+ ],
+ [
+  4.98,
+  "Macro: line through the elite 1 (3681926826), 128/128, 18.4 away, focal (15671.5, 5488.5), worth 17902, pointer (2218, 703)"
+ ],
+ [
+  5.15,
+  "Macro: line through the monster 24 (232241835), 128/128, 5.7 away, focal (15688.0, 5471.0), worth 7140, pointer (3500, 680)"
+ ],
+ [
+  5.26,
+  "Macro: line through the monster 24 (2532031829), 128/128, 10.8 away, focal (15690.5, 5484.5), worth 7140, pointer (3085, 985)"
+ ],
+ [
+  5.79,
+  "Macro: sweeping in the fight with 1 of 12 hostiles in reach, from (15684.5, 5475.5): a place at (15669.5, 5490.5), a jump by Blade Warp of 21 (0.8s), worth 26988 against 10174 here, more than the horizon's casts"
+ ],
+ [
+  5.8,
+  "Macro: fight (right click): 1 casts seen in 2.9s, 9 down; Stepping to a better place"
+ ],
+ [
+  5.8,
+  "Macro: Stepping to a better place: 9 down in 1 casts"
+ ],
+ [
+  5.8,
+  "Macro: Last minute: 6179 points/s, 36.8 kills/min over 1.6s of combat"
+ ],
+ [
+  5.92,
+  "Macro: Sigil: Lethargy still on the right button 1.0s after its key"
+ ],
+ [
+  5.93,
+  "Macro: Blade Warp"
+ ],
+ [
+  5.93,
+  "Macro: Blade Warp on s, player mode 1"
+ ],
+ [
+  6.76,
+  "Macro: Blade Warp aimed at (15669.5, 5490.5), 21.2 from (15684.5, 5475.5); landed at (15668.5, 5491.5), off by 1.4, 0.84s after the key"
+ ],
+ [
+  6.87,
+  "Macro: Echoing Strike (right click) at the monster 207 (1557895157), 128/128"
+ ],
+ [
+  7.02,
+  "Macro: line through the monster 207 (1557895157), 128/128, 19.2 away, focal (15651.5, 5482.5), worth 14016, pointer (2900, 208)"
+ ],
+ [
+  7.07,
+  "Macro: first cast 0.30s after the step"
+ ],
+ [
+  8.34,
+  "Macro: line through the monster 1 (3858642667), 123/128, 9.2 away, focal (15667.0, 5500.6), worth 11152, pointer (2801, 846)"
+ ],
+ [
+  8.89,
+  "Macro: line through the monster 16 (2824844142), 128/128, 6.6 away, focal (15664.6, 5492.4), worth 8596, pointer (3017, 647)"
+ ],
+ [
+  8.94,
+  "Macro: line through the monster 16 (3783232954), 128/128, 6.7 away, focal (15664.7, 5492.7), worth 7194, pointer (3017, 647)"
+ ],
+ [
+  9.61,
+  "Macro: line through the monster 16 (1891608285), 128/128, 9.2 away, focal (15662.4, 5492.8), worth 4874, pointer (2899, 622)"
+ ],
+ [
+  9.66,
+  "Macro: sweeping in the fight with 2 of 11 hostiles in reach, from (15668.5, 5491.5): a place at (15647.5, 5482.5), a jump by Blade Warp of 23 (0.9s), worth 11794 against 5586 here, 3 casts"
+ ],
+ [
+  9.66,
+  "Macro: fight (right click): 3 casts seen in 2.9s, 7 down; Stepping to a better place"
+ ],
+ [
+  9.66,
+  "Macro: Stepping to a better place: 7 down in 3 casts"
+ ],
+ [
+  9.66,
+  "Macro: Last minute: 8600 points/s, 106.3 kills/min over 4.5s of combat"
+ ],
+ [
+  9.92,
+  "Macro: Blade Warp"
+ ],
+ [
+  9.92,
+  "Macro: Blade Warp on s, player mode 1"
+ ],
+ [
+  10.4,
+  "Macro: Blade Warp aimed at (15647.5, 5482.5), 22.8 from (15668.5, 5491.5); landed at (15646.5, 5500.5), off by 18.0, 0.64s after the key"
+ ],
+ [
+  10.49,
+  "Macro: Echoing Strike (right click) at the monster 1 (1412413879), 128/128"
+ ],
+ [
+  10.54,
+  "Macro: line through the monster 1 (1412413879), 128/128, 13.3 away, focal (15633.5, 5497.5), worth 5536, pointer (2822, 399)"
+ ],
+ [
+  10.58,
+  "Macro: first cast 0.19s after the step"
+ ],
+ [
+  11.36,
+  "Macro: Blade Warp still on the right button 1.0s after its key"
+ ],
+ [
+  11.37,
+  "Macro: Sigil: Lethargy"
+ ],
+ [
+  11.37,
+  "Macro: Sigil: Lethargy on Button9, player mode 10"
+ ],
+ [
+  11.68,
+  "Macro: the game did not keep the Sigil: Lethargy key pressed during the cast before: pressed again"
+ ],
+ [
+  11.68,
+  "Macro: Sigil: Lethargy"
+ ],
+ [
+  11.68,
+  "Macro: Sigil: Lethargy on Button9, player mode 1"
+ ],
+ [
+  11.88,
+  "Macro: line through the elite 16 (1597421053), 124/128, 8.5 away, focal (15654.1, 5496.7), worth 2050, pointer (3632, 770)"
+ ],
+ [
+  11.94,
+  "Macro: fight (right click): 3 casts seen in 1.5s, 3 down; Nothing left in reach"
+ ],
+ [
+  11.94,
+  "Macro: Nothing left in reach: 3 down in 3 casts"
+ ],
+ [
+  11.94,
+  "Macro: Last minute: 8268 points/s, 111.8 kills/min over 5.4s of combat"
+ ],
+ [
+  11.95,
+  "Macro: sweeping with 6 hostiles near and none in reach, from (15646.5, 5500.5): a place at (15652.5, 5518.5), a jump by Blade Warp of 19 (0.8s), worth 5151 against 0 here, 1 casts"
+ ],
+ [
+  12.69,
+  "Macro: Sigil: Lethargy still on the right button 1.0s after its key"
+ ],
+ [
+  12.7,
+  "Macro: Blade Warp"
+ ],
+ [
+  12.7,
+  "Macro: Blade Warp on s, player mode 1"
+ ],
+ [
+  13.47,
+  "Macro: Blade Warp aimed at (15652.5, 5518.5), 19.0 from (15646.5, 5500.5); landed at (15624.5, 5491.5), off by 38.9, 1.39s after the key"
+ ],
+ [
+  13.59,
+  "Macro: Echoing Strike (right click) at the monster 16 (2067971995), 128/128"
+ ],
+ [
+  13.55,
+  "Macro: line through the monster 16 (2067971995), 128/128, 14.1 away, focal (15610.5, 5489.5), worth 3174, pointer (2744, 400)"
+ ],
+ [
+  13.6,
+  "Macro: first cast 0.13s after the step"
+ ],
+ [
+  14.2,
+  "Macro: fight (right click): 2 casts seen in 0.7s, 3 down; Nothing left in reach"
+ ],
+ [
+  14.2,
+  "Macro: Nothing left in reach: 3 down in 2 casts"
+ ],
+ [
+  14.2,
+  "Macro: Last minute: 7817 points/s, 128.2 kills/min over 6.1s of combat"
+ ],
+ [
+  14.21,
+  "Macro: sweeping with 21 hostiles near and none in reach, from (15624.5, 5491.5): a place at (15606.5, 5503.5), a jump by Blade Warp of 22 (0.8s), worth 17089 against 0 here, 3 casts"
+ ],
+ [
+  14.36,
+  "Macro: Blade Warp"
+ ],
+ [
+  14.36,
+  "Macro: Blade Warp on s, player mode 1"
+ ],
+ [
+  15.07,
+  "Macro: Blade Warp aimed at (15606.5, 5503.5), 21.6 from (15624.5, 5491.5); landed at (15604.5, 5504.5), off by 2.2, 0.72s after the key"
+ ],
+ [
+  15.18,
+  "Macro: Echoing Strike (right click) at the monster 20 (3785373317), 128/128"
+ ],
+ [
+  15.24,
+  "Macro: line through the monster 20 (3785373317), 128/128, 11.2 away, focal (15593.5, 5502.5), worth 8874, pointer (2863, 452)"
+ ],
+ [
+  15.29,
+  "Macro: first cast 0.22s after the step"
+ ],
+ [
+  15.93,
+  "Macro: line through the monster 20 (2283479423), 128/128, 16.1 away, focal (15595.5, 5514.1), worth 9271, pointer (2496, 711)"
+ ],
+ [
+  16.07,
+  "Macro: line through the monster 59 (808878847), 128/128, 19.4 away, focal (15593.4, 5520.4), worth 7209, pointer (2176, 793)"
+ ],
+ [
+  16.21,
+  "Macro: line through the monster 20 (2283479423), 128/128, 13.4 away, focal (15594.6, 5513.5), worth 7209, pointer (2487, 685)"
+ ],
+ [
+  16.57,
+  "Macro: line through the monster 20 (3557658815), 128/128, 14.7 away, focal (15595.2, 5511.5), worth 7158, pointer (2582, 654)"
+ ],
+ [
+  17.48,
+  "Macro: line through the monster 59 (808878847), 128/128, 19.7 away, focal (15587.5, 5514.5), worth 5870, pointer (2178, 571)"
+ ],
+ [
+  18.21,
+  "Macro: line through the monster 20 (3976410159), 127/128, 13.3 away, focal (15591.5, 5501.5), worth 7804, pointer (2821, 400)"
+ ],
+ [
+  18.56,
+  "Macro: Blade Warp still on the right button 1.0s after its key"
+ ],
+ [
+  18.56,
+  "Macro: Engorge"
+ ],
+ [
+  18.56,
+  "Macro: Engorge on a, player mode 10"
+ ],
+ [
+  19.62,
+  "Macro: Engorge on the corpse 2283479423 at (15602.5, 5509.5), 5.4 away; under the pointer None"
+ ],
+ [
+  19.83,
+  "Macro: line through the monster 59 (4194740319), 49/128, 12.6 away, focal (15592.5, 5500.5), worth 7661, pointer (2895, 397)"
+ ],
+ [
+  19.88,
+  "Macro: fight (right click): 4 casts seen in 4.8s, 13 down; Nothing left in reach"
+ ],
+ [
+  19.88,
+  "Macro: Nothing left in reach: 13 down in 4 casts"
+ ],
+ [
+  19.88,
+  "Macro: Last minute: 6332 points/s, 133.9 kills/min over 9.4s of combat"
+ ],
+ [
+  19.9,
+  "Macro: sweeping with 14 hostiles near and none in reach, from (15604.5, 5504.5): a place at (15580.5, 5504.5), a jump by Blade Warp of 24 (0.9s), worth 14978 against 0 here, more than the horizon's casts"
+ ],
+ [
+  20.02,
+  "Macro: Engorge still on the right button 1.0s after its key"
+ ],
+ [
+  20.02,
+  "Macro: Blade Warp"
+ ],
+ [
+  20.02,
+  "Macro: Blade Warp on s, player mode 1"
+ ],
+ [
+  20.77,
+  "Macro: Blade Warp aimed at (15580.5, 5504.5), 24.0 from (15604.5, 5504.5); landed at (15584.5, 5494.5), off by 10.8, 0.75s after the key"
+ ],
+ [
+  20.87,
+  "Macro: Echoing Strike (right click) at the monster 1 (2729051777), 128/128"
+ ],
+ [
+  20.95,
+  "Macro: line through the monster 1 (2729051777), 128/128, 15.8 away, focal (15569.5, 5489.5), worth 10502, pointer (2825, 320)"
+ ],
+ [
+  21.0,
+  "Macro: first cast 0.23s after the step"
+ ],
+ [
+  21.39,
+  "Macro: line through the monster 59 (1885867425), 128/128, 13.2 away, focal (15574.5, 5496.0), worth 13841, pointer (2763, 537)"
+ ],
+ [
+  22.12,
+  "Macro: line through the monster 1 (101356570), 128/128, 15.9 away, focal (15571.6, 5494.5), worth 9200, pointer (2713, 454)"
+ ],
+ [
+  22.44,
+  "Macro: line through the monster 16 (3400014342), 128/128, 12.8 away, focal (15576.2, 5504.2), worth 5769, pointer (2521, 730)"
+ ],
+ [
+  23.19,
+  "Macro: line through the monster 20 (705495476), 128/128, 17.0 away, focal (15570.3, 5503.7), worth 2152, pointer (2311, 604)"
+ ],
+ [
+  23.64,
+  "Macro: line through the monster 20 (176365677), 128/128, 13.7 away, focal (15596.1, 5501.6), worth 2152, pointer (3372, 1057)"
+ ],
+ [
+  23.79,
+  "Macro: line through the monster 20 (705495476), 128/128, 20.4 away, focal (15570.6, 5505.0), worth 2152, pointer (2282, 634)"
+ ],
+ [
+  23.84,
+  "Macro: sweeping in the fight with 2 of 11 hostiles in reach, from (15584.5, 5494.5): a place at (15584.5, 5515.5), a jump by Blade Warp of 21 (0.8s), worth 11377 against 4585 here, 4 casts"
+ ],
+ [
+  23.84,
+  "Macro: fight (right click): 3 casts seen in 3.1s, 10 down; Stepping to a better place"
+ ],
+ [
+  23.84,
+  "Macro: Stepping to a better place: 10 down in 3 casts"
+ ],
+ [
+  23.84,
+  "Macro: Last minute: 6303 points/s, 148.9 kills/min over 12.5s of combat"
+ ],
+ [
+  23.95,
+  "Macro: Blade Warp"
+ ],
+ [
+  23.95,
+  "Macro: Blade Warp on s, player mode 1"
+ ],
+ [
+  24.2,
+  "Macro: Blade Warp aimed at (15584.5, 5515.5), 21.0 from (15584.5, 5494.5); landed at (15584.5, 5514.5), off by 1.0, 0.25s after the key"
+ ],
+ [
+  24.31,
+  "Macro: Echoing Strike (right click) at the monster 20 (1667772403), 128/128"
+ ],
+ [
+  24.42,
+  "Macro: line through the monster 20 (1667772403), 128/128, 19.1 away, focal (15570.5, 5527.5), worth 6584, pointer (2179, 679)"
+ ],
+ [
+  24.47,
+  "Macro: first cast 0.27s after the step"
+ ],
+ [
+  24.84,
+  "Macro: line through the monster 20 (3335561190), 128/128, 13.3 away, focal (15576.3, 5520.7), worth 7876, pointer (2657, 664)"
+ ],
+ [
+  25.24,
+  "Macro: line through the monster 20 (2712934393), 128/128, 4.6 away, focal (15580.0, 5513.9), worth 3969, pointer (3050, 603)"
+ ],
+ [
+  25.37,
+  "Macro: line through the monster 20 (3235515388), 128/128, 12.1 away, focal (15573.2, 5518.8), worth 3969, pointer (2613, 569)"
+ ],
+ [
+  25.49,
+  "Macro: line through the monster 20 (705495476), 6/128, 18.5 away, focal (15569.7, 5503.5), worth 3969, pointer (3057, 211)"
+ ],
+ [
+  25.87,
+  "Macro: line through the monster 20 (176365677), 128/128, 6.4 away, focal (15580.5, 5509.5), worth 3969, pointer (3239, 531)"
+ ],
+ [
+  26.13,
+  "Macro: line through the monster 20 (705495476), 6/128, 12.4 away, focal (15578.4, 5507.3), worth 3969, pointer (3244, 452)"
+ ],
+ [
+  26.27,
+  "Macro: line through the monster 20 (176365677), 128/128, 6.4 away, focal (15580.5, 5509.5), worth 1302, pointer (3236, 527)"
+ ],
+ [
+  26.52,
+  "Macro: fight (right click): 1 casts seen in 2.3s, 6 down; Nothing left in reach"
+ ],
+ [
+  26.52,
+  "Macro: Nothing left in reach: 6 down in 1 casts"
+ ],
+ [
+  26.52,
+  "Macro: Last minute: 5706 points/s, 146.4 kills/min over 15.2s of combat"
+ ],
+ [
+  26.54,
+  "Macro: sweeping with 4 hostiles near and none in reach, from (15584.5, 5514.5): a place at (15560.5, 5514.5), a jump by Blade Warp of 24 (0.9s), worth 3459 against 0 here, 2 casts"
+ ],
+ [
+  26.93,
+  "Macro: Blade Warp"
+ ],
+ [
+  26.93,
+  "Macro: Blade Warp on s, player mode 1"
+ ],
+ [
+  27.81,
+  "Macro: Blade Warp aimed at (15560.5, 5514.5), 24.0 from (15584.5, 5514.5); landed at (15560.5, 5514.5), off by 0.0, 1.15s after the key"
+ ],
+ [
+  27.91,
+  "Macro: Echoing Strike (right click) at the monster 20 (3235515388), 128/128"
+ ],
+ [
+  28.0,
+  "Macro: line through the monster 20 (3235515388), 128/128, 16.5 away, focal (15556.5, 5530.5), worth 3002, pointer (2442, 928)"
+ ],
+ [
+  28.04,
+  "Macro: first cast 0.24s after the step"
+ ],
+ [
+  28.15,
+  "Macro: line through the monster 16 (405442664), 128/128, 18.7 away, focal (15542.1, 5518.0), worth 4476, pointer (2372, 415)"
+ ],
+ [
+  28.26,
+  "Macro: line through the monster 16 (1621787040), 128/128, 21.1 away, focal (15539.5, 5516.5), worth 4476, pointer (2334, 345)"
+ ],
+ [
+  28.6,
+  "Macro: sweeping in the fight with 3 of 4 hostiles in reach, from (15560.5, 5514.5): a place at (15542.5, 5499.5), a jump by Blade Warp of 23 (0.9s), worth 17750 against 5967 here, more than the horizon's casts"
+ ],
+ [
+  28.61,
+  "Macro: fight (right click): 1 casts seen in 0.8s, 1 down; Stepping to a better place"
+ ],
+ [
+  28.61,
+  "Macro: Stepping to a better place: 1 down in 1 casts"
+ ],
+ [
+  28.61,
+  "Macro: Last minute: 5500 points/s, 142.8 kills/min over 16s of combat"
+ ],
+ [
+  28.72,
+  "Macro: Blade Warp"
+ ],
+ [
+  28.72,
+  "Macro: Blade Warp on s, player mode 1"
+ ],
+ [
+  29.63,
+  "Macro: Blade Warp aimed at (15542.5, 5499.5), 23.4 from (15560.5, 5514.5); landed at (15537.5, 5520.5), off by 21.6, 0.91s after the key"
+ ],
+ [
+  29.72,
+  "Macro: Echoing Strike (right click) at the monster 207 (3243574080), 128/128"
+ ],
+ [
+  29.83,
+  "Macro: line through the monster 207 (3243574080), 128/128, 19.8 away, focal (15523.5, 5506.5), worth 4760, pointer (3197, 169)"
+ ],
+ [
+  29.88,
+  "Macro: first cast 0.25s after the step"
+ ],
+ [
+  31.23,
+  "Macro: fight (right click): 2 casts seen in 1.6s, 1 down; Nothing left in reach"
+ ],
+ [
+  31.23,
+  "Macro: Nothing left in reach: 1 down in 2 casts"
+ ],
+ [
+  31.23,
+  "Macro: Last minute: 5954 points/s, 133.3 kills/min over 17.6s of combat"
+ ],
+ [
+  31.24,
+  "Macro: sweeping with 3 hostiles near and none in reach, from (15537.5, 5520.5): a place at (15528.5, 5502.5), a jump by Blade Warp of 20 (0.8s), worth 8937 against 0 here, 1 casts"
+ ],
+ [
+  31.35,
+  "Macro: Blade Warp"
+ ],
+ [
+  31.35,
+  "Macro: Blade Warp on s, player mode 1"
+ ],
+ [
+  31.6,
+  "Macro: Attack mode off"
+ ]
+]
