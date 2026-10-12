@@ -1,4 +1,5 @@
-"""Four hand-built arena scenes: the least a test of the arena or of a play needs, kept for later tasks.
+"""Hand-built arena scenes: the least a test of the arena or of a play needs, kept for later tasks
+(the four of `SCENES`, a potion to pick up, and three in which the character has to move: test_moves.py).
 
 All are in Durance of Hate Level 2 (area 101, the level of macros/test_pickup.py), with monsters of
 that area's level and their type's life there (combat/mechanics/tables.py `points_of`, as the stance
@@ -11,9 +12,10 @@ lightning and 0.82 of cold through (macros/hunt.py `tough`: "the teleport set le
 and cold at 18 in Hell"). Nothing is taken off physical damage.
 """
 
-from dataclasses import asdict
+from dataclasses import asdict, replace
 
 from inventory_tracking.builds.characters import CHARACTERS
+from inventory_tracking.builds.warlock.skills import BLADE_WARP
 from inventory_tracking.combat.mechanics.tables import points_of, tables
 from inventory_tracking.levels.model import Walkable, pack_cells
 from inventory_tracking.macros.world import FULL_REJUVENATION, SUPER_HEALING
@@ -94,6 +96,38 @@ def potion_on_the_ground() -> Scene:
         [],
         drops=[Drop(50, POTIONS[SUPER_HEALING]['code'], (5026.0, 5016.0))],
     )
+
+
+def afoot(scene: Scene) -> Scene:
+    """`scene` with a character that can only walk: Blade Warp on no key and no charge left on the
+    staff. With a worn staff that has charges the seek step leaves a walk to a Teleport hop
+    (macros/hunt.py `Hunter.afoot`), and with Blade Warp on a key every stride is a warp."""
+    slots = tuple(None if skill == BLADE_WARP else skill for skill in scene.hero.slots)
+    scene.hero = replace(scene.hero, slots=slots, sets=(MAIN, replace(STAFF, teleport_charges=0)))
+    return scene
+
+
+def one_out_of_reach() -> Scene:
+    """One Hell Bovine twenty-six units off on open ground: too far to notice the character, and
+    out of the blades' reach. Attack mode alone stays where it is (it never moves by itself); the
+    pickup press with nothing to pick up is the step toward it, by Blade Warp."""
+    return Scene('one out of reach', hero(), [mob(1, HELL_BOVINE, 26.0, 0.0)], [], [])
+
+
+def bovine_behind_a_wall() -> Scene:
+    """A Hell Bovine fourteen units off behind the wall of `archer_behind_a_wall`, and a character
+    that can only walk: the step toward it goes round the wall's end."""
+    ground = walled(lambda x, y: x == 27 and y < 30)
+    return afoot(Scene('a bovine behind a wall', hero(), [mob(1, HELL_BOVINE, 14.0, -5.0)], ground, []))
+
+
+def archer_at_a_gap() -> Scene:
+    """A Returned Archer fourteen units east of HERE behind a wall with a gap ten units wide in front
+    of it, and the character fifteen units north of HERE on the wall's other side: no shot at it
+    there, none fifteen units south of HERE, and a clear one on the way between the two."""
+    ground = walled(lambda x, y: x == 27 and not 15 <= y < 25)
+    start = (HERE[0], HERE[1] - 15.0)
+    return Scene('an archer at a gap', hero(at=start), [mob(1, RETURNED_ARCHER, 14.0, 0.0)], ground, [])
 
 
 SCENES = (one_in_the_open, pack_at_low_life, archer_behind_a_wall, gloams)

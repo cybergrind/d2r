@@ -251,6 +251,7 @@ def test_a_wall_stops_the_blades_and_a_hop_into_it():
     assert arena.result().charges == 0
     point_at(arena, (HERE[0] + 10.5, HERE[1] - 4.5))  # beyond it
     tap(arena, KEYS[TELEPORT])
+    frames(arena, 10)  # the hop's cast: the landing is not in the instant of the key (test_moves.py)
     assert arena.here == (HERE[0] + 10.5, HERE[1] - 4.5)  # a sub-tile's centre
     assert arena.result().charges == 1
     assert arena.result().moved == pytest.approx(math.dist(HERE, arena.here))
@@ -265,6 +266,7 @@ def test_a_walk_goes_only_where_a_way_leads():
     assert arena.here == HERE
     point_at(arena, (HERE[0] + 10.0, HERE[1] - 5.0))  # beyond it: the way round its end
     click(arena)
+    frames(arena, 2)  # the walk takes its time (test_moves.py)
     assert arena.here != HERE
     shut = scene.copy()
     shut.ground = [dict(shut.ground[0])]
@@ -272,6 +274,7 @@ def test_a_walk_goes_only_where_a_way_leads():
     arena.barred = lambda point: point[0] >= HERE[0] + 7.0 and point[0] < HERE[0] + 8.0  # a wall from edge to edge
     point_at(arena, (HERE[0] + 10.0, HERE[1] - 5.0))
     click(arena)
+    frames(arena, 50)
     assert arena.here == HERE
 
 
@@ -312,6 +315,8 @@ def test_a_potion_picked_up_lands_in_the_belt():
     arena.pick_above = 0.0  # the fakes' game takes the click a little above the drop: here on its ground
     point_at(arena, arena.scene.drops[0].at)
     click(arena)
+    assert arena.picked == []
+    frames(arena, 12)  # the walk of seven units: the potion is taken when the character stands on it
     assert arena.picked == ['a super healing potion']
     assert arena.loot.drops == ()
     assert arena.loot.belt == BELT

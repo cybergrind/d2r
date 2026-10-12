@@ -18,12 +18,38 @@ drops and the hover record. `Arena` is that game set up from a `Scene`, with wha
 - with a `HealingConfig` the standalone healer runs beside the macro: production `HealController`
   over production `PotionsController`, each tick, on the arena's life and belt (`Healer`);
 - the scene's ground and doors are real: no hop, warp or walk ends where nobody can stand, no walk
-  goes where no way leads, and walls stop the blades.
+  goes where no way leads, and walls stop the blades;
+- a move takes its time (`Game` makes every move in the instant of its input; `instant_moves=True`
+  is that game again):
+  - a walk (a left click on the ground or on a drop) is run a tick at a time at RUN_SPEED, straight
+    where a straight way leads (combat/stance.py `way`), else along the cells of the walked way
+    (macros/travel.py `walked_way`); the character is in the running mode meanwhile (RUNNING), and a
+    drop is picked up when it stands on it. A new click redirects it from where it is. A cast ends
+    it where the character is (the strike, a hop, a Blade Warp, any skill key), and a click made
+    during a cast is a walk that begins when that cast is over (combat/stance.py WALK_LATENCY:
+    "the cast that has to end, and the click");
+  - a Teleport hop is a cast of macros/movement.py TELEPORT_JUMP's seconds (0.31), and the
+    character is at the landing on the first tick at or after its end, not before; the charge is
+    spent at the key. A Teleport key that comes during a cast is kept and cast when that cast is
+    over (`Game.keeps_keys`), as the game does (macros/teleport.py `press_hop`);
+  - a Blade Warp is builds/warlock/movement.py BLADE_WARP_JUMP: the cast (0.35 s), then the blade's
+    flight at 45 units a second; the character casts where it stood until it is at the impact;
+  - `Mobs.tick` is given the character's place of that tick, so it is struck on the way.
 
 What the arena does not model, or takes as given (the calibration of Task 1.9 needs the list):
 
-- a walk is over in the instant of its click, as in `Game`: the character is never seen running, and
-  loses no time and takes no blow on the way. A hop and a Blade Warp land at once too;
+- of a move: the run has one speed from its first tick to its last (no acceleration, no stamina,
+  no faster run/walk of the gear), and the way round a wall is the walked way's cell centres, not the
+  game's own path (a staircase up to 8% longer than the smooth line); bodies bar nothing (the
+  character runs through monsters, and they through it); a blow never stops a walk (no hit
+  recovery, as for a cast); a click under a cast is never swallowed (macros/travel.py `step_walk`
+  says the game swallows some); the tail of a hop's cast after the landing, the casting delay of
+  Blade Warp (builds/warlock/movement.py WARP_DELAY) and a wall in the blade's line are not there
+  (a warp lands wherever there is footing); the character is taken to be busy for the whole flight
+  of the blade; a weapon swap is instant; a skill key pressed while the character is free costs no
+  cast time (`Game`: only a key kept during a cast does), it only ends a walk; nothing happens
+  between two looks at the game but the ticks (a cast, and a walk asked for during a cast, begin at
+  the look after the cast's end, as `Game`'s casts do);
 - the strike deals the same with either weapon set (damage.json knows no set), Death Mark, Sigil:
   Lethargy, Engorge, Hex: Purge, Psychic Ward and Consume change nothing (their casts are counted by
   `Game` and cost their cast time), and the companions deal no damage;
@@ -56,8 +82,9 @@ from inventory_tracking.builds.warlock.echoing_strike.damage import damage_table
 from inventory_tracking.builds.warlock.echoing_strike.hits import CONTACT_RADIUS
 from inventory_tracking.builds.warlock.echoing_strike.mechanics import LIFE, OUT_FRAMES, cast
 from inventory_tracking.builds.warlock.echoing_strike.sim.input import BIRTH_LAG
+from inventory_tracking.builds.warlock.movement import BLADE_WARP_JUMP
 from inventory_tracking.builds.warlock.skills import BLADE_WARP, ECHOING_STRIKE
-from inventory_tracking.combat.policy import Foe, walls
+from inventory_tracking.combat.policy import RUN_MODES, Foe, walls
 from inventory_tracking.combat.stance import no_footing, way
 from inventory_tracking.combat.timeline import GAME_RATE
 from inventory_tracking.config import INPUT, HealingConfig
@@ -66,7 +93,10 @@ from inventory_tracking.levels.doors import Door
 from inventory_tracking.levels.model import Ground, Walkable
 from inventory_tracking.macros.build import Attack
 from inventory_tracking.macros.engine import Run
+from inventory_tracking.macros.movement import TELEPORT_JUMP
+from inventory_tracking.macros.routines import ACTING
 from inventory_tracking.macros.skills import SWAP_WEAPONS, TELEPORT
+from inventory_tracking.macros.teleport import WALKING
 from inventory_tracking.macros.travel import walked_way
 from inventory_tracking.macros.world import (
     FULL_REJUVENATION,
@@ -98,6 +128,7 @@ from tests.inventory_tracking.macros.fakes import KEYS, Clock, Game, player
 from tests.inventory_tracking.scenarios.arena.mobs import Mobs
 from tests.inventory_tracking.scenarios.arena.result import Result
 from tests.inventory_tracking.scenarios.arena.scene import Scene
+from tests.inventory_tracking.scenarios.threat.harness import RUN
 
 
 Point = tuple[float, float]
@@ -123,6 +154,22 @@ BELT_ROWS = BELT_SIZE // BELT_COLUMNS
 RIGHT_SKILL = ECHOING_STRIKE
 SERVE, OSD = 'serve', 'osd'  # who drank (result.py `Result.potions`): the macro's or the player's key, the healer
 EDGE = 1e-9  # seconds: a sleep that ends on a tick's time plays that tick
+# The character's run, in units a second: the one speed measured from a named take
+# (scenarios/threat/harness.py RUN = 18.75, "the character's run in the take 20261010T162810Z-35"),
+# 0.75 of a unit a tick. Not the 20.0 of combat/stance.py RUN_SPEED (and scenarios/stance/harness.py),
+# which is the number the production code prices a walk with: the world that judges that price
+# must not take it from the code it judges.
+RUN_SPEED = RUN
+# The modes the arena shows a moving character in. No production module names them one by one:
+RUNNING = 3  # combat/policy.py RUN_MODES and macros/teleport.py WALKING, "walk, run, town walk" = (2, 3, 6): the run
+CASTING = 7  # the mode macros/fakes.py `Game.strike` gives a cast under way; one of macros/routines.py ACTING
+assert RUNNING in RUN_MODES
+assert RUNNING in WALKING
+assert CASTING in ACTING
+# The keys whose skill is cast where the character stands: a walk ends at one. Teleport and Blade Warp
+# end it themselves when they are cast (`Arena.cast_to`); the swap is no cast.
+CAST_KEYS = frozenset(key for skill, key in KEYS.items() if skill not in (SWAP_WEAPONS, TELEPORT, BLADE_WARP))
+WALK_REACH = 40.0  # units: a click on ground further off walks nobody (`Game.act`)
 
 
 class Ticks(Clock):
@@ -157,6 +204,14 @@ class Flight:
     paths: list[list[Point]]  # echoing_strike.cast: a blade's place by frame
     first: set[tuple[int, str]] = field(default_factory=set)  # (unit, leg) a blade of this cast has touched
     touched: list[set[tuple[int, str]]] = field(default_factory=list)  # the same, blade by blade
+
+
+@dataclass
+class Landing:
+    """A hop or a Blade Warp under way: the character casts where it stood and is at `spot` at `tick`."""
+
+    tick: int  # the game tick it stands there at
+    spot: Point
 
 
 @dataclass
@@ -256,7 +311,9 @@ class Arena(Game):
     `osd` runs the healer beside the macro; `healing_scale` is the class and Vitality factor on a
     healing potion's points, which potions.json does not hold. `attack` is the attack of the build
     played when it is not Echoing Strike: the held input of its skill casts it, and a cast takes
-    what its `dealt` says; None: Echoing Strike and the production blades."""
+    what its `dealt` says; None: Echoing Strike and the production blades. `instant_moves`: a walk, a
+    hop and a Blade Warp are over in the instant of their input, as in `Game` (the module text has
+    what a move is otherwise)."""
 
     def __init__(
         self,
@@ -267,6 +324,7 @@ class Arena(Game):
         healing_scale: float = 1.0,
         auras: Mapping[int, float] | None = None,  # unit -> the factor its aura or curse puts on the others' blows
         attack: Attack | None = None,
+        instant_moves: bool = False,
     ) -> None:
         self.scene = scene.copy()
         hero = self.scene.hero
@@ -283,6 +341,13 @@ class Arena(Game):
         self.attack = attack
         if attack is not None:
             self.strike_skill = attack.skill
+        self.instant_moves = instant_moves
+        self.stands = stand.mode  # the mode of a character that neither goes nor casts
+        self.bound: tuple[Point, Drop | None] | None = None  # the walk asked for: its end, the drop to take there
+        self.route: list[Point] = []  # the points of that walk still to run to; empty: not running
+        self.landing: Landing | None = None  # the hop or the Blade Warp under way
+        if not instant_moves:
+            self.keeps_keys = True  # a Teleport key during a cast waits for the cast's end
         self.time = Ticks(self.tick)  # the game's clock; `clock` is the same, as `Game` names it
         self.clock = self.time
         self.ground = Ground(Walkable(**grid) for grid in self.scene.ground)
@@ -377,7 +442,16 @@ class Arena(Game):
     def read(self) -> World:
         if self.over is not None:
             return self.world  # the world stands still: no cast ends, no held input casts
-        return super().read()
+        if self.instant_moves:
+            return super().read()
+        self.hold()
+        before = self.acting_until
+        super().read()
+        if self.acting_until is not None and self.acting_until != before:
+            self.halt()  # a cast began in this look: the character stands and casts
+        else:
+            self.set_out()
+        return self.world
 
     def run(self, seed: int = 1) -> Run:
         run = super().run(seed)
@@ -404,6 +478,8 @@ class Arena(Game):
 
     def play_tick(self) -> None:
         now = self.clock.now
+        if not self.instant_moves:
+            self.move()
         companions = [(m.x, m.y) for m in self.world.monsters if m.ally or m.owner != NO_OWNER]
         blows = min(self.mobs.tick(self.here, companions, self.resists[self.hand]), self.life)
         self.taken += blows
@@ -428,6 +504,7 @@ class Arena(Game):
         native/layout.py PLAYER_DEAD_MODES know) and nothing happens in this world any more."""
         self.life, self.dead_at, self.over = 0.0, now, now
         self.acting_until, self.kept, self.kept_hop = None, [], False
+        self.bound, self.route, self.landing = None, [], None
         stand = self.world.player
         assert stand is not None
         self.world = replace(self.world, player=replace(stand, mode=CORPSE_MODE))
@@ -466,20 +543,28 @@ class Arena(Game):
     def footing(self, spot: Point) -> bool:
         return self.barred is None or not self.barred(spot)
 
-    def walkable_to(self, goal: Point) -> bool:
-        """Whether a click walks the character to `goal`: footing there and a way to it, straight
-        (combat/stance.py `way`) or round what bars it (macros/travel.py `walked_way`, to the goal's cell)."""
+    def way_to(self, goal: Point) -> list[Point]:
+        """The points a click on `goal` runs the character through, the goal last: the goal alone where
+        a straight way leads (combat/stance.py `way`), else the cell centres of the way round what bars
+        it (macros/travel.py `walked_way`, when it reaches the goal's cell). Empty: no footing there,
+        or no way."""
         if self.barred is None:
-            return True
+            return [goal]
         if not self.footing(goal):
-            return False
+            return []
         if way(self.barred, self.here, goal):
-            return True
+            return [goal]
         found = walked_way(self.barred, self.here, goal)
-        return bool(found) and (math.floor(found[-1][0]), math.floor(found[-1][1])) == (
+        if not found or (math.floor(found[-1][0]), math.floor(found[-1][1])) != (
             math.floor(goal[0]),
             math.floor(goal[1]),
-        )
+        ):
+            return []
+        return [*found, goal]
+
+    def walkable_to(self, goal: Point) -> bool:
+        """Whether a click walks the character to `goal` (`way_to`)."""
+        return bool(self.way_to(goal))
 
     def act(self, event: tuple) -> None:
         if self.over is not None:
@@ -488,6 +573,23 @@ class Arena(Game):
         if key in COLUMN_OF:
             self.drink(COLUMN_OF[key], self.drinker)
             return
+        if self.instant_moves:
+            self.act_at_once(event, key)
+        elif key == KEYS[BLADE_WARP] and BLADE_WARP in self.world.slots:
+            self.warp()
+        elif event[0] == 'click' and not self.keys.shift:
+            self.click_ground()
+        else:
+            if (key if event[0] == 'key' else f'Button{event[1]}' if event[0] == 'button' else None) in CAST_KEYS:
+                self.halt()
+            super().act(event)  # Teleport's key comes back as `hop`, a held strike as `strike`
+            if key == KEYS[SWAP_WEAPONS]:
+                self.swaps += 1
+                self.hand = 1 - self.hand
+        self.show()
+
+    def act_at_once(self, event: tuple, key: str | None) -> None:
+        """An input as `Game` takes it, every move made in its instant (`instant_moves`)."""
         jump = key == KEYS[TELEPORT] or (key == KEYS[BLADE_WARP] and BLADE_WARP in self.world.slots)
         if jump and not self.footing(self.ground_under_pointer()):
             # As scenarios/navigation/harness.py `WalledGame`: aimed where nobody stands, it moves nobody.
@@ -516,13 +618,156 @@ class Arena(Game):
         for drop in lying:
             if drop not in self.loot.drops and drop.unit_id in self.drop_class:
                 self.stow(self.drop_class[drop.unit_id])
-        self.show()
+
+    # -- a move in its time ----------------------------------------------------------------------------
+
+    def mode(self, mode: int) -> None:
+        stand = self.world.player
+        assert stand is not None
+        self.world = replace(self.world, player=replace(stand, mode=mode))
+
+    def put(self, spot: Point) -> None:
+        """The character at `spot`, with the way there counted (`Result.moved`)."""
+        stand = self.world.player
+        assert stand is not None
+        self.moved += math.dist(self.here, spot)
+        self.world = replace(self.world, player=replace(stand, x=spot[0], y=spot[1]))
+
+    def click_ground(self) -> None:
+        """A left click with no Shift: a walk to the ground under the pointer, or to the drop there and
+        the drop taken on arrival. As `Game.act` has a click but for the time: none where no way leads,
+        none on ground WALK_REACH away, and the clicks the fakes' game is told to lose are lost."""
+        drop = self.drop_under_pointer()
+        goal = (drop.x, drop.y) if drop is not None else self.ground_under_pointer()
+        if not self.walkable_to(goal):
+            self.refused.append(goal)
+        elif self.swallowed_clicks:
+            self.swallowed_clicks -= 1
+        elif drop is not None and self.deaf_picks:
+            self.deaf_picks -= 1
+        elif drop is not None or math.dist(goal, self.here) < WALK_REACH:
+            if drop is None:
+                self.walks.append(goal)
+            self.bound, self.route = (goal, drop), []  # a walk under way is redirected from where it is
+            self.set_out()
+
+    def set_out(self) -> None:
+        """The walk asked for begins, once the character is free: by the way from where it stands
+        then (a click during a hop's cast is a walk from the landing). No way from there: no walk."""
+        if self.bound is None or self.route or self.acting_until is not None:
+            return
+        goal = self.bound[0]
+        self.route = self.way_to(goal)
+        if self.route:
+            self.mode(RUNNING)
+        else:
+            self.refused.append(goal)
+            self.halt()
+
+    def halt(self) -> None:
+        """The walk is over where the character is: a cast began, or there is no way on."""
+        self.bound, self.route = None, []
+        stand = self.world.player
+        if stand is not None and stand.mode == RUNNING:
+            self.mode(self.stands)
+
+    def hold(self) -> None:
+        """A hop or a Blade Warp under way is a cast until the character is there: `Game` gives a key it
+        kept during a cast ACTING_SECONDS from that cast's end, whatever the key's own cast takes."""
+        landing = self.landing
+        if landing is not None and (self.acting_until is None or self.acting_until < landing.tick / GAME_RATE):
+            self.acting_until = landing.tick / GAME_RATE
+
+    def cast_to(self, spot: Point, seconds: float) -> None:
+        """The cast of a skill that puts the character at `spot` in `seconds` from now: it stands and
+        casts until the first tick at or after that time, which has it there (`move`)."""
+        self.halt()
+        due = math.ceil((self.clock.now + seconds) * GAME_RATE - 1e-6)
+        self.landing = Landing(max(due, self.time.ticks + 1), spot)
+        self.acting_until = self.landing.tick / GAME_RATE
+        self.mode(CASTING)
+
+    def hop(self) -> None:
+        """Teleport, cast now (its key, or the key kept during the cast before: `Game.read`): on the
+        ground under the pointer as it is now, where there is footing, at the sub-tile's centre (as
+        scenarios/navigation/harness.py `WalledGame` lands a hop: every landing in the logs is at
+        x.5), TELEPORT_JUMP's seconds from now. The staff's charge is spent with the cast."""
+        if self.instant_moves:
+            super().hop()
+            return
+        staff = self.staff
+        charged = staff is not None and staff.in_hand and staff.charges > 0
+        if not charged and not (staff is None and TELEPORT in self.world.slots):
+            return
+        aim = self.ground_under_pointer()
+        if not self.footing(aim):
+            self.refused.append(aim)  # aimed where nobody stands, it moves nobody and spends nothing
+            return
+        if staff is not None:
+            self.staff = replace(staff, charges=staff.charges - 1)
+            self.charges += 1
+        spot = (int(aim[0]) + 0.5, int(aim[1]) + 0.5)
+        self.cast_to(spot, TELEPORT_JUMP.takes(math.dist(self.here, spot)))
+
+    def warp(self) -> None:
+        """Blade Warp, cast now: the cast, then the blade's flight to the ground under the pointer
+        (BLADE_WARP_JUMP), and the character is at the impact."""
+        if not self.warp_lands:
+            return
+        spot = self.ground_under_pointer()
+        if not self.footing(spot):
+            self.refused.append(spot)
+            return
+        self.warps.append(spot)
+        self.cast_to(spot, BLADE_WARP_JUMP.takes(math.dist(self.here, spot)))
+
+    def move(self) -> None:
+        """One tick of the character's own moves: a landing that is due, else a tick's run along the
+        walk's points; at the last of them it stands and takes the drop it was sent for."""
+        landing = self.landing
+        if landing is not None and self.time.ticks >= landing.tick:
+            self.put(landing.spot)
+            self.landing = None
+        stand = self.world.player
+        assert stand is not None
+        if not self.route or stand.mode != RUNNING:
+            return
+        here, left = self.here, RUN_SPEED / GAME_RATE
+        while self.route and left > 0.0:
+            gap = math.dist(here, self.route[0])
+            if gap <= left:
+                here, left = self.route.pop(0), left - gap
+            else:
+                here = (
+                    here[0] + (self.route[0][0] - here[0]) * left / gap,
+                    here[1] + (self.route[0][1] - here[1]) * left / gap,
+                )
+                left = 0.0
+        self.put(here)
+        if not self.route:
+            drop = self.bound[1] if self.bound is not None else None
+            self.halt()
+            if drop is not None:
+                self.take(drop)
+
+    def take(self, drop: Drop) -> None:
+        """The drop the character walked to leaves the ground, as `Game.act` takes one at its click; a
+        potion goes to the belt (`stow`). Nothing if it is gone already."""
+        if all(lying.unit_id != drop.unit_id for lying in self.loot.drops):
+            return
+        self.picked.append(drop.label)
+        self.loot = replace(self.loot, drops=tuple(d for d in self.loot.drops if d.unit_id != drop.unit_id))
+        if len(self.picked) in self.belt_after:
+            self.loot = replace(self.loot, belt=self.belt_after[len(self.picked)])
+        if drop.unit_id in self.drop_class:
+            self.stow(self.drop_class[drop.unit_id])
 
     def strike(self) -> None:
         """A cast of Echoing Strike toward the pointer. `Game.strike` keeps its record of the cast
         (`strikes`), the casting mode and the cast's length; what it takes off a monster by its own
         count (`toughness`) is undone by `show`, and the production blades are let fly instead. With
         another build's `attack` its cast lands at once: what `dealt` takes off the hostiles alive."""
+        self.halt()  # a cast: the walk ends where the character is
         origin, focal = self.here, self.ground_under_pointer()
         super().strike()
         self.show()

@@ -281,6 +281,7 @@ def play(
     healing_scale: float = 1.0,
     seed: int = 1,
     auras: Mapping[int, float] | None = None,
+    instant_moves: bool = False,
 ) -> Result:
     """Play `scene` for `seconds` of the arena's time with the production macro, started by
     `presses` as the runner starts it, and say what it came to. `seed` is the monsters' rolls and the
@@ -289,7 +290,9 @@ def play(
     plays it (macros/fakes.py `warlock`). `blades` is how the arena casts the strike: the production
     blades of Echoing Strike, or what the build's attack says a cast deals (`Attack.dealt`). None: the
     blades with no build named, its own `dealt` for a build that is; who hands in a build of Echoing
-    Strike says `blades=True`. The play ends early at the character's death."""
+    Strike says `blades=True`. `instant_moves`: every move is over in the instant of its input, as in
+    the fakes' game (game.py; otherwise a walk, a hop and a Blade Warp take their time). The play ends
+    early at the character's death."""
     for press in presses:
         if press.routine == TELEPORT:
             raise NotImplementedError('the teleport step comes to the arena in Stage 5')
@@ -298,5 +301,7 @@ def play(
     if blades is None:
         blades = build is None
     attack = None if blades or build is None else build.attack
-    arena = Arena(scene, seed=seed, osd=osd, healing_scale=healing_scale, auras=auras, attack=attack)
+    arena = Arena(
+        scene, seed=seed, osd=osd, healing_scale=healing_scale, auras=auras, attack=attack, instant_moves=instant_moves
+    )
     return Play(arena, presses, seconds, seed, build).run()
