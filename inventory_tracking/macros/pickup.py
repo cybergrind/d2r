@@ -525,6 +525,16 @@ def pick_up(
         column_shortages(loot.belt), loot.life, loot.max_life,
         'nothing to pick up' if plan is None else f'{plan.drop.label} at ({plan.drop.x:.0f}, {plan.drop.y:.0f})',
     )  # fmt: skip
+    potions = [math.dist(here, (drop.x, drop.y)) for drop in loot.drops if drop.kind in KINDS]
+    if plan is None and potions and any(column_shortages(loot.belt)):
+        # A belt short of potions and potions on the ground, none taken (Chaos Sanctuary, 00:10:21 on
+        # 2026-10-13: short 8 and 5, three healing potions, "nothing to pick up"): how far they lie says why.
+        LOG.info(
+            'Macro: pickup: the nearest potion is %.0f away, of %d; one is gone for within %.0f',
+            min(potions),
+            len(potions),
+            POTION_UNITS,
+        )
     left = [drop for drop in loot.drops if drop.kind == VALUABLE and not has_room(loot.room, drop.size)]
     if left:
         named = ', '.join(sorted({drop.label for drop in left}))
