@@ -37,6 +37,11 @@ AS_IT_WAS = {
     'inventory_tracking.macros.rotation.Rotation.key': key_as_it_was,
     'inventory_tracking.combat.stance.CLOSING_MOST': 0.0,
     'inventory_tracking.macros.hunt.Hunter.tough': tough_as_it_was,
+    # and attack mode drinks beside the fight (macros/drinking.py, 2026-10-13)
+    'inventory_tracking.macros.drinking.Drinker.look': lambda self, run, here: None,
+    # and a potion among monsters is left by the pickup key too (hunt.threat, the same day)
+    'inventory_tracking.macros.hunt.threat': lambda run: lambda here, spot: 0,
+    'tests.inventory_tracking.scenarios.battle.replay.threat': lambda run: lambda here, spot: 0,
 }
 END = 22.7  # just before the teleport key (22.77 s), whose handling has changed since
 

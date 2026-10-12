@@ -43,7 +43,7 @@ from inventory_tracking.levels.model import Level, Room, Walkable
 from inventory_tracking.macros import runner as runner_module
 from inventory_tracking.macros.actuator import Actuator
 from inventory_tracking.macros.engine import Run
-from inventory_tracking.macros.hunt import Hunter
+from inventory_tracking.macros.hunt import Hunter, threat
 from inventory_tracking.macros.pickup import pick_up
 from inventory_tracking.macros.routines import ACTING
 from inventory_tracking.macros.runner import ATTACK, PICKUP, TELEPORT, MacroRunner
@@ -343,7 +343,7 @@ class Replay:
             self.hunter.pick = self.runner._pick
             self.hunter.attack_mode(run, self.key_names)
         elif routine == PICKUP:
-            if not pick_up(run, self.level, self.key_names, lambda: self.hunter.step(run, self.key_names)):
+            if not pick_up(run, self.level, self.key_names, lambda: self.hunter.step(run, self.key_names), threat(run)):
                 self.runner.attack_mode = True
         elif routine == TELEPORT:
             LOG.info('Macro: (replay) the teleport step would run here')

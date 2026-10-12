@@ -45,7 +45,7 @@ from inventory_tracking.macros import route
 from inventory_tracking.macros.actuator import Abort, Actuator, Cancelled
 from inventory_tracking.macros.build import Build, choose
 from inventory_tracking.macros.engine import Run
-from inventory_tracking.macros.hunt import Hunter
+from inventory_tracking.macros.hunt import Hunter, threat
 from inventory_tracking.macros.journey import Journey
 from inventory_tracking.macros.latency import Press, Trace
 from inventory_tracking.macros.opening import open_near
@@ -628,7 +628,7 @@ class MacroRunner:
             stepped = []
 
             def otherwise(run=run, hunter=hunter, level=level, stepped=stepped) -> None:
-                if open_near(run, level, key_names):  # a chest by the character, a super chest
+                if open_near(run, level, key_names, threat(run)):  # a chest by the character, a super chest
                     return
                 with run.lightly():
                     player = run.world().player
@@ -639,7 +639,7 @@ class MacroRunner:
                     return
                 stepped.append(hunter.step(run, key_names))
 
-            pick_up(run, level, key_names, otherwise)
+            pick_up(run, level, key_names, otherwise, threat(run))
             if stepped:
                 self.attack_mode = True  # nothing to pick up or open: a seek step, the mode follows
         elif routine in (HUNT_ELITES, ATTACK):

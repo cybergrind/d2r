@@ -84,6 +84,7 @@ from inventory_tracking.levels.route import room_at
 from inventory_tracking.macros.actuator import POINTER_DRIFT, Abort, Cancelled
 from inventory_tracking.macros.buffs import Buffs
 from inventory_tracking.macros.build import Attack, Build
+from inventory_tracking.macros.drinking import Drinker
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.pickup import choose, unshunned
 from inventory_tracking.macros.rotation import ELITE_LIFE
@@ -127,7 +128,17 @@ from inventory_tracking.macros.travel import (
     step_walk,
 )
 from inventory_tracking.macros.view import Viewport
-from inventory_tracking.macros.world import NO_OWNER, VALUABLE, Drop, Monster, Teleport, World, has_room
+from inventory_tracking.macros.world import (
+    HEALING,
+    NO_OWNER,
+    REJUVENATION,
+    VALUABLE,
+    Drop,
+    Monster,
+    Teleport,
+    World,
+    has_room,
+)
 from inventory_tracking.native.layout import TILE_UNITS
 from inventory_tracking.terror.bosses import BOSSES
 from inventory_tracking.terror.danger import Unit, packs
@@ -244,6 +255,21 @@ class Sweep:
             self.end()
 
 
+def threat(run: Run) -> Callable[[Point, Point], int]:
+    """How many hostiles stand within GATHER_CLEAR of the character or of a thing a press would go to
+    (pickup.py `Threat`): the sweep's measure of a stop that is safe, for the pickup key's potions and
+    chests. Presence, not yet what they could do: the price of a place (Stage 4.3) is to take its place."""
+
+    def near(here: Point, spot: Point) -> int:
+        return sum(
+            1
+            for monster in hostiles(run.world())
+            if min(math.dist((monster.x, monster.y), here), math.dist((monster.x, monster.y), spot)) <= GATHER_CLEAR
+        )
+
+    return near
+
+
 def hostiles(world: World) -> list[Monster]:
     """Live monsters the hunt may strike: not owned, not allied, not townsfolk, scenery, a siege door
     or wall, a cast Hydra or a bird in the air, placed."""
@@ -315,6 +341,8 @@ class Hunter:
         self.swap_failed_at = -math.inf  # clock time a swap to the main weapons last did not come
         self.move: Move | None = None  # the move the player asked for and has not got yet: before any strike
         self.left_down = False  # the left mouse button at the last look
+        self.drinker = Drinker(self.build.settings.drink)  # the belt keys beside the fight (drinking.py)
+        self.stands: Point | None = None  # where attack mode last saw the character
         # (where, since when, said) the character has been walking or running without getting anywhere
         self.ran: tuple[Point, float, bool] | None = None
         self.fresh_press = False  # a press seen since `nap` last began
@@ -347,6 +375,7 @@ class Hunter:
         self.build = build
         self.buffs = Buffs(build)
         self.travel = Travel(build.movement)
+        self.drinker = Drinker(build.settings.drink)
 
     @property
     def attack(self) -> Attack:
@@ -872,6 +901,12 @@ class Hunter:
         assert player is not None
         here = (player.x, player.y)
         plan = choose(unshunned(run.loot(), run.clock()), here) if run.loot is not None else None
+        if (
+            plan is not None
+            and plan.drop.kind in (HEALING, REJUVENATION)
+            and threat(run)(here, (plan.drop.x, plan.drop.y))
+        ):
+            plan = None  # a potion among monsters is left by the pickup step too: no pause of the fight for it
         if plan is not None:
             # What the press asks for comes before the fight: the mode pauses for the pickup step now,
             # as it does with nothing in reach, and fights on after it. First only a valuable did; gold
@@ -975,6 +1010,7 @@ class Hunter:
                 # The lobby or the menu: the mode ends, so the macro request there starts the macro at once.
                 raise Abort('attack mode off: the game was left')
             player = world.player
+            self.stands = None if player is None else (player.x, player.y)
             # Asked once the character is seen and not before the first look: the runner names the build
             # by that look (`use`), and a hunt made before any game has the fallback until then.
             attack = None if player is None else self.attack  # Abort: the build does not fight
@@ -1150,6 +1186,7 @@ class Hunter:
 
     def sense(self, run: Run) -> bool:
         """Look at the left mouse button; a press is a move asked for (`self.move`). True on a new press."""
+        self.drinker.look(run, self.stands)  # the life first: a potion is drunk beside whatever is in hand
         down = run.actuator.button_held(1)
         pressed = down and not self.left_down
         self.left_down = down

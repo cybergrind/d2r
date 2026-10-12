@@ -68,6 +68,17 @@ def test_a_chest_no_aim_finds_is_left_alone_for_a_while_and_the_press_is_spent_o
     assert not open_near(run, None, keys)  # the next press goes on to the seek step
 
 
+def test_a_chest_is_left_closed_while_monsters_are_near_it_or_the_character():
+    # Chaos Sanctuary, 21:24:40 on 2026-10-12: a second spent on a chest 9 away with 26 monsters around
+    # (user: "if we don't have immediate threat - probably we could open chest").
+    play = game(Thing(7, CHEST, 0, 5006.0, 5002.0))
+    assert not open_near(play.run(), None, keys, threat=lambda here, spot: 26)  # the press is not spent on it
+    assert play.thing.mode == 0
+    assert play.said == ['LargeChestR left for later: 26 monsters near']
+    assert open_near(play.run(), None, keys, threat=lambda here, spot: 0)
+    assert play.thing.mode != 0
+
+
 def test_with_nothing_to_open_the_press_is_not_spent():
     assert not open_near(game(None).run(), None, keys)
     assert not open_near(game(Thing(7, CHEST, 2, 5006.0, 5002.0)).run(), None, keys)

@@ -29,6 +29,7 @@ from typing import Literal, Protocol
 
 from inventory_tracking.combat.policy import Choice, Foe, Observation, Point
 from inventory_tracking.combat.stance import Camp, Jump
+from inventory_tracking.combat.survival import DrinkSettings
 from inventory_tracking.config import Config
 from inventory_tracking.levels.doors import Door
 from inventory_tracking.levels.model import Ground
@@ -410,8 +411,10 @@ class Loadout:
 
 
 class BuildSettings(Config):
-    """A build's numbers: frozen, changed only by `with_overrides`. Empty until a stage has a number
-    that differs by build (the caution's curve, the charge rule's count, the drinking marks)."""
+    """A build's numbers: frozen, changed only by `with_overrides`. A stage adds a number here when it
+    has one that may differ by build (the caution's curve, the charge rule's count)."""
+
+    drink: DrinkSettings = DrinkSettings()  # the drinking marks (combat/survival.py)
 
 
 @dataclass(frozen=True)

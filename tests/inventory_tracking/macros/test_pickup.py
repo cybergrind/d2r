@@ -74,6 +74,25 @@ def test_with_a_full_belt_and_life_missing_one_is_drunk_to_make_room_for_the_one
 # --- the press ---
 
 
+def test_a_potion_is_left_on_the_ground_while_monsters_are_near_it_or_the_character_and_a_valuable_is_not():
+    # Tower Cellar 5, 22:50 on 2026-10-11 (the death), and its replay with attack mode drinking: one potion
+    # drunk in the fight left the belt short, and the press went for the potion 4 away among nine monsters.
+    stepped = []
+    play = game(HP_NEAR, belt=SHORT_HP)
+    assert not pick_up(play.run(), LEVEL, keys, lambda: stepped.append(True), threat=lambda here, spot: 3)
+    assert stepped == [True]  # the press goes on to what it does with nothing to pick up
+    assert play.picked == []
+    assert play.said[-1] == 'a healing potion left for later: 3 monsters near'
+
+    play = game(HP_NEAR, belt=SHORT_HP)
+    assert pick_up(play.run(), LEVEL, keys, nothing, threat=lambda here, spot: 0)
+    assert play.picked == ['a healing potion']
+
+    play = game(RUNE, HP_NEAR, belt=SHORT_HP)
+    assert pick_up(play.run(), LEVEL, keys, nothing, threat=lambda here, spot: 3)  # what is worth a risk
+    assert play.picked[0] == RUNE.label
+
+
 def test_a_valuable_in_view_is_clicked_and_leaves_the_ground(caplog):
     play = game(RUNE, HP_NEAR)
     with caplog.at_level('INFO'):

@@ -494,13 +494,31 @@ def drink(run: Run, key: str, loot: Loot) -> None:
     raise Abort(f'the potion on {key} was not drunk: the belt is still full')
 
 
-def pick_up(run: Run, level: Level | None, key_names, otherwise: Callable[[], None]) -> bool:
+# How many hostiles stand too near the character (first point) or a thing to go to (second) for the
+# press to be spent on it (hunt.py `threat`: the sweep's own measure, GATHER_CLEAR).
+Threat = Callable[[tuple[float, float], tuple[float, float]], int]
+
+
+def pick_up(
+    run: Run, level: Level | None, key_names, otherwise: Callable[[], None], threat: Threat | None = None
+) -> bool:
     """One press of the pickup action; whether there was something to pick up. `level` is the level
-    map if known, `otherwise` what the press does with nothing to pick up (the runner: the seek step)."""
+    map if known, `otherwise` what the press does with nothing to pick up (the runner: the seek step).
+    With `threat` a potion is left where monsters are near it or the character, and the press goes on
+    to `otherwise`; a valuable or gold is gone for all the same."""
     player, _ = ready(run)
     loot = unshunned(run.loot() if run.loot is not None else Loot(), run.clock())
     here = (player.x, player.y)
     plan = choose(loot, here)
+    close = threat(here, (plan.drop.x, plan.drop.y)) if threat and plan and plan.drop.kind in KINDS else 0
+    if plan is not None and close:
+        LOG.info(
+            'Macro: pickup: %s at (%.0f, %.0f) left for later: %d hostiles near it or the character',
+            plan.drop.label, plan.drop.x, plan.drop.y, close,
+        )  # fmt: skip
+        run.say(f'{plan.drop.label} left for later: {close} monsters near')
+        otherwise()
+        return False
     LOG.info(
         'Macro: pickup: %d drops (%s), belt short %s, life %d/%d; %s',
         len(loot.drops), ', '.join(sorted({drop.kind for drop in loot.drops})) or 'none',

@@ -27,7 +27,7 @@ from inventory_tracking.levels.model import Level
 from inventory_tracking.loot.ground import SPARKLY_CHEST
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.engine import Run
-from inventory_tracking.macros.pickup import PICK_SECONDS, WALK_SPEED, approach, standing
+from inventory_tracking.macros.pickup import PICK_SECONDS, WALK_SPEED, Threat, approach, standing
 from inventory_tracking.macros.routines import UNIT_PIXELS
 from inventory_tracking.macros.teleport import HOVER_SECONDS, OBJECT_UNIT, ground_fraction, in_view, ready
 from inventory_tracking.macros.world import Thing, container_names, usable
@@ -134,9 +134,11 @@ def open_one(run: Run, what: Container, level: Level | None, key_names) -> bool:
     return False
 
 
-def open_near(run: Run, level: Level | None, key_names) -> bool:
+def open_near(run: Run, level: Level | None, key_names, threat: Threat | None = None) -> bool:
     """The pickup step with nothing to pick up: open the containers by the character, or go for a
-    super chest; whether there was one to open (then the press is not a seek step)."""
+    super chest; whether there was one to open (then the press is not a seek step). With `threat`
+    (pickup.py) a container is left closed while monsters are near it or the character, and the press
+    is not spent on it."""
     if run.containers is None:
         return False
     tried = False
@@ -144,6 +146,17 @@ def open_near(run: Run, level: Level | None, key_names) -> bool:
         player, _rect = ready(run)
         what = choose(run.containers(), (player.x, player.y), run.clock())
         if what is None:
+            break
+        close = threat((player.x, player.y), (what.x, what.y)) if threat is not None else 0
+        if close:
+            LOG.info(
+                'Macro: %s at (%.1f, %.1f) left closed: %d hostiles near it or the character',
+                what.label,
+                what.x,
+                what.y,
+                close,
+            )
+            run.say(f'{what.label} left for later: {close} monsters near')
             break
         tried = True
         level = level if level is not None and level.area == player.area else None

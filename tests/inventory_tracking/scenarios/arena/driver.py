@@ -51,7 +51,7 @@ from inventory_tracking.levels.model import Level, Room
 from inventory_tracking.macros import opening, pickup, runner as runner_module, teleport
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.build import Build
-from inventory_tracking.macros.hunt import Hunter
+from inventory_tracking.macros.hunt import Hunter, threat
 from inventory_tracking.macros.latency import Trace
 from inventory_tracking.macros.opening import open_near
 from inventory_tracking.macros.pickup import pick_up
@@ -173,10 +173,10 @@ class Play:
             stepped = []
 
             def otherwise() -> None:
-                if not open_near(run, level, key_names):
+                if not open_near(run, level, key_names, threat(run)):
                     stepped.append(hunter.step(run, key_names))
 
-            pick_up(run, level, key_names, otherwise)
+            pick_up(run, level, key_names, otherwise, threat(run))
             if stepped:
                 runner.attack_mode = True
         elif routine == ATTACK:

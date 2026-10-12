@@ -3574,3 +3574,36 @@ The user's game of 23:15 to 23:18 (take 20261012T201527Z-108), three things of i
   Warp, three presses running. At a route's end it now does what the teleport key does there: the ground
   called clean ("nothing to pick up; the next press leaves the game"), and the press after leaves.
 - Not played in the game yet.
+
+## 2026-10-13 — Stage 4, the first half: the healer's burst rule, drinking in attack mode, no potion or chest among monsters
+
+What does not wait for the arena's melee (framework-plan.md Stage 4: tasks 4.1, 4.2, 4.6 and a new one).
+Unit-tested; the arena's verdict (trials) is owed once the monster model stops moving; not played in the game.
+
+- **`make osd`, the burst rule (4.1).** `HealingConfig.burst_share` (30 for the player, 0 for the mercenary)
+  and `burst_window` (1 s): the life fallen by that share of its most within the window, counted from the
+  most it was in it, asks for a rejuvenation whatever is left (a healing potion where the belt has none).
+  `HealController` keeps the window's readings; another game forgets them.
+- **The pressure and the drink decision (4.2), `combat/survival.py`, pure.** `pressure(readings)`: the
+  life now, every drop of the last 4 s summed (a refill is not taken off; a weapon swap is no drop), the
+  rate, the worst second. `drink(pressure, supply, since, DrinkSettings)`: a healing potion under 90%
+  while life is being lost, or under 75% anyway; 6 s between two, 2.5 s under 65%; the last 2 kept for
+  under 65% unless more lie near; a rejuvenation when the loss played 1.5 s ahead takes the life under
+  30% and it is under 55% already. The marks are `BuildSettings.drink`. They lie above the healer's
+  (40%, and the burst), so `make osd` is left the urgent cases (user, 2026-10-12).
+- **Attack mode drinks (4.6), `macros/drinking.py`.** `Drinker.look` from the mode's own look (`sense`,
+  every pause), every 0.2 s: the life kept, a potion gone from the belt counted as drunk whoever drank
+  it, potions on the ground within 20 units as supply, the belt key of the kind's hotkey cell. A key of
+  the player's held or the focus lost leaves the drink for the next look and does not end the mode;
+  nothing under Shift (Shift and a belt key feed the mercenary). Only in attack mode so far: a teleport
+  or seek step on its own does not drink.
+- **No potion and no chest among monsters (new).** Found by the replay of Tower Cellar 5 with the
+  drinking on: one potion drunk in the fight left the belt short, and the pickup key went for the potion
+  4 away with nine monsters near: the stop that killed the character there on 2026-10-11. Now the
+  pickup key leaves a potion, and a chest, while a hostile stands within 12 units of it or the character
+  (`hunt.threat`: the sweep's own measure, GATHER_CLEAR), and the press goes on to its step; a valuable
+  and gold are gone for as before. Presence, not yet potential damage (user, 2026-10-13: "if we don't
+  have immediate threat - probably we could open chest"): the price of a place is to replace it.
+- Golden net: `decisions.json` unchanged; `tower_cellar5.today.log.json` regenerated (one healing potion
+  at 8.86 s with the life at 79% after 13% lost in a second; the potions on the ground left, the fight
+  goes on). The replay "as it was" pins both new rules off.

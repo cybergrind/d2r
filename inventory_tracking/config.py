@@ -41,6 +41,10 @@ class HealingConfig(Config):
     retry_backoff_max: Positive
     max_consecutive_misses: Annotated[int, Field(gt=0)]
     suspend_seconds: Positive
+    # The burst rule (user, 2026-10-12): this share of the most life lost within burst_window seconds asks for
+    # a rejuvenation whatever life is left. 0: no such rule for the actor.
+    burst_share: Percent = 0.0
+    burst_window: Positive = 1.0
 
     @field_validator('thresholds', 'cooldowns', mode='after')
     @classmethod
@@ -69,6 +73,7 @@ PLAYER_HEALING = HealingConfig(
     enabled=True,
     thresholds={PotionType.HEALING: 65, PotionType.REJUVENATION: 40},
     cooldowns={PotionType.HEALING: 3.0, PotionType.REJUVENATION: 1.0},
+    burst_share=30.0,
     sample_max_age=1.0,
     consumption_timeout=2.0,
     retry_backoff=2.0,

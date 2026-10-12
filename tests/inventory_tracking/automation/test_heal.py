@@ -1,3 +1,4 @@
+from dataclasses import replace
 from unittest.mock import Mock
 
 import pytest
@@ -30,6 +31,46 @@ def test_threshold_boundaries_and_priority(config, percent, choices, sample):
     potions = Mock(config=config)
     HealController(config, potions).step(state)
     potions.step.assert_called_once_with(state, choices)
+
+
+def stepped(config, sample, readings):
+    """The choices at each (time, percent of life) reading, one controller through them all."""
+    potions = Mock(config=config)
+    controller = HealController(config, potions)
+    for at, percent in readings:
+        merc = Mercenary(99, percent * 100, 10000, (percent * 32768 + 99) // 100, True)
+        controller.step(sample(at, current_raw=percent * 100, maximum_raw=10000, merc=merc))
+    return [call.args[1] for call in potions.step.call_args_list]
+
+
+BURST = [PotionType.REJUVENATION, PotionType.HEALING]
+
+
+def test_a_third_of_the_life_lost_within_a_second_asks_for_a_rejuvenation_whatever_is_left(sample):
+    # user, 2026-10-12: "for `make osd` 30% life -- sounds right": the burst, not the level, is the alarm.
+    assert stepped(PLAYER_HEALING, sample, [(100.0, 100), (100.5, 70)]) == [[], BURST]
+    assert stepped(PLAYER_HEALING, sample, [(100.0, 100), (100.4, 90), (100.9, 70)]) == [[], [], BURST]
+
+
+def test_a_smaller_or_a_slower_loss_is_no_burst(sample):
+    assert stepped(PLAYER_HEALING, sample, [(100.0, 100), (100.5, 71)]) == [[], []]
+    assert stepped(PLAYER_HEALING, sample, [(100.0, 100), (100.6, 85), (101.2, 70)]) == [[], [], []]
+
+
+def test_the_burst_is_counted_from_the_most_life_of_the_last_second_so_a_refill_starts_it_anew(sample):
+    readings = [(100.0, 100), (100.3, 70), (100.4, 100), (100.6, 80)]
+    assert stepped(PLAYER_HEALING, sample, readings) == [[], BURST, [], []]
+
+
+def test_the_mercenary_has_no_burst_rule_and_another_game_forgets_the_life_before(sample):
+    assert stepped(MERC_HEALING, sample, [(100.0, 100), (100.5, 76)])[-1] == []
+    potions = Mock(config=PLAYER_HEALING)
+    controller = HealController(PLAYER_HEALING, potions)
+    controller.step(sample(100.0, current_raw=10000, maximum_raw=10000))
+    other = sample(100.5, current_raw=6900, maximum_raw=10000)
+    controller.step(replace(other, session=None))  # out of the game between the two
+    controller.step(other)
+    assert potions.step.call_args_list[-1].args[1] == []
 
 
 @pytest.mark.parametrize(
