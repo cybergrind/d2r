@@ -954,6 +954,46 @@ What follows for judging safety (Stage 4):
   not make such seconds); types on pooled rows (all but five melee types and three shooters); damage over
   time (no cause in a take: the recorder would have to write the character's states).
 
+### 6.2.3 Incidents (2026-10-13): one recorded fight against its own replay
+
+Ruling (user, 2026-10-13): **a close-to-reality reproduction in tests comes first**, before the rules that
+would answer an incident. The tool is `tests/inventory_tracking/scenarios/arena/incident.py`: the scene cut
+at the incident's start, the presses the session log has, the arena played over seeds, and the recording
+looked for inside the 10th-90th percentile of the plays at each mark (`fixtures/incidents/INCIDENTS.md`).
+
+First incident, `infector-seal` (take 20261012T182157Z-108, 161.96 s in): the teleport step landed by the
+second Infector seal with the staff in hand; 13 monsters stood there already (first seen 2.7 s before) and
+the seal pack of 12 arrived 1.15 s after the first seal was opened. **2 of 17 rows inside.** The arena has
+about a fifth of the life lost (331 against 1,691 in 10 s) and kills twice as fast in the first six seconds.
+What the recording holds and the arena does not, largest first:
+
+1. **A curse on the character.** The `hurt` events' resistances go from 10 to -40 physical 0.6 s into the
+   fight and stay there (an Oblivion Knight's curse); nearly all the loss is Doom Knights' melee from 1.7 to
+   3.5 units. The arena has no curses on the character.
+2. **The opening.** No strike for 2.0 s and three in the first 4 s (the arena: seven): Psychic Ward cast
+   first (a scene's ward state is assumed), a pickup press spent on a chest (a scene holds no chests), the
+   swap to the main weapons 1.1 s long, hit recovery (mode 9, four times).
+3. **The melee itself.** With the same monsters in contact the arena's blows are fewer or smaller; to be
+   measured once 1 and 2 are in, as the two hide it.
+4. **The character does not move in the recording** ("Standing well" on every press); in the arena it makes
+   Blade Warp steps, because the pack is dead sooner.
+5. Not playable yet: the approach itself (the teleport step and the route's seals are Stage 5 and 6), so
+   the incident starts at the landing; a seal's spawn after a delay needs monsters that arrive mid-play.
+
+Rulings on the answers (user, 2026-10-13), for Stage 4 and 7 once the incident reproduces:
+
+- **Potential damage decides, not presence.** A chest may be opened when nothing near is an immediate
+  threat; the same measure decides whether a place is stood in.
+- **A spawn takes time; the dive is what kills.** There is usually time before a seal's group appears, but
+  going into a big pack with the staff in hand can be fatal.
+- **Price a place by all the damage dealt from it, not the blades alone:** the Defiler, pierce and the
+  Hex: Purge blasts. The question to model: can the same damage per second be dealt from a place that is not
+  in the middle of the danger?
+- **The demon after a hop.** After a Teleport or a Blade Warp the demon stands still at the character's
+  place for several seconds. Death Mark can make it attack, and Hex: Purge can burst even without minions;
+  minions matter all the same, as they draw the monsters off the character.
+- **Lower priority:** track whether a Defiler is alive and summon it again when there is none.
+
 ### 6.3 In the game
 
 Latency traces (latency.jsonl) for every new path that preempts: a break-off must reach its

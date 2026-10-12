@@ -679,7 +679,27 @@ constant in the framework.
 | 4.7 | C | **The death nova** (new, from the evidence: 14% of the recorded loss): a Cold Enchanted champion or unique about to die is not stood within its ring (about 12 units) — a tactic's `bars`/`keep`, the first real `Tactic`. | scenes with such an elite |
 | 4.8 | M + user | Played in the game; the takes of the session cut into scenes and added to the trial set; evidence into `plan.md`. | — |
 
-Order: 4.1 → 4.2 → 4.3 → 4.4 → 4.5 → 4.6 → 4.7, each on the last one's base; 4.1b when the user has answered.
+Order: 4.1 → 4.2 → 4.3 → 4.4 → 4.5 → 4.6 → 4.7, each on the last one's base; 4.1b done 2026-10-13 (`5cd5924`).
+
+**4.7b, added 2026-10-13 from three Chaos Sanctuary takes** (user: "we were too aggressive and probably
+Diablo needs its own separate fight mode to avoid his lightning attack, we have lost too much life";
+takes 20261012T182157Z-108, 182710Z-108, 184131Z-108; 5,761 points lost in the three):
+
+- *Diablo's lightning* is his mode 7, 1.3 to 1.8 s long, and it is aimed: of four in the takes one took 636
+  points in 0.6 s (three drops of 187 to 225, 0.25 s apart, from 0.7 s after the mode began; the character
+  2.2 units from him, standing and casting), one 138 at 7.6 units, two next to nothing (25 and 0, at 2.2 and
+  7.6: aimed elsewhere). Diablo lived 6, 14 and 9 s; when the 636 fell he had 2% of his life left.
+- So the tactic has a window: about 0.7 s between the mode's start and the first drop — a Teleport lands in
+  0.32 s, a Blade Warp of 18 units in 0.75 s. A `Tactic` for him: do not fight him at 2 units (the character
+  ended there after a 27-unit move of its own at 124 s); and when he begins mode 7 while the character is in
+  front of him, step out of his line (the `Reposition` of 4.5, with the reaction deadline of the `Survive`
+  tier, architecture.md 4.5), then strike on. Needs: the monster's mode read each look (it is in the world
+  record), his facing or target (the path record's target unit, `hurts.TARGET_UNIT`), and an arena model
+  of an aimed channel (the monster model has none: R-task before the tactic can be judged).
+- *The larger part was not Diablo*: 890 of the 5,761 points were his (15%); about 2,700 (47%) fell in mixed
+  packs of Doom Knights, Venom Lords and Oblivion Knights ("several" strikers at once: 1,233 points in 8
+  drops in one take, the character down to 664 of 1,783), 985 had no striker. That is 4.3 to 4.5's ground
+  (the price of a place, the veto, breaking off) more than a boss mode's.
 
 ## Stages 5–8 (outline)
 
