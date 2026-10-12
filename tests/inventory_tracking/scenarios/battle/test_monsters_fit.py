@@ -69,23 +69,26 @@ def mean(horizon: float, way: str, txt: int | None = None) -> float:
 
 
 def test_the_model_is_four_times_nearer_than_monsters_that_walk_straight_at_the_character():
-    # 1 s on: 2.5 units against 10.4; 2 s: 3.8 against 17.2.
+    # 1 s on: 2.9 units against 10.4; 2 s: 3.9 against 17.2. (2.5 and 3.8 before the refit of 2026-10-12 to all
+    # takes: whom a monster goes for is now the share the 330 train takes show, one roll a monster, where this
+    # take's own rule was the nearest and the character first for a Blood Clan; and a monster in reach rests
+    # after a swing. The bounds are as they were.)
     assert mean(1.0, 'model') < mean(1.0, 'straight') / 3.5
     assert mean(2.0, 'model') < mean(2.0, 'straight') / 4
 
 
 def test_a_blood_clan_is_placed_as_well_as_by_leaving_it_where_it_stood():
-    # 2 s on, the Herald's pack among them: 4.1 units against 4.5; 4 s on: 4.6 against 6.5.
+    # 2 s on, the Herald's pack among them: 4.2 units against 4.5 (4.1 before the refit); 4 s on: 4.6 against 6.5.
     assert mean(2.0, 'model', BLOOD_CLAN) <= mean(2.0, 'stay', BLOOD_CLAN)
     assert mean(4.0, 'model', BLOOD_CLAN) <= 0.8 * mean(4.0, 'stay', BLOOD_CLAN)
 
 
 @pytest.mark.xfail(
     strict=True,
-    reason='a Devilkin is 3.6 units from where the model has it 2 s on (1.9 by leaving it where it stood), 9 when it '
+    reason='a Devilkin is 3.8 units from where the model has it 2 s on (1.9 by leaving it where it stood), 9 when it '
     'began 5 to 20 units from its target: it closes 3.6 units in those 2 s and the model 9.9. Its AI (Fallen: in and '
     'out, away when a leader falls) is not modelled, and one take of 24 s has too few of its walks to fit it',
 )
 def test_every_monster_is_placed_better_than_by_leaving_it_where_it_stood():
-    assert mean(1.0, 'model') <= mean(1.0, 'stay')  # 2.5 against 2.0
-    assert mean(2.0, 'model') <= mean(2.0, 'stay')  # 3.8 against 2.9
+    assert mean(1.0, 'model') <= mean(1.0, 'stay')  # 2.9 against 2.0
+    assert mean(2.0, 'model') <= mean(2.0, 'stay')  # 3.9 against 2.9

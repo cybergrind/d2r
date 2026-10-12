@@ -38,7 +38,8 @@
     "resist": {
      "fire": 0.25,
      "cold": 0.25,
-     "lightning": 0.25
+     "lightning": 0.25,
+     "physical": 0.9
     },
     "teleport_charges": null
    },

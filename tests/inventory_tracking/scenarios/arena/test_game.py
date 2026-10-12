@@ -20,6 +20,7 @@ from inventory_tracking.macros.view import Viewport
 from inventory_tracking.macros.world import FULL_REJUVENATION, HEALING, NO_OWNER, SUPER_HEALING, Teleport
 from inventory_tracking.models import Outcome, PotionType
 from tests.inventory_tracking.macros.fakes import KEYS, OTHER_SET, PREBUFF_SET, WINDOW
+from tests.inventory_tracking.scenarios.arena.evidence.sure import sure
 from tests.inventory_tracking.scenarios.arena.game import OSD, POTIONS, SERVE, Arena
 from tests.inventory_tracking.scenarios.arena.mobs import Mobs
 from tests.inventory_tracking.scenarios.arena.scene import Scene
@@ -162,7 +163,8 @@ def test_the_monsters_move_as_the_clock_does_and_the_world_shows_them():
 # --- the blows on the character ---------------------------------------------------------------------------
 
 
-def test_a_monster_in_contact_takes_life_at_the_rate_mobs_gives():
+def test_a_monster_in_contact_takes_life_at_the_rate_mobs_gives(monkeypatch):
+    sure(monkeypatch)  # every swing lands: the test is of the arena passing the blows on
     scene = Scene('contact', hero(), [mob(1, HELL_BOVINE, 1.5, 0.0)], [], [])
     arena = Arena(scene, seed=3)
     arena.clock.sleep(5.0)
@@ -175,7 +177,8 @@ def test_a_monster_in_contact_takes_life_at_the_rate_mobs_gives():
     assert arena.result().taken == pytest.approx(expected)
 
 
-def test_the_weapon_set_in_hand_decides_what_an_elemental_attacker_takes():
+def test_the_weapon_set_in_hand_decides_what_an_elemental_attacker_takes(monkeypatch):
+    sure(monkeypatch)  # every shot lands: the test is of the resistances
     staff, main = Arena(strong(gloams())), Arena(strong(gloams()))  # both begin with the teleport set in hand
     tap(main, KEYS[SWAP_WEAPONS])
     assert main.run().hands() == PREBUFF_SET
@@ -457,7 +460,8 @@ def scripted(seed: int):
     return arena.result()
 
 
-def test_one_seed_and_the_same_inputs_end_equal():
+def test_one_seed_and_the_same_inputs_end_equal(monkeypatch):
+    sure(monkeypatch, spread=True, tail=True)  # blows enough for two seeds to differ in 8 s
     first, second = scripted(1), scripted(1)
     assert first == second
     assert first.casts > 0

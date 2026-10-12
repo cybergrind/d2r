@@ -3,7 +3,7 @@ from a recording, played with what the player really did, and what the arena's m
 character held against what the recording shows.
 
     uv run --offline python -m tests.inventory_tracking.scenarios.arena.calibrate
-        [--root inventory_tracking/runs/combat] [--seconds 8] [--seed 1]
+        [--root inventory_tracking/runs/combat] [--seconds 8] [--seeds 5]
 
 runs `calibrate` over every fixture that has a `source` and writes fixtures/CALIBRATION.md (the table,
 the spread of the ratios, what it says) and fixtures/trusted.json (scene -> whether it may be believed;
@@ -14,7 +14,7 @@ runs. `recorded` reads from the take, tick by tick from the scene's frame (the b
 `cut`: the recorder's samples as game ticks, the corpse rows left out):
 
 - where the character stood (it is put there before each tick: not walked, not hopped);
-- where its companions stood (the monsters go for the nearest of the character and them);
+- where its companions stood (the monsters go for the character or one of them: sim.monsters);
 - its casts of Echoing Strike: the blades' first tick and the focal point fitted from the recorded
   blades (`Cast.fitted`), those still in the air when the scene starts among them;
 - its belt keys (build_scenes.py `belt_keys`), drunk in the arena from the scene's belt, which is an
@@ -30,6 +30,15 @@ recorded focal point, returning to where the recording has the character then (t
 `strike` returns them to where it stood at the cast, and takes its focal point from the fakes'
 pointer). `Arena` can be driven this way as it is; nothing of it is copied here. Its monsters move,
 strike and die by `Mobs` and by the damage of the replayed casts.
+
+**Like with like.** A third of the life the takes lost is no blow at all: damage over time, a cost the
+character pays itself (evidence/EVIDENCE.md, section 2: the drops with no suspect). The arena has
+none of that and is not to: its blows are held against the take's drops *that have a suspect*
+(evidence/blows.py: every drop of the take put on a striker, a missile's owner or a death, or on
+nobody). So each scene has two comparisons: the raw one (all the life the take lost, as before the
+refit of the monsters) and the attributed one (`Fit.taken_blamed`: the take's drops with a suspect;
+the arena's side is the same in both, every point of it is a blow). The verdict goes by the
+attributed one where the take's drops were attributed (`Fit.life_ratio`).
 
 **What is compared.** The life the character lost (`life_lost`: the sum of the falls of its life from
 tick to tick, in the take and in the arena alike, so a potion hides only what it gives within one
@@ -68,12 +77,21 @@ from collections import Counter
 from collections.abc import Callable, Iterable, Mapping, Sequence
 from dataclasses import dataclass, field, replace
 from pathlib import Path
+from typing import Any
 
 from inventory_tracking.builds.warlock.echoing_strike.mechanics import LIFE, cast
 from inventory_tracking.builds.warlock.echoing_strike.sim.situation import Situation, cut as situation_of
 from inventory_tracking.combat.hurts import SUSPECT_REACH, hurts, lost, sole
 from inventory_tracking.combat.mechanics.tables import tables
-from inventory_tracking.combat.sim.monsters import AWARE, PHYSICAL, Blow
+from inventory_tracking.combat.sim.monsters import (
+    AWARE,
+    MELEE,
+    PHYSICAL,
+    SHOT,
+    Blow,
+    nova_points,
+    spread as size_factor,
+)
 from inventory_tracking.combat.takes import Take, monsters_of
 from inventory_tracking.combat.timeline import GAME_RATE
 from inventory_tracking.levels.presets import display_name
@@ -81,8 +99,9 @@ from inventory_tracking.macros.world import LYING_DEAD, NO_OWNER, Monster
 from inventory_tracking.native.layout import DEAD_MODES, PLAYER_DEAD_MODES
 from tests.inventory_tracking.scenarios.arena.build_scenes import FIXTURES, REPO, ROOT, SCENE_FILE, belt_keys
 from tests.inventory_tracking.scenarios.arena.cut import ALWAYS_ASSUMED, hand_of
+from tests.inventory_tracking.scenarios.arena.evidence import blows as attribution, scan
 from tests.inventory_tracking.scenarios.arena.game import SERVE, Arena, Flight
-from tests.inventory_tracking.scenarios.arena.mobs import AURA_FACTOR, AURA_MOD, Mobs, is_ranged, shot_parts
+from tests.inventory_tracking.scenarios.arena.mobs import AURA_FACTOR, AURA_MOD, Mobs, shooter, shot_parts
 from tests.inventory_tracking.scenarios.arena.scene import Scene, load
 
 
@@ -115,6 +134,11 @@ MIN_SECONDS = 2.0  # a comparison shorter than this is said to be short in the n
 # not believed whatever its ratios: the sums may agree while the blow that mattered is not there.
 BEYOND = 1.5
 BEYOND_NOTE = 'a blow the arena cannot deal'
+MOSTLY_NOTE = 'mostly not blows'
+BIG = 300.0  # points: a drop the evidence lists by itself (EVIDENCE.md, section 8)
+# The share of the life a take lost that has a suspect under which the scene is said to be mostly
+# not blows: the arena cannot be held against it whatever its monsters do.
+MOSTLY = 0.5
 LATE = 2  # ticks a window may end short of its length for a late last sample
 UNREAD_SHARE = 0.25  # of the window's ticks without the character's life: more is said in the notes
 REPORT = FIXTURES / 'CALIBRATION.md'
@@ -132,11 +156,27 @@ class Fit:
     kills_take: int  # hostiles of the scene that died in the recording within the window
     kills_arena: int
     notes: tuple[str, ...] = ()  # what limits this comparison
+    # Of `taken_take`, the drops that have a suspect (evidence/blows.py: any class but `unknown`).
+    # None: the take's drops were not attributed, and the raw comparison is all there is.
+    taken_blamed: float | None = None
 
     @property
     def taken_ratio(self) -> float | None:
-        """arena / take; None when the take's is under MIN_TAKEN (nothing to measure against)."""
+        """arena / take, raw; None when the take's is under MIN_TAKEN (nothing to measure against)."""
         return None if self.taken_take < MIN_TAKEN else self.taken_arena / self.taken_take
+
+    @property
+    def blamed_ratio(self) -> float | None:
+        """arena / the take's drops that have a suspect; None when those are under MIN_TAKEN or the
+        take's drops were not attributed."""
+        if self.taken_blamed is None or self.taken_blamed < MIN_TAKEN:
+            return None
+        return self.taken_arena / self.taken_blamed
+
+    @property
+    def life_ratio(self) -> float | None:
+        """The ratio the verdict goes by: like with like where the take's drops were attributed."""
+        return self.taken_ratio if self.taken_blamed is None else self.blamed_ratio
 
     @property
     def kills_ratio(self) -> float | None:
@@ -151,9 +191,7 @@ class Fit:
     @property
     def trusted(self) -> bool:
         """Both ratios known and within TRUST."""
-        return all(
-            ratio is not None and TRUST[0] <= ratio <= TRUST[1] for ratio in (self.taken_ratio, self.kills_ratio)
-        )
+        return all(ratio is not None and TRUST[0] <= ratio <= TRUST[1] for ratio in (self.life_ratio, self.kills_ratio))
 
 
 def life_lost(samples: Iterable[Vitals | None]) -> float:
@@ -190,6 +228,8 @@ class Replay:
     # The drops of the character's life in the window (combat/hurts.py `hurts`): (tick, points, the
     # type of the one monster striking alone or None when the drop cannot be put on one).
     drops: list[tuple[int, float, int | None]] = field(default_factory=list)
+    # The same drops as evidence/blows.py classes them: (tick, points, class); None: not attributed.
+    classed: list[tuple[int, float, str]] | None = None
     notes: list[str] = field(default_factory=list)
 
     def hero_at(self, tick: int) -> Point:
@@ -233,11 +273,19 @@ def hands_of(take: Take, scene: Scene, start: float, tick_of: Callable[[float], 
     return found
 
 
-def recorded(scene: Scene, take: Take, seconds: float = WINDOW, *, leave: bool = True) -> Replay:
+def recorded(
+    scene: Scene,
+    take: Take,
+    seconds: float = WINDOW,
+    *,
+    leave: bool = True,
+    rows: Sequence[Mapping[str, Any]] | None = None,
+) -> Replay:
     """The replay of `seconds` of the take from the scene's frame: see the module text. The window is
     cut where the take ends, leaves the level or has the character dead, and (`leave`) where the
     recording leaves the scene: the tick before the first hostile the scene does not hold is within
-    STRANGER_REACH of the character."""
+    STRANGER_REACH of the character. `rows` are the take's drops as evidence/blows.py `blows` puts
+    them on their suspects (`attributed`); without them the replay's drops have no class."""
     source = scene.source
     if source is None:
         raise ValueError(f'{scene.name}: a scene without a source has no recording to be held against')
@@ -343,6 +391,13 @@ def recorded(scene: Scene, take: Take, seconds: float = WINDOW, *, leave: bool =
         if tick_of(hurt['t']) <= ticks:
             alone = sole(hurt)
             drops.append((tick_of(hurt['t']), float(hurt['lost']), None if alone is None else int(alone[1])))
+    classed = None
+    if rows is not None:
+        classed = [
+            (tick_of(frames[row['frame']]['t']), float(row['lost']), str(row['class']))
+            for row in rows
+            if index < row['frame'] <= last and tick_of(frames[row['frame']]['t']) <= ticks
+        ]
     moved = max((math.dist(hero[0], at) for at in hero), default=0.0)
     if moved > STRANGER_REACH:
         notes.append(f'the character went {moved:.0f} units from where the scene has it')
@@ -351,8 +406,15 @@ def recorded(scene: Scene, take: Take, seconds: float = WINDOW, *, leave: bool =
         notes.append('assumed: ' + ', '.join(told))
     return Replay(
         ticks, hero, vitals, companions, casts, drinks, hands_of(take, scene, start, tick_of), deaths, dead_at,
-        strangers, notes=notes, left_at=met, drops=drops,
+        strangers, notes=notes, left_at=met, drops=drops, classed=classed,
     )  # fmt: skip
+
+
+def attributed(take: Take, seen: scan.Sightings | None = None) -> list[dict[str, Any]]:
+    """The take's drops, each put on its suspects (evidence/blows.py `blows`). `seen` are the terror
+    probe logs' sightings (combat/hurts.py `sightings`), for the enchantments of a take recorded before
+    it held them; without them a death with no missile of its own is not known to have been enchanted."""
+    return attribution.blows(take, scan.enchantments(seen, take) if seen else None)
 
 
 def recorded_places(take: Take, scene: Scene, ticks: int) -> list[dict[int, Point]]:
@@ -472,7 +534,8 @@ def _near(arena: Arena, unit: int, here: Point) -> bool:
 def heaviest(scene: Scene) -> float:
     """The most one blow of the scene's monsters can take off the character in the arena, with the
     set the scene has in hand: a strike's top roll with the top of its enchantments' parts, or a
-    shot, doubled where another monster of the scene has an aura (mobs.py AURA_FACTOR)."""
+    shot, at the top of the fitted spread of a blow's size (sim.monsters `spread`), doubled where
+    another monster of the scene has an aura (mobs.py AURA_FACTOR); or the doubled nova of a death."""
     through = scene.hero.sets[scene.hero.hand].resist
     units = hostile_units(scene)
     mobs = {mob.unit: mob for mob in scene.mobs}
@@ -480,11 +543,15 @@ def heaviest(scene: Scene) -> float:
     most = 0.0
     for unit in units:
         walker = Mobs._walker(mobs[unit])
-        parts = dict(shot_parts(walker)) if is_ranged(walker.txt) else {PHYSICAL: walker.traits.damage[1]}
+        shoots = shooter(walker.txt)
+        parts = dict(shot_parts(walker)) if shoots else {PHYSICAL: walker.traits.damage[1]}
         for element, _least, top in walker.traits.elements:
             parts[element] = parts.get(element, 0.0) + parts.get(PHYSICAL, 0.0) * top
         points = sum(part * through.get(kind, 1.0) for kind, part in parts.items())
+        points *= size_factor(SHOT if shoots else MELEE, 1.0)
         most = max(most, points * (AURA_FACTOR if any(other != unit for other in auras) else 1.0))
+        if walker.traits.nova:
+            most = max(most, 2 * nova_points(walker.traits.level) * through.get('cold', 1.0))
     return most
 
 
@@ -503,15 +570,29 @@ def compare(scene: Scene, replay: Replay, played: Played) -> Fit:
     drop, blow = max((points for _tick, points, _txt in replay.drops), default=0.0), heaviest(scene)
     if drop > BEYOND * blow:
         notes.append(f'{BEYOND_NOTE}: a drop of {drop:.0f} points in the take, at most {blow:.0f} a blow in the arena')
+    blamed = None
+    if replay.classed is not None:
+        blamed = sum(points for _tick, points, group in replay.classed if group != attribution.NONE)
+        if taken_take >= MIN_TAKEN and blamed < MOSTLY * taken_take:
+            notes.append(f'{MOSTLY_NOTE}: {blamed:.0f} of the {taken_take:.0f} points the take lost have a suspect')
     return Fit(
         scene.name, ticks / GAME_RATE, taken_take, life_lost(played.samples), len(replay.deaths), len(played.kills),
-        tuple(notes),
+        tuple(notes), blamed,
     )  # fmt: skip
 
 
-def calibrate(scene: Scene, take: Take, seconds: float = WINDOW, *, seed: int = 1, healing_scale: float = 1.0) -> Fit:
-    """The scene played open loop over `seconds` of its take, against the take: see the module text."""
-    replay = recorded(scene, take, seconds)
+def calibrate(
+    scene: Scene,
+    take: Take,
+    seconds: float = WINDOW,
+    *,
+    seed: int = 1,
+    healing_scale: float = 1.0,
+    rows: Sequence[Mapping[str, Any]] | None = None,
+) -> Fit:
+    """The scene played open loop over `seconds` of its take, against the take: see the module text.
+    `rows`: the take's drops attributed (`attributed`), for the comparison of like with like."""
+    replay = recorded(scene, take, seconds, rows=rows)
     return compare(scene, replay, play(scene, replay, seed=seed, healing_scale=healing_scale))
 
 
@@ -531,6 +612,7 @@ class Row:
     fits: list[Fit]  # by seed, the first is the table's
     replay: Replay
     played: Played  # the first seed's
+    bigs: list[int] = field(default_factory=list)  # by seed: the falls of the arena's life of BIG points or more
 
     @property
     def fit(self) -> Fit:
@@ -550,6 +632,44 @@ class Row:
         """The verdict of trusted.json: believed with every seed (`Fit.trusted`), and no blow in the
         take that the arena cannot deal. Both only ever take a scene's trust away."""
         return all(fit.trusted for fit in self.fits) and not self.beyond
+
+    @property
+    def raw_trusted(self) -> bool:
+        """The same verdict by the raw comparison (all the life the take lost): the rule before the refit."""
+        return all(replace(fit, taken_blamed=None).trusted for fit in self.fits) and not self.beyond
+
+    @property
+    def mostly_not_blows(self) -> bool:
+        return any(note.startswith(MOSTLY_NOTE) for note in self.fit.notes)
+
+
+def big_falls(played: Played) -> int:
+    """The ticks in which the arena's character lost BIG points or more."""
+    return sum(1 for before, after in zip(played.life, played.life[1:], strict=False) if before[0] - after[0] >= BIG)
+
+
+def big_table(rows: Sequence[Row]) -> list[str]:
+    """Drops of BIG points or more in the compared windows: the takes', by class, and the arena's."""
+    seconds = sum(row.fit.seconds for row in rows)
+    take = [(points, group) for row in rows for _tick, points, group in (row.replay.classed or ()) if points >= BIG]
+    blamed = [points for points, group in take if group != attribution.NONE]
+    seeds = max((len(row.bigs) for row in rows), default=0)
+    arena = [sum(row.bigs[seed] for row in rows if seed < len(row.bigs)) for seed in range(seeds)]
+    by_class = Counter(group for _points, group in take)
+    return [
+        f'| | drops of {BIG:.0f} or more | per 10,000 s | largest |',
+        '| --- | ---: | ---: | ---: |',
+        f'| the takes, all | {len(take)} | {len(take) * 10_000 / seconds:.0f} '
+        f'| {max((p for p, _g in take), default=0):.0f} |',
+        f'| the takes, with a suspect | {len(blamed)} | {len(blamed) * 10_000 / seconds:.0f} '
+        f'| {max(blamed, default=0):.0f} |',
+        f'| the arena, mean of {seeds} seeds | {statistics.fmean(arena) if arena else 0:.1f} '
+        f'| {(statistics.fmean(arena) if arena else 0) * 10_000 / seconds:.0f} | - |',
+        '',
+        f"The takes' by class: {', '.join(f'{group} {count}' for group, count in by_class.most_common()) or 'none'}. "
+        f"The arena's by seed: {', '.join(str(count) for count in arena) or 'none'}. {seconds:.0f} s of windows; they "
+        "were cut around bursts, potions and deaths, so the rate is far above a whole take's (20 in 19,097 s).",
+    ]
 
 
 def type_name(txt: int) -> str:
@@ -581,10 +701,10 @@ def spread(values: Sequence[float]) -> str:
     return f'{len(found)} | ' + ' | '.join(number(cell) for cell in cells)
 
 
-def pooled(fits: Sequence[Fit]) -> float | None:
-    """All the arena's points over all the take's: what a ratio per scene cannot say of the scenes
-    where the take lost nothing."""
-    take = sum(fit.taken_take for fit in fits)
+def pooled(fits: Sequence[Fit], blamed: bool = False) -> float | None:
+    """All the arena's points over all the take's (`blamed`: over the take's drops with a suspect):
+    what a ratio per scene cannot say of the scenes where the take lost nothing."""
+    take = sum((fit.taken_blamed or 0.0) if blamed else fit.taken_take for fit in fits)
     return sum(fit.taken_arena for fit in fits) / take if take else None
 
 
@@ -595,7 +715,8 @@ def groups(rows: Sequence[Row], key: Callable[[Row], str]) -> list[tuple[str, li
     return sorted(found.items(), key=lambda item: (-len(item[1]), item[0]))
 
 
-def ratio_table(title: str, sets: Sequence[tuple[str, Sequence[Row]]]) -> list[str]:
+def ratio_table(title: str, sets: Sequence[tuple[str, Sequence[Row]]], blamed: bool = False) -> list[str]:
+    """The spread of the life-lost ratios by group: raw, or (`blamed`) against the take's drops with a suspect."""
     lines = [
         f'| {title} | scenes | trusted | with a ratio | least | quartile | median | quartile | most | pooled '
         '| arena hurt, take did not | kills: n | median | pooled |',
@@ -603,12 +724,16 @@ def ratio_table(title: str, sets: Sequence[tuple[str, Sequence[Row]]]) -> list[s
     ]
     for name, rows in sets:
         fits = [row.fit for row in rows]
-        ratios = [fit.taken_ratio for fit in fits if fit.taken_ratio is not None]
-        silent = sum(1 for fit in fits if fit.taken_ratio is None and fit.taken_arena >= MIN_TAKEN)
+        every = [fit.blamed_ratio if blamed else fit.taken_ratio for fit in fits]
+        ratios = [ratio for ratio in every if ratio is not None]
+        silent = sum(
+            1 for fit, ratio in zip(fits, every, strict=True) if ratio is None and fit.taken_arena >= MIN_TAKEN
+        )
         kills = [fit.kills_ratio for fit in fits if fit.kills_take]
         killed = sum(fit.kills_take for fit in fits)
         lines.append(
-            f'| {name} | {len(rows)} | {sum(row.trusted for row in rows)} | {spread(ratios)} | {number(pooled(fits))} '
+            f'| {name} | {len(rows)} | {sum(row.trusted for row in rows)} | {spread(ratios)} '
+            f'| {number(pooled(fits, blamed))} '
             f'| {silent} | {len(kills)} | {number(statistics.median(kills) if kills else None)} '
             f'| {number(sum(fit.kills_arena for fit in fits) / killed if killed else None)} |'
         )
@@ -617,14 +742,17 @@ def ratio_table(title: str, sets: Sequence[tuple[str, Sequence[Row]]]) -> list[s
 
 def scene_table(rows: Sequence[Row]) -> list[str]:
     lines = [
-        '| scene | kind | area | hostiles | seconds | taken take | taken arena | ratio | kills take | kills arena '
-        '| ratio | trusted | notes |',
-        '| --- | --- | --- | --- | ---: | ---: | ---: | --- | ---: | ---: | --- | --- | --- |',
+        '| scene | kind | area | hostiles | seconds | taken take | taken arena | ratio | take, with a suspect '
+        '| ratio | kills take | kills arena | ratio | trusted | notes |',
+        '| --- | --- | --- | --- | ---: | ---: | ---: | --- | ---: | --- | ---: | ---: | --- | --- | --- |',
     ]
     for row in rows:
         fit, scene = row.fit, row.scene
         seen = [found.taken_ratio for found in row.fits if found.taken_ratio is not None]
         over = f' ({number(min(seen))} to {number(max(seen))})' if len(seen) > 1 else ''
+        like = [found.blamed_ratio for found in row.fits if found.blamed_ratio is not None]
+        like_over = f' ({number(min(like))} to {number(max(like))})' if len(like) > 1 else ''
+        blamed = '-' if fit.taken_blamed is None else f'{fit.taken_blamed:.0f}'
         held = sum(found.trusted for found in row.fits)
         verdict = 'yes' if row.trusted else 'no' if not held else f'no ({held} of {len(row.fits)} seeds)'
         if held == len(row.fits) and row.beyond:
@@ -633,6 +761,7 @@ def scene_table(rows: Sequence[Row]) -> list[str]:
             f'| {scene.name} | {row.kind} | {display_name(scene.hero.area)} ({scene.hero.area}) '
             f'| {len(hostile_units(scene))}, most {type_name(dominant(scene))} | {fit.seconds:.1f} '
             f'| {fit.taken_take:.0f} | {fit.taken_arena:.0f} | {number(fit.taken_ratio)}{over} '
+            f'| {blamed} | {number(fit.blamed_ratio)}{like_over} '
             f'| {fit.kills_take} | {fit.kills_arena} | {number(fit.kills_ratio)} | {verdict} | {"; ".join(fit.notes)} |'
         )
     return lines
@@ -645,13 +774,15 @@ def why_not(rows: Sequence[Row]) -> list[str]:
         fit = row.fit
         if row.trusted:
             continue
-        if fit.taken_ratio is None and fit.taken_arena >= MIN_TAKEN:
-            count[f'the take lost under {MIN_TAKEN:.0f} points and the arena took {MIN_TAKEN:.0f} or more'] += 1
-        elif fit.taken_ratio is None:
-            count[f'neither lost {MIN_TAKEN:.0f} points: nothing to measure'] += 1
-        elif fit.taken_ratio > TRUST[1]:
+        if fit.life_ratio is None and fit.taken_arena >= MIN_TAKEN:
+            count[
+                f'the take lost under {MIN_TAKEN:.0f} points to blows and the arena took {MIN_TAKEN:.0f} or more'
+            ] += 1
+        elif fit.life_ratio is None:
+            count[f'neither lost {MIN_TAKEN:.0f} points to blows: nothing to measure'] += 1
+        elif fit.life_ratio > TRUST[1]:
             count[f'the arena took over {TRUST[1]:g} times the take'] += 1
-        elif fit.taken_ratio < TRUST[0]:
+        elif fit.life_ratio < TRUST[0]:
             count[f'the arena took under {TRUST[0]:g} of the take'] += 1
         elif fit.kills_ratio is None or not TRUST[0] <= fit.kills_ratio <= TRUST[1]:
             count['the life lost agrees, the kills do not'] += 1
@@ -760,15 +891,18 @@ def curve(row: Row, step: float = 0.5) -> list[str]:
     ]
 
 
-def scale_fit(rows: Sequence[Row], takes: Mapping[str, Take], seconds: float) -> list[str]:
-    """One factor on every blow that would centre the ratio: found on every other scene with a ratio,
-    tried on the rest. `play`'s `damage_scale` only: nothing of the arena is changed."""
-    ratioed = [row for row in rows if row.fit.taken_ratio is not None]
+def scale_fit(
+    rows: Sequence[Row], takes: Mapping[str, Take], seconds: float, drops: Mapping[str, Sequence[Mapping[str, Any]]]
+) -> list[str]:
+    """One factor on every blow that would centre the ratio the verdict goes by (`Fit.life_ratio`):
+    found on every other scene with a ratio, tried on the rest. `play`'s `damage_scale` only: nothing of
+    the arena is changed."""
+    ratioed = [row for row in rows if row.fit.life_ratio is not None]
     with_ratio = [row for row in ratioed if row.fit.taken_arena > 0]
     halves = (with_ratio[::2], with_ratio[1::2])
     if not all(halves):
         return ['Too few scenes with a ratio to fit anything.']
-    centre = statistics.median(row.fit.taken_ratio for row in halves[0])  # type: ignore[type-var]
+    centre = statistics.median(row.fit.life_ratio for row in halves[0])  # type: ignore[type-var]
     factor = 1 / centre
     lines = [
         f'Of the {len(ratioed)} scenes with a ratio, the {len(ratioed) - len(with_ratio)} where the arena took nothing '
@@ -786,11 +920,11 @@ def scale_fit(rows: Sequence[Row], takes: Mapping[str, Take], seconds: float) ->
         for row in half:
             source = row.scene.source
             assert source is not None
-            replay = recorded(row.scene, takes[source['take']], seconds)
+            replay = recorded(row.scene, takes[source['take']], seconds, rows=drops.get(source['take']))
             after.append(compare(row.scene, replay, play(row.scene, replay, damage_scale=factor)))
-        ratios = [fit.taken_ratio for fit in after if fit.taken_ratio is not None]
+        ratios = [fit.life_ratio for fit in after if fit.life_ratio is not None]
         lines.append(
-            f'| {name} | {len(half)} | {statistics.median(row.fit.taken_ratio for row in half):.2f} '  # type: ignore[type-var]
+            f'| {name} | {len(half)} | {statistics.median(row.fit.life_ratio for row in half):.2f} '  # type: ignore[type-var]
             f'| {statistics.median(ratios):.2f} | {sum(row.fit.trusted for row in half)} '
             f'| {sum(fit.trusted for fit in after)} | {number(min(ratios))} | {number(max(ratios))} |'
         )
@@ -814,9 +948,17 @@ def report(
         f"{BEYOND:g} times the heaviest blow the scene's monsters can deal in the arena. `trusted.json` holds the",
         'verdicts; `trust.py` reads them.',
         '',
-        f'**Trusted: {believed} of {len(rows)} scenes.** Of the others:',
+        f"**Trusted: {believed} of {len(rows)} scenes** by the comparison of like with like (the arena's blows",
+        "against the take's drops that have a suspect: `evidence/blows.py`; the module text of calibrate.py);",
+        f'**{sum(row.raw_trusted for row in rows)}** by the raw comparison (all the life the take lost, the rule',
+        'before the refit of the monsters). Of those not trusted, by like with like:',
         '',
         *why_not(rows),
+        '',
+        f'Scenes whose take lost {MIN_TAKEN:.0f} points or more of which under {MOSTLY:g} have a suspect',
+        f'("{MOSTLY_NOTE}": the arena has nothing to hold against them, whatever its monsters do): '
+        + (', '.join(row.scene.name for row in rows if row.mostly_not_blows) or 'none')
+        + '.',
         '',
         '## What this says',
         '',
@@ -829,7 +971,20 @@ def report(
         '## The ratios',
         '',
         '"Pooled" is all the arena\'s points over all the take\'s in the group, the scenes without a ratio of',
-        'their own among them. The kills columns are of the scenes where a hostile died in the take.',
+        'their own among them. The kills columns are of the scenes where a hostile died in the take. Each',
+        "table is given twice: like with like (the take's drops with a suspect), then raw (all its life lost).",
+        '',
+        '### Like with like',
+        '',
+        *ratio_table('all', [('all', rows)], True),
+        '',
+        *ratio_table('kind', groups(rows, lambda row: row.kind), True),
+        '',
+        "By the type most of the scene's hostiles are of:",
+        '',
+        *ratio_table('most hostiles', groups(rows, lambda row: type_name(dominant(row.scene))), True),
+        '',
+        '### Raw',
         '',
         *ratio_table('all', [('all', rows)]),
         '',
@@ -839,7 +994,7 @@ def report(
         '',
         *ratio_table('most hostiles', groups(rows, lambda row: type_name(dominant(row.scene)))),
         '',
-        f'The types with {ENOUGH} scenes or more, by what the arena makes of them:',
+        f'The types with {ENOUGH} scenes or more, by what the arena makes of them (like with like):',
         '',
         *ratio_table(
             'most hostiles',
@@ -849,16 +1004,22 @@ def report(
                     for group in groups(rows, lambda row: type_name(dominant(row.scene)))
                     if len(group[1]) >= ENOUGH
                 ),
-                key=lambda group: -(pooled([row.fit for row in group[1]]) or 0.0),
+                key=lambda group: -(pooled([row.fit for row in group[1]], True) or 0.0),
             ),
+            True,
         ),
+        '',
+        '## The big drops',
+        '',
+        *big_table(rows),
         '',
         '## The blows, by who struck',
         '',
         'Over the compared windows, first seed. An arena blow is one strike, shot or spark after the',
         'resistances of the set in hand. A drop of the take is the life gone between two samples (several',
         'blows landing together are one drop); it is put on a type only when one monster alone was striking',
-        "(`combat/hurts.py` `sole`), so the take's rows by type are a part of its drops: the last row has all.",
+        "(`combat/hurts.py` `sole`), so the take's rows by type are a part of its drops: the last row has all,",
+        'the drops nobody is blamed for among them.',
         '',
         *blow_table(rows),
         '',
@@ -877,79 +1038,77 @@ def report(
     return '\n'.join(lines)
 
 
-# What the run of 2026-10-12 says, by hand, from the tables it wrote (72 fixtures, 8 s, seeds 1 to 5).
-# The numbers in it are that run's: when the tables move, this is to be read again against them.
+# What the run of 2026-10-12 after the refit of the monsters says, by hand, from the tables it wrote (72
+# fixtures, 8 s, seeds 1 to 5). The numbers in it are that run's: when the tables move, this is to be
+# read again against them. (The reading of the run before the refit is in git: the arena took 3.17 times
+# the takes in sum, median 1.86, 1 scene trusted.)
 READING = """
-*Read by hand from the tables below as they stood on 2026-10-12; a later run rewrites the tables, not
-this text.*
+*Read by hand from the tables below as they stood on 2026-10-12, after the monsters were refitted to the
+train half of all takes (`combat/sim/monsters.py`, `evidence/EVIDENCE.md`); a later run rewrites the
+tables, not this text. Five of the 72 scenes are not those of the run before the refit: the fixtures
+were cut again (cut.py's main set now has its physical resistance) and five newer takes took the place
+of five older ones.*
 
-**The arena cannot be believed yet: 1 scene of 72.** Not because the comparison is too strict: of the
-29 scenes where the take holds enough lost life to measure against, the arena is within a factor of
-two on the life lost in 9 with the first seed, and only one of those also agrees on the kills, holds
-with every seed and has no blow in the take that the arena cannot deal.
+**The arena is no longer three times too harsh; by these windows it is not believable either: 3 scenes
+of 72, and the windows cannot say more.** What the monsters do on average is judged elsewhere, on
+time that was not chosen for what happened in it: `evidence/refit_check.py` lays each mechanism beside
+the check half of all takes, and there the pooled swings, shots, novas and targets are within 0.75 to
+1.3 of the measured. Here:
 
-1. **Too harsh, by about three times in sum, and not evenly.** Over all windows the arena's blows sum
-   to 73,490 points where the takes' drops sum to 20,618 (3.6 times); by the table's measure, the
-   falls of the life, all the arena's over all the takes' is 3.17. The median
-   scene ratio is 1.86, the quartiles 0.75 and 4.01, the range 0.00 to 25.2. In 10 further scenes the
-   take lost under 90 points and the arena took 90 to 5,795. The arena's character died in 17 windows;
-   the take's in 2.
-2. **It lands far more blows, each smaller.** 688 arena blows (median 85 points) against 128 drops in
-   the takes (median 136): five times as often. The rate is what is off, more than the size of a blow.
-3. **The ranged model is the largest part of it.** 392 of the 688 blows are shots and they carry 50,539
-   of the 73,490 points: the shots alone are 2.5 times all the life the takes lost to everything.
-   A ranged monster of the arena lands one shot a second on anything within 30 units in a clear line
-   (mobs.py SHOT_FRAMES, SHOT_LANDS, RANGED_REACH: all three are that file's assumptions; no missile
-   flies, so none misses and none is walked out of). By type: Hell Temptress (472) 130 shots,
-   DarkArcher (162) 122, ReturnedArcher (578) 64, BlackSoul (640) 50 shots of a median 223 points (its
-   threat-table `hard` factor of 5.0 is on every shot). The scenes led by these types pool at 2.6 to
-   28 times the take.
-4. **Melee is too frequent where a pack is in contact, and absent where the take had it.** IceSpawn
-   (458) scenes pool at 4.8 (134 strikes of a median 82; the takes there show single drops of up to
-   547). BloodClan (55) scenes at 4.1. No strike of the arena is ever missed, blocked or dodged
-   (sim/monsters.py: "raw points, before the defence, block"), and the main weapon set's physical
-   resistance is unknown and taken as none (cut.py UNKNOWN). Against that, Returned (1) scenes pool at
-   0.13 and 7 scenes are under half: in the one traced (20261011T223134Z-38-794) the take has Griswold
-   and a Returned striking from 2.2 and 3.0 units with the character as their target, while the arena's
-   Griswold stops 10 units off and strikes a companion. *Hypothesis:* "the target is the nearest of
-   the character and its companions" (sim/monsters.py, fitted to Tower Cellar 5) sends the arena's
-   monsters to the mercenary and the pets more than the game does.
-5. **The takes' damage comes in single large drops the arena has no blow for.** In 8 scenes a drop of
-   the take is over 1.5 times the heaviest blow any monster of the scene can deal in the arena (322 to
-   1,051 points against 93 to 370). Seen next to them in the takes: missiles the model does not have
-   (the nova of a Cold Enchanted monster's death, `coldunique` 194, 359 points with nobody striking;
-   others the tables do not name), and several monsters landing between two samples. So the arena
-   bleeds the character steadily where the game hits it rarely and hard: a rule that watches for a
-   burst is judged in the wrong world even where the sums agree.
-6. **The death (20261011T195037Z-25-493) is the plainest case of 5.** The take: life 995 rising to 1,051
-   on a potion, then one drop of 1,051 at 3.0 s with the tier 2 Herald in an attack mode 8.9 units
-   off. The arena: four minion strikes of about 100 doubled by the Herald's aura, life 995 to 218, no
-   death; its Herald can deal 370 at most and reaches 3.2 units (sim/monsters.py REACH), so it does
-   not strike at all. The ratio is 0.75 by accident of the sums, and the scene is marked not trusted
-   for it.
-7. **The kills agree better than the life.** Median 0.81, pooled 0.80 over the 58 scenes where
-   something died: the arena kills a fifth fewer, which is the direction the missing companions'
-   damage and Death Mark give (game.py's list). Four scenes fail on the kills alone.
-8. **One factor does not mend it.** 0.47 on every blow centres the median (0.99 on the half it was
-   found on, 1.07 on the other) and the range stays 0.05 to 12.3; the bare rule then trusts 8 of 25
-   instead of 5. The misses are by type and by mechanism, not a scale.
+1. **From 3.17 times the takes to 0.48, like with like** (all the arena's points over the take's drops
+   that have a suspect; 0.42 raw). The median scene ratio went from 1.86 to 0.15, the quartiles from
+   0.75 and 4.01 to 0.05 and 0.73. The arena's character died in 17 windows before and in 1 now; the
+   takes' in 2. The arena lands 117 blows where it landed 688 (the takes: 128 drops).
+2. **The windows were chosen for what happened in them, and it shows both ways.** 32 scenes were cut
+   because the take lost life there (a burst, potions drunk, the death); 40 for something else (a long
+   fight, a stuck hunt). With each scene played 30 times and the mean taken (a run by hand, not in the
+   tables): in the 32 the arena takes 0.30 of the take's drops with a suspect (5,251 against 17,636
+   points), in the 40 it takes 2.4 times (2,307 against 961). A model with the right mean does that
+   on windows picked by their outcome: it cannot be told from these fixtures how far the mean is off,
+   only that it is not off by three any more. Scenes cut at fixed times, whatever happened, would say.
+3. **One window is mostly luck now, as it is in the game.** A swing takes life one time in six, a shot
+   one in seventy: 8 s hold 0 to 5 blows of the arena. Over 30 seeds a scene with a ratio is within 0.5 to
+   2 in 15% of its plays. The rule of this file (every seed within the bounds) asks for what the
+   game itself would not give if the same eight seconds were played twice. Trust by scene is the
+   wrong instrument for a model that rolls; a verdict by mechanism (refit_check) or over many windows
+   pooled is the right one.
+4. **The takes' losses come in clusters, the arena's blows one by one.** 13 drops of 300 points or
+   more with a suspect in these windows, 9 of them shared between several strikers; the arena has 5 a
+   seed. Where the take lost 1,829 points in 8 s to a pack of Hell Temptresses the arena takes 90: its
+   mean for that pack is about 190, the take's eight seconds were ten times that. Rolls that do not
+   know of each other do not make such seconds. What makes them is not in a take: a curse, the
+   character's protection gone, a stand in the middle of a pack. The recorder writing the character's
+   state list would show it.
+5. **The sparks of a Lightning Enchanted monster were not refitted and are now the largest part.** 75 of
+   the arena's 117 blows, 3,207 of its 9,136 points; every spark that touches the character lands
+   (sim/monsters.py: measured on one Herald for where they fly, never for what they take). The one
+   scene the arena is far too harsh in (20261011T195037Z-25-373-potions: 4 times the take's blows, the
+   character dead in 24 of 30 plays) is the Herald's sparks.
+6. **The death (20261011T195037Z-25-493).** The take: one drop of 1,051 at 3.0 s, the tier 2 Herald in
+   an attack mode 8.9 units off. Before the refit no monster of the scene could deal it (370 at most)
+   and none reached further than 3.2 units. Now the Herald's blow goes up to 1,650 and a swing may be
+   begun from up to 12 units; played 400 times (by hand), the arena's character dies in the three
+   seconds in 8 plays, loses 500 points or more in 36 and nothing in 186. In the table's first seed it
+   loses nothing. So it can die where the recorded one died, and seldom does: the arena does not
+   know what made that blow either.
+7. **By type** (like with like, the tables below): Ice Spawn scenes pool at 0.83 and hold 2 of the 3
+   trusted scenes, Ghost 1.05, Devilkin 1.12 (one nova on the staff's set carries it); the scenes led
+   by shooters are low (Dark Archer 0.08, Hell Temptress 0.18), and so are Returned (0.07). All of
+   these are scenes of the kinds chosen for their bursts. Black Soul's factor of 5 on every shot was
+   not refitted (the takes hold 34 of its shots and no hit of one alone).
+8. **The kills did not move** (median 0.78, pooled 0.81 of 58 scenes): they are the character's
+   doing and the companions', which this refit did not touch.
 
-**What limits the measurement itself.** 33 scenes have under 90 points lost in the take and in the
-arena alike (most `long` and `stuck` scenes: nobody was hurt in those 8 s). They are not misses; the
-rule leaves them untrusted because nothing was measured, and `trusted.json` cannot say "agrees,
-unmeasured". 19 windows end early at a hostile the scene does not hold (the character hopped on, or
-something came into the client's memory beside it); 38 scenes have the hand assumed; the scenes of
-one moment cut three times (20261012T065226Z-130-4606, -4609, -4612) count three times. Hell Bovine
-(391): three scenes, no life lost in either world, so the 212 points a second seen in contact is
-neither confirmed nor refuted here. A Herald's life (cut.py `full_points`) only shows in the kills.
+**What limits the measurement itself.** 41 scenes have under 90 points lost to blows in the take and
+in the arena alike. 3 scenes are mostly not blows (named above): their take lost 168 to 1,479 points
+of which under half have a suspect. 19 windows end early at a hostile the scene does not hold; the
+scenes of one moment cut three times (20261012T065226Z-130-4606, -4609, -4612) count three times.
 
-**What to change first in the model (not done here):** (a) the ranged attacker: a missile that flies
-and can miss, and a rate from the takes instead of one landed shot a second; (b) a chance to hit for
-melee (monstats `A1TH`, the character's defence and block) and the main set's physical resistance;
-(c) who a monster goes for; (d) the big single blows: a Herald's or unique's reach and top blow, death
-novas. A refit by type needs, for each type, drops that one monster dealt alone: the takes of these
-fixtures hold 9 such drops in the compared windows (the table of blows), so it needs
-`combat/hurts.py` run over all takes, or `terror/exposure.py`'s per-type rates, not these 72 windows.
+**What would make the arena believable for a safety rule, in order:** (a) scenes cut at fixed times,
+so that the mean can be checked on windows not chosen by their outcome; (b) the character's state
+list in the takes (curses, the protection it has up), so that the clusters can be modelled instead
+of averaged; (c) the sparks fitted like the swings; (d) more play against the types that still use the
+pooled rows (all but 5 melee types and 3 shooters have their own chance to take life).
 """
 
 
@@ -959,6 +1118,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument('--fixtures', type=Path, default=FIXTURES, help='the scenes, and where the report goes')
     parser.add_argument('--seconds', type=float, default=WINDOW, help='the window compared')
     parser.add_argument('--seeds', type=int, default=SEEDS, help='seeds of the monsters each scene is played with')
+    parser.add_argument(
+        '--probes', type=Path, default=scan.PROBES, help='the terror probe logs: the enchantments of the earlier takes'
+    )
     args = parser.parse_args(argv)
 
     began = time.monotonic()
@@ -966,6 +1128,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     rows: list[Row] = []
     window: list[tuple[Replay, Played]] = []
     takes: dict[str, Take] = {}
+    drops: dict[str, list[dict[str, Any]]] = {}
+    logs = sorted(args.probes.glob('*/terror-probe.jsonl'))
+    seen = scan.probe_sightings(logs, scan.CACHE if scan.CACHE.is_dir() else None)
     missing = []
     for count, path in enumerate(paths, 1):
         scene = load(path)
@@ -980,16 +1145,19 @@ def main(argv: Sequence[str] | None = None) -> int:
                 missing.append(f'{scene.name}: the take was not read ({type(exc).__name__})')
                 continue
         take = takes[name]
-        replay = recorded(scene, take, args.seconds)
+        if name not in drops:
+            drops[name] = attributed(take, seen)
+        replay = recorded(scene, take, args.seconds, rows=drops[name])
         plays = [play(scene, replay, seed=seed) for seed in range(1, args.seeds + 1)]
-        rows.append(Row(scene, [compare(scene, replay, played) for played in plays], replay, plays[0]))
+        fits = [compare(scene, replay, played) for played in plays]
+        rows.append(Row(scene, fits, replay, plays[0], [big_falls(played) for played in plays]))
         long = recorded(scene, take, LONG, leave=False)
         window.append((long, play(scene, long, places=recorded_places(take, scene, long.ticks))))
     print(file=sys.stderr)
     if missing:
         print('\n'.join(missing), file=sys.stderr)
         return 1
-    fitted = scale_fit(rows, takes, args.seconds)
+    fitted = scale_fit(rows, takes, args.seconds, drops)
     (args.fixtures / REPORT.name).write_text(report(rows, window, fitted, args.root, args.seconds), encoding='utf-8')
     verdicts = {row.scene.name: row.trusted for row in rows}
     (args.fixtures / VERDICTS.name).write_text(json.dumps(verdicts, indent=1, sort_keys=True) + '\n', encoding='utf-8')

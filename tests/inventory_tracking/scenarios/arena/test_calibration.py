@@ -9,14 +9,16 @@ from pathlib import Path
 
 import pytest
 
+from inventory_tracking.combat.sim.monsters import MELEE, spread as size_factor
 from inventory_tracking.combat.takes import Take
 from inventory_tracking.combat.timeline import GAME_RATE
 from inventory_tracking.macros.world import FULL_REJUVENATION, LYING_DEAD, NO_OWNER
-from tests.inventory_tracking.scenarios.arena import calibrate as rules
 from tests.inventory_tracking.scenarios.arena.build_scenes import FIXTURES, SCENE_FILE
 from tests.inventory_tracking.scenarios.arena.calibrate import (
     BEYOND_NOTE,
+    BIG,
     MIN_TAKEN,
+    MOSTLY_NOTE,
     REPORT,
     STRANGER_REACH,
     VERDICTS,
@@ -24,6 +26,9 @@ from tests.inventory_tracking.scenarios.arena.calibrate import (
     Fit,
     Replay,
     Row,
+    attributed,
+    big_falls,
+    big_table,
     calibrate,
     compare,
     dominant,
@@ -36,6 +41,7 @@ from tests.inventory_tracking.scenarios.arena.calibrate import (
     spread,
     type_name,
 )
+from tests.inventory_tracking.scenarios.arena.evidence.sure import sure
 from tests.inventory_tracking.scenarios.arena.mobs import Mobs
 from tests.inventory_tracking.scenarios.arena.scene import Scene, load
 from tests.inventory_tracking.scenarios.arena.scenes_basic import (
@@ -120,6 +126,33 @@ def test_no_kills_in_either_agree_and_kills_only_in_the_arena_do_not():
     assert not fit(kills_take=0, kills_arena=2).trusted
     assert fit(kills_take=3, kills_arena=0).kills_ratio == 0.0
     assert fit(seconds=0.0).kills_ratio is None
+
+
+# --- like with like: the take's drops that have a suspect -------------------------------------------------
+
+
+def test_the_verdict_goes_by_the_drops_with_a_suspect_where_the_take_was_attributed():
+    raw = fit(taken_take=400.0, taken_arena=150.0)
+    assert (raw.taken_blamed, raw.blamed_ratio, raw.life_ratio) == (None, None, raw.taken_ratio)
+    assert not raw.trusted  # 0.375 of all the take lost
+    like = replace(raw, taken_blamed=200.0)  # half of what the take lost was no blow
+    assert (like.taken_ratio, like.blamed_ratio, like.life_ratio) == (0.375, 0.75, 0.75)
+    assert like.trusted
+
+
+def test_a_take_whose_blows_barely_hurt_gives_no_ratio_of_like_with_like():
+    found = replace(fit(taken_take=400.0, taken_arena=100.0), taken_blamed=MIN_TAKEN - 1)
+    assert found.taken_ratio == 0.25
+    assert found.blamed_ratio is None
+    assert found.life_ratio is None
+    assert not found.trusted
+
+
+def test_pooled_like_with_like_is_over_the_drops_with_a_suspect():
+    fits = [replace(fit(100.0, 300.0), taken_blamed=50.0), replace(fit(0.0, 100.0), taken_blamed=0.0)]
+    assert pooled(fits) == 4.0
+    assert pooled(fits, True) == 8.0
+    assert pooled([fit(0.0, 100.0)], True) is None  # not attributed: nothing to pool over
 
 
 # --- a recording made by hand -------------------------------------------------------------------------
@@ -298,7 +331,8 @@ def test_a_replayed_cast_takes_the_monsters_life_and_it_dies():
     assert list(play(scene, standing(casts=[(-3, target)])).kills) == [UNIT]
 
 
-def test_a_death_in_the_arena_is_noted_and_the_rest_of_the_window_still_measured():
+def test_a_death_in_the_arena_is_noted_and_the_rest_of_the_window_still_measured(monkeypatch):
+    sure(monkeypatch)  # every swing lands: 50 points of life do not last the window
     scene = contact(50.0)
     scene.hero = replace(scene.hero, life=50.0, max_life=LIFE)
     replay = standing(200)
@@ -322,7 +356,8 @@ def test_a_replayed_belt_key_is_drunk_from_the_scenes_belt():
     assert played.life[10][0] == LIFE
 
 
-def test_the_hand_follows_the_replay():
+def test_the_hand_follows_the_replay(monkeypatch):
+    sure(monkeypatch)  # every shot lands, with the same rolls under either set
     scene = Scene('archer', hero(), [mob(UNIT, RETURNED_ARCHER, 10.0, 0.0)], [], [])
     scene.hero = replace(scene.hero, life=1e6, max_life=1e6)
     main_set = sum(points for *_blow, points in play(scene, standing(200)).blows)
@@ -341,10 +376,43 @@ def test_a_play_is_the_same_twice_and_another_with_another_seed():
     assert play(contact(), standing(), seed=1).blows != play(contact(), standing(), seed=2).blows
 
 
-def test_the_heaviest_blow_is_the_top_roll_of_the_scenes_monsters():
+def test_the_heaviest_blow_is_the_top_roll_of_the_scenes_monsters_at_the_top_of_the_fitted_spread():
     scene = contact()
-    assert heaviest(scene) == pytest.approx(Mobs._walker(scene.mobs[0]).traits.damage[1])
-    assert max(points for *_blow, points in play(scene, standing(500)).blows) <= heaviest(scene)
+    # Since the refit a blow is the table's roll times a factor drawn through the takes' quantiles
+    # (sim.monsters `spread`): its top is 5.0 times the mean of the drops one monster dealt alone.
+    top = Mobs._walker(scene.mobs[0]).traits.damage[1] * size_factor(MELEE, 1.0)
+    assert size_factor(MELEE, 1.0) == pytest.approx(4.994)
+    assert heaviest(scene) == pytest.approx(top)
+    blows = [points for seed in range(1, 9) for *_blow, points in play(scene, standing(2000), seed=seed).blows]
+    assert len(blows) > 20
+    assert max(blows) <= heaviest(scene)
+
+
+def test_the_drops_of_a_replay_are_classed_by_the_rows_given_and_the_unblamed_ones_noted():
+    scene, replay = contact(), standing()
+    replay.vitals = [(LIFE, LIFE)] * 10 + [(LIFE - 300.0, LIFE)] * 10 + [(LIFE - 400.0, LIFE)] * (TICKS - 19)
+    played = play(scene, replay)
+    assert compare(scene, replay, played).taken_blamed is None  # not attributed: the raw comparison only
+    replay.classed = [(10, 300.0, 'unknown'), (20, 100.0, 'sole melee')]
+    found = compare(scene, replay, played)
+    assert (found.taken_take, found.taken_blamed) == (400.0, 100.0)
+    assert any(note.startswith(MOSTLY_NOTE) for note in found.notes)
+    replay.classed = [(10, 300.0, 'several'), (20, 100.0, 'unknown')]
+    found = compare(scene, replay, played)
+    assert found.taken_blamed == 300.0
+    assert not any(note.startswith(MOSTLY_NOTE) for note in found.notes)
+
+
+def test_the_big_drops_are_counted_on_both_sides():
+    scene, replay = contact(), standing()
+    replay.classed = [(10, BIG, 'several'), (20, BIG + 50, 'unknown'), (30, BIG - 1, 'sole melee')]
+    played = play(scene, replay)
+    played.life = [(1800.0, 1800.0), (1800.0 - BIG, 1800.0), (1800.0 - BIG - 299.0, 1800.0), (1800.0, 1800.0)]
+    assert big_falls(played) == 1
+    text = '\n'.join(big_table([Row(scene, [fit()], replay, played, [1])]))
+    assert '| the takes, all | 2 |' in text
+    assert '| the takes, with a suspect | 1 |' in text
+    assert '| the arena, mean of 1 seeds | 1.0 |' in text
 
 
 def test_a_drop_of_the_take_beyond_any_blow_of_the_arena_is_noted():
@@ -375,12 +443,19 @@ def test_the_death_scene_against_its_take(tower: Take):
     assert found.seconds == pytest.approx(3.04)
     assert found.taken_take == 1108
     assert (found.kills_take, found.kills_arena) == (0, 0)
-    assert found.taken_arena > 0
     assert any('died in the take at 3.0 s' in note for note in found.notes)
-    # No monster of the scene deals in the arena what killed the character in the take.
-    assert heaviest(scene) < 1051 / rules.BEYOND
-    assert any(note.startswith(BEYOND_NOTE) for note in found.notes)
+    # Before the refit of the monsters no monster of the scene dealt in the arena what killed the
+    # character in the take (370 at most: the note of a blow the arena cannot deal). Since it, the
+    # Herald's blow at the top of the fitted spread is over the 1,051 points, so the note is gone;
+    # how seldom that blow comes is CALIBRATION.md's and evidence/refit_check.py's to say.
+    assert heaviest(scene) >= 1051
+    assert not any(note.startswith(BEYOND_NOTE) for note in found.notes)
     assert calibrate(scene, tower) == found
+    # Like with like: both drops of the window have a suspect in the take.
+    rows = attributed(tower)
+    like = calibrate(scene, tower, rows=rows)
+    assert like.taken_blamed == 1108
+    assert [group for _tick, _points, group in recorded(scene, tower, rows=rows).classed] == ['several', 'several']
 
 
 def test_the_cli_writes_the_report_and_the_verdicts(tower: Take, tmp_path: Path):
@@ -389,19 +464,24 @@ def test_the_cli_writes_the_report_and_the_verdicts(tower: Take, tmp_path: Path)
     fixtures.mkdir()
     (root / '20261011T195037Z-25').symlink_to(TOWER, target_is_directory=True)
     (fixtures / f'{DEATH}.json').write_text((FIXTURES / f'{DEATH}.json').read_text())
-    assert main(['--root', str(root), '--fixtures', str(fixtures), '--seeds', '2']) == 0
+    probes = tmp_path / 'probes'  # no probe logs: the take's own `mods` are all the enchantments known
+    probes.mkdir()
+    assert main(['--root', str(root), '--fixtures', str(fixtures), '--seeds', '2', '--probes', str(probes)]) == 0
     text = (fixtures / REPORT.name).read_text()
     assert f'| {DEATH} | death | ' in text
     assert f'## The death: {DEATH}' in text
     assert '| 3.00 | 1051 |' in text
-    assert json.loads((fixtures / VERDICTS.name).read_text()) == {DEATH: False}  # a blow the arena cannot deal
+    assert '### Like with like' in text
+    assert '## The big drops' in text
+    # Not trusted: the arena takes far less in these three seconds than the 1,108 points of the take.
+    assert json.loads((fixtures / VERDICTS.name).read_text()) == {DEATH: False}
 
 
 def test_a_take_that_is_not_there_fails_the_cli_and_writes_nothing(tmp_path: Path):
     fixtures = tmp_path / 'fixtures'
     fixtures.mkdir()
     (fixtures / f'{DEATH}.json').write_text((FIXTURES / f'{DEATH}.json').read_text())
-    assert main(['--root', str(tmp_path / 'none'), '--fixtures', str(fixtures)]) == 1
+    assert main(['--root', str(tmp_path / 'none'), '--fixtures', str(fixtures), '--probes', str(tmp_path)]) == 1
     assert not (fixtures / REPORT.name).exists()
 
 

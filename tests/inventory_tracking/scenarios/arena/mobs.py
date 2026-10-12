@@ -1,29 +1,33 @@
-"""The monsters of the arena: combat/sim/monsters.py made to answer to walls, range, blasts and auras
-(framework-plan.md, Task 1.2; architecture.md §6).
+"""The monsters of the arena: combat/sim/monsters.py made to answer to walls, lines of sight, blasts and
+auras (framework-plan.md, Task 1.2; architecture.md §6).
 
 `Mobs` holds a scene's monsters and plays them a game tick at a time against where the character is
-now. The melee monsters are `sim.monsters` walkers in its `Pack`, unchanged: the client's think cycle,
-the speed, the blows by rank, enchantment and Herald tier with their elemental parts, the sparks of a
-Lightning Enchanted one. `Horde` is that pack with what its docstring says it lacks:
+now. The monsters are `sim.monsters` walkers in its `Pack`, as that module has them since its refit
+to the takes (its module text): the think cycle, the swings a second, the chance that a swing or a
+shot takes life, whom a monster goes for, the blows by rank, enchantment and Herald tier and their
+spread, a shooter's cycle with its missile in flight, the sparks of a Lightning Enchanted one, the
+nova of a Cold Enchanted elite's death. The shooter's cycle was this file's own (one landed shot a
+second) and moved there with the refit. `Horde` is that pack with what it lacks:
 
 - walls: a walk whose straight line is barred (combat/stance.py `no_footing` over the scene's grids
   and closed doors) goes by macros/travel.py `walked_way`; with no way the monster stands. With no
   ground in the scene a walk is the pack's own straight line, roll for roll;
-- ranged attackers (the threat table's `ranged`): one stands and shoots from within RANGED_REACH while
-  macros/sight.py `clear_shot` holds, at the threat table's rate (`multiple` of monlvl `DM(H)` a
-  second, as scenarios/threat/harness.py counts it), and closes when it has lost the reach or the line.
+- lines of sight: a shooter lets a missile go only while macros/sight.py `clear_shot` holds, and
+  closes round the walls when it has lost the reach or the line. A missile in the air is not stopped
+  by a wall (the fit's chance that a missile ends on the character has the walls of the takes in it).
 
-`Mobs` adds what is not a monster's own move: an exploding corpse (the table's `death_damage`) deals
-BLAST to a character within BLAST_RADIUS, and a live monster with a damage aura raises the blows of
-the others within BOOST_RANGE.
+`Mobs` says which monsters shoot and what (the threat table's `ranged` and its points a shot; the
+types the takes show shooting that the table does not call ranged) and adds what is not a monster's
+own move: an exploding corpse (the table's `death_damage`) deals BLAST to a character within
+BLAST_RADIUS, and a live monster with a damage aura raises the blows of the others within BOOST_RANGE.
 
-What is this file's own assumption, not a table's or a take's, is named where it is set: SHOT_FRAMES,
-SHOT_LANDS, the kind of a blast, which aura an Aura Enchanted monster has, that a type the threat
-table does not call ranged fights hand to hand, and when a ranged monster starts to come.
+What is this file's own assumption, not a table's or a take's, is named where it is set: the points
+of a shot, the kind of a blast, which aura an Aura Enchanted monster has, that a type nothing calls a
+shooter fights hand to hand.
 
-Not modelled, as in `sim.monsters`: fleeing, hit recovery, bodies in each other's way. A companion of
-the character's stands where the scene has it and is never hurt; the companions a monster goes for
-are the places `tick` is given.
+Not modelled, as in `sim.monsters`: fleeing, bodies in each other's way, damage that is no blow. A
+companion of the character's stands where the scene has it and is never hurt; the companions a
+monster goes for are the places `tick` is given.
 """
 
 import math
@@ -35,13 +39,14 @@ from inventory_tracking.combat.mechanics.tables import tables
 from inventory_tracking.combat.sim.monsters import (
     MELEE,
     PHYSICAL,
+    SHOT,
+    SHOT_REACH,
     STAND,
-    STRIKE,
-    WALK,
     Blow,
     Pack,
     Walker,
     boost,
+    shoots,
 )
 from inventory_tracking.combat.stance import WAY_SAMPLE, no_footing
 from inventory_tracking.combat.timeline import GAME_RATE
@@ -55,20 +60,19 @@ from tests.inventory_tracking.scenarios.arena.scene import Mob, Scene
 
 # The threat scenarios' numbers, used here as they are there (framework-plan.md has them moved to this
 # file; scenarios/threat/harness.py is left alone by this task, so they are imported, not copied):
-# RANGED_REACH 30 units, about the screen; BOOST_RANGE 16, Might's range at level 1
-# (terror/data/threats.json auras); BLAST_RADIUS 4 and BLAST 450 points, both that file's assumptions.
-from tests.inventory_tracking.scenarios.threat.harness import BLAST, BLAST_RADIUS, BOOST_RANGE, RANGED_REACH
+# BOOST_RANGE 16, Might's range at level 1 (terror/data/threats.json auras); BLAST_RADIUS 4 and BLAST
+# 450 points, both that file's assumptions (the takes hold too few exploding corpses to refit them).
+from tests.inventory_tracking.scenarios.threat.harness import BLAST, BLAST_RADIUS, BOOST_RANGE
 from tests.inventory_tracking.scenarios.threat.table import table
 
 
 Point = tuple[float, float]
-SHOT = 'shot'  # the kind of a ranged monster's blow (sim.monsters has MELEE and SPARK)
-# Frames from one shot of a ranged monster to its next. This file's assumption, the one the threat
-# table's rate is built on (scenarios/threat/table.py `multiple`: "One hit a second is this harness's
-# assumption"): the table gives points a second, and a shot is one second of them.
+# The shooter's cycle before the refit: one shot every SHOT_FRAMES, landed SHOT_LANDS into it. Nothing
+# here plays by them any more (sim.monsters has the cycle, at the rate of the takes); they stay as
+# the yardstick evidence/model.py lays the takes against, and a shot's points are still "a second
+# of the threat table's points" (`shot_parts`), which is SHOT_FRAMES of them.
 SHOT_FRAMES = int(GAME_RATE)
-# The frame of a shot's cycle its points land at, if the reach and the line still hold then: this
-# file's assumption (no missile flies here), the middle of the cycle as sim.monsters HIT_FRAME is of a strike.
+RANGED_REACH = SHOT_REACH  # units a shooter shoots within: sim.monsters', which has the takes for it
 SHOT_LANDS = SHOT_FRAMES // 2
 # The kind of damage of an exploding corpse: this file's assumption (the table only says which corpses
 # explode, monstats `deathDmg`).
@@ -90,6 +94,14 @@ def threat_row(txt: int) -> dict:
 
 def is_ranged(txt: int) -> bool:
     return bool(threat_row(txt).get('ranged'))
+
+
+def shooter(txt: int) -> bool:
+    """Whether the arena plays the type as a shooter: the threat table calls it ranged, or the takes
+    show it shooting and not striking (sim.monsters `shoots`: the shamans, the Hydras). What such a
+    one shoots is `shot_parts`' last resort, the mean of its monstats attack: an assumption, the
+    takes hold 0 to 3 of their hits each."""
+    return is_ranged(txt) or shoots(txt)
 
 
 def explodes(txt: int) -> bool:
@@ -114,10 +126,9 @@ def shot_parts(walker: Walker) -> dict[str, float]:
 
 
 class Horde(Pack):
-    """`sim.monsters.Pack` on walled ground, with ranged attackers. The melee walkers think, strike and
-    roll as the pack has them; only where a walk's stride goes is replaced, and only when the straight
-    line is barred. A walker named in `shots` (unit -> the parts of its shot) is ranged: the pack
-    leaves it standing (its traits are not melee) and `_shoot` plays it."""
+    """`sim.monsters.Pack` on walled ground. The walkers think, strike, shoot and roll as the pack has
+    them; only where a stride goes is replaced, and only when the straight line is barred, and a
+    shooter (`shots`: unit -> the parts of its shot) needs a clear line to shoot."""
 
     def __init__(
         self,
@@ -127,29 +138,15 @@ class Horde(Pack):
         doors: Sequence[Door] = (),
         shots: Mapping[int, Mapping[str, float]] | None = None,
     ) -> None:
-        super().__init__(walkers, seed)
+        super().__init__(walkers, seed, shots)
         self.ground, self.doors = ground, tuple(doors)
         self.barred = no_footing(ground, self.doors)  # None: open ground
-        self.shots = dict(shots or {})
         self.frame = 0
         self.ways: dict[int, tuple[tuple[int, int], list[Point]]] = {}  # unit -> the goal's cell, the way left
-        # The ranged monsters that have had a target within their reach: these come after it. One that
-        # never had stands, as a melee monster does beyond AWARE (this file's assumption).
-        self.awake: set[int] = set()
-        for unit in self.shots:
-            # Each starts its cycle at a frame of its own, or a pack of archers would shoot as one.
-            self.walkers[unit].until = self.rolls[unit].randrange(SHOT_FRAMES)
 
     def step(self, frame: int, targets: Sequence[Point]) -> list[Blow]:
         self.frame = frame
-        blows = super().step(frame, targets)
-        if targets:
-            for unit in self.shots:
-                walker = self.walkers.get(unit)
-                blow = self._shoot(walker, frame, targets) if walker is not None else None
-                if blow is not None:
-                    blows.append(blow)
-        return blows
+        return super().step(frame, targets)
 
     def _open(self, start: Point, end: Point) -> bool:
         """Whether nothing bars the straight walk from `start` to `end` (the cell stood on is not looked at)."""
@@ -184,7 +181,7 @@ class Horde(Pack):
         return True
 
     def _walk(self, walker: Walker, targets: Sequence[Point]) -> None:
-        target = targets[walker.aim] if 0 <= walker.aim < len(targets) else targets[self._nearest(walker, targets)]
+        target = targets[walker.aim] if 0 <= walker.aim < len(targets) else targets[self._target(walker, targets)]
         if self._open(walker.at, target):
             self.ways.pop(walker.unit, None)
             super()._walk(walker, targets)
@@ -193,54 +190,21 @@ class Horde(Pack):
         elif not self._round(walker, target):
             walker.doing, walker.until = STAND, self.frame + max(walker.traits.idles, 1)
 
-    def _sighted(self, walker: Walker, targets: Sequence[Point], aim: int) -> bool:
-        """Whether the walker has the target `aim` within its reach with a clear line to it."""
-        if not 0 <= aim < len(targets):
+    def _sighted(self, walker: Walker, target: Point) -> bool:
+        """Whether the walker has `target` within its reach with a clear line to it."""
+        if not super()._sighted(walker, target):
             return False
-        target = targets[aim]
-        return math.dist(walker.at, target) <= RANGED_REACH and clear_shot(self.ground, walker.at, target, self.doors)
-
-    def _shot(self, walker: Walker, frame: int) -> Blow:
-        roll = self.rolls[walker.unit]
-        parts = dict(self.shots[walker.unit])
-        for element, least, most in walker.traits.elements:  # an enchantment's part, as on a blow (Pack._blow)
-            parts[element] = parts.get(element, 0.0) + parts.get(PHYSICAL, 0.0) * roll.uniform(least, most)
-        return Blow(frame, walker.unit, walker.aim, sum(parts.values()), SHOT, parts)
-
-    def _shoot(self, walker: Walker, frame: int, targets: Sequence[Point]) -> Blow | None:
-        """A frame of a ranged monster: its shot lands SHOT_LANDS into the cycle if the target is still
-        in reach and in sight; free, it starts the next shot at the nearest target it has both to,
-        and without them comes a stride nearer (round the walls where the line is barred)."""
-        blow = None
-        if walker.doing == STRIKE:
-            if frame == walker.until - (SHOT_FRAMES - SHOT_LANDS) and self._sighted(walker, targets, walker.aim):
-                blow = self._shot(walker, frame)
-            if frame >= walker.until:
-                walker.doing = STAND
-        if walker.doing == STRIKE or frame < walker.until:
-            return blow
-        aim = self._nearest(walker, targets)
-        target = targets[aim]
-        if math.dist(walker.at, target) <= RANGED_REACH:
-            self.awake.add(walker.unit)
-        if self._sighted(walker, targets, aim):
+        if clear_shot(self.ground, walker.at, target, self.doors):
             self.ways.pop(walker.unit, None)
-            walker.doing, walker.until, walker.aim = STRIKE, frame + SHOT_FRAMES, aim
-        elif walker.unit in self.awake:
-            walker.doing = WALK if self._closer(walker, target) else STAND
-        return blow
+            return True
+        return False
 
     def _closer(self, walker: Walker, target: Point) -> bool:
         """One stride toward `target`, straight where nothing bars it; False: no way."""
         if not self._open(walker.at, target):
             return self._round(walker, target)
         self.ways.pop(walker.unit, None)
-        away = math.dist(walker.at, target)
-        stride = min(walker.traits.speed, away)
-        if stride > 0:
-            walker.x += (target[0] - walker.x) / away * stride
-            walker.y += (target[1] - walker.y) / away * stride
-        return True
+        return super()._closer(walker, target)
 
 
 class Mobs:
@@ -258,7 +222,7 @@ class Mobs:
             else {unit: AURA_FACTOR for unit in self.hostile if AURA_MOD in self.mobs[unit].mods}
         )
         walkers = [self._walker(self.mobs[unit]) for unit in self.live()]
-        shots = {walker.unit: shot_parts(walker) for walker in walkers if is_ranged(walker.txt)}
+        shots = {walker.unit: shot_parts(walker) for walker in walkers if shooter(walker.txt)}
         ground = Ground(Walkable(**grid) for grid in scene.ground)
         # A door row as the stance fixtures hold it: unit, txt, mode, x, y (scenarios/stance/harness.py `load`).
         doors = [Door(row[0], row[1], row[2], float(row[3]), float(row[4])) for row in scene.doors]
@@ -274,15 +238,11 @@ class Mobs:
             mob.unit, mob.txt, mob.at[0], mob.at[1],
             level=mob.level or None, flags=mob.flags, mods=tuple(mob.mods), tier=mob.tier,
         )  # fmt: skip
-        if is_ranged(mob.txt):
-            # The pack must leave it to `Horde._shoot` whatever monstats `isMelee` says (Gloams and
-            # Succubi are melee there and ranged by the threat table).
-            walker.traits = replace(walker.traits, melee=False)
-        else:
-            # A type the threat table does not call ranged fights hand to hand with its monstats
-            # attack, though monstats does not flag it melee (shamans, maggots, Venom Lords: 35 types
-            # of the table): this file's assumption. Left as it is, the pack would have it stand.
-            walker.traits = replace(walker.traits, melee=True)
+        # A shooter is the pack's by its shot, whatever monstats `isMelee` says (Gloams and Succubi are
+        # melee there and ranged by the threat table). Any other type fights hand to hand with its
+        # monstats attack, though monstats does not flag it melee (maggots, Venom Lords): this file's
+        # assumption. Left as it is, the pack would have it stand.
+        walker.traits = replace(walker.traits, melee=not shooter(mob.txt))
         return walker
 
     def live(self) -> list[int]:
@@ -302,8 +262,8 @@ class Mobs:
         return factor
 
     def tick(self, hero_at: Point, companions: Sequence[Point], resist: Mapping[str, float]) -> float:
-        """One game tick: every live hostile thinks, moves and strikes at the nearest of the character
-        and its `companions`. The points taken off the character this tick, each kind of damage cut to
+        """One game tick: every live hostile thinks, moves, strikes and shoots at the character or one
+        of its `companions`. The points taken off the character this tick, each kind of damage cut to
         the share `resist` lets through (a kind it does not name: all of it)."""
         stopped = {kind: 1.0 - share for kind, share in resist.items()}
         taken = 0.0
@@ -321,8 +281,8 @@ class Mobs:
 
     def hit(self, unit: int, points: float) -> bool:
         """The character's damage on a monster; True: it died now. Nothing comes off an immune one, a
-        companion or a corpse. A Lightning Enchanted one may let its sparks go (`Pack.struck`); an
-        exploding one that dies leaves its blast for the next tick."""
+        companion or a corpse. A Lightning Enchanted one may let its sparks go (`Pack.struck`); one
+        that dies may let a nova go (`Pack.died`), and an exploding one leaves its blast for the next tick."""
         mob = self.mobs.get(unit)
         if mob is None or unit not in self.pack.walkers or mob.immune:
             return False
@@ -331,7 +291,7 @@ class Mobs:
         if mob.life > 0:
             return False
         mob.life, mob.mode = 0.0, LYING_DEAD
-        self.pack.remove(unit)
+        self.pack.died(unit, self.frame)
         if explodes(mob.txt):
             self.blasts.append(mob.at)
         return True

@@ -6,10 +6,20 @@ from dataclasses import asdict
 
 import pytest
 
-from inventory_tracking.combat.sim.monsters import REACH, UNIQUE_FLAG, Pack, Traits, Walker
+from inventory_tracking.combat.sim.monsters import (
+    COLD,
+    REACH,
+    UNIQUE_FLAG,
+    Pack,
+    Traits,
+    Walker,
+    nova_points,
+    shooter_of,
+)
 from inventory_tracking.levels.model import Walkable, pack_cells
 from inventory_tracking.macros.world import LYING_DEAD, NO_OWNER
 from inventory_tracking.native.layout import TILE_UNITS
+from tests.inventory_tracking.scenarios.arena.evidence.sure import sure
 from tests.inventory_tracking.scenarios.arena.mobs import (
     AURA_FACTOR,
     AURA_MOD,
@@ -21,6 +31,7 @@ from tests.inventory_tracking.scenarios.arena.mobs import (
     SHOT_FRAMES,
     Mobs,
     is_ranged,
+    shooter,
     shot_parts,
 )
 from tests.inventory_tracking.scenarios.arena.scene import Hero, Mob, Scene, WeaponSet
@@ -34,6 +45,13 @@ VENOM_LORD = 362  # not ranged by the table, not melee by monstats
 HERE = (5020.0, 5020.0)
 OPEN: dict[str, float] = {}  # every kind of damage let through
 SIDE = 8  # tiles of the walled ground's side, from tile (1000, 1000): world 5000 to 5040
+
+
+@pytest.fixture(autouse=True)
+def every_blow_lands(monkeypatch):
+    """This file is of walls, lines of sight, blasts and auras: every swing and shot lands in it (the
+    fitted chances that they do are tests/inventory_tracking/combat/test_monsters.py's)."""
+    sure(monkeypatch)
 
 
 def scene(mobs: list[Mob], ground: list[dict] | None = None, doors: list[list] | None = None) -> Scene:
@@ -156,12 +174,16 @@ def test_a_closed_door_bars_the_walk_and_an_open_one_does_not():
 def test_a_ranged_monster_shoots_from_where_it_stands():
     mobs = Mobs(scene([mob(1, RETURNED_ARCHER, 25.0, 0.0)]), random.Random(1))
     start = place(mobs, 1)
-    seconds = 10
-    taken = played(mobs, seconds * SHOT_FRAMES + SHOT_FRAMES)
+    seconds = 120
+    taken = played(mobs, seconds * SHOT_FRAMES)
     walker = mobs.pack.walkers[1]
     assert place(mobs, 1) == start
-    # the threat table's rate: a shot a cycle, its first within the first two cycles
-    assert taken == pytest.approx(sum(shot_parts(walker).values()) * seconds, rel=0.11)
+    # Since the refit of the monsters the rate is the takes' (0.42 shots a second for the type: one
+    # every 60 frames, the gap drawn from half to one and a half of that), no longer a shot a second;
+    # a shot is still a second of the threat table's points.
+    rate = shooter_of(RETURNED_ARCHER)['rate']['value']
+    assert rate == pytest.approx(0.416)
+    assert taken == pytest.approx(sum(shot_parts(walker).values()) * seconds * rate, rel=0.1)
     assert set(shot_parts(walker)) == {'physical', 'cold'}  # the archer's row: 0.5 physical, 0.8 elemental, cold
 
 
@@ -181,9 +203,9 @@ def test_a_ranged_monster_out_of_its_reach_stands_and_deals_nothing():
 
 def test_a_ranged_monster_follows_a_character_that_left_its_reach():
     mobs = Mobs(scene([mob(1, RETURNED_ARCHER, 25.0, 0.0)]), random.Random(1))
-    assert played(mobs, 50) > 0.0
+    assert played(mobs, 150) > 0.0  # its first shot within a gap and a half, and the arrow's flight
     far = (HERE[0] - 20.0, HERE[1])  # 45 units from it now
-    assert played(mobs, 200, far) > 0.0
+    assert played(mobs, 400, far) > 0.0
     assert math.dist(place(mobs, 1), far) <= RANGED_REACH
 
 
@@ -208,7 +230,9 @@ def test_a_ranged_monster_walled_off_deals_nothing():
 def test_rank_raises_a_shot_as_it_raises_a_blow():
     plain = Mobs(scene([mob(1, RETURNED_ARCHER, 25.0, 0.0)]), random.Random(1))
     unique = Mobs(scene([mob(1, RETURNED_ARCHER, 25.0, 0.0, flags=UNIQUE_FLAG)]), random.Random(1))
-    assert played(unique, 250) == pytest.approx(played(plain, 250) * 1.66)  # difficultylevels UniqueDamageBonus 66
+    shot = played(plain, 250)
+    assert shot > 0.0
+    assert played(unique, 250) == pytest.approx(shot * 1.66)  # difficultylevels UniqueDamageBonus 66
 
 
 # --- blasts -------------------------------------------------------------------------------------------
@@ -404,3 +428,65 @@ def test_equal_scenes_and_seeds_give_equal_fights():
 
 def test_another_seed_gives_another_fight():
     assert story(11) != story(12)
+
+
+# --- what the refit of the monsters added (2026-10-12) ---------------------------------------------------
+
+CARVER_SHAMAN, DARK_STALKER = 59, 45  # shoot in the takes; the threat table calls neither ranged
+
+
+def test_a_type_the_takes_show_shooting_is_a_shooter_though_the_threat_table_does_not_call_it_ranged():
+    assert not is_ranged(CARVER_SHAMAN)
+    assert shooter(CARVER_SHAMAN)
+    assert not shooter(DARK_STALKER)  # it strikes too in the takes (30 s in reach): its missiles are an enchantment's
+    assert not shooter(GHOUL)
+    mobs = Mobs(scene([mob(1, CARVER_SHAMAN, 12.0, 0.0), mob(2, DARK_STALKER, 12.0, 4.0)]), random.Random(1))
+    assert set(mobs.pack.shots) == {1}
+    assert (mobs.pack.walkers[1].traits.melee, mobs.pack.walkers[2].traits.melee) == (False, True)
+
+
+def test_a_missile_in_the_air_misses_a_character_that_left_and_hits_one_that_stayed():
+    def taken(leaves: bool) -> float:
+        mobs = Mobs(scene([mob(1, RETURNED_ARCHER, 24.0, 0.0)]), random.Random(1))
+        total = 0.0
+        for _tick in range(1500):
+            # Away whenever an arrow is in the air, back when none is.
+            away = leaves and bool(mobs.pack.flying)
+            total += mobs.tick((HERE[0], HERE[1] + 10.0) if away else HERE, (), OPEN)
+        return total
+
+    assert taken(False) > 0.0
+    assert taken(True) == 0.0
+
+
+def test_the_death_of_a_cold_enchanted_elite_lets_a_nova_go_that_the_cold_resistance_cuts():
+    def nova(resist, **more) -> float:
+        mobs = Mobs(scene([mob(1, GHOUL, 9.0, 0.0, mods=(COLD,), **more)]), random.Random(4))
+        assert mobs.hit(1, 2000.0) is True
+        return played(mobs, 30, resist=resist)
+
+    whole = nova(OPEN, flags=UNIQUE_FLAG)
+    assert whole in (nova_points(85), 2 * nova_points(85))  # the missile's points at the monster's level, or twice
+    assert nova({'cold': 0.25}, flags=UNIQUE_FLAG) == pytest.approx(whole / 4)
+    assert nova(OPEN) == 0.0  # a plain monster carrying Cold Enchanted lets none go (0 of 373 in the takes)
+
+
+def test_equal_seeds_give_equal_fights_with_shooters_and_novas():
+    def fight(seed: int) -> list[float]:
+        mobs = Mobs(
+            scene([
+                mob(1, RETURNED_ARCHER, 20.0, 0.0),
+                mob(2, GHOUL, 6.0, 2.0, mods=(COLD,), flags=UNIQUE_FLAG),
+                mob(3, HELL_BOVINE, -3.0, 0.0),
+            ]),
+            random.Random(seed),
+        )  # fmt: skip
+        told = []
+        for tick in range(400):
+            if tick == 100:
+                mobs.hit(2, 5000.0)
+            told.append(mobs.tick(HERE, [(HERE[0] + 3.0, HERE[1] + 3.0)], OPEN))
+        return told
+
+    assert fight(7) == fight(7)
+    assert fight(7) != fight(8)

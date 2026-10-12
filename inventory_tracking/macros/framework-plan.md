@@ -638,6 +638,17 @@ guards.
 | R.5 | C | the arena's own: a walk, a hop and a warp take their time and the character can be hit on the way (`Arena.act`) | stance scenes replayed |
 | R.6 | M | calibration rerun; the trusted share and what is still off written to architecture.md | more than half of the scenes with a ratio trusted, or the user decides what Stage 4 may be judged on |
 
+**Stage 3½ result, 2026-10-12 night.** R.0 (evidence from all takes, `19fcedb`), R.5 (moves take time,
+`e620a3a`), R.1–R.4 (the refit) done; R.6: architecture.md §6.2.2. The model matches the check half by
+mechanism; per-scene calibration cannot judge a model whose blows are rare (3 of 72 trusted, by the measure's
+own noise). Stage 4 is therefore judged by **distributions over seeds and scenes**, not by single plays, and
+needs first: (a) a runner that plays a scene set × N seeds and compares two scorecards as distributions
+(deaths, median and 95th-percentile life lost, clear time); (b) the Lightning Enchanted sparks refitted
+(35% of the arena's points); (c) scenes cut at fixed times as well as by outcome, so the mean is not biased.
+New for Stage 4 from the evidence: Cold Enchanted elites' death novas (14% of recorded loss) deserve a rule
+of their own (do not stand within 12 units of one that is about to die); a third of the loss is not blows
+and is the drinking judgement's, not positioning's.
+
 ## Stage 4 — safety (outline)
 
 | Task | Who | What | Measure |

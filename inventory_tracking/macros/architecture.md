@@ -912,6 +912,48 @@ What follows from it:
   strike held on its key and not on the right button, `make osd` drank nothing for the whole
   hold. The "urgent only" part given to `make osd` (4.4) does not hold while a key is down.
 
+### 6.2.2 After the refit (2026-10-12 night): mechanisms believable, single plays not
+
+Evidence was measured from all the takes (`tests/inventory_tracking/scenarios/arena/evidence/EVIDENCE.md`:
+674 takes, 1,508 drops of life, a train half and a check half) and the monster model refitted on the train
+half (`combat/data/monsters_fit.json`, written by `arena/evidence/fit.py`; `combat/sim/monsters.py`).
+
+What the takes say: a third of the life lost is not a blow at all (damage over time, small costs of the
+character's own); a melee monster in reach swings about once a second but a whole swing takes life one time in
+five or six, and 28% of swings are cut short; a shooter lets go 0.43 shots a second, a quarter end on the
+character and 2 to 20% of those take life; a teleporting character is found by fewer than half as many; melee
+goes for the character half the time even when a companion is nearer, archers nearly always for a companion;
+every Cold Enchanted champion or unique lets go a nova as it dies — about 180 points, sometimes twice that,
+out to about 12 units, 14% of all the life the takes lost; 20 drops over 300 points in 19,097 s.
+
+How the refit stands against the check half (`arena/evidence/refit_check.py`): 93 of 111 rows within 0.5 to 2;
+the pooled rows 0.75 to 1.3 (life a second in reach 8.9 against 9.6; shooters 0.44 against 0.52; the nova's
+size 172 against 181). Outside: types with a handful of shots, Blood Clan (its check figure holds the death's
+1,051 points), and single-source drops over 300 (3.6 times the check half's, level with the train half's).
+
+How it stands in calibration: 3 of 72 scenes trusted, the arena now at 0.48 of the takes in sum (it was 3.17),
+its character dead in 1 window (17 before). **This is not a model that is still wrong by three; it is a
+measure that cannot work.** With real chances an 8-second window holds 0 to 5 blows: over 30 seeds one scene
+is within 0.5 to 2 in 15% of its plays. And the windows were chosen by their outcome (a burst, a death, a run
+of potions): the 32 cut for damage read 0.30, the 40 cut for length read 2.4. In the death scene the arena's
+character dies in 2% of 400 seeds and loses 500 or more in 9% — before the refit it could not die there at
+all.
+
+What follows for judging safety (Stage 4):
+
+- A verdict is a **distribution over many seeds and many scenes** — the share of plays that end dead, the
+  life lost at the median and at the worst twentieth, the time to clear — before and after a change, never one
+  play. `result.scorecard` over seeds is the tool; a rule is better when deaths and the heavy tail fall and
+  the clear time does not rise by more than it buys.
+- The arena is believed **by mechanism** (the check-half table), not by scene. `trusted.json` stays as a
+  record and is not what a safety test waits for.
+- The 13 wanted behaviors of the threat harness keep their own harsh, certain model: they say what the fight
+  should do when the danger is real, which is the design; the arena says how often that danger comes.
+- Still not believable, and why: Lightning Enchanted sparks (not refitted, always land: 35% of the arena's
+  points now); clustered losses (a Temptress pack took 1,829 in 8 s, the arena about 90: independent rolls do
+  not make such seconds); types on pooled rows (all but five melee types and three shooters); damage over
+  time (no cause in a take: the recorder would have to write the character's states).
+
 ### 6.3 In the game
 
 Latency traces (latency.jsonl) for every new path that preempts: a break-off must reach its

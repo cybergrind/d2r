@@ -54,7 +54,12 @@ complete with no change of behavior. Suite: 5863 passed, 8 skipped, 63 xfailed (
   `python -m inventory_tracking.builds.warlock.echoing_strike <gate|validate|calibrate|simulate|inputs|policy|compare>`.
 - **Arena calibration: 1 of 72 scenes trusted** (architecture.md §6.2.1): not yet a judge of safety.
 
-**Next:** Stage 3½ — refit the arena's monsters (R.1 ranged, R.2 melee to-hit, R.3 targets, R.4 big
-blows, R.5 moves take time, R.6 recalibrate) before any Stage 4 verdict. Stage 4 changes behavior in
-the game: confirm with the user before it goes in. Kept-as-today behaviors that the new design would
-change are listed in `framework-stage3-inventory.md` and the agents' notes for Stage 5.
+**Stage 3½ (2026-10-12 night): done.** Evidence from 674 takes (`arena/evidence/EVIDENCE.md`), the monster
+model refitted on the train half (`combat/data/monsters_fit.json`), moves take time in the arena. The model
+matches the check half by mechanism (93 of 111 rows within 0.5–2); per-scene calibration is not a usable
+measure for rare blows (architecture.md §6.2.2). Also that night: the full-inventory pickup fix (`b383d19`,
+not a refactor change: plan.md entry of 20:30), found in the user's first live session on the framework.
+
+**Next:** Stage 4 (safety) changes behavior in the game — the user's go-ahead is needed. Before its rules:
+a seeds × scenes runner that compares scorecards as distributions; the Lightning Enchanted sparks refitted;
+scenes cut at fixed times. The branch `combat-framework` is not merged to main.

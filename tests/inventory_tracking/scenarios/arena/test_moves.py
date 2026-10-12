@@ -23,6 +23,7 @@ from inventory_tracking.macros.skills import TELEPORT
 from inventory_tracking.macros.teleport import MOVED, WALKING
 from tests.inventory_tracking.macros.fakes import KEYS
 from tests.inventory_tracking.scenarios.arena.driver import Press, play
+from tests.inventory_tracking.scenarios.arena.evidence.sure import sure
 from tests.inventory_tracking.scenarios.arena.game import RUN_SPEED, Arena
 from tests.inventory_tracking.scenarios.arena.scenes_basic import (
     HERE,
@@ -218,7 +219,11 @@ def crossing(instant_moves: bool, seed: int = 1) -> Arena:
 
 
 @pytest.mark.parametrize('seed', [1, 2, 3])
-def test_a_monster_with_the_path_in_reach_strikes_a_character_walking_past(seed):
+def test_a_monster_with_the_path_in_reach_strikes_a_character_walking_past(seed, monkeypatch):
+    # Of the arena giving the monsters the character's place on the way, not of the fitted chances:
+    # every shot lands, and at once (with the fitted flight an arrow sent at a character that walks
+    # on ends behind it: tests/inventory_tracking/scenarios/arena/test_mobs.py has that).
+    sure(monkeypatch, instant=True)
     walked, jumped = crossing(False, seed), crossing(True, seed)
     assert walked.here == jumped.here == walked.walks[-1]  # the same walk, to its end
     assert jumped.taken == 0.0  # in cover at both ends: the walk made in an instant passes no line
@@ -395,7 +400,8 @@ def test_the_step_toward_a_monster_out_of_reach_is_made_and_the_monster_killed(s
     assert result.cleared_at > before.cleared_at
 
 
-def test_the_step_round_a_wall_is_walked_and_the_monster_killed():
+def test_the_step_round_a_wall_is_walked_and_the_monster_killed(monkeypatch):
+    sure(monkeypatch)  # the bovine's swings all land: the test is of the walk, not of the fitted chances
     result = play(bovine_behind_a_wall(), [Press(0, PICKUP)], 20.0)
     before = play(bovine_behind_a_wall(), [Press(0, PICKUP)], 20.0, instant_moves=True)
     said = lines(result)

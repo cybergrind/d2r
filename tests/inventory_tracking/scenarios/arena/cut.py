@@ -86,11 +86,14 @@ def through(percent: float) -> float:
 NAME = next(iter(CHARACTERS))  # the one character builds/characters.py knows
 # The main set, as base codes (builds/characters.py CHARACTERS: Heart of the Oak on a Flail and Spirit on a
 # Monarch). Fire, cold and lightning "at the cap" (macros/hunt.py `Hunter.tough`; combat/plan.md
-# 2026-10-12 02:10 has them 90/79/89 in Hell). Physical: not known for this set, so not named
-# (the arena lets a kind a set does not name through whole).
+# 2026-10-12 02:10 has them 90/79/89 in Hell). Physical 10, the same as on the staff's set: the
+# `character_stats` of the 14 takes that start with this set in hand (fire 190, lightning 179, cold 189
+# before the penalty) hold stat 36 (`damageresist`) at 10 in 13 and at -90 in one, a curse
+# (evidence/EVIDENCE.md section 11, 2026-10-12). Before that reading it was not named here and the
+# arena let physical damage through whole.
 MAIN = WeaponSet(
     tuple(sorted(CHARACTERS[NAME].battle)),
-    {'fire': through(CAP), 'cold': through(CAP), 'lightning': through(CAP)},
+    {'fire': through(CAP), 'cold': through(CAP), 'lightning': through(CAP), 'physical': through(10)},
 )
 # The other set: Naj's Puzzler, worn for its Teleport charges (routines.py, the comment on
 # CHARACTERS; the base codes are macros/fakes.py OTHER_SET). Lightning 8 and cold 18 in Hell
@@ -103,9 +106,8 @@ STAFF = WeaponSet(
     {'fire': through(54), 'cold': through(18), 'lightning': through(8), 'physical': through(10)},
     teleport_charges=69,
 )
-# What of the two sets nobody has read: the main set's physical resistance (10 on the staff's set, and
-# no item of the main set is known to change it), and poison on both (no monster of the arena deals it).
-UNKNOWN = ("the main set's physical resistance",)
+# What of the two sets nobody has read: poison on both (no monster of the arena deals it).
+UNKNOWN = ('poison',)
 # The character as far as the repo knows it. Its place, area, life and mana are a frame's and stand at
 # nothing here. The belt is what the logs of 2026-10-11 showed (scenarios/battle/tower_cellar5.py BELT:
 # full, healing potions in the third column, the first two taken as full rejuvenations). The skill keys

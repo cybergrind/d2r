@@ -224,6 +224,7 @@ def test_the_default_hero_is_the_character_the_repo_knows():
     assert ECHOING_STRIKE in hero.slots
     assert hero.hand == 0
     # macros/hunt.py `Hunter.tough`: the main set at the cap, the teleport set lightning 8 and cold 18 in Hell.
-    assert MAIN.resist == {'fire': 0.25, 'cold': 0.25, 'lightning': 0.25}
+    # physical 10 since 2026-10-12: the manifests of 13 takes with this set in hand (evidence/EVIDENCE.md, section 11)
+    assert MAIN.resist == {'fire': 0.25, 'cold': 0.25, 'lightning': 0.25, 'physical': 0.9}
     assert (STAFF.resist['lightning'], STAFF.resist['cold']) == (0.92, 0.82)
     assert (STAFF.resist['fire'], STAFF.resist['physical']) == (0.46, 0.9)  # combat/plan.md: fire 54, physical 10
