@@ -8,16 +8,17 @@ import pytest
 from pydantic import ValidationError
 
 from inventory_tracking.builds.generic import GENERIC
+from inventory_tracking.builds.warlock.echoing_strike.build import ECHOING_STRIKE_BUILD
 from inventory_tracking.combat import stance
 from inventory_tracking.combat.policy import Choice, Foe, Observation
 from inventory_tracking.levels.model import Ground
-from inventory_tracking.macros.build import Build, Intent, MoveFacts, NoWay, choose
-from inventory_tracking.macros.travel import Step
+from inventory_tracking.macros.build import Build, Intent, JumpSource, MoveFacts, NoWay, choose
+from inventory_tracking.macros.travel import OWN_MOVE, PLAYER_STEP, SEEK, Step, navigator
 from inventory_tracking.macros.world import Player, Teleport, World
 from tests.inventory_tracking.builds.dummy import DUMMY
 
 
-BUILDS = [GENERIC, DUMMY]
+BUILDS = [GENERIC, DUMMY, ECHOING_STRIKE_BUILD]
 PHASES = {'prebuff', 'upkeep', 'fight', 'opening'}
 IDS = [build.name for build in BUILDS]
 build_cases = pytest.mark.parametrize('build', BUILDS, ids=IDS)
@@ -31,6 +32,9 @@ INTENTS = [
     Intent('plain', reserve=10, may_swap=False, may_wait=False, distrust=30.0),
     Intent('short', reserve=10, may_swap=False, may_wait=False, distrust=30.0, short=14.0),
     Intent('shunning', reserve=10, may_swap=False, may_wait=False, distrust=30.0, shuns=lambda spot: True),
+    OWN_MOVE,
+    SEEK,
+    PLAYER_STEP,
 ]
 FACTS = [
     MoveFacts(here=HERE, now=10.0, slots=(7, None), staff=staff, ground=ground, doors=(), aspect=1.8)
@@ -47,56 +51,92 @@ def sets_of(build: Build):
     return build.movement
 
 
+def asked(build: Build):
+    """(the set, the facts, a goal, an intent) for every set of the build and everything on the grid:
+    with the keys as the grid has them (none of the set's jumps on one), and with every jump of the
+    set on a key, at rest and a moment after each was last made."""
+    for movement in sets_of(build):
+        on_keys = tuple(source.jump.skill for source in movement.sources)
+        just = dict.fromkeys(on_keys, 9.9)
+        for facts, goal, intent in GRID:
+            yield movement, facts, goal, intent
+            if on_keys:
+                yield movement, dataclasses.replace(facts, slots=on_keys), goal, intent
+                yield movement, dataclasses.replace(facts, slots=on_keys, last_used=just), goal, intent
+
+
 @build_cases
 def test_a_movement_set_answers_with_a_step_or_a_reason(build):
-    for movement in sets_of(build):
-        for facts, goal, intent in GRID:
-            leg = movement.leg(facts, goal, intent)
-            assert isinstance(leg, Step | NoWay)
-            if isinstance(leg, NoWay):
-                assert leg.reason.strip()
-            else:
-                assert all(math.isfinite(c) for c in leg.spot)
-                assert math.dist(leg.spot, goal) <= math.dist(facts.here, goal) + 1e-9
+    for movement, facts, goal, intent in asked(build):
+        leg = movement.leg(facts, goal, intent)
+        assert isinstance(leg, Step | NoWay)
+        if isinstance(leg, NoWay):
+            assert leg.reason.strip()
+        else:
+            assert all(math.isfinite(c) for c in leg.spot)
+            assert math.dist(leg.spot, goal) <= math.dist(facts.here, goal) + 1e-9
 
 
 @build_cases
 def test_a_goal_within_the_stand_off_is_an_arrival_and_a_shunned_end_is_a_block(build):
-    for movement in sets_of(build):
-        for facts, goal, intent in GRID:
-            leg = movement.leg(facts, goal, intent)
-            away = math.dist(facts.here, goal)
-            if away <= intent.short:
-                assert isinstance(leg, NoWay)  # never a step back
-                assert leg.arrived
-            elif away - intent.short >= 10.0 and intent.shuns(goal):
-                assert isinstance(leg, NoWay)  # a move is wanted, and every end of one is shunned
-                assert not leg.arrived
+    for movement, facts, goal, intent in asked(build):
+        leg = movement.leg(facts, goal, intent)
+        away = math.dist(facts.here, goal)
+        if away <= intent.short:
+            assert isinstance(leg, NoWay)  # never a step back
+            assert leg.arrived
+        elif away - intent.short >= 10.0 and intent.shuns(goal):
+            assert isinstance(leg, NoWay)  # a move is wanted, and every end of one is shunned
+            assert not leg.arrived
 
 
 @build_cases
 def test_eta_is_inf_exactly_where_leg_has_no_way(build):
-    for movement in sets_of(build):
-        for facts, goal, intent in GRID:
-            blocked = isinstance(movement.leg(facts, goal, intent), NoWay)
-            eta = movement.eta(facts, goal, intent)
-            assert (eta == math.inf) == blocked
-            assert blocked or eta >= 0
+    for movement, facts, goal, intent in asked(build):
+        blocked = isinstance(movement.leg(facts, goal, intent), NoWay)
+        eta = movement.eta(facts, goal, intent)
+        assert (eta == math.inf) == blocked
+        assert blocked or eta >= 0
 
 
 @build_cases
-def test_wait_is_never_negative(build):
-    for movement in sets_of(build):
-        assert all(movement.wait(facts, goal, intent) >= 0 for facts, goal, intent in GRID)
+def test_wait_is_never_negative_and_nothing_for_a_caller_that_does_not_wait(build):
+    for movement, facts, goal, intent in asked(build):
+        wait = movement.wait(facts, goal, intent)
+        assert wait >= 0
+        assert intent.may_wait or wait == 0
 
 
 @build_cases
-def test_jumps_are_jumps(build):
+def test_jumps_are_jumps_of_the_sets_own_sources_in_their_order(build):
+    for movement, facts, _, intent in asked(build):
+        found = movement.jumps(facts, intent)
+        assert isinstance(found, tuple)
+        assert all(isinstance(jump, stance.Jump) for jump in found)
+        known = [source.jump for source in movement.sources]
+        assert [jump for jump in known if jump in found] == list(found)
+        assert all(jump.skill in facts.slots for jump in found)  # never by a skill that is on no key
+
+
+@build_cases
+def test_the_sources_of_a_set_are_jump_sources_with_a_delay_that_is_not_negative(build):
     for movement in sets_of(build):
-        for facts, _, intent in GRID:
-            found = movement.jumps(facts, intent)
-            assert isinstance(found, tuple)
-            assert all(isinstance(jump, stance.Jump) for jump in found)
+        assert isinstance(movement.sources, tuple)
+        assert movement.name.strip()
+        for source in movement.sources:
+            assert isinstance(source, JumpSource)
+            assert isinstance(source.jump, stance.Jump)
+            assert source.delay >= 0
+
+
+@build_cases
+def test_the_navigator_asks_only_a_set_that_applies(build):
+    """`leg` is never asked of a set whose `applies` is false: the navigator is the one way to a set."""
+    sets = sets_of(build)
+    for facts in FACTS:
+        movement = navigator(sets, facts)
+        applying = [candidate for candidate in sets if candidate.applies(facts)]
+        assert movement is (applying[0] if applying else None)
 
 
 def seen_with(*foes: tuple[int, tuple[float, float]]) -> Observation:

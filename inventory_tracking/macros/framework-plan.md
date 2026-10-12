@@ -593,7 +593,9 @@ inventory_tracking/builds/
 | 3.8 | C | `combat/mechanics/echoing_strike.py` moved under the build; `combat/sim/` takes the cast model as a parameter | 3.7 |
 | 3.9 | M | wire `choose()` into the runner; remove re-exports; the ratchet's residue listed with a reason each and shown to the user | all |
 
-Parallel groups: {3.1} → {3.2, 3.4} → {3.3, 3.5} → {3.6} → {3.7} → {3.8} → {3.9}.
+Order as run (2026-10-12): 3.1 → 3.2 + 3.3 (one task: the same files) → 3.5 + 3.6 → 3.7 → 3.4 (the
+ids can leave `macros/skills.py` only when their last user in the framework is gone) → 3.8 → 3.9.
+Done: 3.1 (`9f4fc28`), 3.2 + 3.3 (ratchet 67 → 64).
 
 What may honestly remain outside `builds/` after Stage 3 (the residue, to be confirmed then):
 `combat/hurts.py` and `combat/__main__.py` reports that name the strike in their output, and

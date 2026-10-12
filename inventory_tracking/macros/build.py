@@ -7,7 +7,8 @@ whole of what the framework may ask of a build, and it imports nothing from a bu
 - `Attack`: where to cast, what a cast takes off whom, how far it hurts, the skill the fight holds.
 - `MovementSet`: a combination of ways to move (a jump of one kind or another, a walk) with its own
   route logic, asked for the next move toward a goal from `MoveFacts` and within an `Intent`. It
-  answers with a `Step` or with `NoWay` and the reason, never with silence.
+  answers with a `Step` or with `NoWay` and the reason, never with silence. The jumps it is made of
+  are `JumpSource`s: a skill, what a jump by it takes, and when it can be made.
 - `Buff`: one row of the buff plan, cast by the shared executor or by a caster the build names.
 - `Tactic`: what a kind of pack adds to the one price of a place.
 - `Build`: those, the weapon sets and the numbers (`BuildSettings`), with `applies` to say whose it
@@ -74,7 +75,9 @@ class Intent:
     them; what differs is what may be spent, waited for and trusted."""
 
     name: str
-    reserve: int  # charges of the staff this caller never spends: with as many or fewer left, no jump by them
+    # The fewest charges of the staff a jump by them is still made with: with `reserve` left it is, with
+    # one fewer it is not (0: they are spent to the last)
+    reserve: int
     may_swap: bool  # whether the weapon set may be changed for the move
     may_wait: bool  # whether a casting delay about to end is worth waiting out (`MovementSet.wait`)
     distrust: float  # seconds a way that moved nothing is left alone
@@ -85,6 +88,12 @@ class Intent:
     short: float = 0.0  # units short of the goal the move is to end (a stand-off from a hostile)
     shot: bool = False  # a short walk has to end with a clear shot at the goal
     shuns: Callable[[Point], bool] = nowhere  # places not to end a move at
+    # The move asked for is along the walked way round a wall, not the straight stride: asked by the
+    # caller after a stride was blocked, and only by one that has no hop left to make instead
+    detour: bool = False
+    # A casting delay is waited out without asking whether the way it frees leads toward the goal: the
+    # caller has looked at the line itself, or takes what comes after the wait
+    waits_blind: bool = False
 
 
 @dataclass(frozen=True)
@@ -120,12 +129,60 @@ class NoWay:
 Leg = Step | NoWay  # the next move, or the reason there is none: a movement set never answers with None
 
 
+def anyhow(facts: MoveFacts, intent: Intent) -> bool:
+    """Nothing of its own bars the jump."""
+    return True
+
+
+@dataclass(frozen=True)
+class JumpSource:
+    """One skill a character jumps by, as a movement set is made of it: the jump as a place is priced
+    by it, the skill's casting delay, and its own test of whether it can be made (charges left and the
+    staff in hand, for a jump from a staff)."""
+
+    jump: Jump
+    delay: float = 0.0  # seconds between two jumps by the skill (its casting delay); 0.0: none
+    usable: Callable[[MoveFacts, Intent], bool] = anyhow  # what only this source asks of the facts
+
+    def ready(self, facts: MoveFacts, intent: Intent) -> bool:
+        """Whether a jump by it can be made now: the skill on a key, not one that moved nothing less
+        than `intent.distrust` seconds ago, its casting delay over, and its own test passed."""
+        skill = self.jump.skill
+        return (
+            skill in facts.slots
+            and facts.since_failed(skill) > intent.distrust
+            and (not self.delay or facts.since_used(skill) >= self.delay)
+            and self.usable(facts, intent)
+        )
+
+    def cooling(self, facts: MoveFacts) -> float:
+        """Seconds of its casting delay still to run: more than 0 only while one runs, and never
+        more than the delay."""
+        left = self.delay - facts.since_used(self.jump.skill)
+        return left if 0 < left <= self.delay else 0.0
+
+
 class MovementSet(Protocol):
     """A combination of ways to move and how it uses them (architecture.md 4.3: `Charged`, `Empty`,
     a walker). The navigator asks the first set that `applies`, anew at each arbitration and never in
-    the middle of a step. Every method is pure and reads nothing but its arguments."""
+    the middle of a step. Every method is pure and reads nothing but its arguments.
 
-    name: str
+    `leg`, `eta`, `jumps` and `wait` are asked only of a set whose `applies` holds for the same facts:
+    the navigator (travel.py `navigator`) is the one way to a set, and what a set answers for facts
+    that are not its own is not defined."""
+
+    @property
+    def name(self) -> str:
+        """What the set is called in the log."""
+        ...
+
+    @property
+    def sources(self) -> tuple[JumpSource, ...]:
+        """The jumps the set is made of, the preferred first, whether or not one can be made now:
+        `jumps` answers with those of them that can. What the framework reads off them without the
+        facts: the casts that end with the character somewhere else, the skills that have a casting
+        delay, and the build's own jump that spares the staff. Empty: the set only walks."""
+        ...
 
     def applies(self, facts: MoveFacts) -> bool:
         """Whether this is the character's situation now (the staff and what it holds, the skills on keys)."""

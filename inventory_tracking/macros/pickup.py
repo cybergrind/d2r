@@ -45,10 +45,13 @@ from inventory_tracking.levels.model import Level, Target
 from inventory_tracking.loot.materials import material_classes
 from inventory_tracking.loot.shown import game_filter, pickup_rules, shown_gems
 from inventory_tracking.macros.actuator import Abort
+from inventory_tracking.macros.build import Build
+from inventory_tracking.macros.default import default_build
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.routines import ACTING, DEAD, UNIT_PIXELS, press_skill
-from inventory_tracking.macros.skills import BLADE_WARP
+from inventory_tracking.macros.skills import skill_name
 from inventory_tracking.macros.teleport import HOVER_SECONDS, ground_fraction, hop_toward, in_view, ready
+from inventory_tracking.macros.travel import JUMP_REACH, spare_jump
 from inventory_tracking.macros.world import GOLD, HEALING, REJUVENATION, VALUABLE, Drop, Loot, has_room
 from inventory_tracking.models import PotionType
 from inventory_tracking.native.layout import BELT_COLUMNS, TILE_UNITS
@@ -58,7 +61,7 @@ from inventory_tracking.tracking.belt import column_shortages, potion_kind
 # Gold is taken by standing on it, so it is gone to and never clicked (user, 2026-10-11: "blade warp to
 # location would be enough"): a Blade Warp onto the pile, and a click on it when the pile is too near
 # for one or the jump did not take it. Only a pile within one jump is worth it.
-GOLD_UNITS = 26.0  # travel.JUMP_REACH
+GOLD_UNITS = JUMP_REACH  # one jump's reach, whatever the jump
 GOLD_WALK = 6.0  # world units: a pile this near is walked onto
 GOLD_SECONDS = 0.9  # for the pile to leave the ground after the key (a Blade Warp of 23 units lands in 0.81 s)
 POTION_UNITS = 25.0  # world units: a potion further off is not worth the walk
@@ -329,20 +332,24 @@ def _take(
     raise Abort(f'no click picked up {drop.label}')
 
 
-def collect(run: Run, drop: Drop, key_names, others: Sequence[Drop] = ()) -> bool:
+def collect(run: Run, drop: Drop, key_names, others: Sequence[Drop] = (), build: Build | None = None) -> bool:
     """Go for a gold pile: a Blade Warp onto it, which may take it; if not, or for a pile too near
-    to jump to, it is clicked like any item (`others`: what else lies there and is not wanted)."""
+    to jump to, it is clicked like any item (`others`: what else lies there and is not wanted).
+    The jump is the build's own that spares the staff and is thrown over a clear line (travel.py
+    `spare_jump`), if it has one on a key; `build` None: the one there is (default.py `default_build`).
+    It is pressed as it always was: with no look at its casting delay or at a wall in its line."""
     player, rect = ready(run)
     world = run.world()
     where = ground_fraction(player, drop.x, drop.y, rect[2] / rect[3])
     away = math.dist((player.x, player.y), (drop.x, drop.y))
     if not in_view(where):
         raise Abort(f'{drop.label} is not in view')
-    if away > GOLD_WALK and BLADE_WARP in world.slots and key_names is not None:
-        run.keys.update(key_names(world, (BLADE_WARP,)))
+    jump = spare_jump((build if build is not None else default_build()).movement, world.slots)
+    if away > GOLD_WALK and jump is not None and jump.line and key_names is not None:
+        run.keys.update(key_names(world, (jump.skill,)))
         run.actuator.aim(*where, scatter=(2, 2))
         began = run.clock()
-        press_skill(run, BLADE_WARP)
+        press_skill(run, jump.skill)
         # Landing on a pile has not taken one yet (7210 at 13:30:30 and 5283 at 13:43:43 on 2026-10-11,
         # both with the character 0.7 from it; the click after took the second in 0.07 s), so the
         # wait is only for the landing.
@@ -356,8 +363,8 @@ def collect(run: Run, drop: Drop, key_names, others: Sequence[Drop] = ()) -> boo
         gone = not on_ground(run, drop)
         now = run.world().player
         LOG.info(
-            'Macro: Blade Warp onto %s at (%.1f, %.1f), %.1f from (%.1f, %.1f); the character at %s %.2fs after: %s',
-            drop.label, drop.x, drop.y, away, player.x, player.y,
+            'Macro: %s onto %s at (%.1f, %.1f), %.1f from (%.1f, %.1f); the character at %s %.2fs after: %s',
+            skill_name(jump.skill), drop.label, drop.x, drop.y, away, player.x, player.y,
             None if now is None else (round(now.x, 1), round(now.y, 1)), run.clock() - began,
             'taken' if gone else 'still on the ground',
         )  # fmt: skip

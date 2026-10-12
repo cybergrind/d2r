@@ -1,7 +1,9 @@
 """Ratchet: framework code (macros/, combat/) may not name build-specific things outside builds/.
 
 Build-specific names (Echoing Strike, the Defiler, the blades) are found by AST in the framework
-packages and recorded in ALLOWED. A new hit fails test_nothing_specific_is_named_outside_the_builds:
+packages and recorded in ALLOWED, and so is an import of `inventory_tracking.builds` from framework
+code (the framework is handed a build, it does not import one), recorded as '<builds import>'. A new
+hit fails test_nothing_specific_is_named_outside_the_builds:
 move the code into inventory_tracking/builds/, or, if the name is generic, remove it from SPECIFIC
 with a reason. A recorded hit that disappeared fails test_the_allowed_list_only_shrinks: remove it
 from ALLOWED so the list only ever shrinks.
@@ -17,6 +19,8 @@ SKILLS = ROOT / 'inventory_tracking' / 'macros' / 'skills.py'
 FRAMEWORK = ('inventory_tracking/macros', 'inventory_tracking/combat')
 ECHOING_MODULE = 'inventory_tracking.combat.mechanics.echoing_strike'
 ECHOING_PSEUDO = '<echoing_strike module>'
+BUILDS_PACKAGE = 'inventory_tracking.builds'
+BUILDS_PSEUDO = '<builds import>'
 GENERIC = frozenset({'TELEPORT', 'ATTACK', 'SWAP_WEAPONS'})
 UPPER = re.compile(r'^[A-Z][A-Z0-9_]*$')
 
@@ -65,6 +69,21 @@ def _imports_echoing(node: ast.Import | ast.ImportFrom) -> bool:
     return node.module == ECHOING_PACKAGE and any(alias.name == ECHOING_LEAF for alias in node.names)
 
 
+def _imports_a_build(node: ast.Import | ast.ImportFrom) -> bool:
+    """`import inventory_tracking.builds[.x]`, `from inventory_tracking.builds[.x] import y`,
+    `from inventory_tracking import builds`: at a module's top or late, inside a function."""
+
+    def within(name: str | None) -> bool:
+        return name is not None and (name == BUILDS_PACKAGE or name.startswith(BUILDS_PACKAGE + '.'))
+
+    if isinstance(node, ast.Import):
+        return any(within(alias.name) for alias in node.names)
+    if within(node.module):
+        return True
+    package, leaf = BUILDS_PACKAGE.rsplit('.', 1)
+    return node.module == package and any(alias.name == leaf for alias in node.names)
+
+
 def scan(path: Path, specific: frozenset[str] | set[str]) -> set[str]:
     """Build-specific identifiers that one Python file names in code (not in comments or strings)."""
     tree = ast.parse(Path(path).read_text(encoding='utf-8'), filename=str(path))
@@ -87,8 +106,13 @@ def scan(path: Path, specific: frozenset[str] | set[str]) -> set[str]:
             hits.update(alias.name for alias in node.names if alias.name in specific)
             if _imports_echoing(node):
                 hits.add(ECHOING_PSEUDO)
-        elif isinstance(node, ast.Import) and _imports_echoing(node):
-            hits.add(ECHOING_PSEUDO)
+            if _imports_a_build(node):
+                hits.add(BUILDS_PSEUDO)
+        elif isinstance(node, ast.Import):
+            if _imports_echoing(node):
+                hits.add(ECHOING_PSEUDO)
+            if _imports_a_build(node):
+                hits.add(BUILDS_PSEUDO)
     return hits
 
 
@@ -133,7 +157,8 @@ ALLOWED: frozenset[tuple[str, str]] = frozenset(
         ('inventory_tracking/combat/stance.py', 'BLADES_A_CAST'),
         ('inventory_tracking/combat/stance.py', 'LinePolicy'),
         ('inventory_tracking/combat/viz.py', '<echoing_strike module>'),
-        ('inventory_tracking/macros/hunt.py', 'BLADE_WARP'),
+        # default.py `default_build`, temporary until the runner chooses the build: framework-plan.md Task 3.9
+        ('inventory_tracking/macros/default.py', '<builds import>'),
         ('inventory_tracking/macros/hunt.py', 'CHARACTERS'),
         ('inventory_tracking/macros/hunt.py', 'CONSUME'),
         ('inventory_tracking/macros/hunt.py', 'DEATH_MARK'),
@@ -141,7 +166,6 @@ ALLOWED: frozenset[tuple[str, str]] = frozenset(
         ('inventory_tracking/macros/hunt.py', 'ENGORGE'),
         ('inventory_tracking/macros/hunt.py', 'LinePolicy'),
         ('inventory_tracking/macros/hunt.py', 'SUMMON_DEFILER'),
-        ('inventory_tracking/macros/pickup.py', 'BLADE_WARP'),
         ('inventory_tracking/macros/rotation.py', 'BLADES_A_CAST'),
         ('inventory_tracking/macros/rotation.py', 'DEATH_MARK'),
         ('inventory_tracking/macros/rotation.py', 'DEFILER_CLASS'),
@@ -167,8 +191,6 @@ ALLOWED: frozenset[tuple[str, str]] = frozenset(
         ('inventory_tracking/macros/skills.py', 'PSYCHIC_WARD'),
         ('inventory_tracking/macros/skills.py', 'SIGIL_LETHARGY'),
         ('inventory_tracking/macros/skills.py', 'SUMMON_DEFILER'),
-        ('inventory_tracking/macros/teleport.py', 'BLADE_WARP'),
-        ('inventory_tracking/macros/travel.py', 'BLADE_WARP'),
         ('inventory_tracking/macros/world.py', 'DEFILER_CLASS'),
     }
 )
@@ -214,6 +236,28 @@ def virtual_cast():
         'BLADES',
         'BLADES_A_CAST',
         'virtual_cast',
+    }
+
+
+def test_the_scan_sees_an_import_of_a_build_at_the_top_and_inside_a_function(tmp_path: Path) -> None:
+    sources = {
+        'top.py': 'from inventory_tracking.builds.generic import GENERIC\n',
+        'late.py': 'def default():\n    from inventory_tracking.builds.generic import GENERIC\n    return GENERIC\n',
+        'plain.py': 'import inventory_tracking.builds.generic\n',
+        'package.py': 'from inventory_tracking import builds\n',
+        'other.py': 'from inventory_tracking.macros.build import Build\nimport inventory_tracking.buildsmith\n',
+    }
+    seen = {}
+    for name, source in sources.items():
+        path = tmp_path / name
+        path.write_text(source, encoding='utf-8')
+        seen[name] = scan(path, SPECIFIC)
+    assert seen == {
+        'top.py': {BUILDS_PSEUDO},
+        'late.py': {BUILDS_PSEUDO},
+        'plain.py': {BUILDS_PSEUDO},
+        'package.py': {BUILDS_PSEUDO},
+        'other.py': set(),
     }
 
 

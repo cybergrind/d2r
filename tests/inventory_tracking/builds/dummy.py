@@ -6,7 +6,7 @@ from dataclasses import dataclass
 
 from inventory_tracking.combat.policy import AIM_BEYOND, Choice, Foe, Observation, Point
 from inventory_tracking.combat.stance import Jump
-from inventory_tracking.macros.build import Build, Intent, Leg, MoveFacts, NoWay
+from inventory_tracking.macros.build import Build, Intent, JumpSource, Leg, MoveFacts, NoWay
 from inventory_tracking.macros.skills import ATTACK
 from inventory_tracking.macros.travel import Step
 from inventory_tracking.macros.world import Monster, World
@@ -24,6 +24,7 @@ class DummyWalk:
     """Walks straight toward the goal, a stride at a time."""
 
     name: str = 'dummy walk'
+    sources: tuple[JumpSource, ...] = ()  # a walker: no jump
 
     def applies(self, facts: MoveFacts) -> bool:
         """Always."""

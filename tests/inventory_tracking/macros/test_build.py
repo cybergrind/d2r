@@ -170,7 +170,16 @@ def test_every_dataclass_of_the_module_is_frozen():
         if dataclasses.is_dataclass(thing) and isinstance(thing, type) and thing.__module__ == contracts.__name__
     ]
 
-    assert {thing.__name__ for thing in found} == {'MoveFacts', 'Intent', 'Step', 'NoWay', 'BuffFacts', 'Buff', 'Build'}
+    assert {thing.__name__ for thing in found} == {
+        'MoveFacts',
+        'Intent',
+        'Step',
+        'NoWay',
+        'JumpSource',
+        'BuffFacts',
+        'Buff',
+        'Build',
+    }
     assert all(thing.__dataclass_params__.frozen for thing in found)  # pyrefly: ignore[missing-attribute]
 
 

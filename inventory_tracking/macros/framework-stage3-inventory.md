@@ -227,3 +227,28 @@ Also outside the list you named, found on the way: `macros/world.py:130-136, 151
 6. **Buff rows against back-dated timestamps.** Sigil off screen (`rotation.py:84`), Engorge with no corpse (118, 147), Consume stopped by a key (`hunt.py:1202`), purge/ward on Abort (`hunt.py:935, 945`) all write a time in the past or present without a cast. The executor needs a "try again in N seconds" result from a caster; `Buff` has no field for it and I did not invent one.
 7. **`Hunter()` without a build** is constructed by `golden/cases.py:140`, `arena/driver.py:130` and `appraisal/service.py:673`. The goldens call `hunter.travel.jumps` and `hunter.rotation.worth_a_mark` directly (`cases.py:195, 385`).
 8. **`Tactic.applies(pack)`**: `Pack` holds unit ids, a type name and reason strings (`danger.py:219-228`), not txt ids, rank or tier. Stage 7 will need more than `Pack` to match "by type, family, rank, enchantment, tier". Left as sketched.
+
+
+## Corrections after Stage 3.1–3.3 (2026-10-12)
+
+- T7's intent values were wrong for what the sets are asked: every stride and every re-check today
+  runs with a floor of 10 charges and 30 s of distrust; "spent to the last" belongs to
+  `hop_toward`'s Teleport, which no set makes. As built (`macros/travel.py`):
+
+  | Intent | reserve | distrust | sparing | walks_under | may_swap | may_wait | waits_blind |
+  | --- | --- | --- | --- | --- | --- | --- | --- |
+  | PLAYER_STEP | 10 | 3 | 15 | 1 | True | True | True |
+  | SEEK | 10 | 30 | inf | 10 | True | True | False |
+  | OWN_MOVE | 10 | 30 | inf | 0 | False | False | False |
+
+  `Intent.reserve` means the fewest charges a staff jump is still made with (`charges >= reserve`).
+- §5.1's second cycle does not exist while `Loadout` stays in `routines.py`.
+- The skill ids cannot move out of `macros/skills.py` (plan Task 3.4) before their last user in
+  the framework is gone: a re-export from `builds/` would be the framework importing a build.
+  3.4 runs after 3.7.
+- Kept as today and listed for Stage 5 ("would change with the new design"): a stride asks one
+  jump and never falls to the next; the way round a wall is asked by the caller only at zero
+  charges; `empty_hop` waits out the blade's delay with a wall in the line; pickup's gold jump
+  ignores the delay, failures and walls; the generic build has only `Walk`.
+- Until Task 3.9 the framework reaches the build through `macros/default.py` (the one allowed
+  `<builds import>` in the ratchet); `pick_up` and `step_toward` take it only at their leaves.

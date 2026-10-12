@@ -48,9 +48,11 @@ from inventory_tracking.levels.model import (
 from inventory_tracking.levels.presets import warp_box
 from inventory_tracking.levels.route import Point, room_at
 from inventory_tracking.macros.actuator import Abort
+from inventory_tracking.macros.build import Build
+from inventory_tracking.macros.default import default_build
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.routines import ACTING, press_skill, settle, swap_until, world_point
-from inventory_tracking.macros.skills import BLADE_WARP, SWAP_WEAPONS, TELEPORT
+from inventory_tracking.macros.skills import SWAP_WEAPONS, TELEPORT
 from inventory_tracking.macros.view import CORNER_BOTTOM, UNIT_PIXELS, VIEW, Viewport
 from inventory_tracking.macros.world import Player, Thing, Warp, World
 from inventory_tracking.native.layout import TILE_UNITS
@@ -131,7 +133,6 @@ HOP_POLL = 0.01  # seconds between looks for a hop's landing and its cast's end 
 # Seconds after the cast before is over within which a kept key's cast shows (the game issues it on its
 # next frame, or the one after when the press sat in its second entry).
 QUEUED_SECONDS = 0.09
-MOVING = frozenset((TELEPORT, BLADE_WARP))  # the casts that end with the character somewhere else
 LANDING_FRESH = 0.6  # seconds a landing stands for where the character is, if it is still there
 HOVER_SECONDS = 0.06  # for the game to note what is under the pointer after it moved (a frame or two)
 # Unit types of the record of the unit under the pointer that are not a door: a monster (the mercenary
@@ -862,6 +863,13 @@ def ban_far(key: tuple[int, int, int], now: float) -> None:
     FAR_FAILED[key] = now
 
 
+def moving(build: Build | None = None) -> frozenset[int]:
+    """The casts that end with the character somewhere else: Teleport, and every skill the build's
+    movement sets jump by. `build` None: the one there is (default.py `default_build`)."""
+    sets = (build if build is not None else default_build()).movement
+    return frozenset((TELEPORT, *(source.jump.skill for movement in sets for source in movement.sources)))
+
+
 def settled(run: Run, player: Player) -> Player:
     """The character where the hop will start from: once the cast before is over and a walk has
     ended (a walk still going after SETTLE_SECONDS is the player's: the hop goes from where it is).
@@ -874,7 +882,7 @@ def settled(run: Run, player: Player) -> Player:
         x, y, at = LANDING[0]
         if 0 <= run.clock() - at <= LANDING_FRESH and math.dist((now.x, now.y), (x, y)) < MOVED:
             return now  # the hop before has landed here: its cast's tail moves the character no more
-    if now is not None and now.mode in ACTING and now.right_skill not in MOVING:
+    if now is not None and now.mode in ACTING and now.right_skill not in moving():
         # A cast that takes the character nowhere (a strike of attack mode): it stands where the hop
         # will start, and the key can be pressed during the cast (`press_hop`).
         return now

@@ -1,7 +1,7 @@
-"""The build for a character no build claims: no fight of its own, and no movement sets until the
-shared ones exist (a later stage adds them)."""
+"""The build for a character no build claims: no fight of its own, and the walk to move by."""
 
 from inventory_tracking.macros.build import Build
+from inventory_tracking.macros.movement import Walk
 from inventory_tracking.macros.world import World
 
 
@@ -10,4 +10,4 @@ def everyone(world: World) -> bool:
     return True
 
 
-GENERIC = Build(name='generic', applies=everyone, attack=None, movement=())
+GENERIC = Build(name='generic', applies=everyone, attack=None, movement=(Walk(),))

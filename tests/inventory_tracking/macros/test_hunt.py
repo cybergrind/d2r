@@ -13,6 +13,7 @@ from itertools import pairwise
 
 import pytest
 
+from inventory_tracking.builds.warlock.movement import WARP_DELAY
 from inventory_tracking.combat.mechanics.tables import points_of
 from inventory_tracking.combat.policy import REACH, Choice
 from inventory_tracking.combat.stance import CAMP_REACH
@@ -34,7 +35,7 @@ from inventory_tracking.macros.hunt import (
 from inventory_tracking.macros.rotation import HEX_DISTRUST, SIGIL_SECONDS, WARD_SECONDS
 from inventory_tracking.macros.routines import SUMMON_SPOTS
 from inventory_tracking.macros.skills import ATTACK, BLADE_WARP, ECHOING_STRIKE, TELEPORT
-from inventory_tracking.macros.travel import JUMP_REACH, WARP_DELAY, Step, attackable, step_walk
+from inventory_tracking.macros.travel import JUMP_REACH, Step, attackable, step_walk
 from inventory_tracking.macros.world import HEALING, VALUABLE, Drop, Monster, Teleport
 from tests.inventory_tracking.macros.fakes import HUNT_SLOTS, KEYS, PREBUFF_SET, Game, player, world
 
@@ -1801,7 +1802,7 @@ def test_with_few_charges_left_the_teleport_step_hops_by_blade_warp_over_open_gr
 
 def test_with_charges_to_spare_the_teleport_step_is_a_teleport():
     # user, 2026-10-11 evening: "KP_4 when forcing blade warp is way too slow".
-    from inventory_tracking.macros.hunt import WARP_CHARGES
+    from inventory_tracking.macros.travel import WARP_CHARGES
 
     for charges, key in ((WARP_CHARGES, KEYS[TELEPORT]), (WARP_CHARGES - 1, KEYS[BLADE_WARP])):
         play = game()

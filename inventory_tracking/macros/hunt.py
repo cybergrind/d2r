@@ -44,7 +44,7 @@ import math
 import threading
 from collections.abc import Callable, Sequence
 from contextlib import ExitStack
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 
 from inventory_tracking.combat.controller import (
     CLICK,
@@ -81,6 +81,8 @@ from inventory_tracking.common import LOG
 from inventory_tracking.levels.model import Ground, Level, Room, Target
 from inventory_tracking.levels.route import room_at
 from inventory_tracking.macros.actuator import POINTER_DRIFT, Abort, Cancelled
+from inventory_tracking.macros.build import Build
+from inventory_tracking.macros.default import default_build
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.pickup import choose, unshunned
 from inventory_tracking.macros.rotation import (
@@ -98,13 +100,13 @@ from inventory_tracking.macros.routines import (
 )
 from inventory_tracking.macros.sight import clear_shot, firing_spots, in_reach
 from inventory_tracking.macros.skills import (
-    BLADE_WARP,
     CONSUME,
     DEATH_MARK,
     ECHOING_STRIKE,
     ENGORGE,
     SUMMON_DEFILER,
     SWAP_WEAPONS,
+    TELEPORT,
     skill_name,
 )
 from inventory_tracking.macros.teleport import (
@@ -118,20 +120,23 @@ from inventory_tracking.macros.teleport import (
 )
 from inventory_tracking.macros.tour import Bounds, tour
 from inventory_tracking.macros.travel import (
-    JUMP_REACH,
-    LOW_CHARGES,
-    WARP_DELAY,
+    OWN_MOVE,
+    PLAYER_STEP,
+    SEEK,
     Point,
     Step,
     Travel,
     attackable,
+    facts_with,
     label,
     life,
+    navigator,
+    spare_jump,
     step_line,
     step_walk,
 )
 from inventory_tracking.macros.view import Viewport
-from inventory_tracking.macros.world import NO_OWNER, VALUABLE, Drop, Monster, World, has_room
+from inventory_tracking.macros.world import NO_OWNER, VALUABLE, Drop, Monster, Teleport, World, has_room
 from inventory_tracking.native.layout import TILE_UNITS
 from inventory_tracking.terror.bosses import BOSSES
 from inventory_tracking.terror.danger import Unit, packs
@@ -159,8 +164,6 @@ SIGHT = 30.0  # world units: hostiles further off are not part of the decision
 # SWEEP_UNITS, the player moves by hand, FOLLOW_STEPS are taken or FOLLOW_SECONDS pass with no step.
 FOLLOW_STEPS = 12
 FOLLOW_SECONDS = 8.0  # since the press or the sweep's last step
-WARP_CHARGES = 15  # with fewer charges on the staff the teleport step hops by Blade Warp where it can
-WARP_RETRY = 3.0  # seconds the teleport step leaves Blade Warp alone after one that moved nobody
 BOSS_MARK_UNITS = 60.0  # world units from a level's mark: a boss or super unique this near is the one it marks
 GATHER_CLEAR = 12.0  # world units: no hostile this near the character or a drop when the sweep stops for it
 HOLD_SIGHT = 40.0  # world units: a valuable this near that the sweep does not take is stayed by
@@ -306,6 +309,7 @@ class Hunter:
         remembered: Remembered | None = None,
         explored: Callable[[int], set[tuple]] | None = None,
         policy: Policy | None = None,
+        build: Build | None = None,
     ) -> None:
         self.level = level
         self.remembered = remembered
@@ -314,7 +318,11 @@ class Hunter:
         self.score = LiveScore()  # the last minute of attack mode: damage and kills (combat/score.py)
         self.rotation = Rotation(lambda: self.policy)  # the casts under the held strike (rotation.py)
         self.consumed_at = -math.inf  # clock time of attack mode's last try at Consume
-        self.travel = Travel()  # the jumps the character can make and the moves made with them (travel.py)
+        # What is the build's and not the framework's; so far the ways it moves by. None: the one
+        # build there is, until the runner chooses it (default.py `default_build`).
+        self.build: Build = build if build is not None else default_build()
+        # The jumps the character can make and the moves made with them (travel.py), by the build's movement sets
+        self.travel = Travel(self.build.movement)
         self.route: tuple[int, list[Bounds]] = (0, [])  # (level, the rooms the explore steps go to stand in, in order)
         self.vanished: set[int] = set()  # remembered monsters that were not where they were seen
         self.tested: dict[int, tuple[int, int]] = {}  # unit -> (casts with the line through it, its life then)
@@ -435,42 +443,44 @@ class Hunter:
             run.say(f'No move toward {name}: {math.dist(here, goal):.0f} from its firing spot')
 
     @staticmethod
-    def charges(run: Run) -> int | None:
-        """Charges left on the Teleport staff; None without one (Teleport as a skill, or none at all)."""
-        staff = run.teleport() if run.teleport is not None else None
-        return None if staff is None else staff.charges
+    def worn(run: Run) -> Teleport | None:
+        """The Teleport staff the character wears, with the charges left on it; None without one
+        (Teleport as a skill, or none at all)."""
+        return run.teleport() if run.teleport is not None else None
 
     def afoot(self, run: Run, ground: Ground, player, rect, goal: Point, name: str, key_names) -> bool:
         """A seek step that spares the staff: a stride straight toward `goal` (`stride`). A Blade Warp
         over a clear line whatever the staff holds (it costs no charge and no weapon swap: of the 106
         seek hops in the 26 games of 2026-10-11 in the Halls of Vaught, 78 had the line); with fewer
         than LOW_CHARGES also one click's walk. Whether it was made: with no such stride a hop is
-        still made while a charge is left, and with none the step stops."""
-        left = self.charges(run)
-        low = left is not None and left < LOW_CHARGES
+        still made while a charge is left, and with none the step stops.
+
+        The stride, the wait before it and the way round are the movement set's, asked within SEEK.
+        What stays here is what no set decides: False hands the step to a Teleport hop with a weapon
+        swap (teleport.py `hop_toward`, which plans its own landing), and whether to do so goes by
+        the charges on the staff as they were read here."""
+        staff = self.worn(run)
+        left = None if staff is None else staff.charges
+        low = left is not None and left < SEEK.walks_under
         world = run.world()
         aspect = rect[2] / rect[3]
         # A Blade Warp just made: its casting delay is waited out when the line toward the goal is
         # clear, as presses come faster than it (0.5 s apart against 0.8 s: in the game of 15:27 on
         # 2026-10-11, 8 seek hops by Teleport to 4 by Blade Warp before the staff ran low).
         here = (player.x, player.y)
-        away = math.dist(here, goal)
-        wait = WARP_DELAY - (run.clock() - self.travel.warped_at)
-        if 0 < wait <= WARP_DELAY and BLADE_WARP in world.slots and away > MOVED:
-            reach = min(1.0, JUMP_REACH / away)
-            end = (here[0] + (goal[0] - here[0]) * reach, here[1] + (goal[1] - here[1]) * reach)
-            if clear_shot(ground, here, end, world.doors):
-                run.pace.sleep(wait)
-                world = run.world()
-        found = self.travel.stride(run, world, ground, aspect, goal)
-        if found is not None and found.skill != BLADE_WARP and not low:
+        wait = self.travel.wait(run, world, ground, aspect, here, goal, SEEK, staff)
+        if wait > 0:
+            run.pace.sleep(wait)
+            world = run.world()
+        found = self.travel.stride(run, world, ground, aspect, goal, SEEK)
+        if found is not None and found.skill in (None, TELEPORT) and not low:
             return False  # a walk, or a Teleport of the stride's own: the hop plans a better one
         if found is None:
             if left is None or left:
                 if low:
                     LOG.info('Macro: %d charges left and no Blade Warp or walk leads toward %s: a hop', left, name)
                 return False
-            found = self.travel.around(run, world, ground, aspect, goal)  # the walked way round the wall
+            found = self.travel.around(run, world, ground, aspect, goal, SEEK)  # the walked way round the wall
             if found is None:
                 raise Abort(f'the Teleport staff has no charges left, and no Blade Warp or walk leads toward {name}')
             LOG.info(
@@ -479,7 +489,7 @@ class Hunter:
             )  # fmt: skip
         by = 'Walking' if found.skill is None else skill_name(found.skill)
         run.say(f'{by} toward {name}' + (f': the Teleport staff has {left} charges left' if low else ''))
-        self.travel.make(run, found, world, aspect, key_names, ground, name=name)
+        self.travel.make(run, found, world, aspect, key_names, ground, name=name, intent=SEEK)
         return True
 
     def boss_step(self, run: Run, target: Target, key_names) -> bool:
@@ -523,70 +533,88 @@ class Hunter:
     def warp_hop(self, run: Run, target: Target, player, spot: Point, key_names) -> bool:
         """The teleport step's hop toward the landing `spot` made by Blade Warp, and whether it was
         with fewer than WARP_CHARGES on the staff and the blade's line to the landing clear. Its
-        casting delay is waited out; a wall, or a warp that moved nobody, leaves the hop to Teleport."""
+        casting delay is waited out; a wall, or a warp that moved nobody, leaves the hop to Teleport.
+
+        The jump is the build's own that spares the staff (`spare_jump`), and the stride by it is the
+        movement set's, asked within PLAYER_STEP. The order is this caller's, as the hop is not one
+        `leg`: the charges that make the jump come first, the failure forgiven after WARP_RETRY, the
+        line to the landing the way planned, and False for a Teleport hop that swaps weapons."""
         world = run.world()
         rect = run.actuator.keys.focused_window_rect()
-        if BLADE_WARP not in world.slots or world.player is None or rect is None or key_names is None:
+        spare = spare_jump(self.build.movement, world.slots)
+        if spare is None or world.player is None or rect is None or key_names is None:
             return False
-        left = self.charges(run)
-        if left == 0:
-            return self.empty_hop(run, target, player, spot, key_names)
+        staff = self.worn(run)
+        left = None if staff is None else staff.charges
+        if left is not None and left < PLAYER_STEP.walks_under:
+            return self.empty_hop(run, target, player, spot, key_names, world, staff)
         # Only to spare the last charges (user, 2026-10-11 evening: "KP_4 when forcing blade warp is
         # way too slow ... prefer tp for longer distances, until around 15 charges, then blade warp
         # in priority; this is only for charges"): a warp hop took 0.8 to 1.0 s for 18 to 20 units,
         # a Teleport hop 0.6 s for 30.
-        if left is None or left >= WARP_CHARGES:
+        if left is None or left >= PLAYER_STEP.sparing:
             return False
-        wait = WARP_DELAY - (run.clock() - self.travel.warped_at)
-        failed = self.travel.jump_failed.get(BLADE_WARP, -math.inf)
-        if wait > WARP_DELAY or run.clock() - failed < WARP_RETRY:
+        ground = Ground(target.ground)
+        aspect = rect[2] / rect[3]
+        here = (player.x, player.y)
+        facts = facts_with(run, world, ground, aspect, self.travel, staff)
+        failed = self.travel.jump_failed.get(spare.skill, -math.inf)
+        # A jump by it recorded after now (a clock that went back) leaves the hop to Teleport too
+        if facts.since_used(spare.skill) < 0 or run.clock() - failed < PLAYER_STEP.distrust:
             return False
         # One warp that moved nobody does not take the skill from the step for JUMP_DISTRUST as it
         # does from the sweep: Black Marsh, 18:07:38 on 2026-10-11, the third hop's warp failed and
         # the 43 hops after it were Teleports (3 warps in the game). 44 of 447 warps failed that day.
-        self.travel.jump_failed.pop(BLADE_WARP, None)
-        ground = Ground(target.ground)
-        here = (player.x, player.y)
-        if not clear_shot(ground, here, spot, world.doors):
+        self.travel.jump_failed.pop(spare.skill, None)
+        if spare.line and not clear_shot(ground, here, spot, world.doors):
             return False
+        movement = navigator(self.travel.sets, facts)
+        wait = 0.0 if movement is None else movement.wait(facts, spot, PLAYER_STEP)
         if wait > 0:
             run.pace.sleep(wait)
             world = run.world()
-        aspect = rect[2] / rect[3]
-        found = self.travel.stride(run, world, ground, aspect, spot)
-        if found is None or found.skill != BLADE_WARP:
+        found = self.travel.stride(run, world, ground, aspect, spot, PLAYER_STEP)
+        if found is None or found.skill != spare.skill:
             return False
-        run.say(f'Blade Warp toward {target.label}: {left} charges kept')
+        run.say(f'{skill_name(spare.skill)} toward {target.label}: {left} charges kept')
         try:
-            self.travel.make(run, found, world, aspect, key_names, ground, name=target.label)
+            self.travel.make(run, found, world, aspect, key_names, ground, name=target.label, intent=PLAYER_STEP)
         except Abort as stop:
             if run.cancelled.is_set():
                 raise
-            LOG.info('Macro: no Blade Warp toward %s (%s): the hop is a Teleport', target.label, stop)
+            LOG.info('Macro: no %s toward %s (%s): the hop is a Teleport', skill_name(spare.skill), target.label, stop)
             return False
         return True
 
-    def empty_hop(self, run: Run, target: Target, player, spot: Point, key_names) -> bool:
+    def empty_hop(
+        self, run: Run, target: Target, player, spot: Point, key_names, world: World, staff: Teleport | None
+    ) -> bool:
         """The teleport step's hop with the staff empty: a Blade Warp toward the landing the way gives
-        (its casting delay waited out), else one click's walk toward it; made, or the step stops."""
+        (its casting delay waited out), else one click's walk toward it; made, or the step stops.
+        `world` and `staff` are as `warp_hop` read them: the wait is decided from them, and the game
+        is read again after it."""
         rect = run.actuator.keys.focused_window_rect()
         if rect is None:
             raise Abort('no game window')
-        wait = WARP_DELAY - (run.clock() - self.travel.warped_at)
-        if 0 < wait <= WARP_DELAY:
-            run.pace.sleep(wait)
-        self.travel.jump_failed.pop(BLADE_WARP, None)
-        world = run.world()
         ground = Ground(target.ground)
         aspect = rect[2] / rect[3]
-        found = self.travel.stride(run, world, ground, aspect, spot) or self.travel.around(
-            run, world, ground, aspect, spot
+        facts = facts_with(run, world, ground, aspect, self.travel, staff)
+        movement = navigator(self.travel.sets, facts)
+        wait = 0.0 if movement is None else movement.wait(facts, spot, PLAYER_STEP)
+        if wait > 0:
+            run.pace.sleep(wait)
+        spare = spare_jump(self.build.movement, world.slots)
+        if spare is not None:
+            self.travel.jump_failed.pop(spare.skill, None)
+        world = run.world()
+        found = self.travel.stride(run, world, ground, aspect, spot, PLAYER_STEP) or self.travel.around(
+            run, world, ground, aspect, spot, PLAYER_STEP
         )
         if found is None:
             raise Abort(f'no Blade Warp or walk leads along the way to {target.label}')
         by = 'Walking' if found.skill is None else skill_name(found.skill)
         run.say(f'{by} toward {target.label}: the Teleport staff has 0 charges left')
-        self.travel.make(run, found, world, aspect, key_names, ground, name=target.label)
+        self.travel.make(run, found, world, aspect, key_names, ground, name=target.label, intent=PLAYER_STEP)
         return True
 
     def foot_step(self, run: Run, target: Target, key_names) -> None:
@@ -793,9 +821,8 @@ class Hunter:
         assert player is not None
         here = (player.x, player.y)
         nearest = min(near, key=lambda m: math.dist(here, (m.x, m.y)))
-        return self.travel.stride(
-            run, world, ground, aspect, (nearest.x, nearest.y), STAND_OFF, shot=True, shuns=self.sweep.shuns
-        )
+        intent = replace(OWN_MOVE, short=STAND_OFF, shot=True, shuns=self.sweep.shuns)
+        return self.travel.stride(run, world, ground, aspect, (nearest.x, nearest.y), intent)
 
     def asked_step(self, run: Run, world: World, foes: list[Monster], reachable, ground, aspect) -> Step | None:
         """The pickup request inside a fight. With anything to pick up (pickup.choose: a valuable, gold
