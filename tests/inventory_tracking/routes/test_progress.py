@@ -216,13 +216,18 @@ def test_a_fight_is_done_when_the_boss_is_dead_then_the_loot_then_leaving():
     progress = Progress([COUNTESS], ALL, dead=lambda: frozenset(dead))
     progress.note('cyber32', 25)
     assert progress.lead(25) == Lead('Countess')
+    assert not progress.ending(25)  # the boss alive
 
     dead.add('The Countess')
     assert progress.step(25).stage == loot()
     assert progress.lead(25) is None
 
+    assert progress.ending(25)  # the boss dead: what is left is the loot and the way out
+
     progress.looted(25)
     assert progress.step(25).stage == leave()
+    assert progress.ending(25)
+    assert not progress.ending(26)  # a level without a script
     progress.note('cyber33', 25)
     dead.clear()
     assert progress.step(25).stage.kind == FIGHT

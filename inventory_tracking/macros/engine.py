@@ -75,6 +75,8 @@ class Run:
         self.arrival: Callable[[], tuple[int | None, float]] | None = None
         # where the super uniques seen on a level were last seen, world units (terror.tracker.ZoneTracker.supers)
         self.supers: Callable[[int], list[tuple[float, float]]] | None = None
+        # whether the route is at its end on a level (routes/progress.py `Progress.ending`); None: no routes
+        self.ending: Callable[[int], bool] | None = None
         self.observe: Callable[[World], None] | None = None  # sees every world read
         self.mark: Callable[[str], None] = lambda name: None  # a moment of the press's trace (latency.py)
         # a warning that stays on the card until it is taken back with None (runner.py `_warn`)

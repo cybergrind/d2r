@@ -38,7 +38,7 @@ from inventory_tracking.macros.hunt import (
     hostiles,
     strike_input,
 )
-from inventory_tracking.macros.skills import ATTACK, TELEPORT
+from inventory_tracking.macros.skills import ATTACK, SWAP_WEAPONS, TELEPORT
 from inventory_tracking.macros.travel import JUMP_REACH, Step, attackable, step_walk
 from inventory_tracking.macros.world import HEALING, VALUABLE, Drop, Monster, Teleport
 from tests.inventory_tracking.macros.fakes import BUILD, HUNT_SLOTS, KEYS, PREBUFF_SET, Game, player, warlock, world
@@ -1947,6 +1947,36 @@ def test_with_the_staff_empty_the_teleport_step_goes_along_the_way_by_blade_warp
     assert play.pressed() == [KEYS[BLADE_WARP]]
     assert afoot == []
     assert any('0 charges left' in said for said in play.said)
+
+
+def test_with_the_staff_empty_and_in_hand_the_step_takes_the_main_weapons_first():
+    # Chaos Sanctuary, 23:16:26 on 2026-10-12: the last charge spent, and the staff stayed in hand for 17 s of
+    # Blade Warps and a fight (user: "no reason to really do this": lower resistances and skill levels).
+    from inventory_tracking.levels.model import Target
+    from inventory_tracking.macros.teleport import step_toward
+
+    play = game()
+    play.sets.reverse()  # the staff's set in hand
+    play.staff = replace(STAFF, charges=0, in_hand=True)
+    hunt = hunter(play)
+    hunt.travel.warped_at = play.clock.now
+    run = play.run()
+    target = Target(101, ROOMS, (1012.5, 1000.5), 'the mark', 'poi', False, ())
+    step_toward(run, target, keys, lambda t: None, lambda t, player, spot: hunt.warp_hop(run, t, player, spot, keys))
+    assert play.pressed() == [KEYS[SWAP_WEAPONS], KEYS[BLADE_WARP]]
+    assert play.staff.in_hand is False
+
+
+def test_a_seek_step_with_the_staff_empty_and_in_hand_takes_the_main_weapons_first(monkeypatch):
+    from inventory_tracking.macros import hunt as hunt_module
+
+    play = game(foe(10, 5040.0, 5000.0, CHAMPION))
+    play.sets.reverse()
+    play.staff = replace(STAFF, charges=0, in_hand=True)
+    monkeypatch.setattr(hunt_module, 'in_reach', lambda *args: False)
+    hunter(play).seek(play.run(), keys)
+    assert play.pressed()[0] == KEYS[SWAP_WEAPONS]
+    assert play.staff.in_hand is False
 
 
 def test_a_firing_spot_a_few_units_off_behind_a_corner_is_still_gone_to(monkeypatch):

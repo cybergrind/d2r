@@ -24,7 +24,7 @@ from collections.abc import Callable, Iterable
 from dataclasses import dataclass, replace
 
 from inventory_tracking.levels.model import Lead
-from inventory_tracking.routes.model import ENTER, FIGHT, LOOT, STAND, USE, Route, Script, Stage
+from inventory_tracking.routes.model import ENTER, FIGHT, LEAVE, LOOT, STAND, USE, Route, Script, Stage
 
 
 Place = tuple[float, float]  # where a mark is, in tiles (`Target.point`)
@@ -134,6 +134,13 @@ class Progress:
         facts = self.facts if self.dead is None else replace(self.facts, dead=self.dead())
         stage = current(script, facts, self.performed)
         return None if stage is None else Step(route, script, stage)
+
+    def ending(self, area: int) -> bool:
+        """Whether the route is at its end on level `area`: what is left of its script is the loot and
+        the leaving (every way on taken, every object used, every boss dead). The macro request leaves
+        the game from there, and the pickup key seeks nothing more."""
+        step = self.step(area)
+        return step is not None and step.stage.kind in (LOOT, LEAVE)
 
     def used(self, area: int, label: str, place: Place, places: Iterable[Place]) -> None:
         """The step saw the object at mark `label`, at `place`, operated; `places`: every mark the

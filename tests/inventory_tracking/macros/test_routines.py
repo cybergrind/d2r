@@ -446,6 +446,25 @@ def test_on_andariels_level_without_her_the_macro_leaves_and_makes_the_next_game
     assert game.world.game_name == 'cyber33'
 
 
+def test_on_a_level_whose_route_is_at_its_end_the_macro_leaves_and_makes_the_next_game():
+    # Chaos Sanctuary, 23:18:38 on 2026-10-12: Diablo dead, and the macro request only cast the buffs.
+    game = Game(world(108, monsters=(Monster(71, 310, 1, 5300.0, 5300.0, 0xFFFFFFFF),)))  # a Doom Knight far off
+    run = game.run()
+    run.ending = lambda area: area == 108
+    run_macro(run, lambda w: dict(KEYS))
+    keys = game.pressed()
+    assert keys[0] == 'Escape'
+    assert game.world.game_name == 'cyber33'
+
+
+def test_on_a_level_whose_route_is_not_at_its_end_the_macro_only_prebuffs():
+    game = Game(world(108))
+    run = game.run()
+    run.ending = lambda area: False
+    run_macro(run, lambda w: dict(KEYS))
+    assert game.pressed() == ['q', '6', 'q', 'g', 'r']
+
+
 def test_on_the_countess_level_without_her_the_macro_leaves_and_makes_the_next_game():
     stalker = Monster(71, 45, 1, 5020.0, 5020.0, 0xFFFFFFFF)  # a Dark Stalker of her class, not her
     game = Game(world(25, monsters=(stalker,)))

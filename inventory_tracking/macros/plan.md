@@ -3555,3 +3555,22 @@ modifier is held".
   press and release would let the player's own key go).
 - The arena's copy of the guard (tests/.../arena/game.py `Attempt`) follows in Stage 4.1.
 - Not played yet.
+
+## 2026-10-13 — after a Chaos Sanctuary game (session 20261012T201402Z-41a05b53): the empty staff, the route's end
+
+The user's game of 23:15 to 23:18 (take 20261012T201527Z-108), three things of it:
+
+- **The staff in hand with no charge.** The staff began at 18 charges; the last was spent at 23:16:26 and
+  its set stayed in hand until the fight took the main weapons at 23:16:43: 17 s of Blade Warps and blows
+  with the lower resistances and skill levels (user: "no reason to really do this"). Now a step with the
+  staff empty takes the main weapons first: the teleport step (`Hunter.empty_hop`) and the seek step
+  (`Hunter.afoot` with 0 charges). Not changed: with 1 to 14 charges the step spares them by Blade Warp
+  with the staff still in hand (32 s in this game); when to hold which set is the swap rule of Stage 7.
+- **The macro request after Diablo.** It only cast the buffs: `run_ended` knew no rule for the Chaos
+  Sanctuary. Now a level whose route is at its end (`Progress.ending`: what is left of its script is the
+  loot and the leaving) is a run's end for the request, whatever the level; the older rules stay for
+  levels without a route and for a service without the monster tracker.
+- **The pickup key after Diablo.** With nothing to pick up it went for "the remembered monster" by Blade
+  Warp, three presses running. At a route's end it now does what the teleport key does there: the ground
+  called clean ("nothing to pick up; the next press leaves the game"), and the press after leaves.
+- Not played in the game yet.

@@ -458,6 +458,10 @@ def character_keys(run: Run, key_names) -> dict[int, str]:
 def run_ended(run: Run, world: World) -> bool:
     if world.player is None:
         return False
+    if run.ending is not None and run.ending(world.player.area):
+        # The route's bosses are dead and what is left is the loot and the leaving (user, 2026-10-13: Diablo
+        # dead in the Chaos Sanctuary, and the request only cast the buffs).
+        return True
     boss = BOSS_OF.get(world.player.area)
     if boss is not None and any(m.txt_id == boss for m in world.monsters):
         return False

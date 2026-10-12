@@ -9,7 +9,7 @@ from inventory_tracking.macros import runner as runner_module
 from inventory_tracking.macros.actuator import Abort, Cancelled
 from inventory_tracking.macros.hunt import Hunter
 from inventory_tracking.macros.runner import MacroRunner
-from tests.inventory_tracking.macros.fakes import BUILD
+from tests.inventory_tracking.macros.fakes import BUILD, KEYS
 
 
 def make(execute, shown):
@@ -749,6 +749,33 @@ def test_the_pickup_step_jumps_by_the_chosen_builds_own_jump():
     assert run.build is BUILD
     assert play.pressed() == ['w']  # Blade Warp onto the pile: the Warlock's
     assert play.picked == ['7200 gold']
+
+
+def test_at_a_routes_end_the_pickup_step_seeks_nothing_and_the_press_after_leaves_the_game():
+    # Chaos Sanctuary, 23:18:27 on 2026-10-12: Diablo dead, nothing to pick up, and the pickup key went by
+    # Blade Warp for "the remembered monster", three presses running (user: "no mobs around, so we can exit").
+    from inventory_tracking.routes.model import Route, fight, leave, level, loot
+    from inventory_tracking.routes.progress import Progress
+    from tests.inventory_tracking.macros import test_pickup as drops
+
+    play = drops.game()
+    area = play.world.player.area
+    route = Route('Countess', (6,), (level(area, fight('The Countess', 'Countess'), loot(), leave()),))
+    remembered = lambda level: [(900, play.world.player.x + 60.0, play.world.player.y, False)]  # noqa: E731
+    runner, run, _ = building(play, Hunter(lambda: drops.LEVEL, remembered, build=BUILD))
+    runner.progress = Progress([route], frozenset(('fight', 'loot', 'leave')), dead=lambda: frozenset({'The Countess'}))
+    runner.progress.note('cyber32', area)
+    runner.attack_mode = True
+
+    def keys(world, skills=None):  # as `_execute` gives them: every key for the prebuff, else the skills asked for
+        return dict(KEYS) if skills is None else {skill: KEYS[skill] for skill in skills}
+
+    runner.perform(run, run.actuator, 'pickup', keys)
+    assert play.pressed() == []  # no step toward what is remembered
+    assert play.said[-1] == 'Countess: nothing to pick up; the next press leaves the game'
+    runner.perform(play.run(), run.actuator, 'pickup', keys)
+    assert play.pressed()[0] == 'Escape'
+    assert runner.attack_mode is False
 
 
 def test_the_pickup_step_of_a_character_no_build_claims_clicks_the_gold():

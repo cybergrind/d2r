@@ -487,6 +487,8 @@ class Hunter:
         staff = self.worn(run)
         left = None if staff is None else staff.charges
         low = left is not None and left < SEEK.walks_under
+        if left == 0:
+            take_battle_weapons(run)  # the staff is empty: nothing is cast with its set (`empty_hop`)
         world = run.world()
         aspect = rect[2] / rect[3]
         # A Blade Warp just made: its casting delay is waited out when the line toward the goal is
@@ -621,6 +623,9 @@ class Hunter:
         rect = run.actuator.keys.focused_window_rect()
         if rect is None:
             raise Abort('no game window')
+        # The staff's set gives nothing more and costs resistances and skill levels (user, 2026-10-13: 17 s
+        # with it in hand and no charge in the Chaos Sanctuary): the main weapons, once.
+        take_battle_weapons(run)
         ground = Ground(target.ground)
         aspect = rect[2] / rect[3]
         facts = facts_with(run, world, ground, aspect, self.travel, staff)

@@ -563,6 +563,7 @@ class MacroRunner:
                 run.corpses = memory.corpses
                 run.arrival = lambda: self.journey.arrival(time.monotonic())
                 run.supers = self.supers
+                run.ending = self.progress.ending if self.progress is not None else None
                 run.ground = self.ground
                 mark('ready')
                 self.perform(run, actuator, routine, key_names)
@@ -570,6 +571,27 @@ class MacroRunner:
             memory.close()
             if press is not None:
                 press.notes.update(reads=reads[0], read_ms=round(1000 * reads[1], 1))
+
+    def staged(self, run: Run, key_names, plain: Callable[[Target | None], None]) -> None:
+        """One press of the stage the level is at (macros/route.py `press`); `plain` is the step toward the
+        card's mark for a level or a stage without one of its own."""
+        walker = self.hunter
+
+        def leave_the_game(run: Run, key_names) -> None:
+            self.attack_mode = False  # as the macro request ends it
+            route.leave(run, key_names)
+
+        route.press(
+            run,
+            self.progress,
+            self.target,
+            self.marks,
+            key_names,
+            plain=plain,
+            level=lambda: walker.level() if walker is not None and walker.level is not None else None,
+            attack=lambda: setattr(self, 'attack_mode', True),
+            leave=leave_the_game,
+        )
 
     def perform(self, run: Run, actuator: Actuator, routine: str, key_names) -> None:
         """One routine on the run made for it (`_execute`), by the build chosen at its first look (`choosing`)."""
@@ -596,22 +618,8 @@ class MacroRunner:
                         lambda target, player, spot: walker.warp_hop(run, target, player, spot, key_names),
                     )
 
-            def leave_the_game(run: Run, key_names) -> None:
-                self.attack_mode = False  # as the macro request ends it
-                route.leave(run, key_names)
-
             # One step of the stage the level is at (macros/route.py); the plain step without one.
-            route.press(
-                run,
-                self.progress,
-                self.target,
-                self.marks,
-                key_names,
-                plain=plain,
-                level=lambda: walker.level() if walker is not None and walker.level is not None else None,
-                attack=lambda: setattr(self, 'attack_mode', True),
-                leave=leave_the_game,
-            )
+            self.staged(run, key_names, plain)
         elif routine == PICKUP:
             hunter = self.hunter
             if hunter is None:
@@ -620,8 +628,16 @@ class MacroRunner:
             stepped = []
 
             def otherwise(run=run, hunter=hunter, level=level, stepped=stepped) -> None:
-                if not open_near(run, level, key_names):  # a chest by the character, a super chest
-                    stepped.append(hunter.step(run, key_names))
+                if open_near(run, level, key_names):  # a chest by the character, a super chest
+                    return
+                with run.lightly():
+                    player = run.world().player
+                if self.progress is not None and player is not None and self.progress.ending(player.area):
+                    # The route's bosses are dead: nothing is sought any more. The ground is the route's to
+                    # call clean, and the press after that leaves the game, as the teleport key's does.
+                    self.staged(run, key_names, lambda card: None)
+                    return
+                stepped.append(hunter.step(run, key_names))
 
             pick_up(run, level, key_names, otherwise)
             if stepped:
