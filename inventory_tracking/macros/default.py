@@ -4,11 +4,18 @@ The framework is handed a build and imports none (macros/build.py). Until the ru
 handing, the hunt, the pickup and the teleport step take the one build there is from here. It is a
 module of its own, below all three, because the runner calls the pickup and the teleport step without
 the hunt (pickup.py `collect`, teleport.py `moving`) and neither may import hunt.py. This is the one
-import of a build in the framework (the ratchet lists it), made late so that a build can import the
-framework first.
+module of the framework that imports a build (the ratchet lists it), late so that a build can import
+the framework first: the build itself, and the old names of its buff memory that tests still ask by
+(`old_rotation`).
 """
 
+from typing import TYPE_CHECKING, Any
+
 from inventory_tracking.macros.build import Build
+
+
+if TYPE_CHECKING:
+    from inventory_tracking.macros.buffs import Buffs
 
 
 def default_build() -> Build:
@@ -16,3 +23,12 @@ def default_build() -> Build:
     from inventory_tracking.builds.warlock.echoing_strike.build import ECHOING_STRIKE_BUILD
 
     return ECHOING_STRIKE_BUILD
+
+
+def old_rotation(buffs: Buffs) -> Any:
+    """The executor's memory and due-tests under the names they had in rotation.py (`hunter.rotation`):
+    the Warlock's, for the tests and the golden adapter written against those names. Nothing in the
+    framework asks it; it goes with this module."""
+    from inventory_tracking.builds.warlock.buffs import Rotation
+
+    return Rotation(buffs)

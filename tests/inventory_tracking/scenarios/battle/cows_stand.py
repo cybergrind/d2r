@@ -15,8 +15,8 @@ import re
 from datetime import datetime
 from pathlib import Path
 
+from inventory_tracking.builds.warlock.buffs import ENGORGE_HURT_SECONDS, ENGORGE_RETRY
 from inventory_tracking.macros.actuator import Abort
-from inventory_tracking.macros.rotation import ENGORGE_HURT_SECONDS, ENGORGE_RETRY
 from inventory_tracking.macros.skills import NAMES
 from inventory_tracking.macros.world import Loot, Teleport
 from tests.inventory_tracking.scenarios.battle.replay import Script

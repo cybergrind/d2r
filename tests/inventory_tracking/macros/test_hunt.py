@@ -13,14 +13,16 @@ from itertools import pairwise
 
 import pytest
 
+from inventory_tracking.builds.warlock.buffs import CONSUME_RETRY, SIGIL_SECONDS, WARD_SECONDS
+from inventory_tracking.builds.warlock.casters import SUMMON_SPOTS
 from inventory_tracking.builds.warlock.movement import WARP_DELAY
 from inventory_tracking.combat.mechanics.tables import points_of
 from inventory_tracking.combat.policy import REACH, Choice
 from inventory_tracking.combat.stance import CAMP_REACH
 from inventory_tracking.levels.model import Ground, Level, Room, Walkable, pack_cells
 from inventory_tracking.macros.actuator import Abort
+from inventory_tracking.macros.buffs import STATE_DISTRUST as HEX_DISTRUST
 from inventory_tracking.macros.hunt import (
-    CONSUME_RETRY,
     FOLLOW_SECONDS,
     MISSES_IN_A_ROW,
     RUN_IN_PLACE,
@@ -32,8 +34,6 @@ from inventory_tracking.macros.hunt import (
     Hunter,
     hostiles,
 )
-from inventory_tracking.macros.rotation import HEX_DISTRUST, SIGIL_SECONDS, WARD_SECONDS
-from inventory_tracking.macros.routines import SUMMON_SPOTS
 from inventory_tracking.macros.skills import ATTACK, BLADE_WARP, ECHOING_STRIKE, TELEPORT
 from inventory_tracking.macros.travel import JUMP_REACH, Step, attackable, step_walk
 from inventory_tracking.macros.world import HEALING, VALUABLE, Drop, Monster, Teleport
@@ -43,7 +43,7 @@ from tests.inventory_tracking.macros.fakes import HUNT_SLOTS, KEYS, PREBUFF_SET,
 @pytest.fixture
 def marks_all(monkeypatch):
     """Death Mark on whatever is strongest, as before 2026-10-11: these tests are about the mark's timing."""
-    from inventory_tracking.macros import rotation as rotation_module
+    from inventory_tracking.builds.warlock import buffs as rotation_module
 
     monkeypatch.setattr(rotation_module, 'MARK_CASTS', 0)
 
@@ -926,7 +926,7 @@ def test_no_engorge_without_a_demon_or_without_a_corpse():
 
 
 def test_a_healthy_demon_is_engorged_now_and_then_for_the_buff():
-    from inventory_tracking.macros.rotation import ENGORGE_SECONDS
+    from inventory_tracking.builds.warlock.buffs import ENGORGE_SECONDS
 
     demon = Monster(50, 744, 1, 5003.0, 5003.0, 1, life=1000, max_life=1000)
     play = game(foe(10, 5008.0, 5000.0), demon)
@@ -1355,9 +1355,9 @@ def test_no_consume_is_tried_while_the_game_is_in_the_background():
     play = consumed(game(), False)
     play.focused = False
     run = play.run()
-    assert not hunter(play).consume_due(run, play.world, [])
+    assert not hunter(play).rotation.consume_due(run, play.world, [])
     play.focused = True
-    assert hunter(play).consume_due(run, play.world, [])
+    assert hunter(play).rotation.consume_due(run, play.world, [])
 
 
 def test_no_consume_with_a_hostile_near_and_one_once_it_is_dead():
@@ -1390,7 +1390,7 @@ def test_death_mark_goes_on_a_monster_that_outlives_the_casts_it_costs(monkeypat
 
     play = game(foe(10, 5008.0, 5000.0))
     play.toughness[10] = 1000
-    from inventory_tracking.macros import rotation as rotation_module
+    from inventory_tracking.builds.warlock import buffs as rotation_module
 
     monkeypatch.setattr(rotation_module, 'MARK_CASTS', 0.1)  # this monster's type has a third of a cast of life
     attack_mode(play, hunter(play), until=3.0)

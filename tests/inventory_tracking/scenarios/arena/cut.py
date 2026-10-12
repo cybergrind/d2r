@@ -53,11 +53,12 @@ from collections.abc import Mapping, Sequence
 from dataclasses import replace
 from typing import Any
 
+from inventory_tracking.builds.warlock.buffs import ENGORGE_REACH
 from inventory_tracking.combat.mechanics.tables import area_level, monster_points, points_of, tables
 from inventory_tracking.combat.record import RESIST_STATS
 from inventory_tracking.combat.sim.monsters import MINION, PLAIN, rank_of
 from inventory_tracking.combat.takes import MonsterRow, Take, monsters_of, player_of
-from inventory_tracking.macros.rotation import ELITE_LIFE, ENGORGE_REACH
+from inventory_tracking.macros.rotation import ELITE_LIFE
 from inventory_tracking.macros.routines import CHARACTERS, DEAD
 from inventory_tracking.macros.world import FULL_REJUVENATION, HERALD_TIER_STAT, NO_OWNER, SUPER_HEALING
 from inventory_tracking.native.layout import TILE_UNITS

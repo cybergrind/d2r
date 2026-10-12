@@ -15,10 +15,12 @@ from inventory_tracking.macros.build import (
     BuffFacts,
     Build,
     BuildSettings,
+    Casting,
     Intent,
     Leg,
     MoveFacts,
     NoWay,
+    Tried,
     choose,
 )
 from inventory_tracking.macros.travel import Step
@@ -178,6 +180,8 @@ def test_every_dataclass_of_the_module_is_frozen():
         'JumpSource',
         'BuffFacts',
         'Buff',
+        'Tried',
+        'Casting',
         'Build',
     }
     assert all(thing.__dataclass_params__.frozen for thing in found)  # pyrefly: ignore[missing-attribute]
@@ -220,6 +224,41 @@ def test_a_buff_is_cast_on_the_character_with_what_is_in_hand_by_the_shared_cast
     assert buff.due(facts)
     assert not buff.due(dataclasses.replace(facts, cast_at={(7, None): 6.0}))
     assert buff.worth(facts, None)
+
+
+def test_buff_facts_take_the_window_to_be_in_front_and_the_corpses_unreadable_unless_told():
+    facts = BuffFacts(WORLD, 10.0)
+
+    assert facts.focused()
+    assert facts.corpses is None
+    assert not dataclasses.replace(facts, focused=lambda: False).focused()
+
+
+def test_a_caster_answers_with_what_is_remembered_and_what_was_touched():
+    assert Tried() == Tried(at=None, cast=False, touched=True)  # nothing remembered: asked again at the next look
+    made = Tried(10.0, cast=True)
+    assert (made.at, made.cast, made.touched) == (10.0, True, True)
+
+
+def test_a_try_asked_again_in_n_seconds_counts_as_a_cast_that_much_short_of_the_rows_period():
+    period, wait = 10.0, 1.0
+    buff = Buff(skill=7, phase='fight', due=lambda facts: facts.since(7) > period)
+    tried = Tried.again(100.0, period, wait)
+
+    assert tried == Tried(at=100.0 - period + wait, cast=False, touched=True)
+    assert tried.at is not None
+    remembered = {(7, None): tried.at}
+    assert not buff.due(BuffFacts(WORLD, 100.0 + wait, cast_at=remembered))
+    assert buff.due(BuffFacts(WORLD, 100.0 + wait + 0.01, cast_at=remembered))
+    assert not Tried.again(100.0, period, wait, touched=False).touched
+
+
+def test_a_casting_carries_the_row_and_leaves_the_rest_to_who_has_it():
+    buff = Buff(skill=7, phase='prebuff', due=lambda facts: True)
+    asked = Casting(run=None, row=buff, buffs=None)  # type: ignore[arg-type]  # pyrefly: ignore[bad-argument-type]
+
+    assert asked.row is buff
+    assert (asked.world, asked.target, asked.aspect, asked.key_names, asked.fresh) == (None, None, None, None, None)
 
 
 def imported(path: Path) -> set[str]:

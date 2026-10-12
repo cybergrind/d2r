@@ -12,14 +12,18 @@ from inventory_tracking.builds.warlock.echoing_strike.build import ECHOING_STRIK
 from inventory_tracking.combat import stance
 from inventory_tracking.combat.policy import Choice, Foe, Observation
 from inventory_tracking.levels.model import Ground
+from inventory_tracking.macros.buffs import Buffs, keys_of, phase_keys
 from inventory_tracking.macros.build import Build, Intent, JumpSource, MoveFacts, NoWay, choose
+from inventory_tracking.macros.skills import ACTIONS, skill_name
 from inventory_tracking.macros.travel import OWN_MOVE, PLAYER_STEP, SEEK, Step, navigator
 from inventory_tracking.macros.world import Player, Teleport, World
 from tests.inventory_tracking.builds.dummy import DUMMY
+from tests.inventory_tracking.macros.fakes import HUNT_SLOTS, KEYS, Game, world
 
 
 BUILDS = [GENERIC, DUMMY, ECHOING_STRIKE_BUILD]
 PHASES = {'prebuff', 'upkeep', 'fight', 'opening'}
+ONS = {'self', 'monster', 'corpse', 'ground'}
 IDS = [build.name for build in BUILDS]
 build_cases = pytest.mark.parametrize('build', BUILDS, ids=IDS)
 
@@ -177,6 +181,45 @@ def test_every_buff_names_a_skill_a_phase_and_an_existing_caster(build):
         assert buff.phase in PHASES
         assert buff.caster is None or buff.caster in build.casters
         assert all(isinstance(skill, int) for skill in buff.also)
+        assert buff.skill not in buff.also
+        assert buff.on in ONS
+        assert buff.needs in (None, 'prebuff', 'battle')
+        # The shared cast is an aim and a key: it has none for a corpse, and needs to be told whom to aim at.
+        assert buff.caster is not None or buff.on != 'corpse'
+        assert buff.target is not None or buff.on not in ('monster', 'ground')
+
+
+@build_cases
+def test_every_caster_a_build_holds_is_named_by_a_row(build):
+    assert set(build.casters) == {buff.caster for buff in build.buffs if buff.caster is not None}
+    assert all(callable(caster) for caster in build.casters.values())
+
+
+@build_cases
+def test_every_skill_a_buff_plan_names_resolves_through_the_fakes_key_table(build):
+    """The row's own skill, the ones its caster presses (`also`) and the swap for a weapon set: each
+    has a key in the fakes' table, and each skill is on a skill key of the fakes' character."""
+    if not build.buffs:
+        pytest.skip(f'{build.name} has no buffs')
+    for buff in build.buffs:
+        for skill in keys_of(buff):
+            assert skill in KEYS, f'{skill_name(skill)} of the {buff.phase} row of {skill_name(buff.skill)}'
+            assert skill in ACTIONS or skill in HUNT_SLOTS
+        assert set(keys_of(buff)) >= {buff.skill, *buff.also}
+    for phase in PHASES:
+        assert set(phase_keys(build.buffs, phase)) <= set(KEYS)
+
+
+@build_cases
+def test_the_executor_asks_every_row_of_a_build_without_a_fight(build):
+    """Each row answers with facts that hold no hostile, no prey and no cast: due or not, never an error."""
+    if not build.buffs:
+        pytest.skip(f'{build.name} has no buffs')
+    play = Game(world(slots=HUNT_SLOTS))
+    buffs, run = Buffs(build), play.run()
+    for buff in build.buffs:
+        found = buffs.due(run, buff, buffs.facts(run, play.world))
+        assert found is None or found.row is buff
 
 
 @build_cases

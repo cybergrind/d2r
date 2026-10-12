@@ -2,6 +2,8 @@
 
 from dataclasses import replace
 
+from inventory_tracking.builds.warlock.buffs import BUFFS
+from inventory_tracking.builds.warlock.casters import CASTERS
 from inventory_tracking.builds.warlock.echoing_strike.build import ECHOING_STRIKE_BUILD
 from inventory_tracking.builds.warlock.movement import MOVEMENT
 from inventory_tracking.macros.default import default_build
@@ -26,6 +28,11 @@ def test_it_is_for_a_character_with_the_strike_on_a_key_or_a_mouse_button():
 def test_it_moves_by_the_warlocks_sets_and_does_not_fight_yet():
     assert ECHOING_STRIKE_BUILD.movement == MOVEMENT
     assert ECHOING_STRIKE_BUILD.attack is None
+
+
+def test_it_holds_the_warlocks_buff_plan_and_casters():
+    assert ECHOING_STRIKE_BUILD.buffs == BUFFS
+    assert ECHOING_STRIKE_BUILD.casters == CASTERS
 
 
 def test_the_hunt_takes_it_until_a_build_is_handed_in():

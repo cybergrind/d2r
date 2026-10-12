@@ -9,7 +9,8 @@ whole of what the framework may ask of a build, and it imports nothing from a bu
   route logic, asked for the next move toward a goal from `MoveFacts` and within an `Intent`. It
   answers with a `Step` or with `NoWay` and the reason, never with silence. The jumps it is made of
   are `JumpSource`s: a skill, what a jump by it takes, and when it can be made.
-- `Buff`: one row of the buff plan, cast by the shared executor or by a caster the build names.
+- `Buff`: one row of the buff plan, cast by the shared executor (macros/buffs.py) or by a caster the
+  build names, which is called with a `Casting` and answers with a `Tried`.
 - `Tactic`: what a kind of pack adds to the one price of a place.
 - `Build`: those, the weapon sets and the numbers (`BuildSettings`), with `applies` to say whose it
   is; `choose` takes the first build that applies.
@@ -31,7 +32,8 @@ from inventory_tracking.combat.stance import Camp, Jump
 from inventory_tracking.config import Config
 from inventory_tracking.levels.doors import Door
 from inventory_tracking.levels.model import Ground
-from inventory_tracking.macros.routines import Loadout
+from inventory_tracking.macros.engine import Run
+from inventory_tracking.macros.routines import Loadout, LoadTrace
 from inventory_tracking.macros.world import Monster, Teleport, World
 from inventory_tracking.terror.danger import Pack
 
@@ -245,10 +247,16 @@ class Attack(Protocol):
         ...
 
 
+def in_front() -> bool:
+    """The game's window is taken to be in front."""
+    return True
+
+
 @dataclass(frozen=True)
 class BuffFacts:
     """What a buff's conditions are asked with: the world, the clock, the fight as the mode sees it
-    and the executor's memory of what was cast when."""
+    and the executor's memory of what was cast when. The executor remembers a cast on or under a unit
+    under that unit and under None, so `since(skill)` is the last cast of the skill on anything."""
 
     world: World
     now: float
@@ -257,6 +265,11 @@ class BuffFacts:
     prey: Monster | None = None  # the one the strike is aimed through; None outside a fight
     # (skill, the unit it was cast on or under; None: on no unit) -> clock time of the last cast
     cast_at: Mapping[tuple[int, int | None], float] = field(default_factory=dict)
+    # Whether the game's window is in front. A question to the display, so it is asked only by a row that
+    # cares, and only when the row gets that far.
+    focused: Callable[[], bool] = in_front
+    # The monsters lying dead as (unit id, x, y), world units (`Run.corpses`); None: they cannot be read
+    corpses: Callable[[], tuple[tuple[int, float, float], ...]] | None = None
 
     def since(self, skill: int, unit: int | None = None) -> float:
         """Seconds since `skill` was last cast (on or under `unit`); inf when it never was."""
@@ -265,6 +278,11 @@ class BuffFacts:
 
 def always(facts: BuffFacts, target: Monster | None) -> bool:
     """Every cast that is due pays."""
+    return True
+
+
+def whenever(facts: BuffFacts) -> bool:
+    """Due at every look: the row's state, its phase or its caster says the rest."""
     return True
 
 
@@ -287,7 +305,72 @@ class Buff:
     needs: Literal['prebuff', 'battle'] | None = None  # the weapon set it is cast with; None: what is in hand
     worth: Callable[[BuffFacts, Monster | None], bool] = always  # whether the cast pays, the target known
     caster: str | None = None  # a name in `Build.casters`; None: aim and key, the shared one
-    also: tuple[int, ...] = ()  # the other skills its caster presses: they too have to be on keys
+    # The other skills its caster presses, before its own: they too have to be on keys, and their keys are asked
+    # for first (macros/buffs.py `keys_of`: the order a missing one is named in)
+    also: tuple[int, ...] = ()
+
+
+@dataclass(frozen=True)
+class Tried:
+    """A caster's answer: what the executor is to remember of the try, and what the loop that asked
+    has to put right after it. The executor's memory is one clock time per skill and unit, and a row's
+    `due` reads only that, so a caster that made no cast says when the row is asked again by the time
+    it has the try counted as a cast at (`again`)."""
+
+    # The clock time the row counts as last cast at: now, for a cast that was made. None: nothing is
+    # remembered, and the row is asked again at the next look.
+    at: float | None = None
+    cast: bool = False  # a cast was made: one more that the row's `state` has to show (the executor's rule)
+    # The pointer or a key was touched: under a held strike the loop puts its aim back and takes the strike
+    # up again. False: nothing was done, and the loop goes on as if the row had not been due.
+    touched: bool = True
+
+    @classmethod
+    def again(cls, now: float, every: float, seconds: float, *, touched: bool = True) -> Tried:
+        """No cast, and the row asked again in `seconds`: for a row that is due once its last cast is
+        `every` seconds old, the try counts as a cast made `every - seconds` ago."""
+        return cls(now - every + seconds, touched=touched)
+
+
+class Executor(Protocol):
+    """What a caster may ask of the executor that called it (macros/buffs.py `Buffs`)."""
+
+    def key(self, run: Run, skill: int) -> None:
+        """The skill's key pressed at once, a held strike let go for it."""
+        ...
+
+    def remember(self, row: Buff, at: float, unit: int | None = None) -> None:
+        """The row counted as cast at `at` from now on, before the caster has answered: for a try
+        that is to count from its start even when it is stopped half way."""
+        ...
+
+    def shared(self, cast: Casting) -> Tried:
+        """The cast as the executor makes it for the row's `on` (aim and key), for a caster that only
+        adds to it."""
+        ...
+
+
+@dataclass(frozen=True)
+class Casting:
+    """What a caster is called with: the row that is due, where it was found due, and the executor."""
+
+    run: Run
+    row: Buff
+    buffs: Executor
+    # The world the row was found due in. None in the prebuff phase, which casts every row of its own
+    # and looks at no world before the first of them.
+    world: World | None = None
+    target: Monster | None = None  # whom the row's `target` named
+    aspect: float | None = None  # the window's width over its height, where the caller has it (a fight)
+    # The key per skill for the character in the game (skills.py `skill_keys`), as the runner gives it.
+    # None: the keys are in `run.keys` already (a routine looked them up before its first cast).
+    key_names: Callable[..., dict[int, str]] | None = None
+    # The load of a game just made, when the prebuff follows one: the first cast may have to wait for
+    # the game to take input (routines.py LOAD_LIMIT), and its success ends the trace.
+    fresh: LoadTrace | None = None
+
+
+Caster = Callable[[Casting], Tried]
 
 
 class Tactic(Protocol):
@@ -335,7 +418,7 @@ class Build:
     buffs: tuple[Buff, ...] = ()  # in the order they are cast
     tactics: tuple[Tactic, ...] = ()
     weapons: Loadout | None = None  # which weapon set is for what; None: the hands are left as they are
-    casters: Mapping[str, Callable[..., object]] = field(default_factory=dict)  # the casts that are more than a key
+    casters: Mapping[str, Caster] = field(default_factory=dict)  # the casts that are more than a key
     settings: BuildSettings = field(default_factory=BuildSettings)
 
 

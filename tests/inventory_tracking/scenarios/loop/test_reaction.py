@@ -28,7 +28,7 @@ from tests.inventory_tracking.scenarios.loop.helpers import (
 @pytest.fixture
 def marks_all(monkeypatch):
     """Death Mark on whatever is strongest, as before 2026-10-11: these tests are about the mark's timing."""
-    from inventory_tracking.macros import rotation as rotation_module
+    from inventory_tracking.builds.warlock import buffs as rotation_module
 
     monkeypatch.setattr(rotation_module, 'MARK_CASTS', 0)
 

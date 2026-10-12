@@ -12,9 +12,9 @@ from pathlib import Path
 
 import pytest
 
+from inventory_tracking.builds.warlock import buffs as rotation_module
 from inventory_tracking.combat.mechanics.tables import points_of
 from inventory_tracking.levels.model import Level
-from inventory_tracking.macros import rotation as rotation_module
 from inventory_tracking.macros import teleport
 from inventory_tracking.macros.hunt import TOUGH_POINTS
 from inventory_tracking.macros.pickup import pick_up

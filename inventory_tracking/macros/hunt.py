@@ -13,9 +13,10 @@ A fight (`Hunter.fight`) is one hold of the input that has Echoing Strike: the r
 when it holds the skill, else its skill key, else a left click with Shift. The game casts at its own
 rate; an input idle RETAP_SECONDS is released and pressed again. The pointer is kept on the combat
 policy's line (combat/policy.py, the decision the simulator scores); a monster in reach the policy
-finds no line for is aimed at directly, the elite first, then the nearest, AIM_BEYOND past it. An
-elite gets Sigil: Lethargy under it once per SIGIL_SECONDS, the strongest monster in reach Death Mark
-once per DEATH_MARK_SECONDS. The main weapon set is swapped in for a tough or hard-hitting pack (`tough`).
+finds no line for is aimed at directly, the elite first, then the nearest, AIM_BEYOND past it. The
+build's buffs are cast under the strike and kept up between fights by its buff plan (buffs.py; for the
+Warlock builds/warlock/buffs.py: a sigil under an elite, Death Mark on the strongest monster in reach).
+The main weapon set is swapped in for a tough or hard-hitting pack (`tough`).
 
 What the fight decides from what it sees and the clock (where to cast, whose the pointer is, the
 held input, the move asked for) is combat/controller.py, apart from the game; this module reads the
@@ -81,30 +82,23 @@ from inventory_tracking.common import LOG
 from inventory_tracking.levels.model import Ground, Level, Room, Target
 from inventory_tracking.levels.route import room_at
 from inventory_tracking.macros.actuator import POINTER_DRIFT, Abort, Cancelled
+from inventory_tracking.macros.buffs import Buffs
 from inventory_tracking.macros.build import Build
-from inventory_tracking.macros.default import default_build
+from inventory_tracking.macros.default import default_build, old_rotation
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.pickup import choose, unshunned
-from inventory_tracking.macros.rotation import (
-    ELITE_LIFE,
-    Rotation,
-)
+from inventory_tracking.macros.rotation import ELITE_LIFE
 from inventory_tracking.macros.routines import (
     ACTING,
     CHARACTERS,
     DEAD,
     SUPER_UNIQUE_FLAG,
     TOWN_NPCS,
-    renew_consume,
     take_battle_weapons,
 )
 from inventory_tracking.macros.sight import clear_shot, firing_spots, in_reach
 from inventory_tracking.macros.skills import (
-    CONSUME,
-    DEATH_MARK,
     ECHOING_STRIKE,
-    ENGORGE,
-    SUMMON_DEFILER,
     SWAP_WEAPONS,
     TELEPORT,
     skill_name,
@@ -151,7 +145,6 @@ HYDRAS = frozenset((351, 352, 353))
 VULTURES = frozenset((110, 111, 112, 113, 608))
 AIRBORNE = frozenset((1, 8))
 FIRST_STRIKE_SECONDS = 0.3  # the held strike this long with no cast seen yet: the mark and sigil wait no longer
-DEATH_MARK_SECONDS = 8.0  # between two Death Marks; the debuff lasts 125 + 13/level frames (skills.txt)
 WALK_CLICKS = 2  # clicks for one walk to a firing spot
 WALK_UNITS = 10.0  # a firing spot this near, over clear ground, is walked to, not teleported to (as NEAR_WARP)
 FIGHT_SECONDS = 60.0  # one fight ends here at the latest; attack mode looks again right after
@@ -204,13 +197,6 @@ TOUGH_POINTS = 40_000.0  # life points in reach from which a pack is worth the m
 HARD_SCORE = 4.0  # the threat score (terror/danger.py) of what is in reach from which it is, whatever its life
 MAIN_AFTER = 1.0  # seconds after a step before the main weapons are swapped in for a fight
 SWAP_RETRY_SECONDS = 5.0  # after a swap to the main weapons that did not come
-# Consume (skills.txt 381: 15% more life and a faster run for 300 s at CybergrindAA's level) is cast again by
-# attack mode when the character's state reads without it and no hostile is within CONSUME_CLEAR: a Defiler is
-# summoned and the pointer put on it, about two seconds in which nothing is struck. After a try that failed
-# (no ground for a summon, something beside the Defiler) the next comes CONSUME_RETRY later.
-CONSUME_CLEAR = 30.0  # world units
-CONSUME_SOON = 3.0  # seconds to the next try after one the player's own key stopped
-CONSUME_RETRY = 20.0  # seconds
 INPUT_SECONDS = 1.0  # Echoing Strike on no input for this long (another skill selected) before it is a stopped fight
 MISSES_IN_A_ROW = 5  # fights that stopped one after another before attack mode gives up
 IDLE_LOG_SECONDS = 3.0  # between log lines on what attack mode sees while nothing is in reach
@@ -316,11 +302,11 @@ class Hunter:
         self.explored = explored
         self.policy: Policy = policy or LinePolicy()  # where to cast (combat/policy.py)
         self.score = LiveScore()  # the last minute of attack mode: damage and kills (combat/score.py)
-        self.rotation = Rotation(lambda: self.policy)  # the casts under the held strike (rotation.py)
-        self.consumed_at = -math.inf  # clock time of attack mode's last try at Consume
-        # What is the build's and not the framework's; so far the ways it moves by. None: the one
-        # build there is, until the runner chooses it (default.py `default_build`).
+        # What is the build's and not the framework's; so far the ways it moves by and its buff plan. None: the
+        # one build there is, until the runner chooses it (default.py `default_build`).
         self.build: Build = build if build is not None else default_build()
+        self.buffs = Buffs(self.build)  # the build's buff plan as it is run, and when each cast was made (buffs.py)
+        self.rotation = old_rotation(self.buffs)  # the same under its old names, for the tests (default.py)
         # The jumps the character can make and the moves made with them (travel.py), by the build's movement sets
         self.travel = Travel(self.build.movement)
         self.route: tuple[int, list[Bounds]] = (0, [])  # (level, the rooms the explore steps go to stand in, in order)
@@ -951,33 +937,12 @@ class Hunter:
                 self.step_aside()
                 self.nap(run, POLL)  # the player's move (a key, the left button, a run): waited through
                 continue
-            if self.rotation.purge_due(run, world):
-                try:
-                    self.rotation.purge(run, world, key_names)
-                    run.pause('key')
-                except Abort as stop:
-                    if run.cancelled.is_set():
-                        raise
-                    LOG.info('Macro: no Hex: Purge (%s)', stop)
-                    self.rotation.purged_at = run.clock()
-                continue
-            if self.rotation.ward_due(run, world):
-                try:
-                    self.rotation.ward(run, world, key_names)
-                    run.pause('key')
-                except Abort as stop:
-                    if run.cancelled.is_set():
-                        raise
-                    LOG.info('Macro: no Psychic Ward (%s)', stop)
-                    self.rotation.warded_at = run.clock()
+            foes = self.foes(world, run.clock())
+            if self.upkeep(run, world, foes, key_names):
                 continue
             level = self.known_level(player)
             ground = Ground(level.ground if level is not None else ())
             here = (player.x, player.y)
-            foes = self.foes(world, run.clock())
-            if self.consume_due(run, world, foes):
-                self.consume(run, world, key_names)
-                continue
             if not any(in_reach(ground, here, (m.x, m.y), REACH, world.doors) for m in foes):
                 self.step_aside()
                 self.gather(run, here, foes)
@@ -1194,40 +1159,27 @@ class Hunter:
             move.pixel, move.clicked_at - move.at, move.clicks, MOVE_CLICKS,
         )  # fmt: skip
 
-    def consume_due(self, run: Run, world: World, foes: list[Monster]) -> bool:
-        """Whether attack mode casts Consume again now: the state reads without it, its two skills are on
-        keys, no hostile is within CONSUME_CLEAR and the last try is CONSUME_RETRY old."""
-        player = world.player
-        if player is None or player.consume is not False or player.mode in DEAD:
+    def upkeep(self, run: Run, world: World, foes: list[Monster], key_names) -> bool:
+        """A buff kept up outside a fight: the first row of the build's upkeep that is due is cast, and
+        whether one was. A cast of one key is followed by a pause; one that cannot be made is logged, counts
+        as made now, and the mode goes on. A row with a caster takes seconds and answers for its own
+        failures (macros/build.py `Tried`): a step that waits for the fight goes first."""
+        due = self.buffs.first(run, 'upkeep', self.buffs.facts(run, world, foes))
+        if due is None:
             return False
-        if not {CONSUME, SUMMON_DEFILER} <= set(world.slots):
-            return False
-        if not run.actuator.focused():
-            # The game in the background: eleven tries in four minutes, each said and stopped by the lost
-            # focus (09:45 to 09:49 on 2026-10-12, the player in another window).
-            return False
-        if run.clock() - self.consumed_at <= CONSUME_RETRY:
-            return False
-        return all(math.dist((player.x, player.y), (m.x, m.y)) > CONSUME_CLEAR for m in foes)
-
-    def consume(self, run: Run, world: World, key_names) -> None:
-        """Consume cast again (routines.renew_consume); a try that fails is logged and the mode goes on."""
-        self.step_aside()  # a step that waits for the fight goes first
-        self.consumed_at = run.clock()
-        run.say('Consume ran out: casting it again')
+        own = due.row.caster is not None
+        if own:
+            self.step_aside()
         try:
-            run.keys.update(key_names(world, (SUMMON_DEFILER, CONSUME, SWAP_WEAPONS)))
-            renew_consume(run)
-        except (Abort, ValueError) as stop:
+            self.buffs.cast(run, due, key_names)
+            if not own:
+                run.pause('key')
+        except Abort as stop:
             if run.cancelled.is_set():
                 raise
-            # A key of the player's stops any routine: that try was no failure of the cast, so the next
-            # comes soon (09:58:00 on 2026-10-12: stopped by a key, and 20 s without the buff).
-            wait = CONSUME_RETRY
-            if 'a key was pressed' in str(stop):
-                wait = CONSUME_SOON
-                self.consumed_at = run.clock() - CONSUME_RETRY + wait
-            LOG.info('Macro: no Consume (%s); again in %.0fs', stop, wait)
+            LOG.info('Macro: no %s (%s)', skill_name(due.row.skill), stop)
+            self.buffs.remember(due.row, run.clock())
+        return True
 
     def tough(self, world: World, reachable: list[Monster]) -> bool:
         """Whether what is in reach is worth a swap to the main weapons, which have the damage and the
@@ -1357,7 +1309,7 @@ class Hunter:
         counted = 0  # the casts seen up to the last look
         ended = f'Fight stopped after {FIGHT_SECONDS:.0f}s'
         with ExitStack() as stack:
-            stack.callback(setattr, self.rotation, 'let_go', None)
+            stack.callback(setattr, self.buffs, 'let_go', None)
             while run.clock() - started < FIGHT_SECONDS:
                 world = run.world()
                 player = world.player
@@ -1438,36 +1390,21 @@ class Hunter:
                 # press they held the first strike back 0.3 to 0.7 s on 190 of 405 fight starts (logs of
                 # 2026-10-10, tests/inventory_tracking/scenarios/loop). The first cast flies unmarked.
                 struck = again is not None and (cast.casts > 0 or run.clock() - cast.began >= FIRST_STRIKE_SECONDS)
-                if struck and self.rotation.purge_due(run, world):
-                    self.casting = True
-                    self.rotation.purge(run, world, key_names)
-                    cast.excuse(run.clock())
-                    self.rotation.resume(run, again)
-                if struck and self.rotation.ward_due(run, world, fighting=True):
-                    self.casting = True
-                    self.rotation.ward(run, world, key_names)
-                    cast.excuse(run.clock())
-                    self.rotation.resume(run, again)
-                if struck and run.clock() - self.rotation.marked_at > DEATH_MARK_SECONDS and DEATH_MARK in world.slots:
-                    strongest = max(reachable, key=lambda m: (m.leader, m.max_life, -math.dist(here, (m.x, m.y))))
-                    if self.rotation.worth_a_mark(world, strongest):
-                        self.casting = True  # the mark's own cast swallows a click as a strike does
-                        self.rotation.death_mark(run, strongest, aspect, key_names)
-                        aim.forget()
-                        cast.excuse(run.clock())  # the mark's own cast is no missing strike
-                        self.rotation.resume(run, again)
-                if struck and self.rotation.sigil_due(run, prey):
-                    self.casting = True
-                    self.rotation.sigil(run, world, prey, aspect, key_names)
-                    aim.forget()
-                    cast.excuse(run.clock())
-                    self.rotation.resume(run, again)
-                if struck and ENGORGE in world.slots and self.rotation.engorge_due(run, world):
-                    self.casting = True
-                    if self.rotation.engorge(run, world, aspect, key_names):
-                        aim.forget()
-                        cast.excuse(run.clock())
-                        self.rotation.resume(run, again)
+                if struck:
+                    # The build's casts under the strike, each asked in the plan's order with the clock as it
+                    # reads then. A cast's own animation swallows a click as a strike does and is no missing
+                    # strike; one that moved the pointer leaves the strike's aim to be put back.
+                    asked = self.buffs.facts(run, world, foes, reachable, prey)
+                    for row in self.buffs.rows('fight'):
+                        due = self.buffs.due(run, row, asked)
+                        if due is None:
+                            continue
+                        self.casting = True
+                        if self.buffs.cast(run, due, key_names, aspect).touched:
+                            if row.on != 'self':
+                                aim.forget()
+                            cast.excuse(run.clock())
+                            self.buffs.resume(run, again)
                 pointer, left_at = run.actuator.keys.pointer(), run.actuator.left_at
                 if aim.due(run.clock(), pointer, left_at, choice.focal, here):
                     where = view.aim(here, choice.focal)
@@ -1488,7 +1425,7 @@ class Hunter:
                 if again is None:
                     run.say(f'Echoing Strike ({how}) at {label(prey)}, {life(prey)}')
                     again = stack.enter_context(run.actuator.hold(*held))
-                    self.rotation.let_go = getattr(again, 'release', None)  # for a key under the strike
+                    self.buffs.let_go = getattr(again, 'release', None)  # for a key under the strike
                     cast.began = run.clock()
                     self.casting = True  # the strike is held from here to the end of the fight
                 if prey.unit_id != lined:
