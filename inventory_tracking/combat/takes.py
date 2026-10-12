@@ -19,6 +19,7 @@ Point = tuple[float, float]
 SCHEMAS = {
     1: 'before 2026-10-10: `p` may end at the skills (no vitals), or carry vitals read from the wrong stats',
     2: '`p` ends with life, max life, mana, max mana in whole points (stats 6-9); `d` holds the doors',
+    3: 'a frame holds `r`, the resistances (record.py RESIST_STATS), when they are first read and when they change',
 }
 LIFE_SCALE = 128  # the client's life fraction: a monster's life in a frame is 0-128 of its maximum
 
@@ -106,6 +107,17 @@ def monsters_of(frame: dict[str, Any]) -> list[MonsterRow]:
 
 def missiles_of(frame: dict[str, Any]) -> list[MissileRow]:
     return [MissileRow(*x) for x in frame['x']]
+
+
+def resists_by_frame(take: Take) -> list[list[int] | None]:
+    """The character's resistances (record.py RESIST_STATS) at each frame: the `r` written last up to it.
+    None before the first, and in every frame of a take recorded before schema 3."""
+    found: list[list[int] | None] = []
+    last: list[int] | None = None
+    for frame in take.frames:
+        last = frame.get('r', last)
+        found.append(last)
+    return found
 
 
 def pointer_of(frame: dict[str, Any]) -> Point | None:

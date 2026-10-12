@@ -167,7 +167,8 @@ def near(grids: Sequence[dict[str, Any]], origin: Point, reach: float = GROUND_R
 
 def resists_at(take: Take, t: float) -> list[int] | None:
     """The character's resistances (RESIST_STATS, as the stat list holds them) at the last reading up
-    to time `t`: a `hurt` event's, else the manifest's at the take's start. None in a take without either."""
+    to time `t`: a frame's (`r`, schema 3) or a `hurt` event's, else the manifest's at the take's start.
+    None in a take without any."""
     found = None
     stats = take.manifest.get('character_stats')
     if stats:
@@ -177,6 +178,11 @@ def resists_at(take: Take, t: float) -> list[int] | None:
             break
         if event['event'] == 'hurt' and event.get('resists'):
             found = [int(value) for value in event['resists']]
+    for frame in take.frames:
+        if frame['t'] > t:
+            break
+        if frame.get('r'):
+            found = [int(value) for value in frame['r']]
     return found
 
 

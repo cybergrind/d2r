@@ -187,6 +187,9 @@ def test_the_set_in_hand_is_the_one_the_resistances_read_fit(tmp_path):
     hurt = {'t': 99.0, 'event': 'hurt', 'resists': [10, 190, 179, 189, 195]}
     swapped = replace(take, events=[hurt, {**hurt, 't': 101.0, 'resists': [10, 154, 108, 118, 124]}])
     assert cut(swapped, 0, defaults=DEFAULT_HERO).hero.hand == DEFAULT_HERO.sets.index(MAIN)
+    # Since schema 3 a frame holds the resistances where they change: the frame's is the reading at it.
+    framed = replace(take, frames=[{**take.frames[0], 'r': [10, 190, 179, 189, 195]}, *take.frames[1:]])
+    assert cut(framed, 0, defaults=DEFAULT_HERO).hero.hand == DEFAULT_HERO.sets.index(MAIN)
     # Amplify Damage and the rest raised (Outer Cloister, 2026-10-12 01:31): still the main set.
     assert hand_of([-90, 190, 179, 189, 195], DEFAULT_HERO.sets) == DEFAULT_HERO.sets.index(MAIN)
 

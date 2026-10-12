@@ -6,7 +6,7 @@ import threading
 from dataclasses import replace
 
 from inventory_tracking.combat.record import IDLE_SECONDS, LEVEL_SECONDS, Recorder, Sample
-from inventory_tracking.combat.takes import Take, timeline
+from inventory_tracking.combat.takes import Take, resists_by_frame, timeline
 from inventory_tracking.levels.model import Level, Room, Walkable, pack_cells
 from inventory_tracking.macros.world import Monster, World
 from tests.inventory_tracking.macros.fakes import player
@@ -268,3 +268,29 @@ def test_a_drop_of_the_characters_life_is_written_with_who_was_striking_and_what
     assert hurt[0]['near'] == [[195, 2.5]]
     # The character's resistances at that frame (physical, fire, lightning, cold, poison): Amplify Damage is on it.
     assert hurt[0]['resists'] == [-90, 0, 108, 0, 0]
+    # And in the frames, at the first one and at every change, so a curse shows with no drop of life.
+    assert [frame.get('r') for frame in take.frames] == [[-90, 0, 108, 0, 0], None, None, None]
+    assert resists_by_frame(take) == [[-90, 0, 108, 0, 0]] * 4
+    assert take.schema == 3
+
+
+def test_a_change_of_the_resistances_is_written_in_the_frame_it_is_read_in(tmp_path):
+    physical = iter((10, 10, -40, -40, 10))
+    me = player(CHAOS, stats_at=0x20)
+
+    def stats(at):
+        return {6: 1500 << 8, 7: 1783 << 8, 36: next(physical), 39: 154}
+
+    script = Script(*(Sample(World(True, (), 'cyber1', (388, None), player=me), [], None, None) for _ in range(3)))
+    rec = Recorder(script, output=tmp_path, clock=lambda: 0.0, stats=stats)
+    for now in (1.0, 1.04, 1.08, 1.12):  # the manifest's read of the stats, then 10, -40, -40 and 10
+        rec.step(now)
+    rec.close('test')
+    take = Take.load(next(tmp_path.iterdir()))
+    assert [frame.get('r') for frame in take.frames] == [
+        [10, 154, 0, 0, 0],
+        [-40, 154, 0, 0, 0],
+        None,
+        [10, 154, 0, 0, 0],
+    ]
+    assert resists_by_frame(take)[2] == [-40, 154, 0, 0, 0]

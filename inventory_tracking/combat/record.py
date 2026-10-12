@@ -14,7 +14,9 @@ each unit's enchantments (`mods`, monumod ids) in `units.jsonl`, the character's
 manifest (`character_stats`: its resistances, which a blow's size is cut by) and a `hurt` event at
 every drop of its life, with who was striking, what flew by (combat/hurts.py) and the character's
 resistances at that frame (`resists`: physical, fire, lightning, cold, poison as the stat list holds
-them, so a curse on it shows).
+them, so a curse on it shows). Since 2026-10-13 (schema 3) the same list is in a frame as `r`, in the
+first frame that has the character and in every frame it differs from the one written last: a curse is
+seen when it lands and when it ends, not only at a drop of life (takes.py `resists_by_frame`).
 
 `Recorder.step` is the per-frame logic with the clock injected; `Recorder.run` paces it on its
 own thread with its own memory handle and display connection (`LiveSampler`), bound to the game
@@ -40,7 +42,7 @@ from inventory_tracking.macros.world import NO_OWNER, GameMemory, Player, World
 from inventory_tracking.native.layout import DEAD_MODES, TOWN_IDS
 
 
-SCHEMA = 2  # the rows' layout (takes.py `SCHEMAS`): written to the manifest since 2026-10-10 night
+SCHEMA = 3  # the rows' layout (takes.py `SCHEMAS`): written to the manifest since 2026-10-10 night
 FRAME_RATE = 25.0  # the engine's frames per second
 AREAS = frozenset((108,))  # Chaos Sanctuary
 IDLE_SECONDS = 3.0  # out of the areas or out of a game this long: the take closes
@@ -119,6 +121,7 @@ class Take:
         self.keys: frozenset[int] = frozenset()
         self.mods: dict[int, tuple[int, ...]] = {}  # unit id -> its enchantments, as first seen
         self.resists: list[int] = []  # the character's RESIST_STATS at the last frame
+        self.written_resists: list[int] | None = None  # the ones in the last frame that has `r`
         # The frame before: the character's unit, life and most life, the hostiles and the missiles (a blow
         # lands between two)
         self.before: tuple[int, int, int, hurts.Point, list[hurts.Foe], list[tuple[int, hurts.Point]]] | None = None
@@ -186,6 +189,8 @@ class Take:
             'in': [*(sample.pointer or (None, None, None)), fx, fy, sorted(sample.keys)],
             'rect': list(sample.rect) if sample.rect else None,
         }
+        if character is not None and self.resists != self.written_resists:
+            line['r'] = self.written_resists = list(self.resists)
         self.frames.write(json.dumps(line, separators=(',', ':')) + '\n')
         self.write_paths(clock, world.monsters)
         if sample.census is not None:

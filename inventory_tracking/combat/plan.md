@@ -1703,3 +1703,14 @@ melee monsters and jumps.
   them, drink from the belt and take them up. The pickup step and the sweep already drink and pick up
   with life under 70%, but only with no hostile within reach of the character or the potion: the stop
   for a potion among four hostiles is how the character died in Tower Cellar 5 (22:50 on 2026-10-11).
+
+## 2026-10-13 — the resistances in the frames (schema 3)
+
+- Why: the fight at the Infector seal (take 20261012T182157Z-108, architecture.md §6.2.3) was under a
+  curse from its first second, and a take showed the resistances only at a drop of life: when a curse
+  lands and how long it lasts were bounded, not seen (arena/evidence/CURSES.md).
+- Now: a frame holds `r` (physical, fire, lightning, cold, poison, as the stat list has them) in the
+  first frame with the character and in every frame they differ from the last written. The stats were
+  read every frame already, so the recorder reads nothing more. Readers: takes.py `resists_by_frame`;
+  the scene cutter takes a frame's reading before a `hurt` event's.
+- Next: with a few Chaos Sanctuary games recorded this way, fit the curses (who casts, how soon, how long).
