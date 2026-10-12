@@ -28,6 +28,7 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from inventory_tracking.builds.warlock.echoing_strike.attack import EchoingStrike
 from inventory_tracking.combat import stance
 from inventory_tracking.combat.controller import LiveAim
 from inventory_tracking.combat.mechanics.damage import damage_table
@@ -308,7 +309,7 @@ def production(first: int = 1, follow: int = 0, hop: bool = False) -> Strategy:
     """The production step (combat/stance.py `camp`): the press's own step (`first`, taken wherever a
     place is worth it), then up to `follow` more, each only when nothing is in reach from where the
     character stands (macros/hunt.py `follow_on`). `hop` lets it teleport, which the game's step does not."""
-    policy = LinePolicy(yields=True)
+    policy = EchoingStrike.of(LinePolicy(yields=True))  # the sweep as the attack a place is priced by
 
     def strategy(view: View) -> Move | None:
         if view.moves_made >= first + follow:

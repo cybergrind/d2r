@@ -20,7 +20,7 @@ from inventory_tracking.levels.model import Ground, Level, Room, Walkable
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.hunt import Hunter, hostiles
 from inventory_tracking.macros.world import Monster, Player, Teleport, World
-from tests.inventory_tracking.macros.fakes import HUNT_SLOTS, KEYS, Game, world
+from tests.inventory_tracking.macros.fakes import HUNT_SLOTS, KEYS, Game, warlock, world
 
 
 HERE = Room(1, 996, 996, 8, 8)
@@ -101,7 +101,7 @@ def hunter(play, *, ground=(), remembered=(), policy=None) -> Hunter:
     def level():
         return Level(play.world.player.area, ROOMS, tuple(ground))
 
-    return Hunter(level, lambda area: list(remembered), None, policy)
+    return Hunter(level, lambda area: list(remembered), None, policy, build=warlock(play.world))
 
 
 def attack_mode(play, hunt, *, until=30.0, events=()):

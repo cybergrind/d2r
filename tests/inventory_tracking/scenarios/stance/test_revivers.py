@@ -12,6 +12,7 @@ from functools import cache
 
 import pytest
 
+from inventory_tracking.builds.warlock.echoing_strike.attack import EchoingStrike
 from inventory_tracking.combat.policy import LinePolicy
 from inventory_tracking.combat.stance import camp
 
@@ -32,7 +33,7 @@ STILL_SHORT = {
 
 
 def stepping() -> Fight:
-    aim, policy = today(), LinePolicy(yields=True)
+    aim, policy = today(), EchoingStrike.of(LinePolicy(yields=True))
 
     def fight(brief: Brief):
         spots = brief.spots

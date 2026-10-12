@@ -1,15 +1,15 @@
 """The Echoing Strike Warlock as the one object the framework asks (macros/build.py `Build`).
 
-The attack, movement and the buff plan so far: the weapon sets are still in macros/, and move here
-task by task (framework-plan.md Stage 3).
+The attack, movement and the buff plan. The weapon sets are a character's own: the layer of a
+character gives them (builds/characters.py), and the build as it is here has none.
 """
 
 from inventory_tracking.builds.warlock.buffs import BUFFS
 from inventory_tracking.builds.warlock.casters import CASTERS
 from inventory_tracking.builds.warlock.echoing_strike.attack import ECHOING_STRIKE_ATTACK
 from inventory_tracking.builds.warlock.movement import MOVEMENT
+from inventory_tracking.builds.warlock.skills import ECHOING_STRIKE
 from inventory_tracking.macros.build import Build
-from inventory_tracking.macros.skills import ECHOING_STRIKE
 from inventory_tracking.macros.world import World
 
 

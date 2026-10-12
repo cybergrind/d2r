@@ -15,7 +15,7 @@ import re
 from datetime import datetime
 from pathlib import Path
 
-from inventory_tracking.builds.warlock.buffs import ENGORGE_HURT_SECONDS, ENGORGE_RETRY
+from inventory_tracking.builds.warlock.buffs import ENGORGE_HURT_SECONDS, ENGORGE_RETRY, Rotation
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.skills import NAMES
 from inventory_tracking.macros.world import Loot, Teleport
@@ -104,7 +104,7 @@ def prepare(hunter) -> None:
     """What the hunt carried into the stretch, from the log before it: the last look for a corpse at
     02:18:42.926 ("no Engorge at (25313.5, 6013.5)", the second of two: Rotation.engorge then sets
     the next look ENGORGE_RETRY on)."""
-    hunter.rotation.engorged_at = seconds('2026-10-12 02:18:42', '926') - ENGORGE_HURT_SECONDS + ENGORGE_RETRY
+    Rotation(hunter.buffs).engorged_at = seconds('2026-10-12 02:18:42', '926') - ENGORGE_HURT_SECONDS + ENGORGE_RETRY
 
 
 def key_names(world, skills=()):

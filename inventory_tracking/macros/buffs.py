@@ -31,7 +31,7 @@ from inventory_tracking.macros.routines import (
     take_battle_weapons,
     take_prebuff_weapons,
 )
-from inventory_tracking.macros.skills import NAMES, SWAP_WEAPONS
+from inventory_tracking.macros.skills import SWAP_WEAPONS, skill_name
 from inventory_tracking.macros.teleport import ground_fraction
 from inventory_tracking.macros.travel import label, life
 from inventory_tracking.macros.world import Monster, World
@@ -178,7 +178,7 @@ class Buffs:
             return self.on_monster(cast)
         if cast.row.on == 'ground':
             return self.on_ground(cast)
-        raise ValueError(f'no shared cast on a {cast.row.on}: the row of {NAMES[cast.row.skill]} needs a caster')
+        raise ValueError(f'no shared cast on a {cast.row.on}: the row of {skill_name(cast.row.skill)} needs a caster')
 
     def on_self(self, cast: Casting) -> Tried:
         """A cast on the character itself: one key."""
@@ -186,7 +186,7 @@ class Buffs:
         assert cast.world is not None
         assert cast.key_names is not None
         if cast.row.state is not None and self.unseen.get(skill, 0) == STATE_TRIES:
-            LOG.warning('Macro: %s cast %d times and the state does not show it', NAMES[skill], STATE_TRIES)
+            LOG.warning('Macro: %s cast %d times and the state does not show it', skill_name(skill), STATE_TRIES)
         run.keys.update(cast.key_names(cast.world, (skill,)))
         self.key(run, skill)
         return Tried(run.clock(), cast=True)
@@ -209,7 +209,7 @@ class Buffs:
             return Tried()  # it died under the strike while the pointer went over: no mark on a corpse
         self.key(run, skill)
         at = run.clock()
-        run.say(f'{NAMES[skill]} on {label(target)}, {life(target)}')
+        run.say(f'{skill_name(skill)} on {label(target)}, {life(target)}')
         return Tried(at, cast=True)
 
     def on_ground(self, cast: Casting) -> Tried:
@@ -263,4 +263,4 @@ class Buffs:
             elif row.on == 'self':
                 cast_free(run, row.skill)
             else:
-                raise ValueError(f'no prebuff cast on a {row.on}: the row of {NAMES[row.skill]} needs a caster')
+                raise ValueError(f'no prebuff cast on a {row.on}: the row of {skill_name(row.skill)} needs a caster')

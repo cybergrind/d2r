@@ -17,12 +17,14 @@ from dataclasses import dataclass, fields, is_dataclass, replace
 from functools import cache
 from pathlib import Path
 
+from inventory_tracking.builds.warlock.buffs import Rotation
+from inventory_tracking.builds.warlock.skills import BLADE_WARP
 from inventory_tracking.combat.policy import REACH
 from inventory_tracking.levels.model import Ground
 from inventory_tracking.macros import pickup, teleport, view
 from inventory_tracking.macros.hunt import Hunter
 from inventory_tracking.macros.sight import in_reach
-from inventory_tracking.macros.skills import BLADE_WARP, TELEPORT
+from inventory_tracking.macros.skills import TELEPORT
 from inventory_tracking.macros.view import Viewport
 from inventory_tracking.macros.world import (
     DEFILER_CLASS,
@@ -37,7 +39,7 @@ from inventory_tracking.macros.world import (
     World,
 )
 from tests.inventory_tracking.macros import test_pickup as drops
-from tests.inventory_tracking.macros.fakes import HUNT_SLOTS, WINDOW, Game
+from tests.inventory_tracking.macros.fakes import HUNT_SLOTS, WINDOW, Game, warlock
 from tests.inventory_tracking.scenarios.loop.helpers import CHAMPION, foe
 from tests.inventory_tracking.scenarios.navigation import harness as navigation
 from tests.inventory_tracking.scenarios.stance import harness as stance
@@ -138,7 +140,7 @@ def hunting(world: World, staff: str = 'hand69', warp: str = 'ready'):
     game = Game(world)
     game.clock.now = NOW
     game.staff = STAFFS[staff]
-    hunter = Hunter()
+    hunter = Hunter(build=warlock(world))
     if warp == 'delay':
         hunter.travel.warped_at = NOW - JUST
     elif warp == 'failed':
@@ -339,15 +341,15 @@ def since(ago: float | None) -> float:
 def purge_due(state: str, cast: str, unseen: int) -> object:
     world = rotation_world(hex_purge=SEEN[state])
     hunter, run = hunting(world)
-    hunter.rotation.purged_at, hunter.rotation.purges_unseen = since(CAST[cast]), unseen
-    return hunter.rotation.purge_due(run, world)
+    Rotation(hunter.buffs).purged_at, Rotation(hunter.buffs).purges_unseen = since(CAST[cast]), unseen
+    return Rotation(hunter.buffs).purge_due(run, world)
 
 
 def ward_due(state: str, cast: str, unseen: int, fighting: bool) -> object:
     world = rotation_world(ward=SEEN[state])
     hunter, run = hunting(world)
-    hunter.rotation.warded_at, hunter.rotation.wards_unseen = since(CAST[cast]), unseen
-    return hunter.rotation.ward_due(run, world, fighting=fighting)
+    Rotation(hunter.buffs).warded_at, Rotation(hunter.buffs).wards_unseen = since(CAST[cast]), unseen
+    return Rotation(hunter.buffs).ward_due(run, world, fighting=fighting)
 
 
 PREY = {'plain': foe(7, 5010.0, 5000.0), 'champion': foe(7, 5010.0, 5000.0, CHAMPION)}
@@ -358,8 +360,8 @@ def sigil_due(prey: str, cast: str) -> object:
     world = rotation_world(target)
     hunter, run = hunting(world)
     if CAST[cast] is not None:
-        hunter.rotation.sigiled[target.unit_id] = since(CAST[cast])
-    return hunter.rotation.sigil_due(run, target)
+        Rotation(hunter.buffs).sigiled[target.unit_id] = since(CAST[cast])
+    return Rotation(hunter.buffs).sigil_due(run, target)
 
 
 DEMONS: dict[str, tuple[Monster, ...]] = {
@@ -374,8 +376,8 @@ def engorge_due(demons: str, cast: str, corpses: bool) -> object:
     world = rotation_world(*DEMONS[demons])
     hunter, run = hunting(world)
     run.corpses = (lambda: ()) if corpses else None
-    hunter.rotation.engorged_at = since(CAST[cast])
-    return hunter.rotation.engorge_due(run, world)
+    Rotation(hunter.buffs).engorged_at = since(CAST[cast])
+    return Rotation(hunter.buffs).engorge_due(run, world)
 
 
 def worth_a_mark(flags: int, life: int) -> object:
@@ -383,7 +385,7 @@ def worth_a_mark(flags: int, life: int) -> object:
     target = foe(7, 5010.0, 5000.0, flags, HELL_BOVINE, life=life, max_life=128)
     world = rotation_world(target, area=COW_LEVEL)
     hunter, _ = hunting(world)
-    return hunter.rotation.worth_a_mark(world, target)
+    return Rotation(hunter.buffs).worth_a_mark(world, target)
 
 
 def due_cases() -> list[Case]:

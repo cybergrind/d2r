@@ -1,7 +1,7 @@
 """The route catalogue as it stands: complete, ending, and naming only what the levels have."""
 
+from inventory_tracking.builds.warlock import skills
 from inventory_tracking.levels.presets import LEVEL_NAMES
-from inventory_tracking.macros import skills
 from inventory_tracking.routes import model
 from inventory_tracking.routes.catalog import EXEMPT, ROUTES
 from inventory_tracking.routes.check import main_scripts, pending, problems

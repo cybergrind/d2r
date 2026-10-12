@@ -12,12 +12,11 @@ from inventory_tracking.builds.warlock.echoing_strike.attack import (
     ECHOING_STRIKE_ATTACK,
     EchoingStrike,
 )
+from inventory_tracking.builds.warlock.skills import ECHOING_STRIKE
 from inventory_tracking.combat import stance
 from inventory_tracking.combat.mechanics.damage import link_table
 from inventory_tracking.combat.mechanics.hits import CONTACT_RADIUS
 from inventory_tracking.combat.policy import MIN_SCORE, REACH, Foe, LinePolicy, Observation
-from inventory_tracking.macros.default import as_attack
-from inventory_tracking.macros.skills import ECHOING_STRIKE
 from inventory_tracking.macros.world import Monster
 from tests.inventory_tracking.scenarios.stance import harness
 
@@ -44,13 +43,13 @@ def test_it_holds_echoing_strike_and_reaches_as_far_as_the_blades_fly():
 
 def test_the_attack_of_a_sweep_made_on_its_own_keeps_its_numbers():
     sweep = LinePolicy(yields=False, reach=18.0, damage_of=flat, elite_weight=3.0, lead=4)
-    for attack in (EchoingStrike.of(sweep), as_attack(sweep)):
-        assert isinstance(attack, EchoingStrike)
-        assert (attack.yields, attack.reach, attack.damage_of, attack.elite_weight, attack.lead) == (
-            False, 18.0, flat, 3.0, 4,
-        )  # fmt: skip
-        assert attack.offsets == sweep.offsets
-        assert attack.skill == ECHOING_STRIKE
+    attack = EchoingStrike.of(sweep)
+    assert isinstance(attack, EchoingStrike)
+    assert (attack.yields, attack.reach, attack.damage_of, attack.elite_weight, attack.lead) == (
+        False, 18.0, flat, 3.0, 4,
+    )  # fmt: skip
+    assert attack.offsets == sweep.offsets
+    assert attack.skill == ECHOING_STRIKE
 
 
 # --- sees ---
@@ -220,7 +219,6 @@ def test_a_place_is_worth_through_the_attack_what_it_was_worth_through_the_sweep
         for after in (0.0, 0.8, 1.5):
             before = old_taken(seen, sweep, field, spot, after)
             assert stance.taken(seen, ECHOING_STRIKE_ATTACK, field, spot, after) == before  # the build's attack
-            assert stance.taken(seen, sweep, field, spot, after) == before  # a bare sweep, adapted (`striker`)
             priced += before[0] > 0
     assert priced or not seen.foes
 
@@ -231,15 +229,11 @@ def test_the_place_chosen_through_the_attack_is_the_one_the_sweep_chose(path, mo
     seen = observed(scene)
     sweep = LinePolicy(yields=True)
     ways = [{}, {'hop': True}, {'jumps': (stance.Jump(1, 0.8, 30.0, 26.0, 8.0, True),)}, {'gain': 2.0}]
-    now = [
-        (stance.camp(seen, ECHOING_STRIKE_ATTACK, scene.barred, **way), stance.camp(seen, sweep, scene.barred, **way))
-        for way in ways
-    ]
+    now = [stance.camp(seen, ECHOING_STRIKE_ATTACK, scene.barred, **way) for way in ways]
     monkeypatch.setattr(stance, 'taken', old_taken)  # `camp` as it is, over the old price of a place
-    for (by_attack, by_sweep), way in zip(now, ways, strict=True):
-        before = stance.camp(seen, sweep, scene.barred, **way)
-        assert by_attack == before
-        assert by_sweep == before
+    for by_attack, way in zip(now, ways, strict=True):
+        # the sweep as an attack only to get past `striker`: the old price asks it as the sweep it is
+        assert by_attack == stance.camp(seen, EchoingStrike.of(sweep), scene.barred, **way)
 
 
 def test_some_fixture_has_a_place_worth_going_to():

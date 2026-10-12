@@ -20,6 +20,7 @@ import math
 import random
 from functools import cache
 
+from inventory_tracking.builds.warlock.echoing_strike.attack import EchoingStrike
 from inventory_tracking.combat import stance
 from inventory_tracking.combat.policy import LinePolicy
 from inventory_tracking.macros.hunt import STAND_OFF
@@ -32,7 +33,7 @@ from .harness import ASPECT, Move, Result, Scene, Strategy, View, body, play, sc
 
 BLACK_MARSH = 6
 TYPES = (20, 20, 24, 1, 59)  # monstats ids of the hostiles the run's log names, the commonest twice
-POLICY = LinePolicy(yields=True)
+POLICY = EchoingStrike.of(LinePolicy(yields=True))  # the sweep, as the attack a place is priced by
 SEEDS = (0, 1, 2)
 SECONDS = 60.0
 

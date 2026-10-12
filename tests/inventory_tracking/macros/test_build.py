@@ -18,17 +18,19 @@ from inventory_tracking.macros.build import (
     Casting,
     Intent,
     Leg,
+    Loadout,
     MoveFacts,
     NoWay,
     Tried,
     choose,
 )
 from inventory_tracking.macros.travel import Step
-from inventory_tracking.macros.world import World
+from inventory_tracking.macros.world import Player, World
 
 
-WORLD = World(in_game=True, open_panels=(), game_name='game', slots=(7, None, 9))
-OTHER = World(in_game=True, open_panels=(), game_name='game', slots=(None,))
+SOMEONE = Player(unit_id=1, name='Someone', mode=1, area=1, x=0.0, y=0.0, consume=None)
+WORLD = World(in_game=True, open_panels=(), game_name='game', slots=(7, None, 9), player=SOMEONE)
+OTHER = World(in_game=True, open_panels=(), game_name='game', slots=(None,), player=SOMEONE)
 FACTS = MoveFacts(here=(1.0, 2.0), now=10.0, slots=(7,), staff=None, ground=None, doors=(), aspect=1.8)
 INTENT = Intent('own move', reserve=10, may_swap=False, may_wait=False, distrust=30.0)
 
@@ -66,6 +68,27 @@ def test_choose_passes_over_a_build_that_does_not_apply():
 
     assert choose(builds, WORLD, FALLBACK).name == 'nine'
     assert asked == [5, 9]  # the builds after the first that applies are not asked
+
+
+def test_choose_takes_the_fallback_with_no_character_in_the_world_and_asks_no_build():
+    asked = []
+    eager = build('eager', lambda world: asked.append(world) is None)
+
+    assert choose([eager], dataclasses.replace(WORLD, player=None), FALLBACK) is FALLBACK
+    assert asked == []
+    assert choose([eager], WORLD, FALLBACK) is eager
+
+
+def test_a_loadout_names_the_weapon_sets_by_what_they_are_for_and_a_build_has_none_until_a_layer_gives_it():
+    sets = Loadout(prebuff=frozenset(('aaa', 'bbb')), battle=frozenset(('ccc',)))
+    assert (sets.prebuff, sets.battle) == ({'aaa', 'bbb'}, {'ccc'})
+    with pytest.raises(dataclasses.FrozenInstanceError):
+        sets.battle = frozenset()  # type: ignore[misc]
+    plain = build('plain', lambda world: True)
+    assert plain.weapons is None
+    layer = dataclasses.replace(plain, weapons=sets)
+    assert layer.weapons is sets
+    assert plain.weapons is None  # the layer is a build of its own: the one below is as it was
 
 
 def test_choose_takes_the_fallback_when_none_applies_or_none_is_given():
@@ -173,6 +196,7 @@ def test_every_dataclass_of_the_module_is_frozen():
     ]
 
     assert {thing.__name__ for thing in found} == {
+        'Loadout',
         'MoveFacts',
         'Intent',
         'Step',

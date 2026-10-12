@@ -1,4 +1,5 @@
-"""What every build owes the framework (macros/build.py), asked of each build in BUILDS: add a build by appending."""
+"""What every build owes the framework (macros/build.py), asked of every build the registry lists
+(builds/__init__.py: the characters' layers, the builds and the fallback) and of the tests' own."""
 
 import dataclasses
 import itertools
@@ -7,13 +8,12 @@ import math
 import pytest
 from pydantic import ValidationError
 
-from inventory_tracking.builds.generic import GENERIC
-from inventory_tracking.builds.warlock.echoing_strike.build import ECHOING_STRIKE_BUILD
+from inventory_tracking import builds as registry
 from inventory_tracking.combat import stance
 from inventory_tracking.combat.policy import Choice, Foe, Observation
 from inventory_tracking.levels.model import Ground
 from inventory_tracking.macros.buffs import Buffs, keys_of, phase_keys
-from inventory_tracking.macros.build import Build, Intent, JumpSource, MoveFacts, NoWay, choose
+from inventory_tracking.macros.build import Build, Intent, JumpSource, Loadout, MoveFacts, NoWay, choose
 from inventory_tracking.macros.skills import ACTIONS, skill_name
 from inventory_tracking.macros.travel import OWN_MOVE, PLAYER_STEP, SEEK, Step, navigator
 from inventory_tracking.macros.world import Player, Teleport, World
@@ -21,10 +21,10 @@ from tests.inventory_tracking.builds.dummy import DUMMY
 from tests.inventory_tracking.macros.fakes import HUNT_SLOTS, KEYS, Game, world
 
 
-BUILDS = [GENERIC, DUMMY, ECHOING_STRIKE_BUILD]
+BUILDS = [registry.FALLBACK, DUMMY, *registry.BUILDS]
 PHASES = {'prebuff', 'upkeep', 'fight', 'opening'}
 ONS = {'self', 'monster', 'corpse', 'ground'}
-IDS = [build.name for build in BUILDS]
+IDS = [build.name + (' with weapon sets' if build.weapons is not None else '') for build in BUILDS]
 build_cases = pytest.mark.parametrize('build', BUILDS, ids=IDS)
 
 STAFFS = [None, *(Teleport(n, 69, True) for n in (69, 15, 14, 10, 9, 0)), Teleport(69, 69, False)]
@@ -235,6 +235,32 @@ def test_settings_are_frozen(build):
 def world_of(name: str) -> World:
     player = Player(unit_id=1, name=name, mode=1, area=1, x=0.0, y=0.0, consume=None)
     return World(in_game=True, open_panels=(), game_name='game', slots=(0, None), player=player)
+
+
+def test_every_registered_build_is_asked():
+    assert len(set(IDS)) == len(IDS) == len(registry.BUILDS) + 2
+    assert all(any(build is listed for build in BUILDS) for listed in (*registry.BUILDS, registry.FALLBACK))
+
+
+@build_cases
+def test_a_build_is_nobodys_with_no_character_in_the_world(build):
+    """A loading screen, the lobby: `applies` is false, and `choose` gives the fallback without asking."""
+    for found in (world_of('Dummy'), world(slots=HUNT_SLOTS)):
+        nobody = dataclasses.replace(found, player=None)
+        assert build.applies(nobody) is False
+        fallback = dataclasses.replace(build, name='fallback')
+        assert choose([build], nobody, fallback) is fallback
+
+
+@build_cases
+def test_the_weapon_sets_of_a_build_are_a_loadout_of_base_codes_or_none(build):
+    if build.weapons is None:
+        return
+    assert isinstance(build.weapons, Loadout)
+    for codes in (build.weapons.prebuff, build.weapons.battle):
+        assert isinstance(codes, frozenset)
+        assert codes
+        assert all(isinstance(code, str) and len(code) == 3 for code in codes)
 
 
 @build_cases

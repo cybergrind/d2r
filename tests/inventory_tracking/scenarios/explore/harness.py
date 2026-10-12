@@ -13,6 +13,7 @@ from collections.abc import Callable
 from dataclasses import replace
 from pathlib import Path
 
+from inventory_tracking.builds.warlock.echoing_strike.build import ECHOING_STRIKE_BUILD
 from inventory_tracking.levels.model import Level, Room, Target, Walkable
 from inventory_tracking.macros import teleport
 from inventory_tracking.macros.hunt import Hunter
@@ -58,7 +59,7 @@ class Replay:
         self.bounds = [(room.x, room.y, room.width, room.height) for room in level.rooms]
         self.explored: set[Bounds] = set(explored or ())
         self.player = Player(1, 'replay', 5, level.area, start[0], start[1], False)
-        self.hunter = Hunter(lambda: level, None, lambda area: self.explored)
+        self.hunter = Hunter(lambda: level, None, lambda area: self.explored, build=ECHOING_STRIKE_BUILD)
         self.path = [start]
         self.look()
 

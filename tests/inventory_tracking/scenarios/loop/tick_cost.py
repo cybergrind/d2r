@@ -26,6 +26,7 @@ from inventory_tracking.macros.teleport import Way, landing
 from inventory_tracking.macros.view import Viewport
 from inventory_tracking.macros.world import NO_OWNER, World, monsters_and_dead
 from inventory_tracking.native.layout import TILE_UNITS
+from tests.inventory_tracking.macros.fakes import warlock
 from tests.inventory_tracking.scenarios.loop.helpers import (
     ASPECT,
     FIXTURE,
@@ -61,7 +62,7 @@ def level_of(directory: Path) -> tuple[Ground, tuple[Room, ...], tuple[Walkable,
 
 def decision(seen: World, ground: Ground, hunter: Hunter | None = None) -> dict[str, float]:
     """The fight's own calls on one look at the world, in milliseconds, with what they worked on."""
-    hunter = hunter or Hunter()
+    hunter = hunter or Hunter(build=warlock(seen))
     player = seen.player
     assert player is not None
     here = (player.x, player.y)

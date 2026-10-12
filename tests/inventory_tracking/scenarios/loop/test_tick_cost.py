@@ -19,6 +19,7 @@ from inventory_tracking.macros.sight import in_reach
 from inventory_tracking.macros.teleport import Way, landing
 from inventory_tracking.macros.view import Viewport
 from inventory_tracking.macros.world import Player
+from tests.inventory_tracking.macros.fakes import warlock
 from tests.inventory_tracking.scenarios.loop.helpers import ASPECT, TICK, busiest_frame, recorded, recorded_world
 from tests.inventory_tracking.scenarios.loop.tick_cost import decision, fastest
 
@@ -91,7 +92,7 @@ def test_doors_out_of_the_blades_reach_are_not_asked_about_every_blade(scene, mo
     foes = hostiles(seen)
     reachable = [m for m in foes if in_reach(ground, here, (m.x, m.y), REACH, seen.doors)]
     asked.clear()  # the reach asks them too, once a sample: the decision is what is counted
-    Hunter().choose(seen, foes, reachable, ground, Viewport(ASPECT))
+    Hunter(build=warlock(seen)).choose(seen, foes, reachable, ground, Viewport(ASPECT))
     assert asked == []
 
 

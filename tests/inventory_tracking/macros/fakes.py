@@ -4,10 +4,9 @@ import math
 import random
 from dataclasses import replace
 
-from inventory_tracking.levels.model import HELL_GATE, PORTAL
-from inventory_tracking.macros.actuator import Actuator
-from inventory_tracking.macros.engine import Run
-from inventory_tracking.macros.skills import (
+from inventory_tracking.builds.characters import LAYERS
+from inventory_tracking.builds.warlock.echoing_strike.build import ECHOING_STRIKE_BUILD
+from inventory_tracking.builds.warlock.skills import (
     BLADE_WARP,
     CONSUME,
     DEATH_MARK,
@@ -17,9 +16,12 @@ from inventory_tracking.macros.skills import (
     PSYCHIC_WARD,
     SIGIL_LETHARGY,
     SUMMON_DEFILER,
-    SWAP_WEAPONS,
-    TELEPORT,
 )
+from inventory_tracking.levels.model import HELL_GATE, PORTAL
+from inventory_tracking.macros.actuator import Actuator
+from inventory_tracking.macros.build import Build, choose
+from inventory_tracking.macros.engine import Run
+from inventory_tracking.macros.skills import SWAP_WEAPONS, TELEPORT
 from inventory_tracking.macros.timing import Pace
 from inventory_tracking.macros.world import Loot, Monster, Player, Teleport, Thing, World
 
@@ -30,6 +32,16 @@ KEYS[ECHOING_STRIKE] = '7'  # bound by the user on 2026-10-09 so Quick Cast aims
 KEYS[DEATH_MARK] = 'd'
 KEYS[ENGORGE] = 'e'
 KEYS[BLADE_WARP] = 'w'
+[BUILD] = LAYERS  # the build of the fakes' character: the Echoing Strike Warlock as CybergrindAA plays it
+
+
+def warlock(world: World | None) -> Build:
+    """The Echoing Strike Warlock as the character in `world` plays it: with its weapon sets for a
+    character the macros know, without any for another (and with no character). What every hunt and
+    run played before the runner chose the build, whatever was on the keys."""
+    return ECHOING_STRIKE_BUILD if world is None else choose(LAYERS, world, ECHOING_STRIKE_BUILD)
+
+
 STRIKE_RANGE = 4.0  # world units: a monster this near the blades' line to the pointer is struck
 ACTING_SECONDS = 0.3  # the cast animation
 KEPT_KEYS = frozenset('dq6gew')  # the Quick Cast skill keys of the fakes' character but Teleport (`keeps_keys`)
@@ -161,6 +173,9 @@ class Game:
         self.consume_takes = None  # unit id Consume removes instead of the Defiler aimed at
         self.field_focused = False
         self.sets = [PREBUFF_SET, OTHER_SET]  # the first is in hand
+        # The build a run of this game plays (`run`), as the runner would have chosen it. None: the
+        # Echoing Strike Warlock as the character in the game plays it (`warlock`).
+        self.build: Build | None = None
         self.loading_seconds = 6.0
         self.gold_radius = 3.0  # world units from a gold pile at which standing takes it; 0: only a click does
         self.view_marks = True  # the view byte goes to 0 while the game loads
@@ -472,7 +487,21 @@ class Game:
             hands=lambda: self.sets[0],
             teleport=lambda: self.staff,
             loot=lambda: self.loot,
+            build=self.build if self.build is not None else warlock(self.world),
         )
+        if self.build is None and self.world.player is None:
+            # From the lobby the character shows only in the game: the build is the one of the first look
+            # that shows it, as the runner names it (macros/runner.py `choosing`).
+            read, chosen = run.read, []
+
+            def first() -> World:
+                world = read()
+                if not chosen and world.player is not None:
+                    chosen.append(True)
+                    run.build = warlock(world)
+                return world
+
+            run.read = first
         if self.hover_known:
             run.hovered = self.unit_under_pointer
         run.things = lambda: () if self.thing is None else (self.thing,)

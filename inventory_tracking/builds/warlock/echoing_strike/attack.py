@@ -17,10 +17,10 @@ import math
 from collections.abc import Collection, Mapping, Sequence
 from dataclasses import dataclass, fields, replace
 
+from inventory_tracking.builds.warlock.skills import ECHOING_STRIKE
 from inventory_tracking.combat.mechanics.damage import DEFILER, link_table
 from inventory_tracking.combat.mechanics.hits import CONTACT_RADIUS
 from inventory_tracking.combat.policy import MIN_SCORE, Choice, Foe, LinePolicy, Observation, Point, linked_set
-from inventory_tracking.macros.skills import ECHOING_STRIKE
 from inventory_tracking.macros.world import Monster
 
 

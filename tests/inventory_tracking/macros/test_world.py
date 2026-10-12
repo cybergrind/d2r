@@ -2,15 +2,9 @@ import struct
 
 import pytest
 
+from inventory_tracking.builds.warlock.skills import CONSUME, HEX_PURGE, PSYCHIC_WARD, SUMMON_DEFILER
 from inventory_tracking.input.keybindings import RECORD
-from inventory_tracking.macros.skills import (
-    CONSUME,
-    HEX_PURGE,
-    PSYCHIC_WARD,
-    SUMMON_DEFILER,
-    SWAP_WEAPONS,
-    skill_keys,
-)
+from inventory_tracking.macros.skills import SWAP_WEAPONS, skill_keys
 from inventory_tracking.macros.world import (
     PATH_RECORD,
     decode_slots,

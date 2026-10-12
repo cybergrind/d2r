@@ -10,6 +10,7 @@ import re
 from datetime import datetime
 from pathlib import Path
 
+from inventory_tracking.builds.warlock.buffs import Rotation
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.skills import NAMES
 from inventory_tracking.macros.world import HEALING, Drop, Loot, Teleport
@@ -119,7 +120,7 @@ class Carried:
 def prepare(hunter) -> None:
     """What the hunt carried into the level, from the log before the take: the last Engorge at
     22:50:23.633 ("Engorge on the corpse 1615699704"), 13.94 s before the take's first frame."""
-    hunter.rotation.engorged_at = seconds('2026-10-11 22:50:23', '633')
+    Rotation(hunter.buffs).engorged_at = seconds('2026-10-11 22:50:23', '633')
 
 
 def key_names(world, skills=()):

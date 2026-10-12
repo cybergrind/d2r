@@ -51,6 +51,7 @@ from pathlib import Path
 from inventory_tracking.automation.heal import HealController
 from inventory_tracking.automation.ledger import LedgerData
 from inventory_tracking.automation.potions import PotionsController
+from inventory_tracking.builds.warlock.skills import BLADE_WARP, ECHOING_STRIKE
 from inventory_tracking.combat.mechanics.damage import damage_table
 from inventory_tracking.combat.mechanics.echoing_strike import LIFE, OUT_FRAMES, cast
 from inventory_tracking.combat.mechanics.hits import CONTACT_RADIUS
@@ -64,7 +65,7 @@ from inventory_tracking.levels.doors import Door
 from inventory_tracking.levels.model import Ground, Walkable
 from inventory_tracking.macros.build import Attack
 from inventory_tracking.macros.engine import Run
-from inventory_tracking.macros.skills import BLADE_WARP, ECHOING_STRIKE, SWAP_WEAPONS, TELEPORT
+from inventory_tracking.macros.skills import SWAP_WEAPONS, TELEPORT
 from inventory_tracking.macros.travel import walked_way
 from inventory_tracking.macros.world import (
     FULL_REJUVENATION,

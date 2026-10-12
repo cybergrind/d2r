@@ -70,15 +70,11 @@ class Striker(Protocol):
 
 
 def striker(given: Any) -> Striker:
-    """The attack a place is priced by. A cast policy handed in where the attack is asked (the stance
-    and reviver harnesses and tests written before the attack was the build's) is taken as the one
-    build's attack with that policy's reach and damage table, until the runner chooses the build
-    (macros/default.py `as_attack`, framework-plan.md Task 3.9)."""
-    if hasattr(given, 'dealt'):
-        return given
-    from inventory_tracking.macros.default import as_attack  # late: default.py is above this module
-
-    return as_attack(given)
+    """The attack a place is priced by: a build's (macros/build.py `Attack`). A cast policy on its
+    own is none: whoever has only that makes the attack of it on the build's side."""
+    if not hasattr(given, 'dealt'):
+        raise TypeError(f'a place is priced by an attack, which says what a cast deals: not by {given!r}')
+    return given
 
 
 def no_footing(ground: Any, doors: Sequence[Any] = ()) -> Callable[[Point], bool] | None:

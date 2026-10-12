@@ -22,6 +22,15 @@ from inventory_tracking.builds.warlock.buffs import (
     ward_shown,
 )
 from inventory_tracking.builds.warlock.echoing_strike.build import ECHOING_STRIKE_BUILD
+from inventory_tracking.builds.warlock.skills import (
+    CONSUME,
+    DEATH_MARK,
+    ENGORGE,
+    HEX_PURGE,
+    PSYCHIC_WARD,
+    SIGIL_LETHARGY,
+    SUMMON_DEFILER,
+)
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.buffs import (
     STATE_DISTRUST as HEX_DISTRUST,
@@ -32,16 +41,7 @@ from inventory_tracking.macros.buffs import (
     phase_keys,
 )
 from inventory_tracking.macros.build import BuffFacts
-from inventory_tracking.macros.skills import (
-    CONSUME,
-    DEATH_MARK,
-    ENGORGE,
-    HEX_PURGE,
-    PSYCHIC_WARD,
-    SIGIL_LETHARGY,
-    SUMMON_DEFILER,
-    SWAP_WEAPONS,
-)
+from inventory_tracking.macros.skills import SWAP_WEAPONS
 from inventory_tracking.macros.world import Monster
 from tests.inventory_tracking.macros.fakes import HUNT_SLOTS, KEYS, WINDOW, Game, world
 
@@ -127,7 +127,7 @@ def test_the_keys_the_prebuff_needs_are_the_ones_it_always_asked_for_in_that_ord
     from inventory_tracking.macros import routines
 
     assert phase_keys(BUFFS, 'prebuff') == (SUMMON_DEFILER, CONSUME, HEX_PURGE, PSYCHIC_WARD, SWAP_WEAPONS)
-    assert phase_keys(BUFFS, 'prebuff') == routines.SKILLS
+    assert routines.prebuff_keys(ECHOING_STRIKE_BUILD) == phase_keys(BUFFS, 'prebuff')
     assert keys_of(next(row for row in BUFFS if row.caster == 'consume')) == (SUMMON_DEFILER, CONSUME, SWAP_WEAPONS)
 
 

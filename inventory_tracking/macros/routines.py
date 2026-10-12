@@ -13,13 +13,13 @@ left out, then Hex: Purge and Psychic Ward (builds/warlock/buffs.py, casters.py)
 import math
 import os
 from collections.abc import Callable
-from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 from inventory_tracking.common import LOG
 from inventory_tracking.levels.model import Ground
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.engine import Run
-from inventory_tracking.macros.skills import NAMES, SWAP_WEAPONS
+from inventory_tracking.macros.skills import SWAP_WEAPONS, skill_name
 from inventory_tracking.macros.view import (
     AIM_LIMITS as AIM_LIMITS,
     BODY_LIFT as BODY_LIFT,
@@ -28,6 +28,10 @@ from inventory_tracking.macros.view import (
     Viewport,
 )
 from inventory_tracking.macros.world import TRACE_RVAS, Player, World, next_name
+
+
+if TYPE_CHECKING:
+    from inventory_tracking.macros.build import Build  # build.py is above this module (`LoadTrace`)
 
 
 NIHLATHAKS_TEMPLE = 121
@@ -76,36 +80,17 @@ ACT_3 = range(75, 103)
 ARRIVAL_SECONDS = 180.0
 
 
-def __getattr__(name: str) -> tuple[int, ...]:
-    """`SKILLS`: the skills whose keys the prebuff needs, from the prebuff rows of the build's buff plan
-    (buffs.py `phase_keys`), in the order they are asked for. Read when it is asked for and not when this
-    module is loaded: a build imports this module, so it cannot be imported from here before."""
-    if name != 'SKILLS':
-        raise AttributeError(f'module {__name__!r} has no attribute {name!r}')
-    from inventory_tracking.macros.buffs import phase_keys
-    from inventory_tracking.macros.default import default_build
+def prebuff_keys(build: Build) -> tuple[int, ...]:
+    """The skills whose keys the prebuff needs, from the prebuff rows of the build's buff plan (buffs.py
+    `phase_keys`), in the order they are asked for."""
+    from inventory_tracking.macros.buffs import phase_keys  # late: buffs.py is above this module
 
-    return phase_keys(default_build().buffs, 'prebuff')
+    return phase_keys(build.buffs, 'prebuff')
 
 
-@dataclass(frozen=True)
-class Loadout:
-    """A character's weapon sets by what they are for, as base codes of what is held."""
-
-    prebuff: frozenset[str]  # the set the buffs are cast with
-    battle: frozenset[str]  # the main set: the one to fight with, and to leave a game with
-
-
-# CybergrindAA: Heart of the Oak (Flail) and Spirit (Monarch) for both; the other set holds Naj's Puzzler,
-# worn for its Teleport charges only (user, 2026-10-06; codes from the collection capture of the equipped
-# items). The two differ once Teleport comes from Enigma and the other set is the prebuff one (user,
-# 2026-10-10): what casts Teleport is read from the game (teleport.take_teleport: a worn staff with
-# charges, else the skill), so only this table changes then.
 SWAP_TRIES = 3  # presses of Swap Weapons before the swap is given up
 SWAP_SETTLE = 0.2  # seconds the character stands free before the first press of a swap
 SWAP_WAIT = 0.5  # seconds a swap is given to show before the key is pressed again
-HEART_OF_THE_OAK = frozenset(('fla', 'uit'))
-CHARACTERS = {'CybergrindAA': Loadout(prebuff=HEART_OF_THE_OAK, battle=HEART_OF_THE_OAK)}
 
 # Window fractions. The screenshots (2000 x 1125) show the whole 2560 x 1440 output, whose top
 # 22 pixels are the desktop bar, not the game window: y = (shot_y * 1.28 - 22) / 1418. Taking
@@ -171,7 +156,7 @@ def quick_cast_over(run: Run, skill: int) -> None:
             break  # never came on: cast without the button showing it, or not taken at all
         run.pace.sleep(0.02)
     else:
-        LOG.info('Macro: %s still on the right button %.1fs after its key', NAMES[before], QUICK_SECONDS)
+        LOG.info('Macro: %s still on the right button %.1fs after its key', skill_name(before), QUICK_SECONDS)
     run.quick = None
 
 
@@ -189,9 +174,12 @@ def press_skill(run: Run, skill: int, poll: float = 0.03, *, wait: bool = True) 
     home = ready.player.right_skill if ready.player is not None else None
     held = bool(run.actuator.holding or run.actuator.holding_buttons)  # under a held strike the game makes it wait
     run.quick = (skill, home, run.clock(), held) if home != skill else None
-    run.say(NAMES[skill])
+    run.say(skill_name(skill))
     LOG.info(
-        'Macro: %s on %s, player mode %s', NAMES[skill], run.keys[skill], ready.player.mode if ready.player else None
+        'Macro: %s on %s, player mode %s',
+        skill_name(skill),
+        run.keys[skill],
+        ready.player.mode if ready.player else None,
     )
     run.actuator.tap(run.keys[skill])
 
@@ -228,7 +216,9 @@ def press_through(run: Run, skill: int) -> None:
         lambda w: shown(w) or (w.player is not None and w.player.mode in ACTING), QUEUED_SECONDS, THROUGH_POLL
     )
     if taken is None:
-        LOG.info('Macro: the game did not keep the %s key pressed during the cast before: pressed again', NAMES[skill])
+        LOG.info(
+            'Macro: the game did not keep the %s key pressed during the cast before: pressed again', skill_name(skill)
+        )
         press_skill(run, skill, THROUGH_POLL)
 
 
@@ -247,7 +237,7 @@ def cast(run: Run, skill: int) -> None:
     """A self or area cast with no known mark in memory yet: the cast animation is the evidence."""
     press_skill(run, skill)
     if run.seen(lambda w: w.player is not None and w.player.mode in ACTING, 0.8) is None:
-        LOG.warning('Macro: no cast seen after %s', NAMES[skill])
+        LOG.warning('Macro: no cast seen after %s', skill_name(skill))
     run.pause('key')
 
 
@@ -355,12 +345,15 @@ def take_battle_weapons(run: Run) -> None:
 
 
 def prebuff(run: Run, *, fresh: LoadTrace | None = None) -> None:
-    """The prebuff phase of the build's buff plan (buffs.py `Buffs.prebuff`), with the weapon set its rows
-    need in hand first: after a game just made (`fresh`) the first cast may have to wait for it to take input."""
-    from inventory_tracking.macros.buffs import Buffs
-    from inventory_tracking.macros.default import default_build
+    """The prebuff phase of the buff plan of the build the run plays (buffs.py `Buffs.prebuff`), with the
+    weapon set its rows need in hand first: after a game just made (`fresh`) the first cast may have to wait
+    for it to take input. A build with no prebuff row has nothing to cast, and that is the reason it stops with."""
+    from inventory_tracking.macros.buffs import Buffs  # late: buffs.py is above this module
 
-    Buffs(default_build()).prebuff(run, fresh=fresh)
+    buffs = Buffs(run.build)
+    if not buffs.rows('prebuff'):
+        raise Abort(f'nothing to prebuff: the build ({run.build.name}) has no prebuff of its own')
+    buffs.prebuff(run, fresh=fresh)
 
 
 def leave_game(run: Run) -> None:
@@ -448,13 +441,17 @@ def create_next_game(run: Run, last: str) -> LoadTrace:
 
 
 def character_keys(run: Run, key_names) -> dict[int, str]:
+    """The keys of the prebuff for the character in the game, and its weapon sets noted for the run: those
+    of the build the run plays (`Run.build`, which the runner has chosen by this look at the latest). A
+    character whose build names no weapon sets (`Build.weapons`: no layer of its own) has no macro."""
     world = run.world()
     if world.player is None:
         raise Abort('not in a game')
-    if world.player.name not in CHARACTERS:
+    loadout = run.build.weapons
+    if loadout is None:
         raise Abort(f'no macro for {world.player.name}')
-    run.prebuff_hands = CHARACTERS[world.player.name].prebuff
-    run.battle_hands = CHARACTERS[world.player.name].battle
+    run.prebuff_hands = loadout.prebuff
+    run.battle_hands = loadout.battle
     return key_names(world)
 
 

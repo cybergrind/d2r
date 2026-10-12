@@ -595,7 +595,9 @@ inventory_tracking/builds/
 
 Order as run (2026-10-12): 3.1 → 3.2 + 3.3 (one task: the same files) → 3.5 + 3.6 → 3.7 → 3.4 (the
 ids can leave `macros/skills.py` only when their last user in the framework is gone) → 3.8 → 3.9.
-Done: 3.1 (`9f4fc28`), 3.2 + 3.3 (`016c1f6`, ratchet 67 → 64), 3.5 + 3.6 (ratchet 64 → 46), 3.7
+Done: 3.1 (`9f4fc28`), 3.2 + 3.3 (`016c1f6`, ratchet 67 → 64), 3.5 + 3.6 (`bdda973`, 64 → 46), 3.7 (`51cd947`, 46 → 39),
+3.9 + 3.4 (39 → 26: the runner chooses the build from the registry `inventory_tracking/builds`, handed to it by
+`appraisal/service.py`; `macros/default.py` is gone; the ids and names are in `builds/warlock/skills.py`). Left: 3.8.
 (ratchet 46 → 39; the second build's play is green).
 
 What may honestly remain outside `builds/` after Stage 3 (the residue, to be confirmed then):

@@ -15,7 +15,8 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[3]
-SKILLS = ROOT / 'inventory_tracking' / 'macros' / 'skills.py'
+SKILLS = ROOT / 'inventory_tracking' / 'builds' / 'warlock' / 'skills.py'  # the Warlock's skill ids
+SHARED_SKILLS = ROOT / 'inventory_tracking' / 'macros' / 'skills.py'  # the skills any character has
 FRAMEWORK = ('inventory_tracking/macros', 'inventory_tracking/combat')
 ECHOING_MODULE = 'inventory_tracking.combat.mechanics.echoing_strike'
 ECHOING_PSEUDO = '<echoing_strike module>'
@@ -39,9 +40,9 @@ NAMED: dict[str, str] = {
 }
 
 
-def derived_specific() -> set[str]:
-    """UPPER_CASE module-level int constants in macros/skills.py, minus the generic skills."""
-    tree = ast.parse(SKILLS.read_text(encoding='utf-8'), filename=str(SKILLS))
+def int_constants(path: Path) -> set[str]:
+    """UPPER_CASE module-level int constants of one Python file."""
+    tree = ast.parse(path.read_text(encoding='utf-8'), filename=str(path))
     names = set()
     for node in tree.body:
         if not isinstance(node, ast.Assign) or not isinstance(node.value, ast.Constant):
@@ -51,7 +52,12 @@ def derived_specific() -> set[str]:
         for target in node.targets:
             if isinstance(target, ast.Name) and UPPER.match(target.id):
                 names.add(target.id)
-    return names - GENERIC
+    return names
+
+
+def derived_specific() -> set[str]:
+    """The skill ids a build defines (builds/warlock/skills.py), minus the generic skills."""
+    return int_constants(SKILLS) - GENERIC
 
 
 SPECIFIC: frozenset[str] = frozenset(derived_specific() | set(NAMED))
@@ -152,20 +158,6 @@ ALLOWED: frozenset[tuple[str, str]] = frozenset(
         ('inventory_tracking/combat/sim/policy.py', 'LinePolicy'),
         ('inventory_tracking/combat/sim/situation.py', '<echoing_strike module>'),
         ('inventory_tracking/combat/viz.py', '<echoing_strike module>'),
-        # default.py `default_build`, temporary until the runner chooses the build: framework-plan.md Task 3.9
-        ('inventory_tracking/macros/default.py', '<builds import>'),
-        ('inventory_tracking/macros/hunt.py', 'CHARACTERS'),
-        ('inventory_tracking/macros/routines.py', 'CHARACTERS'),
-        ('inventory_tracking/macros/skills.py', 'BIND_DEMON'),
-        ('inventory_tracking/macros/skills.py', 'BLADE_WARP'),
-        ('inventory_tracking/macros/skills.py', 'CONSUME'),
-        ('inventory_tracking/macros/skills.py', 'DEATH_MARK'),
-        ('inventory_tracking/macros/skills.py', 'ECHOING_STRIKE'),
-        ('inventory_tracking/macros/skills.py', 'ENGORGE'),
-        ('inventory_tracking/macros/skills.py', 'HEX_PURGE'),
-        ('inventory_tracking/macros/skills.py', 'PSYCHIC_WARD'),
-        ('inventory_tracking/macros/skills.py', 'SIGIL_LETHARGY'),
-        ('inventory_tracking/macros/skills.py', 'SUMMON_DEFILER'),
         ('inventory_tracking/macros/world.py', 'DEFILER_CLASS'),
     }
 )
@@ -192,7 +184,7 @@ def test_the_scan_sees_names_attributes_imports_and_definitions_but_not_comments
     tmp_path: Path,
 ) -> None:
     source = '''"""Module docstring naming ECHOING_STRIKE, which must not count."""
-from inventory_tracking.macros.skills import DEFILER as D  # ECHOING_STRIKE in a comment
+from inventory_tracking.macros.world import DEFILER as D  # ECHOING_STRIKE in a comment
 import inventory_tracking.combat.mechanics.echoing_strike
 x = ECHOING_STRIKE
 y = mod.BLADES
@@ -239,3 +231,22 @@ def test_the_scan_sees_an_import_of_a_build_at_the_top_and_inside_a_function(tmp
 def test_the_generic_skills_are_not_specific() -> None:
     assert GENERIC.isdisjoint(SPECIFIC)
     assert 'ECHOING_STRIKE' in SPECIFIC
+
+
+def test_the_framework_defines_the_generic_skills_and_no_other() -> None:
+    assert int_constants(SHARED_SKILLS) <= GENERIC  # Swap Weapons is -1, no constant to the parser
+
+
+def test_the_ten_skills_of_the_warlock_are_guarded() -> None:
+    assert derived_specific() == {
+        'BIND_DEMON',
+        'BLADE_WARP',
+        'CONSUME',
+        'DEATH_MARK',
+        'ECHOING_STRIKE',
+        'ENGORGE',
+        'HEX_PURGE',
+        'PSYCHIC_WARD',
+        'SIGIL_LETHARGY',
+        'SUMMON_DEFILER',
+    }

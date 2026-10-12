@@ -53,13 +53,14 @@ from collections.abc import Mapping, Sequence
 from dataclasses import replace
 from typing import Any
 
+from inventory_tracking.builds.characters import CHARACTERS
 from inventory_tracking.builds.warlock.buffs import ENGORGE_REACH
 from inventory_tracking.combat.mechanics.tables import area_level, monster_points, points_of, tables
 from inventory_tracking.combat.record import RESIST_STATS
 from inventory_tracking.combat.sim.monsters import MINION, PLAIN, rank_of
 from inventory_tracking.combat.takes import MonsterRow, Take, monsters_of, player_of
 from inventory_tracking.macros.rotation import ELITE_LIFE
-from inventory_tracking.macros.routines import CHARACTERS, DEAD
+from inventory_tracking.macros.routines import DEAD
 from inventory_tracking.macros.world import FULL_REJUVENATION, HERALD_TIER_STAT, NO_OWNER, SUPER_HEALING
 from inventory_tracking.native.layout import TILE_UNITS
 from inventory_tracking.terror.monsters import LEVEL_STAT
@@ -82,8 +83,8 @@ def through(percent: float) -> float:
     return round(1.0 - min(percent, CAP) / 100, 2)
 
 
-NAME = next(iter(CHARACTERS))  # the one character macros/routines.py knows
-# The main set, as base codes (routines.py CHARACTERS: Heart of the Oak on a Flail and Spirit on a
+NAME = next(iter(CHARACTERS))  # the one character builds/characters.py knows
+# The main set, as base codes (builds/characters.py CHARACTERS: Heart of the Oak on a Flail and Spirit on a
 # Monarch). Fire, cold and lightning "at the cap" (macros/hunt.py `Hunter.tough`; combat/plan.md
 # 2026-10-12 02:10 has them 90/79/89 in Hell). Physical: not known for this set, so not named
 # (the arena lets a kind a set does not name through whole).
@@ -109,7 +110,7 @@ UNKNOWN = ("the main set's physical resistance",)
 # nothing here. The belt is what the logs of 2026-10-11 showed (scenarios/battle/tower_cellar5.py BELT:
 # full, healing potions in the third column, the first two taken as full rejuvenations). The skill keys
 # are the fakes', with Echoing Strike on a key as since 2026-10-09. The three buffs are taken as up: the
-# prebuff casts them (routines.py SKILLS) and the hunt keeps them.
+# prebuff casts them (routines.py `prebuff_keys`) and the hunt keeps them.
 DEFAULT_HERO = Hero(
     name=NAME,
     at=(0.0, 0.0),

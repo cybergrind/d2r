@@ -84,13 +84,11 @@ from inventory_tracking.levels.route import room_at
 from inventory_tracking.macros.actuator import POINTER_DRIFT, Abort, Cancelled
 from inventory_tracking.macros.buffs import Buffs
 from inventory_tracking.macros.build import Attack, Build
-from inventory_tracking.macros.default import default_build, old_rotation
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.pickup import choose, unshunned
 from inventory_tracking.macros.rotation import ELITE_LIFE
 from inventory_tracking.macros.routines import (
     ACTING,
-    CHARACTERS,
     DEAD,
     SUPER_UNIQUE_FLAG,
     TOWN_NPCS,
@@ -294,19 +292,20 @@ class Hunter:
         remembered: Remembered | None = None,
         explored: Callable[[int], set[tuple]] | None = None,
         policy: Policy | None = None,
-        build: Build | None = None,
+        *,
+        build: Build,
     ) -> None:
         self.level = level
         self.remembered = remembered
         self.explored = explored
         self.score = LiveScore()  # the last minute of attack mode: damage and kills (combat/score.py)
         # What is the build's and not the framework's: its attack, the ways it moves by and its buff plan.
-        # None: the one build there is, until the runner chooses it (default.py `default_build`).
-        self.build: Build = build if build is not None else default_build()
+        # The one the hunt is made with is played until the runner has seen the character and names
+        # another (`use`); the process that makes the hunt before any game gives the fallback.
+        self.build: Build = build
         # A policy asked where to cast in place of the build's attack (a test's, a harness's): see `policy`
         self.aimed_by: Policy | None = policy
         self.buffs = Buffs(self.build)  # the build's buff plan as it is run, and when each cast was made (buffs.py)
-        self.rotation = old_rotation(self.buffs)  # the same under its old names, for the tests (default.py)
         # The jumps the character can make and the moves made with them (travel.py), by the build's movement sets
         self.travel = Travel(self.build.movement)
         self.route: tuple[int, list[Bounds]] = (0, [])  # (level, the rooms the explore steps go to stand in, in order)
@@ -335,6 +334,19 @@ class Hunter:
         self.stepping: Step | None = None  # the step the fight stopped for
         self.sweep = Sweep()
         self.step_asked_at: float | None = None  # clock time of a step taken, until the first cast after it
+
+    def use(self, build: Build) -> None:
+        """The build the hunt plays from now on: the runner's, named at a run's first look that shows
+        the character (runner.py `choosing`). The same build again changes nothing. Another one (a
+        game with another character) starts what is kept by build anew: when each buff was last cast
+        and what the state showed of it (`buffs`), and the jumps last made and failed (`travel`),
+        which are the old build's skills and the old character's casts. What is the level's and the
+        fight's (the tour, the sweep, what was tested and left alone) stays."""
+        if build is self.build:
+            return
+        self.build = build
+        self.buffs = Buffs(build)
+        self.travel = Travel(build.movement)
 
     @property
     def attack(self) -> Attack:
@@ -941,7 +953,6 @@ class Hunter:
         self.stepping = None  # a step the last run of the mode was stopped before taking
         entered = run.clock()  # the mode starts anew after every teleport and seek step
         unready_since: float | None = None  # since when Echoing Strike has been on no input (see below)
-        attack = self.attack  # Abort: the build does not fight
         run.say('Attack mode on')
         while True:
             world = run.world()  # Cancelled when the runner ends the mode
@@ -950,6 +961,9 @@ class Hunter:
                 # The lobby or the menu: the mode ends, so the macro request there starts the macro at once.
                 raise Abort('attack mode off: the game was left')
             player = world.player
+            # Asked once the character is seen and not before the first look: the runner names the build
+            # by that look (`use`), and a hunt made before any game has the fallback until then.
+            attack = None if player is None else self.attack  # Abort: the build does not fight
             self.casting = player is not None and player.mode in ACTING
             self.sense(run)
             if self.move is not None and player is not None:
@@ -965,6 +979,7 @@ class Hunter:
                 self.step_aside()
                 self.nap(run, POLL)  # the player's move (a key, the left button, a run): waited through
                 continue
+            assert attack is not None  # the character is seen
             foes = self.foes(world, run.clock())
             if self.upkeep(run, world, foes, key_names):
                 continue
@@ -1100,9 +1115,10 @@ class Hunter:
         """The main weapon set in hand for a fight (it has the skill levels and the damage; a hop
         leaves the teleport set in hand); whether it is held, or nothing is known to want. With `swap`
         off it only looks. The next hop swaps the staff back in by itself (teleport.take_teleport). A
-        character the macros do not know, or hands that cannot be read, are left as they are; a swap
+        character the macros do not know (a build without weapon sets: no layer of the character's
+        own, `Build.weapons`), or hands that cannot be read, are left as they are; a swap
         that did not come is not asked for again for SWAP_RETRY_SECONDS."""
-        loadout = CHARACTERS.get(world.player.name) if world.player is not None else None
+        loadout = self.build.weapons if world.player is not None else None
         if loadout is None or run.hands is None or run.clock() - self.swap_failed_at < SWAP_RETRY_SECONDS:
             return True
         held = set(run.hands())

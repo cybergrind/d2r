@@ -546,8 +546,9 @@ def quick_run(rights, quick):
 def test_a_skill_key_waits_for_the_one_before_to_give_the_right_button_back():
     # Tower Cellar 1, 20:00:12 on 2026-10-11: Sigil: Lethargy tapped under the held strike came onto
     # the button 0.5 s later, as Teleport's key went down, and stayed there: attack mode stopped.
+    from inventory_tracking.builds.warlock.skills import ECHOING_STRIKE, SIGIL_LETHARGY
     from inventory_tracking.macros.routines import QUICK_SECONDS, quick_cast_over
-    from inventory_tracking.macros.skills import ECHOING_STRIKE, SIGIL_LETHARGY, TELEPORT
+    from inventory_tracking.macros.skills import TELEPORT
 
     strike, sigil = ECHOING_STRIKE, SIGIL_LETHARGY
     run, state = quick_run([strike, strike, strike, strike, strike, sigil, sigil, strike], (sigil, strike, 0.0, True))

@@ -2,6 +2,8 @@
 
 import math
 
+import pytest
+
 from inventory_tracking.builds.warlock.echoing_strike.attack import EchoingStrike
 from inventory_tracking.combat.policy import Foe, LinePolicy, Observation
 from inventory_tracking.combat.stance import (
@@ -32,7 +34,7 @@ def flat(txt):
     return 1000.0
 
 
-POLICY = LinePolicy(damage_of=flat)
+POLICY = EchoingStrike(damage_of=flat)  # the sweep as an attack: a place is priced by an attack
 
 
 def foe(dx, dy, left=5000.0, elite=False):
@@ -281,8 +283,14 @@ def test_a_place_is_chosen_for_the_attack_given():
     assert math.dist(found.spot, seen.foes[1].at) <= Bolt.reach
 
 
-def test_a_bare_sweep_is_priced_as_the_one_builds_attack_with_its_numbers():
+def test_a_place_is_priced_by_an_attack_and_not_by_a_bare_sweep():
     seen = Observation(HERE, {1: foe(8, 0, left=1e9), 2: foe(12, 0, left=1e9)})  # nothing capped by the life left
     field = Field(None, None)
-    assert taken(seen, POLICY, field, HERE, 0.0) == taken(seen, EchoingStrike(damage_of=flat), field, HERE, 0.0)
+    sweep = LinePolicy(damage_of=flat)
+    with pytest.raises(TypeError, match='a place is priced by an attack'):
+        taken(seen, sweep, field, HERE, 0.0)
+    with pytest.raises(TypeError, match='a place is priced by an attack'):
+        camp(seen, sweep)
+    # The attack made of the sweep on the build's side prices with the sweep's own numbers
+    assert taken(seen, EchoingStrike.of(sweep), field, HERE, 0.0) == taken(seen, POLICY, field, HERE, 0.0)
     assert taken(seen, POLICY, field, HERE, 0.0) != taken(seen, EchoingStrike(), field, HERE, 0.0)

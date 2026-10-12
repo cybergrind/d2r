@@ -3,7 +3,7 @@
 All are in Durance of Hate Level 2 (area 101, the level of macros/test_pickup.py), with monsters of
 that area's level and their type's life there (combat/mechanics/tables.py `points_of`, as the stance
 and revivers harnesses give a body its points). The character is the one macros/routines.py
-CHARACTERS knows, with the fakes' two weapon sets and skill keys (macros/fakes.py).
+CHARACTERS (builds/characters.py) knows, with the fakes' two weapon sets and skill keys (macros/fakes.py).
 
 What is assumed, not read from anything: the life (LIFE), and the resistances of the two sets. The
 main set lets a quarter of each element through (the cap of 75); the teleport set lets 0.92 of
@@ -13,9 +13,9 @@ and cold at 18 in Hell"). Nothing is taken off physical damage.
 
 from dataclasses import asdict
 
+from inventory_tracking.builds.characters import CHARACTERS
 from inventory_tracking.combat.mechanics.tables import points_of, tables
 from inventory_tracking.levels.model import Walkable, pack_cells
-from inventory_tracking.macros.routines import CHARACTERS
 from inventory_tracking.macros.world import FULL_REJUVENATION, SUPER_HEALING
 from inventory_tracking.native.layout import TILE_UNITS
 from tests.inventory_tracking.macros.fakes import HUNT_SLOTS, OTHER_SET, PREBUFF_SET

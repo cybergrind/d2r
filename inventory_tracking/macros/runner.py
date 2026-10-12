@@ -19,6 +19,11 @@ ends it (the macro then runs as usual). The teleport and seek steps pause it for
 resumes after; the pickup step waits for the fight to be over first. Each spoken step and the reason
 a run stopped go to the HUD card and the log; the card outlives the run, never blocking the next
 request.
+
+The runner is handed the builds (macros/build.py) by the process that makes it and imports none. A
+run plays one of them: the one that claims the character in the game (`choose`), named at the run's
+first look that shows a character (`choosing`), with no look of its own for it. It is on the run
+(`Run.build`) for what moves, picks up and prebuffs, and the hunt is told it (`Hunter.use`).
 """
 
 import math
@@ -26,7 +31,7 @@ import os
 import random
 import threading
 import time
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from pathlib import Path
 
 from inventory_tracking.common import LOG
@@ -38,18 +43,19 @@ from inventory_tracking.input.keyboard import X11Keyboard
 from inventory_tracking.levels.model import Ground, Target
 from inventory_tracking.macros import route
 from inventory_tracking.macros.actuator import Abort, Actuator, Cancelled
+from inventory_tracking.macros.build import Build, choose
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.hunt import Hunter
 from inventory_tracking.macros.journey import Journey
 from inventory_tracking.macros.latency import Press, Trace
 from inventory_tracking.macros.opening import open_near
 from inventory_tracking.macros.pickup import pick_up, wanted, worth_a_stop
-from inventory_tracking.macros.routines import SKILLS, run_macro
+from inventory_tracking.macros.routines import prebuff_keys, run_macro
 from inventory_tracking.macros.skills import character_bindings, skill_keys
 from inventory_tracking.macros.teleport import LOST_KEY, step_toward
 from inventory_tracking.macros.timing import Pace
 from inventory_tracking.macros.waiting import Waiting
-from inventory_tracking.macros.world import GameMemory
+from inventory_tracking.macros.world import GameMemory, World
 from inventory_tracking.models import SessionIdentity
 from inventory_tracking.routes.progress import Progress
 
@@ -95,8 +101,18 @@ class MacroRunner:
         place: Callable[[], tuple[str | None, int | None]] | None = None,
         staff_in_hand: Callable[[], bool | None] | None = None,
         trace: Trace | None = None,
+        builds: Sequence[Build] = (),
+        fallback: Build | None = None,
     ) -> None:
         self.source = source
+        # The builds a run is played by, in the order they are asked whose the character is, and the one
+        # for a character none of them claims (macros/build.py `choose`). Given by the process that makes
+        # the runner (the composition root: inventory_tracking/builds). Without a fallback nothing runs.
+        self.builds = tuple(builds)
+        self.fallback = fallback
+        # The build the last run played: a run starts with it and names its own at its first look that
+        # shows the character (`choosing`). The fallback until a character was seen.
+        self.build: Build | None = fallback
         self.capture_lock = capture_lock
         self.saved_games = saved_games
         self.display = display
@@ -406,8 +422,40 @@ class MacroRunner:
         self._start(following)
         return True
 
+    def choosing(self, run: Run) -> None:
+        """Have the run's build chosen at its first look at the game that shows a character: the
+        first of the builds that claims it, else the fallback (macros/build.py `choose`). The look is
+        the routine's own, whichever it is and however light, so choosing costs no look at the game
+        and moves none; a routine reads the build (`Run.build`, and the hunt its own) only after it
+        has seen the character. Chosen anew by every run, so a game with another character is
+        followed; the hunt is told (`Hunter.use`), which keeps its memory while the build stays."""
+        fallback = self.fallback
+        if fallback is None:
+            raise Abort('no build to play: the runner was given none')
+        read, chosen = run.read, []
+
+        def first() -> World:
+            world = read()
+            if not chosen and world.player is not None:
+                chosen.append(True)  # once a run
+                self.wear(run, choose(self.builds, world, fallback))
+            return world
+
+        run.read = first
+
+    def wear(self, run: Run, build: Build) -> None:
+        """`build` is the one the run plays, and the hunt with it."""
+        if build is not self.build:
+            LOG.info('Macro: the build is %s%s', build.name, '' if build.weapons else ', no weapon sets of its own')
+        self.build = run.build = build
+        if self.hunter is not None:
+            self.hunter.use(build)
+
     def _execute(self, cancelled: threading.Event, routine: str) -> None:
         press = self.press
+        build = self.build
+        if build is None:
+            raise Abort('no build to play: the runner was given none')
 
         def mark(name: str) -> None:
             if press is not None:
@@ -451,7 +499,8 @@ class MacroRunner:
                 if routine in STEPS or routine == ATTACK:
                     actuator.allow(*STEP_KEYS)  # the binding's own keys; the macro request waits for a release instead
 
-                def key_names(world, skills=SKILLS):
+                def key_names(world, skills=None):
+                    # `skills` None: the keys of the prebuff of the build the run plays (routines.prebuff_keys)
                     if world.player is None:
                         raise Abort('not in a game')
                     show_items = show_items_key(self.saved_games, world.player.name)
@@ -459,7 +508,7 @@ class MacroRunner:
                         actuator.allow(show_items)
                     try:
                         bindings = character_bindings(self.saved_games, world.player.name)
-                        return skill_keys(world.slots, bindings, skills)
+                        return skill_keys(world.slots, bindings, prebuff_keys(run.build) if skills is None else skills)
                     except (OSError, ValueError) as exc:
                         raise Abort(str(exc)) from exc
 
@@ -472,6 +521,7 @@ class MacroRunner:
                     hands=memory.hands,
                     teleport=memory.teleport,
                     loot=lambda: memory.loot(**wanted()),
+                    build=build,
                 )
                 if os.environ.get(RESEARCH_ENV):
                     run.research = memory.hover_candidates  # a scan of the whole data section per Consume
@@ -489,70 +539,75 @@ class MacroRunner:
                 run.supers = self.supers
                 run.ground = self.ground
                 mark('ready')
-                if routine == TELEPORT:
-                    walker = self.hunter
-
-                    def plain(card: Target | None, run=run, walker=walker) -> None:
-                        drop = worth_a_stop(run) if walker is not None else None
-                        if walker is None:
-                            step_toward(run, card, key_names)
-                        elif drop is not None:
-                            # The step does not leave a valuable behind: this press takes it, the next hops.
-                            LOG.info('Macro: the teleport step takes %s first', drop.label)
-                            pick_up(run, walker.level() if walker.level is not None else None, key_names, lambda: None)
-                        elif card is not None and walker.boss_step(run, card, key_names):
-                            pass  # the boss stands where its mark has no shot at it: the step went for the boss
-                        else:
-                            step_toward(
-                                run,
-                                card,
-                                key_names,
-                                lambda target: walker.foot_step(run, target, key_names),
-                                lambda target, player, spot: walker.warp_hop(run, target, player, spot, key_names),
-                            )
-
-                    def leave_the_game(run: Run, key_names) -> None:
-                        self.attack_mode = False  # as the macro request ends it
-                        route.leave(run, key_names)
-
-                    # One step of the stage the level is at (macros/route.py); the plain step without one.
-                    route.press(
-                        run,
-                        self.progress,
-                        self.target,
-                        self.marks,
-                        key_names,
-                        plain=plain,
-                        level=lambda: walker.level() if walker is not None and walker.level is not None else None,
-                        attack=lambda: setattr(self, 'attack_mode', True),
-                        leave=leave_the_game,
-                    )
-                elif routine == PICKUP:
-                    hunter = self.hunter
-                    if hunter is None:
-                        raise Abort('no level guide to hunt with')
-                    level = hunter.level() if hunter.level is not None else None
-                    stepped = []
-
-                    def otherwise(run=run, hunter=hunter, level=level, stepped=stepped) -> None:
-                        if not open_near(run, level, key_names):  # a chest by the character, a super chest
-                            stepped.append(hunter.step(run, key_names))
-
-                    pick_up(run, level, key_names, otherwise)
-                    if stepped:
-                        self.attack_mode = True  # nothing to pick up or open: a seek step, the mode follows
-                elif routine in (HUNT_ELITES, ATTACK):
-                    if self.hunter is None:
-                        raise Abort('no level guide to hunt with')
-                    if routine == ATTACK:
-                        actuator.drift, actuator.steady = 10**6, False  # the player's hand is on the mouse all along
-                        self.hunter.pick = self._pick
-                        self.hunter.attack_mode(run, key_names)
-                    else:
-                        self.hunter.seek(run, key_names)
-                else:
-                    run_macro(run, key_names)
+                self.perform(run, actuator, routine, key_names)
         finally:
             memory.close()
             if press is not None:
                 press.notes.update(reads=reads[0], read_ms=round(1000 * reads[1], 1))
+
+    def perform(self, run: Run, actuator: Actuator, routine: str, key_names) -> None:
+        """One routine on the run made for it (`_execute`), by the build chosen at its first look (`choosing`)."""
+        self.choosing(run)
+        if routine == TELEPORT:
+            walker = self.hunter
+
+            def plain(card: Target | None, run=run, walker=walker) -> None:
+                drop = worth_a_stop(run) if walker is not None else None
+                if walker is None:
+                    step_toward(run, card, key_names)
+                elif drop is not None:
+                    # The step does not leave a valuable behind: this press takes it, the next hops.
+                    LOG.info('Macro: the teleport step takes %s first', drop.label)
+                    pick_up(run, walker.level() if walker.level is not None else None, key_names, lambda: None)
+                elif card is not None and walker.boss_step(run, card, key_names):
+                    pass  # the boss stands where its mark has no shot at it: the step went for the boss
+                else:
+                    step_toward(
+                        run,
+                        card,
+                        key_names,
+                        lambda target: walker.foot_step(run, target, key_names),
+                        lambda target, player, spot: walker.warp_hop(run, target, player, spot, key_names),
+                    )
+
+            def leave_the_game(run: Run, key_names) -> None:
+                self.attack_mode = False  # as the macro request ends it
+                route.leave(run, key_names)
+
+            # One step of the stage the level is at (macros/route.py); the plain step without one.
+            route.press(
+                run,
+                self.progress,
+                self.target,
+                self.marks,
+                key_names,
+                plain=plain,
+                level=lambda: walker.level() if walker is not None and walker.level is not None else None,
+                attack=lambda: setattr(self, 'attack_mode', True),
+                leave=leave_the_game,
+            )
+        elif routine == PICKUP:
+            hunter = self.hunter
+            if hunter is None:
+                raise Abort('no level guide to hunt with')
+            level = hunter.level() if hunter.level is not None else None
+            stepped = []
+
+            def otherwise(run=run, hunter=hunter, level=level, stepped=stepped) -> None:
+                if not open_near(run, level, key_names):  # a chest by the character, a super chest
+                    stepped.append(hunter.step(run, key_names))
+
+            pick_up(run, level, key_names, otherwise)
+            if stepped:
+                self.attack_mode = True  # nothing to pick up or open: a seek step, the mode follows
+        elif routine in (HUNT_ELITES, ATTACK):
+            if self.hunter is None:
+                raise Abort('no level guide to hunt with')
+            if routine == ATTACK:
+                actuator.drift, actuator.steady = 10**6, False  # the player's hand is on the mouse all along
+                self.hunter.pick = self._pick
+                self.hunter.attack_mode(run, key_names)
+            else:
+                self.hunter.seek(run, key_names)
+        else:
+            run_macro(run, key_names)

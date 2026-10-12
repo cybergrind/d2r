@@ -12,8 +12,8 @@ whole of what the framework may ask of a build, and it imports nothing from a bu
 - `Buff`: one row of the buff plan, cast by the shared executor (macros/buffs.py) or by a caster the
   build names, which is called with a `Casting` and answers with a `Tried`.
 - `Tactic`: what a kind of pack adds to the one price of a place.
-- `Build`: those, the weapon sets and the numbers (`BuildSettings`), with `applies` to say whose it
-  is; `choose` takes the first build that applies.
+- `Build`: those, the weapon sets (`Loadout`) and the numbers (`BuildSettings`), with `applies` to say
+  whose it is; `choose` takes the first build that applies.
 
 Every decision here is pure: facts in, an answer out. Reading the game and making the move, the cast
 or the swap stay in macros/ (travel.py `Travel.make`, teleport.py, routines.py).
@@ -33,7 +33,7 @@ from inventory_tracking.config import Config
 from inventory_tracking.levels.doors import Door
 from inventory_tracking.levels.model import Ground
 from inventory_tracking.macros.engine import Run
-from inventory_tracking.macros.routines import Loadout, LoadTrace
+from inventory_tracking.macros.routines import LoadTrace
 from inventory_tracking.macros.world import Monster, Teleport, World
 from inventory_tracking.terror.danger import Pack
 
@@ -401,6 +401,14 @@ class Tactic(Protocol):
         ...
 
 
+@dataclass(frozen=True)
+class Loadout:
+    """A character's weapon sets by what they are for, as base codes of what is held."""
+
+    prebuff: frozenset[str]  # the set the buffs are cast with
+    battle: frozenset[str]  # the main set: the one to fight with, and to leave a game with
+
+
 class BuildSettings(Config):
     """A build's numbers: frozen, changed only by `with_overrides`. Empty until a stage has a number
     that differs by build (the caution's curve, the charge rule's count, the drinking marks)."""
@@ -417,11 +425,16 @@ class Build:
     movement: tuple[MovementSet, ...]  # the first that applies is the one asked
     buffs: tuple[Buff, ...] = ()  # in the order they are cast
     tactics: tuple[Tactic, ...] = ()
-    weapons: Loadout | None = None  # which weapon set is for what; None: the hands are left as they are
+    # Which weapon set is for what, a character's own (the layer of a character gives it). None: the hands
+    # are left as they are in a fight, and the macro request, which needs them, is not for this character.
+    weapons: Loadout | None = None
     casters: Mapping[str, Caster] = field(default_factory=dict)  # the casts that are more than a key
     settings: BuildSettings = field(default_factory=BuildSettings)
 
 
 def choose(builds: Sequence[Build], world: World, fallback: Build) -> Build:
-    """The first of `builds` that applies to the character in the game, else `fallback`."""
+    """The first of `builds` that applies to the character in the game, else `fallback`: also with no
+    character in the world (a loading screen, the lobby), where no build is asked whether it applies."""
+    if world.player is None:
+        return fallback
     return next((build for build in builds if build.applies(world)), fallback)

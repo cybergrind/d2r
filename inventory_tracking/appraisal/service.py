@@ -46,6 +46,7 @@ from pathlib import Path
 from tempfile import mkdtemp
 from typing import Any
 
+from inventory_tracking import builds
 from inventory_tracking.appraisal.cache import database_revision
 from inventory_tracking.appraisal.capture import AppraisalCapture, RecentFocus
 from inventory_tracking.appraisal.hotkeys import Hotkeys
@@ -634,6 +635,9 @@ def run_service(args, directory, report):
                         saved_games=SHOW_ITEMS.saved_games,
                         display=display_macro,
                         trace=Trace(directory / LATENCY_FILE),
+                        # The builds a run is played by: handed in here, the framework imports none
+                        builds=builds.BUILDS,
+                        fallback=builds.FALLBACK,
                     )
                     # Per-game monster/Herald state: the Terror card and the level map shading.
                     zones = ZoneTracker(args.output / 'terror-games.json') if args.terror_probe else None
@@ -674,6 +678,7 @@ def run_service(args, directory, report):
                             guide.level,
                             zones.remembered if zones is not None else None,
                             zones.visited_rooms if zones is not None else None,
+                            build=builds.FALLBACK,  # until a run has seen the character (runner.py `choosing`)
                         )
                     combat = None
                     if args.combat_record:

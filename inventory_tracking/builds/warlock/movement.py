@@ -6,10 +6,10 @@ That is why it comes first in every set: with a staff worn, with Teleport as a s
 character's own, and with neither.
 """
 
+from inventory_tracking.builds.warlock.skills import BLADE_WARP
 from inventory_tracking.combat.stance import Jump
 from inventory_tracking.macros.build import JumpSource
 from inventory_tracking.macros.movement import SHARED
-from inventory_tracking.macros.skills import BLADE_WARP
 from inventory_tracking.macros.travel import JUMP_LEAST, JUMP_REACH
 
 

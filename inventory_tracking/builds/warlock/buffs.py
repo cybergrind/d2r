@@ -10,13 +10,7 @@ are more than one aim and one key are in casters.py.
 import math
 
 from inventory_tracking.builds.warlock.echoing_strike.attack import BLADES_A_CAST, ECHOING_STRIKE_ATTACK
-from inventory_tracking.combat.policy import observe
-from inventory_tracking.macros.buffs import Buffs
-from inventory_tracking.macros.build import Buff, BuffFacts, whenever
-from inventory_tracking.macros.engine import Run
-from inventory_tracking.macros.rotation import ELITE_LIFE
-from inventory_tracking.macros.routines import DEAD
-from inventory_tracking.macros.skills import (
+from inventory_tracking.builds.warlock.skills import (
     CONSUME,
     DEATH_MARK,
     ENGORGE,
@@ -25,6 +19,12 @@ from inventory_tracking.macros.skills import (
     SIGIL_LETHARGY,
     SUMMON_DEFILER,
 )
+from inventory_tracking.combat.policy import observe
+from inventory_tracking.macros.buffs import Buffs
+from inventory_tracking.macros.build import Buff, BuffFacts, whenever
+from inventory_tracking.macros.engine import Run
+from inventory_tracking.macros.rotation import ELITE_LIFE
+from inventory_tracking.macros.routines import DEAD
 from inventory_tracking.macros.world import DEFILER_CLASS, Monster, World
 from inventory_tracking.native.layout import HIRELING_CLASS_ID
 
@@ -198,8 +198,8 @@ class Under:
 
 class Rotation:
     """The executor's memory and the due-tests under the names they had in macros/rotation.py
-    (`hunter.rotation`), for the tests and the golden adapter written against those. Nothing in the
-    hunt asks it; it goes when they ask the executor (framework-plan.md Task 3.9)."""
+    (`hunter.rotation` then), for the tests, the replays and the golden adapter written against those:
+    each makes it of the hunt's executor (`Rotation(hunter.buffs)`). Nothing in the hunt asks it."""
 
     def __init__(self, buffs: Buffs) -> None:
         self.buffs = buffs

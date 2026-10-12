@@ -10,11 +10,16 @@ import time
 from collections.abc import Callable, Iterator
 from contextlib import contextmanager
 from threading import Event
+from typing import TYPE_CHECKING
 
 from inventory_tracking.levels.model import Ground
 from inventory_tracking.macros.actuator import Abort, Actuator, Cancelled
 from inventory_tracking.macros.timing import Pace
 from inventory_tracking.macros.world import Loot, Teleport, Thing, Warp, World
+
+
+if TYPE_CHECKING:
+    from inventory_tracking.macros.build import Build  # build.py is above this module
 
 
 POLL = 0.03
@@ -33,8 +38,13 @@ class Run:
         hands: Callable[[], tuple[str, ...]] | None = None,
         teleport: Callable[[], Teleport | None] | None = None,
         loot: Callable[[], Loot] | None = None,
+        build: Build,
     ) -> None:
         self.read = read
+        # The build the run plays (macros/build.py): what the character moves by, casts before a game and holds.
+        # The runner's, chosen again at the run's first look that shows the character (runner.py `choosing`);
+        # until that look, the one it played before.
+        self.build = build
         self.actuator = actuator
         self.pace = pace
         self.clock = clock

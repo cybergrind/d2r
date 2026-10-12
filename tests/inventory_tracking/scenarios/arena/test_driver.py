@@ -7,11 +7,11 @@ from dataclasses import replace
 import pytest
 
 from inventory_tracking.builds.generic import GENERIC
-from inventory_tracking.builds.warlock.echoing_strike.build import ECHOING_STRIKE_BUILD
 from inventory_tracking.config import PLAYER_HEALING
 from inventory_tracking.macros import runner as runner_module
 from inventory_tracking.macros.runner import ATTACK, HUNT_ELITES, PICKUP, PREBUFF, TELEPORT
 from inventory_tracking.macros.world import DEFILER_CLASS, FULL_REJUVENATION, SUPER_HEALING
+from tests.inventory_tracking.macros.fakes import BUILD
 from tests.inventory_tracking.scenarios.arena import driver
 from tests.inventory_tracking.scenarios.arena.driver import Play, Press, play
 from tests.inventory_tracking.scenarios.arena.game import OSD, Arena
@@ -178,8 +178,8 @@ def test_other_routines_are_refused(routine):
 
 
 def test_the_build_handed_in_is_the_one_played():
-    # The one build the production code takes by itself, handed in: the same play, blade for blade.
-    assert play(one_in_the_open(), [Press(0, ATTACK)], 5.0, build=ECHOING_STRIKE_BUILD) == play(
+    # The build played when none is named, handed in with its blades: the same play, blade for blade.
+    assert play(one_in_the_open(), [Press(0, ATTACK)], 5.0, build=BUILD, blades=True) == play(
         one_in_the_open(), [Press(0, ATTACK)], 5.0
     )
 
@@ -188,7 +188,7 @@ def test_a_build_without_an_attack_ends_attack_mode_with_that_said():
     result = play(one_in_the_open(), [Press(0, ATTACK)], 5.0, build=GENERIC)
     assert result.casts == 0
     assert any('attack mode off: the build (generic) has no attack of its own' in line for line in lines(result))
-    assert 'Macro: Attack mode on' not in lines(result)
+    assert lines(result).count('Macro: Attack mode on') == 1  # said before the first look, which names the build
 
 
 def test_the_runners_time_is_the_arenas_for_the_play_and_put_back_after(monkeypatch):

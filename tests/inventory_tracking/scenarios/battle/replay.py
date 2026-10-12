@@ -49,7 +49,7 @@ from inventory_tracking.macros.routines import ACTING
 from inventory_tracking.macros.runner import ATTACK, PICKUP, TELEPORT, MacroRunner
 from inventory_tracking.macros.timing import Pace
 from inventory_tracking.macros.world import Door, Loot, Monster, Player, Teleport, World
-from tests.inventory_tracking.macros.fakes import Clock, FakeConnection
+from tests.inventory_tracking.macros.fakes import BUILD, Clock, FakeConnection
 
 
 @dataclass
@@ -176,7 +176,7 @@ class Replay:
         self.keys.press, self.keys.button = pressing, clicking
         self.pending = sorted(script.presses)
         self.runner: MacroRunner | None = None
-        self.hunter = Hunter(lambda: self.level, None, None)
+        self.hunter = Hunter(lambda: self.level, None, None, build=BUILD)
         script.prepare(self.hunter)
         self.failed: list[BaseException] = []
 
@@ -326,6 +326,7 @@ class Replay:
             hands=lambda: self.script.hands,
             teleport=lambda: self.script.staff,
             loot=lambda: self.script.loot(self.clock.now, self.frame()),
+            build=BUILD,  # the take's character is the fakes': the Echoing Strike Warlock with its weapon sets
         )
         run.hovered = lambda: self.script.hovered(self.clock.now, self.keys.pointer())
         run.hover_note = lambda: 'replayed'

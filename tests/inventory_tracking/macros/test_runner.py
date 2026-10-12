@@ -1,11 +1,15 @@
 import threading
 import time
+from dataclasses import replace
 from types import SimpleNamespace
+
+import pytest
 
 from inventory_tracking.macros import runner as runner_module
 from inventory_tracking.macros.actuator import Abort, Cancelled
 from inventory_tracking.macros.hunt import Hunter
 from inventory_tracking.macros.runner import MacroRunner
+from tests.inventory_tracking.macros.fakes import BUILD
 
 
 def make(execute, shown):
@@ -248,7 +252,7 @@ def test_a_pickup_request_during_attack_mode_asks_for_a_step_and_is_dropped_when
 
     monkeypatch.setattr(runner_module, 'CARD_SECONDS', 0)
     runs, asked = [], threading.Event()
-    hunter = Hunter()
+    hunter = Hunter(build=BUILD)
 
     def execute(cancelled, routine):
         runs.append(routine)
@@ -277,7 +281,7 @@ def test_a_teleport_or_seek_request_ends_the_sweep_and_a_pickup_request_does_not
 
     monkeypatch.setattr(runner_module, 'CARD_SECONDS', 0)
     runner = make(lambda cancelled, routine: None, [])
-    runner.hunter = Hunter()
+    runner.hunter = Hunter(build=BUILD)
     for routine, left in (('pickup', 5), ('teleport', 0), ('hunt elites', 0), ('prebuff', 0)):
         runner.hunter.sweep.steps = 5
         runner.last_request = -1e9
@@ -292,7 +296,7 @@ def test_a_pickup_request_during_attack_mode_waits_for_the_fight_and_the_mode_re
 
     monkeypatch.setattr(runner_module, 'CARD_SECONDS', 0)
     runs, resumed, fight_over = [], threading.Event(), threading.Event()
-    hunter = Hunter()
+    hunter = Hunter(build=BUILD)
 
     def execute(cancelled, routine):
         runs.append(routine)
@@ -354,7 +358,7 @@ def test_closing_with_a_pickup_waiting_for_the_fight_drops_it(monkeypatch):
         raise Cancelled
 
     runner = make(execute, [])
-    runner.hunter = Hunter()
+    runner.hunter = Hunter(build=BUILD)
     assert runner.request(10.0, 10.1, 'hunt any')
     assert started.wait(5)
     assert runner.request(10.3, 10.4, 'pickup')
@@ -426,7 +430,7 @@ def test_requests_racing_a_runs_end_never_leave_two_runs_acting(monkeypatch):
             raise Cancelled
 
     runner = make(execute, [])
-    runner.hunter = Hunter()
+    runner.hunter = Hunter(build=BUILD)
     routines = ('teleport', 'hunt elites', 'hunt any', 'pickup', 'teleport', 'prebuff')
 
     def press(offset):
@@ -606,3 +610,268 @@ def test_attack_mode_resumes_at_once_after_a_seek_step(monkeypatch):
     assert resumed.wait(5)
     assert runs == ['hunt elites', 'hunt any']
     runner.close()
+
+
+# --- the build a run plays: chosen at the run's first look that shows the character, and handed down ---
+
+
+def building(play, hunter=None, builds=None, fallback=None):
+    """A runner with the registry and a run of `play` as `_execute` makes it: with the build the
+    runner played last, the fallback at first. (`_execute` itself needs the game's process.)"""
+    from inventory_tracking import builds as registry
+
+    shown = []
+    runner = MacroRunner(
+        None,
+        capture_lock=threading.Lock(),
+        saved_games=None,
+        display=shown.append,
+        execute=lambda cancelled, routine: None,
+        builds=registry.BUILDS if builds is None else builds,
+        fallback=registry.FALLBACK if fallback is None else fallback,
+    )
+    runner.hunter = hunter
+    play.build = runner.build
+    return runner, play.run(), shown
+
+
+def looks(play):
+    """Counts the looks at the game."""
+    seen, read = [], play.read
+
+    def counted():
+        seen.append(play.clock.now)
+        return read()
+
+    play.read = counted
+    return seen
+
+
+def someone(**changes):
+    """A character no build knows by name, with no Echoing Strike anywhere."""
+    from tests.inventory_tracking.macros.fakes import SLOTS, player, world
+
+    found = world(area=101, slots=SLOTS)
+    return replace(found, player=replace(player(101, name='Someone'), **changes))
+
+
+def test_the_build_is_chosen_at_the_runs_first_look_and_costs_no_look_of_its_own():
+    from inventory_tracking import builds as registry
+    from tests.inventory_tracking.macros.fakes import HUNT_SLOTS, Game, world
+
+    play = Game(world(area=101, slots=HUNT_SLOTS))
+    seen = looks(play)
+    hunter = Hunter(build=registry.FALLBACK)
+    runner, run, _ = building(play, hunter)
+    assert run.build is registry.FALLBACK
+    runner.choosing(run)
+    assert seen == []  # no look for the choice
+    assert run.build is registry.FALLBACK
+    assert hunter.build is registry.FALLBACK
+    run.world()
+    assert len(seen) == 1  # the routine's own look, and by it:
+    assert run.build is runner.build is hunter.build is BUILD
+    assert hunter.travel.sets == BUILD.movement
+    run.world()
+    run.world()
+    assert len(seen) == 3  # one read a look, as before
+
+
+def test_a_look_that_shows_no_character_chooses_nothing_and_the_first_that_does_chooses():
+    from inventory_tracking import builds as registry
+    from tests.inventory_tracking.macros.fakes import HUNT_SLOTS, Game, world
+
+    start = world(area=101, slots=HUNT_SLOTS)
+    play = Game(replace(start, player=None))  # the game is loading
+    runner, run, _ = building(play)
+    runner.choosing(run)
+    run.world()
+    assert run.build is registry.FALLBACK
+    play.world = start
+    run.world()
+    assert run.build is runner.build is BUILD
+
+
+def test_the_hunt_keeps_its_memory_while_the_build_stays_and_starts_anew_with_another_character():
+    from inventory_tracking import builds as registry
+    from inventory_tracking.builds.generic import GENERIC
+    from tests.inventory_tracking.macros.fakes import HUNT_SLOTS, Game, world
+
+    play = Game(world(area=101, slots=HUNT_SLOTS))
+    hunter = Hunter(build=registry.FALLBACK)
+    runner, run, _ = building(play, hunter)
+    runner.choosing(run)
+    run.world()
+    buffs, travel, sweep = hunter.buffs, hunter.travel, hunter.sweep
+    buffs.cast_at[1, None] = 5.0
+    # the next run, the same character: its build is the one the runner played last from the start
+    again = play.run()
+    again.build = runner.build
+    runner.choosing(again)
+    again.world()
+    assert hunter.buffs is buffs
+    assert hunter.travel is travel
+    assert hunter.buffs.cast_at == {(1, None): 5.0}
+    # another character in the next game
+    play.world = someone()
+    other = play.run()
+    other.build = runner.build
+    assert other.build is BUILD  # until this run has seen the character
+    runner.choosing(other)
+    other.world()
+    assert other.build is runner.build is hunter.build is GENERIC
+    assert hunter.buffs is not buffs
+    assert hunter.buffs.cast_at == {}
+    assert hunter.travel.sets == GENERIC.movement
+    assert hunter.sweep is sweep  # what is not the build's stays
+
+
+def test_a_runner_given_no_build_stops_with_that_said():
+    from tests.inventory_tracking.macros.fakes import HUNT_SLOTS, Game, world
+
+    play = Game(world(area=101, slots=HUNT_SLOTS))
+    runner = MacroRunner(None, capture_lock=threading.Lock(), saved_games=None)
+    assert runner.build is None
+    with pytest.raises(Abort, match='no build to play: the runner was given none'):
+        runner._execute(threading.Event(), 'pickup')
+    with pytest.raises(Abort, match='no build to play: the runner was given none'):
+        runner.perform(play.run(), None, 'pickup', None)
+
+
+def test_the_pickup_step_jumps_by_the_chosen_builds_own_jump():
+    from tests.inventory_tracking.macros import test_pickup as drops
+
+    play = drops.game(drops.PILE)
+    hunter = Hunter(lambda: drops.LEVEL, build=BUILD)
+    runner, run, _ = building(play, hunter)
+    assert run.build is not BUILD
+    runner.perform(run, run.actuator, 'pickup', drops.keys)
+    assert run.build is BUILD
+    assert play.pressed() == ['w']  # Blade Warp onto the pile: the Warlock's
+    assert play.picked == ['7200 gold']
+
+
+def test_the_pickup_step_of_a_character_no_build_claims_clicks_the_gold():
+    from inventory_tracking.builds.generic import GENERIC
+    from tests.inventory_tracking.macros import test_pickup as drops
+
+    play = drops.game(drops.PILE)
+    play.world = someone()
+    runner, run, _ = building(play, Hunter(lambda: drops.LEVEL, build=BUILD))
+    runner.perform(run, run.actuator, 'pickup', drops.keys)
+    assert run.build is runner.hunter.build is GENERIC
+    assert play.pressed() == []  # no jump of its own that spares the staff
+    assert any(event[0] == 'click' for event in play.keys.events)
+    assert play.picked == ['7200 gold']
+    assert play.said[-1] == '7200 gold: picked up'
+
+
+def test_the_teleport_step_of_a_character_no_build_claims_hops_by_the_staff():
+    from inventory_tracking.builds.generic import GENERIC
+    from tests.inventory_tracking.macros import test_teleport as steps
+
+    play = steps.game()
+    play.world = replace(someone(), player=replace(someone().player, area=109))
+    runner, run, _ = building(play)
+    runner.target = lambda: steps.target((1003.0, 1000.0))
+    runner.perform(run, run.actuator, 'teleport', steps.keys)
+    assert run.build is GENERIC
+    assert play.pressed() == ['t']
+    assert play.staff.charges == 9
+    assert play.said[-2].startswith('Teleport toward Next level')
+
+
+def test_the_teleport_step_of_the_warlock_is_the_step_it_was():
+    from tests.inventory_tracking.macros import test_teleport as steps
+
+    play, alone = steps.game(), steps.game()
+    runner, run, _ = building(play)
+    runner.target = lambda: steps.target((1003.0, 1000.0))
+    runner.perform(run, run.actuator, 'teleport', steps.keys)
+    steps.step_toward(alone.run(), steps.target((1003.0, 1000.0)), steps.keys)
+    assert run.build is BUILD
+    assert play.keys.events == alone.keys.events
+    assert play.said == alone.said
+
+
+def test_attack_mode_of_a_character_no_build_claims_stops_with_the_reason_and_presses_nothing():
+    from inventory_tracking import builds as registry
+    from inventory_tracking.levels.model import Level
+    from tests.inventory_tracking.macros.fakes import Game
+
+    play = Game(someone())
+    hunter = Hunter(lambda: Level(101, ()), build=registry.FALLBACK)
+    runner, run, _ = building(play, hunter)
+    with pytest.raises(Abort, match=r'attack mode off: the build \(generic\) has no attack of its own'):
+        runner.perform(run, run.actuator, 'hunt any', lambda world, skills=(): {})
+    assert play.said == ['Attack mode on']
+    assert play.keys.events == []
+
+
+def test_attack_mode_is_played_by_the_build_chosen_at_its_first_look():
+    from inventory_tracking import builds as registry
+    from inventory_tracking.levels.model import Level
+    from tests.inventory_tracking.macros.fakes import HUNT_SLOTS, KEYS, Game, world
+
+    start = world(area=101, slots=HUNT_SLOTS)
+    play = Game(replace(start, player=replace(start.player, consume=True)))
+    hunter = Hunter(lambda: Level(101, ()), build=registry.FALLBACK)  # as the service makes it, before any game
+    runner, run, _ = building(play, hunter)
+    play.arrivals.append((1.0, run.cancelled.set))
+    with pytest.raises(Cancelled):
+        runner.perform(run, run.actuator, 'hunt any', lambda world, skills=(): {skill: KEYS[skill] for skill in skills})
+    assert hunter.build is BUILD
+    assert hunter.pick == runner._pick
+    assert play.said[0] == 'Attack mode on'
+    assert not any('no attack' in line for line in play.said)
+
+
+def test_the_macro_request_prebuffs_by_the_chosen_build_and_asks_for_its_keys():
+    from inventory_tracking.macros.routines import prebuff_keys
+    from tests.inventory_tracking.macros.fakes import KEYS, Game, world
+
+    play, asked = Game(world()), []
+    runner, run, _ = building(play)
+    run.keys = {}
+
+    def key_names(found, skills=None):
+        # as `_execute`: no skills named are the prebuff's of the build the run plays
+        asked.append(prebuff_keys(run.build) if skills is None else skills)
+        return dict(KEYS)
+
+    runner.perform(run, run.actuator, 'prebuff', key_names)
+    assert run.build is BUILD
+    assert asked[0] == prebuff_keys(BUILD)
+    assert play.pressed() == ['q', '6', 'q', 'g', 'r']
+    assert run.prebuff_hands == BUILD.weapons.prebuff
+    assert run.battle_hands == BUILD.weapons.battle
+    assert play.said[-1] == 'Prebuff done'
+
+
+@pytest.mark.parametrize('strike', [False, True])
+def test_the_macro_request_of_a_character_without_weapon_sets_stops_as_it_did(strike):
+    from inventory_tracking.builds.generic import GENERIC
+    from inventory_tracking.builds.warlock.echoing_strike.build import ECHOING_STRIKE_BUILD
+    from inventory_tracking.builds.warlock.skills import ECHOING_STRIKE
+    from tests.inventory_tracking.macros.fakes import KEYS, Game
+
+    play = Game(someone(right_skill=ECHOING_STRIKE) if strike else someone())
+    runner, run, _ = building(play)
+    with pytest.raises(Abort, match=r'^no macro for Someone$'):
+        runner.perform(run, run.actuator, 'prebuff', lambda found, skills=None: dict(KEYS))
+    assert run.build is (ECHOING_STRIKE_BUILD if strike else GENERIC)
+    assert play.keys.events == []
+
+
+def test_the_macro_request_of_a_build_with_nothing_to_prebuff_stops_with_the_reason():
+    from inventory_tracking.builds.characters import played_by
+    from inventory_tracking.builds.generic import GENERIC
+    from tests.inventory_tracking.macros.fakes import KEYS, Game, world
+
+    plain = played_by(GENERIC, 'CybergrindAA')  # weapon sets, and no buff plan
+    play = Game(world())
+    runner, run, _ = building(play, builds=(plain,), fallback=GENERIC)
+    with pytest.raises(Abort, match=r'nothing to prebuff: the build \(generic\) has no prebuff of its own'):
+        runner.perform(run, run.actuator, 'prebuff', lambda found, skills=None: dict(KEYS))
+    assert run.build is plain
+    assert play.pressed() == []

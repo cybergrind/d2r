@@ -7,9 +7,9 @@ from inventory_tracking.builds.warlock.casters import CASTERS
 from inventory_tracking.builds.warlock.echoing_strike.attack import ECHOING_STRIKE_ATTACK
 from inventory_tracking.builds.warlock.echoing_strike.build import ECHOING_STRIKE_BUILD
 from inventory_tracking.builds.warlock.movement import MOVEMENT
-from inventory_tracking.macros.default import default_build
+from inventory_tracking.builds.warlock.skills import ECHOING_STRIKE
 from inventory_tracking.macros.hunt import Hunter
-from inventory_tracking.macros.skills import ATTACK, ECHOING_STRIKE, TELEPORT
+from inventory_tracking.macros.skills import ATTACK, TELEPORT
 from tests.inventory_tracking.builds.dummy import DUMMY
 from tests.inventory_tracking.macros.fakes import HUNT_SLOTS, world
 
@@ -36,9 +36,8 @@ def test_it_holds_the_warlocks_buff_plan_and_casters():
     assert ECHOING_STRIKE_BUILD.casters == CASTERS
 
 
-def test_the_hunt_takes_it_until_a_build_is_handed_in():
-    assert default_build() is ECHOING_STRIKE_BUILD
-    hunter = Hunter()
+def test_the_hunt_plays_the_build_it_is_made_with():
+    hunter = Hunter(build=ECHOING_STRIKE_BUILD)
     assert hunter.build is ECHOING_STRIKE_BUILD
     assert hunter.travel.sets == MOVEMENT
     other = Hunter(build=DUMMY)

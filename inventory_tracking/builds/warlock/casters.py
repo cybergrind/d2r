@@ -15,6 +15,7 @@ from inventory_tracking.builds.warlock.buffs import (
     ENGORGE_RETRY,
     SIGIL_SECONDS,
 )
+from inventory_tracking.builds.warlock.skills import CONSUME, ENGORGE, SUMMON_DEFILER
 from inventory_tracking.common import LOG
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.buffs import keys_of
@@ -31,7 +32,6 @@ from inventory_tracking.macros.routines import (
     take_prebuff_weapons,
     world_point,
 )
-from inventory_tracking.macros.skills import CONSUME, ENGORGE, SUMMON_DEFILER
 from inventory_tracking.macros.teleport import HOVER_SECONDS, ground_fraction
 from inventory_tracking.macros.travel import MONSTER_UNIT_TYPE
 from inventory_tracking.macros.view import BODY_LIFT, FEET

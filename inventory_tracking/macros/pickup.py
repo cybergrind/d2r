@@ -45,8 +45,6 @@ from inventory_tracking.levels.model import Level, Target
 from inventory_tracking.loot.materials import material_classes
 from inventory_tracking.loot.shown import game_filter, pickup_rules, shown_gems
 from inventory_tracking.macros.actuator import Abort
-from inventory_tracking.macros.build import Build
-from inventory_tracking.macros.default import default_build
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.routines import ACTING, DEAD, UNIT_PIXELS, press_skill
 from inventory_tracking.macros.skills import skill_name
@@ -332,11 +330,11 @@ def _take(
     raise Abort(f'no click picked up {drop.label}')
 
 
-def collect(run: Run, drop: Drop, key_names, others: Sequence[Drop] = (), build: Build | None = None) -> bool:
+def collect(run: Run, drop: Drop, key_names, others: Sequence[Drop] = ()) -> bool:
     """Go for a gold pile: a Blade Warp onto it, which may take it; if not, or for a pile too near
     to jump to, it is clicked like any item (`others`: what else lies there and is not wanted).
-    The jump is the build's own that spares the staff and is thrown over a clear line (travel.py
-    `spare_jump`), if it has one on a key; `build` None: the one there is (default.py `default_build`).
+    The jump is the own one of the build the run plays that spares the staff and is thrown over a clear
+    line (travel.py `spare_jump`), if it has one on a key; a build without one clicks.
     It is pressed as it always was: with no look at its casting delay or at a wall in its line."""
     player, rect = ready(run)
     world = run.world()
@@ -344,7 +342,7 @@ def collect(run: Run, drop: Drop, key_names, others: Sequence[Drop] = (), build:
     away = math.dist((player.x, player.y), (drop.x, drop.y))
     if not in_view(where):
         raise Abort(f'{drop.label} is not in view')
-    jump = spare_jump((build if build is not None else default_build()).movement, world.slots)
+    jump = spare_jump(run.build.movement, world.slots)
     if away > GOLD_WALK and jump is not None and jump.line and key_names is not None:
         run.keys.update(key_names(world, (jump.skill,)))
         run.actuator.aim(*where, scatter=(2, 2))

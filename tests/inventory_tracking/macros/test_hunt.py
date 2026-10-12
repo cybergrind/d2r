@@ -14,9 +14,10 @@ from itertools import pairwise
 import pytest
 
 from inventory_tracking.builds.generic import GENERIC
-from inventory_tracking.builds.warlock.buffs import CONSUME_RETRY, SIGIL_SECONDS, WARD_SECONDS
+from inventory_tracking.builds.warlock.buffs import CONSUME_RETRY, SIGIL_SECONDS, WARD_SECONDS, Rotation
 from inventory_tracking.builds.warlock.casters import SUMMON_SPOTS
 from inventory_tracking.builds.warlock.movement import WARP_DELAY
+from inventory_tracking.builds.warlock.skills import BLADE_WARP, DEATH_MARK, ECHOING_STRIKE
 from inventory_tracking.combat.mechanics.tables import points_of
 from inventory_tracking.combat.policy import REACH, Choice
 from inventory_tracking.combat.stance import CAMP_REACH
@@ -36,10 +37,10 @@ from inventory_tracking.macros.hunt import (
     hostiles,
     strike_input,
 )
-from inventory_tracking.macros.skills import ATTACK, BLADE_WARP, DEATH_MARK, ECHOING_STRIKE, TELEPORT
+from inventory_tracking.macros.skills import ATTACK, TELEPORT
 from inventory_tracking.macros.travel import JUMP_REACH, Step, attackable, step_walk
 from inventory_tracking.macros.world import HEALING, VALUABLE, Drop, Monster, Teleport
-from tests.inventory_tracking.macros.fakes import HUNT_SLOTS, KEYS, PREBUFF_SET, Game, player, world
+from tests.inventory_tracking.macros.fakes import BUILD, HUNT_SLOTS, KEYS, PREBUFF_SET, Game, player, warlock, world
 
 
 @pytest.fixture
@@ -80,7 +81,12 @@ def hunter(play, *, ground=(), remembered=(), explored=None):
     def level():
         return Level(play.world.player.area, ROOMS, tuple(ground))
 
-    return Hunter(level, lambda area: list(remembered), None if explored is None else lambda area: set(explored))
+    return Hunter(
+        level,
+        lambda area: list(remembered),
+        None if explored is None else lambda area: set(explored),
+        build=warlock(play.world),
+    )
 
 
 def attack_mode(play, hunt, *, until=30.0, events=()):
@@ -406,13 +412,16 @@ def test_the_line_goes_through_two_monsters_rather_than_at_the_nearest():
     assert abs(play.strikes[0][1][0] - 5000.0) < 1.5  # aimed along the line through 11 and 12
 
 
-def test_a_build_without_an_attack_stops_attack_mode_before_it_is_on():
+def test_a_build_without_an_attack_stops_attack_mode_at_its_first_look_at_the_character():
+    # Not before the look: the runner names the build by it (runner.py `choosing`).
     play = game(foe(10, 5008.0, 5000.0))
+    play.build = GENERIC
     hunt = Hunter(lambda: Level(101, ROOMS, ()), None, None, build=GENERIC)
     with pytest.raises(Abort, match=r'attack mode off: the build \(generic\) has no attack of its own'):
         hunt.attack_mode(play.run(), keys)
-    assert not play.said  # the mode was never said to be on
+    assert play.said == ['Attack mode on']
     assert not play.strikes
+    assert not play.keys.events
     assert play.pressed() == []
     assert hunt.reach == 0.0  # and nothing is in reach of a build that does not fight
 
@@ -441,7 +450,7 @@ def test_a_policy_set_in_place_of_the_attack_gives_the_aim_alone():
     hunt.policy = nothing
     assert hunt.policy is nothing
     assert hunt.attack is hunt.build.attack  # the reach, what is seen and what a cast deals stay the attack's
-    assert Hunter(policy=nothing).policy is nothing
+    assert Hunter(policy=nothing, build=BUILD).policy is nothing
 
 
 def test_a_monster_in_reach_is_struck_by_the_old_rule_when_the_policy_finds_no_line():
@@ -579,7 +588,7 @@ def test_exploring_picks_the_room_nearest_by_the_way_not_the_nearest_lava_island
     rooms = (HERE, *EAST, *islands)
     play = game()
     explored = {(HERE.x, HERE.y, 8, 8), (EAST[0].x, EAST[0].y, 8, 8)}
-    Hunter(lambda: Level(101, rooms), None, lambda area: explored).seek(play.run(), keys)
+    Hunter(lambda: Level(101, rooms), None, lambda area: explored, build=BUILD).seek(play.run(), keys)
 
     assert play.pressed() == [KEYS[BLADE_WARP]]  # a clear line: no charge, no swap
     assert play.world.player.x > 5015.0  # east along the corridor, toward EAST[1]
@@ -597,7 +606,7 @@ def test_an_explored_level_with_no_elite_stops():
 @pytest.mark.parametrize(('area', 'message'), [(109, 'in town'), (110, 'no level map for this level')])
 def test_town_and_a_missing_level_map_stop_the_step(area, message):
     play = game(foe(10, 5008.0, 5000.0), area=area)
-    hunt = Hunter(lambda: Level(101, ROOMS), None, None)
+    hunt = Hunter(lambda: Level(101, ROOMS), None, None, build=BUILD)
     with pytest.raises(Abort, match=message):
         hunt.seek(play.run(), keys)
 
@@ -1395,9 +1404,9 @@ def test_no_consume_is_tried_while_the_game_is_in_the_background():
     play = consumed(game(), False)
     play.focused = False
     run = play.run()
-    assert not hunter(play).rotation.consume_due(run, play.world, [])
+    assert not Rotation(hunter(play).buffs).consume_due(run, play.world, [])
     play.focused = True
-    assert hunter(play).rotation.consume_due(run, play.world, [])
+    assert Rotation(hunter(play).buffs).consume_due(run, play.world, [])
 
 
 def test_no_consume_with_a_hostile_near_and_one_once_it_is_dead():
