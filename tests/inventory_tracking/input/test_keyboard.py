@@ -169,3 +169,13 @@ def test_a_long_connection_leaves_the_lock_free_for_short_ones():
         module._X11_LOCK.release()
         x11.XCloseDisplay.assert_not_called()
     x11.XCloseDisplay.assert_called_once_with(123)
+
+
+def test_the_modifier_keys_are_the_codes_of_the_modifiers_the_display_has():
+    x11, xtst = libraries()
+    known = {b'Shift_L': 50, b'Shift_R': 62, b'Control_L': 37, b'Alt_L': 64}
+    x11.XStringToKeysym.side_effect = lambda name: name
+    x11.XKeysymToKeycode.side_effect = lambda display, keysym: known.get(keysym, 0)
+    with X11Keyboard(x11, xtst).connect() as keys:
+        assert keys is not None
+        assert keys.modifier_keys() == frozenset((50, 62, 37, 64))  # a modifier the keyboard lacks is left out

@@ -20,6 +20,7 @@ class FakeKeyboard:
     def __init__(self, *, results=(), held=False, display=True):
         self.results = list(results)
         self.held = held
+        self.held_codes = frozenset()
         self.display = display
         self.events = []
         self.names = []
@@ -42,7 +43,14 @@ class FakeKeyboard:
         return self.owner_pid
 
     def any_key_held(self):
-        return self.held
+        return bool(self.held_keys())
+
+    def held_keys(self):
+        """`held` (the old switch) stands for a held Shift; `held_codes` names the keys down."""
+        return self.held_codes | (frozenset((50,)) if self.held else frozenset())
+
+    def modifier_keys(self):
+        return frozenset((50, 37))  # Shift_L, Control_L of `keycodes`
 
     def _event(self, kind, key):
         self.events.append((kind, key))

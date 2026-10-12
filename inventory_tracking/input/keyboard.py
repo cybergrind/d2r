@@ -15,6 +15,11 @@ from typing import Any, Protocol
 _X11_LOCK = RLock()
 _ERROR_HANDLER = ctypes.CFUNCTYPE(ctypes.c_int, ctypes.c_void_p, ctypes.c_void_p)
 _XA_CARDINAL = 6
+# The modifiers a held key is looked for among (X11 keysym names; Caps Lock locks and is not held).
+MODIFIER_NAMES = (
+    b'Shift_L', b'Shift_R', b'Control_L', b'Control_R', b'Alt_L', b'Alt_R',
+    b'Meta_L', b'Meta_R', b'Super_L', b'Super_R', b'ISO_Level3_Shift',
+)  # fmt: skip
 
 
 class KeyConnection(Protocol):
@@ -23,6 +28,7 @@ class KeyConnection(Protocol):
     def keycodes(self, names: Sequence[bytes]) -> list[int] | None: ...
     def any_key_held(self) -> bool: ...
     def held_keys(self) -> frozenset[int]: ...
+    def modifier_keys(self) -> frozenset[int]: ...
     def focused_window_pid(self) -> int | None: ...
     def press(self, key: int) -> bool: ...
     def release(self, key: int) -> bool: ...
@@ -59,6 +65,12 @@ class X11Connection:
         return frozenset(
             index * 8 + bit for index, byte in enumerate(keymap.raw) if byte for bit in range(8) if byte >> bit & 1
         )
+
+    def modifier_keys(self) -> frozenset[int]:
+        """Key codes of the modifiers this keyboard has (MODIFIER_NAMES): held, one changes what
+        another key means to the game (a mercenary's potion is Shift + the key)."""
+        codes = (self.x11.XKeysymToKeycode(self.display, self.x11.XStringToKeysym(name)) for name in MODIFIER_NAMES)
+        return frozenset(code for code in codes if code)
 
     def _window_pid(self, window: int, atom: int) -> int | None:
         actual, count, remaining = ctypes.c_ulong(), ctypes.c_ulong(), ctypes.c_ulong()

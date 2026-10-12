@@ -184,3 +184,40 @@ def test_named_keys_go_through_the_same_guarded_attempt():
         assert attempt.send() == pytest.approx(100.2)
     assert keyboard.names == [b'Control_L']
     assert [event for event in keyboard.events if event[0] in ('press', 'release')] == [('press', 37), ('release', 37)]
+
+
+# --- what a held key refuses (user, 2026-10-13: "refuse only while a modifier is held") ----------------
+# The guard was "any key down": with the strike held on its skill key the healer sent no potion for the
+# whole hold (found in the arena, 2026-10-12: tests/inventory_tracking/scenarios/arena). A potion of the
+# mercenary's is Shift + the key, so a held Shift changes what the key means; a plain key down does not.
+PLAIN_KEY = 16  # some key that is neither a modifier nor the potion's own
+
+
+def test_a_plain_key_held_does_not_refuse_the_potion():
+    keyboard = FakeKeyboard()
+    keyboard.held_codes = frozenset((PLAIN_KEY,))
+    with sender(keyboard).attempt(TARGET, request()) as attempt:
+        assert attempt.refusal is None
+        attempt.send()
+    assert [kind for kind, _ in keyboard.events if kind == 'press']  # the key went out
+
+
+@pytest.mark.parametrize('name', [b'Shift_L', b'Control_L'])
+def test_a_modifier_held_refuses_the_potion(name):
+    keyboard = FakeKeyboard()
+    keyboard.held_codes = frozenset(keyboard.keycodes([name]))
+    with sender(keyboard).attempt(TARGET, request()) as attempt:
+        assert attempt.refusal == Refusal.KEY_HELD
+    assert keyboard.events == []
+
+
+def test_the_potions_own_key_held_refuses_it():
+    # A press and release of a key the player holds would let it go under the player's finger.
+    keyboard = FakeKeyboard()
+    with sender(keyboard).attempt(TARGET, request()) as attempt:
+        own = frozenset(attempt.codes)
+    keyboard = FakeKeyboard()
+    keyboard.held_codes = own
+    with sender(keyboard).attempt(TARGET, request()) as attempt:
+        assert attempt.refusal == Refusal.KEY_HELD
+    assert keyboard.events == []

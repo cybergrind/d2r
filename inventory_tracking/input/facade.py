@@ -70,7 +70,14 @@ class _Attempt:
         self.identity_match = owns_process(self.owner_pid, self.target.session)
         if not focused or not self.identity_match:
             return Refusal.UNFOCUSED
-        self.held = self.keys.any_key_held() if self.keys is not None else None
+        # Refused only for a key that would change the press or be let go by it: a modifier (a mercenary's
+        # potion is Shift + the key), or one of the keys about to be pressed. Any other key down is no
+        # reason (user, 2026-10-13: "refuse only while a modifier is held"): with the strike held on its
+        # skill key the healer sent nothing for the whole hold.
+        if self.keys is not None:
+            self.held = bool(self.keys.held_keys() & (self.keys.modifier_keys() | frozenset(self.codes)))
+        else:
+            self.held = None
         if self.held:
             return Refusal.KEY_HELD
         age = self.owner.clock() - self.target.sampled_at

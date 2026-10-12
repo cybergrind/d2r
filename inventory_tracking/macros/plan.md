@@ -3542,3 +3542,16 @@ moving when item isn't very valuable".
 - The golden net: `decisions.json` gained `"prized": true` in the ten pickup cases (the record's new
   field); no decision changed. Suite 5895 passed, 63 xfailed (the pinned list).
 - Not played yet.
+
+## 2026-10-13 — the healer under a held key: only a modifier refuses a potion
+
+Found in the arena on 2026-10-12 (framework plan, Stage 1): `input/facade.py` `guard` refused a potion while
+any key was down, so with the strike held on its skill key (not on the right button) `make osd` sent nothing
+for the whole hold, and each refusal cost the potion's cooldown. The guard has a reason: a mercenary's potion
+is Shift + the key, so a held Shift changes what the key means. User, 2026-10-13: "yes, refuse only while a
+modifier is held".
+- input/keyboard.py `modifier_keys` (MODIFIER_NAMES: both Shifts, Controls, Alts, Metas, Supers, level 3).
+- input/facade.py `guard`: KEY_HELD only for a modifier, or for one of the keys the potion itself presses (a
+  press and release would let the player's own key go).
+- The arena's copy of the guard (tests/.../arena/game.py `Attempt`) follows in Stage 4.1.
+- Not played yet.

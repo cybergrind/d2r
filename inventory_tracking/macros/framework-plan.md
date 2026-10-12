@@ -649,17 +649,37 @@ New for Stage 4 from the evidence: Cold Enchanted elites' death novas (14% of re
 of their own (do not stand within 12 units of one that is about to die); a third of the loss is not blows
 and is the drinking judgement's, not positioning's.
 
-## Stage 4 — safety (outline)
+## Stage 4 — safety (detailed at entry, 2026-10-13)
 
-| Task | Who | What | Measure |
+The user's go-ahead for behavior changes was given on 2026-10-12 ("do the three preparatory pieces, then start
+stage 4"). The rulings are architecture.md §4.4 (two signals: threat → posture, pressure → escalation; one
+price of a place with a caution; tactics; drinking in `serve` first, `make osd` only for the urgent; the burst
+rule in osd at 30%) and §6.2.2 (how a rule is judged).
+
+**How every task here is judged.** `python -m tests.inventory_tracking.scenarios.arena.trials --set all --seeds 30
+--jobs 8 --against tests/inventory_tracking/scenarios/arena/fixtures/TRIALS-base.json`: the verdict on 'all' and
+on each kind must not be 'worse'; a rule earns its place by 'better' on the kinds it is for (deaths or the
+worst twentieth of life lost down) without the clear time rising by more than the judge's thresholds. After a
+task is accepted its trial becomes the next task's base (`TRIALS-4.N.json`). The 13 wanted behaviors of
+`scenarios/threat/test_scenarios.py` stay the design's statement; a threat xfail that turns green is removed
+(strict). The golden net changes where behavior changes: each change of `decisions.json` or a replay log is
+regenerated in the task that causes it and its diff read by M (what changed, in how many cases, why).
+Everything new that a build could want different is a field of `BuildSettings` or a row of the build, never a
+constant in the framework.
+
+| Task | Who | What | For |
 | --- | --- | --- | --- |
-| 4.1 | C | osd burst rule (30% of the life within 1.0 s → a rejuvenation at once). `HealController.step` sees one `State` and keeps no history, and `PotionsController` runs under a ledger: where the life history lives is this task's decision, made with the user's rule that osd stays independent | `tests/.../automation/test_heal.py`; arena scene of the death with `osd` on |
-| 4.2 | H | `combat/survival.py` (pure; the module architecture.md §4.4 names), first part: life lost per second over a window, refill events from a life history, belt supply → `Pressure` | unit tests on synthetic histories |
-| 4.3 | C | `taken(spot)` in `combat/stance.py`: melee arrival, ranged line and range, blasts; `value = dealt − caution × taken`; `BuildSettings.caution` curve | goldens change only where `caution > 0`; with 0 they are identical |
-| 4.4 | C | the veto: play ahead `DIE_SECONDS` with `combat/sim/monsters.py` (production code already) as the look-ahead — the threat harness's `Survivor`, on production records | the six standing xfails, one by one |
-| 4.5 | C | the fight loop asks survival before each strike and step: reposition, break off (`Cancelled`-style preemption); latency trace of the break | arena; `scenarios/loop` reaction bound |
-| 4.6 | C | `serve` drinking: the judgement in `combat/survival.py` (pure, from `Pressure`, caution, supply) + a key pressed beside the step in hand | arena scenes with both drinkers; potions row of the scorecard |
-| 4.7 | M | host run with the user; fold evidence into `plan.md` | takes of the session cut into new scenes |
+| 4.1 | C | **The burst rule in `make osd`.** `HealingConfig.burst_share` (30) and `burst_window` (1.0 s); `HealController` keeps the last seconds of the actor's life (it sees one `State` a step today) and adds REJUVENATION to the choices when the life fell by the share within the window, whatever the level; the player only. The arena's healer is the same controller, so the rule is played there. | the death scene; `potions`, `burst` kinds with `--osd` |
+| 4.1b | C, after the user's word | **The healer under a held key.** `input/facade.py` `guard` refuses a potion while any key is down (KEY_HELD): with the strike held on its key `make osd` drinks nothing (found in the arena, Stage 1). The guard is there for a reason — a mercenary's potion is Shift + the key, so a held Shift changes what the key means. Proposed: refuse only while a *modifier* is held; another plain key down is no reason. | `make osd` as "urgent only" |
+| 4.2 | H | `combat/survival.py`, pure: `Pressure` from a life history (points and share lost over a window, refills seen: a jump is a rejuvenation, a ramp a healing potion) and the belt's supply by kind. | 4.3, 4.6 |
+| 4.3 | C | **The price of a place.** `stance.taken`'s neighbour: `harm(spot)` — the life the monsters in sight take from one standing there over the horizon, from `combat/sim/monsters.py`'s own numbers (swing rate, chance, reach tail, shots that fly, the nova's ring) — and `value = dealt − caution × harm`. `BuildSettings.caution`: 0 keeps today's choice exactly (a golden test), the build's curve raises it with the threat (`terror/danger.py` pack score) and with `Pressure`. | threat scenes; `fixed`, `burst15` |
+| 4.4 | C | **The veto.** A place where the fight played ahead a few seconds (the monster model, many short rollouts with the run's own generator) ends dead in more than a share of them is not chosen; standing where one stands is a place too. | the six standing threat xfails |
+| 4.5 | C | **The fight asks survival** before each strike and step: stay / reposition (the navigator, a `Reposition` intent: no reserve, the fastest set, landings barred near the threat) / break off (the strike let go, out of reach, said and logged). Player input still wins; the latency of a break is traced. | low-life scenes; the death scene |
+| 4.6 | C | **`serve` drinks**: the judgement in `combat/survival.py` (sustained loss, how bad, supply on the belt and on the ground) and a belt key pressed beside the step in hand; it counts drinks it did not make (`make osd`'s) as drunk. | `potions` kind; pots column |
+| 4.7 | C | **The death nova** (new, from the evidence: 14% of the recorded loss): a Cold Enchanted champion or unique about to die is not stood within its ring (about 12 units) — a tactic's `bars`/`keep`, the first real `Tactic`. | scenes with such an elite |
+| 4.8 | M + user | Played in the game; the takes of the session cut into scenes and added to the trial set; evidence into `plan.md`. | — |
+
+Order: 4.1 → 4.2 → 4.3 → 4.4 → 4.5 → 4.6 → 4.7, each on the last one's base; 4.1b when the user has answered.
 
 ## Stages 5–8 (outline)
 
