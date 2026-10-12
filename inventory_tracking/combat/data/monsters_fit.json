@@ -1,5 +1,5 @@
 {
- "about": "fitted on the train half of tests/inventory_tracking/scenarios/arena/evidence/evidence.json by evidence/fit.py; read by combat/sim/monsters.py. Do not edit by hand.",
+ "about": "fitted on the train half of tests/inventory_tracking/scenarios/arena/evidence/evidence.json and sparks.json by evidence/fit.py; read by combat/sim/monsters.py. Do not edit by hand.",
  "melee": {
   "idle": [
    545
@@ -916,6 +916,93 @@
      "value": 0.0226
     }
    }
+  }
+ },
+ "sparks": {
+  "contact": 2.5,
+  "count": {
+   "n": 51,
+   "value": 8
+  },
+  "flight": {
+   "frames": {
+    "n": 408,
+    "value": 77
+   },
+   "out": {
+    "25": {
+     "n": 282,
+     "p50": 10.0
+    },
+    "50": {
+     "n": 156,
+     "p50": 19.6
+    },
+    "70": {
+     "n": 78,
+     "p50": 27.2
+    }
+   },
+   "stride": {
+    "measured": 0.4833,
+    "n": 408
+   },
+   "turn": {
+    "n": 1774,
+    "value": 6
+   }
+  },
+  "meets": {
+   "n": 28,
+   "value": 0.3929
+  },
+  "missile": 195,
+  "ranks": [
+   "unique"
+  ],
+  "release": {
+   "deviance": 64.9,
+   "gap": {
+    "n": 20,
+    "value": 5
+   },
+   "per_hit": {
+    "deviance": 67.8,
+    "n_hits": 205,
+    "value": 0.2488
+   },
+   "rate": {
+    "free": 1.1687,
+    "n": 51,
+    "n_monsters": 67,
+    "n_seconds": 53.84,
+    "value": 0.9473
+   },
+   "window": 10
+  },
+  "shown": {
+   "minion": {
+    "hits": 855,
+    "releases": 0,
+    "struck": 296
+   },
+   "super unique": {
+    "hits": 62,
+    "releases": 19,
+    "struck": 14
+   },
+   "unique": {
+    "hits": 143,
+    "releases": 32,
+    "struck": 53
+   }
+  },
+  "takes_life": {
+   "high": 0.0,
+   "low": 0.0,
+   "n": 11,
+   "upper95": 0.238,
+   "value": 0.0
   }
  },
  "targets": {

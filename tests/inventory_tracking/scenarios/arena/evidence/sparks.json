@@ -1,0 +1,1138 @@
+{
+ "about": "tests/inventory_tracking/scenarios/arena/evidence/sparks.py: see SPARKS.md; fit on train, judge on check",
+ "check": {
+  "by_level": {
+   "75-84": {
+    "hits": 1018,
+    "monsters": 638,
+    "releasers": 29,
+    "releases": 188,
+    "seconds": 4254.4,
+    "sparks": 1504,
+    "struck": 255
+   },
+   "85 and up": {
+    "hits": 310,
+    "monsters": 215,
+    "releasers": 11,
+    "releases": 26,
+    "seconds": 1378.7,
+    "sparks": 208,
+    "struck": 66
+   },
+   "under 75": {
+    "hits": 213,
+    "monsters": 181,
+    "releasers": 10,
+    "releases": 19,
+    "seconds": 952.8,
+    "sparks": 152,
+    "struck": 94
+   }
+  },
+  "by_rank": {
+   "minion": {
+    "hits": 1051,
+    "monsters": 808,
+    "releasers": 0,
+    "releases": 0,
+    "seconds": 4584.8,
+    "sparks": 0,
+    "struck": 312
+   },
+   "plain": {
+    "hits": 120,
+    "monsters": 47,
+    "releasers": 0,
+    "releases": 0,
+    "seconds": 796.0,
+    "sparks": 0,
+    "struck": 28
+   },
+   "super unique": {
+    "hits": 124,
+    "monsters": 12,
+    "releasers": 11,
+    "releases": 29,
+    "seconds": 76.2,
+    "sparks": 232,
+    "struck": 12
+   },
+   "unique": {
+    "hits": 246,
+    "monsters": 167,
+    "releasers": 39,
+    "releases": 204,
+    "seconds": 1128.9,
+    "sparks": 1632,
+    "struck": 63
+   }
+  },
+  "by_tier": {
+   "0": {
+    "hits": 1323,
+    "monsters": 1021,
+    "releasers": 47,
+    "releases": 88,
+    "seconds": 6214.5,
+    "sparks": 704,
+    "struck": 402
+   },
+   "2": {
+    "hits": 218,
+    "monsters": 13,
+    "releasers": 3,
+    "releases": 145,
+    "seconds": 371.5,
+    "sparks": 1160,
+    "struck": 13
+   }
+  },
+  "count": {
+   "n": 235,
+   "sizes": {
+    "4": 2,
+    "8": 233
+   }
+  },
+  "drops_near": [
+   {
+    "class": "sole ranged",
+    "ended": 0,
+    "frame": 1210,
+    "level": 85,
+    "lost": 16,
+    "max_life": 1813,
+    "others": 0,
+    "rank": "super unique",
+    "resist": null,
+    "sole": 1,
+    "sparks": 1,
+    "suspects": 1,
+    "take": "20261011T001204Z-131",
+    "tier": 0
+   },
+   {
+    "class": "sole ranged",
+    "ended": 0,
+    "frame": 93,
+    "level": 69,
+    "lost": 133,
+    "max_life": 1540,
+    "others": 0,
+    "rank": "super unique",
+    "resist": null,
+    "sole": 1,
+    "sparks": 1,
+    "suspects": 1,
+    "take": "20261011T165853Z-25",
+    "tier": 0
+   }
+  ],
+  "ends": {
+   "early": 1293,
+   "on_foe": 14,
+   "on_friend": 556,
+   "on_hero": 21
+  },
+  "flight": {
+   "bends": {
+    "180": 274,
+    "45": 6166,
+    "90": 2663
+   },
+   "frames_most": 77,
+   "on_45": {
+    "n": 1271,
+    "share": 0.937
+   },
+   "out": {
+    "25": {
+     "least": 7.9,
+     "most": 12.9,
+     "n": 1004,
+     "p10": 9.1,
+     "p50": 10.0,
+     "p90": 11.3
+    },
+    "50": {
+     "least": 16.5,
+     "most": 23.6,
+     "n": 767,
+     "p10": 18.1,
+     "p50": 19.9,
+     "p90": 20.8
+    },
+    "70": {
+     "least": 23.8,
+     "most": 32.0,
+     "n": 643,
+     "p10": 26.0,
+     "p50": 27.4,
+     "p90": 29.2
+    }
+   },
+   "out_whole": {
+    "least": 25.6,
+    "most": 28261.1,
+    "n": 575,
+    "p10": 27.9,
+    "p50": 29.5,
+    "p90": 31.5
+   },
+   "runs": {
+    "1": 575,
+    "10": 55,
+    "11": 231,
+    "12": 435,
+    "13": 3,
+    "14": 6,
+    "15": 4,
+    "16": 31,
+    "17": 52,
+    "18": 66,
+    "19": 10,
+    "2": 48,
+    "20": 164,
+    "3": 119,
+    "4": 1401,
+    "5": 1231,
+    "6": 2591,
+    "7": 53,
+    "8": 474,
+    "9": 73
+   },
+   "sparks": 1872,
+   "stride": 0.4818,
+   "stride_n": 1868,
+   "toward": {
+    "n": 1265,
+    "share": 0.144
+   },
+   "turn": 6,
+   "turns": 7804,
+   "whole": 575
+  },
+  "hero_dead": 127,
+  "life": {
+   "any": 1,
+   "arrivals": 21,
+   "by_level": {
+    "75-84": {
+     "any": 1,
+     "arrivals": 9,
+     "fell": 1,
+     "points_any": [
+      13
+     ],
+     "points_sole": [],
+     "shared": 0,
+     "sole": 0
+    },
+    "85 and up": {
+     "any": 0,
+     "arrivals": 3,
+     "fell": 0,
+     "points_any": [],
+     "points_sole": [],
+     "shared": 0,
+     "sole": 0
+    },
+    "under 75": {
+     "any": 0,
+     "arrivals": 9,
+     "fell": 0,
+     "points_any": [],
+     "points_sole": [],
+     "shared": 0,
+     "sole": 0
+    }
+   },
+   "by_rank": {
+    "super unique": {
+     "any": 0,
+     "arrivals": 10,
+     "fell": 0,
+     "points_any": [],
+     "points_sole": [],
+     "shared": 0,
+     "sole": 0
+    },
+    "unique": {
+     "any": 1,
+     "arrivals": 11,
+     "fell": 1,
+     "points_any": [
+      13
+     ],
+     "points_sole": [],
+     "shared": 0,
+     "sole": 0
+    }
+   },
+   "by_tier": {
+    "0": {
+     "any": 1,
+     "arrivals": 20,
+     "fell": 1,
+     "points_any": [
+      13
+     ],
+     "points_sole": [],
+     "shared": 0,
+     "sole": 0
+    },
+    "2": {
+     "any": 0,
+     "arrivals": 1,
+     "fell": 0,
+     "points_any": [],
+     "points_sole": [],
+     "shared": 0,
+     "sole": 0
+    }
+   },
+   "fell": 1,
+   "high": 0.0476,
+   "levels": {
+    "least": 69,
+    "most": 85,
+    "n": 21,
+    "p10": 69,
+    "p50": 75,
+    "p90": 85
+   },
+   "low": 0.0,
+   "points_any": [
+    13
+   ],
+   "points_sole": [],
+   "shared": 0,
+   "sole": 0,
+   "upper95": null
+  },
+  "owner_not_charged": 0,
+  "reach": {
+   "all": {
+    "from": 0.0,
+    "on_friend": 72,
+    "on_hero": 21,
+    "per_release": 0.198,
+    "releases": 106,
+    "sparks": 848,
+    "to": 40.0,
+    "within": 41
+   },
+   "away": {
+    "least": 1.4,
+    "most": 25.5,
+    "n": 106,
+    "p10": 8.3,
+    "p50": 16.3,
+    "p90": 20.4
+   },
+   "bands": [
+    {
+     "from": 0.0,
+     "on_friend": 0,
+     "on_hero": 6,
+     "per_release": 3.0,
+     "releases": 2,
+     "sparks": 16,
+     "to": 4.0,
+     "within": 16
+    },
+    {
+     "from": 4.0,
+     "on_friend": 3,
+     "on_hero": 3,
+     "per_release": 0.6,
+     "releases": 5,
+     "sparks": 40,
+     "to": 8.0,
+     "within": 7
+    },
+    {
+     "from": 8.0,
+     "on_friend": 8,
+     "on_hero": 5,
+     "per_release": 0.2,
+     "releases": 25,
+     "sparks": 200,
+     "to": 12.0,
+     "within": 10
+    },
+    {
+     "from": 12.0,
+     "on_friend": 7,
+     "on_hero": 4,
+     "per_release": 0.211,
+     "releases": 19,
+     "sparks": 152,
+     "to": 16.0,
+     "within": 4
+    },
+    {
+     "from": 16.0,
+     "on_friend": 30,
+     "on_hero": 3,
+     "per_release": 0.07,
+     "releases": 43,
+     "sparks": 344,
+     "to": 20.0,
+     "within": 3
+    },
+    {
+     "from": 20.0,
+     "on_friend": 24,
+     "on_hero": 0,
+     "per_release": 0.0,
+     "releases": 12,
+     "sparks": 96,
+     "to": 40.0,
+     "within": 1
+    }
+   ],
+   "meets": {
+    "n": 41,
+    "value": 0.5122
+   },
+   "releases": 106
+  },
+  "release": {
+   "all": {
+    "hits": 370,
+    "monsters": 75,
+    "per_hit": {
+     "deviance": 462.5,
+     "value": 0.6297
+    },
+    "per_second": [
+     {
+      "deviance": 400.8,
+      "struck_seconds": 58.04,
+      "value": 4.0145,
+      "window": 5
+     },
+     {
+      "deviance": 358.6,
+      "struck_seconds": 96.52,
+      "value": 2.414,
+      "window": 10
+     },
+     {
+      "deviance": 330.0,
+      "struck_seconds": 126.28,
+      "value": 1.8451,
+      "window": 15
+     },
+     {
+      "deviance": 298.0,
+      "struck_seconds": 178.28,
+      "value": 1.3069,
+      "window": 25
+     }
+    ],
+    "per_span": {
+     "span_seconds": 214.2,
+     "value": 1.088
+    },
+    "releases": 233,
+    "releases_unstruck": 0
+   },
+   "by_gap": {
+    "1-4": [
+     130,
+     9
+    ],
+    "10-24": [
+     44,
+     12
+    ],
+    "25+": [
+     48,
+     17
+    ],
+    "5-9": [
+     73,
+     4
+    ],
+    "first": [
+     75,
+     31
+    ]
+   },
+   "gap": {
+    "least": 2,
+    "most": 285,
+    "n": 183,
+    "p10": 10,
+    "p50": 18,
+    "p90": 42,
+    "usual": 18
+   },
+   "herald": {
+    "hits": 67,
+    "monsters": 3,
+    "per_hit": {
+     "deviance": 163.2,
+     "value": 2.1642
+    },
+    "per_second": [
+     {
+      "deviance": 128.6,
+      "struck_seconds": 11.44,
+      "value": 12.6748,
+      "window": 5
+     },
+     {
+      "deviance": 95.0,
+      "struck_seconds": 19.48,
+      "value": 7.4435,
+      "window": 10
+     },
+     {
+      "deviance": 71.6,
+      "struck_seconds": 26.0,
+      "value": 5.5769,
+      "window": 15
+     },
+     {
+      "deviance": 46.6,
+      "struck_seconds": 37.96,
+      "value": 3.8198,
+      "window": 25
+     }
+    ],
+    "per_span": {
+     "span_seconds": 96.5,
+     "value": 1.5029
+    },
+    "releases": 145,
+    "releases_unstruck": 0
+   },
+   "mode_at": {
+    "1": 68,
+    "14": 5,
+    "2": 24,
+    "3": 17,
+    "4": 113,
+    "5": 1,
+    "6": 2,
+    "8": 1,
+    "None": 4
+   },
+   "since": {
+    "0": 69,
+    "1-4": 21,
+    "10-24": 27,
+    "25+": 78,
+    "5-9": 7,
+    "no hit seen before": 33
+   },
+   "tier 0": {
+    "hits": 303,
+    "monsters": 72,
+    "per_hit": {
+     "deviance": 77.5,
+     "value": 0.2904
+    },
+    "per_second": [
+     {
+      "deviance": 71.5,
+      "struck_seconds": 46.6,
+      "value": 1.8884,
+      "window": 5
+     },
+     {
+      "deviance": 68.8,
+      "struck_seconds": 77.04,
+      "value": 1.1423,
+      "window": 10
+     },
+     {
+      "deviance": 68.4,
+      "struck_seconds": 100.28,
+      "value": 0.8775,
+      "window": 15
+     },
+     {
+      "deviance": 69.6,
+      "struck_seconds": 140.32,
+      "value": 0.6271,
+      "window": 25
+     }
+    ],
+    "per_span": {
+     "span_seconds": 117.7,
+     "value": 0.7478
+    },
+    "releases": 88,
+    "releases_unstruck": 0
+   }
+  },
+  "releases": 235,
+  "seconds": 9366.8,
+  "sparks": 1872,
+  "takes": 344,
+  "takes_with_sparks": 47,
+  "unowned": 2
+ },
+ "constants": {
+  "after": 3,
+  "early": 5,
+  "end_on": 2.5,
+  "same": 1,
+  "windows": [
+   5,
+   10,
+   15,
+   25
+  ]
+ },
+ "missile": 195,
+ "split": "split.json",
+ "train": {
+  "by_level": {
+   "75-84": {
+    "hits": 486,
+    "monsters": 539,
+    "releasers": 12,
+    "releases": 20,
+    "seconds": 3764.2,
+    "sparks": 160,
+    "struck": 174
+   },
+   "85 and up": {
+    "hits": 300,
+    "monsters": 191,
+    "releasers": 6,
+    "releases": 11,
+    "seconds": 1052.9,
+    "sparks": 88,
+    "struck": 66
+   },
+   "under 75": {
+    "hits": 274,
+    "monsters": 326,
+    "releasers": 13,
+    "releases": 20,
+    "seconds": 1801.2,
+    "sparks": 160,
+    "struck": 123
+   }
+  },
+  "by_rank": {
+   "minion": {
+    "hits": 855,
+    "monsters": 877,
+    "releasers": 0,
+    "releases": 0,
+    "seconds": 5497.4,
+    "sparks": 0,
+    "struck": 296
+   },
+   "super unique": {
+    "hits": 62,
+    "monsters": 14,
+    "releasers": 10,
+    "releases": 19,
+    "seconds": 72.7,
+    "sparks": 152,
+    "struck": 14
+   },
+   "unique": {
+    "hits": 143,
+    "monsters": 165,
+    "releasers": 21,
+    "releases": 32,
+    "seconds": 1048.2,
+    "sparks": 256,
+    "struck": 53
+   }
+  },
+  "by_tier": {
+   "0": {
+    "hits": 1012,
+    "monsters": 1049,
+    "releasers": 30,
+    "releases": 50,
+    "seconds": 6600.2,
+    "sparks": 400,
+    "struck": 356
+   },
+   "1": {
+    "hits": 48,
+    "monsters": 7,
+    "releasers": 1,
+    "releases": 1,
+    "seconds": 18.1,
+    "sparks": 8,
+    "struck": 7
+   }
+  },
+  "count": {
+   "n": 51,
+   "sizes": {
+    "8": 51
+   }
+  },
+  "drops_near": [
+   {
+    "class": "nova/explosion",
+    "ended": 0,
+    "frame": 610,
+    "level": 75,
+    "lost": 59,
+    "max_life": 1783,
+    "others": 0,
+    "rank": "unique",
+    "resist": null,
+    "sole": 1,
+    "sparks": 2,
+    "suspects": 1,
+    "take": "20261011T191333Z-25",
+    "tier": 0
+   }
+  ],
+  "ends": {
+   "early": 352,
+   "on_foe": 5,
+   "on_friend": 27,
+   "on_hero": 11
+  },
+  "flight": {
+   "bends": {
+    "180": 80,
+    "45": 1374,
+    "90": 676
+   },
+   "frames_most": 77,
+   "on_45": {
+    "n": 351,
+    "share": 0.886
+   },
+   "out": {
+    "25": {
+     "least": 8.0,
+     "most": 21279.2,
+     "n": 282,
+     "p10": 8.7,
+     "p50": 10.0,
+     "p90": 11.4
+    },
+    "50": {
+     "least": 16.8,
+     "most": 24.9,
+     "n": 156,
+     "p10": 18.2,
+     "p50": 19.6,
+     "p90": 21.5
+    },
+    "70": {
+     "least": 23.9,
+     "most": 32.2,
+     "n": 78,
+     "p10": 25.5,
+     "p50": 27.2,
+     "p90": 29.0
+    }
+   },
+   "out_whole": {
+    "least": 25.4,
+    "most": 31.1,
+    "n": 52,
+    "p10": 27.2,
+    "p50": 29.1,
+    "p90": 30.7
+   },
+   "runs": {
+    "1": 171,
+    "10": 27,
+    "11": 79,
+    "12": 120,
+    "13": 7,
+    "14": 1,
+    "16": 11,
+    "17": 25,
+    "18": 34,
+    "19": 1,
+    "2": 37,
+    "20": 3,
+    "3": 85,
+    "4": 303,
+    "5": 308,
+    "6": 436,
+    "7": 29,
+    "8": 58,
+    "9": 21
+   },
+   "sparks": 408,
+   "stride": 0.4833,
+   "stride_n": 408,
+   "toward": {
+    "n": 351,
+    "share": 0.094
+   },
+   "turn": 6,
+   "turns": 1774,
+   "whole": 52
+  },
+  "hero_dead": 0,
+  "life": {
+   "any": 0,
+   "arrivals": 11,
+   "by_level": {
+    "75-84": {
+     "any": 0,
+     "arrivals": 5,
+     "fell": 0,
+     "points_any": [],
+     "points_sole": [],
+     "shared": 0,
+     "sole": 0
+    },
+    "85 and up": {
+     "any": 0,
+     "arrivals": 5,
+     "fell": 0,
+     "points_any": [],
+     "points_sole": [],
+     "shared": 0,
+     "sole": 0
+    },
+    "under 75": {
+     "any": 0,
+     "arrivals": 1,
+     "fell": 0,
+     "points_any": [],
+     "points_sole": [],
+     "shared": 0,
+     "sole": 0
+    }
+   },
+   "by_rank": {
+    "super unique": {
+     "any": 0,
+     "arrivals": 1,
+     "fell": 0,
+     "points_any": [],
+     "points_sole": [],
+     "shared": 0,
+     "sole": 0
+    },
+    "unique": {
+     "any": 0,
+     "arrivals": 10,
+     "fell": 0,
+     "points_any": [],
+     "points_sole": [],
+     "shared": 0,
+     "sole": 0
+    }
+   },
+   "by_tier": {
+    "0": {
+     "any": 0,
+     "arrivals": 10,
+     "fell": 0,
+     "points_any": [],
+     "points_sole": [],
+     "shared": 0,
+     "sole": 0
+    },
+    "1": {
+     "any": 0,
+     "arrivals": 1,
+     "fell": 0,
+     "points_any": [],
+     "points_sole": [],
+     "shared": 0,
+     "sole": 0
+    }
+   },
+   "fell": 0,
+   "high": 0.0,
+   "levels": {
+    "least": 69,
+    "most": 85,
+    "n": 11,
+    "p10": 75,
+    "p50": 83,
+    "p90": 85
+   },
+   "low": 0.0,
+   "points_any": [],
+   "points_sole": [],
+   "shared": 0,
+   "sole": 0,
+   "upper95": 0.238
+  },
+  "owner_not_charged": 0,
+  "reach": {
+   "all": {
+    "from": 0.0,
+    "on_friend": 27,
+    "on_hero": 11,
+    "per_release": 0.216,
+    "releases": 51,
+    "sparks": 408,
+    "to": 40.0,
+    "within": 28
+   },
+   "away": {
+    "least": 1.4,
+    "most": 38.3,
+    "n": 51,
+    "p10": 8.9,
+    "p50": 15.0,
+    "p90": 19.5
+   },
+   "bands": [
+    {
+     "from": 0.0,
+     "on_friend": 0,
+     "on_hero": 2,
+     "per_release": 2.0,
+     "releases": 1,
+     "sparks": 8,
+     "to": 4.0,
+     "within": 8
+    },
+    {
+     "from": 4.0,
+     "on_friend": 0,
+     "on_hero": 4,
+     "per_release": 1.333,
+     "releases": 3,
+     "sparks": 24,
+     "to": 8.0,
+     "within": 5
+    },
+    {
+     "from": 8.0,
+     "on_friend": 5,
+     "on_hero": 1,
+     "per_release": 0.091,
+     "releases": 11,
+     "sparks": 88,
+     "to": 12.0,
+     "within": 3
+    },
+    {
+     "from": 12.0,
+     "on_friend": 11,
+     "on_hero": 4,
+     "per_release": 0.222,
+     "releases": 18,
+     "sparks": 144,
+     "to": 16.0,
+     "within": 8
+    },
+    {
+     "from": 16.0,
+     "on_friend": 10,
+     "on_hero": 0,
+     "per_release": 0.0,
+     "releases": 16,
+     "sparks": 128,
+     "to": 20.0,
+     "within": 3
+    },
+    {
+     "from": 20.0,
+     "on_friend": 1,
+     "on_hero": 0,
+     "per_release": 0.0,
+     "releases": 2,
+     "sparks": 16,
+     "to": 40.0,
+     "within": 1
+    }
+   ],
+   "meets": {
+    "n": 28,
+    "value": 0.3929
+   },
+   "releases": 51
+  },
+  "release": {
+   "all": {
+    "hits": 205,
+    "monsters": 67,
+    "per_hit": {
+     "deviance": 67.8,
+     "value": 0.2488
+    },
+    "per_second": [
+     {
+      "deviance": 66.2,
+      "struck_seconds": 31.76,
+      "value": 1.6058,
+      "window": 5
+     },
+     {
+      "deviance": 64.9,
+      "struck_seconds": 53.84,
+      "value": 0.9473,
+      "window": 10
+     },
+     {
+      "deviance": 65.3,
+      "struck_seconds": 71.36,
+      "value": 0.7147,
+      "window": 15
+     },
+     {
+      "deviance": 67.0,
+      "struck_seconds": 103.2,
+      "value": 0.4942,
+      "window": 25
+     }
+    ],
+    "per_span": {
+     "span_seconds": 68.8,
+     "value": 0.7408
+    },
+    "releases": 51,
+    "releases_unstruck": 0
+   },
+   "by_gap": {
+    "1-4": [
+     75,
+     3
+    ],
+    "10-24": [
+     21,
+     2
+    ],
+    "25+": [
+     9,
+     2
+    ],
+    "5-9": [
+     33,
+     2
+    ],
+    "first": [
+     67,
+     15
+    ]
+   },
+   "gap": {
+    "least": 5,
+    "most": 150,
+    "n": 20,
+    "p10": 8,
+    "p50": 21,
+    "p90": 46,
+    "usual": 8
+   },
+   "herald": {
+    "hits": 15,
+    "monsters": 1,
+    "per_hit": {
+     "deviance": 0.0,
+     "value": 0.0667
+    },
+    "per_second": [
+     {
+      "deviance": 0.0,
+      "struck_seconds": 2.08,
+      "value": 0.4808,
+      "window": 5
+     },
+     {
+      "deviance": 0.0,
+      "struck_seconds": 2.88,
+      "value": 0.3472,
+      "window": 10
+     },
+     {
+      "deviance": 0.0,
+      "struck_seconds": 3.28,
+      "value": 0.3049,
+      "window": 15
+     },
+     {
+      "deviance": 0.0,
+      "struck_seconds": 3.8,
+      "value": 0.2632,
+      "window": 25
+     }
+    ],
+    "per_span": {
+     "span_seconds": 3.2,
+     "value": 0.3125
+    },
+    "releases": 1,
+    "releases_unstruck": 0
+   },
+   "mode_at": {
+    "1": 12,
+    "14": 1,
+    "2": 9,
+    "3": 17,
+    "4": 6,
+    "5": 3,
+    "6": 1,
+    "7": 1,
+    "8": 1
+   },
+   "since": {
+    "0": 22,
+    "1-4": 14,
+    "10-24": 4,
+    "25+": 5,
+    "5-9": 3,
+    "no hit seen before": 3
+   },
+   "tier 0": {
+    "hits": 190,
+    "monsters": 66,
+    "per_hit": {
+     "deviance": 64.8,
+     "value": 0.2632
+    },
+    "per_second": [
+     {
+      "deviance": 63.8,
+      "struck_seconds": 29.68,
+      "value": 1.6846,
+      "window": 5
+     },
+     {
+      "deviance": 63.4,
+      "struck_seconds": 50.96,
+      "value": 0.9812,
+      "window": 10
+     },
+     {
+      "deviance": 64.3,
+      "struck_seconds": 68.08,
+      "value": 0.7344,
+      "window": 15
+     },
+     {
+      "deviance": 66.5,
+      "struck_seconds": 99.4,
+      "value": 0.503,
+      "window": 25
+     }
+    ],
+    "per_span": {
+     "span_seconds": 65.6,
+     "value": 0.7617
+    },
+    "releases": 50,
+    "releases_unstruck": 0
+   }
+  },
+  "releases": 51,
+  "seconds": 9730.2,
+  "sparks": 408,
+  "takes": 330,
+  "takes_with_sparks": 26,
+  "unowned": 0
+ }
+}

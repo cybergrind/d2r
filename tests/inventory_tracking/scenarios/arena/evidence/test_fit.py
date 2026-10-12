@@ -6,7 +6,15 @@ import json
 import pytest
 
 from tests.inventory_tracking.scenarios.arena.evidence import fit as fitting, refit_check
-from tests.inventory_tracking.scenarios.arena.evidence.fit import EVIDENCE, FITTED, curve, cut_frames, middle, rest
+from tests.inventory_tracking.scenarios.arena.evidence.fit import (
+    EVIDENCE,
+    FITTED,
+    SPARKS,
+    curve,
+    cut_frames,
+    middle,
+    rest,
+)
 
 
 @pytest.fixture(scope='module')
@@ -14,14 +22,20 @@ def evidence() -> dict:
     return json.loads(EVIDENCE.read_text())
 
 
-def test_the_fit_in_the_repository_is_what_the_generator_writes_from_the_train_half(evidence):
+@pytest.fixture(scope='module')
+def sparks() -> dict:
+    return json.loads(SPARKS.read_text())
+
+
+def test_the_fit_in_the_repository_is_what_the_generator_writes_from_the_train_half(evidence, sparks):
     """Nothing in data/monsters_fit.json is typed by hand: the generator gives the same file again.
     (The missile speeds are the file's own here: the game's tables are not in git.)"""
     written = json.loads(FITTED.read_text())
-    assert fitting.fit(evidence, fitting.kept_speeds(FITTED)) == written
+    assert fitting.fit(evidence, fitting.kept_speeds(FITTED), sparks) == written
 
 
-def test_the_fit_reads_the_train_half_only(evidence):
+def test_the_fit_reads_the_train_half_only(evidence, sparks):
+    lone = {key: value for key, value in sparks.items() if key != 'check'}
     without = {key: value for key, value in evidence.items() if key not in ('check', 'all')}
     without['types'] = {
         txt: {part: ({**found, 'check': None} if isinstance(found, dict) and 'check' in found else found)
@@ -29,7 +43,40 @@ def test_the_fit_reads_the_train_half_only(evidence):
         for txt, row in evidence['types'].items()
     }  # fmt: skip
     without['big_drops'] = [drop for drop in evidence['big_drops'] if drop['half'] == 'train']
-    assert fitting.fit(without, fitting.kept_speeds(FITTED)) == json.loads(FITTED.read_text())
+    assert fitting.fit(without, fitting.kept_speeds(FITTED), lone) == json.loads(FITTED.read_text())
+
+
+def test_the_sparks_are_fitted_on_the_train_half_of_their_own_evidence(sparks):
+    """sparks.json's train half and nothing else: a check half made up gives the same fit, and each number
+    is one the evidence holds or is counted from it."""
+    train = sparks['train']
+    found = fitting.sparks(sparks)
+    other = {**sparks, 'check': {'by_rank': {'minion': {'releases': 99}}, 'life': {'low': 1.0, 'high': 1.0}}}
+    assert fitting.sparks(other) == found
+    assert found['ranks'] == ['unique']  # a unique and a super unique let sparks go; the model calls both unique
+    assert found['shown']['minion']['releases'] == 0 < found['shown']['minion']['struck']
+    relation = train['release']['all']
+    best = min(relation['per_second'], key=lambda row: row['deviance'])
+    assert best['deviance'] < relation['per_hit']['deviance']  # per second of being struck is the better relation
+    assert (found['release']['rate']['value'], found['release']['window']) == (best['value'], best['window'])
+    assert found['release']['rate']['n'] == relation['releases']
+    assert found['release']['rate']['free'] > best['value']  # the gap after a release is no time to release in
+    assert found['release']['gap']['value'] == train['release']['gap']['least']
+    assert found['count'] == {'value': 8, 'n': train['releases']}
+    assert found['flight']['frames']['value'] == train['flight']['frames_most']
+    assert found['meets'] == train['reach']['meets']
+    life = train['life']
+    assert found['takes_life']['n'] == life['arrivals'] == train['reach']['all']['on_hero']
+    assert found['takes_life']['value'] == middle(life['low'], life['high'])
+    # None of the train half's arrivals took life: the fit says so, and says how little that proves.
+    assert (found['takes_life']['value'], found['takes_life']['upper95']) == (0.0, life['upper95'])
+    assert 0.2 < found['takes_life']['upper95'] < 0.3
+
+
+def test_the_commonest_of_counts_written_as_text():
+    assert fitting.commonest({'8': 51}) == 8
+    assert fitting.commonest({'4': 2, '8': 233}) == 8
+    assert fitting.commonest({'4': 3, '8': 3}) == 4
 
 
 def test_a_type_under_the_evidences_thresholds_has_no_row(evidence):
@@ -91,7 +138,7 @@ def test_a_row_is_judged_by_after_over_measured():
 
 
 def test_the_check_names_every_mechanism_and_says_what_the_model_was_before(rows):
-    assert {row.mechanism for row in rows} == {'melee', 'target', 'ranged', 'nova', 'size', 'big', 'death'}
+    assert {row.mechanism for row in rows} == {'melee', 'target', 'ranged', 'nova', 'size', 'big', 'death', 'sparks'}
     life = named(rows, 'pooled row', 'life a second in reach')
     assert life.before > 50 > life.after > 1  # every swing landed before the refit
     shots = named(rows, 'pooled row', 'shots a second')
@@ -129,6 +176,24 @@ def test_the_model_can_deal_the_blow_of_the_recorded_death(rows):
     assert row.before == 0.0
     assert 0.0 < row.after < 0.1  # seldom, but no longer never
     assert 'reach up to 12 units' in row.note
+
+
+def test_the_spark_rows_say_what_the_model_was_and_is(rows):
+    rate = named(rows, 'no Herald')
+    assert rate.before > 2 > rate.after > 0.5  # a third of the struck frames before; the fitted rate now
+    assert not rate.outside
+    reach = named(rows, 'sparks ending on the character per release')
+    assert reach.before > reach.after > 0
+    assert not reach.outside
+    assert not named(rows, 'in reach of the character that end on it').outside
+    assert not named(rows, 'units out of a spark').outside
+    life = named(rows, 'sparks ending on the character that takes life')
+    assert (life.before, life.after) == (1.0, 0.0)  # every spark took its points; none does
+    assert 'train: 0 of 11' in life.note
+    toll = named(rows, 'median distance: life a second')
+    assert toll.before > 10
+    assert toll.after == 0.0
+    assert named(rows, 'points of a spark').ratio is None  # no spark took life: nothing to judge the size by
 
 
 def test_the_check_is_the_same_twice(evidence):

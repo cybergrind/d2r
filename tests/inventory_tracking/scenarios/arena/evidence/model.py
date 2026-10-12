@@ -10,22 +10,30 @@ each is read off the model's own parameters).
 - a ranged monster lands one shot every SHOT_FRAMES on a target within RANGED_REACH in a clear
   line (scenarios/arena/mobs.py `Horde._shoot`): no missile flies, none misses;
 - what the character takes of either is cut by its weapon set's resistances: the main set's as
-  cut.py MAIN has them (fire, cold and lightning at the cap, physical not known and let through whole).
+  cut.py MAIN has them (fire, cold and lightning at the cap, physical not known and let through whole);
+- the sparks of a Lightning Enchanted monster: SPARKS_BEFORE is how they were played before they were
+  fitted, `sparks` what the fit and the missile's row give now.
 """
 
 from collections.abc import Mapping, Sequence
 from typing import Any
 
+from inventory_tracking.combat.mechanics.tables import tables
 from inventory_tracking.combat.sim.monsters import (
     CHAMPION_FLAG,
+    ELEMENTS,
     HIT_FRAME,
+    LIGHTNING,
     PHYSICAL,
     REACH,
+    SPARK_MISSILE,
     STRIKE_FRAMES,
     SUPER_FLAG,
     UNIQUE_FLAG,
     Traits,
     Walker,
+    fitted,
+    spark_points,
 )
 from inventory_tracking.combat.timeline import GAME_RATE
 from inventory_tracking.macros.world import MINION_FLAG
@@ -67,6 +75,60 @@ def taken(parts: Mapping[str, float], resist: Mapping[str, float] | None = None)
     kind the set does not name: all of it), as mobs.py `Mobs.tick` does. Default: the main set."""
     resist = MAIN.resist if resist is None else resist
     return sum(points * resist.get(kind, 1.0) for kind, points in parts.items())
+
+
+# The sparks of a Lightning Enchanted monster as sim/monsters.py played them before they were fitted
+# (its constants at 34b2a79, 2026-10-12, from the Herald of Tower Cellar 5): what evidence/sparks.py and
+# refit_check.py lay the takes and the refit against.
+SPARKS_BEFORE: dict[str, Any] = {
+    'ranks': ('plain', 'minion', 'champion', 'unique'),  # whoever carried the enchantment
+    'count': 8,
+    'chance': 0.33,  # of a release at a frame the monster is struck in
+    'gap': 10,  # frames at least between two releases
+    'frames': 77,
+    'turn': 6,
+    'contact': 2.0,
+    'meets': 1.0,  # a spark within `contact` of the character ended on it
+    'takes_life': 1.0,  # and took its points
+}
+# Struck in every frame, that model let sparks go every `gap` frames and the wait for the roll.
+# evidence/refit_check.py `spark_plays` with that module (`git show 34b2a79:inventory_tracking/combat/sim/
+# monsters.py`) against sparks.json's check half, 2026-10-12: what the spark rows' `before` is.
+SPARKS_BEFORE['played'] = {
+    'level': 75,
+    'rate': 2.06,
+    'per_release': 0.491,
+    'per_release_bands': {'0-4': 3.2, '4-8': 1.022, '8-12': 0.599, '12-16': 0.42, '16-20': 0.348, '20-40': 0.217},
+    'life': 29.65,
+    'life_near': 130.15,
+    'out': 27.9,
+    'points': 37.2,
+}
+SPARKS_BEFORE['rate'] = round(
+    GAME_RATE / (SPARKS_BEFORE['gap'] + (1 - SPARKS_BEFORE['chance']) / SPARKS_BEFORE['chance']), 2
+)
+
+
+def sparks(level: int) -> dict[str, Any]:
+    """The model's sparks at present, read off its parameters (data/monsters_fit.json `sparks` and the
+    missile's row), with a spark's points at monster `level`, raw and as the main set takes them."""
+    found = fitted()['sparks']
+    raw = spark_points(level)
+    return {
+        'ranks': tuple(found['ranks']),
+        'count': found['count']['value'],
+        'rate': found['release']['rate']['value'],  # releases a second of being struck
+        'window': found['release']['window'],
+        'gap': found['release']['gap']['value'],
+        'frames': found['flight']['frames']['value'],
+        'turn': found['flight']['turn']['value'],
+        'stride': float(tables()['missiles'][str(SPARK_MISSILE)]['Vel']) / GAME_RATE,
+        'contact': found['contact'],
+        'meets': found['meets']['value'],
+        'takes_life': found['takes_life']['value'],
+        'points_raw': raw,
+        'points': round(taken({ELEMENTS[LIGHTNING]: raw}), 1),
+    }
 
 
 def blow(txt: int, level: int | None, flags: int = 0, mods: Sequence[int] = (), tier: int = 0) -> dict[str, Any]:

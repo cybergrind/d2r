@@ -13,7 +13,7 @@ import statistics
 import pytest
 
 from inventory_tracking.combat.hurts import ATTACK_MODES, hurts, missile_point, sole
-from inventory_tracking.combat.sim.monsters import SPARK_FRAMES, SPARKS, Pack, Traits, Walker
+from inventory_tracking.combat.sim.monsters import Pack, Traits, Walker, fitted
 from inventory_tracking.combat.takes import Take
 from tests.inventory_tracking.scenarios.battle import tower_cellar5 as battle
 
@@ -24,6 +24,10 @@ UNIQUE, MINION = 0x08, 0x10
 AURA, STONE_SKIN, LIGHTNING = 30, 28, 17
 TIER_STAT = '367'  # itemstatcost heraldtier
 FAR = (0.0, 0.0)
+# The model's sparks, fitted on the train half of all takes since 2026-10-12 (data/monsters_fit.json;
+# this take is in the check half). Before, they were constants fitted to this take, of the same values.
+SPARKS = fitted()['sparks']['count']['value']
+SPARK_FRAMES = fitted()['sparks']['flight']['frames']['value']
 
 
 @functools.cache
@@ -76,7 +80,7 @@ def test_the_heralds_sparks_come_eight_at_a_time_and_fly_as_the_models_do():
 
     pack = Pack([Walker(1, BLOOD_CLAN, 100.0, 100.0, flags=UNIQUE, mods=(LIGHTNING,))], seed=2)
     models: dict[int, list[tuple[int, tuple[float, float]]]] = {}
-    for frame in range(400):
+    for frame in range(1200):  # the fitted releases are fewer than the take's a second: played longer
         pack.struck(1, frame)
         pack.step(frame, [FAR])
         for spark in pack.sparks:

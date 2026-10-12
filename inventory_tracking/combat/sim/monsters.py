@@ -13,7 +13,8 @@ show. Three kinds of numbers are in it, and each is said where it is set:
   tests/inventory_tracking/scenarios/arena/evidence/fit.py from that directory's evidence.json and
   never by hand; EVIDENCE.md there is the measurement): how often a monster in reach swings, how many
   swings are cut short, how often a swing or a shot takes life, whom a monster goes for, how its
-  blows are spread in size, how far it reaches, how a shooter shoots, the nova of a death. Every
+  blows are spread in size, how far it reaches, how a shooter shoots, the nova of a death, the
+  sparks of a Lightning Enchanted one (from sparks.json of the same directory). Every
   number there has its n; a type with too little of its own (the evidence's thresholds: 30 s in
   reach or 10 blows alone; 20 shots) uses the pooled row. 330 takes, 9,730 s, one character.
 
@@ -101,13 +102,31 @@ which one ring does not reach at any level seen). A Fire Enchanted death's
 explosion is in the takes at a median under 10 points and is not modelled; a Lightning Enchanted
 death shows nothing.
 
-A Lightning Enchanted monster lets sparks go when it is struck (`Pack.struck`). Measured on the Herald
-of Tower Cellar 5 (88 sparks of 11 releases; combat/plan.md, 2026-10-12): 8 to a release, one to each
-45 degrees; 0.48 units a frame (missiles.txt `lightunique` Vel 12: 12 units a second); a turn of 45
-degrees to either side of its own direction about every 6 frames, so 9.7 units a second outward; gone
-after 77 frames, 26 to 31 units out, or on the first body in its way. A release came in a third of
-the frames the Herald was seen to lose life in, never less than 0.4 s after the one before. A
-spark's points are the missile's `EMin` and per-level columns at the monster's level: 2 x level - 1.
+**Sparks** (read and fitted, `sparks`; SPARKS.md beside the evidence is the measurement: 51 releases
+and 408 sparks on the train half). A Lightning Enchanted unique or super unique lets sparks of
+`lightunique` (195) go when it is struck (`Pack.struck`); its minions and a plain monster carrying
+the enchantment let none go (0 releases of 296 minions seen struck, 51 of 31 of the 67 leaders).
+A release comes with the time the monster is being struck, not with each hit: a hit stands for the
+frames since the hit before, 10 at most, and a second of that time brings 0.95 releases (51 in
+53.8 s; a chance per hit, 0.25 of 205, gives the monsters' counts worse, and hits a few frames apart
+do not each bring one), never sooner than 5 frames after the one before (the least of 20 gaps). Why
+a release comes the takes do not say, and a Herald's hits are mostly too small to be seen in them.
+Eight sparks to a release (51 of 51), one to each 45 degrees and not at whoever struck; each flies
+at the missile's `Vel` (12 units a second: 0.48 a frame, the takes' 0.483) along its own direction
+or 45 degrees to either side of it, choosing again every 6 frames (the commonest run of 1,774),
+which puts it 28 units out after 70 frames (27.2 at the median of 78), and is gone after 77 frames
+(the most of 408) or on the first body it meets. The character is in its reach within 2.5 units
+(what the evidence calls ended on it), and of the sparks that came that near 0.39 ended on it (11
+of 28): the others fly on past it. **A spark that ends on the character takes life with the fitted
+chance, and that chance is 0**: none of the 11 was followed by a drop, nor by a point less of life,
+so the truth is under 0.24 at 95% (`upper95`) and the size of a spark's blow is not measured at all.
+It stays the missile's by the tables (`EMin` and the per-level columns at the monster's level:
+2 x level - 1), taken only if the chance is ever set above 0. Like a swing's, the chance is one
+number for a miss, a block, a spark of next to no points (the level its missile is cast at may not
+be the monster's) and this character's own protection. A spark on a companion always lands (as a
+swing: not measured, and nothing here hurts a companion). Before the fit (one take, Tower Cellar 5)
+any monster with the enchantment released, with a chance of a third at each frame it was struck in,
+and every spark within 2 units of the character took its points.
 
 Not modelled: damage that is no blow (poison, burning: a third of the life the takes lost has no
 suspect at all), fleeing, bodies in each other's way, walls (a walk is a straight line and a shot
@@ -168,12 +187,7 @@ PHYSICAL = 'physical'
 ELEMENTS = {LIGHTNING: 'lightning', FIRE: 'fire', COLD: 'cold'}  # the enchantments that add to a blow
 MELEE, SPARK, SHOT, NOVA = 'melee', 'spark', 'shot', 'nova'  # the kinds of a blow
 SPARK_MISSILE = 195  # missiles.txt `lightunique`
-SPARKS = 8  # to a release, one to each 45 degrees
-SPARK_FRAMES = 77  # a spark's life (the take: 3.07 to 3.11 s; the missile's Range of 98 is not what was seen)
-SPARK_TURN = 6  # frames between two turns
-SPARK_CONTACT = 2.0  # units from a body's middle at which a spark ends on it (one ended 2.1 from the character)
-SPARK_GAP = 10  # frames at least between two releases (the take: never under 0.41 s)
-SPARK_CHANCE = 33  # in 100, at a frame the monster is struck in (7 of the Herald's 21 hit frames, 11 releases in all)
+NEVER = -(10**9)  # the frame of what has not happened yet
 # Units within which a shooter shoots: the reach the fit's shots a second were counted in (seconds in
 # sight within 30 units). The shots at the character came from 15.0 units at the median, 23.2 at the
 # 90th percentile and 33.0 at the 99th (1,659 on the train half), so few are lost beyond it.
@@ -308,7 +322,7 @@ class Traits:
     rank: str = PLAIN
     # What its enchantments add to a blow: (element, least, most) as shares of the blow's physical points
     elements: tuple[tuple[str, float, float], ...] = ()
-    sparks: bool = False  # Lightning Enchanted: struck, it lets sparks go
+    sparks: bool = False  # Lightning Enchanted and of a rank that lets sparks go when struck
     nova: bool = False  # Cold Enchanted and of a rank whose death lets the nova go
 
     @classmethod
@@ -328,7 +342,7 @@ class Traits:
             level=level,
             rank=rank,
             elements=tuple((ELEMENTS[mod], least / 100, most / 100) for mod in mods if mod in ELEMENTS),
-            sparks=LIGHTNING in mods,
+            sparks=LIGHTNING in mods and rank in fitted()['sparks']['ranks'],
             nova=COLD in mods and rank in fitted()['nova']['ranks'],
             speed=SPEED.get(txt, number('Velocity') * PACE) / GAME_RATE,
             walks=int(number('aip1(H)')),
@@ -356,7 +370,8 @@ class Walker:
     flags: int = 0  # the type flags: unique, champion, minion
     mods: tuple[int, ...] = ()  # its enchantments (monumod ids)
     tier: int = 0  # the tier of the Herald it is or follows; 0: none
-    sparked: int = -SPARK_GAP  # the frame of its last release of sparks
+    sparked: int = NEVER  # the frame of its last release of sparks
+    struck: int = NEVER  # the frame it was last struck at (`Pack.struck`)
     reach: float = REACH  # of the swing it is in
     lands: int = -1  # the frame that swing's blow lands at; -1: none (no swing, or one cut short)
     favour: float = 0.0  # its one roll for whom it goes for (`Pack` draws it)
@@ -383,6 +398,7 @@ class Spark:
     points: float
     heading: float
     turns: random.Random  # its own rolls: another spark ending early changes nothing for this one
+    passed: bool = False  # it came within reach of the character and did not end on it: it flies on
 
 
 @dataclass(frozen=True)
@@ -442,6 +458,7 @@ class Pack:
         self.rolls = {walker.unit: random.Random(seed * 1_000_003 + walker.unit) for walker in walkers}
         self.shots = {unit: dict(parts) for unit, parts in (shots or {}).items() if unit in self.walkers}
         self.sparks: list[Spark] = []
+        self.arrived = 0  # the sparks that have ended on the character, whether or not they took life
         self.flying: list[Missile] = []
         self.novas: list[Nova] = []
         # The shooters that have had a target within their reach: these come after it. One that
@@ -470,39 +487,68 @@ class Pack:
         return True
 
     def struck(self, unit: int, frame: int) -> int:
-        """The monster was struck at `frame`: the sparks it let go (0 for one not Lightning Enchanted, and
-        most times for one that is)."""
+        """The monster was struck at `frame`: the sparks it let go (0 for one that lets none go, and
+        most times for one that does). A hit stands for the time the monster was being struck since
+        the hit before: the frames between them, the fit's window at most, and the window for a first
+        hit. Each second of that time brings the fitted releases, so many hits in one frame or a few
+        apart are no more than the time they span."""
         walker = self.walkers.get(unit)
-        if walker is None or not walker.traits.sparks or frame - walker.sparked < SPARK_GAP:
+        if walker is None or not walker.traits.sparks:
+            return 0
+        found = fitted()['sparks']
+        release = found['release']
+        # The gap after a release is no time a release can come in (the fit's `free` rate is over the rest).
+        spent = min(frame - max(walker.struck, walker.sparked + release['gap']['value']), release['window'])
+        walker.struck = frame
+        if spent <= 0:
             return 0
         roll = self.rolls[unit]
-        if roll.randrange(100) >= SPARK_CHANCE:
+        if roll.random() >= release['rate']['free'] * spent / GAME_RATE:
             return 0
         walker.sparked = frame
-        points = spark_points(walker.traits.level)
-        for step in range(SPARKS):
-            course = step * math.tau / SPARKS
+        points, count = spark_points(walker.traits.level), found['count']['value']
+        for step in range(count):
+            course = step * math.tau / count
             turns = random.Random(roll.getrandbits(32))
             self.sparks.append(Spark(unit, walker.x, walker.y, course, frame, points, course, turns))
-        return SPARKS
+        return count
+
+    @staticmethod
+    def _met(spark: Spark, targets: Sequence[Point], found: Mapping[str, Any]) -> int:
+        """The index of the target the spark ends on now, -1 for none: the first it is in reach of. The
+        character it ends on only with the fitted chance, rolled the first time it comes that near;
+        else it flies on past it."""
+        for index, body in enumerate(targets):
+            if math.dist((spark.x, spark.y), body) > found['contact']:
+                continue
+            if index:
+                return index
+            if not spark.passed:
+                if spark.turns.random() < found['meets']['value']:
+                    return 0
+                spark.passed = True
+        return -1
 
     def _fly(self, frame: int, targets: Sequence[Point]) -> list[Blow]:
-        """A frame of the sparks: each a stride on, ending on the first target it touches."""
+        """A frame of the sparks: each a stride on, ending on the first target it meets. One that ends
+        on the character takes life with the fitted chance; on a companion always (as a swing)."""
+        found = fitted()['sparks']
         stride = float(tables()['missiles'][str(SPARK_MISSILE)]['Vel']) / GAME_RATE
+        frames, turn = found['flight']['frames']['value'], found['flight']['turn']['value']
         blows, flying = [], []
         for spark in self.sparks:
             age = frame - spark.born
-            if age >= SPARK_FRAMES:
+            if age >= frames:
                 continue
-            if age and age % SPARK_TURN == 0:
-                spark.heading = spark.course + spark.turns.choice((-1, 0, 1)) * math.tau / SPARKS
+            if age and age % turn == 0:
+                spark.heading = spark.course + spark.turns.choice((-1, 0, 1)) * math.tau / found['count']['value']
             spark.x += math.cos(spark.heading) * stride
             spark.y += math.sin(spark.heading) * stride
-            at = (spark.x, spark.y)
-            met = next((index for index, body in enumerate(targets) if math.dist(at, body) <= SPARK_CONTACT), -1)
+            met = self._met(spark, targets, found)
+            self.arrived += met == 0
             if met < 0:
                 flying.append(spark)
-            else:
+            elif met or spark.turns.random() < found['takes_life']['value']:
                 blows.append(Blow(frame, spark.unit, met, spark.points, SPARK, {ELEMENTS[LIGHTNING]: spark.points}))
         self.sparks = flying
         return blows

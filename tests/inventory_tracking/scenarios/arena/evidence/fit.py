@@ -4,13 +4,13 @@ evidence and from nothing else:
     uv run --offline python -m tests.inventory_tracking.scenarios.arena.evidence.fit
         [--excel pricing/raw/game-excel]
 
-reads `evidence.json` beside this file and writes `inventory_tracking/combat/data/monsters_fit.json`.
-No number of that file is typed by hand: each is a figure of `evidence.json['train']` (or of
-`['types'][txt][...]['train']`) or is counted from such figures here, and carries its `n`. The check
-half is not read. A type under the evidence's own thresholds (`evidence.json['thresholds']`: 30 s
-within reach or 10 sole blows for a melee type, 20 shots for a shooter, 30 s in each cell of whom
-a type goes for; OWN_CHANCE times the 20 shots for a shooter's own chance to take life) has no row
-and the model uses the pooled one.
+reads `evidence.json` and `sparks.json` beside this file and writes
+`inventory_tracking/combat/data/monsters_fit.json`. No number of that file is typed by hand: each is a
+figure of `evidence.json['train']` (or of `['types'][txt][...]['train']`) or of `sparks.json['train']`,
+or is counted from such figures here, and carries its `n`. The check half of neither is read. A type
+under the evidence's own thresholds (`evidence.json['thresholds']`: 30 s within reach or 10 sole blows
+for a melee type, 20 shots for a shooter, 30 s in each cell of whom a type goes for; OWN_CHANCE times
+the 20 shots for a shooter's own chance to take life) has no row and the model uses the pooled one.
 
 What is decided here, not measured (each said where it is used):
 
@@ -35,7 +35,21 @@ What is decided here, not measured (each said where it is used):
 - **the reach beyond the body's**: the swings begun at the character per monster-second in each band
   of distance over the same within 3.5 units, never rising with the distance;
 - **a death nova twice the size**: the share of the train half's nova drops that are in the evidence's
-  list of drops over 300 points, which one ring's points do not reach at any level seen.
+  list of drops over 300 points, which one ring's points do not reach at any level seen;
+- **the sparks of a Lightning Enchanted monster** (`sparks`, from sparks.json; SPARKS.md is the
+  measurement): who lets them go is every rank that let one go; **a release comes with the time the
+  monster is being struck**, at the rate of the window after a hit whose one rate gives the monsters'
+  counts of releases best (the least deviance; a chance per hit is written beside it and is the worse
+  relation), never sooner after the one before than the least gap seen (`free` is the rate over the
+  struck time less that gap after each release: what a frame outside the gap has); a release is the
+  commonest count of sparks, a spark lasts the most frames one was seen and turns after the commonest
+  run of frames; a spark is in reach of the character within the evidence's own distance for "ended on it"
+  and ends on it with the share of those in reach that did; **the chance that it then takes life is
+  the middle of the evidence's two bounds, as for a swing**: the arrivals followed by a drop put on
+  the owner alone, and those followed by any drop. On the train half both are none of 11, so the
+  chance is 0 and the model's sparks take no life: `upper95` is the chance under which the truth
+  lies at 95% with that n, written for whoever wants the cautious figure instead. The size of a
+  spark that takes life is not fitted (there is none to fit on): it stays the missile's own.
 
 Missile speeds are not in the evidence. With the game's tables at hand (`--excel`: monstats `MissA1`
 and missiles `Vel`, as pricing/raw/game-excel holds them) each tabled shooter has the speed of its
@@ -58,6 +72,7 @@ from inventory_tracking.combat.hurts import HURT_LEAST
 HERE = Path(__file__).parent
 REPO = HERE.parents[4]
 EVIDENCE = HERE / 'evidence.json'
+SPARKS = HERE / 'sparks.json'
 FITTED = REPO / 'inventory_tracking' / 'combat' / 'data' / 'monsters_fit.json'
 EXCEL = REPO / 'pricing' / 'raw' / 'game-excel'
 GAME_RATE = 25.0  # frames a second (combat/timeline.py)
@@ -69,6 +84,7 @@ FAR = 12.0  # units: a striker further off is no suspect of a drop (hurts.SUSPEC
 OWN_CHANCE = 10
 NOVA_MISSILE = '194'  # missiles.txt `coldunique`, as evidence.json keys the nova drops
 NOVA_REACH = ('0-4', '4-8', '8-12')  # the bands of the deaths table in which the nova takes life
+MODEL_RANK = {'super unique': 'unique'}  # the evidence's ranks that sim/monsters.py `rank_of` calls otherwise
 
 
 def middle(low: float | None, high: float | None) -> float | None:
@@ -304,11 +320,64 @@ def nova(evidence: Mapping[str, Any]) -> dict[str, Any]:
     }
 
 
-def fit(evidence: Mapping[str, Any], speed: Mapping[str, float]) -> dict[str, Any]:
+def commonest(counts: Mapping[str, int]) -> int:
+    """The key (a number written as text) with the highest count; of several as common, the least."""
+    return min(map(int, counts), key=lambda value: (-counts[str(value)], value))
+
+
+def sparks(found: Mapping[str, Any]) -> dict[str, Any]:
+    """The sparks of a Lightning Enchanted monster, from the train half of sparks.json (the module text
+    says what is decided here)."""
+    train = found['train']
+    relation, flight, life = train['release']['all'], train['flight'], train['life']
+    best = min(relation['per_second'], key=lambda row: (row['deviance'], row['window']))
+    gap = train['release']['gap']
+    # The time a release was free to come in: the struck seconds less the gap after each release.
+    free = best['struck_seconds'] - relation['releases'] * gap['least'] / GAME_RATE
+    return {
+        'missile': found['missile'],
+        'ranks': sorted({MODEL_RANK.get(rank, rank) for rank, row in train['by_rank'].items() if row['releases']}),
+        'shown': {
+            rank: {'releases': row['releases'], 'struck': row['struck'], 'hits': row['hits']}
+            for rank, row in train['by_rank'].items()
+        },
+        'release': {
+            'rate': {
+                'value': best['value'],
+                'free': round(relation['releases'] / free, 4),
+                'n': relation['releases'],
+                'n_seconds': best['struck_seconds'],
+                'n_monsters': relation['monsters'],
+            },
+            'window': best['window'],
+            'deviance': best['deviance'],
+            'per_hit': {**relation['per_hit'], 'n_hits': relation['hits']},
+            'gap': {'value': gap['least'], 'n': gap['n']},
+        },
+        'count': {'value': commonest(train['count']['sizes']), 'n': train['count']['n']},
+        'flight': {
+            'frames': {'value': flight['frames_most'], 'n': flight['sparks']},
+            'turn': {'value': flight['turn'], 'n': flight['turns']},
+            'stride': {'measured': flight['stride'], 'n': flight['stride_n']},
+            'out': {age: {'p50': row['p50'], 'n': row['n']} for age, row in flight['out'].items()},
+        },
+        'contact': found['constants']['end_on'],
+        'meets': train['reach']['meets'],
+        'takes_life': {
+            'value': middle(life['low'], life['high']),
+            'low': life['low'],
+            'high': life['high'],
+            'n': life['arrivals'],
+            'upper95': life['upper95'],
+        },
+    }
+
+
+def fit(evidence: Mapping[str, Any], speed: Mapping[str, float], sparked: Mapping[str, Any]) -> dict[str, Any]:
     train = evidence['train']
     return {
-        'about': 'fitted on the train half of tests/inventory_tracking/scenarios/arena/evidence/evidence.json by '
-        'evidence/fit.py; read by combat/sim/monsters.py. Do not edit by hand.',
+        'about': 'fitted on the train half of tests/inventory_tracking/scenarios/arena/evidence/evidence.json and '
+        'sparks.json by evidence/fit.py; read by combat/sim/monsters.py. Do not edit by hand.',
         'train': {'takes': train['takes'], 'seconds': train['seconds'], 'drops': train['classes']['n']},
         'thresholds': evidence['thresholds'],
         'melee': {**melee(evidence), 'spread': curve(train['big']['plain|0|sole melee']['drop'])},
@@ -316,6 +385,7 @@ def fit(evidence: Mapping[str, Any], speed: Mapping[str, float]) -> dict[str, An
         'targets': targets(evidence),
         'shots': shots(evidence, speed),
         'nova': nova(evidence),
+        'sparks': sparks(sparked),
     }
 
 
@@ -330,6 +400,7 @@ def kept_speeds(path: Path) -> dict[str, float]:
 def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description='Write the monster model fit from the train half of the evidence.')
     parser.add_argument('--evidence', type=Path, default=EVIDENCE)
+    parser.add_argument('--sparks', type=Path, default=SPARKS)
     parser.add_argument('--excel', type=Path, default=EXCEL, help="the game's tables (monstats.txt, missiles.txt)")
     parser.add_argument('--out', type=Path, default=FITTED)
     args = parser.parse_args(argv)
@@ -339,7 +410,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     else:
         speed = kept_speeds(args.out)
         print(f'{args.excel}: no tables there; the speeds of {args.out.name} are kept')
-    args.out.write_text(json.dumps(fit(evidence, speed), indent=1, sort_keys=True) + '\n', encoding='utf-8')
+    found = fit(evidence, speed, json.loads(args.sparks.read_text()))
+    args.out.write_text(json.dumps(found, indent=1, sort_keys=True) + '\n', encoding='utf-8')
     print(f'{args.out}')
     return 0
 

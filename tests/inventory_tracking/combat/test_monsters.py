@@ -27,10 +27,6 @@ from inventory_tracking.combat.sim.monsters import (
     SHOT_CONTACT,
     SHOT_REACH,
     SPARK,
-    SPARK_CONTACT,
-    SPARK_FRAMES,
-    SPARK_GAP,
-    SPARKS,
     STRIKE,
     Blow,
     Pack,
@@ -206,22 +202,86 @@ def test_whoever_takes_a_blow_cuts_each_part_by_its_own_resistance():
     assert Blow(1, 1, 0, 80.0).taken({'physical': 0.25}) == 60.0  # a blow without parts is physical
 
 
-def test_struck_a_lightning_enchanted_monster_lets_eight_sparks_go_one_to_each_45_degrees():
+# The sparks as the train half of the takes gives them (data/monsters_fit.json `sparks`, 2026-10-12).
+# Before, they were constants of one take: 8 to a release, 77 frames, a chance of a third at each
+# struck frame, 10 frames apart at least, and every spark within 2 units of the character took life.
+SPARKS = fitted()['sparks']['count']['value']
+SPARK_FRAMES = fitted()['sparks']['flight']['frames']['value']
+SPARK_CONTACT = fitted()['sparks']['contact']
+SPARK_GAP = fitted()['sparks']['release']['gap']['value']
+
+
+def struck_first(pack: Pack, unit: int = 1, frames: int = 2000) -> int:
+    """The frame of the first release of a monster struck in every frame."""
+    return next(frame for frame in range(frames) if pack.struck(unit, frame))
+
+
+def test_struck_a_lightning_enchanted_leader_lets_eight_sparks_go_one_to_each_45_degrees():
     pack = Pack([herald(), Walker(2, BLOOD_CLAN, HERE[0] + 5, HERE[1])])
     assert all(pack.struck(2, frame) == 0 for frame in range(200))  # not enchanted: never
     releases = [frame for frame in range(1000) if pack.struck(1, frame)]
-    assert len(pack.sparks) >= SPARKS
-    first = [spark for spark in pack.sparks if spark.born == releases[0]]
+    assert len(pack.sparks) >= SPARKS == 8
+    first = [spark for spark in pack.sparks if spark.born == releases[-1]]
     assert sorted(round(math.degrees(spark.course)) for spark in first) == [0, 45, 90, 135, 180, 225, 270, 315]
     assert all(later - sooner >= SPARK_GAP for sooner, later in itertools.pairwise(releases))
-    # Struck in every frame of 40 s: a release in a third of the frames it is free to, about every 12 frames.
-    assert 70 <= len(releases) <= 1000 // SPARK_GAP
+    # Struck in every frame of 40 s: the fitted 0.95 releases a second of being struck (before the fit
+    # a third of the frames it was free in: 70 to 100).
+    assert 25 <= len(releases) <= 55
+
+
+def test_only_the_leader_of_a_pack_lets_sparks_go():
+    """The takes: 0 releases of 296 Lightning Enchanted minions seen struck, and none of a plain monster
+    carrying the enchantment. (Before the fit whoever carried it released.)"""
+    assert fitted()['sparks']['ranks'] == ['unique']
+    minion = Walker(1, BLOOD_CLAN, HERE[0], HERE[1], flags=MINION, mods=(STONE_SKIN, LIGHTNING), tier=2)
+    plain = Walker(2, BLOOD_CLAN, HERE[0], HERE[1], mods=(LIGHTNING,))
+    assert not minion.traits.sparks
+    assert not plain.traits.sparks
+    assert herald().traits.sparks
+    pack = Pack([minion, plain])
+    assert not any(pack.struck(unit, frame) for frame in range(2000) for unit in (1, 2))
+    assert pack.sparks == []
+
+
+def releases_in(seconds: int, hits, seed: int = 9) -> int:
+    """The releases of a leader struck at the frames `hits` gives for each second."""
+    pack = Pack([herald()], seed)
+    return sum(bool(pack.struck(1, second * 25 + frame)) for second in range(seconds) for frame in hits)
+
+
+def test_a_release_comes_with_the_time_the_monster_is_struck_not_with_each_hit():
+    """A hit stands for the frames since the hit before, the fit's window at most: struck in every frame,
+    every fifth, or five times in each of every fifth, a monster is struck all the time and lets go the
+    same; struck once a second it is struck for one window of each."""
+    found = fitted()['sparks']['release']
+    seconds = 4000
+    always = releases_in(seconds, range(25))
+    fifth = releases_in(seconds, range(0, 25, 5))
+    crowded = releases_in(seconds, [frame for frame in range(0, 25, 5) for _blade in range(5)])
+    seldom = releases_in(seconds, [0])
+    assert always / seconds == pytest.approx(found['rate']['value'], rel=0.1)
+    assert fifth == pytest.approx(always, rel=0.1)
+    assert crowded == pytest.approx(always, rel=0.1)
+    assert seldom / seconds == pytest.approx(found['rate']['free'] * found['window'] / 25, rel=0.1)
+
+
+def test_equal_seeds_let_equal_sparks_go_and_fly_them_alike():
+    def flown(seed: int):
+        pack, seen = Pack([herald()], seed), []
+        for frame in range(600):
+            pack.struck(1, frame)
+            pack.step(frame, [HERE, (HERE[0] + 6.0, HERE[1] + 3.0)])
+            seen.append([(spark.born, round(spark.x, 6), round(spark.y, 6), spark.passed) for spark in pack.sparks])
+        return seen, pack.arrived
+
+    assert flown(4) == flown(4)
+    assert flown(4) != flown(5)
 
 
 def test_a_spark_weaves_outward_at_the_missiles_speed_and_is_gone_after_three_seconds():
     pack = Pack([herald()], seed=5)
     start = herald().at
-    frame = next(frame for frame in range(100) if pack.struck(1, frame))
+    frame = struck_first(pack)
     pack.remove(1)  # the sparks fly on without it
     reached = {}
     for step in range(1, SPARK_FRAMES + 1):
@@ -240,7 +300,7 @@ def test_a_spark_weaves_outward_at_the_missiles_speed_and_is_gone_after_three_se
 def test_a_spark_ends_on_the_first_body_in_its_way_for_its_points_of_lightning():
     walker = herald(level=75)
     pack = Pack([walker], seed=5)
-    frame = next(frame for frame in range(100) if pack.struck(1, frame))
+    frame = struck_first(pack)
     pack.remove(1)
     east = (walker.x + 4.0, walker.y)  # in the way of the spark going east; one beside it may weave in too
     blows = []
@@ -252,6 +312,51 @@ def test_a_spark_ends_on_the_first_body_in_its_way_for_its_points_of_lightning()
     assert blows[0].damage == 2 * 75 - 1
     assert len(pack.sparks) == SPARKS - len(blows)  # a spark is gone with its blow
     assert blows[0].frame - frame <= math.ceil((4.0 - SPARK_CONTACT) / (12 / 25 * math.cos(math.pi / 4))) + 1
+
+
+def arrivals(seed: int, releases: int = 400) -> tuple[int, int, int]:
+    """A leader's releases with the character 5 units east of it: the sparks that came within reach of
+    the character, those that ended on it, and the blows."""
+    near = ended = 0
+    blows = []
+    for index in range(releases):
+        pack = Pack([herald(level=75)], seed * 1000 + index)
+        frame = struck_first(pack)
+        let = list(pack.sparks)
+        pack.remove(1)
+        for step in range(1, 30):
+            blows += pack.step(frame + step, [(HERE[0] + 5.0, HERE[1])])
+        ended += pack.arrived
+        near += pack.arrived + sum(spark.passed for spark in let)
+    return near, ended, len(blows)
+
+
+def test_a_spark_in_reach_of_the_character_ends_on_it_with_the_fitted_share_and_takes_no_life():
+    """The takes: 11 of the 28 sparks that came within 2.5 units of the character ended on it, and none
+    of the 11 took life. (Before the fit each within 2 units ended on it for its points.)"""
+    found = fitted()['sparks']
+    assert (found['takes_life']['value'], found['takes_life']['n']) == (0.0, 11)
+    near, ended, blows = arrivals(1)
+    assert blows == 0
+    assert near >= 400  # the spark sent east comes into reach in every release; one beside it may weave in too
+    assert ended / near == pytest.approx(found['meets']['value'], rel=0.15)
+
+
+def test_a_spark_that_ends_on_the_character_takes_its_points_where_the_chance_lets_it(monkeypatch):
+    found = fitted()['sparks']
+    monkeypatch.setitem(found, 'meets', {**found['meets'], 'value': 1.0})
+    monkeypatch.setitem(found, 'takes_life', {**found['takes_life'], 'value': 1.0})
+    pack = Pack([herald(level=75)], seed=5)
+    frame = struck_first(pack)
+    pack.remove(1)
+    blows = [blow for step in range(1, 30) for blow in pack.step(frame + step, [(HERE[0] + 5.0, HERE[1])])]
+    assert 1 <= len(blows) <= 3
+    assert len(blows) == pack.arrived
+    assert all((blow.kind, blow.target, blow.parts) == (SPARK, 0, {'lightning': spark_points(75)}) for blow in blows)
+    monkeypatch.setitem(found, 'takes_life', {**found['takes_life'], 'value': 0.5})
+    near, ended, taken = arrivals(2, 200)
+    assert ended == near > 150
+    assert taken / ended == pytest.approx(0.5, abs=0.1)
 
 
 # -- what the train half of all takes gives (data/monsters_fit.json, 2026-10-12) --------------------------

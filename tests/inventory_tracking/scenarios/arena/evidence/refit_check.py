@@ -33,7 +33,15 @@ the model's number is laid beside the check half's:
   the check half's monsters stood in reach and in sight (by rank for melee) and for its deaths of
   Cold Enchanted elites, beside the check half's drops over 300 put on one monster or one nova. The
   drops over 300 that several monsters shared need the takes' crowds: calibrate.py counts those.
-- **the recorded death**: whether the Herald of the death scene can deal the 1,051 points at all.
+- **the recorded death**: whether the Herald of the death scene can deal the 1,051 points at all;
+- **sparks** (against the check half of sparks.json; SPARKS.md is the measurement): one Lightning
+  Enchanted unique struck in every frame, its releases a second; releases with the character standing
+  alone at the distances of the check half's releases, in any direction: the sparks that end on it per
+  release; the share of those that takes life and the points of one that does; the life a second the
+  character loses standing at the check half's median distance from a monster struck in every frame
+  (and, not measured, at SPARK_NEAR units); how far out a spark is after 70 frames. `before` for these
+  rows is model.py SPARKS_BEFORE: the same plays with sim/monsters.py as it was before the sparks were
+  fitted.
 
 `before` is the model before the refit as evidence.json holds it (`model`, read off its parameters
 by evidence/model.py: every swing and every shot lands, a shot a second, the nearest target, no
@@ -50,10 +58,13 @@ from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, replace
 from typing import Any
 
+from inventory_tracking.combat.sim import monsters
 from inventory_tracking.combat.sim.monsters import (
     CHARACTER_FIRST,
     COLD,
+    LIGHTNING,
     NOVA,
+    SPARK,
     STRIKE,
     UNIQUE_FLAG,
     Blow,
@@ -64,8 +75,8 @@ from inventory_tracking.combat.sim.monsters import (
 )
 from inventory_tracking.combat.timeline import GAME_RATE
 from tests.inventory_tracking.scenarios.arena.cut import MAIN
-from tests.inventory_tracking.scenarios.arena.evidence.fit import EVIDENCE, middle
-from tests.inventory_tracking.scenarios.arena.evidence.model import FLAGS
+from tests.inventory_tracking.scenarios.arena.evidence.fit import EVIDENCE, SPARKS, middle
+from tests.inventory_tracking.scenarios.arena.evidence.model import FLAGS, SPARKS_BEFORE
 from tests.inventory_tracking.scenarios.arena.mobs import is_ranged, shot_parts
 
 
@@ -79,6 +90,9 @@ DEATH = 1051  # points: the drop of the recorded death (fixtures/20261011T195037
 SECONDS = 4000.0
 SHOT_TIMES = 10  # a shooter is played this many times longer than a fighter: one shot in a hundred takes life
 ELITE_NEAR = ('0-4', '4-8', '8-12')  # the deaths table's bands a nova reaches in
+SPARK_NEAR = 4.0  # units: a character fighting a monster hand to hand, where no take measured a spark's toll
+SPARK_AGE = 70  # frames: the age the evidence gives a spark's distance out at
+SPARK_SECONDS = 1000.0  # how long a struck monster is played at most (each frame flies every spark in the air)
 
 
 @dataclass(frozen=True)
@@ -413,10 +427,131 @@ def death_row(evidence: Mapping[str, Any], swings: int = 20000) -> Row:
     )  # fmt: skip
 
 
-def check(evidence: Mapping[str, Any], seconds: float = SECONDS) -> list[Row]:
+def charged(sim: Any, level: int, at: Point = HERE) -> Any:
+    """A Lightning Enchanted unique of `sim` (sim/monsters.py, or that module as it was) that stands."""
+    walker = sim.Walker(1, 0, at[0], at[1], level=level, flags=UNIQUE_FLAG, mods=(LIGHTNING,))
+    walker.traits = replace(walker.traits, melee=False)
+    return walker
+
+
+def arrivals(pack: Any, blows: Sequence[Any]) -> int:
+    """The sparks that ended on the character: the pack's own count, or (before the refit, when each
+    took life) the blows."""
+    return getattr(pack, 'arrived', sum(blow.kind == SPARK and blow.target == 0 for blow in blows))
+
+
+def spark_plays(found: Mapping[str, Any], seconds: float, sim: Any = monsters) -> dict[str, Any]:
+    """The plays of the spark rows with the monster model `sim`, against the check half of `found`
+    (sparks.json): what each row's `after` is, and with the module as it was its `before`."""
+    check = found['check']
+    level = int(check['life']['levels']['p50'])
+    frames = round(seconds * GAME_RATE)
+    pack = sim.Pack([charged(sim, level)], 21)
+    released = sum(bool(pack.struck(1, frame)) for frame in range(frames))
+
+    def toll(away: float, seed: int) -> tuple[float, int, int]:
+        """A monster struck in every frame for `seconds` with the character `away` units off, in a
+        direction of its own for each tenth of the time: the points it loses, the sparks that end on it
+        and the releases."""
+        rolls, points, ended, let = random.Random(seed), 0.0, 0, 0
+        for part in range(10):
+            turn = rolls.uniform(0.0, math.tau)
+            here = (away * math.cos(turn), away * math.sin(turn))
+            pack, blows = sim.Pack([charged(sim, level)], seed * 1_000 + part), []
+            for frame in range(frames // 10):
+                let += bool(pack.struck(1, frame))
+                blows += pack.step(frame, [here])
+            points += sum(through(blow) for blow in blows if blow.target == 0)
+            ended += arrivals(pack, blows)
+        return points, ended, let
+
+    bands = {}
+    for index, band in enumerate(check['reach']['bands']):
+        if band['releases']:
+            _points, ended, let = toll((band['from'] + band['to']) / 2, 31 + index)
+            bands[f'{band["from"]:g}-{band["to"]:g}'] = round(ended / let, 3)
+    counted = {f'{band["from"]:g}-{band["to"]:g}': band['releases'] for band in check['reach']['bands']}
+    median = check['reach']['away']['p50']
+    return {
+        'level': level,
+        'rate': round(released / seconds, 3),
+        'per_release': round(sum(bands[name] * counted[name] for name in bands) / sum(counted[n] for n in bands), 3),
+        'per_release_bands': bands,
+        'life': round(toll(median, 51)[0] / seconds, 2),
+        'life_near': round(toll(SPARK_NEAR, 61)[0] / seconds, 2),
+        'out': round(spark_out(sim, level), 1),
+        'points': round(through(Blow(0, 1, 0, 0.0, SPARK, {'lightning': sim.spark_points(level)})), 1),
+    }
+
+
+def spark_out(sim: Any, level: int, releases: int = 60) -> float:
+    """The median distance from its monster of a spark SPARK_AGE frames old, nothing in its way."""
+    out = []
+    for seed in range(releases):
+        pack = sim.Pack([charged(sim, level)], 71 + seed)
+        frame = next(frame for frame in range(10_000) if pack.struck(1, frame))
+        for step in range(1, SPARK_AGE + 1):
+            pack.step(frame + step, [(9000.0, 9000.0)])
+        out += [math.hypot(spark.x, spark.y) for spark in pack.sparks]
+    return statistics.median(out)
+
+
+def spark_rows(found: Mapping[str, Any], seconds: float) -> list[Row]:
+    check, before = found['check'], SPARKS_BEFORE['played']
+    after = spark_plays(found, seconds)
+    sparks = fitted()['sparks']
+    release, window = check['release'], sparks['release']['window']
+    at = {group: next(r for r in release[group]['per_second'] if r['window'] == window) for group in ('all', 'tier 0')}
+    herald, life, reach = release['herald'], check['life'], check['reach']
+    struck = at['all']['struck_seconds']
+    # The points a second of being struck that follow a spark's end on the character: those of the drops put
+    # on its owner alone, and of any drop, over the seconds the check half's monsters were being struck.
+    low, high = sum(life['points_sole']) / struck, sum(life['points_any']) / struck
+    said = f'a Lightning Enchanted unique of level {after["level"]} struck in every frame'
+    flown = check['flight']['out'][str(SPARK_AGE)]
+    rows = [
+        Row('sparks', f'{said}: releases a second', before['rate'], after['rate'], at['all']['value'],
+            f'check: {release["all"]["releases"]} releases in {struck:.0f} s of being struck ({window} frames after '
+            f'a seen hit), all ranks and tiers; Heralds make it high (their hits are undercounted)'),
+        Row('sparks', 'the same against the monsters that are no Herald', before['rate'], after['rate'],
+            at['tier 0']['value'], f'check: {release["tier 0"]["releases"]} releases in '
+            f'{at["tier 0"]["struck_seconds"]:.0f} s of being struck'),
+        Row('sparks', 'the same against the Heralds, over the time from their first seen hit to their last',
+            before['rate'], after['rate'], herald['per_span']['value'],
+            f'check: {herald["releases"]} releases in {herald["per_span"]["span_seconds"]:.0f} s (a lower bound of '
+            f'the rate; one take with the character dead beside the Herald is most of it)'),
+        Row('sparks', "sparks ending on the character per release, at the check half's distances",
+            before['per_release'], after['per_release'], reach['all']['per_release'],
+            f'check: {reach["all"]["on_hero"]} sparks of {reach["all"]["releases"]} releases; the model by band of '
+            f'distance {after["per_release_bands"]} (before: {before["per_release_bands"]}), the character alone '
+            f'(in the takes a companion took {reach["all"]["on_friend"]})'),
+        Row('sparks', 'share of the sparks in reach of the character that end on it', SPARKS_BEFORE['meets'],
+            sparks['meets']['value'], reach['meets']['value'], f'check: of {reach["meets"]["n"]}'),
+        Row('sparks', 'share of the sparks ending on the character that takes life', SPARKS_BEFORE['takes_life'],
+            sparks['takes_life']['value'], middle(life['low'], life['high']),
+            f'check: {life["low"]} to {life["high"]} of {life["arrivals"]} (the upper bound is one drop whose only '
+            f'suspect is a monster striking beside the character); train: 0 of {sparks["takes_life"]["n"]}, under '
+            f'{sparks["takes_life"]["upper95"]} at 95%'),
+        Row('sparks', 'points of a spark that takes life, the main set', before['points'], after['points'], None,
+            'check: none took life; the missile\'s points at the monster\'s level, read from the game'),
+        Row('sparks', f"{said}, the character standing at the check half's median distance: life a second",
+            before['life'], after['life'], (low + high) / 2,
+            f'check: {low:.2f} to {high:.2f} ({sum(life["points_sole"])} to {sum(life["points_any"])} points in '
+            f'{struck:.0f} s of being struck); {reach["away"]["p50"]} units'),
+        Row('sparks', f'the same at {SPARK_NEAR:g} units', before['life_near'], after['life_near'], None,
+            f'not measured: the check half holds {reach["bands"][0]["releases"]} releases with the character '
+            f'within {reach["bands"][0]["to"]:g} units'),
+        Row('sparks', f'units out of a spark after {SPARK_AGE} frames, median', before['out'], after['out'],
+            flown['p50'], f'check: {flown["n"]} sparks'),
+    ]  # fmt: skip
+    return rows
+
+
+def check(evidence: Mapping[str, Any], seconds: float = SECONDS, sparks: Mapping[str, Any] | None = None) -> list[Row]:
     melee, melee_plays = melee_rows(evidence, seconds)
     shots, shot_plays = shot_rows(evidence, seconds)
     novas, _taken = nova_rows(evidence)
+    sparks = json.loads(SPARKS.read_text()) if sparks is None else sparks
     return [
         *melee,
         *target_rows(evidence),
@@ -426,6 +561,7 @@ def check(evidence: Mapping[str, Any], seconds: float = SECONDS) -> list[Row]:
         *size_rows(evidence, melee_plays, shot_plays),
         *big_rows(evidence, seconds),
         death_row(evidence),
+        *spark_rows(sparks, min(seconds, SPARK_SECONDS)),
     ]
 
 
