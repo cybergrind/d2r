@@ -28,7 +28,7 @@ def make_state(
             sampled_at=now,
             session=SESSION,
             health=PlayerHealth(current_raw, maximum_raw),
-            # 70%: between the merc's rejuvenation (65%) and healing (75%) thresholds, so healing is due.
+            # 70%: between the merc's rejuvenation (40%) and healing (75%) thresholds, so healing is due.
             merc=Mercenary(99, 700, 1000, 22938, True),
             belt=BeltSnapshot(belt_contents, healing_cells, rejuvenation_cells, belt_ids),
         ),

@@ -45,6 +45,8 @@ class HealingConfig(Config):
     # a rejuvenation whatever life is left. 0: no such rule for the actor.
     burst_share: Percent = 0.0
     burst_window: Positive = 1.0
+    # No rejuvenation for the actor while the belt holds this many or fewer: they are kept for another.
+    rejuvenation_reserve: Annotated[int, Field(ge=0)] = 0
 
     @field_validator('thresholds', 'cooldowns', mode='after')
     @classmethod
@@ -81,12 +83,15 @@ PLAYER_HEALING = HealingConfig(
     max_consecutive_misses=8,
     suspend_seconds=120.0,
 )
-# Healing potions restore this merc slowly (about +13% over 8 s measured 2026-09-26); rejuvenations are instant,
-# so they take over well before the merc is in danger.
+# Healing potions restore this merc slowly (about +13% over 8 s measured 2026-09-26); rejuvenations are instant.
+# Until 2026-10-13 they took over at 65%, well before the merc was in danger, and he drank the belt's
+# rejuvenations before the character needed one (three of four in the game of 00:09 that day). Now at 40%, and
+# none of the last three: those are the character's.
 MERC_HEALING = HealingConfig(
     actor=Actor.MERC,
     enabled=True,
-    thresholds={PotionType.HEALING: 75, PotionType.REJUVENATION: 65},
+    thresholds={PotionType.HEALING: 75, PotionType.REJUVENATION: 40},
+    rejuvenation_reserve=3,
     cooldowns={PotionType.HEALING: 3.0, PotionType.REJUVENATION: 0.5},
     sample_max_age=1.0,
     consumption_timeout=2.0,

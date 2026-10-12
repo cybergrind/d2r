@@ -3607,3 +3607,28 @@ Unit-tested; the arena's verdict (trials) is owed once the monster model stops m
 - Golden net: `decisions.json` unchanged; `tower_cellar5.today.log.json` regenerated (one healing potion
   at 8.86 s with the life at 79% after 13% lost in a second; the potions on the ground left, the fight
   goes on). The replay "as it was" pins both new rules off.
+
+## 2026-10-13, later — the mercenary's rejuvenations, and out of a pack stood in
+
+After the game of 00:08 (session 20261012T210610Z-7c76574f; user: "we were so aggressive, so spent all full
+rejuv potions and almost all hp potions"; "ideally, we want to run CS without drinking most of our potions";
+"find better stepping out point to be both safe and kill most of mobs as fast as before").
+
+- **Where the potions went.** The belt began that game with 3 rejuvenations. The mercenary got 3
+  rejuvenations and 4 healing potions from `make osd`, the character 1 and 4 (3 healing and the
+  rejuvenation by attack mode's drinking, 1 healing by the healer). The life lost was the Infector seal
+  again: 1,123 points in 9 s among 23 to 26 monsters, the least life 848 of 1,818.
+- **The mercenary** (`MERC_HEALING`): a rejuvenation under 40% (was 65%), and none while the belt holds
+  three or fewer (`HealingConfig.rejuvenation_reserve`): those are the character's.
+- **Out of a pack stood in** (`combat/stance.py` CROWD_ESCAPE, ESCAPE_UNITS, ESCAPE_MOST). The crowd rule
+  kept the character out of a pack but measured every place by the pack it stood in already, so in the
+  middle of one it stood "well". Now, with more than 3 hostiles within 8 units, a place with at most 3 that
+  near is taken when the next seconds there are worth half of what they are where it stands. Chosen on the
+  replayed seal fight (the comment at the constants has the numbers): the life lost 727 -> 574 at the
+  median and 1,836 -> 1,235 in the worst tenth, cleared no later. Not on the cows' level, where the herd
+  is fought from inside (a `Tactic` to come).
+- Golden net: 5 cases of `decisions.json` change, all of one moment (20261010T204605Z-21: a place 8 to 12
+  units off where the character stood); `black_marsh_clear.log.json` regenerated. The replay of Tower
+  Cellar 5 "as it was" pins the rule off.
+- Still the larger part, and not done: the approach. The teleport step lands at a seal in the pack with the
+  staff's set in hand; no place chosen after that makes the fight cheap.

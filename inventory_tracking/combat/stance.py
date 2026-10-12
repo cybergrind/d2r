@@ -35,6 +35,19 @@ KEEP_AWAY = 6.0  # units: no place with a hostile this near
 # 37% at its lowest. The places chosen before it had 0 to 2 that near and cost 0 to 297 points.
 CROWD_UNITS = 12.0
 CROWD_MOST = 3
+# Out of a pack the character stands in already (more than CROWD_MOST within CROWD_UNITS of it): a place
+# with no pack round it is taken when the next seconds there are worth this share of what they are worth
+# where it stands, whatever `gain` asks of a place otherwise. 0: off, the pack it stands in is the measure
+# of every place (the rule until 2026-10-13: "Standing well" among 24 monsters at the Infector seal, twice,
+# 1,700 and 1,100 points lost). Half: in the replayed seal fight (arena/incident.py, 20 seeds) 0.3, 0.5 and
+# 0.7 came to the same, the life lost 1,062 -> 891 and the least life 923 -> 1,177 at the median, the pack
+# dead later (6 -> 16 alive after 6 s). With the pack counted within ESCAPE_UNITS of 8 and not 12 (user,
+# the same night: "safe and kill most of mobs as fast as before"; 20 seeds, 14 s, the drinking on): the life
+# lost 727 -> 574 at the median and 1,836 -> 1,235 in the worst tenth, 8 alive after 6 s against 6, cleared
+# in 10.8 s against 12.0, 2.0 potions against 2.3. Tighter (6, 5, 4 units) came to the same or a little worse.
+CROWD_ESCAPE = 0.5
+ESCAPE_UNITS = 8.0  # the pack stood in: more than CROWD_MOST hostiles this near the character
+ESCAPE_MOST = 3  # and at most this many as near the place gone to
 # A melee monster comes on while the character is on its way: units a second per point of its monstats
 # speed (sim/monsters.py PACE: a chasing Blood Clan made 7.5 to 8.3 at 7), counted over the way there
 # and the first cast, CLOSING_MOST at the most. The cow runs of 2026-10-12 (user: "jumping into their
@@ -278,6 +291,7 @@ def camp(
     shown: Callable[[Point], bool] | None = None,
     gain: float = CAMP_GAIN,
     jumps: Sequence[Jump] = (),
+    escape: float | None = None,
 ) -> Camp | None:
     """The place worth going to from where the character stands, or None when it stands well: the
     place within CAMP_REACH where the next HORIZON seconds take the most, the way there counted
@@ -287,13 +301,19 @@ def camp(
     (a click or a hop needs it); None: every spot. `gain`: how many times the worth of where the
     character stands a place has to be. `jumps`: the skills the character can jump by now, the
     preferred first: a place one of them reaches is priced by the first that does (and walked to only
-    when none does), so the place is chosen for the way the character will take there."""
+    when none does), so the place is chosen for the way the character will take there. `escape`:
+    CROWD_ESCAPE for this fight (0: the character stays in a pack it stands in); None: the module's."""
     attack = striker(attack)
     origin = seen.origin
     field = Field(seen.blocked, barred)
     here, _ = taken(seen, attack, field, origin, 0.0)
     ways = field.ways(origin, CAMP_REACH)
-    crowd = max(CROWD_MOST, sum(math.dist(origin, foe.at) <= CROWD_UNITS for foe in seen.foes.values()))
+    around = sum(math.dist(origin, foe.at) <= CROWD_UNITS for foe in seen.foes.values())
+    pressed = sum(math.dist(origin, foe.at) <= ESCAPE_UNITS for foe in seen.foes.values())
+    share = CROWD_ESCAPE if escape is None else escape
+    escaping = bool(share) and pressed > CROWD_MOST
+    crowd = max(CROWD_MOST, around)
+    need = share if escaping else gain
     best: tuple[float, float, Camp] | None = None  # (worth, the furthest hostile it counts on, the place)
     count = int(CAMP_REACH // CAMP_GRID)
     for i in range(-count, count + 1):
@@ -308,6 +328,8 @@ def camp(
             if any(math.dist(spot, foe.at) < KEEP_AWAY for foe in seen.foes.values()):
                 continue
             if sum(math.dist(spot, foe.at) <= CROWD_UNITS for foe in seen.foes.values()) > crowd:
+                continue
+            if escaping and sum(math.dist(spot, foe.at) <= ESCAPE_UNITS for foe in seen.foes.values()) > ESCAPE_MOST:
                 continue
             walked = ways.get(cell)
             on_foot = walked is not None and walked <= max(straight * DETOUR, straight + 2)
@@ -332,7 +354,7 @@ def camp(
             if by_hop and any(closes(foe, spot, seconds) for foe in seen.foes.values()):
                 continue
             worth, casts = taken(seen, attack, field, spot, seconds)
-            if worth < max(MIN_SCORE, gain * here):
+            if worth < max(MIN_SCORE, need * here):
                 continue
             # Of two places as good (a jump takes as long to any of them) the one whose furthest hostile
             # is nearest ENGAGE away: at the end of the blades' flight a step of a monster's is a miss,

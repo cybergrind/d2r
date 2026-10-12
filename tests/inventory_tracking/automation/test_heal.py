@@ -18,8 +18,8 @@ from inventory_tracking.native.mercenary import Mercenary
         (PLAYER_HEALING, 39, [PotionType.REJUVENATION, PotionType.HEALING]),
         (MERC_HEALING, 75, []),
         (MERC_HEALING, 74, [PotionType.HEALING]),
-        (MERC_HEALING, 65, [PotionType.HEALING]),
-        (MERC_HEALING, 64, [PotionType.REJUVENATION, PotionType.HEALING]),
+        (MERC_HEALING, 40, [PotionType.HEALING]),
+        (MERC_HEALING, 39, [PotionType.REJUVENATION, PotionType.HEALING]),
     ],
 )
 def test_threshold_boundaries_and_priority(config, percent, choices, sample):
@@ -27,10 +27,35 @@ def test_threshold_boundaries_and_priority(config, percent, choices, sample):
         current_raw=percent * 100,
         maximum_raw=10000,
         merc=Mercenary(99, percent * 100, 10000, (percent * 32768 + 99) // 100, True),
+        belt_contents=(531,) * 8 + (None,) * 8,  # more rejuvenations than the mercenary's reserve keeps back
     )
     potions = Mock(config=config)
     HealController(config, potions).step(state)
     potions.step.assert_called_once_with(state, choices)
+
+
+JUV = 531  # a full rejuvenation potion's item class, as the belt holds it (tracking/belt.py)
+
+
+@pytest.mark.parametrize(
+    ('held', 'choices'), [(4, [PotionType.REJUVENATION, PotionType.HEALING]), (3, [PotionType.HEALING])]
+)
+def test_the_mercenary_is_given_no_rejuvenation_of_the_last_three(held, choices, sample):
+    # 2026-10-13, 00:09 to 00:10: three of a game's four rejuvenations went to the mercenary, and the belt
+    # ended with none for the character (user: "go with your merc numbers").
+    belt = (*(JUV,) * held, *(None,) * (16 - held))
+    state = sample(belt_contents=belt, merc=Mercenary(99, 3000, 10000, 9830, True))
+    potions = Mock(config=MERC_HEALING)
+    HealController(MERC_HEALING, potions).step(state)
+    potions.step.assert_called_once_with(state, choices)
+
+
+def test_the_character_is_given_its_last_rejuvenation(sample):
+    belt = (JUV, *(None,) * 15)
+    state = sample(current_raw=3000, maximum_raw=10000, belt_contents=belt)
+    potions = Mock(config=PLAYER_HEALING)
+    HealController(PLAYER_HEALING, potions).step(state)
+    potions.step.assert_called_once_with(state, [PotionType.REJUVENATION, PotionType.HEALING])
 
 
 def stepped(config, sample, readings):

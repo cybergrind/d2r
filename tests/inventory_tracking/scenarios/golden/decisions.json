@@ -1756,8 +1756,32 @@
   "walk": 24.0,
   "worth": 35748.796
  },
- "stand:20261010T204605Z-21-234607:staff-hand9+warp-delay": null,
- "stand:20261010T204605Z-21-234607:staff-hand9+warp-ready": null,
+ "stand:20261010T204605Z-21-234607:staff-hand9+warp-delay": {
+  "casts": 1,
+  "here": 23882.198,
+  "hop": false,
+  "seconds": 0.66,
+  "skill": null,
+  "spot": [
+   12646.5,
+   5332.5
+  ],
+  "walk": 6.0,
+  "worth": 21087.473
+ },
+ "stand:20261010T204605Z-21-234607:staff-hand9+warp-ready": {
+  "casts": 1,
+  "here": 23882.198,
+  "hop": true,
+  "seconds": 0.625,
+  "skill": 390,
+  "spot": [
+   12643.5,
+   5344.5
+  ],
+  "walk": 12.369,
+  "worth": 21236.213
+ },
  "stand:20261010T204605Z-21-234607:staff-none+warp-delay": {
   "casts": 2,
   "here": 23882.198,
@@ -4076,9 +4100,66 @@
   "walk": 18.099,
   "worth": 13417.012
  },
- "step:20261010T204605Z-21-234607:staff-hand69+warp-ready": null,
- "step:20261010T204605Z-21-234607:staff-hand9+warp-delay": null,
- "step:20261010T204605Z-21-234607:staff-hand9+warp-ready": null,
+ "step:20261010T204605Z-21-234607:staff-hand69+warp-ready": {
+  "camp": {
+   "casts": 2,
+   "here": 23882.198,
+   "hop": true,
+   "seconds": 0.31,
+   "skill": 54,
+   "spot": [
+    12640.5,
+    5308.5
+   ],
+   "walk": 24.0,
+   "worth": 35748.796
+  },
+  "skill": 54,
+  "spot": [
+   12640.5,
+   5308.5
+  ]
+ },
+ "step:20261010T204605Z-21-234607:staff-hand9+warp-delay": {
+  "camp": {
+   "casts": 1,
+   "here": 23882.198,
+   "hop": false,
+   "seconds": 0.66,
+   "skill": null,
+   "spot": [
+    12646.5,
+    5332.5
+   ],
+   "walk": 6.0,
+   "worth": 21087.473
+  },
+  "skill": null,
+  "spot": [
+   12646.5,
+   5332.5
+  ]
+ },
+ "step:20261010T204605Z-21-234607:staff-hand9+warp-ready": {
+  "camp": {
+   "casts": 1,
+   "here": 23882.198,
+   "hop": true,
+   "seconds": 0.625,
+   "skill": 390,
+   "spot": [
+    12643.5,
+    5344.5
+   ],
+   "walk": 12.369,
+   "worth": 21236.213
+  },
+  "skill": 390,
+  "spot": [
+   12643.5,
+   5344.5
+  ]
+ },
  "step:20261010T204632Z-22-234638:staff-hand69+warp-ready": null,
  "step:20261010T204632Z-22-234638:staff-hand9+warp-delay": null,
  "step:20261010T204632Z-22-234638:staff-hand9+warp-ready": null,

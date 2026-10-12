@@ -157,6 +157,7 @@ WALK_CLICKS = 2  # clicks for one walk to a firing spot
 WALK_UNITS = 10.0  # a firing spot this near, over clear ground, is walked to, not teleported to (as NEAR_WARP)
 FIGHT_SECONDS = 60.0  # one fight ends here at the latest; attack mode looks again right after
 POLL = 0.1  # seconds between looks in attack mode while nothing is fought
+MOO_MOO_FARM = 39  # levels.txt: the Secret Cow Level
 FRAME = 0.04  # seconds between looks during a fight: one game frame, so a move of the player's is yielded to at once
 DECIDE_SECONDS = 0.12  # between two askings of the policy while its monster lives
 SIGHT = 30.0  # world units: hostiles further off are not part of the decision
@@ -728,6 +729,10 @@ class Hunter:
             ),
             gain=gain,
             jumps=jumps,
+            # The cows are fought from inside the herd, as the player does it (user, 2026-10-12: "special
+            # tactics for some mob types (cows/...)"): theirs is to be a `Tactic` (Stage 7); until then no
+            # step out of the pack on their level.
+            escape=0.0 if player.area == MOO_MOO_FARM else None,
         )
 
     def next_step(

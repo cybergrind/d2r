@@ -36,6 +36,7 @@ AS_IT_WAS = {
     'inventory_tracking.macros.hunt.GATHER_CLEAR': 0.0,
     'inventory_tracking.macros.rotation.Rotation.key': key_as_it_was,
     'inventory_tracking.combat.stance.CLOSING_MOST': 0.0,
+    'inventory_tracking.combat.stance.CROWD_ESCAPE': 0.0,  # no step out of a pack stood in (2026-10-13)
     'inventory_tracking.macros.hunt.Hunter.tough': tough_as_it_was,
     # and attack mode drinks beside the fight (macros/drinking.py, 2026-10-13)
     'inventory_tracking.macros.drinking.Drinker.look': lambda self, run, here: None,
