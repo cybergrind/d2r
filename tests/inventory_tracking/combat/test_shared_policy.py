@@ -3,6 +3,7 @@ the hunt's nearest-monster rule, the walls and the link."""
 
 import math
 
+from inventory_tracking.builds.warlock.echoing_strike.attack import ECHOING_STRIKE_ATTACK
 from inventory_tracking.combat.mechanics.damage import link_table
 from inventory_tracking.combat.mechanics.tables import points_of
 from inventory_tracking.combat.policy import (
@@ -117,6 +118,10 @@ def test_the_games_records_become_an_observation():
     hurt = Monster(11, 310, 1, 5000.0, 5010.0, 0xFFFFFFFF, 0x08, life=32, max_life=128)
     defiler = Monster(20, 744, 1, 5002.0, 5002.0, 1, ally=True)
     found = observe(player, [fresh, hurt], [defiler], moving=True)
+    # The companions are not read here: the link a Defiler holds is the attack's to see
+    # (builds/warlock/echoing_strike/test_attack.py).
+    assert (found.linked, found.share) == (frozenset(), 0.0)
+    found = ECHOING_STRIKE_ATTACK.sees(found, [defiler])
     full = points_of(310, 108)
     assert found.origin == (5000.0, 5000.0)
     assert found.foes[10] == Foe(310, (5008.0, 5000.0), full)
@@ -125,4 +130,4 @@ def test_the_games_records_become_an_observation():
     assert found.share == link_table()[2]
     assert found.moving
     assert found.blocked is None
-    assert observe(player, [fresh], []).linked == frozenset()  # no Defiler, no link
+    assert ECHOING_STRIKE_ATTACK.sees(observe(player, [fresh], []), []).linked == frozenset()  # no Defiler, no link

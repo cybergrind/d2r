@@ -187,6 +187,7 @@ class Game:
         self.warp_lands = True  # a Blade Warp moves the character
         self.purge_shows = True  # the character's state shows the buff after a cast
         self.strikes = []  # (unit id or None, ground point) per Shift+click
+        self.strike_skill = ECHOING_STRIKE  # the skill whose held input is a strike: the attack's of the build played
         self.toughness = {}  # unit id -> strikes it survives (default: dies to the first)
         self.acting_until = None  # the cast animation: the player's mode is 7 until then
         self.arrivals = []  # (clock time, callable): what happens in the game on its own, in time order
@@ -309,7 +310,7 @@ class Game:
         elif event[0] == 'button' and event[1] == 9 and w.in_game:
             self.sigils.append(self.ground_under_pointer())
         elif event[0] == 'held':  # a skill input down while the character is free: the game casts it
-            if event[1] in ('7', 'Button3') or w.player.left_skill == ECHOING_STRIKE:
+            if event[1] in (KEYS.get(self.strike_skill), 'Button3') or w.player.left_skill == self.strike_skill:
                 self.strike()
             else:  # the plain attack, in place: an animation and nothing hit (host, 20:07 on 2026-10-09)
                 self.world = replace(w, player=replace(w.player, mode=7))
@@ -391,11 +392,13 @@ class Game:
         return None
 
     def held_input(self):
-        """The Echoing Strike input held right now, as `react` names it, or None."""
+        """The strike's input (Echoing Strike's, unless `strike_skill` says another) held right now, as
+        `react` names it, or None."""
         w, keys = self.world, self.keys
-        if '7' in keys.down_names() and ECHOING_STRIKE in w.slots:
-            return '7'
-        if 3 in keys.buttons_down and w.player.right_skill == ECHOING_STRIKE:
+        key = KEYS.get(self.strike_skill)
+        if key in keys.down_names() and self.strike_skill in w.slots:
+            return key
+        if 3 in keys.buttons_down and w.player.right_skill == self.strike_skill:
             return 'Button3'
         if 1 in keys.buttons_down and 'Shift_L' in keys.down_names():
             return 'Shift+click'

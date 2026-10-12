@@ -3,6 +3,7 @@ player's move, and the aim as a policy."""
 
 import math
 
+from inventory_tracking.builds.warlock.echoing_strike.attack import EchoingStrike
 from inventory_tracking.combat.controller import (
     CLICK,
     DONE,
@@ -211,6 +212,68 @@ def test_the_policy_answer_wins_whatever_is_reachable():
     seen = Observation(origin=ORIGIN, foes={})
     assert aim_choice(lambda _: choice, seen, []) == choice
     assert aim_choice(lambda _: choice, seen, [1]) == choice
+
+
+class Asked:
+    """An attack as `aim_choice` asks it: it answers by the units a cast is to be laid through, and
+    keeps what it was asked."""
+
+    def __init__(self, answers):
+        self.answers = answers
+        self.asked = []
+
+    def aim(self, seen, through=()):
+        self.asked.append(tuple(through))
+        return self.answers.get(tuple(through))
+
+
+def test_an_attack_is_asked_for_its_cast_and_a_bare_policy_as_it_is():
+    seen = Observation(origin=ORIGIN, foes={})
+    choice = Choice((1.0, 2.0), 7, 5.0)
+    attack = Asked({(): choice})
+    assert aim_choice(attack, seen, [1]) == choice
+    assert attack.asked == [()]  # nothing to kill first: asked once, for any cast
+
+
+def test_the_cast_through_the_monsters_to_kill_first_is_asked_before_any_other():
+    seen = Observation(origin=ORIGIN, foes={})
+    through, any_cast = Choice((1.0, 2.0), 7, 5.0), Choice((3.0, 4.0), 8, 50.0)
+    attack = Asked({(7,): through, (): any_cast})
+    assert aim_choice(attack, seen, [], first=[7]) == through  # whatever another cast is worth
+    assert attack.asked == [(7,)]
+
+
+def test_with_no_cast_through_them_the_attack_is_asked_for_any_cast():
+    seen = Observation(origin=ORIGIN, foes={})
+    any_cast = Choice((3.0, 4.0), 8, 50.0)
+    attack = Asked({(): any_cast})
+    assert aim_choice(attack, seen, [], first=[7]) == any_cast
+    assert attack.asked == [(7,), ()]
+
+
+def test_an_attack_with_no_cast_leaves_the_aim_straight_at_what_is_in_reach():
+    foes = {1: Foe(310, (5010.0, 5000.0), 100.0)}
+    seen = Observation(origin=ORIGIN, foes=foes)
+    attack = Asked({})
+    assert aim_choice(attack, seen, [1], first=[1]) == Choice((5010.0 + AIM_BEYOND, 5000.0), 1, 0.0)
+    assert attack.asked == [(1,), ()]
+    assert aim_choice(attack, seen, []) is None
+
+
+def test_the_warlocks_attack_through_a_boss_is_the_line_the_sweep_lays_through_it():
+    # What `aim_choice` did by itself while it knew the sweep by name: the best line through one of
+    # `first` while it is worth the least score, nothing through it while the player moves.
+    flat = 1000.0
+    foes = {1: Foe(310, (5008.0, 5000.0), 5000.0), 2: Foe(310, (5000.0, 5009.0), 5000.0)}
+    foes[3] = Foe(310, (5000.0, 5015.0), 5000.0)
+    seen = Observation(origin=ORIGIN, foes=foes)
+    attack = EchoingStrike(damage_of=lambda txt: flat)
+    sweep = LinePolicy(damage_of=lambda txt: flat)
+    assert aim_choice(attack, seen, [1, 2, 3]) == sweep(seen)
+    assert aim_choice(attack, seen, [1, 2, 3], first=[1]) == sweep.choose(seen, through=[1])
+    assert aim_choice(attack, seen, [1, 2, 3], first=[1]) != sweep(seen)
+    moving = Observation(origin=ORIGIN, foes=foes, moving=True)
+    assert aim_choice(attack, moving, [1], first=[1]) == Choice((5008.0 + AIM_BEYOND, 5000.0), 1, 0.0)
 
 
 def test_without_a_policy_line_the_elite_in_reach_is_aimed_at_just_past_it():

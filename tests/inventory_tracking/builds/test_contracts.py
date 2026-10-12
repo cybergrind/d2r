@@ -163,7 +163,9 @@ def test_an_attack_aims_only_within_its_reach_and_deals_to_foes_it_was_given(bui
         assert choice is None or choice.unit == unit
     assert attack.aim(two, through=[99]) is None
 
+    before = dataclasses.replace(inside, foes=dict(inside.foes))
     assert isinstance(attack.sees(inside, ()), Observation)
+    assert inside == before  # what it sees is in a copy: the observation given is not changed
     foes = two.foes
     for focal in ((near, 0.0), (0.0, near + 1.0), (-50.0, 0.0)):
         dealt = attack.dealt((0.0, 0.0), focal, foes)

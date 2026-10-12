@@ -595,7 +595,8 @@ inventory_tracking/builds/
 
 Order as run (2026-10-12): 3.1 → 3.2 + 3.3 (one task: the same files) → 3.5 + 3.6 → 3.7 → 3.4 (the
 ids can leave `macros/skills.py` only when their last user in the framework is gone) → 3.8 → 3.9.
-Done: 3.1 (`9f4fc28`), 3.2 + 3.3 (`016c1f6`, ratchet 67 → 64), 3.5 + 3.6 (ratchet 64 → 46).
+Done: 3.1 (`9f4fc28`), 3.2 + 3.3 (`016c1f6`, ratchet 67 → 64), 3.5 + 3.6 (ratchet 64 → 46), 3.7
+(ratchet 46 → 39; the second build's play is green).
 
 What may honestly remain outside `builds/` after Stage 3 (the residue, to be confirmed then):
 `combat/hurts.py` and `combat/__main__.py` reports that name the strike in their output, and

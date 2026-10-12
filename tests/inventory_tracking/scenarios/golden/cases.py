@@ -17,9 +17,10 @@ from dataclasses import dataclass, fields, is_dataclass, replace
 from functools import cache
 from pathlib import Path
 
+from inventory_tracking.combat.policy import REACH
 from inventory_tracking.levels.model import Ground
 from inventory_tracking.macros import pickup, teleport, view
-from inventory_tracking.macros.hunt import REACH, Hunter
+from inventory_tracking.macros.hunt import Hunter
 from inventory_tracking.macros.sight import in_reach
 from inventory_tracking.macros.skills import BLADE_WARP, TELEPORT
 from inventory_tracking.macros.view import Viewport

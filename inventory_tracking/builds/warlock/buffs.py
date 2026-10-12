@@ -8,10 +8,9 @@ are more than one aim and one key are in casters.py.
 """
 
 import math
-from functools import cache
 
-from inventory_tracking.combat.policy import LinePolicy, observe
-from inventory_tracking.combat.stance import BLADES_A_CAST
+from inventory_tracking.builds.warlock.echoing_strike.attack import BLADES_A_CAST, ECHOING_STRIKE_ATTACK
+from inventory_tracking.combat.policy import observe
 from inventory_tracking.macros.buffs import Buffs
 from inventory_tracking.macros.build import Buff, BuffFacts, whenever
 from inventory_tracking.macros.engine import Run
@@ -96,22 +95,15 @@ def strongest(facts: BuffFacts) -> Monster | None:
     return max(facts.reachable, key=lambda m: (m.leader, m.max_life, -math.dist(here, (m.x, m.y))))
 
 
-@cache
-def strike() -> LinePolicy:
-    """The strike a mark is priced by: Echoing Strike's line, with the build's damage table."""
-    return LinePolicy()
-
-
 def worth_a_mark(facts: BuffFacts, target: Monster | None) -> bool:
     """Whether `target` outlives MARK_CASTS casts on its line: else the mark costs more casting
     than the damage it adds."""
     world = facts.world
     if world.player is None or target is None:
         return False
-    policy = strike()
     foe = observe(world.player, [target], ()).foes[target.unit_id]
     full = foe.left * (ELITE_LIFE if foe.elite else 1.0)
-    return full > MARK_CASTS * BLADES_A_CAST * policy.damage_of(foe.txt)
+    return full > MARK_CASTS * BLADES_A_CAST * ECHOING_STRIKE_ATTACK.damage_of(foe.txt)
 
 
 def sigil_due(facts: BuffFacts) -> bool:

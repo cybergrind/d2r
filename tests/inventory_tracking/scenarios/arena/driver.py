@@ -45,11 +45,13 @@ from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
+from inventory_tracking.builds.warlock.echoing_strike.attack import EchoingStrike
 from inventory_tracking.config import HealingConfig
 from inventory_tracking.input.compositor import STEP_KEYS
 from inventory_tracking.levels.model import Level, Room
 from inventory_tracking.macros import opening, pickup, runner as runner_module, teleport
 from inventory_tracking.macros.actuator import Abort
+from inventory_tracking.macros.build import Build
 from inventory_tracking.macros.hunt import Hunter
 from inventory_tracking.macros.latency import Trace
 from inventory_tracking.macros.opening import open_near
@@ -118,7 +120,9 @@ def key_names(world: World, skills: Sequence[int] = SKILLS) -> dict[int, str]:
 class Play:
     """One play: the arena, the production hunter and runner, and the presses still to come."""
 
-    def __init__(self, arena: Arena, presses: Sequence[Press], seconds: float, seed: int) -> None:
+    def __init__(
+        self, arena: Arena, presses: Sequence[Press], seconds: float, seed: int, build: Build | None = None
+    ) -> None:
         self.arena, self.seconds = arena, seconds
         self.pending = sorted(presses, key=lambda press: press.at)
         self.pace = random.Random(seed)  # the macro's own pauses and scatter, one stream for the play
@@ -127,7 +131,7 @@ class Play:
         # scene) and its walkable grids.
         rooms = tuple(Room(r['preset'], r['x'], r['y'], r['width'], r['height']) for r in scene.rooms)
         self.level = Level(scene.hero.area, rooms, arena.ground.grids)
-        self.hunter = Hunter(lambda: self.level, lambda area: [], None)
+        self.hunter = Hunter(lambda: self.level, lambda area: [], None, build=build)
         self.ended = False
         self.failed: list[BaseException] = []
         self.runner = MacroRunner(
@@ -268,7 +272,7 @@ def play(
     presses: Sequence[Press],
     seconds: float,
     *,
-    build: object | None = None,
+    build: Build | None = None,
     osd: HealingConfig | None = None,
     healing_scale: float = 1.0,
     seed: int = 1,
@@ -276,12 +280,16 @@ def play(
 ) -> Result:
     """Play `scene` for `seconds` of the arena's time with the production macro, started by
     `presses` as the runner starts it, and say what it came to. `seed` is the monsters' rolls and the
-    macro's pace; `osd` runs the standalone healer beside it; `build` is not read yet (a later stage
-    passes the build whose macro plays). The play ends early at the character's death."""
+    macro's pace; `osd` runs the standalone healer beside it; `build` is the build whose macro plays
+    (None: the one the production code takes by itself, the Echoing Strike Warlock): the hunter is
+    handed it, and the arena casts its attack (the production blades for Echoing Strike, the attack's
+    own `dealt` for any other); the pickup step takes the build by itself until the runner chooses it
+    (macros/default.py). The play ends early at the character's death."""
     for press in presses:
         if press.routine == TELEPORT:
             raise NotImplementedError('the teleport step comes to the arena in Stage 5')
         if press.routine not in (ATTACK, PICKUP):
             raise ValueError(f'the arena plays the attack mode toggle and the pickup step, not {press.routine!r}')
-    arena = Arena(scene, seed=seed, osd=osd, healing_scale=healing_scale, auras=auras)
-    return Play(arena, presses, seconds, seed).run()
+    attack = None if build is None or isinstance(build.attack, EchoingStrike) else build.attack
+    arena = Arena(scene, seed=seed, osd=osd, healing_scale=healing_scale, auras=auras, attack=attack)
+    return Play(arena, presses, seconds, seed, build).run()

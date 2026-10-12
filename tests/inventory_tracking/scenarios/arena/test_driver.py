@@ -6,6 +6,8 @@ from dataclasses import replace
 
 import pytest
 
+from inventory_tracking.builds.generic import GENERIC
+from inventory_tracking.builds.warlock.echoing_strike.build import ECHOING_STRIKE_BUILD
 from inventory_tracking.config import PLAYER_HEALING
 from inventory_tracking.macros import runner as runner_module
 from inventory_tracking.macros.runner import ATTACK, HUNT_ELITES, PICKUP, PREBUFF, TELEPORT
@@ -175,10 +177,18 @@ def test_other_routines_are_refused(routine):
         play(one_in_the_open(), [Press(0, routine)], 5.0)
 
 
-def test_the_build_is_taken_and_not_read():
-    assert play(one_in_the_open(), [Press(0, ATTACK)], 5.0, build=object()) == play(
+def test_the_build_handed_in_is_the_one_played():
+    # The one build the production code takes by itself, handed in: the same play, blade for blade.
+    assert play(one_in_the_open(), [Press(0, ATTACK)], 5.0, build=ECHOING_STRIKE_BUILD) == play(
         one_in_the_open(), [Press(0, ATTACK)], 5.0
     )
+
+
+def test_a_build_without_an_attack_ends_attack_mode_with_that_said():
+    result = play(one_in_the_open(), [Press(0, ATTACK)], 5.0, build=GENERIC)
+    assert result.casts == 0
+    assert any('attack mode off: the build (generic) has no attack of its own' in line for line in lines(result))
+    assert 'Macro: Attack mode on' not in lines(result)
 
 
 def test_the_runners_time_is_the_arenas_for_the_play_and_put_back_after(monkeypatch):

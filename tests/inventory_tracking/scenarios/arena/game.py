@@ -11,7 +11,8 @@ drops and the hover record. `Arena` is that game set up from a `Scene`, with wha
 - each tick's blows come off the character's life, cut by the resistances of the weapon set in hand;
 - a cast of the strike is the production blades (combat/mechanics/echoing_strike.py `cast`, the
   contact radius, the duplicate rule, damage.json's points a contact), as scenarios/revivers/harness.py
-  and scenarios/stance/harness.py apply them, on `Mobs.hit`;
+  and scenarios/stance/harness.py apply them, on `Mobs.hit`; with the `attack` of another build
+  (macros/build.py `Attack`) a cast of its skill takes what its `dealt` says, at once, on `Mobs.hit`;
 - a belt key drinks by potions.json: a rejuvenation at once, a healing potion over its frames;
 - at life 0 the character lies dead (native/layout.py CORPSE_MODE) and the world stands still;
 - with a `HealingConfig` the standalone healer runs beside the macro: production `HealController`
@@ -53,7 +54,7 @@ from inventory_tracking.automation.potions import PotionsController
 from inventory_tracking.combat.mechanics.damage import damage_table
 from inventory_tracking.combat.mechanics.echoing_strike import LIFE, OUT_FRAMES, cast
 from inventory_tracking.combat.mechanics.hits import CONTACT_RADIUS
-from inventory_tracking.combat.policy import DUPLICATE, walls
+from inventory_tracking.combat.policy import DUPLICATE, Foe, walls
 from inventory_tracking.combat.sim.input import BIRTH_LAG
 from inventory_tracking.combat.stance import no_footing, way
 from inventory_tracking.combat.timeline import GAME_RATE
@@ -61,6 +62,7 @@ from inventory_tracking.config import INPUT, HealingConfig
 from inventory_tracking.input import Refused
 from inventory_tracking.levels.doors import Door
 from inventory_tracking.levels.model import Ground, Walkable
+from inventory_tracking.macros.build import Attack
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.skills import BLADE_WARP, ECHOING_STRIKE, SWAP_WEAPONS, TELEPORT
 from inventory_tracking.macros.travel import walked_way
@@ -250,7 +252,9 @@ class Healer:
 class Arena(Game):
     """A scene as a game the macro can play: see the module text. `seed` is the monsters' rolls;
     `osd` runs the healer beside the macro; `healing_scale` is the class and Vitality factor on a
-    healing potion's points, which potions.json does not hold."""
+    healing potion's points, which potions.json does not hold. `attack` is the attack of the build
+    played when it is not Echoing Strike: the held input of its skill casts it, and a cast takes
+    what its `dealt` says; None: Echoing Strike and the production blades."""
 
     def __init__(
         self,
@@ -260,6 +264,7 @@ class Arena(Game):
         osd: HealingConfig | None = None,
         healing_scale: float = 1.0,
         auras: Mapping[int, float] | None = None,  # unit -> the factor its aura or curse puts on the others' blows
+        attack: Attack | None = None,
     ) -> None:
         self.scene = scene.copy()
         hero = self.scene.hero
@@ -273,6 +278,9 @@ class Arena(Game):
         # A door row as the stance fixtures hold it: unit, txt, mode, x, y (mobs.py reads the same).
         doors = tuple(Door(row[0], row[1], row[2], float(row[3]), float(row[4])) for row in self.scene.doors)
         super().__init__(World(True, (), 'arena', tuple(hero.slots), player=stand, doors=doors))
+        self.attack = attack
+        if attack is not None:
+            self.strike_skill = attack.skill
         self.time = Ticks(self.tick)  # the game's clock; `clock` is the same, as `Game` names it
         self.clock = self.time
         self.ground = Ground(Walkable(**grid) for grid in self.scene.ground)
@@ -511,13 +519,29 @@ class Arena(Game):
     def strike(self) -> None:
         """A cast of Echoing Strike toward the pointer. `Game.strike` keeps its record of the cast
         (`strikes`), the casting mode and the cast's length; what it takes off a monster by its own
-        count (`toughness`) is undone by `show`, and the production blades are let fly instead."""
+        count (`toughness`) is undone by `show`, and the production blades are let fly instead. With
+        another build's `attack` its cast lands at once: what `dealt` takes off the hostiles alive."""
         origin, focal = self.here, self.ground_under_pointer()
         super().strike()
         self.show()
+        if self.attack is not None:
+            self.land(origin, focal, self.attack)
+            return
         paths = cast(origin, focal, lambda frame: origin, self.walls)
         self.flights.append(Flight(self.time.ticks + BIRTH_LAG, paths, set(), [set() for _ in paths]))
         self.casts += 1
+
+    def land(self, origin: Point, focal: Point, attack: Attack) -> None:
+        """A cast of a build's attack that is not the blades: `attack.dealt` from where the character
+        stands at the ground under the pointer, off each hostile alive, in the tick of the cast (no
+        flight, no wall: the attack's own model says who is hit)."""
+        mobs = self.mobs
+        foes = {unit: Foe(mobs.mobs[unit].txt, mobs.mobs[unit].at, mobs.mobs[unit].life) for unit in mobs.live()}
+        for unit, points in attack.dealt(origin, focal, foes).items():
+            if mobs.hit(unit, points):
+                self.kills.append(unit)
+        self.casts += 1
+        self.show()
 
     def drink(self, column: int, who: str) -> bool:
         """The belt key of `column` (1 to 4): the potion of its hotkey cell is drunk and the column's

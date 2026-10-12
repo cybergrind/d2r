@@ -5,7 +5,7 @@ A policy is a callable from an `Observation` (the character, the live hostiles w
 have left, the monsters the Defiler's Health Link holds, the walls, whether the player is moving) to
 a `Choice` (the focal point to cast at and the monster the line was laid through) or None. The
 simulator builds the observation from a take's frame (sim/engine.py); the hunt builds it from the
-game's memory (`observe`, called by macros/hunt.py). Two policies:
+game's memory (`observe`, called by macros/hunt.py, and the attack's `sees` for the link). Two policies:
 
 `LinePolicy`, the line sweep: through each live hostile within REACH a virtual cast is laid along the
 line from the character, with the focal point on, short of and past the monster (OFFSETS), and scored
@@ -28,7 +28,7 @@ from collections.abc import Callable, Collection, Iterable, Sequence
 from dataclasses import dataclass, field
 from typing import Any
 
-from inventory_tracking.combat.mechanics.damage import DEFILER, damage_table, link_table
+from inventory_tracking.combat.mechanics.damage import damage_table
 from inventory_tracking.combat.mechanics.echoing_strike import BLADES, LIFE, OUT_FRAMES, RANGE, SPEED, cast
 from inventory_tracking.combat.mechanics.hits import CONTACT_RADIUS
 from inventory_tracking.combat.mechanics.movement import Route
@@ -258,7 +258,7 @@ def linked_set(defilers: Iterable[Point], foes: dict[int, Point], link_range: fl
 def observe(
     player: Any,
     hostiles: Iterable[Any],
-    companions: Iterable[Any],
+    companions: Iterable[Any] = (),
     ground: Any = None,
     doors: Sequence[Any] = (),
     *,
@@ -266,13 +266,12 @@ def observe(
     aimable: Callable[[Point], Point | None] | None = None,
 ) -> Observation:
     """The observation of the running game: `player` and the monsters are macros/world.py records
-    (`hostiles` the ones that may be struck, `companions` the character's own units). A monster's
-    points are its type's in the character's area by the life fraction the client shows."""
+    (`hostiles` the ones that may be struck). A monster's points are its type's in the character's
+    area by the life fraction the client shows. `companions`, the character's own units, are not
+    read here: what an attack reads off them (a link they hold between monsters) is its `sees`
+    (macros/build.py `Attack`), asked by the caller with the same units."""
     foes = {}
     for m in hostiles:
         full = points_of(m.txt_id, player.area)
         foes[m.unit_id] = Foe(m.txt_id, (m.x, m.y), full * (m.life / m.max_life if m.max_life else 1.0), m.leader)
-    link_range, links, share = link_table()
-    defilers = [(c.x, c.y) for c in companions if c.txt_id == DEFILER]
-    linked = linked_set(defilers, {unit: foe.at for unit, foe in foes.items()}, link_range, links)
-    return Observation((player.x, player.y), foes, linked, share, walls(ground, doors), moving, aimable=aimable)
+    return Observation((player.x, player.y), foes, blocked=walls(ground, doors), moving=moving, aimable=aimable)

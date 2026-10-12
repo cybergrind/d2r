@@ -8,9 +8,11 @@ Recorded 2026-10-12 on branch `combat-framework`, on the tree frozen as commit `
 None of the 63 expected failures below may change state in Stages 0–3. The 13 of
 `scenarios/threat/test_scenarios.py` are Stage 4's targets.
 
-Added by Stage 2 on purpose (2026-10-12), and Stage 3.7's target:
+Added by Stage 2 on purpose (2026-10-12) as a 64th, and Stage 3.7's target:
 `tests/inventory_tracking/scenarios/arena/test_dummy_in_arena.py::test_the_second_build_clears_a_scene_with_its_own_attack`.
-With it the suite reads 5580 passed, 8 skipped, 64 xfailed.
+It went green in Stage 3.7 (2026-10-12) and is no longer an expected failure: the framework holds,
+aims and prices a place by the attack of the build it is given, and the arena deals that attack's
+damage. The suite reads 63 xfailed again, the 63 below.
 
 ## Expected failures
 

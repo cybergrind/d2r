@@ -2,6 +2,7 @@
 
 import math
 
+from inventory_tracking.builds.warlock.echoing_strike.attack import EchoingStrike
 from inventory_tracking.combat.policy import Foe, LinePolicy, Observation
 from inventory_tracking.combat.stance import (
     CAMP_REACH,
@@ -248,3 +249,40 @@ def test_what_a_melee_monster_closes_is_capped_and_one_far_off_does_not_come():
     assert closes(Foe(118, (HERE[0] + 11.9, HERE[1]), 5000.0), HERE, 2.0)
     assert not closes(Foe(160, (HERE[0] + 6.5, HERE[1]), 5000.0), HERE, 2.0)  # an archer stays where it is
     assert closes(Foe(160, (HERE[0] + 5.0, HERE[1]), 5000.0), HERE, 0.0)  # within KEEP_AWAY: whatever it is
+
+
+# --- the price of a place is the attack's cast, whatever the attack ---
+
+
+class Bolt:
+    """An attack that is no line: a cast takes 300 points off the one monster it is aimed at."""
+
+    reach = 10.0
+
+    def dealt(self, origin, focal, foes):
+        return {unit: 300.0 for unit, found in foes.items() if found.at == focal}
+
+
+def test_a_place_is_priced_by_what_the_attack_given_deals_capped_and_weighted_here():
+    seen = Observation(HERE, {1: foe(8, 0, left=450.0), 2: foe(9, 0, left=450.0, elite=True), 3: foe(15, 0)})
+    worth, casts = taken(seen, Bolt(), Field(None, None), HERE, 0.0)
+    # 3 is out of this attack's reach. A point off the elite counts twice: 600 off it, then 300 off the
+    # other (the elite's last 150 are worth no more), the elite's 150 as 300, the other's last 150.
+    assert casts == 4
+    assert worth == (600.0 + 300.0 + 300.0 + 150.0) * (1 + (HORIZON - 4 * CAST_SECONDS) / HORIZON)
+
+
+def test_a_place_is_chosen_for_the_attack_given():
+    # 14 away: within the blades' reach, out of the bolt's, which so has a place worth going to.
+    seen = Observation(HERE, {1: foe(14, 0)})
+    assert camp(seen, POLICY) is None
+    found = camp(seen, Bolt())
+    assert found is not None
+    assert math.dist(found.spot, seen.foes[1].at) <= Bolt.reach
+
+
+def test_a_bare_sweep_is_priced_as_the_one_builds_attack_with_its_numbers():
+    seen = Observation(HERE, {1: foe(8, 0, left=1e9), 2: foe(12, 0, left=1e9)})  # nothing capped by the life left
+    field = Field(None, None)
+    assert taken(seen, POLICY, field, HERE, 0.0) == taken(seen, EchoingStrike(damage_of=flat), field, HERE, 0.0)
+    assert taken(seen, POLICY, field, HERE, 0.0) != taken(seen, EchoingStrike(), field, HERE, 0.0)

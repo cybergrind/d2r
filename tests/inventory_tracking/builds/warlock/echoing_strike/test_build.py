@@ -4,6 +4,7 @@ from dataclasses import replace
 
 from inventory_tracking.builds.warlock.buffs import BUFFS
 from inventory_tracking.builds.warlock.casters import CASTERS
+from inventory_tracking.builds.warlock.echoing_strike.attack import ECHOING_STRIKE_ATTACK
 from inventory_tracking.builds.warlock.echoing_strike.build import ECHOING_STRIKE_BUILD
 from inventory_tracking.builds.warlock.movement import MOVEMENT
 from inventory_tracking.macros.default import default_build
@@ -25,9 +26,9 @@ def test_it_is_for_a_character_with_the_strike_on_a_key_or_a_mouse_button():
     assert not applies(replace(world(slots=HUNT_SLOTS), player=None))  # a loading screen: nobody's
 
 
-def test_it_moves_by_the_warlocks_sets_and_does_not_fight_yet():
+def test_it_moves_by_the_warlocks_sets_and_fights_by_echoing_strike():
     assert ECHOING_STRIKE_BUILD.movement == MOVEMENT
-    assert ECHOING_STRIKE_BUILD.attack is None
+    assert ECHOING_STRIKE_BUILD.attack is ECHOING_STRIKE_ATTACK
 
 
 def test_it_holds_the_warlocks_buff_plan_and_casters():

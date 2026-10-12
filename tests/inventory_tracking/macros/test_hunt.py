@@ -13,6 +13,7 @@ from itertools import pairwise
 
 import pytest
 
+from inventory_tracking.builds.generic import GENERIC
 from inventory_tracking.builds.warlock.buffs import CONSUME_RETRY, SIGIL_SECONDS, WARD_SECONDS
 from inventory_tracking.builds.warlock.casters import SUMMON_SPOTS
 from inventory_tracking.builds.warlock.movement import WARP_DELAY
@@ -33,8 +34,9 @@ from inventory_tracking.macros.hunt import (
     UNTOUCHED_CASTS,
     Hunter,
     hostiles,
+    strike_input,
 )
-from inventory_tracking.macros.skills import ATTACK, BLADE_WARP, ECHOING_STRIKE, TELEPORT
+from inventory_tracking.macros.skills import ATTACK, BLADE_WARP, DEATH_MARK, ECHOING_STRIKE, TELEPORT
 from inventory_tracking.macros.travel import JUMP_REACH, Step, attackable, step_walk
 from inventory_tracking.macros.world import HEALING, VALUABLE, Drop, Monster, Teleport
 from tests.inventory_tracking.macros.fakes import HUNT_SLOTS, KEYS, PREBUFF_SET, Game, player, world
@@ -402,6 +404,44 @@ def test_the_line_goes_through_two_monsters_rather_than_at_the_nearest():
     attack_mode(play, hunter(play), until=1.0)
     assert play.strikes[0][0] == 11
     assert abs(play.strikes[0][1][0] - 5000.0) < 1.5  # aimed along the line through 11 and 12
+
+
+def test_a_build_without_an_attack_stops_attack_mode_before_it_is_on():
+    play = game(foe(10, 5008.0, 5000.0))
+    hunt = Hunter(lambda: Level(101, ROOMS, ()), None, None, build=GENERIC)
+    with pytest.raises(Abort, match=r'attack mode off: the build \(generic\) has no attack of its own'):
+        hunt.attack_mode(play.run(), keys)
+    assert not play.said  # the mode was never said to be on
+    assert not play.strikes
+    assert play.pressed() == []
+    assert hunt.reach == 0.0  # and nothing is in reach of a build that does not fight
+
+
+def test_the_strike_is_the_skill_of_the_builds_attack_on_whatever_input_has_it():
+    play = game(foe(10, 5008.0, 5000.0))
+    run, seen = play.run(), play.world
+    assert strike_input(run, seen, keys, ECHOING_STRIKE) == (('7',), 'key 7')
+    on_right = replace(seen, player=replace(seen.player, right_skill=TELEPORT))
+    assert strike_input(run, on_right, keys, TELEPORT) == (('Button3',), 'right click')
+    on_left = replace(seen, slots=(None,), player=replace(seen.player, left_skill=DEATH_MARK))
+    assert strike_input(run, on_left, keys, DEATH_MARK) == (('Shift_L', 'Button1'), 'Shift+click')
+    with pytest.raises(Abort, match='Echoing Strike is on no skill key and on neither mouse button'):
+        strike_input(run, on_left, keys, ECHOING_STRIKE)
+    with pytest.raises(Abort, match=r'Teleport is on no skill key and on neither mouse button \(left Death Mark'):
+        strike_input(run, on_left, keys, TELEPORT)
+
+
+def test_a_policy_set_in_place_of_the_attack_gives_the_aim_alone():
+    hunt = hunter(game(foe(10, 5008.0, 5000.0)))
+    assert hunt.policy is hunt.build.attack is hunt.attack
+
+    def nothing(seen):
+        return None
+
+    hunt.policy = nothing
+    assert hunt.policy is nothing
+    assert hunt.attack is hunt.build.attack  # the reach, what is seen and what a cast deals stay the attack's
+    assert Hunter(policy=nothing).policy is nothing
 
 
 def test_a_monster_in_reach_is_struck_by_the_old_rule_when_the_policy_finds_no_line():

@@ -5,13 +5,14 @@ handing, the hunt, the pickup and the teleport step take the one build there is 
 module of its own, below all three, because the runner calls the pickup and the teleport step without
 the hunt (pickup.py `collect`, teleport.py `moving`) and neither may import hunt.py. This is the one
 module of the framework that imports a build (the ratchet lists it), late so that a build can import
-the framework first: the build itself, and the old names of its buff memory that tests still ask by
-(`old_rotation`).
+the framework first: the build itself, the old names of its buff memory that tests still ask by
+(`old_rotation`), and its attack made of a cast policy that tests and harnesses still hand in
+(`as_attack`).
 """
 
 from typing import TYPE_CHECKING, Any
 
-from inventory_tracking.macros.build import Build
+from inventory_tracking.macros.build import Attack, Build
 
 
 if TYPE_CHECKING:
@@ -32,3 +33,12 @@ def old_rotation(buffs: Buffs) -> Any:
     from inventory_tracking.builds.warlock.buffs import Rotation
 
     return Rotation(buffs)
+
+
+def as_attack(policy: Any) -> Attack:
+    """The one build's attack with the reach and the damage table of a line sweep made on its own:
+    for the tests and harnesses that hand `combat/stance.py` `camp` and `taken` a bare `LinePolicy`,
+    as they did before the attack was the build's. Nothing in the game's own path asks it."""
+    from inventory_tracking.builds.warlock.echoing_strike.attack import EchoingStrike
+
+    return EchoingStrike.of(policy)

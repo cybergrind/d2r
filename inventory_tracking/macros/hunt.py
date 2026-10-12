@@ -1,19 +1,21 @@
 """Attack mode and the seek step. The toggle turns attack mode on and off; the seek step goes toward
 the nearest unique or champion and leaves attack mode on. The history of each rule is in macros/plan.md.
 
-Attack mode (`Hunter.attack_mode`, a run that lives until cancelled): everything within the blades'
-REACH with a clear shot (sight.py: the flight layer of the read grids, closed doors) is fought while
-the player moves about as they like. The mouse, the keyboard and the character's own moves and casts
-are not cancels: only its toggle or the macro request ends it, the game being left, or MISSES_IN_A_ROW fights
+Attack mode (`Hunter.attack_mode`, a run that lives until cancelled): everything within the reach of
+the build's attack (macros/build.py `Attack.reach`) with a clear shot (sight.py: the flight layer of
+the read grids, closed doors) is fought while the player moves about as they like. The mouse, the
+keyboard and the character's own moves and casts are not cancels: only its toggle or the macro request
+ends it, the game being left, or MISSES_IN_A_ROW fights
 that stopped one after another. The player's hand is on the mouse all along, so the actuator aims
 once and casts at once (`Actuator.steady` off). the teleport and seek steps work meanwhile: the runner pauses the
 mode for the step and resumes it after (runner.py).
 
-A fight (`Hunter.fight`) is one hold of the input that has Echoing Strike: the right mouse button
-when it holds the skill, else its skill key, else a left click with Shift. The game casts at its own
-rate; an input idle RETAP_SECONDS is released and pressed again. The pointer is kept on the combat
-policy's line (combat/policy.py, the decision the simulator scores); a monster in reach the policy
-finds no line for is aimed at directly, the elite first, then the nearest, AIM_BEYOND past it. The
+A fight (`Hunter.fight`) is one hold of the input that has the attack's skill (the Warlock's Echoing
+Strike): the right mouse button when it holds the skill, else its skill key, else a left click with
+Shift. The game casts at its own rate; an input idle RETAP_SECONDS is released and pressed again. The
+pointer is kept where the attack aims (`Attack.aim`; for the Warlock the line of combat/policy.py, the
+decision the simulator scores); a monster in reach the attack finds no cast for is aimed at directly,
+the elite first, then the nearest, AIM_BEYOND past it. The
 build's buffs are cast under the strike and kept up between fights by its buff plan (buffs.py; for the
 Warlock builds/warlock/buffs.py: a sigil under an elite, Death Mark on the strongest monster in reach).
 The main weapon set is swapped in for a tough or hard-hitting pack (`tough`).
@@ -62,11 +64,9 @@ from inventory_tracking.combat.controller import (
 )
 from inventory_tracking.combat.policy import (
     MIN_FOCAL,
-    REACH,
     RUN_MODES,
     STRIKE_REACH,
     Choice,
-    LinePolicy,
     Policy,
     observe,
 )
@@ -83,7 +83,7 @@ from inventory_tracking.levels.model import Ground, Level, Room, Target
 from inventory_tracking.levels.route import room_at
 from inventory_tracking.macros.actuator import POINTER_DRIFT, Abort, Cancelled
 from inventory_tracking.macros.buffs import Buffs
-from inventory_tracking.macros.build import Build
+from inventory_tracking.macros.build import Attack, Build
 from inventory_tracking.macros.default import default_build, old_rotation
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.pickup import choose, unshunned
@@ -98,7 +98,6 @@ from inventory_tracking.macros.routines import (
 )
 from inventory_tracking.macros.sight import clear_shot, firing_spots, in_reach
 from inventory_tracking.macros.skills import (
-    ECHOING_STRIKE,
     SWAP_WEAPONS,
     TELEPORT,
     skill_name,
@@ -264,23 +263,23 @@ def hostiles(world: World) -> list[Monster]:
     ]
 
 
-def strike_input(run: Run, world: World, key_names) -> tuple[tuple[str, ...], str]:
-    """(what to hold, how to say it) for Echoing Strike: the right mouse button when it holds the
-    skill (as the player casts it), else its skill key, else the left button with Shift."""
+def strike_input(run: Run, world: World, key_names, skill: int) -> tuple[tuple[str, ...], str]:
+    """(what to hold, how to say it) for `skill`, the attack's strike: the right mouse button when it
+    holds the skill (as the player casts it), else its skill key, else the left button with Shift."""
     player = world.player
     assert player is not None
-    if player.right_skill == ECHOING_STRIKE:
+    if player.right_skill == skill:
         return ('Button3',), 'right click'
-    if ECHOING_STRIKE in world.slots:
+    if skill in world.slots:
         try:
-            run.keys.update(key_names(world, (ECHOING_STRIKE,)))
-            return (run.keys[ECHOING_STRIKE],), f'key {run.keys[ECHOING_STRIKE]}'
+            run.keys.update(key_names(world, (skill,)))
+            return (run.keys[skill],), f'key {run.keys[skill]}'
         except Abort as problem:
             LOG.info('Macro: %s; trying the left mouse button', problem)
-    if player.left_skill == ECHOING_STRIKE:
+    if player.left_skill == skill:
         return ('Shift_L', 'Button1'), 'Shift+click'
     raise Abort(
-        f'Echoing Strike is on no skill key and on neither mouse button '
+        f'{skill_name(skill)} is on no skill key and on neither mouse button '
         f'(left {skill_name(player.left_skill)}, right {skill_name(player.right_skill)})'
     )
 
@@ -300,11 +299,12 @@ class Hunter:
         self.level = level
         self.remembered = remembered
         self.explored = explored
-        self.policy: Policy = policy or LinePolicy()  # where to cast (combat/policy.py)
         self.score = LiveScore()  # the last minute of attack mode: damage and kills (combat/score.py)
-        # What is the build's and not the framework's; so far the ways it moves by and its buff plan. None: the
-        # one build there is, until the runner chooses it (default.py `default_build`).
+        # What is the build's and not the framework's: its attack, the ways it moves by and its buff plan.
+        # None: the one build there is, until the runner chooses it (default.py `default_build`).
         self.build: Build = build if build is not None else default_build()
+        # A policy asked where to cast in place of the build's attack (a test's, a harness's): see `policy`
+        self.aimed_by: Policy | None = policy
         self.buffs = Buffs(self.build)  # the build's buff plan as it is run, and when each cast was made (buffs.py)
         self.rotation = old_rotation(self.buffs)  # the same under its old names, for the tests (default.py)
         # The jumps the character can make and the moves made with them (travel.py), by the build's movement sets
@@ -335,6 +335,32 @@ class Hunter:
         self.stepping: Step | None = None  # the step the fight stopped for
         self.sweep = Sweep()
         self.step_asked_at: float | None = None  # clock time of a step taken, until the first cast after it
+
+    @property
+    def attack(self) -> Attack:
+        """The build's attack: the strike the fight holds, its reach, where it aims and what it deals.
+        A build without one does not fight: attack mode stops with that said."""
+        attack = self.build.attack
+        if attack is None:
+            raise Abort(f'attack mode off: the build ({self.build.name}) has no attack of its own')
+        return attack
+
+    @property
+    def reach(self) -> float:
+        """Units the build's attack reaches; 0.0 for a build that does not fight: nothing is in its reach."""
+        attack = self.build.attack
+        return 0.0 if attack is None else attack.reach
+
+    @property
+    def policy(self) -> Attack | Policy | None:
+        """What is asked where to cast (combat/controller.py `aim_choice`): the build's attack, or the
+        policy handed in or set in its place, which gives the aim alone (the reach, what is seen and
+        what a cast deals stay the attack's)."""
+        return self.aimed_by if self.aimed_by is not None else self.build.attack
+
+    @policy.setter
+    def policy(self, policy: Policy | None) -> None:
+        self.aimed_by = policy
 
     def foes(self, world: World, now: float) -> list[Monster]:
         """The hostiles the hunt goes for: `hostiles` without the ones left alone as untouchable."""
@@ -387,7 +413,8 @@ class Hunter:
         )  # fmt: skip
         # The blades' own reach, not the firing spots': a step toward an elite attack mode already
         # fights would break that fight off.
-        near = [m for m in leaders if in_reach(ground, here, (m.x, m.y), REACH, doors)]
+        reach = self.reach
+        near = [m for m in leaders if in_reach(ground, here, (m.x, m.y), reach, doors)]
         if near:
             run.say(f'{label(near[0])} is in reach: attack mode takes it')
             return
@@ -503,14 +530,14 @@ class Hunter:
             return False
         boss = min(bosses, key=lambda m: math.dist(mark, (m.x, m.y)))
         ground, at = Ground(level.ground), (boss.x, boss.y)
-        if in_reach(ground, mark, at, REACH, world.doors):
+        if in_reach(ground, mark, at, self.reach, world.doors):
             return False  # the mark is a stand with a shot at it: the step goes there as ever
         here = (player.x, player.y)
         LOG.info(
             'Macro: no shot at %s from the mark of %s, %.0f from it: the step goes for the boss, %.0f away',
             label(boss), target.label, math.dist(mark, at), math.dist(here, at),
         )  # fmt: skip
-        if in_reach(ground, here, at, REACH, world.doors):
+        if in_reach(ground, here, at, self.reach, world.doors):
             run.say(f'{label(boss)} is in reach: attack mode takes it')
             return True
         self.go(run, level, ground, player, rect, at, label(boss), world.doors, key_names)
@@ -643,12 +670,12 @@ class Hunter:
         here = (player.x, player.y)
         near = [m for m in foes if math.dist(here, (m.x, m.y)) <= SIGHT + CAMP_REACH]
         companions = [m for m in world.monsters if m.ally or m.owner != NO_OWNER]
-        seen = observe(player, near, companions, ground, world.doors)
-        policy = self.policy if isinstance(self.policy, LinePolicy) else LinePolicy()
+        attack = self.attack
+        seen = attack.sees(observe(player, near, companions, ground, world.doors), companions)
         jumps = () if run is None else self.travel.jumps(run, world)
         return camp(
             seen,
-            policy,
+            attack,
             no_footing(ground, world.doors),
             shown=lambda spot: (
                 in_view(ground_fraction(player, spot[0], spot[1], aspect)) and not self.sweep.shuns(spot)
@@ -914,6 +941,7 @@ class Hunter:
         self.stepping = None  # a step the last run of the mode was stopped before taking
         entered = run.clock()  # the mode starts anew after every teleport and seek step
         unready_since: float | None = None  # since when Echoing Strike has been on no input (see below)
+        attack = self.attack  # Abort: the build does not fight
         run.say('Attack mode on')
         while True:
             world = run.world()  # Cancelled when the runner ends the mode
@@ -943,7 +971,7 @@ class Hunter:
             level = self.known_level(player)
             ground = Ground(level.ground if level is not None else ())
             here = (player.x, player.y)
-            if not any(in_reach(ground, here, (m.x, m.y), REACH, world.doors) for m in foes):
+            if not any(in_reach(ground, here, (m.x, m.y), attack.reach, world.doors) for m in foes):
                 self.step_aside()
                 self.gather(run, here, foes)
                 if self.sweep.steps and foes and self.follow_on(run, world, foes, ground, key_names):
@@ -963,7 +991,7 @@ class Hunter:
                 self.nap(run, POLL)
                 continue
             try:
-                strike_input(run, world, key_names)
+                strike_input(run, world, key_names, attack.skill)
                 unready_since = None
             except Abort:
                 # Right after a hop the right button still holds Teleport, after a mark Death Mark: the
@@ -978,7 +1006,7 @@ class Hunter:
                 # last step: a swap after every hop of a chain of seek steps, and the staff back for the
                 # next, costs more standing than it gains. A fight begun earlier is fought with what is
                 # held and stops for the swap at that time.
-                reachable = [m for m in foes if in_reach(ground, here, (m.x, m.y), REACH, world.doors)]
+                reachable = [m for m in foes if in_reach(ground, here, (m.x, m.y), attack.reach, world.doors)]
                 boss = any(m.txt_id in BOSSES for m in reachable)  # the chain of hops ended at it
                 tough = boss or self.tough(world, reachable)
                 settled = boss or run.clock() - entered >= MAIN_AFTER
@@ -1235,19 +1263,24 @@ class Hunter:
         self, world: World, foes: list[Monster], reachable: list[Monster], ground: Ground, view: Viewport
     ) -> Choice:
         """Where to cast now (combat/controller.py `aim_choice`, the decision the simulator scores as
-        `live`): the policy's line over the hostiles in sight, else straight at what is in reach, and
-        a focal point the window lets the pointer reach. A boss in reach (terror/bosses.py) has the
-        line laid through it."""
+        `live`): the attack's cast over the hostiles in sight (for the Warlock the policy's line), else
+        straight at what is in reach, and a focal point the window lets the pointer reach. A boss in
+        reach (terror/bosses.py) has the cast laid through it."""
         player = world.player
         assert player is not None
         here = (player.x, player.y)
         near = [m for m in foes if math.dist(here, (m.x, m.y)) <= SIGHT]
         companions = [m for m in world.monsters if m.ally or m.owner != NO_OWNER]
-        seen = observe(
-            player, near, companions, ground, world.doors, aimable=lambda focal: view.reachable_focal(here, focal)
+        attack = self.attack
+        seen = attack.sees(
+            observe(
+                player, near, companions, ground, world.doors, aimable=lambda focal: view.reachable_focal(here, focal)
+            ),
+            companions,
         )
         bosses = [m.unit_id for m in reachable if m.txt_id in BOSSES]
-        found = aim_choice(self.policy, seen, [m.unit_id for m in reachable], first=bosses)
+        aimer = self.aimed_by if self.aimed_by is not None else attack
+        found = aim_choice(aimer, seen, [m.unit_id for m in reachable], first=bosses)
         assert found is not None  # the caller has something in reach
         return found
 
@@ -1295,7 +1328,8 @@ class Hunter:
         moves (the mode yields and comes back after), at `until` (the caller's swap to the main
         weapons), or after FIGHT_SECONDS."""
         started = run.clock()
-        held, how = strike_input(run, run.world(), key_names)  # before any cast: no key, no fight
+        attack = self.attack
+        held, how = strike_input(run, run.world(), key_names, attack.skill)  # before any cast: no key, no fight
         down = 0
         cast = CastWatch(started)  # the casts seen since the press (combat/controller.py)
         choice: Choice | None = None
@@ -1322,7 +1356,7 @@ class Hunter:
                 watched &= alive
                 held_input = cast.step(run.clock(), player.mode in ACTING) if again is not None else None
                 if held_input == NO_CAST:
-                    raise Abort(f'no cast seen after the {how} (Echoing Strike not on {how}?)')
+                    raise Abort(f'no cast seen after the {how} ({skill_name(attack.skill)} not on {how}?)')
                 self.casting = again is not None or player.mode in ACTING
                 self.sense(run)
                 why = 'a move was asked for' if self.move is not None else self.moving(run, world, keys=again is None)
@@ -1336,7 +1370,7 @@ class Hunter:
                 here = (player.x, player.y)
                 foes = self.foes(world, run.clock())
                 self.score.note(run.clock(), player, foes, world.dead)
-                reachable = [m for m in foes if in_reach(ground, here, (m.x, m.y), REACH, world.doors)]
+                reachable = [m for m in foes if in_reach(ground, here, (m.x, m.y), attack.reach, world.doors)]
                 if not reachable:
                     ended = 'Nothing left in reach'
                     break
@@ -1423,7 +1457,7 @@ class Hunter:
                         self.off_labels(run, view, here, choice.focal)
                         aim.put(choice.focal, here, run.actuator.keys.pointer())
                 if again is None:
-                    run.say(f'Echoing Strike ({how}) at {label(prey)}, {life(prey)}')
+                    run.say(f'{skill_name(attack.skill)} ({how}) at {label(prey)}, {life(prey)}')
                     again = stack.enter_context(run.actuator.hold(*held))
                     self.buffs.let_go = getattr(again, 'release', None)  # for a key under the strike
                     cast.began = run.clock()

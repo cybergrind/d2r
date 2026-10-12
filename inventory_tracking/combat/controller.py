@@ -3,9 +3,10 @@ and from the clock, with no memory read, key or pointer in it (review.md, findin
 in the game (macros/hunt.py) asks these and acts on the answers; the simulator asks the same ones
 (sim/policy.py, the `live` candidate), so what is scored is what the game runs, as far as it goes:
 
-- `aim_choice`: where to cast now. The policy's line, else straight at what is in reach (the elite
-  first, then the nearest, AIM_BEYOND past it), and always a focal point the window lets the pointer
-  reach (`Observation.aimable`): the line is scored with the focal point the cast will really have.
+- `aim_choice`: where to cast now. The cast the build's attack names (macros/build.py `Attack.aim`),
+  else straight at what is in reach (the elite first, then the nearest, AIM_BEYOND past it), and
+  always a focal point the window lets the pointer reach (`Observation.aimable`): the attack scores
+  its cast with the focal point it will really have.
 - `LiveAim`: `aim_choice` as a policy for the simulator, with the reach and the window of the game.
 - `Aim`: whether the pointer has to be put on the line again, and whose it is meanwhile (the player's
   hand taking it somewhere is left alone until it has rested).
@@ -22,13 +23,12 @@ these steps, Death Mark and the sigil, and the weapon swap.
 import math
 from collections.abc import Callable, Collection, Iterable
 from dataclasses import dataclass
+from typing import Protocol
 
 from inventory_tracking.combat.policy import (
     AIM_BEYOND,
-    MIN_SCORE,
     REACH,
     Choice,
-    LinePolicy,
     Observation,
     Point,
     Policy,
@@ -51,20 +51,33 @@ MOVED_UNITS = 1.0  # world units the character has gone: the move is under way
 Pixel = tuple[int, int]
 
 
+class Aimer(Protocol):
+    """What the aim is asked of: the build's attack (macros/build.py `Attack`, which this module
+    cannot import: it is below it)."""
+
+    def aim(self, seen: Observation, through: Collection[int] = ()) -> Choice | None:
+        """Where to cast now; with `through`, only a cast laid through one of those units. Or None."""
+        ...
+
+
 def aim_choice(
-    policy: Policy, seen: Observation, reachable: Iterable[int], first: Collection[int] = ()
+    attack: Aimer | Policy, seen: Observation, reachable: Iterable[int], first: Collection[int] = ()
 ) -> Choice | None:
-    """Where to cast now: the policy's line over what is seen, else straight at one of `reachable`
-    (unit ids within the blades' reach with a clear shot): the elite first, then the nearest,
-    AIM_BEYOND past it, so a monster in reach is never left standing for want of a line. The focal
+    """Where to cast now: the attack's cast over what is seen, else straight at one of `reachable`
+    (unit ids within the attack's reach with a clear shot): the elite first, then the nearest,
+    AIM_BEYOND past it, so a monster in reach is never left standing for want of a cast. The focal
     point is one the pointer can be put on (`seen.aimable`); None with nothing reachable to cast at.
-    `first` are the monsters to kill before the rest (a boss): the best line laid through one of
-    them is taken while there is one, whatever another line is worth."""
-    if first and isinstance(policy, LinePolicy) and not (policy.yields and seen.moving):
-        through = policy.choose(seen, through=first)
-        if through is not None and through.worth >= MIN_SCORE:
-            return through
-    found = policy(seen)
+    `first` are the monsters to kill before the rest (a boss): the attack's best cast laid through
+    one of them is taken while there is one, whatever another is worth. A bare policy (the
+    simulator's candidates, a test's) is asked as it is: it has no cast through `first` to give."""
+    aim = getattr(attack, 'aim', None)
+    if aim is None:
+        assert callable(attack)
+        found = attack(seen)
+    else:
+        found = aim(seen, first) if first else None
+        if found is None:
+            found = aim(seen)
     if found is not None:
         return found
     near = [(not seen.foes[unit].elite, math.dist(seen.origin, seen.foes[unit].at), unit) for unit in reachable]

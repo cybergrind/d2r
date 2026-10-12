@@ -224,9 +224,9 @@ class Attack(Protocol):
 
     def sees(self, seen: Observation, companions: Sequence[Monster]) -> Observation:
         """The observation with what this attack reads off the character's own units filled in (a
-        link they hold between monsters, a mark); `seen` itself when there is nothing. Asked once for
-        each observation the fight builds from the game, before `aim` or a place is priced; never by
-        the simulator, which builds its own."""
+        link they hold between monsters, a mark): a copy, the one given is never changed; or `seen`
+        itself when there is nothing to add. Asked once for each observation the fight builds from
+        the game, before `aim` or a place is priced; never by the simulator, which builds its own."""
         ...
 
     def aim(self, seen: Observation, through: Collection[int] = ()) -> Choice | None:
