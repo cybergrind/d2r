@@ -15,6 +15,9 @@ whole of what the framework may ask of a build, and it imports nothing from a bu
 
 Every decision here is pure: facts in, an answer out. Reading the game and making the move, the cast
 or the swap stay in macros/ (travel.py `Travel.make`, teleport.py, routines.py).
+
+`Step`, the order for one move, is defined here and not in travel.py, which makes it: travel.py
+chooses a move from `MoveFacts`, so it imports this module, and this module has to import nothing of it.
 """
 
 import math
@@ -23,12 +26,11 @@ from dataclasses import dataclass, field
 from typing import Literal, Protocol
 
 from inventory_tracking.combat.policy import Choice, Foe, Observation, Point
-from inventory_tracking.combat.stance import Jump
+from inventory_tracking.combat.stance import Camp, Jump
 from inventory_tracking.config import Config
 from inventory_tracking.levels.doors import Door
 from inventory_tracking.levels.model import Ground
 from inventory_tracking.macros.routines import Loadout
-from inventory_tracking.macros.travel import Step
 from inventory_tracking.macros.world import Monster, Teleport, World
 from inventory_tracking.terror.danger import Pack
 
@@ -86,10 +88,29 @@ class Intent:
 
 
 @dataclass(frozen=True)
+class Step:
+    """A move of the mode's own: where to, and by what (a skill the character jumps by; None: one
+    click's walk). `camp` is the place decision it came from, when one was made."""
+
+    spot: Point
+    skill: int | None = None
+    camp: Camp | None = None
+
+    @classmethod
+    def to(cls, place: Camp) -> Step:
+        """The move to a place, by the way the place was chosen for."""
+        return cls(place.spot, place.skill, place)
+
+
+@dataclass(frozen=True)
 class NoWay:
-    """A movement set's answer when it has no move: why, for the log and the player. Never empty."""
+    """A movement set's answer when it has no move: why, for the log and the player. Never empty.
+    `arrived` tells the two kinds apart: the character is as near the goal as the move was to end (a
+    goal nearer than `Intent.short` too: never a step back), where the caller stops; or nothing leads
+    on, where the caller may ask another set."""
 
     reason: str
+    arrived: bool = False  # there already: no move is wanted. False: blocked, a move is wanted and none was found
 
     def __post_init__(self) -> None:
         if not self.reason.strip():

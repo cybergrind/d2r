@@ -61,6 +61,20 @@ def test_a_movement_set_answers_with_a_step_or_a_reason(build):
 
 
 @build_cases
+def test_a_goal_within_the_stand_off_is_an_arrival_and_a_shunned_end_is_a_block(build):
+    for movement in sets_of(build):
+        for facts, goal, intent in GRID:
+            leg = movement.leg(facts, goal, intent)
+            away = math.dist(facts.here, goal)
+            if away <= intent.short:
+                assert isinstance(leg, NoWay)  # never a step back
+                assert leg.arrived
+            elif away - intent.short >= 10.0 and intent.shuns(goal):
+                assert isinstance(leg, NoWay)  # a move is wanted, and every end of one is shunned
+                assert not leg.arrived
+
+
+@build_cases
 def test_eta_is_inf_exactly_where_leg_has_no_way(build):
     for movement in sets_of(build):
         for facts, goal, intent in GRID:

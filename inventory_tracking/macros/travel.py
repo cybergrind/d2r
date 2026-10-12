@@ -1,26 +1,31 @@
 """One move of the hunt's own (macros/hunt.py): a step to a place, made by a jump or by one click's walk.
 
-`Step` is the order: where to, and the skill it is jumped by (None: a walk). `Travel` knows which jumps
-the character can make now without a weapon swap (`jumps`: Blade Warp over a clear line once its
-casting delay is over, Teleport from the staff in hand), makes a step by the way it names (`make`),
-and finds a straight stride toward a goal (`stride`). The place itself is chosen in combat/stance.py
-(`camp`), priced by these jumps.
+`Step` is the order: where to, and the skill it is jumped by (None: a walk); it is defined with the
+contracts (macros/build.py) and named here as before. The choice of a move is pure, made from
+`MoveFacts`: which jumps the character can make now without a weapon swap (`jumps_of`: Blade Warp
+over a clear line once its casting delay is over, Teleport from the staff in hand), a straight stride
+toward a goal (`stride_of`) and the walked way round a wall (`around_of`), each with the reason when
+there is none (`NoWay`). `Travel` asks them with the facts as they are now (`move_facts`), remembers
+the jumps made and failed, and makes a step by the way it names (`make`). The place itself is chosen
+in combat/stance.py (`camp`), priced by these jumps.
 """
 
 import heapq
 import math
 from collections.abc import Callable
-from dataclasses import dataclass, replace
+from dataclasses import replace
 
 from inventory_tracking.combat.stance import Camp, Jump, no_footing, way
 from inventory_tracking.common import LOG
 from inventory_tracking.levels.model import Ground
 from inventory_tracking.macros.actuator import Abort
+from inventory_tracking.macros.build import Leg, MoveFacts, NoWay, Step, nowhere
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.routines import press_skill, settle
 from inventory_tracking.macros.sight import clear_shot
 from inventory_tracking.macros.skills import BLADE_WARP, TELEPORT, skill_name
 from inventory_tracking.macros.teleport import HOVER_SECONDS, MOVED, ground_fraction, in_view, landed_from, moved
+from inventory_tracking.macros.view import Viewport
 from inventory_tracking.macros.world import NO_OWNER, Monster, World
 
 
@@ -51,26 +56,184 @@ AROUND_REACH = 70
 AROUND_DETOUR = 4.0
 AROUND_LEAST = 3.0  # units a move along that way has to make
 NEIGHBOURS = tuple((dx, dy, math.hypot(dx, dy)) for dx in (-1, 0, 1) for dy in (-1, 0, 1) if dx or dy)
+NO_ASPECT = 0.0  # the window's shape in facts asked only for the jumps: not read
 Point = tuple[float, float]
 
 
-@dataclass(frozen=True)
-class Step:
-    """A move of the mode's own: where to, and by what (a skill the character jumps by; None: one
-    click's walk). `camp` is the place decision it came from, when one was made."""
+# Why a stride or a way round has no move (`NoWay.reason`), one for each way there is none.
+THERE = 'the character is as near the goal as the move was to end'  # the one that is an arrival
+SHUNNED = 'the place a stride toward the goal ends at is shunned'
+UNSEEN = 'the end of a walk toward the goal is not in view'
+WALLED = 'no straight walk leads toward the goal: a wall in the line, or no footing at its end'
+NO_SHOT = 'a few units up to a wall the goal stands behind: the firing spot is to find'
+OPEN_GROUND = 'no wall or closed door is known: there is no way round to look for'
+NO_WAY_ROUND = 'no walked way leads nearer the goal'
+NO_SPOT_ON_WAY = 'no spot on the walked way is in view and reached by a jump over a clear line or one straight walk'
 
-    spot: Point
-    skill: int | None = None
-    camp: Camp | None = None
 
-    @classmethod
-    def to(cls, place: Camp) -> Step:
-        """The move to a place, by the way the place was chosen for."""
-        return cls(place.spot, place.skill, place)
+def move_facts(run: Run, world: World, ground: Ground | None, aspect: float, travel: Travel) -> MoveFacts:
+    """What a move is chosen from, read once: where the character stands, the clock, the skills on
+    keys, the worn staff, the level, and `travel`'s memory of the jumps made and failed. No staff
+    reader (`run.teleport` None) and a staff that is not there or cannot be read are the same fact,
+    `staff=None`: Teleport, if it is in a slot, is taken as a skill of the character's own."""
+    player = world.player
+    assert player is not None
+    return MoveFacts(
+        here=(player.x, player.y),
+        now=run.clock(),
+        slots=world.slots,
+        # The staff is read only with Teleport on a key, as before the facts were (a read of the worn
+        # items on every stride would be a new cost in the game's loop): without it no jump asks for it.
+        staff=run.teleport() if run.teleport is not None and TELEPORT in world.slots else None,
+        ground=ground,
+        doors=world.doors,
+        aspect=aspect,
+        last_used={BLADE_WARP: travel.warped_at},
+        failed=dict(travel.jump_failed),
+    )
+
+
+def jumps_of(
+    facts: MoveFacts, *, floor: int = LOW_CHARGES, distrust: float = JUMP_DISTRUST, delay: float = WARP_DELAY
+) -> tuple[Jump, ...]:
+    """The skills a step can be jumped by now without a weapon swap, the preferred first: Blade
+    Warp when it is in a slot and its casting delay (`delay`) is over, Teleport from the staff in hand
+    with `floor` charges or more, or as the character's own skill. One that moved nothing is left out
+    for `distrust` seconds."""
+
+    def trusted(skill: int) -> bool:
+        return facts.since_failed(skill) > distrust
+
+    found = []
+    if BLADE_WARP in facts.slots and trusted(BLADE_WARP) and facts.since_used(BLADE_WARP) >= delay:
+        found.append(Jump(BLADE_WARP, WARP_SECONDS, WARP_SPEED, JUMP_REACH, JUMP_LEAST, line=True))
+    if TELEPORT in facts.slots and trusted(TELEPORT):
+        staff = facts.staff
+        if staff is None or (staff.in_hand and staff.charges >= floor):
+            found.append(Jump(TELEPORT, TELEPORT_SECONDS, math.inf, JUMP_REACH, JUMP_LEAST, line=False))
+    return tuple(found)
+
+
+def jump_of(
+    facts: MoveFacts,
+    *,
+    warp: bool = True,
+    floor: int = LOW_CHARGES,
+    distrust: float = JUMP_DISTRUST,
+    delay: float = WARP_DELAY,
+) -> int | None:
+    """The skill a stride can be jumped by now (`jumps_of`), without Blade Warp when `warp` is off.
+    None: the stride is walked."""
+    able = jumps_of(facts, floor=floor, distrust=distrust, delay=delay)
+    return next((jump.skill for jump in able if warp or jump.skill != BLADE_WARP), None)
+
+
+def known(ground: Ground | None) -> Ground:
+    """The level as a line is tested over it; not known, a level with no wall read: only a closed door bars."""
+    return ground if ground is not None else Ground(())
+
+
+def stride_of(
+    facts: MoveFacts,
+    goal: Point,
+    short: float = 0.0,
+    shot: bool = False,
+    shuns: Callable[[Point], bool] = nowhere,
+    *,
+    floor: int = LOW_CHARGES,
+    distrust: float = JUMP_DISTRUST,
+    delay: float = WARP_DELAY,
+) -> Leg:
+    """A stride straight toward `goal`, to end `short` of it: a jump of up to JUMP_REACH when the
+    character can make one (`jump_of`), else a walk of STRIDE; onto footing, in view, and not to a
+    place a step failed for. With `shot` a short walk has to end with a clear shot at the goal. With
+    no such stride, the reason: THERE (an arrival; a goal nearer than `short` too), else what is in the way."""
+    here = facts.here
+    ground = known(facts.ground)
+    view = Viewport(facts.aspect)
+    away = math.dist(here, goal)
+    barred = no_footing(ground, facts.doors)
+
+    def at(stride: float) -> Point:
+        return (here[0] + (goal[0] - here[0]) * stride / away, here[1] + (goal[1] - here[1]) * stride / away)
+
+    def footed(spot: Point) -> bool:
+        return in_view(view.ground(here, spot[0], spot[1])) and (
+            barred is None or not any(barred((spot[0] + dx, spot[1] + dy)) for dx in (-1, 0, 1) for dy in (-1, 0, 1))
+        )
+
+    if away - short < MOVED:
+        return NoWay(THERE, arrived=True)
+    if shuns(at(min(away - short, STRIDE))):
+        return NoWay(SHUNNED)
+    skill = jump_of(facts, floor=floor, distrust=distrust, delay=delay)
+    if skill is not None and away - short >= JUMP_LEAST:
+        longest = min(away - short, JUMP_REACH)
+        for stride in (longest, longest * 0.75, longest * 0.5):
+            spot = at(stride)
+            if stride < JUMP_LEAST or not footed(spot):
+                continue
+            if skill == BLADE_WARP and not clear_shot(ground, here, spot, facts.doors):
+                continue  # the blade flies there: no wall in its way
+            return Step(spot, skill)
+    stride = min(away - short, STRIDE)
+    spot = at(stride)
+    if not in_view(view.ground(here, spot[0], spot[1])):
+        return NoWay(UNSEEN)
+    if not way(barred, here, spot):
+        return NoWay(WALLED)
+    if shot and stride < STRIDE / 2 and not clear_shot(ground, spot, goal, facts.doors):
+        return NoWay(NO_SHOT)  # a few units up to a wall it stands behind: the firing spot's to find
+    return Step(spot)
+
+
+def around_of(
+    facts: MoveFacts,
+    goal: Point,
+    *,
+    floor: int = LOW_CHARGES,
+    distrust: float = JUMP_DISTRUST,
+    delay: float = WARP_DELAY,
+) -> Leg:
+    """A move along the walked way to `goal` when no straight stride leads there (a wall in the
+    line): the shortest way over walkable ground, and on it the furthest spot a Blade Warp flies to
+    over a clear line, else the furthest one click's straight walk reaches. With no such way, the reason.
+    Drifter Cavern, 09:43 on 2026-10-12 (user: "KP_1 got stuck when I'm out of tp charges, probably
+    we should switch to walk/blade warp routes calculation"): the staff empty, the firing spot 26
+    units off behind a wall, and thirteen presses each ended with "no Blade Warp or walk leads"."""
+    here = facts.here
+    ground = known(facts.ground)
+    view = Viewport(facts.aspect)
+    barred = no_footing(ground, facts.doors)
+    if barred is None:
+        return NoWay(OPEN_GROUND)
+    path = walked_way(barred, here, goal)
+    if not path:
+        if (math.floor(here[0]), math.floor(here[1])) == (math.floor(goal[0]), math.floor(goal[1])):
+            return NoWay(THERE, arrived=True)  # on the goal's cell: the way has no step
+        return NoWay(NO_WAY_ROUND)
+    skill = jump_of(facts, floor=floor, distrust=distrust, delay=delay)
+    if skill == BLADE_WARP:
+        for spot in reversed(path):
+            away = math.dist(here, spot)
+            if not JUMP_LEAST <= away <= JUMP_REACH or not in_view(view.ground(here, *spot)):
+                continue
+            if clear_shot(ground, here, spot, facts.doors) and not any(
+                barred((spot[0] + dx, spot[1] + dy)) for dx in (-1, 0, 1) for dy in (-1, 0, 1)
+            ):
+                return Step(spot, skill)
+    for spot in reversed(path):
+        away = math.dist(here, spot)
+        seen = in_view(view.ground(here, *spot))
+        if AROUND_LEAST <= away <= STRIDE and seen and way(barred, here, spot):
+            return Step(spot)
+    return NoWay(NO_SPOT_ON_WAY)
 
 
 class Travel:
-    """What the character can jump by, and the moves made with it."""
+    """What the character can jump by, and the moves made with it. The choice of a move is the pure
+    functions above (`jumps_of`, `stride_of`, `around_of`), asked here with the facts as they are now
+    (`move_facts`); this holds what they cannot: the memory of the jumps made, and the making."""
 
     def __init__(self) -> None:
         self.warped_at = -math.inf  # clock time of the last Blade Warp
@@ -87,91 +250,21 @@ class Travel:
         shot: bool = False,
         shuns: Callable[[Point], bool] = lambda spot: False,
     ) -> Step | None:
-        """A stride straight toward `goal`, to end `short` of it: a jump of up to JUMP_REACH when the
-        character can make one (`jump_by`), else a walk of STRIDE; onto footing, in view, and not to a
-        place a step failed for. With `shot` a short walk has to end with a clear shot at the goal."""
-        player = world.player
-        assert player is not None
-        here = (player.x, player.y)
-        away = math.dist(here, goal)
-        barred = no_footing(ground, world.doors)
-
-        def at(stride: float) -> Point:
-            return (here[0] + (goal[0] - here[0]) * stride / away, here[1] + (goal[1] - here[1]) * stride / away)
-
-        def footed(spot: Point) -> bool:
-            return in_view(ground_fraction(player, spot[0], spot[1], aspect)) and (
-                barred is None
-                or not any(barred((spot[0] + dx, spot[1] + dy)) for dx in (-1, 0, 1) for dy in (-1, 0, 1))
-            )
-
-        if away - short < MOVED or shuns(at(min(away - short, STRIDE))):
-            return None
-        skill = self.jump_by(run, world)
-        if skill is not None and away - short >= JUMP_LEAST:
-            longest = min(away - short, JUMP_REACH)
-            for stride in (longest, longest * 0.75, longest * 0.5):
-                spot = at(stride)
-                if stride < JUMP_LEAST or not footed(spot):
-                    continue
-                if skill == BLADE_WARP and not clear_shot(ground, here, spot, world.doors):
-                    continue  # the blade flies there: no wall in its way
-                return Step(spot, skill)
-        stride = min(away - short, STRIDE)
-        spot = at(stride)
-        if not in_view(ground_fraction(player, spot[0], spot[1], aspect)) or not way(barred, here, spot):
-            return None
-        if shot and stride < STRIDE / 2 and not clear_shot(ground, spot, goal, world.doors):
-            return None  # a few units up to a wall it stands behind: the firing spot's to find
-        return Step(spot)
+        """A stride straight toward `goal`, to end `short` of it (`stride_of`); None with none,
+        whatever the reason."""
+        found = stride_of(move_facts(run, world, ground, aspect, self), goal, short, shot, shuns)
+        return found if isinstance(found, Step) else None
 
     def around(self, run: Run, world: World, ground: Ground, aspect: float, goal: Point) -> Step | None:
-        """A move along the walked way to `goal` when no straight stride leads there (a wall in the
-        line): the shortest way over walkable ground, and on it the furthest spot a Blade Warp flies to
-        over a clear line, else the furthest one click's straight walk reaches. None with no such way.
-        Drifter Cavern, 09:43 on 2026-10-12 (user: "KP_1 got stuck when I'm out of tp charges, probably
-        we should switch to walk/blade warp routes calculation"): the staff empty, the firing spot 26
-        units off behind a wall, and thirteen presses each ended with "no Blade Warp or walk leads"."""
-        player = world.player
-        assert player is not None
-        here = (player.x, player.y)
-        barred = no_footing(ground, world.doors)
-        if barred is None:
-            return None
-        path = walked_way(barred, here, goal)
-        skill = self.jump_by(run, world)
-        if skill == BLADE_WARP:
-            for spot in reversed(path):
-                away = math.dist(here, spot)
-                if not JUMP_LEAST <= away <= JUMP_REACH or not in_view(ground_fraction(player, *spot, aspect)):
-                    continue
-                if clear_shot(ground, here, spot, world.doors) and not any(
-                    barred((spot[0] + dx, spot[1] + dy)) for dx in (-1, 0, 1) for dy in (-1, 0, 1)
-                ):
-                    return Step(spot, skill)
-        for spot in reversed(path):
-            away = math.dist(here, spot)
-            seen = in_view(ground_fraction(player, *spot, aspect))
-            if AROUND_LEAST <= away <= STRIDE and seen and way(barred, here, spot):
-                return Step(spot)
-        return None
+        """A move along the walked way to `goal` when no straight stride leads there (`around_of`).
+        None with no such way."""
+        found = around_of(move_facts(run, world, ground, aspect, self), goal)
+        return found if isinstance(found, Step) else None
 
     def jumps(self, run: Run, world: World) -> tuple[Jump, ...]:
-        """The skills a step can be jumped by now without a weapon swap, the preferred first: Blade
-        Warp when it is in a slot and its casting delay is over, Teleport from the staff in hand with
-        LOW_CHARGES or more, or as the character's own skill. One that moved nothing is left out for JUMP_DISTRUST."""
-
-        def trusted(skill: int) -> bool:
-            return run.clock() - self.jump_failed.get(skill, -math.inf) > JUMP_DISTRUST
-
-        found = []
-        if BLADE_WARP in world.slots and trusted(BLADE_WARP) and run.clock() - self.warped_at >= WARP_DELAY:
-            found.append(Jump(BLADE_WARP, WARP_SECONDS, WARP_SPEED, JUMP_REACH, JUMP_LEAST, line=True))
-        if TELEPORT in world.slots and trusted(TELEPORT):
-            staff = run.teleport() if run.teleport is not None else None
-            if staff is None or (staff.in_hand and staff.charges >= LOW_CHARGES):
-                found.append(Jump(TELEPORT, TELEPORT_SECONDS, math.inf, JUMP_REACH, JUMP_LEAST, line=False))
-        return tuple(found)
+        """The skills a step can be jumped by now without a weapon swap, the preferred first
+        (`jumps_of`): asked without the level or the window, which a list of jumps reads neither of."""
+        return jumps_of(move_facts(run, world, None, NO_ASPECT, self))
 
     def jump_by(self, run: Run, world: World, *, warp: bool = True) -> int | None:
         """The skill a stride can be jumped by now (`jumps`), without Blade Warp when `warp` is off.

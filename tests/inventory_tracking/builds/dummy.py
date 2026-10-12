@@ -45,7 +45,7 @@ class DummyWalk:
         """A walk toward the goal, or the reason there is none."""
         _, spot = self.aim(facts, goal, intent)
         if spot is None:
-            return NoWay('already there')
+            return NoWay('already there', arrived=True)
         if intent.shuns(spot):
             return NoWay('the spot is shunned')
         return Step(spot)

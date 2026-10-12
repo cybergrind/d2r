@@ -123,6 +123,21 @@ def test_no_way_carries_its_reason():
     assert NoWay('the staff has no charges left').reason == 'the staff has no charges left'
 
 
+def test_no_way_is_blocked_unless_it_says_the_character_has_arrived():
+    blocked, arrived = NoWay('a wall in the line'), NoWay('already there', arrived=True)
+
+    assert not blocked.arrived  # a move was wanted: the caller may ask another set
+    assert arrived.arrived  # none is wanted: the caller stops
+    assert blocked != NoWay('a wall in the line', arrived=True)
+    with pytest.raises(ValueError, match='says why'):
+        NoWay(' ', arrived=True)  # an arrival says so in words too
+
+
+def test_a_step_is_a_contract_record_that_travel_still_names():
+    assert Step.__module__ == contracts.__name__
+    assert contracts.Step is Step  # macros/travel.py re-exports the one record
+
+
 def test_a_leg_is_a_step_or_no_way_and_never_none():
     assert isinstance(Step((3.0, 4.0)), Leg)
     assert isinstance(NoWay('a wall in the line'), Leg)
@@ -133,6 +148,7 @@ RECORDS = [
     FACTS,
     INTENT,
     NoWay('too far'),
+    Step((3.0, 4.0)),
     FALLBACK,
     BuffFacts(WORLD, 10.0),
     Buff(skill=7, phase='upkeep', due=lambda facts: True),
@@ -154,7 +170,7 @@ def test_every_dataclass_of_the_module_is_frozen():
         if dataclasses.is_dataclass(thing) and isinstance(thing, type) and thing.__module__ == contracts.__name__
     ]
 
-    assert {thing.__name__ for thing in found} == {'MoveFacts', 'Intent', 'NoWay', 'BuffFacts', 'Buff', 'Build'}
+    assert {thing.__name__ for thing in found} == {'MoveFacts', 'Intent', 'Step', 'NoWay', 'BuffFacts', 'Buff', 'Build'}
     assert all(thing.__dataclass_params__.frozen for thing in found)  # pyrefly: ignore[missing-attribute]
 
 
