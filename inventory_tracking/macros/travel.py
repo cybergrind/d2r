@@ -7,6 +7,7 @@ and finds a straight stride toward a goal (`stride`). The place itself is chosen
 (`camp`), priced by these jumps.
 """
 
+import heapq
 import math
 from collections.abc import Callable
 from dataclasses import dataclass, replace
@@ -44,6 +45,12 @@ TELEPORT_SECONDS = 0.31  # Teleport with the staff in hand
 # Nihlathak (15:10 that day); some 20 are needed to reach him.
 LOW_CHARGES = 10
 JUMP_DISTRUST = 30.0  # seconds a way of jumping that did not move the character is left alone
+# The walked way round a wall (`Travel.around`), for a staff with no charge left: Dijkstra over the
+# walkable unit cells within AROUND_REACH of the character, AROUND_DETOUR times the straight line at most.
+AROUND_REACH = 70
+AROUND_DETOUR = 4.0
+AROUND_LEAST = 3.0  # units a move along that way has to make
+NEIGHBOURS = tuple((dx, dy, math.hypot(dx, dy)) for dx in (-1, 0, 1) for dy in (-1, 0, 1) if dx or dy)
 Point = tuple[float, float]
 
 
@@ -118,6 +125,37 @@ class Travel:
             return None  # a few units up to a wall it stands behind: the firing spot's to find
         return Step(spot)
 
+    def around(self, run: Run, world: World, ground: Ground, aspect: float, goal: Point) -> Step | None:
+        """A move along the walked way to `goal` when no straight stride leads there (a wall in the
+        line): the shortest way over walkable ground, and on it the furthest spot a Blade Warp flies to
+        over a clear line, else the furthest one click's straight walk reaches. None with no such way.
+        Drifter Cavern, 09:43 on 2026-10-12 (user: "KP_1 got stuck when I'm out of tp charges, probably
+        we should switch to walk/blade warp routes calculation"): the staff empty, the firing spot 26
+        units off behind a wall, and thirteen presses each ended with "no Blade Warp or walk leads"."""
+        player = world.player
+        assert player is not None
+        here = (player.x, player.y)
+        barred = no_footing(ground, world.doors)
+        if barred is None:
+            return None
+        path = walked_way(barred, here, goal)
+        skill = self.jump_by(run, world)
+        if skill == BLADE_WARP:
+            for spot in reversed(path):
+                away = math.dist(here, spot)
+                if not JUMP_LEAST <= away <= JUMP_REACH or not in_view(ground_fraction(player, *spot, aspect)):
+                    continue
+                if clear_shot(ground, here, spot, world.doors) and not any(
+                    barred((spot[0] + dx, spot[1] + dy)) for dx in (-1, 0, 1) for dy in (-1, 0, 1)
+                ):
+                    return Step(spot, skill)
+        for spot in reversed(path):
+            away = math.dist(here, spot)
+            seen = in_view(ground_fraction(player, *spot, aspect))
+            if AROUND_LEAST <= away <= STRIDE and seen and way(barred, here, spot):
+                return Step(spot)
+        return None
+
     def jumps(self, run: Run, world: World) -> tuple[Jump, ...]:
         """The skills a step can be jumped by now without a weapon swap, the preferred first: Blade
         Warp when it is in a slot and its casting delay is over, Teleport from the staff in hand with
@@ -189,6 +227,53 @@ class Travel:
             self.jump(run, replace(found, skill=skill), player, aspect, key_names)
         else:
             step_walk(run, found.spot, player, aspect, attackable(world), name=name or 'a better place')
+
+
+def walked_way(barred: Callable[[Point], bool], start: Point, goal: Point) -> list[Point]:
+    """The shortest walk from `start` toward `goal` over cells that are not barred, as the centres of
+    its cells from the first step on; it ends on the goal's cell, or with that one out of reach on the
+    reached cell nearest the goal when that is nearer than the start. Empty: no way. The cell the
+    character stands on is taken as it is, and no corner is cut."""
+    first = (math.floor(start[0]), math.floor(start[1]))
+    last = (math.floor(goal[0]), math.floor(goal[1]))
+    limit = min(math.dist(start, goal) * AROUND_DETOUR + 10, AROUND_REACH * 3)
+    bars: dict[tuple[int, int], bool] = {}
+
+    def bar(cell: tuple[int, int]) -> bool:
+        known = bars.get(cell)
+        if known is None:
+            known = bars[cell] = barred((cell[0] + 0.5, cell[1] + 0.5))
+        return known
+
+    cost, before = {first: 0.0}, {}
+    queue = [(0.0, first)]
+    while queue:
+        gone, cell = heapq.heappop(queue)
+        if cell == last:
+            break
+        if gone > cost[cell]:
+            continue
+        for dx, dy, step in NEIGHBOURS:
+            near = (cell[0] + dx, cell[1] + dy)
+            further = gone + step
+            if further > limit or max(abs(near[0] - first[0]), abs(near[1] - first[1])) > AROUND_REACH:
+                continue
+            if further >= cost.get(near, math.inf) or bar(near):
+                continue
+            if dx and dy and (bar((cell[0] + dx, cell[1])) or bar((cell[0], cell[1] + dy))):
+                continue
+            cost[near], before[near] = further, cell
+            heapq.heappush(queue, (further, near))
+    end = last
+    if end not in cost:
+        end = min(cost, key=lambda cell: math.dist((cell[0] + 0.5, cell[1] + 0.5), goal))
+        if math.dist((end[0] + 0.5, end[1] + 0.5), goal) > math.dist(start, goal) - AROUND_LEAST:
+            return []
+    path = []
+    while end != first:
+        path.append((end[0] + 0.5, end[1] + 0.5))
+        end = before[end]
+    return path[::-1]
 
 
 def step_line(step: Step | None, here: Point) -> str:

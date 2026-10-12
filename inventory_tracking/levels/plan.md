@@ -3,6 +3,16 @@
 Drafted 2026-09-30. Status: **phases 0–6 done 2026-09-30** (uncommitted); Phase 5 confirmations are listed in its
 table (Black Marsh pending); Phase 7 (more levels) is next. Everything since the Win+C work started is uncommitted.
 
+**Farming routes (2026-10-12):** the routes, their stages, the four-layer design (facts, catalogue,
+progress, execution), the tests and the phases are in [routes.md](routes.md). Phases 1 (object marks) and
+2 (a script for every level, `inventory_tracking/routes/`) are built. Phase 3 is built too: the card leads
+with the door of the stage a level is at and the teleport step follows it (`routes/progress.py`,
+`macros/route.py`, `guide.lead_first`); Phase 4 adds the clicks on super chests, seals and the
+Durance's red portal (`Poi.use` on placed objects, `Progress.used`); Phase 5 makes the key perform fights (attack mode at
+the boss), the pickup and leaving the game (`route.press`; the tracker's `killed()` says a boss is dead). Phase 6 adds the marks of Andariel,
+Fangskin, Sarina, the council, Baal and the Arcane portal, the walk over a border and the choice of an
+alternate route by Terror Zone; four stages stay pending (the hell-pit portals, Lower Kurast's chests).
+
 ## Goal
 
 Split the level work into a **generic framework** plus small **level handlers**:
@@ -330,11 +340,12 @@ Status 2026-09-30 (user checked in game; fixtures from evidence/dumps):
 | Jail 1–3 | confirmed (user checked all levels, 2026-09-30) | jail_1, jail_2, jail_3 |
 | Barracks | unconfirmed (no evidence yet) | — |
 | Tamoe Highland, Pit 1 | confirmed (user, 2026-09-30) | — |
-| Pit 2 | no handler by design (one fixed preset, 'Cave Treasure 5', is the whole level) | — |
+| Pit 2 and the other one-preset levels | unconfirmed (2026-10-12): the mark sits on the object the layout's file places (`PoiSpec.thing`, `handlers/treasure_levels.py`; routes.md Phase 1): Cave 2, Underground Passage 2, Hole 2, Pit 2, Swampy Pit 3, Flayer Dungeon 3, Kurast Sewers 2, Frozen River, Drifter Cavern, Icy Cellar, the three hell pits | — |
 | Rocky Waste, Stony Tomb 1–2 | unconfirmed (from D2MOO/d2data, 2026-09-30; no evidence yet) | — |
 | Lower Kurast (super chest camps) | confirmed from Win+C dump 20260930T124726Z-e166c530 (player inside a camp shack): 'Act 3 - Slums 16x16' DS1 variant 1; user confirmed the mark in a second game | lower_kurast_camp, lower_kurast_game2 |
 | Cold Plains (exits, Cave) | unconfirmed; evidence 2026-09-30 (fixtures cold_plains_entry/_two_known/_all_known): three variant-3 'Wild Border' gaps; the level behind a gap (Room.leads_to) is readable only after the player was near that edge, so unknown gaps show as 'Exit' and the last one is named by elimination (`ExitsHandler`); Cave entrance marked | cold_plains_* |
 | Stony Field | unconfirmed (d2data/D2MOO, 2026-09-30): Tristram = 'Cairn Stones', Underground Passage = cave entrance, Cold Plains = the one border gap | — |
+| Tristram | unconfirmed (2026-10-12): Wirt's body at the WIRT object of Tri_Town4.ds1, (48, 179) units from the preset origin; the Cairn Stones are Stony Field's first mark since then, so the teleport step runs Stony Field -> Tristram -> Wirt's body. Both marks name an object to click (`use`): the PortalPermanent object within 40 units of the stones' mark, Wirt's body within 15 of its own, clicked until it shows searched (`macros/teleport.py` `use_thing`; not yet run in game). Wirt's Leg is a marked and picked-up material (`loot/materials.py` 'leg') | — |
 | Dark Wood | unconfirmed (2026-09-30): Underground Passage = cave entrance (evidence 20260930T120851: cliff cave), Black Marsh = the one border gap | — |
 | Cave 1 | confirmed (user walked the whole level, 2026-09-30): Cave Down, Coldcrow, Cave Prev; all 54 rooms' walls learned; Cave 2 is one fixed preset (no handler) | cave_1 |
 | Lower Kurast exits (79) | 2026-10-01: 'Slums Gate N' = Kurast Bazaar, 'Slums Gate S' = Flayer Jungle (D2MOO BuildLowerKurast), 'Burbs Waypoint'; one of each present in both real fixtures; the direction labels are unconfirmed | lower_kurast_camp, lower_kurast_game2 |
@@ -345,7 +356,7 @@ Status 2026-09-30 (user checked in game; fixtures from evidence/dumps):
 | Swampy Pit 1-2, Flayer Dungeon 1-2 (86-89) | unconfirmed: `stairs_down('Act 3 - Dungeon')` + Prev; level 3s are whole-level 'Dungeon Treasure' presets (no handler); `handlers/act3_dungeons.py` | — |
 | Sewers 1 (92) | unconfirmed: 'Sewer Drain' (Sewers 2), 'Sewer Chest', all four 'Sewer Prev' ladders as 'Way up'; Sewers 2 and the six temples are whole-level presets (no handler); `handlers/sewers.py` | — |
 | Act 2 (42-65, 2026-10-01) | unconfirmed (D2MOO DrlgOutDesr/DrlgMaze): desert entrances (`desert.py`: Dry Hills, Far Oasis, Lost City + optional Dark Elder ruin, Valley of Snakes, Canyon's 7 King Tomb entrances + 'Desert Valley Warp' as waypoint); `act2_sewers.py` (Sewers 1-3 incl. Radament, Ancient Tunnels chest); `act2_tombs.py` (Halls of the Dead 1-3 incl. Horadric Cube, Claw Viper 1); `maggot_lair.py` (Coldworm = 'Lair Tight Spot S', confirmed by Win+C at Coldworm 2026-10-01, fixture maggot_lair_3_coldworm; the first version wrongly used 'Lair Treasure W', now an optional treasure room); `palace.py` (Palace Cellar 1 waypoint = 'Basement NW' file 2); Tal Rasha gained optional Kaa and false-tomb chests. No handler: Harem 1-2, Palace Cellar 2-3 (only diagonal presets), Claw Viper 2, Duriel's Lair. Act 1/2 outdoor waypoints are objects, not presets | — |
-| Act 1 (2, 8, 10, 11, 17-19; 2026-10-01) | unconfirmed (D2MOO DrlgOutWild/DrlgMaze): `blood_moor.py` (DOE Entrance + gaps), `burial_grounds.py` (Graveyard preset + gap), `act1_caves.py` (Den of Evil Corpsefire, Underground Passage 1 with Prev = Stony Field / Next = Dark Wood assumed from Vis order, Hole 1, Crypt Bonebreak, Mausoleum chest). No handler: fixed presets (Monastery, Cloisters, Cathedral, Forgotten Tower, level 2 caves, Tristram) and Moo Moo Farm | — |
+| Act 1 (2, 8, 10, 11, 17-19; 2026-10-01) | unconfirmed (D2MOO DrlgOutWild/DrlgMaze): `blood_moor.py` (DOE Entrance + gaps), `burial_grounds.py` (Graveyard preset + gap), `act1_caves.py` (Den of Evil Corpsefire, Underground Passage 1 with Prev = Stony Field / Next = Dark Wood assumed from Vis order, Hole 1, Crypt Bonebreak, Mausoleum chest). No handler: fixed presets (Monastery, Cloisters, Cathedral, Forgotten Tower, level 2 caves) and Moo Moo Farm; Tristram has one since 2026-10-12 (`stony_field.py`) | — |
 | Act 5 outdoors + Ancients' Way (110-112, 117, 118; 2026-10-01) | unconfirmed (D2MOO DrlgOutSiege/DrlgMaze): `act5_outdoors.py` (siege strip ends, 'Barricade To Siege/To Cave/From Cave', Entrance/Exit presets as plain exits, hell portals, dirt/snow waypoints); Ancients' Way in `ice_caves.py`. No handler: Frozen River/Drifter Cavern/Icy Cellar (fixed River/Pool presets), Arreat Summit, Nihlathak's Temple, Hell 1-3 | — |
 | Crystalline Passage, Glacial Trail (113, 115) | unconfirmed (d2data levels/lvlprest, 2026-10-01; no evidence yet): level ahead = 'Ice Next' (Glacial Trail / Frozen Tundra), side cave = 'Ice Down' (Frozen River, Anya / Drifter Cavern), 'Ice waypoint', way back = 'Ice Prev'; `handlers/ice_caves.py` | — |
 | Outer Steppes (104) | unconfirmed (D2MOO DrlgOutdoors/DrlgOutPlace + d2data, 2026-10-01; no evidence yet): Plains of Despair = the open 'Mesa Border 1-4' gap (file 3; named by elimination), way back = 'Act 4 - Fortress Transition'; no waypoint; `handlers/outer_steppes.py` | — |

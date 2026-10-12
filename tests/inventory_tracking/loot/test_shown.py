@@ -4,7 +4,15 @@ import json
 
 from inventory_tracking.items.identity import ETHEREAL_FLAG, IDENTIFIED_FLAG, SOCKETED_FLAG
 from inventory_tracking.items.metadata import metadata
-from inventory_tracking.loot.shown import ShownRule, filter_rules, pickup_rules, shown_label
+from inventory_tracking.loot.shown import (
+    ShownRule,
+    filter_rules,
+    game_filter,
+    hides,
+    pickup_rules,
+    shown_gems,
+    shown_label,
+)
 
 
 BASES = metadata()['bases']
@@ -98,3 +106,34 @@ def test_the_repositorys_filter_gives_the_pickup_the_sold_uniques_and_what_a_war
     assert label('uit', 4) == 'Magic Monarch'  # 2x3: taken since the limit is 6 cells
     # Shown by the filter, left to the player's own click: 2x4
     assert label('7gd', 6) is None  # Colossus Blade
+
+
+def test_an_armor_or_a_weapon_no_rule_shows_is_hidden():
+    rules = (ShownRule(frozenset({7}), False, classes('uap')),)
+
+    assert not hides(rules, BY_CODE['uap'], 7)
+    assert hides(rules, BY_CODE['uap'], 5)  # shown as a unique only
+    assert hides(rules, BY_CODE['skp'], 7)
+    assert not hides(rules, BY_CODE['rin'], 7)  # the accessories rule shows every ring
+
+
+def test_the_gems_a_show_rule_lists_are_shown_by_code_or_all_by_the_category(tmp_path):
+    # user, 2026-10-12: chipped gems enabled in the game's filter editor
+    path = filter_file(
+        tmp_path,
+        {'itemCode': ['gcv', 'skc', 'hp5'], 'itemCategory': ['runes']},
+        {'itemCode': ['gpw'], 'enabled': False},
+        {'itemCode': ['gfb'], 'ruleType': 'hide'},
+    )
+
+    assert shown_gems(path) == {BY_CODE['gcv']: 'Chipped Amethyst', BY_CODE['skc']: 'Chipped Skull'}
+    every = filter_file(tmp_path, {'itemCategory': ['gems']})
+    assert len(shown_gems(every)) == 35
+
+
+def test_the_games_copy_of_the_profile_is_read_where_there_is_one(tmp_path):
+    path = tmp_path / 'profile.json'
+    path.write_text(json.dumps({'name': 'Lean', 'rules': []}))
+    assert game_filter(path, tmp_path) == path
+    (tmp_path / 'Lean.fltr').write_text('{}')
+    assert game_filter(path, tmp_path) == tmp_path / 'Lean.fltr'

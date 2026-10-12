@@ -37,3 +37,13 @@ def test_the_first_mark_on_level_3_is_mephisto():
     assert math.dist(poi.point, (3500 * 5 + 40, 1600 * 5 + 65)) <= 5
     assert guidance.problems == ()
     assert not handler.confirmed
+
+
+def test_the_red_portal_is_marked_on_level_3_where_the_file_places_it_with_no_layout_read():
+    bounds = (3500, 1600, 41, 29)
+    rooms = tuple(Room(796, 3500 + 8 * i, 1600 + 8 * j, 8, 8, None, bounds) for i in range(5) for j in range(3))
+    guidance = guide_level(handler_for(102), LevelSnapshot(Location(102, 0, 17690, 8070), rooms))
+    [portal] = [poi for poi in guidance.pois if poi.label == 'Red portal']
+    assert (round(portal.point[0]), round(portal.point[1])) == (3500 * 5 + 102, 1600 * 5 + 69)
+    assert portal.use == 342  # the step clicks it: HellGate
+    assert guidance.problems == ()

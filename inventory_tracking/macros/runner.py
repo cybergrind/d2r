@@ -35,20 +35,23 @@ from inventory_tracking.input.compositor import STEP_KEYS
 from inventory_tracking.input.focus import FocusTracker, owns_process
 from inventory_tracking.input.keybindings import show_items_key
 from inventory_tracking.input.keyboard import X11Keyboard
-from inventory_tracking.levels.model import Target
+from inventory_tracking.levels.model import Ground, Target
+from inventory_tracking.macros import route
 from inventory_tracking.macros.actuator import Abort, Actuator, Cancelled
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.hunt import Hunter
 from inventory_tracking.macros.journey import Journey
 from inventory_tracking.macros.latency import Press, Trace
+from inventory_tracking.macros.opening import open_near
 from inventory_tracking.macros.pickup import pick_up, wanted, worth_a_stop
 from inventory_tracking.macros.routines import SKILLS, run_macro
 from inventory_tracking.macros.skills import character_bindings, skill_keys
-from inventory_tracking.macros.teleport import LOST_KEY, card_for, step_toward
+from inventory_tracking.macros.teleport import LOST_KEY, step_toward
 from inventory_tracking.macros.timing import Pace
 from inventory_tracking.macros.waiting import Waiting
 from inventory_tracking.macros.world import GameMemory
 from inventory_tracking.models import SessionIdentity
+from inventory_tracking.routes.progress import Progress
 
 
 REQUEST_PREFIX = 'macro '
@@ -109,6 +112,10 @@ class MacroRunner:
         self.last_poll = -math.inf
         self.unread = False
         self.target: Callable[[], Target | None] | None = None  # the level card's mark (levels/guide.py)
+        # the routes' stage of each level in this game (routes/progress.py): told the game and level here,
+        # asked by the teleport step; `marks`: the places of the card's marks with a label (levels/guide.py)
+        self.progress: Progress | None = None
+        self.marks: Callable[[str], tuple[tuple[float, float], ...]] | None = None
         self.hunter: Hunter | None = None  # the seek step's and attack mode's state and sources (hunt.py)
         self.supers: Callable[[int], list[tuple[float, float]]] | None = None  # terror tracker's `supers`
         self.working = False  # a run is acting (the thread lives on a while to show its last card)
@@ -125,9 +132,7 @@ class MacroRunner:
         self.quiet_until = -math.inf  # attack mode resumes no sooner (TRAVEL_QUIET)
         self.lock = threading.RLock()  # every transition: a request, a run's end and its successor, shutdown
 
-    def request(
-        self, requested_at: float, now: float, routine: str = PREBUFF, **notes: object
-    ) -> bool:
+    def request(self, requested_at: float, now: float, routine: str = PREBUFF, **notes: object) -> bool:
         """Start `routine` (PREBUFF or a step), or toggle attack mode (HUNT_ANY). While a run works, a
         request cancels it, except a step's own request during the step (one more step) and a step
         during attack mode (the mode pauses for it and resumes after; the pickup step waits for the
@@ -257,6 +262,8 @@ class MacroRunner:
         try:
             game, area = self.place()
             self.journey.note(game, area, now)
+            if self.progress is not None:
+                self.progress.note(game, area)
             self.unread = False
             if game is None:
                 self.staff_checked = None
@@ -311,6 +318,12 @@ class MacroRunner:
             thread.join(timeout=3)  # outside the lock: the run's end takes it
         if self.focus is not None:
             self.focus.close()
+
+    def ground(self) -> Ground | None:
+        """The walkable ground of the level the guide has a map of (routines.open_spots), None without one."""
+        hunter = self.hunter
+        level = hunter.level() if hunter is not None and hunter.level is not None else None
+        return Ground(level.ground) if level is not None and level.ground else None
 
     def _say(self, text: str) -> None:
         LOG.info('Macro: %s', text)
@@ -468,36 +481,66 @@ class MacroRunner:
                 run.hurry = self.hurry
                 run.deadline = self.deadline
                 run.warps = memory.warps
+                run.things = memory.things
+                run.containers = memory.containers
+                run.objects = memory.objects
                 run.corpses = memory.corpses
                 run.arrival = lambda: self.journey.arrival(time.monotonic())
                 run.supers = self.supers
+                run.ground = self.ground
                 mark('ready')
                 if routine == TELEPORT:
                     walker = self.hunter
-                    drop = worth_a_stop(run) if walker is not None else None
-                    if walker is None:
-                        step_toward(run, card_for(run, self.target), key_names)
-                    elif drop is not None:
-                        # The step does not leave a valuable behind: this press takes it, the next hops.
-                        LOG.info('Macro: the teleport step takes %s first', drop.label)
-                        pick_up(run, walker.level() if walker.level is not None else None, key_names, lambda: None)
-                    elif (card := card_for(run, self.target)) is not None and walker.boss_step(run, card, key_names):
-                        pass  # the boss stands where its mark has no shot at it: the step went for the boss
-                    else:
-                        step_toward(
-                            run,
-                            card,
-                            key_names,
-                            lambda target: walker.foot_step(run, target, key_names),
-                            lambda target, player, spot: walker.warp_hop(run, target, player, spot, key_names),
-                        )
+
+                    def plain(card: Target | None, run=run, walker=walker) -> None:
+                        drop = worth_a_stop(run) if walker is not None else None
+                        if walker is None:
+                            step_toward(run, card, key_names)
+                        elif drop is not None:
+                            # The step does not leave a valuable behind: this press takes it, the next hops.
+                            LOG.info('Macro: the teleport step takes %s first', drop.label)
+                            pick_up(run, walker.level() if walker.level is not None else None, key_names, lambda: None)
+                        elif card is not None and walker.boss_step(run, card, key_names):
+                            pass  # the boss stands where its mark has no shot at it: the step went for the boss
+                        else:
+                            step_toward(
+                                run,
+                                card,
+                                key_names,
+                                lambda target: walker.foot_step(run, target, key_names),
+                                lambda target, player, spot: walker.warp_hop(run, target, player, spot, key_names),
+                            )
+
+                    def leave_the_game(run: Run, key_names) -> None:
+                        self.attack_mode = False  # as the macro request ends it
+                        route.leave(run, key_names)
+
+                    # One step of the stage the level is at (macros/route.py); the plain step without one.
+                    route.press(
+                        run,
+                        self.progress,
+                        self.target,
+                        self.marks,
+                        key_names,
+                        plain=plain,
+                        level=lambda: walker.level() if walker is not None and walker.level is not None else None,
+                        attack=lambda: setattr(self, 'attack_mode', True),
+                        leave=leave_the_game,
+                    )
                 elif routine == PICKUP:
                     hunter = self.hunter
                     if hunter is None:
                         raise Abort('no level guide to hunt with')
                     level = hunter.level() if hunter.level is not None else None
-                    if not pick_up(run, level, key_names, lambda: hunter.step(run, key_names)):
-                        self.attack_mode = True  # nothing to pick up: the press was a seek step, the mode follows
+                    stepped = []
+
+                    def otherwise(run=run, hunter=hunter, level=level, stepped=stepped) -> None:
+                        if not open_near(run, level, key_names):  # a chest by the character, a super chest
+                            stepped.append(hunter.step(run, key_names))
+
+                    pick_up(run, level, key_names, otherwise)
+                    if stepped:
+                        self.attack_mode = True  # nothing to pick up or open: a seek step, the mode follows
                 elif routine in (HUNT_ELITES, ATTACK):
                     if self.hunter is None:
                         raise Abort('no level guide to hunt with')

@@ -451,3 +451,16 @@ def test_the_sample_carries_the_danger_marks_the_player_was_shown(tmp_path):
 
     assert logged()['marked'] == {'deadly': [5]}
     assert logged(danger=False)['marked'] == {}  # the marks are off: nothing was shown
+
+
+def test_the_clients_terrorized_levels_are_logged_when_they_change():
+    ledger = MonsterLedger()
+    listed = MonsterSnapshot(PLAYER, frozenset(), None, (), terror_levels=(115, 116))
+    assert [e['levels'] for e in ledger.update(listed, 1.0) if e['event'] == 'terror_levels'] == [[115, 116]]
+    assert not [e for e in ledger.update(listed, 2.0) if e['event'] == 'terror_levels']
+    unread = MonsterSnapshot(PLAYER, frozenset(), None, ())
+    assert not [
+        e for e in ledger.update(unread, 3.0) if e['event'] == 'terror_levels'
+    ]  # an unread list changes nothing
+    rotated = MonsterSnapshot(PLAYER, frozenset(), None, (), terror_levels=(6, 7))
+    assert [e['levels'] for e in ledger.update(rotated, 4.0) if e['event'] == 'terror_levels'] == [[6, 7]]

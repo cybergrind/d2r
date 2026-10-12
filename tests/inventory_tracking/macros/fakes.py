@@ -4,6 +4,7 @@ import math
 import random
 from dataclasses import replace
 
+from inventory_tracking.levels.model import HELL_GATE, PORTAL
 from inventory_tracking.macros.actuator import Actuator
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.skills import (
@@ -20,7 +21,7 @@ from inventory_tracking.macros.skills import (
     TELEPORT,
 )
 from inventory_tracking.macros.timing import Pace
-from inventory_tracking.macros.world import Loot, Monster, Player, Teleport, World
+from inventory_tracking.macros.world import Loot, Monster, Player, Teleport, Thing, World
 
 
 KEYS = {SUMMON_DEFILER: 'q', CONSUME: '6', HEX_PURGE: 'g', PSYCHIC_WARD: 'r', SWAP_WEAPONS: 'c', TELEPORT: 't'}
@@ -173,10 +174,14 @@ class Game:
         self.door: tuple[float, float] | None = None  # a warp, in tiles: a click near it walks the character in
         self.swallowed_clicks = 0  # clicks in a game the game takes no notice of (a cast ends)
         self.door_above = 0.0  # classic pixels (600 high) the door is clicked above its tile; 0: on the ground
+        # an object a mark names: a click on its picture sends the character through (a portal) or opens it
+        self.thing: Thing | None = None
+        self.thing_above = 45.0  # classic pixels its picture is clicked above its ground
         self.next_area = 110
         self.sigils = []  # ground points Sigil: Lethargy was cast at
         self.engorges = []  # ground points Engorge was cast at
         self.purges = []  # clock times Hex: Purge was cast
+        self.wards = []  # and Psychic Ward
         self.unhurt = set()  # unit ids a hit takes no life from (a bird in the air, an immune)
         self.warps = []  # ground points Blade Warp took the character to
         self.warp_lands = True  # a Blade Warp moves the character
@@ -278,7 +283,7 @@ class Game:
                 buffed = bool(w.player.consume) and len(kept) == len(w.monsters)
                 self.world = replace(
                     w,
-                    monsters=(*kept, Monster(self.next_unit, 744, 1, x, y, 0xFFFFFFFF)),
+                    monsters=(*kept, Monster(self.next_unit, 744, 1, x, y, 0xFFFFFFFF, ally=True)),
                     player=replace(w.player, consume=buffed),
                 )
             elif key == 'e':
@@ -292,6 +297,10 @@ class Game:
                 self.purges.append(self.clock.now)
                 if w.player.hex_purge is not None and self.purge_shows:
                     self.world = replace(w, player=replace(w.player, hex_purge=True))
+            elif key == 'r' and w.in_game:  # Psychic Ward, as Hex: Purge above
+                self.wards.append(self.clock.now)
+                if w.player.ward is not None and self.purge_shows:
+                    self.world = replace(w, player=replace(w.player, ward=True))
             elif key == '6':
                 hit = self.consume_takes or self.pet_under_pointer()
                 if hit is not None:
@@ -323,6 +332,10 @@ class Game:
                 door = None if self.door is None else (self.door[0] * 5, self.door[1] * 5)
                 if door and self.door_under_pointer():
                     self.world = replace(w, player=replace(w.player, area=self.next_area, x=door[0], y=door[1]))
+                elif self.thing_under_pointer() and self.thing.txt_id in (PORTAL, HELL_GATE):
+                    self.world = replace(w, player=replace(w.player, area=self.next_area))
+                elif self.thing_under_pointer():
+                    self.thing = replace(self.thing, mode=2)
                 elif (drop := self.drop_under_pointer()) is not None and self.deaf_picks:
                     self.deaf_picks -= 1
                 elif drop is not None and self.slipped_picks:
@@ -348,10 +361,21 @@ class Game:
         lift = self.door_above / 16  # a pixel down the screen is 1/16 of a unit along both axes
         return math.dist((gx + lift, gy + lift), door) < 5 and math.dist((player.x, player.y), door) < 30
 
+    def thing_under_pointer(self) -> bool:
+        """Whether the pointer is on the object's picture (`thing_above` pixels above its ground), within a walk."""
+        if self.thing is None:
+            return False
+        gx, gy = self.ground_under_pointer()
+        at, player = (self.thing.x, self.thing.y), self.world.player
+        lift = self.thing_above / 16
+        return math.dist((gx + lift, gy + lift), at) < 2 and math.dist((player.x, player.y), at) < 30
+
     def unit_under_pointer(self) -> tuple[int, int]:
-        """(unit type, unit id) under the pointer: a door's tile, a drop, else nothing."""
+        """(unit type, unit id) under the pointer: a door's tile, an object, a drop, else nothing."""
         if self.door_under_pointer():
             return (5, 1)
+        if self.thing_under_pointer():
+            return (2, self.thing.unit_id)
         drop = self.drop_under_pointer()
         return (4, drop.unit_id) if drop else (0, 0)
 
@@ -448,6 +472,8 @@ class Game:
         )
         if self.hover_known:
             run.hovered = self.unit_under_pointer
+        run.things = lambda: () if self.thing is None else (self.thing,)
+        run.containers = run.things
         run.keys = dict(KEYS)
         run.prebuff_hands = frozenset(PREBUFF_SET)
         run.battle_hands = frozenset(PREBUFF_SET)

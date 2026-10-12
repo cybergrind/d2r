@@ -3390,3 +3390,128 @@ not striking, the production aim, the simulator's blades.
 - The model's misfit, kept as a strict xfail: 28/128 off the Herald by 17.1 s where the game took
   2/128 (17 units off behind its pack; the harness lets the blades through), and too little once it
   was near. One number was fitted; the shape was not.
+
+## 2026-10-12 02:42 — Psychic Ward kept up in attack mode
+
+User: "we should keep psychic ward buff for the warlock: probably it will save us sometimes".
+
+- The tables: skill 387, aurastate `psychicward` (states.txt 206), stats 361 `psychicward` and 362 `psychicwardmax`
+  in 1/256 points; no length, it lasts until used up. CybergrindAA's take manifests of 2026-10-11/12 hold
+  47360 in both (185 points) in 19 of 23, and neither stat in 4: the ward was down on entering a level.
+- `world.Player.ward`: bit 14 of the state word Hex: Purge is read from (states 192-223). Not yet seen to
+  change in the game; a wrong bit shows as two casts and the warning that the state does not show it, then a
+  cast a minute.
+- `Rotation.ward_due` / `ward`, asked where Hex: Purge is: in attack mode's loop outside town whenever the
+  state reads without it, and under the held strike not more often than WARD_SECONDS (5 s): 185 points are gone
+  in a blow or two, and a cast for every break would be most of the fight. Only when the skill is on a key.
+- Not done: the points left are not read (a ward with 10 of 185 left is not renewed), and the seek and
+  teleport steps do not cast it.
+
+## 2026-10-12 08:55 — Consume cast again by attack mode; summon spots on ground that takes a summon
+
+User: "yes, renew consume automatically and fix the summon spots" (after the takes of 02:34 to 02:46: Consume ran
+out 300 s after its cast, 238 of 1818 life with it, and a prebuff in Cave Level 1 summoned nothing in 5 s).
+
+- `hunt.Hunter.consume_due` / `consume`: in attack mode's loop, out of town, when the character's state reads
+  without Consume, both skills are on keys and no hostile is within CONSUME_CLEAR (30 units).
+  `routines.renew_consume` is the prebuff without its other buffs: the main weapons, the standing Defiler consumed
+  (or one summoned for it), another summoned after. A try that fails is logged and made again CONSUME_RETRY (20 s)
+  later. A step that waits for the fight (the pickup key) goes first.
+- `routines.open_spots`: with the level's ground known (`Run.ground`, the runner's from the hunter's level map)
+  only the spots whose straight way from the character is ground to walk on; five NEAR_SPOTS at half the distance
+  (4 to 6 units, the others 8 to 12) are added for narrow places. No map, or no spot on it: the five as before.
+- Not known: whether a summon needs more than walkable ground with a clear way (the cave's three failed spots
+  were not looked at on its map: the press was cancelled before the other two); whether a Defiler 4 units off
+  is consumed as surely as one 9 off (the bound demon beside the character crowds it sooner).
+- The fakes' Defiler is a companion now, as the takes have it (owner none, alignment set): attack mode struck it.
+
+## 2026-10-12 09:30 — the pickup step opens chests
+
+User: "in KP_1 mode - I'd like to click for ground objects that are: close to current location;
+superchests", then "we need to always click superchests/glowing chests ... we should get flag if
+object interactable or not".
+
+- macros/opening.py, called by the runner when the pickup step has nothing to pick up, before the seek
+  step: the unopened containers within 12 units (nearest first, 4 a press), else a super chest
+  anywhere the game shows one (hopped toward like a drop). A press that opened or tried is not a seek
+  step and does not turn attack mode on.
+- Containers: macros/data/containers.json, built by macros/build_containers.py from the installed
+  objects.txt: 163 classes with OperateFn 1, 3, 4, 5, 14, 19 or 20 (caskets, urns, chests, the barrel,
+  corpses and stashes, armour stands, weapon racks). Not in it: the exploding barrel, cow and chest,
+  the evil urn, quest chests, bookshelves, shrines, wells.
+- "Interactable": objects.txt's `Selectable<mode>` (and `IsAttackable0`) of the mode the object is in
+  (world.py `usable`); every chest has it for mode 0 only. Whether the unit carries a flag of its own
+  is not known: each press logs the objects within 40 units raw ("Macro: object ...", unit record and
+  0x40 bytes of object data) to find out.
+- Super chests: classes 397 and 455, the two rows with InitFn 57. Which one the glowing chest of
+  Glacial Trail (user's screenshot, 09:25) is: not known until a press beside one is logged.
+- Not played yet. Unconfirmed: the aims (classic pixels round the ground point), barrels and urns
+  (struck, not opened), locked chests (left alone 60 s after a press that opened nothing).
+
+### 09:40 — played: four opened of four, and the game's own flag
+
+Host, 09:30 to 09:32 (Glacial Trail and Drifter Cavern, user: "restarted, pressed pickup near the
+glowing chest"): the glowing chest beside the character was class 455 (opened from 4.5 away), then a
+jar from 9.3, a dead body from 7.4 and a class 397 chest from 67 away (two hops, 2.6 s in all). Every
+one took the first aim, 10 classic pixels above its ground point, 0.1 to 0.5 s after the click.
+
+The press's object dump (113 units, 21 classes) gave the flag asked for: byte +0x124 of the unit, bit
+0x02 = "can be selected". Set on all 15 units objects.txt calls selectable in their mode, clear on
+the other 98, the opened chests among them (2 -> 1 on opening); bit 0x04 was on the unbroken jars.
+world.py `things` reads it into `Thing.selectable` and `usable` goes by it, with the table for a unit
+whose flag is unread. The dump is no longer logged (GameMemory.objects stays for research).
+Still unseen: a locked chest, a barrel, an armour stand or weapon rack.
+
+## 2026-10-12 09:46 — an empty staff: the walked way round a wall
+
+User: "KP_1 got stuck when I'm out of tp charges, probably we should switch to walk/blade warp routes
+calculation in this case". Drifter Cavern, 09:43:44 to 09:43:59: the staff at 0, the nearest hostile 43
+away with its firing spot 26 off behind a wall, and thirteen presses each ended "the sweep ends: no way
+to the monster ... no Blade Warp or walk leads toward". The fallback for an empty staff looked along
+the straight line to the goal only (travel.py `stride`).
+
+- travel.py `walked_way`: Dijkstra over the walkable unit cells (closed doors barred, no corner cut)
+  within 70 units, 4 times the straight line at most; with the goal's cell out of reach, to the reached
+  cell nearest it. `Travel.around` takes from that way the furthest spot a Blade Warp flies to over a
+  clear line (8 to 26 units, in view), else the furthest one click's straight walk reaches (3 to 16).
+- Used where the staff is empty and no straight stride leads on: the seek step and the sweep
+  (hunt.py `afoot`, logged "round the wall by ...") and the teleport step's hop (`empty_hop`). With a
+  charge left nothing changes: the hop is still a Teleport.
+- Not played. Known gap: a move along the way can be followed by a straight stride back into a
+  pocket on the next press (the straight stride is tried first); not seen, not guarded against.
+
+## 2026-10-12 09:57 — the strike flew to a potion: an item's label under the aim
+
+User: "we stuck and started shooting not into mob ... it aimed off and continued shooting there until
+I started steer with mouse myself". Drifter Cavern, take 20261012T065226Z-130, 09:52:34 to 09:52:48.
+
+- Read from the take: the pointer stood at window (3466, 692), which is the ground of the Hell
+  Temptress it was put for (5.0 units off at -48 degrees; the inverse of the pointer gives her place to
+  0.05 units). The 115 blades of the 21 casts flew out between -15 and +15 degrees, 7.9 units at the
+  median. She never moved and lost 44 of 128 points in 13.8 s, to the companions; two potions lay there
+  ("2 drops (healing)", an Engorge aim beside her read an item under the pointer).
+- INFERRED, not seen: an item's label was under the pointer and the game cast at that item's place (a
+  label is drawn 24 to 84 pixels above its item, so the potion lay some 3 to 5 units to the lower
+  right, about where the blades went). The take does not hold the unit under the pointer or the drops.
+- hunt.py `off_labels`: after the fight puts the pointer, the game's record of the unit under it is
+  read; with an item there the pointer is tried +4, +8, -3, +12 and -6 units along the same line (the
+  blades fly their length along the line wherever on it the pointer is) and the first place without a
+  label is kept; "Macro: an item's label under the aim ..." is logged. A pointer that stands is looked
+  at again every 0.5 s for a drop fallen since. That log line with a fight that then kills is the proof
+  of the inference; a fight like this one without the line refutes it.
+- Why nothing else stopped it: the "takes no damage" rule needs the life unchanged over 4 casts, and
+  the companions kept taking points off her.
+
+## 2026-10-12 10:10 — Consume renewal: a Defiler of its own, and sooner after the player's key
+
+User: "auto-attack doesn't refresh consume buff right now". 09:57:59 to 09:58:50: the buff ran out
+(300 s after 09:52:49) and three tries failed: "the Defiler is crowded by class 361" then stopped by
+a key of the player's (20 s to the next try); four aims at a standing Defiler that had moved, then
+the mode was toggled; the third summoned one and pressed Consume 0.6 s later as the game was left.
+- routines.py `renew_consume` summons a Defiler for the cast and consumes that one, never the
+  standing one (it follows the character with the bound demon beside it).
+- hunt.py: a try stopped by "a key was pressed" comes again after 3 s, not 20; no try while the game
+  is in the background (11 in four minutes at 09:45).
+- Still as it was: no try with a hostile within 30 units, so in a long fight the buff stays off.
+- After the aim's label check was first written with a 0.06 s wait at every aim, six reaction tests
+  failed (the first strike a tick late): the check now reads the record on the loop's later passes.

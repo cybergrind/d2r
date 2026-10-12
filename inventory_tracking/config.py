@@ -345,13 +345,14 @@ class AppraisalConfig(Config):
     # Other drops to point at, by group (loot/materials.py): Worldstone Shards, flawless and perfect
     # gems, the Colossal Ancients' statues, the Pandemonium keys (user, 2026-10-07), charms (user, 2026-10-10),
     # the bosses' essences.
-    material_marks: tuple[Literal['shards', 'gems', 'statues', 'keys', 'charms', 'essences'], ...] = (
+    material_marks: tuple[Literal['shards', 'gems', 'statues', 'keys', 'charms', 'essences', 'leg'], ...] = (
         'shards',
         'gems',
         'statues',
         'keys',
         'charms',
         'essences',  # user, 2026-10-10 night
+        'leg',  # Wirt's Leg (user, 2026-10-12)
     )
     # Groups the pickup step takes besides the marked ones: every ring, jewel and amulet (user, 2026-10-10 night).
     pickup_also: tuple[Literal['rings', 'jewels', 'amulets'], ...] = ('rings', 'jewels', 'amulets')
@@ -409,6 +410,14 @@ class AppraisalConfig(Config):
         124,
         74,
     )
+    # Every level that is no town is recorded, whatever the list above holds (user, 2026-10-12: "can we
+    # record combat logs for all levels?"; the cow runs of that night left no take). The list is what
+    # was recorded before, and what is recorded with this off.
+    combat_everywhere: bool = True
+    # What the takes are held to (combat/retain.py): each is gzipped as it closes (about a fifteenth of
+    # its size), and past this many gigabytes in all the oldest are removed, one the character died
+    # in last. 3.4 GB were 730 takes unpacked on 2026-10-12; packed, 20 GB are tens of thousands.
+    combat_keep_gb: float = 20.0
     combat_rate: Positive = 25.0  # frames per second sampled; the engine's rate
     # Movement research: also write each monster's whole path record to the take's paths.jsonl when it
     # changes (about 1 KB a monster a change; on for every take since 2026-10-11, size not yet measured).

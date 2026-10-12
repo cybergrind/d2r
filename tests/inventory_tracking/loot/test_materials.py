@@ -7,7 +7,7 @@ def test_each_group_names_its_item_classes():
     assert sorted(material_classes(['shards']).values())[0] == 'Deep Worldstone Shard'
     assert material_classes(['keys']) == {662: 'Key of Terror', 663: 'Key of Hate', 664: 'Key of Destruction'}
     assert material_classes(['statues'])[683] == "Worusk's End"  # the table says 'Uber Ancient Summon Material Act5'
-    assert [len(material_classes([group])) for group in GROUPS] == [5, 14, 5, 3, 3, 4, 1, 1, 1]
+    assert [len(material_classes([group])) for group in GROUPS] == [5, 14, 5, 3, 3, 4, 1, 1, 1, 1]
 
 
 def test_charms_are_the_three_sizes():
@@ -38,3 +38,7 @@ def test_the_four_essences_are_a_group_of_their_own():
     assert sorted(found) == [669, 670, 671, 672]
     assert found[669] == 'Twisted Essence of Suffering'
     assert set(material_classes(('keys',)).values()) == {'Key of Terror', 'Key of Hate', 'Key of Destruction'}
+
+
+def test_wirts_leg_is_a_group_of_its_own():
+    assert material_classes(('leg',)) == {88: "Wirt's Leg"}

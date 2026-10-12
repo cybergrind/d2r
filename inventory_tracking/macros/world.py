@@ -21,6 +21,7 @@ from inventory_tracking.config import RESOURCE_READER
 from inventory_tracking.items.metadata import item_base
 from inventory_tracking.levels.doors import Door, door_sizes
 from inventory_tracking.levels.memory import pointer
+from inventory_tracking.levels.model import CLICKED, PORTAL, WIRTS_BODY
 from inventory_tracking.loot.ground import (
     GROUND_MODES,
     ground_materials,
@@ -92,6 +93,7 @@ TYPE_FLAGS = 0x1A
 MODIFIERS = slice(0x20, 0x29)
 LEADER_FLAGS = 0x02 | 0x04 | 0x08
 MINION_FLAG = 0x10
+HERALD_TIER_STAT = 367  # itemstatcost `heraldtier`: on a Terror Zone's Herald and on its minions (terror/tracker.py)
 ALIGNMENT_STAT = 172  # non-zero on allies: summons, the mercenary (terror/tracker.py)
 # A unit's skill list (third-parties/d2go memory/player.go; the Defiler dump of 2026-10-09 holds a heap
 # pointer there): pointers to the skill records on the left and right mouse button, each starting
@@ -131,6 +133,7 @@ DEFILER_CLASS = 744
 # 389) is its bit 10. Read from the tables on 2026-10-11; not yet seen to change in the game.
 STATE_FLAGS = 0xB48
 HEX_PURGE_BIT = 1 << (202 - 192)
+PSYCHIC_WARD_BIT = 1 << (206 - 192)  # states.txt `psychicward`, the aurastate of skill 387
 LYING_DEAD = 12  # monster mode: dead, the death animation (mode 0) over
 # Flags that mean something is open over the game view; the array also holds bytes that are
 # set with nothing open (Show Items, belt rows and unnamed ones).
@@ -153,6 +156,7 @@ class Player:
         default=0, compare=False, repr=False
     )  # the unit's stat list (combat/record.py reads life and mana)
     hex_purge: bool | None = None  # the Hex: Purge buff is on the character; None when unreadable
+    ward: bool | None = None  # Psychic Ward likewise
 
     @property
     def in_town(self) -> bool:
@@ -175,6 +179,7 @@ class Monster:
     stats_at: int = field(default=0, compare=False, repr=False)  # the unit's stat list, for a full read
     path: bytes = field(default=b'', compare=False, repr=False)  # the whole path record, on request (PATH_RECORD)
     modifiers: tuple[int, ...] = field(default=(), compare=False)  # monumod ids: Lightning Enchanted is 17
+    tier: int = field(default=0, compare=False)  # the tier of the Herald it is or follows (stat 367); 0: none
 
     @property
     def leader(self) -> bool:
@@ -313,12 +318,13 @@ def monsters_and_dead(
         except OSError, ValueError:
             continue
         owner = struct.unpack_from('<I', data, MONSTER_OWNER)[0]
-        ally, life, max_life = False, 0, 0
+        ally, life, max_life, tier = False, 0, 0, 0
         if unit['stats_pointer']:
             with contextlib.suppress(OSError, ValueError, struct.error):
                 full = read_stats(read, unit['stats_pointer'] + FULL_STATS)
                 stats = {s['id']: s['raw'] for s in full if s['layer'] == 0}
                 ally = bool(stats.get(ALIGNMENT_STAT))
+                tier = stats.get(HERALD_TIER_STAT, 0)
                 life, max_life = stats.get(LIFE_STAT, 0) >> 8, stats.get(MAX_LIFE_STAT, 0) >> 8
         raw = b''
         if unit['txt_id'] == DEFILER_CLASS:
@@ -326,7 +332,7 @@ def monsters_and_dead(
                 raw = read(unit['address'], 0x160) + read(unit['data_pointer'], 0x80)
         monster = Monster(unit['unit_id'], unit['txt_id'], unit['mode'], *position(path), owner, data[TYPE_FLAGS])
         monster = replace(monster, ally=ally, life=life, max_life=max_life, raw=raw, stats_at=unit['stats_pointer'])
-        found.append(replace(monster, path=record, modifiers=tuple(mod for mod in data[MODIFIERS] if mod)))
+        found.append(replace(monster, path=record, modifiers=tuple(mod for mod in data[MODIFIERS] if mod), tier=tier))
     return tuple(found), frozenset(corpses)
 
 
@@ -424,6 +430,77 @@ def warps(read, table: int) -> tuple[Warp, ...]:
             continue
         x, y = struct.unpack_from('<I', path, 0x10)[0] & 0xFFFF, struct.unpack_from('<I', path, 0x14)[0] & 0xFFFF
         found.append(Warp(unit['unit_id'], unit['txt_id'], float(x), float(y)))
+    return tuple(found)
+
+
+# The objects a level's mark may name for a click (levels/model.py): each has its `Use` in macros/teleport.py.
+USED = frozenset((PORTAL, WIRTS_BODY, *CLICKED))
+
+
+@dataclass(frozen=True)
+class Thing:
+    """An object a mark names for a click: an object unit of the loaded rooms."""
+
+    unit_id: int
+    txt_id: int  # objects.txt id
+    mode: int  # 0 until it is operated (a body searched, a chest opened)
+    x: float  # world units: what its picture and click box hang from
+    y: float
+    selectable: bool | None = field(default=None, compare=False)  # the game's own flag (UNIT_FLAGS); None: unread
+
+
+# The unit's flag word. Bit 0x02 is "can be selected": Glacial Trail and Drifter Cavern, 09:30 on
+# 2026-10-12, 113 object units of 21 classes: set on each of the 15 that objects.txt calls selectable in
+# their mode (unopened chests, jars, shrines, a well, the evil urn), clear on the 98 others (the same
+# chests and jars once opened, torches, fog, bubbles). Bit 0x04 was set on the unbroken jars only
+# (`IsAttackable0`).
+UNIT_FLAGS = 0x124
+SELECTABLE_FLAG = 0x02
+
+
+@functools.cache
+def container_table() -> dict[int, tuple[str, frozenset[int]]]:
+    """Object class id -> (objects.txt Class, the modes it can be clicked or struck in) of what is opened
+    for what it holds: chests, caskets, urns, corpses and the like (data/containers.json,
+    macros/build_containers.py)."""
+    data = json.loads((Path(__file__).parent / 'data' / 'containers.json').read_text())
+    return {int(txt): (row['class'], frozenset(row['modes'])) for txt, row in data['containers'].items()}
+
+
+def container_names() -> dict[int, str]:
+    return {txt: name for txt, (name, _modes) in container_table().items()}
+
+
+def usable(thing: Thing) -> bool:
+    """Whether the game lets the container be used as it stands: its own "can be selected" flag
+    (UNIT_FLAGS), and when that is unread objects.txt's word on its mode (`Selectable0..7`,
+    `IsAttackable0`). A chest is until it is opened."""
+    row = container_table().get(thing.txt_id)
+    if row is None:
+        return False
+    return thing.mode in row[1] if thing.selectable is None else thing.selectable
+
+
+def containers() -> frozenset[int]:
+    return frozenset(container_names())
+
+
+def things(read, table: int, classes: frozenset[int] = USED) -> tuple[Thing, ...]:
+    """The objects of `classes` among the streamed object units: by default those a mark may name."""
+    heads = struct.unpack('<128Q', read(table + OBJECT_UNIT * 1024, 1024))
+    found = []
+    for unit in walk_units(read, heads, OBJECT_UNIT)['units']:
+        if unit['txt_id'] not in classes or not unit['path_pointer']:
+            continue
+        try:
+            path = read(unit['path_pointer'], OBJECT_PATH)
+        except OSError, ValueError:
+            continue
+        x, y = struct.unpack_from('<I', path, 0x10)[0] & 0xFFFF, struct.unpack_from('<I', path, 0x14)[0] & 0xFFFF
+        selectable = None
+        with suppress(OSError, ValueError):
+            selectable = bool(read(unit['address'] + UNIT_FLAGS, 1)[0] & SELECTABLE_FLAG)
+        found.append(Thing(unit['unit_id'], unit['txt_id'], unit['mode'], float(x), float(y), selectable))
     return tuple(found)
 
 
@@ -555,9 +632,10 @@ def local_player(read, table: int) -> Player | None:
         except OSError, ValueError, struct.error:
             pass
         left, right = mouse_skills(read, unit['address'])
-        purge = None
+        purge = ward = None
         with suppress(OSError, ValueError, struct.error):
-            purge = bool(struct.unpack('<I', read(unit['stats_pointer'] + STATE_FLAGS, 4))[0] & HEX_PURGE_BIT)
+            states = struct.unpack('<I', read(unit['stats_pointer'] + STATE_FLAGS, 4))[0]
+            purge, ward = bool(states & HEX_PURGE_BIT), bool(states & PSYCHIC_WARD_BIT)
         player = Player(
             unit['unit_id'],
             name,
@@ -570,6 +648,7 @@ def local_player(read, table: int) -> Player | None:
             right,
             unit['stats_pointer'],
             purge,
+            ward,
         )
         found.append((player, unit['stats_pointer']))
     # Several player units may stand for the one character: the shared stash tabs carry its name
@@ -629,6 +708,36 @@ class GameMemory:
             return warps(self.read, self.table)
         except OSError, ValueError, struct.error:
             return ()
+
+    def things(self) -> tuple[Thing, ...]:
+        try:
+            return things(self.read, self.table)
+        except OSError, ValueError, struct.error:
+            return ()
+
+    def containers(self) -> tuple[Thing, ...]:
+        """The chests and the like the game shows now, opened or not (the pickup step opens them)."""
+        try:
+            return things(self.read, self.table, containers())
+        except OSError, ValueError, struct.error:
+            return ()
+
+    def objects(self) -> list[dict]:
+        """Research: every object unit the game shows, with its unit record and the head of its object
+        data raw (which bytes say that it can be used is not known yet, 2026-10-12)."""
+        found = []
+        with suppress(OSError, ValueError, struct.error):
+            heads = struct.unpack('<128Q', self.read(self.table + OBJECT_UNIT * 1024, 1024))
+            for unit in walk_units(self.read, heads, OBJECT_UNIT)['units']:
+                row = {key: unit[key] for key in ('unit_id', 'txt_id', 'mode')}
+                with suppress(OSError, ValueError, struct.error):
+                    path = self.read(unit['path_pointer'], OBJECT_PATH)
+                    row['x'] = struct.unpack_from('<I', path, 0x10)[0] & 0xFFFF
+                    row['y'] = struct.unpack_from('<I', path, 0x14)[0] & 0xFFFF
+                    row['unit'] = self.read(unit['address'], 0x160).hex()
+                    row['data'] = self.read(unit['data_pointer'], 0x40).hex()
+                found.append(row)
+        return found
 
     def census(self) -> list[dict]:
         return unit_census(self.read, self.table)

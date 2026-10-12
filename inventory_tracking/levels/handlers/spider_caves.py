@@ -7,9 +7,10 @@ There is no 'Prev' preset: the way out is not a named room.
 """
 
 from inventory_tracking.levels.handler import target
+from inventory_tracking.levels.model import EYE_CHEST, SUPER_CHEST
 
 
 HANDLERS = [
-    target('Spider Cave', areas={84}, label='Chest', preset=r'Act 3 - Spider Chest NE'),
-    target('Spider Cavern', areas={85}, label="Khalim's Eye", preset=r'Act 3 - Spider Chest NW'),
+    target('Spider Cave', areas={84}, label='Chest', preset=r'Act 3 - Spider Chest NE', thing=SUPER_CHEST),
+    target('Spider Cavern', areas={85}, label="Khalim's Eye", preset=r'Act 3 - Spider Chest NW', thing=EYE_CHEST),
 ]

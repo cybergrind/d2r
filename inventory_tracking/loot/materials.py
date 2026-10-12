@@ -1,7 +1,8 @@
 """Valuable drops other than runes, by item class: Worldstone Shards, flawless and perfect
 gems, the Colossal Ancients' statues and the Pandemonium keys (user, 2026-10-07), and charms of
 every size and quality, since a charm's worth shows only once identified (user, 2026-10-10), and the
-four essences the act bosses drop (the Token of Absolution's parts; user, 2026-10-10 night). Rings,
+four essences the act bosses drop (the Token of Absolution's parts; user, 2026-10-10 night), and Wirt's
+Leg from his body in Tristram (user, 2026-10-12). Rings,
 amulets and jewels of every quality are groups too, for the pickup step only (config `pickup_also`; user,
 2026-10-10 night): like a charm, either shows its worth only once identified.
 
@@ -33,6 +34,7 @@ GROUPS = {
     'rings': r'rin',  # class 537 (verified against the bases)
     'jewels': r'jew',  # class 658
     'amulets': r'amu',  # class 535
+    'leg': r'leg',  # Wirt's Leg, class 88 (weapons.txt; user, 2026-10-12): the way to the cow level
 }
 
 

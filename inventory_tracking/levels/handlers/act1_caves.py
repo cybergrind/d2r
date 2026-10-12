@@ -6,10 +6,12 @@ place 'Cave Down'; the Underground Passage also places 'Cave Next', its second w
 ways up lead to Stony Field (levels.json Vis0) and the Dark Wood (Vis1); 'Prev' is taken to be
 Vis0 and 'Next' Vis1. The Crypt places 'Crypt Prev' and 'Crypt Bonebreak', the Mausoleum
 'Crypt Prev' and 'Crypt Chest'. Level 2s (Cave 2, Hole 2, Pit 2, Underground Passage 2) are
-single fixed presets: no handler.
+single fixed presets (treasure_levels.py). The Mausoleum's mark sits on the super chest its room's
+file places (2026-10-12).
 """
 
 from inventory_tracking.levels.handler import Handler, PoiSpec, previous, stairs_down
+from inventory_tracking.levels.model import SUPER_CHEST
 
 
 CAVE = 'Act 1 - Cave'
@@ -39,6 +41,9 @@ HANDLERS = [
     Handler(
         'Mausoleum',
         frozenset({19}),
-        (PoiSpec('Chest', rf'{CRYPT} Chest [NSEW]', family=CRYPT), previous(CRYPT, 'Burial Grounds')),
+        (
+            PoiSpec('Chest', rf'{CRYPT} Chest [NSEW]', family=CRYPT, thing=SUPER_CHEST),
+            previous(CRYPT, 'Burial Grounds'),
+        ),
     ),
 ]

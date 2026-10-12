@@ -52,6 +52,7 @@ class MonsterLedger:
         self.next_summary: float | None = None
         self.life: tuple[int, int] | None = None  # the player's life as last logged
         self.next_around = -math.inf
+        self.terror_levels: tuple[int, ...] | None = None  # the client's terrorized levels as last logged
 
     @property
     def known(self) -> set[int]:
@@ -77,6 +78,9 @@ class MonsterLedger:
             if snapshot.level_hex is not None:
                 event['level_hex'] = snapshot.level_hex
             events.append(event)
+        if snapshot.terror_levels is not None and snapshot.terror_levels != self.terror_levels:
+            self.terror_levels = snapshot.terror_levels
+            events.append({'event': 'terror_levels', 't': t, 'area': here, 'levels': list(self.terror_levels)})
         if snapshot.player_life is not None and snapshot.player_life != self.life:
             self.life = snapshot.player_life
             position = {'x': location.x, 'y': location.y}

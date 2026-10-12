@@ -14,6 +14,10 @@ The accessories category is left out: rings, amulets, jewels and charms are grou
 Smaller items are preferred (user, 2026-10-11): below set quality only a base of at most
 `max_cells` inventory cells is taken, so a rare Colossus Blade or a gray Thresher stays the player's
 own click. A unique or set item is taken at any size.
+
+Gems are taken as the filter shows them too (user, 2026-10-12: "I want to get some chipped gems and
+enabled it myself"): `shown_gems`, read from the game's own copy of the profile (`game_filter`), which
+holds what the player changed in the game's filter editor.
 """
 
 import json
@@ -21,6 +25,7 @@ from dataclasses import dataclass
 from functools import cache
 from pathlib import Path
 
+from inventory_tracking.config import SHOW_ITEMS
 from inventory_tracking.items.identity import ETHEREAL_FLAG, IDENTIFIED_FLAG, SOCKETED_FLAG
 from inventory_tracking.items.metadata import metadata
 
@@ -48,6 +53,10 @@ CATEGORIES = {
     'amazo': ('abow', 'aspe', 'ajav'),
 }
 ACCESSORIES = 'acce'
+GEMS = 'gems'  # the filter's item category of every gem and skull
+# The decoder's base types of the gems: sapphire, emerald, ruby, amethyst, diamond, topaz, skull.
+GEM_TYPES = frozenset(('gems', 'geme', 'gemr', 'gema', 'gemd', 'gemt', 'gemz'))
+EQUIPMENT = frozenset(('armor', 'weapons'))  # the decoder's base categories a Show rule has to list
 
 
 @dataclass(frozen=True)
@@ -77,6 +86,28 @@ def filter_rules(path: Path = FILTER) -> tuple[ShownRule, ...]:
     return tuple(rules)
 
 
+def game_filter(path: Path = FILTER, saved_games: Path = SHOW_ITEMS.saved_games) -> Path:
+    """The game's copy of the profile at `path` (`<profile name>.fltr` among the saved games), which
+    the game rewrites on an edit in its filter editor; `path` itself where the game has none."""
+    copy = saved_games / f'{json.loads(path.read_text())["name"]}.fltr'
+    return copy if copy.exists() else path
+
+
+def shown_gems(path: Path) -> dict[int, str]:
+    """Item class ID -> name of the gems and skulls an enabled Show rule of the filter lists, by
+    item code or all of them by the gems category."""
+    codes, every = set(), False
+    for rule in json.loads(path.read_text())['rules']:
+        if rule['ruleType'] == 'show' and rule['enabled']:
+            codes.update(rule.get('itemCode', []))
+            every = every or GEMS in rule.get('itemCategory', [])
+    return {
+        int(class_id): base['name']
+        for class_id, base in metadata()['bases'].items()
+        if base.get('type') in GEM_TYPES and (every or base['code'] in codes)
+    }
+
+
 @cache
 def pickup_rules(max_cells: int, path: Path = FILTER) -> tuple[ShownRule, ...]:
     """The filter's rules as the pickup step takes them: a rule below set quality keeps only the
@@ -91,6 +122,14 @@ def pickup_rules(max_cells: int, path: Path = FILTER) -> tuple[ShownRule, ...]:
         if small:
             rules.append(ShownRule(rule.qualities - NAMED_QUALITIES, rule.gray, small))
     return tuple(rules)
+
+
+def hides(rules, class_id: int, quality: int) -> bool:
+    """Whether the filter hides an item of this base and quality: an armor or a weapon no rule shows.
+    Rings, amulets, jewels and charms are never hidden (the accessories rule, left out of `rules`)."""
+    if metadata()['bases'][str(class_id)]['category'] not in EQUIPMENT:
+        return False
+    return not any(class_id in rule.classes and quality in rule.qualities for rule in rules)
 
 
 def shown_label(rules, class_id: int, quality: int, flags: int) -> str | None:

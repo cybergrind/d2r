@@ -10,7 +10,19 @@ from dataclasses import replace
 
 import pytest
 
-from inventory_tracking.levels.model import Ground, Room, Target, Walkable, pack_cells, pack_tiles
+from inventory_tracking.levels.model import (
+    HELL_GATE,
+    PORTAL,
+    SEALS,
+    SUPER_CHEST,
+    WIRTS_BODY,
+    Ground,
+    Room,
+    Target,
+    Walkable,
+    pack_cells,
+    pack_tiles,
+)
 from inventory_tracking.macros import teleport
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.teleport import (
@@ -22,7 +34,7 @@ from inventory_tracking.macros.teleport import (
     landing,
     step_toward,
 )
-from inventory_tracking.macros.world import Teleport, Warp
+from inventory_tracking.macros.world import USED, Teleport, Thing, Warp
 from tests.inventory_tracking.macros.fakes import KEYS, SLOTS, Game, player, world
 
 
@@ -115,6 +127,85 @@ def test_a_door_the_record_never_shows_is_clicked_at_every_aim_after_two_looks(c
     assert [event[0] for event in play.keys.events] == ['click']
     assert play.world.player.area == 110
     assert any('no door under the pointer at the aims' in r.message for r in caplog.records)
+
+
+def portal_mark(point):
+    return Target(109, (HERE, *EAST), point, 'Tristram', 'target', use=PORTAL)
+
+
+def test_a_portal_in_reach_of_its_mark_is_clicked_on_its_picture_and_the_level_changes():
+    # Stony Field (user, 2026-10-12): the step stood at the Cairn Stones and never took the portal.
+    play = game()
+    play.thing = Thing(77, PORTAL, 0, 5012.0, 5004.0)  # an object beside the mark, not a warp tile
+    step_toward(play.run(), portal_mark((1001.0, 1000.0)), keys)
+    assert play.pressed() == []
+    assert [event[0] for event in play.keys.events] == ['click']
+    assert play.walks == []
+    assert play.world.player.area == 110
+    assert play.said == ['Through the portal to Tristram, 13 away', 'Tristram: there']
+
+
+def test_a_portal_aim_with_something_else_under_the_pointer_is_not_clicked():
+    play = game()
+    play.thing, play.thing_above = Thing(77, PORTAL, 0, 5012.0, 5004.0), 75  # only the second aim is on its picture
+    step_toward(play.run(), portal_mark((1001.0, 1000.0)), keys)
+    assert [event[0] for event in play.keys.events] == ['click']
+    assert play.walks == []
+    assert play.world.player.area == 110
+
+
+def test_a_portal_no_aim_shows_is_reported_without_a_click():
+    play = game()
+    play.thing, play.thing_above = Thing(77, PORTAL, 0, 5012.0, 5004.0), 300
+    with pytest.raises(Abort, match='Tristram is not under the pointer'):
+        step_toward(play.run(), portal_mark((1001.0, 1000.0)), keys)
+    assert play.keys.events == []
+
+
+def test_a_portal_far_from_the_character_is_teleported_toward_first():
+    play = game()
+    play.thing = Thing(77, PORTAL, 0, 5152.0, 5004.0)
+    step_toward(play.run(), portal_mark((1030.0, 1000.0)), keys)
+    assert play.pressed() == ['t']
+    assert play.world.player.area == 109
+
+
+def test_at_a_portals_mark_with_no_portal_open_the_step_says_so():
+    play = game()
+    with pytest.raises(Abort, match='no portal to Tristram is open here'):
+        step_toward(play.run(), portal_mark((1001.0, 1000.0)), keys)
+    assert play.pressed() == []
+
+
+def test_another_portal_far_from_the_mark_is_not_the_marks():
+    play = game()
+    play.thing = Thing(77, PORTAL, 0, 5012.0, 5004.0)  # a portal here, the mark's a screen away
+    step_toward(play.run(), portal_mark((1030.0, 1000.0)), keys)
+    assert play.pressed() == ['t']
+    assert play.world.player.area == 109
+
+
+def body_mark(point):
+    return Target(38, (HERE, *EAST), point, "Wirt's body", 'target', use=WIRTS_BODY)
+
+
+def test_a_body_at_its_mark_is_clicked_until_it_shows_searched():
+    play = game(area=38)
+    play.thing, play.thing_above = Thing(78, WIRTS_BODY, 0, 5010.0, 5002.0), 0  # it lies on its ground point
+    step_toward(play.run(), body_mark((1002.0, 1000.4)), keys)
+    assert play.pressed() == []
+    assert [event[0] for event in play.keys.events] == ['click']
+    assert play.thing.mode == 2
+    assert play.world.player.area == 38
+    assert play.said == ["Searching Wirt's body, 10 away", "Wirt's body: searched"]
+
+
+def test_a_body_searched_already_is_not_clicked_again():
+    play = game(area=38)
+    play.thing, play.thing_above = Thing(78, WIRTS_BODY, 2, 5010.0, 5002.0), 0
+    step_toward(play.run(), body_mark((1002.0, 1000.4)), keys)
+    assert play.keys.events == []
+    assert play.said == ["At Wirt's body"]
 
 
 def test_the_click_that_took_a_levels_door_is_tried_first_next_time():
@@ -873,3 +964,44 @@ def test_a_hop_is_planned_during_a_cast_that_takes_the_character_nowhere():
     started = run.clock()
     assert teleport.settled(run, striking) == striking
     assert run.clock() == started
+
+
+def placed(kind, label, point=(1002.0, 1000.4)):
+    return Target(109, (HERE, *EAST), point, label, 'target', use=kind)
+
+
+@pytest.mark.parametrize(
+    ('kind', 'label', 'said'),
+    [
+        (SUPER_CHEST, 'Super chest', ['Opening Super chest, 10 away', 'Super chest: opened']),
+        (SEALS[4], 'Vizier seal 1', ['Opening Vizier seal 1, 10 away', 'Vizier seal 1: open']),
+    ],
+)
+def test_a_chest_or_a_seal_at_its_mark_is_clicked_until_it_shows_operated(kind, label, said):
+    play = game()
+    play.thing, play.thing_above = Thing(78, kind, 0, 5010.0, 5002.0), 10
+    step_toward(play.run(), placed(kind, label), keys)
+    assert [event[0] for event in play.keys.events] == ['click']
+    assert play.thing.mode == 2
+    assert play.said == said
+
+
+def test_a_chest_far_from_the_character_is_hopped_toward_first():
+    play = game()
+    play.thing = Thing(78, SUPER_CHEST, 0, 5150.0, 5002.0)
+    step_toward(play.run(), placed(SUPER_CHEST, 'Super chest', (1030.0, 1000.4)), keys)
+    assert play.pressed() == ['t']
+    assert play.thing.mode == 0
+
+
+def test_the_red_portal_of_the_durance_is_gone_through_like_the_one_to_tristram():
+    play = game()
+    play.thing, play.thing_above = Thing(78, HELL_GATE, 2, 5010.0, 5002.0), 40
+    play.next_area = 103
+    step_toward(play.run(), placed(HELL_GATE, 'Red portal'), keys)
+    assert play.world.player.area == 103
+    assert play.said[-1] == 'Red portal: there'
+
+
+def test_the_game_is_asked_for_every_object_the_step_clicks():
+    assert frozenset(teleport.USES) == USED

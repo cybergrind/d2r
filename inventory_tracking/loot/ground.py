@@ -34,7 +34,7 @@ from inventory_tracking.levels.memory import player_location
 from inventory_tracking.levels.model import Location
 from inventory_tracking.loot.materials import appraised_classes
 from inventory_tracking.loot.runes import is_valuable_rune
-from inventory_tracking.loot.shown import shown_label
+from inventory_tracking.loot.shown import filter_rules, hides, shown_label
 from inventory_tracking.loot.shrines import SHRINE_NAMES
 from inventory_tracking.loot.uniques import BASES, unique_drop
 from inventory_tracking.native.layout import OBJECT_SHRINE_TABLE, OBJECT_SHRINE_TYPE
@@ -220,8 +220,13 @@ def ground_shown(read, table_address, rules) -> list[GroundMaterial]:
     return found
 
 
-def ground_uniques(read, table_address, *, minimum: float) -> list[GroundUnique]:
-    """Unique- and set-quality ground items whose base has such an item asking `minimum` Ist or more."""
+def ground_uniques(read, table_address, *, minimum: float, rules=None) -> list[GroundUnique]:
+    """Unique- and set-quality ground items whose base has such an item asking `minimum` Ist or more.
+
+    Not one the loot filter hides (`rules`, loot/shown.py; the filter's own by default): the filter
+    goes by sales and the mark by asks, and a mark on a drop without a label points at nothing to click
+    (user, 2026-10-12: Tarnhelm asked 2.58 Ist on 2026-09-18 and sold at a median of 0.20 on 2026-10-09)."""
+    rules = filter_rules() if rules is None else rules
     heads = struct.unpack('<128Q', read(table_address + ITEM_UNIT * 1024, 1024))
     uniques = []
     for unit in walk_units(read, heads, ITEM_UNIT)['units']:
@@ -235,6 +240,8 @@ def ground_uniques(read, table_address, *, minimum: float) -> list[GroundUnique]
         quality = struct.unpack_from('<I', data, QUALITY_OFFSET)[0]
         table_id = struct.unpack_from('<I', data, IDENTITY_OFFSET)[0]
         identified = bool(struct.unpack_from('<I', data, FLAGS_OFFSET)[0] & IDENTIFIED_FLAG)
+        if hides(rules, unit['txt_id'], quality):
+            continue
         label = unique_drop(unit['txt_id'], minimum=minimum, table_id=table_id, identified=identified, quality=quality)
         if label is not None:
             uniques.append(GroundUnique(label, unit['unit_id'], x, y, table_id))

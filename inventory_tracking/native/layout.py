@@ -19,6 +19,12 @@ SHOW_ITEMS_RVA = 0x1EBD164
 # inventory), cube +0x19 in the cube captures, mercenary +0x1E in the one mercenary
 # panel capture. The Show Items byte above is +0x0C of the same array.
 UI_PANELS_RVA = 0x1EBD158
+# The client's Terror Zone service ("ClientTerrorZoneService" in its log lines): a pointer in the
+# image to an object holding the levels terrorized now, an array of 16-byte entries (the level id
+# first) at +0x80 and their number at +0x88. Read off the code that prints the levels' names on the
+# automap (0x140ca6dd9..0x140ca6e80 of the decrypted image, 2026-10-12); not yet seen live.
+TERROR_SERVICE_RVA = 0x1E00508
+TERROR_LEVELS, TERROR_LEVEL_COUNT, TERROR_LEVEL_ENTRY = 0x80, 0x88, 0x10
 UI_PANELS_SIZE = 0x20
 PANEL_FLAGS = {
     'inventory': 0x01,

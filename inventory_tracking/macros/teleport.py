@@ -30,11 +30,21 @@ import heapq
 import json
 import math
 from collections.abc import Callable
+from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
 
 from inventory_tracking.common import LOG
-from inventory_tracking.levels.model import Ground, Target
+from inventory_tracking.levels.model import (
+    ARCANE_PORTAL,
+    HELL_GATE,
+    PORTAL,
+    SEALS,
+    SUPER_CHEST,
+    WIRTS_BODY,
+    Ground,
+    Target,
+)
 from inventory_tracking.levels.presets import warp_box
 from inventory_tracking.levels.route import Point, room_at
 from inventory_tracking.macros.actuator import Abort
@@ -42,7 +52,7 @@ from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.routines import ACTING, press_skill, settle, swap_until, world_point
 from inventory_tracking.macros.skills import BLADE_WARP, SWAP_WEAPONS, TELEPORT
 from inventory_tracking.macros.view import CORNER_BOTTOM, UNIT_PIXELS, VIEW, Viewport
-from inventory_tracking.macros.world import Player, Warp, World
+from inventory_tracking.macros.world import Player, Thing, Warp, World
 from inventory_tracking.native.layout import TILE_UNITS
 
 
@@ -143,6 +153,60 @@ DOOR_CLICKS = 2
 # A character that has not moved this long after a click was not sent anywhere (a door took one in 0.37 s at most).
 STILL_SECONDS = 0.5
 WARP_NEAR = 12.0  # world units from the mark to its door unit (the tower's in Black Marsh: 7.0)
+# An object the mark names (`Target.use`) is clicked like a door, but it is an object unit, not a warp
+# tile: the door code has no place for it and takes an object under the pointer for a miss. Stony Field
+# (user, 2026-10-12): the step stood at the Cairn Stones, "At Tristram", and the portal was never taken.
+# An aim is clicked only with that object in the game's record of the unit under the pointer.
+OBJECT_UNIT = 2
+
+
+@dataclass(frozen=True)
+class Use:
+    """How an object a mark names is clicked and what shows that it took."""
+
+    aims: tuple[tuple[int, int], ...]  # classic pixels from its ground point, tried in turn
+    near: float  # world units from the mark to the object
+    leaves: bool  # it took when the level changed; else when the object's mode did
+    begun: str  # said before the click
+    done: str  # and after it took
+    absent: str  # at the mark with no such object shown
+
+
+CHEST_AIMS = ((0, -10), (0, 0), (0, -22), (12, -10), (-12, -10), (0, -36))
+USES = {
+    # objects.txt's click box of PortalPermanent: 80 pixels wide round its ground point, from 100 above it
+    # to 10 below; the aims go down its middle. The stones' map piece is 40 units across, the mark its middle.
+    PORTAL: Use(
+        ((0, -45), (0, -75), (0, -15)), 40.0, True,
+        'Through the portal to {}', '{}: there', 'no portal to {} is open here',
+    ),
+    # objects.txt gives the body no box: it is taken by its picture, which lies on its ground point. It can
+    # be searched once (Selectable0 only): mode 0 until then.
+    WIRTS_BODY: Use(
+        ((0, 0), (0, -8), (12, -4), (-12, -4)), 15.0, False,
+        'Searching {}', '{}: searched', '{} is not here',
+    ),
+    # The red portal on Mephisto's bridge: objects.txt's box is 80 pixels wide round its ground point and
+    # 80 high above it. Not seen clicked by the step yet (levels/routes.md, Phase 4).
+    HELL_GATE: Use(
+        ((0, -40), (0, -65), (0, -15)), 10.0, True,
+        'Through {}', '{}: there', '{} is not open here',
+    ),
+    # The portal to the Arcane Sanctuary in Palace Cellar 3: objects.txt's box is 60 pixels wide round its
+    # ground point and 80 high above it. Not seen clicked by the step yet (routes.md, Phase 6).
+    ARCANE_PORTAL: Use(
+        ((0, -40), (0, -65), (0, -15)), 10.0, True,
+        'Through the portal to {}', '{}: there', 'no portal to {} is here',
+    ),
+    # The glowing chest, where the game's files place it (the mark is on it). The aims are the ones that
+    # opened the two on the host on 2026-10-12 (macros/opening.py AIMS), each by the first.
+    SUPER_CHEST: Use(CHEST_AIMS, 10.0, False, 'Opening {}', '{}: opened', '{} is not here'),
+    # The Chaos Sanctuary's seals: objects.txt gives them no box (taken by their picture, which stands on
+    # their ground point) and one mode they can be clicked in. Not seen clicked by the step yet.
+    **dict.fromkeys(SEALS, Use(CHEST_AIMS, 10.0, False, 'Opening {}', '{}: open', '{} is not here')),
+}  # fmt: skip
+THING_REACH = 25.0  # world units from the character to an object it is sent to by a click
+THING_SECONDS = 4.0  # the walk to it and what follows
 LOOKS = 2  # times the aims are looked at for a door under them before one is clicked without (0.14 s an aim)
 
 
@@ -595,6 +659,77 @@ def walk_into(run: Run, target: Target, player: Player, aspect: float) -> None:
     raise Abort(f'no click took {target.label}')
 
 
+def marked_thing(run: Run, target: Target) -> Thing | None:
+    """The object the mark names: the one of its kind nearest the mark among those the game shows near it."""
+    mark, use = scaled(target.point), USES[target.use]
+    near = [
+        t
+        for t in (run.things() if run.things is not None else ())
+        if t.txt_id == target.use and math.dist((t.x, t.y), mark) <= use.near
+    ]
+    return min(near, key=lambda t: math.dist((t.x, t.y), mark)) if near else None
+
+
+def use_thing(run: Run, target: Target, player: Player, thing: Thing, aspect: float) -> None:
+    """Click the object's picture and watch the walk until it took: the level changed (a portal) or the
+    object's mode did (a body searched). An aim is clicked only with the object under the pointer by the
+    game's own record (`run.hovered`); without that record the aims are clicked as they are."""
+    use, at = USES[target.use], (thing.x, thing.y)
+    if not use.leaves and thing.mode:
+        run.say(f'At {target.label}')  # used already: the mark is only a place now
+        return
+    run.say(f'{use.begun.format(target.label)}, {math.dist((player.x, player.y), at):.0f} away')
+    LOG.info(
+        'Macro: object %d (class %d) of %s at (%.1f, %.1f), %.1f from the mark; the character at (%.1f, %.1f)',
+        thing.unit_id, thing.txt_id, target.label, *at, math.dist(at, scaled(target.point)), player.x, player.y,
+    )  # fmt: skip
+
+    def took() -> bool:
+        now = run.world().player
+        if use.leaves:
+            return now is None or now.area != target.area
+        return any(t.unit_id == thing.unit_id and t.mode for t in (run.things() if run.things is not None else ()))
+
+    seen = False
+    for aim in use.aims:
+        across, down = ground_fraction(player, *at, aspect)
+        where = (across + aim[0] * UNIT_PIXELS[0] / 16 / aspect, down + aim[1] * UNIT_PIXELS[1] / 8)
+        if not in_view(where):
+            continue
+        run.actuator.aim(*where, scatter=(4, 3))
+        if run.hovered is not None:
+            run.pace.sleep(HOVER_SECONDS)
+            over = run.hovered()
+            if over != (OBJECT_UNIT, thing.unit_id):
+                LOG.info('Macro: the aim %s pixels from %s has %s under it; not clicked', aim, target.label, over)
+                continue
+        seen = True
+        for _ in range(DOOR_CLICKS):
+            settle(run, 0.0, STILL_SECONDS)
+            stood = (player.x, player.y)
+            run.actuator.click()
+            deadline, still, stirred = run.clock() + THING_SECONDS, run.clock() + STILL_SECONDS, False
+            while True:
+                if took():
+                    LOG.info('Macro: %s took the click %s pixels from its ground', target.label, aim)
+                    run.say(use.done.format(target.label))
+                    return
+                player = run.world().player or player
+                stirred = stirred or (player.x, player.y) != stood
+                if run.clock() >= deadline or (run.clock() >= still and not stirred):
+                    break
+                run.pace.sleep(WALK_POLL)
+            LOG.info(
+                'Macro: %s did not take the click %s pixels from its ground; the character now at (%.1f, %.1f)',
+                target.label, aim, player.x, player.y,
+            )  # fmt: skip
+            if stirred:
+                break  # it walked and nothing came of it: the next aim, from where it stands
+    if not seen:
+        raise Abort(f'{target.label} is not under the pointer at any aim')
+    raise Abort(f'no click took {target.label}')
+
+
 def world_slots(world) -> str:
     return ','.join('-' if skill is None else str(skill) for skill in world.slots)
 
@@ -674,6 +809,15 @@ def step_toward(
         raise Abort(f'the only way marked is back to {target.label}')
     aspect = rect[2] / rect[3]
     here = (player.x, player.y)
+    if target.use:
+        thing = marked_thing(run, target)
+        at_mark = math.dist(here, scaled(target.point)) <= SPOT_NEAR  # no hop leads nearer than this
+        if thing is not None and (at_mark or math.dist(here, (thing.x, thing.y)) <= THING_REACH):
+            use_thing(run, target, player, thing, aspect)
+            return
+        if thing is None and at_mark:
+            # The game shows the objects a screen round the character: none at the mark is none there.
+            raise Abort(USES[target.use].absent.format(target.label))
     entry = entry_spot(target)
     if entry is not None and math.dist(here, scaled(entry)) <= ENTRY_NEAR:
         at_door = True  # on the door's own spot: clicked from here

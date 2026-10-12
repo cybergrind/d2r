@@ -234,7 +234,7 @@ def test_a_drop_of_the_characters_life_is_written_with_who_was_striking_and_what
     target = b'\0' * 0x7C + me.unit_id.to_bytes(4, 'little')  # the path record names the character
 
     def stats(at):
-        return {6: next(life) << 8, 7: 1783 << 8, 41: 75} if at == 0x20 else {12: 75, 367: 2}
+        return {6: next(life) << 8, 7: 1783 << 8, 36: -90, 41: 108} if at == 0x20 else {12: 75, 367: 2}
 
     def sample(mode):
         herald = Monster(7, 55, mode, me.x + 8.0, me.y, 0xFFFFFFFF, 0x08, life=92, max_life=128, stats_at=0x10)
@@ -255,7 +255,7 @@ def test_a_drop_of_the_characters_life_is_written_with_who_was_striking_and_what
     take = Take.load(next(tmp_path.iterdir()))
 
     # The character's own stats (its resistances) are in the manifest, each unit's enchantments with it.
-    assert take.manifest['character_stats'] == {'6': 1500 << 8, '7': 1783 << 8, '41': 75}
+    assert take.manifest['character_stats'] == {'6': 1500 << 8, '7': 1783 << 8, '36': -90, '41': 108}
     assert {unit['unit']: unit['mods'] for unit in take.units} == {7: [30, 28, 17], 8: []}
     hurt = [event for event in take.events if event['event'] == 'hurt']
     # The Herald aimed at the character and swinging 8 units off is the suspect; the one 40 units off and
@@ -266,3 +266,5 @@ def test_a_drop_of_the_characters_life_is_written_with_who_was_striking_and_what
     ]
     assert hurt[0]['by'] == [[7, 55, 0x08, 4, 8.0, 1, [30, 28, 17]]]
     assert hurt[0]['near'] == [[195, 2.5]]
+    # The character's resistances at that frame (physical, fire, lightning, cold, poison): Amplify Damage is on it.
+    assert hurt[0]['resists'] == [-90, 0, 108, 0, 0]

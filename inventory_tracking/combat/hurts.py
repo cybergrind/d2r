@@ -108,6 +108,17 @@ def row(lost: int, life: int, max_life: int, by: list[list[Any]], near: list[lis
     return {'lost': lost, 'life': life, 'max_life': max_life, 'dead': life <= 0, 'by': by, 'near': near}
 
 
+def lost(life_before: int, most_before: int, life: int, most: int) -> int:
+    """The points a blow took between two frames. When the most the life can be fell with it (a buff
+    ran out, the other weapons were taken), the life is first brought down in the same proportion and
+    that is no blow: of 34 drops in five takes of 2026-10-12 the largest two were Consume ending, 1818
+    of 1818 to 1580 of 1580 and 1612 of 1783 to 1392 of 1540. Not at a death: it ends the buffs itself
+    (Tower Cellar 5: 1051 of 1783 to 0 of 1540), and the whole life was the blow's."""
+    if life <= 0 or most >= most_before or not most_before:
+        return life_before - life
+    return round(life_before * most / most_before) - life
+
+
 def rank(flags: int) -> str:
     if flags & MINION_FLAG:
         return 'minion'
@@ -143,7 +154,8 @@ def hurts(take: Any, mods: Mapping[int, Sequence[int]] | None = None) -> list[di
         if not character or len(character) < 9 or not character[8]:
             before = None
             continue
-        if before is not None and before['p'][0] == character[0] and before['p'][7] - character[7] >= HURT_LEAST:
+        fell = 0 if before is None else lost(before['p'][7], before['p'][8], character[7], character[8])
+        if before is not None and before['p'][0] == character[0] and fell >= HURT_LEAST:
             at = (before['p'][3], before['p'][4])
             foes = [
                 Foe(m[0], m[1], m[7], m[2], m[3], m[4], targets.get(m[0]), known.get(m[0]))
@@ -152,8 +164,7 @@ def hurts(take: Any, mods: Mapping[int, Sequence[int]] | None = None) -> list[di
                 if not m[9] and m[8] == NO_OWNER and m[2] not in DEAD_MODES
             ]
             flying = [(x[1], missile_point(x[5])) for x in before['x']]
-            lost = before['p'][7] - character[7]
-            hurt = row(lost, character[7], character[8], suspects(character[0], at, foes), beside(at, flying))
+            hurt = row(fell, character[7], character[8], suspects(character[0], at, foes), beside(at, flying))
             found.append({'t': frame['t'], **hurt})
         before = frame
     return found
@@ -219,7 +230,7 @@ def report(rows: Sequence[Mapping[str, Any]]) -> str:
 def main(argv=None) -> int:
     from inventory_tracking.combat.takes import Take
 
-    parser = argparse.ArgumentParser(description='The drops of the character\'s life in the takes, by who struck.')
+    parser = argparse.ArgumentParser(description="The drops of the character's life in the takes, by who struck.")
     runs = Path(__file__).resolve().parents[1] / 'runs'
     parser.add_argument('takes', nargs='*', type=Path, help='take directories (default: all under runs/combat)')
     parser.add_argument(
@@ -229,7 +240,7 @@ def main(argv=None) -> int:
     args = parser.parse_args(argv)
     seen = sightings(args.probe)
     found: list[dict[str, Any]] = []
-    for directory in args.takes or sorted(path.parent for path in (runs / 'combat').glob('*/frames.jsonl')):
+    for directory in args.takes or sorted(path.parent for path in (runs / 'combat').glob('*/manifest.json')):
         try:
             take = Take.load(directory)
             found += hurts(take, enchantments(seen, take))

@@ -15,7 +15,7 @@ def test_each_level_tracks_next_level_and_the_way_back():
     assert [s.label for s in handler_for(34).pois] == ['Next level', 'Cathedral']
     assert [s.label for s in handler_for(35).pois] == ['Next level', 'Waypoint', 'Catacombs 1']
     assert [s.label for s in handler_for(36).pois] == ['Next level', 'Catacombs 2']
-    assert handler_for(37) is None
+    assert [s.label for s in handler_for(37).pois] == ['Andariel']  # handlers/boss_lairs.py
 
 
 def test_catacombs_2_finds_all_three_in_a_level():

@@ -25,9 +25,18 @@ def key_as_it_was(rotation, run, skill):
 
 # The rules of that evening, where today's differ: the sweep stopped for a drop with hostiles beside it,
 # and a key under the held strike waited for a free instant (rotation.Rotation.key lets the strike go now).
+def tough_as_it_was(hunt, world, reachable):
+    """The main weapons only for 40,000 points of life in reach by the tables: never asked for in this fight."""
+    return False
+
+
+# Also since: a jump keeps clear of where the melee monsters will be when it lands (stance.CLOSING_MOST),
+# and a Herald's pack gets the main weapons (hunt.Hunter.tough).
 AS_IT_WAS = {
     'inventory_tracking.macros.hunt.GATHER_CLEAR': 0.0,
     'inventory_tracking.macros.rotation.Rotation.key': key_as_it_was,
+    'inventory_tracking.combat.stance.CLOSING_MOST': 0.0,
+    'inventory_tracking.macros.hunt.Hunter.tough': tough_as_it_was,
 }
 END = 22.7  # just before the teleport key (22.77 s), whose handling has changed since
 
@@ -124,9 +133,9 @@ def test_the_slow_keys_under_the_held_strike_are_replayed_at_their_moments():
     same = {
         (recorded.kind, recorded.what, round(recorded.at, 1)): replayed.at for recorded, replayed in compared().same
     }
-    assert same[('skill', 'Sigil: Lethargy', 7.8)] == pytest.approx(7.82, abs=0.05)
-    assert same[('key wait', 'Sigil: Lethargy', 8.8)] == pytest.approx(8.83, abs=0.05)
-    assert same[('skill', 'Engorge', 10.2)] == pytest.approx(10.22, abs=0.05)
+    assert same['skill', 'Sigil: Lethargy', 7.8] == pytest.approx(7.82, abs=0.05)
+    assert same['key wait', 'Sigil: Lethargy', 8.8] == pytest.approx(8.83, abs=0.05)
+    assert same['skill', 'Engorge', 10.2] == pytest.approx(10.22, abs=0.05)
 
 
 def test_two_replays_are_the_same():

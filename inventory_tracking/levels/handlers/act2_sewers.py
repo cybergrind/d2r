@@ -7,6 +7,7 @@ Ancient Tunnels 'Prev' (to the Lost City) and 'Chest'.
 """
 
 from inventory_tracking.levels.handler import Handler, PoiSpec, previous, stairs_down, waypoint
+from inventory_tracking.levels.model import SUPER_CHEST
 
 
 SEWER = 'Act 2 - Sewer'
@@ -27,6 +28,6 @@ HANDLERS = [
     Handler(
         'Ancient Tunnels',
         frozenset({65}),
-        (PoiSpec('Chest', rf'{SEWER} Chest [NSEW]', family=SEWER), previous(SEWER, 'Lost City')),
+        (PoiSpec('Chest', rf'{SEWER} Chest [NSEW]', family=SEWER, thing=SUPER_CHEST), previous(SEWER, 'Lost City')),
     ),
 ]

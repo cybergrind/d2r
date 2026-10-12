@@ -143,6 +143,7 @@ def chain(memory, addresses):
 def test_expensive_unique_drops_are_named_from_their_base():
     from inventory_tracking.items.metadata import metadata
     from inventory_tracking.loot.ground import GroundUnique, ground_uniques
+    from inventory_tracking.loot.shown import ShownRule
 
     by_code = {base['code']: int(class_id) for class_id, base in metadata()['bases'].items()}
     memory = Memory()
@@ -153,11 +154,16 @@ def test_expensive_unique_drops_are_named_from_their_base():
         (by_code['hax'], 3, {}),  # The Gnasher: no priced unique on this base
         (by_code['rin'], 5, {}),  # an unidentified unique ring: several candidates
         (by_code['utb'], 3, {'quality': 5}),  # set Mirrored Boots
+        (by_code['skp'], 3, {}),  # Tarnhelm asks 2.58 Ist, but the filter does not show a unique Skull Cap
     ]
     units = [unique_item(memory, index, class_id, mode, **extra) for index, (class_id, mode, extra) in enumerate(specs)]
     chain(memory, [address for address, _ in units])
+    shown = (
+        ShownRule(frozenset({7}), False, frozenset({by_code['7gw'], by_code['hax']})),
+        ShownRule(frozenset({5}), False, frozenset({by_code['utb']})),
+    )
 
-    found = ground_uniques(memory.read, TABLE, minimum=2.5)
+    found = ground_uniques(memory.read, TABLE, minimum=2.5, rules=shown)
 
     assert sorted(found, key=lambda u: u.unit_id) == [
         GroundUnique("Death's Web", units[0][1], 25500, 5400),

@@ -1,5 +1,5 @@
-"""The casts the hunt makes under its held strike (macros/hunt.py `fight`): Hex: Purge kept up, Death Mark
-on a pack worth it, a sigil under an elite, Engorge on a corpse for the demons, and the strike taken
+"""The casts the hunt makes under its held strike (macros/hunt.py `fight`): Hex: Purge and Psychic Ward
+kept up, Death Mark on a pack worth it, a sigil under an elite, Engorge on a corpse for the demons, and the strike taken
 up again after each (`resume`).
 
 `Rotation` keeps when each was last cast and answers whether one is due; the fight decides the order
@@ -15,7 +15,7 @@ from inventory_tracking.common import LOG
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.routines import ACTING, on_screen, press_through, screen_fraction
-from inventory_tracking.macros.skills import DEATH_MARK, ENGORGE, HEX_PURGE, SIGIL_LETHARGY
+from inventory_tracking.macros.skills import DEATH_MARK, ENGORGE, HEX_PURGE, PSYCHIC_WARD, SIGIL_LETHARGY
 from inventory_tracking.macros.teleport import HOVER_SECONDS, ground_fraction
 from inventory_tracking.macros.travel import MONSTER_UNIT_TYPE, label, life
 from inventory_tracking.macros.world import DEFILER_CLASS, Monster, World
@@ -37,6 +37,11 @@ ITEM_UNIT_TYPE = 4
 HEX_RETRY = 3.0
 HEX_DISTRUST = 60.0
 HEX_TRIES = 2
+# Psychic Ward (skills.txt 387): a shield that takes the next damage, 15 + 10 per level points and 15 per level of
+# Cleave and Levitate (185 for CybergrindAA on 2026-10-12, stats 361 and 362), with no end but being used up.
+# Kept up like Hex: Purge (user, 2026-10-12: "we should keep psychic ward buff: probably it will save us
+# sometimes"); under the strike not more often than WARD_SECONDS, as a pack breaks it faster than it is cast.
+WARD_SECONDS = 5.0
 # Death Mark: one monster takes more damage for 125 + 13 per level frames (skills.txt); the strike waits out its cast.
 # Only a monster that outlives MARK_CASTS casts is marked; the strike is pressed again under the mark's cast.
 MARK_CASTS = 4
@@ -55,6 +60,8 @@ class Rotation:
         self.engorged_at = -math.inf  # clock time of the last Engorge (or of the last look for a corpse)
         self.purged_at = -math.inf  # clock time of the last Hex: Purge cast
         self.purges_unseen = 0  # casts of it in a row that the character's state did not show after
+        self.warded_at = -math.inf  # the same two of Psychic Ward
+        self.wards_unseen = 0
         self.let_go: Callable[[], None] | None = None  # releases the held strike (actuator.hold), while one is held
 
     def key(self, run: Run, skill: int) -> None:
@@ -142,7 +149,7 @@ class Rotation:
 
     def resume(self, run: Run, again: Callable[[], None] | None) -> None:
         """The held strike pressed again under a cast of the macro's own (a mark, a sigil, Engorge,
-        Hex: Purge), so the game has it waiting when that cast ends: left alone it stood idle 0.37 s
+        Hex: Purge, Psychic Ward), so the game has it waiting when that cast ends: left alone it stood idle 0.37 s
         at the median after a Death Mark before the hold's own press-again came."""
         if again is None:
             return
@@ -179,6 +186,27 @@ class Rotation:
         self.key(run, HEX_PURGE)
         self.purged_at = run.clock()
         self.purges_unseen += 1
+
+    def ward_due(self, run: Run, world: World, *, fighting: bool = False) -> bool:
+        """Whether Psychic Ward is to be cast now: the character's state reads without it, and in a
+        fight the last cast is WARD_SECONDS old."""
+        player = world.player
+        if player is None or PSYCHIC_WARD not in world.slots:
+            return False
+        if player.ward is not False:
+            self.wards_unseen = 0 if player.ward else self.wards_unseen
+            return False
+        wait = HEX_RETRY if self.wards_unseen < HEX_TRIES else HEX_DISTRUST
+        return run.clock() - self.warded_at > max(wait, WARD_SECONDS if fighting else 0.0)
+
+    def ward(self, run: Run, world: World, key_names) -> None:
+        """Psychic Ward, a cast on the character itself."""
+        if self.wards_unseen == HEX_TRIES:
+            LOG.warning('Macro: Psychic Ward cast %d times and the state does not show it', HEX_TRIES)
+        run.keys.update(key_names(world, (PSYCHIC_WARD,)))
+        self.key(run, PSYCHIC_WARD)
+        self.warded_at = run.clock()
+        self.wards_unseen += 1
 
     def death_mark(self, run: Run, target: Monster, aspect: float, key_names) -> None:
         """Death Mark on `target`: the pointer on its body, then the key (Quick Cast)."""

@@ -15,7 +15,7 @@ rate; an input idle RETAP_SECONDS is released and pressed again. The pointer is 
 policy's line (combat/policy.py, the decision the simulator scores); a monster in reach the policy
 finds no line for is aimed at directly, the elite first, then the nearest, AIM_BEYOND past it. An
 elite gets Sigil: Lethargy under it once per SIGIL_SECONDS, the strongest monster in reach Death Mark
-once per DEATH_MARK_SECONDS. The main weapon set is swapped in for a tough pack only (`tough`).
+once per DEATH_MARK_SECONDS. The main weapon set is swapped in for a tough or hard-hitting pack (`tough`).
 
 What the fight decides from what it sees and the clock (where to cast, whose the pointer is, the
 held input, the move asked for) is combat/controller.py, apart from the game; this module reads the
@@ -60,6 +60,7 @@ from inventory_tracking.combat.controller import (
     serve,
 )
 from inventory_tracking.combat.policy import (
+    MIN_FOCAL,
     REACH,
     RUN_MODES,
     STRIKE_REACH,
@@ -92,18 +93,22 @@ from inventory_tracking.macros.routines import (
     DEAD,
     SUPER_UNIQUE_FLAG,
     TOWN_NPCS,
+    renew_consume,
     take_battle_weapons,
 )
 from inventory_tracking.macros.sight import clear_shot, firing_spots, in_reach
 from inventory_tracking.macros.skills import (
     BLADE_WARP,
+    CONSUME,
     DEATH_MARK,
     ECHOING_STRIKE,
     ENGORGE,
+    SUMMON_DEFILER,
     SWAP_WEAPONS,
     skill_name,
 )
 from inventory_tracking.macros.teleport import (
+    HOVER_SECONDS,
     MOVED,
     Way,
     ground_fraction,
@@ -129,6 +134,7 @@ from inventory_tracking.macros.view import Viewport
 from inventory_tracking.macros.world import NO_OWNER, VALUABLE, Drop, Monster, World, has_room
 from inventory_tracking.native.layout import TILE_UNITS
 from inventory_tracking.terror.bosses import BOSSES
+from inventory_tracking.terror.danger import Unit, packs
 from inventory_tracking.terror.tracker import BARRICADES, UNKILLABLE
 
 
@@ -183,13 +189,25 @@ STEP_FAILURES = 2
 # immune) is left alone: once UNTOUCHED_CASTS casts show its life unchanged, it is no hostile for
 # UNTOUCHABLE_SECONDS (not fought, swept or sought toward), then tried again.
 UNTOUCHED_CASTS = 4
+# Units along the line the pointer is tried at when an item's label lies under the aim (`off_labels`).
+LABEL_SHIFTS = (0.0, 4.0, 8.0, -3.0, 12.0, -6.0)
+ITEM_UNIT_TYPE = 4  # in the record of the unit under the pointer
+LABEL_SECONDS = 0.5  # between two looks for a label under a pointer that stands
 UNTOUCHABLE_SECONDS = 20.0
 ROOM_UNITS = 40.0  # a known hostile this much further than the nearest unexplored room still goes first
 VANISH_UNITS = 25.0
 SLICE = 0.01  # seconds between looks at the left mouse button while the mode waits or fights
 TOUGH_POINTS = 40_000.0  # life points in reach from which a pack is worth the main weapons
+HARD_SCORE = 4.0  # the threat score (terror/danger.py) of what is in reach from which it is, whatever its life
 MAIN_AFTER = 1.0  # seconds after a step before the main weapons are swapped in for a fight
 SWAP_RETRY_SECONDS = 5.0  # after a swap to the main weapons that did not come
+# Consume (skills.txt 381: 15% more life and a faster run for 300 s at CybergrindAA's level) is cast again by
+# attack mode when the character's state reads without it and no hostile is within CONSUME_CLEAR: a Defiler is
+# summoned and the pointer put on it, about two seconds in which nothing is struck. After a try that failed
+# (no ground for a summon, something beside the Defiler) the next comes CONSUME_RETRY later.
+CONSUME_CLEAR = 30.0  # world units
+CONSUME_SOON = 3.0  # seconds to the next try after one the player's own key stopped
+CONSUME_RETRY = 20.0  # seconds
 INPUT_SECONDS = 1.0  # Echoing Strike on no input for this long (another skill selected) before it is a stopped fight
 MISSES_IN_A_ROW = 5  # fights that stopped one after another before attack mode gives up
 IDLE_LOG_SECONDS = 3.0  # between log lines on what attack mode sees while nothing is in reach
@@ -295,6 +313,7 @@ class Hunter:
         self.policy: Policy = policy or LinePolicy()  # where to cast (combat/policy.py)
         self.score = LiveScore()  # the last minute of attack mode: damage and kills (combat/score.py)
         self.rotation = Rotation(lambda: self.policy)  # the casts under the held strike (rotation.py)
+        self.consumed_at = -math.inf  # clock time of attack mode's last try at Consume
         self.travel = Travel()  # the jumps the character can make and the moves made with them (travel.py)
         self.route: tuple[int, list[Bounds]] = (0, [])  # (level, the rooms the explore steps go to stand in, in order)
         self.vanished: set[int] = set()  # remembered monsters that were not where they were seen
@@ -451,7 +470,13 @@ class Hunter:
                 if low:
                     LOG.info('Macro: %d charges left and no Blade Warp or walk leads toward %s: a hop', left, name)
                 return False
-            raise Abort(f'the Teleport staff has no charges left, and no Blade Warp or walk leads toward {name}')
+            found = self.travel.around(run, world, ground, aspect, goal)  # the walked way round the wall
+            if found is None:
+                raise Abort(f'the Teleport staff has no charges left, and no Blade Warp or walk leads toward {name}')
+            LOG.info(
+                'Macro: no straight way toward %s at (%.1f, %.1f) from (%.1f, %.1f): round the wall by (%.1f, %.1f)',
+                name, *goal, *here, *found.spot,
+            )  # fmt: skip
         by = 'Walking' if found.skill is None else skill_name(found.skill)
         run.say(f'{by} toward {name}' + (f': the Teleport staff has {left} charges left' if low else ''))
         self.travel.make(run, found, world, aspect, key_names, ground, name=name)
@@ -554,7 +579,9 @@ class Hunter:
         world = run.world()
         ground = Ground(target.ground)
         aspect = rect[2] / rect[3]
-        found = self.travel.stride(run, world, ground, aspect, spot)
+        found = self.travel.stride(run, world, ground, aspect, spot) or self.travel.around(
+            run, world, ground, aspect, spot
+        )
         if found is None:
             raise Abort(f'no Blade Warp or walk leads along the way to {target.label}')
         by = 'Walking' if found.skill is None else skill_name(found.skill)
@@ -907,10 +934,23 @@ class Hunter:
                     LOG.info('Macro: no Hex: Purge (%s)', stop)
                     self.rotation.purged_at = run.clock()
                 continue
+            if self.rotation.ward_due(run, world):
+                try:
+                    self.rotation.ward(run, world, key_names)
+                    run.pause('key')
+                except Abort as stop:
+                    if run.cancelled.is_set():
+                        raise
+                    LOG.info('Macro: no Psychic Ward (%s)', stop)
+                    self.rotation.warded_at = run.clock()
+                continue
             level = self.known_level(player)
             ground = Ground(level.ground if level is not None else ())
             here = (player.x, player.y)
             foes = self.foes(world, run.clock())
+            if self.consume_due(run, world, foes):
+                self.consume(run, world, key_names)
+                continue
             if not any(in_reach(ground, here, (m.x, m.y), REACH, world.doors) for m in foes):
                 self.step_aside()
                 self.gather(run, here, foes)
@@ -1127,14 +1167,65 @@ class Hunter:
             move.pixel, move.clicked_at - move.at, move.clicks, MOVE_CLICKS,
         )  # fmt: skip
 
+    def consume_due(self, run: Run, world: World, foes: list[Monster]) -> bool:
+        """Whether attack mode casts Consume again now: the state reads without it, its two skills are on
+        keys, no hostile is within CONSUME_CLEAR and the last try is CONSUME_RETRY old."""
+        player = world.player
+        if player is None or player.consume is not False or player.mode in DEAD:
+            return False
+        if not {CONSUME, SUMMON_DEFILER} <= set(world.slots):
+            return False
+        if not run.actuator.focused():
+            # The game in the background: eleven tries in four minutes, each said and stopped by the lost
+            # focus (09:45 to 09:49 on 2026-10-12, the player in another window).
+            return False
+        if run.clock() - self.consumed_at <= CONSUME_RETRY:
+            return False
+        return all(math.dist((player.x, player.y), (m.x, m.y)) > CONSUME_CLEAR for m in foes)
+
+    def consume(self, run: Run, world: World, key_names) -> None:
+        """Consume cast again (routines.renew_consume); a try that fails is logged and the mode goes on."""
+        self.step_aside()  # a step that waits for the fight goes first
+        self.consumed_at = run.clock()
+        run.say('Consume ran out: casting it again')
+        try:
+            run.keys.update(key_names(world, (SUMMON_DEFILER, CONSUME, SWAP_WEAPONS)))
+            renew_consume(run)
+        except (Abort, ValueError) as stop:
+            if run.cancelled.is_set():
+                raise
+            # A key of the player's stops any routine: that try was no failure of the cast, so the next
+            # comes soon (09:58:00 on 2026-10-12: stopped by a key, and 20 s without the buff).
+            wait = CONSUME_RETRY
+            if 'a key was pressed' in str(stop):
+                wait = CONSUME_SOON
+                self.consumed_at = run.clock() - CONSUME_RETRY + wait
+            LOG.info('Macro: no Consume (%s); again in %.0fs', stop, wait)
+
     def tough(self, world: World, reachable: list[Monster]) -> bool:
-        """Whether what is in reach is worth a swap to the main weapons: TOUGH_POINTS of life between
-        them, an elite's counted ELITE_LIFE times. An elite alone is not: the Catacombs packs died
-        within a second or two of the swap, which costs most of a second there and back."""
+        """Whether what is in reach is worth a swap to the main weapons, which have the damage and the
+        resistances at the cap (the teleport set leaves lightning at 8 and cold at 18 in Hell; user,
+        2026-10-12: "we should swap to it against most of tough/hard-hitting enemies/bosses"):
+
+        - a pack leader (a unique, a champion, a super unique), a Herald or one of a Herald's minions.
+          Tower Cellar 5, 2026-10-11: the whole fight with a tier 2 Herald and the death on the staff's
+          set, as its 13 times the life is not in the count below;
+        - TOUGH_POINTS of life between them, an elite's counted ELITE_LIFE times;
+        - plain monsters that hit hard together: a threat score (terror/danger.py) of HARD_SCORE, which
+          two Gloams, four Dark Rangers or eight Extra Strong Blood Clan reach and eight plain ones or
+          a herd of cows do not.
+
+        The swap costs most of a second there and back; the caller asks for it only once the mode has
+        run MAIN_AFTER since the last step."""
         if world.player is None:
             return False
+        if any(m.tier or m.leader for m in reachable):
+            return True
         seen = observe(world.player, reachable, ())
-        return sum(foe.left * (ELITE_LIFE if foe.elite else 1.0) for foe in seen.foes.values()) >= TOUGH_POINTS
+        if sum(foe.left * (ELITE_LIFE if foe.elite else 1.0) for foe in seen.foes.values()) >= TOUGH_POINTS:
+            return True
+        units = [Unit(m.unit_id, m.txt_id, m.x, m.y, m.modifiers, None, False, m.flags, m.tier) for m in reachable]
+        return any(pack.score >= HARD_SCORE for pack in packs(units))
 
     def moving(self, run: Run, world: World, *, keys: bool = True) -> str | None:
         """Why the pointer is the player's right now, or None: a key of theirs is down, the left mouse
@@ -1181,6 +1272,43 @@ class Hunter:
         assert found is not None  # the caller has something in reach
         return found
 
+    def off_labels(self, run: Run, view: Viewport, here: Point, focal: Point) -> None:
+        """The pointer, standing on the aim for `focal`, moved along the line when an item's label is under it: the
+        game casts a skill at the unit under the pointer, so with a label there the blades fly to
+        where that item lies. The blades fly their length along the line wherever on it the pointer
+        is (view.py), so a pointer further out or nearer in keeps them on the monster.
+
+        Drifter Cavern, 09:52:34 on 2026-10-12 (user: "it aimed off and continued shooting there until I
+        started steer with mouse myself"): the pointer stood on the ground of a Hell Temptress 5 units
+        off, at -48 degrees, for 13.8 s; the 115 blades of 21 casts flew out between -15 and +15 degrees,
+        toward potions lying there, and the monster lost 44 of its 128 points to the companions."""
+        if run.hovered is None:
+            return
+        away = math.dist(here, focal)
+        tried = []
+        for shift in LABEL_SHIFTS:
+            if shift:
+                if away + shift < MIN_FOCAL:
+                    continue
+                share = (away + shift) / away
+                point = (here[0] + (focal[0] - here[0]) * share, here[1] + (focal[1] - here[1]) * share)
+                where = view.aim(here, point)
+                if where is None:
+                    continue
+                run.actuator.aim(*where, scatter=(2, 2))
+                run.pace.sleep(HOVER_SECONDS)
+            over = run.hovered()
+            if over is None or over[0] != ITEM_UNIT_TYPE:
+                if tried:
+                    LOG.info(
+                        "Macro: an item's label under the aim at (%.1f, %.1f) (%s): the pointer %+.0f units along "
+                        'the line instead',
+                        *focal, ', '.join(tried), shift,
+                    )  # fmt: skip
+                return
+            tried.append(f'{shift:+.0f}: item {over[1]}')
+        LOG.info("Macro: an item's label under every aim along the line to (%.1f, %.1f): %s", *focal, ', '.join(tried))
+
     def fight(self, run: Run, ground: Ground, aspect: float, key_names, until: float | None = None) -> None:
         """Strike while anything is in reach and the player stands: one hold of the strike input
         through the whole fight, the pointer kept on the policy's line, which is asked again every
@@ -1198,6 +1326,7 @@ class Hunter:
         again: Callable[[], None] | None = None
         watched: set[int] = set()  # the hostiles seen in reach while the input was held
         lined: int | None = None  # the monster the line last logged went through
+        labels_due = math.inf  # clock time of the next look for an item's label under the standing pointer
         counted = 0  # the casts seen up to the last look
         ended = f'Fight stopped after {FIGHT_SECONDS:.0f}s'
         with ExitStack() as stack:
@@ -1287,6 +1416,11 @@ class Hunter:
                     self.rotation.purge(run, world, key_names)
                     cast.excuse(run.clock())
                     self.rotation.resume(run, again)
+                if struck and self.rotation.ward_due(run, world, fighting=True):
+                    self.casting = True
+                    self.rotation.ward(run, world, key_names)
+                    cast.excuse(run.clock())
+                    self.rotation.resume(run, again)
                 if struck and run.clock() - self.rotation.marked_at > DEATH_MARK_SECONDS and DEATH_MARK in world.slots:
                     strongest = max(reachable, key=lambda m: (m.leader, m.max_life, -math.dist(here, (m.x, m.y))))
                     if self.rotation.worth_a_mark(world, strongest):
@@ -1315,6 +1449,15 @@ class Hunter:
                         break
                     run.actuator.aim(*where, scatter=(3, 3))
                     aim.put(choice.focal, here, run.actuator.keys.pointer())
+                    labels_due = run.clock() + HOVER_SECONDS  # once the game has noted what is under it
+                elif pointer == left_at and run.hovered is not None and run.clock() >= labels_due:
+                    # The pointer stands where the macro left it: an item's label may be under it, then or
+                    # from a drop fallen since. Looked at without holding the strike's loop up.
+                    labels_due = run.clock() + LABEL_SECONDS
+                    over = run.hovered()
+                    if over is not None and over[0] == ITEM_UNIT_TYPE:
+                        self.off_labels(run, view, here, choice.focal)
+                        aim.put(choice.focal, here, run.actuator.keys.pointer())
                 if again is None:
                     run.say(f'Echoing Strike ({how}) at {label(prey)}, {life(prey)}')
                     again = stack.enter_context(run.actuator.hold(*held))

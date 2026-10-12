@@ -18,6 +18,10 @@ none (monster data +0x20, the first modifier; plain = type flags +0x1A == 0). Af
 17:30 UTC rotation, sewer monsters seen anew had none. The last few plain sightings per
 Terror Zone decide; a Herald marks its zone when no plain monster was seen.
 
+In every difficulty the client's own list of the levels terrorized now comes first (monsters.py
+`terror_levels`, the probe's `terror_levels` event): Normal and Nightmare force no modifier, so there
+it is the only sign (plan.md, 2026-10-12).
+
 A revived monster (Fallen Shamans raise their Fallen: same unit id, 2026-10-03 logs) is one
 kill however often it dies (user, 2026-10-03), and gets its map dot back while alive.
 
@@ -61,6 +65,11 @@ SUPER_FLAG, CHAMPION_FLAG = 0x02, 0x04
 # Monster data u16: a super unique's superuniques.txt hcIdx (probe logs to 2026-10-06: 36-38 on the
 # seal bosses, 61-65 on Baal's waves, 52 on Pindleskin).
 SUPER_ID = 0x2A
+# Monsters of their own that a route fights, by the name the routes give them (routes/check.py
+# ACT_BOSSES): terror/bosses.py's ids, and Blood Raven (monstats.txt `bloodraven`, hcIdx 267, d2data
+# 2026-10-12). A boss that is also a super unique is named by its superuniques.txt row, with or
+# without the super unique flag on its unit (the Summoner carries the unique flag only).
+SLAIN_BOSSES = {**BOSSES, 250: 'The Summoner', 526: 'Nihlathak Boss', 267: 'Blood Raven'}
 FIRST_MODIFIER = 0x20  # monster data byte: first special modifier (monumod.json id)
 MODIFIER_SLOTS = 9  # modifier bytes from there on; 0 = none (uniques show 3 in Hell, minions 2)
 AURA_MODIFIER = 30  # aura enchanted: the monster's aura is its own
@@ -167,6 +176,7 @@ class ZoneTracker:
 
     def reset(self):
         self.game_levels: dict[int, str] = {}  # area -> level seed (hex): what this game is known by
+        self.slain: frozenset[str] = frozenset()  # the super uniques and bosses killed this game, by name
         self.restored = False
         self.areas: dict[int, Count] = {}
         self.level_rooms: dict[int, int] = {}  # area -> Room2 count of the level
@@ -193,6 +203,8 @@ class ZoneTracker:
         self.dead: dict[int, int] = {}  # hostile unit id -> area, killed at least once this game
         self.modifiers: dict[str, deque[int]] = {}  # Terror Zone -> recent forced modifiers of plain monsters
         self.votes: dict[str, deque[bool]] = {}  # Terror Zone -> recent plain sightings: forced modifier?
+        self.terror_levels: frozenset[int] | None = None  # the levels the client holds as terrorized; None: unread
+        self.disputed: set[str] = set()  # Terror Zones whose monsters said yes against that list, warned of once
         self.live_heralds: dict[int, tuple[int, int, int, int]] = {}  # unit id -> (tier, area, x, y), alive
         self.offsets: dict[str, float] = {}  # group -> completion % when its last Herald appeared
 
@@ -228,6 +240,8 @@ class ZoneTracker:
                 self.reset()
             elif kind == 'seen':
                 self.saw(event)
+            elif kind == 'terror_levels':
+                self.terror_levels = frozenset(event['levels'])
             elif kind == 'area':
                 self.entered(event['area'], event.get('level_hex') or '')
                 if event.get('level_rooms'):
@@ -246,6 +260,9 @@ class ZoneTracker:
                     self.area_count(event['area']).killed += 1
                 if unit_id not in self.allies:
                     self.dead.setdefault(unit_id, event['area'])
+                    named = (self.elites.get(unit_id) or (None,) * 6)[5] or SLAIN_BOSSES.get(event.get('txt_id'))
+                    if named:
+                        self.slain = self.slain | {named}
 
         if events and (len(self.heralds) != heralds or self.clock() - self.saved_at >= SAVE_SECONDS):
             self.save()
@@ -570,6 +587,11 @@ class ZoneTracker:
             if where == area and (kind == 'super' or txt_id in BOSSES)
         ]
 
+    def killed(self) -> frozenset[str]:
+        """The super uniques (by their superuniques.txt name) and bosses killed this game: what a
+        route's `fight` stage waits for (routes/progress.py). Read from the macro's thread."""
+        return self.slain
+
     def remembered(self, area: int) -> list[tuple[int, float, float, bool]]:
         """(unit id, x, y, leader) of the hostile monsters alive in `area` at their last seen position,
         world units: what the hunt teleports toward when none is in reach (macros/hunt.py)."""
@@ -584,14 +606,26 @@ class ZoneTracker:
         return self.explored.get(area, set())
 
     def terrorized(self, area: int) -> bool | None:
-        """The area's Terror Zone by its plain monsters' forced modifier (most of the last few),
-        else True once a Herald appeared there this game; None before any evidence."""
+        """Whether the area is terrorized now: by the client's own list of terrorized levels when
+        it was read and names any (every difficulty), else by its plain monsters' forced modifier
+        (most of the last few, Hell only), else True once a Herald appeared there this game; None
+        before any evidence. Plain monsters with the modifier outvote a list without the area."""
         group = group_of(area)
         if group is None:
             return None
         votes = self.votes.get(group.zone)
-        if votes:
-            return sum(votes) * 2 > len(votes)
+        voted = sum(votes) * 2 > len(votes) if votes else None
+        if self.terror_levels:
+            listed = area in self.terror_levels
+            if voted and not listed and group.zone not in self.disputed:
+                self.disputed.add(group.zone)
+                LOG.warning(
+                    'Terror tracker: the monsters of level %d carry a Terror Zone modifier and the client lists %s',
+                    area, sorted(self.terror_levels),
+                )  # fmt: skip
+            return listed or bool(voted)
+        if voted is not None:
+            return voted
         return True if group.zone in self.zones else None
 
     def zone_modifier(self, area: int) -> str | None:
@@ -611,6 +645,11 @@ class ZoneTracker:
         group = group_of(area)
         if group is None or terrorized is False:
             return []
+        votes = self.votes.get(group.zone)
+        if terrorized and self.terror_levels and area in self.terror_levels and votes and not any(votes):
+            # The client lists the level and its plain monsters carry no forced modifier: a Terror Zone
+            # below Hell, which has no Heralds (desecratedzones.json: max_herald_tiers 0 there).
+            return [f'Terror · {group.name}', 'No Heralds below Hell']
         levels = self.levels(group)
         offset = self.offsets.get(group.name, 0.0)
         result = odds(self.next_tier, levels, current=group.areas.index(area), offset=offset)

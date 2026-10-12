@@ -31,6 +31,7 @@ import math
 import threading
 import time
 from collections import OrderedDict
+from dataclasses import replace
 
 from inventory_tracking.common import LOG
 from inventory_tracking.levels.evidence import evidence_record
@@ -38,7 +39,7 @@ from inventory_tracking.levels.exits import guide_level
 from inventory_tracking.levels.geometry import Pointer, pointer
 from inventory_tracking.levels.level_map import build_map, centre
 from inventory_tracking.levels.memory import observe_level
-from inventory_tracking.levels.model import Guidance, Level, LevelSnapshot, Location, Target
+from inventory_tracking.levels.model import Guidance, Lead, Level, LevelSnapshot, Location, Poi, Target
 from inventory_tracking.levels.registry import handler_for
 from inventory_tracking.levels.session import LevelMemory, layout_key
 from inventory_tracking.levels.spots import WAYS_OUT, on_waypoint, pinpoint
@@ -55,6 +56,25 @@ def pointer_lines(pointers: list[Pointer]) -> list[StyledLine]:
         else:
             lines.append(StyledLine(f'{p.arrow}  {p.label}: {p.compass}', tone, arrow=p.arrow))
     return lines
+
+
+def place(poi: Poi) -> tuple[float, float]:
+    """Where the mark is, in tiles: what the teleport step is given as `Target.point`."""
+    return poi.spot or centre(poi.room)
+
+
+def lead_first(pois: tuple[Poi, ...], lead: Lead | None) -> tuple[Poi, ...]:
+    """`pois` with the mark `lead` names put first (levels/routes.md: the stage a route is at); as
+    they are when it names none of them. Of several with the label, the one leading to the level
+    meant. A way back that is led with is a way on: the route goes through it (Outer Cloister to the
+    Monastery Gate), and the teleport step refuses a first mark that only leads back. Marks at the
+    places the lead says are done with (`Lead.skip`: chests opened) are passed for the next."""
+    named = [poi for poi in pois if poi.label == lead.label and place(poi) not in lead.skip] if lead else []
+    if lead is None or not named:
+        return pois
+    first = next((poi for poi in named if poi.area == lead.area), named[0])
+    rest = tuple(poi for poi in pois if poi is not first)
+    return (replace(first, kind='stairs') if first.kind == 'previous' else first, *rest)
 
 
 MAX_REMEMBERED_LEVELS = 32
@@ -82,6 +102,7 @@ class LevelGuide:
         on_rooms=None,
         observe_waypoints=None,
         pinned=False,
+        lead=None,
     ):
         self.source, self.capture_lock, self.focused, self.display = source, capture_lock, focused, display
         self.seconds, self.poll_interval, self.clock, self.observe = seconds, poll_interval, clock, observe
@@ -116,6 +137,9 @@ class LevelGuide:
         # that load later don't change it), so a new game (other rooms) starts blank; the oldest
         # levels are dropped past MAX_REMEMBERED_LEVELS.
         self.level_walls: OrderedDict[tuple, dict] = OrderedDict()
+        # area -> the mark to lead the card with, or None: the stage a route is at there (routes/progress.py).
+        # Asked at every card and every target, so the arrow and the teleport step never disagree.
+        self.lead = lead
         self.memory = LevelMemory()  # room details read this game (exits' levels, preset variants)
         self.rooms_read = -math.inf  # clock time of the last room read
 
@@ -305,9 +329,14 @@ class LevelGuide:
         self._present(snapshot, guidance)
         return True
 
+    def _marks(self, area: int, pois: tuple[Poi, ...]) -> tuple[Poi, ...]:
+        """The card's marks in the order shown: waypoints on their objects, the route's mark first."""
+        pois = tuple(on_waypoint(poi, self.waypoints) for poi in pois)
+        return lead_first(pois, self.lead(area)) if self.lead is not None else pois
+
     def _card(self, location: Location) -> list:
         snapshot, pois = self.shown
-        pois = tuple(on_waypoint(poi, self.waypoints) for poi in pois)
+        pois = self._marks(snapshot.location.area_id, pois)
         visited = self.visited_rooms(location.area_id) if self.visited_rooms is not None else None
         dots = self.map_dots(location.area_id) if self.map_dots is not None else ()
         card = build_map(
@@ -329,10 +358,19 @@ class LevelGuide:
         if shown is None or not shown[1]:
             return None
         snapshot, pois = shown
-        poi = on_waypoint(pois[0], self.waypoints)
+        poi = self._marks(snapshot.location.area_id, pois)[0]
         warp = poi.kind in WAYS_OUT and poi.spot is not None
-        point = poi.spot or centre(poi.room)
-        return Target(snapshot.location.area_id, snapshot.rooms, point, poi.label, poi.kind, warp, self._ground())
+        return Target(
+            snapshot.location.area_id, snapshot.rooms, place(poi), poi.label, poi.kind, warp, self._ground(), poi.use
+        )
+
+    def marks(self, label: str) -> tuple[tuple[float, float], ...]:
+        """The places of the shown card's marks with `label` (a hell pit's chests), in tiles: the
+        route step sees from them when each was used (macros/route.py). Read from the macro's thread."""
+        shown = self.shown
+        if shown is None:
+            return ()
+        return tuple(place(poi) for poi in shown[1] if poi.label == label)
 
     def level(self) -> Level | None:
         """The shown card's level: its rooms and the walls read so far, for a macro that chooses its own

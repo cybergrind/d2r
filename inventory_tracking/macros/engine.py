@@ -11,9 +11,10 @@ from collections.abc import Callable, Iterator
 from contextlib import contextmanager
 from threading import Event
 
+from inventory_tracking.levels.model import Ground
 from inventory_tracking.macros.actuator import Abort, Actuator, Cancelled
 from inventory_tracking.macros.timing import Pace
-from inventory_tracking.macros.world import Loot, Teleport, Warp, World
+from inventory_tracking.macros.world import Loot, Teleport, Thing, Warp, World
 
 
 POLL = 0.03
@@ -53,6 +54,12 @@ class Run:
         # the monsters lying dead as (unit id, x, y), world units (world.GameMemory.corpses): Engorge needs one
         self.corpses: Callable[[], tuple[tuple[int, float, float], ...]] | None = None
         self.warps: Callable[[], tuple[Warp, ...]] | None = None  # the doors loaded (world.GameMemory.warps)
+        # the walkable ground of the level the character is on, None while not known (the level guide's map)
+        self.ground: Callable[[], Ground | None] | None = None
+        self.things: Callable[[], tuple[Thing, ...]] | None = None  # a mark's objects (world.GameMemory.things)
+        self.containers: Callable[[], tuple[Thing, ...]] | None = None  # chests and the like (GameMemory.containers)
+        # research: every object unit shown, raw (world.GameMemory.objects)
+        self.objects: Callable[[], list[dict]] | None = None
         self.research: Callable[..., list[str]] | None = None  # world.GameMemory.hover_candidates
         # (level before this one, seconds since it was left), journey.Journey.arrival
         self.arrival: Callable[[], tuple[int | None, float]] | None = None

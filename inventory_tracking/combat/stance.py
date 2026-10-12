@@ -1,11 +1,13 @@
 """Where to stand in a fight: one decision for the simulator and for the game.
 
-`camp` picks the place within CAMP_REACH of the character, with footing, no hostile within KEEP_AWAY
-and a walk there (`Field.ways`), that takes the most points from the next HORIZON seconds of casting
+`camp` picks the place within CAMP_REACH of the character, with footing, no hostile within KEEP_AWAY,
+no pack round it (CROWD_MOST) and a walk there (`Field.ways`), that takes the most points from the next
+HORIZON seconds of casting
 (`taken`). Casting is modelled as the best straight line through the hostiles in reach, BLADES_A_CAST
 blades off each one on it per cast; a place where all in reach die early counts up to double. The walk
 there costs its seconds without a cast, or a HOP_SECONDS teleport. The place is chosen only when it takes
-CAMP_GAIN times what the character takes where it stands. The distance to a monster is not counted.
+CAMP_GAIN times what the character takes where it stands. The distance to a monster is not counted,
+but no place is jumped to that a melee monster reaches before the first cast from it is out (`closes`).
 Pure: no game access.
 
 History and measurements: combat/plan.md.
@@ -15,14 +17,33 @@ import heapq
 import math
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
+from functools import cache
 from typing import Any
 
 from inventory_tracking.combat.mechanics.hits import CONTACT_RADIUS
+from inventory_tracking.combat.mechanics.tables import tables
 from inventory_tracking.combat.policy import MIN_SCORE, LinePolicy, Observation
 
 
 Point = tuple[float, float]
 KEEP_AWAY = 6.0  # units: no place with a hostile this near
+# No place in the middle of a pack: one with more than CROWD_MOST hostiles within CROWD_UNITS is left out,
+# unless as many stand that near the character already. Drifter Cavern, 09:55:34 on 2026-10-12 (user: "we
+# positioned ourselves into big mob group and took too much damage"): a walk of 19 units to a place worth
+# 37535 against 6538, with 4 hostiles within 12 units of it when chosen and 5 to 7 on arrival; four Hell
+# Temptresses 8 to 11 units off then took 1,592 points in 6 s with their bolts (missile 665), the life at
+# 37% at its lowest. The places chosen before it had 0 to 2 that near and cost 0 to 297 points.
+CROWD_UNITS = 12.0
+CROWD_MOST = 3
+# A melee monster comes on while the character is on its way: units a second per point of its monstats
+# speed (sim/monsters.py PACE: a chasing Blood Clan made 7.5 to 8.3 at 7), counted over the way there
+# and the first cast, CLOSING_MOST at the most. The cow runs of 2026-10-12 (user: "jumping into their
+# groups too aggressively"): a place 6 units from the nearest cow when chosen had it at the character
+# by the time the first blades were out, 0.8 s of Blade Warp and a cast later; 11 of 98 landings had a
+# cow within 5 units and 6 had four or more within 8.
+CLOSING_PACE = 1.1
+CLOSING_MOST = 6.0
+AWARE = 20.0  # units: a monster further from the place than this does not come for it (sim/monsters.py)
 WAY_SAMPLE = 0.5  # units between the points looked at along a straight walk
 HORIZON = 3.0  # seconds the worth of a place is counted over: the pack should be dead well within them
 CAST_SECONDS = 0.36  # one cast of a held strike (combat/sim/input.py CAST_FRAMES at 25 frames a second)
@@ -167,6 +188,26 @@ class Field:
 STEPS = tuple((dx, dy, math.hypot(dx, dy)) for dx in (-1, 0, 1) for dy in (-1, 0, 1) if dx or dy)
 
 
+@cache
+def speed_of(txt: int) -> float:
+    """Units a second a monster of `txt` closes at: 0 for one that does not strike from beside the character."""
+    row = tables()['monsters'].get(str(txt), {})
+    if row.get('isMelee') != '1':
+        return 0.0
+    return max(float(row.get('Velocity') or 0), float(row.get('Run') or 0)) * CLOSING_PACE
+
+
+def closes(foe: Any, spot: Point, seconds: float) -> bool:
+    """Whether the monster is too near `spot` for a place reached in `seconds`: within KEEP_AWAY now, or,
+    a melee monster that would come for the character there, by the time the first cast is out."""
+    away = math.dist(spot, foe.at)
+    if away < KEEP_AWAY:
+        return True
+    if away > AWARE:
+        return False
+    return away - min(speed_of(foe.txt) * (seconds + CAST_SECONDS), CLOSING_MOST) < KEEP_AWAY
+
+
 def taken(seen: Observation, policy: LinePolicy, field: Field, spot: Point, after: float) -> tuple[float, int]:
     """(worth, casts) of casting from `spot` from `after` seconds on to the HORIZON: cast after cast
     the best straight line through the hostiles in reach with a clear line takes BLADES_A_CAST blades
@@ -238,6 +279,7 @@ def camp(
     field = Field(seen.blocked, barred)
     here, _ = taken(seen, policy, field, origin, 0.0)
     ways = field.ways(origin, CAMP_REACH)
+    crowd = max(CROWD_MOST, sum(math.dist(origin, foe.at) <= CROWD_UNITS for foe in seen.foes.values()))
     best: tuple[float, float, Camp] | None = None  # (worth, the furthest hostile it counts on, the place)
     count = int(CAMP_REACH // CAMP_GRID)
     for i in range(-count, count + 1):
@@ -250,6 +292,8 @@ def camp(
             if any(field.bar((cell[0] + dx, cell[1] + dy)) for dx in (-1, 0, 1) for dy in (-1, 0, 1)):
                 continue
             if any(math.dist(spot, foe.at) < KEEP_AWAY for foe in seen.foes.values()):
+                continue
+            if sum(math.dist(spot, foe.at) <= CROWD_UNITS for foe in seen.foes.values()) > crowd:
                 continue
             walked = ways.get(cell)
             on_foot = walked is not None and walked <= max(straight * DETOUR, straight + 2)
@@ -268,6 +312,10 @@ def camp(
             if jump is not None:
                 seconds, by_hop = jump.takes(straight), True
             if seconds >= HORIZON:
+                continue
+            # Only a jump: it lands the character there at once and blind, where a walk is seen coming
+            # and is the monsters' way too (held to walks as well, no pack in a row was walked to at all).
+            if by_hop and any(closes(foe, spot, seconds) for foe in seen.foes.values()):
                 continue
             worth, casts = taken(seen, policy, field, spot, seconds)
             if worth < max(MIN_SCORE, gain * here):

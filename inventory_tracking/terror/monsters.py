@@ -16,6 +16,7 @@ import os
 import struct
 from dataclasses import dataclass, field, replace
 
+from inventory_tracking.common import LOG
 from inventory_tracking.levels.memory import MAX_LOADED, MAX_NEAR, MAX_ROOMS, player_room, pointer
 from inventory_tracking.levels.model import Location
 from inventory_tracking.loot.ground import ItemSighting, item_units
@@ -29,6 +30,10 @@ from inventory_tracking.native.layout import (
     ROOM2_BOUNDS,
     ROOM2_LEVEL,
     ROOM2_NEXT,
+    TERROR_LEVEL_COUNT,
+    TERROR_LEVEL_ENTRY,
+    TERROR_LEVELS,
+    TERROR_SERVICE_RVA,
 )
 from inventory_tracking.native.process import identity, process_mappings
 from inventory_tracking.native.unit_probe import ResearchReader
@@ -44,6 +49,9 @@ LIFE_STAT, MAX_LIFE_STAT = 6, 7  # raw values are life x 256
 # The player's states: 32 a word beside its stats. State 208 (Consume) is bit 0x10000 at +0xB48
 # (tracking/consume.py, verified 2026-09-21), so state 0 is bit 0 at +0xB30; ids are states.txt rows.
 STATES, STATES_SIZE = 0xB30, 0x20
+MAX_TERROR_LEVELS = 64  # a zone has 9 levels at most (desecratedzones.json); more is not that list
+MAX_LEVEL_ID = 200  # levels.txt ends below it
+UNREAD_TERROR_LEVELS: set[str] = set()  # failures of that read already logged
 LEVEL_SIZE = 0x400  # as the Win+C research dump (levels/research.py)
 
 Bounds = tuple[int, int, int, int]
@@ -76,6 +84,7 @@ class MonsterSnapshot:
     player_life: tuple[int, int] | None = None  # (life, most life) now: burst research (danger-plan.md R4)
     player_states: frozenset[int] | None = None  # states.txt ids on the player now (curses, chill); None: unread
     items: tuple[ItemSighting, ...] | None = None  # item units of the watched classes; None: not read
+    terror_levels: tuple[int, ...] | None = None  # the levels the client holds as terrorized now; None: unread
 
 
 def room_bounds(read, room2) -> Bounds:
@@ -150,6 +159,26 @@ def player_states(read, table_address) -> frozenset[int] | None:
         return None
     bits = int.from_bytes(read(max(found, key=lambda player: player[1])[2] + STATES, STATES_SIZE), 'little')
     return frozenset(state for state in range(8 * STATES_SIZE) if bits >> state & 1)
+
+
+def terror_levels(read, base) -> tuple[int, ...] | None:
+    """The level ids the client's Terror Zone service holds as terrorized now, in every difficulty
+    (native/layout.py TERROR_SERVICE_RVA); None with no service. What does not read as level ids is
+    a ValueError that shows the bytes."""
+    service = pointer(read, base + TERROR_SERVICE_RVA)
+    if not service:
+        return None
+    assert TERROR_LEVEL_COUNT == TERROR_LEVELS + 8
+    entries, count = struct.unpack('<QQ', read(service + TERROR_LEVELS, 16))
+    if count == 0:
+        return ()
+    if not entries or count > MAX_TERROR_LEVELS:
+        raise ValueError(f'Terror Zone levels: {count} entries at {entries:#x}')
+    raw = read(entries, count * TERROR_LEVEL_ENTRY)
+    levels = tuple(struct.unpack_from('<I', raw, at)[0] for at in range(0, len(raw), TERROR_LEVEL_ENTRY))
+    if not all(0 < level <= MAX_LEVEL_ID for level in levels) or len(set(levels)) != len(levels):
+        raise ValueError(f'Terror Zone levels do not read as level ids: {raw.hex()}')
+    return levels
 
 
 def player_life(read, table_address) -> tuple[int, int] | None:
@@ -239,12 +268,29 @@ def observe_monsters(pid, images, capture, *, known, counted_level, item_classes
                 life = player_life(read, table)
             with contextlib.suppress(OSError, ValueError, struct.error):
                 states = player_states(read, table)
+            terrorized = None
+            try:
+                terrorized = terror_levels(read, images['candidate_base'])
+            except (OSError, ValueError, struct.error, KeyError) as exc:
+                if str(exc) not in UNREAD_TERROR_LEVELS:
+                    UNREAD_TERROR_LEVELS.add(str(exc))
+                    LOG.info('Terror Zone levels unread: %s', exc)
             items = None
             if item_classes:
                 with contextlib.suppress(OSError, ValueError, struct.error):
                     items = tuple(item_units(read, table, item_classes))
             snapshot = MonsterSnapshot(
-                location, rooms, level_rooms, tuple(monsters), complete, level_hex, level, life, states, items
+                location,
+                rooms,
+                level_rooms,
+                tuple(monsters),
+                complete,
+                level_hex,
+                level,
+                life,
+                states,
+                items,
+                terrorized,
             )
     finally:
         os.close(fd)

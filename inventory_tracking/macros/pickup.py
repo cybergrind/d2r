@@ -36,13 +36,14 @@ holds with nothing under the pointer.
 import math
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass, replace
+from typing import Protocol
 
 from inventory_tracking.combat.policy import RUN_MODES
 from inventory_tracking.common import LOG
 from inventory_tracking.config import APPRAISAL, INPUT
 from inventory_tracking.levels.model import Level, Target
 from inventory_tracking.loot.materials import material_classes
-from inventory_tracking.loot.shown import pickup_rules
+from inventory_tracking.loot.shown import game_filter, pickup_rules, shown_gems
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.routines import ACTING, DEAD, UNIT_PIXELS, press_skill
@@ -140,11 +141,15 @@ def wanted() -> dict:
     """What counts as valuable: the loot marks' own settings (config.AppraisalConfig), and every rune
     from `pickup_rune_minimum` (all of them: the marks point only at the dearer ones) and the groups
     of `pickup_also` (every ring and jewel), which the marks do not point at, and the equipment the
-    loot filter shows: unique and set items of any size, the rest up to `pickup_shown_cells` (loot/shown.py)."""
+    loot filter shows: unique and set items of any size, the rest up to `pickup_shown_cells` (loot/shown.py),
+    and the gems the game's copy of the filter shows (user, 2026-10-12: chipped ones, enabled in the game)."""
+    materials = material_classes((*APPRAISAL.material_marks, *APPRAISAL.pickup_also))
+    if APPRAISAL.pickup_filter_shown:
+        materials |= shown_gems(game_filter())
     return {
         'rune_minimum': APPRAISAL.pickup_rune_minimum,
         'unique_minimum': APPRAISAL.unique_minimum if APPRAISAL.unique_marks else None,
-        'materials': material_classes((*APPRAISAL.material_marks, *APPRAISAL.pickup_also)),
+        'materials': materials,
         'gold_minimum': APPRAISAL.pickup_gold_minimum,
         'shown': pickup_rules(APPRAISAL.pickup_shown_cells) if APPRAISAL.pickup_filter_shown else (),
     }
@@ -187,7 +192,18 @@ def on_ground(run: Run, drop: Drop) -> bool:
     return run.loot is not None and any(found.unit_id == drop.unit_id for found in run.loot().drops)
 
 
-def approach(run: Run, drop: Drop, level: Level | None, key_names) -> None:
+class Spot(Protocol):
+    """What `approach` goes to: a drop, or a chest (macros/opening.py)."""
+
+    @property
+    def x(self) -> float: ...
+    @property
+    def y(self) -> float: ...
+    @property
+    def label(self) -> str: ...
+
+
+def approach(run: Run, drop: Spot, level: Level | None, key_names) -> None:
     """Bring `drop` within a click: nothing when it is near and in view, teleport hops otherwise."""
     for hop in range(HOPS + 1):
         player, rect = ready(run)

@@ -31,8 +31,8 @@ def test_pit_1_tracks_the_stairs_down_and_the_way_back():
     assert guidance.problems == ()
 
 
-def test_pit_level_2_has_no_handler_and_the_route_is_confirmed():
-    assert handler_for(16) is None
+def test_the_route_is_confirmed_as_far_as_pit_2():
+    assert not handler_for(16).confirmed  # the chest mark: tests/…/handlers/test_treasure_levels.py
     assert all(handler_for(area).confirmed for area in (7, 12))  # user, in game, 2026-09-30
 
 

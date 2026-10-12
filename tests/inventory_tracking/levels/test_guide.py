@@ -6,8 +6,8 @@ import threading
 import pytest
 
 from inventory_tracking.levels.geometry import arrow, compass, pointer
-from inventory_tracking.levels.guide import LevelGuide, pointer_lines
-from inventory_tracking.levels.model import Location, Room
+from inventory_tracking.levels.guide import LevelGuide, lead_first, pointer_lines
+from inventory_tracking.levels.model import Lead, Location, Poi, Room
 from inventory_tracking.levels.registry import handler_for
 from tests.inventory_tracking.levels.fixtures import replay
 
@@ -50,7 +50,7 @@ class Clock:
         return self.now
 
 
-def make_guide(areas, *, fixture='arcane_summoner_w', lock=None, fail=None, evidence=None):
+def make_guide(areas, *, fixture='arcane_summoner_w', lock=None, fail=None, evidence=None, lead=None):
     """`areas` yields the area seen by each poll; room reads replay a real dump."""
     shown, clock, sequence = [], Clock(), iter(areas)
     snapshot = replay(fixture)
@@ -76,6 +76,7 @@ def make_guide(areas, *, fixture='arcane_summoner_w', lock=None, fail=None, evid
         clock=clock,
         observe=lambda pid, images, capture, rooms=False: observe(pid, images, capture, rooms_wanted=rooms),
         evidence=evidence,
+        lead=lead,
     )
     return guide, shown, clock
 
@@ -701,3 +702,75 @@ def test_the_level_is_the_shown_cards_rooms_and_walls_for_the_hunt_keys():
 
     assert (level.area, len(level.rooms), level.ground) == (74, 61, ())
     assert level.rooms == guide.target().rooms
+
+
+MARKS = (('Cave', 'stairs'), ('Town', 'previous'), ('Chest', 'target'))
+DOOR, BACK, CHEST = (Poi(label, Room(1, 0, 0, 8, 8), kind) for label, kind in MARKS)
+
+
+def test_the_mark_led_with_comes_first_and_the_rest_keep_their_order():
+    assert lead_first((BACK, CHEST, DOOR), Lead('Cave', 9)) == (DOOR, BACK, CHEST)
+    assert lead_first((BACK, CHEST, DOOR), None) == (BACK, CHEST, DOOR)
+    assert lead_first((BACK, CHEST), Lead('Cave', 9)) == (BACK, CHEST)  # not marked yet: the card's own order
+
+
+def test_a_way_back_that_is_led_with_is_a_way_on():
+    # Outer Cloister -> Monastery Gate -> Tamoe Highland: the step refuses a first mark that only leads back.
+    first, *rest = lead_first((CHEST, BACK), Lead('Town', 1))
+    assert (first.label, first.kind) == ('Town', 'stairs')
+    assert rest == [CHEST]
+
+
+def test_of_two_marks_with_the_label_the_one_to_the_level_meant_is_led_with():
+    there, other = Poi('Exit', Room(2, 8, 0, 8, 8), 'exit', area=4), Poi('Exit', Room(3, 16, 0, 8, 8), 'exit')
+    assert lead_first((other, there), Lead('Exit', 4))[0] is there
+
+
+def test_the_card_and_the_step_lead_with_the_mark_asked_for():
+    asked = []
+
+    def lead(area):
+        asked.append(area)
+        return Lead('Cave', 9)
+
+    guide, shown, _ = make_guide([1, 3], fixture='cold_plains_all_known', lead=lead)
+    guide.poll(1.0)
+    guide.poll(2.0)
+    guide.tick()
+
+    *lines, _card = shown[-1]
+    assert lines[0].text.split(':')[0].endswith('Cave')  # Stony Field is first without a route
+    assert [line.text.split(':')[0].split()[-1] for line in lines[1:3]] == ['Field', 'Grounds']
+    assert guide.target().label == 'Cave'
+    assert set(asked) == {3}
+
+
+def test_a_stage_done_while_the_card_is_shown_changes_what_the_step_follows():
+    leads = [Lead('Cave', 9)]
+    guide, _, _ = make_guide([1, 3], fixture='cold_plains_all_known', lead=lambda area: leads[0])
+    guide.poll(1.0)
+    guide.poll(2.0)
+    assert guide.target().label == 'Cave'
+
+    leads[0] = None
+
+    assert guide.target().label == 'Stony Field'
+
+
+def test_marks_the_lead_says_are_done_are_passed_for_the_next_with_the_label():
+    one, two = (Poi('Super chest', Room(1, 8 * i, 0, 8, 8), 'target', (8.0 * i + 2, 3.0)) for i in (0, 1))
+    assert lead_first((BACK, one, two), Lead('Super chest', None, frozenset({(2.0, 3.0)})))[0] is two
+    both = frozenset({(2.0, 3.0), (10.0, 3.0)})
+    assert lead_first((BACK, one, two), Lead('Super chest', None, both)) == (BACK, one, two)
+
+
+def test_the_guide_gives_the_places_of_the_marks_with_a_label():
+    guide, _, _ = make_guide([1, 3], fixture='cold_plains_all_known')
+    assert guide.marks('Cave') == ()
+    guide.poll(1.0)
+    guide.poll(2.0)
+
+    [spot] = guide.marks('Cave')
+    guide.lead = lambda area: Lead('Cave')
+    assert guide.target().point == spot
+    assert guide.marks('Nothing') == ()

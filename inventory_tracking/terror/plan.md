@@ -152,3 +152,28 @@ is real/big varies per game).
    guides/terror_zones.html §2/§4 still use flattened populations. Herald and minion kills
    are assumed not to count (user, 2026-10-02). A service started mid-game knows the tier only
    once it sees a Herald (assumes Tier 1).
+
+## 2026-10-12 09:30 — terrorized or not: the client's own list (every difficulty)
+
+User: "we need a better check for terrorized zone than we have right now. I want to see it even in
+normal/tz, where mobs are capped to 45 lvl max".
+
+- Why the old check is blind below Hell: it is the forced modifier of plain monsters, and
+  desecratedzones.json has `always_unique_mod_pool` for rotw/hell only (and `max_herald_tiers` 0 for
+  normal and nightmare). Glacial Trail terrorized in Normal, 09:09 to 09:14: 153 plain monsters, none
+  with a pool modifier. The level is no sign either: the client's stat 12 of those monsters was their
+  monstats level (33, 38, 41), and in Hell six minutes later the area's 82/83, not the terrorized one.
+- What is read now: the client's Terror Zone service ("ClientTerrorZoneService" in its log strings).
+  A pointer at image RVA 0x1E00508 leads to an object with the terrorized levels as 16-byte entries
+  (level id first) at +0x80 and their number at +0x88: found in the code that prints the levels on the
+  automap (0x140ca6dd9 of pricing/raw/re/D2R-decrypted.exe; native/layout.py TERROR_SERVICE_RVA).
+  Confirmed live at 09:23 in Hell: `terror_levels` [115, 116], Glacial Trail and Drifter Cavern, the
+  zone the player stood in. NOT yet seen in a Normal or Nightmare game, and what the list holds in
+  the lobby or between rotations is not known (an empty list falls back to the monsters).
+- terror/monsters.py `terror_levels` reads it on every pass, probe.py logs a `terror_levels` event
+  when it changes, tracker.py `terrorized` takes a listed level as terrorized and an unlisted one as
+  not; plain monsters with the forced modifier outvote a list without their level (one warning).
+  With the level listed and plain monsters without a modifier the card is 'Terror · <group>' and
+  'No Heralds below Hell'.
+- Open: the other 12 bytes of an entry; the terrorized level shown below Hell (45 or 71 needs the
+  difficulty, not read); the RVA is this build's (sha 1e2ac459…), a new build needs it found again.

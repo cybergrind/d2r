@@ -5,10 +5,12 @@ from types import SimpleNamespace
 
 from inventory_tracking.combat.hurts import (
     BESIDE,
+    HURT_LEAST,
     Foe,
     beside,
     enchantments,
     hurts,
+    lost,
     missile_point,
     rank,
     report,
@@ -136,3 +138,14 @@ def test_enchantments_of_an_older_take_come_from_the_probe_log_of_the_same_game(
     old = SimpleNamespace(frames=[{'t': 130.0}], units=units)
     # Unit 7 of this game, not the one that got its id two hours on; unit 8 was another type; 9 has none.
     assert enchantments(found, old) == {7: (30, 28, 17), 9: ()}
+
+
+def test_life_that_goes_with_the_most_it_can_be_is_no_blow():
+    # Consume ends (1818 -> 1580), the weapons are swapped (1818 -> 1783): the life follows, nothing struck.
+    assert lost(1818, 1818, 1580, 1580) == 0
+    assert lost(1612, 1783, 1392, 1540) == 0  # in proportion, as the take of Cave Level 1 has it
+    assert lost(1700, 1818, 1700, 1783) < HURT_LEAST
+    assert lost(1612, 1783, 1292, 1540) == 100  # a blow in the same frame is still one
+    assert lost(1500, 1783, 1290, 1783) == 210
+    assert lost(1500, 1580, 1290, 1818) == 210  # a buff coming on hides nothing
+    assert lost(1051, 1783, 0, 1540) == 1051  # a death ends the buffs: the whole life was the blow's

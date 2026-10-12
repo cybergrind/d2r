@@ -1565,3 +1565,122 @@ marked. Not tuned to mark it: one death and seven blows are not a measurement.
 Open: the character's states at a drop (curses, Conviction) are not recorded; the threat scenes
 (tests/.../scenarios/threat) do not use the enchantments yet; the monsters are still not wired
 into a fight the macro plays (the list of the note above, items 1, 3 and 4).
+
+## Note, 2026-10-12 01:45: the first games with the new recording
+
+19 takes (22:23 to 22:31 UTC on 2026-10-11, areas 6, 21-25 and 38): 865 units written, 269 with
+enchantments; 16 `hurt` events, no death.
+
+- **The character's resistances** (`character_stats`): fire 154, lightning 108, cold 118, poison 124,
+  physical 10 in 16 takes. They are over the cap of 75 as they stand, so the Hell penalty is already
+  in them: a Cold Enchanted monster's nova (`coldunique`: 628 to 828 points at levels 75 to 95) took
+  179 and 186 in these games and 212 to 239 before, which is a quarter of it; at 18% (118 less 100)
+  it would have taken 515 to 680. So lightning is cut to a quarter too, and `DANGER.resisted` 0.25
+  stands for this character.
+- **A curse shows in them.** One take opened with the physical resistance at -90 and the four others
+  at 190/179/189/195 (Outer Cloister, Griswold: Cursed): Amplify Damage, and something that raised
+  the rest. That take's largest drop, 221 points, came with Griswold striking 2.2 units off.
+- **Added:** each `hurt` now carries `resists` (physical, fire, lightning, cold, poison at that
+  frame), so the next drop that the tables cannot explain says whether a curse was on the character.
+- Nothing yet on the Lightning Enchanted question: no blow of these games was put on a Lightning
+  Enchanted monster (one on a Fire Enchanted minion, 157 points; one on a plain Blood Clan, 79).
+
+## Note, 2026-10-12 02:10: the two resistance readings are the two weapon sets
+
+User: "that's because we have swapped weapons. on main set - we have everything capped"; "why herald
+fight would have non primary weapon selected?". This takes back the note of 01:45 where it says the
+Hell penalty is in the stats and the staff set is capped too.
+
+- The stat list holds the resistances before the Hell penalty of 100. Main set: fire 190, lightning
+  179, cold 189, poison 195 (90/79/89/95: all at the cap of 75), most life 1818. Teleport staff's
+  set: 154/108/118/124, so **fire 54, lightning 8, cold 18, poison 24**, most life 1783. The most
+  life in a frame tells the set in the takes that hold no stats.
+- The cold nova took 179 to 239 with the staff's set in hand (cold 18%), so a nova is about 220 to
+  290 raw, a third of what the missile's per-level columns give at the monster's level (628 to 828):
+  the level a unique's missile is cast at is not the monster's. The same doubt holds for the sparks'
+  2 x level - 1 in sim/monsters.py.
+- **The Herald fight of Tower Cellar 5 was fought on the staff's set from the first frame to the
+  death** (most life 1783 throughout). Why: `Hunter.tough` asks for 40,000 points of life in reach,
+  counted from the tables with an elite at twice its type; a tier 2 Herald has 13.5 times and its
+  minions 4.75, so the pack never counted as tough and no swap was asked for. Of the 19 takes of the
+  new games, 12 of the 16 drops of life came with the staff's set in hand.
+- Fixed: `Monster.tier` (stat 367, read with the life) and `Hunter.tough` true with a Herald or one of
+  its minions in reach (tests/inventory_tracking/macros/test_hunt.py).
+- With lightning at 8% the Herald's worst blow is 539 after resistances and a minion's 166: 705
+  together against the 1051 or more that killed. Nearer, still not explained. The seven Lightning
+  Enchanted blows at three times the others are what an unresisted lightning share looks like.
+- Open, the user's to decide: whether every fight with an elementally enchanted leader, or every
+  fight longer than a moment, should be on the main set; and `DANGER.resisted` 0.25 is right only
+  with the main set in hand.
+
+## Note, 2026-10-12 02:50: main weapons for more fights, jumps that keep clear, every level recorded
+
+User: "we should swap to it against most of tough/hard-hitting enemies/bosses"; "check several recent
+cow runs - we're jumping into their groups too aggressively"; "can we record combat logs for all
+levels? maybe we can retire some very old or have some policy for how much do we keep".
+
+- **Main weapons** (`Hunter.tough`, macros/hunt.py): besides a boss and 40,000 points of life in
+  reach, now for any pack leader (unique, champion, super unique), a Herald or its minion, and plain
+  monsters whose threat score together (terror/danger.py) is `HARD_SCORE` 4.0 or more: two Gloams
+  4.75, four Dark Rangers 3.6 (not yet), eight 7.2, eight Extra Strong Blood Clan 4.9; eight plain
+  Blood Clan 3.3 and a herd of cows 2.4 are not (the cows reach the life count anyway). Still only
+  once the mode has run a second since the last step.
+- **The cow runs** (22:22 and 22:53 UTC on 2026-10-11; no takes, Moo Moo Farm was not recorded; from
+  probe.log's landings and the terror probe's sample of the monsters each second, 98 landings with a
+  sample taken at the landing within 1.5 s). The nearest cow at a landing: 10 to 14 units at the
+  median, 3.5 to 4.3 at the tenth; 11 landings had a cow within 5 units, 6 had four or more within 8
+  (once 11 within 8 and 22 within 12). Life lost in the 3 s after: 2 to 3 points on average, 42 after
+  those six, 208 at the most; the life never fell under 60%. 80 of 149 steps were chosen with
+  hostiles already in reach (2 to 3 at the median), for a place worth three times as much: a jump
+  of about 20 units every 1.5 to 2.5 s, deeper into the herd.
+  Why: `stance.camp` takes the place worth the most blade points and only keeps 6 units from every
+  hostile where it stands when the place is chosen; a cow makes 5.5 units a second and the jump and
+  the first cast take 1.2 s.
+- **Fixed** (`stance.closes`): a place is not jumped to when a melee monster within 20 units of it
+  would be within the 6 units by the time the first cast is out (its monstats speed x 1.1 over the
+  jump and a cast, 6 units at the most). Walks are left as they were: held to them too, no pack in a
+  row was walked to at all and the stance scenarios took 10% longer; with jumps only they are as before.
+  Not measured in the game yet, and the cow level had no takes to try it on.
+- **Every level that is no town is recorded** (`combat_everywhere`), and the takes are held small
+  (combat/retain.py): a take is gzipped as it closes and, past `combat_keep_gb` 20, the oldest are
+  removed, one with a death last. The 728 closed takes went from 3.68 GB to 0.24 GB packed; none removed.
+
+## 2026-10-12 02:55 — the takes of 02:14 to 02:46 (cows, Cold Plains, Cave 1 and 2)
+
+Five takes, the first on every level (areas 39, 3, 9, 9, 13), all packed at their close.
+
+- Jumps (stance `closes`, in force from the 02:14 session): of 183 landings with a monster within 40 units, 2 had
+  one within 5 and none had four within 8; in the cow take 65 landings, nearest cow 15.7 at the median and 9.4 at
+  the tenth (before: 10 to 14 and 3.5 to 4.3, 11 of 98 within 5). Life never under 83%.
+- Main weapons (hunt `tough`, from the 02:34 session): 7 swaps for a fight in 11 minutes, each swapped back for
+  the next teleport. With a leader or a minion within 15 units the main set was in hand 1559 frames of 1700; the
+  141 on the staff are the second after a step and the swap itself.
+- A `hurt` was written for life that fell with the most it can be: Consume ending (1818 -> 1580, the two largest
+  "blows" of the takes, 238 and 220) and a swap of the weapons. `hurts.lost` brings the life down in the same proportion first (not at a death, which ends the buffs itself).
+  Still written: a swap whose life falls a frame before its most does (35 points, no suspect, so never fitted).
+- Consume lasts 300 s (cast 02:35:49, gone at 02:40:49) and nothing casts it again: the last five minutes of the
+  session were fought with 238 less life. The prebuff asked for at 02:43:37 in Cave 1 summoned no Defiler at
+  three spots in 5 s (no walkable ground under the fixed spots, presumably) and was cancelled by the pickup key.
+- Psychic Ward upkeep was not in these sessions (rotation.py written 02:41, the session with it began 02:46).
+
+## 2026-10-12 10:10 — no place in the middle of a pack (stance.py CROWD_MOST)
+
+User: "we positioned ourselves into big mob group and took too much damage". Take
+20261012T065226Z-130, Drifter Cavern, 09:55:26 to 09:55:40: the sweep went on by five moves in 8 s
+(each "worth" two to twenty times the place before), the last a walk of 19 to (12705.5, 13531.5),
+worth 37535 against 6538. That place had 4 hostiles within 12 units when chosen (7 within 16) and 5 to
+7 within 12 on arrival, 12 within 25. In the next 6 s the character lost 1,592 points, the life 37%
+(681 of 1818) at its lowest, with potions drunk in between. What hit: bolts of the Hell Temptresses
+(succubus4, missile 665 `succubusmiss` beside the character at every drop), four of them 8 to 11
+units off; hits of 89 to 406. `camp` counted the points taken only: its one guard, `closes`, is for
+melee monsters and jumps.
+- The nine places chosen in this take: with 0 to 2 hostiles within 12 units, 0 to 297 points lost in
+  the 6 s after; with 4, 1,592. One take: the threshold is a guess from it.
+- Rule: a place with more than CROWD_MOST (3) hostiles within CROWD_UNITS (12) is not chosen, unless
+  as many stand that near the character already. Cost on the 39 recorded moments
+  (tests/inventory_tracking/scenarios/stance): one step alone clears 28 of them, was 29, in 238 s, was
+  226; the follow-on steps the game runs are unchanged (29 + 2 cleared, 181 s within 3).
+- Not done (user's idea, same message): with good potions on the ground and damage expected, go to
+  them, drink from the belt and take them up. The pickup step and the sweep already drink and pick up
+  with life under 70%, but only with no hostile within reach of the character or the potion: the stop
+  for a potion among four hostiles is how the character died in Tower Cellar 5 (22:50 on 2026-10-11).

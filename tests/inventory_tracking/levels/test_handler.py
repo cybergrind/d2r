@@ -1,7 +1,7 @@
 """Handler helpers: declarative POIs over preset names; problems instead of guesses."""
 
-from inventory_tracking.levels.handler import stairs_down, target, waypoint
-from inventory_tracking.levels.model import LevelSnapshot, Location, Room
+from inventory_tracking.levels.handler import Handler, PoiSpec, stairs_down, target, waypoint
+from inventory_tracking.levels.model import SUPER_CHEST, LevelSnapshot, Location, Room
 
 
 def snapshot(*presets):
@@ -107,4 +107,80 @@ def test_standing_in_a_small_multi_chunk_target_is_a_here_poi():
     guidance = handler.guide(LevelSnapshot(Location(130, 0, 5 * 5, 5 * 5), stairs + rest))
 
     assert [p.label for p in guidance.pois] == ['Worldstone Keep 2']
+    assert guidance.problems == ()
+
+
+# A mark on an object the preset's files place (PoiSpec.thing; data/preset_objects.json).
+POOL_A, LAVA_W, LAVA_E = 1040, 1056, 1055  # level_presets.json: Act 5 - Ice Pool A, Lava W, Lava E
+CAVERN = target('Drifter Cavern', areas={116}, label='Super chest', preset=r'Act 5 - Ice Pool [AB]', thing=SUPER_CHEST)
+
+
+def near(point):
+    return round(point[0]), round(point[1])  # the spot is kept in tiles: a unit is a fifth of one
+
+
+def pool(variants, *, at=(100, 200), player=(520, 1020)):
+    """The 32x32 cavern as sixteen 8x8 chunks of one preset; `variants`: the layout each chunk has read."""
+    block = (*at, 32, 32)
+    rooms = tuple(
+        Room(POOL_A, at[0] + 8 * (i % 4), at[1] + 8 * (i // 4), 8, 8, variants[i % len(variants)], block)
+        for i in range(16)
+    )
+    return LevelSnapshot(Location(116, 0, *player), rooms)
+
+
+def test_a_thing_mark_sits_where_the_layout_places_the_object_even_with_the_player_inside():
+    guidance = CAVERN.guide(pool([4]))  # layout 4 puts the chest at (21, 21) units
+
+    [poi] = guidance.pois
+    assert (poi.label, poi.kind, near(poi.point)) == ('Super chest', 'target', (100 * 5 + 21, 200 * 5 + 21))
+    assert guidance.problems == ()
+
+
+def test_a_thing_mark_takes_the_layout_from_whichever_chunk_has_read_it():
+    guidance = CAVERN.guide(pool([None, None, 5]))  # layout 5: (10, 135)
+
+    assert [near(poi.point) for poi in guidance.pois] == [(100 * 5 + 10, 200 * 5 + 135)]
+
+
+def test_a_thing_mark_with_no_layout_read_is_a_problem_not_a_guess():
+    guidance = CAVERN.guide(pool([None]))
+
+    assert guidance.pois == ()
+    assert guidance.problems == ('Super chest: layout variant unknown',)
+
+
+def test_a_thing_mark_in_a_room_not_read_yet_is_the_room_until_its_layout_is_known():
+    handler = target('Pit', areas={125}, label='Super chest', preset=r'Act 5 - Lava W', thing=SUPER_CHEST)
+    far = Room(LAVA_W, 300, 0, 24, 24)
+
+    guidance = handler.guide(LevelSnapshot(Location(125, 0, 500, 500), (far, Room(0, 96, 96, 8, 8))))
+
+    assert [(poi.room, poi.spot) for poi in guidance.pois] == [(far, None)]
+    assert guidance.problems == ()
+
+
+def test_a_thing_mark_in_a_layout_without_the_object_is_a_problem():
+    handler = target('Pit', areas={125}, label='Super chest', preset=r'Act 5 - Lava W', thing=SUPER_CHEST)
+    rooms = (Room(LAVA_W, 0, 0, 24, 24, 0),)
+
+    guidance = handler.guide(LevelSnapshot(Location(125, 0, 500, 500), rooms))
+
+    assert guidance.pois == ()
+    assert guidance.problems == ('Super chest: the layout (variant 0) places 0 of object 397',)
+
+
+def test_each_thing_mark_is_every_room_whose_layout_holds_the_object():
+    spec = PoiSpec('Super chest', r'Act 5 - Lava [NSEW]', each=True, thing=SUPER_CHEST)
+    handler = Handler('Abaddon', frozenset({125}), (spec,))
+    rooms = (
+        Room(LAVA_W, 0, 0, 24, 24, 1),  # (55, 49)
+        Room(LAVA_W, 24, 0, 24, 24, 0),  # a dead end without a chest
+        Room(LAVA_E, 48, 0, 24, 24, 1),  # (65, 100)
+        Room(LAVA_E, 72, 0, 24, 24, None),  # not read yet
+    )
+
+    guidance = handler.guide(LevelSnapshot(Location(125, 0, 500, 500), rooms))
+
+    assert [near(poi.point) for poi in guidance.pois] == [(55, 49), (48 * 5 + 65, 100)]
     assert guidance.problems == ()

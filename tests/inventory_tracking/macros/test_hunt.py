@@ -19,6 +19,7 @@ from inventory_tracking.combat.stance import CAMP_REACH
 from inventory_tracking.levels.model import Ground, Level, Room, Walkable, pack_cells
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.hunt import (
+    CONSUME_RETRY,
     FOLLOW_SECONDS,
     MISSES_IN_A_ROW,
     RUN_IN_PLACE,
@@ -30,10 +31,11 @@ from inventory_tracking.macros.hunt import (
     Hunter,
     hostiles,
 )
-from inventory_tracking.macros.rotation import HEX_DISTRUST, SIGIL_SECONDS
+from inventory_tracking.macros.rotation import HEX_DISTRUST, SIGIL_SECONDS, WARD_SECONDS
+from inventory_tracking.macros.routines import SUMMON_SPOTS
 from inventory_tracking.macros.skills import ATTACK, BLADE_WARP, ECHOING_STRIKE, TELEPORT
 from inventory_tracking.macros.travel import JUMP_REACH, WARP_DELAY, Step, attackable, step_walk
-from inventory_tracking.macros.world import VALUABLE, Drop, Monster, Teleport
+from inventory_tracking.macros.world import HEALING, VALUABLE, Drop, Monster, Teleport
 from tests.inventory_tracking.macros.fakes import HUNT_SLOTS, KEYS, PREBUFF_SET, Game, player, world
 
 
@@ -64,7 +66,9 @@ def foe(unit_id, x, y, flags=PLAIN, txt_id=19, **changes):
 def game(*monsters, **changes):
     changes.setdefault('area', 101)
     changes.setdefault('slots', HUNT_SLOTS)
-    play = Game(world(monsters=tuple(monsters), **changes))
+    start = world(monsters=tuple(monsters), **changes)
+    # Consume on, as after the prebuff a run starts with: without it attack mode casts it first.
+    play = Game(replace(start, player=replace(start.player, consume=True)))
     play.staff = STAFF
     return play
 
@@ -93,6 +97,23 @@ def appear(play, *monsters):
 
 
 # --- attack mode: the kill ---
+
+
+def test_the_aim_leaves_an_items_label_and_stays_on_the_line(caplog):
+    # Drifter Cavern, 09:52 on 2026-10-12: a potion's label under the pointer and 21 casts flew to the potion.
+    play = game(foe(10, 5008.0, 5000.0, life=90, max_life=90))
+    play.toughness[10] = 2
+    lift = play.pick_above / 16
+    potion = Drop(77, 5008.0 + lift, 5000.0 + lift, 'a healing potion', HEALING)
+    play.loot = replace(play.loot, drops=(potion,))
+    with caplog.at_level('INFO'):
+        attack_mode(play, hunter(play), until=5.0)
+    assert "an item's label under the aim at (5008.0, 5000.0)" in caplog.text
+    # The first cast is out before the game has noted what is under the pointer; the next is off the label.
+    assert [unit for unit, _ in play.strikes] == [10, 10]
+    last = play.strikes[-1][1]
+    assert last[0] > 5010.0  # further out along the line
+    assert abs(last[1] - 5000.0) < 1.0
 
 
 def test_attack_mode_strikes_a_monster_in_reach_by_the_skill_key_until_it_dies(marks_all):
@@ -125,7 +146,7 @@ def test_attack_mode_strikes_a_monster_in_reach_by_the_skill_key_until_it_dies(m
 
 def test_the_right_mouse_button_is_held_when_it_holds_echoing_strike_as_the_player_does():
     play = game(foe(10, 5008.0, 5000.0))
-    play.world = replace(play.world, player=player(101, right_skill=ECHOING_STRIKE))
+    play.world = replace(play.world, player=player(101, consume=True, right_skill=ECHOING_STRIKE))
     attack_mode(play, hunter(play), until=5.0)
     assert play.pressed() == []  # the key stays unused, and the monster died before a mark
     assert [event[:2] for event in play.keys.events if event[0] == 'button'] == [('button', 3)]
@@ -144,13 +165,13 @@ def test_a_game_casting_once_per_press_gets_the_input_pressed_again(marks_all):
 
 def test_without_a_key_the_mouse_button_holding_echoing_strike_is_used():
     play = game(foe(10, 5008.0, 5000.0), slots=(*HUNT_SLOTS[:13], None, *HUNT_SLOTS[14:]))
-    play.world = replace(play.world, player=player(101, right_skill=ECHOING_STRIKE))
+    play.world = replace(play.world, player=player(101, consume=True, right_skill=ECHOING_STRIKE))
     attack_mode(play, hunter(play), until=5.0)
     assert [event[:2] for event in play.keys.events if event[0] == 'button'] == [('button', 3)]
     assert 'Echoing Strike (right click) at the monster 19 (10), life unknown' in play.said
 
     play = game(foe(10, 5008.0, 5000.0), slots=(*HUNT_SLOTS[:13], None, *HUNT_SLOTS[14:]))
-    play.world = replace(play.world, player=player(101, left_skill=ECHOING_STRIKE))
+    play.world = replace(play.world, player=player(101, consume=True, left_skill=ECHOING_STRIKE))
     attack_mode(play, hunter(play), until=5.0)
     assert play.pressed() == ['Shift_L']  # Shift held for the click
     assert play.strikes[0][0] == 10
@@ -158,7 +179,7 @@ def test_without_a_key_the_mouse_button_holding_echoing_strike_is_used():
 
 def test_a_plain_attack_on_the_left_button_is_not_echoing_strike_and_the_mode_gives_up(caplog):
     play = game(foe(10, 5008.0, 5000.0), slots=(*HUNT_SLOTS[:13], None, *HUNT_SLOTS[14:]))
-    play.world = replace(play.world, player=player(101, left_skill=ATTACK))
+    play.world = replace(play.world, player=player(101, consume=True, left_skill=ATTACK))
     with caplog.at_level('INFO'), pytest.raises(Abort, match=f'{MISSES_IN_A_ROW} fights stopped in a row'):
         hunter(play).attack_mode(play.run(), keys)
     assert play.keys.events == []
@@ -596,7 +617,7 @@ def test_a_line_whose_focal_point_is_off_the_screen_is_aimed_along_as_far_as_the
 def test_a_skill_still_on_the_button_after_a_hop_is_waited_out_not_a_stopped_fight(caplog):
     # Host, 2026-10-10: right after every seek hop the right button still held Teleport for a moment.
     play = game(foe(10, 5008.0, 5000.0), slots=(*HUNT_SLOTS[:13], None, *HUNT_SLOTS[14:]))
-    play.world = replace(play.world, player=player(101, right_skill=54))
+    play.world = replace(play.world, player=player(101, consume=True, right_skill=54))
 
     def back():
         play.world = replace(play.world, player=replace(play.world.player, right_skill=ECHOING_STRIKE))
@@ -646,6 +667,45 @@ def test_the_main_weapons_are_taken_for_a_fight_once_the_mode_has_run_a_second()
     assert play.strikes
 
 
+def test_a_herald_in_reach_gets_the_main_weapons_whatever_the_life_counted():
+    # Tower Cellar 5, 22:50 on 2026-10-11: a tier 2 Herald and eight minions counted under TOUGH_POINTS (its
+    # 13 times the life is not in the tables' points), so the fight and the death were on the staff's set,
+    # whose resistances are under the cap.
+    play = game()
+    play.sets.reverse()
+    minion = replace(foe(100, 5006.0, 4998.0), flags=0x10, tier=2)
+    attack_mode(play, hunter(play), until=6.0, events=[(2.0, appear(play, minion))])
+    assert play.pressed()[0] == 'c'
+    assert play.sets[0] == PREBUFF_SET
+    assert 'Main weapons for the fight' in play.said
+
+
+def test_a_pack_leader_in_reach_gets_the_main_weapons():
+    # user, 2026-10-12: "we should swap to it against most of tough/hard-hitting enemies/bosses".
+    play = game()
+    play.sets.reverse()
+    attack_mode(play, hunter(play), until=6.0, events=[(2.0, appear(play, foe(10, 5006.0, 5000.0, CHAMPION)))])
+    assert play.pressed()[0] == 'c'
+    assert play.sets[0] == PREBUFF_SET
+
+
+def test_plain_monsters_that_hit_hard_together_get_the_main_weapons():
+    # Two Gloams (txt 118): 4.75 on the threat score, over HARD_SCORE, at a few thousand points of life.
+    play = game()
+    play.sets.reverse()
+    gloams = [replace(foe(10 + i, 5006.0 + 2 * i, 4998.0), txt_id=118) for i in range(2)]
+    attack_mode(play, hunter(play), until=6.0, events=[(2.0, appear(play, *gloams))])
+    assert play.pressed()[0] == 'c'
+
+
+def test_one_plain_monster_in_reach_is_fought_with_what_is_held():
+    play = game()
+    play.sets.reverse()
+    attack_mode(play, hunter(play), until=6.0, events=[(2.0, appear(play, foe(100, 5006.0, 4998.0)))])
+    assert 'c' not in play.pressed()
+    assert play.strikes
+
+
 def test_a_fight_right_after_a_step_starts_with_what_is_held_and_stops_for_the_main_weapons_a_second_in(marks_all):
     # Host, 17:26 on 2026-10-10: a swap after every hop of a chain of seek steps, and the staff back for
     # the next one, left the character standing 63% of the frames it had a target.
@@ -691,11 +751,11 @@ def test_a_character_the_macros_do_not_know_keeps_what_it_holds():
 
 
 def test_a_plain_pack_is_fought_with_what_is_held_and_a_big_one_gets_the_main_weapons():
-    # user, 2026-10-10: the swap to the main weapons only for tougher packs. A lone elite is not one: the
-    # Catacombs packs died within a second or two of the swap (the run of 18:14).
+    # user, 2026-10-10: the swap to the main weapons only for tougher packs. Since 2026-10-12 a pack leader
+    # is one (the staff's set leaves the resistances under the cap); three plain monsters still are not.
     play = game()
     play.sets.reverse()
-    few = [foe(10, 5006.0, 5000.0, CHAMPION), *(foe(11 + i, 5007.0 + i, 5000.0) for i in range(2))]
+    few = [foe(10 + i, 5006.0 + i, 5000.0) for i in range(3)]
     attack_mode(play, hunter(play), until=6.0, events=[(2.0, appear(play, *few))])
     assert 'c' not in play.pressed()
     assert play.strikes
@@ -1229,6 +1289,92 @@ def test_a_hex_purge_the_state_never_shows_is_tried_twice_and_then_left_for_a_mi
     play.purge_shows = False
     attack_mode(play, hunter(play), until=HEX_DISTRUST + 15)
     assert len(play.purges) == 3
+
+
+def warded(play, state):
+    play.world = replace(play.world, player=replace(play.world.player, ward=state))
+    return play
+
+
+def test_attack_mode_casts_psychic_ward_when_the_characters_state_reads_without_it():
+    # user, 2026-10-12: "we should keep psychic ward buff for the warlock: probably it will save us sometimes".
+    play = warded(game(), False)
+    attack_mode(play, hunter(play), until=10.0)
+    assert len(play.wards) == 1
+    assert play.world.player.ward is True
+
+
+@pytest.mark.parametrize('state', [True, None], ids=['on', 'unreadable'])
+def test_no_psychic_ward_when_it_is_on_or_cannot_be_read(state):
+    play = warded(game(foe(10, 5008.0, 5000.0)), state)
+    attack_mode(play, hunter(play), until=5.0)
+    assert play.wards == []
+
+
+def test_a_psychic_ward_broken_again_and_again_in_a_fight_is_cast_once_in_five_seconds():
+    play = warded(game(foe(10, 5008.0, 5000.0)), True)
+    play.toughness[10] = 1000
+    breaks = [(at, lambda: warded(play, False)) for at in (2.0, 3.5, 5.0, 8.5)]
+    attack_mode(play, hunter(play), until=10.0, events=breaks)
+    # A key the fake game does not keep under a cast is pressed again at once (routines.press_through).
+    casts = [at for before, at in zip([-math.inf, *play.wards], play.wards, strict=False) if at - before > 1.0]
+    assert len(casts) == 2
+    assert 2.0 <= casts[0] < 3.0
+    assert casts[1] - casts[0] >= WARD_SECONDS
+    assert len(play.strikes) > 10  # the strike went on between them
+
+
+# --- Consume cast again when it has run out (2026-10-12) ---
+
+
+def consumed(play, state):
+    play.world = replace(play.world, player=replace(play.world.player, consume=state))
+    return play
+
+
+def test_attack_mode_casts_consume_again_when_it_has_run_out_and_nothing_is_near():
+    # 02:40 on 2026-10-12: Consume ran out 300 s after its cast and the next five minutes were fought without it.
+    play = consumed(game(), False)
+    attack_mode(play, hunter(play), until=10.0)
+    assert play.pressed().count('6') == 1
+    assert play.world.player.consume is True
+    assert len([m for m in play.world.monsters if m.txt_id == 744]) == 1
+    assert 'Consume ran out: casting it again' in play.said
+
+
+@pytest.mark.parametrize('state', [True, None], ids=['on', 'unreadable'])
+def test_no_consume_while_it_is_on_or_cannot_be_read(state):
+    play = consumed(game(), state)
+    attack_mode(play, hunter(play), until=10.0)
+    assert '6' not in play.pressed()
+    assert 'q' not in play.pressed()
+
+
+def test_no_consume_is_tried_while_the_game_is_in_the_background():
+    play = consumed(game(), False)
+    play.focused = False
+    run = play.run()
+    assert not hunter(play).consume_due(run, play.world, [])
+    play.focused = True
+    assert hunter(play).consume_due(run, play.world, [])
+
+
+def test_no_consume_with_a_hostile_near_and_one_once_it_is_dead():
+    play = consumed(game(foe(10, 5008.0, 5000.0)), False)
+    play.toughness[10] = 30
+    attack_mode(play, hunter(play), until=20.0)
+    assert all(m.unit_id != 10 for m in play.world.monsters)
+    assert play.pressed().count('6') == 1
+    assert play.strikes
+    assert play.pressed().index('6') > 0
+
+
+def test_a_consume_that_cannot_be_cast_is_tried_again_only_after_a_while():
+    play = consumed(game(), False)
+    play.blocked = lambda x, y: True  # no ground takes a summon
+    attack_mode(play, hunter(play), until=CONSUME_RETRY + 15)
+    assert play.pressed().count('q') == 2 * len(SUMMON_SPOTS)  # two tries, each at every spot
+    assert '6' not in play.pressed()
 
 
 def test_death_mark_is_not_spent_on_a_monster_a_cast_or_two_kills():

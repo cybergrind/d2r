@@ -2,6 +2,9 @@
 
 import struct
 
+import pytest
+
+from inventory_tracking.native.layout import TERROR_SERVICE_RVA
 from inventory_tracking.terror.monsters import (
     Monster,
     level_entry,
@@ -10,6 +13,7 @@ from inventory_tracking.terror.monsters import (
     player_level,
     player_life,
     player_states,
+    terror_levels,
 )
 
 
@@ -191,3 +195,35 @@ def test_the_player_states_are_the_bits_set_beside_its_stats():
 
     struct.pack_into('<Q', memory.blocks[TABLE], 1 * 8, 0)
     assert player_states(memory.read, TABLE) is None
+
+
+def terror_service(memory, levels, base=0x140000000):
+    service, entries = 0x800000, 0x810000
+    struct.pack_into('<Q', memory.block(base + TERROR_SERVICE_RVA, 8), 0, service)
+    struct.pack_into('<QQ', memory.block(service, 0x100), 0x80, entries, len(levels))
+    block = memory.block(entries, 16 * max(len(levels), 1))
+    for index, level in enumerate(levels):
+        struct.pack_into('<I', block, 16 * index, level)
+    return base
+
+
+def test_the_terrorized_levels_are_the_clients_own_list():
+    # Glacial Trail and Drifter Cavern, as the service read them on 2026-10-12 (the client's Terror Zone
+    # service: 16-byte entries, the level id first).
+    memory = Memory()
+    assert terror_levels(memory.read, terror_service(memory, [115, 116])) == (115, 116)
+
+
+def test_no_terrorized_levels_is_an_empty_list_and_no_service_is_unread():
+    memory = Memory()
+    assert terror_levels(memory.read, terror_service(memory, [])) == ()
+    bare = Memory()
+    bare.block(0x140000000 + TERROR_SERVICE_RVA, 8)
+    assert terror_levels(bare.read, 0x140000000) is None
+
+
+def test_entries_that_are_no_level_ids_are_refused_with_their_bytes():
+    memory = Memory()
+    base = terror_service(memory, [115, 70000])
+    with pytest.raises(ValueError, match='73000000'):
+        terror_levels(memory.read, base)

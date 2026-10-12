@@ -31,5 +31,5 @@ def test_real_cave_1_replays_and_is_confirmed():
     assert handler_for(9).confirmed
 
 
-def test_cave_2_has_no_handler():
-    assert handler_for(13) is None
+def test_cave_2_is_unconfirmed():
+    assert not handler_for(13).confirmed  # the chest mark: test_treasure_levels.py

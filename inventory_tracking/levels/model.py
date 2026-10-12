@@ -10,6 +10,34 @@ from functools import lru_cache
 from inventory_tracking.native.layout import TILE_UNITS
 
 
+# objects.txt ids of the objects a mark may name for the step to click (`Poi.use`).
+PORTAL = 60  # PortalPermanent: the red portal that stays (the Cairn Stones' to Tristram); a town portal is 59
+WIRTS_BODY = 268
+# Objects the game's map files place at a spot of a preset, which a mark may sit on (`PoiSpec.thing`;
+# levels/data/preset_objects.json, built by build_objects.py). Ids checked against d2data objects.json
+# on 2026-10-12.
+SUPER_CHEST = 397  # ConsolationChest, the "sparkly chest"
+SEALS = (392, 393, 394, 395, 396)  # DiabloSeal1-5: arm E holds 392 and 393, arm N 394, arm W 395 and 396
+ARCANE_PORTAL = 298
+MEPHISTO_BRIDGE = 341
+HELL_GATE = 342  # the red portal to act 4 on Mephisto's bridge
+CUBE_CHEST, SCROLL_CHEST, STAFF_CHEST = 354, 355, 356  # Horadric Cube, Horadric Scroll, Staff of Kings
+SEWER_STAIRS, SEWER_LEVER = 366, 367  # Kurast Sewers 1
+HEART_CHEST, BRAIN_CHEST, EYE_CHEST = 405, 406, 407  # Khalim's
+FROZEN_ANYA = 460  # DrehyaOutsideTown
+ANCIENTS_ALTAR, ANCIENTS_GATEWAY = 546, 547
+THRONE_PORTAL = 563  # FinalPortal, to the Worldstone Chamber
+# The placed objects the teleport step clicks at their mark (macros/teleport.py USES): a mark on one of
+# them carries it as `Poi.use`. The Throne's portal is not among them: objects.txt gives it no click
+# box, and none was seen opened yet.
+CLICKED = frozenset((SUPER_CHEST, *SEALS, HELL_GATE, ARCANE_PORTAL))
+MARKABLE = frozenset((
+    SUPER_CHEST, *SEALS, ARCANE_PORTAL, MEPHISTO_BRIDGE, HELL_GATE, CUBE_CHEST, SCROLL_CHEST, STAFF_CHEST,
+    SEWER_STAIRS, SEWER_LEVER, HEART_CHEST, BRAIN_CHEST, EYE_CHEST, FROZEN_ANYA, ANCIENTS_ALTAR,
+    ANCIENTS_GATEWAY, THRONE_PORTAL,
+))  # fmt: skip
+
+
 @dataclass(frozen=True)
 class Location:
     area_id: int
@@ -177,6 +205,7 @@ class Poi:
     kind: str  # 'stairs' (next level) | 'previous' | 'waypoint' | 'target' (boss, chest)
     spot: tuple[float, float] | None = None  # tiles: the warp itself (levels/spots.py); None = room centre
     area: int | None = None  # the level this way out leads to, when the rule that made it knows
+    use: int = 0  # objects.txt id of an object near the mark to click: a portal, a body (PoiSpec.use)
 
     @property
     def point(self) -> tuple[float, float]:
@@ -192,6 +221,17 @@ class Guidance:
 
     pois: tuple[Poi, ...] = ()
     problems: tuple[str, ...] = ()
+
+
+@dataclass(frozen=True)
+class Lead:
+    """The mark another layer asks the level card to lead with (routes/progress.py): the stage a route
+    is at in this level. `area`: the level the mark leads into, when it is a way on."""
+
+    label: str
+    area: int | None = None
+    # Places (tiles, as `Target.point`) of marks with the label that are done with: the next one is led with.
+    skip: frozenset[tuple[float, float]] = frozenset()
 
 
 @dataclass(frozen=True)
@@ -214,3 +254,4 @@ class Target:
     kind: str
     warp: bool = False  # the point is the warp tile itself (levels/spots.py): a door to walk into
     ground: tuple[Walkable, ...] = ()  # walkable sub-tiles of the loaded rooms, when the walls were read
+    use: int = 0  # objects.txt id of an object near the point the step clicks: a portal, a body (macros/teleport.py)

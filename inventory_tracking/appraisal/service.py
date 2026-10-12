@@ -100,6 +100,7 @@ from inventory_tracking.loot.materials import material_classes
 from inventory_tracking.loot.watch import RuneWatcher
 from inventory_tracking.macros.hunt import Hunter
 from inventory_tracking.macros.latency import FILE as LATENCY_FILE, Trace
+from inventory_tracking.macros.route import PERFORMED
 from inventory_tracking.macros.runner import (
     HUNT_ANY,
     HUNT_ANY_PREFIX,
@@ -115,6 +116,8 @@ from inventory_tracking.macros.runner import (
 from inventory_tracking.native.session import GameNotReady, GameProcessUnavailable
 from inventory_tracking.osd.__main__ import positive_float
 from inventory_tracking.reports import create_run, publish
+from inventory_tracking.routes.catalog import ROUTES
+from inventory_tracking.routes.progress import Progress
 from inventory_tracking.shop.service import REQUEST_PREFIX as SHOP_PREFIX, ShopWorker, triage_stock
 from inventory_tracking.terror.bosses import BossTracker
 from inventory_tracking.terror.probe import TerrorProbe
@@ -635,6 +638,16 @@ def run_service(args, directory, report):
                     # Per-game monster/Herald state: the Terror card and the level map shading.
                     zones = ZoneTracker(args.output / 'terror-games.json') if args.terror_probe else None
                     map_dots = partial(zones.map_dots, danger=APPRAISAL.danger_marks) if zones is not None else None
+                    # The routes (levels/routes.md): the stage each level is at in this game. The level
+                    # card leads with its mark and the teleport key performs it; the monster tracker
+                    # says which bosses are dead (without it a fight is not a stage the key performs).
+                    progress = Progress(
+                        ROUTES,
+                        PERFORMED,
+                        zones.killed if zones is not None else None,
+                        zones.terrorized if zones is not None else None,
+                    )
+                    macro.progress = progress
                     if args.level_guide:
                         guide = LevelGuide(
                             source,
@@ -651,8 +664,10 @@ def run_service(args, directory, report):
                             on_rooms=zones.level_layout if zones is not None else None,
                             observe_waypoints=observe_waypoints,
                             pinned=APPRAISAL.level_guide_pinned,
+                            lead=progress.lead,
                         )
                         macro.target = guide.target  # the teleport step moves toward the card's first mark
+                        macro.marks = guide.marks
                         # The seek step and attack mode: the level's rooms and walls, remembered elites, explored rooms.
                         macro.supers = zones.supers if zones is not None else None
                         macro.hunter = Hunter(
@@ -666,7 +681,8 @@ def run_service(args, directory, report):
                             source,
                             capture_lock=worker.capture_lock,
                             output=args.output.parent / 'combat',
-                            areas=frozenset(APPRAISAL.combat_areas),
+                            areas=None if APPRAISAL.combat_everywhere else frozenset(APPRAISAL.combat_areas),
+                            keep=int(APPRAISAL.combat_keep_gb * 1024**3),
                             rate=APPRAISAL.combat_rate,
                             level=guide.level if guide is not None else None,
                             macro_working=lambda: macro.working,

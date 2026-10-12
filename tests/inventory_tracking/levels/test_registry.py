@@ -3,6 +3,7 @@
 import pytest
 
 from inventory_tracking.levels.handler import Handler, PoiSpec, target
+from inventory_tracking.levels.model import SEALS, SUPER_CHEST
 from inventory_tracking.levels.presets import PRESET_NAMES
 from inventory_tracking.levels.registry import HANDLERS, handler_for, validate
 
@@ -92,3 +93,18 @@ def test_validation_reports_duplicates_unknown_areas_typos_and_family_mismatch()
     assert 'B: area 9999 is not in the levels table' in problems
     assert "B: Typo pattern 'Act 2 - Arcane Sumoner [NSEW]' matches no preset" in problems
     assert "B: Stairs matches 'Act 1 - Crypt Next N' outside family 'Act 5'" in problems
+
+
+def test_validation_reports_a_mark_on_an_object_its_layouts_do_not_all_place():
+    handlers = [
+        # The chest is only in the second of a dead end's two layouts: one mark cannot be required there.
+        target('Pit', areas={125}, label='Chest', preset=r'Act 5 - Lava W', thing=SUPER_CHEST),
+        # No Ice Pool layout holds a seal.
+        Handler('Cellar', frozenset({119}), (PoiSpec('Seal', r'Act 5 - Ice Pool A', each=True, thing=SEALS[0]),)),
+        target('Cavern', areas={116}, label='Chest', preset=r'Act 5 - Ice Pool [AB]', thing=SUPER_CHEST),
+    ]
+
+    assert validate(handlers) == [
+        "Pit: Chest object 397 is 0 times in 'Act 5 - Lava W' layout 0",
+        'Cellar: Seal object 392 is in no matching layout',
+    ]

@@ -52,6 +52,9 @@ def bridge_end(rooms) -> Poi | None:
 
 @dataclass(frozen=True)
 class RiverOfFlame(Handler):
+    def labels(self) -> frozenset[str]:
+        return super().labels() | {'Chaos Sanctum'}
+
     def guide(self, snapshot: LevelSnapshot) -> Guidance:
         guidance = super().guide(snapshot)
         end = bridge_end(snapshot.rooms)

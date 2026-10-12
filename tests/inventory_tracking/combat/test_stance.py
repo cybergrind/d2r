@@ -6,6 +6,8 @@ from inventory_tracking.combat.policy import Foe, LinePolicy, Observation
 from inventory_tracking.combat.stance import (
     CAMP_REACH,
     CAST_SECONDS,
+    CROWD_MOST,
+    CROWD_UNITS,
     ENGAGE,
     HOP_SECONDS,
     HORIZON,
@@ -15,6 +17,7 @@ from inventory_tracking.combat.stance import (
     Field,
     Jump,
     camp,
+    closes,
     no_footing,
     taken,
     way,
@@ -202,3 +205,46 @@ def test_of_two_places_a_jump_makes_as_good_the_one_at_the_distance_a_fight_is_b
     found = camp(Observation(HERE, {1: foe(40, 0)}), POLICY, jumps=(BLINK,))
     assert found is not None
     assert abs(math.dist(found.spot, monster) - ENGAGE) <= 3
+
+
+def test_a_jump_keeps_clear_of_where_the_melee_monsters_will_be_when_it_lands():
+    # The cow runs of 2026-10-12 (user: "jumping into their groups too aggressively"): a landing 6 units
+    # from the nearest cow when chosen had it at the character by the first cast.
+    herd = {unit: Foe(391, (HERE[0] + 30 + 2 * (unit % 4), HERE[1] + 2 * (unit // 4)), 5000.0) for unit in range(12)}
+    seen = Observation(HERE, herd)
+    jumped = camp(seen, POLICY, jumps=(BLINK,))
+    assert jumped is not None
+    assert jumped.skill == BLINK.skill
+    # A Hell Bovine closes 5.5 units a second: over the jump's 0.31 s and a cast, 3.7 units on top of KEEP_AWAY.
+    nearest = min(math.dist(jumped.spot, cow.at) for cow in herd.values())
+    assert nearest >= KEEP_AWAY + 5.5 * (0.31 + 0.36) - 1e-6
+    # Archers do not come: a place KEEP_AWAY from them will do, for a few of them.
+    archers = {unit: Foe(160, cow.at, cow.left) for unit, cow in list(herd.items())[:CROWD_MOST]}
+    by_archers = camp(Observation(HERE, archers), POLICY, jumps=(BLINK,))
+    assert by_archers is not None
+    assert KEEP_AWAY <= min(math.dist(by_archers.spot, foe.at) for foe in archers.values()) < nearest
+
+
+def test_no_place_is_chosen_in_the_middle_of_a_pack_unless_the_character_stands_in_one():
+    # Drifter Cavern, 09:55:34 on 2026-10-12: a walk into four Hell Temptresses, 1,592 points lost in 6 s.
+    pack = {unit: Foe(160, (HERE[0] + 30 + 2 * (unit % 4), HERE[1] + 2 * (unit // 4)), 5000.0) for unit in range(12)}
+    found = camp(Observation(HERE, pack), POLICY, jumps=(BLINK,))
+    assert found is not None
+    assert sum(math.dist(found.spot, foe.at) <= CROWD_UNITS for foe in pack.values()) <= CROWD_MOST
+    # In the pack already, a place among as many is no worse than where it stands.
+    inside = (HERE[0] + 33.5, HERE[1] + 8.5)
+    around = sum(math.dist(inside, foe.at) <= CROWD_UNITS for foe in pack.values())
+    assert around > CROWD_MOST
+    moved = camp(Observation(inside, pack), POLICY, gain=0.0)
+    assert moved is None or sum(math.dist(moved.spot, foe.at) <= CROWD_UNITS for foe in pack.values()) <= around
+
+
+def test_what_a_melee_monster_closes_is_capped_and_one_far_off_does_not_come():
+    cow, gloam = Foe(391, (HERE[0] + 10.0, HERE[1]), 5000.0), Foe(118, (HERE[0] + 13.0, HERE[1]), 5000.0)
+    assert closes(cow, HERE, 0.5)  # 10 - 5.5 x (0.5 + 0.36) = 5.3: within KEEP_AWAY by the first cast
+    assert not closes(cow, HERE, 0.0)  # 10 - 5.5 x 0.36 = 8.0
+    assert not closes(Foe(118, (HERE[0] + 21.0, HERE[1]), 5000.0), HERE, 2.0)  # too far off to come for it
+    assert not closes(gloam, HERE, 2.0)  # 16.5 a second, but CLOSING_MOST units at the most: 13 - 6 = 7
+    assert closes(Foe(118, (HERE[0] + 11.9, HERE[1]), 5000.0), HERE, 2.0)
+    assert not closes(Foe(160, (HERE[0] + 6.5, HERE[1]), 5000.0), HERE, 2.0)  # an archer stays where it is
+    assert closes(Foe(160, (HERE[0] + 5.0, HERE[1]), 5000.0), HERE, 0.0)  # within KEEP_AWAY: whatever it is

@@ -12,7 +12,9 @@ unloads, button and key changes, derived while recording). Reads only; nothing t
 Since 2026-10-12 a take also holds what hurts the character (user: "we need to record such things"):
 each unit's enchantments (`mods`, monumod ids) in `units.jsonl`, the character's own stat list in the
 manifest (`character_stats`: its resistances, which a blow's size is cut by) and a `hurt` event at
-every drop of its life, with who was striking and what flew by (combat/hurts.py).
+every drop of its life, with who was striking, what flew by (combat/hurts.py) and the character's
+resistances at that frame (`resists`: physical, fire, lightning, cold, poison as the stat list holds
+them, so a curse on it shows).
 
 `Recorder.step` is the per-frame logic with the clock injected; `Recorder.run` paces it on its
 own thread with its own memory handle and display connection (`LiveSampler`), bound to the game
@@ -29,13 +31,13 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from inventory_tracking.combat import hurts
+from inventory_tracking.combat import hurts, retain
 from inventory_tracking.common import LOG, timestamp
 from inventory_tracking.input.keyboard import X11Keyboard
 from inventory_tracking.levels.model import Level
 from inventory_tracking.macros.routines import ACTING
 from inventory_tracking.macros.world import NO_OWNER, GameMemory, Player, World
-from inventory_tracking.native.layout import DEAD_MODES
+from inventory_tracking.native.layout import DEAD_MODES, TOWN_IDS
 
 
 SCHEMA = 2  # the rows' layout (takes.py `SCHEMAS`): written to the manifest since 2026-10-10 night
@@ -48,6 +50,10 @@ BUTTON_BITS = {1: 1 << 8, 2: 1 << 9, 3: 1 << 10, 8: 1 << 15, 9: 1 << 16}  # XQue
 # life, max life, mana, max mana: itemstatcost ids 6 hitpoints, 7 maxhp, 8 mana, 9 maxmana (values carry 8 fraction
 # bits). Takes before 2026-10-10 10:00 UTC read 9 and 11 (maxmana, maxstamina): their mana columns are those maxima.
 VITAL_STATS = (6, 7, 8, 9)
+# The character's resistances as its stat list holds them at a frame: itemstatcost 36 damageresist
+# (physical), 39 fire, 41 lightning, 43 cold, 45 poison. Written with each `hurt`: a curse shows in them
+# (Amplify Damage: the physical one read -90 where it is 10, Outer Cloister, 2026-10-12 01:31).
+RESIST_STATS = (36, 39, 41, 43, 45)
 # Keys whose codes the manifest names, so the frames' key codes can be read: the skill keys, the
 # teleport key, the modifiers and Show Items.
 NAMED_KEYS = (
@@ -112,8 +118,10 @@ class Take:
         self.mask = 0
         self.keys: frozenset[int] = frozenset()
         self.mods: dict[int, tuple[int, ...]] = {}  # unit id -> its enchantments, as first seen
-        # The frame before: the character's unit and life, the hostiles and the missiles (a blow lands between two)
-        self.before: tuple[int, int, hurts.Point, list[hurts.Foe], list[tuple[int, hurts.Point]]] | None = None
+        self.resists: list[int] = []  # the character's RESIST_STATS at the last frame
+        # The frame before: the character's unit, life and most life, the hostiles and the missiles (a blow
+        # lands between two)
+        self.before: tuple[int, int, int, hurts.Point, list[hurts.Foe], list[tuple[int, hurts.Point]]] | None = None
         self.write_manifest()
 
     def write_manifest(self) -> None:
@@ -121,6 +129,7 @@ class Take:
 
     def vitals(self, player) -> list[int]:
         stats = self.stats(player.stats_at) if player.stats_at else {}
+        self.resists = [stats.get(stat, 0) for stat in RESIST_STATS]
         return [stats.get(stat, 0) >> 8 for stat in VITAL_STATS]
 
     def event(self, clock: float, kind: str, **fields: Any) -> None:
@@ -195,12 +204,15 @@ class Take:
             if not m.ally and m.owner == NO_OWNER and m.mode not in DEAD_MODES
         ]  # fmt: skip
         flying = [(x['txt_id'], hurts.missile_point(x['path'])) for x in sample.missiles if len(x['path']) >= 16]
-        before, self.before = self.before, (player.unit_id, life, (player.x, player.y), foes, flying)
-        if before is None or before[0] != player.unit_id or not max_life or before[1] - life < hurts.HURT_LEAST:
+        before, self.before = self.before, (player.unit_id, life, max_life, (player.x, player.y), foes, flying)
+        if before is None or before[0] != player.unit_id or not max_life:
             return
-        by = hurts.suspects(player.unit_id, before[2], [*before[3], *foes])
-        found = hurts.row(before[1] - life, life, max_life, by, hurts.beside(before[2], before[4]))
-        self.event(clock, 'hurt', macro=sample.macro, **found)
+        lost = hurts.lost(before[1], before[2], life, max_life)
+        if lost < hurts.HURT_LEAST:
+            return
+        by = hurts.suspects(player.unit_id, before[3], [*before[4], *foes])
+        found = hurts.row(lost, life, max_life, by, hurts.beside(before[3], before[5]))
+        self.event(clock, 'hurt', macro=sample.macro, resists=self.resists, **found)
 
     def write_paths(self, clock: float, monsters) -> None:
         """Research (combat/plan.md, monster movement): the whole path record of each monster that
@@ -279,20 +291,25 @@ class Recorder:
         sample: Callable[[], Sample | None],
         *,
         output: Path,
-        areas: frozenset[int] = AREAS,
+        areas: frozenset[int] | None = AREAS,
         rate: float = FRAME_RATE,
         clock: Callable[[], float] = time.monotonic,
         sleep: Callable[[float], None] = time.sleep,
         level: Callable[[], Level | None] | None = None,
         stats: Callable[[int], dict[int, int]] = lambda stats_at: {},
         manifest: Callable[[], dict[str, Any]] = dict,
+        keep: int | None = None,
     ) -> None:
+        """`areas`: the levels recorded; None for every level that is no town. `keep`: the bytes the takes
+        under `output` are held to, each packed as it closes (combat/retain.py); None: left as written."""
         self.sample, self.output, self.areas, self.rate = sample, output, areas, rate
+        self.keep = keep
         self.clock, self.sleep, self.level, self.stats, self.manifest = clock, sleep, level, stats, manifest
         self.take: Take | None = None
         self.away_since: float | None = None  # when the character was last seen outside the areas
         self.takes = 0
         self.level_at = -math.inf  # when the guide's level was last looked at for the take
+        self.tidying: threading.Thread | None = None  # the packing of the take closed last
 
     def step(self, now: float, late: int = 0) -> None:
         """One frame: `late` is how many frame periods this one came after its time."""
@@ -304,7 +321,7 @@ class Recorder:
             and world is not None
             and world.in_game
             and player is not None
-            and player.area in self.areas
+            and (player.area in self.areas if self.areas is not None else player.area not in TOWN_IDS)
         ):
             self.away_since = None
             if self.take is not None and player.area != self.take.manifest.get('area'):
@@ -341,7 +358,12 @@ class Recorder:
         if self.take is not None:
             self.write_level(self.take, self.clock())  # the walls read while the take ran
             self.take.close(reason)
-            self.take = None
+            closed, self.take = self.take.directory, None
+            if self.keep is not None:
+                # Off this thread: packing a long take takes a second, and the next take may open at once.
+                work = threading.Thread(target=retain.tidy, args=(self.output, closed, self.keep), daemon=True)
+                work.start()
+                self.tidying = work
         self.away_since = None
 
     def write_level(self, take: Take, now: float) -> None:
@@ -453,18 +475,20 @@ class CombatRecorder:
         *,
         capture_lock: threading.Lock,
         output: Path,
-        areas: frozenset[int] = AREAS,
+        areas: frozenset[int] | None = AREAS,
         rate: float = FRAME_RATE,
         level: Callable[[], Level | None] | None = None,
         macro_working: Callable[[], bool] = lambda: False,
         poll_interval: float = 1.0,
         paths: bool = False,
+        keep: int | None = None,
     ) -> None:
         self.source, self.capture_lock = source, capture_lock
         self.sampler = LiveSampler(macro_working, paths=paths)
         self.recorder = Recorder(
             self.sampler, output=output, areas=areas, rate=rate, level=level, stats=self.sampler.stats,
             manifest=lambda: {'keys': {str(code): name for code, name in self.sampler.name_keys().items()}},
+            keep=keep,
         )  # fmt: skip
         self.stop = threading.Event()
         self.thread = threading.Thread(target=self._run, name='combat-recorder', daemon=True)

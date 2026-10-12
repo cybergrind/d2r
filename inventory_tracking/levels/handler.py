@@ -11,6 +11,8 @@ order) to the edge of the preset the POI is on (map axes, north = -y). `variants
 spec to some DS1 variants, and `each` marks every matching instance instead of requiring one.
 `boss` puts the POI on a super unique the preset's DS1 file places (terror/data/elites.json).
 `at` puts it on a fixed spot of a preset that has one layout (the Throne's hall, Diablo's star).
+`thing` puts it on an object the preset's DS1 file places, whichever layout the level got (a super
+chest, Anya): the spot comes from the bundled object table (presets.object_spots).
 
 A level with logic that doesn't fit a pattern can subclass Handler and override `guide`.
 """
@@ -19,8 +21,8 @@ import re
 from collections.abc import Iterable
 from dataclasses import dataclass, replace
 
-from inventory_tracking.levels.model import Guidance, LevelSnapshot, Poi, Room
-from inventory_tracking.levels.presets import preset_name
+from inventory_tracking.levels.model import CLICKED, Guidance, LevelSnapshot, Poi, Room
+from inventory_tracking.levels.presets import object_spots, preset_name
 from inventory_tracking.levels.spots import pinpoint
 from inventory_tracking.native.layout import TILE_UNITS
 from inventory_tracking.terror import elites
@@ -43,6 +45,10 @@ class PoiSpec:
     # As `at`, by the preset's name, for a POI in one of several presets (the Summoner's four arms).
     at_in: tuple[tuple[str, tuple[float, float]], ...] = ()
     stand: tuple[int, int] = (0, 0)  # tiles from the `sides` spot to where the mark goes: a place to fight from
+    # objects.txt id of an object near the POI that the step clicks (levels/model.py PORTAL, WIRTS_BODY)
+    use: int = 0
+    # objects.txt id of an object the preset's file places: the POI is on it (levels/model.py MARKABLE)
+    thing: int = 0
 
     def matches(self, name: str) -> bool:
         return re.fullmatch(self.pattern, name) is not None
@@ -55,6 +61,13 @@ class Handler:
     pois: tuple[PoiSpec, ...]
     confirmed: bool = False  # True only when a real fixture test replays it
 
+    def labels(self) -> frozenset[str]:
+        """Every label this handler can give a mark: what a route's stage may name (routes/check.py)."""
+        return frozenset(spec.label for spec in self.pois)
+
+    def spec(self, label: str) -> PoiSpec | None:
+        return next((spec for spec in self.pois if spec.label == label), None)
+
     def guide(self, snapshot: LevelSnapshot) -> Guidance:
         pois, problems = [], []
         for spec in self.pois:
@@ -63,8 +76,26 @@ class Handler:
             if spec.variants:
                 groups = [group for group in groups if group[0].variant in spec.variants]
             found = [room for room, _ in groups]
-            if spec.each:
+            if spec.each and spec.thing:
+                # Every room whose layout holds the object; one that holds none, or is unread, has no mark.
+                pois.extend(poi for room in found for poi in thing_pois(spec, room))
+            elif spec.each:
                 pois.extend(Poi(spec.label, room, spec.kind) for room in found)
+            elif len(found) == 1 and spec.thing:
+                room = found[0]
+                spots = thing_pois(spec, room)
+                if spots and len(spots) == 1:
+                    pois.extend(spots)
+                elif room.variant is None and not whole_level_around(groups[0], snapshot):
+                    pois.append(Poi(spec.label, room, spec.kind))  # the room for now: its layout is read near it
+                elif room.variant is None:
+                    problems.append(f'{spec.label}: layout variant unknown')
+                elif len(spots) != 1:
+                    problems.append(
+                        f'{spec.label}: the layout (variant {room.variant}) places {len(spots)} of object {spec.thing}'
+                    )
+                else:
+                    pois.extend(spots)
             elif len(found) == 1 and spec.sides:
                 room = found[0]
                 if room.variant is None or room.variant >= len(spec.sides):
@@ -110,6 +141,8 @@ class Handler:
                 problems.append(f'{spec.label}: no room matches')
             if spec.warp:
                 pois[start:] = [pinpoint(poi, warp=True) for poi in pois[start:]]
+            if spec.use:
+                pois[start:] = [replace(poi, use=spec.use) for poi in pois[start:]]
         return Guidance(tuple(pois), tuple(problems))
 
 
@@ -123,6 +156,9 @@ def instances(rooms: Iterable[Room]) -> list[tuple[Room, int]]:
             key = (room.preset, room.block)
             if key in found:
                 found[key][1] += 1
+                if found[key][0].variant is None and room.variant is not None:
+                    # The layout is read chunk by chunk as rooms load: any chunk's reading is the preset's.
+                    found[key][0] = replace(found[key][0], variant=room.variant)
             else:
                 found[key] = [Room(room.preset, *room.block, room.variant, room.block, room.leads_to), 1]
     return [(room, count) for room, count in found.values()]
@@ -157,6 +193,20 @@ def marker_room(room: Room, x: float, y: float) -> Room:
     return Room(room.preset, round(x) - 4, round(y) - 4, 8, 8, room.variant, block)
 
 
+def thing_pois(spec: PoiSpec, room: Room) -> list[Poi]:
+    """A POI on each object of `spec.thing` that `room`'s layout places; none when the layout is unread."""
+    return [
+        Poi(
+            spec.label,
+            marker_room(room, room.x + x / TILE_UNITS, room.y + y / TILE_UNITS),
+            spec.kind,
+            spot=(room.x + x / TILE_UNITS, room.y + y / TILE_UNITS),
+            use=spec.thing if spec.thing in CLICKED else 0,
+        )
+        for x, y in object_spots(room.preset, room.variant, spec.thing)
+    ]
+
+
 def boss_room(room: Room, name: str) -> Room | None:
     """A marker room on the super unique `name` as `room`'s DS1 file places it; None when the
     variant is unread or its file has no such monster."""
@@ -188,6 +238,8 @@ def target(
     at: tuple[float, float] | None = None,
     stand: tuple[int, int] = (0, 0),
     at_in: dict[str, tuple[float, float]] | None = None,
+    use: int = 0,
+    thing: int = 0,
 ) -> Handler:
     """One POI: the unique room (or preset instance) whose preset name fully matches `preset`.
 
@@ -195,7 +247,7 @@ def target(
     """
     spec = PoiSpec(
         label, preset, kind, sides=tuple(sides), inset=inset, boss=boss, at=at, stand=stand,
-        at_in=tuple((at_in or {}).items()),
+        at_in=tuple((at_in or {}).items()), use=use, thing=thing,
     )  # fmt: skip
     return Handler(name, frozenset(areas), (spec, *extra), confirmed)
 
@@ -248,6 +300,9 @@ class ExitsHandler(Handler):
     gap: str = ACT1_GAP
     gap_variants: tuple[int, ...] = (3, 4)
     pois_first: bool = False
+
+    def labels(self) -> frozenset[str]:
+        return super().labels() | {exit_.label for exit_ in self.exits}
 
     def guide(self, snapshot: LevelSnapshot) -> Guidance:
         gaps = [

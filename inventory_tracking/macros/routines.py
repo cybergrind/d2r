@@ -15,6 +15,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 
 from inventory_tracking.common import LOG
+from inventory_tracking.levels.model import Ground
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.skills import (
@@ -25,7 +26,7 @@ from inventory_tracking.macros.skills import (
     SUMMON_DEFILER,
     SWAP_WEAPONS,
 )
-from inventory_tracking.macros.view import AIM_LIMITS, BODY_LIFT, FEET, UNIT_PIXELS, Viewport  # noqa: F401
+from inventory_tracking.macros.view import AIM_LIMITS, BODY_LIFT, FEET, UNIT_PIXELS, Viewport  # ruff: ignore[unused-import]
 from inventory_tracking.macros.world import (
     DEFILER_CLASS as DEFILER,
     NO_OWNER,
@@ -112,6 +113,9 @@ SAVE_AND_EXIT = (0.5, 0.438)
 GAME_NAME_FIELD = (0.8, 0.158)  # right of the text, so the caret lands at its end
 # Right of the character, where the user summons; then other sides, a Defiler's width apart.
 SUMMON_SPOTS = ((0.66, 0.42), (0.36, 0.44), (0.5, 0.26), (0.64, 0.62), (0.4, 0.64))
+# The same sides at half the distance, for where the ground is known and narrow: in Cave Level 1 a prebuff
+# summoned nothing at three of the spots above in 5 s (host, 02:43 on 2026-10-12).
+NEAR_SPOTS = tuple((round((x + FEET[0]) / 2, 3), round((y + FEET[1]) / 2, 3)) for x, y in SUMMON_SPOTS)
 
 # Player modes that are an action under way: attacks, casts, skill sequences (classic table).
 ACTING = frozenset((7, 8, 10, 11, 12, 13, 14, 15, 16, 18))
@@ -191,9 +195,7 @@ def press_skill(run: Run, skill: int, poll: float = 0.03, *, wait: bool = True) 
     during a cast and casts it when that cast is over (teleport.press_hop)."""
     quick_cast_over(run, skill)
     if wait:
-        ready = run.expect(
-            'character ready', lambda w: w.player is not None and w.player.mode not in ACTING, 2.5, poll
-        )
+        ready = run.expect('character ready', lambda w: w.player is not None and w.player.mode not in ACTING, 2.5, poll)
     else:
         ready = run.world()
     if ready.player is not None and ready.player.mode in DEAD:
@@ -288,15 +290,35 @@ def log_crowd(world: World, unit: int) -> None:
     LOG.info('Macro: the Defiler is crowded by %s; summoning another', ', '.join(near) or 'nothing now')
 
 
+def standable(ground: Ground, here: tuple[float, float], spot: tuple[float, float]) -> bool:
+    """Whether a summon can be put at world `spot`: every unit of the straight way to it from the
+    character is ground to walk on, as far as the level map knows (a spot behind a wall takes none)."""
+    steps = max(1, math.ceil(math.dist(here, spot)))
+    return all(
+        ground.walkable(here[0] + (spot[0] - here[0]) * k / steps, here[1] + (spot[1] - here[1]) * k / steps)
+        is not False
+        for k in range(1, steps + 1)
+    )
+
+
 def open_spots(run: Run, world: World, skip: int = 0) -> list[tuple[float, float]]:
     """SUMMON_SPOTS from the `skip`-th on, those with nobody near first: a Defiler next to the
     bound demon cannot be consumed safely. Skipping used to come after the sorting, which could put
-    a crowded spot back in front for a replacement."""
+    a crowded spot back in front for a replacement. Where the level's ground is known (`run.ground`),
+    only the spots a summon can stand on, the NEAR_SPOTS after the others; all of them when none can."""
     spots = list(SUMMON_SPOTS[skip % len(SUMMON_SPOTS) :] + SUMMON_SPOTS[: skip % len(SUMMON_SPOTS)])
     rect = run.actuator.keys.focused_window_rect()
     if rect is None or world.player is None:
         return spots
     player, aspect = world.player, rect[2] / rect[3]
+    ground = run.ground() if run.ground is not None else None
+    if ground:
+        here = (player.x, player.y)
+        known = [*spots, *NEAR_SPOTS]
+        found = [spot for spot in known if standable(ground, here, world_point(player, *spot, aspect))]
+        if len(found) < len(spots):
+            LOG.info('Macro: %d of %d summon spots are on ground a Defiler can stand on', len(found), len(known))
+        spots = found or spots
     return sorted(spots, key=lambda spot: bool(crowd(world, *world_point(player, *spot, aspect))))
 
 
@@ -583,6 +605,19 @@ def prebuff(run: Run, *, fresh: LoadTrace | None = None) -> None:
         summon_defiler(run)
     cast(run, HEX_PURGE)
     cast(run, PSYCHIC_WARD)
+
+
+def renew_consume(run: Run) -> None:
+    """Consume cast anew in the middle of a run (attack mode, when the buff has run out: 300 s after
+    its cast, the 15% of life with it; user, 2026-10-12): a Defiler summoned for it is the one consumed,
+    and another is summoned after. Not the standing one: it follows the character and has the bound
+    demon beside it (09:57 to 09:58 on 2026-10-12: one try stopped at "crowded by class 361", the next
+    aimed four times at a Defiler that had moved, and the buff stayed off; user: "auto-attack doesn't
+    refresh consume buff right now"). The one summoned at 09:58:47 had Consume's key 0.6 s later."""
+    take_prebuff_weapons(run)
+    consume(run, summon_defiler(run))
+    if not defilers(run.world()):
+        summon_defiler(run)
 
 
 def leave_game(run: Run) -> None:

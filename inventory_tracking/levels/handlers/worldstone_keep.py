@@ -19,7 +19,8 @@ In the two takes of 2026-10-11 (00:12 and 00:18) 153 wave monsters were first se
 are in a clear line, 85% within 20 units and 1% within 8; the nearest was 5.7 away.
 """
 
-from inventory_tracking.levels.handler import previous, stairs_down, target, waypoint
+from inventory_tracking.levels.handler import PoiSpec, previous, stairs_down, target, waypoint
+from inventory_tracking.levels.model import THRONE_PORTAL
 
 
 BAAL = 'Act 5 - Baal'
@@ -37,5 +38,13 @@ HANDLERS = [
     stairs_down(
         'Worldstone Keep 3', areas={130}, family=BAAL, extra=[previous(BAAL, 'Worldstone Keep 2')], confirmed=True
     ),
-    target('Throne of Destruction', areas={131}, label='Throne', preset=r'Act 5 - ThroneRoom', at=THRONE_STAND),
+    target(
+        'Throne of Destruction',
+        areas={131},
+        label='Throne',
+        preset=r'Act 5 - ThroneRoom',
+        at=THRONE_STAND,
+        # Where the file places the portal Baal leaves by (`FinalPortal`): the routes' way on (routes.md).
+        extra=[PoiSpec('Worldstone Chamber', r'Act 5 - ThroneRoom', thing=THRONE_PORTAL)],
+    ),
 ]

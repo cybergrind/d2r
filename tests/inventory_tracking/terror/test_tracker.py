@@ -168,6 +168,38 @@ def test_plain_monsters_with_a_forced_terror_modifier_mark_their_terror_zone():
     assert tracker.terrorized(2) is None  # Blood Moor: nothing seen there
 
 
+def test_the_clients_list_of_terrorized_levels_decides_in_every_difficulty():
+    # Normal and Nightmare force no modifier on plain monsters (desecratedzones.json has the pool for Hell
+    # only; Glacial Trail in Normal, 2026-10-12: 153 plain monsters, none with one), so there the client's
+    # own list is the only word (user: "I want to see it even in normal/tz").
+    tracker = ZoneTracker()
+    sightings(tracker, 6, [0, 0, 0])
+    assert tracker.terrorized(6) is False
+    tracker.apply([{'event': 'terror_levels', 'levels': [6, 7, 20]}])
+    assert tracker.terrorized(6) is True
+    assert tracker.terrorized(2) is False  # Blood Moor: not listed
+    assert tracker.lines(6, terrorized=True, player_level=98) == ['Terror · Black Marsh', 'No Heralds below Hell']
+    tracker.apply([{'event': 'left_game'}])
+    assert tracker.terrorized(6) is None  # the next game reads its own
+
+
+def test_monsters_with_the_forced_modifier_outvote_a_list_without_their_level(caplog):
+    tracker = ZoneTracker()
+    tracker.apply([{'event': 'terror_levels', 'levels': [115, 116]}])
+    sightings(tracker, 6, [25, 25, 25])
+    assert tracker.terrorized(6) is True
+    assert 'the client lists [115, 116]' in caplog.text
+    assert tracker.lines(6, terrorized=True, player_level=93)[1] == 'Level 95 · Mana Burn'
+
+
+def test_an_empty_list_leaves_the_monsters_word():
+    tracker = ZoneTracker()
+    tracker.apply([{'event': 'terror_levels', 'levels': []}])
+    assert tracker.terrorized(6) is None
+    sightings(tracker, 6, [25, 25, 25])
+    assert tracker.terrorized(6) is True
+
+
 def test_the_card_names_the_zone_modifier_and_the_terrorized_level():
     # The game's own lines under the area name, which the card covers (user, 2026-10-06):
     # 'Terrorized: 95' and 'Fire Enchanted' in the Lut Gholein sewers.
@@ -780,3 +812,22 @@ def test_a_boss_with_the_unique_flag_only_counts_among_the_levels_super_uniques(
     ])  # fmt: skip
     tracker.apply([died(1, 74)])
     assert tracker.supers(74) == [(25440.0, 5020.0)]
+
+
+def super_data(super_id):
+    """Monster data of a super unique: the type flags 0x0a at +0x1A, its superuniques.txt row at +0x2A."""
+    return '00' * 0x1A + '0a' + '00' * 0x0F + super_id.to_bytes(2, 'little').hex() + '00' * 0x54
+
+
+def test_the_super_uniques_and_bosses_killed_this_game_are_named_for_the_routes():
+    tracker = ZoneTracker()
+    tracker.apply([at({**seen(7, 25, data_hex=super_data(6)), 'txt_id': 45}, 5000, 5000)])  # the Countess
+    tracker.apply([at({**seen(8, 102, data_hex=PLAIN_DATA), 'txt_id': 242}, 5000, 5000)])  # Mephisto
+    tracker.apply([at({**seen(9, 25, data_hex=PLAIN_DATA), 'txt_id': 45}, 5000, 5000)])  # one of her pack
+    assert tracker.killed() == frozenset()
+
+    tracker.apply([died(9, 25), died(7, 25), {**died(8, 102), 'txt_id': 242}])
+
+    assert tracker.killed() == {'The Countess', 'Mephisto'}
+    tracker.apply([{'event': 'left_game'}])
+    assert tracker.killed() == frozenset()

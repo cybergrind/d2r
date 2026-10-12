@@ -1,11 +1,22 @@
+import math
 from dataclasses import replace
 
 import pytest
 
+from inventory_tracking.levels.model import Ground, Walkable, pack_cells
 from inventory_tracking.macros.actuator import Abort
-from inventory_tracking.macros.routines import prebuff, run_macro, screen_fraction
+from inventory_tracking.macros.routines import (
+    NEAR_SPOTS,
+    SUMMON_SPOTS,
+    open_spots,
+    prebuff,
+    renew_consume,
+    run_macro,
+    screen_fraction,
+    world_point,
+)
 from inventory_tracking.macros.world import Monster
-from tests.inventory_tracking.macros.fakes import KEYS, OTHER_SET, PREBUFF_SET, Game, player, world
+from tests.inventory_tracking.macros.fakes import KEYS, OTHER_SET, PREBUFF_SET, WINDOW, Game, player, world
 
 
 BOUND_DEMON = Monster(50, 700, 1, 4995.0, 5003.0, 0xFFFFFFFF)  # summons carry no owner (host, 2026-10-06)
@@ -742,3 +753,60 @@ def test_a_skill_key_waits_for_the_one_before_to_give_the_right_button_back():
     run, state = quick_run([sigil], (TELEPORT, strike, 0.0, True))  # the same key again: no wait
     quick_cast_over(run, TELEPORT)
     assert state.looks == 0
+
+
+# --- summon spots on ground a Defiler can stand on (2026-10-12) ---
+
+
+def cave(walkable):
+    """The level around the character (world 5000, 5000): one room of 16 x 16 tiles, each sub-tile
+    walkable where `walkable(x, y)` says so."""
+    cells = ''.join('1' if walkable(992 * 5 + x, 992 * 5 + y) else '0' for y in range(80) for x in range(80))
+    return Ground((Walkable(992, 992, 16, 16, pack_cells(cells)),))
+
+
+def test_summon_spots_off_the_walkable_ground_are_left_out():
+    # Cave Level 1, 02:43 on 2026-10-12: nothing was summoned at three spots in 5 s.
+    game = Game(world())
+    run, me = game.run(), game.world.player
+    aspect = WINDOW[2] / WINDOW[3]
+    run.ground = lambda: cave(lambda x, y: x - y <= 4)  # a wall along the right of the view
+    spots = open_spots(run, game.world)
+    assert spots
+    assert all(spot[0] <= 0.56 for spot in spots)
+    assert SUMMON_SPOTS[0] not in spots
+    assert SUMMON_SPOTS[1] in spots
+    # A wall between the character and the ground behind it: the spot there is not open either.
+    run.ground = lambda: cave(lambda x, y: not 3 <= me.y - y <= 4)
+    points = [world_point(me, *spot, aspect) for spot in open_spots(run, game.world)]
+    assert points
+    assert all(me.y - y < 3 or me.x - x > 20 for x, y in points)
+
+
+def test_in_a_narrow_place_the_near_spots_are_tried():
+    game = Game(world())
+    run, me = game.run(), game.world.player
+    run.ground = lambda: cave(lambda x, y: math.dist((x, y), (me.x, me.y)) <= 7)
+    spots = open_spots(run, game.world)
+    assert spots
+    assert set(spots) <= set(NEAR_SPOTS)
+
+
+def test_no_ground_known_or_none_to_stand_on_leaves_the_spots_as_they_were():
+    game = Game(world())
+    run = game.run()
+    assert open_spots(run, game.world) == list(SUMMON_SPOTS)
+    run.ground = lambda: None
+    assert open_spots(run, game.world) == list(SUMMON_SPOTS)
+    run.ground = lambda: cave(lambda x, y: False)
+    assert open_spots(run, game.world) == list(SUMMON_SPOTS)
+
+
+def test_consume_is_cast_anew_on_a_defiler_summoned_for_it_and_another_summoned():
+    # Not on the standing one: it follows the character, the bound demon beside it (09:58 on 2026-10-12).
+    standing = Monster(900, 744, 1, 5010.0, 5000.0, 0xFFFFFFFF)
+    game = Game(world(monsters=(standing,)))
+    renew_consume(game.run())
+    assert game.pressed() == ['q', '6', 'q']
+    assert game.world.player.consume
+    assert len([m for m in game.world.monsters if m.txt_id == 744]) == 1

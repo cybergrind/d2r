@@ -1,5 +1,6 @@
 import threading
 import time
+from types import SimpleNamespace
 
 from inventory_tracking.macros import runner as runner_module
 from inventory_tracking.macros.actuator import Abort, Cancelled
@@ -60,6 +61,16 @@ def test_the_levels_noted_between_presses_are_what_a_run_is_told():
     runner.poll(11.5)
     runner.poll(13.0)
     assert runner.journey.arrival(20.0) == (102, 7.0)
+
+
+def test_the_game_and_level_are_noted_for_the_routes_too():
+    places = iter([('cyber32', 3), ('cyber32', 9), (None, None)])
+    runner = MacroRunner(None, capture_lock=threading.Lock(), saved_games=None, place=lambda: next(places))
+    noted = []
+    runner.progress = SimpleNamespace(note=lambda game, area: noted.append((game, area)))
+    for now in (10.0, 12.0, 14.0):
+        runner.poll(now)
+    assert noted == [('cyber32', 3), ('cyber32', 9), (None, None)]
 
 
 def test_a_level_that_cannot_be_read_does_not_stop_the_service():

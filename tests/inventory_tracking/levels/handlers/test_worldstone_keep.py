@@ -46,7 +46,7 @@ def test_labels_along_the_chain():
     assert [s.label for s in handler_for(128).pois] == ['Next level', 'Arreat Summit']
     assert [s.label for s in handler_for(129).pois] == ['Next level', 'Waypoint', 'Worldstone Keep 1']
     assert [s.label for s in handler_for(130).pois] == ['Next level', 'Worldstone Keep 2']
-    assert [s.label for s in handler_for(131).pois] == ['Throne']
+    assert [s.label for s in handler_for(131).pois] == ['Throne', 'Worldstone Chamber']
     assert not handler_for(131).confirmed
     assert all(handler_for(area).confirmed for area in (128, 129, 130))  # user checked 2026-09-30
 
@@ -61,8 +61,10 @@ def test_the_throne_of_destruction_marks_a_stand_north_west_of_where_the_waves_a
     block = (3000, 1000, 40, 52)
     rooms = tuple(Room(1086, 3000 + 8 * i, 1000 + 8 * j, 8, 8, 0, block) for i in range(5) for j in range(6))
     guidance = handler_for(131).guide(LevelSnapshot(Location(131, 0, 15102, 5242), rooms))
-    [poi] = guidance.pois
+    poi, portal = guidance.pois
     assert (poi.label, poi.kind) == ('Throne', 'target')
+    assert (portal.label, portal.point) == ('Worldstone Chamber', (15090, 5005))  # the file's FinalPortal
+    assert portal.use == 0  # how it is clicked is not known yet: a place only
     # user, 2026-10-11: "west-north off actual throne"; the waves appear around (90, 25) units
     assert math.dist(poi.point, (15082, 5014)) <= 3
     assert guidance.problems == ()

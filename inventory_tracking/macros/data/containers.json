@@ -1,0 +1,988 @@
+{
+ "source": "objects.txt of the installed game: class id -> Class and the modes it can be used in",
+ "containers": {
+  "1": {
+   "class": "Casket5",
+   "modes": [
+    0
+   ]
+  },
+  "3": {
+   "class": "Casket6",
+   "modes": [
+    0
+   ]
+  },
+  "4": {
+   "class": "Urn1",
+   "modes": [
+    0
+   ]
+  },
+  "5": {
+   "class": "LargeChestR",
+   "modes": [
+    0
+   ]
+  },
+  "6": {
+   "class": "LargeChestL",
+   "modes": [
+    0
+   ]
+  },
+  "7": {
+   "class": "Barrel",
+   "modes": [
+    0,
+    3,
+    4,
+    5,
+    6,
+    7
+   ]
+  },
+  "9": {
+   "class": "Urn2",
+   "modes": [
+    0
+   ]
+  },
+  "28": {
+   "class": "HoleInGround",
+   "modes": [
+    0
+   ]
+  },
+  "46": {
+   "class": "Crate",
+   "modes": [
+    0
+   ]
+  },
+  "50": {
+   "class": "Casket1",
+   "modes": [
+    0
+   ]
+  },
+  "51": {
+   "class": "Casket2",
+   "modes": [
+    0
+   ]
+  },
+  "52": {
+   "class": "Urn3",
+   "modes": [
+    0
+   ]
+  },
+  "53": {
+   "class": "Casket4",
+   "modes": [
+    0
+   ]
+  },
+  "54": {
+   "class": "RogueCorpse1",
+   "modes": [
+    0
+   ]
+  },
+  "55": {
+   "class": "RogueCorpse2",
+   "modes": [
+    0
+   ]
+  },
+  "56": {
+   "class": "RogueRollingCorpse1",
+   "modes": [
+    0
+   ]
+  },
+  "57": {
+   "class": "RogueStakedCorpse1",
+   "modes": [
+    0
+   ]
+  },
+  "58": {
+   "class": "RogueStakedCorpse2",
+   "modes": [
+    0
+   ]
+  },
+  "79": {
+   "class": "Casket3",
+   "modes": [
+    0
+   ]
+  },
+  "87": {
+   "class": "TombChest1",
+   "modes": [
+    0
+   ]
+  },
+  "88": {
+   "class": "TombChest2",
+   "modes": [
+    0
+   ]
+  },
+  "89": {
+   "class": "MummyCasket",
+   "modes": [
+    0
+   ]
+  },
+  "94": {
+   "class": "Urn4",
+   "modes": [
+    0
+   ]
+  },
+  "95": {
+   "class": "Urn5",
+   "modes": [
+    0
+   ]
+  },
+  "104": {
+   "class": "ArmorStand1",
+   "modes": [
+    0
+   ]
+  },
+  "105": {
+   "class": "ArmorStand2",
+   "modes": [
+    0
+   ]
+  },
+  "106": {
+   "class": "WeaponRack1",
+   "modes": [
+    0
+   ]
+  },
+  "107": {
+   "class": "WeaponRack2",
+   "modes": [
+    0
+   ]
+  },
+  "125": {
+   "class": "InnerHellObject1",
+   "modes": [
+    0
+   ]
+  },
+  "126": {
+   "class": "InnerHellObject2",
+   "modes": [
+    0
+   ]
+  },
+  "127": {
+   "class": "InnerHellObject3",
+   "modes": [
+    0
+   ]
+  },
+  "128": {
+   "class": "OuterHellObject1",
+   "modes": [
+    0
+   ]
+  },
+  "139": {
+   "class": "ChestOutdoor1",
+   "modes": [
+    0
+   ]
+  },
+  "140": {
+   "class": "ChestOutdoor2",
+   "modes": [
+    0
+   ]
+  },
+  "141": {
+   "class": "ChestOutdoor3",
+   "modes": [
+    0
+   ]
+  },
+  "142": {
+   "class": "JugOutdoor1",
+   "modes": [
+    0
+   ]
+  },
+  "143": {
+   "class": "JugOutdoor2",
+   "modes": [
+    0
+   ]
+  },
+  "144": {
+   "class": "ChestOutdoor4",
+   "modes": [
+    0
+   ]
+  },
+  "146": {
+   "class": "Chest2",
+   "modes": [
+    0
+   ]
+  },
+  "147": {
+   "class": "Chest3",
+   "modes": [
+    0
+   ]
+  },
+  "148": {
+   "class": "Chest4",
+   "modes": [
+    0
+   ]
+  },
+  "154": {
+   "class": "DeadPalaceGuard",
+   "modes": [
+    0
+   ]
+  },
+  "155": {
+   "class": "Rock",
+   "modes": [
+    0
+   ]
+  },
+  "158": {
+   "class": "Corpse3",
+   "modes": [
+    0
+   ]
+  },
+  "159": {
+   "class": "HiddenStash",
+   "modes": [
+    0
+   ]
+  },
+  "163": {
+   "class": "HidingSpot",
+   "modes": [
+    0
+   ]
+  },
+  "169": {
+   "class": "Log",
+   "modes": [
+    0
+   ]
+  },
+  "171": {
+   "class": "CorpseSkeleton",
+   "modes": [
+    0
+   ]
+  },
+  "174": {
+   "class": "RockC",
+   "modes": [
+    0
+   ]
+  },
+  "175": {
+   "class": "RockD",
+   "modes": [
+    0
+   ]
+  },
+  "176": {
+   "class": "Chest1B",
+   "modes": [
+    0
+   ]
+  },
+  "177": {
+   "class": "Chest2B",
+   "modes": [
+    0
+   ]
+  },
+  "178": {
+   "class": "GuardOnAStick",
+   "modes": [
+    0
+   ]
+  },
+  "181": {
+   "class": "JungleChest",
+   "modes": [
+    0
+   ]
+  },
+  "182": {
+   "class": "DesertCoffin",
+   "modes": [
+    0
+   ]
+  },
+  "183": {
+   "class": "JungleChest2",
+   "modes": [
+    0
+   ]
+  },
+  "198": {
+   "class": "Chest3B",
+   "modes": [
+    0
+   ]
+  },
+  "203": {
+   "class": "MephistoPillar1",
+   "modes": [
+    0
+   ]
+  },
+  "204": {
+   "class": "MephistoPillar2",
+   "modes": [
+    0
+   ]
+  },
+  "205": {
+   "class": "MephistoPillar3",
+   "modes": [
+    0
+   ]
+  },
+  "208": {
+   "class": "Basket1",
+   "modes": [
+    0
+   ]
+  },
+  "209": {
+   "class": "Basket2",
+   "modes": [
+    0
+   ]
+  },
+  "222": {
+   "class": "Pillar2",
+   "modes": [
+    0
+   ]
+  },
+  "223": {
+   "class": "Cocoon1",
+   "modes": [
+    0
+   ]
+  },
+  "224": {
+   "class": "Cocoon2",
+   "modes": [
+    0
+   ]
+  },
+  "225": {
+   "class": "SkullPile",
+   "modes": [
+    0
+   ]
+  },
+  "233": {
+   "class": "HellObject2",
+   "modes": [
+    0
+   ]
+  },
+  "239": {
+   "class": "BurnedBody1Act1",
+   "modes": [
+    0
+   ]
+  },
+  "240": {
+   "class": "Chest5",
+   "modes": [
+    0
+   ]
+  },
+  "241": {
+   "class": "Chest6",
+   "modes": [
+    0
+   ]
+  },
+  "242": {
+   "class": "Chest7",
+   "modes": [
+    0
+   ]
+  },
+  "243": {
+   "class": "Chest8",
+   "modes": [
+    0
+   ]
+  },
+  "244": {
+   "class": "SewerRatNest",
+   "modes": [
+    0
+   ]
+  },
+  "246": {
+   "class": "SewerChest",
+   "modes": [
+    0
+   ]
+  },
+  "247": {
+   "class": "Bed1Act1",
+   "modes": [
+    0
+   ]
+  },
+  "248": {
+   "class": "Bed2Act1",
+   "modes": [
+    0
+   ]
+  },
+  "266": {
+   "class": "GooPile",
+   "modes": [
+    0
+   ]
+  },
+  "270": {
+   "class": "GuardCorpse2Act2",
+   "modes": [
+    0
+   ]
+  },
+  "271": {
+   "class": "Corpse1Act3",
+   "modes": [
+    0
+   ]
+  },
+  "272": {
+   "class": "Corpse2Act3",
+   "modes": [
+    0
+   ]
+  },
+  "274": {
+   "class": "WUmPus",
+   "modes": [
+    0
+   ]
+  },
+  "284": {
+   "class": "TombAct2",
+   "modes": [
+    0
+   ]
+  },
+  "289": {
+   "class": "HaremBed",
+   "modes": [
+    0
+   ]
+  },
+  "314": {
+   "class": "HaremGuard1",
+   "modes": [
+    0
+   ]
+  },
+  "315": {
+   "class": "HaremGuard2",
+   "modes": [
+    0
+   ]
+  },
+  "316": {
+   "class": "HaremGuard3",
+   "modes": [
+    0
+   ]
+  },
+  "317": {
+   "class": "HaremGuard4",
+   "modes": [
+    0
+   ]
+  },
+  "326": {
+   "class": "SewerDungeonBody",
+   "modes": [
+    0
+   ]
+  },
+  "329": {
+   "class": "TravincalChestLargeLeft",
+   "modes": [
+    0
+   ]
+  },
+  "330": {
+   "class": "TravincalChestLargeRight",
+   "modes": [
+    0
+   ]
+  },
+  "331": {
+   "class": "TravincalChestMedLeft",
+   "modes": [
+    0
+   ]
+  },
+  "332": {
+   "class": "TravincalChestMedRight",
+   "modes": [
+    0
+   ]
+  },
+  "333": {
+   "class": "SewerChestLargeLeft",
+   "modes": [
+    0
+   ]
+  },
+  "334": {
+   "class": "SewerChestTallLeft",
+   "modes": [
+    0
+   ]
+  },
+  "335": {
+   "class": "SewerChestMedRight",
+   "modes": [
+    0
+   ]
+  },
+  "336": {
+   "class": "SewerChestTallRight",
+   "modes": [
+    0
+   ]
+  },
+  "360": {
+   "class": "DungeonRockPile",
+   "modes": [
+    0
+   ]
+  },
+  "362": {
+   "class": "DungeonBasket",
+   "modes": [
+    0
+   ]
+  },
+  "363": {
+   "class": "OuterHellSkeleton",
+   "modes": [
+    0
+   ]
+  },
+  "364": {
+   "class": "DungeonGuy",
+   "modes": [
+    0
+   ]
+  },
+  "365": {
+   "class": "Act3DungeonCasket",
+   "modes": [
+    0
+   ]
+  },
+  "372": {
+   "class": "HellBonePile",
+   "modes": [
+    0
+   ]
+  },
+  "383": {
+   "class": "DamnedV1",
+   "modes": [
+    0
+   ]
+  },
+  "384": {
+   "class": "DamnedV2",
+   "modes": [
+    0
+   ]
+  },
+  "387": {
+   "class": "ArcaneChest1",
+   "modes": [
+    0
+   ]
+  },
+  "388": {
+   "class": "ArcaneCasket1",
+   "modes": [
+    0
+   ]
+  },
+  "389": {
+   "class": "ArcaneChest2",
+   "modes": [
+    0
+   ]
+  },
+  "390": {
+   "class": "ArcaneChest3",
+   "modes": [
+    0
+   ]
+  },
+  "391": {
+   "class": "ArcaneChest4",
+   "modes": [
+    0
+   ]
+  },
+  "397": {
+   "class": "ConsolationChest",
+   "modes": [
+    0
+   ]
+  },
+  "413": {
+   "class": "ClothChestR",
+   "modes": [
+    0
+   ]
+  },
+  "416": {
+   "class": "StoneStash",
+   "modes": [
+    0
+   ]
+  },
+  "418": {
+   "class": "Barrel2",
+   "modes": [
+    0
+   ]
+  },
+  "419": {
+   "class": "Barrel3",
+   "modes": [
+    0
+   ]
+  },
+  "420": {
+   "class": "WoodChestL",
+   "modes": [
+    0
+   ]
+  },
+  "424": {
+   "class": "ChestBurIAll",
+   "modes": [
+    0
+   ]
+  },
+  "425": {
+   "class": "ChestBurialR",
+   "modes": [
+    0
+   ]
+  },
+  "430": {
+   "class": "ClothChestL",
+   "modes": [
+    0
+   ]
+  },
+  "431": {
+   "class": "WoodChestR",
+   "modes": [
+    0
+   ]
+  },
+  "432": {
+   "class": "SnowClothChestL",
+   "modes": [
+    0
+   ]
+  },
+  "433": {
+   "class": "SnowClothChestR",
+   "modes": [
+    0
+   ]
+  },
+  "443": {
+   "class": "EJar1",
+   "modes": [
+    0
+   ]
+  },
+  "444": {
+   "class": "EJar2",
+   "modes": [
+    0
+   ]
+  },
+  "445": {
+   "class": "EJar3",
+   "modes": [
+    0
+   ]
+  },
+  "448": {
+   "class": "EShit",
+   "modes": [
+    0
+   ]
+  },
+  "455": {
+   "class": "SpecialChest100",
+   "modes": [
+    0
+   ]
+  },
+  "463": {
+   "class": "IceCaveObject1",
+   "modes": [
+    0
+   ]
+  },
+  "467": {
+   "class": "IceCaveJar1",
+   "modes": [
+    0
+   ]
+  },
+  "468": {
+   "class": "IceCaveJar2",
+   "modes": [
+    0
+   ]
+  },
+  "469": {
+   "class": "IceCaveJar3",
+   "modes": [
+    0
+   ]
+  },
+  "470": {
+   "class": "IceCaveJar4",
+   "modes": [
+    0
+   ]
+  },
+  "471": {
+   "class": "IceCaveJar5",
+   "modes": [
+    0
+   ]
+  },
+  "477": {
+   "class": "DeadBarbarian",
+   "modes": [
+    0
+   ]
+  },
+  "485": {
+   "class": "BaalTomb1",
+   "modes": [
+    0
+   ]
+  },
+  "486": {
+   "class": "BaalTomb2",
+   "modes": [
+    0
+   ]
+  },
+  "487": {
+   "class": "BaalTomb3",
+   "modes": [
+    0
+   ]
+  },
+  "500": {
+   "class": "SnowyGenericName",
+   "modes": [
+    0
+   ]
+  },
+  "501": {
+   "class": "SnowChestL",
+   "modes": [
+    0
+   ]
+  },
+  "502": {
+   "class": "SnowChestR",
+   "modes": [
+    0
+   ]
+  },
+  "504": {
+   "class": "SnowWoodChestL",
+   "modes": [
+    0
+   ]
+  },
+  "505": {
+   "class": "SnowWoodChestR",
+   "modes": [
+    0
+   ]
+  },
+  "516": {
+   "class": "Object1Temple",
+   "modes": [
+    0
+   ]
+  },
+  "517": {
+   "class": "Object2Temple",
+   "modes": [
+    0
+   ]
+  },
+  "518": {
+   "class": "Box1",
+   "modes": [
+    0
+   ]
+  },
+  "524": {
+   "class": "TombBaal1",
+   "modes": [
+    0
+   ]
+  },
+  "525": {
+   "class": "TombBaal2",
+   "modes": [
+    0
+   ]
+  },
+  "526": {
+   "class": "TombBaal3",
+   "modes": [
+    0
+   ]
+  },
+  "529": {
+   "class": "TombBaal4",
+   "modes": [
+    0
+   ]
+  },
+  "530": {
+   "class": "TombBaal5",
+   "modes": [
+    0
+   ]
+  },
+  "531": {
+   "class": "TombBaal6",
+   "modes": [
+    0
+   ]
+  },
+  "532": {
+   "class": "TombBaal7",
+   "modes": [
+    0
+   ]
+  },
+  "533": {
+   "class": "TombBaal8",
+   "modes": [
+    0
+   ]
+  },
+  "534": {
+   "class": "TombBaal9",
+   "modes": [
+    0
+   ]
+  },
+  "535": {
+   "class": "Box2",
+   "modes": [
+    0
+   ]
+  },
+  "540": {
+   "class": "YetAnotherDeadBody",
+   "modes": [
+    0
+   ]
+  },
+  "541": {
+   "class": "YetAnotherTomb",
+   "modes": [
+    0
+   ]
+  },
+  "544": {
+   "class": "GroundTomb",
+   "modes": [
+    0
+   ]
+  },
+  "545": {
+   "class": "DeadPerson",
+   "modes": [
+    0
+   ]
+  },
+  "548": {
+   "class": "WeaponRackRight",
+   "modes": [
+    0
+   ]
+  },
+  "549": {
+   "class": "WeaponRackLeft",
+   "modes": [
+    0
+   ]
+  },
+  "550": {
+   "class": "ArmorStandRight",
+   "modes": [
+    0
+   ]
+  },
+  "551": {
+   "class": "ArmorStandLeft",
+   "modes": [
+    0
+   ]
+  },
+  "556": {
+   "class": "DeadPersonAgain",
+   "modes": [
+    0
+   ]
+  }
+ }
+}

@@ -1,8 +1,9 @@
 """Discover level handlers (every module in levels/handlers/ exporting HANDLERS) and validate them.
 
 Validation is offline, against the bundled preset table: no area has two handlers, every
-area exists, every POI pattern matches at least one preset name, and every match stays
-inside the declared family. The registry test runs it over all discovered handlers.
+area exists, every POI pattern matches at least one preset name, every match stays inside the
+declared family, and a POI on an object has that object once in every layout of every preset it
+matches (an `each` POI: in at least one layout). The registry test runs it over all discovered handlers.
 """
 
 import importlib
@@ -11,7 +12,7 @@ from collections import defaultdict
 
 from inventory_tracking.levels import handlers as handlers_package
 from inventory_tracking.levels.handler import Handler
-from inventory_tracking.levels.presets import LEVEL_NAMES, PRESET_NAMES
+from inventory_tracking.levels.presets import LEVEL_NAMES, PRESET_NAMES, object_spots, object_variants
 
 
 def discover(package=handlers_package) -> tuple[Handler, ...]:
@@ -39,8 +40,28 @@ def validate(handlers) -> list[str]:
                     for name in names
                     if not name.startswith(spec.family)
                 )
+            if spec.thing:
+                problems.extend(f'{handler.name}: {spec.label} {problem}' for problem in unplaced(spec))
     problems.extend(f'area {a} has {len(n)} handlers: {", ".join(n)}' for a, n in sorted(by_area.items()) if len(n) > 1)
     return problems
+
+
+def unplaced(spec) -> list[str]:
+    """Where the object table has no single spot for a POI on an object."""
+    layouts = [
+        (name, variant, len(object_spots(preset, variant, spec.thing)))
+        for preset, name in PRESET_NAMES.items()
+        if spec.matches(name)
+        for variant in range(max(object_variants(preset), 1))
+        if not spec.variants or variant in spec.variants
+    ]
+    if spec.each:
+        return [] if any(count for _, _, count in layouts) else [f'object {spec.thing} is in no matching layout']
+    return [
+        f'object {spec.thing} is {count} times in {name!r} layout {variant}'
+        for name, variant, count in layouts
+        if count != 1
+    ]
 
 
 HANDLERS = discover()
