@@ -18,8 +18,8 @@ from functools import cache
 from pathlib import Path
 
 from inventory_tracking.builds.warlock.buffs import Rotation
+from inventory_tracking.builds.warlock.echoing_strike.attack import REACH
 from inventory_tracking.builds.warlock.skills import BLADE_WARP
-from inventory_tracking.combat.policy import REACH
 from inventory_tracking.levels.model import Ground
 from inventory_tracking.macros import pickup, teleport, view
 from inventory_tracking.macros.hunt import Hunter

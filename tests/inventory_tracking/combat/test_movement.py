@@ -1,13 +1,14 @@
 """A walking monster's route from its path record, and where it puts the monster a while later
-(combat/mechanics/movement.py); the line sweep that leads with it (combat/policy.py `lead`)."""
+(combat/mechanics/movement.py); the line sweep that leads with it (the build's attack.py `lead`)."""
 
 import struct
 
 import pytest
 
+from inventory_tracking.builds.warlock.echoing_strike.attack import LinePolicy, virtual_cast
+from inventory_tracking.builds.warlock.echoing_strike.sim.situation import routes_of
 from inventory_tracking.combat.mechanics.movement import CURRENT, RUN, WALK, WAYPOINTS, Route, route_of, speed_of
-from inventory_tracking.combat.policy import Foe, LinePolicy, Observation, virtual_cast
-from inventory_tracking.combat.sim.situation import routes_of
+from inventory_tracking.combat.policy import Foe, Observation
 from inventory_tracking.combat.takes import Take
 
 

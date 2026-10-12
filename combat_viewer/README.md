@@ -17,7 +17,7 @@ make combat-viz     # export every take to inventory_tracking/runs/combat/viz/ (
 make combat-view    # open the viewer
 ```
 
-One take: `uv run --offline python -m inventory_tracking.combat.viz inventory_tracking/runs/combat/<take>`
+One take: `uv run --offline python -m inventory_tracking.builds.warlock.echoing_strike.viz inventory_tracking/runs/combat/<take>`
 (a few seconds; it prints each stage as `[4/6] policy live` and refreshes `index.json`). Other policies: `--policies live,yield,free,nearest,slots`.
 Elsewhere: `--out <directory>`, then `godot --path combat_viewer -- <directory>` or the viewer's
 "Choose folder" button.
@@ -41,7 +41,7 @@ exporter left it out (`fewer than 5 full casts`).
 - **R** reads the folder again: takes recorded or exported since the list was opened appear, with the
   order and the chosen take kept.
 
-The viewer runs `uv --directory <repository> run --offline python -m inventory_tracking.combat.viz
+The viewer runs `uv --directory <repository> run --offline python -m inventory_tracking.builds.warlock.echoing_strike.viz
 <take> --out <the folder shown>` for this, with the policies the take was last exported with. A
 folder whose index names no source (the stance comparisons below) has nothing to export.
 
@@ -88,7 +88,7 @@ folder whose index names no source (the stance comparisons below) has nothing to
 
 ## The exported file
 
-Written by `inventory_tracking/combat/viz.py`, read by `take_data.gd`. This section is the contract
+Written by `inventory_tracking/builds/warlock/echoing_strike/viz.py`, read by `take_data.gd`. This section is the contract
 between the two.
 
 Conventions:

@@ -1,6 +1,6 @@
 """The simulator (combat/plan.md stage 4): casts at given frames and focal points, the blades
-emulated (mechanics/echoing_strike.py), contacts with the monsters' recorded positions
-(mechanics/hits.py radius), damage per contact from data/damage.json with the duplicate rule
+emulated (../mechanics.py), contacts with the monsters' recorded positions
+(../hits.py radius), damage per contact from data/damage.json with the duplicate rule
 (skills.txt calc6: blades after the first of a cast on a monster deal DUPLICATE of it), deaths
 when the points run out. Monsters move open loop along their recorded paths; a monster the
 simulation kills takes no more contacts, one it has not killed yet keeps its recorded path to its
@@ -27,7 +27,8 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from typing import Any
 
-from inventory_tracking.combat.mechanics.damage import (
+from inventory_tracking.builds.warlock.echoing_strike.attack import DUPLICATE, linked_set
+from inventory_tracking.builds.warlock.echoing_strike.damage import (
     DEFILER,
     companion_table,
     damage_table,
@@ -36,10 +37,10 @@ from inventory_tracking.combat.mechanics.damage import (
     mana_table,
     mark_table,
 )
-from inventory_tracking.combat.mechanics.echoing_strike import OUT_FRAMES, cast
-from inventory_tracking.combat.mechanics.hits import CONTACT_RADIUS, HIT_LAG
-from inventory_tracking.combat.policy import DUPLICATE, RUN_MODES, Foe, Observation, Policy, linked_set
-from inventory_tracking.combat.sim.situation import Situation
+from inventory_tracking.builds.warlock.echoing_strike.hits import CONTACT_RADIUS, HIT_LAG
+from inventory_tracking.builds.warlock.echoing_strike.mechanics import OUT_FRAMES, cast
+from inventory_tracking.builds.warlock.echoing_strike.sim.situation import Situation
+from inventory_tracking.combat.policy import RUN_MODES, Foe, Observation, Policy
 
 
 Point = tuple[float, float]
@@ -56,7 +57,7 @@ def fitted_mana(situation: Situation, pool: float, cost: float) -> tuple[float, 
     """(pool, regeneration per frame, cost) with the smallest regeneration that keeps the recorded
     casts above zero from a full pool: the mana economy the player actually had (potions, mana after
     kill and gear regeneration included), until a take records the mana itself."""
-    from inventory_tracking.combat.sim.input import BIRTH_LAG
+    from inventory_tracking.builds.warlock.echoing_strike.sim.input import BIRTH_LAG
 
     starts = sorted(c.frame - BIRTH_LAG for c in situation.casts)
     if not starts:
@@ -139,10 +140,7 @@ def simulate(
     monsters live exactly as long as the record shows them, whatever the simulation deals (the
     two-sided gate: what the model deals over the recorded exposure); a hexed monster then explodes
     at its recorded death."""
-    from inventory_tracking.combat.sim.input import (
-        BIRTH_LAG,
-        CAST_FRAMES,
-    )
+    from inventory_tracking.builds.warlock.echoing_strike.sim.input import BIRTH_LAG, CAST_FRAMES
 
     damage_of = damage_of or damage_table()
     companions = companion_table() if companions is None else companions

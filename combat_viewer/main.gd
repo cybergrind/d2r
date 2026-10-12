@@ -210,7 +210,7 @@ func _open_directory(path: String) -> void:
 		return
 	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(file))
 	if typeof(parsed) != TYPE_DICTIONARY:
-		_list.show_problem("%s is not an index written by inventory_tracking.combat.viz." % file)
+		_list.show_problem("%s is not an index written by inventory_tracking.builds.warlock.echoing_strike.viz." % file)
 		return
 	var index: Dictionary = parsed
 	_list.show_index(index, path)

@@ -10,13 +10,15 @@ import pytest
 from inventory_tracking.builds.warlock.echoing_strike.attack import (
     BLADES_A_CAST,
     ECHOING_STRIKE_ATTACK,
+    REACH,
     EchoingStrike,
+    LinePolicy,
 )
+from inventory_tracking.builds.warlock.echoing_strike.damage import link_table
+from inventory_tracking.builds.warlock.echoing_strike.hits import CONTACT_RADIUS
 from inventory_tracking.builds.warlock.skills import ECHOING_STRIKE
 from inventory_tracking.combat import stance
-from inventory_tracking.combat.mechanics.damage import link_table
-from inventory_tracking.combat.mechanics.hits import CONTACT_RADIUS
-from inventory_tracking.combat.policy import MIN_SCORE, REACH, Foe, LinePolicy, Observation
+from inventory_tracking.combat.policy import MIN_SCORE, Foe, Observation
 from inventory_tracking.macros.world import Monster
 from tests.inventory_tracking.scenarios.stance import harness
 

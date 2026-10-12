@@ -1,11 +1,21 @@
-"""The input model (presses to casts) and the line-sweep policy (combat/sim/input.py, policy.py)."""
+"""The input model (presses to casts) and the line-sweep policy (sim/input.py, sim/policy.py, attack.py)."""
 
 from itertools import pairwise
 
-from inventory_tracking.combat.policy import Foe, virtual_cast
-from inventory_tracking.combat.sim.input import BIRTH_LAG, CAST_FRAMES, casts_from_presses
-from inventory_tracking.combat.sim.policy import FREE, SLOTS, YIELD, candidate, run_policy
-from inventory_tracking.combat.sim.situation import CompanionTrack, MonsterTrack, Situation
+from inventory_tracking.builds.warlock.echoing_strike.attack import REACH, virtual_cast
+from inventory_tracking.builds.warlock.echoing_strike.damage import damage_table
+from inventory_tracking.builds.warlock.echoing_strike.sim.input import BIRTH_LAG, CAST_FRAMES, casts_from_presses
+from inventory_tracking.builds.warlock.echoing_strike.sim.policy import (
+    FREE,
+    LIVE,
+    NEAREST,
+    SLOTS,
+    YIELD,
+    candidate,
+    run_policy,
+)
+from inventory_tracking.builds.warlock.echoing_strike.sim.situation import CompanionTrack, MonsterTrack, Situation
+from inventory_tracking.combat.policy import Foe
 
 
 def pointer(frame):
@@ -70,7 +80,7 @@ def test_yield_mode_casts_only_when_the_recorded_character_stood_still():
 
 
 def test_slots_mode_casts_exactly_when_the_record_did_with_the_policy_aim():
-    from inventory_tracking.combat.sim.situation import Cast
+    from inventory_tracking.builds.warlock.echoing_strike.sim.situation import Cast
 
     target = standing(1, 5000.0, 5010.0)
     sit = situation(target)
@@ -108,8 +118,8 @@ def test_the_policy_spends_mana_and_waits_when_the_pool_is_empty():
 
 
 def test_the_fitted_mana_regeneration_is_the_least_that_keeps_the_recorded_casts_affordable():
-    from inventory_tracking.combat.sim.engine import fitted_mana
-    from inventory_tracking.combat.sim.situation import Cast
+    from inventory_tracking.builds.warlock.echoing_strike.sim.engine import fitted_mana
+    from inventory_tracking.builds.warlock.echoing_strike.sim.situation import Cast
 
     sit = situation(standing(1, 5000.0, 5010.0), frames=300)
     sit.casts = [Cast(BIRTH_LAG + 10 * k, None, (5000.0, 5010.0)) for k in range(10)]  # ten casts, one every 10 frames
@@ -118,3 +128,10 @@ def test_the_fitted_mana_regeneration_is_the_least_that_keeps_the_recorded_casts
     # Two casts come from the pool; the eight others (104 points) must regenerate over the 90 frames to the last one.
     assert abs(regen - 104.0 / 90) < 1e-9
     assert fitted_mana(sit, 1000.0, 13.0)[1] == 0.0  # the pool alone pays for them
+
+
+def test_the_hunts_rule_and_the_live_aim_get_the_builds_table_and_reach():
+    sit = situation(frames=10)
+    assert candidate(sit, NEAREST).damage_of(310) == damage_table()(310)
+    assert candidate(sit, NEAREST, damage_of=flat).damage_of(310) == 1000.0
+    assert candidate(sit, LIVE).reach == REACH

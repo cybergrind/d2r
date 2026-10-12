@@ -11,7 +11,7 @@ from dataclasses import replace
 
 import pytest
 
-from inventory_tracking.combat.policy import REACH
+from inventory_tracking.builds.warlock.echoing_strike.attack import REACH
 from inventory_tracking.levels.doors import CLOSED_MODE, Door
 from inventory_tracking.levels.model import Target
 from inventory_tracking.macros.hunt import DECIDE_SECONDS, Hunter, hostiles

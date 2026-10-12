@@ -47,7 +47,7 @@ static func load_file(file_path: String) -> RefCounted:
 		return data
 	var parsed: Variant = JSON.parse_string(text)
 	if typeof(parsed) != TYPE_DICTIONARY:
-		data.problem = "%s is not a take exported by inventory_tracking.combat.viz" % file_path
+		data.problem = "%s is not a take exported by inventory_tracking.builds.warlock.echoing_strike.viz" % file_path
 		return data
 	var raw: Dictionary = parsed
 	if int(raw.get("schema", 0)) != 1 or not raw.has("runs"):

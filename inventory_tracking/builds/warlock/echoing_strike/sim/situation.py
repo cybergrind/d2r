@@ -21,12 +21,12 @@ from dataclasses import dataclass, field
 from itertools import pairwise
 from typing import Any
 
-from inventory_tracking.combat.mechanics.damage import DAMAGE
-from inventory_tracking.combat.mechanics.echoing_strike import focal_point
-from inventory_tracking.combat.mechanics.hits import hostiles_by_frame, pointer_focal
+from inventory_tracking.builds.warlock.echoing_strike.damage import DAMAGE
+from inventory_tracking.builds.warlock.echoing_strike.hits import hostiles_by_frame, pointer_focal
+from inventory_tracking.builds.warlock.echoing_strike.mechanics import focal_point
+from inventory_tracking.builds.warlock.echoing_strike.validate import full_casts
 from inventory_tracking.combat.mechanics.movement import Route, route_of
 from inventory_tracking.combat.mechanics.tables import monster_points, points_of
-from inventory_tracking.combat.mechanics.validate import full_casts
 from inventory_tracking.combat.policy import walls
 from inventory_tracking.combat.takes import LIFE_SCALE, PlayerRow, Take, ground_under_pointer, monsters_of, player_of
 from inventory_tracking.combat.timeline import GAME_RATE, HOLD_TICKS, button_down, ticks

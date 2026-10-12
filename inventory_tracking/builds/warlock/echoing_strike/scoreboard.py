@@ -14,10 +14,10 @@ import statistics
 from pathlib import Path
 from typing import Any
 
-from inventory_tracking.combat.mechanics.damage import fit_takes
-from inventory_tracking.combat.sim.engine import gate, score, simulate
-from inventory_tracking.combat.sim.policy import MODES, compare
-from inventory_tracking.combat.sim.situation import Situation, cut, describe
+from inventory_tracking.builds.warlock.echoing_strike.damage import fit_takes
+from inventory_tracking.builds.warlock.echoing_strike.sim.engine import gate, score, simulate
+from inventory_tracking.builds.warlock.echoing_strike.sim.policy import MODES, compare
+from inventory_tracking.builds.warlock.echoing_strike.sim.situation import Situation, cut, describe
 from inventory_tracking.combat.takes import Take
 
 

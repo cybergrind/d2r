@@ -1,4 +1,4 @@
-"""Echoing Strike's emulation (combat/mechanics) against one recorded cast (fixtures/cast_706.json:
+"""Echoing Strike's emulation (mechanics.py, validate.py, hits.py) against one recorded cast (fixtures/cast_706.json:
 42 frames of the second Chaos Sanctuary take, 2026-10-09, trimmed to the player, the pointer and
 the five blades)."""
 
@@ -7,7 +7,7 @@ import json
 import math
 from pathlib import Path
 
-from inventory_tracking.combat.mechanics.echoing_strike import (
+from inventory_tracking.builds.warlock.echoing_strike.mechanics import (
     LIFE,
     OUT_FRAMES,
     RANGE,
@@ -15,7 +15,7 @@ from inventory_tracking.combat.mechanics.echoing_strike import (
     errors,
     focal_point,
 )
-from inventory_tracking.combat.mechanics.validate import full_casts, validate
+from inventory_tracking.builds.warlock.echoing_strike.validate import full_casts, validate
 
 
 FIXTURE = json.loads((Path(__file__).parent / 'fixtures' / 'cast_706.json').read_text())
@@ -70,7 +70,7 @@ HITS = json.loads((Path(__file__).parent / 'fixtures' / 'cast_hits.json').read_t
 
 
 def test_contacts_name_the_monsters_the_blades_touch_and_the_recorded_drops_follow_them():
-    from inventory_tracking.combat.mechanics.hits import contacts, match
+    from inventory_tracking.builds.warlock.echoing_strike.hits import contacts, match
 
     frames, rect = HITS['frames'], HITS['manifest']['rect']
     txt_ids = {m['unit_id']: m['txt_id'] for m in HITS['missiles']}
@@ -87,7 +87,7 @@ def test_contacts_name_the_monsters_the_blades_touch_and_the_recorded_drops_foll
 
 
 def test_a_blade_track_with_a_jump_is_left_out_of_the_validation():
-    from inventory_tracking.combat.mechanics.validate import clean
+    from inventory_tracking.builds.warlock.echoing_strike.validate import clean
 
     good = [(0.0, float(k)) for k in range(10)]
     bad = [*good[:5], (500.0, 500.0), *good[6:]]

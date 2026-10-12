@@ -1,4 +1,4 @@
-"""The replay viewer's export (combat/viz.py) against the schema in combat_viewer/README.md: the ticks
+"""The replay viewer's export (viz.py) against the schema in combat_viewer/README.md: the ticks
 and tracks against the situation, the step series, the simulator's runs, the blades, the walls and
 doors, the moments, and the writers."""
 
@@ -14,16 +14,16 @@ from typing import Any
 
 import pytest
 
-from inventory_tracking.combat import viz
-from inventory_tracking.combat.mechanics.echoing_strike import cast
-from inventory_tracking.combat.sim.engine import simulate
-from inventory_tracking.combat.sim.policy import compare
-from inventory_tracking.combat.sim.situation import Situation, cut
+from inventory_tracking.builds.warlock.echoing_strike import viz
+from inventory_tracking.builds.warlock.echoing_strike.mechanics import cast
+from inventory_tracking.builds.warlock.echoing_strike.sim.engine import simulate
+from inventory_tracking.builds.warlock.echoing_strike.sim.policy import compare
+from inventory_tracking.builds.warlock.echoing_strike.sim.situation import Situation, cut
 from inventory_tracking.combat.takes import Take
 from inventory_tracking.combat.viz_moments import KINDS
 
 
-FIXTURES = Path(__file__).parent / 'fixtures'
+FIXTURES = Path(__file__).parents[3] / 'combat' / 'fixtures'  # trimmed takes of real play
 NAMES = ('chaos-manual', 'catacombs-macro')
 MODES = ('live', 'yield')
 TOP_KEYS = (

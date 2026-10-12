@@ -2,6 +2,19 @@
 
 ## Current contract (2026-10-10)
 
+Since 2026-10-12 (macros/framework-plan.md, Task 3.8) what is the Echoing Strike Warlock's own lives
+under `inventory_tracking/builds/warlock/echoing_strike/`: the blades (`mechanics.py`), the damage numbers
+(`damage.py`, `data/damage.json`), the hit model (`hits.py`, `validate.py`), the line sweep
+(`attack.py`), the simulator (`sim/`), the scoreboard, `compare.py`, `viz.py` and their command
+(`python -m inventory_tracking.builds.warlock.echoing_strike validate | calibrate | simulate | inputs |
+policy | gate | compare`). `combat/` keeps what any build uses: the recorder, the takes, the play
+metrics, the observation and the hunt's rule (`policy.py`), the place and the controller, the game's
+tables, a monster's route, the monsters model (`sim/monsters.py`), and `python -m
+inventory_tracking.combat replay | analyse | trim`. Below, a path under `combat/mechanics/` (but for
+`tables.py` and `movement.py`), `combat/sim/` (but for `monsters.py`), `combat/scoreboard.py`,
+`combat/compare.py`, `combat/viz.py` or `combat/data/damage.json` is read as the same name under the
+build's directory.
+
 **What runs today**
 
 - Recorder (`combat/record.py`): inside `serve`, samples the game about 25 times a second while the
@@ -36,7 +49,7 @@
 
 **How it is measured**
 
-- Command: `uv run python -m inventory_tracking.combat gate <takes directory>`. A take passes when,
+- Command: `uv run python -m inventory_tracking.builds.warlock.echoing_strike gate <takes directory>`. A take passes when,
   on the blades' side (monsters no companion came within 8 units of, at least five of them): the
   life explained by each recorded kill has median 1.0 and mean at least 0.8; the simulated life
   taken is within 15% of the recorded damage; the life-curve bias is within 0.1 of a life
@@ -291,33 +304,39 @@ calibration work before more tuning.
 ## Module layout (as built, 2026-10-10 evening; the original sketch is superseded)
 
 ```
-inventory_tracking/combat/
+inventory_tracking/combat/           what any build uses
   plan.md            this file; review.md: an outside review of 2026-10-10 and what it changed (deleted; in git history)
   record.py          sampler, take writer (CombatRecorder in serve)
   takes.py           take format: reading (gzip too), the typed frame rows, summary, timeline, trim
   analysis.py        play metrics and the manual baseline (`combat analyse`)
-  policy.py          the decision the simulator and the game share: Observation, LinePolicy, NearestPolicy
+  policy.py          the decision a simulator and the game share: Observation, Choice, NearestPolicy, walls
+  controller.py      the attack controller's decisions; stance.py: where to stand
   score.py           the live scorer: damage per combat second and kills per minute from world reads
-  scoreboard.py      every take through the gate and the policies, one file (`combat gate`)
-  compare.py         macro against manual from the takes (`combat compare`)
-  data/
-    tables.json      the game rows the mechanics key on (mechanics/tables.py builds it)
-    damage.json      points per blade contact by monster type, companions, Health Link, Hex Purge, mana, fit_takes
+  viz_moments.py     the moments worth a second look between two traces of a fight
+  data/tables.json   the game rows the mechanics key on (mechanics/tables.py builds it)
   mechanics/
     tables.py        the bundle and its lookups (monster points by area)
-    damage.py        the damage model's numbers read from data/damage.json
-    echoing_strike.py  the blades: spawn, convergence, range, return (cast, focal_point, errors)
-    validate.py      the emulation's position error against recorded blades (`combat validate`)
-    hits.py          contacts and their match to recorded drops (`combat calibrate`)
     movement.py      a walking monster's route from its path record, and where it is some frames on
+  sim/monsters.py    the monsters model
+  __main__.py        combat replay | analyse | trim
+inventory_tracking/builds/warlock/echoing_strike/   the Echoing Strike Warlock's (since 2026-10-12)
+  attack.py          the line sweep (LinePolicy, virtual_cast, the link) and the attack the framework asks
+  mechanics.py       the blades: spawn, convergence, range, return (cast, focal_point, errors)
+  damage.py          the damage model's numbers read from data/damage.json
+  data/damage.json   points per blade contact by monster type, companions, Health Link, Hex Purge, mana, fit_takes
+  validate.py        the emulation's position error against recorded blades (`validate`)
+  hits.py            contacts and their match to recorded drops (`calibrate`)
   sim/
     situation.py     a situation cut from a take: player, monsters, companions, casts, recorded kills and drops
-    engine.py        simulate, score, the gate (life explained, damage ratio, life curves), replay (`combat simulate`)
-    input.py         presses to casts (`combat inputs`)
-    policy.py        the policies through a situation: slots, yield, free, nearest, live, lead (`combat policy`)
-  __main__.py        combat replay | analyse | validate | calibrate | simulate | inputs | policy | gate | compare | trim
-macros/hunt.py       the policy's client in the game: one held strike on the policy's line, yielding to the player
-tests/inventory_tracking/combat/  mirrors the modules; fixtures/ holds two single casts and two trimmed takes
+    engine.py        simulate, score, the gate (life explained, damage ratio, life curves), replay (`simulate`)
+    input.py         presses to casts (`inputs`)
+    policy.py        the policies through a situation: slots, yield, free, nearest, live, lead (`policy`)
+  scoreboard.py      every take through the gate and the policies, one file (`gate`)
+  compare.py         macro against manual from the takes (`compare`)
+  viz.py             a take exported for the replay viewer
+  __main__.py        validate | calibrate | simulate | inputs | policy | gate | compare
+macros/hunt.py       the attack's client in the game: one held strike on the attack's line, yielding to the player
+tests/inventory_tracking/  mirrors the modules; combat/fixtures/ holds two trimmed takes, the build's fixtures/ two single casts
 ```
 
 ## Risks and open questions
@@ -414,7 +433,7 @@ Echoing Strike, from 268 casts of five blades (`combat/mechanics/echoing_strike.
 - Emulation error over the take: 0.87 units outbound and 1.22 on the return with the focal point
   fitted from the blades; 2.2 / 2.5 with the pointer six frames earlier as the focal point
   (the pointer and the fitted focal point lie 2.3 units apart on average: the hand moves between
-  the press and the spawn). `python -m inventory_tracking.combat validate <take>` prints these.
+  the press and the spawn). `python -m inventory_tracking.builds.warlock.echoing_strike validate <take>` prints these.
 - Damage per blade cannot be read from the client: life updates arrive batched (a frame's drop
   mixes several blades, 533 of 1147 hits had no blade within 3 units at the frame), and life is
   a 128th fraction. Stage 3's damage model needs monstats points and the skill's damage rows.

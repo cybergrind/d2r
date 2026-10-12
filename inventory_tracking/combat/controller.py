@@ -7,7 +7,7 @@ in the game (macros/hunt.py) asks these and acts on the answers; the simulator a
   else straight at what is in reach (the elite first, then the nearest, AIM_BEYOND past it), and
   always a focal point the window lets the pointer reach (`Observation.aimable`): the attack scores
   its cast with the focal point it will really have.
-- `LiveAim`: `aim_choice` as a policy for the simulator, with the reach and the window of the game.
+- `LiveAim`: `aim_choice` as a policy for a simulator, with the attack's reach and the window of the game.
 - `Aim`: whether the pointer has to be put on the line again, and whose it is meanwhile (the player's
   hand taking it somewhere is left alone until it has rested).
 - `CastWatch`: the held strike input: casts seen, a press that brought no cast, a hold gone idle
@@ -22,18 +22,10 @@ these steps, Death Mark and the sigil, and the weapon swap.
 
 import math
 from collections.abc import Callable, Collection, Iterable
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Protocol
 
-from inventory_tracking.combat.policy import (
-    AIM_BEYOND,
-    REACH,
-    Choice,
-    Observation,
-    Point,
-    Policy,
-    clear_line,
-)
+from inventory_tracking.combat.policy import AIM_BEYOND, Choice, Observation, Point, Policy, clear_line
 
 
 RETAP_SECONDS = 0.25  # the held input idle this long between casts: released and pressed again
@@ -102,7 +94,7 @@ class LiveAim:
 
     policy: Policy
     aimable: Callable[[Point, Point], Point | None] | None = None  # (origin, focal) -> the focal aimed at
-    reach: float = REACH
+    reach: float = field(kw_only=True)  # units: the attack's reach (macros/build.py `Attack.reach`)
 
     def __call__(self, seen: Observation) -> Choice | None:
         if seen.moving:

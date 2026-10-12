@@ -4,9 +4,10 @@ import math
 
 import pytest
 
+from inventory_tracking.builds.warlock.echoing_strike.attack import DUPLICATE, LinePolicy
+from inventory_tracking.builds.warlock.echoing_strike.damage import damage_table
 from inventory_tracking.combat.controller import aim_choice
-from inventory_tracking.combat.mechanics.damage import damage_table
-from inventory_tracking.combat.policy import DUPLICATE, LinePolicy, observe
+from inventory_tracking.combat.policy import observe
 from tests.inventory_tracking.scenarios.threat.harness import (
     BLAST,
     LIFE,

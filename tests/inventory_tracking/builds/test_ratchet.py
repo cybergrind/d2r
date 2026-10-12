@@ -7,6 +7,16 @@ hit fails test_nothing_specific_is_named_outside_the_builds:
 move the code into inventory_tracking/builds/, or, if the name is generic, remove it from SPECIFIC
 with a reason. A recorded hit that disappeared fails test_the_allowed_list_only_shrinks: remove it
 from ALLOWED so the list only ever shrinks.
+
+What is left after the build's model, simulator and analysis moved under builds/ (framework-plan.md
+Task 3.8) is the residue, and each piece of it says why it is still there:
+
+- RESIDUE: one reason per pair of ALLOWED, the names the scan finds in the framework;
+- UNSEEN: what is the Warlock's in the framework under a name the scan cannot tell from a plain word,
+  or as a number, kept by hand: a note, checked only for the name still being in the file;
+- ELSEWHERE: the same names in the packages that are neither the framework nor a build (routes/,
+  tracking/, osd/, the service that hands the builds in). They are not part of this refactor: the list
+  records them, and a new one fails test_nothing_new_is_named_in_the_other_packages.
 """
 
 import ast
@@ -37,6 +47,13 @@ NAMED: dict[str, str] = {
     'damage_table': "this build's damage file",
     'link_table': "the Defiler's Health Link",
     'linked_set': "the Defiler's Health Link",
+    # The Warlock's buffs as the world reads them off the character (macros/world.py `Player`)
+    'HEX_PURGE_BIT': 'the state bit of Hex: Purge',
+    'PSYCHIC_WARD_BIT': 'the state bit of Psychic Ward',
+    'hex_purge': 'whether Hex: Purge is on the character',
+    'ward': 'whether Psychic Ward is on the character',
+    'consume': "the Warlock's Consume buff",
+    'read_consume': "the reader of the Warlock's Consume buff",
 }
 
 
@@ -131,36 +148,102 @@ def found() -> set[tuple[str, str]]:
     return pairs
 
 
+WORLD = 'inventory_tracking/macros/world.py'
 ALLOWED: frozenset[tuple[str, str]] = frozenset(
     {
-        ('inventory_tracking/combat/__main__.py', 'link_table'),
-        ('inventory_tracking/combat/mechanics/damage.py', 'DEFILER'),
-        ('inventory_tracking/combat/mechanics/damage.py', 'damage_table'),
-        ('inventory_tracking/combat/mechanics/damage.py', 'link_table'),
-        ('inventory_tracking/combat/mechanics/echoing_strike.py', 'BLADES'),
-        ('inventory_tracking/combat/mechanics/hits.py', '<echoing_strike module>'),
-        ('inventory_tracking/combat/mechanics/validate.py', '<echoing_strike module>'),
-        ('inventory_tracking/combat/mechanics/validate.py', 'BLADES'),
-        ('inventory_tracking/combat/policy.py', '<echoing_strike module>'),
-        ('inventory_tracking/combat/policy.py', 'BLADES'),
-        ('inventory_tracking/combat/policy.py', 'DUPLICATE'),
-        ('inventory_tracking/combat/policy.py', 'LinePolicy'),
-        ('inventory_tracking/combat/policy.py', 'damage_table'),
-        ('inventory_tracking/combat/policy.py', 'linked_set'),
-        ('inventory_tracking/combat/policy.py', 'virtual_cast'),
-        ('inventory_tracking/combat/sim/engine.py', '<echoing_strike module>'),
-        ('inventory_tracking/combat/sim/engine.py', 'BLADES'),
-        ('inventory_tracking/combat/sim/engine.py', 'DEFILER'),
-        ('inventory_tracking/combat/sim/engine.py', 'DUPLICATE'),
-        ('inventory_tracking/combat/sim/engine.py', 'damage_table'),
-        ('inventory_tracking/combat/sim/engine.py', 'link_table'),
-        ('inventory_tracking/combat/sim/engine.py', 'linked_set'),
-        ('inventory_tracking/combat/sim/policy.py', 'LinePolicy'),
-        ('inventory_tracking/combat/sim/situation.py', '<echoing_strike module>'),
-        ('inventory_tracking/combat/viz.py', '<echoing_strike module>'),
-        ('inventory_tracking/macros/world.py', 'DEFILER_CLASS'),
+        (WORLD, 'DEFILER_CLASS'),
+        (WORLD, 'HEX_PURGE_BIT'),
+        (WORLD, 'PSYCHIC_WARD_BIT'),
+        (WORLD, 'consume'),
+        (WORLD, 'hex_purge'),
+        (WORLD, 'read_consume'),
+        (WORLD, 'ward'),
     }
 )
+
+# Why each allowed pair is still in the framework. All of it is the world's reading of the game: what
+# the Warlock's own units and buffs look like in memory, read for every character and used by the
+# build alone. A build cannot be asked for it yet: `World` is read before a build is chosen, and a
+# build has no part in reading memory (architecture.md 4.0; framework-plan.md Task 3.8, out of scope).
+RESIDUE: dict[tuple[str, str], str] = {
+    (WORLD, 'DEFILER_CLASS'): "the Defiler's txt id: its raw unit bytes are read into `Monster.raw` for research",
+    (WORLD, 'HEX_PURGE_BIT'): "the state bit `Player.hex_purge` is read from; the build's buff row asks the field",
+    (WORLD, 'PSYCHIC_WARD_BIT'): "the state bit `Player.ward` is read from; the build's buff row asks the field",
+    (
+        WORLD,
+        'consume',
+    ): "`Player.consume`, the Consume buff as tracking/consume.py reads it; the build's caster asks it",
+    (WORLD, 'hex_purge'): "`Player.hex_purge`: a Warlock buff as a field of every character's record",
+    (WORLD, 'read_consume'): 'the import of tracking/consume.py, the reader behind `Player.consume`',
+    (WORLD, 'ward'): "`Player.ward`: a Warlock buff as a field of every character's record",
+}
+
+POLICY = 'inventory_tracking/combat/policy.py'
+TABLES = 'inventory_tracking/combat/mechanics/tables.py'
+# The Warlock's in the framework where the scan is blind: a plain word, or a number behind a plain name.
+UNSEEN: dict[tuple[str, str], str] = {
+    (
+        POLICY,
+        'linked',
+    ): "`Observation.linked`: the monsters the Defiler's Health Link holds, filled by the attack's `sees`",
+    (POLICY, 'share'): "`Observation.share`: Health Link's share of the damage dealt again",
+    (POLICY, 'marked'): '`Observation.marked`: the monsters under Death Mark',
+    (POLICY, 'MIN_FOCAL'): "tuned with the blades; read by macros/hunt.py `off_labels` and by the build's sweep",
+    (POLICY, 'MIN_SCORE'): "tuned with the blades' points; read by combat/stance.py `camp` and by the build's sweep",
+    (POLICY, 'STRIKE_REACH'): "the hunt's reach, set two units short of the blades' flight",
+    ('inventory_tracking/combat/stance.py', 'CAST_SECONDS'): "one cast of this build's held strike, 9 frames",
+    (TABLES, 'SKILLS'): "the Warlock's skill rows bundled into data/tables.json, by id",
+    (TABLES, 'MISSILES'): 'the blade missiles 706 and 720 bundled beside the two any monster casts',
+    ('inventory_tracking/combat/viz_moments.py', 'blade_life'): "a default of 38 frames: the blades' life",
+}
+
+# The packages that are neither the framework nor a build, with what they name of the Warlock's.
+OTHER = (
+    'appraisal',
+    'automation',
+    'collection',
+    'corpus',
+    'hover',
+    'hud',
+    'identify',
+    'input',
+    'items',
+    'levels',
+    'loot',
+    'native',
+    'osd',
+    'probes',
+    'routes',
+    'shop',
+    'terror',
+    'tracking',
+)
+ELSEWHERE: dict[tuple[str, str], str] = {
+    ('inventory_tracking/appraisal/service.py', BUILDS_PSEUDO): 'the process start: it hands the builds to the runner',
+    ('inventory_tracking/config.py', 'consume'): "the OSD's settings for the Consume widget",
+    ('inventory_tracking/models.py', 'consume'): 'the Consume buff in the tracked state the OSD shows',
+    ('inventory_tracking/osd/presenter.py', 'consume'): 'the Consume widget',
+    ('inventory_tracking/osd/widgets/consume.py', 'consume'): 'the Consume widget',
+    ('inventory_tracking/routes/catalog/act3.py', 'BLADE_WARP'): "a route's step by the Warlock's jump",
+    ('inventory_tracking/routes/catalog/act3.py', 'DEATH_MARK'): "a route's opener at Mephisto",
+    ('inventory_tracking/routes/catalog/act3.py', 'SIGIL_LETHARGY'): "a route's opener at Mephisto",
+    ('inventory_tracking/routes/model.py', 'BLADE_WARP'): 'its own copy of the skill id (builds/warlock/skills.py)',
+    ('inventory_tracking/routes/model.py', 'DEATH_MARK'): 'its own copy of the skill id (builds/warlock/skills.py)',
+    ('inventory_tracking/routes/model.py', 'SIGIL_LETHARGY'): 'its own copy of the skill id (builds/warlock/skills.py)',
+    ('inventory_tracking/tracking/consume.py', 'read_consume'): "the reader of the Warlock's Consume buff",
+}
+
+
+def found_elsewhere() -> set[tuple[str, str]]:
+    package = ROOT / 'inventory_tracking'
+    paths = sorted(package.glob('*.py'))
+    for name in OTHER:
+        paths += sorted((package / name).rglob('*.py'))
+    pairs: set[tuple[str, str]] = set()
+    for path in paths:
+        rel = path.relative_to(ROOT).as_posix()
+        pairs.update((rel, ident) for ident in scan(path, SPECIFIC))
+    return pairs
 
 
 def test_nothing_specific_is_named_outside_the_builds() -> None:
@@ -178,6 +261,38 @@ def test_the_allowed_list_only_shrinks() -> None:
     gone = sorted(ALLOWED - found())
     listing = '\n'.join(f'  {path}: {ident}' for path, ident in gone)
     assert not gone, f'Recorded hits no longer found:\n{listing}\nno longer found: remove it from ALLOWED'
+
+
+def test_every_allowed_pair_says_why_it_is_still_there() -> None:
+    assert set(RESIDUE) == ALLOWED
+    assert all(reason.strip() for reason in RESIDUE.values())
+
+
+def test_what_the_scan_cannot_see_is_still_where_the_note_says() -> None:
+    gone = sorted((path, name) for path, name in UNSEEN if name not in scan(ROOT / path, {name}))
+    assert not gone, f'No longer in the file: {gone}\nremove the note from UNSEEN'
+    assert all(reason.strip() for reason in UNSEEN.values())
+    assert not set(UNSEEN) & ALLOWED
+
+
+def test_the_other_packages_are_all_the_packages_there_are() -> None:
+    package = ROOT / 'inventory_tracking'
+    has_code = {path.name for path in package.iterdir() if path.is_dir() and any(path.glob('*.py'))}
+    assert has_code - {'macros', 'combat', 'builds'} == set(OTHER)
+
+
+def test_nothing_new_is_named_in_the_other_packages() -> None:
+    seen = found_elsewhere()
+    new = sorted(seen - set(ELSEWHERE))
+    listing = '\n'.join(f'  {path}: {ident}' for path, ident in new)
+    assert not new, (
+        'New build-specific names outside the framework and the builds:\n'
+        f'{listing}\n'
+        'Ask the build for it, or record it in ELSEWHERE with a reason; a generic name comes out of SPECIFIC.'
+    )
+    gone = sorted(set(ELSEWHERE) - seen)
+    assert not gone, f'Recorded hits no longer found: {gone}\nremove them from ELSEWHERE'
+    assert all(reason.strip() for reason in ELSEWHERE.values())
 
 
 def test_the_scan_sees_names_attributes_imports_and_definitions_but_not_comments(

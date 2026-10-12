@@ -23,8 +23,8 @@ each (test_scenarios.py), so none asks for more than the geometry allows.
 import json
 from pathlib import Path
 
+from inventory_tracking.builds.warlock.echoing_strike.attack import REACH
 from inventory_tracking.combat.mechanics.tables import area_level, tables
-from inventory_tracking.combat.policy import REACH
 
 from .harness import Body, Raiser, Scenario, body, tougher, wall, walls
 from .table import raised, reviver

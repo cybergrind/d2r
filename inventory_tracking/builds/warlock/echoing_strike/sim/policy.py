@@ -1,4 +1,4 @@
-"""The policies of combat/policy.py through a take's situation (combat/plan.md stage 5).
+"""The policies of attack.py and combat/policy.py through a take's situation (combat/plan.md stage 5).
 
 `compare` runs the recorded casts and each candidate closed loop on the same situation and scores
 them by blade plus linked points per combat second (the policy-dependent terms):
@@ -20,11 +20,13 @@ import math
 from dataclasses import dataclass
 from typing import Any
 
+from inventory_tracking.builds.warlock.echoing_strike.attack import REACH, LinePolicy
+from inventory_tracking.builds.warlock.echoing_strike.damage import damage_table
+from inventory_tracking.builds.warlock.echoing_strike.sim.engine import Outcome, gate, score, simulate
+from inventory_tracking.builds.warlock.echoing_strike.sim.input import BIRTH_LAG
+from inventory_tracking.builds.warlock.echoing_strike.sim.situation import Situation
 from inventory_tracking.combat.controller import LiveAim
-from inventory_tracking.combat.policy import RUN_MODES, Choice, LinePolicy, NearestPolicy, Observation, Policy
-from inventory_tracking.combat.sim.engine import Outcome, gate, score, simulate
-from inventory_tracking.combat.sim.input import BIRTH_LAG
-from inventory_tracking.combat.sim.situation import Situation
+from inventory_tracking.combat.policy import RUN_MODES, Choice, NearestPolicy, Observation, Policy
 from inventory_tracking.combat.timeline import GAME_RATE
 from inventory_tracking.macros.view import Viewport
 
@@ -48,10 +50,11 @@ class AtSlots:
 def candidate(situation: Situation, mode: str, **options: Any) -> Policy:
     """The policy `compare` runs under `mode`; `options` go to the policy (damage_of, offsets...)."""
     if mode == NEAREST:
-        return NearestPolicy(**options)
+        given: dict[str, Any] = {'damage_of': damage_table(), **options}  # the build's table unless one is given
+        return NearestPolicy(**given)
     if mode in (LIVE, LEAD):
         sweep = LinePolicy(yields=True, lead=BIRTH_LAG if mode == LEAD else None, **options)
-        return LiveAim(sweep, Viewport(situation.aspect).reachable_focal)
+        return LiveAim(sweep, Viewport(situation.aspect).reachable_focal, reach=REACH)
     if mode == SLOTS:
         return AtSlots(LinePolicy(yields=False, **options), frozenset(c.frame - BIRTH_LAG for c in situation.casts))
     return LinePolicy(yields=mode == YIELD, **options)

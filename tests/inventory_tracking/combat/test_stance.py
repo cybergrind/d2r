@@ -4,8 +4,8 @@ import math
 
 import pytest
 
-from inventory_tracking.builds.warlock.echoing_strike.attack import EchoingStrike
-from inventory_tracking.combat.policy import Foe, LinePolicy, Observation
+from inventory_tracking.builds.warlock.echoing_strike.attack import EchoingStrike, LinePolicy
+from inventory_tracking.combat.policy import Foe, Observation
 from inventory_tracking.combat.stance import (
     CAMP_REACH,
     CAST_SECONDS,

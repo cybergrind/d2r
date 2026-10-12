@@ -5,7 +5,7 @@ import math
 import struct
 from typing import Any
 
-from inventory_tracking.combat.mechanics.echoing_strike import BLADES, MISSILE, POINTER_LAG, errors, focal_point
+from inventory_tracking.builds.warlock.echoing_strike.mechanics import BLADES, MISSILE, POINTER_LAG, errors, focal_point
 from inventory_tracking.combat.takes import ground_under_pointer, missiles_of, player_of
 
 

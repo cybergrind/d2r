@@ -1,6 +1,6 @@
 """The damage model's numbers (data/damage.json): points per blade contact by monster type, the
 companions' rates, Health Link, Hex Purge, Death Mark and the mana. The simulator (sim/engine.py) and
-the policy (policy.py) read them through these lookups; each is dated and sourced in the data file."""
+the policy (attack.py) read them through these lookups; each is dated and sourced in the data file."""
 
 import json
 from collections.abc import Callable
@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Any
 
 
-DAMAGE = Path(__file__).parent.parent / 'data' / 'damage.json'
+DAMAGE = Path(__file__).parent / 'data' / 'damage.json'
 DEFILER = 744  # the companion whose Health Link links the monsters
 
 

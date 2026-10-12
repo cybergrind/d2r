@@ -2,8 +2,8 @@
 
 import pytest
 
+from inventory_tracking.builds.warlock.echoing_strike.attack import REACH
 from inventory_tracking.combat.mechanics.tables import tables
-from inventory_tracking.combat.policy import REACH
 
 from .scenarios import SCENARIOS
 from .table import EXCEL, derive, table

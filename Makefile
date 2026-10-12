@@ -47,7 +47,7 @@ test:
 
 ## combat-viz: export every combat take for the replay viewer (combat_viewer/README.md) to inventory_tracking/runs/combat/viz
 combat-viz:
-	$(UV) python -m inventory_tracking.combat.viz inventory_tracking/runs/combat
+	$(UV) python -m inventory_tracking.builds.warlock.echoing_strike.viz inventory_tracking/runs/combat
 
 ## combat-view: open the replay viewer (Godot 4) on the exported takes
 combat-view:

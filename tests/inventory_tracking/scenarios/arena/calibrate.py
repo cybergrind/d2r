@@ -10,7 +10,7 @@ the spread of the ratios, what it says) and fixtures/trusted.json (scene -> whet
 trust.py reads it).
 
 **The play is open loop for the character and closed loop for the monsters.** No production macro code
-runs. `recorded` reads from the take, tick by tick from the scene's frame (combat/sim/situation.py
+runs. `recorded` reads from the take, tick by tick from the scene's frame (the build's sim/situation.py
 `cut`: the recorder's samples as game ticks, the corpse rows left out):
 
 - where the character stood (it is put there before each tick: not walked, not hopped);
@@ -69,11 +69,11 @@ from collections.abc import Callable, Iterable, Mapping, Sequence
 from dataclasses import dataclass, field, replace
 from pathlib import Path
 
+from inventory_tracking.builds.warlock.echoing_strike.mechanics import LIFE, cast
+from inventory_tracking.builds.warlock.echoing_strike.sim.situation import Situation, cut as situation_of
 from inventory_tracking.combat.hurts import SUSPECT_REACH, hurts, lost, sole
-from inventory_tracking.combat.mechanics.echoing_strike import LIFE, cast
 from inventory_tracking.combat.mechanics.tables import tables
 from inventory_tracking.combat.sim.monsters import AWARE, PHYSICAL, Blow
-from inventory_tracking.combat.sim.situation import Situation, cut as situation_of
 from inventory_tracking.combat.takes import Take, monsters_of
 from inventory_tracking.combat.timeline import GAME_RATE
 from inventory_tracking.levels.presets import display_name

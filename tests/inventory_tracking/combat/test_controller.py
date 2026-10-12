@@ -3,7 +3,9 @@ player's move, and the aim as a policy."""
 
 import math
 
-from inventory_tracking.builds.warlock.echoing_strike.attack import EchoingStrike
+import pytest
+
+from inventory_tracking.builds.warlock.echoing_strike.attack import REACH, EchoingStrike, LinePolicy
 from inventory_tracking.combat.controller import (
     CLICK,
     DONE,
@@ -27,7 +29,7 @@ from inventory_tracking.combat.controller import (
     aim_choice,
     serve,
 )
-from inventory_tracking.combat.policy import AIM_BEYOND, Choice, Foe, LinePolicy, Observation
+from inventory_tracking.combat.policy import AIM_BEYOND, Choice, Foe, Observation
 
 
 ORIGIN = (5000.0, 5000.0)
@@ -312,14 +314,14 @@ def test_the_line_policy_scores_only_the_focal_point_the_window_can_reach():
 
 def test_live_aim_yields_while_the_player_moves():
     # The fight's aim leaves the pointer to the player while they move, whatever the policy says.
-    live = LiveAim(policy=lambda seen: Choice((1.0, 2.0), 7, 5.0))
+    live = LiveAim(policy=lambda seen: Choice((1.0, 2.0), 7, 5.0), reach=REACH)
     moving = Observation(origin=ORIGIN, foes={1: Foe(310, (5010.0, 5000.0), 100.0)}, moving=True)
     assert live(moving) is None
 
 
 def test_live_aim_falls_back_only_to_monsters_within_its_reach_with_a_clear_line():
     # A monster 30 units off is beyond the blades (REACH is about 22); 10 units is in reach.
-    live = LiveAim(policy=lambda seen: None)
+    live = LiveAim(policy=lambda seen: None, reach=REACH)
     far = Observation(origin=ORIGIN, foes={1: Foe(310, (5030.0, 5000.0), 100.0)})
     assert live(far) is None
     near = Observation(origin=ORIGIN, foes={1: Foe(310, (5010.0, 5000.0), 100.0)})
@@ -339,5 +341,14 @@ def test_live_aim_hands_the_policy_an_aimable_mapped_through_the_origin():
     def through(origin, focal):
         return (origin[0] + focal[0], origin[1] + focal[1])
 
-    LiveAim(policy=record, aimable=through)(Observation(origin=ORIGIN, foes={}))
+    LiveAim(policy=record, aimable=through, reach=REACH)(Observation(origin=ORIGIN, foes={}))
     assert got == [(5001.0, 5001.0)]
+
+
+def test_live_aim_is_given_its_reach():
+    # The reach is the attack's (macros/build.py `Attack.reach`): the framework has no blades of its own.
+    with pytest.raises(TypeError):
+        LiveAim(policy=lambda seen: None)  # pyrefly: ignore[missing-argument]
+    near = Observation(origin=ORIGIN, foes={1: Foe(310, (5010.0, 5000.0), 100.0)})
+    assert LiveAim(policy=lambda seen: None, reach=5.0)(near) is None
+    assert LiveAim(policy=lambda seen: None, reach=10.0)(near) is not None

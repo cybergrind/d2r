@@ -20,9 +20,8 @@ import math
 import random
 from functools import cache
 
-from inventory_tracking.builds.warlock.echoing_strike.attack import EchoingStrike
+from inventory_tracking.builds.warlock.echoing_strike.attack import EchoingStrike, LinePolicy
 from inventory_tracking.combat import stance
-from inventory_tracking.combat.policy import LinePolicy
 from inventory_tracking.macros.hunt import STAND_OFF
 from inventory_tracking.macros.travel import STRIDE
 from inventory_tracking.macros.view import Viewport

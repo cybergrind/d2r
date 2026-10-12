@@ -8,8 +8,9 @@ import math
 from collections.abc import Callable
 from dataclasses import dataclass, replace
 
-from inventory_tracking.combat.mechanics.hits import CONTACT_RADIUS
-from inventory_tracking.combat.policy import MIN_SCORE, LinePolicy, Observation, clear_line
+from inventory_tracking.builds.warlock.echoing_strike.attack import LinePolicy
+from inventory_tracking.builds.warlock.echoing_strike.hits import CONTACT_RADIUS
+from inventory_tracking.combat.policy import MIN_SCORE, Observation, clear_line
 from inventory_tracking.combat.stance import KEEP_AWAY, way
 
 

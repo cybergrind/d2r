@@ -1,12 +1,19 @@
-"""The simulator (combat/sim): contacts become damage with the duplicate rule, monsters die when
+"""The simulator (sim/engine.py): contacts become damage with the duplicate rule, monsters die when
 their points run out, the gate compares with the recorded kills."""
 
 import json
 from pathlib import Path
 
-from inventory_tracking.combat.mechanics.echoing_strike import OUT_FRAMES
-from inventory_tracking.combat.sim.engine import DUPLICATE, gate, replay, score, simulate
-from inventory_tracking.combat.sim.situation import Cast, CompanionTrack, MonsterTrack, Situation, cut, describe
+from inventory_tracking.builds.warlock.echoing_strike.mechanics import OUT_FRAMES
+from inventory_tracking.builds.warlock.echoing_strike.sim.engine import DUPLICATE, gate, replay, score, simulate
+from inventory_tracking.builds.warlock.echoing_strike.sim.situation import (
+    Cast,
+    CompanionTrack,
+    MonsterTrack,
+    Situation,
+    cut,
+    describe,
+)
 from inventory_tracking.combat.takes import Take
 
 
@@ -237,7 +244,7 @@ def test_a_hexed_monster_explodes_on_death_and_an_unhexed_one_does_not():
     assert outcome.explosion_damage == {}  # never hit by a blade: no hex, no explosion
 
 
-FIXTURE = json.loads((Path(__file__).parent / 'fixtures' / 'cast_hits.json').read_text())
+FIXTURE = json.loads((Path(__file__).parents[1] / 'fixtures' / 'cast_hits.json').read_text())
 
 
 def test_a_situation_is_cut_from_a_take_and_replayed(tmp_path):

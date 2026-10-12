@@ -4,8 +4,8 @@ import sys
 from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 
-from inventory_tracking.combat.scoreboard import LEAST_CASTS, lines, row, totals
-from inventory_tracking.combat.sim.situation import cut
+from inventory_tracking.builds.warlock.echoing_strike.scoreboard import LEAST_CASTS, lines, row, totals
+from inventory_tracking.builds.warlock.echoing_strike.sim.situation import cut
 from inventory_tracking.combat.takes import Take
 
 

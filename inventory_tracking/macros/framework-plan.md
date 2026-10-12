@@ -597,8 +597,25 @@ Order as run (2026-10-12): 3.1 → 3.2 + 3.3 (one task: the same files) → 3.5 
 ids can leave `macros/skills.py` only when their last user in the framework is gone) → 3.8 → 3.9.
 Done: 3.1 (`9f4fc28`), 3.2 + 3.3 (`016c1f6`, ratchet 67 → 64), 3.5 + 3.6 (`bdda973`, 64 → 46), 3.7 (`51cd947`, 46 → 39),
 3.9 + 3.4 (39 → 26: the runner chooses the build from the registry `inventory_tracking/builds`, handed to it by
-`appraisal/service.py`; `macros/default.py` is gone; the ids and names are in `builds/warlock/skills.py`). Left: 3.8.
-(ratchet 46 → 39; the second build's play is green).
+`appraisal/service.py`; `macros/default.py` is gone; the ids and names are in `builds/warlock/skills.py`),
+3.8 (26 → 7: the blades' model, damage data, the offline simulator, the scoreboard, the gate and the viewer export
+are `inventory_tracking/builds/warlock/echoing_strike/`; the gate is now
+`python -m inventory_tracking.builds.warlock.echoing_strike gate <takes>`).
+
+**Stage 3 gate, 2026-10-12: passed.** Suite 5863 passed, 8 skipped, 63 xfailed (the pinned list);
+`decisions.json`, the replay logs and the loop counts byte-identical to Stage 0; the combat gate over the 743
+takes line for line `GATE-base.txt`; `THREAT-in-arena.md` and `CALIBRATION.md` regenerate unchanged; the
+second build fights in the arena; nothing under `macros/` or `combat/` imports a build.
+
+The residue, each pair with its reason in `tests/inventory_tracking/builds/test_ratchet.py` (`RESIDUE`): seven
+names in `macros/world.py` — the Warlock's buff states read into every character's `Player` record
+(`hex_purge`, `ward`, `consume` and their bits and reader) and the Defiler's class id kept for research. They
+go when the world reading gets a build hook (not planned in Stages 4–8; small). Not seen by the scan and listed
+there as `UNSEEN`: `Observation.linked/share/marked`, the numbers tuned to the blades that the framework reads
+(`MIN_FOCAL`, `MIN_SCORE`, `STRIKE_REACH`, `CAST_SECONDS`), the Warlock rows of `combat/mechanics/tables.py`.
+Outside the two packages (`ELSEWHERE`, guarded so it cannot grow): `routes/model.py` and `routes/catalog/act3.py`
+(three skill ids of their own), the Consume widget and its reader (`tracking/consume.py`, `osd/`, `models.py`,
+`config.py`).
 
 What may honestly remain outside `builds/` after Stage 3 (the residue, to be confirmed then):
 `combat/hurts.py` and `combat/__main__.py` reports that name the strike in their output, and

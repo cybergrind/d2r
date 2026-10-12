@@ -13,12 +13,11 @@ from collections.abc import Callable, Sequence
 from pathlib import Path
 from typing import Any
 
-from inventory_tracking.combat.mechanics.echoing_strike import LIFE, OUT_FRAMES
-from inventory_tracking.combat.mechanics.hits import CONTACT_RADIUS
-from inventory_tracking.combat.policy import LinePolicy
-from inventory_tracking.combat.sim.input import BIRTH_LAG
-from inventory_tracking.combat.timeline import GAME_RATE
-from inventory_tracking.combat.viz import (
+from inventory_tracking.builds.warlock.echoing_strike.attack import LinePolicy
+from inventory_tracking.builds.warlock.echoing_strike.hits import CONTACT_RADIUS
+from inventory_tracking.builds.warlock.echoing_strike.mechanics import LIFE, OUT_FRAMES
+from inventory_tracking.builds.warlock.echoing_strike.sim.input import BIRTH_LAG
+from inventory_tracking.builds.warlock.echoing_strike.viz import (
     INDEX,
     RECORDED,
     SCALE,
@@ -33,6 +32,7 @@ from inventory_tracking.combat.viz import (
     walls,
     write_index,
 )
+from inventory_tracking.combat.timeline import GAME_RATE
 from inventory_tracking.levels.presets import display_name
 from inventory_tracking.macros.view import Viewport
 

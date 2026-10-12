@@ -2,7 +2,7 @@
 holding what stood where at every game tick, the recorded casts and each policy's casts through
 the simulator on the same situation, and the moments where the two differ most.
 
-`python -m inventory_tracking.combat.viz <take directory>` writes `<take>.json` and refreshes
+`python -m inventory_tracking.builds.warlock.echoing_strike.viz <take directory>` writes `<take>.json` and refreshes
 `index.json` beside it, printing each stage as `[2/6] the recorded casts` (the viewer runs this for
 one take and shows the line); with a directory of takes it exports every take that holds enough full
 casts and writes the index of all of them. The files go to `runs/combat/viz/` (git-ignored) unless
@@ -29,14 +29,21 @@ from dataclasses import asdict
 from pathlib import Path
 from typing import Any
 
-from inventory_tracking.combat.mechanics.echoing_strike import LIFE, OUT_FRAMES, cast
-from inventory_tracking.combat.mechanics.hits import CONTACT_RADIUS
+from inventory_tracking.builds.warlock.echoing_strike.hits import CONTACT_RADIUS
+from inventory_tracking.builds.warlock.echoing_strike.mechanics import LIFE, OUT_FRAMES, cast
+from inventory_tracking.builds.warlock.echoing_strike.sim.engine import Outcome, gate, simulate
+from inventory_tracking.builds.warlock.echoing_strike.sim.input import BIRTH_LAG
+from inventory_tracking.builds.warlock.echoing_strike.sim.policy import (
+    LIVE,
+    MODES,
+    YIELD,
+    candidate,
+    policy_score,
+    run_policy,
+)
+from inventory_tracking.builds.warlock.echoing_strike.sim.situation import Situation, cut
 from inventory_tracking.combat.mechanics.tables import tables
 from inventory_tracking.combat.policy import RUN_MODES
-from inventory_tracking.combat.sim.engine import Outcome, gate, simulate
-from inventory_tracking.combat.sim.input import BIRTH_LAG
-from inventory_tracking.combat.sim.policy import LIVE, MODES, YIELD, candidate, policy_score, run_policy
-from inventory_tracking.combat.sim.situation import Situation, cut
 from inventory_tracking.combat.takes import Take
 from inventory_tracking.combat.timeline import GAME_RATE
 from inventory_tracking.combat.viz_moments import Trace, find_moments
@@ -52,7 +59,7 @@ SCHEMA = 1
 SCALE = 10  # file units to a world unit: positions are kept to a tenth
 RECORDED = 'recorded'
 POLICIES = (LIVE, YIELD)  # the runs beside the recorded one, by default
-OUT = Path(__file__).parents[1] / 'runs' / 'combat' / 'viz'
+OUT = Path(__file__).parents[3] / 'runs' / 'combat' / 'viz'
 INDEX = 'index.json'
 LEAST_CASTS = 5  # as the scoreboard: a take with fewer full casts shows nothing of the aim
 UNREAD, FLOOR, LOW, WALL = 0, 1, 2, 3  # a wall cell: no grid, walk and fly, blocks walking only, blocks blades

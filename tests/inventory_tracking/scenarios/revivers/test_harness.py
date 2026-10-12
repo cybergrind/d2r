@@ -3,11 +3,12 @@ only as the scenario says."""
 
 from itertools import pairwise
 
+from inventory_tracking.builds.warlock.echoing_strike.attack import REACH, LinePolicy
+from inventory_tracking.builds.warlock.echoing_strike.damage import damage_table
+from inventory_tracking.builds.warlock.echoing_strike.sim.engine import simulate
+from inventory_tracking.builds.warlock.echoing_strike.sim.situation import MonsterTrack, Situation
 from inventory_tracking.combat.controller import LiveAim
-from inventory_tracking.combat.mechanics.damage import damage_table
-from inventory_tracking.combat.policy import Choice, LinePolicy
-from inventory_tracking.combat.sim.engine import simulate
-from inventory_tracking.combat.sim.situation import MonsterTrack, Situation
+from inventory_tracking.combat.policy import Choice
 from inventory_tracking.macros.view import Viewport
 
 from .harness import ASPECT, MOVE_FRAMES, ORIGIN, Brief, Move, Raiser, Scenario, body, run, today, wall
@@ -27,7 +28,7 @@ def test_without_a_reviver_the_harness_kills_as_the_production_simulator_does():
         b.unit: MonsterTrack(b.unit, b.txt, b.points, dict.fromkeys(range(frames + 1), b.at)) for b in scenario.bodies
     }
     situation = Situation(0, frames, CATACOMBS, ASPECT, dict.fromkeys(range(frames + 1), ORIGIN), tracks, [], 0.0)
-    policy = LiveAim(LinePolicy(yields=True), Viewport(ASPECT).reachable_focal)
+    policy = LiveAim(LinePolicy(yields=True), Viewport(ASPECT).reachable_focal, reach=REACH)
     off = {'companions': {}, 'link': (0.0, 0, 0.0), 'explosion': (0.0, 0.0), 'mark': (0.0, 0), 'mana': (0.0, 0.0, 0.0)}
     production = simulate(situation, [], damage_table(), policy=policy, **off)
     result = run(scenario, today())

@@ -1,5 +1,5 @@
 extends Node
-## Exports takes for the viewer by running the exporter (`python -m inventory_tracking.combat.viz
+## Exports takes for the viewer by running the exporter (`python -m inventory_tracking.builds.warlock.echoing_strike.viz
 ## <take>`, through uv, in the repository) one take at a time, off the main thread, and passes on the
 ## stages it prints (`[2/6] the recorded casts`). The exporter refreshes index.json itself; whoever
 ## hears `finished` reads it again.
@@ -8,7 +8,7 @@ signal progressed(take: String, done: int, total: int, stage: String)
 signal finished(take: String, ok: bool, message: String)  ## message: the exporter's last line
 
 const PROGRAM := "uv"
-const MODULE := "inventory_tracking.combat.viz"
+const MODULE := "inventory_tracking.builds.warlock.echoing_strike.viz"
 
 var _queue: Array[Dictionary] = []
 var _thread: Thread = null

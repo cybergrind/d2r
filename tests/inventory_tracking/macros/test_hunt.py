@@ -16,10 +16,11 @@ import pytest
 from inventory_tracking.builds.generic import GENERIC
 from inventory_tracking.builds.warlock.buffs import CONSUME_RETRY, SIGIL_SECONDS, WARD_SECONDS, Rotation
 from inventory_tracking.builds.warlock.casters import SUMMON_SPOTS
+from inventory_tracking.builds.warlock.echoing_strike.attack import REACH
 from inventory_tracking.builds.warlock.movement import WARP_DELAY
 from inventory_tracking.builds.warlock.skills import BLADE_WARP, DEATH_MARK, ECHOING_STRIKE
 from inventory_tracking.combat.mechanics.tables import points_of
-from inventory_tracking.combat.policy import REACH, Choice
+from inventory_tracking.combat.policy import Choice
 from inventory_tracking.combat.stance import CAMP_REACH
 from inventory_tracking.levels.model import Ground, Level, Room, Walkable, pack_cells
 from inventory_tracking.macros.actuator import Abort

@@ -17,7 +17,8 @@ import time
 from collections.abc import Callable
 from pathlib import Path
 
-from inventory_tracking.combat.policy import REACH, STRIKE_REACH, observe
+from inventory_tracking.builds.warlock.echoing_strike.attack import REACH
+from inventory_tracking.combat.policy import STRIKE_REACH, observe
 from inventory_tracking.combat.takes import Take
 from inventory_tracking.levels.model import Ground, Room, Target, Walkable
 from inventory_tracking.macros.hunt import SIGHT, Hunter, hostiles

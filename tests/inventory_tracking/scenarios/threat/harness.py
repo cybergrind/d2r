@@ -1,5 +1,5 @@
 """A small battlefield with incoming damage, to score where the fight aims (the production simulator
-has none: combat/sim replays recorded monsters and counts only what the blades take).
+has none: the build's sim replays recorded monsters and counts only what the blades take).
 
 The decision under test is the game's own: `today` builds macros/world.py records, passes them through
 combat/policy.py `observe` and asks combat/controller.py `aim_choice` with `LinePolicy`, as
@@ -9,7 +9,7 @@ macros/hunt.py `Hunter.choose` does. The fight never moves the character and nev
 
 The model, all of it:
 
-- 25 ticks a second. A cast occupies the character CAST_FRAMES ticks (combat/sim/input.py); its blades'
+- 25 ticks a second. A cast occupies the character CAST_FRAMES ticks (the build's sim/input.py); its blades'
   damage lands at once (really within 38 frames), per monster what `virtual_cast` gives for that monster
   alone: the emulated blades, the duplicate rule, capped by the life left. No Health Link, Hex Purge,
   Death Mark, mercenary or summons: nothing else kills and nothing else is hit.
@@ -40,20 +40,12 @@ import math
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field, replace
 
+from inventory_tracking.builds.warlock.echoing_strike.attack import OFFSETS, REACH, LinePolicy, virtual_cast
+from inventory_tracking.builds.warlock.echoing_strike.damage import damage_table
+from inventory_tracking.builds.warlock.echoing_strike.sim.input import CAST_FRAMES
 from inventory_tracking.combat.controller import aim_choice
-from inventory_tracking.combat.mechanics.damage import damage_table
 from inventory_tracking.combat.mechanics.tables import tables
-from inventory_tracking.combat.policy import (
-    AIM_BEYOND,
-    MIN_FOCAL,
-    OFFSETS,
-    REACH,
-    Foe,
-    LinePolicy,
-    observe,
-    virtual_cast,
-)
-from inventory_tracking.combat.sim.input import CAST_FRAMES
+from inventory_tracking.combat.policy import AIM_BEYOND, MIN_FOCAL, Foe, observe
 from inventory_tracking.macros.world import LEADER_FLAGS, NO_OWNER, Monster, Player
 from inventory_tracking.terror.danger import DANGER
 from tests.inventory_tracking.scenarios.threat.table import TERROR_LEVEL, base_damage, multiple, row_of, table

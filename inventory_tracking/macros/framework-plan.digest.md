@@ -39,16 +39,22 @@ decision changed that nobody watched (goldens over all fixtures); timing drift (
 a part answering with silence (`Leg = Step | NoWay`); two actors pressing at once; a play
 depending on the wall clock (runner limits patched, determinism test).
 
-**Status (2026-10-12):** Stages 0, 1 and 2 done and committed. Suite: 5580 passed, 8 skipped,
-64 xfailed (the pinned 63 plus the dummy-build-in-arena test, Stage 3.7's target).
-- Stage 0: `99df689` the frozen base, `c51f34a` the golden net (1198 decision cases, 3 replays,
-  15 loop scenarios), `c688712` the gate crash fix; `golden/GATE-base.txt` (214 pass, 227 fail).
-- Stage 1: the arena in `tests/inventory_tracking/scenarios/arena/` (scene, mobs, game, driver,
-  result, moments, stuck, cut, build_scenes, calibrate, trust; 72 scenes cut from takes; the 16
-  threat scenes). **Calibration: 1 of 72 scenes trusted** — the arena is machinery, not yet a
-  judge of safety (architecture.md §6.2.1). Hence the new **Stage 3½** (monster refit) before Stage 4.
-- Stage 2: `macros/build.py` (contracts), `builds/generic.py`, test-only `builds/dummy.py`,
-  contract tests, the ratchet at 67 pairs, `framework-stage3-inventory.md`.
+**Status (2026-10-12):** Stages 0–3 done and committed; the refactor to framework and builds is
+complete with no change of behavior. Suite: 5863 passed, 8 skipped, 63 xfailed (the pinned list).
+- Layout now: `macros/` + `combat/` = the framework (contracts in `macros/build.py`; `movement.py`,
+  `buffs.py`, `travel.py`, `hunt.py`, `runner.py`; `combat/{policy,controller,stance}.py`,
+  `combat/sim/monsters.py`). `inventory_tracking/builds/` = the registry (`BUILDS`, `FALLBACK`),
+  `generic.py`, `characters.py`, `warlock/{skills,movement,buffs,casters}.py`,
+  `warlock/echoing_strike/{attack,build,mechanics,damage,hits,validate,scoreboard,compare,viz}.py`
+  and `sim/`. The runner is handed the registry by `appraisal/service.py` and chooses per run.
+- Guards: golden net (`scenarios/golden/`), the ratchet at 7 named pairs
+  (`tests/inventory_tracking/builds/test_ratchet.py`), contract tests over every build
+  (`builds/test_contracts.py`), the test-only second build that fights in the arena.
+- Commands that moved: the combat gate and simulator tools are
+  `python -m inventory_tracking.builds.warlock.echoing_strike <gate|validate|calibrate|simulate|inputs|policy|compare>`.
+- **Arena calibration: 1 of 72 scenes trusted** (architecture.md §6.2.1): not yet a judge of safety.
 
-**Next:** Stage 3 — detail it from `framework-stage3-inventory.md` and the "Stage 2 results"
-notes in the plan; gate after every task: `decisions.json` byte-identical, xfail list unchanged.
+**Next:** Stage 3½ — refit the arena's monsters (R.1 ranged, R.2 melee to-hit, R.3 targets, R.4 big
+blows, R.5 moves take time, R.6 recalibrate) before any Stage 4 verdict. Stage 4 changes behavior in
+the game: confirm with the user before it goes in. Kept-as-today behaviors that the new design would
+change are listed in `framework-stage3-inventory.md` and the agents' notes for Stage 5.

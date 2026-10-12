@@ -1,45 +1,39 @@
-"""Where to cast Echoing Strike now: one decision for the simulator and for the game (combat/plan.md
-stage 5; the steer of 2026-10-10: the simulated gain belonged to code the game never ran).
+"""Where to cast now: one decision for the simulator and for the game (combat/plan.md stage 5; the
+steer of 2026-10-10: the simulated gain belonged to code the game never ran).
 
 A policy is a callable from an `Observation` (the character, the live hostiles with the points they
-have left, the monsters the Defiler's Health Link holds, the walls, whether the player is moving) to
-a `Choice` (the focal point to cast at and the monster the line was laid through) or None. The
-simulator builds the observation from a take's frame (sim/engine.py); the hunt builds it from the
-game's memory (`observe`, called by macros/hunt.py, and the attack's `sees` for the link). Two policies:
-
-`LinePolicy`, the line sweep: through each live hostile within REACH a virtual cast is laid along the
-line from the character, with the focal point on, short of and past the monster (OFFSETS), and scored
-by the points the emulated blades would take off the monsters where they stand: each contact is worth
-the blade's damage capped by what the monster has left (no credit for overkill), with the duplicate
-rule, and a hit on a linked monster adds the share of its damage to every other linked one, each
-capped by its own points. The best line is cast when it is worth MIN_SCORE. It yields: while the
-player is moving it casts nothing (takeover with yield; `yields=False` is the free variant the
-simulator scores for comparison).
+have left, the monsters a link of the character's own units holds, the walls, whether the player is
+moving) to a `Choice` (the focal point to cast at and the monster the line was laid through) or None.
+A simulator builds the observation from a take's frame (a build's own: builds/warlock/echoing_strike/
+sim/engine.py); the hunt builds it from the game's memory (`observe`, called by macros/hunt.py, and
+the attack's `sees` for the link). What a build's cast is worth and where it goes is the build's
+(macros/build.py `Attack`; the line sweep of the Echoing Strike Warlock is builds/warlock/
+echoing_strike/attack.py `LinePolicy`). One policy is the framework's own:
 
 `NearestPolicy`, the hunt's rule of 2026-10-09: the elite first, then the nearest monster within
-STRIKE_REACH with a clear line, the focal point AIM_BEYOND past it. It is the historical baseline the
-line sweep is compared with on the same takes. The live fight's own fallback (macros/hunt.py
-`Hunter.choose`, for a monster in reach the sweep finds no line for) is a rule of the same shape over
-the blades' full REACH, not this class.
+STRIKE_REACH with a clear line, the focal point AIM_BEYOND past it. It is the historical baseline a
+build's policy is compared with on the same takes. The live fight's own fallback (macros/hunt.py
+`Hunter.choose`, for a monster in reach the attack finds no line for) is a rule of the same shape over
+the attack's full reach, not this class.
+
+`Observation.linked`, `share` and `marked` are the Warlock's facts under plain names (the Defiler's
+Health Link, Death Mark): the fields stay until a second build shows what an attack's own facts are.
 """
 
 import math
-from collections.abc import Callable, Collection, Iterable, Sequence
+from collections.abc import Callable, Iterable, Sequence
 from dataclasses import dataclass, field
 from typing import Any
 
-from inventory_tracking.combat.mechanics.damage import damage_table
-from inventory_tracking.combat.mechanics.echoing_strike import BLADES, LIFE, OUT_FRAMES, RANGE, SPEED, cast
-from inventory_tracking.combat.mechanics.hits import CONTACT_RADIUS
 from inventory_tracking.combat.mechanics.movement import Route
 from inventory_tracking.combat.mechanics.tables import points_of
 
 
 Point = tuple[float, float]
-DUPLICATE = 1 / (2 * BLADES)  # skills.txt calc6 (100 / count) / 2: a cast's blades after the first on a monster and leg
 RUN_MODES = frozenset((2, 3, 6))  # walk, run, town walk: the character is going somewhere
-REACH = RANGE  # units: a monster further than the blades fly is not a line
-OFFSETS = (0.0, -3.0, 4.0)  # focal point along the line relative to the monster: on, short, past (ties: on)
+# The two below are read by the framework and by the build's sweep alike, so they stay here. Both were
+# set with the Echoing Strike Warlock's blades (builds/warlock/echoing_strike/attack.py) and no other
+# attack has tested them.
 MIN_FOCAL = 4.0  # units: no focal point nearer the character than this
 MIN_SCORE = 1.0  # points: a line worth casting along
 ELITE_WEIGHT = (
@@ -90,54 +84,6 @@ class Choice:
 Policy = Callable[[Observation], Choice | None]
 
 
-def virtual_cast(
-    origin: Point,
-    focal: Point,
-    foes: dict[int, Foe],
-    linked: frozenset[int] | set[int],
-    share: float,
-    damage_of: Callable[[int], float],
-    radius: float = CONTACT_RADIUS,
-    blocked: Callable[[Point], bool] | None = None,
-    elite_weight: float = 1.0,
-    lead: int | None = None,
-) -> float:
-    """Points one cast would take off the monsters where they stand (with `lead`, the frames from now
-    to the blades' first frame: where each one's route has it as the blades fly), out and back: the duplicate
-    rule, each contact capped by what the monster has left, and the link's spread to the other
-    linked monsters, each capped by its own points; `blocked` are the walls the blades stop at. Points
-    taken off an elite count `elite_weight` times (the worth of a line, not damage)."""
-    left = {unit: foe.left for unit, foe in foes.items()}
-    total = 0.0
-    first: set[tuple[int, str]] = set()
-    walkers = (
-        {unit: [foe.ahead(lead + k) for k in range(LIFE)] for unit, foe in foes.items() if foe.route is not None}
-        if lead is not None
-        else {}
-    )
-    for path in cast(origin, focal, lambda k: origin, blocked):
-        touched: set[tuple[int, str]] = set()
-        for k, position in enumerate(path):
-            leg = 'out' if k <= OUT_FRAMES else 'back'
-            for unit, foe in foes.items():
-                where = walkers[unit][k] if unit in walkers else foe.at
-                if (unit, leg) in touched or left[unit] <= 0 or math.dist(position, where) > radius:
-                    continue
-                touched.add((unit, leg))
-                dealt = damage_of(foe.txt) * (DUPLICATE if (unit, leg) in first else 1.0)
-                first.add((unit, leg))
-                taken = min(dealt, left[unit])
-                left[unit] -= taken
-                total += taken * (elite_weight if foe.elite else 1.0)
-                if unit in linked:
-                    for other in linked:
-                        if other != unit and left.get(other, 0) > 0:
-                            spread = min(dealt * share, left[other])
-                            left[other] -= spread
-                            total += spread * (elite_weight if foes[other].elite else 1.0)
-    return total
-
-
 def clear_line(blocked: Callable[[Point], bool] | None, start: Point, end: Point) -> bool:
     """Whether nothing `blocked` names lies on the line, both ends left out by LINE_MARGIN."""
     length = math.dist(start, end)
@@ -152,60 +98,13 @@ def clear_line(blocked: Callable[[Point], bool] | None, start: Point, end: Point
 
 
 @dataclass
-class LinePolicy:
-    yields: bool = True  # nothing while the player is moving
-    reach: float = REACH
-    offsets: tuple[float, ...] = OFFSETS
-    damage_of: Callable[[int], float] = field(default_factory=damage_table)
-    elite_weight: float = ELITE_WEIGHT
-    # Frames from the decision to the blades' first frame: lines are laid and scored where the monsters'
-    # routes have them as the blades fly. None: where they stand (the game's fight until it reads routes).
-    lead: int | None = None
-
-    def __call__(self, seen: Observation) -> Choice | None:
-        if self.yields and seen.moving:
-            return None
-        best = self.choose(seen)
-        return best if best is not None and best.worth >= MIN_SCORE else None
-
-    def choose(self, seen: Observation, through: Collection[int] | None = None) -> Choice | None:
-        """The best line through the live hostiles; with `through`, of the lines laid through those."""
-        best: Choice | None = None
-        for unit, foe in seen.foes.items():
-            if through is not None and unit not in through:
-                continue
-            at = foe.at
-            if self.lead is not None:  # through where it is when a blade gets as far as it stands now
-                at = foe.ahead(self.lead + min(round(math.dist(at, seen.origin) / SPEED), OUT_FRAMES))
-            away = math.dist(at, seen.origin)
-            if away > self.reach or away == 0:
-                continue
-            ux, uy = (at[0] - seen.origin[0]) / away, (at[1] - seen.origin[1]) / away
-            for offset in self.offsets:
-                distance = max(MIN_FOCAL, min(away + offset, self.reach - 1))
-                focal = (seen.origin[0] + ux * distance, seen.origin[1] + uy * distance)
-                if seen.aimable is not None:
-                    # The line is scored with the focal point the cast will have, not one off the screen
-                    # that the aim would shorten after the choice (review.md, finding 8).
-                    reached = seen.aimable(focal)
-                    if reached is None:
-                        continue
-                    focal = reached
-                worth = virtual_cast(
-                    seen.origin, focal, seen.foes, seen.linked, seen.share, self.damage_of, blocked=seen.blocked,
-                    elite_weight=self.elite_weight, lead=self.lead,
-                )  # fmt: skip
-                if worth > (best.worth if best is not None else 0.0):
-                    best = Choice(focal, unit, worth)
-        return best
-
-
-@dataclass
 class NearestPolicy:
     yields: bool = False  # the hunt of 2026-10-09 cast whatever the player did
     reach: float = STRIKE_REACH
     beyond: float = AIM_BEYOND
-    damage_of: Callable[[int], float] = field(default_factory=damage_table)
+    # Points a cast takes off a monster of a type: the worth the choice is given, by a build's damage
+    # table. It has no default: the framework has no damage table of its own.
+    damage_of: Callable[[int], float] = field(kw_only=True)
 
     def __call__(self, seen: Observation) -> Choice | None:
         if self.yields and seen.moving:
@@ -244,15 +143,6 @@ def walls(ground: Any, doors: Sequence[Any] = ()) -> Callable[[Point], bool] | N
         return any(door.blocks(point) for door in closed)
 
     return blocked
-
-
-def linked_set(defilers: Iterable[Point], foes: dict[int, Point], link_range: float, links: int) -> frozenset[int]:
-    """The `links` live hostiles nearest a Defiler within its aura range: the ones Health Link holds."""
-    posts = list(defilers)
-    if not posts or not links:
-        return frozenset()
-    near = sorted((min(math.dist(post, at) for post in posts), unit) for unit, at in foes.items())
-    return frozenset(unit for gap, unit in near[:links] if gap <= link_range)
 
 
 def observe(

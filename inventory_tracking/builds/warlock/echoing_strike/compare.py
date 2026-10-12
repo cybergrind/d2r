@@ -14,10 +14,11 @@ import statistics
 from pathlib import Path
 from typing import Any
 
+from inventory_tracking.builds.warlock.echoing_strike.damage import damage_table
+from inventory_tracking.builds.warlock.echoing_strike.sim.situation import cut
 from inventory_tracking.combat.analysis import combat_time
 from inventory_tracking.combat.mechanics.tables import points_of
 from inventory_tracking.combat.policy import RUN_MODES, Foe, NearestPolicy, Observation
-from inventory_tracking.combat.sim.situation import cut
 from inventory_tracking.combat.takes import LIFE_SCALE, Take
 from inventory_tracking.macros.routines import ACTING
 
@@ -29,7 +30,7 @@ def opportunities(take: Take) -> dict[str, Any]:
     """Of the frames with a target for the hunt's rule (a live hostile in reach, the line clear):
     the shares the character spent casting, on the move and standing."""
     situation = cut(take)
-    rule = NearestPolicy()
+    rule = NearestPolicy(damage_of=damage_table())
     frames = casting = running = 0
     for frame in range(situation.start, situation.end + 1):
         foes = {

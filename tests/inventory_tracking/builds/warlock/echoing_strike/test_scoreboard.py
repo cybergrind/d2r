@@ -1,4 +1,4 @@
-"""The regression harness (combat/scoreboard.py) on two cuts of real play checked in as fixtures:
+"""The regression harness (scoreboard.py) on two cuts of real play checked in as fixtures:
 `chaos-manual`, 20 s of the player's own Chaos Sanctuary play (take 20261009T212147Z-108, frames
 2750-3250), and `catacombs-macro`, 17 s of attack mode in the Catacombs (take 20261010T114636Z-37,
 frames 1-420, with the level's walls). The numbers are pinned: a change of the model moves them, and
@@ -9,14 +9,14 @@ from pathlib import Path
 
 import pytest
 
-from inventory_tracking.combat.scoreboard import build, changes, lines
-from inventory_tracking.combat.sim.engine import curves, gate, score, simulate, verdict
-from inventory_tracking.combat.sim.policy import YIELD, candidate, policy_score, run_policy
-from inventory_tracking.combat.sim.situation import MonsterTrack, Situation, cut, describe
+from inventory_tracking.builds.warlock.echoing_strike.scoreboard import build, changes, lines
+from inventory_tracking.builds.warlock.echoing_strike.sim.engine import curves, gate, score, simulate, verdict
+from inventory_tracking.builds.warlock.echoing_strike.sim.policy import YIELD, candidate, policy_score, run_policy
+from inventory_tracking.builds.warlock.echoing_strike.sim.situation import MonsterTrack, Situation, cut, describe
 from inventory_tracking.combat.takes import Take, trim
 
 
-FIXTURES = Path(__file__).parent / 'fixtures'
+FIXTURES = Path(__file__).parents[3] / 'combat' / 'fixtures'  # trimmed takes of real play
 OFF = {'companions': {}, 'link': (0.0, 0, 0.0), 'explosion': (0.0, 0.0), 'mark': (0.0, 0), 'mana': (0.0, 0.0, 0.0)}
 
 
@@ -71,7 +71,7 @@ def test_the_scoreboard_marks_fit_and_held_out_takes_and_prints_a_line_per_take(
     text = lines(board)
     assert text[0].startswith('catacombs-macro')
     assert ' pass ' in text[0]
-    import inventory_tracking.combat.scoreboard as module
+    import inventory_tracking.builds.warlock.echoing_strike.scoreboard as module
 
     monkeypatch.setattr(module, 'fit_takes', lambda: frozenset(('20261010T114636Z-37',)))
     sides = {name: found['side'] for name, found in build(FIXTURES, policies=False, write=False)['takes'].items()}
@@ -189,7 +189,7 @@ def test_the_verdict_fails_on_too_much_as_well_as_too_little():
 
 
 def test_a_monster_a_companion_stood_beside_is_on_the_near_side():
-    from inventory_tracking.combat.sim.situation import CompanionTrack
+    from inventory_tracking.builds.warlock.echoing_strike.sim.situation import CompanionTrack
 
     situation = lone(1000.0, 30, [(20, 1000.0)])
     situation.companions = {9: CompanionTrack(9, 338, {10: (5000.0, 5014.0)})}

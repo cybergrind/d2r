@@ -3,20 +3,12 @@ the hunt's nearest-monster rule, the walls and the link."""
 
 import math
 
-from inventory_tracking.builds.warlock.echoing_strike.attack import ECHOING_STRIKE_ATTACK
-from inventory_tracking.combat.mechanics.damage import link_table
+import pytest
+
+from inventory_tracking.builds.warlock.echoing_strike.attack import ECHOING_STRIKE_ATTACK, LinePolicy, linked_set
+from inventory_tracking.builds.warlock.echoing_strike.damage import link_table
 from inventory_tracking.combat.mechanics.tables import points_of
-from inventory_tracking.combat.policy import (
-    AIM_BEYOND,
-    Foe,
-    LinePolicy,
-    NearestPolicy,
-    Observation,
-    clear_line,
-    linked_set,
-    observe,
-    walls,
-)
+from inventory_tracking.combat.policy import AIM_BEYOND, Foe, NearestPolicy, Observation, clear_line, observe, walls
 from inventory_tracking.levels.doors import Door
 from inventory_tracking.levels.model import Ground, Walkable, pack_cells
 from inventory_tracking.macros.world import Monster, Player
@@ -131,3 +123,10 @@ def test_the_games_records_become_an_observation():
     assert found.moving
     assert found.blocked is None
     assert ECHOING_STRIKE_ATTACK.sees(observe(player, [fresh], []), []).linked == frozenset()  # no Defiler, no link
+
+
+def test_the_hunts_rule_is_given_its_damage_table():
+    # The framework has no damage table of its own: a build's is handed in.
+    with pytest.raises(TypeError):
+        NearestPolicy()  # pyrefly: ignore[missing-argument]
+    assert NearestPolicy(damage_of=flat)(seen((1, (5006.0, 5000.0), False))).worth == 1000.0

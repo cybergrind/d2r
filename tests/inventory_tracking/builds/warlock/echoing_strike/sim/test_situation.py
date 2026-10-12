@@ -6,8 +6,8 @@ import json
 
 import pytest
 
-from inventory_tracking.combat.__main__ import window
-from inventory_tracking.combat.sim.situation import cut, describe
+from inventory_tracking.builds.warlock.echoing_strike.__main__ import window
+from inventory_tracking.builds.warlock.echoing_strike.sim.situation import cut, describe
 from inventory_tracking.combat.takes import Take
 from inventory_tracking.combat.timeline import HOLD_TICKS
 

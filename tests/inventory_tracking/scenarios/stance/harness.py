@@ -1,7 +1,7 @@
 """One recorded fight moment, replayed frame by frame: how fast a where-to-stand strategy clears it.
 
 A fixture is one moment of a take: the character's place, the hostiles with the share of life they have,
-the companions (not modelled), the raw door rows (the `d` rows of a take frame, read as combat/sim/situation.py
+the companions (not modelled), the raw door rows (the `d` rows of a take frame, read as the build's sim/situation.py
 reads them), the walkable grids copied beside the take, and what the game did after (`after`). `load` reads
 one; `scene` builds one by hand for a test. `play` asks a `Strategy` (`stay`, `production()`) whenever the
 character is free and counts what its casts take off the monsters.
@@ -28,15 +28,15 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from inventory_tracking.builds.warlock.echoing_strike.attack import EchoingStrike
+from inventory_tracking.builds.warlock.echoing_strike.attack import DUPLICATE, REACH, EchoingStrike, LinePolicy
+from inventory_tracking.builds.warlock.echoing_strike.damage import damage_table
+from inventory_tracking.builds.warlock.echoing_strike.hits import CONTACT_RADIUS
+from inventory_tracking.builds.warlock.echoing_strike.mechanics import LIFE, OUT_FRAMES, cast
+from inventory_tracking.builds.warlock.echoing_strike.sim.input import BIRTH_LAG, CAST_FRAMES
 from inventory_tracking.combat import stance
 from inventory_tracking.combat.controller import LiveAim
-from inventory_tracking.combat.mechanics.damage import damage_table
-from inventory_tracking.combat.mechanics.echoing_strike import LIFE, OUT_FRAMES, cast
-from inventory_tracking.combat.mechanics.hits import CONTACT_RADIUS
 from inventory_tracking.combat.mechanics.tables import points_of
-from inventory_tracking.combat.policy import DUPLICATE, Foe, LinePolicy, Observation, walls
-from inventory_tracking.combat.sim.input import BIRTH_LAG, CAST_FRAMES
+from inventory_tracking.combat.policy import Foe, Observation, walls
 from inventory_tracking.combat.timeline import GAME_RATE
 from inventory_tracking.levels.doors import Door
 from inventory_tracking.levels.model import Ground, Walkable
@@ -180,7 +180,7 @@ def load(path: str | Path) -> Scene:
         for h in fixture['hostiles']
     )
     grids = tuple(Walkable(**grid) for grid in fixture.get('ground', ()))
-    # The door row as combat/sim/situation.py `cut` reads a take frame's `d` rows (unit, txt, mode, x, y).
+    # The door row as the build's sim/situation.py `cut` reads a take frame's `d` rows (unit, txt, mode, x, y).
     doors = tuple(Door(d[0], d[1], d[2], float(d[3]), float(d[4])) for d in fixture.get('doors', ()))
     player = fixture['player']
     return Scene(
@@ -206,7 +206,7 @@ def play(
     is free. The replay stops when the near bodies are dead (the fight is cleared there), or `linger` frames
     later: the blades in flight keep flying (and hurting) but nothing new is cast or moved. A `trace` is filled."""
     damage_of = damage_table()
-    aim = LiveAim(LinePolicy(yields=True), Viewport(ASPECT).reachable_focal)
+    aim = LiveAim(LinePolicy(yields=True), Viewport(ASPECT).reachable_focal, reach=REACH)
     bodies = {b.unit: b for b in scene.bodies}
     life = {b.unit: b.points * b.life for b in scene.bodies}
     deaths: dict[int, int] = {}

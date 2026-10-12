@@ -1,7 +1,7 @@
 """A fight against monsters that come back: the least the combat simulator lacks for revivers.
 
-combat/sim/engine.py replays a take open loop and a monster dies once. Here the monsters stand where
-a scenario puts them, the blades are the production ones (mechanics/echoing_strike.py `cast`, the
+the build's sim/engine.py replays a take open loop and a monster dies once. Here the monsters stand where
+a scenario puts them, the blades are the production ones (the build's mechanics.py `cast`, the
 contact radius, the duplicate rule, the cast cadence of sim/input.py), and a `Raiser` brings a corpse
 within its range back at full life every `period` frames while it lives itself (the same unit id, as
 the terror tracker's logs of 2026-10-03 show it in the game). `run` measures what a fight achieves in
@@ -30,22 +30,14 @@ import math
 from collections.abc import Callable
 from dataclasses import dataclass, field, replace
 
+from inventory_tracking.builds.warlock.echoing_strike.attack import DUPLICATE, REACH, LinePolicy
+from inventory_tracking.builds.warlock.echoing_strike.damage import damage_table
+from inventory_tracking.builds.warlock.echoing_strike.hits import CONTACT_RADIUS
+from inventory_tracking.builds.warlock.echoing_strike.mechanics import LIFE, OUT_FRAMES, cast
+from inventory_tracking.builds.warlock.echoing_strike.sim.input import BIRTH_LAG, CAST_FRAMES
 from inventory_tracking.combat.controller import LiveAim
-from inventory_tracking.combat.mechanics.damage import damage_table
-from inventory_tracking.combat.mechanics.echoing_strike import LIFE, OUT_FRAMES, cast
-from inventory_tracking.combat.mechanics.hits import CONTACT_RADIUS
 from inventory_tracking.combat.mechanics.tables import points_of
-from inventory_tracking.combat.policy import (
-    DUPLICATE,
-    REACH,
-    STRIKE_REACH,
-    Choice,
-    Foe,
-    LinePolicy,
-    Observation,
-    clear_line,
-)
-from inventory_tracking.combat.sim.input import BIRTH_LAG, CAST_FRAMES
+from inventory_tracking.combat.policy import STRIKE_REACH, Choice, Foe, Observation, clear_line
 from inventory_tracking.combat.timeline import GAME_RATE
 from inventory_tracking.macros.hunt import ELITE_LIFE
 from inventory_tracking.macros.view import Viewport
@@ -258,7 +250,7 @@ def run(scenario: Scenario, fight: Fight, damage_of: Callable[[int], float] | No
 
 def today() -> Fight:
     """The aim the game's fight runs (the simulator's `live` candidate); it never moves the character."""
-    aim = LiveAim(LinePolicy(yields=True), Viewport(ASPECT).reachable_focal)
+    aim = LiveAim(LinePolicy(yields=True), Viewport(ASPECT).reachable_focal, reach=REACH)
     return lambda brief: aim(brief.seen)
 
 
@@ -273,7 +265,7 @@ def weighted(brief: Brief) -> Choice | None:
     weighted: what a `reviver` flag on `Foe` would let `LinePolicy` do."""
     seen = brief.seen
     foes = {unit: replace(foe, elite=unit in brief.raisers) for unit, foe in seen.foes.items()}
-    sweep = LiveAim(LinePolicy(yields=True, elite_weight=REVIVER_WEIGHT), Viewport(ASPECT).reachable_focal)
+    sweep = LiveAim(LinePolicy(yields=True, elite_weight=REVIVER_WEIGHT), Viewport(ASPECT).reachable_focal, reach=REACH)
     return sweep(replace(seen, foes=foes))
 
 

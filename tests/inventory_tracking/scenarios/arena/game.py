@@ -9,7 +9,7 @@ drops and the hover record. `Arena` is that game set up from a `Scene`, with wha
 - the monsters are `Mobs` (mobs.py, the production monster model), ticked with the clock; what the
   macro reads as monsters, the dead and the corpses is theirs;
 - each tick's blows come off the character's life, cut by the resistances of the weapon set in hand;
-- a cast of the strike is the production blades (combat/mechanics/echoing_strike.py `cast`, the
+- a cast of the strike is the production blades (the build's mechanics.py `cast`, the
   contact radius, the duplicate rule, damage.json's points a contact), as scenarios/revivers/harness.py
   and scenarios/stance/harness.py apply them, on `Mobs.hit`; with the `attack` of another build
   (macros/build.py `Attack`) a cast of its skill takes what its `dealt` says, at once, on `Mobs.hit`;
@@ -51,12 +51,13 @@ from pathlib import Path
 from inventory_tracking.automation.heal import HealController
 from inventory_tracking.automation.ledger import LedgerData
 from inventory_tracking.automation.potions import PotionsController
+from inventory_tracking.builds.warlock.echoing_strike.attack import DUPLICATE
+from inventory_tracking.builds.warlock.echoing_strike.damage import damage_table
+from inventory_tracking.builds.warlock.echoing_strike.hits import CONTACT_RADIUS
+from inventory_tracking.builds.warlock.echoing_strike.mechanics import LIFE, OUT_FRAMES, cast
+from inventory_tracking.builds.warlock.echoing_strike.sim.input import BIRTH_LAG
 from inventory_tracking.builds.warlock.skills import BLADE_WARP, ECHOING_STRIKE
-from inventory_tracking.combat.mechanics.damage import damage_table
-from inventory_tracking.combat.mechanics.echoing_strike import LIFE, OUT_FRAMES, cast
-from inventory_tracking.combat.mechanics.hits import CONTACT_RADIUS
-from inventory_tracking.combat.policy import DUPLICATE, Foe, walls
-from inventory_tracking.combat.sim.input import BIRTH_LAG
+from inventory_tracking.combat.policy import Foe, walls
 from inventory_tracking.combat.stance import no_footing, way
 from inventory_tracking.combat.timeline import GAME_RATE
 from inventory_tracking.config import INPUT, HealingConfig

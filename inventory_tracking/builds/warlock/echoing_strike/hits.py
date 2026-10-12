@@ -15,8 +15,8 @@ import math
 from collections.abc import Callable
 from typing import Any
 
-from inventory_tracking.combat.mechanics.echoing_strike import OUT_FRAMES, POINTER_LAG, cast, focal_point
-from inventory_tracking.combat.mechanics.validate import full_casts
+from inventory_tracking.builds.warlock.echoing_strike.mechanics import OUT_FRAMES, POINTER_LAG, cast, focal_point
+from inventory_tracking.builds.warlock.echoing_strike.validate import full_casts
 from inventory_tracking.combat.takes import ground_under_pointer, monsters_of, player_of
 
 

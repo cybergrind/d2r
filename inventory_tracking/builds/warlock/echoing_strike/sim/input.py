@@ -12,7 +12,7 @@ blades' first frames.
 from collections.abc import Callable
 from typing import Any
 
-from inventory_tracking.combat.mechanics.validate import full_casts
+from inventory_tracking.builds.warlock.echoing_strike.validate import full_casts
 
 
 Point = tuple[float, float]

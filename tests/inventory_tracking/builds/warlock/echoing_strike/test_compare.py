@@ -2,11 +2,11 @@
 
 from pathlib import Path
 
-from inventory_tracking.combat.compare import compare, lines, opportunities, row
+from inventory_tracking.builds.warlock.echoing_strike.compare import compare, lines, opportunities, row
 from inventory_tracking.combat.takes import Take, ground_under_pointer, monsters_of, player_of
 
 
-FIXTURES = Path(__file__).parent / 'fixtures'
+FIXTURES = Path(__file__).parents[3] / 'combat' / 'fixtures'  # trimmed takes of real play
 
 
 def test_a_take_is_the_macros_when_most_of_its_casts_were_made_while_a_macro_ran():

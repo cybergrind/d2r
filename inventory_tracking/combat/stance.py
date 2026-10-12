@@ -46,7 +46,9 @@ CLOSING_MOST = 6.0
 AWARE = 20.0  # units: a monster further from the place than this does not come for it (sim/monsters.py)
 WAY_SAMPLE = 0.5  # units between the points looked at along a straight walk
 HORIZON = 3.0  # seconds the worth of a place is counted over: the pack should be dead well within them
-CAST_SECONDS = 0.36  # one cast of a held strike (combat/sim/input.py CAST_FRAMES at 25 frames a second)
+# One cast of a held strike: the Echoing Strike Warlock's (builds/warlock/echoing_strike/sim/input.py
+# CAST_FRAMES at 25 frames a second), and no other attack has tested it.
+CAST_SECONDS = 0.36
 RUN_SPEED = 20.0  # units a second
 WALK_LATENCY = 0.36  # seconds before a walk begins: the cast that has to end, and the click
 ENGAGE = 14.0  # units from the furthest hostile counted on that a jump is best ended at
