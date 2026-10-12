@@ -71,6 +71,21 @@ def test_the_gate_matches_simulated_kills_to_recorded_ones():
     assert report['damage_ratio'] == 0.5
 
 
+def test_the_gate_leaves_out_a_kill_whose_life_at_the_start_was_not_read():
+    """A monster first seen with no life read has nothing to explain a share of: the gate over every take ended
+    with a division by zero on the take 20261011T171708Z-6 (2026-10-12)."""
+    known = standing(1, 5000.0, 5008.0, 1200.0, death=8)
+    unread = MonsterTrack(2, 310, 1200.0, dict.fromkeys(range(61), (5004.0, 5000.0)), 0.0, 30)
+    sit = situation(known, unread)
+    sit.recorded_damage = 1200.0
+    outcome = simulate(
+        sit, [(0, (5000.0, 5008.0))], lambda txt: 1000.0, companions={}, link=NO_LINK, explosion=NO_BLAST
+    )
+    report = gate(sit, outcome)
+    assert report['recorded_kills'] == 2
+    assert report['life_explained_at_recorded_kill']['mean'] == 1.0  # the known one alone, killed in time
+
+
 def test_a_companion_wears_down_the_nearest_hostile_within_its_reach_and_moves_on():
     close, far = standing(1, 5004.0, 5000.0, 1000.0), standing(2, 5005.0, 5000.0, 10_000.0)
     merc = CompanionTrack(9, 338, dict.fromkeys(range(61), (5000.0, 5000.0)))

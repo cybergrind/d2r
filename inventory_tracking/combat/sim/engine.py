@@ -410,7 +410,7 @@ def gate(situation: Situation, outcome: Outcome) -> dict[str, Any]:
     explained = []
     for unit, death in recorded.items():
         track = situation.monsters[unit]
-        if track.points:
+        if track.points and track.life_at_start:  # a life not read at the start: no share to explain
             dealt = sum(points for frame, points in outcome.dealt_by.get(unit, ()) if frame <= death)
             explained.append(min(dealt / (track.points * track.life_at_start), 1.0))
     differences = [outcome.deaths[unit] - recorded[unit] for unit in both]

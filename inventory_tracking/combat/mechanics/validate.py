@@ -25,7 +25,9 @@ def blade_tracks(
     tracks: dict[int, list[tuple[int, Point]]] = collections.defaultdict(list)
     for frame in frames:
         for missile in missiles_of(frame):
-            if txt_ids is None or txt_ids.get(missile.unit) == MISSILE:
+            # A path that was not read in a frame is empty (4 of 129,466 rows in the take 20261011T231408Z-39):
+            # the missile has no place in that frame.
+            if missile.path and (txt_ids is None or txt_ids.get(missile.unit) == MISSILE):
                 tracks[missile.unit].append((frame['n'], path_position(missile.path)))
     return tracks
 

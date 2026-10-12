@@ -2,6 +2,7 @@
 42 frames of the second Chaos Sanctuary take, 2026-10-09, trimmed to the player, the pointer and
 the five blades)."""
 
+import copy
 import json
 import math
 from pathlib import Path
@@ -109,3 +110,14 @@ def test_a_blade_does_not_step_over_a_wall_one_cell_thick():
     for wall in (5005, 5006, 5007, 5008, 5009):
         thin = cast(origin, focal, lambda frame: origin, blocked=lambda p, wall=wall: int(p[1]) == wall)
         assert all(point[1] < wall for path in thin for point in path), wall
+
+
+def test_a_missile_whose_path_was_not_read_in_a_frame_is_left_out_of_that_frame():
+    """Four of the 129,466 missile rows of the take 20261011T231408Z-39 hold an empty path (a read that failed):
+    the gate over every take ended there with a struct.error (2026-10-12)."""
+    frames = copy.deepcopy(FIXTURE['frames'])
+    (_, whole), *_ = full_casts(frames)
+    unread = next(frame for frame in frames[12:] if frame.get('x'))
+    unread['x'][0][5] = ''
+    (_, blades), *_ = full_casts(frames)
+    assert sorted(len(blade) for blade in blades) == sorted([len(whole[0]) - 1, *(len(blade) for blade in whole[1:])])
