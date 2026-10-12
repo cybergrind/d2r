@@ -1,0 +1,51 @@
+{
+ "_source": "d2data misc.json (pricing/raw/d2data, read 2026-10-12): classid, stat1/calc1, len (frames, 25 a second).",
+ "_note": "A healing potion gives `points` over `frames` before any class or Vitality factor: the factor of the character is not in this table and is fitted from the takes (arena calibration). A rejuvenation gives `share` percent of the most life and mana at once.",
+ "602": {
+  "code": "hp1",
+  "name": "Minor Healing Potion",
+  "kind": "healing",
+  "points": 30,
+  "frames": 192
+ },
+ "603": {
+  "code": "hp2",
+  "name": "Light Healing Potion",
+  "kind": "healing",
+  "points": 60,
+  "frames": 160
+ },
+ "604": {
+  "code": "hp3",
+  "name": "Healing Potion",
+  "kind": "healing",
+  "points": 100,
+  "frames": 171
+ },
+ "605": {
+  "code": "hp4",
+  "name": "Greater Healing Potion",
+  "kind": "healing",
+  "points": 180,
+  "frames": 192
+ },
+ "606": {
+  "code": "hp5",
+  "name": "Super Healing Potion",
+  "kind": "healing",
+  "points": 320,
+  "frames": 256
+ },
+ "530": {
+  "code": "rvs",
+  "name": "Rejuvenation Potion",
+  "kind": "rejuvenation",
+  "share": 35
+ },
+ "531": {
+  "code": "rvl",
+  "name": "Full Rejuvenation Potion",
+  "kind": "rejuvenation",
+  "share": 100
+ }
+}

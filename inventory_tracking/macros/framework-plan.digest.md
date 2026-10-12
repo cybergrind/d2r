@@ -39,5 +39,16 @@ decision changed that nobody watched (goldens over all fixtures); timing drift (
 a part answering with silence (`Leg = Step | NoWay`); two actors pressing at once; a play
 depending on the wall clock (runner limits patched, determinism test).
 
-**Status:** plan written and independently reviewed 2026-10-12 (findings folded in); nothing started.
-Open for the user: freeze the tree; how many more replays Task 0.5 should script.
+**Status (2026-10-12):** Stages 0, 1 and 2 done and committed. Suite: 5580 passed, 8 skipped,
+64 xfailed (the pinned 63 plus the dummy-build-in-arena test, Stage 3.7's target).
+- Stage 0: `99df689` the frozen base, `c51f34a` the golden net (1198 decision cases, 3 replays,
+  15 loop scenarios), `c688712` the gate crash fix; `golden/GATE-base.txt` (214 pass, 227 fail).
+- Stage 1: the arena in `tests/inventory_tracking/scenarios/arena/` (scene, mobs, game, driver,
+  result, moments, stuck, cut, build_scenes, calibrate, trust; 72 scenes cut from takes; the 16
+  threat scenes). **Calibration: 1 of 72 scenes trusted** — the arena is machinery, not yet a
+  judge of safety (architecture.md §6.2.1). Hence the new **Stage 3½** (monster refit) before Stage 4.
+- Stage 2: `macros/build.py` (contracts), `builds/generic.py`, test-only `builds/dummy.py`,
+  contract tests, the ratchet at 67 pairs, `framework-stage3-inventory.md`.
+
+**Next:** Stage 3 — detail it from `framework-stage3-inventory.md` and the "Stage 2 results"
+notes in the plan; gate after every task: `decisions.json` byte-identical, xfail list unchanged.

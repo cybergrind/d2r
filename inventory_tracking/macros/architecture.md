@@ -869,6 +869,49 @@ charges — printed before and after a change, as the corpus score is for the ap
 The six standing xfails of the threat scenarios become arena scenes and go green one by one
 (strict: removed as they pass).
 
+### 6.2.1 What calibration said (2026-10-12): the arena is not to be believed yet
+
+The arena was built (framework-plan.md, Stage 1) and its monsters held against the 72 scenes
+cut from recordings: the player's recorded places, casts and potions replayed, the monsters the
+model's, the life lost on both sides compared over 8 s
+(`tests/inventory_tracking/scenarios/arena/fixtures/CALIBRATION.md`). **One scene of 72 is
+trusted.** 33 had nothing to measure (neither world lost 90 points); of the 29 with a ratio the
+arena took a median of 1.86 times what the take lost, 3.17 times in sum, from 0 to 25 times.
+
+- *Many more, smaller blows.* 688 blows in the arena (median 85 points) against 128 drops in
+  the takes (median 136). The rate is off more than the size.
+- *The ranged model is the biggest part.* A ranged monster lands one shot a second on anything
+  within 30 units in a clear line, and no missile can miss: 392 shots carried 2.5 times all the
+  life the takes lost. Black Soul scenes: 10 to 28 times.
+- *Melee in contact is too frequent* (Ice Spawn scenes 4.8 times, Blood Clan 4.1): no chance
+  to hit, no block, and the main set's physical resistance is not known and taken as none.
+- *Melee is missing where the takes had it* (7 scenes under half): monsters go for a companion
+  where the recording shows them on the character.
+- *The takes' damage comes as rare big drops the arena has no blow for.* In 8 scenes one drop of
+  322 to 1,051 points, where the heaviest blow the arena's monsters can deal is 93 to 370. In
+  the death scene the Herald struck from 8.9 units; the model's reach is 3.2 and its top blow
+  370, so the arena's character lives. One was a Cold Enchanted death nova, which is not
+  modelled at all.
+- *Kills agree far better than life*: the arena kills about a fifth fewer (median ratio 0.81).
+- One factor on every blow (0.47) centres the median and leaves the spread: not a mend.
+
+What follows from it:
+
+- The arena is sound as *machinery* (production code plays in it, deterministically; the 16
+  threat scenes agree with the threat harness in direction in 13) and is what Stages 2 and 3
+  need of it. It is **not** yet a judge of safety: Stage 4's verdicts need the monster model
+  refitted first, and until then a scene cut from a recording is skipped by `needs_trust`.
+- The refit, in the order the misses point to: the ranged attacker (a missile that flies and can
+  miss, a rate from the takes); a melee chance to hit and the physical resistance; whom a
+  monster goes for; the big single blows (an elite's reach and top blow, death novas). Per-type
+  rates need the drops dealt by one monster alone: `combat/hurts.py` over all takes, or
+  `terror/exposure.py`'s rates. This is a task of its own before Stage 4 (framework-plan.md).
+- Also for Stage 4, from the arena itself: walks, hops and warps are instant there (the
+  character is never hit on the way), which flatters any repositioning rule; and the standalone
+  healer sends no potion while any key is held (`input/facade.py` `guard`, KEY_HELD) — with the
+  strike held on its key and not on the right button, `make osd` drank nothing for the whole
+  hold. The "urgent only" part given to `make osd` (4.4) does not hold while a key is down.
+
 ### 6.3 In the game
 
 Latency traces (latency.jsonl) for every new path that preempts: a break-off must reach its

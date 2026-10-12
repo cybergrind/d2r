@@ -8,6 +8,10 @@ Recorded 2026-10-12 on branch `combat-framework`, on the tree frozen as commit `
 None of the 63 expected failures below may change state in Stages 0–3. The 13 of
 `scenarios/threat/test_scenarios.py` are Stage 4's targets.
 
+Added by Stage 2 on purpose (2026-10-12), and Stage 3.7's target:
+`tests/inventory_tracking/scenarios/arena/test_dummy_in_arena.py::test_the_second_build_clears_a_scene_with_its_own_attack`.
+With it the suite reads 5580 passed, 8 skipped, 64 xfailed.
+
 ## Expected failures
 
 - tests/inventory_tracking/scenarios/battle/test_baseline.py::test_the_model_takes_the_heralds_life_when_the_game_did

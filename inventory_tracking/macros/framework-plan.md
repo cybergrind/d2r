@@ -225,9 +225,13 @@ Stage 5 can add them, and Stage 1 does not play KP_4.
 
 ### Task 1.0 (M): what the briefs need and no agent may guess
 
-- [ ] Potion values: `combat/mechanics/tables.py` reads no `misc.txt` today. Add the fields a
-  belt potion needs (points or share, frames) to `tables.build` from the d2data dump, with a
-  test, and paste the resulting table into Task 1.5's brief.
+- [x] Potion values (done 2026-10-12): `arena/potions.json`, by item class id, from the d2data
+  dump (`pricing/raw/d2data/misc.json`: `calc1`, `len`). Not put into `tables.build`, which
+  needs the game's install and is production's. A healing potion's points are before the
+  class and Vitality factor, which the dump does not hold: the arena takes it as a parameter
+  and calibration (1.9) fits it from the refills in the takes.
+- [x] The belt is item class ids by cell (`macros/world.py` `Loot.belt`), not codes: `Hero.belt:
+  tuple[int | None, ...]`; `Result.potions` carries the class id.
 - [ ] Write the data-source table of Task 1.8 against three real takes and correct it.
 
 ### Task 1.1 (H): `scene.py`
@@ -320,6 +324,8 @@ Kinds: `death`; `burst` (30% of max life within 1.0 s, as `terror/bursts.py` SHA
 `potions` (3 presses of belt keys within 10 s — the take's `keys` events); `long` (hostiles
 within 30 units for 20 s); `stuck` (3 routine presses in 5 s with the character moved under
 `teleport.MOVED` — routine presses are lines of the probe log, so only when `probe` is given).
+*As briefed 2026-10-12:* `moments(take, *, belt_keys)` with `death`, `burst`, `potions`, `long`; `stuck`
+needs the probe log's format and moves to Task 1.8 (C).
 A take of schema 1 (no vitals) gives no `death`, `burst` or `potions`. Tests on hand-made
 frame and event lists, one per kind and one for schema 1.
 
@@ -535,6 +541,28 @@ goldens unchanged; Task 2.1's table of the three places reviewed with the user i
 
 ---
 
+### Stage 2 results (2026-10-12), to be used when Stage 3 is detailed
+
+- The contracts are `inventory_tracking/macros/build.py`; where they differ from the sketch above
+  and why, and every place today's code leans on the Warlock (file, line, the method that
+  replaces it, the risk), is in [framework-stage3-inventory.md](framework-stage3-inventory.md).
+  `Attack` is `skill`, `reach`, `sees`, `aim`, `dealt`; `MovementSet` also has `jumps` and `wait`.
+- The ratchet starts at 67 pairs (`tests/inventory_tracking/builds/test_ratchet.py`).
+- What writing a second build showed the contract leaves open — each to be settled in the
+  Stage 3 task that first meets it, by changing `build.py` and its contract test together:
+  1. `eta` and `leg` are two calls that must agree; nothing makes them. Give sets one shared
+     decision (a base class or a function both derive from) in 3.2.
+  2. `NoWay` says "arrived" and "blocked" the same way; a caller that tries the next set on a
+     block and stops on arrival has to tell them apart: a kind on `NoWay`, in 3.1.
+  3. Whether `leg` may be asked of a set whose `applies` is false: say no, and have the
+     navigator hold to it (3.2).
+  4. A goal nearer than `Intent.short`: `NoWay` (arrived), not a step back (3.1).
+  5. `Build.applies` with no character in the world (a loading screen): false, by contract
+     and by `choose` (3.9).
+  6. `Attack.sees` returning a changed `Observation`: a copy, never the one given (3.7).
+  7. The buff contract test has run against no `Buff` yet; a caster's "ask again in N seconds"
+     (five back-dated timestamps today) needs a field or a return value (3.5).
+
 ## Stage 3 — the Warlock moves into `builds/` (outline)
 
 No change of behavior: after *every* task `decisions.json` is byte-identical (a task may edit
@@ -570,6 +598,23 @@ Parallel groups: {3.1} → {3.2, 3.4} → {3.3, 3.5} → {3.6} → {3.7} → {3.
 What may honestly remain outside `builds/` after Stage 3 (the residue, to be confirmed then):
 `combat/hurts.py` and `combat/__main__.py` reports that name the strike in their output, and
 data files under `combat/data/`.
+
+## Stage 3½ — the arena's monsters refitted (before any safety verdict)
+
+Added 2026-10-12 from Stage 1's calibration (architecture.md §6.2.1): 1 scene of 72 trusted.
+Not needed by Stage 3, whose judge is the golden net; needed before Stage 4, whose judge is the
+arena. `combat/sim/monsters.py` is production code that nothing in play calls yet, so a refit
+changes no behavior in the game; the combat gate's table and `test_monsters_fit.py` are its
+guards.
+
+| Task | Who | What | Measure |
+| --- | --- | --- | --- |
+| R.1 | C | the ranged attacker: a missile with a flight and a chance to miss, a rate per type from the takes (`hurts.py` rows with a missile near) | Black Soul, Dark Archer, Temptress scenes' ratios |
+| R.2 | C | melee: a chance to hit (`A1TH` against the character's defence and block), the main set's physical resistance read or fitted | Ice Spawn, Blood Clan scenes |
+| R.3 | C | whom a monster goes for: the character against its companions, from the takes' path records (`TARGET_UNIT`) | the scenes under half |
+| R.4 | C | the big single blows: an elite's and a Herald's reach and top blow, death novas of enchanted monsters | the 8 scenes with a drop the arena cannot deal; the death scene dies |
+| R.5 | C | the arena's own: a walk, a hop and a warp take their time and the character can be hit on the way (`Arena.act`) | stance scenes replayed |
+| R.6 | M | calibration rerun; the trusted share and what is still off written to architecture.md | more than half of the scenes with a ratio trusted, or the user decides what Stage 4 may be judged on |
 
 ## Stage 4 — safety (outline)
 
