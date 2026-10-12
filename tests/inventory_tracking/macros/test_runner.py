@@ -808,6 +808,32 @@ def test_the_teleport_step_of_a_character_no_build_claims_hops_by_the_staff():
     assert play.said[-2].startswith('Teleport toward Next level')
 
 
+def test_with_a_pack_by_the_seal_the_teleport_step_takes_the_main_weapons_and_fights_first():
+    from tests.inventory_tracking.macros import test_hunt as hunts
+
+    play = hunts.game(*hunts.pack(5))
+    play.sets.reverse()  # the staff's set in hand, as after the hops there
+    play.staff = replace(hunts.STAFF, in_hand=True)
+    runner, run, _ = building(play, hunts.hunter(play))
+    runner.target = lambda: hunts.seal()
+    runner.perform(run, run.actuator, 'teleport', hunts.keys)
+    assert play.pressed() == ['c']  # the swap, and no hop into the pack
+    assert play.staff.in_hand is False
+    assert runner.attack_mode is True
+    assert play.said[0] == '5 monsters by the seal: the fight first'
+
+
+def test_with_no_pack_by_the_seal_the_teleport_step_goes_there():
+    from tests.inventory_tracking.macros import test_hunt as hunts
+
+    play = hunts.game(*hunts.pack(2))
+    runner, run, _ = building(play, hunts.hunter(play))
+    runner.target = lambda: hunts.seal()
+    runner.perform(run, run.actuator, 'teleport', hunts.keys)
+    assert 'c' not in play.pressed()
+    assert not any('the fight first' in said for said in play.said)
+
+
 def test_the_teleport_step_of_the_warlock_is_the_step_it_was():
     from tests.inventory_tracking.macros import test_teleport as steps
 

@@ -3632,3 +3632,22 @@ rejuv potions and almost all hp potions"; "ideally, we want to run CS without dr
   Cellar 5 "as it was" pins the rule off.
 - Still the larger part, and not done: the approach. The teleport step lands at a seal in the pack with the
   staff's set in hand; no place chosen after that makes the fight cheap.
+
+## 2026-10-13, night — the approach: no hop to a mark a pack stands by
+
+The seal fights of 2026-10-12 21:24 and 2026-10-13 00:09 were lost before they began: the teleport step went
+to the second Infector seal, 35 to 40 units off, with 8 and 7 hostiles within 12 units of the seal (25 and
+23 within 30 of the landing) and the staff's set in hand (user: "diving into big pack with staff in hand -
+could be fatal"; "ideally, we want to run CS without drinking most of our potions").
+
+- **Now** (`Hunter.pack_ahead`, runner.py's teleport step): when the mark is an object the step will stand
+  at and use (a seal, a chest, a body: not a way on), within 45 units, and more than 3 hostiles stand
+  within 12 units of it, the press does not hop there. It says "N monsters by <mark>: the fight first",
+  takes the main weapons, and is the pickup key's step with hostiles near: the sweep, attack mode on,
+  which goes to the places the stance gives (none in the middle of a pack) and fights from there. A press
+  with the pack down to 3 or fewer by the mark goes on to it.
+- On the two recorded games the rule fires at that seal in both (8 and 7 by the mark when it first came
+  within 45 units), and once more at the first Vizier seal (4 by it).
+- Not in the arena: the teleport step and the route are not played there (Stage 5 and 6), so this is
+  tested on the fakes and counted on the takes only. Not played in the game.
+- Presence again, not potential damage: four slow monsters by a chest stop the step as a seal pack does.

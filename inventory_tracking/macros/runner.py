@@ -50,7 +50,7 @@ from inventory_tracking.macros.journey import Journey
 from inventory_tracking.macros.latency import Press, Trace
 from inventory_tracking.macros.opening import open_near
 from inventory_tracking.macros.pickup import pick_up, wanted, worth_a_stop
-from inventory_tracking.macros.routines import prebuff_keys, run_macro
+from inventory_tracking.macros.routines import prebuff_keys, run_macro, take_battle_weapons
 from inventory_tracking.macros.skills import character_bindings, skill_keys
 from inventory_tracking.macros.teleport import LOST_KEY, step_toward
 from inventory_tracking.macros.timing import Pace
@@ -607,6 +607,14 @@ class MacroRunner:
                     # The step does not leave a valuable behind: this press takes it, the next hops.
                     LOG.info('Macro: the teleport step takes %s first', drop.label)
                     pick_up(run, walker.level() if walker.level is not None else None, key_names, lambda: None)
+                elif card is not None and (crowd := walker.pack_ahead(run, card)):
+                    # No hop into a pack that stands where the step would stand (user, 2026-10-12: "diving into
+                    # big pack with staff in hand - could be fatal"): the main weapons, and the fight from where
+                    # the character is, by the sweep's own places. The press after the pack is dead goes on.
+                    run.say(f'{crowd} monsters by {card.label}: the fight first')
+                    take_battle_weapons(run)
+                    walker.step(run, key_names)
+                    self.attack_mode = True
                 elif card is not None and walker.boss_step(run, card, key_names):
                     pass  # the boss stands where its mark has no shot at it: the step went for the boss
                 else:
