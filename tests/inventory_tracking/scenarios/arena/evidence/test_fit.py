@@ -10,10 +10,9 @@ from tests.inventory_tracking.scenarios.arena.evidence.fit import (
     EVIDENCE,
     FITTED,
     SPARKS,
+    SWINGS,
     curve,
-    cut_frames,
     middle,
-    rest,
 )
 
 
@@ -27,15 +26,21 @@ def sparks() -> dict:
     return json.loads(SPARKS.read_text())
 
 
-def test_the_fit_in_the_repository_is_what_the_generator_writes_from_the_train_half(evidence, sparks):
+@pytest.fixture(scope='module')
+def swings() -> dict:
+    return json.loads(SWINGS.read_text())
+
+
+def test_the_fit_in_the_repository_is_what_the_generator_writes_from_the_train_half(evidence, sparks, swings):
     """Nothing in data/monsters_fit.json is typed by hand: the generator gives the same file again.
     (The missile speeds are the file's own here: the game's tables are not in git.)"""
     written = json.loads(FITTED.read_text())
-    assert fitting.fit(evidence, fitting.kept_speeds(FITTED), sparks) == written
+    assert fitting.fit(evidence, fitting.kept_speeds(FITTED), sparks, swings) == written
 
 
-def test_the_fit_reads_the_train_half_only(evidence, sparks):
+def test_the_fit_reads_the_train_half_only(evidence, sparks, swings):
     lone = {key: value for key, value in sparks.items() if key != 'check'}
+    swung = {key: value for key, value in swings.items() if key != 'check'}
     without = {key: value for key, value in evidence.items() if key not in ('check', 'all')}
     without['types'] = {
         txt: {part: ({**found, 'check': None} if isinstance(found, dict) and 'check' in found else found)
@@ -43,7 +48,7 @@ def test_the_fit_reads_the_train_half_only(evidence, sparks):
         for txt, row in evidence['types'].items()
     }  # fmt: skip
     without['big_drops'] = [drop for drop in evidence['big_drops'] if drop['half'] == 'train']
-    assert fitting.fit(without, fitting.kept_speeds(FITTED), lone) == json.loads(FITTED.read_text())
+    assert fitting.fit(without, fitting.kept_speeds(FITTED), lone, swung) == json.loads(FITTED.read_text())
 
 
 def test_the_sparks_are_fitted_on_the_train_half_of_their_own_evidence(sparks):
@@ -97,13 +102,49 @@ def test_a_type_under_the_evidences_thresholds_has_no_row(evidence):
     assert written['melee']['idle'] == evidence['train']['melee_all']['left_out']
 
 
-def test_the_rest_after_a_swing_makes_the_measured_rate():
-    # 1.0 swings a second of 16 frames, none cut: 25 frames a swing, 9 of them rest.
-    assert rest(1.0, 16, 0.0) == 9.0
-    # Half of them cut short to 1 to 7 frames (4 at the mean): 10 frames of swing a cycle, 15 of rest.
-    assert cut_frames(16) == 4.0
-    assert rest(1.0, 16, 0.5) == 15.0
-    assert rest(5.0, 16, 0.0) == 0.0  # never under nothing
+def test_the_swings_are_fitted_on_the_train_half_of_their_own_evidence(evidence, swings):
+    """swings.json's train half and nothing else: a check half made up gives the same fit, and each number
+    is one the evidence holds."""
+    train = swings['train']
+    found = fitting.melee(evidence, swings)
+    made_up = {
+        'ran_out': {'stood': {'value': 0.99, 'low': 0.99, 'high': 0.99, 'n': 999}},
+        'types': {'310': {'ran_out': {'stood': {'value': 0.99, 'n': 999}}}},
+        'rest': {'knots': [99] * 11},
+    }
+    assert fitting.melee(evidence, {**swings, 'check': made_up}) == found
+    life = found['pooled']['takes_life']
+    stood = train['ran_out']['stood']
+    assert (life['value'], life['low'], life['high'], life['n']) == (
+        stood['value'],
+        stood['low'],
+        stood['high'],
+        stood['n'],
+    )
+    assert life['value'] == middle(stood['low'], stood['high'])
+    assert life['alone'] == {'value': train['ran_out']['alone']['value'], 'n': train['ran_out']['alone']['n']}
+    assert found['blow'] == {'share': train['blow']['share'], 'n': train['blow']['n']}
+    assert found['rest']['knots'] == train['rest']['knots']
+    assert found['stagger']['mode'] == train['recovery']['mode']
+    assert [band['chance'] for band in found['stagger']['bands']] == [
+        band['chance'] for band in train['stagger']['bands']
+    ]
+    assert found['stagger']['recovery']['knots'] == train['stagger']['recovery']['knots']
+
+
+def test_a_type_has_a_chance_of_its_own_only_with_enough_swings_that_ran_out(evidence, swings):
+    enough = swings['constants']['enough_swings']
+    found = fitting.melee(evidence, swings)
+    for txt, row in found['types'].items():
+        own = swings['train']['types'].get(txt, {'ran_out': {'stood': {'n': 0}}})['ran_out']['stood']
+        if own['n'] >= enough:
+            assert (row['takes_life']['value'], row['takes_life']['n']) == (own['value'], own['n'])
+        else:
+            assert row['takes_life'] == {**found['pooled']['takes_life'], 'pooled': True}
+    # No row of the Chaos Sanctuary's Doom Knights: the train half holds two of their swings (SWINGS.md).
+    doom_knight = next(txt for txt, row in swings['check']['types'].items() if row['name'] == 'Doom Knight')
+    assert doom_knight not in found['types']
+    assert swings['train']['types'][doom_knight]['ran_out']['stood']['n'] < enough
 
 
 def test_the_middle_of_two_bounds_and_the_curve_through_a_drops_quantiles():
@@ -138,7 +179,17 @@ def test_a_row_is_judged_by_after_over_measured():
 
 
 def test_the_check_names_every_mechanism_and_says_what_the_model_was_before(rows):
-    assert {row.mechanism for row in rows} == {'melee', 'target', 'ranged', 'nova', 'size', 'big', 'death', 'sparks'}
+    assert {row.mechanism for row in rows} == {
+        'melee',
+        'swing',
+        'target',
+        'ranged',
+        'nova',
+        'size',
+        'big',
+        'death',
+        'sparks',
+    }
     life = named(rows, 'pooled row', 'life a second in reach')
     assert life.before > 50 > life.after > 1  # every swing landed before the refit
     shots = named(rows, 'pooled row', 'shots a second')
@@ -155,9 +206,14 @@ def test_the_pooled_mechanisms_are_within_a_factor_of_two_of_the_check_half(rows
     outside the band is in the refit's report; this is the floor that must not give way.)"""
     for words in (
         ('pooled row', 'swings a second'),
-        ('pooled row', 'cut short'),
-        ('pooled row', 'whole swings that takes life'),
+        ('pooled row', 'share of swings that runs out'),
+        ('pooled row', 'swings run out that takes life'),
         ('pooled row', 'life a second in reach'),
+        ('frames of rest',),
+        ('where in a swing the blow lands',),
+        ('4/16 or more', 'staggers'),
+        ('0/16 to 1/16', 'staggers'),
+        ('frames a stagger lasts',),
         ('pooled', 'the character nearer'),
         ('pooled', 'a companion nearer'),
         ('pooled row', 'shots a second'),
@@ -199,3 +255,37 @@ def test_the_spark_rows_say_what_the_model_was_and_is(rows):
 def test_the_check_is_the_same_twice(evidence):
     first, second = refit_check.melee_rows(evidence, 200.0)[0], refit_check.melee_rows(evidence, 200.0)[0]
     assert first == second
+
+
+def test_the_swing_rows_say_what_the_model_was_and_is(rows):
+    rest = named(rows, 'frames of rest')
+    assert (rest.before, rest.after) == (10.47, 15)  # a rest that made the measured rate; the measured rest
+    assert named(rows, 'where in a swing the blow lands').before == 0.5
+    assert named(rows, '4/16 or more', 'staggers').before == 0.0  # nothing staggered
+    out = named(rows, 'pooled row', 'share of swings that runs out')
+    assert out.before == 1.0 > out.after > 0.2  # struck as the check half's were, most swings do not run out
+    # The Chaos Sanctuary's Doom Knights play by the pooled chance: the check half saw 20 of their swings
+    # run out or more, the train half one (the row says what is missing).
+    doom = named(rows, 'Doom Knight', 'no chance of its own')
+    assert (doom.before, doom.after) == (0.161, pytest.approx(0.296))
+    assert 'train: 1 such swings, 30 needed' in doom.note
+
+
+def test_a_monster_played_with_the_ends_of_a_halfs_swings_loses_those_swings():
+    """refit_check.play with a half's `ends`: without them every swing runs out; with them the share that
+    staggered or died does not (but for the staggers the model's own roll refuses), and takes less life."""
+
+    def devilkin():
+        return refit_check.fighter(1, 21, (refit_check.BESIDE, 0.0), 85)
+
+    def ends(ran_out: int, staggered: int, died: int) -> dict:
+        return {'ran out': {'n': ran_out}, 'staggered': {'n': staggered}, 'died': {'n': died}}
+
+    calm = refit_check.play(devilkin(), 400.0, 3)
+    assert calm.whole >= calm.begun - 1
+    assert calm.landed == len(calm.blows)
+    reeling = refit_check.play(devilkin(), 400.0, 3, ends=ends(50, 50, 0))
+    assert reeling.whole / reeling.begun == pytest.approx(0.5 + 0.5 * 0.07, abs=0.06)  # 0.93 of such hits stagger
+    dying = refit_check.play(devilkin(), 400.0, 3, ends=ends(25, 0, 75))
+    assert dying.whole / dying.begun == pytest.approx(0.25, abs=0.05)
+    assert len(dying.blows) / dying.begun < len(calm.blows) / calm.begun

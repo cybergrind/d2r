@@ -4,30 +4,39 @@ evidence and from nothing else:
     uv run --offline python -m tests.inventory_tracking.scenarios.arena.evidence.fit
         [--excel pricing/raw/game-excel]
 
-reads `evidence.json` and `sparks.json` beside this file and writes
+reads `evidence.json`, `sparks.json` and `swings.json` beside this file and writes
 `inventory_tracking/combat/data/monsters_fit.json`. No number of that file is typed by hand: each is a
-figure of `evidence.json['train']` (or of `['types'][txt][...]['train']`) or of `sparks.json['train']`,
-or is counted from such figures here, and carries its `n`. The check half of neither is read. A type
-under the evidence's own thresholds (`evidence.json['thresholds']`: 30 s within reach or 10 sole blows
-for a melee type, 20 shots for a shooter, 30 s in each cell of whom a type goes for; OWN_CHANCE times
-the 20 shots for a shooter's own chance to take life) has no row and the model uses the pooled one.
+figure of `evidence.json['train']` (or of `['types'][txt][...]['train']`), of `sparks.json['train']` or
+of `swings.json['train']`, or is counted from such figures here, and carries its `n`. The check half of
+none is read. A type under the evidence's own thresholds (`evidence.json['thresholds']`: 30 s within
+reach or 10 sole blows for a melee type, 20 shots for a shooter, 30 s in each cell of whom a type goes
+for; OWN_CHANCE times the 20 shots for a shooter's own chance to take life; swings.py ENOUGH_SWINGS
+swings run out with the character standing for a melee type's own chance) has no row, or no chance of
+its own, and the model uses the pooled one.
 
 What is decided here, not measured (each said where it is used):
 
 - **the chance that a swing takes life is the middle of the evidence's two bounds**: `low` counts the
   drops put on that monster alone, `high` those it shares with other suspects too. A shared drop
-  has two suspects or more, so the truth is under `high`; the middle is taken. For a shot the bounds
-  are seven times apart (a drop with the missiles of several shooters near is a hit of each), so
-  there the chance is counted in points (`shot_row`); with it a shooter in sight takes 0.56 points
-  a second where the train half shows 0.42 to 0.70, with the middle of the counts it would take 1.3;
-- **the figures with the character standing still** (`stood`) are used for those chances, because the
-  model plays the character's moves itself (a blow lands only if the target is still in reach, a
-  missile flies to where its target stood): the chance fitted here is what is left: a miss, a block,
-  a blow the character's own protection took. They cannot be told apart. A melee type has 16 to 67
-  swings with the character standing, too few for a chance of its own, so its chance is that of
-  all its whole swings at the character raised by the pooled share of standing over all (`moving`);
-- **a swing cut short** lasts a whole number of frames under half the swing, each as likely; the
-  pause after a swing is what makes the swings a second come out as measured;
+  has two suspects or more, so the truth is under `high`; the middle is taken. In a pack nearly every
+  drop is shared, so there `low` says little and the middle is nearer a half of `high` than the truth
+  (SWINGS.md: Doom Knights). For a shot the bounds are seven times apart (a drop with the missiles of
+  several shooters near is a hit of each), so there the chance is counted in points (`shot_row`); with
+  it a shooter in sight takes 0.56 points a second where the train half shows 0.42 to 0.70, with the
+  middle of the counts it would take 1.3;
+- **a swing's chance is that of the swings that ran out** (swings.py: the frame after the run shows the
+  monster neither staggering nor dead), with the character standing still: the model plays the
+  character's moves itself (a blow lands only if the target is still in reach) and, since 2026-10-13,
+  what the character's strikes do to a swing (a struck monster staggers and its swing is lost; a dead
+  one is gone). What is left in the chance is a miss, a block, a blow the character's own protection
+  took: they cannot be told apart. Before, the chance was that of all swings of half their length or
+  more (one in six) and a share of swings was cut short by a roll: a character that did not strike
+  was then hurt as seldom as one that did (the incident `infector-seal`);
+- **the rest after a swing, the frame the blow lands at, a struck monster's stagger** are swings.json's
+  figures as they are: the deciles of the gap to the same monster's next swing, the median place of a
+  sole drop in its run, the share of the falls of a monster's life of each size that were followed by
+  its stagger and the deciles of how long that lasted. `rate` and `cut` stay in a row as rates.py
+  counted them over all swings, struck or not; the model no longer plays by them;
 - **the spread of a blow's size** is drawn through the quantiles the evidence gives of the drops put
   on one monster alone (the median, the 90th and 99th percentile, the largest), straight lines in
   the logarithm between them, from the smallest drop the recorder writes (hurts.HURT_LEAST) up;
@@ -73,6 +82,7 @@ HERE = Path(__file__).parent
 REPO = HERE.parents[4]
 EVIDENCE = HERE / 'evidence.json'
 SPARKS = HERE / 'sparks.json'
+SWINGS = HERE / 'swings.json'
 FITTED = REPO / 'inventory_tracking' / 'combat' / 'data' / 'monsters_fit.json'
 EXCEL = REPO / 'pricing' / 'raw' / 'game-excel'
 GAME_RATE = 25.0  # frames a second (combat/timeline.py)
@@ -91,50 +101,50 @@ def middle(low: float | None, high: float | None) -> float | None:
     return None if low is None or high is None else round((low + high) / 2, 4)
 
 
-def cut_frames(frames: int) -> float:
-    """The mean length of a swing cut short: 1 to under half of it, each as likely."""
-    return (1 + max(frames // 2 - 1, 1)) / 2
-
-
-def rest(rate: float, frames: int, cut: float) -> float:
-    """Frames between the end of a swing and the next, so that `rate` swings a second come out."""
-    return round(max(GAME_RATE / rate - (1 - cut) * frames - cut * cut_frames(frames), 0.0), 2)
-
-
-def melee_row(found: Mapping[str, Any], frames: int, mode: str | None, moving: float = 1.0) -> dict[str, Any]:
-    """A row of swings. `moving` is 1 for the pooled row, whose chance to take life is that of the
-    swings through which the character stood still; a type has too few of those (16 to 67), so its
-    chance is that of all its whole swings at the character times `moving`: the pooled chance with
-    the character standing over the pooled chance of all."""
-    cut = found['cut_share']
-    every = middle(found['hit_low'], found['hit_high'])
-    stood = middle(found['stood_hit_low'], found['stood_hit_high'])
-    assert every is not None
+def life(found: Mapping[str, Any]) -> dict[str, Any]:
+    """The chance that a swing which ran out takes life, from swings.json's figures of such swings (the
+    character standing still): the middle of the two bounds, with the swings no other hostile stood by."""
+    stood, alone = found['ran_out']['stood'], found['ran_out']['alone']
     return {
-        'name': found['name'],
-        'rate': {'value': found['swings_per_second'], 'n_swings': found['swings'], 'n_seconds': found['seconds']},
-        'cut': {'value': cut, 'n': found['runs']},
-        'frames': {'value': frames, 'mode': mode},
-        'rest': rest(found['swings_per_second'], frames, cut),
-        'takes_life': {
-            'value': stood if moving == 1.0 else round(every * moving, 4),
-            'low': found['hit_low'],
-            'high': found['hit_high'],
-            'n': found['whole_aimed'],
-            'stood': stood,
-            'stood_low': found['stood_hit_low'],
-            'stood_high': found['stood_hit_high'],
-            'n_stood': found['stood'],
-        },
+        'value': stood['value'],
+        'low': stood['low'],
+        'high': stood['high'],
+        'n': stood['n'],
+        'alone': {key: alone[key] for key in ('value', 'n')},
     }
 
 
-def melee(evidence: Mapping[str, Any]) -> dict[str, Any]:
+def melee_row(found: Mapping[str, Any], frames: int, mode: str | None, swung: Mapping[str, Any]) -> dict[str, Any]:
+    """A row of swings: the length of one, the chance that one which ran out takes life (`swung`: the
+    row's part of swings.json), and for the record what rates.py counts over all its swings, struck or
+    not: the swings a second in reach and the share of runs under half the usual length."""
+    return {
+        'name': found['name'],
+        'frames': {'value': frames, 'mode': mode},
+        'takes_life': life(swung),
+        'rate': {'value': found['swings_per_second'], 'n_swings': found['swings'], 'n_seconds': found['seconds']},
+        'cut': {'value': found['cut_share'], 'n': found['runs']},
+    }
+
+
+def stagger(swung: Mapping[str, Any]) -> dict[str, Any]:
+    """What a struck monster does: by the share of its life a frame's hits took, the chance that it
+    staggers, and how long it then stands (the deciles of the spells in that mode)."""
+    found = swung['stagger']
+    return {
+        'mode': swung['recovery']['mode'],
+        'parts': found['parts'],
+        'bands': [{'from': band['from'], 'chance': band['chance'], 'n': band['n']} for band in found['bands']],
+        'recovery': {'knots': found['recovery']['knots'], 'p50': found['recovery']['p50'], 'n': found['recovery']['n']},
+    }
+
+
+def melee(evidence: Mapping[str, Any], swung: Mapping[str, Any]) -> dict[str, Any]:
     least = evidence['thresholds']
+    enough = swung['constants']['enough_swings']
+    train = swung['train']
     pooled = evidence['train']['melee_all']
-    whole = melee_row(pooled, STRIKE_FRAMES, None)
-    life = whole['takes_life']
-    moving = life['value'] / middle(life['low'], life['high'])
+    whole = melee_row(pooled, STRIKE_FRAMES, None, train)
     types = {}
     for txt, row in evidence['types'].items():
         found = row['melee']['train']
@@ -143,12 +153,17 @@ def melee(evidence: Mapping[str, Any]) -> dict[str, Any]:
         if found['seconds'] < least['enough_seconds'] and found['blows'] < least['enough_blows']:
             continue
         mode = min(found['usual_frames'], key=int)  # the lowest attack mode the type was seen in
-        types[txt] = melee_row(found, found['usual_frames'][mode], mode, moving)
+        own = train['types'].get(txt)
+        types[txt] = melee_row(found, found['usual_frames'][mode], mode, own or train)
+        if own is None or own['ran_out']['stood']['n'] < enough:
+            types[txt]['takes_life'] = {**whole['takes_life'], 'pooled': True}
     return {
         'pooled': whole,
-        'moving': round(moving, 4),
         'types': dict(sorted(types.items(), key=lambda item: int(item[0]))),
         'idle': sorted(pooled['left_out']),
+        'blow': {'share': train['blow']['share'], 'n': train['blow']['n']},
+        'rest': {'knots': train['rest']['knots'], 'p50': train['rest']['p50'], 'n': train['rest']['n']},
+        'stagger': stagger(train),
     }
 
 
@@ -261,10 +276,10 @@ def shot_row(found: Mapping[str, Any], pooled: Mapping[str, Any] | None, least: 
     return row
 
 
-def shots(evidence: Mapping[str, Any], speed: Mapping[str, float]) -> dict[str, Any]:
+def shots(evidence: Mapping[str, Any], speed: Mapping[str, float], swung: Mapping[str, Any]) -> dict[str, Any]:
     least = evidence['thresholds']['enough_shots']
     pooled = shot_row(evidence['train']['ranged_all'], None, least)
-    fighters = melee(evidence)['types']
+    fighters = melee(evidence, swung)['types']
     types = {}
     for txt, row in evidence['types'].items():
         found = row['ranged']['train']
@@ -373,17 +388,19 @@ def sparks(found: Mapping[str, Any]) -> dict[str, Any]:
     }
 
 
-def fit(evidence: Mapping[str, Any], speed: Mapping[str, float], sparked: Mapping[str, Any]) -> dict[str, Any]:
+def fit(
+    evidence: Mapping[str, Any], speed: Mapping[str, float], sparked: Mapping[str, Any], swung: Mapping[str, Any]
+) -> dict[str, Any]:
     train = evidence['train']
     return {
-        'about': 'fitted on the train half of tests/inventory_tracking/scenarios/arena/evidence/evidence.json and '
-        'sparks.json by evidence/fit.py; read by combat/sim/monsters.py. Do not edit by hand.',
+        'about': 'fitted on the train half of tests/inventory_tracking/scenarios/arena/evidence/evidence.json, '
+        'sparks.json and swings.json by evidence/fit.py; read by combat/sim/monsters.py. Do not edit by hand.',
         'train': {'takes': train['takes'], 'seconds': train['seconds'], 'drops': train['classes']['n']},
         'thresholds': evidence['thresholds'],
-        'melee': {**melee(evidence), 'spread': curve(train['big']['plain|0|sole melee']['drop'])},
+        'melee': {**melee(evidence, swung), 'spread': curve(train['big']['plain|0|sole melee']['drop'])},
         'reach': {'body': BODY, 'tail': tail(evidence)},
         'targets': targets(evidence),
-        'shots': shots(evidence, speed),
+        'shots': shots(evidence, speed, swung),
         'nova': nova(evidence),
         'sparks': sparks(sparked),
     }
@@ -401,6 +418,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description='Write the monster model fit from the train half of the evidence.')
     parser.add_argument('--evidence', type=Path, default=EVIDENCE)
     parser.add_argument('--sparks', type=Path, default=SPARKS)
+    parser.add_argument('--swings', type=Path, default=SWINGS)
     parser.add_argument('--excel', type=Path, default=EXCEL, help="the game's tables (monstats.txt, missiles.txt)")
     parser.add_argument('--out', type=Path, default=FITTED)
     args = parser.parse_args(argv)
@@ -410,7 +428,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     else:
         speed = kept_speeds(args.out)
         print(f'{args.excel}: no tables there; the speeds of {args.out.name} are kept')
-    found = fit(evidence, speed, json.loads(args.sparks.read_text()))
+    found = fit(evidence, speed, json.loads(args.sparks.read_text()), json.loads(args.swings.read_text()))
     args.out.write_text(json.dumps(found, indent=1, sort_keys=True) + '\n', encoding='utf-8')
     print(f'{args.out}')
     return 0

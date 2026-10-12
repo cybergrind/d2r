@@ -3,11 +3,12 @@ auras (framework-plan.md, Task 1.2; architecture.md §6).
 
 `Mobs` holds a scene's monsters and plays them a game tick at a time against where the character is
 now. The monsters are `sim.monsters` walkers in its `Pack`, as that module has them since its refit
-to the takes (its module text): the think cycle, the swings a second, the chance that a swing or a
-shot takes life, whom a monster goes for, the blows by rank, enchantment and Herald tier and their
-spread, a shooter's cycle with its missile in flight, the sparks of a Lightning Enchanted one, the
-nova of a Cold Enchanted elite's death. The shooter's cycle was this file's own (one landed shot a
-second) and moved there with the refit. `Horde` is that pack with what it lacks:
+to the takes (its module text): the think cycle, a swing with its rest, the chance that a swing that
+ran out or a shot takes life, the stagger of a monster the character strikes, whom a monster goes
+for, the blows by rank, enchantment and Herald tier and their spread, a shooter's cycle with its
+missile in flight, the sparks of a Lightning Enchanted one, the nova of a Cold Enchanted elite's
+death. The shooter's cycle was this file's own (one landed shot a second) and moved there with the
+refit. `Horde` is that pack with what it lacks:
 
 - walls: a walk whose straight line is barred (combat/stance.py `no_footing` over the scene's grids
   and closed doors) goes by macros/travel.py `walked_way`; with no way the monster stands. With no
@@ -288,13 +289,15 @@ class Mobs:
 
     def hit(self, unit: int, points: float) -> bool:
         """The character's damage on a monster; True: it died now. Nothing comes off an immune one, a
-        companion or a corpse. A Lightning Enchanted one may let its sparks go (`Pack.struck`); one
-        that dies may let a nova go (`Pack.died`), and an exploding one leaves its blast for the next tick."""
+        companion or a corpse. The pack is told what share of the monster's most life the hit took: a
+        tick's hits may stagger it at the next tick, and a swing under way is then lost; a Lightning
+        Enchanted one may let its sparks go (`Pack.struck`). One that dies may let a nova go
+        (`Pack.died`), and an exploding one leaves its blast for the next tick."""
         mob = self.mobs.get(unit)
         if mob is None or unit not in self.pack.walkers or mob.immune:
             return False
         mob.life -= points
-        self.pack.struck(unit, self.frame)
+        self.pack.struck(unit, self.frame, points / mob.full if mob.full > 0 else 0.0)
         if mob.life > 0:
             return False
         mob.life, mob.mode = 0.0, LYING_DEAD

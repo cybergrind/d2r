@@ -27,6 +27,7 @@ from inventory_tracking.combat.sim.monsters import (
     SHOT_CONTACT,
     SHOT_REACH,
     SPARK,
+    STAGGER,
     STRIKE,
     Blow,
     Pack,
@@ -359,7 +360,7 @@ def test_a_spark_that_ends_on_the_character_takes_its_points_where_the_chance_le
     assert taken / ended == pytest.approx(0.5, abs=0.1)
 
 
-# -- what the train half of all takes gives (data/monsters_fit.json, 2026-10-12) --------------------------
+# -- what the train half of all takes gives (data/monsters_fit.json, 2026-10-12 and 13) -------------------
 
 DARK_ARCHER_SHOT = {'physical': 40.0, 'cold': 60.0}
 ICE_SPAWN, BAAL_TAUNT, GHOST = 458, 545, 38
@@ -382,13 +383,21 @@ def swings(txt: int, seconds: int = SECONDS, seed: int = 3, at: float = 2.0, **g
     return begun, whole, blows
 
 
+def cycle(txt: int) -> float:
+    """Frames from one swing of a monster nobody strikes to its next: the swing and the mean rest."""
+    rest = fitted()['melee']['rest']['knots']
+    return swing_of(txt)['frames']['value'] + statistics.mean(
+        (low + high) / 2 for low, high in itertools.pairwise(rest)
+    )
+
+
 @pytest.mark.parametrize('txt', [DEVILKIN, BLOOD_CLAN, ICE_SPAWN, GHOST])
-def test_a_monster_in_reach_swings_at_the_takes_rate_and_a_swing_is_not_a_hit(txt):
+def test_a_monster_nobody_strikes_swings_every_swing_and_rest_and_a_swing_is_not_a_hit(txt):
     found = swing_of(txt)
     assert found is fitted()['melee']['types'][str(txt)]
     begun, whole, blows = swings(txt)
-    assert begun / SECONDS == pytest.approx(found['rate']['value'], rel=0.05)
-    assert 1 - whole / begun == pytest.approx(found['cut']['value'], abs=0.03)
+    assert begun / SECONDS == pytest.approx(25 / cycle(txt), rel=0.03)
+    assert whole == begun  # nothing cuts a swing short but a strike on the monster
     assert len(blows) / whole == pytest.approx(found['takes_life']['value'], abs=0.03)
     assert 0.1 < found['takes_life']['value'] < 0.45  # before the fit: every swing landed
     assert all(blow.kind == MELEE and blow.target == 0 for blow in blows)
@@ -397,10 +406,107 @@ def test_a_monster_in_reach_swings_at_the_takes_rate_and_a_swing_is_not_a_hit(tx
 def test_a_type_without_a_row_of_its_own_swings_by_the_pooled_one():
     walker = Walker(1, DARK_ARCHER, HERE[0], HERE[1])
     assert swing_of(DARK_ARCHER) is fitted()['melee']['pooled']
-    assert swing_of(DARK_ARCHER)['rate']['value'] == pytest.approx(1.085)  # 725 swings in 668 s within 3.5 units
-    assert swing_of(DARK_ARCHER)['takes_life']['value'] == pytest.approx(0.161)  # 0.086 to 0.236 of 292 swings
-    assert favour(DARK_ARCHER) == (pytest.approx(0.9184), pytest.approx(0.5145))
-    assert walker.traits.strikes == 8  # its row's aip3 is read and no longer what decides a swing
+    # Of the swings that ran out at a character standing still: 0.15 to 0.44 of 98 (SWINGS.md). Before
+    # 2026-10-13 the chance was that of all swings of half their length, 0.16, struck or not.
+    assert swing_of(DARK_ARCHER)['takes_life']['value'] == pytest.approx(0.296)
+    assert swing_of(BLOOD_CLAN)['takes_life']['pooled'] is True  # 5 such swings of its own: too few
+    assert swing_of(DEVILKIN)['takes_life']['n'] >= 30
+    assert favour(DARK_ARCHER) == (pytest.approx(0.9184, abs=0.01), pytest.approx(0.5145, abs=0.01))
+    assert Pack([walker]).died(1, 0) is False
+
+
+def test_the_blow_lands_two_thirds_through_the_swing(monkeypatch):
+    sure(monkeypatch)
+    walker = Walker(1, BLOOD_CLAN, HERE[0] + 2.0, HERE[1])
+    pack = Pack([walker], 5)
+    frames = swing_of(BLOOD_CLAN)['frames']['value']
+    share = fitted()['melee']['blow']['share']
+    assert 0.5 < share < 0.8  # the middle of the swing before the fit
+    begun, landed = [], []
+    until = walker.until
+    for frame in range(400):
+        landed += [blow.frame for blow in pack.step(frame, [HERE])]
+        if walker.doing == STRIKE and walker.until != until:
+            begun.append(frame)
+        until = walker.until
+    assert len(landed) >= 8
+    assert [at - start for start, at in zip(begun, landed, strict=False)] == [round(share * frames)] * len(landed)
+
+
+def struck_through(share: float, seconds: int = 400, seed: int = 4):
+    """One Blood Clan in reach of a character standing still that takes `share` of the monster's life off
+    it two frames into every swing: the swings begun, the frames it staggered, the blows."""
+    walker = Walker(1, BLOOD_CLAN, HERE[0] + 2.0, HERE[1])
+    pack = Pack([walker], seed)
+    begun = reeling = 0
+    blows, until = [], walker.until
+    for frame in range(seconds * 25):
+        blows += pack.step(frame, [HERE])
+        reeling += walker.doing == STAGGER
+        if walker.doing == STRIKE and walker.until != until:
+            begun += 1
+            pack.struck(1, frame + 2, share)
+        until = walker.until
+    return begun, reeling, blows
+
+
+def test_a_struck_monster_staggers_by_the_size_of_the_hit_and_its_swing_is_lost(monkeypatch):
+    sure(monkeypatch, stagger=True)  # a swing that runs out lands: what is lost is lost to the stagger
+    bands = fitted()['melee']['stagger']['bands']
+    parts = fitted()['melee']['stagger']['parts']
+    assert [band['from'] for band in bands] == [0, 1, 2, 3, 4]
+    assert bands[0]['chance'] < 0.1 < bands[1]['chance'] < 0.5 < bands[2]['chance'] < bands[4]['chance'] < 1
+    for band in (bands[0], bands[2], bands[4]):
+        begun, reeling, blows = struck_through((band['from'] + 0.5) / parts)
+        assert 1 - len(blows) / begun == pytest.approx(band['chance'], abs=0.04), band
+        assert (reeling > 0) == (len(blows) < begun)
+    begun, reeling, blows = struck_through(0.0)  # a hit of no size (a caller that does not say): never
+    assert (reeling, len(blows)) == (0, begun)
+
+
+def test_a_stagger_lasts_what_the_takes_show_and_the_monster_swings_again_after_it(monkeypatch):
+    sure(monkeypatch, stagger=True)
+    recovery = fitted()['melee']['stagger']['recovery']
+    begun, reeling, blows = struck_through(0.5)
+    lost = begun - len(blows)
+    assert reeling / lost == pytest.approx(statistics.mean(recovery['knots']), rel=0.15)  # about 10 frames
+    # A staggered monster does not wait out its swing and rest: it swings more often, and lands less.
+    calm, _reeling, landed = struck_through(0.0)
+    assert begun > calm
+    assert len(blows) < 0.3 * len(landed)
+
+
+def test_a_hit_after_the_blow_has_landed_takes_nothing_back(monkeypatch):
+    sure(monkeypatch, stagger=True)
+    walker = Walker(1, BLOOD_CLAN, HERE[0] + 2.0, HERE[1])
+    pack = Pack([walker], 4)
+    blows = []
+    for frame in range(2000):
+        dealt = pack.step(frame, [HERE])
+        blows += dealt
+        if dealt:
+            pack.struck(1, frame, 0.5)  # in the frame the blow fell
+    assert len(blows) > 40
+
+
+def test_several_hits_between_two_frames_are_one_fall_of_their_sum():
+    walker = Walker(1, BLOOD_CLAN, HERE[0] + 2.0, HERE[1])
+    pack = Pack([walker], 4)
+    pack.step(0, [HERE])
+    for _ in range(5):
+        pack.struck(1, 0, 0.01)
+    assert walker.fell == pytest.approx(0.05)
+    pack.step(1, [HERE])
+    assert walker.fell == 0.0  # rolled once, for the sum
+
+
+def test_a_struck_shooter_does_not_stagger():
+    walker = Walker(1, DARK_ARCHER, HERE[0] + 14.0, HERE[1])
+    pack = Pack([walker], 3, {1: DARK_ARCHER_SHOT})
+    for frame in range(500):
+        pack.struck(1, frame, 0.5)
+        pack.step(frame, [HERE])
+        assert walker.doing != STAGGER  # not measured (swings.py tallies the melee types): not played
 
 
 def test_a_blow_on_a_companion_always_lands():
@@ -441,7 +547,7 @@ def test_the_reach_is_the_bodys_for_most_swings_and_further_for_the_share_the_ta
     pack = Pack([walker], 5)
     walker.traits = dataclasses.replace(walker.traits, speed=0.0)
     blows = [blow for frame in range(40000) for blow in pack.step(frame, [HERE])]
-    assert 0 < len(blows) < 40  # in reach it would land about 160 in this time
+    assert 0 < len(blows) < 130  # in reach it would land about 340 in this time
     assert away(walker) == 4.5
 
 
@@ -585,18 +691,21 @@ def test_the_fit_names_its_source_and_every_fitted_number_has_its_n():
     found = json.loads(FIT.read_text(encoding='utf-8'))
     assert found == fitted()
     assert 'train half' in found['about']
-    assert found['train'] == {'takes': 330, 'seconds': 9730.2, 'drops': 810}
+    assert found['train'] == {'takes': 332, 'seconds': 9827.8, 'drops': 831}  # with the takes since, by the rule
     rows = [found['melee']['pooled'], *found['melee']['types'].values()]
     for row in rows:
         assert row['rate']['n_swings'] > 0
         assert row['rate']['n_seconds'] > 0
-        assert row['cut']['n'] > 0
         assert row['takes_life']['n'] > 0
+    assert found['melee']['blow']['n'] > 0
+    assert found['melee']['rest']['n'] > 0
+    assert found['melee']['stagger']['recovery']['n'] > 0
+    assert all(band['n'] > 0 for band in found['melee']['stagger']['bands'])
     for row in (found['shots']['pooled'], *found['shots']['types'].values()):
         assert row['rate']['n_shots'] >= 20
         assert row['aim']['n'] > 0
         assert row['takes_life']['n'] > 0
     assert all(band['n'] > 0 for band in found['reach']['tail'])
     assert found['nova']['takes_life']['n'] == 37
-    assert found['melee']['spread']['n'] == 49
-    assert found['shots']['spread']['n'] == 28
+    assert found['melee']['spread']['n'] == 50
+    assert found['shots']['spread']['n'] == 32

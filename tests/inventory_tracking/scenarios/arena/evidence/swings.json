@@ -1,0 +1,6373 @@
+{
+ "about": "tests/inventory_tracking/scenarios/arena/evidence/swings.py: see SWINGS.md; fit on train, judge on check",
+ "check": {
+  "after_stagger": {
+   "n": 13,
+   "p50": 27
+  },
+  "blow": {
+   "n": 19,
+   "p10": 0.438,
+   "p90": 0.917,
+   "share": 0.692
+  },
+  "ends": {
+   "died": {
+    "high": 0.101,
+    "low": 0.029,
+    "n": 139,
+    "struck": 24,
+    "value": 0.065
+   },
+   "ran out": {
+    "high": 0.58,
+    "low": 0.084,
+    "n": 143,
+    "struck": 69,
+    "value": 0.332
+   },
+   "staggered": {
+    "high": 0.143,
+    "low": 0.035,
+    "n": 230,
+    "struck": 218,
+    "value": 0.089
+   },
+   "unseen": {
+    "high": 0.072,
+    "low": 0.0,
+    "n": 125,
+    "struck": 26,
+    "value": 0.036
+   }
+  },
+  "ran_out": {
+   "all": {
+    "high": 0.58,
+    "low": 0.084,
+    "n": 143,
+    "value": 0.332
+   },
+   "alone": {
+    "high": 0.13,
+    "low": 0.087,
+    "n": 23,
+    "value": 0.1085
+   },
+   "frames": 15,
+   "stood": {
+    "high": 0.629,
+    "low": 0.086,
+    "n": 116,
+    "value": 0.3575
+   }
+  },
+  "recovery": {
+   "entered": 3742,
+   "mode": 3,
+   "with_fall": 3597
+  },
+  "rest": {
+   "knots": [
+    11,
+    13,
+    14,
+    15,
+    15,
+    15,
+    15,
+    15,
+    16,
+    24,
+    44
+   ],
+   "longer": 3,
+   "mean": 16.96,
+   "n": 69,
+   "p50": 15
+  },
+  "runs": 637,
+  "stagger": {
+   "bands": [
+    {
+     "chance": 0.064,
+     "from": 0,
+     "n": 4202,
+     "staggered": 268
+    },
+    {
+     "chance": 0.209,
+     "from": 1,
+     "n": 819,
+     "staggered": 171
+    },
+    {
+     "chance": 0.57,
+     "from": 2,
+     "n": 423,
+     "staggered": 241
+    },
+    {
+     "chance": 0.686,
+     "from": 3,
+     "n": 459,
+     "staggered": 315
+    },
+    {
+     "chance": 0.923,
+     "from": 4,
+     "n": 3175,
+     "staggered": 2929
+    }
+   ],
+   "parts": 16,
+   "recovery": {
+    "knots": [
+     1,
+     2,
+     5,
+     8,
+     10,
+     11,
+     12,
+     12,
+     14,
+     16,
+     28
+    ],
+    "n": 1592,
+    "p50": 11
+   }
+  },
+  "struck": {
+   "deaths": 687,
+   "falls": [
+    438,
+    52,
+    43,
+    39,
+    341
+   ],
+   "seconds": 787.6
+  },
+  "takes": 350,
+  "types": {
+   "1": {
+    "after_stagger": {
+     "n": 1,
+     "p50": 27
+    },
+    "ends": {
+     "died": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "ran out": {
+      "high": 0.6,
+      "low": 0.4,
+      "n": 5,
+      "struck": 3,
+      "value": 0.5
+     },
+     "staggered": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 4,
+      "struck": 4,
+      "value": 0.0
+     },
+     "unseen": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     }
+    },
+    "name": "Returned",
+    "ran_out": {
+     "all": {
+      "high": 0.6,
+      "low": 0.4,
+      "n": 5,
+      "value": 0.5
+     },
+     "alone": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 1,
+      "value": 0.0
+     },
+     "frames": 14,
+     "stood": {
+      "high": 0.6,
+      "low": 0.4,
+      "n": 5,
+      "value": 0.5
+     }
+    },
+    "rest": {
+     "knots": [
+      14,
+      14,
+      14,
+      14,
+      14,
+      24,
+      24,
+      24,
+      24,
+      24,
+      24
+     ],
+     "longer": 0,
+     "mean": 19,
+     "n": 2,
+     "p50": 24
+    },
+    "runs": 9
+   },
+   "16": {
+    "after_stagger": {
+     "n": 0,
+     "p50": null
+    },
+    "ends": {
+     "died": {
+      "high": 0.077,
+      "low": 0.0,
+      "n": 13,
+      "struck": 3,
+      "value": 0.0385
+     },
+     "ran out": {
+      "high": 0.4,
+      "low": 0.2,
+      "n": 5,
+      "struck": 4,
+      "value": 0.3
+     },
+     "staggered": {
+      "high": 0.25,
+      "low": 0.25,
+      "n": 4,
+      "struck": 4,
+      "value": 0.25
+     },
+     "unseen": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 3,
+      "struck": 2,
+      "value": 0.0
+     }
+    },
+    "name": "Blood Hawk",
+    "ran_out": {
+     "all": {
+      "high": 0.4,
+      "low": 0.2,
+      "n": 5,
+      "value": 0.3
+     },
+     "alone": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 3,
+      "value": 0.0
+     },
+     "frames": 11,
+     "stood": {
+      "high": 0.4,
+      "low": 0.2,
+      "n": 5,
+      "value": 0.3
+     }
+    },
+    "rest": {
+     "knots": [
+      15,
+      15,
+      15,
+      15,
+      15,
+      23,
+      23,
+      23,
+      23,
+      23,
+      23
+     ],
+     "longer": 0,
+     "mean": 19,
+     "n": 2,
+     "p50": 23
+    },
+    "runs": 25
+   },
+   "17": {
+    "after_stagger": {
+     "n": 0,
+     "p50": null
+    },
+    "ends": {
+     "died": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 13,
+      "struck": 1,
+      "value": 0.0
+     },
+     "ran out": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "staggered": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 2,
+      "struck": 1,
+      "value": 0.0
+     },
+     "unseen": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     }
+    },
+    "name": "Black Raptor",
+    "ran_out": {
+     "all": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "alone": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "frames": null,
+     "stood": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     }
+    },
+    "rest": {
+     "knots": [],
+     "longer": 0,
+     "mean": null,
+     "n": 0,
+     "p50": null
+    },
+    "runs": 15
+   },
+   "20": {
+    "after_stagger": {
+     "n": 0,
+     "p50": null
+    },
+    "ends": {
+     "died": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 9,
+      "struck": 1,
+      "value": 0.0
+     },
+     "ran out": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "staggered": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 1,
+      "struck": 1,
+      "value": 0.0
+     },
+     "unseen": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     }
+    },
+    "name": "Carver",
+    "ran_out": {
+     "all": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "alone": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "frames": null,
+     "stood": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     }
+    },
+    "rest": {
+     "knots": [],
+     "longer": 0,
+     "mean": null,
+     "n": 0,
+     "p50": null
+    },
+    "runs": 10
+   },
+   "21": {
+    "after_stagger": {
+     "n": 0,
+     "p50": null
+    },
+    "ends": {
+     "died": {
+      "high": 0.029,
+      "low": 0.029,
+      "n": 35,
+      "struck": 4,
+      "value": 0.029
+     },
+     "ran out": {
+      "high": 0.318,
+      "low": 0.0,
+      "n": 22,
+      "struck": 11,
+      "value": 0.159
+     },
+     "staggered": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 14,
+      "struck": 14,
+      "value": 0.0
+     },
+     "unseen": {
+      "high": 0.143,
+      "low": 0.0,
+      "n": 28,
+      "struck": 6,
+      "value": 0.0715
+     }
+    },
+    "name": "Devilkin",
+    "ran_out": {
+     "all": {
+      "high": 0.318,
+      "low": 0.0,
+      "n": 22,
+      "value": 0.159
+     },
+     "alone": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 6,
+      "value": 0.0
+     },
+     "frames": 10,
+     "stood": {
+      "high": 0.235,
+      "low": 0.0,
+      "n": 17,
+      "value": 0.1175
+     }
+    },
+    "rest": {
+     "knots": [
+      13,
+      13,
+      13,
+      13,
+      13,
+      15,
+      15,
+      15,
+      15,
+      15,
+      15
+     ],
+     "longer": 0,
+     "mean": 14,
+     "n": 2,
+     "p50": 15
+    },
+    "runs": 99
+   },
+   "24": {
+    "after_stagger": {
+     "n": 1,
+     "p50": 31
+    },
+    "ends": {
+     "died": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 1,
+      "struck": 0,
+      "value": 0.0
+     },
+     "ran out": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 1,
+      "struck": 0,
+      "value": 0.0
+     },
+     "staggered": {
+      "high": 0.5,
+      "low": 0.5,
+      "n": 4,
+      "struck": 4,
+      "value": 0.5
+     },
+     "unseen": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     }
+    },
+    "name": "Brute",
+    "ran_out": {
+     "all": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 1,
+      "value": 0.0
+     },
+     "alone": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "frames": 20,
+     "stood": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 1,
+      "value": 0.0
+     }
+    },
+    "rest": {
+     "knots": [
+      15,
+      15,
+      15,
+      15,
+      15,
+      15,
+      15,
+      15,
+      15,
+      15,
+      15
+     ],
+     "longer": 0,
+     "mean": 15,
+     "n": 1,
+     "p50": 15
+    },
+    "runs": 6
+   },
+   "243": {
+    "after_stagger": {
+     "n": 0,
+     "p50": null
+    },
+    "ends": {
+     "died": {
+      "high": 1.0,
+      "low": 0.0,
+      "n": 1,
+      "struck": 1,
+      "value": 0.5
+     },
+     "ran out": {
+      "high": 1.0,
+      "low": 1.0,
+      "n": 1,
+      "struck": 1,
+      "value": 1.0
+     },
+     "staggered": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "unseen": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     }
+    },
+    "name": "Diablo",
+    "ran_out": {
+     "all": {
+      "high": 1.0,
+      "low": 1.0,
+      "n": 1,
+      "value": 1.0
+     },
+     "alone": {
+      "high": 1.0,
+      "low": 1.0,
+      "n": 1,
+      "value": 1.0
+     },
+     "frames": 47,
+     "stood": {
+      "high": 1.0,
+      "low": 1.0,
+      "n": 1,
+      "value": 1.0
+     }
+    },
+    "rest": {
+     "knots": [
+      18,
+      18,
+      18,
+      18,
+      18,
+      18,
+      18,
+      18,
+      18,
+      18,
+      18
+     ],
+     "longer": 0,
+     "mean": 18,
+     "n": 1,
+     "p50": 18
+    },
+    "runs": 2
+   },
+   "295": {
+    "after_stagger": {
+     "n": 0,
+     "p50": null
+    },
+    "ends": {
+     "died": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 3,
+      "struck": 0,
+      "value": 0.0
+     },
+     "ran out": {
+      "high": 0.25,
+      "low": 0.0,
+      "n": 4,
+      "struck": 3,
+      "value": 0.125
+     },
+     "staggered": {
+      "high": 0.5,
+      "low": 0.0,
+      "n": 2,
+      "struck": 1,
+      "value": 0.25
+     },
+     "unseen": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     }
+    },
+    "name": "Night Marauder",
+    "ran_out": {
+     "all": {
+      "high": 0.25,
+      "low": 0.0,
+      "n": 4,
+      "value": 0.125
+     },
+     "alone": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 1,
+      "value": 0.0
+     },
+     "frames": 13,
+     "stood": {
+      "high": 0.333,
+      "low": 0.0,
+      "n": 3,
+      "value": 0.1665
+     }
+    },
+    "rest": {
+     "knots": [
+      14,
+      14,
+      14,
+      14,
+      14,
+      16,
+      16,
+      16,
+      16,
+      16,
+      16
+     ],
+     "longer": 0,
+     "mean": 15,
+     "n": 4,
+     "p50": 16
+    },
+    "runs": 9
+   },
+   "310": {
+    "after_stagger": {
+     "n": 4,
+     "p50": 26
+    },
+    "ends": {
+     "died": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 3,
+      "struck": 1,
+      "value": 0.0
+     },
+     "ran out": {
+      "high": 0.708,
+      "low": 0.0,
+      "n": 24,
+      "struck": 9,
+      "value": 0.354
+     },
+     "staggered": {
+      "high": 0.259,
+      "low": 0.037,
+      "n": 27,
+      "struck": 22,
+      "value": 0.148
+     },
+     "unseen": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 4,
+      "struck": 0,
+      "value": 0.0
+     }
+    },
+    "name": "Doom Knight",
+    "ran_out": {
+     "all": {
+      "high": 0.708,
+      "low": 0.0,
+      "n": 24,
+      "value": 0.354
+     },
+     "alone": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 3,
+      "value": 0.0
+     },
+     "frames": 16,
+     "stood": {
+      "high": 0.762,
+      "low": 0.0,
+      "n": 21,
+      "value": 0.381
+     }
+    },
+    "rest": {
+     "knots": [
+      11,
+      12,
+      12,
+      13,
+      13,
+      14,
+      14,
+      15,
+      15,
+      15,
+      15
+     ],
+     "longer": 1,
+     "mean": 13.65,
+     "n": 17,
+     "p50": 14
+    },
+    "runs": 58
+   },
+   "351": {
+    "after_stagger": {
+     "n": 0,
+     "p50": null
+    },
+    "ends": {
+     "died": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "ran out": {
+      "high": 1.0,
+      "low": 0.0,
+      "n": 14,
+      "struck": 0,
+      "value": 0.5
+     },
+     "staggered": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "unseen": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     }
+    },
+    "name": "Hydra",
+    "ran_out": {
+     "all": {
+      "high": 1.0,
+      "low": 0.0,
+      "n": 14,
+      "value": 0.5
+     },
+     "alone": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "frames": 11,
+     "stood": {
+      "high": 1.0,
+      "low": 0.0,
+      "n": 12,
+      "value": 0.5
+     }
+    },
+    "rest": {
+     "knots": [
+      14,
+      14,
+      15,
+      15,
+      15,
+      15,
+      15,
+      16,
+      25,
+      44,
+      44
+     ],
+     "longer": 0,
+     "mean": 19.33,
+     "n": 9,
+     "p50": 15
+    },
+    "runs": 14
+   },
+   "352": {
+    "after_stagger": {
+     "n": 0,
+     "p50": null
+    },
+    "ends": {
+     "died": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "ran out": {
+      "high": 1.0,
+      "low": 0.0,
+      "n": 10,
+      "struck": 0,
+      "value": 0.5
+     },
+     "staggered": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "unseen": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     }
+    },
+    "name": "Hydra",
+    "ran_out": {
+     "all": {
+      "high": 1.0,
+      "low": 0.0,
+      "n": 10,
+      "value": 0.5
+     },
+     "alone": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "frames": 11,
+     "stood": {
+      "high": 1.0,
+      "low": 0.0,
+      "n": 10,
+      "value": 0.5
+     }
+    },
+    "rest": {
+     "knots": [
+      15,
+      15,
+      15,
+      15,
+      15,
+      15,
+      15,
+      15,
+      15,
+      35,
+      35
+     ],
+     "longer": 0,
+     "mean": 18.33,
+     "n": 6,
+     "p50": 15
+    },
+    "runs": 10
+   },
+   "362": {
+    "after_stagger": {
+     "n": 0,
+     "p50": null
+    },
+    "ends": {
+     "died": {
+      "high": 0.5,
+      "low": 0.0,
+      "n": 2,
+      "struck": 0,
+      "value": 0.25
+     },
+     "ran out": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 3,
+      "struck": 2,
+      "value": 0.0
+     },
+     "staggered": {
+      "high": 0.143,
+      "low": 0.0,
+      "n": 7,
+      "struck": 7,
+      "value": 0.0715
+     },
+     "unseen": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 5,
+      "struck": 2,
+      "value": 0.0
+     }
+    },
+    "name": "Venom Lord",
+    "ran_out": {
+     "all": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 3,
+      "value": 0.0
+     },
+     "alone": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "frames": 16,
+     "stood": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 1,
+      "value": 0.0
+     }
+    },
+    "rest": {
+     "knots": [
+      14,
+      14,
+      14,
+      14,
+      14,
+      14,
+      14,
+      14,
+      14,
+      14,
+      14
+     ],
+     "longer": 0,
+     "mean": 14,
+     "n": 1,
+     "p50": 14
+    },
+    "runs": 17
+   },
+   "365": {
+    "after_stagger": {
+     "n": 0,
+     "p50": null
+    },
+    "ends": {
+     "died": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "ran out": {
+      "high": 1.0,
+      "low": 0.0,
+      "n": 1,
+      "struck": 1,
+      "value": 0.5
+     },
+     "staggered": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "unseen": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     }
+    },
+    "name": "Griswold",
+    "ran_out": {
+     "all": {
+      "high": 1.0,
+      "low": 0.0,
+      "n": 1,
+      "value": 0.5
+     },
+     "alone": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "frames": 17,
+     "stood": {
+      "high": 1.0,
+      "low": 0.0,
+      "n": 1,
+      "value": 0.5
+     }
+    },
+    "rest": {
+     "knots": [],
+     "longer": 0,
+     "mean": null,
+     "n": 0,
+     "p50": null
+    },
+    "runs": 1
+   },
+   "38": {
+    "after_stagger": {
+     "n": 1,
+     "p50": 39
+    },
+    "ends": {
+     "died": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 5,
+      "struck": 0,
+      "value": 0.0
+     },
+     "ran out": {
+      "high": 0.714,
+      "low": 0.286,
+      "n": 7,
+      "struck": 4,
+      "value": 0.5
+     },
+     "staggered": {
+      "high": 0.2,
+      "low": 0.0,
+      "n": 20,
+      "struck": 17,
+      "value": 0.1
+     },
+     "unseen": {
+      "high": 0.222,
+      "low": 0.0,
+      "n": 9,
+      "struck": 2,
+      "value": 0.111
+     }
+    },
+    "name": "Ghost",
+    "ran_out": {
+     "all": {
+      "high": 0.714,
+      "low": 0.286,
+      "n": 7,
+      "value": 0.5
+     },
+     "alone": {
+      "high": 0.5,
+      "low": 0.5,
+      "n": 2,
+      "value": 0.5
+     },
+     "frames": 17,
+     "stood": {
+      "high": 0.833,
+      "low": 0.333,
+      "n": 6,
+      "value": 0.583
+     }
+    },
+    "rest": {
+     "knots": [
+      15,
+      15,
+      15,
+      15,
+      15,
+      22,
+      22,
+      22,
+      23,
+      23,
+      23
+     ],
+     "longer": 0,
+     "mean": 18.75,
+     "n": 4,
+     "p50": 22
+    },
+    "runs": 41
+   },
+   "40": {
+    "after_stagger": {
+     "n": 0,
+     "p50": null
+    },
+    "ends": {
+     "died": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 3,
+      "struck": 0,
+      "value": 0.0
+     },
+     "ran out": {
+      "high": 0.5,
+      "low": 0.25,
+      "n": 4,
+      "struck": 4,
+      "value": 0.375
+     },
+     "staggered": {
+      "high": 0.133,
+      "low": 0.0,
+      "n": 15,
+      "struck": 14,
+      "value": 0.0665
+     },
+     "unseen": {
+      "high": 0.143,
+      "low": 0.0,
+      "n": 14,
+      "struck": 3,
+      "value": 0.0715
+     }
+    },
+    "name": "Specter",
+    "ran_out": {
+     "all": {
+      "high": 0.5,
+      "low": 0.25,
+      "n": 4,
+      "value": 0.375
+     },
+     "alone": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "frames": 17,
+     "stood": {
+      "high": 1.0,
+      "low": 0.5,
+      "n": 2,
+      "value": 0.75
+     }
+    },
+    "rest": {
+     "knots": [],
+     "longer": 0,
+     "mean": null,
+     "n": 0,
+     "p50": null
+    },
+    "runs": 36
+   },
+   "437": {
+    "after_stagger": {
+     "n": 0,
+     "p50": null
+    },
+    "ends": {
+     "died": {
+      "high": 1.0,
+      "low": 0.0,
+      "n": 1,
+      "struck": 0,
+      "value": 0.5
+     },
+     "ran out": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "staggered": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 1,
+      "struck": 1,
+      "value": 0.0
+     },
+     "unseen": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     }
+    },
+    "name": "Reanimated Horde",
+    "ran_out": {
+     "all": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "alone": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "frames": null,
+     "stood": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     }
+    },
+    "rest": {
+     "knots": [],
+     "longer": 0,
+     "mean": null,
+     "n": 0,
+     "p50": null
+    },
+    "runs": 2
+   },
+   "45": {
+    "after_stagger": {
+     "n": 0,
+     "p50": null
+    },
+    "ends": {
+     "died": {
+      "high": 0.273,
+      "low": 0.0,
+      "n": 11,
+      "struck": 2,
+      "value": 0.1365
+     },
+     "ran out": {
+      "high": 0.444,
+      "low": 0.0,
+      "n": 9,
+      "struck": 6,
+      "value": 0.222
+     },
+     "staggered": {
+      "high": 0.071,
+      "low": 0.0,
+      "n": 14,
+      "struck": 14,
+      "value": 0.0355
+     },
+     "unseen": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     }
+    },
+    "name": "Dark Stalker",
+    "ran_out": {
+     "all": {
+      "high": 0.444,
+      "low": 0.0,
+      "n": 9,
+      "value": 0.222
+     },
+     "alone": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "frames": 14,
+     "stood": {
+      "high": 0.5,
+      "low": 0.0,
+      "n": 8,
+      "value": 0.25
+     }
+    },
+    "rest": {
+     "knots": [
+      14,
+      14,
+      14,
+      14,
+      14,
+      15,
+      15,
+      15,
+      15,
+      15,
+      15
+     ],
+     "longer": 0,
+     "mean": 14.5,
+     "n": 2,
+     "p50": 15
+    },
+    "runs": 34
+   },
+   "456": {
+    "after_stagger": {
+     "n": 0,
+     "p50": null
+    },
+    "ends": {
+     "died": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "ran out": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "staggered": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 1,
+      "struck": 1,
+      "value": 0.0
+     },
+     "unseen": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     }
+    },
+    "name": "Fire Boar",
+    "ran_out": {
+     "all": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "alone": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "frames": null,
+     "stood": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     }
+    },
+    "rest": {
+     "knots": [],
+     "longer": 0,
+     "mean": null,
+     "n": 0,
+     "p50": null
+    },
+    "runs": 1
+   },
+   "458": {
+    "after_stagger": {
+     "n": 2,
+     "p50": 75
+    },
+    "ends": {
+     "died": {
+      "high": 0.286,
+      "low": 0.286,
+      "n": 7,
+      "struck": 3,
+      "value": 0.286
+     },
+     "ran out": {
+      "high": 1.0,
+      "low": 0.167,
+      "n": 6,
+      "struck": 6,
+      "value": 0.5835
+     },
+     "staggered": {
+      "high": 0.4,
+      "low": 0.1,
+      "n": 20,
+      "struck": 20,
+      "value": 0.25
+     },
+     "unseen": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     }
+    },
+    "name": "Ice Spawn",
+    "ran_out": {
+     "all": {
+      "high": 1.0,
+      "low": 0.167,
+      "n": 6,
+      "value": 0.5835
+     },
+     "alone": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "frames": 23,
+     "stood": {
+      "high": 1.0,
+      "low": 0.2,
+      "n": 5,
+      "value": 0.6
+     }
+    },
+    "rest": {
+     "knots": [
+      15,
+      15,
+      15,
+      15,
+      15,
+      15,
+      15,
+      16,
+      16,
+      16,
+      16
+     ],
+     "longer": 0,
+     "mean": 15.33,
+     "n": 3,
+     "p50": 15
+    },
+    "runs": 33
+   },
+   "507": {
+    "after_stagger": {
+     "n": 0,
+     "p50": null
+    },
+    "ends": {
+     "died": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "ran out": {
+      "high": 1.0,
+      "low": 0.0,
+      "n": 1,
+      "struck": 1,
+      "value": 0.5
+     },
+     "staggered": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 1,
+      "struck": 1,
+      "value": 0.0
+     },
+     "unseen": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 1,
+      "struck": 0,
+      "value": 0.0
+     }
+    },
+    "name": "Night Lord",
+    "ran_out": {
+     "all": {
+      "high": 1.0,
+      "low": 0.0,
+      "n": 1,
+      "value": 0.5
+     },
+     "alone": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "frames": 22,
+     "stood": {
+      "high": 1.0,
+      "low": 0.0,
+      "n": 1,
+      "value": 0.5
+     }
+    },
+    "rest": {
+     "knots": [],
+     "longer": 0,
+     "mean": null,
+     "n": 0,
+     "p50": null
+    },
+    "runs": 3
+   },
+   "531": {
+    "after_stagger": {
+     "n": 0,
+     "p50": null
+    },
+    "ends": {
+     "died": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 1,
+      "struck": 0,
+      "value": 0.0
+     },
+     "ran out": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "staggered": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "unseen": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     }
+    },
+    "name": "Death Slasher",
+    "ran_out": {
+     "all": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "alone": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "frames": null,
+     "stood": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     }
+    },
+    "rest": {
+     "knots": [],
+     "longer": 0,
+     "mean": null,
+     "n": 0,
+     "p50": null
+    },
+    "runs": 1
+   },
+   "54": {
+    "after_stagger": {
+     "n": 0,
+     "p50": null
+    },
+    "ends": {
+     "died": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "ran out": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "staggered": {
+      "high": 0.25,
+      "low": 0.0,
+      "n": 4,
+      "struck": 4,
+      "value": 0.125
+     },
+     "unseen": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     }
+    },
+    "name": "Night Clan",
+    "ran_out": {
+     "all": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "alone": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "frames": null,
+     "stood": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     }
+    },
+    "rest": {
+     "knots": [],
+     "longer": 0,
+     "mean": null,
+     "n": 0,
+     "p50": null
+    },
+    "runs": 4
+   },
+   "545": {
+    "after_stagger": {
+     "n": 0,
+     "p50": null
+    },
+    "ends": {
+     "died": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "ran out": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 3,
+      "struck": 0,
+      "value": 0.0
+     },
+     "staggered": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "unseen": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     }
+    },
+    "name": "Baal Taunt",
+    "ran_out": {
+     "all": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 3,
+      "value": 0.0
+     },
+     "alone": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 3,
+      "value": 0.0
+     },
+     "frames": 2,
+     "stood": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 3,
+      "value": 0.0
+     }
+    },
+    "rest": {
+     "knots": [],
+     "longer": 1,
+     "mean": null,
+     "n": 0,
+     "p50": null
+    },
+    "runs": 3
+   },
+   "55": {
+    "after_stagger": {
+     "n": 0,
+     "p50": null
+    },
+    "ends": {
+     "died": {
+      "high": 0.091,
+      "low": 0.0,
+      "n": 11,
+      "struck": 1,
+      "value": 0.0455
+     },
+     "ran out": {
+      "high": 0.556,
+      "low": 0.333,
+      "n": 9,
+      "struck": 4,
+      "value": 0.4445
+     },
+     "staggered": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 33,
+      "struck": 32,
+      "value": 0.0
+     },
+     "unseen": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 20,
+      "struck": 3,
+      "value": 0.0
+     }
+    },
+    "name": "Blood Clan",
+    "ran_out": {
+     "all": {
+      "high": 0.556,
+      "low": 0.333,
+      "n": 9,
+      "value": 0.4445
+     },
+     "alone": {
+      "high": 1.0,
+      "low": 0.0,
+      "n": 1,
+      "value": 0.5
+     },
+     "frames": 20,
+     "stood": {
+      "high": 0.4,
+      "low": 0.2,
+      "n": 5,
+      "value": 0.3
+     }
+    },
+    "rest": {
+     "knots": [
+      14,
+      14,
+      14,
+      14,
+      14,
+      15,
+      15,
+      15,
+      15,
+      15,
+      15
+     ],
+     "longer": 0,
+     "mean": 14.5,
+     "n": 2,
+     "p50": 15
+    },
+    "runs": 73
+   },
+   "56": {
+    "after_stagger": {
+     "n": 2,
+     "p50": 27
+    },
+    "ends": {
+     "died": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 4,
+      "struck": 1,
+      "value": 0.0
+     },
+     "ran out": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 4,
+      "struck": 3,
+      "value": 0.0
+     },
+     "staggered": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 12,
+      "struck": 12,
+      "value": 0.0
+     },
+     "unseen": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 11,
+      "struck": 1,
+      "value": 0.0
+     }
+    },
+    "name": "Hell Clan",
+    "ran_out": {
+     "all": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 4,
+      "value": 0.0
+     },
+     "alone": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "frames": 20,
+     "stood": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     }
+    },
+    "rest": {
+     "knots": [],
+     "longer": 0,
+     "mean": null,
+     "n": 0,
+     "p50": null
+    },
+    "runs": 31
+   },
+   "59": {
+    "after_stagger": {
+     "n": 0,
+     "p50": null
+    },
+    "ends": {
+     "died": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "ran out": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 1,
+      "struck": 0,
+      "value": 0.0
+     },
+     "staggered": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "unseen": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     }
+    },
+    "name": "Carver Shaman",
+    "ran_out": {
+     "all": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 1,
+      "value": 0.0
+     },
+     "alone": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 1,
+      "value": 0.0
+     },
+     "frames": 18,
+     "stood": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 1,
+      "value": 0.0
+     }
+    },
+    "rest": {
+     "knots": [],
+     "longer": 0,
+     "mean": null,
+     "n": 0,
+     "p50": null
+    },
+    "runs": 1
+   },
+   "631": {
+    "after_stagger": {
+     "n": 0,
+     "p50": null
+    },
+    "ends": {
+     "died": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 1,
+      "struck": 1,
+      "value": 0.0
+     },
+     "ran out": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "staggered": {
+      "high": 0.222,
+      "low": 0.0,
+      "n": 9,
+      "struck": 9,
+      "value": 0.111
+     },
+     "unseen": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     }
+    },
+    "name": "Ghost",
+    "ran_out": {
+     "all": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "alone": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "frames": null,
+     "stood": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     }
+    },
+    "rest": {
+     "knots": [],
+     "longer": 0,
+     "mean": null,
+     "n": 0,
+     "p50": null
+    },
+    "runs": 10
+   },
+   "632": {
+    "after_stagger": {
+     "n": 0,
+     "p50": null
+    },
+    "ends": {
+     "died": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "ran out": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "staggered": {
+      "high": 0.25,
+      "low": 0.25,
+      "n": 4,
+      "struck": 4,
+      "value": 0.25
+     },
+     "unseen": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     }
+    },
+    "name": "Wraith",
+    "ran_out": {
+     "all": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "alone": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "frames": null,
+     "stood": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     }
+    },
+    "rest": {
+     "knots": [],
+     "longer": 0,
+     "mean": null,
+     "n": 0,
+     "p50": null
+    },
+    "runs": 4
+   },
+   "648": {
+    "after_stagger": {
+     "n": 1,
+     "p50": 23
+    },
+    "ends": {
+     "died": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 1,
+      "struck": 0,
+      "value": 0.0
+     },
+     "ran out": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 1,
+      "struck": 0,
+      "value": 0.0
+     },
+     "staggered": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 5,
+      "struck": 5,
+      "value": 0.0
+     },
+     "unseen": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     }
+    },
+    "name": "Bone Warrior",
+    "ran_out": {
+     "all": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 1,
+      "value": 0.0
+     },
+     "alone": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 1,
+      "value": 0.0
+     },
+     "frames": 4,
+     "stood": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 1,
+      "value": 0.0
+     }
+    },
+    "rest": {
+     "knots": [
+      24,
+      24,
+      24,
+      24,
+      24,
+      24,
+      24,
+      24,
+      24,
+      24,
+      24
+     ],
+     "longer": 0,
+     "mean": 24,
+     "n": 1,
+     "p50": 24
+    },
+    "runs": 7
+   },
+   "652": {
+    "after_stagger": {
+     "n": 0,
+     "p50": null
+    },
+    "ends": {
+     "died": {
+      "high": 1.0,
+      "low": 1.0,
+      "n": 1,
+      "struck": 1,
+      "value": 1.0
+     },
+     "ran out": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "staggered": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 2,
+      "struck": 2,
+      "value": 0.0
+     },
+     "unseen": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     }
+    },
+    "name": "Moon Lord",
+    "ran_out": {
+     "all": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "alone": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "frames": null,
+     "stood": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     }
+    },
+    "rest": {
+     "knots": [],
+     "longer": 0,
+     "mean": null,
+     "n": 0,
+     "p50": null
+    },
+    "runs": 3
+   },
+   "656": {
+    "after_stagger": {
+     "n": 0,
+     "p50": null
+    },
+    "ends": {
+     "died": {
+      "high": 0.333,
+      "low": 0.0,
+      "n": 3,
+      "struck": 1,
+      "value": 0.1665
+     },
+     "ran out": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 1,
+      "struck": 1,
+      "value": 0.0
+     },
+     "staggered": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 1,
+      "struck": 1,
+      "value": 0.0
+     },
+     "unseen": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     }
+    },
+    "name": "Flayer",
+    "ran_out": {
+     "all": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 1,
+      "value": 0.0
+     },
+     "alone": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "frames": 12,
+     "stood": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 1,
+      "value": 0.0
+     }
+    },
+    "rest": {
+     "knots": [],
+     "longer": 0,
+     "mean": null,
+     "n": 0,
+     "p50": null
+    },
+    "runs": 5
+   },
+   "658": {
+    "after_stagger": {
+     "n": 0,
+     "p50": null
+    },
+    "ends": {
+     "died": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 3,
+      "struck": 0,
+      "value": 0.0
+     },
+     "ran out": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "staggered": {
+      "high": 0.167,
+      "low": 0.167,
+      "n": 6,
+      "struck": 6,
+      "value": 0.167
+     },
+     "unseen": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 7,
+      "struck": 1,
+      "value": 0.0
+     }
+    },
+    "name": "Soul Killer",
+    "ran_out": {
+     "all": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "alone": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "frames": null,
+     "stood": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     }
+    },
+    "rest": {
+     "knots": [],
+     "longer": 0,
+     "mean": null,
+     "n": 0,
+     "p50": null
+    },
+    "runs": 16
+   },
+   "671": {
+    "after_stagger": {
+     "n": 0,
+     "p50": null
+    },
+    "ends": {
+     "died": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 1,
+      "struck": 0,
+      "value": 0.0
+     },
+     "ran out": {
+      "high": 1.0,
+      "low": 0.0,
+      "n": 1,
+      "struck": 1,
+      "value": 0.5
+     },
+     "staggered": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 4,
+      "struck": 4,
+      "value": 0.0
+     },
+     "unseen": {
+      "high": 0.143,
+      "low": 0.0,
+      "n": 7,
+      "struck": 2,
+      "value": 0.0715
+     }
+    },
+    "name": "Zealot",
+    "ran_out": {
+     "all": {
+      "high": 1.0,
+      "low": 0.0,
+      "n": 1,
+      "value": 0.5
+     },
+     "alone": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "frames": 10,
+     "stood": {
+      "high": 1.0,
+      "low": 0.0,
+      "n": 1,
+      "value": 0.5
+     }
+    },
+    "rest": {
+     "knots": [
+      15,
+      15,
+      15,
+      15,
+      15,
+      15,
+      15,
+      15,
+      15,
+      15,
+      15
+     ],
+     "longer": 0,
+     "mean": 15,
+     "n": 1,
+     "p50": 15
+    },
+    "runs": 13
+   },
+   "675": {
+    "after_stagger": {
+     "n": 0,
+     "p50": null
+    },
+    "ends": {
+     "died": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "ran out": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "staggered": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "unseen": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 4,
+      "struck": 0,
+      "value": 0.0
+     }
+    },
+    "name": "Grotesque",
+    "ran_out": {
+     "all": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "alone": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "frames": null,
+     "stood": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     }
+    },
+    "rest": {
+     "knots": [],
+     "longer": 0,
+     "mean": null,
+     "n": 0,
+     "p50": null
+    },
+    "runs": 4
+   },
+   "677": {
+    "after_stagger": {
+     "n": 0,
+     "p50": null
+    },
+    "ends": {
+     "died": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "ran out": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "staggered": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 1,
+      "struck": 1,
+      "value": 0.0
+     },
+     "unseen": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     }
+    },
+    "name": "Grotesque Wyrm",
+    "ran_out": {
+     "all": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "alone": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "frames": null,
+     "stood": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     }
+    },
+    "rest": {
+     "knots": [],
+     "longer": 0,
+     "mean": null,
+     "n": 0,
+     "p50": null
+    },
+    "runs": 1
+   },
+   "679": {
+    "after_stagger": {
+     "n": 0,
+     "p50": null
+    },
+    "ends": {
+     "died": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "ran out": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "staggered": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "unseen": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 2,
+      "struck": 0,
+      "value": 0.0
+     }
+    },
+    "name": "Blood Maggot",
+    "ran_out": {
+     "all": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "alone": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "frames": null,
+     "stood": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     }
+    },
+    "rest": {
+     "knots": [],
+     "longer": 0,
+     "mean": null,
+     "n": 0,
+     "p50": null
+    },
+    "runs": 2
+   },
+   "682": {
+    "after_stagger": {
+     "n": 1,
+     "p50": 30
+    },
+    "ends": {
+     "died": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 1,
+      "struck": 1,
+      "value": 0.0
+     },
+     "ran out": {
+      "high": 0.5,
+      "low": 0.5,
+      "n": 2,
+      "struck": 1,
+      "value": 0.5
+     },
+     "staggered": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 4,
+      "struck": 4,
+      "value": 0.0
+     },
+     "unseen": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 1,
+      "struck": 0,
+      "value": 0.0
+     }
+    },
+    "name": "Slayer",
+    "ran_out": {
+     "all": {
+      "high": 0.5,
+      "low": 0.5,
+      "n": 2,
+      "value": 0.5
+     },
+     "alone": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "frames": 24,
+     "stood": {
+      "high": 1.0,
+      "low": 1.0,
+      "n": 1,
+      "value": 1.0
+     }
+    },
+    "rest": {
+     "knots": [
+      15,
+      15,
+      15,
+      15,
+      15,
+      15,
+      15,
+      15,
+      15,
+      15,
+      15
+     ],
+     "longer": 1,
+     "mean": 15,
+     "n": 3,
+     "p50": 15
+    },
+    "runs": 8
+   },
+   "685": {
+    "after_stagger": {
+     "n": 0,
+     "p50": null
+    },
+    "ends": {
+     "died": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 1,
+      "struck": 0,
+      "value": 0.0
+     },
+     "ran out": {
+      "high": 0.5,
+      "low": 0.0,
+      "n": 2,
+      "struck": 2,
+      "value": 0.25
+     },
+     "staggered": {
+      "high": 0.2,
+      "low": 0.0,
+      "n": 5,
+      "struck": 5,
+      "value": 0.1
+     },
+     "unseen": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 7,
+      "struck": 3,
+      "value": 0.0
+     }
+    },
+    "name": "Arach",
+    "ran_out": {
+     "all": {
+      "high": 0.5,
+      "low": 0.0,
+      "n": 2,
+      "value": 0.25
+     },
+     "alone": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "frames": 12,
+     "stood": {
+      "high": 0.5,
+      "low": 0.0,
+      "n": 2,
+      "value": 0.25
+     }
+    },
+    "rest": {
+     "knots": [
+      15,
+      15,
+      15,
+      15,
+      15,
+      15,
+      15,
+      15,
+      15,
+      15,
+      15
+     ],
+     "longer": 0,
+     "mean": 15,
+     "n": 1,
+     "p50": 15
+    },
+    "runs": 15
+   },
+   "703": {
+    "after_stagger": {
+     "n": 0,
+     "p50": null
+    },
+    "ends": {
+     "died": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 1,
+      "struck": 0,
+      "value": 0.0
+     },
+     "ran out": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "staggered": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "unseen": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 1,
+      "struck": 1,
+      "value": 0.0
+     }
+    },
+    "name": "Cadaver",
+    "ran_out": {
+     "all": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "alone": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "frames": null,
+     "stood": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     }
+    },
+    "rest": {
+     "knots": [],
+     "longer": 0,
+     "mean": null,
+     "n": 0,
+     "p50": null
+    },
+    "runs": 2
+   },
+   "72": {
+    "after_stagger": {
+     "n": 0,
+     "p50": null
+    },
+    "ends": {
+     "died": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "ran out": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 1,
+      "struck": 1,
+      "value": 0.0
+     },
+     "staggered": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 1,
+      "struck": 1,
+      "value": 0.0
+     },
+     "unseen": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 1,
+      "struck": 0,
+      "value": 0.0
+     }
+    },
+    "name": "Blood Maggot",
+    "ran_out": {
+     "all": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 1,
+      "value": 0.0
+     },
+     "alone": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "frames": 15,
+     "stood": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 1,
+      "value": 0.0
+     }
+    },
+    "rest": {
+     "knots": [],
+     "longer": 0,
+     "mean": null,
+     "n": 0,
+     "p50": null
+    },
+    "runs": 3
+   },
+   "87": {
+    "after_stagger": {
+     "n": 0,
+     "p50": null
+    },
+    "ends": {
+     "died": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 2,
+      "struck": 1,
+      "value": 0.0
+     },
+     "ran out": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "staggered": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "unseen": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     }
+    },
+    "name": "Itchies",
+    "ran_out": {
+     "all": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "alone": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "frames": null,
+     "stood": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     }
+    },
+    "rest": {
+     "knots": [],
+     "longer": 0,
+     "mean": null,
+     "n": 0,
+     "p50": null
+    },
+    "runs": 2
+   },
+   "92": {
+    "after_stagger": {
+     "n": 0,
+     "p50": null
+    },
+    "ends": {
+     "died": {
+      "high": 1.0,
+      "low": 0.0,
+      "n": 1,
+      "struck": 1,
+      "value": 0.5
+     },
+     "ran out": {
+      "high": 1.0,
+      "low": 0.0,
+      "n": 1,
+      "struck": 1,
+      "value": 0.5
+     },
+     "staggered": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 2,
+      "struck": 2,
+      "value": 0.0
+     },
+     "unseen": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     }
+    },
+    "name": "Death Beetle",
+    "ran_out": {
+     "all": {
+      "high": 1.0,
+      "low": 0.0,
+      "n": 1,
+      "value": 0.5
+     },
+     "alone": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "frames": 14,
+     "stood": {
+      "high": 1.0,
+      "low": 0.0,
+      "n": 1,
+      "value": 0.5
+     }
+    },
+    "rest": {
+     "knots": [],
+     "longer": 0,
+     "mean": null,
+     "n": 0,
+     "p50": null
+    },
+    "runs": 4
+   }
+  }
+ },
+ "constants": {
+  "enough_swings": 30,
+  "parts": 16,
+  "reach": 3.5,
+  "rest_most": 50,
+  "stagger_after": 2
+ },
+ "split": "split.json",
+ "train": {
+  "after_stagger": {
+   "n": 16,
+   "p50": 29
+  },
+  "blow": {
+   "n": 22,
+   "p10": 0.1,
+   "p90": 0.917,
+   "share": 0.667
+  },
+  "ends": {
+   "died": {
+    "high": 0.053,
+    "low": 0.033,
+    "n": 150,
+    "struck": 29,
+    "value": 0.043
+   },
+   "ran out": {
+    "high": 0.38,
+    "low": 0.134,
+    "n": 142,
+    "struck": 98,
+    "value": 0.257
+   },
+   "staggered": {
+    "high": 0.144,
+    "low": 0.037,
+    "n": 216,
+    "struck": 206,
+    "value": 0.0905
+   },
+   "unseen": {
+    "high": 0.057,
+    "low": 0.029,
+    "n": 105,
+    "struck": 16,
+    "value": 0.043
+   }
+  },
+  "ran_out": {
+   "all": {
+    "high": 0.38,
+    "low": 0.134,
+    "n": 142,
+    "value": 0.257
+   },
+   "alone": {
+    "high": 0.391,
+    "low": 0.348,
+    "n": 23,
+    "value": 0.3695
+   },
+   "frames": 15,
+   "stood": {
+    "high": 0.439,
+    "low": 0.153,
+    "n": 98,
+    "value": 0.296
+   }
+  },
+  "recovery": {
+   "entered": 3817,
+   "mode": 3,
+   "with_fall": 3678
+  },
+  "rest": {
+   "knots": [
+    8,
+    14,
+    15,
+    15,
+    15,
+    15,
+    15,
+    15,
+    16,
+    25,
+    36
+   ],
+   "longer": 6,
+   "mean": 16.62,
+   "n": 50,
+   "p50": 15
+  },
+  "runs": 613,
+  "stagger": {
+   "bands": [
+    {
+     "chance": 0.062,
+     "from": 0,
+     "n": 4066,
+     "staggered": 252
+    },
+    {
+     "chance": 0.242,
+     "from": 1,
+     "n": 697,
+     "staggered": 169
+    },
+    {
+     "chance": 0.693,
+     "from": 2,
+     "n": 635,
+     "staggered": 440
+    },
+    {
+     "chance": 0.719,
+     "from": 3,
+     "n": 320,
+     "staggered": 230
+    },
+    {
+     "chance": 0.929,
+     "from": 4,
+     "n": 3217,
+     "staggered": 2988
+    }
+   ],
+   "parts": 16,
+   "recovery": {
+    "knots": [
+     1,
+     3,
+     6,
+     8,
+     9,
+     10,
+     10,
+     12,
+     14,
+     16,
+     30
+    ],
+    "n": 1573,
+    "p50": 10
+   }
+  },
+  "struck": {
+   "deaths": 677,
+   "falls": [
+    395,
+    50,
+    31,
+    34,
+    338
+   ],
+   "seconds": 1177.5
+  },
+  "takes": 332,
+  "types": {
+   "0": {
+    "after_stagger": {
+     "n": 0,
+     "p50": null
+    },
+    "ends": {
+     "died": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "ran out": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "staggered": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 1,
+      "struck": 1,
+      "value": 0.0
+     },
+     "unseen": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     }
+    },
+    "name": "Skeleton",
+    "ran_out": {
+     "all": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "alone": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "frames": null,
+     "stood": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     }
+    },
+    "rest": {
+     "knots": [],
+     "longer": 0,
+     "mean": null,
+     "n": 0,
+     "p50": null
+    },
+    "runs": 1
+   },
+   "16": {
+    "after_stagger": {
+     "n": 0,
+     "p50": null
+    },
+    "ends": {
+     "died": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 8,
+      "struck": 2,
+      "value": 0.0
+     },
+     "ran out": {
+      "high": 0.667,
+      "low": 0.667,
+      "n": 3,
+      "struck": 2,
+      "value": 0.667
+     },
+     "staggered": {
+      "high": 0.333,
+      "low": 0.333,
+      "n": 3,
+      "struck": 3,
+      "value": 0.333
+     },
+     "unseen": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     }
+    },
+    "name": "Blood Hawk",
+    "ran_out": {
+     "all": {
+      "high": 0.667,
+      "low": 0.667,
+      "n": 3,
+      "value": 0.667
+     },
+     "alone": {
+      "high": 1.0,
+      "low": 1.0,
+      "n": 1,
+      "value": 1.0
+     },
+     "frames": 11,
+     "stood": {
+      "high": 0.667,
+      "low": 0.667,
+      "n": 3,
+      "value": 0.667
+     }
+    },
+    "rest": {
+     "knots": [],
+     "longer": 0,
+     "mean": null,
+     "n": 0,
+     "p50": null
+    },
+    "runs": 14
+   },
+   "165": {
+    "after_stagger": {
+     "n": 0,
+     "p50": null
+    },
+    "ends": {
+     "died": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 2,
+      "struck": 1,
+      "value": 0.0
+     },
+     "ran out": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "staggered": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 1,
+      "struck": 1,
+      "value": 0.0
+     },
+     "unseen": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     }
+    },
+    "name": "Dark Spearwoman",
+    "ran_out": {
+     "all": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "alone": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "frames": null,
+     "stood": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     }
+    },
+    "rest": {
+     "knots": [],
+     "longer": 0,
+     "mean": null,
+     "n": 0,
+     "p50": null
+    },
+    "runs": 3
+   },
+   "17": {
+    "after_stagger": {
+     "n": 0,
+     "p50": null
+    },
+    "ends": {
+     "died": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 1,
+      "struck": 0,
+      "value": 0.0
+     },
+     "ran out": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "staggered": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "unseen": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     }
+    },
+    "name": "Black Raptor",
+    "ran_out": {
+     "all": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "alone": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "frames": null,
+     "stood": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     }
+    },
+    "rest": {
+     "knots": [],
+     "longer": 0,
+     "mean": null,
+     "n": 0,
+     "p50": null
+    },
+    "runs": 1
+   },
+   "19": {
+    "after_stagger": {
+     "n": 0,
+     "p50": null
+    },
+    "ends": {
+     "died": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 7,
+      "struck": 0,
+      "value": 0.0
+     },
+     "ran out": {
+      "high": 0.25,
+      "low": 0.25,
+      "n": 4,
+      "struck": 2,
+      "value": 0.25
+     },
+     "staggered": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 2,
+      "struck": 2,
+      "value": 0.0
+     },
+     "unseen": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 2,
+      "struck": 1,
+      "value": 0.0
+     }
+    },
+    "name": "Fallen",
+    "ran_out": {
+     "all": {
+      "high": 0.25,
+      "low": 0.25,
+      "n": 4,
+      "value": 0.25
+     },
+     "alone": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 2,
+      "value": 0.0
+     },
+     "frames": 10,
+     "stood": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 2,
+      "value": 0.0
+     }
+    },
+    "rest": {
+     "knots": [
+      25,
+      25,
+      25,
+      25,
+      25,
+      25,
+      25,
+      25,
+      25,
+      25,
+      25
+     ],
+     "longer": 0,
+     "mean": 25,
+     "n": 1,
+     "p50": 25
+    },
+    "runs": 15
+   },
+   "20": {
+    "after_stagger": {
+     "n": 0,
+     "p50": null
+    },
+    "ends": {
+     "died": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 7,
+      "struck": 2,
+      "value": 0.0
+     },
+     "ran out": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 2,
+      "struck": 1,
+      "value": 0.0
+     },
+     "staggered": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 3,
+      "struck": 3,
+      "value": 0.0
+     },
+     "unseen": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 1,
+      "struck": 0,
+      "value": 0.0
+     }
+    },
+    "name": "Carver",
+    "ran_out": {
+     "all": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 2,
+      "value": 0.0
+     },
+     "alone": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 1,
+      "value": 0.0
+     },
+     "frames": 14,
+     "stood": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 1,
+      "value": 0.0
+     }
+    },
+    "rest": {
+     "knots": [],
+     "longer": 0,
+     "mean": null,
+     "n": 0,
+     "p50": null
+    },
+    "runs": 13
+   },
+   "21": {
+    "after_stagger": {
+     "n": 0,
+     "p50": null
+    },
+    "ends": {
+     "died": {
+      "high": 0.059,
+      "low": 0.029,
+      "n": 34,
+      "struck": 3,
+      "value": 0.044
+     },
+     "ran out": {
+      "high": 0.273,
+      "low": 0.045,
+      "n": 44,
+      "struck": 34,
+      "value": 0.159
+     },
+     "staggered": {
+      "high": 0.04,
+      "low": 0.0,
+      "n": 25,
+      "struck": 24,
+      "value": 0.02
+     },
+     "unseen": {
+      "high": 0.048,
+      "low": 0.0,
+      "n": 21,
+      "struck": 0,
+      "value": 0.024
+     }
+    },
+    "name": "Devilkin",
+    "ran_out": {
+     "all": {
+      "high": 0.273,
+      "low": 0.045,
+      "n": 44,
+      "value": 0.159
+     },
+     "alone": {
+      "high": 0.2,
+      "low": 0.2,
+      "n": 5,
+      "value": 0.2
+     },
+     "frames": 11,
+     "stood": {
+      "high": 0.263,
+      "low": 0.053,
+      "n": 38,
+      "value": 0.158
+     }
+    },
+    "rest": {
+     "knots": [
+      13,
+      15,
+      15,
+      15,
+      15,
+      15,
+      15,
+      15,
+      15,
+      15,
+      16
+     ],
+     "longer": 1,
+     "mean": 14.91,
+     "n": 11,
+     "p50": 15
+    },
+    "runs": 124
+   },
+   "250": {
+    "after_stagger": {
+     "n": 0,
+     "p50": null
+    },
+    "ends": {
+     "died": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 1,
+      "struck": 0,
+      "value": 0.0
+     },
+     "ran out": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "staggered": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 1,
+      "struck": 1,
+      "value": 0.0
+     },
+     "unseen": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     }
+    },
+    "name": "The Summoner",
+    "ran_out": {
+     "all": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "alone": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "frames": null,
+     "stood": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     }
+    },
+    "rest": {
+     "knots": [],
+     "longer": 0,
+     "mean": null,
+     "n": 0,
+     "p50": null
+    },
+    "runs": 2
+   },
+   "28": {
+    "after_stagger": {
+     "n": 0,
+     "p50": null
+    },
+    "ends": {
+     "died": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "ran out": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "staggered": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 1,
+      "struck": 1,
+      "value": 0.0
+     },
+     "unseen": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     }
+    },
+    "name": "Gargantuan Beast",
+    "ran_out": {
+     "all": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "alone": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "frames": null,
+     "stood": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     }
+    },
+    "rest": {
+     "knots": [],
+     "longer": 0,
+     "mean": null,
+     "n": 0,
+     "p50": null
+    },
+    "runs": 1
+   },
+   "295": {
+    "after_stagger": {
+     "n": 1,
+     "p50": 35
+    },
+    "ends": {
+     "died": {
+      "high": 0.333,
+      "low": 0.333,
+      "n": 3,
+      "struck": 1,
+      "value": 0.333
+     },
+     "ran out": {
+      "high": 0.667,
+      "low": 0.5,
+      "n": 6,
+      "struck": 4,
+      "value": 0.5835
+     },
+     "staggered": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 2,
+      "struck": 1,
+      "value": 0.0
+     },
+     "unseen": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 1,
+      "struck": 0,
+      "value": 0.0
+     }
+    },
+    "name": "Night Marauder",
+    "ran_out": {
+     "all": {
+      "high": 0.667,
+      "low": 0.5,
+      "n": 6,
+      "value": 0.5835
+     },
+     "alone": {
+      "high": 1.0,
+      "low": 1.0,
+      "n": 3,
+      "value": 1.0
+     },
+     "frames": 14,
+     "stood": {
+      "high": 0.8,
+      "low": 0.6,
+      "n": 5,
+      "value": 0.7
+     }
+    },
+    "rest": {
+     "knots": [
+      15,
+      15,
+      15,
+      15,
+      15,
+      15,
+      15,
+      15,
+      29,
+      29,
+      29
+     ],
+     "longer": 0,
+     "mean": 18.5,
+     "n": 4,
+     "p50": 15
+    },
+    "runs": 12
+   },
+   "300": {
+    "after_stagger": {
+     "n": 0,
+     "p50": null
+    },
+    "ends": {
+     "died": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "ran out": {
+      "high": 1.0,
+      "low": 1.0,
+      "n": 1,
+      "struck": 1,
+      "value": 1.0
+     },
+     "staggered": {
+      "high": 1.0,
+      "low": 0.0,
+      "n": 1,
+      "struck": 1,
+      "value": 0.5
+     },
+     "unseen": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     }
+    },
+    "name": "Grotesque",
+    "ran_out": {
+     "all": {
+      "high": 1.0,
+      "low": 1.0,
+      "n": 1,
+      "value": 1.0
+     },
+     "alone": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "frames": 17,
+     "stood": {
+      "high": 1.0,
+      "low": 1.0,
+      "n": 1,
+      "value": 1.0
+     }
+    },
+    "rest": {
+     "knots": [],
+     "longer": 0,
+     "mean": null,
+     "n": 0,
+     "p50": null
+    },
+    "runs": 2
+   },
+   "303": {
+    "after_stagger": {
+     "n": 0,
+     "p50": null
+    },
+    "ends": {
+     "died": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "ran out": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "staggered": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 1,
+      "struck": 0,
+      "value": 0.0
+     },
+     "unseen": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     }
+    },
+    "name": "Grotesque Wyrm",
+    "ran_out": {
+     "all": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "alone": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "frames": null,
+     "stood": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     }
+    },
+    "rest": {
+     "knots": [],
+     "longer": 0,
+     "mean": null,
+     "n": 0,
+     "p50": null
+    },
+    "runs": 1
+   },
+   "310": {
+    "after_stagger": {
+     "n": 0,
+     "p50": null
+    },
+    "ends": {
+     "died": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "ran out": {
+      "high": 1.0,
+      "low": 1.0,
+      "n": 1,
+      "struck": 1,
+      "value": 1.0
+     },
+     "staggered": {
+      "high": 1.0,
+      "low": 0.0,
+      "n": 1,
+      "struck": 1,
+      "value": 0.5
+     },
+     "unseen": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     }
+    },
+    "name": "Doom Knight",
+    "ran_out": {
+     "all": {
+      "high": 1.0,
+      "low": 1.0,
+      "n": 1,
+      "value": 1.0
+     },
+     "alone": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "frames": 16,
+     "stood": {
+      "high": 1.0,
+      "low": 1.0,
+      "n": 1,
+      "value": 1.0
+     }
+    },
+    "rest": {
+     "knots": [
+      14,
+      14,
+      14,
+      14,
+      14,
+      16,
+      16,
+      16,
+      16,
+      16,
+      16
+     ],
+     "longer": 0,
+     "mean": 15,
+     "n": 2,
+     "p50": 16
+    },
+    "runs": 2
+   },
+   "352": {
+    "after_stagger": {
+     "n": 0,
+     "p50": null
+    },
+    "ends": {
+     "died": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "ran out": {
+      "high": 0.6,
+      "low": 0.2,
+      "n": 5,
+      "struck": 0,
+      "value": 0.4
+     },
+     "staggered": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "unseen": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     }
+    },
+    "name": "Hydra",
+    "ran_out": {
+     "all": {
+      "high": 0.6,
+      "low": 0.2,
+      "n": 5,
+      "value": 0.4
+     },
+     "alone": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "frames": 12,
+     "stood": {
+      "high": 0.6,
+      "low": 0.2,
+      "n": 5,
+      "value": 0.4
+     }
+    },
+    "rest": {
+     "knots": [
+      15,
+      15,
+      15,
+      15,
+      15,
+      15,
+      24,
+      24,
+      25,
+      25,
+      25
+     ],
+     "longer": 0,
+     "mean": 18.8,
+     "n": 5,
+     "p50": 15
+    },
+    "runs": 5
+   },
+   "361": {
+    "after_stagger": {
+     "n": 2,
+     "p50": 31
+    },
+    "ends": {
+     "died": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 1,
+      "struck": 0,
+      "value": 0.0
+     },
+     "ran out": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "staggered": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 4,
+      "struck": 4,
+      "value": 0.0
+     },
+     "unseen": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 4,
+      "struck": 1,
+      "value": 0.0
+     }
+    },
+    "name": "Pit Lord",
+    "ran_out": {
+     "all": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "alone": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "frames": null,
+     "stood": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     }
+    },
+    "rest": {
+     "knots": [
+      15,
+      15,
+      15,
+      15,
+      15,
+      15,
+      15,
+      15,
+      15,
+      15,
+      15
+     ],
+     "longer": 0,
+     "mean": 15,
+     "n": 2,
+     "p50": 15
+    },
+    "runs": 9
+   },
+   "362": {
+    "after_stagger": {
+     "n": 0,
+     "p50": null
+    },
+    "ends": {
+     "died": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 1,
+      "struck": 0,
+      "value": 0.0
+     },
+     "ran out": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "staggered": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "unseen": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     }
+    },
+    "name": "Venom Lord",
+    "ran_out": {
+     "all": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "alone": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "frames": null,
+     "stood": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     }
+    },
+    "rest": {
+     "knots": [],
+     "longer": 0,
+     "mean": null,
+     "n": 0,
+     "p50": null
+    },
+    "runs": 1
+   },
+   "38": {
+    "after_stagger": {
+     "n": 0,
+     "p50": null
+    },
+    "ends": {
+     "died": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 5,
+      "struck": 2,
+      "value": 0.0
+     },
+     "ran out": {
+      "high": 0.455,
+      "low": 0.182,
+      "n": 11,
+      "struck": 8,
+      "value": 0.3185
+     },
+     "staggered": {
+      "high": 0.174,
+      "low": 0.0,
+      "n": 23,
+      "struck": 20,
+      "value": 0.087
+     },
+     "unseen": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 10,
+      "struck": 1,
+      "value": 0.0
+     }
+    },
+    "name": "Ghost",
+    "ran_out": {
+     "all": {
+      "high": 0.455,
+      "low": 0.182,
+      "n": 11,
+      "value": 0.3185
+     },
+     "alone": {
+      "high": 0.25,
+      "low": 0.25,
+      "n": 4,
+      "value": 0.25
+     },
+     "frames": 18,
+     "stood": {
+      "high": 0.5,
+      "low": 0.125,
+      "n": 8,
+      "value": 0.3125
+     }
+    },
+    "rest": {
+     "knots": [
+      14,
+      14,
+      14,
+      15,
+      15,
+      15,
+      15,
+      15,
+      15,
+      15,
+      15
+     ],
+     "longer": 0,
+     "mean": 14.75,
+     "n": 4,
+     "p50": 15
+    },
+    "runs": 49
+   },
+   "391": {
+    "after_stagger": {
+     "n": 1,
+     "p50": 10
+    },
+    "ends": {
+     "died": {
+      "high": 0.25,
+      "low": 0.25,
+      "n": 4,
+      "struck": 1,
+      "value": 0.25
+     },
+     "ran out": {
+      "high": 0.5,
+      "low": 0.167,
+      "n": 6,
+      "struck": 5,
+      "value": 0.3335
+     },
+     "staggered": {
+      "high": 0.429,
+      "low": 0.143,
+      "n": 7,
+      "struck": 7,
+      "value": 0.286
+     },
+     "unseen": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     }
+    },
+    "name": "Hell Bovine",
+    "ran_out": {
+     "all": {
+      "high": 0.5,
+      "low": 0.167,
+      "n": 6,
+      "value": 0.3335
+     },
+     "alone": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "frames": 17,
+     "stood": {
+      "high": 0.75,
+      "low": 0.25,
+      "n": 4,
+      "value": 0.5
+     }
+    },
+    "rest": {
+     "knots": [
+      8,
+      8,
+      8,
+      8,
+      13,
+      13,
+      13,
+      22,
+      22,
+      22,
+      22
+     ],
+     "longer": 0,
+     "mean": 14.33,
+     "n": 3,
+     "p50": 13
+    },
+    "runs": 17
+   },
+   "40": {
+    "after_stagger": {
+     "n": 1,
+     "p50": 29
+    },
+    "ends": {
+     "died": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 5,
+      "struck": 1,
+      "value": 0.0
+     },
+     "ran out": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 9,
+      "struck": 1,
+      "value": 0.0
+     },
+     "staggered": {
+      "high": 0.143,
+      "low": 0.143,
+      "n": 7,
+      "struck": 6,
+      "value": 0.143
+     },
+     "unseen": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 8,
+      "struck": 1,
+      "value": 0.0
+     }
+    },
+    "name": "Specter",
+    "ran_out": {
+     "all": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 9,
+      "value": 0.0
+     },
+     "alone": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "frames": 18,
+     "stood": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 1,
+      "value": 0.0
+     }
+    },
+    "rest": {
+     "knots": [
+      15,
+      15,
+      15,
+      15,
+      15,
+      15,
+      15,
+      15,
+      15,
+      15,
+      15
+     ],
+     "longer": 2,
+     "mean": 15,
+     "n": 1,
+     "p50": 15
+    },
+    "runs": 29
+   },
+   "438": {
+    "after_stagger": {
+     "n": 0,
+     "p50": null
+    },
+    "ends": {
+     "died": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "ran out": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 1,
+      "struck": 0,
+      "value": 0.0
+     },
+     "staggered": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 1,
+      "struck": 1,
+      "value": 0.0
+     },
+     "unseen": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     }
+    },
+    "name": "Prowling Dead",
+    "ran_out": {
+     "all": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 1,
+      "value": 0.0
+     },
+     "alone": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "frames": 18,
+     "stood": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     }
+    },
+    "rest": {
+     "knots": [],
+     "longer": 0,
+     "mean": null,
+     "n": 0,
+     "p50": null
+    },
+    "runs": 2
+   },
+   "446": {
+    "after_stagger": {
+     "n": 0,
+     "p50": null
+    },
+    "ends": {
+     "died": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 1,
+      "struck": 0,
+      "value": 0.0
+     },
+     "ran out": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "staggered": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "unseen": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     }
+    },
+    "name": "Snow Drifter",
+    "ran_out": {
+     "all": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "alone": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "frames": null,
+     "stood": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     }
+    },
+    "rest": {
+     "knots": [],
+     "longer": 0,
+     "mean": null,
+     "n": 0,
+     "p50": null
+    },
+    "runs": 1
+   },
+   "45": {
+    "after_stagger": {
+     "n": 0,
+     "p50": null
+    },
+    "ends": {
+     "died": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 9,
+      "struck": 2,
+      "value": 0.0
+     },
+     "ran out": {
+      "high": 0.2,
+      "low": 0.0,
+      "n": 10,
+      "struck": 7,
+      "value": 0.1
+     },
+     "staggered": {
+      "high": 0.25,
+      "low": 0.0,
+      "n": 16,
+      "struck": 15,
+      "value": 0.125
+     },
+     "unseen": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     }
+    },
+    "name": "Dark Stalker",
+    "ran_out": {
+     "all": {
+      "high": 0.2,
+      "low": 0.0,
+      "n": 10,
+      "value": 0.1
+     },
+     "alone": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "frames": 14,
+     "stood": {
+      "high": 0.333,
+      "low": 0.0,
+      "n": 6,
+      "value": 0.1665
+     }
+    },
+    "rest": {
+     "knots": [
+      14,
+      14,
+      14,
+      14,
+      14,
+      14,
+      14,
+      14,
+      14,
+      14,
+      14
+     ],
+     "longer": 0,
+     "mean": 14,
+     "n": 1,
+     "p50": 14
+    },
+    "runs": 35
+   },
+   "456": {
+    "after_stagger": {
+     "n": 0,
+     "p50": null
+    },
+    "ends": {
+     "died": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "ran out": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "staggered": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 1,
+      "struck": 1,
+      "value": 0.0
+     },
+     "unseen": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     }
+    },
+    "name": "Fire Boar",
+    "ran_out": {
+     "all": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "alone": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "frames": null,
+     "stood": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     }
+    },
+    "rest": {
+     "knots": [],
+     "longer": 0,
+     "mean": null,
+     "n": 0,
+     "p50": null
+    },
+    "runs": 1
+   },
+   "458": {
+    "after_stagger": {
+     "n": 6,
+     "p50": 29
+    },
+    "ends": {
+     "died": {
+      "high": 0.111,
+      "low": 0.056,
+      "n": 18,
+      "struck": 3,
+      "value": 0.0835
+     },
+     "ran out": {
+      "high": 0.8,
+      "low": 0.0,
+      "n": 10,
+      "struck": 10,
+      "value": 0.4
+     },
+     "staggered": {
+      "high": 0.227,
+      "low": 0.045,
+      "n": 22,
+      "struck": 22,
+      "value": 0.136
+     },
+     "unseen": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     }
+    },
+    "name": "Ice Spawn",
+    "ran_out": {
+     "all": {
+      "high": 0.8,
+      "low": 0.0,
+      "n": 10,
+      "value": 0.4
+     },
+     "alone": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "frames": 25,
+     "stood": {
+      "high": 0.75,
+      "low": 0.0,
+      "n": 8,
+      "value": 0.375
+     }
+    },
+    "rest": {
+     "knots": [
+      8,
+      8,
+      14,
+      14,
+      15,
+      15,
+      15,
+      16,
+      16,
+      25,
+      25
+     ],
+     "longer": 0,
+     "mean": 15.5,
+     "n": 6,
+     "p50": 15
+    },
+    "runs": 50
+   },
+   "54": {
+    "after_stagger": {
+     "n": 0,
+     "p50": null
+    },
+    "ends": {
+     "died": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 1,
+      "struck": 0,
+      "value": 0.0
+     },
+     "ran out": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "staggered": {
+      "high": 0.2,
+      "low": 0.2,
+      "n": 5,
+      "struck": 4,
+      "value": 0.2
+     },
+     "unseen": {
+      "high": 1.0,
+      "low": 1.0,
+      "n": 1,
+      "struck": 0,
+      "value": 1.0
+     }
+    },
+    "name": "Night Clan",
+    "ran_out": {
+     "all": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "alone": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "frames": null,
+     "stood": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     }
+    },
+    "rest": {
+     "knots": [],
+     "longer": 0,
+     "mean": null,
+     "n": 0,
+     "p50": null
+    },
+    "runs": 7
+   },
+   "545": {
+    "after_stagger": {
+     "n": 0,
+     "p50": null
+    },
+    "ends": {
+     "died": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "ran out": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 2,
+      "struck": 0,
+      "value": 0.0
+     },
+     "staggered": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "unseen": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     }
+    },
+    "name": "Baal Taunt",
+    "ran_out": {
+     "all": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 2,
+      "value": 0.0
+     },
+     "alone": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 2,
+      "value": 0.0
+     },
+     "frames": 2,
+     "stood": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 2,
+      "value": 0.0
+     }
+    },
+    "rest": {
+     "knots": [],
+     "longer": 1,
+     "mean": null,
+     "n": 0,
+     "p50": null
+    },
+    "runs": 2
+   },
+   "55": {
+    "after_stagger": {
+     "n": 2,
+     "p50": 27
+    },
+    "ends": {
+     "died": {
+      "high": 0.077,
+      "low": 0.0,
+      "n": 13,
+      "struck": 5,
+      "value": 0.0385
+     },
+     "ran out": {
+      "high": 0.6,
+      "low": 0.0,
+      "n": 10,
+      "struck": 7,
+      "value": 0.3
+     },
+     "staggered": {
+      "high": 0.195,
+      "low": 0.049,
+      "n": 41,
+      "struck": 40,
+      "value": 0.122
+     },
+     "unseen": {
+      "high": 0.048,
+      "low": 0.048,
+      "n": 21,
+      "struck": 2,
+      "value": 0.048
+     }
+    },
+    "name": "Blood Clan",
+    "ran_out": {
+     "all": {
+      "high": 0.6,
+      "low": 0.0,
+      "n": 10,
+      "value": 0.3
+     },
+     "alone": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 1,
+      "value": 0.0
+     },
+     "frames": 20,
+     "stood": {
+      "high": 0.6,
+      "low": 0.0,
+      "n": 5,
+      "value": 0.3
+     }
+    },
+    "rest": {
+     "knots": [
+      15,
+      15,
+      15,
+      15,
+      16,
+      16,
+      16,
+      30,
+      30,
+      30,
+      30
+     ],
+     "longer": 1,
+     "mean": 20.33,
+     "n": 3,
+     "p50": 16
+    },
+    "runs": 85
+   },
+   "56": {
+    "after_stagger": {
+     "n": 1,
+     "p50": 40
+    },
+    "ends": {
+     "died": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 9,
+      "struck": 2,
+      "value": 0.0
+     },
+     "ran out": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 4,
+      "struck": 4,
+      "value": 0.0
+     },
+     "staggered": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 11,
+      "struck": 11,
+      "value": 0.0
+     },
+     "unseen": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 10,
+      "struck": 1,
+      "value": 0.0
+     }
+    },
+    "name": "Hell Clan",
+    "ran_out": {
+     "all": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 4,
+      "value": 0.0
+     },
+     "alone": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "frames": 20,
+     "stood": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 1,
+      "value": 0.0
+     }
+    },
+    "rest": {
+     "knots": [],
+     "longer": 0,
+     "mean": null,
+     "n": 0,
+     "p50": null
+    },
+    "runs": 34
+   },
+   "588": {
+    "after_stagger": {
+     "n": 0,
+     "p50": null
+    },
+    "ends": {
+     "died": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "ran out": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "staggered": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "unseen": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 7,
+      "struck": 1,
+      "value": 0.0
+     }
+    },
+    "name": "Blood Clan",
+    "ran_out": {
+     "all": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "alone": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "frames": null,
+     "stood": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     }
+    },
+    "rest": {
+     "knots": [],
+     "longer": 0,
+     "mean": null,
+     "n": 0,
+     "p50": null
+    },
+    "runs": 7
+   },
+   "59": {
+    "after_stagger": {
+     "n": 0,
+     "p50": null
+    },
+    "ends": {
+     "died": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "ran out": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "staggered": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 1,
+      "struck": 1,
+      "value": 0.0
+     },
+     "unseen": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 1,
+      "struck": 1,
+      "value": 0.0
+     }
+    },
+    "name": "Carver Shaman",
+    "ran_out": {
+     "all": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "alone": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "frames": null,
+     "stood": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     }
+    },
+    "rest": {
+     "knots": [],
+     "longer": 0,
+     "mean": null,
+     "n": 0,
+     "p50": null
+    },
+    "runs": 2
+   },
+   "6": {
+    "after_stagger": {
+     "n": 0,
+     "p50": null
+    },
+    "ends": {
+     "died": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 1,
+      "struck": 0,
+      "value": 0.0
+     },
+     "ran out": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "staggered": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "unseen": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     }
+    },
+    "name": "Hungry Dead",
+    "ran_out": {
+     "all": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "alone": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "frames": null,
+     "stood": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     }
+    },
+    "rest": {
+     "knots": [],
+     "longer": 0,
+     "mean": null,
+     "n": 0,
+     "p50": null
+    },
+    "runs": 1
+   },
+   "600": {
+    "after_stagger": {
+     "n": 0,
+     "p50": null
+    },
+    "ends": {
+     "died": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "ran out": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "staggered": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "unseen": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 1,
+      "struck": 0,
+      "value": 0.0
+     }
+    },
+    "name": "Infidel",
+    "ran_out": {
+     "all": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "alone": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "frames": null,
+     "stood": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     }
+    },
+    "rest": {
+     "knots": [],
+     "longer": 0,
+     "mean": null,
+     "n": 0,
+     "p50": null
+    },
+    "runs": 1
+   },
+   "631": {
+    "after_stagger": {
+     "n": 1,
+     "p50": 30
+    },
+    "ends": {
+     "died": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 3,
+      "struck": 1,
+      "value": 0.0
+     },
+     "ran out": {
+      "high": 0.25,
+      "low": 0.25,
+      "n": 4,
+      "struck": 4,
+      "value": 0.25
+     },
+     "staggered": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 16,
+      "struck": 16,
+      "value": 0.0
+     },
+     "unseen": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 1,
+      "struck": 0,
+      "value": 0.0
+     }
+    },
+    "name": "Ghost",
+    "ran_out": {
+     "all": {
+      "high": 0.25,
+      "low": 0.25,
+      "n": 4,
+      "value": 0.25
+     },
+     "alone": {
+      "high": 1.0,
+      "low": 1.0,
+      "n": 1,
+      "value": 1.0
+     },
+     "frames": 18,
+     "stood": {
+      "high": 0.333,
+      "low": 0.333,
+      "n": 3,
+      "value": 0.333
+     }
+    },
+    "rest": {
+     "knots": [
+      36,
+      36,
+      36,
+      36,
+      36,
+      36,
+      36,
+      36,
+      36,
+      36,
+      36
+     ],
+     "longer": 0,
+     "mean": 36,
+     "n": 1,
+     "p50": 36
+    },
+    "runs": 24
+   },
+   "648": {
+    "after_stagger": {
+     "n": 0,
+     "p50": null
+    },
+    "ends": {
+     "died": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "ran out": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "staggered": {
+      "high": 0.5,
+      "low": 0.5,
+      "n": 2,
+      "struck": 2,
+      "value": 0.5
+     },
+     "unseen": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     }
+    },
+    "name": "Bone Warrior",
+    "ran_out": {
+     "all": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "alone": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "frames": null,
+     "stood": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     }
+    },
+    "rest": {
+     "knots": [],
+     "longer": 0,
+     "mean": null,
+     "n": 0,
+     "p50": null
+    },
+    "runs": 2
+   },
+   "656": {
+    "after_stagger": {
+     "n": 1,
+     "p50": 29
+    },
+    "ends": {
+     "died": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 4,
+      "struck": 0,
+      "value": 0.0
+     },
+     "ran out": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 2,
+      "struck": 1,
+      "value": 0.0
+     },
+     "staggered": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 6,
+      "struck": 6,
+      "value": 0.0
+     },
+     "unseen": {
+      "high": 0.333,
+      "low": 0.333,
+      "n": 3,
+      "struck": 1,
+      "value": 0.333
+     }
+    },
+    "name": "Flayer",
+    "ran_out": {
+     "all": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 2,
+      "value": 0.0
+     },
+     "alone": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "frames": 12,
+     "stood": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     }
+    },
+    "rest": {
+     "knots": [
+      9,
+      9,
+      9,
+      9,
+      9,
+      9,
+      9,
+      9,
+      9,
+      9,
+      9
+     ],
+     "longer": 0,
+     "mean": 9,
+     "n": 1,
+     "p50": 9
+    },
+    "runs": 15
+   },
+   "662": {
+    "after_stagger": {
+     "n": 0,
+     "p50": null
+    },
+    "ends": {
+     "died": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 2,
+      "struck": 0,
+      "value": 0.0
+     },
+     "ran out": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "staggered": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "unseen": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     }
+    },
+    "name": "Flayer Shaman",
+    "ran_out": {
+     "all": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "alone": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "frames": null,
+     "stood": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     }
+    },
+    "rest": {
+     "knots": [],
+     "longer": 0,
+     "mean": null,
+     "n": 0,
+     "p50": null
+    },
+    "runs": 2
+   },
+   "666": {
+    "after_stagger": {
+     "n": 0,
+     "p50": null
+    },
+    "ends": {
+     "died": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "ran out": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 1,
+      "struck": 1,
+      "value": 0.0
+     },
+     "staggered": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 2,
+      "struck": 2,
+      "value": 0.0
+     },
+     "unseen": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 2,
+      "struck": 1,
+      "value": 0.0
+     }
+    },
+    "name": "Temple Guard",
+    "ran_out": {
+     "all": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 1,
+      "value": 0.0
+     },
+     "alone": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 1,
+      "value": 0.0
+     },
+     "frames": 11,
+     "stood": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 1,
+      "value": 0.0
+     }
+    },
+    "rest": {
+     "knots": [
+      15,
+      15,
+      15,
+      15,
+      15,
+      15,
+      15,
+      15,
+      15,
+      15,
+      15
+     ],
+     "longer": 0,
+     "mean": 15,
+     "n": 1,
+     "p50": 15
+    },
+    "runs": 5
+   },
+   "671": {
+    "after_stagger": {
+     "n": 0,
+     "p50": null
+    },
+    "ends": {
+     "died": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "ran out": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "staggered": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 2,
+      "struck": 2,
+      "value": 0.0
+     },
+     "unseen": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 3,
+      "struck": 1,
+      "value": 0.0
+     }
+    },
+    "name": "Zealot",
+    "ran_out": {
+     "all": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "alone": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "frames": null,
+     "stood": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     }
+    },
+    "rest": {
+     "knots": [
+      15,
+      15,
+      15,
+      15,
+      15,
+      15,
+      15,
+      15,
+      15,
+      15,
+      15
+     ],
+     "longer": 0,
+     "mean": 15,
+     "n": 1,
+     "p50": 15
+    },
+    "runs": 5
+   },
+   "682": {
+    "after_stagger": {
+     "n": 0,
+     "p50": null
+    },
+    "ends": {
+     "died": {
+      "high": 0.143,
+      "low": 0.143,
+      "n": 7,
+      "struck": 3,
+      "value": 0.143
+     },
+     "ran out": {
+      "high": 0.667,
+      "low": 0.667,
+      "n": 3,
+      "struck": 3,
+      "value": 0.667
+     },
+     "staggered": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 3,
+      "struck": 3,
+      "value": 0.0
+     },
+     "unseen": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 3,
+      "struck": 1,
+      "value": 0.0
+     }
+    },
+    "name": "Slayer",
+    "ran_out": {
+     "all": {
+      "high": 0.667,
+      "low": 0.667,
+      "n": 3,
+      "value": 0.667
+     },
+     "alone": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "frames": 23,
+     "stood": {
+      "high": 1.0,
+      "low": 1.0,
+      "n": 1,
+      "value": 1.0
+     }
+    },
+    "rest": {
+     "knots": [
+      25,
+      25,
+      25,
+      25,
+      25,
+      25,
+      25,
+      25,
+      25,
+      25,
+      25
+     ],
+     "longer": 1,
+     "mean": 25,
+     "n": 1,
+     "p50": 25
+    },
+    "runs": 16
+   },
+   "685": {
+    "after_stagger": {
+     "n": 0,
+     "p50": null
+    },
+    "ends": {
+     "died": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 2,
+      "struck": 0,
+      "value": 0.0
+     },
+     "ran out": {
+      "high": 1.0,
+      "low": 1.0,
+      "n": 1,
+      "struck": 1,
+      "value": 1.0
+     },
+     "staggered": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 3,
+      "struck": 3,
+      "value": 0.0
+     },
+     "unseen": {
+      "high": 0.4,
+      "low": 0.0,
+      "n": 5,
+      "struck": 3,
+      "value": 0.2
+     }
+    },
+    "name": "Arach",
+    "ran_out": {
+     "all": {
+      "high": 1.0,
+      "low": 1.0,
+      "n": 1,
+      "value": 1.0
+     },
+     "alone": {
+      "high": 1.0,
+      "low": 1.0,
+      "n": 1,
+      "value": 1.0
+     },
+     "frames": 10,
+     "stood": {
+      "high": 1.0,
+      "low": 1.0,
+      "n": 1,
+      "value": 1.0
+     }
+    },
+    "rest": {
+     "knots": [
+      15,
+      15,
+      15,
+      15,
+      15,
+      15,
+      15,
+      15,
+      15,
+      15,
+      15
+     ],
+     "longer": 0,
+     "mean": 15,
+     "n": 1,
+     "p50": 15
+    },
+    "runs": 11
+   },
+   "700": {
+    "after_stagger": {
+     "n": 0,
+     "p50": null
+    },
+    "ends": {
+     "died": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "ran out": {
+      "high": 1.0,
+      "low": 1.0,
+      "n": 1,
+      "struck": 0,
+      "value": 1.0
+     },
+     "staggered": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "unseen": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     }
+    },
+    "name": "Doom Knight",
+    "ran_out": {
+     "all": {
+      "high": 1.0,
+      "low": 1.0,
+      "n": 1,
+      "value": 1.0
+     },
+     "alone": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "frames": 16,
+     "stood": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     }
+    },
+    "rest": {
+     "knots": [
+      14,
+      14,
+      14,
+      14,
+      14,
+      14,
+      14,
+      14,
+      14,
+      14,
+      14
+     ],
+     "longer": 0,
+     "mean": 14,
+     "n": 1,
+     "p50": 14
+    },
+    "runs": 1
+   },
+   "87": {
+    "after_stagger": {
+     "n": 0,
+     "p50": null
+    },
+    "ends": {
+     "died": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "ran out": {
+      "high": 1.0,
+      "low": 0.0,
+      "n": 1,
+      "struck": 1,
+      "value": 0.5
+     },
+     "staggered": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "unseen": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     }
+    },
+    "name": "Itchies",
+    "ran_out": {
+     "all": {
+      "high": 1.0,
+      "low": 0.0,
+      "n": 1,
+      "value": 0.5
+     },
+     "alone": {
+      "high": 1.0,
+      "low": 0.0,
+      "n": 1,
+      "value": 0.5
+     },
+     "frames": 20,
+     "stood": {
+      "high": 1.0,
+      "low": 0.0,
+      "n": 1,
+      "value": 0.5
+     }
+    },
+    "rest": {
+     "knots": [],
+     "longer": 0,
+     "mean": null,
+     "n": 0,
+     "p50": null
+    },
+    "runs": 1
+   },
+   "92": {
+    "after_stagger": {
+     "n": 0,
+     "p50": null
+    },
+    "ends": {
+     "died": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 1,
+      "struck": 0,
+      "value": 0.0
+     },
+     "ran out": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     },
+     "staggered": {
+      "high": 0.0,
+      "low": 0.0,
+      "n": 1,
+      "struck": 1,
+      "value": 0.0
+     },
+     "unseen": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "struck": 0,
+      "value": null
+     }
+    },
+    "name": "Death Beetle",
+    "ran_out": {
+     "all": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "alone": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     },
+     "frames": null,
+     "stood": {
+      "high": null,
+      "low": null,
+      "n": 0,
+      "value": null
+     }
+    },
+    "rest": {
+     "knots": [],
+     "longer": 0,
+     "mean": null,
+     "n": 0,
+     "p50": null
+    },
+    "runs": 2
+   }
+  }
+ }
+}

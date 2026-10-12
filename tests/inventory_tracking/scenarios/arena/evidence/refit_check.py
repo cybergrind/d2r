@@ -7,11 +7,22 @@ here is fitted. Each mechanism is played in the simplest situation the evidence 
 the model's number is laid beside the check half's:
 
 - **melee**: one plain monster of the type two units from a character that stands still, alone, for
-  `--seconds`: its swings a second, the share of them cut short, the share of the whole ones that
-  takes life, and the life a second as the main set takes it (cut.py MAIN). The check half's life a
-  second is the evidence's middle figure (the drops put on one monster of the type alone and those
-  all of whose suspects are its swings), with its lower and upper figure in the note. The pooled row
-  is played by the type without a row of its own that has the most seconds in reach on the check half;
+  `--seconds`, **its swings ended as the check half's swings at the character were** (swings.json
+  `ends`: each swing is struck so hard that it staggers, or the monster dies and the next one stands
+  in its place, with the shares of the swings whose end was seen; at which frame of the swing is drawn
+  evenly, which is this file's assumption): its swings a second, the share of them that runs out (a
+  control: it is the check half's by construction, less the staggers the model's own roll refuses),
+  the share of those that takes life, and the life a second as the main set takes it (cut.py MAIN).
+  The check half's life a second is the evidence's middle figure (the drops put on one monster of
+  the type alone and those all of whose suspects are its swings), with its lower and upper figure in
+  the note. The pooled row is played by the type without a row of its own that has the most seconds
+  in reach on the check half;
+- **swing** (against the check half of swings.json; SWINGS.md is the measurement): what the fit holds
+  of a swing and of a struck monster beside the check half's own figure: the rest after a swing, where
+  in it the blow lands, the chance to stagger by the size of the fall, how long a stagger lasts; and for
+  each type without a chance of its own that the check half saw run out SEEN swings or more at a
+  standing character, the pooled chance it plays by beside its own. `before` for these rows is model.py
+  SWINGS_BEFORE: sim/monsters.py as it was fitted on 2026-10-12;
 - **target choice**: 2,000 monsters of the type between the character and a companion, once with each
   the nearer: the share that goes for the character;
 - **ranged**: one plain shooter of the type at the distance the check half's shots at the character
@@ -65,6 +76,8 @@ from inventory_tracking.combat.sim.monsters import (
     LIGHTNING,
     NOVA,
     SPARK,
+    STAGGER,
+    STAND,
     STRIKE,
     UNIQUE_FLAG,
     Blow,
@@ -72,11 +85,14 @@ from inventory_tracking.combat.sim.monsters import (
     Traits,
     Walker,
     fitted,
+    shoots,
+    swing_of,
 )
 from inventory_tracking.combat.timeline import GAME_RATE
 from tests.inventory_tracking.scenarios.arena.cut import MAIN
-from tests.inventory_tracking.scenarios.arena.evidence.fit import EVIDENCE, SPARKS, middle
-from tests.inventory_tracking.scenarios.arena.evidence.model import FLAGS, SPARKS_BEFORE
+from tests.inventory_tracking.scenarios.arena.evidence.fit import EVIDENCE, SPARKS, SWINGS, middle
+from tests.inventory_tracking.scenarios.arena.evidence.model import FLAGS, SPARKS_BEFORE, SWINGS_BEFORE
+from tests.inventory_tracking.scenarios.arena.evidence.swings import DIED, RAN_OUT, STAGGERED
 from tests.inventory_tracking.scenarios.arena.mobs import is_ranged, shot_parts
 
 
@@ -93,6 +109,7 @@ ELITE_NEAR = ('0-4', '4-8', '8-12')  # the deaths table's bands a nova reaches i
 SPARK_NEAR = 4.0  # units: a character fighting a monster hand to hand, where no take measured a spark's toll
 SPARK_AGE = 70  # frames: the age the evidence gives a spark's distance out at
 SPARK_SECONDS = 1000.0  # how long a struck monster is played at most (each frame flies every spark in the air)
+SEEN = 20  # swings run out at a standing character on the check half: a type with fewer has no row of its own here
 
 
 @dataclass(frozen=True)
@@ -130,7 +147,8 @@ def fighter(unit: int, txt: int, at: Point, level: int | None, flags: int = 0, m
 class Played:
     seconds: float
     begun: int = 0  # swings or shots begun
-    whole: int = 0  # swings not cut short
+    whole: int = 0  # swings that ran out: neither a stagger nor the monster's death came in their frames
+    landed: int = 0  # of those, the ones that took life
     blows: tuple[float, ...] = ()  # the points of each blow on the character, as the main set takes them
 
     @property
@@ -145,17 +163,40 @@ def play(
     *,
     shots: Mapping[int, Mapping[str, float]] | None = None,
     targets: Callable[[int], Sequence[Point]] = lambda _frame: (HERE,),
+    ends: Mapping[str, Any] | None = None,
 ) -> Played:
-    """One monster for `seconds` against the targets of each frame."""
+    """One monster for `seconds` against the targets of each frame. `ends` (a half's `ends` of
+    swings.json) has each of its swings end as that half's did: with the share of the swings that
+    staggered it is struck for all its life at a frame of the swing drawn evenly, with the share of
+    those that died it dies there, and the next one stands in its place and thinks at once."""
     pack = Pack([walker], seed, shots)
+    rolls = random.Random(seed * 7919 + 1)
     found, blows, until = Played(seconds), [], walker.until
+    frames = swing_of(walker.txt)['frames']['value']
+    seen = sum(ends[end]['n'] for end in (RAN_OUT, STAGGERED, DIED)) if ends else 0
+    last, cut, took = -1, False, False  # the swing under way: its last frame, whether it was cut, whether it took life
+    fate: tuple[int, str] | None = None  # the frame the swing under way is ended at, and how
     for frame in range(round(seconds * GAME_RATE)):
+        if fate is not None and frame == fate[0]:
+            if fate[1] == STAGGERED:
+                pack.struck(walker.unit, frame, 1.0)
+            else:
+                walker.doing, walker.until, walker.lands, walker.fell = STAND, frame, -1, 0.0
+                cut = True
         for blow in pack.step(frame, list(targets(frame))):
             if blow.target == 0:
                 blows.append(through(blow))
+                took = True
+        cut = cut or (walker.doing == STAGGER and frame <= last)
         if walker.doing == STRIKE and walker.until != until:
+            found.whole += last >= 0 and not cut
+            found.landed += last >= 0 and not cut and took
             found.begun += 1
-            found.whole += walker.lands >= 0
+            last, cut, took, fate = frame + frames - 1, False, False, None
+            roll = rolls.random() * seen if seen and ends else None
+            if roll is not None and ends is not None and roll >= ends[RAN_OUT]['n']:
+                how = STAGGERED if roll < ends[RAN_OUT]['n'] + ends[STAGGERED]['n'] else DIED
+                fate = (frame + 1 + rolls.randrange(max(frames - 1, 1)), how)
         until = walker.until
     found.blows = tuple(blows)
     return found
@@ -178,28 +219,82 @@ def stand_in(evidence: Mapping[str, Any], part: str, count: str, ranged: bool) -
     return max(found, key=lambda txt: found[txt])
 
 
-def melee_rows(evidence: Mapping[str, Any], seconds: float) -> tuple[list[Row], dict[int, Played]]:
+def melee_rows(
+    evidence: Mapping[str, Any], seconds: float, swings: Mapping[str, Any] | None = None
+) -> tuple[list[Row], dict[int, Played]]:
+    swings = json.loads(SWINGS.read_text()) if swings is None else swings
+    half = swings['check']
     rows, plays = [], {}
     pooled = stand_in(evidence, 'melee', 'seconds', False)
     for txt in (*map(int, fitted()['melee']['types']), pooled):
         row = evidence['types'][str(txt)]
         check = evidence['check']['melee_all'] if txt == pooled else row['melee']['check']
+        swung = half if txt == pooled else half['types'].get(str(txt))
         name = f'{row["name"]} ({txt})' + (', playing the pooled row' if txt == pooled else '')
-        found = plays[txt] = play(fighter(1, txt, (BESIDE, 0.0), row['level']), seconds, txt)
+        found = plays[txt] = play(fighter(1, txt, (BESIDE, 0.0), row['level']), seconds, txt, ends=half['ends'])
         old = row['model']['blow']
-        hit = middle(check['hit_low'], check['hit_high'])
+        seen = sum(swung['ends'][end]['n'] for end in (RAN_OUT, STAGGERED, DIED)) if swung else 0
+        out = swung['ran_out']['stood'] if swung else {'value': None, 'low': None, 'high': None, 'n': 0}
         rows += [
             Row('melee', f'{name}: swings a second', old['swings_per_second'], found.begun / seconds,
                 check['swings_per_second'], f'check: {check["swings"]} swings in {check["seconds"]:.0f} s'),
-            Row('melee', f'{name}: share of swings cut short', 0.0, 1 - found.whole / found.begun,
-                check['cut_share'], f'check: of {check["runs"]} runs'),
-            Row('melee', f'{name}: share of whole swings that takes life', 1.0, len(found.blows) / found.whole, hit,
-                f'check: {check["hit_low"]} to {check["hit_high"]} of {check["whole_aimed"]}'),
+            Row('melee', f'{name}: share of swings that runs out', 1.0, found.whole / found.begun,
+                swung['ends'][RAN_OUT]['n'] / seen if seen else None,
+                f'check: of {seen} swings at the character whose end was seen; played by the pooled shares'),
+            Row('melee', f'{name}: share of the swings run out that takes life', 1.0,
+                found.landed / max(found.whole, 1), out['value'],
+                f'check: {out["low"]} to {out["high"]} of {out["n"]}, the character standing'),
             Row('melee', f'{name}: life a second in reach', old['points_per_second'], found.life,
                 check['points_per_second_same'],
                 f'check: {check["points_per_second_low"]} to {check["points_per_second_high"]}'),
         ]  # fmt: skip
     return rows, plays
+
+
+def swing_rows(swings: Mapping[str, Any]) -> list[Row]:
+    """What the fit holds of a swing and of a struck monster, against the check half of swings.json."""
+    check, found, before = swings['check'], fitted()['melee'], SWINGS_BEFORE
+    stagger, parts = found['stagger'], found['stagger']['parts']
+    rows = [
+        Row('swing', 'frames of rest after a swing that ran out, median', before['rest'], found['rest']['p50'],
+            check['rest']['p50'], f'check: {check["rest"]["n"]} rests; train: {found["rest"]["n"]}'),
+        Row('swing', "where in a swing the blow lands, share of the swing's length", before['blow'],
+            found['blow']['share'], check['blow']['share'],
+            f'check: {check["blow"]["n"]} drops put on one monster alone; train: {found["blow"]["n"]}'),
+    ]  # fmt: skip
+    for band, seen in zip(stagger['bands'], check['stagger']['bands'], strict=True):
+        last = band is stagger['bands'][-1]
+        edge = f'{band["from"]}/{parts}' + (' or more' if last else f' to {band["from"] + 1}/{parts}')
+        rows.append(
+            Row('swing', f'a fall of {edge} of its life: share that staggers the monster', before['stagger'],
+                band['chance'], seen['chance'], f'check: of {seen["n"]} falls; train: of {band["n"]}')
+        )  # fmt: skip
+    rows.append(
+        Row('swing', 'frames a stagger lasts, median', None, stagger['recovery']['p50'],
+            check['stagger']['recovery']['p50'],
+            f'check: {check["stagger"]["recovery"]["n"]} spells; train: {stagger["recovery"]["n"]}')
+    )  # fmt: skip
+    rows.append(
+        Row('swing', "frames from a swing lost to a stagger to the same monster's next, median", None,
+            stagger['recovery']['p50'] + found['rest']['p50'], check['after_stagger']['p50'],
+            f'check: {check["after_stagger"]["n"]} such gaps; train: {swings["train"]["after_stagger"]["p50"]} of '
+            f'{swings["train"]["after_stagger"]["n"]}; model: the stagger and the rest at their medians')
+    )  # fmt: skip
+    pooled = found['pooled']['takes_life']
+    for txt, row in check['types'].items():
+        out = row['ran_out']['stood']
+        own = found['types'].get(txt, {}).get('takes_life', {'pooled': True})
+        if out['n'] < SEEN or not own.get('pooled') or shoots(int(txt)) or int(txt) in found['idle']:
+            continue
+        train = swings['train']['types'].get(txt, {'ran_out': {'stood': {'n': 0}}})['ran_out']['stood']['n']
+        rows.append(
+            Row('swing', f'{row["name"]} ({txt}), no chance of its own: share of the swings run out that takes life',
+                before['takes_life'], pooled['value'], out['value'],
+                f'check: {out["low"]} to {out["high"]} of {out["n"]}, the character standing (in a pack no drop is '
+                f"one monster's alone: the lower bound says little); train: {train} such swings, "
+                f'{swings["constants"]["enough_swings"]} needed')
+        )  # fmt: skip
+    return rows
 
 
 def target_rows(evidence: Mapping[str, Any], monsters: int = 2000) -> list[Row]:
@@ -362,8 +457,9 @@ def size_rows(evidence: Mapping[str, Any], melee: Mapping[int, Played], shots: M
     return rows
 
 
-def big_rows(evidence: Mapping[str, Any], seconds: float) -> list[Row]:
-    """Blows over BIG from one source, per 10,000 s of recording, for the check half's exposure."""
+def big_rows(evidence: Mapping[str, Any], seconds: float, ends: Mapping[str, Any] | None = None) -> list[Row]:
+    """Blows over BIG from one source, per 10,000 s of recording, for the check half's exposure (the
+    melee monsters' swings ended as in `melee_rows`)."""
     check = evidence['check']
     recorded = check['seconds']
     types = fitted()['melee']['types']
@@ -376,7 +472,7 @@ def big_rows(evidence: Mapping[str, Any], seconds: float) -> list[Row]:
     del by_rank
     for txt, share in reach.items():
         row = evidence['types'][txt]
-        found = play(fighter(1, int(txt), (BESIDE, 0.0), row['level']), seconds, 11)
+        found = play(fighter(1, int(txt), (BESIDE, 0.0), row['level']), seconds, 11, ends=ends)
         counts['melee'] += sum(p > BIG for p in found.blows) / seconds * check['melee_all']['seconds'] * share / whole
     # Ranged: each tabled shooter for the seconds the check half had it in sight.
     for txt in fitted()['shots']['types']:
@@ -547,19 +643,26 @@ def spark_rows(found: Mapping[str, Any], seconds: float) -> list[Row]:
     return rows
 
 
-def check(evidence: Mapping[str, Any], seconds: float = SECONDS, sparks: Mapping[str, Any] | None = None) -> list[Row]:
-    melee, melee_plays = melee_rows(evidence, seconds)
+def check(
+    evidence: Mapping[str, Any],
+    seconds: float = SECONDS,
+    sparks: Mapping[str, Any] | None = None,
+    swings: Mapping[str, Any] | None = None,
+) -> list[Row]:
+    swings = json.loads(SWINGS.read_text()) if swings is None else swings
+    melee, melee_plays = melee_rows(evidence, seconds, swings)
     shots, shot_plays = shot_rows(evidence, seconds)
     novas, _taken = nova_rows(evidence)
     sparks = json.loads(SPARKS.read_text()) if sparks is None else sparks
     return [
         *melee,
+        *swing_rows(swings),
         *target_rows(evidence),
         *shots,
         hop_row(evidence, seconds),
         *novas,
         *size_rows(evidence, melee_plays, shot_plays),
-        *big_rows(evidence, seconds),
+        *big_rows(evidence, seconds, swings['check']['ends']),
         death_row(evidence),
         *spark_rows(sparks, min(seconds, SPARK_SECONDS)),
     ]

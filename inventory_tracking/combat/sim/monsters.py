@@ -10,13 +10,14 @@ show. Three kinds of numbers are in it, and each is said where it is set:
 - **fitted to one take** (Tower Cellar 5, combat/plan.md 2026-10-11): how a monster walks (the
   constants below);
 - **fitted to the train half of all takes** (data/monsters_fit.json, written by
-  tests/inventory_tracking/scenarios/arena/evidence/fit.py from that directory's evidence.json and
-  never by hand; EVIDENCE.md there is the measurement): how often a monster in reach swings, how many
-  swings are cut short, how often a swing or a shot takes life, whom a monster goes for, how its
-  blows are spread in size, how far it reaches, how a shooter shoots, the nova of a death, the
-  sparks of a Lightning Enchanted one (from sparks.json of the same directory). Every
-  number there has its n; a type with too little of its own (the evidence's thresholds: 30 s in
-  reach or 10 blows alone; 20 shots) uses the pooled row. 330 takes, 9,730 s, one character.
+  tests/inventory_tracking/scenarios/arena/evidence/fit.py from that directory's evidence.json,
+  sparks.json and swings.json and never by hand; EVIDENCE.md, SPARKS.md and SWINGS.md there are the
+  measurements): how long a swing is and how long the rest after it, where in it the blow lands, how
+  often a swing that ran out takes life, what a struck monster does, whom a monster goes for, how its
+  blows are spread in size, how far it reaches, how a shooter shoots, the nova of a death, the sparks
+  of a Lightning Enchanted one. Every number there has its n; a type with too little of its own (the
+  evidence's thresholds: 30 s in reach or 10 blows alone for a row; 30 swings run out for a chance of
+  its own; 20 shots) uses the pooled row. 332 takes, 9,828 s, one character.
 
 **Walking** (the think function read in the client, the classic scheme of the monstats row): free,
 with its target out of reach, a roll of 0-99 under `aip1` walks to it, else it stands `aip2` frames;
@@ -31,28 +32,47 @@ long a monster keeps to one target is not measured: here each monster has one ro
 goes for the character when that roll is under the share of the case it is in, so the shares come out
 over a pack and no monster wavers. (Before: the nearest of all, the character first for a Goatman.)
 
-**Swinging** (fitted, `melee`): with its target within the swing's reach a monster swings. The takes
-give the swings begun a second by a monster within 3.5 units (1.09 pooled over 668 s; five types
-their own, 0.86 to 1.21), the usual length of a swing in frames (10 to 24 by type; STRIKE_FRAMES
-where not measured) and the share of the swings cut short before their middle (0.29; hit recovery
-or death, as far as a take can say): a cut swing lands nothing, and after a swing the monster rests
-for a number of frames drawn evenly about the pause that makes the measured rate. The row's `aip3`
-and `aip2` no longer decide how often it swings in reach: their classic meaning gives a Blood Hawk
-0.03 swings a second where the takes show 1.5. `aidel` is read and still not used.
+**Swinging** (fitted, `melee`; SWINGS.md): with its target within the swing's reach a monster swings.
+A swing lasts the usual length of the type's attack runs (10 to 24 frames by type; STRIKE_FRAMES
+where not measured), its blow lands two thirds of the way through it (0.67: the median place of 22
+drops put on one monster alone) and after it the monster rests before it thinks again: 15 frames at
+the median of 50 rests, drawn through their deciles (8 to 36). So a monster nobody strikes swings
+every 1.3 s or so. The row's `aip3` and `aip2` do not decide how often it swings in reach: their
+classic meaning gives a Blood Hawk 0.03 swings a second where the takes show 1.5. `aidel` is read
+and still not used.
 
-**A swing is not a hit** (fitted, `takes_life`). A whole swing lands at its middle if the target is
-still within the swing's reach, and on the character it takes life only with a chance: 0.16 pooled
-(0.09 to 0.24 of 292 whole swings at a character standing still), 0.12 to 0.41 for the five types
-(of all their 19 to 92 whole swings at the character, raised by the pooled 1.20 of standing over all).
-That chance is **one number for several things a take cannot tell apart**: the miss of the to-hit
-roll, a block, and a blow that whatever protects the character took whole. It was measured on one
-character and is that character's; another build would need its own. The character having stepped
-out of reach is not in it as far as the takes let it be taken out (the figures are of swings through
-which it stood within 1.5 units), because here a blow already fails when the target has left the
-reach: a later change of how the character moves is answered by the model, not by this chance. The
-bounds are wide: the low one counts the drops put on that monster alone, the high one those it
-shares with other suspects, and the middle is used. A blow on a companion always lands (nothing was
-measured there, and nothing here hurts a companion).
+**A struck monster staggers** (fitted, `melee.stagger`; `Pack.struck` is told what share of its most
+life a hit took). The hits between two steps are one fall of its life, as a take's frames show them,
+and the monster staggers with the chance of a fall of that size: 0.06 under a sixteenth of its life,
+0.24 to two sixteenths, 0.69 and 0.72 to three and four, 0.93 above (4,066, 697, 635, 320 and 3,217
+falls on the train half). It then stands for the frames the takes show (10 at the median of 1,573
+spells, drawn through their deciles) and rests as after a swing before it thinks again (the gap
+from a staggered swing to the same monster's next was 29 frames at the median of 16: the stagger
+and that rest). **A swing whose blow has not landed when the monster staggers is lost.** A dead
+monster is gone with its swing (`died`, `remove`). On the train half 0.23 of the swings at the
+character ran out, 0.35 ended in a stagger and 0.24 in the monster's death (0.17 not seen to
+their end): what the character does to the monsters decides most of what they do to it. Before
+2026-10-13 a share of swings (0.29) was cut short by a roll, whatever the character did. A shooter
+does not stagger here (not measured), and how long a monster of each type staggers is one curve.
+
+**A swing is not a hit** (fitted, `takes_life`). A swing lands if the monster has not staggered and
+the target is still within the swing's reach, and on the character it takes life only with a
+chance: 0.30 pooled (0.15 to 0.44 of 98 swings that ran out at a character standing still; 0.37 of
+the 23 with no other hostile beside it), a Devilkin's own 0.16 (38); no other type has the 30 such
+swings for a chance of its own. That chance is **one number for several things a take cannot tell
+apart**: the miss of the to-hit roll, a block, and a blow that whatever protects the character took
+whole. It was measured on one character and is that character's; another build would need its own.
+Neither the character's leaving nor its strikes are in it: here a blow already fails when the
+target has left the reach or the monster has staggered, so a change of how the character moves or
+strikes is answered by the model, not by this chance. (Before 2026-10-13 it was 0.16 of every
+swing of half its length or more, with the strikes folded in: a character that did not strike for
+two seconds was hurt as seldom as one that did, and a recorded fight showed four times the loss,
+tests/.../arena/fixtures/incidents/INCIDENTS.md.) The bounds are wide: the low one counts the drops
+put on that monster alone, the high one those it shares with other suspects, and the middle is
+used; **in a pack hardly any drop is one monster's alone, so there the middle is too low** by an
+amount the takes do not give (the Chaos Sanctuary's Doom Knights: 0.00 to 0.76 of 21 on the check
+half, 11 of 14 by hand in the recorded fight, 1 such swing on the train half). A blow on a
+companion always lands (nothing was measured there, and nothing here hurts a companion).
 
 **Reach** (REACH for the body of the blows, fitted `reach.tail` beyond): the takes show swings begun
 at the character from further off, ever fewer: 0.41 of the rate within 3.5 units at 3.5 to 4 units,
@@ -150,7 +170,7 @@ from inventory_tracking.macros.world import MINION_FLAG
 
 Point = tuple[float, float]
 FIT = Path(__file__).parent.parent / 'data' / 'monsters_fit.json'
-STAND, WALK, STRIKE = 'stand', 'walk', 'strike'
+STAND, WALK, STRIKE, STAGGER = 'stand', 'walk', 'strike', 'stagger'
 # Units between the middles of a monster and what it strikes. Tower Cellar 5: Blood Clan minions
 # struck from 3.2 units, Devilkin from 1.8 at the median and 2.8 at the most; over all takes the blows
 # of one melee monster alone came from 3.1 at the median (50 on the train half). Further: the fit's tail.
@@ -160,7 +180,7 @@ STOP = 0.85  # of the reach: where a walk to a target ends
 # median, a Devilkin's 17).
 WALK_FRAMES = 22
 # A melee attack's animation where the fit has no length for the type, and the frame of it the blow
-# landed at before the fit (now the middle of whatever length the swing has, which is this for 16).
+# landed at before the fit (now the fitted share of whatever length the swing has: frame 11 of 16).
 STRIKE_FRAMES = 16
 HIT_FRAME = 8
 AWARE = 20.0  # units: a target further off is not gone for
@@ -244,6 +264,20 @@ def spread(kind: str, roll: float) -> float:
         if roll <= high:
             return least * (most / least) ** ((roll - low) / (high - low))
     return knots[-1][1]
+
+
+def drawn(knots: Sequence[float], roll: float) -> float:
+    """The value at `roll` of 0 to 1 of what was measured as `knots`, its quantiles at even steps (the
+    least, the deciles, the most): a straight line between two of them."""
+    place = roll * (len(knots) - 1)
+    low = min(int(place), len(knots) - 2)
+    return knots[low] + (knots[low + 1] - knots[low]) * (place - low)
+
+
+def stagger_chance(share: float) -> float:
+    """The chance that a monster staggers when a frame's hits took `share` of its most life."""
+    found = fitted()['melee']['stagger']
+    return found['bands'][min(int(share * found['parts']), len(found['bands']) - 1)]['chance']
 
 
 def reach_of(roll: float) -> float:
@@ -372,8 +406,9 @@ class Walker:
     tier: int = 0  # the tier of the Herald it is or follows; 0: none
     sparked: int = NEVER  # the frame of its last release of sparks
     struck: int = NEVER  # the frame it was last struck at (`Pack.struck`)
+    fell: float = 0.0  # the share of its most life the hits since the last step took (`Pack.struck`)
     reach: float = REACH  # of the swing it is in
-    lands: int = -1  # the frame that swing's blow lands at; -1: none (no swing, or one cut short)
+    lands: int = -1  # the frame that swing's blow lands at; -1: none (no swing, or one lost to a stagger)
     favour: float = 0.0  # its one roll for whom it goes for (`Pack` draws it)
     mark: int = -1  # a shooter's: the index of the target of its next shot; -1: not chosen yet
     traits: Traits = field(init=False)
@@ -486,14 +521,21 @@ class Pack:
         self.novas.append(Nova(unit, walker.at, frame, points, roll.random() < found['takes_life']['value']))
         return True
 
-    def struck(self, unit: int, frame: int) -> int:
-        """The monster was struck at `frame`: the sparks it let go (0 for one that lets none go, and
-        most times for one that does). A hit stands for the time the monster was being struck since
-        the hit before: the frames between them, the fit's window at most, and the window for a first
-        hit. Each second of that time brings the fitted releases, so many hits in one frame or a few
-        apart are no more than the time they span."""
+    def struck(self, unit: int, frame: int, share: float = 0.0) -> int:
+        """The monster was struck at `frame` by a hit that took `share` of its most life: the sparks it
+        let go (0 for one that lets none go, and most times for one that does). The share is kept
+        for the next step, where the hits since the last one are one fall of life and the monster
+        may stagger (`_reel`); a caller that gives none staggers nothing.
+
+        For the sparks a hit stands for the time the monster was being struck since the hit before:
+        the frames between them, the fit's window at most, and the window for a first hit. Each
+        second of that time brings the fitted releases, so many hits in one frame or a few apart
+        are no more than the time they span."""
         walker = self.walkers.get(unit)
-        if walker is None or not walker.traits.sparks:
+        if walker is None:
+            return 0
+        walker.fell += share
+        if not walker.traits.sparks:
             return 0
         found = fitted()['sparks']
         release = found['release']
@@ -600,7 +642,23 @@ class Pack:
         parts = self._sized(walker, self.rolls[walker.unit].uniform(*walker.traits.damage), MELEE, {})
         return Blow(frame, walker.unit, walker.aim, sum(parts.values()), MELEE, parts)
 
+    def _reel(self, walker: Walker, frame: int) -> None:
+        """The hits on the walker since the last step, as one fall of its life: with the fitted chance
+        of a fall of that size it staggers for the fitted frames, and a swing whose blow has not
+        landed is lost. After the stagger it rests as after a swing (`step`). A shooter does not
+        stagger (the takes' staggers are tallied of the melee types), nor one that staggers already."""
+        share, walker.fell = walker.fell, 0.0
+        if walker.unit in self.shots or not walker.traits.melee or walker.doing == STAGGER:
+            return
+        roll = self.rolls[walker.unit]
+        if roll.random() < stagger_chance(share):
+            frames = round(drawn(fitted()['melee']['stagger']['recovery']['knots'], roll.random()))
+            walker.doing, walker.until, walker.lands = STAGGER, frame + max(frames, 1), -1
+
     def step(self, frame: int, targets: Sequence[Point]) -> list[Blow]:
+        for walker in self.walkers.values():
+            if walker.fell > 0:
+                self._reel(walker, frame)
         blows: list[Blow] = self._fly(frame, targets)
         if not targets:
             return blows
@@ -621,7 +679,11 @@ class Pack:
                     walker.aim or self.rolls[walker.unit].random() < swing_of(walker.txt)['takes_life']['value']
                 ):  # fmt: skip
                     blows.append(self._blow(walker, frame))
-            if frame >= walker.until:
+            if frame >= walker.until and walker.doing == STAGGER:
+                # Over it: the rest of a swing before it thinks again (the module text has the measure).
+                rest = round(drawn(fitted()['melee']['rest']['knots'], self.rolls[walker.unit].random()))
+                walker.doing, walker.until = STAND, frame + max(rest, 1)
+            elif frame >= walker.until:
                 self._think(walker, frame, targets)
         return blows
 
@@ -656,14 +718,10 @@ class Pack:
         if idle(walker.txt):
             self._stand(walker, frame)
         elif away <= reach:
-            found = swing_of(walker.txt)
-            frames = found['frames']['value']
-            if rolls.random() < found['cut']['value']:
-                length, walker.lands = rolls.randint(1, max(frames // 2 - 1, 1)), -1  # cut short: nothing lands
-            else:
-                length, walker.lands = frames, frame + frames // 2
-            rest = rolls.randint(0, round(2 * found['rest']))
-            walker.doing, walker.until, walker.aim, walker.reach = STRIKE, frame + length + rest, aim, reach
+            found, frames = fitted()['melee'], swing_of(walker.txt)['frames']['value']
+            walker.lands = frame + max(round(found['blow']['share'] * frames), 1)
+            rest = round(drawn(found['rest']['knots'], rolls.random()))
+            walker.doing, walker.until, walker.aim, walker.reach = STRIKE, frame + frames + rest, aim, reach
         elif away > AWARE:
             walker.charging = False
             self._stand(walker, frame)

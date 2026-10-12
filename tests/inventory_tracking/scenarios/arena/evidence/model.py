@@ -109,6 +109,12 @@ SPARKS_BEFORE['rate'] = round(
 )
 
 
+# The model's swings as they were fitted on 2026-10-12, before a swing was told by how it ended
+# (swings.py): one chance for every swing of half its length or more, struck or not, a share of swings
+# cut short by a roll, the blow at the middle, a rest that made the measured rate, and no stagger.
+SWINGS_BEFORE: dict[str, Any] = {'takes_life': 0.161, 'cut': 0.286, 'rest': 10.47, 'blow': 0.5, 'stagger': 0.0}
+
+
 def sparks(level: int) -> dict[str, Any]:
     """The model's sparks at present, read off its parameters (data/monsters_fit.json `sparks` and the
     missile's row), with a spark's points at monster `level`, raw and as the main set takes them."""

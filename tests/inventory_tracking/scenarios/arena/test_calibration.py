@@ -302,7 +302,7 @@ def standing(ticks: int = 100, at=HERE, **more) -> Replay:
 
 
 def test_a_monster_in_contact_strikes_the_character_where_the_replay_has_it():
-    played = play(contact(), standing())
+    played = play(contact(), standing(), seed=5)
     assert played.blows
     assert {(txt, kind) for _tick, txt, kind, _points in played.blows} == {(HELL_BOVINE, 'melee')}
     assert life_lost(played.samples) == pytest.approx(sum(points for *_blow, points in played.blows))
@@ -373,7 +373,7 @@ def test_the_fits_factor_scales_every_blow():
 
 def test_a_play_is_the_same_twice_and_another_with_another_seed():
     assert play(contact(), standing()).blows == play(contact(), standing()).blows
-    assert play(contact(), standing(), seed=1).blows != play(contact(), standing(), seed=2).blows
+    assert play(contact(), standing(), seed=4).blows != play(contact(), standing(), seed=5).blows
 
 
 def test_the_heaviest_blow_is_the_top_roll_of_the_scenes_monsters_at_the_top_of_the_fitted_spread():

@@ -1,14 +1,17 @@
 {
- "about": "fitted on the train half of tests/inventory_tracking/scenarios/arena/evidence/evidence.json and sparks.json by evidence/fit.py; read by combat/sim/monsters.py. Do not edit by hand.",
+ "about": "fitted on the train half of tests/inventory_tracking/scenarios/arena/evidence/evidence.json, sparks.json and swings.json by evidence/fit.py; read by combat/sim/monsters.py. Do not edit by hand.",
  "melee": {
+  "blow": {
+   "n": 22,
+   "share": 0.667
+  },
   "idle": [
    545
   ],
-  "moving": 1.2015,
   "pooled": {
    "cut": {
-    "n": 721,
-    "value": 0.286
+    "n": 738,
+    "value": 0.279
    },
    "frames": {
     "mode": null,
@@ -16,21 +19,37 @@
    },
    "name": "all melee types",
    "rate": {
-    "n_seconds": 668.4,
-    "n_swings": 725,
-    "value": 1.085
+    "n_seconds": 680.1,
+    "n_swings": 742,
+    "value": 1.091
    },
-   "rest": 10.47,
    "takes_life": {
-    "high": 0.196,
-    "low": 0.072,
-    "n": 433,
-    "n_stood": 292,
-    "stood": 0.161,
-    "stood_high": 0.236,
-    "stood_low": 0.086,
-    "value": 0.161
+    "alone": {
+     "n": 23,
+     "value": 0.3695
+    },
+    "high": 0.439,
+    "low": 0.153,
+    "n": 98,
+    "value": 0.296
    }
+  },
+  "rest": {
+   "knots": [
+    8,
+    14,
+    15,
+    15,
+    15,
+    15,
+    15,
+    15,
+    16,
+    25,
+    36
+   ],
+   "n": 50,
+   "p50": 15
   },
   "spread": {
    "knots": [
@@ -52,12 +71,60 @@
     ]
    ],
    "mean_points": 64.1,
-   "n": 49,
+   "n": 50,
    "points": {
     "max": 320,
     "p50": 56,
     "p90": 118,
     "p99": 320
+   }
+  },
+  "stagger": {
+   "bands": [
+    {
+     "chance": 0.062,
+     "from": 0,
+     "n": 4066
+    },
+    {
+     "chance": 0.242,
+     "from": 1,
+     "n": 697
+    },
+    {
+     "chance": 0.693,
+     "from": 2,
+     "n": 635
+    },
+    {
+     "chance": 0.719,
+     "from": 3,
+     "n": 320
+    },
+    {
+     "chance": 0.929,
+     "from": 4,
+     "n": 3217
+    }
+   ],
+   "mode": 3,
+   "parts": 16,
+   "recovery": {
+    "knots": [
+     1,
+     3,
+     6,
+     8,
+     9,
+     10,
+     10,
+     12,
+     14,
+     16,
+     30
+    ],
+    "n": 1573,
+    "p50": 10
    }
   },
   "types": {
@@ -76,16 +143,15 @@
      "n_swings": 148,
      "value": 1.158
     },
-    "rest": 13.88,
     "takes_life": {
-     "high": 0.174,
-     "low": 0.033,
-     "n": 92,
-     "n_stood": 67,
-     "stood": 0.1195,
-     "stood_high": 0.194,
-     "stood_low": 0.045,
-     "value": 0.1244
+     "alone": {
+      "n": 5,
+      "value": 0.2
+     },
+     "high": 0.263,
+     "low": 0.053,
+     "n": 38,
+     "value": 0.158
     }
    },
    "38": {
@@ -103,16 +169,16 @@
      "n_swings": 69,
      "value": 0.887
     },
-    "rest": 14.75,
     "takes_life": {
-     "high": 0.216,
-     "low": 0.054,
-     "n": 37,
-     "n_stood": 24,
-     "stood": 0.167,
-     "stood_high": 0.292,
-     "stood_low": 0.042,
-     "value": 0.1622
+     "alone": {
+      "n": 23,
+      "value": 0.3695
+     },
+     "high": 0.439,
+     "low": 0.153,
+     "n": 98,
+     "pooled": true,
+     "value": 0.296
     }
    },
    "45": {
@@ -130,16 +196,16 @@
      "n_swings": 41,
      "value": 0.863
     },
-    "rest": 19.86,
     "takes_life": {
-     "high": 0.316,
-     "low": 0.0,
-     "n": 19,
-     "n_stood": 16,
-     "stood": 0.1875,
-     "stood_high": 0.375,
-     "stood_low": 0.0,
-     "value": 0.1898
+     "alone": {
+      "n": 23,
+      "value": 0.3695
+     },
+     "high": 0.439,
+     "low": 0.153,
+     "n": 98,
+     "pooled": true,
+     "value": 0.296
     }
    },
    "458": {
@@ -157,16 +223,16 @@
      "n_swings": 56,
      "value": 0.877
     },
-    "rest": 15.43,
     "takes_life": {
-     "high": 0.579,
-     "low": 0.105,
-     "n": 19,
-     "n_stood": 17,
-     "stood": 0.3235,
-     "stood_high": 0.529,
-     "stood_low": 0.118,
-     "value": 0.4109
+     "alone": {
+      "n": 23,
+      "value": 0.3695
+     },
+     "high": 0.439,
+     "low": 0.153,
+     "n": 98,
+     "pooled": true,
+     "value": 0.296
     }
    },
    "55": {
@@ -184,16 +250,16 @@
      "n_swings": 103,
      "value": 1.213
     },
-    "rest": 7.53,
     "takes_life": {
-     "high": 0.304,
-     "low": 0.043,
-     "n": 46,
-     "n_stood": 22,
-     "stood": 0.25,
-     "stood_high": 0.455,
-     "stood_low": 0.045,
-     "value": 0.2085
+     "alone": {
+      "n": 23,
+      "value": 0.3695
+     },
+     "high": 0.439,
+     "low": 0.153,
+     "n": 98,
+     "pooled": true,
+     "value": 0.296
     }
    }
   }
@@ -220,7 +286,7 @@
    ],
    "others": [
     0,
-    373
+    379
    ]
   },
   "takes_life": {
@@ -232,33 +298,33 @@
   "body": 3.5,
   "tail": [
    {
-    "n": 36,
-    "n_seconds": 137.9,
-    "share": 0.4105,
+    "n": 40,
+    "n_seconds": 146.5,
+    "share": 0.423,
     "to": 4.0
    },
    {
-    "n": 41,
-    "n_seconds": 410.1,
-    "share": 0.1572,
+    "n": 44,
+    "n_seconds": 426.6,
+    "share": 0.1598,
     "to": 5.0
    },
    {
-    "n": 18,
-    "n_seconds": 565.3,
-    "share": 0.0501,
+    "n": 21,
+    "n_seconds": 580.7,
+    "share": 0.056,
     "to": 6.0
    },
    {
-    "n": 18,
-    "n_seconds": 1219.7,
-    "share": 0.0232,
+    "n": 21,
+    "n_seconds": 1245.0,
+    "share": 0.0261,
     "to": 8.0
    },
    {
-    "n": 68,
-    "n_seconds": 3407.5,
-    "share": 0.0232,
+    "n": 73,
+    "n_seconds": 3451.9,
+    "share": 0.0261,
     "to": 12.0
    }
   ]
@@ -266,53 +332,53 @@
  "shots": {
   "pooled": {
    "aim": {
-    "n": 2657,
+    "n": 2700,
     "value": 0.624
    },
    "name": "all types the threat table calls ranged (the arena's shooters)",
    "rate": {
-    "n_seconds": 5316.0,
-    "n_shots": 2282,
-    "value": 0.429
+    "n_seconds": 5423.0,
+    "n_shots": 2289,
+    "value": 0.422
    },
    "speed": {
     "n_shots": 1536,
     "value": 20.61
    },
    "takes_life": {
-    "mean_hit": 79.3,
-    "n": 2657,
-    "n_hits": 28,
-    "points_shared": 1502,
-    "points_sole": 2220,
-    "value": 0.0226
+    "mean_hit": 97.7,
+    "n": 2700,
+    "n_hits": 32,
+    "points_shared": 1697,
+    "points_sole": 3127,
+    "value": 0.0241
    }
   },
   "spread": {
    "knots": [
     [
      0.0,
-     0.0573
+     0.0523
     ],
     [
      0.5,
-     0.4239
+     0.4396
     ],
     [
      0.9,
-     2.9101
+     2.9832
     ],
     [
      1.0,
-     5.1443
+     4.6998
     ]
    ],
-   "mean_points": 87.3,
-   "n": 28,
+   "mean_points": 95.5,
+   "n": 32,
    "points": {
     "max": 449,
-    "p50": 37,
-    "p90": 254,
+    "p50": 42,
+    "p90": 285,
     "p99": 449
    }
   },
@@ -336,13 +402,13 @@
     },
     "table_ranged": true,
     "takes_life": {
-     "mean_hit": 79.3,
-     "n": 2657,
-     "n_hits": 28,
-     "points_shared": 1502,
-     "points_sole": 2220,
+     "mean_hit": 97.7,
+     "n": 2700,
+     "n_hits": 32,
+     "points_shared": 1697,
+     "points_sole": 3127,
      "pooled": true,
-     "value": 0.0226
+     "value": 0.0241
     }
    },
    "11": {
@@ -364,13 +430,13 @@
     },
     "table_ranged": true,
     "takes_life": {
-     "mean_hit": 79.3,
-     "n": 2657,
-     "n_hits": 28,
-     "points_shared": 1502,
-     "points_sole": 2220,
+     "mean_hit": 97.7,
+     "n": 2700,
+     "n_hits": 32,
+     "points_shared": 1697,
+     "points_sole": 3127,
      "pooled": true,
-     "value": 0.0226
+     "value": 0.0241
     }
    },
    "131": {
@@ -392,13 +458,13 @@
     },
     "table_ranged": true,
     "takes_life": {
-     "mean_hit": 79.3,
-     "n": 2657,
-     "n_hits": 28,
-     "points_shared": 1502,
-     "points_sole": 2220,
+     "mean_hit": 97.7,
+     "n": 2700,
+     "n_hits": 32,
+     "points_shared": 1697,
+     "points_sole": 3127,
      "pooled": true,
-     "value": 0.0226
+     "value": 0.0241
     }
    },
    "135": {
@@ -420,13 +486,13 @@
     },
     "table_ranged": true,
     "takes_life": {
-     "mean_hit": 79.3,
-     "n": 2657,
-     "n_hits": 28,
-     "points_shared": 1502,
-     "points_sole": 2220,
+     "mean_hit": 97.7,
+     "n": 2700,
+     "n_hits": 32,
+     "points_shared": 1697,
+     "points_sole": 3127,
      "pooled": true,
-     "value": 0.0226
+     "value": 0.0241
     }
    },
    "161": {
@@ -446,13 +512,13 @@
     },
     "table_ranged": true,
     "takes_life": {
-     "mean_hit": 79.3,
-     "n": 2657,
-     "n_hits": 28,
-     "points_shared": 1502,
-     "points_sole": 2220,
+     "mean_hit": 97.7,
+     "n": 2700,
+     "n_hits": 32,
+     "points_shared": 1697,
+     "points_sole": 3127,
      "pooled": true,
-     "value": 0.0226
+     "value": 0.0241
     }
    },
    "162": {
@@ -472,12 +538,12 @@
     },
     "table_ranged": true,
     "takes_life": {
-     "mean_hit": 79.3,
+     "mean_hit": 97.7,
      "n": 667,
      "n_hits": 3,
      "points_shared": 236,
      "points_sole": 452,
-     "value": 0.0174
+     "value": 0.0141
     }
    },
    "351": {
@@ -499,13 +565,13 @@
     },
     "table_ranged": false,
     "takes_life": {
-     "mean_hit": 79.3,
-     "n": 2657,
-     "n_hits": 28,
-     "points_shared": 1502,
-     "points_sole": 2220,
+     "mean_hit": 97.7,
+     "n": 2700,
+     "n_hits": 32,
+     "points_shared": 1697,
+     "points_sole": 3127,
      "pooled": true,
-     "value": 0.0226
+     "value": 0.0241
     }
    },
    "352": {
@@ -527,13 +593,13 @@
     },
     "table_ranged": false,
     "takes_life": {
-     "mean_hit": 79.3,
-     "n": 2657,
-     "n_hits": 28,
-     "points_shared": 1502,
-     "points_sole": 2220,
+     "mean_hit": 97.7,
+     "n": 2700,
+     "n_hits": 32,
+     "points_shared": 1697,
+     "points_sole": 3127,
      "pooled": true,
-     "value": 0.0226
+     "value": 0.0241
     }
    },
    "353": {
@@ -555,13 +621,13 @@
     },
     "table_ranged": false,
     "takes_life": {
-     "mean_hit": 79.3,
-     "n": 2657,
-     "n_hits": 28,
-     "points_shared": 1502,
-     "points_sole": 2220,
+     "mean_hit": 97.7,
+     "n": 2700,
+     "n_hits": 32,
+     "points_shared": 1697,
+     "points_sole": 3127,
      "pooled": true,
-     "value": 0.0226
+     "value": 0.0241
     }
    },
    "381": {
@@ -581,13 +647,13 @@
     },
     "table_ranged": true,
     "takes_life": {
-     "mean_hit": 79.3,
-     "n": 2657,
-     "n_hits": 28,
-     "points_shared": 1502,
-     "points_sole": 2220,
+     "mean_hit": 97.7,
+     "n": 2700,
+     "n_hits": 32,
+     "points_shared": 1697,
+     "points_sole": 3127,
      "pooled": true,
-     "value": 0.0226
+     "value": 0.0241
     }
    },
    "45": {
@@ -609,13 +675,13 @@
     },
     "table_ranged": false,
     "takes_life": {
-     "mean_hit": 79.3,
-     "n": 2657,
-     "n_hits": 28,
-     "points_shared": 1502,
-     "points_sole": 2220,
+     "mean_hit": 97.7,
+     "n": 2700,
+     "n_hits": 32,
+     "points_shared": 1697,
+     "points_sole": 3127,
      "pooled": true,
-     "value": 0.0226
+     "value": 0.0241
     }
    },
    "472": {
@@ -637,12 +703,12 @@
     },
     "table_ranged": true,
     "takes_life": {
-     "mean_hit": 79.3,
+     "mean_hit": 97.7,
      "n": 499,
      "n_hits": 7,
      "points_shared": 733,
      "points_sole": 572,
-     "value": 0.0332
+     "value": 0.0269
     }
    },
    "578": {
@@ -662,12 +728,12 @@
     },
     "table_ranged": true,
     "takes_life": {
-     "mean_hit": 79.3,
+     "mean_hit": 97.7,
      "n": 647,
      "n_hits": 6,
      "points_shared": 363,
      "points_sole": 481,
-     "value": 0.0189
+     "value": 0.0154
     }
    },
    "58": {
@@ -689,13 +755,13 @@
     },
     "table_ranged": false,
     "takes_life": {
-     "mean_hit": 79.3,
-     "n": 2657,
-     "n_hits": 28,
-     "points_shared": 1502,
-     "points_sole": 2220,
+     "mean_hit": 97.7,
+     "n": 2700,
+     "n_hits": 32,
+     "points_shared": 1697,
+     "points_sole": 3127,
      "pooled": true,
-     "value": 0.0226
+     "value": 0.0241
     }
    },
    "59": {
@@ -717,13 +783,13 @@
     },
     "table_ranged": false,
     "takes_life": {
-     "mean_hit": 79.3,
-     "n": 2657,
-     "n_hits": 28,
-     "points_shared": 1502,
-     "points_sole": 2220,
+     "mean_hit": 97.7,
+     "n": 2700,
+     "n_hits": 32,
+     "points_shared": 1697,
+     "points_sole": 3127,
      "pooled": true,
-     "value": 0.0226
+     "value": 0.0241
     }
    },
    "597": {
@@ -743,13 +809,13 @@
     },
     "table_ranged": true,
     "takes_life": {
-     "mean_hit": 79.3,
-     "n": 2657,
-     "n_hits": 28,
-     "points_shared": 1502,
-     "points_sole": 2220,
+     "mean_hit": 97.7,
+     "n": 2700,
+     "n_hits": 32,
+     "points_shared": 1697,
+     "points_sole": 3127,
      "pooled": true,
-     "value": 0.0226
+     "value": 0.0241
     }
    },
    "607": {
@@ -771,13 +837,13 @@
     },
     "table_ranged": true,
     "takes_life": {
-     "mean_hit": 79.3,
-     "n": 2657,
-     "n_hits": 28,
-     "points_shared": 1502,
-     "points_sole": 2220,
+     "mean_hit": 97.7,
+     "n": 2700,
+     "n_hits": 32,
+     "points_shared": 1697,
+     "points_sole": 3127,
      "pooled": true,
-     "value": 0.0226
+     "value": 0.0241
     }
    },
    "61": {
@@ -799,13 +865,13 @@
     },
     "table_ranged": false,
     "takes_life": {
-     "mean_hit": 79.3,
-     "n": 2657,
-     "n_hits": 28,
-     "points_shared": 1502,
-     "points_sole": 2220,
+     "mean_hit": 97.7,
+     "n": 2700,
+     "n_hits": 32,
+     "points_shared": 1697,
+     "points_sole": 3127,
      "pooled": true,
-     "value": 0.0226
+     "value": 0.0241
     }
    },
    "624": {
@@ -825,13 +891,13 @@
     },
     "table_ranged": true,
     "takes_life": {
-     "mean_hit": 79.3,
-     "n": 2657,
-     "n_hits": 28,
-     "points_shared": 1502,
-     "points_sole": 2220,
+     "mean_hit": 97.7,
+     "n": 2700,
+     "n_hits": 32,
+     "points_shared": 1697,
+     "points_sole": 3127,
      "pooled": true,
-     "value": 0.0226
+     "value": 0.0241
     }
    },
    "659": {
@@ -851,13 +917,13 @@
     },
     "table_ranged": true,
     "takes_life": {
-     "mean_hit": 79.3,
-     "n": 2657,
-     "n_hits": 28,
-     "points_shared": 1502,
-     "points_sole": 2220,
+     "mean_hit": 97.7,
+     "n": 2700,
+     "n_hits": 32,
+     "points_shared": 1697,
+     "points_sole": 3127,
      "pooled": true,
-     "value": 0.0226
+     "value": 0.0241
     }
    },
    "662": {
@@ -879,13 +945,13 @@
     },
     "table_ranged": false,
     "takes_life": {
-     "mean_hit": 79.3,
-     "n": 2657,
-     "n_hits": 28,
-     "points_shared": 1502,
-     "points_sole": 2220,
+     "mean_hit": 97.7,
+     "n": 2700,
+     "n_hits": 32,
+     "points_shared": 1697,
+     "points_sole": 3127,
      "pooled": true,
-     "value": 0.0226
+     "value": 0.0241
     }
    },
    "673": {
@@ -907,13 +973,13 @@
     },
     "table_ranged": true,
     "takes_life": {
-     "mean_hit": 79.3,
-     "n": 2657,
-     "n_hits": 28,
-     "points_shared": 1502,
-     "points_sole": 2220,
+     "mean_hit": 97.7,
+     "n": 2700,
+     "n_hits": 32,
+     "points_shared": 1697,
+     "points_sole": 3127,
      "pooled": true,
-     "value": 0.0226
+     "value": 0.0241
     }
    }
   }
@@ -1008,12 +1074,12 @@
  "targets": {
   "pooled": {
    "character_nearer": {
-    "n_seconds": 4695.8,
-    "value": 0.9184
+    "n_seconds": 4752.0,
+    "value": 0.9171
    },
    "companion_nearer": {
-    "n_seconds": 5184.3,
-    "value": 0.5145
+    "n_seconds": 5271.6,
+    "value": 0.5114
    }
   },
   "types": {
@@ -1202,8 +1268,8 @@
   "enough_shots": 20
  },
  "train": {
-  "drops": 810,
-  "seconds": 9730.2,
-  "takes": 330
+  "drops": 831,
+  "seconds": 9827.8,
+  "takes": 332
  }
 }

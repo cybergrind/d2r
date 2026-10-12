@@ -340,6 +340,40 @@ def test_hit_takes_life_and_says_when_it_died():
     assert mobs.live() == [2]
 
 
+def struck_every(points: float, ticks: int = 1000, every: int = 12) -> tuple[float, Mobs]:
+    """A cow beside the character, of a million points of life at the most and far more than that left
+    (it is not to die here), hit for `points` every `every` ticks: the life it took off the character,
+    and the monsters."""
+    mobs = Mobs(scene([Mob(1, HELL_BOVINE, (HERE[0] + 2.0, HERE[1]), 85, 1e12, 1e6)]), random.Random(1))
+    taken = 0.0
+    for tick in range(ticks):
+        taken += mobs.tick(HERE, [], OPEN)
+        if tick % every == 0:
+            mobs.hit(1, points)
+    return taken, mobs
+
+
+def test_a_hit_that_takes_a_good_part_of_its_life_staggers_a_monster_and_its_swing_is_lost(monkeypatch):
+    monkeypatch.undo()  # this one test is of the stagger: the file's others have none (`every_blow_lands`)
+    sure(monkeypatch, stagger=True)
+    # Every swing that runs out lands here (`sure`): what a struck monster deals less is what its staggers cost.
+    calm, _mobs = struck_every(0.0)
+    grazed, _mobs = struck_every(1e6 / 100)  # a hundredth of its life: under a sixteenth, seldom a stagger
+    reeling, mobs = struck_every(1e6 / 4)  # a quarter: nine times in ten
+    assert calm > 0
+    assert grazed > 0.6 * calm
+    assert reeling < 0.4 * calm
+    assert mobs.pack.walkers[1].fell == 0.0  # a tick's hits are rolled for at the next tick, once
+
+
+def test_the_hits_of_one_tick_are_one_fall_of_their_sum():
+    mobs = Mobs(scene([mob(1, HELL_BOVINE, 2.0, 0.0)]), random.Random(1))
+    mobs.tick(HERE, [], OPEN)
+    for _ in range(4):
+        mobs.hit(1, 50.0)
+    assert mobs.pack.walkers[1].fell == pytest.approx(0.2)  # 200 of its 1000 points
+
+
 def test_nothing_comes_off_an_immune_monster():
     mobs = Mobs(scene([mob(1, GHOUL, 5.0, 0.0, immune=True)]), random.Random(1))
     assert mobs.hit(1, 5000.0) is False

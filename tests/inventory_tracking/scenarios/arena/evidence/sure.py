@@ -3,10 +3,10 @@ every shot takes life, as before the refit (combat/sim/monsters.py reads data/mo
 
     sure(monkeypatch)
 
-sets, until the test is over: no swing cut short, every whole swing on the character a blow, every
-shot at the character and every missile under it a hit, every blow of the table's own roll (no
-spread), no reach beyond the body's. What is left to chance is what the test is about; the rates
-(swings and shots a second) stay the fitted ones.
+sets, until the test is over: no swing lost to a stagger (a struck monster never staggers), every
+swing on the character a blow, every shot at the character and every missile under it a hit, every
+blow of the table's own roll (no spread), no reach beyond the body's. What is left to chance is what
+the test is about; the rests and the shots a second stay the fitted ones.
 """
 
 from typing import Any
@@ -14,13 +14,18 @@ from typing import Any
 from inventory_tracking.combat.sim.monsters import fitted
 
 
-def sure(monkeypatch: Any, *, spread: bool = False, tail: bool = False, instant: bool = False) -> None:
-    """Make every swing and shot land; `spread` and `tail` keep the fitted size of a blow and the
-    fitted reach beyond the body's; `instant` has a missile arrive the frame after it is let go."""
+def sure(
+    monkeypatch: Any, *, spread: bool = False, tail: bool = False, instant: bool = False, stagger: bool = False
+) -> None:
+    """Make every swing and shot land; `spread`, `tail` and `stagger` keep the fitted size of a blow,
+    the fitted reach beyond the body's and the fitted stagger of a struck monster; `instant` has a
+    missile arrive the frame after it is let go."""
     found = fitted()
+    if not stagger:
+        calm = [{**band, 'chance': 0.0} for band in found['melee']['stagger']['bands']]
+        monkeypatch.setitem(found['melee'], 'stagger', {**found['melee']['stagger'], 'bands': calm})
     for row in (found['melee']['pooled'], *found['melee']['types'].values()):
         monkeypatch.setitem(row, 'takes_life', {**row['takes_life'], 'value': 1.0})
-        monkeypatch.setitem(row, 'cut', {**row['cut'], 'value': 0.0})
     for row in (found['shots']['pooled'], *found['shots']['types'].values()):
         monkeypatch.setitem(row, 'takes_life', {**row['takes_life'], 'value': 1.0})
         monkeypatch.setitem(row, 'aim', {**row['aim'], 'value': 1.0})
