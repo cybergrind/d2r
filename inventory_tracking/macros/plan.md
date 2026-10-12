@@ -3515,3 +3515,30 @@ the mode was toggled; the third summoned one and pressed Consume 0.6 s later as 
 - Still as it was: no try with a hostile within 30 units, so in a long fight the buff stays off.
 - After the aim's label check was first written with a 0.06 s wait at every aim, six reaction tests
   failed (the first strike a tick late): the check now reads the record on the loop's later passes.
+
+## 2026-10-12 20:30 — a full inventory: a warning that stays, and a stop only for what is prized
+
+User, after the first live session on the framework (`combat-framework`, commit d9994b4): "KP_1 stops
+moving the character from time to time at all and does nothing". Drifter Cavern, 19:59:52 to 20:00:40
+(runs/alt-d/20261012T164959Z-3211e10f/probe.log): the inventory full after a Superior Old Book was
+taken at 19:53:44; a Magic Kriss and a second Old Book on the ground; 13 hostiles 33 to 39 away, none
+in reach. 37 presses in a row ended "Macro stopped: inventory full: no room for Superior Old Book", and
+attack mode said "the sweep stays by Magic Kriss ...: no step". Both rules are older than the framework
+(2026-10-10 night: the press stops for a drop there is no room for; 2026-10-11: the sweep stays by a
+valuable it cannot take) and read the same in the frozen base; no session of that morning had a full
+inventory.
+
+User: "we should give an active warning what must be visible to user. but probably we should allow
+moving when item isn't very valuable".
+- world.py `Drop.prized`, `prized()`: what the loot marks point at — a rune from `rune_minimum` (Io) up,
+  a unique or set item worth a mark, a material of `material_marks`. Not prized: the low runes, every
+  ring and jewel, the gems and the equipment the loot filter shows. A drop of unknown worth is prized.
+- pickup.py: with no room for a prized drop and nothing else to take the press still stops (as on
+  2026-10-10); for the rest it goes on to the seek step or the sweep.
+- hunt.py: the sweep does not stay by a drop that is not prized and has no room.
+- engine.py `Run.warn`, runner.py `_warn`/`_show`: "Inventory full: <names> left on the ground" stays on
+  the macro card above whatever is said, until a press finds nothing left for want of room, or 30 s
+  (WARNING_SECONDS) after it was last given. It is logged as a warning once per text.
+- The golden net: `decisions.json` gained `"prized": true` in the ten pickup cases (the record's new
+  field); no decision changed. Suite 5895 passed, 63 xfailed (the pinned list).
+- Not played yet.

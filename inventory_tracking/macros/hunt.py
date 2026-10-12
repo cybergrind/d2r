@@ -761,7 +761,16 @@ class Hunter:
         # A valuable in sight the sweep does not take (no room for it, or its clicks took nothing) is
         # stayed by: the Tower, 17:56:14 on 2026-10-11, a Grand Charm came down 20 away, the sweep
         # said nothing, jumped twice and stood 31 from it; the player went back for it by hand.
-        near = [d for d in loot.drops if d.kind == VALUABLE and math.dist(here, (d.x, d.y)) <= HOLD_SIGHT]
+        # Not by gear the filter shows that there is no room for (world.py `prized`): the mode goes on to
+        # the hostiles (Drifter Cavern, 19:59:52 on 2026-10-12: "the sweep stays by Magic Kriss", 13
+        # hostiles 39 away and attack mode idle; user: "allow moving when the item isn't very valuable").
+        near = [
+            d
+            for d in loot.drops
+            if d.kind == VALUABLE
+            and math.dist(here, (d.x, d.y)) <= HOLD_SIGHT
+            and (d.prized or has_room(loot.room, d.size))
+        ]
         self.held = min(near, key=lambda d: math.dist(here, (d.x, d.y))) if near else None
         if plan is None or self.gathered.get(plan.drop.unit_id, 0) >= GATHER_TRIES:
             held = self.held

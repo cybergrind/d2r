@@ -560,3 +560,51 @@ def test_the_clicks_stop_when_the_character_is_dead():
     play.arrivals.append((0.3, dies))
     with pytest.raises(Abort, match='the character is dead'):
         pick_up(play.run(), LEVEL, keys, nothing)
+
+
+# --- a full inventory: what stops the press and what only warns (user, 2026-10-12) ---------------------
+# Drifter Cavern, 20:00 that day: the inventory full, a Superior Old Book on the ground, 13 hostiles 38
+# away, and 37 presses in a row ended "inventory full: no room for Superior Old Book" (user: "KP_1 stops
+# moving the character from time to time at all and does nothing"; "we should give an active warning that
+# must be visible to the user, but allow moving when the item isn't very valuable").
+FULL_ROOM = ('##########',) * 4
+
+
+def warned_by(run) -> list:
+    warned = []
+    run.warn = warned.append
+    return warned
+
+
+def test_gear_the_filter_shows_with_no_room_for_it_is_warned_of_and_the_press_goes_on():
+    book = Drop(71, 5008.0, 5003.0, 'Superior Old Book', VALUABLE, (2, 2), prized=False)
+    play = game(book)
+    play.loot = Loot((book,), FULL, 1000, 1000, FULL_ROOM)
+    went_on = []
+    run = play.run()
+    warned = warned_by(run)
+    assert not pick_up(run, LEVEL, keys, lambda: went_on.append(True))
+    assert went_on == [True]  # the seek step, or the sweep: the press is not a dead key
+    assert warned == ['Inventory full: Superior Old Book left on the ground']
+    assert play.picked == []
+
+
+def test_a_prized_drop_with_no_room_for_it_still_stops_the_press_and_is_warned_of():
+    rune = Drop(72, 5008.0, 5003.0, 'Ist Rune', VALUABLE, (1, 1))
+    book = Drop(71, 5010.0, 5003.0, 'Superior Old Book', VALUABLE, (2, 2), prized=False)
+    play = game(rune, book)
+    play.loot = Loot((rune, book), FULL, 1000, 1000, FULL_ROOM)
+    run = play.run()
+    warned = warned_by(run)
+    with pytest.raises(Abort, match=r'inventory full: no room for Ist Rune$'):
+        pick_up(run, LEVEL, keys, nothing)
+    assert warned == ['Inventory full: Ist Rune, Superior Old Book left on the ground']
+
+
+def test_the_warning_is_taken_back_when_nothing_is_left_for_want_of_room():
+    play = game()
+    play.loot = Loot((), FULL, 1000, 1000, FULL_ROOM)
+    run = play.run()
+    warned = warned_by(run)
+    pick_up(run, LEVEL, keys, lambda: None)
+    assert warned == [None]

@@ -1578,6 +1578,7 @@
   "drop": {
    "kind": "valuable",
    "label": "Large Charm",
+   "prized": true,
    "size": [
     1,
     2
@@ -1592,6 +1593,7 @@
   "drop": {
    "kind": "healing",
    "label": "a healing potion",
+   "prized": true,
    "size": [
     1,
     1
@@ -1606,6 +1608,7 @@
   "drop": {
    "kind": "rejuvenation",
    "label": "a full rejuvenation potion",
+   "prized": true,
    "size": [
     1,
     1
@@ -1620,6 +1623,7 @@
   "drop": {
    "kind": "gold",
    "label": "7200 gold",
+   "prized": true,
    "size": [
     0,
     0
@@ -1635,6 +1639,7 @@
   "drop": {
    "kind": "gold",
    "label": "7200 gold",
+   "prized": true,
    "size": [
     0,
     0
@@ -1652,6 +1657,7 @@
   "drop": {
    "kind": "healing",
    "label": "a healing potion",
+   "prized": true,
    "size": [
     1,
     1
@@ -1667,6 +1673,7 @@
   "drop": {
    "kind": "healing",
    "label": "a healing potion",
+   "prized": true,
    "size": [
     1,
     1
@@ -1682,6 +1689,7 @@
   "drop": {
    "kind": "valuable",
    "label": "Ist Rune",
+   "prized": true,
    "size": [
     1,
     1
@@ -1697,6 +1705,7 @@
   "drop": {
    "kind": "valuable",
    "label": "Ist Rune",
+   "prized": true,
    "size": [
     1,
     1
@@ -1711,6 +1720,7 @@
   "drop": {
    "kind": "valuable",
    "label": "Ist Rune",
+   "prized": true,
    "size": [
     1,
     1

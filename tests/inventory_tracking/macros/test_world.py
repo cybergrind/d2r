@@ -362,3 +362,15 @@ def test_a_hover_record_without_its_flag_is_a_leftover():
     assert memory.hovered() is None
     assert memory.hover_note() == 'flag 0x0 type 4 id 77 tail 0x130013'
     assert memory.hovered() == (1, 5)
+
+
+def test_what_the_marks_point_at_is_prized_and_the_rest_of_the_pickup_is_not():
+    """user, 2026-10-12: a full inventory stops the pickup press only for what is "very valuable"."""
+    from inventory_tracking.macros.world import prized
+
+    assert prized('rune', marked=True)  # a rune from the marks' own minimum up
+    assert not prized('rune', marked=False)  # the low runes the pickup takes besides
+    assert prized('unique', marked=True)
+    assert prized('material', marked=True)  # a material the marks point at
+    assert not prized('material', marked=False)  # every ring and jewel, the gems the filter shows
+    assert not prized('shown', marked=False)  # equipment the loot filter shows

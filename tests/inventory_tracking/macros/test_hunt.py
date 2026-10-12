@@ -1894,6 +1894,18 @@ def test_the_sweep_stays_by_a_valuable_it_cannot_take_and_says_so(caplog):
     assert 'the sweep stays by Grand Charm' in caplog.text
 
 
+def test_the_sweep_does_not_stay_by_gear_it_has_no_room_for():
+    # Drifter Cavern, 19:59:52 on 2026-10-12: "the sweep stays by Magic Kriss ...: no step", 13 hostiles 39
+    # away and attack mode idle (user: "allow moving when the item isn't very valuable").
+    play, hunt = far_one()
+    kriss = Drop(60, 4990.0, 5000.0, 'Magic Kriss', 'valuable', (1, 3), prized=False)
+    play.loot = replace(play.loot, drops=(kriss,), room=('####', '####'))
+    hunt.pick = lambda: None
+    swept(play, hunt)
+    assert math.dist((play.world.player.x, play.world.player.y), (kriss.x, kriss.y)) > 25.0
+    assert not any(line.startswith('Staying by') for line in play.said)
+
+
 def test_the_sweep_still_steps_within_the_radius_of_the_valuable_it_stays_by():
     play, hunt = far_one()
     charm = Drop(60, 5012.0, 5000.0, 'Grand Charm', 'valuable', (1, 3))

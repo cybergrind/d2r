@@ -77,6 +77,9 @@ PRIORITY = (TELEPORT, HUNT_ELITES, PREBUFF, PICKUP)
 EXPIRES = {TELEPORT: 1.0, HUNT_ELITES: 1.5, PREBUFF: 3.0, PICKUP: 2.0}
 THROTTLE = 0.3  # seconds between accepted macro requests (a bounce is not a cancel)
 CARD_SECONDS = 4.0
+# A warning of a routine (engine.Run `warn`: the inventory full) stays on the card this long after it was
+# last given, above whatever is said, unless it is taken back sooner.
+WARNING_SECONDS = 30.0
 RESEARCH_ENV = 'D2R_MACRO_RESEARCH'  # set: log which bytes name the unit under the pointer at a Consume
 # Seconds attack mode stays out after a teleport step before it resumes. The next press of a player
 # travelling came 40 to 700 ms after the step before was over (30 presses, 21:26 on 2026-10-11), found
@@ -137,6 +140,7 @@ class MacroRunner:
         self.working = False  # a run is acting (the thread lives on a while to show its last card)
         self.routine = PREBUFF
         self.generation = 0
+        self.warning: tuple[str, float] | None = None  # (text, the clock it was given at)
         self.attack_mode = False  # the attack run is wanted, now or once the current step is done
         self.closed = False  # `close` was called: nothing starts any more
         self.trace = trace or Trace()  # how long each press takes (latency.py)
@@ -341,9 +345,30 @@ class MacroRunner:
         level = hunter.level() if hunter is not None and hunter.level is not None else None
         return Ground(level.ground) if level is not None and level.ground else None
 
+    def _show(self, lines: list[str]) -> None:
+        """The card: the warning that stands, if any, above `lines`. A card with only the warning stays
+        up when the lines are cleared."""
+        warning = self.warning
+        if warning is not None and time.monotonic() - warning[1] > WARNING_SECONDS:
+            warning = self.warning = None
+        self.display(([f'Macro: {warning[0]}'] if warning is not None else []) + lines)
+
+    def _warn(self, text: str | None) -> None:
+        """A warning that stays on the card (None takes it back): the next line said does not wipe it.
+        user, 2026-10-12: "we should give an active warning that must be visible to the user"."""
+        if text is None:
+            if self.warning is not None:
+                self.warning = None
+                self._show([])
+            return
+        if self.warning is None or self.warning[0] != text:
+            LOG.warning('Macro: %s', text)
+        self.warning = (text, time.monotonic())
+        self._show([])
+
     def _say(self, text: str) -> None:
         LOG.info('Macro: %s', text)
-        self.display([f'Macro: {text}'])
+        self._show([f'Macro: {text}'])
 
     def _guarded(
         self,
@@ -385,14 +410,14 @@ class MacroRunner:
                 self._say('Attack mode paused' if self.attack_mode else 'Attack mode off')
             else:
                 LOG.info('Macro stopped: %s', stop)
-                self.display([f'Macro stopped: {stop}'])
+                self._show([f'Macro stopped: {stop}'])
         except Abort as stop:
             LOG.info('Macro stopped: %s', stop)
-            self.display([f'Macro stopped: {stop}'])
+            self._show([f'Macro stopped: {stop}'])
             failed = True
         except Exception as exc:
             LOG.exception('Macro failed')
-            self.display([f'Macro failed: {exc}'])
+            self._show([f'Macro failed: {exc}'])
             failed = True
         else:
             failed = None  # ended and followed above: only the card is left
@@ -405,7 +430,7 @@ class MacroRunner:
                     return
         time.sleep(CARD_SECONDS)
         if self.generation == generation:  # no newer run owns the card
-            self.display([])
+            self._show([])
 
     def _follow(self, routine: str) -> bool:
         """The run of `routine` is over: start what follows it, if anything, and say whether something
@@ -528,6 +553,7 @@ class MacroRunner:
                 run.hovered = memory.hovered
                 run.hover_note = memory.hover_note
                 run.mark = mark
+                run.warn = self._warn
                 run.hurry = self.hurry
                 run.deadline = self.deadline
                 run.warps = memory.warps

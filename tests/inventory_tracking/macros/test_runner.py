@@ -875,3 +875,31 @@ def test_the_macro_request_of_a_build_with_nothing_to_prebuff_stops_with_the_rea
         runner.perform(run, run.actuator, 'prebuff', lambda found, skills=None: dict(KEYS))
     assert run.build is plain
     assert play.pressed() == []
+
+
+def test_a_warning_stays_on_the_card_above_what_is_said_until_it_is_taken_back():
+    # user, 2026-10-12: "we should give an active warning that must be visible to the user": a line the
+    # next thing said wipes is not one (Drifter Cavern, 20:00 that day).
+    shown = []
+    runner = MacroRunner(None, capture_lock=threading.Lock(), saved_games=None, display=shown.append)
+    runner._warn('Inventory full: Superior Old Book left on the ground')
+    runner._say('Walking 16 toward the monster')
+    runner._show([])
+    assert shown[-3:] == [
+        ['Macro: Inventory full: Superior Old Book left on the ground'],
+        ['Macro: Inventory full: Superior Old Book left on the ground', 'Macro: Walking 16 toward the monster'],
+        ['Macro: Inventory full: Superior Old Book left on the ground'],
+    ]
+    runner._warn(None)
+    runner._say('Attack mode on')
+    assert shown[-2:] == [[], ['Macro: Attack mode on']]
+
+
+def test_a_warning_not_given_again_leaves_the_card_after_a_while(monkeypatch):
+    shown = []
+    runner = MacroRunner(None, capture_lock=threading.Lock(), saved_games=None, display=shown.append)
+    runner._warn('Inventory full: Magic Kriss left on the ground')
+    given = runner.warning[1]
+    monkeypatch.setattr(runner_module.time, 'monotonic', lambda: given + runner_module.WARNING_SECONDS + 1)
+    runner._say('Attack mode on')
+    assert shown[-1] == ['Macro: Attack mode on']

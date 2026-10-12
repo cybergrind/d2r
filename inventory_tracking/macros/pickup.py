@@ -153,6 +153,9 @@ def wanted() -> dict:
         'materials': materials,
         'gold_minimum': APPRAISAL.pickup_gold_minimum,
         'shown': pickup_rules(APPRAISAL.pickup_shown_cells) if APPRAISAL.pickup_filter_shown else (),
+        # What a full inventory stops the press for: what the marks point at (world.py `prized`).
+        'prized_rune_minimum': APPRAISAL.rune_minimum,
+        'prized_materials': frozenset(material_classes(APPRAISAL.material_marks)),
     }
 
 
@@ -508,11 +511,22 @@ def pick_up(run: Run, level: Level | None, key_names, otherwise: Callable[[], No
     if left:
         named = ', '.join(sorted({drop.label for drop in left}))
         LOG.info('Macro: pickup: the inventory has no room for %s; left on the ground', named)
-        if plan is None:
+        # Shown until a press finds nothing left for want of room: a line that the next thing said
+        # would wipe was read as a key that does nothing (user, 2026-10-12: "an active warning that
+        # must be visible to the user").
+        run.warn(f'Inventory full: {named} left on the ground')
+        dear = ', '.join(sorted({drop.label for drop in left if drop.prized}))
+        if plan is None and dear:
             # The press stops here and says so: going on to the seek step would teleport away from
-            # the drop (user, 2026-10-10 night).
-            raise Abort(f'inventory full: no room for {named}')
-        run.say(f'Inventory full: no room for {named}')
+            # the drop (user, 2026-10-10 night). Only for what the marks point at (world.py `prized`):
+            # for gear the filter shows the press goes on (user, 2026-10-12: "allow moving when the item
+            # isn't very valuable"; Drifter Cavern, 20:00 that day: 37 presses in a row stopped for a
+            # Superior Old Book, 13 hostiles 38 away).
+            raise Abort(f'inventory full: no room for {dear}')
+        if plan is not None:
+            run.say(f'Inventory full: no room for {named}')
+    else:
+        run.warn(None)
     if plan is None:
         near = [drop for drop in loot.drops if drop.kind in KINDS and math.dist(here, (drop.x, drop.y)) <= POTION_UNITS]
         if near:

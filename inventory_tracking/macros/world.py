@@ -32,7 +32,7 @@ from inventory_tracking.loot.ground import (
     static_position,
 )
 from inventory_tracking.loot.materials import appraised_classes
-from inventory_tracking.loot.runes import rune_name
+from inventory_tracking.loot.runes import is_valuable_rune, rune_name
 from inventory_tracking.loot.shown import ShownRule
 from inventory_tracking.native.layout import (
     BELT_ITEM_MODE,
@@ -211,6 +211,17 @@ class Drop:
     label: str
     kind: str  # VALUABLE, GOLD, HEALING or REJUVENATION
     size: tuple[int, int] = (1, 1)  # cells across and down it takes in the inventory (loot/data/sizes.json)
+    # One the loot marks point at (`prized`): with no room for it the pickup press stops; for the rest it
+    # warns and goes on. True unless the read says otherwise: a drop of unknown worth stops the press.
+    prized: bool = True
+
+
+def prized(source: str, *, marked: bool) -> bool:
+    """Whether a drop is one a full inventory stops the pickup press for (user, 2026-10-12: "allow moving
+    when the item isn't very valuable"): what the loot marks point at — a rune from the marks' minimum up,
+    a unique or set item worth a mark, a material of the marks — and not what the pickup takes besides (the
+    low runes, every ring and jewel, the gems and the equipment the loot filter shows)."""
+    return source == 'unique' or (source in ('rune', 'material') and marked)
 
 
 @dataclass(frozen=True)
@@ -753,6 +764,8 @@ class GameMemory:
         materials: dict[int, str],
         gold_minimum: int | None = None,
         shown: tuple[ShownRule, ...] = (),
+        prized_rune_minimum: str | None = None,
+        prized_materials: frozenset[int] | None = None,
     ) -> Loot:
         """The drops the loot marks would show (loot/ground.py, the same rules), the potions on the
         ground, the character's belt and life. An empty Loot when the character cannot be read."""
@@ -761,15 +774,28 @@ class GameMemory:
             if player is None:
                 return Loot()
             read, table = self.read, self.table
+            # Without the marks' own settings every rune and material counts as one of theirs (`prized`).
             drops = [
-                Drop(rune.unit_id, rune.x, rune.y, rune_name(rune.class_id), VALUABLE)
+                Drop(
+                    rune.unit_id, rune.x, rune.y, rune_name(rune.class_id), VALUABLE,
+                    prized=prized(
+                        'rune',
+                        marked=prized_rune_minimum is None
+                        or is_valuable_rune(rune.class_id, minimum=prized_rune_minimum),
+                    ),
+                )
                 for rune in ground_runes(read, table, minimum=rune_minimum)
-            ]
+            ]  # fmt: skip
             marked = [*ground_materials(read, table, materials, appraised_classes())] if materials else []
+            sources = dict.fromkeys((item.unit_id for item in marked), 'material')
             if shown:
-                marked += ground_shown(read, table, shown)
+                found = ground_shown(read, table, shown)
+                marked += found
+                sources.update(dict.fromkeys((item.unit_id for item in found), 'shown'))
             if unique_minimum is not None:
-                marked += ground_uniques(read, table, minimum=unique_minimum)
+                found = ground_uniques(read, table, minimum=unique_minimum)
+                marked += found
+                sources.update(dict.fromkeys((item.unit_id for item in found), 'unique'))
             # One drop per unit: a unique ring is both a ring and a marked unique (the unique's label wins,
             # as it does over the label of a base the filter shows).
             labelled = {item.unit_id: item for item in marked}
@@ -777,7 +803,19 @@ class GameMemory:
             heads = struct.unpack('<128Q', read(table + ITEM_UNIT * 1024, 1024))
             items = walk_units(read, heads, ITEM_UNIT)['units']
             classes = {unit['unit_id']: unit['txt_id'] for unit in items}
-            drops = [replace(drop, size=item_size(classes.get(drop.unit_id))) for drop in drops]
+            drops = [
+                replace(
+                    drop,
+                    size=item_size(classes.get(drop.unit_id)),
+                    prized=drop.prized
+                    if drop.unit_id not in sources
+                    else prized(
+                        sources[drop.unit_id],
+                        marked=prized_materials is None or classes.get(drop.unit_id) in prized_materials,
+                    ),
+                )
+                for drop in drops
+            ]
             for unit in items:
                 if gold_minimum is None or unit['txt_id'] != GOLD_CLASS:
                     continue

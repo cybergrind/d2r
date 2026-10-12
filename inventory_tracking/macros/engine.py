@@ -77,6 +77,8 @@ class Run:
         self.supers: Callable[[int], list[tuple[float, float]]] | None = None
         self.observe: Callable[[World], None] | None = None  # sees every world read
         self.mark: Callable[[str], None] = lambda name: None  # a moment of the press's trace (latency.py)
+        # a warning that stays on the card until it is taken back with None (runner.py `_warn`)
+        self.warn: Callable[[str | None], None] = lambda text: None
         # on `clock`: the press this run answers is not worth an input after it (runner.EXPIRES)
         self.deadline = math.inf
         self.light = 0  # above 0 the looks at the game leave the monsters and doors out (`lightly`)
