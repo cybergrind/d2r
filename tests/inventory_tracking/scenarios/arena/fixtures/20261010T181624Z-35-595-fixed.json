@@ -1,0 +1,605 @@
+{
+ "name": "20261010T181624Z-35-595-fixed",
+ "hero": {
+  "name": "CybergrindAA",
+  "at": [
+   22723.5,
+   6624.5
+  ],
+  "area": 35,
+  "life": 1778.0,
+  "max_life": 1778.0,
+  "mana": 503.0,
+  "max_mana": 503.0,
+  "belt": [
+   531,
+   531,
+   606,
+   606,
+   531,
+   531,
+   606,
+   606,
+   531,
+   531,
+   606,
+   606,
+   531,
+   531,
+   606,
+   606
+  ],
+  "sets": [
+   {
+    "codes": [
+     "fla",
+     "uit"
+    ],
+    "resist": {
+     "fire": 0.25,
+     "cold": 0.25,
+     "lightning": 0.25,
+     "physical": 0.9
+    },
+    "teleport_charges": null
+   },
+   {
+    "codes": [
+     "6cs",
+     "wa3"
+    ],
+    "resist": {
+     "fire": 0.46,
+     "cold": 0.82,
+     "lightning": 0.92,
+     "physical": 0.9
+    },
+    "teleport_charges": 69
+   }
+  ],
+  "hand": 0,
+  "slots": [
+   379,
+   390,
+   375,
+   384,
+   389,
+   220,
+   393,
+   377,
+   null,
+   382,
+   387,
+   54,
+   381,
+   388,
+   null,
+   null
+  ],
+  "hex_purge": true,
+  "ward": true,
+  "consume": true,
+  "left_skill": 0,
+  "right_skill": 375
+ },
+ "mobs": [
+  {
+   "unit": 3763059211,
+   "txt": 22,
+   "at": [
+    22752.5,
+    6632.5
+   ],
+   "level": 71,
+   "life": 1440.5,
+   "full": 1440.5,
+   "flags": 16,
+   "mods": [
+    7,
+    9,
+    26
+   ],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 3682120077,
+   "txt": 744,
+   "at": [
+    22723.1,
+    6624.1
+   ],
+   "level": 0,
+   "life": 128.0,
+   "full": 128.0,
+   "flags": 0,
+   "mods": [],
+   "tier": 0,
+   "mode": 8,
+   "owner": null,
+   "ally": true,
+   "immune": false
+  },
+  {
+   "unit": 1660925839,
+   "txt": 11,
+   "at": [
+    22681.5,
+    6662.5
+   ],
+   "level": 72,
+   "life": 3331.5,
+   "full": 3331.5,
+   "flags": 0,
+   "mods": [],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 3768038423,
+   "txt": 22,
+   "at": [
+    22746.5,
+    6636.5
+   ],
+   "level": 71,
+   "life": 1440.5,
+   "full": 1440.5,
+   "flags": 16,
+   "mods": [
+    7,
+    9,
+    26
+   ],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 3321868062,
+   "txt": 11,
+   "at": [
+    22684.5,
+    6661.5
+   ],
+   "level": 72,
+   "life": 3331.5,
+   "full": 3331.5,
+   "flags": 0,
+   "mods": [],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 3777996847,
+   "txt": 22,
+   "at": [
+    22748.5,
+    6632.5
+   ],
+   "level": 71,
+   "life": 1440.5,
+   "full": 1440.5,
+   "flags": 16,
+   "mods": [
+    7,
+    9,
+    26
+   ],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 4173770950,
+   "txt": 338,
+   "at": [
+    22723.1,
+    6624.9
+   ],
+   "level": 0,
+   "life": 128.0,
+   "full": 2367.0,
+   "flags": 0,
+   "mods": [],
+   "tier": 0,
+   "mode": 1,
+   "owner": 1757851840,
+   "ally": true,
+   "immune": false
+  },
+  {
+   "unit": 2709502919,
+   "txt": 61,
+   "at": [
+    22728.5,
+    6645.5
+   ],
+   "level": 72,
+   "life": 2611.0,
+   "full": 2611.0,
+   "flags": 0,
+   "mods": [],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 3797913695,
+   "txt": 61,
+   "at": [
+    22749.5,
+    6635.5
+   ],
+   "level": 72,
+   "life": 5222.0,
+   "full": 5222.0,
+   "flags": 8,
+   "mods": [
+    7,
+    9,
+    26
+   ],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 3233791459,
+   "txt": 22,
+   "at": [
+    22731.5,
+    6647.5
+   ],
+   "level": 71,
+   "life": 1440.5,
+   "full": 1440.5,
+   "flags": 0,
+   "mods": [],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 2086877283,
+   "txt": 361,
+   "at": [
+    22723.5,
+    6624.5
+   ],
+   "level": 0,
+   "life": 128.0,
+   "full": 128.0,
+   "flags": 8,
+   "mods": [],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": true,
+   "immune": false
+  },
+  {
+   "unit": 4032806641,
+   "txt": 22,
+   "at": [
+    22729.5,
+    6642.5
+   ],
+   "level": 71,
+   "life": 1440.5,
+   "full": 1440.5,
+   "flags": 0,
+   "mods": [],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 3895443320,
+   "txt": 22,
+   "at": [
+    22731.5,
+    6644.5
+   ],
+   "level": 71,
+   "life": 1440.5,
+   "full": 1440.5,
+   "flags": 0,
+   "mods": [],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  }
+ ],
+ "ground": [
+  {
+   "x": 4548,
+   "y": 1312,
+   "width": 12,
+   "height": 12,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA///wAAB//////wAAB//////wAAB//////wAAB//////wAAB//////wAAB//////wAAB//////wAAB//////wAAB//////wAAB//////wAAB//////wAAB//////wAAB//////wAAB//////wAAB//////wAAB//////wAAB//////wAAB//////wAAB///AHAAAAAAcA///zjx8///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+   "flight": "+AAAAAAAAA+AAAAAAAAA+AAAAAAAAA+AAAAAAAAA+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA///wAAB//////wAAB//////wAAB//////wAAB//////wAAB//////wAAB//////wAAB//////wAAB//////wAAB//////wAAB//////wAAB//////wAAB//////wAAB//////wAAB//////wAAB//////wAAB//////wAAB//////wAAB//////wAAB///AHAAAAAAcA////j5////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+  },
+  {
+   "x": 4536,
+   "y": 1312,
+   "width": 12,
+   "height": 12,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/8///P//z/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////AA///AAAAA/8///f//3//9///f//3//9///f//3//9///f//3//9///f//3//9///f//3//9///f//3//9///f//3//////f/////////f/////////f/////9///f//3//9///f//3//9///f//3//9///f//3//9///f//3//9///f//3//9///f//3//9///f//3/AA///AHAAAAA///f//wAAB///f//wAAB///f//wAAB///f//wAAB///f//wAAB///f//wAAB///f//wAAB///f//wAAB///f//wA",
+   "flight": "+AAAAAAAAA+AAAAAAAAA+AAAAAAAAA+AAAAAAAAA+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////AB///AAAAA/9///f//3//9///f//3//9///f//3//9///f//3//9///f//3//9///f//3//9///f//3//9///f//3//////f/////////f/////////f/////9///f//3//9///f//3//9///f//3//9///f//3//9///f//3//9///f//3//9///f//3//9///f//3/AB///AHAAAAB///f//wAAB///f//wAAB///f//wAAB///f//wAAB///f//wAAB///f//wAAB///f//wAAB///f//wAAB///f//wA"
+  },
+  {
+   "x": 4536,
+   "y": 1324,
+   "width": 12,
+   "height": 12,
+   "cells": "AB///f//wAAB///f//wAAB///f//wAAB///f//wAAB///f//wAAB///f//wAAB///f//wAAB///f//wAAB///f//wAAB//////wAAA//////wA/8//////z//////f/////////f/////////f/////////e/////////ff////////f/////////f/////////f/////////f/////////f/////////f/////////f/////////f/////////f/////////f/////////f/////////f/////////f////AHAAAAAAAA///3/P9//////3//9//////3//9//////3//9//////3//9//////3//9//////3//9//////3//9//////3//9//////3//9//////3//9//////3//9//////3//9//////3/////////3/////////3/////////3//9//////3//9//////3//9///Af/3//9//gAf/3//9//gA//3//9//gA//3//9//gA//3//9//gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+   "flight": "+B///f//wA+B///f//wA+B///f//wA+B///f//wA+B///f//wAAB///f//wAAB///f//wAAB///f//wAAB///f//wAAB//////wAAB//////wA/+/////////////f/////////f/////////f/////////f/////////f/////////f/////////f/////////f/////////f/////////f/////////f/////////f/////////f/////////f/////////f/////////f/////////f/////////f////AHAAAAAAAA///3//9//////3//9//////3//9//////3//9//////3//9//////3//9//////3//9//////3//9//////3//9//////3//9//////3//9//////3//9//////3//9//////3/////////3/////////3/////////3//9//////3//9//////3//9///A//3//9//gA//3//9//gA//3//9//gA//3//9//gA//3//9//gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+  },
+  {
+   "x": 4548,
+   "y": 1324,
+   "width": 12,
+   "height": 12,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/8///P//z/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////AA///AAAAA/8///f//z//////f/////////f/////////f/////////f/////////f/////////f/////////f/////////f/////////f/////////f/////////f/////////f/////////f/////////f/////////f/////////f/////////f/////////f////AAAcAAAAAAAB///f//wAAB///f//wAAB///f//wAAB///f//wAAB///f//wAAB///f//wAAB///f//wAAB///f//wAAB///f//wA",
+   "flight": "+AAAAAAAAA+AAAAAAAAA+AAAAAAAAA+AAAAAAAAA+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////AB///AAAAA/+///f/////////f/////////f/////////f/////////f/////////f/////////f/////////f/////////f/////////f/////////f/////////f/////////f/////////f/////////f/////////f/////////f/////////f/////////f////AAAcAAAAAAAB///f//wAAB///f//wAAB///f//wAAB///f//wAAB///f//wAAB///f//wAAB///f//wAAB///f//wAAB///f//wA"
+  },
+  {
+   "x": 4524,
+   "y": 1324,
+   "width": 12,
+   "height": 12,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP///3/AAAAP///3/AAAAP///3/AAAAP///3/AAAAP///3/AAAAP///3/AAAAP///3/AAAAP///3/AAAAP///3/AAAAP///3/AAAAP///3/AAAAP///3/AAAAP///3/AAAAP///3/AAAAP///3/AAAAP///3/AAAAP///3/AAAAP///3/AAAAP///3/AAAAH///wAA///n///z/A/////////A/////////A/////////A/////////A/////////A/////////A/////////A/////////A/////////A/////////A/////////A/////////A/////////A/////////A/////////A/////////A/////////A/////////A///////wAA///////wAA///////wAA///////wAA///////wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+   "flight": "+AAAAAAAAA+AAAAAAAAA+AAAAAAAAA+AAAAAAAAA+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP///3/AAAAP///3/AAAAP///3/AAAAP///3/AAAAP///3/AAAAP///3/AAAAP///3/AAAAP///3/AAAAP///3/AAAAP///3/AAAAP///3/AAAAP///3/AAAAP///3/AAAAP///3/AAAAP///3/AAAAP///3/AAAAP///3/AAAAP///3/AAAAP///3/AAAAP///wAA///3/////A/////////A/////////A/////////A/////////A/////////A/////////A/////////A/////////A/////////A/////////A/////////A/////////A/////////A/////////A/////////A/////////A/////////A/////////A///////wAA///////wAA///////wAA///////wAA///////wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+  },
+  {
+   "x": 4548,
+   "y": 1336,
+   "width": 12,
+   "height": 12,
+   "cells": "AB///f//wAAB///f//wAAB///f//wAAB///f//wAAB///f//wAAB///f//wAAB///f//wAAB///f//wAAB///f//wAAB///f//wAAA///f//wAA8///f//3/A////f//3/A////f//3/A////f//3/A////f//3/A////f//3/A////f//3/A////f//3/A////f//3/A////f//3/A////f//3/A////f//3/A////f//3/A////f//3/A////f//3/A////f//3/A////f//3/A////f//3/A////f//3/AAOAAP//wAA////P//z/A/////////A/////////A/////////A/////////A/////////A/////////A/////////A/////////A/////////A/////////A/////////A/////////A/////////A/////////A/////////A/////////A/////////A/////////A///////wAA///////wAA///////wAA///////wAA///////wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+   "flight": "+B///f//wA+B///f//wA+B///f//wA+B///f//wA+B///f//wAAB///f//wAAB///f//wAAB///f//wAAB///f//wAAB///f//wAAB///f//wAA+///f//3/A////f//3/A////f//3/A////f//3/A////f//3/A////f//3/A////f//3/A////f//3/A////f//3/A////f//3/A////f//3/A////f//3/A////f//3/A////f//3/A////f//3/A////f//3/A////f//3/A////f//3/A////f//3/AAOAAf//wAA////v////A/////////A/////////A/////////A/////////A/////////A/////////A/////////A/////////A/////////A/////////A/////////A/////////A/////////A/////////A/////////A/////////A/////////A/////////A///////wAA///////wAA///////wAA///////wAA///////wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+  },
+  {
+   "x": 4524,
+   "y": 1312,
+   "width": 12,
+   "height": 12,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/9//gA//3//9//gA//3//9//gA//3//9//gA//3//9//gA//3//9//gA//3//9//gA//3//9//gA//3/////gA////////gA////////gA/////9//gA//3//9//gA//3//9//gA//3//9//gAf/3//9//n+f/3//9//////3//9//////3//9//////3/AA//////wA/8//////z///////////////////////////////////gAf///////gAf///////gA////////gA////////gA////////gA////////gA////////gA////////gA////////gA////////gA////////gA////////gA////////gA////////gA////AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+   "flight": "+AAAAAAAAA+AAAAAAAAA+AAAAAAAAA+AAAAAAAAA+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/9//gA//3//9//gA//3//9//gA//3//9//gA//3//9//gA//3//9//gA//3//9//gA//3//9//gA//3//9//gA/////9//gA/////9//gA/////9//gA//3//9//gA//3//9//gA//3//9//gA//3//9////f/3//9//////3//9//////3//9//////3/AB//////wA/+//////////////////////////////////////////gA////////gA////////gA////////gA////////gA////////gA////////gA////////gA////////gA////////gA////////gA////////gA////////gA////////gA////////gA////AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+  }
+ ],
+ "doors": [
+  [
+   4076669850,
+   64,
+   0,
+   22710.0,
+   6630.0
+  ],
+  [
+   4201422754,
+   16,
+   0,
+   22720.0,
+   6610.0
+  ],
+  [
+   3532303270,
+   16,
+   0,
+   22750.0,
+   6590.0
+  ],
+  [
+   3321501493,
+   16,
+   0,
+   22690.0,
+   6650.0
+  ],
+  [
+   2232784717,
+   16,
+   0,
+   22790.0,
+   6590.0
+  ],
+  [
+   2100703185,
+   64,
+   0,
+   22730.0,
+   6600.0
+  ],
+  [
+   3065656927,
+   16,
+   0,
+   22760.0,
+   6670.0
+  ],
+  [
+   2929399784,
+   64,
+   2,
+   22690.0,
+   6600.0
+  ],
+  [
+   2762119913,
+   16,
+   0,
+   22755.0,
+   6710.0
+  ],
+  [
+   2884906603,
+   64,
+   0,
+   22720.0,
+   6665.0
+  ],
+  [
+   2648943854,
+   64,
+   2,
+   22670.0,
+   6580.0
+  ],
+  [
+   1324463735,
+   64,
+   0,
+   22630.0,
+   6580.0
+  ]
+ ],
+ "rooms": [
+  {
+   "preset": 288,
+   "x": 4548,
+   "y": 1312,
+   "width": 12,
+   "height": 12,
+   "variant": 2,
+   "block": [
+    4548,
+    1312,
+    12,
+    12
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 264,
+   "x": 4536,
+   "y": 1312,
+   "width": 12,
+   "height": 12,
+   "variant": 2,
+   "block": [
+    4536,
+    1312,
+    12,
+    12
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 268,
+   "x": 4536,
+   "y": 1324,
+   "width": 12,
+   "height": 12,
+   "variant": 1,
+   "block": [
+    4536,
+    1324,
+    12,
+    12
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 279,
+   "x": 4548,
+   "y": 1324,
+   "width": 12,
+   "height": 12,
+   "variant": 0,
+   "block": [
+    4548,
+    1324,
+    12,
+    12
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 274,
+   "x": 4524,
+   "y": 1324,
+   "width": 12,
+   "height": 12,
+   "variant": 0,
+   "block": [
+    4524,
+    1324,
+    12,
+    12
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 267,
+   "x": 4548,
+   "y": 1336,
+   "width": 12,
+   "height": 12,
+   "variant": 3,
+   "block": [
+    4548,
+    1336,
+    12,
+    12
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 275,
+   "x": 4524,
+   "y": 1312,
+   "width": 12,
+   "height": 12,
+   "variant": 0,
+   "block": [
+    4524,
+    1312,
+    12,
+    12
+   ],
+   "leads_to": []
+  }
+ ],
+ "drops": [],
+ "assumed": [
+  "belt",
+  "consume",
+  "drops",
+  "hand",
+  "hex_purge",
+  "immune",
+  "sets",
+  "slots",
+  "ward"
+ ],
+ "source": {
+  "take": "20261010T181624Z-35",
+  "frame": 595,
+  "t": 24.961
+ }
+}

@@ -3,7 +3,7 @@
     uv run --offline python -m tests.inventory_tracking.scenarios.arena.build_scenes
         [--root inventory_tracking/runs/combat] [--out tests/inventory_tracking/scenarios/arena/fixtures]
         [--per-kind 20] [--per-take 1] [--since YYYYMMDD] [--burst-share 0.3 0.15] [--reach 60]
-        [--probe inventory_tracking/runs/alt-d]
+        [--probe inventory_tracking/runs/alt-d] [--fixed 40] [--keep]
 
 Goes over the takes under `--root`, newest first, finds the moments of each (moments.py: death,
 burst, potions, long; stuck.py where the session's probe.log is found) and cuts each into
@@ -16,8 +16,18 @@ kind in KINDS that asks for it; a scene without a live hostile is not kept.
 BURST_SHARE, 0.3) gives the kind `burst`; another gives `burst<percent>` (0.15: `burst15`), lighter
 bursts for the choice of scenes only.
 
+`--fixed N` adds up to N scenes of the kind `fixed` (fixed.py: times chosen blind to the outcome, for
+averages). The other kinds are cut as ever, files byte for byte the same with or without it. A fixed
+moment on a frame another kind cut is skipped (one frame, one scene), counted below. `--per-take` is the
+number of fixed scenes from one take; takes are gone over oldest first and the ones kept are strided over
+all of them (fixed.py `strides`, `spread`).
+
+`--keep` leaves the scene files already in `--out` alone and cuts ONLY the fixed ones (needs `--fixed`),
+frames of the scenes there counted as cut: for adding to a set when takes recorded since would change
+the others.
+
 Deterministic: the same takes and logs give the same files. The scene files already in `--out` are
-removed first.
+removed first (not with `--keep`).
 """
 
 import argparse
@@ -33,6 +43,7 @@ from inventory_tracking.combat.takes import Take
 from inventory_tracking.macros.world import LYING_DEAD
 from tests.inventory_tracking.scenarios.arena import moments as rules
 from tests.inventory_tracking.scenarios.arena.cut import DEFAULT_HERO, Refused, cut
+from tests.inventory_tracking.scenarios.arena.fixed import fixed, spread, strides
 from tests.inventory_tracking.scenarios.arena.moments import Moment, moments
 from tests.inventory_tracking.scenarios.arena.scene import Scene, dump
 from tests.inventory_tracking.scenarios.arena.stuck import OPENED, stuck
@@ -115,9 +126,9 @@ def hostiles(scene: Scene) -> int:
     )
 
 
-def takes(root: Path, since: str | None) -> Iterator[Path]:
-    """The take directories under `root`, newest first."""
-    for manifest in sorted(root.glob('*/manifest.json'), reverse=True):
+def takes(root: Path, since: str | None, *, newest_first: bool = True) -> Iterator[Path]:
+    """The take directories under `root`, newest first (or oldest)."""
+    for manifest in sorted(root.glob('*/manifest.json'), reverse=newest_first):
         if since is None or manifest.parent.name[:8] >= since:
             yield manifest.parent
 
@@ -138,12 +149,18 @@ def main(argv: Sequence[str] | None = None) -> int:
         '--burst-share', type=float, nargs='+', default=[rules.BURST_SHARE],
         help='the shares of the most life that make a burst; another than the default gives burst<percent>',
     )  # fmt: skip
+    parser.add_argument('--fixed', type=int, default=0, help='scenes of the kind fixed to add (default 0: none)')
+    parser.add_argument('--keep', action='store_true', help='leave the scenes in --out alone; cut only the fixed ones')
     parser.add_argument('--reach', type=float, default=GROUND_RANGE, help='units of ground kept round the character')
     parser.add_argument('--probe', type=Path, default=PROBE, help='the service sessions (default: runs/alt-d)')
     args = parser.parse_args(argv)
 
     shares = {burst_kind(share): share for share in args.burst_share}
     kinds = [*KINDS, *sorted(kind for kind in shares if kind not in KINDS)]
+    if args.fixed:
+        kinds.append('fixed')  # last: a fixed moment gives way to every other kind's frame
+    if args.keep and not args.fixed:
+        parser.error('--keep adds the fixed scenes: give --fixed')
     sessions = Sessions(args.probe, args.since)
     found: Counter[str] = Counter()
     kept: Counter[str] = Counter()
@@ -153,6 +170,13 @@ def main(argv: Sequence[str] | None = None) -> int:
     state: Counter[str] = Counter()
     scenes: list[tuple[str, Scene, Moment]] = []
     directories = list(takes(args.root, args.since))
+    already: dict[str, dict[int, str]] = {}  # --keep: the frames of the scenes in --out, by take
+    if args.keep:
+        for old in sorted(args.out.glob('*.json')):
+            if SCENE_FILE.fullmatch(old.name):
+                name, frame, kind = old.stem.rsplit('-', 2)
+                already.setdefault(name, {})[int(frame)] = kind
+    candidates: dict[str, tuple[Path, list[Moment]]] = {}  # the fixed moments of a take whose frame is free
     for count, directory in enumerate(directories, 1):
         print(f'\rtakes {count}/{len(directories)} {directory.name:<24}', end='', file=sys.stderr)
         try:
@@ -166,16 +190,16 @@ def main(argv: Sequence[str] | None = None) -> int:
         state['no level file'] += not ((directory / 'level.json').exists() or (directory / 'level.json.gz').exists())
         probe = sessions.probe(directory.name)
         state['probe log found'] += probe is not None
-        asked = moments(take, belt_keys=belt_keys(take))
+        asked = [] if args.keep else moments(take, belt_keys=belt_keys(take))
         if 'burst' not in shares:
             asked = [moment for moment in asked if moment.kind != 'burst']
-        if probe is not None:
+        if probe is not None and not args.keep:
             asked += stuck(take, probe)
         for kind, share in shares.items():
-            if kind != 'burst':
+            if kind != 'burst' and not args.keep:
                 asked += [dataclasses.replace(moment, kind=kind) for moment in bursts(take, share)]
         mods = None
-        cut_frames: dict[int, str] = {}
+        cut_frames: dict[int, str] = dict(already.get(directory.name, {}))
         from_take: Counter[str] = Counter()
         for moment in sorted(asked, key=lambda m: (kinds.index(m.kind), m.at)):
             kind = moment.kind
@@ -204,10 +228,49 @@ def main(argv: Sequence[str] | None = None) -> int:
             from_take[kind] += 1
             kept[kind] += 1
             scenes.append((name, scene, moment))
+        if args.fixed:
+            asked_fixed = fixed(take)
+            found['fixed'] += len(asked_fixed)
+            for moment in asked_fixed:
+                if moment.frame in cut_frames:
+                    passed['fixed', f'the frame of a {cut_frames[moment.frame]} scene'] += 1
+            free = [moment for moment in asked_fixed if moment.frame not in cut_frames]
+            if take.schema < 2 or not ((directory / 'level.json').exists() or (directory / 'level.json.gz').exists()):
+                passed['fixed', 'a take cut would refuse'] += len(free)  # no vitals, or no level file
+                free = []
+            if free:
+                candidates[directory.name] = (directory, free)
+    if args.fixed:
+        # The takes oldest first, all of them, strided; within a take spread over its length (fixed.py).
+        eligible = [candidates[name] for name in sorted(candidates)]
+        wanted = -(-args.fixed // max(args.per_take, 1))
+        for count, position in enumerate(strides(len(eligible), wanted), 1):
+            directory, free = eligible[position]
+            print(f'\rfixed {count}/{wanted} {directory.name:<24}', end='', file=sys.stderr)
+            room = args.fixed - kept['fixed']
+            chosen = [free[i] for i in spread(len(free), min(args.per_take, room))]
+            passed['fixed', 'over --fixed or --per-take'] += len(free) - len(chosen)
+            take = Take.load(directory)
+            mods = sessions.mods(take)
+            for moment in chosen:
+                name = f'{directory.name}-{moment.frame}-fixed'
+                try:
+                    scene = cut(take, moment.frame, defaults=DEFAULT_HERO, name=name, mods=mods, reach=args.reach)
+                except Refused as exc:
+                    refused['fixed', exc.reason] += 1
+                    continue
+                if not hostiles(scene):
+                    refused['fixed', 'no live hostile'] += 1
+                    continue
+                kept['fixed'] += 1
+                scenes.append((name, scene, moment))
+        passed['fixed', 'takes not strided'] += sum(len(free) for _, free in eligible) - sum(
+            len(eligible[position][1]) for position in strides(len(eligible), wanted)
+        )
     print(file=sys.stderr)
 
     args.out.mkdir(parents=True, exist_ok=True)
-    for old in args.out.glob('*.json'):
+    for old in [] if args.keep else args.out.glob('*.json'):
         if SCENE_FILE.fullmatch(old.name):
             old.unlink()
     size = 0

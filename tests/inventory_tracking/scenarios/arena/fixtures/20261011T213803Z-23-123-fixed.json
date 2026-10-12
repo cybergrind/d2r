@@ -1,0 +1,352 @@
+{
+ "name": "20261011T213803Z-23-123-fixed",
+ "hero": {
+  "name": "CybergrindAA",
+  "at": [
+   12548.5,
+   8028.5
+  ],
+  "area": 23,
+  "life": 1783.0,
+  "max_life": 1783.0,
+  "mana": 503.0,
+  "max_mana": 503.0,
+  "belt": [
+   531,
+   531,
+   606,
+   606,
+   531,
+   531,
+   606,
+   606,
+   531,
+   531,
+   606,
+   606,
+   531,
+   531,
+   606,
+   606
+  ],
+  "sets": [
+   {
+    "codes": [
+     "fla",
+     "uit"
+    ],
+    "resist": {
+     "fire": 0.25,
+     "cold": 0.25,
+     "lightning": 0.25,
+     "physical": 0.9
+    },
+    "teleport_charges": null
+   },
+   {
+    "codes": [
+     "6cs",
+     "wa3"
+    ],
+    "resist": {
+     "fire": 0.46,
+     "cold": 0.82,
+     "lightning": 0.92,
+     "physical": 0.9
+    },
+    "teleport_charges": 69
+   }
+  ],
+  "hand": 0,
+  "slots": [
+   379,
+   390,
+   375,
+   384,
+   389,
+   220,
+   393,
+   377,
+   null,
+   382,
+   387,
+   54,
+   381,
+   388,
+   null,
+   null
+  ],
+  "hex_purge": true,
+  "ward": true,
+  "consume": true,
+  "left_skill": 0,
+  "right_skill": 388
+ },
+ "mobs": [
+  {
+   "unit": 300191617,
+   "txt": 21,
+   "at": [
+    12568.5,
+    8013.5
+   ],
+   "level": 85,
+   "life": 1578.0,
+   "full": 1578.0,
+   "flags": 0,
+   "mods": [],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 3732258469,
+   "txt": 744,
+   "at": [
+    12546.22,
+    8026.22
+   ],
+   "level": 0,
+   "life": 128.0,
+   "full": 128.0,
+   "flags": 0,
+   "mods": [],
+   "tier": 0,
+   "mode": 2,
+   "owner": null,
+   "ally": true,
+   "immune": false
+  },
+  {
+   "unit": 2136125864,
+   "txt": 361,
+   "at": [
+    12548.9,
+    8028.1
+   ],
+   "level": 0,
+   "life": 128.0,
+   "full": 128.0,
+   "flags": 8,
+   "mods": [],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": true,
+   "immune": false
+  },
+  {
+   "unit": 2566006720,
+   "txt": 21,
+   "at": [
+    12565.5,
+    8016.5
+   ],
+   "level": 85,
+   "life": 1578.0,
+   "full": 1578.0,
+   "flags": 0,
+   "mods": [],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 4272268112,
+   "txt": 338,
+   "at": [
+    12548.1,
+    8028.1
+   ],
+   "level": 0,
+   "life": 128.0,
+   "full": 2367.0,
+   "flags": 0,
+   "mods": [],
+   "tier": 0,
+   "mode": 1,
+   "owner": 4272268107,
+   "ally": true,
+   "immune": false
+  },
+  {
+   "unit": 1283003360,
+   "txt": 21,
+   "at": [
+    12565.5,
+    8013.5
+   ],
+   "level": 85,
+   "life": 1578.0,
+   "full": 1578.0,
+   "flags": 0,
+   "mods": [],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 641501680,
+   "txt": 21,
+   "at": [
+    12567.5,
+    8016.5
+   ],
+   "level": 85,
+   "life": 1578.0,
+   "full": 1578.0,
+   "flags": 0,
+   "mods": [],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  }
+ ],
+ "ground": [
+  {
+   "x": 2508,
+   "y": 1616,
+   "width": 8,
+   "height": 8,
+   "cells": "AB///AAAH//8AAAf//wAAB///AAAH//8AAAf//wAAB4f/AAAHh/8AAAf//wAAB///AAAABwAAAP/////A/////8D/////wP/////A8////8Dz////wP/////A/////8D/////wPP////A8////8D/////wP/////A/////8Dz////wPP////A/////8D/////wP/////AAAcAAAAH//8AAAf//wAAB///AAAH//8AAAf//wAAB///AAAH//8AAAf//wAAB///AA=",
+   "flight": "+B///AD4H//8APgf//wA+B///AD4H//8AAAf//wAAB///AAAH//8AAAf//wAAB///AAAABwAAAP/////A/////8D/////wP/////A8////8Dz////wP/////A/////8D/////wPP////A8////8D/////wP/////A/////8Dz////wPP////A/////8D/////wP/////AAAcAAAAH//8AAAf//wAAB///AAAH//8AAAf//wAAB///AAAH//8AAAf//wAAB///AA="
+  },
+  {
+   "x": 2516,
+   "y": 1608,
+   "width": 8,
+   "height": 8,
+   "cells": "AB///AAAH//8AAAf//wAAB///AAAH//8AAAf//wAAB4f/AAAHh/8AAAf//wAAB///AAAHn+cAP/ef53//9///f//3//9///f//3//9///f//3//9///f//3//9///f//////////////////////3//9///f//3//9///f//3//9///f//3//9///f//3//9///f//3/AB5/nAAAHn+cAAAf//wAAB///AAAH//8AAAf//wAAB///AAAH//8AAAf//wAAB///AA=",
+   "flight": "+B///AD4H//8APgf//wA+B///AD4H//8AAAf//wAAB///AAAH//8AAAf//wAAB///AAAHn+cAP/ef53//9///f//3//9///f//3//9///f//3//9///f//3//9///f//////////////////////3//9///f//3//9///f//3//9///f//3//9///f//3//9///f//3/AB5/nAAAHn+cAAAf//wAAB///AAAH//8AAAf//wAAB///AAAH//8AAAf//wAAB///AA="
+  },
+  {
+   "x": 2508,
+   "y": 1608,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAf////AB////8AH////wAf////AB///P8AH//8/wAf////AB////8AH////wAf////AB4f//8AHh///wAf////AB////8AH//8/wAf//z/AB////8AH////wAf////AAAcAAAAH//8AAAf//wAAB///AAAH//8AAAf//wAAB///AAAH//8AAAf//wAAB///AA=",
+   "flight": "+AAAAAD4AAAAAPgAAAAA+AAAAAD4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAf////AB////8AH////wAf////AB///P8AH//8/wAf////AB////8AH////wAf////AB////8AH////wAf////AB////8AH//8/wAf//z/AB////8AH////wAf////AAAcAAAAH//8AAAf//wAAB///AAAH//8AAAf//wAAB///AAAH//8AAAf//wAAB///AA="
+  },
+  {
+   "x": 2516,
+   "y": 1600,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP///////////////////////////885/P//zzn8////Of////85////////////////////////////////////////////z//8///P//z/////////////////////AAAcAAAAH//8AAAf//wAAB///AAAH//8AAAf//wAAB4f/AAAHh/8AAAf//wAAB///AA=",
+   "flight": "+AAAAAD4AAAAAPgAAAAA+AAAAAD4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP///////////////////////////8///P//z//8////////////////////////////////////////////////////////z//8///P//z/////////////////////AAAcAAAAH//8AAAf//wAAB///AAAH//8AAAf//wAAB///AAAH//8AAAf//wAAB///AA="
+  },
+  {
+   "x": 2508,
+   "y": 1600,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD//AAAAP/8AAAA//wAAAD//AAAAHOcAH/+c5//f/////9//////3//////f/////9//////3//////f/////9//////3//////f/////9//////3//////f/////9//////3//////f/////9//////3//////AADznAAAAPOcAAAA//wAAAD//AAAAP/8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "+AAAAAD4AAAAAPgAAAAA+AAAAAD4AAAAAAAAAAAAAAD//AAAAP/8AAAA//wAAAD//AAAAHOcAH/+c5//f/////9//////3//////f/////9//////3//////f/////9//////3//////f/////9//////3//////f/////9//////3//////f/////9//////3//////AADznAAAAPOcAAAA//wAAAD//AAAAP/8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+  }
+ ],
+ "doors": [],
+ "rooms": [
+  {
+   "preset": 122,
+   "x": 2508,
+   "y": 1616,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    2508,
+    1616,
+    8,
+    8
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 123,
+   "x": 2516,
+   "y": 1608,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    2516,
+    1608,
+    8,
+    8
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 114,
+   "x": 2508,
+   "y": 1608,
+   "width": 8,
+   "height": 8,
+   "variant": 1,
+   "block": [
+    2508,
+    1608,
+    8,
+    8
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 115,
+   "x": 2516,
+   "y": 1600,
+   "width": 8,
+   "height": 8,
+   "variant": 1,
+   "block": [
+    2516,
+    1600,
+    8,
+    8
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 144,
+   "x": 2508,
+   "y": 1600,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    2508,
+    1600,
+    8,
+    8
+   ],
+   "leads_to": [
+    24
+   ]
+  }
+ ],
+ "drops": [],
+ "assumed": [
+  "belt",
+  "consume",
+  "drops",
+  "hand",
+  "hex_purge",
+  "immune",
+  "sets",
+  "slots",
+  "ward"
+ ],
+ "source": {
+  "take": "20261011T213803Z-23",
+  "frame": 123,
+  "t": 4.983
+ }
+}

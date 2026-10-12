@@ -1,0 +1,1057 @@
+{
+ "name": "20261011T142329Z-6-119-fixed",
+ "hero": {
+  "name": "CybergrindAA",
+  "at": [
+   15593.5,
+   5233.5
+  ],
+  "area": 6,
+  "life": 1737.0,
+  "max_life": 1779.0,
+  "mana": 503.0,
+  "max_mana": 503.0,
+  "belt": [
+   531,
+   531,
+   606,
+   606,
+   531,
+   531,
+   606,
+   606,
+   531,
+   531,
+   606,
+   606,
+   531,
+   531,
+   606,
+   606
+  ],
+  "sets": [
+   {
+    "codes": [
+     "fla",
+     "uit"
+    ],
+    "resist": {
+     "fire": 0.25,
+     "cold": 0.25,
+     "lightning": 0.25,
+     "physical": 0.9
+    },
+    "teleport_charges": null
+   },
+   {
+    "codes": [
+     "6cs",
+     "wa3"
+    ],
+    "resist": {
+     "fire": 0.46,
+     "cold": 0.82,
+     "lightning": 0.92,
+     "physical": 0.9
+    },
+    "teleport_charges": 69
+   }
+  ],
+  "hand": 0,
+  "slots": [
+   379,
+   390,
+   375,
+   384,
+   389,
+   220,
+   393,
+   377,
+   null,
+   382,
+   387,
+   54,
+   381,
+   388,
+   null,
+   null
+  ],
+  "hex_purge": true,
+  "ward": true,
+  "consume": true,
+  "left_skill": 0,
+  "right_skill": 388
+ },
+ "mobs": [
+  {
+   "unit": 2873531015,
+   "txt": 59,
+   "at": [
+    15576.5,
+    5204.5
+   ],
+   "level": 69,
+   "life": 2361.0,
+   "full": 2361.0,
+   "flags": 0,
+   "mods": [],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 1734153869,
+   "txt": 20,
+   "at": [
+    15609.5,
+    5214.5
+   ],
+   "level": 68,
+   "life": 1302.5,
+   "full": 1302.5,
+   "flags": 16,
+   "mods": [
+    9,
+    26,
+    25
+   ],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 1988965647,
+   "txt": 20,
+   "at": [
+    15570.5,
+    5263.5
+   ],
+   "level": 68,
+   "life": 1302.5,
+   "full": 1302.5,
+   "flags": 16,
+   "mods": [
+    9,
+    6,
+    18
+   ],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 3468307738,
+   "txt": 20,
+   "at": [
+    15611.5,
+    5215.5
+   ],
+   "level": 68,
+   "life": 1302.5,
+   "full": 1302.5,
+   "flags": 16,
+   "mods": [
+    9,
+    26,
+    25
+   ],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 3064051611,
+   "txt": 20,
+   "at": [
+    15553.5,
+    5199.5
+   ],
+   "level": 68,
+   "life": 1302.5,
+   "full": 1302.5,
+   "flags": 0,
+   "mods": [],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 3977947678,
+   "txt": 20,
+   "at": [
+    15577.23,
+    5251.53
+   ],
+   "level": 68,
+   "life": 1302.5,
+   "full": 1302.5,
+   "flags": 16,
+   "mods": [
+    9,
+    6,
+    18
+   ],
+   "tier": 0,
+   "mode": 2,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 4073821857,
+   "txt": 20,
+   "at": [
+    15575.5,
+    5207.5
+   ],
+   "level": 68,
+   "life": 1302.5,
+   "full": 1302.5,
+   "flags": 0,
+   "mods": [],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 1373054371,
+   "txt": 20,
+   "at": [
+    15609.5,
+    5210.5
+   ],
+   "level": 68,
+   "life": 1302.5,
+   "full": 1302.5,
+   "flags": 16,
+   "mods": [
+    9,
+    26,
+    25
+   ],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 1957967272,
+   "txt": 20,
+   "at": [
+    15573.5,
+    5203.5
+   ],
+   "level": 68,
+   "life": 1302.5,
+   "full": 1302.5,
+   "flags": 0,
+   "mods": [],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 4246190249,
+   "txt": 338,
+   "at": [
+    15593.5,
+    5233.5
+   ],
+   "level": 0,
+   "life": 128.0,
+   "full": 2367.0,
+   "flags": 0,
+   "mods": [],
+   "tier": 0,
+   "mode": 1,
+   "owner": 1830271139,
+   "ally": true,
+   "immune": false
+  },
+  {
+   "unit": 1269141933,
+   "txt": 161,
+   "at": [
+    15600.5,
+    5249.5
+   ],
+   "level": 69,
+   "life": 2442.5,
+   "full": 2442.5,
+   "flags": 0,
+   "mods": [],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 3178535477,
+   "txt": 20,
+   "at": [
+    15613.5,
+    5215.5
+   ],
+   "level": 68,
+   "life": 1302.5,
+   "full": 1302.5,
+   "flags": 16,
+   "mods": [
+    9,
+    26,
+    25
+   ],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 244745909,
+   "txt": 161,
+   "at": [
+    15603.5,
+    5269.5
+   ],
+   "level": 69,
+   "life": 2442.5,
+   "full": 2442.5,
+   "flags": 0,
+   "mods": [],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 1296281399,
+   "txt": 20,
+   "at": [
+    15547.5,
+    5198.5
+   ],
+   "level": 68,
+   "life": 1302.5,
+   "full": 1302.5,
+   "flags": 0,
+   "mods": [],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 706656698,
+   "txt": 24,
+   "at": [
+    15550.5,
+    5272.5
+   ],
+   "level": 69,
+   "life": 5780.5,
+   "full": 5780.5,
+   "flags": 0,
+   "mods": [
+    13
+   ],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 4197815357,
+   "txt": 20,
+   "at": [
+    15572.5,
+    5263.5
+   ],
+   "level": 68,
+   "life": 1302.5,
+   "full": 1302.5,
+   "flags": 16,
+   "mods": [
+    9,
+    6,
+    18
+   ],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 3315805507,
+   "txt": 20,
+   "at": [
+    15571.5,
+    5205.5
+   ],
+   "level": 68,
+   "life": 1302.5,
+   "full": 1302.5,
+   "flags": 0,
+   "mods": [],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 2746125126,
+   "txt": 20,
+   "at": [
+    15609.5,
+    5212.5
+   ],
+   "level": 68,
+   "life": 1302.5,
+   "full": 1302.5,
+   "flags": 16,
+   "mods": [
+    9,
+    26,
+    25
+   ],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 3915950928,
+   "txt": 20,
+   "at": [
+    15577.5,
+    5201.5
+   ],
+   "level": 68,
+   "life": 1302.5,
+   "full": 1302.5,
+   "flags": 0,
+   "mods": [],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 3102446289,
+   "txt": 20,
+   "at": [
+    15613.5,
+    5218.5
+   ],
+   "level": 68,
+   "life": 1302.5,
+   "full": 1302.5,
+   "flags": 16,
+   "mods": [
+    9,
+    26,
+    25
+   ],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 4002135124,
+   "txt": 361,
+   "at": [
+    15593.5,
+    5233.5
+   ],
+   "level": 0,
+   "life": 128.0,
+   "full": 128.0,
+   "flags": 8,
+   "mods": [],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": true,
+   "immune": false
+  },
+  {
+   "unit": 978983636,
+   "txt": 20,
+   "at": [
+    15573.5,
+    5205.5
+   ],
+   "level": 68,
+   "life": 1302.5,
+   "full": 1302.5,
+   "flags": 0,
+   "mods": [],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 3050481878,
+   "txt": 161,
+   "at": [
+    15606.5,
+    5248.5
+   ],
+   "level": 69,
+   "life": 2442.5,
+   "full": 2442.5,
+   "flags": 0,
+   "mods": [],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 2538283866,
+   "txt": 161,
+   "at": [
+    15603.5,
+    5249.5
+   ],
+   "level": 69,
+   "life": 2442.5,
+   "full": 2442.5,
+   "flags": 0,
+   "mods": [],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 353320157,
+   "txt": 24,
+   "at": [
+    15553.5,
+    5269.5
+   ],
+   "level": 69,
+   "life": 5780.5,
+   "full": 5780.5,
+   "flags": 0,
+   "mods": [
+    13
+   ],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 1666876382,
+   "txt": 161,
+   "at": [
+    15569.5,
+    5275.5
+   ],
+   "level": 69,
+   "life": 2442.5,
+   "full": 2442.5,
+   "flags": 0,
+   "mods": [],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 489491818,
+   "txt": 20,
+   "at": [
+    15579.5,
+    5204.5
+   ],
+   "level": 68,
+   "life": 1302.5,
+   "full": 1302.5,
+   "flags": 0,
+   "mods": [],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 1525232747,
+   "txt": 59,
+   "at": [
+    15612.5,
+    5212.5
+   ],
+   "level": 69,
+   "life": 4722.0,
+   "full": 4722.0,
+   "flags": 8,
+   "mods": [
+    9,
+    26,
+    25
+   ],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 2592579182,
+   "txt": 59,
+   "at": [
+    15550.5,
+    5198.5
+   ],
+   "level": 69,
+   "life": 2361.0,
+   "full": 2361.0,
+   "flags": 0,
+   "mods": [],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 833429999,
+   "txt": 161,
+   "at": [
+    15566.5,
+    5278.5
+   ],
+   "level": 69,
+   "life": 2442.5,
+   "full": 2442.5,
+   "flags": 0,
+   "mods": [],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 2295763191,
+   "txt": 59,
+   "at": [
+    15571.5,
+    5262.5
+   ],
+   "level": 69,
+   "life": 4722.0,
+   "full": 4722.0,
+   "flags": 8,
+   "mods": [
+    9,
+    6,
+    18
+   ],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 3563792507,
+   "txt": 20,
+   "at": [
+    15574.74,
+    5251.7
+   ],
+   "level": 68,
+   "life": 1302.5,
+   "full": 1302.5,
+   "flags": 16,
+   "mods": [
+    9,
+    6,
+    18
+   ],
+   "tier": 0,
+   "mode": 2,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 396071295,
+   "txt": 744,
+   "at": [
+    15593.5,
+    5233.5
+   ],
+   "level": 0,
+   "life": 128.0,
+   "full": 128.0,
+   "flags": 0,
+   "mods": [],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": true,
+   "immune": false
+  }
+ ],
+ "ground": [
+  {
+   "x": 3120,
+   "y": 1058,
+   "width": 8,
+   "height": 8,
+   "cells": "//////////////////////////////////n/////+f////////////////////////////+f/////5//////n/////+f/////5//AAAAAB8AAAAAHwAAAB//AAAAH/8AAAAf/wAAAB//AAAAH/8AAAAP/wAAAA//AAAAD/8AAAAP4wAAAA/jAAAAD+cAAAAf/wAAAB//AAAAH/8AAAAf/wAAAB//AAAAH/8AAAAf/wAAAB//AAAAH/8AAAAf/wAAAB//AAAAH/8=",
+   "flight": "//////////////////////////////////////////////////////////////////////+f/////5//////n/////+f/////5//AAAAAB8AAAAAH////B//////n/////+f/////5//////n/////+P/////4//////j/////+P/////4//////n/////+f/////5//////n/////+f/////5//////n/////+f/////5//////n/////+f/////5//////n/8="
+  },
+  {
+   "x": 3112,
+   "y": 1058,
+   "width": 8,
+   "height": 8,
+   "cells": "/////////////////////////////////////////////////////////////////////n/////+f/////5//////n/////+f////+AAAAD/4AAAAP/+AAAA//4AAAD//gAAAP/+AAAA//4AAAD//gAAAP/+AAAA//4AAAD//gAAAP/+AAAA//4AAAD//gAAAP/+AAAA//4AAAD//gAAAP/+AAAA//4AAAD//gAAAP/+AAAA//4AAAD//gAAAP/+AAAA//4AAAA=",
+   "flight": "/////////////////////////////////////////////////////////////////////n/////+f/////5//////n/////+f/////AAAAD/8AAAAP/+f/////5//////n/////+f/////5//////j/////+P/////4//////j/////+P/////5//////n/////+f/////5//////n/////+P/////4//////j/////+P/////4//////n/////+f/////5///8="
+  },
+  {
+   "x": 3104,
+   "y": 1050,
+   "width": 8,
+   "height": 8,
+   "cells": "//////////////////////////////////n/////+f////////////////////////////+f/////5//////n/////+f/////5//AAAAAB8AAAAAHwAAAB//AAAAH/8AAAAf/wAAAB//AAAAH/8AAAAP/wAAAA//AAAAD/8AAAAP4wAAAA/jAAAAD/cAAAAf/wAAAB//AAAAH/8AAAAf/wAAAB//AAAAH/8AAAAf/wAAAB//AAAAH/8AAAAf/wAAAB//AAAAH/8=",
+   "flight": "//////////////////////////////////////////////////////////////////////+f/////5//////n/////+f/////5//AAAAAB8AAAAAH////B//////n/////+f/////5//////n/////+P/////4//////j/////+P/////4//////n/////+f/////5//////n/////+f/////5//////n/////+f/////5//////n/////+f/////5//////n/8="
+  },
+  {
+   "x": 3128,
+   "y": 1042,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAH/8AAAAf/wAAAB//AAAAH/8AAAAf/wAAAB//AAAAH/8AAAAf/wAAAB//AAAAH/8AAAAf/wAAAB//AAAAD/8AAAAP/wAAAA//AAAAD/8AAAAP/wAAAA//AAAAH/8AAAAf/wAAAB//AAAAH/8AAAAf/wAAAB//AAAAH/8AAAAAHwAAAAAf///8H/////+f/////5//////n/////+f/////5//////n/////+f//////////////////////////////////8=",
+   "flight": "////n/////+f/////5//////n/////+f/////5//////n/////+f/////5//////n/////+f/////5//////j/////+P/////4//////j/////+P/////5//////n/////+f/////5//////n/////+f/////5//////n/8AAAAAHwAAAAAf///+H/////+f/////5//////n/////+f/////5//////n/////+f//////////////////////////////////8="
+  },
+  {
+   "x": 3120,
+   "y": 1042,
+   "width": 8,
+   "height": 8,
+   "cells": "//4AAAD//gAAAP/+AAAA//4AAAD//gAAAP/+AAAA//4AAAD//gAAAP/+AAAA//4AAAD//gAAAP/+AAAA//4AAAD//gAAAP/+AAAA//4AAAD//gAAAP/+AAAA//4AAAD//gAAAP/+AAAA//4AAAD//gAAAP/+AAAA//4AAAD/wAAAAP/AAAAA//5//////n/////+f/////5//////n/////+f/////5//////n///////5//////j//////P//////////////8=",
+   "flight": "//5//////n/////+f/////5//////n/////+f/////5//////n/////+f/////5//////n/////+f/////5//////n/////+f/////5//////n/////+P/////4//////j/////+P/////4//////n/////+f/////5/////wAAAAP/AAAAA//5//////n/////+f/////5//////n/////+f/////5//////n////////////////////////////////////8="
+  },
+  {
+   "x": 3112,
+   "y": 1042,
+   "width": 8,
+   "height": 8,
+   "cells": "////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////w//////B/////+D///////////////////////////////////////////////////////////////////////////////////8=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 3128,
+   "y": 1034,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAH/8AAAAf/wAAAB//AAAAH/8AAAAf/wAAAB//AAAAH/8AAAAf/wAAAB//AAAAH/8AAAAf/wAAAB//AAAAH/8=",
+   "flight": "/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////5//////n/////+f/////5//////n////4AAAP//gAAA///+H/////+f/////5//////n/////+f/////5//////n/////+f/////5//////n/////+f/////5//////n/8="
+  },
+  {
+   "x": 3120,
+   "y": 1034,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/AIAAAD//gAAAP/+AAAA//4AAAD//gAAAP/+AAAA//4AAAD//gAAAP/+AAAA//4AAAD//gAAAP/+AAAA//4AAAA=",
+   "flight": "///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////+f/////5//////n/////+f/////5///8AAAB//wAAAH///g5//////n/////+f/////5//////n/////+f/////5//////n/////+f/////5//////n/////+f/////5///8="
+  },
+  {
+   "x": 3112,
+   "y": 1034,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//////////////////////////////////////////////////////////////////////////////////////8=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8AAAAAAAAAAAAA//////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 3104,
+   "y": 1034,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/////wP///////////////////////////////////////////////////////////////////////////////8=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8AAAAAAAAAAAAA/////4f///////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 3104,
+   "y": 1042,
+   "width": 8,
+   "height": 8,
+   "cells": "//////////////////////////////////////////////////////+D//gH/4H/+Af/Af/wf/////B/////////////////////////////////////////////////////////////////////z/////+P/////4//////D/////4P/////g/////+D/////4P/////g/////+D/////4///////////////////////////////////////////////////8=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 3112,
+   "y": 1050,
+   "width": 8,
+   "height": 8,
+   "cells": "/////////////////////////////////////4Af////gB////+gf/////B/////+H////////////3/////AP////4Af////gA////4AH////gA////+AD////8AH////wAf//P/gD//8f/AP//x/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8=",
+   "flight": "/////////////////////////////////////8D//////f/////9//////3//////f////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 3120,
+   "y": 1050,
+   "width": 8,
+   "height": 8,
+   "cells": "//////////////////////////////////4//////j/////+P/////4//wD//j//AP/+B/4P//4P/4///x////////////////////v///////////////////////////////////f//////////n//5//8f//H//x//8f/+Hx/h//wfH8H//B8fwf/8Hx/B//wfH8H//B8Dwf/8HwfB//x/j8f//////////////////////////////////////////////8=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////v///////////////////////////////////f///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 3128,
+   "y": 1050,
+   "width": 8,
+   "height": 8,
+   "cells": "////////////////////////////////////j/////+P/////4//////j/gH//+P+Af//4Hwf///g/x////H/////////////////geP///+D4////4fj////j+P///+P4////4/gf/f/j+D////P8f///////////////////9///////////5//////H/////8f/////h/////8H/////wf/////B/+Af/8H/4B//wf/B///B/8H//8f////////////////8=",
+   "flight": "///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////f//////////////////////////////9///////////////////////////////////////////////////////////////////////////////////////////////8="
+  }
+ ],
+ "doors": [],
+ "rooms": [
+  {
+   "preset": 12,
+   "x": 3120,
+   "y": 1058,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    3120,
+    1058,
+    8,
+    8
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 15,
+   "x": 3112,
+   "y": 1058,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    3112,
+    1058,
+    8,
+    8
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 0,
+   "x": 3128,
+   "y": 1050,
+   "width": 8,
+   "height": 8,
+   "variant": null,
+   "block": null,
+   "leads_to": []
+  },
+  {
+   "preset": 0,
+   "x": 3120,
+   "y": 1050,
+   "width": 8,
+   "height": 8,
+   "variant": null,
+   "block": null,
+   "leads_to": []
+  },
+  {
+   "preset": 0,
+   "x": 3112,
+   "y": 1050,
+   "width": 8,
+   "height": 8,
+   "variant": null,
+   "block": null,
+   "leads_to": []
+  },
+  {
+   "preset": 12,
+   "x": 3104,
+   "y": 1050,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    3104,
+    1050,
+    8,
+    8
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 13,
+   "x": 3128,
+   "y": 1042,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    3128,
+    1042,
+    8,
+    8
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 14,
+   "x": 3120,
+   "y": 1042,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    3120,
+    1042,
+    8,
+    8
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 38,
+   "x": 3112,
+   "y": 1042,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    3112,
+    1042,
+    8,
+    8
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 0,
+   "x": 3104,
+   "y": 1042,
+   "width": 8,
+   "height": 8,
+   "variant": null,
+   "block": null,
+   "leads_to": []
+  },
+  {
+   "preset": 9,
+   "x": 3128,
+   "y": 1034,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    3128,
+    1034,
+    8,
+    8
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 10,
+   "x": 3120,
+   "y": 1034,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    3120,
+    1034,
+    8,
+    8
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 6,
+   "x": 3112,
+   "y": 1034,
+   "width": 8,
+   "height": 8,
+   "variant": 2,
+   "block": [
+    3112,
+    1034,
+    8,
+    8
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 6,
+   "x": 3104,
+   "y": 1034,
+   "width": 8,
+   "height": 8,
+   "variant": 1,
+   "block": [
+    3104,
+    1034,
+    8,
+    8
+   ],
+   "leads_to": []
+  }
+ ],
+ "drops": [],
+ "assumed": [
+  "belt",
+  "consume",
+  "drops",
+  "hand",
+  "hex_purge",
+  "immune",
+  "sets",
+  "slots",
+  "ward"
+ ],
+ "source": {
+  "take": "20261011T142329Z-6",
+  "frame": 119,
+  "t": 4.976
+ }
+}

@@ -2,6 +2,7 @@
 
 import random
 import shutil
+from math import hypot
 from pathlib import Path
 
 import pytest
@@ -24,7 +25,8 @@ from tests.inventory_tracking.scenarios.arena.scene import Scene, load
 TOWER = Path(__file__).parents[1] / 'battle' / 'fixtures' / 'tower-cellar5-herald'
 RECORDING = '20261011T195037Z-25'  # the take the fixture was trimmed from
 SCENES = sorted(path for path in FIXTURES.glob('*.json') if SCENE_FILE.fullmatch(path.name))
-KINDS = ('death', 'burst', 'potions', 'stuck', 'long', 'burst15')
+KINDS = ('death', 'burst', 'potions', 'stuck', 'long', 'burst15', 'fixed')
+FIXED = [path for path in SCENES if path.stem.endswith('-fixed')]
 BUDGET = 2 * 1024 * 1024  # bytes: the whole set (framework-plan.md, Task 1.8)
 
 
@@ -38,6 +40,7 @@ def test_the_set_is_there_and_within_its_budget():
     assert sum(path.stat().st_size for path in SCENES) < BUDGET
     assert {path.stem.rsplit('-', 1)[1] for path in SCENES} <= set(KINDS)
     assert any(path.stem.endswith('-death') for path in SCENES)
+    assert len(FIXED) >= 40
 
 
 @pytest.mark.parametrize('path', SCENES, ids=lambda path: path.stem)
@@ -59,6 +62,22 @@ def test_a_fixture_is_a_sound_scene_whose_monsters_play(path: Path):
     companions = [mob.at for mob in scene.mobs if mob.owner is not None or mob.ally]
     for _ in range(50):
         assert mobs.tick(hero.at, companions, hero.sets[hero.hand].resist) >= 0.0
+
+
+@pytest.mark.parametrize('path', FIXED, ids=lambda path: path.stem)
+def test_a_fixed_scene_is_a_fight_with_the_character_alive(path: Path):
+    scene = load(path)
+    hero = scene.hero
+    assert 0 < hero.life <= hero.max_life  # the vitals were read at the frame, not assumed
+    near = [
+        mob for mob in scene.mobs
+        if mob.owner is None and not mob.ally and mob.mode != LYING_DEAD and mob.life > 0
+        and hypot(mob.at[0] - hero.at[0], mob.at[1] - hero.at[1]) <= 30.0
+    ]  # fmt: skip
+    assert len(near) >= 3
+    assert scene.ground
+    mobs = Mobs(scene, random.Random(2))
+    assert mobs.tick(hero.at, [], hero.sets[hero.hand].resist) >= 0.0
 
 
 def test_the_belt_keys_are_five_to_two_before_the_six(tower):
@@ -138,3 +157,26 @@ def test_the_cli_counts_what_cut_refuses_and_keeps_to_its_limits(tmp_path, capsy
     assert sorted(run(root, probe, tmp_path / 'out', '--per-kind', '0')) == [f'{RECORDING}-493-death']  # deaths: all
     assert run(root, probe, tmp_path / 'out', '--since', '20261012') == {}
     assert len(run(root, tmp_path / 'no-sessions', tmp_path / 'out')) == 3  # no log: no stuck
+
+
+def test_the_cli_adds_fixed_scenes_and_keep_leaves_the_others_alone(tmp_path):
+    root, probe = host(tmp_path)
+    out = tmp_path / 'out'
+    plain = run(root, probe, out)
+    before = {path.name: path.read_bytes() for path in out.iterdir()}
+    again = run(root, probe, tmp_path / 'again', '--fixed', '0')
+    assert sorted(again) == sorted(plain)  # --fixed 0 is today's behaviour
+    both = run(root, probe, tmp_path / 'both', '--fixed', '3')
+    assert {name: path for name, path in both.items() if not name.endswith('-fixed')}.keys() == plain.keys()
+    assert all(
+        (tmp_path / 'both' / f'{name}.json').read_bytes() == before[f'{name}.json'] for name in plain
+    )  # the other kinds come out byte for byte the same
+    added = [name for name in both if name.endswith('-fixed')]
+    assert added
+    assert all(scene.source['take'] == RECORDING for scene in (both[name] for name in added))
+    assert not set(added) & {name.rsplit('-', 1)[0] + '-fixed' for name in plain}  # a frame is cut once
+    # --keep adds only the fixed ones to a directory and leaves its files as they are.
+    assert main(['--root', str(root), '--probe', str(probe), '--out', str(out), '--fixed', '3', '--keep']) == 0
+    after = {path.name: path.read_bytes() for path in out.iterdir()}
+    assert {name: data for name, data in after.items() if name in before} == before
+    assert sorted(set(after) - set(before)) == sorted(f'{name}.json' for name in added)
