@@ -980,6 +980,23 @@ What the recording holds and the arena does not, largest first:
 5. Not playable yet: the approach itself (the teleport step and the route's seals are Stage 5 and 6), so
    the incident starts at the landing; a seal's spawn after a delay needs monsters that arrive mid-play.
 
+After the opening was put into the arena (same night): **4 of 17 rows inside**, the life lost by 10 s at
+0.40 of the recording's (676 against 1,691; the recording is above the plays' 90th percentile, 1,312).
+
+- In the arena now (game.py's module text has each measure): a stagger at a blow of a twelfth of the life
+  (0.34 s), the character's block (a tenth of the melee blows that would land, 0.44 s), a buff's key as a
+  cast of 0.38 s, objects to operate and a hover record that holds a monster before an object.
+- The curse is an input of the incident, as the presses are (`Incident.curses`): evidence/CURSES.md found
+  none in the takes' train half (every -50 reading is in the Chaos Sanctuary takes recorded after the
+  split), so no rule of the monsters' can be fitted yet. Three states replace one another: physical -100,
+  physical -50, all four elemental -55. Resistances are read only at a drop of life; the recorder should
+  write them into the frames.
+- Still open, largest first: **(a) the melee in contact.** With all 28 alive and no kill yet the recording
+  loses 568 points in the first 2 s, the arena 136 (0 to 526): about four times short with six monsters
+  within 6 units. Doom Knights are on a pooled row of the fit. **(b) The chest second is not played:** the
+  arena's macro strikes 0.28 s after the ward's key and the game's 0.52 s, so the pickup press of 1.25 s
+  finds a fight begun and asks for a step. **(c)** The teleport step and the seals (item 5 above).
+
 Rulings on the answers (user, 2026-10-13), for Stage 4 and 7 once the incident reproduces:
 
 - **Potential damage decides, not presence.** A chest may be opened when nothing near is an immediate

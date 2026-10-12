@@ -79,6 +79,16 @@ class Drop:
 
 
 @dataclass
+class Prop:
+    """An object that can be operated in the scene (a chest, a body): macros/world.py `Thing`."""
+
+    unit: int
+    txt: int  # objects.txt id
+    at: Point
+    mode: int = 0  # 0 until it is operated
+
+
+@dataclass
 class Scene:
     """A whole arena scene: the hero, the monsters, the walkable grids and the doors."""
 
@@ -91,6 +101,7 @@ class Scene:
     drops: list[Drop] = field(default_factory=list)
     assumed: tuple[str, ...] = ()  # names of fields the source did not hold
     source: dict | None = None  # {'take': str, 'frame': int, 't': float} when cut from a recording
+    things: list[Prop] = field(default_factory=list)  # no take holds them: put there by hand (incident.py)
 
     def copy(self) -> Scene:
         """A deep, independent copy of the scene."""

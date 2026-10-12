@@ -9,15 +9,16 @@ is not formed when the take lost under 90 points) and the take holds no single d
 1.5 times the heaviest blow the scene's monsters can deal in the arena. `trusted.json` holds the
 verdicts; `trust.py` reads them.
 
-**Trusted: 2 of 112 scenes** by the comparison of like with like (the arena's blows
+**Trusted: 0 of 112 scenes** by the comparison of like with like (the arena's blows
 against the take's drops that have a suspect: `evidence/blows.py`; the module text of calibrate.py);
-**2** by the raw comparison (all the life the take lost, the rule
+**0** by the raw comparison (all the life the take lost, the rule
 before the refit of the monsters). Of those not trusted, by like with like:
 
 - neither lost 90 points to blows: nothing to measure: 78
 - the arena took under 0.5 of the take: 20
 - the take lost under 90 points to blows and the arena took 90 or more: 6
 - believed with the first seed, not with every one: 4
+- the life lost agrees, the kills do not: 2
 - the arena took over 2 times the take: 2
 
 Scenes whose take lost 90 points or more of which under 0.5 have a suspect
@@ -101,14 +102,14 @@ pooled rows (all but 5 melee types and 3 shooters have their own chance to take 
 | 20261010T202951Z-23-124-fixed | fixed | Tower Cellar Level 3 (23) | 19, most BloodClan (55) | 8.0 | 0 | 0 | - | 0 | - | 11 | 8 | 0.73 | no | the character went 44 units from where the scene has it; assumed: hand; the take holds under 90 points of life lost: no ratio |
 | 20261010T204327Z-22-123-fixed | fixed | Tower Cellar Level 2 (22) | 10, most Devilkin (21) | 8.0 | 0 | 5 | - | 0 | - | 8 | 8 | 1.00 | no | the character went 69 units from where the scene has it; assumed: hand; the take holds under 90 points of life lost: no ratio |
 | 20261010T205536Z-21-122-fixed | fixed | Tower Cellar Level 1 (21) | 3, most BloodClan (55) | 8.0 | 0 | 0 | - | 0 | - | 3 | 2 | 0.67 | no | the character went 100 units from where the scene has it; assumed: hand; the take holds under 90 points of life lost: no ratio |
-| 20261010T214359Z-25-1195-potions | potions | Tower Cellar Level 5 (25) | 18, most DarkStalker (45) | 8.0 | 1490 | 497 | 0.33 (0.00 to 0.33) | 1490 | 0.33 (0.00 to 0.33) | 17 | 8 | 0.47 | no | 2 belt keys replayed on the assumed belt; the character went 27 units from where the scene has it; assumed: hand |
+| 20261010T214359Z-25-1195-potions | potions | Tower Cellar Level 5 (25) | 18, most DarkStalker (45) | 8.0 | 1490 | 497 | 0.33 (0.00 to 0.33) | 1490 | 0.33 (0.00 to 0.33) | 17 | 7 | 0.41 | no | 2 belt keys replayed on the assumed belt; the character went 27 units from where the scene has it; assumed: hand |
 | 20261010T214359Z-25-1258-burst | burst | Tower Cellar Level 5 (25) | 18, most DarkStalker (45) | 8.0 | 1490 | 0 | 0.00 (0.00 to 0.07) | 1490 | 0.00 (0.00 to 0.07) | 18 | 10 | 0.56 | no | 3 belt keys replayed on the assumed belt; the character went 12 units from where the scene has it; assumed: hand |
 | 20261010T214830Z-22-124-fixed | fixed | Tower Cellar Level 2 (22) | 25, most Devilkin (21) | 3.5 | 0 | 0 | - | 0 | - | 0 | 0 | 1.00 | no | the take ends or leaves the level at 3.5 s; the character went 64 units from where the scene has it; assumed: hand; the take holds under 90 points of life lost: no ratio |
 | 20261010T225724Z-43-1100-fixed | fixed | Far Oasis (43) | 9, most BlackRaptor (17) | 8.0 | 0 | 0 | - | 0 | - | 9 | 4 | 0.44 | no | the character went 22 units from where the scene has it; assumed: hand; the take holds under 90 points of life lost: no ratio |
 | 20261011T001816Z-131-1660-potions | potions | Throne of Destruction (131) | 1, most Baal Throne (543) | 0.4 | 0 | 0 | - | 0 | - | 0 | 0 | 1.00 | no | a hostile the scene lacks is within 12 of the character at 0.4 s; assumed: hand; the take holds under 90 points of life lost: no ratio; compared for under 2 s |
-| 20261011T085143Z-124-102-burst | burst | Halls of Vaught (124) | 47, most IceSpawn (458) | 8.0 | 1001 | 855 | 0.85 (0.58 to 1.46) | 1001 | 0.85 (0.58 to 1.46) | 26 | 28 | 1.08 | yes | 2 belt keys replayed on the assumed belt; assumed: hand |
-| 20261011T085756Z-123-104-fixed | fixed | Halls of Pain (123) | 34, most Zealot (671) | 6.7 | 223 | 375 | 1.68 (0.00 to 1.68) | 223 | 1.68 (0.00 to 1.68) | 11 | 11 | 1.00 | no (3 of 5 seeds) | a hostile the scene lacks is within 12 of the character at 6.7 s; the character went 46 units from where the scene has it; assumed: hand |
-| 20261011T092540Z-124-101-potions | potions | Halls of Vaught (124) | 47, most IceSpawn (458) | 8.0 | 1053 | 595 | 0.56 (0.56 to 1.02) | 564 | 1.05 (1.05 to 1.91) | 31 | 30 | 0.97 | yes | 3 belt keys replayed on the assumed belt; the character went 25 units from where the scene has it; assumed: hand |
+| 20261011T085143Z-124-102-burst | burst | Halls of Vaught (124) | 47, most IceSpawn (458) | 8.0 | 1001 | 974 | 0.97 (0.97 to 1.58) | 1001 | 0.97 (0.97 to 1.58) | 26 | 0 | 0.00 | no | 2 belt keys replayed on the assumed belt; assumed: hand |
+| 20261011T085756Z-123-104-fixed | fixed | Halls of Pain (123) | 34, most Zealot (671) | 6.7 | 223 | 375 | 1.68 (0.00 to 1.68) | 223 | 1.68 (0.00 to 1.68) | 11 | 8 | 0.73 | no (3 of 5 seeds) | a hostile the scene lacks is within 12 of the character at 6.7 s; the character went 46 units from where the scene has it; assumed: hand |
+| 20261011T092540Z-124-101-potions | potions | Halls of Vaught (124) | 47, most IceSpawn (458) | 8.0 | 1053 | 852 | 0.81 (0.81 to 1.35) | 564 | 1.51 (1.51 to 2.51) | 31 | 0 | 0.00 | no | 3 belt keys replayed on the assumed belt; the character went 25 units from where the scene has it; assumed: hand |
 | 20261011T094636Z-123-117-fixed | fixed | Halls of Pain (123) | 29, most Zealot (671) | 2.1 | 0 | 0 | - | 0 | - | 0 | 0 | 1.00 | no | a hostile the scene lacks is within 12 of the character at 2.2 s; the character went 66 units from where the scene has it; assumed: hand; the take holds under 90 points of life lost: no ratio |
 | 20261011T102058Z-123-122-fixed | fixed | Halls of Pain (123) | 22, most Flayer (659) | 1.3 | 0 | 0 | - | 0 | - | 0 | 0 | 1.00 | no | a hostile the scene lacks is within 12 of the character at 1.3 s; the character went 54 units from where the scene has it; assumed: hand; the take holds under 90 points of life lost: no ratio; compared for under 2 s |
 | 20261011T103818Z-124-49-burst15 | burst15 | Halls of Vaught (124) | 14, most Hell Temptress (472) | 1.6 | 0 | 0 | - | 0 | - | 0 | 0 | 1.00 | no | a hostile the scene lacks is within 12 of the character at 1.6 s; the character went 63 units from where the scene has it; assumed: hand; the take holds under 90 points of life lost: no ratio; compared for under 2 s |
@@ -117,7 +118,7 @@ pooled rows (all but 5 melee types and 3 shooters have their own chance to take 
 | 20261011T104524Z-124-72-burst15 | burst15 | Halls of Vaught (124) | 38, most IceSpawn (458) | 1.6 | 0 | 0 | - | 0 | - | 1 | 0 | 0.00 | no | a hostile the scene lacks is within 12 of the character at 1.6 s; the character went 30 units from where the scene has it; assumed: hand; the take holds under 90 points of life lost: no ratio; compared for under 2 s |
 | 20261011T104934Z-124-118-fixed | fixed | Halls of Vaught (124) | 47, most IceSpawn (458) | 8.0 | 43 | 4 | - | 43 | - | 36 | 25 | 0.69 | no | assumed: hand; the take holds under 90 points of life lost: no ratio |
 | 20261011T115046Z-124-122-fixed | fixed | Halls of Vaught (124) | 44, most IceSpawn (458) | 8.0 | 24 | 0 | - | 0 | - | 41 | 22 | 0.54 | no | the character went 12 units from where the scene has it; assumed: hand; the take holds under 90 points of life lost: no ratio |
-| 20261011T115400Z-124-122-burst15 | burst15 | Halls of Vaught (124) | 27, most IceSpawn (458) | 8.0 | 672 | 288 | 0.43 (0.00 to 0.61) | 155 | 1.86 (0.00 to 2.63) | 27 | 25 | 0.93 | no (1 of 5 seeds) | the character went 16 units from where the scene has it; assumed: hand; mostly not blows: 155 of the 672 points the take lost have a suspect |
+| 20261011T115400Z-124-122-burst15 | burst15 | Halls of Vaught (124) | 27, most IceSpawn (458) | 8.0 | 672 | 288 | 0.43 (0.00 to 0.61) | 155 | 1.86 (0.00 to 2.63) | 27 | 21 | 0.78 | no (1 of 5 seeds) | the character went 16 units from where the scene has it; assumed: hand; mostly not blows: 155 of the 672 points the take lost have a suspect |
 | 20261011T122736Z-124-3499-potions | potions | Halls of Vaught (124) | 23, most Slayerexp (682) | 8.0 | 431 | 17 | 0.04 (0.00 to 0.23) | 370 | 0.05 (0.00 to 0.27) | 20 | 13 | 0.65 | no | 3 belt keys replayed on the assumed belt; the character went 34 units from where the scene has it; assumed: hand |
 | 20261011T123516Z-124-121-fixed | fixed | Halls of Vaught (124) | 28, most IceSpawn (458) | 8.0 | 181 | 201 | 1.11 (0.00 to 1.11) | 0 | - | 22 | 17 | 0.77 | no | the character went 27 units from where the scene has it; assumed: hand; mostly not blows: 0 of the 181 points the take lost have a suspect |
 | 20261011T130810Z-74-612-fixed | fixed | Arcane Sanctuary (74) | 31, most HellClan (56) | 8.0 | 0 | 21 | - | 0 | - | 28 | 22 | 0.79 | no | the character went 44 units from where the scene has it; assumed: hand; the take holds under 90 points of life lost: no ratio |
@@ -128,7 +129,7 @@ pooled rows (all but 5 melee types and 3 shooters have their own chance to take 
 | 20261011T143205Z-6-118-fixed | fixed | Black Marsh (6) | 20, most NightClan (54) | 1.4 | 0 | 0 | - | 0 | - | 0 | 0 | 1.00 | no | the take ends or leaves the level at 1.4 s; the character went 59 units from where the scene has it; assumed: hand; the take holds under 90 points of life lost: no ratio; compared for under 2 s |
 | 20261011T143225Z-25-155-burst15 | burst15 | Tower Cellar Level 5 (25) | 25, most Ghost (38) | 8.0 | 374 | 113 | 0.30 (0.00 to 0.30) | 374 | 0.30 (0.00 to 0.30) | 9 | 8 | 0.89 | no | assumed: hand |
 | 20261011T143607Z-25-987-burst15 | burst15 | Tower Cellar Level 5 (25) | 26, most Devilkin (21) | 8.0 | 420 | 0 | 0.00 (0.00 to 0.49) | 420 | 0.00 (0.00 to 0.49) | 16 | 9 | 0.56 | no | the character went 35 units from where the scene has it; assumed: hand |
-| 20261011T145954Z-21-123-fixed | fixed | Tower Cellar Level 1 (21) | 30, most Devilkin (21) | 8.0 | 0 | 177 | - | 0 | - | 8 | 6 | 0.75 | no | the character went 39 units from where the scene has it; assumed: hand; the take holds under 90 points of life lost: no ratio |
+| 20261011T145954Z-21-123-fixed | fixed | Tower Cellar Level 1 (21) | 30, most Devilkin (21) | 8.0 | 0 | 177 | - | 0 | - | 8 | 3 | 0.38 | no | the character went 39 units from where the scene has it; assumed: hand; the take holds under 90 points of life lost: no ratio |
 | 20261011T151545Z-21-124-fixed | fixed | Tower Cellar Level 1 (21) | 22, most DarkArcher (162) | 1.9 | 0 | 0 | - | 0 | - | 2 | 0 | 0.00 | no | the take ends or leaves the level at 1.9 s; the character went 53 units from where the scene has it; assumed: hand; the take holds under 90 points of life lost: no ratio; compared for under 2 s |
 | 20261011T152636Z-25-123-fixed | fixed | Tower Cellar Level 5 (25) | 17, most BloodClan (55) | 8.0 | 9 | 90 | - | 9 | - | 8 | 1 | 0.12 | no | the character went 24 units from where the scene has it; assumed: hand; the take holds under 90 points of life lost: no ratio |
 | 20261011T160245Z-23-123-fixed | fixed | Tower Cellar Level 3 (23) | 6, most Ghost (38) | 6.1 | 0 | 0 | - | 0 | - | 4 | 4 | 1.00 | no | a hostile the scene lacks is within 12 of the character at 6.2 s; the character went 35 units from where the scene has it; assumed: hand; the take holds under 90 points of life lost: no ratio |
@@ -159,7 +160,7 @@ pooled rows (all but 5 melee types and 3 shooters have their own chance to take 
 | 20261011T194710Z-22-641-burst15 | burst15 | Tower Cellar Level 2 (22) | 27, most Devilkin (21) | 8.0 | 0 | 0 | - | 0 | - | 15 | 8 | 0.53 | no | the character went 26 units from where the scene has it; assumed: hand; the take holds under 90 points of life lost: no ratio |
 | 20261011T194956Z-24-616-fixed | fixed | Tower Cellar Level 4 (24) | 15, most Devilkin (21) | 8.0 | 13 | 0 | - | 0 | - | 13 | 10 | 0.77 | no | the character went 46 units from where the scene has it; assumed: hand; the take holds under 90 points of life lost: no ratio |
 | 20261011T195037Z-25-2-long | long | Tower Cellar Level 5 (25) | 16, most Devilkin (21) | 8.0 | 0 | 25 | - | 0 | - | 4 | 1 | 0.25 | no | the character went 19 units from where the scene has it; assumed: hand; the take holds under 90 points of life lost: no ratio |
-| 20261011T195037Z-25-373-potions | potions | Tower Cellar Level 5 (25) | 17, most BloodClan (55) | 7.9 | 1479 | 565 | 0.38 (0.00 to 0.66) | 409 | 1.38 (0.00 to 2.37) | 6 | 7 | 1.17 | no (2 of 5 seeds) | the character died in the take at 7.9 s; 3 belt keys replayed on the assumed belt; assumed: hand; mostly not blows: 409 of the 1479 points the take lost have a suspect |
+| 20261011T195037Z-25-373-potions | potions | Tower Cellar Level 5 (25) | 17, most BloodClan (55) | 7.9 | 1479 | 542 | 0.37 (0.00 to 0.37) | 409 | 1.32 (0.00 to 1.32) | 6 | 7 | 1.17 | no (2 of 5 seeds) | the character died in the take at 7.9 s; 3 belt keys replayed on the assumed belt; assumed: hand; mostly not blows: 409 of the 1479 points the take lost have a suspect |
 | 20261011T195037Z-25-493-death | death | Tower Cellar Level 5 (25) | 11, most DarkArcher (162) | 3.0 | 1108 | 0 | 0.00 (0.00 to 0.46) | 1108 | 0.00 (0.00 to 0.46) | 0 | 0 | 1.00 | no | the character died in the take at 3.0 s; 1 belt keys replayed on the assumed belt; assumed: hand |
 | 20261011T211725Z-22-1093-burst15 | burst15 | Tower Cellar Level 2 (22) | 4, most Ghost (38) | 8.0 | 339 | 157 | 0.46 (0.00 to 0.46) | 229 | 0.69 (0.00 to 0.69) | 4 | 3 | 0.75 | no (3 of 5 seeds) | the character went 25 units from where the scene has it; assumed: hand |
 | 20261011T211818Z-23-535-long | long | Tower Cellar Level 3 (23) | 12, most Devilkin (21) | 8.0 | 0 | 0 | - | 0 | - | 0 | 0 | 1.00 | no | assumed: hand; the take holds under 90 points of life lost: no ratio |
@@ -198,7 +199,7 @@ pooled rows (all but 5 melee types and 3 shooters have their own chance to take 
 | 20261012T064317Z-130-0-long | long | The Worldstone Keep Level 3 (130) | 1, most Baal Taunt (545) | 4.2 | 0 | 0 | - | 0 | - | 0 | 0 | 1.00 | no | a hostile the scene lacks is within 12 of the character at 4.2 s; the character went 39 units from where the scene has it; assumed: full, level, mods, tier; the take holds under 90 points of life lost: no ratio |
 | 20261012T064317Z-130-662-stuck | stuck | The Worldstone Keep Level 3 (130) | 11, most Hell Temptress (472) | 8.0 | 0 | 0 | - | 0 | - | 4 | 4 | 1.00 | no | assumed: full, level, mods, tier; the take holds under 90 points of life lost: no ratio |
 | 20261012T065226Z-130-0-long | long | The Worldstone Keep Level 3 (130) | 7, most Hell Temptress (472) | 8.0 | 86 | 0 | - | 86 | - | 4 | 3 | 0.75 | no | the character went 46 units from where the scene has it; assumed: full, level; the take holds under 90 points of life lost: no ratio |
-| 20261012T065226Z-130-101-stuck | stuck | The Worldstone Keep Level 3 (130) | 7, most Hell Temptress (472) | 8.0 | 99 | 360 | 3.63 (0.00 to 10.44) | 99 | 3.63 (0.00 to 10.44) | 5 | 4 | 0.80 | no (1 of 5 seeds) | the character went 20 units from where the scene has it; assumed: full |
+| 20261012T065226Z-130-101-stuck | stuck | The Worldstone Keep Level 3 (130) | 7, most Hell Temptress (472) | 8.0 | 99 | 360 | 3.63 (0.00 to 8.62) | 99 | 3.63 (0.00 to 8.62) | 5 | 3 | 0.60 | no (1 of 5 seeds) | the character went 20 units from where the scene has it; assumed: full |
 | 20261012T065226Z-130-4606-burst15 | burst15 | The Worldstone Keep Level 3 (130) | 16, most Hell Temptress (472) | 8.0 | 1937 | 92 | 0.05 (0.00 to 0.21) | 1829 | 0.05 (0.00 to 0.23) | 12 | 5 | 0.42 | no | 3 belt keys replayed on the assumed belt; the character went 20 units from where the scene has it; assumed: full |
 | 20261012T065226Z-130-4609-potions | potions | The Worldstone Keep Level 3 (130) | 16, most Hell Temptress (472) | 8.0 | 1937 | 92 | 0.05 (0.00 to 0.21) | 1829 | 0.05 (0.00 to 0.23) | 12 | 5 | 0.42 | no | 3 belt keys replayed on the assumed belt; the character went 20 units from where the scene has it; assumed: full |
 | 20261012T065226Z-130-4612-burst | burst | The Worldstone Keep Level 3 (130) | 16, most Hell Temptress (472) | 8.0 | 1937 | 92 | 0.05 (0.00 to 0.21) | 1829 | 0.05 (0.00 to 0.23) | 12 | 5 | 0.42 | no | 3 belt keys replayed on the assumed belt; the character went 20 units from where the scene has it; assumed: full |
@@ -219,34 +220,34 @@ table is given twice: like with like (the take's drops with a suspect), then raw
 
 | all | scenes | trusted | with a ratio | least | quartile | median | quartile | most | pooled | arena hurt, take did not | kills: n | median | pooled |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| all | 112 | 2 | 28 | 0.00 | 0.00 | 0.10 | 0.73 | 6.64 | 0.39 | 6 | 91 | 0.78 | 0.78 |
+| all | 112 | 0 | 28 | 0.00 | 0.00 | 0.10 | 0.76 | 6.64 | 0.41 | 6 | 91 | 0.75 | 0.71 |
 
 | kind | scenes | trusted | with a ratio | least | quartile | median | quartile | most | pooled | arena hurt, take did not | kills: n | median | pooled |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| fixed | 40 | 0 | 2 | 0.00 | 0.42 | 0.84 | 1.26 | 1.68 | 2.99 | 4 | 33 | 0.77 | 0.73 |
-| burst15 | 20 | 0 | 12 | 0.00 | 0.00 | 0.03 | 0.19 | 1.86 | 0.12 | 0 | 17 | 0.75 | 0.77 |
+| fixed | 40 | 0 | 2 | 0.00 | 0.42 | 0.84 | 1.26 | 1.68 | 2.99 | 4 | 33 | 0.77 | 0.71 |
+| burst15 | 20 | 0 | 12 | 0.00 | 0.00 | 0.03 | 0.19 | 1.86 | 0.12 | 0 | 17 | 0.75 | 0.74 |
 | long | 20 | 0 | 1 | 6.64 | 6.64 | 6.64 | 6.64 | 6.64 | 4.70 | 1 | 13 | 0.67 | 0.84 |
-| stuck | 20 | 0 | 2 | 0.15 | 1.02 | 1.89 | 2.76 | 3.63 | 1.59 | 1 | 18 | 0.97 | 0.91 |
-| potions | 7 | 1 | 6 | 0.05 | 0.08 | 0.24 | 0.87 | 1.38 | 0.36 | 0 | 6 | 0.71 | 0.74 |
-| burst | 4 | 1 | 4 | 0.00 | 0.00 | 0.03 | 0.25 | 0.85 | 0.18 | 0 | 4 | 0.61 | 0.75 |
+| stuck | 20 | 0 | 2 | 0.15 | 1.02 | 1.89 | 2.76 | 3.63 | 1.59 | 1 | 18 | 0.97 | 0.90 |
+| potions | 7 | 0 | 6 | 0.05 | 0.08 | 0.24 | 1.08 | 1.51 | 0.41 | 0 | 6 | 0.53 | 0.41 |
+| burst | 4 | 0 | 4 | 0.00 | 0.00 | 0.03 | 0.28 | 0.97 | 0.21 | 0 | 4 | 0.49 | 0.32 |
 | death | 1 | 0 | 1 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 | 0 | 0 | - | - |
 
 By the type most of the scene's hostiles are of:
 
 | most hostiles | scenes | trusted | with a ratio | least | quartile | median | quartile | most | pooled | arena hurt, take did not | kills: n | median | pooled |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| Devilkin (21) | 26 | 0 | 4 | 0.00 | 0.11 | 0.15 | 1.78 | 6.64 | 1.06 | 1 | 19 | 0.78 | 0.76 |
-| BloodClan (55) | 10 | 0 | 2 | 0.00 | 0.35 | 0.69 | 1.04 | 1.38 | 1.85 | 2 | 10 | 0.65 | 0.58 |
+| Devilkin (21) | 26 | 0 | 4 | 0.00 | 0.11 | 0.15 | 1.78 | 6.64 | 1.06 | 1 | 19 | 0.78 | 0.74 |
+| BloodClan (55) | 10 | 0 | 2 | 0.00 | 0.33 | 0.66 | 0.99 | 1.32 | 1.81 | 2 | 10 | 0.65 | 0.58 |
 | DarkArcher (162) | 9 | 0 | 4 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 | 0 | 6 | 0.81 | 0.75 |
-| IceSpawn (458) | 8 | 2 | 4 | 0.15 | 0.68 | 0.95 | 1.26 | 1.86 | 0.91 | 1 | 8 | 0.85 | 0.82 |
+| IceSpawn (458) | 8 | 0 | 4 | 0.15 | 0.77 | 1.24 | 1.60 | 1.86 | 1.08 | 1 | 8 | 0.62 | 0.53 |
 | Ghost (38) | 7 | 0 | 3 | 0.00 | 0.15 | 0.30 | 0.49 | 0.69 | 0.82 | 1 | 6 | 1.00 | 0.95 |
-| Hell Temptress (472) | 7 | 0 | 4 | 0.05 | 0.05 | 0.05 | 0.95 | 3.63 | 0.11 | 0 | 6 | 0.58 | 0.53 |
+| Hell Temptress (472) | 7 | 0 | 4 | 0.05 | 0.05 | 0.05 | 0.95 | 3.63 | 0.11 | 0 | 6 | 0.51 | 0.51 |
 | Carver (20) | 6 | 0 | 0 | - | - | - | - | - | - | 0 | 6 | 1.02 | 0.98 |
-| DarkStalker (45) | 3 | 0 | 2 | 0.00 | 0.08 | 0.17 | 0.25 | 0.33 | 0.17 | 0 | 3 | 0.56 | 0.64 |
+| DarkStalker (45) | 3 | 0 | 2 | 0.00 | 0.08 | 0.17 | 0.25 | 0.33 | 0.17 | 0 | 3 | 0.56 | 0.62 |
 | Hell Bovine (391) | 3 | 0 | 0 | - | - | - | - | - | - | 0 | 3 | 0.56 | 0.70 |
 | HungryDead (6) | 3 | 0 | 0 | - | - | - | - | - | - | 0 | 2 | 0.71 | 0.71 |
 | Returned (1) | 3 | 0 | 2 | 0.00 | 0.04 | 0.07 | 0.11 | 0.15 | 0.07 | 0 | 3 | 0.67 | 0.58 |
-| Zealot (671) | 3 | 0 | 1 | 1.68 | 1.68 | 1.68 | 1.68 | 1.68 | 1.68 | 0 | 1 | 1.00 | 1.00 |
+| Zealot (671) | 3 | 0 | 1 | 1.68 | 1.68 | 1.68 | 1.68 | 1.68 | 1.68 | 0 | 1 | 0.73 | 0.73 |
 | BlackSoul (640) | 2 | 0 | 1 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 | 0.23 | 0 | 2 | 0.83 | 0.79 |
 | Blood Lord1 (652) | 2 | 0 | 0 | - | - | - | - | - | 6.98 | 1 | 2 | 0.53 | 0.58 |
 | BoneWarrior (648) | 2 | 0 | 0 | - | - | - | - | - | - | 0 | 2 | 1.31 | 1.17 |
@@ -272,34 +273,34 @@ By the type most of the scene's hostiles are of:
 
 | all | scenes | trusted | with a ratio | least | quartile | median | quartile | most | pooled | arena hurt, take did not | kills: n | median | pooled |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| all | 112 | 2 | 30 | 0.00 | 0.00 | 0.10 | 0.42 | 6.64 | 0.33 | 5 | 91 | 0.78 | 0.78 |
+| all | 112 | 0 | 30 | 0.00 | 0.00 | 0.10 | 0.41 | 6.64 | 0.35 | 5 | 91 | 0.75 | 0.71 |
 
 | kind | scenes | trusted | with a ratio | least | quartile | median | quartile | most | pooled | arena hurt, take did not | kills: n | median | pooled |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| fixed | 40 | 0 | 3 | 0.00 | 0.56 | 1.11 | 1.40 | 1.68 | 1.95 | 3 | 33 | 0.77 | 0.73 |
-| burst15 | 20 | 0 | 12 | 0.00 | 0.00 | 0.02 | 0.19 | 0.46 | 0.11 | 0 | 17 | 0.75 | 0.77 |
+| fixed | 40 | 0 | 3 | 0.00 | 0.56 | 1.11 | 1.40 | 1.68 | 1.95 | 3 | 33 | 0.77 | 0.71 |
+| burst15 | 20 | 0 | 12 | 0.00 | 0.00 | 0.02 | 0.19 | 0.46 | 0.11 | 0 | 17 | 0.75 | 0.74 |
 | long | 20 | 0 | 1 | 6.64 | 6.64 | 6.64 | 6.64 | 6.64 | 4.70 | 1 | 13 | 0.67 | 0.84 |
-| stuck | 20 | 0 | 3 | 0.00 | 0.07 | 0.15 | 1.89 | 3.63 | 1.13 | 1 | 18 | 0.97 | 0.91 |
-| potions | 7 | 1 | 6 | 0.04 | 0.07 | 0.24 | 0.37 | 0.56 | 0.27 | 0 | 6 | 0.71 | 0.74 |
-| burst | 4 | 1 | 4 | 0.00 | 0.00 | 0.02 | 0.25 | 0.85 | 0.18 | 0 | 4 | 0.61 | 0.75 |
+| stuck | 20 | 0 | 3 | 0.00 | 0.07 | 0.15 | 1.89 | 3.63 | 1.13 | 1 | 18 | 0.97 | 0.90 |
+| potions | 7 | 0 | 6 | 0.04 | 0.07 | 0.24 | 0.36 | 0.81 | 0.30 | 0 | 6 | 0.53 | 0.41 |
+| burst | 4 | 0 | 4 | 0.00 | 0.00 | 0.02 | 0.28 | 0.97 | 0.20 | 0 | 4 | 0.49 | 0.32 |
 | death | 1 | 0 | 1 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 | 0 | 0 | - | - |
 
 By the type most of the scene's hostiles are of:
 
 | most hostiles | scenes | trusted | with a ratio | least | quartile | median | quartile | most | pooled | arena hurt, take did not | kills: n | median | pooled |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| Devilkin (21) | 26 | 0 | 5 | 0.00 | 0.00 | 0.15 | 0.15 | 6.64 | 0.95 | 1 | 19 | 0.78 | 0.76 |
-| BloodClan (55) | 10 | 0 | 2 | 0.00 | 0.10 | 0.19 | 0.29 | 0.38 | 0.67 | 2 | 10 | 0.65 | 0.58 |
+| Devilkin (21) | 26 | 0 | 5 | 0.00 | 0.00 | 0.15 | 0.15 | 6.64 | 0.95 | 1 | 19 | 0.78 | 0.74 |
+| BloodClan (55) | 10 | 0 | 2 | 0.00 | 0.09 | 0.18 | 0.27 | 0.37 | 0.65 | 2 | 10 | 0.65 | 0.58 |
 | DarkArcher (162) | 9 | 0 | 4 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 | 0 | 6 | 0.81 | 0.75 |
-| IceSpawn (458) | 8 | 2 | 5 | 0.15 | 0.43 | 0.56 | 0.85 | 1.11 | 0.59 | 0 | 8 | 0.85 | 0.82 |
+| IceSpawn (458) | 8 | 0 | 5 | 0.15 | 0.43 | 0.81 | 0.97 | 1.11 | 0.70 | 0 | 8 | 0.62 | 0.53 |
 | Ghost (38) | 7 | 0 | 3 | 0.00 | 0.15 | 0.30 | 0.38 | 0.46 | 0.73 | 1 | 6 | 1.00 | 0.95 |
-| Hell Temptress (472) | 7 | 0 | 4 | 0.05 | 0.05 | 0.05 | 0.94 | 3.63 | 0.11 | 0 | 6 | 0.58 | 0.53 |
+| Hell Temptress (472) | 7 | 0 | 4 | 0.05 | 0.05 | 0.05 | 0.94 | 3.63 | 0.11 | 0 | 6 | 0.51 | 0.51 |
 | Carver (20) | 6 | 0 | 0 | - | - | - | - | - | - | 0 | 6 | 1.02 | 0.98 |
-| DarkStalker (45) | 3 | 0 | 2 | 0.00 | 0.08 | 0.17 | 0.25 | 0.33 | 0.17 | 0 | 3 | 0.56 | 0.64 |
+| DarkStalker (45) | 3 | 0 | 2 | 0.00 | 0.08 | 0.17 | 0.25 | 0.33 | 0.17 | 0 | 3 | 0.56 | 0.62 |
 | Hell Bovine (391) | 3 | 0 | 0 | - | - | - | - | - | - | 0 | 3 | 0.56 | 0.70 |
 | HungryDead (6) | 3 | 0 | 0 | - | - | - | - | - | - | 0 | 2 | 0.71 | 0.71 |
 | Returned (1) | 3 | 0 | 2 | 0.00 | 0.04 | 0.07 | 0.11 | 0.15 | 0.07 | 0 | 3 | 0.67 | 0.58 |
-| Zealot (671) | 3 | 0 | 1 | 1.68 | 1.68 | 1.68 | 1.68 | 1.68 | 1.68 | 0 | 1 | 1.00 | 1.00 |
+| Zealot (671) | 3 | 0 | 1 | 1.68 | 1.68 | 1.68 | 1.68 | 1.68 | 1.68 | 0 | 1 | 0.73 | 0.73 |
 | BlackSoul (640) | 2 | 0 | 1 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 | 0.23 | 0 | 2 | 0.83 | 0.79 |
 | Blood Lord1 (652) | 2 | 0 | 0 | - | - | - | - | - | 2.81 | 1 | 2 | 0.53 | 0.58 |
 | BoneWarrior (648) | 2 | 0 | 0 | - | - | - | - | - | 0.00 | 0 | 2 | 1.31 | 1.17 |
@@ -325,13 +326,13 @@ The types with 3 scenes or more, by what the arena makes of them (like with like
 
 | most hostiles | scenes | trusted | with a ratio | least | quartile | median | quartile | most | pooled | arena hurt, take did not | kills: n | median | pooled |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| BloodClan (55) | 10 | 0 | 2 | 0.00 | 0.35 | 0.69 | 1.04 | 1.38 | 1.85 | 2 | 10 | 0.65 | 0.58 |
-| Zealot (671) | 3 | 0 | 1 | 1.68 | 1.68 | 1.68 | 1.68 | 1.68 | 1.68 | 0 | 1 | 1.00 | 1.00 |
-| Devilkin (21) | 26 | 0 | 4 | 0.00 | 0.11 | 0.15 | 1.78 | 6.64 | 1.06 | 1 | 19 | 0.78 | 0.76 |
-| IceSpawn (458) | 8 | 2 | 4 | 0.15 | 0.68 | 0.95 | 1.26 | 1.86 | 0.91 | 1 | 8 | 0.85 | 0.82 |
+| BloodClan (55) | 10 | 0 | 2 | 0.00 | 0.33 | 0.66 | 0.99 | 1.32 | 1.81 | 2 | 10 | 0.65 | 0.58 |
+| Zealot (671) | 3 | 0 | 1 | 1.68 | 1.68 | 1.68 | 1.68 | 1.68 | 1.68 | 0 | 1 | 0.73 | 0.73 |
+| IceSpawn (458) | 8 | 0 | 4 | 0.15 | 0.77 | 1.24 | 1.60 | 1.86 | 1.08 | 1 | 8 | 0.62 | 0.53 |
+| Devilkin (21) | 26 | 0 | 4 | 0.00 | 0.11 | 0.15 | 1.78 | 6.64 | 1.06 | 1 | 19 | 0.78 | 0.74 |
 | Ghost (38) | 7 | 0 | 3 | 0.00 | 0.15 | 0.30 | 0.49 | 0.69 | 0.82 | 1 | 6 | 1.00 | 0.95 |
-| DarkStalker (45) | 3 | 0 | 2 | 0.00 | 0.08 | 0.17 | 0.25 | 0.33 | 0.17 | 0 | 3 | 0.56 | 0.64 |
-| Hell Temptress (472) | 7 | 0 | 4 | 0.05 | 0.05 | 0.05 | 0.95 | 3.63 | 0.11 | 0 | 6 | 0.58 | 0.53 |
+| DarkStalker (45) | 3 | 0 | 2 | 0.00 | 0.08 | 0.17 | 0.25 | 0.33 | 0.17 | 0 | 3 | 0.56 | 0.62 |
+| Hell Temptress (472) | 7 | 0 | 4 | 0.05 | 0.05 | 0.05 | 0.95 | 3.63 | 0.11 | 0 | 6 | 0.51 | 0.51 |
 | Returned (1) | 3 | 0 | 2 | 0.00 | 0.04 | 0.07 | 0.11 | 0.15 | 0.07 | 0 | 3 | 0.67 | 0.58 |
 | DarkArcher (162) | 9 | 0 | 4 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 | 0 | 6 | 0.81 | 0.75 |
 | Carver (20) | 6 | 0 | 0 | - | - | - | - | - | - | 0 | 6 | 1.02 | 0.98 |
@@ -344,9 +345,9 @@ The types with 3 scenes or more, by what the arena makes of them (like with like
 | --- | ---: | ---: | ---: |
 | the takes, all | 15 | 206 | 1051 |
 | the takes, with a suspect | 13 | 178 | 1051 |
-| the arena, mean of 5 seeds | 4.8 | 66 | - |
+| the arena, mean of 5 seeds | 5.0 | 69 | - |
 
-The takes' by class: several 9, nova/explosion 3, unknown 2, sole ranged 1. The arena's by seed: 5, 7, 6, 5, 1. 730 s of windows; they were cut around bursts, potions and deaths, so the rate is far above a whole take's (20 in 19,097 s).
+The takes' by class: several 9, nova/explosion 3, unknown 2, sole ranged 1. The arena's by seed: 5, 6, 6, 7, 1. 730 s of windows; they were cut around bursts, potions and deaths, so the rate is far above a whole take's (20 in 19,097 s).
 
 ## The blows, by who struck
 
@@ -358,7 +359,7 @@ the drops nobody is blamed for among them.
 
 | striker | arena: kind | blows | median | points | take: drops put on it | median | points |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| IceSpawn (458) | melee | 16 | 77 | 1370 | 1 | 13 | 13 |
+| IceSpawn (458) | melee | 26 | 63 | 1948 | 1 | 13 | 13 |
 | Devilkin (21) | nova | 1 | 1196 | 1196 | 0 | - | 0 |
 | DarkStalker (45) | melee | 7 | 84 | 1058 | 0 | - | 0 |
 | Ghost (38) | nova | 2 | 337 | 673 | 0 | - | 0 |
@@ -381,10 +382,10 @@ the drops nobody is blamed for among them.
 | DarkArcher (162) | shot | 1 | 5 | 5 | 0 | - | 0 |
 | ReturnedArcher (578) | shot | 1 | 4 | 4 | 0 | - | 0 |
 | Returned (1) | - | 0 | - | 0 | 2 | 157 | 314 |
-| every melee | melee | 43 | 67 | 4611 | - | - | - |
+| every melee | melee | 53 | 65 | 5189 | - | - | - |
 | every nova | nova | 5 | 360 | 2405 | - | - | - |
 | every shot | shot | 7 | 38 | 336 | - | - | - |
-| all, 730 s of 112 scenes | | 55 | 83 | 7353 | 140 | 114 | 20829 |
+| all, 730 s of 112 scenes | | 65 | 67 | 7931 | 140 | 114 | 20829 |
 
 ## The window
 
@@ -396,11 +397,11 @@ level and the character alive.
 | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
 | 2 | 110 | 100 | 6 | 5.4 | 1.8 | 2.4 |
 | 4 | 107 | 89 | 26 | 5.9 | 1.7 | 2.1 |
-| 6 | 102 | 84 | 29 | 5.8 | 1.3 | 1.8 |
-| 8 | 99 | 73 | 25 | 9.9 | 0.7 | 1.5 |
-| 10 | 95 | 57 | 26 | 12.0 | 0.4 | 1.6 |
-| 12 | 92 | 46 | 21 | 9.3 | 0.7 | 1.7 |
-| 15 | 84 | 36 | 15 | 17.0 | 0.6 | 1.9 |
+| 6 | 102 | 84 | 29 | 5.8 | 1.3 | 2.2 |
+| 8 | 99 | 73 | 25 | 9.9 | 0.7 | 2.3 |
+| 10 | 95 | 57 | 26 | 10.6 | 0.4 | 2.6 |
+| 12 | 92 | 46 | 21 | 9.1 | 0.7 | 3.2 |
+| 15 | 84 | 36 | 15 | 17.0 | 0.6 | 3.4 |
 
 ## The death: 20261011T195037Z-25-493-death
 
@@ -428,4 +429,4 @@ the two ratios):
 | half | scenes | median before | median with the factor | trusted before | trusted with the factor | least | most |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
 | fitted on | 9 | 0.33 | 0.91 | 2 | 0 | 0.15 | 10.88 |
-| checked on | 9 | 0.30 | 0.90 | 4 | 1 | 0.15 | 5.56 |
+| checked on | 9 | 0.30 | 0.90 | 2 | 1 | 0.15 | 5.56 |

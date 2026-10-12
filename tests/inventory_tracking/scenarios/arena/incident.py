@@ -25,7 +25,7 @@ import json
 import math
 import statistics
 from collections.abc import Sequence
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, replace
 from itertools import pairwise
 from pathlib import Path
 
@@ -37,7 +37,7 @@ from tests.inventory_tracking.scenarios.arena import scene as scene_file
 from tests.inventory_tracking.scenarios.arena.cut import DEFAULT_HERO, cut
 from tests.inventory_tracking.scenarios.arena.driver import Play, Press
 from tests.inventory_tracking.scenarios.arena.game import Arena
-from tests.inventory_tracking.scenarios.arena.scene import Scene
+from tests.inventory_tracking.scenarios.arena.scene import Prop, Scene
 
 
 TAKES = Path('inventory_tracking/runs/combat')
@@ -58,6 +58,13 @@ class Incident:
     presses: tuple[tuple[float, str], ...]
     marks: tuple[float, ...]
     about: str
+    # What the session log says of the character and the take does not hold (`Hero` fields by name): the cut
+    # scene has them from the defaults otherwise.
+    hero: tuple[tuple[str, object], ...] = ()
+    things: tuple[Prop, ...] = ()  # the objects the session log names (no take holds them)
+    # What was done to the character that the arena's monsters do not do yet, as the take's `hurt` events
+    # read it: (seconds after `start`, kind of damage, the share let through from then on, either weapon set).
+    curses: tuple[tuple[float, str, float], ...] = ()
 
 
 @dataclass(frozen=True)
@@ -84,6 +91,12 @@ INCIDENTS = (
             *((at, PICKUP) for at in (1.25, 1.65, 3.07, 3.39, 3.99, 4.64, 5.54, 6.36, 6.86, 7.33, 7.94, 8.57, 9.25)),
         ),
         marks=(2.0, 4.0, 6.0, 8.0, 10.0),
+        # 21:24:41.738 "InnerHellObject1 (object 798365376, class 125) at (7915.0, 5289.0) was not opened"
+        things=(Prop(798365376, 125, (7915.0, 5289.0)),),
+        hero=(('ward', False),),
+        # The physical resistance read 10 at 0.2 s and -40 from 0.6 s to the window's end (evidence/CURSES.md:
+        # an Oblivion Knight's curse; no half of the takes can fit it yet).
+        curses=((0.6, 'physical', 1.4),),  # 21:24:40.418 "Psychic Ward": the mode's first cast, so the ward was down
         about=(
             'Chaos Sanctuary: the teleport step lands by the second Infector seal with the staff in hand, 13 '
             'monsters there already and the seal pack of 12 arriving; the character stands among them for the '
@@ -145,7 +158,13 @@ def played(scene: Scene, incident: Incident, seed: int) -> Track:
     low = [arena.life]
     spy = play.tick
 
+    due = sorted(incident.curses)
+
     def tick() -> None:
+        while due and due[0][0] <= arena.clock.now + 1e-9:
+            _, kind, share = due.pop(0)
+            for resist in arena.resists:
+                resist[kind] = share
         samples.append((arena.clock.now, arena.taken, len(arena.mobs.live()), arena.casts))
         low[0] = min(low[0], arena.life)
         spy()
@@ -246,6 +265,10 @@ def store(incident: Incident, takes: Path = TAKES) -> tuple[Scene, Track]:
     zero = take.frames[0]['t']
     frame = next(index for index, row in enumerate(take.frames) if row['t'] - zero >= incident.start)
     scene = cut(take, frame, defaults=DEFAULT_HERO, name=incident.name)
+    known = dict(incident.hero)
+    scene.hero = replace(scene.hero, **known)  # type: ignore[arg-type]
+    scene.assumed = tuple(name for name in scene.assumed if name not in known)
+    scene.things = [replace(prop) for prop in incident.things]
     truth = recorded(take, incident, scene)
     FIXTURES.mkdir(parents=True, exist_ok=True)
     scene_file.dump(scene, FIXTURES / f'{incident.name}.json')

@@ -77,7 +77,7 @@
    null
   ],
   "hex_purge": true,
-  "ward": true,
+  "ward": false,
   "consume": true,
   "left_skill": 0,
   "right_skill": 388
@@ -1038,12 +1038,22 @@
   "hex_purge",
   "immune",
   "sets",
-  "slots",
-  "ward"
+  "slots"
  ],
  "source": {
   "take": "20261012T182157Z-108",
   "frame": 3960,
   "t": 161.963
- }
+ },
+ "things": [
+  {
+   "unit": 798365376,
+   "txt": 125,
+   "at": [
+    7915.0,
+    5289.0
+   ],
+   "mode": 0
+  }
+ ]
 }

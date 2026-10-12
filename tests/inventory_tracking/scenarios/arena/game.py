@@ -41,13 +41,14 @@ What the arena does not model, or takes as given (the calibration of Task 1.9 ne
 - of a move: the run has one speed from its first tick to its last (no acceleration, no stamina,
   no faster run/walk of the gear), and the way round a wall is the walked way's cell centres, not the
   game's own path (a staircase up to 8% longer than the smooth line); bodies bar nothing (the
-  character runs through monsters, and they through it); a blow never stops a walk (no hit
-  recovery, as for a cast); a click under a cast is never swallowed (macros/travel.py `step_walk`
+  character runs through monsters, and they through it); a block never stops a walk (as for a
+  cast, below); a click under a cast is never swallowed (macros/travel.py `step_walk`
   says the game swallows some); the tail of a hop's cast after the landing, the casting delay of
   Blade Warp (builds/warlock/movement.py WARP_DELAY) and a wall in the blade's line are not there
   (a warp lands wherever there is footing); the character is taken to be busy for the whole flight
-  of the blade; a weapon swap is instant; a skill key pressed while the character is free costs no
-  cast time (`Game`: only a key kept during a cast does), it only ends a walk; nothing happens
+  of the blade; a weapon swap is instant; a skill key pressed while the character is free is a
+  cast of QUICK_CAST_SECONDS with its skill on the right button (`quick_cast`; the session of 2026-10-12
+  has 0.52 s from Psychic Ward's key to the first strike, twice), as a key kept during a cast; nothing happens
   between two looks at the game but the ticks (a cast, and a walk asked for during a cast, begin at
   the look after the cast's end, as `Game`'s casts do);
 - the strike deals the same with either weapon set (damage.json knows no set), Death Mark, Sigil:
@@ -56,10 +57,24 @@ What the arena does not model, or takes as given (the calibration of Task 1.9 ne
 - the blades return to where the character stood at the cast (as both harnesses), and a blade's
   focal point is the ground under the pointer at the cast's start;
 - mana is not counted (combat/data/damage.json: the recorded mana never limited casting);
-- the character's blows are never blocked, dodged or missed beyond what `Mobs` rolls, and it has no
-  hit recovery: a blow never interrupts a cast;
-- doors stand as the scene has them; nothing drops from a kill; a monster under the pointer is not in
-  the hover record (only drops are);
+- a tick's blows that take RECOVERY_SHARE of the most life or more stagger the character
+  (`Arena.stagger`): it stands in the hit mode for RECOVERY_SECONDS, a walk ends, a cast whose blades
+  are not born yet is lost and nothing is cast meanwhile. The share is the game's rule for one blow
+  (a twelfth of the most life), applied here to a tick's sum; the length is the median of the 20
+  spells of the hit mode in the takes of 2026-10-11 and 12 (0.34 s; deciles 0.25 to 0.41). A hop or a
+  Blade Warp under way is not interrupted. A melee blow that would land is blocked with BLOCK_CHANCE
+  (mobs.py `Mobs.block_chance`): it takes nothing and the character stands in the block mode for
+  BLOCK_SECONDS, interrupted as by a stagger. The chance is the character's block stat (10 in the
+  takes' `character_stats`, stat 20), which agrees with the count: 35 spells of mode 9 in the takes
+  of 2026-10-11 and 12 beside some 300 drops of life; the length is their median (0.44 s; deciles
+  0.41 to 0.46). No blow is dodged or missed beyond what `Mobs` rolls itself;
+- doors stand as the scene has them; nothing drops from a kill;
+- the scene's `things` are objects to operate (macros/opening.py): a click on one walks the character
+  to it and operates it within OPEN_REACH. The hover record holds a monster before an object or a
+  drop, as the game's does (probe.log of 2026-10-12 21:24:41: a chest 9 away not opened, "the aims and
+  what was under them" a monster six times): the pointer is on a live hostile when the monster stands
+  within BODY_HALF of the pointer's ground or of the ground up to BODY_LIFT below it on the screen (a
+  body's picture stands above its feet). Both sizes are assumptions of this file, one for every type;
 - the healer sees this tick's life and belt (the real one samples them with a delay), and its key
   is down and up within the tick, so the macro never sees it held;
 - RIGHT_SKILL, the potion a picked-up one lands on (`stow`), the staff's full charges and the sizes
@@ -102,13 +117,16 @@ from inventory_tracking.macros.world import (
     FULL_REJUVENATION,
     GOLD,
     HEALING,
+    MONSTER_UNIT,
     NO_OWNER,
+    OBJECT_UNIT,
     REJUVENATION,
     SUPER_HEALING,
     VALUABLE,
     Drop,
     Loot,
     Teleport,
+    Thing,
     World,
 )
 from inventory_tracking.models import (
@@ -170,6 +188,18 @@ assert CASTING in ACTING
 # end it themselves when they are cast (`Arena.cast_to`); the swap is no cast.
 CAST_KEYS = frozenset(key for skill, key in KEYS.items() if skill not in (SWAP_WEAPONS, TELEPORT, BLADE_WARP))
 WALK_REACH = 40.0  # units: a click on ground further off walks nobody (`Game.act`)
+STAGGERED = 4  # the character's mode while a blow has it stagger (the game's "get hit"); not one of ACTING
+assert STAGGERED not in ACTING
+RECOVERY_SHARE = 1 / 12  # of the most life: blows of a tick that take this much stagger the character
+RECOVERY_SECONDS = 0.34  # how long it staggers (the module text has the measure)
+QUICK_CAST_SECONDS = 0.38  # a cast of the character: 0.36 to 0.39 s recorded (macros/routines.py ONE_CAST)
+BLOCKING = 9  # the character's mode while it blocks; not one of ACTING
+assert BLOCKING not in ACTING
+BLOCK_CHANCE = 0.10  # of a melee blow that would land (the module text has the measure)
+BLOCK_SECONDS = 0.44
+OPEN_REACH = 3.0  # units: an object clicked is operated from this near
+BODY_LIFT = 3.0  # units down the screen from the pointer's ground that a monster's picture still covers
+BODY_HALF = 1.5  # units: how far from that line a monster's feet may be
 
 
 class Ticks(Clock):
@@ -346,6 +376,12 @@ class Arena(Game):
         self.bound: tuple[Point, Drop | None] | None = None  # the walk asked for: its end, the drop to take there
         self.route: list[Point] = []  # the points of that walk still to run to; empty: not running
         self.landing: Landing | None = None  # the hop or the Blade Warp under way
+        self.things = [Thing(prop.unit, prop.txt, prop.mode, *prop.at) for prop in self.scene.things]
+        self.opening: int | None = None  # the unit id of the object the walk under way is to operate
+        self.staggers = 0
+        self.blocks = 0
+        if not instant_moves:
+            self.mobs.block_chance = BLOCK_CHANCE
         if not instant_moves:
             self.keeps_keys = True  # a Teleport key during a cast waits for the cast's end
         self.time = Ticks(self.tick)  # the game's clock; `clock` is the same, as `Game` names it
@@ -458,7 +494,56 @@ class Arena(Game):
         run.say = self.say
         run.corpses = self.mobs.corpses
         run.ground = lambda: self.ground if len(self.ground) else None
+        run.things = lambda: tuple(self.things)
+        run.containers = run.things
         return run
+
+    def monster_under_pointer(self) -> int | None:
+        """The live hostile whose picture the pointer is on (the module text has the box); the nearest."""
+        gx, gy = self.ground_under_pointer()
+        found: tuple[float, int] | None = None
+        for unit in self.mobs.live():
+            x, y = self.mobs.mobs[unit].at
+            along = max(0.0, min(BODY_LIFT, ((x - gx) + (y - gy)) / 2))
+            away = math.dist((x, y), (gx + along, gy + along))
+            if away <= BODY_HALF and (found is None or away < found[0]):
+                found = (away, unit)
+        return None if found is None else found[1]
+
+    def prop_under_pointer(self) -> Thing | None:
+        """The scene's object whose picture the pointer is on, as `Game.thing_under_pointer` has one."""
+        gx, gy = self.ground_under_pointer()
+        lift = self.thing_above / 16
+        for thing in self.things:
+            at = (thing.x, thing.y)
+            if math.dist((gx + lift, gy + lift), at) < 2 and math.dist(self.here, at) < 30:
+                return thing
+        return None
+
+    def unit_under_pointer(self) -> tuple[int, int]:
+        unit = self.monster_under_pointer()
+        if unit is not None:
+            return (MONSTER_UNIT, unit)
+        thing = self.prop_under_pointer()
+        if thing is not None:
+            return (OBJECT_UNIT, thing.unit_id)
+        return super().unit_under_pointer()
+
+    def beside(self, thing: Thing) -> Point:
+        """Where a click on the object walks the character: its place, or (an object stands where nobody
+        does) the nearest footing on the line from it to the character."""
+        at, here = (thing.x, thing.y), self.here
+        gap = math.dist(at, here)
+        for step in range(int(gap * 2) + 1):
+            share = min(1.0, step * 0.5 / gap) if gap else 1.0
+            spot = (at[0] + (here[0] - at[0]) * share, at[1] + (here[1] - at[1]) * share)
+            if self.footing(spot):
+                return spot
+        return here
+
+    def operate(self, unit: int) -> None:
+        self.things = [replace(thing, mode=2) if thing.unit_id == unit else thing for thing in self.things]
+        self.opening = None
 
     def say(self, text: str) -> None:
         """A line the macro says, with the arena's time (`Result.said`); none after the world stood still."""
@@ -487,6 +572,11 @@ class Arena(Game):
         if self.life <= 0.0:
             self.die(now)
             return
+        if self.mobs.blocked > self.blocks:
+            self.blocks = self.mobs.blocked
+            self.stagger(now, BLOCK_SECONDS, BLOCKING)
+        if blows >= self.max_life * RECOVERY_SHARE and not self.instant_moves:
+            self.stagger(now)
         for stream in self.streams:
             self.life = min(self.life + stream.each, self.max_life)
             stream.frames -= 1
@@ -498,6 +588,16 @@ class Arena(Game):
         self.show()
         if self.cleared_at is None and not self.mobs.live():
             self.cleared_at = now
+
+    def stagger(self, now: float, seconds: float = RECOVERY_SECONDS, mode: int = STAGGERED) -> None:
+        """A heavy blow, or a blow blocked: the character stands in `mode` for `seconds` (the module text)."""
+        if self.landing is not None:
+            return
+        self.staggers += 1
+        self.flights = [flight for flight in self.flights if flight.birth <= self.time.ticks]
+        self.halt()
+        self.acting_until = max(self.acting_until or 0.0, now + seconds)
+        self.mode(mode)
 
     def die(self, now: float) -> None:
         """The life is gone: the character lies dead (the mode macros/routines.py DEAD and
@@ -580,13 +680,28 @@ class Arena(Game):
         elif event[0] == 'click' and not self.keys.shift:
             self.click_ground()
         else:
-            if (key if event[0] == 'key' else f'Button{event[1]}' if event[0] == 'button' else None) in CAST_KEYS:
+            name = key if event[0] == 'key' else f'Button{event[1]}' if event[0] == 'button' else None
+            free = self.acting_until is None
+            if name in CAST_KEYS:
                 self.halt()
             super().act(event)  # Teleport's key comes back as `hop`, a held strike as `strike`
+            if name in CAST_KEYS and free and self.acting_until is None:
+                self.quick_cast(name)
             if key == KEYS[SWAP_WEAPONS]:
                 self.swaps += 1
                 self.hand = 1 - self.hand
         self.show()
+
+    def quick_cast(self, name: str) -> None:
+        """A skill key pressed while the character is free: its cast takes the cast's time, with the skill
+        on the right button meanwhile, as `Game.read` has a key that was kept during a cast."""
+        stand = self.world.player
+        assert stand is not None
+        skill = next((skill for skill, key in KEYS.items() if key == name), None)
+        if self.home_skill is None:
+            self.home_skill = (stand.right_skill,)
+        self.world = replace(self.world, player=replace(stand, mode=CASTING, right_skill=skill))
+        self.acting_until = self.clock.now + QUICK_CAST_SECONDS
 
     def act_at_once(self, event: tuple, key: str | None) -> None:
         """An input as `Game` takes it, every move made in its instant (`instant_moves`)."""
@@ -637,6 +752,15 @@ class Arena(Game):
         """A left click with no Shift: a walk to the ground under the pointer, or to the drop there and
         the drop taken on arrival. As `Game.act` has a click but for the time: none where no way leads,
         none on ground WALK_REACH away, and the clicks the fakes' game is told to lose are lost."""
+        thing = self.prop_under_pointer() if self.monster_under_pointer() is None else None
+        if thing is not None and thing.mode == 0:
+            if math.dist(self.here, (thing.x, thing.y)) <= OPEN_REACH:
+                self.operate(thing.unit_id)
+                return
+            self.bound, self.route = (self.beside(thing), None), []
+            self.set_out()
+            self.opening = thing.unit_id if self.bound is not None else None
+            return
         drop = self.drop_under_pointer()
         goal = (drop.x, drop.y) if drop is not None else self.ground_under_pointer()
         if not self.walkable_to(goal):
@@ -666,7 +790,7 @@ class Arena(Game):
 
     def halt(self) -> None:
         """The walk is over where the character is: a cast began, or there is no way on."""
-        self.bound, self.route = None, []
+        self.bound, self.route, self.opening = None, [], None
         stand = self.world.player
         if stand is not None and stand.mode == RUNNING:
             self.mode(self.stands)
@@ -744,6 +868,12 @@ class Arena(Game):
                 )
                 left = 0.0
         self.put(here)
+        if self.opening is not None:
+            thing = next(thing for thing in self.things if thing.unit_id == self.opening)
+            if math.dist(here, (thing.x, thing.y)) <= OPEN_REACH or not self.route:
+                self.operate(thing.unit_id)
+                self.halt()
+                return
         if not self.route:
             drop = self.bound[1] if self.bound is not None else None
             self.halt()

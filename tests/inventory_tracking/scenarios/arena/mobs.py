@@ -228,6 +228,11 @@ class Mobs:
         doors = [Door(row[0], row[1], row[2], float(row[3]), float(row[4])) for row in scene.doors]
         self.pack = Horde(walkers, rng.getrandbits(32), ground, doors, shots)
         self.frame = 0  # the tick about to be played
+        # The character's block (game.py sets the chance): a melee blow that would land is blocked with it, takes
+        # nothing and is counted. Its own stream, drawn after the pack's seed, so a chance of 0 changes no roll.
+        self.block_chance = 0.0
+        self.block_rng = random.Random(rng.getrandbits(32))
+        self.blocked = 0
         self.blasts: list[Point] = []  # where corpses exploded since the last tick
 
     @staticmethod
@@ -272,7 +277,9 @@ class Mobs:
                 taken += BLAST * resist.get(BLAST_KIND, 1.0)
         self.blasts = []
         for blow in self.pack.step(self.frame, [hero_at, *companions]):
-            if blow.target == 0:
+            if blow.target == 0 and blow.kind == MELEE and self.block_rng.random() < self.block_chance:
+                self.blocked += 1
+            elif blow.target == 0:
                 taken += blow.taken(stopped) * (self._raised(blow.unit) if blow.kind in (MELEE, SHOT) else 1.0)
         for unit, walker in self.pack.walkers.items():
             self.mobs[unit].at = walker.at
