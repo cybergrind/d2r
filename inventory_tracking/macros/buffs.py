@@ -13,12 +13,12 @@ plan's order with the weapon set it needs in hand, each cast waited for; none is
 due, and no world is looked at before the first.
 """
 
-from collections.abc import Callable, Iterable, Sequence
+from collections.abc import Callable, Iterable, Mapping, Sequence
 from dataclasses import dataclass, replace
 
 from inventory_tracking.common import LOG
 from inventory_tracking.macros.actuator import Abort
-from inventory_tracking.macros.build import Buff, BuffFacts, Build, Casting, Tried
+from inventory_tracking.macros.build import Buff, BuffFacts, Build, Casting, DrawPrice, Tried
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.pad import MONSTER_UNIT
 from inventory_tracking.macros.routines import (
@@ -84,6 +84,7 @@ class Buffs:
         self.cast_at: dict[tuple[int, int | None], float] = {}
         self.unseen: dict[int, int] = {}  # skill -> casts of it in a row that the character's state did not show after
         self.let_go: Callable[[], None] | None = None  # releases the held strike (actuator.hold), while one is held
+        self.refusals: set[tuple[int, int]] = set()  # (skill, unit) a refusal of `Buff.worth` was said for
 
     def rows(self, phase: str) -> tuple[Buff, ...]:
         """The rows of one phase, in the order they are cast."""
@@ -96,8 +97,10 @@ class Buffs:
         foes: Sequence[Monster] = (),
         reachable: Sequence[Monster] = (),
         prey: Monster | None = None,
+        draws: Mapping[int, DrawPrice] | None = None,
     ) -> BuffFacts:
-        """What the rows are asked with, from what the caller has read."""
+        """What the rows are asked with, from what the caller has read; `draws`: the safety pricing's last prices
+        of the build's draw (macros/safety.py `Safety.priced`), when fresh."""
         return BuffFacts(
             world,
             run.clock(),
@@ -107,6 +110,7 @@ class Buffs:
             self.cast_at,
             focused=run.actuator.focused,
             corpses=run.corpses,
+            draws=draws,
         )
 
     def missing(self, row: Buff, facts: BuffFacts) -> bool:
@@ -135,8 +139,21 @@ class Buffs:
             if target is None:
                 return None
         if not row.worth(facts, target):
+            self.say_refused(row, facts, target)
             return None
         return Due(row, facts, target)
+
+    def say_refused(self, row: Buff, facts: BuffFacts, target: Monster | None) -> None:
+        """A cast `worth` refused on `target`, said once a target as the row words it (`Buff.refused`)."""
+        if row.refused is None or target is None or (row.skill, target.unit_id) in self.refusals:
+            return
+        said = row.refused(facts, target)
+        if said is None:
+            return
+        if len(self.refusals) > 400:
+            self.refusals.clear()
+        self.refusals.add((row.skill, target.unit_id))
+        LOG.info('%s', said)
 
     def first(self, run: Run, phase: str, facts: BuffFacts) -> Due | None:
         """The first row of the phase that is due now, in the plan's order."""
@@ -167,6 +184,10 @@ class Buffs:
         tried = self.casters[row.caster](asked) if row.caster is not None else self.shared(asked)
         if tried.at is not None:
             self.remember(row, tried.at, target.unit_id if target is not None else None)
+        if tried.cast and target is not None and row.said is not None:
+            said = row.said(due.facts, target)
+            if said is not None:
+                LOG.info('%s', said)
         if tried.cast and row.state is not None:
             self.unseen[row.skill] = self.unseen.get(row.skill, 0) + 1
         return tried

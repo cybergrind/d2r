@@ -809,6 +809,13 @@ def world_slots(world) -> str:
 
 def ready(run: Run) -> tuple[Player, tuple[int, int, int, int]]:
     """The checks every step shares: in a game, nothing open, a game window. (the player, the window rect)."""
+    world, rect = ready_world(run)
+    assert world.player is not None
+    return world.player, rect
+
+
+def ready_world(run: Run) -> tuple[World, tuple[int, int, int, int]]:
+    """`ready` with the world it read (one read: its doors, its monsters), the player in it."""
     world = run.world()
     if world.player is None:
         raise Abort('not in a game')
@@ -818,7 +825,7 @@ def ready(run: Run) -> tuple[Player, tuple[int, int, int, int]]:
     if rect is None:
         raise Abort('no game window')
     run.actuator.drift = POINTER_DRIFT
-    return world.player, rect
+    return world, rect
 
 
 def clear_walk(ground: Ground, start: Point, end: Point, reach: float) -> bool:

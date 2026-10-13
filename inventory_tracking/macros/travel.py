@@ -1042,6 +1042,32 @@ def walked_way(barred: Callable[[Point], bool], start: Point, goal: Point) -> li
     return path[::-1]
 
 
+def walk_reaches(ground: Ground | None, doors: Sequence[Door], here: Point, goal: Point, reach: float) -> bool:
+    """Whether a walk of at most `reach` units leads from `here` to `goal` over the read ground: the straight
+    line with no wall, lava or closed door on it, or else the walked way round (`walked_way`) no longer than
+    `reach`. What "near enough to click" means for a drop (macros/hunt.py `judge`, macros/pickup.py `approach`):
+    a click walks the character by the client's own way, and a drop 17 units off across lava was 43 by walking
+    (River of Flame, 00:26:36 on 2026-10-14, rca/2026-10-14/run-0025-findings.md §2.2). The first and last unit
+    are not looked at: the character stands, and a drop lies, on cells the grids call unwalkable now and then.
+    With no walls read (open ground) the straight distance alone decides."""
+    away = math.dist(here, goal)
+    if away > reach:
+        return False
+    barred = no_footing(ground, doors)
+    if barred is None or away <= 2.0:
+        return True
+    steps = max(1, math.ceil(away * 2))
+    line = (
+        (here[0] + (goal[0] - here[0]) * k / steps, here[1] + (goal[1] - here[1]) * k / steps) for k in range(steps)
+    )
+    if not any(barred(point) for point in line if min(math.dist(point, here), math.dist(point, goal)) > 1.0):
+        return True
+    path = walked_way(barred, here, goal)
+    if not path or math.dist(path[-1], goal) > 1.5:
+        return False
+    return sum(math.dist(one, other) for one, other in zip((here, *path), path, strict=False)) <= reach
+
+
 def step_line(step: Step | None, here: Point) -> str:
     """A step for the log: the place it goes to as it was chosen, or the stride and what it is made by."""
     if step is None or step.camp is not None:

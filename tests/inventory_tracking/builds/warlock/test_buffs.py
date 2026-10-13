@@ -8,7 +8,6 @@ from inventory_tracking.builds.warlock.buffs import (
     CONSUME_CLEAR,
     CONSUME_RETRY,
     CONSUME_SOON,
-    DEATH_MARK_SECONDS,
     ENGORGE_HURT_SECONDS,
     ENGORGE_REACH,
     ENGORGE_RETRY,
@@ -16,12 +15,11 @@ from inventory_tracking.builds.warlock.buffs import (
     WARD_SECONDS,
     Rotation,
     consume_due,
-    mark_due,
     purge_shown,
-    strongest,
     ward_shown,
 )
 from inventory_tracking.builds.warlock.echoing_strike.build import ECHOING_STRIKE_BUILD
+from inventory_tracking.builds.warlock.mark import MARK_DELAY, mark_due, strongest
 from inventory_tracking.builds.warlock.skills import (
     CONSUME,
     DEATH_MARK,
@@ -150,7 +148,9 @@ def test_a_buff_on_no_key_reads_as_unreadable_and_is_not_kept_up():
     assert purge_shown(replace(on, player=None)) is None
 
 
-def test_death_mark_is_for_the_strongest_in_reach_the_leader_first_then_the_nearer():
+def test_death_mark_by_its_own_rule_is_for_the_strongest_in_reach_the_leader_first_then_the_nearer():
+    # 2026-10-14: the gap between two marks is the skill's own delay (localdelay 20 frames), no more: a new mark is
+    # for when the marked monster dies or its mark runs out (mark.py `target`), not a clock of 8 s.
     play = game()
     plain = Monster(1, 19, 1, 5004.0, 5000.0, 0xFFFFFFFF, 0, life=128, max_life=128)
     same = Monster(2, 19, 1, 5010.0, 5000.0, 0xFFFFFFFF, 0, life=128, max_life=128)
@@ -159,7 +159,8 @@ def test_death_mark_is_for_the_strongest_in_reach_the_leader_first_then_the_near
     assert strongest(BuffFacts(play.world, 0.0, reachable=(plain, same, elite))) is elite
     assert strongest(BuffFacts(play.world, 0.0)) is None
     assert mark_due(BuffFacts(play.world, 100.0))
-    assert not mark_due(BuffFacts(play.world, 100.0, cast_at={(DEATH_MARK, None): 100.0 - DEATH_MARK_SECONDS}))
+    assert not mark_due(BuffFacts(play.world, 100.0, cast_at={(DEATH_MARK, None): 100.0 - MARK_DELAY}))
+    assert mark_due(BuffFacts(play.world, 100.0, cast_at={(DEATH_MARK, None): 100.0 - MARK_DELAY - 0.01}))
     assert not mark_due(BuffFacts(replace(play.world, slots=()), 100.0))
 
 

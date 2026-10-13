@@ -8,9 +8,11 @@ it stays at the same address through the lobby and into the next game.
 import contextlib
 import functools
 import json
+import math
 import os
 import re
 import struct
+import threading
 from contextlib import suppress
 from dataclasses import dataclass, field, replace
 from pathlib import Path
@@ -280,6 +282,12 @@ class Loot:
     # or the pickup's own rules name. A level run does not stand by one for want of room (the player, 2026-10-12:
     # "allow moving when the item isn't very valuable").
     shown: frozenset[int] = frozenset()
+    # The unit ids of the items in the character's grids now (the inventory, the cube, the stash tabs: `held_items`),
+    # read with `room`: what `PutDown` knows the player's own items by.
+    carried: frozenset[int] = frozenset()
+    # (unit id, item class: the game's classid) of the drops whose class was read: what `PutDown` knows an item by
+    # once the game has given it a new unit id
+    classes: tuple[tuple[int, int], ...] = ()
 
 
 class BeltKept:
@@ -294,6 +302,65 @@ class BeltKept:
             return loot
         self.columns = remember(self.columns, loot.belt, loot.game)
         return replace(loot, columns=self.columns)
+
+
+class PutDown:
+    """The items the player put down this game, kept across the presses of a runner as `BeltKept` keeps the
+    belt: a ground item whose unit id the character carried this game (`Loot.carried`) was put down by the
+    player, who has looked at it, and is not the macro's to pick up, stand by or warn about again (the player,
+    2026-10-14: "we tried to pickup crystal sword that I've checked and dropped"; rca/2026-10-14/run-0025-findings.md
+    §3, P1). The game streams it out and back in with a new unit id at the same place (00:29:04.9 and 00:30:35.9
+    that game), so it is remembered by its class and place, within NEAR, for the rest of the game. `see` takes it
+    out of a look's drops, so no reader of the loot names it (`choose`, a level run's side drop, `stay_by`,
+    `worth_a_stop`, the "Inventory full" warning); `at` answers the HUD's ground marks (loot/watch.py). Said once a
+    place. A drop the player wants back is picked up by hand. A loot of no known game is passed as read; the
+    next game forgets. Read by the runner's thread and the service's, hence the lock."""
+
+    NEAR = 1.0  # world units: the same place (an item's position is whole units)
+    KEPT = 4000  # the carried unit ids kept at most in a game (a full stash and inventory hold under 600 items)
+
+    def __init__(self) -> None:
+        self.game: tuple[str, int] | None = None
+        self.carried: set[int] = set()
+        self.places: list[tuple[int | None, float, float]] = []  # (class, x, y) of each item put down
+        self.lock = threading.Lock()
+
+    def see(self, loot: Loot) -> Loot:
+        if loot.game is None:
+            return loot
+        with self.lock:
+            if loot.game != self.game:
+                self.game, self.carried, self.places = loot.game, set(), []
+            if len(self.carried) > self.KEPT:
+                self.carried.clear()
+            self.carried |= loot.carried
+            kinds = dict(loot.classes)
+            kept = []
+            for drop in loot.drops:
+                kind = kinds.get(drop.unit_id)
+                if self._at(drop.x, drop.y, kind):
+                    continue
+                if drop.unit_id in self.carried:
+                    self.places.append((kind, drop.x, drop.y))
+                    LOG.info(
+                        'Macro: put down: %s at (%.0f, %.0f), unit %d, was carried this game: the player put it '
+                        'down; not picked up, stood by or warned about again this game',
+                        drop.label, drop.x, drop.y, drop.unit_id,
+                    )  # fmt: skip
+                    continue
+                kept.append(drop)
+        return loot if len(kept) == len(loot.drops) else replace(loot, drops=tuple(kept))
+
+    def at(self, x: float, y: float, class_id: int | None = None) -> bool:
+        """Whether an item the player put down this game lies at (x, y): of `class_id`, or of any class (None)."""
+        with self.lock:
+            return self._at(x, y, class_id)
+
+    def _at(self, x: float, y: float, class_id: int | None) -> bool:
+        return any(
+            math.dist((x, y), (px, py)) <= self.NEAR and (class_id is None or kind is None or kind == class_id)
+            for kind, px, py in self.places
+        )
 
 
 @dataclass(frozen=True)
@@ -468,16 +535,25 @@ def item_size(class_id: int | None) -> tuple[int, int]:
     return item_sizes().get(class_id, (1, 1)) if class_id is not None else (1, 1)
 
 
-def carried_rows(read, table: int, player_id: int) -> tuple[tuple[str, ...] | None, tuple[str, ...] | None]:
-    """The rows of the carried inventory and of the Horadric Cube, '.' a free cell, from one read of the
-    character's grids; each None when it cannot be read (no cube: no grid of it)."""
+def carried_rows(
+    read, table: int, player_id: int
+) -> tuple[tuple[str, ...] | None, tuple[str, ...] | None, frozenset[int]]:
+    """The rows of the carried inventory and of the Horadric Cube, '.' a free cell, and the item pointers of all
+    the character's grids (`held_items`), from one read of them; the rows None when they cannot be read (no cube:
+    no grid of it)."""
     try:
         heads = struct.unpack('<128Q', read(table, 1024))
         unit = next((u for u in walk_units(read, heads, 0)['units'] if u['unit_id'] == player_id), None)
         grids = read_owner_grids(read, unit) if unit is not None else {}
     except OSError, ValueError, struct.error:
-        return None, None
-    return grid_rows(grids.get(INVENTORY_GRID)), grid_rows(grids.get(CUBE_GRID))
+        return None, None, frozenset()
+    return grid_rows(grids.get(INVENTORY_GRID)), grid_rows(grids.get(CUBE_GRID)), held_items(grids)
+
+
+def held_items(grids: dict) -> frozenset[int]:
+    """The item pointers in a unit's grids (collection/capture.py `read_owner_grids`: a cell holds the item lying
+    on it): what the character carries in its inventory, its cube and its stash tabs."""
+    return frozenset(cell for grid in grids.values() for cell in grid['cells'] if cell)
 
 
 def grid_rows(grid: dict | None) -> tuple[str, ...] | None:
@@ -1021,7 +1097,8 @@ class GameMemory:
                 if cell < BELT_SIZE:
                     belt[cell] = unit['txt_id']
             stats = unit_stats(read, player.stats_at) if player.stats_at else {}
-            room, cube = carried_rows(read, table, player.unit_id)
+            room, cube, held = carried_rows(read, table, player.unit_id)
+            carried = frozenset(unit['unit_id'] for unit in items if unit['address'] in held)
             return Loot(
                 tuple(drops),
                 tuple(belt),
@@ -1032,6 +1109,8 @@ class GameMemory:
                 (decode_name(read(self.base + GAME_NAME_RVA, GAME_NAME_SIZE)), player.unit_id),
                 cube=cube,
                 shown=frozenset(unit for unit, source in sources.items() if source == 'shown'),
+                carried=carried,
+                classes=tuple((drop.unit_id, classes[drop.unit_id]) for drop in drops if drop.unit_id in classes),
             )
         except OSError, ValueError, struct.error:
             return Loot()

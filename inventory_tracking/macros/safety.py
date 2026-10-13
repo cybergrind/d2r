@@ -19,6 +19,7 @@ from dataclasses import dataclass, field, replace
 from inventory_tracking.combat import threats
 from inventory_tracking.combat.harm import (
     Hands,
+    Harm,
     Hostile,
     Look,
     Protection,
@@ -29,12 +30,13 @@ from inventory_tracking.combat.harm import (
     harm_path,
     life_factor,
     life_price,
+    sent_onto,
     veto,
 )
 from inventory_tracking.combat.policy import Observation, Point
 from inventory_tracking.combat.stance import HORIZON, RUN_SPEED, WALK_LATENCY, Field, camp, falls, taken
 from inventory_tracking.combat.survival import Pressure, Supply
-from inventory_tracking.macros.build import Attack, Leg, NoWay, PricedStep, Shield, Step
+from inventory_tracking.macros.build import Attack, Draw, DrawPrice, Leg, NoWay, PricedStep, Shield, Step
 from inventory_tracking.macros.drinking import on_belt
 from inventory_tracking.macros.goals import Goal
 from inventory_tracking.macros.pursuit import Candidate, Facts, Hold, Move, Operate, decide
@@ -68,6 +70,14 @@ FIRING = 'firing spot'  # the reason of a move to a stand the strike is made fro
 # a strike pace barely better. `Macro: pursuit: stepping across ...` in the log.
 STEPPING = 'stepping'
 AWAY = 'away from the threat'  # why a place of the threat's geometry is offered
+# The build's draw (macros/build.py `Draw`: a cast that sends its companions onto a hostile), weighed at a look of a
+# fight (`Safety.weigh`): onto the DRAW_TARGETS hostiles with the largest shares of holding's harm and the one it
+# gains most on; not onto one the companions stand within DRAW_HELD units of its landing distance of already (they
+# hold it: a cast would change nothing). A price is the fight's for DRAW_FRESH seconds (a few looks of the fight's
+# DECIDE_SECONDS 0.12), older the row that casts it goes by its own rule.
+DRAW_TARGETS = 2
+DRAW_HELD = 3.0
+DRAW_FRESH = 0.5
 # A missile the look reads for a read model (combat/threats): (owner unit, missile class, x, y).
 Flights = Callable[[frozenset[int]], Sequence[tuple[int, int, float, float]]]
 
@@ -124,6 +134,14 @@ class Safety:
     timer: Callable[[], float] | None = None
     # Each hostile's mode as last seen and the clock at which it was first seen in it (unit -> (mode, since)).
     modes: dict[int, tuple[int, float]] = field(default_factory=dict)
+    # The build's draw as the last look was given it, and the companions it would send then: (index into the look's
+    # companions, class). Empty: it cannot be cast (not on a key, or no companion of the kind it needs).
+    draw: Draw | None = None
+    sendable: tuple[tuple[int, int], ...] = ()
+    # What the draw was found worth onto each hostile weighed at the last look of a fight (`weigh`), and that look's
+    # clock; None: not weighed (no draw, no hold to price).
+    draws: dict[int, DrawPrice] | None = None
+    drawn_at: float = -math.inf
 
     def look(
         self,
@@ -136,10 +154,12 @@ class Safety:
         *,
         now: float | None = None,
         flights: Flights | None = None,
+        draw: Draw | None = None,
     ) -> Look:
         """The look the arbiter prices. `now` (the run's clock) dates each hostile's mode; `flights` reads the
         missiles in flight of the classes the read models of the hostiles about ask for (combat/threats), and
-        only when such a hostile is about: the look stays light otherwise."""
+        only when such a hostile is about: the look stays light otherwise. `draw`: the build's (`weigh`), with the
+        companions it would send noted from the same world."""
         player = world.player
         assert player is not None
         identity = (world.game_name, player.unit_id)
@@ -180,6 +200,11 @@ class Safety:
             known = self.modes.get(m.unit_id)
             modes[m.unit_id] = known if known is not None and known[0] == m.mode else (m.mode, now or 0.0)
         self.modes = modes
+        companions = [m for m in world.monsters if m.ally or m.owner != NO_OWNER]
+        self.draw = draw
+        self.sendable = ()
+        if draw is not None and draw.skill in world.slots:
+            self.sendable = tuple((i, m.txt_id) for i, m in enumerate(companions) if draw.sends(world, m))
         return Look(
             tuple(
                 Hostile(
@@ -196,7 +221,7 @@ class Safety:
                 )
                 for m in hostile
             ),
-            tuple((m.x, m.y) for m in world.monsters if m.ally or m.owner != NO_OWNER),
+            tuple((m.x, m.y) for m in companions),
             battle,
             travel,
             float(loot.life),
@@ -291,20 +316,40 @@ class Safety:
         clear = max(0.36, min(clear, 10.0))
         remaining = math.dist(here, goal.place) / 20.0  # local ETA stand-in, full routed leg supplied by navigation
         candidates = []
-        hold_harm = harm_path(look, (*swap_path, (here, min(settings.hold_dwell, clear), 'battle')), settings, killed)
-        # Price the work until the next decision, but veto a stand that cannot
-        # survive the longer escape horizon. Repeated short holds must not walk
-        # the loop into a state from which every departure is lethal.
-        future = harm_path(
-            look,
-            (*swap_path, (here, max(settings.horizon, min(settings.hold_dwell, clear)), 'battle')),
-            settings,
-            killed,
-        )
-        hold_harm = replace(hold_harm, losses=future.losses, barred=hold_harm.barred or future.barred)
+
+        def holding(seen_: Look, deaths: dict[int, float] = killed) -> tuple[Harm, Harm]:
+            """Holding here priced on `seen_`: the work until the next decision, and the longer escape horizon."""
+            held = harm_path(seen_, (*swap_path, (here, min(settings.hold_dwell, clear), 'battle')), settings, deaths)
+            # Price the work until the next decision, but veto a stand that cannot
+            # survive the longer escape horizon. Repeated short holds must not walk
+            # the loop into a state from which every departure is lethal.
+            ahead = harm_path(
+                seen_,
+                (*swap_path, (here, max(settings.horizon, min(settings.hold_dwell, clear)), 'battle')),
+                settings,
+                deaths,
+            )
+            return replace(held, losses=ahead.losses, barred=held.barred or ahead.barred), ahead
+
+        hold_harm, future = holding(look)
+        hold_seconds = clear + swap_seconds
+        hold_unstruck = swap_seconds
+        self.draws, self.drawn_at = (None if self.draw is None else {}), facts.now
+        if facts.in_reach and facts.attacking:
+            # The build's draw (`weigh`): holding is priced with the companions sent onto the hostile it pays most
+            # on, its cast in the hold's time and its strike gap, when it pays (T + kappa x H over its span); so the
+            # hold with it competes with the escapes and the retreat as one act.
+            drawn = self.weigh(look, seen, settings, kappa, here, clear, swap_path, killed)
+            if drawn is not None:
+                target = next(m.at for m in look.hostiles if m.unit == drawn.unit)
+                assert self.draw is not None
+                sent = tuple(index for index, _ in self.sendable)
+                later = {unit: at + drawn.cost for unit, at in killed.items()}  # no strike during the cast
+                hold_harm, future = holding(sent_onto(look, sent, target, self.draw.reach, self.draw.beside), later)
+                hold_seconds += drawn.cost - drawn.gain
+                hold_unstruck += drawn.cost
         if not battle_ready:
             hold_harm = replace(hold_harm, barred='battle weapon swap is unavailable')
-        hold_seconds = clear + swap_seconds
         # What an escape could save (holding's life at the look's price) against the least it costs (a walk's start
         # and overhead; the swap where the set in hand is not the battle set): below it no escape is worth pricing.
         saving = kappa * hold_harm.mean
@@ -319,7 +364,7 @@ class Safety:
             # where the character waits): staying, the goal's reason kept, against the escapes below.
             candidates.append(Candidate(base, hold_seconds + remaining, hold_harm, False, 0.0, False))
         if facts.in_reach and facts.attacking and (settings.fight_through or not fresh):
-            hold = Candidate(Hold(facts.goal), hold_seconds + remaining, hold_harm, False, swap_seconds, True)
+            hold = Candidate(Hold(facts.goal), hold_seconds + remaining, hold_harm, False, hold_unstruck, True)
             candidates.append(hold)
 
         def strikes_from(spot: Point) -> bool:
@@ -479,7 +524,7 @@ class Safety:
             # Fighting in place may be the least-harm escape if it removes the
             # threats sooner than a walk. It still never lifts the lethal veto.
             if facts.in_reach and facts.attacking and veto(hold_harm, look.life, settings) is None:
-                candidates.append(Candidate(Hold(facts.goal), hold_seconds, hold_harm, True, swap_seconds, True))
+                candidates.append(Candidate(Hold(facts.goal), hold_seconds, hold_harm, True, hold_unstruck, True))
             elif not (facts.in_reach and facts.attacking):
                 # Staying where it stands, striking nothing, is an act too, priced as one: chosen only when it is
                 # the least harm of all (no strike from here would lower it, every way out costs more).
@@ -531,6 +576,7 @@ class Safety:
             'reason': getattr(chosen, 'reason', ''),
             'blocked_by': self.blocked_by,
             'killed': {unit: round(at, 2) for unit, at in sorted(killed.items(), key=lambda r: r[1])[:8]},
+            'draws': {unit: round(price.worth, 2) for unit, price in (self.draws or {}).items()},
             'late': late(),
             'ms': round((timer() - began) * 1000, 1) if timer is not None else None,
             'candidates': [
@@ -553,6 +599,64 @@ class Safety:
             ],
         }
         return priced
+
+    def weigh(
+        self,
+        look: Look,
+        seen: Observation,
+        settings: SafetySettings,
+        kappa: float,
+        here: Point,
+        clear: float,
+        lead: tuple[tuple[Point, float, Hands], ...],
+        killed: dict[int, float],
+    ) -> DrawPrice | None:
+        """The build's draw (macros/build.py `Draw`) weighed at this look of a fight: for the hostiles holding's harm
+        comes most from (DRAW_TARGETS) and the one it gains most on, the life it saves (holding here over its span
+        without it, less with the companions sent onto the hostile, both with the strikes' forecast deaths), at the
+        look's price of life, plus what it gains of the fight, less the cast; kept by unit (`draws`, the buff row
+        reads them: `priced`). The best of them when it pays, else None. Not onto a hostile the companions hold already
+        or one the draw does not fit; with no companion it would send, nothing is weighed."""
+        draw = self.draw
+        if draw is None or not self.sendable:
+            return None
+        sent = tuple(index for index, _ in self.sendable)
+        classes = tuple(txt for _, txt in self.sendable)
+        span = min(draw.lasts, max(settings.horizon, clear))
+        path = (*lead, (here, span, 'battle'))
+        alive = {m.unit: m.at for m in look.hostiles if m.unit in seen.foes and draw.fits(seen, m.unit)}
+        if not alive:
+            return None
+        base = harm_path(look, path, settings, killed)
+        gains = {unit: draw.gain(seen, unit, classes) for unit in alive}
+        units = [unit for unit, _ in base.by if unit in alive][:DRAW_TARGETS]
+        best_gain = max(gains, key=lambda unit: (gains[unit], -unit))
+        if best_gain not in units:
+            units.append(best_gain)
+        prices = self.draws if self.draws is not None else {}
+        for unit in units:
+            target = alive[unit]
+            if all(math.dist(look.companions[index], target) <= draw.beside + DRAW_HELD for index in sent):
+                continue  # held already: a cast changes nothing of where they stand
+            life = 0.0
+            if kappa * base.mean + gains[unit] > draw.seconds:  # else not even all of the harm would pay for it
+                # No strike during the cast: what it kills dies that much later; the companions land `arrives` after
+                # the key, the harm before as without them (the share of the span, on the means).
+                later = {other: at + draw.seconds for other, at in killed.items()}
+                after = harm_path(sent_onto(look, sent, target, draw.reach, draw.beside), path, settings, later)
+                landed = min(1.0, draw.arrives / span) if span > 0 else 1.0
+                life = base.mean - (landed * base.mean + (1 - landed) * after.mean)
+            prices[unit] = DrawPrice(unit, life, kappa * life, gains[unit], draw.seconds, span)
+        self.draws = prices
+        best = max(prices.values(), key=lambda price: (price.worth, -price.unit), default=None)
+        return best if best is not None and best.worth > 0 else None
+
+    def priced(self, now: float) -> dict[int, DrawPrice] | None:
+        """The draw's prices of the last look of a fight while fresh (DRAW_FRESH), for the buff row that casts it
+        (macros/build.py `BuffFacts.draws`); None: none is."""
+        if self.draws is None or not 0.0 <= now - self.drawn_at <= DRAW_FRESH:
+            return None
+        return self.draws
 
     def offered(self, here: Point, look: Look, priced) -> list[tuple[Point, str]]:
         """The places an escape may go to, with why: those the read models of the hostiles offer for their acts

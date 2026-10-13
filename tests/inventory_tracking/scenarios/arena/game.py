@@ -53,9 +53,14 @@ What the arena does not model, or takes as given (the calibration of Task 1.9 ne
   strike, twice), as a key kept during a cast; nothing happens between two looks at the game but the
   ticks (a cast, and a walk asked for during a cast, begin at
   the look after the cast's end, as `Game`'s casts do);
-- the strike deals the same with either weapon set (damage.json knows no set), Death Mark, Sigil:
-  Lethargy, Engorge, Hex: Purge and Consume change nothing (their casts are counted by `Game` and cost
-  their cast time), and the companions deal no damage; Psychic Ward is a guard (combat/sim/guard.py,
+- the strike deals the same with either weapon set (damage.json knows no set), Sigil: Lethargy,
+  Engorge, Hex: Purge and Consume change nothing (their casts are counted by `Game` and cost their cast
+  time), and the companions deal no damage; Death Mark (`Arena.mark`, rca/2026-10-14/death-mark.md) on the
+  live hostile under the pointer at its key sends the character's demons onto it MARK_JUMP after its key
+  (the takes: 0.28 s) and holds them MARK_BESIDE from it while it lives and the mark lasts (whom a
+  monster goes for is then the nearest body, as always here), and each blade on it takes the mark's flat
+  points: the demons' own damage on it (the build's `gain`) is not played, so the arena sees the mark's
+  cost and its draw-off and not what the demons add; Psychic Ward is a guard (combat/sim/guard.py,
   builds/warlock/ward.py: a pool of physical points taken before the resistances, a stun on a melee
   striker) set at the tick after its key, and only the types the client's rules play meet it;
 - the blades return to where the character stood at the cast (as both harnesses), and a blade's
@@ -101,8 +106,16 @@ from inventory_tracking.builds.warlock.echoing_strike.damage import damage_table
 from inventory_tracking.builds.warlock.echoing_strike.hits import CONTACT_RADIUS
 from inventory_tracking.builds.warlock.echoing_strike.mechanics import LIFE, OUT_FRAMES, cast
 from inventory_tracking.builds.warlock.echoing_strike.sim.input import BIRTH_LAG
+from inventory_tracking.builds.warlock.mark import (
+    MARK_BESIDE,
+    MARK_ELEMENTS,
+    MARK_JUMP,
+    MARK_POINTS,
+    MARK_SECONDS,
+    sends,
+)
 from inventory_tracking.builds.warlock.movement import BLADE_WARP_JUMP
-from inventory_tracking.builds.warlock.skills import BLADE_WARP, ECHOING_STRIKE
+from inventory_tracking.builds.warlock.skills import BLADE_WARP, DEATH_MARK, ECHOING_STRIKE
 from inventory_tracking.builds.warlock.ward import PSYCHIC_WARD_GUARD
 from inventory_tracking.combat.policy import RUN_MODES, Foe, walls
 from inventory_tracking.combat.sim import casters
@@ -461,6 +474,9 @@ class Arena(Game):
         self.charges = 0
         self.swaps = 0
         self.told: list[tuple[float, str]] = []
+        # Death Mark (`mark`): (the marked unit, when the demons jump, when the mark ends), and every mark cast
+        self.marked: tuple[int, float, float] | None = None
+        self.mark_casts: list[tuple[float, int]] = []  # (clock, unit) of each mark that took
         self.flights: list[Flight] = []
         self.refused: list[Point] = []  # where a hop, a warp or a walk was aimed and nobody can go
         self.warped_at: float | None = None  # the clock at the last Blade Warp key the game took
@@ -667,10 +683,20 @@ class Arena(Game):
 
     def follow(self) -> None:
         """The companions keep up with the character in a scene of the casters (`follows`): one
-        farther than JUMP is put beside it, one farther than its HEEL walks toward it at its pace."""
+        farther than JUMP is put beside it, one farther than its HEEL walks toward it at its pace. The demons
+        of a Death Mark (`marked`) stand MARK_BESIDE from the marked monster instead, on their own side of it,
+        from their jump until it dies or the mark ends."""
         here, moved = self.here, []
+        held = self.held()
         for monster in self.world.monsters:
             if not (monster.ally or monster.owner != NO_OWNER):
+                moved.append(monster)
+                continue
+            if held is not None and sends(self.world, monster):
+                gap = math.dist(held, (monster.x, monster.y))
+                if abs(gap - MARK_BESIDE) > 0.5:
+                    dx, dy = ((monster.x - held[0]) / gap, (monster.y - held[1]) / gap) if gap > 1e-6 else (1.0, 0.0)
+                    monster = replace(monster, x=held[0] + dx * MARK_BESIDE, y=held[1] + dy * MARK_BESIDE)
                 moved.append(monster)
                 continue
             gap = math.dist(here, (monster.x, monster.y))
@@ -685,6 +711,17 @@ class Arena(Game):
                 continue
             moved.append(replace(monster, x=spot[0], y=spot[1]))
         self.world = replace(self.world, monsters=tuple(moved))
+
+    def held(self) -> Point | None:
+        """Where the monster the demons hold stands: the marked one, alive, its mark on and the jump made."""
+        if self.marked is None:
+            return None
+        unit, jump, until = self.marked
+        now = self.clock.now
+        if now >= until or unit not in self.mobs.live():
+            self.marked = None
+            return None
+        return self.mobs.mobs[unit].at if now >= jump else None
 
     def stagger(self, now: float, seconds: float = RECOVERY_SECONDS, mode: int = STAGGERED) -> None:
         """A heavy blow, or a blow blocked: the character stands in `mode` for `seconds` (the module text)."""
@@ -730,6 +767,8 @@ class Arena(Game):
                         continue
                     flight.touched[blade].add(key)
                     dealt = self.damage_of(mob.txt) * (DUPLICATE if key in flight.first else 1.0)
+                    if self.marked is not None and self.marked[0] == unit and self.clock.now < self.marked[2]:
+                        dealt += MARK_POINTS * MARK_ELEMENTS  # the mark's flat points on each element of a hit
                     flight.first.add(key)
                     if self.mobs.hit(unit, dealt):
                         self.kills.append(unit)
@@ -779,15 +818,28 @@ class Arena(Game):
         else:
             name = key if event[0] == 'key' else f'Button{event[1]}' if event[0] == 'button' else None
             free = self.acting_until is None
+            busy_until = self.acting_until  # a key during a cast is cast once it is over
             if name in CAST_KEYS:
                 self.halt()
             super().act(event)  # Teleport's key comes back as `hop`, a held strike as `strike`
             if name in CAST_KEYS and free and self.acting_until is None:
                 self.quick_cast(name)
+            if key == KEYS[DEATH_MARK] and DEATH_MARK in self.world.slots:
+                self.mark(self.clock.now if busy_until is None else busy_until)
             if key == KEYS[SWAP_WEAPONS]:
                 self.swaps += 1
                 self.hand = 1 - self.hand
         self.show()
+
+    def mark(self, begun: float) -> None:
+        """Death Mark's key: on the live hostile under the pointer, with a demon of the character's out (the skill
+        needs one), the demons go to it MARK_JUMP after its cast begins (`begun`: the key, or the end of the cast
+        under way at it) and hold it (`follow`) for MARK_SECONDS."""
+        unit = self.monster_under_pointer()
+        if unit is None or not any(sends(self.world, m) for m in self.world.monsters):
+            return
+        self.marked = (unit, begun + MARK_JUMP, begun + MARK_SECONDS)
+        self.mark_casts.append((self.clock.now, unit))
 
     def quick_cast(self, name: str) -> None:
         """A skill key pressed while the character is free: its cast takes the cast's time, with the skill

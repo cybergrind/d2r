@@ -215,10 +215,13 @@ PINNED: dict = {
     'chaos ratio': 0.87,  # the life taken over the life lost on record; 0.92 while the blows were counted
     'chaos explained': {'median': 1.0, 'mean': 0.87},
     'chaos bias': 0.003,  # 0.002 before the frames were game ticks
-    'catacombs ratio': 0.96,  # 1.01 with the blows; 0.94 before the frames were game ticks
+    # 0.96 while Death Mark was 31% more from every source (2026-10-14: 31 flat points a hit of a blade or an
+    # explosion, the client's flat reduction; rca/2026-10-14/death-mark.md); 1.01 with the blows; 0.94 before the
+    # frames were game ticks
+    'catacombs ratio': 0.97,
     'chaos-manual yield': 0.099,  # 0.131 with the blows: a third of the gain was overkill
     # 0.181 with the blows; 0.087 while five late samples cut the recorded blades' flights short (in game
     # ticks the recorded casts hit 4% more); 0.042 while the policy saw the doors of five frames later
-    'catacombs-macro yield': 0.038,  # half of the 0.181 was
+    'catacombs-macro yield': 0.031,  # 0.038 with Death Mark a percent; half of the 0.181 was
     'chaos first casts': [(2755, 7758.1, 5302.0), (2764, 7753.6, 5297.2), (2787, 7759.0, 5281.7)],
 }

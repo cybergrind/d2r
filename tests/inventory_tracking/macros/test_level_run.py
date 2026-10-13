@@ -7,6 +7,7 @@ The goal sequence is played here on facts alone: the Chaos Sanctuary's script (r
 level card's marks, the bosses as monsters, and `decide` with a press that is no longer fresh.
 """
 
+import logging
 import math
 import threading
 from dataclasses import replace
@@ -14,8 +15,9 @@ from dataclasses import replace
 import pytest
 
 from inventory_tracking.builds import pursuing
-from inventory_tracking.levels.model import Target
+from inventory_tracking.levels.model import Ground, Target
 from inventory_tracking.macros import goals, runner as runner_module
+from inventory_tracking.macros.actuator import Cancelled
 from inventory_tracking.macros.build import NoWay, Step
 from inventory_tracking.macros.goals import PICK_UP, Goal, first_fight, goal_of, in_the_way, nearer
 from inventory_tracking.macros.hunt import Hunter
@@ -38,7 +40,7 @@ from inventory_tracking.macros.travel import PRESSED
 from inventory_tracking.macros.world import HEALING, NO_OWNER, Drop, Monster
 from inventory_tracking.native.layout import TILE_UNITS
 from inventory_tracking.routes.catalog import ROUTES
-from inventory_tracking.routes.model import FIGHT, LOOT
+from inventory_tracking.routes.model import ENTER, FIGHT, LOOT
 from inventory_tracking.routes.progress import Progress
 from inventory_tracking.terror.bosses import SUPER_UNIQUE_FLAG
 from tests.inventory_tracking.macros.fakes import BUILD
@@ -278,6 +280,59 @@ def test_a_teleport_press_keeps_the_runs_leash_and_the_end_of_the_run_keeps_the_
     hunter.post(Pursuit('pickup', 12.0, advance=False, leash=FULL))
     hunter.end_run(None, 'attack mode off')
     assert hunter.pursuit is None
+
+
+def test_a_pickup_press_posted_during_a_look_is_not_dropped_and_the_next_look_hands_it_on(caplog) -> None:
+    """The River of Flame, 00:26:32.19 on 2026-10-14 (rca/2026-10-14/run-0025-findings.md §2.1): the look took its
+    clock, the press came 28 ms later while the goal was being named, and `decide` read the mailbox only then: the
+    press was newer than the look's clock (not fresh), the route's "enter Chaos Sanctum" takes a press, the run
+    `Ended`, and `end_run` dropped the press with it. 6 of the game's 20 pickup presses were lost so. The look reads
+    the mailbox once with its clock; a press posted during it stays for the next look, which hands it on."""
+    from tests.inventory_tracking.macros.test_hunt import game, hunter
+
+    play = game()
+    hunt = hunter(play)
+    hunt.build = pursuing(hunt.build)
+    run = play.run()
+    sanctum = Goal('Chaos Sanctum', (5000.0, 5300.0), ENTER, goals.PLACE_NEAR, PRESSED, route='Diablo')
+    hunt.post(Pursuit('pickup', play.clock.now - 30.0, advance=False, leash=FULL, area=101))  # the run, long ago
+    pressed: list[Pursuit] = []
+
+    def named(run_, world, foes, pressing, *rest):
+        if not pressed:  # the player's press lands while the look names its goal
+            play.clock.now += 0.028
+            pressed.append(Pursuit('pickup', play.clock.now, advance=False, leash=FULL))
+            hunt.post(pressed[0])
+        return sanctum
+
+    hunt.goal = named  # type: ignore[method-assign]
+    handed: list[str] = []
+    hunt.hand_over = handed.append
+    ground = Ground(())
+    with caplog.at_level(logging.INFO):
+        assert not hunt.pursue(run, play.world, [], ground, None, in_reach=False)
+        assert hunt.pursuit is not None
+        assert hunt.pursuit.pressed_at == pressed[0].pressed_at  # not dropped
+        assert 'the level run ends' not in caplog.text
+        with pytest.raises(Cancelled):
+            hunt.pursue(run, play.world, [], ground, None, in_reach=False)
+    assert handed == ['pickup']  # the next look hands the press to the route's own step
+
+
+def test_the_mailbox_takes_the_loops_write_only_over_what_it_read() -> None:
+    hunter_ = Hunter(build=pursuing(BUILD))
+    first = Pursuit('pickup', 10.0, advance=False, leash=FULL)
+    hunter_.post(first)
+    read = hunter_.pursuit
+    hunter_.post(Pursuit('pickup', 11.0, advance=False, leash=FULL))  # a press during the look
+    assert not hunter_.swap(read, replace(read, area=AREA))
+    assert hunter_.pursuit is not None
+    assert hunter_.pursuit.pressed_at == 11.0
+    hunter_.end_run(None, 'the route takes a press', seen=read)  # the look's answer, over the press it read
+    assert hunter_.pursuit is not None
+    assert hunter_.pursuit.leashed  # the newer press keeps the run
+    hunter_.end_run(None, 'attack mode off')
+    assert hunter_.pursuit is None
 
 
 @pytest.fixture

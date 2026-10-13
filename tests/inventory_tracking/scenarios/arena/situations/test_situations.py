@@ -298,8 +298,14 @@ def test_the_catalog_lists_the_fixtures_and_the_example_with_their_variants() ->
     assert found['four-packs'].variants()[0][0] == 'attack on'
 
 
-def test_a_situation_exports_as_the_viewers_file_with_a_debug_track_a_run(tmp_path) -> None:
+def test_a_situation_exports_as_the_viewers_file_with_a_debug_track_a_run(tmp_path, monkeypatch) -> None:
+    from inventory_tracking.builds.warlock import mark as mark_module
     from tests.inventory_tracking.scenarios.arena.situations import export_viz
+
+    # The death this export is checked with came after a Death Mark on the doll, cast with no demon out: since
+    # 2026-10-14 the skill is not cast without one (builds/warlock/mark.py), and the strike alone outlives the blast.
+    # The mark as it was, for a run that dies.
+    monkeypatch.setattr(mark_module, 'why_not', lambda facts, monster: None)
     from tests.inventory_tracking.scenarios.arena.situations.catalog import Entry
 
     def two() -> list:

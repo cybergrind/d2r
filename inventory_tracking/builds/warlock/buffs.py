@@ -3,13 +3,19 @@
 At a game's start (prebuff): Consume cast anew on a Defiler with one Defiler left out, then Hex: Purge
 and Psychic Ward. Outside a fight (upkeep): Hex: Purge and Psychic Ward kept up, Consume cast again
 when it has run out. Under the held strike (fight): Hex: Purge and Psychic Ward kept up, Death Mark on
-a pack worth it, Sigil: Lethargy under an elite, Engorge on a corpse for the demons. The casts that
-are more than one aim and one key are in casters.py.
+the monster the demons should hold where it pays (mark.py), Sigil: Lethargy under an elite, Engorge on a
+corpse for the demons. The casts that are more than one aim and one key are in casters.py.
 """
 
 import math
 
-from inventory_tracking.builds.warlock.echoing_strike.attack import BLADES_A_CAST, ECHOING_STRIKE_ATTACK
+from inventory_tracking.builds.warlock.mark import (
+    mark_due,
+    mark_refusal,
+    mark_said,
+    target,
+    worth_a_mark,
+)
 from inventory_tracking.builds.warlock.skills import (
     CONSUME,
     DEATH_MARK,
@@ -19,11 +25,9 @@ from inventory_tracking.builds.warlock.skills import (
     SIGIL_LETHARGY,
     SUMMON_DEFILER,
 )
-from inventory_tracking.combat.policy import observe
 from inventory_tracking.macros.buffs import Buffs
 from inventory_tracking.macros.build import Buff, BuffFacts, whenever
 from inventory_tracking.macros.engine import Run
-from inventory_tracking.macros.rotation import ELITE_LIFE
 from inventory_tracking.macros.routines import DEAD
 from inventory_tracking.macros.world import DEFILER_CLASS, Monster, World
 from inventory_tracking.native.layout import HIRELING_CLASS_ID
@@ -46,10 +50,7 @@ ENGORGE_LOOKS = 2  # corpses the pointer is put on for one cast at most
 # Kept up like Hex: Purge (user, 2026-10-12: "we should keep psychic ward buff: probably it will save us
 # sometimes"); under the strike not more often than WARD_SECONDS, as a pack breaks it faster than it is cast.
 WARD_SECONDS = 5.0
-# Death Mark: one monster takes more damage for 125 + 13 per level frames (skills.txt); the strike waits out its cast.
-# Only a monster that outlives MARK_CASTS casts is marked; the strike is pressed again under the mark's cast.
-MARK_CASTS = 4
-DEATH_MARK_SECONDS = 8.0  # between two Death Marks; the debuff lasts 125 + 13/level frames (skills.txt)
+# Death Mark: mark.py (what it buys, when it is cast, its numbers).
 SIGIL_SECONDS = 10.0  # between two sigils under the same monster
 # Consume (skills.txt 381: 15% more life and a faster run for 300 s at CybergrindAA's level) is cast again by
 # attack mode when the character's state reads without it and no hostile is within CONSUME_CLEAR: a Defiler is
@@ -79,31 +80,6 @@ def ward_shown(world: World) -> bool | None:
 def ward_in_a_fight(facts: BuffFacts) -> bool:
     """Psychic Ward under the strike: the last cast is WARD_SECONDS old."""
     return facts.since(PSYCHIC_WARD) > WARD_SECONDS
-
-
-def mark_due(facts: BuffFacts) -> bool:
-    """Whether a Death Mark is looked for now: the last is DEATH_MARK_SECONDS old and the skill is on a key."""
-    return facts.since(DEATH_MARK) > DEATH_MARK_SECONDS and DEATH_MARK in facts.world.slots
-
-
-def strongest(facts: BuffFacts) -> Monster | None:
-    """Whom Death Mark is for: the strongest monster in reach, a pack's leader first, the nearer of two alike."""
-    player = facts.world.player
-    if player is None or not facts.reachable:
-        return None
-    here = (player.x, player.y)
-    return max(facts.reachable, key=lambda m: (m.leader, m.max_life, -math.dist(here, (m.x, m.y))))
-
-
-def worth_a_mark(facts: BuffFacts, target: Monster | None) -> bool:
-    """Whether `target` outlives MARK_CASTS casts on its line: else the mark costs more casting
-    than the damage it adds."""
-    world = facts.world
-    if world.player is None or target is None:
-        return False
-    foe = observe(world.player, [target], ()).foes[target.unit_id]
-    full = foe.left * (ELITE_LIFE if foe.elite else 1.0)
-    return full > MARK_CASTS * BLADES_A_CAST * ECHOING_STRIKE_ATTACK.damage_of(foe.txt)
 
 
 def sigil_due(facts: BuffFacts) -> bool:
@@ -173,7 +149,16 @@ BUFFS: tuple[Buff, ...] = (
     Buff(CONSUME, 'upkeep', consume_due, needs='prebuff', caster='consume', also=(SUMMON_DEFILER,)),
     Buff(HEX_PURGE, 'fight', whenever, state=purge_shown),
     Buff(PSYCHIC_WARD, 'fight', ward_in_a_fight, state=ward_shown),
-    Buff(DEATH_MARK, 'fight', mark_due, on='monster', target=strongest, worth=worth_a_mark),
+    Buff(
+        DEATH_MARK,
+        'fight',
+        mark_due,
+        on='monster',
+        target=target,
+        worth=worth_a_mark,
+        refused=mark_refusal,
+        said=mark_said,
+    ),
     Buff(SIGIL_LETHARGY, 'fight', sigil_due, on='ground', target=prey, caster='sigil'),
     Buff(ENGORGE, 'fight', engorge_on_a_key, on='corpse', caster='engorge'),
 )
@@ -259,4 +244,4 @@ class Rotation:
         return consume_due(self.buffs.facts(run, world, foes))
 
     def worth_a_mark(self, world: World, target: Monster) -> bool:
-        return worth_a_mark(BuffFacts(world, 0.0), target)
+        return worth_a_mark(BuffFacts(world, 0.0, foes=(target,), reachable=(target,)), target)

@@ -19,14 +19,16 @@ from dataclasses import replace
 
 import pytest
 
+from inventory_tracking.builds import pursuing
+from inventory_tracking.levels.model import Ground, Walkable, pack_cells
 from inventory_tracking.macros.build import NoWay
 from inventory_tracking.macros.goals import FIGHT, PICK_REACH, PICK_UP, STAND_NEAR, WAIT, goal_of, in_the_way
-from inventory_tracking.macros.hunt import BLOCK_SECONDS
-from inventory_tracking.macros.pickup import PICK_UNITS, approach
+from inventory_tracking.macros.hunt import BLOCK_SECONDS, GATHER_TRIES
+from inventory_tracking.macros.pickup import PICK_UNITS, approach, pick_up
 from inventory_tracking.macros.pursuit import FULL, Hold, Move, Operate, Pursuit, decide
 from inventory_tracking.macros.supply import Potions, detour, worth
-from inventory_tracking.macros.travel import PRESSED
-from inventory_tracking.macros.world import HEALING, REJUVENATION, VALUABLE, Drop, Loot, Monster, Teleport
+from inventory_tracking.macros.travel import PRESSED, walk_reaches
+from inventory_tracking.macros.world import HEALING, REJUVENATION, VALUABLE, Drop, Loot, Monster, PutDown, Teleport
 from tests.inventory_tracking.macros.test_hunt import game, hunter, keys
 from tests.inventory_tracking.macros.test_level_run import STEP, facts as level_facts, unasked
 
@@ -62,7 +64,7 @@ def running(play, *, loot: Loot):
 def look(hunt, play, run, foes=()):
     """The goal of the run's look now (hunt.py `goal`), with `foes` standing in the world."""
     play.world = replace(play.world, monsters=tuple(foes))
-    hunt.pursued = hunt.goal(run, play.world, list(foes), False)  # as `judge` keeps it
+    hunt.pursued = hunt.goal(run, play.world, list(foes), False, hunt.pursuit)  # as `judge` keeps it
     return hunt.pursued
 
 
@@ -124,6 +126,143 @@ def test_gear_shown_by_the_filter_only_is_not_stood_by_and_a_press_goes_on_witho
     assert look(hunt, play, run).unit == RING.unit_id  # the rune is let go; the ring is the next one
     hunt.post(Pursuit('teleport', 2.0))
     assert look(hunt, play, run) is None
+
+
+# -- a drop the sweep has given up: no hold by it ----------------------------------------------------------------
+
+
+CHARM = Drop(36472766, 4986.0, 5010.0, 'Large Charm', VALUABLE, (1, 2))  # 17 away, as at 00:26:30 (run-0025 §1)
+
+
+def sweeping(play):
+    """A hunter whose sweep is on, with the pickup step's own hand-over stubbed: what it would stop for."""
+    hunt = hunter(play)
+    run = play.run()
+    hunt.sweep.start(run.clock())
+    stopped: list[bool] = []
+    hunt.pick = lambda: stopped.append(True)
+    return hunt, run, stopped
+
+
+def test_the_sweep_does_not_stay_by_a_drop_whose_tries_are_spent_and_says_why_it_left_it(caplog) -> None:
+    """River of Flame, 00:26:49.75-53.4 on 2026-10-14 (run-0025-findings.md §2.3): the level run's two tries at the
+    Large Charm had expired mid-walk ("priced act expired"), and the sweep then stood 3.9 s by it, "no better place"
+    twelve times with six hostiles near, saying "no click took it"; the player took it by hand."""
+    play = game()
+    play.loot = Loot((CHARM,), room=('..........',) * 4)
+    hunt, run, stopped = sweeping(play)
+    hunt.gathered[CHARM.unit_id] = GATHER_TRIES
+    hunt.tried[CHARM.unit_id] = 'priced act expired: look again before continuing'
+    with caplog.at_level(logging.INFO):
+        hunt.gather(run, (5000.0, 5000.0))
+    assert not stopped
+    assert hunt.held is None
+    assert not hunt.leaves((5000.0, 4950.0), run.clock())  # the sweep's steps are its own again
+    assert 'no click took it' not in caplog.text
+    assert 'the sweep leaves Large Charm' in caplog.text
+    assert 'priced act expired' in caplog.text  # the true reason, said
+
+
+def test_the_sweep_still_stays_by_a_valuable_it_leaves_for_later_and_says_the_hostiles_are_why(caplog) -> None:
+    """The Ral Rune at 00:27:14.6 (run-0025 §2.3): left for later for a hostile within 12, and said as "no click
+    took it" though no click had been made."""
+    play = game()
+    ral = Drop(55, 5020.0, 5000.0, 'Ral Rune', VALUABLE)
+    play.loot = Loot((ral,), room=('..........',) * 4)
+    hunt, run, stopped = sweeping(play)
+    guard = Monster(901, 362, 1, 5025.0, 5000.0, 0xFFFFFFFF)
+    with caplog.at_level(logging.INFO):
+        hunt.gather(run, (5000.0, 5000.0), [guard])
+    assert not stopped
+    assert hunt.held == ral
+    assert 'no click took it' not in caplog.text
+    assert 'Staying by Ral Rune: 1 hostiles within 12 of it or the character' in play.said
+
+
+# -- near enough to click: by a walk, not by a straight line -------------------------------------------------------
+
+# Test_hunt's room (world 4980-5020 both ways) with a strip of lava three units wide at x 4991-4993 from its top edge
+# down to y 5016: the character at (5000, 5000) and the charm at (4986, 5010) are 17 apart in a straight line and
+# about 30 by the walk round the strip's end (the River of Flame, 00:26:36: 17 straight, 43 by walking).
+LAVA_ROWS = ''.join(('1' * 11 + '000' + '1' * 26) if row < 37 else '1' * 40 for row in range(40))
+LAVA = Walkable(996, 996, 8, 8, pack_cells(LAVA_ROWS), pack_cells(LAVA_ROWS))
+FREE = ('..........',) * 4
+
+
+def on_a_run(play, ground=()):
+    hunt = hunter(play, ground=ground)
+    hunt.build = pursuing(hunt.build)
+    hunt.post(Pursuit('pickup', 0.0, advance=False, leash=FULL, area=AREA))
+    return hunt
+
+
+def test_a_drop_near_in_a_straight_line_and_far_by_walking_is_gone_to_first_not_clicked_from_here() -> None:
+    """River of Flame, 00:26:36-39.5 on 2026-10-14 (run-0025-findings.md §2.2): the charm was 17 away (within
+    PICK_REACH 20) across lava, the hands clicked from where the character stood, the client walked the detour and
+    the 1.5 s the act was priced for ran out twice, mid-walk; the charm was given up and the player took it."""
+    play = game()
+    play.loot = Loot((CHARM,), room=FREE)
+    hunt = on_a_run(play, (LAVA,))
+    found = hunt.judge(play.run(), play.world, [], Ground((LAVA,)), in_reach=False)
+    assert (found.goal.do, found.goal.unit) == (PICK_UP, CHARM.unit_id)
+    assert isinstance(found.act, Move)  # the navigator's move, with the movement in hand
+    # The same drop with nothing between: clicked from here, as before
+    play = game()
+    play.loot = Loot((CHARM,), room=FREE)
+    found = on_a_run(play).judge(play.run(), play.world, [], Ground(()), in_reach=False)
+    assert isinstance(found.act, Operate)
+
+
+def test_the_hands_do_not_click_a_drop_across_ground_no_walk_crosses_in_reach() -> None:
+    """The same in the pickup's own approach (pickup.py `approach`): a drop within PICK_UNITS is clicked from where
+    the character stands only with a walk to it; across the lava it is hopped toward first."""
+    play = game()
+    play.loot = Loot((CHARM,), room=FREE)
+    run = play.run()
+    level = hunter(play, ground=(LAVA,)).known_level(play.world.player)
+    approach(run, CHARM, level, keys)
+    here = (play.world.player.x, play.world.player.y)
+    assert here != (5000.0, 5000.0)  # it went first
+    assert walk_reaches(Ground((LAVA,)), (), here, (CHARM.x, CHARM.y), PICK_UNITS)
+
+
+def test_the_hands_take_the_drop_the_goal_names_not_the_one_they_would_choose() -> None:
+    """The Magic Dusk Shroud at 00:01:36 on 2026-10-14 (run-0025 §2.2): the run's goal was "5037 gold, on the way"
+    and the hands clicked the Shroud, which `pickup.choose` puts first (valuables first): the act priced was not the
+    one made."""
+    play = game()
+    ring = Drop(81, 5005.0, 5000.0, 'Ring', VALUABLE, prized=False)
+    play.loot = Loot((ring, CHARM), room=FREE)
+    hunt = on_a_run(play)
+    run = play.run()
+    goal = goal_of((5000.0, 5000.0), spend=PRESSED, reach=20.0, side=CHARM)
+    hunt.operate(run, play.world, goal, keys)
+    assert play.picked[:1] == ['Large Charm']
+
+
+# -- what the player put down: not the run's ------------------------------------------------------------------
+
+
+def test_a_valuable_the_player_put_down_is_neither_gone_for_nor_stood_by_nor_warned_about() -> None:
+    """The Superior Crystal Sword after Diablo, 00:30:57.9 on 2026-10-14 (run-0025-findings.md §3): put down by the
+    player 71 units back, named by the loot step and warned about ("Inventory full: Superior Crystal Sword left on
+    the ground"); with room for it the step would have gone back for it. The runner's loot passes through the
+    game's `PutDown` (runner.py), as here."""
+    play = game()
+    sword = Drop(490846825, 5010.0, 5000.0, 'Superior Crystal Sword', VALUABLE, (2, 3), prized=True)
+    put_down = PutDown()
+    put_down.see(Loot((), game=('cyber32', 1), carried=frozenset({sword.unit_id})))
+    hunt = running(play, loot=Loot((sword,), room=FULL_INVENTORY, game=('cyber32', 1)))
+    run = play.run()
+    run.loot = lambda: put_down.see(play.loot)
+    warned: list[str | None] = []
+    run.warn = warned.append
+    assert look(hunt, play, run) is None  # no wait by it for room
+    play.loot = replace(play.loot, room=FREE)
+    assert look(hunt, play, run) is None  # nor a drop to go for once there is room
+    assert not pick_up(run, None, keys, lambda: None)  # the pickup step has nothing to pick up
+    assert not any(text for text in warned)
+    assert play.picked == []
 
 
 # -- potions: guards first, said, remembered, worth a detour --------------------------------------------------

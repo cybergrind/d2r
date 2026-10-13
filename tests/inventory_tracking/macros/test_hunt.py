@@ -41,15 +41,17 @@ from inventory_tracking.macros.hunt import (
 from inventory_tracking.macros.skills import ATTACK, SWAP_WEAPONS, TELEPORT
 from inventory_tracking.macros.travel import JUMP_REACH, Step, attackable, step_walk
 from inventory_tracking.macros.world import HEALING, VALUABLE, Drop, Monster, Teleport
+from inventory_tracking.native.layout import HIRELING_CLASS_ID
 from tests.inventory_tracking.macros.fakes import BUILD, HUNT_SLOTS, KEYS, PREBUFF_SET, Game, player, warlock, world
 
 
 @pytest.fixture
 def marks_all(monkeypatch):
-    """Death Mark on whatever is strongest, as before 2026-10-11: these tests are about the mark's timing."""
-    from inventory_tracking.builds.warlock import buffs as rotation_module
+    """Death Mark on whatever is strongest, as before 2026-10-11: these tests are about the mark's timing. Since
+    2026-10-14 its worth (mark.py `why_not`: a demon out, no trash, the price) is taken as nothing against it."""
+    from inventory_tracking.builds.warlock import mark as mark_module
 
-    monkeypatch.setattr(rotation_module, 'MARK_CASTS', 0)
+    monkeypatch.setattr(mark_module, 'why_not', lambda facts, monster: None)
 
 
 HERE = Room(1, 996, 996, 8, 8)
@@ -240,7 +242,8 @@ def test_death_mark_goes_on_the_strongest_in_reach_now_and_then(marks_all):
     play.toughness[10], play.toughness[11] = 20, 60
     attack_mode(play, hunter(play), until=60.0)
 
-    assert play.marks[:2] == [11, 11]  # the most life, again after DEATH_MARK_SECONDS, within the one fight
+    # the most life, and again when its mark runs out (mark.py MARK_SECONDS; before 2026-10-14 a clock of 8 s)
+    assert play.marks[:2] == [11, 11]
     assert 'Death Mark on the monster 19 (11), 400/400' in play.said
     assert play.world.monsters == ()
 
@@ -1428,23 +1431,62 @@ def test_a_consume_that_cannot_be_cast_is_tried_again_only_after_a_while():
     assert '6' not in play.pressed()
 
 
+def demon(unit=60, x=4997.0, y=5000.0, txt=361):
+    """A bound demon of the character's (a Pit Lord, as in the Chaos Sanctuary takes): an ally, no hostile."""
+    return Monster(unit, txt, 1, x, y, 0xFFFFFFFF, 0, ally=True, life=128, max_life=128)
+
+
 def test_death_mark_is_not_spent_on_a_monster_a_cast_or_two_kills():
-    # 101 marks in the takes of 2026-10-10 cost about 0.9 s of casting each, on plain monsters too.
-    play = game(foe(10, 5008.0, 5000.0), foe(11, 5010.0, 5002.0, CHAMPION))
+    # 101 marks in the takes of 2026-10-10 cost about 0.9 s of casting each, on plain monsters too. Since 2026-10-14
+    # (mark.py) with a demon out too: the plain one is trash, the champion's mark gains less than its cast.
+    play = game(foe(10, 5008.0, 5000.0), foe(11, 5010.0, 5002.0, CHAMPION), demon())
     play.toughness.update({10: 1000, 11: 1000})
     attack_mode(play, hunter(play), until=10.0)
     assert play.marks == []
 
 
-def test_death_mark_goes_on_a_monster_that_outlives_the_casts_it_costs(monkeypatch):
+def test_a_death_mark_refused_on_an_elite_in_reach_is_said_once_with_its_worth_and_need(caplog):
+    """The game of 00:25 on 2026-10-14 (rca/2026-10-14/run-0025-findings.md §4): one mark all game, on Diablo; the
+    seal bosses and elites were refused by the worth rule, silently, and the player could not tell it was used.
+    With no safety price fresh (the pursuit off here) the line gives the build's own price (mark.py `own_price`)."""
+    elite = foe(11, 5010.0, 5002.0, CHAMPION, txt_id=312)  # a Venom Lord champion in the Chaos Sanctuary
+    play = game(foe(10, 5008.0, 5000.0), elite, demon(), area=108)
+    play.toughness.update({10: 1000, 11: 1000})
+    with caplog.at_level(logging.INFO):
+        attack_mode(play, hunter(play), until=10.0)
+    assert play.marks == []
+    refused = [r.getMessage() for r in caplog.records if r.getMessage().startswith('Macro: mark:')]
+    assert len(refused) == 1  # once per target, and only for the elite
+    assert 'no Death Mark on the elite 312 (11)' in refused[0]
+    assert "by the build's rule (no safety price)" in refused[0]
+    assert "against the cast's 1.00s" in refused[0]
 
-    play = game(foe(10, 5008.0, 5000.0))
+
+def test_no_death_mark_with_no_demon_out_and_the_reason_is_said(caplog):
+    # skills.txt 375 `requirespettype 1`: the skill needs a demon of the character's; the mercenary is none.
+    merc = Monster(61, HIRELING_CLASS_ID, 1, 4997.0, 5000.0, 0xFFFFFFFF, 0, ally=True, life=128, max_life=128)
+    play = game(foe(10, 5008.0, 5000.0, txt_id=243), merc, area=108)
     play.toughness[10] = 1000
-    from inventory_tracking.builds.warlock import buffs as rotation_module
+    with caplog.at_level(logging.INFO):
+        attack_mode(play, hunter(play), until=5.0)
+    assert play.marks == []
+    said = [r.getMessage() for r in caplog.records if r.getMessage().startswith('Macro: mark:')]
+    assert len(said) == 1
+    assert "no demon of the character's is out (the skill needs one)" in said[0]
 
-    monkeypatch.setattr(rotation_module, 'MARK_CASTS', 0.1)  # this monster's type has a third of a cast of life
-    attack_mode(play, hunter(play), until=3.0)
+
+def test_death_mark_by_the_builds_own_rule_goes_on_diablo_once_while_it_lasts_and_says_why(caplog):
+    # With no safety price (the pursuit off): Diablo's life is long enough that the demons sent onto him save more
+    # of the fight than the cast costs (mark.py `gain`); not again while his mark lasts (MARK_SECONDS).
+    play = game(foe(10, 5008.0, 5000.0, txt_id=243), demon(), area=108)
+    play.toughness[10] = 1000
+    with caplog.at_level(logging.INFO):
+        attack_mode(play, hunter(play), until=8.0)
     assert play.marks == [10]
+    cast = [r.getMessage() for r in caplog.records if r.getMessage().startswith('Macro: mark: Death Mark on')]
+    assert len(cast) == 1
+    assert 'the monster 243 (10)' in cast[0]
+    assert "by the build's rule" in cast[0]
 
 
 def test_the_sweep_goes_to_a_firing_spot_when_a_wall_stands_between(monkeypatch):

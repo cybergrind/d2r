@@ -32,9 +32,10 @@ def link_table() -> tuple[float, int, float]:
 
 
 def mark_table() -> tuple[float, int]:
-    """(share of extra damage a marked monster takes, frames the mark lasts)."""
+    """(points more each hit of a blade or an explosion takes on a marked monster, frames the mark lasts): the mark's
+    flat reduction, -31 at level 14, is added to an element of a hit before the resistance (data file)."""
     data = damage_data().get('death_mark')
-    return (float(data['more_damage']), int(data['frames'])) if data else (0.0, 0)
+    return (float(data['points']), int(data['frames'])) if data else (0.0, 0)
 
 
 def explosion_table() -> tuple[float, float]:

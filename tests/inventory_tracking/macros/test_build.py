@@ -209,6 +209,8 @@ def test_every_dataclass_of_the_module_is_frozen():
         'Casting',
         'Build',
         'Shield',
+        'Draw',
+        'DrawPrice',
     }
     assert all(thing.__dataclass_params__.frozen for thing in found)  # pyrefly: ignore[missing-attribute]
 

@@ -779,6 +779,7 @@ def run_service(args, directory, report):
                             super_chests=APPRAISAL.super_chest_marks,
                             unique_minimum=APPRAISAL.unique_minimum if APPRAISAL.unique_marks else None,
                             materials=material_classes(APPRAISAL.material_marks),
+                            left=macro.put_down.at,  # what the player put down this game: no arrow to it
                         )
                     terror = None
                     if args.terror_probe:

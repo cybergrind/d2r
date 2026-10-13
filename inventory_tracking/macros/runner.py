@@ -57,7 +57,7 @@ from inventory_tracking.macros.skills import character_bindings, skill_keys
 from inventory_tracking.macros.teleport import LOST_KEY, ready, step_toward
 from inventory_tracking.macros.timing import Pace
 from inventory_tracking.macros.waiting import Waiting
-from inventory_tracking.macros.world import BeltKept, GameMemory, World
+from inventory_tracking.macros.world import BeltKept, GameMemory, PutDown, World
 from inventory_tracking.models import SessionIdentity
 from inventory_tracking.routes.model import FIGHT
 from inventory_tracking.routes.progress import Progress
@@ -148,6 +148,9 @@ class MacroRunner:
         # what each belt column last held this game, across presses: an emptied healing column stays one
         # (rca/2026-10-13/potions-findings.md, step 1); every run's loot carries it (`Loot.columns`)
         self.belt = BeltKept()
+        # the items the player put down this game (world.py `PutDown`): out of every run's loot, and of the HUD's
+        # ground marks (the service hands `put_down.at` to loot/watch.py)
+        self.put_down = PutDown()
         self.working = False  # a run is acting (the thread lives on a while to show its last card)
         self.routine = PREBUFF
         self.generation = 0
@@ -641,7 +644,7 @@ class MacroRunner:
                     say=self._say,
                     hands=memory.hands,
                     teleport=memory.teleport,
-                    loot=lambda: self.belt.see(memory.loot(**wanted())),
+                    loot=lambda: self.put_down.see(self.belt.see(memory.loot(**wanted()))),
                     build=build,
                 )
                 if os.environ.get(RESEARCH_ENV):

@@ -39,7 +39,7 @@ def running(play, *, goal: Goal = MARK):
     hunt = hunter(play)
     hunt.build = replace(hunt.build, settings=hunt.build.settings.model_copy(update={'pursuit': True}))
     hunt.post(Pursuit('pickup', 0.0, advance=False, leash=FULL, area=AREA))
-    hunt.goal = lambda run, world, foes, pressed: goal  # the route's stage, as goals.goal_of names it
+    hunt.goal = lambda run, world, foes, pressed, posted: goal  # the route's stage, as goals.goal_of names it
     return hunt
 
 

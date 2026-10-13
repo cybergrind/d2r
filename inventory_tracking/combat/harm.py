@@ -437,6 +437,24 @@ def approach(seen: Look, place: Point, elapsed: float) -> Look:
     return replace(seen, hostiles=tuple(moved))
 
 
+def sent_onto(seen: Look, sent: tuple[int, ...], target: Point, reach: float, beside: float) -> Look:
+    """The look with the companions at `sent` (indices into `companions`) that stand within `reach` of `target`
+    put `beside` units from it, each on its own side of it (straight from the target where one stood on it): a
+    cast that sends them onto one hostile (macros/build.py `Draw`). Whom a hostile goes for is then priced as
+    always, the nearest body by `share` (the client's rule): the target and what stands round it turn to them."""
+    moved = list(seen.companions)
+    for index in sent:
+        if index >= len(moved):
+            continue
+        at = moved[index]
+        gap = math.dist(at, target)
+        if gap > reach:
+            continue
+        dx, dy = ((at[0] - target[0]) / gap, (at[1] - target[1]) / gap) if gap > 1e-6 else (1.0, 0.0)
+        moved[index] = (target[0] + dx * beside, target[1] + dy * beside)
+    return replace(seen, companions=tuple(moved))
+
+
 def harm(
     seen: Look,
     place: Point,

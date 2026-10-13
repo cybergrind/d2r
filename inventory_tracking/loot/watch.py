@@ -7,11 +7,12 @@ D2R is focused, logs each new rune once, and clears the card when nothing is in 
 
 import math
 import threading
+from collections.abc import Callable
 
 from inventory_tracking.common import LOG
 from inventory_tracking.levels.geometry import Pointer
 from inventory_tracking.levels.guide import pointer_lines
-from inventory_tracking.loot.ground import GroundUnique, observe_ground
+from inventory_tracking.loot.ground import GroundMaterial, GroundUnique, observe_ground
 from inventory_tracking.loot.runes import rune_name
 
 
@@ -30,11 +31,15 @@ class RuneWatcher:
         unique_minimum: float | None = None,
         materials: dict[int, str] | None = None,
         observe=observe_ground,
+        left: Callable[..., bool] | None = None,
     ):
         self.source, self.capture_lock, self.focused, self.display = source, capture_lock, focused, display
         self.poll_interval, self.minimum, self.observe = poll_interval, minimum, observe
         self.shrine_types, self.super_chests, self.unique_minimum = shrine_types, super_chests, unique_minimum
         self.materials = materials
+        # (x, y, class) -> whether the player put an item down there this game (macros/world.py `PutDown.at`): no
+        # arrow to it (rca/2026-10-14/run-0025-findings.md §3)
+        self.left = left
         self.last_poll = -math.inf
         self.visible = []
         self.seen: set[int] = set()
@@ -67,6 +72,9 @@ class RuneWatcher:
             return
         finally:
             self.capture_lock.release()
+        if self.left is not None:
+            runes = [rune for rune in runes if not self.left(rune.x, rune.y, rune.class_id)]
+            marks = [m for m in marks if not (isinstance(m, GroundUnique | GroundMaterial) and self.left(m.x, m.y))]
         for rune in runes:
             if rune.unit_id not in self.seen:
                 LOG.info('Ground rune: %s at (%s, %s)', rune_name(rune.class_id), rune.x, rune.y)

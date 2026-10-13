@@ -39,9 +39,11 @@
   "points": 400.0
  },
  "death_mark": {
-  "source": "skills.txt 375 Death Mark: auratargetstate death_mark lowers the target's normal and magic damage reduction by ln12 = Param1 -5 + Param2 -2 per level (31 points at level 13, the level the blades' data record shows for Echoing Strike) for ln34 = 125 + 13 per level frames (294 at 13); the mark goes on the hostile nearest the pointer at the press of its key, 'd' for CybergrindAA (2026-10-10)",
-  "level": 13,
-  "more_damage": 0.31,
+  "source": "skills.txt 375 Death Mark: auratargetstate death_mark puts aurastat2/3 normal_damage_reduction and magic_damage_reduction (stats 34, 35) at ln12 = Param1 -5 + Param2 -2 x (level - 1) and aurastat1 armorclass (stat 31) at ln56 = -50 - 35 x (level - 1) on the target for ln34 = 125 + 13 x (level - 1) frames. Stats 34/35 are FLAT: the client subtracts them from each element of each hit as read, with no floor (ai_d2_dmg_element 0x14038FB70, rca/2026-10-14/death-mark.md), so a mark adds `points` to each element of each hit before the resistance, not a percent. The marked monsters of the 11 takes of 2026-10-13 with the state read (state 212) carry 34 = 35 = -31 and 31 = -505: level 14 (+9 all skills, stat 127). The mark goes on the hostile nearest the pointer at the press of its key, 'd' for CybergrindAA (2026-10-14)",
+  "dated": "2026-10-14",
+  "level": 14,
+  "points": 31,
+  "defence": 505,
   "frames": 294,
   "target_radius": 4.0,
   "key": "d"

@@ -290,3 +290,56 @@ def test_with_no_stream_under_way_no_step_is_priced(monkeypatch):
     priced, decision = _price_against(monkeypatch, _diablo_look(1, 0, 0))
     assert isinstance(p.decide(priced, None), p.Hold)
     assert not any(c['act'] == 'Move' for c in decision['candidates'])
+
+
+def _pressed_pack(monkeypatch, *, draw):
+    """Three Doom Knights (310) on the character at 3-4 units, its two demons 20 units behind it; the life 700 of
+    1000 (a budget of 50 points at the floor of 65%). `draw`: the build's (macros/build.py `Draw`) or None."""
+    from types import SimpleNamespace
+
+    from inventory_tracking.combat.harm import Hostile, Look, SafetySettings
+    from inventory_tracking.combat.policy import Foe
+    from inventory_tracking.combat.survival import CALM
+    from inventory_tracking.macros import safety as module
+    from inventory_tracking.macros.world import Loot
+
+    monkeypatch.setattr(module, 'taken', lambda *a: (100.0, 0))
+    monkeypatch.setattr(module, 'falls', lambda *a, **kw: {})
+    monkeypatch.setattr(module, 'camp', lambda *a, **kw: None)
+    pack = {1: (4.0, 0.0), 2: (4.5, 1.5), 3: (4.5, -1.5)}
+    look = Look(
+        tuple(Hostile(unit, 310, at, active=True) for unit, at in pack.items()),
+        companions=((-20.0, 0.0), (-21.0, 1.0)),
+        life=700,
+    )
+    goal = Goal('the fight', (4.0, 0.0), 'fight', 22.0, PRESSED)
+    seen = SimpleNamespace(
+        origin=(0.0, 0.0), blocked=None, foes={unit: Foe(310, at, 6000.0, unit == 1) for unit, at in pack.items()}
+    )
+    facts = p.Facts(1.0, goal, True, True, True, lambda: Step(goal.place))
+    safety = module.Safety(draw=draw, sendable=((0, 361), (1, 744)) if draw is not None else ())
+    priced = safety.price(
+        facts, None, look, Loot(life=700, max_life=1000), CALM, SafetySettings(), seen, SimpleNamespace(reach=22.1),
+        lambda point: Step(point),
+    )  # fmt: skip
+    return p.decide(priced, None), safety
+
+
+def test_a_draw_that_pulls_the_attackers_onto_the_demons_is_chosen_over_the_retreat(monkeypatch):
+    # The player, 2026-10-14: Death Mark "allow to distract/re-aggro enemies". Without the draw the pack's blows put
+    # holding over the budget and the act is the retreat; with the demons sent onto the leader the knights round it
+    # go for them (the nearest body), holding fits, and the safety asks for the draw on the leader.
+    from inventory_tracking.macros.build import Draw
+
+    alone, _ = _pressed_pack(monkeypatch, draw=None)
+    assert isinstance(alone, p.Move)
+    assert alone.reason.startswith('retreating:')
+    draw = Draw(999, lambda world, unit: True, math.inf, 2.8, 1.0, 11.76)
+    chosen, safety = _pressed_pack(monkeypatch, draw=draw)
+    assert isinstance(chosen, p.Hold)
+    assert safety.draws is not None
+    best = max(safety.draws.values(), key=lambda price: price.worth)
+    assert best.worth > 0
+    assert best.life > 0
+    assert safety.priced(1.0) == safety.draws
+    assert safety.priced(1.0 + 1.0) is None  # stale after DRAW_FRESH: the row goes by its own rule

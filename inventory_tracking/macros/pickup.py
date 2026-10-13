@@ -51,8 +51,8 @@ from inventory_tracking.macros.build import Step
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.routines import ACTING, DEAD, UNIT_PIXELS, press_skill
 from inventory_tracking.macros.skills import skill_name
-from inventory_tracking.macros.teleport import HOVER_SECONDS, ground_fraction, hop_toward, in_view, ready
-from inventory_tracking.macros.travel import JUMP_REACH, PRESSED, Travel, spare_jump
+from inventory_tracking.macros.teleport import HOVER_SECONDS, ground_fraction, hop_toward, in_view, ready, ready_world
+from inventory_tracking.macros.travel import JUMP_REACH, PRESSED, Travel, spare_jump, walk_reaches
 from inventory_tracking.macros.world import GOLD, HEALING, REJUVENATION, VALUABLE, Drop, Loot, has_room
 from inventory_tracking.models import PotionType
 from inventory_tracking.native.layout import BELT_COLUMNS, TILE_UNITS
@@ -217,16 +217,22 @@ class Spot(Protocol):
 
 
 def approach(run: Run, drop: Spot, level: Level | None, key_names) -> None:
-    """Bring `drop` within a click: nothing when it is near and in view, teleport hops otherwise. Where no
-    hop can be made (the staff empty, no Teleport), a move by the movement in hand (`moved_in_hand`: the
-    build's own sets, a Blade Warp or a walk) in its place: rca/2026-10-13/run-2110-findings.md §2.3, an Amn
-    Rune 24 away left twice with "the Teleport staff has no charges left"."""
+    """Bring `drop` within a click: nothing when it is in view and a walk within PICK_UNITS leads to it (travel.py
+    `walk_reaches`: a drop 17 away across lava is 43 by walking, rca/2026-10-14/run-0025-findings.md §2.2),
+    teleport hops otherwise. Where no hop can be made (the staff empty, no Teleport), a move by the movement in
+    hand (`moved_in_hand`: the build's own sets, a Blade Warp or a walk) in its place:
+    rca/2026-10-13/run-2110-findings.md §2.3, an Amn Rune 24 away left twice with "the Teleport staff has no
+    charges left"."""
     for hop in range(HOPS + 1):
-        player, rect = ready(run)
+        world, rect = ready_world(run)
+        player = world.player
+        assert player is not None
         aspect = rect[2] / rect[3]
-        away = math.dist((player.x, player.y), (drop.x, drop.y))
+        here = (player.x, player.y)
+        away = math.dist(here, (drop.x, drop.y))
         seen = in_view(ground_fraction(player, drop.x, drop.y, aspect))
-        if seen and away <= PICK_UNITS:
+        ground = Ground(level.ground) if level is not None else None
+        if seen and walk_reaches(ground, world.doors, here, (drop.x, drop.y), PICK_UNITS):
             return
         if level is None or hop == HOPS:
             if seen:
@@ -568,16 +574,29 @@ Threat = Callable[[tuple[float, float], tuple[float, float]], int]
 
 
 def pick_up(
-    run: Run, level: Level | None, key_names, otherwise: Callable[[], None], threat: Threat | None = None
+    run: Run,
+    level: Level | None,
+    key_names,
+    otherwise: Callable[[], None],
+    threat: Threat | None = None,
+    unit: int | None = None,
 ) -> bool:
     """One press of the pickup action; whether there was something to pick up. `level` is the level
     map if known, `otherwise` what the press does with nothing to pick up (the runner: the seek step).
     With `threat` a potion is left where monsters are near it or the character, and the press goes on
-    to `otherwise`; a valuable or gold is gone for all the same."""
+    to `otherwise`; a valuable or gold is gone for all the same. `unit`: the drop a goal names (the pursuit's
+    act, priced for it: hunt.py `operate`), taken in place of the one `choose` would put first; gone from the
+    ground (taken meanwhile), the press has nothing to pick up."""
     player, _ = ready(run)
     loot = unshunned(run.loot() if run.loot is not None else Loot(), run.clock())
     here = (player.x, player.y)
     plan = choose(loot, here)
+    if unit is not None and (plan is None or plan.drop.unit_id != unit):
+        named = next((drop for drop in loot.drops if drop.unit_id == unit), None)
+        if named is None:
+            LOG.info('Macro: pickup: the drop the goal names (unit %d) is no longer on the ground', unit)
+            return False
+        plan = Plan(named)
     close = threat(here, (plan.drop.x, plan.drop.y)) if threat and plan and plan.drop.kind in KINDS else 0
     if plan is not None and close:
         LOG.info(

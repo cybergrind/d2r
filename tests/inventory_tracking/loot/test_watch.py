@@ -128,3 +128,21 @@ def test_expensive_uniques_are_listed_first():
         'Gem Shrine: west',
         'Pul Rune: north',
     ]
+
+
+def test_a_drop_the_player_put_down_gets_no_arrow():
+    runes = [GroundRune(645, 1, 25450, 5300), GroundRune(654, 2, 25600, 5442)]
+    shown = []
+    watch = RuneWatcher(
+        Source(),
+        capture_lock=threading.Lock(),
+        focused=lambda images: True,
+        display=shown.append,
+        poll_interval=0.5,
+        minimum='r21',
+        observe=lambda pid, images, capture, **wanted: (PLAYER, runes, []),
+        left=lambda x, y, class_id=None: (x, y) == (25450, 5300),
+    )
+    watch.poll(1.0)
+    watch.tick()
+    assert [line.text for line in shown[-1]] == ['↘  Ber Rune: east']  # the Pul Rune lies where one was put down

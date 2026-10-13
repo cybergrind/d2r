@@ -174,21 +174,23 @@ def test_a_monster_without_a_table_row_gets_the_area_level_points(tmp_path):
     assert describe(sit)['unknown_types'] == 1
 
 
-def test_a_death_marked_monster_takes_more_from_every_source_until_the_mark_ends():
-    marked = standing(1, 5004.0, 5000.0, 1_000_000.0)  # beside the mercenary
+def test_a_death_marked_monster_takes_the_marks_flat_points_on_each_hit_until_the_mark_ends():
+    # 2026-10-14: the mark's stats 34/35 are flat reductions the client subtracts from each element of each hit as
+    # read (ai_d2_dmg_element 0x14038FB70), so a negative one adds its points a hit, not a percent; a companion's
+    # rate a frame is no hit and takes none (rca/2026-10-14/death-mark.md). Before: 31% more from every source.
+    marked = standing(1, 5004.0, 5000.0, 1_000_000.0)  # beside the mercenary, in the blades' line
     merc = CompanionTrack(9, 338, dict.fromkeys(range(61), (5000.0, 5000.0)))
     sit = situation(marked, companions=[merc])
     sit.marks = [(10, 1)]
-    outcome = simulate(
-        sit, [], lambda txt: 0.0, companions={338: (6.0, 100.0)}, link=NO_LINK, explosion=NO_BLAST, mark=(0.31, 20)
-    )
-    assert outcome.companion_damage[1] == 100.0 * 61  # the source's own points are unchanged
-    assert round(outcome.mark_damage[1], 6) == round(31.0 * 21, 6)  # frames 10..30 inclusive take 31% more
-    assert score(sit, outcome)['death_mark_points'] == 651
+    kept = dict(companions={338: (6.0, 100.0)}, link=NO_LINK, explosion=NO_BLAST)
+    unmarked = simulate(sit, [(20, (5004.0, 5000.0))], lambda txt: 500.0, mark=(31.0, 0), **kept)
+    outcome = simulate(sit, [(20, (5004.0, 5000.0))], lambda txt: 500.0, mark=(31.0, 1000), **kept)
+    assert outcome.contacts == unmarked.contacts > 0
+    assert outcome.companion_damage[1] == unmarked.companion_damage[1] == 100.0 * 61  # the rate: no flat points
+    assert outcome.mark_damage[1] == 31.0 * outcome.contacts  # each blade's hit, the duplicates too
+    assert score(sit, outcome)['death_mark_points'] == round(31.0 * outcome.contacts)
     dealt = dict(outcome.dealt_by[1])
-    assert dealt[9] == 100.0
-    assert round(dealt[10], 6) == 131.0
-    assert dealt[31] == 100.0
+    assert dealt[9] == 100.0  # before the mark: the merc's rate alone
 
 
 def test_death_marks_are_read_from_the_key_presses_at_the_hostile_under_the_pointer(tmp_path):

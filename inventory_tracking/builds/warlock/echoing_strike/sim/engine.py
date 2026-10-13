@@ -13,8 +13,9 @@ user, 2026-10-10: "our companion casts an aura that makes mobs share a portion o
 Purge (skills.txt 389, a buff on the character) hexes every monster a blade hits; when a hexed
 monster dies it explodes for `points` of magic damage on every live hostile within `radius`
 (data/damage.json `hex_purge`; the trigger taken as death from the takes, user 2026-10-10: "doing
-AoE damage"). Death Mark (skills.txt 375) at the situation's recorded presses makes the marked monster
-take `more_damage` more from every source for `frames` (data/damage.json `death_mark`). Sigil:
+AoE damage"). Death Mark (skills.txt 375) at the situation's recorded presses makes each hit of a blade or an
+explosion on the marked monster take `points` more for `frames` (data/damage.json `death_mark`: the skill's flat
+reductions, not a percent; the companions' rates are per frame, their hits not counted, so they take none). Sigil:
 Lethargy lowers what monsters deal, not what they take: nothing here.
 
 The calibration gate (`replay`): the recorded casts replayed with their focal points, compared
@@ -135,7 +136,7 @@ def simulate(
     with a `policy`, the casts it asks for when the character is free and the mana allows (the
     cadence of sim/input.py). The companions (`companions`: txt id -> (reach, points per frame), the
     data file's by default), the Defiler's Health Link (`link`: (range, links, share)), Hex Purge's
-    explosion (`explosion`: (radius, points)), Death Mark (`mark`: (more damage, frames)) and the
+    explosion (`explosion`: (radius, points)), Death Mark (`mark`: (points a hit, frames)) and the
     mana model (`mana`: (pool, regeneration per frame, cost)) run alongside. With `mortal` off the
     monsters live exactly as long as the record shows them, whatever the simulation deals (the
     two-sided gate: what the model deals over the recorded exposure); a hexed monster then explodes
@@ -146,7 +147,7 @@ def simulate(
     companions = companion_table() if companions is None else companions
     link_range, links, share = link_table() if link is None else link
     blast_radius, blast_points = explosion_table() if explosion is None else explosion
-    more_damage, mark_frames = mark_table() if mark is None else mark
+    mark_points, mark_frames = mark_table() if mark is None else mark
     pool, regen, cost = mana_table() if mana is None else mana
     marked_until: dict[int, int] = {}
     marks_at: dict[int, list[int]] = {}
@@ -208,8 +209,9 @@ def simulate(
     def hurt(unit: int, dealt: float, frame: int, bag: dict[int, float]) -> None:
         bag[unit] = bag.get(unit, 0.0) + dealt
         taken = dealt
-        if frame <= marked_until.get(unit, -1):
-            taken = dealt * (1 + more_damage)
+        if frame <= marked_until.get(unit, -1) and bag is not outcome.linked_damage and dealt > 0:
+            # A hit of a blade or an explosion: the mark's flat points; a companion's rate a frame is no hit
+            taken = dealt + (mark_points if bag is not outcome.companion_damage else 0.0)
             outcome.mark_damage[unit] = outcome.mark_damage.get(unit, 0.0) + taken - dealt
         outcome.dealt_by.setdefault(unit, []).append((frame, taken))
         source = sources[id(bag)]

@@ -14,6 +14,9 @@ whole of what the framework may ask of a build, and it imports nothing from a bu
 - `Tactic`: what a kind of pack adds to the one price of a place.
 - `Shield`: a guard the build keeps on the character (its pool, the kinds it takes, the stun of a striker)
   and what the game shows of it: the safety price credits it (combat/harm.py).
+- `Draw`: a cast that sends the character's companions onto one hostile, which then goes for them: the safety
+  price weighs it against holding without it and the retreat (macros/safety.py), and its buff row reads that
+  price (`BuffFacts.draws`, `DrawPrice`).
 - `Build`: those, the weapon sets (`Loadout`) and the numbers (`BuildSettings`), with `applies` to say
   whose it is; `choose` takes the first build that applies.
 
@@ -325,6 +328,10 @@ class BuffFacts:
     focused: Callable[[], bool] = in_front
     # The monsters lying dead as (unit id, x, y), world units (`Run.corpses`); None: they cannot be read
     corpses: Callable[[], tuple[tuple[int, float, float], ...]] | None = None
+    # What the safety pricing found the build's `Draw` worth onto each hostile it weighed at its last look, by unit
+    # (macros/safety.py `Safety.weigh`); None: no look of it is fresh (the pursuit off, no fight priced): a row
+    # that casts the draw goes by its own rule then
+    draws: Mapping[int, DrawPrice] | None = None
 
     def since(self, skill: int, unit: int | None = None) -> float:
         """Seconds since `skill` was last cast (on or under `unit`); inf when it never was."""
@@ -359,6 +366,13 @@ class Buff:
     state: Callable[[World], bool | None] | None = None
     needs: Literal['prebuff', 'battle'] | None = None  # the weapon set it is cast with; None: what is in hand
     worth: Callable[[BuffFacts, Monster | None], bool] = always  # whether the cast pays, the target known
+    # What to say when `worth` refuses a target: the line for the service's log, said once a target by the executor
+    # (macros/buffs.py `due`); None from it, or no callable: nothing (the player, 2026-10-14, of Death Mark: "I'm not
+    # sure if death mark is used")
+    refused: Callable[[BuffFacts, Monster], str | None] | None = None
+    # What to say when it is cast on a target: the line for the service's log, by the executor at each cast (the
+    # player, 2026-10-14: the log line is how they see a cast and why); None: nothing
+    said: Callable[[BuffFacts, Monster], str | None] | None = None
     caster: str | None = None  # a name in `Build.casters`; None: aim and key, the shared one
     # The other skills its caster presses, before its own: they too have to be on keys, and their keys are asked
     # for first (macros/buffs.py `keys_of`: the order a missing one is named in)
@@ -466,6 +480,65 @@ class Shield:
     shown: Callable[[World], bool | None]
 
 
+def no_gain(seen: Observation, unit: int, sent: Sequence[int]) -> float:
+    """A draw adds nothing to the fight but where the companions stand."""
+    return 0.0
+
+
+def any_fits(seen: Observation, unit: int) -> bool:
+    """Every hostile is one a draw may go onto."""
+    return True
+
+
+@dataclass(frozen=True)
+class Draw:
+    """A cast that sends the character's companions onto one hostile (the player, 2026-10-14: "a very effective
+    mechanism that allow to distract/re-aggro enemies"): they land beside it, and it and what stands round it go
+    for the nearest body by the client's rule (rca/2026-10-13/re-findings.md, AI "Target and awareness"), the
+    companions now and not the character. The safety pricing weighs it at each look of a fight against holding
+    without it and against the retreat (macros/safety.py `Safety.weigh`: the harm with the companions sent and
+    without, at the look's price of life, plus `gain`, less the cast's `seconds`); the buff row that casts it reads
+    that price (`BuffFacts.draws`). None of a build: no such cast is priced."""
+
+    skill: int
+    sends: Callable[[World, Monster], bool]  # a companion of the character's it sends; with none it is not cast
+    reach: float  # units: a companion farther than this from the hostile is not sent
+    beside: float  # units from the hostile a sent companion lands, on its own side
+    seconds: float  # the cast's time: the strike stands meanwhile
+    lasts: float  # seconds the companions hold the hostile at most
+    # Seconds of the fight it saves on the hostile besides the harm (what the companions sent and the cast's own
+    # effect add to the strike), from the observation, the hostile's unit and the sent companions' classes
+    gain: Callable[[Observation, int, Sequence[int]], float] = no_gain
+    fits: Callable[[Observation, int], bool] = any_fits  # whether a hostile is one to draw onto at all
+    arrives: float = 0.0  # seconds from the key until the companions land
+
+
+@dataclass(frozen=True)
+class DrawPrice:
+    """What the safety pricing found a `Draw` onto one hostile worth at a look, in the arbiter's seconds (T + kappa
+    x H, rca/2026-10-13/architecture-goals-navigation.md §2.6): the life it saves at the look's price of life and
+    what it saves of the fight, against the cast."""
+
+    unit: int
+    life: float  # life points it saves over `span`: the mean harm of holding without it less that with it
+    seconds: float  # those points at the look's price of life (kappa, the dear factor in it)
+    gain: float  # seconds of the fight it saves besides (`Draw.gain`)
+    cost: float  # the cast's seconds
+    span: float  # seconds over which the harm was priced: the companions' hold, or the fight's clear time if less
+
+    @property
+    def worth(self) -> float:
+        """Seconds it saves, net of the cast: positive, it pays."""
+        return self.seconds + self.gain - self.cost
+
+    def line(self) -> str:
+        """The price in words, for the log."""
+        return (
+            f'saves {self.life:.0f} life over {self.span:.1f}s ({self.seconds:.2f}s at the price of life) and '
+            f"{self.gain:.2f}s of the fight, against the cast's {self.cost:.2f}s: {self.worth:+.2f}s"
+        )
+
+
 @dataclass(frozen=True)
 class Loadout:
     """A character's weapon sets by what they are for, as base codes of what is held."""
@@ -503,6 +576,7 @@ class Build:
     casters: Mapping[str, Caster] = field(default_factory=dict)  # the casts that are more than a key
     settings: BuildSettings = field(default_factory=BuildSettings)
     shield: Shield | None = None  # the guard the build keeps on the character; None: none
+    draw: Draw | None = None  # the cast that sends its companions onto a hostile, priced by safety; None: none
 
 
 def choose(builds: Sequence[Build], world: World, fallback: Build) -> Build:

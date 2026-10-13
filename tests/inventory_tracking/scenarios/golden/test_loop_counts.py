@@ -12,7 +12,7 @@ from pathlib import Path
 
 import pytest
 
-from inventory_tracking.builds.warlock import buffs as rotation_module
+from inventory_tracking.builds.warlock import mark as mark_module
 from inventory_tracking.combat.mechanics.tables import points_of
 from inventory_tracking.levels.model import Level
 from inventory_tracking.macros import teleport
@@ -59,7 +59,7 @@ def walking_into_reach():
 
 def first_strike(flags):
     with pytest.MonkeyPatch.context() as patch:  # as the marks_all fixture of test_reaction.py
-        patch.setattr(rotation_module, 'MARK_CASTS', 0)
+        patch.setattr(mark_module, 'why_not', lambda facts, monster: None)
         play = game(foe(10, 5008.0, 5000.0, flags))
         play.toughness[10] = 1000
         attack_mode(play, hunter(play), until=3.0)

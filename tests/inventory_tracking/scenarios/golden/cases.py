@@ -381,9 +381,12 @@ def engorge_due(demons: str, cast: str, corpses: bool) -> object:
 
 
 def worth_a_mark(flags: int, life: int) -> object:
-    """A Hell Bovine in the Moo Moo Farm: a champion at full life is the one monster here worth a mark."""
+    """A Hell Bovine in the Moo Moo Farm, a Defiler of the character's 30 units off, no safety price: by the build's
+    own rule (builds/warlock/mark.py, 2026-10-14: the demons' focus and the mark's points against the cast's 1.0 s)
+    none is worth a mark; before it a champion at full life was (it outlived 4 casts)."""
     target = foe(7, 5010.0, 5000.0, flags, HELL_BOVINE, life=life, max_life=128)
-    world = rotation_world(target, area=COW_LEVEL)
+    defiler = Monster(20, DEFILER_CLASS, 1, 4970.0, 5000.0, CHARACTER, ally=True, life=100, max_life=100)
+    world = rotation_world(target, defiler, area=COW_LEVEL)
     hunter, _ = hunting(world)
     return Rotation(hunter.buffs).worth_a_mark(world, target)
 

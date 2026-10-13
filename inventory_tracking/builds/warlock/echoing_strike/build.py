@@ -1,12 +1,14 @@
 """The Echoing Strike Warlock as the one object the framework asks (macros/build.py `Build`).
 
-The attack, movement, the buff plan and the guard Psychic Ward keeps (`Shield`). The weapon sets are a
-character's own: the layer of a character gives them (builds/characters.py), and the build as it is here has none.
+The attack, movement, the buff plan, the guard Psychic Ward keeps (`Shield`) and the draw of Death Mark (`Draw`).
+The weapon sets are a character's own: the layer of a character gives them (builds/characters.py), and the build as
+it is here has none.
 """
 
 from inventory_tracking.builds.warlock.buffs import BUFFS, ward_shown
 from inventory_tracking.builds.warlock.casters import CASTERS
 from inventory_tracking.builds.warlock.echoing_strike.attack import ECHOING_STRIKE_ATTACK
+from inventory_tracking.builds.warlock.mark import DEATH_MARK_DRAW
 from inventory_tracking.builds.warlock.movement import MOVEMENT
 from inventory_tracking.builds.warlock.skills import ECHOING_STRIKE
 from inventory_tracking.builds.warlock.ward import PSYCHIC_WARD_GUARD
@@ -31,4 +33,5 @@ ECHOING_STRIKE_BUILD = Build(
     buffs=BUFFS,
     casters=CASTERS,
     shield=Shield(PSYCHIC_WARD_GUARD, ward_shown),  # Psychic Ward: the safety price credits its pool and stun
+    draw=DEATH_MARK_DRAW,  # Death Mark sends the demons onto a monster: the safety price weighs it (mark.py)
 )

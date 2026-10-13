@@ -168,6 +168,7 @@ from inventory_tracking.macros.travel import (
     spare_jump,
     step_line,
     step_walk,
+    walk_reaches,
 )
 from inventory_tracking.macros.view import Viewport
 from inventory_tracking.macros.world import (
@@ -278,11 +279,14 @@ class Bearings:
 
 @dataclass(frozen=True)
 class Judged:
-    """One look of the pursuit: what was decided, for which goal, and the place the navigator was asked for."""
+    """One look of the pursuit: what was decided, for which goal, and the place the navigator was asked for;
+    the mailbox as the look read it, and whether its press was fresh at the look's clock."""
 
     act: Act
     goal: Goal | None
     place: Point | None
+    posted: Pursuit | None = None
+    pressed: bool = False
 
 
 @dataclass
@@ -437,6 +441,8 @@ class Hunter:
         self.gather_looked = -math.inf  # clock time of the sweep's last look for something to pick up
         self.gather_waited = -math.inf  # clock time the sweep last said it leaves a drop for later
         self.gathered: dict[int, int] = {}  # unit id -> times the sweep stopped for it
+        self.tried: dict[int, str] = {}  # unit id -> why the last try at it took nothing (an Abort of the hands)
+        self.left_said: set[int] = set()  # the drops whose giving up was said
         self.held: Drop | None = None  # the valuable in sight the sweep stays by (`gather`, `leaves`)
         self.held_said: set[int] = set()  # the drops that staying was said for
         self.held_logged = -math.inf
@@ -445,8 +451,11 @@ class Hunter:
         self.step_asked_at: float | None = None  # clock time of a step taken, until the first cast after it
         # The pursuit (macros/pursuit.py, behind `BuildSettings.pursuit`). `pursuit` is the mailbox the
         # runner posts a press of the teleport key to while attack mode works; the mode names the goal
-        # anew at each look and decides (`judge`, `pursue`).
+        # anew at each look and decides (`judge`, `pursue`). A look reads it once, with its clock, and writes
+        # it back only over what it read (`swap`): a press posted during a look is the next look's
+        # (rca/2026-10-14/run-0025-findings.md §2.1: 6 of 20 pickup presses were dropped by the look under way).
         self.pursuit: Pursuit | None = None
+        self.mailbox = threading.Lock()  # the runner's posts and the loop's write-backs, one at a time
         self.bearings = Bearings()  # the runner's: what a goal is named from
         # the runner's: the key's routine (the route's own step) follows the mode's pause
         self.hand_over: Callable[[str], None] | None = None
@@ -566,30 +575,45 @@ class Hunter:
         """A press posted to the mailbox by the runner. A press that sets no leash keeps the one a level run
         has (the teleport key during a run asks for its goal now, and the run goes on after it); one that
         sets a leash on the same level keeps where it runs."""
-        old = self.pursuit
-        if pursuit.leashed and (old is None or not old.leashed):
-            self.travel.tally = Tally()  # the run's pace counts from its own first leg (`Travel.paced`)
-        if old is not None and old.leashed:
-            if not pursuit.leashed:
-                pursuit = replace(pursuit, leash=old.leash, area=old.area, paused=old.paused)
-            elif pursuit.area is None:
-                pursuit = replace(pursuit, area=old.area)  # a fresh pickup press: the run goes on, unpaused
-        waited = self.pursued
-        if waited is not None and waited.do == WAIT and waited.unit is not None:
-            # A press while the run stands by a valuable with no room for it: the player goes on without it
-            if len(self.waived) > 200:
-                self.waived.clear()
-            self.waived.add(waited.unit)
-        self.pursuit = pursuit
+        with self.mailbox:
+            old = self.pursuit
+            if pursuit.leashed and (old is None or not old.leashed):
+                self.travel.tally = Tally()  # the run's pace counts from its own first leg (`Travel.paced`)
+            if old is not None and old.leashed:
+                if not pursuit.leashed:
+                    pursuit = replace(pursuit, leash=old.leash, area=old.area, paused=old.paused)
+                elif pursuit.area is None:
+                    pursuit = replace(pursuit, area=old.area)  # a fresh pickup press: the run goes on, unpaused
+            waited = self.pursued
+            if waited is not None and waited.do == WAIT and waited.unit is not None:
+                # A press while the run stands by a valuable with no room for it: the player goes on without it
+                if len(self.waived) > 200:
+                    self.waived.clear()
+                self.waived.add(waited.unit)
+            self.pursuit = pursuit
 
-    def end_run(self, run: Run | None, reason: str) -> None:
+    def swap(self, seen: Pursuit | None, new: Pursuit | None) -> bool:
+        """The loop's write to the mailbox, made only while it still holds `seen`, what the loop read (by
+        identity: every post is a new record); whether it was made. A press posted since stays as posted."""
+        with self.mailbox:
+            if self.pursuit is not seen:
+                return False
+            self.pursuit = new
+            return True
+
+    def end_run(self, run: Run | None, reason: str, seen: Pursuit | bool | None = True) -> None:
         """The level run is over (macros/pursuit.py `Ended`; the runner's: attack mode off, the macro
         request, the player's own move): the leash goes back to none, said once. A fresh press of the
-        teleport key in the mailbox stays."""
-        posted = self.pursuit
-        if posted is None or not posted.leashed:
-            return
-        self.pursuit = replace(posted, leash=NONE, area=None, paused=False) if posted.advance else None
+        teleport key in the mailbox stays. `seen`: the mailbox as the look that ended the run read it; a press
+        posted since then is the next look's and keeps the run (True: whatever the mailbox holds now)."""
+        with self.mailbox:
+            posted = self.pursuit if seen is True else seen
+            if not isinstance(posted, Pursuit) or not posted.leashed:
+                return
+            if self.pursuit is not posted:
+                LOG.info('Macro: pursuit: the level run goes on (%s): a press came during the look', reason)
+                return
+            self.pursuit = replace(posted, leash=NONE, area=None, paused=False) if posted.advance else None
         LOG.info('Macro: pursuit: the level run ends: %s', reason)
         self.travel.paced(run.clock() if run is not None else None, reason)
         self.told.new(None)
@@ -600,9 +624,8 @@ class Hunter:
         """The player's hand has the level run (macros/pursuit.py, the module text): the run is paused, said
         once, and goes on by itself once the hand rests (`hand`). Nothing is said for a run already paused."""
         posted = self.pursuit
-        if posted is None or not posted.runs:
+        if posted is None or not posted.runs or not self.swap(posted, replace(posted, paused=True)):
             return
-        self.pursuit = replace(posted, paused=True)
         LOG.info('Macro: pursuit: the level run is paused: %s', why)
         self.told.new(None)
         run.say(f"Level run paused: the player's hand ({why}); it goes on once the hand rests {SETTLE:g} s")
@@ -632,8 +655,11 @@ class Hunter:
         posted = self.pursuit
         if posted is None or not posted.leashed or not posted.paused:
             return
-        if settled(self.hand_at, now, bool(world.open_panels)) and not run.actuator.button_held(1):
-            self.pursuit = replace(posted, paused=False)
+        if (
+            settled(self.hand_at, now, bool(world.open_panels))
+            and not run.actuator.button_held(1)
+            and self.swap(posted, replace(posted, paused=False))
+        ):
             LOG.info('Macro: pursuit: the level run resumes: the hand has rested %.1f s', now - self.hand_at)
             self.told.new(None)
             run.say('Level run resumed')
@@ -651,9 +677,7 @@ class Hunter:
         now = run.clock()
         loot = unshunned(run.loot(), now)
         # What the run has given up on is out of the choice, said once each: the next drop is chosen in its place
-        given_up = {
-            unit: f'no click took it in {GATHER_TRIES} tries' for unit, n in self.gathered.items() if n >= GATHER_TRIES
-        }
+        given_up = {unit: self.given_up(unit) for unit, n in self.gathered.items() if n >= GATHER_TRIES}
         given_up |= {
             unit: f'left: guarded {BLOCK_SECONDS:.0f} s'
             for unit, since in self.guarded_since.items()
@@ -662,6 +686,7 @@ class Hunter:
         for found in loot.drops:
             if found.unit_id in given_up:
                 self.refused_potion(found, here, given_up[found.unit_id])
+                self.left(found, here, given_up[found.unit_id], 'the level run')
         loot = replace(loot, drops=tuple(found for found in loot.drops if found.unit_id not in given_up))
         plan = choose(loot, here)
         drop = plan.drop if plan is not None else None
@@ -685,6 +710,27 @@ class Hunter:
         if drop is not None:
             return drop
         return self.scarce(run, loot, here, world)
+
+    def given_up(self, unit: int) -> str:
+        """Why a drop gone for GATHER_TRIES times is left: what its last try came to, as the hands said it (a
+        priced act that expired mid-walk is not a click that took nothing: run-0025-findings.md §2.3)."""
+        tries = self.gathered.get(unit, 0)
+        last = self.tried.get(unit)
+        if last is None:
+            return f'given up after {tries} tries: still on the ground after each'
+        return f'given up after {tries} tries (the last: {last})'
+
+    def left(self, drop: Drop, here: Point, why: str, who: str) -> None:
+        """A valuable or gold `who` gives up on, said once a drop (a potion says its own: `refused_potion`)."""
+        if drop.kind in (HEALING, REJUVENATION) or drop.unit_id in self.left_said:
+            return
+        if len(self.left_said) > 200:
+            self.left_said.clear()
+        self.left_said.add(drop.unit_id)
+        LOG.info(
+            'Macro: %s leaves %s at (%.0f, %.0f), %.0f away: %s',
+            who, drop.label, drop.x, drop.y, math.dist(here, (drop.x, drop.y)), why,
+        )  # fmt: skip
 
     def refused_potion(self, drop: Drop, here: Point, why: str) -> None:
         """A potion the run leaves, said once a potion and reason (potions-findings.md M4: it was silent)."""
@@ -787,24 +833,25 @@ class Hunter:
             return []
         return found
 
-    def goal(self, run: Run, world: World, foes: list[Monster], pressed: bool) -> Goal | None:
+    def goal(self, run: Run, world: World, foes: list[Monster], pressed: bool, posted: Pursuit | None) -> Goal | None:
         """The goal the key means now (macros/goals.py `goal_of`), from the route's stage, the level
         card, the hostiles in the world and the tracker's memory. A valuable beside the character comes
         first for a press (macros/pickup.py `worth_a_stop`, asked once a press: it counts its tries); on a
         level run a drop the pickup rules take (`side_drop`). Hostiles that bar the goal's act make the
-        fight with them the goal (`first_fight`). `pressed`: a fresh press asks for its goal now."""
+        fight with them the goal (`first_fight`). `pressed`: a fresh press asks for its goal now; `posted`:
+        the mailbox as the look read it (`judge`)."""
         player = world.player
         assert player is not None
         here, area, bearings = (player.x, player.y), player.area, self.bearings
-        running = self.running
+        running = posted is not None and posted.runs
         staged = route.staged(bearings.progress, area)
         card = bearings.card() if bearings.card is not None else None
         if card is not None and card.area != area:
             card = None  # the card is still the level just left
         drop = side = stay = None
-        if pressed and self.pursuit is not None and self.pursuit.advance:
-            if self.stopped_for[0] != self.pursuit.pressed_at:
-                self.stopped_for = (self.pursuit.pressed_at, worth_a_stop(run))
+        if pressed and posted is not None and posted.advance:
+            if self.stopped_for[0] != posted.pressed_at:
+                self.stopped_for = (posted.pressed_at, worth_a_stop(run))
             drop = self.stopped_for[1]
         elif running:
             side = self.side_drop(run, here, foes, world)
@@ -871,12 +918,16 @@ class Hunter:
         build strikes from a distance, and "near enough" for a fight is a shot)."""
         player = world.player
         assert player is not None
-        here, now = (player.x, player.y), run.clock()
+        # The mailbox is read once, before the look's clock: every press the look judges was made by then, and
+        # one posted later is the next look's (rca/2026-10-14/run-0025-findings.md §2.1)
         posted = self.pursuit
+        here, now = (player.x, player.y), run.clock()
         if posted is not None and posted.leashed and posted.area is None:
-            self.pursuit = replace(posted, area=player.area)  # the level run is of the level it was asked on
-        pressed = self.pressed(now)
-        goal = self.pursued = self.goal(run, world, foes, pressed)
+            named = replace(posted, area=player.area)  # the level run is of the level it was asked on
+            self.swap(posted, named)
+            posted = named
+        pressed = posted is not None and posted.fresh(now)
+        goal = self.pursued = self.goal(run, world, foes, pressed, posted)
         level = self.known_level(player)
         rect = run.actuator.keys.focused_window_rect()
         place, there = None, False
@@ -895,6 +946,10 @@ class Hunter:
                     thing is not None and math.dist(here, (thing.x, thing.y)) <= goal.near
                 )
                 there = thing is not None and near
+            elif goal.do == PICK_UP:
+                # Near enough to click is a walk within reach, not a straight line: a drop across lava is gone to
+                # by the navigator first (run-0025-findings.md §2.2: 17 straight, 43 by walking, both tries cut)
+                there = walk_reaches(ground, world.doors, here, goal.place, goal.near)
             else:
                 there = goal.gap(here) <= goal.near
 
@@ -917,11 +972,11 @@ class Hunter:
                 seen = self.attack.sees(observe(player, foes, companions, ground, world.doors), companions)
                 look = self.safety.look(
                     world, loot, hands, seen.blocked, self.build.shield, self.build.settings.safety,
-                    now=now, flights=getattr(run, 'flights', None),
+                    now=now, flights=getattr(run, 'flights', None), draw=self.build.draw,
                 )  # fmt: skip
                 facts = self.safety.price(
                     facts,
-                    self.pursuit,
+                    posted,
                     look,
                     loot,
                     pressure(self.drinker.readings),
@@ -935,10 +990,10 @@ class Hunter:
                     options=lambda point: self.travel.options(run, world, ground, rect[2] / rect[3], point, SAFE_MOVE),
                     battle_ready=now - self.swap_failed_at >= SWAP_RETRY_SECONDS,
                 )
-        act = decide(facts, self.pursuit, self.pursuing)
+        act = decide(facts, posted, self.pursuing)
         if isinstance(act, Advance) and act.reason:
             place = act.step.spot
-        return Judged(act, goal, place)
+        return Judged(act, goal, place, posted, pressed)
 
     def key_asks(self, run: Run, world: World, foes: list[Monster], ground: Ground) -> bool:
         """Inside a fight: whether the key pressed asks for something other than the strike now (a move,
@@ -956,7 +1011,7 @@ class Hunter:
             asks = isinstance(act, Advance | Operate | Defer) or (
                 isinstance(act, NoWay) and act.reason.startswith('safety:')
             )
-            if isinstance(act, Hold) and self.pressed(now):
+            if isinstance(act, Hold) and found.pressed:
                 # A fresh press answered by the strike says so at that look (I6), as `pursue` does
                 label = found.goal.label if found.goal is not None else 'the goal'
                 self.tell(run, act.reason or f'{label}: the least-time safe act is the fight', again=SAID_AGAIN)
@@ -980,14 +1035,19 @@ class Hunter:
             if aloud:
                 run.say(f'{reason[:1].upper()}{reason[1:]}')  # type: ignore[index]
 
-    def defer(self, run: Run, goal: Goal | None, why: str) -> None:
+    def defer(self, run: Run, goal: Goal | None, why: str, seen: Pursuit | bool | None = True) -> None:
         """The press is the route's own step's (a door, the loot, the leaving; a panel open; the town),
         or with no goal the key's own routine's: the mode pauses for that step as it does for the pickup
         step (Cancelled, the runner follows with the key's routine), and the press is taken out of the
-        mailbox. A level run's leash stays: the mode goes on with it after the step."""
-        posted = self.pursuit
+        mailbox. A level run's leash stays: the mode goes on with it after the step. `seen`: the mailbox as
+        the look read it; a press posted since stays for the next look (True: whatever it holds now)."""
+        with self.mailbox:
+            posted = self.pursuit if seen is True else seen
+            if not isinstance(posted, Pursuit):
+                posted = None
+            if self.pursuit is posted:
+                self.pursuit = replace(posted, spent=True) if posted is not None and posted.leashed else None
         key = posted.key if posted is not None else 'teleport'
-        self.pursuit = replace(posted, spent=True) if posted is not None and posted.leashed else None
         if self.hand_over is None:
             self.tell(run, f'{why}: nothing performs it here')
             return
@@ -1011,10 +1071,10 @@ class Hunter:
         """One look of the pursuit and its act (macros/pursuit.py): a move toward the goal, what is done
         at it, the hand-over to the route's own step; whether something was done (the loop then looks at
         the game again). A hold or a reason said leaves the loop to what it did before."""
-        pressed = self.pressed(run.clock())
         found = self.judge(run, world, foes, ground, in_reach=in_reach)
-        act, goal = found.act, found.goal
-        running = self.running
+        act, goal, posted, pressed = found.act, found.goal, found.posted, found.pressed
+        running = posted is not None and posted.runs
+        stamp = posted.pressed_at if posted is not None else -math.inf
         if self.pursuing and run.loot is not None:
             loot = run.loot()
             supply = on_belt(loot)
@@ -1037,7 +1097,6 @@ class Hunter:
         if isinstance(act, Hold):
             # A fight may have yielded on the previous look. Its cached request
             # must not immediately release this newly authorized strike again.
-            stamp = self.pursuit.pressed_at if self.pursuit is not None else -math.inf
             self.judged = (stamp, run.clock(), False)
             if act.reason:
                 self.tell(run, act.reason)
@@ -1050,18 +1109,17 @@ class Hunter:
                 )
             return False
         if isinstance(act, Ended):
-            self.end_run(run, act.reason)
+            self.end_run(run, act.reason, posted)
             return False
         if isinstance(act, NoWay):
             self.tell(run, act.reason, aloud=pressed or running)
             if act.reason.startswith('safety:'):
                 self.nap(run, DECIDE_SECONDS)
                 return True
-            stamp = self.pursuit.pressed_at if self.pursuit is not None else -math.inf
             self.judged = (stamp, run.clock(), False)
             return False
         if isinstance(act, Defer):
-            self.defer(run, goal, act.goal.label if act.goal is not None else 'the key')
+            self.defer(run, goal, act.goal.label if act.goal is not None else 'the key', posted)
             return False
         # The pointer held as a step holds it (the mode itself aims once and casts at once), its mark re-based
         # as the act begins: a hand that moved the mouse before the act stops nothing (`Actuator.held_act`).
@@ -1084,6 +1142,10 @@ class Hunter:
         except Abort as stop:
             if run.cancelled.is_set():
                 raise
+            if isinstance(act, Operate) and act.goal.do == PICK_UP and act.goal.unit is not None:
+                if len(self.tried) > 200:
+                    self.tried.clear()
+                self.tried[act.goal.unit] = str(stop)
             if isinstance(stop, Covered):
                 self.blocked(run, stop.units)
             elif isinstance(act, Operate) and self.base is not None:
@@ -1174,12 +1236,14 @@ class Hunter:
         bearings = self.bearings
         if goal.do == PICK_UP:
             LOG.info('Macro: pursuit: %s is taken first', goal.label)
+            # The hands take the drop the goal names, the one the act was priced for (run-0025-findings.md §2.2:
+            # the goal "5037 gold, on the way" while the hands clicked a Magic Dusk Shroud, valuables first)
             if self.running and goal.unit is not None:
                 # A level run goes for one drop GATHER_TRIES times at most: one no click takes must not hold it
                 self.gathered[goal.unit] = self.gathered.get(goal.unit, 0) + 1
-                pick_up(run, self.known_level(player), key_names, lambda: None, threat(run))
+                pick_up(run, self.known_level(player), key_names, lambda: None, threat(run), unit=goal.unit)
             else:
-                pick_up(run, self.known_level(player), key_names, lambda: None)
+                pick_up(run, self.known_level(player), key_names, lambda: None, unit=goal.unit)
         elif goal.do == USE and goal.mark is not None:
             if rect is None:
                 raise Abort('no game window')
@@ -1207,7 +1271,9 @@ class Hunter:
         foes = self.foes(world, run.clock())
         here = (player.x, player.y)
         in_reach = any(in_reach_of(ground, here, (m.x, m.y), self.reach, world.doors) for m in foes)
-        saved, self.pursuit = self.pursuit, Pursuit('teleport', run.clock())
+        own = Pursuit('teleport', run.clock())
+        with self.mailbox:
+            saved, self.pursuit = self.pursuit, own
         try:
             found = self.judge(run, world, foes, ground, in_reach=in_reach, attacking=attacking)
             if isinstance(found.act, Hold) and not (found.goal is not None and found.goal.do == FIGHT):
@@ -1229,7 +1295,7 @@ class Hunter:
                     self.operate(run, world, found.act.goal, key_names)
             return found
         finally:
-            self.pursuit = saved
+            self.swap(own, saved)  # a press posted meanwhile stays for the mode
 
     def known_level(self, player) -> Level | None:
         level = self.level() if self.level is not None else None
@@ -1572,7 +1638,8 @@ class Hunter:
         """The sweep picks up on its way (user, 2026-10-11: "when doing KP_1 auto-movement, we should also
         auto-pickup items/gold"): with the sweep on and something the pickup step would take
         (pickup.choose), the mode pauses for that step as for a press (Cancelled) and sweeps on after.
-        A drop is stopped for GATHER_TRIES times at most: one no click takes must not hold the mode."""
+        A drop is stopped for GATHER_TRIES times at most: one no click takes must not hold the mode, and once
+        given up it is neither chosen nor stayed by (said once, with why: `given_up`)."""
         now = run.clock()
         if self.pick is None or run.loot is None or not self.sweep.steps or now > self.sweep.until:
             self.held = None
@@ -1581,7 +1648,13 @@ class Hunter:
             return
         self.gather_looked = now
         loot = unshunned(run.loot(), now)
+        spent = {d.unit_id for d in loot.drops if self.gathered.get(d.unit_id, 0) >= GATHER_TRIES}
+        for found in loot.drops:
+            if found.unit_id in spent:
+                self.left(found, here, self.given_up(found.unit_id), 'the sweep')
+        loot = replace(loot, drops=tuple(d for d in loot.drops if d.unit_id not in spent))
         plan = choose(loot, here)
+        guarded: tuple[int, int] | None = None  # (the drop left for later, the hostiles near it or the character)
         if plan is not None:
             # Not with a hostile beside the character or the drop: the stop ends the fight for the
             # walk and the clicks. Tower Cellar 5, 22:50:55 on 2026-10-11: the sweep stopped for a
@@ -1597,10 +1670,13 @@ class Hunter:
                         'Macro: the sweep leaves %s for later: %d hostiles within %.0f of it or the character',
                         plan.drop.label, len(close), GATHER_CLEAR,
                     )  # fmt: skip
+                guarded = (plan.drop.unit_id, len(close))
                 plan = None
-        # A valuable in sight the sweep does not take (no room for it, or its clicks took nothing) is
-        # stayed by: the Tower, 17:56:14 on 2026-10-11, a Grand Charm came down 20 away, the sweep
-        # said nothing, jumped twice and stood 31 from it; the player went back for it by hand.
+        # A valuable in sight the sweep does not take now (no room for it, or hostiles by it) is stayed by: the
+        # Tower, 17:56:14 on 2026-10-11, a Grand Charm came down 20 away, the sweep said nothing, jumped twice
+        # and stood 31 from it; the player went back for it by hand. Not one given up (above): its tries are
+        # spent, and staying by it holds the sweep for nothing (River of Flame, 00:26:49 on 2026-10-14: 3.9 s
+        # of "no better place" by a Large Charm with six hostiles near, run-0025-findings.md §2.3).
         # Not by gear the filter shows that there is no room for (world.py `prized`): the mode goes on to
         # the hostiles (Drifter Cavern, 19:59:52 on 2026-10-12: "the sweep stays by Magic Kriss", 13
         # hostiles 39 away and attack mode idle; user: "allow moving when the item isn't very valuable").
@@ -1612,13 +1688,18 @@ class Hunter:
             and (d.prized or has_room(loot.room, d.size))
         ]
         self.held = min(near, key=lambda d: math.dist(here, (d.x, d.y))) if near else None
-        if plan is None or self.gathered.get(plan.drop.unit_id, 0) >= GATHER_TRIES:
+        if plan is None:
             held = self.held
             if held is not None and held.unit_id not in self.held_said:
                 if len(self.held_said) > 200:
                     self.held_said.clear()
                 self.held_said.add(held.unit_id)
-                why = 'the inventory has no room for it' if not has_room(loot.room, held.size) else 'no click took it'
+                if not has_room(loot.room, held.size):
+                    why = 'the inventory has no room for it'
+                elif guarded is not None and guarded[0] == held.unit_id:
+                    why = f'{guarded[1]} hostiles within {GATHER_CLEAR:.0f} of it or the character'
+                else:
+                    why = 'left for later'
                 away = math.dist(here, (held.x, held.y))
                 LOG.info('Macro: the sweep stays by %s, %.0f away: %s', held.label, away, why)
                 run.say(f'Staying by {held.label}: {why}')
@@ -2382,7 +2463,9 @@ class Hunter:
                     # The build's casts under the strike, each asked in the plan's order with the clock as it
                     # reads then. A cast's own animation swallows a click as a strike does and is no missing
                     # strike; one that moved the pointer leaves the strike's aim to be put back.
-                    asked = self.buffs.facts(run, world, foes, reachable, prey)
+                    # With the safety pricing's last prices of the build's draw (build.py `Draw`), while fresh
+                    draws = self.safety.priced(run.clock())
+                    asked = self.buffs.facts(run, world, foes, reachable, prey, draws)
                     for row in self.buffs.rows('fight'):
                         due = self.buffs.due(run, row, asked)
                         if due is None:

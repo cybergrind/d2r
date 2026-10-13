@@ -387,3 +387,42 @@ def test_a_grid_reads_as_rows_and_the_cubes_three_by_four_has_no_room_for_a_gran
     assert has_room(rows, (1, 2))
     assert not has_room(rows, (1, 3))  # a Grand Charm
     assert grid_rows(None) is None  # no cube
+
+
+def test_an_item_the_character_carried_and_the_player_put_down_is_left_for_the_game_where_it_lies(caplog):
+    """The Superior Crystal Sword of 00:28:24-31 on 2026-10-14 (rca/2026-10-14/run-0025-findings.md §3): taken by
+    the run (unit 490846825), looked at and put down by the player with the same unit id, back in view later with new
+    unit ids at the same place (1237984317, 3010135405), and after Diablo the loot step named it again: "Inventory
+    full: Superior Crystal Sword left on the ground", 71 away. A ground item whose unit id the character carried this
+    game is the player's put down: out of every drop the macro reads (`choose`, the side drops, the stay-by, the
+    warning), by its class and place for the rest of the game."""
+    from dataclasses import replace
+
+    from inventory_tracking.macros.world import VALUABLE, Drop, Loot, PutDown
+
+    game = ('cyber32', 7)
+    sword = Drop(490846825, 7771.0, 5358.0, 'Superior Crystal Sword', VALUABLE, (2, 3), prized=False)
+    belt = Drop(612, 7799.0, 5293.0, 'Magic Light Belt', VALUABLE, (2, 1), prized=False)
+    memory = PutDown()
+    assert memory.see(Loot((), game=game, carried=frozenset({sword.unit_id}))).drops == ()  # in the inventory
+    classes = ((sword.unit_id, 29), (belt.unit_id, 345))
+    with caplog.at_level('INFO'):
+        assert memory.see(Loot((sword, belt), game=game, classes=classes)).drops == (belt,)  # the same unit
+    assert caplog.text.count('Macro: put down:') == 1
+    again = replace(sword, unit_id=1237984317)  # back in view with a new unit id at the same place
+    assert memory.see(Loot((again, belt), game=game, classes=((again.unit_id, 29),))).drops == (belt,)
+    assert memory.at(again.x + 0.5, again.y, 29)
+    assert memory.at(again.x, again.y)  # a mark of no known class (the HUD's) at that place
+    other = replace(sword, unit_id=5)  # another item where the sword lies
+    assert memory.see(Loot((other,), game=game, classes=((5, 30),))).drops == (other,)
+    assert memory.see(Loot((again,), game=None)).drops == (again,)  # an unread game: as read
+    assert memory.see(Loot((again,), game=('cyber33', 7))).drops == (again,)  # the next game forgets
+    assert not memory.at(again.x, again.y)
+
+
+def test_the_carried_items_are_the_item_pointers_of_the_characters_grids():
+    from inventory_tracking.macros.world import held_items
+
+    grids = {0: {'width': 2, 'height': 1, 'cells': [0x1000, 0]}, 5: {'width': 1, 'height': 2, 'cells': [0, 0x2000]}}
+    assert held_items(grids) == frozenset({0x1000, 0x2000})
+    assert held_items({}) == frozenset()
