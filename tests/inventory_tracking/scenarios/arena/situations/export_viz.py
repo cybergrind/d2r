@@ -140,6 +140,11 @@ def task(snap: dict[str, Any], area: int, saying: str = '') -> dict[str, Any]:
         what = 'pickup' + (f': {saying}' if saying else '')
     else:
         what = str(routine)
+    pursuit = snap.get('pursuit') or {}
+    goal = pursuit.get('goal')
+    if goal:
+        # The pursuit loop is on: the goal of the mode's last decision is the active task
+        what += f'; goal: {goal["do"]} {goal["label"]}' + ('' if goal.get('known', True) else ' (place not known)')
     return {
         'attack': bool(snap.get('attack_mode')),
         'routine': routine,

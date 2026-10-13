@@ -255,6 +255,7 @@ class Loot:
     max_life: int = 0
     # The inventory's rows, '.' a free cell and '#' a taken one (collection/capture.py grids); None: unread.
     room: tuple[str, ...] | None = None
+    stats: tuple[tuple[int, int], ...] = ()  # current set's full stats, already read with life
 
 
 @dataclass(frozen=True)
@@ -954,6 +955,7 @@ class GameMemory:
                 stats.get(LIFE_STAT, 0) >> 8,
                 stats.get(MAX_LIFE_STAT, 0) >> 8,
                 inventory_rows(read, table, player.unit_id),
+                tuple(sorted(stats.items())),
             )
         except OSError, ValueError, struct.error:
             return Loot()

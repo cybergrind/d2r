@@ -46,7 +46,7 @@ the way (the potential from the character's own tile). An elite already in reach
 import math
 import threading
 from collections.abc import Callable, Sequence
-from contextlib import ExitStack
+from contextlib import ExitStack, contextmanager
 from dataclasses import dataclass, field, replace
 
 from inventory_tracking.combat.controller import (
@@ -78,15 +78,32 @@ from inventory_tracking.combat.stance import (
     camp,
     no_footing,
 )
+from inventory_tracking.combat.survival import pressure
 from inventory_tracking.common import LOG
 from inventory_tracking.levels.model import Ground, Level, Room, Target
 from inventory_tracking.levels.route import room_at
+from inventory_tracking.macros import route
 from inventory_tracking.macros.actuator import POINTER_DRIFT, Abort, Cancelled
 from inventory_tracking.macros.buffs import Buffs
-from inventory_tracking.macros.build import Attack, Build
-from inventory_tracking.macros.drinking import Drinker
+from inventory_tracking.macros.build import Attack, Build, NoWay
+from inventory_tracking.macros.drinking import Drinker, key_of, on_belt
 from inventory_tracking.macros.engine import Run
-from inventory_tracking.macros.pickup import choose, unshunned
+from inventory_tracking.macros.goals import PICK_NEAR, PICK_UP, Goal, first_fight, goal_of, in_the_way, nearer
+from inventory_tracking.macros.pad import MONSTER_UNIT
+from inventory_tracking.macros.pickup import choose, pick_up, unshunned, worth_a_stop
+from inventory_tracking.macros.pursuit import (
+    NONE,
+    Act,
+    Defer,
+    Ended,
+    Facts,
+    Hold,
+    Move as Advance,
+    Operate,
+    Pursuit,
+    Told,
+    decide,
+)
 from inventory_tracking.macros.rotation import ELITE_LIFE
 from inventory_tracking.macros.routines import (
     ACTING,
@@ -95,7 +112,8 @@ from inventory_tracking.macros.routines import (
     TOWN_NPCS,
     take_battle_weapons,
 )
-from inventory_tracking.macros.sight import clear_shot, firing_spots, in_reach
+from inventory_tracking.macros.safety import Safety
+from inventory_tracking.macros.sight import clear_shot, firing_spots, in_reach, in_reach as in_reach_of
 from inventory_tracking.macros.skills import (
     SWAP_WEAPONS,
     TELEPORT,
@@ -104,17 +122,25 @@ from inventory_tracking.macros.skills import (
 from inventory_tracking.macros.teleport import (
     HOVER_SECONDS,
     MOVED,
+    SPOT_NEAR,
+    USES,
+    Covered,
     Way,
     ground_fraction,
     hop_toward,
     in_view,
+    marked_thing,
     ready,
+    use_thing,
 )
 from inventory_tracking.macros.tour import Bounds, tour
 from inventory_tracking.macros.travel import (
     OWN_MOVE,
     PLAYER_STEP,
+    PRESSED,
+    SAFE_MOVE,
     SEEK,
+    STANDING,
     Point,
     Step,
     Travel,
@@ -139,7 +165,10 @@ from inventory_tracking.macros.world import (
     World,
     has_room,
 )
+from inventory_tracking.models import PotionType
 from inventory_tracking.native.layout import TILE_UNITS
+from inventory_tracking.routes.model import FIGHT, STAND, USE
+from inventory_tracking.routes.progress import Progress
 from inventory_tracking.terror.bosses import BOSSES
 from inventory_tracking.terror.danger import Unit, packs
 from inventory_tracking.terror.tracker import BARRICADES, UNKILLABLE
@@ -171,7 +200,10 @@ GATHER_CLEAR = 12.0  # world units: no hostile this near the character or a drop
 HOLD_SIGHT = 40.0  # world units: a valuable this near that the sweep does not take is stayed by
 HOLD_UNITS = 25.0  # the sweep's own steps end no further than this from it
 GATHER_CHECK = 0.3  # seconds between two looks of the sweep for something to pick up
-GATHER_TRIES = 2  # times the sweep stops for one drop
+GATHER_TRIES = 2  # times the sweep stops for one drop (and a level run goes for one, `side_drop`)
+# Seconds the monsters the hands found in the way of a goal's act (teleport.py `Covered`) stay the fight that
+# comes first for that goal, while any of them lives (goals.py `first_fight`)
+BLOCK_SECONDS = 15.0
 GATHER_SECONDS = 3.0  # a pickup step's time, added to the sweep's own so that it goes on after
 FOLLOW_CHECK = 0.7  # seconds between two looks for a better place while a fight goes on
 SWEEP_UNITS = 60.0  # hostiles this near are gone to
@@ -211,6 +243,27 @@ MISSES_IN_A_ROW = 5  # fights that stopped one after another before attack mode 
 IDLE_LOG_SECONDS = 3.0  # between log lines on what attack mode sees while nothing is in reach
 
 Remembered = Callable[[int], list[tuple[int, float, float, bool]]]  # area -> (unit id, x, y, leader)
+
+
+@dataclass
+class Bearings:
+    """What the goal of a key is named from besides the world (macros/goals.py `goal_of`), the runner's
+    and handed to the hunt by it: the routes' progress, the level card's first mark and the places of
+    its marks by label, the tracker's last-seen places of super uniques and bosses by level."""
+
+    progress: Progress | None = None
+    card: Callable[[], Target | None] | None = None
+    marks: Callable[[str], tuple[Point, ...]] | None = None
+    supers: Callable[[int], list[Point]] | None = None
+
+
+@dataclass(frozen=True)
+class Judged:
+    """One look of the pursuit: what was decided, for which goal, and the place the navigator was asked for."""
+
+    act: Act
+    goal: Goal | None
+    place: Point | None
 
 
 @dataclass
@@ -290,9 +343,13 @@ def hostiles(world: World) -> list[Monster]:
 
 def strike_input(run: Run, world: World, key_names, skill: int) -> tuple[tuple[str, ...], str]:
     """(what to hold, how to say it) for `skill`, the attack's strike: the right mouse button when it
-    holds the skill (as the player casts it), else its skill key, else the left button with Shift."""
+    holds the skill (as the player casts it), else its skill key, else the left button with Shift. In
+    controller mode its pad record (macros/pad.py), held by `Run.pad`: nothing to name for the keys."""
     player = world.player
     assert player is not None
+    if run.pad is not None:
+        run.keys.update(key_names(world, (skill,)))  # Abort: on no pad record
+        return (), f'pad {run.keys[skill]}'
     if player.right_skill == skill:
         return ('Button3',), 'right click'
     if skill in world.slots:
@@ -343,6 +400,8 @@ class Hunter:
         self.move: Move | None = None  # the move the player asked for and has not got yet: before any strike
         self.left_down = False  # the left mouse button at the last look
         self.drinker = Drinker(self.build.settings.drink)  # the belt keys beside the fight (drinking.py)
+        self.safety = Safety()
+        self.expired_motion = False  # an expired macro click still moving: safety owns the next act
         self.stands: Point | None = None  # where attack mode last saw the character
         # (where, since when, said) the character has been walking or running without getting anywhere
         self.ran: tuple[Point, float, bool] | None = None
@@ -363,6 +422,22 @@ class Hunter:
         self.stepping: Step | None = None  # the step the fight stopped for
         self.sweep = Sweep()
         self.step_asked_at: float | None = None  # clock time of a step taken, until the first cast after it
+        # The pursuit (macros/pursuit.py, behind `BuildSettings.pursuit`). `pursuit` is the mailbox the
+        # runner posts a press of the teleport key to while attack mode works; the mode names the goal
+        # anew at each look and decides (`judge`, `pursue`).
+        self.pursuit: Pursuit | None = None
+        self.bearings = Bearings()  # the runner's: what a goal is named from
+        # the runner's: the key's routine (the route's own step) follows the mode's pause
+        self.hand_over: Callable[[str], None] | None = None
+        self.told = Told()  # the reason last said for a decision that moved nothing
+        self.pursued: Goal | None = None  # the goal of the last decision, for the recorder and the viewer
+        self.stopped_for: tuple[float, Drop | None] = (-math.inf, None)  # (the press, the drop it takes first)
+        self.judged: tuple[float, float, bool] = (-math.inf, -math.inf, False)  # (the press, when, it asks a move)
+        # (the goal's label, the monsters the hands found in the way of its act, until when): `first_fight`
+        self.blocking: tuple[str, frozenset[int], float] | None = None
+        self.base: Goal | None = None  # the goal of the last look before the fight that bars it (`first_fight`)
+        self.settled_at = -math.inf  # clock time an object used has brought what it calls (teleport.py `Use.brings`)
+        self.missed: tuple[str, float] | None = None  # (a goal's label, until when) whose act did not take: `nearer`
 
     def use(self, build: Build) -> None:
         """The build the hunt plays from now on: the runner's, named at a run's first look that shows
@@ -429,6 +504,483 @@ class Hunter:
         )  # fmt: skip
         run.say(f'{label(prey)} takes no damage: left alone')
         return True
+
+    @property
+    def pursuing(self) -> bool:
+        """Whether the build played has the pursuit loop on (`BuildSettings.pursuit`)."""
+        return self.build.settings.pursuit
+
+    def pressed(self, now: float) -> bool:
+        """Whether a press of the key is in the mailbox and still asks for a move."""
+        return self.pursuit is not None and self.pursuit.fresh(now)
+
+    def advancing(self, now: float) -> bool:
+        """Whether a fresh press asks for its goal now, before what is in reach (the teleport key's)."""
+        return self.pursuit is not None and self.pursuit.advance and self.pursuit.fresh(now)
+
+    @property
+    def running(self) -> bool:
+        """Whether a level run is on (the pickup key's leash: macros/pursuit.py)."""
+        return self.pursuit is not None and self.pursuit.runs
+
+    def post(self, pursuit: Pursuit) -> None:
+        """A press posted to the mailbox by the runner. A press that sets no leash keeps the one a level run
+        has (the teleport key during a run asks for its goal now, and the run goes on after it); one that
+        sets a leash on the same level keeps where it runs."""
+        old = self.pursuit
+        if old is not None and old.runs:
+            if not pursuit.runs:
+                pursuit = replace(pursuit, leash=old.leash, area=old.area)
+            elif pursuit.area is None:
+                pursuit = replace(pursuit, area=old.area)
+        self.pursuit = pursuit
+
+    def end_run(self, run: Run | None, reason: str) -> None:
+        """The level run is over (macros/pursuit.py `Ended`; the runner's: attack mode off, the macro
+        request, the player's own move): the leash goes back to none, said once. A fresh press of the
+        teleport key in the mailbox stays."""
+        posted = self.pursuit
+        if posted is None or not posted.runs:
+            return
+        self.pursuit = replace(posted, leash=NONE, area=None) if posted.advance else None
+        LOG.info('Macro: pursuit: the level run ends: %s', reason)
+        self.told.new(None)
+        if run is not None:
+            run.say(f'Level run over: {reason}')
+
+    def side_drop(self, run: Run, here: Point) -> Drop | None:
+        """What a level run takes on its way (the pickup key's own rules, macros/pickup.py `choose`): a
+        valuable within PICK_NEAR, gold within a jump, a potion the belt wants; not a potion with hostiles
+        near it or the character (`threat`, as the pickup key leaves one), and not a drop gone for
+        GATHER_TRIES times already."""
+        if run.loot is None:
+            return None
+        plan = choose(unshunned(run.loot(), run.clock()), here)
+        if plan is None or self.gathered.get(plan.drop.unit_id, 0) >= GATHER_TRIES:
+            return None
+        drop = plan.drop
+        if drop.kind == VALUABLE and math.dist(here, (drop.x, drop.y)) > PICK_NEAR:
+            return None
+        if drop.kind in (HEALING, REJUVENATION) and threat(run)(here, (drop.x, drop.y)):
+            return None
+        return drop
+
+    def blockers(self, goal: Goal | None, foes: Sequence[Monster], now: float) -> list[Monster]:
+        """The hostiles alive that the hands found in the way of `goal`'s act (`Covered`), while that is
+        no older than BLOCK_SECONDS; forgotten once none of them lives or the goal changed."""
+        blocking = self.blocking
+        if blocking is None or goal is None:
+            return []
+        label, units, until = blocking
+        found = [m for m in foes if m.unit_id in units]
+        if label != goal.label or now > until or not found:
+            self.blocking = None
+            return []
+        return found
+
+    def goal(self, run: Run, world: World, foes: list[Monster], pressed: bool) -> Goal | None:
+        """The goal the key means now (macros/goals.py `goal_of`), from the route's stage, the level
+        card, the hostiles in the world and the tracker's memory. A valuable beside the character comes
+        first for a press (macros/pickup.py `worth_a_stop`, asked once a press: it counts its tries); on a
+        level run a drop the pickup rules take (`side_drop`). Hostiles that bar the goal's act make the
+        fight with them the goal (`first_fight`). `pressed`: a fresh press asks for its goal now."""
+        player = world.player
+        assert player is not None
+        here, area, bearings = (player.x, player.y), player.area, self.bearings
+        running = self.running
+        staged = route.staged(bearings.progress, area)
+        card = bearings.card() if bearings.card is not None else None
+        if card is not None and card.area != area:
+            card = None  # the card is still the level just left
+        drop = side = None
+        if pressed and self.pursuit is not None and self.pursuit.advance:
+            if self.stopped_for[0] != self.pursuit.pressed_at:
+                self.stopped_for = (self.pursuit.pressed_at, worth_a_stop(run))
+            drop = self.stopped_for[1]
+        elif running:
+            side = self.side_drop(run, here)
+        known = self.remembered(area) if self.remembered is not None else []
+        live = {m.unit_id for m in foes}
+        self.vanished |= {
+            unit for unit, x, y, _ in known if unit not in live and math.dist(here, (x, y)) <= VANISH_UNITS
+        }
+
+        def elsewhere() -> tuple[Point, str] | None:
+            # Nothing is known of the boss: whatever of the level is left to look for it in, as the seek
+            # step looks (the nearest hostile known, else the unexplored room nearest by the way).
+            quarry = self.quarry(area, here, foes, any_hostile=True)
+            if quarry is not None:
+                return quarry
+            level, rect = self.known_level(player), run.actuator.keys.focused_window_rect()
+            frontier = self.frontier(level, player, rect) if level is not None and rect is not None else None
+            if frontier is None:
+                return None
+            _, _, (x, y) = frontier
+            return ((x + 0.5) * TILE_UNITS, (y + 0.5) * TILE_UNITS), 'an unexplored room'
+
+        found = goal_of(
+            here,
+            spend=PRESSED if pressed or running else STANDING,
+            reach=self.reach,
+            stage=staged[1] if staged is not None else None,
+            route=staged[0] if staged is not None else '',
+            card=card,
+            # Every hostile, the ones left alone for a while among them (`untouchable`): a boss the strikes
+            # did nothing to is still where the fight is, and nothing else is sought in its place.
+            foes=hostiles(world),
+            remembered=known,
+            supers=bearings.supers(area) if bearings.supers is not None else (),
+            gone=frozenset(self.vanished | set(self.untouchable)),
+            # Only a press or a level run looks for a boss nothing is known of: the mode by itself goes
+            # nowhere for it (macros/pursuit.py `decide`), and the look costs a potential over the whole level.
+            elsewhere=elsewhere if pressed or running else None,
+            drop=drop,
+            side=side,
+        )
+        missed = self.missed
+        if found is not None and missed is not None and missed[0] == found.label and run.clock() <= missed[1]:
+            found = nearer(found)  # its act did not take from where the character stood: from nearer now
+        self.base = found
+        barring = self.blockers(found, foes, run.clock())
+        if found is not None and running and not self.pursuing:
+            # The run's own move, no press asking for the goal now: what stands where the goal's act is made
+            # is fought first (a pack on a seal). A press is never refused this way (architecture §1).
+            known = {m.unit_id for m in barring}
+            barring += [m for m in in_the_way(found, foes) if m.unit_id not in known]
+        return first_fight(found, here, barring, self.reach) if found is not None and barring else found
+
+    def judge(
+        self, run: Run, world: World, foes: list[Monster], ground: Ground, *, in_reach: bool, attacking: bool = True
+    ) -> Judged:
+        """One look of the pursuit: the goal named, the facts read and the decision made
+        (macros/pursuit.py `decide`). Nothing is done here. The place the navigator is asked for is the
+        goal's own, and for a fight the nearest place with a shot at the boss (`firing_target`: the
+        build strikes from a distance, and "near enough" for a fight is a shot)."""
+        player = world.player
+        assert player is not None
+        here, now = (player.x, player.y), run.clock()
+        posted = self.pursuit
+        if posted is not None and posted.runs and posted.area is None:
+            self.pursuit = replace(posted, area=player.area)  # the level run is of the level it was asked on
+        pressed = self.pressed(now)
+        goal = self.pursued = self.goal(run, world, foes, pressed)
+        level = self.known_level(player)
+        rect = run.actuator.keys.focused_window_rect()
+        place, there = None, False
+        if goal is not None:
+            place = goal.place
+            if goal.do == FIGHT:
+                there = in_reach_of(ground, here, goal.place, goal.near, world.doors)
+                if not there and level is not None and goal.known:
+                    # As `firing_target` chooses it, without its log line: this is asked at every look
+                    spots = firing_spots(ground, goal.place, STRIKE_REACH, here, world.doors) or [goal.place]
+                    rooms = level.rooms
+                    place = next((s for s in spots if room_at(rooms, (s[0] / TILE_UNITS, s[1] / TILE_UNITS))), spots[0])
+            elif goal.do == USE and goal.mark is not None:
+                thing = marked_thing(run, goal.mark)
+                near = goal.gap(here) <= SPOT_NEAR or (
+                    thing is not None and math.dist(here, (thing.x, thing.y)) <= goal.near
+                )
+                there = thing is not None and near
+            else:
+                there = goal.gap(here) <= goal.near
+
+        def way():
+            if goal is None or place is None or rect is None:
+                return NoWay('no game window')
+            rooms = level.rooms if level is not None else ()
+            return self.travel.toward(run, world, ground, rect[2] / rect[3], place, goal.spend, rooms)
+
+        facts = Facts(now, goal, there, in_reach, attacking, way, player.area, now < self.settled_at)
+        if self.pursuing and run.loot is not None and rect is not None:
+            loot = run.loot()
+            if loot.max_life > 0 and loot.life > 0:
+                staff = self.worn(run)
+                hands = 'travel' if staff is not None and staff.in_hand else 'battle'
+                companions = [m for m in world.monsters if m.ally or m.owner != NO_OWNER]
+                seen = self.attack.sees(observe(player, foes, companions, ground, world.doors), companions)
+                look = self.safety.look(world, loot, hands, seen.blocked)
+                facts = self.safety.price(
+                    facts,
+                    self.pursuit,
+                    look,
+                    loot,
+                    pressure(self.drinker.readings),
+                    self.build.settings.safety,
+                    seen,
+                    self.attack,
+                    lambda point: self.travel.leg(run, world, ground, rect[2] / rect[3], point, SAFE_MOVE),
+                    self.travel.jumps(run, world, SAFE_MOVE),
+                    no_footing(ground, world.doors),
+                    hands,
+                    options=lambda point: self.travel.options(run, world, ground, rect[2] / rect[3], point, SAFE_MOVE),
+                    battle_ready=now - self.swap_failed_at >= SWAP_RETRY_SECONDS,
+                )
+        act = decide(facts, self.pursuit, self.pursuing)
+        if isinstance(act, Advance) and act.reason:
+            place = act.step.spot
+        return Judged(act, goal, place)
+
+    def key_asks(self, run: Run, world: World, foes: list[Monster], ground: Ground) -> bool:
+        """Inside a fight: whether the key pressed asks for something other than the strike now (a move,
+        an object to use, the route's own step), for which the fight lets go as it does for the player's
+        own move. Decided once a press and again every DECIDE_SECONDS while the press is fresh: a goal in
+        reach is held, and the strike is not let go for a press that asks for nothing else."""
+        now = run.clock()
+        if not self.pursuing:
+            return False
+        current = self.pursuit.pressed_at if self.pursuit is not None else -math.inf
+        stamp, at, asks = self.judged
+        if stamp != current or now - at >= DECIDE_SECONDS:
+            act = self.judge(run, world, foes, ground, in_reach=True).act
+            asks = isinstance(act, Advance | Operate | Defer) or (
+                isinstance(act, NoWay) and act.reason.startswith('safety:')
+            )
+            self.judged = (current, now, asks)
+        return asks
+
+    def tell(self, run: Run, reason: str | None, *, aloud: bool = True) -> None:
+        """A decision that moved nothing is said with its reason, once per change (never once per press).
+        Not `aloud`: to the log alone (what the mode does with no press asking: its idle look, as before)."""
+        if self.told.new(reason):
+            LOG.info('Macro: pursuit: %s', reason)
+            if aloud:
+                run.say(f'{reason[:1].upper()}{reason[1:]}')  # type: ignore[index]
+
+    def defer(self, run: Run, goal: Goal | None, why: str) -> None:
+        """The press is the route's own step's (a door, the loot, the leaving; a panel open; the town),
+        or with no goal the key's own routine's: the mode pauses for that step as it does for the pickup
+        step (Cancelled, the runner follows with the key's routine), and the press is taken out of the
+        mailbox. A level run's leash stays: the mode goes on with it after the step."""
+        posted = self.pursuit
+        key = posted.key if posted is not None else 'teleport'
+        self.pursuit = replace(posted, spent=True) if posted is not None and posted.runs else None
+        if self.hand_over is None:
+            self.tell(run, f'{why}: nothing performs it here')
+            return
+        LOG.info("Macro: pursuit: %s: the route's own step takes the press", goal.label if goal is not None else why)
+        self.hand_over(key)
+        raise Cancelled
+
+    def blocked(self, run: Run, units: frozenset[int]) -> None:
+        """The hands found `units` in the way of the goal's act (teleport.py `Covered`): the fight with them
+        comes first for that goal (`blockers`, goals.py `first_fight`)."""
+        base = self.base
+        if base is None:
+            return
+        held = self.blocking
+        if held is not None and held[0] == base.label:
+            units = units | held[1]
+        self.blocking = (base.label, units, run.clock() + BLOCK_SECONDS)
+        LOG.info('Macro: pursuit: %s: %d in the way of its act, the fight first', base.label, len(units))
+
+    def pursue(self, run: Run, world: World, foes: list[Monster], ground: Ground, key_names, *, in_reach: bool) -> bool:
+        """One look of the pursuit and its act (macros/pursuit.py): a move toward the goal, what is done
+        at it, the hand-over to the route's own step; whether something was done (the loop then looks at
+        the game again). A hold or a reason said leaves the loop to what it did before."""
+        pressed = self.pressed(run.clock())
+        found = self.judge(run, world, foes, ground, in_reach=in_reach)
+        act, goal = found.act, found.goal
+        running = self.running
+        if self.pursuing and run.loot is not None:
+            loot = run.loot()
+            supply = on_belt(loot)
+            kind = PotionType.REJUVENATION
+            settings = self.build.settings
+            # Budget recovery, not borrowed future life: the next look must see
+            # the healing before it can authorize a formerly unaffordable act.
+            if (
+                0 < loot.life < loot.max_life * settings.safety.floor / 100
+                and not supply[PotionType.HEALING]
+                and supply[kind]
+                and run.clock() - self.drinker.drunk_at.get(kind, -math.inf) >= settings.drink.rejuvenation_gap
+                and not self.drinker.busy
+                and not self.drinker.shift_down(run)
+            ):
+                key = key_of(loot, kind)
+                if key is not None and self.drinker.press(run, key, kind, loot, pressure(self.drinker.readings)):
+                    self.tell(run, 'recovering the life budget; the next look decides the act')
+                    return True
+        if isinstance(act, Hold):
+            # A fight may have yielded on the previous look. Its cached request
+            # must not immediately release this newly authorized strike again.
+            stamp = self.pursuit.pressed_at if self.pursuit is not None else -math.inf
+            self.judged = (stamp, run.clock(), False)
+            if act.reason:
+                self.tell(run, act.reason)
+            elif pressed:
+                raised = '; pressed through: budget raised' if self.safety.decision.get('floor_raised') else ''
+                self.tell(run, f'{goal.label if goal else "the goal"}: the least-time safe act is the fight{raised}')
+            return False
+        if isinstance(act, Ended):
+            self.end_run(run, act.reason)
+            return False
+        if isinstance(act, NoWay):
+            self.tell(run, act.reason, aloud=pressed or running)
+            if act.reason.startswith('safety:'):
+                self.nap(run, DECIDE_SECONDS)
+                return True
+            stamp = self.pursuit.pressed_at if self.pursuit is not None else -math.inf
+            self.judged = (stamp, run.clock(), False)
+            return False
+        if isinstance(act, Defer):
+            self.defer(run, goal, act.goal.label if act.goal is not None else 'the key')
+            return False
+        # The pointer held as a step holds it: the mode itself aims once and casts at once.
+        drift, steady = run.actuator.drift, run.actuator.steady
+        run.actuator.drift, run.actuator.steady = POINTER_DRIFT, True
+        try:
+            if isinstance(act, Advance):
+                assert found.place is not None
+                with self.priced_for(run, act.step.seconds):
+                    self.advance(run, world, ground, act, found.place, key_names)
+                if pressed and not running:
+                    # The key took the character somewhere: no step of the sweep's back to what it left
+                    # (Tower Cellar 3, 00:49 on 2026-10-11). A press that moved nothing ends no sweep.
+                    # A level run keeps its sweep for the fights on its way (its own moves are the run's).
+                    self.sweep.end()
+            else:
+                with self.priced_for(run, self.build.settings.safety.operate_dwell):
+                    self.operate(run, world, act.goal, key_names)
+            self.told.new(None)
+        except Abort as stop:
+            if run.cancelled.is_set():
+                raise
+            if isinstance(stop, Covered):
+                self.blocked(run, stop.units)
+            elif isinstance(act, Operate) and self.base is not None:
+                self.missed = (self.base.label, run.clock() + BLOCK_SECONDS)  # tried again from nearer
+            self.tell(run, f'no {"move toward" if isinstance(act, Advance) else "use of"} {act.goal.label}: {stop}')
+            self.nap(run, FRAME)
+        finally:
+            run.actuator.drift, run.actuator.steady = drift, steady
+        return True
+
+    @contextmanager
+    def priced_for(self, run: Run, seconds: float):
+        """An act's price is not permission to spend an unbounded time in its hands.
+
+        Existing hands already poll the world. Expiry unwinds them through their
+        normal Abort cleanup; the next loop look prices what actually happened.
+        Preserve the recorder/other observer and restore it even on cancellation.
+        """
+        if not self.pursuing or seconds <= 0:
+            yield
+            return
+        until = run.clock() + seconds
+        previous = run.observe
+
+        def observed(world: World) -> None:
+            if previous is not None:
+                previous(world)
+            if run.clock() >= until:
+                self.expired_motion = world.player is not None and world.player.mode in RUN_MODES
+                raise Abort('priced act expired: look again before continuing')
+
+        run.observe = observed
+        try:
+            yield
+        finally:
+            run.observe = previous
+
+    def advance(self, run: Run, world: World, ground: Ground, act: Advance, place: Point, key_names) -> None:
+        """Make the move the navigator gave toward the goal. A casting delay about to end on the way the
+        set would take is waited out first and the move asked for again (`Travel.pause`); with the staff
+        in hand and no charge on it the main weapons are taken, once (`empty_hop` has why)."""
+        goal, step = act.goal, act.step
+        if act.reason:
+            self.tell(run, act.reason)
+        player, rect = world.player, run.actuator.keys.focused_window_rect()
+        assert player is not None
+        if rect is None:
+            raise Abort('no game window')
+        aspect = rect[2] / rect[3]
+        level = self.known_level(player)
+        rooms = level.rooms if level is not None else ()
+        wait = 0.0 if act.reason else self.travel.pause(run, world, ground, aspect, place, goal.spend, rooms)
+        if wait > 0:
+            # At a cooldown boundary float subtraction can leave a sub-frame
+            # remainder. The next look must observe a later game frame.
+            run.pace.sleep(max(FRAME, wait))
+            return  # the next look must reprice a new leg; never execute an unpriced replacement
+        if step.needs == 'battle' and not self.main_weapons(run, world, key_names):
+            self.tell(run, 'waiting for the priced battle weapons')
+            self.nap(run, POLL)
+            return
+        staff = self.worn(run)
+        if staff is not None and staff.charges == 0 and staff.in_hand:
+            run.keys.update(key_names(world, (SWAP_WEAPONS,)))
+            take_battle_weapons(run)
+        by = 'Walking' if step.skill is None else skill_name(step.skill)
+        here = (world.player.x, world.player.y) if world.player is not None else (player.x, player.y)
+        LOG.info(
+            'Macro: pursuit: %s toward %s at (%.1f, %.1f), %.0f away from (%.1f, %.1f): to (%.1f, %.1f) within %s',
+            by, goal.label, *place, math.dist(here, place), *here, *step.spot, goal.spend.name,
+        )  # fmt: skip
+        if step.skill is not None and step.skill != TELEPORT:
+            run.say(f'{by} toward {goal.label}')  # a walk and a Teleport hop say their own line
+        self.travel.make(run, step, world, aspect, key_names, ground, name=goal.label, intent=goal.spend, goal=place)
+
+    def operate(self, run: Run, world: World, goal: Goal, key_names) -> None:
+        """What is done at a goal reached: its object used and the route told (macros/route.py
+        `note_used`), a stand noted, a drop taken by the pickup step's own hands."""
+        player, rect = world.player, run.actuator.keys.focused_window_rect()
+        assert player is not None
+        bearings = self.bearings
+        if goal.do == PICK_UP:
+            LOG.info('Macro: pursuit: %s is taken first', goal.label)
+            if self.running and goal.unit is not None:
+                # A level run goes for one drop GATHER_TRIES times at most: one no click takes must not hold it
+                self.gathered[goal.unit] = self.gathered.get(goal.unit, 0) + 1
+                pick_up(run, self.known_level(player), key_names, lambda: None, threat(run))
+            else:
+                pick_up(run, self.known_level(player), key_names, lambda: None)
+        elif goal.do == USE and goal.mark is not None:
+            if rect is None:
+                raise Abort('no game window')
+            thing = marked_thing(run, goal.mark)
+            if thing is None:
+                raise Abort(USES[goal.mark.use].absent.format(goal.mark.label))
+            use_thing(run, goal.mark, player, thing, rect[2] / rect[3])
+            self.settled_at = run.clock() + USES[goal.mark.use].brings
+            route.note_used(run, goal.mark, bearings.progress, bearings.marks)
+        elif goal.do == STAND and goal.stage is not None and bearings.progress is not None:
+            bearings.progress.stood(player.area, goal.stage.mark)
+            run.say(f'{goal.route}: at {goal.stage.mark}')
+
+    def pursue_once(self, run: Run, key_names, *, attacking: bool) -> Judged | None:
+        """One press of the teleport key with nothing working: one pass of the same decision the mode
+        makes (`pursue`), the press being this run's own; what was decided, the act made. `attacking`:
+        attack mode is on or follows this press. None: the press is the route's own step's (the pursuit
+        is off for the build played, the town, a goal that step performs), and nothing was done."""
+        player, _ = ready(run)
+        if not self.pursuing or player.in_town:
+            return None
+        world = run.world()
+        level = self.known_level(player)
+        ground = Ground(level.ground if level is not None else ())
+        foes = self.foes(world, run.clock())
+        here = (player.x, player.y)
+        in_reach = any(in_reach_of(ground, here, (m.x, m.y), self.reach, world.doors) for m in foes)
+        saved, self.pursuit = self.pursuit, Pursuit('teleport', run.clock())
+        try:
+            found = self.judge(run, world, foes, ground, in_reach=in_reach, attacking=attacking)
+            if isinstance(found.act, Defer):
+                return None
+            run.in_time('the step')
+            if isinstance(found.act, NoWay):
+                self.told.new(None)  # a press with nothing working always says why it moved nothing
+                self.tell(run, found.act.reason)
+            elif isinstance(found.act, Advance):
+                assert found.place is not None
+                with self.priced_for(run, found.act.step.seconds):
+                    self.advance(run, world, ground, found.act, found.place, key_names)
+            elif isinstance(found.act, Operate):
+                with self.priced_for(run, self.build.settings.safety.operate_dwell):
+                    self.operate(run, world, found.act.goal, key_names)
+            return found
+        finally:
+            self.pursuit = saved
 
     def known_level(self, player) -> Level | None:
         level = self.level() if self.level is not None else None
@@ -1031,11 +1583,33 @@ class Hunter:
                     waited_at = run.clock()
                     assert player is not None
                     LOG.info('Macro: waiting (%s), at (%.1f, %.1f), mode %d', why, player.x, player.y, player.mode)
+                if player is not None and self.pursuing and self.pressed(run.clock()):
+                    # The player's own move wins over the key's; a panel or the town is the route's own step's
+                    if why:
+                        self.tell(run, f'the key waits: {why}', aloud=False)
+                    else:
+                        self.defer(run, None, 'the town or an open panel')
                 self.step_aside()
                 self.nap(run, POLL)  # the player's move (a key, the left button, a run): waited through
                 continue
             assert attack is not None  # the character is seen
             foes = self.foes(world, run.clock())
+            if self.running:
+                if player.mode in DEAD:
+                    self.end_run(run, 'the character died')
+                elif not self.sweep.steps or run.clock() > self.sweep.until:
+                    # A level run keeps the sweep's look for a better place in its fights (the stance rules:
+                    # combat/stance.py `camp`), as the pickup key's sweep had it; its moves are the run's.
+                    self.sweep.start(run.clock())
+            if self.pursuing:
+                # The key first, before a buff is kept up or a strike begun: its move goes out at once
+                found = self.known_level(player)
+                over = Ground(found.ground if found is not None else ())
+                at = (player.x, player.y)
+                near = any(in_reach(over, at, (m.x, m.y), attack.reach, world.doors) for m in foes)
+                if self.pursue(run, world, foes, over, key_names, in_reach=near):
+                    entered = run.clock()  # as after a teleport step: the main weapons wait MAIN_AFTER
+                    continue
             if self.upkeep(run, world, foes, key_names):
                 continue
             level = self.known_level(player)
@@ -1043,8 +1617,13 @@ class Hunter:
             here = (player.x, player.y)
             if not any(in_reach(ground, here, (m.x, m.y), attack.reach, world.doors) for m in foes):
                 self.step_aside()
-                self.gather(run, here, foes)
-                if self.sweep.steps and foes and self.follow_on(run, world, foes, ground, key_names):
+                if not self.running:  # a level run takes its drops as goals of its own (`side_drop`)
+                    self.gather(run, here, foes)
+                if self.pursuing and self.pursue(run, world, foes, ground, key_names, in_reach=False):
+                    entered = run.clock()
+                    continue
+                running = self.running  # a level run's moves are its own: not the sweep's toward the nearest
+                if self.sweep.steps and foes and not running and self.follow_on(run, world, foes, ground, key_names):
                     continue
                 if foes and run.clock() - logged_at >= IDLE_LOG_SECONDS:
                     logged_at = run.clock()
@@ -1054,7 +1633,7 @@ class Hunter:
                         len(foes), label(nearest), math.dist(here, (nearest.x, nearest.y)),
                         'clear' if clear_shot(ground, here, (nearest.x, nearest.y), world.doors) else 'blocked', *here,
                     )  # fmt: skip
-                self.nap(run, POLL)
+                self.nap(run, POLL, key=self.pursuing)
                 continue
             rect = run.actuator.keys.focused_window_rect()
             if rect is None:
@@ -1078,10 +1657,14 @@ class Hunter:
                 # held and stops for the swap at that time.
                 reachable = [m for m in foes if in_reach(ground, here, (m.x, m.y), attack.reach, world.doors)]
                 boss = any(m.txt_id in BOSSES for m in reachable)  # the chain of hops ended at it
-                tough = boss or self.tough(world, reachable)
-                settled = boss or run.clock() - entered >= MAIN_AFTER
+                tough = self.pursuing or boss or self.tough(world, reachable)
+                settled = self.pursuing or boss or run.clock() - entered >= MAIN_AFTER
                 held = self.main_weapons(run, world, key_names, swap=settled and tough)
-                pause = entered + MAIN_AFTER if tough and not held else None
+                if self.pursuing and not held:
+                    self.tell(run, 'waiting for the priced battle weapons')
+                    self.nap(run, POLL)
+                    continue
+                pause = entered + MAIN_AFTER if tough and not held and not self.pursuing else None
                 self.fight(run, ground, rect[2] / rect[3], key_names, until=pause)
                 misses = 0
                 self.take_step(run, rect[2] / rect[3], key_names, ground)  # the step the fight stopped for, if any
@@ -1174,10 +1757,16 @@ class Hunter:
         own, `Build.weapons`), or hands that cannot be read, are left as they are; a swap
         that did not come is not asked for again for SWAP_RETRY_SECONDS."""
         loadout = self.build.weapons if world.player is not None else None
-        if loadout is None or run.hands is None or run.clock() - self.swap_failed_at < SWAP_RETRY_SECONDS:
+        if loadout is None:
             return True
+        if run.hands is None:
+            return not self.pursuing
+        if run.clock() - self.swap_failed_at < SWAP_RETRY_SECONDS:
+            return not self.pursuing or bool(loadout.battle & set(run.hands()))
         held = set(run.hands())
-        if not held or loadout.battle & held:
+        if not held:
+            return not self.pursuing
+        if loadout.battle & held:
             return True
         if not swap:
             return False
@@ -1187,29 +1776,39 @@ class Hunter:
         take_battle_weapons(run)
         if not loadout.battle & set(run.hands()):
             self.swap_failed_at = run.clock()
+            return not self.pursuing
         return True
 
     def sense(self, run: Run) -> bool:
         """Look at the left mouse button; a press is a move asked for (`self.move`). True on a new press."""
         self.drinker.look(run, self.stands)  # the life first: a potion is drunk beside whatever is in hand
         down = run.actuator.button_held(1)
+        if down and run.pad is not None:
+            # In controller mode a click is the player's and flips the game back: no move is made for it.
+            raise Abort('a mouse button was pressed (the game leaves controller mode)')
         pressed = down and not self.left_down
         self.left_down = down
         if pressed:
+            self.expired_motion = False
             self.sweep.end()  # the player moves by hand: no step of the mode's own after it
+            self.end_run(run, 'the player moves by hand; KP_1 runs the level again')
             self.move = Move(run.clock(), run.actuator.keys.pointer(), swallowed=self.casting)
             self.fresh_press = True
         return pressed
 
-    def nap(self, run: Run, seconds: float) -> bool:
+    def nap(self, run: Run, seconds: float, *, key: bool = False) -> bool:
         """Sleep `seconds`, looking at the left button every SLICE (a click is down for 60-120 ms);
-        cut short, and True, on a press."""
+        cut short, and True, on a press. With `key` a press of the teleport key posted meanwhile (the
+        pursuit's mailbox) also ends the sleep, with False: it is no move of the player's hand."""
         until = run.clock() + seconds
         self.fresh_press = False
+        posted = self.pursuit
         while True:
             self.sense(run)
             if self.fresh_press:  # seen here or inside the sleep (attack mode's own `watchful`)
                 return True
+            if key and self.pursuit is not posted:
+                return False
             left = until - run.clock()
             if left <= 0:
                 return False
@@ -1312,10 +1911,14 @@ class Hunter:
         to all three: it must never get in the way of moving. With `keys` off a held key is no reason
         (a fight under way: the strike stays held through the player's own key taps)."""
         if keys and run.actuator.key_held():
+            self.expired_motion = False
             return 'a key is held'
         if run.actuator.button_held(1):
+            self.expired_motion = False
             return 'the left button is down'
         if world.player is not None and world.player.mode in RUN_MODES:
+            if self.pursuing and self.expired_motion:
+                return None  # our old click is not the player's permission to keep walking
             here, now = (world.player.x, world.player.y), run.clock()
             if self.ran is None or math.dist(here, self.ran[0]) >= MOVED:
                 self.ran = (here, now, False)
@@ -1329,6 +1932,7 @@ class Hunter:
                 return None
             return 'the character is on the move'
         self.ran = None
+        self.expired_motion = False
         return None
 
     def choose(
@@ -1351,8 +1955,13 @@ class Hunter:
             companions,
         )
         bosses = [m.unit_id for m in reachable if m.txt_id in BOSSES]
+        # What bars the pursuit's goal (`blocking`: a pack on a seal) is struck through first, after a boss
+        barring = self.blocking[1] if self.blocking is not None else frozenset()
+        if self.pursuing:
+            barring = barring | frozenset(self.safety.blocked_by)
+        first = bosses + [m.unit_id for m in reachable if m.unit_id in barring and m.unit_id not in bosses]
         aimer = self.aimed_by if self.aimed_by is not None else attack
-        found = aim_choice(aimer, seen, [m.unit_id for m in reachable], first=bosses)
+        found = aim_choice(aimer, seen, [m.unit_id for m in reachable], first=first)
         assert found is not None  # the caller has something in reach
         return found
 
@@ -1446,6 +2055,9 @@ class Hunter:
                 if not reachable:
                     ended = 'Nothing left in reach'
                     break
+                if self.pursuing and self.key_asks(run, world, foes, ground):
+                    ended = 'Yielded (the key asks for a move)'  # the mode makes it at its next look
+                    break
                 if until is not None and run.clock() >= until:
                     if self.tough(world, reachable) or any(m.txt_id in BOSSES for m in reachable):
                         ended = 'Stopping for the main weapons'  # attack mode takes them and fights on
@@ -1464,9 +2076,9 @@ class Hunter:
                     if self.stepping is not None:
                         ended = 'Stepping to a better place'
                         break
-                if self.sweep.steps:
+                if self.sweep.steps and not self.running:
                     self.gather(run, here, foes)
-                if self.sweep.due(run.clock()):
+                if not self.pursuing and self.sweep.due(run.clock()):
                     # The sweep: a better place is gone to without a press.
                     self.sweep.looked = run.clock()
                     better = self.next_step(run, world, foes, ground, aspect, fighting=True)
@@ -1512,7 +2124,11 @@ class Hunter:
                             cast.excuse(run.clock())
                             self.buffs.resume(run, again)
                 pointer, left_at = run.actuator.keys.pointer(), run.actuator.left_at
-                if aim.due(run.clock(), pointer, left_at, choice.focal, here):
+                if run.pad is not None:
+                    # Controller mode: the client strikes at its own target; it is turned toward the prey
+                    # until the target names it (macros/pad.py). No pointer, no labels under it.
+                    run.pad.steer(MONSTER_UNIT, prey.unit_id, here, (prey.x, prey.y), label(prey))
+                elif aim.due(run.clock(), pointer, left_at, choice.focal, here):
                     where = view.aim(here, choice.focal)
                     if where is None:
                         ended = f'Nothing in view to aim at ({label(prey)} is off the screen)'
@@ -1530,7 +2146,8 @@ class Hunter:
                         aim.put(choice.focal, here, run.actuator.keys.pointer())
                 if again is None:
                     run.say(f'{skill_name(attack.skill)} ({how}) at {label(prey)}, {life(prey)}')
-                    again = stack.enter_context(run.actuator.hold(*held))
+                    hold = run.pad.hold(attack.skill) if run.pad is not None else run.actuator.hold(*held)
+                    again = stack.enter_context(hold)
                     self.buffs.let_go = getattr(again, 'release', None)  # for a key under the strike
                     cast.began = run.clock()
                     self.casting = True  # the strike is held from here to the end of the fight

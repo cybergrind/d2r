@@ -25,6 +25,7 @@ rca/2026-10-13/re/notes-mobs.md).
 from dataclasses import dataclass
 
 from inventory_tracking.combat.mechanics.tables import tables
+from inventory_tracking.combat.sim.casters import mind_of, row_of
 from inventory_tracking.combat.sim.monsters import Traits, fitted, idle, shooter_of, swing_of
 from tests.inventory_tracking.scenarios.arena.mobs import explodes, shooter, threat_row
 from tests.inventory_tracking.scenarios.threat.harness import BLAST, BLAST_RADIUS
@@ -65,12 +66,20 @@ MISSING: dict[str, str] = {
     'Death Lord': 'Frenzy (BloodLordFrenzy: faster and faster double swings) is not played; pooled swings',
     'Minion of Destruction': 'no threat-table row; pooled swings; Smite and its stun are not played',
     'Storm Caster': (
-        'played as a pooled shooter with a magic-typed shot the character does not resist; the game casts '
-        'about 10 lightning missiles 177 a cast (cs-patterns.txt), resisted as lightning'
+        'the lead missile only (the trail of 177s it leaves is taken to hurt nobody); its pack does not wake with it '
+        '(rca/2026-10-13/sim-casters.md); the ward takes its physical part and stuns it after a swing that lands '
+        '(sim/guard.py)'
     ),
-    'Doom Knight': 'pooled swings (0.30 of them take life; the seal fight showed about 0.8); no elemental roll',
-    'Oblivion Knight': 'a pooled shooter; no curse (Decrepify, Amplify), no bone spirit, does not keep away',
-    'Venom Lord': 'walks up and swings; no Inferno (3,527 of 11,222 points lost in the Chaos Sanctuary takes)',
+    'Doom Knight': 'the ward takes the physical part of its swing and stuns it 72 frames after one that lands '
+    '(sim/guard.py; the level behind the 72 is a stand-in, builds/warlock/ward.py)',
+    'Oblivion Knight': (
+        "MonCurseCast's choice of curse is drawn evenly (its server function is not read); Decrepify's slower run and "
+        "attack are not played; the ward takes its bolts' physical points (sim/guard.py)"
+    ),
+    'Venom Lord': (
+        'the flames are fire: the ward takes none of them (sim/guard.py), and the takes lose 8 to 12 times less to '
+        'them than the arena for a cause not found (rca/2026-10-13/sim-casters.md section 9)'
+    ),
     'Hell Bovine': 'pooled swings',
 }
 
@@ -103,7 +112,14 @@ def fidelity(name: str, level: int = 85) -> Fidelity:
     txt = txt_of(name)
     traits = Traits.of(txt, level)
     fit = fitted()
-    if shooter(txt):
+    if mind_of(txt) is not None:
+        row = row_of(txt) or {}
+        skills = ', '.join(row[f'Skill{n}'] for n in range(1, 9) if row.get(f'Skill{n}'))
+        plays = (
+            f'its AI as read in the client ({mind_of(txt)}, sim/casters.py): wakes within 35, the nearest of the '
+            f'character and its companions; {skills or "no skill"} from the game tables, curses as states'
+        )
+    elif shooter(txt):
         own = str(txt) in fit['shots']['types']
         row = shooter_of(txt)
         kinds = '/'.join(

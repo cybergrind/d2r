@@ -26,6 +26,24 @@ UI_PANELS_RVA = 0x1EBD158
 TERROR_SERVICE_RVA = 0x1E00508
 TERROR_LEVELS, TERROR_LEVEL_COUNT, TERROR_LEVEL_ENTRY = 0x80, 0x88, 0x10
 UI_PANELS_SIZE = 0x20
+# The input method (rca/2026-10-13/controller-mode.md, read in the decrypted image, not yet seen live): a byte,
+# 1 while the controller is the input method (`ai_d2_g_controller_mode`). A flip is asked by
+# `ai_d2_request_input_mode` (0x14064d4e0): the panel manager (a pointer at PANEL_MANAGER_RVA) gets +0xDB = 1
+# and the mode asked at +0xDC; its reload (0x140682f20) then sets the byte and clears the flag.
+CONTROLLER_MODE_RVA = 0x1EAD337
+PANEL_MANAGER_RVA = 0x1EE5790
+PANEL_PENDING, PANEL_WANTED = 0xDB, 0xDC
+# The controller bindings the game loaded at game entry: 32 records of 0x1C, the skill first (-1: none), the
+# `.ctlo`/`.ctl` file's body (loot-to-cube-mouse.md section 2).
+CTL_BINDINGS_RVA = 0x1E01370
+CTL_RECORD, CTL_RECORDS = 0x1C, 32
+# The controller's per-player state (`ai_d2_g_controller_state`): a 0xB8 record per player slot (the dword at
+# PLAYER_SLOT_RVA): +0xD10 the client's target (a unit pointer), +0xD44 the pressed button's record, +0xD4C its
+# skill (-1: none pressed).
+CTL_STATE_RVA = 0x1F6A030
+PLAYER_SLOT_RVA = 0x1EAD46C
+CTL_STATE_STRIDE = 0xB8
+CTL_TARGET, CTL_PRESSED_RECORD, CTL_PRESSED_SKILL = 0xD10, 0xD44, 0xD4C
 PANEL_FLAGS = {
     'inventory': 0x01,
     'character': 0x02,

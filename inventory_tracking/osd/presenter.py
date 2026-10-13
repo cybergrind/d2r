@@ -46,6 +46,9 @@ class Presenter:
         self.failed = set()
         self.errors = {}
         self.last_sample = None
+        # Whether the last sample read the game in controller mode: the marks are placed over mouse-layout
+        # buttons, so none is drawn then (rca/2026-10-13/controller-mode.md section 5).
+        self.controller = False
 
     def _failed(self, index, exc):
         signature = (type(exc), str(exc))
@@ -61,6 +64,8 @@ class Presenter:
             if not changed and self.last_sample is not None and snapshot.sampled_at < self.last_sample:
                 return
             self.last_sample = snapshot.sampled_at
+            mode = snapshot.input_mode.value
+            self.controller = mode is not None and mode.controller
             for index, widget in enumerate(self.widgets):
                 try:
                     if changed or snapshot.session_ended:
@@ -92,6 +97,8 @@ class Presenter:
         """Screen highlights from widgets that draw instead of writing; same isolation as `render`."""
         with self.lock:
             marks = []
+            if self.controller:
+                return marks
             for index, widget in enumerate(self.widgets):
                 mark = getattr(widget, 'mark', None)
                 if index in self.failed or mark is None:

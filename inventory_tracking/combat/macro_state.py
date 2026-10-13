@@ -9,7 +9,9 @@ event when a take opens and whenever it differs from the one written last (comba
 incident can be replayed "as it was" without anything taken from the log by hand.
 """
 
+import math
 import subprocess
+from collections.abc import Callable
 from contextlib import suppress
 from pathlib import Path
 from typing import Any
@@ -49,6 +51,88 @@ def card(target: Any) -> list[Any] | None:
     return [target.area, target.label, target.kind, list(target.point), target.use, target.warp]
 
 
+def pursuit(hunter: Any) -> dict[str, Any]:
+    """The active task with the pursuit loop on (macros/pursuit.py): the goal of the mode's last decision
+    (its label, what is done at it, its place, how near is near enough) and the key in the mailbox with
+    the clock time of its press. The age of the press is the row's time less `pressed_at`: an age written
+    here would make every row differ from the one before."""
+    goal, posted = hunter.pursued, hunter.pursuit
+    return {
+        'goal': None
+        if goal is None
+        else {
+            'label': goal.label,
+            'do': goal.do,
+            'place': [round(goal.place[0], 1), round(goal.place[1], 1)],
+            'near': goal.near if goal.near != float('inf') else None,
+            'unit': goal.unit,
+            'known': goal.known,
+        },
+        'key': None if posted is None else posted.key,
+        'pressed_at': None if posted is None else round(posted.pressed_at, 3),
+    }
+
+
+def when(at: float | None) -> float | None:
+    """A clock time as written (the runner's clock is the recorder's, time.monotonic); None for never."""
+    return None if at is None or not math.isfinite(at) else round(at, 3)
+
+
+def times(found: dict[Any, float]) -> dict[str, float | None]:
+    """{key: clock time} as written: the keys as text, in order."""
+    return {str(key): when(at) for key, at in sorted(dict(found).items(), key=lambda item: str(item[0]))}
+
+
+def memory(runner: Any) -> dict[str, Any]:
+    """What the hunt and the runner remember between looks, as clock times (rca/2026-10-13/replay-readiness.md
+    §6: a scene staged from a take began with a fresh hunt): the sweep's end, last look, failures and the
+    places it shuns; the jumps last made and last failed by skill and the ways distrusted (travel.py); when
+    each buff was last cast; the monsters left alone and until when, those remembered but gone; the
+    pursuit's last judgement of a press and the drop it stopped for; attack mode's quiet after travel. Each
+    part that cannot be read is left out. A time is kept, never an age: an age would differ in every row."""
+    hunter: Any = getattr(runner, 'hunter', None)
+    parts: dict[str, Callable[[], Any]] = {
+        'quiet_until': lambda: when(runner.quiet_until),
+        'attack_declined': lambda: bool(runner.attack_declined),
+        'arrived': lambda: [runner.journey.area, runner.journey.last[0], when(runner.journey.last[1])],
+        'sweep': lambda: {
+            'until': when(hunter.sweep.until),
+            'looked': when(hunter.sweep.looked),
+            'fails': int(hunter.sweep.fails),
+            'shunned': [[round(x, 1), round(y, 1), when(at)] for (x, y), at in list(hunter.sweep.shunned)],
+        },
+        'travel': lambda: {
+            'warped_at': when(hunter.travel.warped_at),
+            'jumped_at': times(hunter.travel.jumped_at),
+            'jump_failed': times(hunter.travel.jump_failed),
+            'distrusted': times(hunter.travel.distrusted),
+        },
+        'buffs': lambda: {
+            'cast_at': sorted(
+                ([skill, unit, when(at)] for (skill, unit), at in dict(hunter.buffs.cast_at).items()),
+                key=lambda row: (row[0], row[1] is not None, row[1] or 0),
+            ),
+            'unseen': {str(skill): count for skill, count in sorted(dict(hunter.buffs.unseen).items())},
+        },
+        'untouchable': lambda: times(hunter.untouchable),
+        'vanished': lambda: sorted(set(hunter.vanished)),
+        'swap_failed_at': lambda: when(hunter.swap_failed_at),
+        'step_asked_at': lambda: when(hunter.step_asked_at),
+        'gather': lambda: [when(hunter.gather_looked), when(hunter.gather_waited)],
+        'held': lambda: None if hunter.held is None else hunter.held.unit_id,
+        'judged': lambda: [when(hunter.judged[0]), when(hunter.judged[1]), bool(hunter.judged[2])],
+        'stopped_for': lambda: [
+            when(hunter.stopped_for[0]),
+            None if hunter.stopped_for[1] is None else hunter.stopped_for[1].unit_id,
+        ],
+    }
+    found: dict[str, Any] = {}
+    for key, part in parts.items():
+        with suppress(Exception):
+            found[key] = part()
+    return found
+
+
 def snapshot(runner: Any) -> dict[str, Any]:
     """The macro's carried state now. Never raises: a part that cannot be read is left out."""
     found: dict[str, Any] = {}
@@ -65,9 +149,21 @@ def snapshot(runner: Any) -> dict[str, Any]:
         if hunter is not None:
             found['sweep'] = int(hunter.sweep.steps)
     with suppress(Exception):
+        hunter = runner.hunter
+        if hunter is not None and hunter.pursuing:
+            found['pursuit'] = pursuit(hunter)
+    with suppress(Exception):
+        hunter = runner.hunter
+        if hunter is not None and hunter.pursuing and hunter.safety.decision:
+            found['decision'] = hunter.safety.decision
+    with suppress(Exception):
         found['route'] = route(runner.progress)
     with suppress(Exception):
         found['card'] = card(runner.target() if runner.target is not None else None)
+    with suppress(Exception):
+        remembered = memory(runner)
+        if remembered:
+            found['memory'] = remembered
     return found
 
 

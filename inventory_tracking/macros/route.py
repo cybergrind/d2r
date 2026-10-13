@@ -21,6 +21,7 @@ step toward the card's own first mark, as before the routes.
 
 import math
 from collections.abc import Callable
+from functools import partial
 
 from inventory_tracking.common import LOG
 from inventory_tracking.levels.model import Level, Room, Target
@@ -40,7 +41,7 @@ from inventory_tracking.macros.teleport import (
     marked_thing,
     scaled,
 )
-from inventory_tracking.macros.world import Player
+from inventory_tracking.macros.world import Player, World
 from inventory_tracking.native.layout import TILE_UNITS
 from inventory_tracking.routes.model import ENTER, FIGHT, LEAVE, LOOT, STAND, USE, Stage
 from inventory_tracking.routes.progress import Place, Progress
@@ -158,6 +159,10 @@ def borders(area: int | None, stage: Stage, target: Target, player: Player) -> b
     return any(room.x <= x < room.x + room.width and room.y <= y < room.y + room.height for room in edge)
 
 
+def left_level(area: int, world: World) -> bool:
+    return world.player is None or world.player.area != area
+
+
 def cross(run: Run, name: str, target: Target, to: int) -> None:
     """Walk from a room on the level's edge on into level `to`: CROSS_CLICKS clicks on the ground,
     each CROSS_UNITS further out, until the level changes. A border has no door to click and a
@@ -174,6 +179,9 @@ def cross(run: Run, name: str, target: Target, to: int) -> None:
         if player is None or player.area != target.area:
             break
         goal = (player.x + way[0] * CROSS_UNITS, player.y + way[1] * CROSS_UNITS)
+        if run.pad is not None:  # controller mode: the stick held that way (macros/pad.py)
+            run.pad.walk(goal, near=MOVED, limit=CROSS_SECONDS, done=partial(left_level, target.area))
+            continue
         run.actuator.aim(*ground_fraction(player, *goal, aspect), scatter=(4, 3))
         run.actuator.click()
         deadline, still, stood = run.clock() + CROSS_SECONDS, run.clock() + STILL_SECONDS, (player.x, player.y)

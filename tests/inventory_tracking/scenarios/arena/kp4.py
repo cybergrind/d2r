@@ -61,7 +61,7 @@ from inventory_tracking.builds.warlock.echoing_strike.mechanics import MISSILE
 from inventory_tracking.combat.stance import CROWD_MOST, CROWD_UNITS
 from inventory_tracking.combat.takes import Take, monsters_of, player_of
 from inventory_tracking.combat.timeline import GAME_RATE
-from inventory_tracking.config import PLAYER_HEALING
+from inventory_tracking.config import PLAYER_HEALING, with_overrides
 from inventory_tracking.input.compositor import STEP_KEYS
 from inventory_tracking.levels.guide import lead_first, place
 from inventory_tracking.levels.handler import marker_room
@@ -348,6 +348,19 @@ class RoutePlay(Play):
             for spot in self.card.marks(label):
                 self.progress.used(area, label, spot, self.card.marks(label))
         runner.target, runner.marks = self.card.target, self.card.marks
+
+    def pursuing(self) -> None:
+        """The play's builds with the pursuit loop on (`BuildSettings.pursuit`, macros/pursuit.py): the one
+        played, the runner's fallback and layers (it names the run's build from them at its first look) and
+        the hunter's."""
+
+        def on(build):
+            return replace(build, settings=with_overrides(build.settings, pursuit=True))
+
+        runner = self.runner
+        self.build = self.arena.build = runner.fallback = runner.build = on(self.build)
+        runner.builds = tuple(on(layer) for layer in runner.builds)
+        self.hunter.use(self.build)
 
     def slain(self) -> frozenset[str]:
         """The bosses dead, by the routes' names (terror/tracker.py `killed`)."""

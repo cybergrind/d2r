@@ -16,21 +16,33 @@ sets are built on the choice below: movement.py imports this module, not the oth
 
 import heapq
 import math
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Hashable, Sequence
 from dataclasses import replace
+from functools import lru_cache
 
 from inventory_tracking.combat.stance import Camp, Jump, no_footing, way
 from inventory_tracking.common import LOG
-from inventory_tracking.levels.model import Ground
+from inventory_tracking.levels.doors import Door
+from inventory_tracking.levels.model import Ground, Room, Target, Walkable
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.build import Intent, Leg, MoveFacts, MovementSet, NoWay, Step, nowhere
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.routines import press_skill, settle
 from inventory_tracking.macros.sight import clear_shot
 from inventory_tracking.macros.skills import TELEPORT, skill_name
-from inventory_tracking.macros.teleport import HOVER_SECONDS, MOVED, ground_fraction, in_view, landed_from, moved
+from inventory_tracking.macros.teleport import (
+    HOVER_SECONDS,
+    MOVED,
+    Covered,
+    ground_fraction,
+    hop_to,
+    in_view,
+    landed_from,
+    moved,
+)
 from inventory_tracking.macros.view import Viewport
 from inventory_tracking.macros.world import NO_OWNER, Monster, Teleport, World
+from inventory_tracking.native.layout import TILE_UNITS
 
 
 MONSTER_UNIT_TYPE = 1  # the unit type of a monster, alive or dead, in the record of what is under the pointer
@@ -75,6 +87,9 @@ Point = tuple[float, float]
 OWN_MOVE = Intent(
     'own move', reserve=LOW_CHARGES, may_swap=False, may_wait=False, distrust=JUMP_DISTRUST, sparing=math.inf
 )
+# Safety asks for alternatives with every currently usable means, including a
+# charged set on the back. The caller prices the swap before authorizing a leg.
+SAFE_MOVE = replace(OWN_MOVE, name='priced move', may_swap=True, reserve=1)
 # The seek step (hunt.py `afoot`): a casting delay is waited out where the line toward the goal is
 # clear, and with fewer than LOW_CHARGES a walk too comes before the hop.
 SEEK = Intent(
@@ -99,6 +114,33 @@ PLAYER_STEP = Intent(
     walks_under=1,
     waits_blind=True,
 )
+# A goal the character is to get to, however far (`Intent.routed`: rca/2026-10-13/kp4-findings.md §6), as
+# the pursuit loop asks for it (macros/pursuit.py). The set answers by its own way there: no caller hops
+# for it, so here the charges the key spends to the last are the set's to spend (`reserve` 1) and the
+# staff is swapped in for a hop that needs it.
+#
+# The key's own goal: as PLAYER_STEP, the charges spent to the last.
+PRESSED = Intent(
+    'pressed goal',
+    reserve=1,
+    may_swap=True,
+    may_wait=True,
+    distrust=WARP_RETRY,
+    sparing=WARP_CHARGES,
+    walks_under=1,
+    routed=True,
+)
+# The goal attack mode goes to by itself (a boss out of reach): as OWN_MOVE, no swap and the staff's
+# last LOW_CHARGES kept, but a casting delay about to end is waited out: nothing is struck meanwhile.
+STANDING = Intent(
+    'standing goal',
+    reserve=LOW_CHARGES,
+    may_swap=False,
+    may_wait=True,
+    distrust=JUMP_DISTRUST,
+    sparing=math.inf,
+    routed=True,
+)
 
 # Why a stride or a way round has no move (`NoWay.reason`), one for each way there is none.
 THERE = 'the character is as near the goal as the move was to end'  # the one that is an arrival
@@ -110,6 +152,13 @@ OPEN_GROUND = 'no wall or closed door is known: there is no way round to look fo
 NO_WAY_ROUND = 'no walked way leads nearer the goal'
 NO_SPOT_ON_WAY = 'no spot on the walked way is in view and reached by a jump over a clear line or one straight walk'
 NO_SET = 'no movement set of the build is for the character as it is now'
+WAY_UNKNOWN = 'no walked way to the goal is known (its ground is not read, or nothing leads there)'
+NO_NEARER = 'the move found brings the goal no nearer by the way'
+# The walked way to a far goal (`Walked`). A cell beside a barred one counts HUG times its length: a
+# click's walk and a thrown jump end only where the cells around are free (`way`, `stride_of`), and the
+# shortest way hugs every corner it turns, so without it the way's own cells are places no move may end at.
+HUG = 2.0
+GOAL_CELLS = 8  # cells round a goal a walkable one is looked for in: an object stands on cells nobody walks on
 
 
 def navigator(sets: Sequence[MovementSet], facts: MoveFacts) -> MovementSet | None:
@@ -133,7 +182,9 @@ def spare_jump(sets: Sequence[MovementSet], slots: Sequence[int | None]) -> Jump
     )
 
 
-def move_facts(run: Run, world: World, ground: Ground | None, aspect: float, travel: Travel) -> MoveFacts:
+def move_facts(
+    run: Run, world: World, ground: Ground | None, aspect: float, travel: Travel, rooms: tuple[Room, ...] = ()
+) -> MoveFacts:
     """What a move is chosen from, read once: where the character stands, the clock, the skills on
     keys, the worn staff, the level, and `travel`'s memory of the jumps made and failed. No staff
     reader (`run.teleport` None) and a staff that is not there or cannot be read are the same fact,
@@ -141,11 +192,17 @@ def move_facts(run: Run, world: World, ground: Ground | None, aspect: float, tra
     # The staff is read only with Teleport on a key, as before the facts were (a read of the worn
     # items on every stride would be a new cost in the game's loop): without it no jump asks for it.
     staff = run.teleport() if run.teleport is not None and TELEPORT in world.slots else None
-    return facts_with(run, world, ground, aspect, travel, staff)
+    return facts_with(run, world, ground, aspect, travel, staff, rooms)
 
 
 def facts_with(
-    run: Run, world: World, ground: Ground | None, aspect: float, travel: Travel, staff: Teleport | None
+    run: Run,
+    world: World,
+    ground: Ground | None,
+    aspect: float,
+    travel: Travel,
+    staff: Teleport | None,
+    rooms: tuple[Room, ...] = (),
 ) -> MoveFacts:
     """`move_facts` with the worn staff as the caller has it (read a moment ago, or None): the clock
     is read, the staff is not. A staff counts only with Teleport on a key, as in `move_facts`."""
@@ -161,6 +218,10 @@ def facts_with(
         aspect=aspect,
         last_used=dict(travel.jumped_at),
         failed=dict(travel.jump_failed),
+        area=player.area,
+        rooms=rooms,
+        distrusted=dict(travel.distrusted),
+        pad=run.pad is not None,
     )
 
 
@@ -205,11 +266,13 @@ def stride_of(
     if shuns(at(min(away - short, STRIDE))):
         return NoWay(SHUNNED)
     jump = next(iter(jumps), None)
-    if jump is not None and away - short >= JUMP_LEAST:
-        longest = min(away - short, JUMP_REACH)
+    # The jump's own reach as well: a jump of one length in controller mode (macros/pad.py) has a least near it.
+    least = max(JUMP_LEAST, jump.least) if jump is not None else JUMP_LEAST
+    if jump is not None and away - short >= least:
+        longest = min(away - short, JUMP_REACH, jump.reach)
         for stride in (longest, longest * 0.75, longest * 0.5):
             spot = at(stride)
-            if stride < JUMP_LEAST or not footed(spot):
+            if stride < least or not footed(spot):
                 continue
             if jump.line and not clear_shot(ground, here, spot, facts.doors):
                 continue  # the blade flies there: no wall in its way
@@ -249,7 +312,9 @@ def around_of(facts: MoveFacts, goal: Point, *, jumps: Sequence[Jump] = ()) -> L
     if jump is not None and jump.line:
         for spot in reversed(path):
             away = math.dist(here, spot)
-            if not JUMP_LEAST <= away <= JUMP_REACH or not in_view(view.ground(here, *spot)):
+            if not max(JUMP_LEAST, jump.least) <= away <= min(JUMP_REACH, jump.reach):
+                continue  # within the jump's own reach as well: one length in controller mode (macros/pad.py)
+            if not in_view(view.ground(here, *spot)):
                 continue
             if clear_shot(ground, here, spot, facts.doors) and not any(
                 barred((spot[0] + dx, spot[1] + dy)) for dx in (-1, 0, 1) for dy in (-1, 0, 1)
@@ -259,6 +324,178 @@ def around_of(facts: MoveFacts, goal: Point, *, jumps: Sequence[Jump] = ()) -> L
         away = math.dist(here, spot)
         seen = in_view(view.ground(here, *spot))
         if AROUND_LEAST <= away <= STRIDE and seen and way(barred, here, spot):
+            return Step(spot)
+    return NoWay(NO_SPOT_ON_WAY)
+
+
+class Walked:
+    """The walked way to a goal from any cell of the level: Dijkstra outward from the goal's cell over
+    cells that are not barred (eight neighbours, no corner cut, a cell beside a wall HUG times as long),
+    grown only as far as it is asked for and kept for the next asking. `left` is the way left from a
+    point; `descent` the cells of the way from it. What `walked_way` is for a place a move away, this is
+    for a goal at any distance: the measure a character on foot gets nearer by (13:05 on 2026-10-13: the
+    seal 286 units off in a straight line and 318 by the walked way, which led north out of the wing
+    while every move went west into its pocket)."""
+
+    def __init__(self, barred: Callable[[Point], bool], goal: Point) -> None:
+        self.barred = barred
+        self.bars: dict[tuple[int, int], bool] = {}
+        self.hugs: dict[tuple[int, int], bool] = {}
+        last = (math.floor(goal[0]), math.floor(goal[1]))
+        around = [
+            (last[0] + dx, last[1] + dy)
+            for dx in range(-GOAL_CELLS, GOAL_CELLS + 1)
+            for dy in range(-GOAL_CELLS, GOAL_CELLS + 1)
+        ]
+        free = [cell for cell in around if not self.bar(cell)]
+        self.cost: dict[tuple[int, int], float] = {}
+        self.settled: set[tuple[int, int]] = set()
+        self.queue: list[tuple[float, tuple[int, int]]] = []
+        if free:
+            root = min(free, key=lambda cell: math.dist((cell[0] + 0.5, cell[1] + 0.5), goal))
+            self.cost[root] = 0.0
+            self.queue.append((0.0, root))
+
+    def bar(self, cell: tuple[int, int]) -> bool:
+        known = self.bars.get(cell)
+        if known is None:
+            known = self.bars[cell] = bool(self.barred((cell[0] + 0.5, cell[1] + 0.5)))
+        return known
+
+    def hug(self, cell: tuple[int, int]) -> bool:
+        """Whether a barred cell is beside this one."""
+        known = self.hugs.get(cell)
+        if known is None:
+            known = self.hugs[cell] = any(self.bar((cell[0] + dx, cell[1] + dy)) for dx, dy, _ in NEIGHBOURS)
+        return known
+
+    def grow(self, cell: tuple[int, int]) -> None:
+        """Settle cells outward from the goal until `cell` is settled or nothing is left to reach."""
+        cost, queue, settled = self.cost, self.queue, self.settled
+        while queue and cell not in settled:
+            gone, at = heapq.heappop(queue)
+            if at in settled:
+                continue
+            settled.add(at)
+            for dx, dy, step in NEIGHBOURS:
+                near = (at[0] + dx, at[1] + dy)
+                if near in settled or self.bar(near):
+                    continue
+                if dx and dy and (self.bar((at[0] + dx, at[1])) or self.bar((at[0], at[1] + dy))):
+                    continue
+                further = gone + step * (HUG if self.hug(near) else 1.0)
+                if further < cost.get(near, math.inf):
+                    cost[near] = further
+                    heapq.heappush(queue, (further, near))
+
+    def of(self, cell: tuple[int, int]) -> float:
+        """The way left from a cell; inf: none leads from it."""
+        self.grow(cell)
+        return self.cost[cell] if cell in self.settled else math.inf
+
+    def foot(self, point: Point) -> tuple[int, int] | None:
+        """The cell the way from `point` begins on: its own, or (the character stands on cells the
+        grids call unwalkable now and then) the neighbour with the shortest way left. None: no way."""
+        cell = (math.floor(point[0]), math.floor(point[1]))
+        if not self.bar(cell):
+            return cell if self.of(cell) < math.inf else None
+        beside = [(cell[0] + dx, cell[1] + dy) for dx, dy, _ in NEIGHBOURS]
+        free = [near for near in beside if not self.bar(near) and self.of(near) < math.inf]
+        return min(free, key=self.of) if free else None
+
+    def left(self, point: Point) -> float:
+        """Units of the walked way left from `point` (a cell beside a wall counted HUG times); inf: no way."""
+        cell = self.foot(point)
+        return math.inf if cell is None else self.of(cell)
+
+    def descent(self, point: Point, reach: float) -> list[tuple[Point, float]]:
+        """The way from `point` toward the goal as (cell centre, way left from it), from the first step on,
+        as far as `reach` units from `point` in a straight line. Empty: no way, or already on the goal's cell."""
+        cell = self.foot(point)
+        found: list[tuple[Point, float]] = []
+        while cell is not None and self.cost[cell] > 0.0:
+            best = None
+            for dx, dy, _ in NEIGHBOURS:
+                near = (cell[0] + dx, cell[1] + dy)
+                if near not in self.settled or self.cost[near] >= self.cost[cell]:
+                    continue
+                if dx and dy and (self.bar((cell[0] + dx, cell[1])) or self.bar((cell[0], cell[1] + dy))):
+                    continue
+                if best is None or self.cost[near] < self.cost[best]:
+                    best = near
+            if best is None:
+                break
+            cell = best
+            centre = (cell[0] + 0.5, cell[1] + 0.5)
+            if math.dist(point, centre) > reach:
+                break
+            found.append((centre, self.cost[cell]))
+        return found
+
+
+@lru_cache(maxsize=4)
+def walked_over(grids: tuple[Walkable, ...], closed: tuple[Door, ...], goal: tuple[int, int]) -> Walked | None:
+    """The walked way to the goal's cell over a level's ground, kept across looks: the ground and the
+    goal rarely change between two of them. None on ground with no wall and no closed door."""
+    barred = no_footing(Ground(grids), closed)
+    return None if barred is None else Walked(barred, (goal[0] + 0.5, goal[1] + 0.5))
+
+
+def walked_for(facts: MoveFacts, goal: Point) -> Walked | None:
+    """`walked_over` for the facts' ground and closed doors; None: open ground, any straight line is a way."""
+    grids = facts.ground.grids if facts.ground is not None else ()
+    closed = tuple(door for door in facts.doors if door.closed)
+    return walked_over(grids, closed, (math.floor(goal[0]), math.floor(goal[1])))
+
+
+def way_left(facts: MoveFacts, goal: Point) -> float:
+    """Units of the way left to `goal` on foot: by the walked way where the level has walls (inf: none
+    is known), the straight line on open ground."""
+    field = walked_for(facts, goal)
+    return math.dist(facts.here, goal) if field is None else field.left(facts.here)
+
+
+def way_leg(facts: MoveFacts, goal: Point, intent: Intent, *, jumps: Sequence[Jump] = ()) -> Leg:
+    """The next move along the walked way to a goal at any distance (`Intent.routed`), to end
+    `intent.short` of it: on the way's next cells the furthest one the first of `jumps` reaches (over a
+    clear line, for one that needs it), else the furthest one click's straight walk reaches. Every spot
+    of the way has less of it left than where the character stands, so a move given here always brings
+    the goal nearer on foot. On open ground the way is the straight stride (`stride_of`)."""
+    here = facts.here
+    if math.dist(here, goal) - intent.short < MOVED:
+        return NoWay(THERE, arrived=True)
+    field = walked_for(facts, goal)
+    if field is None:
+        return stride_of(facts, goal, intent.short, intent.shot, intent.shuns, jumps=jumps)
+    left = field.left(here)
+    if left == math.inf:
+        return NoWay(WAY_UNKNOWN)
+    whole = field.descent(here, JUMP_REACH)
+    path = [(spot, cost) for spot, cost in whole if cost >= intent.short]
+    ends = bool(whole) and whole[-1][1] == 0.0  # the way's last cell is in a move's reach
+    if not path or (ends and all(math.dist(here, spot) < AROUND_LEAST for spot, _ in path)):
+        # The way's end is within `short`, or nearer than a move along the way can be made: there
+        return NoWay(THERE, arrived=True)
+    ground = known(facts.ground)
+    view = Viewport(facts.aspect)
+    barred = field.barred
+
+    def shown(spot: Point) -> bool:
+        return in_view(view.ground(here, *spot)) and not intent.shuns(spot)
+
+    jump = next(iter(jumps), None)
+    if jump is not None:
+        for spot, _ in reversed(path):
+            away = math.dist(here, spot)
+            if not jump.least <= away <= jump.reach or not shown(spot):
+                continue
+            if any(barred((spot[0] + dx, spot[1] + dy)) for dx in (-1, 0, 1) for dy in (-1, 0, 1)):
+                continue
+            if not jump.line or clear_shot(ground, here, spot, facts.doors):
+                return Step(spot, jump.skill)
+    for spot, _ in reversed(path):
+        away = math.dist(here, spot)
+        if AROUND_LEAST <= away <= STRIDE and shown(spot) and way(barred, here, spot):
             return Step(spot)
     return NoWay(NO_SPOT_ON_WAY)
 
@@ -277,6 +514,8 @@ class Travel:
         )
         self.jumped_at: dict[int, float] = {}  # skill with a casting delay -> clock time of the last jump by it
         self.jump_failed: dict[int, float] = {}  # skill -> clock time a jump by it last moved nothing
+        # A way a set said leads nowhere (`NoWay.distrust`) -> the clock time it said so (`toward`)
+        self.distrusted: dict[Hashable, float] = {}
 
     @property
     def warped_at(self) -> float:
@@ -294,6 +533,89 @@ class Travel:
         facts = move_facts(run, world, ground, aspect, self)
         movement = navigator(self.sets, facts)
         return NoWay(NO_SET) if movement is None else movement.leg(facts, goal, intent)
+
+    def options(
+        self, run: Run, world: World, ground: Ground | None, aspect: float, goal: Point, intent: Intent
+    ) -> tuple[Step, ...]:
+        """Each usable jump and the walk, separately, for the safety arbiter to price.
+
+        A preferred jump must not hide a faster escape by another means. A set
+        on the back is offered only when a swap is allowed; no input is made.
+        """
+        facts = move_facts(run, world, ground, aspect, self)
+        if intent.may_swap and facts.staff is not None:
+            facts = replace(facts, staff=replace(facts.staff, in_hand=True))
+        movement = navigator(self.sets, facts)
+        jumps = () if movement is None else movement.jumps(facts, intent)
+        found: dict[tuple, Step] = {}
+        for offered in (*((jump,) for jump in jumps), ()):
+            step = stride_of(facts, goal, intent.short, intent.shot, intent.shuns, jumps=offered)
+            if isinstance(step, Step):
+                found[step.spot, step.skill] = step
+        return tuple(found.values())
+
+    def asked(self, facts: MoveFacts, goal: Point, intent: Intent) -> tuple[MoveFacts, MovementSet | None, Leg]:
+        """The set for `facts` and its `leg` toward `goal`, asked again while the set names a way of its
+        own that gave nothing from here (`NoWay.distrust`): that is remembered, and the set then goes by
+        its next. With the facts as they were asked last."""
+        movement = navigator(self.sets, facts)
+        if movement is None:
+            return facts, None, NoWay(NO_SET)
+        found = movement.leg(facts, goal, intent)
+        while isinstance(found, NoWay) and found.distrust is not None and found.distrust not in facts.distrusted:
+            self.distrusted[found.distrust] = facts.now
+            facts = replace(facts, distrusted=dict(self.distrusted))
+            found = movement.leg(facts, goal, intent)
+        return facts, movement, found
+
+    def toward(
+        self,
+        run: Run,
+        world: World,
+        ground: Ground | None,
+        aspect: float,
+        goal: Point,
+        intent: Intent,
+        rooms: tuple[Room, ...] = (),
+    ) -> Leg:
+        """The one way to a move toward a goal the character is to get to (`Intent.routed`): the next
+        move by the means in hand now, as the set that applies gives it by its own way there, or the
+        reason there is none. `goal` is the goal's own place, never a place worked out for one means;
+        `rooms`: the level's, for a set that plans over them."""
+        return self.asked(move_facts(run, world, ground, aspect, self, rooms), goal, intent)[2]
+
+    def eta(
+        self,
+        run: Run,
+        world: World,
+        ground: Ground | None,
+        aspect: float,
+        goal: Point,
+        intent: Intent,
+        rooms: tuple[Room, ...] = (),
+    ) -> float:
+        """Seconds to `goal` by the means in hand now (`MovementSet.eta`): what progress toward a goal
+        is measured by. inf where `toward` has no way."""
+        facts, movement, found = self.asked(move_facts(run, world, ground, aspect, self, rooms), goal, intent)
+        if movement is None or (isinstance(found, NoWay) and not found.arrived):
+            return math.inf
+        return movement.eta(facts, goal, intent)
+
+    def pause(
+        self,
+        run: Run,
+        world: World,
+        ground: Ground | None,
+        aspect: float,
+        goal: Point,
+        intent: Intent,
+        rooms: tuple[Room, ...] = (),
+    ) -> float:
+        """Seconds to let pass before `toward` is asked (`MovementSet.wait`: a casting delay about to
+        end on the way the set would take); the game is read again after them."""
+        facts = move_facts(run, world, ground, aspect, self, rooms)
+        movement = navigator(self.sets, facts)
+        return 0.0 if movement is None else movement.wait(facts, goal, intent)
 
     def stride(
         self, run: Run, world: World, ground: Ground, aspect: float, goal: Point, intent: Intent = OWN_MOVE
@@ -348,7 +670,10 @@ class Travel:
             run.keys.update(key_names(run.world(), (skill,)))
             # No wait of its own for the cast in flight: `press_skill` waits for the character (with one,
             # 0.39 s went by between the decision and the key at the median, 2026-10-11).
-            run.actuator.aim(*ground_fraction(player, found.spot[0], found.spot[1], aspect), scatter=(4, 3))
+            if run.pad is not None:
+                run.pad.aim_place((player.x, player.y), found.spot)  # controller mode: a heading (macros/pad.py)
+            else:
+                run.actuator.aim(*ground_fraction(player, found.spot[0], found.spot[1], aspect), scatter=(4, 3))
             pressed = run.clock()
             press_skill(run, skill)
             if skill in self.delayed:
@@ -379,20 +704,43 @@ class Travel:
         ground: Ground | None,
         name: str = '',
         intent: Intent = OWN_MOVE,
+        goal: Point | None = None,
     ) -> None:
         """Make one move of the mode's own, by the way it names: a jump by its skill, or one click's
         walk. A jump that cannot be made any more (the skill gone from `jumps` since the choice, a
         wall in a blade's line) is made by the next skill that can, else walked. `intent` is the one
-        the step was chosen under: the jumps are asked for again within it."""
+        the step was chosen under: the jumps are asked for again within it. `goal`: the place the step
+        leads toward, when it is not the step's own end (a routed move), for what is said of a hop."""
         player = world.player
         assert player is not None
         here = (player.x, player.y)
         skill = found.skill
+        if intent.routed and skill == TELEPORT and key_names is not None:
+            # A hop the set that teleports chose over the level's rooms: made as the teleport step makes
+            # its own (teleport.py `hop_to`: the staff swapped in where a staff it is, the key during the
+            # cast before, the landing watched for).
+            rect = run.actuator.keys.focused_window_rect()
+            if rect is None:
+                raise Abort('no game window')
+            tile = (found.spot[0] / TILE_UNITS, found.spot[1] / TILE_UNITS)
+            end = found.spot if goal is None else goal  # the hop's line says how far the goal is after it
+            mark = Target(
+                player.area, (), (end[0] / TILE_UNITS, end[1] / TILE_UNITS), name or 'the goal', 'hunt', False,
+                ground.grids if ground else (),
+            )  # fmt: skip
+            try:
+                hop_to(run, mark, player, rect, tile, 0.0, key_names)
+            except Abort:
+                self.jump_failed[TELEPORT] = run.clock()
+                raise
+            return
         if skill is not None and key_names is not None:
             jumps = self.jumps(run, world, intent)
             if ground is not None and not clear_shot(ground, here, found.spot, world.doors):
                 jumps = tuple(jump for jump in jumps if not jump.line)
             able = [jump.skill for jump in jumps]
+            if found.needs is not None and skill not in able:
+                raise Abort('priced movement is no longer available; a new safety decision is needed')
             skill = skill if skill in able else next(iter(able), None)
         if skill is not None and key_names is not None:
             self.jump(run, replace(found, skill=skill), player, aspect, key_names)
@@ -493,6 +841,12 @@ def step_walk(
     if not in_view(where):
         raise Abort(f'the place near {name} is not in view')
     run.say(f'Walking {math.dist((player.x, player.y), goal):.0f} toward {name}')
+    if run.pad is not None:
+        # Controller mode: the stick held toward it until there (macros/pad.py); nothing is attacked on the way.
+        run.pad.walk(goal, why=name)
+        if not moved(run.world().player or player, player):
+            raise Abort('the character did not move')
+        return
     for _ in range(clicks):
         settle(run, limit=0.5)
         run.actuator.aim(*where, scatter=(4, 3))
@@ -502,7 +856,7 @@ def step_walk(
             if over is not None and over[0] == MONSTER_UNIT_TYPE:
                 under = [m for m in alive if m.unit_id == over[1] and math.dist((m.x, m.y), goal) <= HOVER_UNITS]
                 if under:
-                    raise Abort(f'{label(under[0])} is under the pointer there')
+                    raise Covered(f'{label(under[0])} is under the pointer there', (under[0].unit_id,))
         run.actuator.click()
         if run.seen(lambda w: w.player is not None and moved(w.player, player), STEP_WALK_SECONDS) is not None:
             return

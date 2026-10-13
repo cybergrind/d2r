@@ -23,6 +23,7 @@ from inventory_tracking.common import LOG
 from inventory_tracking.config import INPUT
 from inventory_tracking.macros.actuator import Abort, Cancelled
 from inventory_tracking.macros.engine import Run
+from inventory_tracking.macros.pad import DRINK_WATCH
 from inventory_tracking.macros.world import HEALING, REJUVENATION, Loot
 from inventory_tracking.models import PotionType
 from inventory_tracking.native.layout import BELT_COLUMNS
@@ -62,6 +63,9 @@ class Drinker:
         self.drunk_at: dict[PotionType, float] = {}
         self.looked_at = -math.inf
         self.busy = False
+        # A belt key pressed in controller mode, watched for its cell emptying (macros/pad.py `Pad drink:`):
+        # (key, kind, potions of the kind on the belt before, clock time of the key)
+        self.pad_drink: tuple[str, PotionType, int, float] | None = None
 
     def look(self, run: Run, here: tuple[float, float] | None) -> PotionType | None:
         """One look: the potion drunk by it, if any. `here`: where the character stands, for what lies near."""
@@ -76,6 +80,7 @@ class Drinker:
         while now - self.readings[0].at > KEPT:
             self.readings.popleft()
         belt = on_belt(loot)
+        self.watch_pad_drink(belt, now)
         for kind, count in belt.items():
             if self.belt is not None and count < self.belt[kind]:
                 self.drunk_at[kind] = now
@@ -94,6 +99,26 @@ class Drinker:
         if kind is None or key is None or self.shift_down(run):
             return None
         return kind if self.press(run, key, kind, loot, felt) else None
+
+    def watch_pad_drink(self, belt: dict[PotionType, int], now: float) -> None:
+        """Whether a belt key acts in controller mode (rca/2026-10-13/controller-mode.md, plan step 8b): said
+        once the cell has emptied, or once DRINK_WATCH has gone by without it."""
+        if self.pad_drink is None:
+            return
+        key, kind, before, at = self.pad_drink
+        if belt[kind] < before:
+            LOG.info(
+                'Pad drink: %s on %s in controller mode: the belt cell emptied within %.0f ms of the key',
+                NAMES[kind], key, 1000 * (now - at),
+            )  # fmt: skip
+        elif now - at >= DRINK_WATCH:
+            LOG.info(
+                'Pad drink: %s on %s in controller mode: the belt unchanged %.1fs after the key',
+                NAMES[kind], key, now - at,
+            )  # fmt: skip
+        else:
+            return
+        self.pad_drink = None
 
     @staticmethod
     def near(here: tuple[float, float] | None, x: float, y: float) -> bool:
@@ -117,6 +142,8 @@ class Drinker:
         finally:
             self.busy = False
         self.drunk_at[kind] = run.clock()
+        if run.pad is not None:
+            self.pad_drink = (key, kind, on_belt(loot)[kind], run.clock())
         LOG.info(
             'Macro: %s on %s: life %d/%d, %.0f%% lost in the last seconds (%.0f%% a second, %.0f%% within one)',
             NAMES[kind], key, loot.life, loot.max_life, 100 * felt.lost, 100 * felt.rate, 100 * felt.burst,

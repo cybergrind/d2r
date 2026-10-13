@@ -49,6 +49,10 @@ class PotionsController:
         self.ledger = ledger
         self.delivery = delivery
         self.clock = clock
+        # The game's input mode each press was made in, by item (rca/2026-10-13/controller-mode.md plan step 5):
+        # the acknowledgement or the miss says it again, so a game in controller mode shows whether belt keys
+        # act there, and whether a press during a pending flip is lost.
+        self.pressed_in: dict[int, str] = {}
 
     def step(self, state: State, choices: Sequence[PotionType]) -> PotionResult:
         if not self.config.enabled:
@@ -120,7 +124,12 @@ class PotionsController:
         pending = record.pending
         if pending and not record.suspended and state.sampled_at > pending.sent_at:
             if state.belt is None or pending.item_id not in state.belt.item_ids:
-                LOG.info('%s potion consumption acknowledged: item %s', actor, pending.item_id)
+                LOG.info(
+                    '%s potion consumption acknowledged: item %s%s',
+                    actor,
+                    pending.item_id,
+                    self._pressed(pending.item_id),
+                )
                 record.pending = None
                 record.misses = 0
                 record.retry_at = None
@@ -131,6 +140,7 @@ class PotionsController:
     def _miss(self, record: ActorRecord, pending: PendingReservation, now: float) -> None:
         """A lost keypress is ordinary: retry with growing backoff, and only pause after a run of them."""
         actor = self.config.actor
+        said = self._pressed(pending.item_id)
         record.pending = None
         record.misses += 1
         if record.misses >= self.config.max_consecutive_misses:
@@ -138,23 +148,32 @@ class PotionsController:
             record.retry_at = None
             record.suspended_until = now + self.config.suspend_seconds
             LOG.warning(
-                '%s healing paused for %.0f s: %d potions in a row were not consumed (last item %s)',
+                '%s healing paused for %.0f s: %d potions in a row were not consumed (last item %s%s)',
                 actor,
                 self.config.suspend_seconds,
                 self.config.max_consecutive_misses,
                 pending.item_id,
+                said,
             )
             return
         delay = min(self.config.retry_backoff * 2 ** (record.misses - 1), self.config.retry_backoff_max)
         record.retry_at = now + delay
         LOG.warning(
-            '%s potion not consumed: item %s; retry in %.1f s (miss %d of %d)',
+            '%s potion not consumed: item %s%s; retry in %.1f s (miss %d of %d)',
             actor,
             pending.item_id,
+            said,
             delay,
             record.misses,
             self.config.max_consecutive_misses,
         )
+
+    def _pressed(self, item_id: int) -> str:
+        """' (pressed in controller mode)' and the like; '' when the press's mode is not known."""
+        mode = self.pressed_in.pop(item_id, None)
+        if not mode:
+            return ''
+        return f' (pressed while {mode})' if mode.startswith('switching') else f' (pressed in {mode} mode)'
 
     @staticmethod
     def _choose_item(
@@ -216,5 +235,17 @@ class PotionsController:
         reservation, delivery, finished_at = completion
         delivery.at = finished_at
         reservation.sent_at = finished_at
-        LOG.info('%s %s potion: column %s; item %s', actor, potion, item.column, item.item_id)
+        mode = state.input_mode.value
+        if mode is not None:
+            self.pressed_in[item.item_id] = mode.label
+            if len(self.pressed_in) > 64:  # items never acknowledged nor missed (a new session): the oldest go
+                self.pressed_in.pop(next(iter(self.pressed_in)))
+        LOG.info(
+            '%s %s potion: column %s; item %s; input %s',
+            actor,
+            potion,
+            item.column,
+            item.item_id,
+            mode.label if mode is not None else 'unread',
+        )
         return PotionResult(Outcome.SENT, PotionSent(request, finished_at))

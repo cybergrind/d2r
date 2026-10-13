@@ -19,6 +19,7 @@ def test_prefixes_are_the_workers_own():
         'hunt-elites': service.HUNT_ELITES_PREFIX,
         'hunt-any': service.HUNT_ANY_PREFIX,
         'pickup': service.PICKUP_PREFIX,
+        'pad': service.PAD_PREFIX,
     }
 
 

@@ -31,6 +31,7 @@ PREFIXES = {
     'hunt-elites': 'hunt elites ',  # the seek step: one step toward the nearest elite
     'hunt-any': 'hunt any ',  # the attack mode toggle: attack mode on/off
     'pickup': 'pickup ',  # the pickup step: pick up a valuable or a potion, else a seek step
+    'pad': 'pad ',  # the gamepad experiment: one tap of a virtual pad's button (input/gamepad.py)
 }
 TIMED = frozenset(('macro', 'teleport', 'hunt-elites', 'hunt-any', 'pickup'))  # the macro's: traced
 DEFAULT_SOCKET = os.path.join(os.environ.get('XDG_RUNTIME_DIR', f'/run/user/{os.getuid()}'), 'd2r-appraisal.sock')
@@ -43,7 +44,7 @@ def startup() -> tuple[float, float] | None:
         with open('/proc/self/stat') as stat:
             ticks = int(stat.read().rsplit(')', 1)[1].split()[19])  # starttime, since boot
         age = time.clock_gettime(time.CLOCK_BOOTTIME) - ticks / os.sysconf('SC_CLK_TCK')
-    except (OSError, ValueError, IndexError):
+    except OSError, ValueError, IndexError:
         return None
     return 1000 * age, 1000 * time.process_time()
 

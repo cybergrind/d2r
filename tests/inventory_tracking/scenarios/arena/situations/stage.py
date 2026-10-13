@@ -34,7 +34,7 @@ from contextlib import contextmanager
 from dataclasses import dataclass, field, replace
 
 from inventory_tracking.combat.sim import monsters as model
-from inventory_tracking.combat.sim.monsters import MELEE, SHOT
+from inventory_tracking.combat.sim.monsters import MELEE
 from inventory_tracking.config import HealingConfig
 from inventory_tracking.macros.world import NO_OWNER
 from inventory_tracking.native.layout import DEAD_MODES
@@ -110,6 +110,7 @@ class Cast(Mobs):
         self.burst: list[tuple[Point, int, int]] = []  # the exploding corpses of `blasts`: place, unit, type
         # every missile a shooter let go: (the frame, the frame it lands at, from, to, at the character, it takes life)
         self.shots: list[tuple[int, int, Point, Point, bool, bool]] = []
+        self.flown = 0  # of the pack's casters' missiles gone (`Minds.flown`), those already in `shots`
 
     def spawn(self, mob: Mob) -> None:
         """Put `mob` into the play as `Mobs.__init__` and `Pack.__init__` put one there at the start."""
@@ -123,7 +124,7 @@ class Cast(Mobs):
         pack.walkers[walker.unit] = walker
         roll = pack.rolls[walker.unit] = random.Random(self.seed * 1_000_003 + walker.unit)
         walker.favour = roll.random()
-        if shooter(walker.txt):
+        if shooter(walker.txt) and walker.mind is None:
             pack.shots[walker.unit] = dict(shot_parts(walker))
             walker.until = self.frame + roll.randrange(max(round(pack._gap(walker)), 1))
 
@@ -137,29 +138,35 @@ class Cast(Mobs):
     def tick(self, hero_at: Point, companions: Sequence[Point], resist: Mapping[str, float]) -> float:
         """`Mobs.tick`, each blow that took life kept in `hurts` (the module text)."""
         now = self.frame / model.GAME_RATE
-        stopped = {kind: 1.0 - share for kind, share in resist.items()}
-        taken = 0.0
-        for at, unit, txt in self.burst:
-            if math.dist(at, hero_at) <= BLAST_RADIUS:
-                points = BLAST * resist.get(BLAST_KIND, 1.0)
-                taken += points
-                self.hurts.append(Hurt(now, unit, txt, BLAST_BLOW, points))
-        self.blasts, self.burst = [], []
         if self.aware > model.SHOT_REACH:
             bodies = [hero_at, *companions]
             for unit in self.pack.shots:
                 walker = self.pack.walkers.get(unit)
                 if walker is not None and min(math.dist(walker.at, body) for body in bodies) <= self.aware:
                     self.pack.awake.add(unit)
-        for blow in self.pack.step(self.frame, [hero_at, *companions]):
+        found = self.pack.step(self.frame, [hero_at, *companions])
+        stopped = self.stopped(resist)
+        taken = 0.0
+        for at, unit, txt in self.burst:
+            if math.dist(at, hero_at) <= BLAST_RADIUS:
+                points = BLAST * (1.0 - stopped.get(BLAST_KIND, 0.0))
+                taken += points
+                self.hurts.append(Hurt(now, unit, txt, BLAST_BLOW, points))
+        self.blasts, self.burst = [], []
+        for blow in found:
             if blow.target == 0 and blow.kind == MELEE and self.block_rng.random() < self.block_chance:
                 self.blocked += 1
             elif blow.target == 0:
-                points = blow.taken(stopped) * (self._raised(blow.unit) if blow.kind in (MELEE, SHOT) else 1.0)
+                points = self.landed(blow, stopped)
                 taken += points
                 mob = self.mobs.get(blow.unit)
                 self.hurts.append(Hurt(now, blow.unit, mob.txt if mob else -1, blow.kind, points))
         self.reroll()
+        # A caster's missiles and curses (sim/casters.py) as the shooters' are kept: (let go, gone, from, to, at the
+        # character, took life there).
+        flown = self.pack.minds.flown
+        self.shots += flown[self.flown :]
+        self.flown = len(flown)
         for unit, walker in self.pack.walkers.items():
             self.mobs[unit].at = walker.at
         self.frame += 1
@@ -215,6 +222,7 @@ class Stage(Arena):
         # The same monsters again, as `Arena.__init__` made them, in a `Cast`.
         self.mobs = self.cast = Cast(self.scene, random.Random(seed), None, seed=seed, aware=aware, lands=lands)
         self.mobs.block_chance = BLOCK_CHANCE
+        self.mobs.guard = self.guard  # the character's guard, as `Arena.__init__` gave the first ones
         self.world = replace(self.world, monsters=tuple(m for m in self.mobs.monsters() if m.mode not in DEAD_MODES))
         self.show()
         self.spawns = [replace(spawn, mobs=[replace(mob) for mob in spawn.mobs]) for spawn in spawns]

@@ -14,6 +14,7 @@ from inventory_tracking.common import LOG
 from inventory_tracking.input.keybindings import button_number
 from inventory_tracking.input.keyboard import KeyConnection
 from inventory_tracking.macros.timing import Pace
+from inventory_tracking.models import InputMode
 
 
 POINTER_DRIFT = 4  # pixels the pointer may differ from where the macro put it
@@ -64,6 +65,13 @@ class Actuator:
         self.holding_buttons: frozenset[int] = frozenset()  # mouse buttons it holds down itself
         self.mark: Callable[[str], None] = lambda name: None  # a moment of the press's trace (latency.py)
         self.cancelled: Event | None = None  # the run's: set, no further input is made (`guard`)
+        # The game's input mode (tracking/input_mode.py), when it is read: a mouse button pressed while it reads
+        # controller, or while a flip is pending, would flip the client back to mouse mode (and be thrown away),
+        # so none is pressed then (`mouse_guard`). None: not read, nothing is checked.
+        self.mode: Callable[[], InputMode | None] | None = None
+        # The run plays by the keys and the mouse in keyboard mode (runner.py `play_by`): the game leaving that
+        # mode (the player's pad touched, a flip under way) stops it, as a key of the player's does.
+        self.keyboard_run = False
 
     def allow(self, *names: str) -> None:
         """Keys another service presses by itself are not the player's. The OSD turns Show Items
@@ -91,10 +99,23 @@ class Actuator:
         if self.key_held():
             codes = sorted(self.keys.held_keys() - self.allowed - self.holding)
             raise Abort(f'a key was pressed (key code {", ".join(map(str, codes)) or "?"})')
+        if self.keyboard_run and self.mode is not None:
+            mode = self.mode()
+            if mode is not None and (mode.controller or mode.pending):
+                raise Abort('the game left keyboard mode (a pad was touched)')
         if self.left_at is not None:
             now = self.keys.pointer()
             if now is None or max(abs(now[0] - self.left_at[0]), abs(now[1] - self.left_at[1])) > self.drift:
                 raise Abort('the mouse was moved')
+
+    def mouse_guard(self, inputs: list[tuple[bool, int]]) -> None:
+        """No mouse button while the game is in controller mode or switching (rca/2026-10-13/controller-mode.md:
+        a click flips it back and is thrown away). The pad's acts (macros/pad.py) are the way in controller mode."""
+        if self.mode is None or not any(is_button for is_button, _ in inputs):
+            return
+        mode = self.mode()
+        if mode is not None and (mode.controller or mode.pending):
+            raise Abort('the game is in controller mode: a click would switch it back')
 
     def wait_released(self, timeout: float = 1.5, step: float = 0.03) -> None:
         """The hotkey that started the macro is still down for a moment."""
@@ -141,6 +162,7 @@ class Actuator:
         inputs = self._inputs(names)
         own_buttons = frozenset(code for is_button, code in inputs if is_button)
         self.guard()
+        self.mouse_guard(inputs)
         pressed = self._press(inputs)
         self.holding_buttons |= own_buttons  # the macro's own click is not the player's (`button_held`)
         try:
@@ -160,6 +182,7 @@ class Actuator:
         own = frozenset(code for is_button, code in inputs if not is_button)
         own_buttons = frozenset(code for is_button, code in inputs if is_button)
         self.guard()
+        self.mouse_guard(inputs)
         pressed = self._press(inputs)
         self.holding |= own
         self.holding_buttons |= own_buttons
@@ -184,6 +207,7 @@ class Actuator:
                 # The player's click came down between the release and the press: no press over it
                 # (review.md, finding 7; the caller's next look at the button yields to the click).
                 return
+            self.mouse_guard(inputs)
             pressed = self._press(inputs)
 
         again.release = release  # type: ignore[attr-defined]

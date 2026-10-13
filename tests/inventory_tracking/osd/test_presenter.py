@@ -235,3 +235,16 @@ def test_factory_order_and_max_age_reach_every_widget():
     presenter.update(State(session=SESSION, sampled_at=100, belt=BeltSnapshot((None,) * 16)))
     assert presenter.render(now=104) == ['juv 16']
     assert presenter.render(now=104.1) == []
+
+
+def test_no_mark_is_drawn_while_the_game_is_in_controller_mode():
+    # The repair mark sits over the smith's button of the mouse layout (rca/2026-10-13/controller-mode.md).
+    from inventory_tracking.models import InputMode
+
+    widget = Mock()
+    widget.mark.return_value = 'mark'
+    presenter = Presenter(widgets=[widget])
+    presenter.update(State(session=SESSION, sampled_at=100, input_mode=Observation(100, InputMode(False))))
+    assert presenter.marks(now=100) == ['mark']
+    presenter.update(State(session=SESSION, sampled_at=101, input_mode=Observation(101, InputMode(True))))
+    assert presenter.marks(now=101) == []

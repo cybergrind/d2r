@@ -284,3 +284,31 @@ def test_failed_reservation_or_final_save_reports_unavailable(save_number, heali
         assert make(PLAYER_HEALING).step(sample(100.2)).outcome == Outcome.PENDING
     else:
         assert saved.actors[Actor.PLAYER].pending is None
+
+
+def test_each_press_says_the_input_mode_and_its_acknowledgement_or_miss_says_it_again(
+    healing_setup, sample, clock, caplog
+):
+    # rca/2026-10-13/controller-mode.md plan step 5: whether belt keys act in controller mode is read off
+    # the OSD's own log in the first game played in it.
+    from inventory_tracking.models import InputMode, Observation
+
+    make, _ = healing_setup
+    player = make(PLAYER_HEALING)
+    in_controller = Observation(100, InputMode(True))
+    with caplog.at_level('INFO'):
+        assert player.step(replace(sample(), input_mode=in_controller)).outcome == Outcome.SENT
+        clock.now = 102.5
+        assert player.step(sample(clock.now)).outcome == Outcome.BACKOFF  # not consumed
+        clock.now = 104.5
+        assert player.step(replace(sample(clock.now), input_mode=in_controller)).outcome == Outcome.SENT
+        clock.now = 104.6
+        consumed = sample(clock.now, healing_cells=(BeltCell(4, 102),), belt_ids=(102, 103))
+        player.step(consumed)
+    assert 'potion: column 3; item 101; input controller' in caplog.text
+    assert 'potion not consumed: item 101 (pressed in controller mode)' in caplog.text
+    assert 'consumption acknowledged: item 101 (pressed in controller mode)' in caplog.text
+    clock.now = 110
+    with caplog.at_level('INFO'):
+        player.step(sample(clock.now, current_raw=100, healing_cells=(), belt_ids=(103,)))
+    assert 'input unread' in caplog.text  # a sample without the mode

@@ -25,7 +25,10 @@ WARP_DELAY = 1.05
 WARP_SECONDS, WARP_SPEED = 0.35, 45.0  # Blade Warp: the cast, then the blade's flight in units a second
 # JUMP_REACH: units of a jump: in view, and within the blade's range. The blade flies there: no wall in its way.
 BLADE_WARP_JUMP = Jump(BLADE_WARP, WARP_SECONDS, WARP_SPEED, JUMP_REACH, JUMP_LEAST, line=True)
-BLADE_WARP_SOURCE = JumpSource(BLADE_WARP_JUMP, delay=WARP_DELAY)
+# In controller mode the blade flies its controller `defaultTargetDistance` in the stick's direction (read,
+# controllerskillsettings.json: 17 units; where it lands is measured by `Pad jump:` lines, macros/pad.py).
+BLADE_WARP_PAD_REACH = 17.0
+BLADE_WARP_SOURCE = JumpSource(BLADE_WARP_JUMP, delay=WARP_DELAY, pad_reach=BLADE_WARP_PAD_REACH)
 
 # The shared sets in their order, the blade first in each: Blade Warp, then Teleport, then the walk.
 MOVEMENT = tuple(shared.led_by(BLADE_WARP_SOURCE) for shared in SHARED)

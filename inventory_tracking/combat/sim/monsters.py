@@ -164,6 +164,7 @@ from pathlib import Path
 from typing import Any
 
 from inventory_tracking.combat.mechanics.tables import tables
+from inventory_tracking.combat.sim import casters
 from inventory_tracking.combat.timeline import GAME_RATE
 from inventory_tracking.macros.world import MINION_FLAG
 
@@ -411,10 +412,15 @@ class Walker:
     lands: int = -1  # the frame that swing's blow lands at; -1: none (no swing, or one lost to a stagger)
     favour: float = 0.0  # its one roll for whom it goes for (`Pack` draws it)
     mark: int = -1  # a shooter's: the index of the target of its next shot; -1: not chosen yet
+    health: float = 1.0  # the share of its most life it has (`Pack.struck` takes the hits off)
+    stunned: int = NEVER  # the frame a stun on it is over at (`Pack.stun`); it does nothing before
     traits: Traits = field(init=False)
+    # A type of the four AIs read in the client thinks by them (sim/casters.py); None: by the fit, as below.
+    mind: casters.Mind | None = field(init=False)
 
     def __post_init__(self) -> None:
         self.traits = Traits.of(self.txt, self.level, self.flags, self.mods, self.tier)
+        self.mind = casters.mind_for(self.txt)
 
     @property
     def at(self) -> Point:
@@ -469,8 +475,9 @@ class Blow:
     unit: int  # who struck, or whose missile it was
     target: int  # the index of the target struck (0: the character)
     damage: float
-    kind: str = MELEE  # or SPARK, SHOT, NOVA
+    kind: str = MELEE  # or SPARK, SHOT, NOVA, and a caster's (sim/casters.py SPELL, POISON)
     parts: Mapping[str, float] = field(default_factory=dict)
+    missile: int = 0  # missiles.txt id of a caster's missile that dealt it; 0: none
 
     def taken(self, resists: Mapping[str, float]) -> float:
         """The points left of the blow for one with `resists` (kind of damage -> the share stopped, 0 to 1)."""
@@ -496,6 +503,9 @@ class Pack:
         self.arrived = 0  # the sparks that have ended on the character, whether or not they took life
         self.flying: list[Missile] = []
         self.novas: list[Nova] = []
+        # The walkers of a read AI (`Walker.mind`), their missiles and curses. AWARE as it is when the pack is
+        # made: beyond the code's radius it says every monster knows of the character (stage.py `awareness`).
+        self.minds = casters.Minds(self, aware=AWARE)
         # The shooters that have had a target within their reach: these come after it. One that
         # never had stands, as a melee monster does beyond AWARE (an assumption, not a measurement).
         self.awake: set[int] = set()
@@ -535,6 +545,7 @@ class Pack:
         if walker is None:
             return 0
         walker.fell += share
+        walker.health -= share
         if not walker.traits.sparks:
             return 0
         found = fitted()['sparks']
@@ -554,6 +565,18 @@ class Pack:
             turns = random.Random(roll.getrandbits(32))
             self.sparks.append(Spark(unit, walker.x, walker.y, course, frame, points, course, turns))
         return count
+
+    def stun(self, unit: int, frame: int, frames: int) -> None:
+        """The monster is stunned at `frame` for `frames` (sim/guard.py has when): what it was doing is over (a
+        swing's blow not yet landed and a cast not yet let go are lost, as in a stagger), it does nothing until
+        the stun is over and then thinks at once. A new stun sets the end anew, as the game's does."""
+        walker = self.walkers.get(unit)
+        if walker is None or frames <= 0:
+            return
+        walker.stunned = frame + frames
+        walker.doing, walker.until, walker.lands = STAND, walker.stunned, -1
+        if walker.mind is not None:
+            self.minds.lost(walker)
 
     @staticmethod
     def _met(spark: Spark, targets: Sequence[Point], found: Mapping[str, Any]) -> int:
@@ -648,12 +671,16 @@ class Pack:
         landed is lost. After the stagger it rests as after a swing (`step`). A shooter does not
         stagger (the takes' staggers are tallied of the melee types), nor one that staggers already."""
         share, walker.fell = walker.fell, 0.0
-        if walker.unit in self.shots or not walker.traits.melee or walker.doing == STAGGER:
+        if frame < walker.stunned:
+            return  # stunned: a hit's reaction does not end the stun (sim/guard.py)
+        if walker.doing == STAGGER or (walker.mind is None and (walker.unit in self.shots or not walker.traits.melee)):
             return
         roll = self.rolls[walker.unit]
         if roll.random() < stagger_chance(share):
             frames = round(drawn(fitted()['melee']['stagger']['recovery']['knots'], roll.random()))
             walker.doing, walker.until, walker.lands = STAGGER, frame + max(frames, 1), -1
+            if walker.mind is not None:
+                self.minds.lost(walker)  # a cast not let go is lost as a swing is (the game's hit recovery)
 
     def step(self, frame: int, targets: Sequence[Point]) -> list[Blow]:
         for walker in self.walkers.values():
@@ -664,7 +691,13 @@ class Pack:
             return blows
         blows += self._land(frame, targets)
         blows += self._burst(frame, targets)
+        blows += self.minds.fly(frame, targets)
         for walker in self.walkers.values():
+            if frame < walker.stunned:
+                continue  # stunned: it does nothing (sim/guard.py)
+            if walker.mind is not None:
+                blows += self.minds.act(walker, frame, targets)
+                continue
             if walker.unit in self.shots:
                 self._shoot(walker, frame, targets)
                 continue
@@ -743,6 +776,29 @@ class Pack:
         stride = min(walker.traits.speed, left)
         walker.x += (target[0] - walker.x) / away * stride
         walker.y += (target[1] - walker.y) / away * stride
+
+    # -- what sim/casters.py `Minds` asks of the pack ---------------------------------------------
+
+    def _go(self, walker: Walker, goal: Point, stride: float, stop: float) -> bool:
+        """One stride of `stride` units toward `goal`, ending `stop` from it; False: there is no way (here
+        there always is one)."""
+        away = math.dist(walker.at, goal)
+        step = min(stride, away - stop)
+        if step > 0:
+            walker.x += (goal[0] - walker.x) / away * step
+            walker.y += (goal[1] - walker.y) / away * step
+        return True
+
+    def _sees(self, walker: Walker, target: Point) -> bool:
+        """Whether the walker has a line of sight to `target`: here always (no walls here)."""
+        return True
+
+    def _footing(self, spot: Point) -> bool:
+        """Whether one can stand at `spot`: here everywhere."""
+        return True
+
+    def _made(self, frame: int, unit: int, target: int, parts: Mapping[str, float], kind: str, missile: int) -> Blow:
+        return Blow(frame, unit, target, sum(parts.values()), kind, dict(parts), missile)
 
     # -- shooters --------------------------------------------------------------------------------
 

@@ -200,6 +200,7 @@ def test_every_dataclass_of_the_module_is_frozen():
         'MoveFacts',
         'Intent',
         'Step',
+        'PricedStep',
         'NoWay',
         'JumpSource',
         'BuffFacts',

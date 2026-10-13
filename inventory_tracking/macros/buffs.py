@@ -20,6 +20,7 @@ from inventory_tracking.common import LOG
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.build import Buff, BuffFacts, Build, Casting, Tried
 from inventory_tracking.macros.engine import Run
+from inventory_tracking.macros.pad import MONSTER_UNIT
 from inventory_tracking.macros.routines import (
     ACTING,
     LOAD_LIMIT,
@@ -201,10 +202,16 @@ class Buffs:
         if world.player is None:
             raise Abort('not in a game')
         run.keys.update(cast.key_names(world, (skill,)))
-        point = screen_fraction(world.player, target.x, target.y, cast.aspect)
-        if not on_screen(point):
-            return Tried()
-        run.actuator.aim(*point, scatter=(3, 3))
+        if run.pad is not None:
+            # Controller mode: the client's own target has to name it, else nothing is cast (macros/pad.py).
+            here, there = (world.player.x, world.player.y), (target.x, target.y)
+            if not run.pad.aim_unit(MONSTER_UNIT, target.unit_id, here, there, label(target)):
+                return Tried()
+        else:
+            point = screen_fraction(world.player, target.x, target.y, cast.aspect)
+            if not on_screen(point):
+                return Tried()
+            run.actuator.aim(*point, scatter=(3, 3))
         if all(m.unit_id != target.unit_id for m in run.world().monsters):
             return Tried()  # it died under the strike while the pointer went over: no mark on a corpse
         self.key(run, skill)
@@ -221,6 +228,11 @@ class Buffs:
         assert world is not None
         assert world.player is not None
         run.keys.update(cast.key_names(world, (skill,)))
+        if run.pad is not None:
+            # Controller mode: a heading; the cast lands at its skill's own distance that way (macros/pad.py).
+            run.pad.aim_place((world.player.x, world.player.y), (target.x, target.y))
+            self.key(run, skill)
+            return Tried(run.clock(), cast=True)
         where = ground_fraction(world.player, target.x, target.y, cast.aspect)
         if not on_screen(where):
             return Tried()

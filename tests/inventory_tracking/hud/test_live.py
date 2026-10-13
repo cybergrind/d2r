@@ -180,3 +180,29 @@ def test_the_panel_source_is_taken_out_of_the_scene_before_layout():
 
     assert panel_source([card, source]) == ([7, FLAGS], [card])
     assert panel_source([card]) == (None, [card])
+
+
+def test_the_input_mode_byte_is_read_from_the_address_the_panels_widget_names(monkeypatch):
+    from inventory_tracking.hud.live import InputModeByte, mode_source
+
+    monkeypatch.setattr('os.close', lambda fd: None)
+    widgets = [
+        Widget('panels', 'panels', 'panels', {'live': [7, FLAGS], 'controller': 0x1234}),
+        Widget('m', 'text', 'mode', {}),
+    ]
+    assert mode_source(widgets) == (7, 0x1234)
+    assert mode_source([Widget('panels', 'panels', 'panels', {'live': [7, FLAGS]})]) is None
+    assert mode_source([]) is None
+    byte = {0x1234: b'\x01'}
+
+    def read(fd, size, address):
+        if address not in byte:
+            raise OSError('unmapped')
+        return byte[address]
+
+    mode = InputModeByte(open_memory=lambda pid: 100 + pid, read=read)
+    assert mode.reading((7, 0x1234))
+    byte[0x1234] = b'\x00'
+    assert not mode.reading((7, 0x1234))
+    assert not mode.reading((7, 0x9999))  # unreadable: the mouse layout
+    assert not mode.reading(None)

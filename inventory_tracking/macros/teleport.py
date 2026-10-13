@@ -29,7 +29,7 @@ them next (DOOR_AIMS).
 import heapq
 import json
 import math
-from collections.abc import Callable
+from collections.abc import Callable, Iterable
 from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
@@ -158,6 +158,18 @@ WARP_NEAR = 12.0  # world units from the mark to its door unit (the tower's in B
 # (user, 2026-10-12): the step stood at the Cairn Stones, "At Tristram", and the portal was never taken.
 # An aim is clicked only with that object in the game's record of the unit under the pointer.
 OBJECT_UNIT = 2
+MONSTER_UNIT = 1  # the same record's type of a monster
+
+
+class Covered(Abort):
+    """The hands did not make their act because monsters stood where it was to be made: under the
+    pointer at every aim on an object, or on the ground a walk was to be clicked at (`units`, their ids).
+    An Abort like any other to a caller that only stops; the pursuit loop reads them as what bars its
+    goal, and fights them first (macros/goals.py `first_fight`)."""
+
+    def __init__(self, reason: str, units: Iterable[int]) -> None:
+        super().__init__(reason)
+        self.units = frozenset(units)
 
 
 @dataclass(frozen=True)
@@ -170,9 +182,15 @@ class Use:
     begun: str  # said before the click
     done: str  # and after it took
     absent: str  # at the mark with no such object shown
+    # Seconds after it took within which the game brings what it calls (a seal's boss and pack: first seen
+    # 0.95 to 1.02 s after the seal, rca/2026-10-13/situations.md §3, cs-run.md §2): the use is not over
+    # before then (the pursuit loop's level run moves nowhere meanwhile: macros/pursuit.py `Facts.settling`).
+    brings: float = 0.0
 
 
 CHEST_AIMS = ((0, -10), (0, 0), (0, -22), (12, -10), (-12, -10), (0, -36))
+SUMMONING_SEALS = (392, 394, 396)  # DiabloSeal1, 3, 5: the Infector's, De Seis's, the Vizier's (levels/model.py SEALS)
+SEAL_BRINGS = 1.2  # seconds: the seal's pack was first seen 0.95 to 1.02 s after it opened, with a frame to spare
 USES = {
     # objects.txt's click box of PortalPermanent: 80 pixels wide round its ground point, from 100 above it
     # to 10 below; the aims go down its middle. The stones' map piece is 40 units across, the mark its middle.
@@ -202,8 +220,13 @@ USES = {
     # opened the two on the host on 2026-10-12 (macros/opening.py AIMS), each by the first.
     SUPER_CHEST: Use(CHEST_AIMS, 10.0, False, 'Opening {}', '{}: opened', '{} is not here'),
     # The Chaos Sanctuary's seals: objects.txt gives them no box (taken by their picture, which stands on
-    # their ground point) and one mode they can be clicked in. Not seen clicked by the step yet.
+    # their ground point) and one mode they can be clicked in. Not seen clicked by the step yet. The last
+    # seal of each arm brings its boss and pack (the take of 12:33 on 2026-10-13: 396, 394, 392).
     **dict.fromkeys(SEALS, Use(CHEST_AIMS, 10.0, False, 'Opening {}', '{}: open', '{} is not here')),
+    **dict.fromkeys(
+        SUMMONING_SEALS,
+        Use(CHEST_AIMS, 10.0, False, 'Opening {}', '{}: open', '{} is not here', brings=SEAL_BRINGS),
+    ),
 }  # fmt: skip
 THING_REACH = 25.0  # world units from the character to an object it is sent to by a click
 THING_SECONDS = 4.0  # the walk to it and what follows
@@ -431,17 +454,27 @@ def entry_in_view(target: Target, player: Player, way: Way, aspect: float) -> Po
     return entry if landable(target, way, entry) else None
 
 
-def landing(target: Target, player: Player, way: Way, aspect: float) -> tuple[Point, float] | None:
+def landing(
+    target: Target, player: Player, way: Way, aspect: float, ring: tuple[float, float] | None = None
+) -> tuple[Point, float] | None:
     """The footing in view that leaves the shortest way to the mark, with the tiles it takes off the
-    way from where the character stands; None when nothing in view brings it MIN_GAIN nearer."""
+    way from where the character stands; None when nothing in view brings it MIN_GAIN nearer. `ring`
+    (world units, least and most): only spots that far from the character, for a hop of one length
+    (controller mode, macros/pad.py)."""
     start = (player.x / TILE_UNITS, player.y / TILE_UNITS)
     now = way.from_here(start)
+
+    def outside(point: Point) -> bool:
+        return ring is not None and not ring[0] <= math.dist(point, start) * TILE_UNITS <= ring[1]
+
     entry = entry_in_view(target, player, way, aspect)
-    if entry is not None:
+    if entry is not None and not outside(entry):
         return entry, now - way.to_go(entry)  # the door's own spot is in view: the hop that ends the way
     candidates = (*spots_in_view(player, aspect), *(approaches(target) if target.warp else (target.point,)))
     found: list[tuple[float, float, Point]] = []  # (way to go, distance from the character, spot)
     for point in candidates:
+        if outside(point):
+            continue
         if target.warp and math.dist(scaled(point), scaled(target.point)) < WARP_TILES:
             continue  # the warp's own tiles: a hop onto them lands anywhere beside
         if not way.view.hop_view(ground_fraction(player, *scaled(point), aspect)) or not landable(target, way, point):
@@ -551,6 +584,9 @@ def walk_into(run: Run, target: Target, player: Player, aspect: float) -> None:
     clicks on the ground left the character (the tower's door in Black Marsh, host, 20:12 on
     2026-10-10: nothing took from the remembered spot, the same aim took on the next press)."""
     door = scaled(target.point)
+    if run.pad is not None:
+        pad_door(run, target, player)  # controller mode: the door unit targeted and A (macros/pad.py)
+        return
     if not in_view(ground_fraction(player, *door, aspect)):
         raise Abort(f'{target.label} is not in view')
     start = (player.x, player.y)
@@ -659,6 +695,33 @@ def walk_into(run: Run, target: Target, player: Player, aspect: float) -> None:
     raise Abort(f'no click took {target.label}')
 
 
+def pad_door(run: Run, target: Target, player: Player) -> None:
+    """Controller mode: into the door of `target` by the pad (macros/pad.py): its door unit targeted and A
+    pressed from beside it (the client's Interact group takes doors, inferred), else a walk onto the door's
+    entry; the level changing is the evidence."""
+    assert run.pad is not None
+    door = scaled(target.point)
+    run.say(f'Walking into {target.label}, {math.dist((player.x, player.y), door):.0f} away')
+
+    def inside(world: World | None = None) -> bool:
+        now = (world or run.world()).player
+        return now is None or now.area != target.area
+
+    doors = run.warps() if run.warps is not None else ()
+    near = [warp for warp in doors if math.dist((warp.x, warp.y), door) <= WARP_NEAR]
+    if near:
+        unit = min(near, key=lambda warp: math.dist((warp.x, warp.y), door))
+        if run.pad.interact(TILE_UNIT, unit.unit_id, (unit.x, unit.y), inside, target.label):
+            run.say(f'{target.label}: there')
+            return
+    entry = entry_spot(target)
+    run.pad.walk(scaled(entry) if entry is not None else door, near=0.5, done=inside, why=target.label)
+    if inside():
+        run.say(f'{target.label}: there')
+        return
+    raise Abort(f'{target.label} did not take the pad')
+
+
 def marked_thing(run: Run, target: Target) -> Thing | None:
     """The object the mark names: the one of its kind nearest the mark among those the game shows near it."""
     mark, use = scaled(target.point), USES[target.use]
@@ -690,7 +753,13 @@ def use_thing(run: Run, target: Target, player: Player, thing: Thing, aspect: fl
             return now is None or now.area != target.area
         return any(t.unit_id == thing.unit_id and t.mode for t in (run.things() if run.things is not None else ()))
 
+    if run.pad is not None:  # controller mode: stand by it, the target names it, A (macros/pad.py)
+        if run.pad.interact(OBJECT_UNIT, thing.unit_id, at, took, target.label):
+            run.say(use.done.format(target.label))
+            return
+        raise Abort(f'{target.label} did not take the pad')
     seen = False
+    covered: set[int] = set()  # the monsters under the pointer at an aim that was not clicked
     for aim in use.aims:
         across, down = ground_fraction(player, *at, aspect)
         where = (across + aim[0] * UNIT_PIXELS[0] / 16 / aspect, down + aim[1] * UNIT_PIXELS[1] / 8)
@@ -702,6 +771,8 @@ def use_thing(run: Run, target: Target, player: Player, thing: Thing, aspect: fl
             over = run.hovered()
             if over != (OBJECT_UNIT, thing.unit_id):
                 LOG.info('Macro: the aim %s pixels from %s has %s under it; not clicked', aim, target.label, over)
+                if over is not None and over[0] == MONSTER_UNIT:
+                    covered.add(over[1])
                 continue
         seen = True
         for _ in range(DOOR_CLICKS):
@@ -726,6 +797,8 @@ def use_thing(run: Run, target: Target, player: Player, thing: Thing, aspect: fl
             if stirred:
                 break  # it walked and nothing came of it: the next aim, from where it stands
     if not seen:
+        if covered:
+            raise Covered(f'{target.label} is not under the pointer at any aim', covered)
         raise Abort(f'{target.label} is not under the pointer at any aim')
     raise Abort(f'no click took {target.label}')
 
@@ -902,6 +975,11 @@ def press_hop(run: Run, arrived: Callable[[World], bool]) -> None:
     2026-10-11 took 214 to 290 ms to their key for it. The game does not keep every press (one
     under 160 ms after the cast before began with its entry still held, or a third one): when the
     cast before ends and none follows within QUEUED_SECONDS, the key is pressed again."""
+    if run.pad is not None:
+        # Controller mode: the button once the character is free (the right button's Quick Cast, which the
+        # press during a cast below watches for, is the mouse's).
+        press_skill(run, TELEPORT, HOP_POLL)
+        return
     world = run.world()
     busy = world.player is not None and world.player.mode in ACTING
     press_skill(run, TELEPORT, HOP_POLL, wait=not busy)
@@ -972,10 +1050,11 @@ def _hop_toward(
     aspect = rect[2] / rect[3]
     here = (player.x / TILE_UNITS, player.y / TILE_UNITS)
     key = (target.area, math.floor(target.point[0]), math.floor(target.point[1]))
+    ring = run.pad.ring(TELEPORT) if run.pad is not None else None  # controller mode: a hop of one length
     found = None
     if not far_banned(key, run.clock()):
         way = way_for(target, Viewport(aspect), True)
-        found = landing(target, player, way, aspect) if way.from_here(here) < math.inf else None
+        found = landing(target, player, way, aspect, ring) if way.from_here(here) < math.inf else None
         if found is None:
             ban_far(key, run.clock())
             LOG.info(
@@ -986,7 +1065,7 @@ def _hop_toward(
         way = way_for(target, Viewport(aspect))
         if way.from_here(here) == math.inf:
             raise Abort(f'no way over the rooms to {target.label}')
-        found = landing(target, player, way, aspect)
+        found = landing(target, player, way, aspect, ring)
     if found is None:
         raise Abort(f'no footing in view brings the character nearer to {target.label}')
     spot, gain = found
@@ -1002,14 +1081,29 @@ def _hop_toward(
     if warp is not None and warp(target, player, scaled(spot)):
         return
     run.light = light + 1
+    hop_to(run, target, player, rect, spot, gain, key_names)
+
+
+def hop_to(
+    run: Run, target: Target, player: Player, rect: tuple[int, int, int, int], spot: Point, gain: float, key_names
+) -> None:
+    """The Teleport hop itself, onto the landing `spot` (tiles) chosen for `target`, `gain` tiles off the
+    way: the staff in hand if a staff it is, the pointer, the key (also during the cast before), and the
+    landing watched for. `player` is the character where the hop starts from. Who chose the landing is
+    the caller: the teleport step (`_hop_toward`), or the movement set that teleports (macros/movement.py
+    `hop_leg`, made by travel.py `Travel.make`)."""
+    aspect = rect[2] / rect[3]
     take_teleport(run, key_names)
     left = math.dist(spot, target.point) * TILE_UNITS
     staff = run.teleport() if run.teleport is not None else None
     charges = f', {staff.charges} charges' if staff is not None else ''
     run.say(f'Teleport toward {target.label}: {left:.0f} left after this{charges}')
     run.in_time('the hop')  # a hop long after its key is a surprise, not a step
-    run.actuator.snap(*ground_fraction(player, *scaled(spot), aspect), scatter=(4, 3))
     aim = scaled(spot)
+    if run.pad is not None:
+        run.pad.aim_place((player.x, player.y), aim)  # controller mode: a heading (macros/pad.py)
+    else:
+        run.actuator.snap(*ground_fraction(player, *scaled(spot), aspect), scatter=(4, 3))
     press_hop(run, lambda w: w.player is not None and landed_from(w.player, player, aim))
     if target.warp:
         door, entry = scaled(target.point), entry_spot(target)

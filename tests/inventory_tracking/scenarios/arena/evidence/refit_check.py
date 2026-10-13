@@ -70,6 +70,7 @@ from dataclasses import dataclass, replace
 from typing import Any
 
 from inventory_tracking.combat.sim import monsters
+from inventory_tracking.combat.sim.casters import mind_of
 from inventory_tracking.combat.sim.monsters import (
     CHARACTER_FIRST,
     COLD,
@@ -208,13 +209,18 @@ def quantile(values: Sequence[float], share: float) -> float | None:
 
 
 def stand_in(evidence: Mapping[str, Any], part: str, count: str, ranged: bool) -> int:
-    """The type without a row of its own in the fit that the check half saw most of: it plays the pooled row."""
+    """The type without a row of its own in the fit that the check half saw most of: it plays the pooled row. A
+    type of an AI read in the client (sim/casters.py: the Chaos Sanctuary's four) plays by that, not by the fit."""
     own = fitted()['shots' if ranged else 'melee']['types']
     idle = fitted()['melee']['idle']
     found = {
         int(txt): row[part]['check'][count]
         for txt, row in evidence['types'].items()
-        if row[part]['check'] and txt not in own and int(txt) not in idle and is_ranged(int(txt)) == ranged
+        if row[part]['check']
+        and txt not in own
+        and int(txt) not in idle
+        and is_ranged(int(txt)) == ranged
+        and mind_of(int(txt)) is None
     }
     return max(found, key=lambda txt: found[txt])
 

@@ -138,7 +138,7 @@ def test_terror_card_is_a_text_widget_in_its_own_top_right_slot():
 def test_the_panel_layer_names_the_flag_array_and_is_republished_before_its_lease_ends():
     from inventory_tracking.hud.process import PanelBeacon
     from inventory_tracking.hud.scene import LEASE_SECONDS
-    from inventory_tracking.native.layout import UI_PANELS_RVA
+    from inventory_tracking.native.layout import CONTROLLER_MODE_RVA, UI_PANELS_RVA
 
     class Source:
         pid, images = 7, {'candidate_base': 0x140000000}
@@ -149,7 +149,11 @@ def test_the_panel_layer_names_the_flag_array_and_is_republished_before_its_leas
     beacon.poll(10.0)
     beacon.poll(10.1)
     assert [(w.kind, w.slot, w.payload) for w in published[0]] == [
-        ('panels', 'panels', {'live': [7, 0x140000000 + UI_PANELS_RVA]})
+        (
+            'panels',
+            'panels',
+            {'live': [7, 0x140000000 + UI_PANELS_RVA], 'controller': 0x140000000 + CONTROLLER_MODE_RVA},
+        )
     ]
     assert len(published) == 1
     Source.pid = 8  # the game was restarted
@@ -182,3 +186,42 @@ def test_the_mode_beacon_says_whether_attack_mode_is_on_and_nothing_out_of_a_gam
     texts = [[line['text'] for line in widgets[0].payload['lines']] if widgets else None for widgets in published]
     assert texts == [['auto-attack off'], ['AUTO-ATTACK ON'], ['AUTO-ATTACK ON'], None]
     assert published[1][0].slot == 'mode'
+
+
+def test_the_mode_beacon_adds_the_input_mode_and_in_controller_mode_the_pad_legend():
+    from inventory_tracking.hud.process import ModeBeacon
+    from inventory_tracking.models import InputMode
+
+    mode = [None]
+    published = []
+    beacon = ModeBeacon(
+        lambda: (True, False),
+        published.append,
+        input_mode=lambda: mode[0],
+        legend=lambda: ('A Attack, Y Echoing Strike', 'LT+X Town Portal'),
+    )
+    beacon.poll(10.0)  # unread: the attack line alone
+    mode[0] = InputMode(False)
+    beacon.poll(10.1)
+    mode[0] = InputMode(False, True, True)
+    beacon.poll(10.2)
+    mode[0] = InputMode(True)
+    beacon.poll(10.3)
+    beacon.poll(10.4)  # nothing changed
+
+    texts = [[line['text'] for line in widgets[0].payload['lines']] for widgets in published]
+    assert texts == [
+        ['auto-attack off'],
+        ['auto-attack off · keyboard'],
+        ['auto-attack off · switching to controller'],
+        ['auto-attack off · controller', 'A Attack, Y Echoing Strike', 'LT+X Town Portal'],
+    ]
+
+
+def test_controller_slots_keep_the_guide_left_of_the_life_globe_and_the_mode_line_above_the_bar():
+    assert set(HUD.controller_slots) <= set(HUD.slots)
+    assert HUD.controller_slots['guide'].x + HUD.controller_slots['guide'].max_width <= 0.165
+    mode = HUD.controller_slots['mode']
+    assert mode.upward
+    assert mode.centered
+    assert mode.y < 0.89

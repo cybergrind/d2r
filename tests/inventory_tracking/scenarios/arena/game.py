@@ -52,8 +52,10 @@ What the arena does not model, or takes as given (the calibration of Task 1.9 ne
   between two looks at the game but the ticks (a cast, and a walk asked for during a cast, begin at
   the look after the cast's end, as `Game`'s casts do);
 - the strike deals the same with either weapon set (damage.json knows no set), Death Mark, Sigil:
-  Lethargy, Engorge, Hex: Purge, Psychic Ward and Consume change nothing (their casts are counted by
-  `Game` and cost their cast time), and the companions deal no damage;
+  Lethargy, Engorge, Hex: Purge and Consume change nothing (their casts are counted by `Game` and cost
+  their cast time), and the companions deal no damage; Psychic Ward is a guard (combat/sim/guard.py,
+  builds/warlock/ward.py: a pool of physical points taken before the resistances, a stun on a melee
+  striker) set at the tick after its key, and only the types the client's rules play meet it;
 - the blades return to where the character stood at the cast (as both harnesses), and a blade's
   focal point is the ground under the pointer at the cast's start;
 - mana is not counted (combat/data/damage.json: the recorded mana never limited casting);
@@ -99,7 +101,11 @@ from inventory_tracking.builds.warlock.echoing_strike.mechanics import LIFE, OUT
 from inventory_tracking.builds.warlock.echoing_strike.sim.input import BIRTH_LAG
 from inventory_tracking.builds.warlock.movement import BLADE_WARP_JUMP
 from inventory_tracking.builds.warlock.skills import BLADE_WARP, ECHOING_STRIKE
+from inventory_tracking.builds.warlock.ward import PSYCHIC_WARD_GUARD
 from inventory_tracking.combat.policy import RUN_MODES, Foe, walls
+from inventory_tracking.combat.sim import casters
+from inventory_tracking.combat.sim.casters import mind_of
+from inventory_tracking.combat.sim.guard import Guard
 from inventory_tracking.combat.stance import no_footing, way
 from inventory_tracking.combat.timeline import GAME_RATE
 from inventory_tracking.config import INPUT, HealingConfig
@@ -143,7 +149,7 @@ from inventory_tracking.models import (
 from inventory_tracking.native.layout import BELT_COLUMNS, BELT_SIZE, CORPSE_MODE, DEAD_MODES
 from inventory_tracking.tracking.belt import potion_kind
 from tests.inventory_tracking.macros.fakes import KEYS, Clock, Game, player
-from tests.inventory_tracking.scenarios.arena.mobs import Mobs
+from tests.inventory_tracking.scenarios.arena.mobs import Mobs, raw_resists
 from tests.inventory_tracking.scenarios.arena.result import Result
 from tests.inventory_tracking.scenarios.arena.scene import Scene
 from tests.inventory_tracking.scenarios.threat.harness import RUN
@@ -200,6 +206,16 @@ BLOCK_SECONDS = 0.44
 OPEN_REACH = 3.0  # units: an object clicked is operated from this near
 BODY_LIFT = 3.0  # units down the screen from the pointer's ground that a monster's picture still covers
 BODY_HALF = 1.5  # units: how far from that line a monster's feet may be
+# How the companions keep up with the character (`Arena.follow`), from the Chaos Sanctuary takes since 2026-10-12
+# (rca/2026-10-13/sim-casters.md): by type, the distance to the character it stands at (the median) and its pace
+# when it closes in (the median step of a frame it moved by less than 3 units): the Defiler 744 4.4 and 0.41, the
+# mercenary 338 5.1 and 0.32, the Pit Lord 361 2.7 and 0.97. Each was within 19.6 to 28 units (p99) and came back
+# from farther by a jump to within 0.6 of the character (689, 670 and 605 jumps): one farther than JUMP is put
+# BESIDE it. Neither the jump's own rule nor a companion's going for monsters is played.
+FOLLOW: dict[int, tuple[float, float]] = {744: (4.4, 0.41), 338: (5.1, 0.32), 361: (2.7, 0.97)}
+FOLLOW_DEFAULT = (5.0, 0.4)
+JUMP = 18.0
+BESIDE = 0.6
 
 
 class Ticks(Clock):
@@ -359,6 +375,12 @@ class Arena(Game):
         self.scene = scene.copy()
         hero = self.scene.hero
         self.mobs = Mobs(self.scene, random.Random(seed), auras)
+        # The companions keep up with the character (`follow`) in a scene of the types sim/casters.py plays (the
+        # Chaos Sanctuary's), where whom a monster goes for is the nearest body; elsewhere they stand where the scene
+        # has them, as every scene was fitted and pinned with (before 2026-10-13, casters.PLAYED off: everywhere).
+        self.follows = casters.PLAYED and any(
+            mind_of(mob.txt) for mob in self.scene.mobs if mob.owner is None and not mob.ally
+        )
         stand = replace(
             player(hero.area),  # the fakes' character: its unit id and the mode it stands in
             name=hero.name, x=hero.at[0], y=hero.at[1],
@@ -368,6 +390,12 @@ class Arena(Game):
         # A door row as the stance fixtures hold it: unit, txt, mode, x, y (mobs.py reads the same).
         doors = tuple(Door(row[0], row[1], row[2], float(row[3]), float(row[4])) for row in self.scene.doors)
         super().__init__(World(True, (), 'arena', tuple(hero.slots), player=stand, doors=doors))
+        # Psychic Ward as a guard (builds/warlock/ward.py, sim/guard.py): up as the scene opens when the state
+        # shows it there; a cast of it (`Game.wards`, one a cast) sets it at the next tick; at 0 its state is gone
+        # (`play_tick`) and the build's buff rules cast it again. It meets only the blows of the types the client's
+        # rules play (`Mobs._ruled`).
+        self.guard = Guard(PSYCHIC_WARD_GUARD, up=bool(hero.ward))
+        self.mobs.guard = self.guard
         self.attack = attack
         if attack is not None:
             self.strike_skill = attack.skill
@@ -394,6 +422,7 @@ class Arena(Game):
         # The weapon sets: the one in hand first, as `Game.sets` has them.
         self.hand = hero.hand
         self.resists = [dict(found.resist) for found in hero.sets]
+        self.raws = [raw_resists(found.codes) for found in hero.sets]
         self.sets = [hero.sets[hero.hand].codes, hero.sets[1 - hero.hand].codes]  # type: ignore[assignment]
         staffed = next((index for index, found in enumerate(hero.sets) if found.teleport_charges is not None), None)
         if staffed is not None:
@@ -473,7 +502,30 @@ class Arena(Game):
             dead=frozenset(m.unit_id for m in theirs if m.mode in DEAD_MODES),
         )
         life = 0 if self.dead_at is not None else max(round(self.life), 1)
-        self.loot = replace(self.loot, life=life, max_life=round(self.max_life))
+        # The same current-set stats the live loot read exposes to safety. No
+        # opponent RNG, future potion, or unobserved alternate set is revealed.
+        from inventory_tracking.macros.safety import RESISTS
+
+        raw = self.raws[self.hand]
+        values = (
+            dict(raw)
+            if raw is not None
+            else {kind: (1 - through) * 100 for kind, through in self.resists[self.hand].items()}
+        )
+        curse = self.mobs.pack.minds.hex_on(0, self.mobs.frame)
+        if curse is not None:
+            for kind, delta in curse.resists.items():
+                values[kind] = values.get(kind, 0.0) + delta
+        stats = (
+            *(
+                (stat, round(values.get(kind, 0.0) + (100 if kind not in ('physical', 'magic') else 0)))
+                for stat, kind in RESISTS
+            ),
+            (31, 771),
+            (12, 94),
+            (20, 10),
+        )
+        self.loot = replace(self.loot, life=life, max_life=round(self.max_life), stats=stats)
 
     def read(self) -> World:
         if self.over is not None:
@@ -565,10 +617,18 @@ class Arena(Game):
         now = self.clock.now
         if not self.instant_moves:
             self.move()
+        if self.follows:
+            self.follow()
         companions = [(m.x, m.y) for m in self.world.monsters if m.ally or m.owner != NO_OWNER]
+        if len(self.wards) > self.guard.sets:
+            self.guard.set()  # a cast of Psychic Ward since the last tick (`Game` counts it at its key)
+        self.mobs.raw = self.raws[self.hand]  # what a curse moves (mobs.py RAW_RESISTS)
         blows = min(self.mobs.tick(self.here, companions, self.resists[self.hand]), self.life)
         self.taken += blows
         self.life -= blows
+        stand = self.world.player
+        if stand is not None and stand.ward and not self.guard.up:
+            self.world = replace(self.world, player=replace(stand, ward=False))  # the pool ran out: the state is gone
         if self.life <= 0.0:
             self.die(now)
             return
@@ -588,6 +648,27 @@ class Arena(Game):
         self.show()
         if self.cleared_at is None and not self.mobs.live():
             self.cleared_at = now
+
+    def follow(self) -> None:
+        """The companions keep up with the character in a scene of the casters (`follows`): one
+        farther than JUMP is put beside it, one farther than its HEEL walks toward it at its pace."""
+        here, moved = self.here, []
+        for monster in self.world.monsters:
+            if not (monster.ally or monster.owner != NO_OWNER):
+                moved.append(monster)
+                continue
+            gap = math.dist(here, (monster.x, monster.y))
+            heel, pace = FOLLOW.get(monster.txt_id, FOLLOW_DEFAULT)
+            if gap > JUMP:
+                spot = (here[0] + BESIDE, here[1])
+            elif gap > heel:
+                share = min(pace, gap - heel) / gap
+                spot = (monster.x + (here[0] - monster.x) * share, monster.y + (here[1] - monster.y) * share)
+            else:
+                moved.append(monster)
+                continue
+            moved.append(replace(monster, x=spot[0], y=spot[1]))
+        self.world = replace(self.world, monsters=tuple(moved))
 
     def stagger(self, now: float, seconds: float = RECOVERY_SECONDS, mode: int = STAGGERED) -> None:
         """A heavy blow, or a blow blocked: the character stands in `mode` for `seconds` (the module text)."""

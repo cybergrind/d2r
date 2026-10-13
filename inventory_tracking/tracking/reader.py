@@ -27,6 +27,7 @@ from inventory_tracking.native.session import GameNotReady, inspect_game, select
 from inventory_tracking.native.unit_probe import sample_units
 from inventory_tracking.reports import publish
 from inventory_tracking.tracking.consume import observe_consume
+from inventory_tracking.tracking.input_mode import observe_input_mode
 from inventory_tracking.tracking.shop_panel import observe_shop_panel
 from inventory_tracking.tracking.show_items import observe_show_items
 from inventory_tracking.tracking.state import from_research
@@ -175,6 +176,7 @@ class LiveReader:
                             state = replace(
                                 state,
                                 show_items=observe_show_items(pid, images),
+                                input_mode=observe_input_mode(pid, images),
                                 consume=observe_consume(pid, images, snapshot, state.session.player_id),
                                 shop=observe_shop_panel(pid, images, snapshot),
                             )

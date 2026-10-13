@@ -25,6 +25,26 @@ class BeltCell(NamedTuple):
     item_id: int
 
 
+@dataclass(frozen=True)
+class InputMode:
+    """The game's input method (tracking/input_mode.py): keyboard and mouse, or controller."""
+
+    controller: bool
+    pending: bool = False  # a flip is asked and the reload not done yet
+    wanted: bool | None = None  # the mode the pending flip goes to (True: controller); None when none is pending
+
+    @property
+    def name(self) -> str:
+        return 'controller' if self.controller else 'keyboard'
+
+    @property
+    def label(self) -> str:
+        """For the HUD: the mode, or where it is going."""
+        if self.pending and self.wanted is not None and self.wanted != self.controller:
+            return 'switching to ' + ('controller' if self.wanted else 'keyboard')
+        return self.name
+
+
 class SessionIdentity(NamedTuple):
     """Which game we are looking at: process, player and, for the merc actor's ledger record, the hireling."""
 
@@ -161,6 +181,7 @@ class State:
     identify_tome: Observation[Tome] = field(default_factory=Observation.unavailable)
     location: Observation[Location] = field(default_factory=Observation.unavailable)
     show_items: Observation[bool] = field(default_factory=Observation.unavailable)
+    input_mode: Observation[InputMode] = field(default_factory=Observation.unavailable)
     consume: Observation[ConsumeBuff] = field(default_factory=Observation.unavailable)
     keys: Observation[int] = field(default_factory=Observation.unavailable)
     shop: Observation[ShopPanel] = field(default_factory=Observation.unavailable)

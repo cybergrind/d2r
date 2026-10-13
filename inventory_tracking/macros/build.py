@@ -23,16 +23,17 @@ chooses a move from `MoveFacts`, so it imports this module, and this module has 
 """
 
 import math
-from collections.abc import Callable, Collection, Mapping, Sequence
-from dataclasses import dataclass, field
+from collections.abc import Callable, Collection, Hashable, Mapping, Sequence
+from dataclasses import dataclass, field, replace
 from typing import Literal, Protocol
 
+from inventory_tracking.combat.harm import SafetySettings
 from inventory_tracking.combat.policy import Choice, Foe, Observation, Point
 from inventory_tracking.combat.stance import Camp, Jump
 from inventory_tracking.combat.survival import DrinkSettings
 from inventory_tracking.config import Config
 from inventory_tracking.levels.doors import Door
-from inventory_tracking.levels.model import Ground
+from inventory_tracking.levels.model import Ground, Room
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.routines import LoadTrace
 from inventory_tracking.macros.world import Monster, Teleport, World
@@ -42,6 +43,9 @@ from inventory_tracking.terror.danger import Pack
 def nowhere(spot: Point) -> bool:
     """No place is shunned."""
     return False
+
+
+PAD_SLACK = 2.0  # units a landing planned in controller mode may be off a jump's fixed reach (`JumpSource.pad_jump`)
 
 
 @dataclass(frozen=True)
@@ -61,6 +65,17 @@ class MoveFacts:
     aspect: float  # the window's width over its height: what is in view, and so can be aimed at
     last_used: Mapping[int, float] = field(default_factory=dict)  # skill -> clock time it was last jumped by
     failed: Mapping[int, float] = field(default_factory=dict)  # skill -> clock time a jump by it last moved nothing
+    # The level the character is on and its rooms in tiles: what a set that crosses walls plans its way to
+    # a far goal over (asked with `Intent.routed`). 0 and none: not known, and such a set goes by the ground alone.
+    area: int = 0
+    rooms: tuple[Room, ...] = ()
+    # A way a set said leads nowhere from where it was asked (`NoWay.distrust`) -> the clock time it said so:
+    # the caller's memory (travel.py `Travel`), given back so that the set tries its next way and not that one.
+    distrusted: Mapping[Hashable, float] = field(default_factory=dict)
+    # The game is in controller mode (macros/pad.py): a jump lands at its source's fixed reach in the stick's
+    # direction (`JumpSource.pad_jump`), and a source with none is not jumped by. `slots` are then the skills
+    # on the pad's records.
+    pad: bool = False
 
     def since_used(self, skill: int) -> float:
         """Seconds since the last jump by `skill`; inf when there was none."""
@@ -97,6 +112,11 @@ class Intent:
     # A casting delay is waited out without asking whether the way it frees leads toward the goal: the
     # caller has looked at the line itself, or takes what comes after the wait
     waits_blind: bool = False
+    # The goal is where the character is to get to, however far and whatever stands between: the set
+    # answers with the next move of its own way there (a set that crosses walls by the way over the level's
+    # rooms, a set that walks by the walked way), never with a stride that only points at it. Off: the goal
+    # is a place the caller chose within a move's reach (a place to stand, a stride's end), as before.
+    routed: bool = False
 
 
 @dataclass(frozen=True)
@@ -108,10 +128,26 @@ class Step:
     skill: int | None = None
     camp: Camp | None = None
 
+    @property
+    def needs(self) -> Literal['battle', 'travel'] | None:
+        return None  # legacy legs have no priced weapon commitment
+
+    @property
+    def seconds(self) -> float:
+        return 0.0
+
     @classmethod
     def to(cls, place: Camp) -> Step:
         """The move to a place, by the way the place was chosen for."""
         return cls(place.spot, place.skill, place)
+
+
+@dataclass(frozen=True)
+class PricedStep(Step):
+    """A safety-authorized leg. Legacy Step serialization stays byte-identical."""
+
+    needs: Literal['battle', 'travel'] | None = None
+    seconds: float = 0.0
 
 
 @dataclass(frozen=True)
@@ -123,6 +159,9 @@ class NoWay:
 
     reason: str
     arrived: bool = False  # there already: no move is wanted. False: blocked, a move is wanted and none was found
+    # One of the set's ways gave nothing from here and it has another: the caller remembers this
+    # (`MoveFacts.distrusted`) and asks again at once. None: the answer is final for these facts.
+    distrust: Hashable | None = None
 
     def __post_init__(self) -> None:
         if not self.reason.strip():
@@ -146,6 +185,16 @@ class JumpSource:
     jump: Jump
     delay: float = 0.0  # seconds between two jumps by the skill (its casting delay); 0.0: none
     usable: Callable[[MoveFacts, Intent], bool] = anyhow  # what only this source asks of the facts
+    # Units a jump by it carries in controller mode: the controller's fixed `defaultTargetDistance`, landed at in
+    # the stick's direction (macros/pad.py). None: not jumped by in controller mode.
+    pad_reach: float | None = None
+
+    def pad_jump(self) -> Jump | None:
+        """The jump as controller mode makes it: of one length, give or take PAD_SLACK (the planner picks a
+        landing that far, and the game lands at the reach along that line). None without a fixed reach."""
+        if self.pad_reach is None:
+            return None
+        return replace(self.jump, reach=self.pad_reach + PAD_SLACK, least=self.pad_reach - PAD_SLACK)
 
     def ready(self, facts: MoveFacts, intent: Intent) -> bool:
         """Whether a jump by it can be made now: the skill on a key, not one that moved nothing less
@@ -198,7 +247,9 @@ class MovementSet(Protocol):
         ...
 
     def eta(self, facts: MoveFacts, goal: Point, intent: Intent) -> float:
-        """Seconds to stand at `goal` by this set's ways, without moving; inf exactly where `leg` has no way."""
+        """Seconds to stand at `goal` by this set's ways, without moving; inf exactly where `leg` has no way.
+        With `intent.routed` it is the measure of progress: the way left by the set's own means, which a
+        move the set gives always shortens (0.0 where `leg` says the character has arrived)."""
         ...
 
     def jumps(self, facts: MoveFacts, intent: Intent) -> tuple[Jump, ...]:
@@ -415,6 +466,11 @@ class BuildSettings(Config):
     has one that may differ by build (the caution's curve, the charge rule's count)."""
 
     drink: DrinkSettings = DrinkSettings()  # the drinking marks (combat/survival.py)
+    safety: SafetySettings = SafetySettings()
+    # The pursuit loop (macros/pursuit.py, rca/2026-10-13/pursuit-v1.md): a press of the teleport key during
+    # attack mode names a goal and the mode itself goes there, by the navigator; with attack mode alone the
+    # mode goes to the boss the route's stage fights. Off: every key is its own routine, as before 2026-10-13.
+    pursuit: bool = False
 
 
 @dataclass(frozen=True)

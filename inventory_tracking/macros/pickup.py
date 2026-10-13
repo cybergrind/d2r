@@ -36,6 +36,7 @@ holds with nothing under the pointer.
 import math
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass, replace
+from functools import partial
 from typing import Protocol
 
 from inventory_tracking.combat.policy import RUN_MODES
@@ -248,7 +249,10 @@ def take(run: Run, drop: Drop, alike: Sequence[Drop] = (), others: Sequence[Drop
     the aims are first only looked at, and one that has such an item under it is clicked, CLICKS times
     if need be (a click made while a cast ends is swallowed: the character neither walks nor picks
     up). An aim with one of `others` under it (the rest of what lies there) is never clicked: that item
-    is not wanted. Without the record, or when no aim shows the item, the nearer aims are clicked in turn."""
+    is not wanted. Without the record, or when no aim shows the item, the nearer aims are clicked in turn.
+    In controller mode: `pad_take`."""
+    if run.pad is not None:
+        return pad_take(run, drop, alike, others)
     serves = {found.unit_id: found for found in (drop, *alike)}
     unwanted = {found.unit_id for found in others}
     # Every aim of this take and what the record held there, logged whatever the end (user,
@@ -333,6 +337,29 @@ def _take(
     raise Abort(f'no click picked up {drop.label}')
 
 
+def lifted(run: Run, drop: Drop) -> bool:
+    return not on_ground(run, drop)
+
+
+def pad_take(run: Run, drop: Drop, alike: Sequence[Drop], others: Sequence[Drop]) -> Drop:
+    """`take` in controller mode (macros/pad.py `PadActs.pick_up`): the character stands on the drop, or on the
+    nearer of the drops that serve as well, and the Loot record is pressed (the client's Loot takes the nearest
+    item); never with one of `others` nearer. A gold pile is taken by standing on it."""
+    assert run.pad is not None
+    player = run.world().player
+    if player is None:
+        raise Abort('not in a game')
+    here = (player.x, player.y)
+    unwanted = [(found.x, found.y) for found in others]
+    for found in sorted((drop, *alike), key=lambda d: math.dist(here, (d.x, d.y)))[:2]:
+        gone = partial(lifted, run, found)
+        if run.pad.pick_up(found.unit_id, (found.x, found.y), gone, found.label, unwanted):
+            run.say(f'{found.label}: picked up')
+            return found
+    SHUNNED[drop.unit_id] = run.clock() + SHUN_MISS
+    raise Abort(f'the pad picked up no {drop.label}')
+
+
 def collect(run: Run, drop: Drop, key_names, others: Sequence[Drop] = ()) -> bool:
     """Go for a gold pile: a Blade Warp onto it, which may take it; if not, or for a pile too near
     to jump to, it is clicked like any item (`others`: what else lies there and is not wanted).
@@ -346,7 +373,9 @@ def collect(run: Run, drop: Drop, key_names, others: Sequence[Drop] = ()) -> boo
     if not in_view(where):
         raise Abort(f'{drop.label} is not in view')
     jump = spare_jump(run.build.movement, world.slots)
-    if away > GOLD_WALK and jump is not None and jump.line and key_names is not None:
+    # Not in controller mode: a jump there lands at its one length, not on the pile (macros/pad.py); the
+    # pile is walked onto instead (`take`).
+    if away > GOLD_WALK and jump is not None and jump.line and key_names is not None and run.pad is None:
         run.keys.update(key_names(world, (jump.skill,)))
         run.actuator.aim(*where, scatter=(2, 2))
         began = run.clock()
@@ -480,8 +509,9 @@ def unshunned(loot: Loot, now: float) -> Loot:
 
 def drink(run: Run, key: str, loot: Loot) -> None:
     """The belt key `key`, and the belt seen with the potion gone from it."""
-    for _ in range(DRINK_TAPS):
-        run.actuator.tap(key)
+    for tap in range(1, DRINK_TAPS + 1):
+        run.actuator.tap(key)  # a keyboard key in either mode: it flips nothing (macros/pad.py)
+        pressed = run.clock()
         run.pause('key')
         if run.loot is None:
             return
@@ -489,8 +519,15 @@ def drink(run: Run, key: str, loot: Loot) -> None:
         while run.clock() < until:
             run.world()  # a cancel stops here
             if run.loot().belt != loot.belt:
+                if run.pad is not None:
+                    LOG.info(
+                        'Pad drink: belt key %s in controller mode: the belt cell emptied %.0f ms after press %d',
+                        key, 1000 * (run.clock() - pressed), tap,
+                    )  # fmt: skip
                 return
             run.pace.sleep(0.05)
+        if run.pad is not None:
+            LOG.info('Pad drink: belt key %s in controller mode: the belt unchanged after press %d', key, tap)
     raise Abort(f'the potion on {key} was not drunk: the belt is still full')
 
 

@@ -10,7 +10,7 @@ from inventory_tracking.common import LOG
 from inventory_tracking.hud.ground import ground_payload
 from inventory_tracking.hud.payloads import card_payload, guide_payload
 from inventory_tracking.hud.scene import LEASE_SECONDS, Widget
-from inventory_tracking.native.layout import UI_PANELS_RVA
+from inventory_tracking.native.layout import CONTROLLER_MODE_RVA, UI_PANELS_RVA
 from inventory_tracking.osd.level_map import MapCard
 from inventory_tracking.presentation import StyledLine, Tone
 
@@ -73,34 +73,46 @@ class PanelBeacon:
         if self.last is not None and now - self.last < self.INTERVAL:
             return
         self.last = now
-        address = self.source.images['candidate_base'] + UI_PANELS_RVA
-        self.publish([Widget('panels', 'panels', 'panels', {'live': [self.source.pid, address]})])
+        base = self.source.images['candidate_base']
+        # The input mode byte too: the canvas lays its slots out for the controller layout while it is 1
+        # (HUD.controller_slots, rca/2026-10-13/controller-mode.md section 5).
+        payload = {'live': [self.source.pid, base + UI_PANELS_RVA], 'controller': base + CONTROLLER_MODE_RVA}
+        self.publish([Widget('panels', 'panels', 'panels', payload)])
 
 
 class ModeBeacon:
     """Says on the HUD whether the macro's attack mode is on (user, 2026-10-13: "we need to see some
     indicator when auto-attack is enabled or not on overlay"; the pickup key turns the mode on, and the
-    attack key then turned it off unseen). Republished well inside the lease, and at once when the mode
-    changes; nothing is shown out of a game. `state()` gives (in a game, attack mode on)."""
+    attack key then turned it off unseen), and the game's input mode beside it: keyboard, controller, or
+    a flip under way (rca/2026-10-13/controller-mode.md); in controller mode, which pad button casts what.
+    Republished well inside the lease, and at once when anything shown changes; nothing is shown out of a
+    game. `state()` gives (in a game, attack mode on); `input_mode()` a tracking/input_mode.py InputMode or
+    None (unread); `legend()` the bindings the game loaded, as lines ('Y Echoing Strike, ...'), or ()."""
 
     INTERVAL = LEASE_SECONDS / 3
 
-    def __init__(self, state, publish):
-        self.state, self.publish = state, publish
+    def __init__(self, state, publish, input_mode=lambda: None, legend=lambda: ()):
+        self.state, self.publish, self.input_mode, self.legend = state, publish, input_mode, legend
         self.last: float | None = None
-        self.shown: tuple[bool, bool] | None = None
+        self.shown: tuple | None = None
 
     def poll(self, now: float) -> None:
-        found = self.state()
+        mode = self.input_mode()
+        legend = tuple(self.legend()) if mode is not None and mode.controller else ()
+        found = (*self.state(), mode.label if mode is not None else None, legend)
         if found == self.shown and self.last is not None and now - self.last < self.INTERVAL:
             return
         self.last, self.shown = now, found
-        in_game, on = found
+        in_game, on, label, legend = found
         if not in_game:
             self.publish([])
             return
-        line = StyledLine('AUTO-ATTACK ON', Tone.SET) if on else StyledLine('auto-attack off', Tone.METADATA)
-        self.publish([Widget('mode', 'text', 'mode', card_payload([line]))])
+        text = 'AUTO-ATTACK ON' if on else 'auto-attack off'
+        if label is not None:
+            text += f' · {label}'
+        lines = [StyledLine(text, Tone.SET if on else Tone.METADATA)]
+        lines += [StyledLine(line, Tone.METADATA) for line in legend]
+        self.publish([Widget('mode', 'text', 'mode', card_payload(lines))])
 
 
 @contextmanager

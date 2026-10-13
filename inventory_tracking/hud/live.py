@@ -15,7 +15,8 @@ published; a monster that died stays marked until the next published card drops 
 The open-panel flags are read the same way (user, 2026-10-07): while the player reads items in
 the inventory, stash, shop or mercenary panel, the canvas draws the slots of HUD.dim_slots faint.
 The producer names the flag array in a 'panels' widget (hud/process.py PanelBeacon), which has
-no slot and is never drawn.
+no slot and is never drawn. The same widget names the game's input mode byte (1: controller), read each
+refresh so the slots are laid out for the layout the game shows (HUD.controller_slots, 2026-10-13).
 """
 
 import os
@@ -106,6 +107,30 @@ class OpenPanels(GameMemory):
         except OSError, ValueError:
             return False
         return any(flags[name] for name in self.names)
+
+
+class InputModeByte(GameMemory):
+    """Whether the game is in controller mode right now (native/layout.py CONTROLLER_MODE_RVA)."""
+
+    def reading(self, live) -> bool:
+        """`live`: (pid, address of the byte), or None. Unreadable or not 0/1 counts as keyboard and mouse."""
+        if not live:
+            return False
+        pid, address = live
+        if not self.attach(pid):
+            return False
+        try:
+            return self.read(self.fd, 1, address) == b'\x01'
+        except OSError:
+            return False
+
+
+def mode_source(widgets):
+    """(pid, address of the input mode byte) from the 'panels' widget, or None."""
+    panels = next((w.payload for w in widgets if w.kind == 'panels'), None)
+    if not panels or not panels.get('live') or panels.get('controller') is None:
+        return None
+    return panels['live'][0], panels['controller']
 
 
 def panel_source(widgets):

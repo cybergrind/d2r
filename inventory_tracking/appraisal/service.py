@@ -63,6 +63,7 @@ from inventory_tracking.appraisal.published_backend import (
 from inventory_tracking.appraisal.retrieval_process import KeepWarm, RetrievalGroup, RetrievalProcess
 from inventory_tracking.appraisal.text import value_watch_lines
 from inventory_tracking.appraisal.worker import AppraisalWorker
+from inventory_tracking.builds.characters import PLAYS
 from inventory_tracking.collection.export import DEFAULT_HTML as COLLECTION_HTML
 from inventory_tracking.collection.service import (
     DEFAULT_OUTPUT as COLLECTION_OUTPUT,
@@ -90,6 +91,7 @@ from inventory_tracking.hud.scene import DEFAULT_SCENE, publish_layer
 from inventory_tracking.hud.traderie import traderie_watch
 from inventory_tracking.identify.service import IdentifyWorker
 from inventory_tracking.input.compositor import hotkeys
+from inventory_tracking.input.gamepad import PadKeys, bind_table, legend
 from inventory_tracking.levels.dump import (
     DEFAULT_OUTPUT as LEVEL_OUTPUT,
     REQUEST_PREFIX as LEVEL_PREFIX,
@@ -103,6 +105,7 @@ from inventory_tracking.loot.materials import material_classes
 from inventory_tracking.loot.watch import RuneWatcher
 from inventory_tracking.macros.hunt import Hunter
 from inventory_tracking.macros.latency import FILE as LATENCY_FILE, Trace
+from inventory_tracking.macros.pad import PadPlay
 from inventory_tracking.macros.pickup import wanted
 from inventory_tracking.macros.route import PERFORMED
 from inventory_tracking.macros.runner import (
@@ -117,6 +120,8 @@ from inventory_tracking.macros.runner import (
     TELEPORT_PREFIX,
     MacroRunner,
 )
+from inventory_tracking.macros.skills import NAMES as SKILL_NAMES
+from inventory_tracking.native.process import find_game_processes
 from inventory_tracking.native.session import GameNotReady, GameProcessUnavailable
 from inventory_tracking.osd.__main__ import positive_float
 from inventory_tracking.reports import create_run, publish
@@ -127,6 +132,7 @@ from inventory_tracking.terror.bosses import BossTracker
 from inventory_tracking.terror.probe import TerrorProbe
 from inventory_tracking.terror.shards import ShardWatch
 from inventory_tracking.terror.tracker import ZoneTracker
+from inventory_tracking.tracking.input_mode import InputModeWatch
 from inventory_tracking.tracking.panels import observe_panels
 from inventory_tracking.tracking.reader import LiveReader
 from pricing.knowledge.publication import DEFAULT_STORE
@@ -311,6 +317,8 @@ def publish_request(directory, record: dict[str, Any], *, notifications=True):
         notify('Appraisal unavailable', detail)
 
 
+PAD_PREFIX = 'pad '  # request.py PREFIXES['pad']
+
 # The macro's datagrams: handed to the runner the moment they are read (appraisal/hotkeys.py).
 MACRO_ROUTINES = (
     (MACRO_PREFIX, None),
@@ -338,6 +346,7 @@ def dispatch(
     disagree=None,
     macro=None,
     notes: dict[str, object] | None = None,
+    pad=None,
 ) -> bool:
     """Route `shop <t>`, `collect <t>`, `equipped <t>`, `level <t>` and bare Alt+D timestamps to their workers.
 
@@ -362,6 +371,8 @@ def dispatch(
                 if routine is None:
                     return macro.request(float(stamp), now, **extra)
                 return macro.request(float(stamp), now, routine, **extra)
+        if text.startswith(PAD_PREFIX):  # the gamepad experiment (input/gamepad.py)
+            return pad is not None and pad.request(APPRAISAL.gamepad_button, float(text[len(PAD_PREFIX) :]), now)
         if text.startswith(SHOP_PREFIX):
             return shop is not None and shop.request(float(text[len(SHOP_PREFIX) :]), now)
         if text.startswith(LEVEL_PREFIX):
@@ -422,7 +433,35 @@ def wait_for_game(connect, directory, report):
             time.sleep(APPRAISAL.reconnect_delay)
 
 
+def bind_controller(args) -> None:
+    """The played characters' controller bindings (config `gamepad_bindings`, input/gamepad.py
+    `bind_table`; rca/2026-10-13/controller-mode.md section 3), written at the service's start and only while
+    no D2R.exe runs: the client reads Saved Games once when it launches and writes the bindings back on
+    leaving a game, so a write while it runs is never seen and is overwritten (loot-to-cube-mouse.md)."""
+    if not APPRAISAL.gamepad_bind or not APPRAISAL.gamepad_bindings:
+        return
+    if find_game_processes():
+        LOG.info('Controller bindings: D2R.exe runs, the files are left alone (close the game first)')
+        return
+    for name in PLAYS:
+        try:
+            lines = bind_table(
+                SHOW_ITEMS.saved_games,
+                name,
+                APPRAISAL.gamepad_bindings,
+                args.output.parent / 'gamepad',
+                overwrite=APPRAISAL.gamepad_overwrite,
+                names=SKILL_NAMES,
+            )
+        except OSError as exc:
+            LOG.warning('Controller bindings: the file of %s was not written: %s', name, exc)
+            continue
+        for line in lines:
+            LOG.info('Controller bindings: %s', line)
+
+
 def run_service(args, directory, report):
+    bind_controller(args)
     endpoint = args.socket
     lock_path = endpoint.with_suffix('.lock')
     lock_path.parent.mkdir(parents=True, exist_ok=True)
@@ -632,6 +671,7 @@ def run_service(args, directory, report):
                         if args.osd:
                             publish_layer(args.hud_scene, 'macro', card_widgets(lines, 'macro'))
 
+                    played = builds.pursuing if APPRAISAL.macro_pursuit else (lambda build: build)
                     macro = MacroRunner(
                         source,
                         capture_lock=worker.capture_lock,
@@ -639,8 +679,8 @@ def run_service(args, directory, report):
                         display=display_macro,
                         trace=Trace(directory / LATENCY_FILE),
                         # The builds a run is played by: handed in here, the framework imports none
-                        builds=builds.BUILDS,
-                        fallback=builds.FALLBACK,
+                        builds=tuple(map(played, builds.BUILDS)),
+                        fallback=played(builds.FALLBACK),
                     )
                     # Per-game monster/Herald state: the Terror card and the level map shading.
                     zones = ZoneTracker(args.output / 'terror-games.json') if args.terror_probe else None
@@ -750,10 +790,35 @@ def run_service(args, directory, report):
                         if args.osd
                         else None
                     )
+                    # The game's input mode (tracking/input_mode.py; rca/2026-10-13/controller-mode.md): read on
+                    # its own thread, each flip logged with its time and given to the combat take.
+                    pad = PadKeys() if APPRAISAL.gamepad_button or APPRAISAL.controller_play else None
+                    input_watch = InputModeWatch(
+                        source,
+                        rate=APPRAISAL.input_mode_rate,
+                        pressed=lambda: pad.pressed_at if pad is not None else None,
+                        noted=combat.recorder.note if combat is not None else (lambda kind, **fields: None),
+                        names=lambda skills: legend(skills, SKILL_NAMES),
+                    )
+                    if combat is not None:
+                        combat.input_mode = lambda: input_watch.current.name if input_watch.current else None
+
+                    def pad_legend():
+                        skills = input_watch.bindings
+                        if not skills:
+                            return ()
+                        return tuple(
+                            line
+                            for line in (legend(skills[:6], SKILL_NAMES), legend((-1,) * 6 + skills[6:12], SKILL_NAMES))
+                            if line
+                        )
+
                     mode_beacon = (
                         ModeBeacon(
                             lambda: (progress.game is not None, macro.attack_mode),
                             lambda widgets: publish_layer(args.hud_scene, 'mode', widgets),
+                            input_mode=lambda: input_watch.current,
+                            legend=pad_legend,
                         )
                         if args.osd
                         else None
@@ -774,6 +839,8 @@ def run_service(args, directory, report):
                         dispatch(data, received, worker, collector, macro=macro, notes=notes)
 
                     keys = Hotkeys(server, for_macro, macro_key)
+                    if pad is not None:
+                        pad.start()
 
                     def level_now():
                         if guide is not None:
@@ -781,6 +848,15 @@ def run_service(args, directory, report):
                         keys.wake()
 
                     macro.hurry = level_now
+                    # The macros in controller mode (macros/pad.py): the hotkey's pad, made at its first need, and
+                    # the mode, the controller's target and the bindings as the watch reads them.
+                    macro.pad_play = PadPlay(
+                        device=pad.device if pad is not None else (lambda: None),
+                        mode=lambda: input_watch.current,
+                        controller=lambda: input_watch.controller,
+                        bindings=lambda: input_watch.bindings,
+                        enabled=APPRAISAL.controller_play,
+                    )
                     keys.start()
                     try:
                         while True:
@@ -813,6 +889,7 @@ def run_service(args, directory, report):
                                 combat.poll(time.monotonic())
                             if panel_beacon is not None:
                                 panel_beacon.poll(time.monotonic())
+                            input_watch.poll(time.monotonic())
                             if mode_beacon is not None:
                                 mode_beacon.poll(time.monotonic())
                             data = keys.get(APPRAISAL.poll_interval)
@@ -830,11 +907,15 @@ def run_service(args, directory, report):
                                         terror,
                                         disagree=disagree,
                                         macro=macro,
+                                        pad=pad,
                                     )
                             timer.finish()
                     finally:
                         keys.close()
                         macro.close()
+                        if pad is not None:
+                            pad.close()
+                        input_watch.close()
                         if combat is not None:
                             combat.close()
                         shop.dismiss()

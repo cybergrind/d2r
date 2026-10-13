@@ -459,6 +459,27 @@ def test_the_macros_state_is_an_event_at_the_takes_start_and_at_each_change(tmp_
     assert states == [(1.0, False, 'teleport'), (1.08, True, 'hunt any')]
 
 
+def test_safety_decisions_are_separate_events_only_when_the_decision_changes(tmp_path):
+    decision = {'goal': 'a stand', 'budget': 100, 'candidates': [{'T': 1, 'H': 20, 'veto': None}]}
+    script = Script(
+        *(
+            Sample(world(), macro_state={'attack_mode': True, 'decision': d})
+            for d in (
+                decision,
+                decision,
+                {**decision, 'budget': 50},
+            )
+        )
+    )
+    rec = recorder(tmp_path, script)
+    for now in (1.0, 1.04, 1.08):
+        rec.step(now)
+    rec.close('test')
+    take = Take.load(next(tmp_path.iterdir()))
+    assert [e['budget'] for e in take.events if e['event'] == 'decision'] == [100, 50]
+    assert len([e for e in take.events if e['event'] == 'state']) == 1
+
+
 def test_a_units_raw_record_is_written_at_a_change_of_mode_and_once_a_second(tmp_path):
     def held(mode, raw):
         monster = replace(foe(7, 100, mode=mode), record=raw)
@@ -558,3 +579,220 @@ def test_the_unit_under_the_pointer_is_written_when_it_changes_and_nothing_under
     take = Take.load(next(tmp_path.iterdir()))
 
     assert [frame.get('h', 'absent') for frame in take.frames] == [[1, 7], 'absent', None, 'absent', [2, 395]]
+
+
+def test_the_wards_pool_goes_into_the_frames_and_a_hurt_says_what_the_ward_and_the_companions_took(tmp_path):
+    # itemstatcost 361 psychicward, 362 psychicwardmax, x256: 185 points when cast (the manifests of 2026-10-13).
+    me = player(CHAOS, stats_at=0x20)
+    vitals = iter([(1500, 185), (1500, 185), (1400, 120), (1400, 120), (1400, None)])
+
+    def stats(at):
+        if at != 0x20:
+            return {12: 85}  # a companion's, at first sight
+        life, ward = next(vitals)
+        found = {6: life << 8, 7: 1783 << 8}
+        return found | ({361: ward << 8, 362: 185 << 8} if ward is not None else {})
+
+    def sample(pet_life, mercenary_life):
+        pet = Monster(9, 744, 1, me.x + 1.0, me.y, me.unit_id, life=pet_life, max_life=900, stats_at=0x10)
+        mercenary = Monster(10, 338, 1, me.x + 2.0, me.y, 0xFFFFFFFF, ally=True, life=mercenary_life, max_life=2367)
+        stranger = Monster(11, 744, 1, me.x + 3.0, me.y, 77, life=50, max_life=50)  # another's pet: not ours
+        return Sample(World(True, (), 'cyber1', (388, None), player=me, monsters=(pet, mercenary, stranger)))
+
+    rec = Recorder(
+        Script(sample(900, 2367), sample(700, 2367), sample(700, 2367), sample(700, 2367)),
+        output=tmp_path, clock=lambda: 0.0, stats=stats,
+    )  # fmt: skip
+    for now in (1.0, 1.04, 1.08, 1.12):  # the manifest's read, then the four frames' reads
+        rec.step(now)
+    rec.close('test')
+    take = Take.load(next(tmp_path.iterdir()))
+
+    assert [frame.get('a') for frame in take.frames] == [[185.0, 185.0], [120.0, 185.0], None, [0.0, 0.0]]
+    assert carried(take, 'a')[2] == [120.0, 185.0]
+    [hurt] = [event for event in take.events if event['event'] == 'hurt']
+    assert (hurt['t'], hurt['lost']) == (1.04, 100)
+    assert hurt['absorb'] == [185.0, 120.0, 185.0]  # 65 points taken by the ward beside the 100 of life
+    assert hurt['companions'] == [[9, 744, 900, 700, 900], [10, 338, 2367, 2367, 2367]]
+
+
+def test_the_server_frame_of_the_life_message_is_read_only_where_the_life_changed(tmp_path):
+    lives = iter((1500, 1500, 1500, 1400, 1400, 1450))
+    me = player(CHAOS, stats_at=0x20)
+    asked = []
+
+    def server_frame(character):
+        asked.append(character.unit_id)
+        return 1000 + 3 * len(asked)
+
+    rec = Recorder(
+        Script(Sample(World(True, (), 'cyber1', (388, None), player=me))),
+        output=tmp_path, clock=lambda: 0.0, stats=lambda at: {6: next(lives) << 8, 7: 1783 << 8},
+        server_frame=server_frame,
+    )  # fmt: skip
+    for now in (1.0, 1.04, 1.08, 1.12, 1.16):  # the manifest's read, then 1500, 1500, 1400, 1400, 1450
+        rec.step(now)
+    rec.close('test')
+    take = Take.load(next(tmp_path.iterdir()))
+
+    assert asked == [1, 1, 1]  # the first frame, the drop and the rise: not the frames whose life stood still
+    assert [frame.get('sf') for frame in take.frames] == [1003, None, 1006, None, 1009]
+    assert [event['sf'] for event in take.events if event['event'] == 'hurt'] == [1006]
+
+
+def test_a_change_of_a_monsters_states_writes_its_record_and_a_changed_stat_list_again(tmp_path):
+    lists = iter(({39: 75, 6: 128 << 8}, {39: 20, 6: 128 << 8}, {39: 20, 6: 128 << 8}))
+    plain, cursed, also_cold = (
+        bytes(32),
+        bytes([0, 0, 0, 0, 0, 0, 0, 0x20]) + bytes(24),
+        bytes([0, 8, 0, 0, 0, 0, 0, 0x20]) + bytes(24),
+    )
+
+    def held(states, mode=1):
+        return Sample(world(monsters=[replace(foe(7, 100, mode=mode), record=b'\x01', states=states)]))
+
+    script = Script(held(plain), held(plain), held(cursed), held(cursed), held(also_cold))
+    rec = Recorder(script, output=tmp_path, clock=lambda: 0.0, stats=lambda at: next(lists))
+    for now in (1.0, 1.04, 1.08, 1.12, 1.16):
+        rec.step(now)
+    rec.close('test')
+    take = Take.load(next(tmp_path.iterdir()))
+
+    # Lower Resist (state 61: word 1, bit 29) lands at 1.08: the record again at once, not a second later.
+    assert [(row['t'], row['u'][0][2]) for row in records(take.directory)] == [
+        (1.0, plain.hex()), (1.08, cursed.hex()), (1.16, also_cold.hex()),
+    ]  # fmt: skip
+    assert take.units[0]['stats'] == {'39': 75, '6': 128 << 8}
+    # Its stat list read again at each change of states, written where it differs from the one written last.
+    assert [(e['t'], e['unit'], e['states'], e['stats']) for e in take.events if e['event'] == 'stats'] == [
+        (1.08, 7, cursed.hex(), {'39': 20, '6': 128 << 8}),
+    ]
+
+
+class Memory:
+    """Bytes at addresses, read as /proc/<pid>/mem is."""
+
+    def __init__(self, blocks, table=0x1000):
+        self.blocks, self.table, self.reads = blocks, table, 0
+
+    def read(self, address, size):
+        self.reads += 1
+        for start, data in self.blocks.items():
+            if start <= address and address + size <= start + len(data):
+                return data[address - start : address - start + size]
+        raise OSError('unmapped')
+
+
+def item_unit(unit_id, class_id, data, following=0):
+    record = bytearray(0x160)
+    record[0:16] = (4).to_bytes(4, 'little') + class_id.to_bytes(4, 'little') + unit_id.to_bytes(4, 'little') + bytes(4)
+    record[0x10:0x18] = data.to_bytes(8, 'little')
+    record[0x158:0x160] = following.to_bytes(8, 'little')
+    return bytes(record)
+
+
+def test_a_drop_is_named_by_its_code_and_quality_read_once_while_it_lies_there(tmp_path):
+    from inventory_tracking.combat.record import LiveSampler, item_identity
+    from inventory_tracking.items.metadata import item_base
+
+    # Item unit 300 hashes to bucket 44 (300 % 128), behind another item in the same chain; a rune of class
+    # 640, quality 2 (normal). Its code is the game's tables', not written here.
+    heads = bytearray(1024 * 5)
+    heads[4 * 1024 + 8 * 44 : 4 * 1024 + 8 * 45] = (0x5000).to_bytes(8, 'little')
+    memory = Memory({
+        0x1000: bytes(heads),
+        0x5000: item_unit(172, 606, 0x7000, following=0x6000),
+        0x6000: item_unit(300, 640, 0x8000),
+        0x7000: (4).to_bytes(4, 'little'),
+        0x8000: (2).to_bytes(4, 'little'),
+    })  # fmt: skip
+    code = item_base(640)['code']
+    assert item_identity(memory.read, memory.table, 300) == (code, 2)
+    assert item_identity(memory.read, memory.table, 428) == (None, None)  # same chain, not in it
+
+    sampler = LiveSampler()
+    rune = Drop(300, 5010.0, 5020.0, 'Ber Rune', 'valuable')
+    found = sampler.identify(memory, Loot((rune,)))
+    reads = memory.reads
+    assert found == {300: (code, 2)}
+    assert sampler.identify(memory, Loot((rune,))) == found
+    assert memory.reads == reads  # read once a drop
+
+    rec = recorder(tmp_path, Script(Sample(world(), loot=Loot((rune,)), items=found)))
+    rec.step(1.0)
+    rec.close('test')
+    take = Take.load(next(tmp_path.iterdir()))
+    assert take.frames[0]['g'] == [[300, 5010.0, 5020.0, 'valuable', 'Ber Rune', 1, 1, True, code, 2]]
+
+
+def test_the_server_frame_is_read_through_the_player_data_and_the_block_pointer_is_kept():
+    from inventory_tracking.combat.record import LIFE_BLOCK, LIFE_FRAME, LiveSampler
+
+    record = bytes(0x10) + (0x9000).to_bytes(8, 'little') + bytes(0x1C0 - 0x18)
+    memory = Memory(
+        {0x9000 + LIFE_BLOCK: (0xA000).to_bytes(8, 'little'), 0xA000 + LIFE_FRAME: (51234).to_bytes(4, 'little')}
+    )
+    sampler = LiveSampler()
+    sampler.memory = memory
+    me = player(CHAOS, record=record)
+
+    assert sampler.server_frame(me) == 51234
+    assert sampler.server_frame(me) == 51234
+    assert memory.reads == 3  # the block pointer once, the frame twice
+    assert sampler.server_frame(player(CHAOS)) is None  # no record read: nothing to go through
+
+
+def test_the_macros_memory_is_read_off_a_hunter_as_clock_times():
+    import math
+
+    from inventory_tracking import builds
+    from inventory_tracking.macros.hunt import Hunter
+    from inventory_tracking.macros.journey import Journey
+
+    hunter = Hunter(build=builds.FALLBACK)
+    hunter.sweep.start(100.0)
+    hunter.sweep.failed(101.0, (5010.0, 5020.0))
+    hunter.travel.jump_failed[390] = 102.5
+    hunter.travel.jumped_at[390] = 103.25
+    hunter.buffs.cast_at[387, None] = 90.0
+    hunter.untouchable[77] = 130.0
+    hunter.held = Drop(300, 5010.0, 5020.0, 'Ber Rune', 'valuable')
+
+    class Runner:
+        attack_mode, working, routine = True, True, 'hunt any'
+        build = None
+        progress = None
+        target = None
+        quiet_until = -math.inf
+        attack_declined = False
+        journey = Journey()
+
+    Runner.hunter = hunter
+    found = macro_state.snapshot(Runner())
+    json.dumps(found, allow_nan=False)  # no infinity: a never is None
+    memory = found['memory']
+    assert memory['quiet_until'] is None
+    assert memory['sweep']['until'] > 100.0
+    assert memory['sweep']['fails'] == 1
+    assert memory['sweep']['shunned'] == [[5010.0, 5020.0, 101.0]]
+    assert memory['travel']['jump_failed'] == {'390': 102.5}
+    assert memory['travel']['warped_at'] == 103.25
+    assert memory['buffs']['cast_at'] == [[387, None, 90.0]]
+    assert memory['untouchable'] == {'77': 130.0}
+    assert memory['held'] == 300
+    assert memory['judged'] == [None, None, False]
+
+
+def test_the_input_mode_is_in_the_manifest_and_its_flips_and_the_controllers_target_are_events(tmp_path):
+    # rca/2026-10-13/controller-mode.md plan steps 1 and 7: tracking/input_mode.py notes them, the take keeps them.
+    sample = Sample(world(monsters=[foe(7, 100)]), [], None, None, frozenset())
+    rec = recorder(tmp_path, Script(sample), manifest=lambda: {'input_mode': 'keyboard'})
+    rec.note('input_mode', mode='controller', pending=False, flip={'from': 'keyboard', 'to': 'controller'})
+    rec.note('ctl', target=[1, 7], record=3, skill=388)
+    rec.step(1.0)
+    rec.close('test')
+    take = Take.load(next(tmp_path.iterdir()))
+    assert take.manifest['input_mode'] == 'keyboard'
+    flip = next(e for e in take.events if e['event'] == 'input_mode')
+    assert (flip['mode'], flip['flip']['to']) == ('controller', 'controller')
+    assert next(e for e in take.events if e['event'] == 'ctl')['target'] == [1, 7]

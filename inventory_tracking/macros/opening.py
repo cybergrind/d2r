@@ -21,6 +21,7 @@ chest, a barrel, an armour stand.
 
 import math
 from dataclasses import dataclass
+from functools import partial
 
 from inventory_tracking.common import LOG
 from inventory_tracking.levels.model import Level
@@ -91,6 +92,13 @@ def open_one(run: Run, what: Container, level: Level | None, key_names) -> bool:
     """Go to `what` if it is far, click it and see it opened; whether it was."""
     thing = what.thing
     approach(run, what, level, key_names)
+    if run.pad is not None:  # controller mode: stand by it, the target names it, A (macros/pad.py)
+        if run.pad.interact(OBJECT_UNIT, thing.unit_id, (thing.x, thing.y), partial(opened, run, thing), what.label):
+            run.say(f'{what.label}: opened')
+            return True
+        SHUNNED[thing.unit_id] = run.clock() + SHUN_SECONDS
+        run.say(f'{what.label}: not opened')
+        return False
     looked: list[str] = []
     for aim in AIMS:
         player = standing(run)

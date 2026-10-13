@@ -133,7 +133,13 @@ def summon_defiler(run: Run, *, until: float | None = None, skip: int = 0) -> Mo
     spots = open_spots(run, start, skip)
     while world is None and spots:
         spot = spots.pop(0)
-        run.actuator.move(*spot, scatter=(40, 25))
+        rect = run.actuator.keys.focused_window_rect()
+        if run.pad is not None and start.player is not None and rect is not None:
+            # Controller mode: a heading toward the spot (macros/pad.py); the game puts it at its own distance.
+            here = (start.player.x, start.player.y)
+            run.pad.aim_place(here, world_point(start.player, *spot, rect[2] / rect[3]))
+        else:
+            run.actuator.move(*spot, scatter=(40, 25))
         press_skill(run, SUMMON_DEFILER)
         world = run.seen(lambda w: any(m.unit_id not in before for m in defilers(w)), 1.5)
         if world is None and not spots and until is not None and run.clock() < until:
@@ -177,6 +183,10 @@ def aim_at(run: Run, unit: int) -> bool:
         rect = run.actuator.keys.focused_window_rect()
         if rect is None:
             raise Abort('no game window')
+        if run.pad is not None:
+            # Controller mode: the client's target has to name it (macros/pad.py); nothing else is consumed.
+            here = (world.player.x, world.player.y)
+            return run.pad.aim_unit(MONSTER_UNIT_TYPE, unit, here, (target.x, target.y), 'the Defiler')
         point = screen_fraction(world.player, target.x, target.y, rect[2] / rect[3])
         if not on_screen(point):
             raise Abort('the Defiler is out of view')
@@ -363,6 +373,12 @@ def engorge(cast: Casting) -> Tried:
     # named a monster under the pointer 11 times and an item's label once, and whether that monster
     # was the corpse was not known (a live one stands on a corpse often: the fight is there).
     for unit, x, y in sorted(near, key=lambda corpse: math.dist(here, corpse[1:]))[:ENGORGE_LOOKS]:
+        if run.pad is not None:
+            # Controller mode: the client's target has to name the corpse (macros/pad.py).
+            if not run.pad.aim_unit(MONSTER_UNIT_TYPE, unit, here, (x, y), f'the corpse {unit}'):
+                continue
+            cast.buffs.key(run, ENGORGE)
+            return Tried(run.clock(), cast=True)
         run.actuator.aim(*ground_fraction(player, x, y, aspect), scatter=(3, 3))
         over = None
         if run.hovered is not None:

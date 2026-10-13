@@ -20,6 +20,7 @@ from inventory_tracking.macros.world import Loot, Teleport, Thing, Warp, World
 
 if TYPE_CHECKING:
     from inventory_tracking.macros.build import Build  # build.py is above this module
+    from inventory_tracking.macros.pad import PadActs
 
 
 POLL = 0.03
@@ -85,6 +86,10 @@ class Run:
         self.deadline = math.inf
         self.light = 0  # above 0 the looks at the game leave the monsters and doors out (`lightly`)
         self.hurry: Callable[[], None] | None = None  # asks the service to read the level now (teleport.card_for)
+        # The pad back end while the game is in controller mode (macros/pad.py; the runner's `input_policy`):
+        # the routines cast, walk and pick up through it where they would aim the pointer, click or tap a skill
+        # key. None: keys and mouse, as the routines always did.
+        self.pad: PadActs | None = None
 
     def world(self) -> World:
         if self.cancelled.is_set():
@@ -93,6 +98,8 @@ class Run:
             world = self.read()
         except (OSError, ValueError) as exc:
             raise Abort(f'the game could not be read ({exc})') from exc
+        if self.pad is not None:
+            world = self.pad.seen(world)  # the skills on the pad's records stand for the skills on keys
         if self.observe is not None:
             self.observe(world)
         return world

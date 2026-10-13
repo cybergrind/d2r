@@ -16,7 +16,7 @@ hands [the build registry](../builds/__init__.py) to [MacroRunner](runner.py).
 | KP_4 | `teleport` | One route-stage step or movement toward the level card's mark; may handle a drop or fight first |
 | KP_2 | `hunt-elites` | Seek an elite (or exploration fallback), then attack mode |
 | KP_3 | `hunt-any` | Toggle attack mode |
-| KP_1 | `pickup` | Pickup, container or combat movement/sweep, depending on current facts |
+| KP_1 | `pickup` | Pickup, container or combat movement/sweep, depending on current facts. With the pursuit loop on (`macro_pursuit`): one press runs the level's route to its end through attack mode ([pursuit](pursuit.py) leash; rca/2026-10-13/kp1-level-run.md) |
 
 The runner owns one working run at a time. [Waiting](waiting.py) keeps at most
 one queued request per routine, ordered by priority and subject to expiry.
@@ -68,6 +68,7 @@ also uses tiles; screen input uses pixels. Check the boundary's conversion
 | Potion judgement / delivery | [combat/survival.py](../combat/survival.py) / [drinking.py](drinking.py); settings via `BuildSettings.drink` |
 | Character weapon choices / build registration | [characters.py](../builds/characters.py) / [builds/__init__.py](../builds/__init__.py) |
 | Level stages and progress | [route.py](route.py), [levels/routes.md](../levels/routes.md) |
+| Controller mode: the pad back end, the mode policy | [pad.py](pad.py), `runner.py` `play_by`; [rca/2026-10-13/controller-mode.md](../../rca/2026-10-13/controller-mode.md) §10 |
 
 Keep class/skill-specific logic under `builds/`. Builds import framework contracts;
 the service injects builds into the framework. Prefer settings and composition,

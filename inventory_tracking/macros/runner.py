@@ -45,18 +45,21 @@ from inventory_tracking.macros import route
 from inventory_tracking.macros.actuator import Abort, Actuator, Cancelled
 from inventory_tracking.macros.build import Build, choose
 from inventory_tracking.macros.engine import Run
-from inventory_tracking.macros.hunt import Hunter, threat
+from inventory_tracking.macros.hunt import Bearings, Hunter, threat
 from inventory_tracking.macros.journey import Journey
 from inventory_tracking.macros.latency import Press, Trace
 from inventory_tracking.macros.opening import open_near
+from inventory_tracking.macros.pad import PadActs, PadActuator, PadPlay, input_policy
 from inventory_tracking.macros.pickup import pick_up, wanted, worth_a_stop
+from inventory_tracking.macros.pursuit import FULL, Pursuit
 from inventory_tracking.macros.routines import prebuff_keys, run_macro
 from inventory_tracking.macros.skills import character_bindings, skill_keys
-from inventory_tracking.macros.teleport import LOST_KEY, step_toward
+from inventory_tracking.macros.teleport import LOST_KEY, ready, step_toward
 from inventory_tracking.macros.timing import Pace
 from inventory_tracking.macros.waiting import Waiting
 from inventory_tracking.macros.world import GameMemory, World
 from inventory_tracking.models import SessionIdentity
+from inventory_tracking.routes.model import FIGHT
 from inventory_tracking.routes.progress import Progress
 
 
@@ -90,6 +93,9 @@ RESEARCH_ENV = 'D2R_MACRO_RESEARCH'  # set: log which bytes name the unit under 
 # the teleport key is to work instantly).
 TRAVEL_QUIET = 0.5
 JOURNEY_SECONDS = 1.0  # how often the game and level are noted between presses
+# What a routine does that only mouse mode can (macros/pad.py `input_policy`): the macro request opens menus
+# (Save and Exit, the lobby's game name) and its prebuff summons a Defiler, which no pad record holds.
+MOUSE_WORK = {PREBUFF: 'the macro request (the prebuff, Save and Exit, a new game)'}
 
 
 class MacroRunner:
@@ -142,6 +148,9 @@ class MacroRunner:
         self.generation = 0
         self.warning: tuple[str, float] | None = None  # (text, the clock it was given at)
         self.attack_mode = False  # the attack run is wanted, now or once the current step is done
+        # The player's toggle turned the mode off and nothing of theirs has turned it on since: a press of
+        # the teleport key whose goal is a fight leaves it off (read with the pursuit on only: `pursues`)
+        self.attack_declined = False
         self.closed = False  # `close` was called: nothing starts any more
         self.trace = trace or Trace()  # how long each press takes (latency.py)
         # the requests whose run has not begun: a step's own key during it, a step during attack mode (waiting.py)
@@ -152,6 +161,9 @@ class MacroRunner:
         self.quiet_until = -math.inf  # attack mode resumes no sooner (TRAVEL_QUIET)
         # the combat recorder's `note` (combat/record.py): each request and each line said goes into the take
         self.noted: Callable[..., None] | None = None
+        # The pad and the game's input mode, from the service (macros/pad.py): a run in controller mode plays by
+        # the pad. None: every run plays by the keys and the mouse, as before.
+        self.pad_play: PadPlay | None = None
         self.lock = threading.RLock()  # every transition: a request, a run's end and its successor, shutdown
 
     def request(self, requested_at: float, now: float, routine: str = PREBUFF, **notes: object) -> bool:
@@ -185,10 +197,38 @@ class MacroRunner:
                 return toggled
             if routine == PREBUFF:
                 self.attack_mode = False  # the macro request ends it
+                self.attack_declined = False  # for the game, not by the toggle: the next game's fights want it
+                self._end_run('the macro request')
             if routine == HUNT_ELITES:
                 self.attack_mode = True  # the mode follows the seek step
+                self.attack_declined = False
             # Good until: the limit counts from the press, on the clock the queue reads.
             until = time.monotonic() + EXPIRES.get(routine, math.inf) - (now - requested_at)
+            if routine == TELEPORT and self.working and self.routine == ATTACK and self.pursuit:
+                # The pursuit (macros/pursuit.py): the press is posted to the mode, which goes for what
+                # the key means at its next look. Nothing is cancelled, the sweep is not ended, and no
+                # quiet follows: a press that resolves to "fight here" costs the fight nothing.
+                assert self.hunter is not None
+                self.hunter.hand_over = self._hand_over
+                self.hunter.post(Pursuit(TELEPORT, time.monotonic() - (now - requested_at)))
+                press.mark('accepted')
+                self.trace.close(press, outcome='posted to attack mode')
+                return True
+            if routine == PICKUP and self.pursuit:
+                # The pickup key with the pursuit on (macros/pursuit.py, the leash): one press runs the
+                # route of this level to its end through attack mode's own loop, which it turns on as the key
+                # always did (the player, 2026-10-13: "one press of KP_1, then it runs the whole level
+                # automatically"; "KP_1 should enable auto-attack"). A step working now is followed by the
+                # mode; a press during the run only renews it.
+                assert self.hunter is not None
+                self.hunter.hand_over = self._hand_over
+                self.hunter.post(Pursuit(PICKUP, time.monotonic() - (now - requested_at), advance=False, leash=FULL))
+                self.attack_mode, self.attack_declined = True, False
+                if not self.working:
+                    self._start(ATTACK)
+                press.mark('accepted')
+                self.trace.close(press, outcome='posted to attack mode')
+                return True
             if routine != PICKUP:
                 self.queue.drop(PICKUP, 'the player moved on')  # as the sweep below: no walk back for it
             if routine != PICKUP and self.hunter is not None:
@@ -247,6 +287,26 @@ class MacroRunner:
             if not self.queue.entries and not self.closed:
                 self.queue.put(PICKUP)
 
+    @property
+    def pursuit(self) -> bool:
+        """Whether the pursuit loop is on (`BuildSettings.pursuit` of the build the last run played, the
+        one the hunt plays), with a hunt to make it."""
+        return self.hunter is not None and self.build is not None and self.build.settings.pursuit
+
+    def _hand_over(self, routine: str = TELEPORT) -> None:
+        """The key posted to the mode is the route's own step's after all (hunt.py `defer`: a door, the
+        loot, the leaving), or its own routine's: that routine (the teleport or the pickup step) follows
+        the mode's pause."""
+        with self.lock:
+            if not self.queue.entries and not self.closed:
+                self.queue.put(routine, time.monotonic() + EXPIRES.get(routine, EXPIRES[TELEPORT]))
+
+    def _end_run(self, why: str) -> None:
+        """A level run of the pickup key ends with attack mode (macros/pursuit.py, the leash): the mode
+        off by the toggle or on its own, the macro request, the game left, shutdown."""
+        if self.hunter is not None:
+            self.hunter.end_run(None, why)
+
     def _unwait(self) -> None:
         """The pickup step that waited for the fight is not wanted any more (hunt.py `asked_step`)."""
         with self.lock:
@@ -256,7 +316,9 @@ class MacroRunner:
         """The attack mode toggle: the mode on or off. On while a step works, it follows the step; off
         while it works, it is cancelled. Under the lock (`request`)."""
         self.attack_mode = not self.attack_mode
+        self.attack_declined = not self.attack_mode
         if not self.attack_mode:
+            self._end_run('attack mode off')
             if self.working and self.routine == ATTACK:
                 self.cancelled.set()
             return True
@@ -335,6 +397,7 @@ class MacroRunner:
         with self.lock:
             self.closed = True
             self.attack_mode = False
+            self._end_run('the service closed')
             self.queue.clear('the service closed')
             self.cancelled.set()
             thread = self.thread
@@ -408,6 +471,7 @@ class MacroRunner:
                         continue
                     if routine == ATTACK:
                         self.attack_mode = False  # the mode returned on its own: the toggle follows
+                        self._end_run('attack mode ended')
                     if self._follow(routine):
                         return
                 break
@@ -432,6 +496,7 @@ class MacroRunner:
                 self.queue.drop(routine, 'the step before it stopped')  # no repeat of a step that did
                 if failed and routine == ATTACK:
                     self.attack_mode = False  # the mode ended on its own: the game was left, or it gave up
+                    self._end_run('attack mode stopped')
                 if self._follow(routine):
                     return
         time.sleep(CARD_SECONDS)
@@ -448,7 +513,9 @@ class MacroRunner:
             following = ATTACK  # the step is done: the mode resumes
         if following is None or self.closed:
             return False
-        if routine == TELEPORT and following == ATTACK:
+        if routine == TELEPORT and following == ATTACK and not self.pursuit:
+            # Not with the pursuit on: a strike begun after the step is given up by the mode itself for
+            # the next press's move (hunt.py `key_asks`), so nothing has to be held back for it.
             self.quiet_until = time.monotonic() + TRAVEL_QUIET
         self._start(following)
         return True
@@ -543,9 +610,13 @@ class MacroRunner:
                     show_items = show_items_key(self.saved_games, world.player.name)
                     if show_items:
                         actuator.allow(show_items)
+                    wanted = prebuff_keys(run.build) if skills is None else skills
+                    name = world.player.name
                     try:
-                        bindings = character_bindings(self.saved_games, world.player.name)
-                        return skill_keys(world.slots, bindings, prebuff_keys(run.build) if skills is None else skills)
+                        if run.pad is not None:  # controller mode: the records' labels (macros/pad.py)
+                            return run.pad.keys(wanted, lambda: character_bindings(self.saved_games, name))
+                        bindings = character_bindings(self.saved_games, name)
+                        return skill_keys(world.slots, bindings, wanted)
                     except (OSError, ValueError) as exc:
                         raise Abort(str(exc)) from exc
 
@@ -577,12 +648,52 @@ class MacroRunner:
                 run.supers = self.supers
                 run.ending = self.progress.ending if self.progress is not None else None
                 run.ground = self.ground
+                self.play_by(run, actuator, routine)
                 mark('ready')
-                self.perform(run, actuator, routine, key_names)
+                try:
+                    self.perform(run, actuator, routine, key_names)
+                finally:
+                    if run.pad is not None:
+                        run.pad.actuator.neutral()  # nothing of the pad is left held after a run
         finally:
             memory.close()
             if press is not None:
                 press.notes.update(reads=reads[0], read_ms=round(1000 * reads[1], 1))
+
+    def play_by(self, run: Run, actuator: Actuator, routine: str) -> None:
+        """The run plays by the pad when the game is in controller mode (macros/pad.py `input_policy`: the game's
+        mode followed, never changed; Abort with the reason when the routine cannot be played in it now). The
+        keys' actuator is told the mode either way: it presses no mouse button while the game is in controller
+        mode. The controller's own target stands for the unit under the pointer (`Run.hovered`)."""
+        play = self.pad_play
+        if play is None:
+            return
+        actuator.mode = play.mode
+        if not input_policy(play.mode(), enabled=play.enabled, needs_mouse=MOUSE_WORK.get(routine)):
+            actuator.keyboard_run = True  # the game leaving keyboard mode stops it (actuator.py `guard`)
+            return
+        pad = PadActs(run, PadActuator(play.device, play.mode, actuator), play.controller, play.bindings)
+        run.pad = pad
+        run.hovered = pad.target
+        LOG.info('Macro: %s in controller mode, by the pad', routine)
+
+    def pursues(self, run: Run, key_names) -> bool:
+        """With the pursuit on for the build this run plays: the teleport key's press made by one pass of
+        the decision attack mode makes (hunt.py `pursue_once`), and whether it was. No look at the game
+        is made for it while no build has the pursuit on. A press whose goal is a fight wants the mode
+        on after it, as the route's fight stage has it (macros/route.py), unless the player's own toggle
+        turned it off: then it stays off, whatever is pressed (rca/2026-10-13/kp4-findings.md §1, §2.8)."""
+        walker = self.hunter
+        if walker is None or not any(build.settings.pursuit for build in (*self.builds, self.fallback) if build):
+            return False
+        ready(run)  # the run's first look that shows the character names the build (`choosing`)
+        wants = not self.attack_declined
+        found = walker.pursue_once(run, key_names, attacking=self.attack_mode or wants)
+        if found is None:
+            return False
+        if found.goal is not None and found.goal.do == FIGHT and wants:
+            self.attack_mode = True  # the mode follows this step (`_follow`)
+        return True
 
     def staged(self, run: Run, key_names, plain: Callable[[Target | None], None]) -> None:
         """One press of the stage the level is at (macros/route.py `press`); `plain` is the step toward the
@@ -591,6 +702,7 @@ class MacroRunner:
 
         def leave_the_game(run: Run, key_names) -> None:
             self.attack_mode = False  # as the macro request ends it
+            self._end_run('the game is left')
             route.leave(run, key_names)
 
         route.press(
@@ -608,7 +720,11 @@ class MacroRunner:
     def perform(self, run: Run, actuator: Actuator, routine: str, key_names) -> None:
         """One routine on the run made for it (`_execute`), by the build chosen at its first look (`choosing`)."""
         self.choosing(run)
-        if routine == TELEPORT:
+        if self.hunter is not None:
+            self.hunter.bearings = Bearings(self.progress, self.target, self.marks, self.supers)
+        if routine == TELEPORT and self.pursues(run, key_names):
+            pass  # one pass of the pursuit's decision made the press (hunt.py `pursue_once`)
+        elif routine == TELEPORT:
             walker = self.hunter
 
             def plain(card: Target | None, run=run, walker=walker) -> None:

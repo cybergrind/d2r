@@ -175,7 +175,7 @@ class Outcome:
         """The life lost by who took it: (the type's name, the blow's kind) -> points, the most first."""
         found: Counter[tuple[str, str]] = Counter()
         for hurt in self.hurts:
-            found[(name_of(hurt.txt), hurt.kind)] += hurt.points
+            found[name_of(hurt.txt), hurt.kind] += hurt.points
         return dict(found.most_common())
 
     def said_count(self, part: str) -> int:
@@ -254,6 +254,9 @@ class Situation:
     source: dict[str, Any] | None = None  # a recorded one: the take, the start, the schema
     recorded: dict[str, Any] | None = None  # the recording's side of the window (record.py)
     next_unit: int = FIRST_UNIT
+    # The play is made with the pursuit loop on (`BuildSettings.pursuit`, macros/pursuit.py): `logic('new')`.
+    # Not part of the file: a fixture is the moment, and each of its variants says which logic plays it.
+    pursuit: bool = False
 
     # -- built by hand ----------------------------------------------------------------------------------
 
@@ -397,6 +400,10 @@ class Situation:
         self.marks = (*self.marks, Mark(label, kind, (spot[0] / TILE_UNITS, spot[1] / TILE_UNITS)))
         return self
 
+    def logic(self, which: str) -> Situation:
+        """A copy played by 'today' (every key its own routine) or 'new' (the pursuit loop on)."""
+        return self.variant(pursuit={'today': False, 'new': True}[which])
+
     def attack_mode(self, on: bool = True) -> Situation:
         self.attack = on
         return self
@@ -433,6 +440,8 @@ class Situation:
                 curses=self.curses, aware=self.aware, lands=self.lands, watch=watch,
             )  # fmt: skip
             play = RoutePlay(arena, given, seconds, seed, self.marks, self.opened, self.bosses, self.as_it_was)
+            if self.pursuit:
+                play.pursuing()
             pressed: list[dict] = []
             play.runner.trace.noted = lambda kind, **record: pressed.append(
                 record
@@ -495,7 +504,7 @@ class Situation:
             max_life=arena.max_life,
             start_life=float(self.scene.hero.life),
             dead_at=dead_at,
-            killers=[(name, kind, count, round(points[(name, kind)], 1)) for (name, kind), count in last.most_common()],
+            killers=[(name, kind, count, round(points[name, kind], 1)) for (name, kind), count in last.most_common()],
             life=[(round(tick.at, 2), round(tick.life, 1)) for tick in kept],
             low=round(min((tick.life for tick in ticks), default=arena.life), 1),
             taken=round(arena.taken, 1),

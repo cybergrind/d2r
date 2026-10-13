@@ -371,8 +371,9 @@ func _draw_monsters() -> void:
 			else:
 				draw_circle(at, size_here, Palette.MONSTER)
 				draw_arc(at, size_here, 0.0, TAU, 16, Palette.BACKGROUND, 1.5)
-		else:
+		elif not data.situation:
 			# Dead in every run shown, alive in the game: an outline, so what was really there stays visible.
+			# (A situation plays its own monsters: a dead one is its cross and nothing more.)
 			if elite:
 				draw_polyline(PackedVector2Array([
 					at + Vector2(0, -size_here), at + Vector2(size_here, 0),
@@ -397,6 +398,8 @@ func _draw_monsters() -> void:
 			draw_rect(Rect2(corner, bar), Palette.BACKGROUND)
 			draw_rect(Rect2(corner, Vector2(bar.x * life, bar.y)), colors[i])
 			draw_rect(Rect2(corner, bar), Color(Palette.BACKGROUND, 0.9), false, 1.0)
+		if data.situation and not alive_somewhere:
+			continue
 		var recorded_life: Dictionary = monster["recorded_life"]
 		var life0: int = monster["life0"]
 		var recorded: float = float(TakeData.step_at(recorded_life, tick, life0)) / 1000.0

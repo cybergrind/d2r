@@ -71,6 +71,14 @@ The user runs Binary Ninja ("binja") with an MCP server for reading the game's c
 - URL: `http://127.0.0.1:24642/mcp` (streamable HTTP), authorization disabled.
 - It is up only while Binary Ninja is running with the server started. When a task needs it and it
   does not answer, ask the user to launch it; do not treat it as unavailable.
+- Name what you read (user, 2026-10-13): every routine you decompile and understand, callees included,
+  gets a readable `ai_d2_` name saying what it does instead of `sub_14…`; a partial understanding gets
+  a name for what is known plus a comment saying so. Comments start with `[ai]` and end with a
+  confidence word, the evidence and the date. Auto `sub_` names are replaced by defining a user
+  function symbol (`bn_symbol_define`). List new names in the current `rca/<date>/re/names.md`.
+- Database `pricing/raw/re/D2R-decrypted.exe.bndb` (base 0x140000000). Other files may be open in the
+  same Binary Ninja: check the active view before every write, one request at a time, never in parallel
+  (parallel calls crashed it).
 
 ## Development
 

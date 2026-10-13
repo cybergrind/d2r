@@ -163,8 +163,10 @@ def quick_cast_over(run: Run, skill: int) -> None:
 def press_skill(run: Run, skill: int, poll: float = 0.03, *, wait: bool = True) -> None:
     """Press the skill's key once the character is free to act, looked for every `poll` seconds.
     `wait` off: pressed now, whatever the character does; the game keeps a Quick Cast key pressed
-    during a cast and casts it when that cast is over (teleport.press_hop)."""
-    quick_cast_over(run, skill)
+    during a cast and casts it when that cast is over (teleport.press_hop). In controller mode the skill's
+    pad record, toward what the caller aimed it at (macros/pad.py `PadActs.cast`)."""
+    if run.pad is None:
+        quick_cast_over(run, skill)  # the right mouse button's Quick Cast: none in controller mode
     if wait:
         ready = run.expect('character ready', lambda w: w.player is not None and w.player.mode not in ACTING, 2.5, poll)
     else:
@@ -173,7 +175,7 @@ def press_skill(run: Run, skill: int, poll: float = 0.03, *, wait: bool = True) 
         raise Abort('the character is dead')
     home = ready.player.right_skill if ready.player is not None else None
     held = bool(run.actuator.holding or run.actuator.holding_buttons)  # under a held strike the game makes it wait
-    run.quick = (skill, home, run.clock(), held) if home != skill else None
+    run.quick = (skill, home, run.clock(), held) if home != skill and run.pad is None else None
     run.say(skill_name(skill))
     LOG.info(
         'Macro: %s on %s, player mode %s',
@@ -181,6 +183,9 @@ def press_skill(run: Run, skill: int, poll: float = 0.03, *, wait: bool = True) 
         run.keys[skill],
         ready.player.mode if ready.player else None,
     )
+    if run.pad is not None:
+        run.pad.cast(skill)
+        return
     run.actuator.tap(run.keys[skill])
 
 
@@ -196,7 +201,12 @@ def press_through(run: Run, skill: int) -> None:
     did not keep the press, and it is pressed again, the character being free then. With `press_skill`
     alone a key under the held strike waited for a look to fall into the instant between two casts:
     1.1 s for a Sigil and 1.4 s for an Engorge in the fight of Tower Cellar 5 (22:50:44 and :47 on
-    2026-10-11), the strike's aim frozen meanwhile; the caller lets the strike go first."""
+    2026-10-11), the strike's aim frozen meanwhile; the caller lets the strike go first.
+    In controller mode the record is pressed once the character is free: what is watched below is the mouse's
+    Quick Cast."""
+    if run.pad is not None:
+        press_skill(run, skill, THROUGH_POLL)
+        return
     world = run.world()
     busy = world.player is not None and world.player.mode in ACTING
     press_skill(run, skill, THROUGH_POLL, wait=not busy)
@@ -275,16 +285,20 @@ def swap_until(run: Run, in_hand: Callable[[], bool], tries: int = SWAP_TRIES) -
     in one run pressed 0.05-0.4 s after a cast never came, each waited on for 1.2 s). A swap that came
     shows within 0.3 s, so a press that shows nothing in SWAP_WAIT was dropped and is made again."""
     settle(run)
-    for _ in range(tries):
+    for tried in range(1, tries + 1):
         press_skill(run, SWAP_WEAPONS)
         deadline = run.clock() + SWAP_WAIT
         while True:
             run.world()  # a cancel stops here
             if in_hand():
+                if run.pad is not None:
+                    LOG.info('Pad swap: the weapons changed after %d presses of the key in controller mode', tried)
                 return True
             if run.clock() >= deadline:
                 break
             run.pace.sleep(0.03)
+    if run.pad is not None:
+        LOG.info('Pad swap: the weapons did not change after %d presses of the key in controller mode', tries)
     return False
 
 
@@ -357,6 +371,8 @@ def prebuff(run: Run, *, fresh: LoadTrace | None = None) -> None:
 
 
 def leave_game(run: Run) -> None:
+    if run.pad is not None:  # the menus take the mouse's click (macros/pad.py `input_policy`)
+        raise Abort('Save and Exit needs mouse mode: click once to switch, then press again')
     world = run.world()
     for _ in range(3):  # Escape closes an open panel first
         if not world.open_panels:

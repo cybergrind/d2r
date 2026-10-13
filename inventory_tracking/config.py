@@ -427,6 +427,48 @@ class AppraisalConfig(Config):
     # With it, the towns too (2026-10-13): a game's takes then follow one another with no gap but the
     # loading screens, and what is carried into a level (buffs, the belt, the staff's charges) is on record.
     combat_town: bool = True
+    # The pursuit loop for the builds `make serve` plays (BuildSettings.pursuit, macros/pursuit.py;
+    # rca/2026-10-13/pursuit-v1.md): a teleport-key press posts a goal and cancels nothing. First version,
+    # no safety pricing yet; on for the first games with it (user, 2026-10-13). Off: the keys as before.
+    macro_pursuit: bool = True
+    # The gamepad experiment (input/gamepad.py; rca/2026-10-13/pickup-cube.md, the controller's "Loot to
+    # Cube"): keypad 5 taps this button of a virtual Xbox pad, made at the first press. None: no such key.
+    # 'x': the bindings' record 1, where Loot to Cube is written below. The bar in controller mode reads
+    # A X B Y RB RT for records 0-5 (2026-10-13: Attack on A, record 2's Miasma Bolt on B, record 1 empty
+    # on X while the client had not read the file again; inferred from one screenshot).
+    gamepad_button: str | None = 'x'
+    # The played characters' controller bindings that `make serve` writes at its start (gamepad.py
+    # `bind_table`; rca/2026-10-13/controller-mode.md section 3: every skill the macros cast is to be on a pad
+    # record, user 2026-10-13: "bind everything we need"): record -> skill (skills.txt). Records 0-5 are
+    # A X B Y RB RT, 6-11 the same with LT held. A record that holds another skill is the player's and is
+    # left alone unless named in `gamepad_overwrite`; a skill already on another record is not written
+    # twice; the file as it was is copied to runs/gamepad first. Written only at the service's start with no
+    # D2R.exe running (the client reads the file at its launch and writes it back on leaving a game: the
+    # two tries of 16:26 and 16:31 wrote while it ran). Kept as they are: 0 Attack (A), 2 Miasma Bolt (B,
+    # the class default), 7 Town Portal (LT+X). Not bound, 12 records being full: Summon Defiler (377;
+    # Consume's dance needs it: put it in place of Miasma Bolt by `gamepad_overwrite = (2,)` and 2: 377),
+    # Engorge, Bind Demon, Swap Weapons.
+    gamepad_bindings: dict[int, int] = {
+        1: 370,  # X: Loot to Cube
+        3: 388,  # Y: Echoing Strike
+        4: 390,  # RB: Blade Warp
+        5: 54,  # RT: Teleport (the staff's charges; whether a charged skill holds on a record: plan step 8)
+        6: 387,  # LT+A: Psychic Ward
+        8: 389,  # LT+B: Hex: Purge
+        9: 375,  # LT+Y: Death Mark
+        10: 393,  # LT+RB: Sigil: Lethargy
+        11: 381,  # LT+RT: Consume
+    }
+    gamepad_overwrite: tuple[int, ...] = ()  # records whose skill the table may replace (the file copied first)
+    gamepad_bind: bool = True  # False: the bindings files are never written
+    # The macros play in either input mode (macros/pad.py; rca/2026-10-13/controller-mode.md step 9, the player
+    # 2026-10-13: "thus, we could do full automated runs in controller's mode"): with the game in controller mode
+    # a run casts, walks and picks up by the virtual pad and its records (`gamepad_bindings`); in keyboard mode
+    # nothing changes. False: a run in controller mode is refused with "click once" (no pad input at all).
+    controller_play: bool = True
+    # Reads a second of the game's input mode (tracking/input_mode.py InputModeWatch): flips are timed to
+    # this resolution, the controller's target is followed at it.
+    input_mode_rate: Positive = 100.0
     # What the takes are held to (combat/retain.py): each is gzipped as it closes (about a fifteenth of
     # its size), and past this many gigabytes in all the oldest are removed, one the character died
     # in last. 3.4 GB were 730 takes unpacked on 2026-10-12; packed, 20 GB are tens of thousands.
@@ -515,6 +557,16 @@ class HudConfig(Config):
         # Whether the macro's attack mode is on (hud/process.py ModeBeacon): one line, centred above the
         # skill bar (2026-10-13). Not dimmed with the others: it is read at a glance in a fight.
         'mode': HudSlot(x=0.5, y=0.8, max_width=0.2, centered=True),
+    }
+    # Where slots go while the game is in controller mode (hud/live.py InputModeByte; its layout differs:
+    # rca/2026-10-13/controller-mode.md section 5, from the screenshot of 2026-10-13 16:28). The bottom bar
+    # (LT, A X B Y RB RT, the belt with d-pad hints) tops at about 0.89 of the window height and the life
+    # globe begins at x 0.165. Slots not named here keep their places.
+    controller_slots: dict[str, HudSlot] = {
+        # The level guide rows stay left of the life globe.
+        'guide': HudSlot(x=0.01, y=0.99, max_width=0.155, upward=True),
+        # The attack/input mode line and the pad legend under it: growing up from just above the bar.
+        'mode': HudSlot(x=0.5, y=0.88, max_width=0.3, centered=True, upward=True),
     }
     # Slots also shown while the game is not focused or not running; they are then laid out on
     # the whole working area of the focused output instead of the game window.

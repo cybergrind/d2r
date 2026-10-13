@@ -6,7 +6,9 @@ game-window slots, redraws only when the layout changes, and unmaps when there i
 show, so a fullscreen game keeps direct scanout. The widgets of `desktop_slots` have a second
 surface on `desktop_output`, shown whatever has the focus; without that output they fall back to
 this canvas (with the game's focus in the game window, otherwise on the output the canvas is on). While an item
-panel is open (hud/live.py OpenPanels, read every frame) the slots of `dim_slots` are drawn faint.
+panel is open (hud/live.py OpenPanels, read every frame) the slots of `dim_slots` are drawn faint. While
+the game is in controller mode (hud/live.py InputModeByte, read every refresh) the slots of
+`controller_slots` replace the others' positions.
 """
 
 import signal
@@ -15,7 +17,16 @@ import time
 from inventory_tracking.common import LOG
 from inventory_tracking.config import HUD, OSD
 from inventory_tracking.hud.layout import Slot, desktop_rect, game_rect, place, scale_for, slot_limit
-from inventory_tracking.hud.live import Entrance, LiveUnits, OpenPanels, follow, ground_payload_of, panel_source
+from inventory_tracking.hud.live import (
+    Entrance,
+    InputModeByte,
+    LiveUnits,
+    OpenPanels,
+    follow,
+    ground_payload_of,
+    mode_source,
+    panel_source,
+)
 from inventory_tracking.hud.scene import read_scene
 from inventory_tracking.hud.widgets import draw_scene, measure
 from inventory_tracking.osd.monitor import FocusedOutput, GameOutput, choose_monitor
@@ -27,6 +38,10 @@ def run(scene_dir, config=HUD, *, monitor_index=OSD.monitor):
     app = Gtk.Application(application_id='local.d2r.Hud', flags=Gio.ApplicationFlags.NON_UNIQUE)
     slots = {
         name: Slot(slot.x, slot.y, slot.max_width, slot.centered, slot.upward) for name, slot in config.slots.items()
+    }
+    controller_slots = slots | {
+        name: Slot(slot.x, slot.y, slot.max_width, slot.centered, slot.upward)
+        for name, slot in config.controller_slots.items()
     }
     failure = []
 
@@ -67,6 +82,7 @@ def run(scene_dir, config=HUD, *, monitor_index=OSD.monitor):
         game_output, desktop_output = GameOutput(), FocusedOutput()
         state = {'boxes': [], 'scale': 1.0, 'key': None, 'monitor': None, 'ground': None, 'panels': None, 'dim': False}
         live, entrance, panels = LiveUnits(), Entrance(), OpenPanels(config.dim_panels)
+        input_mode = InputModeByte()
         area.set_draw_func(
             lambda _a, cr, _w, _h: draw_scene(
                 cr,
@@ -98,13 +114,13 @@ def run(scene_dir, config=HUD, *, monitor_index=OSD.monitor):
             geometry = monitor.get_geometry()
             return geometry.width, geometry.height
 
-        def lay_out(widgets, rect):
+        def lay_out(widgets, rect, chosen=slots):
             scale = scale_for(rect.height, reference_height=config.reference_height)
             sizes = {
-                w.id: measure(w, scale=scale, limit=slot_limit(slots[w.slot], rect) if w.slot in slots else None)
+                w.id: measure(w, scale=scale, limit=slot_limit(chosen[w.slot], rect) if w.slot in chosen else None)
                 for w in widgets
             }
-            return place(widgets, sizes, slots, rect, gap=round(config.gap * scale)), scale
+            return place(widgets, sizes, chosen, rect, gap=round(config.gap * scale)), scale
 
         def refresh_desktop(widgets, monitor):
             """The desktop slots on their own output, whatever has the focus."""
@@ -125,11 +141,13 @@ def run(scene_dir, config=HUD, *, monitor_index=OSD.monitor):
                 surface.set_input_region(cairo.Region())
 
         def refresh():
-            state['panels'], widgets = panel_source(read_scene(scene_dir, now=time.monotonic()))
+            scene = read_scene(scene_dir, now=time.monotonic())
+            chosen = controller_slots if input_mode.reading(mode_source(scene)) else slots
+            state['panels'], widgets = panel_source(scene)
             # With `desktop_output` connected its slots are drawn there only; without it (laptop
             # panel off) they fall back to this canvas.
             desk_monitor = choose_monitor(monitors, None, config.desktop_output)
-            on_desk = lambda w: desk_monitor is not None and w.slot in config.desktop_slots  # noqa: E731
+            on_desk = lambda w: desk_monitor is not None and w.slot in config.desktop_slots  # ruff: ignore[lambda-assignment]
             refresh_desktop([w for w in widgets if on_desk(w)], desk_monitor)
             widgets = [w for w in widgets if not on_desk(w)]
             boxes, scale = [], state['scale']
@@ -159,7 +177,7 @@ def run(scene_dir, config=HUD, *, monitor_index=OSD.monitor):
                         else desktop_rect(canvas_size(monitor))
                     )
                     if rect is not None:
-                        boxes, scale = lay_out(widgets, rect)
+                        boxes, scale = lay_out(widgets, rect, chosen if game_output.focused else slots)
             key = repr((boxes, scale))
             if key != state['key']:
                 state.update(boxes=boxes, scale=scale, key=key)

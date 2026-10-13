@@ -20,7 +20,10 @@ SCHEMAS = {
     1: 'before 2026-10-10: `p` may end at the skills (no vitals), or carry vitals read from the wrong stats',
     2: '`p` ends with life, max life, mana, max mana in whole points (stats 6-9); `d` holds the doors',
     3: 'a frame holds `r`, the resistances (record.py RESIST_STATS), when they are first read and when they change',
-    4: "more written as `r` is (`o` `s` `w` `b` `f` `g` `i`), the macro's word as events, records.jsonl: record.py",
+    4: "more written as `r` is (`o` `s` `w` `b` `f` `g` `i`), the macro's word as events, records.jsonl: record.py; "
+    'since 2026-10-13 evening, each optional: `a` (the ward), `sf` (the life message), `g` rows end with code and '
+    'quality, `hurt` carries `absorb` `companions` `sf`, `stats` events (a monster re-read at a change of its states), '
+    '`state.memory`',
 }
 LIFE_SCALE = 128  # the client's life fraction: a monster's life in a frame is 0-128 of its maximum
 
@@ -118,7 +121,7 @@ def records(directory: Path) -> Iterator[dict[str, Any]]:
 
 
 def carried(take: Take, key: str) -> list[Any]:
-    """What a frame key written only at a change (`r`, `o`, `s`, `w`, `b`: record.py) holds at each
+    """What a frame key written only at a change (`r`, `o`, `s`, `w`, `b`, `a`, `sf`: record.py) holds at each
     frame: the value written last up to it. None before the first, and throughout a take that has none."""
     found: list[Any] = []
     last: Any = None
@@ -191,7 +194,7 @@ class Take:
             list(lines(directory / 'missiles.jsonl')),
             list(lines(directory / 'paths.jsonl')),
         )
-        take.schema  # noqa: B018 (refuses rows this reader does not know)
+        take.schema  # ruff: ignore[useless-expression] (refuses rows this reader does not know)
         return take
 
     @property

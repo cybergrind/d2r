@@ -1,8 +1,8 @@
 """The situations layer (situation.py, record.py, stage.py), the Vizier's two recorded moments (vizier.py) and
 the player's constructed example (example.py).
 
-The requirements today's code does not meet are `xfail(strict=True)`, as in test_incident_kp4.py: each turns
-into a failure the day it is met, and the mark is then taken off."""
+The requirements today's keys do not meet are in test_pursuit_situations.py, each a test over both logics:
+`today` an `xfail(strict=True)` as in test_incident_kp4.py, `new` (the pursuit loop on) passing."""
 
 import functools
 import math
@@ -11,7 +11,6 @@ import pytest
 
 from inventory_tracking.combat.mechanics.tables import tables
 from inventory_tracking.combat.sim import monsters as model
-from inventory_tracking.macros.route import FIGHT_NEAR
 from inventory_tracking.macros.runner import TELEPORT
 from tests.inventory_tracking.scenarios.arena import kp4
 from tests.inventory_tracking.scenarios.arena.situations import vizier
@@ -164,11 +163,11 @@ def test_the_seek_key_goes_for_the_boss_and_kills_it() -> None:
 
 
 def test_a_pack_made_aware_comes_into_its_own_reach_and_no_nearer() -> None:
-    """The arena's Storm Casters are shooters: aware of the character they close to their shot's reach (30)."""
+    """A Storm Caster thinks by the client's AI 70 (sim/casters.py, 2026-10-13): aware of the character from any
+    distance it still comes only from under aip7 (40) and casts from under aip5 (26); the Vizier at 57.4 stands
+    (before, as a fitted shooter, it closed to its shot's reach: 29.8)."""
     outcome = tried('(e) aware at any distance, recorded presses', 1)
-    first, least, _ = outcome.gaps[BOSS]
-    assert first == 57.4
-    assert 25.0 <= least <= 31.0
+    assert outcome.gaps[BOSS] == (57.4, 57.4, 57.4)
     assert tried("(e) aware within 35 (the game's radius), recorded presses", 1).gaps[BOSS] == (57.4, 57.4, 57.4)
 
 
@@ -184,20 +183,9 @@ def test_attack_mode_alone_kills_the_pack_only_within_the_strikes_reach(distance
     assert outcome.moved == 0.0
 
 
-@pytest.mark.xfail(strict=True, reason='a fight stage without a mark is attack mode where the character stands')
-def test_repeated_presses_of_the_teleport_key_bring_the_character_within_fight_distance_of_the_boss() -> None:
-    for seed in SEEDS:
-        outcome = played(STALL, seed)
-        assert outcome.boss_dead[BOSS] is not None or outcome.gaps[BOSS][1] <= FIGHT_NEAR
-
-
-@pytest.mark.xfail(
-    strict=True, reason='every press of the teleport key pauses attack mode and re-arms the quiet after it'
-)
-def test_a_held_teleport_key_does_not_keep_attack_mode_from_killing_a_boss_in_reach() -> None:
-    """The Vizier 12 units off, attack mode on, the key held at 0.3 s: he must die as he does with the mode alone."""
-    situation, presses = vizier.distanced(12)['attack on + KP_4 every 0.3 s']
-    assert situation.play(presses, seed=1).boss_dead[BOSS] is not None
+# The two requirements today's keys do not meet at the stall (repeated presses bring the character to the
+# boss; a held key does not keep attack mode from killing a boss in reach) are in test_pursuit_situations.py,
+# each over both logics: `today` a strict expected failure, `new` (the pursuit loop on) passing.
 
 
 # -- the seal: a pack that appears ----------------------------------------------------------------------
@@ -219,8 +207,16 @@ def test_the_seal_moment_is_the_takes_own() -> None:
 
 def test_the_pack_appears_after_the_arenas_own_opening_of_the_seal() -> None:
     seal = vizier.stored(SEAL)
-    for seed in SEEDS:
-        outcome = played(SEAL, seed)
+    # Since the casters think by the client's code (sim/casters.py, 2026-10-13) the arena's own play does not open
+    # the seal within the window in every seed (it did before): the pack is looked at where it was opened, early
+    # enough for it to appear in the window (with the ward played, seed 2 opens it at 15.1 s of 16).
+    opened_in = [
+        outcome
+        for outcome in (played(SEAL, seed) for seed in SEEDS)
+        if SEAL_ONE in outcome.opened and outcome.opened[SEAL_ONE] + 1.0 <= outcome.seconds
+    ]
+    assert len(opened_in) >= len(SEEDS) // 2
+    for outcome in opened_in:
         opened = outcome.opened[SEAL_ONE]
         (at, _label, count), *_ = [row for row in outcome.appeared if 'Storm Caster' in row[1]]
         assert count == 6
@@ -287,8 +283,17 @@ def test_the_catalog_lists_the_fixtures_and_the_example_with_their_variants() ->
 
     found = catalog()
     assert [(entry.name, entry.kind) for entry in found.values()] == [
-        (STALL, 'recorded'), (SEAL, 'recorded'), ('four-packs', 'constructed'),
+        (STALL, 'recorded'), (SEAL, 'recorded'), ('pocket', 'recorded'), ('seal-pack', 'recorded'),
+        ('four-packs', 'constructed'), ('cs-run', 'recorded'),
     ]  # fmt: skip
+    # the same scene and presses by today's keys and by the pursuit loop, side by side (Tab in the viewer)
+    for name in (STALL, SEAL, 'pocket', 'seal-pack'):
+        labels = [label for label, _, _ in found[name].variants()]
+        pairs = [label for label in labels if label.endswith(': today')]
+        assert pairs
+        assert all(labels[labels.index(label) + 1] == label.removesuffix('today') + 'new' for label in pairs)
+        logic = {label: situation.pursuit for label, situation, _ in found[name].variants()}
+        assert all(logic[label] == label.endswith(': new') for label in labels)
     assert all(entry.fixture is None or (FIXTURES / entry.fixture).exists() for entry in found.values())
     assert found['four-packs'].variants()[0][0] == 'attack on'
 

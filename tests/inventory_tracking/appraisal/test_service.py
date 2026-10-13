@@ -360,3 +360,28 @@ def test_identify_warmup_never_requests_legacy_detail():
     recent = appraisal_service.RecentObservations([observation])
     appraisal_service.warm_identify_lookup(recent)(process)
     assert process.calls == [(appraisal_service.triage_warm, (observation,))]
+
+
+def test_the_controller_bindings_are_written_only_while_the_game_is_closed(monkeypatch, tmp_path, caplog):
+    # rca/2026-10-13/controller-mode.md plan step 4: the client reads the file at launch and writes it back
+    # on leaving a game, so a write while D2R.exe runs is lost.
+    from types import SimpleNamespace
+
+    calls = []
+    monkeypatch.setattr(
+        appraisal_service, 'bind_table', lambda *args, **kwargs: calls.append((args, kwargs)) or ['record 3 (Y)']
+    )
+    monkeypatch.setattr(appraisal_service, 'PLAYS', ('CybergrindAA',))
+    args = SimpleNamespace(output=tmp_path / 'appraisal')
+    monkeypatch.setattr(appraisal_service, 'find_game_processes', lambda: [1234])
+    with caplog.at_level('INFO'):
+        appraisal_service.bind_controller(args)
+    assert not calls
+    assert 'D2R.exe runs, the files are left alone' in caplog.text
+    monkeypatch.setattr(appraisal_service, 'find_game_processes', list)
+    with caplog.at_level('INFO'):
+        appraisal_service.bind_controller(args)
+    (_saved, name, table, keep), kwargs = calls[0]
+    assert (name, table, keep) == ('CybergrindAA', appraisal_service.APPRAISAL.gamepad_bindings, tmp_path / 'gamepad')
+    assert kwargs['overwrite'] == appraisal_service.APPRAISAL.gamepad_overwrite
+    assert 'Controller bindings: record 3 (Y)' in caplog.text
