@@ -511,6 +511,8 @@ def run_ended(run: Run, world: World) -> bool:
 def run_macro(run: Run, key_names) -> None:
     """`key_names(world)` gives the key per skill for the character in the game (skills.py)."""
     world = run.world()
+    if not world.in_game and run.pad is not None:  # the lobby's name field takes the mouse's click
+        raise Abort('a new game needs mouse mode: click once to switch, then press again')
     if not world.in_game:
         # The lobby (user, 2026-10-06): make the next game and prebuff. Which character it is
         # shows only in the game, so it and its keys are checked there, before any skill key.

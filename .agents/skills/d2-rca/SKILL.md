@@ -53,6 +53,9 @@ resistances (schema 3, at a change), `macro`, `in`. Reader: `inventory_tracking/
 (`PlayerRow`, `MonsterRow`, `timeline`, `trim`). The character's mode 10 is a cast, 1 standing;
 monster modes 0 and 12 are dying and dead, 4 is hit recovery. Area numbers: 107 River of Flame, 108 Chaos Sanctuary,
 39 the cow level. A super unique or champion is told by `flags`/`mods` in `units.jsonl.gz`.
+Who made an input (since 2026-10-13 night): `sent` events are every key, pointer move, button and pad input
+the service sent (`input`, `by`, `routine`); `pointer_check` is the actuator's "the mouse was moved" with its numbers.
+A change of `in` no `sent` explains is the player's: `session.py inputs <take>` lists them (healer log merged).
 
 ## Method
 
@@ -63,6 +66,7 @@ python3 .agents/skills/d2-rca/tools/session.py find
 python3 .agents/skills/d2-rca/tools/session.py log  inventory_tracking/runs/alt-d/<session>/probe.log
 python3 .agents/skills/d2-rca/tools/session.py idle inventory_tracking/runs/combat/<take>
 python3 .agents/skills/d2-rca/tools/session.py unit inventory_tracking/runs/combat/<take> <unit id> [--txt N]
+python3 .agents/skills/d2-rca/tools/session.py inputs inventory_tracking/runs/combat/<take> [--all]
 ```
 
 - `log`: presses by routine, bursts of mashed presses, and the lines said most often with numbers
@@ -70,6 +74,7 @@ python3 .agents/skills/d2-rca/tools/session.py unit inventory_tracking/runs/comb
 - `idle`: every stretch with no move and no cast, on the log's clock, with hostiles within
   25/40/60 units. Dead time among hostiles is the defect list.
 - `unit`: where a boss or a pack stood against the character, second by second.
+- `inputs`: the player's own pointer strokes, clicks and keys (vs. the macro's `sent` and the healer's log).
 
 Then read the log around each moment and name, for each press, the branch that answered it
 (`rg --no-config -n "<words of the line>" inventory_tracking/macros`).

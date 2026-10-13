@@ -88,11 +88,21 @@ event on each change (`mode`, `pending`, and with a finished flip `flip`: its ti
 tracking/input_mode.py `Flips`); in controller mode a `ctl` event when the client's own target or the pressed
 record changes (`target` [unit type, unit id] or None, `record`, `skill`).
 
+The macro's own input (2026-10-13 night; rca/2026-10-13/recorder-review.md, "Macro inputs recorded"), still
+schema 4, optional: a `sent` event for every input the service sends (input/sent.py), with the time it was sent
+and `input` 'key' (`code`, `down`, `name` where the manifest's `keys` names it), 'move' (`xy` in root coordinates,
+`f` as fractions of the game window of the frame it is written with), 'button' (`button`, `down`) or 'pad'
+(`name`, `value`, `ev` the raw [type, code]), `by` (the sending thread: 'macro' for a macro run, 'MainThread' for
+the service loop's own) and `routine` (the macro run's). A change in a frame's `in` that no `sent` explains is
+the player's (or the healer's, whose presses are in its own log: `make osd` is not recorded here); the d2-rca
+skill's `session.py inputs` lists them. The manifest's `keys` name the belt keys '1'-'4' too.
+
 `Recorder.step` is the per-frame logic with the clock injected; `Recorder.run` paces it on its
 own thread with its own memory handle and display connection (`LiveSampler`), bound to the game
 by `poll` from the service loop as the macro runner is.
 """
 
+import collections
 import dataclasses
 import json
 import logging
@@ -107,6 +117,7 @@ from typing import Any, NamedTuple
 
 from inventory_tracking.combat import hurts, retain
 from inventory_tracking.common import LOG, timestamp
+from inventory_tracking.input import gamepad, sent
 from inventory_tracking.input.keyboard import X11Keyboard
 from inventory_tracking.items.identity import QUALITY_OFFSET
 from inventory_tracking.items.metadata import item_base
@@ -135,6 +146,9 @@ LEVEL_SECONDS = 5.0  # between looks at the guide's walls while a take runs (lev
 RECORD_SECONDS = 1.0  # a unit's raw record is written at a change of mode and at least this often
 NOTE_SECONDS = 120.0  # the macro's word from before a take is kept this long for the take's start
 NOTE_MOST = 2000
+# The service's own inputs kept outside a take (NOTE_SECONDS) at most: a move is 4 to 18 pointer steps, so a busy
+# two minutes of town and the way in is a few thousand (the module text, `Recorder.sent`).
+SENT_MOST = 8000
 SLOW_SECONDS = 0.2  # between reads of what changes slowly and costs a walk of a unit table (`o`, `w`, `b`)
 CENSUS_SECONDS = 30.0  # between unit table censuses (research: where the missiles hang)
 BUTTON_BITS = {1: 1 << 8, 2: 1 << 9, 3: 1 << 10, 8: 1 << 15, 9: 1 << 16}  # XQueryPointer mask bits
@@ -177,7 +191,22 @@ NAMED_KEYS = (
     'Shift_L',
     'Control_L',
     'Alt_L',
+    '1',
+    '2',
+    '3',
+    '4',
 )
+# A pad event's (type, code) -> the name a `sent` event gives it (input/gamepad.py).
+PAD_INPUTS = {
+    **{(gamepad.EV_KEY, code): name for name, code in gamepad.BUTTONS.items()},
+    **{(gamepad.EV_ABS, axis): name for name, axis in gamepad.TRIGGERS.items()},
+    (gamepad.EV_ABS, gamepad.ABS_X): 'left x',
+    (gamepad.EV_ABS, gamepad.ABS_Y): 'left y',
+    (gamepad.EV_ABS, gamepad.ABS_RX): 'right x',
+    (gamepad.EV_ABS, gamepad.ABS_RY): 'right y',
+    (gamepad.EV_ABS, gamepad.ABS_HAT0X): 'dpad x',
+    (gamepad.EV_ABS, gamepad.ABS_HAT0Y): 'dpad y',
+}
 
 
 @dataclass(frozen=True)
@@ -320,6 +349,37 @@ class Take:
     def event(self, clock: float, kind: str, **fields: Any) -> None:
         self.counts[kind] = self.counts.get(kind, 0) + 1
         self.events.write(json.dumps({'t': round(clock, 3), 'event': kind, **fields}) + '\n')
+
+    def sent(
+        self,
+        at: float,
+        kind: str,
+        what: tuple[int, ...],
+        by: str,
+        routine: str | None,
+        rect: tuple[int, int, int, int] | None,
+    ) -> None:
+        """A `sent` event: one input of the service's own (`Recorder.sent`), written with a frame whose game
+        window `rect` turns a pointer target into fractions."""
+        fields: dict[str, Any] = {'input': kind}
+        if kind in ('key', 'button') and len(what) == 2:
+            code, down = what
+            if kind == 'key':
+                fields.update(code=code, down=bool(down), name=self.manifest.get('keys', {}).get(str(code)))
+            else:
+                fields.update(button=code, down=bool(down))
+        elif kind == 'move' and len(what) == 2:
+            fields['xy'] = list(what)
+            if rect is not None and rect[2] and rect[3]:
+                fields['f'] = [round((what[0] - rect[0]) / rect[2], 4), round((what[1] - rect[1]) / rect[3], 4)]
+        elif kind == 'pad' and len(what) == 3:
+            fields.update(name=PAD_INPUTS.get(what[:2]), value=what[2], ev=list(what[:2]))
+        else:
+            fields['raw'] = list(what)
+        fields['by'] = by
+        if routine is not None:
+            fields['routine'] = routine
+        self.event(at, 'sent', **fields)
 
     def frame(self, clock: float, sample: Sample, late: int = 0) -> None:
         world = sample.world
@@ -618,12 +678,25 @@ class Recorder:
         self.tidying: threading.Thread | None = None  # the packing of the take closed last
         self.noted: list[tuple[float, str, dict[str, Any]]] = []  # the macro's word since the last frame
         self.noting = threading.Lock()
+        # The service's own inputs since the last frame (`sent`): appended on the sending thread, taken here.
+        self.inputs: collections.deque[tuple[float, str, tuple[int, ...], str, str | None]] = collections.deque(
+            maxlen=SENT_MOST
+        )
+        self.routine: Callable[[], str | None] | None = None  # the macro run's routine (the service sets it)
 
     def note(self, kind: str, **fields: Any) -> None:
         """An event of somebody else's (the macro runner's `request` and `said`), from any thread: kept
         with its own clock and written with the next frame of a take."""
         with self.noting:
             self.noted.append((self.clock(), kind, fields))
+
+    def sent(self, kind: str, what: tuple[int, ...]) -> None:
+        """input/sent.py's listener: one input the service sent, on the thread that sent it, right after the
+        send. An append to a deque (atomic, no lock: an input never waits for a frame being written), with the
+        clock, the thread's name and, on a macro run's thread, its routine; the frame writes it (`step`)."""
+        by = threading.current_thread().name
+        routine = self.routine() if by == 'macro' and self.routine is not None else None
+        self.inputs.append((self.clock(), kind, what, by, routine))
 
     def step(self, now: float, late: int = 0) -> None:
         """One frame: `late` is how many frame periods this one came after its time."""
@@ -654,12 +727,16 @@ class Recorder:
                 noted, self.noted = self.noted, []
             for at, kind, fields in noted:
                 self.take.event(at, kind, **fields)
+            for _ in range(len(self.inputs)):  # only this thread takes from the left
+                self.take.sent(*self.inputs.popleft(), sample.rect)
             self.take.frame(now, sample, late)
         else:
             # No take to write them in (town, a loading screen, a failed read): kept for the next one,
             # which so begins with what was asked and said on the way in (the prebuff, the first steps).
             with self.noting:
                 self.noted = [note for note in self.noted if now - note[0] <= NOTE_SECONDS][-NOTE_MOST:]
+            while self.inputs and now - self.inputs[0][0] > NOTE_SECONDS:
+                self.inputs.popleft()
 
     def open(self, now: float, sample: Sample, area: int) -> None:
         self.takes += 1
@@ -904,6 +981,7 @@ class CombatRecorder:
         self.input_mode: Callable[[], str | None] | None = None
         self.listener = MacroLines(self.recorder.note)
         LOG.addHandler(self.listener)
+        sent.listen(self.recorder.sent)  # every input this process sends: a `sent` event (input/sent.py)
         self.stop = threading.Event()
         self.thread = threading.Thread(target=self._run, name='combat-recorder', daemon=True)
         self.last_poll = -math.inf
@@ -937,6 +1015,8 @@ class CombatRecorder:
 
     def close(self) -> None:
         LOG.removeHandler(self.listener)
+        if sent.listener == self.recorder.sent:
+            sent.listen(None)
         self.stop.set()
         self.thread.join(timeout=3)
         self.sampler.detach()

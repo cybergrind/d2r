@@ -290,8 +290,10 @@ class InputModeWatch:
         if skills == self.bindings:
             return
         self.bindings = skills
-        if any(skill != -1 for skill in skills[:12]):
-            said = self.names(skills) if self.names is not None else ', '.join(map(str, skills[:12]))
+        # Records 0-11 are the pad's buttons, 12-15 reached by keyboard skill keys only, 16-27 the second weapon
+        # set's with "Controller Weapon Swap Separate Bindings" (rca/2026-10-13/controller-gaps.md section 2).
+        if any(skill != -1 for skill in skills[:28]):
+            said = self.names(skills) if self.names is not None else ', '.join(map(str, skills[:28]))
             LOG.info('Controller bindings loaded: %s', said)
 
     def see_controller(self, state: ControllerState | None) -> None:

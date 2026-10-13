@@ -385,3 +385,27 @@ def test_the_controller_bindings_are_written_only_while_the_game_is_closed(monke
     assert (name, table, keep) == ('CybergrindAA', appraisal_service.APPRAISAL.gamepad_bindings, tmp_path / 'gamepad')
     assert kwargs['overwrite'] == appraisal_service.APPRAISAL.gamepad_overwrite
     assert 'Controller bindings: record 3 (Y)' in caplog.text
+
+
+def test_the_controller_settings_are_logged_at_the_start_and_the_table_binds_the_defiler_and_the_key_records(
+    monkeypatch, tmp_path, caplog
+):
+    # rca/2026-10-13/controller-gaps.md: Quick Cast decides whether a skill key reaches a controller record; the
+    # table puts Summon Defiler over Miasma Bolt (B, record 2) and Bind Demon / Engorge on records 12 / 13.
+    from types import SimpleNamespace
+
+    from inventory_tracking.builds.warlock.skills import BIND_DEMON, ENGORGE, SUMMON_DEFILER
+
+    (tmp_path / 'Settings.json').write_text('{"Quick Cast Enabled": 1, "Controller Weapon Swap Separate Bindings": 0}')
+    monkeypatch.setattr(appraisal_service, 'SHOW_ITEMS', SimpleNamespace(saved_games=tmp_path))
+    with caplog.at_level('INFO'):
+        appraisal_service.controller_settings()
+    assert 'Controller settings: Quick Cast Enabled 1, Controller Weapon Swap Separate Bindings 0' in caplog.text
+    monkeypatch.setattr(appraisal_service, 'SHOW_ITEMS', SimpleNamespace(saved_games=tmp_path / 'none'))
+    with caplog.at_level('INFO'):
+        appraisal_service.controller_settings()  # no file: said, nothing raised
+    assert 'Controller settings: Settings.json not read' in caplog.text
+    table = appraisal_service.APPRAISAL.gamepad_bindings
+    assert (table[2], table[12], table[13]) == (SUMMON_DEFILER, BIND_DEMON, ENGORGE)
+    assert appraisal_service.APPRAISAL.gamepad_overwrite == (2,)
+    assert appraisal_service.APPRAISAL.controller_key_route

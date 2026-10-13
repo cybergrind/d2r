@@ -144,3 +144,17 @@ def test_a_run_asked_to_stop_makes_no_further_input():
     with pytest.raises(Cancelled):
         actuator.tap('7')
     assert len(keys.events) == 2
+
+
+def test_the_pointer_checks_abort_is_noted_with_what_it_compared():
+    # rca/2026-10-13/run-2110-findings.md, moment 3: the take shows each `the mouse was moved` with its numbers.
+    actuator, _, _ = make()
+    noted = []
+    actuator.noted = lambda kind, **fields: noted.append((kind, fields))
+    actuator.left_at = (30, 2)  # the fake pointer stays at (0, 0)
+    with pytest.raises(Abort, match='the mouse was moved'):
+        actuator.guard()
+    assert noted == [('pointer_check', {'left_at': [30, 2], 'pointer': [0, 0], 'drift': 30, 'limit': 4})]
+    actuator.left_at = (3, 1)  # within the limit: nothing is noted
+    actuator.guard()
+    assert len(noted) == 1

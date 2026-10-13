@@ -72,6 +72,9 @@ class Actuator:
         # The run plays by the keys and the mouse in keyboard mode (runner.py `play_by`): the game leaving that
         # mode (the player's pad touched, a flip under way) stops it, as a key of the player's does.
         self.keyboard_run = False
+        # The combat take's note (record.py `Recorder.note`), set by the runner: the pointer check's abort is a
+        # `pointer_check` event with what it compared (rca/2026-10-13/run-2110-findings.md, moment 3). None: none.
+        self.noted: Callable[..., None] | None = None
 
     def allow(self, *names: str) -> None:
         """Keys another service presses by itself are not the player's. The OSD turns Show Items
@@ -106,6 +109,15 @@ class Actuator:
         if self.left_at is not None:
             now = self.keys.pointer()
             if now is None or max(abs(now[0] - self.left_at[0]), abs(now[1] - self.left_at[1])) > self.drift:
+                if self.noted is not None:
+                    off = None if now is None else max(abs(now[0] - self.left_at[0]), abs(now[1] - self.left_at[1]))
+                    self.noted(
+                        'pointer_check',
+                        left_at=list(self.left_at),
+                        pointer=list(now) if now is not None else None,
+                        drift=off,
+                        limit=self.drift,
+                    )
                 raise Abort('the mouse was moved')
 
     def mouse_guard(self, inputs: list[tuple[bool, int]]) -> None:

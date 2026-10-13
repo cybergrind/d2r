@@ -796,3 +796,52 @@ def test_the_input_mode_is_in_the_manifest_and_its_flips_and_the_controllers_tar
     flip = next(e for e in take.events if e['event'] == 'input_mode')
     assert (flip['mode'], flip['flip']['to']) == ('controller', 'controller')
     assert next(e for e in take.events if e['event'] == 'ctl')['target'] == [1, 7]
+
+
+def test_the_services_own_inputs_are_sent_events_with_their_time_the_thread_and_the_routine(tmp_path):
+    # rca/2026-10-13/recorder-review.md, "Macro inputs recorded": input/sent.py's listener is Recorder.sent.
+    now = [0.5]
+    sample = Sample(world(), [], (2240, 709, 0), RECT, frozenset())
+    rec = Recorder(Script(sample), output=tmp_path, clock=lambda: now[0], manifest=lambda: {'keys': {'38': 'a'}})
+    rec.routine = lambda: 'teleport'
+    rec.sent('move', (2240, 709))  # before the take: kept for its start
+    rec.step(1.0)
+    now[0] = 1.013
+
+    def macro_run():
+        rec.sent('key', (38, 1))
+        rec.sent('button', (1, 0))
+        rec.sent('pad', (1, 0x134, 1))
+
+    run = threading.Thread(target=macro_run, name='macro')
+    run.start()
+    run.join()
+    rec.step(1.04)
+    rec.close('test')
+    take = Take.load(next(tmp_path.iterdir()))
+
+    sent = [{k: v for k, v in e.items() if k != 'event'} for e in take.events if e['event'] == 'sent']
+    assert sent == [
+        {'t': 0.5, 'input': 'move', 'xy': [2240, 709], 'f': [0.125, 0.5], 'by': 'MainThread'},
+        {'t': 1.013, 'input': 'key', 'code': 38, 'down': True, 'name': 'a', 'by': 'macro', 'routine': 'teleport'},
+        {'t': 1.013, 'input': 'button', 'button': 1, 'down': False, 'by': 'macro', 'routine': 'teleport'},
+        {
+            't': 1.013, 'input': 'pad', 'name': 'y', 'value': 1, 'ev': [1, 0x134], 'by': 'macro',
+            'routine': 'teleport',
+        },
+    ]  # fmt: skip
+    assert take.manifest['events']['sent'] == 4
+
+
+def test_the_services_inputs_outside_a_take_are_kept_as_long_as_its_notes(tmp_path):
+    now = [0.0]
+    script = Script(Sample(world(area=1)), Sample(world()))
+    rec = Recorder(script, output=tmp_path, clock=lambda: now[0], stats=lambda at: {})
+    rec.sent('key', (38, 1))
+    now[0] = NOTE_SECONDS + 1.0
+    rec.sent('key', (38, 0))
+    rec.step(now[0])  # in town: the old one is let go
+    rec.step(now[0] + 0.04)
+    rec.close('test')
+    take = Take.load(next(tmp_path.iterdir()))
+    assert [(e['code'], e['down']) for e in take.events if e['event'] == 'sent'] == [(38, False)]

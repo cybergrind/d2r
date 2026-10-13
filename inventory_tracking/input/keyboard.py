@@ -9,6 +9,8 @@ from functools import cached_property
 from threading import RLock
 from typing import Any, Protocol
 
+from inventory_tracking.input import sent
+
 
 # XSetErrorHandler is process-global. Serialize our Xlib connections while a
 # temporary read-only ownership error trap is active.
@@ -159,10 +161,14 @@ class X11Connection:
                 self.x11.XSetErrorHandler(previous)
 
     def press(self, key: int) -> bool:
-        return bool(self.xtst.XTestFakeKeyEvent(self.display, key, 1, 0))
+        done = bool(self.xtst.XTestFakeKeyEvent(self.display, key, 1, 0))
+        sent.tell('key', key, 1)  # the combat take's `sent` events (input/sent.py)
+        return done
 
     def release(self, key: int) -> bool:
-        return bool(self.xtst.XTestFakeKeyEvent(self.display, key, 0, 0))
+        done = bool(self.xtst.XTestFakeKeyEvent(self.display, key, 0, 0))
+        sent.tell('key', key, 0)
+        return done
 
     def sync(self) -> None:
         self.x11.XSync(self.display, 0)
@@ -219,10 +225,14 @@ class X11Connection:
         return (x.value, y.value, mask.value) if found else None
 
     def move_pointer(self, x: int, y: int) -> bool:
-        return bool(self.xtst.XTestFakeMotionEvent(self.display, -1, x, y, 0))
+        done = bool(self.xtst.XTestFakeMotionEvent(self.display, -1, x, y, 0))
+        sent.tell('move', x, y)
+        return done
 
     def button(self, button: int, down: bool) -> bool:
-        return bool(self.xtst.XTestFakeButtonEvent(self.display, button, int(down), 0))
+        done = bool(self.xtst.XTestFakeButtonEvent(self.display, button, int(down), 0))
+        sent.tell('button', button, int(down))
+        return done
 
 
 class X11Keyboard:

@@ -93,9 +93,11 @@ RESEARCH_ENV = 'D2R_MACRO_RESEARCH'  # set: log which bytes name the unit under 
 # the teleport key is to work instantly).
 TRAVEL_QUIET = 0.5
 JOURNEY_SECONDS = 1.0  # how often the game and level are noted between presses
-# What a routine does that only mouse mode can (macros/pad.py `input_policy`): the macro request opens menus
-# (Save and Exit, the lobby's game name) and its prebuff summons a Defiler, which no pad record holds.
-MOUSE_WORK = {PREBUFF: 'the macro request (the prebuff, Save and Exit, a new game)'}
+# What a routine does that only mouse mode can (macros/pad.py `input_policy`), refused as a whole in controller
+# mode. The macro request is not: its prebuff is cast by the pad when every skill of it is on a record (Summon
+# Defiler on B since 2026-10-13, controller-gaps.md option A2), and what of it needs the mouse refuses on its own:
+# a skill on no record (`PadActs.keys`, naming it), Save and Exit (`leave_game`), a new game (`run_macro`).
+MOUSE_WORK: dict[str, str] = {}
 
 
 class MacroRunner:
@@ -600,6 +602,7 @@ class MacroRunner:
                 actuator = Actuator(keys, focused, pace)
                 actuator.mark = mark
                 actuator.cancelled = cancelled
+                actuator.noted = self.noted  # the pointer check's abort as an event of the take (actuator.py)
                 if routine in STEPS or routine == ATTACK:
                     actuator.allow(*STEP_KEYS)  # the binding's own keys; the macro request waits for a release instead
 
@@ -672,7 +675,7 @@ class MacroRunner:
         if not input_policy(play.mode(), enabled=play.enabled, needs_mouse=MOUSE_WORK.get(routine)):
             actuator.keyboard_run = True  # the game leaving keyboard mode stops it (actuator.py `guard`)
             return
-        pad = PadActs(run, PadActuator(play.device, play.mode, actuator), play.controller, play.bindings)
+        pad = PadActs(run, PadActuator(play.device, play.mode, actuator), play.controller, play.bindings, play.route)
         run.pad = pad
         run.hovered = pad.target
         LOG.info('Macro: %s in controller mode, by the pad', routine)

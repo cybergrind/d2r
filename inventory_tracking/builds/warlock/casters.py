@@ -21,6 +21,7 @@ from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.buffs import keys_of
 from inventory_tracking.macros.build import Caster, Casting, Tried
 from inventory_tracking.macros.engine import Run
+from inventory_tracking.macros.pad import heading_degrees, turned
 from inventory_tracking.macros.routines import (
     ACTING,
     LOAD_LIMIT,
@@ -35,7 +36,7 @@ from inventory_tracking.macros.routines import (
 from inventory_tracking.macros.teleport import HOVER_SECONDS, ground_fraction
 from inventory_tracking.macros.travel import MONSTER_UNIT_TYPE
 from inventory_tracking.macros.view import BODY_LIFT, FEET
-from inventory_tracking.macros.world import DEFILER_CLASS as DEFILER, NO_OWNER, Monster, World
+from inventory_tracking.macros.world import DEFILER_CLASS as DEFILER, NO_OWNER, Monster, Player, World
 from inventory_tracking.native.layout import HIRELING_CLASS_ID
 
 
@@ -148,6 +149,10 @@ def summon_defiler(run: Run, *, until: float | None = None, skip: int = 0) -> Mo
     if world is None:
         raise Abort('Defiler: not seen at any spot')
     defiler = next(m for m in defilers(world) if m.unit_id not in before)
+    if run.pad is not None and start.player is not None:
+        window = run.actuator.keys.focused_window_rect()
+        if window is not None:
+            log_landing(start.player, world_point(start.player, *spot, window[2] / window[3]), defiler)
     # Research: which field ties a summon to its player (the mercenary's owner field does not).
     LOG.info(
         'Macro: Defiler is unit %s (player unit %s); unit and data: %s',
@@ -169,6 +174,40 @@ def summon_defiler(run: Run, *, until: float | None = None, skip: int = 0) -> Mo
         )
     run.pause('key')
     return defiler
+
+
+def log_landing(player: Player, toward: tuple[float, float], defiler: Monster) -> None:
+    """Controller mode: where Summon Defiler (controllerskillsettings.json usageType 0, distance 2) put the Defiler
+    against the heading the stick gave it (rca/2026-10-13/controller-gaps.md step 1)."""
+    heading = (toward[0] - player.x, toward[1] - player.y)
+    went = (defiler.x - player.x, defiler.y - player.y)
+    LOG.info(
+        'Pad consume: Summon Defiler toward %.0f degrees: the Defiler (unit %d) landed at (%+.1f, %+.1f) from the '
+        'character, %.1f away at %.0f degrees (off %+.0f degrees)',
+        heading_degrees(heading), defiler.unit_id, *went, math.hypot(*went), heading_degrees(went),
+        turned(heading_degrees(went), heading_degrees(heading)),
+    )  # fmt: skip
+
+
+def mine(world: World) -> dict[int, int]:
+    """unit id -> class of the units Consume's target group may take (controllerskillsettings.json targetGroup 6):
+    the Defilers, the bound demon and the other summons, the mercenary."""
+    return {
+        m.unit_id: m.txt_id
+        for m in world.monsters
+        if m.txt_id in (DEFILER, HIRELING_CLASS_ID) or m.ally or m.owner != NO_OWNER
+    }
+
+
+def log_pad_consume(run: Run, unit: int, before: dict[int, int], began: float, shown: World | None) -> None:
+    """Controller mode: which of the character's units Consume took and whether its state appeared."""
+    after = mine(run.world())
+    gone = [f'unit {u} (class {c}{", the Defiler" if u == unit else ""})' for u, c in before.items() if u not in after]
+    LOG.info(
+        "Pad consume: Consume pressed with the client's target on the Defiler (unit %d); consumed %s; the state %s",
+        unit, ', '.join(gone) or 'nothing',
+        f'shown after {run.clock() - began:.2f}s' if shown is not None else 'not shown in 2.5s',
+    )  # fmt: skip
 
 
 def aim_at(run: Run, unit: int) -> bool:
@@ -258,12 +297,18 @@ def consume(run: Run, defiler: Monster) -> None:
             )
         if not clear(run.world()):  # somebody walked up during the pointer move
             continue
+        before, began = (mine(run.world()) if run.pad is not None else {}), run.clock()
         press_skill(run, CONSUME)
+        if run.pad is not None and not run.pad.pressed:
+            continue  # the client's target left the Defiler before the press: nothing cast (`Pad target:`)
 
         def consumed(w: World, unit: int = defiler.unit_id) -> bool:
             return bool(w.player and w.player.consume) and all(m.unit_id != unit for m in defilers(w))
 
-        if run.seen(consumed, 2.5) is not None:
+        done = run.seen(consumed, 2.5)
+        if run.pad is not None:
+            log_pad_consume(run, defiler.unit_id, before, began, done)
+        if done is not None:
             run.pause('key')
             return
         world = run.world()
@@ -378,7 +423,14 @@ def engorge(cast: Casting) -> Tried:
             if not run.pad.aim_unit(MONSTER_UNIT_TYPE, unit, here, (x, y), f'the corpse {unit}'):
                 continue
             cast.buffs.key(run, ENGORGE)
-            return Tried(run.clock(), cast=True)
+            # Whether Engorge's target (controllerskillsettings.json targetGroup 0, the monsters) can name a corpse
+            # at all: the aim's own `Pad target:` lines, and this one for a press (controller-gaps.md step 3).
+            LOG.info(
+                'Pad target: Engorge on the corpse %d at (%.1f, %.1f), %.1f away, by %s: %s',
+                unit, x, y, math.dist(here, (x, y)), run.keys.get(ENGORGE),
+                "pressed with the client's target on it" if run.pad.pressed else 'not pressed (the target moved off)',
+            )  # fmt: skip
+            return Tried(run.clock(), cast=run.pad.pressed)
         run.actuator.aim(*ground_fraction(player, x, y, aspect), scatter=(3, 3))
         over = None
         if run.hovered is not None:

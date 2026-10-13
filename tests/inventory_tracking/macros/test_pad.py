@@ -249,7 +249,7 @@ def runner_run(mode: InputMode | None, enabled: bool = True):
     return runner, game.run()
 
 
-def test_the_runner_plays_a_step_by_the_pad_in_controller_mode_and_refuses_the_macro_request():
+def test_the_runner_plays_a_step_and_the_macro_request_by_the_pad_in_controller_mode():
     runner, run = runner_run(CONTROLLER)
     runner.play_by(run, run.actuator, PICKUP)
     assert run.pad is not None
@@ -257,9 +257,9 @@ def test_the_runner_plays_a_step_by_the_pad_in_controller_mode_and_refuses_the_m
     assert run.actuator.mode is not None
     assert not run.actuator.keyboard_run
     runner, run = runner_run(CONTROLLER)
-    with pytest.raises(Abort, match='needs mouse mode'):
-        runner.play_by(run, run.actuator, PREBUFF)
-    assert run.pad is None
+    runner.play_by(run, run.actuator, PREBUFF)  # the prebuff by the pad: what of it needs the mouse refuses itself
+    assert run.pad is not None
+    assert run.pad.route is runner.pad_play.route  # the session's key route, not the run's
 
 
 def test_the_runner_plays_by_the_keys_in_keyboard_mode_and_without_a_pad_play():

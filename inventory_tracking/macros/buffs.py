@@ -189,8 +189,25 @@ class Buffs:
         if cast.row.state is not None and self.unseen.get(skill, 0) == STATE_TRIES:
             LOG.warning('Macro: %s cast %d times and the state does not show it', skill_name(skill), STATE_TRIES)
         run.keys.update(cast.key_names(cast.world, (skill,)))
+        if self.by_key(run, skill):
+            return Tried(run.clock(), cast=True)
         self.key(run, skill)
         return Tried(run.clock(), cast=True)
+
+    def state_of(self, skill: int) -> Callable[[World], bool | None] | None:
+        """How the character shows `skill`'s state, from the first row of the plan that reads it; None: no row does."""
+        return next((row.state for row in self.plan if row.skill == skill and row.state is not None), None)
+
+    def by_key(self, run: Run, skill: int) -> bool:
+        """In controller mode, the cast of a buff on the character made as the key route's probe when one is due
+        (macros/pad.py `PadActs.probe_key`: once a game, quiet, the state off now); whether it was made so."""
+        state = self.state_of(skill)
+        if run.pad is None or state is None or not run.pad.route.due(run.world().game_name):
+            return False
+        if self.let_go is not None:
+            self.let_go()
+        run.expect('character ready', lambda w: w.player is not None and w.player.mode not in ACTING, 2.5)
+        return run.pad.probe_key(skill, lambda: state(run.world()))
 
     def on_monster(self, cast: Casting) -> Tried:
         """A cast on a monster: the pointer on its body, then the key (Quick Cast)."""
@@ -273,6 +290,7 @@ class Buffs:
             if row.caster is not None:
                 self.casters[row.caster](Casting(run, row, self, fresh=fresh))
             elif row.on == 'self':
-                cast_free(run, row.skill)
+                if not self.by_key(run, row.skill):
+                    cast_free(run, row.skill)
             else:
                 raise ValueError(f'no prebuff cast on a {row.on}: the row of {skill_name(row.skill)} needs a caster')

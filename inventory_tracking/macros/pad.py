@@ -16,6 +16,13 @@ key, and nowhere else:
 - what the run may cast: `slots` (the skills on the pad's records stand for the skills on keys), `keys` (the
   record's label per skill, as skills.py `skill_keys` gives the key).
 
+Records 12-15 have no pad button: with Quick Cast on, the key of keyboard skill slot n casts controller record n
+in controller mode (rca/2026-10-13/controller-gaps.md section 2, read in the client, not yet seen in a game). A
+session uses them only after a probe showed it (`KeyRoute`, `PadActs.probe_key`): once a game, at a quiet moment,
+a buff whose state the character shows is cast by its record's keyboard key instead of its button, and the state
+appearing opens the route. In controller mode every skill key casts a controller record, not the keyboard
+slot's skill: the only skill keys the pad back end presses are this route's.
+
 No act makes a mouse button or a movement key (either flips the client back to mouse mode), and the pad is
 only pressed while the mode byte reads controller with no flip pending (`PadActuator.guard`). Belt keys and the
 weapon swap key are keyboard keys, which flip nothing (gamepad-proton.md §5); whether they act in controller mode
@@ -30,21 +37,31 @@ What a log of the next game in controller mode answers (one line each, stable pr
 - `Pad jump:` where a jump (Teleport, a build's own) landed against the heading and its fixed reach (`reach`);
 - `Pad drink:` whether the belt cell emptied after a belt key pressed in controller mode;
 - `Pad swap:` whether the weapons changed after the swap key pressed in controller mode;
+- `Pad key:` whether a keyboard skill key cast its controller record (the probe), and so whether records 12-15
+  are used in this session;
 - `Pad act:` each press: the skill, its record and what it was aimed at.
 """
 
 import math
 from collections.abc import Callable, Iterator, Sequence
 from contextlib import contextmanager
-from dataclasses import dataclass, replace
+from dataclasses import dataclass, field, replace
 from typing import TYPE_CHECKING
 
-from inventory_tracking.combat.stance import RUN_SPEED, WALK_LATENCY
+from inventory_tracking.combat.stance import AWARE, RUN_SPEED, WALK_LATENCY
 from inventory_tracking.common import LOG
-from inventory_tracking.input.gamepad import Pad, record_buttons, record_label
-from inventory_tracking.input.keybindings import MODIFIERS, action_keys, x11_name
+from inventory_tracking.input.gamepad import KEY_RECORDS, MODIFIER, Pad, record_buttons, record_label
+from inventory_tracking.input.keybindings import MODIFIERS, action_keys, button_number, x11_name
 from inventory_tracking.macros.actuator import Abort, Actuator, Cancelled
-from inventory_tracking.macros.skills import ACTIONS, ATTACK, SWAP_WEAPONS, TELEPORT, register_names, skill_name
+from inventory_tracking.macros.skills import (
+    ACTIONS,
+    ATTACK,
+    SWAP_WEAPONS,
+    TELEPORT,
+    register_names,
+    skill_name,
+    slot_action,
+)
 from inventory_tracking.models import InputMode
 
 
@@ -93,6 +110,11 @@ INTERACT_REACH = 5.2  # units the controller's Interact group reaches objects wi
 INTERACT_STAND = 2.5
 INTERACT_SECONDS = 1.5
 DRINK_WATCH = 1.0  # seconds a belt cell is watched for emptying after its key
+KEY_WATCH = 1.5  # seconds the probe's state is watched for after its key
+PROBE_CLEAR = AWARE  # no hostile within this many units: the probe's quiet moment
+# Keys a keyboard slot may hold that the route never presses: keypad 5 is the service's own pad hotkey (it taps X).
+UNPRESSABLE = frozenset(('KP_5', 'KP_Begin'))
+NO_OWNER = 0xFFFFFFFF  # macros/world.py: a monster nobody owns
 
 
 def heading_degrees(vector: Point) -> float:
@@ -114,24 +136,66 @@ def stick_for(heading: Point, magnitude: float = 1.0) -> Point:
     return (magnitude * across / length, magnitude * down / length)
 
 
-def records(bindings: Sequence[int] | None) -> dict[int, int]:
+def records(bindings: Sequence[int] | None, *, by_key: bool = False) -> dict[int, int]:
     """skill -> the first of records 0-11 that holds it, from the bindings the game loaded (tracking/input_mode.py
-    `read_bindings`); empty while they are not read."""
+    `read_bindings`); empty while they are not read. `by_key`: records 12-15 too (the key route is open)."""
     found: dict[int, int] = {}
-    for record, skill in enumerate(list(bindings or ())[:RECORDS]):
+    for record, skill in enumerate(list(bindings or ())[: KEY_RECORDS.stop if by_key else RECORDS]):
         if skill != -1:
             found.setdefault(skill, record)
     return found
 
 
-def pad_slots(bindings: Sequence[int] | None, keyed: Sequence[int | None]) -> tuple[int | None, ...]:
+def pad_slots(
+    bindings: Sequence[int] | None, keyed: Sequence[int | None], *, by_key: bool = False
+) -> tuple[int | None, ...]:
     """What a run in controller mode can cast, in place of the skills on keys (`World.slots`): the skills of
-    records 0-11. Teleport counts only when it is on a key as well: it comes from an item (a staff's charges,
-    Enigma), and a record that names it casts nothing without one."""
+    records 0-11 (and 12-15 `by_key`). Teleport counts only when it is on a key as well: it comes from an item
+    (a staff's charges, Enigma), and a record that names it casts nothing without one."""
     return tuple(
         skill
-        for skill in records(bindings)
+        for skill in records(bindings, by_key=by_key)
         if skill != TELEPORT or TELEPORT in keyed  # a record's skill the character may not have: Teleport only
+    )
+
+
+@dataclass
+class KeyRoute:
+    """Whether the keyboard's skill keys reach the controller records in this session (records 12-15 have no
+    pad button): unknown until a game's probe (`PadActs.probe_key`), open after one whose cast showed, closed
+    again by one that did not. The service keeps one for the session (`PadPlay.route`); `enabled` off (config
+    `controller_key_route`): no probe and no key route."""
+
+    enabled: bool = True
+    ok: bool | None = None  # the last probe's outcome; None: none made in this session
+    probed: set[str] = field(default_factory=set)  # the games a probe was made in (once a game)
+    unkeyed: set[int] = field(default_factory=set)  # records whose keyboard slot has no key to press, said once
+
+    @property
+    def open(self) -> bool:
+        return self.enabled and self.ok is True
+
+    def due(self, game: str) -> bool:
+        """Whether a probe may still be made in this game."""
+        return self.enabled and game not in self.probed
+
+
+def hostile_near(world: World, reach: float) -> bool:
+    """Whether a monster nobody owns stands within `reach` of the character (townsfolk aside): the probe waits for
+    a moment with none, so that no fight is in its way and its cast is all that changes."""
+    from inventory_tracking.macros.routines import TOWN_NPCS  # late: routines.py is above this module
+
+    player = world.player
+    if player is None:
+        return True
+    here = (player.x, player.y)
+    return any(
+        m.owner == NO_OWNER
+        and not m.ally
+        and m.txt_id not in TOWN_NPCS
+        and m.unit_id not in world.dead
+        and math.dist(here, (m.x, m.y)) <= reach
+        for m in world.monsters
     )
 
 
@@ -167,6 +231,7 @@ class PadPlay:
     controller: Callable[[], ControllerState | None]
     bindings: Callable[[], Sequence[int] | None]
     enabled: bool = True  # config `controller_play`: off, a run in controller mode is refused (`input_policy`)
+    route: KeyRoute = field(default_factory=KeyRoute)  # records 12-15 by keyboard key: the session's probe
 
 
 class PadActuator:
@@ -228,6 +293,15 @@ class PadActuator:
         finally:
             self.release(*names)
 
+    def key(self, name: str) -> None:
+        """A keyboard skill key, in controller mode: it casts the controller record of its slot (`KeyRoute`). LT
+        is let go first: held, the client would take the record six further on."""
+        self.guard()
+        if self.made is not None and MODIFIER in self.made.down:
+            self.made.release(MODIFIER)
+        self.keys.tap(name)
+        self.keys.mark('first_key')
+
     def stick(self, x: float, y: float) -> None:
         if (x, y) != (0.0, 0.0):
             self.guard()
@@ -277,12 +351,16 @@ class PadActs:
         actuator: PadActuator,
         controller: Callable[[], ControllerState | None],
         bindings: Callable[[], Sequence[int] | None],
+        route: KeyRoute | None = None,
     ) -> None:
         self.run = run
         self.actuator = actuator
         self.controller = controller
         self.bindings = bindings
+        self.route = route if route is not None else KeyRoute()
+        self.key_file: Callable[[], bytes] | None = None  # the character's key file (`keys`): the slots' keys
         self.aimed: Aimed | None = None
+        self.pressed = False  # whether the last `cast` pressed its record (a unit's no longer named: not)
         self.jumped: Jumped | None = None
         self.nudged_at = -math.inf
         self.steered: dict[int, float | None] = {}  # unit id -> when the strike's target first named it (None: not yet)
@@ -304,19 +382,54 @@ class PadActs:
 
     def record(self, skill: int) -> int:
         loaded = self.bindings()
-        found = records(loaded).get(skill)
+        found = records(loaded, by_key=self.route.open).get(skill)
         if found is None:
             if not loaded:
                 raise Abort('the controller bindings the game loaded are not read yet: press again in a moment')
-            raise Abort(f'{skill_name(skill)} is on no pad record (controller bindings: config gamepad_bindings)')
+            if skill in records(loaded, by_key=True):
+                raise Abort(
+                    f'{skill_name(skill)} is on record {records(loaded, by_key=True)[skill]}, reached by a key only, '
+                    'and no `Pad key:` probe has shown that the keys reach the records in this session'
+                )
+            raise Abort(
+                f'{skill_name(skill)} is on no pad record (controller bindings: config gamepad_bindings); '
+                'mouse mode casts it: click once to switch'
+            )
         return found
 
     def slots(self, keyed: Sequence[int | None]) -> tuple[int | None, ...]:
-        return pad_slots(self.bindings(), keyed)
+        return pad_slots(self.bindings(), keyed, by_key=self.route.open)
+
+    def slot_key(self, record: int) -> str | None:
+        """The key of keyboard skill slot `record` in the character's key file, which in controller mode casts
+        controller record `record` (Quick Cast on): None when the slot has none the macro can press (a mouse
+        button flips the game back to mouse mode; keypad 5 is the service's pad hotkey; a modifier)."""
+        if self.key_file is None:
+            return None
+        try:
+            codes = action_keys(self.key_file(), slot_action(record))
+        except OSError, ValueError:
+            return None
+        for code in codes:
+            name = x11_name(code)
+            if name and name not in MODIFIERS and name not in UNPRESSABLE and button_number(name) is None:
+                return name
+        return None
+
+    def record_key(self, record: int) -> str:
+        key = self.slot_key(record)
+        if key is None:
+            raise Abort(f'keyboard skill slot {record} has no key the macro can press: record {record} is out of reach')
+        return key
+
+    def label(self, record: int) -> str:
+        """'Y', 'LT+B'; a record reached by a key: 'key 7 (record 13)'."""
+        return f'key {self.record_key(record)} (record {record})' if record in KEY_RECORDS else record_label(record)
 
     def keys(self, skills: Sequence[int], key_file: Callable[[], bytes]) -> dict[int, str]:
-        """The label of each skill's record ('Y', 'LT+RB'), as skills.py `skill_keys` gives keys; Swap Weapons is
-        its keyboard key (no record holds it). Abort names the first skill on no record."""
+        """The label of each skill's record ('Y', 'LT+RB', 'key 7 (record 13)'), as skills.py `skill_keys` gives
+        keys; Swap Weapons is its keyboard key (no record holds it). Abort names the first skill on no record."""
+        self.key_file = key_file
         found = {}
         for skill in skills:
             if skill in ACTIONS:
@@ -326,7 +439,7 @@ class PadActs:
                     raise Abort(f'{skill_name(skill)} has no key the macro can press')
                 found[skill] = key
             else:
-                found[skill] = record_label(self.record(skill))
+                found[skill] = self.label(self.record(skill))
         return found
 
     def ring(self, skill: int) -> tuple[float, float] | None:
@@ -424,27 +537,50 @@ class PadActs:
         """The next cast goes toward `there`: a ground cast lands at its skill's own distance that way."""
         self.aimed = Aimed(here, there)
 
-    def cast(self, skill: int) -> None:
+    def press_record(self, record: int) -> None:
+        """Record `record` pressed once: its button (with LT for 6-11), or its keyboard key for 12-15."""
+        if record in KEY_RECORDS:
+            self.actuator.key(self.record_key(record))
+        else:
+            self.actuator.tap(record)
+
+    def cast(self, skill: int) -> bool:
         """The skill's record pressed once, toward what `aim_unit` or `aim_place` set (nothing set: a cast on the
-        character itself, the stick centred). Swap Weapons is its keyboard key."""
+        character itself, the stick centred); whether it was pressed. A cast on a unit is pressed only while the
+        controller's target still names it: the client casts at what it holds (Consume's target group holds the
+        bound demon and the mercenary as well as a Defiler). Swap Weapons is its keyboard key."""
         aimed, self.aimed = self.aimed, None
+        self.pressed = False
         if skill == SWAP_WEAPONS:
             key = self.run.keys[skill]
             self.run.actuator.tap(key)  # a keyboard key: flips nothing (gamepad-proton.md §5)
             LOG.info('Pad swap: key %s pressed in controller mode', key)
-            return
+            self.pressed = True
+            return True
         record = self.record(skill)
+        if aimed is not None and aimed.unit is not None:
+            held = self.target()
+            if held != aimed.unit:
+                LOG.info(
+                    'Pad target: %s for %s, named at the aim; the client holds %s at the press: not cast',
+                    skill_name(skill), aimed.unit, held,
+                )  # fmt: skip
+                return False
+        self.pressed = True
         if aimed is not None and aimed.unit is None:
             heading = aimed.heading
-            names = record_buttons(record)
             try:
                 # The direction first, then the button: a free target lands along the stick (inferred).
                 self.actuator.stick(*stick_for(heading, AIM_STICK))
-                self.actuator.press(*names)
-                try:
-                    self.run.pace.hold()
-                finally:
-                    self.actuator.release(*names)
+                if record in KEY_RECORDS:
+                    self.actuator.key(self.record_key(record))
+                else:
+                    names = record_buttons(record)
+                    self.actuator.press(*names)
+                    try:
+                        self.run.pace.hold()
+                    finally:
+                        self.actuator.release(*names)
             finally:
                 self.actuator.stick(0.0, 0.0)
             reach = self.reach.get(skill)
@@ -452,20 +588,82 @@ class PadActs:
                 self.jumped = Jumped(skill, aimed.here, heading, reach, math.hypot(*heading), self.run.clock())
             LOG.info(
                 'Pad act: %s on %s toward %.0f degrees (%.1f away)',
-                skill_name(skill), record_label(record), heading_degrees(heading), math.hypot(*heading),
+                skill_name(skill), self.label(record), heading_degrees(heading), math.hypot(*heading),
             )  # fmt: skip
-            return
-        self.actuator.tap(record)
+            return True
+        self.press_record(record)
         LOG.info(
             'Pad act: %s on %s%s',
-            skill_name(skill), record_label(record), '' if aimed is None else f' at the target {aimed.unit}',
+            skill_name(skill), self.label(record), '' if aimed is None else f' at the target {aimed.unit}',
         )  # fmt: skip
+        return True
+
+    def probe_key(self, skill: int, shown: Callable[[], bool | None]) -> bool:
+        """The key route's probe (`KeyRoute`; controller-gaps.md step 2): once a game, at a moment with no hostile
+        within PROBE_CLEAR, `skill` (a cast on the character whose state `shown` reads, now off) is cast by the key
+        of its record's keyboard slot instead of its button, the character free; its state appearing within
+        KEY_WATCH opens the route for the session, its not appearing closes it, and the record's button is pressed
+        then so the cast is made all the same. Whether this made the cast (else the caller makes it as always).
+        Logged `Pad key:` with what the client's pressed record read meanwhile."""
+        route = self.route
+        world = self.run.world()
+        if world.player is None or not route.due(world.game_name):
+            return False
+        record = records(self.bindings()).get(skill)
+        if record is None:
+            return False
+        key = self.slot_key(record)
+        if key is None:
+            if record not in route.unkeyed:
+                route.unkeyed.add(record)
+                LOG.info(
+                    'Pad key: %s is on %s, and keyboard slot %d has no key the macro can press: not the probe',
+                    skill_name(skill), record_label(record), record,
+                )  # fmt: skip
+            return False
+        if shown() is not False or hostile_near(world, PROBE_CLEAR):
+            return False  # on already (its appearing would say nothing), or not a quiet moment
+        route.probed.add(world.game_name)
+        began = self.run.clock()
+        self.actuator.key(key)
+        pressed: list[tuple[int, int]] = []  # (record, skill) the client's controller state named after the key
+        appeared: float | None = None
+        while appeared is None and self.run.clock() - began < KEY_WATCH:
+            state = self.controller()
+            if state is not None and state.record != -1 and (state.record, state.skill) not in pressed:
+                pressed.append((state.record, state.skill))
+            if shown():
+                appeared = self.run.clock() - began
+                break
+            self.run.pace.sleep(TARGET_POLL)
+        client = ', '.join(f'record {r} skill {skill_name(s)}' for r, s in pressed) or 'no record'
+        was = route.ok
+        route.ok = appeared is not None
+        if appeared is not None:
+            LOG.info(
+                'Pad key: %s (keyboard slot %d) in controller mode -> record %d %s: shown after %.2fs (the client '
+                'pressed %s); records 12-15 are cast by their keys in this session',
+                key, record, record, skill_name(skill), appeared, client,
+            )  # fmt: skip
+            return True
+        LOG.info(
+            'Pad key: %s (keyboard slot %d) in controller mode -> record %d %s: not shown in %.1fs (the client '
+            'pressed %s); pressing %s; records 12-15 %s',
+            key, record, record, skill_name(skill), KEY_WATCH, client, record_label(record),
+            'are no longer used in this session' if was else 'stay unused',
+        )  # fmt: skip
+        self.cast(skill)
+        return True
 
     @contextmanager
     def hold(self, skill: int) -> Iterator[Callable[[], None]]:
         """The skill's record held through the block: the client casts it again and again at its own target.
-        Yields `again` (let go and pressed anew) with `again.release`, as `Actuator.hold` does."""
-        names = record_buttons(self.record(skill))
+        Yields `again` (let go and pressed anew) with `again.release`, as `Actuator.hold` does. A record reached
+        by a key only (12-15) is not held."""
+        record = self.record(skill)
+        if record in KEY_RECORDS:
+            raise Abort(f'{skill_name(skill)} is on record {record}, reached by a key only: the pad holds no key')
+        names = record_buttons(record)
         down = False
 
         def release() -> None:

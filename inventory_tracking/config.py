@@ -444,12 +444,19 @@ class AppraisalConfig(Config):
     # left alone unless named in `gamepad_overwrite`; a skill already on another record is not written
     # twice; the file as it was is copied to runs/gamepad first. Written only at the service's start with no
     # D2R.exe running (the client reads the file at its launch and writes it back on leaving a game: the
-    # two tries of 16:26 and 16:31 wrote while it ran). Kept as they are: 0 Attack (A), 2 Miasma Bolt (B,
-    # the class default), 7 Town Portal (LT+X). Not bound, 12 records being full: Summon Defiler (377;
-    # Consume's dance needs it: put it in place of Miasma Bolt by `gamepad_overwrite = (2,)` and 2: 377),
-    # Engorge, Bind Demon, Swap Weapons.
+    # two tries of 16:26 and 16:31 wrote while it ran). Kept as they are: 0 Attack (A), 7 Town Portal (LT+X).
+    # Record 2 (B): Summon Defiler in place of the class default Miasma Bolt (rca/2026-10-13/controller-gaps.md
+    # option A; the player 2026-10-13: "we don't use miasma bolt at all"): with it on a record the Consume upkeep,
+    # its re-summon and the prebuff are cast in controller mode too. Records 12-15 have no pad button: the key
+    # of keyboard skill slot n casts record n in controller mode (Quick Cast on), used by the macros only after
+    # a game's `Pad key:` probe showed it (macros/pad.py `KeyRoute`). CybergrindAA's slot 12 is `6`, slot 13 `7`
+    # (key file, 2026-10-13). Bind Demon goes on 12 and Engorge on 13, the other way round from the design: `7`
+    # is Echoing Strike's key in keyboard mode, and a strike held on it while the player's pad flips the game
+    # to controller mode would cast record 13 until the run stops; Engorge there is harmless, Bind Demon would
+    # replace the bound demon. Not bound: Miasma Bolt, Swap Weapons (the keyboard key acts: `Pad swap:`).
     gamepad_bindings: dict[int, int] = {
         1: 370,  # X: Loot to Cube
+        2: 377,  # B: Summon Defiler (overwrites Miasma Bolt: `gamepad_overwrite`)
         3: 388,  # Y: Echoing Strike
         4: 390,  # RB: Blade Warp
         5: 54,  # RT: Teleport (the staff's charges; whether a charged skill holds on a record: plan step 8)
@@ -458,14 +465,22 @@ class AppraisalConfig(Config):
         9: 375,  # LT+Y: Death Mark
         10: 393,  # LT+RB: Sigil: Lethargy
         11: 381,  # LT+RT: Consume
+        12: 382,  # key `6` (keyboard slot 12): Bind Demon, the player's own (the macros never cast it)
+        13: 379,  # key `7` (keyboard slot 13): Engorge
     }
-    gamepad_overwrite: tuple[int, ...] = ()  # records whose skill the table may replace (the file copied first)
+    gamepad_overwrite: tuple[int, ...] = (2,)  # records whose skill the table may replace (the file copied first)
     gamepad_bind: bool = True  # False: the bindings files are never written
     # The macros play in either input mode (macros/pad.py; rca/2026-10-13/controller-mode.md step 9, the player
     # 2026-10-13: "thus, we could do full automated runs in controller's mode"): with the game in controller mode
     # a run casts, walks and picks up by the virtual pad and its records (`gamepad_bindings`); in keyboard mode
     # nothing changes. False: a run in controller mode is refused with "click once" (no pad input at all).
     controller_play: bool = True
+    # Records 12-15 by keyboard key in controller mode (macros/pad.py `KeyRoute`; controller-gaps.md step 2): once
+    # a game in controller mode, at a moment with no hostile within 20 units, a Hex: Purge cast is made by
+    # the key of its record's keyboard slot instead of its pad button, and `Pad key:` says whether its state
+    # appeared. Only after one that did are records 12-15 cast (by their keys) in this session. False: no probe,
+    # no key route.
+    controller_key_route: bool = True
     # Reads a second of the game's input mode (tracking/input_mode.py InputModeWatch): flips are timed to
     # this resolution, the controller's target is followed at it.
     input_mode_rate: Positive = 100.0

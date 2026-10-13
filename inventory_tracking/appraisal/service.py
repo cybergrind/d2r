@@ -91,7 +91,7 @@ from inventory_tracking.hud.scene import DEFAULT_SCENE, publish_layer
 from inventory_tracking.hud.traderie import traderie_watch
 from inventory_tracking.identify.service import IdentifyWorker
 from inventory_tracking.input.compositor import hotkeys
-from inventory_tracking.input.gamepad import PadKeys, bind_table, legend
+from inventory_tracking.input.gamepad import PadKeys, bind_table, legend, read_settings
 from inventory_tracking.levels.dump import (
     DEFAULT_OUTPUT as LEVEL_OUTPUT,
     REQUEST_PREFIX as LEVEL_PREFIX,
@@ -105,7 +105,7 @@ from inventory_tracking.loot.materials import material_classes
 from inventory_tracking.loot.watch import RuneWatcher
 from inventory_tracking.macros.hunt import Hunter
 from inventory_tracking.macros.latency import FILE as LATENCY_FILE, Trace
-from inventory_tracking.macros.pad import PadPlay
+from inventory_tracking.macros.pad import KeyRoute, PadPlay
 from inventory_tracking.macros.pickup import wanted
 from inventory_tracking.macros.route import PERFORMED
 from inventory_tracking.macros.runner import (
@@ -460,7 +460,23 @@ def bind_controller(args) -> None:
             LOG.info('Controller bindings: %s', line)
 
 
+def controller_settings() -> None:
+    """The two options that decide what reaches a controller record (input/gamepad.py `read_settings`;
+    rca/2026-10-13/controller-gaps.md section 2): Quick Cast (a keyboard skill key casts its controller record in
+    controller mode) and the separate bindings of the second weapon set. Read only, at the service's start."""
+    try:
+        found = read_settings(SHOW_ITEMS.saved_games)
+    except (OSError, ValueError) as exc:
+        LOG.info('Controller settings: Settings.json not read: %s', exc)
+        return
+    LOG.info(
+        'Controller settings: %s (Settings.json; the game read it at its launch, the options menu may change it)',
+        ', '.join(f'{name} {value if value is not None else "missing"}' for name, value in found.items()),
+    )
+
+
 def run_service(args, directory, report):
+    controller_settings()
     bind_controller(args)
     endpoint = args.socket
     lock_path = endpoint.with_suffix('.lock')
@@ -742,6 +758,7 @@ def run_service(args, directory, report):
                         )
                         macro.noted = combat.recorder.note
                         macro.trace.noted = combat.recorder.note
+                        combat.recorder.routine = lambda: macro.routine  # a `sent` input's routine (record.py)
                     runes = None
                     if args.rune_marks and args.osd:
                         runes = RuneWatcher(
@@ -798,7 +815,7 @@ def run_service(args, directory, report):
                         rate=APPRAISAL.input_mode_rate,
                         pressed=lambda: pad.pressed_at if pad is not None else None,
                         noted=combat.recorder.note if combat is not None else (lambda kind, **fields: None),
-                        names=lambda skills: legend(skills, SKILL_NAMES),
+                        names=lambda skills: legend(skills, SKILL_NAMES, upto=28),  # 0-11, 12-15 by key, 16-27
                     )
                     if combat is not None:
                         combat.input_mode = lambda: input_watch.current.name if input_watch.current else None
@@ -807,9 +824,15 @@ def run_service(args, directory, report):
                         skills = input_watch.bindings
                         if not skills:
                             return ()
+                        # Records 12-15 (keyboard keys) once this session's `Pad key:` probe opened their route.
+                        keyed = macro.pad_play is not None and macro.pad_play.route.open
                         return tuple(
                             line
-                            for line in (legend(skills[:6], SKILL_NAMES), legend((-1,) * 6 + skills[6:12], SKILL_NAMES))
+                            for line in (
+                                legend(skills[:6], SKILL_NAMES),
+                                legend((-1,) * 6 + skills[6:12], SKILL_NAMES),
+                                legend((-1,) * 12 + skills[12:16], SKILL_NAMES, upto=16) if keyed else '',
+                            )
                             if line
                         )
 
@@ -856,6 +879,7 @@ def run_service(args, directory, report):
                         controller=lambda: input_watch.controller,
                         bindings=lambda: input_watch.bindings,
                         enabled=APPRAISAL.controller_play,
+                        route=KeyRoute(enabled=APPRAISAL.controller_key_route),
                     )
                     keys.start()
                     try:

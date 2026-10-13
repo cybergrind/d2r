@@ -144,6 +144,51 @@ def test_records_name_their_buttons_and_the_legend_lists_the_bound_ones() -> Non
     )
 
 
+def test_records_12_to_15_are_reached_by_keys_and_the_legend_reaches_the_other_weapon_set() -> None:
+    # rca/2026-10-13/controller-gaps.md section 2: records 12-15 have no pad button; 16-27 the second weapon set.
+    assert [gamepad.record_label(at) for at in (12, 15, 16, 27, 28)] == [
+        'record 12 (by key)', 'record 15 (by key)', 'A (other weapons)', 'LT+RT (other weapons)', 'record 28'
+    ]  # fmt: skip
+    skills = (0,) + (-1,) * 11 + (382, 379) + (-1,) * 2 + (54,) + (-1,) * 15
+    assert gamepad.legend(skills, {379: 'Engorge', 382: 'Bind Demon'}) == 'A Attack'  # records 0-11 by default
+    assert gamepad.legend(skills, {379: 'Engorge', 382: 'Bind Demon'}, upto=28) == (
+        'A Attack, record 12 (by key) Bind Demon, record 13 (by key) Engorge, A (other weapons) Teleport'
+    )
+
+
+def test_the_summon_defiler_record_replaces_miasma_bolt_and_the_key_records_go_on_empty_ones(tmp_path) -> None:
+    # The table of 2026-10-13 late (config gamepad_bindings with gamepad_overwrite (2,)) on the file as it was.
+    saved, keep = tmp_path / 'saved', tmp_path / 'keep'
+    saved.mkdir()
+    was = {0: 0, 1: 370, 2: 395, 3: 388, 4: 390, 5: 54, 6: 387, 7: 359, 8: 389, 9: 375, 10: 393, 11: 381}
+    path = ctlo(saved, 'CybergrindAA194867311.ctlo', was)
+    table = {**{at: skill for at, skill in was.items() if at not in (0, 2, 7)}, 2: 377, 12: 382, 13: 379}
+    said = gamepad.bind_table(saved, 'CybergrindAA', table, keep, overwrite=(2,), stamp=lambda: 'T')
+    after = path.read_bytes()
+    assert [record(after, at)[0] for at in range(16)] == [*(was[at] for at in range(2)), 377, *(
+        was[at] for at in range(3, 12)), 382, 379, -1, -1]  # fmt: skip
+    assert record(after, 13)[2] & 0xFF == 1  # Engorge: the left hand (skills.txt leftskill)
+    assert record(after, 12)[2] & 0xFF == 0
+    assert 'CybergrindAA194867311.ctlo: record 2 (B) Miasma Bolt -> skill 377' in said
+    assert 'CybergrindAA194867311.ctlo: record 13 (record 13 (by key)) empty -> skill 379' in said
+
+
+def test_the_controller_settings_are_read_from_settings_json(tmp_path) -> None:
+    (tmp_path / 'Settings.json').write_text(
+        '{"Quick Cast Enabled": 1, "Controller Weapon Swap Separate Bindings": 0, "Other": 3}'
+    )
+    assert gamepad.read_settings(tmp_path) == {
+        'Quick Cast Enabled': 1, 'Controller Weapon Swap Separate Bindings': 0
+    }  # fmt: skip
+    (tmp_path / 'Settings.json').write_text('{}')
+    assert gamepad.read_settings(tmp_path) == {
+        'Quick Cast Enabled': None,
+        'Controller Weapon Swap Separate Bindings': None,
+    }
+    with pytest.raises(FileNotFoundError):
+        gamepad.read_settings(tmp_path / 'none')
+
+
 class Device:
     """A pipe in place of /dev/uinput: what the pad writes is read back as input events."""
 

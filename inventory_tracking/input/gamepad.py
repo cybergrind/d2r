@@ -15,6 +15,7 @@ D2R.exe is closed (the client reads the file once at launch and writes it back o
 
 import contextlib
 import fcntl
+import json
 import logging
 import os
 import re
@@ -23,6 +24,8 @@ import struct
 import time
 from collections.abc import Callable, Iterable, Mapping
 from pathlib import Path
+
+from inventory_tracking.input import sent
 
 
 LOG = logging.getLogger(__name__)
@@ -76,6 +79,16 @@ SETTLE = 1.0  # seconds after the device appears before Wine has it as a pad (a 
 # (controllersettings.json `controllerSkillButtonMapping`, read 2026-10-13).
 RECORD_BUTTONS = ('a', 'x', 'b', 'y', 'rb', 'rt')
 MODIFIER = 'lt'
+# Records 12-15 have no pad button. With Quick Cast on, the key of keyboard skill slot n casts controller record n
+# in controller mode (`ai_d2_skill_key_quick_cast` 0x140153fda -> `ai_d2_ctl_slot_press` 0x1400d7f80, read;
+# rca/2026-10-13/controller-gaps.md section 2): these four are reached by keys only, and only once a game has shown
+# that the key does reach the controller path (macros/pad.py `KeyRoute`, the `Pad key:` probe).
+KEY_RECORDS = range(12, 16)
+# The records the game holds for the second weapon set with "Controller Weapon Swap Separate Bindings" on.
+OTHER_PAGE = 16
+# Settings.json (the game's options, read once at its launch): the two that decide what a record is reached by.
+QUICK_CAST, SEPARATE_BINDINGS = 'Quick Cast Enabled', 'Controller Weapon Swap Separate Bindings'
+SETTINGS_FILE = 'Settings.json'
 
 
 def names() -> frozenset[str]:
@@ -92,9 +105,12 @@ def record_buttons(record: int) -> tuple[str, ...]:
 
 
 def record_label(record: int) -> str:
-    """'Y', 'LT+Y'; records 16-27 are the same buttons for the other weapon set."""
-    if 16 <= record < 16 + 2 * len(RECORD_BUTTONS):
-        return record_label(record - 16) + ' (other weapons)'
+    """'Y', 'LT+Y'; records 12-15 are reached by a keyboard skill key only; records 16-27 are the same buttons
+    for the other weapon set."""
+    if OTHER_PAGE <= record < OTHER_PAGE + 2 * len(RECORD_BUTTONS):
+        return record_label(record - OTHER_PAGE) + ' (other weapons)'
+    if record in KEY_RECORDS:
+        return f'record {record} (by key)'
     if not 0 <= record < 2 * len(RECORD_BUTTONS):
         return f'record {record}'
     return '+'.join(name.upper() for name in record_buttons(record))
@@ -141,13 +157,20 @@ def skill_name(skill: int, more: Mapping[int, str] | None = None) -> str:
     return (more or {}).get(skill) or SKILL_NAMES.get(skill) or f'skill {skill}'
 
 
-def legend(skills: Iterable[int], more: Mapping[int, str] | None = None) -> str:
-    """'A Attack, X Loot to Cube, ...' for records 0-11 that hold a skill."""
+def legend(skills: Iterable[int], more: Mapping[int, str] | None = None, upto: int = 12) -> str:
+    """'A Attack, X Loot to Cube, ...' for records 0-11 (or 0 to `upto`) that hold a skill."""
     return ', '.join(
         f'{record_label(record)} {skill_name(skill, more)}'
-        for record, skill in enumerate(list(skills)[:12])
+        for record, skill in enumerate(list(skills)[:upto])
         if skill != -1
     )
+
+
+def read_settings(saved_games: Path) -> dict[str, object]:
+    """Quick Cast and the separate weapon-swap bindings as Settings.json has them (missing: not in the file).
+    Read only: the game reads the file at its launch and the player may flip either in its options menu."""
+    data = json.loads((saved_games / SETTINGS_FILE).read_text(encoding='utf-8'))
+    return {name: data.get(name) for name in (QUICK_CAST, SEPARATE_BINDINGS)}
 
 
 def bindings_file(saved_games: Path, name: str) -> Path | None:
@@ -260,6 +283,8 @@ class Pad:
 
     def event(self, kind: int, code: int, value: int) -> None:
         os.write(self.file, struct.pack('llHHi', 0, 0, kind, code, value))
+        if kind != EV_SYN:
+            sent.tell('pad', kind, code, value)  # the combat take's `sent` events (input/sent.py)
 
     def report(self) -> None:
         self.event(EV_SYN, 0, 0)
