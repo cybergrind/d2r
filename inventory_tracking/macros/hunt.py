@@ -74,8 +74,6 @@ from inventory_tracking.combat.score import LiveScore
 from inventory_tracking.combat.stance import (
     CAMP_GAIN,
     CAMP_REACH,
-    CROWD_MOST,
-    CROWD_UNITS,
     Camp,
     camp,
     no_footing,
@@ -106,7 +104,6 @@ from inventory_tracking.macros.skills import (
 from inventory_tracking.macros.teleport import (
     HOVER_SECONDS,
     MOVED,
-    USES,
     Way,
     ground_fraction,
     hop_toward,
@@ -161,7 +158,6 @@ WALK_UNITS = 10.0  # a firing spot this near, over clear ground, is walked to, n
 FIGHT_SECONDS = 60.0  # one fight ends here at the latest; attack mode looks again right after
 POLL = 0.1  # seconds between looks in attack mode while nothing is fought
 MOO_MOO_FARM = 39  # levels.txt: the Secret Cow Level
-AHEAD_UNITS = 45.0  # a mark this near is arrived at by the next hop or the one after: the pack by it is fought first
 FRAME = 0.04  # seconds between looks during a fight: one game frame, so a move of the player's is yielded to at once
 DECIDE_SECONDS = 0.12  # between two askings of the policy while its monster lives
 SIGHT = 30.0  # world units: hostiles further off are not part of the decision
@@ -552,22 +548,6 @@ class Hunter:
         run.say(f'{by} toward {name}' + (f': the Teleport staff has {left} charges left' if low else ''))
         self.travel.make(run, found, world, aspect, key_names, ground, name=name, intent=SEEK)
         return True
-
-    def pack_ahead(self, run: Run, target: Target) -> int:
-        """How many hostiles stand by a mark the teleport step is about to arrive at and stand at: an
-        object to use (a seal, a chest, a body), within AHEAD_UNITS of the character, with more than
-        CROWD_MOST hostiles within CROWD_UNITS of it. 0: the step goes on. A way on (a door, stairs, a
-        portal) is gone through whatever stands by it: nothing is stood at there."""
-        if target.warp or not target.use or USES[target.use].leaves:
-            return 0
-        player, _ = ready(run)
-        if player.area != target.area:
-            return 0
-        mark = (target.point[0] * TILE_UNITS, target.point[1] * TILE_UNITS)
-        if math.dist((player.x, player.y), mark) > AHEAD_UNITS:
-            return 0
-        near = sum(1 for m in self.foes(run.world(), run.clock()) if math.dist(mark, (m.x, m.y)) <= CROWD_UNITS)
-        return near if near > CROWD_MOST else 0
 
     def boss_step(self, run: Run, target: Target, key_names) -> bool:
         """The teleport step on a level whose mark is a boss's place, with the boss in sight and no

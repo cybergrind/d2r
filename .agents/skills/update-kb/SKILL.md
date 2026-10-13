@@ -76,9 +76,11 @@ local sources; do not hand-edit them to hide missing source data.
 
 Validate affected tests, lint and saved-item replays. For a broad update run
 `uv run --offline pytest tests -q`. Compare coverage before/after; report counts,
-remaining unknown variants, source dates and maintenance failures. Update `handoff.md`
-with runnable commands and the next unresolved gap. A running worker needs a restart
-for Python/metadata changes.
+remaining unknown variants, source dates and maintenance failures. For assessment work,
+follow the Current contract in `pricing/knowledge/assessment/planning/COMPLETION_CONTRACT.md`
+and record progress in section 8 of its `PLAN.md`, using corpus scores. `handoff.md` and
+`STATUS.md` are frozen references: do not append to them or resume their queues.
+A running worker needs a restart for Python/metadata changes.
 
 ## Publish the validated runtime generation
 
@@ -90,7 +92,7 @@ pointer; fix the specific mismatch and republish instead of editing generation f
 Verify the selected bundle with
 `uv run --offline python -m pricing.knowledge.assessment.maintenance.replay --publication-store pricing/data/generations`
 and compare saved report/price output. Publishing integrity does not establish missing
-tier/build/market coverage; keep coverage gaps in the handoff.
+tier/build/market coverage; report coverage gaps under the active contract.
 
 The Alt+D worker now defaults to that publication store. A running published worker
 selects updates at request boundaries and pins one generation/date through capture,

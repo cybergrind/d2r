@@ -72,11 +72,13 @@ from inventory_tracking.collection.service import (
 )
 from inventory_tracking.collection.store import DEFAULT_DATABASE as COLLECTION_DATABASE
 from inventory_tracking.collection.watch import StashWatcher
+from inventory_tracking.combat import macro_state
 from inventory_tracking.combat.record import CombatRecorder
 from inventory_tracking.common import LOG, configure_logging, log_to_file, timestamp
 from inventory_tracking.config import APPRAISAL, DCLONE, SHOW_ITEMS, TRADERIE
 from inventory_tracking.hud.dclone import dclone_watch
 from inventory_tracking.hud.process import (
+    ModeBeacon,
     PanelBeacon,
     card_widgets,
     guide_widgets,
@@ -101,6 +103,7 @@ from inventory_tracking.loot.materials import material_classes
 from inventory_tracking.loot.watch import RuneWatcher
 from inventory_tracking.macros.hunt import Hunter
 from inventory_tracking.macros.latency import FILE as LATENCY_FILE, Trace
+from inventory_tracking.macros.pickup import wanted
 from inventory_tracking.macros.route import PERFORMED
 from inventory_tracking.macros.runner import (
     HUNT_ANY,
@@ -692,7 +695,13 @@ def run_service(args, directory, report):
                             level=guide.level if guide is not None else None,
                             macro_working=lambda: macro.working,
                             paths=args.combat_paths,
+                            town=APPRAISAL.combat_town,
+                            loot=lambda memory: memory.loot(**wanted()),
+                            macro_state=lambda: macro_state.snapshot(macro),
+                            code=macro_state.version(),
                         )
+                        macro.noted = combat.recorder.note
+                        macro.trace.noted = combat.recorder.note
                     runes = None
                     if args.rune_marks and args.osd:
                         runes = RuneWatcher(
@@ -738,6 +747,14 @@ def run_service(args, directory, report):
                         )
                     panel_beacon = (
                         PanelBeacon(source, lambda widgets: publish_layer(args.hud_scene, 'panels', widgets))
+                        if args.osd
+                        else None
+                    )
+                    mode_beacon = (
+                        ModeBeacon(
+                            lambda: (progress.game is not None, macro.attack_mode),
+                            lambda widgets: publish_layer(args.hud_scene, 'mode', widgets),
+                        )
                         if args.osd
                         else None
                     )
@@ -796,6 +813,8 @@ def run_service(args, directory, report):
                                 combat.poll(time.monotonic())
                             if panel_beacon is not None:
                                 panel_beacon.poll(time.monotonic())
+                            if mode_beacon is not None:
+                                mode_beacon.poll(time.monotonic())
                             data = keys.get(APPRAISAL.poll_interval)
                             if data:  # not a wake (`Hotkeys.wake`)
                                 with timer.step('hotkey'):

@@ -20,6 +20,7 @@ SCHEMAS = {
     1: 'before 2026-10-10: `p` may end at the skills (no vitals), or carry vitals read from the wrong stats',
     2: '`p` ends with life, max life, mana, max mana in whole points (stats 6-9); `d` holds the doors',
     3: 'a frame holds `r`, the resistances (record.py RESIST_STATS), when they are first read and when they change',
+    4: "more written as `r` is (`o` `s` `w` `b` `f` `g` `i`), the macro's word as events, records.jsonl: record.py",
 }
 LIFE_SCALE = 128  # the client's life fraction: a monster's life in a frame is 0-128 of its maximum
 
@@ -109,6 +110,24 @@ def missiles_of(frame: dict[str, Any]) -> list[MissileRow]:
     return [MissileRow(*x) for x in frame['x']]
 
 
+def records(directory: Path) -> Iterator[dict[str, Any]]:
+    """The rows of a take's `records.jsonl` (record.py: raw unit records at a change of mode and once a
+    second), packed or not; nothing for a take without one. Not loaded with the take: it is research
+    data, several times the frames in size."""
+    yield from lines(directory / 'records.jsonl')
+
+
+def carried(take: Take, key: str) -> list[Any]:
+    """What a frame key written only at a change (`r`, `o`, `s`, `w`, `b`: record.py) holds at each
+    frame: the value written last up to it. None before the first, and throughout a take that has none."""
+    found: list[Any] = []
+    last: Any = None
+    for frame in take.frames:
+        last = frame.get(key, last)
+        found.append(last)
+    return found
+
+
 def resists_by_frame(take: Take) -> list[list[int] | None]:
     """The character's resistances (record.py RESIST_STATS) at each frame: the `r` written last up to it.
     None before the first, and in every frame of a take recorded before schema 3."""
@@ -167,7 +186,7 @@ class Take:
             directory,
             manifest,
             list(lines(directory / 'frames.jsonl')),
-            list(lines(directory / 'events.jsonl')),
+            sorted(lines(directory / 'events.jsonl'), key=lambda event: event['t']),  # notes carry their own time
             list(lines(directory / 'units.jsonl')),
             list(lines(directory / 'missiles.jsonl')),
             list(lines(directory / 'paths.jsonl')),

@@ -1,0 +1,713 @@
+{
+ "marks": [
+  {
+   "label": "Chaos Sanctum",
+   "kind": "stairs",
+   "spot": [
+    1560.0,
+    1119.5
+   ],
+   "use": 0
+  },
+  {
+   "label": "Hephasto",
+   "kind": "target",
+   "spot": [
+    1536.0,
+    1204.0
+   ],
+   "use": 0
+  },
+  {
+   "label": "City of the Damned",
+   "kind": "previous",
+   "spot": [
+    1608.0,
+    1300.0
+   ],
+   "use": 0
+  }
+ ],
+ "presses": [
+  [
+   0.13,
+   "teleport"
+  ],
+  [
+   0.48,
+   "teleport"
+  ],
+  [
+   0.66,
+   "teleport"
+  ],
+  [
+   0.85,
+   "teleport"
+  ],
+  [
+   1.05,
+   "teleport"
+  ],
+  [
+   1.4,
+   "teleport"
+  ],
+  [
+   1.73,
+   "teleport"
+  ],
+  [
+   1.94,
+   "teleport"
+  ],
+  [
+   2.15,
+   "teleport"
+  ],
+  [
+   2.35,
+   "teleport"
+  ],
+  [
+   2.55,
+   "teleport"
+  ],
+  [
+   3.09,
+   "teleport"
+  ],
+  [
+   3.48,
+   "teleport"
+  ],
+  [
+   3.7,
+   "teleport"
+  ],
+  [
+   3.89,
+   "teleport"
+  ],
+  [
+   4.64,
+   "teleport"
+  ],
+  [
+   4.98,
+   "teleport"
+  ],
+  [
+   5.73,
+   "teleport"
+  ],
+  [
+   6.78,
+   "teleport"
+  ],
+  [
+   7.37,
+   "teleport"
+  ],
+  [
+   8.1,
+   "teleport"
+  ],
+  [
+   8.68,
+   "teleport"
+  ],
+  [
+   9.24,
+   "teleport"
+  ],
+  [
+   9.55,
+   "teleport"
+  ],
+  [
+   9.87,
+   "teleport"
+  ],
+  [
+   10.48,
+   "teleport"
+  ]
+ ],
+ "opened": [],
+ "bosses": [],
+ "dead_before": [],
+ "packs": [],
+ "arrivals": [
+  [
+   0.24,
+   {
+    "unit": 1585945634,
+    "txt": 303,
+    "at": [
+     7795.5,
+     5756.5
+    ],
+    "level": 85,
+    "life": 2781.5,
+    "full": 2781.5,
+    "flags": 0,
+    "mods": [
+     6
+    ],
+    "tier": 0,
+    "mode": 1,
+    "owner": null,
+    "ally": false,
+    "immune": false
+   }
+  ],
+  [
+   0.54,
+   {
+    "unit": 1279068088,
+    "txt": 300,
+    "at": [
+     7798.5,
+     5714.5
+    ],
+    "level": 85,
+    "life": 10433.0,
+    "full": 10433.0,
+    "flags": 16,
+    "mods": [
+     28,
+     18
+    ],
+    "tier": 0,
+    "mode": 1,
+    "owner": null,
+    "ally": false,
+    "immune": false
+   }
+  ],
+  [
+   0.54,
+   {
+    "unit": 639534044,
+    "txt": 300,
+    "at": [
+     7802.5,
+     5711.5
+    ],
+    "level": 85,
+    "life": 10433.0,
+    "full": 10433.0,
+    "flags": 16,
+    "mods": [
+     28,
+     18
+    ],
+    "tier": 0,
+    "mode": 1,
+    "owner": null,
+    "ally": false,
+    "immune": false
+   }
+  ],
+  [
+   0.54,
+   {
+    "unit": 319758830,
+    "txt": 300,
+    "at": [
+     7802.5,
+     5708.5
+    ],
+    "level": 85,
+    "life": 10433.0,
+    "full": 10433.0,
+    "flags": 16,
+    "mods": [
+     28,
+     18
+    ],
+    "tier": 0,
+    "mode": 1,
+    "owner": null,
+    "ally": false,
+    "immune": false
+   }
+  ],
+  [
+   0.54,
+   {
+    "unit": 2558136176,
+    "txt": 300,
+    "at": [
+     7799.5,
+     5711.5
+    ],
+    "level": 85,
+    "life": 20866.0,
+    "full": 20866.0,
+    "flags": 8,
+    "mods": [
+     28,
+     18,
+     30
+    ],
+    "tier": 0,
+    "mode": 1,
+    "owner": null,
+    "ally": false,
+    "immune": false
+   }
+  ],
+  [
+   0.54,
+   {
+    "unit": 159879415,
+    "txt": 300,
+    "at": [
+     7796.5,
+     5712.5
+    ],
+    "level": 85,
+    "life": 10433.0,
+    "full": 10433.0,
+    "flags": 16,
+    "mods": [
+     28,
+     18
+    ],
+    "tier": 0,
+    "mode": 1,
+    "owner": null,
+    "ally": false,
+    "immune": false
+   }
+  ],
+  [
+   0.93,
+   {
+    "unit": 4247829022,
+    "txt": 303,
+    "at": [
+     7801.5,
+     5754.5
+    ],
+    "level": 85,
+    "life": 2781.5,
+    "full": 2781.5,
+    "flags": 0,
+    "mods": [
+     6
+    ],
+    "tier": 0,
+    "mode": 1,
+    "owner": null,
+    "ally": false,
+    "immune": false
+   }
+  ],
+  [
+   1.14,
+   {
+    "unit": 2123906319,
+    "txt": 303,
+    "at": [
+     7795.5,
+     5712.5
+    ],
+    "level": 85,
+    "life": 2781.5,
+    "full": 2781.5,
+    "flags": 0,
+    "mods": [
+     6
+    ],
+    "tier": 0,
+    "mode": 1,
+    "owner": null,
+    "ally": false,
+    "immune": false
+   }
+  ],
+  [
+   1.46,
+   {
+    "unit": 2941001351,
+    "txt": 303,
+    "at": [
+     7795.5,
+     5743.5
+    ],
+    "level": 85,
+    "life": 2781.5,
+    "full": 2781.5,
+    "flags": 0,
+    "mods": [
+     6
+    ],
+    "tier": 0,
+    "mode": 1,
+    "owner": null,
+    "ally": false,
+    "immune": false
+   }
+  ],
+  [
+   1.58,
+   {
+    "unit": 3349548867,
+    "txt": 303,
+    "at": [
+     7795.5,
+     5756.5
+    ],
+    "level": 85,
+    "life": 2781.5,
+    "full": 2781.5,
+    "flags": 0,
+    "mods": [
+     6
+    ],
+    "tier": 0,
+    "mode": 1,
+    "owner": null,
+    "ally": false,
+    "immune": false
+   }
+  ],
+  [
+   1.72,
+   {
+    "unit": 3924394960,
+    "txt": 303,
+    "at": [
+     7816.5,
+     5745.5
+    ],
+    "level": 85,
+    "life": 2781.5,
+    "full": 2781.5,
+    "flags": 0,
+    "mods": [
+     6
+    ],
+    "tier": 0,
+    "mode": 1,
+    "owner": null,
+    "ally": false,
+    "immune": false
+   }
+  ],
+  [
+   1.8,
+   {
+    "unit": 1962189288,
+    "txt": 303,
+    "at": [
+     7820.5,
+     5741.5
+    ],
+    "level": 85,
+    "life": 2781.5,
+    "full": 2781.5,
+    "flags": 0,
+    "mods": [
+     6
+    ],
+    "tier": 0,
+    "mode": 1,
+    "owner": null,
+    "ally": false,
+    "immune": false
+   }
+  ],
+  [
+   2.29,
+   {
+    "unit": 4118067809,
+    "txt": 303,
+    "at": [
+     7797.5,
+     5712.5
+    ],
+    "level": 85,
+    "life": 2781.5,
+    "full": 2781.5,
+    "flags": 0,
+    "mods": [
+     6
+    ],
+    "tier": 0,
+    "mode": 1,
+    "owner": null,
+    "ally": false,
+    "immune": false
+   }
+  ],
+  [
+   2.91,
+   {
+    "unit": 3938073904,
+    "txt": 303,
+    "at": [
+     7802.5,
+     5707.5
+    ],
+    "level": 85,
+    "life": 2781.5,
+    "full": 2781.5,
+    "flags": 0,
+    "mods": [
+     6
+    ],
+    "tier": 0,
+    "mode": 1,
+    "owner": null,
+    "ally": false,
+    "immune": false
+   }
+  ],
+  [
+   3.19,
+   {
+    "unit": 1969036952,
+    "txt": 303,
+    "at": [
+     7796.5,
+     5719.5
+    ],
+    "level": 85,
+    "life": 2781.5,
+    "full": 2781.5,
+    "flags": 0,
+    "mods": [
+     6
+    ],
+    "tier": 0,
+    "mode": 1,
+    "owner": null,
+    "ally": false,
+    "immune": false
+   }
+  ],
+  [
+   3.66,
+   {
+    "unit": 492251046,
+    "txt": 303,
+    "at": [
+     7801.5,
+     5694.5
+    ],
+    "level": 85,
+    "life": 2781.5,
+    "full": 2781.5,
+    "flags": 0,
+    "mods": [
+     6
+    ],
+    "tier": 0,
+    "mode": 1,
+    "owner": null,
+    "ally": false,
+    "immune": false
+   }
+  ],
+  [
+   6.36,
+   {
+    "unit": 2339712670,
+    "txt": 309,
+    "at": [
+     7802.5,
+     5639.5
+    ],
+    "level": 85,
+    "life": 12983.0,
+    "full": 12983.0,
+    "flags": 16,
+    "mods": [
+     18,
+     8,
+     17
+    ],
+    "tier": 0,
+    "mode": 1,
+    "owner": null,
+    "ally": false,
+    "immune": false
+   }
+  ],
+  [
+   6.36,
+   {
+    "unit": 921345341,
+    "txt": 309,
+    "at": [
+     7805.5,
+     5639.5
+    ],
+    "level": 85,
+    "life": 12983.0,
+    "full": 12983.0,
+    "flags": 16,
+    "mods": [
+     18,
+     8,
+     17
+    ],
+    "tier": 0,
+    "mode": 1,
+    "owner": null,
+    "ally": false,
+    "immune": false
+   }
+  ],
+  [
+   6.36,
+   {
+    "unit": 1169856335,
+    "txt": 309,
+    "at": [
+     7799.5,
+     5639.5
+    ],
+    "level": 85,
+    "life": 12983.0,
+    "full": 12983.0,
+    "flags": 16,
+    "mods": [
+     18,
+     8,
+     17
+    ],
+    "tier": 0,
+    "mode": 1,
+    "owner": null,
+    "ally": false,
+    "immune": false
+   }
+  ],
+  [
+   6.36,
+   {
+    "unit": 1842690682,
+    "txt": 309,
+    "at": [
+     7802.5,
+     5636.5
+    ],
+    "level": 85,
+    "life": 25966.0,
+    "full": 25966.0,
+    "flags": 8,
+    "mods": [
+     18,
+     8,
+     17
+    ],
+    "tier": 0,
+    "mode": 1,
+    "owner": null,
+    "ally": false,
+    "immune": false
+   }
+  ]
+ ],
+ "late": 25,
+ "far": 0,
+ "card": [
+  107,
+  "Chaos Sanctum",
+  "stairs",
+  [
+   1560.0,
+   1119.5
+  ],
+  0,
+  true
+ ],
+ "attack_mode": false,
+ "sweep": 0,
+ "truth": {
+  "places": [
+   [
+    7799.5,
+    5710.5
+   ],
+   [
+    7802.5,
+    5688.5
+   ],
+   [
+    7802.5,
+    5688.5
+   ],
+   [
+    7802.5,
+    5657.5
+   ],
+   [
+    7802.5,
+    5612.5
+   ],
+   [
+    7800.5,
+    5600.5
+   ]
+  ],
+  "gone": [
+   53.1,
+   75.0,
+   75.0,
+   106.0,
+   151.0,
+   163.0
+  ],
+  "taken": [
+   0.0,
+   25.0,
+   25.0,
+   153.0,
+   439.0,
+   439.0
+  ],
+  "kills": [
+   1,
+   2,
+   2,
+   2,
+   2,
+   2
+  ],
+  "strikes": [],
+  "low": 1337.0,
+  "moved": 163.6,
+  "near": [
+   9,
+   8,
+   14,
+   9,
+   3,
+   3
+  ],
+  "ends": {
+   "first strike": null
+  },
+  "said": {
+   "no Blade Warp or walk leads toward": 0,
+   "Blade Warp toward": 6,
+   "Attack mode on": 0,
+   "Attack mode paused": 0,
+   "Echoing Strike": 0,
+   "=Macro: Healing potion": 0,
+   "=Macro: Blade Warp": 5,
+   "=Macro: Teleport": 3,
+   "Walking into": 1,
+   ": open": 0,
+   "Picking up": 0,
+   "toward a better place": 0
+  },
+  "dead": false
+ }
+}

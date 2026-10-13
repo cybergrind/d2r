@@ -1,0 +1,224 @@
+{
+ "marks": [
+  {
+   "label": "Diablo",
+   "kind": "target",
+   "spot": [
+    1559.0,
+    1059.0
+   ],
+   "use": 0
+  },
+  {
+   "label": "Vizier seal 1",
+   "kind": "target",
+   "spot": [
+    1531.0,
+    1063.0
+   ],
+   "use": 396
+  },
+  {
+   "label": "Vizier seal 2",
+   "kind": "target",
+   "spot": [
+    1531.0,
+    1055.0
+   ],
+   "use": 395
+  },
+  {
+   "label": "De Seis seal",
+   "kind": "target",
+   "spot": [
+    1563.0,
+    1031.0
+   ],
+   "use": 394
+  },
+  {
+   "label": "Infector seal 1",
+   "kind": "target",
+   "spot": [
+    1583.0,
+    1063.0
+   ],
+   "use": 392
+  },
+  {
+   "label": "Infector seal 2",
+   "kind": "target",
+   "spot": [
+    1583.0,
+    1055.0
+   ],
+   "use": 393
+  }
+ ],
+ "presses": [
+  [
+   0.02,
+   "teleport"
+  ],
+  [
+   0.24,
+   "teleport"
+  ],
+  [
+   0.46,
+   "teleport"
+  ],
+  [
+   0.73,
+   "teleport"
+  ],
+  [
+   1.02,
+   "teleport"
+  ],
+  [
+   1.29,
+   "teleport"
+  ],
+  [
+   1.68,
+   "teleport"
+  ],
+  [
+   1.95,
+   "teleport"
+  ],
+  [
+   3.26,
+   "pickup"
+  ],
+  [
+   8.53,
+   "pickup"
+  ]
+ ],
+ "opened": [],
+ "bosses": [],
+ "dead_before": [],
+ "packs": [],
+ "arrivals": [],
+ "late": 0,
+ "far": 9,
+ "card": [
+  108,
+  "Vizier seal 1",
+  "target",
+  [
+   1531.0,
+   1063.0
+  ],
+  396,
+  false
+ ],
+ "attack_mode": false,
+ "sweep": 0,
+ "truth": {
+  "places": [
+   [
+    7779.5,
+    5477.5
+   ],
+   [
+    7779.5,
+    5477.5
+   ],
+   [
+    7779.5,
+    5477.5
+   ],
+   [
+    7779.5,
+    5477.5
+   ],
+   [
+    7779.5,
+    5477.5
+   ],
+   [
+    7768.5,
+    5480.5
+   ],
+   [
+    7768.5,
+    5480.5
+   ]
+  ],
+  "gone": [
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   11.4,
+   11.4
+  ],
+  "taken": [
+   0.0,
+   0.0,
+   99.0,
+   99.0,
+   99.0,
+   99.0,
+   99.0
+  ],
+  "kills": [
+   0,
+   0,
+   1,
+   2,
+   4,
+   6,
+   11
+  ],
+  "strikes": [
+   4.26,
+   4.66,
+   6.64,
+   7.01,
+   7.37,
+   7.75,
+   8.07,
+   8.48,
+   8.83
+  ],
+  "low": 1242.0,
+  "moved": 11.4,
+  "near": [
+   9,
+   10,
+   11,
+   9,
+   8,
+   7,
+   4
+  ],
+  "ends": {
+   "first strike": 4.26,
+   "Vizier seal 1 opened": null,
+   "Vizier seal 2 opened": null,
+   "De Seis seal opened": null,
+   "Infector seal 1 opened": null,
+   "Infector seal 2 opened": null
+  },
+  "said": {
+   "no Blade Warp or walk leads toward": 8,
+   "Blade Warp toward": 0,
+   "Attack mode on": 1,
+   "Attack mode paused": 0,
+   "Echoing Strike": 2,
+   "=Macro: Healing potion": 1,
+   "=Macro: Blade Warp": 2,
+   "=Macro: Teleport": 0,
+   "Walking into": 0,
+   ": open": 0,
+   "Picking up": 0,
+   "toward a better place": 0
+  },
+  "dead": false
+ }
+}

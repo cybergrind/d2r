@@ -21,6 +21,7 @@ var data: RefCounted = null
 var shown: Array[Dictionary] = []  # the runs drawn here: one, or two when overlaid
 var colors: Array[Color] = []  # a colour per run in `shown`
 var tick: int = 0
+var plain_titles: bool = false  # a situation: a run's title is its label (the variant and its seed)
 var shift: Vector2 = Vector2.ZERO  # added to the shared camera's centre: this view follows another character
 var camera: Dictionary = {"center": Vector2.ZERO, "zoom": 1.1, "follow": true}
 
@@ -147,6 +148,8 @@ func _draw() -> void:
 		_draw_moves(shown[i], colors[i])
 	for i: int in range(shown.size()):
 		_draw_casts(shown[i], colors[i])
+	for i: int in range(shown.size()):
+		_draw_extras(shown[i], colors[i])
 	_draw_monsters()
 	_draw_player()
 	_draw_titles()
@@ -342,9 +345,11 @@ func _draw_monsters() -> void:
 	var nearest_gap: float = HOVER_PIXELS
 	var monsters: Array[Dictionary] = data.monsters
 	for monster: Dictionary in monsters:
-		if not TakeData.seen(monster, tick):
+		# A situation's run has its own monster paths: the first run shown here says where each stands.
+		var path: Dictionary = TakeData.track_in(shown[0], monster)
+		if not TakeData.seen(path, tick):
 			continue
-		var at: Vector2 = to_screen(TakeData.position(monster, tick))
+		var at: Vector2 = to_screen(TakeData.position(path, tick))
 		if not view.has_point(at):
 			continue
 		var elite: bool = monster["elite"]
@@ -383,7 +388,7 @@ func _draw_monsters() -> void:
 			var death: int = TakeData.death_in(run, monster)
 			var corner: Vector2 = Vector2(at.x - bar.x * 0.5, top + bar.y * i)
 			if death >= 0 and tick > death:
-				var corpse: Vector2 = to_screen(TakeData.position(monster, death))
+				var corpse: Vector2 = to_screen(TakeData.position(TakeData.track_in(run, monster), death))
 				var shift: Vector2 = Vector2((i - (shown.size() - 1) * 0.5) * 6.0, 0)
 				var fade: float = clampf(1.0 - float(tick - death) / float(FADE_TICKS), 0.3, 1.0)
 				_draw_cross(corpse + shift, size_here, Color(colors[i], fade))
@@ -404,6 +409,40 @@ func _draw_monsters() -> void:
 		_draw_hover(nearest, font)
 
 
+## A situation's run: its objects (a drop, a seal, a mark of the level card) and the shooters' missiles in flight.
+func _draw_extras(run: Dictionary, color: Color) -> void:
+	var font: Font = get_theme_default_font()
+	var objects: Array = run.get("objects", [])
+	for item: Variant in objects:
+		var found: Dictionary = item
+		if tick < int(found.get("from", 0)) or tick > int(found.get("until", 0)):
+			continue
+		var at: Vector2 = to_screen(Vector2(float(found.get("x", 0)), float(found.get("y", 0))) / data.scale)
+		var kind: String = str(found.get("kind", ""))
+		var tint: Color = Palette.MOMENT if kind == "drop" else (Palette.TEXT_DIM if kind == "open" else Palette.GOOD)
+		if kind == "drop":
+			draw_rect(Rect2(at - Vector2(4, 4), Vector2(8, 8)), tint)
+		else:
+			draw_arc(at, 9.0, 0.0, TAU, 20, tint, 2.0)
+			draw_line(at - Vector2(5, 0), at + Vector2(5, 0), tint, 1.5)
+			draw_line(at - Vector2(0, 5), at + Vector2(0, 5), tint, 1.5)
+		draw_string(font, at + Vector2(10, 4), str(found.get("label", "")), HORIZONTAL_ALIGNMENT_LEFT, -1, 12, tint)
+	var shots: Array = run.get("shots", [])
+	for item: Variant in shots:
+		var shot: Array = item
+		var born: int = int(shot[0])
+		var lands: int = int(shot[1])
+		if tick < born or tick > lands:
+			continue
+		var from: Vector2 = Vector2(float(shot[2]), float(shot[3])) / data.scale
+		var to: Vector2 = Vector2(float(shot[4]), float(shot[5])) / data.scale
+		var share: float = float(tick - born) / float(maxi(lands - born, 1))
+		var head: Vector2 = to_screen(from.lerp(to, share))
+		var hit: bool = int(shot[6]) > 0
+		draw_line(to_screen(from.lerp(to, maxf(share - 0.15, 0.0))), head, Color(Palette.BAD, 0.6), 1.5)
+		draw_circle(head, 4.0 if hit else 2.5, Palette.BAD if hit else Color(Palette.BAD, 0.6))
+
+
 func _draw_cross(at: Vector2, radius: float, color: Color) -> void:
 	var arm: Vector2 = Vector2(radius, radius) * 0.8
 	draw_line(at - arm, at + arm, color, 3.0)
@@ -412,7 +451,7 @@ func _draw_cross(at: Vector2, radius: float, color: Color) -> void:
 
 ## What the monster under the pointer is: its name, full life, and its life in each run and as recorded.
 func _draw_hover(monster: Dictionary, font: Font) -> void:
-	var at: Vector2 = to_screen(TakeData.position(monster, tick))
+	var at: Vector2 = to_screen(TakeData.position(TakeData.track_in(shown[0], monster), tick))
 	var name: String = monster["name"]
 	var points: float = monster["points"]
 	var elite: bool = monster["elite"]
@@ -461,7 +500,9 @@ func _draw_titles() -> void:
 		var run_name: String = run["name"]
 		var label: String = run["label"]
 		var text: String = "POLICY: %s" % run_name
-		if not policy:
+		if plain_titles and not label.is_empty():
+			text = label
+		elif not policy:
 			text = label if not label.is_empty() else "RECORDED: the player's casts"
 		texts.append(text)
 		widest = maxf(widest, font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x)

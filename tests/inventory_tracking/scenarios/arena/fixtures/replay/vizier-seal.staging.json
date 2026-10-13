@@ -1,0 +1,482 @@
+{
+ "marks": [
+  {
+   "label": "Diablo",
+   "kind": "target",
+   "spot": [
+    1559.0,
+    1059.0
+   ],
+   "use": 0
+  },
+  {
+   "label": "Vizier seal 1",
+   "kind": "target",
+   "spot": [
+    1531.0,
+    1063.0
+   ],
+   "use": 396
+  },
+  {
+   "label": "Vizier seal 2",
+   "kind": "target",
+   "spot": [
+    1531.0,
+    1055.0
+   ],
+   "use": 395
+  },
+  {
+   "label": "De Seis seal",
+   "kind": "target",
+   "spot": [
+    1563.0,
+    1031.0
+   ],
+   "use": 394
+  },
+  {
+   "label": "Infector seal 1",
+   "kind": "target",
+   "spot": [
+    1583.0,
+    1063.0
+   ],
+   "use": 392
+  },
+  {
+   "label": "Infector seal 2",
+   "kind": "target",
+   "spot": [
+    1583.0,
+    1055.0
+   ],
+   "use": 393
+  }
+ ],
+ "presses": [
+  [
+   0.0,
+   "hunt any"
+  ],
+  [
+   0.2,
+   "teleport"
+  ],
+  [
+   1.1,
+   "teleport"
+  ],
+  [
+   2.03,
+   "teleport"
+  ],
+  [
+   2.6,
+   "teleport"
+  ],
+  [
+   2.84,
+   "teleport"
+  ],
+  [
+   3.12,
+   "teleport"
+  ],
+  [
+   3.4,
+   "teleport"
+  ],
+  [
+   3.71,
+   "teleport"
+  ],
+  [
+   3.91,
+   "teleport"
+  ],
+  [
+   4.13,
+   "teleport"
+  ],
+  [
+   4.36,
+   "teleport"
+  ],
+  [
+   4.63,
+   "teleport"
+  ],
+  [
+   4.92,
+   "teleport"
+  ],
+  [
+   5.12,
+   "teleport"
+  ],
+  [
+   5.34,
+   "teleport"
+  ],
+  [
+   6.15,
+   "pickup"
+  ],
+  [
+   6.98,
+   "pickup"
+  ],
+  [
+   11.18,
+   "pickup"
+  ],
+  [
+   13.28,
+   "teleport"
+  ],
+  [
+   13.82,
+   "teleport"
+  ],
+  [
+   14.23,
+   "teleport"
+  ],
+  [
+   14.52,
+   "teleport"
+  ],
+  [
+   15.35,
+   "pickup"
+  ],
+  [
+   18.19,
+   "teleport"
+  ],
+  [
+   19.09,
+   "pickup"
+  ],
+  [
+   20.22,
+   "pickup"
+  ],
+  [
+   21.33,
+   "pickup"
+  ],
+  [
+   21.93,
+   "teleport"
+  ],
+  [
+   22.47,
+   "teleport"
+  ],
+  [
+   23.34,
+   "teleport"
+  ],
+  [
+   23.62,
+   "teleport"
+  ],
+  [
+   23.88,
+   "teleport"
+  ]
+ ],
+ "opened": [],
+ "bosses": [
+  [
+   3404433791,
+   "Grand Vizier of Chaos"
+  ]
+ ],
+ "dead_before": [],
+ "packs": [
+  {
+   "seal": 307542651,
+   "label": "Vizier seal 1",
+   "delay": 0.99,
+   "mobs": [
+    {
+     "unit": 3803094167,
+     "txt": 306,
+     "at": [
+      7679.5,
+      5320.5
+     ],
+     "level": 85,
+     "life": 4404.5,
+     "full": 4404.5,
+     "flags": 16,
+     "mods": [
+      5,
+      9,
+      26
+     ],
+     "tier": 0,
+     "mode": 1,
+     "owner": null,
+     "ally": false,
+     "immune": false
+    },
+    {
+     "unit": 3848091951,
+     "txt": 306,
+     "at": [
+      7667.5,
+      5322.5
+     ],
+     "level": 85,
+     "life": 4404.5,
+     "full": 4404.5,
+     "flags": 16,
+     "mods": [
+      5,
+      9,
+      26
+     ],
+     "tier": 0,
+     "mode": 1,
+     "owner": null,
+     "ally": false,
+     "immune": false
+    },
+    {
+     "unit": 4118127807,
+     "txt": 306,
+     "at": [
+      7670.5,
+      5321.5
+     ],
+     "level": 85,
+     "life": 4404.5,
+     "full": 4404.5,
+     "flags": 16,
+     "mods": [
+      5,
+      9,
+      26
+     ],
+     "tier": 0,
+     "mode": 1,
+     "owner": null,
+     "ally": false,
+     "immune": false
+    },
+    {
+     "unit": 3780587083,
+     "txt": 306,
+     "at": [
+      7682.5,
+      5320.5
+     ],
+     "level": 85,
+     "life": 4404.5,
+     "full": 4404.5,
+     "flags": 16,
+     "mods": [
+      5,
+      9,
+      26
+     ],
+     "tier": 0,
+     "mode": 1,
+     "owner": null,
+     "ally": false,
+     "immune": false
+    },
+    {
+     "unit": 3938103903,
+     "txt": 306,
+     "at": [
+      7676.5,
+      5320.5
+     ],
+     "level": 85,
+     "life": 4404.5,
+     "full": 4404.5,
+     "flags": 16,
+     "mods": [
+      5,
+      9,
+      26
+     ],
+     "tier": 0,
+     "mode": 1,
+     "owner": null,
+     "ally": false,
+     "immune": false
+    },
+    {
+     "unit": 3404433791,
+     "txt": 306,
+     "at": [
+      7673.5,
+      5321.5
+     ],
+     "level": 85,
+     "life": 8809.0,
+     "full": 8809.0,
+     "flags": 10,
+     "mods": [
+      5,
+      9,
+      30,
+      26,
+      22
+     ],
+     "tier": 0,
+     "mode": 1,
+     "owner": null,
+     "ally": false,
+     "immune": false
+    }
+   ]
+  }
+ ],
+ "arrivals": [],
+ "late": 42,
+ "far": 0,
+ "card": [
+  108,
+  "Vizier seal 1",
+  "target",
+  [
+   1531.0,
+   1063.0
+  ],
+  396,
+  false
+ ],
+ "attack_mode": true,
+ "sweep": 11,
+ "truth": {
+  "places": [
+   [
+    7715.5,
+    5317.5
+   ],
+   [
+    7660.5,
+    5316.7
+   ],
+   [
+    7659.5,
+    5292.5
+   ],
+   [
+    7659.5,
+    5292.5
+   ],
+   [
+    7663.5,
+    5311.5
+   ],
+   [
+    7664.9,
+    5314.2
+   ],
+   [
+    7663.1,
+    5309.4
+   ],
+   [
+    7657.3,
+    5280.4
+   ]
+  ],
+  "gone": [
+   52.2,
+   107.1,
+   111.8,
+   111.8,
+   104.5,
+   102.8,
+   105.1,
+   117.6
+  ],
+  "taken": [
+   99.0,
+   99.0,
+   164.0,
+   164.0,
+   219.0,
+   346.0,
+   346.0,
+   346.0
+  ],
+  "kills": [
+   0,
+   1,
+   9,
+   23,
+   27,
+   32,
+   32,
+   32
+  ],
+  "strikes": [
+   7.63,
+   7.9,
+   8.33,
+   8.68,
+   9.04,
+   9.39,
+   9.77,
+   10.12,
+   10.45,
+   10.86,
+   11.19,
+   11.52,
+   11.95,
+   12.28,
+   12.66,
+   15.87,
+   16.57,
+   16.94,
+   17.27
+  ],
+  "low": 1456.0,
+  "moved": 226.8,
+  "near": [
+   4,
+   21,
+   17,
+   5,
+   5,
+   0,
+   0,
+   0
+  ],
+  "ends": {
+   "first strike": 7.63,
+   "Vizier seal 1 opened": 5.65,
+   "Vizier seal 2 opened": 23.93,
+   "De Seis seal opened": null,
+   "Infector seal 1 opened": null,
+   "Infector seal 2 opened": null,
+   "Grand Vizier of Chaos dead": 16.78
+  },
+  "said": {
+   "no Blade Warp or walk leads toward": 0,
+   "Blade Warp toward": 8,
+   "Attack mode on": 5,
+   "Attack mode paused": 8,
+   "Echoing Strike": 2,
+   "=Macro: Healing potion": 1,
+   "=Macro: Blade Warp": 8,
+   "=Macro: Teleport": 0,
+   "Walking into": 0,
+   ": open": 2,
+   "Picking up": 1,
+   "toward a better place": 1
+  },
+  "dead": false
+ }
+}

@@ -33,3 +33,6 @@ __pycache__/
 /third-parties/
 /tmp/
 /terror_zones/Patch 3.2 Update! Herald spawn mechanics, Sunder drop rates, Shard drop ratio and more_files/
+
+# root-cause analyses of game sessions: working notes
+/rca/

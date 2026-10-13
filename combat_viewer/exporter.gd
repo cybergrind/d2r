@@ -9,10 +9,16 @@ signal finished(take: String, ok: bool, message: String)  ## message: the export
 
 const PROGRAM := "uv"
 const MODULE := "inventory_tracking.builds.warlock.echoing_strike.viz"
+## The situations' exporter (tests/.../arena/situations/export_viz.py): asked like MODULE for one situation,
+## with `--list` for the catalog, and with `--tasks <take>` for a take's task sidecar.
+const SITUATIONS := "tests.inventory_tracking.scenarios.arena.situations.export_viz"
+
+var module: String = MODULE  # the exporter the next requests run
 
 var _queue: Array[Dictionary] = []
 var _thread: Thread = null
 var _current: String = ""
+var _current_tasks: bool = false  # the job running is a take's task sidecar: its failure is not the take's
 var _pid: int = -1
 
 
@@ -21,8 +27,23 @@ func request(take_directory: String, out: String, policies: PackedStringArray) -
 	var take: String = take_directory.get_file()
 	if is_pending(take):
 		return
-	_queue.append({"take": take, "source": take_directory, "out": out, "policies": policies})
+	_queue.append({"take": take, "source": take_directory, "out": out, "policies": policies, "module": module})
+	if module == MODULE:
+		# After a take's own export: its task sidecar (what the macro was doing), from the take's events.
+		_queue.append({"take": take, "source": take_directory, "out": out, "policies": PackedStringArray(), "module": SITUATIONS, "tasks": true})
 	_start_next()
+
+
+## The situations' catalog written into `out`/index.json, at once (a second or two); "" or what went wrong.
+func list_situations(out: String) -> String:
+	var said: Array = []
+	var code: int = OS.execute(PROGRAM, PackedStringArray([
+		"--directory", _repository(), "run", "--offline", "python", "-m", SITUATIONS, "--list", "--out", out,
+	]), said, true)
+	if code == 0:
+		return ""
+	var lines: PackedStringArray = "".join(PackedStringArray(said)).strip_edges().split("\n")
+	return lines[-1]
 
 
 func is_pending(take: String) -> bool:
@@ -39,6 +60,7 @@ func _start_next() -> void:
 		return
 	var job: Dictionary = _queue.pop_front()
 	_current = job["take"]
+	_current_tasks = job.get("tasks", false)
 	_thread = Thread.new()
 	_thread.start(_work.bind(job))
 
@@ -49,8 +71,12 @@ func _repository() -> String:
 
 
 func _arguments(job: Dictionary) -> PackedStringArray:
+	if job.get("tasks", false):
+		return PackedStringArray([
+			"--directory", _repository(), "run", "--offline", "python", "-m", SITUATIONS, "--tasks", job["source"], "--out", job["out"],
+		])
 	var arguments: PackedStringArray = PackedStringArray([
-		"--directory", _repository(), "run", "--offline", "python", "-m", MODULE, job["source"], "--out", job["out"],
+		"--directory", _repository(), "run", "--offline", "python", "-m", job.get("module", MODULE), job["source"], "--out", job["out"],
 	])
 	var policies: PackedStringArray = job["policies"]
 	if not policies.is_empty():
@@ -104,6 +130,12 @@ func _ended(take: String, ok: bool, message: String) -> void:
 	_thread = null
 	_current = ""
 	_pid = -1
+	if _current_tasks:
+		ok = true  # no sidecar: the take plays without a task readout
+		message = ""
+	else:
+		if not ok:  # the take has no file: no sidecar either, and its failure stays on its row
+			_queue = _queue.filter(func(job: Dictionary) -> bool: return not (job["take"] == take and job.get("tasks", false)))
 	finished.emit(take, ok, message)
 	_start_next()
 

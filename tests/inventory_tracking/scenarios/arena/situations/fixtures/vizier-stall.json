@@ -1,0 +1,2687 @@
+{
+ "name": "vizier-stall",
+ "about": "Chaos Sanctuary, 2026-10-13 09:06:42: both Vizier seals are open and the route is at \"fight Grand Vizier of Chaos\", a stage with no mark. The Vizier and four minions stand 52 to 59 units off; 48 presses of the teleport key in 25 s each say \"Grand Vizier of Chaos, attack mode\" and move nothing.",
+ "source": {
+  "take": "20261013T060607Z-108",
+  "schema": 3,
+  "start": 35.0,
+  "seconds": 25.0,
+  "frame": 855
+ },
+ "assumed": {
+  "hero.hand": "probe.log of session 20261013T060446Z-aa50e0b0, as kp4.py BOSS_AWAY has it",
+  "hero.sets": "probe.log of session 20261013T060446Z-aa50e0b0, as kp4.py BOSS_AWAY has it",
+  "scene.belt": "not in the take: cut.py's default",
+  "scene.consume": "not in the take: cut.py's default",
+  "scene.drops": "not in the take: cut.py's default",
+  "scene.hex_purge": "not in the take: cut.py's default",
+  "scene.immune": "not in the take: cut.py's default",
+  "scene.slots": "not in the take: cut.py's default",
+  "scene.ward": "not in the take: cut.py's default",
+  "route.opened": "probe.log of session 20261013T060446Z-aa50e0b0, as kp4.py BOSS_AWAY has it",
+  "attack": "probe.log of session 20261013T060446Z-aa50e0b0, as kp4.py BOSS_AWAY has it",
+  "scene.things": "no objects in a take of schema 3: a Prop on each mark with a use; probe.log of session 20261013T060446Z-aa50e0b0, as kp4.py BOSS_AWAY has it",
+  "route.bosses": "which super unique is which boss of the route: given by txt",
+  "presses": "probe.log of session 20261013T060446Z-aa50e0b0, as kp4.py BOSS_AWAY has it"
+ },
+ "seconds": 25.0,
+ "attack": false,
+ "presses": [
+  [
+   0.0,
+   "teleport"
+  ],
+  [
+   0.13,
+   "teleport"
+  ],
+  [
+   4.62,
+   "teleport"
+  ],
+  [
+   5.46,
+   "teleport"
+  ],
+  [
+   6.02,
+   "teleport"
+  ],
+  [
+   6.52,
+   "teleport"
+  ],
+  [
+   7.06,
+   "teleport"
+  ],
+  [
+   7.63,
+   "teleport"
+  ],
+  [
+   8.2,
+   "teleport"
+  ],
+  [
+   8.61,
+   "teleport"
+  ],
+  [
+   8.84,
+   "teleport"
+  ],
+  [
+   9.05,
+   "teleport"
+  ],
+  [
+   9.24,
+   "teleport"
+  ],
+  [
+   9.42,
+   "teleport"
+  ],
+  [
+   9.64,
+   "teleport"
+  ],
+  [
+   9.86,
+   "teleport"
+  ],
+  [
+   10.06,
+   "teleport"
+  ],
+  [
+   10.24,
+   "teleport"
+  ],
+  [
+   10.49,
+   "teleport"
+  ],
+  [
+   10.71,
+   "teleport"
+  ],
+  [
+   10.9,
+   "teleport"
+  ],
+  [
+   11.15,
+   "teleport"
+  ],
+  [
+   11.36,
+   "teleport"
+  ],
+  [
+   11.7,
+   "teleport"
+  ],
+  [
+   12.06,
+   "teleport"
+  ],
+  [
+   12.42,
+   "teleport"
+  ],
+  [
+   12.61,
+   "teleport"
+  ],
+  [
+   18.24,
+   "teleport"
+  ],
+  [
+   18.85,
+   "teleport"
+  ],
+  [
+   19.31,
+   "teleport"
+  ],
+  [
+   19.53,
+   "teleport"
+  ],
+  [
+   19.74,
+   "teleport"
+  ],
+  [
+   19.97,
+   "teleport"
+  ],
+  [
+   20.26,
+   "teleport"
+  ],
+  [
+   20.52,
+   "teleport"
+  ],
+  [
+   20.72,
+   "teleport"
+  ],
+  [
+   21.0,
+   "teleport"
+  ],
+  [
+   21.24,
+   "teleport"
+  ],
+  [
+   21.45,
+   "teleport"
+  ],
+  [
+   21.67,
+   "teleport"
+  ],
+  [
+   22.0,
+   "teleport"
+  ],
+  [
+   22.22,
+   "teleport"
+  ],
+  [
+   22.41,
+   "teleport"
+  ],
+  [
+   22.61,
+   "teleport"
+  ],
+  [
+   22.8,
+   "teleport"
+  ],
+  [
+   23.0,
+   "teleport"
+  ],
+  [
+   23.23,
+   "teleport"
+  ],
+  [
+   23.46,
+   "teleport"
+  ]
+ ],
+ "route": {
+  "marks": [
+   {
+    "label": "Diablo",
+    "kind": "target",
+    "spot": [
+     1559.0,
+     1059.0
+    ],
+    "use": 0
+   },
+   {
+    "label": "Vizier seal 1",
+    "kind": "target",
+    "spot": [
+     1531.0,
+     1063.0
+    ],
+    "use": 396
+   },
+   {
+    "label": "Vizier seal 2",
+    "kind": "target",
+    "spot": [
+     1531.0,
+     1055.0
+    ],
+    "use": 395
+   },
+   {
+    "label": "De Seis seal",
+    "kind": "target",
+    "spot": [
+     1563.0,
+     1031.0
+    ],
+    "use": 394
+   },
+   {
+    "label": "Infector seal 1",
+    "kind": "target",
+    "spot": [
+     1583.0,
+     1063.0
+    ],
+    "use": 392
+   },
+   {
+    "label": "Infector seal 2",
+    "kind": "target",
+    "spot": [
+     1583.0,
+     1055.0
+    ],
+    "use": 393
+   }
+  ],
+  "opened": [
+   "Vizier seal 1",
+   "Vizier seal 2"
+  ],
+  "bosses": [
+   [
+    1171600073,
+    "Grand Vizier of Chaos"
+   ]
+  ],
+  "as_it_was": false
+ },
+ "spawns": [],
+ "curses": [],
+ "aware": 20.0,
+ "lands": {},
+ "recorded": {
+  "life": [
+   [
+    0.0,
+    1783
+   ],
+   [
+    0.2,
+    1783
+   ],
+   [
+    0.41,
+    1783
+   ],
+   [
+    0.61,
+    1740
+   ],
+   [
+    0.81,
+    1740
+   ],
+   [
+    1.01,
+    1723
+   ],
+   [
+    1.22,
+    1723
+   ],
+   [
+    1.42,
+    1641
+   ],
+   [
+    1.62,
+    1641
+   ],
+   [
+    1.82,
+    1603
+   ],
+   [
+    2.02,
+    1603
+   ],
+   [
+    2.22,
+    1626
+   ],
+   [
+    2.42,
+    1626
+   ],
+   [
+    2.63,
+    1671
+   ],
+   [
+    2.83,
+    1671
+   ],
+   [
+    3.03,
+    1716
+   ],
+   [
+    3.24,
+    1716
+   ],
+   [
+    3.44,
+    1761
+   ],
+   [
+    3.64,
+    1761
+   ],
+   [
+    3.84,
+    1783
+   ],
+   [
+    4.04,
+    1783
+   ],
+   [
+    4.25,
+    1783
+   ],
+   [
+    4.45,
+    1783
+   ],
+   [
+    4.65,
+    1783
+   ],
+   [
+    4.85,
+    1783
+   ],
+   [
+    5.05,
+    1783
+   ],
+   [
+    5.25,
+    1783
+   ],
+   [
+    5.45,
+    1783
+   ],
+   [
+    5.66,
+    1783
+   ],
+   [
+    5.86,
+    1783
+   ],
+   [
+    6.06,
+    1783
+   ],
+   [
+    6.26,
+    1783
+   ],
+   [
+    6.47,
+    1783
+   ],
+   [
+    6.67,
+    1783
+   ],
+   [
+    6.87,
+    1783
+   ],
+   [
+    7.07,
+    1783
+   ],
+   [
+    7.28,
+    1783
+   ],
+   [
+    7.48,
+    1783
+   ],
+   [
+    7.68,
+    1783
+   ],
+   [
+    7.88,
+    1783
+   ],
+   [
+    8.08,
+    1783
+   ],
+   [
+    8.29,
+    1783
+   ],
+   [
+    8.5,
+    1783
+   ],
+   [
+    8.7,
+    1783
+   ],
+   [
+    8.91,
+    1783
+   ],
+   [
+    9.11,
+    1783
+   ],
+   [
+    9.31,
+    1783
+   ],
+   [
+    9.52,
+    1783
+   ],
+   [
+    9.72,
+    1783
+   ],
+   [
+    9.92,
+    1783
+   ],
+   [
+    10.12,
+    1783
+   ],
+   [
+    10.33,
+    1783
+   ],
+   [
+    10.53,
+    1783
+   ],
+   [
+    10.73,
+    1783
+   ],
+   [
+    10.93,
+    1783
+   ],
+   [
+    11.14,
+    1783
+   ],
+   [
+    11.34,
+    1783
+   ],
+   [
+    11.54,
+    1783
+   ],
+   [
+    11.74,
+    1783
+   ],
+   [
+    11.94,
+    1783
+   ],
+   [
+    12.15,
+    1783
+   ],
+   [
+    12.35,
+    1783
+   ],
+   [
+    12.55,
+    1783
+   ],
+   [
+    12.75,
+    1783
+   ],
+   [
+    12.95,
+    1783
+   ],
+   [
+    13.15,
+    1783
+   ],
+   [
+    13.36,
+    1783
+   ],
+   [
+    13.57,
+    1783
+   ],
+   [
+    13.77,
+    1783
+   ],
+   [
+    13.97,
+    1783
+   ],
+   [
+    14.17,
+    1783
+   ],
+   [
+    14.37,
+    1783
+   ],
+   [
+    14.57,
+    1783
+   ],
+   [
+    14.77,
+    1783
+   ],
+   [
+    14.97,
+    1783
+   ],
+   [
+    15.17,
+    1783
+   ],
+   [
+    15.37,
+    1783
+   ],
+   [
+    15.57,
+    1783
+   ],
+   [
+    15.78,
+    1783
+   ],
+   [
+    15.98,
+    1783
+   ],
+   [
+    16.19,
+    1783
+   ],
+   [
+    16.39,
+    1783
+   ],
+   [
+    16.59,
+    1783
+   ],
+   [
+    16.79,
+    1783
+   ],
+   [
+    17.0,
+    1783
+   ],
+   [
+    17.2,
+    1783
+   ],
+   [
+    17.4,
+    1783
+   ],
+   [
+    17.68,
+    1783
+   ],
+   [
+    17.88,
+    1783
+   ],
+   [
+    18.08,
+    1783
+   ],
+   [
+    18.29,
+    1783
+   ],
+   [
+    18.49,
+    1783
+   ],
+   [
+    18.69,
+    1783
+   ],
+   [
+    18.89,
+    1783
+   ],
+   [
+    19.1,
+    1783
+   ],
+   [
+    19.3,
+    1783
+   ],
+   [
+    19.5,
+    1783
+   ],
+   [
+    19.71,
+    1783
+   ],
+   [
+    19.91,
+    1783
+   ],
+   [
+    20.11,
+    1783
+   ],
+   [
+    20.31,
+    1783
+   ],
+   [
+    20.51,
+    1783
+   ],
+   [
+    20.71,
+    1783
+   ],
+   [
+    20.91,
+    1783
+   ],
+   [
+    21.11,
+    1783
+   ],
+   [
+    21.32,
+    1783
+   ],
+   [
+    21.52,
+    1783
+   ],
+   [
+    21.72,
+    1783
+   ],
+   [
+    21.92,
+    1783
+   ],
+   [
+    22.12,
+    1783
+   ],
+   [
+    22.33,
+    1783
+   ],
+   [
+    22.53,
+    1783
+   ],
+   [
+    22.73,
+    1783
+   ],
+   [
+    22.93,
+    1783
+   ],
+   [
+    23.13,
+    1783
+   ],
+   [
+    23.33,
+    1783
+   ],
+   [
+    23.53,
+    1783
+   ],
+   [
+    23.73,
+    1783
+   ],
+   [
+    23.93,
+    1783
+   ],
+   [
+    24.13,
+    1783
+   ],
+   [
+    24.33,
+    1783
+   ],
+   [
+    24.54,
+    1783
+   ],
+   [
+    24.74,
+    1783
+   ],
+   [
+    24.94,
+    1783
+   ]
+  ],
+  "low": 1603,
+  "taken": 180.0,
+  "hurts": [
+   [
+    0.53,
+    43
+   ],
+   [
+    0.94,
+    17
+   ],
+   [
+    1.34,
+    82
+   ],
+   [
+    1.78,
+    38
+   ]
+  ],
+  "kills": [
+   [
+    1.22,
+    4133033157,
+    "Storm Caster"
+   ],
+   [
+    1.66,
+    2343216530,
+    "Venom Lord"
+   ],
+   [
+    1.66,
+    1856706122,
+    "Venom Lord"
+   ],
+   [
+    2.91,
+    928353061,
+    "Venom Lord"
+   ],
+   [
+    5.37,
+    2111415822,
+    "Storm Caster"
+   ],
+   [
+    16.88,
+    3713412244,
+    "Storm Caster"
+   ]
+  ],
+  "strikes": [
+   0.97,
+   1.38,
+   1.78,
+   2.18,
+   2.58,
+   2.99,
+   16.39
+  ],
+  "track": [
+   [
+    0.0,
+    7656.2,
+    5280.6
+   ],
+   [
+    0.2,
+    7656.2,
+    5280.6
+   ],
+   [
+    0.41,
+    7656.2,
+    5280.6
+   ],
+   [
+    0.61,
+    7656.2,
+    5280.6
+   ],
+   [
+    0.81,
+    7656.2,
+    5280.6
+   ],
+   [
+    1.01,
+    7656.2,
+    5280.6
+   ],
+   [
+    1.22,
+    7656.2,
+    5280.6
+   ],
+   [
+    1.42,
+    7656.2,
+    5280.6
+   ],
+   [
+    1.62,
+    7656.2,
+    5280.6
+   ],
+   [
+    1.82,
+    7656.2,
+    5280.6
+   ],
+   [
+    2.02,
+    7656.2,
+    5280.6
+   ],
+   [
+    2.22,
+    7656.2,
+    5280.6
+   ],
+   [
+    2.42,
+    7656.2,
+    5280.6
+   ],
+   [
+    2.63,
+    7656.2,
+    5280.6
+   ],
+   [
+    2.83,
+    7656.2,
+    5280.6
+   ],
+   [
+    3.03,
+    7656.2,
+    5280.6
+   ],
+   [
+    3.24,
+    7656.2,
+    5280.6
+   ],
+   [
+    3.44,
+    7656.2,
+    5280.6
+   ],
+   [
+    3.64,
+    7656.2,
+    5280.6
+   ],
+   [
+    3.84,
+    7656.2,
+    5280.6
+   ],
+   [
+    4.04,
+    7656.2,
+    5280.6
+   ],
+   [
+    4.25,
+    7656.2,
+    5280.6
+   ],
+   [
+    4.45,
+    7656.2,
+    5280.6
+   ],
+   [
+    4.65,
+    7656.2,
+    5280.6
+   ],
+   [
+    4.85,
+    7656.2,
+    5280.6
+   ],
+   [
+    5.05,
+    7656.2,
+    5280.6
+   ],
+   [
+    5.25,
+    7656.2,
+    5280.6
+   ],
+   [
+    5.45,
+    7656.2,
+    5280.6
+   ],
+   [
+    5.66,
+    7656.2,
+    5280.6
+   ],
+   [
+    5.86,
+    7656.2,
+    5280.6
+   ],
+   [
+    6.06,
+    7656.2,
+    5280.6
+   ],
+   [
+    6.26,
+    7656.2,
+    5280.6
+   ],
+   [
+    6.47,
+    7656.2,
+    5280.6
+   ],
+   [
+    6.67,
+    7656.2,
+    5280.6
+   ],
+   [
+    6.87,
+    7656.2,
+    5280.6
+   ],
+   [
+    7.07,
+    7656.2,
+    5280.6
+   ],
+   [
+    7.28,
+    7656.2,
+    5280.6
+   ],
+   [
+    7.48,
+    7656.2,
+    5280.6
+   ],
+   [
+    7.68,
+    7656.2,
+    5280.6
+   ],
+   [
+    7.88,
+    7656.2,
+    5280.6
+   ],
+   [
+    8.08,
+    7656.2,
+    5280.6
+   ],
+   [
+    8.29,
+    7656.2,
+    5280.6
+   ],
+   [
+    8.5,
+    7656.2,
+    5280.6
+   ],
+   [
+    8.7,
+    7656.2,
+    5280.6
+   ],
+   [
+    8.91,
+    7656.2,
+    5280.6
+   ],
+   [
+    9.11,
+    7656.2,
+    5280.6
+   ],
+   [
+    9.31,
+    7656.2,
+    5280.6
+   ],
+   [
+    9.52,
+    7656.2,
+    5280.6
+   ],
+   [
+    9.72,
+    7656.2,
+    5280.6
+   ],
+   [
+    9.92,
+    7656.2,
+    5280.6
+   ],
+   [
+    10.12,
+    7656.2,
+    5280.6
+   ],
+   [
+    10.33,
+    7656.2,
+    5280.6
+   ],
+   [
+    10.53,
+    7656.2,
+    5280.6
+   ],
+   [
+    10.73,
+    7656.2,
+    5280.6
+   ],
+   [
+    10.93,
+    7656.2,
+    5280.6
+   ],
+   [
+    11.14,
+    7656.2,
+    5280.6
+   ],
+   [
+    11.34,
+    7656.2,
+    5280.6
+   ],
+   [
+    11.54,
+    7656.2,
+    5280.6
+   ],
+   [
+    11.74,
+    7656.2,
+    5280.6
+   ],
+   [
+    11.94,
+    7656.2,
+    5280.6
+   ],
+   [
+    12.15,
+    7656.2,
+    5280.6
+   ],
+   [
+    12.35,
+    7656.2,
+    5280.6
+   ],
+   [
+    12.55,
+    7656.2,
+    5280.6
+   ],
+   [
+    12.75,
+    7656.2,
+    5280.6
+   ],
+   [
+    12.95,
+    7656.2,
+    5280.6
+   ],
+   [
+    13.15,
+    7656.2,
+    5280.6
+   ],
+   [
+    13.36,
+    7656.2,
+    5280.6
+   ],
+   [
+    13.57,
+    7656.2,
+    5280.6
+   ],
+   [
+    13.77,
+    7656.2,
+    5280.6
+   ],
+   [
+    13.97,
+    7656.2,
+    5280.6
+   ],
+   [
+    14.17,
+    7656.2,
+    5280.6
+   ],
+   [
+    14.37,
+    7656.2,
+    5280.6
+   ],
+   [
+    14.57,
+    7656.2,
+    5280.6
+   ],
+   [
+    14.77,
+    7656.2,
+    5280.6
+   ],
+   [
+    14.97,
+    7656.2,
+    5280.6
+   ],
+   [
+    15.17,
+    7656.2,
+    5280.6
+   ],
+   [
+    15.37,
+    7656.2,
+    5280.6
+   ],
+   [
+    15.57,
+    7656.2,
+    5280.6
+   ],
+   [
+    15.78,
+    7656.2,
+    5280.6
+   ],
+   [
+    15.98,
+    7656.2,
+    5280.6
+   ],
+   [
+    16.19,
+    7656.2,
+    5280.6
+   ],
+   [
+    16.39,
+    7656.2,
+    5280.6
+   ],
+   [
+    16.59,
+    7656.2,
+    5280.6
+   ],
+   [
+    16.79,
+    7656.2,
+    5280.6
+   ],
+   [
+    17.0,
+    7656.2,
+    5280.6
+   ],
+   [
+    17.2,
+    7656.2,
+    5280.6
+   ],
+   [
+    17.4,
+    7656.2,
+    5280.6
+   ],
+   [
+    17.68,
+    7656.2,
+    5280.6
+   ],
+   [
+    17.88,
+    7656.2,
+    5280.6
+   ],
+   [
+    18.08,
+    7656.2,
+    5280.6
+   ],
+   [
+    18.29,
+    7656.2,
+    5280.6
+   ],
+   [
+    18.49,
+    7656.2,
+    5280.6
+   ],
+   [
+    18.69,
+    7656.2,
+    5280.6
+   ],
+   [
+    18.89,
+    7656.2,
+    5280.6
+   ],
+   [
+    19.1,
+    7656.2,
+    5280.6
+   ],
+   [
+    19.3,
+    7656.2,
+    5280.6
+   ],
+   [
+    19.5,
+    7656.2,
+    5280.6
+   ],
+   [
+    19.71,
+    7656.2,
+    5280.6
+   ],
+   [
+    19.91,
+    7656.2,
+    5280.6
+   ],
+   [
+    20.11,
+    7656.2,
+    5280.6
+   ],
+   [
+    20.31,
+    7656.2,
+    5280.6
+   ],
+   [
+    20.51,
+    7656.2,
+    5280.6
+   ],
+   [
+    20.71,
+    7656.2,
+    5280.6
+   ],
+   [
+    20.91,
+    7656.2,
+    5280.6
+   ],
+   [
+    21.11,
+    7656.2,
+    5280.6
+   ],
+   [
+    21.32,
+    7656.2,
+    5280.6
+   ],
+   [
+    21.52,
+    7656.2,
+    5280.6
+   ],
+   [
+    21.72,
+    7656.2,
+    5280.6
+   ],
+   [
+    21.92,
+    7656.2,
+    5280.6
+   ],
+   [
+    22.12,
+    7656.2,
+    5280.6
+   ],
+   [
+    22.33,
+    7656.2,
+    5280.6
+   ],
+   [
+    22.53,
+    7656.2,
+    5280.6
+   ],
+   [
+    22.73,
+    7656.2,
+    5280.6
+   ],
+   [
+    22.93,
+    7656.2,
+    5280.6
+   ],
+   [
+    23.13,
+    7656.2,
+    5280.6
+   ],
+   [
+    23.33,
+    7656.2,
+    5280.6
+   ],
+   [
+    23.53,
+    7656.2,
+    5280.6
+   ],
+   [
+    23.73,
+    7656.2,
+    5280.6
+   ],
+   [
+    23.93,
+    7656.2,
+    5280.6
+   ],
+   [
+    24.13,
+    7656.2,
+    5280.6
+   ],
+   [
+    24.33,
+    7656.2,
+    5280.6
+   ],
+   [
+    24.54,
+    7656.2,
+    5280.6
+   ],
+   [
+    24.74,
+    7656.2,
+    5280.6
+   ],
+   [
+    24.94,
+    7656.2,
+    5280.6
+   ]
+  ],
+  "moved": 0.0,
+  "said": [],
+  "gaps": {
+   "Grand Vizier of Chaos": [
+    57.4,
+    57.4,
+    57.4
+   ]
+  },
+  "boss_dead": {
+   "Grand Vizier of Chaos": null
+  },
+  "opened": []
+ },
+ "scene": {
+  "name": "vizier-stall",
+  "hero": {
+   "name": "CybergrindAA",
+   "at": [
+    7656.18,
+    5280.6
+   ],
+   "area": 108,
+   "life": 1783.0,
+   "max_life": 1783.0,
+   "mana": 323.0,
+   "max_mana": 503.0,
+   "belt": [
+    531,
+    531,
+    606,
+    606,
+    531,
+    531,
+    606,
+    606,
+    531,
+    531,
+    606,
+    606,
+    531,
+    531,
+    606,
+    606
+   ],
+   "sets": [
+    {
+     "codes": [
+      "fla",
+      "uit"
+     ],
+     "resist": {
+      "fire": 0.25,
+      "cold": 0.25,
+      "lightning": 0.25,
+      "physical": 0.9
+     },
+     "teleport_charges": null
+    },
+    {
+     "codes": [
+      "6cs",
+      "wa3"
+     ],
+     "resist": {
+      "fire": 0.46,
+      "cold": 0.82,
+      "lightning": 0.92,
+      "physical": 0.9
+     },
+     "teleport_charges": 4
+    }
+   ],
+   "hand": 0,
+   "slots": [
+    379,
+    390,
+    375,
+    384,
+    389,
+    220,
+    393,
+    377,
+    null,
+    382,
+    387,
+    54,
+    381,
+    388,
+    null,
+    null
+   ],
+   "hex_purge": true,
+   "ward": true,
+   "consume": true,
+   "left_skill": 0,
+   "right_skill": 388
+  },
+  "mobs": [
+   {
+    "unit": 2111415822,
+    "txt": 306,
+    "at": [
+     7687.5,
+     5318.5
+    ],
+    "level": 85,
+    "life": 3544.2,
+    "full": 4404.5,
+    "flags": 0,
+    "mods": [],
+    "tier": 0,
+    "mode": 1,
+    "owner": null,
+    "ally": false,
+    "immune": false
+   },
+   {
+    "unit": 2343216530,
+    "txt": 362,
+    "at": [
+     7651.5,
+     5276.5
+    ],
+    "level": 84,
+    "life": 10664.5,
+    "full": 10664.5,
+    "flags": 0,
+    "mods": [],
+    "tier": 0,
+    "mode": 8,
+    "owner": null,
+    "ally": false,
+    "immune": false
+   },
+   {
+    "unit": 3713412244,
+    "txt": 306,
+    "at": [
+     7666.97,
+     5315.97
+    ],
+    "level": 85,
+    "life": 2030.2,
+    "full": 4404.5,
+    "flags": 0,
+    "mods": [],
+    "tier": 0,
+    "mode": 2,
+    "owner": null,
+    "ally": false,
+    "immune": false
+   },
+   {
+    "unit": 3110376215,
+    "txt": 362,
+    "at": [
+     7681.5,
+     5311.5
+    ],
+    "level": 84,
+    "life": 0.0,
+    "full": 10664.5,
+    "flags": 0,
+    "mods": [],
+    "tier": 0,
+    "mode": 12,
+    "owner": null,
+    "ally": false,
+    "immune": false
+   },
+   {
+    "unit": 2865435288,
+    "txt": 306,
+    "at": [
+     7660.5,
+     5308.5
+    ],
+    "level": 85,
+    "life": 0.0,
+    "full": 4404.5,
+    "flags": 0,
+    "mods": [],
+    "tier": 0,
+    "mode": 12,
+    "owner": null,
+    "ally": false,
+    "immune": false
+   },
+   {
+    "unit": 3830005408,
+    "txt": 338,
+    "at": [
+     7657.5,
+     5290.5
+    ],
+    "level": 0,
+    "life": 128.0,
+    "full": 2367.0,
+    "flags": 0,
+    "mods": [],
+    "tier": 0,
+    "mode": 1,
+    "owner": 3830005403,
+    "ally": true,
+    "immune": false
+   },
+   {
+    "unit": 928353061,
+    "txt": 362,
+    "at": [
+     7652.5,
+     5270.5
+    ],
+    "level": 84,
+    "life": 10664.5,
+    "full": 10664.5,
+    "flags": 0,
+    "mods": [],
+    "tier": 0,
+    "mode": 1,
+    "owner": null,
+    "ally": false,
+    "immune": false
+   },
+   {
+    "unit": 716350630,
+    "txt": 306,
+    "at": [
+     7662.5,
+     5311.5
+    ],
+    "level": 85,
+    "life": 0.0,
+    "full": 4404.5,
+    "flags": 0,
+    "mods": [],
+    "tier": 0,
+    "mode": 12,
+    "owner": null,
+    "ally": false,
+    "immune": false
+   },
+   {
+    "unit": 2595002665,
+    "txt": 306,
+    "at": [
+     7665.5,
+     5302.5
+    ],
+    "level": 85,
+    "life": 0.0,
+    "full": 4404.5,
+    "flags": 0,
+    "mods": [],
+    "tier": 0,
+    "mode": 12,
+    "owner": null,
+    "ally": false,
+    "immune": false
+   },
+   {
+    "unit": 3836090284,
+    "txt": 306,
+    "at": [
+     7661.5,
+     5316.5
+    ],
+    "level": 85,
+    "life": 0.0,
+    "full": 4404.5,
+    "flags": 0,
+    "mods": [],
+    "tier": 0,
+    "mode": 12,
+    "owner": null,
+    "ally": false,
+    "immune": false
+   },
+   {
+    "unit": 2254252844,
+    "txt": 306,
+    "at": [
+     7687.5,
+     5321.5
+    ],
+    "level": 85,
+    "life": 4404.5,
+    "full": 4404.5,
+    "flags": 16,
+    "mods": [
+     5,
+     9,
+     8
+    ],
+    "tier": 0,
+    "mode": 1,
+    "owner": null,
+    "ally": false,
+    "immune": false
+   },
+   {
+    "unit": 1388914223,
+    "txt": 310,
+    "at": [
+     7679.5,
+     5312.5
+    ],
+    "level": 82,
+    "life": 0.0,
+    "full": 6259.5,
+    "flags": 0,
+    "mods": [],
+    "tier": 0,
+    "mode": 12,
+    "owner": null,
+    "ally": false,
+    "immune": false
+   },
+   {
+    "unit": 1972774193,
+    "txt": 306,
+    "at": [
+     7666.5,
+     5305.5
+    ],
+    "level": 85,
+    "life": 0.0,
+    "full": 4404.5,
+    "flags": 0,
+    "mods": [],
+    "tier": 0,
+    "mode": 12,
+    "owner": null,
+    "ally": false,
+    "immune": false
+   },
+   {
+    "unit": 1500851378,
+    "txt": 306,
+    "at": [
+     7693.5,
+     5321.5
+    ],
+    "level": 85,
+    "life": 4404.5,
+    "full": 4404.5,
+    "flags": 16,
+    "mods": [
+     5,
+     9,
+     8
+    ],
+    "tier": 0,
+    "mode": 1,
+    "owner": null,
+    "ally": false,
+    "immune": false
+   },
+   {
+    "unit": 4070088371,
+    "txt": 306,
+    "at": [
+     7664.5,
+     5319.5
+    ],
+    "level": 85,
+    "life": 0.0,
+    "full": 4404.5,
+    "flags": 0,
+    "mods": [],
+    "tier": 0,
+    "mode": 12,
+    "owner": null,
+    "ally": false,
+    "immune": false
+   },
+   {
+    "unit": 1797593277,
+    "txt": 310,
+    "at": [
+     7678.5,
+     5311.5
+    ],
+    "level": 82,
+    "life": 0.0,
+    "full": 6259.5,
+    "flags": 0,
+    "mods": [],
+    "tier": 0,
+    "mode": 12,
+    "owner": null,
+    "ally": false,
+    "immune": false
+   },
+   {
+    "unit": 4133033157,
+    "txt": 306,
+    "at": [
+     7657.5,
+     5299.5
+    ],
+    "level": 85,
+    "life": 3200.1,
+    "full": 4404.5,
+    "flags": 0,
+    "mods": [],
+    "tier": 0,
+    "mode": 8,
+    "owner": null,
+    "ally": false,
+    "immune": false
+   },
+   {
+    "unit": 1171600073,
+    "txt": 306,
+    "at": [
+     7696.5,
+     5321.5
+    ],
+    "level": 85,
+    "life": 8809.0,
+    "full": 8809.0,
+    "flags": 10,
+    "mods": [
+     5,
+     9,
+     30,
+     8,
+     22
+    ],
+    "tier": 0,
+    "mode": 1,
+    "owner": null,
+    "ally": false,
+    "immune": false
+   },
+   {
+    "unit": 1856706122,
+    "txt": 362,
+    "at": [
+     7651.5,
+     5273.5
+    ],
+    "level": 84,
+    "life": 10664.5,
+    "full": 10664.5,
+    "flags": 0,
+    "mods": [],
+    "tier": 0,
+    "mode": 1,
+    "owner": null,
+    "ally": false,
+    "immune": false
+   },
+   {
+    "unit": 1432717644,
+    "txt": 306,
+    "at": [
+     7668.5,
+     5307.5
+    ],
+    "level": 85,
+    "life": 0.0,
+    "full": 4404.5,
+    "flags": 0,
+    "mods": [],
+    "tier": 0,
+    "mode": 12,
+    "owner": null,
+    "ally": false,
+    "immune": false
+   },
+   {
+    "unit": 1915002704,
+    "txt": 361,
+    "at": [
+     7657.1,
+     5290.1
+    ],
+    "level": 0,
+    "life": 128.0,
+    "full": 128.0,
+    "flags": 8,
+    "mods": [],
+    "tier": 0,
+    "mode": 1,
+    "owner": null,
+    "ally": true,
+    "immune": false
+   },
+   {
+    "unit": 358167123,
+    "txt": 306,
+    "at": [
+     7661.5,
+     5296.5
+    ],
+    "level": 85,
+    "life": 0.0,
+    "full": 4404.5,
+    "flags": 0,
+    "mods": [],
+    "tier": 0,
+    "mode": 12,
+    "owner": null,
+    "ally": false,
+    "immune": false
+   },
+   {
+    "unit": 1918045142,
+    "txt": 312,
+    "at": [
+     7665.5,
+     5309.5
+    ],
+    "level": 85,
+    "life": 0.0,
+    "full": 6259.5,
+    "flags": 0,
+    "mods": [],
+    "tier": 0,
+    "mode": 12,
+    "owner": null,
+    "ally": false,
+    "immune": false
+   },
+   {
+    "unit": 3914084185,
+    "txt": 306,
+    "at": [
+     7661.5,
+     5319.5
+    ],
+    "level": 85,
+    "life": 0.0,
+    "full": 4404.5,
+    "flags": 0,
+    "mods": [],
+    "tier": 0,
+    "mode": 12,
+    "owner": null,
+    "ally": false,
+    "immune": false
+   },
+   {
+    "unit": 750425689,
+    "txt": 306,
+    "at": [
+     7690.5,
+     5321.5
+    ],
+    "level": 85,
+    "life": 4404.5,
+    "full": 4404.5,
+    "flags": 16,
+    "mods": [
+     5,
+     9,
+     8
+    ],
+    "tier": 0,
+    "mode": 1,
+    "owner": null,
+    "ally": false,
+    "immune": false
+   },
+   {
+    "unit": 2777844830,
+    "txt": 310,
+    "at": [
+     7678.5,
+     5313.5
+    ],
+    "level": 82,
+    "life": 0.0,
+    "full": 6259.5,
+    "flags": 0,
+    "mods": [],
+    "tier": 0,
+    "mode": 12,
+    "owner": null,
+    "ally": false,
+    "immune": false
+   },
+   {
+    "unit": 3945564770,
+    "txt": 306,
+    "at": [
+     7658.5,
+     5306.5
+    ],
+    "level": 85,
+    "life": 0.0,
+    "full": 4404.5,
+    "flags": 0,
+    "mods": [],
+    "tier": 0,
+    "mode": 12,
+    "owner": null,
+    "ally": false,
+    "immune": false
+   },
+   {
+    "unit": 3001719140,
+    "txt": 306,
+    "at": [
+     7699.5,
+     5320.5
+    ],
+    "level": 85,
+    "life": 4404.5,
+    "full": 4404.5,
+    "flags": 16,
+    "mods": [
+     5,
+     9,
+     8
+    ],
+    "tier": 0,
+    "mode": 1,
+    "owner": null,
+    "ally": false,
+    "immune": false
+   },
+   {
+    "unit": 959022571,
+    "txt": 310,
+    "at": [
+     7677.5,
+     5310.5
+    ],
+    "level": 82,
+    "life": 0.0,
+    "full": 6259.5,
+    "flags": 0,
+    "mods": [],
+    "tier": 0,
+    "mode": 12,
+    "owner": null,
+    "ally": false,
+    "immune": false
+   },
+   {
+    "unit": 2358551285,
+    "txt": 310,
+    "at": [
+     7679.5,
+     5310.5
+    ],
+    "level": 82,
+    "life": 0.0,
+    "full": 6259.5,
+    "flags": 0,
+    "mods": [],
+    "tier": 0,
+    "mode": 12,
+    "owner": null,
+    "ally": false,
+    "immune": false
+   },
+   {
+    "unit": 1237879165,
+    "txt": 744,
+    "at": [
+     7657.9,
+     5290.9
+    ],
+    "level": 0,
+    "life": 92.0,
+    "full": 128.0,
+    "flags": 0,
+    "mods": [],
+    "tier": 0,
+    "mode": 8,
+    "owner": null,
+    "ally": true,
+    "immune": false
+   }
+  ],
+  "ground": [
+   {
+    "x": 1532,
+    "y": 1072,
+    "width": 8,
+    "height": 8,
+    "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+    "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+   },
+   {
+    "x": 1524,
+    "y": 1072,
+    "width": 8,
+    "height": 8,
+    "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+    "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+   },
+   {
+    "x": 1540,
+    "y": 1064,
+    "width": 8,
+    "height": 8,
+    "cells": "////////////////////B8AAfAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+    "flight": "//////////////////////////////////////////////////////////////////////////nP8/zn+c/z/Of///////////////////////////////////////////////73/f97//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+   },
+   {
+    "x": 1532,
+    "y": 1064,
+    "width": 8,
+    "height": 8,
+    "cells": "////////////////////B8AAfAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+    "flight": "//////////////////////////////////////////////////////////////////////////nP85/n+c/zn+f///////////////////////////////////////////////73/e/7//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+   },
+   {
+    "x": 1524,
+    "y": 1064,
+    "width": 8,
+    "height": 8,
+    "cells": "AAAAP/8AAAA//wAAAD//AAAAPAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+    "flight": "////v/////+//////7//////v//////////////////////////////////////////////////////n/////+f////////////////////////////////////////////////////7//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+   },
+   {
+    "x": 1540,
+    "y": 1056,
+    "width": 8,
+    "height": 8,
+    "cells": "A/////8D/////wP/////A/////8D/////wP/////A/////8D/////wP/////A/////8D/////wP/////A/////8D/////wf/////B/////8H/////wf/////B/////8H/////wAH////AMf///8B/////wP/////A/////8J//////n/////+f////////////////////////////////////////////////////////////////////////////////////8=",
+    "flight": "+//////7//////v/////+//////7//////v/////+//////7//////v/////+//////7//////v/////+//////7//////////////////////////////////////////////gH////+Mf////5//////v/////+/////8J//////n/////+f////////////////////////////////////////////////////////////////////////////////////8="
+   },
+   {
+    "x": 1532,
+    "y": 1056,
+    "width": 8,
+    "height": 8,
+    "cells": "8AAAAADwAAAAAPAAAAAA8AAAAADwAAAAAPAAAAAA8AAAAADwAAAAAPAAAAAA8AAAAADgAAAAAOAAAAAA4AAAAADgAAAAAOAAAAAA4AAAAADgAAAAAOAAAAAA4AAAAADgAAAAAMAAAAAAwAHwAAD///AAAP//8AAA///wAAD///wAAP///j//////f/////////////////////////////////////////////////////////////////////////////////8=",
+    "flight": "/+f/////5///////9/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////xgAP///n//////f/////////////////////////////////////////////////////////////////////////////////8="
+   },
+   {
+    "x": 1524,
+    "y": 1056,
+    "width": 8,
+    "height": 8,
+    "cells": "AAAAP/8AAAA//wAAAD//AAAAP/8AAAA//wAAAD//AAAAP/8AAAA//wAAAD//AAAAP/8AAAA//wAAAD//AAAAP/8AAAA//wAAAD//AAAAP/8AAAA//wAAAD//AAAAP/8AAAA//wAAAD//AAAAP/8AAAA//wAAAD//AAAAP/8AAAA//wAAAD//AAAAP/8AAAA//wAAAD//AAAAP/8AAAA//wAAAD//AAAAP/8AAAA//wAAAD//AAAAP/8AAAA//wAAAD//AAAAP/8=",
+    "flight": "////v/////+//////7//////v/////+//////7//////v/////+//////7//////v/////+//////7//////v/////+//////7//////v/////+//////7//////v/////+//////7//////v/////+//////7//////v/////+//////7//////v/////+//////7//////v/////+//////7//////v/////+//////7//////v/////+//////7//////v/8="
+   },
+   {
+    "x": 1540,
+    "y": 1048,
+    "width": 8,
+    "height": 8,
+    "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHgAAAAAf/////B/////8H/////wf/////B/////8H/////wP/////Af////8A/////wH/////A/////8D/////wP/////A/////8=",
+    "flight": "////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////gAAAAP////////////////////////////////////////v/////+f/////4///////////////////7//////v/////+/////8="
+   },
+   {
+    "x": 1532,
+    "y": 1048,
+    "width": 8,
+    "height": 8,
+    "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADgAAAAAOAAAAAA4AAAAADgAAAAAOAAAAAAwAAAAADAAAAAAMAAAAAAwAAAAADAAAAAAMAAAAAAwAAAAADAAAAAAMAAAAAAwAAAAAA=",
+    "flight": "/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////f/////////////////////////////////////////////////n/////+f///////f///////////////8="
+   },
+   {
+    "x": 1524,
+    "y": 1048,
+    "width": 8,
+    "height": 8,
+    "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAD//AAAAP/8AAAA//wAAAD//AAAAP/8AAAA//wAAAD//AAAAP/8AAAA//wAAAD//AAAAP/8AAAA//wAAAD//AAAAP/8=",
+    "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////+AAf///7//////v/////+//////7//////v/////+//////7//////v/////+//////7//////v/////+//////7//////v/8="
+   },
+   {
+    "x": 1516,
+    "y": 1064,
+    "width": 8,
+    "height": 8,
+    "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+    "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+   },
+   {
+    "x": 1516,
+    "y": 1056,
+    "width": 8,
+    "height": 8,
+    "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+    "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+   },
+   {
+    "x": 1508,
+    "y": 1056,
+    "width": 8,
+    "height": 8,
+    "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+    "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+   },
+   {
+    "x": 1516,
+    "y": 1048,
+    "width": 8,
+    "height": 8,
+    "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+    "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+   },
+   {
+    "x": 1508,
+    "y": 1048,
+    "width": 8,
+    "height": 8,
+    "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+    "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+   },
+   {
+    "x": 1540,
+    "y": 1040,
+    "width": 8,
+    "height": 8,
+    "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+    "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+   },
+   {
+    "x": 1532,
+    "y": 1040,
+    "width": 8,
+    "height": 8,
+    "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+    "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+   },
+   {
+    "x": 1524,
+    "y": 1040,
+    "width": 8,
+    "height": 8,
+    "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+    "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+   },
+   {
+    "x": 1516,
+    "y": 1040,
+    "width": 8,
+    "height": 8,
+    "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+    "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+   }
+  ],
+  "doors": [],
+  "rooms": [
+   {
+    "preset": 836,
+    "x": 1532,
+    "y": 1072,
+    "width": 8,
+    "height": 8,
+    "variant": 0,
+    "block": [
+     1524,
+     1072,
+     24,
+     24
+    ],
+    "leads_to": []
+   },
+   {
+    "preset": 836,
+    "x": 1524,
+    "y": 1072,
+    "width": 8,
+    "height": 8,
+    "variant": 0,
+    "block": [
+     1524,
+     1072,
+     24,
+     24
+    ],
+    "leads_to": []
+   },
+   {
+    "preset": 858,
+    "x": 1540,
+    "y": 1064,
+    "width": 8,
+    "height": 8,
+    "variant": 1,
+    "block": [
+     1524,
+     1048,
+     24,
+     24
+    ],
+    "leads_to": []
+   },
+   {
+    "preset": 858,
+    "x": 1532,
+    "y": 1064,
+    "width": 8,
+    "height": 8,
+    "variant": 1,
+    "block": [
+     1524,
+     1048,
+     24,
+     24
+    ],
+    "leads_to": []
+   },
+   {
+    "preset": 858,
+    "x": 1524,
+    "y": 1064,
+    "width": 8,
+    "height": 8,
+    "variant": 1,
+    "block": [
+     1524,
+     1048,
+     24,
+     24
+    ],
+    "leads_to": []
+   },
+   {
+    "preset": 858,
+    "x": 1540,
+    "y": 1056,
+    "width": 8,
+    "height": 8,
+    "variant": 1,
+    "block": [
+     1524,
+     1048,
+     24,
+     24
+    ],
+    "leads_to": []
+   },
+   {
+    "preset": 858,
+    "x": 1532,
+    "y": 1056,
+    "width": 8,
+    "height": 8,
+    "variant": 1,
+    "block": [
+     1524,
+     1048,
+     24,
+     24
+    ],
+    "leads_to": []
+   },
+   {
+    "preset": 858,
+    "x": 1524,
+    "y": 1056,
+    "width": 8,
+    "height": 8,
+    "variant": 1,
+    "block": [
+     1524,
+     1048,
+     24,
+     24
+    ],
+    "leads_to": []
+   },
+   {
+    "preset": 858,
+    "x": 1540,
+    "y": 1048,
+    "width": 8,
+    "height": 8,
+    "variant": 1,
+    "block": [
+     1524,
+     1048,
+     24,
+     24
+    ],
+    "leads_to": []
+   },
+   {
+    "preset": 858,
+    "x": 1532,
+    "y": 1048,
+    "width": 8,
+    "height": 8,
+    "variant": 1,
+    "block": [
+     1524,
+     1048,
+     24,
+     24
+    ],
+    "leads_to": []
+   },
+   {
+    "preset": 858,
+    "x": 1524,
+    "y": 1048,
+    "width": 8,
+    "height": 8,
+    "variant": 1,
+    "block": [
+     1524,
+     1048,
+     24,
+     24
+    ],
+    "leads_to": []
+   },
+   {
+    "preset": 836,
+    "x": 1516,
+    "y": 1064,
+    "width": 8,
+    "height": 8,
+    "variant": 0,
+    "block": [
+     1500,
+     1048,
+     24,
+     24
+    ],
+    "leads_to": []
+   },
+   {
+    "preset": 836,
+    "x": 1516,
+    "y": 1056,
+    "width": 8,
+    "height": 8,
+    "variant": 0,
+    "block": [
+     1500,
+     1048,
+     24,
+     24
+    ],
+    "leads_to": []
+   },
+   {
+    "preset": 836,
+    "x": 1508,
+    "y": 1056,
+    "width": 8,
+    "height": 8,
+    "variant": 0,
+    "block": [
+     1500,
+     1048,
+     24,
+     24
+    ],
+    "leads_to": []
+   },
+   {
+    "preset": 836,
+    "x": 1516,
+    "y": 1048,
+    "width": 8,
+    "height": 8,
+    "variant": 0,
+    "block": [
+     1500,
+     1048,
+     24,
+     24
+    ],
+    "leads_to": []
+   },
+   {
+    "preset": 836,
+    "x": 1508,
+    "y": 1048,
+    "width": 8,
+    "height": 8,
+    "variant": 0,
+    "block": [
+     1500,
+     1048,
+     24,
+     24
+    ],
+    "leads_to": []
+   },
+   {
+    "preset": 836,
+    "x": 1540,
+    "y": 1040,
+    "width": 8,
+    "height": 8,
+    "variant": 0,
+    "block": [
+     1524,
+     1024,
+     24,
+     24
+    ],
+    "leads_to": []
+   },
+   {
+    "preset": 836,
+    "x": 1532,
+    "y": 1040,
+    "width": 8,
+    "height": 8,
+    "variant": 0,
+    "block": [
+     1524,
+     1024,
+     24,
+     24
+    ],
+    "leads_to": []
+   },
+   {
+    "preset": 836,
+    "x": 1524,
+    "y": 1040,
+    "width": 8,
+    "height": 8,
+    "variant": 0,
+    "block": [
+     1524,
+     1024,
+     24,
+     24
+    ],
+    "leads_to": []
+   },
+   {
+    "preset": 836,
+    "x": 1516,
+    "y": 1040,
+    "width": 8,
+    "height": 8,
+    "variant": 0,
+    "block": [
+     1500,
+     1024,
+     24,
+     24
+    ],
+    "leads_to": []
+   }
+  ],
+  "drops": [],
+  "assumed": [
+   "belt",
+   "consume",
+   "drops",
+   "hex_purge",
+   "immune",
+   "sets",
+   "slots",
+   "ward"
+  ],
+  "source": {
+   "take": "20261013T060607Z-108",
+   "frame": 855,
+   "t": 35.033
+  },
+  "things": [
+   {
+    "unit": 2960892495,
+    "txt": 396,
+    "at": [
+     7655.0,
+     5315.0
+    ],
+    "mode": 2
+   },
+   {
+    "unit": 960608137,
+    "txt": 395,
+    "at": [
+     7655.0,
+     5275.0
+    ],
+    "mode": 2
+   },
+   {
+    "unit": 990000002,
+    "txt": 394,
+    "at": [
+     7815.0,
+     5155.0
+    ],
+    "mode": 0
+   },
+   {
+    "unit": 990000003,
+    "txt": 392,
+    "at": [
+     7915.0,
+     5315.0
+    ],
+    "mode": 0
+   },
+   {
+    "unit": 990000004,
+    "txt": 393,
+    "at": [
+     7915.0,
+     5275.0
+    ],
+    "mode": 0
+   }
+  ]
+ }
+}

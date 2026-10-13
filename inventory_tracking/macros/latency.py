@@ -95,6 +95,8 @@ class Trace:
         self.lock = threading.Lock()
         self.count = 0
         self.closed: list[Press] = []  # the last few, for tests and a look from a debugger
+        # the combat recorder's `note` (combat/record.py): each press over, with what became of it
+        self.noted: Callable[..., None] | None = None
 
     def press(self, routine: str, stamp: float, received: float, **notes: object) -> Press:
         with self.lock:
@@ -114,6 +116,11 @@ class Trace:
         """`press` is over: written once, with the notes."""
         if press is None or press.closed:
             return
+        self._close(press, **notes)
+        if self.noted is not None:
+            self.noted('press', **press.record())
+
+    def _close(self, press: Press, **notes: object) -> None:
         press.closed = True
         press.notes.update({name: value for name, value in notes.items() if value is not None})
         if press.usage is not None:

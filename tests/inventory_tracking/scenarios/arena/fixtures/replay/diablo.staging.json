@@ -1,0 +1,253 @@
+{
+ "marks": [
+  {
+   "label": "Diablo",
+   "kind": "target",
+   "spot": [
+    1559.0,
+    1059.0
+   ],
+   "use": 0
+  },
+  {
+   "label": "Vizier seal 1",
+   "kind": "target",
+   "spot": [
+    1531.0,
+    1063.0
+   ],
+   "use": 396
+  },
+  {
+   "label": "Vizier seal 2",
+   "kind": "target",
+   "spot": [
+    1531.0,
+    1055.0
+   ],
+   "use": 395
+  },
+  {
+   "label": "De Seis seal",
+   "kind": "target",
+   "spot": [
+    1563.0,
+    1031.0
+   ],
+   "use": 394
+  },
+  {
+   "label": "Infector seal 1",
+   "kind": "target",
+   "spot": [
+    1583.0,
+    1063.0
+   ],
+   "use": 392
+  },
+  {
+   "label": "Infector seal 2",
+   "kind": "target",
+   "spot": [
+    1583.0,
+    1055.0
+   ],
+   "use": 393
+  }
+ ],
+ "presses": [
+  [
+   0.0,
+   "hunt any"
+  ],
+  [
+   2.9,
+   "pickup"
+  ],
+  [
+   3.2,
+   "pickup"
+  ],
+  [
+   3.45,
+   "pickup"
+  ],
+  [
+   4.24,
+   "teleport"
+  ],
+  [
+   5.01,
+   "pickup"
+  ],
+  [
+   6.08,
+   "pickup"
+  ]
+ ],
+ "opened": [
+  "De Seis seal",
+  "Infector seal 1",
+  "Infector seal 2",
+  "Vizier seal 1",
+  "Vizier seal 2"
+ ],
+ "bosses": [
+  [
+   2743340744,
+   "Diablo"
+  ]
+ ],
+ "dead_before": [
+  "Grand Vizier of Chaos",
+  "Infector of Souls",
+  "Lord De Seis"
+ ],
+ "packs": [],
+ "arrivals": [
+  [
+   2.31,
+   {
+    "unit": 2743340744,
+    "txt": 243,
+    "at": [
+     7796.5,
+     5290.5
+    ],
+    "level": 94,
+    "life": 146250.0,
+    "full": 146250.0,
+    "flags": 8,
+    "mods": [
+     22
+    ],
+    "tier": 0,
+    "mode": 1,
+    "owner": null,
+    "ally": false,
+    "immune": false
+   }
+  ]
+ ],
+ "late": 0,
+ "far": 0,
+ "card": [
+  108,
+  "Diablo",
+  "target",
+  [
+   1559.0,
+   1059.0
+  ],
+  0,
+  false
+ ],
+ "attack_mode": true,
+ "sweep": 0,
+ "truth": {
+  "places": [
+   [
+    7795.5,
+    5294.5
+   ],
+   [
+    7795.5,
+    5294.5
+   ],
+   [
+    7795.5,
+    5294.5
+   ],
+   [
+    7795.5,
+    5294.5
+   ],
+   [
+    7795.5,
+    5294.5
+   ],
+   [
+    7795.5,
+    5294.5
+   ],
+   [
+    7795.5,
+    5294.5
+   ]
+  ],
+  "gone": [
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0
+  ],
+  "taken": [
+   0.0,
+   0.0,
+   0.0,
+   22.0,
+   22.0,
+   22.0,
+   45.0
+  ],
+  "kills": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   1
+  ],
+  "strikes": [
+   2.7,
+   4.21,
+   5.2,
+   5.55,
+   5.91,
+   6.28,
+   6.65,
+   6.97,
+   7.34,
+   7.71
+  ],
+  "low": 1780.0,
+  "moved": 0.0,
+  "near": [
+   0,
+   1,
+   1,
+   1,
+   1,
+   1,
+   0
+  ],
+  "ends": {
+   "first strike": 2.7,
+   "Vizier seal 1 opened": null,
+   "Vizier seal 2 opened": null,
+   "De Seis seal opened": null,
+   "Infector seal 1 opened": null,
+   "Infector seal 2 opened": null,
+   "Diablo dead": 7.83
+  },
+  "said": {
+   "no Blade Warp or walk leads toward": 0,
+   "Blade Warp toward": 0,
+   "Attack mode on": 1,
+   "Attack mode paused": 2,
+   "Echoing Strike": 2,
+   "=Macro: Healing potion": 0,
+   "=Macro: Blade Warp": 0,
+   "=Macro: Teleport": 0,
+   "Walking into": 0,
+   ": open": 0,
+   "Picking up": 0,
+   "toward a better place": 0
+  },
+  "dead": false
+ }
+}

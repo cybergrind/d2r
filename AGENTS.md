@@ -1,5 +1,8 @@
 # D2R appraisal repo — agent instructions (core)
 
+New session: use the [root starting point](README.md) to find the relevant area.
+For macro/combat framework work, begin with [the framework guide](inventory_tracking/macros/README.md).
+
 Diablo II: Resurrected pricing / farming knowledge base for one player: **Softcore · Non-Ladder · PC ·
 Reign of the Warlock (RotW)**, playing an **Echoing Strike Warlock**. Farming rotates between runs (bosses, Pindleskin,
 Hell cows, the Anya shop…); do not assume a particular run. The farm guide covers Pindle/Anya only. Everything is quoted in **Ist = 1**. Numbers are dated snapshots (mostly 2026-09-18).
@@ -15,6 +18,7 @@ Hell cows, the Anya shop…); do not assume a particular run. The farm guide cov
 | asks to refresh prices, pull Traderie / diablo2.io, rebuild data, extend a guide, run the plan | `.agents/skills/pricing-refresh/SKILL.md` | — |
 | asks to update/audit the offline KB, fold in research, or check base-variant coverage | `.agents/skills/update-kb/SKILL.md` | online refresh unless requested |
 | asks to clear the shared stash, organise mules, decide what to drop or where an item goes | `.agents/skills/mules/SKILL.md` | online refresh; the guides |
+| reports a played session with the macros: "new run is here", "do rca", "we got stuck", "KP_4 / attack mode did nothing", "we almost died" | `.agents/skills/d2-rca/SKILL.md` | the pricing skills |
 | asks to list an item on Traderie, post a listing, or review their active listings | `.agents/skills/traderie-list/SKILL.md` | online refresh unless requested |
 
 The appraise skill's report has a "why the filter shows it" part; it links to the filter skill only for the
@@ -29,7 +33,9 @@ facet refinement. Guides and raw wp-* files are targeted fallbacks after the KB 
 what is missing; do not start by scanning them. Missing/incompatible index → offline rebuild.
 No online refresh during default appraisal. Live item checking requires an explicit user
 request and the separate `appraise-online` skill; cache misses never trigger it.
-The full image-to-report command is not implemented yet.
+The unattended image-to-final-report orchestrator is not implemented. The optional
+`pricing.knowledge image` command produces OCR/candidate evidence for agent review;
+see the appraisal skill. This limitation does not apply to native Alt+D appraisal.
 
 ## Assessment engine work (all agents)
 

@@ -1,0 +1,3947 @@
+{
+ "name": "river-hops",
+ "hero": {
+  "name": "CybergrindAA",
+  "at": [
+   7802.5,
+   5763.5
+  ],
+  "area": 107,
+  "life": 1783.0,
+  "max_life": 1783.0,
+  "mana": 488.0,
+  "max_mana": 503.0,
+  "belt": [
+   531,
+   531,
+   606,
+   606,
+   531,
+   531,
+   null,
+   606,
+   531,
+   531,
+   null,
+   606,
+   531,
+   531,
+   null,
+   606
+  ],
+  "sets": [
+   {
+    "codes": [
+     "fla",
+     "uit"
+    ],
+    "resist": {
+     "fire": 0.25,
+     "cold": 0.25,
+     "lightning": 0.25,
+     "physical": 0.9
+    },
+    "teleport_charges": null
+   },
+   {
+    "codes": [
+     "6cs",
+     "wa3"
+    ],
+    "resist": {
+     "physical": 0.9,
+     "fire": 0.46,
+     "lightning": 0.92,
+     "cold": 0.82
+    },
+    "teleport_charges": 2
+   }
+  ],
+  "hand": 1,
+  "slots": [
+   379,
+   390,
+   375,
+   384,
+   389,
+   220,
+   393,
+   377,
+   null,
+   382,
+   387,
+   54,
+   381,
+   388,
+   null,
+   null
+  ],
+  "hex_purge": true,
+  "ward": true,
+  "consume": true,
+  "left_skill": 0,
+  "right_skill": 388
+ },
+ "mobs": [
+  {
+   "unit": 4144532096,
+   "txt": 300,
+   "at": [
+    7815.5,
+    5738.5
+   ],
+   "level": 85,
+   "life": 10433.0,
+   "full": 10433.0,
+   "flags": 0,
+   "mods": [
+    6
+   ],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 3457225985,
+   "txt": 300,
+   "at": [
+    7818.5,
+    5738.5
+   ],
+   "level": 85,
+   "life": 10433.0,
+   "full": 10433.0,
+   "flags": 0,
+   "mods": [
+    6
+   ],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 168006785,
+   "txt": 300,
+   "at": [
+    7826.5,
+    5801.5
+   ],
+   "level": 85,
+   "life": 10433.0,
+   "full": 10433.0,
+   "flags": 0,
+   "mods": [
+    6
+   ],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 336013570,
+   "txt": 300,
+   "at": [
+    7822.5,
+    5789.5
+   ],
+   "level": 85,
+   "life": 10433.0,
+   "full": 10433.0,
+   "flags": 0,
+   "mods": [
+    6
+   ],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 3156355587,
+   "txt": 305,
+   "at": [
+    7815.5,
+    5756.5
+   ],
+   "level": 84,
+   "life": 4404.5,
+   "full": 4404.5,
+   "flags": 0,
+   "mods": [
+    6
+   ],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 672043524,
+   "txt": 300,
+   "at": [
+    7824.5,
+    5799.5
+   ],
+   "level": 85,
+   "life": 10433.0,
+   "full": 10433.0,
+   "flags": 0,
+   "mods": [
+    6
+   ],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 2715058309,
+   "txt": 300,
+   "at": [
+    7818.5,
+    5810.98
+   ],
+   "level": 85,
+   "life": 9291.9,
+   "full": 10433.0,
+   "flags": 0,
+   "mods": [
+    6
+   ],
+   "tier": 0,
+   "mode": 2,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 1480889351,
+   "txt": 305,
+   "at": [
+    7805.5,
+    5763.5
+   ],
+   "level": 84,
+   "life": 2408.7,
+   "full": 4404.5,
+   "flags": 0,
+   "mods": [
+    6
+   ],
+   "tier": 0,
+   "mode": 3,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 1344087048,
+   "txt": 153,
+   "at": [
+    7829.5,
+    5770.5
+   ],
+   "level": 66,
+   "life": 4637.0,
+   "full": 4637.0,
+   "flags": 0,
+   "mods": [],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 1511960713,
+   "txt": 303,
+   "at": [
+    7820.5,
+    5809.5
+   ],
+   "level": 85,
+   "life": 2781.5,
+   "full": 2781.5,
+   "flags": 0,
+   "mods": [
+    6
+   ],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 1672020235,
+   "txt": 300,
+   "at": [
+    7811.5,
+    5815.5
+   ],
+   "level": 85,
+   "life": 9373.4,
+   "full": 10433.0,
+   "flags": 0,
+   "mods": [
+    6
+   ],
+   "tier": 0,
+   "mode": 2,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 2961778702,
+   "txt": 305,
+   "at": [
+    7818.5,
+    5757.5
+   ],
+   "level": 84,
+   "life": 4404.5,
+   "full": 4404.5,
+   "flags": 0,
+   "mods": [
+    6
+   ],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 2688190480,
+   "txt": 300,
+   "at": [
+    7817.93,
+    5785.79
+   ],
+   "level": 85,
+   "life": 9617.9,
+   "full": 10433.0,
+   "flags": 0,
+   "mods": [
+    6
+   ],
+   "tier": 0,
+   "mode": 2,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 624966288,
+   "txt": 305,
+   "at": [
+    7831.5,
+    5753.5
+   ],
+   "level": 84,
+   "life": 4404.5,
+   "full": 4404.5,
+   "flags": 0,
+   "mods": [
+    6
+   ],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 3023937810,
+   "txt": 303,
+   "at": [
+    7821.5,
+    5808.5
+   ],
+   "level": 85,
+   "life": 2781.5,
+   "full": 2781.5,
+   "flags": 0,
+   "mods": [
+    6
+   ],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 32376981,
+   "txt": 300,
+   "at": [
+    7779.5,
+    5753.5
+   ],
+   "level": 85,
+   "life": 10433.0,
+   "full": 10433.0,
+   "flags": 0,
+   "mods": [
+    6
+   ],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 3344040470,
+   "txt": 300,
+   "at": [
+    7822.5,
+    5811.5
+   ],
+   "level": 85,
+   "life": 10433.0,
+   "full": 10433.0,
+   "flags": 0,
+   "mods": [
+    6
+   ],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 1932366360,
+   "txt": 361,
+   "at": [
+    7802.5,
+    5763.5
+   ],
+   "level": 0,
+   "life": 128.0,
+   "full": 128.0,
+   "flags": 8,
+   "mods": [],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": true,
+   "immune": false
+  },
+  {
+   "unit": 1091735581,
+   "txt": 300,
+   "at": [
+    7800.5,
+    5747.5
+   ],
+   "level": 85,
+   "life": 10433.0,
+   "full": 10433.0,
+   "flags": 16,
+   "mods": [
+    8,
+    9,
+    6
+   ],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 1249948960,
+   "txt": 303,
+   "at": [
+    7808.5,
+    5816.5
+   ],
+   "level": 85,
+   "life": 2781.5,
+   "full": 2781.5,
+   "flags": 0,
+   "mods": [
+    6
+   ],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 1036128928,
+   "txt": 305,
+   "at": [
+    7799.5,
+    5744.5
+   ],
+   "level": 84,
+   "life": 4404.5,
+   "full": 4404.5,
+   "flags": 0,
+   "mods": [
+    6
+   ],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 1618284577,
+   "txt": 300,
+   "at": [
+    7818.3,
+    5800.26
+   ],
+   "level": 85,
+   "life": 9454.9,
+   "full": 10433.0,
+   "flags": 0,
+   "mods": [
+    6
+   ],
+   "tier": 0,
+   "mode": 2,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 156241572,
+   "txt": 300,
+   "at": [
+    7822.5,
+    5739.5
+   ],
+   "level": 85,
+   "life": 10433.0,
+   "full": 10433.0,
+   "flags": 0,
+   "mods": [
+    6
+   ],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 1216053797,
+   "txt": 305,
+   "at": [
+    7773.5,
+    5750.5
+   ],
+   "level": 84,
+   "life": 4404.5,
+   "full": 4404.5,
+   "flags": 0,
+   "mods": [
+    6
+   ],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 259032232,
+   "txt": 305,
+   "at": [
+    7770.5,
+    5750.5
+   ],
+   "level": 84,
+   "life": 4404.5,
+   "full": 4404.5,
+   "flags": 0,
+   "mods": [
+    6
+   ],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 39060393,
+   "txt": 300,
+   "at": [
+    7820.5,
+    5736.5
+   ],
+   "level": 85,
+   "life": 10433.0,
+   "full": 10433.0,
+   "flags": 0,
+   "mods": [
+    6
+   ],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 64753962,
+   "txt": 300,
+   "at": [
+    7776.5,
+    5752.5
+   ],
+   "level": 85,
+   "life": 10433.0,
+   "full": 10433.0,
+   "flags": 0,
+   "mods": [
+    6
+   ],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 2929984557,
+   "txt": 300,
+   "at": [
+    7818.5,
+    5804.5
+   ],
+   "level": 85,
+   "life": 10433.0,
+   "full": 10433.0,
+   "flags": 0,
+   "mods": [
+    6
+   ],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 3864732720,
+   "txt": 338,
+   "at": [
+    7802.5,
+    5763.5
+   ],
+   "level": 0,
+   "life": 128.0,
+   "full": 2367.0,
+   "flags": 0,
+   "mods": [],
+   "tier": 0,
+   "mode": 14,
+   "owner": 3864732715,
+   "ally": true,
+   "immune": false
+  },
+  {
+   "unit": 2183471162,
+   "txt": 300,
+   "at": [
+    7797.5,
+    5748.5
+   ],
+   "level": 85,
+   "life": 10433.0,
+   "full": 10433.0,
+   "flags": 16,
+   "mods": [
+    8,
+    9,
+    6
+   ],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 2499914304,
+   "txt": 303,
+   "at": [
+    7808.5,
+    5814.5
+   ],
+   "level": 85,
+   "life": 2781.5,
+   "full": 2781.5,
+   "flags": 0,
+   "mods": [
+    6
+   ],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 2072257856,
+   "txt": 305,
+   "at": [
+    7798.5,
+    5741.5
+   ],
+   "level": 84,
+   "life": 4404.5,
+   "full": 4404.5,
+   "flags": 0,
+   "mods": [
+    6
+   ],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 3236569154,
+   "txt": 300,
+   "at": [
+    7800.65,
+    5818.35
+   ],
+   "level": 85,
+   "life": 4727.5,
+   "full": 10433.0,
+   "flags": 0,
+   "mods": [
+    6
+   ],
+   "tier": 0,
+   "mode": 2,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 3171891268,
+   "txt": 303,
+   "at": [
+    7797.71,
+    5755.74
+   ],
+   "level": 85,
+   "life": 2781.5,
+   "full": 2781.5,
+   "flags": 0,
+   "mods": [
+    6
+   ],
+   "tier": 0,
+   "mode": 2,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 1842125640,
+   "txt": 744,
+   "at": [
+    7799.5,
+    5760.5
+   ],
+   "level": 0,
+   "life": 128.0,
+   "full": 128.0,
+   "flags": 0,
+   "mods": [],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": true,
+   "immune": false
+  },
+  {
+   "unit": 312483144,
+   "txt": 305,
+   "at": [
+    7834.5,
+    5752.5
+   ],
+   "level": 84,
+   "life": 4404.5,
+   "full": 4404.5,
+   "flags": 0,
+   "mods": [
+    6
+   ],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 2432107594,
+   "txt": 305,
+   "at": [
+    7775.5,
+    5747.5
+   ],
+   "level": 84,
+   "life": 4404.5,
+   "full": 4404.5,
+   "flags": 0,
+   "mods": [
+    6
+   ],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 518064464,
+   "txt": 305,
+   "at": [
+    7798.5,
+    5738.5
+   ],
+   "level": 84,
+   "life": 4404.5,
+   "full": 4404.5,
+   "flags": 0,
+   "mods": [
+    6
+   ],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 78120786,
+   "txt": 300,
+   "at": [
+    7822.5,
+    5742.5
+   ],
+   "level": 85,
+   "life": 10433.0,
+   "full": 10433.0,
+   "flags": 0,
+   "mods": [
+    6
+   ],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 2435449300,
+   "txt": 300,
+   "at": [
+    7799.5,
+    5751.5
+   ],
+   "level": 85,
+   "life": 20866.0,
+   "full": 20866.0,
+   "flags": 8,
+   "mods": [
+    8,
+    9,
+    6
+   ],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 129507924,
+   "txt": 300,
+   "at": [
+    7779.5,
+    5750.5
+   ],
+   "level": 85,
+   "life": 10433.0,
+   "full": 10433.0,
+   "flags": 0,
+   "mods": [
+    6
+   ],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 1217724650,
+   "txt": 300,
+   "at": [
+    7800.5,
+    5757.27
+   ],
+   "level": 85,
+   "life": 10433.0,
+   "full": 10433.0,
+   "flags": 16,
+   "mods": [
+    8,
+    9,
+    6
+   ],
+   "tier": 0,
+   "mode": 4,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 608862325,
+   "txt": 300,
+   "at": [
+    7797.48,
+    5760.49
+   ],
+   "level": 85,
+   "life": 10433.0,
+   "full": 10433.0,
+   "flags": 16,
+   "mods": [
+    8,
+    9,
+    6
+   ],
+   "tier": 0,
+   "mode": 14,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 1137752964,
+   "txt": 305,
+   "at": [
+    7842.5,
+    5684.5
+   ],
+   "level": 84,
+   "life": 4404.5,
+   "full": 4404.5,
+   "flags": 16,
+   "mods": [
+    7,
+    18
+   ],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 2275522312,
+   "txt": 305,
+   "at": [
+    7842.5,
+    5681.5
+   ],
+   "level": 84,
+   "life": 8809.0,
+   "full": 8809.0,
+   "flags": 8,
+   "mods": [
+    7,
+    18,
+    30
+   ],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 792964625,
+   "txt": 305,
+   "at": [
+    7836.5,
+    5682.5
+   ],
+   "level": 84,
+   "life": 4404.5,
+   "full": 4404.5,
+   "flags": 0,
+   "mods": [
+    6
+   ],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 3663836221,
+   "txt": 300,
+   "at": [
+    7801.5,
+    5694.5
+   ],
+   "level": 85,
+   "life": 10433.0,
+   "full": 10433.0,
+   "flags": 0,
+   "mods": [
+    6
+   ],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 568868290,
+   "txt": 305,
+   "at": [
+    7839.5,
+    5684.5
+   ],
+   "level": 84,
+   "life": 4404.5,
+   "full": 4404.5,
+   "flags": 16,
+   "mods": [
+    7,
+    18
+   ],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 284434145,
+   "txt": 305,
+   "at": [
+    7839.5,
+    5681.5
+   ],
+   "level": 84,
+   "life": 4404.5,
+   "full": 4404.5,
+   "flags": 16,
+   "mods": [
+    7,
+    18
+   ],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 2495850619,
+   "txt": 300,
+   "at": [
+    7800.5,
+    5691.5
+   ],
+   "level": 85,
+   "life": 10433.0,
+   "full": 10433.0,
+   "flags": 0,
+   "mods": [
+    6
+   ],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 4090693537,
+   "txt": 303,
+   "at": [
+    7802.5,
+    5707.5
+   ],
+   "level": 85,
+   "life": 2781.5,
+   "full": 2781.5,
+   "flags": 0,
+   "mods": [
+    6
+   ],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 3050547591,
+   "txt": 309,
+   "at": [
+    7798.5,
+    5649.5
+   ],
+   "level": 85,
+   "life": 12983.0,
+   "full": 12983.0,
+   "flags": 0,
+   "mods": [
+    6
+   ],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 1269273359,
+   "txt": 309,
+   "at": [
+    7784.5,
+    5661.5
+   ],
+   "level": 85,
+   "life": 12983.0,
+   "full": 12983.0,
+   "flags": 0,
+   "mods": [
+    6
+   ],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 2538546718,
+   "txt": 309,
+   "at": [
+    7787.5,
+    5660.5
+   ],
+   "level": 85,
+   "life": 12983.0,
+   "full": 12983.0,
+   "flags": 0,
+   "mods": [
+    6
+   ],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 245271613,
+   "txt": 153,
+   "at": [
+    7781.5,
+    5646.5
+   ],
+   "level": 66,
+   "life": 4637.0,
+   "full": 4637.0,
+   "flags": 0,
+   "mods": [],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 3404313795,
+   "txt": 309,
+   "at": [
+    7800.5,
+    5646.5
+   ],
+   "level": 85,
+   "life": 12983.0,
+   "full": 12983.0,
+   "flags": 0,
+   "mods": [
+    6
+   ],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 981086452,
+   "txt": 309,
+   "at": [
+    7838.5,
+    5669.5
+   ],
+   "level": 85,
+   "life": 12983.0,
+   "full": 12983.0,
+   "flags": 0,
+   "mods": [
+    6
+   ],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 490543226,
+   "txt": 309,
+   "at": [
+    7839.5,
+    5666.5
+   ],
+   "level": 85,
+   "life": 12983.0,
+   "full": 12983.0,
+   "flags": 0,
+   "mods": [
+    6
+   ],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 984518476,
+   "txt": 303,
+   "at": [
+    7798.5,
+    5719.5
+   ],
+   "level": 85,
+   "life": 2781.5,
+   "full": 2781.5,
+   "flags": 0,
+   "mods": [
+    6
+   ],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 3000839079,
+   "txt": 300,
+   "at": [
+    7759.5,
+    5631.5
+   ],
+   "level": 85,
+   "life": 10433.0,
+   "full": 10433.0,
+   "flags": 0,
+   "mods": [
+    6
+   ],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 3379467731,
+   "txt": 300,
+   "at": [
+    7756.5,
+    5632.5
+   ],
+   "level": 85,
+   "life": 10433.0,
+   "full": 10433.0,
+   "flags": 0,
+   "mods": [
+    6
+   ],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 246125523,
+   "txt": 305,
+   "at": [
+    7801.5,
+    5604.5
+   ],
+   "level": 84,
+   "life": 4404.5,
+   "full": 4404.5,
+   "flags": 0,
+   "mods": [
+    6
+   ],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 4105644777,
+   "txt": 300,
+   "at": [
+    7757.5,
+    5622.5
+   ],
+   "level": 85,
+   "life": 10433.0,
+   "full": 10433.0,
+   "flags": 0,
+   "mods": [
+    6
+   ],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 2538973673,
+   "txt": 305,
+   "at": [
+    7798.5,
+    5603.5
+   ],
+   "level": 84,
+   "life": 4404.5,
+   "full": 4404.5,
+   "flags": 0,
+   "mods": [
+    6
+   ],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 3931870580,
+   "txt": 300,
+   "at": [
+    7756.5,
+    5619.5
+   ],
+   "level": 85,
+   "life": 10433.0,
+   "full": 10433.0,
+   "flags": 0,
+   "mods": [
+    6
+   ],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 3685397748,
+   "txt": 305,
+   "at": [
+    7798.5,
+    5606.5
+   ],
+   "level": 84,
+   "life": 4404.5,
+   "full": 4404.5,
+   "flags": 0,
+   "mods": [
+    6
+   ],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 1965927098,
+   "txt": 306,
+   "at": [
+    7791.5,
+    5573.5
+   ],
+   "level": 85,
+   "life": 4404.5,
+   "full": 4404.5,
+   "flags": 0,
+   "mods": [],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  },
+  {
+   "unit": 982955357,
+   "txt": 306,
+   "at": [
+    7793.5,
+    5570.5
+   ],
+   "level": 85,
+   "life": 4404.5,
+   "full": 4404.5,
+   "flags": 0,
+   "mods": [],
+   "tier": 0,
+   "mode": 1,
+   "owner": null,
+   "ally": false,
+   "immune": false
+  }
+ ],
+ "ground": [
+  {
+   "x": 1580,
+   "y": 1200,
+   "width": 8,
+   "height": 8,
+   "cells": "/8AAA///wAAD///AAAP//8AAA///wAAD///+AH////4Af////gB////+AH////4Af////////////////////////////////////////+D/////4P/////g/////+D/////4P/////g/////+D/////4P/////g/////+D/////4P/////g/////+D/////4P/////g//4P/AD//g/8AP/+D/wA//4P/AD//g/8AP/AAAAA/8AAAAD/wAAAAP/AAAAA/8AAAAA=",
+   "flight": ""
+  },
+  {
+   "x": 1572,
+   "y": 1200,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAA/8AAAAH/wAAAA//AAAAP/8AAAB//wAAAH//AA+A//8AP4P//wH/g///A/5H/+cD/v//5+P+////4///////////////////////////////////////////////////////////////////////////////////////z//////P/////4//////j/////8f/////x////5/PyAH/jx/AAf/AHgAB/8AAAAB/wAAAAH/AAAAA/8AAAAD/wAAAAP/AAAAA/8=",
+   "flight": "/////////////////////////////////////////////////////////////////+f/////5/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////7//////v////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1588,
+   "y": 1192,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAP4AAAAA/gIAAAH+AwAAA/wHAAAD/D8AAAP8fwAAA/z+AAAD//8AAAP//wAAA//+AAAD//wAAAP/+AAAA/8AAAAA=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1580,
+   "y": 1192,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHwAB/4AfAAH/gB8AAf+AHwAB/4AfAAH/g///wf/////B/////8H/////wf/////B////+AAP///4AA////gAD///+AAP///4AA/8=",
+   "flight": ""
+  },
+  {
+   "x": 1572,
+   "y": 1192,
+   "width": 8,
+   "height": 8,
+   "cells": "+AAAAAD4AAAAAPgAAAAA+AAAAAD4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA4AAAAADgAAAAAOAAAAAA4AAAAAD/AAAAAP8AAAAA/wAAAAD/+AAAAf/8AAAD//wAAAP//AAAA//8AAAA//wAAAB//AAAAD/8AAAAH/wAAAAf/AAAAB/8=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1564,
+   "y": 1200,
+   "width": 8,
+   "height": 8,
+   "cells": "//AAAAD/8AAAAP/gAAAA//AAAAD/+AAAAP/8AAAA//wAAPj//gAD+P//gB/4///wP+T///A/7/n//j/v+f/+P//5//////n/////+f/////5//////n/////+f////////////////////////////////////////////////D8////8fz////z+P/////4//////H///+P8f///wfz8v/8A8fw//gAB4D/8AAAAP/wAAAA/+AAAAD/4AAAAP/AAAAA/8AAAAA=",
+   "flight": "/////7////////////////////////////////////////////////////////////////////n/////+f/////5//////n/////+f/////5//////n/////+f////////////////////////////////////////////////D/////8f/////z//////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1556,
+   "y": 1200,
+   "width": 8,
+   "height": 8,
+   "cells": "//////////////////////////////////jgP/x/+OA//H/4/H/8f/ns//z//8Af////gAZv//+AAAH//wAAAD/+AAAcH/+B4f///4P4D///w/gP///D/g///8f///////////////////////////////////z//////H/+A/38H/4D/P4f///8fx////5Hj////mMP///7//////j//////Gf////+4//////z//////////////////////////////////8=",
+   "flight": "//////////////////////////////////jgP/x/+OA//H/4/H/8f/n///z//////////////////////////////////////////8P4D///w/gP///D/g///8f////////////////////////////////////////////+A/////4D//////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1548,
+   "y": 1200,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAA/8AAAAH/wAAAA//AAAAP/8AAAB//wAAAH//AA+A//8AP4P//wH/g///A/5H//8D/v///+P+////4///////////////////////////////////////////////////////////////////////////////////////z//////P/////4//////j/////8f/////x////9/PyAH/zx/AAf/AHgAB/8AAAAB/wAAAAH/AAAAA/8AAAAD/wAAAAP/AAAAA/8=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1564,
+   "y": 1192,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAP4AAAAA/gIAAAH+AwAAA/wHAAAD/D8AAAP8fwAAA/z+AAAD//8AAAP//wAAA//+AAAD//wAAAP/+AAAA/8AAAAA=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1556,
+   "y": 1192,
+   "width": 8,
+   "height": 8,
+   "cells": "AD///gAAf//+AAB///8AAf///wAD////OAf///58B////H4H///4/g////v+B/////4B/////gD////+Af////wB/////AH////8Af////4B////7AP////0A////2AAf//8AAA///8AAH///wAA///+AAP///8AB////4AH////wA/////AP////+A/////+H////////////////////////////////////////////////////////////////////////8=",
+   "flight": "/////////////////////////////////////////////////////////////////////////////////////////////////////8f/////x//////H//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1548,
+   "y": 1192,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA4AAAAADgAAAAAOAAAAAA4AAAAAD/AAAAAP8AAAAA/wAAAAD/+AAAAf/8AAAD//wAAAP//AAAA//8AAAA//wAAAB//AAAAD/8AAAAH/wAAAAf/AAAAB/8=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1564,
+   "y": 1184,
+   "width": 8,
+   "height": 8,
+   "cells": "/4AAAAD/gAAAAP8AAAAA/wAAAAD/AAAAAP+AAAAA+wAAAAD9AAAAANgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1556,
+   "y": 1184,
+   "width": 8,
+   "height": 8,
+   "cells": "////////////////////////////////////////////////////////////////////////+AB////wAH///8AAf///gAAf//8AAB///wAAP//+AAA///4AAD///AAAP//8AAA///4AAH///gAAf///AAH///8AA////zgH///+fAf///x+B///+P4P///7/gf////+Af////4A/////gH////8Af////wB/////AH////+Af///+wD////9AP///9gAH///AA=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1548,
+   "y": 1184,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAA/8AAAAP/wAAAB//AAAAH/8AAAA//wAAAB//AAAAP/8AAAAX/wAAAAH/AAAAAH8AAAAA/gAAAAD+AAAAAP4AAAAB/gAAAAH+AAAAA/4AAAAB/gAAAAD8AAAAAFAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1564,
+   "y": 1176,
+   "width": 8,
+   "height": 8,
+   "cells": "/4AAAAD/gAAAAP8AAAAA/wAAAAD/AAAAAP+AAAAA+wAAAAD9AAAAANgAAAAAAAAAAACAAAAAAIAAAAAAwAAAAADAAAAAAM4AAAAAnwAAAAAfgAAAAD+AAAAA/4AAAAD/gAAAAP+AAAAA/4AAAAD/AAAAAP8AAAAA/wAAAAD/gAAAAPsAAAAA/QAAAADYAAAAAAAAAAAAgAAAAACAAAAAAMAAAAAAwAAAAADOAAAAAJ8AAAAAH4AAAAA/gAAAAP+AAAAA/4AAAAA=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1556,
+   "y": 1176,
+   "width": 8,
+   "height": 8,
+   "cells": "///////////////////////////////////D/4///8P/j///w/+P///D/4///////////////////////////////////////////8P/j///w/+P///D/4/+/8P/j/7/////////////////////////////////////////w/+P///D/4///8P/j///w/+P/////////////////////////////////////////////////////////////v/////+//////8=",
+   "flight": "///////////////////////////////////D/4///8P/j///w/+P///D/4///////////////////////////////////////////8P/j///w/+P///D/4///8P/j///////////////////////////////////////////w/+P///D/4///8P/j///w/+P//////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1548,
+   "y": 1176,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAA/8AAAAH/wAAAAf/AAAAH/8AAAA//wAAAH//AAAAf/8AAAB//wAAAP//AAAAf/8AAAAf/wAAAA//AAAAH/8AAAAf/wAAAB//AAAAH/8AAAAf/wAAAD//AAAAP/8AAAAH/wAAAAP/AAAAB/8AAAAH/wAAAB//AAAAP/8AAAB//wAAAH//AAAAf/8AAAD//wAAAH//AAAAH/8AAAAP/wAAAB//AAAAH/8AAAAf/wAAAB//AAAAH/8AAAA//wAAAD//AAAAB/8=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1564,
+   "y": 1168,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAADAAAAAAcAAAAAPwAAAAB/AAAAAP4AAAAA/wAAAAD/AAAAAP4AAAAA/AAAAAD4AAAAAAAAAAAAgAAAAACAAAAAAMAAAAAAwAAAAADOAAAAAJ8AAAAAH4AAAAA/gAAAAP+AAAAA/4AAAAA=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1556,
+   "y": 1168,
+   "width": 8,
+   "height": 8,
+   "cells": "AAP/AAAAA/8AAAAD/wAAAAP/AAAAA/8AAAAD/wAAAAP/AAAAA/8AAAAD/wAAAAP/AAAAA/8AAAAD/wAAAAP/AAAAA/8AAAAD/wAAAAP/AAAAA/8AEAAD/wD+AAP/AP4AA/8B/gAD/wP8AGP/D/wA8/8f/AP7/z/8B/v/f/8H/////w//////P/////8//////3/P///n+8///ef///////////////////////////PP//nn88//+ef//////v/////+//////8=",
+   "flight": "///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////P///n+8///ef///////////////////////////PP//nn88//+ef///////////////////8="
+  },
+  {
+   "x": 1548,
+   "y": 1168,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA4AAAAADgAAAAAOAAAAAA4AAAAAD/AAAAAP8AAAAA/wAAAAD/+AAAAf/8AAAD//wAAAP//AAAA//8AAAA//wAAAB//AAAAD/8AAAAH/wAAAAf/AAAAB/8=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1564,
+   "y": 1160,
+   "width": 8,
+   "height": 8,
+   "cells": "////AAD///8AAP/B/wAA+AH/AADAAf8AAPAD/wAA8AP/AADwA/8AAPAD/wAA8AP/AADwA/8AAPAD/wAA8AP/AADwA/8AAPAD/wAA8AP/AADwA/8AAPAD/wAA8AP/AADwA/8AAPAD/wAA8AP/AADwA/8AAPAAAAAA8AAAAADwAAAAAPAAAAAA8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////f//////////////////3/////+///////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1556,
+   "y": 1160,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAD8AAAAAPwAAAAA/AAAAAD8AA//APwAD/wA/AAP/AD8AA/8APwAD/wA/AAP/AD8AA/8APwAD/4P/AAP/g/8AA////wAD////AAP///8AA////wAD//wfAAP/gB8AA/wAHwAD/wA/AAP/AD8AA/8APwAD/wA/AAP/AD8AA/8APwAD/wA/AAP/AD8AA/8AAAAD/wAAAAP/AAAAA/8AAAAD/wAAAAP/AAAAA/8AAAAD/wAAAAP/AAAAA/8AAAAD/wAAAAP/AAA=",
+   "flight": "////3/////+////f////////////////////////////////////////////////////////////////////////////////////f/////////////////////////////////////////////9///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1548,
+   "y": 1160,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "///b//////f/////////////////////////////////////////////////////////////////////////////////////////////9/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1564,
+   "y": 1152,
+   "width": 8,
+   "height": 8,
+   "cells": "8AP/AADwA/8AAPAD/wAA8AP/AADwA/8AAPAB/wAA8AP/AADwA/8AAPAD/wAA8AP/AADwA/8AAPAD/wAA8AP/AADwAAAAAPAAAAAA8AAAAADwAAAAAPAAAAAA8AAAAADwAAAAAPAAAAAA8AAAAADwAAAAAPAAAAAA8AP/wADwA/8AAPAD/wAA8AP/AADwA/8AAPAD/wAA8AP/AADwA/8AAPAD/wAA8AP/AADwA/8AAPAD/wAA+D//AAD4P/8AAP///wAA////AAA=",
+   "flight": "///////////////////////////////////7///////////////////////////////////9///////////////////////////////////////////f/////////////////////////////////////////////////////////////////////////////////////////7////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1556,
+   "y": 1152,
+   "width": 8,
+   "height": 8,
+   "cells": "8AP/AD/wA/8AP/AD/wA/8AP/AD/wA/8AP/AD/wA/8AP/AD/wA/8AP/AD/wA/8AP/AD/wA/8AP/AD/wA/8AP/AD/wA/8AP/AD/wA/8AP/AD/4P/+D//g//4P/////////////////////////////wf/8H/gB/4AfwAH8AB/wA/8AP/AD/wA/8AP/AD/wA/8AP/AD/wA/8AP/AD/wA/8AP/AD/wA/AAAAAD8AAAAAPwAAAAA/AAAAAD8AAAAAPwAAAAA/AAAAAD8=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1548,
+   "y": 1152,
+   "width": 8,
+   "height": 8,
+   "cells": "AAP///8AA////wAD////AAP///8AA////wAD////AAP///8AA////wAD////AAP///8AA////wAD////AAP///8AA////wAD////AAP///8AA////wAD////AAP///8AA////wAD////AAP///8AA////wAD/gA/AAP+AD8AA/8APwAD/wA/AAP/AD8AA/8APwAD/wA/AAP/AD8AA/8APwAD/wA/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "//////////////////////////////////9//////////////////////////////////////////////////////////////////3////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1564,
+   "y": 1144,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPwAAAAA8AAAAADwAAAAAPAAAAAA8AAAAADwAAAAAPAAAAAA8AAAAADwAAAAAPAAAAAA8AP/wADwA/8AAPAD/wAA8AP/AADwA/8AAPAD/wAA8AP/AAD4P/8AAPg//wAA////AAD///8AAP///wAA////AAD/wf8AAPgB/wAAwAH/AAA=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1556,
+   "y": 1144,
+   "width": 8,
+   "height": 8,
+   "cells": "AAP/AAAAA/8AAAAD/wAAAAP/AAAAA/8AAAAD/wAAAAP/AAAAA/8AAAAD/wAAAAP/AAAAA/8AAAAD/wAAAAP/AAAAA/8AAAAD/wA/AAP/AD8AA/8APwAD/wA/AAP/AD8AA/8APwAD/wA/AAP/g/8AA/+D/wAD/////AP////wA/////AD////8AP//B/wA/+AH/AD/AAf8AP/AD/wA/8AP/AD/wA/8AP/AD/wA/8AP/AD/wA/8AP/AD/wA/8AP/AD/wA/8AP/AD8=",
+   "flight": "////////////////////////////////////////////////////////////////////////////////////////////////////f/////////////////////////////////9///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1548,
+   "y": 1144,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP///8AA////wAD////AAP///8AA////wAD////AAP///8AA////wAD////AAP///8AA////wAD////AAP///8AA////wAD////AAP///8=",
+   "flight": "////////////////////////////////////////////////////////////////////////////////////////////////////7//3///////////////v//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1564,
+   "y": 1136,
+   "width": 8,
+   "height": 8,
+   "cells": "8AP/AADwA/8AAPAD/wAA8AP/AADwA/8AAPAD/wAA+D//AAD4P/8AAP///wAA////AAD///8AAP///wAA/8H/AAD4Af8AAMAB/wAA8AP/AADwA/8AAPAD/wAA8AP/AADwA/8AAPAD/wAA8AP/AADwA/8AAPAAAAAA8AAAAADwAAAAAPAAAAAA8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "//////////////////////////////////////+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////7////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1556,
+   "y": 1136,
+   "width": 8,
+   "height": 8,
+   "cells": "8AAAAD/wAAAAP/AAAAA/8AAAAD/wA//AP/AD/wA/8AP/AD/wA/8AP/AD/wA/8AP/AD/wA/8AP/g//4P/+D//g//////////////////////////////B//wf+AH/gB/AAfwAH/AD/wA/8AP/AD/wA/8AP/AD/wA/8AP/AD/wA/8AP/AD/wA/8AP/AD8AA/8AAAAD/wAAAAP/AAAAA/8AAAAD/wAAAAP/AAAAA/8AAAAD/wAAAAP/AAAAA/8AAAAD/wAAAAP/AAA=",
+   "flight": "///////////f/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////7////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1548,
+   "y": 1136,
+   "width": 8,
+   "height": 8,
+   "cells": "AAP/AD8AA/8APwAD/wA/AAAAAD8AAAAAPwAAAAA/AAAAAD8AAAAAPwAAAAA/AAAAAD8AAAAAPwAAAAA/AAAAAD8AAAAAPwAAAAA/AAAAAD8AAAAAPwAAAAA/AAAAAD8AAAAAPwAAAAA/AAAAAD8AAAAAPwAAAAA/AAAAAD8AAAAAPwAAAAA/AAAAAD8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "////////////////////////////////////////////////////////////////////////////////////v////////////////////////////////////////////////////////////////////////////////////////////9////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1564,
+   "y": 1128,
+   "width": 8,
+   "height": 8,
+   "cells": "8AP/AADwA/8AAPAD/wAA8AP/AADwA/8AAPAD/wAA8AP/AADwA/8AAPAD/wAA8AP/AADwA/8AAPAD/wAA8AP/AAAAA/8AAAAD/wAAAAP/AAAAA/8AAAAD/wAAAAP/AAAAA/8AAAAD/wAAAAP/AAAAA/8AAAAD/wAAAAP/AAAAA/8AAAAD/wAAAAP/AAAAA/8AAAAD/wAAAAP/AAAAA/8AAAAD/wAAAAP/AAD8A/8AAPAD/wAA8AP/AADwA/8AAPAD/wAA8AP/AAA=",
+   "flight": "///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////9//////v///////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1556,
+   "y": 1128,
+   "width": 8,
+   "height": 8,
+   "cells": "AAP///8AA////wAD//wfAAP/gB8AA/wAHwAD/wA/AAP/AD8AA/8APwAD/wA/AAP/AD8AA/8APwAD/wA/AAP/AD8AA/8AAPwD/wAA8AP/AAD4P/8AAPg//wAA////AAD///8AAP///wAA////AAD/wf8AAPgB/wAAwAH/AADwA/8AAPAD/wAA8AP/AADwA/8AAPAD/wAA8AP/AADwA/8AAPAD/wAA8AAAAADwAAAAP/AAAAA/8AAAAD/wAAAAP/AAAAA/8AAAAD8=",
+   "flight": "//////////////v////////////////////////////////7/////////////////////////////////////////////////////////////////////////////////////////////////v/////////////////////////////////////////////////////////////////+//////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1548,
+   "y": 1128,
+   "width": 8,
+   "height": 8,
+   "cells": "AAP/AAAAA/8AAAAD/wAAAAP/AAAAA/8AAAAD/wAAAAP/AAAAA/8AAAAD/wAAAAP/AAAAA/8AAAAD/wAAAAP/AAAAA/8AAAAD/wA/AAP/AD8AA/8APwAD/wA/AAP/AD8AA/8APwAD/wA/AAP/AD8AA/8APwAD/wA/AAP/AD8AA/8APwAD/4P/AAP/g/8AA////wAD////AAP///8AA////wAD//wfAAP/gB8AA/wAHwAD/wA/AAP/AD8AA/8APwAD/wA/AAP/AD8=",
+   "flight": "/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////3////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1564,
+   "y": 1120,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAD8A//AAPAD/wAA+D//AAD4P/8AAP///wAA////AAD///8AAP///wAA/8H/AAD4Af8AAMAB/wAA8AP/AADwA/8AAPAD/wAA8AP/AADwA/8AAPAD/wAA8AP/AADwA/8AAPAD/wAA8AP/AADwA/8AAPAD/wAA8AP/AADwA/8AAPAD/wAA8AP/AADwA/8AAPAD/wAA8AP/AADwA/8AAPAD/wAA8AP/AADwA/8AAPAD/wAA8AP/AAA=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1556,
+   "y": 1120,
+   "width": 8,
+   "height": 8,
+   "cells": "AAP/AAAAA/8AAAAD/wAAAAP/AAD8A/8AP/AD/wA/+D//AD/4P/8AP////wA/////AD////8AP////wA//8H/AD/4Af8AP8AB/wA/8AP/AD/wA/8AP/AD/wA/8AP/AD/wA/8AP/AD/wA/8AP/AD/wA/8AP/AAAAA/8AAAAD/wAAAAP/AAAAA/8AAAAD/wAAAAP/AAAAA/8AAAAD/wAAAAP/AAAAA/AAAAAD8AA//APwAD/wA/AAP/g/8AA/+D/wAD////AAP///8=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////v///////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1548,
+   "y": 1120,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPwAAAAA/AAAAAD8AAAAAPwAAAAA/AAAAAD8AAAAAPwAAAAA/AAAAAD8AAAAAPwAD/8A/AAP/AD8AA/+D/wAD/4P/AAP///8AA////wAD////AAP///8AA//8HwAD/4AfAAP8AB8AA/8APwAD/wA/AAP/AD8AA/8APwAD/wA/AAP/AD8AA/8APwAD/wA/AAP/AAAAA/8AAAAD/wAAAAP/AAAAA/8AAAAD/wAAAAP/AAA=",
+   "flight": "///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////9//////v///////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1540,
+   "y": 1200,
+   "width": 8,
+   "height": 8,
+   "cells": "//AAAAD/8AAAAP/gAAAA//AAAAD/+AAAAP/8AAAA//wAAPj//gAD+P//gB/4///wP+T///A/7////j/v///+P//////////////////////////////////////////////////////////////////////////////////////8//////z/////+P/////4//////H///+P8f///wfz8v/8A8fw//gAB4D/8AAAAP/wAAAA/+AAAAD/4AAAAP/AAAAAP8AAAAA=",
+   "flight": "////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////P/////8="
+  },
+  {
+   "x": 1532,
+   "y": 1200,
+   "width": 8,
+   "height": 8,
+   "cells": "/////////////////////////////////////////z////8fP//////f/////8//////4h/////iH////+If////4B/////4//////5//////////////////+//////5//////wf/////B/////wf////zB////PgH///8eAh///w8GH///Dw4f////Ph////////////////////////////////////////////////////////////////////////////8=",
+   "flight": ""
+  },
+  {
+   "x": 1540,
+   "y": 1192,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAP4AAAAA/gIAAAH+AwAAA/wHAAAD/D8AAAP8fwAAA/z+AAAD//8AAAD//wAAA//+AAAD//wAAAP/+AAAA/8AAAAA=",
+   "flight": "/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////3////////////////////////////////8="
+  },
+  {
+   "x": 1532,
+   "y": 1192,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPgAD4AD+AA/gB/4Af+AP+QD/kA/7wP+/j/v4/7+P//j///////////////z/////P/////8////////////////////8=",
+   "flight": ""
+  },
+  {
+   "x": 1524,
+   "y": 1192,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA4AAAAADgAAAAAOAAAAAA4AAAAAD/AAAAAP8AAAAA/wAAAAD/+AAAAf/8AAAD//wAAAP//AAAA//8AAAA//wAAAB/vAAAAD/8AAAAH/wAAAAf/AAAAB/8=",
+   "flight": ""
+  },
+  {
+   "x": 1540,
+   "y": 1184,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1532,
+   "y": 1184,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1524,
+   "y": 1184,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1540,
+   "y": 1176,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1532,
+   "y": 1176,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1524,
+   "y": 1176,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1540,
+   "y": 1168,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1532,
+   "y": 1168,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1524,
+   "y": 1168,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1516,
+   "y": 1184,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1516,
+   "y": 1176,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1508,
+   "y": 1176,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1516,
+   "y": 1168,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1508,
+   "y": 1168,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1540,
+   "y": 1160,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1532,
+   "y": 1160,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1524,
+   "y": 1160,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1540,
+   "y": 1152,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1532,
+   "y": 1152,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1524,
+   "y": 1152,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1540,
+   "y": 1144,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1532,
+   "y": 1144,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1524,
+   "y": 1144,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1588,
+   "y": 1160,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1580,
+   "y": 1160,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1572,
+   "y": 1160,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1588,
+   "y": 1152,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1580,
+   "y": 1152,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1572,
+   "y": 1152,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1588,
+   "y": 1144,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1580,
+   "y": 1144,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1572,
+   "y": 1144,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1540,
+   "y": 1136,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1532,
+   "y": 1136,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1524,
+   "y": 1136,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1540,
+   "y": 1128,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1532,
+   "y": 1128,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1524,
+   "y": 1128,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1540,
+   "y": 1120,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1532,
+   "y": 1120,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1524,
+   "y": 1120,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1588,
+   "y": 1136,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1580,
+   "y": 1136,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1572,
+   "y": 1136,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1588,
+   "y": 1128,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1580,
+   "y": 1128,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1572,
+   "y": 1128,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1588,
+   "y": 1120,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1580,
+   "y": 1120,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1572,
+   "y": 1120,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1588,
+   "y": 1184,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1580,
+   "y": 1184,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1572,
+   "y": 1184,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1588,
+   "y": 1176,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1580,
+   "y": 1176,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1572,
+   "y": 1176,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1588,
+   "y": 1168,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1580,
+   "y": 1168,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1572,
+   "y": 1168,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1596,
+   "y": 1184,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1604,
+   "y": 1176,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1596,
+   "y": 1176,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1604,
+   "y": 1168,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  },
+  {
+   "x": 1596,
+   "y": 1168,
+   "width": 8,
+   "height": 8,
+   "cells": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+   "flight": "//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8="
+  }
+ ],
+ "doors": [],
+ "rooms": [
+  {
+   "preset": 839,
+   "x": 1580,
+   "y": 1200,
+   "width": 8,
+   "height": 8,
+   "variant": 1,
+   "block": [
+    1572,
+    1192,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 839,
+   "x": 1572,
+   "y": 1200,
+   "width": 8,
+   "height": 8,
+   "variant": 1,
+   "block": [
+    1572,
+    1192,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 839,
+   "x": 1588,
+   "y": 1192,
+   "width": 8,
+   "height": 8,
+   "variant": 1,
+   "block": [
+    1572,
+    1192,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 839,
+   "x": 1580,
+   "y": 1192,
+   "width": 8,
+   "height": 8,
+   "variant": 1,
+   "block": [
+    1572,
+    1192,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 839,
+   "x": 1572,
+   "y": 1192,
+   "width": 8,
+   "height": 8,
+   "variant": 1,
+   "block": [
+    1572,
+    1192,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 847,
+   "x": 1564,
+   "y": 1200,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1548,
+    1192,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 847,
+   "x": 1556,
+   "y": 1200,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1548,
+    1192,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 847,
+   "x": 1548,
+   "y": 1200,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1548,
+    1192,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 847,
+   "x": 1564,
+   "y": 1192,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1548,
+    1192,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 847,
+   "x": 1556,
+   "y": 1192,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1548,
+    1192,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 847,
+   "x": 1548,
+   "y": 1192,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1548,
+    1192,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 855,
+   "x": 1564,
+   "y": 1184,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1548,
+    1168,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 855,
+   "x": 1556,
+   "y": 1184,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1548,
+    1168,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 855,
+   "x": 1548,
+   "y": 1184,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1548,
+    1168,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 855,
+   "x": 1564,
+   "y": 1176,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1548,
+    1168,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 855,
+   "x": 1556,
+   "y": 1176,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1548,
+    1168,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 855,
+   "x": 1548,
+   "y": 1176,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1548,
+    1168,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 855,
+   "x": 1564,
+   "y": 1168,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1548,
+    1168,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 855,
+   "x": 1556,
+   "y": 1168,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1548,
+    1168,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 855,
+   "x": 1548,
+   "y": 1168,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1548,
+    1168,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 856,
+   "x": 1564,
+   "y": 1160,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1548,
+    1144,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 856,
+   "x": 1556,
+   "y": 1160,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1548,
+    1144,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 856,
+   "x": 1548,
+   "y": 1160,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1548,
+    1144,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 856,
+   "x": 1564,
+   "y": 1152,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1548,
+    1144,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 856,
+   "x": 1556,
+   "y": 1152,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1548,
+    1144,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 856,
+   "x": 1548,
+   "y": 1152,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1548,
+    1144,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 856,
+   "x": 1564,
+   "y": 1144,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1548,
+    1144,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 856,
+   "x": 1556,
+   "y": 1144,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1548,
+    1144,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 856,
+   "x": 1548,
+   "y": 1144,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1548,
+    1144,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 856,
+   "x": 1564,
+   "y": 1136,
+   "width": 8,
+   "height": 8,
+   "variant": 1,
+   "block": [
+    1548,
+    1120,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 856,
+   "x": 1556,
+   "y": 1136,
+   "width": 8,
+   "height": 8,
+   "variant": 1,
+   "block": [
+    1548,
+    1120,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 856,
+   "x": 1548,
+   "y": 1136,
+   "width": 8,
+   "height": 8,
+   "variant": 1,
+   "block": [
+    1548,
+    1120,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 856,
+   "x": 1564,
+   "y": 1128,
+   "width": 8,
+   "height": 8,
+   "variant": 1,
+   "block": [
+    1548,
+    1120,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 856,
+   "x": 1556,
+   "y": 1128,
+   "width": 8,
+   "height": 8,
+   "variant": 1,
+   "block": [
+    1548,
+    1120,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 856,
+   "x": 1548,
+   "y": 1128,
+   "width": 8,
+   "height": 8,
+   "variant": 1,
+   "block": [
+    1548,
+    1120,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 856,
+   "x": 1564,
+   "y": 1120,
+   "width": 8,
+   "height": 8,
+   "variant": 1,
+   "block": [
+    1548,
+    1120,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 856,
+   "x": 1556,
+   "y": 1120,
+   "width": 8,
+   "height": 8,
+   "variant": 1,
+   "block": [
+    1548,
+    1120,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 856,
+   "x": 1548,
+   "y": 1120,
+   "width": 8,
+   "height": 8,
+   "variant": 1,
+   "block": [
+    1548,
+    1120,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 854,
+   "x": 1540,
+   "y": 1200,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1524,
+    1192,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 854,
+   "x": 1532,
+   "y": 1200,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1524,
+    1192,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 854,
+   "x": 1540,
+   "y": 1192,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1524,
+    1192,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 854,
+   "x": 1532,
+   "y": 1192,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1524,
+    1192,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 854,
+   "x": 1524,
+   "y": 1192,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1524,
+    1192,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 836,
+   "x": 1540,
+   "y": 1184,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1524,
+    1168,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 836,
+   "x": 1532,
+   "y": 1184,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1524,
+    1168,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 836,
+   "x": 1524,
+   "y": 1184,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1524,
+    1168,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 836,
+   "x": 1540,
+   "y": 1176,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1524,
+    1168,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 836,
+   "x": 1532,
+   "y": 1176,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1524,
+    1168,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 836,
+   "x": 1524,
+   "y": 1176,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1524,
+    1168,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 836,
+   "x": 1540,
+   "y": 1168,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1524,
+    1168,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 836,
+   "x": 1532,
+   "y": 1168,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1524,
+    1168,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 836,
+   "x": 1524,
+   "y": 1168,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1524,
+    1168,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 836,
+   "x": 1516,
+   "y": 1184,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1500,
+    1168,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 836,
+   "x": 1516,
+   "y": 1176,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1500,
+    1168,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 836,
+   "x": 1508,
+   "y": 1176,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1500,
+    1168,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 836,
+   "x": 1516,
+   "y": 1168,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1500,
+    1168,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 836,
+   "x": 1508,
+   "y": 1168,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1500,
+    1168,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 836,
+   "x": 1540,
+   "y": 1160,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1524,
+    1144,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 836,
+   "x": 1532,
+   "y": 1160,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1524,
+    1144,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 836,
+   "x": 1524,
+   "y": 1160,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1524,
+    1144,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 836,
+   "x": 1540,
+   "y": 1152,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1524,
+    1144,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 836,
+   "x": 1532,
+   "y": 1152,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1524,
+    1144,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 836,
+   "x": 1524,
+   "y": 1152,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1524,
+    1144,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 836,
+   "x": 1540,
+   "y": 1144,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1524,
+    1144,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 836,
+   "x": 1532,
+   "y": 1144,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1524,
+    1144,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 836,
+   "x": 1524,
+   "y": 1144,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1524,
+    1144,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 836,
+   "x": 1588,
+   "y": 1160,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1572,
+    1144,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 836,
+   "x": 1580,
+   "y": 1160,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1572,
+    1144,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 836,
+   "x": 1572,
+   "y": 1160,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1572,
+    1144,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 836,
+   "x": 1588,
+   "y": 1152,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1572,
+    1144,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 836,
+   "x": 1580,
+   "y": 1152,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1572,
+    1144,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 836,
+   "x": 1572,
+   "y": 1152,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1572,
+    1144,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 836,
+   "x": 1588,
+   "y": 1144,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1572,
+    1144,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 836,
+   "x": 1580,
+   "y": 1144,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1572,
+    1144,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 836,
+   "x": 1572,
+   "y": 1144,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1572,
+    1144,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 836,
+   "x": 1540,
+   "y": 1136,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1524,
+    1120,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 836,
+   "x": 1532,
+   "y": 1136,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1524,
+    1120,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 836,
+   "x": 1524,
+   "y": 1136,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1524,
+    1120,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 836,
+   "x": 1540,
+   "y": 1128,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1524,
+    1120,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 836,
+   "x": 1532,
+   "y": 1128,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1524,
+    1120,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 836,
+   "x": 1524,
+   "y": 1128,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1524,
+    1120,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 836,
+   "x": 1540,
+   "y": 1120,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1524,
+    1120,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 836,
+   "x": 1532,
+   "y": 1120,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1524,
+    1120,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 836,
+   "x": 1524,
+   "y": 1120,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1524,
+    1120,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 836,
+   "x": 1588,
+   "y": 1136,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1572,
+    1120,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 836,
+   "x": 1580,
+   "y": 1136,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1572,
+    1120,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 836,
+   "x": 1572,
+   "y": 1136,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1572,
+    1120,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 836,
+   "x": 1588,
+   "y": 1128,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1572,
+    1120,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 836,
+   "x": 1580,
+   "y": 1128,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1572,
+    1120,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 836,
+   "x": 1572,
+   "y": 1128,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1572,
+    1120,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 836,
+   "x": 1588,
+   "y": 1120,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1572,
+    1120,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 836,
+   "x": 1580,
+   "y": 1120,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1572,
+    1120,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 836,
+   "x": 1572,
+   "y": 1120,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1572,
+    1120,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 836,
+   "x": 1588,
+   "y": 1184,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1572,
+    1168,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 836,
+   "x": 1580,
+   "y": 1184,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1572,
+    1168,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 836,
+   "x": 1572,
+   "y": 1184,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1572,
+    1168,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 836,
+   "x": 1588,
+   "y": 1176,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1572,
+    1168,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 836,
+   "x": 1580,
+   "y": 1176,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1572,
+    1168,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 836,
+   "x": 1572,
+   "y": 1176,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1572,
+    1168,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 836,
+   "x": 1588,
+   "y": 1168,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1572,
+    1168,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 836,
+   "x": 1580,
+   "y": 1168,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1572,
+    1168,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 836,
+   "x": 1572,
+   "y": 1168,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1572,
+    1168,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 836,
+   "x": 1596,
+   "y": 1184,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1596,
+    1168,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 836,
+   "x": 1604,
+   "y": 1176,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1596,
+    1168,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 836,
+   "x": 1596,
+   "y": 1176,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1596,
+    1168,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 836,
+   "x": 1604,
+   "y": 1168,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1596,
+    1168,
+    24,
+    24
+   ],
+   "leads_to": []
+  },
+  {
+   "preset": 836,
+   "x": 1596,
+   "y": 1168,
+   "width": 8,
+   "height": 8,
+   "variant": 0,
+   "block": [
+    1596,
+    1168,
+    24,
+    24
+   ],
+   "leads_to": []
+  }
+ ],
+ "drops": [],
+ "assumed": [
+  "drops",
+  "full",
+  "immune",
+  "sets",
+  "slots"
+ ],
+ "source": {
+  "take": "20261013T093256Z-107",
+  "frame": 582,
+  "t": 23.932
+ },
+ "things": [
+  {
+   "unit": 419990204,
+   "txt": 126,
+   "at": [
+    7775.0,
+    5770.0
+   ],
+   "mode": 0
+  },
+  {
+   "unit": 3650127019,
+   "txt": 126,
+   "at": [
+    7767.0,
+    5749.0
+   ],
+   "mode": 0
+  }
+ ]
+}

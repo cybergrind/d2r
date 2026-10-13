@@ -18,6 +18,51 @@ them, so a curse on it shows). Since 2026-10-13 (schema 3) the same list is in a
 first frame that has the character and in every frame it differs from the one written last: a curse is
 seen when it lands and when it ends, not only at a drop of life (takes.py `resists_by_frame`).
 
+Since 2026-10-13 afternoon (schema 4; user: "if we need to record more information, then we can update
+recorder ... put all we need") a take holds what replaying a whole run in the arena lacked, each written
+in the first frame that has it and in every frame it differs from the one written last (takes.py
+`carried`):
+
+- `o`: the level's objects a mark may name and its containers (seals, chests, portals), as
+  [unit, class, mode, x, y, selectable]: a seal's change of mode is the moment it was opened, which a
+  seal boss's pack is timed from;
+- `s`: the character's state words, raw hex (world.py STATE_RUN): curses, poison, a skill's delay (a
+  Blade Warp the game refuses);
+- `w`: the Teleport staff as [charges, most, in hand]: the weapon set held and what a hop costs;
+- `b`: the belt's cells by item class: a potion drunk by anyone;
+
+and the macro's own word as events: `request` (the routine a key asked for, what ran then), `press`
+(what became of it: the latency trace's record with its outcome), `said` (each line the macro says to
+the player) and `log` (every line the macro logs: its decisions), so a take can be cut into an incident
+with its presses without the session log. They carry their own time, so the events of a take are not
+written in order of time (takes.py sorts them); what is asked and said within NOTE_SECONDS before a take
+opens (town, the way in) is written at its start.
+
+The same day, after a review of the recorder against the goal of re-creating any moment of any game
+(rca/2026-10-13/recorder-review.md), still schema 4:
+
+- `f`: the character's buffs as the reader has them, [Psychic Ward, Hex: Purge, Consume] (None: unread);
+- `g`: what lies on the ground that the pickup step would go for, as [unit, x, y, kind, label, width,
+  height, prized]; `i`: the inventory's rows ('.' free, '#' taken): a pickup press replays against these;
+- a `state` event when a take opens and whenever it changes: what the macro carries between its looks
+  (combat/macro_state.py: attack mode, the routine, the build and its settings, the route's facts and
+  stages, the card's mark);
+- `records.jsonl`: the character's and each monster's unit record raw (0x1C0 bytes, and the 0x58 of
+  monster data after them), its state words and, in a striking mode, the skill it is using (world.py
+  `skill_in_use`), as [unit, record, states, skill] in hex, at every change of its mode and once in
+  RECORD_SECONDS. What the client's code says lies in them (rca/2026-10-13/re-findings.md: the animation
+  frame at +0x5C, its length at +0x64, the boss's row at +0x2A of the monster data, state 185 `cooldown`)
+  can be read out of every take that has them, also after it is found;
+- `h`: the unit the game holds under the pointer, as [unit type, unit id] (None: nothing), at a change
+  (world.py `hovered`): what a click landed on (a seal's click that did not take, 12:36:28 that day);
+- `k`: the head of the client's clock object, raw hex, in every frame (world.py `tick`): the game's own
+  tick, to tell a frame sampled twice or never;
+- `units.jsonl` holds the companions too (the mercenary, the pets), with their stat lists;
+- the manifest: `clock` (the frame clock and the wall clock read together), `game` (its name),
+  `previous` (the take before it in the same game), `code` (the commit, the files that differed);
+- towns are recorded like any level (`town`), so a game's takes follow one another without a gap but
+  the loading screens.
+
 `Recorder.step` is the per-frame logic with the clock injected; `Recorder.run` paces it on its
 own thread with its own memory handle and display connection (`LiveSampler`), bound to the game
 by `poll` from the service loop as the macro runner is.
@@ -25,6 +70,7 @@ by `poll` from the service loop as the macro runner is.
 
 import dataclasses
 import json
+import logging
 import math
 import threading
 import time
@@ -38,15 +84,19 @@ from inventory_tracking.common import LOG, timestamp
 from inventory_tracking.input.keyboard import X11Keyboard
 from inventory_tracking.levels.model import Level
 from inventory_tracking.macros.routines import ACTING
-from inventory_tracking.macros.world import NO_OWNER, GameMemory, Player, World
+from inventory_tracking.macros.world import NO_OWNER, GameMemory, Loot, Player, Teleport, Thing, World
 from inventory_tracking.native.layout import DEAD_MODES, TOWN_IDS
 
 
-SCHEMA = 3  # the rows' layout (takes.py `SCHEMAS`): written to the manifest since 2026-10-10 night
+SCHEMA = 4  # the rows' layout (takes.py `SCHEMAS`): written to the manifest since 2026-10-10 night
 FRAME_RATE = 25.0  # the engine's frames per second
 AREAS = frozenset((108,))  # Chaos Sanctuary
 IDLE_SECONDS = 3.0  # out of the areas or out of a game this long: the take closes
 LEVEL_SECONDS = 5.0  # between looks at the guide's walls while a take runs (level.json grows with them)
+RECORD_SECONDS = 1.0  # a unit's raw record is written at a change of mode and at least this often
+NOTE_SECONDS = 120.0  # the macro's word from before a take is kept this long for the take's start
+NOTE_MOST = 2000
+SLOW_SECONDS = 0.2  # between reads of what changes slowly and costs a walk of a unit table (`o`, `w`, `b`)
 CENSUS_SECONDS = 30.0  # between unit table censuses (research: where the missiles hang)
 BUTTON_BITS = {1: 1 << 8, 2: 1 << 9, 3: 1 << 10, 8: 1 << 15, 9: 1 << 16}  # XQueryPointer mask bits
 # life, max life, mana, max mana: itemstatcost ids 6 hitpoints, 7 maxhp, 8 mana, 9 maxmana (values carry 8 fraction
@@ -92,6 +142,15 @@ class Sample:
     keys: frozenset[int] = frozenset()  # key codes down
     macro: bool = False  # a macro run was acting
     census: list[dict] | None = None  # the unit table census, when the sampler took one this frame
+    things: tuple[Thing, ...] | None = None  # the objects a mark may name and the containers; None: unread
+    states: bytes | None = None  # the character's state words (world.py STATE_RUN)
+    staff: Teleport | None = None  # the worn Teleport staff; None: none worn, or unread
+    belt: tuple[int | None, ...] | None = None  # item class by belt cell
+    loot: Loot | None = None  # the drops the pickup step would go for and the inventory's room; None: unread
+    macro_state: dict[str, Any] | None = None  # what the macro carries (combat/macro_state.py); None: not asked
+    tick: bytes | None = None  # the head of the client's clock object (world.py `tick`)
+    hovered: tuple[int, int] | None = None  # (unit type, unit id) under the pointer
+    hover_read: bool = False  # the read of it was made (None then means nothing is under the pointer)
 
 
 class Take:
@@ -107,6 +166,9 @@ class Take:
         self.units = (directory / 'units.jsonl').open('w', encoding='utf-8')
         self.missiles = (directory / 'missiles.jsonl').open('w', encoding='utf-8')
         self.paths = (directory / 'paths.jsonl').open('w', encoding='utf-8')
+        self.records = (directory / 'records.jsonl').open('w', encoding='utf-8')
+        self.recorded: dict[int, tuple[int, float]] = {}  # unit id -> (mode, clock) of its record written last
+        self.macro_state: dict[str, Any] | None = None  # the macro's state as the last `state` event has it
         self.path_rest: dict[int, bytes] = {}  # unit id -> its path record past the position, as last written
         self.count, self.late = 0, 0
         self.started: float | None = None
@@ -122,6 +184,7 @@ class Take:
         self.mods: dict[int, tuple[int, ...]] = {}  # unit id -> its enchantments, as first seen
         self.resists: list[int] = []  # the character's RESIST_STATS at the last frame
         self.written_resists: list[int] | None = None  # the ones in the last frame that has `r`
+        self.written: dict[str, Any] = {}  # frame key (`o`, `s`, `w`, `b`) -> its value as written last
         # The frame before: the character's unit, life and most life, the hostiles and the missiles (a blow
         # lands between two)
         self.before: tuple[int, int, int, hurts.Point, list[hurts.Foe], list[tuple[int, hurts.Point]]] | None = None
@@ -189,14 +252,67 @@ class Take:
             'in': [*(sample.pointer or (None, None, None)), fx, fy, sorted(sample.keys)],
             'rect': list(sample.rect) if sample.rect else None,
         }
+        if sample.tick is not None:
+            line['k'] = sample.tick.hex()
         if character is not None and self.resists != self.written_resists:
             line['r'] = self.written_resists = list(self.resists)
+        for key, value in self.carried(sample).items():
+            if self.written.get(key) != value:
+                line[key] = self.written[key] = value
         self.frames.write(json.dumps(line, separators=(',', ':')) + '\n')
         self.write_paths(clock, world.monsters)
+        self.write_records(clock, sample)
+        if sample.macro_state is not None and sample.macro_state != self.macro_state:
+            self.macro_state = sample.macro_state
+            self.event(clock, 'state', **sample.macro_state)
         if sample.census is not None:
             self.manifest.setdefault('census', []).append({'t': round(clock, 3), 'slots': sample.census})
             LOG.info('Combat take %s: unit table census %s', self.directory.name, sample.census)
         self.derive(clock, sample)
+
+    @staticmethod
+    def carried(sample: Sample) -> dict[str, Any]:
+        """What a frame holds only when it changes, of what the sample read (the module text)."""
+        found: dict[str, Any] = {}
+        if sample.things is not None:
+            rows = [[t.unit_id, t.txt_id, t.mode, t.x, t.y, t.selectable] for t in sample.things]
+            found['o'] = sorted(rows, key=lambda row: row[0])
+        if sample.states is not None:
+            found['s'] = sample.states.hex()
+        if sample.staff is not None:
+            found['w'] = [sample.staff.charges, sample.staff.maximum, sample.staff.in_hand]
+        elif sample.things is not None:
+            found['w'] = None  # the slow reads were made and found no Teleport staff worn (or could not read it)
+        if sample.belt is not None:
+            found['b'] = list(sample.belt)
+        if sample.hover_read:
+            found['h'] = list(sample.hovered) if sample.hovered is not None else None
+        player = sample.world.player
+        if player is not None:
+            found['f'] = list(player.buffs)
+        if sample.loot is not None:
+            drops = sorted(sample.loot.drops, key=lambda drop: drop.unit_id)
+            found['g'] = [[d.unit_id, d.x, d.y, d.kind, d.label, *d.size, d.prized] for d in drops]
+            if sample.loot.room is not None:
+                found['i'] = list(sample.loot.room)
+        return found
+
+    def write_records(self, clock: float, sample: Sample) -> None:
+        """Research: the raw unit record of the character and of each monster the sample holds one for,
+        at a change of its mode and once in RECORD_SECONDS (the module text)."""
+        player = sample.world.player
+        units = [(m.unit_id, m.mode, m.record, m.states, m.skill) for m in sample.world.monsters if m.record]
+        if player is not None and player.record:
+            units.append((player.unit_id, player.mode, player.record, b'', player.skill))  # its states: `s`
+        rows = []
+        for unit, mode, record, states, skill in units:
+            before = self.recorded.get(unit)
+            if before is None or before[0] != mode or clock - before[1] >= RECORD_SECONDS:
+                self.recorded[unit] = (mode, clock)
+                rows.append([unit, record.hex(), states.hex(), skill.hex()])
+        if rows:
+            line = {'t': round(clock, 3), 'n': self.count, 'u': rows}
+            self.records.write(json.dumps(line, separators=(',', ':')) + '\n')
 
     def hurt(self, clock: float, sample: Sample, player: Player, life: int, max_life: int) -> None:
         """A `hurt` event when the character's life fell since the frame before (combat/hurts.py)."""
@@ -240,15 +356,15 @@ class Take:
         present = set()
         for m in world.monsters:
             present.add(m.unit_id)
-            if m.ally or m.owner != NO_OWNER:
-                self.life[m.unit_id] = (m.txt_id, m.life)  # the pets and the mercenary: no hit or kill events
-                continue
             if m.unit_id not in self.seen_units:
                 self.seen_units.add(m.unit_id)
                 unit: dict[str, Any] = {'t': round(clock, 3), 'unit': m.unit_id, 'txt': m.txt_id, 'flags': m.flags}
                 unit.update(owner=m.owner, ally=m.ally, max_life=m.max_life, stats=self.stats(m.stats_at))
                 unit['mods'] = list(m.modifiers)
                 self.units.write(json.dumps(unit) + '\n')
+            if m.ally or m.owner != NO_OWNER:
+                self.life[m.unit_id] = (m.txt_id, m.life)  # the pets and the mercenary: no hit or kill events
+                continue
             before = self.life.get(m.unit_id)
             if before is not None and m.max_life and m.life < before[1]:
                 self.event(clock, 'hit', unit=m.unit_id, txt=m.txt_id, life=[before[1], m.life], macro=sample.macro)
@@ -275,7 +391,7 @@ class Take:
         self.keys = sample.keys
 
     def close(self, reason: str) -> None:
-        for handle in (self.frames, self.events, self.units, self.missiles, self.paths):
+        for handle in (self.frames, self.events, self.units, self.missiles, self.paths, self.records):
             handle.close()
         duration = (self.last_clock - self.started) if self.started is not None and self.last_clock is not None else 0.0
         summary = {'frames': self.count, 'late_frames': self.late, 'seconds': round(duration, 3), 'events': self.counts}
@@ -304,17 +420,28 @@ class Recorder:
         stats: Callable[[int], dict[int, int]] = lambda stats_at: {},
         manifest: Callable[[], dict[str, Any]] = dict,
         keep: int | None = None,
+        town: bool = False,
     ) -> None:
-        """`areas`: the levels recorded; None for every level that is no town. `keep`: the bytes the takes
+        """`areas`: the levels recorded; None for every level that is no town, and with `town` the towns
+        too. `keep`: the bytes the takes
         under `output` are held to, each packed as it closes (combat/retain.py); None: left as written."""
         self.sample, self.output, self.areas, self.rate = sample, output, areas, rate
-        self.keep = keep
+        self.keep, self.town = keep, town
+        self.last: tuple[str, str] | None = None  # (game, take) of the take opened last
         self.clock, self.sleep, self.level, self.stats, self.manifest = clock, sleep, level, stats, manifest
         self.take: Take | None = None
         self.away_since: float | None = None  # when the character was last seen outside the areas
         self.takes = 0
         self.level_at = -math.inf  # when the guide's level was last looked at for the take
         self.tidying: threading.Thread | None = None  # the packing of the take closed last
+        self.noted: list[tuple[float, str, dict[str, Any]]] = []  # the macro's word since the last frame
+        self.noting = threading.Lock()
+
+    def note(self, kind: str, **fields: Any) -> None:
+        """An event of somebody else's (the macro runner's `request` and `said`), from any thread: kept
+        with its own clock and written with the next frame of a take."""
+        with self.noting:
+            self.noted.append((self.clock(), kind, fields))
 
     def step(self, now: float, late: int = 0) -> None:
         """One frame: `late` is how many frame periods this one came after its time."""
@@ -326,7 +453,7 @@ class Recorder:
             and world is not None
             and world.in_game
             and player is not None
-            and (player.area in self.areas if self.areas is not None else player.area not in TOWN_IDS)
+            and (player.area in self.areas if self.areas is not None else self.town or player.area not in TOWN_IDS)
         ):
             self.away_since = None
             if self.take is not None and player.area != self.take.manifest.get('area'):
@@ -341,7 +468,16 @@ class Recorder:
                 self.close('left the level' if world is None or world.in_game else 'left the game')
                 return
         if self.take is not None and sample is not None:
+            with self.noting:
+                noted, self.noted = self.noted, []
+            for at, kind, fields in noted:
+                self.take.event(at, kind, **fields)
             self.take.frame(now, sample, late)
+        else:
+            # No take to write them in (town, a loading screen, a failed read): kept for the next one,
+            # which so begins with what was asked and said on the way in (the prebuff, the first steps).
+            with self.noting:
+                self.noted = [note for note in self.noted if now - note[0] <= NOTE_SECONDS][-NOTE_MOST:]
 
     def open(self, now: float, sample: Sample, area: int) -> None:
         self.takes += 1
@@ -349,12 +485,15 @@ class Recorder:
         name = time.strftime('%Y%m%dT%H%M%SZ', time.gmtime()) + f'-{area}'
         manifest = {
             'started_at': timestamp(), 'area': area, 'rate': self.rate, 'schema': SCHEMA,
+            'clock': {'monotonic': round(now, 3), 'wall': round(time.time(), 3)}, 'game': sample.world.game_name,
+            'previous': self.last[1] if self.last is not None and self.last[0] == sample.world.game_name else None,
             'character': player.name if player else None,
             'slots': list(sample.world.slots), 'left_skill': player.left_skill if player else None,
             'right_skill': player.right_skill if player else None, **self.manifest(),
         }  # fmt: skip
         if player is not None and player.stats_at:
             manifest['character_stats'] = {str(stat): value for stat, value in self.stats(player.stats_at).items()}
+        self.last = (sample.world.game_name, name)
         self.take = Take(self.output / name, manifest, self.stats)
         self.write_level(self.take, now)
         LOG.info('Combat take %s opened in area %d', name, area)
@@ -410,8 +549,13 @@ class LiveSampler:
         clock: Callable[[], float] = time.monotonic,
         *,
         paths: bool = False,
+        loot: Callable[[GameMemory], Loot] | None = None,
+        macro_state: Callable[[], dict[str, Any]] | None = None,
     ) -> None:
         self.paths = paths  # also read each monster's whole path record (movement research)
+        # the pickup step's own read of the ground, the belt and the inventory, with its settings
+        self.loot = loot
+        self.macro_state = macro_state
         self.memory: GameMemory | None = None
         self.bound: tuple[int, int, int] | None = None
         self.keys = None
@@ -420,6 +564,14 @@ class LiveSampler:
         self.lock = threading.Lock()
         self.key_names: dict[int, str] = {}
         self.census_at = -math.inf
+        self.slow_at = -math.inf
+        self.slow: tuple[Any, ...] = (
+            None,
+            None,
+            None,
+            None,
+            None,
+        )  # things, staff, belt, loot, macro state: as read last
 
     def attach(self, pid: int, base: int, table: int) -> None:
         if self.bound == (pid, base, table):
@@ -456,11 +608,22 @@ class LiveSampler:
             try:
                 world = memory.world()
                 if world.in_game and world.player is not None:
-                    world = dataclasses.replace(world, monsters=memory.all_monsters(paths=self.paths))
+                    world = dataclasses.replace(world, monsters=memory.all_monsters(paths=self.paths, records=True))
                 missiles = memory.missiles() if world.in_game else []
                 if world.in_game and self.clock() - self.census_at >= CENSUS_SECONDS:
                     self.census_at = self.clock()
                     census = memory.census()
+                states = None
+                tick = memory.tick() if world.in_game else None
+                hovered = memory.hovered() if world.in_game else None
+                if world.in_game and world.player is not None:
+                    states = memory.states(world.player.stats_at)
+                    if self.clock() - self.slow_at >= SLOW_SECONDS:
+                        self.slow_at = self.clock()
+                        loot = self.loot(memory) if self.loot is not None else None
+                        belt = loot.belt if loot is not None else memory.belt()  # one walk of the items, not two
+                        state = self.macro_state() if self.macro_state is not None else None
+                        self.slow = (memory.operated(), memory.teleport(), belt, loot, state)
             except (OSError, ValueError) as exc:
                 LOG.debug('Combat recorder: read failed (%s)', exc)
                 return None
@@ -468,7 +631,27 @@ class LiveSampler:
         keys: frozenset[int] = frozenset()
         if self.keys is not None:
             pointer, rect, keys = self.keys.pointer_state(), self.keys.focused_window_rect(), self.keys.held_keys()
-        return Sample(world, missiles, pointer, rect, keys, self.macro_working(), census)
+        things, staff, belt, loot, state = self.slow
+        return Sample(
+            world, missiles, pointer, rect, keys, self.macro_working(), census,
+            things, states, staff, belt, loot, state, tick, hovered, world.in_game,
+        )  # fmt: skip
+
+
+class MacroLines(logging.Handler):
+    """Every line the macro logs ('Macro: ...', 'Macro stopped: ...') as a `log` note of the recorder's."""
+
+    def __init__(self, note: Callable[..., None]) -> None:
+        super().__init__(logging.INFO)
+        self.note = note
+
+    def emit(self, record: logging.LogRecord) -> None:
+        try:
+            text = record.getMessage()
+        except Exception:  # a line that cannot be formatted is the logger's to report, not the recorder's
+            return
+        if text.startswith('Macro'):
+            self.note('log', level=record.levelname, text=text)
 
 
 class CombatRecorder:
@@ -487,14 +670,23 @@ class CombatRecorder:
         poll_interval: float = 1.0,
         paths: bool = False,
         keep: int | None = None,
+        town: bool = False,
+        loot: Callable[[GameMemory], Loot] | None = None,
+        macro_state: Callable[[], dict[str, Any]] | None = None,
+        code: dict[str, Any] | None = None,
     ) -> None:
         self.source, self.capture_lock = source, capture_lock
-        self.sampler = LiveSampler(macro_working, paths=paths)
+        self.sampler = LiveSampler(macro_working, paths=paths, loot=loot, macro_state=macro_state)
         self.recorder = Recorder(
             self.sampler, output=output, areas=areas, rate=rate, level=level, stats=self.sampler.stats,
-            manifest=lambda: {'keys': {str(code): name for code, name in self.sampler.name_keys().items()}},
-            keep=keep,
+            manifest=lambda: {
+                'keys': {str(key): name for key, name in self.sampler.name_keys().items()},
+                'code': code or {},
+            },
+            keep=keep, town=town,
         )  # fmt: skip
+        self.listener = MacroLines(self.recorder.note)
+        LOG.addHandler(self.listener)
         self.stop = threading.Event()
         self.thread = threading.Thread(target=self._run, name='combat-recorder', daemon=True)
         self.last_poll = -math.inf
@@ -527,6 +719,7 @@ class CombatRecorder:
             self.capture_lock.release()
 
     def close(self) -> None:
+        LOG.removeHandler(self.listener)
         self.stop.set()
         self.thread.join(timeout=3)
         self.sampler.detach()

@@ -15,7 +15,12 @@ from inventory_tracking.macros.travel import JUMP_LEAST, JUMP_REACH
 
 # A stride is a jump when a skill makes one without a weapon swap: Blade Warp first (skills.txt 390, a casting
 # delay of 20 frames, spends no charges), else Teleport when in hand or a skill of the character's own (Enigma).
-WARP_DELAY = 0.8  # seconds between two Blade Warps (the skill's casting delay)
+# Seconds between the keys of two Blade Warps. The game counts the skill's delay of 20 frames (0.8 s) not
+# from the key but from the cast's action frame: in the take of 12:33 on 2026-10-13 the character's state
+# 185 `cooldown` was set 0.20 s after the key (0.17 to 0.23) and held 0.80 s (0.77 to 0.82), 64 warps of 64.
+# Counted as 0.8 s from the key, a second warp pressed 0.8 to 1.0 s after the first was refused by the
+# game and then waited on for JUMP_SECONDS (36 of 46 such keys over 2026-10-11 to 13; 2 of 296 from 1.05 s).
+WARP_DELAY = 1.05
 # What a jump takes from its key to standing there, for the choice of a place (combat/stance.py `Jump`).
 WARP_SECONDS, WARP_SPEED = 0.35, 45.0  # Blade Warp: the cast, then the blade's flight in units a second
 # JUMP_REACH: units of a jump: in view, and within the blade's range. The blade flies there: no wall in its way.

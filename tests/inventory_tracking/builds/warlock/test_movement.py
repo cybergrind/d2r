@@ -69,7 +69,7 @@ def test_the_blade_is_a_thrown_jump_with_a_casting_delay():
     assert (BLADE_WARP_JUMP.seconds, BLADE_WARP_JUMP.speed) == (WARP_SECONDS, WARP_SPEED) == (0.35, 45.0)
     assert (BLADE_WARP_JUMP.reach, BLADE_WARP_JUMP.least) == (JUMP_REACH, JUMP_LEAST)
     assert (BLADE_WARP_SOURCE.jump, BLADE_WARP_SOURCE.delay) == (BLADE_WARP_JUMP, WARP_DELAY)
-    assert WARP_DELAY == 0.8
+    assert WARP_DELAY == 1.05  # from the key: the game's 0.8 s runs from the cast's action frame, 0.2 s later
 
 
 def test_the_warlocks_sets_are_the_shared_ones_with_the_blade_first():

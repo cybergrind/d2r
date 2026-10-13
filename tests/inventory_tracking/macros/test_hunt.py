@@ -1959,25 +1959,6 @@ def pack(count, x=5030.0, y=5000.0):
     return [foe(10 + n, x + 2.0 * (n % 3), y + 2.0 * (n // 3)) for n in range(count)]
 
 
-def test_a_pack_by_an_object_the_step_is_about_to_stand_at_is_counted():
-    # Chaos Sanctuary, 21:24:38 on 2026-10-12 and 00:09:45 on the 13th: 13 monsters stood by the second
-    # Infector seal, 36 units off, and the step went there with the staff in hand: 1,700 and 1,100 points.
-    hunt = hunter(game(*pack(5)))
-    assert hunt.pack_ahead(game(*pack(5)).run(), seal()) == 5
-    assert hunt.pack_ahead(game(*pack(3)).run(), seal()) == 0  # a few are no pack
-    assert hunt.pack_ahead(game(*pack(5, x=5060.0)).run(), seal()) == 0  # not by the mark
-    assert hunt.pack_ahead(game(*pack(5, x=5300.0)).run(), seal((1060.0, 1000.0))) == 0  # the mark is hops away yet
-
-
-def test_a_pack_by_a_way_on_is_gone_through():
-    from inventory_tracking.levels.model import PORTAL
-
-    hunt = hunter(game(*pack(5)))
-    assert hunt.pack_ahead(game(*pack(5)).run(), seal(use=PORTAL)) == 0  # a portal: the level is left
-    assert hunt.pack_ahead(game(*pack(5)).run(), seal(use=0)) == 0  # stairs, a room: nothing is stood at
-    assert hunt.pack_ahead(game(*pack(5)).run(), seal(warp=True)) == 0
-
-
 def test_with_the_staff_empty_and_in_hand_the_step_takes_the_main_weapons_first():
     # Chaos Sanctuary, 23:16:26 on 2026-10-12: the last charge spent, and the staff stayed in hand for 17 s of
     # Blade Warps and a fight (user: "no reason to really do this": lower resistances and skill levels).

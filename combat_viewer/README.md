@@ -55,10 +55,13 @@ folder whose index names no source (the stance comparisons below) has nothing to
 | Tab | next policy (Shift+Tab: previous) |
 | N, P | next, previous moment (seeks a second before it) |
 | L | loop the chosen moment |
-| V | side by side / overlaid |
+| V | side by side / overlaid (a situation: the chosen variant alone / beside the first) |
 | F | follow the character |
 | Home | fit the level in view |
 | mouse wheel, drag | zoom, pan (panning stops following) |
+| E | a situation: play it again and show it again |
+| 0 | the layout's defaults again |
+| I | fold the info panel away / bring it back |
 | Esc | back to the take list |
 
 ## What is on screen
@@ -217,6 +220,67 @@ bright until `t1`, dim after; the path walked so far is a faint trail. On the sc
 short bar at the foot of its run's lane. **F** follows each view's own character (overlaid: the policy's).
 The panel's legend shows each run's label, its number of moves and `score.combat_seconds` as "cleared in".
 
+## Situations
+
+The list has tabs at its top right: **Takes** (this folder of recorded fights, what the viewer opens with),
+**Stance** (the step comparisons, when `viz-stance/` was exported) and **Situations**: the test situations of
+`tests/inventory_tracking/scenarios/arena/situations/` (a moment cut from a recorded game, or one built by
+hand such as "four packs from four sides at 30% life"), played in the test arena by the production macro.
+The tab needs nothing but `make combat-view`:
+
+- choosing it asks the situations' exporter for its catalog (`... situations.export_viz --list`, a second or
+  two), so every situation is listed, exported or not, with its kind, what it is and how many variants;
+- **Enter** or a double-click on one without a fresh file plays it (a few seconds; the Export column shows
+  the variant being played) and opens it. A file is stale when the code a play runs or the fixture changed
+  after it was written; the list says so and opening it plays it again;
+- **E** plays the chosen situation again and opens it, from the list or while it is shown: change the code,
+  press E, watch. **R** asks for the catalog again.
+
+Each variant of a situation is a run: **Tab** (or a click on its row in the info panel) flips through them
+on the same timeline; each has its own character, monsters, blades and missiles. A situation shows **one
+map**, the chosen variant's, titled with the variant and its seed. **V** puts the first variant (the
+baseline: "as recorded" for a recorded situation) on the left and the chosen one on the right; while the
+chosen one is the first, there is one map. The info panel on the right has a row for each variant: died
+(when, to what) or survived, cleared or what was left, life lost and the least life, potions, kills,
+strikes, the way gone, and for each boss of the route when the character came within fight distance of it
+and when it died. The viewer plays the exported file: it does not run the arena live.
+
+Beside the map a debug panel shows, at the playback time: **attack mode ON / OFF**, the task (the routine
+working and what it is after: `teleport step toward Vizier seal 1 (Diablo: use Vizier seal 1)`, `attack
+mode`, `seek: ...`, `pickup: ...`, `idle`, with the sweep's steps left), the last key pressed with what
+became of it (`KP_4 teleport 0.3 s ago: queued behind its own step`), the character's life with the potions
+drunk, the last blow that took life, what the macro said (the current line chosen, scrolling with the
+time), and from the death on a banner: `DEAD at 3.0 s: 8 Undead Stygian Doll blast (3240)`. On the scrub
+bar green ticks are key presses, red ticks on the life strip are blows, the thick red line is the death.
+On the map a yellow square is a drop, a green ring a seal or a mark of the level card (grey once open), a
+red dot a shooter's missile in flight (larger when it takes life).
+
+A recorded take shows the same panel when `<take>.tasks.json` lies beside its file (written after each
+export of a take from the list; by hand: `... situations.export_viz --tasks <take directory>`): the task
+from the take's own `state`, `request`, `press` and `said` events (takes of schema 4, since 2026-10-13
+afternoon); an older take says `task: not recorded`. Without the sidecar nothing changes.
+
+Everything ahead of time, or one situation from a shell (no make target):
+
+```
+uv run --offline python -m tests.inventory_tracking.scenarios.arena.situations.export_viz [--situation NAME] [--seed N]
+```
+
+What the file adds to the schema above, each optional: a run's `tracks` ({unit: track}, its own monster
+paths; an overlaid view draws the monsters where its first run has them), `objects`, `shots` and `debug`
+(`lines`, `presses`, `tasks`, `life`, `max_life`, `potions`, `hurts`, `death`); the exporter's module text
+has the layouts. Not shown: the monsters' swings, sparks and novas, a corpse's blast radius, the pointer,
+and for a recorded situation the recording itself (the fixture holds its numbers, not its monsters' paths).
+
+## The layout
+
+Every boundary can be dragged: the map against the macro column against the info panel, and all three
+against the transport and the scrub bar below (so the scrub bar's height too). Where the bars stand is kept
+between runs in `user://combat_viewer.cfg` (on Linux `~/.local/share/godot/app_userdata/<project>/`),
+separately for takes and for situations, with the tab last chosen. **0** puts the defaults back (takes: as
+the viewer always was; a situation: the map about 60% of the width, the macro column 22%, the info panel
+18%); **I** folds the info panel away and brings it back. A headless run neither reads nor writes the file.
+
 ## The scripts
 
 | File | Holds |
@@ -228,9 +292,14 @@ The panel's legend shows each run's label, its number of moves and `score.combat
 | `side_panel.gd` | the legend, scores, running totals and the moments list |
 | `take_list.gd` | the opening list of takes, exported or not |
 | `exporter.gd` | runs the exporter for one take at a time and passes its stages on |
+| `source_tabs.gd` | the tabs above the list: Takes, Stance, Situations |
+| `layout.gd` | the draggable layout: the bars' places as shares of the window, kept by layout, the reset, the info panel's fold |
+| `situation_panel.gd` | a situation's info panel: a row a variant with what it came to |
+| `debug_panel.gd` | what the macro was doing at the playback time, for a run with a debug track |
 | `palette.gd` | every colour |
 | `tests/smoke.gd` | a headless check of the decoder: `godot --headless --path combat_viewer --script res://tests/smoke.gd -- <take.json>` |
 | `tests/drive.gd` | the whole viewer driven headless: every listed take opened, every key above pressed (`make combat-view-check`) |
+| `tests/situations.gd` | the Situations tab driven headless from a cold start: the catalog, a situation exported and opened, the debug panel read at several times, Tab, E; with `--take=<name>` a take's task readout: `godot --headless --path combat_viewer --script res://tests/situations.gd -- --situation=four-packs --take=<name>` |
 | `tests/export.gd` | the take list and the exporter driven headless: prints the list's size and first rows, then with `--take=<name>` exports that take through the viewer: `godot --headless --path combat_viewer --script res://tests/export.gd -- <directory> --take=<name>` |
 
 ## Checking it

@@ -1,0 +1,58 @@
+{
+ "marks": [
+  {
+   "label": "Diablo",
+   "kind": "target",
+   "spot": [
+    1559.0,
+    1059.0
+   ],
+   "use": 0
+  },
+  {
+   "label": "Vizier seal 1",
+   "kind": "target",
+   "spot": [
+    1531.0,
+    1063.0
+   ],
+   "use": 396
+  },
+  {
+   "label": "Vizier seal 2",
+   "kind": "target",
+   "spot": [
+    1531.0,
+    1055.0
+   ],
+   "use": 395
+  },
+  {
+   "label": "De Seis seal",
+   "kind": "target",
+   "spot": [
+    1563.0,
+    1031.0
+   ],
+   "use": 394
+  },
+  {
+   "label": "Infector seal 1",
+   "kind": "target",
+   "spot": [
+    1583.0,
+    1063.0
+   ],
+   "use": 392
+  },
+  {
+   "label": "Infector seal 2",
+   "kind": "target",
+   "spot": [
+    1583.0,
+    1055.0
+   ],
+   "use": 393
+  }
+ ]
+}

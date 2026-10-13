@@ -35,6 +35,12 @@ var recorded_kills: PackedInt32Array = PackedInt32Array()
 var gate: Dictionary = {}
 var runs: Array[Dictionary] = []  # runs[0] is the recorded one
 var moments: Dictionary = {}  # policy name -> Array of moments
+var scale: float = 10.0  # file units to a world unit
+var situation: bool = false  # a situation's file (README.md, "Situations"): its runs are variants
+var about: String = ""
+var sidecar: Dictionary = {}  # a take's own debug track (`<take>.tasks.json` beside its file), {} without one
+
+const SIDECAR := ".tasks.json"
 
 
 ## The take in the file at `file_path`; `problem` says why when it could not be read.
@@ -54,7 +60,23 @@ static func load_file(file_path: String) -> RefCounted:
 		data.problem = "%s has schema %s; this viewer reads schema 1" % [file_path, str(raw.get("schema"))]
 		return data
 	data._decode(raw)
+	data._read_sidecar()
 	return data
+
+
+## A recorded take's debug track, written beside its file by the situations exporter (`--tasks`): given to
+## every run that has none of its own.
+func _read_sidecar() -> void:
+	var file: String = path.get_basename() + SIDECAR
+	if not FileAccess.file_exists(file):
+		return
+	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(file))
+	if typeof(parsed) != TYPE_DICTIONARY or typeof((parsed as Dictionary).get("debug")) != TYPE_DICTIONARY:
+		return
+	sidecar = (parsed as Dictionary)["debug"]
+	for run: Dictionary in runs:
+		if (run["debug"] as Dictionary).is_empty():
+			run["debug"] = sidecar
 
 
 func _decode(raw: Dictionary) -> void:
@@ -66,7 +88,9 @@ func _decode(raw: Dictionary) -> void:
 	seconds = float(raw.get("seconds", 0.0))
 	birth_lag = int(raw.get("birth_lag", 5))
 	blade_life = int(raw.get("blade_life", 38))
-	var scale: float = float(raw.get("scale", 10))
+	scale = float(raw.get("scale", 10))
+	situation = raw.has("variants")
+	about = str(raw.get("about", ""))
 	contact_radius = float(raw.get("contact_radius", 20)) / scale
 	var box: Array = raw.get("bounds", [0, 0, 0, 0])
 	bounds = Rect2(
@@ -247,7 +271,20 @@ func _run(raw: Dictionary, scale: float) -> Dictionary:
 				"hop": bool(step.get("hop", false)),
 				"walk": int(step.get("walk", 0)),
 			})
+	# A situation's run (README.md, "Situations"): its own monster paths, objects, shots and debug track.
+	var tracks: Dictionary = {}
+	var raw_tracks: Variant = raw.get("tracks")
+	if typeof(raw_tracks) == TYPE_DICTIONARY:
+		var own_tracks: Dictionary = raw_tracks
+		for unit: Variant in own_tracks:
+			tracks[str(unit)] = _track(own_tracks[unit], scale)
+	var raw_debug: Variant = raw.get("debug")
 	return {
+		"tracks": tracks,
+		"objects": raw.get("objects", []),
+		"shots": raw.get("shots", []),
+		"debug": raw_debug if typeof(raw_debug) == TYPE_DICTIONARY else {},
+		"summary": raw.get("summary", {}),
 		"player": _track(own_player, scale) if typeof(own_player) == TYPE_DICTIONARY else {},
 		"moves": moves,
 		"name": str(raw.get("name", "?")),
@@ -312,6 +349,15 @@ static func position(track: Dictionary, tick: int) -> Vector2:
 		return Vector2.ZERO
 	var index: int = ticks.bsearch(tick, false) - 1
 	return points[clampi(index, 0, points.size() - 1)]
+
+
+## A monster's track in `run`: the run's own when it has one (a situation), else the take's.
+static func track_in(run: Dictionary, monster: Dictionary) -> Dictionary:
+	var tracks: Dictionary = run.get("tracks", {})
+	if tracks.is_empty():
+		return monster
+	var key: String = monster["key"]
+	return tracks.get(key, {"seen": PackedInt32Array(), "t": PackedInt32Array(), "p": PackedVector2Array()})
 
 
 ## Where the character stands in `run` at `tick`: the run's own track when it has one, else the take's.

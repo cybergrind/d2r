@@ -12,7 +12,7 @@ from inventory_tracking.hud.payloads import card_payload, guide_payload
 from inventory_tracking.hud.scene import LEASE_SECONDS, Widget
 from inventory_tracking.native.layout import UI_PANELS_RVA
 from inventory_tracking.osd.level_map import MapCard
-from inventory_tracking.presentation import StyledLine
+from inventory_tracking.presentation import StyledLine, Tone
 
 
 def acquire_instance(scene_dir: Path):
@@ -75,6 +75,32 @@ class PanelBeacon:
         self.last = now
         address = self.source.images['candidate_base'] + UI_PANELS_RVA
         self.publish([Widget('panels', 'panels', 'panels', {'live': [self.source.pid, address]})])
+
+
+class ModeBeacon:
+    """Says on the HUD whether the macro's attack mode is on (user, 2026-10-13: "we need to see some
+    indicator when auto-attack is enabled or not on overlay"; the pickup key turns the mode on, and the
+    attack key then turned it off unseen). Republished well inside the lease, and at once when the mode
+    changes; nothing is shown out of a game. `state()` gives (in a game, attack mode on)."""
+
+    INTERVAL = LEASE_SECONDS / 3
+
+    def __init__(self, state, publish):
+        self.state, self.publish = state, publish
+        self.last: float | None = None
+        self.shown: tuple[bool, bool] | None = None
+
+    def poll(self, now: float) -> None:
+        found = self.state()
+        if found == self.shown and self.last is not None and now - self.last < self.INTERVAL:
+            return
+        self.last, self.shown = now, found
+        in_game, on = found
+        if not in_game:
+            self.publish([])
+            return
+        line = StyledLine('AUTO-ATTACK ON', Tone.SET) if on else StyledLine('auto-attack off', Tone.METADATA)
+        self.publish([Widget('mode', 'text', 'mode', card_payload([line]))])
 
 
 @contextmanager

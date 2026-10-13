@@ -162,3 +162,23 @@ def test_the_assessment_slot_is_never_dimmed():
     assert 'assessment' not in HUD.dim_slots
     assert {'guide', 'map', 'ground', 'terror', 'loot'} <= set(HUD.dim_slots)
     assert {'inventory', 'mercenary'} <= set(HUD.dim_panels)
+
+
+def test_the_mode_beacon_says_whether_attack_mode_is_on_and_nothing_out_of_a_game():
+    from inventory_tracking.hud.process import ModeBeacon
+
+    state = [(True, False)]
+    published = []
+    beacon = ModeBeacon(lambda: state[0], published.append)
+
+    beacon.poll(10.0)
+    beacon.poll(10.1)  # the same, inside the interval: not said again
+    state[0] = (True, True)
+    beacon.poll(10.2)  # a change: at once
+    beacon.poll(10.2 + ModeBeacon.INTERVAL)  # the lease is renewed
+    state[0] = (False, True)
+    beacon.poll(11.0)  # out of the game: taken off
+
+    texts = [[line['text'] for line in widgets[0].payload['lines']] if widgets else None for widgets in published]
+    assert texts == [['auto-attack off'], ['AUTO-ATTACK ON'], ['AUTO-ATTACK ON'], None]
+    assert published[1][0].slot == 'mode'

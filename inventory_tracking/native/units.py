@@ -5,12 +5,18 @@ The live signature's following instructions independently use next link +0x158.
 """
 
 import struct
+from contextlib import suppress
 from typing import Any
 
 from inventory_tracking.native.layout import BELT_ITEM_MODE, DEAD_MODES, HIRELING_CLASS_ID
 
 
-def walk_units(read, heads, expected_type, *, max_units=2048) -> dict[str, Any]:
+# The unit record with what lies past the fields named here: the animation's tick copies end at 0x1B4
+# (rca/2026-10-13/re-findings.md, read in the code, not yet seen live). Read whole only on request.
+RECORD_SIZE = 0x1C0
+
+
+def walk_units(read, heads, expected_type, *, max_units=2048, records=False) -> dict[str, Any]:
     result: dict[str, Any] = {'units': [], 'errors': [], 'complete': True}
     visited = set()
     for bucket, pointer in enumerate(heads):
@@ -21,7 +27,13 @@ def walk_units(read, heads, expected_type, *, max_units=2048) -> dict[str, Any]:
                 if len(visited) >= max_units:
                     raise ValueError('unit traversal budget reached')
                 visited.add(pointer)
-                data = read(pointer, 0x160)
+                whole = b''
+                if records:  # the longer read may run off what can be read: the unit is not lost for it
+                    with suppress(OSError, ValueError):
+                        whole = read(pointer, RECORD_SIZE)
+                if len(whole) != RECORD_SIZE:
+                    whole = read(pointer, 0x160)
+                data = whole[:0x160]
                 if len(data) != 0x160:
                     raise ValueError('short unit read')
                 unit_type, txt_id, unit_id, mode = struct.unpack_from('<IIII', data)
@@ -41,6 +53,8 @@ def walk_units(read, heads, expected_type, *, max_units=2048) -> dict[str, Any]:
                         'next_pointer': struct.unpack_from('<Q', data, 0x158)[0],
                     }
                 )
+                if records:  # the whole unit record as read (combat/record.py writes it raw)
+                    result['units'][-1]['record'] = whole
                 pointer = result['units'][-1]['next_pointer']
             except (OSError, ValueError) as exc:
                 result['errors'].append({'bucket': bucket, 'address': pointer, 'error': str(exc)})

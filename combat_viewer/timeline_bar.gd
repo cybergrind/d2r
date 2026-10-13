@@ -44,6 +44,9 @@ var _moment_selected: int = -1
 var _loop_first: int = -1
 var _loop_last: int = -1
 var _tick: int = 0
+var _presses: PackedInt32Array = PackedInt32Array()  # a debug track's key presses, when the run has one
+var _hurts: PackedInt32Array = PackedInt32Array()  # the ticks the character lost life at
+var _death: int = -1  # the tick the run's character died at
 
 var _dragging: bool = false
 var _emitted: int = 0  # the last tick sent by seek_requested
@@ -111,6 +114,15 @@ func set_loop(first: int, last: int) -> void:
 
 
 ## Sets the cursor tick.
+## A run's debug marks (README.md, "Situations"): the key presses, the blows that took life and the death.
+## Empty arrays and -1 draw nothing.
+func set_debug(presses: PackedInt32Array, hurts: PackedInt32Array, death: int) -> void:
+	_presses = presses
+	_hurts = hurts
+	_death = death
+	queue_redraw()
+
+
 func set_tick(tick: int) -> void:
 	if tick == _tick:
 		return
@@ -205,6 +217,26 @@ func _draw() -> void:
 	for k: int in range(_dead.size() >> 1):
 		var death_x: float = _x_of(_dead[2 * k])
 		draw_rect(Rect2(death_x - 1.0, REC_TOP, 2.0, LIFE_TOP + LIFE_H - REC_TOP), Palette.LIFE, true)
+
+	# A debug track: presses as ticks along the running band, blows on the life strip, the death through all.
+	for at: int in _presses:
+		draw_rect(Rect2(_x_of(at) - 0.5, RUN_TOP - 3.0, 1.5, RUN_H + 6.0), Palette.GOOD, true)
+	for at: int in _hurts:
+		draw_rect(Rect2(_x_of(at) - 0.5, LIFE_TOP, 1.5, LIFE_H * 0.5), Palette.BAD, true)
+	if _death >= 0:
+		draw_rect(Rect2(_x_of(_death) - 1.5, 0.0, 3.0, h), Palette.LIFE, true)
+	if not _presses.is_empty() or not _hurts.is_empty() or _death >= 0:
+		# The legend of those marks, at the bar's right end.
+		var font: Font = get_theme_default_font()
+		var parts: Array = [["key presses", Palette.GOOD], ["blows", Palette.BAD], ["death", Palette.LIFE]]
+		var x: float = w - PAD
+		for i: int in range(parts.size() - 1, -1, -1):
+			var text: String = parts[i][0]
+			x -= font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x
+			draw_string(font, Vector2(x, MOMENT_H - 3.0), text, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Palette.TEXT_DIM)
+			x -= 9.0
+			draw_rect(Rect2(x, 3.0, 5.0, MOMENT_H - 6.0), parts[i][1], true)
+			x -= 12.0
 
 	# 8. Cursor, last.
 	var cursor_x: float = _x_of(clampi(_tick, _first, _last))

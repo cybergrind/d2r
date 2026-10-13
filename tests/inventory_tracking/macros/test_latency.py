@@ -159,3 +159,14 @@ def test_the_report_names_each_stage_and_holds_the_budget_against_idle_presses()
     assert 'budget p50 80 ms: 70 ms, kept' in text
     assert latency.stages(press(60.0))['run setup'] == 16.5
     assert json.loads(text.splitlines()[-3].strip())['ms']['first_move'] == 400.0
+
+
+def test_a_press_that_is_over_is_told_to_whoever_notes_it_with_its_outcome():
+    told = []
+    trace = Trace()
+    trace.noted = lambda kind, **fields: told.append((kind, fields['routine'], fields.get('outcome')))
+    press = trace.press('teleport', 10.0, 10.0)
+    trace.close(press, outcome='dropped: too old')
+    trace.close(press, outcome='again')  # written once
+
+    assert told == [('press', 'teleport', 'dropped: too old')]

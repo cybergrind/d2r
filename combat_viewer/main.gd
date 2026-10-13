@@ -13,9 +13,19 @@ const TimelineBar := preload("res://timeline_bar.gd")
 const SidePanel := preload("res://side_panel.gd")
 const TakeList := preload("res://take_list.gd")
 const Exporter := preload("res://exporter.gd")
+const DebugPanel := preload("res://debug_panel.gd")
+const SourceTabs := preload("res://source_tabs.gd")
+const Layout := preload("res://layout.gd")
+const SituationPanel := preload("res://situation_panel.gd")
 
 const DEFAULT_DIRECTORY := "../inventory_tracking/runs/combat/viz"
 const INDEX := "index.json"
+## The folders the list's tabs show (source_tabs.gd), beside DEFAULT_DIRECTORY: each next to it.
+const TAKES := "Takes"
+const STANCE := "Stance"
+const SITUATIONS := "Situations"
+const STANCE_DIRECTORY := "../inventory_tracking/runs/combat/viz-stance"
+const SITUATIONS_DIRECTORY := "../inventory_tracking/runs/combat/viz-situations"
 const SPEEDS: Array[float] = [0.25, 0.5, 1.0, 2.0, 4.0, 8.0]
 const LEAD_TICKS := 25  # a jump to a moment lands a second before it
 const SHOT_FRAMES := 8  # frames drawn before `--shot` saves the picture
@@ -49,6 +59,14 @@ var _policy_button: OptionButton
 var _overlay_button: CheckButton
 var _follow_button: CheckButton
 var _shot_path: String = ""
+var source: String = TAKES  # the tab shown: TAKES, STANCE or SITUATIONS
+var _debug: PanelContainer
+var _tabs: HBoxContainer
+var _layout: Node
+var _situation: PanelContainer  # the info panel of a situation, in the take tables' place
+var _single: bool = false  # one map shown: a situation's chosen variant alone
+var _open_when_done: String = ""  # the situation to open when its export ends
+var _command_directory: String = ""  # a folder given on the command line: what the Takes tab shows
 var _shot_countdown: int = -1
 var _fit_pending: bool = false
 
@@ -63,7 +81,13 @@ func _ready() -> void:
 		directory = target.get_base_dir()
 		_open_take(target)
 	else:
+		_command_directory = target
 		_open_directory(target)
+	_build_tabs()
+	# The tab last chosen, when the viewer was opened on its own folder (never headless: layout.gd).
+	if wanted.get("path", "").is_empty() and _layout.kept_tab() == SITUATIONS:
+		_choose_source(SITUATIONS)
+	_layout.use(Layout.TAKES)
 	if data != null:
 		if wanted.has("policy"):
 			_choose_policy(str(wanted["policy"]))
@@ -100,15 +124,26 @@ func _build() -> void:
 	background.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(background)
 
-	var column: VBoxContainer = VBoxContainer.new()
-	column.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	column.add_theme_constant_override("separation", 4)
-	add_child(column)
-
+	# Every boundary is a split container's bar (layout.gd): the map | the macro column | the info panel,
+	# and all of them over the transport and the scrub bar.
+	var rows: VSplitContainer = VSplitContainer.new()
+	rows.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	add_child(rows)
+	var outer: HSplitContainer = HSplitContainer.new()
+	outer.custom_minimum_size = Vector2(0, 200)
+	rows.add_child(outer)
+	var inner: HSplitContainer = HSplitContainer.new()
+	inner.custom_minimum_size = Vector2(400, 0)
+	outer.add_child(inner)
 	var middle: HBoxContainer = HBoxContainer.new()
-	middle.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	middle.custom_minimum_size = Vector2(240, 0)
 	middle.add_theme_constant_override("separation", 4)
-	column.add_child(middle)
+	inner.add_child(middle)
+	var info: VBoxContainer = VBoxContainer.new()
+	outer.add_child(info)
+	var column: VBoxContainer = VBoxContainer.new()
+	column.add_theme_constant_override("separation", 4)
+	rows.add_child(column)
 
 	_left = MapView.new()
 	_right = MapView.new()
@@ -117,10 +152,23 @@ func _build() -> void:
 		view.camera_changed.connect(_on_camera_changed)
 		middle.add_child(view)
 
+	_debug = DebugPanel.new()
+	inner.add_child(_debug)
+
 	_panel = SidePanel.new()
+	_panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_panel.moment_chosen.connect(_on_moment_chosen)
 	_panel.loop_toggled.connect(_on_loop_toggled)
-	middle.add_child(_panel)
+	info.add_child(_panel)
+	_situation = SituationPanel.new()
+	_situation.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_situation.visible = false
+	_situation.variant_chosen.connect(_choose_policy)
+	info.add_child(_situation)
+
+	_layout = Layout.new()
+	add_child(_layout)
+	_layout.setup(self, rows, outer, inner, _debug, info)
 
 	var transport: HBoxContainer = HBoxContainer.new()
 	transport.add_theme_constant_override("separation", 10)
@@ -159,6 +207,7 @@ func _build() -> void:
 	transport.add_child(_button("fit", _fit))
 
 	_timeline = TimelineBar.new()
+	_timeline.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_timeline.seek_requested.connect(_on_seek_requested)
 	column.add_child(_timeline)
 
@@ -167,8 +216,16 @@ func _build() -> void:
 	_list.take_chosen.connect(_on_take_chosen)
 	_list.browse_requested.connect(_browse)
 	_list.export_requested.connect(_on_export_requested)
-	_list.refresh_requested.connect(_show_list)
+	_list.refresh_requested.connect(_refresh_list)
 	add_child(_list)
+
+	_tabs = SourceTabs.new()
+	_tabs.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
+	_tabs.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	_tabs.position += Vector2(-24, 28)
+	_tabs.chosen.connect(_choose_source)
+	_list.visibility_changed.connect(func() -> void: _tabs.visible = _list.visible)
+	add_child(_tabs)
 
 	_exporter = Exporter.new()
 	_exporter.progressed.connect(_on_export_progressed)
@@ -181,6 +238,48 @@ func _build() -> void:
 	_dialog.title = "The directory the takes were exported to (it holds index.json)"
 	_dialog.dir_selected.connect(_open_directory)
 	add_child(_dialog)
+
+
+func _beside(relative: String) -> String:
+	return ProjectSettings.globalize_path("res://").path_join(relative).simplify_path()
+
+
+## The tabs above the list: Takes, Stance when its folder was exported, and Situations always.
+func _build_tabs() -> void:
+	var names: PackedStringArray = PackedStringArray([TAKES])
+	if FileAccess.file_exists(_beside(STANCE_DIRECTORY).path_join(INDEX)):
+		names.append(STANCE)
+	names.append(SITUATIONS)
+	_tabs.set_tabs(names, source)
+	_tabs.visible = _list.visible
+
+
+## Show the list of another tab. Situations: the catalog is asked of the situations' exporter first (it
+## writes the folder's index, with the situations that have no fresh file yet), which takes a second or two.
+func _choose_source(name: String) -> void:
+	source = name
+	_tabs.choose(name)
+	_layout.keep_tab(name)
+	_open_when_done = ""
+	_exporter.module = Exporter.SITUATIONS if name == SITUATIONS else Exporter.MODULE
+	if name == SITUATIONS:
+		var out: String = _beside(SITUATIONS_DIRECTORY)
+		var problem: String = _exporter.list_situations(out)
+		_open_directory(out)
+		if not problem.is_empty():
+			_list.show_problem("The situations could not be listed: %s" % problem)
+	elif name == STANCE:
+		_open_directory(_beside(STANCE_DIRECTORY))
+	else:
+		_open_directory(_command_directory if not _command_directory.is_empty() else _beside(DEFAULT_DIRECTORY))
+
+
+## R in the list: the folder read again; the situations' catalog asked for again.
+func _refresh_list() -> void:
+	if source == SITUATIONS:
+		_choose_source(SITUATIONS)
+	else:
+		_show_list()
 
 
 func _button(text: String, pressed: Callable) -> Button:
@@ -230,6 +329,8 @@ func _on_export_requested(take_directory: String, policies: PackedStringArray) -
 	if _exporter.is_pending(take):
 		return
 	_list.set_export_state(take, "waiting")
+	if source == SITUATIONS:
+		_open_when_done = take  # asked for by opening it or by E: it is shown when it is played
 	_exporter.request(take_directory, directory, policies)
 
 
@@ -240,6 +341,12 @@ func _on_export_progressed(take: String, done: int, total: int, stage: String) -
 ## The exporter rewrote the index: show it again, with what went wrong on the take's row if it failed.
 func _on_export_finished(take: String, ok: bool, message: String) -> void:
 	_list.set_export_state(take, "" if ok else "failed: %s" % message)
+	if source == SITUATIONS and ok and take == _open_when_done:
+		_open_when_done = ""
+		_exporter.list_situations(directory)  # the index again: what is fresh now
+		_open_directory(directory)
+		_open_take(directory.path_join(take + ".json"))
+		return
 	if _list.visible:
 		_open_directory(directory)
 
@@ -270,6 +377,16 @@ func _open_take(path: String) -> void:
 			_clock(data.seconds), data.monsters.size(), data.recorded_kills.size(), trust
 		]
 	)
+	# A situation: its own info panel and layout, one map unless two variants are compared.
+	_panel.visible = not data.situation
+	_situation.visible = data.situation
+	_left.plain_titles = data.situation
+	_right.plain_titles = data.situation
+	if data.situation:
+		_situation.set_runs("%s: %s" % [data.take, data.about], data.runs)
+		overlay = false
+		_overlay_button.set_pressed_no_signal(false)
+	_overlay_button.text = "beside the first" if data.situation else "overlaid"
 	_timeline.set_range(data.start, data.end)
 	_timeline.set_running(data.player_run)
 	_timeline.set_character(data.player_dead, data.vitals["life"], data.vitals["max_life"])
@@ -316,12 +433,46 @@ func _choose_policy(name: String) -> void:
 	var policy_deaths: PackedInt32Array = _policy["death_ticks"]
 	_timeline.set_marks(recorded_casts, policy_casts, recorded_deaths, policy_deaths)
 	_timeline.set_moves(_recorded["moves"], _policy["moves"])
+	# A run with a debug track (a situation, or a take with its task sidecar): the panel, and its marks.
+	_debug.show_run(_policy if DebugPanel.has_debug(_policy) else _recorded, data.rate, data.start)
+	if _debug.visible:
+		_timeline.set_debug(_debug.press_ticks(), _debug.hurt_ticks(), _debug.death_tick())
+		if _debug.max_life() > 0:
+			var most: Dictionary = {"t": PackedInt32Array([data.start]), "v": PackedInt32Array([_debug.max_life()])}
+			var dead: PackedInt32Array = PackedInt32Array()
+			if _debug.death_tick() >= 0:
+				dead = PackedInt32Array([_debug.death_tick(), data.end])
+			_timeline.set_character(dead, _debug.life_series(), most)
+	else:
+		_timeline.set_debug(PackedInt32Array(), PackedInt32Array(), -1)
+		_timeline.set_character(data.player_dead, data.vitals["life"], data.vitals["max_life"])
+	_situation.choose(policy_name)
+	_layout.use(Layout.SITUATIONS if data.situation else Layout.TAKES)
 	_show_runs()
 	_show_tick(true)
 
 
 func _show_runs() -> void:
 	if data == null:
+		return
+	_single = false
+	if data.situation:
+		# One map: the chosen variant. Beside the first variant (V) only when it is another one.
+		var first: bool = data.policy_names().find(policy_name) <= 0
+		if overlay and not first:
+			var base: Array[Dictionary] = [_recorded]
+			var base_color: Array[Color] = [Palette.RECORDED]
+			var chosen: Array[Dictionary] = [_policy]
+			var chosen_color: Array[Color] = [Palette.POLICY]
+			_left.show_runs(data, base, base_color)
+			_right.show_runs(data, chosen, chosen_color)
+			_right.visible = true
+		else:
+			var alone: Array[Dictionary] = [_policy]
+			var alone_color: Array[Color] = [Palette.POLICY]
+			_left.show_runs(data, alone, alone_color)
+			_right.visible = false
+			_single = true
 		return
 	var both: Array[Dictionary] = [_recorded, _policy]
 	var both_colors: Array[Color] = [Palette.RECORDED, Palette.POLICY]
@@ -373,6 +524,7 @@ func _show_tick(force: bool) -> void:
 	_left.set_tick(tick)
 	_right.set_tick(tick)
 	_timeline.set_tick(tick)
+	_debug.set_tick(tick)
 	var elapsed: float = float(tick - data.start) / data.rate
 	_panel.set_totals(elapsed, data.totals(_recorded, tick), data.totals(_policy, tick))
 	var moving: String = "  (the player is moving)" if TakeData.in_spans(data.player_run, tick) else ""
@@ -387,6 +539,9 @@ func _follow_character() -> void:
 	_left.shift = Vector2.ZERO
 	_right.shift = Vector2.ZERO
 	if not camera["follow"]:
+		return
+	if _single:
+		camera["center"] = data.character_at(_policy, tick)
 		return
 	if overlay:
 		camera["center"] = data.character_at(_policy, tick)
@@ -594,6 +749,18 @@ func _input(event: InputEvent) -> void:
 			_fit()
 		KEY_ESCAPE:
 			_show_list()
+		KEY_0:
+			_layout.reset()
+		KEY_I:
+			if not key.echo:
+				_layout.toggle_info()
+		KEY_E:
+			# A situation: played again and shown again (after a change to the code).
+			if source == SITUATIONS and not key.echo and data != null:
+				playing = false
+				_on_export_requested(directory.path_join(data.take), PackedStringArray())
+			else:
+				handled = false
 		_:
 			handled = false
 	if handled:

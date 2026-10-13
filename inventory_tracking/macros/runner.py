@@ -50,7 +50,7 @@ from inventory_tracking.macros.journey import Journey
 from inventory_tracking.macros.latency import Press, Trace
 from inventory_tracking.macros.opening import open_near
 from inventory_tracking.macros.pickup import pick_up, wanted, worth_a_stop
-from inventory_tracking.macros.routines import prebuff_keys, run_macro, take_battle_weapons
+from inventory_tracking.macros.routines import prebuff_keys, run_macro
 from inventory_tracking.macros.skills import character_bindings, skill_keys
 from inventory_tracking.macros.teleport import LOST_KEY, step_toward
 from inventory_tracking.macros.timing import Pace
@@ -150,6 +150,8 @@ class MacroRunner:
         self.press: Press | None = None  # the press of the run working now
         self.hurry: Callable[[], None] | None = None  # the service reads the level now (teleport.card_for)
         self.quiet_until = -math.inf  # attack mode resumes no sooner (TRAVEL_QUIET)
+        # the combat recorder's `note` (combat/record.py): each request and each line said goes into the take
+        self.noted: Callable[..., None] | None = None
         self.lock = threading.RLock()  # every transition: a request, a run's end and its successor, shutdown
 
     def request(self, requested_at: float, now: float, routine: str = PREBUFF, **notes: object) -> bool:
@@ -160,6 +162,8 @@ class MacroRunner:
         with self.lock:
             during = self.routine if self.working else None
             press = self.trace.press(routine, requested_at, now, during=during, **notes)
+            if self.noted is not None:
+                self.noted('request', routine=routine, age=round(now - requested_at, 3), during=during)
             if self.closed or not math.isfinite(requested_at) or not 0 <= now - requested_at <= 1:
                 if not self.closed:
                     # Never silent: a press that did nothing is what "unresponsive" looks like.
@@ -368,6 +372,8 @@ class MacroRunner:
 
     def _say(self, text: str) -> None:
         LOG.info('Macro: %s', text)
+        if self.noted is not None:
+            self.noted('said', text=text)
         self._show([f'Macro: {text}'])
 
     def _guarded(
@@ -473,6 +479,12 @@ class MacroRunner:
         if build is not self.build:
             LOG.info('Macro: the build is %s%s', build.name, '' if build.weapons else ', no weapon sets of its own')
         self.build = run.build = build
+        if build.weapons is not None:
+            # Every run knows the build's weapon sets, not only the prebuff and attack mode, which set
+            # them themselves: the teleport step's "the staff is empty: the main weapons" (hunt.py
+            # `empty_hop`, `afoot`) asked a run that held none, and did nothing in the game (12 s with
+            # the empty staff in hand through 20 steps, 12:33 on 2026-10-13; the tests' runs had them).
+            run.prebuff_hands, run.battle_hands = build.weapons.prebuff, build.weapons.battle
         if self.hunter is not None:
             self.hunter.use(build)
 
@@ -607,14 +619,6 @@ class MacroRunner:
                     # The step does not leave a valuable behind: this press takes it, the next hops.
                     LOG.info('Macro: the teleport step takes %s first', drop.label)
                     pick_up(run, walker.level() if walker.level is not None else None, key_names, lambda: None)
-                elif card is not None and (crowd := walker.pack_ahead(run, card)):
-                    # No hop into a pack that stands where the step would stand (user, 2026-10-12: "diving into
-                    # big pack with staff in hand - could be fatal"): the main weapons, and the fight from where
-                    # the character is, by the sweep's own places. The press after the pack is dead goes on.
-                    run.say(f'{crowd} monsters by {card.label}: the fight first')
-                    take_battle_weapons(run)
-                    walker.step(run, key_names)
-                    self.attack_mode = True
                 elif card is not None and walker.boss_step(run, card, key_names):
                     pass  # the boss stands where its mark has no shot at it: the step went for the boss
                 else:

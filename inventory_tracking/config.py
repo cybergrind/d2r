@@ -424,6 +424,9 @@ class AppraisalConfig(Config):
     # record combat logs for all levels?"; the cow runs of that night left no take). The list is what
     # was recorded before, and what is recorded with this off.
     combat_everywhere: bool = True
+    # With it, the towns too (2026-10-13): a game's takes then follow one another with no gap but the
+    # loading screens, and what is carried into a level (buffs, the belt, the staff's charges) is on record.
+    combat_town: bool = True
     # What the takes are held to (combat/retain.py): each is gzipped as it closes (about a fifteenth of
     # its size), and past this many gigabytes in all the oldest are removed, one the character died
     # in last. 3.4 GB were 730 takes unpacked on 2026-10-12; packed, 20 GB are tens of thousands.
@@ -509,6 +512,9 @@ class HudConfig(Config):
         # Unread Traderie notifications (hud/traderie.py): centred at the top edge, between the
         # corner portraits and the Terror Zone card.
         'traderie': HudSlot(x=0.5, y=0.02, max_width=0.3, centered=True),
+        # Whether the macro's attack mode is on (hud/process.py ModeBeacon): one line, centred above the
+        # skill bar (2026-10-13). Not dimmed with the others: it is read at a glance in a fight.
+        'mode': HudSlot(x=0.5, y=0.8, max_width=0.2, centered=True),
     }
     # Slots also shown while the game is not focused or not running; they are then laid out on
     # the whole working area of the focused output instead of the game window.

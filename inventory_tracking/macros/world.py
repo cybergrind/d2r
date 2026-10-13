@@ -49,6 +49,7 @@ from inventory_tracking.native.layout import (
     ROOM2_LEVEL,
     STAFF_CLASS_IDS,
     TELEPORT_SKILL,
+    TERROR_SERVICE_RVA,
     TOWN_IDS,
     UI_PANELS_RVA,
     UI_PANELS_SIZE,
@@ -132,6 +133,13 @@ DEFILER_CLASS = 744
 # as bit 16 of this word, so it holds states 192-223, and state 202 (`hexpurge`, the aurastate of skill
 # 389) is its bit 10. Read from the tables on 2026-10-11; not yet seen to change in the game.
 STATE_FLAGS = 0xB48
+# Every state word of a unit, as that reading has them laid out: states 0-31 in the first word, six
+# words before STATE_FLAGS, to 224-255 in the one after it. Only the word at STATE_FLAGS is confirmed;
+# the recorder writes the whole run raw (combat/record.py `s`), for a curse on the character
+# (states.txt `amplifydamage` 9, `ironmaiden` 55, `decrepify` 60, `lowerresist` 61), poison (2) and a
+# skill's delay to be read off it once a take shows them change.
+STATE_RUN = (STATE_FLAGS - 6 * 4, 8 * 4)
+TICK_HEAD = 0x20
 HEX_PURGE_BIT = 1 << (202 - 192)
 PSYCHIC_WARD_BIT = 1 << (206 - 192)  # states.txt `psychicward`, the aurastate of skill 387
 LYING_DEAD = 12  # monster mode: dead, the death animation (mode 0) over
@@ -157,10 +165,18 @@ class Player:
     )  # the unit's stat list (combat/record.py reads life and mana)
     hex_purge: bool | None = None  # the Hex: Purge buff is on the character; None when unreadable
     ward: bool | None = None  # Psychic Ward likewise
+    record: bytes = field(default=b'', compare=False, repr=False)  # the unit record as read (research)
+    skill: bytes = field(default=b'', compare=False, repr=False)  # the skill in use, raw (`skill_in_use`)
 
     @property
     def in_town(self) -> bool:
         return self.area in TOWN_IDS
+
+    @property
+    def buffs(self) -> tuple[bool | None, ...]:
+        """The buffs this reader knows of, in the order the combat recorder writes them (record.py `f`):
+        Psychic Ward, Hex: Purge, Consume; None for one that could not be read."""
+        return (self.ward, self.hex_purge, self.consume)
 
 
 @dataclass(frozen=True)
@@ -180,6 +196,11 @@ class Monster:
     path: bytes = field(default=b'', compare=False, repr=False)  # the whole path record, on request (PATH_RECORD)
     modifiers: tuple[int, ...] = field(default=(), compare=False)  # monumod ids: Lightning Enchanted is 17
     tier: int = field(default=0, compare=False)  # the tier of the Herald it is or follows (stat 367); 0: none
+    # On request (`records`): the unit record and the monster data as this walk read them, for the fields
+    # nobody has named yet (the animation frame, the skill in use: combat/record.py `records.jsonl`).
+    record: bytes = field(default=b'', compare=False, repr=False)
+    states: bytes = field(default=b'', compare=False, repr=False)  # its state words (STATE_RUN), with `records`
+    skill: bytes = field(default=b'', compare=False, repr=False)  # the skill in use, raw, in a striking mode
 
     @property
     def leader(self) -> bool:
@@ -300,21 +321,45 @@ def plausible_life(read, stats_pointer: int) -> bool:
     return len(life) == len(most) == 1 and 0 <= life[0] <= most[0] and most[0] > 0
 
 
-def monsters(read, table: int, *, dead: bool = False, paths: bool = False) -> tuple[Monster, ...]:
+# Monster modes in which it strikes or casts (monmode.txt: A1 4, A2 5, the cast 7, S1-S4 8-11).
+STRIKING_MODES = frozenset((4, 5, 7, 8, 9, 10, 11))
+SKILL_IN_USE = 0x18  # in the skill list: the pointer to the skill being used
+SKILL_RECORD = 0x50  # bytes of the skill record kept: its row pointer first, the points and base level within
+
+
+def skill_in_use(read, record: bytes) -> bytes:
+    """The skill a unit is using, raw: the two bytes its skills.txt row begins with (the skill id) and
+    the skill record's first SKILL_RECORD bytes. From the client's code (rca/2026-10-13/re-findings.md),
+    not yet seen to hold in a game: kept raw for that reason. Empty when any of the three reads fails."""
+    try:
+        skills = struct.unpack_from('<Q', record, SKILL_LIST)[0]
+        used = struct.unpack('<Q', read(skills + SKILL_IN_USE, 8))[0] if skills else 0
+        if not used:
+            return b''
+        kept = read(used, SKILL_RECORD)
+        row = struct.unpack_from('<Q', kept)[0]
+        return (read(row, 2) if row else b'\0\0') + kept
+    except OSError, ValueError, struct.error:
+        return b''
+
+
+def monsters(
+    read, table: int, *, dead: bool = False, paths: bool = False, records: bool = False
+) -> tuple[Monster, ...]:
     """The live monsters with a position: type flags and owner from the monster data, ally by the
     alignment stat (unreadable stats: not an ally). Dead ones (unless `dead`) and those without a
     path are left out. `paths`: each with its whole path record, where it can be read to its end."""
-    return monsters_and_dead(read, table, dead=dead, paths=paths)[0]
+    return monsters_and_dead(read, table, dead=dead, paths=paths, records=records)[0]
 
 
 def monsters_and_dead(
-    read, table: int, *, dead: bool = False, paths: bool = False
+    read, table: int, *, dead: bool = False, paths: bool = False, records: bool = False
 ) -> tuple[tuple[Monster, ...], frozenset[int]]:
     """`monsters`, and the unit ids of the monsters lying dead (from the same walk of the unit table)."""
     heads = struct.unpack('<128Q', read(table + MONSTER_UNIT * 1024, 1024))
     found = []
     corpses = set()
-    for unit in walk_units(read, heads, MONSTER_UNIT)['units']:
+    for unit in walk_units(read, heads, MONSTER_UNIT, records=records)['units']:
         if unit['mode'] in DEAD_MODES:
             corpses.add(unit['unit_id'])
         if (unit['mode'] in DEAD_MODES and not dead) or not unit['path_pointer'] or not unit['data_pointer']:
@@ -343,7 +388,16 @@ def monsters_and_dead(
                 raw = read(unit['address'], 0x160) + read(unit['data_pointer'], 0x80)
         monster = Monster(unit['unit_id'], unit['txt_id'], unit['mode'], *position(path), owner, data[TYPE_FLAGS])
         monster = replace(monster, ally=ally, life=life, max_life=max_life, raw=raw, stats_at=unit['stats_pointer'])
-        found.append(replace(monster, path=record, modifiers=tuple(mod for mod in data[MODIFIERS] if mod), tier=tier))
+        whole = states = skill = b''
+        if records:
+            whole = unit.get('record', b'') + data
+            if unit['stats_pointer']:
+                with contextlib.suppress(OSError, ValueError):
+                    states = read(unit['stats_pointer'] + STATE_RUN[0], STATE_RUN[1])
+            if unit['mode'] in STRIKING_MODES:
+                skill = skill_in_use(read, unit.get('record', b''))
+        monster = replace(monster, path=record, modifiers=tuple(mod for mod in data[MODIFIERS] if mod), tier=tier)
+        found.append(replace(monster, record=whole, states=states, skill=skill))
     return tuple(found), frozenset(corpses)
 
 
@@ -623,7 +677,7 @@ def local_player(read, table: int) -> Player | None:
     """The character played, among the player units; None in menus or when it cannot be told."""
     heads = struct.unpack('<128Q', read(table, 1024))
     found = []
-    for unit in walk_units(read, heads, 0)['units']:
+    for unit in walk_units(read, heads, 0, records=True)['units']:
         if not unit['path_pointer']:
             continue
         try:
@@ -660,6 +714,8 @@ def local_player(read, table: int) -> Player | None:
             unit['stats_pointer'],
             purge,
             ward,
+            unit.get('record', b''),
+            skill_in_use(read, unit.get('record', b'')),
         )
         found.append((player, unit['stats_pointer']))
     # Several player units may stand for the one character: the shared stash tabs carry its name
@@ -701,9 +757,9 @@ class GameMemory:
     def _doors(self) -> tuple[Door, ...]:
         return doors(self.read, self.table)
 
-    def all_monsters(self, *, paths: bool = False) -> tuple[Monster, ...]:
+    def all_monsters(self, *, paths: bool = False, records: bool = False) -> tuple[Monster, ...]:
         """Live and dead monsters with a position (the recorder tells a death from an unload)."""
-        return monsters(self.read, self.table, dead=True, paths=paths)
+        return monsters(self.read, self.table, dead=True, paths=paths, records=records)
 
     def missiles(self) -> list[dict]:
         return missiles(self.read, self.table)
@@ -725,6 +781,51 @@ class GameMemory:
             return things(self.read, self.table)
         except OSError, ValueError, struct.error:
             return ()
+
+    def operated(self) -> tuple[Thing, ...]:
+        """Everything a mark may name for a click and every container, opened or not: what the combat
+        recorder writes as the level's objects (a seal's mode says when it was opened)."""
+        try:
+            return things(self.read, self.table, USED | containers())
+        except OSError, ValueError, struct.error:
+            return ()
+
+    def tick(self) -> bytes | None:
+        """The head of the client's clock object, raw: by the client's code the time of the last whole
+        tick in ms is the u32 at +0x0C (40 a tick) and the part of the tick under way the float at +0x18
+        (rca/2026-10-13/re-findings.md; not yet seen to hold in a game). None when unread."""
+        try:
+            clock = struct.unpack('<Q', self.read(self.base + TERROR_SERVICE_RVA, 8))[0]
+            return self.read(clock, TICK_HEAD) if clock else None
+        except OSError, ValueError, struct.error:
+            return None
+
+    def states(self, stats_at: int) -> bytes | None:
+        """The unit's state words raw (STATE_RUN); None when unread."""
+        try:
+            return self.read(stats_at + STATE_RUN[0], STATE_RUN[1]) if stats_at else None
+        except OSError, ValueError, struct.error:
+            return None
+
+    def belt(self) -> tuple[int | None, ...] | None:
+        """The item class in each belt cell of the character's (None: empty); None when unread."""
+        try:
+            player = self._player()
+            if player is None:
+                return None
+            cells: list[int | None] = [None] * BELT_SIZE
+            heads = struct.unpack('<128Q', self.read(self.table + ITEM_UNIT * 1024, 1024))
+            for unit in walk_units(self.read, heads, ITEM_UNIT)['units']:
+                if unit['mode'] != BELT_ITEM_MODE or not unit['data_pointer'] or not unit['path_pointer']:
+                    continue
+                if struct.unpack_from('<I', self.read(unit['data_pointer'], 0x60), ITEM_OWNER)[0] != player.unit_id:
+                    continue
+                cell = struct.unpack_from('<H', self.read(unit['path_pointer'], 0x18), 0x10)[0]
+                if cell < BELT_SIZE:
+                    cells[cell] = unit['txt_id']
+            return tuple(cells)
+        except OSError, ValueError, struct.error:
+            return None
 
     def containers(self) -> tuple[Thing, ...]:
         """The chests and the like the game shows now, opened or not (the pickup step opens them)."""

@@ -808,30 +808,21 @@ def test_the_teleport_step_of_a_character_no_build_claims_hops_by_the_staff():
     assert play.said[-2].startswith('Teleport toward Next level')
 
 
-def test_with_a_pack_by_the_seal_the_teleport_step_takes_the_main_weapons_and_fights_first():
+def test_with_a_pack_by_the_seal_the_teleport_step_goes_there():
+    # The rule of 2026-10-13 night ("N monsters by <mark>: the fight first") is withdrawn: in the game of 09:06
+    # the key mashed by the first Vizier seal left the character 7 s with no strike (rca/2026-10-13). The
+    # press hops toward the mark whatever stands by it, as before, and does not turn attack mode on.
     from tests.inventory_tracking.macros import test_hunt as hunts
 
-    play = hunts.game(*hunts.pack(5))
-    play.sets.reverse()  # the staff's set in hand, as after the hops there
-    play.staff = replace(hunts.STAFF, in_hand=True)
-    runner, run, _ = building(play, hunts.hunter(play))
-    runner.target = lambda: hunts.seal()
-    runner.perform(run, run.actuator, 'teleport', hunts.keys)
-    assert play.pressed() == ['c']  # the swap, and no hop into the pack
-    assert play.staff.in_hand is False
-    assert runner.attack_mode is True
-    assert play.said[0] == '5 monsters by the seal: the fight first'
-
-
-def test_with_no_pack_by_the_seal_the_teleport_step_goes_there():
-    from tests.inventory_tracking.macros import test_hunt as hunts
-
-    play = hunts.game(*hunts.pack(2))
-    runner, run, _ = building(play, hunts.hunter(play))
-    runner.target = lambda: hunts.seal()
-    runner.perform(run, run.actuator, 'teleport', hunts.keys)
-    assert 'c' not in play.pressed()
-    assert not any('the fight first' in said for said in play.said)
+    for count in (2, 5):
+        play = hunts.game(*hunts.pack(count))
+        runner, run, _ = building(play, hunts.hunter(play))
+        runner.target = lambda: hunts.seal()
+        runner.perform(run, run.actuator, 'teleport', hunts.keys)
+        assert play.pressed() == [hunts.KEYS[hunts.BLADE_WARP]]  # the hop, and no swap of the weapons
+        assert play.said[0].startswith('Blade Warp toward the seal')
+        assert not any('the fight first' in said for said in play.said)
+        assert runner.attack_mode is False
 
 
 def test_the_teleport_step_of_the_warlock_is_the_step_it_was():
@@ -956,3 +947,18 @@ def test_a_warning_not_given_again_leaves_the_card_after_a_while(monkeypatch):
     monkeypatch.setattr(runner_module.time, 'monotonic', lambda: given + runner_module.WARNING_SECONDS + 1)
     runner._say('Attack mode on')
     assert shown[-1] == ['Macro: Attack mode on']
+
+
+def test_every_run_is_given_the_builds_weapon_sets_not_only_the_prebuff_and_attack_mode():
+    from types import SimpleNamespace
+
+    from inventory_tracking import builds
+
+    build = next(build for build in builds.BUILDS if build.weapons is not None)
+    runner = MacroRunner(None, capture_lock=threading.Lock(), saved_games=None)
+    run = SimpleNamespace(build=None, prebuff_hands=frozenset(), battle_hands=frozenset())
+
+    runner.wear(run, build)
+
+    assert run.battle_hands == build.weapons.battle
+    assert run.prebuff_hands == build.weapons.prebuff

@@ -1,4 +1,4 @@
-# Alt+D memory appraisal prototype
+# Item appraisal and collection
 
 Supported: main inventory, Horadric Cube, personal/shared stash, equipped items
 and NPC shop grids using the tested native widgets on the executable hash in
@@ -7,14 +7,21 @@ catalogued item bases and qualities 1–9, including nonmagical items with no st
 It reads only the selected item's stats. Offline metadata provides ordinary stat
 descriptions, Energy, skill bonuses, auras, charges and chance-to-cast descriptions.
 Every stat entry is retained; unsupported encodings remain named raw values.
-Reports are review drafts, not automatic trade valuations. Other widgets are
-rejected. Runtime uses no OCR, price refresh, downloads or input.
+Appraisal uses local decoding and assessment evidence; unavailable facts and prices
+remain explicit. Other widgets are rejected. The memory-appraisal path uses no OCR
+or live market refresh. The shared service also hosts macros that deliver input.
 
-This is **not complete tooltip decoding**: unique/set/runeword titles,
-identification/ethereal flags, socket contents, final requirements, skill tabs,
-per-level/time modifiers and other compound encodings still need work. Base
-identity is not a named unique identity. Broad non-ring decoding awaits host
-tooltip comparison. See [metadata sources and limits](items/data/README.md).
+Current decoder paths include named unique/set and runeword identity, identified/
+ethereal flags and socket contents when the capture provides sufficient evidence
+(`items/identity.py`, `runeword_identity.py`, `decode.py`, `sockets.py`). Unknown or
+unsupported fields remain explicit; this does not claim complete tooltip parity.
+See [metadata sources and limits](items/data/README.md) and the
+[assessment starting guide](../pricing/knowledge/assessment/README.md).
+
+### Historical widget validation (2026-09-23)
+
+The following captures record the rollout at that date. Pending comparisons here
+are historical observations, not a current feature queue.
 
 Cube selection passed the host A/empty/B/A sequence using the same native getter,
 player-owned page 3 and its 3×4 grid. Cube appraisal decoding is enabled with
@@ -263,10 +270,11 @@ is implied by the successful inventory-selection probes.
 
 ## Desktop binding
 
-`/home/kpi/.config/niri/config.kdl` contains the Alt+D command using the absolute
-uv path and repository directory. A timestamped sibling `config.kdl.before-d2r-alt-d-*`
-backup was created before editing; Niri's own validator accepted the result.
-Remove that one binding to undo it. No startup service was installed.
+The service owns the Niri hotkeys through [input/compositor.py](input/compositor.py).
+At startup it writes `d2r-hotkeys.kdl` beside the compositor config and ensures its
+include exists; on normal exit it empties that generated file. The current binding
+map is `BINDS`, including Alt+D. Edit the source map for a binding change; a manual
+binding in the main config is not the service's installation mechanism.
 
 ## Extending stat decoding
 
@@ -292,7 +300,11 @@ worker, presses Alt+D and supplies a screenshot; compare the selected capture wi
 its readable log, keep unknown properties visible, and reproduce gaps offline
 before changing interpretations.
 
-## Follow-up work
+## Historical rollout follow-ups (2026-09)
+
+These were the rollout checks, not the current work queue. Use the
+[Current contract](../pricing/knowledge/assessment/planning/COMPLETION_CONTRACT.md)
+and saved-item evidence to establish which gaps remain.
 
 - Extend other containers individually using verified host captures.
 - Compare live Alt+D output across inventory, stash, equipment and shop items.

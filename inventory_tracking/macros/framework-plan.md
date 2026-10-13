@@ -16,7 +16,7 @@ the user set.
 **Tech stack:** Python via `uv run --offline`, pytest (plain functions), pydantic `Config` for
 settings, dataclasses for records, `Protocol` for contracts.
 
-**Spec:** [architecture.md](architecture.md) — every ruling cited below is there with its date.
+**Spec:** [architecture-history.md](architecture-history.md) — every ruling cited below is there with its date.
 [development.md](../../development.md) and [AGENTS.md](../../AGENTS.md) apply.
 
 ## Global constraints
@@ -30,9 +30,9 @@ settings, dataclasses for records, `Protocol` for contracts.
 - `rg` needs `--no-config`. No item or skill code written from memory: read it from the code or data.
 - No commits unless the user asks. A task ends at a green gate, reported with the command's output.
 - Every rule that changes behavior cites its evidence (a take, a time) in `macros/plan.md`.
-- **Precondition:** the working tree holds a large uncommitted change set (2026-10-12). Stage 0
-  starts only after the user has committed or otherwise frozen it: the golden net must be cut
-  from a known base.
+- **Historical Stage 0 precondition (satisfied):** its golden net was cut from the frozen
+  baseline. This does not require another tree freeze or approval for later stages.
+  Preserve unrelated working-tree changes.
 
 ## Who does what
 
@@ -167,7 +167,7 @@ stored counts exactly.
 
 ### Task 0.5 (C, then M with the user): more replays, or the deviation said
 
-architecture.md §6.2 A asks for the replay widened to a set (the death, cows, Drifter Cavern
+architecture-history.md §6.2 A asks for the replay widened to a set (the death, cows, Drifter Cavern
 with the staff empty, a Chaos Sanctuary run, a quiet clear). A replay needs a hand-written
 `Script` per battle (`tower_cellar5.py`: presses, loot, modes, busy spans, places — typed in,
 not parsed), so:
@@ -176,7 +176,7 @@ not parsed), so:
   where the script is cheapest — an attack-mode-only stretch with no pickup and no teleport (a
   quiet clear; a cows stand) — and write their `Script`s and log goldens as 0.3 does.
 - [ ] (M) Report to the user what each further incident's script would cost and let them decide;
-  record the answer in architecture.md §6.2 A. Until then the deviation stands there in words.
+  record the answer in architecture-history.md §6.2 A. Until then the deviation stands there in words.
 
 ### Task 0.6 (M): the combat gate's scores
 
@@ -184,13 +184,13 @@ not parsed), so:
   `.../golden/GATE-base.txt` (host data, so M runs it; compared by M at each stage gate).
 
 **Stage 0 gate (M):** suite green; `decisions.json` reviewed for coverage (every production
-decision of architecture.md §1 has a kind); the xfail list pinned.
+decision of architecture-history.md §1 has a kind); the xfail list pinned.
 
 ---
 
 ## Stage 1 — the arena
 
-One closed world for the whole loop (architecture.md §6.2 C), in
+One closed world for the whole loop (architecture-history.md §6.2 C), in
 `tests/inventory_tracking/scenarios/arena/`. **It is built from the two fitted models that
 exist, not beside them:**
 
@@ -415,7 +415,7 @@ asserts only that it ran. **A scene with `trusted` false is never used for a saf
 assertion**: the marker `needs_trust` skips it and says why.
 
 **Stage 1 gate (M):** arena tests green; the determinism test green over 10 runs; the
-calibration table read and its misses written into architecture.md §6 with what they imply
+calibration table read and its misses written into architecture-history.md §6 with what they imply
 for `sim.monsters` (a C task to fit it further if the trusted share is under half);
 `fixtures/SCORE-base.txt` saved; the arena suite's runtime measured and, over two minutes,
 marked `slow` with a fast subset named.
@@ -545,7 +545,9 @@ goldens unchanged; Task 2.1's table of the three places reviewed with the user i
 
 - The contracts are `inventory_tracking/macros/build.py`; where they differ from the sketch above
   and why, and every place today's code leans on the Warlock (file, line, the method that
-  replaces it, the risk), is in [framework-stage3-inventory.md](framework-stage3-inventory.md).
+  replaces it, the risk), is preserved in Git at `464d88afa742f719fe4dd9b5ea36f0944212fc8e`:
+  `git show 464d88afa742f719fe4dd9b5ea36f0944212fc8e:inventory_tracking/macros/framework-stage3-inventory.md`.
+  The completed migration worksheet is retired from the working tree.
   `Attack` is `skill`, `reach`, `sees`, `aim`, `dealt`; `MovementSet` also has `jumps` and `wait`.
 - The ratchet starts at 67 pairs (`tests/inventory_tracking/builds/test_ratchet.py`).
 - What writing a second build showed the contract leaves open — each to be settled in the
@@ -584,7 +586,7 @@ inventory_tracking/builds/
 | Task | Who | What | Depends on |
 | --- | --- | --- | --- |
 | 3.1 | C | pure movement choice: `Travel.jumps/stride/around` take `MoveFacts` instead of `Run`; callers build the facts; `golden/cases.py` adapted in the same task | 2.1 |
-| 3.2 | C | the shared sets `StaffTeleport`, `OwnTeleport`, `Walk` and three intents `PLAYER_STEP`, `SEEK`, `OWN_MOVE` that reproduce today's five call sites exactly (architecture.md §4.3 table) | 3.1 |
+| 3.2 | C | the shared sets `StaffTeleport`, `OwnTeleport`, `Walk` and three intents `PLAYER_STEP`, `SEEK`, `OWN_MOVE` that reproduce today's five call sites exactly (architecture-history.md §4.3 table) | 3.1 |
 | 3.3 | H | `warlock/movement.py` `BladeWarp` behind `MovementSet`, tests lifted from `test_travel.py` | 3.2 |
 | 3.4 | H | `warlock/skills.py`: move ids; re-exports left in `macros/skills.py`, listed in the ratchet | 2.4 |
 | 3.5 | C | the buff executor in `macros/` (from `Rotation.key/resume`, the retry rule) and `warlock/buffs.py` rows reproducing every due-test | 3.4 |
@@ -623,7 +625,7 @@ data files under `combat/data/`.
 
 ## Stage 3½ — the arena's monsters refitted (before any safety verdict)
 
-Added 2026-10-12 from Stage 1's calibration (architecture.md §6.2.1): 1 scene of 72 trusted.
+Added 2026-10-12 from Stage 1's calibration (architecture-history.md §6.2.1): 1 scene of 72 trusted.
 Not needed by Stage 3, whose judge is the golden net; needed before Stage 4, whose judge is the
 arena. `combat/sim/monsters.py` is production code that nothing in play calls yet, so a refit
 changes no behavior in the game; the combat gate's table and `test_monsters_fit.py` are its
@@ -636,10 +638,10 @@ guards.
 | R.3 | C | whom a monster goes for: the character against its companions, from the takes' path records (`TARGET_UNIT`) | the scenes under half |
 | R.4 | C | the big single blows: an elite's and a Herald's reach and top blow, death novas of enchanted monsters | the 8 scenes with a drop the arena cannot deal; the death scene dies |
 | R.5 | C | the arena's own: a walk, a hop and a warp take their time and the character can be hit on the way (`Arena.act`) | stance scenes replayed |
-| R.6 | M | calibration rerun; the trusted share and what is still off written to architecture.md | more than half of the scenes with a ratio trusted, or the user decides what Stage 4 may be judged on |
+| R.6 | M | calibration rerun; the trusted share and what is still off written to architecture-history.md | more than half of the scenes with a ratio trusted, or the user decides what Stage 4 may be judged on |
 
 **Stage 3½ result, 2026-10-12 night.** R.0 (evidence from all takes, `19fcedb`), R.5 (moves take time,
-`e620a3a`), R.1–R.4 (the refit) done; R.6: architecture.md §6.2.2. The model matches the check half by
+`e620a3a`), R.1–R.4 (the refit) done; R.6: architecture-history.md §6.2.2. The model matches the check half by
 mechanism; per-scene calibration cannot judge a model whose blows are rare (3 of 72 trusted, by the measure's
 own noise). Stage 4 is therefore judged by **distributions over seeds and scenes**, not by single plays, and
 needs first: (a) a runner that plays a scene set × N seeds and compares two scorecards as distributions
@@ -652,7 +654,7 @@ and is the drinking judgement's, not positioning's.
 ## Stage 4 — safety (detailed at entry, 2026-10-13)
 
 The user's go-ahead for behavior changes was given on 2026-10-12 ("do the three preparatory pieces, then start
-stage 4"). The rulings are architecture.md §4.4 (two signals: threat → posture, pressure → escalation; one
+stage 4"). The rulings are architecture-history.md §4.4 (two signals: threat → posture, pressure → escalation; one
 price of a place with a caution; tactics; drinking in `serve` first, `make osd` only for the urgent; the burst
 rule in osd at 30%) and §6.2.2 (how a rule is judged).
 
@@ -693,7 +695,7 @@ takes 20261012T182157Z-108, 182710Z-108, 184131Z-108; 5,761 points lost in the t
   0.32 s, a Blade Warp of 18 units in 0.75 s. A `Tactic` for him: do not fight him at 2 units (the character
   ended there after a 27-unit move of its own at 124 s); and when he begins mode 7 while the character is in
   front of him, step out of his line (the `Reposition` of 4.5, with the reaction deadline of the `Survive`
-  tier, architecture.md 4.5), then strike on. Needs: the monster's mode read each look (it is in the world
+  tier, architecture-history.md 4.5), then strike on. Needs: the monster's mode read each look (it is in the world
   record), his facing or target (the path record's target unit, `hurts.TARGET_UNIT`), and an arena model
   of an aimed channel (the monster model has none: R-task before the tactic can be judged).
 - *The larger part was not Diablo*: 890 of the 5,761 points were his (15%); about 2,700 (47%) fell in mixed
@@ -723,7 +725,7 @@ takes 20261012T182157Z-108, 182710Z-108, 184131Z-108; 5,761 points lost in the t
 
 - Spec coverage: §4.0 → Stages 2–3; §4.1 leashes → 6; §4.2 → 3.5, 8; §4.3 → 3.1–3.3, 5, 7; §4.4
   → 4, 7; §4.5 → 6; §6 → 0–1. Deliberately not planned: the route-level `leave` opt-in
-  (Mephisto portal; architecture.md: "not built until a route asks for it").
+  (Mephisto portal; architecture-history.md: "not built until a route asks for it").
 - **Deviation from the spec, for the user:** §6.2 A asks for the replay widened to five
   incidents; Task 0.5 adds two cheap ones and prices the rest instead, because each needs a
   hand-written script.

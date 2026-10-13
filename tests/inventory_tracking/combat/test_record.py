@@ -5,10 +5,11 @@ import json
 import threading
 from dataclasses import replace
 
-from inventory_tracking.combat.record import IDLE_SECONDS, LEVEL_SECONDS, Recorder, Sample
-from inventory_tracking.combat.takes import Take, resists_by_frame, timeline
+from inventory_tracking.combat import macro_state
+from inventory_tracking.combat.record import IDLE_SECONDS, LEVEL_SECONDS, NOTE_SECONDS, MacroLines, Recorder, Sample
+from inventory_tracking.combat.takes import Take, carried, records, resists_by_frame, timeline
 from inventory_tracking.levels.model import Level, Room, Walkable, pack_cells
-from inventory_tracking.macros.world import Monster, World
+from inventory_tracking.macros.world import Drop, Loot, Monster, Teleport, Thing, World
 from tests.inventory_tracking.macros.fakes import player
 
 
@@ -256,7 +257,8 @@ def test_a_drop_of_the_characters_life_is_written_with_who_was_striking_and_what
 
     # The character's own stats (its resistances) are in the manifest, each unit's enchantments with it.
     assert take.manifest['character_stats'] == {'6': 1500 << 8, '7': 1783 << 8, '36': -90, '41': 108}
-    assert {unit['unit']: unit['mods'] for unit in take.units} == {7: [30, 28, 17], 8: []}
+    # (the character's own pet is among the units too, since 2026-10-13: its stat list is its damage)
+    assert {unit['unit']: unit['mods'] for unit in take.units} == {7: [30, 28, 17], 8: [], 9: []}
     hurt = [event for event in take.events if event['event'] == 'hurt']
     # The Herald aimed at the character and swinging 8 units off is the suspect; the one 40 units off and
     # the character's own pet are not. The spark beside the character is listed, its own blade is not.
@@ -271,7 +273,7 @@ def test_a_drop_of_the_characters_life_is_written_with_who_was_striking_and_what
     # And in the frames, at the first one and at every change, so a curse shows with no drop of life.
     assert [frame.get('r') for frame in take.frames] == [[-90, 0, 108, 0, 0], None, None, None]
     assert resists_by_frame(take) == [[-90, 0, 108, 0, 0]] * 4
-    assert take.schema == 3
+    assert take.schema == 4
 
 
 def test_a_change_of_the_resistances_is_written_in_the_frame_it_is_read_in(tmp_path):
@@ -294,3 +296,265 @@ def test_a_change_of_the_resistances_is_written_in_the_frame_it_is_read_in(tmp_p
         [10, 154, 0, 0, 0],
     ]
     assert resists_by_frame(take)[2] == [-40, 154, 0, 0, 0]
+
+
+def test_objects_states_the_staff_and_the_belt_are_written_when_first_read_and_when_they_change(tmp_path):
+    seal = Thing(960608137, 395, 0, 7655.0, 5275.0, True)
+    opened = replace(seal, mode=2, selectable=False)
+    staff, spent = Teleport(5, 40, False), Teleport(4, 40, True)
+    belt = (517, 517, 517, 592)
+
+    def sample(thing, held, cells, states=bytes(32)):
+        return Sample(world(), things=(thing,), states=states, staff=held, belt=cells)
+
+    script = Script(
+        sample(seal, staff, belt),
+        sample(seal, staff, belt),
+        sample(opened, spent, (517, 517, None, 592), bytes([0, 2]) + bytes(30)),
+        Sample(world()),  # the slow reads failed this frame: nothing is written, nothing is forgotten
+    )
+    rec = recorder(tmp_path, script)
+    for now in (1.0, 1.04, 1.08, 1.12):
+        rec.step(now)
+    rec.close('test')
+    take = Take.load(next(tmp_path.iterdir()))
+
+    assert [frame.get('o') for frame in take.frames] == [
+        [[960608137, 395, 0, 7655.0, 5275.0, True]],
+        None,
+        [[960608137, 395, 2, 7655.0, 5275.0, False]],
+        None,
+    ]
+    assert [frame.get('w') for frame in take.frames] == [[5, 40, False], None, [4, 40, True], None]
+    assert [frame.get('b') for frame in take.frames] == [[517, 517, 517, 592], None, [517, 517, None, 592], None]
+    assert [frame.get('s') for frame in take.frames] == ['00' * 32, None, '0002' + '00' * 30, None]
+    assert carried(take, 'o')[3] == [[960608137, 395, 2, 7655.0, 5275.0, False]]
+    assert carried(take, 'w') == [[5, 40, False], [5, 40, False], [4, 40, True], [4, 40, True]]
+    assert take.schema == 4
+
+
+def test_the_macros_requests_and_lines_are_events_of_the_take_with_their_own_time(tmp_path):
+    now = [0.0]
+    rec = Recorder(Script(Sample(world())), output=tmp_path, clock=lambda: now[0], stats=lambda at: {})
+    rec.note('said', text='before any take: with the first frame of one')
+    rec.step(1.0)
+    now[0] = 1.013
+    rec.note('request', routine='teleport', age=0.0, during='hunt any')
+    now[0] = 1.02
+    rec.note('said', text='8 monsters by Vizier seal 1: the fight first')
+    rec.step(1.04)
+    rec.close('test')
+    take = Take.load(next(tmp_path.iterdir()))
+
+    told = [
+        (e['t'], e['event'], e.get('routine') or e.get('text'))
+        for e in take.events
+        if e['event'] in ('request', 'said')
+    ]
+    assert told == [
+        (0.0, 'said', 'before any take: with the first frame of one'),
+        (1.013, 'request', 'teleport'),
+        (1.02, 'said', '8 monsters by Vizier seal 1: the fight first'),
+    ]
+    assert take.manifest['events']['request'] == 1
+
+
+def test_what_the_macro_said_on_the_way_in_is_kept_for_the_take_and_what_is_old_is_not(tmp_path):
+    now = [0.0]
+    script = Script(Sample(world(area=1)), Sample(world(area=1)), None, Sample(world()))
+    rec = Recorder(script, output=tmp_path, clock=lambda: now[0], stats=lambda at: {})
+    rec.note('log', text='Macro: too long ago')
+    now[0] = NOTE_SECONDS + 1.0
+    rec.step(now[0])  # in town: no take, the old line is let go
+    rec.note('request', routine='prebuff')
+    now[0] += 1.0
+    rec.step(now[0])  # still in town
+    rec.note('log', text='Macro: Teleport')
+    now[0] += 1.0
+    rec.step(now[0])  # a read that failed
+    now[0] += 1.0
+    rec.step(now[0])  # the level: the take opens with what was asked and said on the way
+    rec.close('test')
+    take = Take.load(next(tmp_path.iterdir()))
+
+    assert [
+        (e['event'], e.get('routine') or e.get('text')) for e in take.events if e['event'] in ('request', 'log')
+    ] == [
+        ('request', 'prebuff'),
+        ('log', 'Macro: Teleport'),
+    ]
+    assert [e['t'] for e in take.events] == sorted(e['t'] for e in take.events)
+
+
+def test_no_staff_worn_is_written_as_such_once_a_staff_was(tmp_path):
+    seal = Thing(1, 395, 0, 7655.0, 5275.0, True)
+    script = Script(
+        Sample(world(), things=(seal,), staff=Teleport(5, 40, True)),
+        Sample(world(), things=(seal,), staff=None),
+        Sample(world()),  # no slow read: nothing known, nothing written
+    )
+    rec = recorder(tmp_path, script)
+    for now in (1.0, 1.04, 1.08):
+        rec.step(now)
+    rec.close('test')
+    take = Take.load(next(tmp_path.iterdir()))
+
+    assert [frame.get('w', 'absent') for frame in take.frames] == [[5, 40, True], None, 'absent']
+
+
+def test_every_line_the_macro_logs_is_a_note_and_other_lines_are_not():
+    import logging
+
+    told = []
+    lines = MacroLines(lambda kind, **fields: told.append((kind, fields)))
+    for name, text in (
+        ('INFO', 'Macro: route Diablo: use Vizier seal 1'),
+        ('INFO', 'Combat take opened'),
+        ('WARNING', 'Macro stopped: the hop dropped'),
+    ):
+        lines.handle(logging.LogRecord('inventory_tracking', getattr(logging, name), __file__, 1, '%s', (text,), None))
+
+    assert told == [
+        ('log', {'level': 'INFO', 'text': 'Macro: route Diablo: use Vizier seal 1'}),
+        ('log', {'level': 'WARNING', 'text': 'Macro stopped: the hop dropped'}),
+    ]
+
+
+def test_buffs_the_ground_and_the_inventory_are_written_when_they_change(tmp_path):
+    potion = Drop(77, 5010.0, 5020.0, 'a super healing potion', 'healing')
+    room = ('..#', '...')
+    warded = replace(player(CHAOS), ward=True, hex_purge=False)
+    script = Script(
+        Sample(world(), loot=Loot((potion,), room=room)),
+        Sample(World(True, (), 'cyber1', (388, None), player=warded), loot=Loot((), room=('.##', '...'))),
+        Sample(World(True, (), 'cyber1', (388, None), player=warded)),
+    )
+    rec = recorder(tmp_path, script)
+    for now in (1.0, 1.04, 1.08):
+        rec.step(now)
+    rec.close('test')
+    take = Take.load(next(tmp_path.iterdir()))
+
+    assert [frame.get('g') for frame in take.frames] == [
+        [[77, 5010.0, 5020.0, 'healing', 'a super healing potion', 1, 1, True]],
+        [],
+        None,
+    ]
+    assert [frame.get('i') for frame in take.frames] == [['..#', '...'], ['.##', '...'], None]
+    assert carried(take, 'f')[0][:2] != [True, False]
+    assert carried(take, 'f')[1][:2] == [True, False]
+    assert 'f' not in take.frames[2]
+
+
+def test_the_macros_state_is_an_event_at_the_takes_start_and_at_each_change(tmp_path):
+    idle, fighting = {'attack_mode': False, 'routine': 'teleport'}, {'attack_mode': True, 'routine': 'hunt any'}
+    script = Script(*(Sample(world(), macro_state=state) for state in (idle, idle, fighting, None, fighting)))
+    rec = recorder(tmp_path, script)
+    for now in (1.0, 1.04, 1.08, 1.12, 1.16):
+        rec.step(now)
+    rec.close('test')
+    take = Take.load(next(tmp_path.iterdir()))
+
+    states = [(e['t'], e['attack_mode'], e['routine']) for e in take.events if e['event'] == 'state']
+    assert states == [(1.0, False, 'teleport'), (1.08, True, 'hunt any')]
+
+
+def test_a_units_raw_record_is_written_at_a_change_of_mode_and_once_a_second(tmp_path):
+    def held(mode, raw):
+        monster = replace(foe(7, 100, mode=mode), record=raw)
+        return Sample(world(monsters=[monster, foe(8, 100)]))  # the second one carries no record: none written
+
+    script = Script(held(1, b'\x01\x02'), held(1, b'\x01\x03'), held(4, b'\x04'), held(4, b'\x05'), held(4, b'\x06'))
+    rec = recorder(tmp_path, script)
+    for now in (1.0, 1.04, 1.08, 1.12, 2.1):
+        rec.step(now)
+    rec.close('test')
+    directory = next(tmp_path.iterdir())
+
+    assert [(row['t'], row['u']) for row in records(directory)] == [
+        (1.0, [[7, '0102', '', '']]),
+        (1.08, [[7, '04', '', '']]),  # the mode changed
+        (2.1, [[7, '06', '', '']]),  # a second on
+    ]
+
+
+def test_a_monsters_states_and_skill_go_with_its_record_and_the_clients_tick_into_every_frame(tmp_path):
+    caster = replace(foe(7, 100, mode=8), record=b'\xaa', states=b'\x00\x02', skill=b'\x57\x00')
+    script = Script(Sample(world(monsters=[caster]), tick=b'\x01\x00'), Sample(world(monsters=[caster])))
+    rec = recorder(tmp_path, script)
+    for now in (1.0, 1.04):
+        rec.step(now)
+    rec.close('test')
+    directory = next(tmp_path.iterdir())
+
+    assert [row['u'] for row in records(directory)] == [[[7, 'aa', '0002', '5700']]]
+    assert [frame.get('k') for frame in Take.load(directory).frames] == ['0100', None]
+
+
+def test_companions_are_in_the_units_and_a_take_names_its_game_its_clock_and_the_take_before(tmp_path):
+    pet = replace(foe(9, 80), owner=1, ally=True)
+    script = Script(Sample(world(monsters=[pet])), Sample(world(area=107, monsters=[pet])), Sample(world(area=107)))
+    rec = recorder(tmp_path, script, areas=None)
+    for now in (1.0, 1.04, 1.08):
+        rec.step(now)
+    rec.close('test')
+    first, second = (
+        Take.load(directory) for directory in sorted(tmp_path.iterdir(), key=lambda d: d.name[-3:], reverse=True)
+    )
+
+    assert [unit['unit'] for unit in first.units] == [9]
+    assert first.units[0]['ally'] is True
+    assert not [e for e in first.events if e['event'] in ('hit', 'kill')]
+    assert first.manifest['game'] == 'cyber1'
+    assert first.manifest['clock']['monotonic'] == 1.0
+    assert first.manifest['clock']['wall'] > 1.7e9
+    assert first.manifest['previous'] is None
+    assert second.manifest['previous'] == first.directory.name
+
+
+def test_a_town_is_recorded_only_when_asked(tmp_path):
+    for town, takes in ((False, 0), (True, 1)):
+        output = tmp_path / str(town)
+        rec = Recorder(Script(Sample(world(area=103))), output=output, areas=None, clock=lambda: 0.0, town=town)
+        rec.step(1.0)
+        rec.close('test')
+        assert len(list(output.iterdir()) if output.exists() else []) == takes
+
+
+def test_the_macros_state_is_read_off_a_runner_and_a_broken_part_is_left_out():
+    class Sweep:
+        steps = 3
+
+    class Hunter:
+        sweep = Sweep()
+
+    class Runner:
+        attack_mode, working, routine = True, False, 'hunt any'
+        build = None
+        hunter = Hunter()
+        progress = None
+        target = None
+
+    found = macro_state.snapshot(Runner())
+    assert found == {
+        'attack_mode': True, 'working': False, 'routine': 'hunt any', 'build': None, 'settings': None,
+        'sweep': 3, 'route': None, 'card': None,
+    }  # fmt: skip
+    assert macro_state.snapshot(object()) == {}
+
+
+def test_the_unit_under_the_pointer_is_written_when_it_changes_and_nothing_under_it_is_told_from_unread(tmp_path):
+    script = Script(
+        Sample(world(), hovered=(1, 7), hover_read=True),
+        Sample(world(), hovered=(1, 7), hover_read=True),
+        Sample(world(), hovered=None, hover_read=True),
+        Sample(world()),  # not read: nothing written
+        Sample(world(), hovered=(2, 395), hover_read=True),
+    )
+    rec = recorder(tmp_path, script)
+    for now in (1.0, 1.04, 1.08, 1.12, 1.16):
+        rec.step(now)
+    rec.close('test')
+    take = Take.load(next(tmp_path.iterdir()))
+
+    assert [frame.get('h', 'absent') for frame in take.frames] == [[1, 7], 'absent', None, 'absent', [2, 395]]
