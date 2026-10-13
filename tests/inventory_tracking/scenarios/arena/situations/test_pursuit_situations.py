@@ -15,6 +15,8 @@ from itertools import pairwise
 
 import pytest
 
+from inventory_tracking.builds.warlock.echoing_strike.hits import CONTACT_RADIUS
+from inventory_tracking.builds.warlock.echoing_strike.mechanics import RANGE
 from inventory_tracking.macros import goals
 from inventory_tracking.macros.build import MoveFacts
 from inventory_tracking.macros.runner import TELEPORT
@@ -42,7 +44,12 @@ SEEDS = (1, 2, 3)
 TEN = tuple(range(1, 11))
 FIGHT_STAGE = 'fight Grand Vizier of Chaos'
 QUIET_MOST = 2.0  # seconds without a strike while a hostile is in reach (test_incident_kp4.py QUIET_MOST)
-STRIKE_REACH = 22.1  # units: the reach of the build's strike (builds/warlock/echoing_strike/attack.py)
+# Units, centre to centre: the furthest a monster's centre can stand from the character and still be touched
+# by a blade, as the arena's hit rule measures it (game.py `Arena.fly`): a blade's furthest point is RANGE
+# (22.1) from the cast's origin, and it touches a monster whose centre is within CONTACT_RADIUS of it. Not
+# the aim's own `LinePolicy.reach` (RANGE), which is how far a line is laid through a centre: the blades hurt
+# the Vizier from 23.6 units in the stall (seed 4 of the held key, measured 2026-10-14).
+STRIKE_REACH = RANGE + CONTACT_RADIUS
 
 
 def left_alone(outcome: Outcome) -> bool:
@@ -54,7 +61,11 @@ def left_alone(outcome: Outcome) -> bool:
 
 
 def at_the_boss(outcome: Outcome) -> bool:
-    """The character came within the strike's reach of the boss, and he died unless the fight left him alone."""
+    """The presses brought the character to the boss (57 units off at the start): his centre came within the
+    blades' reach of it (STRIKE_REACH, as `Outcome.gaps` measures: the character's place to the boss's at
+    every tick while he lived), and he died unless the fight left him alone. In the arena only the
+    character's blades take a monster's life (`Arena.fly`; no companion or link deals damage there), so his
+    death is the character's kill."""
     return outcome.gaps[BOSS][1] <= STRIKE_REACH and (outcome.boss_dead[BOSS] is not None or left_alone(outcome))
 
 

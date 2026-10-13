@@ -324,14 +324,26 @@ def test_today_the_pickup_key_and_a_held_teleport_key_open_the_viziers_seals_and
     assert found.charges > 5
 
 
-def test_today_with_the_staff_empty_the_held_teleport_key_dies_on_the_way_to_the_first_seal() -> None:
-    """Pins today's state: no strike and no seal; the step ends in the entrance's hall with "no Blade Warp or
-    walk leads toward Vizier seal 1" (hunt.py) where a walked way exists, and the packs kill the character."""
+def test_today_with_the_staff_empty_the_held_teleport_key_stalls_by_the_star_short_of_the_first_seal() -> None:
+    """Pins today's state: no strike and no seal. Since the Blade Warp's delay is read from the game
+    (macros/travel.py `delay_over`, 2026-10-14) the step finds its warps: 13 of them take the character about
+    300 units north to 35 units from the star, where the step stops on "no Blade Warp or walk leads toward
+    Vizier seal 1" (hunt.py) 115 units short of it, and nothing more happens: the play ends as a stall, alive
+    (before: the step stopped on that line in the entrance's hall and the packs killed the character there).
+    Over ten seeds: six stall so (four by the star), one dies on the way, three open Vizier seal 1 and die by
+    the second; none strikes or comes to Vizier seal 2."""
     found, outcome = watched(HELD, EMPTY, TODAY)
-    assert (found.ended, found.strikes, found.stages_done, found.charges) == ('dead', 0, 0, 0)
+    assert (found.ended, found.strikes, found.kills, found.stages_done, found.charges) == ('stalled', 0, 0, 0, 0)
+    assert found.dead_at is None
+    assert all(at is None for at in found.seals.values())
+    assert outcome.said_count('Blade Warp toward Vizier seal 1') >= 10
     assert outcome.said_count('no Blade Warp or walk leads toward Vizier seal 1') > 10
-    assert found.near[0] == 'Diablo'  # the nearest mark: the star, 180 units north of the hall it died in
-    assert found.near[1] > 100.0
+    assert found.last_move is not None
+    assert found.last_move < found.seconds - STALL + 1.0  # it stood from there to the stall's end
+    assert found.near[0] == 'Diablo'  # the nearest mark: the star
+    assert found.near[1] < 40.0
+    seal = next(mark for mark in stored().marks if mark.label == 'Vizier seal 1')
+    assert math.dist(found.end, (seal.spot[0] * TILE_UNITS, seal.spot[1] * TILE_UNITS)) > 100.0
 
 
 def test_today_the_recordings_own_presses_with_the_staff_empty_take_the_route_part_of_the_way() -> None:
