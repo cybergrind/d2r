@@ -282,6 +282,61 @@ def taken(seen: Observation, attack: Striker, field: Field, spot: Point, after: 
     return total * (1 + (HORIZON - clock) / HORIZON if done else 1.0), casts if done else 0
 
 
+def falls(
+    seen: Observation, attack: Striker, field: Field, spot: Point, after: float, horizon: float, pace: float = 1.0
+) -> dict[int, float]:
+    """Seconds from now until each hostile dies by the strikes cast from `spot`, the first one begun `after`
+    seconds from now and each taking CAST_SECONDS times `pace`: cast after cast the line `taken` would lay (the
+    best at one of the hostiles in reach with a clear line, what the attack deals off each with it, elites
+    weighted as the aim weighs them), its points capped by what each has left, and a hit on a monster the
+    observation calls linked (`Observation.linked`) dealt again at `Observation.share` to every other linked
+    one, wherever it stands. Only deaths within `horizon` are given; the others outlive it. What the build's
+    attack does over time, for the safety price (combat/harm.py `harm_path`'s `deaths`): no companion's
+    damage and no monster's move is counted, so a pack coming into reach is not killed by it."""
+    attack = striker(attack)
+    near = []
+    for unit, foe in seen.foes.items():
+        if foe.left <= 0:
+            continue
+        away = math.dist(spot, foe.at)
+        if 0 < away <= attack.reach and field.clear(spot, foe.at):
+            near.append((unit, foe))
+    if not near:
+        return {}
+    within = dict(near)
+    left = {unit: foe.left for unit, foe in seen.foes.items() if foe.left > 0}
+    weight = {unit: ELITE_WEIGHT if foe.elite else 1.0 for unit, foe in seen.foes.items()}
+    lines = [dict(attack.dealt(spot, aimed.at, within)) for _, aimed in near]
+    linked = [unit for unit in seen.linked if unit in left] if seen.share > 0 else []
+    found: dict[int, float] = {}
+    clock = after
+    step = CAST_SECONDS * pace
+    while clock + step <= horizon:
+        best, line = 0.0, None
+        for on in lines:
+            points = sum(min(blow, left[unit]) * weight[unit] for unit, blow in on.items() if left.get(unit, 0) > 0)
+            if points > best:
+                best, line = points, on
+        if line is None:
+            break
+        clock += step
+        spread: dict[int, float] = {}
+        for unit, blow in line.items():
+            if left.get(unit, 0) <= 0:
+                continue
+            if unit in seen.linked:
+                for other in linked:
+                    if other != unit:
+                        spread[other] = spread.get(other, 0.0) + blow * seen.share
+            left[unit] = max(0.0, left[unit] - blow)
+        for unit, points in spread.items():
+            left[unit] = max(0.0, left[unit] - points)
+        for unit, points in left.items():
+            if points <= 0 and unit not in found:
+                found[unit] = clock
+    return found
+
+
 def camp(
     seen: Observation,
     attack: Striker,

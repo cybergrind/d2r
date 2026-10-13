@@ -56,6 +56,7 @@ from inventory_tracking.native.layout import (
     WEAPON_SLOTS,
 )
 from inventory_tracking.native.units import read_stats, walk_units
+from inventory_tracking.tracking.belt import BeltColumns, remember
 from inventory_tracking.tracking.consume import read_consume
 
 
@@ -118,6 +119,9 @@ MISSILE_PATH = 0x30  # bytes of its path record dumped
 # layout, the waypoints near 0xC8 (read from the client's code 2026-10-11; not yet checked live).
 PATH_RECORD = 0x240
 MISSILE_DATA = 0x80  # bytes of its data record (pUnitData) dumped on first sight: skill, velocity, target?
+# A missile unit record's owner: its unit type, then its unit id (tests/.../arena/evidence/blows.py OWNER: 1,771 of
+# 1,866 records of take 20261012T065226Z-130 hold a unit id of the take there and nowhere else).
+MISSILE_OWNER = 0xE8
 DATA_RVA, DATA_SIZE = 0x197A000, 0xC98000  # the image's writable data (record probe)
 ITEM_UNIT = 4
 TILE_UNIT = 5  # doors: warp tiles, with a static path like an object's
@@ -142,6 +146,11 @@ STATE_RUN = (STATE_FLAGS - 6 * 4, 8 * 4)
 TICK_HEAD = 0x20
 HEX_PURGE_BIT = 1 << (202 - 192)
 PSYCHIC_WARD_BIT = 1 << (206 - 192)  # states.txt `psychicward`, the aurastate of skill 387
+# State 185 `cooldown`, in the word before STATE_FLAGS (states 160-191): the character's casting delay. Set at
+# a delayed skill's action frame and cleared when its delay is over: for Blade Warp 0.20 s after the key and
+# 0.80 s long, 64 warps of 64 in the take of 12:33 on 2026-10-13 (rca/2026-10-13/run-1233-findings.md §3).
+# Read with STATE_FLAGS in one read.
+COOLDOWN_BIT = 1 << (185 - 160)
 LYING_DEAD = 12  # monster mode: dead, the death animation (mode 0) over
 # Flags that mean something is open over the game view; the array also holds bytes that are
 # set with nothing open (Show Items, belt rows and unnamed ones).
@@ -167,6 +176,9 @@ class Player:
     ward: bool | None = None  # Psychic Ward likewise
     record: bytes = field(default=b'', compare=False, repr=False)  # the unit record as read (research)
     skill: bytes = field(default=b'', compare=False, repr=False)  # the skill in use, raw (`skill_in_use`)
+    # A casting delay runs on the character (state 185, COOLDOWN_BIT): the next delayed skill's key is
+    # refused until it clears. None when unreadable (macros/travel.py then times the delay by the clock).
+    cooldown: bool | None = field(default=None, compare=False)
 
     @property
     def in_town(self) -> bool:
@@ -256,6 +268,32 @@ class Loot:
     # The inventory's rows, '.' a free cell and '#' a taken one (collection/capture.py grids); None: unread.
     room: tuple[str, ...] | None = None
     stats: tuple[tuple[int, int], ...] = ()  # current set's full stats, already read with life
+    game: tuple[str, int] | None = None  # (game name, the character's unit id) the belt is of; None: unread
+    # What each belt column last held this game (tracking/belt.py `BeltColumns`), as the runner keeps it
+    # (`BeltKept`): an emptied healing column stays one; None: the belt alone decides.
+    columns: BeltColumns | None = None
+    # The Horadric Cube's rows as `room` has the inventory's (grid 5, 3x4: rca/2026-10-13/pickup-cube.md §3); read
+    # with the panels closed, wherever the cube is. None: unread, or no cube. Not yet a place the pickup puts
+    # anything (that is the cube work of pickup-cube.md §6): it is said where a drop has no room in the inventory.
+    cube: tuple[str, ...] | None = None
+    # The drops (unit ids) taken only because the loot filter shows them (loot/shown.py): equipment nothing the marks
+    # or the pickup's own rules name. A level run does not stand by one for want of room (the player, 2026-10-12:
+    # "allow moving when the item isn't very valuable").
+    shown: frozenset[int] = frozenset()
+
+
+class BeltKept:
+    """The belt's history across the presses of a runner: `see` folds a look at the belt into it
+    (tracking/belt.py `remember`) and hands the loot on with it. A loot of no known game is passed as read."""
+
+    def __init__(self) -> None:
+        self.columns = BeltColumns()
+
+    def see(self, loot: Loot) -> Loot:
+        if loot.game is None:
+            return loot
+        self.columns = remember(self.columns, loot.belt, loot.game)
+        return replace(loot, columns=self.columns)
 
 
 @dataclass(frozen=True)
@@ -416,6 +454,7 @@ def corpses(read, table: int) -> tuple[tuple[int, float, float], ...]:
 
 
 INVENTORY_GRID = 2  # the carried inventory among a player's grids (collection/capture.py GRID_CONTAINERS)
+CUBE_GRID = 5  # the Horadric Cube's (the same table)
 
 
 @functools.cache
@@ -429,14 +468,20 @@ def item_size(class_id: int | None) -> tuple[int, int]:
     return item_sizes().get(class_id, (1, 1)) if class_id is not None else (1, 1)
 
 
-def inventory_rows(read, table: int, player_id: int) -> tuple[str, ...] | None:
-    """The carried inventory's rows, '.' a free cell; None when it cannot be read."""
+def carried_rows(read, table: int, player_id: int) -> tuple[tuple[str, ...] | None, tuple[str, ...] | None]:
+    """The rows of the carried inventory and of the Horadric Cube, '.' a free cell, from one read of the
+    character's grids; each None when it cannot be read (no cube: no grid of it)."""
     try:
         heads = struct.unpack('<128Q', read(table, 1024))
         unit = next((u for u in walk_units(read, heads, 0)['units'] if u['unit_id'] == player_id), None)
-        grid = read_owner_grids(read, unit).get(INVENTORY_GRID) if unit is not None else None
+        grids = read_owner_grids(read, unit) if unit is not None else {}
     except OSError, ValueError, struct.error:
-        return None
+        return None, None
+    return grid_rows(grids.get(INVENTORY_GRID)), grid_rows(grids.get(CUBE_GRID))
+
+
+def grid_rows(grid: dict | None) -> tuple[str, ...] | None:
+    """A grid's rows, '#' a taken cell and '.' a free one; None for no grid."""
     if grid is None:
         return None
     width, cells = grid['width'], grid['cells']
@@ -631,6 +676,28 @@ def missiles(read, table: int) -> list[dict]:
     return found
 
 
+def flights(read, table: int, kinds: frozenset[int]) -> tuple[tuple[int, int, float, float], ...]:
+    """The missiles in flight of the classes `kinds`, light: (owner unit id, class, x, y) from the unit record's
+    owner (MISSILE_OWNER) and the head of its path record; the others are passed over after the unit header.
+    What a read threat model prices (combat/threats; macros/safety.py `in_flight`)."""
+    found = []
+    for slot in MISSILE_SLOTS:
+        heads = struct.unpack('<128Q', read(table + slot * 1024, 1024))
+        for unit in walk_units(read, heads, MISSILE_UNIT, records=True)['units']:
+            if unit['txt_id'] not in kinds or not unit['path_pointer']:
+                continue
+            record = unit.get('record', b'')
+            if len(record) < MISSILE_OWNER + 8:
+                continue
+            _kind, owner = struct.unpack_from('<II', record, MISSILE_OWNER)
+            try:
+                x, y = position(read(unit['path_pointer'], 8))
+            except OSError, ValueError, struct.error:
+                continue
+            found.append((owner, unit['txt_id'], x, y))
+    return tuple(found)
+
+
 def unit_census(read, table: int) -> list[dict]:
     """Research: per slot of the unit hash table, how many heads are set and what the first unit
     says of itself (type, txt id, unit id, mode), the walk's unit count and its first error."""
@@ -698,10 +765,11 @@ def local_player(read, table: int) -> Player | None:
         except OSError, ValueError, struct.error:
             pass
         left, right = mouse_skills(read, unit['address'])
-        purge = ward = None
+        purge = ward = cooldown = None
         with suppress(OSError, ValueError, struct.error):
-            states = struct.unpack('<I', read(unit['stats_pointer'] + STATE_FLAGS, 4))[0]
+            delays, states = struct.unpack('<2I', read(unit['stats_pointer'] + STATE_FLAGS - 4, 8))
             purge, ward = bool(states & HEX_PURGE_BIT), bool(states & PSYCHIC_WARD_BIT)
+            cooldown = bool(delays & COOLDOWN_BIT)
         player = Player(
             unit['unit_id'],
             name,
@@ -717,6 +785,7 @@ def local_player(read, table: int) -> Player | None:
             ward,
             unit.get('record', b''),
             skill_in_use(read, unit.get('record', b'')),
+            cooldown,
         )
         found.append((player, unit['stats_pointer']))
     # Several player units may stand for the one character: the shared stash tabs carry its name
@@ -764,6 +833,9 @@ class GameMemory:
 
     def missiles(self) -> list[dict]:
         return missiles(self.read, self.table)
+
+    def flights(self, kinds: frozenset[int]) -> tuple[tuple[int, int, float, float], ...]:
+        return flights(self.read, self.table, kinds)
 
     def corpses(self) -> tuple[tuple[int, float, float], ...]:
         try:
@@ -949,13 +1021,17 @@ class GameMemory:
                 if cell < BELT_SIZE:
                     belt[cell] = unit['txt_id']
             stats = unit_stats(read, player.stats_at) if player.stats_at else {}
+            room, cube = carried_rows(read, table, player.unit_id)
             return Loot(
                 tuple(drops),
                 tuple(belt),
                 stats.get(LIFE_STAT, 0) >> 8,
                 stats.get(MAX_LIFE_STAT, 0) >> 8,
-                inventory_rows(read, table, player.unit_id),
+                room,
                 tuple(sorted(stats.items())),
+                (decode_name(read(self.base + GAME_NAME_RVA, GAME_NAME_SIZE)), player.unit_id),
+                cube=cube,
+                shown=frozenset(unit for unit, source in sources.items() if source == 'shown'),
             )
         except OSError, ValueError, struct.error:
             return Loot()

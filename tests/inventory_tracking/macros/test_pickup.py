@@ -11,10 +11,13 @@ from dataclasses import replace
 
 import pytest
 
+from inventory_tracking.config import BeltConfig
 from inventory_tracking.levels.model import Level, Room
+from inventory_tracking.macros import pickup
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.pickup import POTION_UNITS, Plan, choose, pick_up
-from inventory_tracking.macros.world import GOLD, HEALING, REJUVENATION, VALUABLE, Drop, Loot, Teleport
+from inventory_tracking.macros.world import GOLD, HEALING, REJUVENATION, VALUABLE, BeltKept, Drop, Loot, Teleport
+from inventory_tracking.models import PotionType
 from tests.inventory_tracking.macros.fakes import KEYS, SLOTS, Game, world
 
 
@@ -69,6 +72,66 @@ def test_with_a_full_belt_and_life_missing_one_is_drunk_to_make_room_for_the_one
     assert choose(Loot((JUV_NEAR,), FULL, 600, 1000), ORIGIN) == Plan(JUV_NEAR, '3')
     assert choose(Loot((HP_NEAR,), FULL, 800, 1000), ORIGIN) is None  # not hurt enough to drink
     assert choose(Loot((HP_NEAR,), FULL, 0, 0), ORIGIN) is None  # the life unreadable
+
+
+# Chaos Sanctuary, 21:50:22.3 on 2026-10-13 (rca/2026-10-13/potions-findings.md M2, take
+# 20261013T184953Z-108): the drinkers emptied the healing columns 3-4, the belt read alone wanted no
+# healing, and the level run warped on past two super healing potions 3.6 and 7.3 away.
+CS_GAME = ('cs-2', 1770193399)
+CS_ENTRY = (531, 531, 606, 606, 531, 531, 606, 606, 531, 531, None, 606, None, None, None, None)
+CS_DRY = (531, 531, None, None, 531, 531, None, None, 531, 531, None, None, 531, None, None, None)
+CS_HERE = (7790.8, 5545.86)
+CS_NEAR = Drop(1051927826, 7793.0, 5543.0, 'a super healing potion', HEALING)
+CS_FURTHER = Drop(1825735822, 7798.0, 5545.0, 'a super healing potion', HEALING)
+
+
+@pytest.fixture
+def learned(monkeypatch):
+    """No belt layout configured: an empty column's kind is learned from the game (tracking/belt.py `remember`),
+    the rule until the player set the layout (2026-10-13: "yes, use this layout")."""
+    monkeypatch.setattr(pickup, 'BELT', BeltConfig(layout=None))
+
+
+def kept_belt(*belts, game=CS_GAME) -> BeltKept:
+    kept = BeltKept()
+    for belt in belts:
+        kept.see(Loot(belt=belt, game=game))
+    return kept
+
+
+def test_with_its_healing_columns_drunk_dry_the_belt_still_wants_a_healing_potion(learned):
+    loot = kept_belt(CS_ENTRY).see(Loot((CS_FURTHER, CS_NEAR), CS_DRY, 1807, 1818, game=CS_GAME))
+    assert loot.columns is not None
+    assert choose(replace(loot, columns=None), CS_HERE) is None  # as it ran
+    assert choose(loot, CS_HERE) == Plan(CS_NEAR)
+
+
+def test_a_loot_of_no_known_game_is_passed_as_read_and_the_belt_kept_as_it_was(learned):
+    kept = kept_belt(CS_ENTRY)
+    before = kept.columns
+    unread = Loot((CS_NEAR,), CS_DRY)
+    assert kept.see(unread) is unread
+    assert kept.columns is before
+    # Another game: what the columns held in the last one is forgotten.
+    assert choose(kept.see(Loot((CS_NEAR,), CS_DRY, 1807, 1818, game=('cs-3', 7))), CS_HERE) is None
+
+
+def test_by_the_default_layout_a_new_games_dry_healing_columns_want_a_healing_potion():
+    # The player's layout (2026-10-13): columns 3-4 are healing whatever this game has seen of them; the belt
+    # carries over between games, the learned kinds do not.
+    assert pickup.BELT.layout == (PotionType.REJUVENATION,) * 2 + (PotionType.HEALING,) * 2
+    fresh = BeltKept().see(Loot((CS_NEAR,), CS_DRY, 1807, 1818, game=('cs-3', 7)))
+    assert fresh.columns is not None
+    assert fresh.columns.kinds[2:] == (None, None)  # never seen holding one this game
+    assert choose(fresh, CS_HERE) == Plan(CS_NEAR)
+    assert choose(replace(fresh, columns=None), CS_HERE) == Plan(CS_NEAR)
+
+
+def test_the_configured_belt_layout_wins_over_what_the_columns_held(monkeypatch):
+    loot = kept_belt(CS_ENTRY).see(Loot((CS_NEAR,), CS_DRY, 1807, 1818, game=CS_GAME))
+    every = (PotionType.REJUVENATION,) * 4
+    monkeypatch.setattr(pickup, 'BELT', BeltConfig(layout=every))
+    assert choose(loot, CS_HERE) is None
 
 
 # --- the press ---

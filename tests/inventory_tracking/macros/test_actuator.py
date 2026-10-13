@@ -4,6 +4,7 @@ import pytest
 
 from inventory_tracking.macros.actuator import Abort, Actuator
 from inventory_tracking.macros.timing import Pace
+from tests.inventory_tracking.macros.fakes import Game, world
 
 
 class FakeKeys:
@@ -158,3 +159,26 @@ def test_the_pointer_checks_abort_is_noted_with_what_it_compared():
     actuator.left_at = (3, 1)  # within the limit: nothing is noted
     actuator.guard()
     assert len(noted) == 1
+
+
+def test_a_pointer_the_macro_left_near_its_aim_is_put_there_in_one_step():
+    # A Blade Warp's next aim is put during the flight before (macros/travel.py `aim_ahead`); after the landing
+    # the aim is a step away, not a path and its pause again.
+    play = Game(world())
+    actuator = play.run().actuator
+    moves = []
+    move = play.keys.move_pointer
+
+    def counted(x, y):
+        moves.append((x, y))
+        return move(x, y)
+
+    play.keys.move_pointer = counted
+    actuator.aim(0.5, 0.5)
+    assert len(moves) >= 3  # from afar: a path
+    moves.clear()
+    actuator.aim(0.52, 0.51, near=120)  # 51 px across, 14 down
+    assert len(moves) == 1
+    moves.clear()
+    actuator.aim(0.9, 0.9, near=120)
+    assert len(moves) >= 3  # further than `near`: the path

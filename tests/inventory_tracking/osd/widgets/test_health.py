@@ -1,7 +1,7 @@
 import pytest
 
 from inventory_tracking.config import MercHealthWidgetConfig, PlayerHealthWidgetConfig
-from inventory_tracking.models import Actor, Outcome, PotionResult, Refusal
+from inventory_tracking.models import Actor, Hold, Outcome, PotionResult, Refusal
 from inventory_tracking.native.mercenary import Mercenary
 from inventory_tracking.osd.widgets.health import MercHealthWidget, PlayerHealthWidget
 from tests.inventory_tracking.conftest import make_state
@@ -18,6 +18,8 @@ LOW = Mercenary(99, 300, 1000, 9830, True)
         (PotionResult(Outcome.BACKOFF), 'merc heal: backoff'),
         (PotionResult(Outcome.REJECTED, reason=Refusal.KEY_HELD), 'merc heal: rejected (key_held)'),
         (PotionResult(Outcome.NO_STOCK), 'merc heal: no_stock'),
+        (PotionResult(Outcome.HELD, reason=Hold.RESERVE), 'merc heal: held (reserve)'),
+        (PotionResult(Outcome.HELD, reason=Hold.CRITICAL), 'merc heal: held (player critical)'),
     ],
 )
 def test_merc_widget_shows_healing_problems_even_at_full_health(result, line):

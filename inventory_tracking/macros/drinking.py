@@ -61,6 +61,8 @@ class Drinker:
         self.readings: deque[Reading] = deque()
         self.belt: dict[PotionType, int] | None = None
         self.drunk_at: dict[PotionType, float] = {}
+        self.pressed_at: dict[PotionType, float] = {}  # clock time of the macro's own last key, by kind
+        self.last: Loot | None = None  # the loot of the last look (macros/supply.py reads the belt from it)
         self.looked_at = -math.inf
         self.busy = False
         # A belt key pressed in controller mode, watched for its cell emptying (macros/pad.py `Pad drink:`):
@@ -73,7 +75,7 @@ class Drinker:
         if self.busy or run.loot is None or not self.settings.enabled or now - self.looked_at < EVERY:
             return None
         self.looked_at = now
-        loot = run.loot()
+        loot = self.last = run.loot()
         if not loot.max_life or not loot.life:
             return None  # unread, or dead
         self.readings.append(Reading(now, float(loot.life), float(loot.max_life)))
@@ -141,7 +143,7 @@ class Drinker:
             return False
         finally:
             self.busy = False
-        self.drunk_at[kind] = run.clock()
+        self.drunk_at[kind] = self.pressed_at[kind] = run.clock()
         if run.pad is not None:
             self.pad_drink = (key, kind, on_belt(loot)[kind], run.clock())
         LOG.info(

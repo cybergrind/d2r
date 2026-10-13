@@ -284,10 +284,10 @@ def test_the_catalog_lists_the_fixtures_and_the_example_with_their_variants() ->
     found = catalog()
     assert [(entry.name, entry.kind) for entry in found.values()] == [
         (STALL, 'recorded'), (SEAL, 'recorded'), ('pocket', 'recorded'), ('seal-pack', 'recorded'),
-        ('four-packs', 'constructed'), ('cs-run', 'recorded'),
+        ('four-packs', 'constructed'), ('cs-run', 'recorded'), ('diablo-fight', 'recorded'),
     ]  # fmt: skip
     # the same scene and presses by today's keys and by the pursuit loop, side by side (Tab in the viewer)
-    for name in (STALL, SEAL, 'pocket', 'seal-pack'):
+    for name in (STALL, SEAL, 'pocket', 'seal-pack', 'diablo-fight'):
         labels = [label for label, _, _ in found[name].variants()]
         pairs = [label for label in labels if label.endswith(': today')]
         assert pairs

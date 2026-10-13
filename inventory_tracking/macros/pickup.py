@@ -8,7 +8,8 @@
    click on it if that did not take it.
 2. A super healing or full rejuvenation potion (never a smaller or plain one) near the character is
    picked up when the belt is missing one of its kind (tracking/belt.py `column_shortages`: a column
-   holds what its lowest potion is, an empty one rejuvenation).
+   holds what its lowest potion is, an empty one what it last held this game (`Loot.columns`), or what
+   config.BELT's layout says when one is set, else rejuvenation).
 3. With the belt full, life missing and such a potion near: one of the same kind is drunk from the
    belt's hotkey row and the one on the ground picked up in its place.
 4. Nothing of those: the press is hunt.Hunter.step: with hostiles near it starts the sweep (attack mode
@@ -41,16 +42,17 @@ from typing import Protocol
 
 from inventory_tracking.combat.policy import RUN_MODES
 from inventory_tracking.common import LOG
-from inventory_tracking.config import APPRAISAL, INPUT
-from inventory_tracking.levels.model import Level, Target
+from inventory_tracking.config import APPRAISAL, BELT, INPUT
+from inventory_tracking.levels.model import Ground, Level, Target
 from inventory_tracking.loot.materials import material_classes
 from inventory_tracking.loot.shown import game_filter, pickup_rules, shown_gems
 from inventory_tracking.macros.actuator import Abort
+from inventory_tracking.macros.build import Step
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.routines import ACTING, DEAD, UNIT_PIXELS, press_skill
 from inventory_tracking.macros.skills import skill_name
 from inventory_tracking.macros.teleport import HOVER_SECONDS, ground_fraction, hop_toward, in_view, ready
-from inventory_tracking.macros.travel import JUMP_REACH, spare_jump
+from inventory_tracking.macros.travel import JUMP_REACH, PRESSED, Travel, spare_jump
 from inventory_tracking.macros.world import GOLD, HEALING, REJUVENATION, VALUABLE, Drop, Loot, has_room
 from inventory_tracking.models import PotionType
 from inventory_tracking.native.layout import BELT_COLUMNS, TILE_UNITS
@@ -160,6 +162,12 @@ def wanted() -> dict:
     }
 
 
+def shortages(loot: Loot) -> tuple[int, int]:
+    """(rejuvenation, healing) the belt is missing: its columns by what they hold, an empty one by the
+    configured layout, else by what it last held (rca/2026-10-13/potions-findings.md, step 1)."""
+    return column_shortages(loot.belt, loot.columns, BELT.layout)
+
+
 def choose(loot: Loot, here: tuple[float, float]) -> Plan | None:
     """What this press picks up, if anything (the module text has the order)."""
 
@@ -177,7 +185,7 @@ def choose(loot: Loot, here: tuple[float, float]) -> Plan | None:
     near = sorted((drop for drop in loot.drops if drop.kind in KINDS and away(drop) <= POTION_UNITS), key=away)
     if not near:
         return None
-    rejuvenation, healing = column_shortages(loot.belt)
+    rejuvenation, healing = shortages(loot)
     missing = {REJUVENATION: rejuvenation, HEALING: healing}
     for kind in (REJUVENATION, HEALING):  # the rarer first
         found = next((drop for drop in near if drop.kind == kind and missing[kind]), None)
@@ -209,7 +217,10 @@ class Spot(Protocol):
 
 
 def approach(run: Run, drop: Spot, level: Level | None, key_names) -> None:
-    """Bring `drop` within a click: nothing when it is near and in view, teleport hops otherwise."""
+    """Bring `drop` within a click: nothing when it is near and in view, teleport hops otherwise. Where no
+    hop can be made (the staff empty, no Teleport), a move by the movement in hand (`moved_in_hand`: the
+    build's own sets, a Blade Warp or a walk) in its place: rca/2026-10-13/run-2110-findings.md §2.3, an Amn
+    Rune 24 away left twice with "the Teleport staff has no charges left"."""
     for hop in range(HOPS + 1):
         player, rect = ready(run)
         aspect = rect[2] / rect[3]
@@ -227,10 +238,30 @@ def approach(run: Run, drop: Spot, level: Level | None, key_names) -> None:
         try:
             hop_toward(run, target, player, rect, key_names)
         except Abort as stop:
-            if run.cancelled.is_set() or not seen:
+            if run.cancelled.is_set():
+                raise
+            if moved_in_hand(run, drop, level, aspect, key_names, stop):
+                continue
+            if not seen:
                 raise
             LOG.info('Macro: no hop toward %s (%s); clicking it from %.0f away', drop.label, stop, away)
             return
+
+
+def moved_in_hand(run: Run, drop: Spot, level: Level, aspect: float, key_names, why: Abort) -> bool:
+    """One move toward `drop` by the build's own movement sets (macros/travel.py `Travel.toward`, as a pressed
+    goal), when no hop could be made (`why`); whether one was made."""
+    travel = Travel(run.build.movement)
+    world = run.world()
+    ground = Ground(level.ground)
+    found = travel.toward(run, world, ground, aspect, (drop.x, drop.y), PRESSED, level.rooms)
+    if not isinstance(found, Step):
+        LOG.info('Macro: no hop toward %s (%s), and no move in hand: %s', drop.label, why, found.reason)
+        return False
+    by = 'a walk' if found.skill is None else skill_name(found.skill)
+    LOG.info('Macro: no hop toward %s (%s); %s to (%.1f, %.1f) in its place', drop.label, why, by, *found.spot)
+    travel.make(run, found, world, aspect, key_names, ground, name=drop.label, intent=PRESSED, goal=(drop.x, drop.y))
+    return True
 
 
 def pile_aims(crowd: int) -> tuple[tuple[int, int], ...]:
@@ -559,11 +590,11 @@ def pick_up(
     LOG.info(
         'Macro: pickup: %d drops (%s), belt short %s, life %d/%d; %s',
         len(loot.drops), ', '.join(sorted({drop.kind for drop in loot.drops})) or 'none',
-        column_shortages(loot.belt), loot.life, loot.max_life,
+        shortages(loot), loot.life, loot.max_life,
         'nothing to pick up' if plan is None else f'{plan.drop.label} at ({plan.drop.x:.0f}, {plan.drop.y:.0f})',
     )  # fmt: skip
     potions = [math.dist(here, (drop.x, drop.y)) for drop in loot.drops if drop.kind in KINDS]
-    if plan is None and potions and any(column_shortages(loot.belt)):
+    if plan is None and potions and any(shortages(loot)):
         # A belt short of potions and potions on the ground, none taken (Chaos Sanctuary, 00:10:21 on
         # 2026-10-13: short 8 and 5, three healing potions, "nothing to pick up"): how far they lie says why.
         LOG.info(
@@ -598,9 +629,7 @@ def pick_up(
             # Three super healing potions with the belt's healing columns full and the life whole
             # read to the player as a pickup that failed (13:47:09 on 2026-10-11): said, then.
             named = ', '.join(sorted({drop.label for drop in near}))
-            LOG.info(
-                'Macro: pickup: %s near, none the belt has a place for (short %s)', named, column_shortages(loot.belt)
-            )
+            LOG.info('Macro: pickup: %s near, none the belt has a place for (short %s)', named, shortages(loot))
             run.say(f'Not picked up: the belt has no place for {named}')
         otherwise()
         return False

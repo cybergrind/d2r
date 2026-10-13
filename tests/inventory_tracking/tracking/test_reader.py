@@ -70,12 +70,13 @@ def test_restart_clears_old_values_before_rediscovery(tmp_path, snapshot):
 @pytest.mark.parametrize('column', [3, 4])
 def test_delivery_message_survives_incomplete_samples_for_one_second(tmp_path, healing_setup, sample, column):
     from inventory_tracking.automation.controller import Automation
-    from inventory_tracking.config import MERC_HEALING
+    from inventory_tracking.config import HEAL_PRIORITY, MERC_HEALING, with_overrides
     from inventory_tracking.models import BeltCell, State
     from inventory_tracking.osd.presenter import Presenter
 
     make, _ = healing_setup
-    automation = Automation([make(MERC_HEALING)])
+    # The priority off: the sample's character is at half life, so the mercenary's potion would be kept for him.
+    automation = Automation([make(MERC_HEALING)], priority=with_overrides(HEAL_PRIORITY, enabled=False))
     presenter = Presenter()
     reader = LiveReader(tmp_path, automation=automation, observer=presenter.update)
     automation.step(sample(healing_cells=(BeltCell(column, 101),)))

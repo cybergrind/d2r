@@ -160,11 +160,12 @@ def quick_cast_over(run: Run, skill: int) -> None:
     run.quick = None
 
 
-def press_skill(run: Run, skill: int, poll: float = 0.03, *, wait: bool = True) -> None:
+def press_skill(run: Run, skill: int, poll: float = 0.03, *, wait: bool = True) -> float:
     """Press the skill's key once the character is free to act, looked for every `poll` seconds.
     `wait` off: pressed now, whatever the character does; the game keeps a Quick Cast key pressed
     during a cast and casts it when that cast is over (teleport.press_hop). In controller mode the skill's
-    pad record, toward what the caller aimed it at (macros/pad.py `PadActs.cast`)."""
+    pad record, toward what the caller aimed it at (macros/pad.py `PadActs.cast`). Returns the clock time
+    the key went down: a casting delay runs from it, not from the key's release a hold later."""
     if run.pad is None:
         quick_cast_over(run, skill)  # the right mouse button's Quick Cast: none in controller mode
     if wait:
@@ -183,10 +184,12 @@ def press_skill(run: Run, skill: int, poll: float = 0.03, *, wait: bool = True) 
         run.keys[skill],
         ready.player.mode if ready.player else None,
     )
+    down = run.clock()
     if run.pad is not None:
         run.pad.cast(skill)
-        return
+        return down
     run.actuator.tap(run.keys[skill])
+    return down
 
 
 QUEUED_SECONDS = 0.09  # after a cast's end, for the cast of a key pressed during it to show

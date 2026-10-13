@@ -43,13 +43,15 @@ What the arena does not model, or takes as given (the calibration of Task 1.9 ne
   game's own path (a staircase up to 8% longer than the smooth line); bodies bar nothing (the
   character runs through monsters, and they through it); a block never stops a walk (as for a
   cast, below); a click under a cast is never swallowed (macros/travel.py `step_walk`
-  says the game swallows some); the tail of a hop's cast after the landing, the casting delay of
-  Blade Warp (builds/warlock/movement.py WARP_DELAY) and a wall in the blade's line are not there
-  (a warp lands wherever there is footing); the character is taken to be busy for the whole flight
-  of the blade; a weapon swap is instant; a skill key pressed while the character is free is a
-  cast of QUICK_CAST_SECONDS with its skill on the right button (`quick_cast`; the session of 2026-10-12
-  has 0.52 s from Psychic Ward's key to the first strike, twice), as a key kept during a cast; nothing happens
-  between two looks at the game but the ticks (a cast, and a walk asked for during a cast, begin at
+  says the game swallows some); the tail of a hop's cast after the landing and a wall in the
+  blade's line are not there (a warp lands wherever there is footing); Blade Warp's casting delay
+  is the game's, from the key and not from its cast (WARP_DELAY_OVER; a warp key in it is refused
+  and counted, with the state the macro reads it by), and with `instant_moves` it is not there; the
+  character is taken to be busy for the whole flight of the blade; a weapon swap is instant; a skill
+  key pressed while the character is free is a cast of QUICK_CAST_SECONDS with its skill on the right
+  button (`quick_cast`; the session of 2026-10-12 has 0.52 s from Psychic Ward's key to the first
+  strike, twice), as a key kept during a cast; nothing happens between two looks at the game but the
+  ticks (a cast, and a walk asked for during a cast, begin at
   the look after the cast's end, as `Game`'s casts do);
 - the strike deals the same with either weapon set (damage.json knows no set), Death Mark, Sigil:
   Lethargy, Engorge, Hex: Purge and Consume change nothing (their casts are counted by `Game` and cost
@@ -204,6 +206,11 @@ assert BLOCKING not in ACTING
 BLOCK_CHANCE = 0.10  # of a melee blow that would land (the module text has the measure)
 BLOCK_SECONDS = 0.44
 OPEN_REACH = 3.0  # units: an object clicked is operated from this near
+# Blade Warp's casting delay as the game plays it: the character's state 185 `cooldown` (macros/world.py
+# `Player.cooldown`) is set WARP_DELAY_SHOWN after the key and cleared WARP_DELAY_OVER after it (the take of
+# 12:33 on 2026-10-13: 0.20 s, then 0.80 s long, 64 warps of 64); a warp key before that is refused: it moves
+# nobody and is counted (`Arena.refused_warps`, its seconds after the key before).
+WARP_DELAY_SHOWN, WARP_DELAY_OVER = 0.20, 1.00
 BODY_LIFT = 3.0  # units down the screen from the pointer's ground that a monster's picture still covers
 BODY_HALF = 1.5  # units: how far from that line a monster's feet may be
 # How the companions keep up with the character (`Arena.follow`), from the Chaos Sanctuary takes since 2026-10-12
@@ -456,6 +463,8 @@ class Arena(Game):
         self.told: list[tuple[float, str]] = []
         self.flights: list[Flight] = []
         self.refused: list[Point] = []  # where a hop, a warp or a walk was aimed and nobody can go
+        self.warped_at: float | None = None  # the clock at the last Blade Warp key the game took
+        self.refused_warps: list[float] = []  # a warp key in the casting delay: seconds after the key before
         self.each_tick: Callable[[], None] | None = None  # the driver's: called after every tick
         self.world = replace(self.world, monsters=tuple(m for m in self.mobs.monsters() if m.mode not in DEAD_MODES))
         self.show()
@@ -530,6 +539,12 @@ class Arena(Game):
     def read(self) -> World:
         if self.over is not None:
             return self.world  # the world stands still: no cast ends, no held input casts
+        stand = self.world.player
+        if stand is not None and not self.instant_moves:
+            since = math.inf if self.warped_at is None else self.clock.now - self.warped_at
+            cooling = WARP_DELAY_SHOWN - EDGE <= since < WARP_DELAY_OVER - EDGE
+            if stand.cooldown != cooling:
+                self.world = replace(self.world, player=replace(stand, cooldown=cooling))
         if self.instant_moves:
             return super().read()
         self.hold()
@@ -545,6 +560,7 @@ class Arena(Game):
         run = super().run(seed)
         run.say = self.say
         run.corpses = self.mobs.corpses
+        run.flights = self.mobs.flights
         run.ground = lambda: self.ground if len(self.ground) else None
         run.things = lambda: tuple(self.things)
         run.containers = run.things
@@ -919,6 +935,11 @@ class Arena(Game):
         (BLADE_WARP_JUMP), and the character is at the impact."""
         if not self.warp_lands:
             return
+        now = self.clock.now
+        if self.warped_at is not None and now - self.warped_at < WARP_DELAY_OVER - EDGE:
+            self.refused_warps.append(now - self.warped_at)  # in the casting delay: the game takes no warp
+            return
+        self.warped_at = now
         spot = self.ground_under_pointer()
         if not self.footing(spot):
             self.refused.append(spot)

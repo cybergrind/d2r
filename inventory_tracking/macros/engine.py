@@ -64,6 +64,9 @@ class Run:
         self.hover_note: Callable[[], str] | None = None  # the record it read last, whole (world.GameMemory.hover_note)
         # the monsters lying dead as (unit id, x, y), world units (world.GameMemory.corpses): Engorge needs one
         self.corpses: Callable[[], tuple[tuple[int, float, float], ...]] | None = None
+        # the missiles in flight of some classes as (owner unit, class, x, y) (world.GameMemory.flights): what a
+        # read threat model prices (combat/threats; macros/safety.py reads them only with such a hostile about)
+        self.flights: Callable[[frozenset[int]], tuple[tuple[int, int, float, float], ...]] | None = None
         self.warps: Callable[[], tuple[Warp, ...]] | None = None  # the doors loaded (world.GameMemory.warps)
         # the walkable ground of the level the character is on, None while not known (the level guide's map)
         self.ground: Callable[[], Ground | None] | None = None

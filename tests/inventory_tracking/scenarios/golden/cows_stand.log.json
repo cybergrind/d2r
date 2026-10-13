@@ -44,11 +44,11 @@
   "Macro: Blade Warp on s, player mode 1"
  ],
  [
-  1.37,
-  "Macro: Blade Warp aimed at (25330.5, 6035.5), 15.1 from (25321.0, 6023.8); landed at (25330.5, 6035.5), off by 0.0, 0.69s after the key"
+  1.36,
+  "Macro: Blade Warp aimed at (25330.5, 6035.5), 15.1 from (25321.0, 6023.8); landed at (25330.5, 6035.5), off by 0.0, 0.67s after the key"
  ],
  [
-  1.5,
+  1.49,
   "Macro: Echoing Strike (right click) at the monster 391 (2759722065), 128/128"
  ],
  [
@@ -57,7 +57,7 @@
  ],
  [
   1.56,
-  "Macro: first cast 0.18s after the step"
+  "Macro: first cast 0.19s after the step"
  ],
  [
   2.16,
@@ -73,31 +73,35 @@
  ],
  [
   3.25,
-  "Macro: Last minute: 22599 points/s, 128.8 kills/min over 2.3s of combat"
+  "Macro: Last minute: 22522 points/s, 128.3 kills/min over 2.3s of combat"
  ],
  [
   3.27,
   "Macro: sweeping with 20 hostiles near and none in reach, from (25330.5, 6035.5): a stride of 13 toward the nearest, by Blade Warp"
  ],
  [
-  3.39,
+  3.4,
   "Macro: Blade Warp"
  ],
  [
-  3.39,
+  3.4,
   "Macro: Blade Warp on s, player mode 1"
  ],
  [
-  4.04,
-  "Macro: Blade Warp aimed at (25319.3, 6042.1), 13.0 from (25330.5, 6035.5); landed at (25319.5, 6042.5), off by 0.4, 0.65s after the key"
+  4.03,
+  "Macro: Blade Warp aimed at (25319.3, 6042.1), 13.0 from (25330.5, 6035.5); landed at (25319.5, 6042.5), off by 0.4, 0.63s after the key"
  ],
  [
-  4.05,
+  4.04,
   "Macro: sweeping with 34 hostiles near and none in reach, from (25319.5, 6042.5): a place at (25307.5, 6060.5), a walk of 23 (1.5s), worth 95200 against 0 here, more than the horizon's casts"
  ],
  [
   4.05,
   "Macro: Walking 22 toward a better place"
+ ],
+ [
+  4.58,
+  "Macro: leg time: walk of 22, 0.529s to the character seen going (settle 0.008)"
  ],
  [
   4.58,
@@ -193,19 +197,19 @@
  ],
  [
   11.61,
-  "Macro: Last minute: 31297 points/s, 173.2 kills/min over 9.4s of combat"
+  "Macro: Last minute: 31271 points/s, 173.1 kills/min over 9.4s of combat"
  ],
  [
-  11.76,
+  11.77,
   "Macro: Blade Warp"
  ],
  [
-  11.76,
+  11.77,
   "Macro: Blade Warp on s, player mode 1"
  ],
  [
-  12.12,
-  "Macro: Blade Warp aimed at (25324.5, 6068.5), 19.0 from (25306.5, 6062.5); landed at (25325.5, 6068.5), off by 1.0, 0.37s after the key"
+  12.11,
+  "Macro: Blade Warp aimed at (25324.5, 6068.5), 19.0 from (25306.5, 6062.5); landed at (25325.5, 6068.5), off by 1.0, 0.34s after the key"
  ],
  [
   12.23,
@@ -217,7 +221,7 @@
  ],
  [
   12.34,
-  "Macro: first cast 0.22s after the step"
+  "Macro: first cast 0.23s after the step"
  ],
  [
   13.16,
@@ -245,19 +249,19 @@
  ],
  [
   15.12,
-  "Macro: Last minute: 28137 points/s, 155.7 kills/min over 12.3s of combat"
+  "Macro: Last minute: 28101 points/s, 155.5 kills/min over 12.3s of combat"
  ],
  [
-  15.45,
+  15.46,
   "Macro: Blade Warp"
  ],
  [
-  15.45,
+  15.46,
   "Macro: Blade Warp on s, player mode 1"
  ],
  [
-  16.08,
-  "Macro: Blade Warp aimed at (25319.5, 6077.5), 10.8 from (25325.5, 6068.5); landed at (25318.5, 6078.5), off by 1.4, 0.87s after the key"
+  16.07,
+  "Macro: Blade Warp aimed at (25319.5, 6077.5), 10.8 from (25325.5, 6068.5); landed at (25318.5, 6078.5), off by 1.4, 0.62s after the key"
  ],
  [
   16.2,
@@ -269,7 +273,7 @@
  ],
  [
   16.26,
-  "Macro: first cast 0.17s after the step"
+  "Macro: first cast 0.18s after the step"
  ],
  [
   17.24,
@@ -281,7 +285,7 @@
  ],
  [
   17.54,
-  "Macro: fight (right click): 2 casts seen in 1.4s, 2 down; Stepping to a better place"
+  "Macro: fight (right click): 2 casts seen in 1.5s, 2 down; Stepping to a better place"
  ],
  [
   17.54,
@@ -289,14 +293,14 @@
  ],
  [
   17.54,
-  "Macro: Last minute: 26731 points/s, 148.1 kills/min over 13.8s of combat"
+  "Macro: Last minute: 26684 points/s, 147.8 kills/min over 13.8s of combat"
  ],
  [
-  17.98,
+  17.99,
   "Macro: Blade Warp"
  ],
  [
-  17.98,
+  17.99,
   "Macro: Blade Warp on s, player mode 1"
  ],
  [

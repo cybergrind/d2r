@@ -774,3 +774,97 @@ def test_the_guide_gives_the_places_of_the_marks_with_a_label():
     guide.lead = lambda area: Lead('Cave')
     assert guide.target().point == spot
     assert guide.marks('Nothing') == ()
+
+
+def counting_walls(guide, grids=None):
+    """Count the walls reads; each gives `grids` (the same objects every time, as the reader's cache does)."""
+    from inventory_tracking.levels.model import Walkable
+
+    found = grids if grids is not None else [Walkable(0, 0, 1, 1, '1')]
+    reads = []
+
+    def observe(pid, images, capture):
+        reads.append(1)
+        return found
+
+    guide.observe_walls = observe
+    return reads
+
+
+def test_the_walls_and_card_wait_for_the_refresh_interval_while_the_area_is_read_every_poll():
+    # rca/2026-10-13/latency-findings.md, fix 1: while the macro works the service sets 2 s (appraisal/cadence.py).
+    guide, _, clock = make_guide([74] * 6)
+    reads = counting_walls(guide)
+    guide.refresh_interval = 2.0
+    guide.poll(1.0)  # entry: rooms, walls and card read
+    assert len(reads) == 1
+    card = guide.visible
+    clock.now += 0.5
+    guide.poll(1.5)
+    clock.now += 0.5
+    guide.poll(2.0)
+    assert len(reads) == 1  # the area read, nothing else
+    assert guide.visible is card
+    clock.now += 1.0
+    guide.poll(3.0)
+    assert len(reads) == 2
+    assert guide.visible is not card
+    guide.refresh_interval = 0.0  # in town and idle: every poll, as before
+    clock.now += 0.5
+    guide.poll(3.5)
+    assert len(reads) == 3
+
+
+def test_a_room_s_width_moved_makes_the_walls_due_before_the_interval():
+    from dataclasses import replace
+
+    from inventory_tracking.levels.guide import REFRESH_MOVE
+
+    guide, _, clock = make_guide([74] * 4)
+    reads = counting_walls(guide)
+    guide.refresh_interval = 2.0
+    observe = guide.observe
+    moved = [0]
+
+    def walking(pid, images, capture, rooms=False):
+        location, found = observe(pid, images, capture, rooms)
+        return (replace(location, x=location.x + moved[0]) if location else None), found
+
+    guide.observe = walking
+    guide.poll(1.0)
+    moved[0] = REFRESH_MOVE - 1
+    clock.now += 0.5
+    guide.poll(1.5)
+    assert len(reads) == 1  # read at entry, nothing new yet (the refresh also counts from the entry)
+    moved[0] = REFRESH_MOVE + 1
+    clock.now += 0.5
+    guide.poll(2.0)
+    assert len(reads) == 2
+
+
+def test_only_new_or_changed_grids_are_taught_to_the_library():
+    from inventory_tracking.levels.model import Walkable
+
+    class Library:
+        def __init__(self):
+            self.taught = []
+
+        def known(self, rooms):
+            return []
+
+        def learn(self, rooms, grids):
+            self.taught.append(list(grids))
+            return len(self.taught[-1])
+
+    same, other = Walkable(0, 0, 1, 1, '1'), Walkable(8, 0, 1, 1, '0')
+    guide, _, clock = make_guide([74] * 4)
+    guide.library = Library()
+    grids = [same]
+    counting_walls(guide, grids)
+    guide.poll(1.0)
+    clock.now += 0.5
+    guide.poll(1.5)  # the same object again: nothing to teach
+    grids.append(other)
+    clock.now += 0.5
+    guide.poll(2.0)
+    assert guide.library.taught == [[same], [other]]

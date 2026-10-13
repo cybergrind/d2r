@@ -9,15 +9,17 @@ See rca/2026-10-13/safety-pricing.md for uncertainty and live observation limits
 
 import math
 import random
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field, replace
 from functools import lru_cache
 from typing import Literal
 
+from inventory_tracking.combat import threats
+from inventory_tracking.combat.mechanics.tables import tables
 from inventory_tracking.combat.policy import Point, clear_line
 from inventory_tracking.combat.sim import casters as rules
-from inventory_tracking.combat.sim.guard import GuardRule
-from inventory_tracking.combat.sim.monsters import Traits, shoots
+from inventory_tracking.combat.sim.guard import BOSSES, UNIQUE_FLAG, UNIQUE_STUN, GuardRule
+from inventory_tracking.combat.sim.monsters import GAME_RATE, SHOT_REACH, Traits, shooter_of, shoots, swing_of
 from inventory_tracking.combat.survival import Pressure, Supply
 from inventory_tracking.config import Config, Percent, Positive
 from inventory_tracking.terror.danger import table as threat_table
@@ -28,17 +30,32 @@ KINDS = ('physical', 'fire', 'lightning', 'cold', 'poison', 'magic')
 # monstats deathDmg, verified in scenarios/threat/threat_table.json (2026-10-13).
 # A corpse already struck by a projectile can explode before another look.
 EXPLODING = frozenset((214, 215, 216, 441, 442, 443, 690, 691))
+# The life price by fight (the player, 2026-10-13: "probably we need to have it for diablo, baal, nihlathak,
+# mephisto, duriel"): monster classes (monstats.txt `*hcIdx`, pricing/raw/game-excel, the client's txt id; not
+# the row's place among the data rows, one more past the expansion's divider row) whose presence makes a point of
+# life dearer, each with its factor on `life_price`. Their own forms only, no minion: 211 duriel, 708 uberduriel;
+# 242 mephisto, 704 ubermephisto; 243 diablo, 333 diabloclone, 705 uberdiablo; 526 nihlathakboss; 544 baalcrab
+# (the throne's fight), 570 baalclone, 709 uberbaal. The factor: rca/2026-10-13/diablo.md "Hooked in" (the duel's
+# sweep: x10 is where his lightning's median loss is 0 in the short and the long fight, for 9-10% more kill time).
+DEAR_FACTOR = 10.0
+DEAR = tuple((txt, DEAR_FACTOR) for txt in (211, 708, 242, 704, 243, 333, 705, 526, 544, 570, 709))
 
 
 class SafetySettings(Config):
     floor: Percent = 65.0  # Q1/Q6: life is a hard constraint, potions are not borrowed life
     insist_floor: Percent = 40.0
     insist_per_second: Positive = 5.0
+    # A level run (KP_1: "one press, then it runs the whole level") asks for its goal at every look as a held key
+    # does: its blocked goal escalates by the same insistence (the veto stays). Off: only fresh presses insist.
+    run_insists: bool = True
     horizon: Positive = 1.5
     veto_share: Percent = 5.0
     healing_seconds: Positive = 4.0  # Q6, seconds per potion
     rejuvenation_seconds: Positive = 20.0
     healing_points: Positive = 480.0  # named stand-in until the belt's potion quality is priced
+    # (monster class, factor): while a hostile of the class is in the fight (alive, within the AI's awareness of
+    # the character), a point of life costs `factor` times `life_price` (the dearest present). DEAR above.
+    dear: tuple[tuple[int, float], ...] = DEAR
     commit_share: Positive = 0.20  # Q2, improvement required to leave a firing stand
     commit_seconds: Positive = 0.30
     fight_through: bool = True  # Q3: allow a strike to advance a pressed goal
@@ -47,16 +64,41 @@ class SafetySettings(Config):
     press_enables_attack: bool = False  # Q7, intent remains the runner's
     middle_objects_need_press: bool = True  # Q8
     trials: int = 64
+    # Seconds of the game's clock one look's pricing may take before it settles for the best found so far
+    # (macros/safety.py: the plain retreat rays are left out after it); the decision cadence is 0.12 s.
+    look_seconds: Positive = 0.08
+    # I2, no attack pause: with attack mode on and a hostile in reach, a move or a use is not made when the seconds
+    # since the last strike and the act's own would pass this, while a strike here fits the budget (the strike
+    # first, the act at the next look). The requirement is 2 s; the rest is the next look and the cast's start.
+    strike_gap: Positive = 1.6
     seed: int = 61013  # same facts, same samples, independent of process hash/random state
     companion_uncertainty: float = 0.15  # nearest wins; companion motion is unobserved over the dwell
-    unknown_damage_factor: Positive = 3.0  # unknown AI/Diablo: table blow, conservative burst factor
+    unknown_damage_factor: Positive = 3.0  # an unread boss AI (Diablo): table blow, conservative burst factor
     unknown_period: Positive = 1.0
     unknown_points: Positive = 500.0  # no table row: up to 1500 after the conservative burst factor
+    # An unread AI of an ordinary type is priced by the simulator's own fit on the takes (combat/sim/monsters.py
+    # `swing_of`, `shooter_of`: swings and shots a second, the share that takes life, the fit's upper bound where it
+    # has one) times this margin. Second pass, 2026-10-13: the factor-3 table stand-in priced the River of Flame's
+    # Abyss Knights at 200+ points per 0.72 s each while the take lost no life in 106 s (safety-pricing.md).
+    fitted_margin: Positive = 2.0
+    # The character's own strikes (combat/stance.py `falls`, cast after cast at CAST_SECONDS): each rollout draws
+    # how much later than forecast the hostiles die, one factor for all of them, from these quantiles at even
+    # steps (the least, the deciles, the most), or never with `strike_never` percent. Measured in the arena
+    # (second pass, 2026-10-13: 9,476 forecast deaths within 3 s at the looks that held, seal-pack, vizier-seal,
+    # four-packs; median 1.78; 7.5% never died while the character stayed): the build's engine, not the game.
+    strike_spread: tuple[float, ...] = (0.2, 0.43, 0.78, 1.06, 1.38, 1.78, 2.33, 3.13, 4.67, 8.37, 20.0)
+    strike_never: Percent = 7.5
+    # A guard the build keeps (macros/build.py `Shield`), shown up at the look: the share of its pool taken to be
+    # left. The client is not told of the pool's fall (rca/2026-10-13/sim-casters.md section 9): a stand-in.
+    guard_left: Percent = 50.0
     corpse_radius: Positive = 5.0
     move_overhead: Positive = 0.5
     hold_dwell: Positive = 0.72
     landing_dwell: Positive = 0.36  # following decision and residual cast delay, separate from transit
-    operate_dwell: Positive = 1.5
+    operate_dwell: Positive = 1.5  # the hands' time limit at an object or a drop (macros/hunt.py `priced_for`)
+    # Seconds at an object after the walk to it until its use takes: the exposure of the act (second pass: in the
+    # arena a seal 10 units off opened 0.9 to 1.3 s after the decision, the walk included).
+    use_dwell: Positive = 0.5
 
 
 @dataclass(frozen=True)
@@ -85,6 +127,10 @@ class Hostile:
     active: bool = False
     stunned: float = 0.0
     life: float = 1.0
+    # The client's mode (monmode.txt) and the frames since the look first saw it in that mode: a read model
+    # (combat/threats) prices what an act under way still brings.
+    mode: int = 0
+    mode_frames: int = 0
 
 
 @dataclass(frozen=True)
@@ -97,6 +143,12 @@ class Look:
     blocked: Callable[[Point], bool] | None = field(default=None, compare=False)
     # Extra bars supplied by build tactics, independent of the budget.
     barred: Callable[[Point], bool] | None = field(default=None, compare=False)
+    # What one look has priced already (`exposure` by hostiles, place, dwell and protection): the candidates of a
+    # look share places and dwells, and a projected look (`approach`) shares this memo under its own hostiles.
+    memo: dict = field(default_factory=dict, compare=False, repr=False)
+    # Missiles in flight of the classes the read models ask for (combat/threats `missiles`): (owner unit, where,
+    # heading in radians).
+    missiles: tuple[tuple[int, Point, float], ...] = ()
 
 
 @dataclass(frozen=True)
@@ -116,6 +168,13 @@ class Exposure:
     chance: float
     parts: tuple[tuple[str, float, float], ...]
     melee: bool = False
+    # Seconds into the dwell its blows begin and end (the approach first): a death in between ends them.
+    begins: float = 0.0
+    ends: float = 0.0
+    # Blows' worth of time a landed blow stuns its striker for while the guard stands (0: never stunned), and
+    # the chance a landing stuns at all (a unique's 10%).
+    stun: float = 0.0
+    stuns: float = 1.0
 
 
 @lru_cache(maxsize=4096)
@@ -123,17 +182,36 @@ def traits(txt: int, level: int | None, flags: int, mods: tuple[int, ...], tier:
     return Traits.of(txt, level, flags, mods, tier)
 
 
-def exposure(seen: Look, place: Point, dwell: float, protection: Protection, settings: SafetySettings):
-    """A*w*n*hit*points, retaining each burst as one event (flames correlate)."""
+def exposure(
+    seen: Look,
+    place: Point,
+    dwell: float,
+    protection: Protection,
+    settings: SafetySettings,
+    alive: Mapping[int, float] | None = None,
+):
+    """A*w*n*hit*points, retaining each burst as one event (flames correlate). `alive`: seconds into the
+    dwell a hostile still lives (the character's own strikes, combat/stance.py `falls`); absent: all of it."""
+    key = (seen.hostiles, seen.companions, place, dwell, protection, settings) if alive is None else None
+    if key is not None:
+        known = seen.memo.get(key)
+        if known is not None:
+            return known
     found: list[Exposure] = []
     unknown: list[int] = []
     curses = 0.0
     for m in sorted(seen.hostiles, key=lambda m: m.unit):
-        events, curse_rate, stand_ins = hostile_exposure(m, seen, place, dwell, protection, settings)
+        lives = dwell if alive is None else min(dwell, alive.get(m.unit, math.inf))
+        if lives <= 0:
+            continue
+        events, curse_rate, stand_ins = hostile_exposure(m, seen, place, lives, protection, settings)
         found.extend(events)
         curses += curse_rate
         unknown.extend(stand_ins)
-    return tuple(e for e in found if e.blows > 0 and e.chance > 0), 1 - math.exp(-curses), tuple(sorted(set(unknown)))
+    priced = tuple(e for e in found if e.blows > 0 and e.chance > 0), 1 - math.exp(-curses), tuple(sorted(set(unknown)))
+    if key is not None:
+        seen.memo[key] = priced
+    return priced
 
 
 def hostile_exposure(
@@ -171,9 +249,17 @@ def hostile_exposure(
             parts = [
                 (k, lo * settings.unknown_damage_factor, hi * settings.unknown_damage_factor) for k, lo, hi in parts
             ]
+        stun = stuns = 0.0
+        guard = protection.guard
+        if guard is not None and guard.stun > 0 and m.txt not in BOSSES and speed > 0:
+            # The guard's stun (combat/sim/guard.py): the striker stands its frames out after a landed blow.
+            stun, stuns = guard.stun / GAME_RATE / period, UNIQUE_STUN if m.flags & UNIQUE_FLAG else 1.0
         found.append(
-            Exposure(m.unit, melee_time / period * chance, share * hit * (1 - protection.block), tuple(parts), True)
-        )
+            Exposure(
+                m.unit, melee_time / period * chance, share * hit * (1 - protection.block), tuple(parts), True,
+                dwell - melee_time, dwell, stun, stuns,
+            )
+        )  # fmt: skip
 
     def missile(mid: int, slot: int, count: float, reach: float, chance: float, cooldown: float = 0.0):
         assert row is not None
@@ -193,7 +279,7 @@ def hostile_exposure(
             length = rules.number(mr, 'ELen') if k == 'poison' else 1.0
             parts.append((k, lo * count * length, hi * count * length))
         period = max((rules.MODE_FRAMES[ai, 'S1'] + delay) / 25, cooldown)
-        found.append(Exposure(m.unit, active / period * chance, share, tuple(parts)))
+        found.append(Exposure(m.unit, active / period * chance, share, tuple(parts), False, dwell - active, dwell))
 
     if ai == rules.FINGER_MAGE:
         assert row is not None
@@ -207,8 +293,7 @@ def hostile_exposure(
         if found and row:
             scale = model.damage[1] / max(rules.number(row, 'A1MaxD(H)'), 1.0)
             extra = tuple((k, 0.0, rules.number(row, 'El1MaxD(H)') * scale * 0.6 / 2) for k in rules.RANDOM_ELEMENTS)
-            e = found[-1]
-            found[-1] = Exposure(e.unit, e.blows, e.chance, e.parts + extra, True)
+            found[-1] = replace(found[-1], parts=found[-1].parts + extra)
     elif ai == rules.OBLIVION_KNIGHT:
         assert row is not None
         reach = rules.number(row, 'aip2(H)')
@@ -226,17 +311,104 @@ def hostile_exposure(
         count = len(range(rules.RELEASE[ai, 'S1'], rules.MODE_FRAMES[ai, 'S1'], rules.FLAME_GAP))
         missile(675, 1, count, rules.skill_level(row, 1), chance, rules.number(row, 'aip6(H)') / 25)
         swing((1 - chance) * rules.number(row, 'aip3(H)') / 100)
-    else:
+    elif threats.of(m.txt) is not None:
+        # A read model (combat/threats) prices its acts over the whole path (`threat_exposure`); its melee is
+        # not in the model: the conservative table stand-in, as for an unread boss.
+        unknown.append(m.txt)
+        swing()
+    elif m.txt in BOSSES or str(m.txt) not in tables()['monsters']:
+        # A boss whose AI is not read (Diablo), or a type with no monstats row: the conservative table stand-in,
+        # not a claim to know it.
         unknown.append(m.txt)
         threat = threat_table().monsters.get(m.txt)
         if shoots(m.txt) or (threat is not None and threat.ranged):
-            # Pooled shot is explicitly a fallback, not a claim to have read this AI.
             points = max(model.damage[1], 100.0) * settings.unknown_damage_factor
             kind = min(KINDS, key=lambda k: dict(protection.resists).get(k, 0.0))
-            found.append(Exposure(m.unit, t / settings.unknown_period, share, ((kind, points / 2, points),)))
+            shot = ((kind, points / 2, points),)
+            found.append(Exposure(m.unit, t / settings.unknown_period, share, shot, False, dwell - t, dwell))
         else:
             swing()
+    else:
+        # An ordinary type whose AI is not read: the simulator's fit on the takes (what the arena plays for it),
+        # times `fitted_margin`. The fit's chance to take life has the ward and the resistances in it already.
+        unknown.append(m.txt)
+        threat = threat_table().monsters.get(m.txt)
+        margin = settings.fitted_margin
+        if shoots(m.txt) or (threat is not None and threat.ranged):
+            fit = shooter_of(m.txt)
+            points = max(model.damage[1], fit['takes_life'].get('mean_hit', 0.0), 1.0)
+            kind = min(KINDS, key=lambda k: dict(protection.resists).get(k, 0.0))
+            chance = min(1.0, fit['takes_life']['value'] * margin) * fit['aim']['value']
+            if d <= SHOT_REACH:
+                found.append(
+                    Exposure(
+                        m.unit, t * fit['rate']['value'], chance, ((kind, points / 2, points),), False, dwell - t, dwell
+                    )
+                )
+        else:
+            fit = swing_of(m.txt)
+            takes = fit['takes_life']
+            chance = min(1.0, takes.get('high', takes['value']) * margin)
+            parts = [('physical', *model.damage)] if model.damage[1] > 0 else [('physical', 0.0, 100.0)]
+            parts += [(k, model.damage[0] * lo, model.damage[1] * hi) for k, lo, hi in model.elements]
+            found.append(
+                Exposure(
+                    m.unit, melee_time * fit['rate']['value'], share * chance, tuple(parts), True, dwell - melee_time,
+                    dwell,
+                )
+            )  # fmt: skip
     return tuple(found), curses, tuple(unknown)
+
+
+def threat_exposure(
+    seen: Look, path: tuple[tuple[Point, float, Hands], ...], protection: Protection, settings: SafetySettings
+) -> tuple[Exposure, ...]:
+    """The acts of hostiles with a read model (combat/threats), priced over the whole path at once: an act under
+    way (a stream aimed at where the character is at each frame) is not a rate at a place, so the path is not cut
+    into places for it. Their begins and ends are seconds of the path. Each part is one correlated event."""
+    found: list[Exposure] = []
+    legs = tuple((place, max(0.0, dwell)) for place, dwell, _ in path)
+    start, end = legs[0][0], legs[-1][0]
+    # Every candidate of a look is priced over the same span (`horizon`, standing at its end after it): an act under
+    # way lands later than a short hold looks, and a step's own path is longer than a hold's. Over their own
+    # spans the step would carry missiles the hold leaves to the next look.
+    spent = sum(dwell for _, dwell in legs)
+    if spent < settings.horizon:
+        legs += ((end, settings.horizon - spent),)
+    for m in seen.hostiles:
+        model = threats.of(m.txt)
+        if model is None:
+            continue
+        d = rules.ai_distance(m.at, start)
+        near = min((rules.ai_distance(m.at, p) for p in seen.companions), default=math.inf)
+        if min(d, near) >= rules.RADIUS:
+            continue
+        flying = tuple((at, heading) for owner, at, heading in seen.missiles if owner == m.unit)
+        acting = threats.Acting(m.at, m.mode, m.mode_frames, flying)
+        key = ('threat', m, flying, legs, protection.resists, len(seen.companions))
+        parts = seen.memo.get(key)
+        if parts is None:
+            parts = seen.memo[key] = model.exposure(
+                acting,
+                legs,
+                seen=clear_line(seen.blocked, m.at, end),
+                companions=len(seen.companions),
+                resists=dict(protection.resists) or None,
+            )
+        for part in parts:
+            points = tuple((kind, value, value) for kind, value in part.points)
+            found.append(Exposure(m.unit, part.casts, part.chance, points, False, part.begins, part.ends))
+    return tuple(e for e in found if e.blows > 0 and e.chance > 0)
+
+
+def life_factor(seen: Look, place: Point, settings: SafetySettings) -> float:
+    """The factor on the price of life while the fight has a hostile of a dear class (`SafetySettings.dear`)
+    within the AI's awareness of `place` (the dearest of them); 1 otherwise."""
+    dear = dict(settings.dear)
+    return max(
+        (dear[m.txt] for m in seen.hostiles if m.txt in dear and rules.ai_distance(m.at, place) < rules.RADIUS),
+        default=1.0,
+    )
 
 
 def approach(seen: Look, place: Point, elapsed: float) -> Look:
@@ -265,15 +437,31 @@ def approach(seen: Look, place: Point, elapsed: float) -> Look:
     return replace(seen, hostiles=tuple(moved))
 
 
-def harm(seen: Look, place: Point, dwell: float, hands: Hands, settings: SafetySettings | None = None) -> Harm:
-    return harm_path(seen, ((place, dwell, hands),), settings)
+def harm(
+    seen: Look,
+    place: Point,
+    dwell: float,
+    hands: Hands,
+    settings: SafetySettings | None = None,
+    deaths: Mapping[int, float] | None = None,
+) -> Harm:
+    return harm_path(seen, ((place, dwell, hands),), settings, deaths)
 
 
-def harm_path(seen: Look, path: tuple[tuple[Point, float, Hands], ...], settings: SafetySettings | None = None) -> Harm:
+def harm_path(
+    seen: Look,
+    path: tuple[tuple[Point, float, Hands], ...],
+    settings: SafetySettings | None = None,
+    deaths: Mapping[int, float] | None = None,
+) -> Harm:
     """One event clock over a trajectory; only its final stand is tactically barred.
 
     Splitting a walk into integration slices must not restart a hostile's burst
     on every slice. The fractional attack phase carries across places and hands.
+    `deaths`: seconds from the path's start at which a hostile dies by the
+    character's own strikes as forecast (combat/stance.py `falls`); each
+    rollout draws how much later they come (`strike_spread`, `strike_never`)
+    and a hostile deals nothing after its death. Absent: no outgoing damage.
     """
     settings = settings or SafetySettings()
     if not path:
@@ -281,42 +469,68 @@ def harm_path(seen: Look, path: tuple[tuple[Point, float, Hands], ...], settings
     phases = []
     unknown = set()
     uncursed = 1.0
+    elapsed = 0.0
+    last = seen.battle if path[-1][2] == 'battle' else seen.travel
+    acting = threat_exposure(seen, path, last, settings)
+    if acting:
+        phases.append((acting, last, 0.0))
     for index, (place, dwell, hands) in enumerate(path):
         protection = seen.battle if hands == 'battle' else seen.travel
         events, cursed, stand_ins = exposure(seen, place, max(0.0, dwell), protection, settings)
-        phases.append((events, protection))
+        phases.append((events, protection, elapsed))
         uncursed *= 1 - cursed
         unknown.update(stand_ins)
+        elapsed += max(0.0, dwell)
         if index + 1 < len(path):
             seen = approach(seen, place, dwell)
     place, dwell, _ = path[-1]
     barred = 'a tactic bars this place' if seen.barred is not None and seen.barred(place) else None
     if dwell > 0 and any(m.txt in EXPLODING and math.dist(m.at, place) < settings.corpse_radius for m in seen.hostiles):
         barred = 'an exploding corpse can reach this place'
-    if not any(events for events, _ in phases):
+    if not any(events for events, _, _ in phases):
         return Harm(barred=barred, stand_ins=tuple(sorted(unknown)))
     rng = random.Random(settings.seed)
     losses: list[float] = []
     totals: dict[int, float] = {}
     # A curse is shared by all blows in a rollout. No healing promised in advance.
+    spread = settings.strike_spread
     for _ in range(settings.trials):
         curse = rng.randrange(3) if rng.random() < 1 - uncursed else -1
+        late = math.inf
+        if deaths:
+            # How much later than forecast the strikes kill in this rollout, one factor for all (misses, moves).
+            roll = rng.random()
+            if roll >= settings.strike_never / 100:
+                place_ = roll * (len(spread) - 1)
+                low = min(int(place_), len(spread) - 2)
+                late = spread[low] + (spread[low + 1] - spread[low]) * (place_ - low)
         pool = phases[0][1].pool
         clocks: dict[tuple, float] = {}
         loss = 0.0
-        for events, protection in phases:
+        for events, protection, start in phases:
             resists, flat, absorb = dict(protection.resists), dict(protection.flat), dict(protection.absorb)
             for event in events:
                 key = (event.unit, event.parts, event.melee)
                 if key not in clocks:
                     clocks[key] = rng.random()
-                before = clocks[key]
-                clocks[key] += event.blows
-                count = math.floor(clocks[key]) - math.floor(before)
-                for _ in range(count):
+                # The blows fall where the event's phase crosses a whole number; a stun sets it back.
+                phase, remaining = clocks[key], event.blows
+                death = deaths.get(event.unit) if deaths else None
+                if death is not None and event.ends > event.begins:
+                    # Its blows are spread over [begins, ends] of the dwell; none after the rollout's death.
+                    lived = min(event.ends, death * late - start) - event.begins
+                    remaining *= min(1.0, max(0.0, lived / (event.ends - event.begins)))
+                while True:
+                    ahead = math.floor(phase) + 1 - phase
+                    if ahead > remaining:
+                        phase += remaining
+                        break
+                    remaining -= ahead
+                    phase = math.floor(phase) + 1
                     if rng.random() >= event.chance:
                         continue
                     points = 0.0
+                    guarded = pool > 0
                     for kind, low, high in event.parts:
                         raw = rng.uniform(low, high)
                         if protection.guard is not None and kind in protection.guard.kinds:
@@ -335,6 +549,10 @@ def harm_path(seen: Look, path: tuple[tuple[Point, float, Hands], ...], settings
                         points += max(0.0, after - min(after, absorb.get(kind, 0.0)))
                     loss += points
                     totals[event.unit] = totals.get(event.unit, 0.0) + points
+                    # Not for the blow that took the pool to 0 (combat/sim/guard.py).
+                    if event.stun and guarded and pool > 0 and (event.stuns >= 1 or rng.random() < event.stuns):
+                        phase -= event.stun
+                clocks[key] = phase
         losses.append(loss)
     mean = sum(losses) / len(losses)
     worst = max(mean, sorted(losses)[min(len(losses) - 1, math.ceil(0.95 * len(losses)) - 1)])

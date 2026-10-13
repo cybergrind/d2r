@@ -86,12 +86,13 @@ PLAYER_HEALING = HealingConfig(
 # Healing potions restore this merc slowly (about +13% over 8 s measured 2026-09-26); rejuvenations are instant.
 # Until 2026-10-13 they took over at 65%, well before the merc was in danger, and he drank the belt's
 # rejuvenations before the character needed one (three of four in the game of 00:09 that day). Now at 40%, and
-# none of the last three: those are the character's.
+# none of the last two: those are the character's (the player, 2026-10-13: "keep at least 2 rev potions for
+# user"; it was the last three until then).
 MERC_HEALING = HealingConfig(
     actor=Actor.MERC,
     enabled=True,
     thresholds={PotionType.HEALING: 75, PotionType.REJUVENATION: 40},
-    rejuvenation_reserve=3,
+    rejuvenation_reserve=2,
     cooldowns={PotionType.HEALING: 3.0, PotionType.REJUVENATION: 0.5},
     sample_max_age=1.0,
     consumption_timeout=2.0,
@@ -100,6 +101,43 @@ MERC_HEALING = HealingConfig(
     max_consecutive_misses=8,
     suspend_seconds=120.0,
 )
+
+
+class HealPriorityConfig(Config):
+    """Whom the healer (`make osd`) feeds first, and the healing potions it keeps for the character
+    (automation/priority.py). The player's ruling (2026-10-13): "healer should feed merc, then me. but if
+    situation is critical - then feed player"; "something is wrong if we're empty". Until then the character
+    always came first and nothing was kept: in the game of 21:42 that day the mercenary drank 3 of the belt's
+    last 5 healing potions within 6 s and the belt ran dry (rca/2026-10-13/potions-findings.md)."""
+
+    # Off: the rule before 2026-10-13 (the character first at every sample, no potion kept back).
+    enabled: bool = True
+    # The macro's life budget ends here (combat/harm.py `SafetySettings.floor`, Q1/Q6): life under 65% is no
+    # longer the run's to spend. The character is critical when the life, played `horizon` seconds ahead at the
+    # fall of the last `window` seconds, is under it.
+    floor: Percent = 65.0
+    # The fall is read over the last second (the burst rule's window, `HealingConfig.burst_window`) and played
+    # 1.5 s ahead: harm.py's `horizon`, the look ahead the macro's budget is discounted by.
+    window: Positive = 1.0
+    horizon: Positive = 1.5
+    # A healing potion's life points: harm.py's named stand-in (`healing_points`) for a super healing potion. The
+    # reserve is what brings the character from the floor back to full life once: ceil((100 - floor)% of the
+    # most life / healing_points) healing potions; 1818 life -> 2, the macro drinker's own `keep_healing`.
+    healing_points: Positive = 480.0
+    # With no rejuvenation on the belt the character's last resort is a healing potion, which works over
+    # seconds: one more is kept.
+    bare_extra: Annotated[int, Field(ge=0)] = 1
+    # Whatever the life reads (unread, or a small one): the last healing potion is never the mercenary's.
+    least_reserve: Annotated[int, Field(ge=0)] = 1
+    # Whether the reserve is held back from the mercenary. Off by the player's ruling (2026-10-13, after the
+    # first version kept 2 healing potions from him): "we're trying to heal merc, but keep at least 2 rev potions
+    # for user" - the mercenary is healed from the belt's healing potions (the character first only when
+    # critical), and what is kept for the character is 2 rejuvenations (`MERC_HEALING.rejuvenation_reserve`).
+    # The reserve stays the `Potion stock:` low mark.
+    keep_healing: bool = False
+
+
+HEAL_PRIORITY = HealPriorityConfig()
 
 
 class ShowItemsConfig(Config):
@@ -276,9 +314,25 @@ class InputConfig(Config):
         return dict(values)
 
 
+class BeltConfig(Config):
+    """What the belt's columns are for: the pickup rules (macros/pickup.py) and the OSD belt widget."""
+
+    # The kind of each column 1-4 when it is empty (tracking/belt.py `column_shortages`), e.g.
+    # (REJUVENATION, REJUVENATION, HEALING, HEALING). None: learned from the game, the kind a column last
+    # held (rca/2026-10-13/potions-findings.md, step 1). Set to the player's belt (the player, 2026-10-13: "yes,
+    # use this layout"): the learned kinds reset with each game while the belt carries over between games.
+    layout: tuple[PotionType, PotionType, PotionType, PotionType] | None = (
+        PotionType.REJUVENATION,
+        PotionType.REJUVENATION,
+        PotionType.HEALING,
+        PotionType.HEALING,
+    )
+
+
 OSD = OSDConfig()
 READER = ReaderConfig()
 INPUT = InputConfig()
+BELT = BeltConfig()
 
 
 class ResourceReaderConfig(Config):
@@ -326,6 +380,12 @@ class AppraisalConfig(Config):
     publication_poll_interval: Positive = 2.0  # seconds between checks for a newly published KB generation
     focus_cache_seconds: Positive = 0.15  # watchers reuse a D2R focus answer this long
     slow_loop_seconds: Positive = 0.5  # log a per-step breakdown when one service-loop pass takes longer
+    # sys.setswitchinterval for the service process (Python's default 0.005). Every memory field is one pread
+    # that gives up the GIL and must take it back; with another thread running Python each one waited up to the
+    # interval: 532 preads (a full look) 0.6 ms alone, 1.6 s with a busy thread at 5 ms, 0.15 s at 0.5 ms; two
+    # Python threads busy together lose 4-8% of their throughput to the extra switches, one alone nothing
+    # (rca/2026-10-13/latency-findings.md, "Fix 1, built").
+    switch_interval: Annotated[float, Field(gt=0, le=0.005)] = 0.0005
     reconnect_delay: Positive = 2.0
     shop_auto: bool = True  # watch loaded vendor stock and scan when its first gear item changes
     shop_poll_interval: Positive = 1.0  # seconds between stock probes in town; 5x outside town

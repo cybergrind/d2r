@@ -202,3 +202,31 @@ def test_waypoint_classes_are_the_objects_operated_as_waypoints():
     objects = json.loads(Path('third-parties/d2data/json/objects.json').read_text())
 
     assert {row['*ID'] for row in objects.values() if row.get('OperateFn') == 23} == WAYPOINT_CLASSES
+
+
+def test_an_unchanged_room_is_not_converted_again_and_a_changed_one_is(memory, monkeypatch):
+    # rca/2026-10-13/latency-findings.md, fix 1: the level map converted every loaded room's mask in Python
+    # twice a second; with the caller's cache the same bytes give the same Walkable back.
+    from inventory_tracking.levels import memory as module
+    from inventory_tracking.levels.memory import walkable_tiles
+
+    struct.pack_into('<Q', memory.blocks[ROOM1], 0x38, GRID)
+    grid = memory.block(GRID, 0x28)
+    struct.pack_into('<IIII', grid, 0, 25000, 5000, 5, 5)
+    struct.pack_into('<Q', grid, 0x20, MASK)
+    mask = memory.block(MASK, 5 * 5 * 2)
+    converted = []
+    convert = module.tiles_from_mask
+    monkeypatch.setattr(module, 'tiles_from_mask', lambda *args: converted.append(args) or convert(*args))
+    cache = {}
+
+    first = walkable_tiles(memory.read, ROOM1, cache)
+    assert walkable_tiles(memory.read, ROOM1, cache) is first
+    assert len(converted) == 1
+
+    struct.pack_into('<H', mask, 0, 0x1)  # a door shut (or opened): the mask's bytes differ
+    changed = walkable_tiles(memory.read, ROOM1, cache)
+    assert len(converted) == 2
+    assert changed.cells != first.cells
+    assert walkable_tiles(memory.read, ROOM1) == changed  # without a cache: converted every time, as before
+    assert len(converted) == 3

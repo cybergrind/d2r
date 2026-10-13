@@ -37,6 +37,7 @@ MAX_ROOMS = 1024
 MAX_NEAR = 16  # observed 5-9 (a 3x3 neighbourhood)
 MAX_LOADED = 64  # loaded Room1s: about 9-35 in the dumps
 MAX_SUBTILES = 400 * 400
+MAX_CACHED_GRIDS = 2048  # rooms kept by `walkable_tiles`' cache (a level has up to ~250; 3 KB a room)
 OBJECT_UNIT = 2
 # Waypoint object classes: every d2data objects.json row with OperateFn 23 (all named 'Waypoint'), by *ID.
 WAYPOINT_CLASSES = frozenset((119, 145, 156, 157, 237, 238, 288, 323, 324, 398, 402, 429, 494, 496, 511, 539))
@@ -114,18 +115,33 @@ def neighbour_areas(read, room2, data, level) -> tuple[int, ...]:
     return tuple(areas)
 
 
-def walkable_tiles(read, room1) -> Walkable | None:
-    """The room's sub-tiles, walkable when the collision mask does not block walking there."""
+def walkable_tiles(read, room1, cache: dict | None = None) -> Walkable | None:
+    """The room's sub-tiles, walkable when the collision mask does not block walking there.
+
+    With `cache` (bounds -> (raw mask, Walkable), kept by the caller between reads) a room whose mask
+    reads the same bytes as last time gives the same Walkable back without converting it again: the
+    conversion is pure Python, ~0.25 ms a room, and the level map re-read every loaded room twice a
+    second while the macro read the same tables (rca/2026-10-13/latency-findings.md, fix 1). A door
+    opened changes the bytes, so it is converted again."""
     try:
         grid = pointer(read, room1 + ROOM1_COLLISION)
         header = read(grid, COLLISION_MASK + 8)
         x, y, w, h = struct.unpack_from('<IIII', header, COLLISION_BOUNDS)
         if not (w and h and w * h <= MAX_SUBTILES and not x % 5 and not y % 5 and not w % 5 and not h % 5):
             return None
-        mask = struct.unpack(f'<{w * h}H', read(struct.unpack_from('<Q', header, COLLISION_MASK)[0], w * h * 2))
+        raw = read(struct.unpack_from('<Q', header, COLLISION_MASK)[0], w * h * 2)
+        known = cache.get((x, y, w, h)) if cache is not None else None
+        if known is not None and known[0] == raw:
+            return known[1]
+        mask = struct.unpack(f'<{w * h}H', raw)
     except OSError, ValueError, struct.error:
         return None
-    return tiles_from_mask(x, y, w, h, mask)
+    tiles = tiles_from_mask(x, y, w, h, mask)
+    if cache is not None:
+        if len(cache) >= MAX_CACHED_GRIDS:
+            cache.clear()
+        cache[x, y, w, h] = (raw, tiles)
+    return tiles
 
 
 def tiles_from_mask(x, y, w, h, mask) -> Walkable:
@@ -139,8 +155,9 @@ def tiles_from_mask(x, y, w, h, mask) -> Walkable:
     return Walkable(x // 5, y // 5, w // 5, h // 5, cells, flight, pack_masks(mask))
 
 
-def loaded_walkable(read, room1, level, *, max_rooms=MAX_LOADED) -> list[Walkable]:
-    """Walkable tiles of the level's loaded rooms, reached through Room1 neighbours from `room1`."""
+def loaded_walkable(read, room1, level, *, max_rooms=MAX_LOADED, cache: dict | None = None) -> list[Walkable]:
+    """Walkable tiles of the level's loaded rooms, reached through Room1 neighbours from `room1`
+    (`cache`: `walkable_tiles`)."""
     found, seen, queue = [], set(), [room1]
     while queue and len(seen) < max_rooms:
         room = queue.pop(0)
@@ -153,7 +170,7 @@ def loaded_walkable(read, room1, level, *, max_rooms=MAX_LOADED) -> list[Walkabl
             data = read(room, ROOM1_NEAR_COUNT + 4)
         except OSError, ValueError, struct.error:
             continue
-        tiles = walkable_tiles(read, room)
+        tiles = walkable_tiles(read, room, cache)
         if tiles is not None:
             found.append(tiles)
         array, count = (
@@ -234,8 +251,9 @@ def observe_waypoints(pid, images, capture) -> list[tuple[float, float]]:
     return found
 
 
-def observe_walkable(pid, images, capture) -> list[Walkable]:
-    """Walkable tiles of the loaded rooms around the player (read-only, bounded)."""
+def observe_walkable(pid, images, capture, *, cache: dict | None = None) -> list[Walkable]:
+    """Walkable tiles of the loaded rooms around the player (read-only, bounded). `cache`: a dict the
+    caller keeps between reads, so unchanged rooms come back as the same objects (`walkable_tiles`)."""
     tables = {x['table_address'] for x in capture['unit_table_candidates']}
     if len(tables) != 1:
         raise ValueError('Expected one freshly scanned unit table address')
@@ -244,7 +262,7 @@ def observe_walkable(pid, images, capture) -> list[Walkable]:
     try:
         read = ResearchReader(fd, process_mappings(pid)).read
         found = player_room(read, next(iter(tables)))
-        grids = loaded_walkable(read, found[1], found[0].level) if found else []
+        grids = loaded_walkable(read, found[1], found[0].level, cache=cache) if found else []
     finally:
         os.close(fd)
     if identity(pid) != token:

@@ -28,7 +28,7 @@ from dataclasses import dataclass, replace
 
 from inventory_tracking.levels.model import Target
 from inventory_tracking.macros.build import Intent
-from inventory_tracking.macros.world import Drop, Monster
+from inventory_tracking.macros.world import HEALING, REJUVENATION, Drop, Monster
 from inventory_tracking.native.layout import TILE_UNITS
 from inventory_tracking.routes.model import ENTER, FIGHT, LEAVE, LOOT, STAND, USE, Stage
 from inventory_tracking.terror.bosses import BOSSES, SUPER_UNIQUE_FLAG
@@ -36,12 +36,22 @@ from inventory_tracking.terror.bosses import BOSSES, SUPER_UNIQUE_FLAG
 
 Point = tuple[float, float]
 REACH, PICK_UP = 'reach', 'pick up'  # with the routes' USE, STAND, FIGHT, ENTER, LOOT and LEAVE: what is done at a goal
+# A level run stays by a valuable the inventory has no room for (the player, 2026-10-13: "when valuable doesn't
+# fit: we need to stop near it"): what is done there is to wait for room.
+WAIT = 'wait by'
 # What the pursuit loop performs itself (macros/pursuit.py); a goal of another kind is the route's own press
-PURSUED = frozenset((REACH, USE, STAND, FIGHT, PICK_UP))
+PURSUED = frozenset((REACH, USE, STAND, FIGHT, PICK_UP, WAIT))
 USE_NEAR = 25.0  # units: an object this near is clicked from where the character stands (teleport.py THING_REACH)
 STAND_NEAR = 12.0  # units from a mark: the character has stood at it (route.py STAND_NEAR)
 PLACE_NEAR = 5.0  # units, one tile: a place is arrived at (teleport.py SPOT_NEAR)
 PICK_NEAR = 40.0  # units: a valuable this near is taken before the character leaves (pickup.py STOP_UNITS)
+# Units: a drop this near is clicked from where the character stands (pickup.py PICK_UNITS); a level run's
+# drop further off is gone to by the navigator with the movement in hand first (walk, Blade Warp or Teleport),
+# not by the pickup's own Teleport hops (rca/2026-10-13/run-2110-findings.md §2.3, the Amn Rune).
+PICK_REACH = 20.0
+# Units: a potion with a hostile this near it or the character is not stopped for (hunt.py GATHER_CLEAR: Tower
+# Cellar 5, 2026-10-11); on a level run those hostiles are its guards and the fight first (`in_the_way`).
+GUARD_NEAR = 12.0
 # Units from a fight's mark within which a boss is the one the mark is for (hunt.py BOSS_MARK_UNITS: the
 # Countess stood 2 to 29 units from the place her map gives her over 56 visits)
 BOSS_MARK_UNITS = 60.0
@@ -55,7 +65,9 @@ class Goal:
     reached (for a fight: the distance the build strikes from, with a shot at it); `spend` what the way
     there may cost; `known`: the place is where the thing is or was seen (False: only where to look for
     it). `mark` is the level card's mark the goal was made from, for the hands that operate it; `route`
-    and `stage` the stage it performs, for the progress to be told."""
+    and `stage` the stage it performs, for the progress to be told. `guarded`: a pickup never begun with a
+    hostile within GUARD_NEAR (a potion: `in_the_way` names them), and the fight first with them (`first_fight`):
+    a level run's side goal, of no route stage."""
 
     label: str
     place: Point
@@ -67,6 +79,7 @@ class Goal:
     mark: Target | None = None
     route: str = ''
     stage: Stage | None = None
+    guarded: bool = False
 
     def gap(self, here: Point) -> float:
         """Units from `here` to the goal's place."""
@@ -152,6 +165,7 @@ def first_fight(goal: Goal, here: Point, blockers: Sequence[Monster], reach: flo
         mark=goal.mark,
         route=goal.route,
         stage=goal.stage,
+        guarded=goal.guarded,
     )
 
 
@@ -162,11 +176,16 @@ def nearer(goal: Goal) -> Goal:
     return replace(goal, near=min(goal.near, PLACE_NEAR)) if goal.do == USE else goal
 
 
-def in_the_way(goal: Goal, foes: Sequence[Monster]) -> list[Monster]:
+def in_the_way(goal: Goal, foes: Sequence[Monster], here: Point | None = None) -> list[Monster]:
     """The hostiles where `goal`'s act is to be made, which a level run fights before it (`first_fight`):
     those within `goal.near` of an object to use, the stand its click is made from (the player's ruling: an
     object is opened with no immediate threat by it; architecture §5 example 2, "the fight first (9 by the
-    seal)"). None for a goal of another kind: a fight's pack is the fight, a place is gone through."""
+    seal)"); for a guarded pickup (a potion) those within GUARD_NEAR of the drop or of the character `here`,
+    the pickup key's own measure (no pickup is begun among a pack: Tower Cellar 5, 2026-10-11). None for a
+    goal of another kind: a fight's pack is the fight, a place is gone through, a valuable is gone for."""
+    if goal.do == PICK_UP and goal.guarded:
+        spots = (goal.place,) if here is None else (goal.place, here)
+        return [m for m in foes if min(math.dist((m.x, m.y), spot) for spot in spots) <= GUARD_NEAR]
     if goal.do != USE:
         return []
     return [m for m in foes if math.dist((m.x, m.y), goal.place) <= goal.near]
@@ -187,6 +206,7 @@ def goal_of(
     elsewhere: Callable[[], tuple[Point, str] | None] | None = None,
     drop: Drop | None = None,
     side: Drop | None = None,
+    stay: Drop | None = None,
 ) -> Goal | None:
     """The goal a press of the teleport key means now. `stage`: the stage the level is at, when the
     press performs one (`Progress.step`); `card`: the level card's first mark, of this level; `foes`: the
@@ -194,12 +214,19 @@ def goal_of(
     units not to go to; `elsewhere()`: (a place, what it is) to look in when nothing is known of a boss
     (the nearest remembered hostile, an unexplored room), asked only then; `drop`: a valuable beside the
     character that is taken first; `side`: a drop a level run takes on its way (macros/pickup.py
-    `choose`, the pickup key's own rules); `reach`: the distance the build strikes from; `spend`: what
-    the way may cost. None: there is nothing to go to (no stage, no mark, nothing known of the boss)."""
+    `choose`, the pickup key's own rules), gone to until within PICK_REACH and guarded when a potion;
+    `stay`: a valuable a level run has no room for, stood by (`WAIT`); `reach`: the distance the build strikes
+    from; `spend`: what the way may cost. None: there is nothing to go to (no stage, no mark, nothing known of
+    the boss)."""
     if drop is not None:
         return Goal(f'{drop.label}, before leaving', (drop.x, drop.y), PICK_UP, PICK_NEAR, spend, unit=drop.unit_id)
     if side is not None:
-        return Goal(f'{side.label}, on the way', (side.x, side.y), PICK_UP, PICK_NEAR, spend, unit=side.unit_id)
+        potion = side.kind in (HEALING, REJUVENATION)
+        return Goal(
+            f'{side.label}, on the way', (side.x, side.y), PICK_UP, PICK_REACH, spend, unit=side.unit_id, guarded=potion
+        )
+    if stay is not None:
+        return Goal(stay.label, (stay.x, stay.y), WAIT, STAND_NEAR, spend, unit=stay.unit_id)
     mark = card if card is not None and stage is not None and card.label == stage.mark else None
     if stage is not None and stage.kind in (LOOT, LEAVE):
         return Goal(stage.text(), here, stage.kind, math.inf, spend, route=route, stage=stage)

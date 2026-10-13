@@ -23,6 +23,13 @@ while a card is shown the rooms are read again every ROOMS_REFRESH seconds and m
 this game already knew (levels/session.py): an exit named once stays named for the game. The
 memory is dropped when the player is in no level (the menu between games).
 
+The walls and the card itself are read and rebuilt at most every `refresh_interval` seconds while
+the character stays in the level (the waypoints every poll), or sooner once it has moved REFRESH_MOVE world units
+(a room's width: the rooms loaded around it then change) or the rooms said more. 0 (the default)
+is every poll; the service sets 2 s while the macro works (appraisal/cadence.py; the 0.5 s re-read
+was the biggest of the service's slow passes during a level run, rca/2026-10-13/latency-findings.md).
+The area itself is still read every poll: a new level is seen as soon as before.
+
 Each entry into a guided area also yields one evidence record (levels/evidence.py), saved
 after the capture lock is released; a failed lookup is recorded once even while retrying.
 """
@@ -80,6 +87,7 @@ def lead_first(pois: tuple[Poi, ...], lead: Lead | None) -> tuple[Poi, ...]:
 MAX_REMEMBERED_LEVELS = 32
 DOUBLE_PRESS = 0.2  # seconds between two Win+C presses that toggle the pinned card (user, 2026-10-06)
 ROOMS_REFRESH = 3.0  # seconds between room re-reads while a card is shown (exits get their names)
+REFRESH_MOVE = 40  # world units (sub-tiles) moved that make the walls due before `refresh_interval`: a room's width
 
 
 class LevelGuide:
@@ -142,6 +150,10 @@ class LevelGuide:
         self.lead = lead
         self.memory = LevelMemory()  # room details read this game (exits' levels, preset variants)
         self.rooms_read = -math.inf  # clock time of the last room read
+        # Seconds between re-reads of the walls and rebuilds of the card while it is shown in the same level;
+        # 0 every poll (set by the service's cadence, appraisal/cadence.py).
+        self.refresh_interval = 0.0
+        self.refreshed: tuple[float, tuple[int, int] | None] = (-math.inf, None)  # (clock, where) of the last
 
     def _enter_rooms(self, area, rooms):
         """A fresh room list for the current level: seed walls from the library, then read live."""
@@ -159,6 +171,14 @@ class LevelGuide:
         self.waypoints = set()
         self._read_walls()
         self._read_waypoints()
+        self.refreshed = (self.clock(), None)
+
+    def _refresh_due(self, location: Location) -> bool:
+        """Whether the walls and the card are read again at this poll (`refresh_interval`, REFRESH_MOVE)."""
+        at, where = self.refreshed
+        if self.clock() - at >= self.refresh_interval:
+            return True
+        return where is not None and math.hypot(location.x - where[0], location.y - where[1]) >= REFRESH_MOVE
 
     def _read_rooms(self):
         """(location, the level's rooms merged with what this game already knew about them)."""
@@ -166,14 +186,14 @@ class LevelGuide:
         self.rooms_read = self.clock()
         return location, self.memory.merge(location.area_id, rooms) if location else ()
 
-    def _refresh_rooms(self):
-        """While a card is shown: re-read the rooms now and then, and re-mark when they say more."""
+    def _refresh_rooms(self) -> bool:
+        """While a card is shown: re-read the rooms now and then, and re-mark when they say more (True)."""
         if self.clock() - self.rooms_read < ROOMS_REFRESH:
-            return
+            return False
         snapshot, _ = self.shown
         location, rooms = self._read_rooms()
         if location is None or location.area_id != self.area or not rooms or rooms == snapshot.rooms:
-            return
+            return False
         self.rooms = rooms
         if self.on_rooms is not None:
             self.on_rooms(self.area, rooms)  # the pieces' files are read as rooms load
@@ -183,16 +203,20 @@ class LevelGuide:
         for problem in guidance.problems:
             self.warn('%s (%s): %s', handler.name, self.area, problem)
         self.shown = (snapshot, tuple(pinpoint(poi) for poi in guidance.pois))
+        return True
 
     def _read_walls(self):
         if self.observe_walls is None:
             return
         try:
             grids = list(self.observe_walls(self.source.pid, self.source.images, self.source.capture))
-            for grid in grids:
+            # Only the grids not already held as they are (the reader gives an unchanged room back as the
+            # same object, levels/memory.py `walkable_tiles`) are stored and taught to the library.
+            fresh = [grid for grid in grids if self.walls.get((grid.x, grid.y)) is not grid]
+            for grid in fresh:
                 self.walls[grid.x, grid.y] = grid
-            if self.library is not None:
-                self.library.learn(self.rooms, grids)
+            if self.library is not None and fresh:
+                self.library.learn(self.rooms, fresh)
         except Exception as exc:
             self.warn('walls not read: %s', exc)
 
@@ -234,10 +258,13 @@ class LevelGuide:
         area = location.area_id if location else None
         if area == self.area:
             if self.visible is not None and self.shown is not None and location is not None:
-                self._read_walls()
+                renamed = self._refresh_rooms()
+                # Every poll: the teleport step's mark moves onto a waypoint's object as soon as it is seen (`target`).
                 self._read_waypoints()
-                self._refresh_rooms()
-                self.visible = self._card(location)
+                if renamed or self._refresh_due(location):
+                    self._read_walls()
+                    self.refreshed = (self.clock(), (location.x, location.y))
+                    self.visible = self._card(location)
             return None
         if location is None:
             self.memory.reset()  # the menu: the next game's levels are new
@@ -279,6 +306,7 @@ class LevelGuide:
 
     def _present(self, snapshot: LevelSnapshot, guidance: Guidance):
         self.shown = (snapshot, tuple(pinpoint(poi) for poi in guidance.pois))
+        self.refreshed = (self.refreshed[0], (snapshot.location.x, snapshot.location.y))  # the walls were read here
         self.visible, self.expires = self._card(snapshot.location), self.clock() + self.seconds
 
     def press(self, requested_at: float) -> bool:

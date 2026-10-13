@@ -24,7 +24,7 @@ from inventory_tracking.macros.teleport import MOVED, WALKING
 from tests.inventory_tracking.macros.fakes import KEYS
 from tests.inventory_tracking.scenarios.arena.driver import Press, play
 from tests.inventory_tracking.scenarios.arena.evidence.sure import sure
-from tests.inventory_tracking.scenarios.arena.game import RUN_SPEED, Arena
+from tests.inventory_tracking.scenarios.arena.game import RUN_SPEED, WARP_DELAY_OVER, WARP_DELAY_SHOWN, Arena
 from tests.inventory_tracking.scenarios.arena.scenes_basic import (
     HERE,
     afoot,
@@ -36,7 +36,7 @@ from tests.inventory_tracking.scenarios.arena.scenes_basic import (
     one_out_of_reach,
     potion_on_the_ground,
 )
-from tests.inventory_tracking.scenarios.arena.test_game import RIGHT_BUTTON, click, frames, point_at, tap
+from tests.inventory_tracking.scenarios.arena.test_game import FRAME, RIGHT_BUTTON, click, frames, point_at, tap
 from tests.inventory_tracking.scenarios.threat.harness import RUN
 
 
@@ -324,6 +324,31 @@ def test_a_blade_warp_places_the_character_after_its_cast_and_the_blades_flight(
     assert arena.result().charges == 0
 
 
+def test_a_blade_warp_key_in_the_casting_delay_is_refused_and_the_state_shows_the_delay():
+    # The take of 12:33 on 2026-10-13: state 185 set 0.20 s after the key, cleared 1.00 s after it; a key
+    # before that was refused by the game (36 of 46 keys 0.8 to 1.0 s after the one before).
+    arena = empty()
+    point_at(arena, (HERE[0] + 18.0, HERE[1]))
+    tap(arena, KEYS[BLADE_WARP])
+    keyed, first = arena.clock.now, arena.warps[-1]
+    shown = []
+    while arena.clock.now - keyed < 0.9:
+        frames(arena, 1)
+        shown.append((round(arena.clock.now - keyed, 2), arena.world.player.cooldown))
+    assert next(at for at, on in shown if on) == pytest.approx(WARP_DELAY_SHOWN, abs=FRAME)
+    assert not any(on for at, on in shown if at < WARP_DELAY_SHOWN - 1e-6)
+    point_at(arena, (first[0] + 12.0, first[1]))
+    tap(arena, KEYS[BLADE_WARP])  # 0.9 s after the one before: in the delay
+    assert arena.refused_warps == [pytest.approx(arena.clock.now - keyed)]
+    assert arena.warps == [first]
+    while arena.clock.now - keyed < WARP_DELAY_OVER:
+        frames(arena, 1)
+    assert arena.read().player.cooldown is False  # the first look at or after the delay's end
+    tap(arena, KEYS[BLADE_WARP])
+    assert len(arena.warps) == 2
+    assert len(arena.refused_warps) == 1
+
+
 def test_a_longer_blade_warp_flies_longer():
     def landed_after(away: float) -> int:
         arena = empty()
@@ -411,8 +436,11 @@ def test_the_step_round_a_wall_is_walked_and_the_monster_killed(monkeypatch):
     assert result.moved > before.moved + 2.0  # the way round, not the line through the wall the click was made over
     assert result.cleared_at > before.cleared_at
     # The monster comes for a character it sees walking up; one that is there in an instant has killed it first.
+    # Since the walk's click no longer waits 0.2 s for a character already free (macros/travel.py `step_walk`,
+    # 2026-10-13) the walk is 0.24 s shorter here and the bovine dies before its first swing lands (154 points
+    # taken with that wait): the walk is still seen, by the time it takes (`cleared_at` above).
     assert before.taken == 0.0
-    assert result.taken > 0.0
+    assert result.taken >= before.taken
 
 
 def test_the_pickup_step_waits_for_the_walk_to_the_drop():

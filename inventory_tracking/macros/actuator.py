@@ -230,6 +230,24 @@ class Actuator:
             self.holding_buttons -= own_buttons
             self._release(pressed)
 
+    @contextmanager
+    def held_act(self, drift: int = POINTER_DRIFT) -> Iterator[None]:
+        """One act of the loop's own made as a step makes it: the pointer held where it is put (`steady`) and
+        guarded at `drift` pixels, with the guard's mark (`left_at`) re-based to where the pointer is as the act
+        begins. A hand that carries the pointer off during the act still stops it (I7); a hand that moved it
+        before the act and let go does not (rca/2026-10-13/run-2110-findings.md moments M2b, M3: the mark was the
+        macro's last aim, seconds old, and every priced move after the player's hand aborted "the mouse was
+        moved" before any input, 8.3 and 9.3 s). The drift and steadiness the run had are put back after."""
+        drift_was, steady_was = self.drift, self.steady
+        self.drift, self.steady = drift, True
+        now = self.keys.pointer()
+        if now is not None:
+            self.left_at = now
+        try:
+            yield
+        finally:
+            self.drift, self.steady = drift_was, steady_was
+
     def type_text(self, text: str) -> None:
         for character in text:
             self.tap(character)
@@ -259,14 +277,28 @@ class Actuator:
         self.left_at = goal
         self.pace.pause('flick' if quick else 'aim')
 
-    def aim(self, x: float, y: float, *, scatter: tuple[int, int] = (4, 3)) -> None:
+    def aim(self, x: float, y: float, *, scatter: tuple[int, int] = (4, 3), near: int = 0) -> None:
         """A quick move to the window fraction (x, y) that holds: moved again, up to AIM_TRIES times,
         while the pointer is found more than AIM_TOLERANCE pixels off where it was put. The last try
         is a jump straight there, looked at at once: a hand sweeping the mouse carries the pointer off
         during a move's steps and the pause after it, three times in 0.4 s (host, 20:57 and 20:58 on
         2026-10-10, two seek steps stopped), and has no time to in a jump. With `steady` off (attack
         mode: the player's hand works the mouse all along) the move is made once and not checked: the
-        game takes the pointer where the key finds it a moment later."""
+        game takes the pointer where the key finds it a moment later. `near` (pixels): a pointer the
+        macro already put within that of the aim (macros/travel.py puts it on the next Blade Warp's aim
+        during the flight) is corrected as `snap` does, in one step: the path and its pause were made then."""
+        if near and self.steady and self.left_at is not None:
+            rect, now = self.keys.focused_window_rect(), self.keys.pointer()
+            put = self.left_at
+            if (
+                rect is not None
+                and now is not None
+                and max(abs(now[0] - put[0]), abs(now[1] - put[1])) <= AIM_TOLERANCE  # where the macro left it
+            ):
+                goal = (rect[0] + rect[2] * x, rect[1] + rect[3] * y)
+                if max(abs(now[0] - goal[0]), abs(now[1] - goal[1])) <= near:
+                    self.snap(x, y, scatter=scatter)
+                    return
         for attempt in range(AIM_TRIES):
             if attempt == AIM_TRIES - 1 and self.steady:
                 self.jump(x, y, scatter=scatter)

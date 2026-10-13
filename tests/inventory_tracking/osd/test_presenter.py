@@ -5,6 +5,7 @@ import pytest
 
 from inventory_tracking.config import (
     OSD,
+    BeltConfig,
     BeltWidgetConfig,
     NotificationsWidgetConfig,
     PlayerHealthWidgetConfig,
@@ -20,6 +21,7 @@ from inventory_tracking.models import (
     State,
 )
 from inventory_tracking.osd.presenter import Presenter
+from inventory_tracking.osd.widgets import belt as belt_widget
 from inventory_tracking.tracking.reader import LiveReader
 from inventory_tracking.tracking.state import from_research
 from tests.inventory_tracking.conftest import SESSION
@@ -97,6 +99,13 @@ def test_old_delivery_events_cannot_leak_into_new_session():
 
 
 @pytest.fixture
+def learned(monkeypatch):
+    """No belt layout configured: an empty column's kind is learned from the game (tracking/belt.py `remember`),
+    the rule until the player set the layout (2026-10-13: "yes, use this layout")."""
+    monkeypatch.setattr(belt_widget, 'BELT', BeltConfig(layout=None))
+
+
+@pytest.fixture
 def render():
     presenter = Presenter()
 
@@ -128,12 +137,11 @@ def test_stale_and_future_samples_do_not_show_old_health_or_deficits(snapshot, r
 
 
 def test_empty_belt_counts_all_missing_but_other_owners_are_not_counted(snapshot, render):
+    # The empty columns by the player's layout (config.BELT, 2026-10-13): 1-2 rejuvenation, 3-4 healing.
     data = snapshot()
     for item in data['groups']['items']['units']:
         item['details']['owner_id'] = 9
-    assert render(from_research(data), now=101) == [
-        'juv 16',
-    ]
+    assert render(from_research(data), now=101) == ['juv 8', 'hp 8']
 
 
 def test_incomplete_read_and_startup_are_quiet(render):
@@ -147,25 +155,66 @@ def test_refill_clears_previous_shortage(snapshot, render):
     assert render(replace(state, belt=BeltSnapshot((531, 531, 606, 606) * 4)), now=101) == []
 
 
-@pytest.mark.parametrize(
-    ('contents', 'expected'),
-    [
-        ([None] * 16, ['juv 16']),
-        ([531] * 16, []),
-        ([530] * 12 + [None] * 4, ['juv 4']),
-        ([602, 531, 606, 531] * 3 + [None] * 4, ['juv 2', 'hp 2']),
-        ([None, 531, 531, 531] + [606, 531, 531, 531] * 3, ['hp 1']),
-        ([531, None, None, None] + [606, None, None, None] * 3, ['juv 15']),
-    ],
-)
-def test_dynamic_shortages_follow_column_bottom_or_empty_default(contents, expected, snapshot, render):
+def test_emptied_healing_columns_still_count_as_healing_missing_until_a_new_game(snapshot, render, learned):
+    # rca/2026-10-13/potions-findings.md §2.1: read alone, the belt with its healing columns drunk dry
+    # showed "juv 8" and no healing missing.
+    state = replace(from_research(snapshot()), belt=BeltSnapshot((531, 531, 606, 606) * 4))
+    assert render(state, now=101) == []
+    dry = replace(state, belt=BeltSnapshot((531, 531, None, None) * 4))
+    # ... and the healing potions run out during the game: the card says so (automation/priority.py StockWatch).
+    assert render(dry, now=101) == ['HP EMPTY', 'hp 8']
+    other = dry.session._replace(player_id=dry.session.player_id + 1)
+    assert render(replace(dry, session=other), now=101) == ['juv 8']
+
+
+def test_by_the_default_layout_empty_columns_3_and_4_are_healing_missing_in_a_new_game(snapshot, render):
+    # The player's layout (2026-10-13): the learned kinds reset with each game, the belt carries over; the
+    # layout reads a new game's dry healing columns as healing missing (with no card: no fall of this game).
+    state = replace(from_research(snapshot()), belt=BeltSnapshot((531, 531, None, None) * 4))
+    other = state.session._replace(player_id=state.session.player_id + 1)
+    assert render(state, now=101) == ['hp 8']
+    assert render(replace(state, session=other), now=101) == ['hp 8']
+
+
+def test_healing_potions_fallen_to_the_characters_reserve_show_a_card_until_refilled(snapshot, render):
+    # user, 2026-10-13: "something is wrong if we're empty". 1545 life: the character keeps 2 (35% of it over
+    # 480 points a potion, automation/priority.py `reserve`).
+    state = replace(from_research(snapshot()), belt=BeltSnapshot((531, 531, 606, 606) * 4))
+    assert render(state, now=101) == []
+    low = replace(state, belt=BeltSnapshot((531, 531, 606, 606) + (531, 531, None, None) * 3))
+    assert render(low, now=101) == ['HP LOW: 2 left', 'hp 6']
+    assert render(state, now=101) == []
+
+
+SHORTAGES = [
+    # (belt contents, missing with no layout: an empty column unseen is rejuvenation, missing by the player's layout)
+    ([None] * 16, ['juv 16'], ['juv 8', 'hp 8']),
+    ([531] * 16, [], []),
+    ([530] * 12 + [None] * 4, ['juv 4'], ['juv 4']),
+    ([602, 531, 606, 531] * 3 + [None] * 4, ['juv 2', 'hp 2'], ['juv 2', 'hp 2']),
+    ([None, 531, 531, 531] + [606, 531, 531, 531] * 3, ['hp 1'], ['hp 1']),
+    ([531, None, None, None] + [606, None, None, None] * 3, ['juv 15'], ['juv 7', 'hp 8']),
+]
+
+
+def belt_of(snapshot, contents):
     data = snapshot()
     data['groups']['items']['units'] = [
         {'unit_id': i + 100, 'txt_id': item, 'mode': 2, 'details': {'owner_id': 7, 'x': i, 'y': 0}}
         for i, item in enumerate(contents)
         if item is not None
     ]
-    assert render(from_research(data), now=101) == expected
+    return from_research(data)
+
+
+@pytest.mark.parametrize(('contents', 'expected', '_laid'), SHORTAGES)
+def test_dynamic_shortages_follow_column_bottom_or_empty_default(contents, expected, _laid, snapshot, render, learned):
+    assert render(belt_of(snapshot, contents), now=101) == expected
+
+
+@pytest.mark.parametrize(('contents', '_learned', 'expected'), SHORTAGES)
+def test_dynamic_shortages_follow_column_bottom_or_the_layout(contents, _learned, expected, snapshot, render):
+    assert render(belt_of(snapshot, contents), now=101) == expected
 
 
 @pytest.mark.parametrize(('fraction', 'visible'), [(32768, False), (21300, False), (21299, True)])
@@ -233,7 +282,7 @@ def test_factory_order_and_max_age_reach_every_widget():
     assert {widget.max_age for widget in widgets} == {4}
     presenter = Presenter(with_overrides(OSD, max_age=4), widgets=widgets)
     presenter.update(State(session=SESSION, sampled_at=100, belt=BeltSnapshot((None,) * 16)))
-    assert presenter.render(now=104) == ['juv 16']
+    assert presenter.render(now=104) == ['juv 8', 'hp 8']  # the empty belt by the player's layout (config.BELT)
     assert presenter.render(now=104.1) == []
 
 

@@ -101,13 +101,17 @@ def fresh() -> None:
     teleport.LANDING.clear()
 
 
-def key_names(world: World, skills: Sequence[int] = ()) -> dict[int, str]:
+def key_names(world: World, skills: Sequence[int] | None = None) -> dict[int, str]:
     """The key of each skill asked for, as `MacroRunner._execute` gives them from the character's key
     file: here the fakes' keys, and as there no key for a skill that is on no skill key. Asked with
     the skills always: the routines played (attack mode, the pickup step) name theirs, and the macro
-    request, which asks for the prebuff's without naming them, is not played."""
+    request, which asks for the prebuff's without naming them, is not played: nor is the route's leave,
+    which asks the same way (routines.py `character_keys`): the arena has no game to leave, and says so
+    (before, its empty answer ended the play in `KeyError: -1` at the swap to the main weapons)."""
     if world.player is None:
         raise Abort('not in a game')
+    if skills is None:
+        raise Abort('the arena has no game to leave: the macro request and the route\'s leave are not played')
     for skill in skills:
         name = NAMES.get(skill, f'skill {skill}')
         if skill not in ACTIONS and skill not in world.slots:
@@ -135,6 +139,9 @@ class Play:
         rooms = tuple(Room(r['preset'], r['x'], r['y'], r['width'], r['height']) for r in scene.rooms)
         self.level = Level(scene.hero.area, rooms, arena.ground.grids)
         self.hunter = Hunter(lambda: self.level, lambda area: [], None, build=build)
+        # No wall clock in a play: the same seed gives the same play however busy the machine (the safety caps
+        # bound a look's work alone; macros/safety.py `Safety.timer`).
+        self.hunter.safety.timer = None
         self.ended = False
         self.failed: list[BaseException] = []
         self.runner = MacroRunner(

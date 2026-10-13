@@ -170,7 +170,11 @@ def test_what_is_in_reach_comes_before_the_route_and_a_drop_before_the_next_stag
     potion = Drop(9, 7810.0, 5600.0, 'a super healing potion', HEALING)
     side = level.goal(side=potion)
     assert (side.do, side.unit) == (PICK_UP, 9)
-    assert decide(facts(side, way=unasked), RUN) == Operate(side)
+    assert decide(facts(side, there=True, way=unasked), RUN) == Operate(side)
+    # Beyond a click the drop is gone to by the navigator with the movement in hand, not by the pickup's own
+    # Teleport hops (2026-10-13: run-2110-findings.md §2.3, the Amn Rune left twice with the staff empty)
+    assert side.near == goals.PICK_REACH
+    assert decide(facts(side), RUN) == Move(STEP, side)
     assert decide(facts(side, in_reach=True, way=unasked), RUN) == Hold(side)  # the fight first
 
 

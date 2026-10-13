@@ -36,6 +36,7 @@ import shutil
 import socket
 import sqlite3
 import subprocess
+import sys
 import threading
 import time
 from collections import deque
@@ -48,8 +49,10 @@ from typing import Any
 
 from inventory_tracking import builds
 from inventory_tracking.appraisal.cache import database_revision
+from inventory_tracking.appraisal.cadence import Mode, Schedule, cadences
 from inventory_tracking.appraisal.capture import AppraisalCapture, RecentFocus
 from inventory_tracking.appraisal.hotkeys import Hotkeys
+from inventory_tracking.appraisal.load import LoadMeter
 from inventory_tracking.appraisal.loop_timing import PassTimer
 from inventory_tracking.appraisal.material_sets import recorded_set
 from inventory_tracking.appraisal.owned import owned_copies
@@ -476,6 +479,9 @@ def controller_settings() -> None:
 
 
 def run_service(args, directory, report):
+    # The GIL convoy (rca/2026-10-13/latency-findings.md 2.3): each pread of the game's memory gives the GIL up and
+    # waits for it back up to this interval while another thread runs Python (config.py `switch_interval`).
+    sys.setswitchinterval(APPRAISAL.switch_interval)
     controller_settings()
     bind_controller(args)
     endpoint = args.socket
@@ -720,7 +726,8 @@ def run_service(args, directory, report):
                             seconds=APPRAISAL.level_guide_seconds,
                             poll_interval=APPRAISAL.level_guide_poll_interval,
                             evidence=EvidenceLog(args.level_evidence).save,
-                            observe_walls=observe_walkable if APPRAISAL.level_walls else None,
+                            # unchanged rooms are not converted again (levels/memory.py `walkable_tiles`)
+                            observe_walls=partial(observe_walkable, cache={}) if APPRAISAL.level_walls else None,
                             library=WallLibrary() if APPRAISAL.level_walls else None,
                             visited_rooms=zones.visited_rooms if zones is not None else None,
                             map_dots=map_dots,
@@ -854,7 +861,27 @@ def run_service(args, directory, report):
                         f'Collection database: {args.collection_database}',
                         flush=True,
                     )
-                    timer = PassTimer(APPRAISAL.slow_loop_seconds)
+                    # The slow work's pace by what the character and the macro do (appraisal/cadence.py), and the
+                    # load measured once a second into the combat take (appraisal/load.py).
+                    schedule = Schedule(
+                        cadences(
+                            shop=args.shop_poll_seconds,
+                            identify=args.identify_poll_seconds,
+                            stash=args.stash_poll_seconds,
+                            runes=APPRAISAL.rune_poll_interval,
+                            terror=APPRAISAL.terror_probe_interval,
+                        ),
+                        working=lambda: macro.working or macro.attack_mode,
+                        area=lambda: macro.journey.area,
+                    )
+                    LOG.info(
+                        'Service cadence (town / level / macro working): %s; switch interval %g s',
+                        schedule.describe(),
+                        sys.getswitchinterval(),
+                    )
+                    meter = LoadMeter(combat.recorder.note if combat is not None else (lambda kind, **fields: None))
+                    macro.looked = meter.looked
+                    timer = PassTimer(APPRAISAL.slow_loop_seconds, passed=meter.passed)
 
                     def macro_key(data, received):
                         step, since = timer.current
@@ -884,28 +911,34 @@ def run_service(args, directory, report):
                     keys.start()
                     try:
                         while True:
+                            mode = schedule.update()
                             with timer.step('appraisal'):
                                 worker.tick()
                             with timer.step('shop'):
                                 shop.tick()
-                                shop.poll(time.monotonic())
+                                if schedule.paced('shop', shop):
+                                    shop.poll(time.monotonic())
                             with timer.step('identify'):
                                 identify.tick()
-                                identify.poll(time.monotonic())
-                            if stash is not None:
+                                if schedule.paced('identify', identify):
+                                    identify.poll(time.monotonic())
+                            if stash is not None and schedule.paced('stash', stash):
                                 with timer.step('stash'):
                                     stash.poll(time.monotonic())
                             if guide is not None:
                                 with timer.step('level map'):
+                                    guide.refresh_interval = schedule.seconds('level map') or 0.0
                                     guide.tick()
                                     guide.poll(time.monotonic())
                             if runes is not None:
                                 with timer.step('runes'):
                                     runes.tick()
-                                    runes.poll(time.monotonic())
+                                    if schedule.paced('runes', runes):
+                                        runes.poll(time.monotonic())
                             if terror is not None:
                                 with timer.step('terror probe'):
-                                    terror.poll(time.monotonic())
+                                    if schedule.paced('terror probe', terror):
+                                        terror.poll(time.monotonic())
                                     terror.tick()
                             with timer.step('macro'):
                                 macro.poll(time.monotonic())
@@ -916,6 +949,7 @@ def run_service(args, directory, report):
                             input_watch.poll(time.monotonic())
                             if mode_beacon is not None:
                                 mode_beacon.poll(time.monotonic())
+                            meter.poll(time.monotonic(), mode, noting=mode is not Mode.TOWN)
                             data = keys.get(APPRAISAL.poll_interval)
                             if data:  # not a wake (`Hotkeys.wake`)
                                 with timer.step('hotkey'):

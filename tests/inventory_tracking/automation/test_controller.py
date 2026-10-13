@@ -4,16 +4,20 @@ from dataclasses import replace
 import pytest
 
 from inventory_tracking.automation.controller import Automation
-from inventory_tracking.config import MERC_HEALING, PLAYER_HEALING
+from inventory_tracking.config import HEAL_PRIORITY, MERC_HEALING, PLAYER_HEALING, with_overrides
 from inventory_tracking.models import Actor, Outcome, Refusal, State
 from inventory_tracking.tracking.state import from_research
 from tests.inventory_tracking.conftest import belt_of
 from tests.inventory_tracking.input.fakes import FakeDelivery
 
 
+OFF = with_overrides(HEAL_PRIORITY, enabled=False)
+
+
 def test_player_first_and_uniform_statuses(healing_setup, sample, clock):
+    # The rule before 2026-10-13, kept with the priority off; the priority's own tests are test_priority.py.
     make, sent = healing_setup
-    automation = Automation([make(MERC_HEALING), make(PLAYER_HEALING)])
+    automation = Automation([make(MERC_HEALING), make(PLAYER_HEALING)], priority=OFF)
     result = automation.step(sample())
     assert result[Actor.PLAYER].outcome == Outcome.SENT
     assert result[Actor.MERC].outcome == Outcome.STALE_BELT
@@ -37,7 +41,7 @@ def test_latest_outcomes_are_exposed_and_notable_transitions_are_logged(healing_
         automation.step(sample(103.1))  # rejected again for the same reason: no repeat line
         clock.now = 103.2
         automation.step(sample(103.2, current_raw=1000))
-    messages = [record.getMessage() for record in caplog.records if 'healing' in record.getMessage()]
+    messages = [record.getMessage() for record in caplog.records if record.getMessage().startswith('player healing')]
     assert messages == ['player healing: rejected (unfocused)', 'player healing: idle']
     assert automation.outcomes[Actor.PLAYER].outcome == Outcome.IDLE
 

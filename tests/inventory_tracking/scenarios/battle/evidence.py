@@ -79,7 +79,7 @@ RULES: tuple[tuple[str, str, int | None, tuple[int, int] | None], ...] = (
 )
 QUIET = (
     'Last minute:', 'first cast', 'aims for', ': 1 down in', 'down in', 'unit table census', 'Combat take',
-    'slow press', '(replay)',
+    'slow press', '(replay)', 'leg time:',  # a move's measure (macros/travel.py), not an action
 )  # fmt: skip
 
 

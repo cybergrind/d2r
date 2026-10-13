@@ -33,10 +33,13 @@ UNIQUE_FLAG = 0x08  # the type flag the routine tests (monster data +0x1A bit 3;
 UNIQUE_STUN = 0.10  # [code] ai_d2_stun_apply 0x14038C2F0: a monster with type flag 8 only when roll % 100 >= 90
 STUN_MOST = 250  # [code] frames: the same routine's cap
 # [table] monstats.txt rows with `boss` 1 (pricing/raw/game-excel, the extraction of 2026-10-13): never stunned
-# (the routine tests the row's boss flag).
+# (the routine tests the row's boss flag). By the client's class id (`*hcIdx`), which past the expansion's divider
+# row is one less than the row's place among the data rows (2026-10-13, rca/2026-10-13/diablo.md "Hooked in": 527
+# 545 547-551 560 571 705-710 746-748 were places: Nihlathak, Baal, the Putrid Defilers, the uber bosses and the
+# colossi were off by one, 545 Baal Taunt and 710 were in).
 BOSSES = frozenset(
-    (156, 211, 229, 242, 243, 250, 256, 267, 333, 365, 527, 545, 547, 548, 549, 550, 551, 560, 571,
-     705, 706, 707, 708, 709, 710, 746, 747, 748)
+    (156, 211, 229, 242, 243, 250, 256, 267, 333, 365, 526, 544, 546, 547, 548, 549, 550, 559, 570,
+     704, 705, 706, 707, 708, 709, 745, 746, 747)
 )  # fmt: skip
 
 

@@ -12,6 +12,8 @@ whole of what the framework may ask of a build, and it imports nothing from a bu
 - `Buff`: one row of the buff plan, cast by the shared executor (macros/buffs.py) or by a caster the
   build names, which is called with a `Casting` and answers with a `Tried`.
 - `Tactic`: what a kind of pack adds to the one price of a place.
+- `Shield`: a guard the build keeps on the character (its pool, the kinds it takes, the stun of a striker)
+  and what the game shows of it: the safety price credits it (combat/harm.py).
 - `Build`: those, the weapon sets (`Loadout`) and the numbers (`BuildSettings`), with `applies` to say
   whose it is; `choose` takes the first build that applies.
 
@@ -29,6 +31,7 @@ from typing import Literal, Protocol
 
 from inventory_tracking.combat.harm import SafetySettings
 from inventory_tracking.combat.policy import Choice, Foe, Observation, Point
+from inventory_tracking.combat.sim.guard import GuardRule
 from inventory_tracking.combat.stance import Camp, Jump
 from inventory_tracking.combat.survival import DrinkSettings
 from inventory_tracking.config import Config
@@ -454,6 +457,16 @@ class Tactic(Protocol):
 
 
 @dataclass(frozen=True)
+class Shield:
+    """A guard the build keeps on the character (combat/sim/guard.py `GuardRule`: its pool, the kinds of damage
+    it takes, the frames a striker whose melee blow lands is stunned) and `shown`, what the game shows of it:
+    True up, False down, None unreadable. The safety price credits it only while it is shown up."""
+
+    rule: GuardRule
+    shown: Callable[[World], bool | None]
+
+
+@dataclass(frozen=True)
 class Loadout:
     """A character's weapon sets by what they are for, as base codes of what is held."""
 
@@ -489,6 +502,7 @@ class Build:
     weapons: Loadout | None = None
     casters: Mapping[str, Caster] = field(default_factory=dict)  # the casts that are more than a key
     settings: BuildSettings = field(default_factory=BuildSettings)
+    shield: Shield | None = None  # the guard the build keeps on the character; None: none
 
 
 def choose(builds: Sequence[Build], world: World, fallback: Build) -> Build:

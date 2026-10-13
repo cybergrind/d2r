@@ -16,6 +16,7 @@ from inventory_tracking.levels.model import Ground
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.build import JumpSource, NoWay
 from inventory_tracking.macros.movement import SHARED, TELEPORT_JUMP, OwnTeleport, StaffTeleport, Walk
+from inventory_tracking.macros.routines import SWAP_SETTLE
 from inventory_tracking.macros.skills import TELEPORT
 from inventory_tracking.macros.travel import (
     JUMP_DISTRUST,
@@ -44,6 +45,7 @@ from inventory_tracking.macros.travel import (
     navigator,
     spare_jump,
     step_line,
+    step_walk,
     stride_of,
     walked_way,
 )
@@ -343,3 +345,14 @@ def test_a_failed_jump_in_the_game_is_remembered_and_said():
     with pytest.raises(Abort, match='Teleport: the character did not move'):
         travel.jump(run, Step((5012.0, 5000.0), TELEPORT), play.world.player, ASPECT, keys)
     assert travel.jump_failed == {TELEPORT: pytest.approx(play.clock.now)}
+
+
+def test_a_walk_click_waits_for_the_character_to_stand_free_only_when_a_look_has_it_casting():
+    # The fixed 0.2 s of every walk leg (rca/2026-10-13/latency-findings.md §2.2): a character free at the look
+    # the walk was chosen by and at one now is clicked at once; one that was casting waits as before.
+    play = Game(world())
+    run = play.run()
+    assert step_walk(run, (5010.0, 5000.0), play.world.player, ASPECT, []) == 0.0
+    casting = replace(play.world.player, mode=7)
+    assert step_walk(run, (5020.0, 5000.0), casting, ASPECT, []) >= SWAP_SETTLE
+    assert len(play.walks) == 2

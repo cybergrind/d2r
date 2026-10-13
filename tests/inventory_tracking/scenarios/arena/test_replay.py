@@ -276,10 +276,9 @@ def test_the_pickup_key_picks_up_what_dropped() -> None:
 # -- the seal and its boss (c) ---------------------------------------------------------------------------------
 
 
-@misses(
-    'SIM-CASTERS: under the casters as the client plays them the seal is opened late (0 plays within 1.5 '
-    "s of the recording's 5.65)"
-)
+# Unmarked 2026-10-13 (rca/2026-10-13/latency-findings.md, fix 2): with Blade Warp keyed when its delay ends
+# instead of 1.05 s from the key's release and a look later, 3 of the 8 plays open the seal within 1.5 s of the
+# recording (0 before: 15.1 to 19.4 s).
 def test_the_seal_is_opened_and_its_pack_appears_a_second_later() -> None:
     opened = [told.ends['Vizier seal 1 opened'] for told in plays(SEAL)]
     assert sum(1 for at in opened if at is not None) >= len(SEEDS) - 1
@@ -304,10 +303,7 @@ def test_the_seal_is_opened_when_it_was_in_nearly_every_play() -> None:
     assert sum(1 for at in opened if at is not None and at <= 5.65 + 1.5) >= 0.8 * len(SEEDS)
 
 
-@misses(
-    "SIM-CASTERS: 23.6 units from the recorded place at 3 s (5 before): the hunt's first steps go "
-    'elsewhere with the pack awake within 35'
-)
+# Unmarked 2026-10-13 (fix 2, as above): 2.8 units from the recorded place at 3 s at the median (23.6 before).
 def test_the_way_to_the_seal_is_the_recorded_one() -> None:
     """Three Blade Warps of 26 units: the arena is 5 units behind after 3 s (a jump of the hunt's own in its
     first instant, which the recorded hunt, under way, did not make)."""
@@ -315,7 +311,7 @@ def test_the_way_to_the_seal_is_the_recorded_one() -> None:
     assert rows(SEAL)['moved'].inside  # 227 units in 24 s
 
 
-@misses('SIM-CASTERS: the Vizier dies 22.3 s in at the median, 16.8 recorded')
+# Unmarked 2026-10-13 (fix 2, as above): 17.4 s at the median (21.9 before), 16.8 recorded.
 def test_the_vizier_dies_about_when_he_died() -> None:
     assert median_end(SEAL, 'Grand Vizier of Chaos dead') == pytest.approx(16.8, abs=3.0)
 
@@ -357,7 +353,10 @@ def test_diablo_dies() -> None:
 def test_the_hops_end_where_the_recording_did() -> None:
     assert rows(RIVER)['apart from the recorded place at 4 s'].median <= 5.0  # three Blade Warps: 75 units
     assert rows(RIVER)['apart from the recorded place at 10.6 s'].median <= 5.0  # by the stairs
-    assert all(told.said['=Macro: Teleport'] == 2 for told in plays(RIVER))  # the staff's two charges, spent
+    # The recording spent the staff's last two charges on hops made while Blade Warp's delay ran. Since
+    # 2026-10-13 (fix 2) a Blade Warp whose delay ends within PLAN_AHEAD (macros/travel.py) is the step, its key
+    # held till the delay's end, and the two charges stay on the staff: the places above are kept all the same.
+    assert all(told.said['=Macro: Teleport'] == 0 for told in plays(RIVER))
 
 
 @misses(

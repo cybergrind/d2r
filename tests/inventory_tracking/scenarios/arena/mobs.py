@@ -36,6 +36,7 @@ import random
 from collections.abc import Mapping, Sequence
 from dataclasses import replace
 
+from inventory_tracking.combat import threats
 from inventory_tracking.combat.mechanics.tables import tables
 from inventory_tracking.combat.sim import casters
 from inventory_tracking.combat.sim.casters import resisted
@@ -68,6 +69,10 @@ from tests.inventory_tracking.scenarios.arena.scene import Mob, Scene
 # 450 points, both that file's assumptions (the takes hold too few exploding corpses to refit them).
 from tests.inventory_tracking.scenarios.threat.harness import BLAST, BLAST_RADIUS, BOOST_RANGE
 from tests.inventory_tracking.scenarios.threat.table import table
+
+
+# monmode.txt: the client's modes of a monster's strikes and casts (macros/world.py STRIKING_MODES)
+CAST_MODES = {'A1': 4, 'A2': 5, 'SC': 7, 'S1': 8, 'S2': 9, 'S3': 10, 'S4': 11}
 
 
 Point = tuple[float, float]
@@ -393,6 +398,28 @@ class Mobs:
             self.blasts.append(mob.at)
         return True
 
+    def mode(self, mob: Mob) -> int:
+        """The mode the client shows a monster in: the scene's, but for a type the decision loop has a read model
+        of (combat/threats), whose cast under way the client shows by its mode (monmode.txt CAST_MODES) while the
+        mode's own frames last (its `aidel` after it is spent standing)."""
+        walker = self.pack.walkers.get(mob.unit)
+        if walker is None or walker.mind is None or walker.doing != casters.CAST or threats.of(mob.txt) is None:
+            return mob.mode
+        mind = walker.mind
+        if mind.ai == casters.DIABLO:
+            frames = casters.Minds._diablo_frames(mind.mode)
+        else:
+            frames = casters.MODE_FRAMES.get((mind.ai, mind.mode), 0)
+        begun = walker.until - frames - mind.delay
+        return CAST_MODES.get(mind.mode, mob.mode) if self.frame - 1 < begun + frames else mob.mode
+
+    def flights(self, kinds: frozenset[int]) -> tuple[tuple[int, int, float, float], ...]:
+        """The missiles in flight of the classes `kinds` as macros/world.py `flights` reads them: (owner unit,
+        class, x, y)."""
+        return tuple(
+            (bolt.unit, bolt.missile, bolt.x, bolt.y) for bolt in self.pack.minds.bolts if bolt.missile in kinds
+        )
+
     def monsters(self) -> list[Monster]:
         """The monsters as macros/world.py reads them now: life in whole points, a dead one lying
         (mode 12) where it fell, the character's companions where the scene has them."""
@@ -400,7 +427,7 @@ class Mobs:
             Monster(
                 mob.unit,
                 mob.txt,
-                mob.mode,
+                self.mode(mob),
                 mob.at[0],
                 mob.at[1],
                 NO_OWNER if mob.owner is None else mob.owner,

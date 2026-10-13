@@ -11,8 +11,9 @@ from inventory_tracking.common import LOG
 
 
 class PassTimer:
-    def __init__(self, threshold: float, *, clock=time.monotonic):
-        self.threshold, self.clock = threshold, clock
+    def __init__(self, threshold: float, *, clock=time.monotonic, passed=None):
+        """`passed(steps, total)`: told every pass's step times in seconds (appraisal/load.py `LoadMeter`)."""
+        self.threshold, self.clock, self.passed = threshold, clock, passed
         self.steps: dict[str, float] = {}
         self.current: tuple[str | None, float] = (None, 0.0)  # the step under way and when it began
 
@@ -30,6 +31,8 @@ class PassTimer:
         """Log the pass if its timed steps (the hotkey wait is not one) exceeded the threshold."""
         steps, self.steps = self.steps, {}
         total = sum(steps.values())
+        if self.passed is not None:
+            self.passed(steps, total)
         if total >= self.threshold:
             ranked = sorted(steps.items(), key=lambda item: item[1], reverse=True)
             LOG.warning(

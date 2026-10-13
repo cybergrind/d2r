@@ -34,9 +34,22 @@ holds what is in reach, takes a drop worth it on the way, and otherwise goes for
 this level (reach, use, stand, fight) as if pressed, stage after stage, with no further press. It ends
 (`Ended`) when what is left of the route is not this loop's (the loot, the leaving, a way to another
 level: those cost a press, U13), when nothing is known to go to, or when the level is left; the runner
-ends it for attack mode off (KP_3), the macro request (Mod+X) and the player's own move by hand. A fresh
-pickup press whose goal is the route's own press (the loot, the leaving) or none is handed to the old
-pickup step (`Defer`), which is what the key did at the end of a route before.
+ends it for attack mode off (KP_3) and the macro request (Mod+X). A fresh pickup press whose goal is the
+route's own press (the loot, the leaving) or none is handed to the old pickup step (`Defer`), which is what
+the key did at the end of a route before.
+
+**The player's hand pauses a run, it does not end it** (the player, 2026-10-13: "we shouldn't prevent user
+from sorting"; asked whether the run should resume on its own after the hand: "yes";
+rca/2026-10-13/run-2110-findings.md moment 2). The hand wins at once (I7: a click is the player's move, a panel
+open is never clicked into): the record is `paused`, and while it is the loop does only what attack mode
+does with no run, the strike at what is in reach (a fresh teleport press still asks for its goal). The run
+goes on by itself once the hand has been still SETTLE seconds with no panel open (`settled`); a fresh pickup
+press starts it anew at once; attack mode off, the macro request and the level left still end it.
+
+**A valuable with no room for it** (the player, 2026-10-13: "when valuable doesn't fit: we need to stop near
+it"): a goal of its own, `WAIT` by the drop, in the run's order where a drop to take would be. The character
+goes next to it and stays (what comes is fought, as the arbiter prices it), saying so, until there is room
+(the drop is then one to take: a pickup goal) or the player goes on (a fresh press lets it go).
 """
 
 from collections.abc import Callable
@@ -44,7 +57,7 @@ from dataclasses import dataclass, field
 
 from inventory_tracking.combat.harm import Harm, SafetySettings, veto
 from inventory_tracking.macros.build import Leg, NoWay, Step
-from inventory_tracking.macros.goals import PICK_UP, PURSUED, Goal
+from inventory_tracking.macros.goals import PICK_UP, PURSUED, WAIT, Goal
 from inventory_tracking.routes.model import FIGHT, STAND, USE
 
 
@@ -54,6 +67,13 @@ from inventory_tracking.routes.model import FIGHT, STAND, USE
 # go, and the character stops at the latest that long after. It is under the 1.0 s a queued press is
 # worth beginning (runner.py EXPIRES), so no move is begun for a press older than that.
 FRESH = 0.7
+# Seconds the player's hand is still (no click, no pointer moved by it, no panel open) before a paused level
+# run goes on by itself. The game of 21:10 on 2026-10-13 (take 20261013T181240Z-108, run2110_hands.py): while
+# the player sorted and walked back by hand the hand was never still longer than 0.43 s with the panels closed
+# (21:14:08.7-11.4, 21:15:28-31.5) nor 1.01 s with the inventory open (21:14:04.7-05.7); the first press of
+# KP_1 came 0.31 s after the hand's last move (21:14:11.37 -> 11.68).
+SETTLE = 1.5
+PAUSED = "the level run is paused: the player's hand"  # said once a pause, and the loop's reason meanwhile
 OPERATED = frozenset((USE, STAND, PICK_UP))  # the goals something is done at; at the others the character only is
 # How far the loop goes without a fresh press (architecture §2.1): NONE, nowhere of its own; FULL, the route's
 # stages of the level the press was made on, objects included, and the drops worth a stop on the way.
@@ -66,7 +86,8 @@ class Pursuit:
     named anew from the game at every look, so a goal reached, a boss dead or a stage done changes it
     without a press. `advance`: the press asks for its goal now, before what is in reach (the teleport
     key); `leash`: how far the loop goes without one (the module text), on level `area` (None until the
-    loop's first look names it); `spent`: the press was handed to a routine and asks for nothing more."""
+    loop's first look names it); `spent`: the press was handed to a routine and asks for nothing more;
+    `paused`: the player's hand has the run (the module text), which then goes on by itself."""
 
     key: str
     pressed_at: float
@@ -74,6 +95,7 @@ class Pursuit:
     leash: str = NONE
     area: int | None = None
     spent: bool = False
+    paused: bool = False
 
     def fresh(self, now: float) -> bool:
         """Whether the press still asks for a move: made no longer than FRESH ago (and not after `now`:
@@ -81,9 +103,20 @@ class Pursuit:
         return not self.spent and 0.0 <= now - self.pressed_at <= FRESH
 
     @property
-    def runs(self) -> bool:
-        """Whether a level run is on (the leash FULL)."""
+    def leashed(self) -> bool:
+        """Whether a level run is held (the leash FULL), working or paused by the player's hand."""
         return self.leash == FULL
+
+    @property
+    def runs(self) -> bool:
+        """Whether a level run works now: held and not paused (what the loop and its pricing go by)."""
+        return self.leash == FULL and not self.paused
+
+
+def settled(hand_at: float, now: float, panels: bool) -> bool:
+    """Whether a run paused by the player's hand goes on: the hand still SETTLE seconds since `hand_at` (its
+    last click, pointer move or panel seen) and no panel open now (I7: nothing is clicked into one)."""
+    return not panels and now - hand_at >= SETTLE
 
 
 @dataclass(frozen=True)
@@ -107,6 +140,8 @@ class Facts:
     life: float = float('inf')
     kappa: float = 0.0
     safety: SafetySettings = field(default_factory=SafetySettings)
+    quiet: float = 0.0  # seconds since the fight last saw a strike, counted while `near`
+    near: bool = False  # a hostile within the strike's reach, a clear line or not: the strike gap counts (I2)
 
 
 @dataclass(frozen=True)
@@ -158,12 +193,25 @@ class Candidate:
     seconds: float
     harm: Harm
     retreat: bool = False
+    # Seconds the act keeps the character from striking (the move, the swap back the strike needs, a use's walk
+    # and dwell): the arbiter's strike gap (I2). 0: a strike.
+    unstruck: float = 0.0
+    strikes: bool = False  # the act ends with a hostile in the strike's reach and a clear line: a strike follows
 
 
 def arbitrate(facts: Facts) -> Act:
     """One price in seconds, constrained by both life budget and the unliftable veto."""
     allowed = [c for c in facts.candidates if veto(c.harm, facts.life, facts.safety) is None]
     feasible = [c for c in allowed if c.harm.worst <= facts.budget and not c.retreat]
+    if facts.near and facts.attacking:
+        # No attack pause (I2): while a hostile is within the strike's reach, the act is one after which a strike
+        # comes within `strike_gap` of the last, whenever such an act fits the budget (a strike here first, an act
+        # that waits for one more strike, a firing stand before a walk). A retreat is not held to it.
+        # With the gap already spent (no strike yet), the acts that strike soonest.
+        striking = [c for c in feasible if c.strikes]
+        if striking:
+            room = max(facts.safety.strike_gap - facts.quiet, min(c.unstruck for c in striking))
+            feasible = [c for c in striking if c.unstruck <= room]
     if feasible:
 
         def price(c: Candidate) -> float:
@@ -184,8 +232,24 @@ def arbitrate(facts: Facts) -> Act:
         if isinstance(chosen.act, Hold):
             return Hold(chosen.act.goal, 'fighting out: less harm than any reachable retreat')
         return chosen.act
-    # Never select a vetoed action, even when all the choices are bad.
-    return NoWay('safety: no unvetoed retreat is reachable')
+    if not facts.candidates:
+        return NoWay('safety: no act was priced')
+
+    # Every priced act is vetoed: no safe act exists at this look (I3 does not apply). Standing still without a
+    # strike is no escape either (it is priced as one where it is an act: the idle candidate), so the act whose
+    # rollouts are the least often lethal is made, and said: never a stop that strikes nothing.
+    def lethal(c: Candidate) -> float:
+        return sum(loss >= facts.life for loss in c.harm.losses) / max(len(c.harm.losses), 1)
+
+    chosen = min(facts.candidates, key=lambda c: (bool(c.harm.barred), lethal(c), c.harm.mean, c.seconds))
+    said = 'safety: every act is vetoed; the least lethal is'
+    if isinstance(chosen.act, Move):
+        return Move(chosen.act.step, chosen.act.goal, f'retreating: {said} this move')
+    if isinstance(chosen.act, Hold):
+        return Hold(chosen.act.goal, f'fighting out: {said} the fight')
+    if isinstance(chosen.act, NoWay):
+        return NoWay(f'{said} standing here')
+    return chosen.act
 
 
 def decide(facts: Facts, pursuit: Pursuit | None, enabled: bool = True) -> Act:
@@ -197,10 +261,13 @@ def decide(facts: Facts, pursuit: Pursuit | None, enabled: bool = True) -> Act:
     if facts.priced or facts.candidates:
         return arbitrate(facts)
     pressed = pursuit is not None and pursuit.fresh(facts.now)
-    if pursuit is not None and pursuit.runs:
+    if pursuit is not None and pursuit.leashed:
         if pursuit.area is not None and facts.area is not None and facts.area != pursuit.area:
             return Ended('the level was left')
         if not (pressed and pursuit.advance):
+            if pursuit.paused:
+                # The player's hand has the run: attack mode's own strike at what is in reach, no move of the run's
+                return Hold(goal) if facts.in_reach and facts.attacking else NoWay(PAUSED)
             return run_level(facts, pressed)
     if pursuit is not None and pressed:
         if goal is None:
@@ -236,7 +303,7 @@ def run_level(facts: Facts, pressed: bool) -> Act:
     reach first, a drop on the way next, then the route's stage of this level as a press would have it.
     What is left that is not this loop's ends the run, or with a fresh pickup press is handed on."""
     goal = facts.goal
-    if goal is None or (not goal.route and goal.do != PICK_UP):
+    if goal is None or (not goal.route and goal.do not in (PICK_UP, WAIT) and not goal.guarded):
         # No route on this level (only the card's own mark, or nothing): the run has no stage to work, and the
         # key is what it was without one (its own step: a pickup, a chest, the sweep)
         if pressed:
@@ -250,8 +317,6 @@ def run_level(facts: Facts, pressed: bool) -> Act:
         return Hold(goal)
     if facts.settling:
         return NoWay('what the object used brings comes first', arrived=True)
-    if goal.do == PICK_UP:
-        return Operate(goal)
     if facts.there:
         return arrived(facts, goal)
     return moved(facts, goal)
@@ -263,6 +328,9 @@ def arrived(facts: Facts, goal: Goal) -> Act:
         return Operate(goal)
     if facts.in_reach and facts.attacking:
         return Hold(goal)
+    if goal.do == WAIT:
+        # Stood by a valuable with no room for it: said, and held here until there is room or a press goes on
+        return NoWay(f'inventory full: {goal.label} here — make room', arrived=True)
     if goal.do != FIGHT:
         return NoWay(f'at {goal.label}', arrived=True)
     if not facts.attacking:

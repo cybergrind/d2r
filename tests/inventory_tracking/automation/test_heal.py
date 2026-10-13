@@ -38,11 +38,19 @@ JUV = 531  # a full rejuvenation potion's item class, as the belt holds it (trac
 
 
 @pytest.mark.parametrize(
-    ('held', 'choices'), [(4, [PotionType.REJUVENATION, PotionType.HEALING]), (3, [PotionType.HEALING])]
+    ('held', 'choices'),
+    [
+        (3, [PotionType.REJUVENATION, PotionType.HEALING]),
+        (2, [PotionType.HEALING]),
+        (1, [PotionType.HEALING]),
+        (0, [PotionType.HEALING]),
+    ],
 )
-def test_the_mercenary_is_given_no_rejuvenation_of_the_last_three(held, choices, sample):
+def test_the_mercenary_is_given_no_rejuvenation_of_the_last_two(held, choices, sample):
     # 2026-10-13, 00:09 to 00:10: three of a game's four rejuvenations went to the mercenary, and the belt
-    # ended with none for the character (user: "go with your merc numbers").
+    # ended with none for the character (user: "go with your merc numbers"); the last three were kept from him
+    # until the player's ruling later that day: "keep at least 2 rev potions for user" (MERC_HEALING's default).
+    assert MERC_HEALING.rejuvenation_reserve == 2
     belt = (*(JUV,) * held, *(None,) * (16 - held))
     state = sample(belt_contents=belt, merc=Mercenary(99, 3000, 10000, 9830, True))
     potions = Mock(config=MERC_HEALING)

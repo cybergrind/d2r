@@ -9,6 +9,8 @@ from inventory_tracking.macros.world import (
     PATH_RECORD,
     decode_slots,
     doors,
+    grid_rows,
+    has_room,
     local_player,
     missiles,
     monsters,
@@ -374,3 +376,14 @@ def test_what_the_marks_point_at_is_prized_and_the_rest_of_the_pickup_is_not():
     assert prized('material', marked=True)  # a material the marks point at
     assert not prized('material', marked=False)  # every ring and jewel, the gems the filter shows
     assert not prized('shown', marked=False)  # equipment the loot filter shows
+
+
+def test_a_grid_reads_as_rows_and_the_cubes_three_by_four_has_no_room_for_a_grand_charm_in_two_cells():
+    # The Horadric Cube's grid (rca/2026-10-13/pickup-cube.md §3: grid 5, 3x4) as the inventory's is read
+    taken = 0x1000
+    cells = [taken, 0, taken, 0, 0, taken, taken, taken, taken, taken, taken, taken]
+    rows = grid_rows({'width': 3, 'height': 4, 'cells': cells})
+    assert rows == ('#.#', '..#', '###', '###')
+    assert has_room(rows, (1, 2))
+    assert not has_room(rows, (1, 3))  # a Grand Charm
+    assert grid_rows(None) is None  # no cube

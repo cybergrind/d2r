@@ -57,7 +57,7 @@ from inventory_tracking.macros.skills import character_bindings, skill_keys
 from inventory_tracking.macros.teleport import LOST_KEY, ready, step_toward
 from inventory_tracking.macros.timing import Pace
 from inventory_tracking.macros.waiting import Waiting
-from inventory_tracking.macros.world import GameMemory, World
+from inventory_tracking.macros.world import BeltKept, GameMemory, World
 from inventory_tracking.models import SessionIdentity
 from inventory_tracking.routes.model import FIGHT
 from inventory_tracking.routes.progress import Progress
@@ -145,6 +145,9 @@ class MacroRunner:
         self.marks: Callable[[str], tuple[tuple[float, float], ...]] | None = None
         self.hunter: Hunter | None = None  # the seek step's and attack mode's state and sources (hunt.py)
         self.supers: Callable[[int], list[tuple[float, float]]] | None = None  # terror tracker's `supers`
+        # what each belt column last held this game, across presses: an emptied healing column stays one
+        # (rca/2026-10-13/potions-findings.md, step 1); every run's loot carries it (`Loot.columns`)
+        self.belt = BeltKept()
         self.working = False  # a run is acting (the thread lives on a while to show its last card)
         self.routine = PREBUFF
         self.generation = 0
@@ -160,6 +163,8 @@ class MacroRunner:
         self.deadline = math.inf  # the run working now is worth its input until then (EXPIRES)
         self.press: Press | None = None  # the press of the run working now
         self.hurry: Callable[[], None] | None = None  # the service reads the level now (teleport.card_for)
+        # told the seconds of each look a run takes at the game (the service's load meter, appraisal/load.py)
+        self.looked: Callable[[float], None] | None = None
         self.quiet_until = -math.inf  # attack mode resumes no sooner (TRAVEL_QUIET)
         # the combat recorder's `note` (combat/record.py): each request and each line said goes into the take
         self.noted: Callable[..., None] | None = None
@@ -582,13 +587,18 @@ class MacroRunner:
         memory = GameMemory(pid, images['candidate_base'], next(iter(tables)))
         reads = [0, 0.0]  # how many looks at the game this run took, and their seconds (latency.py)
 
+        looked = self.looked
+
         def look():
             began = time.perf_counter()
             try:
                 return memory.world(light=run.light > 0)
             finally:
+                took = time.perf_counter() - began
                 reads[0] += 1
-                reads[1] += time.perf_counter() - began
+                reads[1] += took
+                if looked is not None:
+                    looked(took)
 
         try:
             with X11Keyboard().connect(exclusive=False) as keys:
@@ -631,7 +641,7 @@ class MacroRunner:
                     say=self._say,
                     hands=memory.hands,
                     teleport=memory.teleport,
-                    loot=lambda: memory.loot(**wanted()),
+                    loot=lambda: self.belt.see(memory.loot(**wanted())),
                     build=build,
                 )
                 if os.environ.get(RESEARCH_ENV):
@@ -647,6 +657,7 @@ class MacroRunner:
                 run.containers = memory.containers
                 run.objects = memory.objects
                 run.corpses = memory.corpses
+                run.flights = memory.flights
                 run.arrival = lambda: self.journey.arrival(time.monotonic())
                 run.supers = self.supers
                 run.ending = self.progress.ending if self.progress is not None else None

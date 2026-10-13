@@ -16,7 +16,7 @@ hands [the build registry](../builds/__init__.py) to [MacroRunner](runner.py).
 | KP_4 | `teleport` | One route-stage step or movement toward the level card's mark; may handle a drop or fight first |
 | KP_2 | `hunt-elites` | Seek an elite (or exploration fallback), then attack mode |
 | KP_3 | `hunt-any` | Toggle attack mode |
-| KP_1 | `pickup` | Pickup, container or combat movement/sweep, depending on current facts. With the pursuit loop on (`macro_pursuit`): one press runs the level's route to its end through attack mode ([pursuit](pursuit.py) leash; rca/2026-10-13/kp1-level-run.md) |
+| KP_1 | `pickup` | Pickup, container or combat movement/sweep, depending on current facts. With the pursuit loop on (`macro_pursuit`): one press runs the level's route to its end through attack mode ([pursuit](pursuit.py) leash; rca/2026-10-13/kp1-level-run.md). The player's hand (a click, a panel open) pauses the run, which goes on by itself once the hand rests (`SETTLE`); a valuable with no room is stood by; potions are side goals ([supply](supply.py)) |
 
 The runner owns one working run at a time. [Waiting](waiting.py) keeps at most
 one queued request per routine, ordered by priority and subject to expiry.

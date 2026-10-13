@@ -97,6 +97,11 @@ the service loop's own) and `routine` (the macro run's). A change in a frame's `
 the player's (or the healer's, whose presses are in its own log: `make osd` is not recorded here); the d2-rca
 skill's `session.py inputs` lists them. The manifest's `keys` name the belt keys '1'-'4' too.
 
+The service's own load (rca/2026-10-13/latency-findings.md, "Fix 1, built"), still schema 4, optional: a `load` event
+once a second while the character is out of town (appraisal/load.py: the process's CPU, the main
+loop's, the host's load average, involuntary context switches, the main loop's passes and their time by step, the
+macro's looks and their time), and the manifest's `switch_interval` (sys.getswitchinterval of the service).
+
 `Recorder.step` is the per-frame logic with the clock injected; `Recorder.run` paces it on its
 own thread with its own memory handle and display connection (`LiveSampler`), bound to the game
 by `poll` from the service loop as the macro runner is.
@@ -108,6 +113,7 @@ import json
 import logging
 import math
 import struct
+import sys
 import threading
 import time
 from collections.abc import Callable
@@ -973,6 +979,7 @@ class CombatRecorder:
                 'keys': {str(key): name for key, name in self.sampler.name_keys().items()},
                 'code': code or {},
                 'input_mode': self.input_mode() if self.input_mode is not None else None,
+                'switch_interval': sys.getswitchinterval(),
             },
             keep=keep, town=town, server_frame=self.sampler.server_frame,
         )  # fmt: skip

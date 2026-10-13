@@ -59,6 +59,8 @@ def test_the_goals_distances_are_the_hands_own() -> None:
     assert goals.STAND_NEAR == route.STAND_NEAR
     assert goals.PLACE_NEAR == teleport.SPOT_NEAR
     assert goals.PICK_NEAR == pickup.STOP_UNITS
+    assert goals.PICK_REACH == pickup.PICK_UNITS  # a level run's drop is clicked from within the pickup's own reach
+    assert goals.GUARD_NEAR == hunt.GATHER_CLEAR  # a potion's guards are the pickup key's own measure
     assert goals.BOSS_MARK_UNITS == hunt.BOSS_MARK_UNITS
 
 

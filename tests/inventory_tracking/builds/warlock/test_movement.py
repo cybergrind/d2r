@@ -3,6 +3,8 @@
 The first half asks the sets with facts alone; the second makes moves with `Travel` in the fakes' game.
 """
 
+import itertools
+import logging
 import math
 from dataclasses import replace
 
@@ -23,15 +25,21 @@ from inventory_tracking.macros.build import MoveFacts, NoWay
 from inventory_tracking.macros.movement import SHARED, OwnTeleport, StaffTeleport, Walk
 from inventory_tracking.macros.skills import TELEPORT
 from inventory_tracking.macros.travel import (
+    DELAY_SHOWN,
+    DELAY_TICK,
     JUMP_DISTRUST,
     JUMP_LEAST,
     JUMP_REACH,
+    KEY_POLL,
     LOW_CHARGES,
     OWN_MOVE,
+    PLAN_AHEAD,
     PLAYER_STEP,
+    PRESSED,
     SEEK,
     STRIDE,
     WALLED,
+    Stale,
     Step,
     Travel,
     move_facts,
@@ -241,8 +249,11 @@ def test_a_blade_warp_made_is_remembered_for_its_casting_delay():
     assert play.pressed() == [KEYS[BLADE_WARP]]
     assert travel.warped_at == pytest.approx(play.clock.now, abs=2.0)
     assert set(travel.jumped_at) == {BLADE_WARP}
+    # The key's down is remembered, and its release: with no delay state read (the fakes' character) the
+    # clock counts the delay from the release, as before the state was read.
+    assert travel.warped_at < travel.released_at[BLADE_WARP] <= play.clock.now
     read = move_facts(run, run.world(), None, ASPECT, travel)
-    assert read.since_used(BLADE_WARP) == pytest.approx(play.clock.now - travel.warped_at)
+    assert read.since_used(BLADE_WARP) == pytest.approx(play.clock.now - travel.released_at[BLADE_WARP])
 
 
 def test_a_straight_stride_is_by_blade_warp_and_ends_short_of_its_goal():
@@ -272,3 +283,158 @@ def test_with_no_straight_stride_a_move_is_made_along_the_way_round_the_wall():
     assert walk is not None
     assert walk.skill is None
     assert walk.spot[1] > 5002
+
+
+# --- Blade Warp's casting delay as the game shows it (rca/2026-10-13/latency-findings.md, fix 2) -------------
+
+# From a key's down to state 185 set and cleared, seconds, as the takes of 2026-10-13 have them: the median of
+# the 123 keys of 21:42, its p90, its p99 and its latest (a cast begun late with the recorder starved). Counted as
+# WARP_DELAY from the key's down, the last two would be refused: the key waits for the state instead.
+RECORDED = [(0.19, 1.00), (0.24, 1.07), (0.35, 1.17), (0.40, 1.555)]
+FAR = (5200.0, 5000.0)  # a goal many Blade Warps away, on open ground
+NO_TELEPORT = tuple(None if skill == TELEPORT else skill for skill in HUNT_SLOTS)  # no staff: the walk's set
+
+
+class Delayed(Game):
+    """The fakes' game with Blade Warp's casting delay as the game plays it, from the key's down: the delay state
+    is set `shown` seconds after a key the game took and cleared `over` after it; a key before then is refused, it
+    moves nobody (`refused`: seconds after the key before). `reads` off: the state is not read (None)."""
+
+    def __init__(self, shown: float, over: float, reads: bool = True) -> None:
+        super().__init__(world(area=101, slots=NO_TELEPORT))
+        self.shown, self.over, self.reads = shown, over, reads
+        self.taken: list[float] = []  # the clock at each key's down the game took
+        self.released: list[float] = []
+        self.refused: list[float] = []
+        self.refusing = False
+        code = self.keys.keycodes([KEYS[BLADE_WARP].encode()])[0]
+        press = self.keys.press
+
+        def down(key: int) -> bool:
+            if key == code:
+                now = self.clock.now
+                self.refusing = bool(self.taken) and now - self.taken[-1] < self.over
+                (self.refused if self.refusing else self.taken).append(now - self.taken[-1] if self.refusing else now)
+            return press(key)
+
+        self.keys.press = down
+
+    def react(self, event) -> None:
+        if event == ('key', KEYS[BLADE_WARP]):
+            self.released.append(self.clock.now)
+            if self.refusing:
+                self.refusing = False
+                return
+        super().react(event)
+
+    def read(self):
+        found = super().read()
+        since = self.clock.now - self.taken[-1] if self.taken else math.inf
+        cooling = (self.shown <= since < self.over) if self.reads else None
+        self.world = replace(found, player=replace(found.player, cooldown=cooling))
+        return self.world
+
+
+def legs(play: Game, travel: Travel, run, count: int = 3, intent=PRESSED) -> None:
+    """`count` Blade Warps toward FAR as the pursuit makes them (hunt.py `advance`): a delay not about to end
+    slept out (`Travel.pause`), then the leg asked for (`toward`) and made (`make`)."""
+    for _ in range(count):
+        while (wait := travel.pause(run, run.world(), Ground(()), ASPECT, FAR, intent)) > 0:
+            run.pace.sleep(max(wait, 0.04))
+        step = travel.toward(run, run.world(), Ground(()), ASPECT, FAR, intent)
+        assert isinstance(step, Step)
+        assert step.skill == BLADE_WARP
+        travel.make(run, step, run.world(), ASPECT, keys, Ground(()), intent=intent, goal=FAR)
+
+
+@pytest.mark.parametrize(('shown', 'over'), RECORDED)
+def test_with_the_delay_state_read_the_key_goes_down_at_its_clear_and_never_before(shown, over):
+    play = Delayed(shown, over)
+    travel, run = Travel(MOVEMENT), play.run()
+    legs(play, travel, run)
+    assert play.refused == []
+    gaps = [b - a for a, b in itertools.pairwise(play.taken)]
+    assert len(gaps) == 2
+    # at the first look that has it clear: a look every KEY_POLL, and `press_skill`'s own for the character
+    assert all(over <= gap <= over + KEY_POLL + 0.03 + 1e-9 for gap in gaps), gaps
+
+
+def test_with_no_delay_state_read_the_clock_counts_from_the_keys_release_as_before():
+    play = Delayed(*RECORDED[0], reads=False)
+    travel, run = Travel(MOVEMENT), play.run()
+    legs(play, travel, run)
+    assert play.refused == []
+    assert len(play.taken) == 3
+    for released, next_down in zip(play.released, play.taken[1:], strict=False):
+        assert next_down >= released + WARP_DELAY - 1e-9
+
+
+def test_a_clear_state_before_the_cast_threw_is_not_the_delay_over():
+    play = Delayed(0.40, 1.0)
+    travel, run = Travel(MOVEMENT), play.run()
+    legs(play, travel, run, count=1)
+    keyed = play.taken[0]
+    play.clock.now = keyed + 0.3  # the state not set yet: the cast has not thrown
+    assert travel.left(BLADE_WARP, play.clock.now, False) == pytest.approx(WARP_DELAY - 0.3)
+    assert travel.left(BLADE_WARP, keyed + DELAY_SHOWN + 1e-6, False) == -math.inf  # clear once it should have shown
+    assert travel.left(BLADE_WARP, keyed + 1.2, True) == DELAY_TICK  # still set: the next tick at the soonest
+
+
+def test_a_jump_is_offered_plan_ahead_before_its_delay_ends_to_an_intent_that_may_wait():
+    play = game()
+    travel, run = Travel(MOVEMENT), play.run()
+    travel.warped_at = play.clock.now
+    play.clock.now += WARP_DELAY - PLAN_AHEAD + 0.01
+    assert travel.jump_by(run, play.world, PRESSED) == BLADE_WARP  # its key then waits for the delay's end
+    assert travel.jump_by(run, play.world, OWN_MOVE) == TELEPORT  # the mode's own move does not wait
+    assert travel.pause(run, play.world, Ground(()), ASPECT, FAR, PRESSED) == 0.0
+    play.clock.now += PLAN_AHEAD
+    assert travel.jump_by(run, play.world, OWN_MOVE) == BLADE_WARP
+
+
+def test_a_character_moved_while_the_jump_waits_for_its_delay_has_the_leg_chosen_again():
+    play = Delayed(*RECORDED[0])
+    travel, run = Travel(MOVEMENT), play.run()
+    legs(play, travel, run, count=1)
+    while (wait := travel.pause(run, run.world(), Ground(()), ASPECT, FAR, PRESSED)) > 0:
+        run.pace.sleep(wait)
+    step = travel.toward(run, run.world(), Ground(()), ASPECT, FAR, PRESSED)
+    assert isinstance(step, Step)
+    chosen = run.world()
+
+    def pushed() -> None:
+        stand = play.world.player
+        play.world = replace(play.world, player=replace(stand, x=stand.x + 3.0))
+
+    play.arrivals.append((play.clock.now + 0.05, pushed))
+    with pytest.raises(Stale, match='the leg is chosen again'):
+        travel.make(run, step, chosen, ASPECT, keys, Ground(()), intent=PRESSED, goal=FAR)
+    assert len(play.taken) == 1  # no key
+    assert travel.jump_failed == {}  # not a failed way to distrust
+
+
+def test_the_pointer_waits_on_the_next_aim_during_the_flight_and_the_legs_are_timed(caplog):
+    play = Delayed(*RECORDED[0])
+    travel, run = Travel(MOVEMENT), play.run()
+    snaps = []
+    snap = run.actuator.snap
+
+    def counted(*args, **kwargs):
+        snaps.append(args)
+        snap(*args, **kwargs)
+
+    run.actuator.snap = counted
+    with caplog.at_level(logging.INFO, logger='inventory_tracking'):
+        legs(play, travel, run)
+        travel.paced(play.clock.now, 'a test')
+    assert len(snaps) == 2  # the second and third aims: a step from where the flight before left the pointer
+    timed = [r.getMessage() for r in caplog.records if r.getMessage().startswith('Macro: leg time: Blade Warp')]
+    assert len(timed) == 2
+    gaps = [b - a for a, b in itertools.pairwise(play.taken)]
+    assert [float(line.split()[5].removesuffix('s')) for line in timed] == pytest.approx(gaps, abs=1e-3)
+    pace = [r.getMessage() for r in caplog.records if r.getMessage().startswith('Macro: leg time: level run')]
+    assert len(pace) == 1
+    places = [(5000.0, 5000.0), *play.warps]
+    assert f'level run (a test): {sum(math.dist(a, b) for a, b in itertools.pairwise(places)):.0f} units' in pace[0]
+    assert '3 jumps, 0 walks' in pace[0]
+    assert travel.tally.since is None  # begun again

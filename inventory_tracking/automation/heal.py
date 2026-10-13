@@ -3,8 +3,9 @@
 from collections import deque
 
 from inventory_tracking.automation.potions import PotionsController
+from inventory_tracking.automation.priority import Verdict
 from inventory_tracking.config import HealingConfig
-from inventory_tracking.models import PotionResult, PotionType, SessionIdentity, State
+from inventory_tracking.models import Actor, Hold, Outcome, PotionResult, PotionType, SessionIdentity, State
 from inventory_tracking.tracking.belt import potion_kind
 
 
@@ -35,8 +36,11 @@ class HealController:
         contents = state.belt.contents if state.belt is not None else ()
         return sum(1 for item in contents if potion_kind(item) == PotionType.REJUVENATION)
 
-    def step(self, state: State) -> PotionResult:
+    def step(self, state: State, verdict: Verdict | None = None) -> PotionResult:
+        """`verdict`: the character's situation (automation/priority.py); the mercenary is given no healing potion
+        while it holds one back. None: no such rule (a controller stepped on its own)."""
         choices = []
+        held: Hold | None = None
         health = state.health_for(self.config.actor)
         if health is not None and 0 < health[0] <= health[1]:
             current, maximum = health
@@ -50,5 +54,12 @@ class HealController:
                 choices = [PotionType.REJUVENATION, PotionType.HEALING]
             if self.config.rejuvenation_reserve and self.rejuvenations(state) <= self.config.rejuvenation_reserve:
                 choices = [potion for potion in choices if potion != PotionType.REJUVENATION]
+            if verdict is not None and self.config.actor == Actor.MERC and PotionType.HEALING in choices:
+                held = verdict.hold
+                if held is not None:
+                    choices = [potion for potion in choices if potion != PotionType.HEALING]
         # Pending acknowledgements must progress even when health is unavailable/full.
-        return self.potions.step(state, choices)
+        result = self.potions.step(state, choices)
+        if held is not None and result.outcome == Outcome.IDLE:
+            return PotionResult(Outcome.HELD, reason=held)
+        return result

@@ -224,6 +224,15 @@ class Outcome(StrEnum):
     REJECTED = 'rejected'
     BACKOFF = 'backoff'
     SENT = 'sent'
+    # A healing potion the actor wanted was kept for the character (automation/priority.py `Hold`).
+    HELD = 'held'
+
+
+class Hold(StrEnum):
+    """Why the mercenary is given no healing potion (automation/priority.py)."""
+
+    CRITICAL = 'player critical'  # the character's life is going under the floor: the character's turn
+    RESERVE = 'reserve'  # the belt holds no more healing potions than the character's reserve
 
 
 @dataclass(frozen=True)
@@ -243,4 +252,4 @@ class PotionSent:
 class PotionResult:
     outcome: Outcome
     event: PotionSent | None = None
-    reason: Refusal | None = None
+    reason: Refusal | Hold | None = None

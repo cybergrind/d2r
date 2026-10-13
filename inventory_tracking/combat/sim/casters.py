@@ -61,6 +61,9 @@ DATA = Path(__file__).parent / 'casters.json'
 PLAYED = True
 FINGER_MAGE, DOOM_KNIGHT, OBLIVION_KNIGHT, MEGADEMON = 'FingerMage', 'DoomKnight', 'OblivionKnight', 'Megademon'
 MINDS = (FINGER_MAGE, DOOM_KNIGHT, OBLIVION_KNIGHT, MEGADEMON)
+# Diablo (AI 51) thinks here too, by his own rules and rows (sim/diablo.py, diablo.json). He is not one of MINDS:
+# `mind_of` and `row_of` stay the four's (combat/harm.py prices by them and still takes him for an unread boss).
+DIABLO = 'Diablo'
 STAND, WALK, STRIKE, STAGGER, CAST = 'stand', 'walk', 'strike', 'stagger', 'cast'  # sim/monsters.py's, and a cast
 SPELL, POISON = 'spell', 'poison'  # the kinds of a blow a caster adds to sim/monsters.py's
 # [code] notes-ai.md, the frame: the radius when `aidist` is empty, the player beyond which nobody is a
@@ -273,6 +276,15 @@ class Bolt:
     struck: set[int] = field(default_factory=set)  # the bodies it has taken from
     aim: int = -1  # the index of whom it was let go at
     origin: Point = (0.0, 0.0)
+    # A stream's missile (Diablo's lightning, his wall's flames): it takes `rate` of its points from every body
+    # within CONTACT, each frame, and goes on; 0: as above.
+    rate: float = 0.0
+    every: int = 1  # such a missile takes from one body at most once in this many frames (missiles.txt NextDelay)
+    hit_at: dict[int, int] = field(default_factory=dict)  # the body's index -> the frame it last took from it
+    trail: int = 0  # a missile it leaves where it is each frame (his wall's maker: a flame); 0: none
+    trail_life: int = 0  # the frames such a trail stands
+    trail_parts: dict[str, float] = field(default_factory=dict)
+    trail_rate: float = 1.0  # the trail's `rate`
 
     @property
     def at(self) -> Point:
@@ -301,6 +313,7 @@ class Mind:
     pace: float = 1.0  # a walk's speed, times the type's
     held: float = STOP  # where a walk toward a body ends
     level: dict[int, int] = field(default_factory=dict)  # skill slot -> its level
+    home: Point | None = None  # where it first thought (Diablo's home point stand-in, sim/diablo.py)
 
     def aip(self, n: int) -> float:
         return number(self.row, f'aip{n}(H)')
@@ -312,13 +325,31 @@ class Mind:
 
     @property
     def radius(self) -> float:
+        if self.ai == DIABLO:
+            from inventory_tracking.combat.sim import diablo
+
+            return float(diablo.AWARE)
         return number(self.row, 'aidist(H)') or RADIUS
+
+    @property
+    def staggers(self) -> bool:
+        """[take] Diablo never shows the hit mode (mode 3) in 163 s of the takes: he does not stagger."""
+        return self.ai != DIABLO
 
     def skill_of(self, slot: int) -> str:
         return self.row.get(f'Skill{slot}', '')
 
 
 def mind_for(txt: int) -> Mind | None:
+    if PLAYED:
+        from inventory_tracking.combat.sim import diablo
+
+        if diablo.is_diablo(txt):
+            found = diablo.row(txt)
+            assert found is not None
+            mind = Mind(DIABLO, found, woke=True)  # [code] no sight needed to find a target (sim/diablo.py)
+            mind.level = {slot: diablo.skill_level(txt, slot) for slot in range(1, 9) if found.get(f'Skill{slot}')}
+            return mind
     row = row_of(txt) if PLAYED else None
     if row is None or row.get('AI') not in MINDS:
         return None
@@ -532,6 +563,10 @@ class Minds:
         # Every missile when it is gone, for a viewer: (frame let go, frame gone, from, where it ended, let go at the
         # character, it took from the character).
         self.flown: list[tuple[int, int, Point, Point, bool, bool]] = []
+        # The character's resistances by kind (percent, Hell's penalty off) for a think that weighs them (Diablo's);
+        # empty: sim/diablo.py's stand-in. Diablo's thinks as drawn: (frame, unit, action, the target's index).
+        self.resists: dict[str, float] = {}
+        self.thoughts: list[tuple[int, int, str, int]] = []
 
     # -- a frame ---------------------------------------------------------------------------------------------
 
@@ -546,6 +581,7 @@ class Minds:
         """The missiles a frame on, what they burn or end on, and the poisons' frame."""
         blows: list[Any] = []
         flying = []
+        spawned: list[Bolt] = []  # the trails left this frame: they stand from the next
         for bolt in self.bolts:
             if frame >= bolt.ends:
                 self._gone(bolt, frame)
@@ -559,6 +595,31 @@ class Minds:
             bolt.y += bolt.dy * bolt.step
             near = sorted((math.dist(bolt.at, body), index) for index, body in enumerate(targets))
             near = [(gap, index) for gap, index in near if gap <= CONTACT]
+            if bolt.trail:
+                spawned.append(
+                    Bolt(
+                        bolt.unit, bolt.txt, bolt.trail, bolt.x, bolt.y, 0.0, 0.0, 0.0, frame, frame + bolt.trail_life,
+                        dict(bolt.trail_parts), kills=False, aim=bolt.aim, origin=bolt.at, rate=bolt.trail_rate,
+                    )
+                )  # fmt: skip
+            if bolt.rate > 0:
+                for _gap, index in near:
+                    if frame - bolt.hit_at.get(index, frame - bolt.every) < bolt.every:
+                        continue
+                    bolt.hit_at[index] = frame
+                    bolt.struck.add(index)
+                    blows.append(
+                        self.host._made(
+                            frame,
+                            bolt.unit,
+                            index,
+                            {k: v * bolt.rate for k, v in bolt.parts.items()},
+                            SPELL,
+                            bolt.missile,
+                        )
+                    )
+                flying.append(bolt)
+                continue
             if bolt.kills and near:
                 bolt.struck.add(near[0][1])
                 blows += self._struck(bolt, near[0][1], frame)
@@ -569,7 +630,7 @@ class Minds:
                     bolt.struck.add(index)
                     blows += self._struck(bolt, index, frame)
             flying.append(bolt)
-        self.bolts = flying
+        self.bolts = flying + spawned
         for index, (rate, until, unit) in list(self.poisons.items()):
             if frame >= until or index >= len(targets):
                 del self.poisons[index]
@@ -578,6 +639,8 @@ class Minds:
         return blows
 
     def _gone(self, bolt: Bolt, frame: int) -> None:
+        if bolt.step <= 0:
+            return  # a standing trail (a wall's flame): its maker's flight is the viewer's line
         self.flown.append((bolt.born, frame, bolt.origin, bolt.at, bolt.aim == 0, 0 in bolt.struck))
 
     def _struck(self, bolt: Bolt, index: int, frame: int) -> list[Any]:
@@ -627,7 +690,7 @@ class Minds:
         the monster first had a target; nobody when the character is beyond PLAYER_REACH."""
         mind: Mind = walker.mind
         here = walker.at
-        if not targets or ai_distance(here, targets[0]) >= max(PLAYER_REACH, self.aware):
+        if not targets or ai_distance(here, targets[0]) >= max(PLAYER_REACH, self.aware, mind.radius):
             return []
         everyone = self.aware > mind.radius
         radius = self.aware if everyone else mind.radius
@@ -648,6 +711,9 @@ class Minds:
             self._idle(walker, frame, max(look, 1))
             return
         mind.woke = True
+        if mind.ai == DIABLO:
+            self._diablo(walker, frame, targets)
+            return
         d, index = found[0]
         body = targets[index]
         melee = math.dist(walker.at, body) <= REACH
@@ -665,6 +731,63 @@ class Minds:
         else:
             act = self._oblivion(walker, frame, targets, index, d, roll)
         self._do(walker, act, index, frame, targets)
+
+    def _diablo(self, walker: Any, frame: int, targets: Sequence[Point]) -> None:
+        """Diablo's think (sim/diablo.py): his target, what the code weighs of it, one draw over the weights."""
+        from inventory_tracking.combat.sim import diablo
+
+        mind: Mind = walker.mind
+        rolls = self.host.rolls[walker.unit]
+        if mind.home is None:
+            mind.home = walker.at
+        index = 0
+        if len(targets) > 1 and rolls.random() >= diablo.CHARACTER_SHARE:
+            index = min(range(1, len(targets)), key=lambda at: math.dist(walker.at, targets[at]))
+        body = targets[index]
+        resists = self.resists or diablo.CHARACTER_RESISTS
+        home = mind.home
+        sight = diablo.Sight(
+            melee=math.dist(walker.at, body) <= diablo.REACH,
+            seen=self.host._sees(walker, body),
+            away=diablo.less_size(walker.at, body),
+            fire=resists.get('fire', 0.0) if index == 0 else 0.0,
+            lightning=resists.get('lightning', 0.0) if index == 0 else 0.0,
+            candidates=len(targets),
+            far_home=ai_distance(walker.at, home) <= diablo.HOME_FAR < ai_distance(body, home),
+            farther_home=ai_distance(body, home) > diablo.HOME_FARTHER,
+        )
+        action = diablo.choose(diablo.weights(sight), rolls)
+        self.thoughts.append((frame, walker.unit, diablo.ACTIONS[action], index))
+        slot = diablo.SLOTS.get(action)
+        if slot is not None:
+            if not mind.skill_of(slot):
+                self._idle(walker, frame, diablo.MISSING_SKILL_IDLE)
+            elif action == diablo.RUN:
+                mind.skill, mind.mode, mind.slot, mind.target = mind.skill_of(slot), 'seq_diablorun', slot, index
+                self._set_walk(walker, frame, follow=index, pace=diablo.RUN_PACE, held=diablo.REACH)
+                walker.until = frame + diablo.MODE_FRAMES['seq_diablorun'] + mind.delay
+                self.casts.append((frame, walker.unit, walker.txt, mind.skill, body))
+            else:
+                self._cast(walker, slot, index, frame, targets)
+            return
+        if action in (diablo.SWING, diablo.SMASH):
+            self._do(walker, ('attack', 'A1' if action == diablo.SWING else 'A2'), index, frame, targets)
+        elif action == diablo.WALK_AT:
+            self._set_walk(walker, frame, goal=body, pace=diablo.WALK_PACE, held=STOP)
+        elif action == diablo.CIRCLE:
+            self._do(walker, ('circle',), index, frame, targets)
+        elif action == diablo.HOME:
+            self._set_walk(walker, frame, goal=home, pace=diablo.HOME_PACE)
+        elif action == diablo.ROAM:
+            step = diablo.ROAM_STEP
+            self._set_walk(
+                walker, frame, goal=(walker.x + rolls.uniform(-step, step), walker.y + rolls.uniform(-step, step))
+            )
+        elif action == diablo.POSE:
+            walker.doing, walker.until, walker.lands = CAST, frame + diablo.MODE_FRAMES['S4'] + mind.delay, -1
+            mind.releases = []
+        else:
+            self._idle(walker, frame, diablo.IDLE_FRAMES)
 
     def _led(self, walker: Any) -> bool:
         """[inferred] a minion's leader stands while a unique of its AI lives in the pack (the scene does not
@@ -738,7 +861,9 @@ class Minds:
         if kind == 'idle':
             self._idle(walker, frame, int(act[1]))
         elif kind == 'attack':
-            frames = MODE_FRAMES[mind.ai, 'A1']
+            mode = str(act[1]) if len(act) > 1 else 'A1'
+            mind.mode = mode
+            frames = MODE_FRAMES[mind.ai, mode] if mind.ai != DIABLO else self._diablo_frames(mode)
             walker.doing, walker.aim, mind.target = STRIKE, index, index
             walker.lands = frame + max(round(BLOW_SHARE * frames), 1)
             walker.until = frame + frames + mind.delay
@@ -769,12 +894,26 @@ class Minds:
         else:
             raise ValueError(f'no such act {act!r}')
 
+    @staticmethod
+    def _diablo_frames(mode: str) -> int:
+        from inventory_tracking.combat.sim import diablo
+
+        return diablo.MODE_FRAMES.get(mode, 20)
+
     def _cast(self, walker: Any, slot: int, index: int, frame: int, targets: Sequence[Point]) -> None:
         mind: Mind = walker.mind
         mode = mind.row.get(f'Sk{slot}mode', 'S1')
+        mind.skill, mind.mode, mind.slot, mind.target = mind.skill_of(slot), mode, slot, index
+        if mind.ai == DIABLO:
+            from inventory_tracking.combat.sim import diablo
+
+            frames = diablo.MODE_FRAMES.get(mode, 20)
+            mind.releases = diablo.releases(mind.skill, frame, mind.level.get(slot, 1))
+            walker.doing, walker.until, walker.lands, walker.aim = CAST, frame + frames + mind.delay, -1, index
+            self.casts.append((frame, walker.unit, walker.txt, mind.skill, targets[index]))
+            return
         frames = MODE_FRAMES[mind.ai, mode]
         first = frame + RELEASE[mind.ai, mode]
-        mind.skill, mind.mode, mind.slot, mind.target = mind.skill_of(slot), mode, slot, index
         if mind.ai == MEGADEMON:
             mind.releases = list(range(first, frame + frames, FLAME_GAP))
             mind.cool, mind.inferno = frame + int(mind.aip(6)), True
@@ -813,9 +952,17 @@ class Minds:
             return []
         rolls = self.host.rolls[walker.unit]
         level = walker.traits.level
-        if index == 0 and rolls.random() >= hit_chance(mind.row, level, self.defence, self.level):
+        row, damage = mind.row, walker.traits.damage
+        if mind.mode == 'A2':
+            # [table] the second attack: its own to-hit and its damage, by the ratio of the rows' A2 to A1 maxima.
+            scale = number(row, 'A2MaxD(H)') / max(number(row, 'A1MaxD(H)'), 1.0)
+            row, damage = (
+                {**row, 'A1TH(H)': row.get('A2TH(H)', row.get('A1TH(H)', '0'))},
+                (damage[0] * scale, damage[1] * scale),
+            )
+        if index == 0 and rolls.random() >= hit_chance(row, level, self.defence, self.level):
             return []
-        parts = landing_parts(mind.row, walker.traits.damage, level, rolls)
+        parts = landing_parts(row, damage, level, rolls)
         for element, least, most in walker.traits.elements:
             parts[element] = parts.get(element, 0.0) + parts['physical'] * rolls.uniform(least, most)
         return [self.host._made(frame, walker.unit, index, parts, MELEE_KIND, 0)]
@@ -848,6 +995,59 @@ class Minds:
             self._shoot(walker, frame, FINGER_MISSILE, level, body, index)
         elif skill == 'MegademonInferno':
             self._shoot(walker, frame, int(missile_by_name(data()['skills'][skill]['srvmissilea'])), level, body, index)
+        elif mind.ai == DIABLO:
+            self._diablo_release(walker, frame, skill, level, body, index)
+
+    def _diablo_release(self, walker: Any, frame: int, skill: str, level: int, body: Point, index: int) -> None:
+        """Diablo's missiles (sim/diablo.py): a missile of the stream at where his target stands now, the ring of
+        fire, the fire wall's makers."""
+        from inventory_tracking.combat.sim import diablo
+
+        rolls = self.host.rolls[walker.unit]
+
+        def made(missile: int, heading: float, step: float, life: int, **more: Any) -> Bolt:
+            parts = {kind: rolls.uniform(least, most) for kind, (least, most) in diablo.points(missile, level).items()}
+            return Bolt(
+                walker.unit, walker.txt, missile, walker.x, walker.y, math.cos(heading), math.sin(heading), step,
+                frame, frame + life, parts, kills=False, aim=index, origin=walker.at, **more,
+            )  # fmt: skip
+
+        toward = math.atan2(body[1] - walker.y, body[0] - walker.x)
+        if skill == 'DiabLight':
+            life = diablo.missile_life(level)
+            bolt = made(
+                diablo.LIGHTNING_MISSILE,
+                toward,
+                diablo.STREAM_STEP,
+                life,
+                rate=diablo.rate(diablo.LIGHTNING_MISSILE),
+                every=diablo.every(diablo.LIGHTNING_MISSILE),
+            )
+            self.bolts.append(bolt)
+            self.births.append((frame, walker.unit, walker.txt, bolt.missile, walker.at, body, bolt.ends))
+        elif skill == 'DiabFire':
+            once: set[int] = set()  # [take] one hit a body a ring: every missile of the cast shares it
+            row = diablo.data()['missiles'][str(diablo.RING_MISSILE)]
+            for heading in diablo.ring_headings():
+                bolt = made(diablo.RING_MISSILE, heading, diablo.RING_STEP, int(number(row, 'Range')), struck=once)
+                self.bolts.append(bolt)
+            self.births.append((frame, walker.unit, walker.txt, diablo.RING_MISSILE, walker.at, body, frame + 50))
+        elif skill == 'DiabWall':
+            flame = {
+                kind: rolls.uniform(least, most)
+                for kind, (least, most) in diablo.points(diablo.WALL_FLAME, level).items()
+            }
+            for heading in diablo.wall_headings(toward, level * diablo.WALL_MAKERS_PER_LEVEL):
+                bolt = made(
+                    diablo.WALL_MAKER, heading, diablo.WALL_STEP, diablo.WALL_LIFE, trail=diablo.WALL_FLAME,
+                    trail_life=diablo.FLAME_LIFE,
+                    trail_rate=diablo.rate(diablo.WALL_FLAME), trail_parts=dict(flame),
+                )  # fmt: skip
+                bolt.parts = {}
+                self.bolts.append(bolt)
+            self.births.append(
+                (frame, walker.unit, walker.txt, diablo.WALL_MAKER, walker.at, body, frame + diablo.WALL_LIFE)
+            )
 
     def _shoot(
         self, walker: Any, frame: int, missile: int, level: int, toward: Point, aim: int, *, homing: int = -1

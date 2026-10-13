@@ -675,6 +675,8 @@ class Pack:
             return  # stunned: a hit's reaction does not end the stun (sim/guard.py)
         if walker.doing == STAGGER or (walker.mind is None and (walker.unit in self.shots or not walker.traits.melee)):
             return
+        if walker.mind is not None and not walker.mind.staggers:
+            return  # a mind that shows no hit mode in the takes (Diablo, sim/casters.py `Mind.staggers`)
         roll = self.rolls[walker.unit]
         if roll.random() < stagger_chance(share):
             frames = round(drawn(fitted()['melee']['stagger']['recovery']['knots'], roll.random()))

@@ -16,9 +16,10 @@ sets are built on the choice below: movement.py imports this module, not the oth
 
 import heapq
 import math
+import statistics
 from collections.abc import Callable, Hashable, Sequence
-from dataclasses import replace
-from functools import lru_cache
+from dataclasses import dataclass, field, replace
+from functools import lru_cache, partial
 
 from inventory_tracking.combat.stance import Camp, Jump, no_footing, way
 from inventory_tracking.common import LOG
@@ -27,7 +28,7 @@ from inventory_tracking.levels.model import Ground, Room, Target, Walkable
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.build import Intent, Leg, MoveFacts, MovementSet, NoWay, Step, nowhere
 from inventory_tracking.macros.engine import Run
-from inventory_tracking.macros.routines import press_skill, settle
+from inventory_tracking.macros.routines import ACTING, DEAD, ONE_CAST, press_skill, settle
 from inventory_tracking.macros.sight import clear_shot
 from inventory_tracking.macros.skills import TELEPORT, skill_name
 from inventory_tracking.macros.teleport import (
@@ -41,7 +42,7 @@ from inventory_tracking.macros.teleport import (
     moved,
 )
 from inventory_tracking.macros.view import Viewport
-from inventory_tracking.macros.world import NO_OWNER, Monster, Teleport, World
+from inventory_tracking.macros.world import NO_OWNER, Monster, Player, Teleport, World
 from inventory_tracking.native.layout import TILE_UNITS
 
 
@@ -55,6 +56,30 @@ HOVER_UNITS = 12.0  # a monster named as under the pointer stands this near the 
 JUMP_REACH = 26.0  # units of a jump: in view, and within the blade's range
 JUMP_LEAST = 8.0  # a stride shorter than this is walked
 JUMP_SECONDS = 1.5  # for the character to be seen somewhere else after the key
+# A jump's casting delay (`JumpSource.delay`) as the game shows it: the character's state 185 (world.py
+# `Player.cooldown`) is set at the cast's action frame and cleared when the delay is over. Blade Warp in the
+# four takes of 21:42 on 2026-10-13, 123 keys counted from the key's down: set after 0.17 to 0.24 s (p10 to p90;
+# p99 0.35, the most 0.40), cleared after 0.96 to 1.03 s (p50 1.00; p99 1.09 in a clean take, 1.17 with the
+# recorder starved or the cast begun late). A key before the clear is refused (36 of 46 keys 0.8 to 1.0 s after
+# the one before, 2026-10-11 to 13). With the state read a jump's key waits for the clear (`Travel.left`): a clear
+# state DELAY_SHOWN after the key is the delay over, before that it is a cast that has not thrown yet.
+DELAY_SHOWN = ONE_CAST  # no cast lasts longer, and every state above was set by then
+DELAY_STALE = 2.5  # seconds after its key a delay state still set is not that key's: the clock decides
+DELAY_TICK = 0.04  # a delay state still set ends at the next game tick at the soonest
+# With no state read the delay is timed by the clock from the key's release, the rule before the state was read
+# (`JumpSource.delay`; 2 keys refused of 296, 2026-10-11 to 13). Counted from the key's down it would refuse some:
+# 1.05 s is under the clear's p99 above.
+# An intent that may wait a casting delay out (`Intent.may_wait`) is offered the jump PLAN_AHEAD seconds before
+# its delay is over: the look and the choice of the leg are made while it runs (130 to 150 ms in a clean game,
+# 500 to 770 under load: rca/2026-10-13/latency-findings.md §2.2), and the jump holds its key, the pointer on the
+# aim, until it is (`Travel.delay_over`). The jump is the one priced: no other leg is made in its place.
+PLAN_AHEAD = 0.25
+KEY_POLL = 0.02  # seconds between the light looks that wait for a delay's end (a tick is 0.04), or for a throw
+# Pixels: a pointer the macro put within this of a jump's aim (during the flight before: `Travel.aim_ahead`) is
+# put on it in one step (`Actuator.aim` `near`). A landing is off its aim by 1.0 units at the median, 2.6 at p90.
+NEAR_AIM = 120
+REAIM = 0.5  # units the character moved while a jump waited for its delay that have the pointer put again
+LEG_GAP = 2.5  # seconds: two moves further apart than this are not legs of one travel (`Tally`)
 # Charges of the Teleport staff the mode's own moves leave alone (user, 2026-10-11: "track number of tp
 # charges when using staff, and leverage warp more when low on charges"): under it the sweep
 # does not jump by Teleport, and the seek step goes by Blade Warp or a walk where one leads on. The
@@ -183,16 +208,30 @@ def spare_jump(sets: Sequence[MovementSet], slots: Sequence[int | None]) -> Jump
 
 
 def move_facts(
-    run: Run, world: World, ground: Ground | None, aspect: float, travel: Travel, rooms: tuple[Room, ...] = ()
+    run: Run,
+    world: World,
+    ground: Ground | None,
+    aspect: float,
+    travel: Travel,
+    rooms: tuple[Room, ...] = (),
+    *,
+    lead: float = 0.0,
 ) -> MoveFacts:
     """What a move is chosen from, read once: where the character stands, the clock, the skills on
     keys, the worn staff, the level, and `travel`'s memory of the jumps made and failed. No staff
     reader (`run.teleport` None) and a staff that is not there or cannot be read are the same fact,
-    `staff=None`: Teleport, if it is in a slot, is taken as a skill of the character's own."""
+    `staff=None`: Teleport, if it is in a slot, is taken as a skill of the character's own. `lead`:
+    seconds before a casting delay is over that its jump counts as ready (`ahead_of`)."""
     # The staff is read only with Teleport on a key, as before the facts were (a read of the worn
     # items on every stride would be a new cost in the game's loop): without it no jump asks for it.
     staff = run.teleport() if run.teleport is not None and TELEPORT in world.slots else None
-    return facts_with(run, world, ground, aspect, travel, staff, rooms)
+    return facts_with(run, world, ground, aspect, travel, staff, rooms, lead=lead)
+
+
+def ahead_of(intent: Intent) -> float:
+    """Seconds before a casting delay is over that a jump counts as ready for a move within `intent`:
+    PLAN_AHEAD where the intent may wait a delay out, else none (`Travel.jump` holds the key till then)."""
+    return PLAN_AHEAD if intent.may_wait else 0.0
 
 
 def facts_with(
@@ -203,20 +242,23 @@ def facts_with(
     travel: Travel,
     staff: Teleport | None,
     rooms: tuple[Room, ...] = (),
+    *,
+    lead: float = 0.0,
 ) -> MoveFacts:
     """`move_facts` with the worn staff as the caller has it (read a moment ago, or None): the clock
     is read, the staff is not. A staff counts only with Teleport on a key, as in `move_facts`."""
     player = world.player
     assert player is not None
+    now = run.clock()
     return MoveFacts(
         here=(player.x, player.y),
-        now=run.clock(),
+        now=now,
         slots=world.slots,
         staff=staff if TELEPORT in world.slots else None,
         ground=ground,
         doors=world.doors,
         aspect=aspect,
-        last_used=dict(travel.jumped_at),
+        last_used=travel.counted(now, player.cooldown, lead),
         failed=dict(travel.jump_failed),
         area=player.area,
         rooms=rooms,
@@ -500,6 +542,31 @@ def way_leg(facts: MoveFacts, goal: Point, intent: Intent, *, jumps: Sequence[Ju
     return NoWay(NO_SPOT_ON_WAY)
 
 
+class Stale(Abort):
+    """The character is not where a jump's leg was chosen from any more, found while the jump waited for its
+    casting delay to end (`Travel.delay_over`): no key is pressed, and the next look chooses the leg again. Not
+    a jump that failed: the way is not distrusted for it."""
+
+
+@dataclass
+class Tally:
+    """The moves of one level run (KP_1), for its pace: from its first leg (`since`), the units made (a jump
+    landed, a walk's stride as clicked), the legs, and the key-to-key seconds of the delayed jumps made one
+    after the other (`Travel.jump`'s "leg time" line). Told and begun again when the run ends (`Travel.paced`)."""
+
+    since: float | None = None
+    last: float = -math.inf  # the clock at the last leg's start
+    units: float = 0.0
+    jumps: int = 0
+    walks: int = 0
+    keys: list[float] = field(default_factory=list)
+
+    def leg(self, now: float) -> None:
+        if self.since is None:
+            self.since = now
+        self.last = now
+
+
 class Travel:
     """What the character can jump by, and the moves made with it. The choice of a move is a movement
     set's (`sets`: a build's, the first that applies), asked here with the facts as they are now
@@ -508,14 +575,18 @@ class Travel:
 
     def __init__(self, sets: Sequence[MovementSet] = ()) -> None:
         self.sets = tuple(sets)  # the build's movement sets: the first that applies is the one asked
-        # The skills with a casting delay: the last jump by one of them is remembered
-        self.delayed = frozenset(
-            source.jump.skill for movement in self.sets for source in movement.sources if source.delay
-        )
-        self.jumped_at: dict[int, float] = {}  # skill with a casting delay -> clock time of the last jump by it
+        # The skills with a casting delay and its seconds: the last jump by one of them is remembered
+        self.delays = {
+            source.jump.skill: source.delay for movement in self.sets for source in movement.sources if source.delay
+        }
+        self.delayed = frozenset(self.delays)
+        self.jumped_at: dict[int, float] = {}  # skill with a casting delay -> clock time its last key went down
+        self.released_at: dict[int, float] = {}  # -> the clock time that key came up (the clock's rule, `left`)
         self.jump_failed: dict[int, float] = {}  # skill -> clock time a jump by it last moved nothing
         # A way a set said leads nowhere (`NoWay.distrust`) -> the clock time it said so (`toward`)
         self.distrusted: dict[Hashable, float] = {}
+        self.landed_at: dict[int, float] = {}  # skill -> the clock when its last jump was seen landed
+        self.tally = Tally()  # the level run's moves (`paced`)
 
     @property
     def warped_at(self) -> float:
@@ -526,11 +597,44 @@ class Travel:
     def warped_at(self, at: float) -> None:
         """Every skill with a casting delay was last jumped by at `at` (a test's way to the state)."""
         self.jumped_at = dict.fromkeys(self.delayed, at)
+        self.released_at = {}
+
+    def left(self, skill: int, now: float, cooldown: bool | None) -> float:
+        """Seconds of the skill's casting delay still to run; 0 or less (-inf: known over), none. By the
+        character's delay state where the look read it (`cooldown`, world.py `Player.cooldown`): clear
+        DELAY_SHOWN after the key, over; set, it ends no sooner than the delay from the key's down nor
+        before the next tick. With the state unread, or set DELAY_STALE after the key (not this key's), by
+        the clock from the key's release (or from the key, when no release was recorded)."""
+        keyed, delay = self.jumped_at.get(skill), self.delays.get(skill, 0.0)
+        if keyed is None or not delay:
+            return -math.inf
+        since = now - keyed
+        if cooldown is None or since >= DELAY_STALE:
+            return self.released_at.get(skill, keyed) + delay - now
+        if cooldown:
+            return max(delay - since, DELAY_TICK)
+        return -math.inf if since >= DELAY_SHOWN else delay - since
+
+    def counted(self, now: float, cooldown: bool | None, lead: float = 0.0) -> dict[int, float]:
+        """`MoveFacts.last_used` for a choice made now with the delay state `cooldown`: for each skill keyed, the
+        clock time its delay counts from, so that a set reads it as over (`JumpSource.ready`) `lead` seconds
+        before `left` does. A skill whose delay the state says is over is left out; one timed by the clock
+        counts from its key's release (from its key as recorded where none was: a test's `warped_at`)."""
+        found: dict[int, float] = {}
+        for skill, keyed in self.jumped_at.items():
+            delay = self.delays.get(skill, 0.0)
+            if cooldown is None or not delay or now - keyed >= DELAY_STALE:
+                found[skill] = self.released_at.get(skill, keyed) - lead
+                continue
+            left = self.left(skill, now, cooldown)
+            if left > -math.inf:
+                found[skill] = now - delay + left - lead
+        return found
 
     def leg(self, run: Run, world: World, ground: Ground | None, aspect: float, goal: Point, intent: Intent) -> Leg:
         """The next move toward `goal` within `intent`, by the set that applies to the facts as they
         are now; with no such set, that reason."""
-        facts = move_facts(run, world, ground, aspect, self)
+        facts = move_facts(run, world, ground, aspect, self, lead=ahead_of(intent))
         movement = navigator(self.sets, facts)
         return NoWay(NO_SET) if movement is None else movement.leg(facts, goal, intent)
 
@@ -542,7 +646,7 @@ class Travel:
         A preferred jump must not hide a faster escape by another means. A set
         on the back is offered only when a swap is allowed; no input is made.
         """
-        facts = move_facts(run, world, ground, aspect, self)
+        facts = move_facts(run, world, ground, aspect, self, lead=ahead_of(intent))
         if intent.may_swap and facts.staff is not None:
             facts = replace(facts, staff=replace(facts.staff, in_hand=True))
         movement = navigator(self.sets, facts)
@@ -582,7 +686,7 @@ class Travel:
         move by the means in hand now, as the set that applies gives it by its own way there, or the
         reason there is none. `goal` is the goal's own place, never a place worked out for one means;
         `rooms`: the level's, for a set that plans over them."""
-        return self.asked(move_facts(run, world, ground, aspect, self, rooms), goal, intent)[2]
+        return self.asked(move_facts(run, world, ground, aspect, self, rooms, lead=ahead_of(intent)), goal, intent)[2]
 
     def eta(
         self,
@@ -596,7 +700,8 @@ class Travel:
     ) -> float:
         """Seconds to `goal` by the means in hand now (`MovementSet.eta`): what progress toward a goal
         is measured by. inf where `toward` has no way."""
-        facts, movement, found = self.asked(move_facts(run, world, ground, aspect, self, rooms), goal, intent)
+        facts = move_facts(run, world, ground, aspect, self, rooms, lead=ahead_of(intent))
+        facts, movement, found = self.asked(facts, goal, intent)
         if movement is None or (isinstance(found, NoWay) and not found.arrived):
             return math.inf
         return movement.eta(facts, goal, intent)
@@ -612,8 +717,9 @@ class Travel:
         rooms: tuple[Room, ...] = (),
     ) -> float:
         """Seconds to let pass before `toward` is asked (`MovementSet.wait`: a casting delay about to
-        end on the way the set would take); the game is read again after them."""
-        facts = move_facts(run, world, ground, aspect, self, rooms)
+        end on the way the set would take); the game is read again after them. A delay that ends within
+        PLAN_AHEAD is not waited out here: the jump waits for it with its key (`ahead_of`, `jump`)."""
+        facts = move_facts(run, world, ground, aspect, self, rooms, lead=ahead_of(intent))
         movement = navigator(self.sets, facts)
         return 0.0 if movement is None else movement.wait(facts, goal, intent)
 
@@ -646,14 +752,14 @@ class Travel:
     ) -> float:
         """Seconds to let pass before a move from `here` toward `goal` is asked for (`MovementSet.wait`:
         a casting delay about to end). The clock is read; the staff is the caller's (`facts_with`)."""
-        facts = replace(facts_with(run, world, ground, aspect, self, staff), here=here)
+        facts = replace(facts_with(run, world, ground, aspect, self, staff, lead=ahead_of(intent)), here=here)
         movement = navigator(self.sets, facts)
         return 0.0 if movement is None else movement.wait(facts, goal, intent)
 
     def jumps(self, run: Run, world: World, intent: Intent = OWN_MOVE) -> tuple[Jump, ...]:
         """The skills a step can be jumped by now without a weapon swap, the preferred first (the
         set's `jumps`): asked without the level or the window, which a list of jumps reads neither of."""
-        facts = move_facts(run, world, None, NO_ASPECT, self)
+        facts = move_facts(run, world, None, NO_ASPECT, self, lead=ahead_of(intent))
         movement = navigator(self.sets, facts)
         return () if movement is None else movement.jumps(facts, intent)
 
@@ -661,38 +767,167 @@ class Travel:
         """The skill a stride can be jumped by now (the first of `jumps`). None: the stride is walked."""
         return next((jump.skill for jump in self.jumps(run, world, intent)), None)
 
-    def jump(self, run: Run, found: Step, player, aspect: float, key_names) -> None:
-        """One jump onto `found.spot` by the skill it names: the pointer on its ground, the key, and
-        the character seen somewhere else. What it was aimed at and where it landed goes to the log."""
+    def jump(
+        self,
+        run: Run,
+        found: Step,
+        player,
+        aspect: float,
+        key_names,
+        ahead: Callable[[Point], Point | None] | None = None,
+    ) -> None:
+        """One jump onto `found.spot` by the skill it names: the pointer on its ground, the skill's casting
+        delay waited out with the pointer there (`delay_over`), the key, and the character seen somewhere
+        else. `ahead`: the aim of the leg after it from where it lands, for the pointer during the flight
+        (`aim_ahead`). What it was aimed at and where it landed goes to the log, and the leg's time (`timed`)."""
         skill = found.skill
         assert skill is not None
+        began = run.clock()
+        before = self.jumped_at.get(skill)
         try:
-            run.keys.update(key_names(run.world(), (skill,)))
+            with run.lightly():  # the key's name needs the skills on keys alone
+                run.keys.update(key_names(run.world(), (skill,)))
             # No wait of its own for the cast in flight: `press_skill` waits for the character (with one,
             # 0.39 s went by between the decision and the key at the median, 2026-10-11).
             if run.pad is not None:
                 run.pad.aim_place((player.x, player.y), found.spot)  # controller mode: a heading (macros/pad.py)
             else:
-                run.actuator.aim(*ground_fraction(player, found.spot[0], found.spot[1], aspect), scatter=(4, 3))
-            pressed = run.clock()
-            press_skill(run, skill)
+                where = ground_fraction(player, found.spot[0], found.spot[1], aspect)
+                run.actuator.aim(*where, scatter=(4, 3), near=NEAR_AIM)
+            aimed = run.clock()
+            # Where the character is at the key: still running from a walk's click, it is not where the leg was
+            # chosen from. The aim is put again from there, so that the blade goes to the place chosen, and the
+            # landing is told from there (held key's scenes, seed 11: a walk's 2.3 units taken for the landing).
+            origin = self.delay_over(run, skill, player) or player
+            if run.pad is None and math.dist((origin.x, origin.y), (player.x, player.y)) > REAIM:
+                where = ground_fraction(origin, found.spot[0], found.spot[1], aspect)
+                run.actuator.aim(*where, scatter=(4, 3), near=NEAR_AIM)
+            waited = run.clock()
+            keyed = press_skill(run, skill)
+            released = run.clock()
             if skill in self.delayed:
-                self.jumped_at[skill] = run.clock()
+                self.jumped_at[skill], self.released_at[skill] = keyed, released
             spot = found.spot
-            if run.seen(lambda w: w.player is not None and landed_from(w.player, player, spot), JUMP_SECONDS) is None:
+            if ahead is not None and run.pad is None:
+                self.aim_ahead(run, keyed, origin, spot, aspect, ahead)
+            with run.lightly():  # the landing is the character's place: no monster or door is wanted
+                landing = run.seen(
+                    lambda w: w.player is not None and landed_from(w.player, origin, spot),
+                    max(released + JUMP_SECONDS - run.clock(), KEY_POLL),
+                )
+            if landing is None:
                 raise Abort(f'{skill_name(skill)}: the character did not move')
+        except Stale:
+            raise
         except Abort:
             self.jump_failed[skill] = run.clock()
             raise
-        landed = run.world().player
-        if landed is not None:
-            LOG.info(
-                'Macro: %s aimed at (%.1f, %.1f), %.1f from (%.1f, %.1f); landed at (%.1f, %.1f), off by %.1f, '
-                '%.2fs after the key',
-                skill_name(skill), *found.spot, math.dist((player.x, player.y), found.spot), player.x, player.y,
-                landed.x, landed.y,
-                math.dist((landed.x, landed.y), found.spot), run.clock() - pressed,
-            )  # fmt: skip
+        landed_at = run.clock()
+        landed = landing.player
+        assert landed is not None
+        LOG.info(
+            'Macro: %s aimed at (%.1f, %.1f), %.1f from (%.1f, %.1f); landed at (%.1f, %.1f), off by %.1f, '
+            '%.2fs after the key',
+            skill_name(skill), *found.spot, math.dist((origin.x, origin.y), found.spot), origin.x, origin.y,
+            landed.x, landed.y,
+            math.dist((landed.x, landed.y), found.spot), landed_at - keyed,
+        )  # fmt: skip
+        self.tally.units += math.dist((origin.x, origin.y), (landed.x, landed.y))
+        self.tally.jumps += 1
+        if skill in self.delayed:
+            self.timed(skill, before, (began, aimed, waited, keyed, released))
+            self.landed_at[skill] = landed_at
+
+    def timed(self, skill: int, before: float | None, marks: tuple[float, float, float, float, float]) -> None:
+        """The log's line of a delayed jump made right after the one before ("leg time:", for the next game's
+        reading): the seconds from that key's down to this one's and their parts, the flight before (its key
+        to its landing seen), the look and the choice of this leg, the aim, the delay waited out with the
+        pointer on the aim, and `press_skill`'s wait for the character; and this key's hold."""
+        began, aimed, waited, keyed, released = marks
+        landed = self.landed_at.get(skill)
+        if before is None or landed is None or not before <= landed <= began or keyed - before > LEG_GAP:
+            return
+        self.tally.keys.append(keyed - before)
+        LOG.info(
+            'Macro: leg time: %s %.3fs key to key = flight %.3f + look and choice %.3f + aim %.3f + delay wait '
+            '%.3f + ready %.3f; hold %.3f',
+            skill_name(skill), keyed - before, landed - before, began - landed, aimed - began, waited - aimed,
+            keyed - waited, released - keyed,
+        )  # fmt: skip
+
+    def delay_over(self, run: Run, skill: int, player: Player) -> Player | None:
+        """Wait until the skill's casting delay is over (`left`), looking lightly every KEY_POLL with the
+        pointer on the aim, so that the key goes down at the first look that allows it. A key in the delay
+        is refused by the game and the jump then moves nobody (2026-10-11 to 13: 36 of 46 such keys). A
+        character no longer where the leg was chosen from, or dead, ends the wait without a key: `Stale`.
+        Returns the character as the last look saw it; None when no delay was waited for."""
+        if skill not in self.delayed or skill not in self.jumped_at:
+            return None
+        with run.lightly():
+            while True:
+                seen = run.world().player
+                left = self.left(skill, run.clock(), seen.cooldown if seen is not None else None)
+                if left <= 0:
+                    return seen
+                if seen is None or seen.mode in DEAD or moved(seen, player):
+                    raise Stale(f'{skill_name(skill)}: the character moved in its delay; the leg is chosen again')
+                run.pace.sleep(min(left, KEY_POLL))
+
+    def aim_ahead(
+        self, run: Run, keyed: float, player: Player, spot: Point, aspect: float, ahead: Callable[[Point], Point | None]
+    ) -> None:
+        """During a jump's flight, the pointer put on the aim of the leg after it as the set would give it
+        from the landing (`ahead`, the goal's next jump), once the cast has thrown: the delay state set, or
+        DELAY_SHOWN after the key with none read (the place the jump goes to is the pointer's at the cast;
+        12:33 on 2026-10-13: the state set 0.17 to 0.23 s after the key). The leg is chosen again from the
+        landing; the pointer then has a step to go at most (`Actuator.aim` `near`). The player's hand on the
+        mouse stops it: nothing else depends on it."""
+
+        def thrown(w: World) -> bool:
+            p = w.player
+            return p is not None and (bool(p.cooldown) or landed_from(p, player, spot))
+
+        with run.lightly():
+            run.seen(thrown, max(keyed + DELAY_SHOWN - run.clock(), 0.0), KEY_POLL)
+        then = ahead(spot)
+        if then is None:
+            return
+        where = ground_fraction(replace(player, x=spot[0], y=spot[1]), then[0], then[1], aspect)
+        if not in_view(where):
+            return
+        try:
+            run.actuator.aim(*where, scatter=(4, 3))
+        except Abort:
+            if run.cancelled.is_set():
+                raise
+
+    def ahead(
+        self, run: Run, world: World, ground: Ground | None, aspect: float, landing: Point, goal: Point, intent: Intent
+    ) -> Point | None:
+        """Where the leg after a jump that lands at `landing` aims, as the set that applies there gives it
+        toward `goal` with every delay over, when that leg is a delayed jump again: a guess made during the
+        flight, for the pointer alone. None: a walk, a hop or no leg."""
+        player = world.player
+        assert player is not None
+        there = replace(world, player=replace(player, x=landing[0], y=landing[1], cooldown=None))
+        facts = replace(move_facts(run, there, ground, aspect, self), last_used={})
+        movement = navigator(self.sets, facts)
+        found = None if movement is None else movement.leg(facts, goal, intent)
+        return found.spot if isinstance(found, Step) and found.skill in self.delayed else None
+
+    def paced(self, now: float | None, why: str) -> None:
+        """The level run is over (`why`): its pace to the log ("leg time: level run"), and a new tally begun."""
+        tally, self.tally = self.tally, Tally()
+        if tally.since is None:
+            return
+        end = tally.last if now is None else now
+        spent = max(end - tally.since, 1e-9)
+        keys = f'p50 {statistics.median(tally.keys):.3f}s over {len(tally.keys)}' if tally.keys else 'none'
+        LOG.info(
+            'Macro: leg time: level run (%s): %.0f units in %.1fs since its first leg, %.1f units/s; %d jumps, '
+            '%d walks; key to key %s',
+            why, tally.units, spent, tally.units / spent, tally.jumps, tally.walks, keys,
+        )  # fmt: skip
 
     def make(
         self,
@@ -710,11 +945,13 @@ class Travel:
         walk. A jump that cannot be made any more (the skill gone from `jumps` since the choice, a
         wall in a blade's line) is made by the next skill that can, else walked. `intent` is the one
         the step was chosen under: the jumps are asked for again within it. `goal`: the place the step
-        leads toward, when it is not the step's own end (a routed move), for what is said of a hop."""
+        leads toward, when it is not the step's own end (a routed move), for what is said of a hop and
+        for the pointer during a jump's flight (`ahead`)."""
         player = world.player
         assert player is not None
         here = (player.x, player.y)
         skill = found.skill
+        self.tally.leg(run.clock())
         if intent.routed and skill == TELEPORT and key_names is not None:
             # A hop the set that teleports chose over the level's rooms: made as the teleport step makes
             # its own (teleport.py `hop_to`: the staff swapped in where a staff it is, the key during the
@@ -743,9 +980,19 @@ class Travel:
                 raise Abort('priced movement is no longer available; a new safety decision is needed')
             skill = skill if skill in able else next(iter(able), None)
         if skill is not None and key_names is not None:
-            self.jump(run, replace(found, skill=skill), player, aspect, key_names)
+            ahead = None
+            if goal is not None and intent.routed and skill in self.delayed:
+                ahead = partial(self.ahead, run, world, ground, aspect, goal=goal, intent=intent)
+            self.jump(run, replace(found, skill=skill), player, aspect, key_names, ahead)
         else:
-            step_walk(run, found.spot, player, aspect, attackable(world), name=name or 'a better place')
+            began = run.clock()
+            settled = step_walk(run, found.spot, player, aspect, attackable(world), name=name or 'a better place')
+            self.tally.units += math.dist(here, found.spot)
+            self.tally.walks += 1
+            LOG.info(
+                'Macro: leg time: walk of %.0f, %.3fs to the character seen going (settle %.3f)',
+                math.dist(here, found.spot), run.clock() - began, settled,
+            )  # fmt: skip
 
 
 def walked_way(barred: Callable[[Point], bool], start: Point, goal: Point) -> list[Point]:
@@ -831,12 +1078,16 @@ def attackable(world: World) -> list[Monster]:
 
 def step_walk(
     run: Run, goal, player, aspect: float, alive: list[Monster], *, name: str = 'a better place', clicks: int = 1
-) -> None:
+) -> float:
     """A click on the ground at `goal` and the character seen going within STEP_WALK_SECONDS, `clicks`
     times at most (a click made while a cast ends is swallowed). Not clicked with one of `alive` (the
     monsters a click attacks) under the pointer: the left button attacks it, where it stands or after
     a chase. The unit the game names as under the pointer counts only within HOVER_UNITS of the goal
-    (the name of the last unit hovered seems to stay)."""
+    (the name of the last unit hovered seems to stay). The first click waits for the character to stand
+    free for a while (`settle`) only when the look the walk was chosen by (`player`) or one now has it
+    casting: free at both, no cast ends under the click (the fixed 0.2 s of every walk leg, 2026-10-13
+    latency-findings.md §2.2); a click again, after one the game took no notice of, waits. Returns the
+    seconds spent waiting so."""
     where = ground_fraction(player, goal[0], goal[1], aspect)
     if not in_view(where):
         raise Abort(f'the place near {name} is not in view')
@@ -846,9 +1097,13 @@ def step_walk(
         run.pad.walk(goal, why=name)
         if not moved(run.world().player or player, player):
             raise Abort('the character did not move')
-        return
-    for _ in range(clicks):
-        settle(run, limit=0.5)
+        return 0.0
+    settled = 0.0
+    for click in range(clicks):
+        began = run.clock()
+        if click or player.mode in ACTING or not free(run):
+            settle(run, limit=0.5)
+        settled += run.clock() - began
         run.actuator.aim(*where, scatter=(4, 3))
         if run.hovered is not None:
             run.pace.sleep(HOVER_SECONDS)
@@ -859,5 +1114,12 @@ def step_walk(
                     raise Covered(f'{label(under[0])} is under the pointer there', (under[0].unit_id,))
         run.actuator.click()
         if run.seen(lambda w: w.player is not None and moved(w.player, player), STEP_WALK_SECONDS) is not None:
-            return
+            return settled
     raise Abort('the character did not move')
+
+
+def free(run: Run) -> bool:
+    """Whether a light look has the character free to act (no cast under way)."""
+    with run.lightly():
+        seen = run.world().player
+    return seen is not None and seen.mode not in ACTING
