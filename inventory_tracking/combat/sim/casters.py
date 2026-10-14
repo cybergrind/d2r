@@ -64,9 +64,10 @@ MINDS = (FINGER_MAGE, DOOM_KNIGHT, OBLIVION_KNIGHT, MEGADEMON)
 # Diablo (AI 51) thinks here too, by his own rules and rows (sim/diablo.py, diablo.json). He is not one of MINDS:
 # `mind_of` and `row_of` stay the four's (combat/harm.py prices by them and still takes him for an unread boss).
 DIABLO = 'Diablo'
-# Baal (AI BaalCrab, and his clone's BaalCrabClone) thinks here too, by sim/baal.py: his think is not read (its page is
-# encrypted); that module plays the share of each act the probe saw.
+# Baal (AI BaalCrab, and his clone's BaalCrabClone) thinks here too, by sim/baal.py: his think as read in the client
+# (2026-10-14, rca/2026-10-14/re/baal-ai.md).
 BAAL = 'Baal'
+BAAL_AWARE = 1020  # [code] ai_d2_ai_baal_target_in_act: every player of the act within 1020 sub-tiles
 STAND, WALK, STRIKE, STAGGER, CAST = 'stand', 'walk', 'strike', 'stagger', 'cast'  # sim/monsters.py's, and a cast
 SPELL, POISON = 'spell', 'poison'  # the kinds of a blow a caster adds to sim/monsters.py's
 # [code] notes-ai.md, the frame: the radius when `aidist` is empty, the player beyond which nobody is a
@@ -288,6 +289,12 @@ class Bolt:
     trail_life: int = 0  # the frames such a trail stands
     trail_parts: dict[str, float] = field(default_factory=dict)
     trail_rate: float = 1.0  # the trail's `rate`
+    # A maker that sheds missiles across its line (Baal's cold maker, sim/baal.py): each frame it enters a new sub-tile,
+    # two of class `sides`, one each way, `side_step` a frame for `side_life` frames, with its points and its `struck`
+    # (a body the cast took from is not taken from again); 0: none.
+    sides: int = 0
+    side_step: float = 0.0
+    side_life: int = 0
 
     @property
     def at(self) -> Point:
@@ -306,6 +313,8 @@ class Summon:
     frame: int
     lasts: int | None
     seed: int
+    share: float = 0.0  # of its summoner's most life the life it rises with (Baal's clone: his life / 3); 0: its own
+    most: float = 0.0  # of its summoner's most life its own most life; 0: its own row's
 
 
 @dataclass
@@ -331,7 +340,9 @@ class Mind:
     held: float = STOP  # where a walk toward a body ends
     level: dict[int, int] = field(default_factory=dict)  # skill slot -> its level
     home: Point | None = None  # where it first thought (Diablo's home point stand-in, sim/diablo.py)
-    split: bool = False  # Baal: he has come under the life his clone splits off at (sim/baal.py)
+    threat: float = 0.0  # Baal: the points the character took off him while its threat state holds (sim/baal.py)
+    seen_health: float = 1.0  # Baal: his life share at his last think
+    clones: int = 0  # Baal: the clones he made (control +0x48)
 
     def aip(self, n: int) -> float:
         return number(self.row, f'aip{n}(H)')
@@ -347,6 +358,8 @@ class Mind:
             from inventory_tracking.combat.sim import diablo
 
             return float(diablo.AWARE)
+        if self.ai == BAAL:
+            return float(BAAL_AWARE)
         return number(self.row, 'aidist(H)') or RADIUS
 
     @property
@@ -620,8 +633,18 @@ class Minds:
                 gap = math.dist(bolt.at, goal)
                 if gap > 1e-6:
                     bolt.dx, bolt.dy = (goal[0] - bolt.x) / gap, (goal[1] - bolt.y) / gap
+            cell = (math.floor(bolt.x), math.floor(bolt.y))
             bolt.x += bolt.dx * bolt.step
             bolt.y += bolt.dy * bolt.step
+            if bolt.sides and (math.floor(bolt.x), math.floor(bolt.y)) != cell:
+                for dx, dy in ((-bolt.dy, bolt.dx), (bolt.dy, -bolt.dx)):
+                    spawned.append(
+                        Bolt(
+                            bolt.unit, bolt.txt, bolt.sides, bolt.x, bolt.y, dx, dy, bolt.side_step, frame,
+                            frame + bolt.side_life, dict(bolt.parts), kills=False, struck=bolt.struck, aim=bolt.aim,
+                            origin=bolt.at,
+                        )
+                    )  # fmt: skip
             near = sorted((math.dist(bolt.at, body), index) for index, body in enumerate(targets))
             near = [(gap, index) for gap, index in near if gap <= CONTACT]
             if bolt.trail:
@@ -1087,10 +1110,12 @@ class Minds:
                 (frame, walker.unit, walker.txt, diablo.WALL_MAKER, walker.at, body, frame + diablo.WALL_LIFE)
             )
 
-    def summon(self, walker: Any, txt: int, at: Point, frame: int, lasts: int | None) -> None:
+    def summon(
+        self, walker: Any, txt: int, at: Point, frame: int, lasts: int | None, share: float = 0.0, most: float = 0.0
+    ) -> None:
         """A monster raised by `walker`'s cast (`Summon`), its seed from the walker's own rolls."""
         seed = self.host.rolls[walker.unit].getrandbits(32)
-        self.summons.append(Summon(walker.unit, txt, at, frame, lasts, seed))
+        self.summons.append(Summon(walker.unit, txt, at, frame, lasts, seed, share, most))
 
     def _shoot(
         self, walker: Any, frame: int, missile: int, level: int, toward: Point, aim: int, *, homing: int = -1

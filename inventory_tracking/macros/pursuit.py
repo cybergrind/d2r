@@ -202,6 +202,12 @@ class Candidate:
     # and dwell): the arbiter's strike gap (I2). 0: a strike.
     unstruck: float = 0.0
     strikes: bool = False  # the act ends with a hostile in the strike's reach and a clear line: a strike follows
+    # A retreat that ends within the strike's reach of the hostile whose kill ends most of the harm (macros/safety.py
+    # `keeper`): the fight goes on from it, so the retreat does not throw the fight (rca/2026-10-14/baal-sim.md fix 1).
+    keeps: bool = False
+
+
+KEEPING = 'retreating within strike reach: no act here fits the life budget'  # `Macro: pursuit: retreating within ...`
 
 
 def arbitrate(facts: Facts) -> Act:
@@ -235,6 +241,14 @@ def arbitrate(facts: Facts) -> Act:
                 return holding.act
         return chosen.act
     escapes = [c for c in allowed if c.retreat]
+    # A retreat that keeps the strike on what ends the harm and fits the budget comes first, the cheapest of them by
+    # the same price (the nearest such place, as a rule): one out of reach only defers the harm, as the hostile does
+    # not die meanwhile (rca/2026-10-14/baal-sim.md weakness 2: 4.5 s a fight out of Baal's reach). Else the least harm.
+    keeping = [c for c in escapes if c.keeps and isinstance(c.act, Move) and c.harm.worst <= facts.budget]
+    if keeping:
+        kept = min(keeping, key=lambda c: c.seconds + facts.kappa * c.harm.mean)
+        assert isinstance(kept.act, Move)
+        return Move(kept.act.step, kept.act.goal, KEEPING)
     if escapes:
         chosen = min(escapes, key=lambda c: (c.harm.mean, c.harm.worst, c.seconds))
         if isinstance(chosen.act, Move):

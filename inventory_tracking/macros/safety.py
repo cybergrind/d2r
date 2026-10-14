@@ -83,6 +83,14 @@ DRAW_TARGETS = 2
 DRAW_LEADERS = 2
 DRAW_HELD = 3.0
 DRAW_FRESH = 0.5
+# A retreat that keeps the fight (rca/2026-10-14/baal-sim.md fix 1, `keeper`, `keeping`): offered when one hostile's
+# kill ends KEEP_SHARE or more of the harm where the character stands (its own and that of what is bound to it, a
+# summon gone with its summoner: combat/threats `bound`), on the ring KEEP_MARGIN units inside the strike's reach of
+# it, at these turns from the character's bearing (the nearest first).
+KEEP_SHARE = 0.5
+KEEP_MARGIN = 1.5
+KEEP_TURNS = tuple(math.radians(turn) for turn in (0, 35, -35, 70, -70, 110, -110, 180))
+KEEP_MOST = 4  # such places asked of the navigator in one look
 # A missile the look reads for a read model (combat/threats): (owner unit, missile class, x, y).
 Flights = Callable[[frozenset[int]], Sequence[tuple[int, int, float, float]]]
 
@@ -101,6 +109,31 @@ def footing(field_: Field, here: Point, point: Point) -> Point | None:
             if field_.clear(here, spot):
                 return spot
     return None
+
+
+def keeper(look: Look, seen: Observation, priced: Harm) -> int | None:
+    """The hostile whose kill ends KEEP_SHARE or more of the harm `priced` (by its contributors): its own share and
+    that of the hostiles bound to it (combat/threats `bound`: Baal's clone goes with him, so his kill ends both). None
+    when no one hostile's does (a pack whose harm is spread: the retreats are as before) or it cannot be struck."""
+    total = sum(points for _, points in priced.by)
+    if total <= 0:
+        return None
+    ends = dict(priced.by)
+    for unit, masters in threats.bound({m.unit: m.txt for m in look.hostiles}).items():
+        for master in masters:
+            ends[master] = ends.get(master, 0.0) + dict(priced.by).get(unit, 0.0)
+        ends.pop(unit, None)
+    found = max((unit for unit in ends if unit in seen.foes), key=lambda unit: (ends[unit], -unit), default=None)
+    return found if found is not None and ends[found] >= KEEP_SHARE * total else None
+
+
+def keeping(here: Point, at: Point, reach: float) -> list[Point]:
+    """The places a retreat that keeps the fight is offered at (`KEEP_TURNS`): on the ring KEEP_MARGIN inside `reach`
+    of `at` (the hostile `keeper` names), the nearest to `here` first, KEEP_MOST of them."""
+    radius = max(reach - KEEP_MARGIN, 1.0)
+    bearing = math.atan2(here[1] - at[1], here[0] - at[0])
+    ring = [(at[0] + radius * math.cos(bearing + t), at[1] + radius * math.sin(bearing + t)) for t in KEEP_TURNS]
+    return sorted(ring, key=lambda point: math.dist(here, point))[:KEEP_MOST]
 
 
 def in_flight(
@@ -434,12 +467,18 @@ class Safety:
             hold = Candidate(Hold(facts.goal), hold_seconds + remaining, hold_harm, False, hold_unstruck, True)
             candidates.append(hold)
 
+        # A hostile bound to a summoner about (combat/threats `bound`: Baal's clone) dies with it: a strike on it is
+        # lost while the summoner lives, so a stand that reaches only such is no strike (baal-sim.md fix 2)
+        lost = threats.bound({unit: foe.txt for unit, foe in seen.foes.items()})
+
         def strikes_from(spot: Point) -> bool:
             return any(
-                math.dist(spot, foe.at) <= attack.reach and field_.clear(spot, foe.at) for foe in seen.foes.values()
+                math.dist(spot, foe.at) <= attack.reach and field_.clear(spot, foe.at)
+                for unit, foe in seen.foes.items()
+                if unit not in lost
             )
 
-        def move_price(step: Step, *, retreat=False, firing=False, why: str | None = None, dodge=False):
+        def move_price(step: Step, *, retreat=False, firing=False, why: str | None = None, dodge=False, keeps=False):
             gap = math.dist(here, step.spot)
             jump = next((j for j in jumps if j.skill == step.skill), None)
             seconds = jump.takes(gap) if jump else (0.31 if step.skill == TELEPORT else 0.36 + gap / 20.0)
@@ -481,7 +520,7 @@ class Safety:
             step = PricedStep(step.spot, step.skill, step.camp, needs, seconds)
             act = Move(step, goal, why or ('retreat' if retreat else FIRING if firing else ''), dodge=dodge)
             unstruck = seconds + (SWAP_SECONDS if needs != 'battle' else 0.0)  # the strike needs the battle set
-            candidates.append(Candidate(act, duration, damage, retreat, unstruck, strikes_from(step.spot)))
+            candidates.append(Candidate(act, duration, damage, retreat, unstruck, strikes_from(step.spot), keeps))
             return tuple(path), duration
 
         def burnt_out(path: tuple, seconds: float, priced: Harm) -> None:
@@ -603,6 +642,25 @@ class Safety:
                         asked.append(step.spot)
                         move_price(step, retreat=True)
 
+            # First the places within the strike's reach of what ends the harm (`keeper`), the nearest first: a retreat
+            # there keeps the fight going (pursuit.py `arbitrate` prefers one that fits the budget).
+            ender = keeper(look, seen, hold_harm if hold_harm.by else future)
+            if ender is not None:
+                at = seen.foes[ender].at
+                for index, point in enumerate(keeping(here, at, attack.reach)):
+                    if index >= 2 and late():
+                        break
+                    offered = options(point) if options is not None else (leg(point),)
+                    for step in offered:
+                        if (
+                            isinstance(step, Step)
+                            and math.dist(here, step.spot) > 2
+                            and math.dist(step.spot, at) <= attack.reach
+                            and field_.clear(step.spot, at)
+                            and all(math.dist(step.spot, other) >= ESCAPE_SAME for other in asked)
+                        ):
+                            asked.append(step.spot)
+                            move_price(step, retreat=True, keeps=True)
             places = [point for point, _, _ in self.offered(here, look, hold_harm if hold_harm.by else future)]
             for index, point in enumerate(places[:ESCAPES_MOST]):
                 if index >= 2 and late():
@@ -649,7 +707,7 @@ class Safety:
                     self.stepped[m.unit] = (self.modes.get(m.unit), here)
         blocked_goal = asking and (
             not isinstance(chosen, (Move, Operate))
-            or (isinstance(chosen, Move) and chosen.reason.startswith('retreating:'))
+            or (isinstance(chosen, Move) and chosen.reason.startswith('retreating'))
         )
         if blocked_goal:
             if self.blocked_goal != key or facts.now - self.last_press >= 0.7:
@@ -689,6 +747,7 @@ class Safety:
                     'veto': veto(c.harm, look.life, settings),
                     'retreat': c.retreat,
                     'dodge': isinstance(c.act, Move) and c.act.dodge,
+                    'keeps': c.keeps,
                     'contributors': c.harm.by,
                     'stand_ins': c.harm.stand_ins,
                     'blocked_by': blockers(c.harm, allowance),

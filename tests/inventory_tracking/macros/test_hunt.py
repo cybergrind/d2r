@@ -2133,3 +2133,27 @@ def test_the_sweep_does_not_stop_for_a_drop_with_a_hostile_beside_it_or_the_char
     with pytest.raises(Abort, match='cancelled'):
         hunt.gather(run, here, [replace(foe, x=5040.0, y=5040.0)])  # the place is clear: stopped for
     assert asked == [True]
+
+
+def test_a_hostile_that_dies_with_its_summoner_is_no_target_while_anything_else_is_in_reach():
+    """rca/2026-10-14/baal-sim.md fix 2: Baal's clone (combat/threats `bound`) is not aimed at while Baal or anything
+    else is in reach; with nothing else in reach the mode alone strikes it, and the pursuit loop's look does not hold
+    for it (`only_bound`)."""
+    from inventory_tracking.macros.view import Viewport
+
+    baal = foe(1, 5015.0, 5000.0, txt_id=544)
+    clone = foe(2, 5006.0, 5000.0, txt_id=570, life=129882, max_life=129882)
+    tentacle = foe(3, 5003.0, 5004.0, txt_id=564)
+    play = game(baal, clone, tentacle)
+    hunt = hunter(play)
+    ground = Ground(())
+    assert hunt.bound_lost([baal, clone, tentacle], [clone, tentacle]) == {2: (1,)}
+    assert hunt.bound_lost([baal, clone], [clone]) == {}  # nothing else in reach: struck as it is
+    assert hunt.bound_lost([clone, tentacle], [clone, tentacle]) == {}  # no summoner about: a monster as any
+    assert hunt.choose(play.world, [baal, clone], [baal, clone], ground, Viewport(ASPECT)).unit == 1
+    far = replace(baal, x=5040.0)  # out of reach
+    assert hunt.choose(play.world, [far, clone, tentacle], [clone, tentacle], ground, Viewport(ASPECT)).unit == 3
+    here = (5000.0, 5000.0)
+    assert hunt.only_bound(play.world, [baal, clone], ground, here) is False  # Baal himself in reach
+    assert hunt.only_bound(play.world, [far, clone], ground, here) is True
+    assert hunt.only_bound(play.world, [far, clone, tentacle], ground, here) is False

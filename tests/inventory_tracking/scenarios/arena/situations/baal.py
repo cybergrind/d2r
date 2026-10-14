@@ -1,6 +1,7 @@
 """Baal in the Worldstone Chamber as a situation (rca/2026-10-14/baal-sim.md): constructed, as no combat take of the
-Chamber exists. Baal is sim/baal.py's (his acts by the probe's shares, his missiles, tentacles and clone by the tables;
-his think is not read); the character, its mercenary and its demons are the repo's default (cut.py DEFAULT_HERO).
+Chamber exists. Baal is sim/baal.py's (his think as read in the client, rca/2026-10-14/re/baal-ai.md; his missiles,
+tentacles and clone by the code and the tables); the character, its mercenary and its demons are the repo's default
+(cut.py DEFAULT_HERO).
 
 What the scene takes from the probe of eight Baal kills (2026-10-08 to 10-11): the character comes out of the portal
 at (15173, 5888) and Baal stands at (15135, 5920), 50 units south-west (every visit); during the fights the character
@@ -40,11 +41,12 @@ PORTAL_TO_BAAL = (-38.0, 32.0)  # [probe] from where the portal leaves the chara
 START = 20.0  # units from him at the start of the `attack mode` variants (the probe's third quartile while fighting)
 SECONDS = 60.0
 COMPANIONS = ((338, (2.5, 2.0)), (361, (-2.0, 3.0)), (744, (1.0, -2.5)))  # mercenary, Defiler, demon (the takes' txt)
-ABOUT = 'Baal (constructed from the probe and the tables: his think is not read), attack mode from 20 units off'
+ABOUT = 'Baal (constructed: his think as read in the client, his places by the probe), attack mode from 20 units off'
 NAMES = {
     rules.INFERNO_MISSILE: 'inferno',
     rules.NOVA_MISSILE: 'nova',
     rules.COLD_MAKER: 'cold missiles',
+    rules.COLD_TRAIL: 'cold missiles',
 }
 
 
@@ -74,7 +76,8 @@ def build(start: float | None = START) -> Situation:
         'ground': 'open ground 70 units to each side: the Chamber has no take; its walls are not played',
         'scene.hero.at': f'{start} units from Baal on the line to the portal (None: at the portal)',
         'companions': 'the mercenary, the Defiler and a demon stand where they start (the arena never moves them)',
-        'baal': 'sim/baal.py: his acts by the probe shares, his missiles by the tables; his think is not read',
+        'baal': 'sim/baal.py: his think as read in the client (rca/2026-10-14/re/baal-ai.md); the arena knows no '
+        "stats of the bodies, so his target score weighs only melee, sight and the character's threat",
     }
     return situation
 
@@ -214,11 +217,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=(__doc__ or '').split('\n')[0])
     parser.add_argument('--seeds', type=int, default=10)
     parser.add_argument('--only', default='', help='play only the variants whose label holds this')
-    parser.add_argument(
-        '--character-share', type=float, default=None, help="sim/baal.py CHARACTER_SHARE (Diablo's rule: 0.82)"
-    )
     args = parser.parse_args(argv)
-    rules.CHARACTER_SHARE = args.character_share
     for label, situation, presses in variants():
         if args.only in label:
             print('\n'.join(table(label, measure(situation, presses, range(1, args.seeds + 1)))))

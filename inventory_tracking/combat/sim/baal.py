@@ -1,61 +1,53 @@
 """Baal in the Worldstone Chamber (monstats `baalcrab` 544, AI BaalCrab) and his clone (`baalclone` 570, AI
-BaalCrabClone) as the arena plays them: his casts, their missiles, the tentacles he raises and the clone he splits
-off. sim/casters.py `Minds` plays him (`BAAL`) as it plays Diablo; this module holds his rules and his rows
-(baal.json, written by `build` below from the game's tables). rca/2026-10-14/baal-sim.md has the evidence.
+BaalCrabClone) as the arena plays them: his think, his casts, their missiles, the tentacles he raises and the clone he
+splits off. sim/casters.py `Minds` plays him (`BAAL`) as it plays Diablo; this module holds his rules and his rows
+(baal.json, written by `build` below from the game's tables). rca/2026-10-14/re/baal-ai.md has the reading,
+rca/2026-10-14/baal-sim.md the evidence before it.
 
-**His think is not read.** Every think routine of the AI table from row 101 on (where the act 5 AIs are) lies on a
-page of the client that is still encrypted in pricing/raw/re/D2R-decrypted.exe.bndb (2026-10-14: rows 101-135 and
-140-154; rca/2026-10-13/re/enc_ranges.txt), as are his skills' do-functions (139 cold missiles, 140 tentacles, 22
-nova, 98 teleport). So the think here is no reading of the code: it is the **share of his time in each mode the
-probe saw** in eight fights (below), turned into the chance of each act at a think. It says how often he does what,
-not when or why; nothing here is a rule of his AI.
+**His think is read** (2026-10-14, the pages decrypted by the player's dumps of a Baal fight): `ai_d2_ai_135_baalcrab_
+think` 0x1404B9E80 and the clone's 0x1404BA810 in pricing/raw/re/D2R-decrypted.exe.bndb; the code follows D2MOO's
+AiBaal.cpp (1.10) but for his teleport and his target score. Sources, as each number says:
 
-Sources, as each number says:
-
-- **[table]** baal.json from pricing/raw/game-excel: his row (skills, modes, levels, `aidel` 12), the skills'
-  damage and curse rows, the missiles' speed, range and `Param2`;
-- **[take]** the last 3 s of the Throne take 20261011T001816Z-131 (the character came through the portal and the
-  recorder ran on): one tentacle cast (S2, 24 frames), one Defense Curse (S3, 22 frames, its marks 147 / 191 /
-  142), the tentacle 564 it raised 7.8 units from the character, its swing (A1, 10 frames). The Venom Lord's
-  inferno, the same start and do functions (53 / 95) as Baal's: its flames live Param2 + level - 1 frames (7 + 15 -
-  1 = 21; the takes 20 at the median, 21 at p90), the rule the client's DiabLight code was read to have (sim/diablo.py
-  `missile_life`), so Baal's live 12 + 8 - 1 = 19;
-- **[probe]** the alt-d terror probes of eight Baal kills (2026-10-08 to 10-11; rca/2026-10-14/baal-sim.md section
-  1): about one look a second of his mode and place, the character's place, life and states, each tentacle and
-  clone when first seen and when gone;
+- **[code]** read in the client (the routine's address in rca/2026-10-14/re/names.md);
+- **[table]** baal.json from pricing/raw/game-excel (his row, the skills' damage, the missiles), monseq/levels of
+  third-parties/d2data;
+- **[take]** the last 3 s of the Throne take 20261011T001816Z-131 (S2 24 frames, S3 22 frames, a tentacle's swing);
+- **[probe]** the alt-d terror probes of eight Baal kills (rca/2026-10-14/baal-sim.md section 1);
 - **[inferred]** what neither settles, named where it is chosen.
 
-**His acts** (the think: one draw over `WEIGHTS`, a chance each, at every think; the next think at the act's mode's
-end plus `aidel` 12 [table]; his target the nearest body within the frame's radius 35 [code for the four read AIs,
-notes-ai.md; that his think uses that search is inferred]):
+**The think** [code]: every THINK_FRAMES (25) frames, whatever he did (the think's tail deletes his AI events and sets
+the next at frame + 25; every act of his lasts 25 frames or less). His target is the best score among the character
+and the companions (`aim`): the character wins outright once it has hit him within THREAT_FRAMES and stands within
+THREAT_REACH (the D2R threat state 231, the damage it dealt him, weighs on top of the 1.10 score); before that the
+1.10 score's known parts decide (in his melee 500, in sight 375; ties go to the character, scored first). One draw
+over 16 weights (`weights`, by melee, sight, the distance less size, his life, the candidates' count, the best score,
+the clones made) picks the act. Out of melee in sight, Hell: idle 200 - life %, the four walks 5 each, Defense Curse
+40 (70 once the best score passes 60), tentacles 40, nova 70 (0 beyond 25), inferno 80, cold missiles 60 (+25 with
+four or more candidates, 0 beyond 35), teleport 20 (30 beyond 25), clone 20 then 10 then 0.
 
-- *nova* (Baal Nova, S3): NOVA_MISSILES missiles 555 in a ring from where he stands, NOVA_STEP a frame for `Range`
-  40 frames (38 units), fire 218..243 a hit [table: EMin 50 + 24 a level to level 8, HitShift 8], one hit a body a
-  ring [inferred, as Diablo's ring];
-- *inferno* (Baal Inferno, the sequence SQ): from INFERNO_RELEASE frames into it one missile 554 every `calc3` 2
-  frames for `calc2` (= Param1) 20 frames [table, read as the Venom Lord's: 5.2 flames a 12-frame cast, take], each
-  flying at where his target stands when it is made, 19 frames [take rule above]; magic 400..432 x HitShift 5 / 256
-  = 50..54 [table] taken as INFERNO_SHARE of it each NextDelay 4 frames of contact [probe, fitted: a character
-  standing 14 to 19 units off lost 87 to 121 in the 1.5 s after a look saw him in SQ];
-- *cold missiles* (Baal Cold Missiles, A1): COLD_MISSILES makers 589 in a fan over COLD_FAN at his target, 0.96 a
-  frame for 50 frames, cold 83..103 a hit [table], once a body each; the fan is inferred (do-function 139 not read;
-  the probe's falls after an A1 look are up to 176, more than one missile's 23 at 75 %); the trail 590 the maker
-  drops is not played;
-- *tentacles* (Baal Tentacle, S2): at its last frame [take] one tentacle, or two with TENTACLE_SECOND [probe: 36
-  tentacles to 26 looks in S2], of the classes 564 or 565 [probe: 25 to 17], TENTACLE_NEAR units from his target in
-  a direction of the roll [probe: first seen 4 to 11 units from the character, median 7]; it stands (Velocity 0)
-  and strikes what comes within reach as any melee monster of the arena, and is gone TENTACLE_SECONDS after it
-  rose [probe: nine of 28 lived 14.0 to 18.1 s, the rest were killed sooner];
-- *Defense Curse* (S3): on every body within 12 units of his target for 875 frames [table: ln12, ln34 at level
-  10]; its -95 % defence is not played (the arena's melee hits roll by the fit, not by defence);
-- *teleport* (Baal Teleport, A1): to TELEPORT_NEAR units from his target, on the line from it to him [probe: two
-  jumps of 14 and 18 units, landing 6.4 and 8.2 from the character];
-- *walk* and *idle* (WL, NU): the rest of the probe's time.
-
-Blood Mana (Mana Rift) is not cast: the probe never saw its state (114) on the character. He does not stagger [probe:
-no look in his hit mode]. Once under CLONE_BELOW of his life he splits off his clone with CLONE_CHANCE [probe: seen
-in three of seven kills, 10 to 16 s into fights of 29 to 40 s], CLONE_NEAR units from his target [probe: 6 to 10];
-the clone thinks as he does and is gone with him [probe: one of three within 0.5 s of his death] [inferred].
+- *nova* (S3): 64 missiles 555 in a ring [code], NOVA_STEP a frame for `Range` 40 frames, fire 218..243 [table], one
+  hit a body a ring [inferred, as Diablo's ring];
+- *inferno* (his sequence, shown as SQ): the do-function is Diablo's DiabLight one [code: srvdofunc 95 = 152]: each
+  missile 554 flies at where his target stands when it is made; the stream ends Param1 20 frames after it began
+  [code + table]; the first at the sequence's do event, frame 11 [table: monseq seq_baalinferno], then one a frame
+  as Diablo's takes show for the same function [take, Diablo] (10 missiles); a missile lives 19 frames [take rule] and
+  takes INFERNO_SHARE of its points a contact [probe, fitted];
+- *cold missiles* (A1): ONE maker 589 at his target's point [code], 0.96 a frame for 50 frames, which each frame it
+  enters a new sub-tile sheds two trails 590, one each way across its line [code: the perpendicular stored; D2MOO the
+  shedding], 0.62 a frame for 20 frames: a band 12 units to each side of his line; cold 83..103 a hit [table]; a cast
+  takes from a body once, maker and trails together [inferred, fitted: after a look in A1 the probe's character lost
+  20 at the median, 34 on average, 176 at most in 1.5 s, about one hit of 23 after its resistance; trails each
+  taking their own hit would be some eleven];
+- *tentacles* (S2): 4 to 6 tries [code: roll % 3 + 2 + Hell's 2], each at his target + (-9..8, -9..8) [code], of one
+  class a cast, 564 or 565 [code + D2MOO]; a try on bad ground is lost; each stands TENTACLE_SECONDS [probe];
+- *Defense Curse* (S3) on bodies within 12 of his target for 875 frames [table]; Blood Mana only on a player whose
+  most mana passes its most life [code]: not this character [probe: state 114 never seen];
+- *teleport* (A1): to a random point of the 40 x 40 room he stands in [code: room bounds + 1 .. + 39, 20 tries], not
+  toward or away from anyone; the Chamber's rooms by its preset [table: level 132 at sub-tile 15000, 5760];
+- *clone*: no life threshold, no timer [code]: an act of the draw (out of melee, in sight), only while no clone of his
+  lives; at his target + (-12..11, -12..11), with a third of his life and of his most life [code]; it thinks as he
+  does but never raises tentacles, teleports or clones (those draws walk) [code], and dies with him [code];
+- *smash* (A2) in his melee only [code]; the walks: up to 12 toward the target, round it, 16 about himself, home.
 """
 
 import csv
@@ -63,7 +55,7 @@ import json
 import math
 import random
 import sys
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from functools import cache
 from pathlib import Path
@@ -81,50 +73,51 @@ NOVA, INFERNO, TENTACLES, COLD, TELEPORT, CURSE = (
 CLONE_TELEPORT = 'Baal Clone Teleport'
 WALK, IDLE = 'walk', 'idle'
 # missiles.txt ids (baal.json `missiles`, checked by name in the tests)
-NOVA_MISSILE, INFERNO_MISSILE, COLD_MAKER = 555, 554, 589
+NOVA_MISSILE, INFERNO_MISSILE, COLD_MAKER, COLD_TRAIL = 555, 554, 589, 590
 CLONE = 570  # monstats `baalclone`
 CURSE_STATE = 113  # states.txt `defense_curse`
 
-# -- his modes [take unless said] ------------------------------------------------------------------------------
-# S3 22 (his Defense Curse, and the throne's Baal 37 times 21 to 22), S2 24 (his tentacle cast). A1 and the
-# inferno's sequence: none in a take [inferred: A1 as Diablo's 16; SQ the stream's 20 frames after its first
-# missile, a wind-up and a recovery as Diablo's SC has round his 40].
-MODE_FRAMES = {'S3': 22, 'S2': 24, 'A1': 16, 'SQ': 40, 'S1': 16}
-RELEASE = {'S3': 11, 'A1': 8}  # [inferred] half the mode; S2's tentacle at its last frame [take], SQ below
-INFERNO_RELEASE = 2  # [take, the Venom Lord's same do-function: its first flame at frame 1 to 2 of the cast]
-WALK_FRAMES = 12  # a walk: his next think `aidel` after he set out (sim/casters.py, every read AI)
-IDLE_FRAMES = 10  # [inferred] the frame's short look (sim/casters.py NEAR_LOOK)
-
-# -- what he does how often [probe] -----------------------------------------------------------------------------
-# Looks at him in each mode over the eight kills (214 looks, one about every second, from his first sight to his
-# death). The time a mode takes up over its frames is how often he begins it; after each act `aidel` 12 frames
-# stand (NU), so the idle is what NU has left over.
-LOOKS = {'NU': 79, 'A1': 38, 'S3': 36, 'S2': 26, 'SQ': 20, 'WL': 9, 'A2': 2}
-DELAY = 12  # [table] `aidel(H)`
-CURSE_SHARE = 0.2  # [probe, fitted] of his S3 acts the curse (it lasts 35 s; the curse was on in 77 % of the looks)
-TELEPORT_SHARE = 0.03  # [probe] of his A1 acts the teleport: two jumps in 270 s of fights, the A1 looks 38
-NOVA_MISSILES = 64  # [inferred] a ring's missiles, as Diablo's ring (sim/diablo.py RING_MISSILES, take)
+# -- his modes ---------------------------------------------------------------------------------------------------
+# S3 22 (his Defense Curse, and the throne's Baal 37 times 21 to 22), S2 24 (his tentacle cast) [take]. A1 16 and A2
+# 20 [inferred: Diablo's]. His inferno's sequence (shown as SQ): 16 entries with the do event at the 12th, frame 11
+# [table: monseq], held by the rollback until the stream's end at frame 20 [code: start + Param1], then the 4 left.
+MODE_FRAMES = {'S3': 22, 'S2': 24, 'A1': 16, 'A2': 20, 'SQ': 24}
+RELEASE = {'S3': 11, 'A1': 8}  # [inferred] half the mode; S2's tentacles at its last frame [take], SQ below
+INFERNO_RELEASE = 11  # [table] the do event of seq_baalinferno
+INFERNO_GAP = 1  # [take, Diablo's same do-function: one missile a frame though calc3 is 2]
+THINK_FRAMES = 25  # [code] the next think at frame + 25 after every think
+DELAY = 12  # [table] `aidel(H)`: what the arena's companions of the read AIs wait; his own think is THINK_FRAMES
 STEP_PER_VEL = 0.048  # units a frame per point of `Vel` [take, sim/casters.py]
+NOVA_MISSILES = 64  # [code] ai_d2_missile_nova_ring: 64 entries of its offset tables
 NOVA_STEP = 20 * STEP_PER_VEL  # [table] Vel 20
 INFERNO_STEP = 21.0 / 19  # [probe, fitted] units a frame: his inferno reaches 21 units in its 19 frames (Vel 20 to
 # MaxVel 40 with Accel 250 is between 18 and 36; the probe: falls of 87 to 121 at 14 to 19 units, 27 to 47 at 20 to 23)
-INFERNO_SHARE = 0.18  # [probe, fitted] of a missile's points a contact (`rate`), every `NextDelay` 4 frames: a
-# character standing 14 to 21 units off takes 94 a stream (each missile once), the probe's median fall of 94
-COLD_MISSILES = 5  # [inferred] makers a cast
-COLD_FAN = math.radians(40)  # [inferred] the fan they leave in, centred on the line to his target
-TENTACLE_CLASSES = ((564, 25), (565, 17))  # [probe] the classes the probe saw, with how many
-TENTACLE_SECOND = 0.4  # [probe] the chance a cast raises a second tentacle (36 to 26)
-TENTACLE_NEAR = (4.0, 11.0)  # [probe] units from his target a tentacle rises
-TENTACLE_SECONDS = 15.0  # [probe] how long a tentacle stands unless killed
-TELEPORT_NEAR = 7.0  # [probe] units from his target he lands at
-CLONE_BELOW = 0.65  # [probe, fitted] of his life: the clone came 25 to 44 % into the fight
-CLONE_CHANCE = 0.5  # [probe] three kills in seven saw it (and one fight not won)
-CLONE_NEAR = 8.0  # [probe] units from his target the clone appears
-# Whom he aims at. None: the nearest body (the frame's search of the four read AIs, notes-ai.md), which in the arena,
-# whose companions stand still by the character's first place, is a companion in 94 % or more of his thinks. A number:
-# the character with that chance, else the nearest companion: Diablo's rule (sim/diablo.py CHARACTER_SHARE 0.82, his
-# take). Neither is read of Baal; rca/2026-10-14/baal-sim.md section 5 plays both.
-CHARACTER_SHARE: float | None = None
+INFERNO_SHARE = 0.18  # [probe, fitted] of a missile's points a contact (`rate`), every `NextDelay` 4 frames
+TENTACLE_TRIES = (4, 6)  # [code] roll % 3 + 2 + difficulty (Hell 2)
+TENTACLE_SPREAD = 9  # [code] roll % 18 - 9 on each axis from his target
+TENTACLE_CLASSES = (564, 565)  # [code + D2MOO] the chain's index difficulty + roll % 2: Hell's two, evenly
+TENTACLE_SECONDS = 15.0  # [probe] how long a tentacle stands unless killed (its own AI not read)
+CLONE_SPREAD = 12  # [code] roll % 24 - 12 on each axis from his target
+CLONE_SHARE = 1 / 3  # [code] of his life and of his most life
+ROOM = 40  # [table + code] a preset level's rooms are 8 x 8 tiles of 5 sub-tiles
+CHAMBER = (15000, 5760)  # [table] level 132's origin in sub-tiles (levels.txt OffsetX 3000, OffsetY 1152, x 5)
+PLACE = (15135, 5920)  # [probe] where he stands in the Chamber (boss_lairs.py at (135, 160))
+TELEPORT_TRIES = 20  # [code]
+REACH = 4.5  # [inferred] his melee: monstats2 MeleeRng 3 plus half his SizeX 3, as Diablo's (sim/diablo.py)
+SIZE = 1.0  # [inferred] the size the AI's distance is taken less of, as Diablo's
+NEAR, FAR = 25.0, 35.0  # [code] beyond NEAR no nova and teleport 30; beyond FAR no cold missiles and the walk 15
+HOME_MEDIUM, HOME_FAR = 75.0, 100.0  # [code] his target that far from his home point
+THREAT_FRAMES = 250  # [code] ai_d2_primeevil_threat_add: the threat state lapses 250 frames after the last hit
+THREAT_REACH = 50.0  # [code + table] the distance factor's R (`aidist` empty: 50): no threat weight at 50 and beyond
+IN_MELEE, IN_SIGHT = 500, 375  # [code] the score's range terms
+CURSE_BEST = 60  # [code] a best score above this: the curse's weight 70
+PRIME_EVIL_LIFE = 293800.0  # [table] his life in the arena (points_of(544, 132)), for the threat's points
+# The acts by the draw's index [code: the jump table 0x1404B9E38]
+ACTIONS = (
+    'none', IDLE, 'approach', 'circle', 'roam', 'home', 'approach', 'none',
+    'curse', 'tentacles', 'smash', 'nova', 'inferno', 'cold', 'teleport', 'clone',
+)  # fmt: skip
+CLONE_WALKS = (7, 9, 14, 15)  # [code] the clone's draws of these walk (2)
 
 
 @cache
@@ -210,17 +203,15 @@ def inferno_life(level: int) -> int:
     return int(number(missile(INFERNO_MISSILE), 'Param2')) + level - 1
 
 
-def inferno_frames(skill_row: Mapping[str, str] | None = None) -> tuple[int, int]:
-    """[table] (frames the stream lasts, frames between two missiles): `calc2` par1 (20) and `calc3` (2)."""
+def inferno_frames(skill_row: Mapping[str, str] | None = None) -> int:
+    """[table + code] the frames from the sequence's start to the stream's end: `calc2` par1 (20)."""
     found = skill_row or data()['skills'][INFERNO]
-    return int(number(found, 'Param1')), int(found.get('calc3') or 2)
+    return int(number(found, 'Param1'))
 
 
 def inferno_births(start: int = 0) -> list[int]:
-    """The frames of a cast begun at `start` its missiles are made at."""
-    length, gap = inferno_frames()
-    first = start + INFERNO_RELEASE
-    return list(range(first, first + length, gap))
+    """The frames of a cast begun at `start` its missiles are made at: from the do event to the stream's end."""
+    return list(range(start + INFERNO_RELEASE, start + inferno_frames() + 1, INFERNO_GAP))
 
 
 def inferno_reach(level: int = 8) -> float:
@@ -243,14 +234,35 @@ def cold_life() -> int:
     return int(number(missile(COLD_MAKER), 'Range'))
 
 
+def trail_step() -> float:
+    return number(missile(COLD_TRAIL), 'Vel') * STEP_PER_VEL
+
+
+def trail_life() -> int:
+    return int(number(missile(COLD_TRAIL), 'Range'))
+
+
 def every(missile_id: int) -> int:
     return max(int(number(missile(missile_id), 'NextDelay')), 1)
 
 
-def cold_headings(toward: float) -> list[float]:
-    if COLD_MISSILES <= 1:
-        return [toward]
-    return [toward - COLD_FAN / 2 + COLD_FAN * k / (COLD_MISSILES - 1) for k in range(COLD_MISSILES)]
+def cold_missiles(origin: Point, heading: float) -> list[tuple[int, Point, Point, float, int]]:
+    """[code + D2MOO] the missiles of one cast of his cold missiles let go from `origin` at `heading`: (frames after
+    the release it is made, where, its (dx, dy), its step, its life). The maker first; then, each frame it enters a new
+    sub-tile, two trails from where it is, one each way across its line."""
+    dx, dy = math.cos(heading), math.sin(heading)
+    step, life = cold_step(), cold_life()
+    found: list[tuple[int, Point, Point, float, int]] = [(0, origin, (dx, dy), step, life)]
+    side, side_life = trail_step(), trail_life()
+    cell = (math.floor(origin[0]), math.floor(origin[1]))
+    for frame in range(1, life):
+        at = (origin[0] + dx * step * frame, origin[1] + dy * step * frame)
+        now = (math.floor(at[0]), math.floor(at[1]))
+        if now != cell:
+            cell = now
+            found.append((frame, at, (-dy, dx), side, side_life))
+            found.append((frame, at, (dy, -dx), side, side_life))
+    return found
 
 
 def ring_headings() -> list[float]:
@@ -264,135 +276,315 @@ def curse_reach_and_frames(level: int) -> tuple[float, int]:
     return p[0] + p[1] * (level - 1), int(p[2] + p[3] * (level - 1))
 
 
-# -- the think [probe] -------------------------------------------------------------------------------------------
+def less_size(a: Point, b: Point, size: float = SIZE) -> float:
+    """[code] the AI's distance less the size: max + min / 2 of the axes, each less `size` (not below 0)."""
+    dx, dy = max(abs(a[0] - b[0]) - size, 0.0), max(abs(a[1] - b[1]) - size, 0.0)
+    return max(dx, dy) + min(dx, dy) / 2
+
+
+def ai_distance(a: Point, b: Point) -> float:
+    dx, dy = abs(a[0] - b[0]), abs(a[1] - b[1])
+    return max(dx, dy) + min(dx, dy) / 2
+
+
+def distance_factor(distance: float, reach: float = THREAT_REACH) -> float:
+    """[code] ai_d2_ai_distance_factor in percent: 100 near, 25 at half the reach, 0 at it."""
+    c = 100 * (reach - min(distance, reach)) / reach
+    return min(max(c * 100 / (295 - 2 * c), 0.0), 100.0)
+
+
+# -- the think [code] ---------------------------------------------------------------------------------------------
 
 
 @dataclass(frozen=True)
-class Act:
-    name: str
-    skill: str  # '' for a walk or an idle
-    mode: str
+class Sight:
+    """What his roll weighs of his target (ai_d2_ai_baal_decide): his melee, the line of sight, the AI distance less
+    size, his own life share, the target's life share and its chill (state 11), the candidates scored, the best score,
+    the clones he made, his target that far from his home point (`medium` 75, `far` 100), the target holding an area
+    skill (Blizzard, Meteor, ...), the players of the game."""
+
+    melee: bool
+    seen: bool
+    away: float
+    life: float = 1.0
+    target_life: float = 1.0
+    chilled: bool = False
+    candidates: int = 1
+    best: float = 0.0
+    clones: int = 0
+    medium: bool = False
+    far: bool = False
+    area_skill: bool = False
+    players: int = 1
 
 
-ACTS = (
-    Act('nova', NOVA, 'S3'),
-    Act('curse', CURSE, 'S3'),
-    Act('inferno', INFERNO, 'SQ'),
-    Act('cold', COLD, 'A1'),
-    Act('teleport', TELEPORT, 'A1'),
-    Act('tentacles', TENTACLES, 'S2'),
-    Act(WALK, '', 'WL'),
-    Act(IDLE, '', 'NU'),
-)
+def weights(sight: Sight) -> list[int]:
+    """[code] the 16 weights of his roll in Hell (ai_d2_ai_baal_decide 0x1404B8760 and _in_sight 0x1404B8540)."""
+    lost = 100 - round(sight.life * 100)
+    if sight.melee:
+        w = [0, 50, 0, 0, 0, 0, 0, 0, 20, 30, 150, 10, 10, 70, 40, 0]
+        if sight.target_life * 100 < 33:
+            w[10] = 200
+        w[1] += lost
+        if sight.chilled:
+            w[8] = w[13] = w[11] = 0
+        if not sight.seen:
+            w[11] = w[13] = 0
+        return w
+    if not sight.seen:
+        w = [0, 100, 20, 20, 20, 0, 20, 0, 80, 70, 0, 0, 0, 0, 0, 0]
+        w[1] += lost
+        if sight.candidates < 2:
+            w[2], w[10] = 45, 25
+        if sight.medium:
+            w[2] = w[6] = 0
+            w[3] = 35
+            w[11] = w[13] = 25
+        if sight.far:
+            w[5] = 60
+        return w
+    w = [0, 100 + lost, 5, 5, 5, 0, 5, 0, 40, 40, 0, 70, 80, 60, 20, max(10 * (2 - sight.clones), 0)]
+    if sight.away > FAR:
+        w[6], w[13] = 15, 0
+    if sight.away > NEAR:
+        w[14], w[11] = 30, 0
+    if sight.candidates < 2:
+        w[11] -= 10
+    elif sight.candidates > 3:
+        w[13] += 25
+    if sight.best > CURSE_BEST:
+        w[8] = 70
+    if sight.candidates < 2 and sight.players < 2:
+        w[8] = 0
+    if sight.area_skill and not sight.medium:
+        w[11] += 10
+        w[14] += 15
+        w[6] += 30
+    elif sight.medium:
+        w[2], w[3] = 0, 25
+        w[14] += 35
+        w[6] += 25
+    if sight.far:
+        w[5] = 60
+    return w
 
 
-@cache
-def rates() -> dict[str, float]:
-    """His acts a second: a mode's share of the looks over its frames (`LOOKS`, `MODE_FRAMES`), split between the
-    acts of that mode; the idle's from the NU share the acts' `aidel` leaves."""
-    total = sum(LOOKS.values())
-    share = {mode: count / total for mode, count in LOOKS.items()}
-    begun = {mode: share[mode] * 25 / MODE_FRAMES[mode] for mode in ('S3', 'S2', 'A1', 'SQ')}
-    found = {
-        'nova': begun['S3'] * (1 - CURSE_SHARE),
-        'curse': begun['S3'] * CURSE_SHARE,
-        'inferno': begun['SQ'],
-        'cold': begun['A1'] * (1 - TELEPORT_SHARE),
-        'teleport': begun['A1'] * TELEPORT_SHARE,
-        'tentacles': begun['S2'],
-        WALK: share['WL'] * 25 / WALK_FRAMES,
-    }
-    casting = sum(rate for name, rate in found.items() if name != WALK)
-    found[IDLE] = max(share['NU'] - casting * DELAY / 25, 0.0) * 25 / IDLE_FRAMES
-    return found
-
-
-@cache
-def weights() -> tuple[float, ...]:
-    """The chance of each of ACTS at a think: its rate over all of them."""
-    found = rates()
-    total = sum(found.values())
-    return tuple(found[act.name] / total for act in ACTS)
-
-
-def choose(roll: random.Random) -> Act:
-    pick, running = roll.random(), 0.0
-    for act, weight in zip(ACTS, weights(), strict=True):
+def choose(found: Sequence[int], roll: random.Random) -> int:
+    """[code] ai_d2_ai_pick_weighted16: the roll over the sum, the first index whose running sum passes it; 1 when
+    none does. A negative weight counts as it is."""
+    total = sum(found)
+    pick = roll.randrange(total) if total > 0 else 0
+    running = 0
+    for index, weight in enumerate(found):
         running += weight
         if pick < running:
-            return act
-    return ACTS[-1]
+            return index
+    return 1
+
+
+def chances(sight: Sight) -> dict[str, float]:
+    """The chance of each act at a think (the draw's weights by name), for a model that prices what is to come."""
+    found = weights(sight)
+    total = sum(w for w in found if w > 0) or 1
+    named: dict[str, float] = {}
+    for index, weight in enumerate(found):
+        if weight > 0:
+            named[ACTIONS[index]] = named.get(ACTIONS[index], 0.0) + weight / total
+    return named
+
+
+def rates(distance: float = 16.0, candidates: int = 4, life: float = 0.5, struck: bool = True) -> dict[str, float]:
+    """His acts a second for a character `distance` units off, in sight, out of his melee, with `candidates` bodies
+    about (the character and its companions), his life share `life`, the character hitting him (`struck`: the best
+    score passes 60): one think a second [code]."""
+    sight = Sight(
+        melee=distance <= REACH, seen=True, away=less_size((0.0, 0.0), (distance, 0.0)), life=life,
+        candidates=candidates, best=CURSE_BEST + 1 if struck else 0.0,
+    )  # fmt: skip
+    return {name: chance * 25 / THINK_FRAMES for name, chance in chances(sight).items()}
 
 
 def tentacle_class(roll: random.Random) -> int:
-    total = sum(n for _, n in TENTACLE_CLASSES)
-    pick = roll.random() * total
-    for txt, n in TENTACLE_CLASSES:
-        pick -= n
-        if pick < 0:
-            return txt
-    return TENTACLE_CLASSES[-1][0]
+    return roll.choice(TENTACLE_CLASSES)
 
 
-def around(at: Point, near: float, roll: random.Random) -> Point:
-    turn = roll.uniform(0, math.tau)
-    return (at[0] + near * math.cos(turn), at[1] + near * math.sin(turn))
+def room_of(at: Point, home: Point) -> tuple[float, float]:
+    """[table + code] the corner of the 40 x 40 room `at` stands in, the rooms laid from the Chamber's origin as his
+    place `home` stands in it (the arena's ground keeps the game's axes)."""
+    origin = (home[0] - (PLACE[0] - CHAMBER[0]), home[1] - (PLACE[1] - CHAMBER[1]))
+    return (
+        origin[0] + math.floor((at[0] - origin[0]) / ROOM) * ROOM,
+        origin[1] + math.floor((at[1] - origin[1]) / ROOM) * ROOM,
+    )
+
+
+def teleport_spot(at: Point, home: Point, roll: random.Random, footing: Any) -> Point | None:
+    """[code] a random point of his room, 1 to 39 sub-tiles in from its corner on each axis, where he can stand: 20
+    tries, else None."""
+    corner = room_of(at, home)
+    for _ in range(TELEPORT_TRIES):
+        spot = (corner[0] + 1 + roll.randrange(ROOM - 1), corner[1] + 1 + roll.randrange(ROOM - 1))
+        if footing(spot):
+            return spot
+    return None
+
+
+# -- whom he aims at [code] ------------------------------------------------------------------------------------------
+
+
+def aim(walker: Any, targets: Sequence[Point], frame: int, sees: Any) -> tuple[int, float]:
+    """[code] ai_d2_ai_baal_find_target: (the index of his target, the best score). Every body is scored by the parts
+    of ai_d2_ai_baal_target_score the arena knows (in his melee 500, in sight 375, over 22); the character (index 0,
+    the player, scored first: it keeps a tie) adds its threat (the points it took off him while its threat state
+    holds, THREAT_FRAMES after its last hit) times the distance factor. Resistances, damage stats, attack ranks, chill
+    and low life are not known here [inferred: equal for all]."""
+    mind = walker.mind
+    best, chosen = -1.0, 0
+    for index, body in enumerate(targets):
+        d = math.dist(walker.at, body)
+        score = (IN_MELEE if d <= REACH else IN_SIGHT if sees(walker, body) else 0) / 22
+        if index == 0:
+            score += mind.threat * distance_factor(ai_distance(walker.at, body)) / 100
+        score = max(score, 1.0)
+        if score > best:
+            best, chosen = score, index
+    return chosen, best
+
+
+def _threat(walker: Any, frame: int) -> None:
+    """[code] the character's threat state on him: the points it took off him since the state began, gone
+    THREAT_FRAMES after its last hit. The arena's strikes on him are the character's alone."""
+    mind = walker.mind
+    if walker.struck < 0 or frame - walker.struck > THREAT_FRAMES:
+        mind.threat = 0.0
+    else:
+        share = CLONE_SHARE if walker.txt == CLONE else 1.0
+        mind.threat += max(mind.seen_health - walker.health, 0.0) * PRIME_EVIL_LIFE * share
+    mind.seen_health = walker.health
 
 
 # -- played by sim/casters.py `Minds` ------------------------------------------------------------------------------
 # `minds` is a Minds, `walker` a sim/monsters.py Walker with its `mind` (`Mind.ai` BAAL); not typed here, as sim/
 # casters.py imports this module and this one it.
 
-RELEASE_OF = {'nova': RELEASE['S3'], 'curse': 1, 'cold': RELEASE['A1'], 'teleport': RELEASE['A1']}
-# [take] the curse's marks (147, 191, 142) the frame after S3 began; the tentacle at S2's last frame
-
 
 def think(minds: Any, walker: Any, frame: int, targets: Any, index: int) -> None:
-    """One think: his clone once he is low enough (Baal himself, not the clone), then one act of the draw at the
-    nearest body (`index`, the frame's target search) or by CHARACTER_SHARE."""
+    """One think [code]: his target by the score (`index`, the frame's nearest, is not his rule), the draw, the act;
+    the next think THINK_FRAMES on whatever the act."""
+    from inventory_tracking.combat.sim import casters
+
+    del index
+    mind = walker.mind
+    host = minds.host
+    rolls = host.rolls[walker.unit]
+    if mind.home is None:
+        mind.home = walker.at
+    _threat(walker, frame)
+    index, best = aim(walker, targets, frame, host._sees)
+    body = targets[index]
+    clone = mind.row.get('AI') == AIS[1]
+    sight = Sight(
+        melee=math.dist(walker.at, body) <= REACH,
+        seen=host._sees(walker, body),
+        away=less_size(walker.at, body),
+        life=walker.health,
+        candidates=len(targets),
+        best=best,
+        clones=mind.clones,
+        medium=ai_distance(body, mind.home) > HOME_MEDIUM,
+        far=ai_distance(body, mind.home) > HOME_FAR,
+    )
+    action = choose(weights(sight), rolls)
+    if clone and action in CLONE_WALKS:
+        action = 2
+    act = ACTIONS[action]
+    minds.thoughts.append((frame, walker.unit, act, index))
+    until = frame + THINK_FRAMES
+    if act == 'approach':
+        gap = math.dist(walker.at, body) or 1.0
+        reach = min(gap, 12.0)  # [code] up to 12 toward the target
+        goal = (walker.x + (body[0] - walker.x) / gap * reach, walker.y + (body[1] - walker.y) / gap * reach)
+        minds._set_walk(walker, frame, goal=goal, held=casters.STOP)
+    elif act == 'circle':
+        side = 1 if rolls.randrange(256) < 0x80 else -1
+        minds._set_walk(walker, frame, goal=casters.turned(body, walker.at, casters.CIRCLE_STEP, side))
+    elif act == 'roam':
+        # [code + D2MOO WalkCloseToUnit] 16 on one axis, up to 16 on the other, the signs by the roll
+        first, other = 16, rolls.randrange(16)
+        dx, dy = (first, other) if rolls.getrandbits(1) else (other, first)
+        dx, dy = dx * rolls.choice((-1, 1)), dy * rolls.choice((-1, 1))
+        minds._set_walk(walker, frame, goal=(walker.x + dx, walker.y + dy))
+    elif act == 'home':
+        minds._set_walk(walker, frame, goal=mind.home)
+    elif act == 'smash':
+        mind.mode, mind.target = 'A2', index
+        walker.doing, walker.aim = casters.STRIKE, index
+        walker.lands = frame + max(round(casters.BLOW_SHARE * MODE_FRAMES['A2']), 1)
+    elif act in ('nova', 'inferno', 'cold', 'curse', 'tentacles', 'teleport'):
+        _cast(minds, walker, frame, targets, index, act)
+    elif act == 'clone':
+        _clone(minds, walker, frame, body)
+        minds._idle(walker, frame, THINK_FRAMES)
+    else:
+        minds._idle(walker, frame, THINK_FRAMES)
+    walker.until = until
+
+
+SKILL_OF = {'nova': NOVA, 'inferno': INFERNO, 'cold': COLD, 'curse': CURSE, 'tentacles': TENTACLES}
+ACT_MODE = {'nova': 'S3', 'inferno': 'SQ', 'cold': 'A1', 'curse': 'S3', 'tentacles': 'S2', 'teleport': 'A1'}
+
+
+def _cast(minds: Any, walker: Any, frame: int, targets: Any, index: int, act: str) -> None:
     from inventory_tracking.combat.sim import casters
 
     mind = walker.mind
-    rolls = minds.host.rolls[walker.unit]
-    if CHARACTER_SHARE is not None:
-        index = 0
-        if len(targets) > 1 and rolls.random() >= CHARACTER_SHARE:
-            index = min(range(1, len(targets)), key=lambda other: math.dist(walker.at, targets[other]))
-    body = targets[index]
-    if mind.row.get('AI') == AIS[0] and not mind.split and walker.health < CLONE_BELOW:
-        mind.split = True
-        if rolls.random() < CLONE_CHANCE:
-            minds.summon(walker, CLONE, around(body, CLONE_NEAR, rolls), frame, None)
-    act = choose(rolls)
-    minds.thoughts.append((frame, walker.unit, act.name, index))
-    if act.name == WALK:
-        minds._set_walk(walker, frame, goal=body, held=casters.STOP)
-        return
-    if act.name == IDLE:
-        minds._idle(walker, frame, IDLE_FRAMES)
-        return
-    skill = act.skill
-    if act.name == 'teleport' and not any(mind.row.get(f'Skill{n}') == skill for n in range(1, 9)):
-        skill = CLONE_TELEPORT  # the clone's own
+    skill = SKILL_OF.get(act, TELEPORT)
+    if act == 'teleport':
+        if not any(mind.row.get(f'Skill{n}') == skill for n in range(1, 9)):
+            skill = CLONE_TELEPORT  # the clone's own (it never draws it: CLONE_WALKS)
+        spot = teleport_spot(walker.at, mind.home or walker.at, minds.host.rolls[walker.unit], minds.host._footing)
+        if spot is None:
+            minds._idle(walker, frame, THINK_FRAMES)  # [code] no spot in 20 tries: action 0, an idle
+            return
+        mind.goal = spot
     slot = next((n for n in range(1, 9) if mind.row.get(f'Skill{n}') == skill), 0)
     if not slot:
-        minds._idle(walker, frame, IDLE_FRAMES)
+        minds._idle(walker, frame, THINK_FRAMES)
         return
-    frames = MODE_FRAMES[act.mode]
-    mind.skill, mind.mode, mind.slot, mind.target = skill, act.mode, slot, index
-    if act.name == 'inferno':
+    mode = ACT_MODE[act]
+    mind.skill, mind.mode, mind.slot, mind.target = skill, mode, slot, index
+    if act == 'inferno':
         mind.releases = inferno_births(frame)
-    elif act.name == 'tentacles':
-        mind.releases = [frame + frames - 1]
+    elif act == 'tentacles':
+        mind.releases = [frame + MODE_FRAMES['S2'] - 1]
+    elif act == 'curse':
+        mind.releases = [frame + 1]  # [take] the curse's marks the frame after S3 began
     else:
-        mind.releases = [frame + RELEASE_OF[act.name]]
-    walker.doing, walker.until, walker.lands, walker.aim = casters.CAST, frame + frames + mind.delay, -1, index
-    minds.casts.append((frame, walker.unit, walker.txt, skill, body))
+        mind.releases = [frame + RELEASE[mode]]
+    walker.doing, walker.lands, walker.aim = casters.CAST, -1, index
+    minds.casts.append((frame, walker.unit, walker.txt, skill, targets[index]))
+
+
+def _clone(minds: Any, walker: Any, frame: int, body: Point) -> None:
+    """[code] ai_d2_ai_baal_spawn_clone: nothing while a clone of his lives; else one at his target + (-12..11) on
+    each axis with a third of his life."""
+    mind = walker.mind
+    if any(other.txt == CLONE and other.health > 0 for other in minds.host.walkers.values()):
+        return
+    rolls = minds.host.rolls[walker.unit]
+    at = (
+        body[0] + rolls.randrange(2 * CLONE_SPREAD) - CLONE_SPREAD,
+        body[1] + rolls.randrange(2 * CLONE_SPREAD) - CLONE_SPREAD,
+    )
+    if not minds.host._footing(at):
+        return
+    minds.summon(walker, CLONE, at, frame, None, share=walker.health * CLONE_SHARE, most=CLONE_SHARE)
+    mind.clones += 1
 
 
 def release(minds: Any, walker: Any, frame: int, targets: Any) -> None:
     """What a frame of his cast lets go: a missile of the inferno at where his target stands now, the nova's ring,
-    the cold missiles' fan, the tentacles, the curse, the teleport."""
+    the cold missiles' maker, the tentacles, the curse, the teleport."""
     from inventory_tracking.combat.sim import casters
 
     mind = walker.mind
@@ -426,14 +618,22 @@ def release(minds: Any, walker: Any, frame: int, targets: Any) -> None:
             minds.bolts.append(made(NOVA_MISSILE, heading, NOVA_STEP, nova_life(), points, struck=once))
         minds.births.append((frame, walker.unit, walker.txt, NOVA_MISSILE, walker.at, body, frame + nova_life()))
     elif skill == COLD:
-        for heading in cold_headings(toward):
-            minds.bolts.append(made(COLD_MAKER, heading, cold_step(), cold_life(), rolled(COLD)))
+        # [code] one maker at his target's point, shedding the trails across its line as it goes (Bolt `sides`)
+        bolt = made(
+            COLD_MAKER, toward, cold_step(), cold_life(), rolled(COLD), sides=COLD_TRAIL, side_step=trail_step(),
+            side_life=trail_life(),
+        )  # fmt: skip
+        minds.bolts.append(bolt)
         minds.births.append((frame, walker.unit, walker.txt, COLD_MAKER, walker.at, body, frame + cold_life()))
     elif skill == TENTACLES:
-        for _ in range(1 + (rolls.random() < TENTACLE_SECOND)):
-            place = around(body, rolls.uniform(*TENTACLE_NEAR), rolls)
+        txt = tentacle_class(rolls)
+        for _ in range(rolls.randint(*TENTACLE_TRIES)):
+            place = (
+                body[0] + rolls.randrange(2 * TENTACLE_SPREAD) - TENTACLE_SPREAD,
+                body[1] + rolls.randrange(2 * TENTACLE_SPREAD) - TENTACLE_SPREAD,
+            )
             if minds.host._footing(place):
-                minds.summon(walker, tentacle_class(rolls), place, frame, round(TENTACLE_SECONDS * 25))
+                minds.summon(walker, txt, place, frame, round(TENTACLE_SECONDS * 25))
     elif skill == CURSE:
         radius, frames = curse_reach_and_frames(level)
         hexed = casters.Curse(CURSE, CURSE_STATE, frame + frames, {})
@@ -442,14 +642,9 @@ def release(minds: Any, walker: Any, frame: int, targets: Any) -> None:
             minds.hexes[i] = hexed
         minds.cursed.append((frame, walker.unit, CURSE, hit))
         minds.flown.append((frame, frame + 10, walker.at, body, index == 0, False))
-    elif skill in (TELEPORT, CLONE_TELEPORT):
-        gap = math.dist(body, walker.at) or 1.0
-        place = (
-            body[0] + (walker.x - body[0]) / gap * TELEPORT_NEAR,
-            body[1] + (walker.y - body[1]) / gap * TELEPORT_NEAR,
-        )
-        if gap > TELEPORT_NEAR and minds.host._footing(place):
-            walker.x, walker.y = place
+    elif skill in (TELEPORT, CLONE_TELEPORT) and mind.goal is not None:
+        walker.x, walker.y = mind.goal
+        mind.goal = None
 
 
 # -- baal.json ---------------------------------------------------------------------------------------------------
@@ -458,7 +653,8 @@ MONSTER_FIELDS = (
     'Id', '*hcIdx', 'BaseId', 'NameStr', 'AI', 'Velocity', 'Run', 'Level(H)', 'aidel(H)',
     *(f'aip{n}(H)' for n in range(1, 9)),
     *(f'Skill{n}' for n in range(1, 9)), *(f'Sk{n}mode' for n in range(1, 9)), *(f'Sk{n}lvl' for n in range(1, 9)),
-    'A1MinD(H)', 'A1MaxD(H)', 'A1TH(H)', 'ResFi(H)', 'ResLi(H)', 'ResCo(H)', 'ResPo(H)', 'ResMa(H)', 'ResDm(H)',
+    'A1MinD(H)', 'A1MaxD(H)', 'A1TH(H)', 'A2MinD(H)', 'A2MaxD(H)', 'A2TH(H)',
+    'ResFi(H)', 'ResLi(H)', 'ResCo(H)', 'ResPo(H)', 'ResMa(H)', 'ResDm(H)',
 )  # fmt: skip
 SKILL_FIELDS = (
     'skill', 'srvstfunc', 'srvdofunc', 'srvmissilea', 'monanim', 'calc1', 'calc2', 'calc3',

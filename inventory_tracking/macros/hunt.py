@@ -51,6 +51,7 @@ from contextlib import ExitStack, contextmanager
 from dataclasses import dataclass, field, replace
 
 from inventory_tracking.automation.priority import reserve
+from inventory_tracking.combat import threats
 from inventory_tracking.combat.controller import (
     CLICK,
     GAVE_UP,
@@ -133,7 +134,7 @@ from inventory_tracking.macros.routines import (
     take_battle_weapons,
 )
 from inventory_tracking.macros.runmode import Mode, Taps, aim_of, doubled, mode_of, said, tapped
-from inventory_tracking.macros.safety import Safety
+from inventory_tracking.macros.safety import AWAY, STEPPING, Safety
 from inventory_tracking.macros.sight import clear_shot, firing_spots, in_reach, in_reach as in_reach_of
 from inventory_tracking.macros.skills import (
     SWAP_WEAPONS,
@@ -482,10 +483,13 @@ class Hunter:
         self.left_said: set[int] = set()  # the drops whose giving up was said
         self.retried: set[int] = set()  # the drops given up and then tried once more (`again`)
         self.round_said: set[int] = set()  # the drops said to be gone to first for want of a clear line (`judge`)
+        self.bound_said: set[int] = set()  # the hostiles said to die with a summoner (`bound_lost`)
+        self.away_said: set[int] = set()  # the same, said to be no fight to hold (`only_bound`)
         self.held: Drop | None = None  # the valuable in sight the sweep stays by (`gather`, `leaves`)
         self.held_said: set[int] = set()  # the drops that staying was said for
         self.held_logged = -math.inf
         self.stepping: Step | None = None  # the step the fight stopped for
+        self.guarding: Advance | None = None  # the safety step the fight stopped for with the pursuit off (`guard`)
         self.sweep = Sweep()
         self.step_asked_at: float | None = None  # clock time of a step taken, until the first cast after it
         # The pursuit (macros/pursuit.py, behind `BuildSettings.pursuit`). `pursuit` is the mailbox the
@@ -1133,6 +1137,10 @@ class Hunter:
         # one posted later is the next look's (rca/2026-10-14/run-0025-findings.md §2.1)
         posted = self.pursuit
         here, now = (player.x, player.y), run.clock()
+        if in_reach and self.only_bound(world, foes, ground, here):
+            # What is in reach dies with a summoner standing elsewhere (Baal's clone): it is no fight to hold, and the
+            # goal (the summoner's fight) is gone to (rca/2026-10-14/baal-sim.md fix 2: 17 s on the clone, Baal 33 off)
+            in_reach = False
         if posted is not None and posted.leashed and posted.area is None:
             named = replace(posted, area=player.area)  # the level run is of the level it was asked on
             self.swap(posted, named)
@@ -1189,39 +1197,115 @@ class Hunter:
         # The strike gap counts while a hostile is within the strike's reach, a clear line or not (I2)
         near = any(math.dist(here, (m.x, m.y)) <= self.reach for m in foes)
         facts = replace(facts, quiet=min(now - self.struck_at, 60.0) if near else 0.0, near=near)
-        if self.pursuing and run.loot is not None and rect is not None:
-            loot = run.loot()
-            if loot.max_life > 0 and loot.life > 0:
-                staff = self.worn(run)
-                hands = 'travel' if staff is not None and staff.in_hand else 'battle'
-                companions = [m for m in world.monsters if m.ally or m.owner != NO_OWNER]
-                seen = self.attack.sees(observe(player, foes, companions, ground, world.doors), companions)
-                look = self.safety.look(
-                    world, loot, hands, seen.blocked, self.build.shield, self.build.settings.safety,
-                    now=now, flights=getattr(run, 'flights', None), draw=self.build.draw,
-                )  # fmt: skip
-                facts = self.safety.price(
-                    facts,
-                    posted,
-                    look,
-                    loot,
-                    pressure(self.drinker.readings),
-                    self.build.settings.safety,
-                    seen,
-                    self.attack,
-                    lambda point: self.travel.leg(run, world, ground, rect[2] / rect[3], point, SAFE_MOVE),
-                    self.travel.jumps(run, world, SAFE_MOVE),
-                    no_footing(ground, world.doors),
-                    hands,
-                    options=lambda point: self.travel.options(run, world, ground, rect[2] / rect[3], point, SAFE_MOVE),
-                    battle_ready=now - self.swap_failed_at >= SWAP_RETRY_SECONDS,
-                )
+        if self.pursuing and rect is not None:
+            facts = self.safety_priced(run, world, foes, ground, facts, posted, rect)
         act = decide(facts, posted, self.pursuing)
         if isinstance(act, Advance) and act.reason:
             place = act.step.spot
         if isinstance(act, NoWay) and goal is not None and goal.clearing and act.reason.startswith('no way toward'):
             self.pass_by(goal, act.reason, now)  # a run's clearing goal it has no way to: the next look goes on
         return Judged(act, goal, place, posted, pressed)
+
+    def safety_priced(
+        self, run: Run, world: World, foes: list[Monster], ground: Ground, facts: Facts, posted: Pursuit | None, rect
+    ) -> Facts:
+        """The facts with the safety's prices (macros/safety.py `Safety.price`): the candidates and the budget the
+        arbiter decides by. As they were with no life read (nothing priced)."""
+        player = world.player
+        assert player is not None
+        now = facts.now
+        if run.loot is None:
+            return facts
+        loot = run.loot()
+        if loot.max_life > 0 and loot.life > 0:
+            staff = self.worn(run)
+            hands = 'travel' if staff is not None and staff.in_hand else 'battle'
+            companions = [m for m in world.monsters if m.ally or m.owner != NO_OWNER]
+            seen = self.attack.sees(observe(player, foes, companions, ground, world.doors), companions)
+            look = self.safety.look(
+                world, loot, hands, seen.blocked, self.build.shield, self.build.settings.safety,
+                now=now, flights=getattr(run, 'flights', None), draw=self.build.draw,
+            )  # fmt: skip
+            facts = self.safety.price(
+                facts,
+                posted,
+                look,
+                loot,
+                pressure(self.drinker.readings),
+                self.build.settings.safety,
+                seen,
+                self.attack,
+                lambda point: self.travel.leg(run, world, ground, rect[2] / rect[3], point, SAFE_MOVE),
+                self.travel.jumps(run, world, SAFE_MOVE),
+                no_footing(ground, world.doors),
+                hands,
+                options=lambda point: self.travel.options(run, world, ground, rect[2] / rect[3], point, SAFE_MOVE),
+                battle_ready=now - self.swap_failed_at >= SWAP_RETRY_SECONDS,
+            )
+        return facts
+
+    def guard(self, run: Run, world: World, foes: list[Monster], ground: Ground) -> Advance | None:
+        """Attack mode with the pursuit loop off (KP_3 as it was, which never moved): the pursuit loop's own safety
+        look and arbiter (`safety_priced`, pursuit.py `decide`), its answer taken only when it is a step the strike
+        goes on from: out of or across a read model's act under way (`Move.dodge`) or to another place a read model
+        or what lies on the ground offers (macros/safety.py STEPPING; not the threat's plain geometry, AWAY), and only
+        one a strike follows from (`Candidate.strikes`). No retreat (not even one within reach: pursuit.py KEEPING),
+        no firing stand, no goal: the mode alone never goes back, so each of those left it out of reach when the boss
+        walked off (the arena, 2026-10-14: fight up to 41 s against 25); rca/2026-10-14/baal-sim.md fix 3. Looked at
+        only with a read model's hostile about (combat/threats `of`) or what lingers after one. None: strike on."""
+        player = world.player
+        if self.pursuing or player is None or run.loot is None or not self.guarded(foes):
+            return None
+        rect = run.actuator.keys.focused_window_rect()
+        if rect is None:
+            return None
+        here, now = (player.x, player.y), run.clock()
+        near = any(math.dist(here, (m.x, m.y)) <= self.reach for m in foes)
+        facts = Facts(now, None, False, True, True, lambda: NoWay('attack mode alone goes nowhere'), player.area)
+        facts = replace(facts, quiet=min(now - self.struck_at, 60.0) if near else 0.0, near=near)
+        priced = self.safety_priced(run, world, foes, ground, facts, None, rect)
+        if not priced.priced:
+            return None
+        act = decide(priced, None)
+        if not isinstance(act, Advance) or not act.reason.startswith(STEPPING) or act.reason.endswith(AWAY):
+            return None
+        # The strike follows from where it lands, or the mode alone, which never goes back, would stand out of reach
+        # (a dodge out of Baal's inferno ends beyond the blades: baal-sim.md weakness 4)
+        landing = next((c for c in priced.candidates if isinstance(c.act, Advance) and c.act.step == act.step), None)
+        return act if landing is not None and landing.strikes else None
+
+    def guarded(self, foes: Sequence[Monster]) -> bool:
+        """Whether the mode alone looks for a safety step (`guard`): a hostile of a read model about (combat/threats
+        `of`), or what lingers after one. Nothing is read of the game for it."""
+        return bool(self.safety.casters) or any(threats.of(m.txt_id) is not None for m in foes)
+
+    def take_guard(self, run: Run, aspect: float, key_names, ground: Ground) -> None:
+        """The step `guard` stopped the fight for, made as the pursuit loop makes a dodge (`advance`: its click
+        without the settle, macros/travel.py `step_walk` `hurry`); the player's own move first. Said as
+        `Macro: attack mode: stepping ...`; the mode's next look strikes again."""
+        act, self.guarding = self.guarding, None
+        if act is None:
+            return  # no look at the game: the mode alone as it was (the loop goldens' reads)
+        world = run.world()
+        player = world.player
+        if player is None:
+            return
+        why = 'a move was asked for' if self.move is not None else self.moving(run, world)
+        if why is not None:
+            LOG.info('Macro: attack mode: the step is dropped (%s)', why)
+            return
+        here = (player.x, player.y)
+        LOG.info(
+            'Macro: attack mode: %s, to (%.1f, %.1f), %.1f away from (%.1f, %.1f)%s; the strike follows',
+            act.reason, *act.step.spot, math.dist(here, act.step.spot), *here, ' (a dodge)' if act.dodge else '',
+        )  # fmt: skip
+        run.say(f'{act.reason[:1].upper()}{act.reason[1:]}')
+        try:
+            self.travel.make(run, act.step, world, aspect, key_names, ground, name=act.goal.label, hurry=act.dodge)
+        except Abort as stop:
+            if run.cancelled.is_set():
+                raise
+            LOG.info('Macro: attack mode: the step to (%.1f, %.1f) failed (%s)', *act.step.spot, stop)
 
     def key_asks(self, run: Run, world: World, foes: list[Monster], ground: Ground) -> bool:
         """Inside a fight: whether the key pressed asks for something other than the strike now (a move,
@@ -2236,6 +2320,7 @@ class Hunter:
                 pause = entered + MAIN_AFTER if tough and not held and not self.pursuing else None
                 self.fight(run, ground, rect[2] / rect[3], key_names, until=pause)
                 misses = 0
+                self.take_guard(run, rect[2] / rect[3], key_names, ground)  # the safety step it stopped for
                 self.take_step(run, rect[2] / rect[3], key_names, ground)  # the step the fight stopped for, if any
             except Cancelled:
                 raise  # the mode's own pause for a valuable (`asked_step`), or the runner's cancel
@@ -2555,15 +2640,63 @@ class Hunter:
             companions,
         )
         bosses = [m.unit_id for m in reachable if m.txt_id in BOSSES]
+        # A hostile bound to a summoner seen alive (combat/threats `bound`: Baal's clone goes with him) is no target
+        # while anything else is in reach: what it is worth is lost at the summoner's death. The summoner in reach is
+        # struck first, its kill ends both; else the rest (a tentacle) before it (rca/2026-10-14/baal-sim.md fix 2)
+        lost = self.bound_lost(foes, reachable)
+        if lost:
+            seen = replace(seen, foes={unit: foe for unit, foe in seen.foes.items() if unit not in lost})
+        reached = {m.unit_id for m in reachable}
+        masters = [unit for held in lost.values() for unit in held if unit in reached and unit not in bosses]
         # What bars the pursuit's goal (`blocking`: a pack on a seal) is struck through first, after a boss
         barring = self.blocking[1] if self.blocking is not None else frozenset()
         if self.pursuing:
             barring = barring | frozenset(self.safety.blocked_by)
-        first = bosses + [m.unit_id for m in reachable if m.unit_id in barring and m.unit_id not in bosses]
+        first = bosses + list(dict.fromkeys(masters))
+        first += [m.unit_id for m in reachable if m.unit_id in barring and m.unit_id not in {*first, *lost}]
         aimer = self.aimed_by if self.aimed_by is not None else attack
-        found = aim_choice(aimer, seen, [m.unit_id for m in reachable], first=first)
+        found = aim_choice(aimer, seen, [m.unit_id for m in reachable if m.unit_id not in lost], first=first)
         assert found is not None  # the caller has something in reach
         return found
+
+    def only_bound(self, world: World, foes: Sequence[Monster], ground: Ground, here: Point) -> bool:
+        """Whether every hostile in reach is bound to a summoner seen alive (combat/threats `bound`): a strike there is
+        lost, as it dies with its summoner. Said once a change (`Macro: pursuit: ... dies with ...`)."""
+        lost = threats.bound({m.unit_id: m.txt_id for m in foes})
+        reachable = [m for m in foes if in_reach_of(ground, here, (m.x, m.y), self.reach, world.doors)]
+        only = bool(reachable) and all(m.unit_id in lost for m in reachable)
+        if only:
+            by_unit = {m.unit_id: m for m in foes}
+            for m in reachable:
+                if m.unit_id not in self.away_said:
+                    if len(self.away_said) > 200:
+                        self.away_said.clear()
+                    self.away_said.add(m.unit_id)
+                    LOG.info(
+                        'Macro: pursuit: %s, the only one in reach, dies with %s: no fight to hold, the goal first',
+                        label(m), label(by_unit[lost[m.unit_id][0]]),
+                    )  # fmt: skip
+        return only
+
+    def bound_lost(self, foes: Sequence[Monster], reachable: Sequence[Monster]) -> dict[int, tuple[int, ...]]:
+        """The hostiles in reach bound to a summoner seen alive (combat/threats `bound`), with its units: no target
+        while anything else is in reach (`choose`); empty when nothing else is (the mode alone strikes what it has).
+        Said once a hostile."""
+        by_unit = {m.unit_id: m for m in foes}
+        bound = threats.bound({m.unit_id: m.txt_id for m in foes})
+        lost = {m.unit_id: bound[m.unit_id] for m in reachable if m.unit_id in bound}
+        if len(lost) == len(reachable):
+            return {}
+        for unit, held in lost.items():
+            if unit not in self.bound_said:
+                if len(self.bound_said) > 200:
+                    self.bound_said.clear()
+                self.bound_said.add(unit)
+                LOG.info(
+                    'Macro: target: %s dies with %s: not struck while anything else is in reach',
+                    label(by_unit[unit]), label(by_unit[held[0]]),
+                )  # fmt: skip
+        return lost
 
     def off_labels(self, run: Run, view: Viewport, here: Point, focal: Point) -> None:
         """The pointer, standing on the aim for `focal`, moved along the line when an item's label is under it: the
@@ -2622,6 +2755,7 @@ class Hunter:
         lined: int | None = None  # the monster the line last logged went through
         labels_due = math.inf  # clock time of the next look for an item's label under the standing pointer
         counted = 0  # the casts seen up to the last look
+        guarded_at = -math.inf  # clock time of the last safety look of the mode alone (`guard`)
         ended = f'Fight stopped after {FIGHT_SECONDS:.0f}s'
         with ExitStack() as stack:
             stack.callback(setattr, self.buffs, 'let_go', None)
@@ -2680,6 +2814,13 @@ class Hunter:
                         break
                 if self.sweep.steps and not self.running:
                     self.gather(run, here, foes)
+                if not self.pursuing and self.guarded(foes) and run.clock() - guarded_at >= DECIDE_SECONDS:
+                    # The pursuit loop's safety step for the mode alone (`guard`): a dodge or a model's place only
+                    guarded_at = run.clock()
+                    self.guarding = self.guard(run, world, foes, ground)
+                    if self.guarding is not None:
+                        ended = 'Stepping out of harm'
+                        break
                 if not self.pursuing and self.sweep.due(run.clock()):
                     # The sweep: a better place is gone to without a press.
                     self.sweep.looked = run.clock()

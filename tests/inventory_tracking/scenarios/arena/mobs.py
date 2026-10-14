@@ -334,7 +334,12 @@ class Mobs:
         for summon in minds.summons:
             self.next_summon += 1
             full = points_of(summon.txt, self.area)
-            mob = Mob(self.next_summon, summon.txt, summon.at, 0, full, full)
+            life = full
+            summoner = self.mobs.get(summon.unit)
+            if summon.most > 0 and summoner is not None:
+                # [code] Baal's clone: a third of his most life and of his life (sim/baal.py)
+                full, life = summoner.full * summon.most, summoner.full * summon.share
+            mob = Mob(self.next_summon, summon.txt, summon.at, 0, life, full)
             self.spawn(mob, summon.seed)
             lasts = None if summon.lasts is None else summon.frame + summon.lasts
             self.summoned[mob.unit] = (summon.unit, lasts)
@@ -458,13 +463,15 @@ class Mobs:
         mind = walker.mind
         if mind.ai == casters.DIABLO:
             frames = casters.Minds._diablo_frames(mind.mode)
+            begun = walker.until - frames - mind.delay
         elif mind.ai == casters.BAAL:
             from inventory_tracking.combat.sim import baal
 
             frames = baal.MODE_FRAMES.get(mind.mode, 0)
+            begun = walker.until - baal.THINK_FRAMES  # [code] he thinks every 25 frames: his act began at the think
         else:
             frames = casters.MODE_FRAMES.get((mind.ai, mind.mode), 0)
-        begun = walker.until - frames - mind.delay
+            begun = walker.until - frames - mind.delay
         return CAST_MODES.get(mind.mode, mob.mode) if self.frame - 1 < begun + frames else mob.mode
 
     def flights(self, kinds: frozenset[int]) -> tuple[tuple[int, int, float, float], ...]:

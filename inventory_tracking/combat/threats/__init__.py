@@ -104,6 +104,29 @@ def of(txt: int) -> Threat | None:
     return None
 
 
+@cache
+def masters(txt: int) -> frozenset[int]:
+    """The monster classes whose death ends a hostile of class `txt` as the read models say it (a summon gone with its
+    summoner: Baal's clone, combat/threats/baal.py `masters_of`); empty for one that lives on its own."""
+    from inventory_tracking.combat.threats import baal
+
+    return baal.masters_of(txt)
+
+
+def bound(units: Mapping[int, int]) -> dict[int, tuple[int, ...]]:
+    """Of the hostiles `units` (unit -> class), each bound to a summoner among them (`masters`), with the units of its
+    possible summoners there: it dies when they do, so a strike on it is lost while they live (rca/2026-10-14/
+    baal-sim.md fix 2). The client names no summoner: every hostile of a master class about counts."""
+    found: dict[int, tuple[int, ...]] = {}
+    for unit, txt in units.items():
+        classes = masters(txt)
+        if classes:
+            held = tuple(other for other, kind in units.items() if kind in classes and other != unit)
+            if held:
+                found[unit] = held
+    return found
+
+
 def flying_of(missiles: Sequence[tuple], unit: int) -> tuple[tuple[tuple[Point, float], ...], tuple[int | None, ...]]:
     """A hostile's missiles in flight as a look holds them ((owner, where, heading[, class]), macros/safety.py
     `in_flight`): (where, heading) of each, and each one's class (None where the look did not say)."""

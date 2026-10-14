@@ -1,6 +1,8 @@
 import math
 from dataclasses import replace
 
+import pytest
+
 from inventory_tracking.combat.harm import GROUND_UNIT, Harm
 from inventory_tracking.macros import pursuit as p
 from inventory_tracking.macros.build import Step
@@ -666,3 +668,58 @@ def test_a_step_across_his_stream_in_flight_is_a_dodge_and_the_threats_geometry_
     assert stepping
     assert all(c['dodge'] for c in stepping)
     assert not any(c['dodge'] for c in decision['candidates'] if c not in stepping)
+
+
+def test_a_retreat_that_keeps_the_strike_and_fits_the_budget_comes_before_the_least_harm():
+    """rca/2026-10-14/baal-sim.md fix 1: with nothing here fitting the budget, a retreat within the strike's reach of
+    what ends the harm is taken before the least-harm one out of reach (which only defers the harm), the cheapest of
+    them; one over the budget is not, and then the least harm goes as before."""
+    goal = Goal('the fight', (0.0, 0.0), 'fight', 22.0, PRESSED)
+    hold = p.Candidate(p.Hold(goal), 8.5, Harm(186, 502), unstruck=0.0, strikes=True)
+    far = p.Candidate(p.Move(Step((35.0, 0.0)), goal), 3.4, Harm(154, 233), retreat=True, unstruck=3.4)
+    near = p.Candidate(p.Move(Step((20.6, 5.0)), goal), 2.1, Harm(160, 266), True, 2.1, True, keeps=True)
+    nearer = replace(near, seconds=2.0, harm=Harm(165, 270))
+    dear = replace(near, harm=Harm(170, 450))
+    facts = p.Facts(
+        1.0, None, False, True, True, lambda: hold.act.goal, candidates=(hold, far, near), budget=389.0,
+        life=1560.0, kappa=0.01, near=True,
+    )  # fmt: skip
+    chosen = p.arbitrate(facts)
+    assert isinstance(chosen, p.Move)
+    assert chosen.step == near.act.step
+    assert chosen.reason == p.KEEPING
+    assert p.arbitrate(replace(facts, candidates=(hold, far, near, nearer))).step == nearer.act.step
+    alone = p.arbitrate(replace(facts, candidates=(hold, far, dear)))
+    assert alone.step == far.act.step
+    assert alone.reason.startswith('retreating:')
+
+
+def test_the_hostile_whose_kill_ends_the_harm_counts_what_is_bound_to_it():
+    """`keeper`: Baal's clone goes with him (combat/threats `bound`), so the harm of both is his kill's; a pack whose
+    harm is spread names none, and neither does harm from no hostile that can be struck."""
+    from types import SimpleNamespace
+
+    from inventory_tracking.combat.harm import Hostile, Look
+    from inventory_tracking.macros import safety as module
+
+    baal, clone, tentacle = Hostile(1, 544, (20.0, 0.0)), Hostile(2, 570, (8.0, 0.0)), Hostile(3, 564, (5.0, 0.0))
+    look = Look((baal, clone, tentacle))
+    seen = SimpleNamespace(foes={1: object(), 2: object(), 3: object()})
+    assert module.keeper(look, seen, Harm(186, 502, by=((2, 163.0), (1, 23.0)))) == 1
+    assert module.keeper(look, seen, Harm(186, 502, by=((3, 120.0), (1, 30.0), (2, 36.0)))) == 3
+    spread = Look(tuple(Hostile(unit, 345, (10.0, unit)) for unit in range(10, 15)))
+    pack = SimpleNamespace(foes=dict.fromkeys(range(10, 15)))
+    assert module.keeper(spread, pack, Harm(100, 200, by=tuple((unit, 20.0) for unit in range(10, 15)))) is None
+    assert module.keeper(look, seen, Harm(100, 200, by=((GROUND_UNIT, 100.0),))) is None
+
+
+def test_the_places_that_keep_the_fight_lie_inside_the_reach_the_nearest_first():
+    from inventory_tracking.macros import safety as module
+
+    at, here = (0.0, 0.0), (19.4, 0.0)
+    places = module.keeping(here, at, 22.1)
+    assert len(places) == module.KEEP_MOST
+    assert all(math.dist(place, at) == pytest.approx(22.1 - module.KEEP_MARGIN) for place in places)
+    gaps = [math.dist(here, place) for place in places]
+    assert gaps == sorted(gaps)
+    assert gaps[0] < 2.0
