@@ -559,7 +559,9 @@ def quick_run(rights, quick):
     def sleep(_seconds):
         state.now += 0.1
 
-    return SimpleNamespace(quick=quick, clock=lambda: state.now, world=world, pace=SimpleNamespace(sleep=sleep)), state
+    return SimpleNamespace(
+        quick=quick, quick_shown=False, clock=lambda: state.now, world=world, pace=SimpleNamespace(sleep=sleep)
+    ), state
 
 
 def test_a_skill_key_waits_for_the_one_before_to_give_the_right_button_back():
@@ -586,3 +588,42 @@ def test_a_skill_key_waits_for_the_one_before_to_give_the_right_button_back():
     run, state = quick_run([sigil], (TELEPORT, strike, 0.0, True))  # the same key again: no wait
     quick_cast_over(run, TELEPORT)
     assert state.looks == 0
+
+
+def test_a_skill_seen_on_the_button_by_any_look_since_its_key_is_not_waited_for(caplog):
+    # The Chaos Sanctuary, 02:21:27 and 02:23:25 on 2026-10-14: Death Mark showed on the right button 0.08 to 0.16 s
+    # after its key (the take's frames, read by the fight's own looks), then the strike came back; the Sigil's key
+    # 0.5 s later waited out the whole second for it with the strike let go: a volley gap of 1.63 s against 0.73.
+    from inventory_tracking.builds.warlock.skills import DEATH_MARK, ECHOING_STRIKE, SIGIL_LETHARGY
+    from inventory_tracking.macros.routines import quick_cast_over
+
+    game = Game(world(player=player(right_skill=ECHOING_STRIKE, mode=10)))
+    run = game.run()
+    run.quick = (DEATH_MARK, ECHOING_STRIKE, run.clock(), True)  # tapped under the held strike
+    game.world = replace(game.world, player=replace(game.world.player, right_skill=DEATH_MARK))
+    run.world()  # a look of the fight's while the mark is cast
+    game.world = replace(game.world, player=replace(game.world.player, right_skill=ECHOING_STRIKE))
+    game.clock.now += 0.5
+    began = run.clock()
+    with caplog.at_level('INFO', logger='inventory_tracking'):
+        quick_cast_over(run, SIGIL_LETHARGY)
+    assert run.clock() - began < 0.05
+    assert 'still on the right button' not in caplog.text
+    assert run.quick is None
+
+
+def test_a_key_long_after_the_one_before_says_nothing_of_a_wait_it_did_not_make(caplog):
+    # Every Death Mark of 2026-10-14 followed a "Blade Warp still on the right button 1.0s after its key" though the
+    # warp was seconds old and nothing was waited for (the loop's `else` ran with no look at all).
+    from inventory_tracking.builds.warlock.skills import DEATH_MARK, ECHOING_STRIKE
+    from inventory_tracking.macros.routines import quick_cast_over
+    from inventory_tracking.macros.skills import TELEPORT
+
+    game = Game(world(player=player(right_skill=ECHOING_STRIKE)))
+    run = game.run()
+    run.quick = (TELEPORT, ECHOING_STRIKE, run.clock(), False)
+    game.clock.now += 7.0
+    with caplog.at_level('INFO', logger='inventory_tracking'):
+        quick_cast_over(run, DEATH_MARK)
+    assert 'still on the right button' not in caplog.text
+    assert run.quick is None

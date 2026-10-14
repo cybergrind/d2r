@@ -334,12 +334,76 @@ def test_a_draw_that_pulls_the_attackers_onto_the_demons_is_chosen_over_the_retr
     alone, _ = _pressed_pack(monkeypatch, draw=None)
     assert isinstance(alone, p.Move)
     assert alone.reason.startswith('retreating:')
-    draw = Draw(999, lambda world, unit: True, math.inf, 2.8, 1.0, 11.76)
+    draw = Draw(999, lambda world, unit: True, math.inf, 2.8, 1.0, 11.76, pack=8.0, turns=0.58)
     chosen, safety = _pressed_pack(monkeypatch, draw=draw)
     assert isinstance(chosen, p.Hold)
     assert safety.draws is not None
     best = max(safety.draws.values(), key=lambda price: price.worth)
     assert best.worth > 0
     assert best.life > 0
+    assert best.pressed  # holding without it was over the budget
     assert safety.priced(1.0) == safety.draws
     assert safety.priced(1.0 + 1.0) is None  # stale after DRAW_FRESH: the row goes by its own rule
+
+
+SUPER_UNIQUE, MINION = 0x0A, 0x10
+# Lord De Seis's seal on 2026-10-14, 02:23:00 (the take 20261013T232029Z-108 at 150.2 s), relative to the character:
+# the seal boss (an Oblivion Knight, 312, a ranged caster) 17.7 units off, his Doom Knights (310) between, the Pit
+# Lord and the Defiler on the character, as after a Blade Warp.
+DE_SEIS = {
+    1: (312, (17.0, 5.0), SUPER_UNIQUE),
+    2: (310, (6.5, 2.0), MINION),
+    3: (310, (10.0, 3.0), MINION),
+    4: (310, (13.0, 2.5), MINION),
+    5: (310, (14.0, 4.0), MINION),
+    6: (310, (15.5, 4.5), MINION),
+    7: (310, (16.5, 3.0), MINION),
+}
+
+
+def _seal(monkeypatch, *, deaths, demons=((0.0, 0.0), (0.4, 0.4))):
+    """The safety's look at De Seis's seal (DE_SEIS) with the strikes' forecast deaths `deaths` (unit -> seconds) and
+    a draw of 0.37 s whose companions land 2.8 units from the hostile 0.28 s after its key."""
+    from types import SimpleNamespace
+
+    from inventory_tracking.combat.harm import Hostile, Look, SafetySettings
+    from inventory_tracking.combat.policy import Foe
+    from inventory_tracking.combat.survival import CALM
+    from inventory_tracking.macros import safety as module
+    from inventory_tracking.macros.build import Draw
+    from inventory_tracking.macros.world import Loot
+
+    monkeypatch.setattr(module, 'taken', lambda *a: (3000.0, 0))
+    monkeypatch.setattr(module, 'falls', lambda *a, **kw: dict(deaths))
+    monkeypatch.setattr(module, 'camp', lambda *a, **kw: None)
+    look = Look(
+        tuple(Hostile(unit, txt, at, flags, active=True) for unit, (txt, at, flags) in DE_SEIS.items()),
+        companions=demons,
+        life=1818,
+    )
+    foes = {unit: Foe(txt, at, 4000.0, flags == SUPER_UNIQUE) for unit, (txt, at, flags) in DE_SEIS.items()}
+    seen = SimpleNamespace(origin=(0.0, 0.0), blocked=None, foes=foes)
+    goal = Goal('the fight', (6.5, 2.0), 'fight', 22.1, PRESSED)
+    facts = p.Facts(1.0, goal, True, True, True, lambda: Step(goal.place))
+    draw = Draw(999, lambda world, unit: True, math.inf, 2.8, 0.37, 11.76, arrives=0.28, pack=8.0, turns=0.58)
+    safety = module.Safety(draw=draw, sendable=((0, 361), (1, 744)))
+    safety.price(
+        facts, None, look, Loot(life=1818, max_life=1818), CALM, SafetySettings(), seen, SimpleNamespace(reach=22.1),
+        lambda point: Step(point),
+    )  # fmt: skip
+    return safety
+
+
+def test_the_draw_onto_a_seal_boss_is_priced_by_the_pack_that_turns_not_by_what_the_demons_leave(monkeypatch):
+    # 02:23:00: "no Death Mark on the elite 312 (138710487), 128/128: the safety prices it: saves -40 life": the
+    # demons stood on the character, so by the nearest body the model had some knights on them, and sent onto the
+    # boss they "left" those knights to the character. The takes show the pack round a marked monster turning to the
+    # demons (44% -> 8% at the character three seconds on) and no more life lost by the character after a mark than
+    # at an unmarked elite's engagement (67 against 69 points in six seconds, n = 63 / 181).
+    safety = _seal(monkeypatch, deaths={2: 0.6, 3: 1.0, 4: 1.4, 5: 1.6, 6: 1.8, 7: 2.0, 1: 3.0})
+    assert safety.draws is not None
+    assert 1 in safety.draws  # the seal boss is weighed, whatever its share of the harm here
+    boss = safety.draws[1]
+    assert boss.life > 0
+    assert boss.worth > 0
+    assert not boss.pressed  # full life: holding fits the budget; the boss is marked by its price alone

@@ -140,12 +140,16 @@ def quick_cast_over(run: Run, skill: int) -> None:
     Tower Cellar 1, 20:00:12 on 2026-10-11: Sigil: Lethargy tapped under the held strike was still
     waiting when Teleport's key came 0.4 s later; the game put the Sigil on the button, took it for
     "the one from before" and left it there, and attack mode stopped ("Echoing Strike is on no skill
-    key and on neither mouse button") until the player put the strike back by hand; twice that game."""
+    key and on neither mouse button") until the player put the strike back by hand; twice that game.
+    A look since the key that showed its skill on the button (`Run.quick_shown`, any look of the run's)
+    counts as seen: then only the button's return is waited for (the Chaos Sanctuary, 2026-10-14: a Sigil
+    after a Death Mark waited out the second with its cast long over, rca/2026-10-14/death-mark-engage.md)."""
     if run.quick is None or run.quick[0] == skill:
         return
     before, home, tapped, held = run.quick
-    seen = False
-    while run.clock() - tapped < QUICK_SECONDS:
+    seen = run.quick_shown
+    waiting = run.clock() - tapped < QUICK_SECONDS  # else the key before is long done or dropped: nothing to wait for
+    while True:
         player = run.world().player
         if player is None or player.right_skill is None or home is None:
             break
@@ -154,9 +158,14 @@ def quick_cast_over(run: Run, skill: int) -> None:
             break  # it was on the button and is off it again
         if not seen and not held and player.mode not in ACTING and run.clock() - tapped >= QUICK_UNSEEN:
             break  # never came on: cast without the button showing it, or not taken at all
+        if run.clock() - tapped >= QUICK_SECONDS:
+            # Said only for a wait made or a skill still on the button: a key that comes long after the one before
+            # finds the button given back and waits for nothing (every Death Mark of 2026-10-14 followed a "Blade
+            # Warp still on the right button" of a warp seconds old).
+            if player.right_skill == before or waiting:
+                LOG.info('Macro: %s still on the right button %.1fs after its key', skill_name(before), QUICK_SECONDS)
+            break
         run.pace.sleep(0.02)
-    else:
-        LOG.info('Macro: %s still on the right button %.1fs after its key', skill_name(before), QUICK_SECONDS)
     run.quick = None
 
 
@@ -177,6 +186,7 @@ def press_skill(run: Run, skill: int, poll: float = 0.03, *, wait: bool = True) 
     home = ready.player.right_skill if ready.player is not None else None
     held = bool(run.actuator.holding or run.actuator.holding_buttons)  # under a held strike the game makes it wait
     run.quick = (skill, home, run.clock(), held) if home != skill and run.pad is None else None
+    run.quick_shown = False
     run.say(skill_name(skill))
     LOG.info(
         'Macro: %s on %s, player mode %s',

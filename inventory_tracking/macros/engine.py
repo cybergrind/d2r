@@ -61,6 +61,11 @@ class Run:
         # the skill key tapped last, the right-button skill before it, when, and whether the macro held a
         # key or button then (routines.press_skill)
         self.quick: tuple[int, int | None, float, bool] | None = None
+        # Whether a look since that key showed its skill on the right button (`world`): its cast was seen, so the
+        # next key waits only for the button to be given back (routines.quick_cast_over). The Chaos Sanctuary on
+        # 2026-10-14: Death Mark showed 0.08 to 0.16 s after its key to the fight's own looks, and the Sigil's key
+        # after it waited out a whole second with the strike let go, the wait's looks having begun after.
+        self.quick_shown = False
         self.hover_note: Callable[[], str] | None = None  # the record it read last, whole (world.GameMemory.hover_note)
         # the monsters lying dead as (unit id, x, y), world units (world.GameMemory.corpses): Engorge needs one
         self.corpses: Callable[[], tuple[tuple[int, float, float], ...]] | None = None
@@ -103,6 +108,8 @@ class Run:
             raise Abort(f'the game could not be read ({exc})') from exc
         if self.pad is not None:
             world = self.pad.seen(world)  # the skills on the pad's records stand for the skills on keys
+        if self.quick is not None and not self.quick_shown:
+            self.quick_shown = world.player is not None and world.player.right_skill == self.quick[0]
         if self.observe is not None:
             self.observe(world)
         return world

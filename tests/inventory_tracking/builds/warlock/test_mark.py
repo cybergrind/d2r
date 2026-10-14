@@ -104,14 +104,20 @@ def test_no_new_mark_while_the_marked_one_lives_and_its_mark_lasts_then_one_when
     # Its mark ran out while it lives: marked again
     out = facts(SEAL_BOSS, PACK, now=100.0 + MARK_SECONDS + 0.1, cast_at=marked, draws=priced)
     assert target(out) is SEAL_BOSS
-    # A mark moves to another the safety prices above nothing, no sooner than MARK_AGAIN after the last
-    moved = facts(SEAL_BOSS, PACK, now=100.0 + MARK_AGAIN + 0.1, cast_at=marked, draws={2: price(2, life=200.0)})
-    assert target(moved) is PACK
+    # A mark moves to another the safety prices above nothing, no sooner than MARK_AGAIN after the last: another
+    # pack's leader; a plain monster not while a leader of the fight is in reach (the marked one lives)
+    other = monster(5, 362, x=5016.0, flags=CHAMPION)
+    moved = facts(SEAL_BOSS, PACK, other, now=100.0 + MARK_AGAIN + 0.1, cast_at=marked, draws={5: price(5, life=200.0)})
+    assert target(moved) is other
     assert target(replace(moved, now=100.0 + MARK_AGAIN - 0.1)) is None
+    plain = facts(SEAL_BOSS, PACK, now=100.0 + MARK_AGAIN + 0.1, cast_at=marked, draws={2: price(2, life=200.0)})
+    assert target(plain) is None
 
 
 def test_with_no_safety_price_the_builds_own_rule_marks_diablo_and_not_a_seal_boss():
-    # The pursuit off: the demons' focus and the mark's points alone (mark.py `gain`) against the cast
+    # The pursuit off: the demons' focus and the mark's points alone (mark.py `gain`) against the cast, one volley
+    # of the strike; the demons' blows count from their first (`first_blow`, 1.64 s after the key), which a seal
+    # boss of six or seven casts barely sees, Diablo's twenty do
     diablo = monster(9, 243)
     assert target(facts(diablo)) is diablo
     assert worth_a_mark(facts(diablo), diablo)
@@ -120,3 +126,34 @@ def test_with_no_safety_price_the_builds_own_rule_marks_diablo_and_not_a_seal_bo
     # The demons standing by him already: nothing gained by sending them
     beside = replace(demon(), x=diablo.x - 2.0)
     assert not worth_a_mark(facts(diablo, demons=(beside,)), diablo)
+
+
+def test_a_plain_monster_is_not_marked_while_a_leader_of_the_same_fight_is_in_reach():
+    # 02:22:47-48 on 2026-10-14: two marks a second apart on a plain Venom Lord and a plain Doom Knight; the
+    # player: the mark goes "on the leader / most dangerous monster", "a plain monster is not marked while an elite
+    # of the same fight is in reach".
+    plain = monster(4, 310, x=5006.0)
+    asked = facts(SEAL_BOSS, plain, draws={4: price(4, life=400.0), 1: price(1, life=150.0)})
+    assert target(asked) is SEAL_BOSS
+    assert worth_a_mark(asked, SEAL_BOSS)
+    # The leader's own price refused: the plain one is not marked in its place
+    refused = facts(SEAL_BOSS, plain, draws={4: price(4, life=400.0), 1: price(1, life=10.0)})
+    assert target(refused) is SEAL_BOSS
+    assert not worth_a_mark(refused, SEAL_BOSS)
+    # No leader in reach, or only one a cast or two kills: the plain one the price names
+    assert target(facts(plain, draws={4: price(4, life=400.0)})) is plain
+    weak = replace(SEAL_BOSS, life=8)
+    assert target(facts(weak, plain, draws={4: price(4, life=400.0), 1: price(1, life=150.0)})) is plain
+
+
+def test_a_plain_monster_is_marked_for_its_pack_only_when_the_fight_presses():
+    # The player: "a pack big enough to hurt" is marked, "plain trash" is not; a plain monster's mark is the re-aggro
+    # under pressure: holding without it over the life budget (`DrawPrice.pressed`, macros/safety.py)
+    plain = monster(4, 310, x=5006.0)
+    calm = facts(plain, draws={4: price(4, life=400.0)})
+    assert target(calm) is plain
+    assert not worth_a_mark(calm, plain)
+    assert mark_refusal(calm, plain) is None  # a plain monster: nothing said
+    pressed = facts(plain, draws={4: replace(price(4, life=400.0), pressed=True)})
+    assert worth_a_mark(pressed, plain)
+    assert not worth_a_mark(facts(plain), plain)  # with no safety price no pack is priced

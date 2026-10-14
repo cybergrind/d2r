@@ -511,6 +511,11 @@ class Draw:
     gain: Callable[[Observation, int, Sequence[int]], float] = no_gain
     fits: Callable[[Observation, int], bool] = any_fits  # whether a hostile is one to draw onto at all
     arrives: float = 0.0  # seconds from the key until the companions land
+    # What it turns, as measured: the hostiles within `pack` units of the one drawn onto go for the companions, and
+    # the share `turns` of their blows on the character leaves it (the control's share at the character less the
+    # drawn pack's); the rest go on as they were. 0: nothing is known to turn (the life it saves is not priced).
+    pack: float = 0.0
+    turns: float = 0.0
 
 
 @dataclass(frozen=True)
@@ -525,6 +530,8 @@ class DrawPrice:
     gain: float  # seconds of the fight it saves besides (`Draw.gain`)
     cost: float  # the cast's seconds
     span: float  # seconds over which the harm was priced: the companions' hold, or the fight's clear time if less
+    # Whether holding without it was over the look's life budget (`budget`): the fight presses the character
+    pressed: bool = False
 
     @property
     def worth(self) -> float:

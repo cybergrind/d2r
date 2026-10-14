@@ -149,6 +149,18 @@ class Look:
     # Missiles in flight of the classes the read models ask for (combat/threats `missiles`): (owner unit, where,
     # heading in radians).
     missiles: tuple[tuple[int, Point, float], ...] = ()
+    # A draw priced on the look (`sent_onto`): the hostiles it turns to the companions where they now stand, and
+    # where the companions stood before it, which every other hostile still weighs (`bodies`). None: no draw.
+    drawn: frozenset[int] | None = None
+    stood: tuple[Point, ...] = ()
+
+
+def bodies(seen: Look, m: Hostile) -> tuple[Point, ...]:
+    """The companions' places a hostile weighs for whom it goes for (the nearest body): where they stand, or, for a
+    hostile a draw did not turn (`sent_onto`'s `pack`), where they stood before it."""
+    if seen.drawn is None or m.unit in seen.drawn:
+        return seen.companions
+    return seen.stood
 
 
 @dataclass(frozen=True)
@@ -192,7 +204,8 @@ def exposure(
 ):
     """A*w*n*hit*points, retaining each burst as one event (flames correlate). `alive`: seconds into the
     dwell a hostile still lives (the character's own strikes, combat/stance.py `falls`); absent: all of it."""
-    key = (seen.hostiles, seen.companions, place, dwell, protection, settings) if alive is None else None
+    key = (seen.hostiles, seen.companions, seen.drawn, seen.stood, place, dwell, protection, settings)
+    key = key if alive is None else None
     if key is not None:
         known = seen.memo.get(key)
         if known is not None:
@@ -222,7 +235,7 @@ def hostile_exposure(
     unknown: list[int] = []
     curses = 0.0
     d = rules.ai_distance(m.at, place)
-    near = min((rules.ai_distance(m.at, p) for p in seen.companions), default=math.inf)
+    near = min((rules.ai_distance(m.at, p) for p in bodies(seen, m)), default=math.inf)
     if min(d, near) >= rules.RADIUS or (not m.active and not clear_line(seen.blocked, m.at, place)):
         return (), 0.0, ()
     share = 1.0 if d <= near else settings.companion_uncertainty
@@ -380,7 +393,7 @@ def threat_exposure(
         if model is None:
             continue
         d = rules.ai_distance(m.at, start)
-        near = min((rules.ai_distance(m.at, p) for p in seen.companions), default=math.inf)
+        near = min((rules.ai_distance(m.at, p) for p in bodies(seen, m)), default=math.inf)
         if min(d, near) >= rules.RADIUS:
             continue
         flying = tuple((at, heading) for owner, at, heading in seen.missiles if owner == m.unit)
@@ -420,7 +433,7 @@ def approach(seen: Look, place: Point, elapsed: float) -> Look:
     """
     moved = []
     for m in seen.hostiles:
-        target = min((place, *seen.companions), key=lambda p: rules.ai_distance(m.at, p))
+        target = min((place, *bodies(seen, m)), key=lambda p: rules.ai_distance(m.at, p))
         distance = rules.ai_distance(m.at, target)
         row, ai = rules.row_of(m.txt), rules.mind_of(m.txt)
         reach = rules.REACH
@@ -437,11 +450,15 @@ def approach(seen: Look, place: Point, elapsed: float) -> Look:
     return replace(seen, hostiles=tuple(moved))
 
 
-def sent_onto(seen: Look, sent: tuple[int, ...], target: Point, reach: float, beside: float) -> Look:
+def sent_onto(
+    seen: Look, sent: tuple[int, ...], target: Point, reach: float, beside: float, pack: float = math.inf
+) -> Look:
     """The look with the companions at `sent` (indices into `companions`) that stand within `reach` of `target`
     put `beside` units from it, each on its own side of it (straight from the target where one stood on it): a
-    cast that sends them onto one hostile (macros/build.py `Draw`). Whom a hostile goes for is then priced as
-    always, the nearest body by `share` (the client's rule): the target and what stands round it turn to them."""
+    cast that sends them onto one hostile (macros/build.py `Draw`). The hostiles within `pack` units of the target
+    weigh them where they land, the nearest body by `share` (the client's rule): the target and what stands round
+    it turn to them; every other hostile weighs them where they stood (`bodies`; the build's `Draw.pack`, measured:
+    rca/2026-10-14/death-mark-engage.md §4)."""
     moved = list(seen.companions)
     for index in sent:
         if index >= len(moved):
@@ -452,7 +469,9 @@ def sent_onto(seen: Look, sent: tuple[int, ...], target: Point, reach: float, be
             continue
         dx, dy = ((at[0] - target[0]) / gap, (at[1] - target[1]) / gap) if gap > 1e-6 else (1.0, 0.0)
         moved[index] = (target[0] + dx * beside, target[1] + dy * beside)
-    return replace(seen, companions=tuple(moved))
+    turned = frozenset(m.unit for m in seen.hostiles if math.dist(m.at, target) <= pack)
+    stood = seen.companions if seen.drawn is None else seen.stood
+    return replace(seen, companions=tuple(moved), drawn=turned, stood=stood)
 
 
 def harm(

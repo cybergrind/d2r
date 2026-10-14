@@ -1459,7 +1459,7 @@ def test_a_death_mark_refused_on_an_elite_in_reach_is_said_once_with_its_worth_a
     assert len(refused) == 1  # once per target, and only for the elite
     assert 'no Death Mark on the elite 312 (11)' in refused[0]
     assert "by the build's rule (no safety price)" in refused[0]
-    assert "against the cast's 1.00s" in refused[0]
+    assert "against the cast's 0.37s" in refused[0]  # one volley of the strike (mark.py MARK_CAST_SECONDS)
 
 
 def test_no_death_mark_with_no_demon_out_and_the_reason_is_said(caplog):

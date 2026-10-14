@@ -30,6 +30,32 @@ def tough_as_it_was(hunt, world, reachable):
     return False
 
 
+def quick_cast_over_as_it_was(run, skill):
+    """The wait for the key before to give the right button back as that evening (routines.quick_cast_over before
+    2026-10-14): only its own looks counted, and a key long after the one before still said it had waited."""
+    from inventory_tracking.common import LOG
+    from inventory_tracking.macros.routines import ACTING, QUICK_SECONDS, QUICK_UNSEEN
+    from inventory_tracking.macros.skills import skill_name
+
+    if run.quick is None or run.quick[0] == skill:
+        return
+    before, home, tapped, held = run.quick
+    seen = False
+    while run.clock() - tapped < QUICK_SECONDS:
+        player = run.world().player
+        if player is None or player.right_skill is None or home is None:
+            break
+        seen = seen or player.right_skill == before
+        if seen and player.right_skill == home:
+            break
+        if not seen and not held and player.mode not in ACTING and run.clock() - tapped >= QUICK_UNSEEN:
+            break
+        run.pace.sleep(0.02)
+    else:
+        LOG.info('Macro: %s still on the right button %.1fs after its key', skill_name(before), QUICK_SECONDS)
+    run.quick = None
+
+
 # Also since: a jump keeps clear of where the melee monsters will be when it lands (stance.CLOSING_MOST),
 # and a Herald's pack gets the main weapons (hunt.Hunter.tough).
 AS_IT_WAS = {
@@ -43,6 +69,8 @@ AS_IT_WAS = {
     # and a potion among monsters is left by the pickup key too (hunt.threat, the same day)
     'inventory_tracking.macros.hunt.threat': lambda run: lambda here, spot: 0,
     'tests.inventory_tracking.scenarios.battle.replay.threat': lambda run: lambda here, spot: 0,
+    # and a key waits only for the button's return once any look saw the key before's cast (2026-10-14)
+    'inventory_tracking.macros.routines.quick_cast_over': quick_cast_over_as_it_was,
 }
 END = 22.7  # just before the teleport key (22.77 s), whose handling has changed since
 

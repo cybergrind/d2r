@@ -65,10 +65,15 @@ def test_the_replay_fights_the_fight_of_the_record():
     # 115 recorded actions in 31.4 s: 96 are replayed in order. The replay parts from the record in the
     # first six seconds (today's sweep jumps 1.0 s into the first fight, where that evening's struck on
     # for 1.5 s; an Engorge and the Sigil come in another order after it) and has no Engorge at 30.9 s;
-    # between them every Blade Warp goes where the record's went.
+    # between them every Blade Warp goes where the record's went. 94 since 2026-10-14: a key no longer waits out a
+    # second for the key before once a look saw that one's cast (routines.quick_cast_over), so the record's "still on
+    # the right button" lines of waits made then, and of none (a warp seconds old), are not said, and an Engorge
+    # comes 3 s sooner (rca/2026-10-14/death-mark-engage.md §3).
     assert len(recorded) == 115
-    assert len(found.same) >= 96, found.table()
+    assert len(found.same) >= 94, found.table()
     moves = [(a.kind, a.what) for a, _ in found.same if a.kind in ('sweep', 'walk', 'landed', 'skill', 'engorge')]
     assert moves.count(('skill', 'Blade Warp')) >= 8
     assert moves.count(('skill', 'Sigil: Lethargy')) >= 1
-    assert moves.count(('engorge', '')) >= 1
+    # The record's Engorge (15.6 s) waited out the second after a Blade Warp; today's two come at 3.4 s and 19.6 s,
+    # in no recorded place (2026-10-14): cast all the same
+    assert sum(1 for action in played if action.kind == 'engorge') >= 1

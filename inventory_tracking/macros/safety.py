@@ -71,11 +71,14 @@ FIRING = 'firing spot'  # the reason of a move to a stand the strike is made fro
 STEPPING = 'stepping'
 AWAY = 'away from the threat'  # why a place of the threat's geometry is offered
 # The build's draw (macros/build.py `Draw`: a cast that sends its companions onto a hostile), weighed at a look of a
-# fight (`Safety.weigh`): onto the DRAW_TARGETS hostiles with the largest shares of holding's harm and the one it
-# gains most on; not onto one the companions stand within DRAW_HELD units of its landing distance of already (they
-# hold it: a cast would change nothing). A price is the fight's for DRAW_FRESH seconds (a few looks of the fight's
-# DECIDE_SECONDS 0.12), older the row that casts it goes by its own rule.
+# fight (`Safety.weigh`): onto the DRAW_TARGETS hostiles with the largest shares of holding's harm, the one it gains
+# most on and the DRAW_LEADERS nearest leaders (a unique, a champion, a super unique, a boss: what a pack follows and
+# what outlives it; the player, 2026-10-14: the mark goes "on the leader / most dangerous monster"); not onto one the
+# companions stand within DRAW_HELD units of its landing distance of already (they hold it: a cast would change
+# nothing). A price is the fight's for DRAW_FRESH seconds (a few looks of the fight's DECIDE_SECONDS 0.12), older
+# the row that casts it goes by its own rule.
 DRAW_TARGETS = 2
+DRAW_LEADERS = 2
 DRAW_HELD = 3.0
 DRAW_FRESH = 0.5
 # A missile the look reads for a read model (combat/threats): (owner unit, missile class, x, y).
@@ -339,13 +342,15 @@ class Safety:
             # The build's draw (`weigh`): holding is priced with the companions sent onto the hostile it pays most
             # on, its cast in the hold's time and its strike gap, when it pays (T + kappa x H over its span); so the
             # hold with it competes with the escapes and the retreat as one act.
-            drawn = self.weigh(look, seen, settings, kappa, here, clear, swap_path, killed)
+            pressed = hold_harm.worst > allowance
+            drawn = self.weigh(look, seen, settings, kappa, here, clear, swap_path, killed, pressed=pressed)
             if drawn is not None:
                 target = next(m.at for m in look.hostiles if m.unit == drawn.unit)
                 assert self.draw is not None
                 sent = tuple(index for index, _ in self.sendable)
                 later = {unit: at + drawn.cost for unit, at in killed.items()}  # no strike during the cast
-                hold_harm, future = holding(sent_onto(look, sent, target, self.draw.reach, self.draw.beside), later)
+                drawn_look = sent_onto(look, sent, target, self.draw.reach, self.draw.beside, self.draw.pack)
+                hold_harm, future = holding(drawn_look, later)
                 hold_seconds += drawn.cost - drawn.gain
                 hold_unstruck += drawn.cost
         if not battle_ready:
@@ -610,18 +615,33 @@ class Safety:
         clear: float,
         lead: tuple[tuple[Point, float, Hands], ...],
         killed: dict[int, float],
+        *,
+        pressed: bool = False,
     ) -> DrawPrice | None:
-        """The build's draw (macros/build.py `Draw`) weighed at this look of a fight: for the hostiles holding's harm
-        comes most from (DRAW_TARGETS) and the one it gains most on, the life it saves (holding here over its span
-        without it, less with the companions sent onto the hostile, both with the strikes' forecast deaths), at the
-        look's price of life, plus what it gains of the fight, less the cast; kept by unit (`draws`, the buff row
-        reads them: `priced`). The best of them when it pays, else None. Not onto a hostile the companions hold already
-        or one the draw does not fit; with no companion it would send, nothing is weighed."""
+        """The build's draw (macros/build.py `Draw`) weighed at this look of a fight, onto the hostiles holding's harm
+        comes most from (DRAW_TARGETS), the one it gains most on and the nearest leaders (DRAW_LEADERS): the life it
+        saves over its span, at the look's price of life, plus what it gains of the fight, less the cast; kept by unit
+        (`draws`, the buff row reads them: `priced`). The best of them when it pays, else None. Not onto a hostile the
+        companions hold already or one the draw does not fit; with no companion it would send, nothing is weighed.
+        `pressed`: holding without it is over the life budget (kept with each price).
+
+        The life it saves is what the takes measured it to turn (rca/2026-10-14/death-mark-engage.md §4): the share
+        `Draw.turns` of the blows the pack within `Draw.pack` of the hostile would deal the character, priced with no
+        companion to take any (the control's share at the character is in `turns`; by the nearest body alone, two
+        demons standing on the character took half its attackers and a draw "freed" them: De Seis's seal at -40
+        life, 02:23:00 on 2026-10-14), from the companions' landing (`arrives`) on; less the cast's own exposure, as
+        no strike is cast meanwhile and what it kills dies that much later."""
         draw = self.draw
         if draw is None or not self.sendable:
             return None
         sent = tuple(index for index, _ in self.sendable)
-        classes = tuple(txt for _, txt in self.sendable)
+        # The companions' blows count as gained only from those idle now (no hostile within their landing distance and
+        # DRAW_HELD): one already striking a hostile of the fight clears it as fast where it is.
+        engaged = draw.beside + DRAW_HELD
+        classes = tuple(
+            txt for index, txt in self.sendable
+            if all(math.dist(look.companions[index], m.at) > engaged for m in look.hostiles)
+        )  # fmt: skip
         span = min(draw.lasts, max(settings.horizon, clear))
         path = (*lead, (here, span, 'battle'))
         alive = {m.unit: m.at for m in look.hostiles if m.unit in seen.foes and draw.fits(seen, m.unit)}
@@ -633,20 +653,20 @@ class Safety:
         best_gain = max(gains, key=lambda unit: (gains[unit], -unit))
         if best_gain not in units:
             units.append(best_gain)
+        leaders = sorted((u for u in alive if seen.foes[u].elite), key=lambda u: (math.dist(here, alive[u]), u))
+        units += [unit for unit in leaders if unit not in units][:DRAW_LEADERS]
+        later = {other: at + draw.seconds for other, at in killed.items()}  # no strike during the cast
+        exposed = max(0.0, harm_path(look, path, settings, later).mean - base.mean)
+        alone = dict(harm_path(replace(look, companions=()), path, settings, later).by) if draw.turns > 0 else {}
+        landed = min(1.0, draw.arrives / span) if span > 0 else 1.0
         prices = self.draws if self.draws is not None else {}
         for unit in units:
             target = alive[unit]
-            if all(math.dist(look.companions[index], target) <= draw.beside + DRAW_HELD for index in sent):
+            if all(math.dist(look.companions[index], target) <= engaged for index in sent):
                 continue  # held already: a cast changes nothing of where they stand
-            life = 0.0
-            if kappa * base.mean + gains[unit] > draw.seconds:  # else not even all of the harm would pay for it
-                # No strike during the cast: what it kills dies that much later; the companions land `arrives` after
-                # the key, the harm before as without them (the share of the span, on the means).
-                later = {other: at + draw.seconds for other, at in killed.items()}
-                after = harm_path(sent_onto(look, sent, target, draw.reach, draw.beside), path, settings, later)
-                landed = min(1.0, draw.arrives / span) if span > 0 else 1.0
-                life = base.mean - (landed * base.mean + (1 - landed) * after.mean)
-            prices[unit] = DrawPrice(unit, life, kappa * life, gains[unit], draw.seconds, span)
+            turned = sum(alone.get(m.unit, 0.0) for m in look.hostiles if math.dist(m.at, target) <= draw.pack)
+            life = draw.turns * turned * (1.0 - landed) - exposed
+            prices[unit] = DrawPrice(unit, life, kappa * life, gains[unit], draw.seconds, span, pressed)
         self.draws = prices
         best = max(prices.values(), key=lambda price: (price.worth, -price.unit), default=None)
         return best if best is not None and best.worth > 0 else None

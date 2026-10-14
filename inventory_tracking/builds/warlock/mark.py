@@ -13,17 +13,22 @@ client and the takes (death-mark.md §1-2):
 - the marked monster takes stats 34 and 35 at -(5 + 2 x (level - 1)) and stat 31 at -(50 + 35 x (level - 1)):
   flat, not percent (the client subtracts stats 34/35 from each element of each hit as read, with no floor:
   ai_d2_dmg_element 0x14038FB70): -31 at the character's level 14 is 31 more points an element a hit, about 2% of a
-  blade's; the defence cut (-505) helps only what rolls to hit (the mercenary, the demons), which no model here
-  prices;
-- the cast costs the strike about MARK_CAST_SECONDS (the macro's marks of 2026-10-13: the next strike 1.76 s after
-  the key at the median against 0.73 s between two strikes).
+  blade's; the defence cut (-505) helps only what rolls to hit (the mercenary, the demons): `struck_more` prices it
+  for the demons sent;
+- the cast costs the strike about MARK_CAST_SECONDS: one volley of blades (the strike's missiles, 706, round the
+  macro's marks of 2026-10-13/14: 0.73 s between the volleys across the key against 0.38 s between two; the
+  1.76 s measured before counted the client's cast events, which a held strike runs together, and a Sigil's key
+  that waited out a second after the mark: rca/2026-10-14/death-mark-engage.md §3).
 
 So a mark is worth what it draws off the character (priced by the safety pricing's harm, macros/safety.py
-`Safety.weigh`, at the look's price of life, so the arbiter weighs it against the retreat) and what the demons
-and the mark add to the strike on the marked monster (`gain`), against the cast. The fight's buff row casts it on
-the hostile that price names (the safety's last look, `BuffFacts.draws`); with no price fresh (the pursuit off)
-by `gain` alone. Never with no demon, never on a monster a cast or two kills (TRASH_CASTS), never again on one
-marked while its mark lasts: a new one when the marked monster dies or its mark runs out and the fight goes on.
+`Safety.weigh`, at the look's price of life, so the arbiter weighs it against the retreat: the share MARK_TURNS of
+the blows of the pack within MARK_PACK of the marked monster) and what the demons and the mark add to the strike on
+the marked monster (`gain`: the demons' hits, landing more often by the defence cut, and the mark's points),
+against the cast. The fight's buff row casts it on the hostile that price names (the safety's last look,
+`BuffFacts.draws`), a leader or a boss before a plain monster of the same fight (the player, 2026-10-14: "on the
+leader / most dangerous monster"); with no price fresh (the pursuit off) by `gain` alone. Never with no demon,
+never on a monster a cast or two kills (TRASH_CASTS), never again on one marked while its mark lasts: a new one when
+the marked monster dies or its mark runs out and the fight goes on.
 """
 
 import math
@@ -33,7 +38,10 @@ from inventory_tracking.builds.warlock.echoing_strike.attack import BLADES_A_CAS
 from inventory_tracking.builds.warlock.echoing_strike.damage import companion_table, damage_data
 from inventory_tracking.builds.warlock.skills import DEATH_MARK
 from inventory_tracking.combat.harm import SafetySettings
+from inventory_tracking.combat.mechanics.tables import tables
 from inventory_tracking.combat.policy import Observation, observe
+from inventory_tracking.combat.sim import casters as rules
+from inventory_tracking.combat.sim.casters import hit_chance
 from inventory_tracking.combat.stance import CAST_SECONDS
 from inventory_tracking.combat.timeline import GAME_RATE
 from inventory_tracking.macros.build import BuffFacts, Draw, DrawPrice
@@ -52,9 +60,14 @@ MARK_POINTS = float(_MARK['points'])  # points more an element of a hit takes
 MARK_ELEMENTS = 1  # elements of a blade's hit: the weapon's physical damage (Echoing Strike has no EType)
 MARK_SECONDS = int(_MARK['frames']) / GAME_RATE  # 125 + 13 x (level - 1) frames: 11.76 s at 14
 MARK_DELAY = 20 / GAME_RATE  # skills.txt localdelay: the skill cannot be cast again sooner
-# What a cast costs the strike: the macro's 18 marks of 2026-10-13 (rca/2026-10-14/scripts/mark_measure.py): the
-# next strike came 1.76 s after the key at the median, against 0.73 s between two strikes (the player's own: 0.92)
-MARK_CAST_SECONDS = 1.0
+MARK_DEFENCE = float(_MARK['defence'])  # the marked monster's defence falls by this (stat 31, -505 at level 14)
+# What a cast costs the strike: one volley of its blades. The strike's missiles (706) round the macro's 5 marks of
+# 2026-10-13/14 with no other key of the macro's within 1.5 s after: 0.73 s from the volley before the key to the
+# one after at the median against 0.38 s between two volleys; the 15 with one (a Sigil's or an Engorge's key, most
+# 1.01 s after, having waited out the second for the mark's: now gone, routines.quick_cast_over), 1.57 s (the
+# player's own marks, 228 of 2026-10-10/13: 1.17 s). The 1.76 s measured before counted the client's cast events,
+# which a held strike runs together (rca/2026-10-14/scripts/mark_volleys.py, death-mark-engage.md §3).
+MARK_CAST_SECONDS = 0.37
 MARK_JUMP = 0.28  # seconds from the key until the demons land (the median of 409 jumps; quartiles 0.24, 0.29)
 MARK_BESIDE = 2.8  # units from the marked monster a demon lands (the median of 910 landings; quartiles 2.0, 5.2)
 MARK_REACH = math.inf  # units: no cap showed (Param9 "teleport distance" 38; 11 of 11 demons farther jumped)
@@ -64,8 +77,14 @@ TRASH_CASTS = 2
 # Seconds between two marks on two monsters both alive: a mark is moved to another monster (the safety's price says
 # it pays more there) no sooner, so two near-equal prices do not trade the demons back and forth.
 MARK_AGAIN = 2.0
-HELD = 3.0  # units beyond MARK_BESIDE within which a demon is taken to hold a monster already: no gain of its own
+HELD = 3.0  # units beyond MARK_BESIDE within which a demon is taken to strike a monster already: no gain of its own
 PACE = SafetySettings().strike_spread[len(SafetySettings().strike_spread) // 2]  # the strikes' kill time over forecast
+# What a mark turns (rca/2026-10-14/death-mark.md §2, the takes of 2026-10-09/13): the path targets of the monsters
+# within MARK_PACK units of a marked one were the character's in 8% three seconds after the key, against 66% steady
+# round an unmarked elite at its engagement; the character lost no more life after a mark than after such an
+# engagement (67 against 69 points in six seconds), so what the demons leave is taken to go on as it was.
+MARK_PACK = 8.0
+MARK_TURNS = 0.66 - 0.08
 
 
 def demons(world: World) -> list[Monster]:
@@ -106,12 +125,44 @@ def fits(seen: Observation, unit: int) -> bool:
     return unit in seen.foes and casts_to_kill(seen, unit) > TRASH_CASTS
 
 
+def struck_more(companion: int, txt: int) -> float:
+    """How much more often a companion's blow lands on a monster of `txt` marked: its chance to hit with the mark's
+    defence cut (MARK_DEFENCE) over its chance without (the client's to-hit, combat/sim/casters.py `hit_chance`,
+    with each type's Hell row: its level, its attack rating and defence at that level). 1 where a row is missing
+    (the Defiler has none in the tables): a stand-in, as a summon's own level follows its skill, not its row."""
+    rows, levels = tables()['monsters'], tables()['monlvl']
+    striker, struck = rows.get(str(companion)), rows.get(str(txt))
+    if striker is None or struck is None or not striker.get('A1TH(H)') or not struck.get('AC(H)'):
+        return 1.0
+    level, against = int(striker['Level(H)']), int(struck['Level(H)'])
+    defence = float(struck['AC(H)']) * float(levels[str(against)]['AC(H)']) / 100
+    before = hit_chance(striker, level, defence, against)
+    return hit_chance(striker, level, max(0.0, defence - MARK_DEFENCE), against) / before if before > 0 else 1.0
+
+
+def first_blow(sent: Sequence[int]) -> float:
+    """Seconds from the key until the demons sent first strike the marked monster: their jump (MARK_JUMP), then one
+    think and one swing of the strongest of them (monstats `aidel(H)` and its A1 frames by the client's AI tables,
+    combat/sim/casters.py: the Pit Lord's 11 + 23 frames, 1.36 s); MARK_JUMP alone where no row says. The rates of
+    data/damage.json are means over whole stretches in reach, swings included; the first blow comes this late."""
+    rates = companion_table()
+    strongest = max(sent, key=lambda txt: rates.get(txt, (0.0, 0.0))[1], default=None)
+    row = rules.row_of(strongest) if strongest is not None else None
+    mind = rules.mind_of(strongest) if strongest is not None else None
+    if row is None or mind is None:
+        return MARK_JUMP
+    return MARK_JUMP + (rules.MODE_FRAMES.get((mind, 'A1'), 0) + rules.number(row, 'aidel(H)')) / GAME_RATE
+
+
 def gain(seen: Observation, unit: int, sent: Sequence[int]) -> float:
     """Seconds of the fight a mark on `unit` saves besides the harm: the demons sent (`sent`, their classes) strike
-    it at their rates (data/damage.json `companions`, measured while a hostile was in their reach) for as long as the
-    mark lasts, and each blade on it deals MARK_POINTS more an element. Its time to die by the strike alone, less
-    that with them. The demons' own hits taking the flat points and the defence cut are not counted (no hit rate
-    and no to-hit in the model)."""
+    it at their rates (data/damage.json `companions`, measured while a hostile was in their reach) from their first
+    blow on (`first_blow`), landing more often by the mark's defence cut (`struck_more`, about 8% more for the Pit
+    Lord), for as long as the mark lasts, and each blade on it deals MARK_POINTS more an element. Its time to die by
+    the strike alone, less that with them: nothing of the demons on a monster the strike kills before their first
+    blow (the takes show no kill-speed gain on marked elites beyond the selection of the toughest, death-mark.md
+    §2, and one on Diablo: 5.5 s marked, 8.6 s not). The demons' own hits taking the flat points are not counted
+    (no hit count in the model)."""
     foe = seen.foes.get(unit)
     if foe is None:
         return 0.0
@@ -119,12 +170,18 @@ def gain(seen: Observation, unit: int, sent: Sequence[int]) -> float:
     strike = strike_rate(foe.txt)
     if strike <= 0:
         return 0.0
-    focus = sum(rates.get(txt, (0.0, 0.0))[1] for txt in sent) * GAME_RATE
+    focus = sum(rates.get(txt, (0.0, 0.0))[1] * struck_more(txt, foe.txt) for txt in sent) * GAME_RATE
     flat = MARK_POINTS * MARK_ELEMENTS * BLADES_A_CAST / CAST_SECONDS / PACE
     left = life_to_come(seen, unit)
-    both = strike + focus + flat
-    within = both * MARK_SECONDS
-    marked = left / both if left <= within else MARK_SECONDS + (left - within) / strike
+    start = min(first_blow(sent), MARK_SECONDS)
+    before = (strike + flat) * start  # the strike and the mark's points, the demons not striking yet
+    within = before + (strike + flat + focus) * (MARK_SECONDS - start)
+    if left <= before:
+        marked = left / (strike + flat)
+    elif left <= within:
+        marked = start + (left - before) / (strike + flat + focus)
+    else:
+        marked = MARK_SECONDS + (left - within) / strike
     return max(0.0, left / strike - marked)
 
 
@@ -138,6 +195,8 @@ DEATH_MARK_DRAW = Draw(
     gain,
     fits,
     MARK_JUMP,
+    MARK_PACK,
+    MARK_TURNS,
 )
 
 
@@ -167,14 +226,33 @@ def worth_of(facts: BuffFacts, unit: int) -> float:
     return found.worth if found is not None else -math.inf
 
 
+def ranked(facts: BuffFacts) -> list[Monster]:
+    """The leaders and bosses in reach a mark may go on (`fits`): a unique, a champion, a super unique, an act boss.
+    While one is in reach no plain monster of the fight is marked (the player, 2026-10-14: the mark goes "on the
+    leader / most dangerous monster"): the pack follows its leader and outlives it rarely, and the demons sent onto
+    a plain one leave the leader free."""
+    player = facts.world.player
+    if player is None:
+        return []
+    found = []
+    for m in facts.reachable:
+        if m.leader or is_boss(m):
+            seen = observe(player, [m], ())
+            if fits(seen, m.unit_id):
+                found.append(m)
+    return found
+
+
 def target(facts: BuffFacts) -> Monster | None:
-    """Whom Death Mark is for now. With the safety's prices fresh: the monster in reach it priced best; while a
-    mark lasts on a live one, only another it prices above nothing, and MARK_AGAIN after the last mark. With none:
-    by `strongest`, and none while a mark lasts on a live one (it is renewed when that dies or runs out)."""
+    """Whom Death Mark is for now: among the leaders and bosses in reach when there is one (`ranked`), else among
+    the rest. With the safety's prices fresh: the one it priced best; while a mark lasts on a live one, only another
+    it prices above nothing, and MARK_AGAIN after the last mark. With none: by `strongest`, and none while a mark
+    lasts on a live one (it is renewed when that dies or runs out)."""
     held = marked(facts)
     if facts.draws is None:
         return None if held else strongest(facts)
-    priced = [m for m in facts.reachable if m.unit_id in facts.draws]
+    first = ranked(facts)
+    priced = [m for m in (first or facts.reachable) if m.unit_id in facts.draws]
     if held:
         if facts.since(DEATH_MARK) < MARK_AGAIN:
             return None
@@ -193,12 +271,13 @@ def seen_of(facts: BuffFacts, monster: Monster) -> Observation | None:
 
 def own_price(facts: BuffFacts, monster: Monster) -> DrawPrice | None:
     """The mark's price by the build's own rule, with no safety price fresh: what it gains on the monster (`gain`) by
-    the demons alive that do not hold it already, against the cast; no life is counted."""
+    the demons alive that strike no hostile now (none within MARK_BESIDE + HELD: one striking a hostile of the fight
+    clears it as fast where it is, and one by the monster holds it already), against the cast; no life is counted."""
     seen = seen_of(facts, monster)
     if seen is None:
         return None
-    at = (monster.x, monster.y)
-    sent = [m.txt_id for m in demons(facts.world) if math.dist((m.x, m.y), at) > MARK_BESIDE + HELD]
+    foes = [(m.x, m.y) for m in (*facts.foes, monster)]
+    sent = [m.txt_id for m in demons(facts.world) if all(math.dist((m.x, m.y), at) > MARK_BESIDE + HELD for at in foes)]
     return DrawPrice(monster.unit_id, 0.0, 0.0, gain(seen, monster.unit_id, sent), MARK_CAST_SECONDS, MARK_SECONDS)
 
 
@@ -213,7 +292,11 @@ def own_line(price: DrawPrice | None) -> str:
 
 
 def why_not(facts: BuffFacts, monster: Monster) -> str | None:
-    """Why no mark goes on `monster`, or None when it pays."""
+    """Why no mark goes on `monster`, or None when it pays. A leader or a boss opens its fight with one when the
+    price pays. A plain monster only for a pack big enough to hurt (the player, 2026-10-14), as a re-aggro under
+    pressure: holding without the draw is over the look's life budget (`DrawPrice.pressed`). Marks on plain packs
+    priced above nothing but not pressing cost the arena's Vizier his 16 s window in all of ten seeds (one volley
+    each, death-mark-engage.md §5), and the takes show no life the character kept by a mark (death-mark.md §2)."""
     if not demons(facts.world):
         return "no demon of the character's is out (the skill needs one)"
     seen = seen_of(facts, monster)
@@ -222,11 +305,18 @@ def why_not(facts: BuffFacts, monster: Monster) -> str | None:
     if not fits(seen, monster.unit_id):
         casts = casts_to_kill(seen, monster.unit_id)
         return f'trash: {casts:.1f} casts of the strike kill it (a mark needs more than {TRASH_CASTS})'
+    leads = monster.leader or is_boss(monster)
     if facts.draws is not None:
         price = facts.draws.get(monster.unit_id)
         if price is None:
             return 'not priced by the safety at its last look'
-        return None if price.worth > 0 else f'the safety prices it: {price.line()}'
+        if price.worth <= 0:
+            return f'the safety prices it: {price.line()}'
+        if not leads and not price.pressed:
+            return f'a plain monster, and holding fits the life budget without it: {price.line()}'
+        return None
+    if not leads:
+        return 'a plain monster: with no safety price, no pack is priced'
     price = own_price(facts, monster)
     if price is None or price.worth <= 0:
         return own_line(price)
