@@ -92,14 +92,20 @@ from inventory_tracking.macros.build import Attack, Build, NoWay
 from inventory_tracking.macros.drinking import Drinker, key_of, on_belt
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.goals import (
+    CLEAR_WAY,
     PICK_NEAR,
+    PICK_REACH,
     PICK_UP,
+    REACH,
     WAIT,
     Goal,
+    boss_ahead,
+    clear_way,
     first_fight,
     goal_of,
     in_the_way,
     nearer,
+    rest_of_level,
 )
 from inventory_tracking.macros.pad import MONSTER_UNIT
 from inventory_tracking.macros.pickup import POTION_UNITS, choose, pick_up, shortages, unshunned, worth_a_stop
@@ -126,6 +132,7 @@ from inventory_tracking.macros.routines import (
     TOWN_NPCS,
     take_battle_weapons,
 )
+from inventory_tracking.macros.runmode import Mode, Taps, aim_of, doubled, mode_of, said, tapped
 from inventory_tracking.macros.safety import Safety
 from inventory_tracking.macros.sight import clear_shot, firing_spots, in_reach, in_reach as in_reach_of
 from inventory_tracking.macros.skills import (
@@ -161,6 +168,7 @@ from inventory_tracking.macros.travel import (
     Tally,
     Travel,
     attackable,
+    clear_line,
     facts_with,
     label,
     life,
@@ -184,7 +192,7 @@ from inventory_tracking.macros.world import (
 )
 from inventory_tracking.models import PotionType
 from inventory_tracking.native.layout import TILE_UNITS
-from inventory_tracking.routes.model import FIGHT, STAND, USE
+from inventory_tracking.routes.model import ENTER, FIGHT, STAND, USE, Script
 from inventory_tracking.routes.progress import Progress
 from inventory_tracking.terror.bosses import BOSSES
 from inventory_tracking.terror.danger import Unit, packs
@@ -261,6 +269,19 @@ SWAP_RETRY_SECONDS = 5.0  # after a swap to the main weapons that did not come
 INPUT_SECONDS = 1.0  # Echoing Strike on no input for this long (another skill selected) before it is a stopped fight
 MISSES_IN_A_ROW = 5  # fights that stopped one after another before attack mode gives up
 IDLE_LOG_SECONDS = 3.0  # between log lines on what attack mode sees while nothing is in reach
+# The run mode (macros/runmode.py): a level run's fight on its way or of the rest of the level (goals.py
+# `clear_way`, `rest_of_level`) that has seen no strike for CLEAR_SECONDS, or that the navigator has no way to, is
+# passed for PASS_SECONDS (across lava, a monster that keeps away, a room no tour reaches): the run goes on.
+CLEAR_SECONDS = 10.0
+PASS_SECONDS = 30.0
+# The goals a run to its goal fights its way to (`Hunter.cleared`): a door to another level, a place, a stand.
+WAYS = frozenset((ENTER, REACH, STAND))
+REST_SECONDS = 1.0  # a full clear's look for the rest of the level (the tour's potential) is made this seldom
+# Seconds of fighting a buff with a duration has to last through when the route's stage brings a boss (goals.py
+# `boss_ahead`): renewed before it in the quiet (macros/buffs.py `lapsing`). The Chaos Sanctuary on 2026-10-14,
+# 15:19:24.9 to 49.7: the last seal open to Diablo dead 25 s, his spawn wait in it; at 06:05 23 s; 31 s more of the
+# player's hand at 15:19 (run-1214-findings.md §3.4: Consume, 300 s, ran out 300.7 s after the prebuff, in his fight).
+BOSS_AHEAD = 60.0
 
 Remembered = Callable[[int], list[tuple[int, float, float, bool]]]  # area -> (unit id, x, y, leader)
 
@@ -275,6 +296,17 @@ class Bearings:
     card: Callable[[], Target | None] | None = None
     marks: Callable[[str], tuple[Point, ...]] | None = None
     supers: Callable[[int], list[Point]] | None = None
+
+    def terror(self, area: int) -> bool:
+        """Whether level `area` is a terror zone now, by the routes' progress (its `wanted`: terror/tracker.py
+        `terrorized`); False while that is not known."""
+        wanted = getattr(self.progress, 'wanted', None)
+        return bool(wanted(area)) if wanted is not None else False
+
+    def script(self, area: int) -> Script | None:
+        """The route's script level `area` follows in this game (routes/progress.py `chosen`); None: no route."""
+        chosen = self.progress.chosen(area) if self.progress is not None else None
+        return chosen[1] if chosen is not None else None
 
 
 @dataclass(frozen=True)
@@ -345,6 +377,11 @@ def threat(run: Run) -> Callable[[Point, Point], int]:
         )
 
     return near
+
+
+def passing_key(place: Point, unit: int | None) -> object:
+    """What a level run's clearing goal is passed by (`Hunter.cleared`): its monster, else its place to the unit."""
+    return unit if unit is not None else (round(place[0]), round(place[1]))
 
 
 def hostiles(world: World) -> list[Monster]:
@@ -443,6 +480,8 @@ class Hunter:
         self.gathered: dict[int, int] = {}  # unit id -> times the sweep stopped for it
         self.tried: dict[int, str] = {}  # unit id -> why the last try at it took nothing (an Abort of the hands)
         self.left_said: set[int] = set()  # the drops whose giving up was said
+        self.retried: set[int] = set()  # the drops given up and then tried once more (`again`)
+        self.round_said: set[int] = set()  # the drops said to be gone to first for want of a clear line (`judge`)
         self.held: Drop | None = None  # the valuable in sight the sweep stays by (`gather`, `leaves`)
         self.held_said: set[int] = set()  # the drops that staying was said for
         self.held_logged = -math.inf
@@ -481,6 +520,18 @@ class Hunter:
         self.guarded_since: dict[int, float] = {}  # potion -> clock time its guards were first the fight first
         self.fetching: tuple[float, Drop | None] = (-math.inf, None)  # (when judged, a scarce potion worth a detour)
         self.area: int | None = None  # the level attack mode last saw the character on (not in town)
+        # The run mode (macros/runmode.py): the pickup key's presses as posted (judged as a double press at a look),
+        # the player's switch as (level, full clear), the mode of the level the last look was on (the HUD's), and
+        # the (level, line) last said of it
+        self.taps = Taps()
+        self.switched: tuple[int, bool] | None = None
+        self.mode: Mode | None = None
+        self.mode_said: tuple[int, str] | None = None
+        # A level run's clearing goals passed (key -> until when: a unit, or a room's place) and the one gone for
+        # now with since when (`clearing`); the full clear's last look for the rest of the level (when, level, found)
+        self.passed: dict[object, float] = {}
+        self.clearing_on: tuple[object, float] | None = None
+        self.rest: tuple[float, int, tuple[Point, str, int | None] | None] | None = None
 
     def use(self, build: Build) -> None:
         """The build the hunt plays from now on: the runner's, named at a run's first look that shows
@@ -590,6 +641,8 @@ class Hunter:
                 if len(self.waived) > 200:
                     self.waived.clear()
                 self.waived.add(waited.unit)
+            if pursuit.leashed and not pursuit.advance:
+                self.taps = tapped(self.taps, pursuit.pressed_at)  # a double press switches the run mode (`run_mode`)
             self.pursuit = pursuit
 
     def swap(self, seen: Pursuit | None, new: Pursuit | None) -> bool:
@@ -617,6 +670,7 @@ class Hunter:
         LOG.info('Macro: pursuit: the level run ends: %s', reason)
         self.travel.paced(run.clock() if run is not None else None, reason)
         self.told.new(None)
+        self.mode_said = None  # the next run says its mode again
         if run is not None:
             run.say(f'Level run over: {reason}')
 
@@ -676,6 +730,7 @@ class Hunter:
             return None
         now = run.clock()
         loot = unshunned(run.loot(), now)
+        self.again(run, loot.drops, here, world)
         # What the run has given up on is out of the choice, said once each: the next drop is chosen in its place
         given_up = {unit: self.given_up(unit) for unit, n in self.gathered.items() if n >= GATHER_TRIES}
         given_up |= {
@@ -719,6 +774,45 @@ class Hunter:
         if last is None:
             return f'given up after {tries} tries: still on the ground after each'
         return f'given up after {tries} tries (the last: {last})'
+
+    def again(self, run: Run, drops: Sequence[Drop], here: Point, world: World | None = None) -> None:
+        """A valuable given up (GATHER_TRIES) is tried once more when the character comes within PICK_REACH of it
+        on a clear line (travel.py `clear_line`): a click from there walks. Chaos Sanctuary, 15:18:35-37 on
+        2026-10-14 (rca/2026-10-14/run-1214-findings.md §3.2): the Flawless Emerald clicked four times round a wall
+        corner from 18.3 away was given up, and 2 s later the character passed 5.7 from it on a clear line and went
+        on; the player went back for it by hand. Once a drop: a click that takes nothing from there is not looped
+        on. What the player put down is never among `drops` (world.py `PutDown`: the runner's loot passes through
+        it). The level's ground is read only when a drop is a candidate."""
+        spent = [
+            d
+            for d in drops
+            if d.kind == VALUABLE
+            and self.gathered.get(d.unit_id, 0) >= GATHER_TRIES
+            and d.unit_id not in self.retried
+            and math.dist(here, (d.x, d.y)) <= PICK_REACH
+        ]
+        if not spent:
+            return
+        world = world if world is not None else run.world()
+        level = self.known_level(world.player) if world.player is not None else None
+        if level is None:
+            return
+        ground = Ground(level.ground)
+        for drop in spent:
+            if not clear_line(ground, world.doors, here, (drop.x, drop.y)):
+                continue
+            if len(self.retried) > 200:
+                self.retried.clear()
+            self.retried.add(drop.unit_id)
+            why = self.given_up(drop.unit_id)
+            self.gathered[drop.unit_id] = GATHER_TRIES - 1
+            self.tried.pop(drop.unit_id, None)
+            self.left_said.discard(drop.unit_id)
+            LOG.info(
+                'Macro: pickup: one more try at %s at (%.0f, %.0f), %.0f away on a clear line now (%s)',
+                drop.label, drop.x, drop.y, math.dist(here, (drop.x, drop.y)), why,
+            )  # fmt: skip
+            run.say(f'One more try at {drop.label}')
 
     def left(self, drop: Drop, here: Point, why: str, who: str) -> None:
         """A valuable or gold `who` gives up on, said once a drop (a potion says its own: `refused_potion`)."""
@@ -787,8 +881,10 @@ class Hunter:
     def stay_by(self, run: Run, here: Point, *, wanted: bool = True) -> Drop | None:
         """A valuable the pickup rules want within PICK_NEAR that neither the inventory has room for (the
         player, 2026-10-13: "when valuable doesn't fit: we need to stop near it"): the level run stands by it
-        (goals.py `WAIT`). Not equipment taken only because the loot filter shows it (`Loot.shown`: the player,
-        2026-10-12, "allow moving when the item isn't very valuable"), and not one a press went on from
+        (goals.py `WAIT`). Not magic, rare or white equipment taken only because the loot filter shows it
+        (`Loot.shown`: the player, 2026-10-12, "allow moving when the item isn't very valuable"); a unique or set
+        item the filter shows is stood by (world.py `NAMED`: the player, 2026-10-14, the Unique Plate Mail of
+        run-1214-findings.md §3.1), and not one a press went on from
         (`waived`). The card's warning says it while it lasts; taken back after. Not `wanted`: a drop to take
         comes first (the room may have come), and only the warning is taken back."""
         loot = unshunned(run.loot(), run.clock()) if run.loot is not None and wanted else None
@@ -839,7 +935,7 @@ class Hunter:
         first for a press (macros/pickup.py `worth_a_stop`, asked once a press: it counts its tries); on a
         level run a drop the pickup rules take (`side_drop`). Hostiles that bar the goal's act make the
         fight with them the goal (`first_fight`). `pressed`: a fresh press asks for its goal now; `posted`:
-        the mailbox as the look read it (`judge`)."""
+        the mailbox as the look read it (`judge`). A level run's mode adds to it at the look (`cleared`)."""
         player = world.player
         assert player is not None
         here, area, bearings = (player.x, player.y), player.area, self.bearings
@@ -909,6 +1005,121 @@ class Hunter:
             barring += [m for m in in_the_way(found, foes, here) if m.unit_id not in known]
         return first_fight(found, here, barring, self.reach) if found is not None and barring else found
 
+    def cleared(self, run: Run, world: World, foes: list[Monster], ground: Ground, found: Goal | None) -> Goal | None:
+        """A level run's goal by its mode (macros/runmode.py; the player, 2026-10-14): the hostiles on its way
+        first, those within CLEAR_WAY with a clear line (goals.py `clear_way`); on a full clear the rest of the
+        level next (`rest_of_level`: what is in sight, what is remembered alive, the rooms not explored); then
+        `found`, the route's. A fight, a drop or a stand-by of `found`'s own is left as it is. Out of a full clear
+        only a way through the level is cleared (WAYS: a door, a place, a stand), not the way to an object: what
+        stands at a seal is priced at it and the seal calls its pack (the arena's seal moment: fighting the 12 by
+        Vizier seal 1 first left the Vizier alive in all ten plays); and a level with no route is the key's old
+        step. What has gone CLEAR_SECONDS without a strike, or that the navigator had no way to, is passed for
+        PASS_SECONDS (`judge`)."""
+        mode = self.mode
+        clear = mode is not None and mode.clear
+        if found is not None and (found.do in (FIGHT, PICK_UP, WAIT) or found.guarded):
+            return found
+        if not clear and (found is None or not found.route or found.do not in WAYS):
+            return found
+        player = world.player
+        assert player is not None
+        here, now = (player.x, player.y), run.clock()
+        self.passed = {key: until for key, until in self.passed.items() if until > now}
+        spend = found.spend if found is not None else PRESSED
+        for _ in range(3):  # a goal passed now gives its place to the next
+            rest = self.rest_of(run, world, foes, here) if clear else None
+            base = rest_of_level(rest, found, self.reach, spend) if rest is not None else found
+            near = [
+                m
+                for m in foes
+                if m.unit_id not in self.passed
+                and math.dist(here, (m.x, m.y)) <= CLEAR_WAY
+                and clear_shot(ground, here, (m.x, m.y), world.doors)
+            ]
+            goal = clear_way(base, here, near, self.reach) if base is not None and near else base
+            if goal is None or not goal.clearing:
+                self.clearing_on = None
+                return goal
+            key = passing_key(goal.place, goal.unit)
+            on = self.clearing_on
+            if on is None or on[0] != key:
+                self.clearing_on = (key, now)
+                return goal
+            if now - max(on[1], self.struck_at) <= CLEAR_SECONDS:
+                return goal
+            self.pass_by(goal, f'no strike in {CLEAR_SECONDS:.0f} s on the way to it', now)
+        return found
+
+    def pass_by(self, goal: Goal, why: str, now: float) -> None:
+        """A level run's clearing goal is passed for PASS_SECONDS from `now` (`cleared`), said."""
+        if len(self.passed) > 400:
+            self.passed.clear()
+        self.passed[passing_key(goal.place, goal.unit)] = now + PASS_SECONDS
+        self.clearing_on = None
+        LOG.info('Macro: run: passing %s at (%.0f, %.0f): %s', goal.label, *goal.place, why)
+
+    def rest_of(self, run: Run, world: World, foes: list[Monster], here: Point) -> tuple[Point, str, int | None] | None:
+        """What a full clear goes for next on the character's level: the nearest hostile in sight, else the
+        nearest the tracker remembers alive where it was seen, else the first stop of the tour of the rooms not
+        explored yet (`frontier`, looked for once in REST_SECONDS: a potential over the whole level); as (place,
+        what, unit), no unit for a room. None: the level is clear as far as is known."""
+        player = world.player
+        assert player is not None
+        area, now = player.area, run.clock()
+        live = [m for m in foes if m.unit_id not in self.passed]
+        if live:
+            nearest = min(live, key=lambda m: math.dist(here, (m.x, m.y)))
+            return (nearest.x, nearest.y), label(nearest), nearest.unit_id
+        known = self.remembered(area) if self.remembered is not None else []
+        seen = {m.unit_id for m in foes}
+        gone = seen | self.vanished | set(self.untouchable) | set(self.passed)
+        kept = [(x, y, unit) for unit, x, y, _ in known if unit not in gone]
+        if kept:
+            x, y, unit = min(kept, key=lambda k: math.dist(here, (k[0], k[1])))
+            return (x, y), 'the remembered monster', unit
+        cached = self.rest
+        if cached is not None and cached[1] == area and now - cached[0] < REST_SECONDS:
+            room = cached[2]
+        else:
+            level, rect = self.known_level(player), run.actuator.keys.focused_window_rect()
+            stop = self.frontier(level, player, rect) if level is not None and rect is not None else None
+            room = None
+            if stop is not None:
+                _, _, (x, y) = stop
+                room = ((x + 0.5) * TILE_UNITS, (y + 0.5) * TILE_UNITS), 'an unexplored room', None
+            self.rest = (now, area, room)
+        if room is not None and passing_key(room[0], None) in self.passed:
+            return None
+        return room
+
+    def run_mode(self, run: Run, area: int, posted: Pursuit | None) -> Mode:
+        """The run mode on level `area` at this look (macros/runmode.py): a double press of the pickup key whose
+        window is over switches it, for this level; a switch made on another level lapses. Said once a run and a
+        change (`Macro: run: ...`) while a level run is held."""
+        now = run.clock()
+        if self.switched is not None and self.switched[0] != area:
+            self.switched = None
+        with self.mailbox:
+            taps = self.taps
+            double = doubled(taps, now)
+            if double:
+                self.taps = replace(taps, judged=True)
+        terror = self.bearings.terror(area)
+        if double:
+            before = mode_of(area, terror, self.switched)
+            self.switched = (area, not before.clear)
+            was, then = ('full clear', 'goal') if before.clear else ('goal', 'full clear')
+            apart = taps.last - taps.first
+            LOG.info('Macro: run: a double press of the pickup key (%.2f s apart): %s -> %s', apart, was, then)
+        mode = self.mode = mode_of(area, terror, self.switched)
+        if posted is not None and posted.leashed:
+            line = said(mode, aim_of(self.bearings.script(area)))
+            if self.mode_said != (area, line):
+                self.mode_said = (area, line)
+                LOG.info('Macro: run: %s', line)
+                run.say(f'Run: {line}')
+        return mode
+
     def judge(
         self, run: Run, world: World, foes: list[Monster], ground: Ground, *, in_reach: bool, attacking: bool = True
     ) -> Judged:
@@ -927,7 +1138,11 @@ class Hunter:
             self.swap(posted, named)
             posted = named
         pressed = posted is not None and posted.fresh(now)
-        goal = self.pursued = self.goal(run, world, foes, pressed, posted)
+        self.run_mode(run, player.area, posted)
+        goal = self.goal(run, world, foes, pressed, posted)
+        if posted is not None and posted.runs and not (pressed and posted.advance):
+            goal = self.cleared(run, world, foes, ground, goal)  # the run's own look: what its mode adds
+        self.pursued = goal
         level = self.known_level(player)
         rect = run.actuator.keys.focused_window_rect()
         place, there = None, False
@@ -950,6 +1165,17 @@ class Hunter:
                 # Near enough to click is a walk within reach, not a straight line: a drop across lava is gone to
                 # by the navigator first (run-0025-findings.md §2.2: 17 straight, 43 by walking, both tries cut)
                 there = walk_reaches(ground, world.doors, here, goal.place, goal.near)
+                if not there and goal.unit is not None and goal.unit not in self.round_said:
+                    away = math.dist(here, goal.place)
+                    if away <= goal.near:
+                        if len(self.round_said) > 200:
+                            self.round_said.clear()
+                        self.round_said.add(goal.unit)
+                        LOG.info(
+                            'Macro: pickup: %s: %.0f away with no clear line from (%.1f, %.1f): gone to first, '
+                            'not clicked from afar',
+                            goal.label, away, *here,
+                        )  # fmt: skip
             else:
                 there = goal.gap(here) <= goal.near
 
@@ -993,6 +1219,8 @@ class Hunter:
         act = decide(facts, posted, self.pursuing)
         if isinstance(act, Advance) and act.reason:
             place = act.step.spot
+        if isinstance(act, NoWay) and goal is not None and goal.clearing and act.reason.startswith('no way toward'):
+            self.pass_by(goal, act.reason, now)  # a run's clearing goal it has no way to: the next look goes on
         return Judged(act, goal, place, posted, pressed)
 
     def key_asks(self, run: Run, world: World, foes: list[Monster], ground: Ground) -> bool:
@@ -1226,7 +1454,9 @@ class Hunter:
         )  # fmt: skip
         if step.skill is not None and step.skill != TELEPORT:
             run.say(f'{by} toward {goal.label}')  # a walk and a Teleport hop say their own line
-        self.travel.make(run, step, world, aspect, key_names, ground, name=goal.label, intent=goal.spend, goal=place)
+        self.travel.make(
+            run, step, world, aspect, key_names, ground, name=goal.label, intent=goal.spend, goal=place, hurry=act.dodge
+        )
 
     def operate(self, run: Run, world: World, goal: Goal, key_names) -> None:
         """What is done at a goal reached: its object used and the route told (macros/route.py
@@ -1648,6 +1878,7 @@ class Hunter:
             return
         self.gather_looked = now
         loot = unshunned(run.loot(), now)
+        self.again(run, loot.drops, here)
         spent = {d.unit_id for d in loot.drops if self.gathered.get(d.unit_id, 0) >= GATHER_TRIES}
         for found in loot.drops:
             if found.unit_id in spent:
@@ -1903,6 +2134,8 @@ class Hunter:
             self.sense(run)
             if player is not None:
                 self.area = None if player.in_town else player.area  # the level whose potions are kept (`sense`)
+                if player.in_town:
+                    self.mode = None  # no run mode in town (the HUD's word for it: runner.py `run_badge`)
                 if self.pursuing:
                     self.hand(run, world)  # a level run's pause and resume (pursuit off: no run, no look at the hand)
             if self.move is not None and player is not None:
@@ -1932,6 +2165,11 @@ class Hunter:
                 # A level run keeps the sweep's look for a better place in its fights (the stance rules:
                 # combat/stance.py `camp`), as the pickup key's sweep had it; its moves are the run's.
                 self.sweep.start(run.clock())
+            renewing = self.running and not self.advancing(run.clock())
+            if renewing and self.upkeep(run, world, foes, key_names, renewing=True):
+                # A buff that would end inside the boss's fight the route brings next is renewed before the run's
+                # next move, in the quiet (macros/buffs.py `lapsing`; its row says what quiet is)
+                continue
             if self.pursuing:
                 # The key first, before a buff is kept up or a strike begun: its move goes out at once
                 found = self.known_level(player)
@@ -2207,12 +2445,15 @@ class Hunter:
             move.pixel, move.clicked_at - move.at, move.clicks, MOVE_CLICKS,
         )  # fmt: skip
 
-    def upkeep(self, run: Run, world: World, foes: list[Monster], key_names) -> bool:
+    def upkeep(self, run: Run, world: World, foes: list[Monster], key_names, *, renewing: bool = False) -> bool:
         """A buff kept up outside a fight: the first row of the build's upkeep that is due is cast, and
         whether one was. A cast of one key is followed by a pause; one that cannot be made is logged, counts
         as made now, and the mode goes on. A row with a caster takes seconds and answers for its own
-        failures (macros/build.py `Tried`): a step that waits for the fight goes first."""
-        due = self.buffs.first(run, 'upkeep', self.buffs.facts(run, world, foes))
+        failures (macros/build.py `Tried`): a step that waits for the fight goes first. The rows are asked with
+        the boss's fight the route brings next (`ahead`); `renewing`: only a buff that would end inside it."""
+        player = world.player
+        facts = self.buffs.facts(run, world, foes, ahead=self.ahead(player.area if player is not None else None))
+        due = self.buffs.first(run, 'upkeep', facts, renewing=renewing)
         if due is None:
             return False
         own = due.row.caster is not None
@@ -2228,6 +2469,16 @@ class Hunter:
             LOG.info('Macro: no %s (%s)', skill_name(due.row.skill), stop)
             self.buffs.remember(due.row, run.clock())
         return True
+
+    def ahead(self, area: int | None) -> float:
+        """Seconds of a boss's fight the route brings next on level `area` (goals.py `boss_ahead`: the fight's
+        stage, or the last seal of an arm): BOSS_AHEAD, else 0."""
+        progress = self.bearings.progress
+        step = progress.step(area) if progress is not None and area is not None else None
+        script = getattr(step, 'script', None)
+        if step is None or script is None:
+            return 0.0
+        return BOSS_AHEAD if boss_ahead(script.stages, step.stage) else 0.0
 
     def tough(self, world: World, reachable: list[Monster]) -> bool:
         """Whether what is in reach is worth a swap to the main weapons, which have the damage and the

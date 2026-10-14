@@ -28,7 +28,7 @@ from inventory_tracking.levels.model import Ground, Room, Target, Walkable
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.build import Intent, Leg, MoveFacts, MovementSet, NoWay, Step, nowhere
 from inventory_tracking.macros.engine import Run
-from inventory_tracking.macros.routines import ACTING, DEAD, ONE_CAST, press_skill, settle
+from inventory_tracking.macros.routines import ACTING, DEAD, ONE_CAST, SWAP_SETTLE, press_skill, settle
 from inventory_tracking.macros.sight import clear_shot
 from inventory_tracking.macros.skills import TELEPORT, skill_name
 from inventory_tracking.macros.teleport import (
@@ -50,6 +50,13 @@ MONSTER_UNIT_TYPE = 1  # the unit type of a monster, alive or dead, in the recor
 STRIDE = 16.0  # units of one stride: the click has to be in view
 # A walk is a click; the character must be seen moving within STEP_WALK_SECONDS.
 STEP_WALK_SECONDS = 0.7
+# A hurried walk (`step_walk` `hurry`): its first click is made at the first look that reads the cast over (one poll
+# free, not the settle's 0.2 s), and when the character is not seen going within HURRY_SECONDS of it the game took no
+# notice (a click as a cast ends is swallowed now and then): it is made again, settled. Live, the click to the
+# character seen going takes under 0.1 s (a free walk's leg 0.25-0.29 s, p10-p90, of which the aim, the hover and
+# the press are some 0.2 s; rca/2026-10-14/diablo-handling.md fix 3); the arena's 0.11 s.
+HURRY_FREE = 0.02
+HURRY_SECONDS = 0.3
 HOVER_UNITS = 12.0  # a monster named as under the pointer stands this near the ground aimed at, or is not there
 # A stride is a jump when a skill makes one without a weapon swap: Blade Warp first (skills.txt 390, a casting
 # delay of 20 frames, spends no charges), else Teleport when in hand or a skill of the character's own (Enigma).
@@ -1007,6 +1014,7 @@ class Travel:
         name: str = '',
         intent: Intent = OWN_MOVE,
         goal: Point | None = None,
+        hurry: bool = False,
     ) -> None:
         """Make one move of the mode's own, by the way it names: a jump by its skill, or one click's
         walk. A jump that cannot be made any more (the skill gone from `jumps` since the choice, a
@@ -1053,7 +1061,9 @@ class Travel:
             self.jump(run, replace(found, skill=skill), player, aspect, key_names, ahead)
         else:
             began = run.clock()
-            settled = step_walk(run, found.spot, player, aspect, attackable(world), name=name or 'a better place')
+            settled = step_walk(
+                run, found.spot, player, aspect, attackable(world), name=name or 'a better place', hurry=hurry
+            )
             self.tally.units += math.dist(here, found.spot)
             self.tally.walks += 1
             LOG.info(
@@ -1109,30 +1119,48 @@ def walked_way(barred: Callable[[Point], bool], start: Point, goal: Point) -> li
     return path[::-1]
 
 
-def walk_reaches(ground: Ground | None, doors: Sequence[Door], here: Point, goal: Point, reach: float) -> bool:
-    """Whether a walk of at most `reach` units leads from `here` to `goal` over the read ground: the straight
-    line with no wall, lava or closed door on it, or else the walked way round (`walked_way`) no longer than
-    `reach`. What "near enough to click" means for a drop (macros/hunt.py `judge`, macros/pickup.py `approach`):
-    a click walks the character by the client's own way, and a drop 17 units off across lava was 43 by walking
-    (River of Flame, 00:26:36 on 2026-10-14, rca/2026-10-14/run-0025-findings.md §2.2). The first and last unit
-    are not looked at: the character stands, and a drop lies, on cells the grids call unwalkable now and then.
-    With no walls read (open ground) the straight distance alone decides."""
-    away = math.dist(here, goal)
-    if away > reach:
-        return False
+# Units: the walked way round a wall a click from afar is trusted to make. A drop round a wall corner 18.3 units off,
+# 19.4 by walking, took four clicks the client never walked (Chaos Sanctuary, 15:18:31-35 on 2026-10-14,
+# rca/2026-10-14/run-1214-findings.md §3.2; the 00:25 game's 13 unmoved clicks were 18.1 off): from further than
+# this a drop is clicked only on a clear straight line, and gone to first otherwise. Inferred, from those two cases:
+# the client's own pathing limit for a click was not read.
+ROUND_CLICK = 5.0
+
+
+def clear_line(ground: Ground | None, doors: Sequence[Door], here: Point, goal: Point) -> bool:
+    """Whether the straight line from `here` to `goal` has no wall, lava or closed door on it over the read ground.
+    The first and last unit are not looked at: the character stands, and a drop lies, on cells the grids call
+    unwalkable now and then. With no walls read (open ground), or within 2 units, it is clear."""
     barred = no_footing(ground, doors)
+    away = math.dist(here, goal)
     if barred is None or away <= 2.0:
         return True
     steps = max(1, math.ceil(away * 2))
     line = (
         (here[0] + (goal[0] - here[0]) * k / steps, here[1] + (goal[1] - here[1]) * k / steps) for k in range(steps)
     )
-    if not any(barred(point) for point in line if min(math.dist(point, here), math.dist(point, goal)) > 1.0):
+    return not any(barred(point) for point in line if min(math.dist(point, here), math.dist(point, goal)) > 1.0)
+
+
+def walk_reaches(ground: Ground | None, doors: Sequence[Door], here: Point, goal: Point, reach: float) -> bool:
+    """Whether a click on a drop at `goal` from `here` walks the character to it: within `reach` and on a clear
+    straight line (`clear_line`), or else by a walked way round (`walked_way`) no longer than ROUND_CLICK. What
+    "near enough to click" means for a drop (macros/hunt.py `judge`, macros/pickup.py `approach`); further, the
+    drop is gone to first. A drop 17 units off across lava was 43 by walking (River of Flame, 00:26:36 on
+    2026-10-14, rca/2026-10-14/run-0025-findings.md §2.2), and one 18.3 off round a wall corner, 19.4 by walking,
+    was clicked four times and never walked to (run-1214-findings.md §3.2). With no walls read (open ground) the
+    straight distance alone decides."""
+    if math.dist(here, goal) > reach:
+        return False
+    if clear_line(ground, doors, here, goal):
         return True
+    barred = no_footing(ground, doors)
+    assert barred is not None  # a line is barred only by read ground or a closed door
     path = walked_way(barred, here, goal)
     if not path or math.dist(path[-1], goal) > 1.5:
         return False
-    return sum(math.dist(one, other) for one, other in zip((here, *path), path, strict=False)) <= reach
+    walked = sum(math.dist(one, other) for one, other in zip((here, *path), path, strict=False))
+    return walked <= min(reach, ROUND_CLICK)
 
 
 def step_line(step: Step | None, here: Point) -> str:
@@ -1170,7 +1198,15 @@ def attackable(world: World) -> list[Monster]:
 
 
 def step_walk(
-    run: Run, goal, player, aspect: float, alive: list[Monster], *, name: str = 'a better place', clicks: int = 1
+    run: Run,
+    goal,
+    player,
+    aspect: float,
+    alive: list[Monster],
+    *,
+    name: str = 'a better place',
+    clicks: int = 1,
+    hurry: bool = False,
 ) -> float:
     """A click on the ground at `goal` and the character seen going within STEP_WALK_SECONDS, `clicks`
     times at most (a click made while a cast ends is swallowed). Not clicked with one of `alive` (the
@@ -1179,8 +1215,11 @@ def step_walk(
     (the name of the last unit hovered seems to stay). The first click waits for the character to stand
     free for a while (`settle`) only when the look the walk was chosen by (`player`) or one now has it
     casting: free at both, no cast ends under the click (the fixed 0.2 s of every walk leg, 2026-10-13
-    latency-findings.md §2.2); a click again, after one the game took no notice of, waits. Returns the
-    seconds spent waiting so."""
+    latency-findings.md §2.2); a click again, after one the game took no notice of, waits. `hurry`: a step out
+    of an act under way (macros/pursuit.py `Move.dodge`): the first click waits for the cast's end alone, not for
+    the settle after it, and one the game took no notice of within HURRY_SECONDS is said and made again, settled
+    (rca/2026-10-14/diablo-handling.md fix 3: a step decided in a cast left 0.67 s after the decision at 15:19,
+    with the missiles). Returns the seconds spent waiting so."""
     where = ground_fraction(player, goal[0], goal[1], aspect)
     if not in_view(where):
         raise Abort(f'the place near {name} is not in view')
@@ -1192,10 +1231,11 @@ def step_walk(
             raise Abort('the character did not move')
         return 0.0
     settled = 0.0
-    for click in range(clicks):
+    for click in range(max(clicks, 2) if hurry else clicks):
         began = run.clock()
+        hurried = hurry and not click
         if click or player.mode in ACTING or not free(run):
-            settle(run, limit=0.5)
+            settle(run, seconds=HURRY_FREE if hurried else SWAP_SETTLE, limit=0.5)
         settled += run.clock() - began
         run.actuator.aim(*where, scatter=(4, 3))
         if run.hovered is not None:
@@ -1206,8 +1246,14 @@ def step_walk(
                 if under:
                     raise Covered(f'{label(under[0])} is under the pointer there', (under[0].unit_id,))
         run.actuator.click()
-        if run.seen(lambda w: w.player is not None and moved(w.player, player), STEP_WALK_SECONDS) is not None:
+        within = HURRY_SECONDS if hurried else STEP_WALK_SECONDS
+        if run.seen(lambda w: w.player is not None and moved(w.player, player), within) is not None:
             return settled
+        if hurried:
+            LOG.info(
+                'Macro: walk: the click toward %s, made %.3fs after the step was chosen with no settle, showed no '
+                'move in %.2fs: clicked again, settled', name, settled, within,
+            )  # fmt: skip
     raise Abort('the character did not move')
 
 

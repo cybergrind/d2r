@@ -21,13 +21,14 @@ import pytest
 
 from inventory_tracking.builds import pursuing
 from inventory_tracking.levels.model import Ground, Walkable, pack_cells
+from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.build import NoWay
 from inventory_tracking.macros.goals import FIGHT, PICK_REACH, PICK_UP, STAND_NEAR, WAIT, goal_of, in_the_way
 from inventory_tracking.macros.hunt import BLOCK_SECONDS, GATHER_TRIES
 from inventory_tracking.macros.pickup import PICK_UNITS, approach, pick_up
 from inventory_tracking.macros.pursuit import FULL, Hold, Move, Operate, Pursuit, decide
 from inventory_tracking.macros.supply import Potions, detour, worth
-from inventory_tracking.macros.travel import PRESSED, walk_reaches
+from inventory_tracking.macros.travel import PRESSED, clear_line, walk_reaches
 from inventory_tracking.macros.world import HEALING, REJUVENATION, VALUABLE, Drop, Loot, Monster, PutDown, Teleport
 from tests.inventory_tracking.macros.test_hunt import game, hunter, keys
 from tests.inventory_tracking.macros.test_level_run import STEP, facts as level_facts, unasked
@@ -52,10 +53,10 @@ GUARDS = tuple(
 )
 
 
-def running(play, *, loot: Loot):
+def running(play, *, loot: Loot, ground=()):
     """A hunter on a level run on test_hunt's level with the pursuit loop on; `loot` is what the game shows."""
     play.loot = loot
-    hunt = hunter(play)
+    hunt = hunter(play, ground=ground)
     hunt.build = replace(hunt.build, settings=hunt.build.settings.model_copy(update={'pursuit': True}))
     hunt.post(Pursuit('pickup', 0.0, advance=False, leash=FULL, area=AREA))
     return hunt
@@ -134,9 +135,9 @@ def test_gear_shown_by_the_filter_only_is_not_stood_by_and_a_press_goes_on_witho
 CHARM = Drop(36472766, 4986.0, 5010.0, 'Large Charm', VALUABLE, (1, 2))  # 17 away, as at 00:26:30 (run-0025 §1)
 
 
-def sweeping(play):
+def sweeping(play, ground=()):
     """A hunter whose sweep is on, with the pickup step's own hand-over stubbed: what it would stop for."""
-    hunt = hunter(play)
+    hunt = hunter(play, ground=ground)
     run = play.run()
     hunt.sweep.start(run.clock())
     stopped: list[bool] = []
@@ -150,7 +151,7 @@ def test_the_sweep_does_not_stay_by_a_drop_whose_tries_are_spent_and_says_why_it
     twelve times with six hostiles near, saying "no click took it"; the player took it by hand."""
     play = game()
     play.loot = Loot((CHARM,), room=('..........',) * 4)
-    hunt, run, stopped = sweeping(play)
+    hunt, run, stopped = sweeping(play, (LAVA,))  # across the lava: no clear line, no one more try (`again`)
     hunt.gathered[CHARM.unit_id] = GATHER_TRIES
     hunt.tried[CHARM.unit_id] = 'priced act expired: look again before continuing'
     with caplog.at_level(logging.INFO):
@@ -402,3 +403,152 @@ def test_with_the_staff_empty_a_drop_beyond_a_click_is_approached_by_the_movemen
     here = play.world.player
     assert play.warps or play.walks
     assert ((here.x - amn.x) ** 2 + (here.y - amn.y) ** 2) ** 0.5 <= PICK_UNITS
+
+
+# -- a click from afar only on a clear line; a given-up drop tried once more from one ----------------------------
+
+# The ground round the Flawless Emerald of 15:18:31-37 on 2026-10-14 (Chaos Sanctuary take 20261014T121630Z-108,
+# rca/2026-10-14/run-1214-findings.md §3.2; scripts/emerald_ground.py), world (7790-7830, 5150-5190) moved onto
+# test_hunt's room (4980-5020 both ways): '.' walkable, '#' not, one char a unit. The gem at (7814, 5173); four clicks
+# from (7799.9, 5161.3), 18.3 away and 19.4 by the walk round the wall's corner, and the character never moved;
+# given up; at (7810.5, 5168.5), 5.7 from it on a clear line, the run went on to De Seis.
+EMERALD_ROWS = (
+    *('.' * 32 + '#' * 8,) * 10,
+    *('.' * 34 + '#' * 6,) * 2,
+    '..........##......................######',
+    *('############......................######',) * 2,
+    *('###############...................######',) * 2,
+    '################..................######',
+    '#################.................######',
+    '##################................######',
+    '#################................#######',
+    *('################.................#######',) * 9,
+    '##################................######',
+    '#############..###................######',
+    '#############.....................######',
+    *('###########.......................######',) * 2,
+    '############......................######',
+    *('..........##......................######',) * 2,
+    *('..................................######',) * 2,
+)
+EMERALD_BITS = ''.join(row.replace('.', '1').replace('#', '0') for row in EMERALD_ROWS)
+CORNER = Walkable(996, 996, 8, 8, pack_cells(EMERALD_BITS), pack_cells(EMERALD_BITS))
+CLICKED_FROM = (7799.9 - 2810, 5161.3 - 170)  # where the four clicks were made
+PASSED_AT = (7810.5 - 2810, 5168.5 - 170)  # where the run passed it 2 s later
+GEM = Drop(2327255744, 7814.0 - 2810, 5173.0 - 170, 'Flawless Emerald', VALUABLE, prized=False)
+
+
+def standing(play, here):
+    play.world = replace(play.world, player=replace(play.world.player, x=here[0], y=here[1]))
+
+
+def test_the_emerald_round_the_wall_corner_is_not_near_enough_to_click_and_from_where_the_run_passed_it_is() -> None:
+    assert len(EMERALD_ROWS) == 40
+    assert {len(row) for row in EMERALD_ROWS} == {40}
+    ground = Ground((CORNER,))
+    gem = (GEM.x, GEM.y)
+    assert not clear_line(ground, (), CLICKED_FROM, gem)
+    assert not walk_reaches(ground, (), CLICKED_FROM, gem, PICK_UNITS)  # 18.3 straight, 19.4 round: no click
+    assert clear_line(ground, (), PASSED_AT, gem)
+    assert walk_reaches(ground, (), PASSED_AT, gem, PICK_UNITS)
+    assert walk_reaches(Ground(()), (), CLICKED_FROM, gem, PICK_UNITS)  # open ground: the distance alone
+
+
+def test_on_a_run_the_emerald_round_the_corner_is_gone_to_first_and_said(caplog) -> None:
+    play = game()
+    play.loot = Loot((GEM,), room=FREE)
+    standing(play, CLICKED_FROM)
+    hunt = on_a_run(play, (CORNER,))
+    with caplog.at_level(logging.INFO):
+        found = hunt.judge(play.run(), play.world, [], Ground((CORNER,)), in_reach=False)
+        hunt.judge(play.run(), play.world, [], Ground((CORNER,)), in_reach=False)
+    assert found.goal is not None
+    assert (found.goal.do, found.goal.unit) == (PICK_UP, GEM.unit_id)
+    assert isinstance(found.act, Move)  # the navigator's move first, not four clicks the client does not walk
+    assert caplog.text.count('Macro: pickup: Flawless Emerald, on the way: 18 away with no clear line from') == 1
+    standing(play, PASSED_AT)
+    assert isinstance(hunt.judge(play.run(), play.world, [], Ground((CORNER,)), in_reach=False).act, Operate)
+
+
+def test_the_pickups_own_approach_goes_round_the_corner_before_it_clicks(caplog) -> None:
+    play = game()
+    play.loot = Loot((GEM,), room=FREE)
+    standing(play, CLICKED_FROM)
+    run = play.run()
+    level = hunter(play, ground=(CORNER,)).known_level(play.world.player)
+    with caplog.at_level(logging.INFO):
+        approach(run, GEM, level, keys)
+    player = play.world.player
+    assert player is not None
+    here = (player.x, player.y)
+    assert here != CLICKED_FROM
+    assert walk_reaches(Ground((CORNER,)), (), here, (GEM.x, GEM.y), PICK_UNITS)
+    assert 'Macro: pickup: Flawless Emerald: 18 away with no clear line' in caplog.text
+
+
+def test_the_given_up_emerald_is_tried_once_more_from_a_clear_line_and_no_more(caplog) -> None:
+    play = game()
+    standing(play, CLICKED_FROM)
+    hunt = running(play, loot=Loot((GEM,), room=FREE), ground=(CORNER,))
+    run = play.run()
+    hunt.gathered[GEM.unit_id] = GATHER_TRIES
+    hunt.tried[GEM.unit_id] = 'priced act expired: look again before continuing'
+    with caplog.at_level(logging.INFO):
+        assert look(hunt, play, run) is None  # from where the clicks were made: still given up
+        assert 'one more try' not in caplog.text
+        standing(play, PASSED_AT)
+        goal = look(hunt, play, run)
+    assert (goal.do, goal.unit) == (PICK_UP, GEM.unit_id)
+    assert (
+        'Macro: pickup: one more try at Flawless Emerald at (5004, 5003), 6 away on a clear line now '
+        '(given up after 2 tries (the last: priced act expired' in caplog.text
+    )
+    assert 'One more try at Flawless Emerald' in play.said
+    hunt.gathered[GEM.unit_id] = GATHER_TRIES  # the one more try took nothing either
+    with caplog.at_level(logging.INFO):
+        assert look(hunt, play, run) is None
+    assert caplog.text.count('one more try') == 1
+    assert caplog.text.count('the level run leaves Flawless Emerald') == 2  # said again after the one more try
+
+
+def test_a_given_up_drop_the_player_put_down_is_not_tried_again() -> None:
+    play = game()
+    standing(play, PASSED_AT)
+    put_down = PutDown()
+    put_down.see(Loot((), game=('cyber32', 1), carried=frozenset({GEM.unit_id})))
+    hunt = running(play, loot=Loot((GEM,), room=FREE, game=('cyber32', 1)), ground=(CORNER,))
+    run = play.run()
+    run.loot = lambda: put_down.see(play.loot)
+    hunt.gathered[GEM.unit_id] = GATHER_TRIES
+    assert look(hunt, play, run) is None
+    assert GEM.unit_id not in hunt.retried
+
+
+# -- a unique or set item the filter shows, with no room: stood by (the player, 2026-10-14) -----------------------
+
+# run-1214-findings.md §3.1: "Inventory full: Unique Plate Mail left on the ground" at 15:19:21.99 and "Magic Bone
+# Knife" at 15:19:49.74; the run went on from both, and the player made room and fetched each by hand.
+PLATE = Drop(301, 5010.0, 5004.0, 'Unique Plate Mail', VALUABLE, (2, 3), prized=True)  # world.py `NAMED`
+KNIFE = Drop(302, 5006.0, 4998.0, 'Magic Bone Knife', VALUABLE, (1, 2), prized=False)
+
+
+def test_with_the_inventory_full_the_run_stands_by_a_unique_the_filter_shows_and_not_by_a_magic_one() -> None:
+    play = game()
+    hunt = running(play, loot=Loot((PLATE, KNIFE), room=FULL_INVENTORY, shown=frozenset({KNIFE.unit_id})))
+    run = play.run()
+    warned: list[str | None] = []
+    run.warn = warned.append
+    goal = look(hunt, play, run)
+    assert (goal.do, goal.unit) == (WAIT, PLATE.unit_id)
+    assert warned == ['Inventory full: Unique Plate Mail here — make room']
+    play.loot = replace(play.loot, drops=(KNIFE,))  # the knife alone: the run goes on, as ruled 2026-10-12
+    assert look(hunt, play, run) is None
+
+
+def test_the_pickup_press_stops_for_a_unique_the_filter_shows_and_goes_on_from_a_magic_one() -> None:
+    play = game()
+    play.loot = Loot((PLATE, KNIFE), room=FULL_INVENTORY, shown=frozenset({KNIFE.unit_id}))
+    with pytest.raises(Abort, match='inventory full: no room for Unique Plate Mail'):
+        pick_up(play.run(), None, keys, lambda: None)
+    play.loot = Loot((KNIFE,), room=FULL_INVENTORY, shown=frozenset({KNIFE.unit_id}))
+    assert not pick_up(play.run(), None, keys, lambda: None)

@@ -12,9 +12,10 @@ from inventory_tracking.macros.buffs import (
     STATE_TRIES,
     Buffs,
     keys_of,
+    lapsing,
     phase_keys,
 )
-from inventory_tracking.macros.build import Buff, Build, Casting, Tried, whenever
+from inventory_tracking.macros.build import Buff, BuffFacts, Build, Casting, Tried, whenever
 from inventory_tracking.macros.skills import ATTACK, SWAP_WEAPONS, TELEPORT
 from inventory_tracking.macros.world import Monster
 from tests.inventory_tracking.macros.fakes import OTHER_SET, PREBUFF_SET, WINDOW, Game, world
@@ -308,3 +309,64 @@ def test_the_prebuff_casts_every_row_in_order_with_the_weapons_taken_once():
     (cast,) = calls
     assert (cast.row, cast.buffs, cast.world, cast.key_names, cast.fresh) == (never, buffs, None, None, None)
     assert buffs.cast_at == {}  # a game's start: nothing of it is the mode's memory
+
+
+# -- a buff that ends by itself (`Buff.lasts`): renewed before the fight ahead ------------------------------------
+
+LASTING = Buff(AURA, 'upkeep', lambda facts: facts.lapsing, lasts=300.0)
+
+
+def test_a_buff_that_ends_by_itself_is_lapsing_when_less_of_it_is_left_than_the_fight_ahead():
+    play = game()
+    facts = BuffFacts(play.world, 250.0, ahead=60.0, took={AURA: 0.0})
+    assert lapsing(LASTING, facts)  # 50 s left
+    assert not lapsing(LASTING, replace(facts, now=230.0))  # 70 s left
+    assert not lapsing(LASTING, replace(facts, ahead=0.0))  # no fight ahead
+    assert not lapsing(LASTING, replace(facts, took={}))  # no cast of it known: cast by hand
+    assert not lapsing(replace(LASTING, lasts=None), facts)  # kept up by its state alone
+    assert facts.left(AURA, 300.0) == 50.0
+    assert facts.left(BOLT, 300.0) is None
+
+
+def test_the_renewal_asks_only_a_lapsing_row_and_its_cast_says_so_and_counts_from_then(caplog):
+    play = game()
+    other = Buff(BOLT, 'upkeep', whenever)
+    buffs, run = plan(other, LASTING), play.run()
+    run.keys.update(key_names(play.world))
+    buffs.took[AURA] = 0.0
+    play.clock.now = 200.0  # 100 s left
+    assert buffs.first(run, 'upkeep', buffs.facts(run, play.world, ahead=60.0), renewing=True) is None
+    assert buffs.first(run, 'upkeep', buffs.facts(run, play.world, ahead=60.0)).row is other  # the plain upkeep
+    play.clock.now = 250.0
+    due = buffs.first(run, 'upkeep', buffs.facts(run, play.world, ahead=60.0), renewing=True)
+    assert due is not None
+    assert due.row is LASTING
+    with caplog.at_level('INFO'):
+        buffs.cast(run, due, key_names)
+    assert 'Macro: buff: Attack has 50 s left of 300, under the 60 s fight ahead: cast again now' in caplog.text
+    assert buffs.took[AURA] == play.clock.now
+    assert buffs.first(run, 'upkeep', buffs.facts(run, play.world, ahead=60.0), renewing=True) is None
+
+
+def test_the_prebuffs_casts_are_the_age_attack_mode_reads_through_the_runs_shared_record():
+    """The prebuff is a run of its own with an executor of its own (routines.prebuff); attack mode's executor learns
+    when its Consume was cast through the record the runner hands every run (`Run.lasting`)."""
+
+    def dance(cast: Casting) -> Tried:
+        return Tried(cast.run.clock(), cast=True)
+
+    rows = (Buff(AURA, 'prebuff', whenever, caster='dance', lasts=300.0), LASTING)
+    play = game()
+    shared: dict[int, float] = {}
+    prebuff = plan(*rows, dance=dance)
+    run = play.run()
+    run.lasting = shared
+    play.clock.now = 10.0
+    prebuff.prebuff(run)
+    assert shared == {AURA: 10.0}
+    mode, later = plan(*rows, dance=dance), play.run()
+    later.lasting = shared
+    play.clock.now = 260.0
+    facts = mode.facts(later, play.world, ahead=60.0)
+    assert facts.took[AURA] == 10.0
+    assert lapsing(LASTING, facts)  # 50 s left of the prebuff's cast

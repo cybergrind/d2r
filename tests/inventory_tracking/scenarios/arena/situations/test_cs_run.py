@@ -357,14 +357,16 @@ def test_today_with_the_staff_empty_the_held_teleport_key_stalls_by_the_star_sho
 @RECORDED_EMPTY
 def test_today_the_recordings_own_presses_with_the_staff_empty_take_the_route_part_of_the_way() -> None:
     """The one long play (about 30 s of wall time). Pins today's state: the 251 presses of the real game (187
-    of the teleport key, 64 of the pickup key) played by today's keys open seals and kill a seal boss, do not
-    die, and do not come to Diablo before they run out at 252 s."""
+    of the teleport key, 64 of the pickup key) played by today's keys open seals and kill a seal boss, and do
+    not die. Since a drop is clicked from afar only on a clear line (macros/travel.py `walk_reaches`,
+    rca/2026-10-14/run-1214-findings.md §3.2) they work the whole route and kill Diablo at about 225 s (before:
+    they did not come to Diablo before they ran out at 252 s)."""
     found = play_of(RECORDED, EMPTY, TODAY)
     assert found.dead_at is None
     assert found.seals['Vizier seal 1'] is not None
     assert found.kills > 100
-    assert 1 <= found.stages_done < len(ROUTE)
-    assert not found.done
+    assert found.stages_done == len(ROUTE)
+    assert found.done
 
 
 @pytest.mark.xfail(strict=True, reason='one press of the pickup key is one fight: nothing takes the route on (KP_1)')

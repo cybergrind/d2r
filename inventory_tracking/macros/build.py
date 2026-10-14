@@ -335,10 +335,24 @@ class BuffFacts:
     # (macros/safety.py `Safety.weigh`); None: no look of it is fresh (the pursuit off, no fight priced): a row
     # that casts the draw goes by its own rule then
     draws: Mapping[int, DrawPrice] | None = None
+    # Seconds of fighting the mode expects ahead with no quiet moment in it: a boss's fight the route's stage brings
+    # (macros/hunt.py BOSS_AHEAD, goals.py `boss_ahead`); 0: none known
+    ahead: float = 0.0
+    # skill -> clock time of its last cast that took, the prebuff's included (macros/buffs.py `Buffs.took`)
+    took: Mapping[int, float] = field(default_factory=dict)
+    # The row asked is a buff with a duration (`Buff.lasts`) that would end before the fight ahead does (`ahead`):
+    # the executor's, per row (macros/buffs.py `lapsing`). A row's `due` may cast it again on it, in the quiet.
+    lapsing: bool = False
 
     def since(self, skill: int, unit: int | None = None) -> float:
         """Seconds since `skill` was last cast (on or under `unit`); inf when it never was."""
         return self.now - self.cast_at.get((skill, unit), -math.inf)
+
+    def left(self, skill: int, lasts: float) -> float | None:
+        """Seconds left of the last cast of `skill` that took, for a buff that lasts `lasts`; None when no cast of
+        it is known (cast by hand, or before the service started)."""
+        took = self.took.get(skill)
+        return None if took is None else lasts - (self.now - took)
 
 
 def always(facts: BuffFacts, target: Monster | None) -> bool:
@@ -384,6 +398,10 @@ class Buff:
     # The other skills its caster presses, before its own: they too have to be on keys, and their keys are asked
     # for first (macros/buffs.py `keys_of`: the order a missing one is named in)
     also: tuple[int, ...] = ()
+    # Seconds a cast of it lasts, for a buff that ends by itself (Consume: 300 s); None: none, or it is kept up by its
+    # state alone. With it the executor tells the row when the buff would end inside the fight ahead
+    # (`BuffFacts.lapsing`; rca/2026-10-14/run-1214-findings.md §3.4: Consume ran out during Diablo).
+    lasts: float | None = None
 
 
 @dataclass(frozen=True)

@@ -59,6 +59,10 @@ class Run:
         self.prebuff_hands: frozenset[str] = frozenset()  # the set the buffs are cast with
         self.battle_hands: frozenset[str] = frozenset()  # the main set: fought with, and held when a game is left
         self.hovered: Callable[[], tuple[int, int] | None] | None = None  # world.GameMemory.hovered
+        # skill -> clock time of its last cast that took, kept by the runner across its runs (macros/buffs.py
+        # `Buffs.took_of`): the prebuff's Consume is seen by attack mode, which renews it before a boss. None: this
+        # run's executor keeps its own.
+        self.lasting: dict[int, float] | None = None
         # the skill key tapped last, the right-button skill before it, when, and whether the macro held a
         # key or button then (routines.press_skill)
         self.quick: tuple[int, int | None, float, bool] | None = None

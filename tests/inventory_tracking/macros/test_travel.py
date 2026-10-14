@@ -6,6 +6,7 @@ and jumps alone: no `Run`, no game, no set. What a build's own jump adds is test
 (tests/inventory_tracking/builds/warlock/test_movement.py).
 """
 
+import logging
 import math
 from dataclasses import replace
 
@@ -336,6 +337,26 @@ def test_no_way_round_a_wall_without_an_end_and_the_goals_own_cell_is_an_arrival
 def test_a_way_round_too_short_for_a_jump_or_a_walk_has_no_move():
     ground = walled(wall_with_a_gap)
     assert around_of(facts(ground=ground), (5002.5, 5000.5), jumps=(DART, HOP)) == NoWay(NO_SPOT_ON_WAY)
+
+
+def test_a_dodges_click_waits_for_the_cast_to_end_not_the_settle_and_one_swallowed_is_said_and_made_again(caplog):
+    # rca/2026-10-14/diablo-handling.md R3, fix 3: a step across Diablo's stream chosen in a cast left 0.67 s after
+    # the decision (the cast's rest, 0.41 s of settle, the click) and met the missiles. Hurried, the click comes at
+    # the first look that reads the cast over; a click the game took no notice of is said and made again, settled.
+    play = Game(world())
+    run = play.run()
+    play.world = replace(play.world, player=replace(play.world.player, mode=7))
+    play.acting_until = play.clock.now + 0.15
+    casting = play.world.player
+    settled = step_walk(run, (5010.0, 5000.0), casting, ASPECT, [], hurry=True)
+    assert 0.15 <= settled < 0.15 + SWAP_SETTLE
+    assert len(play.walks) == 1
+    play.swallowed_clicks = 1
+    with caplog.at_level(logging.INFO, logger='inventory_tracking'):
+        settled = step_walk(run, (5020.0, 5000.0), play.world.player, ASPECT, [], hurry=True)
+    assert len(play.walks) == 2
+    assert settled >= SWAP_SETTLE  # the click again is settled
+    assert 'showed no move' in caplog.text
 
 
 def test_a_failed_jump_in_the_game_is_remembered_and_said():

@@ -55,6 +55,7 @@ from inventory_tracking.macros.pad import PadActs, PadActuator, PadPlay, input_p
 from inventory_tracking.macros.pickup import pick_up, wanted, worth_a_stop
 from inventory_tracking.macros.pursuit import FULL, Pursuit
 from inventory_tracking.macros.routines import prebuff_keys, run_macro
+from inventory_tracking.macros.runmode import badge
 from inventory_tracking.macros.skills import character_bindings, skill_keys
 from inventory_tracking.macros.teleport import LOST_KEY, ready, step_toward
 from inventory_tracking.macros.timing import Pace
@@ -153,6 +154,9 @@ class MacroRunner:
         # the items the player put down this game (world.py `PutDown`): out of every run's loot, and of the HUD's
         # ground marks (the service hands `put_down.at` to loot/watch.py)
         self.put_down = PutDown()
+        # skill -> clock time of its last cast that took, across runs (`Run.lasting`, macros/buffs.py `took_of`): the
+        # prebuff's Consume, which attack mode renews before a boss's fight rather than let it end inside it
+        self.lasting: dict[int, float] = {}
         # when the healer (`make osd`) last gave the mercenary a potion of a kind: its ledger, read, never written
         # (`Run.given`; macros/drinking.py keeps the character's own gap for those)
         self.healer: PotionLedger | None = None
@@ -304,6 +308,12 @@ class MacroRunner:
         with self.lock:
             if not self.queue.entries and not self.closed:
                 self.queue.put(PICKUP)
+
+    @property
+    def run_badge(self) -> str | None:
+        """The HUD's word for the run mode (macros/runmode.py `badge`): shown for a full clear of the level the
+        mode last looked at; None otherwise, in town and before any look."""
+        return badge(self.hunter.mode) if self.hunter is not None else None
 
     @property
     def pursuit(self) -> bool:
@@ -659,6 +669,7 @@ class MacroRunner:
                 if os.environ.get(RESEARCH_ENV):
                     run.research = memory.hover_candidates  # a scan of the whole data section per Consume
                 run.hovered = memory.hovered
+                run.lasting = self.lasting  # the buffs' casts that took, across runs (macros/buffs.py `took_of`)
                 run.hover_note = memory.hover_note
                 run.mark = mark
                 run.warn = self._warn

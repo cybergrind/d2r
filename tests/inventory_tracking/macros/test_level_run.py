@@ -40,7 +40,7 @@ from inventory_tracking.macros.travel import PRESSED
 from inventory_tracking.macros.world import HEALING, NO_OWNER, Drop, Monster
 from inventory_tracking.native.layout import TILE_UNITS
 from inventory_tracking.routes.catalog import ROUTES
-from inventory_tracking.routes.model import ENTER, FIGHT, LOOT
+from inventory_tracking.routes.model import FIGHT, LOOT
 from inventory_tracking.routes.progress import Progress
 from inventory_tracking.terror.bosses import SUPER_UNIQUE_FLAG
 from tests.inventory_tracking.macros.fakes import BUILD
@@ -287,14 +287,16 @@ def test_a_pickup_press_posted_during_a_look_is_not_dropped_and_the_next_look_ha
     clock, the press came 28 ms later while the goal was being named, and `decide` read the mailbox only then: the
     press was newer than the look's clock (not fresh), the route's "enter Chaos Sanctum" takes a press, the run
     `Ended`, and `end_run` dropped the press with it. 6 of the game's 20 pickup presses were lost so. The look reads
-    the mailbox once with its clock; a press posted during it stays for the next look, which hands it on."""
+    the mailbox once with its clock; a press posted during it stays for the next look, which hands it on. Since the
+    run mode of 2026-10-14 the run goes to the River's door itself (test_runmode.py): the route's own press here is
+    the loot."""
     from tests.inventory_tracking.macros.test_hunt import game, hunter
 
     play = game()
     hunt = hunter(play)
     hunt.build = pursuing(hunt.build)
     run = play.run()
-    sanctum = Goal('Chaos Sanctum', (5000.0, 5300.0), ENTER, goals.PLACE_NEAR, PRESSED, route='Diablo')
+    sanctum = Goal('loot', (5000.0, 5300.0), LOOT, math.inf, PRESSED, route='Diablo')
     hunt.post(Pursuit('pickup', play.clock.now - 30.0, advance=False, leash=FULL, area=101))  # the run, long ago
     pressed: list[Pursuit] = []
 

@@ -31,8 +31,10 @@ A press says how far the loop may go without another: `Pursuit.leash`. The telep
 not `advance` and sets the leash FULL on the level it was pressed on (the player, 2026-10-13: "one press
 of KP_1, then it runs the whole level automatically"): with no fresh `advance` press, the loop then
 holds what is in reach, takes a drop worth it on the way, and otherwise goes for the route's stage of
-this level (reach, use, stand, fight) as if pressed, stage after stage, with no further press. It ends
-(`Ended`) when what is left of the route is not this loop's (the loot, the leaving, a way to another
+this level (reach, use, stand, fight) as if pressed, stage after stage, with no further press. How much of
+the level it works (its goal, fighting what is on the way, or a full clear first) is the run mode's
+(macros/runmode.py, 2026-10-14); a way to another level is gone to, and the run ends at it. It ends
+(`Ended`) when what is left of the route is not this loop's (the loot, the leaving, going through to another
 level: those cost a press, U13), when nothing is known to go to, or when the level is left; the runner
 ends it for attack mode off (KP_3) and the macro request (Mod+X). A fresh pickup press whose goal is the
 route's own press (the loot, the leaving) or none is handed to the old pickup step (`Defer`), which is what
@@ -58,7 +60,7 @@ from dataclasses import dataclass, field
 from inventory_tracking.combat.harm import Harm, SafetySettings, veto
 from inventory_tracking.macros.build import Leg, NoWay, Step
 from inventory_tracking.macros.goals import PICK_UP, PURSUED, WAIT, Goal
-from inventory_tracking.routes.model import FIGHT, STAND, USE
+from inventory_tracking.routes.model import ENTER, FIGHT, STAND, USE
 
 
 # Seconds a press stands for "go on": the longest gap between two presses of a player who keeps going
@@ -146,11 +148,14 @@ class Facts:
 
 @dataclass(frozen=True)
 class Move:
-    """Go: one move toward `goal`, by the way the navigator chose."""
+    """Go: one move toward `goal`, by the way the navigator chose. `dodge`: a step out of a hostile's act under way,
+    its missiles in flight (a read model's escape, combat/threats `Threat.escapes`): a move in flight the strike gap
+    does not hold (I2, `arbitrate`), whose click is made without the settle (macros/travel.py `step_walk` `hurry`)."""
 
     step: Step
     goal: Goal
     reason: str = ''
+    dodge: bool = False
 
 
 @dataclass(frozen=True)
@@ -206,12 +211,17 @@ def arbitrate(facts: Facts) -> Act:
     if facts.near and facts.attacking:
         # No attack pause (I2): while a hostile is within the strike's reach, the act is one after which a strike
         # comes within `strike_gap` of the last, whenever such an act fits the budget (a strike here first, an act
-        # that waits for one more strike, a firing stand before a walk). A retreat is not held to it.
+        # that waits for one more strike, a firing stand before a walk). A retreat is not held to it, nor is a step
+        # out of an act under way (`Move.dodge`: "unless a move is in flight", I2): the missiles in flight bound it
+        # to their act (Diablo's stream is under 1.9 s; rca/2026-10-14/diablo-handling.md fix 1), and a strike
+        # there gave its place to the hold (R2: 5 of 6 priced fights).
         # With the gap already spent (no strike yet), the acts that strike soonest.
         striking = [c for c in feasible if c.strikes]
         if striking:
             room = max(facts.safety.strike_gap - facts.quiet, min(c.unstruck for c in striking))
-            feasible = [c for c in striking if c.unstruck <= room]
+            feasible = [
+                c for c in feasible if (c.strikes and c.unstruck <= room) or (isinstance(c.act, Move) and c.act.dodge)
+            ]
     if feasible:
 
         def price(c: Candidate) -> float:
@@ -303,12 +313,14 @@ def run_level(facts: Facts, pressed: bool) -> Act:
     reach first, a drop on the way next, then the route's stage of this level as a press would have it.
     What is left that is not this loop's ends the run, or with a fresh pickup press is handed on."""
     goal = facts.goal
-    if goal is None or (not goal.route and goal.do not in (PICK_UP, WAIT) and not goal.guarded):
+    if goal is None or (not goal.route and goal.do not in (PICK_UP, WAIT) and not goal.guarded and not goal.clearing):
         # No route on this level (only the card's own mark, or nothing): the run has no stage to work, and the
         # key is what it was without one (its own step: a pickup, a chest, the sweep)
         if pressed:
             return Defer(None)
         return Ended('nothing is left to go to on this level: no route stage, no boss known')
+    if goal.do == ENTER and not (facts.there and pressed):
+        return to_the_door(facts, goal)
     if goal.do not in PURSUED:
         if pressed:
             return Defer(goal)
@@ -320,6 +332,20 @@ def run_level(facts: Facts, pressed: bool) -> Act:
     if facts.there:
         return arrived(facts, goal)
     return moved(facts, goal)
+
+
+def to_the_door(facts: Facts, goal: Goal) -> Act:
+    """The route's way on to another level is what is left of it here (the River of Flame's door to the Chaos
+    Sanctuary): the run goes to it, fighting what is in reach and what the goal names on the way (macros/goals.py
+    `clear_way`), and ends there; going through takes a press (U13). The player, 2026-10-14: "go to the level's
+    goal clearing everything along the way" (rca/2026-10-14/kp1-mode.md)."""
+    ended = Ended(f'at {goal.label}: going through takes a press')
+    if facts.in_reach and facts.attacking:
+        return Hold(goal)
+    if facts.there:
+        return ended
+    found = moved(facts, goal)
+    return ended if isinstance(found, NoWay) and found.arrived else found
 
 
 def arrived(facts: Facts, goal: Goal) -> Act:

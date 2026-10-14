@@ -73,6 +73,7 @@ class GroundMaterial:
     unit_id: int
     x: int
     y: int
+    quality: int = field(default=0, compare=False)  # ItemData quality as read (`ground_shown`); 0 when not read
 
 
 @dataclass(frozen=True)
@@ -216,7 +217,7 @@ def ground_shown(read, table_address, rules) -> list[GroundMaterial]:
         quality, flags = (struct.unpack_from('<I', data, offset)[0] for offset in (QUALITY_OFFSET, FLAGS_OFFSET))
         label = shown_label(rules, unit['txt_id'], quality, flags)
         if label is not None:
-            found.append(GroundMaterial(label, unit['unit_id'], x, y))
+            found.append(GroundMaterial(label, unit['unit_id'], x, y, quality))
     return found
 
 

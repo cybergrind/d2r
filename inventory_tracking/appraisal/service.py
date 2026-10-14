@@ -850,6 +850,7 @@ def run_service(args, directory, report):
                             lambda widgets: publish_layer(args.hud_scene, 'mode', widgets),
                             input_mode=lambda: input_watch.current,
                             legend=pad_legend,
+                            run_mode=lambda: macro.run_badge,  # 'CLEAR' / 'CLEAR TZ' for a full clear (runmode.py)
                         )
                         if args.osd
                         else None

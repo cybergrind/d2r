@@ -58,6 +58,7 @@ SIGIL_SECONDS = 10.0  # between two sigils under the same monster
 # summoned and the pointer put on it, about two seconds in which nothing is struck. After a try that failed
 # (no ground for a summon, something beside the Defiler) the next comes CONSUME_RETRY later.
 CONSUME_CLEAR = 30.0  # world units
+CONSUME_SECONDS = 300.0  # one cast's time (skills.txt 381 at CybergrindAA's level): its row's `lasts`
 CONSUME_SOON = 3.0  # seconds to the next try after one the player's own key stopped
 CONSUME_RETRY = 20.0  # seconds
 
@@ -119,11 +120,15 @@ def engorge_on_a_key(facts: BuffFacts) -> bool:
 
 
 def consume_due(facts: BuffFacts) -> bool:
-    """Whether attack mode casts Consume again now: the state reads without it, its two skills are on
-    keys, no hostile is within CONSUME_CLEAR and the last try is CONSUME_RETRY old."""
+    """Whether attack mode casts Consume again now: the state reads without it, or it reads on and would end
+    inside the boss's fight ahead (`BuffFacts.lapsing`: renewed in the quiet before it, rca/2026-10-14/
+    run-1214-findings.md §3.4); its two skills are on keys, no hostile is within CONSUME_CLEAR and the last try
+    is CONSUME_RETRY old."""
     world = facts.world
     player = world.player
-    if player is None or player.consume is not False or player.mode in DEAD:
+    if player is None or player.mode in DEAD:
+        return False
+    if not (player.consume is False or (player.consume is True and facts.lapsing)):
         return False
     if not {CONSUME, SUMMON_DEFILER} <= set(world.slots):
         return False
@@ -139,15 +144,26 @@ def consume_due(facts: BuffFacts) -> bool:
 # The plan, each phase in the order it is cast in. The upkeep and the fight keep Hex: Purge and Psychic
 # Ward up by what the character's state shows (`state`: the executor's rule for a cast the state does not
 # show); the ward's floor of WARD_SECONDS holds only under the strike. Consume has no `state`: it is tried
-# every CONSUME_RETRY seconds while it reads missing, by its own `due`. The prebuff casts all three whatever
-# the state shows (Consume: how long it has left is not known).
+# every CONSUME_RETRY seconds while it reads missing, by its own `due`, and renewed before a boss's fight when the
+# macro's own last cast (the prebuff's or attack mode's) would end inside it (`lasts`). The prebuff casts all three
+# whatever the state shows (Consume: how long it has left is not read from the game).
 BUFFS: tuple[Buff, ...] = (
-    Buff(CONSUME, 'prebuff', whenever, needs='prebuff', caster='defiler dance', also=(SUMMON_DEFILER,)),
+    Buff(
+        CONSUME,
+        'prebuff',
+        whenever,
+        needs='prebuff',
+        caster='defiler dance',
+        also=(SUMMON_DEFILER,),
+        lasts=CONSUME_SECONDS,
+    ),
     Buff(HEX_PURGE, 'prebuff', whenever, needs='prebuff'),
     Buff(PSYCHIC_WARD, 'prebuff', whenever, needs='prebuff'),
     Buff(HEX_PURGE, 'upkeep', whenever, state=purge_shown),
     Buff(PSYCHIC_WARD, 'upkeep', whenever, state=ward_shown),
-    Buff(CONSUME, 'upkeep', consume_due, needs='prebuff', caster='consume', also=(SUMMON_DEFILER,)),
+    Buff(
+        CONSUME, 'upkeep', consume_due, needs='prebuff', caster='consume', also=(SUMMON_DEFILER,), lasts=CONSUME_SECONDS
+    ),
     Buff(HEX_PURGE, 'fight', whenever, state=purge_shown),
     Buff(PSYCHIC_WARD, 'fight', ward_in_a_fight, state=ward_shown),
     Buff(

@@ -438,7 +438,7 @@ class Safety:
                 math.dist(spot, foe.at) <= attack.reach and field_.clear(spot, foe.at) for foe in seen.foes.values()
             )
 
-        def move_price(step: Step, *, retreat=False, firing=False, why: str | None = None):
+        def move_price(step: Step, *, retreat=False, firing=False, why: str | None = None, dodge=False):
             gap = math.dist(here, step.spot)
             jump = next((j for j in jumps if j.skill == step.skill), None)
             seconds = jump.takes(gap) if jump else (0.31 if step.skill == TELEPORT else 0.36 + gap / 20.0)
@@ -478,7 +478,7 @@ class Safety:
                 there_worth, _ = taken(seen, attack, field_, step.spot, 0.0 if why else seconds)
                 duration += clear * worth / max(there_worth, 1.0)
             step = PricedStep(step.spot, step.skill, step.camp, needs, seconds)
-            act = Move(step, goal, why or ('retreat' if retreat else FIRING if firing else ''))
+            act = Move(step, goal, why or ('retreat' if retreat else FIRING if firing else ''), dodge=dodge)
             unstruck = seconds + (SWAP_SECONDS if needs != 'battle' else 0.0)  # the strike needs the battle set
             candidates.append(Candidate(act, duration, damage, retreat, unstruck, strikes_from(step.spot)))
             return tuple(path), duration
@@ -574,7 +574,7 @@ class Safety:
         staying = (facts.in_reach and facts.attacking) or waiting
         if not unsafe and staying and saving > least:
             offered = 0
-            for point, why in self.offered(here, look, hold_harm):
+            for point, why, dodge in self.offered(here, look, hold_harm):
                 if offered >= ESCAPES_MOST or late():
                     break
                 if why == AWAY and not strikes_from(point):
@@ -585,7 +585,7 @@ class Safety:
                 if spot is None:
                     continue
                 offered += 1
-                move_price(Step(spot), firing=True, why=f'{STEPPING} {why}')
+                move_price(Step(spot), firing=True, why=f'{STEPPING} {why}', dodge=dodge)
         if unsafe:
             # Every retreat is a real navigational leg; never assume that an open
             # point is reachable through a wall. Equal harm prefers less time.
@@ -602,7 +602,7 @@ class Safety:
                         asked.append(step.spot)
                         move_price(step, retreat=True)
 
-            places = [point for point, _ in self.offered(here, look, hold_harm if hold_harm.by else future)]
+            places = [point for point, _, _ in self.offered(here, look, hold_harm if hold_harm.by else future)]
             for index, point in enumerate(places[:ESCAPES_MOST]):
                 if index >= 2 and late():
                     break
@@ -687,6 +687,7 @@ class Safety:
                     'worst': round(c.harm.worst, 1),
                     'veto': veto(c.harm, look.life, settings),
                     'retreat': c.retreat,
+                    'dodge': isinstance(c.act, Move) and c.act.dodge,
                     'contributors': c.harm.by,
                     'stand_ins': c.harm.stand_ins,
                     'blocked_by': blockers(c.harm, allowance),
@@ -769,11 +770,11 @@ class Safety:
             return None
         return self.draws
 
-    def offered(self, here: Point, look: Look, priced) -> list[tuple[Point, str]]:
-        """The places an escape may go to, with why: those the read models of the hostiles offer for their acts
-        under way (combat/threats `Threat.escapes`), then the threat's geometry (`escapes`); two nearer than
-        ESCAPE_SAME are one."""
-        found: list[tuple[Point, str]] = []
+    def offered(self, here: Point, look: Look, priced) -> list[tuple[Point, str, bool]]:
+        """The places an escape may go to, with why and whether it is a dodge (`Move.dodge`): those the read models
+        of the hostiles offer for their acts under way (combat/threats `Threat.escapes`), a dodge while the act's
+        missiles are in flight, then the threat's geometry (`escapes`); two nearer than ESCAPE_SAME are one."""
+        found: list[tuple[Point, str, bool]] = []
         for m in look.hostiles:
             model = threats.of(m.txt)
             if model is not None:
@@ -782,14 +783,14 @@ class Safety:
                 left = self.stepped.get(m.unit)
                 if left is not None and left[0] == self.modes.get(m.unit):
                     places = tuple((point, why) for point, why in places if math.dist(point, left[1]) >= ESCAPE_SAME)
-                found.extend(places)
+                found.extend((point, why, bool(flying)) for point, why in places)
         for lingering, lying in look.ground:
-            found.extend(lingering.escapes(lying, here))
-        found.extend((point, AWAY) for point in self.escapes(here, look, priced))
-        unique: list[tuple[Point, str]] = []
-        for point, why in found:
-            if all(math.dist(point, other) >= ESCAPE_SAME for other, _ in unique):
-                unique.append((point, why))
+            found.extend((point, why, False) for point, why in lingering.escapes(lying, here))
+        found.extend((point, AWAY, False) for point in self.escapes(here, look, priced))
+        unique: list[tuple[Point, str, bool]] = []
+        for point, why, dodge in found:
+            if all(math.dist(point, other) >= ESCAPE_SAME for other, _, _ in unique):
+                unique.append((point, why, dodge))
         return unique
 
     def escapes(self, here: Point, look: Look, priced) -> list[Point]:

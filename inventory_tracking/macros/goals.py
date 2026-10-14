@@ -56,6 +56,10 @@ GUARD_NEAR = 12.0
 # Countess stood 2 to 29 units from the place her map gives her over 56 visits)
 BOSS_MARK_UNITS = 60.0
 SAME_PLACE = 1.0  # units: two of the tracker's last-seen places this near are one monster's
+# Units: on a level run the hostiles this near the character, with a clear line to them, are fought before the
+# run goes on to its goal (`clear_way`; the player, 2026-10-14: "go to the level's goal clearing everything along
+# the way"). Hunt.py SIGHT: hostiles further off are no part of a fight's decision either.
+CLEAR_WAY = 30.0
 
 
 @dataclass(frozen=True)
@@ -67,7 +71,8 @@ class Goal:
     it). `mark` is the level card's mark the goal was made from, for the hands that operate it; `route`
     and `stage` the stage it performs, for the progress to be told. `guarded`: a pickup never begun with a
     hostile within GUARD_NEAR (a potion: `in_the_way` names them), and the fight first with them (`first_fight`):
-    a level run's side goal, of no route stage."""
+    a level run's side goal, of no route stage. `clearing`: a level run's fight on its way or of the rest of the
+    level (`clear_way`, `rest_of_level`): its own goal, on a level with a route or not (macros/runmode.py)."""
 
     label: str
     place: Point
@@ -80,6 +85,7 @@ class Goal:
     route: str = ''
     stage: Stage | None = None
     guarded: bool = False
+    clearing: bool = False
 
     def gap(self, here: Point) -> float:
         """Units from `here` to the goal's place."""
@@ -167,6 +173,37 @@ def first_fight(goal: Goal, here: Point, blockers: Sequence[Monster], reach: flo
         stage=goal.stage,
         guarded=goal.guarded,
     )
+
+
+def clear_way(goal: Goal, here: Point, near: Sequence[Monster], reach: float) -> Goal:
+    """A level run's goal while hostiles are on its way (`near`: those within CLEAR_WAY of the character with a
+    clear line to them, the caller's measure): the fight with the nearest of them first, the stage and its mark
+    kept (the player's ruling of 2026-10-14: the level's goal, clearing everything along the way). The run goes
+    on to `goal` once none is left."""
+    found = first_fight(goal, here, near, reach)
+    return replace(found, label=f'{goal.label}: clearing the way ({len(near)} near)', clearing=True)
+
+
+def rest_of_level(found: tuple[Point, str, int | None], base: Goal | None, reach: float, spend: Intent) -> Goal:
+    """A full clear's goal (macros/runmode.py): what is left of the level, `found` as (place, what, unit). A
+    hostile in sight or remembered alive (`unit`) is fought from where the attack reaches it; an unexplored room
+    (no unit) is gone to. The route of `base`, the goal the route has after the clear, is kept for the log."""
+    place, what, unit = found
+    route = base.route if base is not None else ''
+    if unit is not None:
+        return Goal(f'full clear: {what}', place, FIGHT, reach, spend, unit=unit, route=route, clearing=True)
+    return Goal(f'full clear: {what}', place, REACH, PLACE_NEAR, spend, known=False, route=route, clearing=True)
+
+
+def boss_ahead(stages: Sequence[Stage], stage: Stage) -> bool:
+    """Whether the route's stage `stage` (one of `stages`, its level's script) brings a boss's fight: it is that
+    fight, or the use of the object that calls the boss (the last seal of an arm: the next stage is the fight)."""
+    if stage.kind == FIGHT:
+        return True
+    if stage.kind != USE or stage not in stages:
+        return False
+    index = list(stages).index(stage)
+    return index + 1 < len(stages) and stages[index + 1].kind == FIGHT
 
 
 def nearer(goal: Goal) -> Goal:

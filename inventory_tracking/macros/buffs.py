@@ -11,8 +11,15 @@ up again after (`resume`); the loop that holds the strike decides the order and 
 The prebuff phase (`prebuff`, a game's start) is a routine of its own: every row of it is cast in the
 plan's order with the weapon set it needs in hand, each cast waited for; none is asked whether it is
 due, and no world is looked at before the first.
+
+A buff that ends by itself (`Buff.lasts`: Consume, 300 s) is renewed before it would end inside a fight the
+mode expects ahead (`BuffFacts.ahead`, a boss the route brings): the executor keeps when each skill was last
+cast and took (`took`, shared with the prebuff's run through `Run.lasting`), tells the row it is `lapsing`, and
+the row's `due` decides; the mode asks for such a renewal before its run's next move (`first(renewing=True)`).
+rca/2026-10-14/run-1214-findings.md §3.4: Consume cast at the prebuff ran out 300.7 s later, in Diablo's fight.
 """
 
+import math
 from collections.abc import Callable, Iterable, Mapping, Sequence
 from dataclasses import dataclass, replace
 
@@ -56,6 +63,16 @@ class Due:
     target: Monster | None = None
 
 
+def lapsing(row: Buff, facts: BuffFacts) -> bool:
+    """Whether `row`'s buff, one that ends by itself (`Buff.lasts`), would end inside the fight expected ahead
+    (`BuffFacts.ahead`): what is left of its last cast that took is shorter. False with no fight ahead or no cast
+    of it known."""
+    if row.lasts is None or facts.ahead <= 0:
+        return False
+    left = facts.left(row.skill, row.lasts)
+    return left is not None and left < facts.ahead
+
+
 def keys_of(row: Buff) -> tuple[int, ...]:
     """The skills whose keys a row's cast needs, in the order they are asked for: what its caster
     presses before it, the row's own, and Swap Weapons when it wants a weapon set."""
@@ -85,6 +102,20 @@ class Buffs:
         self.unseen: dict[int, int] = {}  # skill -> casts of it in a row that the character's state did not show after
         self.let_go: Callable[[], None] | None = None  # releases the held strike (actuator.hold), while one is held
         self.refusals: set[tuple[int, int]] = set()  # (skill, unit) a refusal of `Buff.worth` was said for
+        # skill -> clock time of its last cast that took (`Tried.cast`, a prebuff row cast): the age of a buff that
+        # ends by itself. Shared with the other runs of the service once a run brings `Run.lasting` (`took_of`).
+        self.took: dict[int, float] = {}
+
+    def took_of(self, run: Run) -> dict[int, float]:
+        """The record of casts that took, the one the runner keeps across runs (`Run.lasting`: the prebuff's
+        Consume seen by attack mode) once a run brings it, with this executor's newer casts put in it."""
+        lasting = getattr(run, 'lasting', None)
+        if lasting is not None and lasting is not self.took:
+            for skill, at in self.took.items():
+                if at > lasting.get(skill, -math.inf):
+                    lasting[skill] = at
+            self.took = lasting
+        return self.took
 
     def rows(self, phase: str) -> tuple[Buff, ...]:
         """The rows of one phase, in the order they are cast."""
@@ -98,9 +129,11 @@ class Buffs:
         reachable: Sequence[Monster] = (),
         prey: Monster | None = None,
         draws: Mapping[int, DrawPrice] | None = None,
+        ahead: float = 0.0,
     ) -> BuffFacts:
         """What the rows are asked with, from what the caller has read; `draws`: the safety pricing's last prices
-        of the build's draw (macros/safety.py `Safety.priced`), when fresh."""
+        of the build's draw (macros/safety.py `Safety.priced`), when fresh; `ahead`: seconds of a fight expected
+        ahead with no quiet in it (a boss the route brings), which a buff that ends by itself has to last through."""
         return BuffFacts(
             world,
             run.clock(),
@@ -111,6 +144,8 @@ class Buffs:
             focused=run.actuator.focused,
             corpses=run.corpses,
             draws=draws,
+            ahead=ahead,
+            took=self.took_of(run),
         )
 
     def missing(self, row: Buff, facts: BuffFacts) -> bool:
@@ -129,6 +164,7 @@ class Buffs:
         """The row with its target if it is to be cast now, by the clock as it reads at this asking:
         its state missing (`missing`), its own `due`, a target where it names one, and `worth`."""
         facts = replace(facts, now=run.clock())
+        facts = replace(facts, lapsing=lapsing(row, facts))
         if row.state is not None and not self.missing(row, facts):
             return None
         if not row.due(facts):
@@ -163,9 +199,12 @@ class Buffs:
         self.refusals.add((row.skill, monster.unit_id))
         LOG.info('%s', said)
 
-    def first(self, run: Run, phase: str, facts: BuffFacts) -> Due | None:
-        """The first row of the phase that is due now, in the plan's order."""
+    def first(self, run: Run, phase: str, facts: BuffFacts, *, renewing: bool = False) -> Due | None:
+        """The first row of the phase that is due now, in the plan's order. `renewing`: only a row whose buff would
+        end inside the fight ahead (`lapsing`: the renewal the mode makes before its run's next move)."""
         for row in self.plan:
+            if renewing and not lapsing(row, replace(facts, now=run.clock())):
+                continue
             if row.phase == phase:
                 found = self.due(run, row, facts)
                 if found is not None:
@@ -188,10 +227,18 @@ class Buffs:
         """The cast of a row that is due, by the caster it names or the shared one for what it is cast
         on; what the caster answers is remembered (`Tried`)."""
         row, target = due.row, due.target
+        if due.facts.lapsing:
+            left = due.facts.left(row.skill, row.lasts) if row.lasts is not None else None
+            LOG.info(
+                'Macro: buff: %s has %.0f s left of %.0f, under the %.0f s fight ahead: cast again now',
+                skill_name(row.skill), left if left is not None else 0.0, row.lasts or 0.0, due.facts.ahead,
+            )  # fmt: skip
         asked = Casting(run, row, self, due.facts.world, target, aspect, key_names)
         tried = self.casters[row.caster](asked) if row.caster is not None else self.shared(asked)
         if tried.at is not None:
             self.remember(row, tried.at, target.unit_id if target is not None else None)
+        if tried.cast and tried.at is not None:
+            self.took[row.skill] = tried.at
         if tried.cast and target is not None and row.said is not None:
             said = row.said(due.facts, target)
             if said is not None:
@@ -317,9 +364,13 @@ class Buffs:
                     take_battle_weapons(run)
                 held = row.needs
             if row.caster is not None:
-                self.casters[row.caster](Casting(run, row, self, fresh=fresh))
+                tried = self.casters[row.caster](Casting(run, row, self, fresh=fresh))
+                took = tried.at if tried.cast else None
             elif row.on == 'self':
                 if not self.by_key(run, row.skill):
                     cast_free(run, row.skill)
+                took = run.clock()
             else:
                 raise ValueError(f'no prebuff cast on a {row.on}: the row of {skill_name(row.skill)} needs a caster')
+            if took is not None:
+                self.took_of(run)[row.skill] = took  # its age: a renewal of a buff that ends (`lapsing`)

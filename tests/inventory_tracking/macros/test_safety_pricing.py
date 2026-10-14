@@ -636,3 +636,33 @@ def test_a_step_across_his_lightning_never_goes_back_to_the_place_it_left_in_the
     _, decision = both[1]
     places = [c['place'] for c in decision['candidates'] if c['why'].startswith('stepping across')]
     assert all(math.dist(place, start) >= 4.0 for place in places), places
+
+
+def test_a_step_out_of_his_stream_in_flight_is_not_held_to_the_strike_gap_as_a_move_in_flight():
+    # rca/2026-10-14/diablo-handling.md R2, fix 1: the 06:08 look at +0.60 (take 20261014T030618Z-108): holding 22.77 s
+    # against the step across's 16.0, 0.58 s after the last strike; the step's 1.06 s without a strike missed the
+    # 1.6 s gap by 0.04 s and the hold was made, the stream tanked. I2: "... unless a move is in flight".
+    goal = Goal('Diablo', (0.0, 0.0), 'fight', 22.0, PRESSED)
+    hold = p.Candidate(p.Hold(goal), 22.77, Harm(30, 60), unstruck=0.0, strikes=True)
+    dodge = p.Move(Step((13.5, 3.5)), goal, "stepping across Diablo's lightning", dodge=True)
+    across = p.Candidate(dodge, 16.0, Harm(20, 40), unstruck=1.06, strikes=True)
+    facts = p.Facts(1.0, goal, True, True, True, lambda: Step(goal.place), budget=500, life=1818, near=True)
+    assert p.decide(replace(facts, candidates=(hold, across), quiet=0.58), None) == dodge
+    # A step that is not out of an act under way is held to the gap as before: one strike first
+    plain = replace(across, act=replace(dodge, reason='firing spot', dodge=False))
+    assert p.decide(replace(facts, candidates=(hold, plain), quiet=0.58), None) == hold.act
+    # The dodge still competes on its price, and never past the budget
+    assert p.decide(replace(facts, candidates=(hold, replace(across, seconds=30.0)), quiet=0.58), None) == hold.act
+    dear = replace(across, harm=Harm(20, 600))
+    assert p.decide(replace(facts, candidates=(hold, dear), quiet=0.58), None) == hold.act
+
+
+def test_a_step_across_his_stream_in_flight_is_a_dodge_and_the_threats_geometry_is_not(monkeypatch):
+    start = (14.0, 0.0)
+    ((act, decision),) = _diablo_looks(monkeypatch, [(20, start, _stream_at(start, 10))])
+    assert isinstance(act, p.Move), decision['candidates']
+    assert act.dodge
+    stepping = [c for c in decision['candidates'] if c['why'].startswith('stepping across')]
+    assert stepping
+    assert all(c['dodge'] for c in stepping)
+    assert not any(c['dodge'] for c in decision['candidates'] if c not in stepping)

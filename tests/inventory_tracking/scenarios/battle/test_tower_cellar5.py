@@ -6,6 +6,7 @@ their moments; the one strike that is not is a strict xfail with its reason.
 """
 
 import functools
+import math
 
 import pytest
 
@@ -71,6 +72,9 @@ AS_IT_WAS = {
     'tests.inventory_tracking.scenarios.battle.replay.threat': lambda run: lambda here, spot: 0,
     # and a key waits only for the button's return once any look saw the key before's cast (2026-10-14)
     'inventory_tracking.macros.routines.quick_cast_over': quick_cast_over_as_it_was,
+    # and a drop was clicked from afar round a wall (2026-10-14: only on a clear line since, macros/travel.py
+    # `walk_reaches`): the potion 8.6 away was 12.5 round a thin wall, and the click left the character where it stood
+    'inventory_tracking.macros.travel.ROUND_CLICK': math.inf,
 }
 END = 22.7  # just before the teleport key (22.77 s), whose handling has changed since
 

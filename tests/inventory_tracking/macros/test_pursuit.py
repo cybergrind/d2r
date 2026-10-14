@@ -527,4 +527,5 @@ def test_the_snapshot_carries_the_pursuits_goal_only_with_the_switch_on() -> Non
         },
         'key': TELEPORT_KEY,
         'pressed_at': 10.0,
+        'run_mode': None,  # no look has named the run mode yet (macros/runmode.py)
     }

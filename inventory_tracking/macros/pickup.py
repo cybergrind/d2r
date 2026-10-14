@@ -217,10 +217,11 @@ class Spot(Protocol):
 
 
 def approach(run: Run, drop: Spot, level: Level | None, key_names) -> None:
-    """Bring `drop` within a click: nothing when it is in view and a walk within PICK_UNITS leads to it (travel.py
-    `walk_reaches`: a drop 17 away across lava is 43 by walking, rca/2026-10-14/run-0025-findings.md §2.2),
-    teleport hops otherwise. Where no hop can be made (the staff empty, no Teleport), a move by the movement in
-    hand (`moved_in_hand`: the build's own sets, a Blade Warp or a walk) in its place:
+    """Bring `drop` within a click: nothing when it is in view, within PICK_UNITS and on a clear line (travel.py
+    `walk_reaches`: a drop 17 away across lava is 43 by walking, rca/2026-10-14/run-0025-findings.md §2.2; one
+    18 away round a wall corner was never walked to, run-1214-findings.md §3.2), teleport hops otherwise. Where no
+    hop can be made (the staff empty, no Teleport), a move by the movement in hand (`moved_in_hand`: the build's own
+    sets, a Blade Warp or a walk) in its place:
     rca/2026-10-13/run-2110-findings.md §2.3, an Amn Rune 24 away left twice with "the Teleport staff has no
     charges left"."""
     for hop in range(HOPS + 1):
@@ -234,6 +235,13 @@ def approach(run: Run, drop: Spot, level: Level | None, key_names) -> None:
         ground = Ground(level.ground) if level is not None else None
         if seen and walk_reaches(ground, world.doors, here, (drop.x, drop.y), PICK_UNITS):
             return
+        if seen and away <= PICK_UNITS:
+            # A click from afar walks only a clear line (travel.py `walk_reaches`, run-1214-findings.md §3.2)
+            LOG.info(
+                'Macro: pickup: %s: %.0f away with no clear line from (%.1f, %.1f): gone to first, not clicked '
+                'from afar',
+                drop.label, away, *here,
+            )  # fmt: skip
         if level is None or hop == HOPS:
             if seen:
                 return  # clicked from afar: the game walks the character
@@ -636,7 +644,8 @@ def pick_up(
             # the drop (user, 2026-10-10 night). Only for what the marks point at (world.py `prized`):
             # for gear the filter shows the press goes on (user, 2026-10-12: "allow moving when the item
             # isn't very valuable"; Drifter Cavern, 20:00 that day: 37 presses in a row stopped for a
-            # Superior Old Book, 13 hostiles 38 away).
+            # Superior Old Book, 13 hostiles 38 away). A unique or set item the filter shows is prized (the
+            # player, 2026-10-14: the Unique Plate Mail fetched by hand, run-1214-findings.md §3.1).
             raise Abort(f'inventory full: no room for {dear}')
         if plan is not None:
             run.say(f'Inventory full: no room for {named}')

@@ -35,7 +35,7 @@ from inventory_tracking.loot.ground import (
 )
 from inventory_tracking.loot.materials import appraised_classes
 from inventory_tracking.loot.runes import is_valuable_rune, rune_name
-from inventory_tracking.loot.shown import ShownRule
+from inventory_tracking.loot.shown import NAMED_QUALITIES, ShownRule
 from inventory_tracking.native.layout import (
     BELT_ITEM_MODE,
     BELT_SIZE,
@@ -251,12 +251,26 @@ class Drop:
     prized: bool = True
 
 
+# The source of a unique or set item the loot filter shows (unidentified, or of any size): one a full inventory
+# stops for, as for what the marks point at (the player, 2026-10-14: run-1214-findings.md §3.1).
+NAMED = 'named'
+
+
 def prized(source: str, *, marked: bool) -> bool:
-    """Whether a drop is one a full inventory stops the pickup press for (user, 2026-10-12: "allow moving
-    when the item isn't very valuable"): what the loot marks point at — a rune from the marks' minimum up,
-    a unique or set item worth a mark, a material of the marks — and not what the pickup takes besides (the
-    low runes, every ring and jewel, the gems and the equipment the loot filter shows)."""
-    return source == 'unique' or (source in ('rune', 'material') and marked)
+    """Whether a drop is one a full inventory stops the pickup press for, and a level run stands by (user,
+    2026-10-12: "allow moving when the item isn't very valuable"): what the loot marks point at — a rune from the
+    marks' minimum up, a unique or set item worth a mark, a material of the marks — and every unique or set item
+    the loot filter shows (`NAMED`, the player's ruling of 2026-10-14: the run walked past a Unique Plate Mail
+    with the inventory full and the player fetched it by hand, rca/2026-10-14/run-1214-findings.md §3.1). Not
+    what the pickup takes besides: the low runes, every ring and jewel, the gems and the magic, rare and white
+    equipment the loot filter shows."""
+    return source in ('unique', NAMED) or (source in ('rune', 'material') and marked)
+
+
+def shown_source(quality: int) -> str:
+    """The source (`prized`) of a ground item the loot filter shows, by its quality: a unique or set one is
+    `NAMED`, the rest (magic, rare, white and gray) 'shown'."""
+    return NAMED if quality in NAMED_QUALITIES else 'shown'
 
 
 @dataclass(frozen=True)
@@ -278,9 +292,10 @@ class Loot:
     # with the panels closed, wherever the cube is. None: unread, or no cube. Not yet a place the pickup puts
     # anything (that is the cube work of pickup-cube.md §6): it is said where a drop has no room in the inventory.
     cube: tuple[str, ...] | None = None
-    # The drops (unit ids) taken only because the loot filter shows them (loot/shown.py): equipment nothing the marks
-    # or the pickup's own rules name. A level run does not stand by one for want of room (the player, 2026-10-12:
-    # "allow moving when the item isn't very valuable").
+    # The drops (unit ids) taken only because the loot filter shows them (loot/shown.py): magic, rare and white
+    # equipment nothing the marks or the pickup's own rules name. A level run does not stand by one for want of room
+    # (the player, 2026-10-12: "allow moving when the item isn't very valuable"). A unique or set one the filter shows
+    # is not among them: it is prized (`NAMED`, the player, 2026-10-14).
     shown: frozenset[int] = frozenset()
     # The unit ids of the items in the character's grids now (the inventory, the cube, the stash tabs: `held_items`),
     # read with `room`: what `PutDown` knows the player's own items by.
@@ -1044,7 +1059,7 @@ class GameMemory:
             if shown:
                 found = ground_shown(read, table, shown)
                 marked += found
-                sources.update(dict.fromkeys((item.unit_id for item in found), 'shown'))
+                sources.update({item.unit_id: shown_source(item.quality) for item in found})
             if unique_minimum is not None:
                 found = ground_uniques(read, table, minimum=unique_minimum)
                 marked += found

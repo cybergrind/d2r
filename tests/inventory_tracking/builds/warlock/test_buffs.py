@@ -7,6 +7,7 @@ from inventory_tracking.builds.warlock.buffs import (
     BUFFS,
     CONSUME_CLEAR,
     CONSUME_RETRY,
+    CONSUME_SECONDS,
     CONSUME_SOON,
     ENGORGE_HURT_SECONDS,
     ENGORGE_REACH,
@@ -184,6 +185,30 @@ def test_consume_is_due_only_in_front_off_its_wait_and_with_nothing_hostile_near
         assert not consume_due(BuffFacts(shown, 100.0, focused=in_front))
     assert not consume_due(BuffFacts(replace(out, slots=()), 100.0, focused=in_front))
     assert asked == []  # the display is asked only once the state and the keys say it could be cast
+
+
+def test_consume_on_is_renewed_in_the_quiet_only_when_it_would_end_inside_the_boss_fight_ahead():
+    """rca/2026-10-14/run-1214-findings.md §3.4: cast at the prebuff (15:14:47.9), it ran out 300.7 s later in
+    Diablo's fight, max life 1818 -> 1580. With the boss ahead its row is told it is lapsing, and casts it again."""
+    play = game()
+    on = replace(play.world, player=replace(play.world.player, consume=True))
+    near = Monster(1, 19, 1, 5000.0 + CONSUME_CLEAR, 5000.0, 0xFFFFFFFF)
+    assert consume_due(BuffFacts(on, 100.0, lapsing=True))
+    assert not consume_due(BuffFacts(on, 100.0))  # on, and no boss ahead: not cast
+    assert not consume_due(BuffFacts(on, 100.0, lapsing=True, foes=(near,)))  # never with a hostile near
+    unread = replace(on, player=replace(on.player, consume=None))
+    assert not consume_due(BuffFacts(unread, 100.0, lapsing=True))
+    (row,) = [row for row in BUFFS if row.skill == CONSUME and row.phase == 'upkeep']
+    assert row.lasts == CONSUME_SECONDS == 300.0
+    buffs, run = Buffs(ECHOING_STRIKE_BUILD), play.run()
+    buffs.took[CONSUME] = 0.0  # the prebuff's cast
+    play.clock.now = 241.0  # 59 s left of it, under the 60 s of a boss's fight
+    play.focused = True
+    due = buffs.due(run, row, buffs.facts(run, on, ahead=60.0))
+    assert due is not None
+    assert due.facts.lapsing
+    play.clock.now = 239.0  # 61 s left: it lasts through the fight
+    assert buffs.due(run, row, buffs.facts(run, on, ahead=60.0)) is None
 
 
 # --- the casters' answers (builds/warlock/casters.py) ---

@@ -184,7 +184,7 @@ def test_the_mode_beacon_says_whether_attack_mode_is_on_and_nothing_out_of_a_gam
     beacon.poll(11.0)  # out of the game: taken off
 
     texts = [[line['text'] for line in widgets[0].payload['lines']] if widgets else None for widgets in published]
-    assert texts == [['auto-attack off'], ['AUTO-ATTACK ON'], ['AUTO-ATTACK ON'], None]
+    assert texts == [['attack off'], ['ATTACK ON'], ['ATTACK ON'], None]
     assert published[1][0].slot == 'mode'
 
 
@@ -211,11 +211,34 @@ def test_the_mode_beacon_adds_the_input_mode_and_in_controller_mode_the_pad_lege
 
     texts = [[line['text'] for line in widgets[0].payload['lines']] for widgets in published]
     assert texts == [
-        ['auto-attack off'],
-        ['auto-attack off · keyboard'],
-        ['auto-attack off · switching to controller'],
-        ['auto-attack off · controller', 'A Attack, Y Echoing Strike', 'LT+X Town Portal'],
+        ['attack off'],
+        ['attack off · kbd'],
+        ['attack off · →pad'],
+        ['attack off · pad', 'A Attack, Y Echoing Strike', 'LT+X Town Portal'],
     ]
+
+
+def test_the_mode_beacon_shows_the_run_mode_only_for_a_full_clear_in_a_word():
+    """The pickup key's run mode (macros/runmode.py, 2026-10-14): nothing for the goal, a word for a full clear;
+    the line stays terse, no sentence in it."""
+    from inventory_tracking.hud.process import ModeBeacon
+    from inventory_tracking.macros.runmode import TERROR, Mode, badge
+    from inventory_tracking.models import InputMode
+
+    run = [badge(Mode(False))]
+    published = []
+    beacon = ModeBeacon(
+        lambda: (True, True), published.append, input_mode=lambda: InputMode(False), run_mode=lambda: run[0]
+    )
+    beacon.poll(10.0)
+    run[0] = badge(Mode(True, TERROR))
+    beacon.poll(10.1)
+    run[0] = badge(Mode(True))
+    beacon.poll(10.2)
+
+    texts = [[line['text'] for line in widgets[0].payload['lines']] for widgets in published]
+    assert texts == [['ATTACK ON · kbd'], ['ATTACK ON · CLEAR TZ · kbd'], ['ATTACK ON · CLEAR · kbd']]
+    assert all(len(text) <= 26 and ':' not in text for (text,) in texts)
 
 
 def test_controller_slots_keep_the_guide_left_of_the_life_globe_and_the_mode_line_above_the_bar():

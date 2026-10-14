@@ -372,7 +372,8 @@ def consume_again(cast: Casting) -> Tried:
     assert cast.key_names is not None
     started = run.clock()
     cast.buffs.remember(cast.row, started)
-    run.say('Consume ran out: casting it again')
+    on = cast.world.player is not None and cast.world.player.consume is True
+    run.say('Consume renewed before the boss' if on else 'Consume ran out: casting it again')
     try:
         run.keys.update(cast.key_names(cast.world, keys_of(cast.row)))
         renew_consume(run)

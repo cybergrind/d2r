@@ -80,36 +80,46 @@ class PanelBeacon:
         self.publish([Widget('panels', 'panels', 'panels', payload)])
 
 
+def terse_input(mode) -> str | None:
+    """The game's input mode in a word for the mode line: 'kbd', 'pad', or the flip under way ('→pad')."""
+    if mode is None:
+        return None
+    if mode.pending and mode.wanted is not None and mode.wanted != mode.controller:
+        return '→pad' if mode.wanted else '→kbd'
+    return 'pad' if mode.controller else 'kbd'
+
+
 class ModeBeacon:
     """Says on the HUD whether the macro's attack mode is on (user, 2026-10-13: "we need to see some
     indicator when auto-attack is enabled or not on overlay"; the pickup key turns the mode on, and the
-    attack key then turned it off unseen), and the game's input mode beside it: keyboard, controller, or
-    a flip under way (rca/2026-10-13/controller-mode.md); in controller mode, which pad button casts what.
-    Republished well inside the lease, and at once when anything shown changes; nothing is shown out of a
-    game. `state()` gives (in a game, attack mode on); `input_mode()` a tracking/input_mode.py InputMode or
-    None (unread); `legend()` the bindings the game loaded, as lines ('Y Echoing Strike, ...'), or ()."""
+    attack key then turned it off unseen), the pickup key's run mode when it is a full clear (macros/runmode.py
+    `badge`: 'CLEAR', 'CLEAR TZ'), and the game's input mode beside it: keyboard, controller, or a flip under
+    way (rca/2026-10-13/controller-mode.md); in controller mode, which pad button casts what. Terse words, no
+    sentences (the player, 2026-10-14). Republished well inside the lease, and at once when anything shown
+    changes; nothing is shown out of a game. `state()` gives (in a game, attack mode on); `run_mode()` the run
+    mode's word or None; `input_mode()` a tracking/input_mode.py InputMode or None (unread); `legend()` the
+    bindings the game loaded, as lines ('Y Echoing Strike, ...'), or ()."""
 
     INTERVAL = LEASE_SECONDS / 3
 
-    def __init__(self, state, publish, input_mode=lambda: None, legend=lambda: ()):
+    def __init__(self, state, publish, input_mode=lambda: None, legend=lambda: (), run_mode=lambda: None):
         self.state, self.publish, self.input_mode, self.legend = state, publish, input_mode, legend
+        self.run_mode = run_mode
         self.last: float | None = None
         self.shown: tuple | None = None
 
     def poll(self, now: float) -> None:
         mode = self.input_mode()
         legend = tuple(self.legend()) if mode is not None and mode.controller else ()
-        found = (*self.state(), mode.label if mode is not None else None, legend)
+        found = (*self.state(), self.run_mode(), terse_input(mode), legend)
         if found == self.shown and self.last is not None and now - self.last < self.INTERVAL:
             return
         self.last, self.shown = now, found
-        in_game, on, label, legend = found
+        in_game, on, run, label, legend = found
         if not in_game:
             self.publish([])
             return
-        text = 'AUTO-ATTACK ON' if on else 'auto-attack off'
-        if label is not None:
-            text += f' · {label}'
+        text = ' · '.join(part for part in ('ATTACK ON' if on else 'attack off', run, label) if part)
         lines = [StyledLine(text, Tone.SET if on else Tone.METADATA)]
         lines += [StyledLine(line, Tone.METADATA) for line in legend]
         self.publish([Widget('mode', 'text', 'mode', card_payload(lines))])

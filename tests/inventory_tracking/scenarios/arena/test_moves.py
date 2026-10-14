@@ -5,7 +5,9 @@ The first part plays no macro (the inputs are made as in test_game.py); the seco
 macro (driver.py), with `instant_moves=True` beside it for what the same play was before.
 """
 
+import logging
 import math
+import re
 from dataclasses import replace
 from itertools import pairwise
 
@@ -423,6 +425,27 @@ def test_the_step_toward_a_monster_out_of_reach_is_made_and_the_monster_killed(s
     assert struck - stepped > 0.3
     assert struck > struck_before + 0.2
     assert result.cleared_at > before.cleared_at
+
+
+# The live walk legs (`Macro: leg time: walk of`, the five games of 2026-10-13 and 14 with the line): from a free stand,
+# the decision to the character seen going 0.246-0.289 s (p10-p90, 60 walks), from the click's aim, hover and press on.
+LIVE_FREE_LEG = (0.246, 0.289)
+LEG = re.compile(r'leg time: walk of \d+, ([\d.]+)s to the character seen going \(settle ([\d.]+)\)')
+
+
+def test_a_walk_starts_no_sooner_in_the_arena_than_in_the_game(caplog):
+    """rca/2026-10-14/diablo-handling.md fix 4 ("Done"): the arena gives the walk no start of its own (the walk is run
+    from the tick after the click), and needs none: the production click (its aim, hover and press, on the arena's
+    clock) already has the character seen going no sooner after the decision than the game does, so a walk's price
+    is judged on a walk no faster than the game's (0.06 s slower at the median)."""
+    scene, _ = step_scenes()[0]
+    with caplog.at_level(logging.INFO, logger='inventory_tracking'):
+        for seed in (1, 2, 3):
+            play(scene, [Press(0, ATTACK), Press(0.5, PICKUP)], 6.0, seed=seed)
+    legs = [(float(m[1]), float(m[2])) for record in caplog.records if (m := LEG.search(record.getMessage()))]
+    free = [leg for leg, settle in legs if settle == 0.0]
+    assert free
+    assert all(LIVE_FREE_LEG[0] <= leg <= LIVE_FREE_LEG[1] + 0.15 for leg in free), free
 
 
 def test_the_step_round_a_wall_is_walked_and_the_monster_killed(monkeypatch):

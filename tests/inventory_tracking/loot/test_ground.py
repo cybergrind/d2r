@@ -262,3 +262,5 @@ def test_drops_a_rule_of_the_loot_filter_shows_are_named():
         GroundMaterial('Unique Cryptic Axe', units[0][1], 25500, 5400),
         GroundMaterial('Rare Circlet', units[2][1], 25502, 5400),
     ]
+    # the quality read with it: a unique or set one is stood by with no room for it (macros/world.py `shown_source`)
+    assert [item.quality for item in ground_shown(memory.read, TABLE, rules)] == [7, 6]

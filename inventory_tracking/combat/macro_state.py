@@ -70,6 +70,8 @@ def pursuit(hunter: Any) -> dict[str, Any]:
         },
         'key': None if posted is None else posted.key,
         'pressed_at': None if posted is None else round(posted.pressed_at, 3),
+        # the pickup key's run mode at the last look (macros/runmode.py): full clear or not, and why
+        'run_mode': None if getattr(hunter, 'mode', None) is None else [hunter.mode.clear, hunter.mode.why],
     }
 
 

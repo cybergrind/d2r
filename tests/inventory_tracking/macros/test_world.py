@@ -375,7 +375,18 @@ def test_what_the_marks_point_at_is_prized_and_the_rest_of_the_pickup_is_not():
     assert prized('unique', marked=True)
     assert prized('material', marked=True)  # a material the marks point at
     assert not prized('material', marked=False)  # every ring and jewel, the gems the filter shows
-    assert not prized('shown', marked=False)  # equipment the loot filter shows
+    assert not prized('shown', marked=False)  # magic, rare and white equipment the loot filter shows
+
+
+def test_a_unique_or_set_item_the_filter_shows_is_prized_and_magic_rare_or_white_gear_is_not():
+    """The player, 2026-10-14 (rca/2026-10-14/run-1214-findings.md §3.1): the run walked past a Unique Plate Mail
+    with the inventory full and the player fetched it by hand; the Magic Bone Knife stays as ruled on 2026-10-12."""
+    from inventory_tracking.macros.world import NAMED, prized, shown_source
+
+    unique, set_item, magic, rare, superior = 7, 5, 4, 6, 3  # ItemData quality (loot/shown.py RARITIES)
+    assert shown_source(unique) == shown_source(set_item) == NAMED
+    assert prized(NAMED, marked=False)
+    assert {shown_source(quality) for quality in (magic, rare, superior)} == {'shown'}
 
 
 def test_a_grid_reads_as_rows_and_the_cubes_three_by_four_has_no_room_for_a_grand_charm_in_two_cells():
