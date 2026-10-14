@@ -5,6 +5,10 @@ What the player asked of the teleport key on 2026-10-13 (kp4-findings.md): repea
 goal, a press does not pause the attack, repeated presses do not kill. Each requirement is one test over
 both logics: `today` is `xfail(strict=True)` where today's keys do not meet it (the day they do, the mark
 comes off), `new` passes. With the switch off nothing here changes a play: test_situations.py pins those.
+
+Cost: about 150 plays. Each cached family of plays is an `xdist_group` of its own (`-n auto --dist loadgroup`,
+tests/inventory_tracking/conftest.py), so the families run on several workers and a play is still made once;
+the rest of the file runs together, as a file does.
 """
 
 import functools
@@ -138,6 +142,23 @@ def in_pocket(logic: str, key: bool, seed: int) -> Watch:
     return watched(base.logic(logic), [held('teleport', every=0.3)] if key else None, seed, pocket.seal_place(base))
 
 
+@functools.cache
+def sealed(logic: str, seed: int) -> Outcome:
+    """The seal moment as recorded, played once for the tests that read it: 'today' is the stored situation as
+    it is (the switch off), 'new' its copy with the pursuit loop on."""
+    base = vizier.stored(SEAL)
+    return (base.logic('new') if logic == 'new' else base).play(seed=seed)
+
+
+# The families of plays, one `xdist_group` each (`--dist loadgroup`; a test not marked runs with its file).
+SEAL_PLAYS = pytest.mark.xdist_group('pursuit: the seal')
+STALL_RECORDED = pytest.mark.xdist_group('pursuit: the stall as recorded')
+STALL_ATTACK_HELD = pytest.mark.xdist_group('pursuit: the stall, attack on and the key held')
+STALL_HELD = pytest.mark.xdist_group('pursuit: the stall, the key held')
+NEAR_BOSS = pytest.mark.xdist_group('pursuit: near the boss')
+IN_POCKET = pytest.mark.xdist_group('pursuit: the pocket watched')
+
+
 # -- the fixtures ---------------------------------------------------------------------------------------
 
 
@@ -177,6 +198,7 @@ def test_the_logic_is_one_switch_and_off_unless_asked() -> None:
 # -- repeated presses advance to the goal ---------------------------------------------------------------
 
 
+@STALL_RECORDED
 @pytest.mark.parametrize('logic', LOGICS)
 def test_repeated_presses_bring_the_character_to_the_boss_and_he_dies(logic) -> None:
     """The stall as recorded: 48 presses with the route at a fight whose boss stands 57 units off."""
@@ -187,6 +209,7 @@ def test_repeated_presses_bring_the_character_to_the_boss_and_he_dies(logic) -> 
     assert stall('as recorded (48 presses)', logic, 1).stage != FIGHT_STAGE
 
 
+@NEAR_BOSS
 @pytest.mark.parametrize('logic', LOGICS)
 @pytest.mark.parametrize('distance', [25, 40, 57.4])
 def test_attack_mode_alone_goes_to_a_boss_out_of_its_reach(logic, distance) -> None:
@@ -198,6 +221,7 @@ def test_attack_mode_alone_goes_to_a_boss_out_of_its_reach(logic, distance) -> N
     assert watch.outcome.moved > 0.0
 
 
+@IN_POCKET
 @pytest.mark.parametrize('logic', LOGICS)
 @pytest.mark.parametrize('key', [False, True], ids=['recorded presses', 'the key held'])
 def test_the_character_leaves_the_pocket_and_reaches_the_seal(logic, key) -> None:
@@ -209,6 +233,7 @@ def test_the_character_leaves_the_pocket_and_reaches_the_seal(logic, key) -> Non
         assert watch.outcome.stage != f'use {pocket.SEAL}'  # the seal is opened: the route goes on
 
 
+@IN_POCKET
 @pytest.mark.parametrize('key', [False, True], ids=['recorded presses', 'the key held'])
 def test_in_the_pocket_the_way_left_never_grows_between_two_presses(key) -> None:
     """Progress by the navigator's own measure (`MovementSet.eta`, here the walked way at the pace of the
@@ -225,6 +250,7 @@ def test_in_the_pocket_the_way_left_never_grows_between_two_presses(key) -> None
         assert etas[-1] < 1.5  # the last press before the seal opens finds it a move away
 
 
+@IN_POCKET
 def test_today_the_way_left_in_the_pocket_goes_up_and_down() -> None:
     """The recording's defect, by the same measure (pinned as it is, not asked for)."""
     watch = in_pocket('today', False, 1)
@@ -236,6 +262,7 @@ def test_today_the_way_left_in_the_pocket_goes_up_and_down() -> None:
 # -- a press does not pause the attack ------------------------------------------------------------------
 
 
+@NEAR_BOSS
 @pytest.mark.parametrize('logic', LOGICS)
 def test_a_held_key_does_not_keep_attack_mode_from_killing_a_boss_in_reach(logic) -> None:
     """The Vizier 12 units off, attack mode on, the key held at 0.3 s: he dies as with the mode alone, and
@@ -245,6 +272,7 @@ def test_a_held_key_does_not_keep_attack_mode_from_killing_a_boss_in_reach(logic
     assert watch.quiet(FIGHT_STAGE) <= QUIET_MOST
 
 
+@NEAR_BOSS
 def test_a_held_key_costs_the_fight_at_the_boss_nothing() -> None:
     """The same fight with the key held and without it: the boss dies no later than a strike's worth after."""
     for seed in SEEDS:
@@ -255,6 +283,7 @@ def test_a_held_key_costs_the_fight_at_the_boss_nothing() -> None:
         assert key <= alone + QUIET_MOST
 
 
+@STALL_ATTACK_HELD
 def test_a_posted_press_cancels_nothing() -> None:
     """With attack mode working the press is posted: the mode is not paused for it, however often."""
     outcome = stall('(a) attack mode on + KP_4 held, every 0.3 s', 'new', 1)
@@ -269,9 +298,9 @@ def test_a_posted_press_cancels_nothing() -> None:
 @pytest.mark.parametrize(
     'name',
     [
-        'as recorded (48 presses)',
-        '(a) KP_4 held, every 0.3 s',
-        '(a) attack mode on + KP_4 held, every 0.3 s',
+        pytest.param('as recorded (48 presses)', marks=STALL_RECORDED),
+        pytest.param('(a) KP_4 held, every 0.3 s', marks=STALL_HELD),
+        pytest.param('(a) attack mode on + KP_4 held, every 0.3 s', marks=STALL_ATTACK_HELD),
         '(c) attack mode alone',
     ],
 )
@@ -285,26 +314,42 @@ def test_the_character_lives_through_the_stall_by_the_new_logic(name) -> None:
     assert killed >= 8  # with today's keys: none of ten
 
 
-def test_the_character_lives_through_the_seal_the_pocket_and_the_pack_by_the_new_logic() -> None:
-    plays = {
-        SEAL: (vizier.stored(SEAL).logic('new'), None),
-        f'{POCKET}, recorded': (pocket.stored(POCKET).logic('new'), None),
-        f'{POCKET}, held': (pocket.stored(POCKET).logic('new'), [held('teleport', every=0.3)]),
-        PACK: (pocket.pack_variants()[2][1], None),
-    }
-    for name, (situation, presses) in plays.items():
-        for seed in TEN:
-            assert not situation.play(presses, seed=seed).dead, (name, seed)
+def through(name: str) -> tuple[Situation, list | None]:
+    """The other three situations the character lives through: the situation by the new logic, its presses."""
+    if name == PACK:
+        return pocket.pack_variants()[2][1], None
+    presses = [held('teleport', every=0.3)] if name == f'{POCKET}, held' else None
+    return pocket.stored(POCKET).logic('new'), presses
 
 
+# One part a situation: each is ten plays (the seal's are the same ten as the test below plays, read from `sealed`).
+@pytest.mark.parametrize(
+    'name',
+    [
+        pytest.param(SEAL, marks=SEAL_PLAYS),
+        pytest.param(f'{POCKET}, recorded', marks=pytest.mark.xdist_group('pursuit: the pocket, recorded')),
+        pytest.param(f'{POCKET}, held', marks=pytest.mark.xdist_group('pursuit: the pocket, the key held')),
+        pytest.param(PACK, marks=pytest.mark.xdist_group('pursuit: the pack')),
+    ],
+)
+def test_the_character_lives_through_the_seal_the_pocket_and_the_pack_by_the_new_logic(name) -> None:
+    if name == SEAL:
+        outcomes = (sealed('new', seed) for seed in TEN)
+    else:
+        situation, presses = through(name)
+        outcomes = (situation.play(presses, seed=seed) for seed in TEN)
+    for seed, outcome in zip(TEN, outcomes, strict=True):
+        assert not outcome.dead, (name, seed)
+
+
+@SEAL_PLAYS
 def test_the_seal_is_opened_and_the_vizier_killed_by_the_new_logic() -> None:
     """The seal moment as recorded, 16 s: the seal is opened in every seed, and the Vizier dies within the
     window in more of them than with today's keys (5 of 10: the arena's fight takes the character elsewhere
     before the pack appears, rca/2026-10-13/situations.md §3). Since the casters think by the client's code
     (sim/casters.py, 2026-10-13) the new logic kills him in 6 of 10 (7 before)."""
-    base = vizier.stored(SEAL)
-    new = [base.logic('new').play(seed=seed) for seed in TEN]
-    today = [base.play(seed=seed) for seed in TEN]
+    new = [sealed('new', seed) for seed in TEN]
+    today = [sealed('today', seed) for seed in TEN]
     assert all(outcome.opened for outcome in new)
     killed = sum(1 for outcome in new if outcome.boss_dead[BOSS] is not None)
     assert killed >= 6
@@ -325,6 +370,7 @@ def test_the_toggle_off_stays_off_under_presses() -> None:
         assert outcome.said_count('attack mode is off')
 
 
+@STALL_RECORDED
 def test_a_press_with_the_mode_never_touched_turns_it_on_for_a_fight() -> None:
     """The stall began with the mode off and never toggled: the route's fight stage wants it, as before."""
     outcome = stall('as recorded (48 presses)', 'new', 1)

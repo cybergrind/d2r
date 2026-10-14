@@ -25,9 +25,16 @@ Applies to repository code changes. Linked from [AGENTS.md](AGENTS.md).
   their absolute package name. Run `uv run pytest tests -v`.
 - A whole tree or a large directory runs in parallel with pytest-xdist (a dev
   dependency): `uv run --offline pytest tests/inventory_tracking -q -p no:cacheprovider
-  -n auto --dist loadfile` (about 3x faster on the 16-core host; `loadfile` keeps each
-  module's cached arena plays on one worker). It is not in the pytest config: a
-  single file or test runs faster serially, so pass `-n` only for big runs.
+  -n auto --dist loadgroup` (about a minute on the 16-core host, against 10 serially).
+  `tests/inventory_tracking/conftest.py` makes `loadgroup` keep each file on one worker,
+  as `loadfile` does, except tests marked `@pytest.mark.xdist_group(name)`, which run
+  with their group; the groups start first. A test whose plays are cached
+  (`functools.cache`) shares a group, or its file, with the other tests that read
+  them, or the plays are made again on another worker. Mark a new family of
+  expensive plays as a group of its own when one file would hold a worker for more
+  than half a minute. A failing test's id under `loadgroup` ends in `@<group>`: drop
+  that to run it alone. It is not in the pytest config: a single file or test runs
+  faster serially, so pass `-n` only for big runs.
 
 - External implementation references are checked out under `third-parties/`. Read
   `third-parties/README.md` and use local sources before fetching GitHub pages.

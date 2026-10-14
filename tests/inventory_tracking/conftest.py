@@ -6,6 +6,43 @@ from inventory_tracking.models import BeltCell, BeltSnapshot, PlayerHealth, Sess
 from inventory_tracking.native.mercenary import Mercenary
 
 
+def pytest_configure(config: pytest.Config) -> None:
+    # pytest-xdist registers it too; a run without the plugin (`-p no:xdist`) still knows the mark
+    config.addinivalue_line('markers', 'xdist_group(name): run the tests of one group on one xdist worker')
+
+
+@pytest.hookimpl(optionalhook=True)
+def pytest_xdist_make_scheduler(config: pytest.Config, log):
+    """`--dist loadgroup` here is `loadfile` with groups: a test marked `xdist_group` runs with its group, any
+    other test with its file (xdist's own `loadgroup` sends those one by one, so a module's cached plays and
+    fixtures would be made again on every worker). The heavy arena files mark one group per cached family of
+    plays, and those groups go out first, so the longest work starts at once (xdist orders the work by its
+    number of tests, which puts a group of two 20-second tests last)."""
+    if config.getoption('dist') != 'loadgroup':
+        return None
+    from xdist.scheduler import LoadGroupScheduling
+
+    class FilesAndGroups(LoadGroupScheduling):
+        groups: set[str]
+        ordered = False
+
+        def _split_scope(self, nodeid: str) -> str:
+            if nodeid.rfind('@') > nodeid.rfind(']'):  # xdist appends `@group` to a marked test's id
+                group = nodeid.rsplit('@', 1)[-1]
+                self.groups = getattr(self, 'groups', set()) | {group}
+                return group
+            return nodeid.split('::', 1)[0]
+
+        def _assign_work_unit(self, node) -> None:
+            if not self.ordered:  # the first unit handed out: the work queue is complete
+                self.ordered = True
+                for scope in reversed([scope for scope in self.workqueue if scope in getattr(self, 'groups', ())]):
+                    self.workqueue.move_to_end(scope, last=False)
+            super()._assign_work_unit(node)
+
+    return FilesAndGroups(config, log)
+
+
 SESSION = SessionIdentity(1, '2', 7)
 HEALING_CELLS = (BeltCell(3, 101), BeltCell(4, 102))
 REJUVENATION_CELLS = (BeltCell(1, 103),)

@@ -11,7 +11,8 @@ Three kinds of test:
 
 Cost: a play that stalls is over in about 3 s of wall time, the two that die in 5 and 10; the one long play
 kept here (the recording's own presses by today's keys, to the play's end) takes about 30 s. The package has no
-mark for slow tests, so all of them run: about 55 s for the file.
+mark for slow tests, so all of them run: about 55 s for the file. The three longest plays are an `xdist_group`
+each (`-n auto --dist loadgroup`, tests/inventory_tracking/conftest.py): they run on workers of their own.
 """
 
 import functools
@@ -65,6 +66,12 @@ def watched(way: str, staff: str, logic: int, seed: int = SEED) -> tuple[Score, 
 
 def play_of(way: str, staff: str, logic: int, seed: int = SEED) -> Score:
     return watched(way, staff, logic, seed)[0]
+
+
+# The longest plays, one `xdist_group` each with the tests that read them (`--dist loadgroup`).
+PURSUIT_LOOP = pytest.mark.xdist_group('cs-run: the pursuit loop')
+HELD_EMPTY = pytest.mark.xdist_group('cs-run: the key held, the staff empty')
+RECORDED_EMPTY = pytest.mark.xdist_group("cs-run: the recording's presses")
 
 
 def hostiles(run: Run) -> list:
@@ -324,6 +331,7 @@ def test_today_the_pickup_key_and_a_held_teleport_key_open_the_viziers_seals_and
     assert found.charges > 5
 
 
+@HELD_EMPTY
 def test_today_with_the_staff_empty_the_held_teleport_key_stalls_by_the_star_short_of_the_first_seal() -> None:
     """Pins today's state: no strike and no seal. Since the Blade Warp's delay is read from the game
     (macros/travel.py `delay_over`, 2026-10-14) the step finds its warps: 13 of them take the character about
@@ -346,6 +354,7 @@ def test_today_with_the_staff_empty_the_held_teleport_key_stalls_by_the_star_sho
     assert math.dist(found.end, (seal.spot[0] * TILE_UNITS, seal.spot[1] * TILE_UNITS)) > 100.0
 
 
+@RECORDED_EMPTY
 def test_today_the_recordings_own_presses_with_the_staff_empty_take_the_route_part_of_the_way() -> None:
     """The one long play (about 30 s of wall time). Pins today's state: the 251 presses of the real game (187
     of the teleport key, 64 of the pickup key) played by today's keys open seals and kill a seal boss, do not
@@ -365,6 +374,7 @@ def test_one_press_of_the_pickup_key_clears_the_level_and_kills_diablo() -> None
     assert found.dead_at is None
 
 
+@PURSUIT_LOOP
 def test_one_press_of_the_pickup_key_clears_the_level_by_the_pursuit_loop() -> None:
     """The requirement, by the pursuit loop (rca/2026-10-13/kp1-level-run.md): the pickup key's press is a level run
     (macros/pursuit.py, the leash), which works every stage of the route in order with no other press: the five
@@ -377,6 +387,7 @@ def test_one_press_of_the_pickup_key_clears_the_level_by_the_pursuit_loop() -> N
     assert found.picked > 0
 
 
+@PURSUIT_LOOP
 def test_the_level_run_waits_out_what_a_seal_brings_and_fights_it_before_the_next_seal() -> None:
     """The stop of rca/2026-10-13/cs-run.md §5 item 6 under the level run: the run does not hop into the pack a
     seal brings (the Infector's twelve stand on the next seal): the seal's dwell is waited out and what stands by

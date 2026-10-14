@@ -4,7 +4,11 @@ near the arena comes to the recording (rca/2026-10-13/replay-readiness.md has th
 What holds today is asserted. What does not is `xfail(strict=True)` with its cause: each turns into a
 failure the day the arena holds the mechanism, and the mark is then taken off. The moments are staged from
 the fixtures (`python -m tests.inventory_tracking.scenarios.arena.replay --cut` stages them again from the
-takes under inventory_tracking/runs/combat, which are not checked in)."""
+takes under inventory_tracking/runs/combat, which are not checked in).
+
+A moment's eight plays are made once (`play`, `rows`); the stall's, the fight's and the seal's tests are an
+`xdist_group` each (`-n auto --dist loadgroup`, tests/inventory_tracking/conftest.py), so the three moments
+run on three workers."""
 
 import functools
 import json
@@ -30,6 +34,11 @@ SAMPLE = replay.FIXTURES / 'records-sample.json'
 def misses(reason: str):
     """A comparison the arena fails today, with its cause: strict, so the day it holds the mark comes off."""
     return pytest.mark.xfail(strict=True, reason=reason)
+
+
+STALL_PLAYS = pytest.mark.xdist_group('replay: the stall')
+FIGHT_PLAYS = pytest.mark.xdist_group('replay: the fight')
+SEAL_PLAYS = pytest.mark.xdist_group('replay: the seal')
 
 
 @functools.cache
@@ -175,6 +184,7 @@ def test_the_seals_and_the_bosses_are_the_takes() -> None:
 # -- the stall (a): the macro's decisions replay --------------------------------------------------------------
 
 
+@STALL_PLAYS
 def test_the_stall_replays_press_for_press() -> None:
     truth = staging(STALL).truth
     assert truth.said[STOP] == 8
@@ -189,6 +199,7 @@ def test_the_stall_replays_press_for_press() -> None:
         assert on[0] == pytest.approx(3.3, abs=0.1), seed  # the pickup key's sweep; the take has it at 3.29
 
 
+@STALL_PLAYS
 def test_a_run_made_as_the_fakes_make_it_swaps_where_the_game_did_not() -> None:
     """The take has no swap in the stall: the staff stayed in hand, empty, until attack mode's "Main weapons
     for the fight" 4.4 s in. A run with `battle_hands` given (macros/fakes.py `Game.run`, kp4.py) swaps at the
@@ -197,6 +208,7 @@ def test_a_run_made_as_the_fakes_make_it_swaps_where_the_game_did_not() -> None:
     assert any('Swap Weapons' in text for at, text in play(STALL, 1, True)[1] if at < 3.0)
 
 
+@STALL_PLAYS
 @misses(
     "SIM-CASTERS (rca/2026-10-13/sim-casters.md): the casters' blows from the tables with no Psychic Ward"
     ' or Health Link share: least life 794 at the median, 1242 recorded'
@@ -206,6 +218,7 @@ def test_the_stall_costs_what_it_cost() -> None:
     assert rows(STALL)['life lost by 5 s'].inside
 
 
+@STALL_PLAYS
 @misses(
     'MODEL: a monster beyond 20 units goes for nobody (sim/monsters.py AWARE); in the take 8 of the '
     '38 beyond 20 units were walking at the character already (path target), 11 stood within 25 units'
@@ -215,6 +228,7 @@ def test_the_pack_closes_in_on_the_stalled_character() -> None:
     assert rows(STALL)['hostiles within 25 at 3 s'].inside
 
 
+@STALL_PLAYS
 @misses(
     'MODEL: the companions deal no damage (game.py); the mercenary and the Defiler killed two Doom '
     'Knights before the first strike'
@@ -223,6 +237,7 @@ def test_the_companions_kill_while_nothing_is_struck() -> None:
     assert rows(STALL)['kills by 4 s'].median >= 1
 
 
+@STALL_PLAYS
 @misses(
     "MODEL: with fewer monsters about it the arena's hunt first walks to a better place; the recorded"
     ' one struck where it stood (moved 11 units in 9 s, the arena 34)'
@@ -234,11 +249,13 @@ def test_attack_mode_strikes_from_where_the_stall_left_it() -> None:
 # -- the fight (b) ---------------------------------------------------------------------------------------------
 
 
+@FIGHT_PLAYS
 def test_the_fight_begins_with_the_recorded_step() -> None:
     """With the sweep's steps of `state` the hunt's first move is the recording's: 16 units toward the pack."""
     assert rows(FIGHT)['from the start at 2 s'].median == pytest.approx(15.6, abs=1.5)
 
 
+@FIGHT_PLAYS
 def test_the_fight_kills_at_the_recorded_rate_once_it_stands() -> None:
     for mark, recorded in ((6, 17), (8, 20), (10, 23)):
         row = rows(FIGHT)[f'kills by {mark} s']
@@ -246,6 +263,7 @@ def test_the_fight_kills_at_the_recorded_rate_once_it_stands() -> None:
         assert abs(row.median - recorded) <= 0.25 * recorded, mark
 
 
+@FIGHT_PLAYS
 @misses(
     "MODEL: the arena's hunt strikes 6 times in the first 4 s where the recorded one struck twice: it"
     ' jumped by Blade Warp where the game walked (1.2 s), stayed where the game stepped on after one '
@@ -255,6 +273,7 @@ def test_the_fight_strikes_as_often_as_recorded() -> None:
     assert rows(FIGHT)['strikes by 4 s'].inside
 
 
+@FIGHT_PLAYS
 @misses(
     'WARD (rca/2026-10-13/sim-casters.md section 9): with Psychic Ward played (sim/guard.py) the arena loses 39 by '
     '12 s against 159: 113 without the ward, 77 with its pool and no stun, 39 also when the cut opens with it down '
@@ -265,6 +284,7 @@ def test_the_fight_costs_the_life_it_cost() -> None:
     assert rows(FIGHT)['life lost by 12 s'].median >= 0.5 * 159
 
 
+@FIGHT_PLAYS
 @misses(
     "MODEL and DECODE: nothing drops from a kill in the arena and the take's `g` is not played back: "
     'the two pickups of the stretch (an Amulet, a Flawless Amethyst) have nothing to go for'
@@ -279,6 +299,7 @@ def test_the_pickup_key_picks_up_what_dropped() -> None:
 # Unmarked 2026-10-13 (rca/2026-10-13/latency-findings.md, fix 2): with Blade Warp keyed when its delay ends
 # instead of 1.05 s from the key's release and a look later, 3 of the 8 plays open the seal within 1.5 s of the
 # recording (0 before: 15.1 to 19.4 s).
+@SEAL_PLAYS
 def test_the_seal_is_opened_and_its_pack_appears_a_second_later() -> None:
     opened = [told.ends['Vizier seal 1 opened'] for told in plays(SEAL)]
     assert sum(1 for at in opened if at is not None) >= len(SEEDS) - 1
@@ -292,6 +313,7 @@ def test_the_seal_is_opened_and_its_pack_appears_a_second_later() -> None:
             assert dead > at + 0.99
 
 
+@SEAL_PLAYS
 @misses(
     'OPEN LOOP: the presses are replayed at their recorded times; a play half a second behind the game '
     '(the hunt\'s own jump in its first instant; the seal not under the pointer from 24 units, "not '
@@ -304,6 +326,7 @@ def test_the_seal_is_opened_when_it_was_in_nearly_every_play() -> None:
 
 
 # Unmarked 2026-10-13 (fix 2, as above): 2.8 units from the recorded place at 3 s at the median (23.6 before).
+@SEAL_PLAYS
 def test_the_way_to_the_seal_is_the_recorded_one() -> None:
     """Three Blade Warps of 26 units: the arena is 5 units behind after 3 s (a jump of the hunt's own in its
     first instant, which the recorded hunt, under way, did not make)."""
@@ -312,14 +335,17 @@ def test_the_way_to_the_seal_is_the_recorded_one() -> None:
 
 
 # Unmarked 2026-10-13 (fix 2, as above): 17.4 s at the median (21.9 before), 16.8 recorded.
+@SEAL_PLAYS
 def test_the_vizier_dies_about_when_he_died() -> None:
     assert median_end(SEAL, 'Grand Vizier of Chaos dead') == pytest.approx(16.8, abs=3.0)
 
 
+@SEAL_PLAYS
 def test_the_way_through_the_pack_costs_life() -> None:
     assert rows(SEAL)['life lost by 6 s'].median > 0
 
 
+@SEAL_PLAYS
 @misses(
     'MODEL: the fight after the seal is slower in the arena (23 kills by 12 s, 16 in the arena: the '
     'companions deal nothing, the hunt walks more), so the second seal is not reached within the '

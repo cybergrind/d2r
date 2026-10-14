@@ -95,11 +95,13 @@ uv run --offline pytest tests/inventory_tracking/macros tests/inventory_tracking
 ```
 
 The whole tree (about 10 minutes serially, mostly the arena plays) runs on all
-cores with pytest-xdist; keep `--dist loadfile` so a module's cached plays stay on
-one worker. Single files and tests run faster without `-n`.
+cores with pytest-xdist in about a minute. Use `--dist loadgroup`: the tree's conftest
+keeps each file's cached plays on one worker and spreads the heavy arena files'
+`xdist_group` families over the others (development.md). Single files and tests run
+faster without `-n`.
 
 ```sh
-uv run --offline pytest tests/inventory_tracking -q -p no:cacheprovider -n auto --dist loadfile
+uv run --offline pytest tests/inventory_tracking -q -p no:cacheprovider -n auto --dist loadgroup
 ```
 
 [Scenario tests](../../tests/inventory_tracking/scenarios/) add recorded battle

@@ -2,7 +2,10 @@
 the player's constructed example (example.py).
 
 The requirements today's keys do not meet are in test_pursuit_situations.py, each a test over both logics:
-`today` an `xfail(strict=True)` as in test_incident_kp4.py, `new` (the pursuit loop on) passing."""
+`today` an `xfail(strict=True)` as in test_incident_kp4.py, `new` (the pursuit loop on) passing.
+
+The example's two long tests share no play with the rest: each is an `xdist_group` of its own (`-n auto
+--dist loadgroup`, tests/inventory_tracking/conftest.py), so they run on workers of their own."""
 
 import functools
 import math
@@ -254,6 +257,7 @@ def test_the_example_reads_as_the_player_said_it() -> None:
     assert all(min(found) >= 13 and max(found) <= 23 for found in packs.values())
 
 
+@pytest.mark.xdist_group('situations: the example to a death')
 def test_the_character_can_die_in_the_example_and_the_story_says_how() -> None:
     situation, presses = variants()['attack on']
     trials = situation.trials(range(1, 9), presses)
@@ -268,6 +272,7 @@ def test_the_character_can_die_in_the_example_and_the_story_says_how() -> None:
     assert dead[0].life[-1][1] == 0.0
 
 
+@pytest.mark.xdist_group("situations: the example's variants twice")
 def test_the_example_plays_the_same_twice_and_every_variant_runs() -> None:
     for name, (situation, presses) in variants().items():
         first = situation.play(presses, seconds=3.0, seed=4)
