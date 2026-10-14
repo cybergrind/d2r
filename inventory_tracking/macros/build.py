@@ -609,6 +609,10 @@ class Build:
     settings: BuildSettings = field(default_factory=BuildSettings)
     shield: Shield | None = None  # the guard the build keeps on the character; None: none
     draw: Draw | None = None  # the cast that sends its companions onto a hostile, priced by safety; None: none
+    # skill -> where the game's right-skill selection shows its icon for the character this layer is (macros/
+    # skillpanel.py `Place`): the strike put back on the right button by the macro in keyboard mode. A character's
+    # own (the panel's rows are its skills); a skill with none is not selected by the macro.
+    skill_icons: Mapping[int, tuple[float, float]] = field(default_factory=dict)
 
 
 def choose(builds: Sequence[Build], world: World, fallback: Build) -> Build:

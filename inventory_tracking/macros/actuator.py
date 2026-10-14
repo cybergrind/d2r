@@ -39,6 +39,14 @@ class Cancelled(Abort):
         super().__init__(message)
 
 
+class Flipped(Abort):
+    """The game's input mode changed under the run (a pad touched in a run by the keys, the game back in keyboard
+    mode under a run by the pad): no input of the run's back end is right any more. Not a failure of the act: the
+    run ends wherever it is caught (no loop gives the act up and looks again, rca/2026-10-14/run-1904-findings.md
+    §3.2: 57 "no move" lines in 7 s), and the runner makes the same request again in the new mode (runner.py
+    `_guarded`)."""
+
+
 def eased_path(start, end, steps: int, rng) -> list[tuple[int, int]]:
     """Points from `start` to `end`: slow, fast, slow, with a little sideways wobble on the way."""
     points = []
@@ -105,7 +113,7 @@ class Actuator:
         if self.keyboard_run and self.mode is not None:
             mode = self.mode()
             if mode is not None and (mode.controller or mode.pending):
-                raise Abort('the game left keyboard mode (a pad was touched)')
+                raise Flipped('the game left keyboard mode (a pad was touched)')
         if self.left_at is not None:
             now = self.keys.pointer()
             if now is None or max(abs(now[0] - self.left_at[0]), abs(now[1] - self.left_at[1])) > self.drift:

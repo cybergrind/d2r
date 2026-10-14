@@ -16,6 +16,7 @@ import time
 
 from inventory_tracking.common import LOG
 from inventory_tracking.config import HUD, OSD
+from inventory_tracking.hud.dots import LiveDots
 from inventory_tracking.hud.layout import Slot, desktop_rect, game_rect, place, scale_for, slot_limit
 from inventory_tracking.hud.live import (
     Entrance,
@@ -24,6 +25,7 @@ from inventory_tracking.hud.live import (
     OpenPanels,
     follow,
     ground_payload_of,
+    map_card_of,
     mode_source,
     panel_source,
 )
@@ -31,6 +33,11 @@ from inventory_tracking.hud.scene import read_scene
 from inventory_tracking.hud.widgets import draw_scene, measure
 from inventory_tracking.osd.monitor import FocusedOutput, GameOutput, choose_monitor
 from inventory_tracking.osd.window import load_toolkit
+
+
+# Seconds between redraws for the monster dots alone (hud/dots.py): a map card redraw costs ~4.5 ms, and the dots
+# move every frame in a fight; the player's own move still redraws every frame.
+DOT_REDRAW = 0.05
 
 
 def run(scene_dir, config=HUD, *, monitor_index=OSD.monitor):
@@ -81,28 +88,39 @@ def run(scene_dir, config=HUD, *, monitor_index=OSD.monitor):
         monitors = Gdk.Display.get_default().get_monitors()
         game_output, desktop_output = GameOutput(), FocusedOutput()
         state = {'boxes': [], 'scale': 1.0, 'key': None, 'monitor': None, 'ground': None, 'panels': None, 'dim': False}
+        state.update(moved=None, drawn=0.0)
         live, entrance, panels = LiveUnits(), Entrance(), OpenPanels(config.dim_panels)
+        dots = LiveDots()
         input_mode = InputModeByte()
-        area.set_draw_func(
-            lambda _a, cr, _w, _h: draw_scene(
+
+        def draw(_a, cr, _w, _h):
+            started = time.perf_counter()
+            draw_scene(
                 cr,
-                follow(state['boxes'], state['ground']),
+                follow(state['boxes'], state['ground'], state['moved']),
                 scale=state['scale'],
                 dimmed=config.dim_slots if state['dim'] else (),
                 dim_alpha=config.dim_alpha,
             )
-        )
+            dots.stats.drew(time.monotonic(), 1000 * (time.perf_counter() - started))
+
+        area.set_draw_func(draw)
 
         def follow_units(*_):
-            """Every frame: the player and the marked monsters where they are now (hud/live.py)."""
+            """Every frame: the player and every monster dot where they are now (hud/live.py, hud/dots.py)."""
+            now = time.monotonic()
             payload = ground_payload_of(state['boxes'])
             ground = live.locate(payload) if payload else None
-            age = entrance.age(payload, time.monotonic())
+            age = entrance.age(payload, now)
             if age is not None and age < config.ground.arrow_seconds:  # the arrows are still moving out
                 ground = {**(ground or payload), 'age': age}
+            moved = dots.frame(map_card_of(state['boxes']), payload, now)
             dim = panels.reading(state['panels'])
             if ground != state['ground'] or dim != state['dim']:
-                state.update(ground=ground, dim=dim)
+                state.update(ground=ground, dim=dim, moved=moved, drawn=now)
+                area.queue_draw()
+            elif moved != state['moved'] and now - state['drawn'] >= DOT_REDRAW:
+                state.update(moved=moved, drawn=now)
                 area.queue_draw()
             return GLib.SOURCE_CONTINUE
 

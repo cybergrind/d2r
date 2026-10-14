@@ -11,7 +11,7 @@ from inventory_tracking.builds.warlock.movement import BLADE_WARP_PAD_REACH, MOV
 from inventory_tracking.builds.warlock.skills import BLADE_WARP, ECHOING_STRIKE, HEX_PURGE, SUMMON_DEFILER
 from inventory_tracking.input.gamepad import record_buttons
 from inventory_tracking.levels.model import Level, Room, Target
-from inventory_tracking.macros import pad as pad_module
+from inventory_tracking.macros import pad as pad_module, teleport
 from inventory_tracking.macros.actuator import Abort, Cancelled
 from inventory_tracking.macros.build import PAD_SLACK, Intent, Step
 from inventory_tracking.macros.drinking import EVERY, Drinker
@@ -34,7 +34,7 @@ from inventory_tracking.macros.routines import leave_game, press_skill
 from inventory_tracking.macros.runner import PICKUP, PREBUFF, MacroRunner
 from inventory_tracking.macros.skills import ATTACK, SWAP_WEAPONS, TELEPORT
 from inventory_tracking.macros.teleport import landing, scaled, way_for
-from inventory_tracking.macros.travel import JUMP_LEAST, JUMP_REACH, Travel, step_walk, stride_of
+from inventory_tracking.macros.travel import JUMP_LEAST, JUMP_REACH, OWN_MOVE, Travel, step_walk, stride_of
 from inventory_tracking.macros.view import Viewport
 from inventory_tracking.macros.world import Drop, Loot, Monster, Thing
 from inventory_tracking.models import InputMode, PotionType
@@ -52,31 +52,41 @@ RECORD = {record_buttons(record): record for record in range(12)}
 
 
 class FakePad:
-    """The device as `Pad` drives it: every input recorded; a press tells the game."""
+    """The device as `Pad` drives it: every input recorded (`at`: the clock of each, with one); a press tells the
+    game, and so does a move of the left stick."""
 
-    def __init__(self, pressed=lambda names: None) -> None:
+    def __init__(self, pressed=lambda names: None, sticked=lambda x, y: None, clock=lambda: 0.0) -> None:
         self.events: list[tuple] = []
+        self.at: list[float] = []
         self.down: set[str] = set()
         self.left = (0.0, 0.0)
         self.pressed = pressed
+        self.sticked = sticked
+        self.clock = clock
+
+    def note(self, event: tuple) -> None:
+        self.events.append(event)
+        self.at.append(self.clock())
 
     def press(self, *names: str) -> None:
-        self.events.append(('press', names))
+        self.note(('press', names))
         self.down |= set(names)
         self.pressed(names)
 
     def release(self, *names: str) -> None:
-        self.events.append(('release', names))
+        self.note(('release', names))
         self.down -= set(names)
 
     def stick(self, side: str, x: float, y: float) -> None:
-        self.events.append(('stick', side, round(x, 2), round(y, 2)))
+        self.note(('stick', side, round(x, 2), round(y, 2)))
         if side == 'left':
+            self.sticked(x, y)
             self.left = (x, y)
 
     def neutral(self) -> None:
-        self.events.append(('neutral',))
+        self.note(('neutral',))
         self.down.clear()
+        self.sticked(0.0, 0.0)
         self.left = (0.0, 0.0)
 
     def presses(self) -> list[tuple[str, ...]]:
@@ -93,10 +103,18 @@ def world_of(stick: tuple[float, float], mirror: bool = False) -> tuple[float, f
 
 
 class Controller:
-    """The fakes' game (fakes.Game) in controller mode, played by a fake pad: the left stick walks the
-    character, a jump's record puts it its reach along the stick, other records do what `effects` says."""
+    """The fakes' game (fakes.Game) in controller mode, played by a fake pad: the left stick walks the character
+    and turns it, a jump's record puts it its reach along the character's facing at the press, other records do
+    what `effects` says.
+
+    The facing, as the game of 22:04 on 2026-10-14 showed it (rca/2026-10-14/run-1904-findings.md §3.1): a free
+    target's cast goes where the character faces at the button's down, and a pushed stick turns the character only
+    once the game has read it (TURN, one 40 ms frame); with the stick sent in the same instant as the button the cast
+    went along the facing before (south, 90 degrees, after a jump that way: FACING)."""
 
     SPEED = 9.0  # units a second
+    TURN = 0.04  # seconds a pushed stick takes to turn the character: one of the game's frames
+    FACING = (0.0, 1.0)  # world +y: 90 degrees, south
 
     def __init__(self, start=None, bindings=BINDINGS, mirror: bool = False) -> None:
         self.game = Game(start or world(slots=SLOTS))
@@ -105,7 +123,9 @@ class Controller:
         self.timed: list[tuple[float, tuple[int, int]]] = []  # (clock time, target): the client's pick changing
         self.bindings = bindings
         self.mirror = mirror
-        self.pad = FakePad(self.pressed)
+        self.facing = self.FACING
+        self.pushed_at: float | None = None  # when the left stick was last pushed a new way
+        self.pad = FakePad(self.pressed, self.sticked, lambda: self.game.clock.now)
         self.effects: dict[int, object] = {}
         self.read_at: float | None = None
         self.casts: list[tuple[int, tuple[float, float]]] = []  # (skill, the stick) per press of a record
@@ -116,7 +136,20 @@ class Controller:
         w = self.game.world
         self.game.world = replace(w, player=replace(w.player, x=x, y=y))
 
+    def turn(self) -> None:
+        """The character faces the way the left stick points once the stick has been held TURN."""
+        if self.pushed_at is not None and self.game.clock.now - self.pushed_at >= self.TURN - 1e-9:
+            self.facing = world_of(self.pad.left, self.mirror)
+
+    def sticked(self, x: float, y: float) -> None:
+        self.turn()  # what the stick held so far did
+        if (x, y) == (0.0, 0.0):
+            self.pushed_at = None
+        elif (x, y) != self.pad.left:
+            self.pushed_at = self.game.clock.now
+
     def read(self):
+        self.turn()
         now, p = self.game.clock.now, self.game.world.player
         if self.read_at is not None and self.pad.left != (0.0, 0.0) and p is not None:
             way, push = world_of(self.pad.left, self.mirror), min(1.0, math.hypot(*self.pad.left))
@@ -147,9 +180,11 @@ class Controller:
         self.casts.append((skill, self.pad.left))
         reach = {TELEPORT: pad_module.TELEPORT_REACH, BLADE_WARP: BLADE_WARP_PAD_REACH}.get(skill)
         p = self.game.world.player
-        if reach is not None and self.pad.left != (0.0, 0.0):
-            way = world_of(self.pad.left, self.mirror)
+        self.turn()
+        if reach is not None:
+            way = self.facing  # where the character faces at the button's down, not where the stick is now
             self.player_to(p.x + way[0] * reach, p.y + way[1] * reach)
+            self.facing = way
         effect = self.effects.get(skill)
         if effect is not None:
             effect()
@@ -526,6 +561,65 @@ def test_a_jump_of_the_movement_is_a_heading_and_lands_at_its_reach():
     assert no_mouse(play.game)
 
 
+def test_a_cast_toward_a_place_holds_the_stick_two_frames_before_its_button_and_through_it():
+    """rca/2026-10-14/run-1904-findings.md §3.1: the stick and the button went out in the same millisecond and 36 of
+    53 jumps went along the facing before the press. The stick is pushed AIM_LEAD before the button (two of the
+    game's 40 ms frames: a pushed stick showed in the game 6-58 ms after it was sent), and held through the press."""
+    play = Controller()
+    run = play.run()
+    run.pad.aim_place((5000.0, 5000.0), (5000.0, 4983.0))  # north: the facing is south
+    press_skill(run, BLADE_WARP)
+    timed = list(zip(play.pad.at, play.pad.events, strict=True))
+    pushed = next(at for at, event in timed if event[0] == 'stick' and event[2:] != (0.0, 0.0))
+    down = next(at for at, event in timed if event == ('press', ('rb',)))
+    up = next(at for at, event in timed if event == ('release', ('rb',)))
+    centred = next(at for at, event in timed if event == ('stick', 'left', 0.0, 0.0))
+    assert down - pushed >= pad_module.AIM_LEAD == pytest.approx(0.08)
+    assert pushed < down < up <= centred  # the stick held through the press
+    after = play.game.world.player
+    assert math.dist((after.x, after.y), (5000.0, 5000.0 - BLADE_WARP_PAD_REACH)) < 0.1  # along the stick: north
+
+
+def test_a_jump_sent_with_its_stick_goes_along_the_facing_and_the_next_leg_is_walked(caplog, monkeypatch):
+    """The River of Flame at 22:06:56-22:07:10 on 2026-10-14: once a warp landed south, every next one did, whatever
+    was asked (14 at 90 degrees). With no lead (the stick sent with the button, as before) the fake game lands it
+    along the facing; a landing more than ASTRAY off has the next leg walked, and a walk made lets the rule go."""
+    monkeypatch.setattr(pad_module, 'AIM_LEAD', 0.0)
+    play = Controller()
+    run = play.run()
+    travel = Travel(MOVEMENT)
+    names = pad_names(run)
+    with caplog.at_level(logging.INFO, 'inventory_tracking'):
+        travel.jump(run, Step((5012.0, 4988.0), BLADE_WARP), play.game.world.player, ASPECT, names)
+    after = play.game.world.player
+    assert math.dist((after.x, after.y), (5000.0, 5000.0 + BLADE_WARP_PAD_REACH)) < 0.1  # south, the facing
+    assert 'Pad jump: Blade Warp toward -45 degrees, reach 17 (planned 17.0): landed 17.0 away at 90 degrees' in (
+        caplog.text
+    )
+    assert 'Macro: pad jump: Blade Warp landed +135 degrees off the heading asked (-45): the next leg is walked' in (
+        caplog.text
+    )
+    play.game.clock.now += 2.0  # Blade Warp's casting delay over
+    world_now = run.world()
+    assert run.pad.walk_owed(run.clock())
+    assert travel.jumps(run, world_now) == ()  # no jump for the next leg
+    found = travel.leg(run, world_now, None, ASPECT, (5000.0, 4990.0), OWN_MOVE)
+    assert isinstance(found, Step)
+    assert found.skill is None  # walked
+    run.pad.walk((5000.0, 5010.0))
+    assert not run.pad.walk_owed(run.clock())
+    assert BLADE_WARP in [jump.skill for jump in travel.jumps(run, run.world())]
+
+
+def test_an_astray_jump_owes_its_walk_only_a_while():
+    play = Controller()
+    run = play.run()
+    run.pad.astray = (BLADE_WARP, run.clock())
+    assert run.pad.walk_owed(run.clock())
+    play.game.clock.now += pad_module.ASTRAY_SECONDS
+    assert not run.pad.walk_owed(run.clock())
+
+
 def test_pickup_stands_on_the_item_and_presses_the_loot_record(caplog):
     play = Controller()
     run = play.run()
@@ -565,6 +659,68 @@ def test_a_chest_is_opened_by_a_once_the_target_names_it():
     assert run.pad.interact(OBJECT_UNIT, 31, (chest.x, chest.y), lambda: bool(opened), 'a chest')
     assert play.pad.presses() == [('a',)]
     assert no_mouse(play.game)
+
+
+CS_DOOR = (7800.0, 5597.5)  # the Chaos Sanctuary's door mark in the River of Flame, 2026-10-14
+CS_MARK = Target(107, (), (CS_DOOR[0] / TILE_UNITS, CS_DOOR[1] / TILE_UNITS), 'Chaos Sanctum', 'door', True)
+
+
+def at_the_door(walks_in: bool) -> tuple[Controller, object]:
+    """The River at 22:09:08 on 2026-10-14: the character 5.1 units from the door's mark, its entry spot remembered
+    at +1.6, +5.0 from it, no door unit listed (run.warps is none). `walks_in`: the game takes a character that
+    comes within 2.6 units of the mark in (the keyboard's click on the tiles walked it to 2.4 and it was in)."""
+    start = world(area=107, slots=SLOTS)
+    play = Controller(replace(start, player=replace(start.player, area=107, x=7797.7, y=5602.1)))
+    run = play.run()
+    teleport.ENTRIES.learn(CS_MARK, (1.6, 5.0))
+    read = play.read
+
+    def entering():
+        w = read()
+        p = w.player
+        if walks_in and p is not None and p.area == 107 and math.dist((p.x, p.y), CS_DOOR) <= 2.6:
+            play.game.world = replace(w, player=replace(p, area=108))
+        return play.game.world
+
+    run.read = entering
+    return play, run
+
+
+def test_the_pad_walks_through_a_door_with_no_door_unit_not_onto_its_entry_spot(caplog):
+    """22:09:08 on 2026-10-14 (run-1904-findings.md §3.5): with no door unit the pad walked onto the entry spot, 5 units
+    outside the door, and gave up: "Chaos Sanctum did not take the pad". It walks from the entry spot through the mark
+    and on, as the keyboard's click on the door's tiles walks."""
+    play, run = at_the_door(walks_in=True)
+    with caplog.at_level(logging.INFO, 'inventory_tracking'):
+        teleport.pad_door(run, CS_MARK, run.world().player)
+    assert play.game.world.player.area == 108
+    assert 'Macro: door Chaos Sanctum by the pad: walked in through the mark from (7801.6, 5602.5)' in caplog.text
+    assert no_mouse(play.game)
+    assert play.pad.left == (0.0, 0.0)
+
+
+def test_a_door_the_walk_does_not_take_is_used_by_a_on_the_tile_the_client_targets(caplog):
+    play, run = at_the_door(walks_in=False)
+    play.target = (pad_module.TILE_UNIT, 77)  # the client's Interact group names the door tile once beside it
+
+    def enter() -> None:
+        w = play.game.world
+        play.game.world = replace(w, player=replace(w.player, area=108))
+
+    play.effects[ATTACK] = enter
+    with caplog.at_level(logging.INFO, 'inventory_tracking'):
+        teleport.pad_door(run, CS_MARK, run.world().player)
+    assert play.game.world.player.area == 108
+    assert 'the walk did not take it; the client targets tile 77: A' in caplog.text
+    assert play.pad.presses() == [('a',)]
+
+
+def test_a_door_neither_walk_nor_target_takes_stops_and_says_so():
+    play, run = at_the_door(walks_in=False)
+    said = r'did not take the pad \(walked through the mark from \(7801\.6, 5602\.5\), no door tile'
+    with pytest.raises(Abort, match=said):
+        teleport.pad_door(run, CS_MARK, run.world().player)
+    assert play.pad.presses() == []
 
 
 def test_save_and_exit_is_refused_in_controller_mode():

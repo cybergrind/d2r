@@ -57,6 +57,8 @@ from inventory_tracking.native.layout import (
     UI_PANELS_SIZE,
     WEAPON_SLOTS,
 )
+from inventory_tracking.native.process import identity, process_mappings
+from inventory_tracking.native.unit_probe import ResearchReader
 from inventory_tracking.native.units import read_stats, walk_units
 from inventory_tracking.tracking.belt import BeltColumns, remember
 from inventory_tracking.tracking.consume import read_consume
@@ -707,6 +709,23 @@ def things(read, table: int, classes: frozenset[int] = USED) -> tuple[Thing, ...
             selectable = bool(read(unit['address'] + UNIT_FLAGS, 1)[0] & SELECTABLE_FLAG)
         found.append(Thing(unit['unit_id'], unit['txt_id'], unit['mode'], float(x), float(y), selectable))
     return tuple(found)
+
+
+def observe_things(pid, images, capture, classes: frozenset[int]) -> tuple[Thing, ...]:
+    """The objects of `classes` near the player, opened read-only for this one read (the level guide's poll:
+    a `use` mark's object operated by anyone, macros/card_goal.py)."""
+    tables = {x['table_address'] for x in capture['unit_table_candidates']}
+    if len(tables) != 1:
+        raise ValueError('Expected one freshly scanned unit table address')
+    token = images['identity']
+    fd = os.open(f'/proc/{pid}/mem', os.O_RDONLY)
+    try:
+        found = things(ResearchReader(fd, process_mappings(pid)).read, next(iter(tables)), classes)
+    finally:
+        os.close(fd)
+    if identity(pid) != token:
+        raise ValueError('Game process changed during the object read')
+    return found
 
 
 def gold_amount(read, unit: dict) -> int:

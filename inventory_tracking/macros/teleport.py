@@ -153,6 +153,10 @@ DOOR_CLICKS = 2
 # A character that has not moved this long after a click was not sent anywhere (a door took one in 0.37 s at most).
 STILL_SECONDS = 0.5
 WARP_NEAR = 12.0  # world units from the mark to its door unit (the tower's in Black Marsh: 7.0)
+# Controller mode, a door with no door unit (`pad_door`): the walk goes through the mark DOOR_PAST units on past it,
+# from the door's entry spot, onto which it first walks from further than DOOR_LINE.
+DOOR_PAST = 3.0
+DOOR_LINE = 2.0
 # An object the mark names (`Target.use`) is clicked like a door, but it is an object unit, not a warp
 # tile: the door code has no place for it and takes an object under the pointer for a miss. Stony Field
 # (user, 2026-10-12): the step stood at the Cairn Stones, "At Tristram", and the portal was never taken.
@@ -697,8 +701,9 @@ def walk_into(run: Run, target: Target, player: Player, aspect: float) -> None:
 
 def pad_door(run: Run, target: Target, player: Player) -> None:
     """Controller mode: into the door of `target` by the pad (macros/pad.py): its door unit targeted and A
-    pressed from beside it (the client's Interact group takes doors, inferred), else a walk onto the door's
-    entry; the level changing is the evidence."""
+    pressed from beside it (the client's Interact group takes doors, inferred), else a walk from the door's entry
+    spot through its mark and on (as the keyboard's click on the door's tiles walks), then A on a door tile the
+    client's own target names; the level changing is the evidence."""
     assert run.pad is not None
     door = scaled(target.point)
     run.say(f'Walking into {target.label}, {math.dist((player.x, player.y), door):.0f} away')
@@ -714,12 +719,43 @@ def pad_door(run: Run, target: Target, player: Player) -> None:
         if run.pad.interact(TILE_UNIT, unit.unit_id, (unit.x, unit.y), inside, target.label):
             run.say(f'{target.label}: there')
             return
+    # No door unit to target: through the door as the keyboard's click on its tiles goes (the Chaos Sanctuary's on
+    # 2026-10-14, 22:09:24: the click walked the character 2.7 units from its entry spot to 2.4 from the mark, and it
+    # was in). The stick is held from the entry spot (where one comes out of the door) through the mark and on past
+    # it, not onto the entry spot outside it (22:09:08: "did not take the pad", run-1904-findings.md §3.5).
     entry = entry_spot(target)
-    run.pad.walk(scaled(entry) if entry is not None else door, near=0.5, done=inside, why=target.label)
+    here = (player.x, player.y)
+    start = scaled(entry) if entry is not None else here
+    if entry is not None and math.dist(here, start) > DOOR_LINE:
+        run.pad.walk(start, done=inside, why=target.label)  # onto the door's line first
+        if inside():
+            run.say(f'{target.label}: there')
+            return
+    line = (door[0] - start[0], door[1] - start[1])
+    length = math.hypot(*line)
+    past = door if length < 1e-6 else (door[0] + line[0] / length * DOOR_PAST, door[1] + line[1] / length * DOOR_PAST)
+    run.pad.walk(past, near=0.5, done=inside, why=target.label)
     if inside():
+        LOG.info('Macro: door %s by the pad: walked in through the mark from %s', target.label, _spot(start))
         run.say(f'{target.label}: there')
         return
-    raise Abort(f'{target.label} did not take the pad')
+    # Stood at the door: the client's own target names a door tile now (its Interact group reaches 5.2 units): A
+    held = run.pad.target()
+    now = run.world().player
+    if held is not None and held[0] == TILE_UNIT and now is not None:
+        LOG.info(
+            'Macro: door %s by the pad: the walk did not take it; the client targets tile %d: A', target.label, held[1]
+        )
+        if run.pad.interact(TILE_UNIT, held[1], (now.x, now.y), inside, target.label):
+            run.say(f'{target.label}: there')
+            return
+    raise Abort(
+        f'{target.label} did not take the pad (walked through the mark from {_spot(start)}, no door tile targeted)'
+    )
+
+
+def _spot(point: Point) -> str:
+    return f'({point[0]:.1f}, {point[1]:.1f})'
 
 
 def marked_thing(run: Run, target: Target) -> Thing | None:
@@ -919,7 +955,7 @@ def step_toward(
                 raise Abort('no way but Teleport is given')
             hop_toward(run, target, player, rect, key_names, warp)
         except Abort as stop:
-            if run.cancelled.is_set():
+            if run.stops(stop):
                 raise
             LOG.info('Macro: no step along the way with the staff empty (%s); straight toward %s', stop, target.label)
             afoot(target)

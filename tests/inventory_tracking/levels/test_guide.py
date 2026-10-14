@@ -868,3 +868,120 @@ def test_only_new_or_changed_grids_are_taught_to_the_library():
     clock.now += 0.5
     guide.poll(2.0)
     assert guide.library.taught == [[same], [other]]
+
+
+# The card's first row is the route's goal, as the macro's (rca/2026-10-14/run-1916-hud-findings.md §1).
+
+
+def routed_guide(areas=(1, 3, 3, 3)):
+    from inventory_tracking.macros.card_goal import CardGoals
+    from inventory_tracking.macros.route import PERFORMED
+    from inventory_tracking.routes.catalog import ROUTES
+    from inventory_tracking.routes.progress import Progress
+
+    progress = Progress(ROUTES, PERFORMED, lambda: frozenset())
+    progress.note('game', 3)
+    guide, shown, clock = make_guide(list(areas), fixture='cold_plains_all_known', lead=progress.lead)
+    guide.goals = CardGoals(progress)
+    return guide, shown, clock, progress
+
+
+def row_names(lines):
+    return [line.text.split(':')[0].lstrip('↑↓←→↖↗↘↙• ') for line in lines]
+
+
+def test_the_first_row_is_the_routes_goal_and_a_done_stage_drops_its_row_and_arrow():
+    guide, shown, clock, progress = routed_guide()
+    guide.refresh_interval = 2.0
+    reads = counting_walls(guide)
+    guide.poll(1.0)
+    guide.poll(2.0)
+    guide.tick()
+    *lines, card = shown[-1]
+    assert row_names(lines) == ['Cave', 'Stony Field', 'Burial Grounds', 'Blood Moor']
+    assert card.route  # the line to the goal
+
+    progress.note('game', 9)  # the Cave entered (and the character back): the script is over
+    clock.now += 0.5
+    guide.poll(2.5)
+    guide.tick()
+
+    *lines, card = shown[-1]
+    assert row_names(lines) == ['Stony Field', 'Burial Grounds', 'Blood Moor']  # no goal row, the Cave's gone
+    assert card.route == ()  # no goal: no line either
+    assert len(reads) == 1  # at once, without the walls (read on entry only)
+    assert guide.target().label == 'Stony Field'  # the teleport step's mark: the card's own order, as before
+
+
+def test_a_goal_at_a_unit_is_a_row_toward_it_and_the_mark_it_was_made_from_goes():
+    from inventory_tracking.macros.goals import FIGHT, Goal
+    from inventory_tracking.macros.travel import STANDING
+
+    guide, shown, clock = make_guide([1, 3, 3, 3], fixture='cold_plains_all_known')
+    goals = Goals()
+    guide.goals = goals
+    guide.poll(1.0)
+    guide.poll(1.5)
+    first = guide.target()
+    there = guide.shown[1][-1].room.center  # where another mark is, world units: a place the route reaches
+    goals.goal_now = Goal('Bishibosh', there, FIGHT, 20.0, STANDING, unit=7, mark=first)
+    clock.now += 0.5
+    guide.poll(2.0)
+    guide.tick()
+
+    *lines, card = shown[-1]
+    assert lines[0].text.endswith('Bishibosh: ' + pointer(guide.shown[1][-1], guide.shown[0].location).compass)
+    assert lines[0].arrow
+    assert first.label not in row_names(lines[1:])
+    assert card.route[-1] == (there[0] / 5, there[1] / 5)
+
+    goals.goal_now = replace_goal(goals.goal_now, known=False)
+    clock.now += 0.5
+    guide.poll(2.5)
+    guide.tick()
+    *lines, card = shown[-1]
+    assert lines[0].text == 'Bishibosh: not seen' and lines[0].arrow is None
+    assert card.route == ()
+
+
+def replace_goal(goal, **changes):
+    from dataclasses import replace
+
+    return replace(goal, **changes)
+
+
+class Goals:
+    """A route's goal set by hand (macros/card_goal.py CardGoals' interface)."""
+
+    def __init__(self):
+        self.goal_now, self.labels, self.things, self.classes = None, frozenset(), [], frozenset()
+
+    def goal(self, area, here, first):
+        return self.goal_now
+
+    def done(self, area):
+        return self.labels, frozenset()
+
+    def wanted(self, area, marks):
+        return self.classes
+
+    def note(self, area, here, marks, things):
+        self.things.append(tuple(things))
+        return False
+
+
+def test_the_objects_of_use_marks_are_read_at_each_poll_only_while_one_is_left():
+    guide, _, clock = make_guide([1, 3, 3, 3], fixture='cold_plains_all_known')
+    goals, reads = Goals(), []
+    guide.goals = goals
+    guide.observe_things = lambda pid, images, capture, classes: reads.append(classes) or ['seal']
+    guide.poll(1.0)
+    guide.poll(2.0)
+    clock.now += 0.5
+    guide.poll(2.5)
+    assert reads == [] and goals.things[-1] == ()
+
+    goals.classes = frozenset({392})
+    clock.now += 0.5
+    guide.poll(3.0)
+    assert reads == [frozenset({392})] and goals.things[-1] == ('seal',)

@@ -50,6 +50,7 @@ from inventory_tracking.levels.model import Guidance, Lead, Level, LevelSnapshot
 from inventory_tracking.levels.registry import handler_for
 from inventory_tracking.levels.session import LevelMemory, layout_key
 from inventory_tracking.levels.spots import WAYS_OUT, on_waypoint, pinpoint
+from inventory_tracking.native.layout import TILE_UNITS
 from inventory_tracking.osd.level_map import KIND_TONES
 from inventory_tracking.presentation import StyledLine, Tone
 
@@ -84,6 +85,27 @@ def lead_first(pois: tuple[Poi, ...], lead: Lead | None) -> tuple[Poi, ...]:
     return (replace(first, kind='stairs') if first.kind == 'previous' else first, *rest)
 
 
+def goal_rows(goal, first: Poi | None, kept: tuple[Poi, ...], location: Location):
+    """(the card's rows, the route line's end in tiles or None) with the route's goal
+    first (macros/goals.py `route_goal`, duck-typed: `label`, `place` in world units, `unit`, `known`, `mark`,
+    `stage`). On the card's first mark itself: that mark's row. At a unit (a boss where the tracker has him) or
+    another place: a row of its own toward it, the mark it was made from dropped. Nothing known of where it is:
+    a row with no arrow. None (loot, leave, the script over): no goal row, no route line; the other marks keep
+    their rows (ways back, extras: information, not goals)."""
+    if goal is None:
+        return pointer_lines([pointer(poi, location) for poi in kept]), None
+    mark = goal.mark.label if goal.mark is not None else None
+    rest = [pointer(poi, location) for poi in kept if not (poi is first and mark == first.label)]
+    if not goal.known:
+        name = goal.stage.boss if goal.stage is not None and goal.stage.boss else goal.label
+        return [StyledLine(f'{name}: not seen', KIND_TONES['target']), *pointer_lines(rest)], None
+    toward = (goal.place[0] / TILE_UNITS, goal.place[1] / TILE_UNITS)
+    if first is not None and mark == first.label and goal.unit is None and math.dist(toward, place(first)) < 1:
+        return pointer_lines([pointer(first, location), *rest]), toward
+    dx, dy = goal.place[0] - location.x, goal.place[1] - location.y
+    return pointer_lines([Pointer(goal.label, None, dx, dy, False, 'target'), *rest]), toward
+
+
 MAX_REMEMBERED_LEVELS = 32
 DOUBLE_PRESS = 0.2  # seconds between two Win+C presses that toggle the pinned card (user, 2026-10-06)
 ROOMS_REFRESH = 3.0  # seconds between room re-reads while a card is shown (exits get their names)
@@ -111,6 +133,8 @@ class LevelGuide:
         observe_waypoints=None,
         pinned=False,
         lead=None,
+        goals=None,
+        observe_things=None,
     ):
         self.source, self.capture_lock, self.focused, self.display = source, capture_lock, focused, display
         self.seconds, self.poll_interval, self.clock, self.observe = seconds, poll_interval, clock, observe
@@ -148,6 +172,14 @@ class LevelGuide:
         # area -> the mark to lead the card with, or None: the stage a route is at there (routes/progress.py).
         # Asked at every card and every target, so the arrow and the teleport step never disagree.
         self.lead = lead
+        # The route's goal and the marks done with (macros/card_goal.py CardGoals: `goal`, `done`, `wanted`, `note`):
+        # the card's first row points at the goal the macro goes to, the done marks have no row, and no goal left
+        # is no arrow (rca/2026-10-14/run-1916-hud-findings.md §1). None: the rows are the marks in `_marks` order.
+        self.goals = goals
+        # (pid, images, capture, classes) -> the object units of those classes near the player (macros/world.py
+        # `observe_things`), read at each poll for the marks `goals.wanted` names: a seal opened by hand is done.
+        self.observe_things = observe_things
+        self.drawn: tuple | None = None  # the goal and done marks the visible card was drawn with
         self.memory = LevelMemory()  # room details read this game (exits' levels, preset variants)
         self.rooms_read = -math.inf  # clock time of the last room read
         # Seconds between re-reads of the walls and rebuilds of the card while it is shown in the same level;
@@ -261,10 +293,13 @@ class LevelGuide:
                 renamed = self._refresh_rooms()
                 # Every poll: the teleport step's mark moves onto a waypoint's object as soon as it is seen (`target`).
                 self._read_waypoints()
+                self._read_progress(location)
                 if renamed or self._refresh_due(location):
                     self._read_walls()
                     self.refreshed = (self.clock(), (location.x, location.y))
                     self.visible = self._card(location)
+                elif self.goals is not None and self._goal(location)[3] != self.drawn:
+                    self.visible = self._card(location)  # the goal changed: at once, the walls as they are
             return None
         if location is None:
             self.memory.reset()  # the menu: the next game's levels are new
@@ -362,22 +397,80 @@ class LevelGuide:
         pois = tuple(on_waypoint(poi, self.waypoints) for poi in pois)
         return lead_first(pois, self.lead(area)) if self.lead is not None else pois
 
-    def _card(self, location: Location) -> list:
+    def _read_progress(self, location: Location) -> None:
+        """At each poll with a card up: tell the route's progress what is done whoever did it (macros/card_goal.py
+        `note`): a mark stood at, and the objects of its `use` marks read (`observe_things`) when any is left."""
+        if self.goals is None or self.shown is None:
+            return
         snapshot, pois = self.shown
-        pois = self._marks(snapshot.location.area_id, pois)
+        area = snapshot.location.area_id
+        if area != location.area_id:
+            return
+        marks = tuple(on_waypoint(poi, self.waypoints) for poi in pois)
+        things = ()
+        classes = self.goals.wanted(area, marks)
+        if classes and self.observe_things is not None:
+            try:
+                things = self.observe_things(self.source.pid, self.source.images, self.source.capture, classes)
+            except Exception as exc:
+                self.warn('objects not read: %s', exc)
+        self.goals.note(area, (location.x, location.y), marks, things)
+
+    def _goal(self, location: Location):
+        """(the marks in card order, the route's goal or None, the marks done with, the key the card is drawn
+        with): `goals` asked from where the character is, with the teleport step's mark (`target`) as the card's."""
+        snapshot, pois = self.shown
+        area = snapshot.location.area_id
+        pois = self._marks(area, pois)
+        if self.goals is None:
+            return pois, None, (frozenset(), frozenset()), None
+        first = self._target_of(snapshot, pois[0]) if pois else None
+        goal = self.goals.goal(area, (location.x, location.y), first)
+        done = self.goals.done(area)
+        aim = None
+        if goal is not None:
+            mark = goal.mark.label if goal.mark is not None else None
+            # A unit's goal moves with it: the card follows it at its own pace, not at each step it takes.
+            where = None if goal.unit is not None else (round(goal.place[0]), round(goal.place[1]))
+            aim = (goal.label, goal.unit, goal.known, mark, where)
+        return pois, goal, done, (area, aim, done)
+
+    def _card(self, location: Location) -> list:
+        snapshot, _ = self.shown
+        pois, goal, (labels, places), self.drawn = self._goal(location)
+        kept = tuple(poi for poi in pois if poi.label not in labels and (poi.label, place(poi)) not in places)
+        rows, toward = pointer_lines([pointer(poi, location) for poi in kept]), None
+        if self.goals is not None:
+            rows, toward = goal_rows(goal, pois[0] if pois else None, kept, location)
         visited = self.visited_rooms(location.area_id) if self.visited_rooms is not None else None
         dots = self.map_dots(location.area_id) if self.map_dots is not None else ()
         card = build_map(
             snapshot,
-            pois,
+            kept,
             location,
             self.walls.values(),
             visited=visited,
             dots=dots,
             pid=self.source.pid,
             whole=self.whole,
+            toward=toward,
+            routed=self.goals is None or toward is not None,
+            units=self._units(location.area_id),
         )
-        return [*pointer_lines([pointer(poi, location) for poi in pois]), card]
+        return [*rows, card]
+
+    def _units(self, area: int) -> tuple[int, int] | None:
+        """(unit table address, area) for the HUD's own walk of the monster table (hud/live.py), with dots shown."""
+        if self.map_dots is None:
+            return None
+        tables = {found.get('table_address') for found in (self.source.capture or {}).get('unit_table_candidates', ())}
+        return (tables.pop(), area) if len(tables) == 1 and None not in tables else None
+
+    def _target_of(self, snapshot: LevelSnapshot, poi: Poi) -> Target:
+        warp = poi.kind in WAYS_OUT and poi.spot is not None
+        return Target(
+            snapshot.location.area_id, snapshot.rooms, place(poi), poi.label, poi.kind, warp, self._ground(), poi.use
+        )
 
     def target(self) -> Target | None:
         """The shown card's first mark, the one the first arrow line points at (the teleport step, macros/teleport.py).
@@ -386,11 +479,7 @@ class LevelGuide:
         if shown is None or not shown[1]:
             return None
         snapshot, pois = shown
-        poi = self._marks(snapshot.location.area_id, pois)[0]
-        warp = poi.kind in WAYS_OUT and poi.spot is not None
-        return Target(
-            snapshot.location.area_id, snapshot.rooms, place(poi), poi.label, poi.kind, warp, self._ground(), poi.use
-        )
+        return self._target_of(snapshot, self._marks(snapshot.location.area_id, pois)[0])
 
     def marks(self, label: str) -> tuple[tuple[float, float], ...]:
         """The places of the shown card's marks with `label` (a hell pit's chests), in tiles: the

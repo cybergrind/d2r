@@ -20,8 +20,9 @@ from inventory_tracking.osd.level_map import MapCard
 def ground_payload(card: MapCard, config: HudGroundConfig = HUD.ground) -> dict | None:
     """The card's dots of the configured kinds, with the player they are relative to; None = nothing
     to mark. `level` tells one level's marks from the next. A mark is [kind, x, y], plus its path
-    address when the canvas can read where it is now (hud/live.py)."""
-    marks = [[p.kind, p.x, p.y, *([p.path] if p.path else [])] for p in card.pois if p.kind in config.kinds]
+    address when the canvas can read where it is now, plus its unit's address and id when the canvas
+    reads whether it lives too (hud/live.py)."""
+    marks = [p.row()[1:] for p in card.pois if p.kind in config.kinds]
     if not (config.enabled and marks):
         return None
     level = zlib.crc32(repr(card.rooms).encode())  # the same rooms = the same level (hud/live.py Entrance)

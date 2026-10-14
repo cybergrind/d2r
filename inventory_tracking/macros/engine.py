@@ -13,7 +13,7 @@ from threading import Event
 from typing import TYPE_CHECKING
 
 from inventory_tracking.levels.model import Ground
-from inventory_tracking.macros.actuator import Abort, Actuator, Cancelled
+from inventory_tracking.macros.actuator import Abort, Actuator, Cancelled, Flipped
 from inventory_tracking.macros.timing import Pace
 from inventory_tracking.macros.world import Loot, Teleport, Thing, Warp, World
 from inventory_tracking.models import PotionType
@@ -122,6 +122,11 @@ class Run:
             self.observe(world)
         return world
 
+    def stops(self, stop: BaseException) -> bool:
+        """Whether an act's Abort ends the run, whatever the act's caller would do with a failure of it: the run is
+        cancelled, or the game's input mode flipped under it (`Flipped`: the runner plays the request again)."""
+        return self.cancelled.is_set() or isinstance(stop, Flipped)
+
     @contextmanager
     def lightly(self) -> Iterator[None]:
         """Within the block the game is looked at without its monsters and doors (world.GameMemory.world)."""
@@ -153,8 +158,8 @@ class Run:
         """As `expect`, for evidence that is welcome but not required."""
         try:
             return self.expect('', predicate, timeout, poll)
-        except Abort:
-            if self.cancelled.is_set():
+        except Abort as stop:
+            if self.stops(stop):
                 raise
             return None
 

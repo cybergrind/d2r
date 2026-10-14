@@ -10,6 +10,7 @@ is, with no weapon sets.
 from dataclasses import replace
 
 from inventory_tracking.builds.warlock.echoing_strike.build import ECHOING_STRIKE_BUILD
+from inventory_tracking.builds.warlock.skills import ECHOING_STRIKE
 from inventory_tracking.macros.build import Build, Loadout
 from inventory_tracking.macros.world import World
 
@@ -23,6 +24,10 @@ HEART_OF_THE_OAK = frozenset(('fla', 'uit'))
 CHARACTERS = {'CybergrindAA': Loadout(prebuff=HEART_OF_THE_OAK, battle=HEART_OF_THE_OAK)}
 # The build each character plays.
 PLAYS = {'CybergrindAA': ECHOING_STRIKE_BUILD}
+# Where each character's right-skill selection shows a skill's icon (macros/skillpanel.py: from the window's bottom
+# centre, in window heights). CybergrindAA's Echoing Strike: the player's own click that selected it at 22:09:51 on
+# 2026-10-14 (take 20261014T190924Z-108, the pointer at (0.669, 0.696) of a 2560x1418 window).
+ICONS = {'CybergrindAA': {ECHOING_STRIKE: (0.3046, -0.3039)}}
 
 
 def played_by(build: Build, name: str) -> Build:
@@ -32,7 +37,7 @@ def played_by(build: Build, name: str) -> Build:
     def named(world: World) -> bool:
         return world.player is not None and world.player.name == name
 
-    return replace(build, applies=named, weapons=CHARACTERS.get(name))
+    return replace(build, applies=named, weapons=CHARACTERS.get(name), skill_icons=ICONS.get(name, {}))
 
 
 # One build per character, in the table's order: the layers the registry lists before the builds.

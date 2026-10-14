@@ -19,11 +19,12 @@ from dataclasses import replace
 import pytest
 
 from inventory_tracking.levels.model import Ground
-from inventory_tracking.macros.actuator import Abort, Actuator
+from inventory_tracking.macros.actuator import Abort, Actuator, Flipped
 from inventory_tracking.macros.goals import PLACE_NEAR, REACH, Goal
 from inventory_tracking.macros.pursuit import FULL, NONE, PAUSED, SETTLE, Hold, Pursuit, decide, settled
 from inventory_tracking.macros.travel import PRESSED
-from tests.inventory_tracking.macros.test_hunt import game, hunter, keys
+from inventory_tracking.models import InputMode
+from tests.inventory_tracking.macros.test_hunt import foe, game, hunter, keys
 from tests.inventory_tracking.macros.test_level_run import STEP, Level, facts, unasked
 
 
@@ -192,3 +193,30 @@ def test_an_act_rebases_the_guards_mark_and_puts_back_the_runs_drift() -> None:
         with pytest.raises(Abort, match='the mouse was moved'):
             actuator.guard()  # the hand moves during it: stopped
     assert (actuator.drift, actuator.steady) == (10**6, False)
+
+
+def test_a_flip_of_the_input_mode_ends_the_pursuits_move_instead_of_giving_it_up_and_looking_again() -> None:
+    """rca/2026-10-14/run-1904-findings.md §3.2: the game flipped to controller mode under a level run by the keys,
+    and the pursuit gave the move up and looked again, 57 times in 7 s ("no move toward Chaos Sanctum: the game left
+    keyboard mode (a pad was touched) (x38)"). The flip ends the run at its first act (the runner makes the request
+    again by the pad), with nothing said as a refused move."""
+    play = game()
+    hunt = running(play)
+    run = play.run()
+    run.actuator.mode, run.actuator.keyboard_run = (lambda: InputMode(True)), True
+    with pytest.raises(Flipped, match='left keyboard mode'):
+        hunt.pursue(run, play.world, [], ground(hunt, play), keys, in_reach=False)
+    assert not play.walks
+    assert not play.warps
+    assert not [line for line in play.said if line.startswith('No move toward')]
+
+
+def test_a_flip_ends_attack_modes_fight_at_once_not_after_five_stopped_fights(caplog) -> None:
+    """The same flip in a fight: the run ended after MISSES_IN_A_ROW stopped fights (22:06:32.83, 1.2 s after the
+    flip); it ends at the first input now, and the runner plays attack mode again by the pad."""
+    play = game(foe(10, 5008.0, 5000.0))
+    run = play.run()
+    run.actuator.mode, run.actuator.keyboard_run = (lambda: InputMode(True)), True
+    with caplog.at_level(logging.INFO), pytest.raises(Flipped):
+        hunter(play).attack_mode(run, keys)
+    assert 'the fight stopped' not in caplog.text

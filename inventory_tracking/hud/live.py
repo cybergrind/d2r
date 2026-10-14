@@ -4,13 +4,16 @@ Ground marks are map points drawn relative to the player, so they are only as fr
 player position, and a marked monster walks too. The level guide publishes both twice a second;
 in between, the canvas reads the eight position bytes of each unit's dynamic path straight from
 the game: the player's (`live` in the ground payload: pid and address) and every mark that
-carries a path address (pack leaders and Heralds, terror/tracker.py). Nothing notifies another
+carries a path address (a mark with no unit record: hud/dots.py reads those). Nothing notifies another
 process of a memory write without stopping the game, but a read costs microseconds, so polling
 once per frame is as good as instant.
 The path keeps whole world units at +0x02/+0x06 (confirmed, levels/memory.py); +0x00/+0x04 are
 taken as their 16-bit fractions, the classic layout, not confirmed here. A read that fails or
 lands far from the published position (a freed path, another level) leaves that one position as
-published; a monster that died stays marked until the next published card drops it.
+published. Every monster dot, on the map card and on the ground, carries its unit record too: hud/dots.py
+reads its mode and position each frame, so a dead monster's dot goes at once and a new monster gets one
+from the canvas's own walk of the monster table (rca/2026-10-14/run-1916-hud-findings.md §2); `follow`
+puts them on both.
 
 The open-panel flags are read the same way (user, 2026-10-07): while the player reads items in
 the inventory, stash, shop or mercenary panel, the canvas draws the slots of HUD.dim_slots faint.
@@ -23,6 +26,7 @@ import os
 import struct
 
 from inventory_tracking.common import LOG
+from inventory_tracking.config import HUD
 from inventory_tracking.hud.scene import Widget
 from inventory_tracking.native.layout import TILE_UNITS, UI_PANELS_SIZE
 from inventory_tracking.tracking.panels import decode_panels
@@ -82,8 +86,9 @@ class LiveUnits(GameMemory):
         if not self.attach(pid):
             return None
         marks = [
-            [kind, *self.at(path[0], x, y), *path] if path else [kind, x, y] for kind, x, y, *path in payload['marks']
-        ]
+            [kind, *self.at(path[0], x, y), *path] if len(path) == 1 else [kind, x, y, *path]
+            for kind, x, y, *path in payload['marks']
+        ]  # a mark with its unit record (path, unit, id) is hud/dots.py's: `follow` places it
         return {**payload, 'player': list(self.at(address, *payload['player'])), 'marks': marks}
 
 
@@ -160,19 +165,56 @@ def ground_payload_of(boxes) -> dict | None:
     return next((widget.payload for widget, _ in boxes if widget.kind == 'ground'), None)
 
 
-def follow(boxes, ground):
+def map_card_of(boxes) -> dict | None:
+    """The level map card's own dict (osd/level_map.py MapCard payload 'map'), or None."""
+    for widget, _ in boxes:
+        card = widget.payload.get('map') if widget.kind == 'guide' and isinstance(widget.payload, dict) else None
+        if isinstance(card, dict) and isinstance(card.get('map'), dict):
+            return card['map']
+    return None
+
+
+def follow(boxes, ground, moved=None):
     """`boxes` with the ground widget's payload replaced by its live one (None = unchanged), and
     the map card's player moved with it: a map that keeps the player in the middle
-    (osd/level_map.py LOCAL_SCALE) would otherwise scroll in half-second steps."""
-    if ground is None:
+    (osd/level_map.py LOCAL_SCALE) would otherwise scroll in half-second steps. `moved` (hud/dots.py
+    `LiveDots.frame`): every monster dot where it is now, the dead and gone dropped, the new added."""
+    if ground is None and moved is None:
         return boxes
-    return [(Widget(w.id, w.kind, w.slot, _followed(w, ground)), box) for w, box in boxes]
+    return [(Widget(w.id, w.kind, w.slot, _followed(w, ground, moved)), box) for w, box in boxes]
 
 
-def _followed(widget, ground):
+def _followed(widget, ground, moved):
     if widget.kind == 'ground':
-        return ground
+        return placed_marks(ground or widget.payload, moved)
     card = widget.payload.get('map') if widget.kind == 'guide' and isinstance(widget.payload, dict) else None
     if not (isinstance(card, dict) and isinstance(card.get('map'), dict)):
         return widget.payload
-    return {**widget.payload, 'map': {**card, 'map': {**card['map'], 'player': list(ground['player'])}}}
+    found = card['map']
+    player = ground['player'] if ground else (moved or {}).get('player') or found['player']
+    pois = placed(found.get('pois', ()), moved, 4, (moved or {}).get('extra', ()))
+    return {**widget.payload, 'map': {**card, 'map': {**found, 'player': list(player), 'pois': pois}}}
+
+
+def placed(rows, moved, path_at: int, extra=()) -> list:
+    """`rows` (map pois, or ground marks: [label,] kind, x, y, path, unit, id) with each unit's position now
+    (`moved`), those gone dropped, `extra` added. `path_at`: the index of the path, after x and y."""
+    if not moved:
+        return list(rows)
+    dots, out, uid_at = moved['dots'], [], path_at + 2
+    for row in rows:
+        if len(row) > uid_at and row[uid_at] in dots:
+            where = dots[row[uid_at]]
+            if where is None:
+                continue
+            row = [*row[: path_at - 2], *where, *row[path_at:]]
+        out.append(row)
+    return out + [list(row) for row in extra]
+
+
+def placed_marks(ground, moved):
+    """The ground payload with its unit marks placed (`placed`), the new monsters of the ground's kinds added."""
+    if not moved or ground is None:
+        return ground
+    extra = [row[1:] for row in moved.get('extra', ()) if row[1] in HUD.ground.kinds]
+    return {**ground, 'marks': placed(ground['marks'], moved, 3, extra)}

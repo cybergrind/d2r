@@ -159,6 +159,21 @@ class Progress:
         """A press found nothing left to pick up on level `area`."""
         self.facts = replace(self.facts, looted=self.facts.looted | {area})
 
+    def done_marks(self, area: int) -> tuple[frozenset[str], frozenset[tuple[str, Place]]]:
+        """(labels, (label, place) pairs) of level `area`'s card marks that are done with in this game: the marks
+        of its script's stages that are done (`done`; a label a stage still to do names stays), and the objects
+        seen used (a hell pit's chest of several). The level card drops their rows (levels/guide.py)."""
+        found = self.chosen(area)
+        if found is None:
+            return frozenset(), frozenset()
+        _, script = found
+        facts = self.facts if self.dead is None else replace(self.facts, dead=self.dead())
+        marked = [stage for stage in script.stages if stage.mark]
+        left = {stage.mark for stage in marked if not done(area, stage, facts)}
+        labels = frozenset(stage.mark for stage in marked if stage.mark not in left)
+        places = frozenset((label, place) for level, label, place in facts.used if level == area)
+        return labels, places
+
     def lead(self, area: int) -> Lead | None:
         """The mark the level's card leads with: that of the stage it is at, when the step performs it."""
         step = self.step(area)

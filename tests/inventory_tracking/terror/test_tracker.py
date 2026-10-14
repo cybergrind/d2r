@@ -327,7 +327,8 @@ def test_map_dots_put_each_live_hostile_at_its_last_seen_position():
     assert [dot.kind for dot in tracker.map_dots(6)] == ['mob', 'mob']
 
 
-def test_leader_and_herald_dots_carry_the_path_address_last_seen_and_plain_mobs_none():
+def test_every_dot_carries_its_units_path_and_record_last_seen():
+    # rca/2026-10-14/run-1916-hud-findings.md §2, fix 1: the HUD follows every dot, plain mobs too.
     tracker = ZoneTracker()
     tracker.apply(
         [
@@ -339,18 +340,20 @@ def test_leader_and_herald_dots_carry_the_path_address_last_seen_and_plain_mobs_
 
     tracker.track(
         [
-            Monster(1, 1, 2, 5000, 5000, 6, None, path=0x10),
-            Monster(2, 1, 2, 5010, 5000, 6, None, path=0x20),
-            Monster(9, 1, 2, 5100, 5200, 6, None, path=0x90),
+            Monster(1, 1, 2, 5000, 5000, 6, None, path=0x10, unit=0x110),
+            Monster(2, 1, 2, 5010, 5000, 6, None, path=0x20, unit=0x120),
+            Monster(9, 1, 2, 5100, 5200, 6, None, path=0x90, unit=0x190),
         ]
     )
 
-    assert [(dot.kind, dot.path) for dot in tracker.map_dots(6)] == [('mob', 0), ('leader', 0x20), ('herald', 0x90)]
+    found = [(dot.kind, dot.path, dot.unit, dot.uid) for dot in tracker.map_dots(6)]
+    assert found == [('mob', 0x10, 0x110, 1), ('leader', 0x20, 0x120, 2), ('herald', 0x90, 0x190, 9)]
 
     # The champion walks out of the client's range: its dot stays where it was last seen, but its
-    # path is freed and reused (by another monster or a missile), so the address must not be followed.
-    tracker.track([Monster(9, 1, 2, 5100, 5200, 6, None, path=0x90)])
-    assert [(dot.kind, dot.path) for dot in tracker.map_dots(6)] == [('mob', 0), ('leader', 0), ('herald', 0x90)]
+    # path and record are freed and reused (by another monster or a missile), so they must not be followed.
+    tracker.track([Monster(9, 1, 2, 5100, 5200, 6, None, path=0x90, unit=0x190)])
+    found = [(dot.kind, dot.path, dot.unit) for dot in tracker.map_dots(6)]
+    assert found == [('mob', 0, 0), ('leader', 0, 0), ('herald', 0x90, 0x190)]
 
     tracker.apply([{'event': 'left_game'}])
     assert tracker.paths == {}

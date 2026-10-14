@@ -33,6 +33,9 @@ def build_map(
     dots: Iterable[MapPoi] = (),
     pid: int | None = None,
     whole: bool = False,
+    toward: tuple[float, float] | None = None,
+    routed: bool = True,
+    units: tuple[int, int] | None = None,
 ) -> MapCard:
     """`location` overrides the snapshot's player position (live dot while the card is shown).
     `visited` (bounds of the rooms ever loaded, terror/tracker.py) shades the rooms: the others
@@ -40,15 +43,18 @@ def build_map(
     `pid` (the game process) lets the HUD follow the player between cards when the location has its path.
     `whole` draws a big level whole instead of the part around the player (osd/level_map.py).
 
-    The route is the teleport path to the first POI reachable over rooms (levels/route.py).
+    The route is the teleport path to the first POI reachable over rooms (levels/route.py), or to `toward`
+    (tiles: the route's goal, levels/guide.py) when given; none when not `routed` (no goal left).
+    `units`: (unit table address, area) for the HUD's own walk of the monster table (hud/live.py).
     """
     where = location or snapshot.location
     player = (where.x / TILE_UNITS, where.y / TILE_UNITS)
     pois = tuple(pois)
     marks = tuple(MapPoi(p.label, p.kind, *(p.spot or centre(p.room))) for p in pois)
     path: tuple[tuple[float, float], ...] = ()
-    for mark in marks:
-        hops = route(snapshot.rooms, player, (mark.x, mark.y))
+    ends = [toward] if toward is not None else [(mark.x, mark.y) for mark in marks] if routed else []
+    for end in ends:
+        hops = route(snapshot.rooms, player, end)
         if hops:
             path = tuple(hops)
             break
@@ -62,4 +68,5 @@ def build_map(
         visited=tuple(int((r.x, r.y, r.width, r.height) in visited) for r in snapshot.rooms) if visited else (),
         live=(pid, where.path) if pid and where.path else None,
         whole=whole,
+        units=units,
     )

@@ -15,8 +15,14 @@ the window after the second has passed with no third press, so a mashed key (thr
 0.19 to 0.4 s apart: 109 KP_1 presses since the level run, rca/2026-10-14/kp1-mode.md §2) switches nothing.
 The switch holds for the level it was made on and lapses on any other (a town visit included).
 
+A double press is judged by the clock, not by when the hunt looks: its window closes DOUBLE after its second press
+whether or not a look comes then, and a pair whose window closed before the next look still switches (`owed`). The
+game of 22:04 on 2026-10-14 (rca/2026-10-14/run-1904-findings.md §3.3) lost two of the player's pairs: a Blade Warp
+in flight and then the paused run made no look in their windows, and the next press 1.2 s and 2.3 s later began a new
+group over them. Every pair is honoured, the one that starts a run included (the player's ruling of 2026-10-14).
+
 Pure: the presses (`Taps`) are recorded by the hunt under its mailbox lock as they are posted, and judged at a
-look (`doubled`); nothing here reads the game.
+look (`doubles`); nothing here reads the game.
 """
 
 import math
@@ -35,25 +41,40 @@ SWITCHED = 'switched by the player'
 @dataclass(frozen=True)
 class Taps:
     """The pickup key's last presses, one group: each came within DOUBLE of the one before. `judged`: the group
-    has been looked at as a double press (it turns the mode over once)."""
+    has been looked at as a double press (it turns the mode over once). `owed`: the double presses of the groups
+    before it that no look acted on, as (first, last) in the order they were made: each turns the mode over at the
+    next look (`doubles`)."""
 
     first: float = -math.inf
     last: float = -math.inf
     count: int = 0
     judged: bool = False
+    owed: tuple[tuple[float, float], ...] = ()
 
 
 def tapped(taps: Taps, at: float) -> Taps:
-    """`taps` with a press made at `at`: one more of the group when within DOUBLE of its last, else a new group."""
+    """`taps` with a press made at `at`: one more of the group when within DOUBLE of its last, else a new group. A
+    group it ends that was a double press no look acted on is owed (its window closed by the clock)."""
     if 0.0 <= at - taps.last <= DOUBLE:
         return replace(taps, last=at, count=taps.count + 1)
-    return Taps(at, at, 1)
+    owed = (*taps.owed, (taps.first, taps.last)) if taps.count == 2 and not taps.judged else taps.owed
+    return Taps(at, at, 1, owed=owed)
 
 
 def doubled(taps: Taps, now: float) -> bool:
     """Whether the group is a double press to act on now: exactly two presses, the window after the second over
     (a third would make it a mashed key), not acted on yet."""
     return taps.count == 2 and not taps.judged and now - taps.last > DOUBLE
+
+
+def doubles(taps: Taps, now: float) -> tuple[tuple[tuple[float, float], ...], Taps]:
+    """The double presses to act on at a look at `now`, in the order made, as (first, last): those owed, then the
+    group's own once its window is over; and the presses with them acted on."""
+    found = taps.owed
+    if doubled(taps, now):
+        found = (*found, (taps.first, taps.last))
+        taps = replace(taps, judged=True)
+    return found, replace(taps, owed=())
 
 
 @dataclass(frozen=True)

@@ -52,6 +52,7 @@ CLEAR = 7.0  # world units around the Defiler that must be empty before Consume
 # column either: so far to a side, so far below (its body rises over the aim) and above.
 COVER_ACROSS, COVER_BELOW, COVER_ABOVE = 9.0, 26.0, 8.0
 CONSUME_ATTEMPTS = 3
+CONSUME_PAD_WAIT = 10.0  # seconds: Consume due in controller mode is asked again this often (`consume_again`)
 # A Defiler walks after it lands, so Consume is aimed at where it stands when the key goes down:
 # if it moved this many world units while the pointer travelled, the pointer follows (user, 2026-10-07).
 AIM_DRIFT = 1.0
@@ -371,6 +372,16 @@ def consume_again(cast: Casting) -> Tried:
     assert cast.world is not None
     assert cast.key_names is not None
     started = run.clock()
+    if run.pad is not None:
+        # Not by the pad for now: a Defiler summoned by the pad lands 2.4-3.4 units from the character whatever the
+        # heading asked (controllerskillsettings.json: usageType 0, distance 2), beside the bound demon, and Consume
+        # was not cast on any of four (22:09:10-15 on 2026-10-14, rca/2026-10-14/run-1904-findings.md §3.6). The pad's
+        # stick lead (macros/pad.py AIM_LEAD) turns a heading, not that distance: renewed in keyboard mode.
+        LOG.info(
+            'Macro: Consume: not renewed by the pad (its Defiler lands at the feet, by the bound demon); renewed in '
+            'keyboard mode, asked again in %.0fs', CONSUME_PAD_WAIT,
+        )  # fmt: skip
+        return Tried.again(started, CONSUME_RETRY, CONSUME_PAD_WAIT, touched=False)
     cast.buffs.remember(cast.row, started)
     on = cast.world.player is not None and cast.world.player.consume is True
     run.say('Consume renewed before the boss' if on else 'Consume ran out: casting it again')
@@ -378,7 +389,7 @@ def consume_again(cast: Casting) -> Tried:
         run.keys.update(cast.key_names(cast.world, keys_of(cast.row)))
         renew_consume(run)
     except (Abort, ValueError) as stop:
-        if run.cancelled.is_set():
+        if run.stops(stop):
             raise
         # A key of the player's stops any routine: that try was no failure of the cast, so the next
         # comes soon (09:58:00 on 2026-10-12: stopped by a key, and 20 s without the buff).

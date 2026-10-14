@@ -2,14 +2,18 @@
 the level's goal, clearing the way, by default; a full clear on a terror zone or after a double press of the key,
 for the level it was made on. The River of Flame's run goes to the Chaos Sanctuary's door and ends there."""
 
+import json
 import logging
 import math
 from dataclasses import replace
+from pathlib import Path
 
 from inventory_tracking.builds import pursuing
-from inventory_tracking.levels.model import Ground
+from inventory_tracking.builds.warlock.movement import BLADE_WARP_SOURCE
+from inventory_tracking.builds.warlock.skills import BLADE_WARP
+from inventory_tracking.levels.model import Ground, Walkable
 from inventory_tracking.macros import goals
-from inventory_tracking.macros.build import NoWay, Step
+from inventory_tracking.macros.build import MoveFacts, NoWay, Step
 from inventory_tracking.macros.goals import (
     CLEAR_WAY,
     REACH,
@@ -30,11 +34,12 @@ from inventory_tracking.macros.runmode import (
     aim_of,
     badge,
     doubled,
+    doubles,
     mode_of,
     said,
     tapped,
 )
-from inventory_tracking.macros.travel import PRESSED
+from inventory_tracking.macros.travel import AROUND_LEAST, NO_SPOT_ON_WAY, PRESSED, way_leg
 from inventory_tracking.routes.catalog import ROUTES
 from inventory_tracking.routes.model import ENTER, FIGHT, USE, Script
 from inventory_tracking.routes.progress import Progress
@@ -70,7 +75,25 @@ def test_a_mashed_key_or_two_presses_apart_switch_nothing() -> None:
     assert not doubled(presses(10.0, 10.25, 10.5), 20.0)  # three: a mashed key
     assert not doubled(presses(10.0, 10.25, 10.5, 10.75), 20.0)
     assert not doubled(presses(10.0, 10.0 + DOUBLE + 0.05), 20.0)  # two presses, each its own
-    assert presses(10.0, 10.2, 11.0) == Taps(11.0, 11.0, 1)  # a press after the window starts a new group
+    assert presses(10.0, 10.25, 10.5, 11.0) == Taps(11.0, 11.0, 1)  # a press after the window starts a new group
+    # ... and a double press it ends that no look acted on is owed: its window closed by the clock
+    assert presses(10.0, 10.2, 11.0) == Taps(11.0, 11.0, 1, owed=((10.0, 10.2),))
+
+
+def test_a_double_press_is_judged_by_the_clock_whether_or_not_a_look_came_in_its_window() -> None:
+    """The game of 22:04 on 2026-10-14 (run-1904-findings.md §3.3): two of the player's pairs (22:07:19.30/19.52
+    and 31.07/31.23) were lost: no look came in their windows (a Blade Warp in flight, then the run paused for the
+    player's hand), and the next press 1.2 s and 2.3 s later began a new group over them."""
+    taps = presses(19.30, 19.52, 20.72)
+    found, after = doubles(taps, 20.80)
+    assert found == ((19.30, 19.52),)  # owed: the next look acts on it
+    assert after == Taps(20.72, 20.72, 1)  # acted on once
+    assert doubles(after, 30.0) == ((), after)
+    both = presses(19.30, 19.52, 20.72, 31.07, 31.23)
+    found, after = doubles(both, 31.23 + DOUBLE + 0.01)
+    assert found == ((19.30, 19.52), (31.07, 31.23))  # each, in the order made
+    assert after.judged
+    assert doubles(presses(10.0, 10.25, 10.5, 11.0), 20.0)[0] == ()  # a mash owes nothing
 
 
 # -- the mode -----------------------------------------------------------------------------------------------------
@@ -159,6 +182,34 @@ def test_the_river_run_goes_to_the_door_fights_on_the_way_and_ends_there() -> No
     assert decide(facts(DOOR), replace(RUN, key='teleport', pressed_at=100.0, advance=True)) == Defer(DOOR)
 
 
+def test_the_river_door_run_ends_where_no_step_toward_the_door_is_left() -> None:
+    """22:08:45 on 2026-10-14 (run-1904-findings.md §3.4): a pad warp landed at (7797.2, 5602.2), 5.5 units from the
+    door's mark, 0.5 past the door goal's PLACE_NEAR of 5, and the run stood there 23 s: "No way toward Chaos Sanctum:
+    no spot on the walked way ...". On the ground the game had loaded (the take's), the way's last cell is 3.7 units
+    off at the edge of the loaded rooms, which no straight walk reaches, and a pad warp is 15-19 units long. The rule
+    is the goal's, not the River's: a way with no step left, the goal nearer than the shortest move (AROUND_LEAST)
+    past its arrival distance, is an arrival."""
+    fixture = json.loads((Path(__file__).parent / 'fixtures' / 'river-door-ground.json').read_text())
+    ground = Ground(tuple(Walkable(**grid) for grid in fixture['ground']))
+    mark, here = (7800.0, 5597.5), (7797.2, 5602.2)
+    move = MoveFacts(here, 100.0, (BLADE_WARP,), None, ground, (), 2560 / 1418, pad=True)
+    leg = way_leg(move, mark, PRESSED, jumps=(BLADE_WARP_SOURCE.pad_jump(),))
+    assert leg == NoWay(NO_SPOT_ON_WAY)  # the navigator as the game had it: no move from here
+    door = replace(DOOR, place=mark)
+    stood = replace(facts(door, way=lambda: leg), beyond=math.dist(here, mark) - door.near, least_move=AROUND_LEAST)
+    assert decide(stood, RUN) == Ended(
+        f'at Chaos Sanctum (no step toward it is left, 0.5 units past its 5: {NO_SPOT_ON_WAY}): going through takes '
+        'a press'
+    )
+    assert decide(replace(stood, beyond=AROUND_LEAST + 0.1), RUN) == NoWay(
+        f'no way toward Chaos Sanctum: {NO_SPOT_ON_WAY}'
+    )
+    place = Goal('the mark', mark, goals.REACH, goals.PLACE_NEAR, PRESSED, route='a route')  # any place goal
+    assert decide(replace(stood, goal=place), RUN) == NoWay(
+        f'at the mark (no step toward it is left, 0.5 units past its 5: {NO_SPOT_ON_WAY})', arrived=True
+    )
+
+
 def test_a_full_clear_works_a_level_with_no_route_and_its_end_is_the_runs() -> None:
     room = rest_of_level(((50.0, 0.0), 'an unexplored room', None), None, 22.0, PRESSED)
     assert decide(facts(room), RUN) == Move(STEP, room)
@@ -193,6 +244,28 @@ def test_a_double_press_switches_the_level_to_a_full_clear_and_both_presses_run_
         'Macro: run: full clear (switched by the player)',
         'Macro: run: to Diablo, clearing the way',
         'Macro: run: to Chaos Sanctum, clearing the way',
+    ]
+
+
+def test_a_pair_no_look_came_in_the_window_of_still_switches_the_level(caplog) -> None:
+    """A double press while the run was looking elsewhere (a warp in flight, the hand's pause) and a press after its
+    window: the next look switches the level all the same, said with how late."""
+    play = game(area=RIVER)
+    hunt = hunter(play)
+    hunt.build = pursuing(hunt.build)
+    hunt.bearings = Bearings(Progress(ROUTES, PERFORMED, wanted=lambda area: False))
+    run = play.run()
+    for at in (19.30, 19.52, 20.72):
+        hunt.post(Pursuit('pickup', at, advance=False, leash=FULL))
+    with caplog.at_level(logging.INFO):
+        play.clock.now = 20.80
+        assert hunt.run_mode(run, RIVER, hunt.pursuit) == Mode(True, SWITCHED)
+        play.clock.now = 25.0
+        assert hunt.run_mode(run, RIVER, hunt.pursuit) == Mode(True, SWITCHED)  # once
+    lines = [r.getMessage() for r in caplog.records if 'double press' in r.getMessage()]
+    assert lines == [
+        'Macro: run: a double press of the pickup key (0.22 s apart, its window closed 0.93 s before this look): '
+        'goal -> full clear'
     ]
 
 

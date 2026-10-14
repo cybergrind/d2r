@@ -252,7 +252,7 @@ def approach(run: Run, drop: Spot, level: Level | None, key_names) -> None:
         try:
             hop_toward(run, target, player, rect, key_names)
         except Abort as stop:
-            if run.cancelled.is_set():
+            if run.stops(stop):
                 raise
             if moved_in_hand(run, drop, level, aspect, key_names, stop):
                 continue

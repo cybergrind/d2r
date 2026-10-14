@@ -10,7 +10,7 @@ sets behind `macros/travel.py` `navigator`, which are given the goal's place and
 here: this module knows of no wall and of no way to move.
 
 `goal_of` is the goal a press of the teleport key means now, and the one attack mode stands by between
-presses: pure, from the route's stage, the level card's mark, the hostiles in the world and what the
+presses; `route_goal` is its part of the route's alone, which the level card's arrow follows too: pure, from the route's stage, the level card's mark, the hostiles in the world and what the
 tracker remembers. Every stage has a place. A fight's is its boss: where it stands now, else where a boss
 was last seen alive, else the stage's own mark, else whatever of the level is left to look for it in
 (the label says which). A valuable beside the character comes before all of it, as a goal of its own
@@ -264,6 +264,39 @@ def goal_of(
         )
     if stay is not None:
         return Goal(stay.label, (stay.x, stay.y), WAIT, STAND_NEAR, spend, unit=stay.unit_id)
+    return route_goal(
+        here,
+        spend=spend,
+        reach=reach,
+        stage=stage,
+        route=route,
+        card=card,
+        foes=foes,
+        remembered=remembered,
+        supers=supers,
+        gone=gone,
+        elsewhere=elsewhere,
+    )
+
+
+def route_goal(
+    here: Point,
+    *,
+    spend: Intent,
+    reach: float,
+    stage: Stage | None = None,
+    route: str = '',
+    card: Target | None = None,
+    foes: Sequence[Monster] = (),
+    remembered: Sequence[tuple[int, float, float, bool]] = (),
+    supers: Sequence[Point] = (),
+    gone: frozenset[int] = frozenset(),
+    elsewhere: Callable[[], tuple[Point, str] | None] | None = None,
+) -> Goal | None:
+    """The route's own goal, the stage's and nothing on the side: what `goal_of` means with no drop to take
+    and no valuable to stand by, and what the level card's first row points at (macros/card_goal.py; the
+    player, 2026-10-14: the arrow follows the next undone goal, the macro's own goal model). The arguments
+    are `goal_of`'s. None: there is nothing to go to (no stage, no mark, nothing known of the boss)."""
     mark = card if card is not None and stage is not None and card.label == stage.mark else None
     if stage is not None and stage.kind in (LOOT, LEAVE):
         return Goal(stage.text(), here, stage.kind, math.inf, spend, route=route, stage=stage)

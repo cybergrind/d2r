@@ -70,6 +70,7 @@ class Monster:
     stats: tuple[tuple[int, int, int], ...] | None = None  # (layer, stat id, raw); first sight only
     base_stats: tuple[tuple[int, int, int], ...] | None = None  # first sight only
     path: int = field(default=0, compare=False)  # address of the dynamic path (hud/live.py)
+    unit: int = field(default=0, compare=False)  # address of the unit record: its mode and path, read live (hud/live.py)
 
 
 @dataclass(frozen=True)
@@ -134,7 +135,7 @@ def monster_units(read, table_address, *, known) -> tuple[list[Monster], bool]:
         area, room = room_area(read, struct.unpack_from('<Q', path, PATH_ROOM1)[0], rooms)
         details = {} if unit['unit_id'] in known else first_sight(read, unit)
         monster = Monster(unit['unit_id'], unit['txt_id'], unit['mode'], x, y, area, room, **details)
-        found.append(replace(monster, path=unit['path_pointer']))
+        found.append(replace(monster, path=unit['path_pointer'], unit=unit['address']))
     return found, walked['complete']
 
 

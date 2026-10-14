@@ -281,3 +281,22 @@ def test_keyboard_mode_casts_engorge_by_its_keyboard_slot_as_before():
     press_skill(run, ENGORGE)
     assert game.pressed() == ['e']
     assert run.pad is None
+
+
+def test_the_consume_renewal_is_held_off_in_controller_mode(caplog):
+    """22:09:10-15 on 2026-10-14 (rca/2026-10-14/run-1904-findings.md §3.6): four Defilers summoned by the pad landed
+    2.4-3.4 units from the character, whatever the heading asked (the controller's distance 2), each beside the bound
+    demon, and no Consume was cast. The pad's stick lead turns a heading, not that distance: attack mode's renewal
+    waits for keyboard mode, said, and presses nothing."""
+    play = Gaps()
+    run = play.run()
+    buffs = Buffs(run.build)
+    row = next(row for row in BUFFS if row.caster == 'consume')
+    seen = run.world()
+    with caplog.at_level(logging.INFO, 'inventory_tracking'):
+        due = buffs.due(run, row, buffs.facts(run, seen))
+        assert due is not None
+        tried = buffs.cast(run, due, lambda world, skills: run.pad.keys(skills, key_file))
+    assert not tried.cast
+    assert play.pad.presses() == []
+    assert 'Macro: Consume: not renewed by the pad (its Defiler lands at the feet, by the bound demon)' in caplog.text

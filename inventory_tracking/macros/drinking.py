@@ -161,6 +161,8 @@ class Drinker:
         except Cancelled:
             raise
         except Abort as stop:
+            if run.stops(stop):
+                raise
             LOG.info('Macro: no %s on %s now: %s', NAMES[kind].lower(), key, stop)
             return False
         finally:

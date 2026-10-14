@@ -162,6 +162,22 @@ def is_minion(event) -> bool:
     return len(data) >= 2 * (TYPE_FLAGS + 1) and bool(int(data[2 * TYPE_FLAGS : 2 * TYPE_FLAGS + 2], 16) & MINION_FLAG)
 
 
+def ally(event) -> bool:
+    """A monster first seen as an ally (alignment stat: a summon, the mercenary) or a siege work (BARRICADES):
+    never counted, never remembered. Shared with the HUD's own walk of the monster table (hud/live.py)."""
+    return bool(stat(event, ALIGNMENT_STAT)) or event.get('txt_id') in BARRICADES
+
+
+def counted(event) -> bool:
+    """A hostile the tracker counts and marks: not an ally, nor a unit that never dies (UNKILLABLE)."""
+    return not ally(event) and event.get('txt_id') not in UNKILLABLE
+
+
+def leading(event) -> bool:
+    """A pack leader (unique, champion, super unique), not a minion: a 'leader' dot rather than a 'mob' one."""
+    return bool((data_byte(event, TYPE_FLAGS) or 0) & LEADER_FLAGS) and not is_minion(event)
+
+
 def percent(value: float) -> str:
     """One decimal from 1% up, two below it (a single kill's chance is always small)."""
     return f'{value:.1%}' if value >= 0.01 else f'{value:.2%}'
@@ -200,6 +216,7 @@ class ZoneTracker:
         self.layouts: dict[int, tuple] = {}  # area -> its rooms (levels/model.py Room), from the level guide
         self.lost: dict[int, tuple[int, int | None]] = {}  # unit id -> (area, Herald tier): not where remembered
         self.paths: dict[int, int] = {}  # unit id -> dynamic path address, units in the last walk only
+        self.units: dict[int, int] = {}  # unit id -> unit record address, units in the last walk only
         self.dead: dict[int, int] = {}  # hostile unit id -> area, killed at least once this game
         self.modifiers: dict[str, deque[int]] = {}  # Terror Zone -> recent forced modifiers of plain monsters
         self.votes: dict[str, deque[bool]] = {}  # Terror Zone -> recent plain sightings: forced modifier?
@@ -391,10 +408,10 @@ class ZoneTracker:
 
     def saw(self, event):
         unit_id, group = event['unit_id'], group_of(event['area'])
-        if stat(event, ALIGNMENT_STAT) or event.get('txt_id') in BARRICADES:
+        if ally(event):
             self.allies.add(unit_id)
             return
-        if event.get('txt_id') in UNKILLABLE:
+        if not counted(event):
             return
         if group and data_byte(event, TYPE_FLAGS) == 0 and not stat(event, HERALD_TIER_STAT):
             modifier = data_byte(event, FIRST_MODIFIER)
@@ -408,7 +425,7 @@ class ZoneTracker:
             if not (event['x'] or event['y']):
                 self.lost[unit_id] = (self.positions.pop(unit_id)[0], None)
             flags = data_byte(event, TYPE_FLAGS) or 0
-            if flags & LEADER_FLAGS and not is_minion(event):
+            if leading(event):
                 self.leaders.add(unit_id)
                 if not stat(event, HERALD_TIER_STAT) and event.get('txt_id') is not None:
                     kind = 'super' if flags & SUPER_FLAG else 'champion' if flags & CHAMPION_FLAG else 'unique'
@@ -439,6 +456,7 @@ class ZoneTracker:
         # Only units the client holds now: one that left its range keeps its dot, but the game frees
         # its path and reuses the memory for other units, missiles included (RCA 2026-10-05).
         self.paths = {monster.unit_id: monster.path for monster in monsters if monster.path}
+        self.units = {monster.unit_id: monster.unit for monster in monsters if getattr(monster, 'unit', 0)}
         if location is not None:
             self.explore(location)
         for monster in monsters:
@@ -479,7 +497,15 @@ class ZoneTracker:
 
     def herald_dots(self, area: int) -> list[MapPoi]:
         return [
-            MapPoi(f'Herald T{tier}', 'herald', x / TILE_UNITS, y / TILE_UNITS, self.paths.get(unit_id, 0))
+            MapPoi(
+                f'Herald T{tier}',
+                'herald',
+                x / TILE_UNITS,
+                y / TILE_UNITS,
+                self.paths.get(unit_id, 0),
+                self.units.get(unit_id, 0),
+                unit_id,
+            )
             for unit_id, (tier, where, x, y) in self.live_heralds.items()
             if where == area
         ]
@@ -532,9 +558,10 @@ class ZoneTracker:
                 if unit_id in self.leaders:  # told apart from its pack whatever the band (user, 2026-10-06)
                     kind = 'elite' if kind == 'danger' else 'leader'
                 label = 'unique' if unit_id in self.leaders else 'monster'
-                # The HUD follows the marked ones between passes (hud/live.py).
-                path = self.paths.get(unit_id, 0) if kind in ('leader', 'danger', 'elite') else 0
-                dots[kind].append(MapPoi(label, kind, x / TILE_UNITS, y / TILE_UNITS, path))
+                # The HUD follows every one between cards, its position and whether it lives (hud/live.py):
+                # rca/2026-10-14/run-1916-hud-findings.md §2, fix 1.
+                path, unit = self.paths.get(unit_id, 0), self.units.get(unit_id, 0)
+                dots[kind].append(MapPoi(label, kind, x / TILE_UNITS, y / TILE_UNITS, path, unit, unit_id))
         deadly = [pack for pack in found if pack.band == 'deadly']
         centres = [MapPoi(pack.label, 'pack', pack.x / TILE_UNITS, pack.y / TILE_UNITS) for pack in deadly]
         return [
@@ -599,6 +626,16 @@ class ZoneTracker:
             (unit_id, float(x), float(y), unit_id in self.leaders)
             for unit_id, (where, x, y) in self.positions.items()
             if where == area and unit_id not in self.allies
+        ]
+
+    def hostiles(self, area: int) -> list[tuple[int, int, int, float, float]]:
+        """(unit id, txt id, type flags, x, y) of the hostile monsters alive in `area` at their last seen position,
+        world units, those first seen with their data: what the level card's goal finds a boss among
+        (macros/card_goal.py)."""
+        return [
+            (unit_id, self.traits[unit_id][0], self.ranks.get(unit_id, (0, 0))[0], float(x), float(y))
+            for unit_id, (where, x, y) in self.positions.items()
+            if where == area and unit_id not in self.allies and unit_id in self.traits
         ]
 
     def visited_rooms(self, area: int) -> set[tuple]:

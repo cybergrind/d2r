@@ -106,6 +106,7 @@ from inventory_tracking.levels.memory import observe_walkable, observe_waypoints
 from inventory_tracking.levels.walls import WallLibrary
 from inventory_tracking.loot.materials import material_classes
 from inventory_tracking.loot.watch import RuneWatcher
+from inventory_tracking.macros.card_goal import CardGoals
 from inventory_tracking.macros.hunt import Hunter
 from inventory_tracking.macros.latency import FILE as LATENCY_FILE, Trace
 from inventory_tracking.macros.pad import KeyRoute, PadPlay
@@ -124,6 +125,7 @@ from inventory_tracking.macros.runner import (
     MacroRunner,
 )
 from inventory_tracking.macros.skills import NAMES as SKILL_NAMES
+from inventory_tracking.macros.world import observe_things
 from inventory_tracking.native.process import find_game_processes
 from inventory_tracking.native.session import GameNotReady, GameProcessUnavailable
 from inventory_tracking.osd.__main__ import positive_float
@@ -735,6 +737,14 @@ def run_service(args, directory, report):
                             observe_waypoints=observe_waypoints,
                             pinned=APPRAISAL.level_guide_pinned,
                             lead=progress.lead,
+                            # The first row and arrow: the route's goal, the macro's own (macros/card_goal.py).
+                            goals=CardGoals(
+                                progress,
+                                hostiles=zones.hostiles if zones is not None else None,
+                                remembered=zones.remembered if zones is not None else None,
+                                supers=zones.supers if zones is not None else None,
+                            ),
+                            observe_things=observe_things,
                         )
                         macro.target = guide.target  # the teleport step moves toward the card's first mark
                         macro.marks = guide.marks

@@ -54,6 +54,7 @@ goes next to it and stays (what comes is fought, as the arbiter prices it), sayi
 (the drop is then one to take: a pickup goal) or the player goes on (a fresh press lets it go).
 """
 
+import math
 from collections.abc import Callable
 from dataclasses import dataclass, field
 
@@ -144,6 +145,11 @@ class Facts:
     safety: SafetySettings = field(default_factory=SafetySettings)
     quiet: float = 0.0  # seconds since the fight last saw a strike, counted while `near`
     near: bool = False  # a hostile within the strike's reach, a clear line or not: the strike gap counts (I2)
+    # Units the character stands past the goal's `near`, for a goal whose arrival is a distance from its place (a
+    # place, a door); inf for the others. Under `least_move`, the shortest move the navigator makes (a walk along the
+    # way: travel.py AROUND_LEAST), a way with no step left is an arrival (`moved`).
+    beyond: float = math.inf
+    least_move: float = 0.0
 
 
 @dataclass(frozen=True)
@@ -207,6 +213,7 @@ class Candidate:
     keeps: bool = False
 
 
+NO_STEP_LEFT = 'no step toward it is left'  # the arrival said for that (`moved`)
 KEEPING = 'retreating within strike reach: no act here fits the life budget'  # `Macro: pursuit: retreating within ...`
 
 
@@ -359,6 +366,8 @@ def to_the_door(facts: Facts, goal: Goal) -> Act:
     if facts.there:
         return ended
     found = moved(facts, goal)
+    if isinstance(found, NoWay) and found.arrived and NO_STEP_LEFT in found.reason:
+        return Ended(f'{found.reason}: going through takes a press')
     return ended if isinstance(found, NoWay) and found.arrived else found
 
 
@@ -391,6 +400,14 @@ def moved(facts: Facts, goal: Goal) -> Act:
         if goal.do == FIGHT and not facts.in_reach and facts.attacking:
             return NoWay(f'{goal.label}: as near as a move ends, and nothing in reach ({found.reason})', arrived=True)
         return arrived(facts, goal)
+    if facts.beyond < facts.least_move:
+        # The way has no step left, and the goal is nearer than any move could bring it: as near as it gets (the
+        # River's door, 22:08:45 on 2026-10-14: 23 s standing 0.5 units past its 5, run-1904-findings.md §3.4)
+        done = arrived(facts, goal)
+        if isinstance(done, NoWay) and done.arrived:
+            near = f'{NO_STEP_LEFT}, {facts.beyond:.1f} units past its {goal.near:g}: {found.reason}'
+            return NoWay(f'{done.reason} ({near})', arrived=True)
+        return done
     return NoWay(f'no way toward {goal.label}: {found.reason}')
 
 

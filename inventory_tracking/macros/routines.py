@@ -366,7 +366,7 @@ def take_battle_weapons(run: Run) -> None:
     try:
         take_weapons(run, run.battle_hands, 'main')
     except Abort as stop:
-        if run.cancelled.is_set():
+        if run.stops(stop):
             raise
         LOG.info('Macro: %s; going on with what is held', stop)
 

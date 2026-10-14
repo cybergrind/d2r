@@ -258,6 +258,11 @@ def facts_with(
     player = world.player
     assert player is not None
     now = run.clock()
+    failed = dict(travel.jump_failed)
+    if run.pad is not None and run.pad.walk_owed(now):
+        # Controller mode, the last jump landed far off its heading (macros/pad.py `astray`): no jump for the next
+        # leg, which is walked (the walk goes where the stick points; a jump went where the character faced)
+        failed.update(dict.fromkeys(run.pad.reach, now))
     return MoveFacts(
         here=(player.x, player.y),
         now=now,
@@ -267,7 +272,7 @@ def facts_with(
         doors=world.doors,
         aspect=aspect,
         last_used=travel.counted(now, player.cooldown, lead),
-        failed=dict(travel.jump_failed),
+        failed=failed,
         area=player.area,
         rooms=rooms,
         distrusted=dict(travel.distrusted),
@@ -892,6 +897,8 @@ class Travel:
         landed_at = run.clock()
         landed = landing.player
         assert landed is not None
+        if run.pad is not None:
+            run.pad.landing((landed.x, landed.y))  # judged now: an astray landing has the next leg walked
         LOG.info(
             'Macro: %s aimed at (%.1f, %.1f), %.1f from (%.1f, %.1f); landed at (%.1f, %.1f), off by %.1f, '
             '%.2fs after the key',
@@ -971,8 +978,8 @@ class Travel:
             return
         try:
             run.actuator.aim(*where, scatter=(4, 3))
-        except Abort:
-            if run.cancelled.is_set():
+        except Abort as stop:
+            if run.stops(stop):
                 raise
 
     def ahead(

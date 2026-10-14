@@ -1,14 +1,16 @@
 """The macros' pad back end: the acts of a run made with the virtual pad while the game is in controller mode.
 
 rca/2026-10-13/controller-mode.md (plan step 9). A run plays in one input mode, the game's at its start
-(`input_policy`, asked by runner.py); a flip during the run stops it at the next act, as a key of the player's
-does. Keyboard mode is the keyboard back end: the code of every routine as it was. In controller mode the
-routines ask `Run.pad` (a `PadActs`) at the few places where they would move the pointer, click or tap a skill
-key, and nowhere else:
+(`input_policy`, asked by runner.py); a flip during the run ends it at the next act (`Flipped`, wherever it is
+caught), and the runner makes the same request again in the new mode. Keyboard mode is the keyboard back end: the
+code of every routine as it was. In controller mode the routines ask `Run.pad` (a `PadActs`) at the few places
+where they would move the pointer, click or tap a skill key, and nowhere else:
 
 - a cast: `aim_unit` (the client picks its own target, +0xD10: the character is turned toward the unit and the
   target must name it, else nothing is cast) or `aim_place` (a heading: a ground cast lands at its skill's own
-  distance in the stick's direction), then `cast` (the record's button, LT with it for records 6-11);
+  distance along the character's facing at the button's down, so the stick is held AIM_LEAD toward the heading
+  before the button, and through it), then `cast` (the record's button, LT with it for records 6-11); a jump that
+  still lands more than ASTRAY degrees off has the next leg walked (`walk_owed`);
 - the held strike: `hold`, steered by `steer`;
 - a walk: `walk` (the left stick held toward the place, aimed again at every look, centred in every `finally`);
 - an object or a door: `interact` (stand by it, the target names it, A); an item: `pick_up` (stand on it, so it
@@ -52,7 +54,7 @@ from inventory_tracking.combat.stance import AWARE, RUN_SPEED, WALK_LATENCY
 from inventory_tracking.common import LOG
 from inventory_tracking.input.gamepad import KEY_RECORDS, MODIFIER, Pad, record_buttons, record_label
 from inventory_tracking.input.keybindings import MODIFIERS, action_keys, button_number, x11_name
-from inventory_tracking.macros.actuator import Abort, Actuator, Cancelled
+from inventory_tracking.macros.actuator import Abort, Actuator, Cancelled, Flipped
 from inventory_tracking.macros.skills import (
     ACTIONS,
     ATTACK,
@@ -92,6 +94,19 @@ WALK_STICK = 1.0  # a walk: the stick all the way (past stickRunToggleThreshold 
 FACE_STICK = 0.5  # a nudge that turns the character toward a unit: past the 0.4 dead zone (read)
 FACE_SECONDS = 0.05  # held that long: about three of the game's frames, a turn and not a step (inferred)
 AIM_STICK = 0.6  # held while the button of a cast with a heading goes down (the free target's direction)
+# A cast with a heading has its stick held this long before its button goes down, and through the press. The game of
+# 22:04 on 2026-10-14 (rca/2026-10-14/run-1904-findings.md §3.1, its take's `sent` rows): the stick and the button
+# went out in the same millisecond for all 53 landed Blade Warps (the button held 47-99 ms with the stick held through
+# it), and 36 landed along the character's facing before the press, 3 along the stick alone: the client takes a free
+# target's direction at the button's down, before the stick has turned the character. A pushed stick shows in the
+# game 6-58 ms after it is sent (23 pad walks from a centred stick: the character's mode or place changed at the
+# first recorded frame after the push, median 29 ms; the frames are 40 ms apart, the game's tick): two such frames.
+AIM_LEAD = 0.08
+# Degrees: a pad jump that lands further off the heading asked than this has the next leg walked (`astray`,
+# macros/travel.py `facts_with`): one wrong landing re-plans from the wrong place, and the next jump went the same
+# wrong way (14 in a row at 90 degrees, 22:06:56-22:07:10). The walk is accurate (off -18..+8 degrees over 22 walks).
+ASTRAY = 60.0
+ASTRAY_SECONDS = 3.0  # an astray jump's walk is owed this long at most (no walk asked meanwhile: a fight, a stop)
 TARGET_WAIT = 0.3  # seconds the controller's target is given to name the unit after the nudge
 TARGET_POLL = 0.02
 STEER_EVERY = 0.25  # seconds between two nudges under the held strike
@@ -273,9 +288,9 @@ class PadActuator:
         if mode is None:
             raise Abort('the input mode cannot be read')
         if mode.pending:
-            raise Abort('the input mode is switching')
+            raise Flipped('the input mode is switching')
         if not mode.controller:
-            raise Abort('the game is in keyboard mode now')
+            raise Flipped('the game is in keyboard mode now')
 
     def press(self, *names: str) -> None:
         self.guard()
@@ -362,6 +377,9 @@ class PadActs:
         self.aimed: Aimed | None = None
         self.pressed = False  # whether the last `cast` pressed its record (a unit's no longer named: not)
         self.jumped: Jumped | None = None
+        # (skill, clock) of the last pad jump that landed more than ASTRAY degrees off its heading: the next leg is
+        # a walk (`walk_owed`); a walk made, or ASTRAY_SECONDS, lets it go.
+        self.astray: tuple[int, float] | None = None
         self.nudged_at = -math.inf
         self.steered: dict[int, float | None] = {}  # unit id -> when the strike's target first named it (None: not yet)
         self.settled: set[tuple[int, int]] = set()  # units whose settling time is logged
@@ -474,14 +492,31 @@ class PadActs:
 
     def landed(self, jumped: Jumped, here: Point, now: float) -> None:
         went = (here[0] - jumped.start[0], here[1] - jumped.start[1])
+        off = turned(heading_degrees(went), heading_degrees(jumped.heading))
         LOG.info(
             'Pad jump: %s toward %.0f degrees, reach %.0f (planned %.1f): landed %.1f away at %.0f degrees, off '
             '%+.0f degrees and %+.1f units, %.2fs after the press',
             skill_name(jumped.skill), heading_degrees(jumped.heading), jumped.reach, jumped.planned,
-            math.hypot(*went), heading_degrees(went), turned(heading_degrees(went), heading_degrees(jumped.heading)),
-            math.hypot(*went) - jumped.reach, now - jumped.at,
+            math.hypot(*went), heading_degrees(went), off, math.hypot(*went) - jumped.reach, now - jumped.at,
         )  # fmt: skip
         self.jumped = None
+        if abs(off) > ASTRAY:
+            self.astray = (jumped.skill, now)
+            LOG.info(
+                'Macro: pad jump: %s landed %+.0f degrees off the heading asked (%.0f): the next leg is walked',
+                skill_name(jumped.skill), off, heading_degrees(jumped.heading),
+            )  # fmt: skip
+
+    def landing(self, here: Point) -> None:
+        """The character seen landed at `here` by the caller that made the jump (macros/travel.py `Travel.jump`):
+        the jump's `Pad jump:` line and its judgement now, before the next leg is chosen, not at a later look."""
+        if self.jumped is not None and math.dist(here, self.jumped.start) >= MOVED:
+            self.landed(self.jumped, here, self.run.clock())
+
+    def walk_owed(self, now: float) -> bool:
+        """Whether the next leg is to be walked: the last pad jump landed more than ASTRAY degrees off its heading,
+        less than ASTRAY_SECONDS ago, and no walk has been made since."""
+        return self.astray is not None and now - self.astray[1] < ASTRAY_SECONDS
 
     # Aims, and the press that follows them.
 
@@ -570,8 +605,12 @@ class PadActs:
         if aimed is not None and aimed.unit is None:
             heading = aimed.heading
             try:
-                # The direction first, then the button: a free target lands along the stick (inferred).
+                # The stick first and held AIM_LEAD, then the button with the stick still held: the client takes a
+                # free target's direction from the character's facing at the button's down, and the stick turns the
+                # facing only a frame or two after it is pushed (run-1904-findings.md §3.1: sent together, 36 of 53
+                # jumps went along the facing before the press).
                 self.actuator.stick(*stick_for(heading, AIM_STICK))
+                self.run.pace.sleep(AIM_LEAD)
                 if record in KEY_RECORDS:
                     self.actuator.key(self.record_key(record))
                 else:
@@ -781,6 +820,8 @@ class PadActs:
                 world = run.world()
         finally:
             self.actuator.stick(0.0, 0.0)
+        if first is not None:
+            self.astray = None  # the leg owed after an astray jump is walked
         if first is not None and not measured:
             moved = math.dist(here, start)
             LOG.info(

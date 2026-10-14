@@ -6,7 +6,7 @@ from types import SimpleNamespace
 import pytest
 
 from inventory_tracking.macros import runner as runner_module
-from inventory_tracking.macros.actuator import Abort, Cancelled
+from inventory_tracking.macros.actuator import Abort, Cancelled, Flipped
 from inventory_tracking.macros.hunt import Hunter
 from inventory_tracking.macros.runner import MacroRunner
 from tests.inventory_tracking.macros.fakes import BUILD, KEYS
@@ -976,3 +976,96 @@ def test_every_run_is_given_the_builds_weapon_sets_not_only_the_prebuff_and_atta
 
     assert run.battle_hands == build.weapons.battle
     assert run.prebuff_hands == build.weapons.prebuff
+
+
+# -- a flip of the game's input mode under a run (rca/2026-10-14/run-1904-findings.md §3.2) -------------------------
+
+
+def test_a_flip_under_a_step_ends_it_and_the_same_request_starts_again(monkeypatch, caplog):
+    """KP_5 (the service's pad hotkey) flipped the game to controller mode under a run by the keys: the run could not
+    act, and the pursuit looped 57 times in 7 s. Now the flip ends the run and the request is made again once, in
+    the new mode (`play_by` chooses it at the run's start), said once."""
+    monkeypatch.setattr(runner_module, 'CARD_SECONDS', 0)
+    shown, runs, done = [], [], threading.Event()
+
+    def execute(cancelled, routine):
+        runs.append(routine)
+        if len(runs) == 1:
+            raise Flipped('the game left keyboard mode (a pad was touched)')
+        done.set()
+
+    runner = make(execute, shown)
+    with caplog.at_level('INFO'):
+        assert runner.request(10.0, 10.1, 'teleport')
+        assert done.wait(5)
+        runner.thread.join(5)
+    assert runs == ['teleport', 'teleport']
+    flips = [r.getMessage() for r in caplog.records if r.getMessage().startswith('Macro: input mode flipped')]
+    assert flips == [
+        'Macro: input mode flipped under teleport (the game left keyboard mode (a pad was touched)): the run ends '
+        'and the same request starts again'
+    ]
+    assert not any(line and line[0].startswith('Macro stopped') for line in shown)
+
+
+def test_a_flip_under_attack_mode_keeps_it_on_and_starts_it_again(monkeypatch):
+    monkeypatch.setattr(runner_module, 'CARD_SECONDS', 0)
+    runs, again = [], threading.Event()
+
+    def execute(cancelled, routine):
+        runs.append(routine)
+        if len(runs) == 1:
+            raise Flipped('the game is in keyboard mode now')
+        again.set()
+        assert cancelled.wait(5)
+        raise Cancelled
+
+    runner = make(execute, [])
+    assert runner.request(10.0, 10.1, 'hunt any')
+    assert again.wait(5)
+    assert runs == ['hunt any', 'hunt any']
+    assert runner.attack_mode
+    runner.request(11.0, 11.1, 'hunt any')  # off
+    runner.thread.join(5)
+    assert not runner.attack_mode
+
+
+def test_a_mode_that_keeps_flipping_stops_the_run(monkeypatch, caplog):
+    monkeypatch.setattr(runner_module, 'CARD_SECONDS', 0)
+    shown, runs = [], []
+
+    def execute(cancelled, routine):
+        runs.append(routine)
+        raise Flipped('the input mode is switching')
+
+    runner = make(execute, shown)
+    with caplog.at_level('INFO'):
+        assert runner.request(10.0, 10.1, 'teleport')
+        ends = time.monotonic() + 5
+        while ['Macro stopped: the input mode is switching'] not in shown and time.monotonic() < ends:
+            time.sleep(0.01)
+        runner.thread.join(5)
+    assert runs == ['teleport'] * (runner_module.FLIPS_AGAIN + 1)
+    assert ['Macro stopped: the input mode is switching'] in shown
+    assert 'restarts in 10 s, the run stops' in caplog.text
+
+
+def test_the_run_made_again_after_a_flip_waits_for_the_flip_to_be_over():
+    from inventory_tracking.macros.pad import PadPlay
+    from inventory_tracking.models import InputMode
+    from tests.inventory_tracking.macros.fakes import SLOTS, Game, world
+
+    modes = iter([InputMode(False, True, True), InputMode(False, True, True), InputMode(True)])
+    last = [InputMode(True)]
+
+    def mode():
+        last[0] = next(modes, last[0])
+        return last[0]
+
+    runner = MacroRunner(None, capture_lock=threading.Lock(), saved_games=None)  # type: ignore[arg-type]
+    runner.pad_play = PadPlay(lambda: None, mode, lambda: None, lambda: ())
+    run = Game(world(slots=SLOTS)).run()
+    runner.settling = True
+    runner.play_by(run, run.actuator, 'pickup')
+    assert run.pad is not None  # played by the pad once the flip to controller mode was over
+    assert not runner.settling

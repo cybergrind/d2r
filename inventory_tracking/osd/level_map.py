@@ -83,6 +83,14 @@ class MapPoi:
     x: float
     y: float
     path: int = 0  # address of a monster's dynamic path, when the HUD can follow it (hud/live.py)
+    # A monster's unit record and id: the HUD reads its mode and position every frame (hud/live.py `LiveDots`)
+    unit: int = 0
+    uid: int = 0
+
+    def row(self) -> list:
+        """The payload row: [label, kind, x, y], plus the path address when known, plus the unit's address and id."""
+        tail = [self.path, self.unit, self.uid] if self.unit else [self.path] if self.path else []
+        return [self.label, self.kind, self.x, self.y, *tail]
 
 
 @dataclass(frozen=True)
@@ -96,19 +104,23 @@ class MapCard:
     visited: tuple[int, ...] = ()  # per room: ever loaded 0/1; empty = unshaded
     live: tuple[int, int] | None = None  # (pid, player path address): the position's source (hud/live.py)
     whole: bool = False  # draw the whole level however small, not the part around the player
+    # (unit table address, area): the HUD walks the game's monster table for monsters the card has no dot for
+    # yet (hud/live.py `LiveDots`); None: it does not
+    units: tuple[int, int] | None = None
 
     def to_payload(self) -> dict:
         return {
             'map': {
                 'rooms': [list(room) for room in self.rooms],
                 'player': list(self.player),
-                'pois': [[p.label, p.kind, p.x, p.y, *([p.path] if p.path else [])] for p in self.pois],
+                'pois': [p.row() for p in self.pois],
                 'route': [list(point) for point in self.route],
                 'room_kinds': list(self.room_kinds),
                 'walkable': [list(grid) for grid in self.walkable],
                 'visited': list(self.visited),
                 'live': list(self.live) if self.live else None,
                 'whole': self.whole,
+                'units': list(self.units) if self.units else None,
             }
         }
 
@@ -119,7 +131,7 @@ class MapCard:
             rooms = tuple((int(x), int(y), int(w), int(h)) for x, y, w, h in data['rooms'])
             px, py = (float(v) for v in data['player'])
             pois = tuple(
-                MapPoi(str(label), str(kind), float(x), float(y), *(int(path) for path in rest[:1]))
+                MapPoi(str(label), str(kind), float(x), float(y), *(int(value) for value in rest[:3]))
                 for label, kind, x, y, *rest in data['pois']
             )
             route = tuple((float(x), float(y)) for x, y in data.get('route', ()))
@@ -128,9 +140,12 @@ class MapCard:
             visited = tuple(int(flag) for flag in data.get('visited', ()))
             live = data.get('live')
             live = (int(live[0]), int(live[1])) if live else None
+            units = data.get('units')
+            units = (int(units[0]), int(units[1])) if units else None
         except (KeyError, TypeError, ValueError) as exc:
             raise ValueError('Invalid map payload') from exc
-        return cls(rooms, (px, py), pois, route, kinds, walkable, visited, live, bool(data.get('whole', False)))
+        whole = bool(data.get('whole', False))
+        return cls(rooms, (px, py), pois, route, kinds, walkable, visited, live, whole, units)
 
 
 def project(x: float, y: float) -> tuple[float, float]:

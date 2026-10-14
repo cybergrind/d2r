@@ -133,9 +133,10 @@ from inventory_tracking.macros.routines import (
     TOWN_NPCS,
     take_battle_weapons,
 )
-from inventory_tracking.macros.runmode import Mode, Taps, aim_of, doubled, mode_of, said, tapped
+from inventory_tracking.macros.runmode import DOUBLE, Mode, Taps, aim_of, doubles, mode_of, said, tapped
 from inventory_tracking.macros.safety import AWAY, STEPPING, Safety
 from inventory_tracking.macros.sight import clear_shot, firing_spots, in_reach, in_reach as in_reach_of
+from inventory_tracking.macros.skillpanel import select_right
 from inventory_tracking.macros.skills import (
     SWAP_WEAPONS,
     TELEPORT,
@@ -158,6 +159,7 @@ from inventory_tracking.macros.teleport import (
 )
 from inventory_tracking.macros.tour import Bounds, tour
 from inventory_tracking.macros.travel import (
+    AROUND_LEAST,
     OWN_MOVE,
     PLAYER_STEP,
     PRESSED,
@@ -268,6 +270,7 @@ HARD_SCORE = 4.0  # the threat score (terror/danger.py) of what is in reach from
 MAIN_AFTER = 1.0  # seconds after a step before the main weapons are swapped in for a fight
 SWAP_RETRY_SECONDS = 5.0  # after a swap to the main weapons that did not come
 INPUT_SECONDS = 1.0  # Echoing Strike on no input for this long (another skill selected) before it is a stopped fight
+STRIKE_BACK_RETRY = 10.0  # seconds between two tries of the skill selection for the strike (`strike_back`)
 MISSES_IN_A_ROW = 5  # fights that stopped one after another before attack mode gives up
 IDLE_LOG_SECONDS = 3.0  # between log lines on what attack mode sees while nothing is in reach
 # The run mode (macros/runmode.py): a level run's fight on its way or of the rest of the level (goals.py
@@ -418,6 +421,8 @@ def strike_input(run: Run, world: World, key_names, skill: int) -> tuple[tuple[s
             run.keys.update(key_names(world, (skill,)))
             return (run.keys[skill],), f'key {run.keys[skill]}'
         except Abort as problem:
+            if run.stops(problem):
+                raise
             LOG.info('Macro: %s; trying the left mouse button', problem)
     if player.left_skill == skill:
         return ('Shift_L', 'Button1'), 'Shift+click'
@@ -518,6 +523,7 @@ class Hunter:
         self.pointer_seen: tuple[int, int] | None = None
         # (the reason, how many times in a row) an act of the loop's was given up for: said every time (I1, I6)
         self.refused: tuple[str, int] | None = None
+        self.struck_back_at = -math.inf  # when the strike was last selected on the right button (`strike_back`)
         self.waived: set[int] = set()  # valuables with no room a press went on from: not waited by again
         self.warned: int | None = None  # the valuable the card's "Inventory full" warning is of
         self.potions = Potions()  # the potions of the level, why one was left, the belt's healing (supply.py)
@@ -1104,17 +1110,18 @@ class Hunter:
         if self.switched is not None and self.switched[0] != area:
             self.switched = None
         with self.mailbox:
-            taps = self.taps
-            double = doubled(taps, now)
-            if double:
-                self.taps = replace(taps, judged=True)
+            pairs, self.taps = doubles(self.taps, now)
         terror = self.bearings.terror(area)
-        if double:
+        for first, last in pairs:
+            # Each double press by the clock, also one no look came in the window of (runmode.py `owed`)
             before = mode_of(area, terror, self.switched)
             self.switched = (area, not before.clear)
             was, then = ('full clear', 'goal') if before.clear else ('goal', 'full clear')
-            apart = taps.last - taps.first
-            LOG.info('Macro: run: a double press of the pickup key (%.2f s apart): %s -> %s', apart, was, then)
+            closed = now - last - DOUBLE  # seconds its window had been closed at this look
+            late = '' if closed <= DOUBLE else f', its window closed {closed:.2f} s before this look'
+            LOG.info(
+                'Macro: run: a double press of the pickup key (%.2f s apart%s): %s -> %s', last - first, late, was, then
+            )
         mode = self.mode = mode_of(area, terror, self.switched)
         if posted is not None and posted.leashed:
             line = said(mode, aim_of(self.bearings.script(area)))
@@ -1153,7 +1160,7 @@ class Hunter:
         self.pursued = goal
         level = self.known_level(player)
         rect = run.actuator.keys.focused_window_rect()
-        place, there = None, False
+        place, there, beyond = None, False, math.inf
         if goal is not None:
             place = goal.place
             if goal.do == FIGHT:
@@ -1186,6 +1193,7 @@ class Hunter:
                         )  # fmt: skip
             else:
                 there = goal.gap(here) <= goal.near
+                beyond = max(goal.gap(here) - goal.near, 0.0)  # an arrival by distance (pursuit.py `moved`)
 
         def way():
             if goal is None or place is None or rect is None:
@@ -1193,7 +1201,10 @@ class Hunter:
             rooms = level.rooms if level is not None else ()
             return self.travel.toward(run, world, ground, rect[2] / rect[3], place, goal.spend, rooms)
 
-        facts = Facts(now, goal, there, in_reach, attacking, way, player.area, now < self.settled_at)
+        facts = Facts(
+            now, goal, there, in_reach, attacking, way, player.area, now < self.settled_at,
+            beyond=beyond, least_move=AROUND_LEAST,
+        )  # fmt: skip
         # The strike gap counts while a hostile is within the strike's reach, a clear line or not (I2)
         near = any(math.dist(here, (m.x, m.y)) <= self.reach for m in foes)
         facts = replace(facts, quiet=min(now - self.struck_at, 60.0) if near else 0.0, near=near)
@@ -1303,7 +1314,7 @@ class Hunter:
         try:
             self.travel.make(run, act.step, world, aspect, key_names, ground, name=act.goal.label, hurry=act.dodge)
         except Abort as stop:
-            if run.cancelled.is_set():
+            if run.stops(stop):
                 raise
             LOG.info('Macro: attack mode: the step to (%.1f, %.1f) failed (%s)', *act.step.spot, stop)
 
@@ -1452,7 +1463,7 @@ class Hunter:
             self.told.new(None)
             self.refused = None
         except Abort as stop:
-            if run.cancelled.is_set():
+            if run.stops(stop):
                 raise
             if isinstance(act, Operate) and act.goal.do == PICK_UP and act.goal.unit is not None:
                 if len(self.tried) > 200:
@@ -1818,7 +1829,7 @@ class Hunter:
         try:
             self.travel.make(run, found, world, aspect, key_names, ground, name=target.label, intent=PLAYER_STEP)
         except Abort as stop:
-            if run.cancelled.is_set():
+            if run.stops(stop):
                 raise
             LOG.info('Macro: no %s toward %s (%s): the hop is a Teleport', skill_name(spare.skill), target.label, stop)
             return False
@@ -2068,7 +2079,7 @@ class Hunter:
                 at = (nearest.x, nearest.y)
                 self.go(run, level, ground, player, rect, at, label(nearest), world.doors, key_names)
         except Abort as stop:
-            if run.cancelled.is_set():
+            if run.stops(stop):
                 raise
             LOG.info('Macro: the sweep ends: no way to %s (%s)', label(nearest), stop)
             self.sweep.end()
@@ -2151,7 +2162,7 @@ class Hunter:
         try:
             self.travel.make(run, found, world, aspect, key_names, ground)
         except Abort as stop:
-            if run.cancelled.is_set():
+            if run.stops(stop):
                 raise
             self.sweep.failed(run.clock(), found.spot if found.skill is None else None)
             run.say(f'No step: {stop}')
@@ -2295,13 +2306,18 @@ class Hunter:
             try:
                 strike_input(run, world, key_names, attack.skill)
                 unready_since = None
-            except Abort:
+            except Abort as stop:
+                if run.stops(stop):
+                    raise
                 # Right after a hop the right button still holds Teleport, after a mark Death Mark: the
                 # game puts the skill back within a moment, so wait; only an input that stays away is a
-                # stopped fight.
+                # stopped fight, unless the strike can be put back on the right button (`strike_back`).
                 unready_since = run.clock() if unready_since is None else unready_since
                 if run.clock() - unready_since < INPUT_SECONDS:
                     self.nap(run, FRAME)
+                    continue
+                if self.strike_back(run, world, attack.skill):
+                    unready_since = None
                     continue
             try:
                 # The main weapons for a tough pack, and only once the mode has run MAIN_AFTER since the
@@ -2325,13 +2341,42 @@ class Hunter:
             except Cancelled:
                 raise  # the mode's own pause for a valuable (`asked_step`), or the runner's cancel
             except Abort as stop:
-                if run.cancelled.is_set():
+                if run.stops(stop):
                     raise
                 misses += 1
                 LOG.info('Macro: the fight stopped (%s), %d in a row', stop, misses)
                 if misses >= MISSES_IN_A_ROW:
                     raise Abort(f'attack mode off: {misses} fights stopped in a row, the last on "{stop}"') from stop
                 self.nap(run, POLL)
+
+    def strike_back(self, run: Run, world: World, skill: int) -> bool:
+        """Keyboard mode, the strike on no key and on neither mouse button for INPUT_SECONDS (a controller stint left
+        the pad's skill on the right button: rca/2026-10-14/run-1904-findings.md §3.7): the macro selects it on the
+        right button in the game's skill selection (macros/skillpanel.py), at most once in STRIKE_BACK_RETRY, where
+        the build's layer knows its icon (`Build.skill_icons`); whether the right button holds it now."""
+        player = world.player
+        icon = self.build.skill_icons.get(skill)
+        if run.pad is not None or icon is None or player is None or player.right_skill is None:
+            return False  # the right skill unread: the selection's outcome could not be seen
+        now = run.clock()
+        if now - self.struck_back_at < STRIKE_BACK_RETRY:
+            return False
+        self.struck_back_at = now
+        LOG.info(
+            'Macro: skill panel: %s is on no skill key and on neither mouse button (left %s, right %s): selecting it '
+            'on the right button',
+            skill_name(skill), skill_name(player.left_skill), skill_name(player.right_skill),
+        )  # fmt: skip
+        run.say(f'{skill_name(skill)} back on the right button')
+        try:
+            with run.actuator.held_act():
+                select_right(run, skill, icon)
+        except Abort as stop:
+            if run.stops(stop):
+                raise
+            LOG.info('Macro: skill panel: %s', stop)
+            return False
+        return True
 
     def step_aside(self) -> None:
         """Nothing is being fought: a step that waited for the fight (the pickup step) gets its turn, as a cancel
@@ -2519,7 +2564,7 @@ class Hunter:
                 keys.move_pointer(*back)
                 keys.sync()
         except Abort as stop:
-            if run.cancelled.is_set():
+            if run.stops(stop):
                 raise
             LOG.info('Macro: the click for the player was not made (%s)', stop)
             self.move = None
@@ -2549,7 +2594,7 @@ class Hunter:
             if not own:
                 run.pause('key')
         except Abort as stop:
-            if run.cancelled.is_set():
+            if run.stops(stop):
                 raise
             LOG.info('Macro: no %s (%s)', skill_name(due.row.skill), stop)
             self.buffs.remember(due.row, run.clock())

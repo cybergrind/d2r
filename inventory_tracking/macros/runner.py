@@ -44,7 +44,7 @@ from inventory_tracking.input.keybindings import show_items_key
 from inventory_tracking.input.keyboard import X11Keyboard
 from inventory_tracking.levels.model import Ground, Target
 from inventory_tracking.macros import route
-from inventory_tracking.macros.actuator import Abort, Actuator, Cancelled
+from inventory_tracking.macros.actuator import Abort, Actuator, Cancelled, Flipped
 from inventory_tracking.macros.build import Build, choose
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.hunt import Bearings, Hunter, threat
@@ -101,6 +101,13 @@ JOURNEY_SECONDS = 1.0  # how often the game and level are noted between presses
 # Defiler on B since 2026-10-13, controller-gaps.md option A2), and what of it needs the mouse refuses on its own:
 # a skill on no record (`PadActs.keys`, naming it), Save and Exit (`leave_game`), a new game (`run_macro`).
 MOUSE_WORK: dict[str, str] = {}
+# A run the game's input mode flipped under ends, and the same request starts again in the new mode (`_guarded`,
+# actuator.py `Flipped`). Its start waits up to FLIP_SETTLE for the flip to be over: the game of 22:04 on 2026-10-14
+# had its four flips done 10-12 ms after they were asked (the probe's `Input mode:` lines). FLIPS_AGAIN restarts within
+# FLIPS_WINDOW seconds: a mode that keeps flipping stops the run instead.
+FLIP_SETTLE = 1.0
+FLIP_POLL = 0.02
+FLIPS_AGAIN, FLIPS_WINDOW = 3, 10.0
 
 
 class MacroRunner:
@@ -186,6 +193,8 @@ class MacroRunner:
         # The pad and the game's input mode, from the service (macros/pad.py): a run in controller mode plays by
         # the pad. None: every run plays by the keys and the mouse, as before.
         self.pad_play: PadPlay | None = None
+        self.flips: list[float] = []  # when a run was made again after a flip of the input mode (`again`)
+        self.settling = False  # the next run's start waits for a flip under way to be over (`play_by`)
         self.lock = threading.RLock()  # every transition: a request, a run's end and its successor, shutdown
 
     def request(self, requested_at: float, now: float, routine: str = PREBUFF, **notes: object) -> bool:
@@ -510,6 +519,13 @@ class MacroRunner:
             else:
                 LOG.info('Macro stopped: %s', stop)
                 self._show([f'Macro stopped: {stop}'])
+        except Flipped as stop:
+            with self.lock:
+                if self.again(cancelled, routine, generation, stop):
+                    return
+            LOG.info('Macro stopped: %s', stop)
+            self._show([f'Macro stopped: {stop}'])
+            failed = True
         except Abort as stop:
             LOG.info('Macro stopped: %s', stop)
             self._show([f'Macro stopped: {stop}'])
@@ -531,6 +547,34 @@ class MacroRunner:
         self.shut.wait(CARD_SECONDS)
         if self.generation == generation:  # no newer run owns the card
             self._show([])
+
+    def again(self, cancelled: threading.Event, routine: str, generation: int, stop: Flipped) -> bool:
+        """The game's input mode flipped under the run of `routine` (`stop`): the same request is made again, to be
+        played in the new mode (`play_by`), and whether it was. Not when the run was cancelled meanwhile, a newer run
+        owns the runner, attack mode was turned off, or the mode has flipped FLIPS_AGAIN times within FLIPS_WINDOW.
+        Said once a flip (`Macro: input mode flipped …`). Under the lock."""
+        if self.closed or cancelled.is_set() or generation != self.generation:
+            return False
+        if routine == ATTACK and not self.attack_mode:
+            return False
+        now = time.monotonic()
+        self.flips = [at for at in self.flips if now - at < FLIPS_WINDOW]
+        if len(self.flips) >= FLIPS_AGAIN:
+            LOG.info(
+                'Macro: input mode flipped under %s again (%s): %d restarts in %.0f s, the run stops',
+                routine, stop, len(self.flips), FLIPS_WINDOW,
+            )  # fmt: skip
+            return False
+        self.flips.append(now)
+        LOG.info(
+            'Macro: input mode flipped under %s (%s): the run ends and the same request starts again', routine, stop
+        )
+        self.settling = True
+        if routine != ATTACK:
+            # As a fresh press of the key: good for its own time from now, the flip's settling on top
+            self.queue.put(routine, now + FLIP_SETTLE + EXPIRES.get(routine, math.inf))
+        self._start(routine)
+        return True
 
     def _follow(self, routine: str) -> bool:
         """The run of `routine` is over: start what follows it, if anything, and say whether something
@@ -708,7 +752,15 @@ class MacroRunner:
         if play is None:
             return
         actuator.mode = play.mode
-        if not input_policy(play.mode(), enabled=play.enabled, needs_mouse=MOUSE_WORK.get(routine)):
+        mode = play.mode()
+        if self.settling:
+            # The request made again after a flip (`again`): the flip under way is waited out, not refused
+            self.settling = False
+            ends = time.monotonic() + FLIP_SETTLE
+            while mode is not None and mode.pending and time.monotonic() < ends and not run.cancelled.is_set():
+                run.cancelled.wait(FLIP_POLL)
+                mode = play.mode()
+        if not input_policy(mode, enabled=play.enabled, needs_mouse=MOUSE_WORK.get(routine)):
             actuator.keyboard_run = True  # the game leaving keyboard mode stops it (actuator.py `guard`)
             return
         pad = PadActs(run, PadActuator(play.device, play.mode, actuator), play.controller, play.bindings, play.route)
