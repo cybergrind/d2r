@@ -147,8 +147,8 @@ class Look:
     # look share places and dwells, and a projected look (`approach`) shares this memo under its own hostiles.
     memo: dict = field(default_factory=dict, compare=False, repr=False)
     # Missiles in flight of the classes the read models ask for (combat/threats `missiles`): (owner unit, where,
-    # heading in radians).
-    missiles: tuple[tuple[int, Point, float], ...] = ()
+    # heading in radians, and its class when the look read it: macros/safety.py `in_flight`).
+    missiles: tuple[tuple[int, Point, float] | tuple[int, Point, float, int], ...] = ()
     # A draw priced on the look (`sent_onto`): the hostiles it turns to the companions where they now stand, and
     # where the companions stood before it, which every other hostile still weighs (`bodies`). None: no draw.
     drawn: frozenset[int] | None = None
@@ -393,9 +393,9 @@ def threat_exposure(
         near = min((rules.ai_distance(m.at, p) for p in bodies(seen, m)), default=math.inf)
         if min(d, near) >= rules.RADIUS:
             continue
-        flying = tuple((at, heading) for owner, at, heading in seen.missiles if owner == m.unit)
-        acting = threats.Acting(m.at, m.mode, m.mode_frames, flying)
-        key = ('threat', m, flying, legs, protection.resists, len(seen.companions))
+        flying, kinds = threats.flying_of(seen.missiles, m.unit)
+        acting = threats.Acting(m.at, m.mode, m.mode_frames, flying, kinds)
+        key = ('threat', m, flying, kinds, legs, protection.resists, len(seen.companions))
         parts = seen.memo.get(key)
         if parts is None:
             parts = seen.memo[key] = model.exposure(

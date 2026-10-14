@@ -14,7 +14,7 @@ rca/2026-10-13/pursuit-v1.md), so Tab in the viewer flips between the two.
 from collections.abc import Callable
 from dataclasses import dataclass
 
-from tests.inventory_tracking.scenarios.arena.situations import cs_run, diablo, example, pocket, vizier
+from tests.inventory_tracking.scenarios.arena.situations import baal, cs_run, diablo, example, pocket, throne, vizier
 from tests.inventory_tracking.scenarios.arena.situations.situation import Situation, held
 
 
@@ -116,5 +116,7 @@ def catalog() -> dict[str, Entry]:
             ),
             Entry(cs_run.NAME, 'recorded', cs_run.ABOUT, cs_run.variants, f'{cs_run.NAME}.json'),
             Entry(diablo.NAME, 'recorded', diablo.ABOUT, diablo.variants, f'{diablo.NAME}.json'),
+            Entry(baal.NAME, 'constructed', baal.ABOUT, baal.variants),
+            Entry(throne.NAME, 'recorded', throne.ABOUT, throne.variants, f'{throne.NAME}.json'),
         )
     }

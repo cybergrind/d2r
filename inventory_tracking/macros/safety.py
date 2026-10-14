@@ -105,12 +105,13 @@ def footing(field_: Field, here: Point, point: Point) -> Point | None:
 
 def in_flight(
     hostile: Sequence, flights: Flights | None, read: Sequence[tuple[int, int, float, float]] | None = None
-) -> tuple[tuple[int, Point, float], ...]:
+) -> tuple[tuple[int, Point, float, int], ...]:
     """The missiles in flight the read models of `hostile` ask for (combat/threats `missiles`), each with its
-    owner and its heading: a missile flies straight from where its owner stood, so the heading is the line from
-    the owner to it (Diablo's stand while he casts: rca/2026-10-13/diablo.md, 0.5 degrees in the takes). Nothing is
-    read when no such hostile is about, or when the reading fails (the price then has the mode alone). `read`: the
-    missiles the look read already (of these classes and maybe others), in place of a read of its own."""
+    owner, its heading and its class (a model of more than one, Baal's, tells them apart): a missile flies straight
+    from where its owner stood, so the heading is the line from the owner to it (Diablo's stand while he casts:
+    rca/2026-10-13/diablo.md, 0.5 degrees in the takes). Nothing is read when no such hostile is about, or when the
+    reading fails (the price then has the mode alone). `read`: the missiles the look read already (of these classes
+    and maybe others), in place of a read of its own."""
     owners = {m.unit_id: (m.x, m.y) for m in hostile if threats.of(m.txt_id) is not None}
     if not owners or (flights is None and read is None):
         return ()
@@ -125,7 +126,7 @@ def in_flight(
     for owner, txt, x, y in read:
         at = owners.get(owner)
         if at is not None and txt in kinds and (x, y) != at:
-            found.append((owner, (x, y), math.atan2(y - at[1], x - at[0])))
+            found.append((owner, (x, y), math.atan2(y - at[1], x - at[0]), txt))
     return tuple(found)
 
 
@@ -778,8 +779,8 @@ class Safety:
         for m in look.hostiles:
             model = threats.of(m.txt)
             if model is not None:
-                flying = tuple((at, heading) for owner, at, heading in look.missiles if owner == m.unit)
-                places = model.escapes(threats.Acting(m.at, m.mode, m.mode_frames, flying), here)
+                flying, kinds = threats.flying_of(look.missiles, m.unit)
+                places = model.escapes(threats.Acting(m.at, m.mode, m.mode_frames, flying, kinds), here)
                 left = self.stepped.get(m.unit)
                 if left is not None and left[0] == self.modes.get(m.unit):
                     places = tuple((point, why) for point, why in places if math.dist(point, left[1]) >= ESCAPE_SAME)

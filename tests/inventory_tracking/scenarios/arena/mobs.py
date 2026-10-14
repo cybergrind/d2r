@@ -37,7 +37,7 @@ from collections.abc import Mapping, Sequence
 from dataclasses import replace
 
 from inventory_tracking.combat import threats
-from inventory_tracking.combat.mechanics.tables import tables
+from inventory_tracking.combat.mechanics.tables import points_of, tables
 from inventory_tracking.combat.sim import casters
 from inventory_tracking.combat.sim.casters import resisted
 from inventory_tracking.combat.sim.guard import Guard
@@ -71,8 +71,10 @@ from tests.inventory_tracking.scenarios.threat.harness import BLAST, BLAST_RADIU
 from tests.inventory_tracking.scenarios.threat.table import table
 
 
-# monmode.txt: the client's modes of a monster's strikes and casts (macros/world.py STRIKING_MODES)
-CAST_MODES = {'A1': 4, 'A2': 5, 'SC': 7, 'S1': 8, 'S2': 9, 'S3': 10, 'S4': 11}
+# monmode.txt: the client's modes of a monster's strikes and casts (macros/world.py STRIKING_MODES), and the sequence
+# (SQ 14) Baal's inferno shows (the probe, sim/baal.py)
+CAST_MODES = {'A1': 4, 'A2': 5, 'SC': 7, 'S1': 8, 'S2': 9, 'S3': 10, 'S4': 11, 'SQ': 14}
+SUMMONED = 7_000_000  # unit ids of the monsters a cast raises (sim/casters.py `Summon`), counted from here
 
 
 Point = tuple[float, float]
@@ -283,6 +285,12 @@ class Mobs:
         # The character's resistances before the cap, Hell's penalty taken off, of the set in hand (game.py
         # sets it at each tick, `RAW_RESISTS`); None: only what the set's shares say.
         self.raw: Mapping[str, float] | None = None
+        # The monsters a cast raised (sim/casters.py `Summon`: Baal's tentacles and clone): unit -> (its summoner, the
+        # frame it is gone at or None). They go when that frame comes or their summoner dies; neither is a kill.
+        self.area = scene.hero.area
+        self.seed = 1  # a newcomer's rolls (`spawn`); stage.py's `Cast` gives the play's
+        self.summoned: dict[int, tuple[int, int | None]] = {}
+        self.next_summon = SUMMONED
 
     @staticmethod
     def _walker(mob: Mob) -> Walker:
@@ -301,6 +309,47 @@ class Mobs:
         if mob.full > 0:
             walker.health = mob.life / mob.full
         return walker
+
+    def spawn(self, mob: Mob, seed: int | None = None) -> None:
+        """Put `mob` into the play as `__init__` and `Pack.__init__` put one there at the start: its own rolls (from
+        `seed`, else the play's seed and its unit), a shooter with its shot."""
+        mob = replace(mob)
+        self.mobs[mob.unit] = mob
+        if mob.owner is not None or mob.ally or mob.life <= 0:
+            return
+        self.hostile.append(mob.unit)
+        walker = self._walker(mob)
+        pack = self.pack
+        pack.walkers[walker.unit] = walker
+        roll = pack.rolls[walker.unit] = random.Random(self.seed * 1_000_003 + walker.unit if seed is None else seed)
+        walker.favour = roll.random()
+        if shooter(walker.txt) and walker.mind is None:
+            pack.shots[walker.unit] = dict(shot_parts(walker))
+            walker.until = self.frame + roll.randrange(max(round(pack._gap(walker)), 1))
+
+    def raised(self) -> None:
+        """The monsters the casts of this tick raised (`Minds.summons`) put into the play, and those whose time is up
+        or whose summoner died taken out."""
+        minds = self.pack.minds
+        for summon in minds.summons:
+            self.next_summon += 1
+            full = points_of(summon.txt, self.area)
+            mob = Mob(self.next_summon, summon.txt, summon.at, 0, full, full)
+            self.spawn(mob, summon.seed)
+            lasts = None if summon.lasts is None else summon.frame + summon.lasts
+            self.summoned[mob.unit] = (summon.unit, lasts)
+        minds.summons = []
+        for unit, (summoner, lasts) in list(self.summoned.items()):
+            if (lasts is not None and self.frame >= lasts) or summoner not in self.pack.walkers:
+                self.vanish(unit)
+
+    def vanish(self, unit: int) -> None:
+        """A raised monster gone, not killed: it lies where it stood, out of the pack."""
+        self.summoned.pop(unit, None)
+        mob = self.mobs.get(unit)
+        if mob is not None and mob.life > 0:
+            mob.life, mob.mode = 0.0, LYING_DEAD
+        self.pack.remove(unit)
 
     def live(self) -> list[int]:
         """The unit ids of the hostiles still alive."""
@@ -334,6 +383,7 @@ class Mobs:
         of its `companions`. The points taken off the character this tick, each kind of damage cut to
         the share `resist` lets through (a kind it does not name: all of it), under a curse on it."""
         found = self.pack.step(self.frame, [hero_at, *companions])
+        self.raised()
         stopped = self.stopped(resist)
         taken = 0.0
         for at in self.blasts:
@@ -408,6 +458,10 @@ class Mobs:
         mind = walker.mind
         if mind.ai == casters.DIABLO:
             frames = casters.Minds._diablo_frames(mind.mode)
+        elif mind.ai == casters.BAAL:
+            from inventory_tracking.combat.sim import baal
+
+            frames = baal.MODE_FRAMES.get(mind.mode, 0)
         else:
             frames = casters.MODE_FRAMES.get((mind.ai, mind.mode), 0)
         begun = walker.until - frames - mind.delay

@@ -9,7 +9,7 @@ offers the places its own geometry makes safer (`Threat.escapes`). No tactic is 
 the prices of the places it is offered.
 """
 
-from collections.abc import Callable, Mapping
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from functools import cache
 
@@ -27,6 +27,7 @@ class Acting:
     mode: int = 0
     frames: int = 0
     flying: tuple[tuple[Point, float], ...] = ()
+    kinds: tuple[int | None, ...] = ()  # the class of each of `flying` (missiles.txt), as read; empty: not given
 
 
 @dataclass(frozen=True)
@@ -88,9 +89,9 @@ class Threat:
 
 @cache
 def _models() -> tuple[Callable[[int], Threat | None], ...]:
-    from inventory_tracking.combat.threats import diablo
+    from inventory_tracking.combat.threats import baal, diablo
 
-    return (diablo.threat_of,)
+    return (diablo.threat_of, baal.threat_of)
 
 
 @cache
@@ -101,6 +102,16 @@ def of(txt: int) -> Threat | None:
         if found is not None:
             return found
     return None
+
+
+def flying_of(missiles: Sequence[tuple], unit: int) -> tuple[tuple[tuple[Point, float], ...], tuple[int | None, ...]]:
+    """A hostile's missiles in flight as a look holds them ((owner, where, heading[, class]), macros/safety.py
+    `in_flight`): (where, heading) of each, and each one's class (None where the look did not say)."""
+    mine = [missile for missile in missiles if missile[0] == unit]
+    return (
+        tuple((missile[1], missile[2]) for missile in mine),
+        tuple(missile[3] if len(missile) > 3 else None for missile in mine),
+    )
 
 
 def missiles(txts: Mapping[int, object] | frozenset[int] | set[int]) -> frozenset[int]:

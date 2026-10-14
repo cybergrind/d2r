@@ -64,6 +64,9 @@ MINDS = (FINGER_MAGE, DOOM_KNIGHT, OBLIVION_KNIGHT, MEGADEMON)
 # Diablo (AI 51) thinks here too, by his own rules and rows (sim/diablo.py, diablo.json). He is not one of MINDS:
 # `mind_of` and `row_of` stay the four's (combat/harm.py prices by them and still takes him for an unread boss).
 DIABLO = 'Diablo'
+# Baal (AI BaalCrab, and his clone's BaalCrabClone) thinks here too, by sim/baal.py: his think is not read (its page is
+# encrypted); that module plays the share of each act the probe saw.
+BAAL = 'Baal'
 STAND, WALK, STRIKE, STAGGER, CAST = 'stand', 'walk', 'strike', 'stagger', 'cast'  # sim/monsters.py's, and a cast
 SPELL, POISON = 'spell', 'poison'  # the kinds of a blow a caster adds to sim/monsters.py's
 # [code] notes-ai.md, the frame: the radius when `aidist` is empty, the player beyond which nobody is a
@@ -291,6 +294,20 @@ class Bolt:
         return (self.x, self.y)
 
 
+@dataclass(frozen=True)
+class Summon:
+    """A monster a cast raises (Baal's tentacles and clone, sim/baal.py), for whoever holds the pack to put into the
+    play: its class, where, the frame it rose at, the frames it stands unless killed (None: until its summoner dies)
+    and a seed for its own rolls (drawn from the summoner's)."""
+
+    unit: int  # the summoner
+    txt: int
+    at: Point
+    frame: int
+    lasts: int | None
+    seed: int
+
+
 @dataclass
 class Mind:
     """What a monster of a read AI keeps between thinks (control +0x44 / +0x48 in the code), and the
@@ -314,6 +331,7 @@ class Mind:
     held: float = STOP  # where a walk toward a body ends
     level: dict[int, int] = field(default_factory=dict)  # skill slot -> its level
     home: Point | None = None  # where it first thought (Diablo's home point stand-in, sim/diablo.py)
+    split: bool = False  # Baal: he has come under the life his clone splits off at (sim/baal.py)
 
     def aip(self, n: int) -> float:
         return number(self.row, f'aip{n}(H)')
@@ -333,8 +351,9 @@ class Mind:
 
     @property
     def staggers(self) -> bool:
-        """[take] Diablo never shows the hit mode (mode 3) in 163 s of the takes: he does not stagger."""
-        return self.ai != DIABLO
+        """[take] Diablo never shows the hit mode (mode 3) in 163 s of the takes: he does not stagger. [probe] Nor
+        Baal in 214 looks of eight fights (sim/baal.py)."""
+        return self.ai not in (DIABLO, BAAL)
 
     def skill_of(self, slot: int) -> str:
         return self.row.get(f'Skill{slot}', '')
@@ -349,6 +368,14 @@ def mind_for(txt: int) -> Mind | None:
             assert found is not None
             mind = Mind(DIABLO, found, woke=True)  # [code] no sight needed to find a target (sim/diablo.py)
             mind.level = {slot: diablo.skill_level(txt, slot) for slot in range(1, 9) if found.get(f'Skill{slot}')}
+            return mind
+        from inventory_tracking.combat.sim import baal
+
+        if baal.is_baal(txt):
+            found = baal.row(txt)
+            assert found is not None
+            mind = Mind(BAAL, found, woke=True)  # [inferred] he knows of whoever enters his chamber
+            mind.level = {slot: baal.skill_level(txt, slot) for slot in range(1, 9) if found.get(f'Skill{slot}')}
             return mind
     row = row_of(txt) if PLAYED else None
     if row is None or row.get('AI') not in MINDS:
@@ -567,6 +594,8 @@ class Minds:
         # empty: sim/diablo.py's stand-in. Diablo's thinks as drawn: (frame, unit, action, the target's index).
         self.resists: dict[str, float] = {}
         self.thoughts: list[tuple[int, int, str, int]] = []
+        # What casts raised since the holder of the pack last took them (`Summon`; sim/baal.py's tentacles and clone).
+        self.summons: list[Summon] = []
 
     # -- a frame ---------------------------------------------------------------------------------------------
 
@@ -713,6 +742,11 @@ class Minds:
         mind.woke = True
         if mind.ai == DIABLO:
             self._diablo(walker, frame, targets)
+            return
+        if mind.ai == BAAL:
+            from inventory_tracking.combat.sim import baal
+
+            baal.think(self, walker, frame, targets, found[0][1])
             return
         d, index = found[0]
         body = targets[index]
@@ -997,6 +1031,10 @@ class Minds:
             self._shoot(walker, frame, int(missile_by_name(data()['skills'][skill]['srvmissilea'])), level, body, index)
         elif mind.ai == DIABLO:
             self._diablo_release(walker, frame, skill, level, body, index)
+        elif mind.ai == BAAL:
+            from inventory_tracking.combat.sim import baal
+
+            baal.release(self, walker, frame, targets)
 
     def _diablo_release(self, walker: Any, frame: int, skill: str, level: int, body: Point, index: int) -> None:
         """Diablo's missiles (sim/diablo.py): a missile of the stream at where his target stands now, the ring of
@@ -1048,6 +1086,11 @@ class Minds:
             self.births.append(
                 (frame, walker.unit, walker.txt, diablo.WALL_MAKER, walker.at, body, frame + diablo.WALL_LIFE)
             )
+
+    def summon(self, walker: Any, txt: int, at: Point, frame: int, lasts: int | None) -> None:
+        """A monster raised by `walker`'s cast (`Summon`), its seed from the walker's own rolls."""
+        seed = self.host.rolls[walker.unit].getrandbits(32)
+        self.summons.append(Summon(walker.unit, txt, at, frame, lasts, seed))
 
     def _shoot(
         self, walker: Any, frame: int, missile: int, level: int, toward: Point, aim: int, *, homing: int = -1

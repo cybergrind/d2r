@@ -39,7 +39,7 @@ from inventory_tracking.config import HealingConfig
 from inventory_tracking.macros.world import NO_OWNER
 from inventory_tracking.native.layout import DEAD_MODES
 from tests.inventory_tracking.scenarios.arena.game import BLOCK_CHANCE, Arena
-from tests.inventory_tracking.scenarios.arena.mobs import BLAST_KIND, Mobs, explodes, shooter, shot_parts
+from tests.inventory_tracking.scenarios.arena.mobs import BLAST_KIND, Mobs, explodes
 from tests.inventory_tracking.scenarios.arena.scene import Mob, Scene
 from tests.inventory_tracking.scenarios.threat.harness import BLAST, BLAST_RADIUS
 
@@ -65,13 +65,15 @@ def awareness(units: float) -> Iterator[None]:
 
 @dataclass(frozen=True)
 class Hurt:
-    """Life a monster took off the character: `at` seconds, the monster's type, the blow's kind, the points."""
+    """Life a monster took off the character: `at` seconds, the monster's type, the blow's kind, the points, and the
+    missile (missiles.txt) of a caster's blow (0: none)."""
 
     at: float
     unit: int
     txt: int
     kind: str
     points: float
+    missile: int = 0
 
 
 @dataclass
@@ -107,26 +109,13 @@ class Cast(Mobs):
         self.land_rng = random.Random(seed * 7_919 + 13)  # this file's stream: the pack's rolls are not touched
         self.rolled: set[int] = set()  # the missiles (by identity) whose chance was already rolled again
         self.hurts: list[Hurt] = []
+        # The blows on the character's companions (the mercenary, the Defiler), in raw points: the arena's companions
+        # lose no life, so this is what they would have taken before their own resistances.
+        self.mates: list[Hurt] = []
         self.burst: list[tuple[Point, int, int]] = []  # the exploding corpses of `blasts`: place, unit, type
         # every missile a shooter let go: (the frame, the frame it lands at, from, to, at the character, it takes life)
         self.shots: list[tuple[int, int, Point, Point, bool, bool]] = []
         self.flown = 0  # of the pack's casters' missiles gone (`Minds.flown`), those already in `shots`
-
-    def spawn(self, mob: Mob) -> None:
-        """Put `mob` into the play as `Mobs.__init__` and `Pack.__init__` put one there at the start."""
-        mob = replace(mob)
-        self.mobs[mob.unit] = mob
-        if mob.owner is not None or mob.ally or mob.life <= 0:
-            return
-        self.hostile.append(mob.unit)
-        walker = self._walker(mob)
-        pack = self.pack
-        pack.walkers[walker.unit] = walker
-        roll = pack.rolls[walker.unit] = random.Random(self.seed * 1_000_003 + walker.unit)
-        walker.favour = roll.random()
-        if shooter(walker.txt) and walker.mind is None:
-            pack.shots[walker.unit] = dict(shot_parts(walker))
-            walker.until = self.frame + roll.randrange(max(round(pack._gap(walker)), 1))
 
     def hit(self, unit: int, points: float) -> bool:
         died = super().hit(unit, points)
@@ -145,6 +134,7 @@ class Cast(Mobs):
                 if walker is not None and min(math.dist(walker.at, body) for body in bodies) <= self.aware:
                     self.pack.awake.add(unit)
         found = self.pack.step(self.frame, [hero_at, *companions])
+        self.raised()
         stopped = self.stopped(resist)
         taken = 0.0
         for at, unit, txt in self.burst:
@@ -160,7 +150,10 @@ class Cast(Mobs):
                 points = self.landed(blow, stopped)
                 taken += points
                 mob = self.mobs.get(blow.unit)
-                self.hurts.append(Hurt(now, blow.unit, mob.txt if mob else -1, blow.kind, points))
+                self.hurts.append(Hurt(now, blow.unit, mob.txt if mob else -1, blow.kind, points, blow.missile))
+            else:
+                mob = self.mobs.get(blow.unit)
+                self.mates.append(Hurt(now, blow.unit, mob.txt if mob else -1, blow.kind, blow.damage, blow.missile))
         self.reroll()
         # A caster's missiles and curses (sim/casters.py) as the shooters' are kept: (let go, gone, from, to, at the
         # character, took life there).
