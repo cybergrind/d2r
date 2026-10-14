@@ -14,6 +14,7 @@ from inventory_tracking.builds.warlock.movement import (
     BLADE_WARP_JUMP,
     BLADE_WARP_SOURCE,
     MOVEMENT,
+    WARP_CLEARED,
     WARP_DELAY,
     WARP_SECONDS,
     WARP_SPEED,
@@ -297,12 +298,14 @@ NO_TELEPORT = tuple(None if skill == TELEPORT else skill for skill in HUNT_SLOTS
 
 class Delayed(Game):
     """The fakes' game with Blade Warp's casting delay as the game plays it, from the key's down: the delay state
-    is set `shown` seconds after a key the game took and cleared `over` after it; a key before then is refused, it
-    moves nobody (`refused`: seconds after the key before). `reads` off: the state is not read (None)."""
+    is set `shown` seconds after a key the game took and cleared `over` after it; a key before `accepts` (`over`
+    unless said) is refused, it moves nobody and sets no state (`refused`: seconds after the key before). `reads`
+    off: the state is not read (None)."""
 
-    def __init__(self, shown: float, over: float, reads: bool = True) -> None:
+    def __init__(self, shown: float, over: float, reads: bool = True, accepts: float | None = None) -> None:
         super().__init__(world(area=101, slots=NO_TELEPORT))
         self.shown, self.over, self.reads = shown, over, reads
+        self.accepts = over if accepts is None else accepts
         self.taken: list[float] = []  # the clock at each key's down the game took
         self.released: list[float] = []
         self.refused: list[float] = []
@@ -313,7 +316,7 @@ class Delayed(Game):
         def down(key: int) -> bool:
             if key == code:
                 now = self.clock.now
-                self.refusing = bool(self.taken) and now - self.taken[-1] < self.over
+                self.refusing = bool(self.taken) and now - self.taken[-1] < self.accepts
                 (self.refused if self.refusing else self.taken).append(now - self.taken[-1] if self.refusing else now)
             return press(key)
 
@@ -376,8 +379,73 @@ def test_a_clear_state_before_the_cast_threw_is_not_the_delay_over():
     keyed = play.taken[0]
     play.clock.now = keyed + 0.3  # the state not set yet: the cast has not thrown
     assert travel.left(BLADE_WARP, play.clock.now, False) == pytest.approx(WARP_DELAY - 0.3)
-    assert travel.left(BLADE_WARP, keyed + DELAY_SHOWN + 1e-6, False) == -math.inf  # clear once it should have shown
+    # clear once it should have shown: over at WARP_CLEARED from the key (run-0305-findings.md §5.1)
+    shown = travel.left(BLADE_WARP, keyed + DELAY_SHOWN + 1e-6, False)
+    assert shown == pytest.approx(WARP_CLEARED - DELAY_SHOWN, abs=1e-5)
+    assert travel.left(BLADE_WARP, keyed + WARP_CLEARED + 1e-6, False) == -math.inf
     assert travel.left(BLADE_WARP, keyed + 1.2, True) == DELAY_TICK  # still set: the next tick at the soonest
+
+
+# The game of 06:05 on 2026-10-14 (rca/2026-10-14/run-0305-findings.md §5.1): keys at 06:07:16.802 and 06:08:01.594,
+# 0.977 and 0.986 s after the key before, went down on a look that read state 185 clear and were refused. Over
+# three games every refused key came 0.928 to 0.986 s after the one before (11 of 17 such keys); 0 of 35 keys
+# 0.99 to 1.06 s after it were refused. The state clears 0.96 to 1.03 s after the key (travel.py's comment).
+CLEAR_EARLY, TAKEN_FROM = 0.96, 0.99
+
+
+def test_a_clear_state_read_before_the_cooldown_is_over_holds_the_key():
+    play = Delayed(RECORDED[0][0], CLEAR_EARLY, accepts=TAKEN_FROM)
+    travel, run = Travel(MOVEMENT), play.run()
+    legs(play, travel, run, count=1)
+    keyed = play.taken[0]
+    assert travel.left(BLADE_WARP, keyed + 0.977, False) > 0  # the 06:07:16.802 key: the state clear, too soon
+    assert travel.left(BLADE_WARP, keyed + WARP_CLEARED, False) == -math.inf
+    legs(play, travel, run, count=2)
+    assert play.refused == []
+    gaps = [b - a for a, b in itertools.pairwise(play.taken)]
+    assert all(WARP_CLEARED - 1e-9 <= gap <= WARP_CLEARED + KEY_POLL + 0.03 + 1e-9 for gap in gaps), gaps
+
+
+def warp_again(play: Game, travel: Travel, run) -> Step:
+    """The next leg toward FAR as the pursuit asks it after a move that failed: the delay waited, the leg chosen."""
+    while (wait := travel.pause(run, run.world(), Ground(()), ASPECT, FAR, PRESSED)) > 0:
+        run.pace.sleep(max(wait, 0.04))
+    step = travel.toward(run, run.world(), Ground(()), ASPECT, FAR, PRESSED)
+    assert isinstance(step, Step)
+    return step
+
+
+def test_a_warp_the_game_did_not_take_is_tried_again_when_due_and_not_walked():
+    # §5.1: after each refused key the navigator walked three 15-unit legs before it warped again (5.2 to 5.5 s
+    # for what two warps make in 2.3). A key the game took no cast for (the state never set after it) is the
+    # cooldown's refusal, not a way that leads nowhere: the warp is made again as soon as it is due.
+    play = Delayed(RECORDED[0][0], CLEAR_EARLY, accepts=WARP_CLEARED + 0.03)  # refused even at the floor
+    travel, run = Travel(MOVEMENT), play.run()
+    legs(play, travel, run, count=1)
+    step = warp_again(play, travel, run)
+    with pytest.raises(Abort, match='did not move'):
+        travel.make(run, step, run.world(), ASPECT, keys, Ground(()), intent=PRESSED, goal=FAR)
+    assert len(play.refused) == 1
+    assert travel.jump_failed == {}
+    again = warp_again(play, travel, run)
+    assert again.skill == BLADE_WARP  # not a walk
+    travel.make(run, again, run.world(), ASPECT, keys, Ground(()), intent=PRESSED, goal=FAR)
+    assert len(play.taken) == 2
+
+
+def test_a_second_warp_in_a_row_the_game_did_not_take_is_a_failure_to_leave_alone():
+    # The retry is one: a cast the game keeps refusing (no mana, say) is a way that leads nowhere for a while.
+    play = Delayed(RECORDED[0][0], CLEAR_EARLY, accepts=math.inf)
+    travel, run = Travel(MOVEMENT), play.run()
+    legs(play, travel, run, count=1)
+    for _ in range(2):
+        step = warp_again(play, travel, run)
+        assert step.skill == BLADE_WARP
+        with pytest.raises(Abort, match='did not move'):
+            travel.make(run, step, run.world(), ASPECT, keys, Ground(()), intent=PRESSED, goal=FAR)
+    assert len(play.refused) == 2
+    assert set(travel.jump_failed) == {BLADE_WARP}
+    assert warp_again(play, travel, run).skill is None  # walked
 
 
 def test_a_jump_is_offered_plan_ahead_before_its_delay_ends_to_an_intent_that_may_wait():

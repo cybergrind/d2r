@@ -1,7 +1,7 @@
 import math
 from dataclasses import replace
 
-from inventory_tracking.combat.harm import Harm
+from inventory_tracking.combat.harm import GROUND_UNIT, Harm
 from inventory_tracking.macros import pursuit as p
 from inventory_tracking.macros.build import Step
 from inventory_tracking.macros.goals import Goal
@@ -407,3 +407,232 @@ def test_the_draw_onto_a_seal_boss_is_priced_by_the_pack_that_turns_not_by_what_
     assert boss.life > 0
     assert boss.worth > 0
     assert not boss.pressed  # full life: holding fits the budget; the boss is marked by its price alone
+
+
+# The game of 06:05 on 2026-10-14 (rca/2026-10-14/run-0305-findings.md §5.6): Diablo (unit 9 here) at (7793.5, 5293.5)
+# cast his wall at 06:08:56.69 and died at 57.67; the character stood at (7807.5, 5290.5), his Amulet lay at
+# (7793, 5296). The ten makers left him at these angles off the line to the character (the take's flames 180, read off
+# their path records); the walk from 58.03 to 58.75 lost 107 + 63 life to the flames (and 41 + 55 at the stand
+# before it), the mercenary went from 96% to 43%.
+DIABLO_AT, STAND, AMULET = (7793.5, 5293.5), (7807.5, 5290.5), (7793.0, 5296.0)
+WALL_ANGLES = (-33, -20, -6, 1, 12, 27, 31, 43, 46, 57)
+
+
+def _wall(age: int) -> tuple[tuple[int, int, float, float], ...]:
+    """His wall `age` frames after the cast, as the look reads it (owner, class, x, y): each maker WALL_STEP a frame
+    out along its line, the flames it left the last FLAME_LIFE frames behind it."""
+    from inventory_tracking.combat.sim import diablo as rules
+
+    toward = math.atan2(STAND[1] - DIABLO_AT[1], STAND[0] - DIABLO_AT[0])
+    found = []
+    for degrees in WALL_ANGLES:
+        heading = toward + math.radians(degrees)
+        dx, dy = math.cos(heading) * rules.WALL_STEP, math.sin(heading) * rules.WALL_STEP
+        if age < rules.WALL_LIFE:
+            found.append((9, rules.WALL_MAKER, DIABLO_AT[0] + dx * age, DIABLO_AT[1] + dy * age))
+        for k in range(max(0, age - rules.FLAME_LIFE), min(age, rules.WALL_LIFE)):
+            found.append((9, rules.WALL_FLAME, DIABLO_AT[0] + dx * k, DIABLO_AT[1] + dy * k))
+    return tuple(found)
+
+
+def _after_diablo(monkeypatch, age: int, start=STAND, drop=AMULET):
+    """The look `age` frames after his wall's cast, he dead 24 frames after it (as at 06:08:57.67), and the act
+    the safety chooses for the pickup of his Amulet (at `drop`) from `start` at the life then (1482 of 1818)."""
+    from types import SimpleNamespace
+
+    from inventory_tracking.combat.harm import SafetySettings
+    from inventory_tracking.combat.survival import CALM
+    from inventory_tracking.macros import safety as module
+    from inventory_tracking.macros.goals import PICK_UP
+    from inventory_tracking.macros.world import Loot, Monster
+    from tests.inventory_tracking.macros.fakes import player, world
+
+    monkeypatch.setattr(module, 'taken', lambda *a: (0.0, 0))
+    monkeypatch.setattr(module, 'falls', lambda *a, **kw: {})
+    monkeypatch.setattr(module, 'camp', lambda *a, **kw: None)
+    # the character's resistances as its hurt events had them (stats 39 fire 190, 41 lightning 179: Hell's penalty in)
+    loot = Loot(life=1482, max_life=1818, stats=((39, 190), (41, 179), (43, 175), (45, 175)))
+    stand = player(108, x=start[0], y=start[1])
+    safety = module.Safety()
+    diablo = Monster(9, 243, 7, *DIABLO_AT, 0xFFFFFFFF, life=100, max_life=1000)
+    for frame in range(0, min(age, 24) + 1, 3):  # looks while he casts and lives
+        alive = world(108, player=stand, monsters=(diablo,))
+        safety.look(alive, loot, 'battle', now=frame / 25, flights=lambda kinds, frame=frame: _wall(frame))
+    dead = world(108, player=stand, monsters=())
+    look = safety.look(dead, loot, 'battle', now=age / 25, flights=lambda kinds: _wall(age))
+    goal = Goal('Amulet', drop, PICK_UP, 1.5, PRESSED)
+    facts = p.Facts(age / 25, goal, False, False, True, lambda: Step(goal.place))
+    posted = p.Pursuit('pickup', age / 25)
+    seen = SimpleNamespace(origin=start, blocked=None, foes={})
+    priced = safety.price(
+        facts, posted, look, loot, CALM, SafetySettings(), seen, SimpleNamespace(reach=22.1), lambda point: Step(point)
+    )
+    return p.decide(priced, posted), safety.decision
+
+
+def test_the_loot_walk_after_diablo_prices_his_fire_wall_his_death_or_not(monkeypatch):
+    # 06:08:57.83, 28 frames after the cast and 4 after his death, from where the character stood: the walk to the
+    # Amulet crosses the wall. It was priced at nothing (no hostile left); the walk lost 170 life to it.
+    chosen, decision = _after_diablo(monkeypatch, 28)
+    operate = next(c for c in decision['candidates'] if c['act'] == 'Operate')
+    assert dict(operate['contributors'])[GROUND_UNIT] > 50
+    assert 100 < operate['H'] < 300  # the game's 107 + 63 by the walk, at its resistances
+    # standing it out there is no better: the makers come at where the character stands (41 + 55 there that game)
+    waits = [c for c in decision['candidates'] if c['act'] == 'NoWay' and not c['retreat']]
+    assert waits
+    assert all(c['H'] > operate['H'] for c in waits)
+    assert isinstance(chosen, p.Operate)
+    # Two seconds on the flames by the way are out, and nothing is offered but the pickup
+    gone, decision = _after_diablo(monkeypatch, 28 + 50)
+    assert isinstance(gone, p.Operate)
+    assert [c['act'] for c in decision['candidates']] == ['Operate']
+
+
+def test_the_loot_walk_waits_for_his_flames_across_the_way_where_the_character_stands_clear(monkeypatch):
+    # Out of his wall's fan (where the step of the fight below puts it), as soon as he is dead, at about the
+    # least life of that game (1216 of 1818 at 06:08:58.8; here 1195: a budget of 13 points over the floor): the walk
+    # to the Amulet where he stood crosses the flames his makers left there, which is over the budget while they
+    # stand; standing here is not. The act is to wait them out (no hardcoded wait: the same walk priced after the
+    # wait); once they are out, the pickup.
+    from types import SimpleNamespace
+
+    from inventory_tracking.combat.harm import SafetySettings
+    from inventory_tracking.combat.survival import CALM
+    from inventory_tracking.macros import safety as module
+    from inventory_tracking.macros.goals import PICK_UP
+    from inventory_tracking.macros.world import Loot, Monster
+    from tests.inventory_tracking.macros.fakes import player, world
+
+    monkeypatch.setattr(module, 'taken', lambda *a: (0.0, 0))
+    monkeypatch.setattr(module, 'falls', lambda *a, **kw: {})
+    monkeypatch.setattr(module, 'camp', lambda *a, **kw: None)
+    loot = Loot(life=1195, max_life=1818, stats=((39, 190), (41, 179), (43, 175), (45, 175)))
+    edge, drop = (7800.4, 5281.0), AMULET  # an edge of his fan, 14 units from where he stood
+    stand = player(108, x=edge[0], y=edge[1])
+    diablo = Monster(9, 243, 1, *DIABLO_AT, 0xFFFFFFFF, life=100, max_life=1000)
+
+    def act(age: int):
+        safety = module.Safety()
+        for frame in range(0, 22, 3):  # looks while he lives
+            alive = world(108, player=stand, monsters=(diablo,))
+            safety.look(alive, loot, 'battle', now=frame / 25, flights=lambda kinds, frame=frame: _wall(frame))
+        look = safety.look(world(108, player=stand), loot, 'battle', now=age / 25, flights=lambda kinds: _wall(age))
+        goal = Goal('Amulet', drop, PICK_UP, 1.5, PRESSED)
+        facts = p.Facts(age / 25, goal, False, False, True, lambda: Step(goal.place))
+        posted = p.Pursuit('pickup', age / 25)
+        priced = safety.price(
+            facts, posted, look, loot, CALM, SafetySettings(), SimpleNamespace(origin=edge, blocked=None, foes={}),
+            SimpleNamespace(reach=22.1), lambda point: Step(point),
+        )  # fmt: skip
+        return p.decide(priced, posted), safety.decision
+
+    waited, decision = act(22)
+    operate = next(c for c in decision['candidates'] if c['act'] == 'Operate')
+    assert operate['worst'] > decision['budget']
+    assert isinstance(waited, p.NoWay), decision['candidates']
+    assert waited.reason == module.BURNING
+    gone, _ = act(22 + 40)
+    assert isinstance(gone, p.Operate)
+
+
+def test_while_diablo_lives_his_fire_wall_coming_at_the_character_is_stepped_out_of(monkeypatch):
+    # 06:08:56.69 to 57.67: he cast the wall at 14 units and the character held its stand under it (41 + 55 life
+    # before his death, his wall unpriced). Four frames after the cast the hold is priced with the makers that come
+    # at it, and a place off the fan, his strike's reach kept, is the act.
+    from types import SimpleNamespace
+
+    from inventory_tracking.combat.harm import SafetySettings
+    from inventory_tracking.combat.survival import CALM
+    from inventory_tracking.macros import safety as module
+    from inventory_tracking.macros.world import Loot, Monster
+    from tests.inventory_tracking.macros.fakes import player, world
+
+    monkeypatch.setattr(module, 'taken', lambda *a: (100.0, 0))
+    monkeypatch.setattr(module, 'falls', lambda *a, **kw: {})
+    monkeypatch.setattr(module, 'camp', lambda *a, **kw: None)
+    loot = Loot(life=1482, max_life=1818, stats=((39, 190), (41, 179), (43, 175), (45, 175)))
+    stand = player(108, x=STAND[0], y=STAND[1])
+    safety = module.Safety()
+    diablo = Monster(9, 243, 1, *DIABLO_AT, 0xFFFFFFFF, life=100, max_life=1000)
+    alive = world(108, player=stand, monsters=(diablo,))
+    look = safety.look(alive, loot, 'battle', now=0.16, flights=lambda k: _wall(4))
+    goal = Goal('Diablo', DIABLO_AT, 'fight', 22.0, PRESSED)
+    facts = p.Facts(0.16, goal, True, True, True, lambda: Step(goal.place))
+    seen = SimpleNamespace(origin=STAND, blocked=None, foes={})
+    priced = safety.price(
+        facts, None, look, loot, CALM, SafetySettings(), seen, SimpleNamespace(reach=22.1), lambda point: Step(point)
+    )
+    chosen = p.decide(priced, None)
+    hold = next(c for c in safety.decision['candidates'] if c['act'] == 'Hold')
+    assert dict(hold['contributors']).get(GROUND_UNIT, 0) > 0
+    assert isinstance(chosen, p.Move), safety.decision['candidates']
+    assert 'fire wall' in chosen.reason
+    assert math.dist(chosen.step.spot, DIABLO_AT) < 22.0  # he is struck from there
+
+
+# The game of 06:05 on 2026-10-14 (rca/2026-10-14/run-0305-findings.md §5.2): Diablo entered his lightning's mode
+# (SC) at 06:08:52.18; the first step across was decided at 52.30, three frames in, before his first missile flew
+# (52.78): the stream, aimed at where the character stands as each missile is made, came at the step's place (151
+# at 53.51). The second step (53.14) went back to the place the first had left (138 at 53.99).
+SC_START = 3  # frames into SC at the first step's decision
+
+
+def _diablo_looks(monkeypatch, looks):
+    """A Safety's looks in one cast of his lightning: each (frames into SC, where the character stands, missiles in
+    flight as (place, heading)); the act chosen at each, the character standing where the look says."""
+    from types import SimpleNamespace
+
+    from inventory_tracking.combat.harm import SafetySettings
+    from inventory_tracking.combat.survival import CALM
+    from inventory_tracking.macros import safety as module
+    from inventory_tracking.macros.world import Loot, Monster
+    from tests.inventory_tracking.macros.fakes import player, world
+
+    monkeypatch.setattr(module, 'taken', lambda *a: (100.0, 0))
+    monkeypatch.setattr(module, 'falls', lambda *a, **kw: {})
+    monkeypatch.setattr(module, 'camp', lambda *a, **kw: None)
+    loot = Loot(life=1760, max_life=1818, stats=((39, 190), (41, 179), (43, 175), (45, 175)))
+    diablo = Monster(9, 243, 7, 0.0, 0.0, 0xFFFFFFFF, life=900, max_life=1000)
+    safety = module.Safety()
+    goal = Goal('Diablo', (0.0, 0.0), 'fight', 22.0, PRESSED)
+    chosen = []
+    for frames, here, flying in looks:
+        now = frames / 25
+        stand = player(108, x=here[0], y=here[1])
+        reads = tuple((9, 172, at[0], at[1]) for at, _ in flying)
+        alive = world(108, player=stand, monsters=(diablo,))
+        look = safety.look(alive, loot, 'battle', now=now, flights=lambda k, r=reads: r)
+        facts = p.Facts(now, goal, True, True, True, lambda: Step(goal.place))
+        seen = SimpleNamespace(origin=here, blocked=None, foes={})
+        priced = safety.price(
+            facts, None, look, loot, CALM, SafetySettings(), seen, SimpleNamespace(reach=22.1), lambda pt: Step(pt)
+        )
+        chosen.append((p.decide(priced, None), safety.decision))
+    return chosen
+
+
+def _stream_at(here, frames_flown: int):
+    """His missiles in flight at `here` from the origin: one a frame for `frames_flown` frames, STREAM_STEP apart."""
+    heading = math.atan2(here[1], here[0])
+    step = (0.88 * math.cos(heading), 0.88 * math.sin(heading))
+    return tuple(((step[0] * k, step[1] * k), heading) for k in range(1, frames_flown + 1))
+
+
+def test_no_step_across_his_lightning_is_offered_before_a_missile_flies(monkeypatch):
+    here = (14.0, 0.0)
+    ((act, decision),) = _diablo_looks(monkeypatch, [(SC_START, here, ())])
+    assert not any(c['why'].startswith('stepping across') for c in decision['candidates'])
+    assert not (isinstance(act, p.Move) and act.reason.startswith('stepping across'))
+
+
+def test_a_step_across_his_lightning_never_goes_back_to_the_place_it_left_in_the_same_cast(monkeypatch):
+    start = (14.0, 0.0)
+    (first,) = _diablo_looks(monkeypatch, [(20, start, _stream_at(start, 10))])
+    act = first[0]
+    assert isinstance(act, p.Move), first[1]['candidates']
+    assert act.reason.startswith('stepping across')
+    landed = act.step.spot
+    both = _diablo_looks(monkeypatch, [(20, start, _stream_at(start, 10)), (30, landed, _stream_at(landed, 8))])
+    _, decision = both[1]
+    places = [c['place'] for c in decision['candidates'] if c['why'].startswith('stepping across')]
+    assert all(math.dist(place, start) >= 4.0 for place in places), places

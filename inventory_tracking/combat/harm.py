@@ -153,6 +153,9 @@ class Look:
     # where the companions stood before it, which every other hostile still weighs (`bodies`). None: no draw.
     drawn: frozenset[int] | None = None
     stood: tuple[Point, ...] = ()
+    # What lies on the ground and harms where it lies, by its read model (combat/threats `Lingering`): priced over a
+    # way whether or not its caster is still about (Diablo's fire wall after his death).
+    ground: tuple[tuple[threats.Lingering, tuple[threats.Lying, ...]], ...] = ()
 
 
 def bodies(seen: Look, m: Hostile) -> tuple[Point, ...]:
@@ -380,14 +383,8 @@ def threat_exposure(
     way (a stream aimed at where the character is at each frame) is not a rate at a place, so the path is not cut
     into places for it. Their begins and ends are seconds of the path. Each part is one correlated event."""
     found: list[Exposure] = []
-    legs = tuple((place, max(0.0, dwell)) for place, dwell, _ in path)
+    legs = spanned(path, settings)
     start, end = legs[0][0], legs[-1][0]
-    # Every candidate of a look is priced over the same span (`horizon`, standing at its end after it): an act under
-    # way lands later than a short hold looks, and a step's own path is longer than a hold's. Over their own
-    # spans the step would carry missiles the hold leaves to the next look.
-    spent = sum(dwell for _, dwell in legs)
-    if spent < settings.horizon:
-        legs += ((end, settings.horizon - spent),)
     for m in seen.hostiles:
         model = threats.of(m.txt)
         if model is None:
@@ -411,6 +408,40 @@ def threat_exposure(
         for part in parts:
             points = tuple((kind, value, value) for kind, value in part.points)
             found.append(Exposure(m.unit, part.casts, part.chance, points, False, part.begins, part.ends))
+    return tuple(e for e in found if e.blows > 0 and e.chance > 0)
+
+
+def spanned(path: tuple[tuple[Point, float, Hands], ...], settings: SafetySettings) -> threats.Legs:
+    """The path as a read model's legs, over the span every candidate of a look is priced over (`horizon`, standing
+    at its end after it): an act under way lands later than a short hold looks, and a step's own path is longer than
+    a hold's. Over their own spans the step would carry missiles the hold leaves to the next look."""
+    legs = tuple((place, max(0.0, dwell)) for place, dwell, _ in path)
+    spent = sum(dwell for _, dwell in legs)
+    if spent < settings.horizon:
+        legs += ((legs[-1][0], settings.horizon - spent),)
+    return legs
+
+
+GROUND_UNIT = -1  # the contributor the harm of what lies on the ground is told under (`Harm.by`): no monster's unit
+
+
+def ground_exposure(
+    seen: Look, path: tuple[tuple[Point, float, Hands], ...], settings: SafetySettings
+) -> tuple[Exposure, ...]:
+    """What lies on the ground (`Look.ground`, combat/threats `Lingering`) over the whole path at once, as
+    `threat_exposure` prices an act under way: a flame harms the frames the way is in it, its caster alive or not."""
+    if not seen.ground:
+        return ()
+    legs = spanned(path, settings)
+    found: list[Exposure] = []
+    for model, lying in seen.ground:
+        key = ('ground', model, lying, legs)
+        parts = seen.memo.get(key)
+        if parts is None:
+            parts = seen.memo[key] = model.exposure(lying, legs)
+        for part in parts:
+            points = tuple((kind, value, value) for kind, value in part.points)
+            found.append(Exposure(GROUND_UNIT, part.casts, part.chance, points, False, part.begins, part.ends))
     return tuple(e for e in found if e.blows > 0 and e.chance > 0)
 
 
@@ -508,7 +539,7 @@ def harm_path(
     uncursed = 1.0
     elapsed = 0.0
     last = seen.battle if path[-1][2] == 'battle' else seen.travel
-    acting = threat_exposure(seen, path, last, settings)
+    acting = threat_exposure(seen, path, last, settings) + ground_exposure(seen, path, settings)
     if acting:
         phases.append((acting, last, 0.0))
     for index, (place, dwell, hands) in enumerate(path):

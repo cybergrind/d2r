@@ -32,7 +32,7 @@ from functools import cache, lru_cache
 
 from inventory_tracking.combat.sim import diablo as rules
 from inventory_tracking.combat.sim.casters import CONTACT
-from inventory_tracking.combat.threats import Acting, Legs, Part, Threat
+from inventory_tracking.combat.threats import Acting, Legs, Lingering, Lying, Part, Threat
 
 
 Point = tuple[float, float]
@@ -274,12 +274,13 @@ def price(
     return now + later
 
 
-def escapes(diablo: Point, here: Point, steps: Sequence[float] = (4.0, 8.0)) -> list[Point]:
-    """Places the stream's geometry offers: across the line from him to the character, either side, `steps` units
-    off it at the same distance from him (where the missiles in flight do not pass)."""
+def escapes(diablo: Point, here: Point, steps: Sequence[float] = (4.0, 8.0), aim: float | None = None) -> list[Point]:
+    """Places the stream's geometry offers: across the line from him to the character (`aim`: the line his missiles
+    in flight go along, in radians), either side, `steps` units off it at the same distance from him (where the
+    missiles in flight do not pass)."""
     dx, dy = here[0] - diablo[0], here[1] - diablo[1]
     gap = math.hypot(dx, dy) or 1.0
-    angle = math.atan2(dy, dx)
+    angle = math.atan2(dy, dx) if aim is None else aim
     found = []
     for step in steps:
         for side in (1, -1):
@@ -316,14 +317,22 @@ def _stream(acting: Acting, here: Point) -> tuple[Stream, float]:
     if acting.flying:
         flown = max(math.dist(acting.at, at) for at, _ in acting.flying) / rules.STREAM_STEP
         age = max(age, rules.RELEASE['SC'] + math.floor(flown))
-        newest, heading = min(acting.flying, key=lambda flight: math.dist(acting.at, flight[0]))
-        dx, dy = here[0] - newest[0], here[1] - newest[1]
-        ahead = dx * math.cos(heading) + dy * math.sin(heading)
-        off = abs(dy * math.cos(heading) - dx * math.sin(heading))
-        if ahead < -CONTACT or off > AIMED:
+        if _aim(acting, here) is None:
             return Stream(acting.at, None, acting.flying), 1.0
         return Stream(acting.at, age, acting.flying), 1.0
     return Stream(acting.at, age, ()), rules.CHARACTER_SHARE
+
+
+def _aim(acting: Acting, here: Point) -> float | None:
+    """The heading of his newest missile in flight when its line passes the character (he aims at it); None with
+    none in flight, or when it passes elsewhere (he aims at another)."""
+    if not acting.flying:
+        return None
+    newest, heading = min(acting.flying, key=lambda flight: math.dist(acting.at, flight[0]))
+    dx, dy = here[0] - newest[0], here[1] - newest[1]
+    ahead = dx * math.cos(heading) + dy * math.sin(heading)
+    off = abs(dy * math.cos(heading) - dx * math.sin(heading))
+    return None if ahead < -CONTACT or off > AIMED else heading
 
 
 def exposure(
@@ -337,7 +346,8 @@ def exposure(
     """His lightning over the character's `legs`, in raw points: the stream under way (one event: the missiles in
     flight and those still to come of this cast, rolled out against the way) and the casts to come at the way's
     last place for the time left after it (`casts` an expected count, a standing cast's points each; his chance to
-    aim at the character). His other acts (melee, ring, wall) are not priced here. Tried and left out
+    aim at the character). His wall is priced where it lies (`WALL`, below), his melee and ring not at all. Tried
+    and left out
     (rca/2026-10-13/diablo.md "Hooked in"): pricing the stream to its end rather than over the common span; in the
     arena it took more lightning (the step a stream's start then looks useless, and the strike gap allows one step).
     """
@@ -362,14 +372,147 @@ def exposure(
 
 
 def offered(acting: Acting, here: Point) -> tuple[tuple[Point, str], ...]:
-    """The across-the-line places (`escapes`) while his stream is under way or his missiles fly; none otherwise
-    (a step across helps only against missiles aimed at where the character stands)."""
-    if acting.mode != MODE and not acting.flying:
+    """The across-the-line places (`escapes`) while his missiles fly at the character: across the line of the newest
+    (the stream's aim). None before a missile flies, nor while they fly at another: each missile goes at where his
+    target stands when it is made, so a step before the stream is under way only moves where it arrives (the games of
+    00:25 and 06:05 on 2026-10-14: four steps at his cast's start, each followed by a hit at the new place;
+    rca/2026-10-14/run-0305-findings.md §5.2)."""
+    heading = _aim(acting, here)
+    if heading is None:
         return ()
-    return tuple((place, "across Diablo's lightning") for place in escapes(acting.at, here))
+    return tuple((place, "across Diablo's lightning") for place in escapes(acting.at, here, aim=heading))
 
 
-THREAT = Threat(frozenset({rules.LIGHTNING_MISSILE}), exposure, offered)
+# -- his fire wall: what lies on the ground after the cast, and after his death (combat/threats `Lingering`) ---------
+# The game of 06:05 on 2026-10-14 (rca/2026-10-14/run-0305-findings.md §5.6): ten makers 179 one second before he died,
+# 422 flames 180 for three seconds after; the loot walk to his Amulet went through them (266 life, the mercenary 96 %
+# to 43 %), and the 02:19 game's to his Hel Rune the same (261, the mercenary to 17 %). His rules are sim/diablo.py's:
+# a maker goes WALL_STEP a frame for WALL_LIFE frames from where he stood and leaves a flame where it is each frame;
+# a flame stands FLAME_LIFE frames and takes `rate` of its points from every body within CONTACT each frame.
+
+
+@cache
+def _flame() -> dict[str, float]:
+    """The expected raw points one flame 180 takes in a frame of contact (its mean roll x `rate`), by kind."""
+    level = rules.skill_level(TXT, rules.SLOTS[rules.WALL])
+    share = rules.rate(rules.WALL_FLAME)
+    return {kind: (low + high) / 2 * share for kind, (low, high) in rules.points(rules.WALL_FLAME, level).items()}
+
+
+def wall_read(missile: int, at: Point, caster: Point | None, seen: float) -> Lying:
+    """A missile of his wall as a look reads it. A maker leaves him straight (sim/diablo.py `wall_headings`): its way
+    is the line from where he stood, and its age the frames that line took at WALL_STEP a frame (or the frames it has
+    been read, whichever is more). A flame stands: its age is the frames it has been read (0 when new: as if made
+    now, the longest it can last). A maker with no caster known is priced as a flame where it is."""
+    frames = round(seen / FRAME)
+    if missile == rules.WALL_MAKER and caster is not None:
+        gap = math.dist(caster, at)
+        if gap > 1e-6:
+            heading = math.atan2(at[1] - caster[1], at[0] - caster[0])
+            return Lying(missile, at, heading, max(frames, round(gap / rules.WALL_STEP)))
+    return Lying(missile, at, None, frames)
+
+
+def _flames(lying: Sequence[Lying]) -> list[tuple[float, float, int, int]]:
+    """Every flame that stands within the next frames: (x, y, its first frame, the frame it is gone), from frame 0 of
+    the look: those read, and those the makers read will leave on their way."""
+    found: list[tuple[float, float, int, int]] = []
+    for item in lying:
+        if item.missile == rules.WALL_MAKER and item.heading is not None:
+            dx, dy = math.cos(item.heading) * rules.WALL_STEP, math.sin(item.heading) * rules.WALL_STEP
+            for k in range(max(rules.WALL_LIFE - item.age, 0)):
+                found.append((item.at[0] + dx * k, item.at[1] + dy * k, k, k + rules.FLAME_LIFE))
+        else:
+            left = rules.FLAME_LIFE - (item.age if item.missile == rules.WALL_FLAME else 0)
+            if left > 0:
+                found.append((item.at[0], item.at[1], 0, left))
+    return found
+
+
+def wall_points(lying: Sequence[Lying], way: Way) -> float:
+    """The raw points (all kinds, `_flame`'s shares) his wall's flames take from a character on `way`: each frame,
+    every flame standing within CONTACT of it."""
+    flames = _flames(lying)
+    if not flames:
+        return 0.0
+    bodies = [way.at(frame) for frame in range(way.frames)]
+    if not bodies:
+        return 0.0
+    low_x, high_x = min(b[0] for b in bodies) - CONTACT, max(b[0] for b in bodies) + CONTACT
+    low_y, high_y = min(b[1] for b in bodies) - CONTACT, max(b[1] for b in bodies) + CONTACT
+    near = [f for f in flames if low_x <= f[0] <= high_x and low_y <= f[1] <= high_y and f[2] < len(bodies)]
+    if not near:
+        return 0.0
+    contacts = 0
+    reach = CONTACT * CONTACT
+    for frame, (x, y) in enumerate(bodies):
+        for fx, fy, first, gone in near:
+            if first <= frame < gone and (fx - x) ** 2 + (fy - y) ** 2 <= reach:
+                contacts += 1
+    return contacts * sum(_flame().values())
+
+
+def wall_exposure(lying: tuple[Lying, ...], legs: Legs) -> tuple[Part, ...]:
+    """His wall's flames over the character's `legs`: one event, in raw points by kind."""
+    way = Way.along(legs)
+    total = wall_points(lying, way)
+    if total <= 0:
+        return ()
+    flame = _flame()
+    whole = sum(flame.values()) or 1.0
+    points = tuple((kind, total * value / whole) for kind, value in flame.items())
+    return (Part(1.0, points, 0.0, way.frames * FRAME, 1.0),)
+
+
+def wall_clears(lying: tuple[Lying, ...]) -> float:
+    """Seconds until his wall's flames read, and those its makers read will still leave, are gone."""
+    return max((gone for _, _, _, gone in _flames(lying)), default=0) * FRAME
+
+
+WALL_CLEAR = CONTACT + 1.5  # units beyond the outermost maker's line a place out of the wall is offered at
+
+
+def wall_escapes(lying: tuple[Lying, ...], here: Point) -> tuple[tuple[Point, str], ...]:
+    """Places out of his wall: its makers leave where he stood in a fan (the take of 06:05 on 2026-10-14: -33 to 57
+    degrees off the line to the character), so a place as far from him as the character, WALL_CLEAR beyond either
+    edge of the fan, is off every line; the nearer edge first. None without a maker whose way is known."""
+    makers = [item for item in lying if item.missile == rules.WALL_MAKER and item.heading is not None]
+    if not makers:
+        return ()
+    origins = [
+        (
+            item.at[0] - math.cos(item.heading) * rules.WALL_STEP * item.age,
+            item.at[1] - math.sin(item.heading) * rules.WALL_STEP * item.age,
+        )
+        for item in makers
+        if item.heading is not None
+    ]
+    origin = (sum(o[0] for o in origins) / len(origins), sum(o[1] for o in origins) / len(origins))
+    reach = math.dist(origin, here)
+    if reach < 1e-6:
+        return ()
+    toward = math.atan2(here[1] - origin[1], here[0] - origin[0])
+    offs = [math.remainder((item.heading or 0.0) - toward, math.tau) for item in makers]
+    margin = WALL_CLEAR / reach
+    edges = sorted((min(offs) - margin, max(offs) + margin), key=abs)
+    return tuple(
+        (
+            (origin[0] + reach * math.cos(toward + edge), origin[1] + reach * math.sin(toward + edge)),
+            "out of Diablo's fire wall",
+        )
+        for edge in edges
+    )
+
+
+WALL = Lingering(
+    frozenset({rules.WALL_MAKER, rules.WALL_FLAME}),
+    (rules.WALL_LIFE + rules.FLAME_LIFE) * FRAME,
+    wall_read,
+    wall_exposure,
+    wall_clears,
+    wall_escapes,
+)
+THREAT = Threat(frozenset({rules.LIGHTNING_MISSILE}), exposure, offered, WALL)
 
 
 def threat_of(txt: int) -> Threat | None:

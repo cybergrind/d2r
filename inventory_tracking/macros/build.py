@@ -190,6 +190,9 @@ class JumpSource:
 
     jump: Jump
     delay: float = 0.0  # seconds between two jumps by the skill (its casting delay); 0.0: none
+    # Seconds from a key's down before which the character's delay state read clear is not yet the delay over: the
+    # game takes the next cast only from then (travel.py `Travel.left`). 0.0: the clear alone says it is over.
+    cleared: float = 0.0
     usable: Callable[[MoveFacts, Intent], bool] = anyhow  # what only this source asks of the facts
     # Units a jump by it carries in controller mode: the controller's fixed `defaultTargetDistance`, landed at in
     # the stick's direction (macros/pad.py). None: not jumped by in controller mode.
@@ -370,6 +373,10 @@ class Buff:
     # (macros/buffs.py `due`); None from it, or no callable: nothing (the player, 2026-10-14, of Death Mark: "I'm not
     # sure if death mark is used")
     refused: Callable[[BuffFacts, Monster], str | None] | None = None
+    # The monsters its `target` passes over that the log should name, each with its line: said once a monster by the
+    # executor, as `refused` (rca/2026-10-14/run-0305-findings.md §2: the Infector's seal boss died with neither a
+    # mark nor a line); None: nothing
+    passed: Callable[[BuffFacts], Sequence[tuple[Monster, str]]] | None = None
     # What to say when it is cast on a target: the line for the service's log, by the executor at each cast (the
     # player, 2026-10-14: the log line is how they see a cast and why); None: nothing
     said: Callable[[BuffFacts, Monster], str | None] | None = None

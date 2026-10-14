@@ -36,6 +36,10 @@ NEAR = 20.0  # world units: a potion on the ground this near is at hand
 GROUND = {HEALING: PotionType.HEALING, REJUVENATION: PotionType.REJUVENATION}
 SHIFTS = (b'Shift_L', b'Shift_R')
 NAMES = {PotionType.HEALING: 'Healing potion', PotionType.REJUVENATION: 'Rejuvenation potion'}
+# Seconds from the healer's key for the mercenary (its ledger's stamp) within which a potion of that kind gone from the
+# belt is taken for that one: the healer saw its potion leave the belt 0.17 to 0.19 s after its key (osd.log of
+# 2026-10-14, 06:08:53.19 to 57.72, four potions), and this looks at the belt every EVERY.
+GIVEN_WITHIN = 1.0
 
 
 def on_belt(loot: Loot) -> dict[PotionType, int]:
@@ -62,6 +66,7 @@ class Drinker:
         self.belt: dict[PotionType, int] | None = None
         self.drunk_at: dict[PotionType, float] = {}
         self.pressed_at: dict[PotionType, float] = {}  # clock time of the macro's own last key, by kind
+        self.given: dict[PotionType, float] = {}  # the healer's last key for the mercenary counted, by kind
         self.last: Loot | None = None  # the loot of the last look (macros/supply.py reads the belt from it)
         self.looked_at = -math.inf
         self.busy = False
@@ -85,7 +90,9 @@ class Drinker:
         self.watch_pad_drink(belt, now)
         for kind, count in belt.items():
             if self.belt is not None and count < self.belt[kind]:
-                self.drunk_at[kind] = now
+                gone = self.belt[kind] - count - self.mercenarys(run, kind, now)
+                if gone > 0:
+                    self.drunk_at[kind] = now
         self.belt = belt
         felt = pressure(self.readings)
         near = [GROUND[drop.kind] for drop in loot.drops if drop.kind in GROUND and self.near(here, drop.x, drop.y)]
@@ -101,6 +108,21 @@ class Drinker:
         if kind is None or key is None or self.shift_down(run):
             return None
         return kind if self.press(run, key, kind, loot, felt) else None
+
+    def mercenarys(self, run: Run, kind: PotionType, now: float) -> int:
+        """Of the potions of `kind` gone from the belt since the last look, how many the healer gave the mercenary
+        (`Run.given`, its ledger): its key within GIVEN_WITHIN before now, each key counted once. Those do not hold
+        back the character's (the game of 06:05 on 2026-10-14, run-0305-findings.md §5.5: three potions of the
+        mercenary's kept the character at 67-70% without one for 7 s); the rest are taken for the character's."""
+        given = run.given(kind) if run.given is not None else None
+        if given is None or given == self.given.get(kind) or not 0.0 <= now - given <= GIVEN_WITHIN:
+            return 0
+        self.given[kind] = given
+        LOG.info(
+            "Macro: drink: a %s went to the mercenary %.2fs ago (the healer's): the character's own gap is kept",
+            NAMES[kind], now - given,
+        )  # fmt: skip
+        return 1
 
     def watch_pad_drink(self, belt: dict[PotionType, int], now: float) -> None:
         """Whether a belt key acts in controller mode (rca/2026-10-13/controller-mode.md, plan step 8b): said

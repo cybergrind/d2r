@@ -157,3 +157,32 @@ def test_a_plain_monster_is_marked_for_its_pack_only_when_the_fight_presses():
     pressed = facts(plain, draws={4: replace(price(4, life=400.0), pressed=True)})
     assert worth_a_mark(pressed, plain)
     assert not worth_a_mark(facts(plain), plain)  # with no safety price no pack is priced
+
+
+# The Infector's seal boss of 06:08:23.4 to 27.04 on 2026-10-14 (rca/2026-10-14/run-0305-findings.md §2): unit
+# 3610904851, an Infector of Souls (362) with flags 10, at about a third of its life when the fight resumed.
+INFECTOR = Monster(3610904851, 362, 1, 5010.0, 5000.0, 0xFFFFFFFF, SUPER_UNIQUE | 0x08, life=42, max_life=128)
+
+
+def test_a_seal_boss_dropped_from_the_mark_is_said_once_with_why(caplog):
+    import logging
+
+    from inventory_tracking.builds.warlock.buffs import BUFFS
+    from inventory_tracking.macros.buffs import Buffs
+    from inventory_tracking.macros.build import Build
+    from tests.inventory_tracking.macros.fakes import Game
+
+    row = next(row for row in BUFFS if row.skill == DEATH_MARK)
+    asked = facts(INFECTOR, PACK, draws={2: price(2, life=10.0)})
+    assert target(asked) is not INFECTOR  # no mark goes on it
+    buffs = Buffs(Build(name='warlock', applies=lambda world: True, attack=None, movement=(), buffs=(row,)))
+    run = Game(asked.world).run()
+    with caplog.at_level(logging.INFO, logger='inventory_tracking'):
+        buffs.due(run, row, asked)
+        buffs.due(run, row, asked)
+    said = [r.getMessage() for r in caplog.records if r.getMessage().startswith('Macro: mark:')]
+    infector = [line for line in said if '3610904851' in line]
+    assert len(infector) == 1, said
+    assert 'dropped from the mark: trash now' in infector[0]
+    # a plain monster or a champion a cast or two kills is not named
+    assert not any('(3)' in line for line in said)

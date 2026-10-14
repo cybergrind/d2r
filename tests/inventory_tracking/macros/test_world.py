@@ -420,6 +420,29 @@ def test_an_item_the_character_carried_and_the_player_put_down_is_left_for_the_g
     assert not memory.at(again.x, again.y)
 
 
+def test_an_item_picked_up_between_a_looks_drops_and_its_grids_is_not_put_down(caplog):
+    """The Amulet Diablo dropped, 06:08:58.668 on 2026-10-14 (rca/2026-10-14/run-0305-findings.md §5.3): the macro
+    clicked it at 58.05 and had it 0.61 s later; one `Loot` read it on the ground (the drops are read first) and in
+    the inventory (the grids last), and the memory said "put down" for the macro's own pickup. A drop counts as put
+    down only when an earlier look had it carried."""
+    from inventory_tracking.macros.world import VALUABLE, Drop, Loot, PutDown
+
+    game = ('cbyer9', 7)
+    amulet = Drop(2285477250, 7793.0, 5296.0, 'Amulet', VALUABLE, (1, 1), prized=False)
+    classes = ((amulet.unit_id, 520),)
+    memory = PutDown()
+    with caplog.at_level('INFO'):
+        assert memory.see(Loot((amulet,), game=game, classes=classes)).drops == (amulet,)  # on the ground
+        picked = Loot((amulet,), game=game, classes=classes, carried=frozenset({amulet.unit_id}))
+        assert memory.see(picked).drops == (amulet,)  # picked up during the look: not the player's put down
+        assert memory.see(Loot((), game=game, carried=frozenset({amulet.unit_id}))).drops == ()
+    assert 'Macro: put down:' not in caplog.text
+    assert not memory.at(amulet.x, amulet.y)
+    # the player's put down after it is still told: the same unit back on the ground
+    assert memory.see(Loot((amulet,), game=game, classes=classes)).drops == ()
+    assert memory.at(amulet.x, amulet.y, 520)
+
+
 def test_the_carried_items_are_the_item_pointers_of_the_characters_grids():
     from inventory_tracking.macros.world import held_items
 

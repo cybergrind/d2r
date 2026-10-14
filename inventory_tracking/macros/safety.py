@@ -18,6 +18,7 @@ from dataclasses import dataclass, field, replace
 
 from inventory_tracking.combat import threats
 from inventory_tracking.combat.harm import (
+    GROUND_UNIT,
     Hands,
     Harm,
     Hostile,
@@ -64,6 +65,7 @@ RESISTS = ((36, 'physical'), (39, 'fire'), (41, 'lightning'), (43, 'cold'), (45,
 HELL_PENALTY = 100.0
 SWAP_SECONDS = 0.75
 WAITING = 'safety: waiting here: every way out costs more than standing'
+BURNING = 'safety: waiting for what burns on the way to go out'  # `burnt_out`: the act asked for, made after
 FIRING = 'firing spot'  # the reason of a move to a stand the strike is made from (pursuit.py's commitment)
 # The reason of an escape priced against holding (not a retreat): a stand the strike goes on from, taken for the
 # life it saves, so not held to the firing stand's commitment (pursuit.py), which is against changing stands for
@@ -101,22 +103,28 @@ def footing(field_: Field, here: Point, point: Point) -> Point | None:
     return None
 
 
-def in_flight(hostile: Sequence, flights: Flights | None) -> tuple[tuple[int, Point, float], ...]:
+def in_flight(
+    hostile: Sequence, flights: Flights | None, read: Sequence[tuple[int, int, float, float]] | None = None
+) -> tuple[tuple[int, Point, float], ...]:
     """The missiles in flight the read models of `hostile` ask for (combat/threats `missiles`), each with its
     owner and its heading: a missile flies straight from where its owner stood, so the heading is the line from
     the owner to it (Diablo's stand while he casts: rca/2026-10-13/diablo.md, 0.5 degrees in the takes). Nothing is
-    read when no such hostile is about, or when the reading fails (the price then has the mode alone)."""
+    read when no such hostile is about, or when the reading fails (the price then has the mode alone). `read`: the
+    missiles the look read already (of these classes and maybe others), in place of a read of its own."""
     owners = {m.unit_id: (m.x, m.y) for m in hostile if threats.of(m.txt_id) is not None}
-    if not owners or flights is None:
+    if not owners or (flights is None and read is None):
         return ()
-    try:
-        read = flights(threats.missiles({m.txt_id for m in hostile}))
-    except OSError, ValueError:
-        return ()
+    kinds = threats.missiles({m.txt_id for m in hostile})
+    if read is None:
+        assert flights is not None
+        try:
+            read = flights(kinds)
+        except OSError, ValueError:
+            return ()
     found = []
-    for owner, _txt, x, y in read:
+    for owner, txt, x, y in read:
         at = owners.get(owner)
-        if at is not None and (x, y) != at:
+        if at is not None and txt in kinds and (x, y) != at:
             found.append((owner, (x, y), math.atan2(y - at[1], x - at[0])))
     return tuple(found)
 
@@ -145,6 +153,15 @@ class Safety:
     # clock; None: not weighed (no draw, no hold to price).
     draws: dict[int, DrawPrice] | None = None
     drawn_at: float = -math.inf
+    # The casters of what lingers on the ground (combat/threats `Lingering`) last seen alive: unit -> (its model, where
+    # it stood, the clock then). Their missiles are read for the model's `lasts` seconds after, its death or not.
+    casters: dict[int, tuple[threats.Lingering, Point, float]] = field(default_factory=dict)
+    # What lies on the ground as first read: (class, x and y in half units) -> the clock it was first read at.
+    lying_since: dict[tuple[int, int, int], float] = field(default_factory=dict)
+    # The place a step across a read model's act was chosen from, by that hostile: unit -> (its mode as `modes` had
+    # it then, the place). Not offered again while the hostile is in that mode: the same act under way (Diablo's
+    # stream re-aims at where the character goes, so back is no way out: rca/2026-10-14/run-0305-findings.md §5.2).
+    stepped: dict[int, tuple[tuple[int, float] | None, Point]] = field(default_factory=dict)
 
     def look(
         self,
@@ -172,6 +189,9 @@ class Safety:
             self.identity = identity
             self.trail.clear()
             self.modes.clear()
+            self.casters.clear()
+            self.lying_since.clear()
+            self.stepped.clear()
         here = (player.x, player.y)
         if not self.trail or math.dist(self.trail[-1], here) >= TRAIL_STEP:
             self.trail.append(here)
@@ -208,6 +228,23 @@ class Safety:
         self.sendable = ()
         if draw is not None and draw.skill in world.slots:
             self.sendable = tuple((i, m.txt_id) for i, m in enumerate(companions) if draw.sends(world, m))
+        clock = now or 0.0
+        for m in hostile:
+            model = threats.of(m.txt_id)
+            if model is not None and model.lingering is not None:
+                self.casters[m.unit_id] = (model.lingering, (m.x, m.y), clock)
+        self.casters = {unit: kept for unit, kept in self.casters.items() if clock - kept[2] <= kept[0].lasts}
+        lingering = {model for model, _, _ in self.casters.values()}
+        kinds = threats.missiles({m.txt_id for m in hostile}) | frozenset(
+            kind for model in lingering for kind in model.missiles
+        )
+        read: Sequence[tuple[int, int, float, float]] | None = None
+        if flights is not None and kinds:
+            try:
+                read = flights(kinds)
+            except OSError, ValueError:
+                read = None
+        missiles = in_flight(hostile, None, read) if read is not None else ()
         return Look(
             tuple(
                 Hostile(
@@ -229,8 +266,32 @@ class Safety:
             travel,
             float(loot.life),
             blocked,
-            missiles=in_flight(hostile, flights),
+            missiles=missiles,
+            ground=self.lying(lingering, read or (), clock),
         )
+
+    def lying(
+        self, lingering: set[threats.Lingering], read: Sequence[tuple[int, int, float, float]], clock: float
+    ) -> tuple[tuple[threats.Lingering, tuple[threats.Lying, ...]], ...]:
+        """What lies on the ground by its model (`Look.ground`), from the missiles the look read: each with the place
+        its caster stood at when last seen (a maker's way) and the seconds it has been read (a flame's age)."""
+        if not lingering:
+            self.lying_since.clear()
+            return ()
+        found: dict[threats.Lingering, list[threats.Lying]] = {}
+        since: dict[tuple[int, int, int], float] = {}
+        for owner, kind, x, y in read:
+            model = next((model for model in lingering if kind in model.missiles), None)
+            if model is None:
+                continue
+            key = (kind, round(x * 2), round(y * 2))
+            since[key] = self.lying_since.get(key, clock)
+            caster = self.casters.get(owner)
+            found.setdefault(model, []).append(
+                model.read(kind, (x, y), caster[1] if caster is not None else None, clock - since[key])
+            )
+        self.lying_since = since
+        return tuple((model, tuple(items)) for model, items in found.items())
 
     def price(
         self,
@@ -420,6 +481,30 @@ class Safety:
             act = Move(step, goal, why or ('retreat' if retreat else FIRING if firing else ''))
             unstruck = seconds + (SWAP_SECONDS if needs != 'battle' else 0.0)  # the strike needs the battle set
             candidates.append(Candidate(act, duration, damage, retreat, unstruck, strikes_from(step.spot)))
+            return tuple(path), duration
+
+        def burnt_out(path: tuple, seconds: float, priced: Harm) -> None:
+            """The act asked for, begun once what lies on its way has burnt out (combat/threats `Lingering`: Diablo's
+            fire wall, which outlives him; rca/2026-10-14/run-0305-findings.md §5.6): standing here meanwhile, then
+            the same path, priced as one path, so the wait is worth it only where it saves more life than its time
+            costs. Offered when what lies on the ground is part of the act's price; at the time it has all gone and
+            at half that (the next look prices it again)."""
+            if not look.ground or not any(unit == GROUND_UNIT and points > 0 for unit, points in priced.by):
+                return
+            gone = max(model.clears(lying) for model, lying in look.ground)
+            for wait in sorted({gone / 2, gone}):
+                if wait <= 0:
+                    continue
+                later = harm_path(look, ((here, wait, hands), *path), settings)
+                candidates.append(Candidate(NoWay(BURNING), wait + seconds, later, False, wait + seconds, False))
+            # Or round it: a step out of it first (the model's places), the act asked for from there at a later look
+            places = [place for model, lying in look.ground for place in model.escapes(lying, here)]
+            for point, why in places:
+                if late():
+                    break
+                spot = footing(field_, here, point)
+                if spot is not None and math.dist(here, spot) > 2:
+                    move_price(Step(spot), why=f'{STEPPING} {why}')
 
         if isinstance(base, Operate):
             # The hands walk to a drop or object and work it there: the walk in three slices, as a leg's, then
@@ -435,8 +520,10 @@ class Safety:
             damage = harm_path(look, path, settings)
             used = walk + settings.use_dwell
             candidates.append(Candidate(base, used, damage, False, used, strikes_from(goal.place if walk else here)))
+            burnt_out(path, used, damage)
         elif isinstance(base, Move):
-            move_price(base.step)
+            path, seconds = move_price(base.step)
+            burnt_out(path, seconds, candidates[-1].harm)
             if candidates[-1].harm.worst > allowance or veto(candidates[-1].harm, look.life, settings):
                 # A long navigation leg may end inside a pack. Ask navigation for
                 # earlier stands on that same approach before conceding a retreat.
@@ -555,6 +642,10 @@ class Safety:
         if obstructed is not None:
             self.blocked_by = blockers(obstructed.harm, allowance)
         chosen = decide(priced, posted)
+        if isinstance(chosen, Move) and chosen.reason.startswith(STEPPING):
+            for m in look.hostiles:
+                if threats.of(m.txt) is not None:
+                    self.stepped[m.unit] = (self.modes.get(m.unit), here)
         blocked_goal = asking and (
             not isinstance(chosen, (Move, Operate))
             or (isinstance(chosen, Move) and chosen.reason.startswith('retreating:'))
@@ -687,7 +778,13 @@ class Safety:
             model = threats.of(m.txt)
             if model is not None:
                 flying = tuple((at, heading) for owner, at, heading in look.missiles if owner == m.unit)
-                found.extend(model.escapes(threats.Acting(m.at, m.mode, m.mode_frames, flying), here))
+                places = model.escapes(threats.Acting(m.at, m.mode, m.mode_frames, flying), here)
+                left = self.stepped.get(m.unit)
+                if left is not None and left[0] == self.modes.get(m.unit):
+                    places = tuple((point, why) for point, why in places if math.dist(point, left[1]) >= ESCAPE_SAME)
+                found.extend(places)
+        for lingering, lying in look.ground:
+            found.extend(lingering.escapes(lying, here))
         found.extend((point, AWAY) for point in self.escapes(here, look, priced))
         unique: list[tuple[Point, str]] = []
         for point, why in found:

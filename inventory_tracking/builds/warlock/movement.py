@@ -21,6 +21,13 @@ from inventory_tracking.macros.travel import JUMP_LEAST, JUMP_REACH
 # Counted as 0.8 s from the key, a second warp pressed 0.8 to 1.0 s after the first was refused by the
 # game and then waited on for JUMP_SECONDS (36 of 46 such keys over 2026-10-11 to 13; 2 of 296 from 1.05 s).
 WARP_DELAY = 1.05
+# Seconds from a key's down before which the delay state read clear is not yet Blade Warp's cooldown over (the
+# skill's 20 frames from the cast's action frame: 1.0 s from the key, rca/2026-10-13/re-findings.md item 4). The
+# state clears 0.96 to 1.03 s after the key, a tick or so before the game takes the next cast: over the games of
+# 00:25, 02:19 and 06:05 on 2026-10-14 every refused key came 0.928 to 0.986 s after the one before, each on a
+# look that read the state clear (11 of 17 such keys refused), and none of the 98 keys 0.99 s or more after it
+# (rca/2026-10-14/run-0305-findings.md §5.1, scripts/warp_gaps.py).
+WARP_CLEARED = 1.0
 # What a jump takes from its key to standing there, for the choice of a place (combat/stance.py `Jump`).
 WARP_SECONDS, WARP_SPEED = 0.35, 45.0  # Blade Warp: the cast, then the blade's flight in units a second
 # JUMP_REACH: units of a jump: in view, and within the blade's range. The blade flies there: no wall in its way.
@@ -28,7 +35,7 @@ BLADE_WARP_JUMP = Jump(BLADE_WARP, WARP_SECONDS, WARP_SPEED, JUMP_REACH, JUMP_LE
 # In controller mode the blade flies its controller `defaultTargetDistance` in the stick's direction (read,
 # controllerskillsettings.json: 17 units; where it lands is measured by `Pad jump:` lines, macros/pad.py).
 BLADE_WARP_PAD_REACH = 17.0
-BLADE_WARP_SOURCE = JumpSource(BLADE_WARP_JUMP, delay=WARP_DELAY, pad_reach=BLADE_WARP_PAD_REACH)
+BLADE_WARP_SOURCE = JumpSource(BLADE_WARP_JUMP, delay=WARP_DELAY, cleared=WARP_CLEARED, pad_reach=BLADE_WARP_PAD_REACH)
 
 # The shared sets in their order, the blade first in each: Blade Warp, then Teleport, then the walk.
 MOVEMENT = tuple(shared.led_by(BLADE_WARP_SOURCE) for shared in SHARED)

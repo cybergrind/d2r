@@ -47,6 +47,35 @@ Legs = tuple[tuple[Point, float], ...]
 
 
 @dataclass(frozen=True)
+class Lying:
+    """A missile that harms where it lies, as a look reads it (`Lingering`): its class, where it is, the way it goes
+    (radians; None: it stands, or its way is not known) and its age in frames (as the model reckons it)."""
+
+    missile: int
+    at: Point
+    heading: float | None = None
+    age: int = 0
+
+
+@dataclass(frozen=True)
+class Lingering:
+    """What a hostile's cast leaves on the ground that harms whoever stands in it after the cast, and after the
+    caster's death: a threat that outlives its caster (rca/2026-10-14/run-0305-findings.md §5.6, Diablo's fire
+    wall). The look reads its missiles for `lasts` seconds after a caster of the model was last seen alive."""
+
+    missiles: frozenset[int]  # the classes read (missiles.txt)
+    lasts: float  # seconds a cast's missiles can still harm after it was made
+    # (missile class, where it is, where its caster stood when last seen or None, seconds it has been read) -> Lying
+    read: Callable[[int, Point, Point | None, float], Lying]
+    # (what lies about, the character's legs) -> parts in raw points (one correlated event each)
+    exposure: Callable[[tuple[Lying, ...], Legs], tuple[Part, ...]]
+    # (what lies about) -> seconds until it, and what it will still leave, is gone
+    clears: Callable[[tuple[Lying, ...]], float]
+    # (what lies about, where the character stands) -> places out of it with a word on why each, best first
+    escapes: Callable[[tuple[Lying, ...], Point], tuple[tuple[Point, str], ...]]
+
+
+@dataclass(frozen=True)
 class Threat:
     missiles: frozenset[int]  # missile classes (missiles.txt) the look reads for it
     # (hostile, the character's legs, keywords seen: a clear line from it, companions: how many, resists: the
@@ -54,6 +83,7 @@ class Threat:
     exposure: Callable[..., tuple[Part, ...]]
     # (hostile, where the character stands) -> places with a word on why each, best first
     escapes: Callable[[Acting, Point], tuple[tuple[Point, str], ...]]
+    lingering: Lingering | None = None  # what its casts leave on the ground; None: nothing
 
 
 @cache

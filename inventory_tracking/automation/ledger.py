@@ -17,6 +17,9 @@ from inventory_tracking.reports import publish
 Timestamp = Annotated[float, Field(ge=0, allow_inf_nan=False)]
 CoreIdentity = tuple[int, str, int]
 LEDGER_NAME = 'potions.json'
+# Where `make osd` keeps it: the directory of its sessions (osd/__main__.py `--output`'s default, one level up from a
+# session), for a reader in another process (`PotionLedger.given_at`)
+OSD_LEDGER = Path(__file__).resolve().parents[1] / 'runs' / 'osd'
 LOCK_NAME = 'potions.lock'
 # Before version 2 the lock file was also the store for one shared timestamp.
 LEGACY_LOCK_NAME = 'merc-input.lock'
@@ -174,3 +177,16 @@ class PotionLedger:
                 # A raising body must not publish partial state; the lock closes with the `with`.
                 if not failed and transaction.dirty:
                     transaction.save()
+
+    def given_at(self, actor: Actor, potion: PotionType) -> float | None:
+        """When a potion of `potion` was last given to `actor` (its cooldown stamp: the healer's key, on the host's
+        monotonic clock), read without the lock from the ledger as last published; None when there is none, it is of
+        another boot, or it cannot be read. For a reader in another process (macros/drinking.py): never a write."""
+        try:
+            raw = json.loads(self._read() or '{}')
+        except OSError, ValueError:
+            return None
+        if not isinstance(raw, dict) or raw.get('boot') != self.boot_id or not isinstance(raw.get('cooldowns'), dict):
+            return None
+        stamp = raw['cooldowns'].get(cooldown_key(actor, potion))
+        return float(stamp) if isinstance(stamp, int | float) else None

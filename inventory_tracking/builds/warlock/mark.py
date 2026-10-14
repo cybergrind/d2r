@@ -343,6 +343,32 @@ def mark_refusal(facts: BuffFacts, monster: Monster) -> str | None:
     return f'Macro: mark: no {skill_name(DEATH_MARK)} on {label(monster)}, {life(monster)}: {why}'
 
 
+def mark_passed(facts: BuffFacts) -> list[tuple[Monster, str]]:
+    """The bosses in reach (an act boss, a super unique: a seal's boss) `ranked` leaves out, with the line that says
+    why (`Buff.passed`: once a boss): one the strike has brought down to a cast or two (`fits`) is no mark's target
+    any more. The game of 06:05 on 2026-10-14: the Infector's seal boss (362, flags 10) came into reach while the
+    fight yielded to a retreat, was struck to about a third of its life by the time it resumed, and died 3.6 s later
+    with neither a mark nor a line (rca/2026-10-14/run-0305-findings.md §2). Champions and uniques a cast or two
+    kills are not named: there are many, and no mark was in question on them."""
+    player = facts.world.player
+    if player is None or DEATH_MARK not in facts.world.slots:
+        return []
+    found = []
+    for m in facts.reachable:
+        if not is_boss(m):
+            continue
+        seen = observe(player, [m], ())
+        if fits(seen, m.unit_id):
+            continue
+        casts = casts_to_kill(seen, m.unit_id)
+        why = (
+            f'dropped from the mark: trash now, {casts:.1f} casts of the strike kill it '
+            f'(a mark needs more than {TRASH_CASTS})'
+        )
+        found.append((m, f'Macro: mark: no {skill_name(DEATH_MARK)} on {label(m)}, {life(m)}: {why}'))
+    return found
+
+
 def mark_said(facts: BuffFacts, monster: Monster) -> str:
     """The line of a cast, in the service's log under `Macro: mark:`, with what it was found worth."""
     if facts.draws is None:

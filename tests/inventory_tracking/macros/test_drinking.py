@@ -117,3 +117,23 @@ def test_the_last_potions_are_drunk_when_more_lie_near():
     near = Drop(51, 5006.0, 4996.0, 'a healing potion', HEALING)
     play = game(1000, belt=few, drops=(near,))
     assert looks(play, Drinker(), 1000, 850) == [None, PotionType.HEALING]
+
+
+def test_a_potion_the_healer_gave_the_mercenary_does_not_hold_back_the_characters():
+    # The game of 06:05 on 2026-10-14 (rca/2026-10-14/run-0305-findings.md §5.5): after Diablo the healer (`make
+    # osd`) gave the mercenary healing potions at 06:08:57.15, 06:09:00.24 and 04.80 (its ledger's `merc:healing`);
+    # each went from the belt, and each restarted the character's 6 s gap: at 67-70% it drank nothing for 7 s.
+    play = game(1000)
+    drinker, run = Drinker(), play.run()
+    given: dict[PotionType, float] = {}
+    run.given = lambda kind: given.get(kind)
+    play.loot = replace(play.loot, life=950)
+    assert drinker.look(run, HERE) is None  # above every mark
+    play.clock.now += EVERY
+    given[PotionType.HEALING] = play.clock.now - 0.05  # the healer's key for the mercenary, just now
+    play.loot = replace(play.loot, life=670, belt=(None, *FULL[1:]))  # the mercenary's potion gone from the belt
+    assert drinker.look(run, HERE) == PotionType.HEALING  # 67%: the character's own potion, no gap held
+    # A potion of the character's own (none the healer gave) still holds the gap: two drinkers, one blow
+    play.clock.now += EVERY
+    play.loot = replace(play.loot, belt=(None, None, *FULL[2:]))
+    assert drinker.look(run, HERE) is None

@@ -279,3 +279,19 @@ def test_new_boot_or_fresh_host_uses_the_new_lock_name(tmp_path, healing_setup, 
     fresh = tmp_path / 'fresh'
     fresh.mkdir()
     assert PotionLedger(fresh, boot_id='test').lock_path.name == 'potions.lock'
+
+
+def test_the_last_potion_given_to_an_actor_is_read_without_the_lock_and_never_written(tmp_path):
+    # macros/drinking.py tells the mercenary's potions from the character's by it (run-0305-findings.md §5.5)
+    from inventory_tracking.models import PotionType
+
+    ledger = PotionLedger(tmp_path, boot_id='test')
+    assert ledger.given_at(Actor.MERC, PotionType.HEALING) is None  # no ledger yet
+    stamps = {'merc:healing': 4604109.35}
+    document = {'version': 2, 'boot': 'test', 'cooldowns': stamps, 'actors': {}, 'last_delivery': None}
+    (tmp_path / 'potions.json').write_text(json.dumps(document))
+    with ledger.transaction():  # another instance holds the lock: the read does not wait for it
+        assert ledger.given_at(Actor.MERC, PotionType.HEALING) == 4604109.35
+    assert ledger.given_at(Actor.PLAYER, PotionType.HEALING) is None
+    assert PotionLedger(tmp_path, boot_id='other').given_at(Actor.MERC, PotionType.HEALING) is None  # another boot
+    assert json.loads((tmp_path / 'potions.json').read_text()) == document

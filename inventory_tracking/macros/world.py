@@ -333,7 +333,9 @@ class PutDown:
                 self.game, self.carried, self.places = loot.game, set(), []
             if len(self.carried) > self.KEPT:
                 self.carried.clear()
-            self.carried |= loot.carried
+            # The drops are tested against the items carried in earlier looks only: one `Loot` reads the drops
+            # first and the grids last, so an item the macro picks up between the two is in both
+            # (rca/2026-10-14/run-0305-findings.md §5.3: the Amulet "put down" while it was being picked up).
             kinds = dict(loot.classes)
             kept = []
             for drop in loot.drops:
@@ -349,6 +351,7 @@ class PutDown:
                     )  # fmt: skip
                     continue
                 kept.append(drop)
+            self.carried |= loot.carried
         return loot if len(kept) == len(loot.drops) else replace(loot, drops=tuple(kept))
 
     def at(self, x: float, y: float, class_id: int | None = None) -> bool:

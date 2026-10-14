@@ -206,3 +206,33 @@ def test_a_way_of_a_path_walks_a_walk_and_jumps_a_hop():
     assert way.legs[1] == ((4.0, 0.0), 0.3, 0.0)  # 4 units in 0.3 s: walked
     assert way.legs[2] == ((30.0, 0.0), 0.0, 0.3)  # 26 units in 0.3 s: a jump
     assert all(abs(math.dist(p, (0.0, 0.0)) - 15.0) < 1e-9 for p in threat.escapes((0.0, 0.0), (15.0, 0.0)))
+
+
+def test_his_wall_is_priced_where_it_lies_whoever_cast_it_and_for_as_long_as_it_stands():
+    # rca/2026-10-14/run-0305-findings.md §5.6: a flame 180 stands FLAME_LIFE frames and takes `rate` of its points
+    # from a body within CONTACT each frame; a maker 179 leaves one where it is each frame on its way.
+    from inventory_tracking.combat.threats import Lying
+
+    per_frame = sum(threat._flame().values())
+    here = (0.0, 0.0)
+    fresh = (Lying(rules.WALL_FLAME, here, None, 0),)
+    standing = threat.Way.stand(here, 3.0)
+    assert threat.wall_points(fresh, standing) == pytest.approx(rules.FLAME_LIFE * per_frame)
+    old = (Lying(rules.WALL_FLAME, here, None, rules.FLAME_LIFE - 5),)
+    assert threat.wall_points(old, standing) == pytest.approx(5 * per_frame)  # its last five frames
+    assert threat.wall_points((Lying(rules.WALL_FLAME, (10.0, 0.0), None, 0),), standing) == 0.0  # out of contact
+    # A maker 11 units off coming at the character: its flames reach the place after the frames of its way there
+    maker = (Lying(rules.WALL_MAKER, (-11.0, 0.0), 0.0, 0),)
+    assert threat.wall_points(maker, threat.Way.stand(here, 0.5)) == 0.0  # 12 frames: not there yet
+    assert threat.wall_points(maker, standing) > 0
+    assert threat.wall_clears(maker) == pytest.approx((rules.WALL_LIFE - 1 + rules.FLAME_LIFE) * threat.FRAME)
+    # Read off the game: a maker's way is from where he stood, its age the frames that way took
+    read = threat.wall_read(rules.WALL_MAKER, (11.0, 0.0), (0.0, 0.0), 0.0)
+    assert read.heading == pytest.approx(0.0)
+    assert read.age == round(11.0 / rules.WALL_STEP)
+    assert threat.wall_read(rules.WALL_FLAME, here, (0.0, 0.0), 0.4).age == 10  # a flame: the frames it was read
+    # Out of the fan: either edge, as far from him as the character
+    fan = (Lying(rules.WALL_MAKER, (5.0, 1.0), math.atan2(1, 5), 9), Lying(rules.WALL_MAKER, (5.0, -1.0), -0.2, 9))
+    places = threat.wall_escapes(fan, (14.0, 0.0))
+    assert len(places) == 2
+    assert all(abs(math.dist(place, (0.0, 0.0)) - 14.0) < 0.5 for place, _ in places)

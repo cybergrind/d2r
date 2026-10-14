@@ -133,6 +133,9 @@ class Buffs:
             return None
         if not row.due(facts):
             return None
+        if row.passed is not None:
+            for monster, said in row.passed(facts):
+                self.say_once(row, monster, said)
         target = None
         if row.target is not None:
             target = row.target(facts)
@@ -148,11 +151,16 @@ class Buffs:
         if row.refused is None or target is None or (row.skill, target.unit_id) in self.refusals:
             return
         said = row.refused(facts, target)
-        if said is None:
+        if said is not None:
+            self.say_once(row, target, said)
+
+    def say_once(self, row: Buff, monster: Monster, said: str) -> None:
+        """A row's line about `monster` (a refusal, one passed over), said once a monster and row."""
+        if (row.skill, monster.unit_id) in self.refusals:
             return
         if len(self.refusals) > 400:
             self.refusals.clear()
-        self.refusals.add((row.skill, target.unit_id))
+        self.refusals.add((row.skill, monster.unit_id))
         LOG.info('%s', said)
 
     def first(self, run: Run, phase: str, facts: BuffFacts) -> Due | None:

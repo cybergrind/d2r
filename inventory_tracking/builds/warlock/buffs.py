@@ -11,6 +11,7 @@ import math
 
 from inventory_tracking.builds.warlock.mark import (
     mark_due,
+    mark_passed,
     mark_refusal,
     mark_said,
     target,
@@ -157,6 +158,7 @@ BUFFS: tuple[Buff, ...] = (
         target=target,
         worth=worth_a_mark,
         refused=mark_refusal,
+        passed=mark_passed,
         said=mark_said,
     ),
     Buff(SIGIL_LETHARGY, 'fight', sigil_due, on='ground', target=prey, caster='sigil'),

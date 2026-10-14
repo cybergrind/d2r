@@ -66,6 +66,7 @@ JUMP_SECONDS = 1.5  # for the character to be seen somewhere else after the key
 DELAY_SHOWN = ONE_CAST  # no cast lasts longer, and every state above was set by then
 DELAY_STALE = 2.5  # seconds after its key a delay state still set is not that key's: the clock decides
 DELAY_TICK = 0.04  # a delay state still set ends at the next game tick at the soonest
+ROUNDING = 1e-6  # seconds: a sum of clock times this near a floor has reached it (a float's rounding, no more)
 # With no state read the delay is timed by the clock from the key's release, the rule before the state was read
 # (`JumpSource.delay`; 2 keys refused of 296, 2026-10-11 to 13). Counted from the key's down it would refuse some:
 # 1.05 s is under the clear's p99 above.
@@ -548,6 +549,36 @@ class Stale(Abort):
     a jump that failed: the way is not distrusted for it."""
 
 
+class Untaken(Abort):
+    """A jump's key the game took no cast for: the character did not move and its delay state was read after the
+    key but never set (a cast sets it at its action frame). The key in the skill's cooldown is refused this way
+    (run-0305-findings.md §5.1); it began no delay, and the way is not distrusted for it: the jump is made again
+    when due. REFUSALS in a row are a failure like any other (a cast the game keeps refusing: no mana, say)."""
+
+
+REFUSALS = 2
+
+
+@dataclass
+class Thrown:
+    """What the looks after a jump's key read of the character's delay state (`Travel.jump`)."""
+
+    read: bool = False  # some look read the state
+    set: bool = False  # some look had it set: the game took a cast
+
+    def note(self, world: World) -> bool:
+        """Notes one look; True, so that it goes before a look's own test with `and`."""
+        player = world.player
+        if player is not None and player.cooldown is not None:
+            self.read = True
+            self.set = self.set or player.cooldown
+        return True
+
+    @property
+    def untaken(self) -> bool:
+        return self.read and not self.set
+
+
 @dataclass
 class Tally:
     """The moves of one level run (KP_1), for its pace: from its first leg (`since`), the units made (a jump
@@ -580,6 +611,11 @@ class Travel:
             source.jump.skill: source.delay for movement in self.sets for source in movement.sources if source.delay
         }
         self.delayed = frozenset(self.delays)
+        # -> seconds from the key before which a clear delay state is not the delay over (`JumpSource.cleared`)
+        self.cleared = {
+            source.jump.skill: source.cleared for movement in self.sets for source in movement.sources if source.delay
+        }
+        self.refusals: dict[int, int] = {}  # skill -> keys in a row the game took no cast for (`jump`)
         self.jumped_at: dict[int, float] = {}  # skill with a casting delay -> clock time its last key went down
         self.released_at: dict[int, float] = {}  # -> the clock time that key came up (the clock's rule, `left`)
         self.jump_failed: dict[int, float] = {}  # skill -> clock time a jump by it last moved nothing
@@ -602,9 +638,11 @@ class Travel:
     def left(self, skill: int, now: float, cooldown: bool | None) -> float:
         """Seconds of the skill's casting delay still to run; 0 or less (-inf: known over), none. By the
         character's delay state where the look read it (`cooldown`, world.py `Player.cooldown`): clear
-        DELAY_SHOWN after the key, over; set, it ends no sooner than the delay from the key's down nor
-        before the next tick. With the state unread, or set DELAY_STALE after the key (not this key's), by
-        the clock from the key's release (or from the key, when no release was recorded)."""
+        DELAY_SHOWN after the key and no sooner than the skill's `cleared` after it, over (the state clears a
+        tick or so before the game takes the next cast: run-0305-findings.md §5.1); set, it ends no sooner
+        than the delay from the key's down nor before the next tick. With the state unread, or set
+        DELAY_STALE after the key (not this key's), by the clock from the key's release (or from the key,
+        when no release was recorded)."""
         keyed, delay = self.jumped_at.get(skill), self.delays.get(skill, 0.0)
         if keyed is None or not delay:
             return -math.inf
@@ -613,7 +651,10 @@ class Travel:
             return self.released_at.get(skill, keyed) + delay - now
         if cooldown:
             return max(delay - since, DELAY_TICK)
-        return -math.inf if since >= DELAY_SHOWN else delay - since
+        if since < DELAY_SHOWN:
+            return delay - since
+        floor = self.cleared.get(skill, 0.0) - since
+        return -math.inf if floor <= ROUNDING else floor
 
     def counted(self, now: float, cooldown: bool | None, lead: float = 0.0) -> dict[int, float]:
         """`MoveFacts.last_used` for a choice made now with the delay state `cooldown`: for each skill keyed, the
@@ -783,7 +824,8 @@ class Travel:
         skill = found.skill
         assert skill is not None
         began = run.clock()
-        before = self.jumped_at.get(skill)
+        before, before_released = self.jumped_at.get(skill), self.released_at.get(skill)
+        cast = Thrown()
         try:
             with run.lightly():  # the key's name needs the skills on keys alone
                 run.keys.update(key_names(run.world(), (skill,)))
@@ -809,19 +851,37 @@ class Travel:
                 self.jumped_at[skill], self.released_at[skill] = keyed, released
             spot = found.spot
             if ahead is not None and run.pad is None:
-                self.aim_ahead(run, keyed, origin, spot, aspect, ahead)
+                self.aim_ahead(run, keyed, origin, spot, aspect, ahead, cast.note)
             with run.lightly():  # the landing is the character's place: no monster or door is wanted
                 landing = run.seen(
-                    lambda w: w.player is not None and landed_from(w.player, origin, spot),
+                    lambda w: cast.note(w) and w.player is not None and landed_from(w.player, origin, spot),
                     max(released + JUMP_SECONDS - run.clock(), KEY_POLL),
                 )
             if landing is None:
+                if skill in self.delayed and cast.untaken and self.refusals.get(skill, 0) + 1 < REFUSALS:
+                    # The game took no cast for the key (its delay state never set): the key began no delay and
+                    # the way is not to distrust; the jump is made again as soon as it is due.
+                    self.refusals[skill] = self.refusals.get(skill, 0) + 1
+                    self.jumped_at.pop(skill, None)
+                    self.released_at.pop(skill, None)
+                    if before is not None:
+                        self.jumped_at[skill] = before
+                    if before_released is not None:
+                        self.released_at[skill] = before_released
+                    gap = '' if before is None else f' {keyed - before:.3f}s after the key before'
+                    LOG.info(
+                        'Macro: %s: the game took no cast for the key%s (its delay state never set): '
+                        'made again when due', skill_name(skill), gap,
+                    )  # fmt: skip
+                    raise Untaken(f'{skill_name(skill)}: the character did not move: the game took no cast')
                 raise Abort(f'{skill_name(skill)}: the character did not move')
-        except Stale:
+        except Stale, Untaken:
             raise
         except Abort:
             self.jump_failed[skill] = run.clock()
+            self.refusals.pop(skill, None)
             raise
+        self.refusals.pop(skill, None)
         landed_at = run.clock()
         landed = landing.player
         assert landed is not None
@@ -874,18 +934,25 @@ class Travel:
                 run.pace.sleep(min(left, KEY_POLL))
 
     def aim_ahead(
-        self, run: Run, keyed: float, player: Player, spot: Point, aspect: float, ahead: Callable[[Point], Point | None]
+        self,
+        run: Run,
+        keyed: float,
+        player: Player,
+        spot: Point,
+        aspect: float,
+        ahead: Callable[[Point], Point | None],
+        note: Callable[[World], bool] = lambda _: True,
     ) -> None:
         """During a jump's flight, the pointer put on the aim of the leg after it as the set would give it
         from the landing (`ahead`, the goal's next jump), once the cast has thrown: the delay state set, or
         DELAY_SHOWN after the key with none read (the place the jump goes to is the pointer's at the cast;
         12:33 on 2026-10-13: the state set 0.17 to 0.23 s after the key). The leg is chosen again from the
         landing; the pointer then has a step to go at most (`Actuator.aim` `near`). The player's hand on the
-        mouse stops it: nothing else depends on it."""
+        mouse stops it: nothing else depends on it. `note`: each look made, to the caller (`Thrown.note`)."""
 
         def thrown(w: World) -> bool:
             p = w.player
-            return p is not None and (bool(p.cooldown) or landed_from(p, player, spot))
+            return note(w) and p is not None and (bool(p.cooldown) or landed_from(p, player, spot))
 
         with run.lightly():
             run.seen(thrown, max(keyed + DELAY_SHOWN - run.clock(), 0.0), KEY_POLL)

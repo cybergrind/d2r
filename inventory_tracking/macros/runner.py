@@ -32,8 +32,10 @@ import random
 import threading
 import time
 from collections.abc import Callable, Sequence
+from contextlib import suppress
 from pathlib import Path
 
+from inventory_tracking.automation.ledger import OSD_LEDGER, PotionLedger
 from inventory_tracking.common import LOG
 from inventory_tracking.config import INPUT
 from inventory_tracking.input.compositor import STEP_KEYS
@@ -58,7 +60,7 @@ from inventory_tracking.macros.teleport import LOST_KEY, ready, step_toward
 from inventory_tracking.macros.timing import Pace
 from inventory_tracking.macros.waiting import Waiting
 from inventory_tracking.macros.world import BeltKept, GameMemory, PutDown, World
-from inventory_tracking.models import SessionIdentity
+from inventory_tracking.models import Actor, SessionIdentity
 from inventory_tracking.routes.model import FIGHT
 from inventory_tracking.routes.progress import Progress
 
@@ -151,6 +153,11 @@ class MacroRunner:
         # the items the player put down this game (world.py `PutDown`): out of every run's loot, and of the HUD's
         # ground marks (the service hands `put_down.at` to loot/watch.py)
         self.put_down = PutDown()
+        # when the healer (`make osd`) last gave the mercenary a potion of a kind: its ledger, read, never written
+        # (`Run.given`; macros/drinking.py keeps the character's own gap for those)
+        self.healer: PotionLedger | None = None
+        with suppress(OSError):
+            self.healer = PotionLedger(OSD_LEDGER)
         self.working = False  # a run is acting (the thread lives on a while to show its last card)
         self.routine = PREBUFF
         self.generation = 0
@@ -663,6 +670,8 @@ class MacroRunner:
                 run.objects = memory.objects
                 run.corpses = memory.corpses
                 run.flights = memory.flights
+                if self.healer is not None:
+                    run.given = lambda kind, ledger=self.healer: ledger.given_at(Actor.MERC, kind)
                 run.arrival = lambda: self.journey.arrival(time.monotonic())
                 run.supers = self.supers
                 run.ending = self.progress.ending if self.progress is not None else None

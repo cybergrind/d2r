@@ -16,6 +16,7 @@ from inventory_tracking.levels.model import Ground
 from inventory_tracking.macros.actuator import Abort, Actuator, Cancelled
 from inventory_tracking.macros.timing import Pace
 from inventory_tracking.macros.world import Loot, Teleport, Thing, Warp, World
+from inventory_tracking.models import PotionType
 
 
 if TYPE_CHECKING:
@@ -72,6 +73,9 @@ class Run:
         # the missiles in flight of some classes as (owner unit, class, x, y) (world.GameMemory.flights): what a
         # read threat model prices (combat/threats; macros/safety.py reads them only with such a hostile about)
         self.flights: Callable[[frozenset[int]], tuple[tuple[int, int, float, float], ...]] | None = None
+        # the clock time the healer (`make osd`) last gave the mercenary a potion of a kind, None when never or
+        # not known (automation/ledger.py `given_at`): macros/drinking.py tells the mercenary's from the character's
+        self.given: Callable[[PotionType], float | None] | None = None
         self.warps: Callable[[], tuple[Warp, ...]] | None = None  # the doors loaded (world.GameMemory.warps)
         # the walkable ground of the level the character is on, None while not known (the level guide's map)
         self.ground: Callable[[], Ground | None] | None = None
