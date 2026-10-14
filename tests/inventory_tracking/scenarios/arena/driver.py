@@ -15,11 +15,12 @@ second copy of those rules here would be played instead of them.
 
 Nothing in a play looks at wall time, and one thing moves the game at a time:
 
-- the runner reads `time.monotonic()` for how long a press may wait (`EXPIRES`), for a bounce
-  (`THROTTLE`) and for its card (`CARD_SECONDS`, a `time.sleep`). For the play its `time` is `ArenaTime`:
-  the arena's clock, and a sleep that takes none (the card is not the game's time). The queue's clock
-  is set to the same. So a press that waited too long is dropped by the arena's seconds, as the real
-  one is by the wall's, whatever the machine's load. The module's `time` is put back after the play;
+- the runner reads `time.monotonic()` for how long a press may wait (`EXPIRES`) and for a bounce
+  (`THROTTLE`). For the play its `time` is `ArenaTime`, the arena's clock, and its card wait
+  (`CARD_SECONDS`, a wait on the wall's clock that `close` ends) is none: the card is not the game's
+  time. The queue's clock is set to the same. So a press that waited too long is dropped by the
+  arena's seconds, as the real one is by the wall's, whatever the machine's load. The module's `time`
+  and `CARD_SECONDS` are put back after the play;
 - a run works on the runner's own thread, and the game's clock moves only in the thread that sleeps
   on it: a run's, or with no run working this one's, a tick at a time. A press whose time comes
   during a run is made from within that run's sleep (as `Replay.sleep` makes them, and as the
@@ -77,7 +78,7 @@ class Press:
 
 class ArenaTime:
     """What runner.py reads of `time`, for a play: the arena's clock for `monotonic`, and a `sleep`
-    that takes no time (the runner sleeps only to keep its card up, CARD_SECONDS)."""
+    that takes no time."""
 
     perf_counter = staticmethod(time.perf_counter)
 
@@ -251,8 +252,9 @@ class Play:
     def run(self) -> Result:
         fresh()
         arena = self.arena
-        saved = runner_module.time
+        saved, card = runner_module.time, runner_module.CARD_SECONDS
         runner_module.time = ArenaTime(arena)  # type: ignore[assignment]
+        runner_module.CARD_SECONDS = 0.0
         arena.each_tick = self.tick
         try:
             while True:
@@ -270,7 +272,7 @@ class Play:
         finally:
             if not self.ended:
                 self.end()
-            runner_module.time = saved
+            runner_module.time, runner_module.CARD_SECONDS = saved, card
             arena.each_tick = None
         if self.failed:
             raise self.failed[0]

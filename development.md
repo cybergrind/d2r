@@ -23,6 +23,11 @@ Applies to repository code changes. Linked from [AGENTS.md](AGENTS.md).
   → `tests/inventory_tracking/test_images.py`; `inventory_tracking/osd/presenter.py`
   → `tests/inventory_tracking/osd/test_presenter.py`. Import production modules by
   their absolute package name. Run `uv run pytest tests -v`.
+- A whole tree or a large directory runs in parallel with pytest-xdist (a dev
+  dependency): `uv run --offline pytest tests/inventory_tracking -q -p no:cacheprovider
+  -n auto --dist loadfile` (about 3x faster on the 16-core host; `loadfile` keeps each
+  module's cached arena plays on one worker). It is not in the pytest config: a
+  single file or test runs faster serially, so pass `-n` only for big runs.
 
 - External implementation references are checked out under `third-parties/`. Read
   `third-parties/README.md` and use local sources before fetching GitHub pages.

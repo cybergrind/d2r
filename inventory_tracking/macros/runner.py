@@ -160,6 +160,7 @@ class MacroRunner:
         # the teleport key whose goal is a fight leaves it off (read with the pursuit on only: `pursues`)
         self.attack_declined = False
         self.closed = False  # `close` was called: nothing starts any more
+        self.shut = threading.Event()  # set by `close`: a run's card wait ends with it
         self.trace = trace or Trace()  # how long each press takes (latency.py)
         # the requests whose run has not begun: a step's own key during it, a step during attack mode (waiting.py)
         self.queue = Waiting(PRIORITY, self.trace)
@@ -406,6 +407,7 @@ class MacroRunner:
         mode resumed, no queued repeat), and no request starts another."""
         with self.lock:
             self.closed = True
+            self.shut.set()
             self.attack_mode = False
             self._end_run('the service closed')
             self.queue.clear('the service closed')
@@ -509,7 +511,7 @@ class MacroRunner:
                     self._end_run('attack mode stopped')
                 if self._follow(routine):
                     return
-        time.sleep(CARD_SECONDS)
+        self.shut.wait(CARD_SECONDS)
         if self.generation == generation:  # no newer run owns the card
             self._show([])
 

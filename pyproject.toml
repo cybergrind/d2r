@@ -22,6 +22,7 @@ dev = [
     'uv>=0.11.6',
     'pyrefly>=0.59',
     "dirty-equals>=0.11",
+    "pytest-xdist>=3.8.0",
 ]
 
 [tool.ruff]

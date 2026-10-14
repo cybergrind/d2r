@@ -11,9 +11,14 @@ from pricing.knowledge.definitions import build_definitions
 
 
 @pytest.fixture(scope='module')
-def bane():
-    data = build_definitions(Path(__file__).resolve().parents[3])
-    return next(r for r in data['rows'] if r['rarity'] == 'unique' and r['table_id'] == 54)
+def definitions():
+    """The definitions build (several seconds), once for the module."""
+    return build_definitions(Path(__file__).resolve().parents[3])
+
+
+@pytest.fixture(scope='module')
+def bane(definitions):
+    return next(r for r in definitions['rows'] if r['rarity'] == 'unique' and r['table_id'] == 54)
 
 
 def capture(stats, *, complete=True, socketed=False):
@@ -90,11 +95,10 @@ def test_malformed_capture_does_not_establish_an_observed_version(monkeypatch, b
     assert 'mode_eligibility' not in identity
 
 
-def test_malformed_cast_rate_cannot_prove_ordinary_manald():
+def test_malformed_cast_rate_cannot_prove_ordinary_manald(definitions):
     from inventory_tracking.items.seasonal_identity import resolve_seasonal_identity
 
-    data = build_definitions(Path(__file__).resolve().parents[3])
-    manald = next(row for row in data['rows'] if row['rarity'] == 'unique' and row['table_id'] == 121)
+    manald = next(row for row in definitions['rows'] if row['rarity'] == 'unique' and row['table_id'] == 121)
     arrays = {'complete': True, 'arrays': [{'header_offset': 0xE8, 'stats': [{'id': '105', 'layer': 0, 'raw': 10}]}]}
     result = resolve_seasonal_identity(manald, arrays, socketed=False)
     assert result['definition_variant'] == 'ordinary'

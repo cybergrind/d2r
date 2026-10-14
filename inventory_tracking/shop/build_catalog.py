@@ -411,15 +411,17 @@ def build():
                     'planner_only': pointer.startswith('/planner_only_items/'),
                 }
             )
+    bases = sorted(set(compiler.bases) | set(ALIASES), key=len, reverse=True)
     for entry_row in inventory:
         text = entry_row['text'].replace('Jewels', 'Jewel').replace('Charms', 'Charm')
         # Named affixes anywhere in a setup/alternative are separate candidates.
         for prefix in compiler.affixes['prefix']:
             if prefix + ' ' not in text:
                 continue
-            for base in sorted(set(compiler.bases) | set(ALIASES), key=len, reverse=True):
+            for base in bases:
                 stem = prefix + ' ' + base
-                if not re.search(re.escape(stem) + r'(?![\w])', text):
+                # The substring test first: the regex only narrows it, and compiling one per stem is the cost.
+                if stem not in text or not re.search(re.escape(stem) + r'(?![\w])', text):
                     continue
                 suffix = next(
                     (s for s in sorted(compiler.affixes['suffix'], key=len, reverse=True) if stem + ' ' + s in text),

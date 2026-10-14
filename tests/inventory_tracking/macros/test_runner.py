@@ -121,7 +121,21 @@ def test_a_press_right_after_a_step_starts_the_next_while_the_card_still_shows(m
     assert steps == ['teleport', 'teleport']
 
 
-def test_a_macro_request_during_a_teleport_step_cancels_it():
+def test_closing_ends_the_card_wait_of_a_run_that_ended():
+    # The card of a run that ended stays CARD_SECONDS (4 s); shutdown must not wait it out.
+    runner = make(lambda cancelled, routine: None, [])
+    assert runner.request(10.0, 10.1, 'teleport')
+    thread = runner.thread
+    assert thread is not None
+    started = time.monotonic()
+    runner.close()  # joins the run's thread (up to 3 s)
+    assert time.monotonic() - started < 1.0
+    assert not thread.is_alive()
+
+
+def test_a_macro_request_during_a_teleport_step_cancels_it(monkeypatch):
+    monkeypatch.setattr(runner_module, 'CARD_SECONDS', 0)
+
     def execute(cancelled, routine):
         assert cancelled.wait(5)
         raise Cancelled

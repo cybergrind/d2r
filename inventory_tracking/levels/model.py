@@ -144,50 +144,78 @@ class Walkable:
     masks: str = ''
 
 
+# A tile's decoded grid: the grid, its walk bits and flight bits ('1'/'0' per sub-tile, None when absent or
+# malformed), its sub-tile columns and its top-left corner in world units.
+type _Tile = tuple[Walkable, str | None, str | None, int, int, int]
+# The tables kept: a look builds a Ground of the level's loaded rooms, and the set grows as rooms load, so the
+# last few sets of a game are enough (each about 1-2 MB for Chaos's 225 rooms). lru_cache is thread-safe and
+# a table is never changed once built, so the service's threads share them.
+TABLES = 16
+
+
+@lru_cache(maxsize=TABLES)
+def _tiles(grids: tuple[Walkable, ...]) -> dict[tuple[int, int], _Tile]:
+    """The decoded grid of each tile, built once for a set of grids and shared by every Ground made of it.
+    A later grid wins a tile two of them cover, as it always did."""
+    tiles: dict[tuple[int, int], _Tile] = {}
+    for grid in grids:
+        columns, count = grid.width * TILE_UNITS, grid.width * grid.height * TILE_UNITS * TILE_UNITS
+        tile = (
+            grid,
+            unpack_cells(grid.cells, count),
+            unpack_cells(grid.flight, count),
+            columns,
+            grid.x * TILE_UNITS,
+            grid.y * TILE_UNITS,
+        )
+        for x in range(grid.x, grid.x + grid.width):
+            for y in range(grid.y, grid.y + grid.height):
+                tiles[x, y] = tile
+    return tiles
+
+
 class Ground:
     """Walkability of world points from the loaded rooms' sub-tile grids, indexed by tile (one
-    sub-tile is one world unit). None where no grid covers the point (room not loaded, no walls read)."""
+    sub-tile is one world unit). None where no grid covers the point (room not loaded, no walls read).
+    Cheap to make: the decoded table of a set of grids is shared (`_tiles`)."""
 
     def __init__(self, grids: Iterable[Walkable]) -> None:
         self.grids = tuple(grids)
-        self.by_tile = {
-            (x, y): grid
-            for grid in self.grids
-            for x in range(grid.x, grid.x + grid.width)
-            for y in range(grid.y, grid.y + grid.height)
-        }
+        self.tiles = _tiles(self.grids)
 
     def __len__(self) -> int:
         return len(self.grids)
 
     def walkable(self, x: float, y: float) -> bool | None:
-        return self._bit(x, y, 'cells')
+        tile = self.tiles.get((math.floor(x / TILE_UNITS), math.floor(y / TILE_UNITS)))
+        if tile is None:
+            return None
+        _, cells, _, columns, left, top = tile
+        if cells is None:
+            return None
+        return cells[int(y - top) * columns + int(x - left)] == '1'
 
     def flyable(self, x: float, y: float) -> bool | None:
         """Whether a missile flies through the sub-tile at a world point; None where no grid covers it
         or the grid has no flight layer (an old level map)."""
-        return self._bit(x, y, 'flight')
-
-    def _bit(self, x: float, y: float, layer: str) -> bool | None:
-        grid = self.by_tile.get((math.floor(x / TILE_UNITS), math.floor(y / TILE_UNITS)))
-        if grid is None:
+        tile = self.tiles.get((math.floor(x / TILE_UNITS), math.floor(y / TILE_UNITS)))
+        if tile is None:
             return None
-        columns, rows = grid.width * TILE_UNITS, grid.height * TILE_UNITS
-        bits = unpack_cells(getattr(grid, layer), columns * rows)
-        if bits is None:
+        _, _, flight, columns, left, top = tile
+        if flight is None:
             return None
-        return bits[int(y - grid.y * TILE_UNITS) * columns + int(x - grid.x * TILE_UNITS)] == '1'
+        return flight[int(y - top) * columns + int(x - left)] == '1'
 
     def mask(self, x: float, y: float) -> int | None:
         """The raw collision mask of the sub-tile at a world point; None where no grid has masks."""
-        grid = self.by_tile.get((math.floor(x / TILE_UNITS), math.floor(y / TILE_UNITS)))
-        if grid is None:
+        tile = self.tiles.get((math.floor(x / TILE_UNITS), math.floor(y / TILE_UNITS)))
+        if tile is None:
             return None
-        columns, rows = grid.width * TILE_UNITS, grid.height * TILE_UNITS
-        values = unpack_masks(grid.masks, columns * rows)
+        grid, _, _, columns, left, top = tile
+        values = unpack_masks(grid.masks, columns * grid.height * TILE_UNITS)
         if values is None:
             return None
-        return values[int(y - grid.y * TILE_UNITS) * columns + int(x - grid.x * TILE_UNITS)]
+        return values[int(y - top) * columns + int(x - left)]
 
 
 @dataclass(frozen=True)

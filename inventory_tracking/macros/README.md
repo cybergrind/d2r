@@ -94,6 +94,14 @@ uv run --offline pytest tests/inventory_tracking/builds/test_contracts.py tests/
 uv run --offline pytest tests/inventory_tracking/macros tests/inventory_tracking/combat tests/inventory_tracking/builds -q
 ```
 
+The whole tree (about 10 minutes serially, mostly the arena plays) runs on all
+cores with pytest-xdist; keep `--dist loadfile` so a module's cached plays stay on
+one worker. Single files and tests run faster without `-n`.
+
+```sh
+uv run --offline pytest tests/inventory_tracking -q -p no:cacheprovider -n auto --dist loadfile
+```
+
 [Scenario tests](../../tests/inventory_tracking/scenarios/) add recorded battle
 replays, golden decisions and a closed-loop arena. Use the
 [dummy build](../../tests/inventory_tracking/builds/dummy.py) as a second-build
