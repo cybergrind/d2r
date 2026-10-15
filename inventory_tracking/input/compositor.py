@@ -43,10 +43,13 @@ BINDS = {
     'KP_Next': 'hunt-any',  # keypad 3
     'KP_End': 'pickup',  # keypad 1
     'KP_Begin': 'pad',  # keypad 5: the gamepad experiment (input/gamepad.py)
+    'KP_Right': 'loop',  # keypad 6: the Lower Kurast loop on/off (macros/loop.py)
 }
 # X key names a step binding may leave down when its request arrives: the keypad keys above under either
 # Num Lock state (the compositor swallows them, but a release can come late) and the Mod key.
-STEP_KEYS = ('KP_4', 'KP_Left', 'KP_2', 'KP_Down', 'KP_3', 'KP_Next', 'KP_1', 'KP_End', 'Super_L', 'Super_R')
+STEP_KEYS = (
+    'KP_4', 'KP_Left', 'KP_2', 'KP_Down', 'KP_3', 'KP_Next', 'KP_1', 'KP_End', 'KP_6', 'KP_Right', 'Super_L', 'Super_R',
+)  # fmt: skip
 HEADER = '// Written by `make serve` (inventory_tracking/input/compositor.py); edits are overwritten.\n'
 IDLE = HEADER + '// The service is not running: no hotkeys.\n'
 

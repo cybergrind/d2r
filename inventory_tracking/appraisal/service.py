@@ -117,6 +117,8 @@ from inventory_tracking.macros.runner import (
     HUNT_ANY_PREFIX,
     HUNT_ELITES,
     HUNT_ELITES_PREFIX,
+    LOOP,
+    LOOP_PREFIX,
     PICKUP,
     PICKUP_PREFIX,
     REQUEST_PREFIX as MACRO_PREFIX,
@@ -331,6 +333,7 @@ MACRO_ROUTINES = (
     (HUNT_ELITES_PREFIX, HUNT_ELITES),
     (PICKUP_PREFIX, PICKUP),
     (HUNT_ANY_PREFIX, HUNT_ANY),
+    (LOOP_PREFIX, LOOP),
 )
 
 

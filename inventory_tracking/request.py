@@ -32,8 +32,9 @@ PREFIXES = {
     'hunt-any': 'hunt any ',  # the attack mode toggle: attack mode on/off
     'pickup': 'pickup ',  # the pickup step: pick up a valuable or a potion, else a seek step
     'pad': 'pad ',  # the gamepad experiment: one tap of a virtual pad's button (input/gamepad.py)
+    'loop': 'loop ',  # the Lower Kurast loop on/off (macros/loop.py)
 }
-TIMED = frozenset(('macro', 'teleport', 'hunt-elites', 'hunt-any', 'pickup'))  # the macro's: traced
+TIMED = frozenset(('macro', 'teleport', 'hunt-elites', 'hunt-any', 'pickup', 'loop'))  # the macro's: traced
 DEFAULT_SOCKET = os.path.join(os.environ.get('XDG_RUNTIME_DIR', f'/run/user/{os.getuid()}'), 'd2r-appraisal.sock')
 USAGE = f'usage: request.py [--socket PATH] {{{",".join(sorted(PREFIXES))}}}\nSend one hotkey request to `make serve`.'
 

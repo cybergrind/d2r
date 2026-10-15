@@ -51,6 +51,7 @@ from inventory_tracking.macros.goals import USE_NEAR, spot_of
 from inventory_tracking.macros.hunt import Bearings, Hunter, threat
 from inventory_tracking.macros.journey import Journey
 from inventory_tracking.macros.latency import Press, Trace
+from inventory_tracking.macros.loop import Loop
 from inventory_tracking.macros.opening import open_near
 from inventory_tracking.macros.pad import PadActs, PadActuator, PadPlay, input_policy
 from inventory_tracking.macros.pickup import pick_up, wanted, worth_a_stop
@@ -70,8 +71,10 @@ from inventory_tracking.routes.progress import Progress
 REQUEST_PREFIX = 'macro '
 TELEPORT_PREFIX = 'teleport '
 HUNT_ELITES_PREFIX, HUNT_ANY_PREFIX, PICKUP_PREFIX = 'hunt elites ', 'hunt any ', 'pickup '
+LOOP_PREFIX = 'loop '
 PREBUFF, TELEPORT, HUNT_ELITES, HUNT_ANY = 'prebuff', 'teleport', 'hunt elites', 'hunt any'  # routines
 PICKUP = 'pickup'  # the pickup step: pick up what is worth it, else a seek step (pickup.py)
+LOOP = 'loop'  # the Lower Kurast loop's toggle; a run of it is one leg (macros/loop.py)
 STEPS = frozenset((TELEPORT, HUNT_ELITES, PICKUP))  # one press is one step; the same key queues another
 ATTACK = HUNT_ANY  # the attack mode toggle
 # What waits for the run working now, the first to go first: where the player wants to be, then what
@@ -184,6 +187,8 @@ class MacroRunner:
         # the teleport key whose goal is a fight leaves it off (read with the pursuit on only: `pursues`)
         self.attack_declined = False
         self.closed = False  # `close` was called: nothing starts any more
+        # The Lower Kurast loop (KP_6, macros/loop.py): on, it is what follows every run that nothing else follows.
+        self.loop = Loop()
         self.shut = threading.Event()  # set by `close`: a run's card wait ends with it
         self.trace = trace or Trace()  # how long each press takes (latency.py)
         # the requests whose run has not begun: a step's own key during it, a step during attack mode (waiting.py)
@@ -227,6 +232,11 @@ class MacroRunner:
                 'Macro: request %s, %.0f ms old, while %s',
                 routine, 1000 * (now - requested_at), self.routine if self.working else 'nothing runs',
             )  # fmt: skip
+            if routine == LOOP:
+                self._toggle_loop()
+                press.mark('accepted')
+                self.trace.close(press, outcome='loop on' if self.loop.on else 'loop off')
+                return True
             if routine == ATTACK:
                 toggled = self._toggle_attack_mode()
                 press.mark('accepted')
@@ -355,6 +365,29 @@ class MacroRunner:
         with self.lock:
             self.queue.drop(PICKUP, 'not wanted any more')
 
+    def _toggle_loop(self) -> None:
+        """KP_6: the loop on, from where the character is (a run working now is followed by the loop's first
+        leg), or off at once: the run working now is cancelled, the character stays where it is. Under the lock."""
+        if self.loop.on:
+            self.loop.stop()
+            self.attack_mode = False
+            self._end_run('the loop off')
+            if self.working:
+                self.cancelled.set()
+            self._say('Loop off')
+            return
+        self.loop.start()
+        self._say('Loop on')
+        if not self.working:
+            self._start(LOOP)
+
+    def _loop_stopped(self, why: object) -> None:
+        """The loop ends by itself, saying why (a leg's stop). Under the lock or from the run's thread."""
+        if self.loop.on:
+            self.loop.stop()
+            LOG.info('Macro: loop stopped: %s', why)
+            self._show([f'Loop stopped: {why}'])
+
     def _toggle_attack_mode(self) -> bool:
         """The attack mode toggle: the mode on or off. On while a step works, it follows the step; off
         while it works, it is cancelled. Under the lock (`request`)."""
@@ -441,6 +474,7 @@ class MacroRunner:
             self.closed = True
             self.shut.set()
             self.attack_mode = False
+            self.loop.stop()
             self._end_run('the service closed')
             self.queue.clear('the service closed')
             self.cancelled.set()
@@ -532,14 +566,20 @@ class MacroRunner:
             LOG.info('Macro stopped: %s', stop)
             self._show([f'Macro stopped: {stop}'])
             failed = True
+            if routine == LOOP:
+                self._loop_stopped(stop)
         except Abort as stop:
             LOG.info('Macro stopped: %s', stop)
             self._show([f'Macro stopped: {stop}'])
             failed = True
+            if routine == LOOP:
+                self._loop_stopped(stop)
         except Exception as exc:
             LOG.exception('Macro failed')
             self._show([f'Macro failed: {exc}'])
             failed = True
+            if routine == LOOP:
+                self._loop_stopped(exc)
         else:
             failed = None  # ended and followed above: only the card is left
         if failed is not None:
@@ -590,6 +630,8 @@ class MacroRunner:
         following = self.queue.first()
         if following is None and self.attack_mode and routine != ATTACK:
             following = ATTACK  # the step is done: the mode resumes
+        if following is None and self.loop.on:
+            following = LOOP  # its next leg, the level run's end among them
         if following is None or self.closed:
             return False
         if routine == TELEPORT and following == ATTACK and not self.pursuit:
@@ -685,7 +727,7 @@ class MacroRunner:
                 actuator.mark = mark
                 actuator.cancelled = cancelled
                 actuator.noted = self.noted  # the pointer check's abort as an event of the take (actuator.py)
-                if routine in STEPS or routine == ATTACK:
+                if routine in STEPS or routine in (ATTACK, LOOP):
                     actuator.allow(*STEP_KEYS)  # the binding's own keys; the macro request waits for a release instead
 
                 def key_names(world, skills=None):
@@ -883,6 +925,23 @@ class MacroRunner:
             pick_up(run, level, key_names, otherwise, threat(run))
             if stepped:
                 self.attack_mode = True  # nothing to pick up or open: a seek step, the mode follows
+        elif routine == LOOP:
+            hunter = self.hunter
+
+            def level_run() -> None:
+                # The KP_1 level run, as the pickup key starts it (`request`): it follows this leg as attack mode.
+                if hunter is None:
+                    raise Abort('no level guide to hunt with')
+                with self.lock:
+                    hunter.hand_over = self._hand_over
+                    hunter.post(Pursuit(PICKUP, time.monotonic(), advance=False, leash=FULL))
+                    self.attack_mode, self.attack_declined = True, False
+
+            def take_one() -> bool:
+                level = hunter.level() if hunter is not None and hunter.level is not None else None
+                return pick_up(run, level, key_names, lambda: None, threat(run))
+
+            self.loop.leg(run, key_names, self.progress, level_run, take_one)
         elif routine in (HUNT_ELITES, ATTACK):
             if self.hunter is None:
                 raise Abort('no level guide to hunt with')

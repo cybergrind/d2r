@@ -127,6 +127,19 @@ The tome's charges are not read: no portal is `Abort`ed as "is the tome empty?".
 
 ### 4. The loop
 
+**Written 2026-10-16 (uncommitted, not played):** `macros/loop.py` (`next_leg`, `Loop.leg`) and the runner's `loop`
+routine, toggled by KP_6 (`KP_Right` in `compositor.py BINDS`, `loop ` in `request.py`, the service's
+`MACRO_ROUTINES`). One leg a run; the runner's `_follow` starts the next whenever nothing else follows, the end of
+the KP_1 level run among them (the chests' leg posts that run and turns attack mode on, as KP_1 does). Legs: the
+lobby → the next game and its prebuff; Pandemonium Fortress, the game not done → prebuff if not yet, waypoint to
+Lower Kurast; Lower Kurast at the `use` stage → the level run; at `loot` → one pickup a leg, nothing left marks it
+looted; after → a pickup if any, else Town Portal (the game marked done); Kurast Docks → waypoint to Pandemonium
+Fortress; Pandemonium Fortress, the game done → Save and Exit. Stops, said as `Macro: loop stopped: <why>`: a leg's
+`Abort` (controller mode among them: every leg's routine refuses it), the character dead, a place with no leg, a leg
+made more than its limit in one game (the level run 3 times, pickups 20, others twice). Not yet: low life and
+potions as stops of their own (the level run's safety has them), a valuable that does not fit, a cap on games
+(Open Q3), the HUD line beyond the `Macro:` line `run.say` gives. Tests: `test_loop.py`, `test_runner.py`.
+
 - `macros/loop.py`: a state machine read from where the character is, so it resumes from any point:
 
   | Where | Does |

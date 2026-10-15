@@ -20,6 +20,7 @@ def test_prefixes_are_the_workers_own():
         'hunt-any': service.HUNT_ANY_PREFIX,
         'pickup': service.PICKUP_PREFIX,
         'pad': service.PAD_PREFIX,
+        'loop': service.LOOP_PREFIX,
     }
 
 

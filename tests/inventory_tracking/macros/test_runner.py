@@ -1147,3 +1147,67 @@ def test_the_run_made_again_after_a_flip_waits_for_the_flip_to_be_over():
     runner.play_by(run, run.actuator, 'pickup')
     assert run.pad is not None  # played by the pad once the flip to controller mode was over
     assert not runner.settling
+
+
+def test_the_loop_key_starts_a_leg_and_each_leg_is_followed_by_the_next_until_one_stops(monkeypatch):
+    # routes/lower-kurast-loop-plan.md phase 4: KP_6 on; a leg's stop ends the loop, saying why
+    monkeypatch.setattr(runner_module, 'CARD_SECONDS', 0)
+    shown, made = [], []
+
+    def execute(cancelled, routine):
+        made.append(routine)
+        if len(made) == 3:
+            raise Abort('the character is dead')
+
+    runner = make(execute, shown)
+    assert runner.request(10.0, 10.1, 'loop')
+    assert runner.loop.on
+    deadline = time.monotonic() + 5
+    while len(made) < 3 and time.monotonic() < deadline:
+        time.sleep(0.01)
+    joined(runner)
+    assert made == ['loop'] * 3
+    assert not runner.loop.on
+    assert ['Loop stopped: the character is dead'] in shown
+    runner.close()
+
+
+def test_the_level_run_a_leg_asks_for_is_followed_by_the_next_leg(monkeypatch):
+    monkeypatch.setattr(runner_module, 'CARD_SECONDS', 0)
+    shown, made = [], []
+
+    def execute(cancelled, routine):
+        made.append(routine)
+        if made == ['loop']:
+            runner.attack_mode = True  # the chests' leg: the KP_1 level run follows as attack mode
+        elif len(made) == 3:
+            raise Abort('enough')
+
+    runner = make(execute, shown)
+    assert runner.request(10.0, 10.1, 'loop')
+    deadline = time.monotonic() + 5
+    while len(made) < 3 and time.monotonic() < deadline:
+        time.sleep(0.01)
+    joined(runner)
+    assert made == ['loop', 'hunt any', 'loop']
+    runner.close()
+
+
+def test_the_loop_key_again_stops_the_leg_working_and_nothing_follows(monkeypatch):
+    monkeypatch.setattr(runner_module, 'CARD_SECONDS', 0)
+    shown, made = [], []
+
+    def execute(cancelled, routine):
+        made.append(routine)
+        assert cancelled.wait(5)
+        raise Cancelled
+
+    runner = make(execute, shown)
+    assert runner.request(10.0, 10.1, 'loop')
+    assert runner.request(10.5, 10.6, 'loop')
+    joined(runner)
+    assert not runner.loop.on
+    assert not runner.working
+    assert made == ['loop']
+    assert ['Macro: Loop off'] in shown
+    runner.close()
