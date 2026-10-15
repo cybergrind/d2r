@@ -44,7 +44,7 @@ elites. KP_4 goes to the camp room's middle and opens nothing.
 
 ### 1. Mark each placed chest, not the camp
 
-**Done 2026-10-15 (uncommitted):** `UNIQUE_CHEST` = 1000, `PLACEHOLDERS`; the table regenerated (additions only:
+**Done 2026-10-15 (c5ef640):** `UNIQUE_CHEST` = 1000, `PLACEHOLDERS`; the table regenerated (additions only:
 30 presets gain `PlaceUniqueChest` spots, none removed); the handler and the catalogue; a two-camp fixture from dump
 20261006T184600Z-26ba144d. The camps' order is still the handler's (task 4).
 
@@ -66,7 +66,7 @@ elites. KP_4 goes to the camp room's middle and opens nothing.
 
 ### 2. Click a chest whose class the game rolled
 
-**Done 2026-10-15 (uncommitted):** `Use.kinds`, `teleport.classes`; `marked_thing` and the level card's
+**Done 2026-10-15 (c5ef640):** `Use.kinds`, `teleport.classes`; `marked_thing` and the level card's
 `wanted`/`note` (`card_goal.py`) match by it. 1539 levels/routes/macros tests pass. Not played.
 
 - `macros/teleport.py`: `Use.kinds: frozenset[int] = frozenset()` (empty: the mark's own id).
@@ -79,6 +79,11 @@ elites. KP_4 goes to the camp room's middle and opens nothing.
 
 ### 3. Wait for what a chest drops before the next chest
 
+**Done 2026-10-16 (uncommitted):** `CHEST_BRINGS = 0.25` for `UNIQUE_CHEST` and `SUPER_CHEST`. Measured from the
+player's Lower Kurast takes of 2026-10-15 21:08–21:28 (`runs/combat/20261015T18*-79`, 13 camp chests opened by
+hand): every chest's first drop showed in the same recorder read (0.2 s) as its mode leaving 0; later "drops" were
+the next chest's. 0.25 s is one read and a margin. Test in `test_level_run.py`. Not played.
+
 - `Use.brings` for `UNIQUE_CHEST` (and `SUPER_CHEST`, which has none today): the seconds from "opened" to the drops
   on the ground, so the run takes them (`side`) before it hops to the next chest and has to come back. Measure from
   the takes that opened chests (Drifter Cavern 2026-10-12: opened 0.1–0.5 s after the click; the drops' first sight
@@ -87,6 +92,10 @@ elites. KP_4 goes to the camp room's middle and opens nothing.
   act is its pickup, then the second chest.
 
 ### 4. Nearest chest first
+
+**Done 2026-10-16 (uncommitted):** `lead_first(pois, lead, here)`: the marks into the lead's level first (as
+before), then the nearest to the character; the guide measures from the last poll's location on the same level
+(`LevelGuide.here`), not the snapshot's. Tests in `test_guide.py`. Not played.
 
 - `levels/guide.py` `lead_first`: of several marks with the lead's label, the nearest to the character
   (`location`), not the handler's order. With two camps this is the difference between 3 + 3 chests and a trip

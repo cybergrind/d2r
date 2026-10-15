@@ -75,16 +75,19 @@ def place(poi: Poi) -> tuple[float, float]:
     return poi.spot or centre(poi.room)
 
 
-def lead_first(pois: tuple[Poi, ...], lead: Lead | None) -> tuple[Poi, ...]:
+def lead_first(pois: tuple[Poi, ...], lead: Lead | None, here: tuple[float, float] | None = None) -> tuple[Poi, ...]:
     """`pois` with the mark `lead` names put first (levels/routes.md: the stage a route is at); as
     they are when it names none of them. Of several with the label, the one leading to the level
-    meant. A way back that is led with is a way on: the route goes through it (Outer Cloister to the
-    Monastery Gate), and the teleport step refuses a first mark that only leads back. Marks at the
-    places the lead says are done with (`Lead.skip`: chests opened) are passed for the next."""
+    meant, and of those the nearest to `here` (tiles; lower-kurast-plan.md task 4: Lower Kurast's two
+    camps, a hell pit's chests), the card's order without it. A way back that is led with is a way on:
+    the route goes through it (Outer Cloister to the Monastery Gate), and the teleport step refuses a
+    first mark that only leads back. Marks at the places the lead says are done with (`Lead.skip`:
+    chests opened) are passed for the next."""
     named = [poi for poi in pois if poi.label == lead.label and place(poi) not in lead.skip] if lead else []
     if lead is None or not named:
         return pois
-    first = next((poi for poi in named if poi.area == lead.area), named[0])
+    meant = [poi for poi in named if poi.area == lead.area] or named
+    first = meant[0] if here is None else min(meant, key=lambda poi: math.dist(here, place(poi)))
     rest = tuple(poi for poi in pois if poi is not first)
     return (replace(first, kind='stairs') if first.kind == 'previous' else first, *rest)
 
@@ -151,6 +154,9 @@ class LevelGuide:
         self.recorded = None  # (area, POI presets, problems) of the last saved record this entry
         # (snapshot, pois) behind the visible card, for live position updates
         self.shown: tuple[LevelSnapshot, tuple[Poi, ...]] | None = None
+        # Where the last poll found the character on the shown card's level: the route's mark of several with its
+        # label is the nearest to it (`_marks`); the card's snapshot keeps where it stood when its rooms were read.
+        self.here: Location | None = None
         self.lock_timeout = 1.0  # seconds show() may wait for the capture lock
         self.pinned = pinned
         self.last_press = None  # hotkey timestamp of an unpaired press
@@ -301,6 +307,8 @@ class LevelGuide:
         location, _ = self.observe(self.source.pid, self.source.images, self.source.capture)
         area = location.area_id if location else None
         if area == self.area:
+            if location is not None:
+                self.here = location
             if self.visible is not None and self.shown is not None and location is not None:
                 renamed = self._refresh_rooms()
                 # Every poll: the teleport step's mark moves onto a waypoint's object as soon as it is seen (`target`).
@@ -404,10 +412,17 @@ class LevelGuide:
         self._present(snapshot, guidance)
         return True
 
-    def _marks(self, area: int, pois: tuple[Poi, ...]) -> tuple[Poi, ...]:
-        """The card's marks in the order shown: waypoints on their objects, the route's mark first."""
+    def _marks(self, snapshot: LevelSnapshot, pois: tuple[Poi, ...]) -> tuple[Poi, ...]:
+        """The card's marks in the order shown: waypoints on their objects, the route's mark first, the nearest
+        of its label to where the shown card has the character."""
         pois = tuple(on_waypoint(poi, self.waypoints) for poi in pois)
-        return lead_first(pois, self.lead(area)) if self.lead is not None else pois
+        if self.lead is None:
+            return pois
+        location, polled = snapshot.location, self.here
+        if polled is not None and polled.area_id == location.area_id:
+            location = polled
+        here = (location.x / TILE_UNITS, location.y / TILE_UNITS)
+        return lead_first(pois, self.lead(location.area_id), here)
 
     def _read_progress(self, location: Location) -> None:
         """At each poll with a card up: tell the route's progress what is done whoever did it (macros/card_goal.py
@@ -434,7 +449,7 @@ class LevelGuide:
         assert self.shown is not None
         snapshot, pois = self.shown
         area = snapshot.location.area_id
-        pois = self._marks(area, pois)
+        pois = self._marks(snapshot, pois)
         if self.goals is None:
             return pois, None, (frozenset(), frozenset()), None
         first = self._target_of(snapshot, pois[0]) if pois else None
@@ -494,7 +509,7 @@ class LevelGuide:
         if shown is None or not shown[1]:
             return None
         snapshot, pois = shown
-        return self._target_of(snapshot, self._marks(snapshot.location.area_id, pois)[0])
+        return self._target_of(snapshot, self._marks(snapshot, pois)[0])
 
     def marks(self, label: str) -> tuple[tuple[float, float], ...]:
         """The places of the shown card's marks with `label` (a hell pit's chests), in tiles: the

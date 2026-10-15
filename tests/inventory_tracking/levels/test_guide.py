@@ -776,6 +776,28 @@ def test_marks_the_lead_says_are_done_are_passed_for_the_next_with_the_label():
     assert lead_first((BACK, one, two), Lead('Super chest', None, both)) == (BACK, one, two)
 
 
+def test_of_several_marks_with_the_label_the_nearest_leads_and_the_next_nearest_after_it():
+    # lower-kurast-plan.md task 4: two camps of three chests; the character by the second camp starts there.
+    first_camp = [Poi('Super chests', Room(1, 0, 0, 8, 8), 'target', spot) for spot in ((5.4, 10.4), (2.4, 11.4))]
+    second_camp = [Poi('Super chests', Room(1, 48, 0, 8, 8), 'target', spot) for spot in ((60.4, 10.4), (57.4, 11.4))]
+    pois = (BACK, *first_camp, *second_camp)
+    here = (58.0, 12.0)
+
+    assert lead_first(pois, Lead('Super chests'), here)[0] is second_camp[1]
+    opened = frozenset({(57.4, 11.4)})
+    assert lead_first(pois, Lead('Super chests', None, opened), here)[0] is second_camp[0]
+    opened |= {(60.4, 10.4)}
+    assert lead_first(pois, Lead('Super chests', None, opened), here)[0] is first_camp[0]
+    assert lead_first(pois, Lead('Super chests'))[0] is first_camp[0]  # nowhere known: the card's order
+
+
+def test_the_mark_leading_to_the_level_meant_comes_before_a_nearer_one():
+    near = Poi('Exit', Room(1, 0, 0, 8, 8), 'exit', (1.0, 1.0), area=3)
+    meant = Poi('Exit', Room(1, 40, 0, 8, 8), 'exit', (44.0, 1.0), area=4)
+
+    assert lead_first((near, meant), Lead('Exit', 4), (0.0, 0.0))[0] is meant
+
+
 def test_the_guide_gives_the_places_of_the_marks_with_a_label():
     guide, _, _ = make_guide([1, 3], fixture='cold_plains_all_known')
     assert guide.marks('Cave') == ()

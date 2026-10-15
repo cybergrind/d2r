@@ -37,7 +37,7 @@ from inventory_tracking.macros.pursuit import (
 from inventory_tracking.macros.route import PERFORMED, staged
 from inventory_tracking.macros.runner import MacroRunner
 from inventory_tracking.macros.travel import PRESSED
-from inventory_tracking.macros.world import HEALING, NO_OWNER, Drop, Monster
+from inventory_tracking.macros.world import HEALING, NO_OWNER, VALUABLE, Drop, Monster
 from inventory_tracking.native.layout import TILE_UNITS
 from inventory_tracking.routes.catalog import ROUTES
 from inventory_tracking.routes.model import FIGHT, LOOT
@@ -198,6 +198,42 @@ def test_nothing_is_begun_while_a_seal_brings_its_pack() -> None:
     assert isinstance(held, NoWay)
     assert held.arrived
     assert decide(facts(goal), press) == Move(STEP, goal)
+
+
+def test_in_lower_kurast_a_chests_drop_is_taken_before_the_next_chest() -> None:
+    # lower-kurast-plan.md task 3: the camp's chests under one label; what the first lets fall is taken before the
+    # run goes on to the second. The drops show with the chest's mode (teleport.py CHEST_BRINGS).
+    from inventory_tracking.levels.model import UNIQUE_CHEST
+    from inventory_tracking.macros.teleport import CHEST_BRINGS, USES
+    from inventory_tracking.routes.model import USE
+
+    progress = Progress(ROUTES, PERFORMED)
+    progress.note('game', 79)
+    chests = ((1000.0, 1000.0), (1003.0, 1000.0))  # tiles
+
+    def goal(side=None) -> Goal:
+        found, lead = staged(progress, 79), progress.lead(79)
+        assert found is not None
+        assert lead is not None
+        tile = next(chest for chest in chests if chest not in lead.skip)
+        mark = Target(79, (), tile, 'Super chests', 'target', False, (), UNIQUE_CHEST)
+        made = goal_of(
+            (5000.0, 5000.0), spend=PRESSED, reach=REACH, stage=found[1], route=found[0], card=mark, side=side
+        )
+        assert made is not None
+        return made
+
+    first = goal()
+    assert (first.do, first.place) == (USE, (5000.0, 5000.0))
+    progress.used(79, 'Super chests', chests[0], chests)
+    assert USES[UNIQUE_CHEST].brings == CHEST_BRINGS > 0.2  # over one of the recorder's reads
+    waited = decide(facts(goal(), settling=True, area=79, way=unasked), replace(RUN, area=79))
+    assert isinstance(waited, NoWay)
+    assert waited.arrived
+    ring = Drop(9, 5004.0, 5002.0, 'Ring', VALUABLE)
+    taken = goal(side=ring)
+    assert (taken.do, taken.unit) == (PICK_UP, 9)
+    assert (goal().do, goal().place) == (USE, (5015.0, 5000.0))  # with the ground clean, the second chest
 
 
 def test_the_run_ends_where_its_leash_does() -> None:

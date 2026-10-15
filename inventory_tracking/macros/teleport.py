@@ -205,6 +205,12 @@ def classes(use: int) -> frozenset[int]:
 CHEST_AIMS = ((0, -10), (0, 0), (0, -22), (12, -10), (-12, -10), (0, -36))
 SUMMONING_SEALS = (392, 394, 396)  # DiabloSeal1, 3, 5: the Infector's, De Seis's, the Vizier's (levels/model.py SEALS)
 SEAL_BRINGS = 1.2  # seconds: the seal's pack was first seen 0.95 to 1.02 s after it opened, with a frame to spare
+# Seconds a chest's drops take to show after it shows opened: none to speak of. In the takes of 2026-10-15 21:08-21:28
+# (Lower Kurast, 13 chests of classes 181 and 183 opened by the player's click with something on the ground after),
+# every first drop was in the same read as the chest's mode leaving 0 (the recorder reads both every 0.2 s,
+# record.py SLOW_SECONDS); drops seen later near it were the next chest's. One read and a little more, so the look
+# after the click sees what fell before the run goes on to the next chest.
+CHEST_BRINGS = 0.25
 USES = {
     # objects.txt's click box of PortalPermanent: 80 pixels wide round its ground point, from 100 above it
     # to 10 below; the aims go down its middle. The stones' map piece is 40 units across, the mark its middle.
@@ -232,11 +238,18 @@ USES = {
     ),
     # The glowing chest, where the game's files place it (the mark is on it). The aims are the ones that
     # opened the two on the host on 2026-10-12 (macros/opening.py AIMS), each by the first.
-    SUPER_CHEST: Use(CHEST_AIMS, 10.0, False, 'Opening {}', '{}: opened', '{} is not here'),
+    SUPER_CHEST: Use(CHEST_AIMS, 10.0, False, 'Opening {}', '{}: opened', '{} is not here', brings=CHEST_BRINGS),
     # A chest the game rolls at a placed spot (Lower Kurast's camp): opened as the glowing one is. Not seen
     # clicked at its mark yet; the pickup key opened such chests in the camp by the same aims.
     UNIQUE_CHEST: Use(
-        CHEST_AIMS, 10.0, False, 'Opening {}', '{}: opened', '{} is not here', kinds=UNIQUE_CHEST_KINDS
+        CHEST_AIMS,
+        10.0,
+        False,
+        'Opening {}',
+        '{}: opened',
+        '{} is not here',
+        brings=CHEST_BRINGS,
+        kinds=UNIQUE_CHEST_KINDS,
     ),
     # The Chaos Sanctuary's seals: objects.txt gives them no box (taken by their picture, which stands on
     # their ground point) and one mode they can be clicked in. Not seen clicked by the step yet. The last
