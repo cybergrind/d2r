@@ -12,6 +12,7 @@ units from its origin; a mark is on each (levels/model.py UNIQUE_CHEST).
 
 import json
 import math
+from dataclasses import replace
 
 from inventory_tracking.levels.geometry import pointer
 from inventory_tracking.levels.model import UNIQUE_CHEST, LevelSnapshot, Location, Room
@@ -76,6 +77,23 @@ def test_a_level_without_a_camp_is_quiet():
 
     assert camps(guidance) == []
     assert guidance.problems == ()
+
+
+def test_a_level_whose_layouts_are_all_read_and_hold_no_camp_has_no_chests_to_wait_for():
+    # lower-kurast-plan.md task 5: the client holds every room of the level and each 16x16's file from entry (all
+    # three fixtures: no layout unread). None a camp: the chests are absent, and the route's stage done with.
+    def guide(*rooms):
+        return handler_of(79).guide(LevelSnapshot(Location(79, 0, 5, 5), (*rooms, *EXITS)))
+
+    assert guide(*camp(0, 0, 0), *camp(16, 0, 2)).absent == frozenset({'Super chests'})
+    assert guide(*camp(0, 0, 0), *camp(16, 0, 1)).absent == frozenset()  # a camp
+    assert guide(*camp(0, 0, 0), *camp(16, 0, None)).absent == frozenset()  # a layout not read: maybe a camp
+    unread_chunk = (*camp(0, 0, 0)[:3], replace(camp(0, 0, 0)[3], variant=None))
+    assert guide(*unread_chunk).absent == frozenset({'Super chests'})  # any chunk's reading is the preset's
+    for name in ('lower_kurast_camp', 'lower_kurast_game2', 'lower_kurast_two_camps'):
+        snapshot = replay(name)
+        assert all(room.variant is not None for room in snapshot.rooms if room.preset == SLUMS_16X16)
+        assert handler_of(79).guide(snapshot).absent == frozenset()
 
 
 def test_a_second_game_finds_its_camp_elsewhere():

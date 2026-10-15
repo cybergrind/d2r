@@ -191,6 +191,20 @@ def test_a_label_on_several_objects_is_done_when_each_was_used_and_leads_past_th
     assert progress.lead(125) is None
 
 
+def test_a_label_the_level_has_none_of_is_done_with_and_a_new_game_forgets():
+    # lower-kurast-plan.md task 5: Lower Kurast without a camp; the card knows it (Guidance.absent)
+    progress = Progress([CAVE], performed=BOTH)
+    progress.note('cyber32', 13)
+
+    progress.absent(13, 'Super chest')
+
+    assert step_at(progress, 13).stage == loot()
+    assert progress.lead(13) is None
+    assert progress.done_marks(13)[0] == frozenset({'Super chest'})
+    progress.note('cyber33', 13)
+    assert progress.lead(13) == Lead('Super chest')
+
+
 def test_a_stage_not_performed_yet_is_passed_for_an_object_of_the_level_but_not_for_a_way_out():
     progress = Progress([SEALS, MEPHISTO, CAVE], performed=BOTH)
 

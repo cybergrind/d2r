@@ -259,6 +259,9 @@ class Guidance:
 
     pois: tuple[Poi, ...] = ()
     problems: tuple[str, ...] = ()
+    # Labels the level is known to have no mark of: an `each` spec on what a layout places (Lower Kurast's camp
+    # chests) with every room's layout read and none of them placing it. A route's stage on one is done with.
+    absent: frozenset[str] = frozenset()
 
 
 @dataclass(frozen=True)

@@ -236,6 +236,23 @@ def test_in_lower_kurast_a_chests_drop_is_taken_before_the_next_chest() -> None:
     assert (goal().do, goal().place) == (USE, (5015.0, 5000.0))  # with the ground clean, the second chest
 
 
+def test_in_lower_kurast_without_a_camp_the_run_ends_where_it_stands() -> None:
+    # lower-kurast-plan.md task 5: not a walk to the card's first mark (the Kurast Bazaar gate) and a stop there
+    progress = Progress(ROUTES, PERFORMED)
+    progress.note('game', 79)
+    gate = Target(79, (), (10.0, 10.0), 'Kurast Bazaar', 'stairs', True)
+    progress.absent(79, 'Super chests')
+
+    found = staged(progress, 79)
+    assert found is not None
+    goal = goal_of((5000.0, 5000.0), spend=PRESSED, reach=REACH, stage=found[1], route=found[0], card=gate)
+    assert goal is not None
+    assert (goal.do, goal.place) == (LOOT, (5000.0, 5000.0))
+    ended = decide(facts(goal, area=79, way=unasked), replace(RUN, area=79))
+    assert isinstance(ended, Ended)
+    assert 'loot' in ended.reason
+
+
 def test_the_run_ends_where_its_leash_does() -> None:
     goal = Level().found()
     assert decide(facts(goal, area=107, way=unasked), RUN) == Ended('the level was left')

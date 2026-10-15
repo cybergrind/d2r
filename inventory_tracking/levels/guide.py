@@ -244,6 +244,7 @@ class LevelGuide:
         snapshot = LevelSnapshot(location, rooms)
         guidance = self._guide(location.area_id, snapshot)
         self.shown = (snapshot, tuple(pinpoint(poi) for poi in guidance.pois))
+        self._absent(location.area_id, guidance)
         return True
 
     def _guide(self, area: int, snapshot: LevelSnapshot) -> Guidance:
@@ -362,6 +363,7 @@ class LevelGuide:
     def _present(self, snapshot: LevelSnapshot, guidance: Guidance) -> list:
         """Show `guidance` for `snapshot`; the card shown."""
         self.shown = (snapshot, tuple(pinpoint(poi) for poi in guidance.pois))
+        self._absent(snapshot.location.area_id, guidance)
         self.refreshed = (self.refreshed[0], (snapshot.location.x, snapshot.location.y))  # the walls were read here
         card = self._card(snapshot.location)
         self.visible, self.expires = card, self.clock() + self.seconds
@@ -423,6 +425,12 @@ class LevelGuide:
             location = polled
         here = (location.x / TILE_UNITS, location.y / TILE_UNITS)
         return lead_first(pois, self.lead(location.area_id), here)
+
+    def _absent(self, area: int, guidance: Guidance) -> None:
+        """Tell the route's goals the marks the level is known to have none of (`Guidance.absent`), with the card it
+        is shown with: the stage on them is done before the macro's next look at the card."""
+        if self.goals is not None and guidance.absent:
+            self.goals.absent(area, guidance.absent)
 
     def _read_progress(self, location: Location) -> None:
         """At each poll with a card up: tell the route's progress what is done whoever did it (macros/card_goal.py

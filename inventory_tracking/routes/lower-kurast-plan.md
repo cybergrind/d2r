@@ -79,7 +79,7 @@ elites. KP_4 goes to the camp room's middle and opens nothing.
 
 ### 3. Wait for what a chest drops before the next chest
 
-**Done 2026-10-16 (uncommitted):** `CHEST_BRINGS = 0.25` for `UNIQUE_CHEST` and `SUPER_CHEST`. Measured from the
+**Done 2026-10-16 (f1020d5):** `CHEST_BRINGS = 0.25` for `UNIQUE_CHEST` and `SUPER_CHEST`. Measured from the
 player's Lower Kurast takes of 2026-10-15 21:08–21:28 (`runs/combat/20261015T18*-79`, 13 camp chests opened by
 hand): every chest's first drop showed in the same recorder read (0.2 s) as its mode leaving 0; later "drops" were
 the next chest's. 0.25 s is one read and a margin. Test in `test_level_run.py`. Not played.
@@ -93,7 +93,7 @@ the next chest's. 0.25 s is one read and a margin. Test in `test_level_run.py`. 
 
 ### 4. Nearest chest first
 
-**Done 2026-10-16 (uncommitted):** `lead_first(pois, lead, here)`: the marks into the lead's level first (as
+**Done 2026-10-16 (f1020d5):** `lead_first(pois, lead, here)`: the marks into the lead's level first (as
 before), then the nearest to the character; the guide measures from the last poll's location on the same level
 (`LevelGuide.here`), not the snapshot's. Tests in `test_guide.py`. Not played.
 
@@ -106,6 +106,14 @@ before), then the nearest to the character; the guide measures from the last pol
 - Not here: a best tour over all six (nearest-first gives it for two tight clusters).
 
 ### 5. A level without a camp
+
+**Done 2026-10-16 (uncommitted):** `Guidance.absent` (levels/model.py): an `each` spec on a placed object with
+every instance of its preset name read (`variant` known) and no mark. The client holds every Room2 and its file
+index from entry: none of the 48 Slums 16x16 rooms in the three Lower Kurast fixtures is unread. The guide passes it to
+`CardGoals.absent` with every card it builds (entry and room re-reads); that finishes the `use` stage
+(`Progress.absent`) and logs `Macro: route Lower Kurast: no Super chests on this level` once. A layout not read yet
+keeps the stage. Tests: `test_lower_kurast.py`, `test_progress.py`, `test_card_goal.py`, `test_level_run.py`,
+`test_guide.py`. Not played.
 
 - Today a `use` stage whose label the card holds no mark of falls to the card's first mark (`route_goal`: "(Super
   chests is not marked yet)"), which in Lower Kurast is the Kurast Bazaar gate: the run would go there and stop.

@@ -151,6 +151,11 @@ class Progress:
             finished = finished | {(area, label)}
         self.facts = replace(self.facts, used=used, finished=finished)
 
+    def absent(self, area: int, label: str) -> None:
+        """Level `area` has no object with mark `label` (its card knows: levels/model.py `Guidance.absent`): the
+        stage is done with, as with each of them used."""
+        self.facts = replace(self.facts, finished=self.facts.finished | {(area, label)})
+
     def stood(self, area: int, label: str) -> None:
         """The character stood at mark `label` of level `area`."""
         self.facts = replace(self.facts, stood=self.facts.stood | {(area, label)})

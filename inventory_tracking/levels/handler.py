@@ -69,7 +69,7 @@ class Handler:
         return next((spec for spec in self.pois if spec.label == label), None)
 
     def guide(self, snapshot: LevelSnapshot) -> Guidance:
-        pois, problems = [], []
+        pois, problems, absent = [], [], set()
         for spec in self.pois:
             start = len(pois)
             groups = instances(room for room in snapshot.rooms if spec.matches(preset_name(room.preset)))
@@ -79,6 +79,11 @@ class Handler:
             if spec.each and spec.thing:
                 # Every room whose layout holds the object; one that holds none, or is unread, has no mark.
                 pois.extend(poi for room in found for poi in thing_pois(spec, room))
+                # The client holds every room of the level from entry: with each layout of the name read and no mark,
+                # the level has none (lower-kurast-plan.md task 5). A layout unread may still hold one.
+                named = instances(room for room in snapshot.rooms if spec.matches(preset_name(room.preset)))
+                if len(pois) == start and all(room.variant is not None for room, _ in named):
+                    absent.add(spec.label)
             elif spec.each:
                 pois.extend(Poi(spec.label, room, spec.kind) for room in found)
             elif len(found) == 1 and spec.thing:
@@ -143,7 +148,7 @@ class Handler:
                 pois[start:] = [pinpoint(poi, warp=True) for poi in pois[start:]]
             if spec.use:
                 pois[start:] = [replace(poi, use=spec.use) for poi in pois[start:]]
-        return Guidance(tuple(pois), tuple(problems))
+        return Guidance(tuple(pois), tuple(problems), frozenset(absent))
 
 
 def instances(rooms: Iterable[Room]) -> list[tuple[Room, int]]:
@@ -325,4 +330,4 @@ class ExitsHandler(Handler):
         pois += [Poi('Exit', room, 'exit') for room in unknown]
         rest = super().guide(snapshot)
         order = (*rest.pois, *pois) if self.pois_first else (*pois, *rest.pois)
-        return Guidance(order, rest.problems)
+        return Guidance(order, rest.problems, rest.absent)

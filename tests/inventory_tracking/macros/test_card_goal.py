@@ -127,6 +127,27 @@ def test_a_stand_is_done_within_reach_of_its_mark_whoever_moved():
     assert "Khalim's Heart" in goals.done(93)[0]
 
 
+def test_a_use_stage_whose_objects_the_level_has_none_of_is_done_and_said_once(caplog):
+    # lower-kurast-plan.md task 5: Lower Kurast without a camp, as its card knows it (levels/model.py Guidance.absent)
+    found = Progress(ROUTES, PERFORMED, lambda: frozenset())
+    found.note('game', 79)
+    goals = CardGoals(found)
+    gate = Target(79, (ROOM,), (5.0, 5.0), 'Kurast Bazaar', 'stairs', True, ())
+
+    with caplog.at_level('INFO'):
+        assert not goals.absent(79, frozenset({'Kurast Bazaar'}))  # no stage uses it: nothing done
+        assert goals.absent(79, frozenset({'Super chests'}))
+        assert not goals.absent(79, frozenset({'Super chests'}))  # once
+
+    step = found.step(79)
+    assert step is not None
+    assert step.stage.kind == 'loot'
+    assert goals.goal(79, (0.0, 0.0), gate) is None  # no arrow to the gate: the run ends at the loot
+    assert [r.getMessage() for r in caplog.records if 'Super chests' in r.getMessage()] == [
+        'Macro: route Lower Kurast: no Super chests on this level'
+    ]
+
+
 def test_goal_of_without_a_drop_is_the_route_goal():
     found = progress()
     step = found.step(CS)

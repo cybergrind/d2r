@@ -19,6 +19,7 @@ mark with the character within STAND_NEAR of it.
 import math
 from collections.abc import Callable, Iterable, Sequence
 
+from inventory_tracking.common import LOG
 from inventory_tracking.levels.guide import place
 from inventory_tracking.levels.model import Poi, Target
 from inventory_tracking.macros.goals import STAND_NEAR, Goal, route_goal
@@ -128,6 +129,20 @@ class CardGoals:
                 same = tuple(place(other) for other in marks if other.label == mark.label)
                 self.progress.used(area, mark.label, place(mark), same)
         return self.progress.facts is not before
+
+    def absent(self, area: int, labels: frozenset[str]) -> bool:
+        """Tell the progress the `use` stages of level `area` whose label the card knows the level has none of
+        (levels/model.py `Guidance.absent`: Lower Kurast without a camp); the run then ends at the loot as after
+        the last chest, not at the card's first mark. True: progress changed."""
+        found = self.progress.chosen(area)
+        changed = False
+        for label in sorted(labels & self._marks(area, USE)):
+            if (area, label) in self.progress.facts.finished:
+                continue
+            self.progress.absent(area, label)
+            LOG.info('Macro: route %s: no %s on this level', found[0] if found is not None else area, label)
+            changed = True
+        return changed
 
     def _marks(self, area: int, kind: str) -> frozenset[str]:
         """The marks the stages of `kind` of level `area`'s script name."""

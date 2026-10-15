@@ -2,6 +2,7 @@
 
 import logging
 import threading
+from dataclasses import replace
 
 import pytest
 
@@ -57,11 +58,15 @@ class Clock:
         return self.now
 
 
-def make_guide(areas, *, fixture='arcane_summoner_w', lock=None, fail=None, evidence=None, lead=None):
-    """`areas` yields the area seen by each poll; room reads replay a real dump."""
+def make_guide(
+    areas, *, fixture='arcane_summoner_w', lock=None, fail=None, evidence=None, lead=None, goals=None, change=None
+):
+    """`areas` yields the area seen by each poll; room reads replay a real dump (`change`d: its rooms in, rooms out)."""
     shown, clock, sequence = [], Clock(), iter(areas)
     snapshot = replay(fixture)
     x, y, rooms = snapshot.location.x, snapshot.location.y, list(snapshot.rooms)
+    if change is not None:
+        rooms = list(change(rooms))
     current = {}
 
     def observe(pid, images, capture, *, rooms_wanted=False):
@@ -84,6 +89,7 @@ def make_guide(areas, *, fixture='arcane_summoner_w', lock=None, fail=None, evid
         observe=lambda pid, images, capture, rooms=False: observe(pid, images, capture, rooms_wanted=rooms),
         evidence=evidence,
         lead=lead,
+        goals=goals,
     )
     return guide, shown, clock
 
@@ -566,7 +572,6 @@ def test_a_guide_started_pinned_shows_the_map_in_every_level_until_a_double_pres
 
 def knowing(guide, **neighbours):
     """Later room reads of `guide` see the levels behind some Cold Plains rooms: index=areas."""
-    from dataclasses import replace
 
     observe = guide.observe
 
@@ -798,6 +803,26 @@ def test_the_mark_leading_to_the_level_meant_comes_before_a_nearer_one():
     assert lead_first((near, meant), Lead('Exit', 4), (0.0, 0.0))[0] is meant
 
 
+def test_entering_lower_kurast_without_a_camp_the_chests_are_done_with_at_once():
+    # lower-kurast-plan.md task 5: the camp fixture with its camp turned into another 16x16 layout
+    from inventory_tracking.macros.card_goal import CardGoals
+    from inventory_tracking.macros.route import PERFORMED
+    from inventory_tracking.routes.catalog import ROUTES
+    from inventory_tracking.routes.progress import Progress
+
+    def no_camp(rooms):
+        return [replace(room, variant=0) if room.preset == 618 else room for room in rooms]
+
+    for change, kind in ((no_camp, 'loot'), (None, 'use')):
+        progress = Progress(ROUTES, PERFORMED)
+        progress.note('game', 79)
+        guide, _, _ = make_guide([79], fixture='lower_kurast_camp', goals=CardGoals(progress), change=change)
+        guide.poll(1.0)
+        step = progress.step(79)
+        assert step is not None
+        assert step.stage.kind == kind
+
+
 def test_the_guide_gives_the_places_of_the_marks_with_a_label():
     guide, _, _ = make_guide([1, 3], fixture='cold_plains_all_known')
     assert guide.marks('Cave') == ()
@@ -850,7 +875,6 @@ def test_the_walls_and_card_wait_for_the_refresh_interval_while_the_area_is_read
 
 
 def test_a_room_s_width_moved_makes_the_walls_due_before_the_interval():
-    from dataclasses import replace
 
     from inventory_tracking.levels.guide import REFRESH_MOVE
 
@@ -981,7 +1005,6 @@ def test_a_goal_at_a_unit_is_a_row_toward_it_and_the_mark_it_was_made_from_goes(
 
 
 def replace_goal(goal, **changes):
-    from dataclasses import replace
 
     return replace(goal, **changes)
 
