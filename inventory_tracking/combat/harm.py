@@ -12,6 +12,7 @@ import random
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field, replace
 from functools import lru_cache
+from itertools import pairwise
 from typing import Literal
 
 from inventory_tracking.combat import threats
@@ -39,6 +40,14 @@ EXPLODING = frozenset((214, 215, 216, 441, 442, 443, 690, 691))
 # sweep: x10 is where his lightning's median loss is 0 in the short and the long fight, for 9-10% more kill time).
 DEAR_FACTOR = 10.0
 DEAR = tuple((txt, DEAR_FACTOR) for txt in (211, 708, 242, 704, 243, 333, 705, 526, 544, 570, 709))
+# The life budget by the potion stock (the player, 2026-10-15: "keep the full budget down to 4 potions, never below
+# about half"): the share of the budget a look keeps, by the healing potions the belt can give back beyond the ones it
+# keeps for under the floor (macros/supply.py `spendable`, in potions of `healing_points`), as (potions beyond, share)
+# points of a curve, linear between them and flat past its ends. At 1818 life 2 are kept (a stocked rejuvenation
+# reserve): 4 of 8 healing potions and more keep the whole budget, 3 keep 3/4 of it, 2 and fewer half; never nothing.
+# It was the floor raised to where the belt can no longer buy the life back (2 of 8: no budget at all), and in the
+# arena it ended a Chaos Sanctuary run with half its kills (rca/2026-10-14/run-1932-findings.md, "Arena").
+STOCK_SHARE = ((0.0, 0.5), (2.0, 1.0))
 
 
 class SafetySettings(Config):
@@ -56,6 +65,7 @@ class SafetySettings(Config):
     # (monster class, factor): while a hostile of the class is in the fight (alive, within the AI's awareness of
     # the character), a point of life costs `factor` times `life_price` (the dearest present). DEAR above.
     dear: tuple[tuple[int, float], ...] = DEAR
+    stock_share: tuple[tuple[float, float], ...] = STOCK_SHARE  # (potions beyond the kept, budget share): STOCK_SHARE
     commit_share: Positive = 0.20  # Q2, improvement required to leave a firing stand
     commit_seconds: Positive = 0.30
     fight_through: bool = True  # Q3: allow a strike to advance a pressed goal
@@ -668,26 +678,30 @@ def budget(
     insisting: float = 0.0,
     spendable: float | None = None,
 ) -> float:
-    """The life a look may put at risk over the horizon: what is above the floor (`stock_floor`, the belt counted),
-    less the share the pressure takes over the horizon. Insisting on a blocked goal lowers the floor as before."""
-    floor = stock_floor(most, settings, spendable)
-    floor = max(settings.insist_floor, floor - max(0.0, insisting) * settings.insist_per_second)
-    return max(0.0, life - floor / 100 * most) * (1 - min(1.0, pressure.rate * settings.horizon))
+    """The life a look may put at risk over the horizon: what is above the floor, the share of it the potion stock
+    keeps (`stock_share`), less the share the pressure takes over the horizon. Insisting on a blocked goal lowers the
+    floor as before."""
+    floor = max(settings.insist_floor, settings.floor - max(0.0, insisting) * settings.insist_per_second)
+    above = max(0.0, life - floor / 100 * most) * stock_share(settings, spendable)
+    return above * (1 - min(1.0, pressure.rate * settings.horizon))
 
 
-def stock_floor(most: float, settings: SafetySettings, spendable: float | None) -> float:
-    """The life floor with the belt counted (the player, 2026-10-14: "the life budget scales with the potion stock";
-    rca/2026-10-14/run-1932-findings.md issue 2: the budget was 636 with 8 of 8 healing potions and with 2 of 8, and
-    the character warped into 21 hostiles with 2). The life a look spends is life the belt has to give back after it:
-    `spendable` is what its healing potions beyond the ones kept for under the floor give back, each worth
-    `healing_points` (macros/supply.py `spendable`). A point lost is spendable only while the belt can buy it back,
-    so the floor is where full life less what the belt gives back leaves the character, never under `floor`: with a
-    stocked belt it is `floor` (8 of 8 at 1818 life: the potions give 2880 back, full life less that is far under
-    65%); with 3 of 8 (one beyond the 2 kept) it is 74% (480 back); with the kept ones alone it is full life, and
-    only an insisted goal lowers it (`budget`). None: the belt not counted (unread), the floor as it was."""
-    if spendable is None or most <= 0:
-        return settings.floor
-    return min(100.0, max(settings.floor, 100.0 * (1.0 - spendable / most)))
+def stock_share(settings: SafetySettings, spendable: float | None) -> float:
+    """The share of the life budget the potion stock keeps (`SafetySettings.stock_share`, STOCK_SHARE; the player,
+    2026-10-14: "the life budget scales with the potion stock"; rca/2026-10-14/run-1932-findings.md issue 2: the
+    budget was 636 with 8 of 8 healing potions and with 2 of 8, and the character warped into 21 hostiles with 2).
+    `spendable` is what the belt's healing potions beyond the ones kept for under the floor give back (macros/supply.py
+    `spendable`), counted in potions of `healing_points`. None: the belt not counted (unread), the whole budget."""
+    if spendable is None:
+        return 1.0
+    curve = settings.stock_share
+    potions = spendable / settings.healing_points
+    if potions <= curve[0][0]:
+        return curve[0][1]
+    for (low, at_low), (high, at_high) in pairwise(curve):
+        if potions <= high:
+            return at_low + (at_high - at_low) * (potions - low) / (high - low)
+    return curve[-1][1]
 
 
 def life_price(supply: Supply, most: float, settings: SafetySettings) -> float:

@@ -287,3 +287,6 @@ class Target:
     # no warp joins the two (the River of Flame's bridge into the Chaos Sanctuary, a border). None: a warp, an object
     # or no way out.
     passage: tuple[float, float] | None = None
+    # The level an open passage leads into (the Chaos Sanctuary from the River of Flame's bridge): a level run that
+    # walks across goes on as that level's run (macros/pursuit.py `carried`). None with no `passage`.
+    into: int | None = None

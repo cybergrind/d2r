@@ -29,7 +29,22 @@ from inventory_tracking.macros.goals import (
 )
 from inventory_tracking.macros.hunt import BOSS_AHEAD, CLEAR_SECONDS, REST_SECONDS, Bearings
 from inventory_tracking.macros.movement import HOPS, TELEPORT, WALKS, WARPS
-from inventory_tracking.macros.pursuit import FULL, PASSAGE, Defer, Ended, Facts, Hold, Move, Pursuit, decide
+from inventory_tracking.macros.pursuit import (
+    ENTERING,
+    ENTERING_SAID,
+    FULL,
+    NONE,
+    PASSAGE,
+    Defer,
+    Ended,
+    Facts,
+    Hold,
+    Move,
+    Pursuit,
+    carried,
+    decide,
+    heading,
+)
 from inventory_tracking.macros.route import PERFORMED
 from inventory_tracking.macros.runmode import (
     DOUBLE,
@@ -282,13 +297,192 @@ def test_the_river_run_walks_through_the_open_passage_into_the_chaos_sanctuary()
                 here, legs = act.step.spot, legs + 1
                 assert legs < 12, (kind, start, here)
             assert river.walkable(*here)  # the walk across begins on the River's ground
+    assert card.into is None  # this card names no level behind the passage: the run is not carried on
     crossed = Facts(101.0, goal, False, False, True, lambda: NoWay('not asked'), SANCTUARY)
-    assert decide(crossed, RUN) == Ended('the level was left')  # the Sanctuary's own run is a press of its own
+    assert decide(crossed, RUN) == Ended('the level was left')
+    onward = heading(RUN, goals.route_goal(BRIDGE[0], spend=PRESSED, reach=22.0, stage=stage, route='Diablo',
+                                           card=replace(card, into=SANCTUARY)))  # fmt: skip
+    assert onward is not None
+    assert onward.onward == SANCTUARY
+    on = carried(onward, SANCTUARY, 101.0)  # the level guide's card names it: the Sanctuary's run goes on
+    assert on is not None
+    assert (on.area, on.onward, on.entered) == (SANCTUARY, None, 101.0)
     door = replace(card, passage=None)  # a warp's way out (stairs, a door): its mark, and going through is a press
     stairs = goals.route_goal(BRIDGE[1], spend=PRESSED, reach=22.0, stage=stage, route='Diablo', card=door)
     assert stairs is not None
     assert (stairs.place, stairs.near, stairs.crossed) == ((7800.0, 5597.5), goals.PLACE_NEAR, False)
     assert decide(facts(stairs, there=True), RUN) == Ended('at Chaos Sanctum: going through takes a press')
+
+
+CROSSING = Target(RIVER, (), (1560.0, 1119.5), 'Chaos Sanctum', 'next', True, (), 0, (1560.0, 1119.0), SANCTUARY)
+
+
+def test_a_run_whose_way_out_is_an_open_passage_goes_on_into_the_level_it_leads_to_once() -> None:
+    """The player, 2026-10-15: one KP_1 in the River of Flame "should carry into the Chaos Sanctuary run". The rule is
+    the way out's, not the River's: a level run whose goal is its level's open passage notes the level behind it
+    (`heading`), and the level change into that level carries the run on (`carried`), once. Any other change of level
+    (a waypoint, the town) ends it, as does a door's way out (going through takes a press)."""
+    goal = goals.way_out(CROSSING, 'Chaos Sanctum', PRESSED, 'Diablo', None)
+    assert goal.crossed
+    noted = heading(RUN, goal)
+    assert noted is not None
+    assert noted == replace(RUN, onward=SANCTUARY)
+    assert heading(noted, goal) is None  # noted once
+    assert heading(replace(RUN, leash=NONE), goal) is None  # no level run: the teleport key's own press
+    assert heading(RUN, goals.way_out(replace(CROSSING, passage=None), 'Chaos Sanctum', PRESSED, '', None)) is None
+    assert heading(RUN, DOOR) is None  # a door: going through is a press, and the run ends at it
+    assert heading(RUN, None) is None
+    # The crossing carries the run, working or paused as it was, into the level the passage leads into only
+    assert carried(noted, RIVER, 50.0) is None  # still on the River
+    on = carried(noted, SANCTUARY, 50.0)
+    assert on is not None
+    assert on == replace(RUN, area=SANCTUARY, entered=50.0)
+    assert carried(replace(noted, paused=True), SANCTUARY, 50.0) == replace(on, paused=True)
+    assert carried(noted, 103, 50.0) is None  # the town: the Pandemonium Fortress
+    assert carried(noted, 106, 50.0) is None  # the City of the Damned by its waypoint: not the way out's level
+    assert carried(noted, None, 50.0) is None
+    assert carried(replace(noted, leash=NONE), SANCTUARY, 50.0) is None  # the run ended: nothing to carry
+    assert carried(RUN, SANCTUARY, 50.0) is None  # a run that never went for the passage: the level was left
+    assert decide(Facts(51.0, None, False, False, True, lambda: STEP, SANCTUARY), RUN) == Ended('the level was left')
+    # Once: the carried run is the Sanctuary's own, with no way out noted; a change on from there ends it
+    assert carried(on, RIVER, 60.0) is None
+    assert decide(Facts(60.0, None, False, False, True, lambda: STEP, RIVER), on) == Ended('the level was left')
+
+
+def test_a_run_carried_into_a_level_waits_for_its_card_and_then_ends_for_its_own_reasons() -> None:
+    """Across the passage the level guide's card is still the River's for a poll or two (hunt.py `goal`: none): the
+    carried run waits ENTERING seconds for the Sanctuary's, holding what is in reach meanwhile. A run that finds nothing
+    to go to after that, or whose route ends at a door, a boss dead, ends as any run does: nothing carries it on."""
+    on = replace(RUN, area=SANCTUARY, entered=50.0)
+    nothing = Facts(51.0, None, False, False, True, lambda: STEP, SANCTUARY)
+    assert decide(nothing, on) == NoWay(ENTERING_SAID)
+    assert decide(replace(nothing, in_reach=True), on) == Hold()
+    later = replace(nothing, now=50.0 + ENTERING + 0.1)
+    assert decide(later, on) == Ended('nothing is left to go to on this level: no route stage, no boss known')
+    assert decide(later, replace(RUN, area=SANCTUARY)) == decide(later, on)  # as a run pressed on the level ends
+    sanctuary = replace(DOOR, place=(7800.0, 5300.0))
+    assert decide(replace(nothing, goal=sanctuary), on) == Move(STEP, sanctuary)  # the card up: the run works it
+    # The River's run ended at its door (a warp) or for want of a stage noted no crossing: nothing to carry on
+    ended = decide(facts(DOOR, there=True), RUN)
+    assert ended == Ended('at Chaos Sanctum: going through takes a press')
+    assert heading(RUN, DOOR) is None
+
+
+def at(play, area: int, place: tuple[float, float]) -> None:
+    play.world = replace(play.world, player=replace(play.world.player, area=area, x=place[0], y=place[1]))
+
+
+def test_one_press_in_the_river_walks_across_the_passage_and_runs_the_chaos_sanctuary(caplog) -> None:
+    """One KP_1 in the River of Flame (the player, 2026-10-15): the run goes for the bridge's open passage, walks
+    across, and the level change into the Chaos Sanctuary carries it on, said `Macro: run: on into ...`; the
+    Sanctuary's run works its first seal once its card is up. The player's full-clear switch of the River goes with
+    the run (and the HUD's word), and attack mode off still ends the carried run."""
+    _, rooms = river_door()
+    mark = bridge_end(rooms)
+    assert mark is not None
+    assert mark.spot is not None
+    far = passage_of(RIVER, rooms, mark, mark.spot)
+    river = Target(RIVER, rooms, mark.spot, mark.label, mark.kind, True, (), 0, far, SANCTUARY)
+    seal = Target(SANCTUARY, (), (1531.0, 1063.0), 'Vizier seal 1', 'target', False, (), 396)
+    shown: list[Target] = [river]
+    progress = Progress(ROUTES, PERFORMED, wanted=lambda area: False)
+    play = game(area=RIVER)
+    at(play, RIVER, BRIDGE[1])  # the 22:08:45 stand by the bridge's end, within the passage's near
+    hunt = hunter(play)
+    hunt.build = pursuing(hunt.build)
+    hunt.bearings = Bearings(progress, lambda: shown[0])
+    run = play.run()
+    hunt.post(Pursuit('pickup', 10.0, advance=False, leash=FULL))
+    play.clock.now = 20.0
+    with caplog.at_level(logging.INFO):
+        found = hunt.judge(run, play.world, [], Ground(()), in_reach=False)
+        assert found.goal is not None
+        assert found.goal.crossed
+        assert found.posted is not None
+        assert found.act == Move(Step(found.goal.place), found.goal, f'Chaos Sanctum: {PASSAGE}')  # walked across
+        assert hunt.pursuit == replace(found.posted, onward=SANCTUARY)
+        assert found.posted.area == RIVER
+        hunt.switched = (RIVER, True)  # the player's double press on the River, made on the way (`run_mode`)
+        at(play, SANCTUARY, found.goal.place)  # the walk's end: the Sanctuary's floor
+        play.clock.now = 21.0
+        across = hunt.judge(run, play.world, [], Ground(()), in_reach=False)  # the card is still the River's
+        carried_on = hunt.pursuit
+        assert carried_on is not None
+        assert (carried_on.area, carried_on.onward, carried_on.entered, carried_on.leash) == (
+            SANCTUARY,
+            None,
+            21.0,
+            FULL,
+        )
+        assert across.act == NoWay(ENTERING_SAID)
+        assert hunt.mode == Mode(True, SWITCHED)  # the full clear goes on, and the HUD's word with it
+        assert badge(hunt.mode) == 'CLEAR'
+        shown[0] = seal
+        hunt.switched = (SANCTUARY, False)  # (to its goal: the full clear would go for the rooms first)
+        play.clock.now = 22.0
+        started = hunt.judge(run, play.world, [], Ground(()), in_reach=False)
+        assert started.goal is not None
+        assert (started.goal.label, started.goal.route) == ('Vizier seal 1', 'Diablo')
+        assert not isinstance(started.act, Ended)
+        hunt.judge(run, play.world, [], Ground(()), in_reach=False)
+        assert hunt.pursuit is not None
+        assert hunt.pursuit.area == SANCTUARY  # once: no other carrying
+    lines = [r.getMessage() for r in caplog.records if r.getMessage().startswith('Macro: run:')]
+    assert lines[:3] == [
+        'Macro: run: to Chaos Sanctum, clearing the way',
+        'Macro: run: on into The Chaos Sanctuary: the run of River of Flame goes on across its way out',
+        'Macro: run: full clear (switched by the player)',
+    ]
+    assert 'Run: on into The Chaos Sanctuary' in play.said
+    assert not any('the level run ends' in r.getMessage() for r in caplog.records)
+    hunt.end_run(run, 'attack mode off')  # KP_3, the macro request, the game left: the runner's ends still end it
+    assert hunt.pursuit is None
+
+
+def test_only_a_full_clear_switch_carries_across_the_passage_and_the_next_level_decides_otherwise() -> None:
+    """The player, 2026-10-15: a double-pressed full clear of the River stays a full clear in the Sanctuary; a switch
+    to the goal (made on a terror-zone River) does not carry, and the Sanctuary decides by its own rules: a terror zone
+    there is a full clear, else its goal."""
+    river_run = replace(RUN, onward=SANCTUARY)
+    on = carried(river_run, SANCTUARY, 50.0)
+    assert on is not None
+    for river_tz, sanctuary_tz, switch, expected in (
+        (False, False, True, Mode(True, SWITCHED)),  # a full clear carries
+        (False, True, True, Mode(True, SWITCHED)),
+        (True, True, False, Mode(True, TERROR)),  # a switch to the goal does not: the Sanctuary's terror zone
+        (True, False, False, Mode(False)),  # ... nor its goal by default
+        (True, False, None, Mode(False)),  # no switch: the Sanctuary's own rules, the River's terror zone not carried
+    ):
+        tz = {RIVER: river_tz, SANCTUARY: sanctuary_tz}
+        play = game(area=SANCTUARY)
+        hunt = hunter(play)
+        hunt.bearings = Bearings(Progress(ROUTES, PERFORMED, wanted=lambda area, tz=tz: tz.get(area, False)))
+        run = play.run()
+        hunt.switched = None if switch is None else (RIVER, switch)
+        hunt.carry_on(run, river_run, on)
+        assert hunt.run_mode(run, SANCTUARY, on) == expected, (river_tz, sanctuary_tz, switch)
+        assert badge(hunt.mode) == ('CLEAR TZ' if expected.why == TERROR else 'CLEAR' if expected.clear else None)
+
+
+def test_a_waypoint_or_the_town_from_a_run_bound_for_the_passage_ends_it(caplog) -> None:
+    """The run went for the River's passage, and the level changed some other way (the waypoint to the City of the
+    Damned, the town): nothing carries it on, it ends as before."""
+    for elsewhere in (106, 103):
+        play = game(area=RIVER)
+        at(play, RIVER, BRIDGE[1])
+        hunt = hunter(play)
+        hunt.build = pursuing(hunt.build)
+        hunt.bearings = Bearings(Progress(ROUTES, PERFORMED, wanted=lambda area: False), lambda: CROSSING)
+        run = play.run()
+        hunt.post(Pursuit('pickup', 10.0, advance=False, leash=FULL))
+        play.clock.now = 20.0
+        hunt.judge(run, play.world, [], Ground(()), in_reach=False)
+        assert hunt.pursuit is not None
+        assert hunt.pursuit.onward == SANCTUARY
+        at(play, elsewhere, (5000.0, 5000.0))
+        found = hunt.judge(run, play.world, [], Ground(()), in_reach=False)
+        assert found.act == Ended('the level was left'), elsewhere
+        assert hunt.pursuit.area == RIVER
 
 
 def test_a_full_clear_works_a_level_with_no_route_and_its_end_is_the_runs() -> None:

@@ -35,9 +35,10 @@ holds what is in reach, takes a drop worth it on the way, and otherwise goes for
 this level (reach, use, stand, fight) as if pressed, stage after stage, with no further press. How much of
 the level it works (its goal, fighting what is on the way, or a full clear first) is the run mode's
 (macros/runmode.py, 2026-10-14); a way to another level is gone to, and the run ends at a door (a warp: going
-through it costs a press, U13), while an open passage is walked through (`through`, 2026-10-15) and the level
-change ends the run. It ends (`Ended`) when what is left of the route is not this loop's (the loot, the leaving,
-a door), when nothing is known to go to, or when the level is left; the runner
+through it costs a press, U13), while an open passage is walked through (`through`, 2026-10-15) and the run goes on
+as the run of the level it leads into (`carried`; the player, 2026-10-15: "it should carry into the Chaos Sanctuary
+run"), in the same mode. It ends (`Ended`) when what is left of the route is not this loop's (the loot, the leaving,
+a door), when nothing is known to go to, or when the level is left any other way (a waypoint, the town); the runner
 ends it for attack mode off (KP_3) and the macro request (Mod+X). A fresh pickup press whose goal is the
 route's own press (the loot, the leaving) or none is handed to the old pickup step (`Defer`), which is what
 the key did at the end of a route before.
@@ -58,7 +59,7 @@ goes next to it and stays (what comes is fought, as the arbiter prices it), sayi
 
 import math
 from collections.abc import Callable
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 
 from inventory_tracking.combat.harm import Harm, SafetySettings, veto
 from inventory_tracking.macros.build import Leg, NoWay, Step
@@ -83,6 +84,12 @@ OPERATED = frozenset((USE, STAND, PICK_UP))  # the goals something is done at; a
 # How far the loop goes without a fresh press (architecture §2.1): NONE, nowhere of its own; FULL, the route's
 # stages of the level the press was made on, objects included, and the drops worth a stop on the way.
 NONE, FULL = 'none', 'full'
+# Seconds a run carried into a level across its way out (`carried`) waits for that level's card before it finds
+# nothing to go to there: the level guide sees a new level at its next poll (every 0.5 s, config.py
+# level_guide_poll_interval) and then reads its rooms and walls, and until then the card is still the level left
+# (hunt.py `goal`: none). A fresh run is a press made with the card up; this one comes with the crossing.
+ENTERING = 3.0
+ENTERING_SAID = 'the level is being read: the run goes on once its card is up'
 
 
 @dataclass(frozen=True)
@@ -92,7 +99,10 @@ class Pursuit:
     without a press. `advance`: the press asks for its goal now, before what is in reach (the teleport
     key); `leash`: how far the loop goes without one (the module text), on level `area` (None until the
     loop's first look names it); `spent`: the press was handed to a routine and asks for nothing more;
-    `paused`: the player's hand has the run (the module text), which then goes on by itself."""
+    `paused`: the player's hand has the run (the module text), which then goes on by itself. `onward`: the level
+    the run's way out leads into, noted once the run goes for an open passage (`heading`): the level change into it
+    carries the run on (`carried`); `entered`: when the run was carried into its level (the clock), None for a run
+    pressed on it."""
 
     key: str
     pressed_at: float
@@ -101,6 +111,8 @@ class Pursuit:
     area: int | None = None
     spent: bool = False
     paused: bool = False
+    onward: int | None = None
+    entered: float | None = None
 
     def fresh(self, now: float) -> bool:
         """Whether the press still asks for a move: made no longer than FRESH ago (and not after `now`:
@@ -116,6 +128,32 @@ class Pursuit:
     def runs(self) -> bool:
         """Whether a level run works now: held and not paused (what the loop and its pricing go by)."""
         return self.leash == FULL and not self.paused
+
+    def entering(self, now: float) -> bool:
+        """Whether the run was carried into its level less than ENTERING seconds ago (`carried`)."""
+        return self.entered is not None and 0.0 <= now - self.entered <= ENTERING
+
+
+def heading(pursuit: Pursuit, goal: Goal | None) -> Pursuit | None:
+    """The level run with the level its way out leads into noted (`Pursuit.onward`), once its goal is an open
+    passage (`Goal.crossed`) that names one (levels/model.py `Target.into`); None: nothing to note (no run, another
+    goal, or noted already). A door's way out is no crossing of the run's: going through it takes a press."""
+    if not pursuit.leashed or goal is None or not goal.crossed or goal.mark is None:
+        return None
+    into = goal.mark.into
+    if into is None or into == pursuit.area or into == pursuit.onward:
+        return None
+    return replace(pursuit, onward=into)
+
+
+def carried(pursuit: Pursuit, area: int | None, now: float) -> Pursuit | None:
+    """The level run carried on into level `area` (the module text): the run that went for its level's open passage
+    (`heading`) is the run of the level it crossed into, from `now`, once (`onward` is spent with it), working or
+    paused as it was. None: no run, the same level, or a level the run's way out does not lead into (a waypoint, the
+    town, the player's own way): that ends the run (`decide`: the level was left)."""
+    if not pursuit.leashed or pursuit.area is None or area is None or area == pursuit.area or area != pursuit.onward:
+        return None
+    return replace(pursuit, area=area, onward=None, entered=now)
 
 
 def settled(hand_at: float, now: float, panels: bool) -> bool:
@@ -302,6 +340,9 @@ def decide(facts: Facts, pursuit: Pursuit | None, enabled: bool = True) -> Act:
             if pursuit.paused:
                 # The player's hand has the run: attack mode's own strike at what is in reach, no move of the run's
                 return Hold(goal) if facts.in_reach and facts.attacking else NoWay(PAUSED)
+            if goal is None and pursuit.entering(facts.now):
+                # Carried into the level a moment ago (`carried`): its card is not up yet, which ends nothing
+                return Hold() if facts.in_reach and facts.attacking else NoWay(ENTERING_SAID)
             return run_level(facts, pressed)
     if pursuit is not None and pressed:
         if goal is None:
@@ -369,7 +410,8 @@ def to_the_door(facts: Facts, goal: Goal) -> Act:
     and what the goal names on the way (macros/goals.py `clear_way`). The player, 2026-10-14: "go to the level's goal
     clearing everything along the way" (rca/2026-10-14/kp1-mode.md). A door, stairs, a cave's mouth (a warp): the run
     ends at it, and going through takes a press (U13). An open passage (`Goal.crossed`: the River of Flame's bridge
-    into the Chaos Sanctuary, a border) is walked through (`through`), and the level changing ends the run."""
+    into the Chaos Sanctuary, a border) is walked through (`through`), and the run goes on in the next level
+    (`carried`)."""
     if facts.in_reach and facts.attacking:
         return Hold(goal)
     if goal.crossed:
@@ -388,8 +430,8 @@ def through(facts: Facts, goal: Goal) -> Act:
     KP_1 was pressed; we need to move our target slightly further so the map changes"). The goal's place is a tile
     inside the next level (levels/exits.py `through`), off this level's ground: the navigator's way, by the class in
     hand, goes as near as the ground goes, and from within the goal's `near` (or where no step toward it is left) one
-    straight walk to the place crosses, in either input mode. The level changed is the run's end (`decide`: the level
-    was left), as for every level run; the next level's run is a press of its own."""
+    straight walk to the place crosses, in either input mode. The level changed carries the run on as the next
+    level's (`carried`: the player, 2026-10-15, "it should carry into the Chaos Sanctuary run")."""
     walk = Move(Step(goal.place), goal, f'{goal.label}: {PASSAGE}')
     if facts.there:
         return walk

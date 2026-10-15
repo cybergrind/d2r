@@ -476,7 +476,8 @@ class LevelGuide:
         warp = poi.kind in WAYS_OUT and poi.spot is not None
         area, mark = snapshot.location.area_id, place(poi)
         passage = passage_of(area, snapshot.rooms, poi, mark)
-        return Target(area, snapshot.rooms, mark, poi.label, poi.kind, warp, self._ground(), poi.use, passage)
+        into = poi.area if passage is not None else None
+        return Target(area, snapshot.rooms, mark, poi.label, poi.kind, warp, self._ground(), poi.use, passage, into)
 
     def target(self) -> Target | None:
         """The shown card's first mark, the one the first arrow line points at (the teleport step, macros/teleport.py).

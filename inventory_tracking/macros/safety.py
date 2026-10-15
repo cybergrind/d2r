@@ -32,7 +32,7 @@ from inventory_tracking.combat.harm import (
     life_factor,
     life_price,
     sent_onto,
-    stock_floor,
+    stock_share,
     veto,
 )
 from inventory_tracking.combat.policy import Observation, Point
@@ -437,7 +437,7 @@ class Safety:
             and (running or posted.pressed_at > self.first_press)
         ):
             insisting = facts.now - self.blocked_since
-        # The belt counted (combat/harm.py `stock_floor`): a life point spent is one the belt has to give back
+        # The belt counted (combat/harm.py `stock_share`): a low potion stock keeps a share of the budget, half at least
         spendable = stock_life(loot, settings.healing_points, settings.floor)
         allowance = budget(loot.life, loot.max_life, felt, settings, insisting=insisting, spendable=spendable)
         supply = on_belt(loot)
@@ -822,7 +822,7 @@ class Safety:
             'budget': round(allowance, 1),
             'dear': dear,
             'floor_raised': insisting > 0,
-            'stock_floor': round(stock_floor(loot.max_life, settings, spendable), 1),
+            'stock_share': round(stock_share(settings, spendable), 3),
             'chosen': type(chosen).__name__,
             'chosen_place': chosen.step.spot if isinstance(chosen, Move) else here,
             'reason': getattr(chosen, 'reason', ''),

@@ -621,24 +621,34 @@ def test_a_valuable_not_on_the_way_hides_no_potion_nearer() -> None:
 
 
 def test_the_life_budget_scales_with_the_potions_the_belt_can_give_back() -> None:
-    """22:55:09 (8 of 8) and 22:55:38 (2 of 8): the budget was 636.3 both times at full life."""
-    from inventory_tracking.combat.harm import SafetySettings, budget, stock_floor
+    """22:55:09 (8 of 8) and 22:55:38 (2 of 8): the budget was 636.3 both times at full life. The player, 2026-10-15:
+    the whole budget down to 4 healing potions, never under about half of it (the curve once gave none at 2 of 8)."""
+    from inventory_tracking.combat.harm import SafetySettings, budget, stock_share
     from inventory_tracking.combat.survival import CALM
     from inventory_tracking.macros.supply import spendable
 
     settings = SafetySettings()
-    full, low_belt = (JUV, JUV, HP, HP) * 4, LOW_BELT
+    whole = budget(1818, 1818, CALM, settings)  # the belt not counted
+
+    def belt_of(healing: int) -> tuple:
+        return (HP,) * healing + (JUV,) * 4 + (None,) * (12 - healing)  # the rejuvenation reserve stocked
 
     def allowance(belt, life=1818, **changes) -> float:
         loot = Loot(belt=belt, life=life, max_life=1818, game=NAMED)
         points = spendable(loot, settings.healing_points, settings.floor)
         return budget(life, 1818, CALM, settings, spendable=points, **changes)
 
-    assert allowance(full) == pytest.approx(636.3)  # a stocked belt: as before
-    assert allowance(low_belt) == 0.0  # the 2 kept for under the floor and nothing more: nothing to spend
-    three = (JUV, JUV, HP, HP) + (JUV, JUV, HP, None) + (JUV, JUV, None, None) * 2
-    assert allowance(three) == pytest.approx(480.0)  # one potion beyond the kept two: 480 points back
-    assert allowance(low_belt, insisting=3.0) > 0.0  # an insisted goal still lowers the floor
-    unread = Loot(belt=low_belt, life=1818, max_life=1818)
+    assert whole == pytest.approx(636.3)
+    assert allowance((JUV, JUV, HP, HP) * 4) == pytest.approx(whole)  # a stocked belt: as before
+    by_stock = [allowance(belt_of(healing)) for healing in range(9)]
+    assert by_stock[4:] == pytest.approx([whole] * 5)  # 4 of 8 and more: the whole budget
+    assert by_stock[3] == pytest.approx(0.75 * whole)  # one beyond the 2 kept for under the floor
+    assert by_stock[:3] == pytest.approx([0.5 * whole] * 3)  # the kept ones alone, or none: half, never nothing
+    assert by_stock == sorted(by_stock)  # never less budget for more potions
+    assert allowance(LOW_BELT) == pytest.approx(0.5 * whole)  # 22:55:38's belt
+    # Below full life the share is of what is above the floor: half of it still, not the floor raised to nothing.
+    assert allowance(belt_of(2), life=1300) == pytest.approx(0.5 * budget(1300, 1818, CALM, settings))
+    assert allowance(LOW_BELT, insisting=3.0) > allowance(LOW_BELT)  # an insisted goal still lowers the floor
+    unread = Loot(belt=LOW_BELT, life=1818, max_life=1818)
     assert spendable(unread, settings.healing_points, settings.floor) is None
-    assert stock_floor(1818, settings, None) == settings.floor
+    assert stock_share(settings, None) == 1.0

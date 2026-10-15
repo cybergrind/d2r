@@ -87,6 +87,7 @@ from inventory_tracking.combat.survival import pressure
 from inventory_tracking.common import LOG
 from inventory_tracking.config import HEAL_PRIORITY
 from inventory_tracking.levels.model import Ground, Level, Room, Target
+from inventory_tracking.levels.presets import display_name
 from inventory_tracking.levels.route import room_at
 from inventory_tracking.macros import route
 from inventory_tracking.macros.actuator import POINTER_DRIFT, Abort, Cancelled
@@ -127,7 +128,9 @@ from inventory_tracking.macros.pursuit import (
     Operate,
     Pursuit,
     Told,
+    carried,
     decide,
+    heading,
     settled,
 )
 from inventory_tracking.macros.rotation import ELITE_LIFE
@@ -760,10 +763,12 @@ class Hunter:
             if pursuit.leashed and (old is None or not old.leashed):
                 self.travel.tally = Tally()  # the run's pace counts from its own first leg (`Travel.paced`)
             if old is not None and old.leashed:
+                # The run's crossing noted (`heading`) and its carrying on (`carried`) stay with it
+                kept = {'area': old.area, 'onward': old.onward, 'entered': old.entered}
                 if not pursuit.leashed:
-                    pursuit = replace(pursuit, leash=old.leash, area=old.area, paused=old.paused)
+                    pursuit = replace(pursuit, leash=old.leash, paused=old.paused, **kept)
                 elif pursuit.area is None:
-                    pursuit = replace(pursuit, area=old.area)  # a fresh pickup press: the run goes on, unpaused
+                    pursuit = replace(pursuit, **kept)  # a fresh pickup press: the run goes on, unpaused
             waited = self.pursued
             if waited is not None and waited.do == WAIT and waited.unit is not None:
                 # A press while the run stands by a valuable with no room for it: the player goes on without it
@@ -795,7 +800,8 @@ class Hunter:
             if self.pursuit is not posted:
                 LOG.info('Macro: pursuit: the level run goes on (%s): a press came during the look', reason)
                 return
-            self.pursuit = replace(posted, leash=NONE, area=None, paused=False) if posted.advance else None
+            ended = replace(posted, leash=NONE, area=None, paused=False, onward=None, entered=None)
+            self.pursuit = ended if posted.advance else None
         LOG.info('Macro: pursuit: the level run ends: %s', reason)
         self.travel.paced(run.clock() if run is not None else None, reason)
         self.told.new(None)
@@ -1397,6 +1403,23 @@ class Hunter:
                 run.say(f'Run: {line}')
         return mode
 
+    def carry_on(self, run: Run, left: Pursuit, onward: Pursuit) -> None:
+        """The level run walked across its level's open passage and goes on as the run of the level it leads into
+        (macros/pursuit.py `carried`; the player, 2026-10-15: "it should carry into the Chaos Sanctuary run"), said
+        `Macro: run: on into <level>`. A full clear the player switched to on the level left holds on this one (a
+        double-pressed full clear stays a full clear); a switch to the goal does not carry (the player, 2026-10-15),
+        and with none the level's own rules decide (`run_mode`: a terror zone is a full clear). The pace of the level
+        left is said, and the next level's counts anew."""
+        assert left.area is not None
+        assert onward.area is not None
+        if self.switched is not None and self.switched[0] == left.area:
+            self.switched = (onward.area, True) if self.switched[1] else None
+        name, now = display_name(onward.area), run.clock()
+        LOG.info('Macro: run: on into %s: the run of %s goes on across its way out', name, display_name(left.area))
+        self.travel.paced(now, f'on into {name}')
+        self.told.new(None)
+        run.say(f'Run: on into {name}')
+
     def nearby(self, goal: Goal | None, here: Point) -> Goal | None:
         """Attack mode's own goal (no level run, no fresh press): a boss's fight only within ALONE_BOSS_UNITS, else
         none, said once a goal (the player, 2026-10-15: "only nearby")."""
@@ -1434,6 +1457,10 @@ class Hunter:
             named = replace(posted, area=player.area)  # the level run is of the level it was asked on
             self.swap(posted, named)
             posted = named
+        onward = carried(posted, player.area, now) if posted is not None else None
+        if posted is not None and onward is not None and self.swap(posted, onward):
+            self.carry_on(run, posted, onward)  # before the mode is looked at: the player's switch goes with the run
+            posted = onward
         pressed = posted is not None and posted.fresh(now)
         self.run_mode(run, player.area, posted)
         goal = self.goal(run, world, foes, pressed, posted)
@@ -1441,6 +1468,9 @@ class Hunter:
             goal = self.cleared(run, world, foes, ground, goal)  # the run's own look: what its mode adds
         if not pressed and not (posted is not None and posted.leashed):
             goal = self.nearby(goal, here)
+        noted = heading(posted, goal) if posted is not None else None
+        if posted is not None and noted is not None and self.swap(posted, noted):
+            posted = noted  # the run goes for its level's open passage: across it, the run goes on (`carry_on`)
         self.pursued = goal
         level = self.known_level(player)
         rect = run.actuator.keys.focused_window_rect()
