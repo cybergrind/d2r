@@ -2,6 +2,7 @@
 
 from copy import deepcopy
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -11,7 +12,7 @@ from pricing.knowledge.assessment.mechanics.jmod_shell import NATIVE_HASHES, she
 ROOT = Path(__file__).resolve().parents[5]
 
 
-def listing():
+def listing() -> dict[str, Any]:
     return {
         'name': 'Monarch',
         'base_code': 'uit',
@@ -42,7 +43,9 @@ def test_total_defense_proves_nonethereal_shell_without_pricing_contents():
 def test_native_defense_endpoints(total):
     row = listing()
     row['properties']['1855'] = total
-    assert shell_evidence(row, ROOT)['ethereal'] is False
+    result = shell_evidence(row, ROOT)
+    assert result is not None
+    assert result['ethereal'] is False
 
 
 @pytest.mark.parametrize('total', [None, True, 132, 149, 199, 222, '139'])
@@ -97,7 +100,9 @@ def test_payload_totals_and_raw_variant_conflicts_are_not_intrinsic_affix_proof(
 def test_unknown_contents_stay_unknown():
     row = listing()
     row['socket_contents'] = 'unknown'
-    assert shell_evidence(row, ROOT)['socket_contents'] == 'unknown'
+    result = shell_evidence(row, ROOT)
+    assert result is not None
+    assert result['socket_contents'] == 'unknown'
 
 
 def test_missing_native_evidence_fails_closed(tmp_path):

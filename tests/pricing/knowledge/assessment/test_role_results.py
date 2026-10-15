@@ -1,4 +1,5 @@
 from dataclasses import FrozenInstanceError, replace
+from typing import Any
 
 import pytest
 
@@ -19,10 +20,10 @@ def test_role_result_freezes_rule_and_preparation_evidence_before_projection():
     profile['source']['review'] = 'Mutated caller evidence'
     assert legacy_role(result)['source'] == expected['source']
     with pytest.raises(FrozenInstanceError):
-        result.status = 'matched'
+        result.status = 'matched'  # pyrefly: ignore[read-only]  # proves the role result is frozen
     with pytest.raises(TypeError):
-        result.dependencies[0]['status'] = 'true'
-    output = legacy_role(result)
+        result.dependencies[0]['status'] = 'true'  # pyrefly: ignore[unsupported-operation]  # proves the dependency is frozen
+    output: dict[str, Any] = legacy_role(result)
     output['dependencies'][0]['preparation']['steps'][0]['resources'].clear()
     assert legacy_role(result) == expected
 

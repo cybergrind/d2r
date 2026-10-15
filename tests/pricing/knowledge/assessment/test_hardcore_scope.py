@@ -4,6 +4,7 @@ import hashlib
 import json
 from copy import deepcopy
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -67,8 +68,9 @@ def test_explicit_hardcore_scope_is_valid_but_excluded_from_softcore_candidates(
     path.write_text(json.dumps(document))
     loaded = ProfileRepository(path).load()
     assert not loaded.issues
+    assert loaded.bundle is not None
     assert len(loaded.bundle.profiles) == 2  # Retain the reviewed source configuration.
-    selected = loaded.bundle.candidates.select(facts('Jewel', 'unique', 'Rainbow Facet'))
+    selected: list[Any] = loaded.bundle.candidates.select(facts('Jewel', 'unique', 'Rainbow Facet'))
     assert {r['id'] for r in selected} == {active['id']}
 
 
@@ -101,11 +103,12 @@ def test_staged_hardcore_roles_cannot_supply_softcore_stat_priorities():
     loaded = ProfileRepository(Path('pricing/data/appraisal-build-profiles.json')).load()
     assert not loaded.issues
     bundle = loaded.bundle
+    assert bundle is not None
     archived = {p['id'] for p in bundle.profiles if p.get('scope') == 'hardcore'}
     assert archived  # Exercise archived configurations, not an empty fixture.
     unspecified = SimpleNamespace(rarity=None, item_type=None, name=None, base_code=None)
-    roles = bundle.candidates.select(unspecified)
-    stats = bundle.stat_candidates.select(unspecified)
+    roles: list[Any] = bundle.candidates.select(unspecified)
+    stats: list[Any] = bundle.stat_candidates.select(unspecified)
     assert not archived.intersection(p['id'] for p in roles)
     assert not archived.intersection(p['role_id'] for p in stats)
     assert {p['id'] for p in roles} == {p['id'] for p in bundle.profiles} - archived

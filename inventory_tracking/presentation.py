@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from enum import StrEnum
 from html import escape
 from types import MappingProxyType
+from typing import Any
 
 from rich.style import Style
 from rich.text import Text
@@ -118,7 +119,7 @@ class StyledLine:
             raise ValueError('Styled spans must preserve the complete literal line')
 
     def to_payload(self) -> dict:
-        result = {'text': self.text, 'tone': self.tone.value}
+        result: dict[str, Any] = {'text': self.text, 'tone': self.tone.value}
         if self.arrow is not None:
             result['arrow'] = self.arrow
         if self.spans:

@@ -1,6 +1,7 @@
 """Laying of Hands is a standalone set component, not an assumed full set."""
 
 from copy import deepcopy
+from typing import Any
 
 import pytest
 
@@ -14,7 +15,7 @@ PID = 'berserk-barbarian-4-laying-hands'
 OID = '0fb3b2bf4d93923b2a7ab648'
 
 
-def records():
+def records() -> tuple[dict[str, Any], dict[str, Any], dict[str, Any], dict[str, Any]]:
     role = next(r for r in read('pricing/data/appraisal-build-profiles.json')['profiles'] if r['id'] == PID)
     use = next(
         r for r in read('pricing/knowledge/assessment/rules/guide_use_reviews.json')['uses'] if r['profile_id'] == PID

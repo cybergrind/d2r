@@ -38,7 +38,7 @@ def cases():
         ('unknown-contents', replace(ITEM, socket_contents='unknown', socket_items=()), context, 'unknown'),
     ]
     for label, item, ctx, truth in examples:
-        expected = {'roles': Contains(IsPartialDict(id=ROLE, rule_trace=IsPartialDict(truth=truth)))}
+        expected: dict[str, object] = {'roles': Contains(IsPartialDict(id=ROLE, rule_trace=IsPartialDict(truth=truth)))}
         if truth == 'true':
             expected['stat_evaluation'] = IsPartialDict(
                 annotations=IsPartialDict(

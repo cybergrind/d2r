@@ -7,6 +7,7 @@ from pricing.knowledge.assessment.maintenance.reviewed_source_issues import revi
 from pricing.knowledge.assessment.profiles import assess_role_results
 from pricing.knowledge.assessment.stat_bundle import configuration_from_row
 from pricing.knowledge.assessment.stat_evaluation import StatsEvaluator
+from tests.pricing.knowledge.assessment.fact_changes import fact_changes
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
 
 
@@ -40,7 +41,7 @@ def test_hammer_mf_accepts_both_cited_bases_without_inheriting_ethereal_or_perfe
     for ethereal in (True, False):
         sacred = replace(item, base_code=facts('Sacred Armor').base_code, ethereal=ethereal)
         assert evaluate(sacred).annotations
-    for changes in (
+    for changes in fact_changes(
         {'ethereal': False},
         {'ethereal': None},
         {'base_code': facts('Dusk Shroud').base_code},

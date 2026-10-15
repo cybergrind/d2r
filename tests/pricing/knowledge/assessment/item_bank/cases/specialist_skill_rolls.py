@@ -12,7 +12,7 @@ EXAMPLES = (
 
 
 def cases():
-    for name, base, table_id, skill, best, lesser, interval, fixed in EXAMPLES:
+    for name, base, table_id, (stat, layer), best, lesser, interval, fixed in EXAMPLES:
         for label, roll, ethereal, tier, scenario in (
             ('maximum', best, False, 'med', 'positive'),
             ('lower', lesser, False, 'low', 'negative'),
@@ -20,7 +20,7 @@ def cases():
             ('ethereal-maximum', best, True, 'med', 'positive'),
             ('unknown-ethereal', best, None, 'low', 'unknown'),
         ):
-            stats = (*fixed, *(((*skill, roll),) if roll is not None else ()))
+            stats = (*fixed, *(((stat, layer, roll),) if roll is not None else ()))
             yield Case(
                 id=f'specialist-skill-roll/{name}/{label}',
                 item=Item(base, 'unique', name, stats, ethereal=ethereal, named_table_id=table_id),

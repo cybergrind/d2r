@@ -16,6 +16,7 @@ def test_base_tier_listing_metadata_must_match_verified_base(quality):
     )
     contract, gaps = HANDLERS['base' if quality == 'superior' else 'affixed'].contract(item, 'weapon')
     assert not gaps
+    assert contract is not None
     contract = contract.to_dict()
     assert contract.get('base_tier') == 'Exceptional'
     row = {

@@ -4,6 +4,7 @@ from pathlib import Path
 import pytest
 
 from pricing.triage.engine import assess
+from tests.pricing.knowledge.reports import present
 
 
 def tables():
@@ -30,7 +31,7 @@ def tables():
     ],
 )
 def test_guide_self_use_items_have_actionable_slot_reason(item):
-    result = assess(item, tables())
+    result = present(assess(item, tables()))
     assert result['verdict'] == 'self'
     assert 'Echoing' in result['reason'] or 'mercenary' in result['reason']
     assert result['own_use']['slot']
@@ -73,7 +74,7 @@ def test_paid_pattern_check_remains_trade_review_with_own_use_attached():
     data = tables()
     data['rules']['rows'] = [{'category': 'magic', 'pattern': {'properties': {'1862': 2, '520': 10}}}]
     item = {'category': 'magic', 'family': 'amul', 'properties': {'1862': 2, '520': 10}}
-    result = assess(item, data)
+    result = present(assess(item, data))
     assert result['verdict'] == 'check'
     assert result['own_use']['slot'] == 'amulet'
 
@@ -151,7 +152,7 @@ def test_reviewed_caster_belt_alternative_requires_max_fcr_and_life(base):
         'stats': {'105:0': 10, '7:0': 30, '9:0': 20, '27:0': 10},
     }
     item = item_from_spec(spec)
-    result = assess(item, tables())
+    result = present(assess(item, tables()))
     assert result['verdict'] == 'self'
     assert result['own_use']['slot'] == 'belt'
     assert result['decision_ist'] is None

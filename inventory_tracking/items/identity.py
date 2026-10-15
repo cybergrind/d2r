@@ -5,6 +5,7 @@ modifier is guessed from matching tooltip stats or the base type alone.
 """
 
 import struct
+from typing import Any
 
 from inventory_tracking.items.metadata import metadata
 from inventory_tracking.items.runeword_identity import resolve_runeword
@@ -77,13 +78,13 @@ def resolve_identity(details, arrays, base):
     entry = metadata()['identities'][table].get(str(table_id))
     if not entry:
         return None
-    entry = resolve_seasonal_identity(entry, arrays, socketed=bool(flags & SOCKETED_FLAG))
-    if base['code'] not in entry['base_codes']:
-        upgrade = entry.get('upgrade_variants', {}).get(base['code']) if table in ('unique', 'set') else None
+    named: dict[str, Any] = resolve_seasonal_identity(entry, arrays, socketed=bool(flags & SOCKETED_FLAG))
+    if base['code'] not in named['base_codes']:
+        upgrade = named.get('upgrade_variants', {}).get(base['code']) if table in ('unique', 'set') else None
         if upgrade is None:
             return None
-        entry = {**entry, **upgrade}
-    return {**entry, 'table': table, 'table_id': table_id, 'offset': offset}
+        named = {**named, **upgrade}
+    return {**named, 'table': table, 'table_id': table_id, 'offset': offset}
 
 
 def identity_review(identity, stats):

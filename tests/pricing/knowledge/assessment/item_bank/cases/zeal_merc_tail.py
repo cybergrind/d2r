@@ -128,7 +128,7 @@ def cases():
         elif item.runeword:
             rows.append(('wrong-sockets', 'negative', replace(item, sockets=2), context))
         for label, scenario, candidate, loadout in rows:
-            expected = {
+            expected: dict[str, object] = {
                 'roles': Contains(
                     IsPartialDict(
                         id=role,

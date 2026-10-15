@@ -431,7 +431,7 @@ def create_next_game(run: Run, last: str) -> LoadTrace:
     else:
         raise Abort('the game name field did not take the keys')
     # Only the end that differs is retyped (user, 2026-10-06): cyber36 -> one Backspace and `7`.
-    kept = len(os.path.commonprefix((last, name)))
+    kept = len(os.path.commonprefix((last, name)))  # ruff: ignore[os-path-commonprefix] two names, by character
     for _ in range(len(last) - kept - 1):
         run.pause('type')
         run.actuator.tap('BackSpace')

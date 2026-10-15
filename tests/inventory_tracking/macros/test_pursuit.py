@@ -54,6 +54,13 @@ def named(here: Point = (0.0, 0.0), **given) -> Goal | None:
     return goal_of(here, spend=PRESSED, reach=REACH_UNITS, **given)
 
 
+def goal_named(here: Point = (0.0, 0.0), **given) -> Goal:
+    """The goal named where the test expects one."""
+    found = named(here, **given)
+    assert found is not None
+    return found
+
+
 def test_the_goals_distances_are_the_hands_own() -> None:
     assert goals.USE_NEAR == teleport.THING_REACH
     assert goals.STAND_NEAR == route.STAND_NEAR
@@ -74,8 +81,8 @@ def test_a_use_stage_is_the_object_on_the_stages_mark_within_a_clicks_reach() ->
 
 
 def test_a_stand_and_a_way_on_are_their_marks() -> None:
-    assert named(stage=stand('the altar'), card=card('the altar', (2.0, 2.0))).do == STAND
-    door = named(stage=enter('River of Flame', 107), card=card('River of Flame', (2.0, 2.0), warp=True))
+    assert goal_named(stage=stand('the altar'), card=card('the altar', (2.0, 2.0))).do == STAND
+    door = goal_named(stage=enter('River of Flame', 107), card=card('River of Flame', (2.0, 2.0), warp=True))
     assert door.do == ENTER
     assert door.do not in PURSUED
 
@@ -83,7 +90,7 @@ def test_a_stand_and_a_way_on_are_their_marks() -> None:
 def test_a_fight_with_no_mark_is_the_boss_where_it_stands() -> None:
     boss = monster(7, (60.0, 0.0), SUPER_UNIQUE_FLAG | 0x08)
     pack = [monster(8, (20.0, 0.0), 0x10), monster(9, (25.0, 0.0), 0x08)]  # a minion, a plain unique
-    found = named(stage=fight('Grand Vizier of Chaos'), foes=[*pack, boss])
+    found = goal_named(stage=fight('Grand Vizier of Chaos'), foes=[*pack, boss])
     assert (found.do, found.place, found.unit, found.near) == (FIGHT, (60.0, 0.0), 7, REACH_UNITS)
     assert found.known
     assert found.label == 'Grand Vizier of Chaos'
@@ -93,7 +100,7 @@ def test_a_boss_out_of_sight_is_where_one_was_last_seen_alive() -> None:
     # The tracker holds every super unique's last place, the dead ones too; alive are the remembered ones.
     remembered = [(7, 300.0, 0.0, True), (8, 100.0, 0.0, True), (9, 50.0, 0.0, False)]
     supers = [(300.0, 0.0), (40.0, 40.0)]  # the boss alive at 300, a boss dead at (40, 40); 8 is a plain unique
-    found = named(stage=fight('Lord De Seis'), remembered=remembered, supers=supers)
+    found = goal_named(stage=fight('Lord De Seis'), remembered=remembered, supers=supers)
     assert (found.place, found.unit, found.known) == ((300.0, 0.0), None, True)
     assert 'last seen' in found.label
     assert named(stage=fight('Lord De Seis'), remembered=remembered, supers=supers, gone=frozenset({7})) is None
@@ -104,13 +111,13 @@ def test_a_fight_with_a_mark_is_the_boss_by_it_else_the_mark() -> None:
     stage = fight('Diablo', 'Diablo')
     far = monster(7, (400.0, 400.0), SUPER_UNIQUE_FLAG)  # a super unique that is not this mark's
     near = monster(8, (120.0, 110.0), 0, txt=243)  # the act boss, by its type
-    assert named(stage=stage, card=mark, foes=[far]).place == (100.0, 100.0)
-    found = named(stage=stage, card=mark, foes=[far, near])
+    assert goal_named(stage=stage, card=mark, foes=[far]).place == (100.0, 100.0)
+    found = goal_named(stage=stage, card=mark, foes=[far, near])
     assert (found.unit, found.place) == (8, (120.0, 110.0))
 
 
 def test_a_boss_nothing_is_known_of_is_sought_and_the_label_says_so() -> None:
-    found = named(stage=fight('Infector of Souls'), elsewhere=lambda: ((70.0, 0.0), 'an unexplored room'))
+    found = goal_named(stage=fight('Infector of Souls'), elsewhere=lambda: ((70.0, 0.0), 'an unexplored room'))
     assert (found.do, found.place, found.known) == (FIGHT, (70.0, 0.0), False)
     assert found.label == 'seek Infector of Souls: toward an unexplored room'
     assert named(stage=fight('Infector of Souls'), elsewhere=lambda: None) is None
@@ -121,32 +128,32 @@ def test_elsewhere_is_asked_only_when_nothing_is_known() -> None:
     def never():
         raise AssertionError('asked')
 
-    assert named(stage=fight('x'), foes=[monster(7, (9.0, 9.0), SUPER_UNIQUE_FLAG)], elsewhere=never).unit == 7
+    assert goal_named(stage=fight('x'), foes=[monster(7, (9.0, 9.0), SUPER_UNIQUE_FLAG)], elsewhere=never).unit == 7
 
 
 def test_a_valuable_beside_the_character_comes_before_the_routes_goal() -> None:
     drop = Drop(55, 4.0, 3.0, 'Ring', VALUABLE)
-    found = named(stage=use('Vizier seal 1'), card=card('Vizier seal 1', (10.0, 20.0), use_=396), drop=drop)
+    found = goal_named(stage=use('Vizier seal 1'), card=card('Vizier seal 1', (10.0, 20.0), use_=396), drop=drop)
     assert (found.do, found.place, found.unit) == (PICK_UP, (4.0, 3.0), 55)
     assert 'Ring' in found.label
 
 
 def test_without_a_stage_the_goal_is_the_cards_first_mark() -> None:
-    assert named(card=card('a room', (4.0, 4.0), kind='explore')).do == REACH
-    assert named(card=card('the chest', (4.0, 4.0), use_=5)).do == USE
-    assert named(card=card('the stairs', (4.0, 4.0), warp=True)).do == ENTER
+    assert goal_named(card=card('a room', (4.0, 4.0), kind='explore')).do == REACH
+    assert goal_named(card=card('the chest', (4.0, 4.0), use_=5)).do == USE
+    assert goal_named(card=card('the stairs', (4.0, 4.0), warp=True)).do == ENTER
     assert named() is None
 
 
 def test_a_stage_whose_mark_the_card_does_not_hold_follows_the_card_and_says_so() -> None:
-    found = named(stage=use('Vizier seal 1'), card=card('Diablo', (4.0, 4.0)))
+    found = goal_named(stage=use('Vizier seal 1'), card=card('Diablo', (4.0, 4.0)))
     assert (found.do, found.place) == (REACH, (20.0, 20.0))
     assert 'Vizier seal 1 is not marked yet' in found.label
 
 
 def test_the_loot_and_the_leaving_are_the_routes_own_step() -> None:
     for stage in (loot(), leave()):
-        found = named(stage=stage, card=card('Diablo', (4.0, 4.0)))
+        found = goal_named(stage=stage, card=card('Diablo', (4.0, 4.0)))
         assert found.do in (LOOT, LEAVE)
         assert found.do not in PURSUED
 
@@ -361,12 +368,18 @@ def standing(
     return MoveFacts(here, now, slots, staff, ground, (), 16 / 9, area=AREA, rooms=rooms)
 
 
+def ways(found: MoveFacts) -> movement.Ways:
+    """The set the navigator gives for `found`: one of the shared sets, which also measure what is left."""
+    movement_ = navigator(SETS, found)
+    assert isinstance(movement_, movement.Ways)
+    return movement_
+
+
 def walk_it(found: MoveFacts, goal: Point, intent: Intent, most: int = 40) -> list[tuple[Point, int | None, float]]:
     """The moves the set gives from `found` to the goal, each made as it is given: (from, by, eta before)."""
     made = []
     for _ in range(most):
-        movement_ = navigator(SETS, found)
-        assert movement_ is not None
+        movement_ = ways(found)
         leg = movement_.leg(found, goal, intent)
         if isinstance(leg, NoWay):
             assert leg.arrived, leg.reason
@@ -408,7 +421,7 @@ def test_with_the_staff_empty_the_set_goes_by_the_walked_way_out_of_the_pocket()
 
 def test_a_walker_goes_the_same_way_and_a_character_that_teleports_by_itself_hops() -> None:
     walked = walk_it(standing(IN_POCKET, charges=None, slots=(SPARE,)), BEHIND, PRESSED)
-    assert navigator(SETS, standing(IN_POCKET, charges=None, slots=(SPARE,))).name == 'walk'
+    assert ways(standing(IN_POCKET, charges=None, slots=(SPARE,))).name == 'walk'
     assert max(here[0] for here, _, _ in walked) > ORIGIN + 70
     own = walk_it(standing(IN_POCKET, charges=None), BEHIND, PRESSED)
     assert {by for _, by, _ in own} == {TELEPORT}
@@ -424,10 +437,10 @@ def test_the_modes_own_move_spends_no_charge_under_its_reserve_and_swaps_no_weap
 def test_few_charges_are_spared_where_a_free_jump_still_shortens_the_way_of_hops() -> None:
     open_start = (ORIGIN + 10.5, ORIGIN + 10.5)  # open ground between it and the goal's side
     goal = (ORIGIN + 10.5, ORIGIN + 80.5)
-    spared = navigator(SETS, standing(open_start, charges=5)).leg(standing(open_start, charges=5), goal, PRESSED)
+    spared = ways(standing(open_start, charges=5)).leg(standing(open_start, charges=5), goal, PRESSED)
     assert isinstance(spared, Step)
     assert spared.skill == SPARE
-    walled = navigator(SETS, standing(IN_POCKET, charges=5)).leg(standing(IN_POCKET, charges=5), BEHIND, PRESSED)
+    walled = ways(standing(IN_POCKET, charges=5)).leg(standing(IN_POCKET, charges=5), BEHIND, PRESSED)
     assert isinstance(walled, Step)
     assert walled.skill == TELEPORT  # a wall in the free jump's line: the charge is still spent
 
@@ -456,8 +469,7 @@ def test_eta_is_infinite_exactly_where_the_set_has_no_way_and_a_move_always_shor
         if ground.walkable(*here) is not True:
             continue
         found = standing(here, **given)
-        movement_ = navigator(SETS, found)
-        assert movement_ is not None
+        movement_ = ways(found)
         leg, eta = movement_.leg(found, BEHIND, intent), movement_.eta(found, BEHIND, intent)
         if isinstance(leg, NoWay):
             assert eta == (0.0 if leg.arrived else math.inf), (here, leg)
@@ -470,10 +482,10 @@ def test_eta_is_infinite_exactly_where_the_set_has_no_way_and_a_move_always_shor
 def test_a_goal_no_walked_way_leads_to_is_said() -> None:
     inside_wall = (ORIGIN + 150.5, ORIGIN + 50.5)  # off the ground that was read
     found = standing(IN_POCKET, charges=0)
-    leg = navigator(SETS, found).leg(found, inside_wall, PRESSED)
+    leg = ways(found).leg(found, inside_wall, PRESSED)
     assert isinstance(leg, NoWay)
     assert not leg.arrived
-    assert navigator(SETS, found).eta(found, inside_wall, PRESSED) == math.inf
+    assert ways(found).eta(found, inside_wall, PRESSED) == math.inf
 
 
 def test_on_open_ground_the_way_is_the_straight_stride() -> None:
@@ -488,7 +500,7 @@ def test_on_open_ground_the_way_is_the_straight_stride() -> None:
 def test_a_casting_delay_is_waited_out_only_for_a_jump_the_way_would_take() -> None:
     mouth = (ORIGIN + 80.5, ORIGIN + 50.5)  # open ground north of it: the next move is a jump
     found = replace(standing(mouth, charges=0), last_used={SPARE: 99.4})
-    movement_ = navigator(SETS, found)
+    movement_ = ways(found)
     assert movement_.wait(found, BEHIND, PRESSED) == pytest.approx(0.4)
     assert movement_.wait(replace(found, last_used={SPARE: 90.0}), BEHIND, PRESSED) == 0.0
     assert movement_.wait(found, BEHIND, replace(PRESSED, may_wait=False)) == 0.0

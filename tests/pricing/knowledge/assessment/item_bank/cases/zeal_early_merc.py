@@ -4,7 +4,7 @@ from dataclasses import replace
 
 from dirty_equals import Contains, IsPartialDict
 
-from tests.pricing.knowledge.assessment.item_bank.models import Case, Item
+from tests.pricing.knowledge.assessment.item_bank.models import Case, Item, known
 
 
 EXAMPLES = (
@@ -133,7 +133,7 @@ def cases():
                 if slug == 'smoke' and context.get('mercenary_type') == 'Act 5 Frenzy'
                 else f'zeal-paladin-{slug}-merc-survival-gear'
             )
-            expected = {
+            expected: dict[str, object] = {
                 'roles': Contains(
                     IsPartialDict(
                         id=role,
@@ -158,7 +158,7 @@ def cases():
                     covers=(role,),
                     scenario=scenario,
                     absent_configurations=() if scenario == 'positive' else (role + '-stats',),
-                    report_contains=(candidate.name,),
+                    report_contains=(known(candidate.name),),
                     evidence=(
                         'pricing/data/appraisal-guide-sections.json:/sources/'
                         f'pricing~1raw~1mr~1guides__zeal-paladin.html/item_spans/{span}',

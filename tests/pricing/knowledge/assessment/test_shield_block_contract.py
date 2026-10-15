@@ -1,5 +1,6 @@
 """Shield comparisons use added blocking, never the native shield total."""
 
+from collections.abc import Mapping
 from dataclasses import replace
 
 from pricing.knowledge.assessment.adapters.capture import normalize
@@ -24,6 +25,7 @@ def test_jmod_comparison_subtracts_only_native_base_blocking():
     facts = monarch()
     contract, gaps = AffixedHandler().contract(facts, 'shield')
     assert not gaps
+    assert contract is not None
     assert contract.properties['446'] == 20
     assert facts.properties['446'] == facts.stats['20:0']['value'] == 42
 
@@ -32,6 +34,7 @@ def test_unmodified_paladin_base_does_not_request_a_fake_blocking_bonus():
     facts = normalize(Item('Sacred Rondache', 'normal', None, ((20, 0, 28), (31, 0, 160)), complete=True).capture())
     contract, gaps = BaseHandler().contract(facts, 'shield')
     assert not gaps
+    assert contract is not None
     assert '446' not in contract.properties
 
 
@@ -58,7 +61,9 @@ def test_base_block_catalog_requires_consistent_native_evidence():
         }
 
     agreed = DefinitionCatalog('a', {}, {'one': definition(22), 'two': definition(22)}, {})
-    assert agreed.shield_base_blocks[code] == 22
+    blocks = agreed.shield_base_blocks
+    assert isinstance(blocks, Mapping)
+    assert blocks[code] == 22
     assert agreed.shield_base_blocks is agreed.shield_base_blocks
     conflict = DefinitionCatalog('b', {}, {'one': definition(22), 'two': definition(24)}, {})
     assert code not in conflict.shield_base_blocks
@@ -107,6 +112,7 @@ def test_zero_block_base_allows_absent_zero_stat_in_complete_capture():
     facts = normalize(Item('Buckler', 'normal', None, ((31, 0, 4),), complete=True).capture())
     contract, gaps = BaseHandler().contract(facts, 'shield')
     assert not gaps
+    assert contract is not None
     assert '446' not in contract.properties
 
 
@@ -118,6 +124,7 @@ def test_jmod_bonus_comparisons_reject_raw_total_and_reach_three_seller_gate():
 
     contract, gaps = AffixedHandler().contract(monarch(), 'shield')
     assert not gaps
+    assert contract is not None
     rows = [
         listing(
             str(i),
@@ -157,6 +164,7 @@ def test_named_shield_bonus_is_intrinsic_without_borrowing_native_base():
     facts = normalize(Item('Large Shield', 'set', "Civerb's Ward", ((20, 0, 27), (31, 0, 29)), complete=True).capture())
     contract, gaps = NamedHandler().contract(facts, 'shield')
     assert not gaps
+    assert contract is not None
     assert contract.properties['446'] == 15
     assert contract.intrinsic_properties['446'] == 15
     assert facts.stats['20:0']['value'] == 27
@@ -184,6 +192,7 @@ def test_named_shield_uses_actual_upgraded_base_blocking():
     facts = normalize(Item('Scutum', 'set', "Civerb's Ward", ((20, 0, 29), (31, 0, 80)), complete=True).capture())
     contract, gaps = NamedHandler().contract(facts, 'shield')
     assert not gaps
+    assert contract is not None
     assert contract.properties['446'] == contract.intrinsic_properties['446'] == 15
 
 
@@ -210,6 +219,7 @@ def test_unique_shield_keeps_fixed_block_bonus_separate_from_base():
     )
     contract, gaps = NamedHandler().contract(facts, 'shield')
     assert not gaps
+    assert contract is not None
     assert contract.properties['446'] == contract.intrinsic_properties['446'] == 30
     assert facts.stats['20:0']['value'] == 40
 
@@ -246,6 +256,7 @@ def test_variable_named_block_roll_is_projected_without_becoming_intrinsic():
             assert any('20:0' in gap and '20-30' in gap for gap in gaps)
             continue
         assert not gaps
+        assert contract is not None
         assert contract.properties['446'] == bonus
         assert '446' not in contract.intrinsic_properties
         assert facts.stats['20:0']['value'] == 24 + bonus

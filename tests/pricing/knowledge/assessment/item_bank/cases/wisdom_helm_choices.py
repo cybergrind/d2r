@@ -66,7 +66,7 @@ def cases():
                 ('wrong-family', replace(item, base='Mage Plate'), context, 'false'),
             ):
                 active = truth == 'true'
-                expected = {}
+                expected: dict[str, object] = {}
                 if label not in ('empty', 'wrong-recipe', 'unidentified', 'wrong-family'):
                     expected['roles'] = Contains(
                         IsPartialDict(

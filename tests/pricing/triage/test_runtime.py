@@ -1,8 +1,10 @@
 import json
+from typing import Any
 
 from pricing.triage.engine import Tables
 from pricing.triage.runtime import retrieve
 from tests.inventory_tracking.appraisal.test_text import saved_result
+from tests.pricing.knowledge.reports import present
 
 
 def test_fast_retrieval_does_not_call_detail_assessment(monkeypatch):
@@ -20,11 +22,11 @@ def test_table_reload_changes_threshold_without_publication(tmp_path):
     for name, value in [('bands', {'bands': []}), ('rules', {'keep_ist': 0.25, 'rows': []}), ('own', {'rows': []})]:
         (tmp_path / f'{name}.json').write_text(json.dumps(value))
     tables = Tables(tmp_path)
-    original = tables.load()
+    original = present(tables.load())
     assert tables.load() is original
     rule = {'category': 'base', 'name': 'Example', 'premium': True}
     (tmp_path / 'rules.json').write_text(json.dumps({'keep_ist': 12.5, 'rows': [rule]}))
-    assert tables.load()['rules']['keep_ist'] == 12.5
+    assert present(tables.load())['rules']['keep_ist'] == 12.5
     assert original['rules']['keep_ist'] == 0.25
     from pricing.triage.engine import assess
 
@@ -97,7 +99,7 @@ def test_quest_material_uses_fast_path_without_legacy_assessment(monkeypatch):
         'decoded_stats': [],
     }
     monkeypatch.setattr('inventory_tracking.appraisal.memory_backend.memory_evidence', forbidden)
-    result = runtime.guarded_retrieve(observation, None)
+    result: dict[str, Any] = runtime.guarded_retrieve(observation, None)
     assert result['triage']['band']['name'] == "Talic's Anguish"
     assert result['triage']['decision_ist'] is not None
 
@@ -143,7 +145,7 @@ def test_own_use_update_does_not_reload_price_tables(tmp_path, monkeypatch):
     for name, value in [('bands', {'bands': []}), ('rules', {'keep_ist': 0.25, 'rows': []}), ('own', {'rows': []})]:
         (tmp_path / f'{name}.json').write_text(json.dumps(value))
     tables = Tables(tmp_path)
-    original = tables.load()
+    original = present(tables.load())
     read_text = Path.read_text
     reads = []
 
@@ -160,7 +162,7 @@ def test_own_use_update_does_not_reload_price_tables(tmp_path, monkeypatch):
     assert tables.data is original
     own = {'rows': [{'category': 'uniques', 'name': 'Example', 'label': 'Personal alternative'}]}
     path.write_text(json.dumps(own))
-    updated = tables.load()
+    updated = present(tables.load())
     assert updated['own'] == own
     assert original['own'] == {'rows': []}
     assert updated['bands'] is original['bands']
@@ -188,7 +190,7 @@ def test_rule_reload_reuses_bands_but_rebuilds_sale_lots(tmp_path, monkeypatch):
     for name, value in [('bands', {'bands': [band]}), ('rules', {'keep_ist': 0.25, 'rows': []}), ('own', {'rows': []})]:
         (tmp_path / f'{name}.json').write_text(json.dumps(value))
     tables = Tables(tmp_path)
-    original = tables.load()
+    original = present(tables.load())
     assert original['commodity_lots']
     read_text = Path.read_text
 
@@ -204,7 +206,7 @@ def test_rule_reload_reuses_bands_but_rebuilds_sale_lots(tmp_path, monkeypatch):
         tables.load()
     assert tables.data is original
     (tmp_path / 'own.json').write_text(json.dumps({'rows': [], 'reviewed_at': '2026-10-06'}))
-    updated = tables.load()
+    updated = present(tables.load())
     assert updated['bands'] is original['bands']
     assert not updated['commodity_lots']
     assert original['commodity_lots']
@@ -214,7 +216,7 @@ def test_rule_reload_reuses_bands_but_rebuilds_sale_lots(tmp_path, monkeypatch):
 
     monkeypatch.setattr(Path, 'read_text', read_text)
     (tmp_path / 'bands.json').write_text(json.dumps({'bands': [band | {'q1_ist': 0.3}], 'revision': 2}))
-    refreshed = tables.load()
+    refreshed = present(tables.load())
     assert refreshed['bands'] is not updated['bands']
     assert refreshed['commodity_lots']
     assert not updated['commodity_lots']

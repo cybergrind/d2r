@@ -173,7 +173,9 @@ def test_the_cli_adds_fixed_scenes_and_keep_leaves_the_others_alone(tmp_path):
     )  # the other kinds come out byte for byte the same
     added = [name for name in both if name.endswith('-fixed')]
     assert added
-    assert all(scene.source['take'] == RECORDING for scene in (both[name] for name in added))
+    assert all(
+        scene.source is not None and scene.source['take'] == RECORDING for scene in (both[name] for name in added)
+    )
     assert not set(added) & {name.rsplit('-', 1)[0] + '-fixed' for name in plain}  # a frame is cut once
     # --keep adds only the fixed ones to a directory and leaves its files as they are.
     assert main(['--root', str(root), '--probe', str(probe), '--out', str(out), '--fixed', '3', '--keep']) == 0

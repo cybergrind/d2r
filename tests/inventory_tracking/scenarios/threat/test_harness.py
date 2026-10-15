@@ -48,7 +48,7 @@ def test_today_is_the_line_the_games_policy_picks_over_the_memory_records():
 
 
 def test_a_ranged_monster_hurts_from_where_it_stands_and_a_melee_one_only_in_contact():
-    still = lambda view: None  # noqa: E731
+    still = lambda view: None  # ruff: ignore[lambda-assignment]
     gloam = run(Scene('gloam', 77, [hostile(1, GLOAM, 20.0, 0.0)]), still, TICKS)
     assert gloam.taken == pytest.approx(1.9 * 0.25 * 5.0 * base_damage(TERROR_LEVEL))  # a second of its rate
     cow = run(Scene('cow', 39, [hostile(1, HELL_BOVINE, 14.0, 0.0)]), still, 4 * TICKS)

@@ -182,7 +182,7 @@ def test_a_death_marked_monster_takes_the_marks_flat_points_on_each_hit_until_th
     merc = CompanionTrack(9, 338, dict.fromkeys(range(61), (5000.0, 5000.0)))
     sit = situation(marked, companions=[merc])
     sit.marks = [(10, 1)]
-    kept = dict(companions={338: (6.0, 100.0)}, link=NO_LINK, explosion=NO_BLAST)
+    kept = {'companions': {338: (6.0, 100.0)}, 'link': NO_LINK, 'explosion': NO_BLAST}
     unmarked = simulate(sit, [(20, (5004.0, 5000.0))], lambda txt: 500.0, mark=(31.0, 0), **kept)
     outcome = simulate(sit, [(20, (5004.0, 5000.0))], lambda txt: 500.0, mark=(31.0, 1000), **kept)
     assert outcome.contacts == unmarked.contacts > 0

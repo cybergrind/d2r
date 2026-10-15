@@ -15,9 +15,9 @@ def test_demon_limb_prebuff_roles_require_available_enchant_and_correct_player()
         'demon-limb-zeal-footnote-swap': 'Paladin',
     }
     assert {p['id'] for p in profiles} == set(expected_classes)
+    item = facts('Tyrant Club', 'unique', 'Demon Limb')
     for profile in profiles:
         player_class = expected_classes[profile['id']]
-        item = facts('Tyrant Club', 'unique', 'Demon Limb')
         context = {'player_class': player_class, 'player_items': []}
         for remaining, status in [(0, 'false'), (1, 'true')]:
             charged = replace(

@@ -18,6 +18,7 @@ def test_cached_runtime_survives_bad_pointer_without_reloading_artifacts(tmp_pat
     bundle = publish(DEFAULT_DATABASE, repository=ROOT, store=tmp_path, extra_paths=runtime_inputs())
     repository = PublicationRepository(tmp_path)
     first = repository.load()
+    assert first.runtime is not None
     assert first.runtime.generation == bundle.generation
     assert not first.issues
 

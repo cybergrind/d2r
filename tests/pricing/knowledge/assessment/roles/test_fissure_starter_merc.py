@@ -5,6 +5,7 @@ import pytest
 from pricing.knowledge.assessment.build_profiles import build
 from pricing.knowledge.assessment.profiles import assess_roles
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
+from tests.pricing.knowledge.reports import reports
 
 
 @pytest.mark.parametrize(
@@ -25,7 +26,7 @@ def test_starter_merc_alternatives_preserve_stage_and_completed_recipe(slug, nam
     if sockets:
         item = replace(item, runeword=name, sockets=sockets, socket_contents='filled')
     context = {'player_class': 'Druid'}
-    role = assess_roles(item, [rule], context)[0]
+    role = reports(assess_roles(item, [rule], context))[0]
     assert role['side'] == 'merc'
     assert rule['variant'] == 'Starter'
     assert rule['slot'] == slot
@@ -33,11 +34,11 @@ def test_starter_merc_alternatives_preserve_stage_and_completed_recipe(slug, nam
     assert role['status'] == 'partial'
     assert any('early' in c.lower() for c in role['missing'])
     assert 'price' not in role
-    assert assess_roles(replace(item, ethereal=True), [rule], context)[0]['rule_trace']['truth'] == 'true'
+    assert reports(assess_roles(replace(item, ethereal=True), [rule], context))[0]['rule_trace']['truth'] == 'true'
     assert assess_roles(item, [rule], {'player_class': 'Sorceress'})[0]['status'] == 'failed'
     assert not assess_roles(replace(item, name='Unrelated item'), [rule], context)
     if sockets:
-        unknown = assess_roles(replace(item, runeword=None), [rule], context)[0]
+        unknown = reports(assess_roles(replace(item, runeword=None), [rule], context))[0]
         assert unknown['rule_trace']['truth'] == 'unknown'
         for unmade in (replace(item, runeword='Other recipe'), replace(item, socket_contents='empty')):
             assert assess_roles(unmade, [rule], context)[0]['status'] == 'failed'

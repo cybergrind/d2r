@@ -102,7 +102,7 @@ def cases():
                 scenarios.append(('two-handed', replace(item, base='Legend Sword'), context, 'false'))
             for label, candidate, loadout, truth in scenarios:
                 active = truth == 'true'
-                expected = {}
+                expected: dict[str, object] = {}
                 if label != 'wrong-family':
                     expected['roles'] = Contains(
                         IsPartialDict(

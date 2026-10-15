@@ -8,7 +8,7 @@ from tests.pricing.knowledge.assessment.item_bank.models import Case, Item
 
 
 def emit(role, label, item, context, truth, keys):
-    expected = {'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))}
+    expected: dict[str, object] = {'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))}
     if truth == 'true':
         expected['stat_evaluation'] = IsPartialDict(
             annotations=IsPartialDict({key: IsPartialDict(configuration_ids=Contains(role + '-stats')) for key in keys})

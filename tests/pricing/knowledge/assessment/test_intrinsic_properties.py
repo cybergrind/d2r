@@ -38,6 +38,7 @@ def listing(contract, properties):
 def test_fixed_recipe_bonus_may_be_omitted_but_never_contradicted():
     contract, gaps = RunewordHandler().contract(spirit(), 'weapon')
     assert not gaps
+    assert contract is not None
     data = contract.to_dict()
     assert data['intrinsic_properties'] == {'587': 2}
     properties = {'520': 35, '400': 112, '818': 8}
@@ -53,4 +54,5 @@ def test_augmented_or_unmapped_totals_are_not_intrinsic_recipe_bonuses():
     contract, _ = RunewordHandler().contract(
         replace(item, stats=stats, properties={**item.properties, '587': 3}), 'weapon'
     )
+    assert contract is not None
     assert contract.intrinsic_properties == {}

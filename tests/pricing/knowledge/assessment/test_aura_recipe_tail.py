@@ -6,6 +6,7 @@ from pricing.knowledge.assessment.build_profiles import build
 from pricing.knowledge.assessment.profiles import assess_role_results, assess_roles
 from pricing.knowledge.assessment.stat_bundle import configuration_from_row
 from pricing.knowledge.assessment.stat_evaluation import StatsEvaluator
+from tests.pricing.knowledge.assessment.fact_changes import fact_changes
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
 
 
@@ -136,7 +137,7 @@ def test_aura_recipes_keep_slot_effects_and_repair_distinct(name, count):
             assert not evaluate(
                 replace(item, ethereal=True, stats={k: v for k, v in item.stats.items() if k != '252:0'})
             ).annotations
-        for patch in (
+        for patch in fact_changes(
             {'runeword': None},
             {'sockets': n - 1},
             {'base_code': facts('Cap').base_code},

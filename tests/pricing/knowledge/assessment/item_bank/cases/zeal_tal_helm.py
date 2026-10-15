@@ -33,7 +33,7 @@ def cases():
         ('unknown', 'unknown-class', HELM, {}),
         ('unknown', 'unknown-sockets', replace(HELM, sockets=None), {'player_class': 'Paladin'}),
     ):
-        expected = {
+        expected: dict[str, object] = {
             'roles': Contains(
                 IsPartialDict(
                     id=ROLE,

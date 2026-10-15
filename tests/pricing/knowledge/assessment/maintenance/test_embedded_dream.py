@@ -4,6 +4,7 @@ import hashlib
 import json
 from copy import deepcopy
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -15,7 +16,7 @@ from pricing.knowledge.assessment.maintenance.guide_inventory import fingerprint
 ROOT = Path(__file__).resolve().parents[5]
 
 
-def inputs(span):
+def inputs(span) -> tuple[dict[str, Any], list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]]]:
     inventory = json.loads((ROOT / 'pricing/data/appraisal-guide-inventory.json').read_text())
     bundle = json.loads((ROOT / 'pricing/data/appraisal-build-profiles.json').read_text())
     path = 'pricing/raw/mr/guides__dream-paladin.html'

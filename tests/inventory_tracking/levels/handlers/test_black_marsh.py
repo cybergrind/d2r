@@ -4,13 +4,12 @@ and 'preset 0' (generated terrain)."""
 
 from inventory_tracking.levels.model import LevelSnapshot, Location, Room
 from inventory_tracking.levels.presets import preset_name
-from inventory_tracking.levels.registry import handler_for
-from tests.inventory_tracking.levels.fixtures import replay
+from tests.inventory_tracking.levels.fixtures import handler_of, replay
 
 
 def test_tower_entrance_is_found_in_the_outdoor_room_list():
     snapshot = replay('black_marsh')
-    handler = handler_for(6)
+    handler = handler_of(6)
 
     guidance = handler.guide(snapshot)
 
@@ -29,7 +28,7 @@ def test_black_marsh_names_its_gaps_once_they_are_seen():
         Room(6, 80, 0, 8, 8, 3),  # Tamoe Highland by elimination
         Room(163, 40, 40, 8, 8),
     )
-    guidance = handler_for(6).guide(LevelSnapshot(Location(6, 0, 4, 4), rooms))
+    guidance = handler_of(6).guide(LevelSnapshot(Location(6, 0, 4, 4), rooms))
 
     assert [(p.label, p.kind) for p in guidance.pois] == [
         ('Forgotten Tower', 'stairs'),

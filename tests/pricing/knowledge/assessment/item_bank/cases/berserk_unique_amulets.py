@@ -84,7 +84,9 @@ def cases():
                 ('level-99', replace(item, viewer_level=99), context, 'true'),
             ]
         for label, candidate, loadout, truth in rows:
-            expected = {'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))}
+            expected: dict[str, object] = {
+                'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))
+            }
             impossible = label in ('invalid-sockets', 'invalid-ethereal')
             if impossible:
                 expected['trade_tier'] = IsPartialDict(status='pending_review', tier=None)

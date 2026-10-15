@@ -2,6 +2,7 @@
 
 import struct
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -41,7 +42,7 @@ def test_ordinary_bane_ash_retains_its_enhanced_damage_range(monkeypatch, bane):
     install(monkeypatch, bane)
     identity = resolve_identity({'quality': 7}, capture({93: 20}), {'code': bane['base_code']})
     assert identity['definition_variant'] == 'ordinary'
-    row = {
+    row: dict[str, Any] = {
         'status': 'decoded',
         'value': 55,
         'memory_stat': {'id': 17, 'layer': 0},

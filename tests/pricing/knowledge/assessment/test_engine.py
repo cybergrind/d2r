@@ -99,6 +99,8 @@ def test_unknown_skill_identity_is_not_an_executable_profile():
     from pricing.knowledge.assessment.profiles import load_profiles, validate_profiles
 
     profiles = deepcopy(load_profiles()[0])
+    assert isinstance(profiles, list)
+    assert isinstance(profiles[0], dict)
     profiles[0]['required_any_stats'] = ['107:999999']
     with pytest.raises(ValueError, match='Unknown skill'):
         validate_profiles(profiles)

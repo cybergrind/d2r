@@ -6,7 +6,7 @@ from itertools import product
 from dirty_equals import IsPartialDict
 
 from tests.pricing.knowledge.assessment.item_bank.cases.zeal_unique_charms import TORCH_FIXED
-from tests.pricing.knowledge.assessment.item_bank.models import Case, Item
+from tests.pricing.knowledge.assessment.item_bank.models import Case, Item, ItemChanges, with_stat_value
 
 
 ROLL_KEYS = (0, 1, 2, 3, 39, 41, 43, 45)
@@ -52,11 +52,9 @@ def cases():
     maximum = torch(0, 20, 20)
     for stat in ROLL_KEYS:
         for value in (None, 9, 10, 21):
-            raw = tuple(
-                (s, p, value if s == stat else v) for s, p, v in maximum.raw_stats if s != stat or value is not None
-            )
+            raw = with_stat_value(maximum.raw_stats, {stat}, value)
             yield case(f'stat-{stat}-{value}', replace(maximum, raw_stats=raw), 'unresolved')
-    for label, changes in (
+    overrides: tuple[tuple[str, ItemChanges], ...] = (
         ('unidentified', {'identified': False}),
         ('ethereal', {'ethereal': True}),
         ('unknown-ethereal', {'ethereal': None}),
@@ -64,7 +62,8 @@ def cases():
         ('unknown-sockets', {'sockets': None}),
         ('unknown-contents', {'socket_contents': 'unknown'}),
         ('incomplete-capture', {'complete': False}),
-    ):
+    )
+    for label, changes in overrides:
         yield case(label, replace(maximum, **changes), 'unresolved')
     for label, raw in (
         ('missing-class', maximum.raw_stats[1:]),

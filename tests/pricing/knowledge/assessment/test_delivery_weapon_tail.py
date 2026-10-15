@@ -1,4 +1,5 @@
 from dataclasses import replace
+from typing import Any
 
 import pytest
 
@@ -6,6 +7,7 @@ from pricing.knowledge.assessment.build_profiles import build
 from pricing.knowledge.assessment.profiles import assess_role_results, assess_roles
 from pricing.knowledge.assessment.stat_bundle import configuration_from_row
 from pricing.knowledge.assessment.stat_evaluation import StatsEvaluator
+from tests.pricing.knowledge.assessment.fact_changes import fact_changes
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
 
 
@@ -85,6 +87,7 @@ def test_delivery_modes_reject_irrelevant_damage_and_preserve_source_preparation
         item = replace(item, sockets=1, socket_contents='filled', filled_sockets=1, empty_sockets=0)
     if name == "Heaven's Light":
         item = replace(item, sockets=2, socket_contents='filled', filled_sockets=2, empty_sockets=0)
+    child: dict[str, Any] = {}
     if variant == 'Holy Bolt Support':
         keys = ('99:0', '39:0', '41:0', '43:0', '45:0', '114:0')
         child = {
@@ -143,5 +146,5 @@ def test_delivery_modes_reject_irrelevant_damage_and_preserve_source_preparation
         assert not evaluate(replace(item, ethereal=False)).annotations
     elif name != 'Hand of Blessed Light':
         assert not evaluate(replace(item, ethereal=True)).annotations
-    for patch in ({'base_code': facts('Cap').base_code}, {'rarity': 'rare'}):
+    for patch in fact_changes({'base_code': facts('Cap').base_code}, {'rarity': 'rare'}):
         assert not evaluate(replace(item, **patch)).annotations

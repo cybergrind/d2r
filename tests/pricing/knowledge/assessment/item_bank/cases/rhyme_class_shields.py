@@ -100,7 +100,9 @@ def cases():
             examples.append(('45-inherent-plus-25-recipe', replace(item, raw_stats=total), context, 'true'))
         for label, candidate, ctx, truth in examples:
             config = role + '-stats'
-            expected = {'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))}
+            expected: dict[str, object] = {
+                'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))
+            }
             if label in ('wrong-base', 'empty-preparation-base'):
                 expected['roles'] = ~Contains(IsPartialDict(id=role))
             if truth == 'true':

@@ -45,7 +45,9 @@ def test_changed_native_defense_effect_requires_review():
     definition = catalog().named_variants['set', "Aldur's Advance"][0]
     variants = [{**definition, 'game_definition': {**definition['game_definition'], 'prop8': 'ac%'}}]
     row = aldur_listing('Elite', 59)
-    assert 'review' in defense_conflict(row, variants)
+    conflict = defense_conflict(row, variants)
+    assert conflict is not None
+    assert 'review' in conflict
 
 
 def test_defense_check_does_not_treat_set_totals_as_intrinsic_upper_bounds():

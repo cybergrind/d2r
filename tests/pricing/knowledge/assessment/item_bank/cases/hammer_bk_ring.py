@@ -4,7 +4,7 @@ from dataclasses import replace
 
 from dirty_equals import Contains, IsPartialDict
 
-from tests.pricing.knowledge.assessment.item_bank.models import Case, Item
+from tests.pricing.knowledge.assessment.item_bank.models import Case, Item, known
 
 
 ROLE = 'blessed-hammer-paladin-bk-ring-rings-utility-alternative'
@@ -35,7 +35,7 @@ def cases(build='blessed-hammer-paladin', player_class='Paladin', prefix='hammer
         ('unidentified', replace(ITEM, identified=False), context, 'false'),
     ):
         config = role + '-stats'
-        expected = {'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))}
+        expected: dict[str, object] = {'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))}
         if truth == 'true':
             expected['stat_evaluation'] = IsPartialDict(
                 annotations=IsPartialDict(
@@ -51,7 +51,7 @@ def cases(build='blessed-hammer-paladin', player_class='Paladin', prefix='hammer
             scenario={'true': 'positive', 'false': 'negative', 'unknown': 'unknown'}[truth],
             absent_configurations=() if truth == 'true' else (config,),
             absent_stat_configurations={'60:0': (config,)},
-            report_contains=(ITEM.name, 'Trade tier:') if truth == 'true' else ('Ring',),
+            report_contains=(known(ITEM.name), 'Trade tier:') if truth == 'true' else ('Ring',),
             evidence=(
                 f'pricing/data/wp-a-builds.json:/{build}/slots/Rings/{source_index}',
                 'third-parties/d2data/json/uniqueitems.json:/268',

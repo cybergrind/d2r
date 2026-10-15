@@ -5,6 +5,7 @@ from pathlib import Path
 import pytest
 
 from pricing.knowledge.definitions import build_definitions
+from tests.pricing.knowledge.reports import present
 
 
 @pytest.fixture(scope='module')
@@ -65,4 +66,4 @@ def test_recognized_ladder_identity_stays_out_of_pricing_after_partial_projectio
         definition, gaps = resolve_named_definition(item)
         assert definition is None
         assert any('Ladder-only' in gap for gap in gaps)
-        assert resolve_named_definition(item, identity_only=True)[0]['table_id'] == 121
+        assert present(resolve_named_definition(item, identity_only=True)[0])['table_id'] == 121

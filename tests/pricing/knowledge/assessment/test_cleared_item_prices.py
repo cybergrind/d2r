@@ -1,4 +1,5 @@
 from dataclasses import replace
+from typing import Any
 
 import pytest
 
@@ -59,13 +60,16 @@ def test_saved_um_shako_prices_empty_outcome_without_changing_filled_price(tmp_p
     extraction = replay('harlequin_crest')['extraction']
     result = assess_result(extraction)
     clear = next(r for r in result.comparison_requests if r.preparation)
+    assert clear.preparation is not None
+    assert result.contract is not None
     assert clear.preparation['destroyed_items'] == ('Um Rune',)
     for prop in ('427', '428', '426', '401'):
         assert result.contract.properties[prop] == 15
         assert prop not in clear.contract['properties']
+    request: dict[str, Any] = clear.to_dict()
     rows = [
         {
-            **clear.to_dict()['contract'],
+            **request['contract'],
             'kind': 'market',
             'scope_status': 'verified',
             'evidence_kind': 'ask',

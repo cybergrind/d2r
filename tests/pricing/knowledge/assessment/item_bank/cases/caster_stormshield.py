@@ -4,7 +4,7 @@ from dataclasses import replace
 
 from dirty_equals import Contains, IsPartialDict
 
-from tests.pricing.knowledge.assessment.item_bank.models import Case, Item, SocketItem
+from tests.pricing.knowledge.assessment.item_bank.models import Case, Item, SocketItem, known
 
 
 BUILDS = ('fire-wall-sorceress-guide', 'frozen-orb-meteor-sorceress', 'frozen-orb-sorceress', 'hydra-sorceress')
@@ -80,7 +80,7 @@ def cases():
     for label, item, loadout, truth in rows:
         captured = {f'{s}:{p}' for s, p, _ in item.raw_stats}
         active = truth == 'true'
-        expected = {
+        expected: dict[str, object] = {
             'roles': Contains(*(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)) for role in ROLES))
         }
         if active:
@@ -120,7 +120,7 @@ def cases():
             report_contains=(('Stormshield',) if item.identified else ())
             + (('Sockets: 1 — Shael',) if label == 'shael-socket' else ())
             + (
-                (f'+{30 * item.viewer_level // 8} Defense (Based on Character Level)',)
+                (f'+{30 * known(item.viewer_level) // 8} Defense (Based on Character Level)',)
                 if item.identified and '214:0' in captured
                 else ()
             ),

@@ -10,8 +10,7 @@ the other 16x16 blocks (variants 0 and 2) have no fire.
 from inventory_tracking.levels.geometry import pointer
 from inventory_tracking.levels.model import LevelSnapshot, Location, Room
 from inventory_tracking.levels.presets import preset_name
-from inventory_tracking.levels.registry import handler_for
-from tests.inventory_tracking.levels.fixtures import replay
+from tests.inventory_tracking.levels.fixtures import handler_of, replay
 
 
 SLUMS_16X16 = 618
@@ -29,7 +28,7 @@ def camp(x, y, variant):
 
 def test_the_real_camp_is_found_and_the_player_stands_in_it():
     snapshot = replay('lower_kurast_camp')
-    handler = handler_for(79)
+    handler = handler_of(79)
 
     guidance = handler.guide(snapshot)
 
@@ -43,14 +42,14 @@ def test_the_real_camp_is_found_and_the_player_stands_in_it():
 
 def test_every_camp_is_marked_and_other_variants_are_not():
     rooms = camp(0, 0, 1) + camp(16, 0, 0) + camp(32, 0, 2) + camp(48, 0, 1) + EXITS
-    guidance = handler_for(79).guide(LevelSnapshot(Location(79, 0, 5, 5), rooms))
+    guidance = handler_of(79).guide(LevelSnapshot(Location(79, 0, 5, 5), rooms))
 
     assert [(p.label, p.room.x) for p in camps(guidance)] == [('Super chests', 0), ('Super chests', 48)]
     assert guidance.problems == ()
 
 
 def test_a_level_without_a_camp_is_quiet():
-    guidance = handler_for(79).guide(LevelSnapshot(Location(79, 0, 5, 5), camp(0, 0, 0) + EXITS))
+    guidance = handler_of(79).guide(LevelSnapshot(Location(79, 0, 5, 5), camp(0, 0, 0) + EXITS))
 
     assert camps(guidance) == []
     assert guidance.problems == ()
@@ -60,7 +59,7 @@ def test_a_second_game_finds_its_camp_elsewhere():
     # Evidence 20260930T125427 from another game; the user confirmed the mark in game.
     snapshot = replay('lower_kurast_game2')
 
-    guidance = handler_for(79).guide(snapshot)
+    guidance = handler_of(79).guide(snapshot)
 
     assert [(p.room.x, p.room.y, p.room.variant) for p in camps(guidance)] == [(1016, 560, 1)]
     assert guidance.problems == ()

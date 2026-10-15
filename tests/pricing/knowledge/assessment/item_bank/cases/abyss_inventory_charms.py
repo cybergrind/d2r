@@ -5,7 +5,7 @@ from dataclasses import replace
 from dirty_equals import Contains, IsPartialDict
 
 from tests.pricing.knowledge.assessment.item_bank.cases.abyss_unique_charms import EXAMPLES
-from tests.pricing.knowledge.assessment.item_bank.models import Case
+from tests.pricing.knowledge.assessment.item_bank.models import Case, known
 
 
 def cases(
@@ -129,7 +129,7 @@ def cases(
                 ),
             ]
         for label, candidate, loadout, truth, scenario, expected_keys in rows:
-            expected = {
+            expected: dict[str, object] = {
                 'roles': Contains(*[IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)) for role in roles])
             }
             if expected_keys:
@@ -150,7 +150,7 @@ def cases(
                     **dict.fromkeys(('198:12618', '204:3998', '89:0'), configs),
                     **({'87:0': configs} if label == 'discount-unread' else {}),
                 },
-                report_contains=(candidate.name, 'Trade tier:') if scenario == 'positive' else (candidate.base,),
+                report_contains=(known(candidate.name), 'Trade tier:') if scenario == 'positive' else (candidate.base,),
                 evidence=('pricing/data/wp-a-builds.json', 'third-parties/d2data/json/uniqueitems.json'),
             )
 

@@ -20,11 +20,12 @@ import pytest
 
 from inventory_tracking.levels.model import Ground
 from inventory_tracking.macros.actuator import Abort, Actuator, Flipped
+from inventory_tracking.macros.build import NoWay
 from inventory_tracking.macros.goals import PLACE_NEAR, REACH, Goal
-from inventory_tracking.macros.pursuit import FULL, NONE, PAUSED, SETTLE, Hold, Pursuit, decide, settled
+from inventory_tracking.macros.pursuit import FULL, NONE, PAUSED, SETTLE, Ended, Hold, Move, Pursuit, decide, settled
 from inventory_tracking.macros.travel import PRESSED
 from inventory_tracking.models import InputMode
-from tests.inventory_tracking.macros.test_hunt import foe, game, hunter, keys
+from tests.inventory_tracking.macros.test_hunt import foe, game, hunter, keys, me
 from tests.inventory_tracking.macros.test_level_run import STEP, Level, facts, unasked
 
 
@@ -45,7 +46,7 @@ def running(play, *, goal: Goal = MARK):
 
 
 def ground(hunt, play) -> Ground:
-    return Ground(hunt.known_level(play.world.player).ground)
+    return Ground(hunt.known_level(me(play.world)).ground)
 
 
 # -- the pause, pure ----------------------------------------------------------------------------------------
@@ -56,13 +57,19 @@ def test_a_paused_run_strikes_what_is_in_reach_and_makes_no_move_of_its_own() ->
     paused = Pursuit('pickup', 0.0, advance=False, leash=FULL, area=108, paused=True)
     assert paused.leashed
     assert not paused.runs  # the loop and its pricing go by `runs`: no move, no insistence of the run's
-    assert decide(facts(goal, way=unasked), paused).reason == PAUSED
+    waiting = decide(facts(goal, way=unasked), paused)
+    assert isinstance(waiting, NoWay)
+    assert waiting.reason == PAUSED
     assert decide(facts(goal, in_reach=True, way=unasked), paused) == Hold(goal)
     # the level left ends it all the same
-    assert decide(facts(goal, area=107, way=unasked), paused).reason == 'the level was left'
+    left = decide(facts(goal, area=107, way=unasked), paused)
+    assert isinstance(left, Ended)
+    assert left.reason == 'the level was left'
     # a fresh teleport press during the pause still asks for its goal now
     pressed = replace(paused, key='teleport', pressed_at=100.0, advance=True)
-    assert decide(facts(goal), pressed).step == STEP
+    moved = decide(facts(goal), pressed)
+    assert isinstance(moved, Move)
+    assert moved.step == STEP
 
 
 def test_the_hand_rests_settle_seconds_with_no_panel_open_before_the_run_goes_on() -> None:
@@ -77,8 +84,10 @@ def test_a_press_during_the_pause_keeps_it_a_fresh_pickup_press_ends_it_and_the_
     run = play.run()
     hunt.pause_run(run, 'a click')
     hunt.post(Pursuit('teleport', 5.0))
+    assert hunt.pursuit is not None
     assert (hunt.pursuit.leash, hunt.pursuit.paused, hunt.pursuit.area) == (FULL, True, AREA)
     hunt.post(Pursuit('pickup', 6.0, advance=False, leash=FULL))
+    assert hunt.pursuit is not None
     assert (hunt.pursuit.leash, hunt.pursuit.paused, hunt.pursuit.area) == (FULL, False, AREA)
     hunt.pause_run(run, 'a click')
     hunt.end_run(run, 'attack mode off')  # KP_3 off, Mod+X: a paused run ends too
@@ -105,7 +114,7 @@ def test_the_players_sorting_pauses_the_run_clicks_nothing_into_the_panel_and_th
         return lambda: setattr(play, 'world', replace(play.world, open_panels=names))
 
     def where():
-        placed.append((play.clock.now, play.world.player.x))
+        placed.append((play.clock.now, me(play.world).x))
 
     events = [
         (0.45, where), (1.0, panels('inventory', 'cube')), (2.9, where), (3.0, panels()), (3.0 + SETTLE - 0.1, where),
@@ -124,7 +133,7 @@ def test_the_players_sorting_pauses_the_run_clicks_nothing_into_the_panel_and_th
     # the character stood still from the click until the hand had rested: no move of the run's while paused
     still = [x for at, x in placed if at > 0.5]
     assert len(set(still)) == 1
-    assert play.world.player.x > still[0] + 5  # and the run walked on to its goal after, with no press
+    assert me(play.world).x > still[0] + 5  # and the run walked on to its goal after, with no press
     assert 'not made again: inventory, cube open' in caplog.text or 'made again' not in caplog.text
 
 
@@ -157,7 +166,7 @@ def test_a_priced_move_after_the_hand_has_let_go_of_the_mouse_makes_its_click_at
     play.keys.at, run.actuator.left_at = HAND, LEFT_AT
     hunt.pursue(run, play.world, [], ground(hunt, play), keys, in_reach=False)
     assert play.walks or play.warps, play.said  # the move's input was made (the fakes' build warps where it can)
-    assert play.world.player.x > 5010.0
+    assert me(play.world).x > 5010.0
     assert not any('the mouse was moved' in line for line in play.said)
 
 
@@ -233,7 +242,7 @@ def slow_looks(hunt, play, *, walked: float):
     def slow(run, world, *args, **kwargs):
         found = judge(run, world, *args, **kwargs)
         play.clock.now += 0.5
-        player = play.world.player
+        player = me(play.world)
         play.world = replace(play.world, player=replace(player, x=player.x + walked))
         return found
 

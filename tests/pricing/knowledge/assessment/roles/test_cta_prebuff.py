@@ -1,4 +1,5 @@
 from dataclasses import replace
+from typing import Any
 
 import pytest
 
@@ -66,6 +67,7 @@ def test_cta_prebuff_needs_native_shouts_and_actual_swap_companion(prefix, needs
         assert not evaluate(replace(item, stats={k: v for k, v in item.stats.items() if k != key})).annotations
     for eth in (False, True, None):
         assert set(evaluate(replace(item, ethereal=eth)).annotations) == wanted
+    changes: dict[str, Any]
     for changes in (
         {'name': 'Other'},
         {'runeword': None},

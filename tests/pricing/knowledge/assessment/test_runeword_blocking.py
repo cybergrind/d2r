@@ -38,6 +38,7 @@ def test_rhyme_market_contract_compares_bonus_not_native_total():
     facts = normalize(rhyme().capture())
     contract, gaps = RunewordHandler().contract(facts, 'shield')
     assert not gaps
+    assert contract is not None
     assert contract.properties['446'] == contract.intrinsic_properties['446'] == 20
     assert facts.stats['20:0']['value'] == 40
     common = {

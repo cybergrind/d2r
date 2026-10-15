@@ -39,8 +39,8 @@ def test_cli_help_from_outside_repository_does_not_require_game(module, tmp_path
 
 
 def test_bundled_item_metadata_loads_without_repository_cwd(monkeypatch, tmp_path):
-    from inventory_tracking.items.metadata import item_base, metadata
+    from inventory_tracking.items.metadata import _default_metadata, item_base
 
     monkeypatch.chdir(tmp_path)
-    metadata.cache_clear()
+    _default_metadata.cache_clear()
     assert item_base(537)['name'] == 'Ring'

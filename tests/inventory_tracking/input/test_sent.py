@@ -24,6 +24,7 @@ def test_each_xtest_input_is_told_with_what_was_sent(heard):
     xtst.XTestFakeMotionEvent.return_value = 1
     xtst.XTestFakeButtonEvent.return_value = 1
     with X11Keyboard(x11, xtst).connect() as keys:
+        assert keys is not None
         assert keys.press(50)
         assert keys.release(50)
         assert keys.move_pointer(2400, 700)
@@ -67,6 +68,7 @@ def test_a_listener_that_fails_does_not_fail_the_input():
     before = sent.listen(broken)
     try:
         with X11Keyboard(x11, xtst).connect() as keys:
+            assert keys is not None
             assert keys.press(50)
     finally:
         sent.listen(before)

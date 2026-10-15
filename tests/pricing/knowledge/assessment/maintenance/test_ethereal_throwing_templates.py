@@ -43,14 +43,20 @@ def test_exact_ethereal_throwing_variant_requires_known_ethereal_item(name, base
     def outcome(candidate, profile=role):
         return assess_role_results(candidate, [profile], {'player_class': 'Barbarian'})[0]
 
-    assert outcome(item).rule_trace['truth'] == 'true'
+    def truth(candidate, profile=role):
+        trace = outcome(candidate, profile).rule_trace
+        assert trace is not None
+        return trace['truth']
+
+    assert truth(item) == 'true'
     assert outcome(replace(item, ethereal=False)).status == 'failed'
     unknown = outcome(replace(item, ethereal=None))
+    assert unknown.rule_trace is not None
     assert unknown.rule_trace['truth'] == 'unknown'
     assert unknown.status == 'partial'
     # A new exact variant must not narrow the existing broad alternative.
     broad = expand_named_throwing({k: v for k, v in row.items() if k != 'ethereal_only'})
-    assert outcome(replace(item, ethereal=False), broad).rule_trace['truth'] == 'true'
+    assert truth(replace(item, ethereal=False), broad) == 'true'
     if name in ('Deathbit', 'The Scalper'):
         native = replace(item, base_code=facts('Battle Dart' if name == 'Deathbit' else 'Francisca').base_code)
         assert outcome(native).status == 'failed'

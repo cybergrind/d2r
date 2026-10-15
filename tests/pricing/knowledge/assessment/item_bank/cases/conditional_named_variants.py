@@ -4,7 +4,7 @@ from dataclasses import replace
 
 from dirty_equals import IsPartialDict
 
-from tests.pricing.knowledge.assessment.item_bank.models import Case, Item
+from tests.pricing.knowledge.assessment.item_bank.models import Case, Item, known
 
 
 DEATH = Item(
@@ -124,7 +124,7 @@ def cases():
                     )
                 )
             },
-            report_contains=(item.name, f'Trade tier: {"mid" if tier == "med" else tier}'),
+            report_contains=(known(item.name), f'Trade tier: {"mid" if tier == "med" else tier}'),
             evidence=(
                 f'third-parties/d2data/json/uniqueitems.json:/{item.named_table_id}',
                 f'pricing/knowledge/assessment/rules/named_tier_reviews.json:/rows/unique:{item.name}',

@@ -35,7 +35,7 @@ def cases():
             ('wrong-mercenary', BASE, {**context, 'mercenary_type': 'Act 5 Frenzy'}, 'negative'),
             ('unknown-mercenary', BASE, {'player_class': klass}, 'unknown'),
         ):
-            expected = {
+            expected: dict[str, object] = {
                 'roles': Contains(
                     IsPartialDict(
                         id=role,

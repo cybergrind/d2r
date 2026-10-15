@@ -205,7 +205,9 @@ def test_a_plain_key_held_does_not_refuse_the_potion():
 @pytest.mark.parametrize('name', [b'Shift_L', b'Control_L'])
 def test_a_modifier_held_refuses_the_potion(name):
     keyboard = FakeKeyboard()
-    keyboard.held_codes = frozenset(keyboard.keycodes([name]))
+    codes = keyboard.keycodes([name])
+    assert codes is not None
+    keyboard.held_codes = frozenset(codes)
     with sender(keyboard).attempt(TARGET, request()) as attempt:
         assert attempt.refusal == Refusal.KEY_HELD
     assert keyboard.events == []

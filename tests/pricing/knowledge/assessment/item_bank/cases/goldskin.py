@@ -84,7 +84,7 @@ def cases():
             )
         for label, item, ctx, scenario in examples:
             config = role + '-stats'
-            expected = {
+            expected: dict[str, object] = {
                 'roles': Contains(
                     IsPartialDict(
                         id=role,
@@ -131,7 +131,7 @@ def player_cases():
         ('wrong-class', ITEM, {'player_class': 'Sorceress'}, 'negative'),
         ('unknown-class', ITEM, {}, 'unknown'),
     ):
-        expected = {
+        expected: dict[str, object] = {
             'roles': Contains(
                 IsPartialDict(
                     id=role,

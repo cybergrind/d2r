@@ -5,9 +5,9 @@ import pytest
 
 from inventory_tracking.levels.geometry import Pointer
 from inventory_tracking.levels.guide import pointer_lines
-from inventory_tracking.levels.registry import handler_for
 from inventory_tracking.osd.level_map import KIND_COLOURS, KIND_TONES
 from inventory_tracking.presentation import Tone, tone_rgb
+from tests.inventory_tracking.levels.fixtures import handler_of
 
 
 def test_arrow_rows_take_the_tone_of_their_kind():
@@ -60,7 +60,7 @@ def test_the_colours_are_green_purple_blue_and_bright_yellow():
     [(6, 'Forgotten Tower'), (7, 'Pit'), (41, 'Stony Tomb'), (31, 'Inner Cloister'), (122, 'Next level')],
 )
 def test_level_entrances_are_the_next_level(area, label):
-    [spec] = [s for s in handler_for(area).pois if s.label == label]
+    [spec] = [s for s in handler_of(area).pois if s.label == label]
 
     assert spec.kind == 'stairs'
 
@@ -69,6 +69,6 @@ def test_level_entrances_are_the_next_level(area, label):
     ('area', 'label'), [(74, 'Summoner'), (124, 'Nihlathak'), (59, 'Treasure'), (59, 'Creeping Feature')]
 )
 def test_bosses_and_chests_are_pois(area, label):
-    [spec] = [s for s in handler_for(area).pois if s.label == label]
+    [spec] = [s for s in handler_of(area).pois if s.label == label]
 
     assert spec.kind == 'target'

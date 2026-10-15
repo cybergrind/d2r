@@ -4,7 +4,7 @@ from dataclasses import replace
 
 from dirty_equals import Contains, IsPartialDict
 
-from tests.pricing.knowledge.assessment.item_bank.models import Case, Item
+from tests.pricing.knowledge.assessment.item_bank.models import Case, Item, known
 
 
 # Partial captures deliberately omit total defense: a native flat bonus is not total armor defense.
@@ -104,7 +104,9 @@ def cases():
             variants.append(('maximum-magic-reduction', replace(original, raw_stats=maximum), context, 'true'))
         for label, item, ctx, truth in variants:
             active = truth == 'true'
-            assessment = {'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))}
+            assessment: dict[str, object] = {
+                'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))
+            }
             if active:
                 assessment['stat_evaluation'] = IsPartialDict(
                     annotations=IsPartialDict({key: IsPartialDict(configuration_ids=Contains(config)) for key in keys})
@@ -118,10 +120,10 @@ def cases():
                 expected={'assessment': IsPartialDict(**assessment)},
                 absent_configurations=() if active else (config,),
                 absent_stat_configurations=dict.fromkeys(conditional_keys, (config,)),
-                report_contains=(original.name, 'Trade tier:') if active else (),
+                report_contains=(known(original.name), 'Trade tier:') if active else (),
                 evidence=(
                     'pricing/data/wp-a-builds.json:/strafe-amazon/slots/' + slot,
-                    'third-parties/d2data/json/setitems.json:/' + original.name,
+                    'third-parties/d2data/json/setitems.json:/' + known(original.name),
                 ),
             )
 

@@ -46,7 +46,9 @@ def cases():
                 ('wrong-base', replace(item, base='Dagger'), {'player_class': 'Warlock'}, 'false'),
             ]
         for label, candidate, ctx, truth in rows:
-            expected = {'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))}
+            expected: dict[str, object] = {
+                'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))
+            }
             if slug == 'arch-devil' and label == 'wrong-base':
                 expected['roles'] = ~Contains(IsPartialDict(id=role))
             if truth == 'true':

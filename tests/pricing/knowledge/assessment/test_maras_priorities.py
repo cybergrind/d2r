@@ -6,6 +6,7 @@ from pricing.knowledge.assessment.build_profiles import build
 from pricing.knowledge.assessment.profiles import assess_role_results
 from pricing.knowledge.assessment.stat_bundle import configuration_from_row
 from pricing.knowledge.assessment.stat_evaluation import StatsEvaluator
+from tests.pricing.knowledge.assessment.fact_changes import fact_changes
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
 
 
@@ -46,7 +47,7 @@ def test_maras_skills_and_minimum_resistance_roll_support_reviewed_use(slug, ind
     assert result.annotations['127:0']['desirability'] == 'desirable'
     assert all(k in result.annotations for k in stats)
     assert not evaluate(context={'player_class': 'Other'}).annotations
-    for change in ({'identified': None}, {'ethereal': True}, {'rarity': 'rare'}, {'name': 'Other'}):
+    for change in fact_changes({'identified': None}, {'ethereal': True}, {'rarity': 'rare'}, {'name': 'Other'}):
         assert not evaluate(replace(item, **change)).annotations
     if fcr:
         for value in (None, fcr - 1, str(fcr), True):

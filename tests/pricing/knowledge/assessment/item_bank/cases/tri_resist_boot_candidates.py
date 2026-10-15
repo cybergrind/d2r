@@ -32,7 +32,7 @@ CORE = ((96, 0, 30), (39, 0, 40), (41, 0, 40), (43, 0, 40))
 
 
 def cases():
-    examples = [
+    examples: list[tuple[str, str, tuple[tuple[int, int, int], ...], bool, bool | None, str]] = [
         ('shared-core', 'Heavy Boots', CORE, True, False, 'positive'),
         ('ubers-recovery-dexterity', 'Light Plated Boots', (*CORE, (99, 0, 10), (2, 0, 9)), True, False, 'positive'),
         ('mf-recovery', 'Scarabshell Boots', (*CORE, (99, 0, 10), (80, 0, 25)), True, False, 'positive'),

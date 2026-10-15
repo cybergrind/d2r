@@ -22,6 +22,7 @@ def display_flat_defense(extraction, rows):
         facts.rarity not in ('unique', 'set')
         or facts.identified is not True
         or type(facts.ethereal) is not bool
+        or facts.sockets is None  # also a gap; named for the checker
         or facts.gaps
     ):
         return rows

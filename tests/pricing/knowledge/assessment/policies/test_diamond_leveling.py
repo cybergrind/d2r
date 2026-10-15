@@ -5,6 +5,7 @@ import pytest
 from inventory_tracking.items.metadata import metadata
 from pricing.knowledge.assessment.policies.leveling import assess_leveling
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
+from tests.pricing.knowledge.reports import reports
 
 
 def diamond_shield():
@@ -21,7 +22,7 @@ def diamond_shield():
 
 
 def test_three_perfect_diamonds_are_conditional_resistance_alternative():
-    uses = assess_leveling(diamond_shield())
+    uses = reports(assess_leveling(diamond_shield()))
     assert len(uses) == 1
     assert uses[0]['source']['locator'] == '/generic_patterns/7'
     assert uses[0]['status'] == 'conditional'

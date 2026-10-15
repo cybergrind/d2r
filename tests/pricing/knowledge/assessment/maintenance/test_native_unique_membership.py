@@ -1,4 +1,5 @@
 from dataclasses import replace
+from typing import Any
 
 from pricing.knowledge.assessment.maintenance.profile_templates import expand_profile
 from pricing.knowledge.assessment.profiles import assess_roles
@@ -22,7 +23,8 @@ def test_rockfleece_mercenary_membership_requires_native_or_upgraded_base():
     item = facts('Field Plate', 'unique', 'Rockfleece')
 
     def truth(candidate):
-        return assess_roles(candidate, [role], {'player_class': 'Sorceress'})[0]['rule_trace']['truth']
+        rows: list[dict[str, Any]] = assess_roles(candidate, [role], {'player_class': 'Sorceress'})
+        return rows[0]['rule_trace']['truth']
 
     assert truth(item) == 'true'
     assert truth(replace(item, base_code=facts('Quilted Armor').base_code)) == 'false'

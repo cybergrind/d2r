@@ -11,12 +11,18 @@ from collections import Counter
 from concurrent.futures import ProcessPoolExecutor
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import TYPE_CHECKING, Any
 
 from inventory_tracking.corpus.build import DATA
 from inventory_tracking.identify.service import verdict_for
 
 
+if TYPE_CHECKING:
+    from inventory_tracking.appraisal.published_backend import Loaded
+
+
 WORTH = frozenset({'sell', 'slow'})  # labels the player wants flagged as trade value
+_LOADED: Loaded | None = None  # the publication a pool worker holds, set by `_init`
 
 
 def load(data: Path):
@@ -34,13 +40,16 @@ def _init(store):
     _LOADED = process_publications(store).get(pointer_generation(store), validate=False)
 
 
-def _assess(row):
+def _assess(row) -> dict[str, Any]:
     from pricing.knowledge.pipeline import retrieve_draft
     from pricing.knowledge.published_runtime import published_snapshot
 
     try:
-        with published_snapshot(_LOADED.runtime):
-            result = retrieve_draft(row['observation'], _LOADED.runtime.database, as_of=datetime.now(UTC).date())
+        loaded = _LOADED
+        if loaded is None:
+            raise ValueError('No publication loaded in this worker')
+        with published_snapshot(loaded.runtime):
+            result = retrieve_draft(row['observation'], loaded.runtime.database, as_of=datetime.now(UTC).date())
         verdict, reason = verdict_for(result)
         estimate = (result.get('price_estimate') or {}).get('estimate_ist')
     except Exception as exc:

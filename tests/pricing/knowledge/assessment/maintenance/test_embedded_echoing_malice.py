@@ -2,6 +2,7 @@
 
 import hashlib
 from copy import deepcopy
+from typing import Any
 
 import pytest
 
@@ -14,7 +15,7 @@ from tests.pricing.knowledge.assessment.maintenance.test_embedded_echoing_pairin
 ROLE = 'echoing-strike-warlock-guide-malice-ubers-source-recipe'
 
 
-def malice_inputs():
+def malice_inputs() -> tuple[dict[str, Any], list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]]]:
     document, links, profiles, uses = inputs(14)
     role = next(r for r in profiles if r['id'] == ROLE)
     use = next(u for u in uses if u['profile_id'] == ROLE)

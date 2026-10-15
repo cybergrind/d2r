@@ -188,7 +188,9 @@ def cases():
                     checks = sharp_checks(role, None, truth, ar=item.raw_stats[0][2])
                 elif label.startswith('damage-'):
                     checks = sharp_checks(role, None, truth, damage=item.raw_stats[1][2])
-                expected = {'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))}
+                expected: dict[str, object] = {
+                    'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))
+                }
                 if truth == 'true':
                     keys = ['19:0', '22:0', *(f'{s}:{p}' for s, p, v in secondary)]
                     expected['stat_evaluation'] = IsPartialDict(

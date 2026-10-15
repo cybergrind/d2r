@@ -173,7 +173,7 @@ def cases():
             if label == '3-sockets':
                 active_keys = tuple(key for key in keys if key != '93:0')
             if name == 'Herald of Zakarum' and label == 'wrong-base':
-                expected = {'family': 'shield'}
+                expected: dict[str, object] = {'family': 'shield'}
             if scenario == 'positive':
                 expected['stat_evaluation'] = IsPartialDict(
                     annotations=IsPartialDict(

@@ -1,4 +1,5 @@
 from datetime import date
+from typing import Any
 
 from inventory_tracking.appraisal.sections import price_lines
 from pricing.knowledge.assessment.engine import assess_result
@@ -12,17 +13,20 @@ def test_saved_unique_weapon_upgrade_compares_target_base_only(tmp_path):
     result = assess_result(extraction, profiles=[])
     upgrades = [r for r in result.comparison_requests if r.preparation and r.preparation['action'] == 'upgrade_weapon']
     assert len(upgrades) == 2
+    assert result.contract is not None
     for request, path in zip(upgrades, result.upgrades, strict=True):
         assert request.contract['base_code'] == path.target_code
         assert request.contract['name'] == 'Hellplague'
         assert request.contract['properties'] == result.contract.properties
         assert request.contract['ethereal'] == result.contract.ethereal
         assert request.contract['socket_contents'] == result.contract.socket_contents
+        assert request.preparation is not None
         assert len(request.preparation['steps']) == len(path.steps)
     request = upgrades[-1]
+    upgrade: dict[str, Any] = request.to_dict()
     rows = [
         {
-            **request.to_dict()['contract'],
+            **upgrade['contract'],
             'kind': 'market',
             'scope_status': 'verified',
             'evidence_kind': 'ask',
@@ -84,6 +88,7 @@ def test_rare_weapon_target_uses_upgraded_base_name_and_rare_recipe():
     assert request.contract['name'] == 'Fanged Knife'
     assert request.contract['rarity'] == 'rare'
     assert request.contract['ethereal'] is True
+    assert request.preparation is not None
     assert request.preparation['steps'][0]['source'].endswith('#135')
     assert request.contract['properties'] == contract.properties
 
@@ -97,12 +102,14 @@ def test_set_weapon_upgrade_uses_set_recipe_and_preserves_identity():
     from tests.pricing.knowledge.assessment.test_socket_survival_comparisons import socketed_item
 
     item = replace(
-        socketed_item('Military Pick', 'set', "Tancred's Crowbill", [], {}), socket_contents='empty', gaps=()
+        socketed_item('Military Pick', 'set', "Tancred's Crowbill", [], {}), socket_contents='empty', gaps=[]
     )
     contract, gaps = HANDLERS['named'].contract(item, 'weapon')
     assert contract is not None, gaps
     requests = upgrade_outcome_requests(item, contract, upgrade_paths(item))
     assert len(requests) == 2
+    assert requests[0].preparation is not None
+    assert requests[1].preparation is not None
     assert requests[0].preparation['steps'][0]['source'].endswith('#151')
     assert requests[1].preparation['steps'][1]['source'].endswith('#153')
     assert all(r.contract['name'] == "Tancred's Crowbill" for r in requests)

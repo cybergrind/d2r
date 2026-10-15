@@ -21,7 +21,7 @@ def travel_cases():
                 ('enigma', ['Enigma'], 'false'),
                 ('unknown-equipment', None, 'unknown'),
             ):
-                context = {'player_class': 'Necromancer'}
+                context: dict[str, object] = {'player_class': 'Necromancer'}
                 if equipment is not None:
                     context['player_items'] = equipment
                 yield Case(

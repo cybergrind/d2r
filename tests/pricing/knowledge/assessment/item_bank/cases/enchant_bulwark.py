@@ -65,7 +65,7 @@ def cases():
         )
         for label, candidate, loadout, truth in examples:
             active = truth == 'true'
-            expected = {}
+            expected: dict[str, object] = {}
             if label not in ('unidentified', 'empty', 'wrong-recipe', 'different-base'):
                 expected['roles'] = Contains(
                     IsPartialDict(

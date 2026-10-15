@@ -13,10 +13,11 @@ def test_snapshot_borrowers_keep_transaction_open_and_failure_closes_connection(
     source.write_text(json.dumps({'schema_version': 1, 'rows': []}))
     database = tmp_path / 'kb.sqlite3'
     build_index([source], database)
-    opened = []
+    opened: list[sqlite3.Connection] = []
 
     def fail_assessment():
         with read_snapshot(database) as connection:
+            assert isinstance(connection, sqlite3.Connection)
             opened.append(connection)
             assert index_status(connection)['records'] == 0
             assert market_rows(connection, 'Ring') == []

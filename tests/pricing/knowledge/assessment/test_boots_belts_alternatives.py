@@ -6,6 +6,7 @@ from pricing.knowledge.assessment.build_profiles import build
 from pricing.knowledge.assessment.profiles import assess_role_results
 from pricing.knowledge.assessment.stat_bundle import configuration_from_row
 from pricing.knowledge.assessment.stat_evaluation import StatsEvaluator
+from tests.pricing.knowledge.assessment.fact_changes import fact_changes
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
 
 
@@ -47,7 +48,7 @@ def test_attack_and_movement_alternatives_keep_native_benefits_and_skill_excepti
         if name == 'Gore Rider' and role['build'] == 'smite-paladin':
             expected.remove('141:0')
         assert set(evaluate(item).annotations) == expected
-        for changes in (
+        for changes in fact_changes(
             {'ethereal': True},
             {'sockets': 1},
             {'socket_contents': 'filled'},

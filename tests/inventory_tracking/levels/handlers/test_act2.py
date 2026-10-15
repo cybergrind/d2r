@@ -4,8 +4,7 @@ import pytest
 
 from inventory_tracking.levels.model import LevelSnapshot, Location, Room
 from inventory_tracking.levels.presets import preset_name
-from inventory_tracking.levels.registry import handler_for
-from tests.inventory_tracking.levels.fixtures import replay
+from tests.inventory_tracking.levels.fixtures import handler_of, replay
 
 
 def rows(guidance):
@@ -13,7 +12,7 @@ def rows(guidance):
 
 
 def guide(area, *rooms):
-    return handler_for(area).guide(LevelSnapshot(Location(area, 0, 4, 4), rooms))
+    return handler_of(area).guide(LevelSnapshot(Location(area, 0, 4, 4), rooms))
 
 
 @pytest.mark.parametrize(
@@ -116,7 +115,7 @@ def test_maggot_lair_tracks_its_rooms(area, special, expected):
 
 def test_maggot_lair_3_points_at_coldworm_where_the_user_stood():
     snapshot = replay('maggot_lair_3_coldworm')  # Win+C at Coldworm, 2026-10-01
-    guidance = handler_for(64).guide(snapshot)
+    guidance = handler_of(64).guide(snapshot)
 
     assert rows(guidance) == [
         ('Coldworm', 'target', 'Act 2 - Lair Tight Spot S'),
@@ -128,7 +127,7 @@ def test_maggot_lair_3_points_at_coldworm_where_the_user_stood():
     assert coldworm.x <= x < coldworm.x + coldworm.width
     assert coldworm.y <= y < coldworm.y + coldworm.height
     assert guidance.problems == ()
-    assert handler_for(64).confirmed
+    assert handler_of(64).confirmed
 
 
 def test_palace_cellar_1_marks_the_waypoint_room():
@@ -140,7 +139,7 @@ def test_palace_cellar_1_marks_the_waypoint_room():
 def test_tal_rasha_marks_kaa_and_false_tomb_chests_without_breaking_the_true_tomb():
     boss = guide(67, Room(444, 0, 0, 16, 16), Room(469, 16, 0, 16, 16))
     false = guide(68, Room(444, 0, 0, 16, 16), Room(473, 16, 0, 16, 16))
-    true = handler_for(70).guide(replay('tal_rasha_true_tomb'))
+    true = handler_of(70).guide(replay('tal_rasha_true_tomb'))
 
     assert [p.label for p in boss.pois] == ['Ancient Kaa', 'Canyon of the Magi']
     assert [p.label for p in false.pois] == ['Chest', 'Canyon of the Magi']
@@ -150,4 +149,4 @@ def test_tal_rasha_marks_kaa_and_false_tomb_chests_without_breaking_the_true_tom
 
 def test_new_act2_handlers_stay_unconfirmed():
     areas = (42, 43, 44, 45, 46, 47, 48, 49, 52, 56, 57, 58, 60, 62, 63, 65)
-    assert not any(handler_for(area).confirmed for area in areas)
+    assert not any(handler_of(area).confirmed for area in areas)

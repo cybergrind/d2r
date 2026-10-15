@@ -6,6 +6,7 @@ from inventory_tracking.levels.handler import Handler, PoiSpec, target
 from inventory_tracking.levels.model import SEALS, SUPER_CHEST
 from inventory_tracking.levels.presets import PRESET_NAMES
 from inventory_tracking.levels.registry import HANDLERS, handler_for, validate
+from tests.inventory_tracking.levels.fixtures import handler_of
 
 
 def test_every_discovered_handler_passes_offline_validation():
@@ -69,7 +70,7 @@ def test_unguided_area_has_no_handler():
     ],
 )
 def test_handler_pois_resolve_to_the_expected_presets(area, label, presets):
-    [spec] = [s for s in handler_for(area).pois if s.label == label]
+    [spec] = [s for s in handler_of(area).pois if s.label == label]
 
     assert {d for d, name in PRESET_NAMES.items() if spec.matches(name)} == presets
 

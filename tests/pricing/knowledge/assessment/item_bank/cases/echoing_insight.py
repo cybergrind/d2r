@@ -1,6 +1,7 @@
 """Distinct Echoing mercenary weapon uses, authored from the three guide setups."""
 
 from dataclasses import replace
+from typing import Any
 
 from dirty_equals import Contains, IsPartialDict
 
@@ -17,7 +18,7 @@ USES = (
 def cases():
     for variant, base, mercenary in USES:
         role = f'echoing-{variant}-insight-merc'
-        context = {'player_class': 'Warlock', 'mercenary_type': mercenary, 'mercenary_items': ['Cure']}
+        context: dict[str, Any] = {'player_class': 'Warlock', 'mercenary_type': mercenary, 'mercenary_items': ['Cure']}
         item = Item(
             base,
             'normal',

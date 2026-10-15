@@ -1,4 +1,6 @@
 import json
+from collections.abc import Mapping
+from typing import Any
 
 import pytest
 
@@ -27,7 +29,8 @@ def test_refreshed_recipes_are_pinned_until_next_assessment(tmp_path, monkeypatc
 
 
 def test_recipes_cannot_be_mutated_by_consumers():
-    row = next(r for r in base_use.recipe_catalog() if r.get('kind') == 'base_rule')
+    catalog: list[Mapping[str, Any]] = [r for r in base_use.recipe_catalog() if isinstance(r, Mapping)]
+    row = next(r for r in catalog if r.get('kind') == 'base_rule')
     with pytest.raises(TypeError):
         row['details']['recommended'] = False
 

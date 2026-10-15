@@ -1,5 +1,7 @@
 import json
+from collections.abc import Mapping
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -22,9 +24,8 @@ def test_socket_costs_match_pinned_cube_recipe(base, word_name, recipe_id):
     game = Path('third-parties/d2data/json')
     recipe = json.loads((game / 'cubemain.json').read_text())[recipe_id]
     misc = json.loads((game / 'misc.json').read_text())
-    edge = next(
-        r for r in recipe_catalog() if r.get('name') == base and r.get('details', {}).get('runeword') == word_name
-    )
+    catalog: list[Mapping[str, Any]] = [r for r in recipe_catalog() if isinstance(r, Mapping)]
+    edge = next(r for r in catalog if r.get('name') == base and r.get('details', {}).get('runeword') == word_name)
     facts = normalize(capture(base, sockets=0, quality='normal', ethereal=False))
     options = {o.action: o for o in prepare_sockets(facts, edge).options}
     cube = options['cube_socket'].to_dict()

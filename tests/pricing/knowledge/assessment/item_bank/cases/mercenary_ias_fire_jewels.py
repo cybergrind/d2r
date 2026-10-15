@@ -4,7 +4,7 @@ from dataclasses import replace
 
 from dirty_equals import Contains, IsPartialDict
 
-from tests.pricing.knowledge.assessment.item_bank.models import Case, Item
+from tests.pricing.knowledge.assessment.item_bank.models import Case, Item, known
 
 
 USES = (
@@ -53,13 +53,13 @@ def cases():
                     item,
                     raw_stats=tuple(s for s in item.raw_stats if s[0] != stat),
                     complete=complete,
-                    affix_records=tuple(a for a in item.affix_records if a != record) if complete else None,
+                    affix_records=tuple(a for a in known(item.affix_records) if a != record) if complete else None,
                 )
                 examples.append(
                     (('absent-' if complete else 'unread-') + name, candidate, context, scenario, truth, 'true')
                 )
         for label, candidate, ctx, scenario, truth, dependency in examples:
-            expected = {
+            expected: dict[str, object] = {
                 'roles': Contains(
                     *(
                         IsPartialDict(

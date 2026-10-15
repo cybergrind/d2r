@@ -42,7 +42,7 @@ def cases():
         )
         for label, item, loadout, truth in examples:
             active = truth == 'true'
-            expected = {}
+            expected: dict[str, object] = {}
             if label != 'unidentified':
                 expected['roles'] = Contains(
                     IsPartialDict(

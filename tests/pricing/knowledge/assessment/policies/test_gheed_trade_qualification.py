@@ -35,7 +35,11 @@ def test_gheed_reviewed_mf_segment_requires_all_three_legal_rolls(mf, gold, disc
 def test_gheed_missing_or_impossible_rolls_cannot_qualify(key, lo, hi):
     base = item()
     for value in (None, lo - 1, hi + 1):
-        raw = tuple((s, p, value if s == key else v) for s, p, v in base.raw_stats if s != key or value is not None)
+        raw = tuple(
+            (s, p, value if s == key and value is not None else v)
+            for s, p, v in base.raw_stats
+            if s != key or value is not None
+        )
         facts = normalize(replace(base, raw_stats=raw).capture())
         assert assess_trade_qualification(facts)['status'] == 'unresolved'
         assert assess_tier(facts)['tier'] is None

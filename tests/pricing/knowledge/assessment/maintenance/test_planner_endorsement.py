@@ -25,8 +25,7 @@ def pin(path):
     return {'path': path, 'sha256': hashlib.sha256((ROOT / path).read_bytes()).hexdigest()}
 
 
-@pytest.fixture
-def records():
+def planner_records():
     occurrence = next(o for o in read('pricing/data/appraisal-guide-inventory.json')['occurrences'] if o['id'] == OID)
     role = next(p for p in read('pricing/data/appraisal-build-profiles.json')['profiles'] if p['id'] == PID)
     use = next(
@@ -72,6 +71,11 @@ def records():
         },
     }
     return review, occurrence, role, use
+
+
+@pytest.fixture
+def records():
+    return planner_records()
 
 
 def validate(records):

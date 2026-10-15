@@ -39,7 +39,7 @@ def cases():
         ('unknown-sockets', replace(ITEM, sockets=None, socket_contents='unknown'), context, 'unknown'),
     ):
         active = truth == 'true'
-        expected = {'roles': Contains(IsPartialDict(id=ROLE, rule_trace=IsPartialDict(truth=truth)))}
+        expected: dict[str, object] = {'roles': Contains(IsPartialDict(id=ROLE, rule_trace=IsPartialDict(truth=truth)))}
         keys = ('93:0', '39:0', '118:0') + (() if label == 'unread-enchant' else ('198:3338',))
         if active:
             expected['stat_evaluation'] = IsPartialDict(

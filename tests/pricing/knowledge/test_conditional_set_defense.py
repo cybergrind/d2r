@@ -2,6 +2,7 @@
 
 import json
 from pathlib import Path
+from typing import Any
 
 from pricing.knowledge.definitions import build_definitions
 from pricing.knowledge.named_upgrades import named_upgrade_variants
@@ -26,7 +27,7 @@ def test_dormant_set_defense_does_not_claim_an_unmodified_base_roll():
     assert robe['base_defense_range']['min'] == 234
     assert robe['base_defense_range']['max'] == 234
     bases = json.loads((ROOT / 'third-parties/d2data/json/armor.json').read_text())
-    upgrades = named_upgrade_variants(robe, bases)
+    upgrades: dict[str, dict[str, Any]] = named_upgrade_variants(robe, bases)
     assert upgrades['xar']['base_defense_range']['min'] == 417
     assert upgrades['xar']['base_defense_range']['max'] == 450
     assert upgrades['uar']['base_defense_range']['min'] == 487

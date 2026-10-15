@@ -44,7 +44,9 @@ def smoke_cases(build='abyss-warlock-build-guide', player_class='Warlock', prefi
             ('wrong-class', item, {'player_class': 'Sorceress' if player_class != 'Sorceress' else 'Paladin'}, 'false'),
             ('unknown-class', item, {}, 'unknown'),
         ):
-            expected = {'roles': Contains(IsPartialDict(id=role, side='merc', rule_trace=IsPartialDict(truth=truth)))}
+            expected: dict[str, object] = {
+                'roles': Contains(IsPartialDict(id=role, side='merc', rule_trace=IsPartialDict(truth=truth)))
+            }
             if truth == 'true':
                 expected['stat_evaluation'] = IsPartialDict(
                     annotations=IsPartialDict(

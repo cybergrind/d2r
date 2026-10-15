@@ -1,4 +1,5 @@
 from pricing.knowledge.bases import assess_base, bucket_matches
+from tests.pricing.knowledge.reports import present
 
 
 def base(**overrides):
@@ -37,10 +38,10 @@ def test_history_never_becomes_verified_price_or_inherits_premium():
             ]
         }
     }
-    result = assess_base(item, evidence)
+    result = present(assess_base(item, evidence))
     assert result['price_status'] == 'historical_asks_only'
     assert result['historical_asks'][0]['details']['median_ist'] == 0.837
-    assert not assess_base(dict(item, ethereal=None), evidence)['historical_asks']
+    assert not present(assess_base(dict(item, ethereal=None), evidence))['historical_asks']
     assert assess_base(dict(item, runeword='Spirit'), evidence) is None
 
 

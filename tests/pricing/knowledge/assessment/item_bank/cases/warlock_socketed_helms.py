@@ -6,7 +6,7 @@ from dirty_equals import Contains, IsPartialDict
 
 from tests.pricing.knowledge.assessment.item_bank.cases.caster_socketed_named import FIRE
 from tests.pricing.knowledge.assessment.item_bank.cases.guardian_light_helms import CHILD as LIGHT
-from tests.pricing.knowledge.assessment.item_bank.models import Case, Item
+from tests.pricing.knowledge.assessment.item_bank.models import Case, Item, known
 
 
 SPECS = (
@@ -76,7 +76,9 @@ def cases():
             ]
         for label, candidate, ctx, truth, active in examples:
             config = role + '-stats'
-            expected = {'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))}
+            expected: dict[str, object] = {
+                'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))
+            }
             if active:
                 expected['stat_evaluation'] = IsPartialDict(
                     annotations=IsPartialDict({key: IsPartialDict(configuration_ids=Contains(config)) for key in keys})
@@ -94,7 +96,7 @@ def cases():
                 expected={'assessment': IsPartialDict(**expected)},
                 absent_configurations=() if active else (config,),
                 absent_stat_configurations={'357:0': (config,)} if role.startswith('echoing') else {},
-                report_contains=(item.name,),
+                report_contains=(known(item.name),),
                 evidence=(
                     'third-parties/d2data/json/uniqueitems.json:/423',
                     'third-parties/d2data/json/uniqueitems.json:/425',

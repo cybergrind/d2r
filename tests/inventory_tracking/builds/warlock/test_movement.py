@@ -50,7 +50,7 @@ from inventory_tracking.macros.travel import (
 )
 from inventory_tracking.macros.world import Teleport
 from tests.inventory_tracking.macros import moves
-from tests.inventory_tracking.macros.fakes import HUNT_SLOTS, KEYS, Game, world
+from tests.inventory_tracking.macros.fakes import HUNT_SLOTS, KEYS, Game, character_of, world
 from tests.inventory_tracking.macros.moves import ASPECT, HERE, IN_HAND, NOW, skills, wall_with_a_gap, walled
 
 
@@ -146,10 +146,19 @@ def test_a_skill_that_is_on_no_key_is_no_jump():
 def test_a_stride_is_by_the_blade_and_by_teleport_while_its_delay_runs():
     goal = (HERE[0] + 30.0, HERE[1])
     short = replace(OWN_MOVE, short=14.0)
-    assert leg_of(facts(), goal, short) == Step(pytest.approx((HERE[0] + 16.0, HERE[1])), BLADE_WARP)
+    # approx spots: the Step's == compares them with a tolerance
+    assert leg_of(facts(), goal, short) == Step(
+        pytest.approx((HERE[0] + 16.0, HERE[1])),  # pyrefly: ignore[bad-argument-type]
+        BLADE_WARP,
+    )
     delayed = facts(last_used={BLADE_WARP: NOW})
-    assert leg_of(delayed, goal, short) == Step(pytest.approx((HERE[0] + 16.0, HERE[1])), TELEPORT)
-    assert leg_of(facts(slots=()), goal) == Step(pytest.approx((HERE[0] + STRIDE, HERE[1])))
+    assert leg_of(delayed, goal, short) == Step(
+        pytest.approx((HERE[0] + 16.0, HERE[1])),  # pyrefly: ignore[bad-argument-type]
+        TELEPORT,
+    )
+    assert leg_of(facts(slots=()), goal) == Step(
+        pytest.approx((HERE[0] + STRIDE, HERE[1]))  # pyrefly: ignore[bad-argument-type]
+    )
 
 
 def test_a_wall_in_the_blades_line_is_not_handed_to_teleport():
@@ -197,6 +206,12 @@ def keys(_world, wanted):
     return {skill: KEYS[skill] for skill in wanted}
 
 
+def staff_of(play: Game) -> Teleport:
+    """The staff `game` gave the character (or a later copy of it)."""
+    assert play.staff is not None
+    return play.staff
+
+
 def game(**changes):
     changes.setdefault('area', 101)
     changes.setdefault('slots', HUNT_SLOTS)
@@ -215,7 +230,7 @@ def test_the_jumps_are_blade_warp_first_then_teleport_without_a_swap():
     play.clock.now += WARP_DELAY
     assert travel.jump_by(run, play.world) == BLADE_WARP
     travel.warped_at = play.clock.now
-    play.staff = replace(play.staff, in_hand=False)  # a swap away: not a jump
+    play.staff = replace(staff_of(play), in_hand=False)  # a swap away: not a jump
     assert travel.jump_by(run, play.world) is None
 
 
@@ -223,9 +238,9 @@ def test_low_on_charges_the_modes_own_jumps_leave_the_staff_alone():
     # user, 2026-10-11: "track number of tp charges when using staff, and leverage warp more when low"
     play = game()
     travel, run = Travel(MOVEMENT), play.run()
-    play.staff = replace(play.staff, charges=LOW_CHARGES)
+    play.staff = replace(staff_of(play), charges=LOW_CHARGES)
     assert [jump.skill for jump in travel.jumps(run, play.world)] == [BLADE_WARP, TELEPORT]
-    play.staff = replace(play.staff, charges=LOW_CHARGES - 1)
+    play.staff = replace(staff_of(play), charges=LOW_CHARGES - 1)
     assert [jump.skill for jump in travel.jumps(run, play.world)] == [BLADE_WARP]
     travel.warped_at = play.clock.now
     assert travel.jump_by(run, play.world) is None  # its delay runs: a walk, not a charge
@@ -270,7 +285,7 @@ def test_a_straight_stride_is_by_blade_warp_and_ends_short_of_its_goal():
 def test_with_no_straight_stride_a_move_is_made_along_the_way_round_the_wall():
     # Drifter Cavern, 09:43 on 2026-10-12: the staff empty and the firing spot behind a wall.
     play = game()
-    play.staff = replace(play.staff, charges=0)
+    play.staff = replace(staff_of(play), charges=0)
     ground = walled(wall_with_a_gap)
     travel, run = Travel(MOVEMENT), play.run()
     goal = (5020.5, 5000.5)
@@ -310,7 +325,9 @@ class Delayed(Game):
         self.released: list[float] = []
         self.refused: list[float] = []
         self.refusing = False
-        code = self.keys.keycodes([KEYS[BLADE_WARP].encode()])[0]
+        codes = self.keys.keycodes([KEYS[BLADE_WARP].encode()])
+        assert codes is not None
+        code = codes[0]
         press = self.keys.press
 
         def down(key: int) -> bool:
@@ -334,7 +351,7 @@ class Delayed(Game):
         found = super().read()
         since = self.clock.now - self.taken[-1] if self.taken else math.inf
         cooling = (self.shown <= since < self.over) if self.reads else None
-        self.world = replace(found, player=replace(found.player, cooldown=cooling))
+        self.world = replace(found, player=replace(character_of(found), cooldown=cooling))
         return self.world
 
 
@@ -471,7 +488,7 @@ def test_a_character_moved_while_the_jump_waits_for_its_delay_has_the_leg_chosen
     chosen = run.world()
 
     def pushed() -> None:
-        stand = play.world.player
+        stand = play.character
         play.world = replace(play.world, player=replace(stand, x=stand.x + 3.0))
 
     play.arrivals.append((play.clock.now + 0.05, pushed))

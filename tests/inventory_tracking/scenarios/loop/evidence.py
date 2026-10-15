@@ -314,8 +314,7 @@ def reactions(rows: Rows, counts: Counter, frames: list[dict | None], stamp) -> 
             continue
         end = index
         outcome: tuple[str, float | None] = ('nothing in 3 s', None)
-        while end < len(frames) and frames[end] is not None and frames[end]['t'] - row['t'] < 3.0:
-            now = frames[end]
+        while end < len(frames) and (now := frames[end]) is not None and now['t'] - row['t'] < 3.0:
             if now['strike'] or now['mode'] in ACTING:
                 outcome = ('the strike', now['t'] - row['t'])
                 break
@@ -340,7 +339,8 @@ def reactions(rows: Rows, counts: Counter, frames: list[dict | None], stamp) -> 
         if math.dist(before['here'], landed['here']) < HOP_UNITS or before['strike'] or landed['strike']:
             continue
         for later, now in enumerate(frames[index:], index):
-            hopped = later > index and frames[later - 1] and math.dist(frames[later - 1]['here'], now['here']) >= 5
+            last = frames[later - 1]
+            hopped = later > index and now is not None and last and math.dist(last['here'], now['here']) >= 5
             if now is None or now['t'] - landed['t'] >= 3.0 or now['left'] or now['mode'] in RUN_MODES or hopped:
                 counts['a2 landed with a hostile in reach, no strike before a move or the next hop'] += 1
                 break
@@ -360,9 +360,9 @@ def late_frames(rows: Rows, counts: Counter, take: Take, stamp) -> None:
         index
         for index in range(1, len(frames))
         if frames[index].get('macro')
-        and places[index]
-        and places[index - 1]
-        and HOP_UNITS <= math.dist(places[index], places[index - 1]) < 60
+        and (spot := places[index])
+        and (last := places[index - 1])
+        and HOP_UNITS <= math.dist(spot, last) < 60
     }
     for index, frame in enumerate(frames):
         held = bool((frame['in'][2] or 0) & STRIKE_BUTTON)

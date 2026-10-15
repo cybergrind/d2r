@@ -4,6 +4,7 @@ import pytest
 
 from pricing.knowledge.assessment.policies.leveling import assess_leveling
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
+from tests.pricing.knowledge.reports import reports
 
 
 @pytest.mark.parametrize(
@@ -11,7 +12,7 @@ from tests.pricing.knowledge.assessment.test_family_contracts import facts
 )
 def test_affixed_leveling_uses_positive_native_stat_and_preserves_conditions(base, stat, archetype):
     item = replace(facts(base, 'magic'), stats={f'{stat}:0': {'status': 'decoded', 'value': 10}})
-    uses = assess_leveling(item)
+    uses = reports(assess_leveling(item))
     assert len(uses) == 1
     assert uses[0]['status'] == 'conditional'
     assert archetype in uses[0]['archetypes']
@@ -80,7 +81,7 @@ def test_generic_leveling_reaches_shared_report_without_trade_tier():
 )
 def test_additional_affixed_leveling_patterns(base, quality, stats, locator):
     item = replace(facts(base, quality), stats={f'{k}:0': {'status': 'decoded', 'value': v} for k, v in stats.items()})
-    uses = assess_leveling(item)
+    uses = reports(assess_leveling(item))
     assert len(uses) == 1
     assert uses[0]['source']['locator'] == locator
     assert uses[0]['status'] == 'conditional'
@@ -97,7 +98,7 @@ def test_attack_speed_gloves_require_useful_secondary_stats_and_belt_craft_is_sp
 
 def test_ring_combination_does_not_repeat_same_source_recommendation():
     item = replace(facts('Ring', 'rare'), stats={f'{k}:0': {'status': 'decoded', 'value': 10} for k in (105, 7, 41)})
-    uses = assess_leveling(item)
+    uses = reports(assess_leveling(item))
     assert len(uses) == 1
     assert uses[0]['archetypes'] == ['caster']
     assert 'breakpoint' in uses[0]['conditions'][0]
@@ -105,7 +106,7 @@ def test_ring_combination_does_not_repeat_same_source_recommendation():
 
 def test_crushing_blow_weapon_leveling_is_conditional_and_not_a_glove_rule():
     item = replace(facts('Axe', 'crafted'), stats={'136:0': {'status': 'decoded', 'value': 10}})
-    uses = assess_leveling(item)
+    uses = reports(assess_leveling(item))
     assert len(uses) == 1
     assert uses[0]['source']['locator'] == '/generic_patterns/6'
     assert uses[0]['archetypes'] == ['attack']
@@ -122,7 +123,7 @@ def test_conflicting_leveling_stat_does_not_erase_independent_valid_utility():
         stats={f'{k}:0': {'status': 'decoded', 'value': 10} for k in (96, 80)},
         gaps=['Duplicate native stat 96:0.'],
     )
-    uses = assess_leveling(item)
+    uses = reports(assess_leveling(item))
     assert [use['source']['locator'] for use in uses] == ['/generic_patterns/2']
 
 
@@ -131,18 +132,20 @@ def test_crushing_blow_mercenary_leveling_keeps_ethereal_and_setup_separate(ethe
     item = replace(
         facts('Yari', 'unique', 'Hone Sundan'), ethereal=ethereal, stats={'136:0': {'status': 'decoded', 'value': 45}}
     )
-    uses = [u for u in assess_leveling(item) if u['source']['locator'] == '/generic_patterns/6']
+    uses = [u for u in reports(assess_leveling(item)) if u['source']['locator'] == '/generic_patterns/6']
     assert len(uses) == 1
     assert uses[0]['side'] == 'mercenary'
     assert uses[0]['status'] == 'conditional'
     assert 'Act 2' in uses[0]['conditions'][0]
     assert uses[0]['required_level'] is None
     assert not [
-        u for u in assess_leveling(replace(item, identified=False)) if u['source']['locator'] == '/generic_patterns/6'
+        u
+        for u in reports(assess_leveling(replace(item, identified=False)))
+        if u['source']['locator'] == '/generic_patterns/6'
     ]
     assert not [
         u
-        for u in assess_leveling(replace(item, gaps=['Duplicate native stat 136:0.']))
+        for u in reports(assess_leveling(replace(item, gaps=['Duplicate native stat 136:0.'])))
         if u['source']['locator'] == '/generic_patterns/6'
     ]
     wrong_base = replace(facts('Axe', 'unique', 'Hone Sundan'), stats=item.stats)

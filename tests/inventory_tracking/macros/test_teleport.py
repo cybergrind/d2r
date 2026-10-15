@@ -43,6 +43,12 @@ EAST = tuple(Room(2 + i, 1004 + 8 * i, 996, 8, 8) for i in range(4))  # a corrid
 STAFF = Teleport(10, 20, True)
 
 
+def staff(play: Game) -> Teleport:
+    """The staff the character of `game` wears."""
+    assert play.staff is not None
+    return play.staff
+
+
 def keys(_world, skills):
     return {skill: KEYS[skill] for skill in skills}
 
@@ -61,8 +67,8 @@ def test_a_mark_in_sight_is_one_teleport_onto_it():
     play = game()
     step_toward(play.run(), target((1003.0, 1000.0)), keys)
     assert play.pressed() == ['t']
-    assert math.dist((play.world.player.x, play.world.player.y), (5015.0, 5000.0)) < 0.5
-    assert play.staff.charges == 9
+    assert math.dist((play.character.x, play.character.y), (5015.0, 5000.0)) < 0.5
+    assert staff(play).charges == 9
     assert play.said[-2].startswith('Teleport toward Next level')  # then the key's own name
 
 
@@ -70,9 +76,9 @@ def test_a_far_mark_gets_a_hop_to_the_edge_of_the_screen_along_the_line():
     play = game()
     step_toward(play.run(), target((1031.0, 1000.0)), keys)
     assert play.pressed() == ['t']
-    moved = play.world.player.x - 5000.0
+    moved = play.character.x - 5000.0
     assert 24.0 < moved < 31.0  # as far east as the view shows ground, a little north to use its shape
-    assert -6.0 < play.world.player.y - 5000.0 <= 0.5
+    assert -6.0 < play.character.y - 5000.0 <= 0.5
 
 
 def test_void_wider_than_a_teleport_sends_the_hop_toward_the_bridge_room():
@@ -80,8 +86,8 @@ def test_void_wider_than_a_teleport_sends_the_hop_toward_the_bridge_room():
     play = game()
     step_toward(play.run(), target((1014.0, 1000.0), (HERE, bridge, far)), keys)
     assert play.pressed() == ['t']
-    assert play.world.player.y > 5005.0  # south-east, toward the bridge, not straight east
-    assert play.world.player.x > 5005.0
+    assert play.character.y > 5005.0  # south-east, toward the bridge, not straight east
+    assert play.character.x > 5005.0
 
 
 def test_a_door_within_reach_is_walked_into_and_the_level_changes():
@@ -90,7 +96,7 @@ def test_a_door_within_reach_is_walked_into_and_the_level_changes():
     step_toward(play.run(), target(play.door, warp=True), keys)
     assert play.pressed() == []
     assert [event[0] for event in play.keys.events] == ['click']
-    assert play.world.player.area == 110
+    assert play.character.area == 110
     assert play.said == ['Walking into Next level, 8 away', 'Next level: there']
 
 
@@ -102,7 +108,7 @@ def test_a_doorway_drawn_above_its_tile_is_clicked_there_when_the_ground_does_no
     step_toward(play.run(), target(play.door, warp=True), keys)
     # the click on the ground moved nobody and is made again (a cast may have swallowed it), then the aim above
     assert [event[0] for event in play.keys.events] == ['click', 'click', 'click']
-    assert play.world.player.area == 110
+    assert play.character.area == 110
     assert play.said == ['Walking into Next level, 0 away', 'Next level: there']
 
 
@@ -114,7 +120,7 @@ def test_an_aim_without_the_door_under_the_pointer_is_not_clicked():
     step_toward(play.run(), target(play.door, warp=True), keys)
     assert [event[0] for event in play.keys.events] == ['click']
     assert play.walks == []
-    assert play.world.player.area == 110
+    assert play.character.area == 110
 
 
 def test_a_door_the_record_never_shows_is_clicked_at_every_aim_after_two_looks(caplog):
@@ -125,7 +131,7 @@ def test_a_door_the_record_never_shows_is_clicked_at_every_aim_after_two_looks(c
     with caplog.at_level('INFO'):
         step_toward(run, target(play.door, warp=True), keys)
     assert [event[0] for event in play.keys.events] == ['click']
-    assert play.world.player.area == 110
+    assert play.character.area == 110
     assert any('no door under the pointer at the aims' in r.message for r in caplog.records)
 
 
@@ -141,7 +147,7 @@ def test_a_portal_in_reach_of_its_mark_is_clicked_on_its_picture_and_the_level_c
     assert play.pressed() == []
     assert [event[0] for event in play.keys.events] == ['click']
     assert play.walks == []
-    assert play.world.player.area == 110
+    assert play.character.area == 110
     assert play.said == ['Through the portal to Tristram, 13 away', 'Tristram: there']
 
 
@@ -151,7 +157,7 @@ def test_a_portal_aim_with_something_else_under_the_pointer_is_not_clicked():
     step_toward(play.run(), portal_mark((1001.0, 1000.0)), keys)
     assert [event[0] for event in play.keys.events] == ['click']
     assert play.walks == []
-    assert play.world.player.area == 110
+    assert play.character.area == 110
 
 
 def test_a_portal_no_aim_shows_is_reported_without_a_click():
@@ -167,7 +173,7 @@ def test_a_portal_far_from_the_character_is_teleported_toward_first():
     play.thing = Thing(77, PORTAL, 0, 5152.0, 5004.0)
     step_toward(play.run(), portal_mark((1030.0, 1000.0)), keys)
     assert play.pressed() == ['t']
-    assert play.world.player.area == 109
+    assert play.character.area == 109
 
 
 def test_at_a_portals_mark_with_no_portal_open_the_step_says_so():
@@ -182,7 +188,7 @@ def test_another_portal_far_from_the_mark_is_not_the_marks():
     play.thing = Thing(77, PORTAL, 0, 5012.0, 5004.0)  # a portal here, the mark's a screen away
     step_toward(play.run(), portal_mark((1030.0, 1000.0)), keys)
     assert play.pressed() == ['t']
-    assert play.world.player.area == 109
+    assert play.character.area == 109
 
 
 def body_mark(point):
@@ -196,7 +202,7 @@ def test_a_body_at_its_mark_is_clicked_until_it_shows_searched():
     assert play.pressed() == []
     assert [event[0] for event in play.keys.events] == ['click']
     assert play.thing.mode == 2
-    assert play.world.player.area == 38
+    assert play.character.area == 38
     assert play.said == ["Searching Wirt's body, 10 away", "Wirt's body: searched"]
 
 
@@ -215,7 +221,7 @@ def test_the_click_that_took_a_levels_door_is_tried_first_next_time():
         teleport.ENTRIES = teleport.Entries(None)  # the door's spot forgotten: this is about the click alone
         step_toward(play.run(), target(play.door, warp=True), keys)
     assert [event[0] for event in play.keys.events] == ['click']
-    assert play.world.player.area == 110
+    assert play.character.area == 110
 
 
 def test_a_door_whose_aim_the_logs_gave_is_clicked_there_first():
@@ -245,7 +251,7 @@ def test_the_doors_own_box_is_the_first_click():
     step_toward(run, target(play.door, warp=True), keys)
     assert [event[0] for event in play.keys.events] == ['click']
     assert play.walks == []
-    assert play.world.player.area == 110
+    assert play.character.area == 110
 
 
 def test_a_door_aim_with_a_monster_under_it_is_left_for_last():
@@ -256,7 +262,7 @@ def test_a_door_aim_with_a_monster_under_it_is_left_for_last():
     looks = iter([(1, 77), (5, 9)])  # a monster under the first aim, the door under the next
     run.hovered = lambda: next(looks)
     step_toward(run, target(play.door, warp=True), keys)
-    assert play.world.player.area == 110
+    assert play.character.area == 110
     assert teleport.AIMS.offset(target(play.door, warp=True)) == (0.0, -45.0)  # the next aim: the first was not clicked
 
 
@@ -295,7 +301,7 @@ def test_the_last_hop_before_a_door_lands_beside_it_on_the_characters_side():
     mark = Target(109, (HERE, *EAST), door, 'Next level', 'stairs', True, (wide,))
     step_toward(play.run(), mark, keys)
     assert play.pressed() == ['t']
-    landed = (play.world.player.x, play.world.player.y)
+    landed = (play.character.x, play.character.y)
     assert teleport.WARP_TILES < math.dist(landed, (5020.0, 5000.0)) < teleport.APPROACH + 1.0
     assert landed[0] < 5020.0 - teleport.WARP_TILES  # west of the door: the side the character came from
     assert abs(landed[1] - 5000.0) < 2.5  # straight west, give or take the aim scatter
@@ -358,7 +364,7 @@ def test_a_key_that_casts_nothing_with_the_staff_in_hand_is_named_as_teleport_of
     # steps in a row "did not move" at 01:26 that night until it was bound again.
     play = game()
     assert play.staff is not None
-    assert play.staff.in_hand
+    assert staff(play).in_hand
     play.keys.on_event = lambda event: None  # the key is bound to nothing: no charge is spent
     with pytest.raises(Abort, match='Teleport is off its key: bind it again'):
         step_toward(play.run(), target((1003.0, 1000.0)), keys)
@@ -375,7 +381,7 @@ def test_the_landing_stops_short_of_a_pit_the_grids_know_about(caplog):
     with caplog.at_level('INFO'):
         step_toward(play.run(), mark, keys)
     assert play.pressed() == ['t']
-    assert 5005.0 < play.world.player.x < 5009.5  # before the pit at x = 5010, a unit of margin kept
+    assert 5005.0 < play.character.x < 5009.5  # before the pit at x = 5010, a unit of margin kept
     [line] = [r.message for r in caplog.records if 'teleport aimed at' in r.message]
     assert 'off the way, footing True, 1 grids' in line
     assert 'landed at' in line
@@ -387,7 +393,7 @@ def test_a_chasm_in_the_way_is_crossed_where_the_view_shows_ground_beyond_it():
     play = game()
     mark = Target(109, (HERE, beyond), (1011.0, 1000.0), 'Next level', 'stairs', False, (SOLID, chasm))
     step_toward(play.run(), mark, keys)
-    assert play.world.player.x > 5025.5  # over the chasm (x 5020-5025), on the floor beyond, a unit in
+    assert play.character.x > 5025.5  # over the chasm (x 5020-5025), on the floor beyond, a unit in
 
 
 def test_known_solid_ground_lands_on_the_mark_and_logs_the_miss(caplog):
@@ -418,7 +424,7 @@ def test_a_character_on_a_tile_whose_centre_is_a_pit_still_has_a_way():
     ]
     edge = Walkable(996, 996, 8, 8, pack_cells(''.join(rows)))  # tile (1000, 1000) is pit but for one sub-tile
     play = game()
-    play.world = replace(play.world, player=replace(play.world.player, x=5000.4, y=5002.5))  # on that sub-tile
+    play.world = replace(play.world, player=replace(play.character, x=5000.4, y=5002.5))  # on that sub-tile
     mark = Target(109, (HERE, *EAST), (1003.0, 1000.0), 'Next level', 'stairs', False, (edge,))
     step_toward(play.run(), mark, keys)
     assert play.pressed() == ['t']
@@ -534,10 +540,10 @@ def walking_game(door, entry, *, after=(0.6, 0.9)):
     start = play.clock.now
 
     def arrive():
-        play.world = replace(play.world, player=replace(play.world.player, x=entry[0], y=entry[1]))
+        play.world = replace(play.world, player=replace(play.character, x=entry[0], y=entry[1]))
 
     def change():
-        play.world = replace(play.world, player=replace(play.world.player, area=110))
+        play.world = replace(play.world, player=replace(play.character, area=110))
 
     play.arrivals += [(start + after[0], arrive), (start + after[1], change)]
     return play
@@ -576,12 +582,12 @@ def test_a_remembered_entry_is_hopped_onto_and_the_door_clicked_from_there():
     play = game()
     step_toward(play.run(), mark, keys)
     assert play.pressed() == ['t']
-    landed = (play.world.player.x, play.world.player.y)
+    landed = (play.character.x, play.character.y)
     assert math.dist(landed, (5015.0, 5003.0)) < 1.5  # on the door's spot, inside WARP_TILES of the mark
     play.door = door
     step_toward(play.run(), mark, keys)  # from the spot: the click, no second hop
     assert play.pressed() == ['t']
-    assert play.world.player.area == 110
+    assert play.character.area == 110
 
 
 def test_a_door_within_a_walk_but_off_its_remembered_spot_is_hopped_onto_first():
@@ -591,7 +597,7 @@ def test_a_door_within_a_walk_but_off_its_remembered_spot_is_hopped_onto_first()
     play = game()
     step_toward(play.run(), mark, keys)
     assert play.pressed() == ['t']
-    assert math.dist((play.world.player.x, play.world.player.y), (5007.5, 5005.5)) < 1.5
+    assert math.dist((play.character.x, play.character.y), (5007.5, 5005.5)) < 1.5
 
 
 def test_a_remembered_spot_a_few_steps_off_over_open_ground_is_walked_to_by_the_click():
@@ -604,7 +610,7 @@ def test_a_remembered_spot_a_few_steps_off_over_open_ground_is_walked_to_by_the_
     play.door = door
     step_toward(play.run(), mark, keys)
     assert play.pressed() == []  # no hop
-    assert play.world.player.area == 110
+    assert play.character.area == 110
 
 
 def test_a_remembered_spot_behind_a_wall_is_still_hopped_onto():
@@ -615,7 +621,7 @@ def test_a_remembered_spot_behind_a_wall_is_still_hopped_onto():
     play = game()
     step_toward(play.run(), mark, keys)
     assert play.pressed() == ['t']
-    assert math.dist((play.world.player.x, play.world.player.y), (5006.5, 5004.5)) < 1.5
+    assert math.dist((play.character.x, play.character.y), (5006.5, 5004.5)) < 1.5
 
 
 def test_door_entries_are_kept_in_a_file_across_games(tmp_path):
@@ -638,24 +644,11 @@ def test_door_entries_are_kept_in_a_file_across_games(tmp_path):
 
 def test_the_card_of_the_level_just_left_is_waited_out():
     # 15 of 116 logged exits: the step asked for on arrival stopped with "the level card is for another level".
-    import contextlib
-    from types import SimpleNamespace
-
     from inventory_tracking.macros.teleport import CARD_SECONDS, card_for
 
-    clock = SimpleNamespace(now=0.0)
-
-    def sleep(seconds):
-        clock.now += seconds
-
-    run = SimpleNamespace(
-        clock=lambda: clock.now,
-        world=lambda: SimpleNamespace(player=SimpleNamespace(area=36)),
-        pace=SimpleNamespace(sleep=sleep),
-        hurry=None,
-        lightly=contextlib.nullcontext,
-    )
-    old, new = SimpleNamespace(area=35), SimpleNamespace(area=36)
+    play = game(area=36)
+    run, clock = play.run(), play.clock
+    old, new = target((1003.0, 1000.0), area=35), target((1003.0, 1000.0), area=36)
     assert card_for(run, lambda: new if clock.now >= 0.37 else old) is new
     assert 0.37 <= clock.now < 0.5
     # Tower Cellar 1, 21:36:39 on 2026-10-11: the press on arrival waited 580 ms for the service's
@@ -680,7 +673,7 @@ def test_a_door_click_a_cast_swallowed_is_made_again_at_the_same_aim():
     play.door, play.swallowed_clicks = (1001.0, 1000.0), 1
     began = play.clock.now
     step_toward(play.run(), target(play.door, warp=True), keys)
-    assert play.world.player.area == 110
+    assert play.character.area == 110
     assert [event[0] for event in play.keys.events] == ['click', 'click']
     assert play.walks == []
     assert play.clock.now - began < 1.0
@@ -708,7 +701,7 @@ def test_a_press_the_game_drops_is_pressed_again_and_the_lost_key_is_not_named_a
     play.keys.on_event = lambda event: dropped.pop() if event == ('key', 't') and dropped else react(event)
     step_toward(play.run(), target((1040.0, 1000.0)), keys)
     assert play.pressed() == ['t', 't']  # the first press never reached the game, the second landed
-    assert play.world.player.x > 5000.0
+    assert play.character.x > 5000.0
 
     play.keys.on_event = lambda event: None
     with pytest.raises(Abort, match='took neither of two presses'):
@@ -752,7 +745,7 @@ def test_a_hop_whose_landing_is_where_the_character_stands_is_not_made(monkeypat
     play = game()
     step_toward(play.run(), target((1000.1, 1000.1)), keys)
     assert play.pressed() == []
-    assert play.staff.charges == 10
+    assert staff(play).charges == 10
     assert play.said[-1] == 'At Next level'
 
 
@@ -762,7 +755,7 @@ def test_beside_a_spot_that_is_not_a_door_no_hop_is_made():
     play = game()
     step_toward(play.run(), target((1000.5, 1000.5)), keys)
     assert play.pressed() == []
-    assert play.staff.charges == 10
+    assert staff(play).charges == 10
     assert play.said[-1] == 'At Next level'
 
 
@@ -779,7 +772,7 @@ def test_a_short_hop_onto_a_taken_spot_that_moves_nobody_ends_the_step_at_once()
 
     def taken(event):
         if event == ('key', 't'):
-            play.staff = replace(play.staff, charges=play.staff.charges - 1)  # cast, and nowhere to land
+            play.staff = replace(staff(play), charges=staff(play).charges - 1)  # cast, and nowhere to land
 
     play.keys.on_event = taken
     began = play.clock.now
@@ -811,7 +804,7 @@ def test_a_hop_is_planned_from_where_a_walk_under_way_ends():
     # The walk's end counted as the hop's landing, and every hop after was aimed from the place before
     # its own: twelve of sixteen landed 6 to 26 units off, two of them the last ones at the door.
     play = game()
-    walking = replace(play.world.player, mode=3)
+    walking = replace(play.character, mode=3)
     play.world = replace(play.world, player=walking)
     stopped = replace(walking, x=5010.0, y=5000.0, mode=1)
     play.arrivals.append((0.2, lambda: setattr(play, 'world', replace(play.world, player=stopped))))
@@ -821,7 +814,7 @@ def test_a_hop_is_planned_from_where_a_walk_under_way_ends():
 
 def test_a_hop_does_not_wait_long_for_a_character_the_player_keeps_running():
     play = game()
-    running = replace(play.world.player, mode=3)
+    running = replace(play.character, mode=3)
     play.world = replace(play.world, player=running)
     run = play.run()
     started = run.clock()
@@ -836,7 +829,7 @@ def test_the_next_hop_is_planned_from_a_fresh_landing_without_waiting_for_the_ca
     play = game()
     step_toward(play.run(), target((1003.0, 1000.0)), keys)
     ((x, y, _at),) = teleport.LANDING
-    casting = replace(play.world.player, x=x, y=y, mode=10)
+    casting = replace(play.character, x=x, y=y, mode=10)
     play.world = replace(play.world, player=casting)
     play.acting_until = None  # the cast goes on: nothing ends it here
     run = play.run()
@@ -847,7 +840,7 @@ def test_the_next_hop_is_planned_from_a_fresh_landing_without_waiting_for_the_ca
 
 def test_a_landing_that_is_old_or_not_where_the_character_is_does_not_stand_for_its_place():
     play = game()
-    casting = replace(play.world.player, mode=10, right_skill=54)  # a Teleport that has not landed
+    casting = replace(play.character, mode=10, right_skill=54)  # a Teleport that has not landed
     free = replace(casting, mode=1)
     for place in ((casting.x + 5.0, casting.y, 0.0), (casting.x, casting.y, -1.0)):
         play.world = replace(play.world, player=casting)
@@ -877,7 +870,11 @@ def test_the_teleport_keys_pointer_is_put_in_one_step_with_a_few_milliseconds_be
     play.keys.move_pointer, play.clock.sleep = move_pointer, sleeping
     run = play.run()
     marks = {}
-    run.actuator.mark = lambda name: marks.setdefault(name, play.clock.now)
+
+    def mark(name: str) -> None:
+        marks.setdefault(name, play.clock.now)
+
+    run.actuator.mark = mark
     step_toward(run, target((1003.0, 1000.0)), keys)
     assert play.pressed() == ['t']
     assert len(moves) == 1
@@ -915,14 +912,14 @@ def casting_game(keeps, cast_left=0.2):
     """A game whose character is in a cast for `cast_left` more seconds, and what it does with a key then."""
     play = game()
     play.keeps_keys = keeps
-    play.world = replace(play.world, player=replace(play.world.player, mode=7))
+    play.world = replace(play.world, player=replace(play.character, mode=7))
     play.acting_until = play.clock.now + cast_left
     taps, press = [], play.keys.press
 
-    def pressing(code):
-        if code == play.keys.names['t']:
+    def pressing(key: int) -> bool:
+        if key == play.keys.names['t']:
             taps.append(play.clock.now)
-        return press(code)
+        return press(key)
 
     play.keys.press = pressing
     return play, taps
@@ -934,17 +931,19 @@ def test_the_teleport_key_is_pressed_during_the_cast_before_and_the_game_casts_i
     # see the cast's end and tapped then, 214 to 290 ms from press to key for a third of the presses.
     play, taps = casting_game(keeps=True)
     over = play.acting_until
+    assert over is not None
     step_toward(play.run(), target((1003.0, 1000.0)), keys)
     assert len(taps) == 1
     assert taps[0] < over - 0.1  # at once: not at the cast's end
     assert play.hops_cast_at == [pytest.approx(over, abs=0.02)]
-    assert math.dist((play.world.player.x, play.world.player.y), (5015.0, 5000.0)) < 3
+    assert math.dist((play.character.x, play.character.y), (5015.0, 5000.0)) < 3
 
 
 def test_a_teleport_key_the_game_did_not_keep_is_pressed_again_when_the_cast_is_over(caplog):
     # The client drops a press under 160 ms after the cast before began while its entry is held, and a third one.
     play, taps = casting_game(keeps=False)
     over = play.acting_until
+    assert over is not None
     with caplog.at_level('INFO'):
         step_toward(play.run(), target((1003.0, 1000.0)), keys)
     assert len(taps) == 2
@@ -952,13 +951,13 @@ def test_a_teleport_key_the_game_did_not_keep_is_pressed_again_when_the_cast_is_
     assert over <= taps[1] <= over + 0.2
     assert 'did not keep the Teleport key' in caplog.text
     assert play.hops_cast_at == []
-    assert math.dist((play.world.player.x, play.world.player.y), (5015.0, 5000.0)) < 3
+    assert math.dist((play.character.x, play.character.y), (5015.0, 5000.0)) < 3
 
 
 def test_a_hop_is_planned_during_a_cast_that_takes_the_character_nowhere():
     # A strike of attack mode: the character stands where the hop will start; the key waits for nothing.
     play = game()
-    striking = replace(play.world.player, mode=10, right_skill=388)
+    striking = replace(play.character, mode=10, right_skill=388)
     play.world = replace(play.world, player=striking)
     run = play.run()
     started = run.clock()
@@ -999,7 +998,7 @@ def test_the_red_portal_of_the_durance_is_gone_through_like_the_one_to_tristram(
     play.thing, play.thing_above = Thing(78, HELL_GATE, 2, 5010.0, 5002.0), 40
     play.next_area = 103
     step_toward(play.run(), placed(HELL_GATE, 'Red portal'), keys)
-    assert play.world.player.area == 103
+    assert play.character.area == 103
     assert play.said[-1] == 'Red portal: there'
 
 

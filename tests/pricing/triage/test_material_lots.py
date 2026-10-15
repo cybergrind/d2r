@@ -3,6 +3,7 @@ import pytest
 from pricing.knowledge.market import normalize_listing
 from pricing.triage.bands import build_bands
 from pricing.triage.engine import assess, prepare_tables
+from tests.pricing.knowledge.reports import present
 
 
 def test_sparse_key_quote_is_reference_and_supported_bulk_lot_takes_priority():
@@ -12,12 +13,12 @@ def test_sparse_key_quote_is_reference_and_supported_bulk_lot_takes_priority():
     rules = {'rows': [], 'keep_ist': 0.25}
     item = {'name': 'Key of Destruction', 'category': 'misc', 'quantity': 1}
     tables = prepare_tables(build_bands(rows, []), rules, {'rows': []})
-    result = assess(item, tables)
+    result = present(assess(item, tables))
     assert result['verdict'] == 'check'
     assert result['decision_ist'] is None
     assert result['band'] is None
     assert result['reference_band']['sellers'] == 2
-    stack = assess(item | {'quantity': 4}, tables)
+    stack = present(assess(item | {'quantity': 4}, tables))
     assert stack['verdict'] == 'check'
     assert stack['decision_ist'] is None
     assert stack['reference_band']['quantity'] == 1

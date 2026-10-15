@@ -4,7 +4,7 @@ from dataclasses import replace
 
 from dirty_equals import Contains, IsPartialDict
 
-from tests.pricing.knowledge.assessment.item_bank.models import Case, Item
+from tests.pricing.knowledge.assessment.item_bank.models import Case, Item, known
 
 
 USES = (
@@ -63,7 +63,7 @@ def cases():
                     scenario=scenario,
                     absent_configurations=() if scenario == 'positive' and has_stats else (config,),
                     absent_stat_configurations={'224:0': (config,)} if suffix == 'amulet' else {},
-                    report_contains=(item.name, 'Trade tier: low'),
+                    report_contains=(known(item.name), 'Trade tier: low'),
                     evidence=(
                         'pricing/data/appraisal-guide-sections.json:/sources/pricing~1raw~1mr~1guides__zeal-paladin.html/sections/32'
                         if build == 'zeal-paladin'

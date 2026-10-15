@@ -49,8 +49,10 @@ def test_the_position_is_read_at_the_published_address_of_the_published_process(
     calls = []
     live = reader({PLAYER: path_bytes(103, 149)}, calls)
 
-    assert live.locate(payload())['player'] == [20.6, 29.8]
-    assert live.locate(payload())['player'] == [20.6, 29.8]
+    for _ in range(2):
+        located = live.locate(payload())
+        assert located is not None
+        assert located['player'] == [20.6, 29.8]
     assert calls == [(107, 8, PLAYER)] * 2  # one open, reused
 
 

@@ -60,7 +60,7 @@ def cases():
                     ]
                 )
             for scenario, label, observed, context in rows:
-                expected = {'roles': Contains(IsPartialDict(id=role))}
+                expected: dict[str, object] = {'roles': Contains(IsPartialDict(id=role))}
                 if slug == 'ist' and state == 'filled' and label in ('candidate', 'wrong-fourth-filler'):
                     expected['roles'] = Contains(
                         IsPartialDict(id=role, status='partial' if scenario == 'positive' else 'failed')

@@ -30,6 +30,7 @@ def test_verified_set_upgrade_resolves_original_definition(name, base):
     definition, gaps = resolve_named_definition(item)
     assert not gaps
     assert definition == named_definitions()['set', name]
+    assert definition is not None
     assert resolve_named_definition(replace(item, provenance={}))[0] is None
     for identity in ({'table': 'unique', 'table_id': definition['table_id']}, {'table': 'set', 'table_id': -1}):
         assert resolve_named_definition(replace(item, provenance={'capture': {'item_identity': identity}}))[0] is None

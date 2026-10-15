@@ -59,7 +59,7 @@ def unit_of(row: list) -> Unit:
     """One `[unit, record, states, skill]` of a `records.jsonl` row."""
     raw = bytes.fromhex(row[1])
     skill = bytes.fromhex(row[3]) if len(row) > 3 and row[3] else b''
-    u32 = lambda at: struct.unpack_from('<I', raw, at)[0]  # noqa: E731
+    u32 = lambda at: struct.unpack_from('<I', raw, at)[0]  # ruff: ignore[lambda-assignment]
     flags = boss = None
     if len(raw) >= UNIT_RECORD + MONSTER_DATA:
         data = raw[UNIT_RECORD:]

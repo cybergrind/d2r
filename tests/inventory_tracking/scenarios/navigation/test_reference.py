@@ -133,6 +133,7 @@ def test_a_route_is_made_of_hops_in_view_onto_footing_and_ends_at_the_mark():
     found = Footing(ground)
     field = HopField(found, (575.5, 535.5), HOST)
     route = field.route((502.5, 502.5))
+    assert route is not None
     assert len(route) - 1 == field.hops((502.5, 502.5)) == 4
     assert all(HOST.in_view(HOST.ground(a, *b)) for a, b in pairwise(route))
     assert all(found.has(spot) for spot in route[1:])
@@ -181,6 +182,7 @@ def walled(start=(520.5, 520.5)) -> WalledGame:
 
 def aim(game: WalledGame, spot) -> None:
     here = game.world.player
+    assert here is not None
     across, down = HOST.ground((here.x, here.y), *spot)
     game.keys.move_pointer(round(WINDOW[0] + across * WINDOW[2]), round(WINDOW[1] + down * WINDOW[3]))
 
@@ -189,6 +191,7 @@ def test_a_teleport_lands_on_the_centre_of_the_sub_tile_aimed_at():
     game = walled()
     aim(game, (510.2, 512.8))
     game.react(('key', KEYS[54]))
+    assert game.world.player is not None
     assert (game.world.player.x, game.world.player.y) == (510.5, 512.5)
     assert game.refused == []
 
@@ -197,5 +200,6 @@ def test_a_teleport_at_a_wall_moves_nobody_and_is_counted():
     game = walled()
     aim(game, (535.5, 520.5))
     game.react(('key', KEYS[54]))
+    assert game.world.player is not None
     assert (game.world.player.x, game.world.player.y) == (520.5, 520.5)
     assert len(game.refused) == 1

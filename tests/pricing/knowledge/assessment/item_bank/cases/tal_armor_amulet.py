@@ -4,7 +4,7 @@ from dataclasses import replace
 
 from dirty_equals import Contains, IsPartialDict
 
-from tests.pricing.knowledge.assessment.item_bank.models import Case, Item
+from tests.pricing.knowledge.assessment.item_bank.models import Case, Item, known
 
 
 ARMOR_USES = {
@@ -112,7 +112,9 @@ def cases():
                 )
             )
         for label, candidate, loadout, truth in examples:
-            expected = {'roles': Contains(*(IsPartialDict(id=r, rule_trace=IsPartialDict(truth=truth)) for r in roles))}
+            expected: dict[str, object] = {
+                'roles': Contains(*(IsPartialDict(id=r, rule_trace=IsPartialDict(truth=truth)) for r in roles))
+            }
             if truth == 'true':
                 expected['stat_evaluation'] = IsPartialDict(
                     annotations=IsPartialDict(
@@ -128,7 +130,7 @@ def cases():
                 expected={'assessment': IsPartialDict(**expected)},
                 absent_stat_configurations=dict.fromkeys(irrelevant, configs),
                 absent_configurations=() if truth == 'true' else configs,
-                report_contains=(item.name, 'Trade tier:') if truth == 'true' else (item.base,),
+                report_contains=(known(item.name), 'Trade tier:') if truth == 'true' else (item.base,),
                 report_absent=('10% Faster Cast Rate',),
                 evidence=evidence,
             )

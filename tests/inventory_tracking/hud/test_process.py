@@ -192,7 +192,7 @@ def test_the_mode_beacon_adds_the_input_mode_and_in_controller_mode_the_pad_lege
     from inventory_tracking.hud.process import ModeBeacon
     from inventory_tracking.models import InputMode
 
-    mode = [None]
+    mode: list[InputMode | None] = [None]
     published = []
     beacon = ModeBeacon(
         lambda: (True, False),

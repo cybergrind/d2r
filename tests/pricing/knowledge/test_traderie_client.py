@@ -33,7 +33,9 @@ def test_rejected_responses_stop_without_retry(monkeypatch, status, body, header
     with pytest.raises(OSError, match=message):
         refresh.fetch_json('https://traderie.com/api/test')
     assert request.call_count == 1
-    refresh.time.sleep.assert_not_called()
+    sleep = refresh.time.sleep
+    assert isinstance(sleep, Mock)  # patched by response()
+    sleep.assert_not_called()
 
 
 def test_rate_limit_preserves_retry_after(monkeypatch):

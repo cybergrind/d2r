@@ -1,4 +1,5 @@
 from datetime import date
+from typing import Any
 
 import pytest
 
@@ -101,7 +102,7 @@ def test_poison_facet_price_checks_rates_duration_and_single_source():
     contract = assess(extraction, profiles=[])['contract']
     assert contract is not None
     assert contract['intrinsic_properties']['589'] == 37
-    rows = [
+    rows: list[dict[str, Any]] = [
         {
             **{
                 k: contract[k]

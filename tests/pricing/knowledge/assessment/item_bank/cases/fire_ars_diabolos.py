@@ -69,7 +69,7 @@ def cases():
                 'unknown',
             ),
         ):
-            expected_role = {
+            expected_role: dict[str, object] = {
                 'id': role,
                 'rule_trace': IsPartialDict(truth=truth),
                 'socket_requirement': IsPartialDict(item=rune, confirmed=confirmed, applicable=applicable),

@@ -48,7 +48,7 @@ def cases():
         config = role + '-stats'
         for label, item, context, scenario, failed in examples:
             truth = 'unknown' if scenario == 'unknown' else 'false'
-            role_result = {
+            role_result: dict[str, object] = {
                 'id': role,
                 'side': 'merc',
                 'rule_trace': IsPartialDict(truth=truth if failed == 'class' else 'true'),

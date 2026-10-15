@@ -1,4 +1,5 @@
 from dataclasses import replace
+from typing import Any
 
 import pytest
 
@@ -49,7 +50,7 @@ def test_named_utility_requires_native_identity_and_valid_durability(name, base,
     item = facts(base, 'unique', name)
 
     def truth(candidate):
-        rows = assess_roles(candidate, [role], {'player_class': 'Sorceress'})
+        rows: list[dict[str, Any]] = assess_roles(candidate, [role], {'player_class': 'Sorceress'})
         return rows[0]['rule_trace']['truth'] if rows else 'false'
 
     assert truth(item) == 'true'

@@ -70,7 +70,9 @@ def cases():
                 ('level-99', replace(item, viewer_level=99), context, 'true'),
             ]
         for label, candidate, loadout, truth in rows:
-            expected = {'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))}
+            expected: dict[str, object] = {
+                'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))
+            }
             if truth == 'true':
                 expected['stat_evaluation'] = IsPartialDict(
                     annotations=IsPartialDict(

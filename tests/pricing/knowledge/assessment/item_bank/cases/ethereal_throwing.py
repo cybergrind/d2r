@@ -37,7 +37,9 @@ def cases(kind='ethereal'):
         if name == 'Deathbit':
             variants.append(('not-upgraded', replace(item, base='Battle Dart'), 'false'))
         for label, candidate, truth in variants:
-            expected = {'roles': Contains(*(IsPartialDict(id=r, rule_trace=IsPartialDict(truth=truth)) for r in roles))}
+            expected: dict[str, object] = {
+                'roles': Contains(*(IsPartialDict(id=r, rule_trace=IsPartialDict(truth=truth)) for r in roles))
+            }
             if truth == 'true':
                 expected['stat_evaluation'] = IsPartialDict(
                     annotations=IsPartialDict(

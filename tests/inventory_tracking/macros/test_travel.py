@@ -79,6 +79,17 @@ def game(**changes):
     return play
 
 
+def staff(play: Game) -> Teleport:
+    """The staff the character of `game` wears."""
+    assert play.staff is not None
+    return play.staff
+
+
+def approx_step(spot: tuple[float, float], skill: int | None = None) -> Step:
+    """A step to `spot` within float error."""
+    return Step(pytest.approx(spot), skill)  # pyrefly: ignore[bad-argument-type]  # approx compares as the spot
+
+
 def reason(leg) -> str:
     assert isinstance(leg, NoWay)
     return leg.reason
@@ -92,7 +103,7 @@ def test_the_jump_is_teleport_from_the_staff_in_hand_and_never_a_swap():
     travel, run = Travel(SHARED), play.run()
     assert [(jump.skill, jump.line) for jump in travel.jumps(run, play.world)] == [(TELEPORT, False)]
     assert travel.jump_by(run, play.world) == TELEPORT
-    play.staff = replace(play.staff, in_hand=False)  # a swap away: not a jump
+    play.staff = replace(staff(play), in_hand=False)  # a swap away: not a jump
     assert travel.jump_by(run, play.world) is None
 
 
@@ -100,9 +111,9 @@ def test_low_on_charges_the_modes_own_jumps_leave_the_staff_alone():
     # user, 2026-10-11: "track number of tp charges when using staff, and leverage warp more when low"
     play = game()
     travel, run = Travel(SHARED), play.run()
-    play.staff = replace(play.staff, charges=LOW_CHARGES)
+    play.staff = replace(staff(play), charges=LOW_CHARGES)
     assert travel.jump_by(run, play.world) == TELEPORT
-    play.staff = replace(play.staff, charges=LOW_CHARGES - 1)
+    play.staff = replace(staff(play), charges=LOW_CHARGES - 1)
     assert travel.jumps(run, play.world) == ()  # a walk, not a charge
     assert travel.jump_by(run, play.world, replace(OWN_MOVE, reserve=1)) == TELEPORT  # the intent's floor
 
@@ -136,7 +147,7 @@ def test_a_step_is_made_by_the_jump_it_names_and_walked_when_that_can_no_longer_
     travel.make(run, Step((5012.0, 5000.0), TELEPORT), play.world, ASPECT, keys, Ground(()))
     assert play.pressed() == [KEYS[TELEPORT]]
     assert travel.jumped_at == {}  # Teleport has no casting delay: nothing to remember
-    play.staff = replace(play.staff, in_hand=False)
+    play.staff = replace(staff(play), in_hand=False)
     after = run.world()
     assert after.player is not None
     travel.make(run, Step((after.player.x + 8.0, after.player.y), TELEPORT), after, ASPECT, keys, None)
@@ -240,11 +251,13 @@ def test_the_jump_that_spares_the_staff_is_the_first_of_the_sets_that_is_not_tel
 def test_the_walked_way_goes_round_a_wall_and_no_way_is_an_empty_one():
     ground = walled(wall_with_a_gap)
     barred = no_footing(ground, ())
+    assert barred is not None
     path = walked_way(barred, (5000.5, 5000.5), (5020.5, 5000.5))
     assert path[-1] == (5020.5, 5000.5)
     assert max(y for _x, y in path) >= 5012  # round the wall's southern end
     assert all(not barred(spot) for spot in path)
     shut = no_footing(walled(lambda x, y: not 5008 <= x < 5010), ())
+    assert shut is not None
     # The wall has no end: the way goes as near the goal as the ground lets it, and from there nowhere.
     assert walked_way(shut, (5000.5, 5000.5), (5020.5, 5000.5))[-1] == (5007.5, 5000.5)
     assert walked_way(shut, (5007.5, 5000.5), (5020.5, 5000.5)) == []
@@ -253,18 +266,18 @@ def test_the_walked_way_goes_round_a_wall_and_no_way_is_an_empty_one():
 def test_a_stride_is_the_longest_jump_that_lands_and_a_walk_where_none_is_made():
     goal = (HERE[0] + 30.0, HERE[1])
     both = (DART, HOP)
-    assert stride_of(facts(), goal, 14.0, jumps=both) == Step(pytest.approx((HERE[0] + 16.0, HERE[1])), DART.skill)
+    assert stride_of(facts(), goal, 14.0, jumps=both) == approx_step((HERE[0] + 16.0, HERE[1]), DART.skill)
     # The candidates in their order: JUMP_REACH lands in view to the west; to the east it is off the
     # window and three quarters of it is taken; down the screen only half of it is in view.
     for dx, dy, share in ((-60.0, 0.0, 1.0), (60.0, 0.0, 0.75), (60.0, 60.0, 0.5)):
         far = stride_of(facts(), (HERE[0] + dx, HERE[1] + dy), jumps=both)
         assert isinstance(far, Step)
         assert (far.skill, math.dist(HERE, far.spot)) == (DART.skill, pytest.approx(JUMP_REACH * share))
-    assert stride_of(facts(), goal, 14.0, jumps=(HOP,)) == Step(pytest.approx((HERE[0] + 16.0, HERE[1])), TELEPORT)
+    assert stride_of(facts(), goal, 14.0, jumps=(HOP,)) == approx_step((HERE[0] + 16.0, HERE[1]), TELEPORT)
     walked = stride_of(facts(), goal)
-    assert walked == Step(pytest.approx((HERE[0] + STRIDE, HERE[1])))
+    assert walked == approx_step((HERE[0] + STRIDE, HERE[1]))
     near = stride_of(facts(), (HERE[0] + 6.0, HERE[1]), jumps=both)  # under JUMP_LEAST: walked, whatever the jumps
-    assert near == Step(pytest.approx((HERE[0] + 6.0, HERE[1])))
+    assert near == approx_step((HERE[0] + 6.0, HERE[1]))
 
 
 def test_a_stride_at_or_within_its_stand_off_has_arrived():
@@ -296,6 +309,7 @@ def test_a_wall_in_the_line_leaves_no_straight_stride():
     goal = (5020.5, 5000.5)
     blocked = stride_of(facts(ground=ground), goal, jumps=(DART,))
     assert blocked == NoWay(WALLED)
+    assert isinstance(blocked, NoWay)
     assert not blocked.arrived
     assert reason(stride_of(facts(ground=ground), goal)) == WALLED
     # The stride asks for one jump: with a thrown one first and a wall in its line it is not handed to the next
@@ -311,9 +325,9 @@ def test_a_few_units_up_to_a_wall_the_goal_stands_behind_is_no_stride_for_a_shot
     goal = (5012.5, 5000.5)  # behind the wall at 5008 to 5010
     both = (DART, HOP)
     assert reason(stride_of(facts(ground=ground), goal, 6.0, shot=True, jumps=both)) == NO_SHOT
-    assert stride_of(facts(ground=ground), goal, 6.0, jumps=both) == Step(pytest.approx((5006.5, 5000.5)))
+    assert stride_of(facts(ground=ground), goal, 6.0, jumps=both) == approx_step((5006.5, 5000.5))
     clear = stride_of(facts(), goal, 6.0, shot=True, jumps=both)  # no wall: the same walk is made
-    assert clear == Step(pytest.approx((5006.5, 5000.5)))
+    assert clear == approx_step((5006.5, 5000.5))
 
 
 def test_with_no_wall_known_there_is_no_way_round_to_look_for():
@@ -353,7 +367,7 @@ def test_a_dodges_click_waits_for_the_cast_to_end_not_the_settle_and_one_swallow
     # the first look that reads the cast over; a click the game took no notice of is said and made again, settled.
     play = Game(world())
     run = play.run()
-    play.world = replace(play.world, player=replace(play.world.player, mode=7))
+    play.world = replace(play.world, player=replace(play.character, mode=7))
     play.acting_until = play.clock.now + 0.15
     casting = play.world.player
     settled = step_walk(run, (5010.0, 5000.0), casting, ASPECT, [], hurry=True)
@@ -370,7 +384,7 @@ def test_a_dodges_click_waits_for_the_cast_to_end_not_the_settle_and_one_swallow
 def test_a_failed_jump_in_the_game_is_remembered_and_said():
     play = game()
     travel, run = Travel(SHARED), play.run()
-    play.staff = replace(play.staff, charges=0)  # the key does nothing: the staff is empty
+    play.staff = replace(staff(play), charges=0)  # the key does nothing: the staff is empty
     with pytest.raises(Abort, match='Teleport: the character did not move'):
         travel.jump(run, Step((5012.0, 5000.0), TELEPORT), play.world.player, ASPECT, keys)
     assert travel.jump_failed == {TELEPORT: pytest.approx(play.clock.now)}
@@ -398,7 +412,7 @@ def test_a_walk_click_waits_for_the_character_to_stand_free_only_when_a_look_has
     play = Game(world())
     run = play.run()
     assert step_walk(run, (5010.0, 5000.0), play.world.player, ASPECT, []) == 0.0
-    casting = replace(play.world.player, mode=7)
+    casting = replace(play.character, mode=7)
     assert step_walk(run, (5020.0, 5000.0), casting, ASPECT, []) >= SWAP_SETTLE
     assert len(play.walks) == 2
 
@@ -474,6 +488,7 @@ def test_a_room_read_again_with_more_footing_is_taken_in_and_one_with_less_grows
     assert walked_over(opened, (), cell) is first
     same_field(first, opened)
     again = walked_over(grids, (), cell)  # the wall back: no way may grow longer in a kept field
+    assert again is not None
     assert again is not first
     same_field(again, grids)
 
@@ -483,7 +498,7 @@ def test_a_walked_field_grows_within_the_looks_time_and_is_the_straight_line_unt
     grids = tuple(ROOMS.values())
     here = facts(here=FAR, ground=Ground(grids), slots=(None,))
     reads = iter(range(10**6))
-    clock = lambda: next(reads) * 0.001  # noqa: E731 - a clock that moves a millisecond each time it is read
+    clock = lambda: next(reads) * 0.001  # ruff: ignore[lambda-assignment] - a clock that moves a millisecond each time it is read
     with caplog.at_level(logging.INFO, logger=LOG.name):
         with planning(clock, 0.005):
             assert way_left(here, CORNER) == math.dist(FAR, CORNER)  # not reached in time: the straight line
@@ -514,7 +529,7 @@ def test_a_room_that_shortens_the_kept_way_is_taken_in_within_the_looks_time_too
     grids = (*grids, ROOMS[1, 0])  # the room that shortens the way of most of the field
     here = facts(here=FAR, ground=Ground(grids), slots=(None,))
     reads = iter(range(10**6))
-    clock = lambda: next(reads) * 0.001  # noqa: E731
+    clock = lambda: next(reads) * 0.001  # ruff: ignore[lambda-assignment]
     looks = 0
     while True:
         looks += 1

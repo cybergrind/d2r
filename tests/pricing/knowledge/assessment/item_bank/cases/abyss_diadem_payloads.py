@@ -47,7 +47,9 @@ def cases():
             ('unknown-contents', replace(actual, raw_stats=core, socket_contents='unknown', socket_items=()), False),
             ('child-only-not-parent-total', replace(actual, raw_stats=core), False),
         ):
-            expected = {'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth='true')))}
+            expected: dict[str, object] = {
+                'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth='true')))
+            }
             if observed:
                 expected['stat_evaluation'] = IsPartialDict(
                     annotations=IsPartialDict(

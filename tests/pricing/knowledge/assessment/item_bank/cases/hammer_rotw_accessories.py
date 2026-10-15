@@ -4,7 +4,7 @@ from dataclasses import replace
 
 from dirty_equals import Contains, IsPartialDict
 
-from tests.pricing.knowledge.assessment.item_bank.models import Case, Item
+from tests.pricing.knowledge.assessment.item_bank.models import Case, Item, known
 
 
 SPECS = (
@@ -61,7 +61,9 @@ def cases(*, player_class='Paladin', build='blessed-hammer-paladin', prefix='ham
             ('invalid-sockets', replace(item, sockets=1), context, 'false'),
             ('unknown-sockets', replace(item, sockets=None), context, 'unknown'),
         ):
-            expected = {'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))}
+            expected: dict[str, object] = {
+                'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))
+            }
             if truth == 'true':
                 expected['stat_evaluation'] = IsPartialDict(
                     annotations=IsPartialDict({key: IsPartialDict(configuration_ids=Contains(config)) for key in keys})
@@ -75,7 +77,7 @@ def cases(*, player_class='Paladin', build='blessed-hammer-paladin', prefix='ham
                 scenario={'true': 'positive', 'false': 'negative', 'unknown': 'unknown'}[truth],
                 absent_configurations=() if truth == 'true' else (config,),
                 absent_stat_configurations=dict.fromkeys(excluded, (config,)),
-                report_contains=(item.name, 'Trade tier:') if truth == 'true' else (item.base,),
+                report_contains=(known(item.name), 'Trade tier:') if truth == 'true' else (item.base,),
                 evidence=(
                     f'pricing/data/wp-a-builds.json:/{build}/slots',
                     'third-parties/d2data/json/uniqueitems.json',

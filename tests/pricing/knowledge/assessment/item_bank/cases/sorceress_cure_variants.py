@@ -69,7 +69,7 @@ def cases():
                 examples.append(('holy-freeze', item, {**context, 'mercenary_type': 'Act 2 Holy Freeze'}, 'true'))
                 examples.append(('uncited-prayer', item, {**context, 'mercenary_type': 'Act 2 Prayer'}, 'false'))
             for label, candidate, ctx, truth in examples:
-                expected = {
+                expected: dict[str, object] = {
                     'roles': Contains(IsPartialDict(id=role, side='merc', rule_trace=IsPartialDict(truth=truth)))
                 }
                 if truth == 'true':

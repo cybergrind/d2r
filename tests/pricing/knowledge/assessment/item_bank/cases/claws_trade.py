@@ -3,7 +3,7 @@
 from dataclasses import replace
 
 from tests.pricing.knowledge.assessment.item_bank.cases.original_set_trade import make_case
-from tests.pricing.knowledge.assessment.item_bank.models import Item
+from tests.pricing.knowledge.assessment.item_bank.models import Item, ItemChanges
 
 
 FIXED = ((105, 0, 20), (43, 0, 30), (188, 16, 2), (332, 0, 25))
@@ -15,18 +15,16 @@ def cases():
         (f'defense-{defense}', replace(original, raw_stats=((31, 0, defense), *FIXED)), True)
         for defense in (67, 71, 74)
     ]
-    specimens.extend(
-        (label, replace(original, **changes), False)
-        for label, changes in (
-            ('upgraded', {'base': 'Vambraces', 'raw_stats': ((31, 0, 97), *FIXED)}),
-            ('ethereal', {'ethereal': True}),
-            ('unknown-ethereal', {'ethereal': None}),
-            ('socketed', {'sockets': 1}),
-            ('unknown-sockets', {'sockets': None}),
-            ('unknown-contents', {'socket_contents': 'unknown'}),
-            ('unidentified', {'identified': False}),
-        )
+    variants: tuple[tuple[str, ItemChanges], ...] = (
+        ('upgraded', {'base': 'Vambraces', 'raw_stats': ((31, 0, 97), *FIXED)}),
+        ('ethereal', {'ethereal': True}),
+        ('unknown-ethereal', {'ethereal': None}),
+        ('socketed', {'sockets': 1}),
+        ('unknown-sockets', {'sockets': None}),
+        ('unknown-contents', {'socket_contents': 'unknown'}),
+        ('unidentified', {'identified': False}),
     )
+    specimens.extend((label, replace(original, **changes), False) for label, changes in variants)
     for label, item, qualified in specimens:
         case = make_case('claws/' + label, item, qualified)
         yield replace(case, id='claws-trade/' + label)

@@ -7,6 +7,7 @@ import re
 import struct
 import time
 from pathlib import Path
+from typing import Any
 
 from inventory_tracking.common import configure_logging, timestamp
 from inventory_tracking.hover.legacy import capture_selection, read_indexed_hover, scan_hover
@@ -113,7 +114,7 @@ def main(argv=None):
             print(f'Hover {label}; sampling in {pause:g} seconds', flush=True)
             time.sleep(pause)
             observations = []
-            result = capture_selection(
+            result: dict[str, Any] = capture_selection(
                 lambda observations=observations: read_hover(pid, images, rva, selector_rva, observations),
                 lambda: sample_units(pid, images, capture, item_class=537),
             )

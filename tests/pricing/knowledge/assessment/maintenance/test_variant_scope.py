@@ -3,6 +3,7 @@
 import hashlib
 import json
 from copy import deepcopy
+from typing import Any
 
 import pytest
 
@@ -13,7 +14,7 @@ from pricing.knowledge.assessment.maintenance.value_scope import (
 )
 
 
-def variant_review(tmp_path, layout):
+def variant_review(tmp_path, layout) -> tuple[dict[str, Any], dict[str, Any]]:
     build = 'example-build'
     variants = [
         {'name': 'Starter', 'purpose': 'Ordinary leveling equipment', 'player': {'Weapon': ['Spirit']}},

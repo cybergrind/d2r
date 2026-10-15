@@ -5,7 +5,7 @@ from itertools import product
 
 from dirty_equals import IsPartialDict
 
-from tests.pricing.knowledge.assessment.item_bank.models import Case, Item
+from tests.pricing.knowledge.assessment.item_bank.models import Case, Item, ItemChanges, known, with_stat_value
 
 
 ATTRIBUTES = (0, 1, 2, 3)
@@ -44,7 +44,10 @@ def make_case(label, specimen, status, reason=None):
             },
             'lines': [
                 {
-                    'text': 'Trade: ' + ('premium' if status == 'premium' else 'ordinary') + ' candidate — ' + reason,
+                    'text': 'Trade: '
+                    + ('premium' if status == 'premium' else 'ordinary')
+                    + ' candidate — '
+                    + known(reason),
                     'tone': 'tier_high' if status == 'premium' else 'tier_low',
                 }
             ]
@@ -91,22 +94,21 @@ def cases():
     for stat in MATERIAL:
         minimum, maximum = (5, 10) if stat == 85 else (10, 20)
         for value in (None, minimum - 1, maximum + 1):
-            raw = tuple(
-                (s, p, value if s == stat else v) for s, p, v in perfect.raw_stats if s != stat or value is not None
-            )
+            raw = with_stat_value(perfect.raw_stats, {stat}, value)
             yield make_case(f'component-{stat}-{value}', replace(perfect, raw_stats=raw), 'unresolved')
     for stat in (*ATTRIBUTES, *RESISTANCES):
         for value in (10, 19):
             raw = tuple((s, p, value if s == stat else v) for s, p, v in perfect.raw_stats)
             yield make_case(f'unequal-{stat}-{value}', replace(perfect, raw_stats=raw), 'unresolved')
-    for label, changes in (
+    overrides: tuple[tuple[str, ItemChanges], ...] = (
         ('ethereal', {'ethereal': True}),
         ('unknown-ethereal', {'ethereal': None}),
         ('unidentified', {'identified': False}),
         ('socketed', {'sockets': 1}),
         ('unknown-sockets', {'sockets': None}),
         ('unknown-contents', {'socket_contents': 'unknown'}),
-    ):
+    )
+    for label, changes in overrides:
         yield make_case(label, replace(perfect, **changes), 'unresolved')
 
 

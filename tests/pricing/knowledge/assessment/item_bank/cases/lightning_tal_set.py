@@ -2,7 +2,7 @@
 
 from dirty_equals import Contains, IsPartialDict
 
-from tests.pricing.knowledge.assessment.item_bank.models import Case, Item, SocketItem
+from tests.pricing.knowledge.assessment.item_bank.models import Case, Item, SocketItem, known
 
 
 TAL = ("Tal Rasha's Guardianship", "Tal Rasha's Fine-Spun Cloth", "Tal Rasha's Adjudication")
@@ -82,7 +82,7 @@ def cases():
                         )
                     )
                 },
-                report_contains=(item.name, 'Trade tier:'),
+                report_contains=(known(item.name), 'Trade tier:'),
                 evidence=('pricing/data/wp-a-variants/lightning-sorceress.json:/variants/2',),
             )
 

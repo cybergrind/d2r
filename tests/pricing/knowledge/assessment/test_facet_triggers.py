@@ -58,6 +58,7 @@ def test_named_handler_consumes_only_verified_facet_trigger_projection_gap():
     )
     contract, gaps = NamedHandler().contract(item, 'jewel')
     assert not gaps
+    assert contract is not None
     assert contract.properties['780'] == 100
     extra = replace(item, projection_gaps=[*item.projection_gaps, 'Unmapped poison duration'])
     assert NamedHandler().contract(extra, 'jewel')[0] is None

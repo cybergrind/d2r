@@ -6,6 +6,7 @@ from pricing.knowledge.assessment.build_profiles import build
 from pricing.knowledge.assessment.profiles import assess_role_results
 from pricing.knowledge.assessment.stat_bundle import configuration_from_row
 from pricing.knowledge.assessment.stat_evaluation import StatsEvaluator
+from tests.pricing.knowledge.assessment.fact_changes import fact_changes
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
 
 
@@ -51,7 +52,7 @@ def test_trang_glove_stats_follow_beneficiary_not_item_name_alone(slug, index, c
     assert evaluate().annotations['43:0']['desirability'] == 'supporting'
     if '332:0' in expected:
         assert evaluate().annotations['332:0']['desirability'] == 'desirable'
-    for change in ({'rarity': 'unique'}, {'ethereal': True}, {'identified': None}, {'name': 'Other'}):
+    for change in fact_changes({'rarity': 'unique'}, {'ethereal': True}, {'identified': None}, {'name': 'Other'}):
         assert not evaluate(replace(item, **change)).annotations
     assert not evaluate(context={'player_class': 'Other'}).annotations
     if fcr:

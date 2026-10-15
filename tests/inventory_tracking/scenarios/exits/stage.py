@@ -71,11 +71,13 @@ class Stage:
     grids: tuple[Walkable, ...]
     doors: tuple[Door, ...]
     arrived_at: tuple[float, float]  # where the recorded character came into the level
-    ground: Ground = field(compare=False, repr=False, default=None)
+    ground: Ground = field(compare=False, repr=False)
 
     @property
     def target(self) -> Target:
-        return card_target(self.area, self.rooms, self.grids)
+        found = card_target(self.area, self.rooms, self.grids)
+        assert found is not None  # every staged level has its card's mark
+        return found
 
     @property
     def mark(self) -> tuple[float, float]:
@@ -215,6 +217,7 @@ class LevelGame(Game):
         w = self.world
         if self.staff is None or not self.staff.in_hand or self.staff.charges <= 0 or self.acting_until is not None:
             return
+        assert w.player is not None
         aim, start = self.ground_under_pointer(), (w.player.x, w.player.y)
         if self.ground.walkable(*aim) is False:
             return
@@ -225,6 +228,7 @@ class LevelGame(Game):
 
         def land() -> None:
             self.hops.append((start, aim))
+            assert self.world.player is not None
             self.world = replace(self.world, player=replace(self.world.player, x=aim[0], y=aim[1]))
 
         self.arrivals.append((self.clock.now + CAST_SECONDS, land))
@@ -239,8 +243,10 @@ class LevelGame(Game):
         return math.dist((gx + lift, gy + lift), self.box) < DOOR_BOX
 
     def clicked(self) -> None:
+        assert self.world.player is not None
         here = (self.world.player.x, self.world.player.y)
         if self.on_door():
+            assert self.box is not None  # on_door: there is a box
             self.door_clicks += 1
             doors = self.world.doors
             if math.dist(here, self.box) <= STAND_TAKE and open_line(self.ground, doors, here, self.spot):
@@ -298,6 +304,7 @@ class LevelGame(Game):
         self.entered_at = self.clock.now
         x, y = self.next_start
         after = self.beyond
+        assert self.world.player is not None
         self.world = replace(
             self.world,
             player=replace(self.world.player, area=self.next_area, x=x, y=y),
@@ -338,6 +345,7 @@ class Card:
         if now is not self.shown:
             if self.changed is None:
                 self.changed = self.play.entered_at
+            assert self.changed is not None  # the level changed by entering it
             if self.play.clock.now - self.changed >= self.lag:
                 self.shown, self.changed = now, None
         return self.shown.target
@@ -379,7 +387,8 @@ def press(play: LevelGame, card, outcome: Outcome | None = None, *, seed: int = 
     outcome.landings += [landed for _, landed in play.hops[hops:]]
     outcome.clicks, outcome.strays, outcome.walked = play.door_clicks, len(play.ground_clicks), play.walked
     outcome.entered = play.entered_at is not None
-    outcome.seconds += (play.entered_at if outcome.entered and play.entered_at >= began else play.clock.now) - began
+    entered_at = play.entered_at
+    outcome.seconds += (entered_at if entered_at is not None and entered_at >= began else play.clock.now) - began
     return outcome
 
 

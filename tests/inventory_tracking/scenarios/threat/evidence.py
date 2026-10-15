@@ -48,7 +48,7 @@ def on_line(here, ground, at) -> bool:
 def main(argv=None) -> int:
     root = Path((argv or sys.argv[1:] or [TAKES])[0])
     threats = table()
-    name = lambda txt: threats.monsters[txt].name if txt in threats.monsters else str(txt)  # noqa: E731
+    name = lambda txt: threats.monsters[txt].name if txt in threats.monsters else str(txt)  # ruff: ignore[lambda-assignment]
     close, reach = defaultdict(lambda: [0.0, 0.0]), defaultdict(lambda: [0.0, 0.0])
     lined = defaultdict(lambda: [0.0, 0.0])  # top-threat type -> life lost with it [off the line, on it]
     elites = defaultdict(list)  # immune -> [(seconds in reach of the standing fight, died)]

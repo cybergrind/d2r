@@ -1,6 +1,7 @@
 """Named source examples need native stats, correct rune and original wearer guards."""
 
 from copy import deepcopy
+from typing import Any
 
 import pytest
 
@@ -124,7 +125,7 @@ def test_named_socket_rejects_invalid_native_or_role_evidence(change):
         validate(e, role, build)
 
 
-def endorsement(pid=IDS[0]):
+def endorsement(pid=IDS[0]) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
     e, role, build = example(pid)
     row = next(
         r

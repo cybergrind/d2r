@@ -1,4 +1,5 @@
 from dataclasses import replace
+from typing import Any
 
 import pytest
 
@@ -8,7 +9,9 @@ from tests.pricing.knowledge.assessment.test_family_contracts import facts
 
 def harmony():
     key = '204:6100'
-    stats = {f'{stat}:0': {'status': 'decoded', 'value': 240, 'raw': 240} for stat in (17, 18)}
+    stats: dict[str, dict[str, Any]] = {
+        f'{stat}:0': {'status': 'decoded', 'value': 240, 'raw': 240} for stat in (17, 18)
+    }
     stats['97:32'] = {'status': 'decoded', 'value': 4, 'raw': 4}
     stats[key] = {
         'status': 'decoded',

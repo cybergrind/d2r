@@ -1,6 +1,7 @@
 """Actual socket payloads for caster magic-find helmets and Uber caster armor."""
 
 from dataclasses import replace
+from typing import Any
 
 from dirty_equals import Contains, IsPartialDict
 
@@ -16,7 +17,21 @@ FIRE = SocketItem(
     unique_table_id=423,
 )
 RESIST = SocketItem('Jewel', ((99, 0, 7), (39, 0, 15), (41, 0, 15), (43, 0, 15), (45, 0, 15)), complete=True)
-SPECS = (
+SPECS: tuple[
+    tuple[
+        str,
+        int,
+        str,
+        str,
+        str,
+        SocketItem,
+        SocketItem,
+        tuple[tuple[int, int, int], ...],
+        dict[str, Any],
+        tuple[str, ...],
+    ],
+    ...,
+] = (
     (
         'lightning-sentry-assassin',
         2,

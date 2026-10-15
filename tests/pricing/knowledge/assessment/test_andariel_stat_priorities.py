@@ -7,6 +7,7 @@ from pricing.knowledge.assessment.build_profiles import ROOT, build
 from pricing.knowledge.assessment.maintenance.stat_configurations import compile_stat_configurations
 from pricing.knowledge.assessment.profiles import assess_role_results
 from pricing.knowledge.assessment.stat_evaluation import StatsEvaluator
+from tests.pricing.knowledge.assessment.fact_changes import fact_changes
 from tests.pricing.knowledge.assessment.roles.test_fissure_andariel import CONTEXT, helmet, jewel
 
 
@@ -37,7 +38,7 @@ def test_andariel_priorities_require_one_damage_jewel_and_companions(variant):
     for key in expected:
         wanted = expected - ({'17:0', '18:0'} if key in ('17:0', '18:0') else {key})
         assert set(evaluate(replace(item, stats={k: v for k, v in stats.items() if k != key})).annotations) == wanted
-    for changes in (
+    for changes in fact_changes(
         {'name': None},
         {'name': 'Other'},
         {'rarity': 'rare'},

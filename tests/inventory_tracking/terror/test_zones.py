@@ -67,8 +67,12 @@ def test_tier_curves_and_the_terror_modifier_pool_are_the_installed_games():
 
 
 def test_multi_level_groups_count_together_and_single_levels_stay_alone():
-    assert group_of(6).name == 'Black Marsh'
+    marsh = group_of(6)
+    assert marsh is not None
+    assert marsh.name == 'Black Marsh'
     assert group_of(11) is group_of(15)  # Hole levels
     assert group_of(11) is not group_of(6)  # same Terror Zone, separate Herald groups
-    assert set(group_of(35).areas) == {32, 33, 34, 35, 36, 37}
+    catacombs = group_of(35)
+    assert catacombs is not None
+    assert set(catacombs.areas) == {32, 33, 34, 35, 36, 37}
     assert group_of(1) is None  # Rogue Encampment

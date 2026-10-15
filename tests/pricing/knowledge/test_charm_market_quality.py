@@ -1,3 +1,5 @@
+from typing import Any
+
 import pytest
 
 from pricing.knowledge.market_mechanics import apply_mechanics
@@ -5,7 +7,7 @@ from pricing.knowledge.market_mechanics import apply_mechanics
 
 @pytest.mark.parametrize('name', ['Small Charm', 'Large Charm', 'Grand Charm'])
 def test_ordinary_charm_catalog_supplies_magic_quality_without_changing_evidence(name):
-    row = {'name': name, 'category': 'charms', 'properties': {}, 'observed_at': None}
+    row: dict[str, Any] = {'name': name, 'category': 'charms', 'properties': {}, 'observed_at': None}
     apply_mechanics(row)
     assert row['rarity'] == 'magic'
     assert row['facet_basis']['rarity']['kind'] == 'ordinary_charm_catalog'

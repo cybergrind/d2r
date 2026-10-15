@@ -102,10 +102,10 @@ def examples():
 def cases():
     for role, source, label, item, context, scenario, truth, dependency in examples():
         config = role + '-stats'
-        result = {'id': role, 'rule_trace': IsPartialDict(truth=truth)}
+        result: dict[str, object] = {'id': role, 'rule_trace': IsPartialDict(truth=truth)}
         if dependency:
             result['dependencies'] = Contains(IsPartialDict(status=dependency))
-        expected = {'roles': Contains(IsPartialDict(**result))}
+        expected: dict[str, object] = {'roles': Contains(IsPartialDict(**result))}
         if scenario == 'positive':
             expected['stat_evaluation'] = IsPartialDict(
                 annotations=IsPartialDict(

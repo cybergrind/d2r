@@ -37,6 +37,7 @@ def test_kira_ral_is_removed_before_shared_roll_check(res, valid):
     contract, gaps = NamedHandler().contract(normalize(kira(res, rune='Ral Rune').capture()), 'helm')
     assert (contract is not None) is valid, gaps
     if valid:
+        assert contract is not None
         assert contract.socket_payload == ('Ral Rune',)
 
 

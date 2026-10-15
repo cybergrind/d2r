@@ -1,5 +1,6 @@
 from pricing.triage.demand import compile_demand, demand_for
 from pricing.triage.engine import assess
+from tests.pricing.knowledge.reports import present
 from tests.pricing.triage.test_bands import listing
 from tests.pricing.triage.test_named_bands import tables
 
@@ -83,7 +84,7 @@ def test_supported_sale_precedes_own_use_without_losing_the_note():
     item = {'name': 'Example', 'category': 'uniques', 'ethereal': False}
     data = tables([listing(i, 0.6, ethereal=False) for i in range(10)])
     data['own'] = {'rows': [{'name': 'Example', 'label': 'Own charm'}]}
-    result = assess(item, data)
+    result = present(assess(item, data))
     assert result['verdict'] == 'slow'
     assert result['decision_ist'] == 0.6
     assert result['own_use']['label'] == 'Own charm'

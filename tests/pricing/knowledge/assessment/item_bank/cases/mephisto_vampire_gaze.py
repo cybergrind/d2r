@@ -60,7 +60,12 @@ def cases():
         ('unknown-sockets', replace(ITEM, sockets=None), CONTEXT, 'unknown', 'socket'),
     )
     for label, item, context, scenario, failed in examples:
-        role = {'id': ROLE, 'side': 'merc', 'status': 'partial', 'rule_trace': IsPartialDict(truth='true')}
+        role: dict[str, object] = {
+            'id': ROLE,
+            'side': 'merc',
+            'status': 'partial',
+            'rule_trace': IsPartialDict(truth='true'),
+        }
         if failed == 'socket':
             role['socket_requirement'] = IsPartialDict(item='Um Rune', confirmed=False)
         elif failed:

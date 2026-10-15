@@ -5,7 +5,7 @@ from dataclasses import replace
 from dirty_equals import Contains, IsPartialDict
 
 from tests.pricing.knowledge.assessment.item_bank.cases.abyss_caster_weapons import EXAMPLES
-from tests.pricing.knowledge.assessment.item_bank.models import Case
+from tests.pricing.knowledge.assessment.item_bank.models import Case, known
 
 
 REVIEWS = (
@@ -62,7 +62,9 @@ def cases():
                 )
             )
         for label, candidate, loadout, truth, expected_keys in rows:
-            expected = {'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))}
+            expected: dict[str, object] = {
+                'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))
+            }
             if expected_keys:
                 expected['stat_evaluation'] = IsPartialDict(
                     annotations=IsPartialDict(
@@ -78,7 +80,7 @@ def cases():
                 scenario={'true': 'positive', 'false': 'negative', 'unknown': 'unknown'}[truth],
                 absent_configurations=() if expected_keys else (role + '-stats',),
                 absent_stat_configurations=dict.fromkeys(irrelevant, (role + '-stats',)),
-                report_contains=(candidate.name, 'Trade tier:') if truth == 'true' else (candidate.name,),
+                report_contains=(known(candidate.name), 'Trade tier:') if truth == 'true' else (known(candidate.name),),
                 evidence=('pricing/data/wp-a-builds.json', 'third-parties/d2data/json/uniqueitems.json'),
             )
 

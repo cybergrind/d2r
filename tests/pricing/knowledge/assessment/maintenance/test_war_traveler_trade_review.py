@@ -2,6 +2,7 @@
 
 from copy import deepcopy
 from dataclasses import asdict
+from typing import Any
 
 import pytest
 
@@ -65,13 +66,13 @@ def test_presence_of_cases_does_not_approve_incomplete_or_wrong_reports(mutation
     elif mutation == 'unknown':
         cases = [c for c in cases if c[2][1] is not None]
     elif mutation == 'color':
-        next(c for c in cases if c[1]['lines'])[1]['lines'][0]['tone'] = 'tier_high'
+        next(c[1] for c in cases if c[1] is not None and c[1]['lines'])['lines'][0]['tone'] = 'tier_high'
     else:
         cases[0][0]['raw_stats'] = tuple(r for r in cases[0][0]['raw_stats'] if r[0] != 96)
     assert trade_war_traveler.case_gap(cases, policy, spec)
 
 
-def review_inputs():
+def review_inputs() -> tuple[dict[str, Any], dict[str, Any]]:
     import json
     from pathlib import Path
 

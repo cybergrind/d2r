@@ -65,7 +65,7 @@ def cases():
                 'unknown',
             ),
         ):
-            expected = {
+            expected: dict[str, object] = {
                 'roles': Contains(
                     IsPartialDict(
                         id=role,

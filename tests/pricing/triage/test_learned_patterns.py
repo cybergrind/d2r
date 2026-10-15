@@ -1,5 +1,6 @@
 from pricing.triage.engine import assess, prepare_tables
 from pricing.triage.learned_patterns import derive, guard
+from tests.pricing.knowledge.reports import present, reports
 from tests.pricing.triage.test_bands import listing
 
 
@@ -38,7 +39,7 @@ def test_learning_requires_independent_scoped_sellers_and_keeps_cheap_reference_
     assert not derive([*rows[:2], dict(rows[0], listing_id='duplicate')], {'418', '437'}, 0.25)
     foreign = dict(rows[2], properties={**rows[2]['properties'], '800': True})
     assert not derive([*rows[:2], foreign], {'418', '437'}, 0.25)
-    learned = derive([*rows, member(4, 0.01)], {'418', '437'}, 0.25)
+    learned = reports(derive([*rows, member(4, 0.01)], {'418', '437'}, 0.25))
     assert len(learned) == 1
     assert learned[0]['reference_band']['sellers'] == 4
     assert learned[0]['reference_band']['q1_ist'] < 1
@@ -57,7 +58,7 @@ def test_guard_rejects_whole_pattern_without_lowering_thresholds():
 def test_learned_pattern_is_check_with_reference_never_a_sale_price():
     learned = derive([member(i) for i in range(3)], {'418', '437'}, 0.25)
     tables = prepare_tables({'bands': [], 'learned_patterns': learned}, {'rows': [], 'keep_ist': 0.25}, {'rows': []})
-    result = assess(drop(), tables)
+    result = present(assess(drop(), tables))
     assert result['verdict'] == 'check'
     assert result['decision_ist'] is None
     assert result['band'] is None

@@ -99,7 +99,7 @@ def cases():
                     )
                 }
                 if label == 'sword-variant':
-                    expected = {'family': 'weapon'}
+                    expected: dict[str, object] = {'family': 'weapon'}
                 if scenario == 'positive':
                     expected['stat_evaluation'] = IsPartialDict(
                         annotations=IsPartialDict(

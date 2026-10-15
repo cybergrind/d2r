@@ -6,6 +6,7 @@ from pricing.knowledge.assessment.build_profiles import build
 from pricing.knowledge.assessment.profiles import assess_role_results
 from pricing.knowledge.assessment.stat_bundle import configuration_from_row
 from pricing.knowledge.assessment.stat_evaluation import StatsEvaluator
+from tests.pricing.knowledge.assessment.fact_changes import fact_changes
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
 
 
@@ -66,5 +67,5 @@ def test_specialist_equipment_distinguishes_casting_kicks_and_native_durability(
     assert set(evaluate(replace(item, ethereal=True)).annotations) == (
         set(values) - excluded if name == "Arioc's Needle" else set()
     )
-    for change in ({'base_code': facts('Cap').base_code}, {'sockets': 3}, {'rarity': 'rare'}):
+    for change in fact_changes({'base_code': facts('Cap').base_code}, {'sockets': 3}, {'rarity': 'rare'}):
         assert not evaluate(replace(item, **change)).annotations

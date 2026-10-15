@@ -1,4 +1,5 @@
 from datetime import date
+from typing import Any
 
 import pytest
 
@@ -32,7 +33,7 @@ def test_missing_cache_yields_reviewed_absence_for_every_original_unsocketed_rol
 
 
 def test_only_exact_variant_independent_dated_sellers_can_price():
-    contract = template_contract(8, 7, 20, 14, False)
+    contract: dict[str, Any] = template_contract(8, 7, 20, 14, False)
     rows = [
         {
             **contract,
@@ -91,7 +92,7 @@ def test_missing_ethereal_fact_cannot_borrow_exact_roll_price():
 
 @pytest.mark.parametrize('defense', range(200, 315, 2))
 def test_all_non_ethereal_upgrade_defense_outcomes(defense):
-    contract = template_contract(8, 8, 20, 15, False, base_name='Bone Visage', defense=defense)
+    contract: dict[str, Any] = template_contract(8, 8, 20, 15, False, base_name='Bone Visage', defense=defense)
     assert contract['base_code'] != template_contract(8, 8, 20, 15, False)['base_code']
     assert contract['properties']['1855'] == defense
 

@@ -1,4 +1,5 @@
 from copy import deepcopy
+from typing import Any
 
 import pytest
 
@@ -16,7 +17,7 @@ def test_non_named_qualities_do_not_require_unique_set_tiers():
 def test_universal_baseline_closes_named_tier_and_leveling_review_only():
     data = inputs()
     data[2]['rows'][0]['status'] = 'pending'
-    gate = {
+    gate: dict[str, Any] = {
         'rows': [
             {
                 'quality': 'unique',
@@ -95,6 +96,7 @@ def test_named_evidence_inherits_only_exact_identity_baseline():
     for key in ('leveling', 'market', 'desirability'):
         assert evidence['dimensions'][key]['state'] == 'pending'
 
+    changes: dict[str, Any]
     for changes in (
         {'identity_ids': []},
         {'identity_ids': ['missing']},
@@ -214,7 +216,7 @@ def test_captured_named_baseline_requires_matching_native_identity():
         'catalog_ids': ['set030'],
         'dimensions': {'named_tiers': {'state': 'pending'}},
     }
-    capture = {
+    capture: dict[str, Any] = {
         'id': 'capture:item',
         'kind': 'observed_capture',
         'facts': {

@@ -2,13 +2,14 @@ from dataclasses import replace
 
 from pricing.knowledge.assessment.handlers.definitions import named_definitions
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
+from tests.pricing.knowledge.reports import reports
 
 
 def test_leveling_uses_reviewed_identity_and_does_not_infer_trade_value():
     from pricing.knowledge.assessment.policies.leveling import assess_leveling
 
     item = facts('Heavy Gloves', 'unique', 'Bloodfist')
-    uses = assess_leveling(item)
+    uses = reports(assess_leveling(item))
     assert uses
     assert uses[0]['tier'] == 'high'
     assert uses[0]['required_level'] == 9
@@ -21,7 +22,7 @@ def test_leveling_uses_reviewed_identity_and_does_not_infer_trade_value():
 def test_set_leveling_benefits_keep_companion_requirements():
     from pricing.knowledge.assessment.policies.leveling import assess_leveling
 
-    uses = assess_leveling(facts('Leather Gloves', 'set', "Death's Hand"))
+    uses = reports(assess_leveling(facts('Leather Gloves', 'set', "Death's Hand")))
     assert uses
     assert uses[0]['status'] == 'conditional'
     assert any("Death's Guard" in c for c in uses[0]['conditions'])
@@ -31,10 +32,10 @@ def test_upgraded_or_socketed_item_does_not_inherit_original_equip_requirements(
     from pricing.knowledge.assessment.policies.leveling import assess_leveling
 
     upgraded = upgraded_bloodfist()
-    assert assess_leveling(upgraded)[0]['required_level'] is None
+    assert reports(assess_leveling(upgraded))[0]['required_level'] is None
     socketed = replace(facts('Shako', 'unique', 'Harlequin Crest'), sockets=1, socket_contents='filled')
     # The reviewed late-caster use survives, but the filler may raise equip level.
-    use = assess_leveling(socketed)[0]
+    use = reports(assess_leveling(socketed))[0]
     assert use['required_level'] is None
     assert use['status'] == 'conditional'
 
@@ -64,16 +65,16 @@ def test_leveling_keeps_value_but_reports_current_wearer_level_shortfall():
     from pricing.knowledge.assessment.policies.leveling import assess_leveling
 
     item = facts('Heavy Gloves', 'unique', 'Bloodfist')
-    use = assess_leveling(item, loadout={'player_level': 5})[0]
+    use = reports(assess_leveling(item, loadout={'player_level': 5}))[0]
     assert use['tier'] == 'high'
     assert use['requirements_fit']['status'] == 'unmet'
     assert use['requirements_fit']['shortfalls'] == ['Player level 5; requires 9.']
     assert 'Player level 5; requires 9.' in '\n'.join(leveling_lines({'assessment': {'leveling': [use]}}))
-    ready = assess_leveling(item, loadout={'player_level': 9})[0]
+    ready = reports(assess_leveling(item, loadout={'player_level': 9}))[0]
     assert ready['requirements_fit']['status'] == 'met'
-    unknown = assess_leveling(item)[0]
+    unknown = reports(assess_leveling(item))[0]
     assert unknown['requirements_fit']['status'] == 'unknown'
-    upgraded = assess_leveling(upgraded_bloodfist(), loadout={'player_level': 99})[0]
+    upgraded = reports(assess_leveling(upgraded_bloodfist(), loadout={'player_level': 99}))[0]
     assert upgraded['requirements_fit']['status'] == 'unknown'
 
 
@@ -116,7 +117,7 @@ def test_amazon_guide_only_twitchthroe_keeps_leveling_value_and_requirements():
     from pricing.knowledge.assessment.policies.leveling import assess_leveling
 
     item = facts('Studded Leather', 'unique', 'Twitchthroe')
-    uses = assess_leveling(item, loadout={'player_level': 1})
+    uses = reports(assess_leveling(item, loadout={'player_level': 1}))
     guide = next(u for u in uses if u['source']['id'] == 'leveling-amazon')
     assert guide['tier'] == 'high'
     assert guide['classes'] == ['amazon']
@@ -130,12 +131,18 @@ def test_titans_leveling_use_keeps_real_equip_gates_and_variant_uncertainty():
     from pricing.knowledge.assessment.policies.leveling import assess_leveling
 
     item = facts('Ceremonial Javelin', 'unique', "Titan's Revenge")
-    use = next(u for u in assess_leveling(item, loadout={'player_level': 41}) if u['source']['id'] == 'leveling-amazon')
+    use = next(
+        u
+        for u in reports(assess_leveling(item, loadout={'player_level': 41}))
+        if u['source']['id'] == 'leveling-amazon'
+    )
     assert use['tier'] == 'high'
     assert use['required_level'] == 42
     assert use['requirements_fit']['status'] == 'unmet'
     assert use['requirements']['dexterity'] == 109
-    eth = next(u for u in assess_leveling(replace(item, ethereal=True)) if u['source']['id'] == 'leveling-amazon')
+    eth = next(
+        u for u in reports(assess_leveling(replace(item, ethereal=True))) if u['source']['id'] == 'leveling-amazon'
+    )
     assert eth['requirements'] == {'level': 42, 'strength': 15, 'dexterity': 99}
     assert eth['requirements_fit']['status'] == 'unknown'
     assert any('attack speed' in c.lower() for c in eth['conditions'])
@@ -150,7 +157,7 @@ def test_cow_king_guide_combination_is_conditional_for_each_piece():
         ("Cow King's Horns", 'War Hat', 25),
     ]:
         item = facts(base, 'set', name)
-        uses = assess_leveling(item)
+        uses = reports(assess_leveling(item))
         guide = next(u for u in uses if u['source']['id'] == 'leveling-amazon')
         assert guide['tier'] == 'med'
         assert guide['status'] == 'conditional'
@@ -165,7 +172,7 @@ def test_movement_boots_keep_standalone_guide_use_and_native_equip_requirements(
 
     for name, base, level in [("Hsarus' Iron Heel", 'Chain Boots', 3), ("Sander's Riprap", 'Heavy Boots', 20)]:
         item = facts(base, 'set', name)
-        uses = assess_leveling(item, loadout={'player_level': level - 1})
+        uses = reports(assess_leveling(item, loadout={'player_level': level - 1}))
         guides = {u['source']['id']: u for u in uses if u['source']['id'].startswith('leveling-')}
         assert set(guides) == {
             'leveling-' + c
@@ -193,7 +200,7 @@ def test_druid_paladin_caster_alternatives_keep_actual_level_and_variant_require
         ('Magefist', 'Light Gauntlets', 23),
     ]:
         item = facts(base, 'unique', name)
-        uses = assess_leveling(item, loadout={'player_level': 18})
+        uses = reports(assess_leveling(item, loadout={'player_level': 18}))
         for cls in ('druid', 'paladin'):
             guide = next((u for u in uses if u['source']['id'] == 'leveling-' + cls), None)
             assert guide is not None
@@ -202,7 +209,7 @@ def test_druid_paladin_caster_alternatives_keep_actual_level_and_variant_require
             assert guide['requirements_fit']['status'] == 'unmet'
             assert guide['status'] == 'conditional'
             assert 'price' not in guide
-        variant = assess_leveling(replace(item, ethereal=True))
+        variant = reports(assess_leveling(replace(item, ethereal=True)))
         assert all(u['required_level'] == level for u in variant)
         assert all(u['requirements_fit']['status'] == 'unknown' for u in variant)
         assert not assess_leveling(replace(item, identified=False))
@@ -217,7 +224,7 @@ def test_assassin_pair_and_armor_leveling_remains_conditional_without_price():
         ('Studded Leather', 'unique', 'Twitchthroe', 16),
     ):
         item = facts(base, rarity, name)
-        uses = assess_leveling(item)
+        uses = reports(assess_leveling(item))
         row = next(r for r in uses if r['source']['id'] == 'leveling-assassin')
         assert row['tier'] == 'high'
         assert row['status'] == 'conditional'
@@ -242,7 +249,7 @@ def test_assassin_skill_items_keep_native_equip_levels_and_conditional_advice():
         ('Light Gauntlets', 'Magefist', 23),
     ):
         item = facts(base, 'unique', name)
-        use = next(r for r in assess_leveling(item) if r['source']['id'] == 'leveling-assassin')
+        use = next(r for r in reports(assess_leveling(item)) if r['source']['id'] == 'leveling-assassin')
         assert use['required_level'] == level
         assert use['tier'] == 'high'
         assert use['status'] == 'conditional'
@@ -250,7 +257,7 @@ def test_assassin_skill_items_keep_native_equip_levels_and_conditional_advice():
         assert not assess_leveling(replace(item, identified=None))
         young = next(
             r
-            for r in assess_leveling(item, loadout={'player_level': level - 1})
+            for r in reports(assess_leveling(item, loadout={'player_level': level - 1}))
             if r['source']['id'] == 'leveling-assassin'
         )
         assert young['requirements_fit']['status'] == 'unmet'
@@ -261,7 +268,7 @@ def test_assassin_guide_aliases_reach_canonical_named_leveling_policy():
 
     for base, name, level in [('Ring', 'Raven Frost', 45), ('Amulet', "Mara's Kaleidoscope", 67)]:
         item = facts(base, 'unique', name)
-        use = next(r for r in assess_leveling(item) if r['source']['id'] == 'leveling-assassin')
+        use = next(r for r in reports(assess_leveling(item)) if r['source']['id'] == 'leveling-assassin')
         assert use['required_level'] == level
         assert use['tier'] == 'high'
         assert use['status'] == 'conditional'
@@ -279,7 +286,7 @@ def test_early_melee_and_general_gloves_reach_runtime_with_native_requirements()
     ):
         item = facts(base, quality, name)
         for cls in ('barbarian', 'paladin'):
-            row = next((r for r in assess_leveling(item) if r['source']['id'] == 'leveling-' + cls), None)
+            row = next((r for r in reports(assess_leveling(item)) if r['source']['id'] == 'leveling-' + cls), None)
             assert row is not None
             assert row['required_level'] == level
             assert row['status'] == 'conditional'
@@ -310,14 +317,16 @@ def test_caster_tail_uses_native_levels_and_does_not_treat_respec_as_equip_level
     ):
         item = facts(base, 'unique', name)
         source = 'leveling-' + cls
-        row = next((r for r in assess_leveling(item) if r['source']['id'] == source), None)
+        row = next((r for r in reports(assess_leveling(item)) if r['source']['id'] == source), None)
         assert row is not None
         assert row['required_level'] == level
         assert row['archetypes'] == ['caster']
         assert row['status'] == 'conditional'
         assert 'price' not in row
         young = next(
-            r for r in assess_leveling(item, loadout={'player_level': level - 1}) if r['source']['id'] == source
+            r
+            for r in reports(assess_leveling(item, loadout={'player_level': level - 1}))
+            if r['source']['id'] == source
         )
         assert young['requirements_fit']['status'] == 'unmet'
         assert not assess_leveling(replace(item, identified=None))
@@ -333,7 +342,7 @@ def test_verified_empty_sockets_preserve_named_equip_requirements():
     ):
         item = replace(facts(base, 'unique', name), sockets=count, socket_contents='empty')
         context = {'player_level': level, 'player_strength': strength, 'player_dexterity': 0}
-        uses = assess_leveling(item, loadout=context)
+        uses = reports(assess_leveling(item, loadout=context))
         assert uses
         assert all(use['requirements_fit']['status'] == 'met' for use in uses)
         assert all(use['required_level'] == level for use in uses)
@@ -344,7 +353,7 @@ def test_verified_empty_sockets_preserve_named_equip_requirements():
             replace(item, socket_items=[{'name': 'Hel Rune'}]),
             replace(item, sockets=None),
         ):
-            assert all(use['required_level'] is None for use in assess_leveling(uncertain, loadout=context))
+            assert all(use['required_level'] is None for use in reports(assess_leveling(uncertain, loadout=context)))
 
 
 def test_ethereal_named_requirements_use_native_order_without_double_reduction():
@@ -364,13 +373,13 @@ def test_ethereal_named_requirements_use_native_order_without_double_reduction()
             'mercenary_strength': strength,
             'mercenary_dexterity': dexterity,
         }
-        uses = assess_leveling(item, loadout=context)
+        uses = reports(assess_leveling(item, loadout=context))
         assert uses
         for use in uses:
             assert use['requirements'] == {'level': level, 'strength': strength, 'dexterity': dexterity}
             assert use['requirements_fit']['status'] == 'met'
         for uncertain in (replace(item, ethereal=None), replace(item, socket_contents='unknown')):
-            assert all(use['required_level'] is None for use in assess_leveling(uncertain, loadout=context))
+            assert all(use['required_level'] is None for use in reports(assess_leveling(uncertain, loadout=context)))
 
 
 def test_inherently_ethereal_requirement_is_not_reduced_twice():
@@ -388,7 +397,7 @@ def test_ordinary_leveling_recommendations_stay_out_of_value_focused_report():
     from inventory_tracking.appraisal.sections import leveling_lines
     from pricing.knowledge.assessment.policies.leveling import assess_leveling
 
-    uses = assess_leveling(facts('Field Plate', 'unique', 'Rockfleece'))
+    uses = reports(assess_leveling(facts('Field Plate', 'unique', 'Rockfleece')))
     assert uses
     assert all(use['tier'] in ('med', 'low') for use in uses)
     assert leveling_lines({'assessment': {'leveling': uses}}) == []
@@ -398,7 +407,7 @@ def test_top_leveling_highlight_keeps_companion_conditions():
     from inventory_tracking.appraisal.sections import leveling_lines
     from pricing.knowledge.assessment.policies.leveling import assess_leveling
 
-    uses = assess_leveling(facts('Leather Gloves', 'set', "Death's Hand"))
+    uses = reports(assess_leveling(facts('Leather Gloves', 'set', "Death's Hand")))
     lines = leveling_lines({'assessment': {'leveling': uses}})
     assert any(line.startswith('Leveling: high') for line in lines)
     assert any("Death's Guard" in line for line in lines)

@@ -4,7 +4,7 @@ from dataclasses import replace
 
 from dirty_equals import Contains, IsPartialDict
 
-from tests.pricing.knowledge.assessment.item_bank.models import Case, Item, SocketItem
+from tests.pricing.knowledge.assessment.item_bank.models import Case, Item, SocketItem, known
 
 
 RES = tuple((s, 0, 15) for s in (39, 41, 43, 45))
@@ -179,7 +179,7 @@ def cases():
         if filler.base == 'Jewel':
             rows.append(('unread-jewel-stats', 'unknown', replace(item, socket_items=(SocketItem('Jewel'),)), MIGHT))
         for label, scenario, candidate, context in rows:
-            expected = {
+            expected: dict[str, object] = {
                 'roles': Contains(
                     IsPartialDict(
                         id=role,
@@ -205,7 +205,9 @@ def cases():
                     scenario=scenario,
                     absent_configurations=() if scenario == 'positive' else (role + '-stats',),
                     absent_stat_configurations=dict.fromkeys(irrelevant, (role + '-stats',)),
-                    report_contains=(candidate.name, 'Trade tier:') if scenario == 'positive' else (candidate.name,),
+                    report_contains=(known(candidate.name), 'Trade tier:')
+                    if scenario == 'positive'
+                    else (known(candidate.name),),
                     evidence=(
                         'pricing/data/appraisal-guide-sections.json:/sources/'
                         + f'pricing~1raw~1mr~1guides__zeal-paladin.html/item_spans/{span}',

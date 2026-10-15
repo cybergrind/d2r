@@ -6,6 +6,7 @@ from pricing.knowledge.assessment.build_profiles import build
 from pricing.knowledge.assessment.profiles import assess_role_results
 from pricing.knowledge.assessment.stat_bundle import configuration_from_row
 from pricing.knowledge.assessment.stat_evaluation import StatsEvaluator
+from tests.pricing.knowledge.assessment.fact_changes import fact_changes
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
 
 
@@ -38,7 +39,7 @@ def test_rare_starter_amulet_core_does_not_require_illustrated_secondary_rolls(s
     for key in (skill, '105:0'):
         missing = replace(item, stats={k: v for k, v in item.stats.items() if k != key})
         assert not evaluate(missing, {**ctx, 'player_equipment': {'ring_left': item}}).annotations
-    for change in ({'rarity': 'magic'}, {'rarity': 'crafted'}, {'identified': None}, {'ethereal': True}):
+    for change in fact_changes({'rarity': 'magic'}, {'rarity': 'crafted'}, {'identified': None}, {'ethereal': True}):
         assert not evaluate(replace(item, **change)).annotations
     assert not evaluate(context={'player_class': 'Other'}).annotations
     if fcr:

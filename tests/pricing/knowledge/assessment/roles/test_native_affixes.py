@@ -27,6 +27,7 @@ def charm(prefix=253, suffix=678):
     if suffix:
         struct.pack_into('<H', raw, 0x4E, native_id('suffix', suffix))
     context = resolve_affix_ranges({'quality': 4}, {'item_data_hex': raw.hex()}, base)
+    assert context is not None
     return base, raw, context
 
 
@@ -54,6 +55,7 @@ def test_saved_capture_retains_native_affix_identity(filename, prefix, suffix):
     path = Path('tests/inventory_tracking/fixtures') / (filename + '.json')
     saved = json.loads(path.read_text())
     context = resolve_affix_ranges(saved['details'], saved['arrays'], item_base(saved['txt_id']))
+    assert context is not None
     assert context['native_affixes'] == {
         'prefix': [native_id('prefix', prefix)],
         'suffix': [native_id('suffix', suffix)],
@@ -114,4 +116,5 @@ def test_native_affixes_flow_through_snapshot_decoding_and_fact_normalization():
     facts = normalize(decoded)
     assert facts.to_dict()['native_affixes'] == native
     with pytest.raises(TypeError, match='does not support item assignment'):
-        facts.native_affixes['prefix'] = ()
+        # The test writes to the frozen mapping on purpose; the declared `dict | None` does not say it is frozen.
+        facts.native_affixes['prefix'] = ()  # pyrefly: ignore[unsupported-operation]

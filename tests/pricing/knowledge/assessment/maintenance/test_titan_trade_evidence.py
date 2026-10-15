@@ -1,12 +1,13 @@
 import json
 from pathlib import Path
+from typing import Any
 
 import pytest
 
 from pricing.knowledge.assessment.maintenance import trade_titan_evidence as evidence
 
 
-def row():
+def row() -> dict[str, Any]:
     return {
         'id': 'row',
         'seller_id': 'seller',

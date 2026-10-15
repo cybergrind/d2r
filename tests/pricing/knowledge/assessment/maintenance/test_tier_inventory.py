@@ -1,3 +1,5 @@
+from typing import Any
+
 import pytest
 
 from pricing.knowledge.assessment.maintenance.tier_inventory import compile_tier_inventory
@@ -38,7 +40,7 @@ def test_inventory_rejects_duplicate_catalog_identity_instead_of_hiding_it():
 def test_explicit_dispositions_do_not_turn_quest_or_placeholder_records_into_trash():
     census = [{'quality': 'unique', 'name': 'Quest', 'status': 'missing_research', 'tier': None}]
     disposition = {'quality': 'unique', 'name': 'Quest', 'kind': 'quest_item', 'reason': 'Quest progression item'}
-    result = compile_tier_inventory(census, [], [], [], dispositions=[disposition])
+    result: dict[str, Any] = compile_tier_inventory(census, [], [], [], dispositions=[disposition])
     assert result['complete'] is True
     assert result['counts']['reviewed'] == 0
     assert result['counts']['dispositions'] == 1

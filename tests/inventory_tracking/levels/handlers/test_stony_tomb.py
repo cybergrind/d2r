@@ -7,12 +7,12 @@ room. Both start in a 'Tomb Prev' room (the way back).
 
 from inventory_tracking.levels.model import LevelSnapshot, Location, Room
 from inventory_tracking.levels.presets import preset_name
-from inventory_tracking.levels.registry import handler_for
+from tests.inventory_tracking.levels.fixtures import handler_of
 
 
 def test_rocky_waste_points_at_the_tomb_entrance():
     rooms = (Room(0, 0, 0, 8, 8), Room(364, 8, 0, 8, 8), Room(388, 40, 16, 8, 8))
-    guidance = handler_for(41).guide(LevelSnapshot(Location(41, 0, 20, 20), rooms))
+    guidance = handler_of(41).guide(LevelSnapshot(Location(41, 0, 20, 20), rooms))
 
     assert [(p.label, preset_name(p.room.preset)) for p in guidance.pois] == [('Stony Tomb', 'Act 2 - Desert Tomb 1')]
     assert guidance.problems == ()
@@ -20,7 +20,7 @@ def test_rocky_waste_points_at_the_tomb_entrance():
 
 def test_stony_tomb_1_tracks_the_stairs_down_and_the_way_back():
     rooms = (Room(444, 0, 0, 16, 16), Room(416, 16, 0, 16, 16), Room(449, 32, 0, 16, 16))
-    guidance = handler_for(55).guide(LevelSnapshot(Location(55, 0, 40, 40), rooms))
+    guidance = handler_of(55).guide(LevelSnapshot(Location(55, 0, 40, 40), rooms))
 
     assert [(p.label, preset_name(p.room.preset)) for p in guidance.pois] == [
         ('Next level', 'Act 2 - Tomb Next E'),
@@ -36,7 +36,7 @@ def test_stony_tomb_2_tracks_the_super_chest_creeping_feature_and_the_way_back()
         Room(466, 32, 0, 16, 16),
         Room(475, 48, 0, 16, 16),
     )
-    guidance = handler_for(59).guide(LevelSnapshot(Location(59, 0, 40, 40), rooms))
+    guidance = handler_of(59).guide(LevelSnapshot(Location(59, 0, 40, 40), rooms))
 
     assert [(p.label, preset_name(p.room.preset)) for p in guidance.pois] == [
         ('Treasure', 'Act 2 - Tomb Treasure E'),
@@ -47,4 +47,4 @@ def test_stony_tomb_2_tracks_the_super_chest_creeping_feature_and_the_way_back()
 
 
 def test_handlers_stay_unconfirmed_without_evidence():
-    assert not any(handler_for(area).confirmed for area in (41, 55, 59))
+    assert not any(handler_of(area).confirmed for area in (41, 55, 59))

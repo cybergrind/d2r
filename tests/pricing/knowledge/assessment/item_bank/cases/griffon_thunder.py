@@ -119,7 +119,7 @@ def cases():
         role = f'{build}-{variant}-griffon-eye'
         config = role + '-stats'
         for label, item, required, payload, scenario in examples:
-            expected = {
+            expected: dict[str, object] = {
                 'roles': Contains(
                     IsPartialDict(
                         id=role,

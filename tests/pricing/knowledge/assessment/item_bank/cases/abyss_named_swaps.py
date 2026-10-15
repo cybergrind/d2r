@@ -4,7 +4,7 @@ from dataclasses import replace
 
 from dirty_equals import Contains, IsPartialDict
 
-from tests.pricing.knowledge.assessment.item_bank.models import Case, Item
+from tests.pricing.knowledge.assessment.item_bank.models import Case, Item, known
 
 
 CONTEXT = {'player_class': 'Warlock', 'player_level': 80, 'player_strength': 150, 'player_dexterity': 100}
@@ -101,7 +101,9 @@ def cases():
                 )
             )
         for label, candidate, ctx, scenario, truth in rows:
-            expected = {'roles': Contains(IsPartialDict(id=role, side='player', rule_trace=IsPartialDict(truth=truth)))}
+            expected: dict[str, object] = {
+                'roles': Contains(IsPartialDict(id=role, side='player', rule_trace=IsPartialDict(truth=truth)))
+            }
             if scenario == 'positive':
                 expected['stat_evaluation'] = IsPartialDict(
                     annotations=IsPartialDict(
@@ -122,7 +124,9 @@ def cases():
                 absent_configurations=() if scenario == 'positive' else (role + '-stats',),
                 absent_stat_configurations=dict.fromkeys(irrelevant, (role + '-stats',)),
                 # Set items cannot be ethereal; an impossible capture must not gain a trade tier.
-                report_contains=(item.name,) if slug == 'naj' and label == 'ethereal' else (item.name, 'Trade tier:'),
+                report_contains=(known(item.name),)
+                if slug == 'naj' and label == 'ethereal'
+                else (known(item.name), 'Trade tier:'),
                 evidence=(
                     'pricing/data/appraisal-guide-sections.json:/sources/'
                     f'pricing~1raw~1mr~1guides__abyss-warlock-build-guide.html/item_spans/{span}',

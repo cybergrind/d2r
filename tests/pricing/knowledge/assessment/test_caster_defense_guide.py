@@ -6,6 +6,7 @@ from pricing.knowledge.assessment.build_profiles import build
 from pricing.knowledge.assessment.profiles import assess_role_results
 from pricing.knowledge.assessment.stat_bundle import configuration_from_row
 from pricing.knowledge.assessment.stat_evaluation import StatsEvaluator
+from tests.pricing.knowledge.assessment.fact_changes import fact_changes
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
 
 
@@ -65,7 +66,7 @@ def test_caster_defense_items_keep_native_rolls_sockets_and_element(name, base, 
 
         assert set(evaluate(item).annotations) == set(values)
         assert not evaluate(replace(item, ethereal=True)).annotations
-        for patch in ({'rarity': 'rare'}, {'sockets': 3}, {'base_code': facts('Jewel').base_code}):
+        for patch in fact_changes({'rarity': 'rare'}, {'sockets': 3}, {'base_code': facts('Jewel').base_code}):
             assert not evaluate(replace(item, **patch)).annotations
         assert not evaluate(item, 'Barbarian').annotations
         if name == 'Crown of Ages':

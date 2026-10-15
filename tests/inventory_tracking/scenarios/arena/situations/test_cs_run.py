@@ -18,6 +18,7 @@ each (`-n auto --dist loadgroup`, tests/inventory_tracking/conftest.py): they ru
 import functools
 import math
 from dataclasses import replace
+from typing import Any
 
 import pytest
 
@@ -78,12 +79,11 @@ def hostiles(run: Run) -> list:
     return [mob for mob in run.scene.mobs if mob.owner is None and not mob.ally]
 
 
-def staged(run: Run, **given) -> LevelStage:
+def staged(run: Run, **given: Any) -> LevelStage:
     potions = {unit: (kind, dx, dy) for unit, kind, dx, dy in run.potions}
     finale = next(unit for unit, name in run.bosses if name == 'Diablo')
-    return LevelStage(
-        run.scene, seed=1, spawns=run.spawns, aware=run.aware, **{'potions': potions, 'finale': finale, **given}
-    )
+    options: dict[str, Any] = {'potions': potions, 'finale': finale, **given}
+    return LevelStage(run.scene, seed=1, spawns=run.spawns, aware=run.aware, **options)
 
 
 # -- the fixture ----------------------------------------------------------------------------------------
@@ -133,7 +133,7 @@ def test_the_scene_is_the_takes_level_with_its_monsters_and_seals() -> None:
 
 def test_a_seal_pack_comes_after_its_own_seal_and_diablo_after_none_of_them() -> None:
     run = stored()
-    classes = {prop.unit: prop.txt for prop in run.scene.things}
+    classes: dict[int | None, int] = {prop.unit: prop.txt for prop in run.scene.things}
     packs = [(classes.get(spawn.after), len(spawn.mobs)) for spawn in run.spawns[:3]]
     # the Vizier's with class 396 (not 395), De Seis's with 394, the Infector's with 392: about a second after
     assert packs == [(396, 6), (394, 8), (392, 12)]
@@ -176,7 +176,9 @@ def test_the_macro_reads_only_what_is_within_the_clients_sight() -> None:
     near = sum(1 for mob in hostiles(run) if math.dist(mob.at, here) <= SIGHT)
     assert len(seen) == near < len(hostiles(run))
     assert len([m for m in arena.world.monsters if m.ally or m.owner != 0xFFFFFFFF]) == 3  # the companions always
-    assert arena.run().things() == ()  # no seal is in sight of the entrance
+    things = arena.run().things
+    assert things is not None
+    assert things() == ()  # no seal is in sight of the entrance
     assert len(Stage(run.scene, seed=1).world.monsters) == 210 + 3  # the plain stage shows the whole level
 
 
@@ -395,4 +397,5 @@ def test_the_level_run_waits_out_what_a_seal_brings_and_fights_it_before_the_nex
     found = play_of(ONCE, FULL, NEW)
     assert found.dead_at is None
     assert found.bosses['Infector of Souls'] is not None
+    assert found.seals['Infector seal 2'] is not None
     assert found.bosses['Infector of Souls'] < found.seals['Infector seal 2']  # its pack before the last seal

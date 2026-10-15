@@ -1,6 +1,7 @@
 import hashlib
 import json
 from copy import deepcopy
+from typing import Any
 
 import pytest
 
@@ -17,7 +18,7 @@ def merc(types):
     return {'any': [{'op': 'context_eq', 'field': 'mercenary_type', 'value': value} for value in types]}
 
 
-def setup(root):
+def setup(root) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
     role, occurrence, document = player_setup(root)
     role.update(side='merc', slot='Body Armor')
     role['must'] = {'all': [role['must'], merc(TYPES)]}

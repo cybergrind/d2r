@@ -1,11 +1,12 @@
 """Remaining Magefist gear alternatives and identity-preserving Fissure components."""
 
 from dataclasses import replace
+from typing import Any
 
 from dirty_equals import Contains, IsPartialDict
 
 from tests.pricing.knowledge.assessment.item_bank.cases.magefist_caster_tables import BASES, gloves
-from tests.pricing.knowledge.assessment.item_bank.models import Case
+from tests.pricing.knowledge.assessment.item_bank.models import Case, Item
 
 
 # Source glove rows reviewed independently. Fire damage on attacks is not a
@@ -38,7 +39,7 @@ def cases():
         )
         configs = tuple(role + '-stats' for role in roles)
         context = {'player_class': klass}
-        examples = [
+        examples: list[tuple[str, Item, dict[str, Any], str]] = [
             (f'{base}/{ed}', gloves(base, defense, ed), context, 'true') for base, defense in BASES for ed in (20, 30)
         ]
         item = gloves('Light Gauntlets', 12)
@@ -73,7 +74,7 @@ def cases():
             active_configs = configs[:-1] if upgrade_needed else configs
             role_expectations = []
             for role in roles:
-                fields = {'id': role, 'rule_trace': IsPartialDict(truth=truth)}
+                fields: dict[str, object] = {'id': role, 'rule_trace': IsPartialDict(truth=truth)}
                 if role == 'fissure-player-ubers-magefist' and upgrade_needed and truth == 'true':
                     fields.update(
                         status='partial',
@@ -82,7 +83,7 @@ def cases():
                         ),
                     )
                 role_expectations.append(IsPartialDict(**fields))
-            expected = {'roles': Contains(*role_expectations)}
+            expected: dict[str, object] = {'roles': Contains(*role_expectations)}
             if truth == 'true':
                 keys = ('105:0', '27:0', *(('126:1',) if fire_credit else ()))
                 expected['stat_evaluation'] = IsPartialDict(

@@ -6,7 +6,7 @@ this level (levels.json Vis1 = 107, River of Flame); the Plains link is an open 
 
 from inventory_tracking.levels.model import LevelSnapshot, Location, Room
 from inventory_tracking.levels.presets import preset_name
-from inventory_tracking.levels.registry import handler_for
+from tests.inventory_tracking.levels.fixtures import handler_of
 
 
 def test_city_marks_the_river_of_flame_stairs_and_the_plains_gap():
@@ -16,11 +16,11 @@ def test_city_marks_the_river_of_flame_stairs_and_the_plains_gap():
         Room(803, 16, 0, 8, 8, variant=1),
         Room(811, 40, 40, 8, 8),
     )
-    guidance = handler_for(106).guide(LevelSnapshot(Location(106, 0, 60, 60), rooms))
+    guidance = handler_of(106).guide(LevelSnapshot(Location(106, 0, 60, 60), rooms))
 
     assert [(p.label, p.kind, preset_name(p.room.preset)) for p in guidance.pois] == [
         ('Plains of Despair', 'previous', 'Act 4 - Mesa Border 4'),
         ('River of Flame', 'stairs', 'Act 4 - Mesa Warp'),
     ]
     assert guidance.problems == ()
-    assert not handler_for(106).confirmed
+    assert not handler_of(106).confirmed

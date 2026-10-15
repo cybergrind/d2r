@@ -678,7 +678,7 @@ def _rows(source: Path, name: str) -> list[dict[str, str]]:
 def build(source: Path = SOURCE) -> dict[str, Any]:
     """baal.json: the monstats rows of his AI, his clone's and his tentacles', every row that casts his skills, the
     skills, their server missiles and sub-missiles, Hell's skill bonus."""
-    pick = lambda found, fields: {name: found[name] for name in fields if found.get(name)}  # noqa: E731
+    pick = lambda found, fields: {name: found[name] for name in fields if found.get(name)}  # ruff: ignore[lambda-assignment]
     monstats = _rows(source, 'monstats')
     monsters = {r['*hcIdx']: pick(r, MONSTER_FIELDS) for r in monstats if r['AI'] in (*AIS, TENTACLE_AI)}
     casters = {

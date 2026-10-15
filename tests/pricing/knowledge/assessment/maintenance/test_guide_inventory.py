@@ -1,11 +1,12 @@
 from copy import deepcopy
+from typing import Any
 
 import pytest
 
 from pricing.knowledge.assessment.maintenance.guide_inventory import compile_inventory
 
 
-def occurrence(identity='one', **changes):
+def occurrence(identity='one', **changes) -> dict[str, Any]:
     return {
         'id': identity,
         'name': 'Insight',
@@ -21,7 +22,7 @@ def occurrence(identity='one', **changes):
     }
 
 
-def profile(identity='rule-a', **changes):
+def profile(identity='rule-a', **changes) -> dict[str, Any]:
     return {
         'id': identity,
         'build': 'build-a',

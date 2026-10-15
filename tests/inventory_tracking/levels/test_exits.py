@@ -15,7 +15,7 @@ from inventory_tracking.levels.exits import (
 from inventory_tracking.levels.model import Guidance, LevelSnapshot, Location, Poi, Room
 from inventory_tracking.levels.presets import display_name
 from inventory_tracking.levels.registry import handler_for
-from tests.inventory_tracking.levels.fixtures import replay
+from tests.inventory_tracking.levels.fixtures import handler_of, replay
 
 
 CAVE_TREASURE_2 = 104  # 'Act 1 - Cave Treasure 2', the whole of Cave Level 2: warp slot 1 at (4.5, 5.5)
@@ -72,7 +72,7 @@ def test_an_unreadable_variant_gives_no_way_out():
 
 def test_the_way_back_the_handler_leaves_out_is_added():
     snapshot = replay('durance_of_hate_2')
-    guidance = handler_for(101).guide(snapshot)
+    guidance = handler_of(101).guide(snapshot)
 
     merged = with_exits(guidance, snapshot)
 
@@ -82,14 +82,14 @@ def test_the_way_back_the_handler_leaves_out_is_added():
 
 def test_ways_out_the_handler_already_marks_are_not_repeated():
     snapshot = replay('catacombs_2')
-    guidance = handler_for(35).guide(snapshot)
+    guidance = handler_of(35).guide(snapshot)
 
     assert with_exits(guidance, snapshot) == guidance
 
 
 def test_a_target_in_the_same_preset_keeps_its_place_beside_the_way_out():
     snapshot = replay('halls_of_vaught_nihlw')
-    guidance = handler_for(124).guide(snapshot)
+    guidance = handler_of(124).guide(snapshot)
 
     merged = with_exits(guidance, snapshot)
 
@@ -128,7 +128,7 @@ def test_a_neighbour_the_border_gaps_will_name_is_left_to_them():
     snapshot = replay('cold_plains_two_known')
     guidance = guide_level(handler_for(3), snapshot)
 
-    assert sorted(marks(guidance.pois)) == sorted(marks(handler_for(3).guide(snapshot).pois))
+    assert sorted(marks(guidance.pois)) == sorted(marks(handler_of(3).guide(snapshot).pois))
 
 
 def test_a_level_without_a_handler_gets_its_borders_too():

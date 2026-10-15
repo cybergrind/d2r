@@ -6,6 +6,7 @@ from pricing.knowledge.assessment.build_profiles import build
 from pricing.knowledge.assessment.profiles import assess_role_results
 from pricing.knowledge.assessment.stat_bundle import configuration_from_row
 from pricing.knowledge.assessment.stat_evaluation import StatsEvaluator
+from tests.pricing.knowledge.assessment.fact_changes import fact_changes
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
 
 
@@ -40,7 +41,7 @@ def test_hustle_armor_uses_require_armor_recipe_and_wearer_durability(side, coun
                 {'97:29'} if side == 'player' else set()
             )
         assert bool(evaluate(replace(item, ethereal=True)).annotations) is (side == 'merc')
-        for changes in (
+        for changes in fact_changes(
             {'runeword': 'Hustle (weapon)'},
             {'sockets': 2},
             {'socket_contents': 'empty'},

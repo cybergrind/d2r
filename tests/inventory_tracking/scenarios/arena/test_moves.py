@@ -8,6 +8,7 @@ macro (driver.py), with `instant_moves=True` beside it for what the same play wa
 import logging
 import math
 import re
+from collections.abc import Mapping, Sequence
 from dataclasses import replace
 from itertools import pairwise
 
@@ -27,6 +28,7 @@ from tests.inventory_tracking.macros.fakes import KEYS
 from tests.inventory_tracking.scenarios.arena.driver import Press, play
 from tests.inventory_tracking.scenarios.arena.evidence.sure import sure
 from tests.inventory_tracking.scenarios.arena.game import RUN_SPEED, WARP_DELAY_OVER, WARP_DELAY_SHOWN, Arena
+from tests.inventory_tracking.scenarios.arena.scene import Point
 from tests.inventory_tracking.scenarios.arena.scenes_basic import (
     HERE,
     afoot,
@@ -56,7 +58,9 @@ def empty(scene=None, **changes) -> Arena:
 
 
 def mode(arena: Arena) -> int:
-    return arena.world.player.mode
+    player = arena.world.player
+    assert player is not None
+    return player.mode
 
 
 def run_out(arena: Arena, limit: int = 400) -> list[tuple[float, float]]:
@@ -175,6 +179,7 @@ def test_a_click_during_a_cast_walks_when_the_cast_is_over():
     frames(arena, 1)
     arena.keys.button(RIGHT_BUTTON, False)
     cast_ends = arena.acting_until
+    assert cast_ends is not None
     assert mode(arena) in ACTING
     point_at(arena, (HERE[0] + 6.0, HERE[1]))
     click(arena)
@@ -234,8 +239,13 @@ def test_a_monster_with_the_path_in_reach_strikes_a_character_walking_past(seed,
 
 def test_the_monsters_are_given_the_place_of_each_tick():
     arena = empty(one_in_the_open())
-    given = []
-    arena.mobs.tick = lambda here, *more: given.append(here) or 0.0
+    given: list[Point] = []
+
+    def tick(hero_at: Point, companions: Sequence[Point], resist: Mapping[str, float]) -> float:
+        given.append(hero_at)
+        return 0.0
+
+    arena.mobs.tick = tick
     point_at(arena, (HERE[0] + 9.0, HERE[1]))
     click(arena)
     frames(arena, 6)
@@ -255,6 +265,7 @@ def test_a_hop_places_the_character_after_its_cast_not_before():
     arena = staffed()
     spot = (HERE[0] + 12.5, HERE[1] + 3.5)
     point_at(arena, spot)
+    assert arena.staff is not None
     charges = arena.staff.charges
     tap(arena, KEYS[TELEPORT])
     assert arena.here == HERE
@@ -291,6 +302,7 @@ def test_a_hop_key_during_a_cast_is_cast_when_that_cast_is_over():
     frames(arena, 1)
     arena.keys.button(RIGHT_BUTTON, False)
     cast_ends = arena.acting_until
+    assert cast_ends is not None
     point_at(arena, (HERE[0] + 12.5, HERE[1] + 3.5))
     tap(arena, KEYS[TELEPORT])
     assert arena.landing is None  # kept, not cast
@@ -336,6 +348,7 @@ def test_a_blade_warp_key_in_the_casting_delay_is_refused_and_the_state_shows_th
     shown = []
     while arena.clock.now - keyed < 0.9:
         frames(arena, 1)
+        assert arena.world.player is not None
         shown.append((round(arena.clock.now - keyed, 2), arena.world.player.cooldown))
     assert next(at for at, on in shown if on) == pytest.approx(WARP_DELAY_SHOWN, abs=FRAME)
     assert not any(on for at, on in shown if at < WARP_DELAY_SHOWN - 1e-6)
@@ -345,7 +358,9 @@ def test_a_blade_warp_key_in_the_casting_delay_is_refused_and_the_state_shows_th
     assert arena.warps == [first]
     while arena.clock.now - keyed < WARP_DELAY_OVER:
         frames(arena, 1)
-    assert arena.read().player.cooldown is False  # the first look at or after the delay's end
+    player = arena.read().player
+    assert player is not None
+    assert player.cooldown is False  # the first look at or after the delay's end
     tap(arena, KEYS[BLADE_WARP])
     assert len(arena.warps) == 2
     assert len(arena.refused_warps) == 1
@@ -424,6 +439,8 @@ def test_the_step_toward_a_monster_out_of_reach_is_made_and_the_monster_killed(s
     # about the move's own time.
     assert struck - stepped > 0.3
     assert struck > struck_before + 0.2
+    assert result.cleared_at is not None
+    assert before.cleared_at is not None
     assert result.cleared_at > before.cleared_at
 
 
@@ -457,6 +474,8 @@ def test_the_step_round_a_wall_is_walked_and_the_monster_killed(monkeypatch):
     assert not [line for line in said if any(text in line for text in TIMED_OUT)]
     assert result.kills == [1]
     assert result.moved > before.moved + 2.0  # the way round, not the line through the wall the click was made over
+    assert result.cleared_at is not None
+    assert before.cleared_at is not None
     assert result.cleared_at > before.cleared_at
     # The monster comes for a character it sees walking up; one that is there in an instant has killed it first.
     # Since the walk's click no longer waits 0.2 s for a character already free (macros/travel.py `step_walk`,

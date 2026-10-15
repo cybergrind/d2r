@@ -2,7 +2,7 @@
 
 from pricing.knowledge.assessment.maintenance.guide_inventory import fingerprint
 from tests.pricing.knowledge.assessment.maintenance.test_planner_endorsement import pin, read, validate
-from tests.pricing.knowledge.assessment.maintenance.test_player_planner_endorsement import records as player_records
+from tests.pricing.knowledge.assessment.maintenance.test_player_planner_endorsement import player_records
 
 
 PID = 'fist-of-the-heavens-paladin-4-vipermagi-ber'
@@ -10,7 +10,7 @@ OID = '3db1f4eb689b273071b6d59f'
 
 
 def current_records():
-    review, occurrence, _, _ = player_records.__wrapped__()
+    review, occurrence, _, _ = player_records()
     role = next(p for p in read('pricing/data/appraisal-build-profiles.json')['profiles'] if p['id'] == PID)
     use = next(
         u for u in read('pricing/knowledge/assessment/rules/guide_use_reviews.json')['uses'] if u['profile_id'] == PID

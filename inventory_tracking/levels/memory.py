@@ -194,8 +194,8 @@ def preset_rooms(read, level, *, max_rooms=MAX_ROOMS) -> list[Room]:
         if struct.unpack_from('<Q', data, ROOM2_LEVEL)[0] != level:
             raise ValueError('Room2 does not belong to the level')
         preset, variant, block = preset_details(read, struct.unpack_from('<Q', data, ROOM2_PRESET)[0])
-        bounds = struct.unpack_from('<IIII', data, ROOM2_BOUNDS)
-        rooms.append(Room(preset, *bounds, variant, block, neighbour_areas(read, room2, data, level)))
+        x, y, width, height = struct.unpack_from('<IIII', data, ROOM2_BOUNDS)
+        rooms.append(Room(preset, x, y, width, height, variant, block, neighbour_areas(read, room2, data, level)))
         room2 = struct.unpack_from('<Q', data, ROOM2_NEXT)[0]
     return rooms
 

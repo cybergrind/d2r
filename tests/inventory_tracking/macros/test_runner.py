@@ -1,7 +1,7 @@
 import threading
 import time
 from dataclasses import replace
-from types import SimpleNamespace
+from pathlib import Path
 
 import pytest
 
@@ -9,11 +9,25 @@ from inventory_tracking.macros import runner as runner_module
 from inventory_tracking.macros.actuator import Abort, Cancelled, Flipped
 from inventory_tracking.macros.hunt import Hunter
 from inventory_tracking.macros.runner import MacroRunner
-from tests.inventory_tracking.macros.fakes import BUILD, KEYS
+from tests.inventory_tracking.macros.fakes import BUILD, KEYS, character_of
+
+
+# No key file is read here: every run is given its keys, or none is played by `_execute`.
+SAVED_GAMES = Path('/nonexistent/Saved Games')
 
 
 def make(execute, shown):
-    return MacroRunner(None, capture_lock=threading.Lock(), saved_games=None, display=shown.append, execute=execute)
+    return MacroRunner(
+        None, capture_lock=threading.Lock(), saved_games=SAVED_GAMES, display=shown.append, execute=execute
+    )
+
+
+def joined(runner: MacroRunner) -> threading.Thread:
+    """The thread of the runner's last run, joined (5 s at most)."""
+    thread = runner.thread
+    assert thread is not None
+    thread.join(5)
+    return thread
 
 
 def test_a_stale_request_starts_nothing():
@@ -34,8 +48,7 @@ def test_a_press_during_a_run_cancels_it(monkeypatch):
     runner = make(execute, shown)
     assert runner.request(10.0, 10.1)
     assert runner.request(11.0, 11.1)
-    runner.thread.join(5)
-    assert not runner.thread.is_alive()
+    assert not joined(runner).is_alive()
     assert shown == [['Macro stopped: cancelled'], []]
 
 
@@ -50,16 +63,16 @@ def test_a_crash_is_shown_and_the_next_press_starts_again(monkeypatch):
 
     runner = make(execute, shown)
     runner.request(10.0, 10.1)
-    runner.thread.join(5)
+    joined(runner)
     runner.request(20.0, 20.1, 'teleport')
-    runner.thread.join(5)
+    joined(runner)
     assert calls == ['prebuff', 'teleport']
     assert shown[0] == ['Macro failed: boom']
 
 
 def test_the_levels_noted_between_presses_are_what_a_run_is_told():
     places = iter([('cyber32', 102), ('cyber32', 102), ('cyber32', 103)])
-    runner = MacroRunner(None, capture_lock=threading.Lock(), saved_games=None, place=lambda: next(places))
+    runner = MacroRunner(None, capture_lock=threading.Lock(), saved_games=SAVED_GAMES, place=lambda: next(places))
     runner.poll(10.0)
     runner.poll(10.2)  # too soon: not read
     runner.poll(11.5)
@@ -69,9 +82,16 @@ def test_the_levels_noted_between_presses_are_what_a_run_is_told():
 
 def test_the_game_and_level_are_noted_for_the_routes_too():
     places = iter([('cyber32', 3), ('cyber32', 9), (None, None)])
-    runner = MacroRunner(None, capture_lock=threading.Lock(), saved_games=None, place=lambda: next(places))
+    runner = MacroRunner(None, capture_lock=threading.Lock(), saved_games=SAVED_GAMES, place=lambda: next(places))
+    from inventory_tracking.routes.progress import Progress
+
     noted = []
-    runner.progress = SimpleNamespace(note=lambda game, area: noted.append((game, area)))
+
+    class Noted(Progress):
+        def note(self, game: str | None, area: int | None) -> None:
+            noted.append((game, area))
+
+    runner.progress = Noted(())
     for now in (10.0, 12.0, 14.0):
         runner.poll(now)
     assert noted == [('cyber32', 3), ('cyber32', 9), (None, None)]
@@ -81,7 +101,7 @@ def test_a_level_that_cannot_be_read_does_not_stop_the_service():
     def place():
         raise OSError('gone')
 
-    runner = MacroRunner(None, capture_lock=threading.Lock(), saved_games=None, place=place)
+    runner = MacroRunner(None, capture_lock=threading.Lock(), saved_games=SAVED_GAMES, place=place)
     runner.poll(10.0)
     assert runner.journey.arrival(11.0)[0] is None
     assert not runner.capture_lock.locked()
@@ -102,7 +122,7 @@ def test_a_teleport_request_during_a_teleport_step_queues_one_more_step_instead_
     assert runner.request(10.2, 10.3, 'teleport')  # faster than the prebuff throttle, during the step
     assert runner.request(10.4, 10.5, 'teleport')  # still only one more
     go_on.set()
-    runner.thread.join(5)
+    joined(runner)
     assert steps == ['teleport', 'teleport']
 
 
@@ -117,7 +137,7 @@ def test_a_press_right_after_a_step_starts_the_next_while_the_card_still_shows(m
             break
         deadline.wait(0.02)
     assert runner.request(10.3, 10.4, 'teleport')  # the card thread of the first run is still alive
-    runner.thread.join(5)
+    joined(runner)
     assert steps == ['teleport', 'teleport']
 
 
@@ -143,7 +163,7 @@ def test_a_macro_request_during_a_teleport_step_cancels_it(monkeypatch):
     runner = make(execute, [])
     runner.request(10.0, 10.1, 'teleport')
     assert runner.request(10.5, 10.6, 'prebuff')
-    runner.thread.join(5)
+    joined(runner)
     assert not runner.working
 
 
@@ -168,7 +188,7 @@ def test_a_seek_request_during_its_own_step_queues_one_more_and_a_teleport_reque
     assert attacking.wait(5)
     assert steps == ['hunt elites', 'hunt elites', 'hunt any']
     runner.request(11.0, 11.1, 'hunt any')  # the attack mode toggle: off
-    runner.thread.join(5)
+    joined(runner)
 
     def cancelled_step(cancelled, routine):
         assert cancelled.wait(5)
@@ -177,6 +197,7 @@ def test_a_seek_request_during_its_own_step_queues_one_more_and_a_teleport_reque
     runner = make(cancelled_step, [])
     assert runner.request(20.0, 20.1, 'hunt elites')
     step = runner.thread
+    assert step is not None
     assert runner.request(20.2, 20.3, 'teleport')  # another key cancels
     step.join(5)
     assert not step.is_alive()
@@ -198,14 +219,14 @@ def test_the_toggle_turns_attack_mode_on_and_off(monkeypatch):
     assert runner.attack_mode
     assert runner.working
     assert runner.request(10.5, 10.6, 'hunt any')
-    runner.thread.join(5)
+    joined(runner)
     assert not runner.attack_mode
     assert not runner.working
     assert ['Macro: Attack mode off'] in shown
     assert runner.request(11.0, 11.1, 'hunt any')  # and on again
     assert runner.attack_mode
     runner.request(11.5, 11.6, 'hunt any')
-    runner.thread.join(5)
+    joined(runner)
 
 
 def test_a_seek_request_does_its_step_and_turns_attack_mode_on(monkeypatch):
@@ -233,7 +254,7 @@ def test_a_seek_request_does_its_step_and_turns_attack_mode_on(monkeypatch):
     assert attacking.wait(5)
     assert runs == ['hunt elites', 'hunt any', 'hunt elites', 'hunt any']
     runner.request(12.0, 12.1, 'hunt any')  # the attack mode toggle: off
-    runner.thread.join(5)
+    joined(runner)
     assert not runner.attack_mode
 
 
@@ -256,7 +277,7 @@ def test_a_step_during_attack_mode_pauses_it_and_it_resumes_after(monkeypatch):
     assert runs == ['hunt any', 'teleport', 'hunt any']
     assert runner.attack_mode
     runner.request(11.0, 11.1, 'prebuff')  # off again
-    runner.thread.join(5)
+    joined(runner)
 
 
 def test_a_pickup_request_during_attack_mode_asks_for_a_step_and_is_dropped_when_the_mode_says_so(monkeypatch):
@@ -273,6 +294,7 @@ def test_a_pickup_request_during_attack_mode_asks_for_a_step_and_is_dropped_when
         assert asked.wait(5)
         assert hunter.step_asked.is_set()
         assert hunter.after_fight.is_set()
+        assert hunter.unwait is not None
         hunter.unwait()
         assert cancelled.wait(5)
         raise Cancelled
@@ -284,7 +306,7 @@ def test_a_pickup_request_during_attack_mode_asks_for_a_step_and_is_dropped_when
     assert runner.pending == 'pickup'
     asked.set()
     runner.request(11.0, 11.1, 'hunt any')  # the toggle: the mode off
-    runner.thread.join(5)
+    joined(runner)
     assert runner.pending is None
     assert runs == ['hunt any']
 
@@ -300,7 +322,7 @@ def test_a_teleport_or_seek_request_ends_the_sweep_and_a_pickup_request_does_not
         runner.hunter.sweep.steps = 5
         runner.last_request = -1e9
         assert runner.request(10.0, 10.1, routine)
-        runner.thread.join(5)
+        joined(runner)
         assert runner.hunter.sweep.steps == left, routine
 
 
@@ -333,7 +355,7 @@ def test_a_pickup_request_during_attack_mode_waits_for_the_fight_and_the_mode_re
     assert resumed.wait(5)
     assert runs == ['hunt any', 'pickup', 'hunt any']
     runner.request(11.0, 11.1, 'prebuff')
-    runner.thread.join(5)
+    joined(runner)
 
 
 def test_closing_during_a_seek_step_starts_nothing_after_it(monkeypatch):
@@ -352,7 +374,7 @@ def test_closing_during_a_seek_step_starts_nothing_after_it(monkeypatch):
     assert runner.request(10.0, 10.1, 'hunt elites')
     assert started.wait(5)
     runner.close()
-    runner.thread.join(5)
+    joined(runner)
     assert runs == ['hunt elites']
     assert not runner.attack_mode
     assert not runner.request(11.0, 11.1, 'teleport')  # and no request starts another
@@ -377,7 +399,7 @@ def test_closing_with_a_pickup_waiting_for_the_fight_drops_it(monkeypatch):
     assert started.wait(5)
     assert runner.request(10.3, 10.4, 'pickup')
     runner.close()
-    runner.thread.join(5)
+    joined(runner)
     assert runs == ['hunt any']
 
 
@@ -397,7 +419,7 @@ def test_a_macro_request_ends_attack_mode_and_runs_the_macro(monkeypatch):
     assert runner.request(10.0, 10.1, 'hunt any')
     assert runner.request(10.5, 10.6, 'prebuff')
     assert done.wait(5)
-    runner.thread.join(5)
+    joined(runner)
     assert runs == ['hunt any', 'prebuff']
     assert not runner.attack_mode
 
@@ -407,10 +429,10 @@ def test_attack_mode_returning_on_its_own_turns_the_toggle_off(monkeypatch):
     shown = []
     runner = make(lambda cancelled, routine: None, shown)
     assert runner.request(10.0, 10.1, 'hunt any')
-    runner.thread.join(5)
+    joined(runner)
     assert not runner.attack_mode
     assert runner.request(10.5, 10.6, 'hunt any')  # the next press starts the mode again, not "off"
-    runner.thread.join(5)
+    joined(runner)
     assert runner.generation == 2
     assert ['Macro: Attack mode off'] not in shown
 
@@ -420,7 +442,7 @@ def test_attack_mode_ending_on_its_own_turns_the_toggle_off(monkeypatch):
     shown = []
     runner = make(lambda cancelled, routine: (_ for _ in ()).throw(Abort('attack mode off: the game was left')), shown)
     assert runner.request(10.0, 10.1, 'hunt any')
-    runner.thread.join(5)
+    joined(runner)
     assert not runner.attack_mode
     assert ['Macro stopped: attack mode off: the game was left'] in shown
 
@@ -476,6 +498,7 @@ def test_a_request_after_close_and_a_run_ending_after_close_start_nothing(monkey
     assert runner.request(10.0, 10.1, 'hunt elites')  # attack mode is to follow the step
     assert started.wait(5)
     thread = runner.thread
+    assert thread is not None
     closer = threading.Thread(target=runner.close)
     closer.start()
     assert not runner.request(10.3, 10.4, 'teleport')
@@ -531,15 +554,15 @@ def test_a_request_while_a_run_hands_over_to_its_successor_waits_for_the_handove
 def test_a_game_begun_with_the_staff_in_hand_is_said_once():
     # user, 2026-10-11: "teleport was broken because I exit game without switching to main hand".
     shown = []
-    place = ['game 1', 6]
-    held = [None]
+    place: tuple[str | None, int | None] = ('game 1', 6)
+    held: list[bool | None] = [None]
     runner = MacroRunner(
         None,
         capture_lock=threading.Lock(),
-        saved_games=None,
+        saved_games=SAVED_GAMES,
         display=shown.append,
         execute=lambda cancelled, routine: None,
-        place=lambda: tuple(place),
+        place=lambda: place,
         staff_in_hand=lambda: held[0],
     )
     runner.poll(10.0)
@@ -551,10 +574,10 @@ def test_a_game_begun_with_the_staff_in_hand_is_said_once():
     assert 'bind it again' in shown[0][0]
     runner.poll(14.0)
     assert len(shown) == 1  # once a game
-    place[0], held[0] = 'game 2', False
+    place, held[0] = ('game 2', 6), False
     runner.poll(16.0)
     assert len(shown) == 1  # the main weapons in hand: nothing to say
-    place[0], held[0] = 'game 3', True
+    place, held[0] = ('game 3', 6), True
     runner.poll(18.0)
     assert len(shown) == 2
 
@@ -638,7 +661,7 @@ def building(play, hunter=None, builds=None, fallback=None):
     runner = MacroRunner(
         None,
         capture_lock=threading.Lock(),
-        saved_games=None,
+        saved_games=SAVED_GAMES,
         display=shown.append,
         execute=lambda cancelled, routine: None,
         builds=registry.BUILDS if builds is None else builds,
@@ -718,6 +741,7 @@ def test_the_hunt_keeps_its_memory_while_the_build_stays_and_starts_anew_with_an
     run.world()
     buffs, travel, sweep = hunter.buffs, hunter.travel, hunter.sweep
     buffs.cast_at[1, None] = 5.0
+    assert runner.build is not None
     # the next run, the same character: its build is the one the runner played last from the start
     again = play.run()
     again.build = runner.build
@@ -744,12 +768,13 @@ def test_a_runner_given_no_build_stops_with_that_said():
     from tests.inventory_tracking.macros.fakes import HUNT_SLOTS, Game, world
 
     play = Game(world(area=101, slots=HUNT_SLOTS))
-    runner = MacroRunner(None, capture_lock=threading.Lock(), saved_games=None)
+    runner = MacroRunner(None, capture_lock=threading.Lock(), saved_games=SAVED_GAMES)
     assert runner.build is None
     with pytest.raises(Abort, match='no build to play: the runner was given none'):
         runner._execute(threading.Event(), 'pickup')
+    run = play.run()
     with pytest.raises(Abort, match='no build to play: the runner was given none'):
-        runner.perform(play.run(), None, 'pickup', None)
+        runner.perform(run, run.actuator, 'pickup', None)
 
 
 def test_the_pickup_step_jumps_by_the_chosen_builds_own_jump():
@@ -773,12 +798,14 @@ def test_at_a_routes_end_the_pickup_step_seeks_nothing_and_the_press_after_leave
     from tests.inventory_tracking.macros import test_pickup as drops
 
     play = drops.game()
-    area = play.world.player.area
+    area = play.character.area
     route = Route('Countess', (6,), (level(area, fight('The Countess', 'Countess'), loot(), leave()),))
-    remembered = lambda level: [(900, play.world.player.x + 60.0, play.world.player.y, False)]  # noqa: E731
+    remembered = lambda level: [(900, play.character.x + 60.0, play.character.y, False)]  # ruff: ignore[lambda-assignment]
     runner, run, _ = building(play, Hunter(lambda: drops.LEVEL, remembered, build=BUILD))
-    runner.progress = Progress([route], frozenset(('fight', 'loot', 'leave')), dead=lambda: frozenset({'The Countess'}))
-    runner.progress.note('cyber32', area)
+    runner.progress = progress = Progress(
+        [route], frozenset(('fight', 'loot', 'leave')), dead=lambda: frozenset({'The Countess'})
+    )
+    progress.note('cyber32', area)
     runner.attack_mode = True
 
     def keys(world, skills=None):  # as `_execute` gives them: every key for the prebuff, else the skills asked for
@@ -800,6 +827,7 @@ def test_the_pickup_step_of_a_character_no_build_claims_clicks_the_gold():
     play.world = someone()
     runner, run, _ = building(play, Hunter(lambda: drops.LEVEL, build=BUILD))
     runner.perform(run, run.actuator, 'pickup', drops.keys)
+    assert runner.hunter is not None
     assert run.build is runner.hunter.build is GENERIC
     assert play.pressed() == []  # no jump of its own that spares the staff
     assert any(event[0] == 'click' for event in play.keys.events)
@@ -812,12 +840,13 @@ def test_the_teleport_step_of_a_character_no_build_claims_hops_by_the_staff():
     from tests.inventory_tracking.macros import test_teleport as steps
 
     play = steps.game()
-    play.world = replace(someone(), player=replace(someone().player, area=109))
+    play.world = replace(someone(), player=replace(character_of(someone()), area=109))
     runner, run, _ = building(play)
     runner.target = lambda: steps.target((1003.0, 1000.0))
     runner.perform(run, run.actuator, 'teleport', steps.keys)
     assert run.build is GENERIC
     assert play.pressed() == ['t']
+    assert play.staff is not None
     assert play.staff.charges == 9
     assert play.said[-2].startswith('Teleport toward Next level')
 
@@ -872,7 +901,7 @@ def test_attack_mode_is_played_by_the_build_chosen_at_its_first_look():
     from tests.inventory_tracking.macros.fakes import HUNT_SLOTS, KEYS, Game, world
 
     start = world(area=101, slots=HUNT_SLOTS)
-    play = Game(replace(start, player=replace(start.player, consume=True)))
+    play = Game(replace(start, player=replace(character_of(start), consume=True)))
     hunter = Hunter(lambda: Level(101, ()), build=registry.FALLBACK)  # as the service makes it, before any game
     runner, run, _ = building(play, hunter)
     play.arrivals.append((1.0, run.cancelled.set))
@@ -899,6 +928,7 @@ def test_the_macro_request_prebuffs_by_the_chosen_build_and_asks_for_its_keys():
 
     runner.perform(run, run.actuator, 'prebuff', key_names)
     assert run.build is BUILD
+    assert BUILD.weapons is not None
     assert asked[0] == prebuff_keys(BUILD)
     assert play.pressed() == ['q', '6', 'q', 'g', 'r']
     assert run.prebuff_hands == BUILD.weapons.prebuff
@@ -939,7 +969,7 @@ def test_a_warning_stays_on_the_card_above_what_is_said_until_it_is_taken_back()
     # user, 2026-10-12: "we should give an active warning that must be visible to the user": a line the
     # next thing said wipes is not one (Drifter Cavern, 20:00 that day).
     shown = []
-    runner = MacroRunner(None, capture_lock=threading.Lock(), saved_games=None, display=shown.append)
+    runner = MacroRunner(None, capture_lock=threading.Lock(), saved_games=SAVED_GAMES, display=shown.append)
     runner._warn('Inventory full: Superior Old Book left on the ground')
     runner._say('Walking 16 toward the monster')
     runner._show([])
@@ -955,8 +985,9 @@ def test_a_warning_stays_on_the_card_above_what_is_said_until_it_is_taken_back()
 
 def test_a_warning_not_given_again_leaves_the_card_after_a_while(monkeypatch):
     shown = []
-    runner = MacroRunner(None, capture_lock=threading.Lock(), saved_games=None, display=shown.append)
+    runner = MacroRunner(None, capture_lock=threading.Lock(), saved_games=SAVED_GAMES, display=shown.append)
     runner._warn('Inventory full: Magic Kriss left on the ground')
+    assert runner.warning is not None
     given = runner.warning[1]
     monkeypatch.setattr(runner_module.time, 'monotonic', lambda: given + runner_module.WARNING_SECONDS + 1)
     runner._say('Attack mode on')
@@ -964,13 +995,14 @@ def test_a_warning_not_given_again_leaves_the_card_after_a_while(monkeypatch):
 
 
 def test_every_run_is_given_the_builds_weapon_sets_not_only_the_prebuff_and_attack_mode():
-    from types import SimpleNamespace
-
     from inventory_tracking import builds
+    from tests.inventory_tracking.macros.fakes import Game, world
 
     build = next(build for build in builds.BUILDS if build.weapons is not None)
-    runner = MacroRunner(None, capture_lock=threading.Lock(), saved_games=None)
-    run = SimpleNamespace(build=None, prebuff_hands=frozenset(), battle_hands=frozenset())
+    assert build.weapons is not None
+    runner = MacroRunner(None, capture_lock=threading.Lock(), saved_games=SAVED_GAMES)
+    run = Game(world()).run()
+    run.prebuff_hands = run.battle_hands = frozenset()
 
     runner.wear(run, build)
 
@@ -998,7 +1030,7 @@ def test_a_flip_under_a_step_ends_it_and_the_same_request_starts_again(monkeypat
     with caplog.at_level('INFO'):
         assert runner.request(10.0, 10.1, 'teleport')
         assert done.wait(5)
-        runner.thread.join(5)
+        joined(runner)
     assert runs == ['teleport', 'teleport']
     flips = [r.getMessage() for r in caplog.records if r.getMessage().startswith('Macro: input mode flipped')]
     assert flips == [
@@ -1026,7 +1058,7 @@ def test_a_flip_under_attack_mode_keeps_it_on_and_starts_it_again(monkeypatch):
     assert runs == ['hunt any', 'hunt any']
     assert runner.attack_mode
     runner.request(11.0, 11.1, 'hunt any')  # off
-    runner.thread.join(5)
+    joined(runner)
     assert not runner.attack_mode
 
 
@@ -1044,7 +1076,7 @@ def test_a_mode_that_keeps_flipping_stops_the_run(monkeypatch, caplog):
         ends = time.monotonic() + 5
         while ['Macro stopped: the input mode is switching'] not in shown and time.monotonic() < ends:
             time.sleep(0.01)
-        runner.thread.join(5)
+        joined(runner)
     assert runs == ['teleport'] * (runner_module.FLIPS_AGAIN + 1)
     assert ['Macro stopped: the input mode is switching'] in shown
     assert 'restarts in 10 s, the run stops' in caplog.text
@@ -1062,7 +1094,7 @@ def test_the_run_made_again_after_a_flip_waits_for_the_flip_to_be_over():
         last[0] = next(modes, last[0])
         return last[0]
 
-    runner = MacroRunner(None, capture_lock=threading.Lock(), saved_games=None)  # type: ignore[arg-type]
+    runner = MacroRunner(None, capture_lock=threading.Lock(), saved_games=SAVED_GAMES)
     runner.pad_play = PadPlay(lambda: None, mode, lambda: None, lambda: ())
     run = Game(world(slots=SLOTS)).run()
     runner.settling = True

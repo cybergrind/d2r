@@ -1,4 +1,5 @@
 from dataclasses import replace
+from typing import Any
 
 import pytest
 
@@ -13,7 +14,7 @@ def test_normal_unique_upgrade_is_two_ordered_recipes_with_separate_costs():
     before = item.to_dict()
     routes = upgrade_paths(item)
     assert [r.target_name for r in routes] == ['Battle Belt', 'Troll Belt']
-    elite = routes[1].to_dict()
+    elite: dict[str, Any] = routes[1].to_dict()
     assert [step['level_requirement_penalty'] for step in elite['steps']] == [5, 7]
     assert elite['steps'][0]['resources'] == ['Tal Rune', 'Shael Rune', 'Perfect Diamond']
     assert elite['steps'][1]['resources'] == ['Ko Rune', 'Lem Rune', 'Perfect Diamond']

@@ -1,4 +1,5 @@
 from pricing.triage.bands import build_bands
+from tests.pricing.knowledge.reports import present
 
 
 def listing(seller, price=1, **changes):
@@ -95,7 +96,7 @@ def test_recent_independent_priced_sellers_outweigh_old_inventory():
 
     recent = [listing(f'recent-{i}') for i in range(10)]
     old = [listing(f'old-{i}') | {'listing_updated_at': '2026-09-01'} for i in range(50)]
-    band = band_for('uniques', 'Example', recent + old)
+    band = present(band_for('uniques', 'Example', recent + old))
     assert band['liquidity'] == 'liquid'
     assert band['recent_priced_sellers'] == 10
     assert band['listing_span_days'] > 14

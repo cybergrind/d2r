@@ -286,10 +286,11 @@ def test_a_place_is_priced_by_an_attack_and_not_by_a_bare_sweep():
     seen = Observation(HERE, {1: foe(8, 0, left=1e9), 2: foe(12, 0, left=1e9)})  # nothing capped by the life left
     field = Field(None, None)
     sweep = LinePolicy(damage_of=flat)
+    # A bare sweep is no Striker: passed on purpose, the TypeError is what is checked
     with pytest.raises(TypeError, match='a place is priced by an attack'):
-        taken(seen, sweep, field, HERE, 0.0)
+        taken(seen, sweep, field, HERE, 0.0)  # pyrefly: ignore[bad-argument-type]
     with pytest.raises(TypeError, match='a place is priced by an attack'):
-        camp(seen, sweep)
+        camp(seen, sweep)  # pyrefly: ignore[bad-argument-type]
     # The attack made of the sweep on the build's side prices with the sweep's own numbers
     assert taken(seen, EchoingStrike.of(sweep), field, HERE, 0.0) == taken(seen, POLICY, field, HERE, 0.0)
     assert taken(seen, POLICY, field, HERE, 0.0) != taken(seen, EchoingStrike(), field, HERE, 0.0)

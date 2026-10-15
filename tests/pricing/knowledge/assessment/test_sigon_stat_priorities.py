@@ -8,6 +8,7 @@ from pricing.knowledge.assessment.maintenance.stat_configurations import compile
 from pricing.knowledge.assessment.maintenance.stat_dispositions import validate_stat_dispositions
 from pricing.knowledge.assessment.profiles import assess_role_results
 from pricing.knowledge.assessment.stat_evaluation import StatsEvaluator
+from tests.pricing.knowledge.assessment.fact_changes import fact_changes
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
 from tests.pricing.knowledge.assessment.test_starter_set_roles import SET_CASES
 
@@ -50,7 +51,7 @@ def test_sigon_attack_rating_marker_preserves_companions_and_helmet_payload(slug
     assert result.annotations[key]['desirability'] == 'desirable'
     assert result.annotations[key]['roll_quality'] == 'unassessed'
     assert result.configurations[0]['role']['status'] == 'partial'
-    for changes in (
+    for changes in fact_changes(
         {'name': 'Other'},
         {'name': None},
         {'rarity': 'unique'},
@@ -72,7 +73,7 @@ def test_sigon_attack_rating_marker_preserves_companions_and_helmet_payload(slug
             }
         ).annotations
     if name == "Sigon's Visor":
-        for changes in (
+        for changes in fact_changes(
             {'socket_items': []},
             {'socket_contents': 'empty'},
             {'socket_items': [{'name': 'El Rune', 'item_type': 'rune'}]},

@@ -66,7 +66,9 @@ def cases():
                 ('unread-pierce', replace(original, raw_stats=missing), context, 'true', False),
                 ('known-no-pierce', replace(original, raw_stats=missing, complete=True), context, 'true', False),
             ):
-                expected = {'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))}
+                expected: dict[str, object] = {
+                    'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))
+                }
                 keys = ['147:0', '138:0']
                 if klass == 'Assassin':
                     keys.append('93:0')

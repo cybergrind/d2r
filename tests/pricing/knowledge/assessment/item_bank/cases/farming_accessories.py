@@ -1,5 +1,7 @@
 """Specialist farming combinations with separately authored item/loadout limits."""
 
+from typing import Any
+
 from dirty_equals import Contains, IsPartialDict
 
 from tests.pricing.knowledge.assessment.item_bank.models import Case, Item
@@ -9,7 +11,7 @@ def meteor_cases():
     role = 'meteor-standard-volcanic-luck-amulet'
     core = ((188, 8, 3), (80, 0, 35))
     context = {'player_class': 'Sorceress', 'player_total_fcr': 63, 'player_total_fhr': 60}
-    examples = [
+    examples: list[tuple[str, tuple[tuple[int, int, int], ...], bool, dict[str, Any], str]] = [
         ('source-rolls', core, True, context, 'positive'),
         ('minimum-luck', ((188, 8, 3), (80, 0, 26)), True, context, 'positive'),
         ('lower-mf-suffix', ((188, 8, 3), (80, 0, 25)), True, context, 'negative'),
@@ -47,7 +49,7 @@ def meteor_cases():
 def belt_cases():
     role = 'goldfind-budget-belt'
     core = ((99, 0, 24), (43, 0, 25), (41, 0, 25), (79, 0, 80))
-    examples = [
+    examples: list[tuple[str, tuple[tuple[int, int, int], ...], bool, str]] = [
         ('source-rolls', core, True, 'positive'),
         ('lower-rolls', ((99, 0, 10), (43, 0, 10), (41, 0, 10), (79, 0, 40)), True, 'positive'),
         ('mf-not-gold', (*core[:-1], (80, 0, 25)), True, 'negative'),

@@ -161,13 +161,14 @@ class ShardWatch:
                 continue
             kill = self.dropped_by(item, area, now)
             drop = {'event': 'shard', 't': round(now, 3), 'unit_id': item.unit_id}
-            drop |= {'code': self.model.items[item.class_id][0], 'area': area, 'terrorized': self.terrorized(area)}
+            terrorized = self.terrorized(area)
+            drop |= {'code': self.model.items[item.class_id][0], 'area': area, 'terrorized': terrorized}
             drop |= {'x': item.x, 'y': item.y, 'from': kill and kill['unit_id'], 'kind': kill and kill['kind']}
             LOG.info(
                 'Worldstone Shard: %s in area %s (%s)%s',
                 self.model.items[item.class_id][1],
                 area,
-                ZONES[drop['terrorized']],
+                ZONES[terrorized],
                 f', from a {kill["kind"]}' if kill else '',
             )
             found.append(drop)

@@ -202,7 +202,7 @@ def cases():
                     )
                 }
                 if label == 'wrong-family':
-                    expected = {'family': 'weapon'}
+                    expected: dict[str, object] = {'family': 'weapon'}
                 no_charge = label in ('depleted-charges', 'unknown-charges')
                 if scenario == 'positive':
                     expected['stat_evaluation'] = IsPartialDict(

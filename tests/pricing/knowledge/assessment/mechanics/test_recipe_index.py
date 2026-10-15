@@ -1,3 +1,5 @@
+from typing import Any
+
 import pytest
 
 from pricing.knowledge.assessment import base_use
@@ -20,7 +22,8 @@ def test_code_index_preserves_aliases_without_ambiguous_recommendation_joins():
 
 
 def test_recipe_index_preserves_all_base_rules_and_mercenary_alternatives():
-    rows = base_use.recipe_catalog()
+    # freeze() is unannotated (its inferred return is a mapping | tuple union); this is a tuple of frozen JSON rows.
+    rows: Any = base_use.recipe_catalog()
     index = base_use.recipe_index()
     names = {r['name'] for r in rows if r.get('kind') == 'base_rule'}
     assert set(index.by_base) == names
@@ -44,7 +47,7 @@ def test_recipe_index_preserves_all_base_rules_and_mercenary_alternatives():
         )
         assert index.mercenary_alternatives.get(word, ()) == expected
     with pytest.raises(TypeError):
-        index.by_base['invented'] = ()
+        index.by_base['invented'] = ()  # pyrefly: ignore[unsupported-operation]  # proves the index is read-only
 
 
 def test_warm_assessment_does_not_iterate_full_recipe_catalog(monkeypatch):

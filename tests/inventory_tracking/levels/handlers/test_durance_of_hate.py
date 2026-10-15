@@ -10,11 +10,11 @@ from inventory_tracking.levels.exits import guide_level
 from inventory_tracking.levels.model import LevelSnapshot, Location, Room
 from inventory_tracking.levels.presets import preset_name
 from inventory_tracking.levels.registry import handler_for
-from tests.inventory_tracking.levels.fixtures import replay
+from tests.inventory_tracking.levels.fixtures import handler_of, replay
 
 
 def test_stairs_down_and_the_waypoint_the_player_stands_in():
-    handler = handler_for(101)
+    handler = handler_of(101)
 
     guidance = handler.guide(replay('durance_of_hate_2'))  # arrived by waypoint
 
@@ -30,7 +30,7 @@ def test_the_first_mark_on_level_3_is_mephisto():
     complex_ = 796  # level_presets.json: Mephisto Complex
     bounds = (3500, 1600, 41, 29)
     rooms = tuple(Room(complex_, 3500 + 8 * i, 1600 + 8 * j, 8, 8, 0, bounds) for i in range(5) for j in range(3))
-    handler = handler_for(102)
+    handler = handler_of(102)
     guidance = guide_level(handler, LevelSnapshot(Location(102, 0, 17690, 8070), rooms))  # by the stairs
     poi = guidance.pois[0]
     assert (poi.label, poi.kind) == ('Mephisto', 'target')

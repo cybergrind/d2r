@@ -6,6 +6,7 @@ game is looked at every game frame, as attack mode looks at it during a fight (m
 
 import math
 import random
+from collections.abc import Mapping, Sequence
 from dataclasses import replace
 from itertools import pairwise
 
@@ -17,13 +18,13 @@ from inventory_tracking.config import PLAYER_HEALING
 from inventory_tracking.macros.routines import DEAD
 from inventory_tracking.macros.skills import SWAP_WEAPONS, TELEPORT
 from inventory_tracking.macros.view import Viewport
-from inventory_tracking.macros.world import FULL_REJUVENATION, HEALING, NO_OWNER, SUPER_HEALING, Teleport
+from inventory_tracking.macros.world import FULL_REJUVENATION, HEALING, NO_OWNER, SUPER_HEALING, Loot, Teleport
 from inventory_tracking.models import Outcome, PotionType
 from tests.inventory_tracking.macros.fakes import KEYS, OTHER_SET, PREBUFF_SET, WINDOW
 from tests.inventory_tracking.scenarios.arena.evidence.sure import sure
 from tests.inventory_tracking.scenarios.arena.game import OSD, POTIONS, SERVE, Arena
 from tests.inventory_tracking.scenarios.arena.mobs import Mobs
-from tests.inventory_tracking.scenarios.arena.scene import Scene
+from tests.inventory_tracking.scenarios.arena.scene import Point, Scene
 from tests.inventory_tracking.scenarios.arena.scenes_basic import (
     BELT,
     EMPTY_BELT,
@@ -56,9 +57,25 @@ def point_at(arena: Arena, at: tuple[float, float]) -> None:
 
 
 def tap(arena: Arena, key: str) -> None:
-    code = arena.keys.keycodes([key.encode()])[0]
+    codes = arena.keys.keycodes([key.encode()])
+    assert codes is not None
+    code = codes[0]
     arena.keys.press(code)
     arena.keys.release(code)
+
+
+def read_loot(arena: Arena) -> Loot:
+    """What the macro reads of the belt, the life and the ground (`Run.loot`, which the arena always gives)."""
+    run = arena.run()
+    assert run.loot is not None
+    return run.loot()
+
+
+def in_hand(arena: Arena) -> tuple[str, ...]:
+    """The weapon set the macro reads in hand (`Run.hands`, which the arena always gives)."""
+    run = arena.run()
+    assert run.hands is not None
+    return run.hands()
 
 
 def click(arena: Arena) -> None:
@@ -91,6 +108,7 @@ def test_the_scene_is_the_games_start():
     scene.hero = hero(900.0, hand=1)
     arena = Arena(scene)
     stand = arena.world.player
+    assert stand is not None
     assert (stand.name, stand.area, (stand.x, stand.y)) == (scene.hero.name, scene.hero.area, HERE)
     assert arena.world.in_game
     assert arena.world.slots == HUNT_SLOTS
@@ -98,7 +116,12 @@ def test_the_scene_is_the_games_start():
     assert (stand.consume, stand.hex_purge, stand.ward) == (True, True, True)
     assert (arena.loot.belt, arena.loot.life, arena.loot.max_life) == (BELT, 900, round(LIFE))
     run = arena.run()
+    assert run.hands is not None
+    assert run.teleport is not None
+    assert run.corpses is not None
+    assert run.ground is not None
     assert run.hands() == OTHER_SET  # the teleport set is in hand
+    assert STAFF.teleport_charges is not None
     assert run.teleport() == Teleport(STAFF.teleport_charges, STAFF.teleport_charges, True)
     assert [(m.unit_id, m.txt_id, (m.x, m.y), m.owner) for m in arena.world.monsters] == [
         (1, HELL_BOVINE, (HERE[0] + 12.0, HERE[1]), NO_OWNER)
@@ -116,7 +139,7 @@ def test_the_scenes_drops_are_what_the_pickup_step_reads():
         replace(scene.drops[0], unit=53, code='r24'),
         replace(scene.drops[0], unit=54, code='gld', gold=7200),
     ]
-    drops = Arena(scene).run().loot().drops
+    drops = read_loot(Arena(scene)).drops
     assert [(d.unit_id, d.kind, d.label) for d in drops] == [
         (50, HEALING, 'a super healing potion'),
         (51, 'rejuvenation', 'a full rejuvenation potion'),
@@ -173,7 +196,7 @@ def test_a_monster_in_contact_takes_life_at_the_rate_mobs_gives(monkeypatch):
     assert 0.0 < expected < LIFE
     assert arena.taken == pytest.approx(expected)
     assert arena.life == pytest.approx(LIFE - expected)
-    assert arena.run().loot().life == round(LIFE - expected)
+    assert read_loot(arena).life == round(LIFE - expected)
     assert arena.result().taken == pytest.approx(expected)
 
 
@@ -181,7 +204,7 @@ def test_the_weapon_set_in_hand_decides_what_an_elemental_attacker_takes(monkeyp
     sure(monkeypatch)  # every shot lands: the test is of the resistances
     staff, main = Arena(strong(gloams())), Arena(strong(gloams()))  # both begin with the teleport set in hand
     tap(main, KEYS[SWAP_WEAPONS])
-    assert main.run().hands() == PREBUFF_SET
+    assert in_hand(main) == PREBUFF_SET
     for arena in (staff, main):
         arena.clock.sleep(10.0)
     assert staff.taken > 0.0
@@ -214,7 +237,9 @@ def test_a_held_strike_kills_one_monster_in_the_open():
     assert min(seen) < full  # the life the macro reads went down on the way
     assert arena.world.monsters == ()
     assert arena.world.dead == {1}
-    assert [corpse[0] for corpse in arena.run().corpses()] == [1]
+    corpses = arena.run().corpses
+    assert corpses is not None
+    assert [corpse[0] for corpse in corpses()] == [1]
     assert [unit for unit, _ in arena.strikes] == [1] * result.casts  # the fakes' record of each cast is kept
 
 
@@ -288,7 +313,7 @@ def test_a_rejuvenation_heals_at_once_and_its_column_comes_down():
     arena = Arena(replace(one_in_the_open(), hero=hero(300.0), mobs=[]))
     tap(arena, '3')
     assert arena.life == LIFE  # potions.json: a full rejuvenation gives 100% of the most life
-    assert arena.run().loot().life == round(LIFE)
+    assert read_loot(arena).life == round(LIFE)
     assert arena.result().potions == [(0.0, FULL_REJUVENATION, SERVE)]
     assert arena.loot.belt == (*BELT[:14], None, BELT[15])  # one fewer in the column, the hotkey row still full
 
@@ -355,6 +380,8 @@ def test_the_healer_does_nothing_above_its_thresholds_or_without_stock():
     for arena in (healthy, bare):
         arena.clock.sleep(2.0)
         assert arena.result().potions == []
+    assert healthy.healer is not None
+    assert bare.healer is not None
     assert set(healthy.healer.outcomes) == {Outcome.IDLE}
     assert set(bare.healer.outcomes) == {Outcome.NO_STOCK}
 
@@ -362,10 +389,13 @@ def test_the_healer_does_nothing_above_its_thresholds_or_without_stock():
 def test_the_healer_sends_nothing_while_a_key_is_down():
     """input/facade.py refuses a potion key while any key is held: a strike held on its key is one."""
     arena = Arena(replace(one_in_the_open(), hero=hero(0.3 * LIFE), mobs=[]), osd=PLAYER_HEALING)
-    code = arena.keys.keycodes([KEYS[ECHOING_STRIKE].encode()])[0]
+    codes = arena.keys.keycodes([KEYS[ECHOING_STRIKE].encode()])
+    assert codes is not None
+    code = codes[0]
     arena.keys.press(code)
     arena.clock.sleep(3.0)
     assert arena.result().potions == []
+    assert arena.healer is not None
     assert Outcome.REJECTED in arena.healer.outcomes
     arena.keys.release(code)
     arena.clock.sleep(1.5)  # the refused try took the cooldown with it
@@ -392,8 +422,9 @@ def test_at_life_zero_the_character_lies_dead_and_nothing_more_is_taken():
     assert result.dead_at < 5.0
     assert result.seconds == result.dead_at
     assert result.taken == pytest.approx(scene.hero.life)  # all it had and no more
+    assert arena.world.player is not None
     assert arena.world.player.mode in DEAD
-    assert arena.run().loot().life == 0
+    assert read_loot(arena).life == 0
     assert arena.mobs.frame == round(result.dead_at * GAME_RATE)  # the monsters stood still from then
     arena.keys.button(RIGHT_BUTTON, True)
     frames(arena, 30)
@@ -407,7 +438,11 @@ def test_the_dead_are_not_healed():
     scene = pack_at_low_life()
     scene.hero = hero(LIFE / 6)  # a full belt
     arena = Arena(scene, osd=PLAYER_HEALING)
-    arena.mobs.tick = lambda *args: 1e9  # one blow takes it all
+
+    def blow(hero_at: Point, companions: Sequence[Point], resist: Mapping[str, float]) -> float:
+        return 1e9  # one blow takes it all
+
+    arena.mobs.tick = blow
     arena.clock.sleep(2.0)
     assert arena.result().dead_at == FRAME
     assert arena.result().potions == []

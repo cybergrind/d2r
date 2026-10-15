@@ -1,12 +1,13 @@
 """Raw inputs to the observed native inventory getter, not a hover decoder."""
 
 import struct
+from typing import Any
 
 from inventory_tracking.hover.materials import material_widget
 
 
-def collect_native(read, base, ui, snapshot, *, all_grids=False):
-    result = {'blocks': [], 'owners': [], 'errors': [], 'validated': False, 'stable': False}
+def collect_native(read, base, ui, snapshot, *, all_grids=False) -> dict[str, Any]:
+    result: dict[str, Any] = {'blocks': [], 'owners': [], 'errors': [], 'validated': False, 'stable': False}
     blocks = result['blocks']
 
     def capture(address, size, label):

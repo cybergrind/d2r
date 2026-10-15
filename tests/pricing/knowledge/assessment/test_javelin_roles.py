@@ -1,7 +1,7 @@
 from dataclasses import replace
 
 from pricing.knowledge.assessment.build_profiles import build
-from pricing.knowledge.assessment.profiles import assess_roles
+from tests.pricing.knowledge.assessment.role_rows import role_rows
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
 
 
@@ -16,7 +16,7 @@ def test_lightning_fury_javelin_role_preserves_skill_speed_base_and_quality():
     profile = next((p for p in build()['profiles'] if p['id'] == 'lightning-fury-starter-lancers-javelin'), None)
     assert profile is not None
     for skills in (4, 5, 6):
-        result = assess_roles(javelin(skills), [profile], {'player_class': 'Amazon'})[0]
+        result = role_rows(javelin(skills), [profile], {'player_class': 'Amazon'})[0]
         assert result['status'] == 'partial'
         assert result['rule_trace']['truth'] == 'true'
         assert (result['preferences'][0]['status'] == 'true') is (skills == 6)
@@ -28,7 +28,7 @@ def test_lightning_fury_javelin_role_preserves_skill_speed_base_and_quality():
         javelin(base='Maiden Javelin'),
         replace(javelin(), ethereal=True),
     ):
-        assert assess_roles(item, [profile], {'player_class': 'Amazon'})[0]['status'] == 'failed'
-    assert not assess_roles(javelin(quality='rare'), [profile], {'player_class': 'Amazon'})
-    assert assess_roles(javelin(), [profile], {'player_class': 'Druid'})[0]['status'] == 'failed'
-    assert assess_roles(javelin(), [profile])[0]['status'] == 'partial'
+        assert role_rows(item, [profile], {'player_class': 'Amazon'})[0]['status'] == 'failed'
+    assert not role_rows(javelin(quality='rare'), [profile], {'player_class': 'Amazon'})
+    assert role_rows(javelin(), [profile], {'player_class': 'Druid'})[0]['status'] == 'failed'
+    assert role_rows(javelin(), [profile])[0]['status'] == 'partial'

@@ -11,6 +11,8 @@ def test_azurewrath_selects_legacy_or_current_definition_by_base():
     current, current_gaps = resolve_named_definition(facts('Phase Blade', 'unique', 'Azurewrath'))
     assert not gaps
     assert not current_gaps
+    assert legacy is not None
+    assert current is not None
     assert legacy['table_id'] == 29
     assert current['table_id'] == 301
 
@@ -23,6 +25,7 @@ def test_facet_definition_uses_captured_table_id_not_last_named_record(table_id)
     )
     definition, gaps = resolve_named_definition(item)
     assert not gaps
+    assert definition is not None
     assert definition['table_id'] == table_id
 
 

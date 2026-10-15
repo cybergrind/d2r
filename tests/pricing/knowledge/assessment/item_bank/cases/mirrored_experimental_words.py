@@ -124,7 +124,9 @@ def cases():
                     ('ethereal-scepter', replace(original, ethereal=True), context, 'false'),
                 ]
             for label, item, loadout, truth in rows:
-                expected = {'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))}
+                expected: dict[str, object] = {
+                    'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))
+                }
                 captured = {f'{a}:{b}' for a, b, _ in item.raw_stats}
                 active = truth == 'true'
                 priorities = {**dict.fromkeys(primary, 'desirable'), **dict.fromkeys(support, 'supporting')}

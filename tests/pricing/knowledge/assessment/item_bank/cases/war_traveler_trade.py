@@ -6,7 +6,7 @@ from itertools import product
 from dirty_equals import IsPartialDict
 
 from tests.pricing.knowledge.assessment.item_bank.cases.spirit_caster_roles import observation
-from tests.pricing.knowledge.assessment.item_bank.models import Case, Item
+from tests.pricing.knowledge.assessment.item_bank.models import Case, Item, with_stat_value
 
 
 def boots(mf=50, ed=174, base='Battle Boots', defense=None, thorns=6):
@@ -56,11 +56,7 @@ def cases():
         maximum = boots(ed=190, thorns=10, base=base, defense=182 if slug == 'upgraded' else 139)
         for stat, values in ((80, (None, 29, 51)), (16, (None, 149, 191)), (78, (None, 4, 11))):
             for value in values:
-                raw = tuple(
-                    (s, p, value if s == stat else v)
-                    for s, p, v in maximum.raw_stats
-                    if not (s == stat and value is None)
-                )
+                raw = with_stat_value(maximum.raw_stats, {stat}, value)
                 rows.append((f'{slug}/invalid/{stat}-{value}', replace(maximum, raw_stats=raw), 'unresolved'))
         for label, changes in [
             ('unidentified', {'identified': False}),

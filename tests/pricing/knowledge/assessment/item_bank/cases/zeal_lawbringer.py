@@ -12,7 +12,7 @@ CONTEXT = {'player_class': 'Paladin', 'mercenary_type': 'Act 5 Frenzy'}
 
 
 def make_case(quality, scenario, item, context):
-    expected = {
+    expected: dict[str, object] = {
         'roles': Contains(
             IsPartialDict(
                 id=ROLE,

@@ -4,7 +4,7 @@ from dataclasses import replace
 
 from dirty_equals import Contains, IsPartialDict
 
-from tests.pricing.knowledge.assessment.item_bank.models import Case, Item
+from tests.pricing.knowledge.assessment.item_bank.models import Case, Item, known
 
 
 SPECS = (
@@ -74,7 +74,9 @@ def cases():
                 ('unread-oak', replace(item, raw_stats=item.raw_stats[:-1]), context, 'true'),
             ]
         for label, candidate, loadout, truth in rows:
-            expected = {'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))}
+            expected: dict[str, object] = {
+                'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))
+            }
             if truth == 'true':
                 expected['stat_evaluation'] = IsPartialDict(
                     annotations=IsPartialDict({key: IsPartialDict(configuration_ids=Contains(config)) for key in keys})
@@ -88,7 +90,7 @@ def cases():
                 scenario={'true': 'positive', 'false': 'negative', 'unknown': 'unknown'}[truth],
                 absent_configurations=() if truth == 'true' else (config,),
                 absent_stat_configurations=dict.fromkeys(excluded, (config,)),
-                report_contains=(item.name, 'Trade tier:') if truth == 'true' else (item.base,),
+                report_contains=(known(item.name), 'Trade tier:') if truth == 'true' else (item.base,),
                 evidence=(
                     'pricing/data/wp-a-builds.json:/blessed-hammer-paladin/slots',
                     'third-parties/d2data/json/uniqueitems.json',

@@ -4,7 +4,7 @@ import pytest
 
 from inventory_tracking.levels.model import LevelSnapshot, Location, Room
 from inventory_tracking.levels.presets import preset_name
-from inventory_tracking.levels.registry import handler_for
+from tests.inventory_tracking.levels.fixtures import handler_of
 
 
 def rows(guidance):
@@ -12,7 +12,7 @@ def rows(guidance):
 
 
 def guide(area, *rooms):
-    return handler_for(area).guide(LevelSnapshot(Location(area, 0, 4, 4), rooms))
+    return handler_of(area).guide(LevelSnapshot(Location(area, 0, 4, 4), rooms))
 
 
 TOWN_TRANSITION_E = 2
@@ -111,4 +111,4 @@ def test_ancients_way_tracks_summit_icy_cellar_waypoint_and_way_back():
 
 
 def test_new_act1_act5_handlers_stay_unconfirmed():
-    assert not any(handler_for(area).confirmed for area in (2, 8, 10, 11, 17, 18, 19, 110, 111, 112, 117, 118))
+    assert not any(handler_of(area).confirmed for area in (2, 8, 10, 11, 17, 18, 19, 110, 111, 112, 117, 118))

@@ -147,10 +147,12 @@ def left_button_looked_at(place):
 SCENARIOS = {
     'test_a_monster_walking_into_reach_is_struck_within_three_ticks': walking_into_reach,
     'test_the_first_strike_does_not_wait_for_the_mark_or_the_sigil[a monster: Death Mark]': lambda: first_strike(0),
-    'test_the_first_strike_does_not_wait_for_the_mark_or_the_sigil[an elite: the sigil and Death Mark]': lambda: first_strike(
-        CHAMPION
+    'test_the_first_strike_does_not_wait_for_the_mark_or_the_sigil[an elite: the sigil and Death Mark]': lambda: (
+        first_strike(CHAMPION)
     ),
-    'test_with_nothing_else_to_cast_the_first_strike_is_held_within_three_ticks_of_the_mode_coming_on': nothing_else_to_cast,
+    'test_with_nothing_else_to_cast_the_first_strike_is_held_within_three_ticks_of_the_mode_coming_on': (
+        nothing_else_to_cast
+    ),
     'test_the_lined_monster_dying_moves_the_pointer_to_the_next_line_within_a_tick': lined_monster_dies,
     'test_a_monster_out_of_reach_for_a_moment_does_not_end_the_hold': monster_out_of_reach_for_a_moment,
     'test_a_reachable_monster_is_struck_at_once_while_an_elite_stands_behind_a_wall': reachable_while_elite_behind_wall,

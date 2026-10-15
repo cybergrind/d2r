@@ -30,6 +30,8 @@ def test_repository_pins_immutable_generation_and_reloads_changed_artifacts(tmp_
     renew_stat_reviews(document)
     path.write_text(json.dumps(document))
     second = repository.load()
+    assert first.bundle is not None
+    assert second.bundle is not None
     assert first.bundle.generation != second.bundle.generation
     assert 'New reviewed condition.' not in first.bundle.profiles[0]['conditions']
     assert 'New reviewed condition.' in second.bundle.profiles[0]['conditions']
@@ -100,6 +102,8 @@ def test_profile_snapshot_preserves_generation_and_fallback_issues(tmp_path):
         with repository.snapshot() as nested:
             assert nested is original
     updated = repository.load()
+    assert updated.bundle is not None
+    assert original.bundle is not None
     assert updated.bundle.generation != original.bundle.generation
     path.unlink()
     with repository.snapshot() as fallback:
@@ -119,7 +123,9 @@ def test_engine_records_the_profile_generation_used_across_publication(tmp_path,
     document = build()
     path.write_text(json.dumps(document))
     repository = ProfileRepository(path)
-    original = repository.load().bundle.generation
+    loaded = repository.load().bundle
+    assert loaded is not None
+    original = loaded.generation
     monkeypatch.setattr(profiles, '_repository', repository)
     normalize = engine.normalize
 
@@ -127,7 +133,9 @@ def test_engine_records_the_profile_generation_used_across_publication(tmp_path,
         document['profiles'][0]['conditions'].append('Updated during appraisal.')
         renew_stat_reviews(document)
         path.write_text(json.dumps(document))
-        assert repository.load().bundle.generation == original
+        current = repository.load().bundle
+        assert current is not None
+        assert current.generation == original
         return normalize(extraction)
 
     monkeypatch.setattr(engine, 'normalize', publish_during_capture)

@@ -73,7 +73,9 @@ def cases():
             )
         for label, item, ctx, truth in variants:
             active = truth == 'true'
-            assessment = {'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))}
+            assessment: dict[str, object] = {
+                'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))
+            }
             if active:
                 assessment['stat_evaluation'] = IsPartialDict(
                     annotations=IsPartialDict(

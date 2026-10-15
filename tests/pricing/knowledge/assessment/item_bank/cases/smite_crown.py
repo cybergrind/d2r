@@ -67,7 +67,7 @@ def cases():
         role = {'id': ROLE, 'rule_trace': IsPartialDict(truth=truth)}
         if active or label == 'wrong-rune':
             role['socket_requirement'] = IsPartialDict(item='Ber Rune', confirmed=active)
-        expected = {'roles': Contains(IsPartialDict(**role))}
+        expected: dict[str, object] = {'roles': Contains(IsPartialDict(**role))}
         if active:
             expected['stat_evaluation'] = IsPartialDict(
                 annotations=IsPartialDict(

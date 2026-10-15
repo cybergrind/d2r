@@ -37,4 +37,6 @@ def test_named_variable_roll_cannot_disappear_from_contract(mode):
 def test_complete_named_rolls_remain_distinct():
     contracts = [NamedHandler().contract(mara(value), 'jewelry')[0] for value in (20, 30)]
     assert all(contracts)
+    assert contracts[0] is not None
+    assert contracts[1] is not None
     assert contracts[0].properties != contracts[1].properties

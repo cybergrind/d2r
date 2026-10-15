@@ -4,7 +4,7 @@ from dataclasses import replace
 
 from dirty_equals import Contains, IsPartialDict
 
-from tests.pricing.knowledge.assessment.item_bank.models import Case, Item
+from tests.pricing.knowledge.assessment.item_bank.models import Case, Item, known
 
 
 SPECS = (
@@ -80,7 +80,7 @@ def cases():
                 ('wrong-merc', item, {**context, 'mercenary_type': 'Act 5 Frenzy'}, 'false'),
                 ('unknown-merc', item, {'player_class': 'Barbarian'}, 'unknown'),
             ):
-                expected = {
+                expected: dict[str, object] = {
                     'roles': Contains(IsPartialDict(id=role, side='merc', rule_trace=IsPartialDict(truth=truth)))
                 }
                 if truth == 'true':
@@ -97,7 +97,7 @@ def cases():
                     covers=(role,),
                     scenario={'true': 'positive', 'false': 'negative', 'unknown': 'unknown'}[truth],
                     absent_configurations=() if truth == 'true' else (role + '-stats',),
-                    report_contains=(item.name,),
+                    report_contains=(known(item.name),),
                     evidence=(
                         'pricing/data/wp-a-builds.json:/berserk-barbarian',
                         'third-parties/d2data/json/runes.json',

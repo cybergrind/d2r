@@ -40,7 +40,7 @@ def cases():
     for label, item, context, truth, dependency in rows:
         config = ROLE + '-stats'
         annotated = truth == dependency == 'true'
-        expected = {
+        expected: dict[str, object] = {
             'roles': Contains(
                 IsPartialDict(
                     id=ROLE,

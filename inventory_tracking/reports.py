@@ -6,6 +6,8 @@ import platform
 import time
 import uuid
 from datetime import UTC, datetime
+from pathlib import Path
+from typing import Any
 
 from inventory_tracking.common import LOG, timestamp
 
@@ -46,7 +48,7 @@ def watch(args):
     return 124
 
 
-def create_run(output):
+def create_run(output: Path) -> tuple[Path, dict[str, Any]]:
     run_id = datetime.now(UTC).strftime('%Y%m%dT%H%M%SZ') + '-' + uuid.uuid4().hex[:8]
     directory = output / run_id
     directory.mkdir(parents=True)

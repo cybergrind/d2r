@@ -13,7 +13,7 @@ from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.buffs import Buffs
 from inventory_tracking.macros.build import BuffFacts, Casting
 from inventory_tracking.macros.world import Monster
-from tests.inventory_tracking.macros.fakes import HUNT_SLOTS, Game, world
+from tests.inventory_tracking.macros.fakes import HUNT_SLOTS, Game, character_of, world
 
 
 DEFILER = Monster(60, 744, 1, 5006.0, 4996.0, 0xFFFFFFFF)
@@ -36,7 +36,7 @@ def test_a_defiler_is_due_only_with_none_alive_out_of_town_with_no_panel_and_the
     assert not defiler_missing(BuffFacts(world(area=109, slots=HUNT_SLOTS), 100.0, took=TOOK))  # Harrogath
     assert not defiler_missing(BuffFacts(replace(out, slots=()), 100.0, took=TOOK))  # not on a key
     assert not defiler_missing(BuffFacts(out, 100.0, focused=lambda: False, took=TOOK))
-    tried = {(SUMMON_DEFILER, None): 100.0 - DEFILER_RETRY}
+    tried: dict[tuple[int, int | None], float] = {(SUMMON_DEFILER, None): 100.0 - DEFILER_RETRY}
     assert not defiler_missing(BuffFacts(out, 100.0, cast_at=tried, took=TOOK))
     assert defiler_missing(BuffFacts(out, 100.0 + 0.01, cast_at=tried, took=TOOK))
 
@@ -91,7 +91,7 @@ def test_no_summon_goes_into_a_panel_the_player_has_open():
 
 
 def test_consume_stopped_by_an_open_panel_is_tried_again_soon():
-    play = Game(replace(field(open_panels=('inventory',)), player=replace(field().player, consume=False)))
+    play = Game(replace(field(open_panels=('inventory',)), player=replace(character_of(field()), consume=False)))
     row = next(r for r in BUFFS if r.skill == CONSUME and r.phase == 'upkeep')
     run = play.run()
     tried = consume_again(Casting(run, row, Buffs(ECHOING_STRIKE_BUILD), play.world, None, 16 / 9, lambda w, s: {}))

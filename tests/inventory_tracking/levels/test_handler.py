@@ -119,7 +119,7 @@ def near(point):
     return round(point[0]), round(point[1])  # the spot is kept in tiles: a unit is a fifth of one
 
 
-def pool(variants, *, at=(100, 200), player=(520, 1020)):
+def pool(variants, *, at: tuple[int, int] = (100, 200), player=(520, 1020)):
     """The 32x32 cavern as sixteen 8x8 chunks of one preset; `variants`: the layout each chunk has read."""
     block = (*at, 32, 32)
     rooms = tuple(

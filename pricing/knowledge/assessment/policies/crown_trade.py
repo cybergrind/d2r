@@ -12,6 +12,7 @@ from pricing.knowledge.assessment.handlers.definitions import resolve_named_defi
 from pricing.knowledge.assessment.mechanics.socket_evidence import NATIVE_HASHES, reviewed_native
 from pricing.knowledge.assessment.policies.sources import resolve_pointer
 from pricing.knowledge.market import scope_status
+from pricing.knowledge.market_rows import Market, market_of, published_market
 
 
 ROOT = Path(__file__).resolve().parents[4]
@@ -29,6 +30,7 @@ def inputs():
 
 @lru_cache(maxsize=2)
 def validate(raw, guides, market, native):
+    market = market if isinstance(market, Market) else market_of(market)
     review = json.loads(raw)
     if review['id'] != 'crown-two-socket-shell' or review['scope'] != 'SC / Non-Ladder / PC / RotW':
         raise ValueError('Invalid Crown trade scope')
@@ -44,12 +46,12 @@ def validate(raw, guides, market, native):
     }
     if review['guide_entries'] != expected or any(resolve_pointer(source, p) != v for p, v in expected.items()):
         raise ValueError('Invalid Crown two-insert demand')
-    if hashlib.sha256(market).hexdigest() != review['market_sha256']:
+    if market.sha256 != review['market_sha256']:
         raise ValueError('Crown market evidence changed')
     if not reviewed_native(ROOT, dict(zip(NATIVE, native, strict=True)).__getitem__):
         raise ValueError('Crown native mechanics changed')
     ids = review['evidence_ids']
-    rows = [r for line in market.splitlines() if (r := json.loads(line))['id'] in ids]
+    rows = market.with_ids(ids)
     if not ids or len(set(ids)) != len(ids) or len(rows) != len(ids):
         raise ValueError('Missing or duplicate Crown evidence')
     sellers = set()
@@ -88,7 +90,7 @@ def validate(raw, guides, market, native):
 
 def reviewed_date():
     return validate(
-        read_artifact(RULES), read_artifact(GUIDES), read_artifact(MARKET), tuple(read_artifact(p) for p in NATIVE)
+        read_artifact(RULES), read_artifact(GUIDES), published_market(MARKET), tuple(read_artifact(p) for p in NATIVE)
     )
 
 

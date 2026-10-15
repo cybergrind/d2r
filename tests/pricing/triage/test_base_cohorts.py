@@ -2,6 +2,7 @@ from pricing.triage.adapters import from_listing
 from pricing.triage.bands import build_bands
 from pricing.triage.engine import assess
 from pricing.triage.market_bases import FACETS
+from tests.pricing.knowledge.reports import present
 from tests.pricing.triage.test_bands import listing
 
 
@@ -97,7 +98,7 @@ def test_declared_base_roll_range_pools_sellers_without_weakening_required_range
 
 def test_sparse_base_quote_is_reference_only_not_an_item_estimate():
     rows = [row('only-seller', 10, 9.32)]
-    result = assess(from_listing(rows[0]), tables(rows))
+    result = present(assess(from_listing(rows[0]), tables(rows)))
     assert result['verdict'] == 'check'
     assert result['decision_ist'] is None
     assert result['band'] is None

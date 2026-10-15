@@ -2,6 +2,7 @@
 
 import hashlib
 from copy import deepcopy
+from typing import Any
 
 import pytest
 
@@ -10,7 +11,7 @@ from pricing.knowledge.assessment.maintenance.guide_inventory import fingerprint
 from tests.pricing.knowledge.assessment.maintenance.test_embedded_echoing_pairing import ROOT, inputs
 
 
-def cure_inputs(span=5):
+def cure_inputs(span=5) -> tuple[dict[str, Any], list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]]]:
     variant = {5: 1, 7: 2, 155: 'progression'}[span]
     document, links, profiles, uses = inputs(span)
     role_id = 'echoing-progression-cure-merc' if span == 155 else f'echoing-strike-warlock-guide-{variant}-merc-cure'

@@ -6,12 +6,12 @@ import pytest
 
 from pricing.knowledge.assessment.maintenance.guide_inventory import fingerprint
 from tests.pricing.knowledge.assessment.maintenance.test_planner_endorsement import pin, validate
-from tests.pricing.knowledge.assessment.maintenance.test_player_planner_endorsement import records as player_records
+from tests.pricing.knowledge.assessment.maintenance.test_player_planner_endorsement import player_records
 
 
 @pytest.fixture(scope='module')
 def records():
-    review, occurrence, role, use = player_records.__wrapped__()
+    review, occurrence, role, use = player_records()
     rune_pin = {**pin('third-parties/d2data/json/gems.json'), 'locator': '/r30'}
     role['source']['corroborating'].append(rune_pin)
     role['must']['all'].extend(

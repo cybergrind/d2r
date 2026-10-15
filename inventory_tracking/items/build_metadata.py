@@ -8,6 +8,7 @@ import hashlib
 import json
 import re
 from pathlib import Path
+from typing import Any
 
 from inventory_tracking.items.stat_constants import HIT_EFFECT_DESCRIPTION_FUNCTION
 from pricing.knowledge.assessment.maintenance.comparison_fillers import compile_fillers
@@ -138,7 +139,7 @@ def build(stats_path, skills_path, output):
     skills = build_skills(
         json.loads(skills_path.read_text()), skill_sources[0], merge_game_strings(skill_sources[1], skill_sources[2])
     )
-    definitions = build_definitions(root)
+    definitions: dict[str, Any] = build_definitions(root)
     identities = {kind: {} for kind in ('set', 'unique', 'runeword')}
     unmapped_runewords = []
     affixes = {kind: {} for kind in ('prefix', 'suffix', 'auto')}

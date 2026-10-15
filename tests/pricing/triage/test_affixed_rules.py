@@ -2,6 +2,7 @@ import pytest
 
 from pricing.triage.engine import assess
 from pricing.triage.import_affixed_rules import affixed_rules
+from tests.pricing.knowledge.reports import present
 
 
 def verdict(family, properties, category='rare'):
@@ -659,7 +660,7 @@ def test_premium_rule_cannot_turn_sparse_asks_into_a_price(sellers):
         'rules': {'keep_ist': 0.25, 'rows': [rule]},
         'own': {'rows': []},
     }
-    result = assess(item, tables)
+    result = present(assess(item, tables))
     assert result['verdict'] == 'check'
     assert result['decision_ist'] is None
     assert result['band'] is None

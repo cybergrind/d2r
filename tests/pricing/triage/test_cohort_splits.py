@@ -1,4 +1,5 @@
 from pricing.triage.cohort_splits import worthwhile
+from tests.pricing.knowledge.reports import present
 from tests.pricing.triage.test_bands import listing
 
 
@@ -68,14 +69,14 @@ def test_numeric_cohorts_split_roll_ranges_when_exact_rolls_are_sparse():
     def price(roll):
         return lookup({'ethereal': False, 'properties': {'roll': roll}}, reference)
 
-    assert price(3)['q1_ist'] == 1
-    assert price(4)['q1_ist'] == 5
-    assert price(4)['sellers'] == 3
-    assert price(3.5)['q1_ist'] == 1
+    assert present(price(3))['q1_ist'] == 1
+    assert present(price(4))['q1_ist'] == 5
+    assert present(price(4))['sellers'] == 3
+    assert present(price(3.5))['q1_ist'] == 1
     assert price(0) is None
     assert price(None) is None
     sparse = compile_named('uniques', 'Example', rows[:-1], [], facets=['property:roll'])[0]
-    assert lookup({'ethereal': False, 'properties': {'roll': 4}}, sparse)['sellers'] == 5
+    assert present(lookup({'ethereal': False, 'properties': {'roll': 4}}, sparse))['sellers'] == 5
 
 
 def test_numeric_cohorts_can_retain_multiple_supported_price_steps():
@@ -86,7 +87,7 @@ def test_numeric_cohorts_can_retain_multiple_supported_price_steps():
         row['properties']['roll'] = i + 1
     reference = compile_named('uniques', 'Example', rows, [], facets=['property:roll'])[0]
     for roll, expected in ((1, 1), (4, 5), (7, 20)):
-        band = lookup({'ethereal': False, 'properties': {'roll': roll}}, reference)
+        band = present(lookup({'ethereal': False, 'properties': {'roll': roll}}, reference))
         assert band['q1_ist'] == expected
         assert band['sellers'] == 3
     assert lookup({'ethereal': False, 'properties': {'roll': float('nan')}}, reference) is None

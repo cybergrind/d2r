@@ -280,7 +280,7 @@ def shots(evidence: Mapping[str, Any], speed: Mapping[str, float], swung: Mappin
     least = evidence['thresholds']['enough_shots']
     pooled = shot_row(evidence['train']['ranged_all'], None, least)
     fighters = melee(evidence, swung)['types']
-    types = {}
+    types: dict[str, dict[str, Any]] = {}
     for txt, row in evidence['types'].items():
         found = row['ranged']['train']
         if not found or found['shots_in_sight'] < least:

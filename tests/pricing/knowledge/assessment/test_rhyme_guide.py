@@ -6,6 +6,7 @@ from pricing.knowledge.assessment.build_profiles import build
 from pricing.knowledge.assessment.profiles import assess_role_results
 from pricing.knowledge.assessment.stat_bundle import configuration_from_row
 from pricing.knowledge.assessment.stat_evaluation import StatsEvaluator
+from tests.pricing.knowledge.assessment.fact_changes import fact_changes
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
 
 
@@ -58,14 +59,14 @@ def test_rhyme_starter_roles_keep_recipe_staffmods_and_swap_scope(slug, cls, bas
         )
 
     assert set(evaluate().annotations) == set(values)
-    for changes in [
+    for changes in fact_changes(
         {'runeword': None},
         {'rarity': 'magic'},
         {'sockets': 3},
         {'socket_contents': 'empty'},
         {'identified': None},
         {'ethereal': True},
-    ]:
+    ):
         assert not evaluate(replace(item, **changes)).annotations
     for key in skills:
         wrong = {**item.stats, key: {'status': 'decoded', 'value': skills[key] - 1}}

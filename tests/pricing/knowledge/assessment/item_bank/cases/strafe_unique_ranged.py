@@ -4,7 +4,7 @@ from dataclasses import replace
 
 from dirty_equals import Contains, IsPartialDict
 
-from tests.pricing.knowledge.assessment.item_bank.models import Case, Item
+from tests.pricing.knowledge.assessment.item_bank.models import Case, Item, known
 
 
 BURIZA = Item(
@@ -97,7 +97,9 @@ def cases():
             )
         for label, item, ctx, truth in variants:
             active = truth == 'true'
-            expected = {'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))}
+            expected: dict[str, object] = {
+                'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))
+            }
             observed_keys = tuple(k for k in keys if label != 'unread-scaling' or k not in ('219:0', '224:0'))
             if active:
                 expected['stat_evaluation'] = IsPartialDict(
@@ -117,7 +119,7 @@ def cases():
                 expected={'assessment': IsPartialDict(**expected)},
                 absent_configurations=() if active else (config,),
                 absent_stat_configurations=dict.fromkeys(absent, (config,)),
-                report_contains=(original.name, 'Trade tier:') if active else (),
+                report_contains=(known(original.name), 'Trade tier:') if active else (),
                 evidence=(
                     f'pricing/data/wp-a-builds.json:/strafe-amazon/slots/Weapon/{position}',
                     f'third-parties/d2data/json/uniqueitems.json:/{original.named_table_id}',

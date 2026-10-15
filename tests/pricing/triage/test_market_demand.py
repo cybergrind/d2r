@@ -1,3 +1,5 @@
+from typing import Any
+
 import pytest
 
 from pricing.triage.market_demand import qualify
@@ -49,7 +51,7 @@ def test_published_measurement_changes_engine_verdict_without_losing_own_use():
         'sellers': 10,
         'liquidity': 'liquid',
     }
-    document = {'bands': [band]}
+    document: dict[str, Any] = {'bands': [band]}
     rules, own = {'keep_ist': 0.25, 'rows': []}, {'rows': []}
     tables = prepare_tables(document, rules, own)
     old = assess(item, tables)

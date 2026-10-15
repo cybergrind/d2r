@@ -5,6 +5,7 @@ import pytest
 from pricing.knowledge.assessment.build_profiles import build
 from pricing.knowledge.assessment.profiles import assess_roles
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
+from tests.pricing.knowledge.reports import reports
 
 
 @pytest.mark.parametrize(
@@ -25,7 +26,7 @@ def test_endgame_merc_roles_require_recipe_and_preserve_companion_dependencies(s
         'mercenary_type': 'Act 2 Might',
         'mercenary_items': ['Infinity', 'Chains of Honor', 'Flickering Flame'],
     }
-    result = assess_roles(item, [rule], context)[0]
+    result = reports(assess_roles(item, [rule], context))[0]
     assert result['rule_trace']['truth'] == 'true'
     assert all(d['status'] == 'true' for d in result['dependencies'])
     assert any(companion in d['label'] for d in result['dependencies'])

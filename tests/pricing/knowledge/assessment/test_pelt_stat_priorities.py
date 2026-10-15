@@ -7,6 +7,7 @@ from pricing.knowledge.assessment.build_profiles import ROOT, build
 from pricing.knowledge.assessment.maintenance.stat_configurations import compile_stat_configurations
 from pricing.knowledge.assessment.profiles import assess_role_results
 from pricing.knowledge.assessment.stat_evaluation import StatsEvaluator
+from tests.pricing.knowledge.assessment.fact_changes import fact_changes
 from tests.pricing.knowledge.assessment.roles.test_fissure_pelts import facet, pelt, prepared
 
 
@@ -50,7 +51,7 @@ def test_pelt_annotations_preserve_skill_and_verified_socket_requirements(varian
         replace(item, socket_items=[item.socket_items[0], {'name': 'Rainbow Facet', 'item_type': 'jewl'}]),
     ):
         assert not evaluate(invalid).annotations
-    for changes in ({'rarity': 'rare'}, {'ethereal': True}, {'ethereal': None}, {'identified': False}):
+    for changes in fact_changes({'rarity': 'rare'}, {'ethereal': True}, {'ethereal': None}, {'identified': False}):
         assert not evaluate(replace(item, **changes)).annotations
     for context in ({}, {'player_class': 'Sorceress'}):
         assert not evaluate(item, context).annotations

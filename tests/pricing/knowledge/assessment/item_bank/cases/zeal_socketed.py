@@ -4,7 +4,7 @@ from dataclasses import replace
 
 from dirty_equals import Contains, IsPartialDict
 
-from tests.pricing.knowledge.assessment.item_bank.models import Case, Item, SocketItem
+from tests.pricing.knowledge.assessment.item_bank.models import Case, Item, SocketItem, known
 
 
 GUILLAUME = Item(
@@ -69,10 +69,10 @@ def cases():
             rows.append(('zeal-paladin-socket-helm-' + slug, span, item, tuple(f'{s}:{layer}' for s, layer, _ in raw)))
     result = []
     for role, span, item, keys in rows:
-        wrong = replace(item, socket_items=(SocketItem('El Rune'),) * item.sockets)
+        wrong = replace(item, socket_items=(SocketItem('El Rune'),) * known(item.sockets))
         unknown = replace(item, socket_items=())
         for scenario, observed in (('positive', item), ('negative', wrong), ('unknown', unknown)):
-            expected = {'roles': Contains(IsPartialDict(id=role))}
+            expected: dict[str, object] = {'roles': Contains(IsPartialDict(id=role))}
             if role.endswith(('-topazes', '-resistance', '-cham', '-um', '-ber')):
                 status = {'positive': 'partial', 'negative': 'failed', 'unknown': 'partial'}[scenario]
                 expected['roles'] = Contains(IsPartialDict(id=role, status=status))

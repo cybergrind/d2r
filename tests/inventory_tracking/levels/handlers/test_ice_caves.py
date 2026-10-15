@@ -9,7 +9,7 @@ import pytest
 
 from inventory_tracking.levels.model import LevelSnapshot, Location, Room
 from inventory_tracking.levels.presets import preset_name
-from inventory_tracking.levels.registry import handler_for
+from tests.inventory_tracking.levels.fixtures import handler_of
 
 
 ROOMS = (
@@ -45,7 +45,7 @@ ROOMS = (
     ],
 )
 def test_ice_cave_tracks_next_level_side_cave_waypoint_and_way_back(area, expected):
-    guidance = handler_for(area).guide(LevelSnapshot(Location(area, 0, 20, 20), ROOMS))
+    guidance = handler_of(area).guide(LevelSnapshot(Location(area, 0, 20, 20), ROOMS))
 
     assert [(p.label, p.kind, preset_name(p.room.preset)) for p in guidance.pois] == expected
     assert guidance.problems == ()
@@ -53,7 +53,7 @@ def test_ice_cave_tracks_next_level_side_cave_waypoint_and_way_back(area, expect
 
 @pytest.mark.parametrize('area', [113, 115])
 def test_missing_exits_are_problems_but_a_missing_waypoint_is_not(area):
-    guidance = handler_for(area).guide(LevelSnapshot(Location(area, 0, 20, 20), (Room(1017, 0, 0, 16, 16),)))
+    guidance = handler_of(area).guide(LevelSnapshot(Location(area, 0, 20, 20), (Room(1017, 0, 0, 16, 16),)))
 
     assert len(guidance.problems) == 3
-    assert not handler_for(area).confirmed  # no in-game evidence yet
+    assert not handler_of(area).confirmed  # no in-game evidence yet

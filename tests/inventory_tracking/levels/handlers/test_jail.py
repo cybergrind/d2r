@@ -7,14 +7,13 @@ from inventory_tracking.levels.geometry import pointer
 from inventory_tracking.levels.guide import pointer_lines
 from inventory_tracking.levels.level_map import build_map
 from inventory_tracking.levels.presets import preset_name
-from inventory_tracking.levels.registry import handler_for
-from tests.inventory_tracking.levels.fixtures import replay
+from tests.inventory_tracking.levels.fixtures import handler_of, replay
 
 
 def test_jail_1_tracks_next_level_waypoint_and_barracks():
     snapshot = replay('jail_1')
 
-    guidance = handler_for(29).guide(snapshot)
+    guidance = handler_of(29).guide(snapshot)
 
     assert [(p.label, preset_name(p.room.preset)) for p in guidance.pois] == [
         ('Next level', 'Act 1 - Jail Next N'),
@@ -26,7 +25,7 @@ def test_jail_1_tracks_next_level_waypoint_and_barracks():
 
 def test_standing_in_the_waypoint_room_says_here_and_keeps_its_dot():
     snapshot = replay('jail_1')  # the dump was taken right after arriving by waypoint
-    guidance = handler_for(29).guide(snapshot)
+    guidance = handler_of(29).guide(snapshot)
 
     lines = pointer_lines([pointer(poi, snapshot.location) for poi in guidance.pois])
     card = build_map(snapshot, guidance.pois)
@@ -38,19 +37,19 @@ def test_standing_in_the_waypoint_room_says_here_and_keeps_its_dot():
 
 
 def test_deeper_jail_levels_name_where_the_stairs_up_lead():
-    assert [s.label for s in handler_for(30).pois] == ['Next level', 'Waypoint', 'Jail 1']
-    assert [s.label for s in handler_for(31).pois] == ['Inner Cloister', 'Waypoint', 'Jail 2']
+    assert [s.label for s in handler_of(30).pois] == ['Next level', 'Waypoint', 'Jail 1']
+    assert [s.label for s in handler_of(31).pois] == ['Inner Cloister', 'Waypoint', 'Jail 2']
 
 
 def test_jail_2_and_3_replay_their_real_levels_and_jail_is_confirmed():
     rows = {}
     for fixture in ('jail_2', 'jail_3'):
         snapshot = replay(fixture)
-        guidance = handler_for(snapshot.location.area_id).guide(snapshot)
+        guidance = handler_of(snapshot.location.area_id).guide(snapshot)
         assert guidance.problems == ()
         rows[fixture] = [(p.label, preset_name(p.room.preset)) for p in guidance.pois]
 
     assert rows['jail_2'] == [('Next level', 'Act 1 - Jail Next E'), ('Jail 1', 'Act 1 - Jail Prev W')]
     assert rows['jail_3'] == [('Inner Cloister', 'Act 1 - Jail Cath W'), ('Jail 2', 'Act 1 - Jail Prev S')]
-    assert all(handler_for(area).confirmed for area in (29, 30, 31))  # user checked all Jail levels 2026-09-30
-    assert not handler_for(28).confirmed  # Barracks: no evidence yet
+    assert all(handler_of(area).confirmed for area in (29, 30, 31))  # user checked all Jail levels 2026-09-30
+    assert not handler_of(28).confirmed  # Barracks: no evidence yet

@@ -729,7 +729,7 @@ def ratio_table(title: str, sets: Sequence[tuple[str, Sequence[Row]]], blamed: b
         silent = sum(
             1 for fit, ratio in zip(fits, every, strict=True) if ratio is None and fit.taken_arena >= MIN_TAKEN
         )
-        kills = [fit.kills_ratio for fit in fits if fit.kills_take]
+        kills = [ratio for fit in fits if fit.kills_take and (ratio := fit.kills_ratio) is not None]
         killed = sum(fit.kills_take for fit in fits)
         lines.append(
             f'| {name} | {len(rows)} | {sum(row.trusted for row in rows)} | {spread(ratios)} '
@@ -902,7 +902,7 @@ def scale_fit(
     halves = (with_ratio[::2], with_ratio[1::2])
     if not all(halves):
         return ['Too few scenes with a ratio to fit anything.']
-    centre = statistics.median(row.fit.life_ratio for row in halves[0])  # type: ignore[type-var]
+    centre = statistics.median(ratio for row in halves[0] if (ratio := row.fit.life_ratio) is not None)
     factor = 1 / centre
     lines = [
         f'Of the {len(ratioed)} scenes with a ratio, the {len(ratioed) - len(with_ratio)} where the arena took nothing '

@@ -60,7 +60,7 @@ def cases():
             ('unread-sockets', replace(item, sockets=None), context, 'unknown', 'unknown'),
         )
         for label, candidate, loadout, truth, scenario in examples:
-            expected = {
+            expected: dict[str, object] = {
                 'roles': Contains(*[IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)) for role in roles])
             }
             if scenario == 'positive':

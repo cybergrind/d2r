@@ -31,7 +31,7 @@ def test_named_alternatives_keep_build_stat_exceptions_and_native_identity(name,
     base = 'Swirling Crystal' if orb else ('Ring' if name == "Nature's Peace" else 'Amulet')
     quality = 'set' if name == 'Telling of Beads' else 'unique'
     all_keys = {key for role in roles for key in role['important_stats']}
-    values = dict.fromkeys(all_keys | {'250:0', '19:0', '121:0', '123:0'}, 1)
+    values: dict[str, float] = dict.fromkeys(all_keys | {'250:0', '19:0', '121:0', '123:0'}, 1)
     values['250:0'] = 0.375
     item = replace(facts(base, quality, name), stats={k: {'status': 'decoded', 'value': v} for k, v in values.items()})
     for role in roles:

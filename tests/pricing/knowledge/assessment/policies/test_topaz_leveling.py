@@ -5,6 +5,7 @@ import pytest
 from inventory_tracking.items.metadata import metadata
 from pricing.knowledge.assessment.policies.leveling import assess_leveling
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
+from tests.pricing.knowledge.reports import reports
 
 
 def topaz_armor(base='Cap', quality='normal'):
@@ -23,7 +24,7 @@ def topaz_armor(base='Cap', quality='normal'):
 @pytest.mark.parametrize('base', ['Cap', 'Quilted Armor'])
 @pytest.mark.parametrize('quality', ['normal', 'superior', 'magic', 'rare', 'crafted'])
 def test_topaz_socket_leveling_uses_observed_payload_and_preserves_conditions(base, quality):
-    uses = assess_leveling(topaz_armor(base, quality))
+    uses = reports(assess_leveling(topaz_armor(base, quality)))
     assert len(uses) == 1
     assert uses[0]['source']['locator'] == '/generic_patterns/1'
     assert uses[0]['status'] == 'conditional'

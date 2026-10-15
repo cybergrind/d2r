@@ -78,7 +78,9 @@ def cases(build='berserk-barbarian', player_class='Barbarian', prefix='berserk',
             ]
         for label, candidate, loadout, truth in rows:
             impossible_ring = candidate.base == 'Ring' and label in {'invalid-socket', 'ethereal'}
-            expected = {'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))}
+            expected: dict[str, object] = {
+                'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))
+            }
             if truth == 'true':
                 expected['stat_evaluation'] = IsPartialDict(
                     annotations=IsPartialDict(

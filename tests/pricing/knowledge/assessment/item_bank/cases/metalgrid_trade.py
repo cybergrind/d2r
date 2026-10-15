@@ -5,7 +5,7 @@ from itertools import product
 
 from dirty_equals import IsPartialDict
 
-from tests.pricing.knowledge.assessment.item_bank.models import Case, Item
+from tests.pricing.knowledge.assessment.item_bank.models import Case, Item, ItemChanges, with_stat_value
 
 
 ITEM = Item('Amulet', 'unique', 'Metalgrid', ((19, 0, 450), (31, 0, 350), *((s, 0, 35) for s in (39, 41, 43, 45))))
@@ -31,19 +31,20 @@ def cases():
         )
     for key, lo, hi in ((19, 400, 450), (31, 300, 350), *((s, 25, 35) for s in (39, 41, 43, 45))):
         for value in (None, lo - 1, hi + 1):
-            raw = tuple((s, p, value if s == key else v) for s, p, v in ITEM.raw_stats if s != key or value is not None)
+            raw = with_stat_value(ITEM.raw_stats, {key}, value)
             yield make_case(f'component-{key}-{value}', replace(ITEM, raw_stats=raw), 'unresolved')
     for key in (39, 41, 43, 45):
         raw = tuple((s, p, 25 if s == key else v) for s, p, v in ITEM.raw_stats)
         yield make_case(f'unequal-{key}', replace(ITEM, raw_stats=raw), 'unresolved')
-    for label, changes in (
+    overrides: tuple[tuple[str, ItemChanges], ...] = (
         ('ethereal', {'ethereal': True}),
         ('unknown-ethereal', {'ethereal': None}),
         ('unidentified', {'identified': False}),
         ('socketed', {'sockets': 1}),
         ('unknown-sockets', {'sockets': None}),
         ('unknown-contents', {'socket_contents': 'unknown'}),
-    ):
+    )
+    for label, changes in overrides:
         yield make_case(label, replace(ITEM, **changes), 'unresolved')
 
 

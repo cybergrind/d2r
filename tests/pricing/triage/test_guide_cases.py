@@ -1,4 +1,5 @@
 from pricing.triage.guide_cases import evaluate, extract
+from tests.pricing.knowledge.reports import present, reports
 
 
 def test_guide_lot_quantity_reaches_the_assessor():
@@ -170,7 +171,7 @@ def test_base_table_transcription_preserves_ethereal_sockets_and_ed():
         'source': 'guides/pindle-anya.html#s5',
         'resolved_cells': ['Berserker Axe (catalog id)', 'eth 6os Superior ≥15 ED', 'keep'],
     }
-    examples = base_table_examples(c)
+    examples = reports(base_table_examples(c))
     assert examples[0]['spec']['ethereal'] is True
     assert examples[0]['spec']['sockets'] == 6
     assert examples[0]['spec']['stats'] == {'17:0': 15, '18:0': 15}
@@ -299,13 +300,15 @@ def test_shield_variants_retain_sockets_quality_and_resistance():
     def row(name, variant):
         return {'source': 'guides/pindle-anya.html#s5', 'resolved_cells': [name, variant, 'keep']}
 
-    eth = base_table_examples(row('Sacred Targe (2588089657)', 'eth 45@ any sockets'))
+    eth = reports(base_table_examples(row('Sacred Targe (2588089657)', 'eth 45@ any sockets')))
     assert {e['spec']['sockets'] for e in eth} == {0, 1, 2, 3, 4}
     assert all(e['spec']['ethereal'] for e in eth)
-    superior = base_table_examples(row('Targe (3933241232)', '0os Superior 45@'))
+    superior = reports(base_table_examples(row('Targe (3933241232)', '0os Superior 45@')))
     assert all(e['spec']['stats']['39:0'] == 45 for e in superior)
-    mixed = base_table_examples(
-        row('Sacred Rondache (2317685657)', '4os 45@ (bimodal: normal 2.6-4, Superior 15 ED 57-69)')
+    mixed = reports(
+        base_table_examples(
+            row('Sacred Rondache (2317685657)', '4os 45@ (bimodal: normal 2.6-4, Superior 15 ED 57-69)')
+        )
     )
     assert {e['spec']['rarity'] for e in mixed} == {'normal', 'superior'}
     assert {e['spec']['stats'].get('16:0', 0) for e in mixed} == {0, 15}
@@ -376,7 +379,7 @@ def test_guide_item_level_reaches_socket_preparation():
         }
         superior = item_from_spec(spec | {'item_level': level, 'rarity': 'superior'})
         assert preparation(superior, rules) == {'larzuk': [maximum], 'cube': [], 'conditional': False}
-    unknown = preparation(item_from_spec(spec), rules)
+    unknown = present(preparation(item_from_spec(spec), rules))
     assert unknown['larzuk'] == [3, 4, 6]
     assert unknown['conditional'] is True
 

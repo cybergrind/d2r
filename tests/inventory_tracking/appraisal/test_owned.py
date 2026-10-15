@@ -1,4 +1,5 @@
 import copy
+from typing import Any
 
 import pytest
 
@@ -21,7 +22,7 @@ def stat(stat_id, name, value, label, low=None, high=None, better='higher'):
     return row
 
 
-def unique(name='Snowclash', table_id=300, *, defense=150, cold=12, x=0, y=0, ethereal=False):
+def unique(name='Snowclash', table_id=300, *, defense=150, cold=12, x=0, y=0, ethereal=False) -> dict[str, Any]:
     return {
         'item': {
             'base_code': 'ulc',
@@ -78,6 +79,7 @@ def test_missing_collection_gives_no_evidence(tmp_path):
 def test_better_rolls_than_every_owned_copy(collection):
     database = collection(unique(defense=140, x=0), unique(defense=160, cold=11, x=2))
     owned = owned_copies(unique(defense=165, cold=14), database)
+    assert owned is not None
     assert owned['count'] == 2
     assert owned['relation'] == 'better'
     assert owned_summary(owned) == 'owned 2: this one beats every copy'
@@ -88,12 +90,15 @@ def test_better_rolls_than_every_owned_copy(collection):
 
 def test_one_better_owned_copy_makes_the_new_item_worse(collection):
     database = collection(unique(defense=140, cold=10, x=0), unique(defense=170, cold=15, x=2))
-    assert owned_copies(unique(defense=150, cold=12), database)['relation'] == 'worse'
+    owned = owned_copies(unique(defense=150, cold=12), database)
+    assert owned is not None
+    assert owned['relation'] == 'worse'
 
 
 def test_mixed_rolls(collection):
     database = collection(unique(defense=170, cold=10))
     owned = owned_copies(unique(defense=150, cold=15), database)
+    assert owned is not None
     assert owned['relation'] == 'mixed'
     copy_ = owned['copies'][0]
     assert copy_['better'] == ['CR +15% vs 10']
@@ -103,6 +108,7 @@ def test_mixed_rolls(collection):
 def test_other_uniques_and_ethereal_copies_do_not_count(collection):
     database = collection(unique(name='Nosferatu', table_id=301), unique(ethereal=True, x=2))
     owned = owned_copies(unique(), database)
+    assert owned is not None
     assert owned['count'] == 0
     assert owned_lines(owned) == ['Owned: none (unique Snowclash)']
 
@@ -111,6 +117,7 @@ def test_the_assessed_item_itself_is_not_a_copy(collection):
     item = unique(x=3, y=4)
     database = collection(item, copy.deepcopy(item) | {'source': unique(x=5)['source']})
     owned = owned_copies(item, database)
+    assert owned is not None
     assert owned['count'] == 1
     assert owned['relation'] == 'equal'
     assert owned['copies'][0]['identical']
@@ -122,10 +129,14 @@ def test_the_assessed_item_moved_since_the_capture_is_not_a_copy(collection):
     database = collection(captured)
     moved = copy.deepcopy(captured)
     moved['source'].update(container={'page': 0, 'name': 'Main inventory'}, position=[4, 2])
-    assert owned_copies(moved, database)['count'] == 0
+    owned = owned_copies(moved, database)
+    assert owned is not None
+    assert owned['count'] == 0
     another = copy.deepcopy(moved)
     another['source']['unit_id'] = 78
-    assert owned_copies(another, database)['count'] == 1
+    owned = owned_copies(another, database)
+    assert owned is not None
+    assert owned['count'] == 1
 
 
 def test_magic_items_match_on_the_same_kinds_of_stats(collection):
@@ -140,5 +151,6 @@ def test_magic_items_match_on_the_same_kinds_of_stats(collection):
 
     database = collection(charm(30, 0), charm(44, 2, skill=False))
     owned = owned_copies(charm(40, 4), database)
+    assert owned is not None
     assert owned['count'] == 1
     assert owned['relation'] == 'better'

@@ -50,7 +50,7 @@ from inventory_tracking.levels.exits import guide_level, passage_of
 from inventory_tracking.levels.geometry import Pointer, pointer
 from inventory_tracking.levels.level_map import build_map, centre
 from inventory_tracking.levels.memory import observe_level
-from inventory_tracking.levels.model import Guidance, Lead, Level, LevelSnapshot, Location, Poi, Target
+from inventory_tracking.levels.model import Guidance, Lead, Level, LevelSnapshot, Location, Poi, Room, Target
 from inventory_tracking.levels.registry import handler_for
 from inventory_tracking.levels.session import LevelMemory, layout_key
 from inventory_tracking.levels.spots import WAYS_OUT, on_waypoint, pinpoint
@@ -142,14 +142,15 @@ class LevelGuide:
     ):
         self.source, self.capture_lock, self.focused, self.display = source, capture_lock, focused, display
         self.seconds, self.poll_interval, self.clock, self.observe = seconds, poll_interval, clock, observe
-        self.area = None
+        self.area: int | None = None
         self.last_poll = -math.inf
-        self.visible = None
+        self.visible: list | None = None
         self.expires = 0.0
         self.last_warning = None
         self.evidence = evidence
         self.recorded = None  # (area, POI presets, problems) of the last saved record this entry
-        self.shown = None  # (snapshot, pois) behind the visible card, for live position updates
+        # (snapshot, pois) behind the visible card, for live position updates
+        self.shown: tuple[LevelSnapshot, tuple[Poi, ...]] | None = None
         self.lock_timeout = 1.0  # seconds show() may wait for the capture lock
         self.pinned = pinned
         self.last_press = None  # hotkey timestamp of an unpaired press
@@ -167,7 +168,7 @@ class LevelGuide:
         # waypoint POI moves from its room's centre onto the object once it is near (levels/spots.py).
         self.observe_waypoints, self.waypoints = observe_waypoints, set()
         self.walls = {}
-        self.rooms = ()  # the current level's rooms, for the library
+        self.rooms: tuple[Room, ...] = ()  # the current level's rooms, for the library
         # Walls read this game, per level: a trip to town must not lose generated terrain, which
         # the library never learns. Keyed by the level's layout (session.layout_key: room details
         # that load later don't change it), so a new game (other rooms) starts blank; the oldest
@@ -216,7 +217,7 @@ class LevelGuide:
             return True
         return where is not None and math.hypot(location.x - where[0], location.y - where[1]) >= REFRESH_MOVE
 
-    def _read_rooms(self):
+    def _read_rooms(self) -> tuple[Location | None, tuple[Room, ...]]:
         """(location, the level's rooms merged with what this game already knew about them)."""
         location, rooms = self.observe(self.source.pid, self.source.images, self.source.capture, rooms=True)
         self.rooms_read = self.clock()
@@ -226,6 +227,7 @@ class LevelGuide:
         """While a card is shown: re-read the rooms now and then, and re-mark when they say more (True)."""
         if self.clock() - self.rooms_read < ROOMS_REFRESH:
             return False
+        assert self.shown is not None  # called only while a card is shown
         snapshot, _ = self.shown
         location, rooms = self._read_rooms()
         if location is None or location.area_id != self.area or not rooms or rooms == snapshot.rooms:
@@ -233,13 +235,19 @@ class LevelGuide:
         self.rooms = rooms
         if self.on_rooms is not None:
             self.on_rooms(self.area, rooms)  # the pieces' files are read as rooms load
-        handler = handler_for(self.area)
         snapshot = LevelSnapshot(location, rooms)
-        guidance = guide_level(handler, snapshot)
-        for problem in guidance.problems:
-            self.warn('%s (%s): %s', handler.name, self.area, problem)
+        guidance = self._guide(location.area_id, snapshot)
         self.shown = (snapshot, tuple(pinpoint(poi) for poi in guidance.pois))
         return True
+
+    def _guide(self, area: int, snapshot: LevelSnapshot) -> Guidance:
+        """`guide_level` with the area's handler, its problems warned (a level without one has none)."""
+        handler = handler_for(area)
+        guidance = guide_level(handler, snapshot)
+        if handler is not None:
+            for problem in guidance.problems:
+                self.warn('%s (%s): %s', handler.name, area, problem)
+        return guidance
 
     def _read_walls(self):
         if self.observe_walls is None:
@@ -330,23 +338,26 @@ class LevelGuide:
                 self.area = area  # nothing to mark here (Lower Kurast without a camp): don't re-read
             return record  # otherwise the area stays unmarked, so the next poll retries (rooms may still be loading)
         self.area = area
-        self._present(snapshot, guidance)
+        card = self._present(snapshot, guidance)
         status = '' if handler.confirmed else ' (unconfirmed)'
-        LOG.info('Level guide: %s%s — %s', handler.name, status, '; '.join(line.text for line in self.visible[:-1]))
+        LOG.info('Level guide: %s%s — %s', handler.name, status, '; '.join(line.text for line in card[:-1]))
         return record
 
     def _show_map(self, location: Location):
         """Pinned card entering an unguided level: read its rooms and show the map with its ways out."""
-        location, rooms = self._read_rooms()
-        if location is not None and rooms:
-            self._enter_rooms(location.area_id, rooms)
-            snapshot = LevelSnapshot(location, rooms)
+        now, rooms = self._read_rooms()
+        if now is not None and rooms:
+            self._enter_rooms(now.area_id, rooms)
+            snapshot = LevelSnapshot(now, rooms)
             self._present(snapshot, guide_level(None, snapshot))
 
-    def _present(self, snapshot: LevelSnapshot, guidance: Guidance):
+    def _present(self, snapshot: LevelSnapshot, guidance: Guidance) -> list:
+        """Show `guidance` for `snapshot`; the card shown."""
         self.shown = (snapshot, tuple(pinpoint(poi) for poi in guidance.pois))
         self.refreshed = (self.refreshed[0], (snapshot.location.x, snapshot.location.y))  # the walls were read here
-        self.visible, self.expires = self._card(snapshot.location), self.clock() + self.seconds
+        card = self._card(snapshot.location)
+        self.visible, self.expires = card, self.clock() + self.seconds
+        return card
 
     def press(self, requested_at: float) -> bool:
         """Win+C. A double press toggles the pinned card; a single one switches a shown card between
@@ -387,10 +398,7 @@ class LevelGuide:
         if location is None or not rooms:
             return False
         snapshot = LevelSnapshot(location, rooms)
-        handler = handler_for(location.area_id)
-        guidance = guide_level(handler, snapshot)
-        for problem in guidance.problems:
-            self.warn('%s (%s): %s', handler.name, location.area_id, problem)
+        guidance = self._guide(location.area_id, snapshot)
         # Mark the area as entered so the next poll only moves the dot instead of re-announcing.
         self.area = location.area_id
         self._present(snapshot, guidance)

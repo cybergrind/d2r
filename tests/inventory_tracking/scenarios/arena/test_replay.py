@@ -65,7 +65,7 @@ def rows(name: str) -> dict[str, Row]:
 
 
 def median_end(name: str, what: str) -> float | None:
-    found = [told.ends[what] for told in plays(name) if told.ends[what] is not None]
+    found = [end for told in plays(name) if (end := told.ends[what]) is not None]
     return statistics.median(found) if found else None
 
 

@@ -10,8 +10,15 @@ from inventory_tracking.levels.model import Lead
 from inventory_tracking.levels.registry import handler_for
 from inventory_tracking.routes.catalog import ROUTES
 from inventory_tracking.routes.model import ENTER, FIGHT, USE, Route, enter, fight, leave, level, loot, stand, use
-from inventory_tracking.routes.progress import Facts, Progress, current, done
+from inventory_tracking.routes.progress import Facts, Progress, Step, current, done
 from tests.inventory_tracking.levels.fixtures import replay
+
+
+def step_at(progress: Progress, area: int) -> Step:
+    """The stage the level is at, which the test knows it has."""
+    step = progress.step(area)
+    assert step is not None, area
+    return step
 
 
 CAVE = Route(
@@ -62,11 +69,11 @@ def test_the_current_stage_is_the_first_that_is_not_done(entered, expected):
 def test_a_level_is_at_the_stage_of_its_main_script():
     progress = Progress([MAUSOLEUM, CAVE])
 
-    step = progress.step(3)
+    step = step_at(progress, 3)
 
     assert (step.route, step.stage) == ('Cave', enter('Cave', 9))
     assert step.script.area == 3
-    assert progress.step(13).stage == use('Super chest')
+    assert step_at(progress, 13).stage == use('Super chest')
     assert progress.step(1) is None  # no script: a town
 
 
@@ -76,7 +83,7 @@ def test_entering_the_level_behind_the_door_finishes_the_script():
     progress.note('cyber32', 9)
 
     assert progress.step(3) is None
-    assert progress.step(9).stage.kind == FIGHT
+    assert step_at(progress, 9).stage.kind == FIGHT
 
 
 def test_a_new_game_forgets():
@@ -86,7 +93,7 @@ def test_a_new_game_forgets():
 
     progress.note('cyber33', 3)
 
-    assert progress.step(3).stage == enter('Cave', 9)
+    assert step_at(progress, 3).stage == enter('Cave', 9)
 
 
 def test_the_menu_and_an_unread_level_change_nothing_within_a_game():
@@ -167,7 +174,7 @@ def test_an_object_is_used_once_the_step_saw_it_operated_and_a_new_game_forgets(
 
     progress.used(13, 'Super chest', (1022.4, 2004.4), [(1022.4, 2004.4)])
 
-    assert progress.step(13).stage == loot()
+    assert step_at(progress, 13).stage == loot()
     assert progress.lead(13) is None
     progress.note('cyber33', 13)
     assert progress.lead(13) == Lead('Super chest')
@@ -190,7 +197,7 @@ def test_a_stage_not_performed_yet_is_passed_for_an_object_of_the_level_but_not_
     progress.used(108, 'Seal 1', (1.0, 1.0), [(1.0, 1.0)])
     assert progress.lead(108) == Lead('Seal 2')  # past the seal boss: the key goes on, the fight is the player's
     progress.used(108, 'Seal 2', (2.0, 2.0), [(2.0, 2.0)])
-    assert progress.step(108).stage == fight('Infector of Souls')
+    assert step_at(progress, 108).stage == fight('Infector of Souls')
     assert progress.lead(108) is None
 
     assert progress.lead(102) is None  # not to the red portal with Mephisto alive
@@ -201,7 +208,7 @@ def test_a_pending_stage_is_not_led_with():
     route = Route('Abaddon', (111,), (level(111, use('Abaddon', 125, pending='the portal is not read')),))
     progress = Progress([route], performed=BOTH)
 
-    assert progress.step(111).stage.pending
+    assert step_at(progress, 111).stage.pending
     assert progress.lead(111) is None
 
 
@@ -219,24 +226,24 @@ def test_a_fight_is_done_when_the_boss_is_dead_then_the_loot_then_leaving():
     assert not progress.ending(25)  # the boss alive
 
     dead.add('The Countess')
-    assert progress.step(25).stage == loot()
+    assert step_at(progress, 25).stage == loot()
     assert progress.lead(25) is None
 
     assert progress.ending(25)  # the boss dead: what is left is the loot and the way out
 
     progress.looted(25)
-    assert progress.step(25).stage == leave()
+    assert step_at(progress, 25).stage == leave()
     assert progress.ending(25)
     assert not progress.ending(26)  # a level without a script
     progress.note('cyber33', 25)
     dead.clear()
-    assert progress.step(25).stage.kind == FIGHT
+    assert step_at(progress, 25).stage.kind == FIGHT
 
 
 def test_without_word_on_the_dead_a_fight_holds_its_script_and_is_not_led_with():
     progress = Progress([COUNTESS, CAVE], ALL)
 
-    assert progress.step(25).stage.kind == FIGHT
+    assert step_at(progress, 25).stage.kind == FIGHT
     assert progress.lead(25) is None
     assert progress.lead(9) is None  # Cave 1: not out past Coldcrow, and not to him for ever
 
@@ -247,7 +254,7 @@ def test_a_stand_is_done_once_the_character_stood_there():
 
     progress.stood(102, 'Red portal')
 
-    assert progress.step(102).stage == fight('Mephisto')
+    assert step_at(progress, 102).stage == fight('Mephisto')
     assert progress.lead(102) is None  # the fight names no mark: the card's own (Mephisto) leads
 
 
@@ -262,7 +269,7 @@ def test_the_way_out_is_led_with_once_the_boss_is_dead_and_the_ground_clean():
 def test_a_pending_fight_is_still_judged_by_the_dead():
     route = Route('Andariel', (35,), (level(37, fight('Andariel', 'Andariel', pending='no mark'), loot(), leave()),))
     progress = Progress([route], ALL, dead=lambda: frozenset({'Andariel'}))
-    assert progress.step(37).stage == loot()
+    assert step_at(progress, 37).stage == loot()
 
 
 # --- alternates: the route whose levels are terrorized (Phase 6) ---
@@ -288,16 +295,18 @@ JAIL = Route('Jail', (27,), (level(27, enter('Barracks', 28), alternate=True), l
 def test_a_level_follows_the_alternate_whose_levels_ahead_are_terrorized(terrorized, route, mark):
     progress = Progress([PIT, ANDARIEL, JAIL], wanted=lambda area: area in terrorized)
 
-    step = progress.step(27)
+    step = step_at(progress, 27)
 
     assert (step.route, step.stage.mark) == (route, mark)
-    assert progress.lead(27).label == mark
+    lead = progress.lead(27)
+    assert lead is not None
+    assert lead.label == mark
 
 
 def test_without_word_on_the_terror_zones_the_main_script_stands():
     progress = Progress([PIT, ANDARIEL], wanted=lambda area: None)
-    assert progress.step(27).route == 'Pit'
-    assert Progress([PIT, ANDARIEL]).step(27).route == 'Pit'
+    assert step_at(progress, 27).route == 'Pit'
+    assert step_at(Progress([PIT, ANDARIEL]), 27).route == 'Pit'
 
 
 def test_the_catalogues_outer_cloister_leads_to_the_barracks_when_the_jail_is_terrorized():

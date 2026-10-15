@@ -425,7 +425,7 @@ class Take:
         else:
             self.before = None
             self.last_life = None
-        line = {
+        line: dict[str, Any] = {
             't': round(clock, 3),
             'n': self.count,
             'late': late,
@@ -475,8 +475,8 @@ class Take:
         """What a frame holds only when it changes, of what the sample read (the module text)."""
         found: dict[str, Any] = {}
         if sample.things is not None:
-            rows = [[t.unit_id, t.txt_id, t.mode, t.x, t.y, t.selectable] for t in sample.things]
-            found['o'] = sorted(rows, key=lambda row: row[0])
+            things = sorted(sample.things, key=lambda t: t.unit_id)
+            found['o'] = [[t.unit_id, t.txt_id, t.mode, t.x, t.y, t.selectable] for t in things]
         if sample.states is not None:
             found['s'] = sample.states.hex()
         if sample.staff is not None:

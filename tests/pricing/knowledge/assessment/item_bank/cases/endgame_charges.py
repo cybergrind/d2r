@@ -124,7 +124,7 @@ def cases():
                     ('unread-equipment', item, {'player_class': wearer}, 'true', 'true', False),
                 ]
             for label, candidate, loadout, truth, charge_truth, active in rows:
-                expected = {
+                expected: dict[str, object] = {
                     'roles': Contains(
                         IsPartialDict(
                             id=role,

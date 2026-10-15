@@ -5,7 +5,7 @@ Evidence 20260930T120851 (fixture dark_wood): the cave is 'Wild Cliff Cave Left'
 
 from inventory_tracking.levels.model import LevelSnapshot, Location, Room
 from inventory_tracking.levels.presets import preset_name
-from inventory_tracking.levels.registry import handler_for
+from tests.inventory_tracking.levels.fixtures import handler_of
 
 
 def test_dark_wood_marks_the_underground_passage_and_black_marsh():
@@ -14,7 +14,7 @@ def test_dark_wood_marks_the_underground_passage_and_black_marsh():
         Room(6, 0, 8, 8, 8, 3, (0, 8, 8, 8)),  # the open border gap; its far side not read yet
         Room(51, 40, 0, 8, 8, 1, (40, 0, 8, 8)),  # Cave Entrance
     )
-    guidance = handler_for(5).guide(LevelSnapshot(Location(5, 0, 60, 60), rooms))
+    guidance = handler_of(5).guide(LevelSnapshot(Location(5, 0, 60, 60), rooms))
 
     assert [(p.label, p.kind, preset_name(p.room.preset)) for p in guidance.pois] == [
         ('Black Marsh', 'stairs', 'Act 1 - Wild Border 3'),  # the only gap: named by elimination
@@ -26,7 +26,7 @@ def test_dark_wood_marks_the_underground_passage_and_black_marsh():
 def test_real_dark_wood_replays():
     from tests.inventory_tracking.levels.fixtures import replay
 
-    guidance = handler_for(5).guide(replay('dark_wood'))
+    guidance = handler_of(5).guide(replay('dark_wood'))
 
     assert [(p.label, preset_name(p.room.preset)) for p in guidance.pois] == [
         ('Black Marsh', 'Act 1 - Wild Border 3'),

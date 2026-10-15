@@ -1,6 +1,7 @@
 import json
 import struct
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -37,7 +38,7 @@ def merc_sample():
             struct.pack_into('<I', raw, 0, 1)
             struct.pack_into('<I', raw, 8, 123456)
         block['raw_hex'] = block['after_hex'] = raw.hex()
-    result = resolve_selection(json.loads(path.read_text())[0], BASE)
+    result: dict[str, Any] = resolve_selection(json.loads(path.read_text())[0], BASE)
     selected = next(
         i for i in sample['snapshot']['groups']['items']['units'] if i['unit_id'] == result['item']['unit_id']
     )

@@ -32,7 +32,9 @@ def cases():
             ('impossible-socket', replace(item, sockets=1), context, 'false'),
             ('unknown-sockets', replace(item, sockets=None, socket_contents='unknown'), context, 'unknown'),
         ):
-            expected = {'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))}
+            expected: dict[str, object] = {
+                'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))
+            }
             if truth == 'true':
                 keys = ('198:5258', '135:0', '0:0', '86:0', *(() if build == 'smite-paladin' else ('60:0',)))
                 expected['stat_evaluation'] = IsPartialDict(

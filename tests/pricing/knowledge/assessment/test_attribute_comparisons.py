@@ -1,3 +1,5 @@
+from typing import Any
+
 import pytest
 
 from inventory_tracking.items.metadata import decode_stats
@@ -11,7 +13,7 @@ from tests.pricing.knowledge.assessment.test_family_contracts import facts
 ATTRIBUTES = ('437', '429', '582', '421')
 
 
-def annihilus_contract():
+def annihilus_contract() -> dict[str, Any]:
     item = facts('Small Charm', 'unique', 'Annihilus').to_dict()
     decoded, affixes, unresolved = decode_stats(
         [

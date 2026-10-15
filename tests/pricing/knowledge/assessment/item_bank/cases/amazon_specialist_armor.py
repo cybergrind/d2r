@@ -4,7 +4,7 @@ from dataclasses import replace
 
 from dirty_equals import Contains, IsPartialDict
 
-from tests.pricing.knowledge.assessment.item_bank.models import Case, Item
+from tests.pricing.knowledge.assessment.item_bank.models import Case, Item, known
 
 
 HELM = Item(
@@ -96,7 +96,9 @@ def cases():
             )
         for label, item, ctx, truth in variants:
             active = truth == 'true'
-            expected = {'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))}
+            expected: dict[str, object] = {
+                'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))
+            }
             observed = tuple(k for k in keys if label != 'unread-mana-on-kill' or k != '138:0')
             if active:
                 expected['stat_evaluation'] = IsPartialDict(
@@ -116,7 +118,7 @@ def cases():
                 expected={'assessment': IsPartialDict(**expected)},
                 absent_configurations=() if active else (config,),
                 absent_stat_configurations=dict.fromkeys(absent, (config,)),
-                report_contains=(original.name, 'Trade tier:', *ranges)
+                report_contains=(known(original.name), 'Trade tier:', *ranges)
                 if label in ('native-minimum', 'maximum-rolls')
                 else (),
                 evidence=(

@@ -96,7 +96,9 @@ def cases():
             )
         for label, item, ctx, truth in variants:
             active = truth == 'true'
-            expected = {'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))}
+            expected: dict[str, object] = {
+                'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))
+            }
             keys = ('188:42', *(f'{s}:{p}' for s, p, _ in secondary))
             if active:
                 expected['stat_evaluation'] = IsPartialDict(

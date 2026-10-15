@@ -109,7 +109,7 @@ def cases():
     ]
     keys = ('17:0', '18:0', '250:0', '198:4229', '39:0', '41:0', '43:0', '45:0', '80:0', '366:0')
     for label, item, loadout, truth, active in examples:
-        expected = {'roles': Contains(IsPartialDict(id=ROLE, rule_trace=IsPartialDict(truth=truth)))}
+        expected: dict[str, object] = {'roles': Contains(IsPartialDict(id=ROLE, rule_trace=IsPartialDict(truth=truth)))}
         if active:
             expected['stat_evaluation'] = IsPartialDict(
                 annotations=IsPartialDict(

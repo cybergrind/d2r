@@ -55,15 +55,15 @@ class Play(Game):
         self.reads: list[float] = []  # clock time of every world read
         press, release, move = self.keys.press, self.keys.release, self.keys.move_pointer
 
-        def noting_press(code):
-            self.pressed_at.append((self.clock.now, code))
-            return press(code)
+        def noting_press(key: int) -> bool:
+            self.pressed_at.append((self.clock.now, key))
+            return press(key)
 
-        def noting_release(code):
-            self.released_at.append((self.clock.now, code))
-            return release(code)
+        def noting_release(key: int) -> bool:
+            self.released_at.append((self.clock.now, key))
+            return release(key)
 
-        def noting_move(x, y):
+        def noting_move(x: int, y: int) -> bool:
             self.moved_at.append((self.clock.now, (x, y)))
             return move(x, y)
 

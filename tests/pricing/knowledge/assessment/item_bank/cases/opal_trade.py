@@ -5,7 +5,7 @@ from itertools import combinations, product
 
 from dirty_equals import IsPartialDict
 
-from tests.pricing.knowledge.assessment.item_bank.models import Case, Item
+from tests.pricing.knowledge.assessment.item_bank.models import Case, Item, ItemChanges, with_stat_value
 
 
 FIXED = ((105, 0, 10), (195, 25487, 2))
@@ -35,16 +35,14 @@ def additional_choice_cases():
     base = specimen(331)
     for stat, low, high in ((331, 3, 5), (39, 6, 8), (41, 6, 8), (43, 6, 8), (45, 6, 8), (86, 1, 3), (138, 1, 3)):
         for value in (None, low - 1, high + 1):
-            raw = tuple(
-                (s, p, value if s == stat else v) for s, p, v in base.raw_stats if s != stat or value is not None
-            )
+            raw = with_stat_value(base.raw_stats, {stat}, value)
             yield make_case(f'cold-component-{stat}-{value}', replace(base, raw_stats=raw), False)
     yield make_case(
         'cold-unequal-resists',
         replace(base, raw_stats=tuple((s, p, 7 if s == 39 else v) for s, p, v in base.raw_stats)),
         False,
     )
-    for label, changes in (
+    overrides: tuple[tuple[str, ItemChanges], ...] = (
         ('incomplete', {'complete': False}),
         ('unidentified', {'identified': False}),
         ('ethereal', {'ethereal': True}),
@@ -52,7 +50,8 @@ def additional_choice_cases():
         ('socketed', {'sockets': 1}),
         ('unknown-sockets', {'sockets': None}),
         ('unknown-contents', {'socket_contents': 'unknown'}),
-    ):
+    )
+    for label, changes in overrides:
         yield make_case('cold-' + label, replace(base, **changes), False)
     alternatives = (((357,), 3), ((17, 18), 20), ((329,), 3), ((331,), 3), ((330,), 3), ((332,), 3))
     for (left, lv), (right, rv) in combinations(alternatives, 2):
@@ -93,7 +92,7 @@ def cases():
         replace(base, raw_stats=tuple((s, p, 7 if s == 39 else v) for s, p, v in base.raw_stats)),
         False,
     )
-    for label, changes in (
+    overrides: tuple[tuple[str, ItemChanges], ...] = (
         ('incomplete', {'complete': False}),
         ('unidentified', {'identified': False}),
         ('ethereal', {'ethereal': True}),
@@ -101,7 +100,8 @@ def cases():
         ('socketed', {'sockets': 1}),
         ('unknown-sockets', {'sockets': None}),
         ('unknown-contents', {'socket_contents': 'unknown'}),
-    ):
+    )
+    for label, changes in overrides:
         yield make_case(label, replace(base, **changes), False)
 
 

@@ -4,7 +4,7 @@ from dataclasses import replace
 
 from dirty_equals import Contains, IsPartialDict
 
-from tests.pricing.knowledge.assessment.item_bank.models import Case, Item
+from tests.pricing.knowledge.assessment.item_bank.models import Case, Item, known
 
 
 BOOT_ROLE = 'gold-find-barbarian-infernostride-equipment-tail-alternative'
@@ -103,7 +103,9 @@ def cases():
             )
         for label, item, ctx, truth in variants:
             active = truth == 'true'
-            expected = {'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))}
+            expected: dict[str, object] = {
+                'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))
+            }
             if active:
                 expected['stat_evaluation'] = IsPartialDict(
                     annotations=IsPartialDict({key: IsPartialDict(configuration_ids=Contains(config)) for key in keys})
@@ -118,12 +120,12 @@ def cases():
                 absent_configurations=() if active else (config,),
                 absent_stat_configurations=dict.fromkeys(excluded, (config,)),
                 report_contains=(
-                    original.name,
+                    known(original.name),
                     'Trade tier:',
                     *(('(40-70%)', '(120-150%)') if role == BOOT_ROLE else ('(180-230%)', '(2-4)')),
                 )
                 if active and label in ('native-minimum', 'maximum-rolls')
-                else (original.name, 'Trade tier:')
+                else (known(original.name), 'Trade tier:')
                 if active
                 else (),
                 evidence=(

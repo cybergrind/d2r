@@ -5,6 +5,7 @@ import pytest
 from pricing.knowledge.assessment.build_profiles import build
 from pricing.knowledge.assessment.profiles import assess_roles
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
+from tests.pricing.knowledge.reports import reports
 
 
 CASES = [
@@ -26,14 +27,17 @@ def test_crafted_belt_preserves_recipe_role_and_source_roll_preferences(role_id,
         facts('Sharkskin Belt', 'crafted'),
         stats={f'{k}:0': {'status': 'decoded', 'value': v} for k, v in values.items()},
     )
-    result = assess_roles(item, [profile])[0]
+    result = reports(assess_roles(item, [profile]))[0]
     assert result['status'] == 'partial'
     assert result['rule_trace']['truth'] == 'true'
     assert all(p['status'] == 'true' for p in result['preferences'])
     key = '135:0' if role_id.startswith('smite') else '105:0'
     missing = replace(item, stats={k: v for k, v in item.stats.items() if k != key})
     assert assess_roles(missing, [profile])[0]['status'] == 'failed'
-    assert assess_roles(replace(missing, capture_complete=False), [profile])[0]['rule_trace']['truth'] == 'unknown'
+    assert (
+        reports(assess_roles(replace(missing, capture_complete=False), [profile]))[0]['rule_trace']['truth']
+        == 'unknown'
+    )
     assert assess_roles(replace(item, rarity='rare'), [profile]) == []
     if role_id.startswith('smite'):
         assert any('Life Tap' in s for s in result['missing'])

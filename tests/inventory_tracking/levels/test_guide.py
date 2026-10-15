@@ -8,8 +8,8 @@ import pytest
 from inventory_tracking.levels.geometry import arrow, compass, pointer
 from inventory_tracking.levels.guide import LevelGuide, lead_first, pointer_lines
 from inventory_tracking.levels.model import Lead, Location, Poi, Room
-from inventory_tracking.levels.registry import handler_for
-from tests.inventory_tracking.levels.fixtures import replay
+from inventory_tracking.macros.goals import Goal
+from tests.inventory_tracking.levels.fixtures import handler_of, replay
 
 
 @pytest.mark.parametrize(
@@ -28,7 +28,7 @@ def test_pointer_line_names_target_and_arm():
     snapshot = replay('arcane_summoner_s')
     location = snapshot.location
 
-    guidance = handler_for(74).guide(snapshot)
+    guidance = handler_of(74).guide(snapshot)
     lines = pointer_lines([pointer(poi, location) for poi in guidance.pois])
 
     assert [line.text for line in lines] == ['↗  Summoner: north']
@@ -40,6 +40,13 @@ class Source:
 
     def ensure_connected(self):
         pass
+
+
+def step_target(guide):
+    """The teleport step's target, which the test knows is there."""
+    target = guide.target()
+    assert target is not None
+    return target
 
 
 class Clock:
@@ -378,7 +385,7 @@ def test_a_level_with_nothing_to_mark_is_read_once_and_stays_quiet():
     reads = []
     observe = guide.observe
     guide.observe = lambda pid, images, capture, rooms=False: (
-        reads.append(rooms) or observe(pid, images, capture, rooms)
+        reads.append(rooms) or observe(pid, images, capture, rooms=rooms)
     )
 
     for tick in range(3):
@@ -425,7 +432,7 @@ def test_a_new_game_with_other_rooms_does_not_inherit_walls():
     observe = guide.observe  # the next game: the same area, a different room layout
 
     def other_game(pid, images, capture, rooms=False):
-        location, found = observe(pid, images, capture, rooms)
+        location, found = observe(pid, images, capture, rooms=rooms)
         return location, found[1:]
 
     guide.observe = other_game
@@ -564,7 +571,7 @@ def knowing(guide, **neighbours):
     observe = guide.observe
 
     def read(pid, images, capture, rooms=False):
-        location, found = observe(pid, images, capture, rooms)
+        location, found = observe(pid, images, capture, rooms=rooms)
         found = list(found)
         for index, areas in neighbours.items() if rooms else ():
             found[int(index[1:])] = replace(found[int(index[1:])], leads_to=areas)
@@ -638,6 +645,7 @@ def test_single_press_switches_a_shown_map_between_the_local_view_and_the_whole_
     # user, 2026-10-06
     guide, _, _ = pinned_guide([])
     guide.press(10.0)  # nothing shown yet: this press only shows the card
+    assert guide.visible is not None
     assert guide.visible[-1].whole is False
 
     guide.press(11.0)
@@ -651,6 +659,7 @@ def test_a_double_press_does_not_switch_the_view():
     guide.press(10.0)
     guide.press(10.15)  # pinned
     assert guide.pinned
+    assert guide.visible is not None
     assert guide.visible[-1].whole is False
 
     guide.press(20.0)
@@ -685,6 +694,8 @@ def test_the_target_is_the_first_mark_of_the_shown_card_for_the_teleport_step():
     guide.poll(2.0)
     target = guide.target()
 
+    assert target is not None
+    assert guide.shown is not None
     assert (target.area, target.label, target.kind, target.warp) == (74, 'Summoner', 'target', False)
     assert target.ground == ()  # no walls read by this guide
     assert len(target.rooms) == 61
@@ -700,8 +711,9 @@ def test_the_level_is_the_shown_cards_rooms_and_walls_for_the_hunt_keys():
     guide.poll(2.0)
     level = guide.level()
 
+    assert level is not None
     assert (level.area, len(level.rooms), level.ground) == (74, 61, ())
-    assert level.rooms == guide.target().rooms
+    assert level.rooms == step_target(guide).rooms
 
 
 MARKS = (('Cave', 'stairs'), ('Town', 'previous'), ('Chest', 'target'))
@@ -741,20 +753,20 @@ def test_the_card_and_the_step_lead_with_the_mark_asked_for():
     *lines, _card = shown[-1]
     assert lines[0].text.split(':')[0].endswith('Cave')  # Stony Field is first without a route
     assert [line.text.split(':')[0].split()[-1] for line in lines[1:3]] == ['Field', 'Grounds']
-    assert guide.target().label == 'Cave'
+    assert step_target(guide).label == 'Cave'
     assert set(asked) == {3}
 
 
 def test_a_stage_done_while_the_card_is_shown_changes_what_the_step_follows():
-    leads = [Lead('Cave', 9)]
+    leads: list[Lead | None] = [Lead('Cave', 9)]
     guide, _, _ = make_guide([1, 3], fixture='cold_plains_all_known', lead=lambda area: leads[0])
     guide.poll(1.0)
     guide.poll(2.0)
-    assert guide.target().label == 'Cave'
+    assert step_target(guide).label == 'Cave'
 
     leads[0] = None
 
-    assert guide.target().label == 'Stony Field'
+    assert step_target(guide).label == 'Stony Field'
 
 
 def test_marks_the_lead_says_are_done_are_passed_for_the_next_with_the_label():
@@ -772,7 +784,7 @@ def test_the_guide_gives_the_places_of_the_marks_with_a_label():
 
     [spot] = guide.marks('Cave')
     guide.lead = lambda area: Lead('Cave')
-    assert guide.target().point == spot
+    assert step_target(guide).point == spot
     assert guide.marks('Nothing') == ()
 
 
@@ -827,7 +839,7 @@ def test_a_room_s_width_moved_makes_the_walls_due_before_the_interval():
     moved = [0]
 
     def walking(pid, images, capture, rooms=False):
-        location, found = observe(pid, images, capture, rooms)
+        location, found = observe(pid, images, capture, rooms=rooms)
         return (replace(location, x=location.x + moved[0]) if location else None), found
 
     guide.observe = walking
@@ -910,7 +922,7 @@ def test_the_first_row_is_the_routes_goal_and_a_done_stage_drops_its_row_and_arr
     assert row_names(lines) == ['Stony Field', 'Burial Grounds', 'Blood Moor']  # no goal row, the Cave's gone
     assert card.route == ()  # no goal: no line either
     assert len(reads) == 1  # at once, without the walls (read on entry only)
-    assert guide.target().label == 'Stony Field'  # the teleport step's mark: the card's own order, as before
+    assert step_target(guide).label == 'Stony Field'  # the teleport step's mark: the card's own order, as before
 
 
 def test_a_goal_at_a_unit_is_a_row_toward_it_and_the_mark_it_was_made_from_goes():
@@ -922,7 +934,8 @@ def test_a_goal_at_a_unit_is_a_row_toward_it_and_the_mark_it_was_made_from_goes(
     guide.goals = goals
     guide.poll(1.0)
     guide.poll(1.5)
-    first = guide.target()
+    first = step_target(guide)
+    assert guide.shown is not None
     there = guide.shown[1][-1].room.center  # where another mark is, world units: a place the route reaches
     goals.goal_now = Goal('Bishibosh', there, FIGHT, 20.0, STANDING, unit=7, mark=first)
     clock.now += 0.5
@@ -955,7 +968,8 @@ class Goals:
     """A route's goal set by hand (macros/card_goal.py CardGoals' interface)."""
 
     def __init__(self):
-        self.goal_now, self.labels, self.things, self.classes = None, frozenset(), [], frozenset()
+        self.goal_now: Goal | None = None
+        self.labels, self.things, self.classes = frozenset(), [], frozenset()
 
     def goal(self, area, here, first):
         return self.goal_now

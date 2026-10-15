@@ -4,6 +4,7 @@ answers, and that a place priced through it is priced as the line sweep was pric
 import math
 from dataclasses import dataclass, replace
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -81,7 +82,9 @@ def test_without_a_defiler_nothing_is_linked():
 def test_the_aim_is_the_sweeps_line():
     seen = Observation(HERE, {1: foe(8, 0), 2: foe(0, 9), 3: foe(0, 15)})
     assert ATTACK.aim(seen) == LinePolicy(damage_of=flat)(seen)
-    assert ATTACK.aim(seen).unit in (2, 3)  # two on one line are worth more than the lone one
+    aimed = ATTACK.aim(seen)
+    assert aimed is not None
+    assert aimed.unit in (2, 3)  # two on one line are worth more than the lone one
 
 
 def test_the_aim_through_named_units_is_the_best_line_laid_through_one_of_them():
@@ -90,7 +93,9 @@ def test_the_aim_through_named_units_is_the_best_line_laid_through_one_of_them()
     assert through == LinePolicy(damage_of=flat).choose(seen, through=[1])
     assert through is not None
     assert through.unit == 1
-    assert through.worth < ATTACK.aim(seen).worth  # taken whatever another line is worth
+    best = ATTACK.aim(seen)
+    assert best is not None
+    assert through.worth < best.worth  # taken whatever another line is worth
     assert ATTACK.aim(seen, through=[99]) is None
 
 
@@ -310,7 +315,12 @@ def test_the_place_chosen_through_the_attack_is_the_one_the_sweep_chose(path, mo
     scene = harness.load(path)
     seen = observed(scene)
     sweep = LinePolicy(yields=True)
-    ways = [{}, {'hop': True}, {'jumps': (stance.Jump(1, 0.8, 30.0, 26.0, 8.0, True),)}, {'gain': 2.0}]
+    ways: list[dict[str, Any]] = [
+        {},
+        {'hop': True},
+        {'jumps': (stance.Jump(1, 0.8, 30.0, 26.0, 8.0, True),)},
+        {'gain': 2.0},
+    ]
     now = [stance.camp(seen, THROUGH_WALLS, scene.barred, **way) for way in ways]
     monkeypatch.setattr(stance, 'taken', old_taken)  # `camp` as it is, over the old price of a place
     for by_attack, way in zip(now, ways, strict=True):

@@ -70,7 +70,7 @@ def cases():
                 ('illegal-socket', replace(item, sockets=1), context, 'false'),
                 ('unknown-sockets', replace(item, sockets=None), context, 'unknown'),
             ):
-                expected = {
+                expected: dict[str, object] = {
                     'roles': Contains(
                         *(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)) for role in roles)
                     )
@@ -136,7 +136,7 @@ def farming_cases():
             ('gold-find-barbarian', 3, 'Barbarian', True),
         ):
             role = f'{build}-{variant}-goldwrap'
-            context = {'player_class': player_class}
+            context: dict[str, object] = {'player_class': player_class}
             warcry = build == 'gold-find-barbarian' and variant == 2
             if warcry:
                 context['player_total_fcr'] = 105
@@ -165,7 +165,9 @@ def farming_cases():
                     )
                 )
             for label, candidate, loadout, truth in examples:
-                expected = {'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))}
+                expected: dict[str, object] = {
+                    'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))
+                }
                 if truth == 'true':
                     expected['stat_evaluation'] = IsPartialDict(
                         annotations=IsPartialDict(

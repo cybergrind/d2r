@@ -4,6 +4,7 @@ import hashlib
 import json
 from collections import defaultdict
 from pathlib import Path
+from typing import Any
 
 from tests.pricing.knowledge.assessment.item_bank.cases import CASES
 
@@ -50,7 +51,7 @@ def audit_cases(
     magic_trade=(),
     named_policies=(),
     named_trade=(),
-):
+) -> dict[str, Any]:
     from pricing.knowledge.assessment.maintenance.value_scope import use_exclusions
 
     exclusions = use_exclusions(profiles, value_scope, source_root or Path.cwd())

@@ -1,3 +1,5 @@
+from typing import Any
+
 import pytest
 
 from inventory_tracking.items.metadata import decode_stats
@@ -61,7 +63,7 @@ def test_travel_staff_roles_preserve_variants_and_require_teleport(build_name, v
 def test_smite_staff_remains_an_alternative_to_enigma():
     profile = profile_for('smite-paladin', 'Standard')
     for equipment, expected in (([], 'true'), (['Enigma'], 'false'), (None, 'unknown')):
-        context = {'player_class': 'Paladin'}
+        context: dict[str, Any] = {'player_class': 'Paladin'}
         if equipment is not None:
             context['player_items'] = equipment
         result = assess_roles(charged_item(), [profile], context)[0]

@@ -3,7 +3,7 @@
 from dataclasses import replace
 
 from tests.pricing.knowledge.assessment.item_bank.cases.original_set_trade import make_case
-from tests.pricing.knowledge.assessment.item_bank.models import Item
+from tests.pricing.knowledge.assessment.item_bank.models import Item, ItemChanges
 
 
 FIXED = ((91, 0, -20), (9, 0, 30 * 256), (2, 0, 20), (114, 0, 37))
@@ -25,18 +25,16 @@ def cases():
         for defense, fcr in ((35, 0), (40, 0), (95, 0), (100, 0), (95, 10), (100, 10))
     ]
     specimens.extend((f'mf-{mf}', specimen(mf), False) for mf in (None, 9, 16))
-    specimens.extend(
-        (label, replace(specimen(), **changes), False)
-        for label, changes in (
-            ('upgraded', {'base': 'Mithril Coil', 'raw_stats': (*FIXED, (31, 0, 65), (80, 0, 15))}),
-            ('ethereal', {'ethereal': True}),
-            ('unknown-ethereal', {'ethereal': None}),
-            ('socketed', {'sockets': 1}),
-            ('unknown-sockets', {'sockets': None}),
-            ('unknown-contents', {'socket_contents': 'unknown'}),
-            ('unidentified', {'identified': False}),
-        )
+    variants: tuple[tuple[str, ItemChanges], ...] = (
+        ('upgraded', {'base': 'Mithril Coil', 'raw_stats': (*FIXED, (31, 0, 65), (80, 0, 15))}),
+        ('ethereal', {'ethereal': True}),
+        ('unknown-ethereal', {'ethereal': None}),
+        ('socketed', {'sockets': 1}),
+        ('unknown-sockets', {'sockets': None}),
+        ('unknown-contents', {'socket_contents': 'unknown'}),
+        ('unidentified', {'identified': False}),
     )
+    specimens.extend((label, replace(specimen(), **changes), False) for label, changes in variants)
     for label, item, qualified in specimens:
         yield replace(make_case('belt/' + label, item, qualified), id='tal-belt-trade/' + label)
 

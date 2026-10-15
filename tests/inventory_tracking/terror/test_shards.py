@@ -32,29 +32,38 @@ MODEL = load(
 EVEN = pytest.approx([0.2] * 5)
 
 
+def rolled(model, kind, txt_id, area, **known) -> tuple[float, list[float] | tuple[float, ...]]:
+    """`expected` for a monster and a level in the tables, whose chance is above none."""
+    found = expected(model, kind, txt_id, area, **known)
+    assert found is not None
+    chance, mix = found
+    assert mix is not None
+    return chance, mix
+
+
 def test_a_champions_class_is_upgraded_to_the_last_of_its_group_its_level_reaches():
     # Catacombs 2 is level 73: a champion there is level 75 and drops from the Act 3 class, whose
     # shard table is Act 5's. The user got mostly Northern shards there (2026-10-07).
-    chance, mix = expected(MODEL, 'champion', 5, 35)
+    chance, mix = rolled(MODEL, 'champion', 5, 35)
 
     assert chance == 0.03
     assert mix == pytest.approx([2 / 12, 2 / 12, 1 / 12, 2 / 12, 5 / 12])
 
 
 def test_a_low_level_keeps_the_monsters_own_class_and_a_unique_is_one_level_above_a_champion():
-    assert expected(MODEL, 'champion', 5, 3)[1] == pytest.approx([1 / 13, 2 / 13, 5 / 13, 3 / 13, 2 / 13])
-    assert expected(MODEL, 'champion', 5, 120)[1][4] == pytest.approx(5 / 12)  # level 80: still the Act 3 class
+    assert rolled(MODEL, 'champion', 5, 3)[1] == pytest.approx([1 / 13, 2 / 13, 5 / 13, 3 / 13, 2 / 13])
+    assert rolled(MODEL, 'champion', 5, 120)[1][4] == pytest.approx(5 / 12)  # level 80: still the Act 3 class
     assert expected(MODEL, 'unique', 5, 120) == (0.02, pytest.approx([5 / 13, 3 / 13, 2 / 13, 2 / 13, 1 / 13]))
 
 
 def test_a_class_is_never_downgraded_and_a_boss_monster_has_its_own_level():
-    assert expected(MODEL, 'champion', 23, 3)[1][0] == pytest.approx(5 / 13)  # an Act 5 monster in a level-68 area
-    assert expected(MODEL, 'champion', 400, 3)[1][0] == pytest.approx(5 / 13)  # level 90 whatever the area
+    assert rolled(MODEL, 'champion', 23, 3)[1][0] == pytest.approx(5 / 13)  # an Act 5 monster in a level-68 area
+    assert rolled(MODEL, 'champion', 400, 3)[1][0] == pytest.approx(5 / 13)  # level 90 whatever the area
 
 
 def test_a_super_unique_rolls_its_own_class_by_its_table_row():
     assert expected(MODEL, 'super', 5, 3, super_id=0) == (0.05, pytest.approx([1 / 13, 2 / 13, 5 / 13, 3 / 13, 2 / 13]))
-    assert expected(MODEL, 'super', 5, 35, super_id=20)[0] == 0.02  # no group: nothing to upgrade to
+    assert rolled(MODEL, 'super', 5, 35, super_id=20)[0] == 0.02  # no group: nothing to upgrade to
     assert expected(MODEL, 'super', 400, 35, super_id=60) == (0, None)
 
 
@@ -72,7 +81,7 @@ def test_the_bundled_table_sends_catacombs_champions_to_the_northern_table():
     model = table()
     zombie = next(txt_id for txt_id, (champion, _, level) in model.monsters.items() if champion.startswith('Act 1 (H)'))
 
-    chance, mix = expected(model, 'champion', zombie, 35)
+    chance, mix = rolled(model, 'champion', zombie, 35)
 
     assert chance == pytest.approx(3 / 133)
     assert mix.index(max(mix)) == 4  # Northern

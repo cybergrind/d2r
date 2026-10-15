@@ -20,14 +20,11 @@ def _default_metadata():
     return json.loads(raw), hashlib.sha256(raw).hexdigest()
 
 
-_PINNED_METADATA = ContextVar('item_metadata_snapshot', default=None)
+_PINNED_METADATA: ContextVar[tuple[Any, str] | None] = ContextVar('item_metadata_snapshot', default=None)
 
 
 def metadata():
     return (_PINNED_METADATA.get() or _default_metadata())[0]
-
-
-metadata.cache_clear = _default_metadata.cache_clear
 
 
 def metadata_generation():

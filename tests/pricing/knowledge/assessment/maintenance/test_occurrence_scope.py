@@ -1,11 +1,12 @@
 from copy import deepcopy
+from typing import Any
 
 import pytest
 
 from pricing.knowledge.assessment.maintenance.completion import compile_completion
 
 
-def inventory():
+def inventory() -> dict[str, Any]:
     return {
         'identities': [{'id': 'item'}],
         'occurrences': [

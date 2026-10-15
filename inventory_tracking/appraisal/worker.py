@@ -4,7 +4,7 @@ import math
 import threading
 import time
 from contextlib import nullcontext
-from contextvars import copy_context
+from contextvars import Context, copy_context
 
 from inventory_tracking.appraisal.cache import ResultCache, item_key
 
@@ -37,7 +37,7 @@ class AppraisalWorker:
         self.cache_context = cache_context
         self.request_scope = request_scope
         self.visible = None
-        self.visible_context = None
+        self.visible_context: Context | None = None
         self.expires = 0.0
         self.next_check = 0.0
         self.capture_lock = threading.Lock()
@@ -115,7 +115,7 @@ class AppraisalWorker:
         with self.lock:
             record = self.visible
             context = self.visible_context
-        if record is None:
+        if record is None or context is None:  # set and cleared together under the lock
             return
         now = self.clock()
         selected = now < self.expires

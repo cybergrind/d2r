@@ -1,4 +1,5 @@
 from dataclasses import replace
+from typing import Any
 
 import pytest
 
@@ -51,6 +52,7 @@ def test_completed_spirit_starter_use_keeps_base_recipe_and_build_requirements(r
     for key in keys:
         missing = replace(item, stats={k: v for k, v in item.stats.items() if k != key})
         assert set(evaluate(missing).annotations) == set(keys) - {key}
+    changes: dict[str, Any]
     for changes in (
         {'name': 'Other'},
         {'runeword': None},

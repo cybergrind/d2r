@@ -6,6 +6,7 @@ the test says so before a plan table does."""
 
 import json
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -171,7 +172,7 @@ def test_a_simulation_that_deals_too_much_runs_ahead_and_one_that_deals_too_litt
 
 
 def test_the_verdict_fails_on_too_much_as_well_as_too_little():
-    report = {
+    report: dict[str, Any] = {
         'life_explained_at_recorded_kill': {'median': 1.0, 'mean': 0.9},
         'damage_ratio': 1.0,
         'life_curves': {'away': {'monsters': 20, 'ahead': 0.3, 'behind': 0.05, 'bias': 0.25}},

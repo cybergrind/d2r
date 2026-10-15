@@ -67,7 +67,7 @@ def find(_: argparse.Namespace) -> None:
 
 def log(args: argparse.Namespace) -> None:
     lines = [m.groups() for m in map(STAMP.match, Path(args.path).read_text(errors='replace').splitlines()) if m]
-    seconds = lambda row: int(row[1][:2]) * 3600 + int(row[1][3:5]) * 60 + int(row[1][6:]) + int(row[2]) / 1000  # noqa: E731
+    seconds = lambda row: int(row[1][:2]) * 3600 + int(row[1][3:5]) * 60 + int(row[1][6:]) + int(row[2]) / 1000  # ruff: ignore[lambda-assignment]
     presses = [(seconds(row), row) for row in lines if 'Macro: request ' in row[4]]
     print('## presses by routine')
     for routine, count in collections.Counter(

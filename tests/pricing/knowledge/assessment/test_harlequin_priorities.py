@@ -6,6 +6,7 @@ from pricing.knowledge.assessment.build_profiles import build
 from pricing.knowledge.assessment.profiles import assess_role_results
 from pricing.knowledge.assessment.stat_bundle import configuration_from_row
 from pricing.knowledge.assessment.stat_evaluation import StatsEvaluator
+from tests.pricing.knowledge.assessment.fact_changes import fact_changes
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
 
 
@@ -45,7 +46,7 @@ def test_harlequin_mf_family_retains_variant_conditions(slug, index, cls, fcr):
 
     assert set(evaluate().annotations) == {'127:0', '80:0'}
     assert evaluate().annotations['80:0']['desirability'] == 'desirable'
-    for change in ({'rarity': 'rare'}, {'ethereal': True}, {'identified': None}, {'name': 'Other'}):
+    for change in fact_changes({'rarity': 'rare'}, {'ethereal': True}, {'identified': None}, {'name': 'Other'}):
         assert not evaluate(replace(item, **change)).annotations
     assert not evaluate(context={'player_class': 'Other'}).annotations
     if fcr:

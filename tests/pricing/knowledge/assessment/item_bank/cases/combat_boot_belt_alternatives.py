@@ -73,7 +73,9 @@ def cases():
                 )
             )
             for label, candidate, loadout, truth, scenario in examples:
-                expected = {'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))}
+                expected: dict[str, object] = {
+                    'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))
+                }
                 if scenario == 'positive':
                     keys = ('93:0', '60:0') if slug == 'nosferatu-s-coil' else ('136:0',)
                     if slug == 'gore-rider':

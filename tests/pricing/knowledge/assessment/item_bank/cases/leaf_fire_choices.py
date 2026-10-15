@@ -69,7 +69,7 @@ def cases():
                 ),
             ):
                 active = truth == 'true'
-                expected = {}
+                expected: dict[str, object] = {}
                 if label not in ('unidentified', 'wrong-recipe', 'empty', 'polearm'):
                     expected['roles'] = Contains(
                         IsPartialDict(

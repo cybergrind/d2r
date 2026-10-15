@@ -515,7 +515,7 @@ def with_outside(run: Run) -> Run:
     """The run with the River of Flame's monsters back where the take saw them, on no ground."""
     found = run.variant()
     found.scene.mobs += [replace(mob) for mob in found.outside]
-    return found  # type: ignore[return-value]
+    return found
 
 
 def empty(run: Situation) -> Situation:

@@ -21,12 +21,15 @@ def test_magic_amulet_demand_requires_whole_skill_combination():
         return demand_for_item('Unidentified magic title', assess_roles(candidate, profiles), document)
 
     result = demand(item)
+    assert result is not None
     assert result['scope'] == 'matched_patterns'
     assert result['distinct_builds'] == 2
     assert result['builds'] == ['lightning-sorceress', 'nova-sorceress-guide']
     assert result['grade'] == 'Pending'
     no_cast = replace(item, stats={'188:9': {'status': 'decoded', 'value': 3}})
-    assert demand(no_cast)['builds'] == ['lightning-sorceress']
+    without_cast = demand(no_cast)
+    assert without_cast is not None
+    assert without_cast['builds'] == ['lightning-sorceress']
     cold = replace(
         item,
         stats={
@@ -34,7 +37,9 @@ def test_magic_amulet_demand_requires_whole_skill_combination():
             '105:0': {'status': 'decoded', 'value': 10},
         },
     )
-    assert demand(cold)['builds'] == ['blizzard-sorceress']
+    cold_demand = demand(cold)
+    assert cold_demand is not None
+    assert cold_demand['builds'] == ['blizzard-sorceress']
     assert demand(replace(item, rarity='rare')) is None
     assert demand(replace(item, stats={})) is None
     assert demand_for_item(None, [], document) is None
@@ -108,11 +113,13 @@ def test_rare_ring_demand_counts_builds_once_and_retains_combination_gates():
     assert result['builds'] == ['blizzard-sorceress', 'lightning-sorceress', 'nova-sorceress-guide']
     no_fire = replace(item, stats={key: value for key, value in item.stats.items() if key not in {'39:0', '45:0'}})
     reduced = demand(no_fire)
+    assert reduced is not None
     assert reduced['distinct_builds'] == 2
     assert 'pattern:lightning-starter-ring' not in reduced['patterns']
     assert 'pattern:nova-starter-ring' not in reduced['patterns']
     # An incomplete tri-resist capture is not a confirmed pattern match.
     incomplete = demand(replace(no_fire, capture_complete=False))
+    assert incomplete is not None
     assert 'pattern:nova-starter-ring' not in incomplete['patterns']
     assert demand(replace(item, rarity='magic')) is None
     assert demand(replace(item, stats={})) is None
@@ -123,7 +130,9 @@ def test_rare_ring_demand_counts_builds_once_and_retains_combination_gates():
         item,
         stats={key: {'status': 'decoded', 'value': value} for key, value in {'0:0': 5, '7:0': 10, '43:0': 10}.items()},
     )
-    assert demand(starter)['patterns'] == ['pattern:blizzard-starter-ring']
+    starter_demand = demand(starter)
+    assert starter_demand is not None
+    assert starter_demand['patterns'] == ['pattern:blizzard-starter-ring']
 
 
 def test_goldfind_base_demand_preserves_socket_preparation_and_excludes_planner_examples():
@@ -143,11 +152,13 @@ def test_goldfind_base_demand_preserves_socket_preparation_and_excludes_planner_
     assert {c['variant'] for c in demand['contexts']} == {'Standard', 'War Cry', 'Whirlwind'}
     assert not any('leap-only' in p for p in demand['patterns'])
     empty, empty_roles = inspect(facts('Crystal Sword'), {'player_class': 'Barbarian'})
+    assert empty is not None
     assert empty['patterns'] == demand['patterns']
     selected = [r for r in empty_roles if 'pattern:' + r['id'] in empty['patterns']]
     assert all(r['status'] == 'partial' for r in selected)
     assert all(r['dependencies'][0]['status'] != 'true' for r in selected)
     mixed, mixed_roles = inspect(sword(['Lem Rune'] * 5 + ['Ist Rune']), {'player_class': 'Barbarian'})
+    assert mixed is not None
     assert mixed['patterns'] == demand['patterns']
     assert all(r['dependencies'][0]['status'] == 'false' for r in mixed_roles if r['id'].endswith('lem-sword'))
     wrong = replace(sword(), sockets=3)

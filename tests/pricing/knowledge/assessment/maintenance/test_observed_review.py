@@ -1,9 +1,10 @@
 from copy import deepcopy
+from typing import Any
 
 from pricing.knowledge.assessment.maintenance.observed_review import merge_replays
 
 
-def replay():
+def replay() -> dict[str, Any]:
     return {
         'source': 'capture.json',
         'assessment': {
@@ -68,6 +69,7 @@ def test_final_handler_mapping_resolution_does_not_hide_other_price_gaps():
 
 
 def test_unresolved_final_mapping_and_legacy_mapping_remain_work():
+    diagnostics: dict[str, Any]
     for diagnostics in ({}, {'contract': None, 'price_gaps': ['charge mapping missing']}, {'price_gaps': []}):
         captured = replay()
         captured['assessment'].update(diagnostics)

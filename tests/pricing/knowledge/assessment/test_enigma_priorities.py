@@ -6,6 +6,7 @@ from pricing.knowledge.assessment.build_profiles import build
 from pricing.knowledge.assessment.profiles import assess_role_results
 from pricing.knowledge.assessment.stat_bundle import configuration_from_row
 from pricing.knowledge.assessment.stat_evaluation import StatsEvaluator
+from tests.pricing.knowledge.assessment.fact_changes import fact_changes
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
 
 
@@ -75,7 +76,7 @@ def test_enigma_armor_preserves_source_base_and_actual_mobility_stats(slug, inde
     assert evaluate().annotations['31:0']['desirability'] == 'supporting'
     assert evaluate(replace(item, rarity='superior')).annotations
     assert evaluate(replace(item, rarity='low_quality')).annotations
-    for change in [
+    for change in fact_changes(
         {'runeword': None},
         {'rarity': 'magic'},
         {'sockets': 2},
@@ -83,7 +84,7 @@ def test_enigma_armor_preserves_source_base_and_actual_mobility_stats(slug, inde
         {'ethereal': True},
         {'identified': None},
         {'base_code': facts('Quilted Armor').base_code},
-    ]:
+    ):
         assert not evaluate(replace(item, **change)).annotations
     assert not evaluate(ctx={'player_class': 'Other'}).annotations
     assert not evaluate(replace(item, stats={})).annotations

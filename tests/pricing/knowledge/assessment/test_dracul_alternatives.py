@@ -4,6 +4,7 @@ from pricing.knowledge.assessment.build_profiles import build
 from pricing.knowledge.assessment.profiles import assess_role_results
 from pricing.knowledge.assessment.stat_bundle import configuration_from_row
 from pricing.knowledge.assessment.stat_evaluation import StatsEvaluator
+from tests.pricing.knowledge.assessment.fact_changes import fact_changes
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
 
 
@@ -36,7 +37,7 @@ def test_dracul_life_tap_is_separate_from_ordinary_leech_for_smite():
 
         expected = set(values) - ({'60:0'} if role['build'] == 'smite-paladin' else set())
         assert set(evaluate(item).annotations) == expected
-        for change in ({'ethereal': True}, {'sockets': 1}, {'socket_contents': 'filled'}):
+        for change in fact_changes({'ethereal': True}, {'sockets': 1}, {'socket_contents': 'filled'}):
             assert not evaluate(replace(item, **change)).annotations
         untrusted = dict(item.stats)
         untrusted['198:5258'] = {'status': 'decoded', 'value': 5, 'unit': 'skill_level'}

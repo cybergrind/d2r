@@ -7,6 +7,7 @@ from pricing.knowledge.assessment.build_profiles import ROOT, build
 from pricing.knowledge.assessment.maintenance.stat_configurations import compile_stat_configurations
 from pricing.knowledge.assessment.profiles import assess_role_results
 from pricing.knowledge.assessment.stat_evaluation import StatsEvaluator
+from tests.pricing.knowledge.assessment.fact_changes import fact_changes
 from tests.pricing.knowledge.assessment.test_charge_stat_targets import charged
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
 
@@ -47,7 +48,7 @@ def test_demon_limb_priorities_preserve_charge_and_alternative_conditions(role_i
         assert result.annotations['204:3351']['roll_quality'] == 'unassessed'
         assert result.configurations[0]['role']['status'] == 'partial'
         assert any('Ethereal' in line for line in result.configurations[0]['role']['missing'])
-    for changes in (
+    for changes in fact_changes(
         {'name': 'Other'},
         {'name': None},
         {'rarity': 'rare'},

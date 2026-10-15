@@ -1,12 +1,13 @@
 """Useful Spirit components: exact guide bases, native rolls and loadout gates."""
 
 from dataclasses import replace
+from typing import Any
 
 from dirty_equals import Contains, IsPartialDict
 
 from tests.pricing.knowledge.assessment.item_bank.cases.spirit_caster_roles import observation, spirit
 from tests.pricing.knowledge.assessment.item_bank.cases.spirit_endgame import RUNES, shield
-from tests.pricing.knowledge.assessment.item_bank.models import Case
+from tests.pricing.knowledge.assessment.item_bank.models import Case, Item
 
 
 USES = (
@@ -61,7 +62,7 @@ def cases():
             priorities['39:0'] = 'supporting'
         for quality in ('normal', 'superior', 'low_quality'):
             item = item_for(base, quality)
-            examples = [
+            examples: list[tuple[str, Item, dict[str, Any], str | None, bool]] = [
                 ('minimum', item, context, 'true', True),
                 ('wrong-class', item, dict(context, player_class='Amazon'), 'false', False),
                 ('unknown-class', item, {k: v for k, v in context.items() if k != 'player_class'}, 'unknown', False),
@@ -105,7 +106,7 @@ def cases():
                     )
             for label, candidate, loadout, truth, supported in examples:
                 captured = {f'{s}:{p}' for s, p, _ in candidate.raw_stats}
-                expected = {}
+                expected: dict[str, object] = {}
                 if truth is not None:
                     expected['roles'] = Contains(
                         *(IsPartialDict(id=r, rule_trace=IsPartialDict(truth=truth)) for r in roles)

@@ -329,6 +329,7 @@ class WalledGame(Game):
 
     def ground_under_pointer(self) -> Point:
         here = self.world.player
+        assert here is not None
         return Viewport.of(self.window).world((here.x, here.y), *self.fraction())
 
     def react(self, event) -> None:
@@ -339,6 +340,7 @@ class WalledGame(Game):
                 return
             super().react(event)
             here = self.world.player  # the sub-tile's centre: every landing in the logs is at x.5
+            assert here is not None
             self.world = replace(self.world, player=replace(here, x=int(here.x) + 0.5, y=int(here.y) + 0.5))
             return
         super().react(event)
@@ -414,6 +416,7 @@ def run_production(situation: Situation, limit: int = HOP_LIMIT) -> Trip:
     trip = Trip(situation, [situation.start], reference=field_of(situation).hops(situation.start))
     began = time.perf_counter()
     while not trip.arrived and trip.presses < limit:
+        assert game.world.player is not None
         try:
             teleport.hop_toward(game.run(), target, game.world.player, game.window, keys)
         except Abort as stop:
@@ -427,6 +430,7 @@ def run_production(situation: Situation, limit: int = HOP_LIMIT) -> Trip:
             continue
         trip.presses += 1
         now = game.world.player
+        assert now is not None
         trip.spots.append((now.x, now.y))
     trip.planning = time.perf_counter() - began
     return trip

@@ -60,7 +60,7 @@ def cases():
             ('illegal-socket', replace(item, sockets=1), context, 'false'),
         )
         for label, candidate, loadout, truth in rows:
-            expected = {
+            expected: dict[str, object] = {
                 'roles': Contains(*(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)) for role in roles))
             }
             if truth == 'true':

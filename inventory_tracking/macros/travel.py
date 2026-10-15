@@ -836,7 +836,8 @@ def way_leg(
         return NoWay(WAY_UNKNOWN)
     whole = field.descent(here, JUMP_REACH)
     path = [(spot, cost) for spot, cost in whole if cost >= intent.short]
-    ends = bool(whole) and whole[-1][1] == 0.0  # the way's last cell is in a move's reach
+    # The way's last cell is in a move's reach: the descent sets it to exactly 0.
+    ends = bool(whole) and whole[-1][1] == 0.0  # ruff: ignore[float-equality-comparison]
     if not path or (ends and all(math.dist(here, spot) < AROUND_LEAST for spot, _ in path)):
         # The way's end is within `short`, or nearer than a move along the way can be made: there
         return NoWay(THERE, arrived=True)

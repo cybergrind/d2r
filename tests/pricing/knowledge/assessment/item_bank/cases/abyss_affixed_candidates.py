@@ -9,7 +9,7 @@ from tests.pricing.knowledge.assessment.item_bank.models import Case, Item
 
 def case(role, label, item, truth, keys=(), *, scenario=None):
     config = role + '-stats'
-    expected = {'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))}
+    expected: dict[str, object] = {'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))}
     if keys:
         expected['stat_evaluation'] = IsPartialDict(
             annotations=IsPartialDict({key: IsPartialDict(configuration_ids=Contains(config)) for key in keys})

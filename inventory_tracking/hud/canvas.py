@@ -79,7 +79,7 @@ def run(scene_dir, config=HUD, *, monitor_index=OSD.monitor):
         window, area = overlay('D2R HUD', 'd2r-hud')
         # The desktop slots' own surface on `desktop_output` (the game's canvas is bound to its output).
         desk_window, desk_area = overlay('D2R HUD desktop', 'd2r-hud-desktop')
-        desk = {'boxes': [], 'scale': 1.0, 'key': None, 'monitor': None}
+        desk: dict[str, Any] = {'boxes': [], 'scale': 1.0, 'key': None, 'monitor': None}
         desk_area.set_draw_func(lambda _a, cr, _w, _h: draw_scene(cr, desk['boxes'], scale=desk['scale']))
         css = Gtk.CssProvider()
         css.load_from_string('window, drawingarea { background: transparent; }')
@@ -113,8 +113,8 @@ def run(scene_dir, config=HUD, *, monitor_index=OSD.monitor):
             payload = ground_payload_of(state['boxes'])
             ground = live.locate(payload) if payload else None
             age = entrance.age(payload, now)
-            if age is not None and age < config.ground.arrow_seconds:  # the arrows are still moving out
-                ground = {**(ground or payload), 'age': age}
+            if payload is not None and age is not None and age < config.ground.arrow_seconds:
+                ground = {**(ground or payload), 'age': age}  # the arrows are still moving out
             moved = dots.frame(map_card_of(state['boxes']), payload, now)
             dim = panels.reading(state['panels'])
             if ground != state['ground'] or dim != state['dim']:

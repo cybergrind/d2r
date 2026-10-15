@@ -27,7 +27,7 @@ def cases():
         ('below-fcr', item, {**context, 'player_total_fcr': 124}, 'false'),
         ('unknown-fcr', item, {'player_class': 'Warlock'}, 'unknown'),
     ):
-        expected = {'roles': Contains(IsPartialDict(id=ROLE, rule_trace=IsPartialDict(truth=truth)))}
+        expected: dict[str, object] = {'roles': Contains(IsPartialDict(id=ROLE, rule_trace=IsPartialDict(truth=truth)))}
         if truth == 'true':
             expected['stat_evaluation'] = IsPartialDict(
                 annotations=IsPartialDict(

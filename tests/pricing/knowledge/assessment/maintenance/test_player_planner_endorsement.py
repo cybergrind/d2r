@@ -8,15 +8,14 @@ import pytest
 from pricing.knowledge.assessment.maintenance.guide_inventory import fingerprint
 from tests.pricing.knowledge.assessment.maintenance.test_planner_endorsement import (
     pin,
+    planner_records as merc_records,
     read,
-    records as merc_records,
     validate,
 )
 
 
-@pytest.fixture
-def records():
-    review, _, _, _ = merc_records.__wrapped__()
+def player_records():
+    review, _, _, _ = merc_records()
     role = deepcopy(
         next(
             p
@@ -63,6 +62,11 @@ def records():
     evidence.pop('mercenary_id')
     evidence.pop('mercenary_type')
     return review, occurrence, role, use
+
+
+@pytest.fixture
+def records():
+    return player_records()
 
 
 @pytest.mark.parametrize(

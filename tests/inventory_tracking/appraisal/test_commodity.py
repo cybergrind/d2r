@@ -57,6 +57,7 @@ def test_bulk_asks_are_labeled_with_quantity_and_do_not_replace_unit_price():
         'commodity_bulk': [{'quantity': 10, 'estimate': {'estimate_ist': 9}}],
     }
     lines = commodity_lines(result)
+    assert lines is not None
     assert 'Unit price: unavailable — no matching scoped commodity quotes.' in lines
     assert 'Bulk 10: ~90 Ist total (~9 each; asks)' in lines
 
@@ -74,6 +75,8 @@ def test_set_quote_is_separate_from_the_component_price():
             'estimate': {'estimate_ist': 4, 'dates': ['2026-10-03']},
         },
     }
-    text = '\n'.join(commodity_lines(result))
+    lines = commodity_lines(result)
+    assert lines is not None
+    text = '\n'.join(lines)
     assert 'Unit price: unavailable' in text
     assert 'Complete 3x3 Key Set: ~4 Ist (asks; 3 of each key; 9 keys total)' in text

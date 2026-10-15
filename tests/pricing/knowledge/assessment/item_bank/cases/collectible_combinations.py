@@ -4,7 +4,7 @@ from dataclasses import replace
 
 from dirty_equals import Contains, IsPartialDict
 
-from tests.pricing.knowledge.assessment.item_bank.models import Case, Item
+from tests.pricing.knowledge.assessment.item_bank.models import Case, Item, known
 
 
 EXAMPLES = (
@@ -143,7 +143,7 @@ def damage_ias_boundaries():
             scenario='positive' if watch else 'negative',
             covers=('watch:realgar-fervor', 'watch:ruby-fervor'),
             expected={'value_watch': [IsPartialDict(details=IsPartialDict(watch_id=watch))] if watch else []},
-            report_contains=('TRADE CANDIDATE', band) if watch else (),
+            report_contains=('TRADE CANDIDATE', known(band)) if watch else (),
             report_absent=() if watch else ('TRADE CANDIDATE',),
             evidence=('pricing/raw/mr/items__valuable-magic-items.html',),
         )

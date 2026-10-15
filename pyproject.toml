@@ -40,12 +40,16 @@ known-first-party = ['inventory_tracking']
 lines-after-imports = 2
 
 [tool.ruff.lint]
+# Preview here, not on the command line, so the pre-commit hook and a plain `ruff check` see the same rules
+# (named suppressions such as `# ruff: ignore[lambda-assignment]` are a preview feature).
+preview = true
 ignore = [
   'T201',  # print
   'G004',  # logging format
   'Q000',  # quotes
   'Q001',  # quotes
   'Q003',  # quotes
+  'RUF067',  # code in __init__.py: packages keep their registries there (user, 2026-10-15)
 ]
 fixable = ['ALL']
 select = [
@@ -66,6 +70,10 @@ select = [
 ]
 exclude = []
 
+[tool.ruff.lint.per-file-ignores]
+# Tests compare exact floats on purpose: golden values and constants the code under test returns unchanged.
+'tests/**' = ['RUF069']
+
 [tool.ruff.lint.flake8-quotes]
 docstring-quotes = 'double'
 inline-quotes = 'single'
@@ -81,5 +89,8 @@ project-includes = ['inventory_tracking', 'tests']
 project-excludes = ['**/__pycache__', '.venv', 'inventory_tracking/runs']
 python-version = '3.14'
 preset = 'default'
+# Errors known on 2026-10-15 (5,687, nearly all in tests), so the pre-commit hook fails only on new ones; the file
+# only shrinks (`pyrefly check --prune-baseline`) until it is gone.
+baseline = 'pyrefly-baseline.json'
 # gi.repository is populated by GObject introspection at import time.
 replace-imports-with-any = ['gi.repository']

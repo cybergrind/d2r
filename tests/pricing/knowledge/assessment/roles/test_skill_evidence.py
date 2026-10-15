@@ -5,12 +5,13 @@ import pytest
 from pricing.knowledge.assessment.build_profiles import build
 from pricing.knowledge.assessment.profiles import assess_roles
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
+from tests.pricing.knowledge.reports import reports
 
 
 def role(stats, **changes):
     profile = next(p for p in build()['profiles'] if p['id'] == 'abyss-starter-dagger')
     candidate = replace(facts('Cinquedeas', 'rare'), stats=stats, **changes)
-    return assess_roles(candidate, [profile])[0]
+    return reports(assess_roles(candidate, [profile]))[0]
 
 
 def test_known_native_skill_does_not_require_presentation_text():

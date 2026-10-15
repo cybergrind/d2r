@@ -1,3 +1,5 @@
+from typing import Any
+
 import pytest
 
 from pricing.knowledge.assessment.adapters.capture import normalize
@@ -5,7 +7,7 @@ from pricing.knowledge.assessment.policies.trade_class_skills import valid_captu
 from tests.pricing.knowledge.assessment.policies.test_torch_trade import torch
 
 
-def review():
+def review() -> dict[str, Any]:
     evidence = [
         {'id': str(i), 'rarity': 'unique', 'name': 'Hellfire Torch', 'seller_id': str(i), 'properties': {'453': 3}}
         for i in range(3)

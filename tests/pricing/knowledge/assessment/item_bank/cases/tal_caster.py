@@ -4,7 +4,7 @@ from dataclasses import replace
 
 from dirty_equals import Contains, IsPartialDict
 
-from tests.pricing.knowledge.assessment.item_bank.models import Case, Item
+from tests.pricing.knowledge.assessment.item_bank.models import Case, Item, known
 
 
 ARMOR = "Tal Rasha's Guardianship"
@@ -57,7 +57,7 @@ def cases():
                     context['player_class'] = 'Barbarian'
                     truth = 'false'
                 else:
-                    context = {}
+                    context: dict[str, object] = {}
                     truth = 'unknown'
             else:
                 if scenario == 'positive':
@@ -87,7 +87,7 @@ def cases():
                         if cold:
                             required.append('107:65')
                             (required if scenario == 'positive' else forbidden).append('331:0')
-            assessment = {
+            assessment: dict[str, object] = {
                 'roles': Contains(IsPartialDict(id=role, build=build, rule_trace=IsPartialDict(truth=truth))),
             }
             if required:
@@ -125,7 +125,7 @@ def cases():
             ARMOR: ('105:0',),
             BELT: ('31:0', '105:0'),
             ORB: ('83:1', '333:0', '331:0'),
-        }[case.item.name]
+        }[known(case.item.name)]
         intrinsic = '105:0' if case.item.name == ORB else '80:0'
         role = case.covers[0]
         config = role + '-stats'

@@ -6,6 +6,7 @@ from pricing.knowledge.assessment.build_profiles import build
 from pricing.knowledge.assessment.profiles import assess_role_results
 from pricing.knowledge.assessment.stat_bundle import configuration_from_row
 from pricing.knowledge.assessment.stat_evaluation import StatsEvaluator
+from tests.pricing.knowledge.assessment.fact_changes import fact_changes
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
 
 
@@ -68,7 +69,7 @@ def test_named_jewels_need_matching_damage_and_recipient_without_buffing_invento
         assert set(evaluate(item).annotations) == expected
         assert not evaluate(item, {**context, 'player_items': []}).annotations
         assert not evaluate(item, {'player_class': context['player_class']}).annotations
-        for patch in (
+        for patch in fact_changes(
             {'rarity': 'rare'},
             {'ethereal': True},
             {'sockets': 1},

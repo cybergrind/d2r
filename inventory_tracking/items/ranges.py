@@ -13,7 +13,7 @@ def annotate_roll_ranges(decoded: list[dict[str, Any]], identity):
         return
     annotate_poison_range(decoded, identity.get('poison_range'))
     ranges = dict(identity['roll_ranges'])
-    observed = {}
+    observed: dict[str, dict[str, Any]] = {}
     for row in decoded:
         native = [row['memory_stat']] if row.get('memory_stat') else row.get('memory_stats', [])
         for stat in native:

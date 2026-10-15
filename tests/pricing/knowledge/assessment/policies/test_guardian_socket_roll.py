@@ -5,6 +5,7 @@ import pytest
 from pricing.knowledge.assessment.policies.named_baselines import assess_tier
 from tests.pricing.knowledge.assessment.policies.test_fixed_socket_intrinsic import child
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
+from tests.pricing.knowledge.reports import present
 
 
 def guardian(total, insert):
@@ -28,7 +29,7 @@ def guardian(total, insert):
     ],
 )
 def test_guardian_native_ed_survives_insert_and_baseline_selection(total, insert, native, tier):
-    result = assess_tier(guardian(total, insert))
+    result = present(assess_tier(guardian(total, insert)))
     assert result['tier'] == tier
     assert result['intrinsic_rolls']['16:0'] == {'observed': total, 'socket': total - native, 'intrinsic': native}
     assert result['intrinsic_roll_ranges']['16:0']['min'] == 180
@@ -36,7 +37,7 @@ def test_guardian_native_ed_survives_insert_and_baseline_selection(total, insert
 
 
 def test_socket_augmented_200_ed_is_not_a_perfect_guardian():
-    result = assess_tier(guardian(200, 'Pul Rune'))
+    result = present(assess_tier(guardian(200, 'Pul Rune')))
     assert result['tier'] != 'high'
     assert result['variant']['tier'] is None
 

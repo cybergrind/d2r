@@ -6,6 +6,7 @@ from pricing.knowledge.assessment.build_profiles import build
 from pricing.knowledge.assessment.profiles import assess_role_results
 from pricing.knowledge.assessment.stat_bundle import configuration_from_row
 from pricing.knowledge.assessment.stat_evaluation import StatsEvaluator
+from tests.pricing.knowledge.assessment.fact_changes import fact_changes
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
 
 
@@ -45,7 +46,7 @@ def test_zeal_gloves_native_recipients_and_proc_units(bundle, name, base, qualit
     assert set(evaluate(item, {'player_class': 'Paladin'}).annotations) == set(values)
     for context in ({'player_class': 'Necromancer'}, {}):
         assert not evaluate(item, context).annotations
-    for patch in ({'sockets': 1}, {'ethereal': True}, {'identified': False}, {'rarity': 'rare'}):
+    for patch in fact_changes({'sockets': 1}, {'ethereal': True}, {'identified': False}, {'rarity': 'rare'}):
         assert not evaluate(replace(item, **patch), {'player_class': 'Paladin'}).annotations
     for key in (key for key in values if key.startswith('198:')):
         incorrect = {**stats, key: {**stats[key], 'unit': 'skill_level'}}

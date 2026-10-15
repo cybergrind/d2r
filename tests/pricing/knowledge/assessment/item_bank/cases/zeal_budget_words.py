@@ -66,7 +66,7 @@ def cases():
                 ('empty-sockets', replace(item, socket_contents='empty'), {'player_class': 'Paladin'}, 'negative'),
                 ('unknown-player', item, {}, 'unknown'),
             ):
-                expected = {
+                expected: dict[str, object] = {
                     'roles': Contains(
                         IsPartialDict(
                             id=role,

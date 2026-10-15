@@ -59,7 +59,7 @@ def cases():
             ('79:0', '87:0'),
         ),
     ):
-        expected = {
+        expected: dict[str, object] = {
             'roles': Contains(*(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)) for role in ROLES))
         }
         if keys:

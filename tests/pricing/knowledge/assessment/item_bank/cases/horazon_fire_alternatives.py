@@ -110,10 +110,10 @@ def cases():
             variants.append(('unknown-companions', original, {'player_class': 'Warlock'}, 'true', 'unknown'))
         for label, item, context, truth, dependency in variants:
             active = truth == dependency == 'true'
-            expected_role = {'id': role, 'rule_trace': IsPartialDict(truth=truth)}
+            expected_role: dict[str, object] = {'id': role, 'rule_trace': IsPartialDict(truth=truth)}
             if secret and dependency is not None:
                 expected_role['dependencies'] = Contains(IsPartialDict(status=dependency))
-            expected = {'roles': Contains(IsPartialDict(**expected_role))}
+            expected: dict[str, object] = {'roles': Contains(IsPartialDict(**expected_role))}
             if active:
                 expected['stat_evaluation'] = IsPartialDict(
                     annotations=IsPartialDict({key: IsPartialDict(configuration_ids=Contains(config)) for key in keys})

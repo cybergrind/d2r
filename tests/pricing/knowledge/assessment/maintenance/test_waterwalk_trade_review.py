@@ -1,6 +1,7 @@
 import json
 from copy import deepcopy
 from dataclasses import asdict
+from typing import Any
 
 import pytest
 
@@ -70,7 +71,7 @@ def test_case_presence_alone_cannot_satisfy_review(inputs, mutation):
     assert trade_waterwalk.case_gap(cases, policy, spec)
 
 
-def review_inputs():
+def review_inputs() -> tuple[dict[str, Any], dict[str, Any]]:
     from pathlib import Path
 
     from pricing.knowledge.assessment.maintenance.guide_inventory import fingerprint

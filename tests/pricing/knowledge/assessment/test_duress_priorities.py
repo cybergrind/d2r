@@ -4,6 +4,7 @@ from pricing.knowledge.assessment.build_profiles import build
 from pricing.knowledge.assessment.profiles import assess_role_results
 from pricing.knowledge.assessment.stat_bundle import configuration_from_row
 from pricing.knowledge.assessment.stat_evaluation import StatsEvaluator
+from tests.pricing.knowledge.assessment.fact_changes import fact_changes
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
 
 
@@ -33,7 +34,7 @@ def test_duress_budget_kicker_requires_completed_reviewed_base():
     assert evaluate().annotations['136:0']['desirability'] == 'desirable'
     assert len(evaluate().annotations) == 5
     assert evaluate(replace(item, rarity='superior')).annotations
-    for change in (
+    for change in fact_changes(
         {'base_code': facts('Archon Plate').base_code},
         {'runeword': None},
         {'socket_contents': 'empty'},

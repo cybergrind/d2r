@@ -128,10 +128,10 @@ def cases():
             variants.append(('filled-not-empty', filled(), context, 'false', None))
         for label, candidate, ctx, truth, dependency in variants:
             active = truth == dependency == 'true'
-            role_expected = {'id': role, 'rule_trace': IsPartialDict(truth=truth)}
+            role_expected: dict[str, object] = {'id': role, 'rule_trace': IsPartialDict(truth=truth)}
             if suffix == 'filled' and dependency is not None:
                 role_expected['dependencies'] = Contains(IsPartialDict(status=dependency))
-            expected = {'roles': Contains(IsPartialDict(**role_expected))}
+            expected: dict[str, object] = {'roles': Contains(IsPartialDict(**role_expected))}
             if active:
                 keys = ('20:0', '102:0', '331:0', '335:0') if suffix == 'filled' else ('20:0', '102:0')
                 expected['stat_evaluation'] = IsPartialDict(

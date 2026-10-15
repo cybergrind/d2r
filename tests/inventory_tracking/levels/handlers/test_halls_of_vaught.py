@@ -8,8 +8,7 @@ two games on 2026-09-30, and the NihlW game rules out "the side the layout opens
 from inventory_tracking.levels.geometry import pointer
 from inventory_tracking.levels.handlers.halls_of_vaught import HANDLERS
 from inventory_tracking.levels.model import LevelSnapshot, Room
-from inventory_tracking.levels.registry import handler_for
-from tests.inventory_tracking.levels.fixtures import replay
+from tests.inventory_tracking.levels.fixtures import handler_of, replay
 
 
 def test_nihlw_points_at_the_west_side_of_the_level():
@@ -57,7 +56,7 @@ def test_the_marker_is_a_stand_beside_nihlathaks_pavilion_and_walking_up_to_him_
     from tests.inventory_tracking.levels.fixtures import replay
 
     snapshot = replay('halls_of_vaught_nihle')
-    [poi] = handler_for(124).guide(snapshot).pois
+    [poi] = handler_of(124).guide(snapshot).pois
     cx, cy = poi.room.center
 
     # user, 2026-10-11: the last jump lands off the main pack. The mark is 3 tiles east and 1 north of

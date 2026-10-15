@@ -118,7 +118,9 @@ def cases():
         ),
     ]
     for label, item, context, truth, active in rows:
-        expected = {'roles': Contains(*(IsPartialDict(id=r, rule_trace=IsPartialDict(truth=truth)) for r in ROLES))}
+        expected: dict[str, object] = {
+            'roles': Contains(*(IsPartialDict(id=r, rule_trace=IsPartialDict(truth=truth)) for r in ROLES))
+        }
         optional = {f'{a}:{b}' for a, b, _ in item.raw_stats} & {'107:250', '107:247'}
         if active:
             contributions = {

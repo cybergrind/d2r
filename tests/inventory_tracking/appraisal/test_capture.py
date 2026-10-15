@@ -305,7 +305,7 @@ def test_unknown_panel_gets_one_bounded_alt_d_discovery_capture(monkeypatch):
         'resolve_selection',
         lambda *_: {'status': 'unavailable', 'reason': 'Unsupported inventory widget'},
     )
-    with pytest.raises(ValueError, match='Unsupported inventory widget') as caught:
+    with pytest.raises(appraisal_capture.SelectionUnavailable, match='Unsupported inventory widget') as caught:
         source.freeze()
     assert calls == [False, True]
     assert caught.value.diagnostics['expanded'] == sample
@@ -339,7 +339,7 @@ def test_failed_discovery_preserves_original_panel_evidence(monkeypatch):
         'resolve_selection',
         lambda *_: {'status': 'unavailable', 'reason': 'Unsupported inventory widget'},
     )
-    with pytest.raises(ValueError, match='Unsupported inventory widget') as caught:
+    with pytest.raises(appraisal_capture.SelectionUnavailable, match='Unsupported inventory widget') as caught:
         source.freeze()
     assert caught.value.diagnostics['initial'] == sample
     assert caught.value.diagnostics['discovery_error'] == 'Process changed'

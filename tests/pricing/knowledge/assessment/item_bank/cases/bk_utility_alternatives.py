@@ -4,7 +4,7 @@ from dataclasses import replace
 
 from dirty_equals import Contains, IsPartialDict
 
-from tests.pricing.knowledge.assessment.item_bank.models import Case, Item
+from tests.pricing.knowledge.assessment.item_bank.models import Case, Item, known
 
 
 USES = {
@@ -49,7 +49,9 @@ def cases():
             ('unknown-sockets', replace(item, sockets=None), context, 'unknown'),
         )
         for label, candidate, loadout, truth in examples:
-            expected = {'roles': Contains(*(IsPartialDict(id=r, rule_trace=IsPartialDict(truth=truth)) for r in roles))}
+            expected: dict[str, object] = {
+                'roles': Contains(*(IsPartialDict(id=r, rule_trace=IsPartialDict(truth=truth)) for r in roles))
+            }
             if truth == 'true':
                 expected['stat_evaluation'] = IsPartialDict(
                     annotations=IsPartialDict(
@@ -57,7 +59,7 @@ def cases():
                     )
                 )
                 expected['facts'] = IsPartialDict(
-                    stats=IsPartialDict({'216:0': IsPartialDict(value=candidate.viewer_level // 2)})
+                    stats=IsPartialDict({'216:0': IsPartialDict(value=known(candidate.viewer_level) // 2)})
                 )
             result = {'assessment': IsPartialDict(**expected)}
             if label in ('minimum-leech', 'perfect-leech'):
@@ -79,7 +81,7 @@ def cases():
                 expected=result,
                 absent_stat_configurations=dict.fromkeys(('60:0', '11:0'), configs),
                 absent_configurations=() if truth == 'true' else configs,
-                report_contains=(item.name, 'Trade tier:') if truth == 'true' else ('Ring',),
+                report_contains=(known(item.name), 'Trade tier:') if truth == 'true' else ('Ring',),
                 evidence=(
                     'third-parties/d2data/json/uniqueitems.json:/268',
                     *(f'pricing/data/wp-a-builds.json:/{g}/slots/Rings/{i}' for g, i in uses),

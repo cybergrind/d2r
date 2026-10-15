@@ -4,7 +4,7 @@ from dataclasses import replace
 
 from dirty_equals import Contains, IsPartialDict
 
-from tests.pricing.knowledge.assessment.item_bank.models import Case, Item
+from tests.pricing.knowledge.assessment.item_bank.models import Case, Item, known
 
 
 ROLE = 'summoner-necromancer-arm-king-leoric-alternative'
@@ -58,7 +58,9 @@ def cases():
         for label, item, loadout, truth in rows:
             captured = {f'{a}:{b}' for a, b, _ in item.raw_stats}
             active = truth == 'true'
-            expected = {'roles': Contains(IsPartialDict(id=ROLE, rule_trace=IsPartialDict(truth=truth)))}
+            expected: dict[str, object] = {
+                'roles': Contains(IsPartialDict(id=ROLE, rule_trace=IsPartialDict(truth=truth)))
+            }
             if active:
                 expected['stat_evaluation'] = IsPartialDict(
                     annotations=IsPartialDict(
@@ -91,7 +93,7 @@ def cases():
                 ),
                 report_contains=(
                     ('Arm of King Leoric', 'Trade tier:')
-                    + ((f'+{item.viewer_level * 10 // 8} to Mana',) if '217:0' in captured else ())
+                    + ((f'+{known(item.viewer_level) * 10 // 8} to Mana',) if '217:0' in captured else ())
                 )
                 if item.identified
                 else (),

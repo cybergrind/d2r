@@ -8,6 +8,7 @@ from pricing.knowledge.assessment.maintenance.profile_templates import expand_pr
 from pricing.knowledge.assessment.profiles import assess_role_results
 from pricing.knowledge.assessment.stat_bundle import configuration_from_row
 from pricing.knowledge.assessment.stat_evaluation import StatsEvaluator
+from tests.pricing.knowledge.assessment.fact_changes import fact_changes
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
 
 
@@ -59,7 +60,9 @@ def test_runeword_utility_keeps_completed_recipe_and_wearer_context(name, side, 
             for quality in ('superior', 'low_quality'):
                 assert set(evaluate(replace(item, rarity=quality)).annotations) == set(values)
         assert bool(evaluate(replace(item, ethereal=True)).annotations) is (side == 'merc' or name == 'Memory')
-        for change in ({'runeword': None}, {'sockets': sockets - 1}, {'socket_contents': 'empty'}, {'rarity': 'magic'}):
+        for change in fact_changes(
+            {'runeword': None}, {'sockets': sockets - 1}, {'socket_contents': 'empty'}, {'rarity': 'magic'}
+        ):
             assert not evaluate(replace(item, **change)).annotations
         if name == 'Harmony':
             amazon = replace(item, base_code=facts('Grand Matron Bow').base_code, item_type='abow')

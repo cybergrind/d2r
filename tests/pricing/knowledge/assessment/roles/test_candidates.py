@@ -2,6 +2,7 @@ from dataclasses import replace
 
 from pricing.knowledge.assessment.build_profiles import build
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
+from tests.pricing.knowledge.reports import thawed_records
 
 
 def test_index_agrees_with_selectors_and_retains_roles_with_unknown_stats():
@@ -22,10 +23,12 @@ def test_index_agrees_with_selectors_and_retains_roles_with_unknown_stats():
             and (not p.get('names') or item.name in p['names'])
             and (not p.get('base_codes') or item.base_code in p['base_codes'])
         ]
-        assert [p['id'] for p in index.select(item)] == expected
+        assert [p['id'] for p in thawed_records(index.select(item))] == expected
     # Unknown identity/type cannot establish a mismatch.
     partial = replace(facts('Cinquedeas', 'rare'), name=None, item_type=None, base_code=None)
-    assert {p['id'] for p in index.select(partial)} == {p['id'] for p in profiles if 'rare' in p['qualities']}
+    assert {p['id'] for p in thawed_records(index.select(partial))} == {
+        p['id'] for p in profiles if 'rare' in p['qualities']
+    }
 
 
 def test_index_does_not_leak_mutable_source_or_selected_profiles():
@@ -35,7 +38,7 @@ def test_index_does_not_leak_mutable_source_or_selected_profiles():
     index = CandidateIndex(profiles)
     item = facts('Cinquedeas', 'rare')
     profiles[0]['conditions'].append('mutation')
-    selected = index.select(item)
+    selected = thawed_records(index.select(item))
     assert 'mutation' not in selected[0]['conditions']
     selected[0]['conditions'].append('caller mutation')
-    assert 'caller mutation' not in index.select(item)[0]['conditions']
+    assert 'caller mutation' not in thawed_records(index.select(item))[0]['conditions']

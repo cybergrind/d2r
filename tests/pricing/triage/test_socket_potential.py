@@ -1,4 +1,5 @@
 from pricing.triage.socket_potential import preparation
+from tests.pricing.knowledge.reports import present
 
 
 def test_known_level_and_quality_control_socket_outcomes_without_pricing():
@@ -6,7 +7,7 @@ def test_known_level_and_quality_control_socket_outcomes_without_pricing():
     item = {'category': 'base', 'name': 'Example', 'rarity': 'normal', 'sockets': 0, 'item_level': 30}
     result = preparation(item, rules)
     assert result == {'larzuk': [4], 'cube': [1, 2, 3, 4], 'conditional': False}
-    assert preparation(item | {'rarity': 'superior'}, rules)['cube'] == []
+    assert present(preparation(item | {'rarity': 'superior'}, rules))['cube'] == []
     assert preparation(item | {'rarity': 'low quality'}, rules) == {
         'larzuk': [4],
         'cube': [],

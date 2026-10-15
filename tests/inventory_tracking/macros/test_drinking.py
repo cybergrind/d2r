@@ -4,9 +4,11 @@ from dataclasses import replace
 
 import pytest
 
+from inventory_tracking.automation.ledger import PotionLedger
 from inventory_tracking.combat.survival import DrinkSettings
 from inventory_tracking.macros.actuator import Cancelled
 from inventory_tracking.macros.drinking import EVERY, Drinker, key_of, on_belt
+from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.world import HEALING, Drop, Loot
 from inventory_tracking.models import PotionType
 from tests.inventory_tracking.macros.fakes import SLOTS, Game, world
@@ -21,6 +23,13 @@ def game(life: int, belt=FULL, drops=()) -> Game:
     play = Game(world(area=101, slots=SLOTS))
     play.loot = Loot(tuple(drops), belt, life, 1000)
     return play
+
+
+def hold(play: Game, name: bytes) -> None:
+    """The player's key `name` down."""
+    codes = play.keys.keycodes([name])
+    assert codes is not None
+    play.keys.press(codes[0])
 
 
 def looks(play: Game, drinker: Drinker, *lives: int) -> list[PotionType | None]:
@@ -86,7 +95,7 @@ def test_a_key_of_the_players_held_stops_the_drink_and_not_the_mode():
     play = game(1000)
     drinker = Drinker()
     looks(play, drinker, 1000)
-    play.keys.press(play.keys.keycodes([b'x'])[0])  # the player's key, down
+    hold(play, b'x')  # the player's key, down
     assert looks(play, drinker, 800) == [None]
     assert play.pressed() == []
 
@@ -95,7 +104,7 @@ def test_nothing_is_drunk_under_shift_which_would_give_the_potion_to_the_mercena
     play = game(1000)
     drinker = Drinker()
     looks(play, drinker, 1000)
-    play.keys.press(play.keys.keycodes([b'Shift_L'])[0])
+    hold(play, b'Shift_L')
     assert looks(play, drinker, 800) == [None]
 
 
@@ -139,9 +148,7 @@ def test_a_potion_the_healer_gave_the_mercenary_does_not_hold_back_the_character
     assert drinker.look(run, HERE) is None
 
 
-def ledgered(play: Game, tmp_path) -> tuple[Drinker, object, object]:
-    from inventory_tracking.automation.ledger import PotionLedger
-
+def ledgered(play: Game, tmp_path) -> tuple[Drinker, Run, PotionLedger]:
     run = play.run()
     run.ledger = PotionLedger(tmp_path, boot_id='test')
     return Drinker(), run, run.ledger
@@ -188,7 +195,7 @@ def test_the_macros_key_is_claimed_in_the_ledger_and_given_back_when_it_did_not_
     drinker, run, ledger = ledgered(play, other)
     drinker.look(run, HERE)
     play.clock.now += EVERY
-    play.keys.press(play.keys.keycodes([b'x'])[0])
+    hold(play, b'x')
     play.loot = replace(play.loot, life=640)
     assert drinker.look(run, HERE) is None
     assert ledger.given_at(Actor.PLAYER, PotionType.HEALING) is None

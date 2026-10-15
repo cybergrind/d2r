@@ -1,5 +1,7 @@
 """Plain-text presentation of offline appraisal drafts; never infer a valuation."""
 
+from typing import Any
+
 from pricing.knowledge.assessment.policies.value_watch import softcore_watches
 
 
@@ -253,7 +255,7 @@ def leveling_lines(result):
 
 def grouped_leveling_uses(result):
     """Combine repeated recommendations while retaining class-specific caveats."""
-    groups = {}
+    groups: dict[tuple, dict[str, Any]] = {}
     for use in result.get('assessment', {}).get('leveling', []):
         if use.get('generic') or use.get('tier') != 'high':
             continue

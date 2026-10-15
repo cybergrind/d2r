@@ -133,7 +133,7 @@ def tally(take_name: str, moments: Sequence[Moment], rows: Sequence[Mapping[str,
                 continue
             found = monsters.get(monster.unit)
             if found is None:
-                found = monsters[monster.unit] = {
+                monsters[monster.unit] = {
                     'unit': monster.unit,
                     'txt': monster.txt,
                     'name': name_of(monster.txt),
@@ -146,6 +146,7 @@ def tally(take_name: str, moments: Sequence[Moment], rows: Sequence[Mapping[str,
                     'hits': [],
                     'first': moment.index,
                 }
+                found = monsters[monster.unit]
             found['last'] = moment.index
             found['seconds'] += step
             away = None if hero is None else math.dist(monster.at, hero.at)
@@ -164,7 +165,7 @@ def tally(take_name: str, moments: Sequence[Moment], rows: Sequence[Mapping[str,
                 continue
             track = tracks.get(flight.key)
             if track is None:
-                track = tracks[flight.key] = {
+                tracks[flight.key] = {
                     'owner': flight.owner,
                     'kind': flight.kind,
                     'first': moment.index,
@@ -179,6 +180,7 @@ def tally(take_name: str, moments: Sequence[Moment], rows: Sequence[Mapping[str,
                     'runs': [],
                     'bends': [],
                 }
+                track = tracks[flight.key]
             if track.get('last') == moment.index - 1:
                 track['path'] += math.dist(track['end'], flight.at)
                 track['steps'] += 1
@@ -563,7 +565,7 @@ def measure(tallies: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
     }
 
     alive = [r for r in releases if r['hero_dead'] == 0 and r['away'] is not None]
-    bands = []
+    bands: list[dict[str, Any]] = []
     for low, high in (*itertools.pairwise(BANDS), (BANDS[0], BANDS[-1])):
         mine = [r for r in alive if low <= r['away'] < high]
         let = [spark for r in mine for spark in r['sparks']]

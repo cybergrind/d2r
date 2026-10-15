@@ -1,4 +1,5 @@
 from dataclasses import replace
+from typing import Any
 
 import pytest
 
@@ -32,7 +33,7 @@ def test_footwear_native_utility_preserves_durability_and_individual_set_scope(n
     item = facts(base, quality, name)
 
     def truth(candidate):
-        rows = assess_roles(candidate, [role], {'player_class': 'Sorceress'})
+        rows: list[dict[str, Any]] = assess_roles(candidate, [role], {'player_class': 'Sorceress'})
         return rows[0]['rule_trace']['truth'] if rows else 'false'
 
     assert truth(item) == 'true'
@@ -41,5 +42,6 @@ def test_footwear_native_utility_preserves_durability_and_individual_set_scope(n
     if name == 'Sandstorm Trek':
         repaired = replace(item, ethereal=True, stats={'252:0': {'status': 'decoded', 'value': 20, 'raw': 5}})
         assert truth(repaired) == 'true'
+    changes: dict[str, Any]
     for changes in ({'sockets': 1}, {'identified': False}, {'rarity': 'rare'}, {'name': 'Other'}):
         assert truth(replace(item, **changes)) == 'false'

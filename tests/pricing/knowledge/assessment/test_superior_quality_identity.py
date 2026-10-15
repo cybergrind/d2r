@@ -1,6 +1,7 @@
 import json
 import struct
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -22,7 +23,9 @@ def superior(index, attack=2):
     arrays['item_data_hex'] = raw.hex()
     from pricing.knowledge.market_base_catalog import equipment_base
 
-    base_damage = equipment_base('Phase Blade')[0]['details']['one_hand_damage']
+    bases = equipment_base('Phase Blade')
+    assert bases is not None
+    base_damage = bases[0]['details']['one_hand_damage']
     for array in arrays['arrays']:
         for stat in array['stats']:
             if index == 0 and stat['id'] in (21, 22):
@@ -59,8 +62,10 @@ def test_zero_ed_base_price_requires_explicit_zero_in_comparable_listings():
 
     from pricing.knowledge.assessment.comparables import evaluate, price_from_comparables, reject_reasons
 
-    contract = assess_result(superior(0), profiles=[]).contract.to_dict()
-    rows = [
+    assessed = assess_result(superior(0), profiles=[]).contract
+    assert assessed is not None
+    contract = assessed.to_dict()
+    rows: list[dict[str, Any]] = [
         {
             **contract,
             'scope_status': 'verified',

@@ -91,7 +91,7 @@ def cases():
             )
         for label, scenario, candidate, context in scenarios:
             malformed_sunder = label in ('below-native-sunder', 'above-native-sunder')
-            expected = {
+            expected: dict[str, object] = {
                 'roles': Contains(
                     IsPartialDict(
                         id=role,

@@ -11,7 +11,7 @@ SOURCE = 'pricing/data/wp-a-variants/gold-find-barbarian.json:/variants/0/player
 
 
 def cases():
-    examples = [
+    examples: list[tuple[str, tuple[tuple[int, int, int], ...], bool, bool | None, str]] = [
         ('source-rolls', (*CORE, (99, 0, 10)), True, False, 'positive'),
         ('core-only', CORE, True, False, 'positive'),
         ('ethereal', CORE, True, True, 'negative'),

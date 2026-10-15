@@ -4,6 +4,7 @@ import hashlib
 import json
 from copy import deepcopy
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -17,7 +18,7 @@ from pricing.knowledge.builds import decode_planner
 ROOT = Path(__file__).resolve().parents[5]
 
 
-def inputs(span=10):
+def inputs(span=10) -> tuple[dict[str, Any], list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]]]:
     def read(path):
         return json.loads((ROOT / path).read_text())
 
@@ -27,11 +28,8 @@ def inputs(span=10):
     guide_path = 'pricing/raw/mr/guides__echoing-strike-warlock-guide.html'
     planner_path = 'pricing/raw/mr/planners/ucgz20le.json'
     html = (ROOT / guide_path).read_text()
-    ref = next(
-        r
-        for r in section_inventory(html)['embedded_item_refs']
-        if embedded_guide_context(html, r)['span_index'] == span
-    )
+    guide: dict[str, Any] = section_inventory(html)
+    ref = next(r for r in guide['embedded_item_refs'] if embedded_guide_context(html, r)['span_index'] == span)
     planner = decode_planner(read(planner_path))
     profiles = read('pricing/data/appraisal-build-profiles.json')['profiles']
     uses = read('pricing/knowledge/assessment/rules/guide_use_reviews.json')['uses']
@@ -114,7 +112,7 @@ def test_sling_reference_requires_native_legal_identity_and_rolls(change):
         validate_echoing_pairing(review, resolved, role, ROOT)
 
 
-def helmet_inputs():
+def helmet_inputs() -> tuple[dict[str, Any], list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]]]:
     document, links, profiles, uses = inputs(9)
     document['rows'][0]['reason'] = (
         'Exact Ubers Hellwarden reference, native unique419 Death Mask with linked unique425 Guardian Light. '

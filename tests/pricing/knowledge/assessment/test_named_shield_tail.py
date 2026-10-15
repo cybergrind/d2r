@@ -47,6 +47,7 @@ def test_named_shields_preserve_fillers_partial_sets_and_skill_tree(name, base, 
         'player_items': ["Trang-Oul's Claws", "Trang-Oul's Girth"],
     }
     item = replace(facts(base, 'set', name), stats={k: {'status': 'decoded', 'value': v} for k, v in values.items()})
+    children = []
     if name.startswith('Griswold'):
         code = next(b['code'] for b in metadata()['bases'].values() if b['name'] == 'Ist Rune')
         children = [{'name': 'Ist Rune', 'base_code': code, 'unit_id': i + 1, 'position': i} for i in range(3)]

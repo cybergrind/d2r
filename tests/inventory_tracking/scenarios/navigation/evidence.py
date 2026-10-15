@@ -18,6 +18,7 @@ import re
 import statistics
 import sys
 from collections import Counter
+from collections.abc import Sequence
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -186,7 +187,7 @@ def reach_along(view: Viewport, start: Point, toward: Point) -> float:
     return low
 
 
-def hops_of(lines: list[str], log: str) -> list[Hop]:
+def hops_of(lines: Sequence[str], log: str) -> list[Hop]:
     """Every hop of one probe.log, each with the mark its step named."""
     found: list[Hop] = []
     label, mark, quarry = '', None, None

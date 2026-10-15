@@ -6,6 +6,7 @@ from pricing.knowledge.assessment.build_profiles import build
 from pricing.knowledge.assessment.profiles import assess_role_results
 from pricing.knowledge.assessment.stat_bundle import configuration_from_row
 from pricing.knowledge.assessment.stat_evaluation import StatsEvaluator
+from tests.pricing.knowledge.assessment.fact_changes import fact_changes
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
 
 
@@ -169,7 +170,7 @@ def test_named_equipment_keeps_native_stats_separate_from_conditional_set_and_sk
         if name == "Arreat's Face" and role['build'] == 'berserk-barbarian':
             expected.remove('60:0')
         assert set(evaluate(item).annotations) == expected
-        for changes in ({'ethereal': True}, {'sockets': 3}, {'base_code': facts('Cap').base_code}):
+        for changes in fact_changes({'ethereal': True}, {'sockets': 3}, {'base_code': facts('Cap').base_code}):
             assert not evaluate(replace(item, **changes)).annotations
         if name == 'Giant Skull':
             one = replace(item, sockets=1, stats={**item.stats, '194:0': {'status': 'decoded', 'value': 1}})

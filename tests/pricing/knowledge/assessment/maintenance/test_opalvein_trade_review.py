@@ -1,4 +1,5 @@
 from copy import deepcopy
+from typing import Any
 
 import pytest
 
@@ -45,7 +46,7 @@ def test_changed_native_or_trade_semantics_cannot_reuse_choice_proof(mutation):
     assert trade_opalvein.specification(policy, definitions, specs) is None
 
 
-def review_inputs():
+def review_inputs() -> tuple[dict[str, Any], dict[str, Any]]:
     import json
     from pathlib import Path
 

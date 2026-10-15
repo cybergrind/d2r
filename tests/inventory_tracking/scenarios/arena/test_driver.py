@@ -72,6 +72,7 @@ def test_a_second_press_of_the_toggle_ends_the_mode():
 def test_the_arena_can_kill():
     result = play(pack_at_low_life(), [Press(0, ATTACK)], 20.0, seed=14)
     assert not result.alive
+    assert result.dead_at is not None
     assert result.dead_at < 2.0
     assert result.seconds == result.dead_at  # the play ends at the death
     assert result.taken == pytest.approx(LIFE / 6)
@@ -165,6 +166,7 @@ def test_attack_mode_casts_its_buffs_with_nothing_near():
     arena = Arena(scene)
     result = Play(arena, [Press(0, ATTACK)], 6.0, 1).run()
     stand = arena.world.player
+    assert stand is not None
     assert (stand.consume, stand.hex_purge, stand.ward) == (True, True, True)
     assert [m.txt_id for m in arena.world.monsters if m.ally] == [DEFILER_CLASS]  # the one summoned after Consume
     assert 'Macro: Consume ran out: casting it again' in lines(result)

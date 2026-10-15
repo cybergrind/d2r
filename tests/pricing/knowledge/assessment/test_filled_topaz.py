@@ -1,4 +1,5 @@
 from dataclasses import replace
+from typing import Any
 
 from inventory_tracking.items.metadata import metadata
 from pricing.knowledge.assessment.adapters.capture import normalize
@@ -27,7 +28,7 @@ def test_single_topaz_named_comparison_requires_explicit_same_filler():
     contract, gaps = NamedHandler().contract(item, 'helm')
     assert contract is not None, gaps
     assert contract.socket_payload == ('Perfect Topaz',)
-    row = {
+    row: dict[str, Any] = {
         **contract.to_dict(),
         'properties': {**contract.properties, '934': 'Perfect Topaz'},
         'scope_status': 'verified',
@@ -89,7 +90,7 @@ def test_multiple_topazes_preserve_payload_multiplicity_and_total_magic_find():
         assert contract.socket_payload == ('Perfect Topaz',) * count
         prop = item.stats['80:0']['market_property']
         assert contract.properties[prop] == 24 * count
-        row = {
+        row: dict[str, Any] = {
             **contract.to_dict(),
             'properties': {**contract.properties, '934': ', '.join(contract.socket_payload)},
             'scope_status': 'verified',
@@ -119,7 +120,7 @@ def test_mixed_ist_topaz_armor_payload_matches_as_multiset_with_armor_bonus():
     contract, gaps = NamedHandler().contract(item, 'helm')
     assert contract is not None, gaps
     assert sorted(contract.socket_payload) == ['Ist Rune', 'Perfect Topaz']
-    row = {
+    row: dict[str, Any] = {
         **contract.to_dict(),
         'properties': {**contract.properties, '934': 'Perfect Topaz, Ist Rune'},
         'scope_status': 'verified',
@@ -168,7 +169,7 @@ def test_verified_partial_socket_fill_is_distinct_from_full_and_unknown():
     assert contract is not None, gaps
     assert contract.sockets == 2
     assert contract.socket_payload == ('Perfect Topaz',)
-    row = {
+    row: dict[str, Any] = {
         **contract.to_dict(),
         'properties': {**contract.properties, '934': 'Perfect Topaz'},
         'scope_status': 'verified',

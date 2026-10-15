@@ -1,6 +1,7 @@
 """Abyss table charms preserve class, native immunity core and optional rolls."""
 
 from dataclasses import replace
+from typing import Any
 
 from dirty_equals import Contains, IsPartialDict
 
@@ -38,7 +39,7 @@ EXAMPLES = (
 def cases():
     for slug, item, keys in EXAMPLES:
         role = 'abyss-warlock-table-charm-' + slug
-        rows = [
+        rows: list[tuple[str, Item, dict[str, Any], str, tuple[str, ...]]] = [
             ('minimum', item, {'player_class': 'Warlock'}, 'true', keys),
             ('wrong-class', item, {'player_class': 'Sorceress'}, 'false', ()),
             ('unknown-class', item, {}, 'unknown', ()),
@@ -108,7 +109,9 @@ def cases():
                 )
             )
         for label, candidate, context, truth, expected_keys in rows:
-            assessment = {'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))}
+            assessment: dict[str, object] = {
+                'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))
+            }
             if truth == 'true':
                 assessment['stat_evaluation'] = IsPartialDict(
                     annotations=IsPartialDict(

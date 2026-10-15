@@ -149,7 +149,11 @@ def test_a_click_on_a_chest_walks_the_character_to_it_and_opens_it():
     point_at(arena, (chest.at[0] - LIFT, chest.at[1] - LIFT))
     assert arena.unit_under_pointer() == (OBJECT_UNIT, 900)
     click(arena)
-    assert [thing.mode for thing in arena.run().containers()] == [0]
+    containers = arena.run().containers
+    assert containers is not None
+    assert [thing.mode for thing in containers()] == [0]
     frames(arena, 25)
-    assert [thing.mode for thing in arena.run().containers()] == [2]
+    containers = arena.run().containers
+    assert containers is not None
+    assert [thing.mode for thing in containers()] == [2]
     assert 4.0 < arena.result().moved < 8.0

@@ -18,7 +18,8 @@ class Publications:
         if generation in self.failing:
             raise ValueError(f'{generation} invalid')
         runtime = SimpleNamespace(generation=generation, database=self.index)
-        return published_backend.Loaded(runtime, fingerprint(self.index.stat()))
+        # A stand-in runtime: the backend reads only its generation and database.
+        return published_backend.Loaded(runtime, fingerprint(self.index.stat()))  # pyrefly: ignore[bad-argument-type]
 
 
 @pytest.fixture

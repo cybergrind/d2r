@@ -1,4 +1,5 @@
 from dataclasses import replace
+from typing import Any
 
 import pytest
 
@@ -20,7 +21,7 @@ def test_lem_recipient_bonus_keeps_total_and_exact_contents(quality, handler, ba
     prop = item.stats['79:0']['market_property']
     assert contract.properties[prop] == 2 * bonus
     assert contract.socket_payload == ('Lem Rune', 'Lem Rune')
-    listing = {
+    listing: dict[str, Any] = {
         **contract.to_dict(),
         'properties': {**contract.properties, '934': 'Lem Rune, Lem Rune'},
         'scope_status': 'verified',

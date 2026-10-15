@@ -2,6 +2,7 @@
 
 import json
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -60,7 +61,7 @@ def test_only_observed_choice_gets_displayed_range(compiled, ids, low, high):
 
     item = next(r for r in compiled['rows'] if r['rarity'] == 'unique' and r['table_id'] == 416)
     for value, quality in ((low, 'low'), (high, 'perfect')):
-        rows = [
+        rows: list[dict[str, Any]] = [
             {
                 'memory_stat': {'id': sid, 'layer': 0},
                 'status': 'decoded',

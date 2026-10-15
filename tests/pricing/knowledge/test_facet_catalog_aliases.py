@@ -4,6 +4,7 @@ import pytest
 
 from pricing.knowledge.definition_store import catalog
 from pricing.knowledge.market import normalize_facets, normalize_listing
+from tests.pricing.knowledge.reports import thawed
 
 
 VARIANTS = (
@@ -75,7 +76,9 @@ def test_facet_catalog_refuses_changed_native_discriminators(field, value):
     from pricing.knowledge.assessment.domain.facts import thaw
     from pricing.knowledge.market_facet_catalog import facet_catalog
 
-    definition = thaw(next(v for v in catalog().named_variants['unique', 'Rainbow Facet'] if v['table_id'] == 392))
+    definition = thawed(
+        thaw(next(v for v in catalog().named_variants['unique', 'Rainbow Facet'] if v['table_id'] == 392))
+    )
     definition['game_definition'][field] = value
     assert facet_catalog(definition) is None
 

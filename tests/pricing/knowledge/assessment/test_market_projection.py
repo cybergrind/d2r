@@ -1,3 +1,5 @@
+from typing import Any
+
 from pricing.knowledge.assessment.adapters.capture import normalize
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
 
@@ -103,7 +105,8 @@ def test_complete_native_sling_can_form_exact_named_contract():
     item = normalize(RING.capture())
     contract, gaps = NamedHandler().contract(item, 'ring')
     assert contract is not None, gaps
-    assert contract.to_dict()['properties']['1877'] == 3
+    data: dict[str, Any] = contract.to_dict()
+    assert data['properties']['1877'] == 3
     assert not gaps
 
 

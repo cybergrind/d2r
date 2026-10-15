@@ -6,7 +6,7 @@ from dirty_equals import Contains, IsPartialDict
 
 from tests.pricing.knowledge.assessment.item_bank.cases.zeal_early_merc import EXAMPLES as EARLY
 from tests.pricing.knowledge.assessment.item_bank.cases.zeal_merc_tail import EXAMPLES as TAIL
-from tests.pricing.knowledge.assessment.item_bank.models import Case, Item
+from tests.pricing.knowledge.assessment.item_bank.models import Case, Item, known
 
 
 EXAMPLES = [
@@ -118,7 +118,7 @@ def cases():
         if slug == 'fortitude':
             rows.append(('nonethereal', replace(item, ethereal=False), context, 'negative'))
         for label, candidate, ctx, scenario in rows:
-            expected = {
+            expected: dict[str, object] = {
                 'roles': Contains(
                     IsPartialDict(
                         id=role,
@@ -146,7 +146,7 @@ def cases():
                 absent_stat_configurations=dict.fromkeys(
                     {'treachery': ('83:6',), 'fortitude': ('105:0',)}.get(slug, ()), (role + '-stats',)
                 ),
-                report_contains=(item.name,),
+                report_contains=(known(item.name),),
                 evidence=(
                     'pricing/data/appraisal-guide-sections.json:/sources/'
                     f'pricing~1raw~1mr~1guides__abyss-warlock-build-guide.html/item_spans/{span}',

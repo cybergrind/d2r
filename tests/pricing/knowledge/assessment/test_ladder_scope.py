@@ -2,6 +2,7 @@
 
 from copy import deepcopy
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -60,8 +61,9 @@ def test_ladder_profile_is_archived_but_not_a_runtime_candidate(tmp_path):
     path.write_text(json.dumps(document))
     loaded = ProfileRepository(path).load()
     assert not loaded.issues
+    assert loaded.bundle is not None
     assert len(loaded.bundle.profiles) == 2
-    selected = loaded.bundle.candidates.select(facts('Jewel', 'unique', 'Rainbow Facet'))
+    selected: list[Any] = loaded.bundle.candidates.select(facts('Jewel', 'unique', 'Rainbow Facet'))
     assert {r['id'] for r in selected} == {active['id']}
 
 

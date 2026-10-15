@@ -43,7 +43,9 @@ def cases():
             ('unidentified', replace(item, identified=False), context, 'false'),
         ):
             config = ROLE + '-stats'
-            expected = {'roles': Contains(IsPartialDict(id=ROLE, rule_trace=IsPartialDict(truth=truth)))}
+            expected: dict[str, object] = {
+                'roles': Contains(IsPartialDict(id=ROLE, rule_trace=IsPartialDict(truth=truth)))
+            }
             if truth == 'true':
                 expected['stat_evaluation'] = IsPartialDict(
                     annotations=IsPartialDict(

@@ -1,4 +1,5 @@
 from dataclasses import replace
+from typing import Any
 
 import pytest
 
@@ -24,7 +25,7 @@ def test_ist_shield_comparisons_preserve_exact_total_and_socket_contents(base, q
     prop = item.stats['80:0']['market_property']
     assert contract.properties[prop] == 25 * count
     assert contract.socket_payload == ('Ist Rune',) * count
-    listing = {
+    listing: dict[str, Any] = {
         **contract.to_dict(),
         'properties': {**contract.properties, '934': ', '.join(contract.socket_payload)},
         'scope_status': 'verified',

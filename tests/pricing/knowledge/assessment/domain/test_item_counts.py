@@ -10,6 +10,7 @@ RULE = {'op': 'context_count_at_least', 'field': 'player_items', 'value': 'Angel
 
 def test_duplicate_rings_survive_immutable_loadout_and_count_dependency():
     rings = ['Angelic Halo', 'Angelic Halo', 'Angelic Wings']
+    # pyrefly: ignore[bad-argument-type]  # a mutable list proves the snapshot is detached
     context = AssessmentContext(player_items=rings)
     rings.clear()
     result = evaluate(RULE, facts('Ring'), context)

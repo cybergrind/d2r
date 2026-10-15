@@ -2,6 +2,7 @@ import json
 import struct
 from copy import deepcopy
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -84,7 +85,7 @@ def test_saved_unsocketed_item_does_not_require_child_scan(stem):
     ],
 )
 def test_unsocketed_inference_preserves_unknown_or_contradictory_evidence(conflict):
-    arrays = {'complete': True, 'arrays': [{'header_offset': 0xE8, 'stats': []}]}
+    arrays: dict[str, Any] = {'complete': True, 'arrays': [{'header_offset': 0xE8, 'stats': []}]}
     item = {'sockets': None, 'socket_contents': None}
     flags, stats = 0x10, []
     if conflict == 'flags_missing':

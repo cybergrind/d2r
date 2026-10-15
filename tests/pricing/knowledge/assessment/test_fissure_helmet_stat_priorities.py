@@ -7,6 +7,7 @@ from pricing.knowledge.assessment.build_profiles import ROOT, build
 from pricing.knowledge.assessment.maintenance.stat_configurations import compile_stat_configurations
 from pricing.knowledge.assessment.profiles import assess_role_results
 from pricing.knowledge.assessment.stat_evaluation import StatsEvaluator
+from tests.pricing.knowledge.assessment.fact_changes import fact_changes
 from tests.pricing.knowledge.assessment.roles.test_fissure_pelts import facet
 from tests.pricing.knowledge.assessment.roles.test_fissure_player_helmets import helmet
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
@@ -53,7 +54,7 @@ def test_fissure_helmets_keep_native_skill_identity_and_socket_rules(suffix, bas
         assert set(
             evaluate(replace(item, stats={k: v for k, v in stats.items() if k != key})).annotations
         ) == expected - {key}
-    for changes in (
+    for changes in fact_changes(
         {'name': None},
         {'name': 'Other'},
         {'ethereal': True},
@@ -67,9 +68,13 @@ def test_fissure_helmets_keep_native_skill_identity_and_socket_rules(suffix, bas
         assert not evaluate(ctx=ctx).annotations
     if flame:
         assert set(evaluate(replace(item, rarity='low_quality')).annotations) == expected
-        for changes in ({'runeword': None}, {'runeword': 'Lore'}, {'sockets': 2}, {'socket_contents': 'empty'}):
+        for changes in fact_changes(
+            {'runeword': None}, {'runeword': 'Lore'}, {'sockets': 2}, {'socket_contents': 'empty'}
+        ):
             assert not evaluate(replace(item, **changes)).annotations
         assert not result.configurations[0]['role']['preferences']
     elif suffix == 'ubers-ravenlore':
-        for changes in ({'socket_items': []}, {'socket_contents': 'empty'}, {'socket_items': [facet(element='cold')]}):
+        for changes in fact_changes(
+            {'socket_items': []}, {'socket_contents': 'empty'}, {'socket_items': [facet(element='cold')]}
+        ):
             assert not evaluate(replace(item, **changes)).annotations

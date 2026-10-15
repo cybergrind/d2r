@@ -19,7 +19,7 @@ def test_prebuff_consumes_its_own_defiler_and_keeps_the_bound_demon():
     game = Game(world(monsters=(BOUND_DEMON,)))
     prebuff(game.run())
     assert game.pressed() == ['q', '6', 'q', 'g', 'r']
-    assert game.world.player.consume
+    assert game.character.consume
     assert [m.txt_id for m in game.world.monsters] == [700, 744]
 
 
@@ -39,7 +39,7 @@ def test_prebuff_always_casts_consume_and_ends_buffed_with_one_defiler(consume, 
     game = Game(world(player=player(consume=consume), monsters=monsters))
     prebuff(game.run())
     assert game.pressed() == keys
-    assert game.world.player.consume
+    assert game.character.consume
     assert [m.txt_id for m in game.world.monsters if m.txt_id != 513] == [744]
 
 
@@ -64,7 +64,7 @@ def test_a_spot_that_takes_no_summon_is_followed_by_another():
     game.blocked = lambda x, y: x > 0.6  # nothing can stand on the right of the view
     prebuff(game.run())
     assert game.pressed() == ['q', 'q', '6', 'q', 'q', 'g', 'r']
-    assert game.world.player.consume
+    assert game.character.consume
 
 
 def test_a_held_key_stops_the_macro_before_anything_is_sent():
@@ -84,7 +84,7 @@ def test_a_key_the_osd_presses_does_not_stop_the_macro():
         run.actuator.tap('q')
     run.actuator.allow('z')
     prebuff(run)
-    assert game.world.player.consume
+    assert game.character.consume
     game.keys.held = ('z', 'w')
     with pytest.raises(Abort, match='key'):
         run.actuator.tap('q')
@@ -239,7 +239,7 @@ def test_nothing_is_pressed_on_a_loading_screen_of_ordinary_length():
     game = Game(world(121))
     run_macro(game.run(), lambda w: dict(KEYS))
     assert game.ignored == []
-    assert game.world.player.consume
+    assert game.character.consume
 
 
 @pytest.mark.parametrize('seconds', [3.0, 6.0, 14.0])
@@ -266,7 +266,7 @@ def test_without_the_loading_mark_a_slow_load_only_delays_the_first_summon():
     game.loading_seconds = 14.0
     run_macro(game.run(), lambda w: dict(KEYS))
     assert {event[1] for event in game.ignored if event[0] == 'key'} == {'q'}
-    assert game.world.player.consume
+    assert game.character.consume
     assert [m.txt_id for m in game.world.monsters if m.txt_id != 513] == [744]
 
 
@@ -547,21 +547,25 @@ def test_in_the_arcane_sanctuary_away_from_a_dead_summoner_the_macro_only_prebuf
 
 def quick_run(rights, quick):
     """A run whose character shows `rights` on the right button, one a look, 0.1 s apart."""
+    import random
     from types import SimpleNamespace
+
+    from inventory_tracking.macros.timing import Pace
 
     state = SimpleNamespace(now=0.0, looks=0)
 
-    def world():
+    def look():
         right = rights[min(state.looks, len(rights) - 1)]
         state.looks += 1
-        return SimpleNamespace(player=SimpleNamespace(right_skill=right, mode=1))
+        return world(player=player(right_skill=right, mode=1))
 
     def sleep(_seconds):
         state.now += 0.1
 
-    return SimpleNamespace(
-        quick=quick, quick_shown=False, clock=lambda: state.now, world=world, pace=SimpleNamespace(sleep=sleep)
-    ), state
+    run = Game(world()).run()
+    run.read, run.clock, run.pace = look, lambda: state.now, Pace(random.Random(1), sleep)
+    run.quick = quick
+    return run, state
 
 
 def test_a_skill_key_waits_for_the_one_before_to_give_the_right_button_back():
@@ -600,9 +604,9 @@ def test_a_skill_seen_on_the_button_by_any_look_since_its_key_is_not_waited_for(
     game = Game(world(player=player(right_skill=ECHOING_STRIKE, mode=10)))
     run = game.run()
     run.quick = (DEATH_MARK, ECHOING_STRIKE, run.clock(), True)  # tapped under the held strike
-    game.world = replace(game.world, player=replace(game.world.player, right_skill=DEATH_MARK))
+    game.world = replace(game.world, player=replace(game.character, right_skill=DEATH_MARK))
     run.world()  # a look of the fight's while the mark is cast
-    game.world = replace(game.world, player=replace(game.world.player, right_skill=ECHOING_STRIKE))
+    game.world = replace(game.world, player=replace(game.character, right_skill=ECHOING_STRIKE))
     game.clock.now += 0.5
     began = run.clock()
     with caplog.at_level('INFO', logger='inventory_tracking'):

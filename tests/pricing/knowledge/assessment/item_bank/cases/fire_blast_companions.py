@@ -7,7 +7,7 @@ from dirty_equals import Contains, IsPartialDict
 from pricing.knowledge.assessment.adapters.capture import normalize
 from tests.pricing.knowledge.assessment.item_bank.cases.farming_nagelring import SPIRIT
 from tests.pricing.knowledge.assessment.item_bank.cases.strafe_nagelring import RING
-from tests.pricing.knowledge.assessment.item_bank.models import Case, Item, SocketItem
+from tests.pricing.knowledge.assessment.item_bank.models import Case, Item, SocketItem, known
 
 
 PHOENIX = Item(
@@ -65,7 +65,7 @@ def cases():
         )
         for label, ctx, scenario in examples:
             config = role + '-stats'
-            expected = {'roles': Contains(IsPartialDict(id=role))}
+            expected: dict[str, object] = {'roles': Contains(IsPartialDict(id=role))}
             if scenario == 'positive':
                 expected['stat_evaluation'] = IsPartialDict(
                     annotations=IsPartialDict({key: IsPartialDict(configuration_ids=Contains(config)) for key in keys})
@@ -81,7 +81,7 @@ def cases():
                 evidence=(
                     'pricing/data/wp-a-builds.json:/fire-blast-assassin/variants/1',
                     'third-parties/D2MOO/source/D2Common/src/Items/Items.cpp:ITEMS_GetRunesTxtRecordFromItem',
-                    'third-parties/d2data/json/runes.json:/' + shield.runeword,
+                    'third-parties/d2data/json/runes.json:/' + known(shield.runeword),
                 ),
             )
 

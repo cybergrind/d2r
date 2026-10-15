@@ -91,7 +91,7 @@ def support_cases():
             dependencies = [IsPartialDict(status='true'), IsPartialDict(status='true')]
             if failed is not None and failed >= 0:
                 dependencies[failed] = IsPartialDict(status='unknown' if scenario == 'unknown' else 'false')
-            expected = {
+            expected: dict[str, object] = {
                 'roles': Contains(
                     IsPartialDict(
                         id=role,
@@ -161,7 +161,7 @@ def duriel_cases():
         ('wrong-class', item, {'player_class': 'Sorceress'}, 'negative'),
         ('unknown-class', item, {}, 'unknown'),
     ):
-        expected = {
+        expected: dict[str, object] = {
             'roles': Contains(
                 IsPartialDict(
                     id=role,

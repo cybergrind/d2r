@@ -69,6 +69,7 @@ def test_each_dot_is_where_its_unit_is_now_and_a_dead_one_goes_at_once():
 
     moved = reader.frame(card(row(1, 21.0, 30.0), row(2, 25.0, 30.0)), None, 100.0)
 
+    assert moved is not None
     assert moved['player'] == [20.0, 30.0]
     assert moved['dots'] == {1: [22.0, 31.0], 2: None}
 
@@ -82,6 +83,7 @@ def test_a_freed_record_keeps_its_dot_out_of_range_and_drops_it_where_the_client
 
     moved = dots(memory).frame(card(far, near), None, 100.0)
 
+    assert moved is not None
     assert moved['dots'] == {1: [far[2], 30.0], 2: None}
 
 
@@ -110,6 +112,7 @@ def test_new_hostiles_come_from_the_canvas_walk_and_allies_never_do():
     shown = card(row(1, 24.0, 30.0), units=[TABLE, 108])
 
     moved = reader.frame(shown, None, 100.0)
+    assert moved is not None
     assert [r[:4] + r[5:] for r in moved['extra']] == [['monster', 'mob', 24.0, 30.0, 0x6005, 5]]
     reader.frame(shown, None, 100.0 + WALK_SECONDS / 2)
     reader.frame(shown, None, 100.0 + WALK_SECONDS)
@@ -117,6 +120,7 @@ def test_new_hostiles_come_from_the_canvas_walk_and_allies_never_do():
 
     # The card brings it: it is the card's dot from then on.
     moved = reader.frame(card(row(1, 24.0, 30.0), row(5, 24.0, 30.0), units=[TABLE, 108]), None, 100.1)
+    assert moved is not None
     assert moved['extra'] == []
     assert moved['dots'][5] == [24.0, 30.0]
 
@@ -211,6 +215,9 @@ def test_the_card_carries_each_dots_unit_and_the_table_to_the_canvas():
 
     assert MapCard.from_payload(payload) == card
     shown = map_card_of([(Widget('map', 'guide', 'map', {'lines': [], 'map': payload}), (0, 0, 1, 1))])
+    assert shown is not None
     assert shown['pois'][0] == ['unique', 'leader', 21.0, 30.0, 0x5001, 0x6001, 1]
     assert shown['units'] == [TABLE, 108]
-    assert ground_payload(card)['marks'] == [['leader', 21.0, 30.0, 0x5001, 0x6001, 1], ['stairs', 4.0, 4.0]]
+    ground = ground_payload(card)
+    assert ground is not None
+    assert ground['marks'] == [['leader', 21.0, 30.0, 0x5001, 0x6001, 1], ['stairs', 4.0, 4.0]]

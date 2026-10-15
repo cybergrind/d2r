@@ -1,4 +1,5 @@
 from copy import deepcopy
+from typing import Any
 
 import pytest
 
@@ -6,8 +7,8 @@ from pricing.knowledge.assessment.maintenance import trade_arachnid_evidence as 
 from tests.pricing.knowledge.assessment.policies.test_market_ethereal_inference import listing
 
 
-def row(seller, ed=120):
-    r = listing(ed)
+def row(seller, ed=120) -> dict[str, Any]:
+    r: dict[str, Any] = listing(ed)
     r.update(
         id=f'row-{seller}-{ed}',
         seller_id=seller,

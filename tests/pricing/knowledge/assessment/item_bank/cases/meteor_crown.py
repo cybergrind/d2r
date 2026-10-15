@@ -77,7 +77,7 @@ def cases():
         rows.append((f'below-{stat}', replace(ITEM, socket_items=(JEWEL, below)), ctx, 'true', 'false'))
     for label, item, context, truth, dependency in rows:
         active = truth == dependency == 'true'
-        expected = {
+        expected: dict[str, object] = {
             'roles': Contains(
                 IsPartialDict(
                     id=ROLE, rule_trace=IsPartialDict(truth=truth), dependencies=[IsPartialDict(status=dependency)]

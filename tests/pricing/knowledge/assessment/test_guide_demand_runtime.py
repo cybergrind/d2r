@@ -1,4 +1,5 @@
 import json
+from typing import Any
 
 import pytest
 
@@ -64,7 +65,7 @@ def test_deaths_set_tail_batch_keeps_leveling_and_companion_requirements_separat
     assert hand['lower_bound_grade'] == 'Med'
     assert guard['distinct_builds'] == 4
     assert hand['grade'] == guard['grade'] == 'Pending'
-    leveling = assess_leveling(facts('Leather Gloves', 'set', "Death's Hand"))
+    leveling: list[dict[str, Any]] = assess_leveling(facts('Leather Gloves', 'set', "Death's Hand"))
     assert leveling
     assert any("Death's Guard" in condition for use in leveling for condition in use['conditions'])
     profile = next(p for p in document['profiles'] if p['id'] == "enchant-sorceress-starter-set-Death's Hand")
@@ -163,6 +164,7 @@ def test_repeated_pinned_demand_reuses_parsing_without_leaking_results(monkeypat
     monkeypatch.setattr(guide_demand.json, 'loads', loads)
     with supplied_artifacts({OUTPUT.resolve(): Artifact(raw, 'first')}):
         first = guide_demand.demand_for_item('Cache test', [])
+        assert first is not None
         first['contexts'][0]['build'] = 'changed by caller'
         assert guide_demand.demand_for('Cache test') == {'contexts': [{'build': 'first'}]}
         assert guide_demand.demand_for_item('Cache test', []) == {'contexts': [{'build': 'first'}]}
@@ -200,6 +202,9 @@ def test_pattern_demand_results_cannot_mutate_cached_presentation():
     roles = [{'id': 'role', 'status': 'matched', 'rule_trace': {'truth': 'true'}}]
     with supplied_artifacts({OUTPUT.resolve(): Artifact(raw, 'pattern')}):
         result = demand_for_item('unlisted', roles)
+        assert result is not None
         result['role_presentation']['role']['label'] = 'mutated'
-        assert demand_for_item('unlisted', roles)['role_presentation']['role']['label'] == 'original'
+        again = demand_for_item('unlisted', roles)
+        assert again is not None
+        assert again['role_presentation']['role']['label'] == 'original'
         assert demand_for_item('unlisted', []) is None

@@ -7,6 +7,7 @@ from pricing.knowledge.assessment.build_profiles import build
 from pricing.knowledge.assessment.profiles import assess_role_results
 from pricing.knowledge.assessment.stat_bundle import configuration_from_row
 from pricing.knowledge.assessment.stat_evaluation import StatsEvaluator
+from tests.pricing.knowledge.assessment.fact_changes import fact_changes
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
 
 
@@ -70,7 +71,7 @@ def test_melee_words_preserve_source_base_durability_and_smite_exclusions(name, 
 
         expected = set(values) - (smite_excluded if role['build'] == 'smite-paladin' else set())
         assert set(evaluate(item).annotations) == expected
-        for change in (
+        for change in fact_changes(
             {'socket_contents': 'empty'},
             {'sockets': sockets - 1},
             {'runeword': None},

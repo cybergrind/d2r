@@ -2,6 +2,7 @@
 
 import hashlib
 from copy import deepcopy
+from typing import Any
 
 import pytest
 
@@ -10,7 +11,7 @@ from pricing.knowledge.assessment.maintenance.guide_inventory import fingerprint
 from tests.pricing.knowledge.assessment.maintenance.test_embedded_echoing_pairing import ROOT, inputs
 
 
-def enigma_inputs():
+def enigma_inputs() -> tuple[dict[str, Any], list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]]]:
     document, links, profiles, uses = inputs(18)
     role = next(r for r in profiles if r['id'] == 'echoing-late-game-enigma-player')
     use = next(u for u in uses if u['profile_id'] == role['id'])

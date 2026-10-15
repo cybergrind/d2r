@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -46,7 +47,7 @@ def test_pillar_count_based_bonuses_remain_outside_standalone_properties(named):
 
 
 def test_range_audit_does_not_call_unconditional_extra_properties_set_bonuses():
-    audit = audit_ranges(ROOT)
+    audit: dict[str, Any] = audit_ranges(ROOT)
     rows = {(r['rarity'], r['table_id']): r for r in audit['items']}
     for table_id, slot in [(88, 'aprop3a'), (2, 'aprop1a')]:
         entry = next(p for p in rows['set', table_id]['properties'] if p['slot'] == slot)

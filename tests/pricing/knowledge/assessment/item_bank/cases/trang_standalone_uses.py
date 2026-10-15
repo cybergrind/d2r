@@ -4,7 +4,7 @@ from dataclasses import replace
 
 from dirty_equals import Contains, IsPartialDict
 
-from tests.pricing.knowledge.assessment.item_bank.models import Case, Item
+from tests.pricing.knowledge.assessment.item_bank.models import Case, Item, known
 
 
 ENTRIES = (
@@ -80,7 +80,9 @@ def cases():
             variants.append(('maximum-roll', replace(item, raw_stats=max_stats), context, 'true'))
         for label, specimen, ctx, truth in variants:
             active = truth == 'true'
-            expected = {'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))}
+            expected: dict[str, object] = {
+                'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))
+            }
             if active:
                 expected['stat_evaluation'] = IsPartialDict(
                     annotations=IsPartialDict({key: IsPartialDict(configuration_ids=Contains(config)) for key in keys})
@@ -94,10 +96,10 @@ def cases():
                 expected={'assessment': IsPartialDict(**expected)},
                 absent_configurations=() if active else (config,),
                 absent_stat_configurations=dict.fromkeys(excluded_keys, (config,)),
-                report_contains=(item.name, 'Trade tier:', *report) if active and label == 'standalone' else (),
+                report_contains=(known(item.name), 'Trade tier:', *report) if active and label == 'standalone' else (),
                 evidence=(
                     'pricing/data/wp-a-builds.json:' + locator,
-                    'third-parties/d2data/json/setitems.json:/' + item.name,
+                    'third-parties/d2data/json/setitems.json:/' + known(item.name),
                 ),
             )
 

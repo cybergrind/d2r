@@ -77,7 +77,9 @@ def cases():
         for label, item, loadout, truth in rows:
             captured = {f'{s}:{p}' for s, p, _ in item.raw_stats}
             active = truth == 'true'
-            expected = {'roles': Contains(IsPartialDict(id=ROLE, rule_trace=IsPartialDict(truth=truth)))}
+            expected: dict[str, object] = {
+                'roles': Contains(IsPartialDict(id=ROLE, rule_trace=IsPartialDict(truth=truth)))
+            }
             if active:
                 expected['stat_evaluation'] = IsPartialDict(
                     annotations=IsPartialDict(

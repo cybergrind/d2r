@@ -5,6 +5,7 @@ import pytest
 from pricing.knowledge.assessment.build_profiles import build
 from pricing.knowledge.assessment.profiles import assess_roles
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
+from tests.pricing.knowledge.reports import reports
 
 
 @pytest.mark.parametrize(
@@ -30,7 +31,7 @@ def test_skiller_roles_separate_tree_and_secondary_bonus_without_requiring_perfe
     candidate = replace(
         facts('Grand Charm', 'magic'), stats={k: {'status': 'decoded', 'value': v} for k, v in values.items()}
     )
-    result = assess_roles(candidate, [profile])[0]
+    result = reports(assess_roles(candidate, [profile]))[0]
     assert result['rule_trace']['truth'] == 'true'
     assert result['status'] == 'partial'
     if secondary == '7:0':

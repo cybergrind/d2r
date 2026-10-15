@@ -5,7 +5,7 @@ from dataclasses import replace
 from dirty_equals import Contains, IsPartialDict
 
 from tests.pricing.knowledge.assessment.item_bank.cases.abyss_helmets import EXAMPLES as HELMETS
-from tests.pricing.knowledge.assessment.item_bank.models import Case, Item
+from tests.pricing.knowledge.assessment.item_bank.models import Case, Item, known
 
 
 EXAMPLES = (
@@ -48,12 +48,14 @@ def cases():
                 ('unknown-ethereal', replace(item, ethereal=None), context, 'unknown'),
                 ('empty', replace(item, socket_contents='empty'), context, 'false'),
                 ('unknown-sockets', replace(item, sockets=None), context, 'unknown'),
-                ('wrong-count', replace(item, sockets=item.sockets - 1), context, 'false'),
+                ('wrong-count', replace(item, sockets=known(item.sockets) - 1), context, 'false'),
                 ('wrong-class', item, {'player_class': 'Sorceress'}, 'false'),
                 ('unknown-class', item, {}, 'unknown'),
             )
             for label, candidate, loadout, truth in rows:
-                expected = {'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))}
+                expected: dict[str, object] = {
+                    'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))
+                }
                 if truth == 'true':
                     expected['stat_evaluation'] = IsPartialDict(
                         annotations=IsPartialDict(
@@ -71,7 +73,7 @@ def cases():
                     covers=(role,),
                     scenario={'true': 'positive', 'false': 'negative', 'unknown': 'unknown'}[truth],
                     absent_configurations=() if truth == 'true' else (role + '-stats',),
-                    report_contains=(item.name,),
+                    report_contains=(known(item.name),),
                     evidence=('pricing/data/wp-a-builds.json', 'third-parties/d2data/json/runes.json'),
                 )
 

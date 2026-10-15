@@ -38,7 +38,7 @@ def cases():
         ('unread-sockets', replace(item, sockets=None), context, 'unknown', 36),
     ]
     for label, candidate, loadout, scenario, skill in examples:
-        expected = {
+        expected: dict[str, object] = {
             'roles': Contains(
                 *(
                     IsPartialDict(

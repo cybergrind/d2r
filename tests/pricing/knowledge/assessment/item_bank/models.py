@@ -1,7 +1,9 @@
 """Input recipes and independently authored appraisal expectations."""
 
 import struct
+from collections.abc import Container
 from dataclasses import dataclass, field
+from typing import Any, TypedDict
 
 from inventory_tracking.items.identity import (
     FLAGS_OFFSET,
@@ -97,17 +99,17 @@ class Item:
     raw_stats: tuple[tuple[int, int, int], ...] = ()
     ethereal: bool | None = False
     sockets: int | None = 0
-    socket_contents: str = 'empty'
-    identified: bool = True
+    socket_contents: str | None = 'empty'
+    identified: bool | None = True
     runeword: str | None = None
-    viewer_level: int = 80
+    viewer_level: int | None = 80
     complete: bool = False
     affix_records: tuple[tuple[str, int], ...] | None = None
     owned_stats: tuple[tuple[int, int, int], ...] | None = None
     socket_items: tuple[SocketItem, ...] = ()
     named_table_id: int | None = None
 
-    def capture(self):
+    def capture(self) -> dict[str, Any]:
         # Resolve native codes from the pinned decoder metadata, never from memory.
         base = next(row for row in metadata()['bases'].values() if row['name'] == self.base)
         raw = [{'id': stat, 'layer': layer, 'raw': value} for stat, layer, value in self.raw_stats]
@@ -167,6 +169,42 @@ class Item:
             None,
         )
         return result
+
+
+class ItemChanges(TypedDict, total=False):
+    """Field overrides for ``dataclasses.replace`` on an ``Item`` fixture."""
+
+    base: str
+    rarity: str
+    name: str | None
+    raw_stats: tuple[tuple[int, int, int], ...]
+    ethereal: bool | None
+    sockets: int | None
+    socket_contents: str | None
+    identified: bool | None
+    runeword: str | None
+    viewer_level: int | None
+    complete: bool
+    affix_records: tuple[tuple[str, int], ...] | None
+    owned_stats: tuple[tuple[int, int, int], ...] | None
+    socket_items: tuple[SocketItem, ...]
+    named_table_id: int | None
+
+
+def known[T](value: T | None) -> T:
+    """Return ``value``; an expectation built on it needs the fixture to set it."""
+    if value is None:
+        raise ValueError('Fixture expectation needs a known value')
+    return value
+
+
+def with_stat_value(
+    raw_stats: tuple[tuple[int, int, int], ...], stats: Container[int], value: int | None
+) -> tuple[tuple[int, int, int], ...]:
+    """Set every raw stat in ``stats`` to ``value``; ``None`` drops them, as an unread stat."""
+    if value is None:
+        return tuple(row for row in raw_stats if row[0] not in stats)
+    return tuple((stat, layer, value if stat in stats else raw) for stat, layer, raw in raw_stats)
 
 
 @dataclass(frozen=True)

@@ -68,7 +68,7 @@ def cases():
                 ('insufficient-capacity', replace(item, base='Cap'), context, 'false'),
             ]
             for label, candidate, loadout, truth in rows:
-                expected = {
+                expected: dict[str, object] = {
                     'roles': Contains(IsPartialDict(id=role, side='merc', rule_trace=IsPartialDict(truth=truth)))
                 }
                 if truth == 'true':

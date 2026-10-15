@@ -2,6 +2,7 @@
 
 import json
 import threading
+from pathlib import Path
 
 from inventory_tracking.appraisal import service
 from inventory_tracking.macros import latency, runner as runner_module
@@ -11,7 +12,16 @@ from inventory_tracking.macros.runner import MacroRunner
 
 
 def make(execute, trace):
-    return MacroRunner(None, capture_lock=threading.Lock(), saved_games=None, execute=execute, trace=trace)
+    # no key file is read: `execute` stands in for the run that would read one
+    return MacroRunner(
+        None, capture_lock=threading.Lock(), saved_games=Path('/nonexistent'), execute=execute, trace=trace
+    )
+
+
+def joined(runner: MacroRunner) -> None:
+    """Waits for the runner's last run (5 s at most)."""
+    assert runner.thread is not None
+    runner.thread.join(5)
 
 
 def records(path):
@@ -47,7 +57,7 @@ def test_a_started_press_carries_its_runs_marks_and_cost(monkeypatch, tmp_path):
 
     runner = make(execute, trace)
     assert runner.request(10.0, 10.01, 'teleport', spawn_ms=30.0)
-    runner.thread.join(5)
+    joined(runner)
     (record,) = records(tmp_path / latency.FILE)
     assert record['outcome'] == 'started'
     assert record['ended'] == 'done'
@@ -70,7 +80,7 @@ def test_a_press_during_its_own_step_is_traced_through_the_step_it_queued(monkey
     assert inside.wait(5)
     runner.request(10.2, 10.2, 'teleport')
     go.set()
-    runner.thread.join(5)
+    joined(runner)
     first, second = records(tmp_path / latency.FILE)
     assert (first['outcome'], second['outcome']) == ('started', 'queued behind its own step')
     assert second['during'] == 'teleport'
@@ -91,7 +101,7 @@ def test_a_dropped_and_a_cancelling_press_are_recorded_too(monkeypatch, tmp_path
     assert 'dropped: 2000 ms old' in caplog.text
     runner.request(20.0, 20.0)
     runner.request(21.0, 21.0, 'teleport')
-    runner.thread.join(5)
+    joined(runner)
     dropped, cancelling, cancelled = records(tmp_path / latency.FILE)
     assert dropped['outcome'] == 'dropped: too old'
     assert cancelling['outcome'] == 'cancelled prebuff'
@@ -108,7 +118,7 @@ def test_a_run_that_stops_says_why(monkeypatch, tmp_path):
 
     runner = make(execute, trace)
     runner.request(10.0, 10.0, 'teleport')
-    runner.thread.join(5)
+    joined(runner)
     assert records(tmp_path / latency.FILE)[0]['ended'] == 'stopped: not in a game'
 
 

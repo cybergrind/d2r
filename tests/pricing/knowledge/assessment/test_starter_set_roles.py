@@ -3,7 +3,7 @@ from dataclasses import replace
 import pytest
 
 from pricing.knowledge.assessment.build_profiles import build
-from pricing.knowledge.assessment.profiles import assess_roles
+from tests.pricing.knowledge.assessment.role_rows import role_rows
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
 
 
@@ -39,22 +39,22 @@ def test_starter_set_companions_remain_specific_to_build_and_wearer(slug, name, 
     item = facts(base, 'set', name)
     names = [n for n, _ in members]
     context = {'player_class': character, 'player_items': names}
-    role = assess_roles(item, [profile], context)[0]
+    role = role_rows(item, [profile], context)[0]
     assert all(d['status'] == 'true' for d in role['dependencies'] if not d['label'].startswith('Socket'))
     assert role['status'] == 'partial'
     for companion in set(names) - {name}:
         changed = {**context, 'player_items': [n for n in names if n != companion], 'mercenary_items': names}
-        assert any(d['status'] == 'false' for d in assess_roles(item, [profile], changed)[0]['dependencies'])
+        assert any(d['status'] == 'false' for d in role_rows(item, [profile], changed)[0]['dependencies'])
     assert all(
         d['status'] == 'unknown'
-        for d in assess_roles(item, [profile], {'player_class': character})[0]['dependencies']
+        for d in role_rows(item, [profile], {'player_class': character})[0]['dependencies']
         if not d['label'].startswith('Socket')
     )
-    assert not assess_roles(replace(item, name='Unrelated piece'), [profile], context)
+    assert not role_rows(replace(item, name='Unrelated piece'), [profile], context)
     if name == "Sigon's Visor" and slug == 'strafe-amazon':
         assert any('Ort Rune' in m for m in role['missing'])
         socketed = replace(item, sockets=1, socket_contents='filled', socket_items=[{'name': 'Ort Rune'}])
-        assert 'Setup socket: Ort Rune' in assess_roles(socketed, [profile], context)[0]['matched']
+        assert 'Setup socket: Ort Rune' in role_rows(socketed, [profile], context)[0]['matched']
     if name == "Sigon's Visor" and slug == 'double-throw-barbarian-guide':
         assert any('15% Increased Attack Speed' in m for m in role['missing'])
 
@@ -67,9 +67,9 @@ def test_deaths_guard_upgrade_is_preparation_not_loss_of_cbf_utility(slug, chara
     assert profile is not None
     item = replace(facts('Sash', 'set', "Death's Guard"), stats={'153:0': {'status': 'decoded', 'value': 1}})
     context = {'player_class': character}
-    normal = assess_roles(item, [profile], context)[0]
+    normal = role_rows(item, [profile], context)[0]
     assert normal['rule_trace']['truth'] == 'true'
     assert normal['dependencies'][0]['status'] == 'false'
     upgraded = replace(item, base_code=facts('Demonhide Sash').base_code, base_name='Demonhide Sash')
-    assert assess_roles(upgraded, [profile], context)[0]['dependencies'][0]['status'] == 'true'
-    assert assess_roles(replace(item, stats={}), [profile], context)[0]['status'] == 'failed'
+    assert role_rows(upgraded, [profile], context)[0]['dependencies'][0]['status'] == 'true'
+    assert role_rows(replace(item, stats={}), [profile], context)[0]['status'] == 'failed'

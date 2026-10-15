@@ -6,7 +6,7 @@ from itertools import product
 from dirty_equals import IsPartialDict
 
 from tests.pricing.knowledge.assessment.item_bank.cases.elemental_colossal_recipients import jewel
-from tests.pricing.knowledge.assessment.item_bank.models import Case
+from tests.pricing.knowledge.assessment.item_bank.models import Case, ItemChanges
 
 
 AXES = ((331, 5, 10), (335, 5, 10), (85, 3, 5), (80, 15, 35), (79, 25, 50))
@@ -60,17 +60,18 @@ def cases():
     maximum = tuple(hi for _, _, hi in AXES)
     for index, (stat, lo, hi) in enumerate(AXES):
         for value in (None, lo - 1, hi + 1):
-            values = list(maximum)
-            values[index] = value
-            yield case(f'invalid-{stat}-{value}', item(values), 'unresolved')
-    for label, changes in (
+            invalid: list[int | None] = list(maximum)
+            invalid[index] = value
+            yield case(f'invalid-{stat}-{value}', item(invalid), 'unresolved')
+    overrides: tuple[tuple[str, ItemChanges], ...] = (
         ('unidentified', {'identified': False}),
         ('ethereal', {'ethereal': True}),
         ('unknown-ethereal', {'ethereal': None}),
         ('socketed', {'sockets': 1}),
         ('unknown-sockets', {'sockets': None}),
         ('unknown-contents', {'socket_contents': 'unknown'}),
-    ):
+    )
+    for label, changes in overrides:
         yield case(label, replace(item(maximum), **changes), 'unresolved')
 
 

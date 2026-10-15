@@ -8,16 +8,15 @@ import pytest
 from inventory_tracking.levels.geometry import pointer
 from inventory_tracking.levels.level_map import build_map
 from inventory_tracking.levels.model import LevelSnapshot, Location, Poi, Room
-from inventory_tracking.levels.registry import handler_for
 from inventory_tracking.levels.spots import pinpoint
 from inventory_tracking.native.layout import TILE_UNITS
-from tests.inventory_tracking.levels.fixtures import replay
+from tests.inventory_tracking.levels.fixtures import handler_of, replay
 
 
 @pytest.mark.parametrize('name', ['jail_2', 'jail_3', 'catacombs_3', 'worldstone_keep_3'])
 def test_the_way_back_is_marked_where_the_player_arrived(name):
     snapshot = replay(name)
-    guidance = handler_for(snapshot.location.area_id).guide(snapshot)
+    guidance = handler_of(snapshot.location.area_id).guide(snapshot)
     [back] = [pinpoint(poi) for poi in guidance.pois if poi.kind == 'previous']
     px, py = snapshot.location.x / TILE_UNITS, snapshot.location.y / TILE_UNITS
 
@@ -48,7 +47,7 @@ def test_without_a_known_variant_or_a_single_warp_there_is_no_spot():
 def test_a_boss_in_a_preset_with_a_warp_keeps_its_place(name):
     # Nihlathak's 'Temple Final Room' also holds the way back; the handler puts him across it.
     snapshot = replay(name)
-    [boss] = handler_for(snapshot.location.area_id).guide(snapshot).pois
+    [boss] = handler_of(snapshot.location.area_id).guide(snapshot).pois
 
     assert pinpoint(boss) == boss
 
@@ -59,7 +58,7 @@ def test_an_entrance_kept_as_a_target_is_marked_on_its_warp():
     entrance = Room(1026, 300, 400, 16, 16, 0, (300, 400, 16, 16))
     snapshot = LevelSnapshot(Location(113, 0, 0, 0), (entrance,))
 
-    [river] = [poi for poi in handler_for(113).guide(snapshot).pois if poi.label == 'Frozen River']
+    [river] = [poi for poi in handler_of(113).guide(snapshot).pois if poi.label == 'Frozen River']
 
     assert (river.kind, river.spot) == ('target', (310.0, 405.5))
 

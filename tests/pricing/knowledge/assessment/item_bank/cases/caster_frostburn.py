@@ -43,7 +43,7 @@ def cases():
         for label, item, loadout, truth in rows:
             active = truth == 'true'
             mana = any(s[0] == 77 for s in item.raw_stats)
-            assessment = {
+            assessment: dict[str, object] = {
                 'roles': Contains(*(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)) for role in ROLES))
             }
             if active and mana:

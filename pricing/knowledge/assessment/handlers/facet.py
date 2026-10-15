@@ -1,5 +1,7 @@
 """Verified Rainbow Facet event projections; skill/level remain identity constraints."""
 
+import math
+
 from pricing.knowledge.assessment.mechanics.poison import POISON_KEYS, fixed_poison_total
 
 
@@ -93,7 +95,7 @@ def facet_fixed_duration(facts, definition):
         or row['raw'] != frames
         or row.get('unit') != 'seconds'
         or type(row.get('value')) not in (int, float)
-        or row['value'] != frames / 25
+        or not math.isclose(row['value'], frames / 25)
     ):
         return set(), ['Facet fixed cold duration is missing, changed or unverified.']
     return {'56:0'}, []

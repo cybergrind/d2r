@@ -1,4 +1,5 @@
 from dataclasses import replace
+from typing import Any
 
 import pytest
 
@@ -54,6 +55,7 @@ def test_paladin_spirit_base_rolls_and_whole_loadout_dependencies(role_id, base)
         ) - {key}
     for eth in (False, True, None):
         assert set(evaluate(replace(item, ethereal=eth)).annotations) == set(keys)
+    changes: dict[str, Any]
     for changes in (
         {'base_code': facts('Monarch').base_code},
         {'rarity': 'magic'},

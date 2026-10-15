@@ -59,7 +59,7 @@ def cases():
             ('unknown-class', item, {}, 'unknown'),
             ('no-full-fcr', item, {**context, 'player_total_fcr': 0}, 'true'),
         ):
-            expected = {
+            expected: dict[str, object] = {
                 'roles': Contains(
                     IsPartialDict(
                         id=role,

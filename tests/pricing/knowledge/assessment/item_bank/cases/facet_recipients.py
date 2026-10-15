@@ -1,6 +1,7 @@
 """Loose elemental Facets: native variants, roll bounds and intended recipients."""
 
 from dataclasses import replace
+from typing import Any
 
 from dirty_equals import Contains, IsPartialDict
 
@@ -56,7 +57,7 @@ def cases():
                 'player_total_fcr': 105,
             }
         )
-        examples = [
+        examples: list[tuple[str, Item, dict[str, Any], str | None, bool]] = [
             (
                 f'{"level-up" if up else "death"}/{damage}-{reduction}',
                 loose(element, damage, reduction, up=up),
@@ -101,7 +102,7 @@ def cases():
                 )
             )
         for label, candidate, loadout, truth, active in examples:
-            expected = {}
+            expected: dict[str, object] = {}
             if truth is not None:
                 expected['roles'] = Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))
             if active:

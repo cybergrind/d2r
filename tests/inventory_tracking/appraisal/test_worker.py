@@ -26,7 +26,7 @@ class Capture:
     def freeze(self):
         return {'observation': {'item': {}}, 'captured_at': 'now'}
 
-    def still_selected(self, frozen):
+    def still_selected(self, frozen) -> bool:
         return True
 
     def still_hovered(self, frozen):
@@ -61,8 +61,11 @@ def test_debounce_and_delayed_request_do_not_capture():
 
 
 def test_changed_selection_suppresses_evidence():
-    capture = Capture()
-    capture.still_selected = lambda _: False
+    class Moved(Capture):
+        def still_selected(self, frozen):
+            return False
+
+    capture = Moved()
     pool = Deferred()
     output = []
     worker = AppraisalWorker(capture, lambda _: {'secret_evidence': True}, output.append, pool)

@@ -52,7 +52,7 @@ def cases():
         ),
     ]
     for label, item, context, truth, usable in scenarios:
-        expected = {
+        expected: dict[str, object] = {
             'roles': Contains(IsPartialDict(id=ROLE, side='player', slot='Ring', rule_trace=IsPartialDict(truth=truth)))
         }
         if usable:

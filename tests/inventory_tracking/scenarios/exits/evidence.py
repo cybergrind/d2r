@@ -19,6 +19,7 @@ import sys
 from collections import Counter
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
+from typing import Any
 
 from inventory_tracking.macros.teleport import ENTRY_WALK, NEAR_WARP
 from inventory_tracking.macros.view import Viewport
@@ -104,7 +105,7 @@ def read(path: Path):
     exits, stops = [], []
     approach: list[Hop] = []
     label = None
-    walk = None  # the walk-in under way: its numbers so far
+    walk: dict[str, Any] | None = None  # the walk-in under way: its numbers so far
     arrived = -math.inf
     for line in path.read_text(errors='replace').splitlines():
         stamped = STAMP.match(line)
@@ -158,6 +159,8 @@ def read(path: Path):
             fewest = None
             if stretch:
                 first = stretch[0]
+                assert first.start is not None  # a landed hop: its landing set it
+                assert first.away is not None
                 goal = first.entry or first.door
                 allowed = ENTRY_WALK if first.entry else NEAR_WARP
                 if goal is not None:
@@ -166,19 +169,24 @@ def read(path: Path):
                 else:  # an older log: the mark's distance only, the reach of the hop that was made
                     fewest = 0 if first.away <= NEAR_WARP else math.ceil((first.away - NEAR_WARP) / 26.0)
             last = hops[-1] if hops else None
+            # a landed hop: its landing set the aim, the start and the time with it
+            done = None if last is None else last.done
+            start = None if last is None else last.start
+            landed = None if last is None else last.landed
             exit_ = Exit(
                 path.parent.name, line[:23], walk['label'], len(stretch), fewest, walk['from'],
-                None if last is None else round(now - last.done, 2),
-                None if last is None else round(walk['at'] - last.done, 2),
+                None if done is None else round(now - done, 2),
+                None if done is None else round(walk['at'] - done, 2),
                 walk.get('seconds', round(now - walk['at'], 2)), walk.get('walked'), walk['misses'], walk['again'],
                 walk.get('entry', 'unknown'),
-                None if last is None else round(math.dist(last.start, last.landed), 1),
+                None if start is None or landed is None else round(math.dist(start, landed), 1),
                 None if last is None or last.away is None else round(last.away, 1),
             )  # fmt: skip
             if stretch:
                 exit_.door, exit_.start = stretch[0].door, stretch[0].start
-            if last is not None and last.entry is not None and math.dist(last.aim, last.entry) > 1.0:
-                exit_.notes.append(f'the last hop aimed {math.dist(last.aim, last.entry):.1f} off the remembered spot')
+            aim = None if last is None else last.aim
+            if last is not None and last.entry is not None and aim is not None and math.dist(aim, last.entry) > 1.0:
+                exit_.notes.append(f'the last hop aimed {math.dist(aim, last.entry):.1f} off the remembered spot')
             if walk.get('walked') and 'stood' in walk and walk['walked'] > 1.5 * walk['from'] + 2:
                 exit_.notes.append(f'walked {walk["walked"]:.1f} from {walk["from"]:.1f} away: round a wall')
             exits.append(exit_)
@@ -216,8 +224,8 @@ def main(argv=None) -> int:
     counted = [exit_ for exit_ in exits if exit_.fewest is not None]
     print(f'exits taken: {len(exits)} in {len({exit_.log for exit_ in exits})} logs; with hops logged: {len(counted)}')
     print('hops inside the last 60 units:', Counter(exit_.hops for exit_ in counted).most_common())
-    print('extra hops over the fewest:', Counter(exit_.hops - exit_.fewest for exit_ in counted).most_common())
-    print('sum of extra hops:', sum(max(0, exit_.hops - exit_.fewest) for exit_ in counted))
+    print('extra hops over the fewest:', Counter(exit_.hops - (exit_.fewest or 0) for exit_ in counted).most_common())
+    print('sum of extra hops:', sum(max(0, exit_.hops - (exit_.fewest or 0)) for exit_ in counted))
     for name in ('walk_from', 'landing_to_there', 'landing_to_click', 'walk_seconds', 'walked', 'last_hop'):
         values = [getattr(exit_, name) for exit_ in exits]
         known = sorted(value for value in values if value is not None and not math.isnan(value))

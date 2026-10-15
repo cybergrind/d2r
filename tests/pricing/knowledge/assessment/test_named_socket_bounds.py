@@ -55,7 +55,9 @@ def test_upgraded_aldur_retains_original_socket_outcomes(count, valid):
     facts = normalize(original.capture())
     # Upgrading preserves sockets; a larger elite cap cannot reroll the item.
     for base in ('Jagged Star', 'Devil Star'):
-        changed = replace(facts, base_name=base, base_code=equipment_base(base)[0]['base_code'])
+        found = equipment_base(base)
+        assert found is not None
+        changed = replace(facts, base_name=base, base_code=found[0]['base_code'])
         assert (not socket_gaps(changed, catalog().named['set', original.name])) is valid
 
 

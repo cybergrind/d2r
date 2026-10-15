@@ -1,5 +1,6 @@
 from pricing.triage.analyze_rolls import analyze
 from pricing.triage.compiled_rolls import compile_model, lookup
+from tests.pricing.knowledge.reports import present
 from tests.pricing.triage.test_bands import listing
 
 
@@ -24,7 +25,7 @@ def test_unmodified_defense_range_drives_comparisons_for_original_nonethereal_ba
         'base_code': 'test-base',
         'properties': {'1855': 100},
     }
-    assert lookup(item, [model], keep_ist=0.25)['verdict'] == 'check'
+    assert present(lookup(item, [model], keep_ist=0.25))['verdict'] == 'check'
     wrong_base = lookup(item | {'base_code': 'upgraded'}, [model], keep_ist=0.25)
     assert wrong_base is None  # An original-base model cannot assess an upgraded base.
     for change in ({'ethereal': True}, {'base_code': 'upgraded'}, {'base_code': None}):
@@ -52,7 +53,7 @@ def test_all_resistance_listing_and_drop_use_one_shared_deciding_property():
         'socket_contents': 'empty',
         'properties': {'441': 35},
     }
-    assert lookup(item, [model], keep_ist=0.25)['verdict'] == 'check'
+    assert present(lookup(item, [model], keep_ist=0.25))['verdict'] == 'check'
     # Independent resist rolls must not be collapsed into all resistance.
     independent = {
         'name': 'Example',

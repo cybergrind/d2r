@@ -3,6 +3,7 @@ from dataclasses import replace
 from pricing.knowledge.assessment.build_profiles import build
 from pricing.knowledge.assessment.profiles import assess_roles
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
+from tests.pricing.knowledge.reports import reports
 
 
 def test_dependencies_distinguish_item_fit_from_unconfirmed_loadout():
@@ -37,7 +38,7 @@ def test_dependencies_distinguish_item_fit_from_unconfirmed_loadout():
 def test_smite_shared_treachery_requires_nonethereal_and_preserves_prebuff_reason():
     item = replace(facts('Mage Plate', name='Treachery'), runeword='Treachery', sockets=3, socket_contents='filled')
     profiles = build()['profiles']
-    role = next(r for r in assess_roles(item, profiles) if r['id'] == 'smite-shared-treachery')
+    role = next(r for r in reports(assess_roles(item, profiles)) if r['id'] == 'smite-shared-treachery')
     assert role['status'] == 'partial'
     assert role['ethereal_preference']['preference'] == 'avoid'
     assert 'Fade' in role['ethereal_preference']['reason']

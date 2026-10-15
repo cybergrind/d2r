@@ -34,7 +34,7 @@ def cases():
         role = f'{guide}-{index}-magefist'
         config = role + '-stats'
         elite_required = guide == 'fissure-druid' and index == 3
-        context = {'player_class': player_class}
+        context: dict[str, object] = {'player_class': player_class}
         for field, value in (('player_total_fcr', fcr), ('player_total_fhr', fhr)):
             if value is not None:
                 context[field] = value
@@ -66,13 +66,15 @@ def cases():
                     )
                 )
         for label, candidate, loadout, truth in examples:
-            expected = {'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))}
+            expected: dict[str, object] = {
+                'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))
+            }
             if truth == 'true':
                 keys = ['105:0', '27:0'] + (['126:1'] if fire else [])
                 expected['stat_evaluation'] = IsPartialDict(
                     annotations=IsPartialDict({key: IsPartialDict(configuration_ids=Contains(config)) for key in keys})
                 )
-            absent = dict.fromkeys(('48:0', '49:0', '16:0', '31:0'), (config,))
+            absent: dict[str, tuple[str, ...]] = dict.fromkeys(('48:0', '49:0', '16:0', '31:0'), (config,))
             if not fire:
                 absent['126:1'] = (config,)
             yield Case(

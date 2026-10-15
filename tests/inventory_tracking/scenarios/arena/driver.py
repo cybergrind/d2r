@@ -112,7 +112,7 @@ def key_names(world: World, skills: Sequence[int] | None = None) -> dict[int, st
     if world.player is None:
         raise Abort('not in a game')
     if skills is None:
-        raise Abort('the arena has no game to leave: the macro request and the route\'s leave are not played')
+        raise Abort("the arena has no game to leave: the macro request and the route's leave are not played")
     for skill in skills:
         name = NAMES.get(skill, f'skill {skill}')
         if skill not in ACTIONS and skill not in world.slots:

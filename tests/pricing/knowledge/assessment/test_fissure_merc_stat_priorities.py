@@ -7,6 +7,7 @@ from pricing.knowledge.assessment.build_profiles import ROOT, build
 from pricing.knowledge.assessment.maintenance.stat_configurations import compile_stat_configurations
 from pricing.knowledge.assessment.profiles import assess_role_results
 from pricing.knowledge.assessment.stat_evaluation import StatsEvaluator
+from tests.pricing.knowledge.assessment.fact_changes import fact_changes
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
 
 
@@ -64,7 +65,7 @@ def test_fissure_merc_runeword_priorities_do_not_transfer_wearer_stats(suffix, n
     for key in keys:
         remaining = set(keys) - ({'17:0', '18:0'} if key in ('17:0', '18:0') else {key})
         assert set(evaluate(replace(item, stats={k: v for k, v in stats.items() if k != key})).annotations) == remaining
-    for changes in (
+    for changes in fact_changes(
         {'name': None},
         {'name': 'Other'},
         {'runeword': None},

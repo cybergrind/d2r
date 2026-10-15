@@ -151,7 +151,7 @@ def errors(records: Sequence[Sequence[Point]], origin: Point, focal: Point, play
         record = records[index]
         for frame in range(min(len(record), len(path))):
             (out if frame <= OUT_FRAMES else back).append(math.dist(record[frame], path[frame]) ** 2)
-    rms = lambda found: math.sqrt(sum(found) / len(found)) if found else math.nan  # noqa: E731
+    rms = lambda found: math.sqrt(sum(found) / len(found)) if found else math.nan  # ruff: ignore[lambda-assignment]
     return rms(out), rms(back)
 
 

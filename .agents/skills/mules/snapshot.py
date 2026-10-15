@@ -19,9 +19,19 @@ from pricing.triage import runtime
 DATABASE = 'inventory_tracking/runs/collection/collection.sqlite'
 D2DATA = 'pricing/raw/d2data'
 NOISE = (
-    'Durability', 'Maximum durability', 'Base weapon speed', 'Secondary', 'Minimum damage',
-    'Maximum damage', 'Armor movement', 'Minimum throw', 'Maximum throw', 'Base cold', 'Defense:',
-    'Shield blocking', '+50% Damage to Undead (inherent',
+    'Durability',
+    'Maximum durability',
+    'Base weapon speed',
+    'Secondary',
+    'Minimum damage',
+    'Maximum damage',
+    'Armor movement',
+    'Minimum throw',
+    'Maximum throw',
+    'Base cold',
+    'Defense:',
+    'Shield blocking',
+    '+50% Damage to Undead (inherent',
 )
 NAMED = ('unique', 'set')
 
@@ -53,8 +63,18 @@ def main():
         notes += f' OWN:{str(triage["own_use"])[:80]}' if triage.get('own_use') else ''
         notes += f' DEM:{str(triage["demand"])[:120]}' if triage.get('demand') else ''
         print(
-            loc, r['seen_at'][5:10], triage['verdict'], median, triage.get('keep_ist'), r['rarity'], name,
-            f'{flags}{r["base_name"]}', size(r, sizes), copies.get(key(r), ''), stats[:260], notes,
+            loc,
+            r['seen_at'][5:10],
+            triage['verdict'],
+            median,
+            triage.get('keep_ist'),
+            r['rarity'],
+            name,
+            f'{flags}{r["base_name"]}',
+            size(r, sizes),
+            copies.get(key(r), ''),
+            stats[:260],
+            notes,
             sep='\t',
         )
 

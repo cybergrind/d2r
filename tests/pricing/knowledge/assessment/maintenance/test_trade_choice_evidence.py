@@ -1,13 +1,14 @@
 import json
 from copy import deepcopy
 from pathlib import Path
+from typing import Any
 
 import pytest
 
 from pricing.knowledge.assessment.maintenance import trade_choice_evidence as evidence
 
 
-def row():
+def row() -> dict[str, Any]:
     return {
         'id': 'row',
         'name': 'Opalvein',
@@ -122,7 +123,7 @@ def test_loader_binds_the_whole_market_snapshot_and_selected_identity(tmp_path):
     document = {'rows': [{'quality': 'unique', 'name': 'Opalvein', 'scope': 'choice_named_jewelry'}]}
     policies = {evidence.IDENTITY: {'trade_qualification': {'market_snapshot': snapshot}}}
     scopes = {'choice_named_jewelry'}
-    result = evidence.load_evidence(tmp_path, document, policies, scopes)
+    result: dict[tuple[str, str], dict[str, Any]] = evidence.load_evidence(tmp_path, document, policies, scopes)
     assert result[evidence.IDENTITY]['market_snapshot'] == snapshot
     assert result[evidence.IDENTITY]['choices']['lightning']['priced_sellers'] == ['seller']
     source.write_text(source.read_text() + json.dumps({**row(), 'id': 'second'}) + '\n')

@@ -1,5 +1,6 @@
 import copy
 from itertools import product
+from typing import Any
 
 import pytest
 
@@ -15,8 +16,10 @@ RES = ('39:0', '41:0', '43:0', '45:0')
 KEYS = (*ATTRS, *RES, '85:0')
 
 
-def definition():
-    return thaw(catalog().named['unique', 'Annihilus'])
+def definition() -> dict[str, Any]:
+    # thaw() is unannotated (its inferred return is a dict | list union); this is its plain-JSON copy.
+    thawed: Any = thaw(catalog().named['unique', 'Annihilus'])
+    return thawed
 
 
 def test_annihilus_has_two_independent_native_groups():

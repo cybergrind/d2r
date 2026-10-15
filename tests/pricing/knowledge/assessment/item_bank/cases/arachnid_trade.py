@@ -4,7 +4,7 @@ from dataclasses import replace
 
 from dirty_equals import IsPartialDict
 
-from tests.pricing.knowledge.assessment.item_bank.models import Case, Item
+from tests.pricing.knowledge.assessment.item_bank.models import Case, Item, ItemChanges
 
 
 FIXED = ((105, 0, 20), (127, 0, 1), (77, 0, 5), (150, 0, 10))
@@ -48,7 +48,7 @@ def cases():
         yield make_case(
             f'invalid-{ed}', replace(ITEM, raw_stats=FIXED if ed is None else (*FIXED, (16, 0, ed))), 'unresolved'
         )
-    for label, changes in (
+    overrides: tuple[tuple[str, ItemChanges], ...] = (
         ('ethereal', {'ethereal': True}),
         ('unknown-ethereal', {'ethereal': None}),
         ('unidentified', {'identified': False}),
@@ -56,7 +56,8 @@ def cases():
         ('unknown-sockets', {'sockets': None}),
         ('unknown-contents', {'socket_contents': 'unknown'}),
         ('filled', {'socket_contents': 'filled'}),
-    ):
+    )
+    for label, changes in overrides:
         yield make_case(label, replace(ITEM, **changes), 'unresolved')
 
 

@@ -39,7 +39,7 @@ def cases():
             ]
             for label, candidate, loadout, truth in variants:
                 active = truth == 'true'
-                expected = {}
+                expected: dict[str, object] = {}
                 if label != 'other-legal-base':
                     expected['roles'] = Contains(
                         IsPartialDict(id=role, side='merc', rule_trace=IsPartialDict(truth=truth))

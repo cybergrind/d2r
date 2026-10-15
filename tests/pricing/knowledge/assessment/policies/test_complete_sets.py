@@ -2,12 +2,13 @@ import json
 
 from pricing.knowledge.assessment.policies.complete_sets import ROOT, assess_complete_set
 from pricing.knowledge.definition_store import catalog
+from tests.pricing.knowledge.reports import present
 
 
 def test_all_native_sets_have_independent_tiers_and_exact_membership():
     native = json.loads((ROOT / 'third-parties/d2data/json/sets.json').read_bytes())
     for key in native:
-        result = assess_complete_set(key)
+        result = present(assess_complete_set(key))
         assert result['tier'] in {'high', 'med', 'low', 'trash'}, key
         expected = {
             d['name']
@@ -20,7 +21,7 @@ def test_all_native_sets_have_independent_tiers_and_exact_membership():
 
 def test_full_set_does_not_inherit_best_component_or_imply_owned():
     assert assess_complete_set("Tal Rasha's Wrappings")['tier'] == 'med'
-    assert assess_complete_set("Sigon's Complete Steel")['leveling']['tier'] == 'high'
+    assert present(assess_complete_set("Sigon's Complete Steel"))['leveling']['tier'] == 'high'
     assert assess_complete_set('unknown set')['tier'] is None
 
 

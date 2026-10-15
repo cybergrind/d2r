@@ -114,7 +114,7 @@ def pack_at(situation: Situation, distance: float) -> Situation:
 KP4_FAST, KP4_SLOW = 0.3, 1.0  # seconds between presses of a held key: under and over the runner's TRAVEL_QUIET (0.5)
 
 
-def experiments() -> dict[str, tuple[Situation, object]]:
+def experiments() -> dict[str, tuple[Situation, list | None]]:
     """name -> (the situation, its presses; None: the recorded ones)."""
     stall = stored(STALL)
     fast, slow = [held('teleport', every=KP4_FAST)], [held('teleport', every=KP4_SLOW)]
@@ -138,7 +138,7 @@ def experiments() -> dict[str, tuple[Situation, object]]:
     }
 
 
-def distanced(distance: float) -> dict[str, tuple[Situation, object]]:
+def distanced(distance: float) -> dict[str, tuple[Situation, list | None]]:
     """(d): the pack `distance` from the character, by how the keys are pressed."""
     moved = pack_at(stored(STALL), distance).variant(attack=True)
     return {

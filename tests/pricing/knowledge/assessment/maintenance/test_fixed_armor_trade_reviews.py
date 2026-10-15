@@ -1,4 +1,5 @@
 from copy import deepcopy
+from typing import Any
 
 import pytest
 
@@ -12,12 +13,12 @@ from pricing.knowledge.definition_store import catalog
 IDENTITY = ('set', "Immortal King's Pillar")
 
 
-def inputs(identity=IDENTITY):
-    return (
-        deepcopy(_policies(RULES.read_bytes())[identity]),
-        thaw(catalog().named_variants[identity]),
-        thaw(metadata()['stats']),
-    )
+def inputs(identity=IDENTITY) -> tuple[dict[str, Any], list[dict[str, Any]], dict[str, dict[str, Any]]]:
+    policy = deepcopy(_policies(RULES.read_bytes())[identity])
+    # thaw() is unannotated (its inferred return is a dict | list union); these are its plain-JSON copies.
+    definitions: Any = thaw(catalog().named_variants[identity])
+    specs: Any = thaw(metadata()['stats'])
+    return policy, definitions, specs
 
 
 def test_fixed_armor_proof_includes_original_defense_and_conditional_set_defense():
@@ -55,7 +56,7 @@ def test_fixed_armor_proof_rejects_unreviewed_semantics(corruption):
     assert trade_fixed_armor.specification(policy, definitions, specs) is None
 
 
-def review_inputs(identity=IDENTITY, cases=None):
+def review_inputs(identity=IDENTITY, cases=None) -> tuple[dict[str, Any], dict[str, Any]]:
     from pricing.knowledge.assessment.maintenance.guide_inventory import fingerprint
     from tests.pricing.knowledge.assessment.item_bank.cases.ik_pillar_trade import CASES
     from tests.pricing.knowledge.assessment.item_bank.trade_checks import trade_case

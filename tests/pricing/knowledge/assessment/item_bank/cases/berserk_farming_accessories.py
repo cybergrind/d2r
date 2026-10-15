@@ -60,7 +60,9 @@ def cases(build='berserk-barbarian', player_class='Barbarian', prefix='berserk',
         rows += [(base, replace(item, base=base), context, 'true') for base in upgrades]
         for label, candidate, loadout, truth in rows:
             invalid_dwarf = candidate.name == 'Dwarf Star' and label in ('invalid-socket', 'ethereal')
-            expected = {'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))}
+            expected: dict[str, object] = {
+                'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))
+            }
             if invalid_dwarf:
                 expected['trade_qualification'] = IsPartialDict(status='unresolved')
             if truth == 'true':

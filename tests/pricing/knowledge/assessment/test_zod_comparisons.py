@@ -1,4 +1,5 @@
 from dataclasses import replace
+from typing import Any
 
 import pytest
 
@@ -24,7 +25,7 @@ def test_zod_indestructibility_is_exact_and_preserves_ethereal_variant(base, qua
     contract, gaps = HANDLERS[handler].contract(item, family)
     assert contract is not None, gaps
     assert contract.socket_payload == ('Zod Rune',)
-    row = {
+    row: dict[str, Any] = {
         **contract.to_dict(),
         'properties': {**contract.properties, '432': True, '934': 'Zod Rune'},
         'scope_status': 'verified',

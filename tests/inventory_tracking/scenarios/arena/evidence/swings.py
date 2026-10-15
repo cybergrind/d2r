@@ -336,7 +336,7 @@ def measure(tallies: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
     recovery = recovery_of(tallies)
     mode = recovery['mode']
     runs = [run for one in tallies for run in one['runs']]
-    bands = [{'from': parts, 'n': 0, 'staggered': 0} for parts in range(MOST + 1)]
+    bands: list[dict[str, Any]] = [{'from': parts, 'n': 0, 'staggered': 0} for parts in range(MOST + 1)]
     near_falls = [0] * (MOST + 1)
     for one in tallies:
         for key, count in one['falls'].items():

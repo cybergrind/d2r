@@ -9,8 +9,7 @@ import pytest
 from inventory_tracking.levels.exits import with_exits
 from inventory_tracking.levels.model import LevelSnapshot, Location, Room
 from inventory_tracking.levels.presets import preset_name
-from inventory_tracking.levels.registry import handler_for
-from tests.inventory_tracking.levels.fixtures import replay
+from tests.inventory_tracking.levels.fixtures import handler_of, replay
 
 
 def rows(guidance):
@@ -18,12 +17,12 @@ def rows(guidance):
 
 
 def guide(area, *rooms, at=(4, 4)):
-    return handler_for(area).guide(LevelSnapshot(Location(area, 0, *at), rooms))
+    return handler_of(area).guide(LevelSnapshot(Location(area, 0, *at), rooms))
 
 
 @pytest.mark.parametrize('fixture', ['lower_kurast_camp', 'lower_kurast_game2'])
 def test_lower_kurast_marks_both_gates_and_the_waypoint_in_real_games(fixture):
-    guidance = handler_for(79).guide(replay(fixture))
+    guidance = handler_of(79).guide(replay(fixture))
 
     assert [row for row in rows(guidance) if row[0] != 'Super chests'] == [
         ('Kurast Bazaar', 'stairs', 'Act 3 - Slums Gate N'),
@@ -107,7 +106,7 @@ def test_jungle_names_the_caves_and_takes_the_third_clearing_for_the_waypoint(ar
     rooms = [Room(preset + i, 32 * i, 0, 32, 32, i, (32 * i, 0, 32, 32)) for i in range(3)]
     snapshot = LevelSnapshot(Location(area, 0, 0, 0), tuple(rooms))
 
-    guidance = with_exits(handler_for(area).guide(snapshot), snapshot)
+    guidance = with_exits(handler_of(area).guide(snapshot), snapshot)
 
     assert [(p.label, p.kind, p.room.x) for p in guidance.pois] == [
         ('Waypoint', 'waypoint', 64),
@@ -157,4 +156,4 @@ def test_sewers_1_marks_the_drain_the_chest_and_every_way_up():
 
 
 def test_new_act3_handlers_stay_unconfirmed():
-    assert not any(handler_for(area).confirmed for area in (76, 77, 78, 80, 81, 83, 84, 85, 86, 87, 88, 89, 92))
+    assert not any(handler_of(area).confirmed for area in (76, 77, 78, 80, 81, 83, 84, 85, 86, 87, 88, 89, 92))

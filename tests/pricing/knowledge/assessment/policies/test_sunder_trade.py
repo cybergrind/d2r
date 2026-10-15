@@ -1,4 +1,5 @@
 from dataclasses import replace
+from typing import Any
 
 import pytest
 
@@ -52,5 +53,6 @@ def test_remaining_sunders_have_item_specific_penalty_segments(name, stat, sunde
     for penalty in (None, minimum - 1, maximum + 1, -maximum):
         stats = ((sunder, 0, 300),) + (((stat, 0, penalty),) if penalty is not None else ())
         assert assess_trade_qualification(normalize(replace(item, raw_stats=stats).capture()))['status'] == 'unresolved'
+    changes: dict[str, Any]
     for changes in ({'ethereal': True}, {'sockets': 1}):
         assert assess_tier(normalize(replace(item, **changes).capture()))['tier'] is None

@@ -56,13 +56,13 @@ class DefinitionStore:
     def __init__(self, path):
         self.path = Path(path)
         self._signature = None
-        self._catalog = None
+        self._catalog: DefinitionCatalog | None = None
         self._lock = RLock()
 
-    def load(self):
+    def load(self) -> DefinitionCatalog:
         with self._lock:
             signature = fingerprint(self.path.stat())
-            if signature == self._signature:
+            if signature == self._signature and self._catalog is not None:
                 return self._catalog
             with self.path.open('rb') as stream:
                 before = fingerprint(os.fstat(stream.fileno()))
@@ -101,10 +101,10 @@ class DefinitionStore:
 STORE = DefinitionStore(Path(__file__).resolve().parents[1] / 'data/appraisal-definitions.json')
 
 
-_PINNED = ContextVar('appraisal_definition_catalog', default=None)
+_PINNED: ContextVar[DefinitionCatalog | None] = ContextVar('appraisal_definition_catalog', default=None)
 
 
-def catalog():
+def catalog() -> DefinitionCatalog:
     pinned = _PINNED.get()
     return pinned if pinned is not None else STORE.load()
 

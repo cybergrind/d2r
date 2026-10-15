@@ -1,6 +1,7 @@
 """Malice supplies Open Wounds in the documented full-Sazabi Frenzy setup."""
 
 from dataclasses import replace
+from typing import Any
 
 from dirty_equals import Contains, IsPartialDict
 
@@ -10,7 +11,11 @@ from tests.pricing.knowledge.assessment.item_bank.native_runeword import NativeR
 
 ROLE = 'echoing-strike-warlock-guide-malice-ubers-source-recipe'
 COMPANIONS = ("Sazabi's Cobalt Redeemer", "Sazabi's Ghost Liberator", "Sazabi's Mental Sheath")
-CONTEXT = {'player_class': 'Warlock', 'mercenary_type': 'Act 5 Frenzy', 'mercenary_items': list(COMPANIONS)}
+CONTEXT: dict[str, Any] = {
+    'player_class': 'Warlock',
+    'mercenary_type': 'Act 5 Frenzy',
+    'mercenary_items': list(COMPANIONS),
+}
 # Partial captured stats include El attack rating and Eth target defense.
 # Weapon damage and canceled light-radius totals are deliberately not invented.
 ITEM = Item(

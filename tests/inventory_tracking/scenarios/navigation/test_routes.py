@@ -127,6 +127,7 @@ def test_the_route_takes_the_fewest_hops(name):
 def test_the_route_is_not_much_longer_than_the_reference_route(name):
     made = trip(name)
     assert made.arrived
+    assert made.reference_distance is not None
     assert made.distance <= STRETCH * made.reference_distance, made.line()
 
 
@@ -134,6 +135,7 @@ def test_the_route_is_not_much_longer_than_the_reference_route(name):
 def test_the_planner_of_today_needs_no_more_hops_than_the_macro_made_on_the_day(name):
     made = trip(name)
     assert made.arrived
+    assert made.situation.recorded_hops is not None
     assert made.presses <= made.situation.recorded_hops, made.line()
 
 

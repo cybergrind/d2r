@@ -1,5 +1,8 @@
 """Verify both fixed elemental endpoints before permitting listing omissions."""
 
+import math
+
+
 ENDPOINTS = {
     'fire': ((48, '458'), (49, '459')),
     'lightning': ((50, '478'), (51, '479')),
@@ -50,5 +53,5 @@ def cold_duration_matches(facts, frames):
         and row['raw'] == frames
         and row.get('unit') == 'seconds'
         and type(row.get('value')) in (int, float)
-        and row['value'] == frames / 25
+        and math.isclose(row['value'], frames / 25)
     )

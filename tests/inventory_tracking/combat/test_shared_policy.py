@@ -60,23 +60,27 @@ def test_the_hunts_rule_takes_the_elite_first_then_the_nearest_one_unit_past_it(
     assert choice is not None
     assert choice.unit == 2
     assert math.dist(choice.focal, (5000.0, 5012.0 + AIM_BEYOND)) < 1e-6
-    assert rule(seen((1, (5006.0, 5000.0), False), (3, (5000.0, 5012.0), False))).unit == 1
+    nearer = rule(seen((1, (5006.0, 5000.0), False), (3, (5000.0, 5012.0), False)))
+    assert nearer is not None
+    assert nearer.unit == 1
     assert rule(seen((1, (5021.0, 5000.0), False))) is None  # past the hunt's reach
     assert rule(seen((1, (5006.0, 5000.0), False), moving=True)) is not None  # the rule of 2026-10-09 never yielded
 
 
 def test_the_hunts_rule_skips_a_monster_behind_a_wall():
-    wall = lambda point: 5004.0 <= point[0] <= 5005.0  # noqa: E731
+    wall = lambda point: 5004.0 <= point[0] <= 5005.0  # ruff: ignore[lambda-assignment]
     rule = NearestPolicy(damage_of=flat)
     assert rule(seen((1, (5010.0, 5000.0), False), blocked=wall)) is None
-    assert rule(seen((1, (5010.0, 5000.0), False), (2, (5000.0, 5015.0), False), blocked=wall)).unit == 2
+    around = rule(seen((1, (5010.0, 5000.0), False), (2, (5000.0, 5015.0), False), blocked=wall))
+    assert around is not None
+    assert around.unit == 2
     assert clear_line(wall, HERE, (5002.0, 5000.0))  # too short to look at
     assert not clear_line(wall, HERE, (5010.0, 5000.0))
     assert clear_line(None, HERE, (5010.0, 5000.0))
 
 
 def test_the_line_sweep_finds_no_line_through_a_wall():
-    wall = lambda point: 5004.0 <= point[0] <= 5005.0  # noqa: E731
+    wall = lambda point: 5004.0 <= point[0] <= 5005.0  # ruff: ignore[lambda-assignment]
     assert LinePolicy(damage_of=flat)(seen((1, (5010.0, 5000.0), False), blocked=wall)) is None
 
 
@@ -129,4 +133,6 @@ def test_the_hunts_rule_is_given_its_damage_table():
     # The framework has no damage table of its own: a build's is handed in.
     with pytest.raises(TypeError):
         NearestPolicy()  # pyrefly: ignore[missing-argument]
-    assert NearestPolicy(damage_of=flat)(seen((1, (5006.0, 5000.0), False))).worth == 1000.0
+    choice = NearestPolicy(damage_of=flat)(seen((1, (5006.0, 5000.0), False)))
+    assert choice is not None
+    assert choice.worth == 1000.0

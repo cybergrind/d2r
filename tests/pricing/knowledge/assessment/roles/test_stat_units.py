@@ -23,10 +23,10 @@ def test_correct_rate_matches_and_only_complete_absence_can_supply_zero():
     assert evaluate(RULE, item).truth == 'true'
     assert evaluate({**RULE, 'value': 11}, item).truth == 'false'
     zero_rule = {**RULE, 'value': 0, 'absent_is_zero': True}
-    absent = replace(item, stats={}, capture_complete=True, gaps=())
+    absent = replace(item, stats={}, capture_complete=True, gaps=[])
     assert evaluate(zero_rule, absent).truth == 'true'
     assert evaluate(zero_rule, replace(absent, capture_complete=False)).truth == 'unknown'
-    assert evaluate(zero_rule, replace(absent, gaps=('Unresolved stat capture',))).truth == 'unknown'
+    assert evaluate(zero_rule, replace(absent, gaps=['Unresolved stat capture'])).truth == 'unknown'
     assert evaluate({**zero_rule, 'absent_is_zero': False}, absent).truth == 'unknown'
 
 

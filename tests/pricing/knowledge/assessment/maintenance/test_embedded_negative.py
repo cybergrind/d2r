@@ -1,6 +1,7 @@
 """Negative tooltip references cannot establish positive build demand."""
 
 from copy import deepcopy
+from typing import Any
 
 import pytest
 
@@ -9,7 +10,7 @@ from pricing.knowledge.assessment.maintenance.embedded_reviews import compile_em
 from tests.pricing.knowledge.assessment.maintenance.test_embedded_echoing_pairing import ROOT, inputs
 
 
-def negative_inputs():
+def negative_inputs() -> tuple[dict[str, Any], list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]]]:
     document, links, _, _ = inputs(11)
     review = document['rows'][0]
     for key in ('profile_id', 'profile_fingerprint', 'use_fingerprint'):
@@ -67,7 +68,7 @@ def test_removal_sentence_is_required_even_after_source_is_revalidated(monkeypat
         embedded_negative.validate_gheed_removal(review, resolved, ROOT)
 
 
-def label_inputs():
+def label_inputs() -> tuple[dict[str, Any], list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]]]:
     import json
 
     from pricing.knowledge.assessment.maintenance.embedded_occurrences import FIELDS

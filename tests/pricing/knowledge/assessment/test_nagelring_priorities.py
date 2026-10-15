@@ -6,6 +6,7 @@ from pricing.knowledge.assessment.build_profiles import build
 from pricing.knowledge.assessment.profiles import assess_role_results
 from pricing.knowledge.assessment.stat_bundle import configuration_from_row
 from pricing.knowledge.assessment.stat_evaluation import StatsEvaluator
+from tests.pricing.knowledge.assessment.fact_changes import fact_changes
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
 
 
@@ -36,7 +37,7 @@ def test_nagelring_minimum_mf_is_useful_with_source_specific_companions(fire_bla
     assert set(evaluate().annotations) == {'80:0'}
     assert evaluate().annotations['80:0']['desirability'] == 'desirable'
     assert not evaluate(replace(item, stats={k: v for k, v in item.stats.items() if k != '80:0'})).annotations
-    for change in ({'name': 'Other'}, {'rarity': 'magic'}, {'identified': False}, {'ethereal': True}):
+    for change in fact_changes({'name': 'Other'}, {'rarity': 'magic'}, {'identified': False}, {'ethereal': True}):
         assert not evaluate(replace(item, **change)).annotations
     assert not evaluate(context={**ctx, 'player_class': 'Barbarian'}).annotations
     if fire_blast:
@@ -94,7 +95,7 @@ def test_attack_build_nagelring_retains_setup_qualifications(rid, cls, qualifica
     assert not evaluate(replace(item, stats={})).annotations
     assert not evaluate(context={}).annotations
     assert not evaluate(context={'player_class': 'Sorceress'}).annotations
-    for change in ({'rarity': 'rare'}, {'name': 'Other'}, {'ethereal': True}, {'identified': None}):
+    for change in fact_changes({'rarity': 'rare'}, {'name': 'Other'}, {'ethereal': True}, {'identified': None}):
         assert not evaluate(replace(item, **change)).annotations
     # A main cast-rate total does not prove the separate swap or attack-speed setup.
     assert evaluate(context={'player_class': cls, 'player_total_fcr': 0}).annotations

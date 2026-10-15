@@ -2,6 +2,7 @@
 
 from copy import deepcopy
 from dataclasses import asdict
+from typing import Any
 
 import pytest
 
@@ -58,14 +59,14 @@ def test_incomplete_or_incorrect_reports_cannot_close_review(mutation):
     elif mutation == 'defense':
         cases[0][0]['raw_stats'] = tuple((31, 0, 999) if s[0] == 31 else s for s in cases[0][0]['raw_stats'])
     else:
-        next(c for c in cases if c[1]['lines'])[1]['lines'][0]['tone'] = 'tier_high'
+        next(c[1] for c in cases if c[1] is not None and c[1]['lines'])['lines'][0]['tone'] = 'tier_high'
     assert trade_draculs.case_gap(cases, policy, spec)
 
 
 IDENTITY = ('unique', "Dracul's Grasp")
 
 
-def review_inputs():
+def review_inputs() -> tuple[dict[str, Any], dict[str, Any]]:
     import json
     from pathlib import Path
 

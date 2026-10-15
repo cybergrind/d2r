@@ -5,6 +5,7 @@ from dataclasses import replace
 import pytest
 
 from tests.pricing.knowledge.assessment.item_bank.cases.fortitude_native_ranges import CASES
+from tests.pricing.knowledge.assessment.item_bank.models import ItemChanges
 
 
 def test_native_recipe_overrides_fixture_display_name():
@@ -18,14 +19,14 @@ def test_native_recipe_overrides_fixture_display_name():
 @pytest.mark.parametrize('failure', ['unidentified', 'reversed', 'missing', 'partial', 'flag'])
 def test_incomplete_or_contradictory_recipe_cannot_supply_report_ranges(failure):
     item = CASES[0].item
-    changes = {
+    changes: dict[str, ItemChanges] = {
         'unidentified': {'identified': False},
         'reversed': {'socket_items': tuple(reversed(item.socket_items))},
         'missing': {'socket_items': item.socket_items[:-1]},
         'partial': {'socket_contents': 'unknown'},
         'flag': {'runeword': None},
-    }[failure]
-    captured = replace(item, **changes).capture()
+    }
+    captured = replace(item, **changes[failure]).capture()
     assert captured['item']['runeword'] is None
     assert captured['item']['name'] == 'Archon Plate'
     assert 'item_identity' not in captured['source']

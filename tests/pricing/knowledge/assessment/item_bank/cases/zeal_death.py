@@ -41,7 +41,7 @@ def cases():
         ):
             active = scenario in ('positive', 'uncaptured-bonus')
             keys = (*intrinsic, *bonus) if scenario == 'positive' else intrinsic
-            expected = {'roles': Contains(IsPartialDict(id=role, build='zeal-paladin'))}
+            expected: dict[str, object] = {'roles': Contains(IsPartialDict(id=role, build='zeal-paladin'))}
             if active:
                 expected['stat_evaluation'] = IsPartialDict(
                     annotations=IsPartialDict({key: IsPartialDict(configuration_ids=Contains(config)) for key in keys})

@@ -41,6 +41,20 @@ def mark(label, area=3, kind='stairs'):
     return Target(area, ROOMS, DOOR, label, kind, True)
 
 
+def card(run, read, progress, **options) -> Target:
+    """The card the step follows (`route.card`), where there is one."""
+    found = route.card(run, read, progress, **options)
+    assert found is not None
+    return found
+
+
+def lead_of(progress: Progress, area: int) -> Lead:
+    """The mark the level's card leads with, where it leads with one."""
+    found = progress.lead(area)
+    assert found is not None
+    return found
+
+
 def game(area=3):
     play = Game(world(player=player(area)))
     play.staff = Teleport(40, 40, True)
@@ -50,7 +64,7 @@ def game(area=3):
 def test_a_stage_whose_mark_leads_the_card_is_followed_and_logged(caplog):
     play = game()
     with caplog.at_level('INFO'):
-        found = route.card(play.run(), lambda: mark('Cave'), Progress([CAVE]))
+        found = card(play.run(), lambda: mark('Cave'), Progress([CAVE]))
 
     assert found.label == 'Cave'
     assert any('route Cave: enter Cave' in record.message for record in caplog.records)
@@ -60,7 +74,7 @@ def test_a_stage_whose_mark_leads_the_card_is_followed_and_logged(caplog):
 def test_a_stage_whose_mark_is_not_on_the_card_yet_says_so_and_the_step_follows_the_card():
     play = game()
 
-    found = route.card(play.run(), lambda: mark('Stony Field'), Progress([CAVE]))
+    found = card(play.run(), lambda: mark('Stony Field'), Progress([CAVE]))
 
     assert found.label == 'Stony Field'
     assert play.said == ['Cave: Cave is not marked yet; toward Stony Field']
@@ -69,7 +83,7 @@ def test_a_stage_whose_mark_is_not_on_the_card_yet_says_so_and_the_step_follows_
 def test_a_stage_that_is_not_performed_yet_leaves_the_card_as_it_is(caplog):
     play = game(9)
     with caplog.at_level('INFO'):
-        found = route.card(play.run(), lambda: mark('Next level', 9), Progress([CAVE]))
+        found = card(play.run(), lambda: mark('Next level', 9), Progress([CAVE]))
 
     assert found.label == 'Next level'
     assert play.said == []
@@ -79,14 +93,14 @@ def test_a_stage_that_is_not_performed_yet_leaves_the_card_as_it_is(caplog):
 @pytest.mark.parametrize('progress', [None, Progress([])])
 def test_without_a_route_the_card_is_the_cards(progress):
     play = game()
-    assert route.card(play.run(), lambda: mark('Stony Field'), progress).label == 'Stony Field'
+    assert card(play.run(), lambda: mark('Stony Field'), progress).label == 'Stony Field'
     assert route.card(play.run(), None, progress) is None
     assert play.said == []
 
 
 def test_a_card_for_another_level_is_left_to_the_step_to_refuse():
     play = game()
-    found = route.card(play.run(), lambda: mark('Next level', 9), Progress([CAVE]), seconds=0.0)
+    found = card(play.run(), lambda: mark('Next level', 9), Progress([CAVE]), seconds=0.0)
     assert found.area == 9
     assert play.said == []
 
@@ -101,11 +115,11 @@ class Levels:
 
     @property
     def area(self) -> int:
-        return self.play.world.player.area
+        return self.play.character.area
 
     def arrive(self) -> None:
         """In a new level: the character at its entrance, the service's note of the level made."""
-        here = self.play.world.player
+        here = self.play.character
         self.play.world = replace(self.play.world, player=replace(here, x=5000.0, y=5000.0))
         self.progress.note(self.play.world.game_name, self.area)
         step = self.progress.step(self.area)
@@ -119,6 +133,7 @@ class Levels:
         if step is not None and step.stage.mark:
             pois.append(Poi(step.stage.mark, EAST[-1], 'previous' if step.stage.to < area else 'stairs', DOOR))
         first = lead_first(tuple(pois), self.progress.lead(area))[0]
+        assert first.spot is not None
         return Target(area, ROOMS, first.spot, first.label, first.kind, True)
 
     def press(self) -> None:
@@ -171,7 +186,9 @@ def test_from_every_level_with_a_door_to_take_the_key_reaches_a_level_without_on
     assert len(passed) == len(set(passed)) > 1
     assert progress.lead(passed[-1]) is None
     for area, after in pairwise(passed):
-        assert progress.scripts[area][1].way_on.to == after
+        way_on = progress.scripts[area][1].way_on
+        assert way_on is not None
+        assert way_on.to == after
 
 
 def test_a_door_taken_is_not_led_with_again_in_this_game_and_is_in_the_next():
@@ -223,10 +240,11 @@ class Objects:
 
     def card(self) -> Target:
         first = lead_first(self.pois, self.progress.lead(self.area))[0]
+        assert first.spot is not None
         return Target(self.area, ROOMS, first.spot, first.label, first.kind, use=first.use)
 
     def marks(self, label: str) -> tuple[tuple[float, float], ...]:
-        return tuple(poi.spot for poi in self.pois if poi.label == label)
+        return tuple(poi.spot for poi in self.pois if poi.label == label and poi.spot is not None)
 
     def press(self) -> Target:
         """One press; the game shows the object at the mark gone for, as it shows what is near."""
@@ -308,10 +326,10 @@ def test_a_use_is_not_noted_for_a_mark_that_is_not_the_stages_or_an_object_not_o
 
 def test_the_catalogues_chest_levels_and_the_sanctuary_lead_with_their_objects():
     progress = Progress(ROUTES, route.PERFORMED)
-    assert {area: progress.lead(area).label for area in (13, 16, 116, 119, 125)} == dict.fromkeys(
+    assert {area: lead_of(progress, area).label for area in (13, 16, 116, 119, 125)} == dict.fromkeys(
         (13, 16, 116, 119, 125), 'Super chest'
     )
-    assert progress.lead(108).label == 'Vizier seal 1'
+    assert lead_of(progress, 108).label == 'Vizier seal 1'
     assert progress.lead(102) == Lead('Red portal')  # the stand by it, not the way out: no level behind the lead
     assert progress.lead(79) is None  # Lower Kurast's chests are pending
 
@@ -345,6 +363,7 @@ class Pressed:
         lead = self.progress.lead(self.area)
         marks = (own, *((Poi(lead.label, EAST[0], 'target', THERE),) if lead and lead.label != label else ()))
         found = lead_first(marks, lead)[0]
+        assert found.spot is not None
         return Target(self.area, ROOMS, found.spot, found.label, found.kind)
 
     def pick(self, run, level_, key_names, otherwise):
@@ -355,6 +374,10 @@ class Pressed:
         self.did.append('pick')
         return True
 
+    def step(self, target: Target | None) -> None:
+        assert target is not None
+        self.did.append(f'step {target.label}')
+
     def press(self, monkeypatch):
         monkeypatch.setattr(route, 'pick_up', self.pick)
         route.press(
@@ -363,7 +386,7 @@ class Pressed:
             self.card,
             None,
             keys,
-            plain=lambda target: self.did.append(f'step {target.label}'),
+            plain=self.step,
             level=lambda: None,
             attack=lambda: self.did.append('attack'),
             leave=lambda run, key_names: self.did.append('leave'),
@@ -406,14 +429,16 @@ def test_mephisto_stand_by_the_portal_fight_pick_up_and_then_the_portal_leads(mo
 
     assert here.press(monkeypatch) == ['step Red portal']  # two tiles from it: stood there
     assert here.play.said[-1] == 'Mephisto: at Red portal'
-    assert here.progress.step(102).stage.kind == 'fight'
+    step = here.progress.step(102)
+    assert step is not None
+    assert step.stage.kind == 'fight'
 
     here.did.clear()
     assert here.press(monkeypatch) == ['attack']  # the fight names no mark: from where the character stands
     here.dead.add('Mephisto')
     here.did.clear()
     assert here.press(monkeypatch) == ['step Red portal']  # nothing to pick up: on to the portal in this press
-    assert here.progress.lead(102).area == 103
+    assert lead_of(here.progress, 102).area == 103
 
 
 def test_a_level_without_a_stage_is_the_plain_step(monkeypatch):
@@ -471,7 +496,7 @@ def border_press(play, progress, did):
 
 def at_the_edge():
     play = game(27)
-    play.world = replace(play.world, player=replace(play.world.player, x=EDGE_MARK[0] * 5, y=EDGE_MARK[1] * 5))
+    play.world = replace(play.world, player=replace(play.character, x=EDGE_MARK[0] * 5, y=EDGE_MARK[1] * 5))
     return play
 
 
@@ -496,14 +521,14 @@ def test_the_walk_ends_when_the_level_changes():
 
     def crossing(event):
         react(event)
-        here = play.world.player
+        here = play.character
         if here.x > (EDGE.x + EDGE.width) * 5:  # over the edge: the game puts the character on the next level
             play.world = replace(play.world, player=replace(here, area=26))
 
     play.keys.on_event = crossing
     border_press(play, Progress([OUTER], route.PERFORMED), did)
 
-    assert play.world.player.area == 26
+    assert play.character.area == 26
     assert len(play.walks) < route.CROSS_CLICKS + 1
     assert play.said[-1] == 'Monastery Gate: there'
 

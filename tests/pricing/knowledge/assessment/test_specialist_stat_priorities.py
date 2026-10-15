@@ -6,6 +6,7 @@ from pricing.knowledge.assessment.build_profiles import build
 from pricing.knowledge.assessment.profiles import assess_role_results
 from pricing.knowledge.assessment.stat_bundle import configuration_from_row
 from pricing.knowledge.assessment.stat_evaluation import StatsEvaluator
+from tests.pricing.knowledge.assessment.fact_changes import fact_changes
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
 
 
@@ -46,7 +47,7 @@ def test_specialist_priorities_require_the_complete_setup(helmet):
 
     assert set(evaluate().annotations) == wanted
     assert evaluate().configurations[0]['role']['status'] == 'partial'
-    for change in ({'ethereal': True}, {'ethereal': None}, {'identified': False}, {'name': 'Other'}):
+    for change in fact_changes({'ethereal': True}, {'ethereal': None}, {'identified': False}, {'name': 'Other'}):
         assert not evaluate(replace(item, **change)).annotations
     assert not evaluate(context={}).annotations
     for key in wanted:
@@ -60,6 +61,6 @@ def test_specialist_priorities_require_the_complete_setup(helmet):
             assert not evaluate(context={**ctx, 'player_items': names}).annotations
     else:
         assert not evaluate(context={**ctx, 'mercenary_type': 'Act 2 Prayer'}).annotations
-        for change in ({'runeword': None}, {'socket_contents': 'empty'}, {'sockets': 2}):
+        for change in fact_changes({'runeword': None}, {'socket_contents': 'empty'}, {'sockets': 2}):
             assert not evaluate(replace(item, **change)).annotations
     assert all(a['roll_quality'] == 'unassessed' for a in evaluate().annotations.values())

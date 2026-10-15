@@ -14,7 +14,7 @@ def test_loadout_snapshot_cannot_change_when_caller_mutates_equipment():
     rule = {'op': 'context_contains', 'field': 'player_items', 'value': 'Companion'}
     assert evaluate(rule, facts('Amulet'), context).truth == 'true'
     with pytest.raises(FrozenInstanceError):
-        context.player_items = ()
+        context.player_items = ()  # pyrefly: ignore[read-only]  # proves the context is frozen
     assert AssessmentContext.from_input(context) is context
 
 

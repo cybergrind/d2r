@@ -1,11 +1,12 @@
 from copy import deepcopy
+from typing import Any
 
 import pytest
 
 from pricing.knowledge.assessment.maintenance.guardian_market_review import audit, material_review
 
 
-def listing():
+def listing() -> dict[str, Any]:
     return {
         'id': 'a',
         'name': 'Guardian Angel',

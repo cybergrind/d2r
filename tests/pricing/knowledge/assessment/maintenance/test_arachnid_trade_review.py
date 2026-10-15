@@ -1,3 +1,5 @@
+from typing import Any
+
 import pytest
 
 from pricing.knowledge.assessment.maintenance import trade_arachnid
@@ -55,7 +57,7 @@ def test_arachnid_proof_rejects_changed_native_semantics(mutation):
     assert trade_arachnid.specification(policy, definitions, specs) is None
 
 
-def review_inputs():
+def review_inputs() -> tuple[dict[str, Any], dict[str, Any]]:
     import json
     from copy import deepcopy
     from pathlib import Path

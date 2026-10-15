@@ -7,6 +7,7 @@ from pricing.knowledge.assessment.build_profiles import ROOT, build
 from pricing.knowledge.assessment.maintenance.stat_configurations import compile_stat_configurations
 from pricing.knowledge.assessment.profiles import assess_role_results
 from pricing.knowledge.assessment.stat_evaluation import StatsEvaluator
+from tests.pricing.knowledge.assessment.fact_changes import fact_changes
 from tests.pricing.knowledge.assessment.roles.test_mercenary_farming_helms import CASES
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
 
@@ -52,7 +53,7 @@ def test_farming_helmet_stats_require_prepared_socket_and_source_setup(role_id, 
         assert not evaluate(
             replace(item, stats={k: v for k, v in stats.items() if k != key}, capture_complete=False)
         ).annotations
-    for changes in (
+    for changes in fact_changes(
         {'socket_items': []},
         {'socket_contents': None},
         {'socket_contents': 'empty'},

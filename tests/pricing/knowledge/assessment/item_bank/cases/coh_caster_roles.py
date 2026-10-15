@@ -69,7 +69,7 @@ def cases():
                 if label == 'shield':
                     # Type filtering removes armor roles entirely; the absence
                     # assertions below still forbid their stat recommendations.
-                    expected = {}
+                    expected: dict[str, object] = {}
                 if truth == 'true':
                     expected['stat_evaluation'] = IsPartialDict(
                         annotations=IsPartialDict(

@@ -6,15 +6,14 @@ import pytest
 
 from inventory_tracking.levels.geometry import ARROWS, pointer
 from inventory_tracking.levels.level_map import build_map
-from inventory_tracking.levels.registry import handler_for
 from inventory_tracking.osd.level_map import project
-from tests.inventory_tracking.levels.fixtures import replay
+from tests.inventory_tracking.levels.fixtures import handler_of, replay
 
 
 @pytest.mark.parametrize('fixture', ['arcane_summoner_s', 'arcane_summoner_w'])
 def test_map_has_every_room_the_player_and_the_poi(fixture):
     snapshot = replay(fixture)
-    guidance = handler_for(74).guide(snapshot)
+    guidance = handler_of(74).guide(snapshot)
 
     card = build_map(snapshot, guidance.pois)
 
@@ -32,7 +31,7 @@ def test_map_has_every_room_the_player_and_the_poi(fixture):
 @pytest.mark.parametrize('fixture', ['arcane_summoner_s', 'arcane_summoner_w'])
 def test_map_dot_and_arrow_agree_on_direction(fixture):
     snapshot = replay(fixture)
-    [found] = handler_for(74).guide(snapshot).pois
+    [found] = handler_of(74).guide(snapshot).pois
     card = build_map(snapshot, (found,))
 
     (sx0, sy0), (sx1, sy1) = project(*card.player), project(card.pois[0].x, card.pois[0].y)
@@ -43,7 +42,7 @@ def test_map_dot_and_arrow_agree_on_direction(fixture):
 
 def test_maze_map_carries_the_route_from_player_to_stairs():
     snapshot = replay('tower_cellar_1')
-    guidance = handler_for(21).guide(snapshot)
+    guidance = handler_of(21).guide(snapshot)
 
     card = build_map(snapshot, guidance.pois)
 
@@ -55,7 +54,7 @@ def test_maze_map_carries_the_route_from_player_to_stairs():
 def test_temple_map_routes_too_now_that_teleport_ignores_doorways():
     snapshot = replay('halls_of_pain_live')
 
-    card = build_map(snapshot, handler_for(123).guide(snapshot).pois)
+    card = build_map(snapshot, handler_of(123).guide(snapshot).pois)
 
     assert len(card.route) >= 2
     assert card.route[0] == card.player
@@ -69,7 +68,7 @@ def test_outdoor_edge_presets_are_marked_as_edges():
 
     snapshot = replay('black_marsh')
 
-    card = build_map(snapshot, handler_for(6).guide(snapshot).pois)
+    card = build_map(snapshot, handler_of(6).guide(snapshot).pois)
 
     borders = sum('Border' in preset_name(r.preset) for r in snapshot.rooms)
     assert Counter(card.room_kinds) == {'edge': borders, 'room': len(snapshot.rooms) - borders}
@@ -79,7 +78,7 @@ def test_outdoor_edge_presets_are_marked_as_edges():
 def test_maze_levels_have_no_edges():
     snapshot = replay('tower_cellar_1')
 
-    card = build_map(snapshot, handler_for(21).guide(snapshot).pois)
+    card = build_map(snapshot, handler_of(21).guide(snapshot).pois)
 
     assert set(card.room_kinds) == {'room'}
 

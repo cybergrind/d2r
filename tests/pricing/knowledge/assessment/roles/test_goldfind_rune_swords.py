@@ -7,6 +7,7 @@ from pricing.knowledge.assessment.build_profiles import build
 from pricing.knowledge.assessment.profiles import assess_roles
 from pricing.knowledge.assessment.roles.predicates import evaluate, validate
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
+from tests.pricing.knowledge.reports import reports
 
 
 RULE = {'op': 'socket_runes_equal', 'value': ['Lem Rune'] * 6}
@@ -64,7 +65,7 @@ def test_goldfind_variants_require_complete_six_lem_payload(key):
     assert profile is not None
 
     def assess(item, player='Barbarian'):
-        return assess_roles(item, [profile], {'player_class': player})
+        return reports(assess_roles(item, [profile], {'player_class': player}))
 
     role = assess(sword())[0]
     assert role['rule_trace']['truth'] == 'true'

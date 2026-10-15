@@ -6,6 +6,7 @@ from pricing.knowledge.assessment.build_profiles import build
 from pricing.knowledge.assessment.profiles import assess_role_results
 from pricing.knowledge.assessment.stat_bundle import configuration_from_row
 from pricing.knowledge.assessment.stat_evaluation import StatsEvaluator
+from tests.pricing.knowledge.assessment.fact_changes import fact_changes
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
 
 
@@ -43,7 +44,7 @@ def test_helmet_recipes_keep_projectile_stats_out_of_trap_priorities(name):
         elif name == 'Wisdom' and role['build'] == 'lightning-fury-amazon-guide':
             expected.remove('119:0')
         assert set(evaluate(item).annotations) == expected
-        for changes in (
+        for changes in fact_changes(
             {'sockets': 2},
             {'socket_contents': 'empty'},
             {'ethereal': True},

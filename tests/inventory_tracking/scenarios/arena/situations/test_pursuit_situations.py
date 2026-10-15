@@ -71,6 +71,7 @@ def at_the_boss(outcome: Outcome) -> bool:
     every tick while he lived), and he died unless the fight left him alone. In the arena only the
     character's blades take a monster's life (`Arena.fly`; no companion or link deals damage there), so his
     death is the character's kill."""
+    assert outcome.gaps[BOSS] is not None
     return outcome.gaps[BOSS][1] <= STRIKE_REACH and (outcome.boss_dead[BOSS] is not None or left_alone(outcome))
 
 
@@ -115,6 +116,7 @@ def watched(
                 rect[2] / rect[3], area=arena.scene.hero.area, rooms=play.level.rooms,
             )  # fmt: skip
             movement = navigator(play.build.movement, facts)
+            assert movement is not None
             eta = movement.eta(facts, goal, PRESSED)
         reach = play.build.attack.reach
         near = any(math.dist(here, arena.mobs.mobs[unit].at) <= reach for unit in arena.mobs.live())
@@ -176,6 +178,8 @@ def test_a_fixture_loads_without_its_take_and_writes_back_the_same(name, tmp_pat
 
 def test_the_pocket_is_the_takes_moment() -> None:
     base = pocket.stored(POCKET)
+    assert base.source is not None
+    assert base.recorded is not None
     assert base.source['schema'] == 4
     assert base.attack
     assert len(base.presses) == 26
@@ -217,6 +221,7 @@ def test_attack_mode_alone_goes_to_a_boss_out_of_its_reach(logic, distance) -> N
     """No press at all: the route's stage is the fight, so the boss is where the mode goes (25 units is on
     the screen; at 57.4 the recorded stall stood for 25 s)."""
     watch = near_boss(distance, 'attack mode alone', logic, 1)
+    assert watch.outcome.gaps[BOSS] is not None
     assert watch.outcome.gaps[BOSS][0] == pytest.approx(distance, abs=0.2)
     assert watch.outcome.boss_dead[BOSS] is not None
     assert watch.outcome.moved > 0.0
@@ -231,6 +236,7 @@ def test_attack_mode_alone_does_not_go_to_a_boss_beyond_its_sight(caplog) -> Non
     situation, presses = vizier.distanced(far)['attack mode alone']
     with caplog.at_level(logging.INFO, logger='inventory_tracking'):
         outcome = situation.logic('new').play(presses, seed=1)  # type: ignore[arg-type]
+    assert outcome.gaps[BOSS] is not None
     assert outcome.gaps[BOSS][0] == pytest.approx(far, abs=0.2)
     assert outcome.moved == 0.0
     assert outcome.boss_dead[BOSS] is None
@@ -389,6 +395,7 @@ def test_the_toggle_off_stays_off_under_presses() -> None:
         assert outcome.said_count('Attack mode on') == 1
         assert outcome.said_count('Attack mode off') == 1
         assert not [at for at in outcome.strikes if at > 1.5]
+        assert outcome.gaps[BOSS] is not None
         assert outcome.gaps[BOSS][1] < 30.0  # the key still takes the character there
         assert outcome.said_count('attack mode is off')
 

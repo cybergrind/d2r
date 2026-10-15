@@ -32,6 +32,7 @@ def raven():
 def test_raven_fixed_cold_allows_price_without_listing_fixed_damage():
     contract, gaps = NamedHandler().contract(raven(), 'jewelry')
     assert not gaps
+    assert contract is not None
     assert contract.intrinsic_properties['482'] == 15
     assert contract.intrinsic_properties['483'] == 45
     required = {k: v for k, v in contract.properties.items() if k not in contract.intrinsic_properties}

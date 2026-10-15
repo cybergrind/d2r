@@ -54,7 +54,7 @@ def cases():
                 {'player_class': 'Paladin'},
             ),
         ):
-            expected = {
+            expected: dict[str, object] = {
                 'roles': Contains(
                     IsPartialDict(
                         id=role,

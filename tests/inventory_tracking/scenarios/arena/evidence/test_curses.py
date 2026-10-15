@@ -3,6 +3,7 @@ tallied into, what tallies measure, and the report from them."""
 
 import json
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -39,7 +40,7 @@ def curse_take(readings, name='20261011T120000Z-25', away=6.0, casts=(CAST,), fi
             monster(OTHER, MELEE_TXT, at=(100.0 + away, 102.0), mode=curses.CAST_MODE),
         ]
         frames.append(frame(index, 1000, foes))
-    manifest = {'schema': 2}
+    manifest: dict[str, Any] = {'schema': 2}
     if first is not None:
         manifest['character_stats'] = {str(stat): value for stat, value in zip(RESIST_STATS, first, strict=True)}
     events = [hurt(index, resists) for index, resists in readings]

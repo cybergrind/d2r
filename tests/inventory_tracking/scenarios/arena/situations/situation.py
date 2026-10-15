@@ -34,12 +34,12 @@ step toward the card's mark there.
 import json
 import math
 import statistics
-from collections import Counter
+from collections import Counter, defaultdict
 from collections.abc import Callable, Iterable, Sequence
 from copy import deepcopy
 from dataclasses import asdict, dataclass, field, replace
 from pathlib import Path
-from typing import Any
+from typing import Any, Self
 
 from inventory_tracking.combat.mechanics.tables import points_of, tables
 from inventory_tracking.combat.sim.monsters import CHAMPION_FLAG, COLD, FIRE, LIGHTNING, STRONG, UNIQUE_FLAG
@@ -173,10 +173,10 @@ class Outcome:
 
     def taken_by(self) -> dict[tuple[str, str], float]:
         """The life lost by who took it: (the type's name, the blow's kind) -> points, the most first."""
-        found: Counter[tuple[str, str]] = Counter()
+        found: dict[tuple[str, str], float] = defaultdict(float)
         for hurt in self.hurts:
             found[name_of(hurt.txt), hurt.kind] += hurt.points
-        return dict(found.most_common())
+        return dict(sorted(found.items(), key=lambda item: item[1], reverse=True))
 
     def said_count(self, part: str) -> int:
         return sum(1 for _, text in self.said if part in text)
@@ -273,7 +273,7 @@ class Situation:
         scene = Scene(name, hero, [], ground['ground'], ground['doors'], ground['rooms'])
         return cls(name, scene, assumed={'everything': 'built by hand'})
 
-    def variant(self, name: str | None = None, **changes: Any) -> Situation:
+    def variant(self, name: str | None = None, **changes: Any) -> Self:
         """An independent copy, renamed and with fields replaced: the base of an experiment."""
         found = replace(deepcopy(self), **changes)
         if name:
@@ -479,7 +479,7 @@ class Situation:
         hurts = arena.cast.hurts
         dead_at = arena.dead_at
         last: Counter[tuple[str, str]] = Counter()
-        points: Counter[tuple[str, str]] = Counter()
+        points: dict[tuple[str, str], float] = defaultdict(float)
         if dead_at is not None:
             for hurt in hurts:
                 if hurt.at >= dead_at - LAST_BLOWS:

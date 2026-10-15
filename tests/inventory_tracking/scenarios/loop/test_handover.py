@@ -60,7 +60,12 @@ def test_attack_mode_is_back_the_moment_a_step_is_over():
             raise Cancelled
         ended.append(time.monotonic())
 
-    runner = MacroRunner(None, capture_lock=threading.Lock(), saved_games=None, execute=execute)
+    runner = MacroRunner(
+        None,
+        capture_lock=threading.Lock(),
+        saved_games=None,  # pyrefly: ignore[bad-argument-type]  # never read: `execute` stands in for the game
+        execute=execute,
+    )
     try:
         assert runner.request(10.0, 10.1, ATTACK)
         assert runner.request(10.3, 10.4, TELEPORT)  # the mode pauses for the step

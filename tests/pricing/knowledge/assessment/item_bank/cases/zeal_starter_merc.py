@@ -11,7 +11,7 @@ def case(role, label, item, mercenary, keys, scenario='positive', absent=()):
     context = {'player_class': 'Paladin'}
     if mercenary:
         context['mercenary_type'] = mercenary
-    expected = {
+    expected: dict[str, object] = {
         'roles': Contains(
             IsPartialDict(
                 id=role,

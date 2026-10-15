@@ -1,4 +1,5 @@
 from dataclasses import replace
+from typing import Any
 
 import pytest
 
@@ -9,7 +10,7 @@ from tests.pricing.knowledge.assessment.test_family_contracts import facts
 def puzzler(remaining=42, maximum=69, level=11):
     key = f'204:{54 * 64 + level}'
     item = facts('Elder Staff', 'set', "Naj's Puzzler")
-    stats = {
+    stats: dict[str, dict[str, Any]] = {
         f'{stat}:0': {'id': stat, 'status': 'decoded', 'value': value, 'raw': value}
         for stat, value in ((50, 6), (51, 45))
     }
@@ -75,9 +76,9 @@ def test_named_charge_comparisons_accept_fixed_omission_but_reject_wrong_skill_l
 
     from pricing.knowledge.assessment.comparables import evaluate, price_from_comparables, reject_reasons
 
-    contract, gaps = HANDLERS['named'].contract(puzzler(), 'weapon')
-    assert contract is not None, gaps
-    contract = contract.to_dict()
+    found, gaps = HANDLERS['named'].contract(puzzler(), 'weapon')
+    assert found is not None, gaps
+    contract: dict[str, Any] = found.to_dict()
     required = {k: v for k, v in contract['properties'].items() if k not in contract['intrinsic_properties']}
     rows = [
         {

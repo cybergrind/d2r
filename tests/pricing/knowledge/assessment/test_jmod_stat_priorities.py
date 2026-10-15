@@ -7,6 +7,7 @@ from pricing.knowledge.assessment.build_profiles import ROOT, build
 from pricing.knowledge.assessment.maintenance.stat_configurations import compile_stat_configurations
 from pricing.knowledge.assessment.profiles import assess_role_results
 from pricing.knowledge.assessment.stat_evaluation import StatsEvaluator
+from tests.pricing.knowledge.assessment.fact_changes import fact_changes
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
 
 
@@ -63,7 +64,7 @@ def test_jmod_markers_require_both_block_modifiers_and_four_empty_sockets(klass,
         assert not evaluate(replace(item, sockets=sockets)).annotations
     for contents in ('filled', 'partial', None):
         assert not evaluate(replace(item, socket_contents=contents)).annotations
-    for changes in (
+    for changes in fact_changes(
         {'rarity': 'rare'},
         {'rarity': 'normal'},
         {'ethereal': True},

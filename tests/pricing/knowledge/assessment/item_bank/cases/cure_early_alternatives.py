@@ -69,7 +69,7 @@ def cases():
             for label, candidate, loadout, truth in examples:
                 active = truth == 'true'
                 keys = tuple(k for k in KEYS if not (label == 'unread-cleansing' and k == '151:109'))
-                expected = {
+                expected: dict[str, object] = {
                     'roles': Contains(
                         *(IsPartialDict(id=role, side='merc', rule_trace=IsPartialDict(truth=truth)) for role in roles)
                     )

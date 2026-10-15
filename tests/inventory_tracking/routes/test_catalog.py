@@ -29,7 +29,9 @@ def test_from_every_level_the_main_scripts_lead_to_leaving_the_game():
     for start in mains:
         area, steps = start, 0
         while mains[area].stages[-1].kind != LEAVE:
-            area, steps = mains[area].way_on.to, steps + 1
+            way_on = mains[area].way_on
+            assert way_on is not None, f'level {area} has no way on'
+            area, steps = way_on.to, steps + 1
             assert steps < len(mains), f'no end from level {start}'
 
 

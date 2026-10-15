@@ -1,4 +1,5 @@
 from dataclasses import replace
+from typing import Any
 
 from pricing.knowledge.assessment.handlers.runeword import RunewordHandler
 from pricing.knowledge.definitions import socket_bonus_ranges
@@ -47,6 +48,7 @@ def test_spirit_shield_rune_bonuses_are_intrinsic_without_ignoring_added_base_re
     assert definitions()['Spirit']['socket_bonus_ranges']['shield']['45']['min'] == 35
     contract, gaps = RunewordHandler().contract(item, 'shield')
     assert not gaps
+    assert contract is not None
     assert contract.intrinsic_properties['401'] == 35
     missing_block = replace(item, stats={key: row for key, row in stats.items() if key != '20:0'})
     assert RunewordHandler().contract(missing_block, 'shield')[0] is None
@@ -63,7 +65,9 @@ def test_spirit_shield_rune_bonuses_are_intrinsic_without_ignoring_added_base_re
         stats={**augmented.stats, '20:0': {**stats['20:0'], 'value': 30}},
         properties={**augmented.properties, '446': 30},
     )
-    assert '401' not in RunewordHandler().contract(augmented, 'shield')[0].intrinsic_properties
+    paladin_contract = RunewordHandler().contract(augmented, 'shield')[0]
+    assert paladin_contract is not None
+    assert '401' not in paladin_contract.intrinsic_properties
 
 
 def test_saved_spirit_compares_only_variable_rolls_after_proven_base_and_recipe_bonuses():
@@ -87,7 +91,7 @@ def test_saved_spirit_compares_only_variable_rolls_after_proven_base_and_recipe_
     # Native Monarch blocking is not a rolled Increased Chance of Blocking bonus.
     assert '446' not in contract['intrinsic_properties']
     assert '446' not in contract['properties']
-    rows = [
+    rows: list[dict[str, Any]] = [
         {
             **{
                 k: contract[k]
@@ -120,10 +124,11 @@ def test_cold_rune_duration_requires_matching_frames_and_decoded_seconds():
         item,
         stats=stats,
         properties={**item.properties, '482': 3, '483': 14},
-        projection_gaps=('No verified market mapping for native stat 56:0.',),
+        projection_gaps=['No verified market mapping for native stat 56:0.'],
     )
     contract, gaps = RunewordHandler().contract(item, 'weapon')
     assert not gaps
+    assert contract is not None
     assert contract.intrinsic_properties['482'] == 3
     assert contract.intrinsic_properties['483'] == 14
     for row in (

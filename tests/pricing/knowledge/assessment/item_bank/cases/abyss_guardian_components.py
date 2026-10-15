@@ -76,7 +76,7 @@ def cases(
                     evidence=('pricing/data/wp-a-builds.json',),
                 )
                 continue
-            expected = {
+            expected: dict[str, object] = {
                 'roles': Contains(
                     IsPartialDict(
                         id=role,

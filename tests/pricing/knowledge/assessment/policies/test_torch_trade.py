@@ -1,4 +1,5 @@
 from dataclasses import replace
+from typing import Any
 
 import pytest
 
@@ -67,7 +68,7 @@ def test_torch_variant_and_compound_requirements(bad):
         key = 0 if bad == 'missing_attribute' else 39
         item = replace(item, raw_stats=tuple(r for r in raw if r[0] != key))
     else:
-        changes = {
+        changes: dict[str, Any] = {
             'unknown_capture': {'complete': False},
             'unknown_ethereal': {'ethereal': None},
             'unidentified': {'identified': False},

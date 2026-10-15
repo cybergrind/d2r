@@ -67,7 +67,9 @@ def cases():
                 ('unknown-class', native, {}, 'unknown'),
             )
             for label, candidate, loadout, truth in rows:
-                expected = {'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))}
+                expected: dict[str, object] = {
+                    'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))
+                }
                 if truth == 'true':
                     expected['stat_evaluation'] = IsPartialDict(
                         annotations=IsPartialDict(

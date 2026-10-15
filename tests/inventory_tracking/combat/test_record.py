@@ -9,7 +9,7 @@ from inventory_tracking.combat import macro_state
 from inventory_tracking.combat.record import IDLE_SECONDS, LEVEL_SECONDS, NOTE_SECONDS, MacroLines, Recorder, Sample
 from inventory_tracking.combat.takes import Take, carried, records, resists_by_frame, timeline
 from inventory_tracking.levels.model import Level, Room, Walkable, pack_cells
-from inventory_tracking.macros.world import Drop, Loot, Monster, Teleport, Thing, World
+from inventory_tracking.macros.world import Drop, GameMemory, Loot, Monster, Teleport, Thing, World
 from tests.inventory_tracking.macros.fakes import player
 
 
@@ -93,9 +93,10 @@ def test_entering_another_recorded_level_closes_the_take_and_opens_the_next(tmp_
 
 def test_the_level_map_grows_with_the_walls_the_guide_reads_and_never_shrinks(tmp_path):
     grid = Walkable(996, 996, 8, 8, pack_cells('1' * 1600))
-    levels = [None]  # the guide has not shown the level yet when the take opens
+    levels: list[Level | None] = [None]  # the guide has not shown the level yet when the take opens
     rec = recorder(tmp_path, Script(Sample(world())), level=lambda: levels[0])
     rec.step(0.0)
+    assert rec.take is not None
     assert 'level' not in rec.take.manifest
     levels[0] = Level(CHAOS, (Room(1, 996, 996, 8, 8),), ())
     rec.step(0.04)  # too soon to look again
@@ -669,13 +670,13 @@ def test_a_change_of_a_monsters_states_writes_its_record_and_a_changed_stat_list
     ]
 
 
-class Memory:
-    """Bytes at addresses, read as /proc/<pid>/mem is."""
+class Memory(GameMemory):
+    """Bytes at addresses, read as /proc/<pid>/mem is (no process is opened)."""
 
     def __init__(self, blocks, table=0x1000):
         self.blocks, self.table, self.reads = blocks, table, 0
 
-    def read(self, address, size):
+    def read(self, address: int, size: int) -> bytes:
         self.reads += 1
         for start, data in self.blocks.items():
             if start <= address and address + size <= start + len(data):

@@ -59,6 +59,7 @@ def test_the_reach_of_sixty_hostiles_is_told_well_within_a_tick(scene):
     # Twice a look in a fight and once while idle: 2 to 4 ms today.
     frame, ground, _, _ = scene
     seen = recorded_world(frame, 60)
+    assert seen.player is not None
     here = (seen.player.x, seen.player.y)
     foes = hostiles(seen)
     cost = fastest(lambda: [in_reach(ground, here, (m.x, m.y), REACH, seen.doors) for m in foes])
@@ -74,6 +75,7 @@ def test_the_reach_of_sixty_hostiles_is_told_well_within_a_tick(scene):
 def test_doors_out_of_the_blades_reach_are_not_asked_about_every_blade(scene, monkeypatch):
     frame, ground, _, _ = scene
     seen = recorded_world(frame, 20)
+    assert seen.player is not None
     here = (seen.player.x, seen.player.y)
     far = tuple(
         Door(900 + index, door.txt_id, CLOSED_MODE, here[0] + 80.0 + 10 * index, here[1] + 80.0)

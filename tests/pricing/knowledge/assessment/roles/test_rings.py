@@ -5,6 +5,7 @@ import pytest
 from pricing.knowledge.assessment.build_profiles import build
 from pricing.knowledge.assessment.profiles import assess_roles
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
+from tests.pricing.knowledge.reports import reports
 
 
 def assess(role_id, values, **changes):
@@ -12,7 +13,7 @@ def assess(role_id, values, **changes):
     candidate = replace(
         facts('Ring', 'rare'), stats={k: {'status': 'decoded', 'value': v} for k, v in values.items()}, **changes
     )
-    return assess_roles(candidate, [profile])
+    return reports(assess_roles(candidate, [profile]))
 
 
 @pytest.mark.parametrize(

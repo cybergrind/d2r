@@ -71,7 +71,7 @@ def cases():
                 )
             }
             if label == 'legal-word-wrong-bearer':
-                expected = {}  # Polearms never enter this sword-only role's candidate set.
+                expected: dict[str, object] = {}  # Polearms never enter this sword-only role's candidate set.
             if active:
                 expected['stat_evaluation'] = IsPartialDict(
                     annotations=IsPartialDict(

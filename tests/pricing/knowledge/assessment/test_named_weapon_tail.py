@@ -105,6 +105,7 @@ def test_named_weapon_priorities_follow_actual_build_damage_and_durability(
         assert not evaluate(replace(item, base_code=facts('Cap').base_code)).annotations
         eth = replace(item, ethereal=True)
         assert set(evaluate(eth).annotations) == (expected if name == "Bartuc's Cut-Throat" or echoing else set())
+        assert item.sockets is not None
         zod = replace(
             eth,
             sockets=max(1, item.sockets),

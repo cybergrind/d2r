@@ -163,6 +163,7 @@ def test_emptied_healing_columns_still_count_as_healing_missing_until_a_new_game
     dry = replace(state, belt=BeltSnapshot((531, 531, None, None) * 4))
     # ... and the healing potions run out during the game: the card says so (automation/priority.py StockWatch).
     assert render(dry, now=101) == ['HP EMPTY', 'hp 8']
+    assert dry.session is not None
     other = dry.session._replace(player_id=dry.session.player_id + 1)
     assert render(replace(dry, session=other), now=101) == ['juv 8']
 
@@ -171,6 +172,7 @@ def test_by_the_default_layout_empty_columns_3_and_4_are_healing_missing_in_a_ne
     # The player's layout (2026-10-13): the learned kinds reset with each game, the belt carries over; the
     # layout reads a new game's dry healing columns as healing missing (with no card: no fall of this game).
     state = replace(from_research(snapshot()), belt=BeltSnapshot((531, 531, None, None) * 4))
+    assert state.session is not None
     other = state.session._replace(player_id=state.session.player_id + 1)
     assert render(state, now=101) == ['hp 8']
     assert render(replace(state, session=other), now=101) == ['hp 8']

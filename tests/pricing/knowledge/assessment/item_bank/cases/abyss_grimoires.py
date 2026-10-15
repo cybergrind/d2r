@@ -1,6 +1,7 @@
 """Native grimoire effects and observed Um totals remain distinct for Abyss."""
 
 from dataclasses import replace
+from typing import Any
 
 from dirty_equals import Contains, IsPartialDict
 
@@ -57,7 +58,7 @@ EXAMPLES = (
 def cases():
     for slug, item, keys, trigger in EXAMPLES:
         role = 'abyss-warlock-table-grimoire-' + slug
-        rows = [
+        rows: list[tuple[str, Item, dict[str, Any], str, tuple[str, ...]]] = [
             ('minimum', item, {'player_class': 'Warlock'}, 'true', keys),
             ('wrong-class', item, {'player_class': 'Sorceress'}, 'false', ()),
             ('unknown-class', item, {}, 'unknown', ()),
@@ -97,14 +98,16 @@ def cases():
                     )
                 )
         for label, candidate, context, truth, expected_keys in rows:
-            expected = {'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))}
+            expected: dict[str, object] = {
+                'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))
+            }
             if truth == 'true':
                 expected['stat_evaluation'] = IsPartialDict(
                     annotations=IsPartialDict(
                         {k: IsPartialDict(configuration_ids=Contains(role + '-stats')) for k in expected_keys}
                     )
                 )
-            excluded = dict.fromkeys(
+            excluded: dict[str, tuple[str, ...]] = dict.fromkeys(
                 ('17:0', '18:0', '119:0', '201:3804', '201:4929', '329:0', '107:401'), (role + '-stats',)
             )
             if slug == 'mephistos' and label not in ('um-observed-totals', 'unknown-child-observed-totals'):

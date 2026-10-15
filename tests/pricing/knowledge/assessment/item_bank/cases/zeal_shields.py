@@ -113,7 +113,7 @@ def cases():
                 }
                 if label in ('wrong-base', 'nonpaladin-shield'):
                     # Candidate routing excludes incompatible item families before rule tracing.
-                    expected = {'family': 'weapon' if label == 'wrong-base' else 'shield'}
+                    expected: dict[str, object] = {'family': 'weapon' if label == 'wrong-base' else 'shield'}
                 if scenario == 'positive':
                     expected['stat_evaluation'] = IsPartialDict(
                         annotations=IsPartialDict(

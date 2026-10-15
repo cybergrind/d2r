@@ -3,7 +3,7 @@
 from dataclasses import replace
 
 from pricing.knowledge.assessment.build_profiles import build
-from pricing.knowledge.assessment.profiles import assess_roles
+from tests.pricing.knowledge.assessment.role_rows import role_rows
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
 
 
@@ -23,13 +23,13 @@ def test_double_throw_sharp_dexterity_charm_accepts_native_rolls_and_guards_miss
             )
         }
         item = replace(facts('Grand Charm', 'magic'), stats=stats)
-        assert assess_roles(item, [profile], context)[0]['rule_trace']['truth'] == 'true'
+        assert role_rows(item, [profile], context)[0]['rule_trace']['truth'] == 'true'
         for key in stats:
             missing = replace(item, stats={k: v for k, v in stats.items() if k != key})
-            assert assess_roles(missing, [profile], context)[0]['status'] == 'failed'
+            assert role_rows(missing, [profile], context)[0]['status'] == 'failed'
             assert (
-                assess_roles(replace(missing, capture_complete=False), [profile], context)[0]['rule_trace']['truth']
+                role_rows(replace(missing, capture_complete=False), [profile], context)[0]['rule_trace']['truth']
                 == 'unknown'
             )
-    assert assess_roles(item, [profile], {})[0]['rule_trace']['truth'] == 'unknown'
-    assert assess_roles(item, [profile], {'player_class': 'Paladin'})[0]['status'] == 'failed'
+    assert role_rows(item, [profile], {})[0]['rule_trace']['truth'] == 'unknown'
+    assert role_rows(item, [profile], {'player_class': 'Paladin'})[0]['status'] == 'failed'

@@ -75,7 +75,9 @@ def cases():
             )
         )
         for label, candidate, loadout, truth in examples:
-            expected = {'roles': Contains(*(IsPartialDict(id=r, rule_trace=IsPartialDict(truth=truth)) for r in roles))}
+            expected: dict[str, object] = {
+                'roles': Contains(*(IsPartialDict(id=r, rule_trace=IsPartialDict(truth=truth)) for r in roles))
+            }
             if truth == 'true':
                 annotations = {key: IsPartialDict(configuration_ids=Contains(*configs)) for key in ('35:0', '36:0')}
                 if leech_configs and label != 'unread-leech':

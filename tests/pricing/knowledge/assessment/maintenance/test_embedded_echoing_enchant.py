@@ -4,6 +4,7 @@ import hashlib
 import json
 from copy import deepcopy
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -17,7 +18,7 @@ from pricing.knowledge.builds import decode_planner
 ROOT = Path(__file__).resolve().parents[5]
 
 
-def inputs(span=12):
+def inputs(span=12) -> tuple[dict[str, Any], list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]]]:
     def read(path):
         return json.loads((ROOT / path).read_text())
 
@@ -27,7 +28,7 @@ def inputs(span=12):
     guide_path = 'pricing/raw/mr/guides__echoing-strike-warlock-guide.html'
     planner_path = 'pricing/raw/mr/planners/ucgz20le.json'
     html = (ROOT / guide_path).read_text()
-    guide = section_inventory(html)
+    guide: dict[str, Any] = section_inventory(html)
     planner = decode_planner(read(planner_path))
     profiles = read('pricing/data/appraisal-build-profiles.json')['profiles']
     uses = read('pricing/knowledge/assessment/rules/guide_use_reviews.json')['uses']
@@ -108,7 +109,7 @@ def test_native_tooltip_identity_and_enchant_charges_are_required(change):
         validate_echoing_enchant(row, resolved, role, ROOT)
 
 
-def recipient_inputs():
+def recipient_inputs() -> tuple[dict[str, Any], list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]]]:
     document, links, profiles, uses = inputs(15)
     row = document['rows'][0]
     role = next(p for p in profiles if p['id'] == 'echoing-ubers-mercenary-enchant-prebuff')

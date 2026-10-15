@@ -288,11 +288,11 @@ def run_of(
     name: str, label: str, situation: Situation, outcome: Outcome, film: Film, frame: Frame, end: int
 ) -> dict[str, Any]:
     arena: Stage = outcome.stage_  # type: ignore[attr-defined]
-    casts = []
+    casts: list[dict[str, Any]] = []
     for _, origin, focal, flight in arena.struck:
         if flight is None:
             continue
-        touched = {unit for unit, _ in flight.first}  # type: ignore[attr-defined]
+        touched = {unit for unit, _ in flight.first}
         casts.append(
             {
                 't': flight.birth,
@@ -301,7 +301,7 @@ def run_of(
                 'n': len(touched),
                 'b': pack(flight.paths, frame),
             }
-        )  # type: ignore[attr-defined]
+        )
     objects = []
     for at, text, gone in film.drops.values():
         objects.append(
@@ -568,7 +568,7 @@ def take_debug(take: Take) -> dict[str, Any]:
     events = take.events
     lines = [[tick(e['t']), e['text']] for e in events if e.get('event') == 'said']
     presses = [
-        [tick(e['t']), KEY_NAMES.get(e.get('routine'), str(e.get('routine'))),
+        [tick(e['t']), KEY_NAMES.get(str(e.get('routine')), str(e.get('routine'))),
          ', '.join(str(e[key]) for key in ('outcome', 'ended') if e.get(key))]
         for e in events if e.get('event') == 'press'
     ]  # fmt: skip

@@ -2,6 +2,7 @@
 
 import hashlib
 from copy import deepcopy
+from typing import Any
 
 import pytest
 
@@ -10,7 +11,7 @@ from pricing.knowledge.assessment.maintenance.guide_inventory import fingerprint
 from tests.pricing.knowledge.assessment.maintenance.test_embedded_echoing_pairing import ROOT, inputs
 
 
-def insight_inputs(span=6):
+def insight_inputs(span=6) -> tuple[dict[str, Any], list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]]]:
     variant = {1: 0, 6: 1, 8: 2, 127: 'overview', 130: 'overview'}[span]
     document, links, profiles, uses = inputs(span)
     role = next(r for r in profiles if r['id'] == f'echoing-{variant}-insight-merc')

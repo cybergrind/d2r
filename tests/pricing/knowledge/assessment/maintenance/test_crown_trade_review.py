@@ -56,7 +56,7 @@ def test_incomplete_report_evidence_does_not_close_review(change):
     elif change == 'incomplete':
         cases = [c for c in cases if c[0]['complete']]
     else:
-        next(c for c in cases if c[1]['lines'])[1]['lines'][0]['tone'] = 'tier_trash'
+        next(c[1] for c in cases if c[1] is not None and c[1]['lines'])['lines'][0]['tone'] = 'tier_trash'
     assert trade_crown.case_gap(cases, policy, trade_crown.specification(policy, definitions, specs))
 
 

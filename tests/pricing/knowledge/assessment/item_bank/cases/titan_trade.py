@@ -5,7 +5,7 @@ from itertools import product
 
 from dirty_equals import IsPartialDict
 
-from tests.pricing.knowledge.assessment.item_bank.models import Case, Item
+from tests.pricing.knowledge.assessment.item_bank.models import Case, Item, ItemChanges, with_stat_value
 
 
 FIXED = ((83, 0, 2), (188, 2, 2), (96, 0, 30), (253, 0, 30), (0, 0, 20), (2, 0, 20), (254, 0, 60))
@@ -31,20 +31,19 @@ def cases():
             item = specimen(base, ed, leech)
             yield make_case(f'{base}/ed-{ed}-leech-{leech}', item, 'premium' if ed >= threshold else 'unresolved')
         item = specimen(base)
-        for label, changes in (
+        overrides: tuple[tuple[str, ItemChanges], ...] = (
             ('nonethereal', {'ethereal': False}),
             ('unknown-ethereal', {'ethereal': None}),
             ('unidentified', {'identified': False}),
             ('impossible-socket', {'sockets': 1}),
             ('unknown-sockets', {'sockets': None}),
             ('unknown-contents', {'socket_contents': 'unknown'}),
-        ):
+        )
+        for label, changes in overrides:
             yield make_case(base + '/' + label, replace(item, **changes), 'unresolved')
         for stat, low, high in ((17, 150, 200), (18, 150, 200), (60, 5, 9)):
             for value in (None, low - 1, high + 1):
-                raw = tuple(
-                    (s, p, value if s == stat else v) for s, p, v in item.raw_stats if s != stat or value is not None
-                )
+                raw = with_stat_value(item.raw_stats, {stat}, value)
                 yield make_case(f'{base}/component-{stat}-{value}', replace(item, raw_stats=raw), 'unresolved')
         raw = tuple((s, p, 199 if s == 18 else v) for s, p, v in item.raw_stats)
         yield make_case(base + '/mismatched-ed', replace(item, raw_stats=raw), 'unresolved')

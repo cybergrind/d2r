@@ -1,4 +1,5 @@
 from pricing.triage.adapters import base_facets
+from tests.pricing.knowledge.reports import present
 
 
 def test_combined_and_elemental_resistance_have_identical_base_modifiers():
@@ -34,7 +35,7 @@ def test_clean_shield_native_block_is_not_a_trade_modifier():
     listed = base_facets({'441': 45}, 'normal', 4, 'empty', base=base)
     assert native['base_modifiers'] == listed['base_modifiers']
     for value, rarity, contents in [(20, 'normal', 'empty'), (28, 'magic', 'empty'), (28, 'normal', 'filled')]:
-        assert base_facets({'446': value}, rarity, 4, contents, base=base)['base_modifiers']['446'] == value
+        assert present(base_facets({'446': value}, rarity, 4, contents, base=base))['base_modifiers']['446'] == value
 
 
 def test_paladin_shield_damage_is_not_superior_defense_and_remains_a_price_modifier():

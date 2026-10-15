@@ -1,6 +1,7 @@
 """Only executed, source-bound, independently specified reports can close a gate."""
 
 from copy import deepcopy
+from typing import Any
 
 import pytest
 
@@ -8,12 +9,12 @@ from pricing.knowledge.assessment.maintenance.guide_inventory import fingerprint
 from pricing.knowledge.assessment.maintenance.report_reviews import review_dimensions
 
 
-def evidence():
+def evidence() -> tuple[dict[str, Any], dict[str, Any], dict[str, Any], str, dict[str, str]]:
     role = {'id': 'role', 'qualities': ['magic'], 'important_stats': ['7:0']}
     config = {'id': 'config', 'role_id': 'role', 'priorities': [{'key': '7:0'}]}
     profiles = {'profiles': [role], 'stat_evaluation': {'configurations': [config]}}
     inputs = {'tests/fixture.py': 'hash'}
-    cases = {}
+    cases: dict[str, dict[str, Any]] = {}
     for name, scenario, value, truth in (
         ('minimum', 'positive', 36, 'true'),
         ('maximum', 'positive', 45, 'true'),
@@ -97,7 +98,7 @@ def test_exact_use_review_closes_only_the_two_declared_dimensions():
 
 @pytest.mark.parametrize('failure', ['missing', 'generation', 'sources', 'exit', 'case', 'phase', 'expectations'])
 def test_incomplete_or_stale_execution_never_closes_a_review(failure):
-    args = list(evidence())
+    args: list[Any] = list(evidence())
     receipt = next(iter(args[2].values()))
     if failure == 'missing':
         args[2] = {}
@@ -120,7 +121,7 @@ def test_incomplete_or_stale_execution_never_closes_a_review(failure):
 
 @pytest.mark.parametrize('failure', ['profile', 'config', 'quality', 'keys', 'dimensions', 'duplicate'])
 def test_wrong_scope_or_source_review_is_rejected(failure):
-    args = list(evidence())
+    args: list[Any] = list(evidence())
     review = args[0]['rows'][0]
     if failure == 'profile':
         review['profile_fingerprint'] = 'stale'
@@ -140,7 +141,7 @@ def test_wrong_scope_or_source_review_is_rejected(failure):
 
 @pytest.mark.parametrize('omission', ['unknown', 'minimum_bound', 'full_report', 'range', 'native_key'])
 def test_passing_cases_without_required_assertions_are_not_sufficient(omission):
-    args = list(evidence())
+    args: list[Any] = list(evidence())
     review = args[0]['rows'][0]
     receipt = next(iter(args[2].values()))
     if omission == 'unknown':
@@ -165,7 +166,7 @@ def test_passing_cases_without_required_assertions_are_not_sufficient(omission):
 
 
 def test_stat_only_review_does_not_certify_full_report():
-    args = list(evidence())
+    args: list[Any] = list(evidence())
     args[0]['rows'][0]['dimensions'] = ['stat_annotations']
     for case in next(iter(args[2].values()))['cases'].values():
         case['report_checks'].pop('osd')
@@ -248,7 +249,7 @@ def test_completion_rechecks_receipt_generation_and_reviewed_dimensions():
 
 
 def test_partial_stat_presentation_assertions_can_prove_annotations_but_not_full_report():
-    args = list(evidence())
+    args: list[Any] = list(evidence())
     review = args[0]['rows'][0]
     review['dimensions'] = ['stat_annotations']
     cases = next(iter(args[2].values()))['cases']
@@ -274,7 +275,7 @@ def test_partial_stat_presentation_assertions_can_prove_annotations_but_not_full
 
 
 def test_review_rejects_a_color_expectation_that_contradicts_the_roll_quality():
-    args = list(evidence())
+    args: list[Any] = list(evidence())
     review = args[0]['rows'][0]
     receipt = next(iter(args[2].values()))
     case = receipt['cases']['maximum']

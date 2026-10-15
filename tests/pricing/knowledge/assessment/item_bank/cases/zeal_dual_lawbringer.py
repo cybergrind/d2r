@@ -33,7 +33,7 @@ def cases():
             ('two-handed-other', {'weapon': weapon, 'off_hand': twohand}, 'negative'),
             ('unknown-loadout', None, 'unknown'),
         ):
-            expected = {
+            expected: dict[str, object] = {
                 'roles': Contains(
                     IsPartialDict(
                         id=ROLE,

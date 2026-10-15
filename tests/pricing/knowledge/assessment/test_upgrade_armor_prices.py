@@ -1,4 +1,5 @@
 from datetime import date
+from typing import Any
 
 from inventory_tracking.appraisal.sections import price_lines
 from pricing.knowledge.assessment.engine import assess_result
@@ -18,7 +19,7 @@ def test_saved_sazabi_upgrade_prices_only_matching_defense_and_keeps_current_pri
     assert len(requests) == 45
     assert {r.contract['properties']['1855'] for r in requests} == set(range(210, 255))
     request = next(r for r in requests if r.contract['properties']['1855'] == 254)
-    rows = [
+    rows: list[dict[str, Any]] = [
         {
             **request.to_dict()['contract'],
             'kind': 'market',
@@ -58,6 +59,7 @@ def test_saved_sazabi_upgrade_prices_only_matching_defense_and_keeps_current_pri
     assert 'Ko' in text
     assert 'Lem' in text
     assert 'Perfect Diamond' in text
+    assert result.contract is not None
     assert result.contract.properties['1855'] == 177
     assert all(r.contract['base_code'] == result.upgrades[0].target_code for r in requests)
     assert all(r.contract['properties']['427'] == 19 for r in requests)
@@ -73,4 +75,5 @@ def test_guardian_upgrade_does_not_quote_unreachable_defense_or_unknown_sockets(
     assert len(requests) == 110
     assert {r.contract['properties']['1855'] for r in requests} == {base * 287 // 100 for base in range(421, 531)}
     assert all(r.contract['properties']['1855'] != 1209 for r in requests)
+    assert result.contract is not None
     assert result.contract.properties['1855'] == 789

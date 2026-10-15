@@ -2,7 +2,7 @@
 
 from dirty_equals import Contains, IsPartialDict
 
-from tests.pricing.knowledge.assessment.item_bank.models import Case, Item
+from tests.pricing.knowledge.assessment.item_bank.models import Case, Item, known
 
 
 ROWS = (
@@ -29,7 +29,7 @@ def cases():
             ('negative', {'player_class': 'Sorceress'}),
             ('unknown', {}),
         ):
-            expected = {
+            expected: dict[str, object] = {
                 'roles': Contains(
                     IsPartialDict(
                         id=role,
@@ -54,7 +54,7 @@ def cases():
                     covers=(role,),
                     scenario=scenario,
                     absent_configurations=() if scenario == 'positive' else (role + '-stats',),
-                    report_contains=(item.name, 'Trade tier:'),
+                    report_contains=(known(item.name), 'Trade tier:'),
                     evidence=(
                         f'pricing/data/appraisal-guide-sections.json:/sources/pricing~1raw~1mr~1guides__zeal-paladin.html/item_spans/{span}',
                     ),

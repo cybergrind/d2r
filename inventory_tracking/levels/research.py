@@ -20,7 +20,7 @@ Seed hashes are recorded as observed; nothing here decodes a seed or generates a
 
 import os
 import struct
-from typing import Any
+from typing import Any, TypedDict
 
 from inventory_tracking.loot.runes import RUNES
 from inventory_tracking.loot.shrines import SHRINE_NAMES
@@ -88,13 +88,24 @@ class Probe:
         return None if data is None else u32(data, 0)
 
 
+class Room2List(TypedDict):
+    level_offset: int  # the level field pointing at the first Room2
+    next_offset: int | None  # the Room2 next field walked; None: no second Room2 found
+    rooms: list[int]
+
+
+class LevelChain(TypedDict):
+    offset: int | None  # the next-level field; None: none yields a second level
+    levels: list[int]
+
+
 def room2_level(probe, room2):
     return probe.pointer(room2 + 0x90)
 
 
-def room2_lists(probe, level, level_bytes, *, max_rooms=MAX_ROOMS):
+def room2_lists(probe, level, level_bytes, *, max_rooms=MAX_ROOMS) -> list[Room2List]:
     """Every (level field, Room2 next field) pair that walks Room2s pointing back at the level."""
-    lists = []
+    lists: list[Room2List] = []
     for first_offset in range(0, len(level_bytes), 8):
         first = u64(level_bytes, first_offset)
         if first == level or room2_level(probe, first) != level:
@@ -120,12 +131,12 @@ def room2_lists(probe, level, level_bytes, *, max_rooms=MAX_ROOMS):
     return lists
 
 
-def level_chain(probe, first, *, max_levels=MAX_LEVELS):
+def level_chain(probe, first, *, max_levels=MAX_LEVELS) -> LevelChain:
     """Follow the next-level field that yields the most distinct plausible area IDs."""
     head = probe.get(first, LEVEL_SIZE)
     if head is None:
         return {'offset': None, 'levels': []}
-    best = {'offset': None, 'levels': [first]}
+    best: LevelChain = {'offset': None, 'levels': [first]}
     for offset in range(0, LEVEL_SIZE, 8):
         second = u64(head, offset)
         if second == first or not 1 <= (probe.level_no(second) or 0) <= 200:
@@ -188,7 +199,7 @@ def collision_candidates(probe, room1, room2):
     wanted = struct.pack('<IIII', x, y, w, h)
     if not 0 < w * h * 2 <= MAX_MASK_BYTES:
         return []
-    sources = [(None, room1, room1_data)]
+    sources: list[tuple[int | None, int, bytes]] = [(None, room1, room1_data)]
     for offset in range(0, ROOM_SIZE, 8):
         target = u64(room1_data, offset)
         data = probe.get(target, BLOCK_SIZE)
@@ -340,7 +351,7 @@ def survey(read, table_address) -> dict[str, Any]:
     rooms = lists[0]['rooms'] if lists else []
     loaded_room2s = {r['room2'] for r in room1s.values()}
     known = set(room1s) | loaded_room2s | set(rooms) | {level, player['act'], act.get('act_misc')}
-    room2s = []
+    room2s: list[dict[str, Any]] = []
     for index, room2 in enumerate(rooms):
         blocks = room2_blocks(probe, room2, known - {room2})
         room2s.append(
@@ -353,9 +364,9 @@ def survey(read, table_address) -> dict[str, Any]:
             }
         )
 
-    levels = []
+    levels: list[dict[str, Any]] = []
     chain = level_chain(probe, act['first_level']) if valid_pointer(act.get('first_level', 0)) else None
-    for address in (chain or {}).get('levels', []):
+    for address in chain['levels'] if chain else []:
         data = probe.get(address, LEVEL_SIZE)
         found = room2_lists(probe, address, data) if data else []
         levels.append(
@@ -418,7 +429,7 @@ def survey(read, table_address) -> dict[str, Any]:
             ],
         },
         'levels': levels,
-        'level_chain_offset': (chain or {}).get('offset'),
+        'level_chain_offset': chain['offset'] if chain else None,
         'room1s': [{'address': a} | r for a, r in room1s.items()],
         'room2s': room2s,
         'units': units,

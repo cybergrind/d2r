@@ -1,4 +1,5 @@
 import random
+from collections.abc import Sequence
 
 import pytest
 
@@ -11,37 +12,53 @@ class FakeKeys:
     """Records every press and release of keys and mouse buttons in `events`; `reported` is what
     `held_keys` says is physically down, as the X connection would."""
 
-    def __init__(self):
-        self.events = []
-        self.codes = {}
-        self.reported = set()
+    def __init__(self) -> None:
+        self.open_ms = 0.0
+        self.events: list[tuple[str, int]] = []
+        self.codes: dict[str, int] = {}
+        self.reported: set[int] = set()
 
-    def keycodes(self, names):
+    def keycodes(self, names: Sequence[bytes]) -> list[int]:
         return [self.codes.setdefault(name.decode(), 100 + len(self.codes)) for name in names]
 
-    def press(self, code):
-        self.events.append(('press', code))
+    def press(self, key: int) -> bool:
+        self.events.append(('press', key))
         return True
 
-    def release(self, code):
-        self.events.append(('release', code))
+    def release(self, key: int) -> bool:
+        self.events.append(('release', key))
         return True
 
-    def button(self, code, down):
-        self.events.append(('button-down' if down else 'button-up', code))
+    def button(self, button: int, down: bool) -> bool:
+        self.events.append(('button-down' if down else 'button-up', button))
         return True
 
-    def sync(self):
+    def sync(self) -> None:
         pass
 
-    def held_keys(self):
+    def any_key_held(self) -> bool:
+        return bool(self.reported)
+
+    def held_keys(self) -> frozenset[int]:
         return frozenset(self.reported)
 
-    def pointer(self):
+    def modifier_keys(self) -> frozenset[int]:
+        return frozenset()
+
+    def focused_window_pid(self) -> int | None:
+        return 1
+
+    def focused_window_rect(self) -> tuple[int, int, int, int] | None:
+        return None
+
+    def pointer(self) -> tuple[int, int]:
         return (0, 0)
 
-    def pointer_state(self):
+    def pointer_state(self) -> tuple[int, int, int]:
         return (0, 0, 0)
+
+    def move_pointer(self, x: int, y: int) -> bool:
+        return True
 
 
 def press_again_after_focus_lost(state, again):
@@ -132,11 +149,11 @@ def test_a_run_asked_to_stop_makes_no_further_input():
     from inventory_tracking.macros.actuator import Cancelled
 
     actuator, keys, _ = make()
-    actuator.cancelled = threading.Event()
+    cancelled = actuator.cancelled = threading.Event()
     code = keys.keycodes([b'7'])[0]
 
     def stop_then_again(again):
-        actuator.cancelled.set()
+        cancelled.set()
         again()
 
     with pytest.raises(Cancelled), actuator.hold('7') as again:

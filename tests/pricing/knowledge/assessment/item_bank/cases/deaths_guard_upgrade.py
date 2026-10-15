@@ -29,7 +29,7 @@ def cases():
             role_expectation = {'id': role, 'rule_trace': IsPartialDict(truth=truth)}
             if label == 'unidentified':
                 # Identification gates the whole role; observed stat predicates alone can still pass.
-                role_expectation = {'id': role, 'status': 'unknown'}
+                role_expectation: dict[str, object] = {'id': role, 'status': 'unknown'}
             if label == 'native-cbf':
                 role_expectation['dependencies'] = Contains(
                     IsPartialDict(
@@ -39,7 +39,7 @@ def cases():
                 )
             elif ready:
                 role_expectation['dependencies'] = Contains(IsPartialDict(status='true'))
-            expected = {'roles': Contains(IsPartialDict(**role_expectation))}
+            expected: dict[str, object] = {'roles': Contains(IsPartialDict(**role_expectation))}
             if ready:
                 expected['stat_evaluation'] = IsPartialDict(
                     annotations=IsPartialDict({'153:0': IsPartialDict(configuration_ids=Contains(config))})

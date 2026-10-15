@@ -4,7 +4,7 @@ from dataclasses import replace
 
 from dirty_equals import IsPartialDict
 
-from tests.pricing.knowledge.assessment.item_bank.models import Case, Item
+from tests.pricing.knowledge.assessment.item_bank.models import Case, Item, ItemChanges
 
 
 VARIANTS = (
@@ -69,14 +69,15 @@ def cases():
                 has_premium and penalty == maximum,
                 maximum,
             )
-        for label, changes in (
+        overrides: tuple[tuple[str, ItemChanges], ...] = (
             ('unidentified', {'identified': False}),
             ('ethereal', {'ethereal': True}),
             ('unknown-ethereal', {'ethereal': None}),
             ('socketed', {'sockets': 1}),
             ('unknown-sockets', {'sockets': None}),
             ('unknown-contents', {'socket_contents': 'unknown'}),
-        ):
+        )
+        for label, changes in overrides:
             yield make_case(slug, label, replace(item, **changes), stat, kind, False)
 
 

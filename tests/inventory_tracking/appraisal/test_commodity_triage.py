@@ -1,3 +1,5 @@
+from typing import Any
+
 from inventory_tracking.appraisal.presentation import ItemAssessment
 
 
@@ -23,7 +25,13 @@ def test_high_single_seller_ask_is_reference_not_a_conflicting_vendor_price():
     from inventory_tracking.appraisal.triage import headline
     from pricing.triage.engine import assess
 
-    band = {'q1_ist': 300, 'median_ist': 300, 'sellers': 1, 'liquidity': 'none', 'observed_at': '2026-10-03'}
+    band: dict[str, Any] = {
+        'q1_ist': 300,
+        'median_ist': 300,
+        'sellers': 1,
+        'liquidity': 'none',
+        'observed_at': '2026-10-03',
+    }
     tables = {
         'rules': {'rows': [], 'keep_ist': 0.25},
         'own': {'rows': []},

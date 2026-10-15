@@ -7,6 +7,7 @@ from pricing.knowledge.assessment.build_profiles import ROOT, build
 from pricing.knowledge.assessment.maintenance.stat_configurations import compile_stat_configurations
 from pricing.knowledge.assessment.profiles import assess_role_results
 from pricing.knowledge.assessment.stat_evaluation import StatsEvaluator
+from tests.pricing.knowledge.assessment.fact_changes import fact_changes
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
 
 
@@ -51,7 +52,7 @@ def test_insight_mana_priority_preserves_identity_recipe_and_merc_conditions(rol
         assert result.annotations['151:120']['desirability'] == 'desirable'
         assert result.annotations['151:120']['roll_quality'] == 'unassessed'
         assert result.configurations[0]['role']['status'] == 'partial'
-    for changes in (
+    for changes in fact_changes(
         {'name': 'Infinity'},
         {'name': None},
         {'runeword': 'Infinity'},

@@ -5,14 +5,15 @@ Supported-build runtime evidence: sub_1401ed340 and sub_1402197f0 follow
 """
 
 import struct
+from typing import Any
 
 
 UI_MANAGER_RVA = 0x1EE5790
 WIDGET_BYTES = 0x700
 
 
-def collect_ui(read, base, image_size):
-    result = {'validated': False, 'stable': False, 'anchors': [], 'widgets': {}, 'errors': []}
+def collect_ui(read, base, image_size) -> dict[str, Any]:
+    result: dict[str, Any] = {'validated': False, 'stable': False, 'anchors': [], 'widgets': {}, 'errors': []}
     anchors = result['anchors']
 
     def pointer(address):

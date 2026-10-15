@@ -5,7 +5,7 @@ from dataclasses import replace
 from dirty_equals import Contains, IsPartialDict
 
 from tests.pricing.knowledge.assessment.item_bank.cases.zeal_merc_named import EXAMPLES
-from tests.pricing.knowledge.assessment.item_bank.models import Case, SocketItem
+from tests.pricing.knowledge.assessment.item_bank.models import Case, SocketItem, known
 
 
 SPANS = {
@@ -40,7 +40,7 @@ def cases():
         else:
             scenarios.append(('ethereal', replace(item, ethereal=True), context, 'positive'))
         for label, candidate, ctx, scenario in scenarios:
-            expected = {
+            expected: dict[str, object] = {
                 'roles': Contains(
                     IsPartialDict(
                         id=role,
@@ -67,7 +67,9 @@ def cases():
                     scenario=scenario,
                     absent_configurations=() if scenario == 'positive' else (role + '-stats',),
                     absent_stat_configurations=dict.fromkeys(irrelevant, (role + '-stats',)),
-                    report_contains=(candidate.name, 'Trade tier:') if scenario == 'positive' else (candidate.name,),
+                    report_contains=(known(candidate.name), 'Trade tier:')
+                    if scenario == 'positive'
+                    else (known(candidate.name),),
                     evidence=(
                         'pricing/data/appraisal-guide-sections.json:/sources/'
                         + f'pricing~1raw~1mr~1guides__abyss-warlock-build-guide.html/item_spans/{SPANS[slug]}',

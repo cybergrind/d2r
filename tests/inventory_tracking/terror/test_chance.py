@@ -4,7 +4,7 @@ minus the completion stored at the group's last Herald; each kill rolls after it
 
 import pytest
 
-from inventory_tracking.terror.chance import Level, Odds, breakpoint, group_completion, odds
+from inventory_tracking.terror.chance import Level, Odds, breakpoint_of, group_completion, odds
 from terror_zones.diagnostic import hazard
 
 
@@ -48,9 +48,9 @@ def test_group_completion_is_the_weighted_mean_of_its_levels():
 
 @pytest.mark.parametrize(('tier', 'point'), [(1, 51.99), (2, 42.57), (3, 42.57), (4, 30.05), (5, 5.71)])
 def test_breakpoint_is_where_the_curve_turns_positive(tier, point):
-    assert breakpoint(tier) == pytest.approx(point, abs=0.01)
-    assert hazard(tier, breakpoint(tier) - 0.01) == 0
-    assert hazard(tier, breakpoint(tier) + 0.01) > 0
+    assert breakpoint_of(tier) == pytest.approx(point, abs=0.01)
+    assert hazard(tier, breakpoint_of(tier) - 0.01) == 0
+    assert hazard(tier, breakpoint_of(tier) + 0.01) > 0
 
 
 def test_each_kill_rolls_after_it_is_counted():
@@ -73,16 +73,18 @@ def test_after_a_herald_progress_counts_from_the_completion_stored_then():
     # Tier 1 spawned at 55%; 75% now is 20% of progress for Tier 2, and clearing reaches 45%:
     # the kill that makes 98% (43% of progress) is the first past 42.57%.
     result = odds(2, [level(killed=75, spawned=100, rooms=(10, 10))], offset=55.0)
+    over = pytest.approx(1 - (1 - hazard(2, 43)) * (1 - hazard(2, 44)) * (1 - hazard(2, 45)))
 
+    # approx in the float fields: the dataclass's == compares them with a tolerance
     assert result == Odds(
         tier=2,
-        completion=pytest.approx(20.0),
-        breakpoint=pytest.approx(42.57, abs=0.01),
+        completion=pytest.approx(20.0),  # pyrefly: ignore[bad-argument-type]
+        breakpoint=pytest.approx(42.57, abs=0.01),  # pyrefly: ignore[bad-argument-type]
         kills_to_breakpoint=22,
-        reachable=pytest.approx(45.0),
+        reachable=pytest.approx(45.0),  # pyrefly: ignore[bad-argument-type]
         remaining=25,
         next_kill=0.0,
-        over_remaining=pytest.approx(1 - (1 - hazard(2, 43)) * (1 - hazard(2, 44)) * (1 - hazard(2, 45))),
+        over_remaining=over,  # pyrefly: ignore[bad-argument-type]
     )
 
 

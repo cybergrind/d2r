@@ -1,5 +1,6 @@
 from pricing.triage.bands import build_bands
 from pricing.triage.engine import assess
+from tests.pricing.knowledge.reports import present
 from tests.pricing.triage.test_bands import listing
 
 
@@ -19,7 +20,7 @@ def test_non_ethereal_drop_never_borrows_ethereal_or_unknown_asks():
             [(0.674, None), (0.789, None), (2.585, None), (11.421, True), (11.421, True), (79.947, True)]
         )
     ]
-    result = assess({'category': 'uniques', 'name': 'Example', 'ethereal': False}, tables(rows))
+    result = present(assess({'category': 'uniques', 'name': 'Example', 'ethereal': False}, tables(rows)))
     assert result['verdict'] == 'check'
     assert result['band'] is None or result['band']['median_ist'] is None
     assert result['reference_band']['median_ist'] == 7.003
@@ -39,7 +40,7 @@ def test_ethereal_gloves_boots_and_belts_are_priced_exactly_like_the_normal_copy
     ]
     for family in ('glov', 'boot', 'belt'):
         item = {'category': 'uniques', 'name': 'Example', 'ethereal': True, 'family': family}
-        result = assess(item, tables(rows))
+        result = present(assess(item, tables(rows)))
         normal = assess(item | {'ethereal': False}, tables(rows))
         assert (result['verdict'], result['band'], result['reference_band']) == (
             normal['verdict'],
@@ -175,7 +176,7 @@ def test_base_socket_contents_quality_and_count_cannot_cross_price_bands():
 
 def test_unknown_ethereal_never_prices_known_noneth_even_without_ethereal_sellers():
     rows = [{**listing(i, 10), 'properties': {**listing(i)['properties'], '738': None}} for i in range(3)]
-    result = assess({'category': 'uniques', 'name': 'Example', 'ethereal': False}, tables(rows))
+    result = present(assess({'category': 'uniques', 'name': 'Example', 'ethereal': False}, tables(rows)))
     assert result['band'] is None or result['band']['median_ist'] is None
     assert result['verdict'] == 'check'
     assert result['reference_band']['median_ist'] == 10
@@ -247,7 +248,7 @@ def test_filled_unique_uses_bare_item_price_and_excludes_socketed_listing_premiu
     rows = [listing(i, 0.6, ethereal=False, sockets=0, socket_contents='empty') for i in range(10)]
     rows += [listing(f'filled-{i}', 8, ethereal=False, sockets=1, socket_contents='filled') for i in range(10)]
     item = {'category': 'uniques', 'name': 'Example', 'ethereal': False, 'sockets': 1, 'socket_contents': 'filled'}
-    result = assess(item, tables(rows))
+    result = present(assess(item, tables(rows)))
     assert result['decision_ist'] == 0.6
     assert result['band']['sellers'] == 10
     assert result['reference_band']['sellers'] == 10

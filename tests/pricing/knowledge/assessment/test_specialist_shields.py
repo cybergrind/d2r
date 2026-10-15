@@ -7,6 +7,7 @@ from pricing.knowledge.assessment.build_profiles import build
 from pricing.knowledge.assessment.profiles import assess_role_results
 from pricing.knowledge.assessment.stat_bundle import configuration_from_row
 from pricing.knowledge.assessment.stat_evaluation import StatsEvaluator
+from tests.pricing.knowledge.assessment.fact_changes import fact_changes
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
 
 
@@ -56,7 +57,7 @@ def test_specialist_shield_preparation_and_verified_completed_setup(payload):
     assert not evaluate(empty, 'filled').annotations
     assert evaluate(filled, 'filled').annotations
     assert not evaluate(filled, 'empty').annotations
-    for patch in (
+    for patch in fact_changes(
         {'rarity': 'rare'},
         {'ethereal': True},
         {'sockets': 3},

@@ -2,6 +2,7 @@
 
 import json
 from pathlib import Path
+from typing import Any
 
 from pricing.knowledge.assessment.maintenance.table_equivalence import compile_table_equivalence
 
@@ -55,7 +56,7 @@ def test_bulwark_sources_preserve_base_wearer_ethereal_and_survival_qualificatio
         key = row['profile_id'].removesuffix('-merc-bulwark-native')
         klass, base, auras, ethereal = EXPECTED[key]
         mercs = [{'op': 'context_eq', 'field': 'mercenary_type', 'value': aura} for aura in auras]
-        expected = [
+        expected: list[dict[str, Any]] = [
             {'op': 'context_eq', 'field': 'player_class', 'value': klass},
             {'any': mercs} if len(mercs) > 1 else mercs[0],
         ]

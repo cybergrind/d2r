@@ -71,23 +71,23 @@ def _death(rows: list[tuple[int, PlayerRow]], rel: list[float]) -> Moment | None
 
 def _bursts(rows: list[tuple[int, PlayerRow]], rel: list[float], share: float = BURST_SHARE) -> list[Moment]:
     """Frames where the life fell by `share` of the max life since the highest life in the window."""
-    known = [(i, p) for i, p in rows if p.life is not None and p.max_life]
+    known = [(i, p.life, p.max_life) for i, p in rows if p.life is not None and p.max_life]
     found = []
-    for pos, (index, player) in enumerate(known):
+    for pos, (index, life, max_life) in enumerate(known):
         peak = None
         for back in range(pos - 1, -1, -1):
-            earlier, before = known[back]
+            earlier, before, _max = known[back]
             if rel[index] - rel[earlier] > BURST_WINDOW:
                 break
-            if peak is None or before.life > peak[1].life:
+            if peak is None or before > peak[1]:
                 peak = (earlier, before)
         if peak is None:
             continue
-        lost = peak[1].life - player.life
-        if lost > 0 and lost >= share * player.max_life:
+        lost = peak[1] - life
+        if lost > 0 and lost >= share * max_life:
             at = rel[index]
             within = at - rel[peak[0]]
-            note = f'life {peak[1].life} -> {player.life} of {player.max_life} within {within:.2f} s'
+            note = f'life {peak[1]} -> {life} of {max_life} within {within:.2f} s'
             found.append(Moment(_place(rel, at), 'burst', at, note))
     return found
 

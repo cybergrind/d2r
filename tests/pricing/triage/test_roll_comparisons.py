@@ -1,3 +1,5 @@
+from typing import Any
+
 import pytest
 
 from pricing.triage.roll_comparisons import compare, deciding_stats, leave_one_out, validation_summary
@@ -38,7 +40,7 @@ def test_selection_detects_paid_skill_not_evenly_distributed_ed():
     assert set(selected) == {'skill'}
     assert selected['skill']['top_count'] == 18
     assert selected['skill']['sample_size'] == 19
-    low = compare({'skill': 2, 'ed': 50}, rows(), selected, keep_ist=0.25)
+    low: dict[str, Any] = compare({'skill': 2, 'ed': 50}, rows(), selected, keep_ist=0.25)
     assert low['verdict'] == 'check'
     assert low['q1_ist'] == 0.2
     assert low['sellers'] == 1
@@ -82,7 +84,7 @@ def test_leave_one_out_excludes_all_copies_from_the_held_out_seller():
 
 def test_out_of_range_drop_cannot_be_priced_as_a_perfect_roll():
     selected = deciding_stats(rows(), RANGES)
-    result = compare({'skill': 4}, rows(), selected, keep_ist=0.25)
+    result: dict[str, Any] = compare({'skill': 4}, rows(), selected, keep_ist=0.25)
     assert result['verdict'] == 'check'
     assert result['q1_ist'] is None
     assert 'outside native range' in result['reason']

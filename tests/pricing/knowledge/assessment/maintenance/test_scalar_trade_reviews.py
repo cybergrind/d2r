@@ -1,4 +1,5 @@
 import json
+from typing import Any
 
 import pytest
 
@@ -16,7 +17,7 @@ IDENTITY = ('unique', "Bul-Kathos' Wedding Band")
 PATH = 'pricing/data/report-receipts/scalar-jewelry-trade.json'
 
 
-def data(identity=IDENTITY, case_set=CASES):
+def data(identity=IDENTITY, case_set=CASES) -> tuple[dict[str, Any], dict[str, Any]]:
     policies = _policies(RULES.read_bytes())
     definitions = {key: thaw(value) for key, value in catalog().named_variants.items()}
     cases = {
@@ -186,6 +187,7 @@ def test_scalar_partitions_keep_endpoints_and_both_sides_of_real_thresholds():
 
     _, context = data(identity, SLING)
     spec = specification(context['policies'][identity], context['definitions'][identity], context['stat_specs'])
+    assert spec is not None
     assert spec[2] == {'358:0': {3, 4, 5}, '1:0': {10, 15}, '80:0': {10, 20}}
 
 

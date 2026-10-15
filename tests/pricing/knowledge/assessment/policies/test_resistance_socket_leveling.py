@@ -5,6 +5,7 @@ import pytest
 from inventory_tracking.items.metadata import metadata
 from pricing.knowledge.assessment.policies.leveling import assess_leveling
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
+from tests.pricing.knowledge.reports import reports
 
 
 def setup(base, name, fillers, stats):
@@ -38,7 +39,7 @@ def setup(base, name, fillers, stats):
 )
 def test_reviewed_socket_survival_setups_require_actual_fillers(item, index):
     locator = f'/generic_patterns/{index}'
-    matches = [u for u in assess_leveling(item) if u['source']['locator'] == locator]
+    matches = [u for u in reports(assess_leveling(item)) if u['source']['locator'] == locator]
     assert len(matches) == 1
     assert matches[0]['status'] == 'conditional'
     for changed in [
@@ -47,12 +48,12 @@ def test_reviewed_socket_survival_setups_require_actual_fillers(item, index):
         replace(item, socket_contents='empty'),
         replace(item, runeword='unverified'),
     ]:
-        assert not any(u['source']['locator'] == locator for u in assess_leveling(changed))
+        assert not any(u['source']['locator'] == locator for u in reports(assess_leveling(changed)))
 
 
 def test_resistance_helm_requires_all_three_runes_and_their_totals():
     item = setup('Mask', None, ['Ral Rune', 'Ral Rune', 'Ral Rune'], {39: 90})
-    assert any(u['source']['locator'] == '/generic_patterns/5' for u in assess_leveling(item))
+    assert any(u['source']['locator'] == '/generic_patterns/5' for u in reports(assess_leveling(item)))
     for changed in [
         replace(item, stats={'39:0': {'status': 'decoded', 'value': 30}}),
         replace(item, socket_items=item.socket_items[:2]),

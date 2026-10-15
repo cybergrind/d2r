@@ -1,11 +1,13 @@
 from copy import deepcopy
+from typing import Any
 
 import pytest
 
 from pricing.knowledge.assessment.policies import market_ethereal_inference as inference
+from tests.pricing.knowledge.reports import thawed
 
 
-def listing(ed=120):
+def listing(ed=120) -> dict[str, Any]:
     return {
         'name': 'Arachnid Mesh',
         'rarity': 'unique',
@@ -74,7 +76,7 @@ def test_native_schema_changes_invalidate_the_proof(monkeypatch, mutation):
     from pricing.knowledge.assessment.handlers.definitions import named_definitions
 
     rows = dict(named_definitions())
-    row = thaw(rows['unique', 'Arachnid Mesh'])
+    row = thawed(thaw(rows['unique', 'Arachnid Mesh']))
     if mutation == 'base':
         row['base_definition']['maxac'] = 64
     elif mutation == 'sockets':

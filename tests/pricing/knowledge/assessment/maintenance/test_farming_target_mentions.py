@@ -3,6 +3,7 @@
 import copy
 import hashlib
 import json
+from typing import Any
 
 import pytest
 
@@ -26,7 +27,7 @@ def example(
     raw.parent.mkdir(parents=True, exist_ok=True)
     html = '<h2>Summary</h2>' + instruction.replace(name, f'<span class="d2planner-item">{name}</span>')
     raw.write_text(html)
-    guide = section_inventory(html)
+    guide: dict[str, Any] = section_inventory(html)
     path = root / row['source']['path']
     path.write_text(json.dumps({'sources': {gid: guide}}))
     digest = hashlib.sha256(path.read_bytes()).hexdigest()

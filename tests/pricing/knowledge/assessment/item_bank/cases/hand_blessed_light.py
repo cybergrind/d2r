@@ -122,7 +122,7 @@ def cases():
                 ]
                 if contributions:
                     annotations[key] = IsPartialDict(contributions=Contains(*contributions))
-            expected = {
+            expected: dict[str, object] = {
                 'roles': Contains(
                     IsPartialDict(id=MAIN, rule_trace=IsPartialDict(truth=main_truth)),
                     IsPartialDict(id=SUPPORT, rule_trace=IsPartialDict(truth=support_truth)),

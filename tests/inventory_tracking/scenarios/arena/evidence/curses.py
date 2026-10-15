@@ -134,7 +134,7 @@ def tally(take_name: str, moments: Sequence[Moment], readings: Readings, roster:
     """One take's readings and cursers (the module text)."""
     clocks = [moment.t for moment in moments]
     first = [] if readings.first is None or not moments else [(moments[0].t, readings.first)]
-    samples = [
+    samples: list[list[Any]] = [
         [max(bisect.bisect_right(clocks, clock) - 1, 0), [*resists]] for clock, resists in [*first, *readings.later]
     ]
     cursed = {unit for unit in roster.units if CURSED in (roster.mods(unit) or ())}

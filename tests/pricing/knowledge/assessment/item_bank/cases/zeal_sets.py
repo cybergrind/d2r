@@ -81,17 +81,18 @@ def cases():
         ]
         # Repeated copies of one companion still make only two distinct pieces.
         if name in (SIGON[3], IK[0], IK[1], IK[2]):
-            two_piece_keys = {
+            keys_by_piece: dict[str, tuple[str, ...]] = {
                 SIGON[3]: (*intrinsic, '19:0'),
                 IK[0]: (*intrinsic, '93:0'),
                 IK[1]: intrinsic,
                 IK[2]: (),
-            }[name]
+            }
+            two_piece_keys = keys_by_piece[name]
             scenarios.append(
                 ('two-distinct', {'player_class': 'Paladin', 'player_items': [companions[0]] * 3}, item, two_piece_keys)
             )
         for scenario, context, candidate, keys in scenarios:
-            expected = {'roles': Contains(IsPartialDict(id=role, build='zeal-paladin'))}
+            expected: dict[str, object] = {'roles': Contains(IsPartialDict(id=role, build='zeal-paladin'))}
             if keys:
                 expected['stat_evaluation'] = IsPartialDict(
                     annotations=IsPartialDict({key: IsPartialDict(configuration_ids=Contains(config)) for key in keys})

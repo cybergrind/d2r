@@ -1,5 +1,7 @@
 """Seasonal overlays must not erase ordinary named-item evidence."""
 
+from typing import Any
+
 from pricing.knowledge.assessment.maintenance.seasonal_named_audit import audit
 
 
@@ -8,7 +10,7 @@ def test_same_table_id_preserves_both_versions_and_property_difference():
     seasonal = {**ordinary, 'firstLadderSeason': 15, 'lastLadderSeason': 15, 'prop2': 'cast2', 'min2': 10, 'max2': 10}
     result = audit({'121': ordinary}, {'121': seasonal})
     assert len(result) == 1
-    row = result[0]
+    row: dict[str, Any] = result[0]
     assert row['ordinary'] == ordinary
     assert row['seasonal'] == seasonal
     assert row['differences']['prop2'] == {

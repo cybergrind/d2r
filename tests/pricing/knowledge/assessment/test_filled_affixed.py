@@ -1,4 +1,5 @@
 from dataclasses import replace
+from typing import Any
 
 import pytest
 
@@ -43,7 +44,7 @@ def test_filled_armor_compares_actual_total_quality_and_payload(rarity, innate):
     assert contract is not None, gaps
     assert contract.socket_payload == ('Perfect Topaz', 'Perfect Topaz')
     assert contract.properties[item.stats['80:0']['market_property']] == 48 + innate
-    row = {
+    row: dict[str, Any] = {
         **contract.to_dict(),
         'properties': {**contract.properties, '934': 'Perfect Topaz, Perfect Topaz'},
         'scope_status': 'verified',
@@ -78,7 +79,7 @@ def test_body_armor_keeps_defense_and_other_modifiers_in_filled_comparison():
     assert contract is not None, gaps
     assert contract.properties['1855'] == 12
     assert contract.properties['427'] == 20
-    row = {
+    row: dict[str, Any] = {
         **contract.to_dict(),
         'properties': {**contract.properties, '934': 'Perfect Topaz, Perfect Topaz'},
         'scope_status': 'verified',

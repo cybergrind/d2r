@@ -67,7 +67,7 @@ class DummyWalk:
         return 0.0
 
 
-@dataclass(frozen=True)
+@dataclass  # not frozen: macros/build.py `Attack` has read-write fields, as EchoingStrike does
 class DummyBolt:
     """One plain bolt at the nearest foe."""
 

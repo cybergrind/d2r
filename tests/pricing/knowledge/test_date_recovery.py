@@ -1,4 +1,5 @@
 import copy
+from typing import Any
 
 import pytest
 
@@ -10,7 +11,7 @@ NEW = '2' * 64
 
 
 def rows():
-    original = {
+    original: dict[str, Any] = {
         'id': 'old-id',
         'source': 'cache',
         'listing_id': '1',

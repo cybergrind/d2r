@@ -41,7 +41,9 @@ def cases():
                 ('unknown-ethereal', replace(item, ethereal=None), {'player_class': wearer}, 'unknown'),
                 ('invalid-sockets', replace(item, sockets=1), {'player_class': wearer}, 'false'),
             ):
-                expected = {'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))}
+                expected: dict[str, object] = {
+                    'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))
+                }
                 if truth == 'true':
                     expected['stat_evaluation'] = IsPartialDict(
                         annotations=IsPartialDict(

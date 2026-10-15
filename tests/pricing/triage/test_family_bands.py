@@ -1,8 +1,11 @@
+from typing import Any
+
 import pytest
 
 from pricing.triage.adapters import from_listing
 from pricing.triage.bands import build_bands
 from pricing.triage.engine import assess
+from tests.pricing.knowledge.reports import present
 from tests.pricing.triage.test_bands import listing
 
 
@@ -35,7 +38,7 @@ def test_family_band_prices_matching_rolls_without_borrowing_perfect_asks():
     assert result['band']['sellers'] == 3
     assert result['verdict'] == 'slow'
     unseen = from_listing(charm(10, 16, 1))
-    result = assess(unseen, tables)
+    result = present(assess(unseen, tables))
     assert result['band'] is None
     assert result['verdict'] == 'check'
     assert result['reference_band']['median_ist'] == 26
@@ -133,8 +136,8 @@ def test_magic_skill_gloves_price_only_matching_skill_base_and_modifier_cohort(s
     assert result['verdict'] == 'slow'
     # Gloves have no ethereal use (no mercenary slot, no socket, unrepairable), so an
     # ethereal copy is priced as the plain one and the headline says so.
-    ethereal = assess(
-        from_listing(rows[0] | {'ethereal': True, 'properties': rows[0]['properties'] | {'738': True}}), tables
+    ethereal = present(
+        assess(from_listing(rows[0] | {'ethereal': True, 'properties': rows[0]['properties'] | {'738': True}}), tables)
     )
     assert ethereal['decision_ist'] == 4
     assert ethereal['ethereal_basis'].startswith('priced as non-ethereal')
@@ -221,7 +224,7 @@ def test_echoing_switch_uses_no_better_ias_without_pooling_bases_or_other_suffix
         'rules': {'keep_ist': 0.25, 'rows': rules},
         'own': {'rows': []},
     }
-    captured = from_listing(rows[0] | {'properties': rows[0]['properties'] | {'457': 10}})
+    captured: dict[str, Any] = from_listing(rows[0] | {'properties': rows[0]['properties'] | {'457': 10}})
     result = assess(captured, tables)
     assert result['decision_ist'] == 1
     assert result['band']['sellers'] == 3

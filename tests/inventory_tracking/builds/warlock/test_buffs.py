@@ -42,7 +42,7 @@ from inventory_tracking.macros.buffs import (
 from inventory_tracking.macros.build import BuffFacts
 from inventory_tracking.macros.skills import SWAP_WEAPONS
 from inventory_tracking.macros.world import Monster
-from tests.inventory_tracking.macros.fakes import HUNT_SLOTS, KEYS, WINDOW, Game, world
+from tests.inventory_tracking.macros.fakes import HUNT_SLOTS, KEYS, WINDOW, Game, character_of, world
 
 
 def game():
@@ -68,8 +68,8 @@ def test_a_sigil_is_due_under_an_elite_once_the_last_one_under_it_is_old():
 def test_hex_purge_is_due_while_the_state_does_not_show_it_and_distrusted_after_unseen_casts():
     play = game()
     rotation, run = rotation_of(), play.run()
-    shown = replace(play.world, player=replace(play.world.player, hex_purge=True))
-    gone = replace(play.world, player=replace(play.world.player, hex_purge=False))
+    shown = replace(play.world, player=replace(play.character, hex_purge=True))
+    gone = replace(play.world, player=replace(play.character, hex_purge=False))
     assert not rotation.purge_due(run, shown)
     assert rotation.purge_due(run, gone)
     rotation.purged_at, rotation.purges_unseen = play.clock.now, 1
@@ -86,9 +86,9 @@ def test_hex_purge_is_due_while_the_state_does_not_show_it_and_distrusted_after_
 def test_psychic_ward_is_due_while_the_state_does_not_show_it_and_in_a_fight_once_in_five_seconds():
     play = game()
     rotation, run = rotation_of(), play.run()
-    shown = replace(play.world, player=replace(play.world.player, ward=True))
-    gone = replace(play.world, player=replace(play.world.player, ward=False))
-    unread = replace(play.world, player=replace(play.world.player, ward=None))
+    shown = replace(play.world, player=replace(play.character, ward=True))
+    gone = replace(play.world, player=replace(play.character, ward=False))
+    unread = replace(play.world, player=replace(play.character, ward=None))
     assert not rotation.ward_due(run, shown)
     assert not rotation.ward_due(run, unread)
     assert rotation.ward_due(run, gone)
@@ -146,7 +146,7 @@ def test_only_hex_purge_and_psychic_ward_go_by_the_rule_for_a_state_that_reads_a
 def test_a_buff_on_no_key_reads_as_unreadable_and_is_not_kept_up():
     play = game()
     assert purge_shown(play.world) is None  # the fakes' character: not read
-    on = replace(play.world, player=replace(play.world.player, hex_purge=False, ward=True))
+    on = replace(play.world, player=replace(play.character, hex_purge=False, ward=True))
     assert (purge_shown(on), ward_shown(on)) == (False, True)
     off_keys = replace(on, slots=())
     assert (purge_shown(off_keys), ward_shown(off_keys)) == (None, None)
@@ -171,7 +171,7 @@ def test_death_mark_by_its_own_rule_is_for_the_strongest_in_reach_the_leader_fir
 
 def test_consume_is_due_only_in_front_off_its_wait_and_with_nothing_hostile_near():
     play = game()
-    out = replace(play.world, player=replace(play.world.player, consume=False))
+    out = replace(play.world, player=replace(play.character, consume=False))
     near = Monster(1, 19, 1, 5000.0 + CONSUME_CLEAR, 5000.0, 0xFFFFFFFF)
     asked = []
 
@@ -185,7 +185,7 @@ def test_consume_is_due_only_in_front_off_its_wait_and_with_nothing_hostile_near
     assert not consume_due(BuffFacts(out, 100.0, cast_at={(CONSUME, None): 100.0 - CONSUME_RETRY}))
     asked.clear()
     for state in (True, None):  # on, or unreadable: not asked for
-        shown = replace(out, player=replace(out.player, consume=state))
+        shown = replace(out, player=replace(character_of(out), consume=state))
         assert not consume_due(BuffFacts(shown, 100.0, focused=in_front))
     assert not consume_due(BuffFacts(replace(out, slots=()), 100.0, focused=in_front))
     assert asked == []  # the display is asked only once the state and the keys say it could be cast
@@ -195,12 +195,12 @@ def test_consume_on_is_renewed_in_the_quiet_only_when_it_would_end_inside_the_bo
     """rca/2026-10-14/run-1214-findings.md §3.4: cast at the prebuff (15:14:47.9), it ran out 300.7 s later in
     Diablo's fight, max life 1818 -> 1580. With the boss ahead its row is told it is lapsing, and casts it again."""
     play = game()
-    on = replace(play.world, player=replace(play.world.player, consume=True))
+    on = replace(play.world, player=replace(play.character, consume=True))
     near = Monster(1, 19, 1, 5000.0 + CONSUME_CLEAR, 5000.0, 0xFFFFFFFF)
     assert consume_due(BuffFacts(on, 100.0, lapsing=True))
     assert not consume_due(BuffFacts(on, 100.0))  # on, and no boss ahead: not cast
     assert not consume_due(BuffFacts(on, 100.0, lapsing=True, foes=(near,)))  # never with a hostile near
-    unread = replace(on, player=replace(on.player, consume=None))
+    unread = replace(on, player=replace(character_of(on), consume=None))
     assert not consume_due(BuffFacts(unread, 100.0, lapsing=True))
     (row,) = [row for row in BUFFS if row.skill == CONSUME and row.phase == 'upkeep']
     assert row.lasts == CONSUME_SECONDS == 300.0
@@ -225,6 +225,7 @@ def test_a_sigil_off_the_screen_is_asked_again_in_a_second():
     elite = Monster(1, 19, 1, 5200.0, 5000.0, 0xFFFFFFFF, 0x0C)
     play.clock.now = 50.0
     due = buffs.due(run, row, buffs.facts(run, play.world, prey=elite))
+    assert due is not None
     tried = buffs.cast(run, due, lambda w, skills: {skill: KEYS[skill] for skill in skills}, WINDOW[2] / WINDOW[3])
     assert (tried.cast, tried.touched) == (False, True)
     assert play.sigils == []
@@ -246,7 +247,9 @@ def test_engorge_with_no_corpse_in_reach_touches_nothing_and_looks_again_after_t
     seen = replace(play.world, monsters=(demon,))
     play.clock.now = 50.0
     before = play.keys.pointer()
-    tried = buffs.cast(run, buffs.due(run, row, buffs.facts(run, seen)), lambda w, skills: dict(KEYS), 1.8)
+    due = buffs.due(run, row, buffs.facts(run, seen))
+    assert due is not None
+    tried = buffs.cast(run, due, lambda w, skills: dict(KEYS), 1.8)
     assert (tried.cast, tried.touched) == (False, False)
     assert (play.pressed(), play.keys.pointer()) == ([], before)
     assert Rotation(buffs).engorged_at == 50.0 - ENGORGE_HURT_SECONDS + ENGORGE_RETRY
@@ -264,15 +267,17 @@ def test_a_consume_that_cannot_be_cast_counts_from_its_start_and_one_a_key_stopp
     def tried_with(stop):
         play = game()
         buffs, run = Buffs(ECHOING_STRIKE_BUILD), play.run()
-        out = replace(play.world, player=replace(play.world.player, consume=False))
+        out = replace(play.world, player=replace(play.character, consume=False))
         play.clock.now = 50.0
 
         def no_keys(world, skills):
             play.clock.now += 1.5  # the try took its time before it stopped
             raise stop
 
+        due = buffs.due(run, row, buffs.facts(run, out))
+        assert due is not None
         with caplog.at_level('INFO'):
-            tried = buffs.cast(run, buffs.due(run, row, buffs.facts(run, out)), no_keys)
+            tried = buffs.cast(run, due, no_keys)
         assert play.said == ['Consume ran out: casting it again']
         return tried, Rotation(buffs).consumed_at
 

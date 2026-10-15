@@ -401,7 +401,7 @@ class Way:
         cost = self.cost.get(tile)
         if cost is None:
             return math.inf
-        anchor = self.mark if cost == 0.0 else (tile[0] + 0.5, tile[1] + 0.5)
+        anchor = self.mark if cost == 0.0 else (tile[0] + 0.5, tile[1] + 0.5)  # ruff: ignore[float-equality-comparison] the mark's own 0
         return cost + math.dist(point, anchor)
 
     def from_here(self, point: Point) -> float:

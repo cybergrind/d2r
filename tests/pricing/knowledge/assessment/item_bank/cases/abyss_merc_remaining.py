@@ -55,7 +55,9 @@ EXTRA = (
 
 
 def cases():
-    examples = [row for row in EXAMPLES if row[0] in ('undead-crown', 'resistance-mask')]
+    examples: list[tuple[str, int, Item, tuple[str, ...], tuple[str, ...]]] = [
+        row for row in EXAMPLES if row[0] in ('undead-crown', 'resistance-mask')
+    ]
     examples.extend(EXTRA)
     result = []
     context = {'player_class': 'Warlock', 'mercenary_type': 'Act 2 Might'}
@@ -95,7 +97,7 @@ def cases():
                 )
             )
         for label, candidate, ctx, scenario in rows:
-            expected = {
+            expected: dict[str, object] = {
                 'roles': Contains(
                     IsPartialDict(
                         id=role,

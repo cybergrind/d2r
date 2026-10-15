@@ -3,6 +3,7 @@
 import json
 from copy import deepcopy
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -43,9 +44,10 @@ def test_fixed_melee_defense_requires_native_definition_agreement(mutation):
     from pricing.knowledge.assessment.mechanics.named_fixed_stats import fixed_scalar_keys
 
     facts = normalize(RECORDS[0]['observation'])
-    definition, gaps = resolve_named_definition(facts)
+    found, gaps = resolve_named_definition(facts)
     assert not gaps
-    definition = dict(definition)
+    assert found is not None
+    definition: dict[str, Any] = dict(found)
     definition['roll_ranges'] = {k: dict(v) for k, v in definition['roll_ranges'].items()}
     definition['game_definition'] = dict(definition['game_definition'])
     spec = next(s for s in definition['roll_ranges'].values() if s['stat_id'] == 33)

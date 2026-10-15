@@ -1,3 +1,5 @@
+from typing import Any
+
 from pricing.knowledge.assessment.adapters.capture import normalize
 from pricing.knowledge.assessment.base_use import assess_runeword_base
 from tests.pricing.knowledge.assessment.test_base_use import capture, word
@@ -65,8 +67,10 @@ def test_typed_outcomes_are_detached_from_mutable_inputs():
     from pricing.knowledge.assessment.domain.preparation import PreparationOption
 
     outcomes = [{'maximum': 4, 'success_weight': 3, 'denominator': 6}]
+    # pyrefly: ignore[bad-argument-type]  # a mutable list proves the outcomes are detached
     option = PreparationOption('Spirit', 4, 'cube_socket', 'conditional', outcomes=outcomes)
     outcomes[0]['success_weight'] = 6
-    assert option.to_dict()['outcomes'][0]['success_weight'] == 3
+    data: dict[str, Any] = option.to_dict()
+    assert data['outcomes'][0]['success_weight'] == 3
     with pytest.raises(TypeError):
         option.outcomes[0]['success_weight'] = 6

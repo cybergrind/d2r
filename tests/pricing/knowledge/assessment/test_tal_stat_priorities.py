@@ -7,6 +7,7 @@ from pricing.knowledge.assessment.build_profiles import ROOT, build
 from pricing.knowledge.assessment.maintenance.stat_configurations import compile_stat_configurations
 from pricing.knowledge.assessment.profiles import assess_role_results
 from pricing.knowledge.assessment.stat_evaluation import StatsEvaluator
+from tests.pricing.knowledge.assessment.fact_changes import fact_changes
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
 
 
@@ -48,7 +49,7 @@ def test_three_piece_tal_priorities_preserve_piece_bonus_and_full_loadout(suffix
     for key in keys:
         reduced = evaluate(replace(item, stats={k: v for k, v in stats.items() if k != key}))
         assert set(reduced.annotations) == set(keys) - {key}
-    for changes in (
+    for changes in fact_changes(
         {'name': 'Other'},
         {'name': None},
         {'rarity': 'unique'},
@@ -69,7 +70,7 @@ def test_three_piece_tal_priorities_preserve_piece_bonus_and_full_loadout(suffix
             ctx={**context, 'player_items': [v for v in companions if v != companion], 'mercenary_items': companions}
         ).annotations
     if suffix == 'armor':
-        for changes in (
+        for changes in fact_changes(
             {'socket_items': []},
             {'socket_contents': 'empty'},
             {'socket_contents': None},

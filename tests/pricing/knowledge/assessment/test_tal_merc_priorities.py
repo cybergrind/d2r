@@ -6,6 +6,7 @@ from pricing.knowledge.assessment.build_profiles import build
 from pricing.knowledge.assessment.profiles import assess_role_results
 from pricing.knowledge.assessment.stat_bundle import configuration_from_row
 from pricing.knowledge.assessment.stat_evaluation import StatsEvaluator
+from tests.pricing.knowledge.assessment.fact_changes import fact_changes
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
 
 
@@ -51,7 +52,7 @@ def test_tal_mercenary_leech_and_gold_socket_require_the_correct_wearer(gold):
     assert set(evaluate().annotations) == wanted
     for context in ({}, {'mercenary_type': 'Act 3 Fire'}):
         assert not evaluate(context=context).annotations
-    for patch in ({'ethereal': True}, {'identified': False}, {'rarity': 'unique'}):
+    for patch in fact_changes({'ethereal': True}, {'identified': False}, {'rarity': 'unique'}):
         assert not evaluate(replace(item, **patch)).annotations
     for key in wanted:
         assert set(

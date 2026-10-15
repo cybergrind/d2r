@@ -3,6 +3,7 @@ from dataclasses import replace
 from pricing.knowledge.assessment.build_profiles import build
 from pricing.knowledge.assessment.profiles import assess_roles
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
+from tests.pricing.knowledge.reports import reports
 
 
 def boots(values, **changes):
@@ -12,7 +13,7 @@ def boots(values, **changes):
 
 
 def roles(item):
-    return {r['id']: r for r in assess_roles(item, build()['profiles'])}
+    return {r['id']: r for r in reports(assess_roles(item, build()['profiles']))}
 
 
 def test_tri_resistance_boot_candidates_keep_subperfect_rolls_and_separate_gold_find():

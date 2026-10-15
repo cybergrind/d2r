@@ -6,6 +6,7 @@ from pricing.knowledge.assessment.build_profiles import build
 from pricing.knowledge.assessment.profiles import assess_role_results
 from pricing.knowledge.assessment.stat_bundle import configuration_from_row
 from pricing.knowledge.assessment.stat_evaluation import StatsEvaluator
+from tests.pricing.knowledge.assessment.fact_changes import fact_changes
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
 
 
@@ -48,7 +49,7 @@ def test_farming_gear_priorities_preserve_loadout_without_maximum_roll_minima(sh
     assert not evaluate(context={**ctx, 'player_total_fcr': ctx['player_total_fcr'] - 1}).annotations
     if short == 'meteor':
         assert not evaluate(context={**ctx, 'player_total_fhr': 59}).annotations
-    for change in ({'name': 'Other'}, {'identified': False}, {'rarity': 'magic'}):
+    for change in fact_changes({'name': 'Other'}, {'identified': False}, {'rarity': 'magic'}):
         assert not evaluate(replace(item, **change)).annotations
     for key in wanted:
         assert set(

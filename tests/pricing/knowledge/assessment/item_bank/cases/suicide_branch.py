@@ -58,7 +58,9 @@ def cases():
             ('wrong-class', item, {'player_class': 'Druid'}, 'false'),
             ('unknown-class', item, {}, 'unknown'),
         ):
-            expected = {'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))}
+            expected: dict[str, object] = {
+                'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))
+            }
             if truth == 'true':
                 expected['stat_evaluation'] = IsPartialDict(
                     annotations=IsPartialDict(

@@ -12,6 +12,7 @@ from pricing.knowledge.assessment.mechanics.shako_shell import shell_evidence
 from pricing.knowledge.assessment.mechanics.socket_evidence import NATIVE_HASHES
 from pricing.knowledge.assessment.policies.sources import resolve_pointer
 from pricing.knowledge.market import scope_status
+from pricing.knowledge.market_rows import Market, market_of, published_market
 
 
 ROOT = Path(__file__).resolve().parents[4]
@@ -27,6 +28,7 @@ def inputs():
 
 @lru_cache(maxsize=2)
 def validate(raw, guides, market, native):
+    market = market if isinstance(market, Market) else market_of(market)
     review = json.loads(raw)
     if review['scope'] != 'SC / Non-Ladder / PC / RotW' or review['id'] != 'shako-underlying':
         raise ValueError('Invalid Shako trade scope')
@@ -36,10 +38,10 @@ def validate(raw, guides, market, native):
     for pointer, expected in review['guide_entries'].items():
         if resolve_pointer(json.loads(guides), pointer) != expected or 'Harlequin Crest' not in expected:
             raise ValueError('Invalid Shako guide demand')
-    if not review['guide_entries'] or hashlib.sha256(market).hexdigest() != review['market_sha256']:
+    if not review['guide_entries'] or market.sha256 != review['market_sha256']:
         raise ValueError('Shako evidence changed')
     ids = review['evidence_ids']
-    rows = [row for line in market.splitlines() if (row := json.loads(line))['id'] in ids]
+    rows = market.with_ids(ids)
     if len(set(ids)) != len(ids) or len(rows) != len(ids) or {r['id'] for r in rows} != set(ids):
         raise ValueError('Missing or duplicate Shako evidence')
     native_bytes = dict(zip(NATIVE, native, strict=True))
@@ -72,7 +74,7 @@ def reviewed_date():
     return validate(
         read_artifact(RULES),
         read_artifact(GUIDES),
-        read_artifact(MARKET),
+        published_market(MARKET),
         tuple(read_artifact(path) for path in NATIVE),
     )
 

@@ -39,6 +39,7 @@ def test_unknown_class_cannot_inherit_positive_report_assertions(field):
     policy, spec, cases = inputs()
     index = next(i for i, row in enumerate(cases) if row[0]['raw_stats'][0][:2] == (83, 1))
     item, checks, variant = cases[index]
+    assert checks is not None
     checks = {
         **checks,
         field: {'status': 'candidate'}

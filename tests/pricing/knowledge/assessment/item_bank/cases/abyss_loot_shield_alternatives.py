@@ -5,7 +5,7 @@ from dataclasses import replace
 from dirty_equals import Contains, FunctionCheck, IsPartialDict
 
 from tests.pricing.knowledge.assessment.item_bank.cases.abyss_named_swaps import EXAMPLES, LIDLESS
-from tests.pricing.knowledge.assessment.item_bank.models import Case
+from tests.pricing.knowledge.assessment.item_bank.models import Case, known
 
 
 PREFIX = 'abyss-warlock-build-guide-'
@@ -53,7 +53,7 @@ def cases(build='abyss-warlock-build-guide', player_class='Warlock', prefix='aby
         if slug != 'ali-baba':
             rows.append(('one-empty-socket', replace(item, sockets=1), context, 'true'))
         for label, candidate, loadout, truth in rows:
-            expected = {
+            expected: dict[str, object] = {
                 'roles': Contains(
                     *[
                         IsPartialDict(
@@ -80,7 +80,7 @@ def cases(build='abyss-warlock-build-guide', player_class='Warlock', prefix='aby
                 scenario={'true': 'positive', 'false': 'negative', 'unknown': 'unknown'}[truth],
                 absent_configurations=() if truth == 'true' else configs,
                 absent_stat_configurations=dict.fromkeys(('17:0', '18:0', '239:0'), configs),
-                report_contains=(candidate.name, 'Trade tier:') if truth == 'true' else (candidate.name,),
+                report_contains=(known(candidate.name), 'Trade tier:') if truth == 'true' else (known(candidate.name),),
                 evidence=('pricing/data/wp-a-builds.json', 'third-parties/d2data/json/uniqueitems.json'),
             )
 

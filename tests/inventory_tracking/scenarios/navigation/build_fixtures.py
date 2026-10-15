@@ -179,7 +179,7 @@ SPECS = (
 
 def build(spec: Spec) -> dict:
     level = json.loads((TAKES / spec.take / 'level.json').read_text())
-    rooms = [Room(**{**room, 'block': room['block'] and tuple(room['block'])}) for room in level['rooms']]
+    rooms = [Room(**room | {'block': room['block'] and tuple(room['block'])}) for room in level['rooms']]
     hidden = sorted(
         index
         for index, room in enumerate(rooms)

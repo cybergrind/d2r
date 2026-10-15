@@ -1,12 +1,16 @@
 """Physical charm damage must participate in exact market comparisons."""
 
+from typing import Any
+
 from pricing.knowledge.assessment.adapters.capture import normalize
 from pricing.knowledge.assessment.handlers.exact import AffixedHandler
 from tests.pricing.knowledge.assessment.item_bank.models import Item
 
 
 def captured(maximum):
-    row = Item('Grand Charm', 'magic', raw_stats=((19, 0, 49), (22, 0, maximum)), complete=True).capture()
+    row: dict[str, Any] = Item(
+        'Grand Charm', 'magic', raw_stats=((19, 0, 49), (22, 0, maximum)), complete=True
+    ).capture()
     # The production decoder puts facets in item.affixes; the bank must do so too.
     row['item']['affixes'] = row.pop('affixes', row['item'].get('affixes', []))
     return normalize(row)
@@ -17,6 +21,8 @@ def test_physical_charm_comparisons_preserve_maximum_damage():
     second, other_gaps = AffixedHandler().contract(captured(14), 'charm')
     assert not gaps
     assert not other_gaps
+    assert first is not None
+    assert second is not None
     assert first.properties['448'] == 10
     assert second.properties['448'] == 14
     assert first.properties != second.properties
@@ -37,6 +43,7 @@ def test_mirrored_damage_stats_are_one_bonus_not_a_sum():
     ).capture()
     contract, gaps = AffixedHandler().contract(normalize(row), 'charm')
     assert not gaps
+    assert contract is not None
     assert contract.properties['416'] == 2
     assert contract.properties['448'] == 10
 

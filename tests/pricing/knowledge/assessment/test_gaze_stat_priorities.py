@@ -7,6 +7,7 @@ from pricing.knowledge.assessment.build_profiles import ROOT, build
 from pricing.knowledge.assessment.maintenance.stat_configurations import compile_stat_configurations
 from pricing.knowledge.assessment.profiles import assess_role_results
 from pricing.knowledge.assessment.stat_evaluation import StatsEvaluator
+from tests.pricing.knowledge.assessment.fact_changes import fact_changes
 from tests.pricing.knowledge.assessment.roles.test_vampire_gaze import IDS, gaze
 
 
@@ -22,13 +23,13 @@ def test_gaze_priorities_require_source_socket_mercenary_and_activity(role_id):
     if mephisto:
         context['activity'] = 'Uber Mephisto'
     item = gaze()
+    jewel = {
+        'name': 'Scintillating Jewel of Fervor',
+        'item_type': 'jewl',
+        'stats_complete': True,
+        'stats': {f'{k}:0': {'status': 'decoded', 'value': 15} for k in (93, 39, 41, 43, 45)},
+    }
     if rogue:
-        jewel = {
-            'name': 'Scintillating Jewel of Fervor',
-            'item_type': 'jewl',
-            'stats_complete': True,
-            'stats': {f'{k}:0': {'status': 'decoded', 'value': 15} for k in (93, 39, 41, 43, 45)},
-        }
         item = replace(item, sockets=1, socket_contents='filled', socket_items=[jewel])
     elif role_id in IDS[-2:]:
         item = replace(
@@ -55,7 +56,7 @@ def test_gaze_priorities_require_source_socket_mercenary_and_activity(role_id):
         assert not evaluate(
             replace(item, stats={k: v for k, v in item.stats.items() if k != key}, capture_complete=False)
         ).annotations
-    for changes in ({'name': None}, {'name': 'Stealskull'}, {'rarity': 'rare'}, {'identified': False}):
+    for changes in fact_changes({'name': None}, {'name': 'Stealskull'}, {'rarity': 'rare'}, {'identified': False}):
         assert not evaluate(replace(item, **changes)).annotations
     for ctx in ({}, {**context, 'mercenary_type': 'Act 2 Might'}):
         assert not evaluate(item, ctx).annotations

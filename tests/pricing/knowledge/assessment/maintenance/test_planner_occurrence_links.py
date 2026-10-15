@@ -3,6 +3,7 @@
 import hashlib
 import json
 from copy import deepcopy
+from typing import Any
 
 import pytest
 
@@ -15,7 +16,7 @@ TABLE = 'pricing/knowledge/assessment/rules/table_equivalence_reviews.json'
 NATIVE = 'third-parties/d2data/json/misc.json'
 
 
-def example(root):
+def example(root) -> tuple[dict[str, Any], dict[str, Any], list[dict[str, Any]], dict[str, Any]]:
     item = {'base': 'test-base', 'unique': 'test-unique', 'quality': 6, 'sockets': 1, 'socketedItems': ['test-rune']}
     planner = {'items': {'5': item}, 'profiles': [{'name': 'Endgame', 'uid': 'uid', 'items': {'head': 5}}]}
     table = {

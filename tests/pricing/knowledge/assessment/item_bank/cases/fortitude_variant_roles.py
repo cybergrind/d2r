@@ -139,7 +139,7 @@ def cases():
                 if not variants and label == 'other-base':
                     # The Zeal profile filters base identity before predicates.
                     # Its configurations must remain absent, as asserted below.
-                    expected = {}
+                    expected: dict[str, object] = {}
                 if label in ('native-minimum', 'maximum-rolls'):
                     expected['facts'] = IsPartialDict(
                         stats=IsPartialDict({'216:0': IsPartialDict(value=120 if label == 'maximum-rolls' else 80)})

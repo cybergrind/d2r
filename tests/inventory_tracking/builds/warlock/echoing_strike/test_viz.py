@@ -369,6 +369,7 @@ def test_catacombs_walls_are_the_level_map_byte_for_byte():
     assert 1 in values
     assert 2 in values or 3 in values
     ground = case.situation.ground
+    assert ground is not None
     ox, oy = case.data['origin']
     total = width * height
     stride = max(1, total // 200)
@@ -431,6 +432,7 @@ def test_export_is_deterministic(case):
 
 def test_write_puts_the_export_in_the_named_file(case, tmp_path):
     entry = viz.write(case.directory, tmp_path)
+    assert entry is not None
     file = tmp_path / f'{case.name}.json'
     assert json.loads(file.read_text()) == json.loads(json.dumps(case.data))
     assert entry['take'] == case.name

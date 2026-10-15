@@ -41,6 +41,7 @@ def test_key_sets_count_units_and_only_name_shortages_for_one_more_set(tmp_path)
 
     path = collection(tmp_path, {'pk1': 5, 'pk2': 7, 'pk3': 4})
     result = recorded_set({'item': {'base_code': 'pk1', 'rarity': 'normal'}}, path)
+    assert result is not None
     assert result['complete_sets'] == 1
     assert result['missing_next'] == {'Key of Terror': 1, 'Key of Destruction': 2}
     assert result['components'] == {'Key of Terror': 5, 'Key of Hate': 7, 'Key of Destruction': 4}
@@ -52,6 +53,7 @@ def test_statue_sets_preserve_component_identity(tmp_path):
 
     path = collection(tmp_path, {'ua1': 20, 'ua2': 3, 'ua3': 2, 'ua4': 1, 'ua5': 2})
     result = recorded_set({'item': {'base_code': 'ua1', 'rarity': 'normal'}}, path)
+    assert result is not None
     assert result['name'] == 'Statue Set'
     assert result['complete_sets'] == 1
     assert result['missing_next'] == {"Bul-Kathos' Nightmare": 1}
@@ -62,6 +64,7 @@ def test_unreadable_quantity_does_not_become_one_material(tmp_path):
 
     path = collection(tmp_path, {'pk1': 5, 'pk2': None, 'pk3': 4})
     result = recorded_set({'item': {'base_code': 'pk1', 'rarity': 'normal'}}, path)
+    assert result is not None
     assert result['complete_sets'] is None
     assert result['missing_next'] == {}
 
@@ -91,6 +94,7 @@ def test_material_report_shows_recorded_set_and_remaining_components():
         },
     }
     lines = commodity_lines(result)
+    assert lines is not None
     assert 'Recorded sets: 1 x 3x3 Key Set (2026-10-06)' in lines
     assert 'For another set: 1 Key of Terror, 2 Key of Destruction' in lines
 
@@ -107,6 +111,7 @@ def test_closed_placements_are_not_available_for_a_set(tmp_path):
             "(SELECT fingerprint FROM items WHERE base_code='pk3')"
         )
     result = recorded_set({'item': {'base_code': 'pk1', 'rarity': 'normal'}}, path)
+    assert result is not None
     assert result['complete_sets'] == 0
     assert result['missing_next'] == {'Key of Destruction': 3}
 
@@ -121,6 +126,7 @@ def test_service_attaches_material_set_evidence(tmp_path):
             'source': {},
         }
     )
+    assert result is not None
     assert result['material_set']['complete_sets'] == 1
 
 
@@ -133,5 +139,6 @@ def test_stack_quantity_from_another_placement_is_not_reused(tmp_path):
     with sqlite3.connect(path) as db:
         db.execute("UPDATE items SET quantity=99, observation='{}' WHERE base_code='pk1'")
     result = recorded_set({'item': {'base_code': 'pk1', 'rarity': 'normal'}}, path)
+    assert result is not None
     assert result['complete_sets'] is None
     assert result['components']['Key of Terror'] is None

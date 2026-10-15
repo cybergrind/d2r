@@ -1,5 +1,6 @@
 from pricing.triage.engine import assess
 from pricing.triage.import_skillers import compile_skillers
+from tests.pricing.knowledge.reports import present
 
 
 def test_all_native_skill_trees_are_prefixes_and_can_match_observed_market_rules():
@@ -36,7 +37,7 @@ def test_sparse_matched_plain_skiller_asks_are_review_not_vendor_or_a_price():
         rows.append(row)
     tables = prepare_tables(build_bands(rows, [], rules=rules), {'keep_ist': 0.25, 'rows': rules}, {'rows': []})
     item = from_listing(rows[0])
-    result = assess(item, tables)
+    result = present(assess(item, tables))
     assert result['verdict'] == 'check'
     assert result['decision_ist'] is None
     assert result['band'] is None
@@ -137,7 +138,7 @@ def test_life_skiller_uses_no_better_life_rolls_but_not_other_trees_or_suffixes(
     assert result['decision_ist'] == 1.5
     assert 'comparable-or-worse life ≤30' in result['reason']
     assert result['band']['sellers'] == 3
-    low = assess(from_listing(rows[0]), tables)
+    low = present(assess(from_listing(rows[0]), tables))
     assert low['verdict'] != 'sell'
     assert low['band'] is None
     assert low['decision_ist'] is None

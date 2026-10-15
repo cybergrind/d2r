@@ -4,7 +4,7 @@ from dataclasses import replace
 
 from dirty_equals import IsPartialDict
 
-from tests.pricing.knowledge.assessment.item_bank.models import Case, Item
+from tests.pricing.knowledge.assessment.item_bank.models import Case, Item, ItemChanges
 
 
 REASON = 'Gold-find and fire-absorb demand; no separate perfect-MDR premium established.'
@@ -40,14 +40,15 @@ def cases():
         yield case(f'mdr-{mdr}', item(mdr), 'candidate')
     for mdr in (None, 11, 16):
         yield case(f'invalid-mdr-{mdr}', item(mdr), 'unresolved')
-    for label, changes in (
+    overrides: tuple[tuple[str, ItemChanges], ...] = (
         ('unidentified', {'identified': False}),
         ('ethereal', {'ethereal': True}),
         ('unknown-ethereal', {'ethereal': None}),
         ('socketed', {'sockets': 1}),
         ('unknown-sockets', {'sockets': None}),
         ('unknown-contents', {'socket_contents': 'unknown'}),
-    ):
+    )
+    for label, changes in overrides:
         yield case(label, replace(item(15), **changes), 'unresolved')
 
 

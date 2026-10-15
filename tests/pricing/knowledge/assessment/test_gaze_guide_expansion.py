@@ -6,6 +6,7 @@ from pricing.knowledge.assessment.build_profiles import build
 from pricing.knowledge.assessment.profiles import assess_role_results
 from pricing.knowledge.assessment.stat_bundle import configuration_from_row
 from pricing.knowledge.assessment.stat_evaluation import StatsEvaluator
+from tests.pricing.knowledge.assessment.fact_changes import fact_changes
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
 
 
@@ -44,7 +45,7 @@ def test_gaze_native_survival_excludes_mana_leech_and_socket_ias(slug, index, cl
     assert evaluate().annotations['36:0']['desirability'] == 'desirable'
     assert evaluate().annotations['35:0']['desirability'] == 'supporting'
     assert bool(evaluate(replace(item, ethereal=False)).annotations) == (slug == 'strafe-amazon')
-    for change in (
+    for change in fact_changes(
         {'ethereal': None},
         {'identified': None},
         {'rarity': 'set'},

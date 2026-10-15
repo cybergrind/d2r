@@ -1,3 +1,5 @@
+from typing import Any
+
 import pytest
 
 from pricing.knowledge.assessment.maintenance.embedded_items import resolve_embedded_item
@@ -12,7 +14,7 @@ def test_embedded_item_links_exact_set_occurrences_without_copying_rolls_as_requ
         {'id': 'correct', 'source_locator': '/profiles/0/items/rarm', 'details': {'item_ref': '7'}},
         {'id': 'other', 'source_locator': '/profiles/1/items/rarm', 'details': {'item_ref': '7'}},
     ]
-    result = resolve_embedded_item({'set_id': 'set-a', 'item_id': '7'}, planner, rows)
+    result: dict[str, Any] = resolve_embedded_item({'set_id': 'set-a', 'item_id': '7'}, planner, rows)
     assert result['status'] == 'linked'
     assert result['occurrence_ids'] == ['correct']
     assert result['item_definition']['stats']['damage'] == 99
@@ -43,7 +45,8 @@ def test_blank_embedded_tooltip_retains_exact_guide_equipment_context():
         '<span class="d2-planner-tooltip" data-d2-id="p" data-d2-set-id="s" '
         'data-d2-item-id="143"></span></td></tr></table>'
     )
-    reference = section_inventory(html)['embedded_item_refs'][0]
+    guide: dict[str, Any] = section_inventory(html)
+    reference = guide['embedded_item_refs'][0]
     context = embedded_guide_context(html, reference)
     assert context == {'span_index': 0, 'label': '', 'side': 'player', 'slot': 'Helmets', 'reference': reference}
     for field, value in [('item_id', '144'), ('set_id', 'other'), ('section_locator', '/sections/0')]:

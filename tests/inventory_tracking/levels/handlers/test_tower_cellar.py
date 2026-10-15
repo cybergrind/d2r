@@ -7,7 +7,7 @@ from inventory_tracking.levels.exits import guide_level
 from inventory_tracking.levels.handlers.tower_cellar import HANDLERS
 from inventory_tracking.levels.model import LevelSnapshot, Room
 from inventory_tracking.levels.registry import handler_for
-from tests.inventory_tracking.levels.fixtures import replay
+from tests.inventory_tracking.levels.fixtures import handler_of, replay
 
 
 @pytest.mark.parametrize(
@@ -23,7 +23,7 @@ def test_each_level_has_exactly_one_stairs_down(fixture, name):
     from inventory_tracking.levels.presets import preset_name
 
     snapshot = replay(fixture)
-    handler = handler_for(snapshot.location.area_id)
+    handler = handler_of(snapshot.location.area_id)
 
     guidance = handler.guide(snapshot)
 
@@ -58,7 +58,7 @@ def test_level_5_with_an_unread_layout_reports_it():
     snapshot = replay('tower_cellar_5_a')
     rooms = tuple(Room(r.preset, r.x, r.y, r.width, r.height, None, r.block) for r in snapshot.rooms)
 
-    guidance = handler_for(25).guide(LevelSnapshot(snapshot.location, rooms))
+    guidance = handler_of(25).guide(LevelSnapshot(snapshot.location, rooms))
 
     assert guidance.pois == ()
     assert guidance.problems == ('Countess: The Countess is not in the layout (variant None)',)

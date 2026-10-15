@@ -1,6 +1,7 @@
 import pytest
 
 from pricing.triage.compiled_rolls import compile_model, lookup
+from tests.pricing.knowledge.reports import present
 from tests.pricing.triage.test_bands import listing
 
 
@@ -32,16 +33,16 @@ def test_compiled_comparisons_keep_sparse_rolls_check_and_below_listed_rolls_ven
         'socket_contents': 'empty',
         'properties': {'skill': 2},
     }
-    result = lookup(item, [model], keep_ist=0.25)
+    result = present(lookup(item, [model], keep_ist=0.25))
     assert result['verdict'] == 'check'
     assert result['comparison_band']['q1_ist'] == 0.2
     assert result['comparison_band']['sellers'] == 1
     assert result['band'] is None
-    result = lookup(item | {'properties': {'skill': 1}}, [model], keep_ist=0.25)
+    result = present(lookup(item | {'properties': {'skill': 1}}, [model], keep_ist=0.25))
     assert result['verdict'] == 'vendor'
     assert result['band'] is None
     assert result['upper_bound_ist'] == 0.2
-    result = lookup(item | {'properties': {}}, [model], keep_ist=0.25)
+    result = present(lookup(item | {'properties': {}}, [model], keep_ist=0.25))
     assert result['verdict'] == 'check'
     assert result['band'] is None
 
@@ -81,7 +82,7 @@ def test_selection_guard_uses_listed_lower_quartile_not_the_perfect_roll():
     model = compile_model(report, rows, require_supported_split=True)
     item = {'category': 'uniques', 'name': 'Example', 'ethereal': False, 'socket_contents': 'empty'}
     assert lookup(item | {'properties': {'damage': 289}}, [model], keep_ist=0.25) is None
-    low = lookup(item | {'properties': {'damage': 288}}, [model], keep_ist=0.25)
+    low = present(lookup(item | {'properties': {'damage': 288}}, [model], keep_ist=0.25))
     assert low['verdict'] == 'check'
     assert low['band'] is None
     assert 'quartile' in low['reason']
@@ -156,15 +157,15 @@ def test_socket_counts_partition_calibration_prices_and_runtime_lookup():
         'sockets': 1,
         'properties': {'skill': 3},
     }
-    result = lookup(item, models, keep_ist=0.25)
+    result = present(lookup(item, models, keep_ist=0.25))
     assert result['verdict'] == 'vendor'
     assert result['band']['q1_ist'] == 0.1
     assert result['band']['sellers'] == 3
-    result = lookup(item | {'sockets': 3}, models, keep_ist=0.25)
+    result = present(lookup(item | {'sockets': 3}, models, keep_ist=0.25))
     assert result['verdict'] == 'slow'
     assert result['band']['q1_ist'] == 10
     assert lookup(item | {'sockets': 2}, models, keep_ist=0.25) is None
-    assert lookup(item | {'sockets': None}, models, keep_ist=0.25)['band']['q1_ist'] == 100
+    assert present(lookup(item | {'sockets': None}, models, keep_ist=0.25))['band']['q1_ist'] == 100
 
 
 def test_named_roll_models_separate_original_upgraded_and_unknown_bases():
@@ -190,9 +191,9 @@ def test_named_roll_models_separate_original_upgraded_and_unknown_bases():
         'properties': {'skill': 3},
         'base_code': 'original',
     }
-    assert lookup(item, models, keep_ist=0.25)['band']['q1_ist'] == 0.1
-    assert lookup(item | {'base_code': 'upgraded'}, models, keep_ist=0.25)['band']['q1_ist'] == 10
-    assert lookup(item | {'base_code': None}, models, keep_ist=0.25)['band']['q1_ist'] == 100
+    assert present(lookup(item, models, keep_ist=0.25))['band']['q1_ist'] == 0.1
+    assert present(lookup(item | {'base_code': 'upgraded'}, models, keep_ist=0.25))['band']['q1_ist'] == 10
+    assert present(lookup(item | {'base_code': None}, models, keep_ist=0.25))['band']['q1_ist'] == 100
 
 
 def test_production_coarse_policy_discards_unproven_roll_split():
@@ -223,17 +224,17 @@ def test_captured_deciding_skill_uses_native_identity_without_market_mapping():
     rows = [r | {'sockets': 0} for r in cohort()]
     report = MODEL | {'sockets': 0, 'deciding': {'skill': MODEL['deciding']['skill'] | {'native_key': '107:111'}}}
     model = compile_model(report, rows)
-    result = lookup(item, [model], keep_ist=0.25)
+    result = present(lookup(item, [model], keep_ist=0.25))
     assert result['comparison_band']['sellers'] == 1
     assert result['band'] is None
     assert result['comparison_band']['q1_ist'] == 0.2
     assert 'Skill 2' in result['reason']
     # An all-class skill is a different stat, even with the same skill parameter.
     observation['decoded_stats'][0]['memory_stat']['id'] = 97
-    assert lookup(from_drop(observation), [model], keep_ist=0.25)['band'] is None
+    assert present(lookup(from_drop(observation), [model], keep_ist=0.25))['band'] is None
     observation['decoded_stats'][0]['memory_stat']['id'] = 107
     observation['decoded_stats'][0]['status'] = 'unresolved'
-    assert lookup(from_drop(observation), [model], keep_ist=0.25)['band'] is None
+    assert present(lookup(from_drop(observation), [model], keep_ist=0.25))['band'] is None
 
 
 def test_coarse_roll_model_pools_bases_but_requires_supported_price_splits():
@@ -261,7 +262,7 @@ def test_coarse_roll_model_pools_bases_but_requires_supported_price_splits():
         coarse=True,
     )
     assert len(reports) == 1
-    guard = compile_model(reports[0], rows, require_supported_split=True)
+    guard = present(compile_model(reports[0], rows, require_supported_split=True))
     assert guard['reference_only'] is True
     # Offline diagnostic comparisons remain available, but cannot set a live price.
     models = [compile_model(reports[0], rows)]
@@ -274,11 +275,11 @@ def test_coarse_roll_model_pools_bases_but_requires_supported_price_splits():
         'base_code': 'original',
         'properties': {'skill': 2},
     }
-    result = lookup(item, models, keep_ist=0.25)
+    result = present(lookup(item, models, keep_ist=0.25))
     assert result['verdict'] == 'check'
     assert result['comparison_band']['sellers'] == 2
     assert abs(result['comparison_band']['q1_ist'] - 0.34725) < 1e-9
-    guarded = lookup(item, [guard], keep_ist=0.25)
+    guarded = present(lookup(item, [guard], keep_ist=0.25))
     assert guarded['verdict'] == 'check'
     assert guarded['band'] is None
     assert lookup(item | {'ethereal': True}, models, keep_ist=0.25) is None
@@ -313,8 +314,8 @@ def test_coarse_models_preserve_supported_base_premiums_and_reject_socket_conten
         'base_code': 'original',
         'properties': {'skill': 3},
     }
-    assert lookup(item, models, keep_ist=0.25)['band']['q1_ist'] == 0.1
-    assert lookup(item | {'base_code': 'upgraded'}, models, keep_ist=0.25)['band']['q1_ist'] == 10
+    assert present(lookup(item, models, keep_ist=0.25))['band']['q1_ist'] == 0.1
+    assert present(lookup(item | {'base_code': 'upgraded'}, models, keep_ist=0.25))['band']['q1_ist'] == 10
     assert lookup(item | {'base_code': None}, models, keep_ist=0.25) is None
     for contents in ('filled', 'unknown', None):
         assert lookup(item | {'socket_contents': contents}, models, keep_ist=0.25) is None
@@ -337,17 +338,17 @@ def test_failed_validation_keeps_sparse_deciding_roll_check_with_reference_only(
         'socket_contents': 'empty',
         'properties': {'skill': 2},
     }
-    result = lookup(item, [model], keep_ist=0.25)
+    result = present(lookup(item, [model], keep_ist=0.25))
     assert result['verdict'] == 'check'
     assert result['band'] is None
     assert result['reference_band']['sellers'] == 19
     assert 'below listed roll quartile' in result['reason']
     # Low rolls remain CHECK even without comparable sellers or with three.
-    assert lookup(item | {'properties': {'skill': 1}}, [model], keep_ist=0.25)['verdict'] == 'check'
+    assert present(lookup(item | {'properties': {'skill': 1}}, [model], keep_ist=0.25))['verdict'] == 'check'
     lower = rows[0] | {'properties': {'skill': 2}}
     expanded = rows + [lower | {'seller_id': f'low-{i}', 'listing_id': f'low-{i}'} for i in range(3)]
     supported = compile_model(report, expanded, require_supported_split=True)
-    assert lookup(item, [supported], keep_ist=0.25)['verdict'] == 'check'
+    assert present(lookup(item, [supported], keep_ist=0.25))['verdict'] == 'check'
     # The rejected model cannot price top or unknown rolls.
     for props in ({'skill': 3}, {}):
         assert lookup(item | {'properties': props}, [model], keep_ist=0.25) is None
@@ -385,7 +386,7 @@ def test_guide_deciding_rolls_survive_unsupported_price_split_without_inventing_
         'socket_contents': 'empty',
         'properties': {'skill': 2, 'leech': 9},
     }
-    result = lookup(item, [model], keep_ist=0.25)
+    result = present(lookup(item, [model], keep_ist=0.25))
     assert result['verdict'] == 'check'
     assert result['band'] is None
     assert result['upper_bound_ist'] is None
@@ -396,7 +397,7 @@ def test_guide_deciding_rolls_survive_unsupported_price_split_without_inventing_
     assert lookup(item | {'properties': {'skill': 2, 'leech': 10}}, [model], keep_ist=0.25) is None
     assert lookup(item | {'ethereal': True}, [model], keep_ist=0.25) is None
     # Missing deciding data cannot silently restore a name-level estimate.
-    assert lookup(item | {'properties': {'skill': 2}}, [model], keep_ist=0.25)['verdict'] == 'check'
+    assert present(lookup(item | {'properties': {'skill': 2}}, [model], keep_ist=0.25))['verdict'] == 'check'
 
 
 def test_guide_price_requires_held_out_support_even_when_each_split_has_sellers():
@@ -414,7 +415,7 @@ def test_guide_price_requires_held_out_support_even_when_each_split_has_sellers(
         'socket_contents': 'empty',
         'properties': {'skill': 2},
     }
-    result = lookup(item, [model], keep_ist=0.25)
+    result = present(lookup(item, [model], keep_ist=0.25))
     assert result['verdict'] == 'check'
     assert result['band'] is None
     assert result['upper_bound_ist'] is None
@@ -463,11 +464,11 @@ def test_completed_runewords_calibrate_filled_recipe_sockets_without_mixing_base
         'socket_contents': 'filled',
         'properties': {'cast': 25},
     }
-    result = lookup(item, models, keep_ist=0.25)
+    result = present(lookup(item, models, keep_ist=0.25))
     assert result['verdict'] == 'check'
     assert result['band'] is None
     assert result['reference_band']['q1_ist'] == 1
-    assert lookup(item | {'base_code': 'sword'}, models, keep_ist=0.25)['reference_band']['q1_ist'] == 10
+    assert present(lookup(item | {'base_code': 'sword'}, models, keep_ist=0.25))['reference_band']['q1_ist'] == 10
     for changes in ({'base_code': None}, {'ethereal': True}, {'sockets': 3}, {'socket_contents': 'empty'}):
         assert lookup(item | changes, models, keep_ist=0.25) is None
 
@@ -510,7 +511,7 @@ def test_shared_name_keeps_unique_and_runeword_definitions_separate():
         ('uniques', ('leech',)),
         ('runewords', ('damage',)),
     }
-    models = [compile_model(r, rows, require_supported_split=True) for r in reports]
+    models = [present(compile_model(r, rows, require_supported_split=True)) for r in reports]
     assert {(m['category'], m['reference_band']['q1_ist']) for m in models} == {
         ('uniques', 1),
         ('runewords', 10),
@@ -531,10 +532,10 @@ def test_price_split_roll_has_one_cell_per_side_of_the_boundary():
         'socket_contents': 'empty',
         'properties': {'skill': 1},
     }
-    low = lookup(item, [model], keep_ist=0.25)
+    low = present(lookup(item, [model], keep_ist=0.25))
     assert (low['band']['q1_ist'], low['band']['sellers']) == (0.5, 10)
-    assert lookup(item | {'properties': {'skill': 2}}, [model], keep_ist=0.25)['band'] == low['band']
-    assert lookup(item | {'properties': {'skill': 3}}, [model], keep_ist=0.25)['band']['sellers'] == 20
+    assert present(lookup(item | {'properties': {'skill': 2}}, [model], keep_ist=0.25))['band'] == low['band']
+    assert present(lookup(item | {'properties': {'skill': 3}}, [model], keep_ist=0.25))['band']['sellers'] == 20
     assert lookup(item | {'properties': {}}, [model], keep_ist=0.25) is None
 
 
@@ -569,9 +570,9 @@ def test_supported_four_seller_roll_tail_survives_three_seller_held_out_split(se
         'socket_contents': 'empty',
         'properties': {'skill': 20},
     }
-    assert lookup(item, [model], keep_ist=0.25)['verdict'] == 'vendor'
+    assert present(lookup(item, [model], keep_ist=0.25))['verdict'] == 'vendor'
     # Higher rolls retain all comparable-or-worse copies, including the cheap tail.
-    assert lookup(item | {'properties': {'skill': 70}}, [model], keep_ist=0.25)['verdict'] == high_verdict
+    assert present(lookup(item | {'properties': {'skill': 70}}, [model], keep_ist=0.25))['verdict'] == high_verdict
 
 
 def test_three_sellers_per_roll_side_cannot_validate_after_holding_one_out():

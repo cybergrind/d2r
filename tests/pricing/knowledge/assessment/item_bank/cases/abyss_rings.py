@@ -1,6 +1,7 @@
 """Source-specific Abyss rings: spell utility, affix minima and optional charges."""
 
 from dataclasses import replace
+from typing import Any
 
 from dirty_equals import Contains, IsPartialDict
 
@@ -76,7 +77,7 @@ def cases():
             if slug == 'bk'
             else 'abyss-warlock-table-ring-' + slug
         )
-        rows = [
+        rows: list[tuple[str, Item, dict[str, Any], str, tuple[str, ...]]] = [
             ('minimum', item, {'player_class': 'Warlock'}, 'true', keys),
             ('wrong-class', item, {'player_class': 'Sorceress'}, 'false', ()),
             ('unknown-class', item, {}, 'unknown', ()),
@@ -138,14 +139,16 @@ def cases():
                     )
                 )
         for label, candidate, context, truth, expected_keys in rows:
-            expected = {'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))}
+            expected: dict[str, object] = {
+                'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))
+            }
             if truth == 'true':
                 expected['stat_evaluation'] = IsPartialDict(
                     annotations=IsPartialDict(
                         {k: IsPartialDict(configuration_ids=Contains(role + '-stats')) for k in expected_keys}
                     )
                 )
-            excluded = dict.fromkeys(
+            excluded: dict[str, tuple[str, ...]] = dict.fromkeys(
                 ('60:0', '150:0', '195:25487', '50:0', '51:0', '329:0', '17:0', '18:0', '97:43', '97:54'),
                 (role + '-stats',),
             )

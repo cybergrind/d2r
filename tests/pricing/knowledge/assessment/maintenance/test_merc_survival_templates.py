@@ -1,4 +1,5 @@
 from dataclasses import replace
+from typing import Any
 
 import pytest
 
@@ -35,13 +36,14 @@ def test_merc_survival_template_qualifies_identity_not_perfect_rolls(name, base,
         item = replace(item, runeword=name, sockets=3, socket_contents='filled')
 
     def truth(candidate, context=None):
-        rows = assess_roles(candidate, [role], context or {'player_class': 'Druid'})
+        rows: list[dict[str, Any]] = assess_roles(candidate, [role], context or {'player_class': 'Druid'})
         return rows[0]['rule_trace']['truth'] if rows else 'false'
 
     assert set(role['important_stats']) == keys
     assert '3:0' not in keys  # mercenary vitality is not the same as flat life
     for ethereal in (True, False, None):
         assert truth(replace(item, ethereal=ethereal)) == 'true'
+    changes: dict[str, Any]
     for changes in ({'identified': False}, {'rarity': 'magic'}, {'item_type': 'weap'}, {'name': 'Other'}):
         assert truth(replace(item, **changes)) == 'false'
     assert truth(item, {'player_class': 'Sorceress'}) == 'false'
@@ -75,5 +77,5 @@ def test_claimed_runeword_cannot_override_the_native_socket_capacity(name, base,
         }
     )
     item = replace(facts(base, name=name), runeword=name, sockets=3, socket_contents='filled')
-    result = assess_roles(item, [role], {'player_class': 'Druid'})
+    result: list[dict[str, Any]] = assess_roles(item, [role], {'player_class': 'Druid'})
     assert result[0]['rule_trace']['truth'] == 'false'

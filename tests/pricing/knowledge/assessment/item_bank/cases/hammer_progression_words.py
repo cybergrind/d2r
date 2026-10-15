@@ -48,7 +48,9 @@ def cases():
                 ('unknown-class', item, {}, 'unknown'),
                 ('unidentified', replace(item, identified=False), context, 'false'),
             ):
-                expected = {'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))}
+                expected: dict[str, object] = {
+                    'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))
+                }
                 if label == 'wrong-base':
                     expected['roles'] = FunctionCheck(lambda roles, target=role: all(r['id'] != target for r in roles))
                 if truth == 'true':

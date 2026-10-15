@@ -227,6 +227,8 @@ def test_an_unchanged_room_is_not_converted_again_and_a_changed_one_is(memory, m
     struct.pack_into('<H', mask, 0, 0x1)  # a door shut (or opened): the mask's bytes differ
     changed = walkable_tiles(memory.read, ROOM1, cache)
     assert len(converted) == 2
+    assert first is not None
+    assert changed is not None
     assert changed.cells != first.cells
     assert walkable_tiles(memory.read, ROOM1) == changed  # without a cache: converted every time, as before
     assert len(converted) == 3

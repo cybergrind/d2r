@@ -1,5 +1,6 @@
 from copy import deepcopy
 from datetime import date
+from typing import Any
 
 import pytest
 
@@ -21,7 +22,7 @@ CASES = [
 ]
 
 
-def comparison(case):
+def comparison(case) -> tuple[dict[str, Any], dict[str, Any]]:
     name, catalog_id, effect, penalty, prop, magnitude = case
     decoded, affixes, unresolved = decode_stats(
         [
@@ -40,6 +41,7 @@ def comparison(case):
     )
     contract, gaps = NamedHandler().contract(captured, 'charm')
     assert not gaps
+    assert contract is not None
     row = listing(
         name=name,
         catalog_id=catalog_id,

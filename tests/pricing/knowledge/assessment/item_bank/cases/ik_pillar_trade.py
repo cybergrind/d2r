@@ -4,7 +4,7 @@ from dataclasses import replace
 
 from dirty_equals import IsPartialDict
 
-from tests.pricing.knowledge.assessment.item_bank.models import Case, Item
+from tests.pricing.knowledge.assessment.item_bank.models import Case, Item, ItemChanges
 
 
 def cases():
@@ -13,18 +13,16 @@ def cases():
         (f'defense-{defense}', replace(original, raw_stats=((31, 0, defense),)), True)
         for defense in (118, 123, 128, 278, 288)
     ]
-    specimens.extend(
-        (label, replace(original, **changes), False)
-        for label, changes in (
-            ('upgraded', {'base': 'Myrmidon Greaves'}),
-            ('ethereal', {'ethereal': True}),
-            ('unknown-ethereal', {'ethereal': None}),
-            ('socketed', {'sockets': 1}),
-            ('unknown-sockets', {'sockets': None}),
-            ('unknown-contents', {'socket_contents': 'unknown'}),
-            ('unidentified', {'identified': False}),
-        )
+    variants: tuple[tuple[str, ItemChanges], ...] = (
+        ('upgraded', {'base': 'Myrmidon Greaves'}),
+        ('ethereal', {'ethereal': True}),
+        ('unknown-ethereal', {'ethereal': None}),
+        ('socketed', {'sockets': 1}),
+        ('unknown-sockets', {'sockets': None}),
+        ('unknown-contents', {'socket_contents': 'unknown'}),
+        ('unidentified', {'identified': False}),
     )
+    specimens.extend((label, replace(original, **changes), False) for label, changes in variants)
     for label, item, qualified in specimens:
         status = 'candidate' if qualified else 'unresolved'
         yield Case(

@@ -4,7 +4,7 @@ from dataclasses import replace
 
 from dirty_equals import IsPartialDict
 
-from tests.pricing.knowledge.assessment.item_bank.models import Case, Item
+from tests.pricing.knowledge.assessment.item_bank.models import Case, Item, ItemChanges
 
 
 ITEM = Item(
@@ -100,7 +100,7 @@ def boundary_cases():
                 False,
             )
         )
-    for label, changes in [
+    overrides: tuple[tuple[str, ItemChanges], ...] = (
         ('ethereal', {'ethereal': True}),
         ('unknown-ethereal', {'ethereal': None}),
         ('unknown-sockets', {'sockets': None}),
@@ -111,7 +111,8 @@ def boundary_cases():
         ('incomplete', {'complete': False}),
         ('per-level-defense', {'raw_stats': (*ITEM.raw_stats, (214, 0, 8))}),
         ('per-level-ed', {'raw_stats': (*ITEM.raw_stats, (215, 0, 8))}),
-    ]:
+    )
+    for label, changes in overrides:
         variants.append(
             (
                 label,

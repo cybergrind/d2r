@@ -15,7 +15,8 @@ from inventory_tracking.builds.warlock.echoing_strike.sim.policy import (
     run_policy,
 )
 from inventory_tracking.builds.warlock.echoing_strike.sim.situation import CompanionTrack, MonsterTrack, Situation
-from inventory_tracking.combat.policy import Foe
+from inventory_tracking.combat.controller import LiveAim
+from inventory_tracking.combat.policy import Foe, NearestPolicy
 
 
 def pointer(frame):
@@ -33,7 +34,7 @@ def test_a_held_button_casts_at_the_cadence_and_a_release_stops_it():
     assert [frame for frame, _ in casts] == [5, 14, 23, 32]  # every CAST_FRAMES; a release mid-cast queues nothing
 
 
-def situation(*monsters, frames=200, modes=None, defiler=None):
+def situation(*monsters, frames=200, modes=None, defiler: tuple[float, float] | None = None):
     origin = (5000.0, 5000.0)
     player = dict.fromkeys(range(frames + 1), origin)
     companions = {9: CompanionTrack(9, 744, dict.fromkeys(range(frames + 1), defiler))} if defiler else {}
@@ -132,6 +133,10 @@ def test_the_fitted_mana_regeneration_is_the_least_that_keeps_the_recorded_casts
 
 def test_the_hunts_rule_and_the_live_aim_get_the_builds_table_and_reach():
     sit = situation(frames=10)
-    assert candidate(sit, NEAREST).damage_of(310) == damage_table()(310)
-    assert candidate(sit, NEAREST, damage_of=flat).damage_of(310) == 1000.0
-    assert candidate(sit, LIVE).reach == REACH
+    nearest, flat_nearest, live = candidate(sit, NEAREST), candidate(sit, NEAREST, damage_of=flat), candidate(sit, LIVE)
+    assert isinstance(nearest, NearestPolicy)
+    assert isinstance(flat_nearest, NearestPolicy)
+    assert isinstance(live, LiveAim)
+    assert nearest.damage_of(310) == damage_table()(310)
+    assert flat_nearest.damage_of(310) == 1000.0
+    assert live.reach == REACH

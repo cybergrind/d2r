@@ -51,7 +51,7 @@ def cases():
             ]
         for scenario, candidate, context, active in scenarios:
             config = role + '-stats'
-            assessment = {'roles': Contains(IsPartialDict(id=role, build=build))}
+            assessment: dict[str, object] = {'roles': Contains(IsPartialDict(id=role, build=build))}
             if active:
                 keys = ('60:0', '7:0', '39:0') + (('79:0',) if item is GOLD else ())
                 assessment['stat_evaluation'] = IsPartialDict(

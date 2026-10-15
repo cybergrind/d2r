@@ -16,7 +16,18 @@ from inventory_tracking.levels.model import Level, Room
 from inventory_tracking.macros import pickup
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.pickup import POTION_UNITS, Plan, choose, pick_up
-from inventory_tracking.macros.world import GOLD, HEALING, REJUVENATION, VALUABLE, BeltKept, Drop, Loot, Teleport
+from inventory_tracking.macros.world import (
+    GOLD,
+    HEALING,
+    REJUVENATION,
+    VALUABLE,
+    BeltKept,
+    Drop,
+    Loot,
+    Player,
+    Teleport,
+    World,
+)
 from inventory_tracking.models import PotionType
 from tests.inventory_tracking.macros.fakes import KEYS, SLOTS, Game, world
 
@@ -31,6 +42,18 @@ RUNE = Drop(50, 5008.0, 5003.0, 'Ist Rune', VALUABLE)
 HP_NEAR = Drop(51, 5006.0, 4996.0, 'a healing potion', HEALING)
 JUV_NEAR = Drop(52, 4995.0, 5004.0, 'a full rejuvenation potion', REJUVENATION)
 ORIGIN = (5000.0, 5000.0)
+
+
+def me(seen: World) -> Player:
+    """The character of a world these tests always have one in."""
+    assert seen.player is not None
+    return seen.player
+
+
+def stood(player: Player | None) -> Player:
+    """The character `standing` gave back, which the test expects it to have read."""
+    assert player is not None
+    return player
 
 
 def keys(_world, skills):
@@ -431,15 +454,15 @@ def test_an_aim_is_taken_only_once_the_character_stands():
     from inventory_tracking.macros.pickup import STAND_SECONDS, standing
 
     play = Game(world(area=101))
-    play.world = replace(play.world, player=replace(play.world.player, mode=3))
-    stop = lambda: setattr(play, 'world', replace(play.world, player=replace(play.world.player, mode=1)))  # noqa: E731
+    play.world = replace(play.world, player=replace(me(play.world), mode=3))
+    stop = lambda: setattr(play, 'world', replace(play.world, player=replace(me(play.world), mode=1)))  # ruff: ignore[lambda-assignment]
     play.arrivals.append((0.4, stop))
     run = play.run()
-    assert standing(run).mode == 1
+    assert stood(standing(run)).mode == 1
     assert 0.4 <= play.clock.now < 0.5
-    play.world = replace(play.world, player=replace(play.world.player, mode=3))
+    play.world = replace(play.world, player=replace(me(play.world), mode=3))
     began = play.clock.now
-    assert standing(run).mode == 3  # it never stood: the aim is taken anyway after STAND_SECONDS
+    assert stood(standing(run)).mode == 3  # it never stood: the aim is taken anyway after STAND_SECONDS
     assert play.clock.now - began >= STAND_SECONDS
 
 
@@ -515,10 +538,10 @@ def test_an_aim_is_taken_only_once_the_cast_under_way_is_over():
     from inventory_tracking.macros.pickup import standing
 
     play = Game(world(area=101))
-    play.world = replace(play.world, player=replace(play.world.player, mode=10))
-    over = lambda: setattr(play, 'world', replace(play.world, player=replace(play.world.player, mode=1)))  # noqa: E731
+    play.world = replace(play.world, player=replace(me(play.world), mode=10))
+    over = lambda: setattr(play, 'world', replace(play.world, player=replace(me(play.world), mode=1)))  # ruff: ignore[lambda-assignment]
     play.arrivals.append((0.3, over))
-    assert standing(play.run()).mode == 1
+    assert stood(standing(play.run())).mode == 1
     assert 0.3 <= play.clock.now < 0.4
 
 
@@ -637,7 +660,7 @@ def test_the_clicks_stop_when_the_character_is_dead():
     play.deaf_picks = 100
 
     def dies():
-        play.world = replace(play.world, player=replace(play.world.player, mode=17))
+        play.world = replace(play.world, player=replace(me(play.world), mode=17))
 
     play.arrivals.append((0.3, dies))
     with pytest.raises(Abort, match='the character is dead'):

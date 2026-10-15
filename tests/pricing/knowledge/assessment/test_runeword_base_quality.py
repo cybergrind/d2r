@@ -21,6 +21,7 @@ def spirit(quality='normal'):
     )
     contract, gaps = RunewordHandler().contract(item, 'shield')
     assert not gaps
+    assert contract is not None
     return contract.to_dict()
 
 

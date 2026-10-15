@@ -46,7 +46,9 @@ class GameMemory:
 
     def __init__(self, open_memory=lambda pid: os.open(f'/proc/{pid}/mem', os.O_RDONLY), read=os.pread):
         self.open_memory, self.read = open_memory, read
-        self.pid, self.fd, self.warned = None, None, None
+        self.pid: int | None = None
+        self.fd: int | None = None
+        self.warned: int | None = None
 
     def close(self):
         if self.fd is not None:
@@ -67,12 +69,17 @@ class GameMemory:
             return False
         return True
 
+    def read_attached(self, size, address) -> bytes:
+        """`size` bytes at `address` of the game attach() opened (only called after it returned True)."""
+        assert self.fd is not None
+        return self.read(self.fd, size, address)
+
 
 class LiveUnits(GameMemory):
     def at(self, address, x, y) -> tuple[float, float]:
         """Where the unit whose path is at `address` is now; the published (x, y) when that is unknown."""
         try:
-            now_x, now_y = position(self.read(self.fd, 8, address))
+            now_x, now_y = position(self.read_attached(8, address))
         except OSError, struct.error:
             return x, y
         return (now_x, now_y) if abs(now_x - x) <= MAX_DRIFT and abs(now_y - y) <= MAX_DRIFT else (x, y)
@@ -108,7 +115,7 @@ class OpenPanels(GameMemory):
         if not self.attach(pid):
             return False
         try:
-            flags = decode_panels(self.read(self.fd, UI_PANELS_SIZE, address))
+            flags = decode_panels(self.read_attached(UI_PANELS_SIZE, address))
         except OSError, ValueError:
             return False
         return any(flags[name] for name in self.names)
@@ -125,7 +132,7 @@ class InputModeByte(GameMemory):
         if not self.attach(pid):
             return False
         try:
-            return self.read(self.fd, 1, address) == b'\x01'
+            return self.read_attached(1, address) == b'\x01'
         except OSError:
             return False
 

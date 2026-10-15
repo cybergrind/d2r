@@ -4,7 +4,7 @@ from dataclasses import replace
 
 from dirty_equals import Contains, IsPartialDict
 
-from tests.pricing.knowledge.assessment.item_bank.models import Case, Item
+from tests.pricing.knowledge.assessment.item_bank.models import Case, Item, known
 
 
 ROLES = ('blizzard-mf-ring', 'blizzard-set-ring')
@@ -53,13 +53,13 @@ def cases():
                     item,
                     raw_stats=tuple(s for s in item.raw_stats if s[0] != stat),
                     complete=complete,
-                    affix_records=tuple(a for a in item.affix_records if a not in affixes) if complete else None,
+                    affix_records=tuple(a for a in known(item.affix_records) if a not in affixes) if complete else None,
                 )
                 examples.append((prefix + '-' + name, candidate, truth, None))
         for name, candidate, truth, preference in examples:
             role_expectations = []
             for role in ROLES:
-                expected = {'id': role, 'rule_trace': IsPartialDict(truth=truth)}
+                expected: dict[str, object] = {'id': role, 'rule_trace': IsPartialDict(truth=truth)}
                 if preference is not None:
                     expected['preferences'] = Contains(
                         *(
@@ -73,7 +73,7 @@ def cases():
                         )
                     )
                 role_expectations.append(IsPartialDict(**expected))
-            expected = {'roles': Contains(*role_expectations)}
+            expected: dict[str, object] = {'roles': Contains(*role_expectations)}
             if truth == 'true':
                 expected['stat_evaluation'] = IsPartialDict(
                     annotations=IsPartialDict(

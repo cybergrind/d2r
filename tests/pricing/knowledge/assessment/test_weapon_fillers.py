@@ -1,4 +1,5 @@
 from dataclasses import replace
+from typing import Any
 
 import pytest
 
@@ -23,7 +24,7 @@ def test_weapon_runes_compare_destination_effect_and_total_modifiers(name, stat,
         assert contract is not None, gaps
         prop = item.stats[f'{stat}:0']['market_property']
         assert contract.properties[prop] == bonus
-        row = {
+        row: dict[str, Any] = {
             **contract.to_dict(),
             'properties': {**contract.properties, '934': name},
             'scope_status': 'verified',

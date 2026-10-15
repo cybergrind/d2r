@@ -102,7 +102,7 @@ def cases():
     ):
         examples.append((label, RING, {**base, 'player_equipment': equipped(helmet)}, scenario, 'true', truth))
     for label, item, context, scenario, required, dependency in examples:
-        expected = {
+        expected: dict[str, object] = {
             'roles': Contains(
                 IsPartialDict(
                     id=ROLE,

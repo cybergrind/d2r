@@ -45,11 +45,11 @@ def cases():
             ('unknown-sockets', replace(original, sockets=None, socket_contents='unknown'), context, 'unknown', None),
             ('unidentified', replace(prepared, identified=False), context, 'false', None),
         ):
-            role = {'id': ROLE, 'rule_trace': IsPartialDict(truth=truth)}
+            role: dict[str, object] = {'id': ROLE, 'rule_trace': IsPartialDict(truth=truth)}
             active = truth == 'true' and preparation == 'true'
             if truth == 'true':
                 role['dependencies'] = Contains(IsPartialDict(status=preparation))
-            assessment = {'roles': Contains(IsPartialDict(**role))}
+            assessment: dict[str, object] = {'roles': Contains(IsPartialDict(**role))}
             if active:
                 assessment['stat_evaluation'] = IsPartialDict(
                     annotations=IsPartialDict(

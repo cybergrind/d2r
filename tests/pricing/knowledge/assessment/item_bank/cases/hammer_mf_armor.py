@@ -79,7 +79,9 @@ def cases(build='blessed-hammer-paladin', player_class='Paladin', prefix='hammer
                 ('unread-repair', replace(item, ethereal=True, raw_stats=item.raw_stats[:-1]), context, 'unknown'),
             ]
         for label, candidate, loadout, truth in rows:
-            expected = {'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))}
+            expected: dict[str, object] = {
+                'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))
+            }
             if truth == 'true':
                 expected['stat_evaluation'] = IsPartialDict(
                     annotations=IsPartialDict({key: IsPartialDict(configuration_ids=Contains(config)) for key in keys})

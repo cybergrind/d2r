@@ -147,7 +147,7 @@ def cases():
                 variants.append(('maximum', armor(word, quality, True), context, 'true'))
             for label, candidate, loadout, truth in variants:
                 active = truth == 'true'
-                expected = {}
+                expected: dict[str, object] = {}
                 if label not in ('unidentified', 'wrong-recipe', 'empty', 'wrong-family'):
                     expected['roles'] = Contains(
                         IsPartialDict(id=role, side='player', rule_trace=IsPartialDict(truth=truth))

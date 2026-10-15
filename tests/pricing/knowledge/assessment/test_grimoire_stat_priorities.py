@@ -7,6 +7,7 @@ from pricing.knowledge.assessment.build_profiles import ROOT, build
 from pricing.knowledge.assessment.maintenance.stat_configurations import compile_stat_configurations
 from pricing.knowledge.assessment.profiles import assess_role_results
 from pricing.knowledge.assessment.stat_evaluation import StatsEvaluator
+from tests.pricing.knowledge.assessment.fact_changes import fact_changes
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
 
 
@@ -47,7 +48,7 @@ def test_rhyme_preparation_requires_all_staffmods_and_empty_sockets(quality):
         values = {k: v for k, v in item.stats.items() if k != '107:389'}
         values[wrong] = {'status': 'decoded', 'value': 3}
         assert not evaluate(replace(item, stats=values)).annotations
-    for changes in (
+    for changes in fact_changes(
         {'rarity': 'magic'},
         {'rarity': 'rare'},
         {'rarity': 'low_quality'},
@@ -109,7 +110,7 @@ def test_completed_rhyme_priorities_do_not_match_empty_preparation(quality):
     wrong_skill = {k: v for k, v in item.stats.items() if k != '107:389'}
     wrong_skill['107:404'] = {'status': 'decoded', 'value': 3}
     assert not evaluate(replace(item, stats=wrong_skill)).annotations
-    for changes in (
+    for changes in fact_changes(
         {'name': None},
         {'name': 'Other'},
         {'runeword': None},

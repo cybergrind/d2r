@@ -3,6 +3,7 @@
 import hashlib
 import json
 from copy import deepcopy
+from typing import Any
 
 import pytest
 
@@ -31,7 +32,8 @@ def evidence(tmp_path, slot='Helmets'):
 
     guide = save('guide.html', html)
     source = save('pricing/raw/mr/planners/p.json', json.dumps({'data': json.dumps({'planner': planner})}))
-    reference = section_inventory(html)['embedded_item_refs'][0]
+    sections: dict[str, Any] = section_inventory(html)
+    reference = sections['embedded_item_refs'][0]
     return {
         'guide': guide,
         'planner': source,

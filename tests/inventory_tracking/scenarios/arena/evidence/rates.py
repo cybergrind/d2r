@@ -133,7 +133,7 @@ def tally(
     bins = int(FAR / BIN)
     near: dict[str, list[float]] = defaultdict(lambda: [0.0] * bins)
     sight: dict[str, list[float]] = defaultdict(lambda: [0.0] * bins)
-    targets: dict[str, Counter[str]] = defaultdict(Counter)
+    targets: dict[str, dict[str, float]] = defaultdict(lambda: defaultdict(float))
     target_units: dict[str, set[tuple[int, str]]] = defaultdict(set)
     owners: Counter[str] = Counter()
     seconds = 0.0
@@ -170,11 +170,12 @@ def tally(
             away = math.dist(flight.at, here)
             track = tracks.get(flight.key)
             if track is None:
-                track = tracks[flight.key] = {
+                tracks[flight.key] = {
                     'owner': flight.owner, 'kind': flight.kind, 'txt': flight.txt, 'first': moment.index,
                     'last': moment.index, 'closest': away, 'near': None, 'from': here, 'aimed': away,
                     'end_hero': away, 'end_friend': FAR,
                 }  # fmt: skip
+                track = tracks[flight.key]
                 owners[flight.kind] += 1
             track['last'] = moment.index
             track['closest'] = min(track['closest'], away)

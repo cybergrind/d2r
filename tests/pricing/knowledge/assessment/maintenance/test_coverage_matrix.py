@@ -1,11 +1,12 @@
 from copy import deepcopy
+from typing import Any
 
 import pytest
 
 from pricing.knowledge.assessment.maintenance.coverage_matrix import build_matrix
 
 
-def inputs():
+def inputs() -> tuple[dict[str, Any], dict[str, Any], dict[str, Any], dict[str, Any]]:
     return (
         {
             'identities': [

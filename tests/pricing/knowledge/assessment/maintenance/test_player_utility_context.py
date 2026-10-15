@@ -3,6 +3,7 @@
 import hashlib
 import json
 from copy import deepcopy
+from typing import Any
 
 import pytest
 
@@ -42,7 +43,7 @@ def setup(root, example):
     raw.parent.mkdir(parents=True, exist_ok=True)
     tag = f'<span class="d2planner-item" data-d2planner-profile="planner" data-d2planner-id="7">{name}</span>'
     raw.write_text('<h2>Gear</h2>' + tag * 162 + '<h2>Utility</h2>' + quote.replace(name, tag))
-    guide = section_inventory(raw.read_text())
+    guide: dict[str, Any] = section_inventory(raw.read_text())
     cache = root / role['source']['path']
     cache.write_text(json.dumps({'sources': {gid: guide}}))
     digest = hashlib.sha256(cache.read_bytes()).hexdigest()

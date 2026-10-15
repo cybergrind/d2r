@@ -97,6 +97,8 @@ def test_what_was_entered_by_hand_is_named_in_the_fixture() -> None:
         assert key in stall.assumed, key
     # schema 4: the take's own streams; only what no take holds is left
     assert sorted(seal.assumed) == ['route.bosses', 'scene.immune', 'scene.sets', 'scene.slots']
+    assert seal.source is not None
+    assert stall.source is not None
     assert seal.source['schema'] == 4
     assert stall.source['schema'] == 3
 
@@ -107,7 +109,9 @@ def test_what_was_entered_by_hand_is_named_in_the_fixture() -> None:
 def test_the_stall_is_kp4s_replay_line_for_line() -> None:
     """The same scene through kp4.py and through the situations layer: one play, so what `Cast` adds to
     `Mobs` (stage.py) changes no roll."""
-    scene, marks, _ = kp4.stored(kp4.BOSS_AWAY)
+    kept = kp4.stored(kp4.BOSS_AWAY)
+    assert kept is not None
+    scene, marks, _ = kept
     told, lines = kp4.played(scene, marks, kp4.BOSS_AWAY, 3)
     outcome = played(STALL, 3)
     assert outcome.said == lines
@@ -117,6 +121,7 @@ def test_the_stall_is_kp4s_replay_line_for_line() -> None:
 def test_the_stall_reproduces_the_recording() -> None:
     situation = vizier.stored(STALL)
     truth = situation.recorded
+    assert truth is not None
     assert len(situation.presses) == 48
     assert truth['moved'] == 0.0
     assert truth['gaps'][BOSS] == [57.4, 57.4, 57.4]
@@ -181,6 +186,7 @@ def test_attack_mode_alone_kills_the_pack_only_within_the_strikes_reach(distance
     (pinned as it is today, not asked for)."""
     situation, presses = vizier.distanced(distance)['attack mode alone']
     outcome = situation.play(presses, seed=1)
+    assert outcome.gaps[BOSS] is not None
     assert outcome.gaps[BOSS][0] == pytest.approx(distance, abs=0.2)
     assert (outcome.boss_dead[BOSS] is not None) == dies
     assert outcome.moved == 0.0
@@ -197,6 +203,7 @@ def test_attack_mode_alone_kills_the_pack_only_within_the_strikes_reach(distance
 def test_the_seal_moment_is_the_takes_own() -> None:
     seal = vizier.stored(SEAL)
     truth = seal.recorded
+    assert truth is not None
     assert seal.attack
     assert seal.presses
     assert not seal.opened

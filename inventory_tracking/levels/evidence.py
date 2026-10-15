@@ -86,7 +86,8 @@ def snapshot_from_research(dump: dict[str, Any]) -> LevelSnapshot:
             variant = struct.unpack_from('<I', obj, PRESET_OBJECT_FILE)[0]
             x, y, w, h = struct.unpack_from('<IIII', obj, PRESET_OBJECT_BOUNDS)
             block = (x, y, w, h)
-        rooms.append(Room(preset, *struct.unpack_from('<IIII', raw, ROOM2_BOUNDS), variant, block))
+        x, y, w, h = struct.unpack_from('<IIII', raw, ROOM2_BOUNDS)
+        rooms.append(Room(preset, x, y, w, h, variant, block))
     summary = dump['summary']
     location = Location(summary['level_no'], 0, summary['player']['x'], summary['player']['y'])
     return LevelSnapshot(location, tuple(rooms))

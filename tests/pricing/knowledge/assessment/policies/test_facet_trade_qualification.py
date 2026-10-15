@@ -3,6 +3,7 @@
 import json
 from copy import deepcopy
 from dataclasses import replace
+from typing import Any
 
 import pytest
 
@@ -126,7 +127,8 @@ def test_unverified_capture_gets_no_trade_credit(reviewed, spec, corruption):
     elif corruption == 'missing_roll':
         facts = replace(facts, stats={k: v for k, v in facts.stats.items() if k != f'{spec[6]}:0'})
     else:
-        facts = replace(facts, **({'ethereal': True} if corruption == 'ethereal' else {'sockets': 1}))
+        change: dict[str, Any] = {'ethereal': True} if corruption == 'ethereal' else {'sockets': 1}
+        facts = replace(facts, **change)
     assert assess_trade_qualification(facts)['status'] == 'unresolved'
 
 

@@ -3,6 +3,7 @@
 import hashlib
 import json
 from copy import deepcopy
+from typing import Any
 
 import pytest
 
@@ -19,7 +20,7 @@ def setup(root):
     tag = '<span class="d2planner-item" data-d2planner-profile="planner" data-d2planner-id="7">Test Unique</span>'
     html = '<h2>Gear</h2>' + tag * 162 + '<h2>Summary</h2>Use ' + tag + ' as a budget alternative.'
     raw.write_text(html)
-    guide = section_inventory(html)
+    guide: dict[str, Any] = section_inventory(html)
     cache = root / role['source']['path']
     cache.write_text(json.dumps({'sources': {gid: guide}}))
     digest = hashlib.sha256(cache.read_bytes()).hexdigest()

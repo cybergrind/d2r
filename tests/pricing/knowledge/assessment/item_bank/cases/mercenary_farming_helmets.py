@@ -4,7 +4,7 @@ from dataclasses import replace
 
 from dirty_equals import Contains, IsPartialDict
 
-from tests.pricing.knowledge.assessment.item_bank.models import Case, Item, SocketItem
+from tests.pricing.knowledge.assessment.item_bank.models import Case, Item, SocketItem, known
 
 
 STEALSKULL = Item(
@@ -111,7 +111,7 @@ def cases():
                 expected={'assessment': IsPartialDict(**expected), 'price_estimate': IsPartialDict(estimate_ist=None)},
                 absent_configurations=() if scenario == 'positive' else (config,),
                 absent_stat_configurations={'62:0': (config,), '16:0': (config,)},
-                report_contains=(item.name, 'Trade tier:', '200-240' if native_id == 203 else '160-200'),
+                report_contains=(known(item.name), 'Trade tier:', '200-240' if native_id == 203 else '160-200'),
                 evidence=(
                     'pricing/data/wp-a-builds.json:' + source,
                     f'third-parties/d2data/json/uniqueitems.json:/{native_id}',

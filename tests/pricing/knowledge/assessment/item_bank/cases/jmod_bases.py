@@ -114,12 +114,12 @@ def cases():
         for label, candidate, ctx, truth in examples:
             role_rows = []
             for role in roles:
-                row = {'id': role, 'rule_trace': IsPartialDict(truth=truth)}
+                row: dict[str, object] = {'id': role, 'rule_trace': IsPartialDict(truth=truth)}
                 if truth == 'true':
                     payload = 'Ist' if 'magic-find-shield' in role else 'Rainbow Facets'
                     row.update(status='partial', missing=Contains(Contains(payload)))
                 role_rows.append(IsPartialDict(**row))
-            expected = {'roles': Contains(*role_rows)}
+            expected: dict[str, object] = {'roles': Contains(*role_rows)}
             if truth == 'true':
                 expected['stat_evaluation'] = IsPartialDict(
                     annotations=IsPartialDict(

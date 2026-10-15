@@ -7,6 +7,7 @@ from pricing.knowledge.assessment.build_profiles import ROOT, build
 from pricing.knowledge.assessment.maintenance.stat_configurations import compile_stat_configurations
 from pricing.knowledge.assessment.profiles import assess_role_results
 from pricing.knowledge.assessment.stat_evaluation import StatsEvaluator
+from tests.pricing.knowledge.assessment.fact_changes import fact_changes
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
 
 
@@ -47,7 +48,7 @@ def test_rare_throwing_planner_annotations_require_complete_typed_high_roll_targ
     for cold in ('54:0', '55:0'):
         assert not evaluate(replace(item, stats={**stats, cold: {'status': 'decoded', 'value': 1}})).annotations
     assert not evaluate(replace(item, capture_complete=False)).annotations
-    for changes in (
+    for changes in fact_changes(
         {'rarity': 'magic'},
         {'ethereal': False},
         {'ethereal': None},

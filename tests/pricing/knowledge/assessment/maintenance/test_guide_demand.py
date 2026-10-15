@@ -1,3 +1,5 @@
+from typing import Any
+
 from pricing.knowledge.assessment.maintenance.guide_demand import summarize_demand
 
 
@@ -74,7 +76,8 @@ def test_changed_reviewed_profile_invalidates_demand_evidence():
     reviewed['source'] = profile['source']
     assert compile_demand([reviewed], [profile])['Insight']['distinct_builds'] == 1
     reviewed['presentation'] = {'progression': 'Endgame'}
-    assert compile_demand([reviewed], [profile])['Insight']['role_presentation']['role'] == reviewed['presentation']
+    demand: dict[str, Any] = compile_demand([reviewed], [profile])
+    assert demand['Insight']['role_presentation']['role'] == reviewed['presentation']
     reviewed['presentation'] = {'progression': 'Invented'}
     with pytest.raises(ValueError, match='progression'):
         compile_demand([reviewed], [profile])

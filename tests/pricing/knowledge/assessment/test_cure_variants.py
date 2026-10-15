@@ -3,7 +3,7 @@ from dataclasses import replace
 import pytest
 
 from pricing.knowledge.assessment.build_profiles import build
-from pricing.knowledge.assessment.profiles import assess_roles
+from tests.pricing.knowledge.assessment.role_rows import role_rows
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
 
 
@@ -29,7 +29,7 @@ def test_cure_guide_variants_keep_the_actual_base_and_mercenary(slug, index, cls
     )
 
     def truth(candidate=item, mercenary=merc):
-        return assess_roles(candidate, [role], {'player_class': cls, 'mercenary_type': mercenary})[0]['rule_trace'][
+        return role_rows(candidate, [role], {'player_class': cls, 'mercenary_type': mercenary})[0]['rule_trace'][
             'truth'
         ]
 

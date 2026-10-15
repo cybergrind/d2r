@@ -1,5 +1,5 @@
 from pricing.knowledge.assessment.build_profiles import build
-from pricing.knowledge.assessment.profiles import assess_roles
+from tests.pricing.knowledge.assessment.role_rows import role_rows
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
 
 
@@ -10,7 +10,7 @@ def test_naj_swap_roles_exclude_unendorsed_fal_example():
     assert len({p['build'] for p in profiles}) == 14
     assert all(p['side'] == 'player' and p['slot'] == 'Weapon-Swap' for p in profiles)
     item = facts('Elder Staff', 'set', "Naj's Puzzler")
-    results = assess_roles(item, profiles, {'player_class': 'Necromancer', 'player_items': []})
+    results = role_rows(item, profiles, {'player_class': 'Necromancer', 'player_items': []})
     assert sum(r['status'] == 'partial' for r in results) == 2
     assert all(
         r['status'] == 'failed'
@@ -28,7 +28,7 @@ def test_naj_swap_roles_exclude_unendorsed_fal_example():
     assert fal['previous_guide_use']['strength'] == 'example'
     assert fal['source']['locator'] == '/poison-nova-necromancer/variants/4/player/Weapon-Swap/0'
     assert all(any('Teleport charge' in d['label'] for d in p['depends_on']) for p in profiles)
-    assert not assess_roles(facts('Elder Staff', 'magic'), profiles)
+    assert not role_rows(facts('Elder Staff', 'magic'), profiles)
 
 
 def test_naj_equipment_checks_use_known_context_without_guessing_socketed_requirements():
@@ -37,14 +37,14 @@ def test_naj_equipment_checks_use_known_context_without_guessing_socketed_requir
     profile = next(p for p in build()['profiles'] if p['id'] == 'poison-nova-necromancer-naj-teleport-swap')
     item = facts('Elder Staff', 'set', "Naj's Puzzler")
     context = {'player_class': 'Necromancer', 'player_level': 77, 'player_strength': 44, 'player_dexterity': 37}
-    result = assess_roles(item, [profile], context)[0]
+    result = role_rows(item, [profile], context)[0]
     assert result['equipment']['status'] == 'unmet'
     assert 'Player level 77; requires 78.' in result['missing']
-    ready = assess_roles(item, [profile], {**context, 'player_level': 78})[0]
+    ready = role_rows(item, [profile], {**context, 'player_level': 78})[0]
     assert ready['equipment']['status'] == 'met'
     assert ready['status'] == 'partial'  # Charge availability is still unverified.
     socketed = replace(item, sockets=1, socket_contents='filled')
-    result = assess_roles(socketed, [profile], context)[0]
+    result = role_rows(socketed, [profile], context)[0]
     assert result['equipment']['status'] == 'unknown'
     assert not result['equipment']['shortfalls']
 
@@ -78,7 +78,7 @@ def test_teleport_availability_uses_captured_charges_and_retains_price_gap():
                 'source': {'stat_capture_complete': True},
             }
         )
-        role = assess_roles(item, [profile], {'player_class': 'Necromancer'})[0]
+        role = role_rows(item, [profile], {'player_class': 'Necromancer'})[0]
         charge = next(d for d in role['dependencies'] if 'Teleport charge' in d['label'])
         assert charge['status'] == expected
         assert item.stats['204:3467']['charges']['maximum'] == 69
@@ -102,6 +102,6 @@ def test_magic_rare_teleport_alternatives_require_the_actual_charged_skill():
                         'source': {'stat_capture_complete': True},
                     }
                 )
-                roles = assess_roles(item, profiles, {'player_class': 'Necromancer', 'player_items': []})
+                roles = role_rows(item, profiles, {'player_class': 'Necromancer', 'player_items': []})
                 role = next(r for r in roles if r['build'] == 'poison-nova-necromancer')
                 assert role['status'] == wanted

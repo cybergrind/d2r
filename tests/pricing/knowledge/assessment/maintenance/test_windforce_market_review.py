@@ -1,11 +1,12 @@
 from copy import deepcopy
+from typing import Any
 
 import pytest
 
 from pricing.knowledge.assessment.maintenance.windforce_market_review import audit, material_review
 
 
-def listing():
+def listing() -> dict[str, Any]:
     return {
         'id': 'a',
         'name': 'Windforce',
@@ -128,7 +129,7 @@ def test_repeated_seller_does_not_establish_three_comparisons():
 
 
 def test_different_payloads_are_not_pooled_for_seller_coverage():
-    rows = [dict(listing(), id=str(i), seller_id=str(i)) for i in range(3)]
+    rows: list[dict[str, Any]] = [dict(listing(), id=str(i), seller_id=str(i)) for i in range(3)]
     rows[1]['sockets'] = 1
     rows[2].update(sockets=1, socket_contents='filled')
     rows[2]['properties'] = {**rows[2]['properties'], '934': 'Ort Rune'}

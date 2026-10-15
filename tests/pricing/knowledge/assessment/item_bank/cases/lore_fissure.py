@@ -47,7 +47,7 @@ def cases():
         )
     )
     for label, item, ctx, truth, preferred in examples:
-        expected = {
+        expected: dict[str, object] = {
             'roles': Contains(
                 IsPartialDict(
                     id=ROLE, rule_trace=IsPartialDict(truth=truth), preferences=[IsPartialDict(status=preferred)]

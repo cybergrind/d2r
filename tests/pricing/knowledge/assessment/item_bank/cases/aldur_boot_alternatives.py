@@ -54,7 +54,7 @@ def cases():
             ('conditional-dexterity', replace(item, raw_stats=(*stats, (2, 0, 15))), context, 'true', 'positive'),
         )
         for label, candidate, loadout, truth, scenario in examples:
-            expected = {
+            expected: dict[str, object] = {
                 'roles': Contains(*[IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)) for role in roles])
             }
             if scenario == 'positive':

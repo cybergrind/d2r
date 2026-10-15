@@ -8,6 +8,7 @@ from pricing.knowledge.assessment.maintenance.stat_configurations import compile
 from pricing.knowledge.assessment.maintenance.stat_dispositions import validate_stat_dispositions
 from pricing.knowledge.assessment.profiles import assess_role_results
 from pricing.knowledge.assessment.stat_evaluation import StatsEvaluator
+from tests.pricing.knowledge.assessment.fact_changes import fact_changes
 from tests.pricing.knowledge.assessment.test_angelic_roles import BUILDS
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
 
@@ -35,7 +36,7 @@ def test_angelic_ring_marker_requires_captured_bonus_and_player_combination(buil
     assert result.annotations['224:0']['desirability'] == 'desirable'
     assert result.annotations['224:0']['roll_quality'] == 'unassessed'
     assert result.configurations[0]['role']['status'] == 'partial'
-    for changes in (
+    for changes in fact_changes(
         {'name': 'Angelic Wings'},
         {'name': None},
         {'rarity': 'unique'},

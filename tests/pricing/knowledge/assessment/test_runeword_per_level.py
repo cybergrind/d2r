@@ -1,11 +1,12 @@
 from dataclasses import replace
+from typing import Any
 
 from pricing.knowledge.assessment.handlers.runeword import RunewordHandler, definitions
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
 
 
 def enigma():
-    stats = {'31:0': {'status': 'decoded', 'value': 1000}}
+    stats: dict[str, dict[str, Any]] = {'31:0': {'status': 'decoded', 'value': 1000}}
     for stat, raw, divisor in [(220, 6, 8), (240, 8, 8)]:
         stats[f'{stat}:0'] = {
             'status': 'decoded',

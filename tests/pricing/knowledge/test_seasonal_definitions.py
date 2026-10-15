@@ -2,6 +2,7 @@
 
 from dataclasses import replace
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -9,6 +10,7 @@ from pricing.knowledge.assessment.handlers.definitions import resolve_named_defi
 from pricing.knowledge.definition_store import DefinitionStore, definition_snapshot
 from pricing.knowledge.definitions import build_definitions
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
+from tests.pricing.knowledge.reports import present
 
 
 @pytest.fixture(scope='module')
@@ -39,12 +41,13 @@ def test_store_and_resolver_distinguish_complete_manald_captures(compiled, tmp_p
         seasonal = replace(ordinary, stats={'105:0': {'value': 10, 'status': 'decoded'}})
         old, gaps = resolve_named_definition(ordinary)
         assert not gaps
+        assert old is not None
         assert '105' not in old['roll_ranges']
         new, gaps = resolve_named_definition(seasonal)
         assert new is None
         assert any('Ladder-only' in gap for gap in gaps)
         partial = replace(ordinary, capture_complete=False)
-        assert resolve_named_definition(partial)[0]['table_id'] == 121
+        assert present(resolve_named_definition(partial)[0])['table_id'] == 121
         conflict = replace(seasonal, stats={'105:0': {'value': 7, 'status': 'decoded'}})
         assert resolve_named_definition(conflict)[0] is None
 
@@ -73,6 +76,7 @@ def test_discriminators_do_not_guess_socketed_or_non_scalar_variants(compiled, t
                 )
             selected, gaps = resolve_named_definition(item)
             assert not gaps
+            assert selected is not None
             assert selected['source']['path'].endswith('base/uniqueitems.json')
             if name == 'Manald Heal':
                 from pricing.knowledge.assessment.handlers.seasonal import select_seasonal
@@ -90,7 +94,7 @@ def test_capture_gaps_still_block_pricing_with_a_non_ladder_default(compiled, tm
     path.write_text(json.dumps(compiled))
     with definition_snapshot(DefinitionStore(path).load()):
         item = replace(facts('Ring', 'unique', 'Manald Heal'), gaps=['Unreadable native modifier'])
-        assert resolve_named_definition(item)[0]['table_id'] == 121
+        assert present(resolve_named_definition(item)[0])['table_id'] == 121
         from pricing.knowledge.assessment.handlers.named import NamedHandler
 
         _, gaps = NamedHandler().contract(item, 'jewelry')
@@ -106,7 +110,7 @@ def test_native_manald_contracts_do_not_mix_seasonal_listings(compiled, tmp_path
     path = tmp_path / 'definitions.json'
     path.write_text(json.dumps(compiled))
     with definition_snapshot(DefinitionStore(path).load()):
-        old = native_jewelry_contract('Manald Heal', {62: 7, 74: 8, 7: 20, 27: 20})
+        old: dict[str, Any] = native_jewelry_contract('Manald Heal', {62: 7, 74: 8, 7: 20, 27: 20})
         with pytest.raises(ValueError, match='Ladder-only'):
             native_jewelry_contract('Manald Heal', {62: 7, 74: 8, 7: 20, 27: 20, 105: 10})
         listing = {
@@ -166,9 +170,10 @@ def test_non_ladder_identity_survives_partial_stats_but_rejects_table_conflict(c
     path.write_text(json.dumps(compiled))
     with definition_snapshot(DefinitionStore(path).load()):
         item = replace(facts('Bone Wand', 'unique', 'Gravenspine'), capture_complete=False)
-        assert resolve_named_definition(item)[0]['table_id'] == 12
+        assert present(resolve_named_definition(item)[0])['table_id'] == 12
         identity, gaps = resolve_named_definition(item, identity_only=True)
         assert not gaps
+        assert identity is not None
         assert identity['name'] == 'Gravenspine'
         assert identity['table_id'] == 12
         assert '105' not in identity['roll_ranges']

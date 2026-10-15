@@ -3,6 +3,7 @@ from dataclasses import replace
 from inventory_tracking.items.metadata import metadata
 from pricing.knowledge.assessment.build_profiles import build
 from pricing.knowledge.assessment.profiles import assess_roles
+from tests.pricing.knowledge.assessment.fact_changes import fact_changes
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
 
 
@@ -27,7 +28,7 @@ def test_stormlash_kick_role_requires_shael_and_does_not_promote_weapon_ed():
     assert assess_roles(item, [p], context)[0]['dependencies'][0]['status'] == 'true'
     assert {'93:0', '136:0', '198:2698'} <= set(p['important_stats'])
     assert not {'17:0', '18:0'} & set(p['important_stats'])
-    for patch in ({'socket_items': []}, {'socket_contents': 'empty'}, {'sockets': 0}):
+    for patch in fact_changes({'socket_items': []}, {'socket_contents': 'empty'}, {'sockets': 0}):
         assert assess_roles(replace(item, **patch), [p], context)[0]['dependencies'][0]['status'] != 'true'
     assert assess_roles(replace(item, ethereal=True), [p], context)[0]['status'] == 'failed'
 

@@ -6,6 +6,7 @@ from pricing.knowledge.assessment.build_profiles import build
 from pricing.knowledge.assessment.profiles import assess_role_results
 from pricing.knowledge.assessment.stat_bundle import configuration_from_row
 from pricing.knowledge.assessment.stat_evaluation import StatsEvaluator
+from tests.pricing.knowledge.assessment.fact_changes import fact_changes
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
 
 
@@ -45,7 +46,7 @@ def test_shield_alternatives_preserve_native_sockets_and_player_durability(name,
             )
 
         assert set(evaluate(item).annotations) == set(values)
-        for changes in (
+        for changes in fact_changes(
             {'ethereal': True},
             {'sockets': 3},
             {'base_code': facts('Buckler').base_code},

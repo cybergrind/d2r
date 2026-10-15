@@ -23,7 +23,7 @@ LOG = f"""\
 2026-10-10 21:35:33,325 INFO Macro: teleport aimed at (22702.5, 6637.4), 30.1 from (22703.5, 6667.5), 30.5 off the way, footing True, 14 grids, pointer (1927, 911) in {RECT}; landed at (22694.5, 6687.5), off by 50.7 (-8.0, +50.1)
 2026-10-10 21:35:38,700 INFO Macro: Teleport toward the elite 122 (3820978991): 7 left after this, 59 charges
 2026-10-10 21:35:39,074 INFO Macro: teleport aimed at (22697.2, 6608.0), 24.9 from (22692.5, 6632.5), 21.3 off the way, footing True, 14 grids, pointer (4297, 323) in {RECT}; the character did not move: key t, slots 379, staff None
-""".splitlines()  # noqa: E501
+""".splitlines()  # ruff: ignore[line-too-long]
 # fmt: on
 
 

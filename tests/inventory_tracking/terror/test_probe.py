@@ -247,6 +247,7 @@ def test_the_card_follows_a_live_herald_with_the_player_position(tmp_path):
     probe.poll(2.0)
     probe.tick()
     assert shown[-1][1] == '↗  Herald T1 alive: north'
+    assert probe.tracker is not None
     assert probe.tracker.herald_marks(6) == [(1, 5000, 4900)]
 
 
@@ -289,6 +290,7 @@ def test_a_level_whose_struct_could_not_be_read_on_entry_is_read_again(tmp_path)
     level = bytearray(0x400)
     level[0x1E4:0x1EC] = (0xBBBB).to_bytes(8, 'little')
     marsh_now = black_marsh()
+    assert marsh_now.location is not None
     read = MonsterSnapshot(marsh_now.location, marsh_now.room2s, 30, (), level_hex=level.hex())
     counted = []
     snapshots = [marsh_now, read, marsh_now]
@@ -303,6 +305,7 @@ def test_a_level_whose_struct_could_not_be_read_on_entry_is_read_again(tmp_path)
         probe.poll(now)
 
     assert counted == [None, None, marsh_now.location.level]
+    assert probe.tracker is not None
     assert probe.tracker.game_levels == {6: (0xBBBB).to_bytes(8, 'little').hex()}
     assert probe.tracker.level_rooms[6] == 30
 
@@ -440,7 +443,7 @@ def test_the_sample_carries_the_danger_marks_the_player_was_shown(tmp_path):
 
     def logged(**options):
         tracker = ZoneTracker()
-        tracker.bands[snap.location.area_id] = {5: 'deadly', 77: 'caution'}  # 77 is not within the screen
+        tracker.bands[PLAYER.area_id] = {5: 'deadly', 77: 'caution'}  # 77 is not within the screen
         log = tmp_path / f'{len(options)}.jsonl'
         probe = TerrorProbe(
             Source(), log, capture_lock=threading.Lock(), poll_interval=0, tracker=tracker,

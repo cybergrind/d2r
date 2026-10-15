@@ -1,4 +1,5 @@
 import struct
+from typing import Any
 
 import pytest
 
@@ -37,7 +38,8 @@ def test_selection_requires_matching_stable_item():
             }
         },
     }
-    assert capture_selection(hover, lambda: snapshot)['item']['unit_id'] == 123
+    selection: dict[str, Any] = capture_selection(hover, lambda: snapshot)
+    assert selection['item']['unit_id'] == 123
     snapshot['groups']['items']['units'][0]['identity_stable'] = False
     with pytest.raises(ValueError, match='stable'):
         capture_selection(hover, lambda: snapshot)
@@ -86,6 +88,7 @@ def test_indexed_hover_reads_selected_slot_and_rejects_changed_selector():
 
     memory = {100: struct.pack('<I', 2), 232: struct.pack('<HHII', 1, 0, 4, 123)}
     result = read_indexed_hover(lambda address, size: memory[address], 200, 100)
+    assert result['hover'] is not None
     assert result['hover']['unit_id'] == 123
     assert result['slot'] == 2
     reads = 0

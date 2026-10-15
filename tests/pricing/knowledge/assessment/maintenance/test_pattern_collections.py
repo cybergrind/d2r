@@ -1,6 +1,7 @@
 """Collection discovery preserves independently reviewed source configurations."""
 
 from copy import deepcopy
+from typing import Any
 
 import pytest
 
@@ -161,7 +162,7 @@ def test_sentry_collection_preserves_separate_conditional_prose_use():
     context = read('pricing/knowledge/assessment/rules/source_context_reviews.json')
     hardcore = read('pricing/knowledge/assessment/rules/hardcore_reviews.json')
     identity = next(i for i in inventory['identities'] if i['name'] == 'Entrapping Grand Charm of Vita')
-    result = compile_collections(
+    result: dict[str, Any] = compile_collections(
         reviews, inventory, profiles, uses, tables, root, context_reviews=context, hardcore_reviews=hardcore
     )
     assert result[identity['id']]['profile_ids'] == [

@@ -71,7 +71,7 @@ def cases():
                 ('unknown-mercenary', ARMOR, {**context, 'mercenary_type': None}, 'unknown', False),
             ]
         for label, item, loadout, truth, annotation in scenarios:
-            expected = {
+            expected: dict[str, object] = {
                 'roles': Contains(
                     IsPartialDict(id=role, side=side, slot='Prebuff', rule_trace=IsPartialDict(truth=truth))
                 )

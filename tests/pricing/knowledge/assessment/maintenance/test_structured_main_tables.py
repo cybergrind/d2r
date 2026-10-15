@@ -3,6 +3,7 @@
 import hashlib
 import json
 from copy import deepcopy
+from typing import Any
 
 import pytest
 
@@ -11,7 +12,9 @@ from pricing.knowledge.assessment.maintenance.table_equivalence import compile_t
 from tests.pricing.knowledge.assessment.maintenance.test_table_equivalence import inputs
 
 
-def reverse_inputs(tmp_path, **kwargs):
+def reverse_inputs(
+    tmp_path, **kwargs
+) -> tuple[dict[str, Any], list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]]]:
     doc, occurrences, roles, uses = inputs(tmp_path, **kwargs)
     row, occurrence, role, use = doc['rows'][0], occurrences[0], roles[0], uses[0]
     structured = deepcopy(role['source'])
@@ -92,7 +95,9 @@ def test_missing_or_incompatible_native_identity_stays_pending(tmp_path, native_
         compile_table_equivalence(*reverse_inputs(tmp_path, native_id=native_id), tmp_path)
 
 
-def alias_inputs(tmp_path, name='Skullder', label='skullder', native_name=None):
+def alias_inputs(
+    tmp_path, name='Skullder', label='skullder', native_name=None
+) -> tuple[dict[str, Any], list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]]]:
     doc, occurrences, roles, uses = reverse_inputs(tmp_path, name=name, label=label, native_id='')
     row, o, r, u = doc['rows'][0], occurrences[0], roles[0], uses[0]
     wp = tmp_path / row['structured']['path']

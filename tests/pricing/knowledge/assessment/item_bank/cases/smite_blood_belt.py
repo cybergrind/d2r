@@ -45,7 +45,7 @@ def cases():
             ]
         )
     for label, item, scenario in examples:
-        expected = {}
+        expected: dict[str, object] = {}
         if scenario == 'positive':
             expected['stat_evaluation'] = IsPartialDict(
                 annotations=IsPartialDict(

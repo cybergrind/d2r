@@ -66,7 +66,7 @@ def cases():
         complete=True,
     )
     for role, player_class, fcr, table, source in uses():
-        context = {'player_class': player_class}
+        context: dict[str, object] = {'player_class': player_class}
         if fcr is not None:
             context['player_total_fcr'] = fcr
         examples = [
@@ -92,7 +92,9 @@ def cases():
                 )
             )
         for label, candidate, loadout, truth in examples:
-            expected = {'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))}
+            expected: dict[str, object] = {
+                'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))
+            }
             if truth == 'true':
                 expected['trade_tier'] = IsPartialDict(tier='high')
                 expected['stat_evaluation'] = IsPartialDict(

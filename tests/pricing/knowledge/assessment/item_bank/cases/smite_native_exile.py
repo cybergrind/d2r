@@ -85,7 +85,9 @@ def cases():
             ('unknown-class', original, {}, 'unknown'),
         ):
             active = truth == 'true'
-            expected = {'roles': Contains(IsPartialDict(id=ROLE, rule_trace=IsPartialDict(truth=truth)))}
+            expected: dict[str, object] = {
+                'roles': Contains(IsPartialDict(id=ROLE, rule_trace=IsPartialDict(truth=truth)))
+            }
             keys = tuple(k for k in KEYS if label != 'repair-not-needed' or k != '252:0')
             if active:
                 expected['stat_evaluation'] = IsPartialDict(

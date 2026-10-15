@@ -26,7 +26,11 @@ def test_defender_fire_requires_both_core_rolls_for_premium(damage, pierce, stat
 @pytest.mark.parametrize(('stat', 'low', 'high'), [(329, 5, 10), (333, 5, 10), (85, 3, 5), (80, 15, 35), (79, 25, 50)])
 def test_defender_fire_requires_each_legal_material_roll(stat, low, high):
     for value in (None, low - 1, high + 1):
-        raw = tuple((s, p, value if s == stat else v) for s, p, v in ITEM.raw_stats if s != stat or value is not None)
+        raw = tuple(
+            (s, p, value if s == stat and value is not None else v)
+            for s, p, v in ITEM.raw_stats
+            if s != stat or value is not None
+        )
         assert assess_trade_qualification(normalize(replace(ITEM, raw_stats=raw).capture()))['status'] == 'unresolved'
 
 

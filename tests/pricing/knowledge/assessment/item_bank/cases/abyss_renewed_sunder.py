@@ -4,7 +4,7 @@ from dataclasses import replace
 
 from dirty_equals import Contains, IsPartialDict
 
-from tests.pricing.knowledge.assessment.item_bank.models import Case, Item
+from tests.pricing.knowledge.assessment.item_bank.models import Case, Item, known
 
 
 ROLES = tuple(
@@ -61,7 +61,7 @@ def cases(roles=ROLES, player_class='Warlock', prefix='abyss'):
             covers=roles,
             scenario=scenario,
             absent_configurations=() if scenario == 'positive' else configs,
-            report_contains=(item.name,),
+            report_contains=(known(item.name),),
             evidence=('pricing/data/wp-a-builds.json', 'third-parties/d2data/json/uniqueitems.json'),
         )
 

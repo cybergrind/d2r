@@ -44,7 +44,7 @@ def cases():
         ('unidentified', replace(ITEM, identified=False), context, 'false'),
     ):
         active = truth == 'true'
-        expected = {
+        expected: dict[str, object] = {
             'roles': Contains(*(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)) for role in ROLES))
         }
         if active:

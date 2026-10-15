@@ -1,3 +1,5 @@
+from typing import Any
+
 import pytest
 
 from pricing.triage.engine import assess
@@ -181,7 +183,7 @@ def test_javelin_prices_preserve_ethereal_and_primary_skill_pattern():
         'own': {'rows': []},
         'bands': {(b['category'], b['name'].casefold(), b['bucket']): b for b in bands},
     }
-    item = from_listing(rows[0])
+    item: dict[str, Any] = from_listing(rows[0])
     result = assess(item, tables)
     assert result['verdict'] == 'slow'
     assert result['band']['q1_ist'] == 1.5

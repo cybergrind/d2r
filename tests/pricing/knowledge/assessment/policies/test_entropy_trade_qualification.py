@@ -27,7 +27,11 @@ def test_entropy_legal_rolls_qualify_without_an_invented_perfect_premium(raw):
 @pytest.mark.parametrize(('stat', 'low', 'high'), [(357, 5, 10), (105, 5, 10), (41, 25, 40), (77, 10, 15), (35, 8, 12)])
 def test_entropy_each_material_roll_must_be_present_and_legal(stat, low, high):
     for value in (None, low - 1, high + 1):
-        raw = tuple((s, p, value if s == stat else v) for s, p, v in ITEM.raw_stats if s != stat or value is not None)
+        raw = tuple(
+            (s, p, value if s == stat and value is not None else v)
+            for s, p, v in ITEM.raw_stats
+            if s != stat or value is not None
+        )
         assert assess_trade_qualification(normalize(replace(ITEM, raw_stats=raw).capture()))['status'] == 'unresolved'
 
 

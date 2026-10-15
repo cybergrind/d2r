@@ -1,11 +1,12 @@
 """Smite values Kingslayer's fixed attack utility, not its variable weapon ED."""
 
 from dataclasses import replace
+from typing import Any
 
 from dirty_equals import Contains, IsPartialDict
 
 from tests.pricing.knowledge.assessment.item_bank.cases.spirit_caster_roles import observation
-from tests.pricing.knowledge.assessment.item_bank.models import Case, SocketItem
+from tests.pricing.knowledge.assessment.item_bank.models import Case, Item, SocketItem
 from tests.pricing.knowledge.assessment.item_bank.native_runeword import NativeRunewordItem
 
 
@@ -46,7 +47,7 @@ def cases():
     priorities = {'93:0': 'desirable', '136:0': 'desirable', '135:0': 'desirable', '0:0': 'supporting'}
     for quality in ('normal', 'superior', 'low_quality'):
         item = kingslayer(quality)
-        examples = [
+        examples: list[tuple[str, Item, dict[str, Any], str | None]] = [
             ('minimum-ed', item, context, 'true'),
             ('maximum-ed', kingslayer(quality, 270), context, 'true'),
             ('wrong-class', item, {'player_class': 'Amazon'}, 'false'),
@@ -83,7 +84,7 @@ def cases():
         for label, candidate, loadout, truth in examples:
             supported = truth == 'true'
             captured = {f'{s}:{p}' for s, p, _ in candidate.raw_stats}
-            assessment = {}
+            assessment: dict[str, object] = {}
             if truth is not None:
                 assessment['roles'] = Contains(IsPartialDict(id=ROLE, rule_trace=IsPartialDict(truth=truth)))
             if supported:
@@ -98,7 +99,9 @@ def cases():
                         }
                     )
                 )
-            absent = dict.fromkeys(('17:0', '18:0', '119:0', '116:0', '97:111', '79:0'), (CONFIG,))
+            absent: dict[str, tuple[str, ...]] = dict.fromkeys(
+                ('17:0', '18:0', '119:0', '116:0', '97:111', '79:0'), (CONFIG,)
+            )
             absent.update({key: (CONFIG,) for key in priorities if key not in captured})
             yield Case(
                 id=f'smite-kingslayer/{quality}/{label}',

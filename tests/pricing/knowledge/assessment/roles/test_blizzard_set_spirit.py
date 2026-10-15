@@ -1,4 +1,5 @@
 from dataclasses import replace
+from typing import Any
 
 from pricing.knowledge.assessment.build_profiles import build
 from pricing.knowledge.assessment.profiles import assess_role_results
@@ -51,6 +52,7 @@ def test_full_set_spirit_requires_five_player_pieces_and_both_real_loadout_total
         {**ctx, 'player_class': 'Paladin'},
     ):
         assert not evaluate(context=context).annotations
+    change: dict[str, Any]
     for change in (
         {'name': 'Other'},
         {'base_code': facts('Targe').base_code},

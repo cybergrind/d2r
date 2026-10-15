@@ -30,6 +30,7 @@ def shaftstop_contract():
     )
     contract, gaps = NamedHandler().contract(capture, 'armor')
     assert not gaps
+    assert contract is not None
     return contract.to_dict()
 
 

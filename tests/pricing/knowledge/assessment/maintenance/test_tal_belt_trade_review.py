@@ -1,3 +1,5 @@
+from typing import Any
+
 import pytest
 
 from pricing.knowledge.assessment.maintenance.trade_reviews import review_dimensions
@@ -11,7 +13,7 @@ from tests.pricing.knowledge.assessment.maintenance.test_fixed_armor_trade_revie
 IDENTITY = ('set', "Tal Rasha's Fine-Spun Cloth")
 
 
-def review_inputs():
+def review_inputs() -> tuple[dict[str, Any], dict[str, Any]]:
     document, context = armor_review_inputs(IDENTITY, CASES)
     document['rows'][0]['scope'] = 'original_set_mf'
     return document, context

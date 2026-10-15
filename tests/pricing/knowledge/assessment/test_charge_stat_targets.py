@@ -72,7 +72,7 @@ def test_reviewed_teleport_amulets_require_class_and_available_charges_in_report
         item = replace(facts('Amulet', quality), stats={'204:3457': charged(1)})
         for klass in ('Barbarian', 'Necromancer', 'Sorceress', None):
             for equipment in ([], ['Enigma'], None):
-                context = {'player_class': klass} if klass else {}
+                context: dict[str, str | list[str]] = {'player_class': klass} if klass else {}
                 if equipment is not None:
                     context['player_items'] = equipment
                 result = StatsEvaluator().evaluate(

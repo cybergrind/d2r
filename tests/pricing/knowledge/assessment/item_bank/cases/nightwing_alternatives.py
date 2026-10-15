@@ -58,7 +58,7 @@ def cases():
         ('wrong-class', item, {'player_class': 'Barbarian'}, 'false'),
         ('unknown-class', item, {}, 'unknown'),
     ):
-        expected = {
+        expected: dict[str, object] = {
             'roles': Contains(*(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)) for role in ROLES))
         }
         report = ("Nightwing's Veil", 'Trade tier:') if truth == 'true' else ('Spired Helm',)

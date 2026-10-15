@@ -1,16 +1,19 @@
+from typing import Any
+
 from pricing.knowledge.native_socket_counts import native_socket_range
+from tests.pricing.knowledge.reports import present
 
 
 def test_native_socket_parameter_and_rolls_are_clamped_by_every_item_level_bracket():
     base = {'gemsockets': 2, 'invwidth': 1, 'invheight': 3, 'type': 'swor'}
     types = {'swor': {'MaxSockets1': 2, 'MaxSockets2': 2, 'MaxSockets3': 2}}
-    assert native_socket_range({'prop1': 'sock', 'par1': 3}, base, types)['fixed'] == 2
-    result = native_socket_range({'prop1': 'sock', 'min1': 1, 'max1': 3}, base, types)
+    assert present(native_socket_range({'prop1': 'sock', 'par1': 3}, base, types))['fixed'] == 2
+    result = present(native_socket_range({'prop1': 'sock', 'min1': 1, 'max1': 3}, base, types))
     assert result['min'] == 1
     assert result['max'] == 2
     assert result['fixed'] is None
     types['swor']['MaxSockets1'] = 1
-    assert native_socket_range({'prop1': 'sock', 'par1': 2}, base, types)['fixed'] is None
+    assert present(native_socket_range({'prop1': 'sock', 'par1': 2}, base, types))['fixed'] is None
     assert native_socket_range({}, base, types) is None
     assert native_socket_range({'prop1': 'sock', 'par1': 2}, base, {}) is None
 
@@ -50,7 +53,7 @@ def test_prepared_definitions_supply_fixed_counts_without_assuming_empty_sockets
         ("Griswold's Heart", 'sets', 3),
         ("Immortal King's Will", 'sets', 2),
     ):
-        row = {'name': name, 'category': category, 'properties': {}}
+        row: dict[str, Any] = {'name': name, 'category': category, 'properties': {}}
         normalize_facets(row)
         assert row['sockets'] == count
         assert row['socket_contents'] == 'unknown'

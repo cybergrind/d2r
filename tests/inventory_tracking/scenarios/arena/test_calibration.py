@@ -122,7 +122,9 @@ def test_a_take_that_barely_hurt_gives_no_ratio_and_no_trust():
 def test_no_kills_in_either_agree_and_kills_only_in_the_arena_do_not():
     assert fit(kills_take=0, kills_arena=0).kills_ratio == 1.0
     assert fit(kills_take=0, kills_arena=0).trusted
-    assert math.isinf(fit(kills_take=0, kills_arena=2).kills_ratio)
+    ratio = fit(kills_take=0, kills_arena=2).kills_ratio
+    assert ratio is not None
+    assert math.isinf(ratio)
     assert not fit(kills_take=0, kills_arena=2).trusted
     assert fit(kills_take=3, kills_arena=0).kills_ratio == 0.0
     assert fit(seconds=0.0).kills_ratio is None
@@ -390,7 +392,7 @@ def test_the_heaviest_blow_is_the_top_roll_of_the_scenes_monsters_at_the_top_of_
 
 def test_the_drops_of_a_replay_are_classed_by_the_rows_given_and_the_unblamed_ones_noted():
     scene, replay = contact(), standing()
-    replay.vitals = [(LIFE, LIFE)] * 10 + [(LIFE - 300.0, LIFE)] * 10 + [(LIFE - 400.0, LIFE)] * (TICKS - 19)
+    replay.vitals = [*[(LIFE, LIFE)] * 10, *[(LIFE - 300.0, LIFE)] * 10, *[(LIFE - 400.0, LIFE)] * (TICKS - 19)]
     played = play(scene, replay)
     assert compare(scene, replay, played).taken_blamed is None  # not attributed: the raw comparison only
     replay.classed = [(10, 300.0, 'unknown'), (20, 100.0, 'sole melee')]
@@ -455,7 +457,9 @@ def test_the_death_scene_against_its_take(tower: Take):
     rows = attributed(tower)
     like = calibrate(scene, tower, rows=rows)
     assert like.taken_blamed == 1108
-    assert [group for _tick, _points, group in recorded(scene, tower, rows=rows).classed] == ['several', 'several']
+    classed = recorded(scene, tower, rows=rows).classed
+    assert classed is not None
+    assert [group for _tick, _points, group in classed] == ['several', 'several']
 
 
 def test_the_cli_writes_the_report_and_the_verdicts(tower: Take, tmp_path: Path):

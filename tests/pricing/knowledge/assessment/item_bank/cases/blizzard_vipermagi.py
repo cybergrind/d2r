@@ -51,7 +51,7 @@ def cases():
     ]
     for label, candidate, context, truth in rows:
         config = ROLE + '-stats'
-        expected = {'roles': Contains(IsPartialDict(id=ROLE, rule_trace=IsPartialDict(truth=truth)))}
+        expected: dict[str, object] = {'roles': Contains(IsPartialDict(id=ROLE, rule_trace=IsPartialDict(truth=truth)))}
         if truth == 'true':
             expected['stat_evaluation'] = IsPartialDict(
                 annotations=IsPartialDict(

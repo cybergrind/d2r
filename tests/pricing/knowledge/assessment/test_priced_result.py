@@ -1,9 +1,11 @@
 from datetime import date
+from typing import Any
 
 import pytest
 
 from pricing.knowledge.assessment.comparison_requests import evaluate_request_results
 from pricing.knowledge.assessment.engine import assess_result
+from tests.pricing.knowledge.assessment.fact_changes import FactChanges
 from tests.pricing.knowledge.assessment.policies.test_market_tiers import cohort
 
 
@@ -22,10 +24,11 @@ def test_priced_result_resolves_current_tier_and_detaches_reports():
     assert assessment.trade_tier['tier'] == 'low'
     assert assessment.trade_tier['basis_kind'] == 'qualitative'
     assert priced.price_estimate['estimate_ist'] == 1
+    assert priced.current is not None
     assert priced.current.is_current
     with pytest.raises(TypeError):
-        priced.price_estimate['estimate_ist'] = 999
-    report = legacy_priced_payload(priced)
+        priced.price_estimate['estimate_ist'] = 999  # pyrefly: ignore[unsupported-operation]  # proves the estimate is frozen
+    report: dict[str, Any] = legacy_priced_payload(priced)
     report['assessment']['trade_tier']['tier'] = 'trash'
     report['price_estimate']['notes'].append('external mutation')
     assert priced.assessment.trade_tier['tier'] == 'med'
@@ -58,12 +61,14 @@ def test_finalization_does_not_promote_prepared_quote_to_current_price():
 
     assessment = assess_result(armor(), profiles=[])
     prepared = next(r for r in assessment.comparison_requests if r.preparation)
-    rows = [{**row(10, str(i)), **prepared.to_dict()['contract']} for i in range(3)]
+    request: dict[str, Any] = prepared.to_dict()
+    rows = [{**row(10, str(i)), **request['contract']} for i in range(3)]
     comparisons = evaluate_request_results(
         assessment.comparison_requests, {'mage plate': rows}, today=date(2026, 9, 24)
     )
     priced = finalize_assessment(assessment, comparisons, today=date(2026, 9, 24))
     assert priced.price_estimate['estimate_ist'] is None
+    assert priced.current is not None
     assert priced.current.state == 'observed'
     assert any(
         r.outcome_ask_estimate and r.outcome_ask_estimate['estimate_ist'] == 1 for r in priced.comparison_results
@@ -124,7 +129,12 @@ def test_missing_capture_facets_are_explicit_even_when_total_stats_are_complete(
     from tests.pricing.knowledge.assessment.test_prepared_base_prices import armor
 
     assessment = assess_result(armor(), profiles=[])
-    facts = replace(assessment.facts, capture_complete=True, **{field: None})
+    missing: dict[str, FactChanges] = {
+        'ethereal': {'capture_complete': True, 'ethereal': None},
+        'sockets': {'capture_complete': True, 'sockets': None},
+        'socket_contents': {'capture_complete': True, 'socket_contents': None},
+    }
+    facts = replace(assessment.facts, **missing[field])
     assessment = replace(assessment, facts=facts, contract=None, comparison_requests=())
     priced = finalize_assessment(assessment, (), today=date(2026, 9, 25))
     assert priced.price_estimate['unavailable_reason'] == 'capture_incomplete'

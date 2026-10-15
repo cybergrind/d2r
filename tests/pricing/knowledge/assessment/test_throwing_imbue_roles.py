@@ -3,7 +3,7 @@ from dataclasses import replace
 import pytest
 
 from pricing.knowledge.assessment.build_profiles import build
-from pricing.knowledge.assessment.profiles import assess_roles
+from tests.pricing.knowledge.assessment.role_rows import role_rows
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
 
 
@@ -39,18 +39,18 @@ def test_imbue_examples_keep_distinct_stat_combinations_and_slot_placement(suffi
         stats['198:4225']['unit'] = 'percent_chance'
     item = replace(facts(base, 'rare'), ethereal=True, stats=stats)
     context = {'player_class': 'Barbarian'}
-    assert assess_roles(item, [profile], context)[0]['rule_trace']['truth'] == 'true'
+    assert role_rows(item, [profile], context)[0]['rule_trace']['truth'] == 'true'
     for key in stats:
         changed = replace(item, stats={k: v for k, v in stats.items() if k != key})
-        assert assess_roles(changed, [profile], context)[0]['status'] == 'failed'
+        assert role_rows(changed, [profile], context)[0]['status'] == 'failed'
         # Absence is zero only for a complete capture; unread values stay unknown.
         incomplete = replace(changed, capture_complete=False)
-        assert assess_roles(incomplete, [profile], context)[0]['rule_trace']['truth'] == 'unknown'
+        assert role_rows(incomplete, [profile], context)[0]['rule_trace']['truth'] == 'unknown'
     for changed in (
         replace(item, ethereal=False),
         replace(item, stats={**stats, '54:0': {'status': 'decoded', 'value': 1}}),
         replace(item, sockets=1),
     ):
-        assert assess_roles(changed, [profile], context)[0]['status'] == 'failed'
-    assert not assess_roles(replace(item, rarity='normal'), [profile], context)
+        assert role_rows(changed, [profile], context)[0]['status'] == 'failed'
+    assert not role_rows(replace(item, rarity='normal'), [profile], context)
     assert not any(p['id'] == 'double-throw-imbue-harpoon-offhand' for p in profiles)

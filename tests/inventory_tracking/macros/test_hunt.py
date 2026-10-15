@@ -42,7 +42,7 @@ from inventory_tracking.macros.hunt import (
 )
 from inventory_tracking.macros.skills import ATTACK, SWAP_WEAPONS, TELEPORT
 from inventory_tracking.macros.travel import JUMP_REACH, Step, attackable, step_walk
-from inventory_tracking.macros.world import HEALING, VALUABLE, Drop, Monster, Teleport
+from inventory_tracking.macros.world import HEALING, VALUABLE, Drop, Monster, Player, Teleport, World
 from inventory_tracking.native.layout import HIRELING_CLASS_ID
 from tests.inventory_tracking.macros.fakes import BUILD, HUNT_SLOTS, KEYS, PREBUFF_SET, Game, player, warlock, world
 
@@ -68,6 +68,12 @@ def keys(_world, skills):
     return {skill: KEYS[skill] for skill in skills}
 
 
+def me(seen: World) -> Player:
+    """The character of a world these tests always have one in."""
+    assert seen.player is not None
+    return seen.player
+
+
 def foe(unit_id, x, y, flags=PLAIN, txt_id=19, **changes):
     return Monster(unit_id, txt_id, 1, x, y, 0xFFFFFFFF, flags, **changes)
 
@@ -77,14 +83,14 @@ def game(*monsters, **changes):
     changes.setdefault('slots', HUNT_SLOTS)
     start = world(monsters=tuple(monsters), **changes)
     # Consume on, as after the prebuff a run starts with: without it attack mode casts it first.
-    play = Game(replace(start, player=replace(start.player, consume=True)))
+    play = Game(replace(start, player=replace(me(start), consume=True)))
     play.staff = STAFF
     return play
 
 
 def hunter(play, *, ground=(), remembered=(), explored=None):
     def level():
-        return Level(play.world.player.area, ROOMS, tuple(ground))
+        return Level(me(play.world).area, ROOMS, tuple(ground))
 
     return Hunter(
         level,
@@ -285,10 +291,10 @@ def test_attack_mode_fights_what_comes_into_reach_later_and_ignores_the_mouse_an
 
     def walk():
         play.keys.at = (play.keys.at[0] + 300, play.keys.at[1] + 100)
-        play.world = replace(play.world, player=replace(play.world.player, x=5004.0, y=5001.0, mode=2))
+        play.world = replace(play.world, player=replace(me(play.world), x=5004.0, y=5001.0, mode=2))
 
     def stand():
-        play.world = replace(play.world, player=replace(play.world.player, mode=5))
+        play.world = replace(play.world, player=replace(me(play.world), mode=5))
 
     attack_mode(
         play, hunt, until=30.0,
@@ -305,16 +311,16 @@ def test_the_players_own_casts_and_teleports_never_end_attack_mode():
     play = game()
 
     def cast():
-        play.world = replace(play.world, player=replace(play.world.player, mode=10))
+        play.world = replace(play.world, player=replace(me(play.world), mode=10))
 
     def land():
-        play.world = replace(play.world, player=replace(play.world.player, x=5030.0, y=5000.0, mode=5))
+        play.world = replace(play.world, player=replace(me(play.world), x=5030.0, y=5000.0, mode=5))
 
     def strike_by_hand():
-        play.world = replace(play.world, player=replace(play.world.player, mode=10))
+        play.world = replace(play.world, player=replace(me(play.world), mode=10))
 
     def stand():
-        play.world = replace(play.world, player=replace(play.world.player, mode=5))
+        play.world = replace(play.world, player=replace(me(play.world), mode=5))
 
     attack_mode(
         play, hunter(play), until=14.0,
@@ -436,9 +442,9 @@ def test_the_strike_is_the_skill_of_the_builds_attack_on_whatever_input_has_it()
     play = game(foe(10, 5008.0, 5000.0))
     run, seen = play.run(), play.world
     assert strike_input(run, seen, keys, ECHOING_STRIKE) == (('7',), 'key 7')
-    on_right = replace(seen, player=replace(seen.player, right_skill=TELEPORT))
+    on_right = replace(seen, player=replace(me(seen), right_skill=TELEPORT))
     assert strike_input(run, on_right, keys, TELEPORT) == (('Button3',), 'right click')
-    on_left = replace(seen, slots=(None,), player=replace(seen.player, left_skill=DEATH_MARK))
+    on_left = replace(seen, slots=(None,), player=replace(me(seen), left_skill=DEATH_MARK))
     assert strike_input(run, on_left, keys, DEATH_MARK) == (('Shift_L', 'Button1'), 'Shift+click')
     with pytest.raises(Abort, match='Echoing Strike is on no skill key and on neither mouse button'):
         strike_input(run, on_left, keys, ECHOING_STRIKE)
@@ -475,10 +481,10 @@ def test_a_fight_yields_the_moment_the_player_moves_and_goes_on_when_they_stand(
     play.toughness[10] = 1000
 
     def run_off():
-        play.world = replace(play.world, player=replace(play.world.player, mode=2))
+        play.world = replace(play.world, player=replace(me(play.world), mode=2))
 
     def stand():
-        play.world = replace(play.world, player=replace(play.world.player, mode=5))
+        play.world = replace(play.world, player=replace(me(play.world), mode=5))
 
     with caplog.at_level('INFO'):
         attack_mode(play, hunter(play), until=6.0, events=[(2.0, run_off), (4.0, stand)])
@@ -506,7 +512,7 @@ def test_seeking_hops_onto_a_firing_ring_around_the_nearest_elite_the_game_holds
 
     assert play.pressed() == [KEYS[BLADE_WARP]]  # a clear line: no charge, no swap
     assert play.strikes == []
-    landed = (play.world.player.x, play.world.player.y)
+    landed = (me(play.world).x, me(play.world).y)
     assert STRIKE_REACH - 4 <= math.dist(landed, (5030.0, 5000.0)) <= STRIKE_REACH  # on a firing ring
     assert play.said[0].startswith('Blade Warp toward the elite 19 (10)')
 
@@ -583,7 +589,7 @@ def test_without_an_elite_the_hop_goes_to_the_nearest_unexplored_room():
     hunter(play, explored=explored).seek(play.run(), keys)
 
     assert play.pressed() == [KEYS[BLADE_WARP]]  # a clear line: no charge, no swap
-    assert play.world.player.x > 5015.0  # toward EAST[1], the nearest unexplored room
+    assert me(play.world).x > 5015.0  # toward EAST[1], the nearest unexplored room
     assert play.said[0].startswith('Blade Warp toward an unexplored room')
 
 
@@ -597,8 +603,8 @@ def test_exploring_picks_the_room_nearest_by_the_way_not_the_nearest_lava_island
     Hunter(lambda: Level(101, rooms), None, lambda area: explored, build=BUILD).seek(play.run(), keys)
 
     assert play.pressed() == [KEYS[BLADE_WARP]]  # a clear line: no charge, no swap
-    assert play.world.player.x > 5015.0  # east along the corridor, toward EAST[1]
-    assert abs(play.world.player.y - 5000.0) < 10.0
+    assert me(play.world).x > 5015.0  # east along the corridor, toward EAST[1]
+    assert abs(me(play.world).y - 5000.0) < 10.0
 
 
 def test_an_explored_level_with_no_elite_stops():
@@ -676,7 +682,7 @@ def test_a_skill_still_on_the_button_after_a_hop_is_waited_out_not_a_stopped_fig
     play.world = replace(play.world, player=player(101, consume=True, right_skill=54))
 
     def back():
-        play.world = replace(play.world, player=replace(play.world.player, right_skill=ECHOING_STRIKE))
+        play.world = replace(play.world, player=replace(me(play.world), right_skill=ECHOING_STRIKE))
 
     with caplog.at_level('INFO'):
         attack_mode(play, hunter(play), until=3.0, events=[(0.4, back)])
@@ -800,7 +806,7 @@ def test_a_pack_no_longer_tough_when_the_swap_is_due_is_fought_on_without_a_stop
 def test_a_character_the_macros_do_not_know_keeps_what_it_holds():
     play = game(foe(10, 5008.0, 5000.0))
     play.sets.reverse()
-    play.world = replace(play.world, player=replace(play.world.player, name='Somebody'))
+    play.world = replace(play.world, player=replace(me(play.world), name='Somebody'))
     attack_mode(play, hunter(play), until=3.0)
     assert 'c' not in play.pressed()
     assert [unit for unit, _ in play.strikes] == [10]
@@ -865,9 +871,9 @@ def test_no_strike_is_pressed_while_the_players_button_is_down(at):
     play.toughness[10] = 1000
     presses, press = [], play.keys.press
 
-    def noting(code):
-        presses.append((play.clock.now, code))
-        return press(code)
+    def noting(key: int) -> bool:
+        presses.append((play.clock.now, key))
+        return press(key)
 
     play.keys.press = noting
     attack_mode(play, hunter(play), until=3.0, events=[left_click(play, at, seconds=0.3)])
@@ -881,10 +887,10 @@ def test_a_click_the_game_took_is_not_made_again():
     play.toughness[10] = 1000
 
     def game_takes_it():  # the character starts running at once: the game had the click
-        play.world = replace(play.world, player=replace(play.world.player, mode=2))
+        play.world = replace(play.world, player=replace(me(play.world), mode=2))
 
     def arrives():
-        play.world = replace(play.world, player=replace(play.world.player, x=5003.0, y=5003.0, mode=5))
+        play.world = replace(play.world, player=replace(me(play.world), x=5003.0, y=5003.0, mode=5))
 
     attack_mode(play, hunter(play), until=4.0, events=[left_click(play, 1.0), (1.05, game_takes_it), (1.6, arrives)])
     assert play.walks == []  # no click of the macro's own
@@ -1225,7 +1231,7 @@ def beside(play, unit, east):
     """A monster appearing `east` units east of where the character stands then."""
 
     def appear_there():
-        at = play.world.player
+        at = me(play.world)
         play.world = replace(play.world, monsters=(*play.world.monsters, foe(unit, at.x + east, at.y)))
 
     return appear_there
@@ -1273,7 +1279,7 @@ def test_the_sweep_strides_toward_hostiles_further_than_any_place_reaches():
     attack_mode(play, hunt, until=8.0, events=[(2.0, beside(play, 12, 55.0))])
     assert play.world.monsters == ()
     assert len(play.warps) >= 1  # the stride toward the far one is a Blade Warp
-    assert play.world.player.x > 5030.0
+    assert me(play.world).x > 5030.0
     play = game(foe(11, 5028.0, 5000.0))
     hunt = hunter(play)
     hunt.step(play.run(), keys)
@@ -1307,7 +1313,7 @@ def test_a_step_that_fails_is_over_within_a_second_and_its_place_is_left_alone()
 
 
 def purged(play, state):
-    play.world = replace(play.world, player=replace(play.world.player, hex_purge=state))
+    play.world = replace(play.world, player=replace(me(play.world), hex_purge=state))
     return play
 
 
@@ -1316,7 +1322,7 @@ def test_attack_mode_casts_hex_purge_when_the_characters_state_reads_without_it(
     play = purged(game(), False)
     attack_mode(play, hunter(play), until=10.0)
     assert len(play.purges) == 1
-    assert play.world.player.hex_purge is True
+    assert me(play.world).hex_purge is True
     assert 'Hex: Purge' in play.said
 
 
@@ -1348,7 +1354,7 @@ def test_a_hex_purge_the_state_never_shows_is_tried_twice_and_then_left_for_a_mi
 
 
 def warded(play, state):
-    play.world = replace(play.world, player=replace(play.world.player, ward=state))
+    play.world = replace(play.world, player=replace(me(play.world), ward=state))
     return play
 
 
@@ -1357,7 +1363,7 @@ def test_attack_mode_casts_psychic_ward_when_the_characters_state_reads_without_
     play = warded(game(), False)
     attack_mode(play, hunter(play), until=10.0)
     assert len(play.wards) == 1
-    assert play.world.player.ward is True
+    assert me(play.world).ward is True
 
 
 @pytest.mark.parametrize('state', [True, None], ids=['on', 'unreadable'])
@@ -1384,7 +1390,7 @@ def test_a_psychic_ward_broken_again_and_again_in_a_fight_is_cast_once_in_five_s
 
 
 def consumed(play, state):
-    play.world = replace(play.world, player=replace(play.world.player, consume=state))
+    play.world = replace(play.world, player=replace(me(play.world), consume=state))
     return play
 
 
@@ -1393,7 +1399,7 @@ def test_attack_mode_casts_consume_again_when_it_has_run_out_and_nothing_is_near
     play = consumed(game(), False)
     attack_mode(play, hunter(play), until=10.0)
     assert play.pressed().count('6') == 1
-    assert play.world.player.consume is True
+    assert me(play.world).consume is True
     assert len([m for m in play.world.monsters if m.txt_id == 744]) == 1
     assert 'Consume ran out: casting it again' in play.said
 
@@ -1500,7 +1506,9 @@ def test_the_sweep_goes_to_a_firing_spot_when_a_wall_stands_between(monkeypatch)
     hunt = hunter(play, ground=(Walkable(996, 996, 8, 8, pack_cells(cells), pack_cells(cells)),))
     hunt.sweep.steps, hunt.sweep.until = 3, 100.0
     gone = []
-    monkeypatch.setattr(hunt, 'go', lambda run, level, ground, player, rect, mob, name, *rest: gone.append(mob))
+    monkeypatch.setattr(
+        hunt, 'go', lambda run, level, ground, player, rect, mob, name, doors, key_names: gone.append(mob)
+    )
     attack_mode(play, hunt, until=0.5)
     assert gone[0] == (5016.0, 5000.0)
     assert play.walks == []
@@ -1599,7 +1607,7 @@ def test_no_blade_warp_through_a_wall_and_none_onto_ground_without_footing():
     hunt = hunter(play, ground=ground)
     hunt.sweep.steps, hunt.sweep.until = 6, 100.0
     gone = []
-    hunt.go = lambda run, level, ground, player, rect, mob, name, *rest: gone.append(mob)
+    hunt.go = lambda run, level, ground, player, rect, mob, name, doors, key_names: gone.append(mob)
     attack_mode(play, hunt, until=1.0)
     assert play.warps == []
     assert gone  # the firing spot's to find
@@ -1611,8 +1619,8 @@ def test_no_blade_warp_through_a_wall_and_none_onto_ground_without_footing():
 def test_the_pickup_requests_seek_goes_to_a_remembered_monster_of_any_kind_and_the_seek_steps_only_to_an_elite():
     play = game()
     hunt = hunter(play, remembered=[(31, 5050.0, 5000.0, False)], explored=[(1028, 996, 8, 8)])
-    gone = []
-    hunt.go = lambda run, level, ground, player, rect, mob, name, *rest: gone.append((mob, name))
+    gone: list[object] = []
+    hunt.go = lambda run, level, ground, player, rect, mob, name, doors, key_names: gone.append((mob, name))
     hunt.explore = lambda run, level, player, rect, key_names, frontier=None: gone.append('explore')
     hunt.seek(play.run(), keys, any_hostile=True)
     hunt.seek(play.run(), keys)
@@ -1623,7 +1631,7 @@ def test_a_remembered_monster_much_further_than_the_nearest_unexplored_room_wait
     play = game()
     hunt = hunter(play, remembered=[(31, 5000.0 + 5 * 60, 5000.0, False)], explored=[])
     gone = []
-    hunt.go = lambda run, level, ground, player, rect, mob, name, *rest: gone.append('go')
+    hunt.go = lambda run, level, ground, player, rect, mob, name, doors, key_names: gone.append('go')
     hunt.explore = lambda run, level, player, rect, key_names, frontier=None: gone.append('explore')
     hunt.seek(play.run(), keys, any_hostile=True)
     assert gone == ['explore']
@@ -1644,13 +1652,14 @@ def test_exploring_keeps_its_tour_when_a_step_makes_the_other_way_a_little_short
     play = game()
     explored = [(1004, 996, 8, 8), (1012, 996, 8, 8), (1020, 996, 8, 8)]
     hunt = hunter(play, explored=explored)
+    assert hunt.level is not None
     level = hunt.level()
     assert level is not None
     rect = (1920, 0, 2560, 1418)
-    first = hunt.frontier(level, replace(play.world.player, x=1016.0 * 5, y=5000.0), rect)
+    first = hunt.frontier(level, replace(me(play.world), x=1016.0 * 5, y=5000.0), rect)
     assert first is not None
     side = 1 if first[2][0] > 1016 else -1
-    across = replace(play.world.player, x=(1016.0 - 2 * side) * 5, y=5000.0)
+    across = replace(me(play.world), x=(1016.0 - 2 * side) * 5, y=5000.0)
     kept = hunt.frontier(level, across, rect)
     fresh = hunter(play, explored=explored).frontier(level, across, rect)
     assert kept is not None
@@ -1666,7 +1675,7 @@ def test_with_the_staffs_charges_gone_the_seek_step_goes_by_blade_warp_and_else_
     play.staff = replace(STAFF, charges=0)
     hunter(play, explored=explored).seek(play.run(), keys)
     assert play.pressed() == [KEYS[BLADE_WARP]]
-    assert play.world.player.x >= 5008.0
+    assert me(play.world).x >= 5008.0
     assert any(said.startswith('Blade Warp toward an unexplored room') for said in play.said)
 
     slots = tuple(None if skill == BLADE_WARP else skill for skill in HUNT_SLOTS)
@@ -1674,7 +1683,7 @@ def test_with_the_staffs_charges_gone_the_seek_step_goes_by_blade_warp_and_else_
     play.staff = replace(STAFF, charges=0)
     hunter(play, explored=explored).seek(play.run(), keys)
     assert play.pressed() == []
-    assert play.world.player.x > 5000.0
+    assert me(play.world).x > 5000.0
     assert play.said[-1].startswith('Walking')
 
 
@@ -1709,6 +1718,7 @@ def test_a_seek_step_waits_out_the_blade_warps_delay_over_a_clear_line_and_spend
     began = run.clock()
     hunt.seek(run, keys)
     assert play.pressed() == [KEYS[BLADE_WARP]]
+    assert play.staff is not None
     assert play.staff.charges == STAFF.charges
     assert 0.5 <= run.clock() - began < 2.0
 
@@ -1724,10 +1734,10 @@ def test_a_walk_step_minds_only_a_monster_a_click_attacks_that_stands_where_it_i
         run.hovered = lambda over=over: over
         if refused:
             with pytest.raises(Abort, match='is under the pointer there'):
-                step_walk(run, (5010.0, 5000.0), play.world.player, ASPECT, attackable(play.world))
+                step_walk(run, (5010.0, 5000.0), me(play.world), ASPECT, attackable(play.world))
             assert play.walks == []
         else:
-            step_walk(run, (5010.0, 5000.0), play.world.player, ASPECT, attackable(play.world))
+            step_walk(run, (5010.0, 5000.0), me(play.world), ASPECT, attackable(play.world))
             assert len(play.walks) == 1
 
 
@@ -1735,16 +1745,16 @@ def test_a_character_running_in_place_is_not_waited_for():
     # Durance of Hate 2, 03:09 on 2026-10-11: 22 s in the running mode on one spot, and the mode,
     # which yields to a character on the move, cast nothing.
     play = game(foe(11, 5010.0, 5000.0))
-    play.world = replace(play.world, player=replace(play.world.player, mode=3))
+    play.world = replace(play.world, player=replace(me(play.world), mode=3))
     hunt, run = hunter(play), play.run()
     assert hunt.moving(run, play.world) == 'the character is on the move'
     play.clock.now += RUN_IN_PLACE / 2
     assert hunt.moving(run, play.world) == 'the character is on the move'
     play.clock.now += RUN_IN_PLACE
     assert hunt.moving(run, play.world) is None
-    going = replace(play.world, player=replace(play.world.player, x=5004.0))
+    going = replace(play.world, player=replace(me(play.world), x=5004.0))
     assert hunt.moving(run, going) == 'the character is on the move'  # it got somewhere: a move again
-    standing = replace(play.world, player=replace(play.world.player, mode=1))
+    standing = replace(play.world, player=replace(me(play.world), mode=1))
     assert hunt.moving(run, standing) is None
     assert hunt.moving(run, play.world) == 'the character is on the move'  # and anew after a stop
 
@@ -1762,7 +1772,7 @@ def test_a_place_is_chosen_with_the_jump_that_reaches_it_and_gone_to_by_it():
     hunt.stepping = Step.to(place)
     hunt.take_step(run, ASPECT, keys, Ground(()))
     assert play.pressed() == [KEYS[BLADE_WARP]]
-    assert math.dist((play.world.player.x, play.world.player.y), place.spot) < 2
+    assert math.dist((me(play.world).x, me(play.world).y), place.spot) < 2
 
 
 def test_a_step_chosen_as_a_walk_is_walked_however_far():
@@ -1811,9 +1821,10 @@ def test_exploring_goes_to_stand_beside_a_room_no_teleport_lands_in():
     ground += (Walkable(ROOMS[-1].x, ROOMS[-1].y, 8, 8, pack_cells('0' * 1600)),)
     play = game()
     hunt = hunter(play, ground=ground, explored=[(room.x, room.y, 8, 8) for room in ROOMS[:3]])
+    assert hunt.level is not None
     level = hunt.level()
     assert level is not None
-    found = hunt.frontier(level, play.world.player, (1920, 0, 2560, 1418))
+    found = hunt.frontier(level, me(play.world), (1920, 0, 2560, 1418))
     assert found is not None
     assert found[1] == ROOMS[3]
 
@@ -1883,7 +1894,7 @@ def test_a_level_run_asks_its_whole_upkeep_between_its_moves_only_in_the_quiet(m
     hunt = hunter(play)
     hunt.build = replace(hunt.build, settings=with_overrides(hunt.build.settings, pursuit=True))
     hunt.pursuit = Pursuit('pickup', -100.0, advance=False, leash=FULL)
-    order = []
+    order: list[object] = []
 
     def spent():
         # Each stub takes game time, and the test stops after a few looks whatever the loop does (bounded)
@@ -1962,7 +1973,8 @@ def test_with_few_charges_left_the_teleport_step_hops_by_blade_warp_over_open_gr
     play = game()  # the staff of these tests holds 10 charges
     open_step(play, hunter(play))
     assert play.pressed() == [KEYS[BLADE_WARP]]
-    assert play.world.player.x >= 5000.0 + 15.0
+    assert me(play.world).x >= 5000.0 + 15.0
+    assert play.staff is not None
     assert play.staff.charges == STAFF.charges
     assert any(said.startswith('Blade Warp toward the mark') for said in play.said)
 
@@ -2005,7 +2017,7 @@ def test_the_sweep_stays_by_a_valuable_it_cannot_take_and_says_so(caplog):
     play.loot = replace(play.loot, drops=(charm,), room=('####', '####'))
     hunt.pick = lambda: None
     swept(play, hunt)
-    assert math.dist((play.world.player.x, play.world.player.y), (charm.x, charm.y)) <= 25.0
+    assert math.dist((me(play.world).x, me(play.world).y), (charm.x, charm.y)) <= 25.0
     assert play.warps == []
     assert 'Staying by Grand Charm: the inventory has no room for it' in play.said
     assert 'the sweep stays by Grand Charm' in caplog.text
@@ -2019,7 +2031,7 @@ def test_the_sweep_does_not_stay_by_gear_it_has_no_room_for():
     play.loot = replace(play.loot, drops=(kriss,), room=('####', '####'))
     hunt.pick = lambda: None
     swept(play, hunt)
-    assert math.dist((play.world.player.x, play.world.player.y), (kriss.x, kriss.y)) > 25.0
+    assert math.dist((me(play.world).x, me(play.world).y), (kriss.x, kriss.y)) > 25.0
     assert not any(line.startswith('Staying by') for line in play.said)
 
 
@@ -2123,10 +2135,10 @@ def test_a_firing_spot_a_few_units_off_behind_a_corner_is_still_gone_to(monkeypa
     monkeypatch.setattr(hunt_module, 'in_reach', lambda *args: False)
     monkeypatch.setattr(hunt_module, 'clear_shot', lambda *args: False)
     monkeypatch.setattr(hunt_module, 'firing_spots', lambda *args: [(5004.0, 5001.0)])
-    start = (play.world.player.x, play.world.player.y)
+    start = (me(play.world).x, me(play.world).y)
     hunter(play).seek(play.run(), keys)
     assert play.pressed() == [KEYS[TELEPORT]]
-    assert math.dist((play.world.player.x, play.world.player.y), start) >= 2.0
+    assert math.dist((me(play.world).x, me(play.world).y), start) >= 2.0
     assert not any(said.startswith('At ') for said in play.said)
 
 
@@ -2146,7 +2158,7 @@ def test_a_seek_step_that_moves_nothing_says_so(monkeypatch):
 def boss_card(play, mark=(1010.5, 1000.5)):
     from inventory_tracking.levels.model import Target
 
-    return Target(play.world.player.area, ROOMS, mark, 'Countess', 'target', False, ())
+    return Target(me(play.world).area, ROOMS, mark, 'Countess', 'target', False, ())
 
 
 def test_the_teleport_step_goes_for_a_boss_its_mark_has_no_shot_at(monkeypatch):
@@ -2161,7 +2173,7 @@ def test_the_teleport_step_goes_for_a_boss_its_mark_has_no_shot_at(monkeypatch):
     hunt = hunter(play)
     assert hunt.boss_step(play.run(), boss_card(play), keys)
     assert play.pressed()  # a jump toward the firing spot at her
-    assert math.dist((play.world.player.x, play.world.player.y), (5020.0, 5012.0)) < 12.0
+    assert math.dist((me(play.world).x, me(play.world).y), (5020.0, 5012.0)) < 12.0
 
 
 def test_the_teleport_step_stays_when_the_boss_is_in_reach_and_the_mark_has_no_shot(monkeypatch):
@@ -2184,7 +2196,7 @@ def test_the_teleport_step_goes_to_a_mark_with_a_shot_at_its_boss_and_to_any_oth
     hunt = hunter(play)
     assert not hunt.boss_step(play.run(), boss_card(play), keys)
     monkeypatch.setattr(hunt_module, 'in_reach', lambda *args: False)
-    stairs = Target(play.world.player.area, ROOMS, (1010.5, 1000.5), 'Next level', 'stairs', True, ())
+    stairs = Target(me(play.world).area, ROOMS, (1010.5, 1000.5), 'Next level', 'stairs', True, ())
     assert not hunt.boss_step(play.run(), stairs, keys)
     assert not hunter(game()).boss_step(game().run(), boss_card(play), keys)  # no boss in sight
     far = game(foe(10, 5200.0, 5000.0, 0x02, txt_id=45))  # a super unique far from the mark is not its boss

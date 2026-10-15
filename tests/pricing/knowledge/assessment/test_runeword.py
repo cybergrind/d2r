@@ -1,6 +1,7 @@
 from copy import deepcopy
 from dataclasses import replace
 from pathlib import Path
+from typing import Any
 
 from inventory_tracking.items.metadata import metadata
 from pricing.knowledge.assessment.comparables import reject_reasons
@@ -13,7 +14,7 @@ ROOT = Path(__file__).resolve().parents[4]
 
 
 def test_runeword_census_preserves_definitions_ranges_and_demand():
-    report = build(ROOT)
+    report: dict[str, Any] = build(ROOT)
     spirit = next(r['details'] for r in report['rows'] if r['name'] == 'Spirit')
     assert spirit['variable_stats']['105']['min'] == 25
     assert spirit['variable_stats']['105']['max'] == 35
@@ -41,6 +42,7 @@ def test_runeword_contract_requires_base_and_all_variable_rolls():
     )
     contract, gaps = handler.contract(facts, 'shield')
     assert not gaps
+    assert contract is not None
     assert contract.base_code == base['code']
     assert contract.properties['1855'] == 148
     row = {

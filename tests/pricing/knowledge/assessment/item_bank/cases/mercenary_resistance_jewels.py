@@ -6,7 +6,7 @@ from dirty_equals import Contains, IsPartialDict
 
 from tests.pricing.knowledge.assessment.item_bank.cases.shaftstop_mercenaries import BASE as SHAFTSTOP
 from tests.pricing.knowledge.assessment.item_bank.cases.vampire_gaze_setups import BASE as GAZE
-from tests.pricing.knowledge.assessment.item_bank.models import Case, SocketItem
+from tests.pricing.knowledge.assessment.item_bank.models import Case, SocketItem, known
 
 
 SPECS = (
@@ -92,7 +92,7 @@ def cases():
                 scenario={'true': 'positive', 'false': 'negative', 'unknown': 'unknown'}[truth],
                 expected={'assessment': IsPartialDict(**expected), 'price_estimate': IsPartialDict(estimate_ist=None)},
                 absent_configurations=() if truth == 'true' else (config,),
-                report_contains=(candidate.name, 'Trade tier:'),
+                report_contains=(known(candidate.name), 'Trade tier:'),
                 evidence=(
                     f'pricing/data/wp-a-builds.json:/{build}/variants/{variant}',
                     f'pricing/raw/mr/planners/{planner}.json:/data',

@@ -5,9 +5,10 @@ import pytest
 from inventory_tracking.items.metadata import decode_stats
 from pricing.knowledge.assessment.adapters.capture import normalize
 from pricing.knowledge.assessment.build_profiles import build
-from pricing.knowledge.assessment.profiles import assess_role_results, assess_roles
+from pricing.knowledge.assessment.profiles import assess_role_results
 from pricing.knowledge.assessment.stat_bundle import configuration_from_row
 from pricing.knowledge.assessment.stat_evaluation import StatsEvaluator
+from tests.pricing.knowledge.assessment.role_rows import role_rows
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
 
 
@@ -43,7 +44,7 @@ def test_charged_alternatives_preserve_skill_remaining_charges_and_explicit_base
     context = {'player_class': class_name}
 
     def assess(candidate):
-        return assess_roles(candidate, [role], context)[0]
+        return role_rows(candidate, [role], context)[0]
 
     assert assess(item(1))['dependencies'][0]['status'] == 'true'
     assert assess(item(0))['dependencies'][0]['status'] == 'false'
@@ -108,7 +109,7 @@ def test_decorated_charges_require_both_native_prefix_and_usable_spell(
     context = {'player_class': class_name}
 
     def assess(candidate):
-        return assess_roles(candidate, [role], context)
+        return role_rows(candidate, [role], context)
 
     assert assess(item)[0]['rule_trace']['truth'] == 'true'
     assert (

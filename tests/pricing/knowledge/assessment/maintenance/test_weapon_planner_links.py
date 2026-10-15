@@ -1,6 +1,7 @@
 """Native weapon source examples retain base alternatives and wearer requirements."""
 
 from copy import deepcopy
+from typing import Any
 
 import pytest
 
@@ -10,7 +11,9 @@ from pricing.knowledge.builds import decode_planner
 from tests.pricing.knowledge.assessment.maintenance.test_swap_planner_links import GUIDE, PROFILES, USES, read
 
 
-def example(profile_id='hammer-standard-insight-merc'):
+def example(
+    profile_id='hammer-standard-insight-merc',
+) -> tuple[dict[str, Any], dict[str, Any], list[dict[str, Any]], list[dict[str, Any]]]:
     import hashlib
 
     prepared = next(

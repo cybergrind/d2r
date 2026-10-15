@@ -1,4 +1,5 @@
 from copy import deepcopy
+from typing import Any
 
 import pytest
 
@@ -8,7 +9,7 @@ from pricing.knowledge.assessment.maintenance.review_dossiers import compile_dos
 from tests.pricing.knowledge.assessment.maintenance.test_pattern_dossiers import pattern_fixture
 
 
-def component_fixture():
+def component_fixture() -> tuple[dict[str, Any], dict[str, Any], dict[str, Any], dict[str, Any]]:
     role, use, row = pattern_fixture()
     role['types'] = ['jewl']
     use['profile_fingerprint'] = fingerprint(role)

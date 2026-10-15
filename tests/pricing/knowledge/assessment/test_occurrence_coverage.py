@@ -1,3 +1,5 @@
+from typing import Any
+
 from pricing.knowledge.assessment.maintenance.inventory import audit_occurrences
 
 
@@ -73,7 +75,7 @@ def test_standalone_variants_preserve_swaps_mercenary_and_literal_source_paths()
         ],
     }
     catalog = {'named': {'name': 'Named item', 'category': 'unique'}}
-    rows = variant_occurrences(document, 'variant.json', catalog)
+    rows: list[dict[str, Any]] = variant_occurrences(document, 'variant.json', catalog)
     assert len(rows) == 3
     assert len({r['id'] for r in rows}) == 3
     assert rows[0]['slot'] == 'Weapon-Swap'

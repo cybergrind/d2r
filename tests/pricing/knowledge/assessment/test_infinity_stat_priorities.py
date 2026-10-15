@@ -7,6 +7,7 @@ from pricing.knowledge.assessment.build_profiles import ROOT, build
 from pricing.knowledge.assessment.maintenance.stat_configurations import compile_stat_configurations
 from pricing.knowledge.assessment.profiles import assess_role_results
 from pricing.knowledge.assessment.stat_evaluation import StatsEvaluator
+from tests.pricing.knowledge.assessment.fact_changes import fact_changes
 from tests.pricing.knowledge.assessment.roles.test_infinity import infinity
 
 
@@ -46,7 +47,7 @@ def test_infinity_priorities_belong_to_the_specific_beneficiary(role_id, base, p
         assert {k: v['desirability'] for k, v in result.annotations.items()} == priorities
         assert all(v['roll_quality'] == 'unassessed' for v in result.annotations.values())
         assert result.configurations[0]['role']['status'] == 'partial'
-    for changes in (
+    for changes in fact_changes(
         {'name': 'Insight'},
         {'name': None},
         {'runeword': 'Insight'},

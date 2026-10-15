@@ -57,7 +57,7 @@ def test_dream_life_tap_is_conditional_on_other_sources_and_unknown_loadout():
         (["Dracul's Grasp"], 'false'),
         (None, 'unknown'),
     ):
-        context = {'player_class': 'Paladin'}
+        context: dict[str, str | list[str]] = {'player_class': 'Paladin'}
         if equipment is not None:
             context['player_items'] = equipment
         result = assess_roles(wand(82, 1), [profile], context)[0]

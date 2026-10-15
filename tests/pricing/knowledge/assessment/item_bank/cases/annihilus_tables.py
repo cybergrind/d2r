@@ -57,7 +57,9 @@ def cases():
             ('unknown-contents', replace(item, socket_contents='unknown'), context, 'unknown'),
         )
         for label, candidate, loadout, truth in examples:
-            expected = {'roles': Contains(*(IsPartialDict(id=r, rule_trace=IsPartialDict(truth=truth)) for r in roles))}
+            expected: dict[str, object] = {
+                'roles': Contains(*(IsPartialDict(id=r, rule_trace=IsPartialDict(truth=truth)) for r in roles))
+            }
             result = {'assessment': IsPartialDict(**expected)}
             if truth == 'true':
                 expected['stat_evaluation'] = IsPartialDict(

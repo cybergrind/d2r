@@ -6,6 +6,7 @@ from pricing.knowledge.assessment.build_profiles import build
 from pricing.knowledge.assessment.profiles import assess_role_results
 from pricing.knowledge.assessment.stat_bundle import configuration_from_row
 from pricing.knowledge.assessment.stat_evaluation import StatsEvaluator
+from tests.pricing.knowledge.assessment.fact_changes import fact_changes
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
 from tests.pricing.knowledge.assessment.test_fortitude_priorities import MEMBERS as FORTITUDE_MEMBERS
 
@@ -47,7 +48,7 @@ def test_andariel_native_utility_preserves_fire_penalty_and_socket_qualification
     assert evaluate().annotations['93:0']['desirability'] == 'desirable'
     assert evaluate().annotations['60:0']['desirability'] == 'desirable'
     assert evaluate().annotations['0:0']['desirability'] == 'supporting'
-    for changes in (
+    for changes in fact_changes(
         {'ethereal': False},
         {'ethereal': None},
         {'identified': None},

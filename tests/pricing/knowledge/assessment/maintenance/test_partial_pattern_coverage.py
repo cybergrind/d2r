@@ -1,6 +1,7 @@
 """A useful preparation base does not finish its source's inserted-item branch."""
 
 from copy import deepcopy
+from typing import Any
 
 import pytest
 
@@ -10,7 +11,7 @@ from pricing.knowledge.assessment.maintenance.review_dossiers import _pattern_bi
 from tests.pricing.knowledge.assessment.maintenance.test_pattern_dossiers import pattern_fixture
 
 
-def inputs():
+def inputs() -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
     role, use, row = pattern_fixture()
     role['must'] = {'op': 'fact_eq', 'field': 'socket_contents', 'value': 'empty'}
     use['profile_fingerprint'] = fingerprint(role)

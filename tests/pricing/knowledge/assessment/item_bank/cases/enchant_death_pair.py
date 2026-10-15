@@ -34,10 +34,10 @@ def cases():
                 'unknown',
             ),
         ):
-            outcome = {'id': role, 'build': 'enchant-sorceress', 'variant': 'Budget'}
+            outcome: dict[str, object] = {'id': role, 'build': 'enchant-sorceress', 'variant': 'Budget'}
             if dependency is not None:
                 outcome['dependencies'] = Contains(IsPartialDict(status=dependency))
-            expected = {'roles': Contains(IsPartialDict(**outcome))}
+            expected: dict[str, object] = {'roles': Contains(IsPartialDict(**outcome))}
             if active:
                 expected['stat_evaluation'] = IsPartialDict(
                     annotations=IsPartialDict({key: IsPartialDict(configuration_ids=Contains(config))})

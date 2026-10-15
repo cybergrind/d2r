@@ -1,6 +1,7 @@
 """Abyss amulet examples preserve skill tabs, cast tiers and charged-skill state."""
 
 from dataclasses import replace
+from typing import Any
 
 from dirty_equals import Contains, IsPartialDict
 
@@ -60,7 +61,7 @@ EXAMPLES = (
 def cases():
     for slug, item, keys, fcr in EXAMPLES:
         role = 'abyss-warlock-table-amulet-' + slug
-        rows = [
+        rows: list[tuple[str, Item, dict[str, Any], str, tuple[str, ...]]] = [
             ('minimum', item, {'player_class': 'Warlock'}, 'true', keys),
             ('wrong-class', item, {'player_class': 'Sorceress'}, 'false', ()),
             ('unknown-class', item, {}, 'unknown', ()),
@@ -124,14 +125,16 @@ def cases():
         if slug == 'maras':
             rows.append(('no-full-breakpoint', item, {'player_class': 'Warlock', 'player_total_fcr': 0}, 'true', keys))
         for label, candidate, context, truth, expected_keys in rows:
-            expected = {'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))}
+            expected: dict[str, object] = {
+                'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))
+            }
             if truth == 'true':
                 expected['stat_evaluation'] = IsPartialDict(
                     annotations=IsPartialDict(
                         {k: IsPartialDict(configuration_ids=Contains(role + '-stats')) for k in expected_keys}
                     )
                 )
-            excluded = (
+            excluded: dict[str, tuple[str, ...]] = (
                 {'198:25555': (role + '-stats',)}
                 if slug == 'entropy'
                 else {'78:0': (role + '-stats',)}

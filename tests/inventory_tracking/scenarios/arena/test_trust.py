@@ -100,7 +100,7 @@ def test_not_believed():
 ])
 def test_each(name):
     assert name == 'good-1-burst'
-"""
+"""  # ruff: ignore[missing-f-string-syntax] a template: filled by .format
 
 
 def test_the_mark_skips_and_lets_run(fixtures: Path, tmp_path: Path):

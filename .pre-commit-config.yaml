@@ -31,7 +31,7 @@ repos:
       # (hundreds of findings); clean them up in their own pass before removing the exclude.
       - id: ruff-check
         name: ruff check
-        entry: uv run ruff check --fix --preview --force-exclude
+        entry: uv run ruff check --fix --force-exclude
         language: system
         types_or: [python, pyi]
         exclude: ^pricing/tools/
@@ -43,6 +43,9 @@ repos:
         types_or: [python, pyi]
         exclude: ^pricing/tools/
         require_serial: true
+      # The whole project against pyrefly-baseline.json (pyproject.toml): only errors not in the baseline fail.
+      # After fixing baselined errors: uv run pyrefly check --prune-baseline. All of them, baselined too:
+      # uv run pyrefly check --baseline-error-level error.
       - id: pyrefly-check
         name: pyrefly check
         entry: uv run pyrefly check

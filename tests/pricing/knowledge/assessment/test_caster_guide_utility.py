@@ -6,6 +6,7 @@ from pricing.knowledge.assessment.build_profiles import build
 from pricing.knowledge.assessment.profiles import assess_role_results
 from pricing.knowledge.assessment.stat_bundle import configuration_from_row
 from pricing.knowledge.assessment.stat_evaluation import StatsEvaluator
+from tests.pricing.knowledge.assessment.fact_changes import fact_changes
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
 
 
@@ -49,7 +50,7 @@ def test_caster_table_alternatives_keep_class_and_damage_recipient_semantics(nam
 
         assert set(evaluate(item).annotations) == expected
         assert not evaluate(item, 'Barbarian').annotations
-        for patch in ({'ethereal': True}, {'rarity': 'rare'}, {'base_code': facts('Jewel').base_code}):
+        for patch in fact_changes({'ethereal': True}, {'rarity': 'rare'}, {'base_code': facts('Jewel').base_code}):
             assert not evaluate(replace(item, **patch)).annotations
         if name in ('Magefist', "Trang-Oul's Claws"):
             assert not evaluate(replace(item, sockets=1)).annotations

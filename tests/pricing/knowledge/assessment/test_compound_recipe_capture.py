@@ -2,6 +2,7 @@
 
 import json
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -45,7 +46,9 @@ def test_rebuilt_recipe_verifies_all_endpoints_but_keeps_unknown_cold_duration(
     from pricing.knowledge.assessment.mechanics.compound_recipe import compound_recipe_gaps
 
     props = {48: '458', 49: '459', 50: '478', 51: '479', 54: '482', 55: '483'}
-    stats = {f'{k}:0': {'status': 'decoded', 'raw': v, 'value': v} for k, v in values.items()}
+    stats: dict[str, dict[str, Any]] = {
+        f'{k}:0': {'status': 'decoded', 'raw': v, 'value': v} for k, v in values.items()
+    }
     stats['56:0'] = {'status': 'decoded', 'raw': 100, 'value': 4, 'unit': 'seconds'}
     if changed_stat is not None:
         key = f'{changed_stat}:0'

@@ -3,6 +3,7 @@ from dataclasses import replace
 import pytest
 
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
+from tests.pricing.knowledge.reports import reports
 
 
 def test_missing_context_is_conditional_but_explicit_wrong_context_is_false():
@@ -72,7 +73,7 @@ def test_new_required_rule_reaches_existing_profile_evaluation():
         'must': {'op': 'stat_at_least', 'key': '105:0', 'value': 20},
     }
     item = replace(facts('Diadem', 'rare'), stats={'105:0': {'status': 'decoded', 'value': 10}})
-    role = assess_roles(item, [p])[0]
+    role = reports(assess_roles(item, [p]))[0]
     assert role['status'] == 'failed'
     assert role['rule_trace']['truth'] == 'false'
     assert assess_roles(replace(item, stats={}), [p])[0]['status'] == 'partial'
@@ -125,10 +126,10 @@ def test_unit_qualified_stat_can_be_confirmed_absent_without_inventing_a_unit(ke
     from pricing.knowledge.assessment.roles.predicates import evaluate
 
     rule = {'op': 'stat_at_least', 'key': key, 'value': 1, 'unit': unit, 'absent_is_zero': True}
-    item = replace(facts('Ghost Glaive', 'rare'), stats={}, capture_complete=True, gaps=())
+    item = replace(facts('Ghost Glaive', 'rare'), stats={}, capture_complete=True, gaps=[])
     assert evaluate(rule, item).truth == 'false'
     assert evaluate(rule, replace(item, capture_complete=False)).truth == 'unknown'
-    assert evaluate(rule, replace(item, gaps=('Unresolved stat capture',))).truth == 'unknown'
+    assert evaluate(rule, replace(item, gaps=['Unresolved stat capture'])).truth == 'unknown'
     assert evaluate({**rule, 'absent_is_zero': False}, item).truth == 'unknown'
     wrong_unit = replace(item, stats={key: {'status': 'decoded', 'value': 10, 'unit': 'seconds'}})
     assert evaluate(rule, wrong_unit).truth == 'unknown'

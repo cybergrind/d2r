@@ -69,7 +69,9 @@ def cases():
             keys = ['127:0', '105:0', '16:0', '86:0', '39:0', '3:0']
             if mf:
                 keys.append('80:0')
-            expected = {'roles': Contains(IsPartialDict(id=ROLE, rule_trace=IsPartialDict(truth=truth)))}
+            expected: dict[str, object] = {
+                'roles': Contains(IsPartialDict(id=ROLE, rule_trace=IsPartialDict(truth=truth)))
+            }
             if active:
                 expected['stat_evaluation'] = IsPartialDict(
                     annotations=IsPartialDict({key: IsPartialDict(configuration_ids=Contains(CONFIG)) for key in keys})

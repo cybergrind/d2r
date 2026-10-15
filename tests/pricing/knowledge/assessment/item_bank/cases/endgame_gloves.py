@@ -4,7 +4,7 @@ from dataclasses import replace
 
 from dirty_equals import Contains, IsPartialDict
 
-from tests.pricing.knowledge.assessment.item_bank.models import Case, Item
+from tests.pricing.knowledge.assessment.item_bank.models import Case, Item, known
 
 
 TRANG = Item(
@@ -61,8 +61,8 @@ def cases():
         ]
         if original == TRANG:
             scenarios += [
-                ('below-breakpoint', original, {**context, 'player_total_fcr': breakpoint - 1}, 'false'),
-                ('above-breakpoint', original, {**context, 'player_total_fcr': breakpoint + 1}, 'true'),
+                ('below-breakpoint', original, {**context, 'player_total_fcr': known(breakpoint) - 1}, 'false'),
+                ('above-breakpoint', original, {**context, 'player_total_fcr': known(breakpoint) + 1}, 'true'),
                 ('unknown-breakpoint', original, {'player_class': wearer}, 'unknown'),
                 ('gloves-not-whole-loadout', original, {**context, 'player_total_fcr': 20}, 'false'),
             ]
@@ -80,7 +80,9 @@ def cases():
             config = role + '-stats'
             captured = {f'{stat}:{layer}' for stat, layer, _ in item.raw_stats}
             active = truth == 'true'
-            expected = {'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))}
+            expected: dict[str, object] = {
+                'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))
+            }
             if active:
                 expected['stat_evaluation'] = IsPartialDict(
                     annotations=IsPartialDict(
@@ -99,7 +101,7 @@ def cases():
                         }
                     )
                 )
-            absent = {key: (config,) for key in priorities if key not in captured}
+            absent: dict[str, tuple[str, ...]] = {key: (config,) for key in priorities if key not in captured}
             if original == TRANG and not poison:
                 absent['332:0'] = (config,)
             yield Case(
@@ -116,7 +118,7 @@ def cases():
                 absent_configurations=() if active else (config,),
                 absent_stat_configurations=absent,
                 report_contains=(
-                    original.name,
+                    known(original.name),
                     'Trade tier:',
                     *(line for key, line in TRANG_LINES.items() if original == TRANG and key in captured),
                 )

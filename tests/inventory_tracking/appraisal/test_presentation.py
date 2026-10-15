@@ -96,7 +96,9 @@ def test_trade_and_leveling_tiers_share_readable_colors():
         rows = [line for line in document.to_osd() if line.text.startswith(('Trade tier:', 'Leveling:'))]
         assert len(rows) == (2 if tier == 'high' else 1)
         for row in rows:
-            assert Style.parse(PALETTE[row.tone]).color.get_truecolor().hex == color
+            tone = Style.parse(PALETTE[row.tone]).color
+            assert tone is not None
+            assert tone.get_truecolor().hex == color
             assert color in render_markup([row])
         assert document.to_rich().plain == document.to_text()
 

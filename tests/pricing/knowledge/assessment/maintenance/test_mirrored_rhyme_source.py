@@ -1,6 +1,7 @@
 """Starter Rhyme is tied to its actual tab, planner and staffmod configuration."""
 
 from copy import deepcopy
+from typing import Any
 
 import pytest
 
@@ -15,7 +16,7 @@ PID = 'mirrored-starter-rhyme-grimoire'
 OID = 'd555979e868837ef52c42453'
 
 
-def records():
+def records() -> tuple[dict[str, Any], dict[str, Any], dict[str, Any], dict[str, Any]]:
     review, occurrence, role, use = named_records(PID, OID, 'Rhyme')
     evidence = deepcopy(enigma_records()[0]['planner_endorsement'])
     planner = pin('pricing/raw/mr/planners/rg2je0ld.json')

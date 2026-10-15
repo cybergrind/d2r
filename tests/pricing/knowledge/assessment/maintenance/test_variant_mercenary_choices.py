@@ -1,6 +1,7 @@
 """A source discrepancy cannot silently widen a variant's mercenary bearer."""
 
 from copy import deepcopy
+from typing import Any
 
 import pytest
 
@@ -10,7 +11,7 @@ from pricing.knowledge.assessment.maintenance.variant_prose_context import match
 CHOICES = ('Act 2 Might', 'Act 2 Holy Freeze')
 
 
-def inputs():
+def inputs() -> tuple[dict[str, Any], dict[str, Any], dict[str, Any], str]:
     role = {
         'side': 'merc',
         'must': {'op': 'context_eq', 'field': 'player_class', 'value': 'Druid'},

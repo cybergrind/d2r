@@ -68,6 +68,9 @@ def test_the_payload_names_the_level_by_its_rooms():
     moved = ground_payload(MapCard(((0, 0, 8, 8),), (5.0, 4.0), dot), HudGroundConfig())
     below = ground_payload(MapCard(((0, 0, 8, 8), (8, 0, 8, 8)), (4.0, 4.0), dot), HudGroundConfig())
 
+    assert here is not None
+    assert moved is not None
+    assert below is not None
     assert here['level'] == moved['level'] != below['level']
 
 
@@ -98,6 +101,7 @@ def test_a_dot_with_a_path_address_keeps_it_in_its_mark_and_on_the_map_card():
 
     payload = ground_payload(card, HudGroundConfig())
 
+    assert payload is not None
     assert payload['marks'] == [['leader', 2.0, 3.0, 0x5000], ['stairs', 6.0, 7.0]]
     assert ground_marks(payload)[1] == [('leader', 2.0, 3.0), ('stairs', 6.0, 7.0)]
     assert MapCard.from_payload(card.to_payload()) == card
@@ -111,5 +115,7 @@ def test_a_malformed_payload_is_rejected():
 def test_the_ground_payload_names_where_the_canvas_can_read_the_player():
     card = MapCard(((0, 0, 8, 8),), (4.0, 4.0), (MapPoi('unique', 'leader', 2.0, 3.0),), live=(4242, 0x7F00))
 
-    assert ground_payload(card, HudGroundConfig())['live'] == [4242, 0x7F00]
+    payload = ground_payload(card, HudGroundConfig())
+    assert payload is not None
+    assert payload['live'] == [4242, 0x7F00]
     assert MapCard.from_payload(card.to_payload()).live == (4242, 0x7F00)

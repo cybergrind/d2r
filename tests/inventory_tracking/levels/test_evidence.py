@@ -4,13 +4,12 @@ import json
 import struct
 
 from inventory_tracking.levels.evidence import EvidenceLog, evidence_record, fixture, snapshot_from_research
-from inventory_tracking.levels.registry import handler_for
-from tests.inventory_tracking.levels.fixtures import FIXTURES, replay
+from tests.inventory_tracking.levels.fixtures import FIXTURES, handler_of, replay
 
 
 def test_record_carries_the_fixture_fields_and_what_the_handler_found():
     snapshot = replay('arcane_summoner_w')
-    handler = handler_for(74)
+    handler = handler_of(74)
 
     record = evidence_record(snapshot, handler, handler.guide(snapshot), captured_at='2026-09-30T00:00:00+00:00')
 
@@ -27,7 +26,7 @@ def test_record_carries_the_fixture_fields_and_what_the_handler_found():
 
 def test_fixture_from_evidence_round_trips_through_replay(tmp_path):
     snapshot = replay('arcane_summoner_s')
-    handler = handler_for(74)
+    handler = handler_of(74)
     record = evidence_record(snapshot, handler, handler.guide(snapshot), captured_at='t')
 
     data = fixture(record, source='evidence test')
@@ -95,7 +94,7 @@ def test_rooms_with_a_preset_object_keep_it_through_record_and_replay():
 
     room = Room(864, 2500, 1000, 8, 8, 3, (2500, 1000, 84, 84))
     snapshot = LevelSnapshot(Location(124, 0, 12720, 5236), (room, Room(1, 0, 0, 8, 8)))
-    handler = handler_for(124)
+    handler = handler_of(124)
     record = evidence_record(snapshot, handler, handler.guide(snapshot), captured_at='t')
 
     assert record['rooms'] == [[864, 2500, 1000, 8, 8, 3, 2500, 1000, 84, 84], [1, 0, 0, 8, 8]]

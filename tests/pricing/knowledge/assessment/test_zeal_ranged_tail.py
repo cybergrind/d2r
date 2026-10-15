@@ -6,6 +6,7 @@ from pricing.knowledge.assessment.build_profiles import build
 from pricing.knowledge.assessment.profiles import assess_role_results
 from pricing.knowledge.assessment.stat_bundle import configuration_from_row
 from pricing.knowledge.assessment.stat_evaluation import StatsEvaluator
+from tests.pricing.knowledge.assessment.fact_changes import fact_changes
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
 
 
@@ -71,5 +72,5 @@ def test_zeal_and_ranged_gear_keep_native_base_damage_and_repairability(name, ba
 
     assert set(evaluate(item).annotations) == set(values) - excluded
     assert set(evaluate(replace(item, ethereal=True)).annotations) == (set())
-    for change in ({'base_code': facts('Cap').base_code}, {'sockets': 3}, {'rarity': 'rare'}):
+    for change in fact_changes({'base_code': facts('Cap').base_code}, {'sockets': 3}, {'rarity': 'rare'}):
         assert not evaluate(replace(item, **change)).annotations

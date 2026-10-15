@@ -3,6 +3,7 @@
 import json
 from copy import deepcopy
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -93,12 +94,12 @@ def test_stormspire_comparison_requires_level_even_with_exact_chance():
 
     observation = next(r['observation'] for r in RECORDS if r['name'] == 'Stormspire')
     facts = normalize(observation)
-    contract, gaps = NamedHandler().contract(facts, classify(facts)[0])
-    assert contract is not None, gaps
-    contract = contract.to_dict()
+    handled, gaps = NamedHandler().contract(facts, classify(facts)[0])
+    assert handled is not None, gaps
+    contract: dict[str, Any] = handled.to_dict()
     assert contract['trigger_levels'] == {'433': 20}
     assert contract['properties']['433'] == 2
-    listing = {
+    listing: dict[str, Any] = {
         **{k: contract[k] for k in ('name', 'rarity', 'base_code', 'ethereal', 'sockets', 'socket_contents')},
         'properties': dict(contract['properties']),
         'scope_status': 'verified',

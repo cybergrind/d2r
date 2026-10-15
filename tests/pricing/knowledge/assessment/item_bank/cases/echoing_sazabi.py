@@ -67,7 +67,9 @@ def cases():
             ('unknown-socket', replace(item, socket_contents='unknown', socket_items=()), context, 'true', False),
         ]
         for label, candidate, loadout, truth, active in scenarios:
-            expected = {'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))}
+            expected: dict[str, object] = {
+                'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))
+            }
             if active:
                 expected['stat_evaluation'] = IsPartialDict(
                     annotations=IsPartialDict(

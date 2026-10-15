@@ -74,7 +74,7 @@ def cases():
         ]
         for label, candidate, loadout, truth in rows:
             bad_identity = label in ('wrong-recipe', 'empty', 'unidentified')
-            assessment = (
+            assessment: dict[str, object] = (
                 {}
                 if bad_identity
                 else {'roles': Contains(*(IsPartialDict(id=r, rule_trace=IsPartialDict(truth=truth)) for r in ROLES))}

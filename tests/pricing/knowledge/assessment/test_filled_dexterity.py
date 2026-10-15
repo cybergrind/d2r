@@ -1,5 +1,6 @@
 from dataclasses import replace
 from datetime import date
+from typing import Any
 
 import pytest
 
@@ -62,7 +63,7 @@ def test_fixed_dexterity_filler_contract_retains_observed_total_and_payload(fill
 def test_equal_dexterity_totals_with_different_fillers_are_not_comparable():
     contract, gaps = NamedHandler().contract(nightwing(), 'helm')
     assert contract is not None, gaps
-    row = {
+    row: dict[str, Any] = {
         **contract.to_dict(),
         'properties': {**contract.properties, '934': 'Ko Rune'},
         'scope_status': 'verified',

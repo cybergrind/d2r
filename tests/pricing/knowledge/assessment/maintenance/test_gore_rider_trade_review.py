@@ -2,6 +2,7 @@
 
 from copy import deepcopy
 from dataclasses import asdict
+from typing import Any
 
 import pytest
 
@@ -61,11 +62,11 @@ def test_case_presence_cannot_hide_missing_or_wrong_boundary_reports(mutation):
     elif mutation == 'fixed-bonus':
         cases[0][0]['raw_stats'] = tuple(r for r in cases[0][0]['raw_stats'] if r[0] != 136)
     else:
-        next(c for c in cases if c[1]['lines'])[1]['lines'][0]['tone'] = 'tier_high'
+        next(c[1] for c in cases if c[1] is not None and c[1]['lines'])['lines'][0]['tone'] = 'tier_high'
     assert trade_gore_rider.case_gap(cases, policy, spec)
 
 
-def review_inputs():
+def review_inputs() -> tuple[dict[str, Any], dict[str, Any]]:
     import json
     from pathlib import Path
 

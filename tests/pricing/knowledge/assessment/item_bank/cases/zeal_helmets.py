@@ -80,7 +80,7 @@ def cases():
         if name == 'Crown of Ages':
             variants.append(('positive', 'two-sockets', replace(item, sockets=2), {'player_class': 'Paladin'}))
         for scenario, label, observed, context in variants:
-            expected = {
+            expected: dict[str, object] = {
                 'roles': Contains(
                     IsPartialDict(
                         id=role,

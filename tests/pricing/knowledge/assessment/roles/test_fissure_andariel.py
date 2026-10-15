@@ -5,6 +5,7 @@ import pytest
 from pricing.knowledge.assessment.build_profiles import build
 from pricing.knowledge.assessment.profiles import assess_roles
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
+from tests.pricing.knowledge.reports import reports
 
 
 def rule(variant):
@@ -45,7 +46,7 @@ CONTEXT = {'player_class': 'Druid', 'mercenary_type': 'Act 2 Might', 'mercenary_
 def test_variant_socket_targets_and_ethereal_preference(variant, ed, expected):
     profile = rule(variant)
     item = helmet([jewel(ed)])
-    role = assess_roles(item, [profile], CONTEXT)[0]
+    role = reports(assess_roles(item, [profile], CONTEXT))[0]
     assert role['rule_trace']['truth'] == 'true'
     assert role['dependencies'][-1]['status'] == expected
     assert role['status'] == 'partial'
@@ -74,7 +75,7 @@ def test_jewel_name_parent_totals_or_separate_children_do_not_prove_payload(mode
 def test_empty_helmet_remains_a_candidate_with_preparation_and_loadout_missing():
     profile = rule('magic-find')
     item = facts('Demonhead', 'unique', "Andariel's Visage")
-    role = assess_roles(item, [profile], {'player_class': 'Druid'})[0]
+    role = reports(assess_roles(item, [profile], {'player_class': 'Druid'}))[0]
     assert role['rule_trace']['truth'] == 'true'
     assert role['status'] == 'partial'
     assert any(d['status'] == 'unknown' for d in role['dependencies'])

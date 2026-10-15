@@ -1,6 +1,7 @@
 """Mercenary Sazabi source proof preserves complete set and native rune effects."""
 
 from copy import deepcopy
+from typing import Any
 from unittest.mock import patch
 
 import pytest
@@ -114,7 +115,7 @@ def test_sazabi_source_rejects_incomplete_or_changed_setup(change):
         validate(args)
 
 
-def endorsement(suffix):
+def endorsement(suffix) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
     e, role, planner, _ = example(suffix)
     profile = planner['profiles'][3]
     guide_path = f'pricing/raw/mr/guides__{role["build"]}.html'

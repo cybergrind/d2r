@@ -25,7 +25,7 @@ def cases():
         ('unread-charges', replace(CLUB, raw_stats=()), CONTEXT, 'true', False),
     )
     for label, item, context, truth, usable in scenarios:
-        assessment = {
+        assessment: dict[str, object] = {
             'roles': Contains(
                 IsPartialDict(id=ROLE, side='player', slot='Prebuff', rule_trace=IsPartialDict(truth=truth))
             )

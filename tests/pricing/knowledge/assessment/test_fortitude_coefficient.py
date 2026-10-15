@@ -1,4 +1,5 @@
 from dataclasses import replace
+from typing import Any
 
 import pytest
 
@@ -47,7 +48,7 @@ def test_fortitude_prices_native_coefficient_independently_of_viewer_level(raw, 
         base_rarity=item.rarity,
     )
     serialized = contract.to_dict()
-    listing = {
+    listing: dict[str, Any] = {
         **{
             key: serialized[key]
             for key in ('name', 'rarity', 'base_code', 'ethereal', 'sockets', 'socket_contents', 'base_rarity')
@@ -113,7 +114,7 @@ def test_fortitude_verified_fixed_proc_allows_exact_roll_cohort():
     contract, gaps = RunewordHandler().contract(item, 'armor')
     assert contract is not None, gaps
     serialized = contract.to_dict()
-    rows = [
+    rows: list[dict[str, Any]] = [
         {
             **{
                 key: serialized[key]

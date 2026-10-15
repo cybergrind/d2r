@@ -15,6 +15,7 @@ def test_ethereal_census_specimen_retains_definition_stats(name):
         assert ethereal.stats == cases['min'].stats
         resolved, errors = resolve_named_definition(ethereal)
         assert not errors
+        assert resolved is not None
         assert resolved['roll_ranges'] == definition['roll_ranges']
 
 

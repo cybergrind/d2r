@@ -5,7 +5,7 @@ from itertools import product
 
 from dirty_equals import IsPartialDict
 
-from tests.pricing.knowledge.assessment.item_bank.models import Case, Item
+from tests.pricing.knowledge.assessment.item_bank.models import Case, Item, with_stat_value
 
 
 ITEM = Item('Ring', 'unique', 'Raven Frost', ((2, 0, 20), (19, 0, 250)))
@@ -21,11 +21,7 @@ def cases():
         )
     for key, values in ((2, (14, 21, None)), (19, (149, 251, None))):
         for value in values:
-            stats = tuple(
-                (stat, layer, value if stat == key else raw)
-                for stat, layer, raw in ITEM.raw_stats
-                if stat != key or value is not None
-            )
+            stats = with_stat_value(ITEM.raw_stats, {key}, value)
             yield make_case(f'stat-{key}-{value}', replace(ITEM, raw_stats=stats), 'unresolved')
     for label, item in (
         ('unidentified', replace(ITEM, identified=False)),

@@ -4,6 +4,7 @@ from pricing.knowledge.assessment.build_profiles import build
 from pricing.knowledge.assessment.profiles import assess_role_results
 from pricing.knowledge.assessment.stat_bundle import configuration_from_row
 from pricing.knowledge.assessment.stat_evaluation import StatsEvaluator
+from tests.pricing.knowledge.assessment.fact_changes import fact_changes
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
 
 
@@ -40,7 +41,7 @@ def test_zeal_lawbringer_requires_frenzy_legal_sword_and_filled_recipe():
         assert not evaluate(replace(item, base_code=facts(base).base_code)).annotations
     ethereal = replace(item, base_code=facts('Cryptic Sword').base_code, ethereal=True)
     assert set(evaluate(ethereal).annotations) == set(stats)
-    for patch in ({'socket_contents': 'empty'}, {'sockets': 2}, {'runeword': None}, {'rarity': 'magic'}):
+    for patch in fact_changes({'socket_contents': 'empty'}, {'sockets': 2}, {'runeword': None}, {'rarity': 'magic'}):
         assert not evaluate(replace(item, **patch)).annotations
     for ctx in (
         {'player_class': 'Paladin'},

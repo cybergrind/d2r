@@ -6,7 +6,7 @@ import math
 from dataclasses import replace
 
 from inventory_tracking.levels.model import LevelSnapshot, Location, Room
-from inventory_tracking.levels.registry import handler_for
+from tests.inventory_tracking.levels.fixtures import handler_of
 
 
 def chunks(preset, x, y):
@@ -31,7 +31,7 @@ def sanctuary(east=0):
 
 
 def test_the_seals_are_marked_after_the_star_where_each_arms_layout_places_them():
-    guidance = handler_for(108).guide(LevelSnapshot(Location(108, 0, 7800, 5600), sanctuary(east=1)))
+    guidance = handler_of(108).guide(LevelSnapshot(Location(108, 0, 7800, 5600), sanctuary(east=1)))
 
     assert [(p.label, round(p.point[0]), round(p.point[1])) for p in guidance.pois[1:]] == [
         ('Vizier seal 1', 1524 * 5 + 35, 1048 * 5 + 35),
@@ -45,7 +45,7 @@ def test_the_seals_are_marked_after_the_star_where_each_arms_layout_places_them(
 
 
 def test_the_first_mark_is_diablos_star_in_the_heart():
-    handler = handler_for(108)
+    handler = handler_of(108)
     guidance = handler.guide(LevelSnapshot(Location(108, 0, 7800, 5600), sanctuary()))
     poi = guidance.pois[0]
     assert (poi.label, poi.kind) == ('Diablo', 'target')

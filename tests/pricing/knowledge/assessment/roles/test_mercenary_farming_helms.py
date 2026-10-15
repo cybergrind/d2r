@@ -5,6 +5,7 @@ import pytest
 from pricing.knowledge.assessment.build_profiles import build
 from pricing.knowledge.assessment.profiles import assess_roles
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
+from tests.pricing.knowledge.reports import reports
 
 
 CASES = [
@@ -27,7 +28,7 @@ def test_farming_helm_roles_preserve_socket_and_setup_conditions(role_id, name, 
         for stat, value in ((60, leech), (80, 30), (79, 80), (93, 10))
     }
     item = replace(facts(base, 'unique', name), stats=stats)
-    role = assess_roles(item, [profile])[0]
+    role = reports(assess_roles(item, [profile]))[0]
     assert role['side'] == 'merc'
     assert role['rule_trace']['truth'] == 'true'
     assert role['status'] == 'partial'
@@ -53,7 +54,7 @@ def test_gold_find_crown_keeps_upgrade_separate_from_item_viability():
             '79:0': {'status': 'decoded', 'value': 80},
         },
     )
-    role = assess_roles(item, [profile], {'mercenary_type': 'Act 2 Might'})[0]
+    role = reports(assess_roles(item, [profile], {'mercenary_type': 'Act 2 Might'}))[0]
     assert role['rule_trace']['truth'] == 'true'
     dependency = next(d for d in role['dependencies'] if d['label'] == 'Cited upgraded Corona base')
     assert dependency['status'] == 'false'

@@ -32,6 +32,6 @@ def test_the_replayed_battle_says_what_it_said(rules):
         golden.write_text(json.dumps(lines, indent=1, ensure_ascii=False) + '\n', encoding='utf-8')
         return
     stored = json.loads(golden.read_text(encoding='utf-8'))
-    for index, (got, want) in enumerate(zip(lines, stored)):
+    for index, (got, want) in enumerate(zip(lines, stored, strict=False)):
         assert got == want, f'first differing line is index {index}: replayed {got!r}, stored {want!r}'
     assert len(lines) == len(stored), f'{len(lines)} lines replayed, {len(stored)} stored'

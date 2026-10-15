@@ -22,6 +22,7 @@ chests are ordinary jungle chests; the level guide marks those (levels/handlers/
 import os
 import struct
 from dataclasses import dataclass, field
+from typing import ClassVar
 
 from inventory_tracking.items.identity import (
     FLAGS_OFFSET,
@@ -104,7 +105,7 @@ class SuperChest:
     unit_id: int
     x: int
     y: int
-    label = 'Super chest'
+    label: ClassVar[str] = 'Super chest'
 
 
 def static_position(read, unit):

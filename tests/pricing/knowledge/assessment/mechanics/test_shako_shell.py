@@ -2,6 +2,7 @@
 
 from copy import deepcopy
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -11,7 +12,7 @@ from pricing.knowledge.assessment.mechanics.shako_shell import shell_evidence
 ROOT = Path(__file__).resolve().parents[5]
 
 
-def listing(total=98):
+def listing(total=98) -> dict[str, Any]:
     return {
         'name': 'Harlequin Crest',
         'rarity': 'unique',
@@ -77,6 +78,7 @@ def test_conflicting_identity_and_variants_fail_closed(changes):
 def test_filled_socket_is_preserved_and_not_used_to_claim_perfect_base_defense():
     row = {**listing(141), 'sockets': 1, 'socket_contents': 'filled'}
     result = shell_evidence(row, ROOT)
+    assert result is not None
     assert result['socket_contents'] == 'filled'
     assert result['sockets'] == 1
     assert result['intrinsic_defense_proved'] is False

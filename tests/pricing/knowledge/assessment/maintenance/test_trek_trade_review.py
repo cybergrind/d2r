@@ -1,3 +1,5 @@
+from typing import Any
+
 import pytest
 
 from pricing.knowledge.assessment.maintenance import trade_trek
@@ -55,7 +57,7 @@ def test_trek_proof_cannot_reuse_changed_native_or_trade_semantics(mutation):
     assert trade_trek.specification(policy, definitions, specs) is None
 
 
-def review_inputs():
+def review_inputs() -> tuple[dict[str, Any], dict[str, Any]]:
     import json
     from copy import deepcopy
     from pathlib import Path

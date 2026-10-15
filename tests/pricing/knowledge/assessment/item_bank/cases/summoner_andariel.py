@@ -65,7 +65,7 @@ def cases():
         role = f'summoner-necromancer-guide-{variant}-merc-andariel-ias-damage'
         config = role + '-stats'
         for label, item, context, scenario in examples:
-            expected = {
+            expected: dict[str, object] = {
                 'roles': Contains(
                     IsPartialDict(
                         id=role,

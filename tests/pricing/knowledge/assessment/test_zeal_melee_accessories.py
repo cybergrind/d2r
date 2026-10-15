@@ -6,6 +6,7 @@ from pricing.knowledge.assessment.build_profiles import build
 from pricing.knowledge.assessment.profiles import assess_role_results
 from pricing.knowledge.assessment.stat_bundle import configuration_from_row
 from pricing.knowledge.assessment.stat_evaluation import StatsEvaluator
+from tests.pricing.knowledge.assessment.fact_changes import fact_changes
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
 
 
@@ -41,6 +42,8 @@ def test_zeal_melee_accessories_credit_native_attack_or_defensive_properties(bun
         )
 
     assert set(evaluate(item).annotations) == set(values)
-    for patch in ({'ethereal': True}, {'ethereal': None}, {'identified': False}, {'rarity': 'rare'}, {'sockets': 1}):
+    for patch in fact_changes(
+        {'ethereal': True}, {'ethereal': None}, {'identified': False}, {'rarity': 'rare'}, {'sockets': 1}
+    ):
         assert not evaluate(replace(item, **patch)).annotations
     assert not evaluate(item, 'Sorceress').annotations

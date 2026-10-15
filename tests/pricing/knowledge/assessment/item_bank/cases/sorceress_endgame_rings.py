@@ -11,7 +11,7 @@ TAL = ["Tal Rasha's Guardianship", "Tal Rasha's Fine-Spun Cloth", "Tal Rasha's A
 
 
 def emit(role, label, item, context, truth, active, priorities):
-    expected = {'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))}
+    expected: dict[str, object] = {'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))}
     captured = {f'{a}:{b}' for a, b, _ in item.raw_stats}
     if active:
         expected['stat_evaluation'] = IsPartialDict(

@@ -96,7 +96,7 @@ def cases():
         )
         for label, item, ctx, truth, companion in variants:
             active = truth == companion == 'true'
-            expected = {
+            expected: dict[str, object] = {
                 'roles': Contains(
                     IsPartialDict(
                         id=ROLE,

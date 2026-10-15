@@ -1,3 +1,5 @@
+from typing import Any
+
 import pytest
 
 from pricing.knowledge.market_mechanics import apply_mechanics
@@ -13,7 +15,7 @@ from pricing.knowledge.market_mechanics import apply_mechanics
     ],
 )
 def test_explicit_filler_proves_one_socket_only_for_named_single_socket_mechanics(name, payload):
-    row = {'name': name, 'category': 'uniques', 'properties': {'934': payload}}
+    row: dict[str, Any] = {'name': name, 'category': 'uniques', 'properties': {'934': payload}}
     apply_mechanics(row)
     assert row['sockets'] == 1
     assert row['socket_contents'] == 'filled'

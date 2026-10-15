@@ -2,6 +2,7 @@ import json
 from copy import deepcopy
 from dataclasses import replace
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -79,8 +80,10 @@ def test_partial_capture_or_socket_and_damage_conflicts_block_zero_ed(changes):
 def test_exact_affix_comparison_does_not_default_missing_listing_ed_to_zero():
     from pricing.knowledge.assessment.comparables import reject_reasons
 
-    contract = assess_result(extraction('greater_claws'), profiles=[]).contract.to_dict()
-    row = {
+    found = assess_result(extraction('greater_claws'), profiles=[]).contract
+    assert found is not None
+    contract = found.to_dict()
+    row: dict[str, Any] = {
         **contract,
         'scope_status': 'verified',
         'evidence_kind': 'ask',

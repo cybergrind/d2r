@@ -6,6 +6,7 @@ from pricing.knowledge.assessment.build_profiles import build
 from pricing.knowledge.assessment.profiles import assess_role_results
 from pricing.knowledge.assessment.stat_bundle import configuration_from_row
 from pricing.knowledge.assessment.stat_evaluation import StatsEvaluator
+from tests.pricing.knowledge.assessment.fact_changes import fact_changes
 from tests.pricing.knowledge.assessment.roles.test_counted_socket_jewels import jewel
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
 
@@ -67,7 +68,7 @@ def test_crown_ages_keeps_two_socket_setup_and_native_minimum_rolls(slug, index,
 
     assert len(evaluate().annotations) == (7 if slug == 'meteor-sorceress' else 8)
     assert evaluate().annotations['36:0']['desirability'] == 'desirable'
-    for changes in (
+    for changes in fact_changes(
         {'sockets': 1},
         {'ethereal': True},
         {'ethereal': None},

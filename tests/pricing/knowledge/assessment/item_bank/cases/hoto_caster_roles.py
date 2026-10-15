@@ -65,7 +65,7 @@ def cases():
                 if flail_only and label in ('knout', 'staff'):
                     # The reviewed native base filter removes this role before
                     # predicate evaluation. Still forbid its stat annotations.
-                    expected = {}
+                    expected: dict[str, object] = {}
                 if truth == 'true':
                     expected['stat_evaluation'] = IsPartialDict(
                         annotations=IsPartialDict(

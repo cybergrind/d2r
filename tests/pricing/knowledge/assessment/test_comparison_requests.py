@@ -1,4 +1,5 @@
 from datetime import date
+from typing import Any
 
 from pricing.knowledge.assessment.comparison_requests import evaluate_requests
 from pricing.knowledge.assessment.domain.comparison_requests import ComparisonRequest
@@ -36,7 +37,9 @@ def test_different_segments_and_modifier_cohorts_never_pool_sellers():
         ComparisonRequest('one', 'fcr10', contract(10), ('role-a',)),
         ComparisonRequest('two', 'fcr20', contract(20), ('role-b',)),
     ]
-    results = evaluate_requests(requests, {'ring': [row(10, 'a'), row(20, 'b'), row(20, 'c')]}, today=date(2026, 9, 24))
+    results: list[dict[str, Any]] = evaluate_requests(
+        requests, {'ring': [row(10, 'a'), row(20, 'b'), row(20, 'c')]}, today=date(2026, 9, 24)
+    )
     assert len(results) == 2
     assert [r['price_estimate']['sellers'] for r in results] == [1, 2]
     assert all(r['price_estimate']['estimate_ist'] is None for r in results)
@@ -48,7 +51,9 @@ def test_identical_requests_merge_role_references_but_distinct_segments_do_not()
         ComparisonRequest('two', 'exact', contract(10), ('role-b',)),
         ComparisonRequest('three', 'other', contract(10), ('role-c',)),
     ]
-    results = evaluate_requests(requests, {'ring': [row(10, str(i)) for i in range(3)]}, today=date(2026, 9, 24))
+    results: list[dict[str, Any]] = evaluate_requests(
+        requests, {'ring': [row(10, str(i)) for i in range(3)]}, today=date(2026, 9, 24)
+    )
     assert len(results) == 2
     assert results[0]['request_ids'] == ['one', 'two']
     assert results[0]['role_ids'] == ['role-a', 'role-b']
@@ -58,7 +63,9 @@ def test_identical_requests_merge_role_references_but_distinct_segments_do_not()
 
 def test_hypothetical_preparation_never_receives_current_item_price():
     request = ComparisonRequest('socketed', 'prepared', contract(10), (), state='prepared')
-    result = evaluate_requests([request], {'ring': [row(10, str(i)) for i in range(3)]}, today=date(2026, 9, 24))[0]
+    result: dict[str, Any] = evaluate_requests(
+        [request], {'ring': [row(10, str(i)) for i in range(3)]}, today=date(2026, 9, 24)
+    )[0]
     assert result['price_estimate']['estimate_ist'] is None
     assert result['price_estimate']['unavailable_reason'] == 'hypothetical'
     assert result['comparisons']['accepted'] == []
@@ -67,10 +74,11 @@ def test_hypothetical_preparation_never_receives_current_item_price():
 def test_request_detaches_mutable_contract_and_roles():
     source = contract(10)
     roles = ['one']
-    request = ComparisonRequest('one', 'exact', source, roles)
+    request = ComparisonRequest('one', 'exact', source, roles)  # pyrefly: ignore[bad-argument-type]  # a mutable list proves the roles are detached
     source['properties']['520'] = 20
     roles.append('two')
-    assert request.to_dict()['contract']['properties']['520'] == 10
+    data: dict[str, Any] = request.to_dict()
+    assert data['contract']['properties']['520'] == 10
     assert request.role_ids == ('one',)
 
 
@@ -89,7 +97,7 @@ def test_repository_fetches_each_observed_name_once_and_skips_prepared(monkeypat
         ComparisonRequest('role', 'other', {**contract(10), 'name': 'ring'}),
         ComparisonRequest('prepared', 'after_socketing', {**contract(10), 'name': 'Amulet'}, state='prepared'),
     ]
-    results = market_repository.compare_requests(None, requests, today=date(2026, 9, 24))
+    results: list[dict[str, Any]] = market_repository.compare_requests(None, requests, today=date(2026, 9, 24))
     assert calls == ['Ring']
     assert [r['price_estimate']['estimate_ist'] for r in results] == [1, 1, None]
 

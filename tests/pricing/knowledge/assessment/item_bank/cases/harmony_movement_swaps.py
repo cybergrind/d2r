@@ -53,7 +53,9 @@ def cases():
                 ('unread-aura', replace(original, raw_stats=no_aura), context, 'true', False),
                 ('known-no-aura', replace(original, raw_stats=no_aura, complete=True), context, 'true', False),
             ):
-                expected = {'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))}
+                expected: dict[str, object] = {
+                    'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))
+                }
                 if aura:
                     expected['stat_evaluation'] = IsPartialDict(
                         annotations=IsPartialDict({'151:115': IsPartialDict(configuration_ids=Contains(config))})

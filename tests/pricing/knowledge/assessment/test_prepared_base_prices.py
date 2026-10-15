@@ -1,4 +1,5 @@
 from datetime import date
+from typing import Any
 
 from inventory_tracking.appraisal.sections import price_lines
 from pricing.knowledge.assessment.engine import assess_result
@@ -21,12 +22,15 @@ def test_larzuk_outcome_asks_are_separate_from_current_base_price(tmp_path):
     request = prepared[0]
     assert request.contract['sockets'] == 3
     assert outcome.facts.sockets == 0
+    assert outcome.contract is not None
     assert outcome.contract.sockets == 0
+    assert request.preparation is not None
     assert request.preparation['action'] == 'larzuk'
     assert request.preparation['resources']
+    serialized: dict[str, Any] = request.to_dict()
     rows = [
         {
-            **request.to_dict()['contract'],
+            **serialized['contract'],
             'kind': 'market',
             'scope_status': 'verified',
             'evidence_kind': 'ask',
@@ -65,10 +69,12 @@ def test_cube_outcome_quote_retains_probability_and_consumed_ingredients(tmp_pat
     cube = next((r for r in requests if r.preparation and r.preparation['action'] == 'cube_socket'), None)
     assert cube is not None
     assert cube.contract['sockets'] == 3
+    assert cube.preparation is not None
     assert cube.preparation['outcomes'] == ({'maximum': 3, 'success_weight': 4, 'denominator': 6},)
+    serialized: dict[str, Any] = cube.to_dict()
     rows = [
         {
-            **cube.to_dict()['contract'],
+            **serialized['contract'],
             'kind': 'market',
             'scope_status': 'verified',
             'evidence_kind': 'ask',
@@ -104,6 +110,7 @@ def test_cube_outcome_keeps_unknown_level_caps_and_excludes_superior():
         None,
     )
     assert cube is not None
+    assert cube.preparation is not None
     assert cube.preparation['action'] == 'cube_socket'
     assert 'item_level' in cube.preparation['preconditions']
     chances = cube.preparation['outcomes']
@@ -131,10 +138,12 @@ def test_unknown_level_larzuk_quote_is_conditional_and_does_not_price_current_it
         None,
     )
     assert request is not None
+    assert request.preparation is not None
     assert request.preparation['feasibility'] == 'conditional'
+    serialized: dict[str, Any] = request.to_dict()
     rows = [
         {
-            **request.to_dict()['contract'],
+            **serialized['contract'],
             'kind': 'market',
             'scope_status': 'verified',
             'evidence_kind': 'ask',

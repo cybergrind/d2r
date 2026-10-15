@@ -3,6 +3,7 @@
 import hashlib
 import json
 from copy import deepcopy
+from typing import Any
 
 import pytest
 
@@ -10,7 +11,9 @@ from pricing.knowledge.assessment.maintenance.guide_inventory import fingerprint
 from pricing.knowledge.assessment.maintenance.guide_sections import section_inventory
 
 
-def inputs(tmp_path, name='Skullder', label=None, slot='Body Armors', native_id='unique217', suffix=''):
+def inputs(
+    tmp_path, name='Skullder', label=None, slot='Body Armors', native_id='unique217', suffix=''
+) -> tuple[dict[str, Any], list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]]]:
     label = label or name
     build = 'example-build'
     guide = 'pricing/raw/mr/guides__example-build.html'
@@ -170,7 +173,7 @@ def test_table_equivalence_requires_an_actual_player_gear_table(tmp_path, change
         html = html.replace('<table>', '').replace('</table>', '')
     guide_path.write_text(html)
     row['guide']['sha256'] = hashlib.sha256(guide_path.read_bytes()).hexdigest()
-    cache = section_inventory(html)
+    cache: dict[str, Any] = section_inventory(html)
     parser = PositionedMentions()
     parser.feed(html)
     parser.close()

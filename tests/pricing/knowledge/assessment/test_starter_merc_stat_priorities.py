@@ -6,6 +6,7 @@ from pricing.knowledge.assessment.build_profiles import build
 from pricing.knowledge.assessment.profiles import assess_role_results
 from pricing.knowledge.assessment.stat_bundle import configuration_from_row
 from pricing.knowledge.assessment.stat_evaluation import StatsEvaluator
+from tests.pricing.knowledge.assessment.fact_changes import fact_changes
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
 
 
@@ -67,13 +68,15 @@ def test_starter_mercenary_priorities_are_native_conditional_and_observed(suffix
         ) - {key}
     for eth in (False, True, None):
         assert set(evaluate(replace(item, ethereal=eth)).annotations) == set(keys)
-    for changes in ({'name': 'Other'}, {'item_type': 'weap'}, {'identified': False}, {'rarity': 'magic'}):
+    for changes in fact_changes({'name': 'Other'}, {'item_type': 'weap'}, {'identified': False}, {'rarity': 'magic'}):
         assert not evaluate(replace(item, **changes)).annotations
     for ctx in ({}, {'player_class': 'Barbarian'}):
         assert not evaluate(ctx=ctx).annotations
     if sockets:
         assert set(evaluate(replace(item, rarity='superior')).annotations) == set(keys)
-        for changes in ({'runeword': None}, {'sockets': 0}, {'socket_contents': 'empty'}, {'socket_contents': None}):
+        for changes in fact_changes(
+            {'runeword': None}, {'sockets': 0}, {'socket_contents': 'empty'}, {'socket_contents': None}
+        ):
             assert not evaluate(replace(item, **changes)).annotations
     assert all(r['roll_quality'] == 'unassessed' for r in result.annotations.values())
     demand = bundle['guide_demand']['summaries'][name]

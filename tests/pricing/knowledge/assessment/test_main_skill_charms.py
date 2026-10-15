@@ -3,7 +3,7 @@
 from dataclasses import replace
 
 from pricing.knowledge.assessment.build_profiles import build
-from pricing.knowledge.assessment.profiles import assess_roles
+from tests.pricing.knowledge.assessment.role_rows import role_rows
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
 
 
@@ -25,10 +25,10 @@ def test_main_skill_charm_rules_distinguish_class_tree_and_suffix():
                 facts('Grand Charm', 'magic'),
                 stats={k: {'status': 'decoded', 'value': v} for k, v in {key: 1, **secondary}.items()},
             )
-            assert assess_roles(item, [role], {'player_class': klass})[0]['rule_trace']['truth'] == 'true'
-            assert assess_roles(item, [role], {'player_class': klass})[0]['status'] == 'matched'
-            assert assess_roles(item, [role], {'player_class': 'Druid'})[0]['rule_trace']['truth'] == 'false'
-            assert assess_roles(item, [role], {})[0]['rule_trace']['truth'] == 'unknown'
+            assert role_rows(item, [role], {'player_class': klass})[0]['rule_trace']['truth'] == 'true'
+            assert role_rows(item, [role], {'player_class': klass})[0]['status'] == 'matched'
+            assert role_rows(item, [role], {'player_class': 'Druid'})[0]['rule_trace']['truth'] == 'false'
+            assert role_rows(item, [role], {})[0]['rule_trace']['truth'] == 'unknown'
             wrong = replace(
                 item,
                 stats={
@@ -36,12 +36,12 @@ def test_main_skill_charm_rules_distinguish_class_tree_and_suffix():
                     f'188:{wrong_layer}': {'status': 'decoded', 'value': 1},
                 },
             )
-            assert assess_roles(wrong, [role], {'player_class': klass})[0]['rule_trace']['truth'] == 'false'
+            assert role_rows(wrong, [role], {'player_class': klass})[0]['rule_trace']['truth'] == 'false'
             for stat in item.stats:
                 missing = replace(item, stats={k: v for k, v in item.stats.items() if k != stat})
-                assert assess_roles(missing, [role], {'player_class': klass})[0]['rule_trace']['truth'] == 'false'
+                assert role_rows(missing, [role], {'player_class': klass})[0]['rule_trace']['truth'] == 'false'
                 assert (
-                    assess_roles(replace(missing, capture_complete=False), [role], {'player_class': klass})[0][
+                    role_rows(replace(missing, capture_complete=False), [role], {'player_class': klass})[0][
                         'rule_trace'
                     ]['truth']
                     == 'unknown'

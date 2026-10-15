@@ -64,7 +64,7 @@ def cases():
                 ('unknown-contents', replace(item, socket_contents='unknown', socket_items=()), context, 'unknown'),
             )
             for label, candidate, loadout, truth in rows:
-                assessment = {
+                assessment: dict[str, object] = {
                     'roles': Contains(IsPartialDict(id=role, side='merc', rule_trace=IsPartialDict(truth=truth)))
                 }
                 if truth == 'true':

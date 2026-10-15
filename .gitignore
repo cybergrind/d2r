@@ -36,3 +36,6 @@ __pycache__/
 
 # root-cause analyses of game sessions: working notes
 /rca/
+
+# pytest slot locks (tests/conftest.py)
+.test-slots/

@@ -6,13 +6,12 @@ in the waypoint) and 20260930T112937Z-9cbcd0c0 (WSK 3, standing in the stairs up
 from inventory_tracking.levels.geometry import pointer
 from inventory_tracking.levels.level_map import build_map
 from inventory_tracking.levels.presets import preset_name
-from inventory_tracking.levels.registry import handler_for
-from tests.inventory_tracking.levels.fixtures import replay
+from tests.inventory_tracking.levels.fixtures import handler_of, replay
 
 
 def found(fixture):
     snapshot = replay(fixture)
-    guidance = handler_for(snapshot.location.area_id).guide(snapshot)
+    guidance = handler_of(snapshot.location.area_id).guide(snapshot)
     here = [pointer(p, snapshot.location).here for p in guidance.pois]
     return snapshot, guidance, here
 
@@ -43,12 +42,12 @@ def test_wsk_3_standing_in_the_stairs_up_is_here_not_a_problem():
 
 
 def test_labels_along_the_chain():
-    assert [s.label for s in handler_for(128).pois] == ['Next level', 'Arreat Summit']
-    assert [s.label for s in handler_for(129).pois] == ['Next level', 'Waypoint', 'Worldstone Keep 1']
-    assert [s.label for s in handler_for(130).pois] == ['Next level', 'Worldstone Keep 2']
-    assert [s.label for s in handler_for(131).pois] == ['Throne', 'Worldstone Chamber']
-    assert not handler_for(131).confirmed
-    assert all(handler_for(area).confirmed for area in (128, 129, 130))  # user checked 2026-09-30
+    assert [s.label for s in handler_of(128).pois] == ['Next level', 'Arreat Summit']
+    assert [s.label for s in handler_of(129).pois] == ['Next level', 'Waypoint', 'Worldstone Keep 1']
+    assert [s.label for s in handler_of(130).pois] == ['Next level', 'Worldstone Keep 2']
+    assert [s.label for s in handler_of(131).pois] == ['Throne', 'Worldstone Chamber']
+    assert not handler_of(131).confirmed
+    assert all(handler_of(area).confirmed for area in (128, 129, 130))  # user checked 2026-09-30
 
 
 def test_the_throne_of_destruction_marks_a_stand_north_west_of_where_the_waves_appear():
@@ -60,7 +59,7 @@ def test_the_throne_of_destruction_marks_a_stand_north_west_of_where_the_waves_a
 
     block = (3000, 1000, 40, 52)
     rooms = tuple(Room(1086, 3000 + 8 * i, 1000 + 8 * j, 8, 8, 0, block) for i in range(5) for j in range(6))
-    guidance = handler_for(131).guide(LevelSnapshot(Location(131, 0, 15102, 5242), rooms))
+    guidance = handler_of(131).guide(LevelSnapshot(Location(131, 0, 15102, 5242), rooms))
     poi, portal = guidance.pois
     assert (poi.label, poi.kind) == ('Throne', 'target')
     assert (portal.label, portal.point) == ('Worldstone Chamber', (15090, 5005))  # the file's FinalPortal

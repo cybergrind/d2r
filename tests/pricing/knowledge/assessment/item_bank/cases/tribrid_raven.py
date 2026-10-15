@@ -24,7 +24,7 @@ def cases():
         ('unidentified', replace(ITEM, identified=False), context, 'false'),
     ]
     for label, item, ctx, truth in examples:
-        expected = {'roles': Contains(IsPartialDict(id=ROLE, rule_trace=IsPartialDict(truth=truth)))}
+        expected: dict[str, object] = {'roles': Contains(IsPartialDict(id=ROLE, rule_trace=IsPartialDict(truth=truth)))}
         if truth == 'true':
             expected['stat_evaluation'] = IsPartialDict(
                 annotations=IsPartialDict(

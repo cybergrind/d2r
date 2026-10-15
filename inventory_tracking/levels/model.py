@@ -74,8 +74,9 @@ class Room:
     def from_row(cls, row) -> Room:
         if len(row) == 5:
             return cls(*row)
+        preset, x, y, width, height, variant = row[:6]
         block = None if row[6] is None else (row[6], row[7], row[8], row[9])
-        return cls(*row[:5], row[5], block, tuple(row[10]) if len(row) > 10 else ())
+        return cls(preset, x, y, width, height, variant, block, tuple(row[10]) if len(row) > 10 else ())
 
     @property
     def center(self) -> tuple[float, float]:

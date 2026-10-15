@@ -2,6 +2,7 @@
 
 from copy import deepcopy
 from dataclasses import asdict
+from typing import Any
 
 import pytest
 
@@ -67,11 +68,11 @@ def test_missing_or_wrong_reports_cannot_close_shako_review(change):
     elif change == 'incomplete':
         cases = [c for c in cases if c[0]['complete']]
     else:
-        next(c for c in cases if c[1]['lines'])[1]['lines'][0]['tone'] = 'tier_high'
+        next(c[1] for c in cases if c[1] is not None and c[1]['lines'])['lines'][0]['tone'] = 'tier_high'
     assert trade_shako.case_gap(cases, policy, trade_shako.specification(policy, definitions, specs))
 
 
-def review_inputs():
+def review_inputs() -> tuple[dict[str, Any], dict[str, Any]]:
     from pricing.knowledge.assessment.maintenance.guide_inventory import fingerprint
     from tests.pricing.knowledge.assessment.item_bank.cases.shako_trade import CASES
     from tests.pricing.knowledge.assessment.maintenance.test_scalar_trade_reviews import data

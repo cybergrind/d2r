@@ -5,6 +5,7 @@ import pytest
 from pricing.knowledge.assessment.build_profiles import build
 from pricing.knowledge.assessment.profiles import assess_roles
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
+from tests.pricing.knowledge.reports import reports
 
 
 def profile(suffix):
@@ -19,7 +20,7 @@ def test_goblin_toe_needs_elite_upgrade_without_losing_existing_crushing_blow_ut
         facts('Light Plated Boots', 'unique', 'Goblin Toe'), stats={'136:0': {'status': 'decoded', 'value': 25}}
     )
     context = {'player_class': 'Assassin'}
-    role = assess_roles(item, [rule], context)[0]
+    role = reports(assess_roles(item, [rule], context))[0]
     assert role['rule_trace']['truth'] == 'true'
     assert role['dependencies'][0]['status'] == 'false'
     upgraded = replace(item, base_name='Mirrored Boots', base_code=facts('Mirrored Boots').base_code)
@@ -59,7 +60,7 @@ def test_fire_iron_wolf_candidates_require_matching_socket_payload_and_context(s
         ],
     )
     context = {'mercenary_type': 'Act 3 Fire', 'player_class': 'Assassin'}
-    role = assess_roles(socketed, [rule], context)[0]
+    role = reports(assess_roles(socketed, [rule], context))[0]
     assert role['rule_trace']['truth'] == 'true'
     assert all(d['status'] == 'true' for d in role['dependencies'])
     assert any('will not survive' in m for m in role['missing'])

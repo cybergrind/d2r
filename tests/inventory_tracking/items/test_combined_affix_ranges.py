@@ -1,6 +1,7 @@
 """Totals of native affixes retain their joint bounds and legal tier combinations."""
 
 import struct
+from typing import Any
 
 import pytest
 
@@ -10,7 +11,7 @@ from inventory_tracking.items.metadata import decode_stats, metadata
 from inventory_tracking.items.ranges import annotate_roll_ranges
 
 
-def capture(*, element=39, quality=6, base_name='Ring'):
+def capture(*, element=39, quality=6, base_name='Ring') -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
     meta = metadata()
     base = next(row for row in meta['bases'].values() if row['name'] == base_name)
     raw = bytearray(ITEM_DATA_SIZE)
@@ -31,6 +32,7 @@ def capture(*, element=39, quality=6, base_name='Ring'):
 def test_ring_combined_affixes_have_roll_ranges(element, mf, resistance, quality):
     details, arrays, base = capture(element=element)
     context = resolve_affix_ranges(details, arrays, base)
+    assert context is not None
     decoded, _, _ = decode_stats(
         [
             {'id': 80, 'layer': 0, 'raw': mf},
@@ -63,6 +65,7 @@ def test_uncertain_socket_contributions_do_not_get_combined_ranges(socket_eviden
     else:
         arrays['arrays'] = [{'header_offset': 0xE8, 'stats': [{'id': 194, 'layer': 0, 'raw': 1}]}]
     context = resolve_affix_ranges(details, arrays, base)
+    assert context is not None
     assert '80' not in context['roll_ranges']
     assert '39' not in context['roll_ranges']
 
@@ -85,7 +88,9 @@ def test_verified_empty_sockets_allow_combined_ranges():
     raw = bytearray.fromhex(arrays['item_data_hex'])
     struct.pack_into('<I', raw, FLAGS_OFFSET, IDENTIFIED_FLAG | SOCKETED_FLAG)
     arrays.update(item_data_hex=raw.hex(), socket_items={'complete': True, 'children': []})
-    assert resolve_affix_ranges(details, arrays, base)['roll_ranges']['80']['max'] == 25
+    context = resolve_affix_ranges(details, arrays, base)
+    assert context is not None
+    assert context['roll_ranges']['80']['max'] == 25
 
 
 @pytest.mark.parametrize(

@@ -1,6 +1,7 @@
 import copy
 import json
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -135,12 +136,16 @@ def test_stock_order_is_vendor_tab_cell_and_first_gear_skips_consumables():
     data = record()
     selected = stock_members(data['snapshot'], owners(data))
     assert [u['details']['inventory_page'] for _, u in selected] == [0, 1, 2, 3]
-    owner, unit = gear_sentinel(selected)
+    sentinel = gear_sentinel(selected)
+    assert sentinel is not None
+    owner, unit = sentinel
     assert (owner['name'], unit['txt_id']) == ('Drognan', 351)  # Spiked Shield, tab 1
 
     # A potion first in stock order is skipped; a stock of consumables only has no sentinel.
     potion = next(u for _, u in selected if u['txt_id'] == 611)
-    assert gear_sentinel([(owner, potion), (owner, unit)])[1] is unit
+    after_potion = gear_sentinel([(owner, potion), (owner, unit)])
+    assert after_potion is not None
+    assert after_potion[1] is unit
     assert gear_sentinel([(owner, potion)]) is None
 
 
@@ -149,7 +154,9 @@ def test_sentinel_key_ignores_unit_identity_but_tracks_content_and_cell():
 
     data = record()
     selected = stock_members(data['snapshot'], owners(data))
-    owner, unit = gear_sentinel(selected)
+    sentinel = gear_sentinel(selected)
+    assert sentinel is not None
+    owner, unit = sentinel
     row = next(e['row'] for e in data['rows'] if e['row']['unit_id'] == unit['unit_id'])
     key = sentinel_key(owner, unit, row)
     assert key['vendor'] == 'Drognan'
@@ -180,6 +187,7 @@ def test_read_stock_records_the_sentinel(monkeypatch):
     monkeypatch.setattr(capture, 'unit_matches', lambda read, u: True)
     monkeypatch.setattr(capture, 'describe_item', lambda read, u: u['details'])
     result = capture.read_stock(None, data['snapshot'])
+    assert result['sentinel'] is not None
     assert result['sentinel']['txt_id'] == 351
     assert assess(result | {'timing': {}})['sentinel'] == result['sentinel']
 
@@ -226,7 +234,7 @@ def test_probe_reads_one_item_and_reports_stock_state(monkeypatch, scenario):
         with pytest.raises(ValueError, match='changed'):
             capture.probe_stock(None, data['snapshot'])
         return
-    probe = capture.probe_stock(None, data['snapshot'])
+    probe: dict[str, Any] = capture.probe_stock(None, data['snapshot'])
     assert probe['state'] == scenario
     if scenario == 'away':
         assert reads == {'items': 0, 'grids': 0}

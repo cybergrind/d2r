@@ -4,7 +4,7 @@ from dataclasses import replace
 
 from dirty_equals import Contains, IsPartialDict
 
-from tests.pricing.knowledge.assessment.item_bank.models import Case, Item
+from tests.pricing.knowledge.assessment.item_bank.models import Case, Item, known
 
 
 BELTS = (('blizzard-sorceress', 4), ('meteor-sorceress', 3), ('nova-sorceress-guide', 2))
@@ -91,7 +91,7 @@ def cases():
                     )
                 )
             for label, candidate, loadout, truth in examples:
-                expected = {
+                expected: dict[str, object] = {
                     'roles': Contains(*(IsPartialDict(id=r, rule_trace=IsPartialDict(truth=truth)) for r in roles))
                 }
                 if truth == 'true':
@@ -137,7 +137,7 @@ def cases():
                     expected=result,
                     absent_stat_configurations=absent,
                     absent_configurations=() if truth == 'true' else configs,
-                    report_contains=(item.name, 'Trade tier:') if truth == 'true' else (base,),
+                    report_contains=(known(item.name), 'Trade tier:') if truth == 'true' else (base,),
                     report_absent=('10% Faster Cast Rate', '+1 to Sorceress Skill Levels'),
                     evidence=(
                         "third-parties/d2data/json/setitems.json:/Tal Rasha's "

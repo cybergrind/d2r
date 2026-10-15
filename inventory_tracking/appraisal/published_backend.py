@@ -9,7 +9,7 @@ processes, and only then adopted here (`refresh`).
 import threading
 import time
 from collections import OrderedDict
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import Future, ThreadPoolExecutor
 from contextlib import contextmanager
 from contextvars import ContextVar
 from dataclasses import dataclass
@@ -31,9 +31,9 @@ class Loaded:
 
 @dataclass(frozen=True)
 class RequestState:
-    runtime: object
+    runtime: LoadedRuntime
     issues: tuple
-    as_of: object
+    as_of: date
     index_signature: tuple
 
 
@@ -86,7 +86,7 @@ class PublishedAppraisal:
         self.publications = publications or LoadedPublications(store)
         self.serving: tuple[Loaded | None, tuple] = (None, ())  # replaced whole, so readers see one pair
         self.failed = None  # a generation that failed to load is not retried until the pointer moves
-        self._active = ContextVar('published_appraisal_request', default=None)
+        self._active: ContextVar[RequestState | None] = ContextVar('published_appraisal_request', default=None)
 
     def pointer(self):
         """The generation to `start` with, so the retrieval processes can load it meanwhile."""
@@ -214,7 +214,7 @@ def prepare_processes(processes, store, *, stopped, poll=1.0, timeout=300.0, clo
 
 _PROCESS_PUBLICATIONS: dict[Path, LoadedPublications] = {}
 _LOADER = ThreadPoolExecutor(max_workers=1, thread_name_prefix='publication-load')
-_LOADING: dict[tuple[Path, str], object] = {}
+_LOADING: dict[tuple[Path, str], Future[Loaded]] = {}
 
 
 def process_publications(store) -> LoadedPublications:

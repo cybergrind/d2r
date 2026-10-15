@@ -66,7 +66,9 @@ def cases():
             ('unknown-class', item, {}, 'unknown'),
         )
         for label, candidate, loadout, truth in examples:
-            expected = {'roles': Contains(*(IsPartialDict(id=r, rule_trace=IsPartialDict(truth=truth)) for r in roles))}
+            expected: dict[str, object] = {
+                'roles': Contains(*(IsPartialDict(id=r, rule_trace=IsPartialDict(truth=truth)) for r in roles))
+            }
             if truth == 'true':
                 keys = (127, *ATTRIBUTES, *RESISTS, *((85,) if label != 'unread-experience' else ()))
                 expected['stat_evaluation'] = IsPartialDict(

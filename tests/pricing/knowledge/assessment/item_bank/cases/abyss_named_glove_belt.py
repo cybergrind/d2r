@@ -4,7 +4,7 @@ from dataclasses import replace
 
 from dirty_equals import Contains, IsPartialDict
 
-from tests.pricing.knowledge.assessment.item_bank.models import Case, Item
+from tests.pricing.knowledge.assessment.item_bank.models import Case, Item, known
 
 
 EXAMPLES = (
@@ -60,7 +60,9 @@ def cases():
                 ('invalid-socket', replace(item, sockets=1), {'player_class': 'Warlock'}, 'false'),
                 ('unknown-sockets', replace(item, sockets=None), {'player_class': 'Warlock'}, 'unknown'),
             ):
-                expected = {'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))}
+                expected: dict[str, object] = {
+                    'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))
+                }
                 if truth == 'true':
                     expected['stat_evaluation'] = IsPartialDict(
                         annotations=IsPartialDict(
@@ -76,7 +78,7 @@ def cases():
                     scenario={'true': 'positive', 'false': 'negative', 'unknown': 'unknown'}[truth],
                     absent_configurations=() if truth == 'true' else (role + '-stats',),
                     absent_stat_configurations=dict.fromkeys(incidental, (role + '-stats',)),
-                    report_contains=(original.name,),
+                    report_contains=(known(original.name),),
                     evidence=('pricing/data/appraisal-guide-sections.json',),
                 )
 

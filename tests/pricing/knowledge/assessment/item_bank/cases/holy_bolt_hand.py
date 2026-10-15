@@ -43,7 +43,7 @@ def cases():
         )
         examples.append((f'below-{stat}', replace(ITEM, socket_items=(below,)), ctx, 'false'))
     for label, item, context, truth in examples:
-        expected = {'roles': Contains(IsPartialDict(id=ROLE, rule_trace=IsPartialDict(truth=truth)))}
+        expected: dict[str, object] = {'roles': Contains(IsPartialDict(id=ROLE, rule_trace=IsPartialDict(truth=truth)))}
         if truth == 'true':
             expected['stat_evaluation'] = IsPartialDict(
                 annotations=IsPartialDict(

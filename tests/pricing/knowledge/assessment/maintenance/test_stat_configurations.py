@@ -1,5 +1,6 @@
 import hashlib
 from copy import deepcopy
+from typing import Any
 
 import pytest
 
@@ -11,7 +12,7 @@ from pricing.knowledge.assessment.maintenance.stat_configurations import compile
 def test_compiler_binds_explicit_priorities_to_exact_role_and_source(tmp_path, note_field):
     source = tmp_path / 'guide.json'
     source.write_text('{"ring": "cast rate plus mana"}')
-    role = {
+    role: dict[str, Any] = {
         'id': 'ring-role',
         'qualities': ['rare'],
         'types': ['ring'],

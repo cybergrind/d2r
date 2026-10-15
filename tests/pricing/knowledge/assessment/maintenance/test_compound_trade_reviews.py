@@ -132,6 +132,7 @@ def test_compound_partitions_include_thresholds_on_either_native_component():
         allowed_bases=('Colossal Jewel',),
         compounds=('enhanced_damage',),
     )
+    assert spec is not None
     keys = tuple(sorted(spec[1]))
     vectors = tuple(legal_vectors(keys, spec[2], ('enhanced_damage',)))
     assert {v[keys.index('17:0')] for v in vectors} == {30, 39, 40, 44, 45, 50}

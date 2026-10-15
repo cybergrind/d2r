@@ -82,7 +82,7 @@ def cases():
                     )
                 )
             for label, candidate, loadout, truth in examples:
-                expected = {
+                expected: dict[str, object] = {
                     'roles': Contains(
                         *(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)) for role in roles)
                     )
@@ -174,7 +174,9 @@ def breakpoint_cases():
                     )
                 )
             for label, candidate, loadout, truth in examples:
-                expected = {'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))}
+                expected: dict[str, object] = {
+                    'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))
+                }
                 if truth == 'true' and label not in ('missing-companions', 'unknown-companions'):
                     expected['stat_evaluation'] = IsPartialDict(
                         annotations=IsPartialDict(

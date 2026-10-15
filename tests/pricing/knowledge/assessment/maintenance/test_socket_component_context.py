@@ -3,6 +3,7 @@
 import hashlib
 import json
 from copy import deepcopy
+from typing import Any
 
 import pytest
 
@@ -31,7 +32,7 @@ def setup(root, separator=' '):
         + tag.format('Cham Rune')
         + ')<br/></td></tr></table>'
     )
-    guide = section_inventory(raw.read_text())
+    guide: dict[str, Any] = section_inventory(raw.read_text())
     cache = root / role['source']['path']
     cache.write_text(json.dumps({'sources': {gid: guide}}))
     digest = hashlib.sha256(cache.read_bytes()).hexdigest()

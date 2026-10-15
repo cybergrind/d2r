@@ -1,4 +1,5 @@
 from dataclasses import replace
+from typing import Any
 
 import pytest
 
@@ -29,6 +30,7 @@ def test_named_comparison_retains_total_leech_and_exact_socket_identity(insert, 
     facts = normalize(windforce(insert, native + bonus, life).capture())
     contract, gaps = NamedHandler().contract(facts, 'weapon')
     assert not gaps
+    assert contract is not None
     assert contract.properties['463'] == native + bonus
     assert contract.socket_payload == (insert,)
     assert facts.stats['62:0']['value'] == native + bonus
@@ -59,6 +61,7 @@ def test_missing_payload_is_not_assumed_to_be_vex_from_total_leech():
 def test_native_leech_fillers_keep_both_effects_in_comparison(insert, bonus, life):
     contract, gaps = NamedHandler().contract(normalize(windforce(insert, 7 + bonus, life).capture()), 'weapon')
     assert not gaps
+    assert contract is not None
     assert contract.properties['463'] == 7 + bonus
     assert contract.properties['462'] == life
     assert contract.socket_payload == (insert,)
@@ -69,8 +72,9 @@ def test_vex_listing_cannot_compare_as_empty_or_as_another_insert():
 
     contract, gaps = NamedHandler().contract(normalize(windforce('Vex Rune', 15).capture()), 'weapon')
     assert not gaps
-    request = contract.to_dict()
-    row = {
+    assert contract is not None
+    request: dict[str, Any] = contract.to_dict()
+    row: dict[str, Any] = {
         **request,
         'properties': {**request['properties'], '934': 'Vex Rune'},
         'scope_status': 'verified',

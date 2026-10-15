@@ -739,12 +739,16 @@ def test_a_loading_screen_read_as_leaving_keeps_what_was_counted_on_the_trip(tmp
     tracker.apply([entered(1, 0xAAAA), {'event': 'left_game'}, entered(7, 0xCCCC)])
     tracker.apply([elite(2, 5000, 5000), died(2, 7), elite(3, 6000, 5000)])
 
-    assert tracker.elite_line(6, []).startswith('Elites: 1 killed · 0 alive')  # a level out of town: the same game
+    line = tracker.elite_line(6, [])
+    assert line is not None
+    assert line.startswith('Elites: 1 killed · 0 alive')  # a level out of town: the same game
 
     tracker.apply([entered(1, 0xAAAA)])
 
     assert tracker.elite_line(7, []) == 'Elites: 1 killed · 1 alive of 7-9'
-    assert tracker.elite_line(6, []).startswith('Elites: 1 killed · 0 alive')
+    line = tracker.elite_line(6, [])
+    assert line is not None
+    assert line.startswith('Elites: 1 killed · 0 alive')
 
 
 def test_a_stored_game_joined_late_is_merged_into_what_was_counted_since(tmp_path):

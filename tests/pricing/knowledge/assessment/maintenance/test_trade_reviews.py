@@ -1,3 +1,5 @@
+from typing import Any
+
 import pytest
 
 from pricing.knowledge.assessment.domain.facts import thaw
@@ -11,9 +13,11 @@ from tests.pricing.knowledge.assessment.item_bank.trade_checks import trade_case
 
 PATH = 'pricing/data/report-receipts/fixed-trade.json'
 IDENTITY = ('unique', 'The Stone of Jordan')
+# document, policies, definitions, receipts: the leading review_dimensions() arguments.
+TradeInputs = tuple[dict[str, Any], dict[Any, Any], dict[Any, Any], dict[str, Any]]
 
 
-def inputs():
+def inputs() -> TradeInputs:
     policies = _policies(RULES.read_bytes())
     definitions = {key: thaw(value) for key, value in catalog().named_variants.items()}
     cases = {c.id: c for c in CASES if c.item.name == IDENTITY[1]}
@@ -47,7 +51,7 @@ def inputs():
     return {'schema_version': 1, 'rows': [review]}, policies, definitions, {PATH: receipt}
 
 
-def evaluate(data):
+def evaluate(data: TradeInputs):
     return review_dimensions(*data, 'selected', {'runtime.py': 'hash'})
 
 
@@ -109,7 +113,7 @@ def test_identity_review_does_not_propagate_to_build_use_or_other_dimensions():
 
     doc, policies, definitions, receipts = inputs()
     pending = {'state': 'pending'}
-    rows = [
+    rows: list[dict[str, Any]] = [
         {
             'id': 'identity:item',
             'kind': 'identity',

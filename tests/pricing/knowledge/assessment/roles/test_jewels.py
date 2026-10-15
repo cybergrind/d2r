@@ -5,6 +5,7 @@ import pytest
 from pricing.knowledge.assessment.build_profiles import build
 from pricing.knowledge.assessment.profiles import assess_roles
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
+from tests.pricing.knowledge.reports import reports
 
 
 @pytest.mark.parametrize(
@@ -26,7 +27,7 @@ def test_jewel_requires_speed_resistance_and_correct_recipient_context(role_id, 
         stats={'93:0': {'status': 'decoded', 'value': 15}, f'{resistance}:0': {'status': 'decoded', 'value': 30}},
     )
     wearer = {'player_class': 'Paladin' if role_id.startswith('hammer-') else 'Sorceress'}
-    role = assess_roles(item, [p], wearer)[0]
+    role = reports(assess_roles(item, [p], wearer))[0]
     assert role['rule_trace']['truth'] == 'true'
     assert role['status'] == 'partial'
     assert role['dependencies'][0]['status'] == 'unknown'
@@ -39,8 +40,14 @@ def test_jewel_requires_speed_resistance_and_correct_recipient_context(role_id, 
         assess_roles(replace(item, stats={'93:0': {'status': 'decoded', 'value': 15}}), [p], wearer)[0]['status']
         == 'failed'
     )
-    assert assess_roles(replace(item, stats={}, capture_complete=False), [p])[0]['rule_trace']['truth'] == 'unknown'
+    assert (
+        reports(assess_roles(replace(item, stats={}, capture_complete=False), [p]))[0]['rule_trace']['truth']
+        == 'unknown'
+    )
     assert assess_roles(replace(item, rarity='rare'), [p]) == []
     if side == 'player':
-        assert assess_roles(item, [p])[0]['rule_trace']['truth'] == 'unknown'
-        assert assess_roles(item, [p], {**context, 'player_class': 'Sorceress'})[0]['rule_trace']['truth'] == 'false'
+        assert reports(assess_roles(item, [p]))[0]['rule_trace']['truth'] == 'unknown'
+        assert (
+            reports(assess_roles(item, [p], {**context, 'player_class': 'Sorceress'}))[0]['rule_trace']['truth']
+            == 'false'
+        )

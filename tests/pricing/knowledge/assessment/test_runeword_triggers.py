@@ -82,4 +82,5 @@ def test_obedience_cannot_omit_its_lowercase_named_enchant_proc():
     stats = {**item.stats, '196:3349': {'status': 'decoded', 'value': 30, 'raw': 30, 'unit': 'percent_chance'}}
     contract, gaps = RunewordHandler().contract(replace(item, stats=stats), 'weapon')
     assert not gaps
+    assert contract is not None
     assert contract.intrinsic_properties['874'] == 30

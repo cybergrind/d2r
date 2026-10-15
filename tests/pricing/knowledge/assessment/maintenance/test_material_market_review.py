@@ -2,6 +2,7 @@
 
 from copy import deepcopy
 from datetime import date
+from typing import Any
 
 import pytest
 
@@ -55,7 +56,7 @@ def reviewed():
     return build_review(ROOT, DAY)
 
 
-def identity(**changes):
+def identity(**changes) -> dict[str, Any]:
     row = {
         'id': 'identity:el',
         'kind': 'identity',

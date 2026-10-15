@@ -73,7 +73,7 @@ def cases():
         owned_stats=((31, 0, 98),),
     )
     for role, player_class, fcr, fhr, table, source in uses():
-        context = {'player_class': player_class}
+        context: dict[str, object] = {'player_class': player_class}
         if fcr is not None:
             context['player_total_fcr'] = fcr
         if fhr is not None:
@@ -128,7 +128,9 @@ def cases():
             )
         keys = ('127:0', '80:0', '36:0', '216:0', '217:0', '0:0', '1:0', '2:0', '3:0') if table else ('127:0', '80:0')
         for label, candidate, loadout, truth in examples:
-            expected = {'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))}
+            expected: dict[str, object] = {
+                'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))
+            }
             if truth == 'true':
                 expected['stat_evaluation'] = IsPartialDict(
                     annotations=IsPartialDict(

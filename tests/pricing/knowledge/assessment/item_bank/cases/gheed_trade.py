@@ -5,7 +5,7 @@ from itertools import product
 
 from dirty_equals import IsPartialDict
 
-from tests.pricing.knowledge.assessment.item_bank.models import Case, Item
+from tests.pricing.knowledge.assessment.item_bank.models import Case, Item, ItemChanges, with_stat_value
 
 
 ITEM = Item('Grand Charm', 'unique', "Gheed's Fortune", ((80, 0, 40), (79, 0, 160), (87, 0, 15)))
@@ -21,16 +21,17 @@ def cases():
         )
     for key, lo, hi in ((80, 20, 40), (79, 80, 160), (87, 10, 15)):
         for value in (None, lo - 1, hi + 1):
-            raw = tuple((s, p, value if s == key else v) for s, p, v in ITEM.raw_stats if s != key or value is not None)
+            raw = with_stat_value(ITEM.raw_stats, {key}, value)
             yield make_case(f'component-{key}-{value}', replace(ITEM, raw_stats=raw), 'unresolved')
-    for label, changes in (
+    overrides: tuple[tuple[str, ItemChanges], ...] = (
         ('ethereal', {'ethereal': True}),
         ('unknown-ethereal', {'ethereal': None}),
         ('unidentified', {'identified': False}),
         ('socketed', {'sockets': 1}),
         ('unknown-sockets', {'sockets': None}),
         ('unknown-contents', {'socket_contents': 'unknown'}),
-    ):
+    )
+    for label, changes in overrides:
         yield make_case(label, replace(ITEM, **changes), 'unresolved')
 
 

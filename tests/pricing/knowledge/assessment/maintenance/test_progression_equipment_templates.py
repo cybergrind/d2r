@@ -1,4 +1,5 @@
 from dataclasses import replace
+from typing import Any
 
 import pytest
 
@@ -33,10 +34,11 @@ def test_progression_recipe_requires_legal_completed_durable_equipment(name, bas
     item = replace(facts(base, name=name), runeword=name, sockets=sockets, socket_contents='filled')
 
     def truth(candidate):
-        rows = assess_roles(candidate, [role], {'player_class': 'Sorceress'})
+        rows: list[dict[str, Any]] = assess_roles(candidate, [role], {'player_class': 'Sorceress'})
         return rows[0]['rule_trace']['truth'] if rows else 'false'
 
     assert truth(item) == 'true'
+    changes: dict[str, Any]
     for changes in (
         {'sockets': sockets - 1},
         {'socket_contents': 'empty'},
@@ -64,5 +66,5 @@ def test_lore_accepts_druid_pelts_only_for_druid_wearers():
     item = replace(facts('Wolf Head', name='Lore'), runeword='Lore', sockets=2, socket_contents='filled')
     for class_name, expected in [('Druid', 'true'), ('Sorceress', 'false')]:
         role = expand_profile({**row, 'class': class_name})
-        result = assess_roles(item, [role], {'player_class': class_name})
+        result: list[dict[str, Any]] = assess_roles(item, [role], {'player_class': class_name})
         assert (result[0]['rule_trace']['truth'] if result else 'false') == expected

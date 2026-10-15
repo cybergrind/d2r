@@ -75,7 +75,7 @@ def cases():
             ('uncaptured-stats', replace(original, raw_stats=((194, 0, 6),)), context, 'true'),
         ]
         for label, item, loadout, truth in rows:
-            expected = (
+            expected: dict[str, object] = (
                 {}
                 if truth == 'absent'
                 else {'roles': Contains(IsPartialDict(id=ROLE, rule_trace=IsPartialDict(truth=truth)))}

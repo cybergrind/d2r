@@ -7,6 +7,7 @@ from pricing.knowledge.assessment.build_profiles import ROOT, build
 from pricing.knowledge.assessment.maintenance.stat_configurations import compile_stat_configurations
 from pricing.knowledge.assessment.profiles import assess_role_results
 from pricing.knowledge.assessment.stat_evaluation import StatsEvaluator
+from tests.pricing.knowledge.assessment.fact_changes import fact_changes
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
 
 
@@ -44,7 +45,7 @@ def test_shroud_priorities_require_suffix_and_empty_four_socket_base(suffix, key
         assert not evaluate(replace(item, socket_contents=contents)).annotations
     other = facts('Mage Plate', 'magic')
     assert not evaluate(replace(item, base_code=other.base_code)).annotations
-    for changes in ({'rarity': 'rare'}, {'ethereal': True}, {'ethereal': None}, {'identified': False}):
+    for changes in fact_changes({'rarity': 'rare'}, {'ethereal': True}, {'ethereal': None}, {'identified': False}):
         assert not evaluate(replace(item, **changes)).annotations
     for context in ({}, {'player_class': 'Sorceress'}):
         assert not evaluate(item, context).annotations

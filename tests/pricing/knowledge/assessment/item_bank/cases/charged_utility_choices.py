@@ -92,7 +92,7 @@ def cases():
                             dependencies=Contains(*dependencies),
                         )
                     )
-                expected = {'roles': Contains(*role_checks)}
+                expected: dict[str, object] = {'roles': Contains(*role_checks)}
                 if active_configs:
                     expected['stat_evaluation'] = IsPartialDict(
                         annotations=IsPartialDict(

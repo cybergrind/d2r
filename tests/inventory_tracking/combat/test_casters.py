@@ -13,6 +13,7 @@ from inventory_tracking.combat.sim.casters import (
     OBLIVION_KNIGHT,
     SPELL,
     STRIKE,
+    Mind,
     ai_distance,
     curse,
     curse_radius,
@@ -34,22 +35,43 @@ from inventory_tracking.combat.sim.monsters import MELEE, Pack, Walker
 STORM_CASTER, DOOM, OBLIVION, VENOM_LORD = 306, 310, 312, 362
 
 
+def known_row(txt: int) -> dict[str, str]:
+    row = row_of(txt)
+    assert row is not None, txt
+    return row
+
+
+def known_mind(txt: int) -> Mind:
+    mind = mind_for(txt)
+    assert mind is not None, txt
+    return mind
+
+
 def test_the_four_ais_are_the_rows_the_client_was_read_for():
     assert {txt: mind_of(txt) for txt in (STORM_CASTER, DOOM, OBLIVION, VENOM_LORD)} == {
         STORM_CASTER: FINGER_MAGE, DOOM: DOOM_KNIGHT, OBLIVION: OBLIVION_KNIGHT, VENOM_LORD: MEGADEMON,
     }  # fmt: skip
     assert mind_of(21) is None  # a Devilkin keeps the fit
     # notes-ai.md, notes-ai-74.md, notes-mobs.md: the Hell rows the routines were matched on
-    assert [row_of(STORM_CASTER)[f'aip{n}(H)'] for n in range(1, 9)] == ['60', '95', '70', '50', '26', '5', '40', '8']
-    assert [row_of(OBLIVION)[f'aip{n}(H)'] for n in range(1, 9)] == ['8', '27', '200', '50', '90', '30', '30', '11']
-    assert [row_of(VENOM_LORD)[f'aip{n}(H)'] for n in range(1, 7)] == ['90', '65', '97', '70', '70', '45']
+    assert [known_row(STORM_CASTER)[f'aip{n}(H)'] for n in range(1, 9)] == [
+        '60',
+        '95',
+        '70',
+        '50',
+        '26',
+        '5',
+        '40',
+        '8',
+    ]
+    assert [known_row(OBLIVION)[f'aip{n}(H)'] for n in range(1, 9)] == ['8', '27', '200', '50', '90', '30', '30', '11']
+    assert [known_row(VENOM_LORD)[f'aip{n}(H)'] for n in range(1, 7)] == ['90', '65', '97', '70', '70', '45']
 
 
 def test_skill_levels_are_the_row_and_hells_bonus_as_the_takes_show():
     # notes-mobs.md section 4: the skill records hold 12 (306), 15 (362), 10 (312's bolt), 9 (its bone spirit)
-    assert mind_for(STORM_CASTER).level[1] == 12
-    assert mind_for(VENOM_LORD).level[1] == 15
-    assert (mind_for(OBLIVION).level[1], mind_for(OBLIVION).level[3], mind_for(OBLIVION).level[6]) == (10, 9, 10)
+    assert known_mind(STORM_CASTER).level[1] == 12
+    assert known_mind(VENOM_LORD).level[1] == 15
+    assert (known_mind(OBLIVION).level[1], known_mind(OBLIVION).level[3], known_mind(OBLIVION).level[6]) == (10, 9, 10)
 
 
 @pytest.mark.parametrize(
@@ -99,7 +121,7 @@ def test_a_curse_moves_the_resistance_before_the_cap():
 
 
 def test_a_doom_knights_swing_hits_the_character_82_percent():
-    assert hit_chance(row_of(DOOM), 82) == pytest.approx(0.825, abs=0.005)  # notes-mobs.md section 4
+    assert hit_chance(known_row(DOOM), 82) == pytest.approx(0.825, abs=0.005)  # notes-mobs.md section 4
 
 
 def test_the_ai_distance_is_max_plus_half_min():
@@ -113,14 +135,14 @@ def rolls(*values):
 
 
 def test_the_doom_knight_always_swings_in_melee_and_mostly_walks_out_of_it():
-    mind = mind_for(DOOM)
+    mind = known_mind(DOOM)
     assert doom_knight(mind, rolls(99), melee=True) == ('attack',)
     assert doom_knight(mind, rolls(89), melee=False) == ('approach',)
     assert doom_knight(mind, rolls(90), melee=False) == ('idle', 10)
 
 
 def test_the_venom_lord_casts_under_its_skill_level_and_cools_off():
-    mind = mind_for(VENOM_LORD)
+    mind = known_mind(VENOM_LORD)
     assert megademon(mind, rolls(89), d=14, melee=False, frame=100) == ('cast', 1)
     mind.cool = 200
     assert megademon(mind, rolls(10), d=14, melee=False, frame=150) == ('approach',)
@@ -128,7 +150,7 @@ def test_the_venom_lord_casts_under_its_skill_level_and_cools_off():
 
 
 def test_the_oblivion_knight_decrepifies_within_eight_and_retreats_when_it_is_on():
-    mind = mind_for(OBLIVION)
+    mind = known_mind(OBLIVION)
     act = oblivion_knight(mind, rolls(), d=5, cursed=False, knight=False, seen=True, e=5, frame=10)
     assert act == ('cast', 4)
     assert mind.cool == 210

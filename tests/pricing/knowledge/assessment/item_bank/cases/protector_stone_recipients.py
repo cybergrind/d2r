@@ -74,7 +74,9 @@ def cases():
             ),
         )
         for label, candidate, loadout, truth, active in examples:
-            expected = {'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))}
+            expected: dict[str, object] = {
+                'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))
+            }
             if active:
                 keys = ['85:0', '80:0', '79:0']
                 if damage:
@@ -84,7 +86,11 @@ def cases():
                 expected['stat_evaluation'] = IsPartialDict(
                     annotations=IsPartialDict({key: IsPartialDict(configuration_ids=Contains(config)) for key in keys})
                 )
-            absent = {'21:0': (config,), '22:0': (config,), f'201:{267 * 64 + 15}': (config,)}
+            absent: dict[str, tuple[str, ...]] = {
+                '21:0': (config,),
+                '22:0': (config,),
+                f'201:{267 * 64 + 15}': (config,),
+            }
             if not damage:
                 absent.update({'17:0': (config,), '18:0': (config,)})
             if not pierce:

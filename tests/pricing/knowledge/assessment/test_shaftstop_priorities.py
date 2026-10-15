@@ -6,6 +6,7 @@ from pricing.knowledge.assessment.build_profiles import build
 from pricing.knowledge.assessment.profiles import assess_role_results
 from pricing.knowledge.assessment.stat_bundle import configuration_from_row
 from pricing.knowledge.assessment.stat_evaluation import StatsEvaluator
+from tests.pricing.knowledge.assessment.fact_changes import fact_changes
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
 
 
@@ -45,7 +46,7 @@ def test_shaftstop_defenses_do_not_inherit_helmet_leech_or_jewel_speed(slug, ind
     assert evaluate().annotations['7:0']['desirability'] == 'supporting'
     assert bool(evaluate(replace(item, ethereal=False)).annotations) == (slug == 'strafe-amazon')
     assert bool(evaluate(replace(item, base_code=facts('Boneweave').base_code)).annotations) is not original_only
-    for changes in (
+    for changes in fact_changes(
         {'ethereal': None},
         {'identified': None},
         {'name': 'Other'},

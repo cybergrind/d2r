@@ -16,6 +16,7 @@ def gheed():
     item = charm("Gheed's Fortune", 'Grand Charm')
     contract, gaps = NamedHandler().contract(item, 'charm')
     assert not gaps
+    assert contract is not None
     row = listing(
         name=item.name,
         rarity='unique',

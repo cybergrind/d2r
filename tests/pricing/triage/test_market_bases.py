@@ -1,5 +1,8 @@
+from typing import Any
+
 from inventory_tracking.items.metadata import metadata
 from pricing.triage.market_bases import compile_market_bases
+from tests.pricing.knowledge.reports import present
 from tests.pricing.triage.test_bands import listing
 
 
@@ -130,7 +133,7 @@ def test_two_seller_base_variant_is_check_with_reference_price_not_vendor_or_sel
         'own': {'rows': []},
     }
     item = from_listing(rows[0])
-    result = assess(item, tables)
+    result = present(assess(item, tables))
     assert result['verdict'] == 'check'
     assert result['band'] is None
     assert result['decision_ist'] is None
@@ -236,7 +239,7 @@ def test_native_all_resistance_projection_does_not_block_shield_base_admission()
     ]
     for r in rows:
         r['properties']['441'] = 40
-    item = from_listing(rows[0])
+    item: dict[str, Any] = from_listing(rows[0])
     assert item['base_modifiers']['427'] == 40
     assert clean_modifiers(item, base, {})
     utility = [

@@ -1,6 +1,7 @@
 """Spirit gear/swap alternatives retain base scope and rune recipient semantics."""
 
 from dataclasses import fields, replace
+from typing import Any
 
 from dirty_equals import Contains, IsPartialDict
 
@@ -77,7 +78,7 @@ def cases():
         context = {'player_class': klass}
         for quality in ('normal', 'superior', 'low_quality'):
             item = spirit(quality, is_shield)
-            examples = [
+            examples: list[tuple[str, Item, dict[str, Any], str | None]] = [
                 ('minimum', item, context, 'true'),
                 ('wrong-class', item, {'player_class': 'Amazon'}, 'false'),
                 ('unknown-class', item, {}, 'unknown'),
@@ -120,7 +121,7 @@ def cases():
                     )
                 )
             for label, candidate, loadout, truth in examples:
-                expected = {}
+                expected: dict[str, object] = {}
                 if truth is not None:
                     expected['roles'] = Contains(
                         *(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)) for role in roles)

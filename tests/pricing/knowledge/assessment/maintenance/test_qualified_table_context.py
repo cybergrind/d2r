@@ -1,5 +1,7 @@
 """Table qualifiers must survive HTML markup and remain mandatory role dependencies."""
 
+from typing import Any
+
 import pytest
 
 from pricing.knowledge.assessment.maintenance.player_table_context import TableMentions
@@ -21,7 +23,7 @@ def test_complete_table_label_keeps_nested_rune_and_stops_at_next_item():
 def test_qualified_stormlash_requires_full_label_and_shael_dependency(change):
     from pricing.knowledge.assessment.maintenance.qualified_table_context import require_qualification
 
-    condition = {
+    condition: dict[str, Any] = {
         'all': [
             {'op': 'fact_eq', 'field': 'sockets', 'value': 1},
             {'op': 'socket_runes_equal', 'value': ['Shael Rune']},

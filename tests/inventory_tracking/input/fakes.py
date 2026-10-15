@@ -68,6 +68,22 @@ class FakeKeyboard:
     def sync(self):
         self.events.append(('sync', None))
 
+    # The rest of KeyConnection (input/keyboard.py); potion delivery reads no window and moves no pointer.
+    def focused_window_rect(self):
+        return None
+
+    def pointer(self):
+        return None
+
+    def pointer_state(self):
+        return None
+
+    def move_pointer(self, x, y):
+        return self._event('move', (x, y))
+
+    def button(self, button, down):
+        return self._event('button', (button, down))
+
     @contextmanager
     def connect(self):
         self.connections += 1

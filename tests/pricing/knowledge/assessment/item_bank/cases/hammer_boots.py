@@ -9,7 +9,7 @@ from dataclasses import replace
 from dirty_equals import Contains, IsPartialDict
 
 from tests.pricing.knowledge.assessment.item_bank.cases.abyss_boots import EXAMPLES
-from tests.pricing.knowledge.assessment.item_bank.models import Case
+from tests.pricing.knowledge.assessment.item_bank.models import Case, known
 
 
 MAXIMA = {'waterwalk': {7: 65 * 256}, 'trek': {0: 15, 3: 15, 45: 70}, 'aldur': {39: 50}}
@@ -54,7 +54,9 @@ def cases(build='blessed-hammer-paladin', player_class='Paladin', prefix='hammer
                     ('unread-repair', replace(item, ethereal=True, raw_stats=item.raw_stats[:-1]), context, 'unknown'),
                 ]
             for label, candidate, loadout, truth in rows:
-                expected = {'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))}
+                expected: dict[str, object] = {
+                    'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))
+                }
                 if truth == 'true':
                     expected['stat_evaluation'] = IsPartialDict(
                         annotations=IsPartialDict(
@@ -70,7 +72,7 @@ def cases(build='blessed-hammer-paladin', player_class='Paladin', prefix='hammer
                     scenario={'true': 'positive', 'false': 'negative', 'unknown': 'unknown'}[truth],
                     absent_configurations=() if truth == 'true' else (config,),
                     absent_stat_configurations=dict.fromkeys(incidental, (config,)),
-                    report_contains=(original.name, 'Trade tier:')
+                    report_contains=(known(original.name), 'Trade tier:')
                     if candidate.identified and not (candidate.rarity == 'set' and candidate.ethereal is True)
                     else (base,),
                     report_absent=('Trade tier:',) if candidate.rarity == 'set' and candidate.ethereal is True else (),

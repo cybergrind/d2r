@@ -1,4 +1,5 @@
 from dataclasses import replace
+from typing import Any
 
 import pytest
 
@@ -6,6 +7,7 @@ from pricing.knowledge.assessment.build_profiles import build
 from pricing.knowledge.assessment.profiles import assess_role_results
 from pricing.knowledge.assessment.stat_bundle import configuration_from_row
 from pricing.knowledge.assessment.stat_evaluation import StatsEvaluator
+from tests.pricing.knowledge.assessment.fact_changes import fact_changes
 from tests.pricing.knowledge.assessment.roles.test_fissure_pelts import facet
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
 
@@ -43,7 +45,7 @@ def test_dragon_talon_player_and_enchant_support_have_distinct_priorities(suffix
     )
     item = replace(facts(base, quality, name), stats=stats)
     merc = suffix.endswith('-merc')
-    jewel = (
+    jewel: dict[str, Any] = (
         facet()
         if merc
         else {
@@ -69,7 +71,7 @@ def test_dragon_talon_player_and_enchant_support_have_distinct_priorities(suffix
         missing = replace(item, stats={k: v for k, v in stats.items() if k != key})
         expected = set() if suffix == 'goblin-toe' else wanted - {key}
         assert set(evaluate(missing).annotations) == expected
-    for change in ({'name': 'Other'}, {'identified': False}, {'item_type': 'ring'}, {'rarity': 'magic'}):
+    for change in fact_changes({'name': 'Other'}, {'identified': False}, {'item_type': 'ring'}, {'rarity': 'magic'}):
         assert not evaluate(replace(item, **change)).annotations
     assert not evaluate(context={}).annotations
     if merc:
@@ -82,7 +84,7 @@ def test_dragon_talon_player_and_enchant_support_have_distinct_priorities(suffix
             replace(item, socket_items=[{**facet(element='cold'), 'unit_id': 1000, 'position': 0}])
         ).annotations
     if suffix != 'goblin-toe':
-        for change in ({'socket_items': []}, {'socket_contents': 'empty'}):
+        for change in fact_changes({'socket_items': []}, {'socket_contents': 'empty'}):
             assert not evaluate(replace(item, **change)).annotations
         split = [{**jewel, 'stats': {k: v for k, v in jewel['stats'].items() if k == key}} for key in jewel['stats']]
         assert not evaluate(replace(item, sockets=2, socket_items=split)).annotations

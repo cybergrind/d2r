@@ -37,7 +37,7 @@ def selected_observation(snapshot, report, unit_id, *, inventory_page=0, selecti
     if selection_sample is not None:
         if selection_sample['snapshot'] != snapshot:
             raise ValueError('Selection snapshot mismatch')
-        selection = resolve_selection(selection_sample, image_base)
+        selection: dict[str, Any] = resolve_selection(selection_sample, image_base)
         if (
             selection['status'] != 'candidate'
             or selection['item']['unit_id'] != unit_id
@@ -206,7 +206,7 @@ class AppraisalCapture:
 
     def selection(self):
         sample = self.sample_selection()
-        selection = resolve_selection(sample, self.images['candidate_base'])
+        selection: dict[str, Any] = resolve_selection(sample, self.images['candidate_base'])
         if selection['status'] != 'candidate':
             raise SelectionUnavailable(
                 selection.get('reason', 'No inventory item under the mouse'),
@@ -244,7 +244,10 @@ class AppraisalCapture:
         item = selection['item']
         snapshot = sample['snapshot']
         arrays = verify_item(
-            self.pid, self.images, item, socket_candidates=snapshot.get('groups', {}).get('items', {}).get('units', []),
+            self.pid,
+            self.images,
+            item,
+            socket_candidates=snapshot.get('groups', {}).get('items', {}).get('units', []),
             **({'stack': True} if selection.get('materials') else {}),
         )
         row = {key: copy.deepcopy(item[key]) for key in ('unit_id', 'txt_id', 'mode', 'details')}

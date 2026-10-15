@@ -2,6 +2,7 @@ import pytest
 
 from pricing.triage.engine import assess, prepare_tables
 from pricing.triage.named_roll_placement import compile_placements
+from tests.pricing.knowledge.reports import present
 from tests.pricing.triage.test_bands import listing
 
 
@@ -54,7 +55,7 @@ def item(roll=197, **fields):
 def test_ordinary_shaftstop_does_not_inherit_name_demand_or_top_price():
     tables = setup()
     tables['demand'] = {'uniques/shaftstop': [{'ethereal': None, 'build': 'example'}]}
-    result = assess(item(), tables)
+    result = present(assess(item(), tables))
     assert result['verdict'] == 'vendor'
     assert '197' in result['reason']
     assert '180-220' in result['reason']
@@ -66,7 +67,7 @@ def test_ordinary_shaftstop_does_not_inherit_name_demand_or_top_price():
 
 
 def test_top_shaftstop_uses_only_top_group_prices():
-    result = assess(item(220), setup())
+    result = present(assess(item(220), setup()))
     assert result['verdict'] == 'slow'
     assert result['decision_ist'] >= 4
     assert result['band']['sellers'] == 3
@@ -103,7 +104,7 @@ def test_saved_shaftstops_use_reviewed_roll_group_and_no_unqualified_watch():
     tables = Tables().load()
     for ident in ('6d727fb43b0c', '756258ce7ad2', 'bd60b11d0216'):
         observation = next(r['observation'] for r in captures if r['id'] == ident)
-        result = assess(from_drop(observation), tables)
+        result = present(assess(from_drop(observation), tables))
         assert result['verdict'] == 'vendor'
         assert result['roll_placement']['group'] == 'ordinary'
         assert not matching_watches(watches, normalize(observation))
@@ -112,7 +113,7 @@ def test_saved_shaftstops_use_reviewed_roll_group_and_no_unqualified_watch():
 def test_only_roll_group_demand_can_rescue_an_ordinary_copy():
     from pricing.triage.named_roll_placement import ordinary_has_demand
 
-    placement = assess(item(), setup())['roll_placement']
+    placement = present(assess(item(), setup()))['roll_placement']
     key = placement['band']['bucket']
     assert not ordinary_has_demand(placement, {'buyers': 5, 'uncensored_disappeared': 10})
     assert not ordinary_has_demand(placement, {'roll_groups': {key: {'disappeared': 5}}})

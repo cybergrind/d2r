@@ -41,7 +41,9 @@ def cases(build='berserk-barbarian', player_class='Barbarian', prefix='berserk',
             ('unknown-class', item, {}, 'unknown'),
         ]
         for label, candidate, loadout, truth in rows:
-            expected = {'roles': Contains(IsPartialDict(id=role, side='merc', rule_trace=IsPartialDict(truth=truth)))}
+            expected: dict[str, object] = {
+                'roles': Contains(IsPartialDict(id=role, side='merc', rule_trace=IsPartialDict(truth=truth)))
+            }
             if truth == 'true':
                 expected['stat_evaluation'] = IsPartialDict(
                     annotations=IsPartialDict(

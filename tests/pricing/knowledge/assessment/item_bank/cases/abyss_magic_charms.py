@@ -54,7 +54,9 @@ def cases():
                 ('other-class-tab', replace(item, raw_stats=((188, 40, 1),)), {'player_class': 'Warlock'}, 'false', ()),
             ]
         for label, candidate, context, truth, expected_keys in rows:
-            expected = {'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))}
+            expected: dict[str, object] = {
+                'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))
+            }
             if truth == 'true':
                 expected['stat_evaluation'] = IsPartialDict(
                     annotations=IsPartialDict(

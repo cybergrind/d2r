@@ -77,7 +77,7 @@ def cases():
                 for label, candidate, loadout, truth in rows:
                     expected = {'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))}
                     if truth == 'absent':
-                        expected = {
+                        expected: dict[str, object] = {
                             'roles': FunctionCheck(lambda rows, target=role: all(r['id'] != target for r in rows))
                         }
                     if truth == 'true':

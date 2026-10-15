@@ -49,7 +49,9 @@ def cases():
             ('invalid-sockets', replace(item, sockets=1), context, 'false', 'negative'),
             ('unread-sockets', replace(item, sockets=None), context, 'unknown', 'unknown'),
         ):
-            expected = {'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))}
+            expected: dict[str, object] = {
+                'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))
+            }
             if scenario == 'positive':
                 keys = ('96:0', '77:0', '32:0') + (('138:0',) if wearer_recovery else ())
                 expected['stat_evaluation'] = IsPartialDict(

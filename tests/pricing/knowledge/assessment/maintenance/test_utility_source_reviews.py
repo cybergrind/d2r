@@ -4,6 +4,7 @@ import copy
 import hashlib
 import json
 import shutil
+from typing import Any
 
 import pytest
 
@@ -198,7 +199,7 @@ def test_same_name_in_another_section_cannot_borrow_the_mercenary_quote(tmp_path
     row = doc['rows'][0]
     raw = tmp_path / occurrences[0]['source_id']
     raw.write_text(raw.read_text() + '<h3>Player travel</h3><span class="d2planner-item">Thawing Potion</span>')
-    guide = section_inventory(raw.read_text())
+    guide: dict[str, Any] = section_inventory(raw.read_text())
     path = tmp_path / row['source']['path']
     path.write_text(json.dumps({'sources': {occurrences[0]['source_id']: guide}}))
     digest = hashlib.sha256(path.read_bytes()).hexdigest()

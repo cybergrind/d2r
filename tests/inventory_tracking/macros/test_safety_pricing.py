@@ -13,6 +13,12 @@ from inventory_tracking.macros.goals import Goal
 from inventory_tracking.macros.travel import PRESSED
 
 
+def step_of(act: object) -> Step:
+    """The step of an act the test expects to be a move."""
+    assert isinstance(act, p.Move)
+    return act.step
+
+
 def test_unsafe_pressed_leg_keeps_the_goal_and_fights_without_releasing():
     assert hasattr(p, 'Candidate'), 'the arbiter must price all acts, including a pressed leg'
     goal = Goal('next object', (20.0, 0.0), 'use', 5.0, PRESSED)
@@ -53,8 +59,9 @@ def test_a_veto_is_not_lifted_by_an_unlimited_budget_and_retreat_is_said():
         budget=99999.0,
         life=500.0,
     )
-    assert p.decide(facts, p.Pursuit('teleport', 1.0)).step.spot == (-15.0, 0.0)
+    assert step_of(p.decide(facts, p.Pursuit('teleport', 1.0))).spot == (-15.0, 0.0)
     result = p.decide(replace(facts, budget=0.0), p.Pursuit('teleport', 1.0))
+    assert isinstance(result, p.Move)
     assert result.step.spot == (-15.0, 0.0)
     assert result.reason
 
@@ -63,7 +70,7 @@ def test_a_firing_stand_needs_a_material_gain_but_an_unsafe_hold_has_no_commitme
     goal = Goal('goal', (20.0, 0.0), 'fight', 5.0, PRESSED)
     hold = p.Candidate(p.Hold(goal), 2.0, Harm(10, 20))
     move = p.Candidate(p.Move(Step((10.0, 0.0)), goal, 'firing spot'), 1.9, Harm(10, 20))
-    facts = p.Facts(1.0, goal, False, True, True, lambda: move.act.step, candidates=(hold, move), budget=100)
+    facts = p.Facts(1.0, goal, False, True, True, lambda: step_of(move.act), candidates=(hold, move), budget=100)
     assert p.decide(facts, None) == hold.act
     assert p.decide(replace(facts, candidates=(replace(hold, harm=Harm(200, 300)), move)), None) == move.act
 
@@ -78,6 +85,7 @@ def test_escape_options_include_a_charged_set_on_the_back_and_a_walk():
     play = game()
     play.staff = Teleport(10, 20, False)
     here = play.world.player
+    assert here is not None
     options = Travel(SHARED).options(play.run(), play.world, None, ASPECT, (here.x + 22, here.y), SAFE_MOVE)
     assert {step.skill for step in options} == {None, TELEPORT}
 
@@ -152,7 +160,9 @@ def test_expired_macro_walk_returns_to_safety_but_a_player_key_still_wins():
 
     def act():
         with hunt.priced_for(run, 1.5):
-            play.world = replace(play.world, player=replace(play.world.player, mode=min(RUN_MODES)))
+            player = play.world.player
+            assert player is not None
+            play.world = replace(play.world, player=replace(player, mode=min(RUN_MODES)))
             now[0] = 1.6
             run.world()
 
@@ -169,6 +179,7 @@ def test_insistence_survives_retreats_but_a_single_press_does_not_buy_more_budge
     from types import SimpleNamespace
 
     from inventory_tracking.combat.harm import Look, SafetySettings
+    from inventory_tracking.combat.policy import Observation
     from inventory_tracking.combat.survival import CALM
     from inventory_tracking.macros import safety as module
     from inventory_tracking.macros.world import Loot
@@ -179,7 +190,7 @@ def test_insistence_survives_retreats_but_a_single_press_does_not_buy_more_budge
     monkeypatch.setattr(module, 'taken', lambda *a: (100.0, 0))
     monkeypatch.setattr(module, 'camp', lambda *a, **kw: None)
     goal = Goal('goal', (20.0, 0.0), 'use', 5.0, PRESSED)
-    seen = SimpleNamespace(origin=(0.0, 0.0), blocked=None, foes={})
+    seen = Observation((0.0, 0.0), {})
     attack = SimpleNamespace(reach=22)
     safety = module.Safety()
 
@@ -198,7 +209,9 @@ def test_insistence_survives_retreats_but_a_single_press_does_not_buy_more_budge
         )
 
     first = look(0, 0)
-    assert p.decide(first, p.Pursuit('teleport', 0)).reason.startswith('retreating:')
+    chosen = p.decide(first, p.Pursuit('teleport', 0))
+    assert isinstance(chosen, p.Move)
+    assert chosen.reason.startswith('retreating:')
     assert look(0.3, 0).budget == first.budget
     assert look(0.6, 0.6).budget > first.budget
 
@@ -208,7 +221,7 @@ def test_a_hostile_near_keeps_the_strike_gap_unless_only_a_retreat_is_safe():
     hold = p.Candidate(p.Hold(goal), 3.0, Harm(20, 40), unstruck=0.0, strikes=True)
     warp = p.Candidate(p.Move(Step((15.0, 0.0)), goal), 1.0, Harm(20, 40), unstruck=1.2, strikes=True)
     use = p.Candidate(p.Operate(goal), 0.9, Harm(20, 40), unstruck=1.0, strikes=True)
-    facts = p.Facts(1.0, goal, False, True, True, lambda: warp.act.step, budget=100, life=1000, near=True)
+    facts = p.Facts(1.0, goal, False, True, True, lambda: step_of(warp.act), budget=100, life=1000, near=True)
     fresh = p.Pursuit('teleport', 1.0)
     # A strike was just seen: the move fits the gap and wins on time
     assert p.decide(replace(facts, candidates=(hold, warp), quiet=0.1), fresh) == warp.act
@@ -225,7 +238,7 @@ def test_with_every_act_vetoed_the_least_lethal_is_made_and_said_never_a_silent_
     goal = Goal('goal', (20.0, 0.0), 'use', 5.0, PRESSED)
     worse = p.Candidate(p.Move(Step((15.0, 0.0)), goal), 1.0, Harm(900, 1200, losses=(1000.0,) * 64))
     fight = p.Candidate(p.Hold(goal), 2.0, Harm(600, 1100, losses=(1000.0,) * 10 + (100.0,) * 54), True)
-    facts = p.Facts(1.0, goal, False, True, True, lambda: worse.act.step, candidates=(worse, fight), life=500.0)
+    facts = p.Facts(1.0, goal, False, True, True, lambda: step_of(worse.act), candidates=(worse, fight), life=500.0)
     chosen = p.decide(facts, p.Pursuit('teleport', 1.0))
     assert isinstance(chosen, p.Hold)
     assert 'every act is vetoed' in chosen.reason
@@ -261,6 +274,7 @@ def _price_against(monkeypatch, look):
     from types import SimpleNamespace
 
     from inventory_tracking.combat.harm import SafetySettings
+    from inventory_tracking.combat.policy import Observation
     from inventory_tracking.combat.survival import CALM
     from inventory_tracking.macros import safety as module
     from inventory_tracking.macros.world import Loot
@@ -269,7 +283,7 @@ def _price_against(monkeypatch, look):
     monkeypatch.setattr(module, 'falls', lambda *a, **kw: {})
     monkeypatch.setattr(module, 'camp', lambda *a, **kw: None)
     goal = Goal('Diablo', (0.0, 0.0), 'fight', 22.0, PRESSED)
-    seen = SimpleNamespace(origin=(15.0, 0.0), blocked=None, foes={})
+    seen = Observation((15.0, 0.0), {})
     facts = p.Facts(1.0, goal, True, True, True, lambda: Step(goal.place))
     safety = module.Safety()
     priced = safety.price(
@@ -303,7 +317,7 @@ def _pressed_pack(monkeypatch, *, draw):
     from types import SimpleNamespace
 
     from inventory_tracking.combat.harm import Hostile, Look, SafetySettings
-    from inventory_tracking.combat.policy import Foe
+    from inventory_tracking.combat.policy import Foe, Observation
     from inventory_tracking.combat.survival import CALM
     from inventory_tracking.macros import safety as module
     from inventory_tracking.macros.world import Loot
@@ -318,9 +332,7 @@ def _pressed_pack(monkeypatch, *, draw):
         life=700,
     )
     goal = Goal('the fight', (4.0, 0.0), 'fight', 22.0, PRESSED)
-    seen = SimpleNamespace(
-        origin=(0.0, 0.0), blocked=None, foes={unit: Foe(310, at, 6000.0, unit == 1) for unit, at in pack.items()}
-    )
+    seen = Observation((0.0, 0.0), {unit: Foe(310, at, 6000.0, unit == 1) for unit, at in pack.items()})
     facts = p.Facts(1.0, goal, True, True, True, lambda: Step(goal.place))
     safety = module.Safety(draw=draw, sendable=((0, 361), (1, 744)) if draw is not None else ())
     priced = safety.price(
@@ -372,7 +384,7 @@ def _seal(monkeypatch, *, deaths, demons=((0.0, 0.0), (0.4, 0.4))):
     from types import SimpleNamespace
 
     from inventory_tracking.combat.harm import Hostile, Look, SafetySettings
-    from inventory_tracking.combat.policy import Foe
+    from inventory_tracking.combat.policy import Foe, Observation
     from inventory_tracking.combat.survival import CALM
     from inventory_tracking.macros import safety as module
     from inventory_tracking.macros.build import Draw
@@ -387,7 +399,7 @@ def _seal(monkeypatch, *, deaths, demons=((0.0, 0.0), (0.4, 0.4))):
         life=1818,
     )
     foes = {unit: Foe(txt, at, 4000.0, flags == SUPER_UNIQUE) for unit, (txt, at, flags) in DE_SEIS.items()}
-    seen = SimpleNamespace(origin=(0.0, 0.0), blocked=None, foes=foes)
+    seen = Observation((0.0, 0.0), foes)
     goal = Goal('the fight', (6.5, 2.0), 'fight', 22.1, PRESSED)
     facts = p.Facts(1.0, goal, True, True, True, lambda: Step(goal.place))
     draw = Draw(999, lambda world, unit: True, math.inf, 2.8, 0.37, 11.76, arrives=0.28, pack=8.0, turns=0.58)
@@ -446,6 +458,7 @@ def _after_diablo(monkeypatch, age: int, start=STAND, drop=AMULET):
     from types import SimpleNamespace
 
     from inventory_tracking.combat.harm import SafetySettings
+    from inventory_tracking.combat.policy import Observation
     from inventory_tracking.combat.survival import CALM
     from inventory_tracking.macros import safety as module
     from inventory_tracking.macros.goals import PICK_UP
@@ -468,7 +481,7 @@ def _after_diablo(monkeypatch, age: int, start=STAND, drop=AMULET):
     goal = Goal('Amulet', drop, PICK_UP, 1.5, PRESSED)
     facts = p.Facts(age / 25, goal, False, False, True, lambda: Step(goal.place))
     posted = p.Pursuit('pickup', age / 25)
-    seen = SimpleNamespace(origin=start, blocked=None, foes={})
+    seen = Observation(start, {})
     priced = safety.price(
         facts, posted, look, loot, CALM, SafetySettings(), seen, SimpleNamespace(reach=22.1), lambda point: Step(point)
     )
@@ -502,6 +515,7 @@ def test_the_loot_walk_waits_for_his_flames_across_the_way_where_the_character_s
     from types import SimpleNamespace
 
     from inventory_tracking.combat.harm import SafetySettings
+    from inventory_tracking.combat.policy import Observation
     from inventory_tracking.combat.survival import CALM
     from inventory_tracking.macros import safety as module
     from inventory_tracking.macros.goals import PICK_UP
@@ -526,7 +540,7 @@ def test_the_loot_walk_waits_for_his_flames_across_the_way_where_the_character_s
         facts = p.Facts(age / 25, goal, False, False, True, lambda: Step(goal.place))
         posted = p.Pursuit('pickup', age / 25)
         priced = safety.price(
-            facts, posted, look, loot, CALM, SafetySettings(), SimpleNamespace(origin=edge, blocked=None, foes={}),
+            facts, posted, look, loot, CALM, SafetySettings(), Observation(edge, {}),
             SimpleNamespace(reach=22.1), lambda point: Step(point),
         )  # fmt: skip
         return p.decide(priced, posted), safety.decision
@@ -547,6 +561,7 @@ def test_while_diablo_lives_his_fire_wall_coming_at_the_character_is_stepped_out
     from types import SimpleNamespace
 
     from inventory_tracking.combat.harm import SafetySettings
+    from inventory_tracking.combat.policy import Observation
     from inventory_tracking.combat.survival import CALM
     from inventory_tracking.macros import safety as module
     from inventory_tracking.macros.world import Loot, Monster
@@ -563,7 +578,7 @@ def test_while_diablo_lives_his_fire_wall_coming_at_the_character_is_stepped_out
     look = safety.look(alive, loot, 'battle', now=0.16, flights=lambda k: _wall(4))
     goal = Goal('Diablo', DIABLO_AT, 'fight', 22.0, PRESSED)
     facts = p.Facts(0.16, goal, True, True, True, lambda: Step(goal.place))
-    seen = SimpleNamespace(origin=STAND, blocked=None, foes={})
+    seen = Observation(STAND, {})
     priced = safety.price(
         facts, None, look, loot, CALM, SafetySettings(), seen, SimpleNamespace(reach=22.1), lambda point: Step(point)
     )
@@ -588,6 +603,7 @@ def _diablo_looks(monkeypatch, looks):
     from types import SimpleNamespace
 
     from inventory_tracking.combat.harm import SafetySettings
+    from inventory_tracking.combat.policy import Observation
     from inventory_tracking.combat.survival import CALM
     from inventory_tracking.macros import safety as module
     from inventory_tracking.macros.world import Loot, Monster
@@ -608,7 +624,7 @@ def _diablo_looks(monkeypatch, looks):
         alive = world(108, player=stand, monsters=(diablo,))
         look = safety.look(alive, loot, 'battle', now=now, flights=lambda k, r=reads: r)
         facts = p.Facts(now, goal, True, True, True, lambda: Step(goal.place))
-        seen = SimpleNamespace(origin=here, blocked=None, foes={})
+        seen = Observation(here, {})
         priced = safety.price(
             facts, None, look, loot, CALM, SafetySettings(), seen, SimpleNamespace(reach=22.1), lambda pt: Step(pt)
         )
@@ -684,34 +700,34 @@ def test_a_retreat_that_keeps_the_strike_and_fits_the_budget_comes_before_the_le
     nearer = replace(near, seconds=2.0, harm=Harm(165, 270))
     dear = replace(near, harm=Harm(170, 450))
     facts = p.Facts(
-        1.0, None, False, True, True, lambda: hold.act.goal, candidates=(hold, far, near), budget=389.0,
+        1.0, None, False, True, True, lambda: step_of(far.act), candidates=(hold, far, near), budget=389.0,
         life=1560.0, kappa=0.01, near=True,
     )  # fmt: skip
     chosen = p.arbitrate(facts)
     assert isinstance(chosen, p.Move)
-    assert chosen.step == near.act.step
+    assert chosen.step == step_of(near.act)
     assert chosen.reason == p.KEEPING
-    assert p.arbitrate(replace(facts, candidates=(hold, far, near, nearer))).step == nearer.act.step
+    assert step_of(p.arbitrate(replace(facts, candidates=(hold, far, near, nearer)))) == step_of(nearer.act)
     alone = p.arbitrate(replace(facts, candidates=(hold, far, dear)))
-    assert alone.step == far.act.step
+    assert isinstance(alone, p.Move)
+    assert alone.step == step_of(far.act)
     assert alone.reason.startswith('retreating:')
 
 
 def test_the_hostile_whose_kill_ends_the_harm_counts_what_is_bound_to_it():
     """`keeper`: Baal's clone goes with him (combat/threats `bound`), so the harm of both is his kill's; a pack whose
     harm is spread names none, and neither does harm from no hostile that can be struck."""
-    from types import SimpleNamespace
-
     from inventory_tracking.combat.harm import Hostile, Look
+    from inventory_tracking.combat.policy import Foe, Observation
     from inventory_tracking.macros import safety as module
 
     baal, clone, tentacle = Hostile(1, 544, (20.0, 0.0)), Hostile(2, 570, (8.0, 0.0)), Hostile(3, 564, (5.0, 0.0))
     look = Look((baal, clone, tentacle))
-    seen = SimpleNamespace(foes={1: object(), 2: object(), 3: object()})
+    seen = Observation((0.0, 0.0), {h.unit: Foe(h.txt, h.at, 1000.0) for h in (baal, clone, tentacle)})
     assert module.keeper(look, seen, Harm(186, 502, by=((2, 163.0), (1, 23.0)))) == 1
     assert module.keeper(look, seen, Harm(186, 502, by=((3, 120.0), (1, 30.0), (2, 36.0)))) == 3
     spread = Look(tuple(Hostile(unit, 345, (10.0, unit)) for unit in range(10, 15)))
-    pack = SimpleNamespace(foes=dict.fromkeys(range(10, 15)))
+    pack = Observation((0.0, 0.0), {h.unit: Foe(h.txt, h.at, 1000.0) for h in spread.hostiles})
     assert module.keeper(spread, pack, Harm(100, 200, by=tuple((unit, 20.0) for unit in range(10, 15)))) is None
     assert module.keeper(look, seen, Harm(100, 200, by=((GROUND_UNIT, 100.0),))) is None
 
@@ -803,7 +819,7 @@ def test_the_stand_its_look_found_is_not_gone_to_into_harm_over_the_budget_stale
 # -- the look's time: the goal's way within its share, once a look; a look over its time said --------------------
 
 
-def _run_fight(monkeypatch, *, timer=None, way=None, safety=None):
+def _run_fight(monkeypatch, *, way, timer=None, safety=None):
     """A level run's fight not yet at its goal (Hold, and the advance priced beside it: `price`'s Hold branch), the
     goal's way `way` (counted by the caller); the safety's clock `timer` (None: the arena's, no clock)."""
     from inventory_tracking.combat.harm import Hostile, Look, SafetySettings
@@ -845,7 +861,7 @@ def test_the_goals_way_is_asked_once_a_look_within_its_share_of_the_looks_time(m
         asked.append(None if plan is None else plan.until)
         return Step((20.0, 0.0))
 
-    clock = lambda: next(reads) * 1e-4  # noqa: E731 - a tenth of a millisecond at each read
+    clock = lambda: next(reads) * 1e-4  # ruff: ignore[lambda-assignment] - a tenth of a millisecond at each read
     chosen, priced, _ = _run_fight(monkeypatch, timer=clock, way=way)
     assert isinstance(chosen, p.Hold)
     assert any(isinstance(c.act, p.Move) for c in priced.candidates)  # the advance priced beside the hold
@@ -861,7 +877,7 @@ def test_the_goals_way_is_asked_once_a_look_within_its_share_of_the_looks_time(m
 def test_past_the_looks_time_no_way_is_asked_and_a_look_over_its_time_is_said_once_a_second(monkeypatch, caplog):
     asked = []
     reads = iter(range(10**6))
-    slow = lambda: next(reads) * 0.05  # noqa: E731 - every stage of the look 50 ms
+    slow = lambda: next(reads) * 0.05  # ruff: ignore[lambda-assignment] - every stage of the look 50 ms
 
     def way():
         asked.append(1)

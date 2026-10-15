@@ -80,7 +80,7 @@ def variant_cases(build, variant, role, config, player_class, mercenary, planner
         context = {**context, 'player_class': player_class}
         if context.get('mercenary_type') == 'Act 2 Might':
             context['mercenary_type'] = mercenary
-        expected = {
+        expected: dict[str, object] = {
             'roles': Contains(
                 IsPartialDict(
                     id=role,

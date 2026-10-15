@@ -88,7 +88,7 @@ def cases():
                 ),
             )
             for label, candidate, loadout, truth, companion in examples:
-                assessment = {
+                assessment: dict[str, object] = {
                     'roles': Contains(
                         IsPartialDict(
                             id=role,

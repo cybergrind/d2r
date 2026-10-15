@@ -1,4 +1,5 @@
 from dataclasses import FrozenInstanceError
+from typing import Any
 
 import pytest
 
@@ -15,10 +16,10 @@ def test_capture_facts_cannot_be_changed_by_input_or_result_consumers():
     extraction['source']['stat_capture_complete'] = False
     assert facts.provenance['capture']['stat_capture_complete'] is True
     with pytest.raises(FrozenInstanceError):
-        facts.ethereal = True
+        facts.ethereal = True  # pyrefly: ignore[read-only]  # proves the facts are frozen
     with pytest.raises(TypeError):
         facts.provenance['capture']['stat_capture_complete'] = False
-    exported = facts.to_dict()
+    exported: dict[str, Any] = facts.to_dict()
     exported['provenance']['capture']['stat_capture_complete'] = False
     assert facts.provenance['capture']['stat_capture_complete'] is True
 

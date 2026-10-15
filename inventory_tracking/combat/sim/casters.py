@@ -49,7 +49,7 @@ from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, field
 from functools import cache
 from pathlib import Path
-from typing import Any
+from typing import Any, Protocol
 
 from inventory_tracking.combat.mechanics.tables import tables
 
@@ -58,7 +58,7 @@ Point = tuple[float, float]
 DATA = Path(__file__).parent / 'casters.json'
 # False: every type plays by sim/monsters.py's fit as before 2026-10-13 (the before/after comparisons of
 # rca/2026-10-13/sim-casters.md are made by setting it before a play's pack is made).
-PLAYED = True
+PLAYED: bool = True
 FINGER_MAGE, DOOM_KNIGHT, OBLIVION_KNIGHT, MEGADEMON = 'FingerMage', 'DoomKnight', 'OblivionKnight', 'Megademon'
 MINDS = (FINGER_MAGE, DOOM_KNIGHT, OBLIVION_KNIGHT, MEGADEMON)
 # Diablo (AI 51) thinks here too, by his own rules and rows (sim/diablo.py, diablo.json). He is not one of MINDS:
@@ -568,7 +568,7 @@ def resisted(
 # -- the minds in a pack ------------------------------------------------------------------------------------------
 
 
-class Host:
+class Host(Protocol):
     """What `Minds` needs of the pack it plays in (sim/monsters.py `Pack`): the walkers, their rolls, a stride
     toward a point (walls or none), the first-sight test, footing at a point, and how a blow is made."""
 

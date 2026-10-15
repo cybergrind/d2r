@@ -6,6 +6,7 @@ from pricing.knowledge.assessment.build_profiles import build
 from pricing.knowledge.assessment.profiles import assess_role_results
 from pricing.knowledge.assessment.stat_bundle import configuration_from_row
 from pricing.knowledge.assessment.stat_evaluation import StatsEvaluator
+from tests.pricing.knowledge.assessment.fact_changes import fact_changes
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
 
 
@@ -77,7 +78,7 @@ def test_fortitude_armor_phys_damage_does_not_become_spell_or_weapon_fit(slug, i
         stats=item.stats,
     )
     assert not evaluate(weapon).annotations
-    for change in (
+    for change in fact_changes(
         {'runeword': None},
         {'runeword': 'Chains of Honor'},
         {'rarity': 'magic'},

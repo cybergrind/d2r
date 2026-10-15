@@ -59,7 +59,9 @@ def cases():
         for label, item, context, truth in rows:
             active = truth == 'true'
             captured = {f'{s}:{p}' for s, p, _ in item.raw_stats}
-            assessment = {'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))}
+            assessment: dict[str, object] = {
+                'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))
+            }
             if active:
                 assessment['stat_evaluation'] = IsPartialDict(
                     annotations=IsPartialDict(

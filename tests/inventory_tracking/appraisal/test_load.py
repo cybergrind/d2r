@@ -57,6 +57,7 @@ def test_a_window_says_cpu_load_switches_passes_by_step_and_the_macros_looks():
     }
     counters.cpu += 0.1
     second = load.poll(12.0, 'working', True)  # the next window starts empty
+    assert second is not None
     assert (second['passes'], second['looks'], second['look_ms'], second['cpu']) == (0, 0, None, 10.0)
 
 
@@ -68,6 +69,7 @@ def test_in_town_with_the_macro_idle_nothing_is_noted_but_the_window_still_turns
     assert load.poll(1.0, 'town', False) is None
     assert noted == []
     fields = load.poll(2.0, 'level', True)
+    assert fields is not None
     assert fields['looks'] == 0  # the town window's look is not carried over
 
 

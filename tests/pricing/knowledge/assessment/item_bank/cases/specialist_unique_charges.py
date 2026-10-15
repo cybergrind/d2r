@@ -1,10 +1,11 @@
 """Specific charged skills, rather than item identity, enable specialist utility."""
 
 from dataclasses import replace
+from typing import Any
 
 from dirty_equals import Contains, IsPartialDict
 
-from tests.pricing.knowledge.assessment.item_bank.models import Case, Item
+from tests.pricing.knowledge.assessment.item_bank.models import Case, Item, known
 
 
 PRISON = 88 * 64 + 33
@@ -76,7 +77,7 @@ def cases():
         context = {'player_class': klass}
         config = role + '-stats'
         layers = (PRISON,) if original is BOOTS else (TELEPORT, DECREPIFY)
-        variants = [
+        variants: list[tuple[str, Item, dict[str, Any], str, str | None, tuple[str, ...]]] = [
             ('one-charge', original, context, 'true', 'true', keys),
             ('exhausted', remaining(original, layers, 0), context, 'true', 'false', ()),
             (
@@ -158,10 +159,10 @@ def cases():
             )
         for label, item, ctx, truth, dependency, expected_keys in variants:
             active = truth == dependency == 'true'
-            expected_role = {'id': role, 'rule_trace': IsPartialDict(truth=truth)}
+            expected_role: dict[str, object] = {'id': role, 'rule_trace': IsPartialDict(truth=truth)}
             if dependency is not None:
                 expected_role['dependencies'] = Contains(IsPartialDict(status=dependency))
-            expected = {'roles': Contains(IsPartialDict(**expected_role))}
+            expected: dict[str, object] = {'roles': Contains(IsPartialDict(**expected_role))}
             if active:
                 expected['stat_evaluation'] = IsPartialDict(
                     annotations=IsPartialDict(
@@ -187,7 +188,7 @@ def cases():
                 }
                 if original is AXE
                 else {'204:5260': (config,)},
-                report_contains=(original.name, 'Trade tier:', 'Charges') if active else (),
+                report_contains=(known(original.name), 'Trade tier:', 'Charges') if active else (),
                 evidence=(
                     'pricing/data/wp-a-builds.json:' + locator,
                     'third-parties/d2data/json/uniqueitems.json:/' + str(original.named_table_id),

@@ -2,6 +2,7 @@
 
 from dataclasses import replace
 from itertools import combinations
+from typing import Any
 
 from dirty_equals import Contains, IsPartialDict
 
@@ -18,7 +19,7 @@ def cases():
         ('lightning-starter-ring', LIGHTNING, 'lightning-sorceress'),
         ('nova-starter-ring', NOVA, 'nova-sorceress-guide'),
     ):
-        context = {'player_class': 'Sorceress'}
+        context: dict[str, Any] = {'player_class': 'Sorceress'}
         variants = [('source-combination', original, context, 'true')]
         if role == 'lightning-starter-ring':
             variants.append(
@@ -60,7 +61,9 @@ def cases():
             )
         )
         for label, item, ctx, truth in variants:
-            expected = {'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))}
+            expected: dict[str, object] = {
+                'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))
+            }
             if truth == 'true' and role == 'lightning-starter-ring':
                 expected['stat_evaluation'] = IsPartialDict(
                     annotations=IsPartialDict(

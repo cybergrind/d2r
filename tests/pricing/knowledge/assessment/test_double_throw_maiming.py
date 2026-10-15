@@ -5,7 +5,7 @@ from dataclasses import replace
 import pytest
 
 from pricing.knowledge.assessment.build_profiles import build
-from pricing.knowledge.assessment.profiles import assess_roles
+from tests.pricing.knowledge.assessment.role_rows import role_rows
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
 
 
@@ -28,7 +28,7 @@ def test_equal_totals_preserve_native_identity(role, affixes, truth):
         native_affixes=affixes,
         stats={'19:0': {'status': 'decoded', 'value': 49}, '22:0': {'status': 'decoded', 'value': 10}},
     )
-    result = assess_roles(item, [role], {'player_class': 'Barbarian'})[0]
+    result = role_rows(item, [role], {'player_class': 'Barbarian'})[0]
     assert result['rule_trace']['truth'] == truth
     if truth == 'true':
         assert result['status'] == 'matched'

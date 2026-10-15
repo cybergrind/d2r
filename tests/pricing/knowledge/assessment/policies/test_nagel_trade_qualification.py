@@ -32,7 +32,11 @@ def test_nagel_maximum_mf_is_an_ordinary_candidate_not_an_automatic_premium(mf, 
 @pytest.mark.parametrize(('key', 'lo', 'hi'), [(80, 15, 30), (19, 50, 75)])
 def test_nagel_both_rolls_must_be_known_and_legal(key, lo, hi):
     for value in (None, lo - 1, hi + 1):
-        raw = tuple((s, p, value if s == key else v) for s, p, v in item().raw_stats if s != key or value is not None)
+        raw = tuple(
+            (s, p, value if s == key and value is not None else v)
+            for s, p, v in item().raw_stats
+            if s != key or value is not None
+        )
         assert assess_trade_qualification(normalize(replace(item(), raw_stats=raw).capture()))['status'] == 'unresolved'
 
 

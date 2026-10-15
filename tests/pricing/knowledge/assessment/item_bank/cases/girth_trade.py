@@ -5,7 +5,7 @@ from itertools import product
 
 from dirty_equals import IsPartialDict
 
-from tests.pricing.knowledge.assessment.item_bank.models import Case, Item
+from tests.pricing.knowledge.assessment.item_bank.models import Case, Item, ItemChanges, with_stat_value
 
 
 ITEM = Item('Troll Belt', 'set', "Trang-Oul's Girth", ((31, 0, 166), (9, 0, 50 * 256)), complete=True)
@@ -20,13 +20,13 @@ def cases():
         )
     for key, values in ((31, (None, 100, 133, 167, 366)), (9, (None, 24 * 256, 51 * 256, 150 * 256))):
         for value in values:
-            raw = tuple((s, p, value if s == key else v) for s, p, v in ITEM.raw_stats if s != key or value is not None)
+            raw = with_stat_value(ITEM.raw_stats, {key}, value)
             yield make_case(f'component-{key}-{value}', replace(ITEM, raw_stats=raw), 'unresolved')
     yield make_case('fractional-mana', replace(ITEM, raw_stats=((31, 0, 166), (9, 0, 50 * 256 - 1))), 'unresolved')
     for stat in (16, 214, 215):
         yield make_case(f'extra-defense-{stat}', replace(ITEM, raw_stats=(*ITEM.raw_stats, (stat, 0, 1))), 'unresolved')
     yield make_case('conditional-cold', replace(ITEM, raw_stats=(*ITEM.raw_stats, (43, 0, 40))), 'premium')
-    for label, changes in (
+    overrides: tuple[tuple[str, ItemChanges], ...] = (
         ('incomplete', {'complete': False}),
         ('ethereal', {'ethereal': True}),
         ('unknown-ethereal', {'ethereal': None}),
@@ -34,7 +34,8 @@ def cases():
         ('socketed', {'sockets': 1}),
         ('unknown-sockets', {'sockets': None}),
         ('unknown-contents', {'socket_contents': 'unknown'}),
-    ):
+    )
+    for label, changes in overrides:
         yield make_case(label, replace(ITEM, **changes), 'unresolved')
 
 

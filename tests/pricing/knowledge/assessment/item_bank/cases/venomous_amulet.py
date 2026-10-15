@@ -4,7 +4,7 @@ from dataclasses import replace
 
 from dirty_equals import Contains, IsPartialDict
 
-from tests.pricing.knowledge.assessment.item_bank.models import Case, Item
+from tests.pricing.knowledge.assessment.item_bank.models import Case, Item, known
 
 
 ROLES = tuple(f'poison-nova-necromancer-{variant}-venomous' for variant in ('starter', 'budget'))
@@ -20,7 +20,9 @@ def cases():
         (
             'apprentice',
             replace(
-                item, raw_stats=(*item.raw_stats, (105, 0, 10)), affix_records=(*item.affix_records, ('suffix', 174))
+                item,
+                raw_stats=(*item.raw_stats, (105, 0, 10)),
+                affix_records=(*known(item.affix_records), ('suffix', 174)),
             ),
             context,
             'true',
@@ -38,7 +40,7 @@ def cases():
     ]
     for label, candidate, loadout, truth in examples:
         active = truth == 'true'
-        expected = {}
+        expected: dict[str, object] = {}
         if label not in ('unidentified', 'rare', 'wrong-slot'):
             expected['roles'] = Contains(
                 *(

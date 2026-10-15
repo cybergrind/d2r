@@ -70,7 +70,9 @@ def cases():
             )
         )
         for label, candidate, loadout, truth in examples:
-            expected = {'roles': Contains(*(IsPartialDict(id=r, rule_trace=IsPartialDict(truth=truth)) for r in roles))}
+            expected: dict[str, object] = {
+                'roles': Contains(*(IsPartialDict(id=r, rule_trace=IsPartialDict(truth=truth)) for r in roles))
+            }
             fire_credit = fire and label != 'unread-fire-skill'
             if truth == 'true':
                 keys = ['105:0', '27:0'] + (['126:1'] if fire_credit else [])

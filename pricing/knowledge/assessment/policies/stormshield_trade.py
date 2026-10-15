@@ -12,6 +12,7 @@ from pricing.knowledge.assessment.handlers.definitions import resolve_named_defi
 from pricing.knowledge.assessment.mechanics.socket_evidence import NATIVE_HASHES
 from pricing.knowledge.assessment.policies.sources import resolve_pointer
 from pricing.knowledge.market import scope_status
+from pricing.knowledge.market_rows import Market, market_of, published_market
 
 
 ROOT = Path(__file__).resolve().parents[4]
@@ -28,14 +29,12 @@ def inputs():
 
 @lru_cache(maxsize=2)
 def validate(raw, guides, market, native):
+    market = market if isinstance(market, Market) else market_of(market)
     review = json.loads(raw)
     if review['scope'] != 'SC / Non-Ladder / PC / RotW' or review['id'] != 'stormshield-underlying':
         raise ValueError('Invalid Stormshield trade scope')
     date.fromisoformat(review['reviewed_at'])
-    if (
-        hashlib.sha256(guides).hexdigest() != review['guide_sha256']
-        or hashlib.sha256(market).hexdigest() != review['market_sha256']
-    ):
+    if hashlib.sha256(guides).hexdigest() != review['guide_sha256'] or market.sha256 != review['market_sha256']:
         raise ValueError('Stormshield source evidence changed')
     guide = json.loads(guides)
     if len(review['guide_variants']) < 2:
@@ -52,7 +51,7 @@ def validate(raw, guides, market, native):
         if hashlib.sha256(data).hexdigest() != NATIVE_HASHES[name]:
             raise ValueError('Stormshield native definitions changed')
     ids = review['evidence_ids']
-    rows = [r for line in market.splitlines() if (r := json.loads(line))['id'] in ids]
+    rows = market.with_ids(ids)
     if not ids or len(set(ids)) != len(ids) or len(rows) != len(ids):
         raise ValueError('Missing or duplicate Stormshield asking evidence')
     sellers = set()
@@ -97,7 +96,7 @@ def validate(raw, guides, market, native):
 
 def reviewed_date():
     return validate(
-        read_artifact(RULES), read_artifact(GUIDES), read_artifact(MARKET), tuple(read_artifact(p) for p in NATIVE)
+        read_artifact(RULES), read_artifact(GUIDES), published_market(MARKET), tuple(read_artifact(p) for p in NATIVE)
     )
 
 

@@ -2,7 +2,7 @@
 
 from dirty_equals import Contains, IsPartialDict
 
-from tests.pricing.knowledge.assessment.item_bank.models import Case, Item
+from tests.pricing.knowledge.assessment.item_bank.models import Case, Item, known
 
 
 ITEMS = (
@@ -14,7 +14,7 @@ ITEMS = (
 
 def cases():
     for item in ITEMS:
-        role = 'berserk-barbarian-starter-set-' + item.name
+        role = 'berserk-barbarian-starter-set-' + known(item.name)
         companions = [other.name for other in ITEMS if other != item]
         base_context = {'player_class': 'Barbarian'}
         for label, context, truth, dependency_truths, scenario in (
@@ -44,7 +44,7 @@ def cases():
                 'negative',
             ),
         ):
-            expected_role = {
+            expected_role: dict[str, object] = {
                 'id': role,
                 'rule_trace': IsPartialDict(truth=truth),
             }

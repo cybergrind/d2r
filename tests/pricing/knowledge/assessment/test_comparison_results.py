@@ -1,5 +1,6 @@
 from dataclasses import FrozenInstanceError
 from datetime import date
+from typing import Any
 
 import pytest
 
@@ -22,10 +23,10 @@ def test_comparison_result_detaches_evidence_and_report_mutations():
     rows[0]['ask_ist'] = 100
     assert legacy_comparison(result) == before
     with pytest.raises(FrozenInstanceError):
-        result.state = 'prepared'
+        result.state = 'prepared'  # pyrefly: ignore[read-only]  # proves the result is frozen
     with pytest.raises(TypeError):
         result.comparisons['accepted'][0]['properties']['520'] = 99
-    output = legacy_comparison(result)
+    output: dict[str, Any] = legacy_comparison(result)
     output['price_estimate']['notes'].append('caller mutation')
     output['comparisons']['accepted'].clear()
     assert legacy_comparison(result) == before
@@ -38,13 +39,16 @@ def test_prepared_result_retains_separate_immutable_outcome_estimate():
     from tests.pricing.knowledge.assessment.test_prepared_base_prices import armor
 
     request = next(r for r in assess_result(armor(), profiles=[]).comparison_requests if r.preparation)
-    rows = [{**row(10, str(i)), **request.to_dict()['contract']} for i in range(3)]
+    serialized: dict[str, Any] = request.to_dict()
+    rows = [{**row(10, str(i)), **serialized['contract']} for i in range(3)]
     (result,) = evaluate_request_results([request], {'mage plate': rows}, today=date(2026, 9, 24))
     assert not result.is_current
     assert result.price_estimate['estimate_ist'] is None
+    assert result.outcome_ask_estimate is not None
     assert result.outcome_ask_estimate['estimate_ist'] == 1
+    assert result.preparation is not None
     with pytest.raises(TypeError):
         result.preparation['resources'][0]['quantity'] = 20
-    report = legacy_comparison(result)
+    report: dict[str, Any] = legacy_comparison(result)
     report['outcome_ask_estimate']['estimate_ist'] = 999
     assert result.outcome_ask_estimate['estimate_ist'] == 1

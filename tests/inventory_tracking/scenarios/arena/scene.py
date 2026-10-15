@@ -10,7 +10,11 @@ from copy import deepcopy
 from dataclasses import dataclass, field
 from pathlib import Path
 from types import UnionType
-from typing import Union
+from typing import TYPE_CHECKING, Union
+
+
+if TYPE_CHECKING:
+    from _typeshed import DataclassInstance
 
 
 Point = tuple[float, float]
@@ -121,7 +125,7 @@ def _plain(value: object) -> object:
 
 def _build(tp: object, value: object, where: str) -> object:
     """Rebuild a JSON value as the annotated type tp (records, tuples, lists, dicts, optionals)."""
-    if dataclasses.is_dataclass(tp):
+    if isinstance(tp, type) and dataclasses.is_dataclass(tp):
         return _record(tp, value)
     origin = typing.get_origin(tp)
     args = typing.get_args(tp)
@@ -148,7 +152,7 @@ def _build(tp: object, value: object, where: str) -> object:
     return value
 
 
-def _record(cls: type, data: object) -> object:
+def _record[T: DataclassInstance](cls: type[T], data: object) -> T:
     """Rebuild a record from its JSON object, refusing unknown and missing keys by name."""
     if not isinstance(data, dict):
         raise ValueError(f'{cls.__name__} must be an object, got {type(data).__name__}')

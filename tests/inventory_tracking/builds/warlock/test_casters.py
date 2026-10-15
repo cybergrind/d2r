@@ -48,7 +48,7 @@ def test_a_defiler_the_demon_walked_up_to_is_replaced_by_one_in_the_open():
     follow(game, times=1)
     prebuff(game.run())
     assert game.pressed() == ['q', 'q', '6', 'q', 'g', 'r']
-    assert game.world.player.consume
+    assert game.character.consume
     assert sorted(m.txt_id for m in game.world.monsters) == [700, 744]
 
 
@@ -65,7 +65,7 @@ def test_a_crowded_defiler_is_replaced_at_another_spot_each_time():
     game.keys.on_event = on_event
     prebuff(game.run())
     assert len({(round(x, 1), round(y, 1)) for x, y in summons[:3]}) == 3
-    assert game.world.player.consume
+    assert game.character.consume
 
 
 def test_hostile_monsters_around_the_defiler_do_not_make_it_crowded():
@@ -76,7 +76,7 @@ def test_hostile_monsters_around_the_defiler_do_not_make_it_crowded():
     game = Game(world(monsters=(BOUND_DEMON, defiler, hostile)))
     prebuff(game.run())
     assert game.pressed() == ['6', 'q', 'g', 'r']  # the standing Defiler consumed, one summoned after
-    assert game.world.player.consume
+    assert game.character.consume
 
 
 def test_a_tall_demon_drawn_below_the_defiler_is_not_consumed_in_its_place():
@@ -143,7 +143,7 @@ def test_consume_is_aimed_where_the_defiler_stands_after_it_walked():
     prebuff(game.run())
     assert len(walked) == 3
     assert game.pressed() == ['q', '6', 'q', 'g', 'r']
-    assert game.world.player.consume
+    assert game.character.consume
 
 
 def test_consume_is_not_pressed_at_a_defiler_that_never_stands_still():
@@ -185,7 +185,7 @@ def test_a_consume_that_changed_nothing_is_pressed_again():
     deaf_to_consume(game, 1)
     prebuff(game.run())
     assert game.pressed() == ['q', '6', '6', 'q', 'g', 'r']
-    assert game.world.player.consume
+    assert game.character.consume
     assert sorted(m.txt_id for m in game.world.monsters) == [700, 744]
 
 
@@ -210,7 +210,7 @@ def cave(walkable):
 def test_summon_spots_off_the_walkable_ground_are_left_out():
     # Cave Level 1, 02:43 on 2026-10-12: nothing was summoned at three spots in 5 s.
     game = Game(world())
-    run, me = game.run(), game.world.player
+    run, me = game.run(), game.character
     aspect = WINDOW[2] / WINDOW[3]
     run.ground = lambda: cave(lambda x, y: x - y <= 4)  # a wall along the right of the view
     spots = open_spots(run, game.world)
@@ -227,7 +227,7 @@ def test_summon_spots_off_the_walkable_ground_are_left_out():
 
 def test_in_a_narrow_place_the_near_spots_are_tried():
     game = Game(world())
-    run, me = game.run(), game.world.player
+    run, me = game.run(), game.character
     run.ground = lambda: cave(lambda x, y: math.dist((x, y), (me.x, me.y)) <= 7)
     spots = open_spots(run, game.world)
     assert spots
@@ -250,5 +250,5 @@ def test_consume_is_cast_anew_on_a_defiler_summoned_for_it_and_another_summoned(
     game = Game(world(monsters=(standing,)))
     renew_consume(game.run())
     assert game.pressed() == ['q', '6', 'q']
-    assert game.world.player.consume
+    assert game.character.consume
     assert len([m for m in game.world.monsters if m.txt_id == 744]) == 1

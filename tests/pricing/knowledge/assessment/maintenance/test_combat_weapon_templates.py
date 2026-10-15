@@ -1,4 +1,5 @@
 from dataclasses import replace
+from typing import Any
 
 import pytest
 
@@ -30,7 +31,7 @@ def test_zeal_modes_reject_wrong_class_and_do_not_leak_durability_to_other_words
         ethereal=True,
         stats={'152:0': {'status': 'decoded', 'value': 1}},
     )
-    result = assess_roles(item, [profile], {'player_class': 'Paladin'})[0]
+    result: dict[str, Any] = assess_roles(item, [profile], {'player_class': 'Paladin'})[0]
     assert result['rule_trace']['truth'] == ('false' if name == 'Doom' else 'true')
 
 

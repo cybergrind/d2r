@@ -98,6 +98,12 @@ class Level:
             side=side,
         )  # fmt: skip
 
+    def found(self, here=(7800.0, 5600.0), foes=(), side=None) -> Goal:
+        """The goal where the test expects one."""
+        goal = self.goal(here, foes, side)
+        assert goal is not None
+        return goal
+
     def use(self, label: str) -> None:
         tile = MARKS[label][0]
         self.progress.used(AREA, label, tile, (tile,))
@@ -132,7 +138,7 @@ def test_the_run_goes_through_every_stage_of_the_chaos_sanctuary_in_order_with_n
         assert isinstance(look(goal, there=True), Operate)  # at it: used
         level.use(seal)
     vizier = boss('Grand Vizier of Chaos', (7660.0, 5320.0))
-    goal = level.goal(foes=[vizier])
+    goal = level.found(foes=[vizier])
     assert (goal.do, goal.unit) == (FIGHT, 1)
     assert isinstance(look(goal), Move)
     assert isinstance(look(goal, there=True, in_reach=True), Hold)
@@ -146,7 +152,7 @@ def test_the_run_goes_through_every_stage_of_the_chaos_sanctuary_in_order_with_n
         level.use(seal)
     assert isinstance(look(level.goal(foes=[boss('Infector of Souls', (7925.0, 5276.0))]), in_reach=True), Hold)
     level.dead.add('Infector of Souls')
-    star = level.goal()  # Diablo not come yet: his mark
+    star = level.found()  # Diablo not come yet: his mark
     assert (star.do, star.unit, star.label) == (FIGHT, None, 'Diablo, by its mark Diablo')
     waiting = look(star, there=True)
     assert isinstance(waiting, NoWay)
@@ -167,10 +173,10 @@ def test_the_run_goes_through_every_stage_of_the_chaos_sanctuary_in_order_with_n
 
 def test_what_is_in_reach_comes_before_the_route_and_a_drop_before_the_next_stage() -> None:
     level = Level()
-    goal = level.goal()
+    goal = level.found()
     assert decide(facts(goal, in_reach=True, way=unasked), RUN) == Hold(goal)
     potion = Drop(9, 7810.0, 5600.0, 'a super healing potion', HEALING)
-    side = level.goal(side=potion)
+    side = level.found(side=potion)
     assert (side.do, side.unit) == (PICK_UP, 9)
     assert decide(facts(side, there=True, way=unasked), RUN) == Operate(side)
     # Beyond a click the drop is gone to by the navigator with the movement in hand, not by the pickup's own
@@ -181,7 +187,7 @@ def test_what_is_in_reach_comes_before_the_route_and_a_drop_before_the_next_stag
 
 
 def test_nothing_is_begun_while_a_seal_brings_its_pack() -> None:
-    goal = Level().goal()
+    goal = Level().found()
     waited = decide(facts(goal, settling=True, way=unasked), RUN)
     assert isinstance(waited, NoWay)
     assert waited.arrived
@@ -195,7 +201,7 @@ def test_nothing_is_begun_while_a_seal_brings_its_pack() -> None:
 
 
 def test_the_run_ends_where_its_leash_does() -> None:
-    goal = Level().goal()
+    goal = Level().found()
     assert decide(facts(goal, area=107, way=unasked), RUN) == Ended('the level was left')
     nothing = decide(facts(None, way=unasked), RUN)
     assert isinstance(nothing, Ended)
@@ -214,14 +220,14 @@ def test_a_level_with_no_route_is_no_run_and_the_key_is_its_old_step() -> None:
 
 
 def test_a_teleport_press_during_the_run_asks_for_its_goal_now_and_the_run_goes_on_after() -> None:
-    goal = Level().goal()
+    goal = Level().found()
     press = replace(RUN, key='teleport', pressed_at=100.0, advance=True)
     assert decide(facts(goal, in_reach=True), press) == Move(STEP, goal)  # the press's goal, before the fight
     assert decide(facts(goal, in_reach=True, now=101.0, way=unasked), press) == Hold(goal)  # stale: the run's
 
 
 def test_without_the_leash_the_unpressed_loop_goes_to_no_seal() -> None:
-    goal = Level().goal()
+    goal = Level().found()
     assert isinstance(decide(facts(goal, way=unasked), None), NoWay)
 
 
@@ -237,7 +243,7 @@ def monster(unit: int, at: tuple[float, float]) -> Monster:
 
 
 def test_the_fight_first_is_with_the_nearest_of_what_bars_the_goal_and_keeps_its_stage() -> None:
-    seal = Level().goal()
+    seal = Level().found()
     pack = [monster(31, (seal.place[0] + 3.0, seal.place[1])), monster(32, (seal.place[0] - 20.0, seal.place[1]))]
     here = (seal.place[0] - 60.0, seal.place[1])
     found = first_fight(seal, here, pack, REACH)
@@ -247,19 +253,19 @@ def test_the_fight_first_is_with_the_nearest_of_what_bars_the_goal_and_keeps_its
 
 
 def test_only_an_objects_stand_has_what_is_in_the_way() -> None:
-    seal = Level().goal()
+    seal = Level().found()
     near = monster(31, (seal.place[0] + goals.USE_NEAR - 1.0, seal.place[1]))
     far = monster(32, (seal.place[0] + goals.USE_NEAR + 1.0, seal.place[1]))
     assert in_the_way(seal, [near, far]) == [near]
     vizier = Level()
     vizier.use('Vizier seal 1')
     vizier.use('Vizier seal 2')
-    fight = vizier.goal(foes=[boss('Grand Vizier of Chaos', (7660.0, 5320.0))])
+    fight = vizier.found(foes=[boss('Grand Vizier of Chaos', (7660.0, 5320.0))])
     assert in_the_way(fight, [near, far]) == []
 
 
 def test_an_act_that_did_not_take_is_made_from_nearer() -> None:
-    seal = Level().goal()
+    seal = Level().found()
     assert nearer(seal).near == goals.PLACE_NEAR < seal.near
     fight = replace(seal, do=FIGHT, near=REACH)
     assert nearer(fight) is fight
@@ -272,6 +278,7 @@ def test_a_teleport_press_keeps_the_runs_leash_and_the_end_of_the_run_keeps_the_
     hunter = Hunter(build=pursuing(BUILD))
     hunter.post(Pursuit('pickup', 10.0, advance=False, leash=FULL, area=AREA))
     hunter.post(Pursuit('teleport', 11.0))
+    assert hunter.pursuit is not None
     assert (hunter.pursuit.key, hunter.pursuit.leash, hunter.pursuit.area, hunter.pursuit.advance) == (
         'teleport', FULL, AREA, True,
     )  # fmt: skip
@@ -326,6 +333,7 @@ def test_the_mailbox_takes_the_loops_write_only_over_what_it_read() -> None:
     first = Pursuit('pickup', 10.0, advance=False, leash=FULL)
     hunter_.post(first)
     read = hunter_.pursuit
+    assert read is not None
     hunter_.post(Pursuit('pickup', 11.0, advance=False, leash=FULL))  # a press during the look
     assert not hunter_.swap(read, replace(read, area=AREA))
     assert hunter_.pursuit is not None
@@ -338,7 +346,7 @@ def test_the_mailbox_takes_the_loops_write_only_over_what_it_read() -> None:
 
 
 @pytest.fixture
-def runner(monkeypatch):
+def runner(monkeypatch, tmp_path):
     monkeypatch.setattr(runner_module, 'CARD_SECONDS', 0)
     started = []
 
@@ -347,7 +355,7 @@ def runner(monkeypatch):
         cancelled.wait(5)
 
     made = MacroRunner(
-        None, capture_lock=threading.Lock(), saved_games=None, display=lambda lines: None, execute=execute
+        None, capture_lock=threading.Lock(), saved_games=tmp_path, display=lambda lines: None, execute=execute
     )
     build = pursuing(BUILD)
     made.build = made.fallback = build
@@ -360,6 +368,7 @@ def test_the_pickup_key_with_the_pursuit_on_starts_attack_mode_with_the_level_ru
     made, started = runner
     assert made.request(10.0, 10.1, 'pickup')
     posted = made.hunter.pursuit
+    assert posted is not None
     assert (posted.key, posted.leash, posted.advance) == ('pickup', FULL, False)
     assert made.attack_mode
     assert not made.attack_declined
@@ -375,23 +384,24 @@ def test_the_pickup_key_with_the_pursuit_on_starts_attack_mode_with_the_level_ru
     assert not made.attack_mode
 
 
-def test_without_the_pursuit_the_pickup_key_is_its_old_step(monkeypatch) -> None:
+def test_without_the_pursuit_the_pickup_key_is_its_old_step(monkeypatch, tmp_path) -> None:
     monkeypatch.setattr(runner_module, 'CARD_SECONDS', 0)
     started = []
     made = MacroRunner(
         None,
         capture_lock=threading.Lock(),
-        saved_games=None,
+        saved_games=tmp_path,
         execute=lambda cancelled, routine: started.append(routine),
     )
     made.build = made.fallback = BUILD
     made.hunter = Hunter(build=BUILD)
     assert made.request(10.0, 10.1, 'pickup')
+    assert made.thread is not None
     made.thread.join(5)
     assert started == ['pickup']
     assert made.hunter.pursuit is None
 
 
 def test_the_tiles_of_the_marks_are_in_world_units_where_the_goals_are() -> None:
-    goal = Level().goal()
+    goal = Level().found()
     assert goal.place == (MARKS['Vizier seal 1'][0][0] * TILE_UNITS, MARKS['Vizier seal 1'][0][1] * TILE_UNITS)

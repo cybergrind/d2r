@@ -1,4 +1,5 @@
 from dataclasses import replace
+from typing import Any
 
 import pytest
 
@@ -10,7 +11,7 @@ from tests.pricing.knowledge.assessment.test_socket_survival_comparisons import 
 
 @pytest.mark.parametrize(('quality', 'targets'), [('magic', [1, 2]), ('rare', [1]), ('crafted', [1])])
 def test_quality_controls_quest_socket_outcome_contracts(quality, targets):
-    facts = replace(filled_armor(quality, innate=15, count=0, base='Helm'), socket_contents='empty', gaps=())
+    facts = replace(filled_armor(quality, innate=15, count=0, base='Helm'), socket_contents='empty', gaps=[])
     contract, gaps = HANDLERS['affixed'].contract(facts, 'helm')
     assert contract is not None, gaps
     requests = socket_outcome_requests(facts, contract, [])
@@ -19,6 +20,7 @@ def test_quality_controls_quest_socket_outcome_contracts(quality, targets):
         assert request.state == 'prepared'
         assert request.contract['properties'] == contract.properties
         assert request.contract['rarity'] == quality
+        assert request.preparation is not None
         outcome = request.preparation['outcomes'][0]
         assert outcome['success_weight'] == 1
         assert outcome['denominator'] == (2 if quality == 'magic' else 1)
@@ -34,7 +36,7 @@ def test_quality_controls_quest_socket_outcome_contracts(quality, targets):
     ],
 )
 def test_named_quest_socket_keeps_identity_and_rolls(base, quality, name, family):
-    facts = replace(socketed_item(base, quality, name, [], {}), socket_contents='empty', gaps=())
+    facts = replace(socketed_item(base, quality, name, [], {}), socket_contents='empty', gaps=[])
     contract, gaps = HANDLERS['named'].contract(facts, family)
     assert contract is not None, gaps
     (request,) = socket_outcome_requests(facts, contract, [])
@@ -51,12 +53,14 @@ def test_magic_socket_quote_shows_random_chance_and_preserves_current_price():
     from pricing.knowledge.assessment.comparison_requests import evaluate_requests
     from pricing.knowledge.names import normalize_name
 
-    facts = replace(filled_armor('magic', innate=15, count=0, base='Helm'), socket_contents='empty', gaps=())
+    facts = replace(filled_armor('magic', innate=15, count=0, base='Helm'), socket_contents='empty', gaps=[])
     contract, _ = HANDLERS['affixed'].contract(facts, 'helm')
+    assert contract is not None
     requests = socket_outcome_requests(facts, contract, [])
+    serialized: list[dict[str, Any]] = [request.to_dict() for request in requests]
     rows = [
         {
-            **request.to_dict()['contract'],
+            **data['contract'],
             'scope_status': 'verified',
             'evidence_kind': 'ask',
             'unit_policy': 'single_item',
@@ -65,10 +69,12 @@ def test_magic_socket_quote_shows_random_chance_and_preserves_current_price():
             'ask_ist': 1,
             'observed_at': '2026-09-25',
         }
-        for request in requests
+        for request, data in zip(requests, serialized, strict=True)
         for i in range(3)
     ]
-    results = evaluate_requests(requests, {normalize_name(contract.name): rows}, today=date(2026, 9, 25))
+    results: list[dict[str, Any]] = evaluate_requests(
+        requests, {normalize_name(contract.name): rows}, today=date(2026, 9, 25)
+    )
     assert all(r['price_estimate']['estimate_ist'] is None for r in results)
     assert all(r['outcome_ask_estimate']['estimate_ist'] == 1 for r in results)
     text = '\n'.join(prepared_price_lines({'assessment': {'comparison_results': results}}))

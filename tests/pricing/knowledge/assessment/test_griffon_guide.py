@@ -6,6 +6,7 @@ from pricing.knowledge.assessment.build_profiles import build
 from pricing.knowledge.assessment.profiles import assess_role_results
 from pricing.knowledge.assessment.stat_bundle import configuration_from_row
 from pricing.knowledge.assessment.stat_evaluation import StatsEvaluator
+from tests.pricing.knowledge.assessment.fact_changes import fact_changes
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
 
 
@@ -65,12 +66,12 @@ def test_griffon_minimum_rolls_keep_lightning_use_and_actual_socket_kind(slug, i
 
     assert len(evaluate().annotations) == 5
     assert evaluate().annotations['334:0']['desirability'] == 'desirable'
-    for changes in [
+    for changes in fact_changes(
         {'identified': None},
         {'ethereal': True},
         {'rarity': 'rare'},
         {'base_code': facts('Circlet').base_code},
-    ]:
+    ):
         assert not evaluate(replace(item, **changes)).annotations
     if filler:
         assert not evaluate(replace(item, socket_items=[])).annotations

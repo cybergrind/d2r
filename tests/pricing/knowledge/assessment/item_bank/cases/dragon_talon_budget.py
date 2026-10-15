@@ -4,7 +4,7 @@ from dataclasses import replace
 
 from dirty_equals import Contains, IsPartialDict
 
-from tests.pricing.knowledge.assessment.item_bank.models import Case, Item, SocketItem
+from tests.pricing.knowledge.assessment.item_bank.models import Case, Item, SocketItem, known
 
 
 def cases():
@@ -49,7 +49,9 @@ def cases():
             else:
                 examples += [('needs-upgrade', replace(native, base='Light Plated Boots'), 'Assassin', 'true', False)]
             for label, candidate, klass, truth, useful in examples:
-                expectation = {'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))}
+                expectation: dict[str, object] = {
+                    'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))
+                }
                 if useful:
                     expectation['stat_evaluation'] = IsPartialDict(
                         annotations=IsPartialDict(
@@ -74,7 +76,7 @@ def cases():
                         if label == 'needs-upgrade'
                         else ('Goblin Toe', 'Trade tier:')
                         if slug == 'goblin-toe' and candidate.identified
-                        else (candidate.name,)
+                        else (known(candidate.name),)
                     ),
                     report_absent=('Trade tier:',) if slug == 'goblin-toe' and not candidate.identified else (),
                     evidence=('pricing/data/wp-a-builds.json:/dragon-talon-assassin/variants/0',),

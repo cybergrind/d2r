@@ -5,7 +5,7 @@ from itertools import product
 
 from dirty_equals import IsPartialDict
 
-from tests.pricing.knowledge.assessment.item_bank.models import Case, Item
+from tests.pricing.knowledge.assessment.item_bank.models import Case, Item, ItemChanges, with_stat_value
 from tests.pricing.knowledge.assessment.test_facet_catalog_comparisons import VARIANTS
 
 
@@ -69,23 +69,20 @@ def cases():
             )
         for stat in (damage, pierce):
             for value in (None, 2, 6):
-                raw = tuple(
-                    (s, p, value if s == stat else v) for s, p, v in item.raw_stats if s != stat or value is not None
-                )
+                raw = with_stat_value(item.raw_stats, {stat}, value)
                 yield make_case(spec, f'stat-{stat}-{value}', replace(item, raw_stats=raw), 'unresolved')
-        for label, changes in (
+        overrides: tuple[tuple[str, ItemChanges], ...] = (
             ('unidentified', {'identified': False}),
             ('ethereal', {'ethereal': True}),
             ('unknown-ethereal', {'ethereal': None}),
             ('socketed', {'sockets': 1}),
             ('unknown-sockets', {'sockets': None}),
             ('unknown-contents', {'socket_contents': 'unknown'}),
-        ):
+        )
+        for label, changes in overrides:
             yield make_case(spec, label, replace(item, **changes), 'unresolved')
         for chance in (None, 99):
-            raw = tuple(
-                (s, p, chance if s == event else v) for s, p, v in item.raw_stats if s != event or chance is not None
-            )
+            raw = with_stat_value(item.raw_stats, {event}, chance)
             yield make_case(spec, f'trigger-{chance}', replace(item, raw_stats=raw), 'unresolved')
         other = next(s for s in VARIANTS if s[6] == damage and s[0] != table)
         yield make_case(spec, 'other-native-trigger', replace(item, named_table_id=other[0]), 'unresolved')

@@ -38,7 +38,9 @@ def cases():
         )
     )
     for label, candidate, loadout, truth in examples:
-        expected = {'roles': Contains(*(IsPartialDict(id=r, rule_trace=IsPartialDict(truth=truth)) for r in ROLES))}
+        expected: dict[str, object] = {
+            'roles': Contains(*(IsPartialDict(id=r, rule_trace=IsPartialDict(truth=truth)) for r in ROLES))
+        }
         if truth == 'true':
             annotations = {
                 key: IsPartialDict(configuration_ids=Contains(*CONFIGS)) for key in ('127:0', '105:0', '77:0', '1:0')

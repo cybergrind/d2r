@@ -7,7 +7,7 @@ Fortress side is one 'Act 4 - Fortress Transition' preset (8x24); the level link
 
 from inventory_tracking.levels.model import LevelSnapshot, Location, Room
 from inventory_tracking.levels.presets import preset_name
-from inventory_tracking.levels.registry import handler_for
+from tests.inventory_tracking.levels.fixtures import handler_of
 
 
 def rows(guidance):
@@ -21,7 +21,7 @@ def test_the_one_open_gap_is_the_plains_by_elimination_and_the_fortress_is_the_w
         Room(800, 40, 0, 8, 8, variant=3),  # open gap
         Room(798, 0, 16, 8, 24),
     )
-    guidance = handler_for(104).guide(LevelSnapshot(Location(104, 0, 60, 60), rooms))
+    guidance = handler_of(104).guide(LevelSnapshot(Location(104, 0, 60, 60), rooms))
 
     assert rows(guidance) == [
         ('Plains of Despair', 'stairs', 'Act 4 - Mesa Border 2'),
@@ -36,11 +36,11 @@ def test_a_gap_known_to_lead_to_the_plains_is_named_and_extra_gaps_are_plain_exi
         Room(802, 40, 0, 8, 8, variant=3, leads_to=(105,)),
         Room(798, 0, 16, 8, 24),
     )
-    guidance = handler_for(104).guide(LevelSnapshot(Location(104, 0, 60, 60), rooms))
+    guidance = handler_of(104).guide(LevelSnapshot(Location(104, 0, 60, 60), rooms))
 
     assert rows(guidance) == [
         ('Plains of Despair', 'stairs', 'Act 4 - Mesa Border 4'),
         ('Exit', 'exit', 'Act 4 - Mesa Border 3'),
         ('Pandemonium Fortress', 'previous', 'Act 4 - Fortress Transition'),
     ]
-    assert not handler_for(104).confirmed
+    assert not handler_of(104).confirmed

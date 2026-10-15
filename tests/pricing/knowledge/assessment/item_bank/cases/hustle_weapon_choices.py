@@ -79,7 +79,7 @@ def cases():
                 )
             for label, candidate, loadout, truth in examples:
                 active = truth == 'true'
-                expected = {}
+                expected: dict[str, object] = {}
                 if label not in ('armor-variant', 'wrong-weapon-type'):
                     expected['roles'] = Contains(
                         *(

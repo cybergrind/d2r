@@ -1,4 +1,5 @@
 from dataclasses import replace
+from typing import Any
 
 import pytest
 
@@ -68,7 +69,7 @@ def test_named_survival_fillers_compare_total_effects_and_exact_payload(base, na
     contract, gaps = HANDLERS['named'].contract(item, family)
     assert contract is not None, gaps
     assert contract.socket_payload == tuple(fillers)
-    row = {
+    row: dict[str, Any] = {
         **contract.to_dict(),
         'properties': {**contract.properties, '934': ', '.join(fillers)},
         'scope_status': 'verified',
@@ -254,7 +255,7 @@ def test_um_named_shield_listing_must_compare_total_resistance_and_exact_fillers
     assert contract is not None, gaps
     properties = {k: v for k, v in contract.properties.items() if k not in ELEMENTAL_RESISTANCES}
     properties.update({'441': 47, '934': 'Shael Rune, Um Rune'})
-    row = {
+    row: dict[str, Any] = {
         **contract.to_dict(),
         'properties': properties,
         'scope_status': 'verified',
@@ -282,7 +283,7 @@ def test_single_cham_compares_cannot_be_frozen_with_verified_payload(base, quali
     contract, gaps = HANDLERS[handler].contract(item, family)
     assert contract is not None, gaps
     assert contract.socket_payload == ('Cham Rune',)
-    row = {
+    row: dict[str, Any] = {
         **contract.to_dict(),
         'properties': {**contract.properties, '591': True, '934': 'Cham Rune'},
         'scope_status': 'verified',

@@ -5,7 +5,7 @@ from itertools import product
 
 from dirty_equals import IsPartialDict
 
-from tests.pricing.knowledge.assessment.item_bank.models import Case, Item
+from tests.pricing.knowledge.assessment.item_bank.models import Case, Item, ItemChanges, with_stat_value
 
 
 ITEM = Item(
@@ -54,14 +54,12 @@ def cases():
         yield make_case(f'{defense}-{strength}-{dex}-{resist}', replace(ITEM, raw_stats=raw), True)
     for stat, values in ((31, (None, 58, 69, 368)), (0, (None, 9, 16)), (2, (None, 9, 16, 35)), (37, (None, 19, 31))):
         for value in values:
-            raw = tuple(
-                (s, p, value if s == stat else v) for s, p, v in ITEM.raw_stats if s != stat or value is not None
-            )
+            raw = with_stat_value(ITEM.raw_stats, {stat}, value)
             yield make_case(f'stat-{stat}-{value}', replace(ITEM, raw_stats=raw), False)
     for stat in (16, 214, 215):
         yield make_case(f'extra-{stat}', replace(ITEM, raw_stats=(*ITEM.raw_stats, (stat, 0, 1))), False)
     yield make_case('conditional-walk', replace(ITEM, raw_stats=(*ITEM.raw_stats, (96, 0, 40))), True)
-    for label, changes in (
+    overrides: tuple[tuple[str, ItemChanges], ...] = (
         ('incomplete', {'complete': False}),
         ('unidentified', {'identified': False}),
         ('ethereal', {'ethereal': True}),
@@ -69,7 +67,8 @@ def cases():
         ('socketed', {'sockets': 1}),
         ('unknown-sockets', {'sockets': None}),
         ('unknown-contents', {'socket_contents': 'unknown'}),
-    ):
+    )
+    for label, changes in overrides:
         yield make_case(label, replace(ITEM, **changes), False)
 
 

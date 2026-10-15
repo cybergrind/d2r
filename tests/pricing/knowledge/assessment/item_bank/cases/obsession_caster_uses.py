@@ -103,7 +103,7 @@ def cases():
             ]
             for label, candidate, loadout, truth, perfect in examples:
                 bad_identity = label in ('wrong-recipe', 'empty', 'unidentified')
-                assessment = (
+                assessment: dict[str, object] = (
                     {}
                     if bad_identity or (label == 'war-staff' and exact)
                     else {

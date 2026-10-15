@@ -50,7 +50,9 @@ def cases():
             ('unread-assassin-skills', replace(CLAW, raw_stats=CLAW.raw_stats[1:]), context, 'true'),
         ):
             active = truth == 'true'
-            expected = {'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))}
+            expected: dict[str, object] = {
+                'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))
+            }
             keys = ['99:0', '0:0', '2:0']
             if label != 'unread-assassin-skills':
                 keys.append('83:6')

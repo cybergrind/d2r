@@ -5,7 +5,7 @@ from itertools import product
 
 from dirty_equals import IsPartialDict
 
-from tests.pricing.knowledge.assessment.item_bank.models import Case, Item
+from tests.pricing.knowledge.assessment.item_bank.models import Case, Item, ItemChanges, with_stat_value
 
 
 FIXED = ((96, 0, 20), (99, 0, 20), (154, 0, 50), (242, 0, 8), (252, 0, 5))
@@ -67,18 +67,17 @@ def cases():
     base = specimen()
     for stat, low, high in ((0, 10, 15), (3, 10, 15), (16, 140, 170), (45, 40, 70)):
         for value in (None, low - 1, high + 1):
-            raw = tuple(
-                (s, p, value if s == stat else v) for s, p, v in base.raw_stats if s != stat or value is not None
-            )
+            raw = with_stat_value(base.raw_stats, {stat}, value)
             yield make_case(f'component-{stat}-{value}', replace(base, raw_stats=raw), 'unresolved')
-    for label, changes in (
+    overrides: tuple[tuple[str, ItemChanges], ...] = (
         ('nonethereal', {'ethereal': False}),
         ('unknown-ethereal', {'ethereal': None}),
         ('unidentified', {'identified': False}),
         ('socketed', {'sockets': 1}),
         ('unknown-sockets', {'sockets': None}),
         ('unknown-contents', {'socket_contents': 'unknown'}),
-    ):
+    )
+    for label, changes in overrides:
         item = replace(base, **changes)
         if label == 'nonethereal':
             item = replace(item, raw_stats=tuple((s, p, 178 if s == 31 else v) for s, p, v in item.raw_stats))

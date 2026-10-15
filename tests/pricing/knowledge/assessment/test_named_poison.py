@@ -1,4 +1,5 @@
 from dataclasses import replace
+from typing import Any
 
 import pytest
 
@@ -9,7 +10,7 @@ from tests.pricing.knowledge.assessment.test_family_contracts import facts
 def hellplague():
     mapping = {17: '510', 18: '510', 60: '462', 62: '463', 48: '458', 49: '459'}
     values = {17: 71, 18: 71, 60: 5, 62: 5, 48: 25, 49: 75}
-    stats = {
+    stats: dict[str, dict[str, Any]] = {
         f'{s}:0': {'status': 'decoded', 'raw': v, 'value': v, 'market_property': mapping[s]} for s, v in values.items()
     }
     for s, raw, value, unit in [

@@ -30,10 +30,11 @@ class Widget:
     def from_payload(cls, value) -> Widget:
         if not isinstance(value, dict):
             raise ValueError('widget must be an object')
-        fields = [value.get(key) for key in ('id', 'kind', 'slot')]
-        if not all(isinstance(field, str) and field for field in fields) or not isinstance(value.get('payload'), dict):
+        widget_id, kind, slot, payload = (value.get(key) for key in ('id', 'kind', 'slot', 'payload'))
+        strings = isinstance(widget_id, str) and isinstance(kind, str) and isinstance(slot, str)
+        if not (strings and widget_id and kind and slot and isinstance(payload, dict)):
             raise ValueError('widget needs string id/kind/slot and an object payload')
-        return cls(*fields, value['payload'])
+        return cls(widget_id, kind, slot, payload)
 
 
 def publish_layer(directory: Path, producer: str, widgets, *, now: float | None = None):

@@ -77,10 +77,10 @@ def cases():
         config = role + '-stats'
         for label, item, ctx, truth, payload in examples:
             usable = truth == 'true' and (variant == 'standard' or payload == 'true')
-            role_expect = {'id': role, 'rule_trace': IsPartialDict(truth=truth)}
+            role_expect: dict[str, object] = {'id': role, 'rule_trace': IsPartialDict(truth=truth)}
             if variant == 'ubers':
                 role_expect['dependencies'] = Contains(IsPartialDict(status=payload))
-            expected = {'roles': Contains(IsPartialDict(**role_expect))}
+            expected: dict[str, object] = {'roles': Contains(IsPartialDict(**role_expect))}
             if usable:
                 expected['stat_evaluation'] = IsPartialDict(
                     annotations=IsPartialDict(

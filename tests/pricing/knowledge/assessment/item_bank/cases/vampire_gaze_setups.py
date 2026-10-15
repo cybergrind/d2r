@@ -1,6 +1,7 @@
 """Distinct reviewed Rogue/Frenzy helmet setups, not generic mercenary demand."""
 
 from dataclasses import replace
+from typing import Any
 
 from dirty_equals import Contains, IsPartialDict
 
@@ -39,7 +40,7 @@ def cases():
                 raw_stats=(*BASE.raw_stats, *RES, *(((93, 0, 15),) if payload == 'jewel' else ()), (194, 0, 1)),
             )
         )
-        examples = [
+        examples: list[tuple[str, Item, dict[str, Any], str, str, str, str | None]] = [
             ('minimum-native-rolls', item, context, 'positive', 'true', 'true', None),
             ('ethereal', replace(item, ethereal=True), context, 'positive', 'true', 'true', None),
             ('unknown-ethereal', replace(item, ethereal=None), context, 'positive', 'true', 'true', None),
@@ -99,7 +100,7 @@ def cases():
                 )
             elif payload == 'um':
                 expected_role['socket_requirement'] = IsPartialDict(item='Um Rune', confirmed=child is None)
-            expected = {'roles': Contains(IsPartialDict(**expected_role))}
+            expected: dict[str, object] = {'roles': Contains(IsPartialDict(**expected_role))}
             if scenario == 'positive':
                 expected['stat_evaluation'] = IsPartialDict(
                     annotations=IsPartialDict(

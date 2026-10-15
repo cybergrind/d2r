@@ -64,6 +64,7 @@ def test_saved_crowbill_capture_with_upgraded_base_reaches_assessment_identity()
     assert decoded['source']['item_identity']['table'] == 'set'
     definition, gaps = resolve_named_definition(normalize(decoded))
     assert not gaps
+    assert definition is not None
     assert definition['name'] == "Tancred's Crowbill"
     assert definition['base_name'] == 'Military Pick'
 

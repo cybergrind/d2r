@@ -1,4 +1,5 @@
 from dataclasses import replace
+from typing import Any
 
 import pytest
 
@@ -47,6 +48,7 @@ def test_meteor_spirit_variants_keep_breakpoints_alternatives_and_piece_dependen
     for piece in companions:
         assert not evaluate({**ctx, 'player_items': [p for p in companions if p != piece]}).annotations
     assert not evaluate({**ctx, 'player_items': [], 'mercenary_items': companions}).annotations
+    changes: dict[str, Any]
     for changes in (
         {'name': 'Other'},
         {'sockets': 0},

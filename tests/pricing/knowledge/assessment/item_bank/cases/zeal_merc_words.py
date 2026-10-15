@@ -153,7 +153,7 @@ def cases():
                 ]
             )
         for label, scenario, candidate, context in rows:
-            expected = {
+            expected: dict[str, object] = {
                 'roles': Contains(
                     IsPartialDict(
                         id=role,

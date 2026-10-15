@@ -5,7 +5,7 @@ from dataclasses import replace
 from dirty_equals import Contains, IsPartialDict
 
 from tests.pricing.knowledge.assessment.item_bank.cases.abyss_caster_weapons import EXAMPLES
-from tests.pricing.knowledge.assessment.item_bank.models import Case
+from tests.pricing.knowledge.assessment.item_bank.models import Case, known
 
 
 SUFFIXES = {
@@ -39,7 +39,9 @@ def cases(build='abyss-warlock-build-guide', player_class='Warlock', prefix='aby
                 ('invalid-sockets', replace(item, sockets=2), context, 'false'),
             ]
         for label, candidate, loadout, truth in rows:
-            expected = {'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))}
+            expected: dict[str, object] = {
+                'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))
+            }
             if truth == 'true':
                 expected['stat_evaluation'] = IsPartialDict(
                     annotations=IsPartialDict(
@@ -57,7 +59,7 @@ def cases(build='abyss-warlock-build-guide', player_class='Warlock', prefix='aby
                 scenario={'true': 'positive', 'false': 'negative', 'unknown': 'unknown'}[truth],
                 absent_configurations=() if truth == 'true' else (role + '-stats',),
                 absent_stat_configurations=dict.fromkeys(irrelevant, (role + '-stats',)),
-                report_contains=(candidate.name, 'Trade tier:') if truth == 'true' else (candidate.name,),
+                report_contains=(known(candidate.name), 'Trade tier:') if truth == 'true' else (known(candidate.name),),
                 evidence=('pricing/data/wp-a-builds.json', 'third-parties/d2data/json/uniqueitems.json'),
             )
 

@@ -80,7 +80,7 @@ def validate(frames: list[dict[str, Any]], rect, txt_ids=None) -> dict[str, Any]
             pointer_out.append(out)
             pointer_back.append(back)
             apart.append(math.dist(aim, focal))
-    median = lambda found: round(sorted(found)[len(found) // 2], 2) if found else None  # noqa: E731
+    median = lambda found: round(sorted(found)[len(found) // 2], 2) if found else None  # ruff: ignore[lambda-assignment]
     return {
         'casts': len(fitted_out),
         'corrupt_casts': corrupt,

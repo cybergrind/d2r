@@ -3,6 +3,7 @@
 import hashlib
 import json
 from copy import deepcopy
+from typing import Any
 
 import pytest
 
@@ -51,7 +52,7 @@ def setup(root, butcher=False, merc=False):
     if merc:
         raw = root / occurrence['source_id']
         raw.write_text(raw.read_text().replace('<h2>Utility</h2>', '<h2>Mercenary</h2>'))
-        guide = section_inventory(raw.read_text())
+        guide: dict[str, Any] = section_inventory(raw.read_text())
         path = root / role['source']['path']
         path.write_text(json.dumps({'sources': {occurrence['source_id']: guide}}))
         digest = hashlib.sha256(path.read_bytes()).hexdigest()

@@ -329,7 +329,7 @@ def _rows(source: Path, name: str) -> list[dict[str, str]]:
 def build(source: Path = SOURCE) -> dict[str, Any]:
     """diablo.json: the monstats rows of AI `Diablo`, their skills, the skills' server missiles and sub-missiles,
     Hell's skill bonus."""
-    pick = lambda found, fields: {name: found[name] for name in fields if found.get(name)}  # noqa: E731
+    pick = lambda found, fields: {name: found[name] for name in fields if found.get(name)}  # ruff: ignore[lambda-assignment]
     monsters = {r['*hcIdx']: pick(r, MONSTER_FIELDS) for r in _rows(source, 'monstats') if r['AI'] == AI}
     named = {r['skill']: r for r in _rows(source, 'skills')}
     wanted = {m[f'Skill{n}'] for m in monsters.values() for n in range(1, 9) if m.get(f'Skill{n}')}

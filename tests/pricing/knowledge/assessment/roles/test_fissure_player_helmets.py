@@ -6,6 +6,7 @@ from pricing.knowledge.assessment.build_profiles import build
 from pricing.knowledge.assessment.profiles import assess_roles
 from tests.pricing.knowledge.assessment.roles.test_fissure_pelts import facet
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
+from tests.pricing.knowledge.reports import reports
 
 
 def profile(key):
@@ -25,7 +26,7 @@ def helmet(word='Lore', base='Antlers', bonus=3):
 
 
 def assess(item, key, player='Druid'):
-    return assess_roles(item, [profile(key)], {'player_class': player})
+    return reports(assess_roles(item, [profile(key)], {'player_class': player}))
 
 
 @pytest.mark.parametrize('base', ['Antlers', 'Dream Spirit'])

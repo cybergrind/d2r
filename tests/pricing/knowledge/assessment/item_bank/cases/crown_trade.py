@@ -4,7 +4,7 @@ from dataclasses import replace
 
 from dirty_equals import IsPartialDict
 
-from tests.pricing.knowledge.assessment.item_bank.models import Case, Item, SocketItem
+from tests.pricing.knowledge.assessment.item_bank.models import Case, Item, ItemChanges, SocketItem, with_stat_value
 
 
 def specimen(defense=349, resist=20, reduction=10):
@@ -49,11 +49,7 @@ def cases():
     for axis, low, high in ((31, 349, 399), (36, 10, 15), (39, 20, 30)):
         for value in (None, low - 1, low, high, high + 1):
             affected = {39, 41, 43, 45} if axis == 39 else {axis}
-            raw = tuple(
-                (stat, layer, value if stat in affected else n)
-                for stat, layer, n in ordinary.raw_stats
-                if value is not None or stat not in affected
-            )
+            raw = with_stat_value(ordinary.raw_stats, affected, value)
             variants.append(
                 (f'axis-{axis}-{value}', replace(ordinary, raw_stats=raw), value is not None and low <= value <= high)
             )
@@ -65,14 +61,15 @@ def cases():
                 False,
             )
         )
-    for label, changes in (
+    overrides: tuple[tuple[str, ItemChanges], ...] = (
         ('zero', {'sockets': 0}),
         ('zero-unidentified', {'sockets': 0, 'identified': False}),
         ('zero-ethereal', {'sockets': 0, 'ethereal': True}),
         ('zero-unknown-ethereal', {'sockets': 0, 'ethereal': None}),
         ('zero-unknown-contents', {'sockets': 0, 'socket_contents': 'unknown'}),
         ('two-ethereal', {'ethereal': True}),
-    ):
+    )
+    for label, changes in overrides:
         variants.append((label, replace(ordinary, **changes), False))
     for label, item, candidate in variants:
         reason = 'Two sockets support defensive Uber setups; no proven intrinsic-roll premium.'

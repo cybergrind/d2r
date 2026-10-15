@@ -90,7 +90,7 @@ def cases():
                     'roles': Contains(*(IsPartialDict(id=r, rule_trace=IsPartialDict(truth=truth)) for r in roles))
                 }
                 if label in ('wrong-recipe', 'empty', 'unidentified') or (label == 'flail' and exact):
-                    assessment = {}
+                    assessment: dict[str, object] = {}
                 if truth == 'true':
                     assessment['stat_evaluation'] = IsPartialDict(
                         annotations=IsPartialDict(

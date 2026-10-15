@@ -1,5 +1,6 @@
 import json
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -14,7 +15,7 @@ def samples():
 
 
 def test_actual_host_sequence_resolves_ring_empty_potion_ring():
-    results = [resolve_selection(s, 0x140000000) for s in samples()]
+    results: list[dict[str, Any]] = [resolve_selection(s, 0x140000000) for s in samples()]
     assert [r['status'] for r in results] == ['candidate', 'no_item', 'candidate', 'candidate']
     assert [r.get('item', {}).get('unit_id') for r in results] == [71604348, None, 1114609378, 71604348]
     assert not any(r['validated'] for r in results)
@@ -53,7 +54,7 @@ def test_pointer_match_without_owner_match_is_rejected():
 def test_host_closed_inventory_and_carried_item_controls_abstain():
     path = FIXTURE.with_name('hover_native_controls.json')
     controls = json.loads(path.read_text())
-    results = [resolve_selection(sample, 0x140000000) for sample in controls]
+    results: list[dict[str, Any]] = [resolve_selection(sample, 0x140000000) for sample in controls]
     assert [r['status'] for r in results] == ['unavailable', 'unavailable']
     assert [r['reason'] for r in results] == ['Unsupported focus state', 'Carried item unsupported']
     assert all('item' not in r for r in results)
@@ -61,7 +62,7 @@ def test_host_closed_inventory_and_carried_item_controls_abstain():
 
 def test_host_cube_sequence_preserves_container_provenance():
     samples = json.loads(FIXTURE.with_name('hover_cube_sequence.json').read_text())
-    results = [resolve_selection(s, 0x140000000) for s in samples]
+    results: list[dict[str, Any]] = [resolve_selection(s, 0x140000000) for s in samples]
     assert [r.get('item', {}).get('unit_id') for r in results] == [3885838183, None, 3014701145, 3885838183]
     assert [r['status'] for r in results] == ['candidate', 'no_item', 'candidate', 'candidate']
     assert all(r['container'] == {'page': 3, 'name': 'Horadric Cube'} for r in results)
@@ -69,7 +70,7 @@ def test_host_cube_sequence_preserves_container_provenance():
 
 def test_host_cube_controls_reject_closed_and_carried_then_recover():
     samples = json.loads(FIXTURE.with_name('hover_cube_controls.json').read_text())
-    results = [resolve_selection(s, 0x140000000) for s in samples]
+    results: list[dict[str, Any]] = [resolve_selection(s, 0x140000000) for s in samples]
     assert [r['status'] for r in results] == ['candidate', 'unavailable', 'candidate', 'unavailable', 'candidate']
     assert results[1]['reason'] == 'Unsupported focus state'
     assert results[3]['reason'] == 'Carried item unsupported'
@@ -91,7 +92,7 @@ def test_unverified_container_pages_are_rejected(page):
 
 def test_host_personal_and_shared_stash_sequence():
     samples = json.loads(FIXTURE.with_name('hover_stash_sequence.json').read_text())
-    results = [resolve_selection(s, 0x140000000) for s in samples]
+    results: list[dict[str, Any]] = [resolve_selection(s, 0x140000000) for s in samples]
     assert [r['status'] for r in results] == ['candidate', 'no_item', 'candidate', 'candidate']
     assert [r.get('item', {}).get('unit_id') for r in results] == [3996387037, None, 985832484, 3996387037]
     assert [r['container']['name'] for r in results] == [
@@ -105,7 +106,7 @@ def test_host_personal_and_shared_stash_sequence():
 
 def test_host_equipment_and_shop_getters_resolve_distinct_items():
     samples = json.loads(FIXTURE.with_name('hover_panels_sequence.json').read_text())
-    results = [resolve_selection(s, 0x140000000) for s in samples]
+    results: list[dict[str, Any]] = [resolve_selection(s, 0x140000000) for s in samples]
     assert [r['status'] for r in results] == ['candidate'] * 4
     assert [r['item']['unit_id'] for r in results] == [848037454, 2029165619, 606745366, 44446050]
     assert [r['owner_type'] for r in results] == [0, 0, 1, 1]

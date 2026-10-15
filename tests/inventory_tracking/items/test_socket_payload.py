@@ -1,3 +1,5 @@
+from typing import Any
+
 from inventory_tracking.items.metadata import metadata
 from inventory_tracking.items.sockets import annotate_sockets
 
@@ -38,7 +40,7 @@ def test_grouped_socket_stats_preserve_native_values():
         for stat, raw in ((17, 31), (18, 31), (93, 15), (57, 102), (58, 102), (59, 100), (326, 1))
     ]
     base = next(b for b in metadata()['bases'].values() if b['name'] == 'Jewel')
-    payload = decode_payload(child, base)
+    payload: dict[str, Any] = decode_payload(child, base)
     assert payload['stats_complete'] is True
     assert {key: row['value'] for key, row in payload['stats'].items()} == {
         '17:0': 31,

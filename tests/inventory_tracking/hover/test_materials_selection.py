@@ -1,6 +1,7 @@
 import json
 import struct
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -24,7 +25,7 @@ def widget_change(s, offset, value, *, stable=True):
 
 
 def test_saved_material_stash_widget_resolves_native_item_pointer():
-    result = resolve_selection(sample(), BASE)
+    result: dict[str, Any] = resolve_selection(sample(), BASE)
     assert result['status'] == 'candidate'
     assert result['item']['unit_id'] == 1776519725
     assert result['container'] == {'page': 4, 'name': 'Materials stash'}

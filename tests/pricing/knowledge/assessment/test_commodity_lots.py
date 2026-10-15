@@ -1,4 +1,5 @@
 from datetime import date
+from typing import Any
 
 from pricing.knowledge.assessment.commodities import bulk_quotes
 
@@ -72,12 +73,12 @@ def test_bulk_quotes_keep_lot_sizes_scope_and_unit_price_distinct():
         dict(rows[0], listing_id='foreign', scope_status='rejected', ask_ist=1),
         dict(rows[0], listing_id='ambiguous', unit_policy='ambiguous', ask_ist=1),
     ]
-    quotes = bulk_quotes(contract, rows, today=date(2026, 10, 3))
+    quotes: list[dict[str, Any]] = bulk_quotes(contract, rows, today=date(2026, 10, 3))
     by_size = {q['quantity']: q for q in quotes}
     assert by_size[10]['estimate']['estimate_ist'] == 9
     assert by_size[10]['estimate']['sellers'] == 3
     assert by_size[2]['estimate']['estimate_ist'] is None
     assert by_size[2]['estimate']['sellers'] == 1
     assert bulk_quotes(dict(contract, policy='named'), rows, today=date(2026, 10, 3)) == []
-    stale = bulk_quotes(contract, rows, today=date(2027, 10, 3))
+    stale: list[dict[str, Any]] = bulk_quotes(contract, rows, today=date(2027, 10, 3))
     assert all(q['estimate']['estimate_ist'] is None for q in stale)

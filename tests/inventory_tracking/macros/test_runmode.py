@@ -28,7 +28,7 @@ from inventory_tracking.macros.goals import (
     rest_of_level,
 )
 from inventory_tracking.macros.hunt import BOSS_AHEAD, CLEAR_SECONDS, REST_SECONDS, Bearings
-from inventory_tracking.macros.movement import HOPS, TELEPORT, WALKS, WARPS
+from inventory_tracking.macros.movement import HOPS, TELEPORT, WALKS, WARPS, Ways
 from inventory_tracking.macros.pursuit import (
     ENTERING,
     ENTERING_SAID,
@@ -65,7 +65,7 @@ from inventory_tracking.macros.world import VALUABLE, Drop
 from inventory_tracking.routes.catalog import ROUTES
 from inventory_tracking.routes.model import ENTER, FIGHT, USE, Script
 from inventory_tracking.routes.progress import Progress
-from tests.inventory_tracking.macros.test_hunt import EAST, ROOMS, foe, game, hunter
+from tests.inventory_tracking.macros.test_hunt import EAST, ROOMS, foe, game, hunter, me
 
 
 RIVER, SANCTUARY = 107, 108
@@ -220,7 +220,9 @@ def test_the_river_door_run_ends_where_no_step_toward_the_door_is_left() -> None
     ground = Ground(tuple(Walkable(**grid) for grid in fixture['ground']))
     mark, here = (7800.0, 5597.5), (7797.2, 5602.2)
     move = MoveFacts(here, 100.0, (BLADE_WARP,), None, ground, (), 2560 / 1418, pad=True)
-    leg = way_leg(move, mark, PRESSED, jumps=(BLADE_WARP_SOURCE.pad_jump(),))
+    pad_jump = BLADE_WARP_SOURCE.pad_jump()
+    assert pad_jump is not None
+    leg = way_leg(move, mark, PRESSED, jumps=(pad_jump,))
     assert leg == NoWay(NO_SPOT_ON_WAY)  # the navigator as the game had it: no move from here
     door = replace(DOOR, place=mark)
     stood = replace(facts(door, way=lambda: leg), beyond=math.dist(here, mark) - door.near, least_move=AROUND_LEAST)
@@ -267,6 +269,7 @@ def test_the_river_run_walks_through_the_open_passage_into_the_chaos_sanctuary()
     assert mark is not None
     assert (mark.spot, mark.area, beyond['area']) == ((1560.0, 1119.5), SANCTUARY, SANCTUARY)
     assert open_passage(RIVER, SANCTUARY)
+    assert mark.spot is not None
     far = passage_of(RIVER, rooms, mark, mark.spot)
     card = Target(RIVER, rooms, mark.spot, mark.label, mark.kind, True, river.grids, 0, far)
     (stage,) = scripts()[RIVER].stages
@@ -283,6 +286,7 @@ def test_the_river_run_walks_through_the_open_passage_into_the_chaos_sanctuary()
                     here, 100.0 + legs * 3, slots, None, river, (), 2560 / 1418, area=RIVER, rooms=rooms, pad=pad
                 )
                 movement = navigator(MOVEMENT, move)
+                assert isinstance(movement, Ways)  # the build's sets: `means` and `routed` are theirs
                 assert movement.means(move, goal.place, PRESSED) == kind
                 gap = goal.gap(here)
                 way = partial(movement.routed, move, goal.place, PRESSED)
@@ -369,7 +373,7 @@ def test_a_run_carried_into_a_level_waits_for_its_card_and_then_ends_for_its_own
 
 
 def at(play, area: int, place: tuple[float, float]) -> None:
-    play.world = replace(play.world, player=replace(play.world.player, area=area, x=place[0], y=place[1]))
+    play.world = replace(play.world, player=replace(me(play.world), area=area, x=place[0], y=place[1]))
 
 
 def test_one_press_in_the_river_walks_across_the_passage_and_runs_the_chaos_sanctuary(caplog) -> None:
@@ -613,7 +617,7 @@ def test_a_full_clear_goes_for_what_is_in_sight_then_what_is_remembered_before_t
 
 
 def stand(play, x: float) -> None:
-    play.world = replace(play.world, player=replace(play.world.player, x=x))
+    play.world = replace(play.world, player=replace(me(play.world), x=x))
 
 
 def test_a_room_passed_is_not_taken_back_under_another_of_its_tiles(monkeypatch) -> None:
@@ -654,7 +658,7 @@ def test_a_room_the_run_gets_nearer_to_is_not_passed_for_want_of_a_strike(monkey
         found = hunt.cleared(run, play.world, [], ground, DOOR)
         assert found is not None
         assert found.label == 'full clear: an unexplored room'
-        stand(play, play.world.player.x + 4.0)
+        stand(play, me(play.world).x + 4.0)
         play.clock.now += 0.5
     with caplog.at_level(logging.INFO):
         for _ in range(int(CLEAR_SECONDS / 0.5) + 2):  # standing: no progress and no strike
@@ -719,7 +723,7 @@ def test_a_valuable_across_the_lava_is_not_on_the_way() -> None:
     grids = tuple(Walkable(**grid) for grid in fixture['ground'])
     east = (7795.5, 5607.5)
     play = game(area=RIVER)
-    play.world = replace(play.world, player=replace(play.world.player, x=east[0], y=east[1]))
+    play.world = replace(play.world, player=replace(me(play.world), x=east[0], y=east[1]))
     hunt = hunter(play, ground=grids)
     run = play.run()
     rune = Drop(70, 7817.0, 5622.0, 'Ith Rune', VALUABLE)

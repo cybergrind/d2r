@@ -1,4 +1,5 @@
 from pricing.triage.paid_properties import fit, score, split_sellers
+from tests.pricing.knowledge.reports import present
 
 
 def test_paid_properties_ignore_common_filler_and_count_strong_rolls():
@@ -89,7 +90,7 @@ def test_compilation_holds_sellers_out_and_vetoes_saved_false_positives():
     assert model['threshold'] == 2
     assert compiled['validation'][0]['held_out_sellers'] == len(held)
     assert compiled['validation'][0]['held_out_recall'] == 1
-    assert lookup(drop(), compiled['models'])['reference_band']['sellers'] == len(training)
+    assert present(lookup(drop(), compiled['models']))['reference_band']['sellers'] == len(training)
     vetoed = compile_scores(rows, corpus, ['vendor'] * 100, {'418', '437'}, 0.25, negatives=[drop()])
     assert lookup(drop(), vetoed['models']) is None
 

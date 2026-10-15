@@ -40,7 +40,11 @@ def test_trek_nonethereal_or_unknown_never_borrows_ethereal_premium(ethereal):
 def test_trek_all_variable_rolls_must_be_known_and_legal(stat, lo, hi):
     base = item()
     for value in (None, lo - 1, hi + 1):
-        raw = tuple((s, p, value if s == stat else v) for s, p, v in base.raw_stats if s != stat or value is not None)
+        raw = tuple(
+            (s, p, value if s == stat and value is not None else v)
+            for s, p, v in base.raw_stats
+            if s != stat or value is not None
+        )
         facts = normalize(replace(base, raw_stats=raw).capture())
         assert assess_trade_qualification(facts)['status'] == 'unresolved'
         assert assess_tier(facts)['tier'] is None

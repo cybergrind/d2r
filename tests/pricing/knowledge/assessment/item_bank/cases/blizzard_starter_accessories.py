@@ -48,7 +48,9 @@ def cases():
         if slug == 'ring':
             rows.append(('core-without-mf-maek', replace(item, raw_stats=item.raw_stats[:3]), 'true'))
         for label, candidate, truth in rows:
-            expected = {'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))}
+            expected: dict[str, object] = {
+                'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))
+            }
             if truth == 'true':
                 expected['stat_evaluation'] = IsPartialDict(
                     annotations=IsPartialDict(

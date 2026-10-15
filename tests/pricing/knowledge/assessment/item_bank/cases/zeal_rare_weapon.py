@@ -56,7 +56,7 @@ def cases():
     ]
     result = []
     for label, scenario, item, context in rows:
-        expected = {'roles': Contains(IsPartialDict(id=ROLE))}
+        expected: dict[str, object] = {'roles': Contains(IsPartialDict(id=ROLE))}
         if scenario == 'positive':
             expected['stat_evaluation'] = IsPartialDict(
                 annotations=IsPartialDict(

@@ -131,7 +131,7 @@ def socket_cases():
         ('unknown-parent-capture', 25, 20, child, 'unknown'),
     ):
         known = scenario != 'unknown'
-        variant = {'tier': 'high' if known else None}
+        variant: dict[str, object] = {'tier': 'high' if known else None}
         if known:
             variant['intrinsic_rolls'] = IsPartialDict(
                 {

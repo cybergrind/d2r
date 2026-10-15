@@ -3,6 +3,7 @@
 import copy
 import hashlib
 import json
+from typing import Any
 
 import pytest
 
@@ -23,7 +24,7 @@ def example(root, html=HTML):
     raw = root / GUIDE
     raw.parent.mkdir(parents=True)
     raw.write_text(html)
-    guide = section_inventory(html)
+    guide: dict[str, Any] = section_inventory(html)
     path = root / 'pricing/data/appraisal-guide-sections.json'
     path.parent.mkdir(parents=True)
     path.write_text(json.dumps({'sources': {GUIDE: guide}}))

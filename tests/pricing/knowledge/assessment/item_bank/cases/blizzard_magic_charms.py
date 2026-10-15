@@ -37,7 +37,7 @@ def cases():
         if slug == 'cold-life-skiller':
             rows.append(('wrong-skill-tab', replace(item, raw_stats=((188, 9, 1), (7, 0, 45 * 256))), 'false'))
         for label, candidate, truth in rows:
-            expected = {
+            expected: dict[str, object] = {
                 'roles': Contains(*(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)) for role in roles))
             }
             if truth == 'true':

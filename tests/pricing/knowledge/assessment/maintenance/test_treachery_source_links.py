@@ -2,6 +2,7 @@
 
 import json
 from pathlib import Path
+from typing import Any
 
 from pricing.knowledge.assessment.maintenance.table_equivalence import compile_table_equivalence
 
@@ -48,7 +49,7 @@ def test_treachery_sources_preserve_exact_wearer_and_conditional_fade():
     for row in rows:
         key = row['profile_id'].removesuffix('-merc-treachery-native')
         klass, merc, base, ethereal = EXPECTED[key]
-        expected = [
+        expected: list[dict[str, Any]] = [
             {'op': 'context_eq', 'field': 'player_class', 'value': klass},
             {'op': 'context_eq', 'field': 'mercenary_type', 'value': merc},
             *[

@@ -13,7 +13,7 @@ def test_typed_result_owns_detached_outcomes_and_legacy_projection():
     observation['item']['base_name'] = 'Changed input'
     assert result.facts.base_name == 'Giant Thresher'
     with pytest.raises(TypeError):
-        result.base_uses[0]['status'] = 'changed'
+        result.base_uses[0]['status'] = 'changed'  # pyrefly: ignore[unsupported-operation]  # proves the frozen row rejects writes
     payload = legacy_payload(result)
     payload['base_uses'][0]['missing'].append('mutated output')
     assert 'mutated output' not in legacy_payload(result)['base_uses'][0]['missing']

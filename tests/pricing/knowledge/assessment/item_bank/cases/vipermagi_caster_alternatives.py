@@ -57,7 +57,7 @@ def cases():
         )
         for label, candidate, loadout, scenario in examples:
             configs = tuple(role + '-stats' for role in roles)
-            expected = {
+            expected: dict[str, object] = {
                 'roles': Contains(
                     *(
                         IsPartialDict(

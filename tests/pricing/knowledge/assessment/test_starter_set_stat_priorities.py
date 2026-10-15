@@ -7,6 +7,7 @@ from pricing.knowledge.assessment.build_profiles import ROOT, build
 from pricing.knowledge.assessment.maintenance.stat_configurations import compile_stat_configurations
 from pricing.knowledge.assessment.profiles import assess_role_results
 from pricing.knowledge.assessment.stat_evaluation import StatsEvaluator
+from tests.pricing.knowledge.assessment.fact_changes import fact_changes
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
 
 
@@ -61,7 +62,7 @@ def test_starter_priorities_keep_piece_companion_and_upgrade_gates(role_id, base
     assert result.annotations[key]['desirability'] == 'desirable'
     assert result.annotations[key]['roll_quality'] == 'unassessed'
     assert result.configurations[0]['role']['status'] == 'partial'
-    for changes in (
+    for changes in fact_changes(
         {'name': 'Other'},
         {'name': None},
         {'rarity': 'unique'},
@@ -84,4 +85,6 @@ def test_starter_priorities_keep_piece_companion_and_upgrade_gates(role_id, base
         # CBF remains on an unupgraded belt, but it does not satisfy this full upgrade configuration.
         sash = replace(item, base_code=facts('Sash').base_code, base_name='Sash')
         assert not evaluate(sash).annotations
-        assert assess_role_results(sash, [role], context)[0].rule_trace['truth'] == 'true'
+        trace = assess_role_results(sash, [role], context)[0].rule_trace
+        assert trace is not None
+        assert trace['truth'] == 'true'

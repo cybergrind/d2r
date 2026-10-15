@@ -81,7 +81,7 @@ def cases():
                 )
             for label, candidate, loadout, truth in examples:
                 bad_identity = label in ('wrong-recipe', 'empty', 'unidentified')
-                assessment = (
+                assessment: dict[str, object] = (
                     {}
                     if bad_identity
                     else {'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))}
@@ -110,7 +110,7 @@ def cases():
                 expected = {'assessment': IsPartialDict(**assessment)}
                 if bad_identity:
                     expected['extraction'] = IsPartialDict(item=IsPartialDict(runeword=None))
-                excluded = {'83:6': (config,), '198:17807': (config,), '79:0': (config,)}
+                excluded: dict[str, tuple[str, ...]] = {'83:6': (config,), '198:17807': (config,), '79:0': (config,)}
                 if guide == 'gold-find-barbarian':
                     del excluded['79:0']
                 if merc == 'Act 5 Frenzy':

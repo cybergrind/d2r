@@ -12,7 +12,7 @@ from inventory_tracking.builds.characters import ICONS
 from inventory_tracking.builds.warlock.skills import BLADE_WARP, ECHOING_STRIKE, SUMMON_DEFILER
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.skillpanel import PANEL, RIGHT_BUTTON, select_right, window_point
-from tests.inventory_tracking.macros.fakes import SLOTS, WINDOW, Game
+from tests.inventory_tracking.macros.fakes import SLOTS, WINDOW, Game, character_of
 from tests.inventory_tracking.macros.test_hunt import foe, game, hunter, keys
 
 
@@ -45,7 +45,7 @@ class Selection:
             play.react(event)
             return
         skill = next((s for place, s in self.icons.items() if math.dist(at, place) <= NEAR), None)
-        player = w.player if skill is None else replace(w.player, right_skill=skill)
+        player = w.player if skill is None else replace(character_of(w), right_skill=skill)
         play.world = replace(w, open_panels=(), player=player)
 
 
@@ -53,7 +53,7 @@ def after_a_stint(*monsters) -> Game:
     """The CS at 22:09:20 on 2026-10-14: back in keyboard mode with Blade Warp on the left button and Summon Defiler
     on the right, Echoing Strike on no key."""
     play = game(*monsters, slots=SLOTS)
-    p = play.world.player
+    p = play.character
     play.world = replace(play.world, player=replace(p, left_skill=BLADE_WARP, right_skill=SUMMON_DEFILER))
     return play
 
@@ -70,7 +70,7 @@ def test_the_strike_is_selected_on_the_right_button_by_its_icon(caplog) -> None:
     run = play.run()
     with caplog.at_level(logging.INFO):
         select_right(run, ECHOING_STRIKE, ICON)
-    assert play.world.player.right_skill == ECHOING_STRIKE
+    assert play.character.right_skill == ECHOING_STRIKE
     assert PANEL not in play.world.open_panels
     assert 'Macro: skill panel: Echoing Strike put on the right button (it held Summon Defiler)' in caplog.text
     clicks = [event[1] for event in play.keys.events if event[0] == 'click']

@@ -41,7 +41,7 @@ def cases():
         ('partial-child', replace(ITEM, socket_items=(SocketItem('Jewel', ((93, 0, 15),)),)), CONTEXT, 'unknown'),
     ]
     for label, item, context, scenario in examples:
-        expected = {
+        expected: dict[str, object] = {
             'roles': Contains(
                 IsPartialDict(
                     id=ROLE,

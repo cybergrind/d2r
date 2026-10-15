@@ -2,6 +2,7 @@
 
 import json
 import sqlite3
+from typing import Any
 
 import pytest
 
@@ -10,7 +11,9 @@ from pricing.knowledge.index import build_index, search
 
 @pytest.fixture
 def database(tmp_path):
-    rows = [{'name': f'Other {i}', 'kind': 'market', 'properties': {'102': i}} for i in range(500)]
+    rows: list[dict[str, Any]] = [
+        {'name': f'Other {i}', 'kind': 'market', 'properties': {'102': i}} for i in range(500)
+    ]
     rows.extend(
         {'name': name, 'kind': 'market', 'properties': props}
         for name, props in [

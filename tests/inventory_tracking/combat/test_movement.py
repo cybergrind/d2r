@@ -26,7 +26,9 @@ def record(waypoints, current=0):
 def test_a_route_is_the_waypoints_still_ahead_at_the_types_speed():
     route = route_of(record([(5000, 5000), (5010, 5000), (5010, 5020)], current=1), DOOM_KNIGHT, WALK)
     assert route == Route(((5010.5, 5000.5), (5010.5, 5020.5)), 6 / 25)
-    assert route_of(record([(5010, 5000)]), DOOM_KNIGHT, RUN).speed == 7 / 25
+    running = route_of(record([(5010, 5000)]), DOOM_KNIGHT, RUN)
+    assert running is not None
+    assert running.speed == 7 / 25
     assert speed_of(DOOM_KNIGHT, WALK) == 6 / 25
 
 
@@ -79,6 +81,7 @@ def test_a_takes_path_records_become_routes_from_the_frame_they_were_written():
 
     frames = [frame(1, 1, 5000.5), frame(2, WALK, 5000.7), frame(3, WALK, 5000.9), frame(4, 1, 5001.0)]
     paths = [{'t': 0.0, 'n': 2, 'm': [[7, record([(5010, 5000)]).hex()]]}]
-    routes = routes_of(Take(None, {}, frames, paths=paths), frames)
+    # A take held in memory: no directory (pyrefly: the field is a Path).
+    routes = routes_of(Take(None, {}, frames, paths=paths), frames)  # pyrefly: ignore[bad-argument-type]
     assert routes == {7: {2: Route(((5010.5, 5000.5),), 6 / 25), 3: Route(((5010.5, 5000.5),), 6 / 25)}}
-    assert routes_of(Take(None, {}, frames), frames) == {}
+    assert routes_of(Take(None, {}, frames), frames) == {}  # pyrefly: ignore[bad-argument-type]

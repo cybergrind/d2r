@@ -102,7 +102,7 @@ def cases():
             ('unidentified', replace(original, identified=False), context, 'false', 'true', False),
         )
         for label, item, loadout, truth, linked, active in examples:
-            expected = {
+            expected: dict[str, object] = {
                 'roles': Contains(
                     *(
                         IsPartialDict(

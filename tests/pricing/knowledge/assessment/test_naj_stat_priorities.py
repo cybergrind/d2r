@@ -7,6 +7,7 @@ from pricing.knowledge.assessment.build_profiles import ROOT, build
 from pricing.knowledge.assessment.maintenance.stat_configurations import compile_stat_configurations
 from pricing.knowledge.assessment.profiles import assess_role_results
 from pricing.knowledge.assessment.stat_evaluation import StatsEvaluator
+from tests.pricing.knowledge.assessment.fact_changes import fact_changes
 from tests.pricing.knowledge.assessment.test_charge_stat_targets import charged
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
 
@@ -49,7 +50,7 @@ def test_naj_swap_priorities_require_available_charges_and_equipment(build_id):
     assert result.annotations['204:3467']['desirability'] == 'desirable'
     assert result.annotations['204:3467']['roll_quality'] == 'unassessed'
     assert result.configurations[0]['role']['status'] == 'partial'
-    for changes in (
+    for changes in fact_changes(
         {'name': 'Other'},
         {'name': None},
         {'rarity': 'unique'},

@@ -191,6 +191,8 @@ def test_the_check_names_every_mechanism_and_says_what_the_model_was_before(rows
         'sparks',
     }
     life = named(rows, 'pooled row', 'life a second in reach')
+    assert life.before is not None
+    assert life.after is not None
     assert life.before > 50 > life.after > 1  # every swing landed before the refit
     shots = named(rows, 'pooled row', 'shots a second')
     assert shots.before == 1.0
@@ -230,15 +232,20 @@ def test_the_pooled_mechanisms_are_within_a_factor_of_two_of_the_check_half(rows
 def test_the_model_can_deal_the_blow_of_the_recorded_death(rows):
     row = named(rows, 'Herald of the death scene')
     assert row.before == 0.0
+    assert row.after is not None
     assert 0.0 < row.after < 0.1  # seldom, but no longer never
     assert 'reach up to 12 units' in row.note
 
 
 def test_the_spark_rows_say_what_the_model_was_and_is(rows):
     rate = named(rows, 'no Herald')
+    assert rate.before is not None
+    assert rate.after is not None
     assert rate.before > 2 > rate.after > 0.5  # a third of the struck frames before; the fitted rate now
     assert not rate.outside
     reach = named(rows, 'sparks ending on the character per release')
+    assert reach.before is not None
+    assert reach.after is not None
     assert reach.before > reach.after > 0
     assert not reach.outside
     assert not named(rows, 'in reach of the character that end on it').outside
@@ -247,6 +254,7 @@ def test_the_spark_rows_say_what_the_model_was_and_is(rows):
     assert (life.before, life.after) == (1.0, 0.0)  # every spark took its points; none does
     assert 'train: 0 of 11' in life.note
     toll = named(rows, 'median distance: life a second')
+    assert toll.before is not None
     assert toll.before > 10
     assert toll.after == 0.0
     assert named(rows, 'points of a spark').ratio is None  # no spark took life: nothing to judge the size by
@@ -263,6 +271,7 @@ def test_the_swing_rows_say_what_the_model_was_and_is(rows):
     assert named(rows, 'where in a swing the blow lands').before == 0.5
     assert named(rows, '4/16 or more', 'staggers').before == 0.0  # nothing staggered
     out = named(rows, 'pooled row', 'share of swings that runs out')
+    assert out.after is not None
     assert out.before == 1.0 > out.after > 0.2  # struck as the check half's were, most swings do not run out
     # The Chaos Sanctuary's Doom Knights play by the pooled chance: the check half saw 20 of their swings
     # run out or more, the train half one (the row says what is missing).

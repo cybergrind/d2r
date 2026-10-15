@@ -63,7 +63,9 @@ def cases():
         )
         attack = player_class not in ('Sorceress', 'Paladin')
         for label, candidate, loadout, truth in examples:
-            expected = {'roles': Contains(*(IsPartialDict(id=r, rule_trace=IsPartialDict(truth=truth)) for r in roles))}
+            expected: dict[str, object] = {
+                'roles': Contains(*(IsPartialDict(id=r, rule_trace=IsPartialDict(truth=truth)) for r in roles))
+            }
             if truth == 'true':
                 keys = ['31:0', '39:0', '41:0', '43:0', '45:0'] + (['19:0'] if attack else [])
                 expected['stat_evaluation'] = IsPartialDict(

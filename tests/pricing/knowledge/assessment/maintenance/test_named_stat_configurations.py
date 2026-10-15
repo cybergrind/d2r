@@ -1,5 +1,6 @@
 from copy import deepcopy
 from dataclasses import replace
+from typing import Any
 
 import pytest
 
@@ -44,14 +45,15 @@ def test_named_compiler_binds_identity_independently_of_role_outcome():
         stats={'151:120': {'status': 'decoded', 'value': 12}},
     )
     assert evaluate(thaw(config.required), item).truth == 'true'
-    for changes, truth in [
+    mutations: list[tuple[dict[str, Any], str]] = [
         ({'name': 'Infinity'}, 'false'),
         ({'name': None}, 'unknown'),
         ({'runeword': 'Infinity'}, 'false'),
         ({'runeword': None}, 'unknown'),
         ({'socket_contents': 'empty'}, 'false'),
         ({'sockets': None}, 'unknown'),
-    ]:
+    ]
+    for changes, truth in mutations:
         assert evaluate(thaw(config.required), replace(item, **changes)).truth == truth
 
 

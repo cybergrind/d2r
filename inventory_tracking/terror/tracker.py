@@ -387,9 +387,10 @@ class ZoneTracker:
         for area, count in loaded.items():
             self.loaded[area] = max(self.loaded.get(area, 0), count)
         self.dead = dead | self.dead
-        for mine, theirs in ((self.votes, votes), (self.modifiers, modifiers)):
-            for zone, values in theirs.items():
-                mine.setdefault(zone, deque(maxlen=TERROR_VOTES)).extend(values)
+        for zone, values in votes.items():
+            self.votes.setdefault(zone, deque(maxlen=TERROR_VOTES)).extend(values)
+        for zone, values in modifiers.items():
+            self.modifiers.setdefault(zone, deque(maxlen=TERROR_VOTES)).extend(values)
         self.offsets |= offsets
         self.elites = found | self.elites  # as first seen
 

@@ -8,7 +8,7 @@ Damned), 'Bridge 1' toward the Chaos Sanctum and one 'Lava Forge W/E' (the Hellf
 
 from inventory_tracking.levels.model import LevelSnapshot, Location, Room
 from inventory_tracking.levels.presets import preset_name
-from inventory_tracking.levels.registry import handler_for
+from tests.inventory_tracking.levels.fixtures import handler_of
 
 
 def rows(guidance):
@@ -23,7 +23,7 @@ def test_plains_mark_izual_and_both_gaps():
         Room(801, 16, 0, 8, 8, variant=1),  # closed border
         Room(822, 24, 24, 8, 8),
     )
-    guidance = handler_for(105).guide(LevelSnapshot(Location(105, 0, 60, 60), rooms))
+    guidance = handler_of(105).guide(LevelSnapshot(Location(105, 0, 60, 60), rooms))
 
     assert rows(guidance) == [
         ('City of the Damned', 'stairs', 'Act 4 - Mesa Border 2'),
@@ -34,7 +34,7 @@ def test_plains_mark_izual_and_both_gaps():
 
 
 def test_plains_without_the_izual_preset_report_it():
-    guidance = handler_for(105).guide(LevelSnapshot(Location(105, 0, 60, 60), (Room(0, 8, 8, 8, 8),)))
+    guidance = handler_of(105).guide(LevelSnapshot(Location(105, 0, 60, 60), (Room(0, 8, 8, 8, 8),)))
 
     assert guidance.problems == ('Izual: no room matches',)
 
@@ -47,7 +47,7 @@ def test_river_of_flame_marks_hephasto_the_sanctum_and_the_way_back():
         Room(856, 72, 0, 24, 24),  # Bridge 2 (twice in the game)
         Room(852, 96, 0, 24, 24),  # Warp N
     )
-    guidance = handler_for(107).guide(LevelSnapshot(Location(107, 0, 40, 40), rooms))
+    guidance = handler_of(107).guide(LevelSnapshot(Location(107, 0, 40, 40), rooms))
 
     assert rows(guidance) == [
         ('Chaos Sanctum', 'stairs', 'Act 4 - Bridge 2'),  # first: the teleport step points at it
@@ -57,7 +57,7 @@ def test_river_of_flame_marks_hephasto_the_sanctum_and_the_way_back():
     assert guidance.pois[0].spot == (96.5, 12.0)  # beyond the far (east) edge of the bridge laid out eastward
     assert guidance.pois[0].area == 108
     assert guidance.problems == ()
-    assert not any(handler_for(area).confirmed for area in (105, 107))
+    assert not any(handler_of(area).confirmed for area in (105, 107))
 
 
 def test_the_chaos_sanctum_mark_is_beyond_the_north_end_of_the_bridge_as_in_the_game():
@@ -72,7 +72,7 @@ def test_the_chaos_sanctum_mark_is_beyond_the_north_end_of_the_bridge_as_in_the_
         *chunks(856, 1548, 1120),
         Room(853, 1500, 1200, 24, 24),
     )
-    guidance = handler_for(107).guide(LevelSnapshot(Location(107, 0, 7800, 5900), rooms))
+    guidance = handler_of(107).guide(LevelSnapshot(Location(107, 0, 7800, 5900), rooms))
 
     chaos = guidance.pois[0]
     assert (chaos.label, chaos.kind, chaos.spot) == ('Chaos Sanctum', 'stairs', (1560.0, 1119.5))
@@ -81,7 +81,7 @@ def test_the_chaos_sanctum_mark_is_beyond_the_north_end_of_the_bridge_as_in_the_
 
 def test_without_the_bridge_the_river_still_marks_hephasto_and_says_so():
     rooms = (Room(836, 0, 0, 24, 24), Room(853, 24, 0, 24, 24), Room(852, 96, 0, 24, 24))
-    guidance = handler_for(107).guide(LevelSnapshot(Location(107, 0, 40, 40), rooms))
+    guidance = handler_of(107).guide(LevelSnapshot(Location(107, 0, 40, 40), rooms))
 
     assert rows(guidance)[0] == ('Hephasto', 'target', 'Act 4 - Lava Forge W')
     assert guidance.problems == ('Chaos Sanctum: no bridge found',)

@@ -22,6 +22,9 @@ from pricing.knowledge.pipeline import retrieve_draft
 ROOT = Path(__file__).resolve().parents[2]
 METADATA = Path(item_metadata.__file__).parent / 'data/item_metadata.json'
 VALIDATED = 'validated.json'  # in a generation directory: which code approved these bytes
+# Artifacts a runtime holds as their hash and file stamp, read from the generation when asked (artifacts.py
+# LazyArtifact): the market is 187 MB, read by its rows (market_rows.py), and every runtime held it whole.
+LAZY = frozenset({'pricing/data/appraisal-market.jsonl'})
 # Every module `validate_runtime_inputs` runs (tests/pricing/knowledge/test_published_runtime.py).
 VALIDATION_CODE = (
     Path(__file__).resolve().parent,
@@ -111,7 +114,7 @@ def load_runtime(bundle, *, validate=True):
     mapping = {}
     for name in sorted(required):
         expected = bundle.artifacts[name]
-        artifact = artifacts._read(bundle.artifact(name))
+        artifact = (artifacts.lazy_artifact if name in LAZY else artifacts._read)(bundle.artifact(name))
         if artifact.generation != expected['sha256']:
             raise ValueError(f'Published artifact changed: {name}')
         mapping[(ROOT / name).resolve()] = artifact

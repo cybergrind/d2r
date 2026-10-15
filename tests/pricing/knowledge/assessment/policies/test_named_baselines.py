@@ -6,6 +6,7 @@ from inventory_tracking.appraisal.presentation import ItemAssessment
 from inventory_tracking.presentation import Tone
 from pricing.knowledge.assessment.engine import assess
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
+from tests.pricing.knowledge.reports import present
 
 
 @pytest.mark.parametrize(
@@ -44,7 +45,7 @@ def test_unknown_roll_keeps_baseline_without_claiming_premium():
     from pricing.knowledge.assessment.policies.named_baselines import assess_tier
 
     item = facts('Battle Boots', 'unique', 'War Traveler')
-    tier = assess_tier(item)
+    tier = present(assess_tier(item))
     assert tier['tier'] == 'low'
     assert tier['variant']['status'] == 'conditional'
     assert tier['variant']['tier'] is None

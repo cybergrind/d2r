@@ -4,7 +4,7 @@ from dataclasses import replace
 
 from dirty_equals import Contains, IsPartialDict
 
-from tests.pricing.knowledge.assessment.item_bank.models import Case, Item
+from tests.pricing.knowledge.assessment.item_bank.models import Case, Item, known
 
 
 LAYING = Item('Bramble Mitts', 'set', 'Laying of Hands', ((93, 0, 20), (121, 0, 350), (39, 0, 50)))
@@ -47,7 +47,7 @@ def cases():
                 (base, replace(item, base=base), context, 'false') for base in ('Light Gauntlets', 'Battle Gauntlets')
             )
         for label, candidate, ctx, truth in examples:
-            assessment = {
+            assessment: dict[str, object] = {
                 'roles': Contains(IsPartialDict(id=role, side='player', rule_trace=IsPartialDict(truth=truth)))
             }
             if truth == 'true':
@@ -66,7 +66,7 @@ def cases():
                 covers=(role,),
                 scenario={'true': 'positive', 'false': 'negative', 'unknown': 'unknown'}[truth],
                 absent_configurations=() if truth == 'true' else (config,),
-                report_contains=(candidate.name, *(['Trade tier:'] if truth == 'true' else [])),
+                report_contains=(known(candidate.name), *(['Trade tier:'] if truth == 'true' else [])),
                 evidence=(f'pricing/data/wp-a-builds.json:/{build}/variants/{variant}',),
             )
 

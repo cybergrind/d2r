@@ -100,7 +100,7 @@ def cases(role, case_prefix, player_class, evidence):
             checks = maiming_checks(role, truth, ar=item.raw_stats[0][2])
         elif label.startswith('damage-'):
             checks = maiming_checks(role, truth, damage=item.raw_stats[1][2])
-        expected = {
+        expected: dict[str, object] = {
             'roles': Contains(
                 IsPartialDict(
                     id=role,

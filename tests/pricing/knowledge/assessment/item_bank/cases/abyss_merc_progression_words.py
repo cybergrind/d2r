@@ -5,7 +5,7 @@ from dataclasses import replace
 from dirty_equals import Contains, IsPartialDict
 
 from tests.pricing.knowledge.assessment.item_bank.cases.abyss_merc_words import EXAMPLES
-from tests.pricing.knowledge.assessment.item_bank.models import Case
+from tests.pricing.knowledge.assessment.item_bank.models import Case, known
 
 
 REVIEWS = (
@@ -43,7 +43,7 @@ def cases(build='abyss-warlock-build-guide', player_class='Warlock', prefix='aby
                 ('unknown-class', item, {'mercenary_type': 'Act 2 Might'}, 'unknown'),
                 ('unidentified', replace(item, identified=False), context, 'false'),
             ):
-                expected = {
+                expected: dict[str, object] = {
                     'roles': Contains(IsPartialDict(id=role, side='merc', rule_trace=IsPartialDict(truth=truth)))
                 }
                 if truth == 'true':
@@ -64,7 +64,7 @@ def cases(build='abyss-warlock-build-guide', player_class='Warlock', prefix='aby
                     scenario={'true': 'positive', 'false': 'negative', 'unknown': 'unknown'}[truth],
                     absent_configurations=() if truth == 'true' else (role + '-stats',),
                     absent_stat_configurations=dict.fromkeys(('1:0', '3:0'), (role + '-stats',)),
-                    report_contains=(item.name,),
+                    report_contains=(known(item.name),),
                     evidence=('pricing/data/wp-a-builds.json', 'third-parties/d2data/json/runes.json'),
                 )
 

@@ -29,7 +29,7 @@ def cases():
         config = role + '-mana-stats'
         for quality in ('normal', 'superior', 'low_quality'):
             for scenario in ('positive', 'negative', 'unknown'):
-                expected = {
+                expected: dict[str, object] = {
                     'roles': Contains(
                         IsPartialDict(
                             id=role,

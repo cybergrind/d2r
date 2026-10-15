@@ -58,7 +58,7 @@ def chance(tier: int, completion: float) -> float:
     return hazard(tier, min(100.0, max(0.0, completion)))
 
 
-def breakpoint(tier: int) -> float:
+def breakpoint_of(tier: int) -> float:
     slope, midpoint, asymptote, shift = PARAMETERS[tier]
     return midpoint - math.log(asymptote / -shift - 1) / slope
 
@@ -89,7 +89,7 @@ def odds(tier: int, levels: list[Level], current: int = 0, offset: float = 0.0) 
     return Odds(
         tier=tier,
         completion=max(0.0, start),
-        breakpoint=breakpoint(tier),
+        breakpoint=breakpoint_of(tier),
         kills_to_breakpoint=reach,
         reachable=max(0.0, group_completion(levels, ahead) - offset),
         remaining=sum(left),

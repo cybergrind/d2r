@@ -176,6 +176,7 @@ def test_a_charge_is_not_spent_on_a_few_open_steps():
     assert (outcome.hops, outcome.presses, outcome.clicks) == (1, 2, 1)
     assert 5.0 < outcome.walked < 8.0
     assert outcome.seconds <= 1.5
+    assert play.staff is not None
     assert play.staff.charges == 39
 
 
@@ -310,10 +311,12 @@ def test_the_action_asked_for_again_on_arrival_waits_for_the_new_levels_card():
     card = Card(play)
     outcome = press(play, card)
     assert outcome.entered
+    assert play.world.player is not None
     assert play.world.player.area == 36
     outcome = press(play, card, outcome)  # queued during the walk-in: it runs at once
     assert outcome.stops == []
     assert outcome.hops == 1  # toward the next stairs
+    assert play.entered_at is not None
     assert play.clock.now - play.entered_at <= 1.5
 
 
@@ -332,4 +335,5 @@ def test_a_level_whose_only_marked_way_is_back_is_no_stop():
     assert outcome.entered
     outcome = press(play, card, outcome)
     assert outcome.stops == []
+    assert play.world.player is not None
     assert play.world.player.area == 37  # and never back up the stairs

@@ -5,7 +5,7 @@ from dataclasses import replace
 from dirty_equals import Contains, IsPartialDict
 
 from tests.pricing.knowledge.assessment.item_bank.cases.zeal_merc_um import EXAMPLES
-from tests.pricing.knowledge.assessment.item_bank.models import Case, SocketItem
+from tests.pricing.knowledge.assessment.item_bank.models import Case, SocketItem, known
 
 
 MIGHT = {'player_class': 'Warlock', 'mercenary_type': 'Act 2 Might'}
@@ -36,7 +36,7 @@ def cases():
         if upgrade:
             rows.append(('upgraded', 'positive', replace(item, base=upgrade), MIGHT))
         for label, scenario, candidate, context in rows:
-            expected = {
+            expected: dict[str, object] = {
                 'roles': Contains(
                     IsPartialDict(
                         id=role,
@@ -65,7 +65,7 @@ def cases():
                     scenario=scenario,
                     absent_configurations=() if scenario == 'positive' else (role + '-stats',),
                     absent_stat_configurations=dict.fromkeys(irrelevant, (role + '-stats',)),
-                    report_contains=(candidate.name,),
+                    report_contains=(known(candidate.name),),
                     evidence=(
                         'pricing/data/appraisal-guide-sections.json:/sources/'
                         f'pricing~1raw~1mr~1guides__abyss-warlock-build-guide.html/item_spans/{span}',

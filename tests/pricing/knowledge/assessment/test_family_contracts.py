@@ -36,6 +36,7 @@ def test_armor_base_comparisons_require_actual_defense(base, family):
         item = replace(item, stats={**item.stats, '20:0': {'value': 22, 'status': 'decoded'}}, properties={'446': 22})
     contract, gaps = HANDLERS['base'].contract(item, family)
     assert not gaps
+    assert contract is not None
     assert contract.properties['1855'] == 100
 
 
@@ -44,6 +45,7 @@ def test_complete_affixed_nonarmor_family_can_make_exact_contract(base, family):
     item = replace(facts(base, 'magic'), properties={'427': 10})
     contract, gaps = HANDLERS['affixed'].contract(item, family)
     assert not gaps
+    assert contract is not None
     assert contract.name == base
 
 
@@ -58,6 +60,7 @@ def test_named_set_contract_preserves_identity_rolls_and_defense():
     )
     contract, gaps = HANDLERS['named'].contract(item, 'helm')
     assert not gaps
+    assert contract is not None
     assert contract.name == "Sazabi's Mental Sheath"
     assert contract.rarity == 'set'
     assert contract.base_code == item.base_code
@@ -93,6 +96,7 @@ def test_named_unique_does_not_mix_original_and_unverified_upgraded_base():
     )
     contract, gaps = HANDLERS['named'].contract(item, 'armor')
     assert not gaps
+    assert contract is not None
     assert contract.name == 'Guardian Angel'
     wrong = facts('Mage Plate', 'unique', 'Guardian Angel')
     assert HANDLERS['named'].contract(replace(item, base_code=wrong.base_code), 'armor')[0] is None

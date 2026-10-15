@@ -9,6 +9,7 @@ from inventory_tracking.levels.exits import guide_level
 from inventory_tracking.levels.model import LevelSnapshot, Location, Room
 from inventory_tracking.levels.presets import PRESET_NAMES
 from inventory_tracking.levels.registry import handler_for
+from tests.inventory_tracking.levels.fixtures import handler_of
 
 
 def named(name: str) -> int:
@@ -20,7 +21,7 @@ def near(point):
     return round(point[0]), round(point[1])
 
 
-def whole_level(area, preset, variant, size, origin=(1000, 2000)):
+def whole_level(area, preset, variant, size, origin: tuple[int, int] = (1000, 2000)):
     """The level as 8x8 chunks of one preset, the player just inside its corner."""
     block = (*origin, size, size)
     rooms = tuple(
@@ -49,7 +50,7 @@ def whole_level(area, preset, variant, size, origin=(1000, 2000)):
     ],
 )
 def test_a_one_preset_level_marks_its_object_first(area, preset, variant, size, label, spot):
-    handler = handler_for(area)
+    handler = handler_of(area)
 
     guidance = guide_level(handler, whole_level(area, preset, variant, size))
 
@@ -93,7 +94,7 @@ def test_a_chest_room_mark_sits_on_the_chest(area, label, preset, variant, spot)
     size = 16 if 'Spider' in preset else 12 if 'Sewer' in preset else 8
     rooms = (Room(named(preset), 300, 400, size, size, variant), Room(0, 0, 0, 8, 8))
 
-    guidance = handler_for(area).guide(LevelSnapshot(Location(area, 0, 20, 20), rooms))
+    guidance = handler_of(area).guide(LevelSnapshot(Location(area, 0, 20, 20), rooms))
 
     [poi] = [p for p in guidance.pois if p.label == label]
     assert near(poi.point) == (300 * 5 + spot[0], 400 * 5 + spot[1])

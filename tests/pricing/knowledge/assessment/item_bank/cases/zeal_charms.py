@@ -93,7 +93,7 @@ def cases():
             if label == 'wrong-size':
                 # Type routing excludes this role before predicate evaluation.
                 # absent_configurations below verifies no charm contribution leaks.
-                expected = {'family': 'charm'}
+                expected: dict[str, object] = {'family': 'charm'}
             if scenario == 'positive':
                 expected['stat_evaluation'] = IsPartialDict(
                     annotations=IsPartialDict(

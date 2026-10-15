@@ -5,7 +5,7 @@ from itertools import product
 
 from dirty_equals import IsPartialDict
 
-from tests.pricing.knowledge.assessment.item_bank.models import Case, Item
+from tests.pricing.knowledge.assessment.item_bank.models import Case, Item, ItemChanges, with_stat_value
 
 
 MARA_STATS = ((127, 0, 2), *((s, 0, 5) for s in (0, 1, 2, 3)))
@@ -13,7 +13,7 @@ MARA = Item(
     'Amulet', 'unique', "Mara's Kaleidoscope", (*MARA_STATS, *((s, 0, 30) for s in (39, 41, 43, 45))), complete=True
 )
 NAGEL = Item('Ring', 'unique', 'Nagelring', ((35, 0, 3), (78, 0, 3), (19, 0, 75), (80, 0, 30)), complete=True)
-VARIANTS = (
+VARIANTS: tuple[tuple[str, ItemChanges], ...] = (
     ('ethereal', {'ethereal': True}),
     ('unknown-ethereal', {'ethereal': None}),
     ('unidentified', {'identified': False}),
@@ -69,7 +69,7 @@ def mara_cases():
         yield make_case('mara', f'res-{res}', item, 'unresolved')
     for key in (39, 41, 43, 45):
         for value in (None, 19, 31, 20):
-            raw = tuple((s, p, value if s == key else v) for s, p, v in MARA.raw_stats if s != key or value is not None)
+            raw = with_stat_value(MARA.raw_stats, {key}, value)
             yield make_case('mara', f'component-{key}-{value}', replace(MARA, raw_stats=raw), 'unresolved')
     for label, changes in VARIANTS:
         yield make_case('mara', label, replace(MARA, **changes), 'unresolved')
@@ -81,9 +81,7 @@ def nagel_cases():
         yield make_case('nagel', f'mf-{mf}-ar-{ar}', item, 'candidate' if mf == 30 else 'unresolved')
     for key, low, high in ((19, 50, 75), (80, 15, 30)):
         for value in (None, low - 1, high + 1):
-            raw = tuple(
-                (s, p, value if s == key else v) for s, p, v in NAGEL.raw_stats if s != key or value is not None
-            )
+            raw = with_stat_value(NAGEL.raw_stats, {key}, value)
             yield make_case('nagel', f'component-{key}-{value}', replace(NAGEL, raw_stats=raw), 'unresolved')
     for label, changes in VARIANTS:
         yield make_case('nagel', label, replace(NAGEL, **changes), 'unresolved')

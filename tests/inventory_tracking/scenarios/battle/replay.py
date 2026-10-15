@@ -161,17 +161,17 @@ class Replay:
             if event.get('event') == 'button' and event.get('down')
         ]
         self.pressed.sort()
-        press, button = self.keys.press, self.keys.button
+        press, clicked = self.keys.press, self.keys.button
 
-        def pressing(code):
-            name = next((name for name, value in self.keys.names.items() if value == code), None)
+        def pressing(key: int) -> bool:
+            name = next((name for name, value in self.keys.names.items() if value == key), None)
             self.hold_to('key', X_KEYCODES.get(name or ''))
-            return press(code)
+            return press(key)
 
-        def clicking(number, down):
+        def clicking(button: int, down: bool) -> bool:
             if down:
-                self.hold_to('button', number)
-            return button(number, down)
+                self.hold_to('button', button)
+            return clicked(button, down)
 
         self.keys.press, self.keys.button = pressing, clicking
         self.pending = sorted(script.presses)

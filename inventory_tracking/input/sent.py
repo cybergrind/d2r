@@ -36,7 +36,7 @@ def tell(kind: str, *what: int) -> None:
     if found is None:
         return
     # The watcher's failure is never the input's. A bare try costs nothing until it raises (suppress would).
-    try:  # noqa: SIM105
+    try:  # ruff: ignore[suppressible-exception]
         found(kind, what)
     except Exception:
         pass

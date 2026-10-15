@@ -2,6 +2,7 @@
 
 import json
 from copy import deepcopy
+from typing import Any
 
 import pytest
 
@@ -15,7 +16,9 @@ from tests.pricing.knowledge.assessment.maintenance.test_embedded_dream import R
 PAIRS = {0: 1, 1: 0, 13: 14, 14: 13, 200: 201, 201: 200}
 
 
-def prose_inputs(span, partner=None):
+def prose_inputs(
+    span, partner=None
+) -> tuple[dict[str, Any], list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]]]:
     head = span in (0, 13, 191, 200)
     document, links, roles, uses = inputs(73 if head else 65)
     row = document['rows'][0]

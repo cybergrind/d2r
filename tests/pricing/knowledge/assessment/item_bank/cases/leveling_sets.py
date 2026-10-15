@@ -76,7 +76,7 @@ def cases():
                 )
             )
         for label, candidate, loadout, scenario, fit in rows:
-            leveling = {
+            leveling: dict[str, object] = {
                 'tier': 'med',
                 'required_level': 6,
                 'requirements_fit': IsPartialDict(status=fit),

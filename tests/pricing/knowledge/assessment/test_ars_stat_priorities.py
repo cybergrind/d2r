@@ -7,6 +7,7 @@ from pricing.knowledge.assessment.build_profiles import ROOT, build
 from pricing.knowledge.assessment.maintenance.stat_configurations import compile_stat_configurations
 from pricing.knowledge.assessment.profiles import assess_role_results
 from pricing.knowledge.assessment.stat_evaluation import StatsEvaluator
+from tests.pricing.knowledge.assessment.fact_changes import fact_changes
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
 
 
@@ -57,7 +58,7 @@ def test_ars_priorities_keep_native_skills_and_variant_socket(variant, rune):
         assert set(
             evaluate(replace(item, stats={k: v for k, v in stats.items() if k != optional})).annotations
         ) == expected - {optional}
-    for changes in (
+    for changes in fact_changes(
         {'name': None},
         {'name': 'Other'},
         {'rarity': 'rare'},

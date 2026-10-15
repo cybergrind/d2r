@@ -1,5 +1,6 @@
 import hashlib
 import json
+from typing import Any
 
 import pytest
 
@@ -24,7 +25,8 @@ def test_metadata_must_match_compiled_definitions_not_only_source_fingerprints()
 @pytest.mark.parametrize('failure', ['tier', 'native_stat', 'source'])
 def test_semantic_publication_rejects_invalid_tier_policy_or_changed_evidence(failure):
     with definition_store.definition_snapshot(), artifact_snapshot(runtime_inputs()) as snapshot:
-        mapping = dict(snapshot)
+        # Keyed by resolved Path; artifact_snapshot's inferred key type (str) is wrong, hence Any.
+        mapping: dict[Any, Artifact] = dict(snapshot)
         path = named_tiers.RULES.resolve()
         document = json.loads(mapping[path].data)
         policy = document['policies'][0]
@@ -62,7 +64,7 @@ def test_publication_validates_pinned_profile_evidence(failure):
     from pricing.knowledge.published_runtime import ROOT
 
     with definition_store.definition_snapshot(), artifact_snapshot(runtime_inputs()) as snapshot:
-        mapping = dict(snapshot)
+        mapping: dict[Any, Artifact] = dict(snapshot)
         document = json.loads(mapping[OUTPUT.resolve()].data)
         if failure == 'hash':
             path = (ROOT / document['profiles'][0]['source']['path']).resolve()
@@ -122,7 +124,7 @@ def test_publication_rejects_stale_baseline_tier_evidence():
     from pricing.knowledge.assessment.policies import named_baselines
 
     with definition_store.definition_snapshot(), artifact_snapshot(runtime_inputs()) as snapshot:
-        mapping = dict(snapshot)
+        mapping: dict[Any, Artifact] = dict(snapshot)
         path = named_baselines.RULES.resolve()
         document = json.loads(mapping[path].data)
         document['rows'][0]['source']['sha256'] = '0' * 64

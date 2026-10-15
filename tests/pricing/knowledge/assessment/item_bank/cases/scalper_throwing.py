@@ -63,7 +63,7 @@ def cases():
         )
         for label, candidate, loadout, truth in examples:
             active = truth == 'true'
-            expected = {}
+            expected: dict[str, object] = {}
             if label != 'unidentified':
                 expected['roles'] = Contains(
                     *(

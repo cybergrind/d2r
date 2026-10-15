@@ -45,6 +45,7 @@ def test_fixed_jewelry_review_agrees_with_native_roll_definitions(item):
 
     definition, gaps = resolve_named_definition(normalize(item.capture()))
     assert not gaps
+    assert definition is not None
     assert definition['roll_ranges']
     assert all(row['min'] == row['max'] for row in definition['roll_ranges'].values())
     assert not definition.get('variable_per_level_effects')

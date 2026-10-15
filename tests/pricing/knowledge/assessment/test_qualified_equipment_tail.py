@@ -5,6 +5,7 @@ import pytest
 from inventory_tracking.items.metadata import metadata
 from pricing.knowledge.assessment.build_profiles import build
 from pricing.knowledge.assessment.profiles import assess_roles
+from tests.pricing.knowledge.assessment.fact_changes import fact_changes
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
 
 
@@ -71,7 +72,7 @@ def test_berserk_rune_master_requires_five_verified_ist_children():
     context = {'player_class': 'Barbarian'}
     assert assess_roles(item, [profile], context)[0]['dependencies'][0]['status'] == 'true'
     assert '17:0' not in profile['important_stats']
-    for changes in (
+    for changes in fact_changes(
         {'socket_items': children[:4]},
         {'socket_items': [children[0]] * 5},
         {'socket_contents': 'empty'},

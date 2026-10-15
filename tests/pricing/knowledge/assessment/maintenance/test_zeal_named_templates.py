@@ -1,4 +1,5 @@
 from dataclasses import replace
+from typing import Any
 
 import pytest
 
@@ -35,5 +36,5 @@ def test_inconsistent_named_base_facts_cannot_qualify_for_named_use(name, base):
         sockets=5 if name == 'Rune Master' else 0,
         ethereal=name == 'Rune Master',
     )
-    results = assess_roles(item, [profile], {'player_class': 'Paladin'})
+    results: list[dict[str, Any]] = assess_roles(item, [profile], {'player_class': 'Paladin'})
     assert all(result['rule_trace']['truth'] == 'false' for result in results)

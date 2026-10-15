@@ -1,3 +1,5 @@
+from typing import Any
+
 import pytest
 
 from pricing.knowledge.assessment.maintenance.guide_inventory import fingerprint
@@ -11,7 +13,7 @@ MARA = ('unique', "Mara's Kaleidoscope")
 NAGEL = ('unique', 'Nagelring')
 
 
-def review_inputs(identity=MARA):
+def review_inputs(identity=MARA) -> tuple[dict[str, Any], dict[str, Any]]:
     doc, context = data(identity, MARA_CASES if identity == MARA else NAGEL_CASES)
     row = doc['rows'][0]
     row['scope'] = 'partial_compound_named_jewelry' if identity == MARA else 'partial_scalar_named_jewelry'

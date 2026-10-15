@@ -1,4 +1,5 @@
 from copy import deepcopy
+from typing import Any
 
 import pytest
 
@@ -12,12 +13,12 @@ from pricing.knowledge.definition_store import catalog
 IDENTITY = ('set', "Trang-Oul's Claws")
 
 
-def inputs():
-    return (
-        deepcopy(_policies(RULES.read_bytes())[IDENTITY]),
-        thaw(catalog().named_variants[IDENTITY]),
-        thaw(metadata()['stats']),
-    )
+def inputs() -> tuple[dict[str, Any], list[dict[str, Any]], dict[str, dict[str, Any]]]:
+    policy = deepcopy(_policies(RULES.read_bytes())[IDENTITY])
+    # thaw() is unannotated (its inferred return is a dict | list union); these are its plain-JSON copies.
+    definitions: Any = thaw(catalog().named_variants[IDENTITY])
+    specs: Any = thaw(metadata()['stats'])
+    return policy, definitions, specs
 
 
 def test_claws_fixed_armor_proof_has_original_defense_and_native_skill_layer():
@@ -75,7 +76,7 @@ def test_claws_proof_rejects_incompatible_native_or_trade_semantics(corruption):
     assert trade_fixed_armor.specification(policy, definitions, specs) is None
 
 
-def review_inputs():
+def review_inputs() -> tuple[dict[str, Any], dict[str, Any]]:
     from tests.pricing.knowledge.assessment.item_bank.cases.claws_trade import CASES
     from tests.pricing.knowledge.assessment.maintenance.test_fixed_armor_trade_reviews import (
         review_inputs as armor_inputs,

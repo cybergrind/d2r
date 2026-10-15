@@ -58,7 +58,7 @@ def cases():
                 )
             }
             if label == 'wrong-size':
-                expected = {'family': 'charm'}
+                expected: dict[str, object] = {'family': 'charm'}
             if stat:
                 expected['stat_evaluation'] = IsPartialDict(
                     annotations=IsPartialDict({f'{stat}:0': IsPartialDict(configuration_ids=Contains(role + '-stats'))})

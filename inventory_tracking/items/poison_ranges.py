@@ -21,7 +21,7 @@ def poison_modifier(entry):
 def poison_range(entries, base, quality, catalog):
     if quality != 4 or base.get('type') not in ('scha', 'mcha', 'lcha'):
         return None
-    contributors = [(entry, poison_modifier(entry)) for entry in entries if poison_modifier(entry)]
+    contributors = [(entry, mod) for entry in entries if (mod := poison_modifier(entry))]
     if not contributors or len({e['affix_table'] for e, _ in contributors}) != len(contributors):
         return None
     pools = []

@@ -1,4 +1,5 @@
 from copy import deepcopy
+from typing import Any
 
 import pytest
 
@@ -6,7 +7,7 @@ from pricing.knowledge.assessment.maintenance.completion import compile_completi
 from pricing.knowledge.assessment.maintenance.coverage_matrix import DIMENSIONS
 
 
-def inputs():
+def inputs() -> tuple[dict[str, Any], dict[str, Any]]:
     matrix = {
         'rows': [
             {

@@ -50,5 +50,7 @@ def combined_meaning(keys, annotations):
         common = uses if common is None else common & uses
         if not common:
             return None
+    if common is None:
+        return None  # no components
     meanings = {meaning for _, meaning in common}
     return next((meaning for meaning in MARKER_TONES if meaning in meanings), None)

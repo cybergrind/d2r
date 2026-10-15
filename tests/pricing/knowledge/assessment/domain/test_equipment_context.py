@@ -1,4 +1,5 @@
 from dataclasses import replace
+from typing import Any
 
 import pytest
 
@@ -59,10 +60,11 @@ def test_equipment_missing_empty_partial_and_malformed_have_distinct_truth():
 
 
 def test_equipment_snapshot_copies_serializable_facts_and_freezes_nested_stats():
-    raw = {'amulet': amulet().to_dict()}
+    raw: dict[str, dict[str, Any]] = {'amulet': amulet().to_dict()}
     ctx = AssessmentContext.from_input({'player_equipment': raw})
     raw['amulet']['stats']['105:0']['value'] = 0
     assert evaluate(RULE, facts('Ring'), ctx).truth == 'true'
+    assert ctx.player_equipment is not None
     with pytest.raises(TypeError):
         ctx.player_equipment['amulet'].value.stats['105:0']['value'] = 0
 
@@ -85,7 +87,7 @@ def test_invalid_equipment_predicates_fail_publication_validation(change):
 
 def test_equipment_maps_cannot_use_scalar_or_name_collection_operators():
     for op in ('context_eq', 'context_contains', 'context_count_at_least'):
-        rule = {'op': op, 'field': 'player_equipment', 'value': 'Amulet'}
+        rule: dict[str, Any] = {'op': op, 'field': 'player_equipment', 'value': 'Amulet'}
         if op == 'context_count_at_least':
             rule['count'] = 1
         with pytest.raises(ValueError, match=r'equipment snapshots|Membership requires|Invalid item count'):

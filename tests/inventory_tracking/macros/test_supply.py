@@ -23,14 +23,14 @@ from inventory_tracking.builds import pursuing
 from inventory_tracking.levels.model import Ground, Walkable, pack_cells
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.build import NoWay
-from inventory_tracking.macros.goals import FIGHT, PICK_REACH, PICK_UP, STAND_NEAR, WAIT, goal_of, in_the_way
+from inventory_tracking.macros.goals import FIGHT, PICK_REACH, PICK_UP, STAND_NEAR, WAIT, Goal, goal_of, in_the_way
 from inventory_tracking.macros.hunt import BLOCK_SECONDS, GATHER_TRIES
 from inventory_tracking.macros.pickup import PICK_UNITS, approach, pick_up
 from inventory_tracking.macros.pursuit import FULL, Hold, Move, Operate, Pursuit, decide
 from inventory_tracking.macros.supply import Potions, detour, worth
 from inventory_tracking.macros.travel import PRESSED, clear_line, walk_reaches
 from inventory_tracking.macros.world import HEALING, REJUVENATION, VALUABLE, Drop, Loot, Monster, PutDown, Teleport
-from tests.inventory_tracking.macros.test_hunt import game, hunter, keys
+from tests.inventory_tracking.macros.test_hunt import game, hunter, keys, me
 from tests.inventory_tracking.macros.test_level_run import STEP, facts as level_facts, unasked
 
 
@@ -53,6 +53,13 @@ GUARDS = tuple(
 )
 
 
+def goal_here(**given) -> Goal:
+    """The goal of a character at (5000, 5000), which the test expects there to be."""
+    goal = goal_of((5000.0, 5000.0), spend=PRESSED, reach=20.0, **given)
+    assert goal is not None
+    return goal
+
+
 def running(play, *, loot: Loot, ground=()):
     """A hunter on a level run on test_hunt's level with the pursuit loop on; `loot` is what the game shows."""
     play.loot = loot
@@ -73,7 +80,7 @@ def look(hunt, play, run, foes=()):
 
 
 def test_a_valuable_with_no_room_is_a_goal_to_stand_by_and_say() -> None:
-    goal = goal_of((5000.0, 5000.0), spend=PRESSED, reach=20.0, stay=THUL)
+    goal = goal_here(stay=THUL)
     assert (goal.do, goal.unit, goal.near, goal.place) == (WAIT, 71, STAND_NEAR, (THUL.x, THUL.y))
     assert decide(level_facts(goal), Pursuit('pickup', 0.0, advance=False, leash=FULL)) == Move(STEP, goal)
     there = decide(level_facts(goal, there=True, way=unasked), Pursuit('pickup', 0.0, advance=False, leash=FULL))
@@ -205,6 +212,7 @@ def test_a_drop_near_in_a_straight_line_and_far_by_walking_is_gone_to_first_not_
     play.loot = Loot((CHARM,), room=FREE)
     hunt = on_a_run(play, (LAVA,))
     found = hunt.judge(play.run(), play.world, [], Ground((LAVA,)), in_reach=False)
+    assert found.goal is not None
     assert (found.goal.do, found.goal.unit) == (PICK_UP, CHARM.unit_id)
     assert isinstance(found.act, Move)  # the navigator's move, with the movement in hand
     # The same drop with nothing between: clicked from here, as before
@@ -220,9 +228,9 @@ def test_the_hands_do_not_click_a_drop_across_ground_no_walk_crosses_in_reach() 
     play = game()
     play.loot = Loot((CHARM,), room=FREE)
     run = play.run()
-    level = hunter(play, ground=(LAVA,)).known_level(play.world.player)
+    level = hunter(play, ground=(LAVA,)).known_level(me(play.world))
     approach(run, CHARM, level, keys)
-    here = (play.world.player.x, play.world.player.y)
+    here = (me(play.world).x, me(play.world).y)
     assert here != (5000.0, 5000.0)  # it went first
     assert walk_reaches(Ground((LAVA,)), (), here, (CHARM.x, CHARM.y), PICK_UNITS)
 
@@ -236,7 +244,7 @@ def test_the_hands_take_the_drop_the_goal_names_not_the_one_they_would_choose() 
     play.loot = Loot((ring, CHARM), room=FREE)
     hunt = on_a_run(play)
     run = play.run()
-    goal = goal_of((5000.0, 5000.0), spend=PRESSED, reach=20.0, side=CHARM)
+    goal = goal_here(side=CHARM)
     hunt.operate(run, play.world, goal, keys)
     assert play.picked[:1] == ['Large Charm']
 
@@ -303,10 +311,10 @@ def test_a_potion_held_by_its_guards_longer_than_the_block_is_left_and_that_is_s
 
 
 def test_the_guards_of_a_potion_are_those_near_it_or_the_character() -> None:
-    goal = goal_of((5000.0, 5000.0), spend=PRESSED, reach=20.0, side=POTION)
+    goal = goal_here(side=POTION)
     far = Monster(950, 362, 1, 5040.0, 5040.0, 0xFFFFFFFF)
     assert set(in_the_way(goal, [*GUARDS, far], (5000.0, 5000.0))) == set(GUARDS)
-    rune = goal_of((5000.0, 5000.0), spend=PRESSED, reach=20.0, side=THUL)
+    rune = goal_here(side=THUL)
     assert not rune.guarded
     assert in_the_way(rune, GUARDS, (5000.0, 5000.0)) == []  # a valuable is gone for all the same
 
@@ -397,10 +405,10 @@ def test_with_the_staff_empty_a_drop_beyond_a_click_is_approached_by_the_movemen
     amn = Drop(80, 5028.0, 4990.0, 'Amn Rune', VALUABLE, prized=False)
     play.loot = Loot((amn,))
     run = play.run()
-    level = hunter(play).known_level(play.world.player)
+    level = hunter(play).known_level(me(play.world))
     with caplog.at_level(logging.INFO):
         approach(run, amn, level, keys)
-    here = play.world.player
+    here = me(play.world)
     assert play.warps or play.walks
     assert ((here.x - amn.x) ** 2 + (here.y - amn.y) ** 2) ** 0.5 <= PICK_UNITS
 
@@ -439,7 +447,7 @@ GEM = Drop(2327255744, 7814.0 - 2810, 5173.0 - 170, 'Flawless Emerald', VALUABLE
 
 
 def standing(play, here):
-    play.world = replace(play.world, player=replace(play.world.player, x=here[0], y=here[1]))
+    play.world = replace(play.world, player=replace(me(play.world), x=here[0], y=here[1]))
 
 
 def test_the_emerald_round_the_wall_corner_is_not_near_enough_to_click_and_from_where_the_run_passed_it_is() -> None:
@@ -475,10 +483,10 @@ def test_the_pickups_own_approach_goes_round_the_corner_before_it_clicks(caplog)
     play.loot = Loot((GEM,), room=FREE)
     standing(play, CLICKED_FROM)
     run = play.run()
-    level = hunter(play, ground=(CORNER,)).known_level(play.world.player)
+    level = hunter(play, ground=(CORNER,)).known_level(me(play.world))
     with caplog.at_level(logging.INFO):
         approach(run, GEM, level, keys)
-    player = play.world.player
+    player = me(play.world)
     assert player is not None
     here = (player.x, player.y)
     assert here != CLICKED_FROM
@@ -604,7 +612,7 @@ def test_in_the_quiet_attack_mode_takes_the_potions_lying_near_before_its_standi
 
 
 def test_attack_mode_goes_to_its_restock_and_picks_it_up() -> None:
-    goal = goal_of((5000.0, 5000.0), spend=PRESSED, reach=20.0, side=HEAL_13)
+    goal = goal_here(side=HEAL_13)
     assert decide(level_facts(goal), None) == Move(STEP, goal)  # no level run, no press: attack mode's own
     assert decide(level_facts(goal, there=True, way=unasked), None) == Operate(goal)
 

@@ -10,6 +10,8 @@ import functools
 import math
 import statistics
 
+from pydantic import BaseModel
+
 from inventory_tracking.config import with_overrides
 from tests.inventory_tracking.scenarios.arena import game, kp4
 from tests.inventory_tracking.scenarios.arena.situations import ancients
@@ -63,8 +65,11 @@ def units_a_cast(seed: int, *, look: bool) -> tuple[float, Outcome]:
         plain(self)
         flights.extend(self.flights[before:])
 
+    def looking[M: BaseModel](model: M, **changes: object) -> M:
+        return with_overrides(model, **changes, fight_look=look)
+
     game.Arena.strike = strike
-    kp4.with_overrides = lambda settings, **changes: with_overrides(settings, **changes, fight_look=look)
+    kp4.with_overrides = looking
     try:
         outcome = situation.play(presses, seed=seed)
     finally:

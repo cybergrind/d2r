@@ -4,7 +4,7 @@ from dataclasses import replace
 
 from dirty_equals import Contains, IsPartialDict
 
-from tests.pricing.knowledge.assessment.item_bank.models import Case, Item
+from tests.pricing.knowledge.assessment.item_bank.models import Case, Item, known
 
 
 def kira(high=False):
@@ -66,7 +66,9 @@ def cases():
         ]
         for label, candidate, loadout, truth in examples:
             active = truth == 'true'
-            expected = {'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))}
+            expected: dict[str, object] = {
+                'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))
+            }
             if active:
                 expected['stat_evaluation'] = IsPartialDict(
                     annotations=IsPartialDict(
@@ -94,7 +96,7 @@ def cases():
                 },
                 absent_configurations=() if active else (config,),
                 absent_stat_configurations=dict.fromkeys(('31:0', '16:0', '7:0', '99:0'), (config,)),
-                report_contains=(candidate.name, 'Trade tier:', 'Cannot Be Frozen', roll_text) if active else (),
+                report_contains=(known(candidate.name), 'Trade tier:', 'Cannot Be Frozen', roll_text) if active else (),
                 evidence=(
                     'pricing/data/wp-a-variants/dragon-talon-assassin.json:/variants/0/quotes/1',
                     f'third-parties/d2data/json/uniqueitems.json:/{native}',

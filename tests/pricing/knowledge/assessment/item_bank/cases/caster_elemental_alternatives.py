@@ -4,7 +4,7 @@ from dataclasses import replace
 
 from dirty_equals import Contains, IsPartialDict
 
-from tests.pricing.knowledge.assessment.item_bank.models import Case, Item
+from tests.pricing.knowledge.assessment.item_bank.models import Case, Item, known
 
 
 HAMMER = Item(
@@ -87,7 +87,9 @@ def cases():
             )
         for label, item, context, truth in variants:
             active = truth == 'true'
-            expected = {'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))}
+            expected: dict[str, object] = {
+                'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))
+            }
             if active:
                 expected['stat_evaluation'] = IsPartialDict(
                     annotations=IsPartialDict({key: IsPartialDict(configuration_ids=Contains(config)) for key in keys})
@@ -101,7 +103,7 @@ def cases():
                 expected={'assessment': IsPartialDict(**expected)},
                 absent_configurations=() if active else (config,),
                 absent_stat_configurations=dict.fromkeys(excluded, (config,)),
-                report_contains=(original.name, 'Trade tier:') if active else (),
+                report_contains=(known(original.name), 'Trade tier:') if active else (),
                 evidence=(
                     'pricing/data/wp-a-builds.json:' + locator,
                     f'third-parties/d2data/json/uniqueitems.json:/{original.named_table_id}',

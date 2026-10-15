@@ -55,7 +55,7 @@ def cases():
     )
     result = []
     for label, item, ctx, scenario in scenarios:
-        expected = {
+        expected: dict[str, object] = {
             'roles': Contains(
                 IsPartialDict(
                     id=ROLE,

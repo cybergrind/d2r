@@ -1,4 +1,5 @@
 from datetime import date
+from typing import Any
 
 from inventory_tracking.appraisal.sections import price_lines
 from inventory_tracking.items.metadata import decode_stats, metadata
@@ -40,6 +41,7 @@ def test_cleared_base_quote_removes_socket_effects_and_retains_current_item(tmp_
         None,
     )
     assert clear is not None
+    assert clear.preparation is not None
     prop = assessment.facts.stats['80:0']['market_property']
     assert prop not in clear.contract['properties']
     assert clear.contract['properties']['1855'] == 250
@@ -48,11 +50,13 @@ def test_cleared_base_quote_removes_socket_effects_and_retains_current_item(tmp_
     assert clear.contract['sockets'] == 3
     assert clear.preparation['destroys_contents'] is True
     assert clear.preparation['destroyed_items'] == ('Perfect Topaz', 'Perfect Topaz')
+    assert assessment.contract is not None
     assert assessment.contract.properties[prop] == 48
     assert assessment.facts.socket_contents == 'filled'
+    request: dict[str, Any] = clear.to_dict()
     rows = [
         {
-            **clear.to_dict()['contract'],
+            **request['contract'],
             'kind': 'market',
             'scope_status': 'verified',
             'evidence_kind': 'ask',

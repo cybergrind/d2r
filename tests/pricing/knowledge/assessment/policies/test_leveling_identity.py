@@ -3,6 +3,7 @@ from dataclasses import replace
 from pricing.knowledge.assessment.handlers.definitions import named_definitions
 from pricing.knowledge.assessment.policies.leveling import assess_leveling
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
+from tests.pricing.knowledge.reports import reports
 
 
 def test_same_slot_wrong_base_does_not_inherit_named_leveling_recommendation():
@@ -25,7 +26,7 @@ def test_verified_upgraded_leveling_candidate_requires_variant_requirements_revi
     item = replace(
         item, provenance={'capture': {'item_identity': {'table': 'unique', 'table_id': definition['table_id']}}}
     )
-    use = assess_leveling(item, loadout={'player_level': 99})[0]
+    use = reports(assess_leveling(item, loadout={'player_level': 99}))[0]
     assert use['tier'] == 'high'
     assert use['status'] == 'conditional'
     assert use['required_level'] is None
@@ -41,7 +42,7 @@ def test_upgraded_set_keeps_companion_and_requirement_conditions_in_report():
         facts('Demonhide Gloves', 'set', "Death's Hand"),
         provenance={'capture': {'item_identity': {'table': 'set', 'table_id': definition['table_id']}}},
     )
-    uses = assess_leveling(item)
+    uses = reports(assess_leveling(item))
     assert uses
     assert uses[0]['status'] == 'conditional'
     assert uses[0]['required_level'] is None

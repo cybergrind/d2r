@@ -47,7 +47,7 @@ def random_routes(count: int, seed: int = 20261010) -> list[Situation]:
 
 def totals(trips: list[Trip]) -> str:
     made = [trip for trip in trips if trip.arrived and trip.reference is not None]
-    hops, fewest = sum(trip.presses for trip in made), sum(trip.reference for trip in made)
+    hops, fewest = sum(trip.presses for trip in made), sum(trip.reference or 0 for trip in made)
     over = Counter(trip.over for trip in made)
     seconds = sum(trip.planning for trip in trips) / max(sum(trip.presses for trip in trips), 1)
     return (

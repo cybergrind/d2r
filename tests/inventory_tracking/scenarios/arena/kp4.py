@@ -52,10 +52,11 @@ import json
 import math
 import statistics
 import threading
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import asdict, dataclass, replace
 from itertools import pairwise
 from pathlib import Path
+from typing import Any
 
 from inventory_tracking.builds.warlock.echoing_strike.mechanics import MISSILE
 from inventory_tracking.combat.stance import CROWD_MOST, CROWD_UNITS
@@ -493,7 +494,7 @@ def played(
     reached: list[tuple[float, bool]] = []
     packs: list[tuple[float, int]] = []
     gaps: list[float] = []
-    seen = {'casts': 0, 'low': arena.life, 'opened': None, 'boss_dead': None}
+    seen: dict[str, Any] = {'casts': 0, 'low': arena.life, 'opened': None, 'boss_dead': None}
     spy = play.tick
 
     def tick() -> None:
@@ -592,8 +593,9 @@ def paths(staged: Staged) -> tuple[Path, Path, Path]:
     return FIXTURES / f'{name}.json', FIXTURES / f'{name}.route.json', FIXTURES / f'{name}.recorded.json'
 
 
-def _told(data: dict) -> Told:
-    return Told(**{key: tuple(value) if isinstance(value, list) else value for key, value in data.items()})
+def _told(data: Mapping[str, Any]) -> Told:
+    fields: dict[str, Any] = {key: tuple(value) if isinstance(value, list) else value for key, value in data.items()}
+    return Told(**fields)
 
 
 def stored(staged: Staged) -> tuple[Scene, list[Mark], Told] | None:

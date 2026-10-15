@@ -1,13 +1,14 @@
 """User scope exclusions cannot erase unrelated valuable configurations."""
 
 from copy import deepcopy
+from typing import Any
 
 import pytest
 
 from pricing.knowledge.assessment.maintenance.value_scope import profile_fingerprint, use_exclusions
 
 
-def inputs(tmp_path):
+def inputs(tmp_path) -> tuple[dict[str, Any], dict[str, Any]]:
     import hashlib
 
     source = tmp_path / 'source.json'
@@ -182,7 +183,7 @@ def test_basic_starter_amulet_uses_preserve_specialist_and_stronger_sources():
     assert any('Bitter Mark' in quote for quote in fire['source']['quotes'])
 
 
-def dimension_inputs(tmp_path):
+def dimension_inputs(tmp_path) -> tuple[dict[str, Any], dict[str, Any]]:
     profile, review = inputs(tmp_path)
     entry = review['uses'].pop()
     entry.update(

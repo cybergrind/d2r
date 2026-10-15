@@ -1,10 +1,11 @@
 """Native Spirit shield rolls in six endgame component configurations."""
 
 from dataclasses import replace
+from typing import Any
 
 from dirty_equals import Contains, IsPartialDict
 
-from tests.pricing.knowledge.assessment.item_bank.models import Case, SocketItem
+from tests.pricing.knowledge.assessment.item_bank.models import Case, Item, SocketItem
 from tests.pricing.knowledge.assessment.item_bank.native_runeword import NativeRunewordItem
 
 
@@ -86,7 +87,7 @@ def cases():
             keys += ('39:0',)
         for quality in ('normal', 'superior', 'low_quality'):
             item = shield(base, quality)
-            examples = [
+            examples: list[tuple[str, Item, dict[str, Any], str | None]] = [
                 ('minimum', item, context, 'true'),
                 ('wrong-class', item, dict(context, player_class='Amazon'), 'false'),
                 ('unknown-class', item, {k: v for k, v in context.items() if k != 'player_class'}, 'unknown'),
@@ -116,7 +117,7 @@ def cases():
                     'unknown-companions',
                 )
                 supported = truth == 'true' and not incomplete
-                expected = {}
+                expected: dict[str, object] = {}
                 if truth is not None:
                     expected['roles'] = Contains(
                         *(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)) for role in roles)

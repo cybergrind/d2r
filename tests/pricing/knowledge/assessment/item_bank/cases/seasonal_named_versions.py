@@ -4,7 +4,7 @@ from dataclasses import replace
 
 from dirty_equals import Contains, IsPartialDict
 
-from tests.pricing.knowledge.assessment.item_bank.models import Case, Item
+from tests.pricing.knowledge.assessment.item_bank.models import Case, Item, known
 
 
 BANE_SHARED = ((48, 0, 4), (49, 0, 6), (39, 0, 50), (9, 0, 30 * 256), (107, 36, 5), (107, 37, 2))
@@ -44,7 +44,7 @@ def cases():
                         )
                     )
                 )
-            contains = (candidate.name,)
+            contains = (known(candidate.name),)
             if label != 'seasonal':
                 contains += (ordinary_text,)
             if label == 'seasonal':
@@ -59,7 +59,7 @@ def cases():
                 item=candidate,
                 context={},
                 expected=expected,
-                covers=('named:unique:' + item.name,),
+                covers=('named:unique:' + known(item.name),),
                 scenario=scenario,
                 report_contains=contains,
                 report_absent=absent,
@@ -201,9 +201,9 @@ def additional_cases():
                 item=item,
                 context={},
                 expected=expected,
-                covers=('named:unique:' + ordinary.name,),
+                covers=('named:unique:' + known(ordinary.name),),
                 scenario=scenario,
-                report_contains=(ordinary.name,)
+                report_contains=(known(ordinary.name),)
                 + ((label,) if variant == 'seasonal' or old_value else ())
                 + (('Trade tier:',) if variant != 'seasonal' else ()),
                 report_absent=(label,) if variant != 'seasonal' and old_value is None else (),

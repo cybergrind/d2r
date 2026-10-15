@@ -6,6 +6,7 @@ from pricing.knowledge.assessment.build_profiles import build
 from pricing.knowledge.assessment.profiles import assess_role_results
 from pricing.knowledge.assessment.stat_bundle import configuration_from_row
 from pricing.knowledge.assessment.stat_evaluation import StatsEvaluator
+from tests.pricing.knowledge.assessment.fact_changes import fact_changes
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
 
 
@@ -48,7 +49,7 @@ def test_goldwrap_farming_utility_respects_role_and_cast_breakpoint(slug, index,
         assert set(
             evaluate(replace(item, stats={k: v for k, v in item.stats.items() if k != key})).annotations
         ) == wanted - {key}
-    for change in ({'name': 'Other'}, {'rarity': 'magic'}, {'identified': False}):
+    for change in fact_changes({'name': 'Other'}, {'rarity': 'magic'}, {'identified': False}):
         assert not evaluate(replace(item, **change)).annotations
     assert not evaluate(context={'player_class': 'Sorceress', 'player_total_fcr': 105}).annotations
     assert not evaluate(context={}).annotations

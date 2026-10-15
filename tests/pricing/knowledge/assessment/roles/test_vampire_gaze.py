@@ -5,6 +5,7 @@ import pytest
 from pricing.knowledge.assessment.build_profiles import build
 from pricing.knowledge.assessment.profiles import assess_roles
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
+from tests.pricing.knowledge.reports import reports
 
 
 IDS = [
@@ -31,7 +32,7 @@ def gaze():
 def test_gaze_roles_accept_low_rolls_but_preserve_mercenary_context(identity):
     profile = next((p for p in build()['profiles'] if p['id'] == identity), None)
     assert profile is not None
-    role = assess_roles(gaze(), [profile])[0]
+    role = reports(assess_roles(gaze(), [profile]))[0]
     assert role['side'] == 'merc'
     assert role['rule_trace']['truth'] == 'true'
     assert role['status'] == 'partial'

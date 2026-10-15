@@ -1,12 +1,13 @@
 """Rhyme recipe utility across exact Bone Shield and generic caster alternatives."""
 
 from dataclasses import replace
+from typing import Any
 
 from dirty_equals import Contains, IsPartialDict
 
 from tests.pricing.knowledge.assessment.item_bank.cases.rhyme_class_shields import NATIVE
 from tests.pricing.knowledge.assessment.item_bank.cases.spirit_caster_roles import observation
-from tests.pricing.knowledge.assessment.item_bank.models import Case, SocketItem
+from tests.pricing.knowledge.assessment.item_bank.models import Case, Item, SocketItem
 from tests.pricing.knowledge.assessment.item_bank.native_runeword import NativeRunewordItem
 
 
@@ -85,7 +86,7 @@ def cases():
                 socket_items=RUNES,
                 runeword='Rhyme',
             )
-            examples = [
+            examples: list[tuple[str, Item, dict[str, Any], str | None]] = [
                 ('native', item, context, 'true'),
                 ('wrong-class', item, {'player_class': 'Paladin'}, 'false'),
                 ('unknown-class', item, {}, 'unknown'),
@@ -132,7 +133,7 @@ def cases():
                 filtered = group == 'generic-frozen-sorceress' and label == 'small-shield'
                 active = truth == 'true'
                 captured = {f'{s}:{p}' for s, p, _ in candidate.raw_stats}
-                expected = {}
+                expected: dict[str, object] = {}
                 if truth is not None and not filtered:
                     expected['roles'] = Contains(
                         *(IsPartialDict(id=r, rule_trace=IsPartialDict(truth=truth)) for r in roles)

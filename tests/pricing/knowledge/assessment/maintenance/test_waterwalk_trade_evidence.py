@@ -1,11 +1,12 @@
 from copy import deepcopy
+from typing import Any
 
 import pytest
 
 from pricing.knowledge.assessment.maintenance.trade_waterwalk_evidence import audit
 
 
-def row():
+def row() -> dict[str, Any]:
     return {
         'id': 'a',
         'name': 'Waterwalk',

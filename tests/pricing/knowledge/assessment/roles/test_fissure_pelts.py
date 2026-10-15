@@ -5,6 +5,7 @@ import pytest
 from pricing.knowledge.assessment.build_profiles import build
 from pricing.knowledge.assessment.profiles import assess_roles
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
+from tests.pricing.knowledge.reports import reports
 
 
 def profile(variant='standard'):
@@ -19,7 +20,7 @@ def pelt(base='Dream Spirit', skills=None):
 
 
 def assess(item, variant='standard', player='Druid'):
-    return assess_roles(item, [profile(variant)], {'player_class': player})
+    return reports(assess_roles(item, [profile(variant)], {'player_class': player}))
 
 
 def facet(name='Rainbow Facet', element='fire'):

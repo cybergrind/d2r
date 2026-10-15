@@ -38,7 +38,7 @@ from inventory_tracking.combat.sim.monsters import MELEE
 from inventory_tracking.config import HealingConfig
 from inventory_tracking.macros.world import NO_OWNER
 from inventory_tracking.native.layout import DEAD_MODES
-from tests.inventory_tracking.scenarios.arena.game import BLOCK_CHANCE, Arena
+from tests.inventory_tracking.scenarios.arena.game import BLOCK_CHANCE, Arena, Flight
 from tests.inventory_tracking.scenarios.arena.mobs import BLAST_KIND, Mobs, explodes
 from tests.inventory_tracking.scenarios.arena.scene import Mob, Scene
 from tests.inventory_tracking.scenarios.threat.harness import BLAST, BLAST_RADIUS
@@ -213,7 +213,8 @@ class Stage(Arena):
     ) -> None:
         super().__init__(scene, seed=seed, osd=osd)
         # The same monsters again, as `Arena.__init__` made them, in a `Cast`.
-        self.mobs = self.cast = Cast(self.scene, random.Random(seed), None, seed=seed, aware=aware, lands=lands)
+        self.cast = Cast(self.scene, random.Random(seed), None, seed=seed, aware=aware, lands=lands)
+        self.mobs = self.cast
         self.mobs.block_chance = BLOCK_CHANCE
         self.mobs.guard = self.guard  # the character's guard, as `Arena.__init__` gave the first ones
         self.world = replace(self.world, monsters=tuple(m for m in self.mobs.monsters() if m.mode not in DEAD_MODES))
@@ -228,7 +229,7 @@ class Stage(Arena):
         self.appeared: list[tuple[float, str, int]] = []  # (seconds, the spawn's label, how many)
         self.opened: dict[int, float] = {}  # an object's unit -> when it was operated
         self.struck: list[
-            tuple[int, Point, Point, object]
+            tuple[int, Point, Point, Flight | None]
         ] = []  # a strike: the tick, from, the focal point, its flight
 
     def strike(self) -> None:

@@ -3,6 +3,7 @@
 import json
 from copy import deepcopy
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -11,10 +12,12 @@ from pricing.knowledge.assessment.maintenance.guide_inventory import fingerprint
 
 ROOT = Path(__file__).resolve().parents[5]
 ROLE = 'nova-sorceress-guide-2-vipermagi-ist'
+# review, occurrence, role, equipment_review, equipment, uses: the leading validate_link() arguments.
+LinkInputs = tuple[dict[str, Any], dict[str, Any], dict[str, Any], dict[str, Any], dict[str, Any], list[dict[str, Any]]]
 OCCURRENCE = 'e2473f99a17fda0314c22944'
 
 
-def inputs():
+def inputs() -> LinkInputs:
     def read(path):
         return json.loads((ROOT / path).read_text())
 
@@ -41,7 +44,7 @@ def inputs():
     return review, occurrence, role, equipment_review, equipment, uses
 
 
-def run(args):
+def run(args: LinkInputs):
     from pricing.knowledge.assessment.maintenance.prose_socket_links import validate_link
     from pricing.knowledge.assessment.maintenance.table_equivalence import _read
 

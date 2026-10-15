@@ -6,7 +6,7 @@ from tests.inventory_tracking.appraisal.test_worker import Capture, Deferred
 
 
 def test_request_generation_survives_async_retrieval_cache_and_hover_checks():
-    active = ContextVar('test_generation', default=None)
+    active: ContextVar[str | None] = ContextVar('test_generation', default=None)
     selected = ['old']
     seen = []
 

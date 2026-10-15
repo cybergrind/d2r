@@ -2,6 +2,7 @@
 
 import hashlib
 from copy import deepcopy
+from typing import Any
 
 import pytest
 
@@ -24,7 +25,12 @@ def setup(root, *, legacy=False):
     path = root / source['guide']['path']
     path.write_text(html)
     source['guide']['sha256'] = hashlib.sha256(html.encode()).hexdigest()
-    refs = legacy_item_references(html) if legacy else section_inventory(html)['embedded_item_refs']
+    refs: list[dict[str, Any]]
+    if legacy:
+        refs = legacy_item_references(html)
+    else:
+        guide: dict[str, Any] = section_inventory(html)
+        refs = guide['embedded_item_refs']
     source['reference'] = refs[1]
     source['expected_context'] = embedded_guide_context(html, refs[1])
     row = {

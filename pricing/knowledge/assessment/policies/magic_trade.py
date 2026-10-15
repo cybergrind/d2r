@@ -11,6 +11,7 @@ from pricing.knowledge.assessment.mechanics.jmod_shell import NATIVE_HASHES, she
 from pricing.knowledge.assessment.mechanics.shield_blocking import modifier_blocking
 from pricing.knowledge.assessment.policies.sources import resolve_pointer
 from pricing.knowledge.market import scope_status
+from pricing.knowledge.market_rows import Market, market_of, published_market
 
 
 ROOT = Path(__file__).resolve().parents[4]
@@ -26,6 +27,7 @@ def inputs():
 
 @lru_cache(maxsize=2)
 def validate(raw, guides, market, native):
+    market = market if isinstance(market, Market) else market_of(market)
     review = json.loads(raw)
     if review['scope'] != 'SC / Non-Ladder / PC / RotW' or review['id'] != 'jmod-shell':
         raise ValueError('Invalid magic trade scope')
@@ -35,9 +37,9 @@ def validate(raw, guides, market, native):
     demand = resolve_pointer(json.loads(guides), "/Jeweler's Monarch of Deflecting")
     if demand['affixes_named'] != ["Jeweler's", 'of Deflecting'] or not demand['builds'] or not demand['notes']:
         raise ValueError('Missing JMOD guide demand')
-    if hashlib.sha256(market).hexdigest() != review['market_sha256']:
+    if market.sha256 != review['market_sha256']:
         raise ValueError('Magic trade market evidence changed')
-    selected = {r['id']: r for line in market.splitlines() if (r := json.loads(line))['id'] in review['evidence_ids']}
+    selected = {r['id']: r for r in market.with_ids(review['evidence_ids'])}
     if len(selected) != len(review['evidence_ids']):
         raise ValueError('Missing or duplicate JMOD evidence')
     native_bytes = dict(zip(NATIVE, native, strict=True))
@@ -67,7 +69,7 @@ def reviewed_date():
     return validate(
         read_artifact(RULES),
         read_artifact(GUIDES),
-        read_artifact(MARKET),
+        published_market(MARKET),
         tuple(read_artifact(path) for path in NATIVE),
     )
 

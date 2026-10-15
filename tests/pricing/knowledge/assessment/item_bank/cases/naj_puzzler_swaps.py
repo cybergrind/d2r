@@ -60,7 +60,7 @@ def cases():
             ('unidentified', replace(item, identified=False), context, 'false', False),
         )
         for label, candidate, loadout, truth, active in examples:
-            assessment = {
+            assessment: dict[str, object] = {
                 'roles': Contains(*(IsPartialDict(id=r, rule_trace=IsPartialDict(truth=truth)) for r in roles))
             }
             if active:

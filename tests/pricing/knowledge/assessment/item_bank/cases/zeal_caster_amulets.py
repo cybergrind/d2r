@@ -68,7 +68,7 @@ def cases():
                 ]
             )
         for scenario, label, candidate, loadout in variants:
-            expected = {'roles': Contains(IsPartialDict(id=role))}
+            expected: dict[str, object] = {'roles': Contains(IsPartialDict(id=role))}
             if scenario == 'positive':
                 expected['stat_evaluation'] = IsPartialDict(
                     annotations=IsPartialDict(

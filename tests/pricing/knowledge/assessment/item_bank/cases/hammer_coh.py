@@ -68,7 +68,9 @@ def cases():
                 keys = ('127:0', '36:0', '39:0', '41:0', '43:0', '45:0')
                 if side == 'merc':
                     keys += ('60:0', '80:0')
-                expected = {'roles': Contains(IsPartialDict(id=role, side=side, rule_trace=IsPartialDict(truth=truth)))}
+                expected: dict[str, object] = {
+                    'roles': Contains(IsPartialDict(id=role, side=side, rule_trace=IsPartialDict(truth=truth)))
+                }
                 if truth == 'true':
                     expected['stat_evaluation'] = IsPartialDict(
                         annotations=IsPartialDict(

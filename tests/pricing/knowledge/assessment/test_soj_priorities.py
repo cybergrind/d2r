@@ -6,6 +6,7 @@ from pricing.knowledge.assessment.build_profiles import build
 from pricing.knowledge.assessment.profiles import assess_role_results
 from pricing.knowledge.assessment.stat_bundle import configuration_from_row
 from pricing.knowledge.assessment.stat_evaluation import StatsEvaluator
+from tests.pricing.knowledge.assessment.fact_changes import fact_changes
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
 
 
@@ -59,7 +60,7 @@ def test_soj_skills_and_mana_preserve_build_context_without_lightning_spell_bonu
         assert set(
             evaluate(replace(item, stats={k: v for k, v in item.stats.items() if k != key})).annotations
         ) == wanted - {key}
-    for change in ({'name': 'Other'}, {'rarity': 'rare'}, {'identified': False}, {'ethereal': True}):
+    for change in fact_changes({'name': 'Other'}, {'rarity': 'rare'}, {'identified': False}, {'ethereal': True}):
         assert not evaluate(replace(item, **change)).annotations
     for context in ({}, {'player_class': 'Barbarian', 'player_total_fcr': 200}):
         assert not evaluate(context=context).annotations

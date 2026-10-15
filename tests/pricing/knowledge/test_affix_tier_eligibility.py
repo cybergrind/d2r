@@ -1,9 +1,11 @@
+from typing import Any
+
 import pytest
 
 from pricing.knowledge.definitions import add_charm_quality_ranges
 
 
-def affix(low, high, frequency, *, rare=True):
+def affix(low, high, frequency, *, rare=True) -> dict[str, Any]:
     return {
         'affix_table': 'suffix',
         'spawnable': True,
