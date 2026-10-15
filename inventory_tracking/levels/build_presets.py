@@ -35,6 +35,14 @@ def build(d2data: Path) -> dict:
             for v in levels.values()
             if v.get('Id') and any(v.get(f'Vis{slot}') for slot in range(8))
         },
+        # Warp0..7: the lvlwarp.txt id of the warp behind each Vis slot, -1 = none: the two levels are joined by
+        # an open passage, crossed by walking (the River of Flame and the Chaos Sanctuary, the Outer Cloister and
+        # the Barracks), not by a warp that is clicked.
+        'warps': {
+            str(v['Id']): [v.get(f'Warp{slot}', -1) for slot in range(8)]
+            for v in levels.values()
+            if v.get('Id') and any(v.get(f'Vis{slot}') for slot in range(8))
+        },
     }
 
 

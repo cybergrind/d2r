@@ -35,7 +35,11 @@ BLADE_WARP_JUMP = Jump(BLADE_WARP, WARP_SECONDS, WARP_SPEED, JUMP_REACH, JUMP_LE
 # In controller mode the blade flies its controller `defaultTargetDistance` in the stick's direction (read,
 # controllerskillsettings.json: 17 units; where it lands is measured by `Pad jump:` lines, macros/pad.py).
 BLADE_WARP_PAD_REACH = 17.0
-BLADE_WARP_SOURCE = JumpSource(BLADE_WARP_JUMP, delay=WARP_DELAY, cleared=WARP_CLEARED, pad_reach=BLADE_WARP_PAD_REACH)
+# Blade Warp brings the character's minions and the mercenary with it (the player, 2026-10-14: "it can be used to
+# reposition the merc to avoid his death"): combat/escort.py prices a warp for that.
+BLADE_WARP_SOURCE = JumpSource(
+    BLADE_WARP_JUMP, delay=WARP_DELAY, cleared=WARP_CLEARED, pad_reach=BLADE_WARP_PAD_REACH, brings=True
+)
 
 # The shared sets in their order, the blade first in each: Blade Warp, then Teleport, then the walk.
 MOVEMENT = tuple(shared.led_by(BLADE_WARP_SOURCE) for shared in SHARED)

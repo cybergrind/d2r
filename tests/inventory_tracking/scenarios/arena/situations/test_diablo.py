@@ -29,7 +29,7 @@ def test_the_recorded_fight_plays_with_his_missiles_taking_life(monkeypatch):
     assert any(what.endswith('Diablo') for _at, what, _n in outcome.appeared)
     by = outcome.taken_by()
     # The game lost 255; the arena his stream and wall by the client's rules, in the same order of size.
-    assert 100 <= by[('Diablo', 'spell')] <= 800
+    assert 100 <= by['Diablo', 'spell'] <= 800
 
 
 def test_pricing_his_stream_halves_what_it_takes_at_little_cost_in_time():
@@ -54,6 +54,6 @@ def test_attack_mode_alone_steps_across_his_lightning_and_strikes_on():
     assert not situation.pursuit
     outcome = situation.play(presses, seed=1)
     assert outcome.said_count("Stepping across Diablo's lightning") >= 1
-    assert outcome.taken_by()[('Diablo', 'spell')] < 150
+    assert outcome.taken_by()['Diablo', 'spell'] < 150
     assert outcome.moved < 30  # steps of a few units each, no walk away
     assert not outcome.dead

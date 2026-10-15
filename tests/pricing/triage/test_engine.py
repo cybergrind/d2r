@@ -152,7 +152,7 @@ def test_named_missing_or_thin_evidence_is_check_not_vendor(category):
     result = assess(item, tables)
     assert result['verdict'] == 'check'
     assert result['band'] is None
-    tables['bands'][(category, 'example', 'name')] = {
+    tables['bands'][category, 'example', 'name'] = {
         'median_ist': 131,
         'q1_ist': 131,
         'sellers': 2,
@@ -266,7 +266,7 @@ def test_single_gem_is_check_to_save_for_a_supported_lot_not_a_single_unit_sale(
     assert '2026-10-03' in headline(result)
     assert assess(item | {'quantity': 15}, tables)['verdict'] == 'slow'
     assert assess(item | {'name': 'Random Gems'}, tables)['verdict'] == 'vendor'
-    tables['bands'][('gems', 'perfect ruby', 'quantity:15')] = band | {'sellers': 2, 'liquidity': 'none'}
+    tables['bands']['gems', 'perfect ruby', 'quantity:15'] = band | {'sellers': 2, 'liquidity': 'none'}
     assert assess(item, tables)['verdict'] == 'vendor'
 
 
@@ -297,5 +297,5 @@ def test_larger_commodity_holding_can_supply_a_supported_lot_without_extrapolati
     for quantity in (None, '32', 0):
         assert assess(item | {'quantity': quantity}, tables)['verdict'] == 'vendor'
     assert assess(item | {'name': 'Random Gems'}, tables)['verdict'] == 'vendor'
-    tables['bands'][('gems', 'perfect ruby', 'quantity:15')] = band | {'sellers': 2, 'liquidity': 'none'}
+    tables['bands']['gems', 'perfect ruby', 'quantity:15'] = band | {'sellers': 2, 'liquidity': 'none'}
     assert assess(item, tables)['verdict'] == 'vendor'

@@ -246,7 +246,7 @@ def _dot(cr, x, y, radius, fill, ring):
 
 
 FLOOR = (0.80, 0.72, 0.52, 0.80)
-WALKABLE_RUN = re.compile('1+')
+WALKABLE_RUN = re.compile(r'1+')
 
 
 def _draw_tiles(cr, transform, x, y, w, h, cells, floor=FLOOR):

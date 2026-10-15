@@ -10,6 +10,17 @@ two cannot disagree.
 A build takes the shared sets as they are (`SHARED`), or with jumps of its own put before theirs
 (`Ways.led_by`): the order of a set's sources is the order its jumps are preferred in. This module
 names no skill but Teleport, which a staff or an item gives to any class.
+
+**The navigation classes** (the player, 2026-10-14: "we should have different navigational classes for
+different cases"; rca/2026-10-14/navigation-classes.md). A far goal's way (`Intent.routed`) is planned by the
+class of means the character has now (`Ways.means`), and every leg, its measure (`left`) and its pace come
+from that one class, so a way is never planned by one means and walked by another:
+
+- HOPS, Teleport on a key with a charge to spend: legs may cross walls (the way of hops over the rooms);
+- WARPS, no Teleport to spend but a jump that costs nothing and needs a clear line (the Warlock's Blade
+  Warp): the walked way, a jump leg only over a clear line and only where it gets on faster than walking that
+  stretch (travel.py `beats_walk`: its reach, its casting delay, its cast against the walk's pace);
+- WALKS, neither: the walked way on foot.
 """
 
 import math
@@ -31,6 +42,7 @@ from inventory_tracking.macros.travel import (
     around_of,
     known,
     stride_of,
+    walk_seconds,
     way_left,
     way_leg,
 )
@@ -59,6 +71,11 @@ def no_staff(facts: MoveFacts, intent: Intent) -> bool:
 
 STAFF_TELEPORT = JumpSource(TELEPORT_JUMP, usable=staff_in_hand, pad_reach=TELEPORT_REACH)
 OWN_TELEPORT = JumpSource(TELEPORT_JUMP, usable=no_staff, pad_reach=TELEPORT_REACH)
+
+# The navigation classes (the module text): what a far goal's way is planned by.
+HOPS = 'teleport'  # legs may cross walls
+WARPS = 'blade warp and walk'  # the walked way; a free jump over a clear line where it beats the walk
+WALKS = 'walk'  # the walked way on foot
 
 NO_LANDING = 'no footing in view brings the character nearer by hops'
 NO_HOP_WAY = 'no way of hops leads over the rooms to the goal'
@@ -173,39 +190,63 @@ class Ways:
         """The jumps of the set that cost no charge and can be made now (every one but Teleport)."""
         return tuple(jump for jump in self.jumps(facts, intent) if jump.skill != TELEPORT)
 
-    def routed(self, facts: MoveFacts, goal: Point, intent: Intent) -> Leg:
-        """The next move toward a goal at any distance, by the set's own way there (`Intent.routed`).
-        A set that can make a Teleport hop now (`hops`) goes by the way of hops over the level's rooms,
-        which crosses walls (`hop_leg`); one that cannot (no Teleport, no charge to spend, the staff out
-        of hand and no swap allowed) goes by the walked way (travel.py `way_leg`), on which a jump is
-        made where its line is clear and a walk elsewhere. One measure for each, `left`, and a move
-        that does not shorten it is no move."""
-        spare = self.spare(facts, intent)
+    def free(self, facts: MoveFacts, intent: Intent) -> JumpSource | None:
+        """The set's first jump that costs no charge (every one but Teleport) and that the character has: on a key,
+        not one that moved nobody less than `intent.distrust` ago, and in controller mode one of a fixed reach. Its
+        casting delay may still run: the class is what the character has, a leg is what it can make now."""
+        for source in self.sources:
+            skill = source.jump.skill
+            if skill == TELEPORT or skill not in facts.slots or facts.since_failed(skill) <= intent.distrust:
+                continue
+            if facts.pad and source.pad_reach is None:
+                continue
+            return source
+        return None
+
+    def means(self, facts: MoveFacts, goal: Point, intent: Intent) -> str:
+        """The navigation class a far goal's way is planned by now (the module text): HOPS where a Teleport hop
+        can be made (`hops`), else WARPS with a jump that costs nothing (`free`), else WALKS."""
         if hops(facts, goal, intent):
+            return HOPS
+        return WARPS if self.free(facts, intent) is not None else WALKS
+
+    def routed(self, facts: MoveFacts, goal: Point, intent: Intent) -> Leg:
+        """The next move toward a goal at any distance, by the set's own way there (`Intent.routed`), planned by
+        its navigation class now (`means`). HOPS goes by the way of hops over the level's rooms, which crosses
+        walls (`hop_leg`); WARPS and WALKS by the walked way (travel.py `way_leg`), on which a jump that costs
+        nothing is made only over a clear line and where it beats walking (WARPS), a walk elsewhere. One measure
+        for each, `left`, and a move that does not shorten it is no move."""
+        kind = self.means(facts, goal, intent)
+        spare = self.spare(facts, intent)
+        if kind == HOPS:
             found = hop_leg(facts, goal, intent, spare)
         else:
-            found = way_leg(facts, goal, intent, jumps=spare)
+            found = way_leg(facts, goal, intent, jumps=spare if kind == WARPS else (), delays=self.delays())
         if isinstance(found, Step) and not self.left(replace(facts, here=found.spot), goal, intent) < self.left(
             facts, goal, intent
         ):
             return NoWay(NO_NEARER)
         return found
 
+    def delays(self) -> dict[int, float]:
+        """skill -> its casting delay: what a jump leg holds the next one back by (travel.py `beats_walk`)."""
+        return {source.jump.skill: source.delay for source in self.sources if source.delay}
+
     def left(self, facts: MoveFacts, goal: Point, intent: Intent) -> float:
-        """Units of the way left to a far goal by the means the set would go by now: of hops where it
-        can hop, on foot where it cannot; inf: no way is known."""
-        if hops(facts, goal, intent):
+        """Units of the way left to a far goal by the class the set plans by now: of hops for HOPS, on foot for
+        WARPS and WALKS (a jump that costs nothing goes along the walked way); inf: no way is known."""
+        if self.means(facts, goal, intent) == HOPS:
             return hops_left(facts, goal)
         return way_left(facts, goal)
 
     def pace(self, facts: MoveFacts, goal: Point, intent: Intent) -> float:
-        """Units a second the set makes on its way to a far goal: a hop's reach in a hop's time where it
-        hops; on foot the first jump it has that costs no charge, a reach in its casting delay or its
-        flight, whichever is longer; else the run."""
-        if hops(facts, goal, intent):
+        """Units a second the set makes on its way to a far goal by its class: HOPS a hop's reach in a hop's
+        time; WARPS the free jump's reach in its casting delay or its flight, whichever is longer; WALKS the run."""
+        kind = self.means(facts, goal, intent)
+        if kind == HOPS:
             return TELEPORT_JUMP.reach / TELEPORT_JUMP.takes(TELEPORT_JUMP.reach)
-        free = next((source for source in self.sources if source.jump.skill != TELEPORT), None)
-        if free is None or free.jump.skill not in facts.slots:
+        free = self.free(facts, intent) if kind == WARPS else None
+        if free is None:
             return RUN_SPEED
         return free.jump.reach / max(free.delay, free.jump.takes(free.jump.reach))
 
@@ -252,16 +293,36 @@ class Ways:
 
     def routed_wait(self, facts: MoveFacts, goal: Point, intent: Intent) -> float:
         """Seconds of a casting delay still to run on a jump the set would make toward a far goal were
-        the delay over: the next move asked with that jump taken as ready is a jump by it. 0.0 otherwise."""
+        the delay over: the next move asked with that jump taken as ready is a jump by it, and that jump made
+        after the wait gets on faster than the move there is now (a walk: `waited`). 0.0 otherwise."""
         for source in self.sources:
             left = source.cooling(facts)
             if left <= 0 or source.jump.skill not in facts.slots:
                 continue
             rested = replace(facts, last_used={k: v for k, v in facts.last_used.items() if k != source.jump.skill})
             found = self.routed(rested, goal, intent)
-            if isinstance(found, Step) and found.skill == source.jump.skill:
+            if (
+                isinstance(found, Step)
+                and found.skill == source.jump.skill
+                and self.waited(facts, goal, intent, source, found, left)
+            ):
                 return left
         return 0.0
+
+    def waited(
+        self, facts: MoveFacts, goal: Point, intent: Intent, source: JumpSource, jump: Step, left: float
+    ) -> bool:
+        """Whether `jump`, made once its casting delay's `left` seconds are over, gets on along the way faster than
+        the move the set makes now instead (the navigation class WARPS: the delay is the jump's price): the units
+        of the way each saves over its seconds. With no move now (or one that is no walk) the jump is waited for."""
+        now = self.routed(facts, goal, intent)
+        if not isinstance(now, Step) or now.skill is not None:
+            return True
+        start = self.left(facts, goal, intent)
+        gained = start - self.left(replace(facts, here=jump.spot), goal, intent)
+        walk_gained = start - self.left(replace(facts, here=now.spot), goal, intent)
+        jumping = left + max(source.jump.takes(math.dist(facts.here, jump.spot)), source.delay)
+        return walk_gained <= 0.0 or gained / jumping >= walk_gained / walk_seconds(math.dist(facts.here, now.spot))
 
 
 @dataclass(frozen=True)

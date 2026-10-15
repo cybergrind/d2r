@@ -910,8 +910,8 @@ def step_toward(
     warp: Callable[[Target, Player, tuple[float, float]], bool] | None = None,
 ) -> None:
     """One teleport step. `key_names(world, skills)` gives the key per skill (runner). `afoot` makes the
-    step without Teleport (the runner: a Blade Warp or a walk) when the staff has no charge left;
-    `warp` makes a hop by Blade Warp where it can (`hop_toward`)."""
+    step without Teleport (the runner: the navigator's way for the means in hand, a Blade Warp or a walk) when
+    the staff has no charge left; `warp` makes a hop by Blade Warp where it can (`hop_toward`)."""
     with run.lightly():
         player, rect = ready(run)
     run.in_time('the step')
@@ -947,18 +947,11 @@ def step_toward(
     if at_door:
         walk_into(run, target, player, aspect)
     elif afoot is not None and staff is not None and staff.charges == 0:
-        # user, 2026-10-11: "use warp if we have 0 charges". Along the way first (`warp`, which with an
-        # empty staff makes the hop or stops), then straight toward the mark: Black Marsh, 18:59:44
-        # that day, two warps straight toward the tower and then "no Blade Warp or walk leads" there.
-        try:
-            if warp is None:
-                raise Abort('no way but Teleport is given')
-            hop_toward(run, target, player, rect, key_names, warp)
-        except Abort as stop:
-            if run.stops(stop):
-                raise
-            LOG.info('Macro: no step along the way with the staff empty (%s); straight toward %s', stop, target.label)
-            afoot(target)
+        # user, 2026-10-11: "use warp if we have 0 charges"; 2026-10-14: a way without Teleport is planned for the
+        # means in hand, the walked way with Blade Warp over a clear line (rca/2026-10-14/navigation-classes.md).
+        # Never toward a place a Teleport would land on: the pocket of 22:54:28 on 2026-10-14, 276 units by the
+        # walked way from the door (run-1932-findings.md §1.2.2).
+        afoot(target)
     else:
         hop_toward(run, target, player, rect, key_names, warp)
 

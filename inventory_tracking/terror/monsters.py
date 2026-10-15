@@ -70,7 +70,7 @@ class Monster:
     stats: tuple[tuple[int, int, int], ...] | None = None  # (layer, stat id, raw); first sight only
     base_stats: tuple[tuple[int, int, int], ...] | None = None  # first sight only
     path: int = field(default=0, compare=False)  # address of the dynamic path (hud/live.py)
-    unit: int = field(default=0, compare=False)  # address of the unit record: its mode and path, read live (hud/live.py)
+    unit: int = field(default=0, compare=False)  # the unit record's address: its mode and path, read by hud/dots.py
 
 
 @dataclass(frozen=True)

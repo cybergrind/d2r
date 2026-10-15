@@ -5,18 +5,20 @@ import json
 import os
 from pathlib import Path
 
+import pytest
+
 from tests.inventory_tracking.scenarios.battle import tower_cellar5 as battle
 from tests.inventory_tracking.scenarios.battle.replay import Replay
 from tests.inventory_tracking.scenarios.battle.test_tower_cellar5 import AS_IT_WAS, END
 
 
-import pytest
-
-
 HERE = Path(__file__).parent
 # The rules as they were when the battle was recorded, and the rules of today: the first is held against
 # the recorded log elsewhere (battle/test_tower_cellar5.py), the second is what a refactor must not change.
-RULES = {'as_it_was': (AS_IT_WAS, HERE / 'tower_cellar5.log.json'), 'today': ({}, HERE / 'tower_cellar5.today.log.json')}
+RULES = {
+    'as_it_was': (AS_IT_WAS, HERE / 'tower_cellar5.log.json'),
+    'today': ({}, HERE / 'tower_cellar5.today.log.json'),
+}
 
 
 @pytest.mark.parametrize('rules', sorted(RULES))

@@ -9,6 +9,8 @@ pause of the mode), and looks at the life and the belt every EVERY seconds:
   time since is counted from it, so two drinkers do not each take one for the same blow;
 - the potions on the ground within NEAR of the character count as supply;
 - the key is the belt column's whose hotkey cell holds a potion of the kind asked for.
+- one drinker per blow: before its key the potion is claimed in the healer's ledger (`claim`), which the healer of
+  `make osd` stands off for; a key of the healer's for the character within STAND_OFF leaves the blow to it.
 
 What stops a key of the macro's stops this one too (a key of the player's held, the focus lost), without
 ending the mode: the drink is left for the next look. Nothing is pressed while a Shift key is down: Shift
@@ -18,6 +20,7 @@ and a belt key give the potion to the mercenary.
 import math
 from collections import deque
 
+from inventory_tracking.automation.ledger import Claim
 from inventory_tracking.combat.survival import DrinkSettings, Pressure, Reading, Supply, drink, pressure
 from inventory_tracking.common import LOG
 from inventory_tracking.config import INPUT
@@ -25,7 +28,7 @@ from inventory_tracking.macros.actuator import Abort, Cancelled
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.pad import DRINK_WATCH
 from inventory_tracking.macros.world import HEALING, REJUVENATION, Loot
-from inventory_tracking.models import PotionType
+from inventory_tracking.models import Actor, PotionType
 from inventory_tracking.native.layout import BELT_COLUMNS
 from inventory_tracking.tracking.belt import potion_kind
 
@@ -40,6 +43,11 @@ NAMES = {PotionType.HEALING: 'Healing potion', PotionType.REJUVENATION: 'Rejuven
 # belt is taken for that one: the healer saw its potion leave the belt 0.17 to 0.19 s after its key (osd.log of
 # 2026-10-14, 06:08:53.19 to 57.72, four potions), and this looks at the belt every EVERY.
 GIVEN_WITHIN = 1.0
+# Seconds after the healer's key for the character (its ledger's stamp) within which the macro leaves a blow to it:
+# its potion leaves the belt 0.17 to 0.19 s after its key (above), and this looks every EVERY; one look more.
+# The macro's key and the healer's, 50-70 ms apart at the same 65% mark, took two potions for one blow twice in
+# the Icy Cellar on 2026-10-14 (rca/2026-10-14/run-1932-findings.md issue 2).
+STAND_OFF = 0.5
 
 
 def on_belt(loot: Loot) -> dict[PotionType, int]:
@@ -107,7 +115,33 @@ class Drinker:
         key = None if kind is None else key_of(loot, kind)
         if kind is None or key is None or self.shift_down(run):
             return None
-        return kind if self.press(run, key, kind, loot, felt) else None
+        return kind if self.take(run, key, kind, loot, felt) else None
+
+    def take(self, run: Run, key: str, kind: PotionType, loot: Loot, felt: Pressure) -> bool:
+        """The potion claimed (`claim`) and its key pressed (`press`); whether it went out. A claim whose key did not
+        go out is given back."""
+        claim = self.claim(run, kind, run.clock())
+        if claim is not None and not claim.taken:
+            return False
+        if self.press(run, key, kind, loot, felt):
+            return True
+        if claim is not None and run.ledger is not None:
+            run.ledger.unclaim(Actor.PLAYER, kind, claim)  # no key went out: the healer is not held off for it
+        return False
+
+    def claim(self, run: Run, kind: PotionType, now: float) -> Claim | None:
+        """One drinker per blow: the character's potion of `kind` claimed in the healer's ledger before the key
+        (automation/ledger.py `PotionLedger.claim`), so `make osd` stands off for its cooldown of that kind; refused
+        while the healer's own key for it is younger than STAND_OFF (its potion not gone from the belt yet: the next
+        look sees it go, and counts it) or the healer is pressing. None: no ledger (no healer), the key goes out."""
+        if run.ledger is None:
+            return None
+        found = run.ledger.claim(Actor.PLAYER, kind, now, within=STAND_OFF)
+        if not found.taken:
+            LOG.info("Macro: drink: the healer has this blow's %s: %s; no key", NAMES[kind].lower(), found.why)
+        elif found.why:
+            LOG.info('Macro: drink: %s', found.why)
+        return found
 
     def mercenarys(self, run: Run, kind: PotionType, now: float) -> int:
         """Of the potions of `kind` gone from the belt since the last look, how many the healer gave the mercenary

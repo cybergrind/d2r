@@ -109,12 +109,16 @@ def test_the_plan_casts_each_phase_in_the_order_the_hunt_and_the_prebuff_had():
     by_phase = {phase: [row.skill for row in BUFFS if row.phase == phase] for phase in ('prebuff', 'upkeep', 'fight')}
     assert by_phase == {
         'prebuff': [CONSUME, HEX_PURGE, PSYCHIC_WARD],
-        'upkeep': [HEX_PURGE, PSYCHIC_WARD, CONSUME],
-        'fight': [HEX_PURGE, PSYCHIC_WARD, DEATH_MARK, SIGIL_LETHARGY, ENGORGE],
+        # A Defiler kept out (2026-10-14, run-1932-findings.md issue 3): after Consume in the quiet (its renewal
+        # summons one of its own), before Death Mark under the strike (the mark sends it)
+        'upkeep': [HEX_PURGE, PSYCHIC_WARD, CONSUME, SUMMON_DEFILER],
+        'fight': [HEX_PURGE, PSYCHIC_WARD, SUMMON_DEFILER, DEATH_MARK, SIGIL_LETHARGY, ENGORGE],
     }
     assert [(row.skill, row.phase, row.caster) for row in BUFFS if row.caster] == [
         (CONSUME, 'prebuff', 'defiler dance'),
         (CONSUME, 'upkeep', 'consume'),
+        (SUMMON_DEFILER, 'upkeep', 'defiler'),
+        (SUMMON_DEFILER, 'fight', 'defiler'),
         (SIGIL_LETHARGY, 'fight', 'sigil'),
         (ENGORGE, 'fight', 'engorge'),
     ]

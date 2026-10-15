@@ -37,7 +37,7 @@ def test_the_potential_keeps_its_window_and_the_mark_costs_nothing(aspect):
     view = Viewport(aspect)
     way = Way(open_target(), view)
     assert way.view == view
-    assert way.cost[(20, 20)] == 0.0
+    assert way.cost[20, 20] == 0.0
 
 
 @pytest.mark.parametrize('aspect', ASPECTS)
@@ -59,7 +59,7 @@ def test_a_narrow_window_needs_more_hops_sideways():
     # The screen's horizontal axis is world (+1, -1): a narrow window reaches less of it per hop.
     target = open_target()
     narrow, wide = Way(target, Viewport(4 / 3)), Way(target, Viewport(21 / 9))
-    assert narrow.cost[(30, 10)] >= wide.cost[(30, 10)]
+    assert narrow.cost[30, 10] >= wide.cost[30, 10]
     assert any(narrow.cost[tile] > wide.cost[tile] for tile in narrow.cost if tile in wide.cost)
 
 
@@ -67,7 +67,7 @@ def test_the_reach_straight_up_the_screen_does_not_depend_on_the_aspect():
     # The screen's vertical axis is world (-1, -1): the window's width does not change how far it reaches.
     target = open_target()
     narrow, wide = Way(target, Viewport(4 / 3)), Way(target, Viewport(21 / 9))
-    assert narrow.cost[(12, 12)] == pytest.approx(wide.cost[(12, 12)])
+    assert narrow.cost[12, 12] == pytest.approx(wide.cost[12, 12])
 
 
 def test_way_for_keeps_one_potential_per_window():

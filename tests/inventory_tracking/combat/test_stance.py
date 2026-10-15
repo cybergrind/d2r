@@ -11,7 +11,6 @@ from inventory_tracking.combat.stance import (
     CAST_SECONDS,
     CROWD_MOST,
     CROWD_UNITS,
-    ENGAGE,
     HOP_SECONDS,
     HORIZON,
     KEEP_AWAY,
@@ -207,7 +206,7 @@ def test_of_two_places_a_jump_makes_as_good_the_one_at_the_distance_a_fight_is_b
     monster = (HERE[0] + 40, HERE[1])
     found = camp(Observation(HERE, {1: foe(40, 0)}), POLICY, jumps=(BLINK,))
     assert found is not None
-    assert abs(math.dist(found.spot, monster) - ENGAGE) <= 3
+    assert abs(math.dist(found.spot, monster) - POLICY.engage) <= 3
 
 
 def test_a_jump_keeps_clear_of_where_the_melee_monsters_will_be_when_it_lands():
@@ -261,7 +260,7 @@ class Bolt:
 
     reach = 10.0
 
-    def dealt(self, origin, focal, foes):
+    def dealt(self, origin, focal, foes, blocked=None):
         return {unit: 300.0 for unit, found in foes.items() if found.at == focal}
 
 

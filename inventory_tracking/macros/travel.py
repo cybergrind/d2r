@@ -14,18 +14,24 @@ The intents and the navigator are here and not with the sets because `Travel` as
 sets are built on the choice below: movement.py imports this module, not the other way round.
 """
 
+import base64
+import binascii
 import heapq
 import math
 import statistics
-from collections.abc import Callable, Hashable, Sequence
+import threading
+from collections import OrderedDict
+from collections.abc import Callable, Hashable, Iterator, Mapping, Sequence
+from contextlib import contextmanager
+from contextvars import ContextVar
 from dataclasses import dataclass, field, replace
-from functools import lru_cache, partial
+from functools import partial
 
-from inventory_tracking.combat.stance import Camp, Jump, no_footing, way
+from inventory_tracking.combat.stance import RUN_SPEED, WALK_LATENCY, Camp, Jump, no_footing, way
 from inventory_tracking.common import LOG
 from inventory_tracking.levels.doors import Door
 from inventory_tracking.levels.model import Ground, Room, Target, Walkable
-from inventory_tracking.macros.actuator import Abort
+from inventory_tracking.macros.actuator import Abort, Cancelled, Hand
 from inventory_tracking.macros.build import Intent, Leg, MoveFacts, MovementSet, NoWay, Step, nowhere
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.routines import ACTING, DEAD, ONE_CAST, SWAP_SETTLE, press_skill, settle
@@ -186,12 +192,19 @@ NO_WAY_ROUND = 'no walked way leads nearer the goal'
 NO_SPOT_ON_WAY = 'no spot on the walked way is in view and reached by a jump over a clear line or one straight walk'
 NO_SET = 'no movement set of the build is for the character as it is now'
 WAY_UNKNOWN = 'no walked way to the goal is known (its ground is not read, or nothing leads there)'
+# The walked way is still being grown within the looks' time (`planning`) and no straight stride leads on meanwhile:
+# no failed way (a run's clearing goal is not passed by for it, hunt.py `judge`), the next look grows it on.
+GROWING = 'the walked way there is still being grown'
 NO_NEARER = 'the move found brings the goal no nearer by the way'
 # The walked way to a far goal (`Walked`). A cell beside a barred one counts HUG times its length: a
 # click's walk and a thrown jump end only where the cells around are free (`way`, `stride_of`), and the
 # shortest way hugs every corner it turns, so without it the way's own cells are places no move may end at.
 HUG = 2.0
 GOAL_CELLS = 8  # cells round a goal a walkable one is looked for in: an object stands on cells nobody walks on
+# The walked fields kept (`Fields`): a far goal's, the run's clearing goals' and a valuable's, each by its goal's cell.
+FIELDS_KEPT = 8
+# Cells a field settles between two reads of the look's clock (`planning`): some 1.5 ms of growth on this host.
+GROW_CHECK = 256
 
 
 def navigator(sets: Sequence[MovementSet], facts: MoveFacts) -> MovementSet | None:
@@ -383,6 +396,49 @@ def around_of(facts: MoveFacts, goal: Point, *, jumps: Sequence[Jump] = ()) -> L
     return NoWay(NO_SPOT_ON_WAY)
 
 
+class Unplanned(Exception):
+    """The walked field ran out of the look's time while it grew (`planning`): what it settled is kept, and the
+    next asking grows it on from there."""
+
+
+@dataclass
+class Planning:
+    """A look's time for the walked fields (`planning`): the clock, when it is over, and the fields that ran out
+    of it, each the straight line for the rest of the look (the measure one look decides by is one measure)."""
+
+    timer: Callable[[], float]
+    until: float
+    short: set[int] = field(default_factory=set)  # id() of the fields that ran out
+
+    def over(self) -> bool:
+        return self.timer() >= self.until
+
+
+PLANNING: ContextVar[Planning | None] = ContextVar('planning', default=None)
+
+
+@contextmanager
+def planning(timer: Callable[[], float] | None, until: float) -> Iterator[None]:
+    """The walked fields asked for within the block grow until the clock `timer` reads `until` and no longer
+    (`Walked.grow`): one that has not reached the character by then is the straight line for the rest of the
+    block (`walked_for`), and grows on at the next block. A block inside another has its own time; what ran out
+    in it stays out in the outer one. With no clock (the arena: a play the same for a seed), no bound.
+    rca/2026-10-14/run-2040-findings.md §1.2.2: a cold field of the Plains of Despair, 0.43 s of CPU, was the
+    look of 5.1 s under the host's load, with the strike and the drinker waiting on it."""
+    if timer is None:
+        yield
+        return
+    outer = PLANNING.get()
+    own = Planning(timer, until)
+    token = PLANNING.set(own)
+    try:
+        yield
+    finally:
+        PLANNING.reset(token)
+        if outer is not None:
+            outer.short |= own.short
+
+
 class Walked:
     """The walked way to a goal from any cell of the level: Dijkstra outward from the goal's cell over
     cells that are not barred (eight neighbours, no corner cut, a cell beside a wall HUG times as long),
@@ -390,26 +446,40 @@ class Walked:
     point; `descent` the cells of the way from it. What `walked_way` is for a place a move away, this is
     for a goal at any distance: the measure a character on foot gets nearer by (13:05 on 2026-10-13: the
     seal 286 units off in a straight line and 318 by the walked way, which led north out of the wing
-    while every move went west into its pocket)."""
+    while every move went west into its pocket).
+
+    Kept across the ground's growth (`extend`: a room read only adds footing) and grown within a look's time
+    (`planning`)."""
 
     def __init__(self, barred: Callable[[Point], bool], goal: Point) -> None:
         self.barred = barred
         self.bars: dict[tuple[int, int], bool] = {}
         self.hugs: dict[tuple[int, int], bool] = {}
-        last = (math.floor(goal[0]), math.floor(goal[1]))
+        self.goal = goal
+        self.cost: dict[tuple[int, int], float] = {}
+        self.settled: set[tuple[int, int]] = set()
+        self.queue: list[tuple[float, tuple[int, int]]] = []
+        self.radius = 0.0  # the way left from the last cell settled: every cell nearer by the way is settled
+        # Cells whose way a room read shortened (`extend`), still to be passed on before any other is settled
+        self.lowered: list[tuple[float, tuple[int, int]]] = []
+        self.said = False  # that it is still being grown was said (`walked_for`)
+        self.root = self.rooted()
+        if self.root is not None:
+            self.cost[self.root] = 0.0
+            self.queue.append((0.0, self.root))
+
+    def rooted(self) -> tuple[int, int] | None:
+        """The cell the field grows from: the walkable one nearest the goal within GOAL_CELLS of its cell."""
+        last = (math.floor(self.goal[0]), math.floor(self.goal[1]))
         around = [
             (last[0] + dx, last[1] + dy)
             for dx in range(-GOAL_CELLS, GOAL_CELLS + 1)
             for dy in range(-GOAL_CELLS, GOAL_CELLS + 1)
         ]
         free = [cell for cell in around if not self.bar(cell)]
-        self.cost: dict[tuple[int, int], float] = {}
-        self.settled: set[tuple[int, int]] = set()
-        self.queue: list[tuple[float, tuple[int, int]]] = []
-        if free:
-            root = min(free, key=lambda cell: math.dist((cell[0] + 0.5, cell[1] + 0.5), goal))
-            self.cost[root] = 0.0
-            self.queue.append((0.0, root))
+        if not free:
+            return None
+        return min(free, key=lambda cell: math.dist((cell[0] + 0.5, cell[1] + 0.5), self.goal))
 
     def bar(self, cell: tuple[int, int]) -> bool:
         known = self.bars.get(cell)
@@ -424,24 +494,108 @@ class Walked:
             known = self.hugs[cell] = any(self.bar((cell[0] + dx, cell[1] + dy)) for dx, dy, _ in NEIGHBOURS)
         return known
 
+    def step(self, at: tuple[int, int], dx: int, dy: int, length: float) -> float | None:
+        """The length of the step from cell `at` by (dx, dy) to the next (HUG times where that one is beside a
+        wall); None where none is made: onto a barred cell, or across a corner."""
+        near = (at[0] + dx, at[1] + dy)
+        if self.bar(near):
+            return None
+        if dx and dy and (self.bar((at[0] + dx, at[1])) or self.bar((at[0], at[1] + dy))):
+            return None
+        return length * (HUG if self.hug(near) else 1.0)
+
     def grow(self, cell: tuple[int, int]) -> None:
-        """Settle cells outward from the goal until `cell` is settled or nothing is left to reach."""
-        cost, queue, settled = self.cost, self.queue, self.settled
+        """Settle cells outward from the goal until `cell` is settled or nothing is left to reach, the ways a room
+        read shortened passed on first (`extend`). Within a look's time (`planning`) the clock is read every
+        GROW_CHECK cells, and past it `Unplanned` is raised: the work done is kept, the rest is the next look's."""
+        cost, queue, settled, lowered = self.cost, self.queue, self.settled, self.lowered
+        if not lowered and (cell in settled or not queue):
+            return
+        plan = PLANNING.get()
+        if plan is not None and (id(self) in plan.short or plan.over()):
+            plan.short.add(id(self))
+            raise Unplanned
+        count = 0
+        while lowered:
+            gone, at = heapq.heappop(lowered)
+            if gone > cost[at]:
+                continue
+            if gone > self.radius:
+                heapq.heappush(queue, (gone, at))  # beyond what is settled: the growth's to settle
+                continue
+            settled.add(at)
+            for dx, dy, length in NEIGHBOURS:
+                near = (at[0] + dx, at[1] + dy)
+                step = self.step(at, dx, dy, length)
+                if step is not None and gone + step < cost.get(near, math.inf):
+                    cost[near] = gone + step
+                    heapq.heappush(lowered, (gone + step, near))
+            count += 1
+            if plan is not None and count % GROW_CHECK == 0 and plan.over():
+                plan.short.add(id(self))
+                raise Unplanned
         while queue and cell not in settled:
             gone, at = heapq.heappop(queue)
             if at in settled:
                 continue
             settled.add(at)
-            for dx, dy, step in NEIGHBOURS:
+            self.radius = gone
+            for dx, dy, length in NEIGHBOURS:  # `step`, written out: the growth's inner loop
                 near = (at[0] + dx, at[1] + dy)
                 if near in settled or self.bar(near):
                     continue
                 if dx and dy and (self.bar((at[0] + dx, at[1])) or self.bar((at[0], at[1] + dy))):
                     continue
-                further = gone + step * (HUG if self.hug(near) else 1.0)
+                further = gone + length * (HUG if self.hug(near) else 1.0)
                 if further < cost.get(near, math.inf):
                     cost[near] = further
                     heapq.heappush(queue, (further, near))
+            count += 1
+            if plan is not None and count % GROW_CHECK == 0 and plan.over():
+                plan.short.add(id(self))
+                raise Unplanned
+
+    def extend(self, barred: Callable[[Point], bool], areas: Sequence[tuple[int, int, int, int]]) -> bool:
+        """The field over ground that only gained footing within `areas` (x, y, width, height in units: a room
+        read, a room's grid read again with more of it walkable), kept and not grown again from the goal: the
+        cells there and round them are read anew, and every way that a new cell or a step that got cheaper (a cell
+        no longer beside a wall) shortens is carried on from the cells already settled. Where it shortens the way
+        of a settled cell (one within `radius`), that cell's way is lowered and passed on; further out the cells go
+        back on the queue the growth settles from. Dijkstra's answer stays what a field grown afresh over the new
+        ground gives. The cells lowered are passed on by the next `grow`, within its look's time (a room that
+        shortens the way of most of the field costs about what growing it afresh would). False: the goal's own
+        cell is another on the new ground (a nearer walkable one read), and the field is to be grown afresh."""
+        self.barred = barred
+        for x, y, width, height in areas:
+            for cx in range(x - 1, x + width + 1):
+                for cy in range(y - 1, y + height + 1):
+                    self.bars.pop((cx, cy), None)
+            for cx in range(x - 2, x + width + 2):
+                for cy in range(y - 2, y + height + 2):
+                    self.hugs.pop((cx, cy), None)
+        if self.rooted() != self.root:
+            return False
+        cost, settled, lowered = self.cost, self.settled, self.lowered
+        for x, y, width, height in areas:
+            # Every step that may have changed ends in the area or one cell round it (a new cell, a hug gone, a
+            # corner no longer cut): each is taken again from the settled cells beside it
+            for cx in range(x - 2, x + width + 2):
+                for cy in range(y - 2, y + height + 2):
+                    cell = (cx, cy)
+                    if self.bar(cell):
+                        continue
+                    best = cost.get(cell, math.inf)
+                    for dx, dy, length in NEIGHBOURS:
+                        back = (cx - dx, cy - dy)
+                        if back not in settled:
+                            continue
+                        step = self.step(back, dx, dy, length)
+                        if step is not None and cost[back] + step < best:
+                            best = cost[back] + step
+                    if best < cost.get(cell, math.inf):
+                        cost[cell] = best
+                        heapq.heappush(lowered, (best, cell))
+        return True
 
     def of(self, cell: tuple[int, int]) -> float:
         """The way left from a cell; inf: none leads from it."""
@@ -488,19 +642,139 @@ class Walked:
         return found
 
 
-@lru_cache(maxsize=4)
+def grids_gained(known: Sequence[Walkable], grids: Sequence[Walkable]) -> list[tuple[int, int, int, int]] | None:
+    """Where `grids` has footing `known` had not, when that is all it changed (x, y, width, height in units, one
+    per grid gained): the same grids in the same order first, each the same or read again over the same tiles
+    with no walkable cell of it barred now, then grids over tiles none of those covers. None for any other change
+    (a grid gone, moved, or with less footing): a field over `known` is then grown afresh."""
+    if len(grids) < len(known):
+        return None
+    gained: list[tuple[int, int, int, int]] = []
+    covered: set[tuple[int, int]] = set()
+    for old, new in zip(known, grids, strict=False):  # `grids` the longer: what it gained is after
+        if (old.x, old.y, old.width, old.height) != (new.x, new.y, new.width, new.height):
+            return None
+        if old is not new and old.cells != new.cells:
+            try:
+                before = int.from_bytes(base64.b64decode(old.cells, validate=True), 'big')
+                after = int.from_bytes(base64.b64decode(new.cells, validate=True), 'big')
+            except binascii.Error, ValueError:
+                return None
+            if before & ~after:
+                return None  # a walkable cell barred now: a way may have grown longer
+            gained.append(grid_area(new))
+        covered.update(grid_tiles(old))
+    for new in grids[len(known) :]:
+        tiles = grid_tiles(new)
+        if not covered.isdisjoint(tiles):
+            return None  # over a tile already read: which grid wins it may change
+        covered.update(tiles)
+        gained.append(grid_area(new))
+    return gained
+
+
+def grid_tiles(grid: Walkable) -> set[tuple[int, int]]:
+    return {(x, y) for x in range(grid.x, grid.x + grid.width) for y in range(grid.y, grid.y + grid.height)}
+
+
+def grid_area(grid: Walkable) -> tuple[int, int, int, int]:
+    return (grid.x * TILE_UNITS, grid.y * TILE_UNITS, grid.width * TILE_UNITS, grid.height * TILE_UNITS)
+
+
+class Fields:
+    """The walked fields kept (`walked_over`), FIELDS_KEPT of them, the last asked for kept longest: each by its
+    goal's cell and the closed doors, with the grids it was grown over. Not by the grids themselves: an outdoor
+    level reads a room as the character nears it, and a field kept by them was grown afresh from the goal at every
+    room read (the Plains of Despair, 23:48 on 2026-10-14: 74,725 cells and 0.43 s of CPU each time,
+    rca/2026-10-14/run-2040-findings.md §1.2.2). The lock keeps the table whole; a field is grown by the macro's
+    thread alone."""
+
+    def __init__(self, most: int) -> None:
+        self.most = most
+        self.kept: OrderedDict[Hashable, tuple[tuple[Walkable, ...], Walked | None]] = OrderedDict()
+        self.lock = threading.Lock()
+
+    def get(self, key: Hashable) -> tuple[tuple[Walkable, ...], Walked | None] | None:
+        with self.lock:
+            found = self.kept.get(key)
+            if found is not None:
+                self.kept.move_to_end(key)
+            return found
+
+    def put(self, key: Hashable, grids: tuple[Walkable, ...], walked: Walked | None) -> None:
+        with self.lock:
+            self.kept[key] = (grids, walked)
+            self.kept.move_to_end(key)
+            while len(self.kept) > self.most:
+                self.kept.popitem(last=False)
+
+    def clear(self) -> None:
+        with self.lock:
+            self.kept.clear()
+
+
+FIELDS = Fields(FIELDS_KEPT)
+
+
 def walked_over(grids: tuple[Walkable, ...], closed: tuple[Door, ...], goal: tuple[int, int]) -> Walked | None:
-    """The walked way to the goal's cell over a level's ground, kept across looks: the ground and the
-    goal rarely change between two of them. None on ground with no wall and no closed door."""
+    """The walked way to the goal's cell over a level's ground, kept across looks (`Fields`): the goal rarely
+    changes between two of them, and the ground only gains rooms, which the kept field takes in (`Walked.extend`,
+    `grids_gained`). None on ground with no wall and no closed door."""
+    key = (closed, goal)
+    kept = FIELDS.get(key)
+    if kept is not None:
+        known, walked = kept
+        if known == grids:
+            return walked
+        gained = grids_gained(known, grids) if walked is not None else None
+        if gained is not None:
+            barred = no_footing(Ground(grids), closed)
+            if barred is not None and walked is not None and walked.extend(barred, gained):
+                FIELDS.put(key, grids, walked)
+                return walked
     barred = no_footing(Ground(grids), closed)
-    return None if barred is None else Walked(barred, (goal[0] + 0.5, goal[1] + 0.5))
+    walked = None if barred is None else Walked(barred, (goal[0] + 0.5, goal[1] + 0.5))
+    FIELDS.put(key, grids, walked)
+    return walked
 
 
 def walked_for(facts: MoveFacts, goal: Point) -> Walked | None:
-    """`walked_over` for the facts' ground and closed doors; None: open ground, any straight line is a way."""
+    """`walked_over` for the facts' ground and closed doors, grown as far as the character; None: open ground,
+    any straight line is a way, or a field that has not reached the character within the look's time
+    (`planning`), which is the straight line until it does (said once a field: `Macro: way: ...`)."""
     grids = facts.ground.grids if facts.ground is not None else ()
     closed = tuple(door for door in facts.doors if door.closed)
-    return walked_over(grids, closed, (math.floor(goal[0]), math.floor(goal[1])))
+    walked = walked_over(grids, closed, (math.floor(goal[0]), math.floor(goal[1])))
+    if walked is None:
+        return None
+    plan = PLANNING.get()
+    if plan is not None and id(walked) in plan.short:
+        return None
+    try:
+        walked.foot(facts.here)
+    except Unplanned:
+        if not walked.said:
+            walked.said = True
+            LOG.info(
+                'Macro: way: the walked way to (%.0f, %.0f) is still being grown (%d cells settled, %.0f of the way '
+                'out): the straight line meanwhile',
+                *goal, len(walked.settled), walked.radius,
+            )  # fmt: skip
+        return None
+    walked.said = False
+    return walked
+
+
+def growing(facts: MoveFacts, goal: Point) -> bool:
+    """Whether the walked field to `goal` ran out of the look's time (`planning`) before it reached the character:
+    the straight line stands for it in this look."""
+    plan = PLANNING.get()
+    if plan is None or not plan.short:
+        return False
+    grids = facts.ground.grids if facts.ground is not None else ()
+    closed = tuple(door for door in facts.doors if door.closed)
+    kept = FIELDS.get((closed, (math.floor(goal[0]), math.floor(goal[1]))))
+    return kept is not None and kept[1] is not None and kept[0] == grids and id(kept[1]) in plan.short
 
 
 def way_left(facts: MoveFacts, goal: Point) -> float:
@@ -510,10 +784,42 @@ def way_left(facts: MoveFacts, goal: Point) -> float:
     return math.dist(facts.here, goal) if field is None else field.left(facts.here)
 
 
-def way_leg(facts: MoveFacts, goal: Point, intent: Intent, *, jumps: Sequence[Jump] = ()) -> Leg:
+# Seconds from one walk leg to the next in a leg loop, whatever its length within STRIDE: the click, the character
+# seen going, the look and the choice after it. The game of 22:32 on 2026-10-14: 37 walk legs one after another,
+# 1.65 s apart at the median (8 units the median leg); the Icy Cellar's six walks of 15 at 22:54:59-55:08.7 took
+# 9.7 s. Its Blade Warps went key to key in 1.065 s at the median (265 legs, 22 units): a warp's delay, measured.
+WALK_LEG = 1.6
+
+
+def walk_seconds(walked: float) -> float:
+    """Seconds a walk leg of `walked` units takes in a leg loop (WALK_LEG), or its start and the run when longer."""
+    return max(WALK_LEG, WALK_LATENCY + walked / RUN_SPEED)
+
+
+def beats_walk(jump: Jump, delay: float, flown: float, gained: float, walked: float, walk_gained: float) -> bool:
+    """Whether a jump leg gets on along the walked way faster than the walk leg from the same place (the navigation
+    class WARPS, macros/movement.py): the units of the way each saves over the seconds each takes. A jump takes its
+    cast and flight, and no less than its casting delay (`delay`), which holds the next jump back (a leg loop makes
+    them key to key); a walk `walk_seconds`. A Blade Warp of 26 units saves 26 in 1.05 s against a walk's 16 in
+    1.6 s; one of 9 round a corner saves less than that walk."""
+    if walk_gained <= 0.0:
+        return gained > 0.0
+    jumping = max(jump.takes(flown), delay)
+    return gained / jumping >= walk_gained / walk_seconds(walked)
+
+
+def way_leg(
+    facts: MoveFacts,
+    goal: Point,
+    intent: Intent,
+    *,
+    jumps: Sequence[Jump] = (),
+    delays: Mapping[int, float] | None = None,
+) -> Leg:
     """The next move along the walked way to a goal at any distance (`Intent.routed`), to end
     `intent.short` of it: on the way's next cells the furthest one the first of `jumps` reaches (over a
-    clear line, for one that needs it), else the furthest one click's straight walk reaches. Every spot
+    clear line, for one that needs it), or the furthest one click's straight walk reaches, whichever gets on
+    faster (`beats_walk`, with the jump's casting delay from `delays`; without them, the jump). Every spot
     of the way has less of it left than where the character stands, so a move given here always brings
     the goal nearer on foot. On open ground the way is the straight stride (`stride_of`)."""
     here = facts.here
@@ -521,7 +827,10 @@ def way_leg(facts: MoveFacts, goal: Point, intent: Intent, *, jumps: Sequence[Ju
         return NoWay(THERE, arrived=True)
     field = walked_for(facts, goal)
     if field is None:
-        return stride_of(facts, goal, intent.short, intent.shot, intent.shuns, jumps=jumps)
+        found = stride_of(facts, goal, intent.short, intent.shot, intent.shuns, jumps=jumps)
+        if isinstance(found, NoWay) and not found.arrived and growing(facts, goal):
+            return NoWay(GROWING)
+        return found
     left = field.left(here)
     if left == math.inf:
         return NoWay(WAY_UNKNOWN)
@@ -539,20 +848,45 @@ def way_leg(facts: MoveFacts, goal: Point, intent: Intent, *, jumps: Sequence[Ju
         return in_view(view.ground(here, *spot)) and not intent.shuns(spot)
 
     jump = next(iter(jumps), None)
+    flown = None
     if jump is not None:
-        for spot, _ in reversed(path):
+        for spot, cost in reversed(path):
             away = math.dist(here, spot)
             if not jump.least <= away <= jump.reach or not shown(spot):
                 continue
             if any(barred((spot[0] + dx, spot[1] + dy)) for dx in (-1, 0, 1) for dy in (-1, 0, 1)):
                 continue
             if not jump.line or clear_shot(ground, here, spot, facts.doors):
-                return Step(spot, jump.skill)
-    for spot, _ in reversed(path):
-        away = math.dist(here, spot)
-        if AROUND_LEAST <= away <= STRIDE and shown(spot) and way(barred, here, spot):
-            return Step(spot)
+                flown = (spot, cost)
+                break
+    walked = next(
+        (
+            (spot, cost)
+            for spot, cost in reversed(path)
+            if AROUND_LEAST <= math.dist(here, spot) <= STRIDE and shown(spot) and way(barred, here, spot)
+        ),
+        None,
+    )
+    if flown is not None and jump is not None:
+        if walked is None or delays is None:
+            return Step(flown[0], jump.skill)
+        delay = delays.get(jump.skill, 0.0)
+        if beats_walk(
+            jump, delay, math.dist(here, flown[0]), left - flown[1], math.dist(here, walked[0]), left - walked[1]
+        ):
+            return Step(flown[0], jump.skill)
+    if walked is not None:
+        return Step(walked[0])
     return NoWay(NO_SPOT_ON_WAY)
+
+
+def cut(run: Run, stop: Abort) -> bool:
+    """Whether a jump was stopped by the player or the run, not failed by the game: the player's hand (a key, the
+    mouse, the focus: actuator `Hand`), the run cancelled (`Cancelled`) or its input mode flipped (`Run.stops`). Such a
+    jump is no way that leads nowhere and is not distrusted (`Travel.jump_failed`): 22:54:40.78 on 2026-10-14 the
+    player's mouse cut a Blade Warp at its aim and the next 15 s were walked (rca/2026-10-14/run-1932-findings.md
+    §1.2.4)."""
+    return isinstance(stop, (Hand, Cancelled)) or run.stops(stop)
 
 
 class Stale(Abort):
@@ -759,6 +1093,24 @@ class Travel:
             return math.inf
         return movement.eta(facts, goal, intent)
 
+    def means(
+        self,
+        run: Run,
+        world: World,
+        ground: Ground | None,
+        aspect: float,
+        goal: Point,
+        intent: Intent,
+        rooms: tuple[Room, ...] = (),
+    ) -> str | None:
+        """The navigation class a far goal's way is planned by now (macros/movement.py `Ways.means`: Teleport, Blade
+        Warp and walk, walk), for the log and the caller's own choice; None: no set applies, or the set that does
+        plans by no class (a build's own kind of set)."""
+        facts = move_facts(run, world, ground, aspect, self, rooms, lead=ahead_of(intent))
+        movement = navigator(self.sets, facts)
+        plan = getattr(movement, 'means', None)
+        return None if plan is None else plan(facts, goal, intent)
+
     def pause(
         self,
         run: Run,
@@ -889,8 +1241,9 @@ class Travel:
                 raise Abort(f'{skill_name(skill)}: the character did not move')
         except Stale, Untaken:
             raise
-        except Abort:
-            self.jump_failed[skill] = run.clock()
+        except Abort as stop:
+            if not cut(run, stop):
+                self.jump_failed[skill] = run.clock()
             self.refusals.pop(skill, None)
             raise
         self.refusals.pop(skill, None)
@@ -1049,8 +1402,9 @@ class Travel:
             )  # fmt: skip
             try:
                 hop_to(run, mark, player, rect, tile, 0.0, key_names)
-            except Abort:
-                self.jump_failed[TELEPORT] = run.clock()
+            except Abort as stop:
+                if not cut(run, stop):
+                    self.jump_failed[TELEPORT] = run.clock()
                 raise
             return
         if skill is not None and key_names is not None:
@@ -1149,6 +1503,21 @@ def clear_line(ground: Ground | None, doors: Sequence[Door], here: Point, goal: 
     return not any(barred(point) for point in line if min(math.dist(point, here), math.dist(point, goal)) > 1.0)
 
 
+def walked_length(ground: Ground | None, doors: Sequence[Door], here: Point, goal: Point) -> float:
+    """Units a walk from `here` to `goal` goes: the straight line where it is clear (`clear_line`, open ground too),
+    else the walked way round (`walked_way`: AROUND_DETOUR times the straight line at most, within AROUND_REACH); inf
+    where no such way ends at the goal. A drop 26 units off across lava was 226 by walking (River of Flame, 22:36:09
+    on 2026-10-14, rca/2026-10-14/run-1932-findings.md §1.2.3)."""
+    if clear_line(ground, doors, here, goal):
+        return math.dist(here, goal)
+    barred = no_footing(ground, doors)
+    assert barred is not None  # a line is barred only by read ground or a closed door
+    path = walked_way(barred, here, goal)
+    if not path or math.dist(path[-1], goal) > 1.5:
+        return math.inf
+    return sum(math.dist(one, other) for one, other in zip((here, *path), path, strict=False))
+
+
 def walk_reaches(ground: Ground | None, doors: Sequence[Door], here: Point, goal: Point, reach: float) -> bool:
     """Whether a click on a drop at `goal` from `here` walks the character to it: within `reach` and on a clear
     straight line (`clear_line`), or else by a walked way round (`walked_way`) no longer than ROUND_CLICK. What
@@ -1161,13 +1530,7 @@ def walk_reaches(ground: Ground | None, doors: Sequence[Door], here: Point, goal
         return False
     if clear_line(ground, doors, here, goal):
         return True
-    barred = no_footing(ground, doors)
-    assert barred is not None  # a line is barred only by read ground or a closed door
-    path = walked_way(barred, here, goal)
-    if not path or math.dist(path[-1], goal) > 1.5:
-        return False
-    walked = sum(math.dist(one, other) for one, other in zip((here, *path), path, strict=False))
-    return walked <= min(reach, ROUND_CLICK)
+    return walked_length(ground, doors, here, goal) <= min(reach, ROUND_CLICK)
 
 
 def step_line(step: Step | None, here: Point) -> str:

@@ -164,8 +164,9 @@ class MacroRunner:
         # skill -> clock time of its last cast that took, across runs (`Run.lasting`, macros/buffs.py `took_of`): the
         # prebuff's Consume, which attack mode renews before a boss's fight rather than let it end inside it
         self.lasting: dict[int, float] = {}
-        # when the healer (`make osd`) last gave the mercenary a potion of a kind: its ledger, read, never written
-        # (`Run.given`; macros/drinking.py keeps the character's own gap for those)
+        # when the healer (`make osd`) last gave the mercenary a potion of a kind: its ledger, read (`Run.given`;
+        # macros/drinking.py keeps the character's own gap for those), and written only by the drinker's claim of the
+        # character's potion before its key (`Run.ledger`, automation/ledger.py `PotionLedger.claim`)
         self.healer: PotionLedger | None = None
         with suppress(OSError):
             self.healer = PotionLedger(OSD_LEDGER)
@@ -727,6 +728,7 @@ class MacroRunner:
                 run.flights = memory.flights
                 if self.healer is not None:
                     run.given = lambda kind, ledger=self.healer: ledger.given_at(Actor.MERC, kind)
+                    run.ledger = self.healer  # the drinker claims the character's potion in it
                 run.arrival = lambda: self.journey.arrival(time.monotonic())
                 run.supers = self.supers
                 run.ending = self.progress.ending if self.progress is not None else None

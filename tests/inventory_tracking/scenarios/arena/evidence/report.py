@@ -567,10 +567,10 @@ def nova_part(train: Mapping[str, Any], check: Mapping[str, Any], whole: Mapping
     ]
     sizes: Counter[tuple[str, str]] = Counter()
     for found in whole['novas']['deaths'].values():
-        sizes[(found['group'], found['rank'])] += found['n']
+        sizes[found['group'], found['rank']] += found['n']
     lines = []
     for key, found in whole['novas']['deaths'].items():
-        if sizes[(found['group'], found['rank'])] < 10:
+        if sizes[found['group'], found['rank']] < 10:
             continue
         counts = [(half['novas']['deaths'].get(key) or {}).get('n', 0) for half in (train, check)]
         lines.append(
@@ -782,9 +782,9 @@ def changes(
             f'{show(train["reach"]["pooled"]["blows"]["p90"], 1)} at the 90th percentile (check '
             f'{show(check["reach"]["pooled"]["blows"]["p50"], 1)} and '
             f'{show(check["reach"]["pooled"]["blows"]["p90"], 1)}; model {REACH}). The reach curve: swings are begun '
-            f'at {show(curve[(2.0, 3.0)]["swings_per_second"])} to {show(curve[(3.0, 3.5)]["swings_per_second"])} a '
-            f'second per monster standing 2 to 3.5 units off, {show(curve[(3.5, 4.0)]["swings_per_second"])} at 3.5 to '
-            f'4 and {show(curve[(4.0, 5.0)]["swings_per_second"])} at 4 to 5; of the {far_swings:,} whole swings at '
+            f'at {show(curve[2.0, 3.0]["swings_per_second"])} to {show(curve[3.0, 3.5]["swings_per_second"])} a '
+            f'second per monster standing 2 to 3.5 units off, {show(curve[3.5, 4.0]["swings_per_second"])} at 3.5 to '
+            f'4 and {show(curve[4.0, 5.0]["swings_per_second"])} at 4 to 5; of the {far_swings:,} whole swings at '
             'the '
             'character begun from 4 units and further '
             f'{pair(far_took("hit_low"), far_took("hit_high"))}'

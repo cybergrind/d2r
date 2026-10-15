@@ -2,13 +2,15 @@
 
 At a game's start (prebuff): Consume cast anew on a Defiler with one Defiler left out, then Hex: Purge
 and Psychic Ward. Outside a fight (upkeep): Hex: Purge and Psychic Ward kept up, Consume cast again
-when it has run out. Under the held strike (fight): Hex: Purge and Psychic Ward kept up, Death Mark on
-the monster the demons should hold where it pays (mark.py), Sigil: Lethargy under an elite, Engorge on a
+when it has run out, a Defiler summoned when none is alive (defiler.py). Under the held strike (fight): Hex:
+Purge and Psychic Ward kept up, a Defiler summoned when none is alive and it pays (defiler.py `price`), Death Mark
+on the monster the demons should hold where it pays (mark.py), Sigil: Lethargy under an elite, Engorge on a
 corpse for the demons. The casts that are more than one aim and one key are in casters.py.
 """
 
 import math
 
+from inventory_tracking.builds.warlock.defiler import defiler_missing, worth_a_defiler
 from inventory_tracking.builds.warlock.mark import (
     mark_due,
     mark_passed,
@@ -164,8 +166,10 @@ BUFFS: tuple[Buff, ...] = (
     Buff(
         CONSUME, 'upkeep', consume_due, needs='prebuff', caster='consume', also=(SUMMON_DEFILER,), lasts=CONSUME_SECONDS
     ),
+    Buff(SUMMON_DEFILER, 'upkeep', defiler_missing, on='ground', caster='defiler'),
     Buff(HEX_PURGE, 'fight', whenever, state=purge_shown),
     Buff(PSYCHIC_WARD, 'fight', ward_in_a_fight, state=ward_shown),
+    Buff(SUMMON_DEFILER, 'fight', defiler_missing, on='ground', worth=worth_a_defiler, caster='defiler'),
     Buff(
         DEATH_MARK,
         'fight',

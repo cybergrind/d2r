@@ -53,6 +53,10 @@ class PotionsController:
         # the acknowledgement or the miss says it again, so a game in controller mode shows whether belt keys
         # act there, and whether a press during a pending flip is lost.
         self.pressed_in: dict[int, str] = {}
+        # cooldown key -> the last stamp this controller set itself: a stamp of another's (the macro's drinker claims
+        # the character's potion before its key: automation/ledger.py `PotionLedger.claim`) is stood off for, said once
+        self.stamped: dict[str, float] = {}
+        self.stood_off: float | None = None
 
     def step(self, state: State, choices: Sequence[PotionType]) -> PotionResult:
         if not self.config.enabled:
@@ -109,8 +113,22 @@ class PotionsController:
         cooldown = self.config.cooldowns[potion]
         previous = data.cooldowns.get(cooldown_key(actor, potion))
         if previous is not None and now - previous < cooldown:
+            self._stand_off(potion, previous, now)
             return PotionResult(Outcome.COOLDOWN)
         return self._deliver(state, PotionRequest(actor, potion, item), record, now, transaction)
+
+    def _stand_off(self, potion: PotionType, stamp: float, now: float) -> None:
+        """One line when a potion wanted now is held back by a stamp this controller did not set: the macro's drinker
+        took the potion for this blow (one drinker per blow, rca/2026-10-14/run-1932-findings.md issue 2)."""
+        key = cooldown_key(self.config.actor, potion)
+        if self.stamped.get(key) == stamp or self.stood_off == stamp:
+            return
+        self.stood_off = stamp
+        LOG.info(
+            '%s healing: standing off: the macro took a %s potion %.2f s ago (its claim in the ledger); %.1f s '
+            'cooldown',
+            self.config.actor, potion, now - stamp, self.config.cooldowns[potion],
+        )  # fmt: skip
 
     def _update_actor(self, data: LedgerData, state: State, session: SessionIdentity, now: float) -> ActorRecord:
         actor = self.config.actor
@@ -200,7 +218,7 @@ class PotionsController:
         data = transaction.data
         key = cooldown_key(actor, potion)
         # Reserve attempts even on clean focus rejection, avoiding retry bursts.
-        data.cooldowns[key] = now
+        data.cooldowns[key] = self.stamped[key] = now
         transaction.save()
         previous = (record.pending, data.last_delivery)
         refusal = None
@@ -212,7 +230,7 @@ class PotionsController:
                 refusal = attempt.refusal
                 if refusal is None:
                     reserved_at = self.clock()
-                    data.cooldowns[key] = reserved_at
+                    data.cooldowns[key] = self.stamped[key] = reserved_at
                     reservation = PendingReservation(item_id=item.item_id, sent_at=reserved_at)
                     delivery = LastDelivery(session=record.session.core, at=reserved_at)
                     record.pending = reservation

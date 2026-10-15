@@ -12,6 +12,7 @@ the rest of the file runs together, as a file does.
 """
 
 import functools
+import logging
 import math
 import random
 from dataclasses import dataclass
@@ -21,7 +22,7 @@ import pytest
 
 from inventory_tracking.builds.warlock.echoing_strike.hits import CONTACT_RADIUS
 from inventory_tracking.builds.warlock.echoing_strike.mechanics import RANGE
-from inventory_tracking.macros import goals
+from inventory_tracking.macros import goals, hunt
 from inventory_tracking.macros.build import MoveFacts
 from inventory_tracking.macros.runner import TELEPORT
 from inventory_tracking.macros.skills import TELEPORT as TELEPORT_SKILL
@@ -221,8 +222,24 @@ def test_attack_mode_alone_goes_to_a_boss_out_of_its_reach(logic, distance) -> N
     assert watch.outcome.moved > 0.0
 
 
+@NEAR_BOSS
+def test_attack_mode_alone_does_not_go_to_a_boss_beyond_its_sight(caplog) -> None:
+    """The player's ruling of 2026-10-15 ("only nearby"; run-2040-findings.md §5: Izual 342 units off was attack mode's
+    goal after a level run ended): the same pack beyond twice the fight's sight is not gone to without a press, and
+    that is said once in the log."""
+    far = hunt.ALONE_BOSS_UNITS + 15.0
+    situation, presses = vizier.distanced(far)['attack mode alone']
+    with caplog.at_level(logging.INFO, logger='inventory_tracking'):
+        outcome = situation.logic('new').play(presses, seed=1)  # type: ignore[arg-type]
+    assert outcome.gaps[BOSS][0] == pytest.approx(far, abs=0.2)
+    assert outcome.moved == 0.0
+    assert outcome.boss_dead[BOSS] is None
+    assert caplog.text.count('Macro: attack mode: Grand Vizier of Chaos is 75 away') == 1
+    assert caplog.text.count('not gone to without a press') == 1
+
+
 @IN_POCKET
-@pytest.mark.parametrize('logic', LOGICS)
+@pytest.mark.parametrize('logic', ['today', 'new'])  # today's keys too since the navigation classes (2026-10-15)
 @pytest.mark.parametrize('key', [False, True], ids=['recorded presses', 'the key held'])
 def test_the_character_leaves_the_pocket_and_reaches_the_seal(logic, key) -> None:
     for seed in SEEDS:
@@ -251,12 +268,18 @@ def test_in_the_pocket_the_way_left_never_grows_between_two_presses(key) -> None
 
 
 @IN_POCKET
-def test_today_the_way_left_in_the_pocket_goes_up_and_down() -> None:
-    """The recording's defect, by the same measure (pinned as it is, not asked for)."""
+def test_today_too_the_way_left_in_the_pocket_never_grows() -> None:
+    """The recording's defect (the way left 318, 325, 312, 333, 308, 314) is gone from today's keys too: with the
+    staff empty their teleport step goes by the navigation class in hand (hunt.py `class_step`: the walked way, a
+    Blade Warp over a clear line; rca/2026-10-14/navigation-classes.md), not toward a Teleport landing."""
+    base = pocket.stored(POCKET)
+    seal = next(prop.unit for prop in base.scene.things if math.dist(prop.at, pocket.seal_place(base)) < 1)
     watch = in_pocket('today', False, 1)
-    etas = [watch.eta_at(at) for at in watch.presses]
-    assert sum(1 for earlier, later in pairwise(etas) if later > earlier + 1e-9) >= 3
-    assert min(etas) > 10.0
+    opened = watch.outcome.opened[seal]
+    assert opened is not None
+    etas = [watch.eta_at(at) for at in watch.presses if at < opened]
+    assert etas[0] > 10.0
+    assert all(later <= earlier + 1e-9 for earlier, later in pairwise(etas)), etas
 
 
 # -- a press does not pause the attack ------------------------------------------------------------------

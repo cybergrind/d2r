@@ -1,7 +1,18 @@
 """Generic ways out: a room whose preset has warp tiles leads to the level in that warp slot."""
 
-from inventory_tracking.levels.exits import TOWN_WAYS_OUT, border_exits, guide_level, warp_exits, with_exits
-from inventory_tracking.levels.model import Guidance, LevelSnapshot, Location, Room
+from dataclasses import replace
+
+from inventory_tracking.levels.exits import (
+    PASSAGE_PAST,
+    TOWN_WAYS_OUT,
+    border_exits,
+    guide_level,
+    passage_of,
+    through,
+    warp_exits,
+    with_exits,
+)
+from inventory_tracking.levels.model import Guidance, LevelSnapshot, Location, Poi, Room
 from inventory_tracking.levels.presets import display_name
 from inventory_tracking.levels.registry import handler_for
 from tests.inventory_tracking.levels.fixtures import replay
@@ -161,3 +172,27 @@ def test_a_town_marks_its_waypoint_where_the_layout_puts_it():
     lut_gholein = snapshot_of(40, Room(301, 5000, 5000, 8, 8, None, (5000, 5000, 56, 56)))
     assert waypoints(lut_gholein) == [('Waypoint', (5013.8, 5016.8))]  # both layouts agree
     assert waypoints(snapshot_of(13, Room(CAVE_TREASURE_2, 100, 200, 24, 24, 0))) == []  # towns only
+
+
+def test_an_open_passages_far_place_is_a_tile_past_the_levels_edge():
+    """`through`: a mark beyond the level's rooms (the River of Flame's bridge end, half a tile past the last Bridge 2)
+    is crossed from the rooms' nearest point toward it, PASSAGE_PAST on; a mark in a border's room goes the way the
+    level touches the next one to where its rooms end, then PASSAGE_PAST on."""
+    bridge = (Room(856, 1548, 1120, 8, 8), Room(856, 1556, 1120, 8, 8), Room(856, 1564, 1120, 8, 8))
+    assert through(bridge, (1560.0, 1119.5), 108) == (1560.0, 1120.0 - PASSAGE_PAST)
+    east = (Room(1, 100, 100, 8, 8), Room(1, 108, 100, 8, 8, leads_to=(3,)))
+    assert through(east, (112.0, 104.0), 3) == (116.0 + PASSAGE_PAST, 104.0)
+    assert through(east, (112.0, 104.0), 4) is None  # no room is known to touch level 4
+    assert through((), (112.0, 104.0), 3) is None
+
+
+def test_only_a_way_out_with_no_warp_has_a_far_place():
+    """`passage_of`: a way out to a level joined with no warp; not a warp's (stairs), an object's (a portal), a
+    waypoint, nor a mark that names no level."""
+    room = Room(856, 1556, 1120, 8, 8)
+    sanctum = Poi('Chaos Sanctum', room, 'stairs', (1560.0, 1119.5), 108)
+    assert passage_of(107, (room,), sanctum, (1560.0, 1119.5)) == (1560.0, 1120.0 - PASSAGE_PAST)
+    assert passage_of(106, (room,), replace(sanctum, area=107), (1560.0, 1119.5)) is None  # a warp joins them
+    assert passage_of(107, (room,), replace(sanctum, use=1), (1560.0, 1119.5)) is None
+    assert passage_of(107, (room,), replace(sanctum, kind='waypoint'), (1560.0, 1119.5)) is None
+    assert passage_of(107, (room,), replace(sanctum, area=None), (1560.0, 1119.5)) is None

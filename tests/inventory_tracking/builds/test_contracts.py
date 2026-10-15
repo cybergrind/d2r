@@ -186,9 +186,10 @@ def test_every_buff_names_a_skill_a_phase_and_an_existing_caster(build):
         assert buff.skill not in buff.also
         assert buff.on in ONS
         assert buff.needs in (None, 'prebuff', 'battle')
-        # The shared cast is an aim and a key: it has none for a corpse, and needs to be told whom to aim at.
+        # The shared cast is an aim and a key: it has none for a corpse, and needs to be told whom to aim at. A caster
+        # finds its own place (build.py `Buff.target`: the Defiler's summon spot on the ground, Warlock casters.py).
         assert buff.caster is not None or buff.on != 'corpse'
-        assert buff.target is not None or buff.on not in ('monster', 'ground')
+        assert buff.target is not None or buff.caster is not None or buff.on not in ('monster', 'ground')
 
 
 @build_cases

@@ -12,6 +12,7 @@ PRESET_NAMES: dict[int, str] = {int(k): v for k, v in _TABLE['presets'].items()}
 LEVEL_NAMES: dict[int, str] = {int(k): v for k, v in _TABLE['levels'].items()}
 DISPLAY_NAMES: dict[int, str] = {int(k): v for k, v in _TABLE['names'].items()}
 LEVEL_LINKS: dict[int, tuple[int, ...]] = {int(k): tuple(v) for k, v in _TABLE['links'].items()}
+LEVEL_WARPS: dict[int, tuple[int, ...]] = {int(k): tuple(v) for k, v in _TABLE['warps'].items()}
 _SPOTS = json.loads((Path(__file__).parent / 'data' / 'preset_warps.json').read_text())
 _WARPS = _SPOTS['warps']
 _WAYPOINTS = _SPOTS['waypoints']
@@ -35,6 +36,17 @@ def linked_level(area: int, slot: int) -> int | None:
     """The level behind warp slot `slot` of `area` (levels.txt Vis0..7); None when there is none."""
     links = LEVEL_LINKS.get(area, ())
     return links[slot] or None if slot < len(links) else None
+
+
+def open_passage(area: int, to: int) -> bool:
+    """Whether level `to` is entered from `area` by walking across, with no warp to click (levels.txt): a Vis slot
+    that names it with no warp behind it (Warp -1: the River of Flame's bridge into the Chaos Sanctuary, the Outer
+    Cloister's gate into the Barracks), or none that names it, as levels joined by touching rooms are (a border:
+    the Cold Plains and the Burial Grounds, the Outer Steppes and the Plains of Despair). A level behind a warp
+    (stairs, a cave's mouth, a door) is not; an object used to go (a portal, a waypoint) is no level link at all."""
+    links, warps = LEVEL_LINKS.get(area, ()), LEVEL_WARPS.get(area, ())
+    slots = [slot for slot, linked in enumerate(links) if linked == to]
+    return all(slot >= len(warps) or warps[slot] < 0 for slot in slots)
 
 
 def warp_spots(preset: int, variant: int | None) -> dict[int, tuple[float, float]]:

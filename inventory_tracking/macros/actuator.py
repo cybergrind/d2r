@@ -47,6 +47,12 @@ class Flipped(Abort):
     `_guarded`)."""
 
 
+class Hand(Abort):
+    """The player's own input stopped the act: a key pressed or held, the pointer moved, the game's window left. Not a
+    failure of what the act tried (a jump cut by the mouse is not a way that leads nowhere: rca/2026-10-14/
+    run-1932-findings.md §1.2.4, 15 s of walks after the player's mouse cut a Blade Warp); the message is the same."""
+
+
 def eased_path(start, end, steps: int, rng) -> list[tuple[int, int]]:
     """Points from `start` to `end`: slow, fast, slow, with a little sideways wobble on the way."""
     points = []
@@ -106,10 +112,10 @@ class Actuator:
         if self.cancelled is not None and self.cancelled.is_set():
             raise Cancelled
         if not self.focused():
-            raise Abort('the game lost the focus')
+            raise Hand('the game lost the focus')
         if self.key_held():
             codes = sorted(self.keys.held_keys() - self.allowed - self.holding)
-            raise Abort(f'a key was pressed (key code {", ".join(map(str, codes)) or "?"})')
+            raise Hand(f'a key was pressed (key code {", ".join(map(str, codes)) or "?"})')
         if self.keyboard_run and self.mode is not None:
             mode = self.mode()
             if mode is not None and (mode.controller or mode.pending):
@@ -126,7 +132,7 @@ class Actuator:
                         drift=off,
                         limit=self.drift,
                     )
-                raise Abort('the mouse was moved')
+                raise Hand('the mouse was moved')
 
     def mouse_guard(self, inputs: list[tuple[bool, int]]) -> None:
         """No mouse button while the game is in controller mode or switching (rca/2026-10-13/controller-mode.md:
@@ -142,7 +148,7 @@ class Actuator:
         waited = 0.0
         while self.key_held():
             if waited >= timeout:
-                raise Abort('a key is held')
+                raise Hand('a key is held')
             self.pace.sleep(step)
             waited += step
 
@@ -222,7 +228,7 @@ class Actuator:
                 raise Cancelled  # nothing is pressed again for a run asked to stop
             self.pace.hold()
             if not self.focused():
-                raise Abort('the game lost the focus')  # nothing is pressed into another window
+                raise Hand('the game lost the focus')  # nothing is pressed into another window
             if self.button_held(1):
                 # The player's click came down between the release and the press: no press over it
                 # (review.md, finding 7; the caller's next look at the button yields to the click).
@@ -318,7 +324,7 @@ class Actuator:
             if now is None or goal is None or max(abs(now[0] - goal[0]), abs(now[1] - goal[1])) <= AIM_TOLERANCE:
                 return
             LOG.info('Macro: the pointer was found at %s, %s aimed (try %d); aiming again', now, goal, attempt + 1)
-        raise Abort('the mouse is being moved')
+        raise Hand('the mouse is being moved')
 
     def snap(self, x: float, y: float, *, scatter: tuple[int, int] = (4, 3)) -> None:
         """The pointer put at the window fraction (x, y) in one step and held there, for a key the
@@ -337,7 +343,7 @@ class Actuator:
             if now is None or goal is None or max(abs(now[0] - goal[0]), abs(now[1] - goal[1])) <= AIM_TOLERANCE:
                 return
             LOG.info('Macro: the pointer was found at %s, %s aimed (try %d); aiming again', now, goal, attempt + 1)
-        raise Abort('the mouse is being moved')
+        raise Hand('the mouse is being moved')
 
     def jump(self, x: float, y: float, *, scatter: tuple[int, int] = (4, 3)) -> None:
         """Put the pointer at the window fraction (x, y) in one step, with no pause after."""

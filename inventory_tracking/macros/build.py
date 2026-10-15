@@ -197,6 +197,10 @@ class JumpSource:
     # Units a jump by it carries in controller mode: the controller's fixed `defaultTargetDistance`, landed at in
     # the stick's direction (macros/pad.py). None: not jumped by in controller mode.
     pad_reach: float | None = None
+    # A jump by it brings the character's companions along (the mercenary, the summons land round it: the Warlock's
+    # Blade Warp, the player 2026-10-14): a move by it can take a companion out of a place it would die at
+    # (combat/escort.py). False: the companions stay where they are.
+    brings: bool = False
 
     def pad_jump(self) -> Jump | None:
         """The jump as controller mode makes it: of one length, give or take PAD_SLACK (the planner picks a
@@ -282,6 +286,14 @@ class Attack(Protocol):
 
     skill: int  # the strike: the skill whose input the fight holds (a mouse button that has it, else its key)
     reach: float  # units: a hostile further off, or with no clear line, is not in reach of a cast
+    # Units from a monster a stand is best at (at most `reach`): the firing ring an approach plans first
+    # (macros/sight.py `firing_spots`) and where a jump is best ended (combat/stance.py `camp`)
+    engage: float
+
+    def lands(self, away: float) -> float:
+        """The share of casts that hit a monster `away` units off, against those close in (1.0: as well as there).
+        A place to stand is priced by it (combat/stance.py `taken`): a stand nearer the pack hits more."""
+        ...
 
     def sees(self, seen: Observation, companions: Sequence[Monster]) -> Observation:
         """The observation with what this attack reads off the character's own units filled in (a
@@ -299,12 +311,16 @@ class Attack(Protocol):
         DECIDE_SECONDS of a fight; `attack.aim` is itself a `Policy`."""
         ...
 
-    def dealt(self, origin: Point, focal: Point, foes: Mapping[int, Foe]) -> Mapping[int, float]:
+    def dealt(
+        self, origin: Point, focal: Point, foes: Mapping[int, Foe], blocked: Callable[[Point], bool] | None = None
+    ) -> Mapping[int, float]:
         """The points one cast from `origin` at `focal` takes off each of `foes` (by unit id) where
         they stand: not capped by what a monster has left and not weighted, which the caller does. A
         unit left out takes nothing. Asked when a place is priced (combat/stance.py `taken`): for
         every place looked at, once per hostile in reach of it with `focal` on that hostile and `foes`
-        the hostiles in reach, so it has to be cheap; and for whether a monster outlives so many casts."""
+        the hostiles in reach, so it has to be cheap; and for whether a monster outlives so many casts.
+        `blocked`: the walls the cast's missiles stop at (the observation's, read once per cell), None:
+        none; every hostile given has a clear line from `origin`, a wall beyond it is the attack's to count."""
         ...
 
 
@@ -589,6 +605,10 @@ class BuildSettings(Config):
     # attack mode names a goal and the mode itself goes there, by the navigator; with attack mode alone the
     # mode goes to the boss the route's stage fights. Off: every key is its own routine, as before 2026-10-13.
     pursuit: bool = False
+    # A level run's fight looks for a better place every FOLLOW_CHECK and offers it to the safety (macros/hunt.py
+    # `fight`, `Safety.offer`; run-1932-findings.md "Fixes: positioning"). Off: the run's fight holds where it stands
+    # unless the safety prices a move of its own (an escape, a firing stand when holding is unsafe or has no line).
+    fight_look: bool = True
 
 
 @dataclass(frozen=True)

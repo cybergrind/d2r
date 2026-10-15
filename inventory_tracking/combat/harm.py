@@ -659,9 +659,35 @@ def blockers(priced: Harm, allowance: float) -> tuple[int, ...]:
     return tuple(found)
 
 
-def budget(life: float, most: float, pressure: Pressure, settings: SafetySettings, *, insisting: float = 0.0) -> float:
-    floor = max(settings.insist_floor, settings.floor - max(0.0, insisting) * settings.insist_per_second)
+def budget(
+    life: float,
+    most: float,
+    pressure: Pressure,
+    settings: SafetySettings,
+    *,
+    insisting: float = 0.0,
+    spendable: float | None = None,
+) -> float:
+    """The life a look may put at risk over the horizon: what is above the floor (`stock_floor`, the belt counted),
+    less the share the pressure takes over the horizon. Insisting on a blocked goal lowers the floor as before."""
+    floor = stock_floor(most, settings, spendable)
+    floor = max(settings.insist_floor, floor - max(0.0, insisting) * settings.insist_per_second)
     return max(0.0, life - floor / 100 * most) * (1 - min(1.0, pressure.rate * settings.horizon))
+
+
+def stock_floor(most: float, settings: SafetySettings, spendable: float | None) -> float:
+    """The life floor with the belt counted (the player, 2026-10-14: "the life budget scales with the potion stock";
+    rca/2026-10-14/run-1932-findings.md issue 2: the budget was 636 with 8 of 8 healing potions and with 2 of 8, and
+    the character warped into 21 hostiles with 2). The life a look spends is life the belt has to give back after it:
+    `spendable` is what its healing potions beyond the ones kept for under the floor give back, each worth
+    `healing_points` (macros/supply.py `spendable`). A point lost is spendable only while the belt can buy it back,
+    so the floor is where full life less what the belt gives back leaves the character, never under `floor`: with a
+    stocked belt it is `floor` (8 of 8 at 1818 life: the potions give 2880 back, full life less that is far under
+    65%); with 3 of 8 (one beyond the 2 kept) it is 74% (480 back); with the kept ones alone it is full life, and
+    only an insisted goal lowers it (`budget`). None: the belt not counted (unread), the floor as it was."""
+    if spendable is None or most <= 0:
+        return settings.floor
+    return min(100.0, max(settings.floor, 100.0 * (1.0 - spendable / most)))
 
 
 def life_price(supply: Supply, most: float, settings: SafetySettings) -> float:

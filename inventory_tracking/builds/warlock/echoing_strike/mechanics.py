@@ -99,6 +99,24 @@ def cast(
     return blades
 
 
+def flown(origin: Point, focal: Point, blocked: Callable[[Point], bool] | None) -> float | None:
+    """Units from `origin` along the aim line the middle blade of `cast` gets on its way out before a wall
+    `blocked` says stops it, with the character standing (its way back retraces the way out): None when it
+    flies its whole way out and comes back. The middle blade flies the aim line itself, the others converge on
+    it, so it says where the cast ends at a fraction of `cast`'s price: a place is priced by it for every
+    hostile in reach (combat/stance.py `taken`)."""
+    if blocked is None:
+        return None
+    along, _ = aim_frame(origin, focal)
+    previous = (origin[0] + along[0] * AHEAD, origin[1] + along[1] * AHEAD)
+    for k in range(1, OUT_FRAMES + 1):
+        point = (previous[0] + along[0] * SPEED, previous[1] + along[1] * SPEED)
+        if stopped(blocked, previous, point):
+            return AHEAD + SPEED * (k - 1)
+        previous = point
+    return None
+
+
 def focal_point(records: Sequence[Sequence[Point]], first: int = 1, last: int = 9) -> Point:
     """The point nearest the lines the recorded blades fly along between frames `first` and
     `last` (least squares): where a recorded cast converged."""

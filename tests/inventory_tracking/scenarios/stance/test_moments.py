@@ -57,8 +57,9 @@ def test_one_step_clears_most_moments_and_the_follow_on_steps_the_packs_in_two_p
     still, step, follow = cleared('stay'), cleared('step'), cleared('follow')
     assert len(FIXTURES) == 39
     assert len(still) == 8
-    # 29 until 2026-10-12: one place in the middle of a pack is no longer gone to (stance.py CROWD_MOST).
-    assert len(step) == 28
+    # 29 until 2026-10-12: one place in the middle of a pack is no longer gone to (stance.py CROWD_MOST); 28 until
+    # 2026-10-15, when a place came to be priced with the blades stopping at walls (run-2040-findings.md §3.3).
+    assert len(step) == 29
     assert len(follow) == 29 + TWO_PLACES
     assert still - step == {LEFT_FOR_MORE}
     assert step <= follow
@@ -66,7 +67,8 @@ def test_one_step_clears_most_moments_and_the_follow_on_steps_the_packs_in_two_p
 
 def test_the_seconds_in_all():
     assert seconds('stay') == pytest.approx(476, abs=2)
-    assert seconds('step') == pytest.approx(238, abs=3)  # 226 before the places in a pack were left out
+    # 226 before the places in a pack were left out, 238 until the blades stopped at walls in a place's price
+    assert seconds('step') == pytest.approx(227, abs=3)
     assert seconds('follow') == pytest.approx(181, abs=3)
 
 

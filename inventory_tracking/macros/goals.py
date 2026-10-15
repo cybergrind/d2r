@@ -10,13 +10,14 @@ sets behind `macros/travel.py` `navigator`, which are given the goal's place and
 here: this module knows of no wall and of no way to move.
 
 `goal_of` is the goal a press of the teleport key means now, and the one attack mode stands by between
-presses; `route_goal` is its part of the route's alone, which the level card's arrow follows too: pure, from the route's stage, the level card's mark, the hostiles in the world and what the
+presses: pure, from the route's stage, the level card's mark, the hostiles in the world and what the
 tracker remembers. Every stage has a place. A fight's is its boss: where it stands now, else where a boss
 was last seen alive, else the stage's own mark, else whatever of the level is left to look for it in
 (the label says which). A valuable beside the character comes before all of it, as a goal of its own
 (`drop`: macros/pickup.py `worth_a_stop`); on a level run (the pickup key, macros/pursuit.py) so does a
 drop the pickup rules take on the way (`side`). `first_fight` is the goal while hostiles bar what is to
-be done at another: the fight with them first.
+be done at another: the fight with them first. `route_goal` is the route's part alone (no drop, no valuable
+stood by): the level card's first row and arrow follow it too (macros/card_goal.py).
 
 The numbers for "near enough" are the hands' own (the reach of a click on an object, the radius a stand
 counts within); they are named here, in the goal's words, and a test holds them equal to the hands'.
@@ -44,6 +45,10 @@ PURSUED = frozenset((REACH, USE, STAND, FIGHT, PICK_UP, WAIT))
 USE_NEAR = 25.0  # units: an object this near is clicked from where the character stands (teleport.py THING_REACH)
 STAND_NEAR = 12.0  # units from a mark: the character has stood at it (route.py STAND_NEAR)
 PLACE_NEAR = 5.0  # units, one tile: a place is arrived at (teleport.py SPOT_NEAR)
+# Units from an open passage's far place (levels/exits.py `through`, a tile inside the next level) within which the
+# level run walks across with one click, in view and under a stride (travel.py STRIDE 16): the way there is the
+# navigator's over this level's ground, which ends at the level's edge (rca/2026-10-14/kp1-mode.md §8).
+PASSAGE_NEAR = 12.0
 PICK_NEAR = 40.0  # units: a valuable this near is taken before the character leaves (pickup.py STOP_UNITS)
 # Units: a drop this near is clicked from where the character stands (pickup.py PICK_UNITS); a level run's
 # drop further off is gone to by the navigator with the movement in hand first (walk, Blade Warp or Teleport),
@@ -90,6 +95,13 @@ class Goal:
     def gap(self, here: Point) -> float:
         """Units from `here` to the goal's place."""
         return math.dist(here, self.place)
+
+    @property
+    def crossed(self) -> bool:
+        """A way out that is an open passage (`Target.passage`: no warp joins the levels): its place is the far
+        place inside the next level, a walk to it changes the level, and that change is the arrival (macros/pursuit.py
+        `through`). A door, stairs or a portal is operated: its place is the mark, and going through is a press."""
+        return self.do == ENTER and self.mark is not None and self.mark.passage is not None
 
 
 def is_boss(monster: Monster) -> bool:
@@ -279,6 +291,17 @@ def goal_of(
     )
 
 
+def way_out(card: Target, label: str, spend: Intent, route: str, stage: Stage | None) -> Goal:
+    """The goal of a way to another level at the card's mark. A door, stairs, a cave's mouth: the mark, within
+    PLACE_NEAR, where going through is the route's press (U13). An open passage (`Target.passage`: the River of
+    Flame's bridge into the Chaos Sanctuary, a border; the player, 2026-10-15: "move our target slightly further so
+    the map changes"): its far place a tile inside the next level, within PASSAGE_NEAR, from where a walk crosses."""
+    if card.passage is not None:
+        place = (card.passage[0] * TILE_UNITS, card.passage[1] * TILE_UNITS)
+        return Goal(label, place, ENTER, PASSAGE_NEAR, spend, mark=card, route=route, stage=stage)
+    return Goal(label, spot_of(card), ENTER, PLACE_NEAR, spend, mark=card, route=route, stage=stage)
+
+
 def route_goal(
     here: Point,
     *,
@@ -312,11 +335,13 @@ def route_goal(
         # goes without a route. The label says when that is not the stage's.
         label = card.label if stage is None or not stage.mark else f'{card.label} ({stage.mark} is not marked yet)'
         do = ENTER if card.warp or card.kind == 'previous' else USE if card.use else REACH
+        if do == ENTER:
+            return way_out(card, label, spend, route, None)
         near = USE_NEAR if do == USE else PLACE_NEAR
         return Goal(label, place, do, near, spend, mark=card, route=route)
     assert stage is not None
     if stage.kind == ENTER or card.warp:
-        return Goal(card.label, place, ENTER, PLACE_NEAR, spend, mark=card, route=route, stage=stage)
+        return way_out(card, card.label, spend, route, stage)
     if stage.kind == USE:
         return Goal(card.label, place, USE, USE_NEAR, spend, mark=card, route=route, stage=stage)
     if stage.kind == STAND:

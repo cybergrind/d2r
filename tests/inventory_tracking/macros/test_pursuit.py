@@ -251,8 +251,22 @@ def test_a_fight_in_reach_with_attack_mode_off_is_said_and_not_struck() -> None:
 
 def test_a_goal_the_routes_step_performs_is_deferred_to_it() -> None:
     door = Goal('River of Flame', (50.0, 0.0), ENTER, 5.0, PRESSED)
-    assert decide(facts(door, way=unasked), PRESS) == Defer(door)
+    assert decide(facts(door, there=True, way=unasked), PRESS) == Defer(door)
     assert isinstance(decide(facts(door, in_reach=True, now=20.0, way=unasked), PRESS), Hold)  # the press is old
+    loot = Goal('the loot', (50.0, 0.0), LOOT, 5.0, PRESSED)
+    assert decide(facts(loot, way=unasked), PRESS) == Defer(loot)
+
+
+def test_a_press_for_a_door_goes_by_the_navigator_and_the_step_takes_it_at_the_door() -> None:
+    """rca/2026-10-14/run-1932-findings.md §1.2.2: a press for the Icy Cellar's door 43 units off was handed to the
+    old step, which with the staff empty walked toward a Teleport landing into a pocket 276 units from the door by
+    the walked way. The press is a goal: the way there is the navigator's (the class in hand); at the door, or where
+    the navigator has no move left or none at all, the route's own step takes the press for the click."""
+    door = Goal('Icy Cellar', (50.0, 0.0), ENTER, 5.0, PRESSED)
+    assert decide(facts(door), PRESS) == Move(STEP, door)
+    assert decide(facts(door, there=True, way=unasked), PRESS) == Defer(door)
+    assert decide(facts(door, way=lambda: NoWay('there', arrived=True)), PRESS) == Defer(door)
+    assert decide(facts(door, way=lambda: NoWay('no walked way')), PRESS) == Defer(door)
 
 
 def test_a_drop_is_taken_at_once_by_the_hands_that_walk_to_it() -> None:
@@ -286,7 +300,9 @@ def test_no_way_is_the_navigators_reason_with_the_goals_name() -> None:
 
 
 def test_the_navigators_arrival_is_what_is_done_at_the_goal() -> None:
-    there = lambda: NoWay('there', arrived=True)  # ruff: ignore[lambda-assignment]
+    def there() -> NoWay:
+        return NoWay('there', arrived=True)
+
     assert decide(facts(SEAL, way=there), PRESS) == Operate(SEAL)
     assert decide(facts(BOSS, in_reach=True, way=there), PRESS) == Hold(BOSS)
     blind = decide(facts(BOSS, way=there), PRESS)
@@ -471,11 +487,20 @@ def test_on_open_ground_the_way_is_the_straight_stride() -> None:
 
 def test_a_casting_delay_is_waited_out_only_for_a_jump_the_way_would_take() -> None:
     mouth = (ORIGIN + 80.5, ORIGIN + 50.5)  # open ground north of it: the next move is a jump
-    found = replace(standing(mouth, charges=0), last_used={SPARE: 99.6})
+    found = replace(standing(mouth, charges=0), last_used={SPARE: 99.4})
     movement_ = navigator(SETS, found)
-    assert movement_.wait(found, BEHIND, PRESSED) == pytest.approx(0.6)
+    assert movement_.wait(found, BEHIND, PRESSED) == pytest.approx(0.4)
     assert movement_.wait(replace(found, last_used={SPARE: 90.0}), BEHIND, PRESSED) == 0.0
     assert movement_.wait(found, BEHIND, replace(PRESSED, may_wait=False)) == 0.0
+
+
+def test_a_free_jump_leg_is_made_only_where_it_gets_on_faster_than_the_walk() -> None:
+    """The navigation class WARPS (travel.py `beats_walk`): a jump takes its casting delay at least (1.0 s, key to
+    key), a walk leg its loop's 1.6 s. A warp of 26 beats a walk of 16; one of 9 round a corner does not."""
+    assert travel.beats_walk(SPARE_JUMP, SPARE_SOURCE.delay, 26.0, 26.0, 16.0, 16.0)
+    assert not travel.beats_walk(SPARE_JUMP, SPARE_SOURCE.delay, 9.0, 9.0, 16.0, 16.0)
+    assert travel.beats_walk(SPARE_JUMP, SPARE_SOURCE.delay, 9.0, 9.0, 5.0, 5.0)  # the walk is shorter still
+    assert travel.beats_walk(SPARE_JUMP, SPARE_SOURCE.delay, 9.0, 9.0, 16.0, 0.0)  # a walk that saves nothing
 
 
 class Fickle:

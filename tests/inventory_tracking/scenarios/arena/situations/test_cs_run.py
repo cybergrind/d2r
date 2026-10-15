@@ -332,41 +332,39 @@ def test_today_the_pickup_key_and_a_held_teleport_key_open_the_viziers_seals_and
 
 
 @HELD_EMPTY
-def test_today_with_the_staff_empty_the_held_teleport_key_stalls_by_the_star_short_of_the_first_seal() -> None:
-    """Pins today's state: no strike and no seal. Since the Blade Warp's delay is read from the game
-    (macros/travel.py `delay_over`, 2026-10-14) the step finds its warps: 13 of them take the character about
-    300 units north to 35 units from the star, where the step stops on "no Blade Warp or walk leads toward
-    Vizier seal 1" (hunt.py) 115 units short of it, and nothing more happens: the play ends as a stall, alive
-    (before: the step stopped on that line in the entrance's hall and the packs killed the character there).
-    Over ten seeds: six stall so (four by the star), one dies on the way, three open Vizier seal 1 and die by
-    the second; none strikes or comes to Vizier seal 2."""
+def test_today_with_the_staff_empty_the_held_teleport_key_opens_the_first_seal_and_dies_without_a_strike() -> None:
+    """Pins today's state. Since the navigation classes (2026-10-15, rca/2026-10-14/navigation-classes.md) the step
+    with the staff empty goes by the class in hand (hunt.py `class_step`: the walked way, a Blade Warp over a clear
+    line), not toward a Teleport landing: it no longer stops on "no Blade Warp or walk leads toward Vizier seal 1"
+    by the star (before: six seeds of ten stalled there or in the entrance's hall, alive, one died on the way,
+    three opened the seal and died). It comes to Vizier seal 1 and opens it at about 21 s, and then dies as the
+    full staff's play does (`test_today_the_pickup_key_and_a_held_teleport_key_...`): today's held key pauses
+    attack mode at every press and nothing is ever struck (kp4-findings.md §2.4). All ten seeds alike, dead 25 to
+    32 s in; the pursuit loop's play (the live game's) kills Diablo at 235 s as before."""
     found, outcome = watched(HELD, EMPTY, TODAY)
-    assert (found.ended, found.strikes, found.kills, found.stages_done, found.charges) == ('stalled', 0, 0, 0, 0)
-    assert found.dead_at is None
-    assert all(at is None for at in found.seals.values())
+    assert (found.ended, found.strikes, found.kills, found.charges) == ('dead', 0, 0, 0)
+    assert found.seals['Vizier seal 1'] is not None
+    assert found.seals['Vizier seal 1'] < 30.0
+    assert found.seals['Vizier seal 2'] is None
     assert outcome.said_count('Blade Warp toward Vizier seal 1') >= 10
-    assert outcome.said_count('no Blade Warp or walk leads toward Vizier seal 1') > 10
-    assert found.last_move is not None
-    assert found.last_move < found.seconds - STALL + 1.0  # it stood from there to the stall's end
-    assert found.near[0] == 'Diablo'  # the nearest mark: the star
-    assert found.near[1] < 40.0
-    seal = next(mark for mark in stored().marks if mark.label == 'Vizier seal 1')
-    assert math.dist(found.end, (seal.spot[0] * TILE_UNITS, seal.spot[1] * TILE_UNITS)) > 100.0
+    assert outcome.said_count('no Blade Warp or walk leads toward Vizier seal 1') == 0
 
 
 @RECORDED_EMPTY
-def test_today_the_recordings_own_presses_with_the_staff_empty_take_the_route_part_of_the_way() -> None:
-    """The one long play (about 30 s of wall time). Pins today's state: the 251 presses of the real game (187
-    of the teleport key, 64 of the pickup key) played by today's keys open seals and kill a seal boss, and do
-    not die. Since a drop is clicked from afar only on a clear line (macros/travel.py `walk_reaches`,
-    rca/2026-10-14/run-1214-findings.md §3.2) they work the whole route and kill Diablo at about 225 s (before:
-    they did not come to Diablo before they ran out at 252 s)."""
+def test_today_the_recordings_own_presses_with_the_staff_empty_open_every_seal_and_die_at_the_infector() -> None:
+    """The one long play (about 15 s of wall time). Pins today's state: the 251 presses of the real game (187
+    of the teleport key, 64 of the pickup key) played by today's keys. Since the navigation classes (2026-10-15,
+    rca/2026-10-14/navigation-classes.md: the step with the staff empty goes along the walked way by Blade Warp, not
+    toward a Teleport landing) they open the five seals by 173 s, ahead of the recording, and the Infector of Souls'
+    fight comes under its burst of teleport presses, each of which pauses attack mode (kp4-findings.md §2.4): the
+    character dies at 179 s. Before, the play's way ran behind and came to the route's end at 225 to 293 s by the
+    seeds' order. The pursuit loop's play of the same presses (the live game's) kills Diablo at 268 s, as before."""
     found = play_of(RECORDED, EMPTY, TODAY)
-    assert found.dead_at is None
-    assert found.seals['Vizier seal 1'] is not None
+    assert all(at is not None for at in found.seals.values())
+    assert max(at for at in found.seals.values() if at is not None) < 180.0
     assert found.kills > 100
-    assert found.stages_done == len(ROUTE)
-    assert found.done
+    assert found.dead_at is not None
+    assert found.near[0] == 'Infector seal 2'
 
 
 @pytest.mark.xfail(strict=True, reason='one press of the pickup key is one fight: nothing takes the route on (KP_1)')

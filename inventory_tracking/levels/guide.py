@@ -7,6 +7,10 @@ per distinct message; an earlier DEBUG-only version failed invisibly (2026-09-30
 
 The card is the arrow line(s) plus a level map (levels/level_map.py). While it is shown,
 each poll re-reads only the player position and rebuilds both, so the dot and arrow follow.
+With `goals` (macros/card_goal.py) the first row is the route's goal, the one the macro goes to: a boss
+where the tracker has him, nothing known of him a row without an arrow, no goal left (loot, leave, the
+script over) no goal row and no route line; the marks of stages done have no row. A goal that changes
+rebuilds the card at the next poll, the walls as they are (rca/2026-10-14/run-1916-hud-findings.md §1).
 
 Win+C calls `press()`: a single press on a shown card switches a big level between the view
 around the player and the whole level (osd/level_map.py; user, 2026-10-06); with no card up it
@@ -42,7 +46,7 @@ from dataclasses import replace
 
 from inventory_tracking.common import LOG
 from inventory_tracking.levels.evidence import evidence_record
-from inventory_tracking.levels.exits import guide_level
+from inventory_tracking.levels.exits import guide_level, passage_of
 from inventory_tracking.levels.geometry import Pointer, pointer
 from inventory_tracking.levels.level_map import build_map, centre
 from inventory_tracking.levels.memory import observe_level
@@ -95,7 +99,7 @@ def goal_rows(goal, first: Poi | None, kept: tuple[Poi, ...], location: Location
     if goal is None:
         return pointer_lines([pointer(poi, location) for poi in kept]), None
     mark = goal.mark.label if goal.mark is not None else None
-    rest = [pointer(poi, location) for poi in kept if not (poi is first and mark == first.label)]
+    rest = [pointer(poi, location) for poi in kept if not (first is not None and poi is first and mark == first.label)]
     if not goal.known:
         name = goal.stage.boss if goal.stage is not None and goal.stage.boss else goal.label
         return [StyledLine(f'{name}: not seen', KIND_TONES['target']), *pointer_lines(rest)], None
@@ -408,7 +412,7 @@ class LevelGuide:
             return
         marks = tuple(on_waypoint(poi, self.waypoints) for poi in pois)
         things = ()
-        classes = self.goals.wanted(area, marks)
+        classes = self.goals.wanted(area, (location.x, location.y), marks)
         if classes and self.observe_things is not None:
             try:
                 things = self.observe_things(self.source.pid, self.source.images, self.source.capture, classes)
@@ -419,6 +423,7 @@ class LevelGuide:
     def _goal(self, location: Location):
         """(the marks in card order, the route's goal or None, the marks done with, the key the card is drawn
         with): `goals` asked from where the character is, with the teleport step's mark (`target`) as the card's."""
+        assert self.shown is not None
         snapshot, pois = self.shown
         area = snapshot.location.area_id
         pois = self._marks(area, pois)
@@ -436,6 +441,7 @@ class LevelGuide:
         return pois, goal, done, (area, aim, done)
 
     def _card(self, location: Location) -> list:
+        assert self.shown is not None
         snapshot, _ = self.shown
         pois, goal, (labels, places), self.drawn = self._goal(location)
         kept = tuple(poi for poi in pois if poi.label not in labels and (poi.label, place(poi)) not in places)
@@ -468,9 +474,9 @@ class LevelGuide:
 
     def _target_of(self, snapshot: LevelSnapshot, poi: Poi) -> Target:
         warp = poi.kind in WAYS_OUT and poi.spot is not None
-        return Target(
-            snapshot.location.area_id, snapshot.rooms, place(poi), poi.label, poi.kind, warp, self._ground(), poi.use
-        )
+        area, mark = snapshot.location.area_id, place(poi)
+        passage = passage_of(area, snapshot.rooms, poi, mark)
+        return Target(area, snapshot.rooms, mark, poi.label, poi.kind, warp, self._ground(), poi.use, passage)
 
     def target(self) -> Target | None:
         """The shown card's first mark, the one the first arrow line points at (the teleport step, macros/teleport.py).

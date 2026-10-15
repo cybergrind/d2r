@@ -61,10 +61,15 @@ def in_reach(ground: Ground, player: Point, mob: Point, reach: float, doors: Seq
     return math.dist(player, mob) <= reach and clear_shot(ground, player, mob, doors)
 
 
-def firing_spots(ground: Ground, mob: Point, reach: float, player: Point, doors: Sequence[Door] = ()) -> list[Point]:
-    """Points around `mob` (world units) with footing and a clear shot at it, within `reach`, the
-    nearest to `player` first: rings `RING_STEP` apart from just inside the reach down to
-    `NEAREST_RING`, `BEARINGS` points on each. Where no grid is known a spot counts as footing."""
+def firing_spots(
+    ground: Ground, mob: Point, reach: float, player: Point, doors: Sequence[Door] = (), engage: float | None = None
+) -> list[Point]:
+    """Points around `mob` (world units) with footing and a clear shot at it, within `reach`: rings
+    `RING_STEP` apart from just inside the reach down to `NEAREST_RING`, `BEARINGS` points on each.
+    Where no grid is known a spot counts as footing. The nearest to `player` first; with `engage` (the
+    attack's: `Attack.engage`), the ring nearest it first and on it the nearest to `player`: the ring
+    just inside the reach left a level run's approaches 17 units from the monster, where a third of the
+    casts hit nothing (rca/2026-10-14/run-1932-findings.md §4.2, rule 1)."""
     found = []
     radius = reach - RING_STEP
     while radius >= NEAREST_RING:
@@ -73,6 +78,6 @@ def firing_spots(ground: Ground, mob: Point, reach: float, player: Point, doors:
             spot = (mob[0] + radius * math.cos(angle), mob[1] + radius * math.sin(angle))
             known = footing(ground, (spot[0] / TILE_UNITS, spot[1] / TILE_UNITS))
             if known is not False and clear_shot(ground, spot, mob, doors):
-                found.append(spot)
+                found.append((abs(radius - engage) if engage is not None else 0.0, spot))
         radius -= RING_STEP
-    return sorted(found, key=lambda spot: math.dist(spot, player))
+    return [spot for _, spot in sorted(found, key=lambda row: (row[0], math.dist(row[1], player)))]

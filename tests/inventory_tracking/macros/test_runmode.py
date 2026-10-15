@@ -1,17 +1,22 @@
 """The pickup key's run mode (macros/runmode.py; the player's ruling of 2026-10-14, rca/2026-10-14/kp1-mode.md):
 the level's goal, clearing the way, by default; a full clear on a terror zone or after a double press of the key,
-for the level it was made on. The River of Flame's run goes to the Chaos Sanctuary's door and ends there."""
+for the level it was made on. A run ends at a door (a warp); the River of Flame's way into the Chaos Sanctuary is an
+open passage, walked through (2026-10-15)."""
 
 import json
 import logging
 import math
 from dataclasses import replace
+from functools import partial
 from pathlib import Path
 
 from inventory_tracking.builds import pursuing
-from inventory_tracking.builds.warlock.movement import BLADE_WARP_SOURCE
+from inventory_tracking.builds.warlock.movement import BLADE_WARP_SOURCE, MOVEMENT
 from inventory_tracking.builds.warlock.skills import BLADE_WARP
-from inventory_tracking.levels.model import Ground, Walkable
+from inventory_tracking.levels.exits import passage_of
+from inventory_tracking.levels.handlers.river_of_flame import bridge_end
+from inventory_tracking.levels.model import Ground, Room, Target, Walkable
+from inventory_tracking.levels.presets import open_passage
 from inventory_tracking.macros import goals
 from inventory_tracking.macros.build import MoveFacts, NoWay, Step
 from inventory_tracking.macros.goals import (
@@ -22,8 +27,9 @@ from inventory_tracking.macros.goals import (
     clear_way,
     rest_of_level,
 )
-from inventory_tracking.macros.hunt import BOSS_AHEAD, CLEAR_SECONDS, Bearings
-from inventory_tracking.macros.pursuit import FULL, Defer, Ended, Facts, Hold, Move, Pursuit, decide
+from inventory_tracking.macros.hunt import BOSS_AHEAD, CLEAR_SECONDS, REST_SECONDS, Bearings
+from inventory_tracking.macros.movement import HOPS, TELEPORT, WALKS, WARPS
+from inventory_tracking.macros.pursuit import FULL, PASSAGE, Defer, Ended, Facts, Hold, Move, Pursuit, decide
 from inventory_tracking.macros.route import PERFORMED
 from inventory_tracking.macros.runmode import (
     DOUBLE,
@@ -39,11 +45,12 @@ from inventory_tracking.macros.runmode import (
     said,
     tapped,
 )
-from inventory_tracking.macros.travel import AROUND_LEAST, NO_SPOT_ON_WAY, PRESSED, way_leg
+from inventory_tracking.macros.travel import AROUND_LEAST, NO_SPOT_ON_WAY, PRESSED, navigator, way_leg
+from inventory_tracking.macros.world import VALUABLE, Drop
 from inventory_tracking.routes.catalog import ROUTES
 from inventory_tracking.routes.model import ENTER, FIGHT, USE, Script
 from inventory_tracking.routes.progress import Progress
-from tests.inventory_tracking.macros.test_hunt import foe, game, hunter
+from tests.inventory_tracking.macros.test_hunt import EAST, ROOMS, foe, game, hunter
 
 
 RIVER, SANCTUARY = 107, 108
@@ -170,7 +177,8 @@ def facts(goal, *, there=False, in_reach=False, way=lambda: STEP, now=100.0) -> 
 
 def test_the_river_run_goes_to_the_door_fights_on_the_way_and_ends_there() -> None:
     """The game of 15:13 on 2026-10-14 (run-1214-findings.md §3.8): every press in the River was one sweep, 15 of
-    them in 54 s. The run now goes to the Chaos Sanctuary's door itself; going through takes a press (U13)."""
+    them in 54 s. The run now goes to the Chaos Sanctuary's door itself; going through a door takes a press (U13).
+    `DOOR` has no mark, so no open passage: a warp's way out. The River's own is walked through (below)."""
     assert decide(facts(DOOR), RUN) == Move(STEP, DOOR)
     assert decide(facts(DOOR, in_reach=True), RUN) == Hold(DOOR)
     assert decide(facts(DOOR, there=True), RUN) == Ended('at Chaos Sanctum: going through takes a press')
@@ -179,7 +187,11 @@ def test_the_river_run_goes_to_the_door_fights_on_the_way_and_ends_there() -> No
     pressed = replace(RUN, pressed_at=100.0)  # a fresh pickup press: the run, not the old sweep
     assert decide(facts(DOOR), pressed) == Move(STEP, DOOR)
     assert decide(facts(DOOR, there=True), pressed) == Defer(DOOR)  # at the door: the key's own step, as before
-    assert decide(facts(DOOR), replace(RUN, key='teleport', pressed_at=100.0, advance=True)) == Defer(DOOR)
+    # The teleport key in the run (rca/2026-10-14/run-1932-findings.md §1.2.2): the run's way to the door, the
+    # route's step for the click at it
+    kp4 = replace(RUN, key='teleport', pressed_at=100.0, advance=True)
+    assert decide(facts(DOOR), kp4) == Move(STEP, DOOR)
+    assert decide(facts(DOOR, there=True), kp4) == Defer(DOOR)
 
 
 def test_the_river_door_run_ends_where_no_step_toward_the_door_is_left() -> None:
@@ -208,6 +220,75 @@ def test_the_river_door_run_ends_where_no_step_toward_the_door_is_left() -> None
     assert decide(replace(stood, goal=place), RUN) == NoWay(
         f'at the mark (no step toward it is left, 0.5 units past its 5: {NO_SPOT_ON_WAY})', arrived=True
     )
+
+
+def river_door() -> tuple[dict, tuple[Room, ...]]:
+    """The take's ground and rooms at the River of Flame's bridge end (fixtures/river-door-ground.json)."""
+    fixture = json.loads((Path(__file__).parent / 'fixtures' / 'river-door-ground.json').read_text())
+    return fixture, tuple(Room.from_row(row) for row in fixture['rooms'])
+
+
+# The River's take 20261014T190527Z-107 six seconds before the player's own crossing (7835.9, 5625.5), the 22:08:45
+# stand by the door (7797.2, 5602.2), and a place on the bridge further back (7815.5, 5626.5)
+BRIDGE = ((7835.9, 5625.5), (7797.2, 5602.2), (7815.5, 5626.5))
+CLASSES = {  # a navigation class's skills on keys, and controller mode
+    HOPS: ((TELEPORT, BLADE_WARP), False),
+    WARPS: ((BLADE_WARP,), True),
+    WALKS: ((), False),
+}
+
+
+def test_the_river_run_walks_through_the_open_passage_into_the_chaos_sanctuary() -> None:
+    """The player, 2026-10-15: "River of Flame map with full auto: the player doesn't go to the Chaos Sanctuary when
+    only KP_1 was pressed; we need to move our target slightly further so the map changes to the Chaos Sanctuary".
+    No warp joins the River and the Sanctuary (levels.txt Warp1 -1): the goal of its way out is a tile inside the
+    Sanctuary, past the bridge's end, which no ground of the River's reaches. By every navigation class (and the
+    pad's Blade Warp) the run goes as near as the River's ground goes, walks across from there, and the level
+    changed ends it. On the take's own ground the walk's end is the Sanctuary's floor (the next take, area 108)."""
+    fixture, rooms = river_door()
+    river, beyond = Ground(tuple(Walkable(**g) for g in fixture['ground'])), fixture['beyond']
+    sanctuary = Ground(tuple(Walkable(**g) for g in beyond['ground']))
+    mark = bridge_end(rooms)
+    assert mark is not None
+    assert (mark.spot, mark.area, beyond['area']) == ((1560.0, 1119.5), SANCTUARY, SANCTUARY)
+    assert open_passage(RIVER, SANCTUARY)
+    far = passage_of(RIVER, rooms, mark, mark.spot)
+    card = Target(RIVER, rooms, mark.spot, mark.label, mark.kind, True, river.grids, 0, far)
+    (stage,) = scripts()[RIVER].stages
+    goal = goals.route_goal(BRIDGE[0], spend=PRESSED, reach=22.0, stage=stage, route='Diablo', card=card)
+    assert goal is not None
+    assert (goal.do, goal.place, goal.near, goal.crossed) == (ENTER, (7800.0, 5595.0), goals.PASSAGE_NEAR, True)
+    assert (river.walkable(*goal.place), sanctuary.walkable(*goal.place)) == (None, True)  # the Sanctuary's floor
+    walk = Move(Step(goal.place), goal, f'Chaos Sanctum: {PASSAGE}')
+    for kind, (slots, pad) in CLASSES.items():
+        for start in BRIDGE:
+            here, legs = start, 0
+            while True:
+                move = MoveFacts(
+                    here, 100.0 + legs * 3, slots, None, river, (), 2560 / 1418, area=RIVER, rooms=rooms, pad=pad
+                )
+                movement = navigator(MOVEMENT, move)
+                assert movement.means(move, goal.place, PRESSED) == kind
+                gap = goal.gap(here)
+                way = partial(movement.routed, move, goal.place, PRESSED)
+                looked = Facts(
+                    100.0, goal, gap <= goal.near, False, True, way, RIVER,
+                    beyond=max(gap - goal.near, 0.0), least_move=AROUND_LEAST,
+                )  # fmt: skip
+                act = decide(looked, RUN)
+                assert isinstance(act, Move), (kind, start, here, act)
+                if act == walk:
+                    break
+                here, legs = act.step.spot, legs + 1
+                assert legs < 12, (kind, start, here)
+            assert river.walkable(*here)  # the walk across begins on the River's ground
+    crossed = Facts(101.0, goal, False, False, True, lambda: NoWay('not asked'), SANCTUARY)
+    assert decide(crossed, RUN) == Ended('the level was left')  # the Sanctuary's own run is a press of its own
+    door = replace(card, passage=None)  # a warp's way out (stairs, a door): its mark, and going through is a press
+    stairs = goals.route_goal(BRIDGE[1], spend=PRESSED, reach=22.0, stage=stage, route='Diablo', card=door)
+    assert stairs is not None
+    assert (stairs.place, stairs.near, stairs.crossed) == ((7800.0, 5597.5), goals.PLACE_NEAR, False)
+    assert decide(facts(stairs, there=True), RUN) == Ended('at Chaos Sanctum: going through takes a press')
 
 
 def test_a_full_clear_works_a_level_with_no_route_and_its_end_is_the_runs() -> None:
@@ -335,6 +416,126 @@ def test_a_full_clear_goes_for_what_is_in_sight_then_what_is_remembered_before_t
     assert remembered is not None
     assert (remembered.do, remembered.unit, remembered.place) == (FIGHT, 41, (5200.0, 5000.0))
     assert getattr(hunt.cleared(run, play.world, [], ground, None), 'unit', None) == 41  # a level with no route too
+
+
+def stand(play, x: float) -> None:
+    play.world = replace(play.world, player=replace(play.world.player, x=x))
+
+
+def test_a_room_passed_is_not_taken_back_under_another_of_its_tiles(monkeypatch) -> None:
+    """22:54:19 on 2026-10-14 (rca/2026-10-14/run-1932-findings.md §1.2.1): the full clear's unexplored room was
+    passed, and 5 units on the frontier named another tile of the same room, a key not passed: the room was the goal
+    again, and the run went back and forth between it and the Icy Cellar's door 8 times in 9.6 s. A room is passed by
+    the room."""
+    play = game(area=RIVER)
+    hunt = hunter(play)
+    run = play.run()
+    hunt.mode = Mode(True, SWITCHED)
+    ground = Ground(())
+    room, tile = EAST[2], {'x': 1020}
+    monkeypatch.setattr(hunt, 'frontier', lambda level, player, rect: (10.0, room, (tile['x'], 999)))
+    play.clock.now = 50.0
+    found = hunt.cleared(run, play.world, [], ground, DOOR)
+    assert found is not None
+    assert found.label == 'full clear: an unexplored room'
+    hunt.pass_by(found, 'a test', play.clock.now, ROOMS)
+    for x in (1024, 1021, 1027):  # the room's other tiles, nearest by the way from where the character goes
+        tile['x'] = x
+        play.clock.now += REST_SECONDS + 0.1  # the frontier is looked at again
+        assert hunt.cleared(run, play.world, [], ground, DOOR) == DOOR
+
+
+def test_a_room_the_run_gets_nearer_to_is_not_passed_for_want_of_a_strike(monkeypatch, caplog) -> None:
+    """22:54:12.99 on 2026-10-14 (§1.2.1): "passing full clear: an unexplored room ...: no strike in 10 s on the way
+    to it", 119 units off by the walked way after a run of 153 units toward it in those 10 s. A room has nothing to
+    strike: it is passed when the way to it (`Travel.eta`, the means in hand) has not got shorter in CLEAR_SECONDS."""
+    play = game(area=RIVER)
+    hunt = hunter(play)
+    run = play.run()
+    hunt.mode = Mode(True, SWITCHED)
+    ground = Ground(())
+    monkeypatch.setattr(hunt, 'frontier', lambda level, player, rect: (30.0, EAST[3], (1034, 999)))
+    play.clock.now = 50.0
+    for _ in range(30):  # 15 s going toward it, 4 units a look
+        found = hunt.cleared(run, play.world, [], ground, DOOR)
+        assert found is not None
+        assert found.label == 'full clear: an unexplored room'
+        stand(play, play.world.player.x + 4.0)
+        play.clock.now += 0.5
+    with caplog.at_level(logging.INFO):
+        for _ in range(int(CLEAR_SECONDS / 0.5) + 2):  # standing: no progress and no strike
+            found = hunt.cleared(run, play.world, [], ground, DOOR)
+            play.clock.now += 0.5
+    assert found == DOOR
+    assert 'no strike and no progress by the way in 10 s on the way to it' in caplog.text
+
+
+def test_the_judge_of_a_clearing_goal_goes_on_across_another_goal(monkeypatch) -> None:
+    """§1.2.1: each change of goal started the 10-s judge again, so two goals taken in turn were never passed. A
+    look at another goal between two of its own does not start it again."""
+    play = game(area=RIVER)
+    hunt = hunter(play)
+    run = play.run()
+    hunt.mode = Mode(True, SWITCHED)
+    ground = Ground(())
+    monkeypatch.setattr(hunt, 'frontier', lambda level, player, rect: None)
+    away = foe(51, 5040.0, 5000.0)  # off the way: a full clear's own goal, not struck from here
+    play.clock.now = 50.0
+    passed_at = None
+    for look in range(40):
+        seen = [] if look % 4 == 3 else [away]  # out of sight now and then: the route's goal meanwhile
+        found = hunt.cleared(run, play.world, seen, ground, DOOR)
+        if seen and found == DOOR:
+            passed_at = play.clock.now - 50.0
+            break
+        play.clock.now += 0.5
+    assert passed_at is not None
+    assert CLEAR_SECONDS <= passed_at <= CLEAR_SECONDS + 3.0
+
+
+def test_a_clearing_goal_left_for_another_is_not_taken_back_while_the_other_holds(monkeypatch) -> None:
+    """Two hostiles off the way, as near as each other: the nearer by turns as the character moves. The run keeps
+    the one it went to (TAKE_BACK) until that one is gone, not the other again at every look."""
+    play = game(area=RIVER)
+    hunt = hunter(play)
+    run = play.run()
+    hunt.mode = Mode(True, SWITCHED)
+    ground = Ground(())
+    monkeypatch.setattr(hunt, 'frontier', lambda level, player, rect: None)
+    east, west = foe(51, 5040.0, 5000.0), foe(52, 4960.0, 5000.0)
+    play.clock.now = 50.0
+
+    def unit(x: float, foes) -> int | None:
+        stand(play, x)
+        play.clock.now += 0.5
+        return getattr(hunt.cleared(run, play.world, foes, ground, DOOR), 'unit', None)
+
+    assert unit(4999.0, [east, west]) == 52
+    assert unit(5001.0, [east, west]) == 51  # left for the other: it is nearer now
+    assert unit(4999.0, [east, west]) == 51  # not taken back
+    assert unit(4998.0, [east, west]) == 51
+    assert unit(4998.0, [west]) == 52  # the other is gone: taken back
+
+
+def test_a_valuable_across_the_lava_is_not_on_the_way() -> None:
+    """22:36:09-18 on 2026-10-14 (rca/2026-10-14/run-1932-findings.md §1.2.3): an Ith Rune 26 units off in a straight
+    line from E and 226 by walking round the lava was "on the way" from E (PICK_NEAR 40, straight) and not from W, 22
+    units on: 8 warps between the two. On the way is PICK_NEAR by walking, on the take's ground."""
+    fixture = json.loads((Path(__file__).parent / 'fixtures' / 'river-rune-ground.json').read_text())
+    grids = tuple(Walkable(**grid) for grid in fixture['ground'])
+    east = (7795.5, 5607.5)
+    play = game(area=RIVER)
+    play.world = replace(play.world, player=replace(play.world.player, x=east[0], y=east[1]))
+    hunt = hunter(play, ground=grids)
+    run = play.run()
+    rune = Drop(70, 7817.0, 5622.0, 'Ith Rune', VALUABLE)
+    play.loot = replace(play.loot, drops=(rune,))
+    assert math.dist(east, (rune.x, rune.y)) < goals.PICK_NEAR
+    assert not hunt.on_the_way(run, east, rune, play.world)
+    assert hunt.side_drop(run, east, [], play.world) is None
+    beside = Drop(71, east[0] - 6.0, east[1], 'Ral Rune', VALUABLE)  # on the same bank, a clear line
+    play.loot = replace(play.loot, drops=(rune, beside))
+    assert hunt.side_drop(run, east, [], play.world) == beside
 
 
 def test_the_buffs_are_asked_with_a_boss_ahead_at_the_last_seal_and_the_fight() -> None:

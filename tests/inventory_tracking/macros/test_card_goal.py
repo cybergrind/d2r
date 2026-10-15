@@ -45,7 +45,8 @@ def test_the_card_points_at_the_next_seal_and_drops_the_opened_one():
 
     assert (goal.label, goal.do, goal.mark.label) == ('Vizier seal 2', USE, 'Vizier seal 2')
     labels, places = goals.done(CS)
-    assert 'Vizier seal 1' in labels and ('Vizier seal 1', VIZIER_1.spot) in places
+    assert 'Vizier seal 1' in labels
+    assert ('Vizier seal 1', VIZIER_1.spot) in places
     assert 'Vizier seal 2' not in labels
 
 
@@ -67,7 +68,9 @@ def test_a_boss_nothing_is_known_of_is_a_goal_not_seen():
 
     goal = CardGoals(found).goal(CS, (5.0, 5.0), first(STAR))
 
-    assert not goal.known and goal.stage.boss == 'Lord De Seis' and NOT_SEEN in goal.label
+    assert not goal.known
+    assert goal.stage.boss == 'Lord De Seis'
+    assert NOT_SEEN in goal.label
 
 
 def test_no_goal_once_the_boss_is_dead_and_his_mark_is_done():
@@ -85,8 +88,9 @@ def test_no_goal_once_the_boss_is_dead_and_his_mark_is_done():
 def test_a_seal_opened_by_hand_is_done_at_the_guides_poll():
     found = progress()
     goals = CardGoals(found)
-    assert goals.wanted(CS, MARKS) == frozenset(SEALS[2:5])
     x, y = (VIZIER_1.spot[0] * TILE_UNITS, VIZIER_1.spot[1] * TILE_UNITS)
+    assert goals.wanted(CS, (x, y), MARKS) == frozenset({SEALS[4], SEALS[3]})  # De Seis's is too far to be held
+    assert goals.wanted(CS, (0.0, 0.0), MARKS) == frozenset()
     shut = Thing(9, SEALS[4], 0, x + 3, y)
 
     assert not goals.note(CS, (0.0, 0.0), MARKS, [shut])
@@ -94,7 +98,7 @@ def test_a_seal_opened_by_hand_is_done_at_the_guides_poll():
 
     assert ('Vizier seal 1', VIZIER_1.spot) in goals.done(CS)[1]
     assert found.step(CS).stage.mark == 'Vizier seal 2'
-    assert SEALS[4] not in goals.wanted(CS, MARKS)  # read no more
+    assert SEALS[4] not in goals.wanted(CS, (x, y), MARKS)  # read no more
 
 
 def test_a_stand_is_done_within_reach_of_its_mark_whoever_moved():

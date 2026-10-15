@@ -2,6 +2,8 @@
 
 import math
 
+import pytest
+
 from inventory_tracking.levels.doors import Door
 from inventory_tracking.levels.model import Ground, Walkable, pack_cells
 from inventory_tracking.macros.sight import clear_shot, firing_spots, in_reach
@@ -86,6 +88,15 @@ def test_no_grid_means_every_ring_point_is_a_spot():
     spots = firing_spots(Ground(()), (100.0, 100.0), 15.0, (80.0, 100.0))
     assert len(spots) == 16 * 3  # radii 12, 9, 6
     assert spots[0] == (88.0, 100.0)  # the point nearest the character
+
+
+def test_with_an_engage_ring_the_ring_nearest_it_comes_first_and_on_it_the_point_nearest_the_character():
+    # rca/2026-10-14/run-1932-findings.md §4.2 rule 1: the ring just inside the reach (17 of STRIKE_REACH 20) came
+    # first, and the level run's approaches left the character 17 units from the monster
+    spots = firing_spots(Ground(()), (100.0, 100.0), 20.0, (70.0, 100.0), engage=13.9)
+    assert spots[0] == (86.0, 100.0)  # the ring of 14, on the character's side
+    assert all(math.dist(spot, (100.0, 100.0)) == pytest.approx(14.0) for spot in spots[:16])
+    assert sorted(spots) == sorted(firing_spots(Ground(()), (100.0, 100.0), 20.0, (70.0, 100.0)))  # the same points
 
 
 def test_the_flight_layer_decides_the_shot_where_a_grid_has_one():

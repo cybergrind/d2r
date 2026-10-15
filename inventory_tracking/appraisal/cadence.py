@@ -67,7 +67,8 @@ def cadences(*, shop: float, identify: float, stash: float, runes: float, terror
         # The level map's walls and card (levels/guide.py `refresh_interval`, 0: every 0.5 s poll). The
         # macro paths over the walls (the guide's `level`, macros/hunt.py): the game loads rooms one or more past
         # the character's, and the guide reads sooner once it has moved a room's width (`REFRESH_MOVE`), so 2 s
-        # is fresh enough; the HUD's dot follows the character live between cards (hud/live.py).
+        # is fresh enough; the HUD follows the character and every monster dot live between cards and walks the
+        # monster table itself for new ones, in its own process (hud/live.py, hud/dots.py; run-1916-hud-findings.md).
         'level map': Cadence(0.0, 0.0, LEVEL_MAP_WORKING),
         # Ground arrows to runes and marked drops (loot/watch.py): for the player's eyes. The pickup step reads
         # the ground itself.

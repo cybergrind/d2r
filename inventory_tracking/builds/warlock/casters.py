@@ -15,6 +15,7 @@ from inventory_tracking.builds.warlock.buffs import (
     ENGORGE_RETRY,
     SIGIL_SECONDS,
 )
+from inventory_tracking.builds.warlock.defiler import DEFILER_RETRY
 from inventory_tracking.builds.warlock.skills import CONSUME, ENGORGE, SUMMON_DEFILER
 from inventory_tracking.common import LOG
 from inventory_tracking.macros.actuator import Abort
@@ -57,6 +58,7 @@ CONSUME_PAD_WAIT = 10.0  # seconds: Consume due in controller mode is asked agai
 # if it moved this many world units while the pointer travelled, the pointer follows (user, 2026-10-07).
 AIM_DRIFT = 1.0
 AIM_TRIES = 4
+PANEL_OPEN = 'a panel is open'  # what stops a summon with the player's panel open (`hand_off`)
 
 
 def defilers(world: World) -> list[Monster]:
@@ -133,8 +135,15 @@ def summon_defiler(run: Run, *, until: float | None = None, skip: int = 0) -> Mo
     # A spot that cannot be walked on takes no summon (user, 2026-10-06): try the next one.
     world, spot = None, SUMMON_SPOTS[0]
     spots = open_spots(run, start, skip)
+    looked = [start]  # the last world looked at: the panel check reads no world of its own
+
+    def came(seen: World) -> bool:
+        looked[0] = seen
+        return any(m.unit_id not in before for m in defilers(seen))
+
     while world is None and spots:
         spot = spots.pop(0)
+        hand_off(looked[0])
         rect = run.actuator.keys.focused_window_rect()
         if run.pad is not None and start.player is not None and rect is not None:
             # Controller mode: a heading toward the spot (macros/pad.py); the game puts it at its own distance.
@@ -143,9 +152,10 @@ def summon_defiler(run: Run, *, until: float | None = None, skip: int = 0) -> Mo
         else:
             run.actuator.move(*spot, scatter=(40, 25))
         press_skill(run, SUMMON_DEFILER)
-        world = run.seen(lambda w: any(m.unit_id not in before for m in defilers(w)), 1.5)
+        world = run.seen(came, 1.5)
         if world is None and not spots and until is not None and run.clock() < until:
-            spots = open_spots(run, run.world())[:1]
+            looked[0] = run.world()
+            spots = open_spots(run, looked[0])[:1]
             run.pause('screen')
     if world is None:
         raise Abort('Defiler: not seen at any spot')
@@ -175,6 +185,17 @@ def summon_defiler(run: Run, *, until: float | None = None, skip: int = 0) -> Mo
         )
     run.pause('key')
     return defiler
+
+
+def hand_off(world: World) -> None:
+    """No summon into a panel the player has open: at 22:45:01-07 on 2026-10-14 four Summon Defiler keys went out
+    while the player used the inventory and the cube, and no Defiler came (rca/2026-10-14/run-1932-findings.md issue
+    3). Stopped as a key of the player's stops a routine; the caller tries again soon (`consume_again`, CONSUME_SOON;
+    the Defiler's row after DEFILER_RETRY). `world` is the caller's latest look, not a read of its own: a read here
+    was one more world read a tick under the strike (golden loop_counts.json, 2026-10-15)."""
+    panels = world.open_panels
+    if panels:
+        raise Abort(f'{PANEL_OPEN} ({", ".join(panels)}): no summon into it')
 
 
 def log_landing(player: Player, toward: tuple[float, float], defiler: Monster) -> None:
@@ -395,11 +416,45 @@ def consume_again(cast: Casting) -> Tried:
         # comes soon (09:58:00 on 2026-10-12: stopped by a key, and 20 s without the buff).
         wait = CONSUME_RETRY
         tried = Tried(started)
-        if 'a key was pressed' in str(stop):
+        if 'a key was pressed' in str(stop) or PANEL_OPEN in str(stop):
             wait = CONSUME_SOON
             tried = Tried.again(run.clock(), CONSUME_RETRY, wait)
         LOG.info('Macro: no Consume (%s); again in %.0fs', stop, wait)
         return tried
+    return Tried(started, cast=True)
+
+
+def defiler_out(cast: Casting) -> Tried:
+    """A Defiler summoned where none is alive (defiler.py: its row's `due` holds only then, so the summon ends no
+    Consume). In the quiet by `summon_defiler` (its spots, the summon waited for); under the held strike one key at
+    the first open spot with the strike let go (`Buffs.key`), the next look showing whether it came (the row's
+    DEFILER_RETRY). A try that fails is said and asked again after DEFILER_RETRY."""
+    run, world = cast.run, cast.world
+    assert world is not None
+    assert cast.key_names is not None
+    started = run.clock()
+    try:
+        run.keys.update(cast.key_names(world, (SUMMON_DEFILER,)))
+        if cast.row.phase == 'fight':
+            hand_off(world)
+            spot = open_spots(run, world)[0]
+            rect = run.actuator.keys.focused_window_rect()
+            if run.pad is not None and world.player is not None and rect is not None:
+                here = (world.player.x, world.player.y)
+                run.pad.aim_place(here, world_point(world.player, *spot, rect[2] / rect[3]))
+            else:
+                run.actuator.aim(*spot, scatter=(40, 25))
+            cast.buffs.key(run, SUMMON_DEFILER)
+            LOG.info('Macro: Defiler: summoned under the strike at (%.2f, %.2f) of the window', *spot)
+            return Tried(run.clock(), cast=True)
+        LOG.info('Macro: Defiler: none out; summoning one')
+        run.say('Summoning a Defiler')
+        summon_defiler(run)
+    except (Abort, ValueError) as stop:
+        if run.stops(stop):
+            raise
+        LOG.info('Macro: no Defiler (%s); again in %.0fs', stop, DEFILER_RETRY)
+        return Tried(started)
     return Tried(started, cast=True)
 
 
@@ -479,4 +534,5 @@ CASTERS: dict[str, Caster] = {
     'consume': consume_again,
     'engorge': engorge,
     'sigil': sigil,
+    'defiler': defiler_out,
 }

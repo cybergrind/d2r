@@ -940,7 +940,8 @@ def test_a_goal_at_a_unit_is_a_row_toward_it_and_the_mark_it_was_made_from_goes(
     guide.poll(2.5)
     guide.tick()
     *lines, card = shown[-1]
-    assert lines[0].text == 'Bishibosh: not seen' and lines[0].arrow is None
+    assert lines[0].text == 'Bishibosh: not seen'
+    assert lines[0].arrow is None
     assert card.route == ()
 
 
@@ -962,7 +963,7 @@ class Goals:
     def done(self, area):
         return self.labels, frozenset()
 
-    def wanted(self, area, marks):
+    def wanted(self, area, here, marks):
         return self.classes
 
     def note(self, area, here, marks, things):
@@ -979,9 +980,11 @@ def test_the_objects_of_use_marks_are_read_at_each_poll_only_while_one_is_left()
     guide.poll(2.0)
     clock.now += 0.5
     guide.poll(2.5)
-    assert reads == [] and goals.things[-1] == ()
+    assert reads == []
+    assert goals.things[-1] == ()
 
     goals.classes = frozenset({392})
     clock.now += 0.5
     guide.poll(3.0)
-    assert reads == [frozenset({392})] and goals.things[-1] == ('seal',)
+    assert reads == [frozenset({392})]
+    assert goals.things[-1] == ('seal',)

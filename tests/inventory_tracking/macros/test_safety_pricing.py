@@ -1,9 +1,12 @@
+import logging
 import math
 from dataclasses import replace
+from types import SimpleNamespace
 
 import pytest
 
 from inventory_tracking.combat.harm import GROUND_UNIT, Harm
+from inventory_tracking.common import LOG
 from inventory_tracking.macros import pursuit as p
 from inventory_tracking.macros.build import Step
 from inventory_tracking.macros.goals import Goal
@@ -723,3 +726,159 @@ def test_the_places_that_keep_the_fight_lie_inside_the_reach_the_nearest_first()
     gaps = [math.dist(here, place) for place in places]
     assert gaps == sorted(gaps)
     assert gaps[0] < 2.0
+
+
+def _clump_fight(monkeypatch, *, offer=None, posted='run', now=5.0, harm_at_stand=0.0):
+    """The Ancient's Way pack of run-1932-findings.md §4 (22:50:26.9): two hostiles 20 to 21.5 units off, at the edge
+    of the reach, and the rest of their pack 24 to 28 off, just out of it (the fights ended there, "nothing left in
+    reach"); a level run's fight priced near nothing against the budget. `offer`: the place the fight's own look found
+    and when (`Safety.offer`); `harm_at_stand`: the harm of any way that ends there (a dangerous pack round it)."""
+    from inventory_tracking.builds.warlock.echoing_strike.attack import ECHOING_STRIKE_ATTACK
+    from inventory_tracking.combat.harm import Hostile, Look, SafetySettings
+    from inventory_tracking.combat.policy import Foe, Observation
+    from inventory_tracking.combat.survival import CALM
+    from inventory_tracking.macros import safety as module
+    from inventory_tracking.macros.goals import FIGHT
+    from inventory_tracking.macros.world import Loot
+
+    stand = offer[0] if offer is not None else None
+
+    def priced(look, path, *rest):
+        end = path[-1][0] if isinstance(path, tuple) and path and isinstance(path[0], tuple) else path
+        hurt = harm_at_stand if stand is not None and math.dist(end, stand.spot) < 0.5 else 0.0
+        return Harm(hurt, 2 * hurt)
+
+    monkeypatch.setattr(module, 'harm_path', priced)
+    monkeypatch.setattr(module, 'harm', lambda look, at, *rest: priced(look, at))
+    spots = ((20.0, 0.0), (21.5, 1.0), (24.0, -1.5), (25.0, 2.0), (26.5, -1.0), (28.0, 0.5))
+    pack = dict(enumerate(spots))
+    seen = Observation((0.0, 0.0), {unit: Foe(624, at, 3000.0) for unit, at in pack.items()})
+    look = Look(tuple(Hostile(unit, 624, at, active=True) for unit, at in pack.items()), life=1800)
+    goal = Goal('clearing the way', pack[0], FIGHT, 22.1, PRESSED, clearing=True)
+    facts = p.Facts(now, goal, True, True, True, lambda: Step(goal.place), area=118, near=True)
+    pursuit = p.Pursuit('pickup', 0.0, advance=False, leash=p.FULL, area=118) if posted == 'run' else None
+    safety = module.Safety()
+    if offer is not None:
+        safety.offer(*offer)
+    found = safety.price(
+        facts, pursuit, look, Loot(life=1800, max_life=1800), CALM, SafetySettings(), seen, ECHOING_STRIKE_ATTACK,
+        lambda point: Step(point),
+    )  # fmt: skip
+    return p.decide(found, pursuit), found
+
+
+def test_a_level_runs_safe_fight_moves_to_the_nearer_stand_its_look_found_when_it_takes_materially_more(monkeypatch):
+    # Before: Hold was the only act of the safe fights, and the run struck from the edge of the reach (17 to 22 units,
+    # a third of the casts hitting nothing). The stand 12 from the clump (the attack's engage ring) is gone to.
+    held, _ = _clump_fight(monkeypatch)
+    assert isinstance(held, p.Hold)
+    stand = Step((8.0, 0.0))
+    chosen, priced = _clump_fight(monkeypatch, offer=(stand, 4.8))
+    assert isinstance(chosen, p.Move)
+    assert chosen.step.spot == stand.spot
+    assert chosen.reason == 'firing spot'
+    hold = next(c for c in priced.candidates if isinstance(c.act, p.Hold))
+    move = next(c for c in priced.candidates if isinstance(c.act, p.Move))
+    assert hold.seconds - move.seconds > max(0.3, 0.2 * hold.seconds)  # the commitment's material gain
+
+
+def test_the_stand_its_look_found_is_not_gone_to_into_harm_over_the_budget_stale_or_outside_a_run(monkeypatch):
+    stand = Step((8.0, 0.0))
+    # a dangerous pack round the stand: its harm decides (no reckless closing)
+    chosen, _ = _clump_fight(monkeypatch, offer=(stand, 4.8), harm_at_stand=5000.0)
+    assert isinstance(chosen, p.Hold)
+    # looked at more than STAND_FRESH ago: the next look prices its own
+    chosen, priced = _clump_fight(monkeypatch, offer=(stand, 3.0))
+    assert isinstance(chosen, p.Hold)
+    assert len(priced.candidates) == 1
+    # attack mode alone, no run and no press: the mode does not go anywhere of its own
+    chosen, priced = _clump_fight(monkeypatch, offer=(stand, 4.8), posted=None)
+    assert isinstance(chosen, p.Hold)
+    assert len(priced.candidates) == 1
+    # one onto a hostile (within KEEP_AWAY) is no stand
+    chosen, priced = _clump_fight(monkeypatch, offer=(Step((16.0, 0.0)), 4.8))
+    assert len(priced.candidates) == 1
+
+
+# -- the look's time: the goal's way within its share, once a look; a look over its time said --------------------
+
+
+def _run_fight(monkeypatch, *, timer=None, way=None, safety=None):
+    """A level run's fight not yet at its goal (Hold, and the advance priced beside it: `price`'s Hold branch), the
+    goal's way `way` (counted by the caller); the safety's clock `timer` (None: the arena's, no clock)."""
+    from inventory_tracking.combat.harm import Hostile, Look, SafetySettings
+    from inventory_tracking.combat.policy import Foe, Observation
+    from inventory_tracking.combat.survival import CALM
+    from inventory_tracking.macros import safety as module
+    from inventory_tracking.macros.goals import FIGHT
+    from inventory_tracking.macros.world import Loot
+
+    monkeypatch.setattr(module, 'taken', lambda *a, **kw: (100.0, 0))
+    monkeypatch.setattr(module, 'falls', lambda *a, **kw: {})
+    monkeypatch.setattr(module, 'camp', lambda *a, **kw: None)
+    seen = Observation((0.0, 0.0), {1: Foe(624, (15.0, 0.0), 3000.0)})
+    look = Look((Hostile(1, 624, (15.0, 0.0), active=True),), life=1800)
+    goal = Goal('the rest of the level', (300.0, 0.0), FIGHT, 22.1, PRESSED, clearing=True)
+    facts = p.Facts(5.0, goal, False, True, True, way, area=105, near=True)
+    pursuit = p.Pursuit('pickup', 0.0, advance=False, leash=p.FULL, area=105)
+    safety = safety if safety is not None else module.Safety()
+    safety.timer = timer
+    found = safety.price(
+        facts, pursuit, look, Loot(life=1800, max_life=1800), CALM, SafetySettings(), seen,
+        SimpleNamespace(reach=22.1), lambda point: Step(point),
+    )  # fmt: skip
+    return p.decide(found, pursuit), found, safety
+
+
+def test_the_goals_way_is_asked_once_a_look_within_its_share_of_the_looks_time(monkeypatch):
+    # The Plains of Despair, 23:48 on 2026-10-14 (rca/2026-10-14/run-2040-findings.md §1.2): the way to Izual 342 off
+    # was asked with no bound at every look, the strike and the drinker waiting on it
+    from inventory_tracking.combat.harm import SafetySettings
+    from inventory_tracking.macros import travel
+    from inventory_tracking.macros.safety import WAY_SHARE
+
+    asked = []
+    reads = iter(range(10**6))
+
+    def way():
+        plan = travel.PLANNING.get()
+        asked.append(None if plan is None else plan.until)
+        return Step((20.0, 0.0))
+
+    clock = lambda: next(reads) * 1e-4  # noqa: E731 - a tenth of a millisecond at each read
+    chosen, priced, _ = _run_fight(monkeypatch, timer=clock, way=way)
+    assert isinstance(chosen, p.Hold)
+    assert any(isinstance(c.act, p.Move) for c in priced.candidates)  # the advance priced beside the hold
+    assert priced.way() == Step((20.0, 0.0))  # the arbiter and the act go by the same leg
+    assert len(asked) == 1
+    assert asked[0] == pytest.approx(SafetySettings().look_seconds * WAY_SHARE, abs=1e-3)  # from the look's start
+    # with no clock (the arena) the way is asked as before, with no bound
+    asked.clear()
+    _run_fight(monkeypatch, way=way)
+    assert asked == [None]
+
+
+def test_past_the_looks_time_no_way_is_asked_and_a_look_over_its_time_is_said_once_a_second(monkeypatch, caplog):
+    asked = []
+    reads = iter(range(10**6))
+    slow = lambda: next(reads) * 0.05  # noqa: E731 - every stage of the look 50 ms
+
+    def way():
+        asked.append(1)
+        return Step((20.0, 0.0))
+
+    with caplog.at_level(logging.INFO, logger=LOG.name):
+        chosen, priced, safety = _run_fight(monkeypatch, timer=slow, way=way)
+        assert isinstance(chosen, p.Hold)
+        assert not asked  # the advance is the next look's to price
+        assert len(priced.candidates) == 1
+        _run_fight(monkeypatch, timer=slow, way=way, safety=safety)  # the same look's clock: within the second
+        said = [r.getMessage() for r in caplog.records if r.getMessage().startswith('Macro: look:')]
+        assert len(said) == 1
+        assert 'over budget (80 ms)' in said[0]
+        assert said[0].endswith('-> Hold')
+        safety.over_said -= 1.0
+        _run_fight(monkeypatch, timer=slow, way=way, safety=safety)
+        said = [r.getMessage() for r in caplog.records if r.getMessage().startswith('Macro: look:')]
+    assert len(said) == 2
+    assert said[1].endswith('(1 more since)')

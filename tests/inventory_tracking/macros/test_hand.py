@@ -220,3 +220,50 @@ def test_a_flip_ends_attack_modes_fight_at_once_not_after_five_stopped_fights(ca
     with caplog.at_level(logging.INFO), pytest.raises(Flipped):
         hunter(play).attack_mode(run, keys)
     assert 'the fight stopped' not in caplog.text
+
+
+# -- the act of a slow look, 23:48:47-52 on 2026-10-14 ----------------------------------------------------------
+
+
+def slow_looks(hunt, play, *, walked: float):
+    """Each look of `hunt` takes 0.5 s of the game's clock, the character walked `walked` units east meanwhile (the
+    player's hand, rca/2026-10-14/run-2040-findings.md §1.1: a look of 5.1 s, the character carried 36 units)."""
+    judge = hunt.judge
+
+    def slow(run, world, *args, **kwargs):
+        found = judge(run, world, *args, **kwargs)
+        play.clock.now += 0.5
+        player = play.world.player
+        play.world = replace(play.world, player=replace(player, x=player.x + walked))
+        return found
+
+    hunt.judge = slow
+
+
+def test_the_move_of_a_look_older_than_stale_look_is_dropped_and_the_loop_looks_again(caplog) -> None:
+    play = game()
+    hunt = running(play)
+    run = play.run()
+    slow_looks(hunt, play, walked=6.0)
+    with caplog.at_level(logging.INFO):
+        assert hunt.pursue(run, play.world, [], ground(hunt, play), keys, in_reach=False)  # the loop looks again
+    assert not play.walks
+    assert not play.warps
+    dropped = [r.getMessage() for r in caplog.records if r.getMessage().startswith('Macro: look: the act of a look')]
+    assert dropped == [
+        'Macro: look: the act of a look 0.50 s old is dropped (Move, the character 6.0 units from where the look saw '
+        'it): looking again'
+    ]
+
+
+def test_a_second_slow_look_in_a_row_with_the_character_where_it_saw_it_makes_its_act() -> None:
+    """A host slow at every look must not stop every move: the game has not changed since the look."""
+    play = game()
+    hunt = running(play)
+    run = play.run()
+    slow_looks(hunt, play, walked=0.0)
+    assert hunt.pursue(run, play.world, [], ground(hunt, play), keys, in_reach=False)
+    assert not play.walks
+    assert not play.warps
+    hunt.pursue(run, play.world, [], ground(hunt, play), keys, in_reach=False)
+    assert play.walks or play.warps, play.said

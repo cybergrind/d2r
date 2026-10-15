@@ -20,6 +20,7 @@ from inventory_tracking.models import PotionType
 
 
 if TYPE_CHECKING:
+    from inventory_tracking.automation.ledger import PotionLedger
     from inventory_tracking.macros.build import Build  # build.py is above this module
     from inventory_tracking.macros.pad import PadActs
 
@@ -80,6 +81,9 @@ class Run:
         # the clock time the healer (`make osd`) last gave the mercenary a potion of a kind, None when never or
         # not known (automation/ledger.py `given_at`): macros/drinking.py tells the mercenary's from the character's
         self.given: Callable[[PotionType], float | None] | None = None
+        # The healer's ledger, where the macro's drinker claims the character's potion before its key so the healer
+        # stands off for that blow (automation/ledger.py `PotionLedger.claim`); None: no healer's ledger, no claim
+        self.ledger: PotionLedger | None = None
         self.warps: Callable[[], tuple[Warp, ...]] | None = None  # the doors loaded (world.GameMemory.warps)
         # the walkable ground of the level the character is on, None while not known (the level guide's map)
         self.ground: Callable[[], Ground | None] | None = None

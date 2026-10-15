@@ -28,6 +28,8 @@ from inventory_tracking.macros.buffs import STATE_DISTRUST as HEX_DISTRUST
 from inventory_tracking.macros.hunt import (
     FOLLOW_SECONDS,
     MISSES_IN_A_ROW,
+    NEARING_SECONDS,
+    QUIET_UNITS,
     RUN_IN_PLACE,
     STRIKE_REACH,
     SWEEP_UNITS,
@@ -1833,6 +1835,79 @@ def test_a_monster_that_takes_no_damage_is_left_alone_and_the_rest_is_fought():
     assert any(text.startswith('Nothing left in reach') for text in play.said)  # the fight ended with it alive
 
 
+def test_a_boss_that_takes_no_damage_is_never_left_alone():
+    # The player, 2026-10-14: Baal's random teleports made "takes no damage after 4 casts" leave him alone 20 s; 2 of 10
+    # arena seeds did not kill him in 60 s (rca/2026-10-14/baal-sim.md). Ordinary elites keep the rule (above).
+    baal = foe(10, 5008.0, 5000.0, txt_id=544, life=128, max_life=128)
+    play = game(baal)
+    play.toughness[10] = 1000
+    play.unhurt.add(10)
+    hunt = hunter(play)
+    attack_mode(play, hunt, until=6.0)
+    assert hunt.untouchable == {}
+    assert not any('left alone' in text for text in play.said)
+    assert any('takes no damage: getting nearer' in text for text in play.said)
+    struck = [unit for unit, _ in play.strikes]
+    assert struck.count(10) > 2 * UNTOUCHED_CASTS  # the strikes go on at him
+
+
+def test_a_boss_the_strikes_did_nothing_to_is_in_reach_only_within_the_engage_ring_for_a_while():
+    from inventory_tracking.levels.model import Ground
+
+    here = (5000.0, 5000.0)
+    baal = foe(10, 5020.0, 5000.0, txt_id=544, life=128, max_life=128)  # 20 away: in the blades' reach
+    play = game(baal)
+    hunt, ground = hunter(play), Ground(())
+    assert hunt.boss(baal)
+    assert not hunt.boss(foe(11, 5020.0, 5000.0, flags=0x0A))  # a champion is no boss
+    assert hunt.nearing_only(play.world, [baal], ground, here, 0.0) is False
+    hunt.nearing[10] = NEARING_SECONDS
+    assert hunt.nearing_only(play.world, [baal], ground, here, 0.0) is True  # beyond the engage ring: get nearer
+    near = replace(baal, x=5000.0 + hunt.attack.engage - 1)
+    assert hunt.nearing_only(play.world, [near], ground, here, 0.0) is False  # within it: the fight
+    other = foe(12, 5010.0, 5000.0, life=128, max_life=128)
+    assert hunt.nearing_only(play.world, [baal, other], ground, here, 0.0) is False  # something else to strike here
+    assert hunt.nearing_only(play.world, [baal], ground, here, NEARING_SECONDS + 1) is False  # the while is over
+    assert hunt.nearing == {}
+
+
+@pytest.mark.parametrize(('away', 'renewing'), [(QUIET_UNITS + 5, False), (QUIET_UNITS - 5, True)])
+def test_a_level_run_asks_its_whole_upkeep_between_its_moves_only_in_the_quiet(monkeypatch, away, renewing):
+    # 2026-10-14 (run-1932-findings.md issue 3): `pursue` came first at every look of a level run and the upkeep only
+    # at its end: Consume was down 59 s and 121 s of two full clears, a dead Defiler stayed dead. In the quiet the
+    # whole upkeep goes between the run's moves; with a hostile near, only a buff that would end in a boss's fight.
+    from inventory_tracking.config import with_overrides
+    from inventory_tracking.macros.pursuit import FULL, Pursuit
+
+    play = game(foe(10, 5000.0 + away, 5000.0, life=128, max_life=128))
+    hunt = hunter(play)
+    hunt.build = replace(hunt.build, settings=with_overrides(hunt.build.settings, pursuit=True))
+    hunt.pursuit = Pursuit('pickup', -100.0, advance=False, leash=FULL)
+    order = []
+
+    def spent():
+        # Each stub takes game time, and the test stops after a few looks whatever the loop does (bounded)
+        play.clock.now += 0.1
+        if len(order) > 20:
+            raise Abort('cancelled: the test has seen enough looks')
+
+    def pursue(*_, **__):
+        order.append('pursue')
+        spent()
+        return True
+
+    monkeypatch.setattr(hunt, 'pursue', pursue)
+
+    def upkeep(run, world, foes, key_names, *, renewing=False):
+        order.append(('upkeep', renewing))
+        spent()
+        return False
+
+    monkeypatch.setattr(hunt, 'upkeep', upkeep)
+    attack_mode(play, hunt, until=0.3)
+    assert order[:2] == [('upkeep', renewing), 'pursue']
+
+
 def test_a_monster_left_alone_is_tried_again_later():
     play = game(foe(10, 5008.0, 5000.0, life=128, max_life=128))
     play.toughness[10] = 1000
@@ -1974,7 +2049,9 @@ def test_a_warp_that_moved_nobody_keeps_the_teleport_step_off_blade_warp_for_a_m
 
 
 def test_with_the_staff_empty_the_teleport_step_goes_along_the_way_by_blade_warp_or_stops():
-    # Black Marsh, 18:59:44 on 2026-10-11: straight toward the tower nothing led, and the step stopped.
+    # Black Marsh, 18:59:44 on 2026-10-11: straight toward the tower nothing led, and the step stopped. The step with
+    # the staff empty is the navigation class's (rca/2026-10-14/navigation-classes.md): the walked way to the mark,
+    # a Blade Warp over a clear line, never toward a Teleport landing (the pocket of 22:54:28 on 2026-10-14).
     from inventory_tracking.levels.model import Target
     from inventory_tracking.macros.teleport import step_toward
 
@@ -1984,11 +2061,12 @@ def test_with_the_staff_empty_the_teleport_step_goes_along_the_way_by_blade_warp
     hunt.travel.warped_at = play.clock.now  # its delay is waited out: no Teleport can take the hop
     run = play.run()
     target = Target(101, ROOMS, (1012.5, 1000.5), 'the mark', 'poi', False, ())
-    afoot = []
-    step_toward(run, target, keys, afoot.append, lambda t, player, spot: hunt.warp_hop(run, t, player, spot, keys))
+    step_toward(
+        run, target, keys, lambda t: hunt.foot_step(run, t, keys),
+        lambda t, player, spot: hunt.warp_hop(run, t, player, spot, keys),
+    )  # fmt: skip
     assert play.pressed() == [KEYS[BLADE_WARP]]
-    assert afoot == []
-    assert any('0 charges left' in said for said in play.said)
+    assert 'Blade Warp toward the mark' in play.said
 
 
 def seal(point=(1006.0, 1000.0), *, use=None, warp=False):
@@ -2014,7 +2092,10 @@ def test_with_the_staff_empty_and_in_hand_the_step_takes_the_main_weapons_first(
     hunt.travel.warped_at = play.clock.now
     run = play.run()
     target = Target(101, ROOMS, (1012.5, 1000.5), 'the mark', 'poi', False, ())
-    step_toward(run, target, keys, lambda t: None, lambda t, player, spot: hunt.warp_hop(run, t, player, spot, keys))
+    step_toward(
+        run, target, keys, lambda t: hunt.foot_step(run, t, keys),
+        lambda t, player, spot: hunt.warp_hop(run, t, player, spot, keys),
+    )  # fmt: skip
     assert play.pressed() == [KEYS[SWAP_WEAPONS], KEYS[BLADE_WARP]]
     assert play.staff.in_hand is False
 

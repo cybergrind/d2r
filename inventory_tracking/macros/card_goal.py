@@ -1,4 +1,6 @@
-"""The level card's goal: the route's next undone goal, the one the macro goes to (rca/2026-10-14/run-1916-hud-findings.md §1).
+"""The level card's goal: the route's next undone goal, the one the macro goes to.
+
+rca/2026-10-14/run-1916-hud-findings.md §1.
 
 The player, 2026-10-14: "probably we need to remove the arrow when the goal is reached/interacted/killed"; the arrow
 follows the route's next undone goal, shared with the macros' goal model (goals are separate from navigation, no
@@ -31,6 +33,10 @@ from inventory_tracking.routes.progress import Place, Progress
 
 Point = tuple[float, float]
 NOT_SEEN = 'not seen'  # what a goal with no known place is "toward" on the card: no arrow
+# World units: a `use` mark's object is read only with the character this near it. The client holds the objects of
+# the rooms loaded around the character, a room (40 units) or two past its own: further off there is none to read,
+# and the read is the service's (the macro's process, rca/2026-10-13/latency-findings.md).
+OBJECT_NEAR = 120.0
 
 
 def world_point(mark: Poi) -> Point:
@@ -84,9 +90,9 @@ class CardGoals:
         """(labels, (label, place)) of the marks done with on level `area` (routes/progress.py `done_marks`)."""
         return self.progress.done_marks(area)
 
-    def wanted(self, area: int, marks: Iterable[Poi]) -> frozenset[int]:
-        """The object classes whose modes say a `use` stage's mark is done, among `marks` not seen used yet: the
-        guide reads those objects at its poll (nothing to read: no read)."""
+    def wanted(self, area: int, here: Point, marks: Iterable[Poi]) -> frozenset[int]:
+        """The object classes whose modes say a `use` stage's mark is done, among `marks` not seen used yet within
+        OBJECT_NEAR of the character (`here`): the guide reads those objects at its poll (nothing: no read)."""
         labels, places = self.done(area)
         stages = self._marks(area, USE)
         return frozenset(
@@ -97,6 +103,7 @@ class CardGoals:
             and mark.label in stages
             and mark.label not in labels
             and (mark.label, place(mark)) not in places
+            and math.dist(here, world_point(mark)) <= OBJECT_NEAR
         )
 
     def note(self, area: int, here: Point, marks: Sequence[Poi], things: Sequence[Thing]) -> bool:
@@ -124,4 +131,3 @@ class CardGoals:
         found = self.progress.chosen(area)
         stages = found[1].stages if found is not None else ()
         return frozenset(stage.mark for stage in stages if stage.kind == kind and stage.mark)
-

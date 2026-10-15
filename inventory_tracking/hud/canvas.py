@@ -13,6 +13,7 @@ the game is in controller mode (hud/live.py InputModeByte, read every refresh) t
 
 import signal
 import time
+from typing import Any
 
 from inventory_tracking.common import LOG
 from inventory_tracking.config import HUD, OSD
@@ -87,8 +88,8 @@ def run(scene_dir, config=HUD, *, monitor_index=OSD.monitor):
         )
         monitors = Gdk.Display.get_default().get_monitors()
         game_output, desktop_output = GameOutput(), FocusedOutput()
-        state = {'boxes': [], 'scale': 1.0, 'key': None, 'monitor': None, 'ground': None, 'panels': None, 'dim': False}
-        state.update(moved=None, drawn=0.0)
+        state: dict[str, Any] = {'boxes': [], 'scale': 1.0, 'key': None, 'monitor': None, 'ground': None}
+        state.update(panels=None, dim=False, moved=None, drawn=0.0)
         live, entrance, panels = LiveUnits(), Entrance(), OpenPanels(config.dim_panels)
         dots = LiveDots()
         input_mode = InputModeByte()
@@ -165,7 +166,10 @@ def run(scene_dir, config=HUD, *, monitor_index=OSD.monitor):
             # With `desktop_output` connected its slots are drawn there only; without it (laptop
             # panel off) they fall back to this canvas.
             desk_monitor = choose_monitor(monitors, None, config.desktop_output)
-            on_desk = lambda w: desk_monitor is not None and w.slot in config.desktop_slots  # ruff: ignore[lambda-assignment]
+
+            def on_desk(w):
+                return desk_monitor is not None and w.slot in config.desktop_slots
+
             refresh_desktop([w for w in widgets if on_desk(w)], desk_monitor)
             widgets = [w for w in widgets if not on_desk(w)]
             boxes, scale = [], state['scale']

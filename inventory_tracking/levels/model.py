@@ -283,3 +283,7 @@ class Target:
     warp: bool = False  # the point is the warp tile itself (levels/spots.py): a door to walk into
     ground: tuple[Walkable, ...] = ()  # walkable sub-tiles of the loaded rooms, when the walls were read
     use: int = 0  # objects.txt id of an object near the point the step clicks: a portal, a body (macros/teleport.py)
+    # An open passage's far place, in tiles (levels/exits.py `through`): a walk to it crosses into the next level, as
+    # no warp joins the two (the River of Flame's bridge into the Chaos Sanctuary, a border). None: a warp, an object
+    # or no way out.
+    passage: tuple[float, float] | None = None

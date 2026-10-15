@@ -13,13 +13,16 @@ from dataclasses import replace
 import pytest
 
 from inventory_tracking.combat.stance import Jump, no_footing
-from inventory_tracking.levels.model import Ground
-from inventory_tracking.macros.actuator import Abort
+from inventory_tracking.common import LOG
+from inventory_tracking.levels.model import Ground, Walkable, pack_cells
+from inventory_tracking.macros.actuator import Abort, Cancelled, Hand
 from inventory_tracking.macros.build import JumpSource, NoWay
 from inventory_tracking.macros.movement import SHARED, TELEPORT_JUMP, OwnTeleport, StaffTeleport, Walk
 from inventory_tracking.macros.routines import SWAP_SETTLE
 from inventory_tracking.macros.skills import TELEPORT
 from inventory_tracking.macros.travel import (
+    FIELDS,
+    GROWING,
     JUMP_DISTRUST,
     JUMP_LEAST,
     JUMP_REACH,
@@ -40,15 +43,20 @@ from inventory_tracking.macros.travel import (
     WARP_RETRY,
     Step,
     Travel,
+    Walked,
     around_of,
     facts_with,
     move_facts,
     navigator,
+    planning,
     spare_jump,
     step_line,
     step_walk,
     stride_of,
+    walked_over,
     walked_way,
+    way_left,
+    way_leg,
 )
 from inventory_tracking.macros.world import Teleport
 from tests.inventory_tracking.macros.fakes import HUNT_SLOTS, KEYS, Game, world
@@ -368,6 +376,22 @@ def test_a_failed_jump_in_the_game_is_remembered_and_said():
     assert travel.jump_failed == {TELEPORT: pytest.approx(play.clock.now)}
 
 
+@pytest.mark.parametrize('stop', [Hand('the mouse was moved'), Cancelled()], ids=['the hand', 'cancelled'])
+def test_a_jump_the_player_or_the_run_cut_is_not_remembered_as_failed(stop):
+    # 22:54:40.78 on 2026-10-14 (rca/2026-10-14/run-1932-findings.md §1.2.4): the player's mouse cut a Blade Warp at
+    # its aim, it was taken for a jump that moved nobody, and the next 15 s were walked (JUMP_DISTRUST 30 s)
+    play = game()
+    travel, run = Travel(SHARED), play.run()
+
+    def cut(*args, **kwargs):
+        raise stop
+
+    run.actuator.aim = cut
+    with pytest.raises(type(stop)):
+        travel.jump(run, Step((5012.0, 5000.0), TELEPORT), play.world.player, ASPECT, keys)
+    assert travel.jump_failed == {}
+
+
 def test_a_walk_click_waits_for_the_character_to_stand_free_only_when_a_look_has_it_casting():
     # The fixed 0.2 s of every walk leg (rca/2026-10-13/latency-findings.md §2.2): a character free at the look
     # the walk was chosen by and at one now is clicked at once; one that was casting waits as before.
@@ -377,3 +401,139 @@ def test_a_walk_click_waits_for_the_character_to_stand_free_only_when_a_look_has
     casting = replace(play.world.player, mode=7)
     assert step_walk(run, (5020.0, 5000.0), casting, ASPECT, []) >= SWAP_SETTLE
     assert len(play.walks) == 2
+
+
+# --- the walked field kept across the ground's growth, grown within a look's time ------------------------------
+
+
+def outdoors(x, y) -> bool:
+    """A level of 4 x 2 rooms of 8 x 8 tiles (world 5000-5160, 5000-5080): a wall at x 5038 open at its south end, one
+    at x 5118 open at its north end, and pillars, so the way to the north-west corner from the south-east winds."""
+    if 5038 <= x < 5040 and y < 5070:
+        return False
+    if 5118 <= x < 5120 and y >= 5010:
+        return False
+    return not (x % 23 < 2 and y % 17 < 3)
+
+
+def room(column: int, row: int, walkable=outdoors) -> Walkable:
+    left, top = 1000 + 8 * column, 1000 + 8 * row
+    cells = ''.join(
+        '1' if walkable(5 * left + x, 5 * top + y) else '0' for y in range(40) for x in range(40)
+    )  # fmt: skip
+    return Walkable(left, top, 8, 8, pack_cells(cells))
+
+
+ROOMS = {(column, row): room(column, row) for column in range(4) for row in range(2)}
+CORNER = (5004.5, 5004.5)  # the goal, in the north-west room
+FAR = (5150.5, 5070.5)  # the character, in the south-east room
+SAMPLES = [(5000.5 + x, 5000.5 + y) for x in range(0, 160, 7) for y in range(0, 80, 6)]
+
+
+def afresh(grids) -> Walked:
+    barred = no_footing(Ground(grids), ())
+    assert barred is not None
+    return Walked(barred, (math.floor(CORNER[0]) + 0.5, math.floor(CORNER[1]) + 0.5))
+
+
+def same_field(kept: Walked, grids) -> None:
+    fresh = afresh(grids)
+    assert kept.left(FAR) == pytest.approx(fresh.left(FAR), abs=1e-9)
+    assert kept.descent(FAR, JUMP_REACH) == pytest.approx(fresh.descent(FAR, JUMP_REACH), abs=1e-9)
+    for point in SAMPLES:
+        assert kept.left(point) == pytest.approx(fresh.left(point), abs=1e-9), point
+
+
+def test_a_kept_walked_field_takes_in_each_room_read_and_answers_as_one_grown_afresh():
+    # The Plains of Despair, 23:48 on 2026-10-14 (rca/2026-10-14/run-2040-findings.md §1.2.2): the field was kept by
+    # the whole ground, which grows with every outdoor room read, so each room grew it afresh from the goal
+    FIELDS.clear()
+    cell = (math.floor(CORNER[0]), math.floor(CORNER[1]))
+    grids = tuple(ROOMS[key] for key in ((0, 0), (0, 1), (1, 1), (2, 1), (3, 1), (3, 0)))
+    first = walked_over(grids, (), cell)
+    assert first is not None
+    assert first.left(FAR) == math.inf  # the way through the north rooms is not read yet
+    for key in ((2, 0), (1, 0)):  # the way read, then a room that shortens it
+        grids = (*grids, ROOMS[key])
+        kept = walked_over(grids, (), cell)
+        assert kept is first  # taken in, not grown again from the goal
+        same_field(kept, grids)
+    assert first.left(FAR) < math.inf
+
+
+def test_a_room_read_again_with_more_footing_is_taken_in_and_one_with_less_grows_the_field_afresh():
+    FIELDS.clear()
+    cell = (math.floor(CORNER[0]), math.floor(CORNER[1]))
+    walled_in = room(1, 0, lambda x, y: outdoors(x, y) and not (5050 <= x < 5052))
+    grids = (*ROOMS.values(),)
+    grids = tuple(walled_in if grid is ROOMS[1, 0] else grid for grid in grids)
+    first = walked_over(grids, (), cell)
+    assert first is not None
+    assert first.left(FAR) < math.inf
+    opened = tuple(ROOMS[1, 0] if grid is walled_in else grid for grid in grids)
+    assert walked_over(opened, (), cell) is first
+    same_field(first, opened)
+    again = walked_over(grids, (), cell)  # the wall back: no way may grow longer in a kept field
+    assert again is not first
+    same_field(again, grids)
+
+
+def test_a_walked_field_grows_within_the_looks_time_and_is_the_straight_line_until_it_reaches(caplog):
+    FIELDS.clear()
+    grids = tuple(ROOMS.values())
+    here = facts(here=FAR, ground=Ground(grids), slots=(None,))
+    reads = iter(range(10**6))
+    clock = lambda: next(reads) * 0.001  # noqa: E731 - a clock that moves a millisecond each time it is read
+    with caplog.at_level(logging.INFO, logger=LOG.name):
+        with planning(clock, 0.005):
+            assert way_left(here, CORNER) == math.dist(FAR, CORNER)  # not reached in time: the straight line
+            assert way_left(replace(here, here=(5010.5, 5010.5)), CORNER) == math.dist((5010.5, 5010.5), CORNER)
+        said = [record.getMessage() for record in caplog.records if record.getMessage().startswith('Macro: way:')]
+        assert len(said) == 1
+        assert 'still being grown' in said[0]
+        looks = 1
+        while True:
+            with planning(clock, clock() + 0.005):
+                left = way_left(here, CORNER)
+            if left != math.dist(FAR, CORNER):
+                break
+            looks += 1
+            assert looks < 200
+    assert looks > 1  # grown over several looks, each one bounded
+    assert left == pytest.approx(afresh(grids).left(FAR), abs=1e-9)
+    assert way_left(here, CORNER) == left  # with no clock (the arena), no bound
+
+
+def test_a_room_that_shortens_the_kept_way_is_taken_in_within_the_looks_time_too():
+    FIELDS.clear()
+    cell = (math.floor(CORNER[0]), math.floor(CORNER[1]))
+    grids = tuple(ROOMS[key] for key in ((0, 0), (0, 1), (1, 1), (2, 1), (3, 1), (3, 0), (2, 0)))
+    first = walked_over(grids, (), cell)
+    assert first is not None
+    assert first.left(FAR) < math.inf  # grown with no clock
+    grids = (*grids, ROOMS[1, 0])  # the room that shortens the way of most of the field
+    here = facts(here=FAR, ground=Ground(grids), slots=(None,))
+    reads = iter(range(10**6))
+    clock = lambda: next(reads) * 0.001  # noqa: E731
+    looks = 0
+    while True:
+        looks += 1
+        with planning(clock, clock() + 0.003):
+            left = way_left(here, CORNER)
+        if left != math.dist(FAR, CORNER):
+            break
+        assert looks < 200
+    assert looks > 1  # the lowering passed on over several looks, each one bounded
+    assert walked_over(grids, (), cell) is first
+    assert left == pytest.approx(afresh(grids).left(FAR), abs=1e-9)
+
+
+def test_with_the_walked_way_still_growing_and_no_straight_stride_there_is_no_failed_way():
+    FIELDS.clear()
+    grids = tuple(ROOMS.values())
+    behind = (5030.5, 5040.5)  # the wall at 5038 between it and the character: no straight stride from here
+    here = facts(here=(5045.5, 5040.5), ground=Ground(grids), slots=(None,))
+    with planning(lambda: 1.0, 0.0):  # no time at all
+        leg = way_leg(here, behind, OWN_MOVE)
+    assert reason(leg) == GROWING
+    assert isinstance(way_leg(here, behind, OWN_MOVE), Step)  # with no clock the way is grown: round the wall

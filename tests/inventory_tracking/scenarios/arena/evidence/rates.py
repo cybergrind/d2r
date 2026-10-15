@@ -389,7 +389,7 @@ def usual_frames(swings: Sequence[Mapping[str, Any]]) -> dict[tuple[int, int], i
     lengths: dict[tuple[int, int], Counter[int]] = defaultdict(Counter)
     for swing in swings:
         if swing['frames'] >= 5:
-            lengths[(swing['txt'], swing['mode'])][swing['frames']] += 1
+            lengths[swing['txt'], swing['mode']][swing['frames']] += 1
     found = {}
     for key, counts in lengths.items():
         length, times = counts.most_common(1)[0]
@@ -617,14 +617,14 @@ def melee(
     bins: dict[Any, list[float]] = dict(near) if by_rank else dict(by_type(near))
     struck: dict[tuple[int, str | None], list[Mapping[str, Any]]] = defaultdict(list)
     for swing in swings:
-        struck[(swing['txt'], swing['rank'] if by_rank else None)].append(swing)
+        struck[swing['txt'], swing['rank'] if by_rank else None].append(swing)
     sole: dict[tuple[int, str | None], list[int]] = defaultdict(list)
     same: Counter[tuple[int, str | None]] = Counter()
     mixed: Counter[tuple[int, str | None]] = Counter()
     for row in rows:
         if row['class'] == SOLE_MELEE:
             suspect = row['by'][0]
-            sole[(suspect['txt'], suspect['rank'] if by_rank else None)].append(row['lost'])
+            sole[suspect['txt'], suspect['rank'] if by_rank else None].append(row['lost'])
         elif row['class'] == SEVERAL:
             keys = {(s['txt'], s['rank'] if by_rank else None) for s in row['by']}
             if len(keys) == 1 and all(s['via'] == SWING for s in row['by']):
@@ -632,7 +632,7 @@ def melee(
                 continue
             for suspect in row['by']:
                 if suspect['via'] == SWING:
-                    mixed[(suspect['txt'], suspect['rank'] if by_rank else None)] += row['lost'] / len(row['by'])
+                    mixed[suspect['txt'], suspect['rank'] if by_rank else None] += row['lost'] / len(row['by'])
     found = {}
     idle = idle_types(tallies)
     pooled_seconds = pooled_tail = 0.0
@@ -647,7 +647,7 @@ def melee(
         mine = [s for s in struck.get((txt, rank), ()) if s['away'] <= MODEL_REACH]
         tail = swing_stats([s for s in struck.get((txt, rank), ()) if MODEL_REACH < s['away'] <= limit], usual)
         blows = sole.get((txt, rank), [])
-        low, middle = sum(blows), sum(blows) + same[(txt, rank)]
+        low, middle = sum(blows), sum(blows) + same[txt, rank]
         stats = swing_stats(mine, usual)
         if txt not in idle:
             pooled_seconds += seconds
@@ -672,11 +672,11 @@ def melee(
             'blows': len(blows),
             'blow': spread(blows),
             'points_sole': low,
-            'points_same_type': same[(txt, rank)],
-            'points_mixed_share': round(mixed[(txt, rank)]),
+            'points_same_type': same[txt, rank],
+            'points_mixed_share': round(mixed[txt, rank]),
             'points_per_second_low': ratio(low, seconds, 2),
             'points_per_second_same': ratio(middle, seconds, 2),
-            'points_per_second_high': ratio(middle + mixed[(txt, rank)], seconds, 2),
+            'points_per_second_high': ratio(middle + mixed[txt, rank], seconds, 2),
             'level': quantile([s['level'] for s in struck.get((txt, rank), ()) if s['level']], 0.5),
         }
     if not by_rank:

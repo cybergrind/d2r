@@ -25,17 +25,30 @@ character, forgetting it silently otherwise (moment M4 of the game of 21:42: thr
 
 import math
 from collections import deque
+from collections.abc import Sequence
 from dataclasses import dataclass
 
+from inventory_tracking.config import BELT, HEAL_PRIORITY, MERC_HEALING
+from inventory_tracking.levels.doors import Door
+from inventory_tracking.levels.model import Ground
 from inventory_tracking.macros.drinking import on_belt
-from inventory_tracking.macros.world import HEALING, REJUVENATION, Loot
+from inventory_tracking.macros.travel import walked_length
+from inventory_tracking.macros.world import HEALING, REJUVENATION, Drop, Loot
 from inventory_tracking.models import PotionType
+from inventory_tracking.tracking.belt import column_shortages
 
 
+Point = tuple[float, float]
 SEEN_GONE = 20.0  # units: a remembered potion not in a look made this near its place is gone (taken, by anyone)
 DRUNK_BY = 1.0  # seconds: a potion gone from the belt this soon after the macro's key for its kind was the macro's
 GONE_KEPT = 8  # potions gone from the belt remembered for the warning
 KINDS = {HEALING: PotionType.HEALING, REJUVENATION: PotionType.REJUVENATION}
+# Walked units within which a potion lying is a restock's goal (the player, 2026-10-14: "potions on the ground within
+# ~40 walked units come before the standing goal"; goals.py PICK_NEAR, a valuable's own measure)
+RESTOCK_UNITS = 40.0
+# The rejuvenations kept for the character (the player, 2026-10-13: "keep at least 2 rev potions for user"; the
+# healer gives the mercenary none of them: config.py MERC_HEALING)
+REJUVENATION_RESERVE = MERC_HEALING.rejuvenation_reserve
 
 
 @dataclass(frozen=True)
@@ -53,6 +66,58 @@ def worth(count: int, reserve: int, seconds: float) -> float:
     """Seconds of detour a healing potion on the ground is worth with `count` on the belt (the module text):
     `seconds` for each one the belt is below the `reserve`, none at it or above."""
     return seconds * max(0, reserve - count)
+
+
+def unread(loot: Loot) -> bool:
+    """Whether the belt is not known: no life read, or no game it is of (world.py `Loot.game`)."""
+    return not loot.max_life or loot.game is None
+
+
+def low(loot: Loot) -> tuple[str, ...]:
+    """The kinds (world.py HEALING, REJUVENATION) a belt low on potions restocks, the rarer first (the player,
+    2026-10-14): rejuvenations under the REJUVENATION_RESERVE kept for the character, healing potions under half of
+    what their columns hold (pickup.py `shortages`: the columns by what they hold, an empty one by the configured
+    layout). At 22:55:31 on 2026-10-14 the belt held 2 healing potions of 8 and the run warped on past three potions
+    13 units and less away (run-1932-findings.md issue 2). None for an unread belt (`unread`)."""
+    if unread(loot):
+        return ()
+    belt = on_belt(loot)
+    rejuvenation_short, healing_short = column_shortages(loot.belt, loot.columns, BELT.layout)
+    healing, rejuvenations = belt[PotionType.HEALING], belt[PotionType.REJUVENATION]
+    kinds = []
+    if rejuvenation_short and rejuvenations < REJUVENATION_RESERVE:
+        kinds.append(REJUVENATION)
+    if healing_short and 2 * healing < healing + healing_short:
+        kinds.append(HEALING)
+    return tuple(kinds)
+
+
+def restock(loot: Loot, here: Point, ground: Ground | None, doors: Sequence[Door]) -> Drop | None:
+    """The potion a belt low on potions (`low`) takes before the goal: of the rarer kind wanted first, the nearest
+    within RESTOCK_UNITS walked (travel.py `walked_length`). The quiet it is taken in is the caller's."""
+    for kind in low(loot):
+        near = sorted(
+            (d for d in loot.drops if d.kind == kind and math.dist(here, (d.x, d.y)) <= RESTOCK_UNITS),
+            key=lambda d: math.dist(here, (d.x, d.y)),
+        )
+        for drop in near:
+            if walked_length(ground, doors, here, (drop.x, drop.y)) <= RESTOCK_UNITS:
+                return drop
+    return None
+
+
+def spendable(loot: Loot, healing_points: float, floor: float) -> float | None:
+    """Life points the belt can give back beyond what it keeps (combat/harm.py `budget`, `stock`): its healing
+    potions over the ones the character keeps for under the life floor (automation/priority.py `reserve`: from the
+    floor to full life once, at least HEAL_PRIORITY.least_reserve), one more kept for each rejuvenation under
+    REJUVENATION_RESERVE, each potion worth `healing_points`. None for an unread belt (`unread`: nothing counted)."""
+    if unread(loot):
+        return None
+    belt = on_belt(loot)
+    rejuvenations = belt[PotionType.REJUVENATION]
+    need = math.ceil((100 - floor) / 100 * loot.max_life / healing_points)
+    kept = max(HEAL_PRIORITY.least_reserve, need) + max(0, REJUVENATION_RESERVE - rejuvenations)
+    return max(0, belt[PotionType.HEALING] - kept) * healing_points
 
 
 def detour(there: float, work: float) -> float:

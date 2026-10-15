@@ -552,3 +552,93 @@ def test_the_pickup_press_stops_for_a_unique_the_filter_shows_and_goes_on_from_a
         pick_up(play.run(), None, keys, lambda: None)
     play.loot = Loot((KNIFE,), room=FULL_INVENTORY, shown=frozenset({KNIFE.unit_id}))
     assert not pick_up(play.run(), None, keys, lambda: None)
+
+
+# -- a belt low on potions restocks in the quiet (the player, 2026-10-14; run-1932-findings.md issue 2) ------------
+
+# 22:55:31.8, Icy Cellar: 2 healing potions of 8, all 8 rejuvenations, nothing within 30; a full rejuvenation 7 away
+# (the belt has no room for it), super healing potions 13 and 16 away; the run warped on toward Snapchip 84 away.
+LOW_BELT = (JUV, JUV, HP, HP, JUV, JUV, None, None) + (JUV, JUV, None, None) * 2
+NAMED = ('cber5', 7)
+HEAL_13 = Drop(801, 5013.0, 5000.0, 'a super healing potion', HEALING)
+HEAL_16 = Drop(802, 5000.0, 5016.0, 'a super healing potion', HEALING)
+JUV_7 = Drop(803, 4993.0, 5000.0, 'a full rejuvenation potion', REJUVENATION)
+SAPPHIRE = Drop(804, 5043.0, 5000.0, 'Flawless Sapphire', VALUABLE, prized=False)
+
+
+def test_a_low_belt_wants_healing_under_half_its_columns_and_rejuvenations_under_the_reserve() -> None:
+    from inventory_tracking.macros.supply import low
+
+    assert low(Loot(belt=LOW_BELT, life=1278, max_life=1818, game=NAMED)) == (HEALING,)
+    full = (JUV, JUV, HP, HP) * 4
+    assert low(Loot(belt=full, life=1818, max_life=1818, game=NAMED)) == ()
+    half = (JUV, JUV, HP, HP) * 2 + (JUV, JUV, None, None) * 2  # 4 of 8: half, not under it
+    assert low(Loot(belt=half, life=1818, max_life=1818, game=NAMED)) == ()
+    dry = (JUV, None, HP, HP) + (None, None, HP, HP) * 3  # one rejuvenation of 8: under the reserve of 2
+    assert low(Loot(belt=dry, life=1818, max_life=1818, game=NAMED)) == (REJUVENATION,)
+    assert low(Loot(belt=LOW_BELT, life=1278, max_life=1818)) == ()  # a belt of no game: unread
+
+
+def test_in_the_quiet_attack_mode_takes_the_potions_lying_near_before_its_standing_goal(caplog) -> None:
+    """22:55:31.8: the standing goal (Snapchip, by its mark) went first; now the healing potion 13 away does."""
+    play = game()
+    play.loot = Loot((HEAL_13, HEAL_16, JUV_7), LOW_BELT, 1278, 1818, game=NAMED)
+    hunt = hunter(play)
+    hunt.build = replace(hunt.build, settings=hunt.build.settings.model_copy(update={'pursuit': True}))
+    run = play.run()
+    with caplog.at_level(logging.INFO):
+        goal = hunt.goal(run, play.world, [], False, None)
+    assert goal is not None
+    assert (goal.do, goal.unit) == (PICK_UP, HEAL_13.unit_id)  # the nearest of the kind the belt is low on
+    assert 'restock: a super healing potion at (5013, 5000), 13 away, before the goal' in caplog.text
+    # a hostile within 30: no restock, the fight and the goal first
+    near = Monster(1, 19, 1, 5025.0, 5000.0, 0xFFFFFFFF)
+    play.world = replace(play.world, monsters=(near,))
+    goal = hunt.goal(run, play.world, [near], False, None)
+    assert goal is None or goal.do != PICK_UP
+    # a stocked belt: no restock
+    play.world = replace(play.world, monsters=())
+    play.loot = replace(play.loot, belt=(JUV, JUV, HP, HP) * 4)
+    goal = hunt.goal(run, play.world, [], False, None)
+    assert goal is None or goal.do != PICK_UP
+
+
+def test_attack_mode_goes_to_its_restock_and_picks_it_up() -> None:
+    goal = goal_of((5000.0, 5000.0), spend=PRESSED, reach=20.0, side=HEAL_13)
+    assert decide(level_facts(goal), None) == Move(STEP, goal)  # no level run, no press: attack mode's own
+    assert decide(level_facts(goal, there=True, way=unasked), None) == Operate(goal)
+
+
+def test_a_valuable_not_on_the_way_hides_no_potion_nearer() -> None:
+    """22:56:06.4: KP_1's run chose a Flawless Sapphire 43 away, `side_drop` returned None, and a super healing potion
+    8 away was left with the belt 6 short."""
+    play = game()
+    potion = Drop(805, 5008.0, 5000.0, 'a super healing potion', HEALING)
+    hunt = running(play, loot=Loot((SAPPHIRE, potion), LOW_BELT, 1748, 1818, game=NAMED))
+    goal = look(hunt, play, play.run())
+    assert goal is not None
+    assert (goal.do, goal.unit) == (PICK_UP, potion.unit_id)
+
+
+def test_the_life_budget_scales_with_the_potions_the_belt_can_give_back() -> None:
+    """22:55:09 (8 of 8) and 22:55:38 (2 of 8): the budget was 636.3 both times at full life."""
+    from inventory_tracking.combat.harm import SafetySettings, budget, stock_floor
+    from inventory_tracking.combat.survival import CALM
+    from inventory_tracking.macros.supply import spendable
+
+    settings = SafetySettings()
+    full, low_belt = (JUV, JUV, HP, HP) * 4, LOW_BELT
+
+    def allowance(belt, life=1818, **changes) -> float:
+        loot = Loot(belt=belt, life=life, max_life=1818, game=NAMED)
+        points = spendable(loot, settings.healing_points, settings.floor)
+        return budget(life, 1818, CALM, settings, spendable=points, **changes)
+
+    assert allowance(full) == pytest.approx(636.3)  # a stocked belt: as before
+    assert allowance(low_belt) == 0.0  # the 2 kept for under the floor and nothing more: nothing to spend
+    three = (JUV, JUV, HP, HP) + (JUV, JUV, HP, None) + (JUV, JUV, None, None) * 2
+    assert allowance(three) == pytest.approx(480.0)  # one potion beyond the kept two: 480 points back
+    assert allowance(low_belt, insisting=3.0) > 0.0  # an insisted goal still lowers the floor
+    unread = Loot(belt=low_belt, life=1818, max_life=1818)
+    assert spendable(unread, settings.healing_points, settings.floor) is None
+    assert stock_floor(1818, settings, None) == settings.floor

@@ -1,7 +1,7 @@
 """A build that exists only for tests: a walker with one plain bolt, nothing like the real one."""
 
 import math
-from collections.abc import Collection, Mapping, Sequence
+from collections.abc import Callable, Collection, Mapping, Sequence
 from dataclasses import dataclass
 
 from inventory_tracking.combat.policy import AIM_BEYOND, Choice, Foe, Observation, Point
@@ -73,6 +73,11 @@ class DummyBolt:
 
     skill: int = ATTACK
     reach: float = 20.0
+    engage: float = 20.0  # a bolt lands as well at its reach: no ring is better than the furthest
+
+    def lands(self, away: float) -> float:
+        """Every bolt lands, however far."""
+        return 1.0
 
     def sees(self, seen: Observation, companions: Sequence[Monster]) -> Observation:
         """Nothing to add."""
@@ -95,8 +100,10 @@ class DummyBolt:
         )
         return Choice(focal, unit, BOLT)
 
-    def dealt(self, origin: Point, focal: Point, foes: Mapping[int, Foe]) -> Mapping[int, float]:
-        """The bolt hurts the one foe nearest the focal point, within SPLASH of it."""
+    def dealt(
+        self, origin: Point, focal: Point, foes: Mapping[int, Foe], blocked: Callable[[Point], bool] | None = None
+    ) -> Mapping[int, float]:
+        """The bolt hurts the one foe nearest the focal point, within SPLASH of it (walls: the caller's clear line)."""
         near = [(math.dist(foe.at, focal), unit) for unit, foe in foes.items() if math.dist(foe.at, focal) <= SPLASH]
         return {min(near)[1]: BOLT} if near else {}
 

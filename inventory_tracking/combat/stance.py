@@ -7,8 +7,9 @@ HORIZON seconds of casting
 attack takes off each of them with it (`Striker.dealt`); a place where all in reach die early counts up
 to double. The walk
 there costs its seconds without a cast, or a HOP_SECONDS teleport. The place is chosen only when it takes
-CAMP_GAIN times what the character takes where it stands. The distance to a monster is not counted,
-but no place is jumped to that a melee monster reaches before the first cast from it is out (`closes`).
+CAMP_GAIN times what the character takes where it stands. The distance to a monster is not counted
+(asked `landed`: by how often the attack's casts land that far, `landing`), but no place is jumped to
+that a melee monster reaches before the first cast from it is out (`closes`).
 Pure: no game access.
 
 History and measurements: combat/plan.md.
@@ -64,7 +65,6 @@ HORIZON = 3.0  # seconds the worth of a place is counted over: the pack should b
 CAST_SECONDS = 0.36
 RUN_SPEED = 20.0  # units a second
 WALK_LATENCY = 0.36  # seconds before a walk begins: the cast that has to end, and the click
-ENGAGE = 14.0  # units from the furthest hostile counted on that a jump is best ended at
 AS_GOOD = 0.02  # two places whose worth differs by less than this share are as good
 HOP_SECONDS = 1.5  # a teleport with the staff: the swap there, the hop, the swap back (the Tower run: 0.7 to 1.5 s)
 CAMP_REACH = 24.0  # units from the character a place is looked for (the window shows 23 up and 18 down)
@@ -78,10 +78,28 @@ class Striker(Protocol):
     `Attack`, which this module cannot import: it is below it)."""
 
     reach: float  # units: a hostile further from a place is not struck from it
+    # Optional, as `engaged` and `landing` read them: units from the furthest hostile counted on that a jump is
+    # best ended at (the build's `Attack.engage`; `reach` without), and `lands(away)`, the share of casts that
+    # hit a monster that far off against those close in (1.0 at every distance without).
 
-    def dealt(self, origin: Point, focal: Point, foes: Mapping[int, Foe]) -> Mapping[int, float]:
-        """The points one cast from `origin` at `focal` takes off each of `foes`, by unit id."""
+    def dealt(
+        self, origin: Point, focal: Point, foes: Mapping[int, Foe], blocked: Callable[[Point], bool] | None = None
+    ) -> Mapping[int, float]:
+        """The points one cast from `origin` at `focal` takes off each of `foes`, by unit id; `blocked`: the
+        walls its missiles stop at (None: none)."""
         ...
+
+
+def engaged(attack: Striker) -> float:
+    """Units from the furthest hostile counted on that a jump is best ended at: the attack's `engage`, its reach
+    for one that says none."""
+    return getattr(attack, 'engage', attack.reach)
+
+
+def landing(attack: Striker) -> Callable[[float], float]:
+    """The attack's `lands` (the share of casts that hit a monster so far off), or every cast for one that says
+    none."""
+    return getattr(attack, 'lands', None) or (lambda away: 1.0)
 
 
 def striker(given: Any) -> Striker:
@@ -170,6 +188,10 @@ class Field:
             known = self.walls[cell] = self.blocked((cell[0] + 0.5, cell[1] + 0.5))
         return known
 
+    def walled(self) -> Callable[[Point], bool] | None:
+        """The walls as a cast's missiles meet them (`Striker.dealt`), read once per cell; None without walls."""
+        return None if self.blocked is None else (lambda point: self.wall(*point))
+
     def bar(self, cell: tuple[int, int]) -> bool:
         if self.barred is None:
             return False
@@ -239,14 +261,32 @@ def closes(foe: Any, spot: Point, seconds: float) -> bool:
     return away - min(speed_of(foe.txt) * (seconds + CAST_SECONDS), CLOSING_MOST) < KEEP_AWAY
 
 
-def taken(seen: Observation, attack: Striker, field: Field, spot: Point, after: float) -> tuple[float, int]:
+def taken(
+    seen: Observation,
+    attack: Striker,
+    field: Field,
+    spot: Point,
+    after: float,
+    *,
+    landed: bool = False,
+    walls: bool = True,
+) -> tuple[float, int]:
     """(worth, casts) of casting from `spot` from `after` seconds on to the HORIZON: cast after cast
     the best cast at one of the hostiles in reach with a clear line takes off each what the attack
-    deals with it (`Striker.dealt`, capped by what the monster has left, a point off an elite counted
-    ELITE_WEIGHT times). The worth is the points taken, and up to as much again for being done early:
-    all in reach dead at once would double it, dead as the horizon ends adds nothing. `casts` is how
-    many it takes until nothing in reach is left, 0 when the horizon ends first."""
+    deals with it (`Striker.dealt`; with `landed`, as often as its casts hit one that far off:
+    `landing`; capped by what the monster has left, a point off an elite counted ELITE_WEIGHT times).
+    The worth is the points taken, and up to as much again for being done early: all in reach dead at
+    once would double it, dead as the horizon ends adds nothing. `casts` is how many it takes until
+    nothing in reach is left, 0 when the horizon ends first. `landed`: a stand nearer the pack is worth
+    more for the casts that land there (Echoing Strike: 33% of the casts from 18 units or more hit
+    nothing, run-1932-findings.md §4); asked by the places the safety prices (a level run's fight, the
+    firing stand's pace), not by the sweep of the pursuit loop off, whose replays and seal fights
+    were played and measured without it. `walls`: the blades stop at the walls on their line (the
+    field's, `Striker.dealt`'s `blocked`; run-2040-findings.md §3.3: 6% and 23% of the casts of the
+    23:40 game flew into walls); off only for that same sweep, whose goldens and replays were
+    recorded with the blades flying through."""
     attack = striker(attack)
+    lands = landing(attack) if landed else (lambda away: 1.0)
     near = []
     for unit, foe in seen.foes.items():
         dx, dy = foe.at[0] - spot[0], foe.at[1] - spot[1]
@@ -256,10 +296,12 @@ def taken(seen: Observation, attack: Striker, field: Field, spot: Point, after: 
     if not near:
         return 0.0, 0
     within = dict(near)
+    share = [lands(math.dist(spot, foe.at)) for _, foe in near]  # of the casts that hit each one from here
     lines = []  # per hostile in reach, the cast at it: (index in `near`, the points it takes off that one)
+    blocked = field.walled() if walls else None
     for _, aimed in near:
-        hit = attack.dealt(spot, aimed.at, within)
-        lines.append([(k, hit[unit]) for k, (unit, _) in enumerate(near) if unit in hit])
+        hit = attack.dealt(spot, aimed.at, within, blocked)
+        lines.append([(k, hit[unit] * share[k]) for k, (unit, _) in enumerate(near) if unit in hit])
     left = [foe.left for _, foe in near]
     weight = [ELITE_WEIGHT if foe.elite else 1.0 for _, foe in near]
     clock, casts, total = after, 0, 0.0
@@ -287,7 +329,8 @@ def falls(
 ) -> dict[int, float]:
     """Seconds from now until each hostile dies by the strikes cast from `spot`, the first one begun `after`
     seconds from now and each taking CAST_SECONDS times `pace`: cast after cast the line `taken` would lay (the
-    best at one of the hostiles in reach with a clear line, what the attack deals off each with it, elites
+    best at one of the hostiles in reach with a clear line, what the attack deals off each with it, every cast
+    landing: the forecast's pace is the takes' own, `SafetySettings.strike_spread`; elites
     weighted as the aim weighs them), its points capped by what each has left, and a hit on a monster the
     observation calls linked (`Observation.linked`) dealt again at `Observation.share` to every other linked
     one, wherever it stands. Only deaths within `horizon` are given; the others outlive it. What the build's
@@ -306,7 +349,8 @@ def falls(
     within = dict(near)
     left = {unit: foe.left for unit, foe in seen.foes.items() if foe.left > 0}
     weight = {unit: ELITE_WEIGHT if foe.elite else 1.0 for unit, foe in seen.foes.items()}
-    lines = [dict(attack.dealt(spot, aimed.at, within)) for _, aimed in near]
+    walls = field.walled()
+    lines = [dict(attack.dealt(spot, aimed.at, within, walls)) for _, aimed in near]
     linked = [unit for unit in seen.linked if unit in left] if seen.share > 0 else []
     found: dict[int, float] = {}
     clock = after
@@ -347,6 +391,8 @@ def camp(
     gain: float = CAMP_GAIN,
     jumps: Sequence[Jump] = (),
     escape: float | None = None,
+    landed: bool = False,
+    walls: bool = True,
 ) -> Camp | None:
     """The place worth going to from where the character stands, or None when it stands well: the
     place within CAMP_REACH where the next HORIZON seconds take the most, the way there counted
@@ -357,11 +403,14 @@ def camp(
     character stands a place has to be. `jumps`: the skills the character can jump by now, the
     preferred first: a place one of them reaches is priced by the first that does (and walked to only
     when none does), so the place is chosen for the way the character will take there. `escape`:
-    CROWD_ESCAPE for this fight (0: the character stays in a pack it stands in); None: the module's."""
+    CROWD_ESCAPE for this fight (0: the character stays in a pack it stands in); None: the module's.
+    `landed`: places priced as the casts land by distance (`taken`); `walls`: as the blades stop at walls
+    (`taken`)."""
     attack = striker(attack)
+    ring = engaged(attack)
     origin = seen.origin
     field = Field(seen.blocked, barred)
-    here, _ = taken(seen, attack, field, origin, 0.0)
+    here, _ = taken(seen, attack, field, origin, 0.0, landed=landed, walls=walls)
     ways = field.ways(origin, CAMP_REACH)
     around = sum(math.dist(origin, foe.at) <= CROWD_UNITS for foe in seen.foes.values())
     pressed = sum(math.dist(origin, foe.at) <= ESCAPE_UNITS for foe in seen.foes.values())
@@ -408,12 +457,12 @@ def camp(
             # and is the monsters' way too (held to walks as well, no pack in a row was walked to at all).
             if by_hop and any(closes(foe, spot, seconds) for foe in seen.foes.values()):
                 continue
-            worth, casts = taken(seen, attack, field, spot, seconds)
+            worth, casts = taken(seen, attack, field, spot, seconds, landed=landed, walls=walls)
             if worth < max(MIN_SCORE, need * here):
                 continue
             # Of two places as good (a jump takes as long to any of them) the one whose furthest hostile
-            # is nearest ENGAGE away: at the end of the blades' flight a step of a monster's is a miss,
-            # and next to the pack is where it strikes.
+            # is nearest the attack's engage ring away (`engaged`): at the end of the blades' flight a step
+            # of a monster's is a miss, and next to the pack is where it strikes.
             edge = max(
                 (away for foe in seen.foes.values() if (away := math.dist(spot, foe.at)) <= attack.reach), default=0.0
             )
@@ -421,7 +470,7 @@ def camp(
             if (
                 best is None
                 or worth > best[0] * (1 + close)
-                or (close and worth >= best[0] * (1 - close) and abs(edge - ENGAGE) < abs(best[1] - ENGAGE))
+                or (close and worth >= best[0] * (1 - close) and abs(edge - ring) < abs(best[1] - ring))
             ):
                 units = straight if by_hop or walked is None else walked
                 skill = jump.skill if jump is not None else None

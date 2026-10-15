@@ -312,3 +312,35 @@ def test_each_press_says_the_input_mode_and_its_acknowledgement_or_miss_says_it_
     with caplog.at_level('INFO'):
         player.step(sample(clock.now, current_raw=100, healing_cells=(), belt_ids=(103,)))
     assert 'input unread' in caplog.text  # a sample without the mode
+
+
+def test_the_macros_claim_holds_the_healer_off_the_characters_blow(healing_setup, sample, clock, tmp_path, caplog):
+    # One drinker per blow (rca/2026-10-14/run-1932-findings.md issue 2): at 22:55:26.58 and 26.65 the macro's key and
+    # the healer's, 70 ms apart at the same 65% mark, took two healing potions for one blow; again at 29.74 and 29.79.
+    from inventory_tracking.automation.ledger import PotionLedger
+
+    make, sent = healing_setup
+    ledger = PotionLedger(tmp_path, boot_id='test')
+    claim = ledger.claim(Actor.PLAYER, PotionType.HEALING, clock.now, within=0.5)  # the macro's, before its key
+    assert claim.taken
+    clock.now = 100.07
+    with caplog.at_level('INFO'):
+        result = make(PLAYER_HEALING).step(sample(clock.now, current_raw=640))  # 64%: under its 65% mark
+    assert result.outcome == Outcome.COOLDOWN
+    assert sent.call_count == 0
+    assert 'player healing: standing off: the macro took a healing potion 0.07 s ago' in caplog.text
+    # A rejuvenation is its own: a burst or a fall under 40% still gets the healer's
+    assert make(PLAYER_HEALING).step(sample(clock.now, current_raw=300)).outcome == Outcome.SENT
+
+
+def test_the_healers_key_in_flight_refuses_the_macros_claim(healing_setup, sample, clock, tmp_path):
+    from inventory_tracking.automation.ledger import PotionLedger
+
+    make, _ = healing_setup
+    assert make(PLAYER_HEALING).step(sample(clock.now, current_raw=640)).outcome == Outcome.SENT
+    ledger = PotionLedger(tmp_path, boot_id='test')
+    refused = ledger.claim(Actor.PLAYER, PotionType.HEALING, clock.now + 0.05, within=0.5)
+    assert not refused.taken
+    assert refused.ago == pytest.approx(0.05)
+    # Past the stand-off the belt has shown the healer's potion go (the macro counts it): a claim is taken again
+    assert ledger.claim(Actor.PLAYER, PotionType.HEALING, clock.now + 0.6, within=0.5).taken

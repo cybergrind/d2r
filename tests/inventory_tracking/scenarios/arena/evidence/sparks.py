@@ -542,7 +542,7 @@ def measure(tallies: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
     by_owner: dict[tuple[str, int], list[int]] = defaultdict(list)
     for release in releases:
         if release['known']:
-            by_owner[(release['take'], release['owner'])].append(release['frame'])
+            by_owner[release['take'], release['owner']].append(release['frame'])
     for frames in by_owner.values():
         gaps += [later - sooner for sooner, later in itertools.pairwise(sorted(frames))]
     since = Counter()

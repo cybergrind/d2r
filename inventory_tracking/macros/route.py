@@ -24,7 +24,8 @@ from collections.abc import Callable
 from functools import partial
 
 from inventory_tracking.common import LOG
-from inventory_tracking.levels.model import Level, Room, Target
+from inventory_tracking.levels.exits import outward
+from inventory_tracking.levels.model import Level, Target
 from inventory_tracking.levels.presets import has_warps
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.engine import Run
@@ -122,27 +123,6 @@ def leave(run: Run, key_names) -> None:
         raise Abort('the skill keys changed')
     prebuff(run, fresh=trace)
     run.say('Prebuff done')
-
-
-def outward(rooms: tuple[Room, ...], to: int) -> tuple[int, int] | None:
-    """The map direction from the level toward level `to`, which it touches without a door: from
-    the middle of the level's rooms to the middle of those touching `to`, along the nearer axis.
-    None while no room is known to touch it."""
-    edge = [room for room in rooms if to in room.leads_to]
-    if not edge:
-        return None
-
-    def middle(found: list[Room] | tuple[Room, ...]) -> tuple[float, float]:
-        return (
-            sum(room.x + room.width / 2 for room in found) / len(found),
-            sum(room.y + room.height / 2 for room in found) / len(found),
-        )
-
-    (ex, ey), (lx, ly) = middle(edge), middle(rooms)
-    dx, dy = ex - lx, ey - ly
-    if abs(dx) >= abs(dy):
-        return (1 if dx > 0 else -1, 0)
-    return (0, 1 if dy > 0 else -1)
 
 
 def borders(area: int | None, stage: Stage, target: Target, player: Player) -> bool:

@@ -154,7 +154,7 @@ def inventory(directory: Path) -> dict[str, object]:
         valid += unit.tick_valid
         tick_sound += unit.tick_valid and unit.tick_length == unit.length and unit.tick_frame < unit.length + 1
         if unit.skill is not None and unit.kind == MONSTER_TYPE:
-            skills[(unit.txt, unit.skill, unit.skill_level)] += 1
+            skills[unit.txt, unit.skill, unit.skill_level] += 1
         if unit.boss is not None:
             with_boss[unit.unit] = (unit.txt, unit.boss)
     targets = Counter()

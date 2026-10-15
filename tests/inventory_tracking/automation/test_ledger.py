@@ -295,3 +295,32 @@ def test_the_last_potion_given_to_an_actor_is_read_without_the_lock_and_never_wr
     assert ledger.given_at(Actor.PLAYER, PotionType.HEALING) is None
     assert PotionLedger(tmp_path, boot_id='other').given_at(Actor.MERC, PotionType.HEALING) is None  # another boot
     assert json.loads((tmp_path / 'potions.json').read_text()) == document
+
+
+def test_a_claim_stamps_the_cooldown_and_is_given_back_when_its_key_did_not_go_out(tmp_path):
+    from inventory_tracking.models import PotionType
+
+    ledger = PotionLedger(tmp_path, boot_id='test')
+    claim = ledger.claim(Actor.PLAYER, PotionType.HEALING, 50.0, within=0.5)
+    assert claim.taken
+    assert claim.stamp == 50.0
+    assert claim.previous is None
+    assert ledger.given_at(Actor.PLAYER, PotionType.HEALING) == 50.0
+    assert not ledger.claim(Actor.PLAYER, PotionType.HEALING, 50.2, within=0.5).taken  # one drinker per blow
+    assert ledger.claim(Actor.PLAYER, PotionType.REJUVENATION, 50.2, within=0.5).taken  # another kind is its own
+    ledger.unclaim(Actor.PLAYER, PotionType.HEALING, claim)
+    assert ledger.given_at(Actor.PLAYER, PotionType.HEALING) is None
+    again = ledger.claim(Actor.PLAYER, PotionType.HEALING, 60.0, within=0.5)
+    later = ledger.claim(Actor.PLAYER, PotionType.HEALING, 61.0, within=0.5)
+    ledger.unclaim(Actor.PLAYER, PotionType.HEALING, again)  # replaced since: the newer stamp stays
+    assert ledger.given_at(Actor.PLAYER, PotionType.HEALING) == later.stamp == 61.0
+
+
+def test_a_claim_is_refused_while_the_healer_holds_the_ledger(tmp_path):
+    from inventory_tracking.models import PotionType
+
+    ledger = PotionLedger(tmp_path, boot_id='test')
+    with ledger.transaction():  # the healer, pressing its key
+        busy = PotionLedger(tmp_path, boot_id='test').claim(Actor.PLAYER, PotionType.HEALING, 50.0, within=0.5)
+    assert not busy.taken
+    assert 'holds the ledger' in busy.why

@@ -10,10 +10,10 @@ from inventory_tracking.hud.dots import (
     WALK_SECONDS,
     DotStats,
     LiveDots,
-    vm_read,
 )
 from inventory_tracking.hud.live import follow
 from inventory_tracking.hud.scene import Widget
+from inventory_tracking.native.memory import vm_read_spans
 from inventory_tracking.terror.monsters import Monster
 from inventory_tracking.terror.tracker import ALIGNMENT_STAT, HELD_RANGE
 
@@ -117,7 +117,8 @@ def test_new_hostiles_come_from_the_canvas_walk_and_allies_never_do():
 
     # The card brings it: it is the card's dot from then on.
     moved = reader.frame(card(row(1, 24.0, 30.0), row(5, 24.0, 30.0), units=[TABLE, 108]), None, 100.1)
-    assert moved['extra'] == [] and moved['dots'][5] == [24.0, 30.0]
+    assert moved['extra'] == []
+    assert moved['dots'][5] == [24.0, 30.0]
 
 
 def test_follow_moves_the_map_dots_and_the_ground_marks_and_adds_the_new():
@@ -142,7 +143,7 @@ def test_a_batched_read_skips_the_span_it_stopped_at_and_asks_the_rest_again():
     calls = []
 
     def call(pid, local, count, remote, remote_count, flags):
-        spans = [(remote[i].base, remote[i].length) for i in range(remote_count)]
+        spans = [(remote[i].iov_base, remote[i].iov_len) for i in range(remote_count)]
         calls.append([address for address, _ in spans])
         done = b''
         for address, size in spans:
@@ -152,17 +153,17 @@ def test_a_batched_read_skips_the_span_it_stopped_at_and_asks_the_rest_again():
         if not done:
             ctypes.set_errno(errno.EFAULT)
             return -1
-        ctypes.memmove(local._obj.base, done, len(done))
+        ctypes.memmove(local._obj.iov_base, done, len(done))
         return len(done)
 
-    assert vm_read(call, 7, [(0x100, 4), (0x200, 4), (0x300, 4)]) == [b'AAAA', None, b'CCCC']
+    assert vm_read_spans(call, 7, [(0x100, 4), (0x200, 4), (0x300, 4)]) == [b'AAAA', None, b'CCCC']
     assert calls == [[0x100, 0x200, 0x300], [0x300]]
 
     def refused(*args):
         ctypes.set_errno(errno.EPERM)
         return -1
 
-    assert vm_read(refused, 7, [(0x100, 4)]) is None
+    assert vm_read_spans(refused, 7, [(0x100, 4)]) is None
 
 
 def test_a_refused_batch_reads_one_pread_each_from_then_on():
@@ -197,3 +198,19 @@ def test_the_stats_line_says_who_saw_a_monster_first_and_how_much_later_the_card
     assert 'card later than the walk by 1.80 s median' in line
     assert '1 deaths read by the frame, card dropped them 2.00 s median' in line
     assert 'had→painted 0.02 s median' in line
+
+
+def test_the_card_carries_each_dots_unit_and_the_table_to_the_canvas():
+    from inventory_tracking.hud.ground import ground_payload
+    from inventory_tracking.hud.live import map_card_of
+    from inventory_tracking.osd.level_map import MapCard, MapPoi
+
+    dot = MapPoi('unique', 'leader', 21.0, 30.0, 0x5001, 0x6001, 1)
+    card = MapCard(((0, 0, 8, 8),), (20.0, 30.0), (dot, MapPoi('Cave', 'stairs', 4.0, 4.0)), units=(TABLE, 108))
+    payload = card.to_payload()
+
+    assert MapCard.from_payload(payload) == card
+    shown = map_card_of([(Widget('map', 'guide', 'map', {'lines': [], 'map': payload}), (0, 0, 1, 1))])
+    assert shown['pois'][0] == ['unique', 'leader', 21.0, 30.0, 0x5001, 0x6001, 1]
+    assert shown['units'] == [TABLE, 108]
+    assert ground_payload(card)['marks'] == [['leader', 21.0, 30.0, 0x5001, 0x6001, 1], ['stairs', 4.0, 4.0]]

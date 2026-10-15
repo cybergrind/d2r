@@ -137,3 +137,58 @@ def test_a_potion_the_healer_gave_the_mercenary_does_not_hold_back_the_character
     play.clock.now += EVERY
     play.loot = replace(play.loot, belt=(None, None, *FULL[2:]))
     assert drinker.look(run, HERE) is None
+
+
+def ledgered(play: Game, tmp_path) -> tuple[Drinker, object, object]:
+    from inventory_tracking.automation.ledger import PotionLedger
+
+    run = play.run()
+    run.ledger = PotionLedger(tmp_path, boot_id='test')
+    return Drinker(), run, run.ledger
+
+
+def test_the_healers_key_for_this_blow_leaves_it_to_the_healer(tmp_path, caplog):
+    # One drinker per blow (rca/2026-10-14/run-1932-findings.md issue 2): 22:55:26.58 the macro's key, 26.65 the
+    # healer's, at the same 65% mark; two potions went for one blow. Now the later one stands off.
+    from inventory_tracking.models import Actor
+
+    play = game(1000)
+    drinker, run, ledger = ledgered(play, tmp_path)
+    drinker.look(run, HERE)
+    play.clock.now += EVERY
+    healer = ledger.claim(Actor.PLAYER, PotionType.HEALING, play.clock.now - 0.07, within=0.0)  # the healer's key
+    assert healer.taken
+    play.loot = replace(play.loot, life=640)
+    with caplog.at_level('INFO'):
+        assert drinker.look(run, HERE) is None
+    assert play.pressed() == []
+    assert "Macro: drink: the healer has this blow's healing potion" in caplog.text
+    # Its potion leaves the belt: counted as drunk, the macro's own gap held from it
+    play.clock.now += EVERY
+    play.loot = replace(play.loot, belt=(None, *FULL[1:]))
+    assert drinker.look(run, HERE) is None
+    assert play.pressed() == []
+
+
+def test_the_macros_key_is_claimed_in_the_ledger_and_given_back_when_it_did_not_go_out(tmp_path):
+    from inventory_tracking.models import Actor
+
+    play = game(1000)
+    drinker, run, ledger = ledgered(play, tmp_path)
+    drinker.look(run, HERE)
+    play.clock.now += EVERY
+    play.loot = replace(play.loot, life=640)
+    looked = play.clock.now
+    assert drinker.look(run, HERE) == PotionType.HEALING
+    assert play.pressed() == ['1']
+    assert ledger.given_at(Actor.PLAYER, PotionType.HEALING) == looked  # claimed before the key: the healer stands off
+    # A key that did not go out (the player's key held) leaves no claim behind
+    play, other = game(1000), tmp_path / 'other'
+    other.mkdir()
+    drinker, run, ledger = ledgered(play, other)
+    drinker.look(run, HERE)
+    play.clock.now += EVERY
+    play.keys.press(play.keys.keycodes([b'x'])[0])
+    play.loot = replace(play.loot, life=640)
+    assert drinker.look(run, HERE) is None
+    assert ledger.given_at(Actor.PLAYER, PotionType.HEALING) is None

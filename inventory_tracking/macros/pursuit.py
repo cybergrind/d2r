@@ -13,7 +13,8 @@ makes the inputs (attack mode, hunt.py) looks at the game, names the goal the ke
 - a fresh press whose goal is not near enough: `Move`, the next move toward the goal as the navigator
   gives it (macros/travel.py `Travel.toward`). The strike is given up for this act alone;
 - a fresh press whose goal the route's own press still performs (a door, a border, the loot, the
-  leaving): `Defer`, and the loop hands the press to that step;
+  leaving): `Defer`, and the loop hands the press to that step; a door or a border only once the character is
+  at it (`entering`): the way there is the navigator's, as for any goal;
 - a fresh press whose goal is near enough: `Operate` (an object used, a stand noted, a drop taken), or
   for a fight `Hold`: the strike goes on, and no press takes it away;
 - no fresh press: `Hold` with something in reach (the fight as it was). With nothing in reach and the
@@ -33,9 +34,10 @@ of KP_1, then it runs the whole level automatically"): with no fresh `advance` p
 holds what is in reach, takes a drop worth it on the way, and otherwise goes for the route's stage of
 this level (reach, use, stand, fight) as if pressed, stage after stage, with no further press. How much of
 the level it works (its goal, fighting what is on the way, or a full clear first) is the run mode's
-(macros/runmode.py, 2026-10-14); a way to another level is gone to, and the run ends at it. It ends
-(`Ended`) when what is left of the route is not this loop's (the loot, the leaving, going through to another
-level: those cost a press, U13), when nothing is known to go to, or when the level is left; the runner
+(macros/runmode.py, 2026-10-14); a way to another level is gone to, and the run ends at a door (a warp: going
+through it costs a press, U13), while an open passage is walked through (`through`, 2026-10-15) and the level
+change ends the run. It ends (`Ended`) when what is left of the route is not this loop's (the loot, the leaving,
+a door), when nothing is known to go to, or when the level is left; the runner
 ends it for attack mode off (KP_3) and the macro request (Mod+X). A fresh pickup press whose goal is the
 route's own press (the loot, the leaving) or none is handed to the old pickup step (`Defer`), which is what
 the key did at the end of a route before.
@@ -214,6 +216,7 @@ class Candidate:
 
 
 NO_STEP_LEFT = 'no step toward it is left'  # the arrival said for that (`moved`)
+PASSAGE = 'an open passage: walking through into the next level'  # `through`'s move, said once
 KEEPING = 'retreating within strike reach: no act here fits the life budget'  # `Macro: pursuit: retreating within ...`
 
 
@@ -303,6 +306,8 @@ def decide(facts: Facts, pursuit: Pursuit | None, enabled: bool = True) -> Act:
     if pursuit is not None and pressed:
         if goal is None:
             return NoWay('the key has nothing to go to: no stage, no mark and no boss is known here')
+        if goal.do == ENTER:
+            return entering(facts, goal)
         if goal.do not in PURSUED:
             return Defer(goal)
         if goal.do == PICK_UP:
@@ -320,6 +325,10 @@ def decide(facts: Facts, pursuit: Pursuit | None, enabled: bool = True) -> Act:
         return Hold(goal)
     if not facts.attacking:
         return NoWay('no fresh press, and attack mode is off')
+    if goal is not None and goal.do == PICK_UP:
+        # Attack mode's own side goal before its standing one: a potion a low belt restocks in the quiet (hunt.py
+        # `restocking`; the player, 2026-10-14), gone to and picked up as a level run's drop is
+        return arrived(facts, goal) if facts.there else moved(facts, goal)
     if goal is not None and goal.do == FIGHT and goal.known and not facts.there:
         return moved(facts, goal)
     if goal is not None and goal.do == FIGHT and facts.there:
@@ -356,19 +365,51 @@ def run_level(facts: Facts, pressed: bool) -> Act:
 
 
 def to_the_door(facts: Facts, goal: Goal) -> Act:
-    """The route's way on to another level is what is left of it here (the River of Flame's door to the Chaos
-    Sanctuary): the run goes to it, fighting what is in reach and what the goal names on the way (macros/goals.py
-    `clear_way`), and ends there; going through takes a press (U13). The player, 2026-10-14: "go to the level's
-    goal clearing everything along the way" (rca/2026-10-14/kp1-mode.md)."""
-    ended = Ended(f'at {goal.label}: going through takes a press')
+    """The route's way on to another level is what is left of it here: the run goes to it, fighting what is in reach
+    and what the goal names on the way (macros/goals.py `clear_way`). The player, 2026-10-14: "go to the level's goal
+    clearing everything along the way" (rca/2026-10-14/kp1-mode.md). A door, stairs, a cave's mouth (a warp): the run
+    ends at it, and going through takes a press (U13). An open passage (`Goal.crossed`: the River of Flame's bridge
+    into the Chaos Sanctuary, a border) is walked through (`through`), and the level changing ends the run."""
     if facts.in_reach and facts.attacking:
         return Hold(goal)
+    if goal.crossed:
+        return through(facts, goal)
+    ended = Ended(f'at {goal.label}: going through takes a press')
     if facts.there:
         return ended
     found = moved(facts, goal)
     if isinstance(found, NoWay) and found.arrived and NO_STEP_LEFT in found.reason:
         return Ended(f'{found.reason}: going through takes a press')
     return ended if isinstance(found, NoWay) and found.arrived else found
+
+
+def through(facts: Facts, goal: Goal) -> Act:
+    """An open passage on a level run (the player, 2026-10-15: "the player doesn't go to the Chaos Sanctuary when only
+    KP_1 was pressed; we need to move our target slightly further so the map changes"). The goal's place is a tile
+    inside the next level (levels/exits.py `through`), off this level's ground: the navigator's way, by the class in
+    hand, goes as near as the ground goes, and from within the goal's `near` (or where no step toward it is left) one
+    straight walk to the place crosses, in either input mode. The level changed is the run's end (`decide`: the level
+    was left), as for every level run; the next level's run is a press of its own."""
+    walk = Move(Step(goal.place), goal, f'{goal.label}: {PASSAGE}')
+    if facts.there:
+        return walk
+    found = moved(facts, goal)
+    return walk if isinstance(found, NoWay) and found.arrived else found
+
+
+def entering(facts: Facts, goal: Goal) -> Act:
+    """A fresh press whose goal is a way to another level (a door, a border): the press is a goal, not a step. The
+    character goes to the way's place by the navigator, as a level run goes to it (`to_the_door`), and the route's
+    own step takes the press once it is there: going through (the door's click) is that step's, which a move by
+    other means does not do (rca/2026-10-14/run-1932-findings.md §1.2.2: handed on from 43 units off with the staff
+    empty, the old step walked toward a place a Teleport would land on, into a pocket 276 units by the walked way
+    from the door, three times). Where the navigator has no way, the step is handed the press as before."""
+    if facts.there:
+        return Defer(goal)
+    found = moved(facts, goal)
+    if isinstance(found, Move):
+        return found
+    return Defer(goal)
 
 
 def arrived(facts: Facts, goal: Goal) -> Act:

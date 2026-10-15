@@ -22,8 +22,6 @@ them first, how much later the card brought them, how soon a death was drawn, an
 (the `HUD: dots:` line).
 """
 
-import ctypes
-import errno
 import math
 import os
 import statistics
@@ -32,6 +30,7 @@ import time
 
 from inventory_tracking.common import LOG
 from inventory_tracking.native.layout import DEAD_MODES, TILE_UNITS
+from inventory_tracking.native.memory import vm_call, vm_read_spans
 from inventory_tracking.terror.monsters import monster_units
 from inventory_tracking.terror.tracker import HELD_RANGE, counted, leading
 
@@ -45,54 +44,9 @@ MAX_FOLLOWED = 128  # dots read per frame, the nearest the player; a level holds
 MAX_DRIFT = 40  # tiles from the published position; further means the address is stale (hud/live.py)
 WALK_SECONDS = 0.2  # between the canvas's own walks of the monster table: a new monster drawn ~0.1 s after it is held
 STATS_SECONDS = 60.0  # between the `HUD: dots:` lines
-IOV_MAX = 1024  # iovecs per process_vm_readv call (Linux UIO_MAXIOV)
-REFUSED = frozenset((errno.EPERM, errno.EACCES, errno.ENOSYS))  # the kernel will not do it: pread from then on
 
 
-class Iovec(ctypes.Structure):
-    _fields_ = (('base', ctypes.c_void_p), ('length', ctypes.c_size_t))
-
-
-def vm_call():
-    """libc's process_vm_readv, or None where it cannot be had."""
-    try:
-        call = ctypes.CDLL(None, use_errno=True).process_vm_readv
-    except OSError, AttributeError:
-        return None
-    call.restype = ctypes.c_ssize_t
-    pointer = ctypes.POINTER(Iovec)
-    call.argtypes = (ctypes.c_int, pointer, ctypes.c_ulong, pointer, ctypes.c_ulong, ctypes.c_ulong)
-    return call
-
-
-def vm_read(call, pid: int, spans) -> list[bytes | None] | None:
-    """Each span (address, size) of process `pid`, None where unreadable, in as few calls as the kernel's partial
-    reads allow (a read stops at the first span it cannot read: that one is None, the rest are asked again). None
-    when the kernel refuses the call altogether."""
-    out: list[bytes | None] = [None] * len(spans)
-    start = 0
-    while start < len(spans):
-        chunk = spans[start : start + IOV_MAX]
-        total = sum(size for _, size in chunk)
-        buffer = ctypes.create_string_buffer(total)
-        local = Iovec(ctypes.addressof(buffer), total)
-        remote = (Iovec * len(chunk))(*(Iovec(address, size) for address, size in chunk))
-        got = call(pid, ctypes.byref(local), 1, remote, len(chunk), 0)
-        if got < 0:
-            code = ctypes.get_errno()
-            if code in REFUSED:
-                return None
-            if code == errno.ESRCH:
-                return out  # the game is gone
-            got = 0  # EFAULT: the first span is unreadable
-        raw, offset, done = buffer.raw, 0, 0
-        for _, size in chunk:
-            if offset + size > got:
-                break
-            out[start + done] = raw[offset : offset + size]
-            offset, done = offset + size, done + 1
-        start += done + (done < len(chunk))  # past the span the read stopped at
-    return out
+VM_CALL = vm_call()  # None where libc has no process_vm_readv
 
 
 class LiveDots:
@@ -103,13 +57,15 @@ class LiveDots:
         self,
         open_memory=lambda pid: os.open(f'/proc/{pid}/mem', os.O_RDONLY),
         read=os.pread,
-        call=vm_call(),
+        call=VM_CALL,
         walk=monster_units,
         stats=None,
     ):
         self.open_memory, self.read, self.call, self.walk = open_memory, read, call, walk
         self.stats = stats if stats is not None else DotStats()
-        self.pid, self.fd, self.warned = None, None, None
+        self.pid: int | None = None
+        self.fd: int | None = None
+        self.warned = None
         self.reset()
 
     def reset(self):
@@ -137,8 +93,10 @@ class LiveDots:
 
     def spans(self, spans) -> list[bytes | None]:
         """The bytes of each (address, size), None where unreadable: one batched call, or a pread each."""
+        assert self.pid is not None
+        assert self.fd is not None
         if self.call is not None:
-            found = vm_read(self.call, self.pid, spans)
+            found = vm_read_spans(self.call, self.pid, spans)
             if found is not None:
                 return found
             LOG.info('HUD: process_vm_readv refused; the dots are read one pread each')
@@ -154,6 +112,7 @@ class LiveDots:
 
     def exact(self, address: int, size: int) -> bytes:
         """One read for the walk (terror/monsters.py's `read`): the bytes, or OSError."""
+        assert self.fd is not None
         data = self.read(self.fd, size, address)
         if len(data) != size:
             raise OSError('short read')
@@ -272,6 +231,7 @@ class DotStats:
         self.first: dict[int, tuple[float, str]] = {}  # unit id -> (when first had, 'walk' or 'card')
         self.unpainted: dict[int, float] = {}  # unit id -> when first had, not painted yet
         self.died: dict[int, float] = {}  # unit id -> when the frame read it dead, while the card still has it
+        self.brought: set[int] = set()  # unit ids the walk had first and the card has brought since
         self.reset(-math.inf)
 
     def reset(self, now: float) -> None:
@@ -302,9 +262,9 @@ class DotStats:
             first = self.first.get(uid)
             if first is None:
                 self._had(uid, now, 'card')
-            elif first[1] == 'walk' and len(first) == 2:
+            elif first[1] == 'walk' and uid not in self.brought:
                 self.card_later.append(now - first[0])
-                self.first[uid] = (*first, now)  # counted once
+                self.brought.add(uid)
             if found.get(uid, ()) is None and uid not in self.died:
                 self.died[uid] = now
                 self.deaths += 1
@@ -330,6 +290,7 @@ class DotStats:
             self.log('HUD: dots: %s', self.line(now))
         if len(self.first) > 4096:  # a long session: the oldest ids are of levels long left
             self.first = dict(list(self.first.items())[-2048:])
+            self.brought &= set(self.first)
         self.reset(now)
 
     def line(self, now: float) -> str:

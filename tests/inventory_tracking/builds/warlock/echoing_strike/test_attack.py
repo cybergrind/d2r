@@ -2,7 +2,7 @@
 answers, and that a place priced through it is priced as the line sweep was priced before it."""
 
 import math
-from dataclasses import replace
+from dataclasses import dataclass, replace
 from pathlib import Path
 
 import pytest
@@ -134,6 +134,74 @@ def test_the_line_goes_on_past_the_focal_point_and_starts_at_the_character():
     assert ATTACK.dealt(HERE, (5004.0, 5000.0), {}) == {}
 
 
+def wall_at(x):
+    """A wall across the aim line `x` units ahead of the character and on (run-2040-findings.md §3.2: blades flew
+    8-10 units into a wall at 10.5 in the Outer Steppes)."""
+    return lambda point: point[0] >= HERE[0] + x
+
+
+def test_a_wall_stops_the_blades_who_is_past_it_takes_nothing_and_who_is_before_it_only_the_way_out():
+    foes = {1: foe(6, 0), 2: foe(15, 0)}
+    free = ATTACK.dealt(HERE, (5006.0, 5000.0), foes)
+    walled = ATTACK.dealt(HERE, (5006.0, 5000.0), foes, blocked=wall_at(10.5))
+    assert free == {1: 2800.0, 2: 2800.0}
+    # the blades die in the wall on the way out: no way back (mechanics.py `cast`, missiles.txt CollideType 3)
+    assert walled == {1: 1000.0 * BLADES_A_CAST / 2}
+
+
+def test_a_wall_behind_the_character_or_beside_the_line_stops_nothing():
+    foes = {1: foe(6, 0), 2: foe(15, 0)}
+    behind = ATTACK.dealt(HERE, (5006.0, 5000.0), foes, blocked=lambda point: point[0] <= HERE[0] - 2.0)
+    beside = ATTACK.dealt(HERE, (5006.0, 5000.0), foes, blocked=lambda point: point[1] >= HERE[1] + 4.0)
+    assert behind == beside == {1: 2800.0, 2: 2800.0}
+
+
+def test_a_place_whose_casts_fly_into_a_wall_is_worth_less_than_one_whose_blades_come_back():
+    # The same monsters six units off: from one place a wall stands 10.5 units on along the line, from the other
+    # the blades fly free; the line model credited both the same (run-2040-findings.md §3.3 fix 1).
+    pack = {1: foe(6, 0, left=30000.0), 2: foe(6, 30, left=30000.0)}
+    seen = Observation(HERE, pack, blocked=lambda point: point[0] >= HERE[0] + 10.5 and point[1] < HERE[1] + 20)
+    field = stance.Field(seen.blocked, None)
+    walled, _ = stance.taken(seen, ATTACK, field, HERE, 0.0)
+    free, _ = stance.taken(seen, ATTACK, field, (HERE[0], HERE[1] + 30.0), 0.0)
+    assert walled == pytest.approx(free / 2)
+    # the sweep of the pursuit loop off keeps the line model its goldens were recorded with
+    assert stance.taken(seen, ATTACK, field, HERE, 0.0, walls=False)[0] == free
+    one = replace(seen, foes={1: foe(6, 0, left=5000.0)})
+    late = stance.falls(one, ATTACK, field, HERE, 0.0, 10.0)
+    soon = stance.falls(one, ATTACK, stance.Field(None, None), HERE, 0.0, 10.0)
+    assert late[1] > soon[1]  # four casts of the way out against two out and back
+
+
+def test_the_casts_land_less_often_toward_the_end_of_the_reach_and_the_engage_ring_is_where_they_fall_off():
+    # run-1932-findings.md §4.1: 74-75% of the aimed casts hit within 10 units, 36% at 18-22
+    assert ECHOING_STRIKE_ATTACK.lands(4.0) == pytest.approx(1.0, abs=0.01)
+    assert ECHOING_STRIKE_ATTACK.lands(9.0) == pytest.approx(1.0, abs=0.05)
+    shares = [ECHOING_STRIKE_ATTACK.lands(away) for away in (10.0, 12.0, 14.0, 16.0, 18.0, 20.0, REACH)]
+    assert shares == sorted(shares, reverse=True)
+    assert ECHOING_STRIKE_ATTACK.lands(REACH) == pytest.approx(0.356 / 0.747, abs=0.01)
+    assert 12.0 <= ECHOING_STRIKE_ATTACK.engage <= 14.0  # where the player engages (combat/policy.py)
+    assert ECHOING_STRIKE_ATTACK.engage < REACH - 3.0  # inside the ring the approaches planned before (17)
+
+
+def test_a_place_near_a_clump_is_worth_more_than_one_at_the_edge_of_the_reach():
+    # The 22:50:26.9 clump of run-1932 (Bone Mages and Yetis 17 to 22 units off): the same pack, more than the
+    # horizon's casts kill, is worth more from 12 units, where the casts land, than from 20, where a third hit nothing
+    pack = {unit: Foe(310, (HERE[0] + 20.0 + dx, HERE[1] + dy), 30000.0) for unit, (dx, dy) in
+            enumerate(((0, 0), (1.5, 1.0), (-1.0, 1.5), (2.0, -1.5), (0.5, -2.0)))}  # fmt: skip
+    seen = Observation(HERE, pack)
+    field = stance.Field(None, None)
+    far, _ = stance.taken(seen, ATTACK, field, HERE, 0.0, landed=True)
+    near, _ = stance.taken(seen, ATTACK, field, (HERE[0] + 8.0, HERE[1]), 0.0, landed=True)
+    assert near > 1.5 * far
+    # not asked to (the sweep of the pursuit loop off): every cast lands, as the line model had it
+    plain = (
+        stance.taken(seen, ATTACK, field, HERE, 0.0),
+        stance.taken(seen, ATTACK, field, (HERE[0] + 8.0, HERE[1]), 0.0),
+    )
+    assert plain[0][0] == plain[1][0]
+
+
 def test_each_monster_takes_by_its_own_type():
     by_type = EchoingStrike(damage_of=lambda txt: float(txt))
     foes = {1: Foe(10, (5008.0, 5000.0), 100.0), 2: Foe(20, (5012.0, 5000.0), 100.0)}
@@ -143,7 +211,7 @@ def test_each_monster_takes_by_its_own_type():
 # --- a place priced through the attack is priced as before ---
 
 
-def old_taken(seen, policy, field, spot, after):
+def old_taken(seen, policy, field, spot, after, *, landed=False, walls=True):
     """combat/stance.py `taken` as it was before the attack was the build's (commit bdda973), kept
     here word for word as the number to match: the line model and BLADES_A_CAST inside the framework,
     the elite's weight the policy's."""
@@ -206,6 +274,18 @@ def spots(origin):
             )
 
 
+@dataclass
+class BladesThroughWalls(EchoingStrike):
+    """The build's attack as it was priced before its blades stopped at walls (run-2040-findings.md §3.3 fix 1):
+    the line model the sweep had, against which the rest of the model is held."""
+
+    def dealt(self, origin, focal, foes, blocked=None):
+        return super().dealt(origin, focal, foes)
+
+
+THROUGH_WALLS = BladesThroughWalls()
+
+
 def test_the_fixtures_are_all_there():
     assert len(FIXTURES) == 39
 
@@ -220,7 +300,7 @@ def test_a_place_is_worth_through_the_attack_what_it_was_worth_through_the_sweep
     for spot in spots(seen.origin):
         for after in (0.0, 0.8, 1.5):
             before = old_taken(seen, sweep, field, spot, after)
-            assert stance.taken(seen, ECHOING_STRIKE_ATTACK, field, spot, after) == before  # the build's attack
+            assert stance.taken(seen, THROUGH_WALLS, field, spot, after) == before  # the build's line model
             priced += before[0] > 0
     assert priced or not seen.foes
 
@@ -231,11 +311,26 @@ def test_the_place_chosen_through_the_attack_is_the_one_the_sweep_chose(path, mo
     seen = observed(scene)
     sweep = LinePolicy(yields=True)
     ways = [{}, {'hop': True}, {'jumps': (stance.Jump(1, 0.8, 30.0, 26.0, 8.0, True),)}, {'gain': 2.0}]
-    now = [stance.camp(seen, ECHOING_STRIKE_ATTACK, scene.barred, **way) for way in ways]
+    now = [stance.camp(seen, THROUGH_WALLS, scene.barred, **way) for way in ways]
     monkeypatch.setattr(stance, 'taken', old_taken)  # `camp` as it is, over the old price of a place
     for by_attack, way in zip(now, ways, strict=True):
         # the sweep as an attack only to get past `striker`: the old price asks it as the sweep it is
         assert by_attack == stance.camp(seen, EchoingStrike.of(sweep), scene.barred, **way)
+
+
+def test_the_recorded_places_are_priced_with_the_blades_stopping_at_their_walls():
+    # The stance fixtures' Catacombs and Sanctuary rooms: from most of the places `camp` looks at, some line ends
+    # in a wall, and the build's attack prices it so.
+    changed = 0
+    for path in FIXTURES:
+        seen = observed(scene := harness.load(path))
+        field = stance.Field(seen.blocked, scene.barred)
+        changed += any(
+            stance.taken(seen, ECHOING_STRIKE_ATTACK, field, spot, 0.0)
+            != stance.taken(seen, THROUGH_WALLS, field, spot, 0.0)
+            for spot in spots(seen.origin)
+        )
+    assert changed >= len(FIXTURES) // 2
 
 
 def test_some_fixture_has_a_place_worth_going_to():

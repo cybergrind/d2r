@@ -13,6 +13,10 @@ So the mark is the far edge of the last Bridge 2 (the one furthest from Bridge 1
 beyond it, as a door to walk into: the teleport step goes along the bridge and the last one clicks across
 (user, 2026-10-09: repeated teleport steps must bring the character to the Chaos Sanctuary). It is the first
 mark, so the teleport step points at it; Hephasto is a side trip.
+
+No warp joins the two levels, so the way is an open passage (presets.open_passage): the level guide gives the mark
+its far place a tile inside the Sanctuary (levels/exits.py `through`), and a KP_1 level run walks across to it
+(macros/pursuit.py `through`, 2026-10-15). Nothing here is special to the River: the levels.txt row says it.
 """
 
 import math

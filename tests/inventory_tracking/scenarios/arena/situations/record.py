@@ -100,7 +100,7 @@ def openings(take: Take, first: int) -> list[tuple[float, int]]:
     found = []
     for frame in take.frames[first + 1 :]:
         for row in frame.get('o', ()):
-            if not modes.get(row[0], 0) and row[2]:
+            if not modes.get(row[0]) and row[2]:
                 found.append((frame['t'], row[0]))
             modes[row[0]] = row[2]
     return found
