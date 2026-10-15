@@ -11,7 +11,7 @@ units; its `Ground` is the fixture's grids (scenarios/stance/harness.py `load`).
 
 import json
 import math
-from collections.abc import Callable, Iterator
+from collections.abc import Callable, Generator
 from contextlib import contextmanager
 from dataclasses import dataclass, fields, is_dataclass, replace
 from functools import cache
@@ -199,7 +199,7 @@ def jumps(staff: str, state: str) -> object:
 
 
 @contextmanager
-def corners(on: bool) -> Iterator[None]:
+def corners(on: bool) -> Generator[None]:
     """The aims beside the skill bar on or off (view.py `CORNERS`: on in the game, off under the
     scenarios' conftest), so a landing reads the same from the builder and from pytest."""
     before = view.CORNERS[0]

@@ -649,7 +649,7 @@ def test_single_press_switches_a_shown_map_between_the_local_view_and_the_whole_
     assert guide.visible[-1].whole is False
 
     guide.press(11.0)
-    assert guide.visible[-1].whole is True
+    assert guide.visible[-1].whole is True  # pyrefly: ignore[unnecessary-comparison] the call above changes it
     guide.press(12.0)
     assert guide.visible[-1].whole is False
 
@@ -665,9 +665,9 @@ def test_a_double_press_does_not_switch_the_view():
     guide.press(20.0)
     guide.press(20.3)  # 0.3 s apart: two single presses, back to the local view
     assert guide.pinned
-    assert guide.visible[-1].whole is False
+    assert guide.visible[-1].whole is False  # pyrefly: ignore[unnecessary-comparison] the call above changes it
     guide.press(30.0)
-    assert guide.visible[-1].whole is True
+    assert guide.visible[-1].whole is True  # pyrefly: ignore[unnecessary-comparison] the call above changes it
     guide.press(40.0)
     guide.press(40.1)  # double: unpin; the first press's switch is taken back
     assert not guide.pinned

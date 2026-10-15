@@ -1,7 +1,7 @@
 """Guarded key delivery, with explicit refusal and uncertain-delivery boundaries."""
 
 import time
-from collections.abc import Callable, Iterator
+from collections.abc import Callable, Generator
 from contextlib import AbstractContextManager, ExitStack, contextmanager
 from dataclasses import dataclass
 from typing import Protocol
@@ -146,7 +146,7 @@ class PotionInput:
         return self.attempt_keys(target, keys_for(self.config, request))
 
     @contextmanager
-    def attempt_keys(self, target: Target, key_names: tuple[str, ...]) -> Iterator[_Attempt]:
+    def attempt_keys(self, target: Target, key_names: tuple[str, ...]) -> Generator[_Attempt]:
         """The same guarded attempt for any X11 key names, pressed in order and released in reverse."""
         stack = ExitStack()
         attempt = None

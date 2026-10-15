@@ -2,6 +2,7 @@
 
 import threading
 import time
+from pathlib import Path
 
 import pytest
 
@@ -49,7 +50,7 @@ def test_a_second_press_of_a_routine_takes_the_place_of_the_first():
 
 
 def make(execute):
-    return MacroRunner(None, capture_lock=threading.Lock(), saved_games=None, execute=execute)
+    return MacroRunner(None, capture_lock=threading.Lock(), saved_games=Path('/nonexistent'), execute=execute)
 
 
 def test_a_teleport_step_that_waited_past_its_limit_behind_a_step_is_not_made(monkeypatch):
@@ -68,6 +69,7 @@ def test_a_teleport_step_that_waited_past_its_limit_behind_a_step_is_not_made(mo
     assert runner.request(10.2, 10.2, 'teleport')  # queued behind the step, which takes long
     time.sleep(0.15)
     go.set()
+    assert runner.thread is not None
     runner.thread.join(5)
     assert runs == ['teleport']
     assert runner.trace.closed[-1].notes['ended'] == 'expired'

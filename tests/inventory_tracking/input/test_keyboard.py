@@ -64,7 +64,7 @@ def owner_libraries(*, focused=10, owners=None, parents=None, atom=99, format_bi
     parents = parents or {}
     allocations = []
 
-    def set_value(pointer, typ, value):
+    def set_value(pointer, typ: type, value):
         ctypes.cast(pointer, ctypes.POINTER(typ))[0] = value
 
     def focus(display, window, revert):

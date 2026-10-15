@@ -89,8 +89,5 @@ project-includes = ['inventory_tracking', 'tests']
 project-excludes = ['**/__pycache__', '.venv', 'inventory_tracking/runs']
 python-version = '3.14'
 preset = 'default'
-# Errors known on 2026-10-15 (5,687, nearly all in tests), so the pre-commit hook fails only on new ones; the file
-# only shrinks (`pyrefly check --prune-baseline`) until it is gone.
-baseline = 'pyrefly-baseline.json'
 # gi.repository is populated by GObject introspection at import time.
 replace-imports-with-any = ['gi.repository']

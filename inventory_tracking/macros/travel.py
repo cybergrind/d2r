@@ -21,7 +21,7 @@ import math
 import statistics
 import threading
 from collections import OrderedDict
-from collections.abc import Callable, Hashable, Iterator, Mapping, Sequence
+from collections.abc import Callable, Generator, Hashable, Mapping, Sequence
 from contextlib import contextmanager
 from contextvars import ContextVar
 from dataclasses import dataclass, field, replace
@@ -418,7 +418,7 @@ PLANNING: ContextVar[Planning | None] = ContextVar('planning', default=None)
 
 
 @contextmanager
-def planning(timer: Callable[[], float] | None, until: float) -> Iterator[None]:
+def planning(timer: Callable[[], float] | None, until: float) -> Generator[None]:
     """The walked fields asked for within the block grow until the clock `timer` reads `until` and no longer
     (`Walked.grow`): one that has not reached the character by then is the straight line for the rest of the
     block (`walked_for`), and grows on at the next block. A block inside another has its own time; what ran out
@@ -484,7 +484,7 @@ class Walked:
     def bar(self, cell: tuple[int, int]) -> bool:
         known = self.bars.get(cell)
         if known is None:
-            known = self.bars[cell] = bool(self.barred((cell[0] + 0.5, cell[1] + 0.5)))
+            known = self.bars[cell] = self.barred((cell[0] + 0.5, cell[1] + 0.5))
         return known
 
     def hug(self, cell: tuple[int, int]) -> bool:

@@ -525,7 +525,7 @@ class Situation:
             gaps=gaps,
             boss_dead=boss_dead,
             stage=play.stage(),
-            attack_mode=bool(play.runner.attack_mode),
+            attack_mode=play.runner.attack_mode,
             alive=len(mobs.live()),
             hostiles=len(mobs.hostile),
         )

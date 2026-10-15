@@ -29,7 +29,7 @@ the play at every tick (`Stage.ticks`) for the situation's result.
 
 import math
 import random
-from collections.abc import Iterator, Mapping, Sequence
+from collections.abc import Generator, Mapping, Sequence
 from contextlib import contextmanager
 from dataclasses import dataclass, field, replace
 
@@ -53,7 +53,7 @@ CROWD = 12.0  # units: the hostiles within this of the character are counted at 
 
 
 @contextmanager
-def awareness(units: float) -> Iterator[None]:
+def awareness(units: float) -> Generator[None]:
     """combat/sim/monsters.py AWARE as `units` while the block runs (the module text has why it is done so)."""
     saved = model.AWARE
     model.AWARE = units

@@ -7,7 +7,7 @@ the input; they never stand in for evidence. A second hotkey press sets `cancell
 
 import math
 import time
-from collections.abc import Callable, Iterator
+from collections.abc import Callable, Generator
 from contextlib import contextmanager
 from threading import Event
 from typing import TYPE_CHECKING
@@ -132,7 +132,7 @@ class Run:
         return self.cancelled.is_set() or isinstance(stop, Flipped)
 
     @contextmanager
-    def lightly(self) -> Iterator[None]:
+    def lightly(self) -> Generator[None]:
         """Within the block the game is looked at without its monsters and doors (world.GameMemory.world)."""
         self.light += 1
         try:

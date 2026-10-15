@@ -8,7 +8,7 @@ refreshed by whichever character captured them last.
 
 import json
 import sqlite3
-from collections.abc import Iterator
+from collections.abc import Generator
 from contextlib import contextmanager
 from pathlib import Path
 from typing import Any
@@ -196,7 +196,7 @@ class CollectionStore:
         return self.connection
 
     @contextmanager
-    def transaction(self) -> Iterator[sqlite3.Connection]:
+    def transaction(self) -> Generator[sqlite3.Connection]:
         db = self.db
         db.execute('BEGIN IMMEDIATE')
         try:

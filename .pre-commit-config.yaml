@@ -43,9 +43,7 @@ repos:
         types_or: [python, pyi]
         exclude: ^pricing/tools/
         require_serial: true
-      # The whole project against pyrefly-baseline.json (pyproject.toml): only errors not in the baseline fail.
-      # After fixing baselined errors: uv run pyrefly check --prune-baseline. All of them, baselined too:
-      # uv run pyrefly check --baseline-error-level error.
+      # The whole project: every error fails (0 since 2026-10-15).
       - id: pyrefly-check
         name: pyrefly check
         entry: uv run pyrefly check

@@ -20,32 +20,23 @@ Applies to repository code changes. Linked from [AGENTS.md](AGENTS.md).
   checks before delivery.
 - Lint is the pre-commit hook's: `uv run ruff check`, `uv run ruff format --check` and
   `uv run pyrefly check` must be clean, and a plain run sees what the hook sees (ruff's
-  preview rules are on in `pyproject.toml`). Pyrefly checks against `pyrefly-baseline.json`,
-  the errors known on 2026-10-15: a new error fails, a baselined one is shown by
-  `--baseline-error-level error`. Fixing baselined errors, shrink the file with
-  `uv run pyrefly check --prune-baseline`; never add to it.
+  preview rules are on in `pyproject.toml`). Pyrefly reports 0 errors on the whole
+  project (since 2026-10-15) and must stay there: fix the type, and use
+  `# pyrefly: ignore[<kind>]` only where a test passes a wrong type on purpose, with the
+  reason on the line.
 
 - Keep tests under `tests/`, mirroring module paths: `inventory_tracking/images.py`
   → `tests/inventory_tracking/test_images.py`; `inventory_tracking/osd/presenter.py`
   → `tests/inventory_tracking/osd/test_presenter.py`. Import production modules by
   their absolute package name. Run `uv run pytest tests -v`.
-- A whole tree or a large directory runs in parallel with pytest-xdist (a dev
-  dependency): `uv run --offline pytest tests/inventory_tracking -q -p no:cacheprovider
-  -n auto --dist loadgroup` (about a minute on the 16-core host, against 10 serially).
-  Every run takes the CPU and disk only when nothing else wants them (`tests/conftest.py`:
-  nice 19, `SCHED_IDLE`, idle I/O, workers included), so a run cannot slow the game;
-  `D2R_TEST_PRIORITY=normal` keeps the usual priority for timing measurements. All runs on
-  the host together use at most `D2R_TEST_SLOTS` (6) test processes: a run starts with the
-  slots free at its start (fewer workers than `-n` asked), and waits only while none is.
-  `tests/inventory_tracking/conftest.py` makes `loadgroup` keep each file on one worker,
-  as `loadfile` does, except tests marked `@pytest.mark.xdist_group(name)`, which run
-  with their group; the groups start first. A test whose plays are cached
-  (`functools.cache`) shares a group, or its file, with the other tests that read
-  them, or the plays are made again on another worker. Mark a new family of
-  expensive plays as a group of its own when one file would hold a worker for more
-  than half a minute. A failing test's id under `loadgroup` ends in `@<group>`: drop
-  that to run it alone. It is not in the pytest config: a single file or test runs
-  faster serially, so pass `-n` only for big runs.
+- Tests run serially, one run on the host at a time (user, 2026-10-15: parallel runs locked the
+  host the player plays on). `tests/conftest.py` turns `-n` off before xdist starts any worker,
+  makes a run wait while another holds the host's one test slot (a `flock` in `.test-slots/`),
+  and runs it at nice 19 with the lowest best-effort I/O priority (`D2R_TEST_PRIORITY=normal`
+  keeps the usual priority for timing measurements). `tests/inventory_tracking` takes about
+  9 minutes and 2 GB; run the files a change touches, and the whole tree once at the end.
+  The `xdist_group` marks and the `loadgroup` scheduler in `tests/inventory_tracking/conftest.py`
+  stay for a run that turns parallel runs back on.
 
 - External implementation references are checked out under `third-parties/`. Read
   `third-parties/README.md` and use local sources before fetching GitHub pages.

@@ -275,7 +275,7 @@ def test_a_try_asked_again_in_n_seconds_counts_as_a_cast_that_much_short_of_the_
 
     assert tried == Tried(at=100.0 - period + wait, cast=False, touched=True)
     assert tried.at is not None
-    remembered = {(7, None): tried.at}
+    remembered: dict[tuple[int, int | None], float] = {(7, None): tried.at}
     assert not buff.due(BuffFacts(WORLD, 100.0 + wait, cast_at=remembered))
     assert buff.due(BuffFacts(WORLD, 100.0 + wait + 0.01, cast_at=remembered))
     assert not Tried.again(100.0, period, wait, touched=False).touched

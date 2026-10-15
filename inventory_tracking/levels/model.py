@@ -6,6 +6,7 @@ import math
 from collections.abc import Iterable
 from dataclasses import dataclass, field
 from functools import lru_cache
+from typing import SupportsInt
 
 from inventory_tracking.native.layout import TILE_UNITS
 
@@ -102,7 +103,7 @@ def unpack_cells(cells: str, count: int) -> str | None:
     return f'{int.from_bytes(raw, "big"):0{len(raw) * 8}b}'[:count]
 
 
-def pack_masks(values: Iterable[int]) -> str:
+def pack_masks(values: Iterable[SupportsInt]) -> str:
     """Raw u16 collision masks, row by row -> base64 (little-endian u16 each)."""
     data = b''.join(int(value).to_bytes(2, 'little') for value in values)
     return base64.b64encode(data).decode() if data else ''

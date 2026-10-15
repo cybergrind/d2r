@@ -163,8 +163,8 @@ def tally(take_name: str, moments: Sequence[Moment], rows: Sequence[Mapping[str,
         'falls': dict(falls),
         'entered': dict(entered),
         'spells': dict(spells),
-        'near': int(near),
-        'deaths': int(deaths),
+        'near': near,
+        'deaths': deaths,
     }
 
 

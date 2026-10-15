@@ -940,9 +940,9 @@ def render(found: Mapping[str, Any]) -> str:
             [
                 line(
                     'sparks to a release, commonest',
-                    int(runs_mode({int(k): v for k, v in train['count']['sizes'].items()}) or 0),
+                    runs_mode({int(k): v for k, v in train['count']['sizes'].items()}) or 0,
                     train['count']['n'],
-                    int(runs_mode({int(k): v for k, v in check['count']['sizes'].items()}) or 0),
+                    runs_mode({int(k): v for k, v in check['count']['sizes'].items()}) or 0,
                     check['count']['n'],
                     before['count'],
                     got('count'),

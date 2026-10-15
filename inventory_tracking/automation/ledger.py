@@ -4,7 +4,7 @@ import copy
 import fcntl
 import json
 import time
-from collections.abc import Iterator
+from collections.abc import Generator
 from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
@@ -170,7 +170,7 @@ class PotionLedger:
         raise ValueError('Unsupported potion ledger version')
 
     @contextmanager
-    def transaction(self) -> Iterator[LedgerTransaction]:
+    def transaction(self) -> Generator[LedgerTransaction]:
         """Serialize ledger access across instances; publish at exit only if the body mutated and succeeded."""
         with self.lock_path.open('a+') as file:
             fcntl.flock(file, fcntl.LOCK_EX | fcntl.LOCK_NB)

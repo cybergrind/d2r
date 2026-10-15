@@ -6,7 +6,7 @@ mouse stops the macro (`Abort`) before the next event is sent. Pointer targets a
 of the game window. Keys the OSD presses on its own (`allow`) are not the player's.
 """
 
-from collections.abc import Callable, Iterator
+from collections.abc import Callable, Generator
 from contextlib import contextmanager
 from threading import Event
 
@@ -198,7 +198,7 @@ class Actuator:
             self.holding_buttons -= own_buttons
 
     @contextmanager
-    def hold(self, *names: str) -> Iterator[Callable[[], None]]:
+    def hold(self, *names: str) -> Generator[Callable[[], None]]:
         """The named keys pressed in order and kept down through the block, as the player holds the
         mouse button on a skill: the game casts it again and again at its own rate and takes the
         pointer where it is at each cast (user, 2026-10-09 night). The keys this actuator holds are
@@ -245,7 +245,7 @@ class Actuator:
             self._release(pressed)
 
     @contextmanager
-    def held_act(self, drift: int = POINTER_DRIFT) -> Iterator[None]:
+    def held_act(self, drift: int = POINTER_DRIFT) -> Generator[None]:
         """One act of the loop's own made as a step makes it: the pointer held where it is put (`steady`) and
         guarded at `drift` pixels, with the guard's mark (`left_at`) re-based to where the pointer is as the act
         begins. A hand that carries the pointer off during the act still stops it (I7); a hand that moved it

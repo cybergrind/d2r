@@ -158,6 +158,7 @@ def record(directory, report, *, seconds, pid=None):
                 time.sleep(1)
         report.update(state='complete', exit_code=0, stopped_by='time limit')
     except KeyboardInterrupt:
+        # pyrefly: ignore[redundant-condition] count grows in the sampling loop above; pyrefly loses it here
         report.update(state='complete' if count else 'failed', exit_code=0 if count else 1, stopped_by='user')
     except Exception as exc:
         LOG.exception('Buff recording failed')

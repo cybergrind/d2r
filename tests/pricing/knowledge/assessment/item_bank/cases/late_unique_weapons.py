@@ -114,10 +114,11 @@ def cases():
             )
 
 
-CASES = tuple(cases())
+CASES: tuple[Case, ...] = tuple(cases())
+added: list[Case] = []  # the loop reads only the cases before it
 for name, tier in (("The Reaper's Toll", 'med'), ('Lacerator', 'high'), ('Warshrike', 'high')):
     original = next(case for case in CASES if case.id == f'late-unique-weapon/{name}/observed')
-    CASES += (
+    added += (
         replace(
             original,
             id=f'late-unique-weapon/{name}/ethereal',
@@ -128,6 +129,7 @@ for name, tier in (("The Reaper's Toll", 'med'), ('Lacerator', 'high'), ('Warshr
             },
         ),
     )
+CASES += tuple(added)
 
 WIND = next(case for case in CASES if case.id == 'late-unique-weapon/Windforce/observed')
 CASES += (

@@ -45,7 +45,7 @@ What a log of the next game in controller mode answers (one line each, stable pr
 """
 
 import math
-from collections.abc import Callable, Iterator, Sequence
+from collections.abc import Callable, Generator, Sequence
 from contextlib import contextmanager
 from dataclasses import dataclass, field, replace
 from typing import TYPE_CHECKING
@@ -695,7 +695,7 @@ class PadActs:
         return True
 
     @contextmanager
-    def hold(self, skill: int) -> Iterator[Callable[[], None]]:
+    def hold(self, skill: int) -> Generator[Callable[[], None]]:
         """The skill's record held through the block: the client casts it again and again at its own target.
         Yields `again` (let go and pressed anew) with `again.release`, as `Actuator.hold` does. A record reached
         by a key only (12-15) is not held."""

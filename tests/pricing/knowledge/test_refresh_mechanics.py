@@ -36,10 +36,12 @@ def test_reconciliation_drops_previous_runeword_base_when_selector_disappears():
     from inventory_tracking.items.metadata import metadata
 
     row = normalize_listing(listing(), name='Spirit', category='runewords', source='fixture')
-    row['base_code'] = next(b['code'] for b in metadata()['bases'].values() if b['name'] == 'Monarch')
-    row['base_selector_properties'] = ['12345']
-    row['facet_basis'] = {'ethereal': {'kind': 'old'}}
-    row['socket_contents_basis'] = 'identified_completed_recipe'
+    row.update(
+        base_code=next(b['code'] for b in metadata()['bases'].values() if b['name'] == 'Monarch'),
+        base_selector_properties=['12345'],
+        facet_basis={'ethereal': {'kind': 'old'}},
+        socket_contents_basis='identified_completed_recipe',
+    )
     reconcile_listing_properties(row)
     assert row.get('base_code') is None
     assert row.get('base_selector_properties') is None

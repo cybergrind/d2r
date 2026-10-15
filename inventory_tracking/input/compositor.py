@@ -88,7 +88,7 @@ def binds_text(
     python: str = sys.executable,
     sender: str = request.__file__,
     compiled: str | None = None,
-    endpoint: str = str(request.DEFAULT_SOCKET),
+    endpoint: str = request.DEFAULT_SOCKET,
 ) -> str:
     """The binds section: each key spawns a sender with its kind: request.py, or for the COMPILED
     kinds the binary `compiled` (sender.c) with the kind's datagram prefix and the socket."""

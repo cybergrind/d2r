@@ -93,7 +93,7 @@ What the arena does not model, or takes as given (the calibration of Task 1.9 ne
 import json
 import math
 import random
-from collections.abc import Callable, Iterator, Mapping
+from collections.abc import Callable, Generator, Mapping
 from contextlib import contextmanager
 from dataclasses import dataclass, field, replace
 from pathlib import Path
@@ -297,7 +297,7 @@ class Ledger:
         self.data = LedgerData.empty('arena')
 
     @contextmanager
-    def transaction(self) -> Iterator[Ledger]:
+    def transaction(self) -> Generator[Ledger]:
         yield self
 
     def save(self) -> None:
@@ -332,7 +332,7 @@ class Hand:
         self.arena = arena
 
     @contextmanager
-    def attempt(self, target: object, request: PotionRequest) -> Iterator[Attempt]:
+    def attempt(self, target: object, request: PotionRequest) -> Generator[Attempt]:
         yield Attempt(self.arena, request)
 
 

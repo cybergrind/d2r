@@ -307,7 +307,7 @@ def test_a_pickup_request_during_attack_mode_asks_for_a_step_and_is_dropped_when
     asked.set()
     runner.request(11.0, 11.1, 'hunt any')  # the toggle: the mode off
     joined(runner)
-    assert runner.pending is None
+    assert runner.pending is None  # pyrefly: ignore[unnecessary-comparison] the call above changes it
     assert runs == ['hunt any']
 
 
@@ -816,7 +816,7 @@ def test_at_a_routes_end_the_pickup_step_seeks_nothing_and_the_press_after_leave
     assert play.said[-1] == 'Countess: nothing to pick up; the next press leaves the game'
     runner.perform(play.run(), run.actuator, 'pickup', keys)
     assert play.pressed()[0] == 'Escape'
-    assert runner.attack_mode is False
+    assert runner.attack_mode is False  # pyrefly: ignore[unnecessary-comparison] the call above changes it
 
 
 def test_the_pickup_step_of_a_character_no_build_claims_clicks_the_gold():

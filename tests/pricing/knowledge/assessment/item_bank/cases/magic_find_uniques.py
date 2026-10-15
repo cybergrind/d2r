@@ -57,7 +57,7 @@ REVIEWS = (
     ),
 )
 
-CASES = tuple(
+CASES: tuple[Case, ...] = tuple(
     replace(case, item=replace(case.item, sockets=2, viewer_level=35))
     if case.item.name == 'Blade of Ali Baba'
     else replace(case, item=replace(case.item, viewer_level=42))
@@ -115,9 +115,10 @@ def gheed_cases():
 
 CASES += tuple(gheed_cases())
 
+added: list[Case] = []  # the loop reads only the cases before it
 for name, level, value in (("Skullder's Ire", 99, 123), ('Blade of Ali Baba', 99, 99)):
     original = next(case for case in CASES if case.id.endswith(f'{name}/equip-level'))
-    CASES += (
+    added += (
         replace(
             original,
             id=f'magic-find-unique/{name}/viewer99',
@@ -144,3 +145,4 @@ for name, level, value in (("Skullder's Ire", 99, 123), ('Blade of Ali Baba', 99
             report_absent=('Better Chance of Getting Magic Items (Based on Character Level)',),
         ),
     )
+CASES += tuple(added)

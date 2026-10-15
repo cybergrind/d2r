@@ -5,7 +5,7 @@ One seeded generator and an injected `sleep`, so tests are exact and take no tim
 
 import random
 import time
-from collections.abc import Callable, Iterator
+from collections.abc import Callable, Generator
 from contextlib import contextmanager
 
 
@@ -45,7 +45,7 @@ class Pace:
             self.plain_sleep(min(self.every, left))
 
     @contextmanager
-    def watched(self, look: Callable[[], object], every: float, clock: Callable[[], float]) -> Iterator[None]:
+    def watched(self, look: Callable[[], object], every: float, clock: Callable[[], float]) -> Generator[None]:
         """Within the block every pause made through this pace, whoever makes it (a routine's own
         waits, a key hold, a pointer step), calls `look` every `every` seconds: attack mode looks at
         the player's mouse button there, so no click goes unseen while the macro waits on something."""

@@ -3,7 +3,7 @@
 import ctypes
 import sys
 import time
-from collections.abc import Callable, Iterator, Sequence
+from collections.abc import Callable, Generator, Sequence
 from contextlib import AbstractContextManager, contextmanager
 from functools import cached_property
 from threading import RLock
@@ -319,7 +319,7 @@ class X11Keyboard:
         return x11, xtst
 
     @contextmanager
-    def connect(self, *, exclusive: bool = True) -> Iterator[X11Connection | None]:
+    def connect(self, *, exclusive: bool = True) -> Generator[X11Connection | None]:
         """One display connection. `exclusive` keeps every other connection of this process out
         until it closes, which suits a send of a few milliseconds; a long user (a macro) passes
         False and holds the lock only to open and to close, so the service's own short checks

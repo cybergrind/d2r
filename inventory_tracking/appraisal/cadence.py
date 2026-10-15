@@ -84,7 +84,7 @@ class Schedule:
     """The mode of this pass of the service loop and each watcher's interval in it (`cadences`)."""
 
     def __init__(
-        self, table: dict[str, Cadence], *, working: Callable[[], bool], area: Callable[[], int | None]
+        self, table: dict[str, Cadence], *, working: Callable[[], object], area: Callable[[], int | None]
     ) -> None:
         self.table, self.working, self.area = table, working, area
         self.mode = Mode.TOWN
