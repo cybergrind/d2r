@@ -819,7 +819,53 @@ def test_at_a_routes_end_the_pickup_step_seeks_nothing_and_the_press_after_leave
     assert runner.attack_mode is False  # pyrefly: ignore[unnecessary-comparison] the call above changes it
 
 
-def test_the_pickup_step_of_a_character_no_build_claims_clicks_the_gold():
+def at_a_door(away: float):
+    """A two-level route at its door (`enter` Next level) with nothing to pick up; the card's mark `away` units east
+    of the character. The route's step and the seek step only say they were taken."""
+    from inventory_tracking.levels.model import Target
+    from inventory_tracking.macros.route import PERFORMED
+    from inventory_tracking.native.layout import TILE_UNITS
+    from inventory_tracking.routes.model import Route, enter, fight, leave, level, loot
+    from inventory_tracking.routes.progress import Progress
+    from tests.inventory_tracking.macros import test_pickup as drops
+
+    play = drops.game()
+    area, x, y = play.character.area, play.character.x, play.character.y
+    route = Route(
+        'Radament',
+        (6,),
+        (level(area, enter('Next level', area + 1)), level(area + 1, fight('Radament'), loot(), leave())),
+    )
+    hunter = Hunter(lambda: drops.LEVEL, build=BUILD)
+    runner, run, _ = building(play, hunter)
+    runner.progress = progress = Progress([route], PERFORMED, dead=lambda: frozenset())
+    progress.note('cyber32', area)
+    door = Target(area, drops.LEVEL.rooms, ((x + away) / TILE_UNITS, y / TILE_UNITS), 'Next level', 'stairs', True)
+    runner.target = lambda: door
+    runner.attack_mode = True
+    steps: list[str] = []
+    runner.staged = lambda run_, key_names, plain: steps.append('the route')  # type: ignore[method-assign]
+    hunter.step = lambda run_, key_names: steps.append('a seek')  # type: ignore[method-assign]
+    return steps, runner, run
+
+
+def test_at_a_door_on_the_route_the_pickup_press_takes_the_routes_step_not_a_seek():
+    # Sewers Level 2, 19:33:38-54 on 2026-10-15 (rca/2026-10-15/kp1-door-findings.md): a terror-zone full clear ended
+    # "at Next level: going through takes a press"; each of nine KP_1 presses was handed to the pickup routine ("the
+    # route's own step takes the press"), which found nothing to pick up, sought, and stopped on "the level is explored
+    # and nothing is left to hunt". The player clicked the stairs. U13: a change of level waits for a press, and that
+    # press is the next one.
+    steps, runner, run = at_a_door(3.0)
+
+    runner.perform(run, run.actuator, 'pickup', lambda world, skills=None: dict(KEYS))
+    assert steps == ['the route']
+
+
+def test_away_from_the_routes_door_the_pickup_press_is_still_a_seek():
+    steps, runner, run = at_a_door(400.0)
+
+    runner.perform(run, run.actuator, 'pickup', lambda world, skills=None: dict(KEYS))
+    assert steps == ['a seek']
     from inventory_tracking.builds.generic import GENERIC
     from tests.inventory_tracking.macros import test_pickup as drops
 

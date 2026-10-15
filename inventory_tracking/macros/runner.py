@@ -47,6 +47,7 @@ from inventory_tracking.macros import route
 from inventory_tracking.macros.actuator import Abort, Actuator, Cancelled, Flipped
 from inventory_tracking.macros.build import Build, choose
 from inventory_tracking.macros.engine import Run
+from inventory_tracking.macros.goals import USE_NEAR, spot_of
 from inventory_tracking.macros.hunt import Bearings, Hunter, threat
 from inventory_tracking.macros.journey import Journey
 from inventory_tracking.macros.latency import Press, Trace
@@ -60,7 +61,7 @@ from inventory_tracking.macros.skills import character_bindings, skill_keys
 from inventory_tracking.macros.teleport import LOST_KEY, ready, step_toward
 from inventory_tracking.macros.timing import Pace
 from inventory_tracking.macros.waiting import Waiting
-from inventory_tracking.macros.world import BeltKept, GameMemory, PutDown, World
+from inventory_tracking.macros.world import BeltKept, GameMemory, Player, PutDown, World
 from inventory_tracking.models import Actor, SessionIdentity
 from inventory_tracking.routes.model import FIGHT
 from inventory_tracking.routes.progress import Progress
@@ -81,6 +82,10 @@ PRIORITY = (TELEPORT, HUNT_ELITES, PREBUFF, PICKUP)
 # presses that waited for a step, 90% had their key within 0.48 s and the slowest two took 0.7 and
 # 1.5 s (21:26 and 21:35 on 2026-10-11). The pickup step that waits for a fight to end has no limit.
 EXPIRES = {TELEPORT: 1.0, HUNT_ELITES: 1.5, PREBUFF: 3.0, PICKUP: 2.0}
+# Units from the route's door within which a pickup press with nothing to pick up is the route's step, the one that goes
+# through (rca/2026-10-15/kp1-door-findings.md): an object's click range (goals.py USE_NEAR), as a level run ends at a
+# door either within its PLACE_NEAR or where the navigator has no step left toward it.
+DOOR_NEAR = USE_NEAR
 THROTTLE = 0.3  # seconds between accepted macro requests (a bounce is not a cancel)
 CARD_SECONDS = 4.0
 # A warning of a routine (engine.Run `warn`: the inventory full) stays on the card this long after it was
@@ -810,6 +815,16 @@ class MacroRunner:
             leave=leave_the_game,
         )
 
+    def at_the_way_on(self, player: Player) -> bool:
+        """Whether the route's stage on the character's level is its way on to another level (a door, stairs, a
+        portal) and the character stands within DOOR_NEAR of its mark, where a level run ends (pursuit.py
+        `to_the_door`)."""
+        staged = route.staged(self.progress, player.area)
+        card = self.target() if self.target is not None and staged is not None and staged[1].to else None
+        if card is None or staged is None or card.area != player.area or card.label != staged[1].mark:
+            return False
+        return math.dist((player.x, player.y), spot_of(card)) <= DOOR_NEAR
+
     def perform(self, run: Run, actuator: Actuator, routine: str, key_names) -> None:
         """One routine on the run made for it (`_execute`), by the build chosen at its first look (`choosing`)."""
         self.choosing(run)
@@ -856,6 +871,11 @@ class MacroRunner:
                 if self.progress is not None and player is not None and self.progress.ending(player.area):
                     # The route's bosses are dead: nothing is sought any more. The ground is the route's to
                     # call clean, and the press after that leaves the game, as the teleport key's does.
+                    self.staged(run, key_names, lambda card: None)
+                    return
+                if player is not None and self.at_the_way_on(player):
+                    # At the route's door (a level run ends there, U13): the press is the one that goes through
+                    # (rca/2026-10-15/kp1-door-findings.md), as the teleport key's is.
                     self.staged(run, key_names, lambda card: None)
                     return
                 stepped.append(hunter.step(run, key_names))
