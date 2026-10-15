@@ -16,7 +16,7 @@ from pathlib import Path
 from inventory_tracking.levels.build_presets import D2DATA
 from inventory_tracking.levels.build_warps import VARIANTS, game_path
 from inventory_tracking.levels.ds1 import object_presets
-from inventory_tracking.levels.model import MARKABLE
+from inventory_tracking.levels.model import MARKABLE, PLACEHOLDERS
 from inventory_tracking.reports import publish
 from terror_zones.game_files import GameFiles
 
@@ -25,9 +25,11 @@ OUTPUT = Path(__file__).parent / 'data' / 'preset_objects.json'
 
 
 def wanted_rows(d2data: Path, wanted=MARKABLE) -> dict[tuple[int, int], int]:
-    """(act, 0-based; objpreset Index) -> the objects.txt id of every wanted object."""
+    """(act, 0-based; objpreset Index) -> the objects.txt id of every wanted object; a placeholder whose class the
+    game rolls (`PLACEHOLDERS`) by the id it is marked by."""
     objects = json.loads((d2data / 'json' / 'objects.json').read_text())
     ids = {row['Class']: row['*ID'] for row in objects.values() if row.get('*ID') in wanted and row.get('Class')}
+    ids |= {name: thing for name, thing in PLACEHOLDERS.items() if thing in wanted}
     rows = json.loads((d2data / 'json' / 'objpreset.json').read_text())
     return {
         (row['Act'] - 1, row['Index']): ids[row['ObjectClass']]

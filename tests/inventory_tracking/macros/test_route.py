@@ -10,7 +10,7 @@ from itertools import pairwise
 import pytest
 
 from inventory_tracking.levels.guide import lead_first
-from inventory_tracking.levels.model import SEALS, SUPER_CHEST, Lead, Poi, Room, Target
+from inventory_tracking.levels.model import SEALS, SUPER_CHEST, UNIQUE_CHEST, Lead, Poi, Room, Target
 from inventory_tracking.macros import route
 from inventory_tracking.macros.teleport import step_toward
 from inventory_tracking.macros.world import Teleport, Thing
@@ -285,6 +285,33 @@ def test_every_chest_with_the_label_is_opened_once():
     assert all(thing.mode for thing in level_.things.values())
 
 
+def test_the_camps_chests_are_opened_whichever_class_the_game_rolled():
+    # Lower Kurast (lower-kurast-plan.md): a mark on each placed spot names UNIQUE_CHEST; the game shows a JungleChest
+    # (181) or a JungleChest2 (183) there.
+    spots = [(1006.0, 1000.5), (1020.0, 1000.5), (1034.0, 1000.5)]
+    level_ = Objects(79, Progress(ROUTES, route.PERFORMED), [('Super chests', UNIQUE_CHEST, spot) for spot in spots])
+    for spot, kind in zip(spots, (181, 183, 181), strict=True):
+        level_.things[spot] = replace(level_.things[spot], txt_id=kind)
+
+    assert level_.follow() == ['Super chests'] * 3
+    assert all(thing.mode for thing in level_.things.values())
+
+
+def test_an_object_of_another_class_at_a_camp_mark_is_not_its_chest():
+    play = game(79)
+    play.thing = Thing(70, SUPER_CHEST, 2, 5010.0, 5002.0)  # opened, but not a class the spot rolls
+    chest = Target(79, ROOMS, (1002.0, 1000.4), 'Super chests', 'target', use=UNIQUE_CHEST)
+    progress = Progress(ROUTES, route.PERFORMED)
+    progress.note(play.world.game_name, 79)
+
+    route.note_used(play.run(), chest, progress, None)
+    assert progress.lead(79) is not None
+
+    play.thing = Thing(70, 183, 2, 5010.0, 5002.0)
+    route.note_used(play.run(), chest, progress, None)
+    assert progress.lead(79) is None
+
+
 def test_the_seals_are_opened_in_the_scripts_order_and_then_the_star_leads():
     places = [  # as the handler lists them: not the order they are opened in
         ('De Seis seal', SEALS[2], (1020.0, 1000.5)),
@@ -331,7 +358,7 @@ def test_the_catalogues_chest_levels_and_the_sanctuary_lead_with_their_objects()
     )
     assert lead_of(progress, 108).label == 'Vizier seal 1'
     assert progress.lead(102) == Lead('Red portal')  # the stand by it, not the way out: no level behind the lead
-    assert progress.lead(79) is None  # Lower Kurast's chests are pending
+    assert progress.lead(79) == Lead('Super chests')  # each placed chest of the camps (lower-kurast-plan.md)
 
 
 # --- `stand`, `fight`, `loot`, `leave`: one press of the key through `route.press` (Phase 5) ---

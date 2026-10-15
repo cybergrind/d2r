@@ -23,7 +23,7 @@ from inventory_tracking.levels.guide import place
 from inventory_tracking.levels.model import Poi, Target
 from inventory_tracking.macros.goals import STAND_NEAR, Goal, route_goal
 from inventory_tracking.macros.route import staged
-from inventory_tracking.macros.teleport import USES
+from inventory_tracking.macros.teleport import USES, classes
 from inventory_tracking.macros.travel import STANDING
 from inventory_tracking.macros.world import Monster, Thing
 from inventory_tracking.native.layout import TILE_UNITS
@@ -96,7 +96,7 @@ class CardGoals:
         labels, places = self.done(area)
         stages = self._marks(area, USE)
         return frozenset(
-            mark.use
+            kind
             for mark in marks
             if mark.use in USES
             and not USES[mark.use].leaves
@@ -104,6 +104,7 @@ class CardGoals:
             and mark.label not in labels
             and (mark.label, place(mark)) not in places
             and math.dist(here, world_point(mark)) <= OBJECT_NEAR
+            for kind in classes(mark.use)
         )
 
     def note(self, area: int, here: Point, marks: Sequence[Poi], things: Sequence[Thing]) -> bool:
@@ -121,7 +122,9 @@ class CardGoals:
                 continue
             if (area, mark.label, place(mark)) in self.progress.facts.used:
                 continue
-            if any(t.txt_id == mark.use and t.mode and math.dist((t.x, t.y), spot) <= use.near for t in things):
+            if any(
+                t.txt_id in classes(mark.use) and t.mode and math.dist((t.x, t.y), spot) <= use.near for t in things
+            ):
                 same = tuple(place(other) for other in marks if other.label == mark.label)
                 self.progress.used(area, mark.label, place(mark), same)
         return self.progress.facts is not before

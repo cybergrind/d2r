@@ -5,7 +5,15 @@ import json
 import pytest
 
 from inventory_tracking.levels.build_objects import build
-from inventory_tracking.levels.model import BRAIN_CHEST, FROZEN_ANYA, HELL_GATE, SEALS, SUPER_CHEST, THRONE_PORTAL
+from inventory_tracking.levels.model import (
+    BRAIN_CHEST,
+    FROZEN_ANYA,
+    HELL_GATE,
+    SEALS,
+    SUPER_CHEST,
+    THRONE_PORTAL,
+    UNIQUE_CHEST,
+)
 from inventory_tracking.levels.presets import PRESET_NAMES, object_spots, object_variants
 from tests.inventory_tracking.levels.test_ds1 import ds1
 
@@ -39,6 +47,21 @@ def test_each_variant_lists_its_wanted_objects_and_the_preset_counts_its_files(t
 
     assert table['objects'] == {'107': {'0': [[397, 110, 59]]}}
     assert table['variants'] == {'107': 2}
+
+
+def test_a_placeholder_whose_class_the_game_rolls_is_kept_by_the_id_it_is_marked_by(tmp_path):
+    # objpreset's PlaceUniqueChest has no objects.txt row (Lower Kurast's camp: levels/model.py UNIQUE_CHEST).
+    (tmp_path / 'json').mkdir()
+    presets = {'a': {'Def': 618, 'Name': 'camp', 'File1': 'Act3/Kurast/A.ds1'}}
+    (tmp_path / 'json' / 'lvlprest.json').write_text(json.dumps(presets))
+    (tmp_path / 'json' / 'objects.json').write_text(json.dumps({'1': {'Class': 'Fountain', '*ID': 1}}))
+    rows = {'2': {'Index': 2, 'Act': 1, 'ObjectClass': 'PlaceUniqueChest'}}  # `ds1` writes act 1 files
+    (tmp_path / 'json' / 'objpreset.json').write_text(json.dumps(rows))
+    files = {'data/global/tiles/act3/kurast/a.ds1': ds1(2, 2, [([0] * 9, [0] * 9)], objects=[(2, 2, 27, 52, 0)])}
+
+    table = build(tmp_path, files.__getitem__, wanted=frozenset({UNIQUE_CHEST}))
+
+    assert table['objects'] == {'618': {'0': [[UNIQUE_CHEST, 27, 52]]}}
 
 
 def named(name: str) -> int:
@@ -81,3 +104,11 @@ def test_a_layout_without_the_object_and_an_unread_layout_have_no_spot():
     assert object_variants(lava) == 2
     assert object_variants(named('Act 5 - Ice Pool A')) == 6
     assert object_variants(named('Act 4 - Diablo Entry')) == 0  # places nothing a mark sits on
+
+
+def test_the_lower_kurast_camp_places_three_chests_whose_class_the_game_rolls():
+    # Slums16x16_1.ds1, read from the install on 2026-10-15; the 26 level dumps show a jungle chest on each spot.
+    camp = named('Act 3 - Slums 16x16')
+
+    assert object_spots(camp, 1, UNIQUE_CHEST) == ((27, 52), (12, 57), (60, 12))
+    assert object_spots(camp, 0, UNIQUE_CHEST) == object_spots(camp, 2, UNIQUE_CHEST) == ()

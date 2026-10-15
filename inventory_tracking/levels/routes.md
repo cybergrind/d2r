@@ -276,6 +276,9 @@ In the third column of the Phase 3 row, "to the last level's door" means the che
 - Still pending (4): the three hell-pit portals (objects the files do not place: one memory read
   each in game) and Lower Kurast's chests (the files place none of class 397 in the camp; the pickup
   key opens them there today). The Throne's portal stays a place without a click.
+- 2026-10-15: Lower Kurast's chests are marked (routes/lower-kurast-plan.md). The camp's file places three
+  `PlaceUniqueChest` spots, a chest whose class the game rolls (181 or 183 in every level dump), marked by the
+  pseudo id `UNIQUE_CHEST` (levels/model.py) and clicked as any of its classes (`Use.kinds`).
 - To run in game: Outer Cloister → Tamoe Highland on foot over both borders; a terrorized Jail from
   the Outer Cloister waypoint; Andariel, the council and Baal with the key.
 
@@ -323,6 +326,7 @@ The super chest's spots, in units from the preset origin:
 | Arachnid Lair (84) | Act 3 - Spider Chest NE | (5, 58), (5, 64), (34, 68) |
 | Swampy Pit 3 (90) | Act 3 - Dungeon Treasure 1 | (38, 58), (145, 90), (20, 175), (20, 175), (38, 58), (50, 106) |
 | Kurast Sewers 1 (92) | Act 3 - Sewer Chest N/S/E/W | W (41, 33), E (28, 32), S (33, 18), N (33, 38) |
+| Lower Kurast (79) | Act 3 - Slums 16x16, variant 1 only (`PlaceUniqueChest`, class rolled) | (27, 52), (12, 57), (60, 12); one or two camps a level |
 | Drifter Cavern (116), Icy Cellar (119) | Act 5 - Ice Pool A/B | (143, 119), (133, 7), (135, 7), (133, 7), (21, 21), (10, 135) |
 | Abaddon, Pit of Acheron, Infernal Pit (125–127) | Act 5 - Lava N/S/E/W, variant 1 only | N (20, 99), S (54, 54), E (65, 100), W (55, 49); a level may hold several |
 
@@ -383,7 +387,7 @@ Each row is one route: where it may start, then each level with its stages in or
 | Great Marsh | Great Marsh | Great Marsh: clear → loot → leave |
 | Swampy Pit | Flayer Jungle | Flayer Jungle: enter Swampy Pit 1<br>Swampy Pit 1: enter Next level<br>Swampy Pit 2: enter Next level<br>Swampy Pit 3: use Super chest → loot → leave |
 | Flayer Dungeon | Flayer Jungle | *Flayer Jungle*: enter Flayer Dungeon 1<br>Flayer Dungeon 1: enter Next level<br>Flayer Dungeon 2: enter Next level<br>Flayer Dungeon 3: fight Witch Doctor Endugu → loot → leave |
-| Lower Kurast | Lower Kurast | Lower Kurast: use Super chests (pending) → loot → leave |
+| Lower Kurast | Lower Kurast | Lower Kurast: use Super chests → loot → leave |
 | Kurast Sewers | Kurast Bazaar | Kurast Bazaar: enter Sewers<br>Sewers 1: use Chest → loot → enter Sewers 2<br>Sewers 2: stand at Khalim's Heart → loot → leave |
 | Ruined Temple | Kurast Bazaar | *Kurast Bazaar*: enter Ruined Temple<br>Ruined Temple: fight Battlemaid Sarina → loot → leave |
 | Disused Fane | Kurast Bazaar | *Kurast Bazaar*: enter Disused Fane<br>Disused Fane: clear → loot → leave |
@@ -413,11 +417,10 @@ Each row is one route: where it may start, then each level with its stages in or
 | Nihlathak | Halls of Pain | Nihlathak's Temple: enter Halls of Anguish<br>Halls of Anguish: enter Next level<br>Halls of Pain: enter Next level<br>Halls of Vaught: fight Nihlathak Boss → loot → leave |
 | Baal | The Worldstone Keep 2 | Arreat Summit: enter The Worldstone Keep 1<br>The Worldstone Keep 1: enter Next level<br>The Worldstone Keep 2: enter Next level<br>The Worldstone Keep 3: enter Next level<br>Throne of Destruction: stand at Throne → fight Lister the Tormentor → loot → use Worldstone Chamber<br>The Worldstone Chamber: fight Baal → loot → leave |
 
-### Pending (4)
+### Pending (3)
 
 | Route | Level | Stage | Why |
 | --- | --- | --- | --- |
-| Lower Kurast | Lower Kurast | use Super chests (pending) | the mark is the camp, not its two chests |
 | Abaddon | Frigid Highlands | use Abaddon (pending) | the red portal is not in the map files: its object is not read yet |
 | Pit of Acheron | Arreat Plateau | use Pit of Acheron (pending) | the red portal is not in the map files: its object is not read yet |
 | Infernal Pit | Frozen Tundra | use Infernal Pit (pending) | the red portal is not in the map files: its object is not read yet |

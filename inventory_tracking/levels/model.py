@@ -28,14 +28,22 @@ HEART_CHEST, BRAIN_CHEST, EYE_CHEST = 405, 406, 407  # Khalim's
 FROZEN_ANYA = 460  # DrehyaOutsideTown
 ANCIENTS_ALTAR, ANCIENTS_GATEWAY = 546, 547
 THRONE_PORTAL = 563  # FinalPortal, to the Worldstone Chamber
+# objpreset.txt's `PlaceUniqueChest`: a spot where the game puts a chest of a class it rolls when the level is made,
+# so it has no objects.txt row; this id is above every row (586 the last in d2data). Lower Kurast's bonfire camp places
+# three ('Act 3 - Slums 16x16' file 1); the 26 level dumps of 2026-09-30 and 2026-10-06 show a JungleChest (181) or a
+# JungleChest2 (183) on each spot, both on every spot (lower-kurast-plan.md). The classes it may roll elsewhere are
+# not known: UNIQUE_CHEST_KINDS grows only with a sighting.
+UNIQUE_CHEST = 1000
+UNIQUE_CHEST_KINDS = frozenset((181, 183))
+PLACEHOLDERS = {'PlaceUniqueChest': UNIQUE_CHEST}  # objpreset ObjectClass -> the id it is marked by
 # The placed objects the teleport step clicks at their mark (macros/teleport.py USES): a mark on one of
 # them carries it as `Poi.use`. The Throne's portal is not among them: objects.txt gives it no click
 # box, and none was seen opened yet.
-CLICKED = frozenset((SUPER_CHEST, *SEALS, HELL_GATE, ARCANE_PORTAL))
+CLICKED = frozenset((SUPER_CHEST, *SEALS, HELL_GATE, ARCANE_PORTAL, UNIQUE_CHEST))
 MARKABLE = frozenset((
     SUPER_CHEST, *SEALS, ARCANE_PORTAL, MEPHISTO_BRIDGE, HELL_GATE, CUBE_CHEST, SCROLL_CHEST, STAFF_CHEST,
     SEWER_STAIRS, SEWER_LEVER, HEART_CHEST, BRAIN_CHEST, EYE_CHEST, FROZEN_ANYA, ANCIENTS_ALTAR,
-    ANCIENTS_GATEWAY, THRONE_PORTAL,
+    ANCIENTS_GATEWAY, THRONE_PORTAL, UNIQUE_CHEST,
 ))  # fmt: skip
 
 

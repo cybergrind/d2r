@@ -99,7 +99,6 @@ def test_the_stages_that_cannot_be_acted_on_yet_are_these():
     assert sorted({(name, area) for name, area, _ in pending(ROUTES)}) == [
         ('Abaddon', 111),
         ('Infernal Pit', 117),
-        ('Lower Kurast', 79),
         ('Pit of Acheron', 112),
     ]
 

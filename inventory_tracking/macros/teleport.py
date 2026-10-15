@@ -41,6 +41,8 @@ from inventory_tracking.levels.model import (
     PORTAL,
     SEALS,
     SUPER_CHEST,
+    UNIQUE_CHEST,
+    UNIQUE_CHEST_KINDS,
     WIRTS_BODY,
     Ground,
     Target,
@@ -190,6 +192,14 @@ class Use:
     # 0.95 to 1.02 s after the seal, rca/2026-10-13/situations.md §3, cs-run.md §2): the use is not over
     # before then (the pursuit loop's level run moves nowhere meanwhile: macros/pursuit.py `Facts.settling`).
     brings: float = 0.0
+    # objects.txt classes the object at the mark may be: a spot whose class the game rolls (levels/model.py
+    # UNIQUE_CHEST). Empty: the mark's own id.
+    kinds: frozenset[int] = frozenset()
+
+
+def classes(use: int) -> frozenset[int]:
+    """The objects.txt classes an object a mark names (`Target.use`, a USES key) may be."""
+    return USES[use].kinds or frozenset((use,))
 
 
 CHEST_AIMS = ((0, -10), (0, 0), (0, -22), (12, -10), (-12, -10), (0, -36))
@@ -223,6 +233,11 @@ USES = {
     # The glowing chest, where the game's files place it (the mark is on it). The aims are the ones that
     # opened the two on the host on 2026-10-12 (macros/opening.py AIMS), each by the first.
     SUPER_CHEST: Use(CHEST_AIMS, 10.0, False, 'Opening {}', '{}: opened', '{} is not here'),
+    # A chest the game rolls at a placed spot (Lower Kurast's camp): opened as the glowing one is. Not seen
+    # clicked at its mark yet; the pickup key opened such chests in the camp by the same aims.
+    UNIQUE_CHEST: Use(
+        CHEST_AIMS, 10.0, False, 'Opening {}', '{}: opened', '{} is not here', kinds=UNIQUE_CHEST_KINDS
+    ),
     # The Chaos Sanctuary's seals: objects.txt gives them no box (taken by their picture, which stands on
     # their ground point) and one mode they can be clicked in. Not seen clicked by the step yet. The last
     # seal of each arm brings its boss and pack (the take of 12:33 on 2026-10-13: 396, 394, 392).
@@ -760,11 +775,11 @@ def _spot(point: Point) -> str:
 
 def marked_thing(run: Run, target: Target) -> Thing | None:
     """The object the mark names: the one of its kind nearest the mark among those the game shows near it."""
-    mark, use = scaled(target.point), USES[target.use]
+    mark, use, kinds = scaled(target.point), USES[target.use], classes(target.use)
     near = [
         t
         for t in (run.things() if run.things is not None else ())
-        if t.txt_id == target.use and math.dist((t.x, t.y), mark) <= use.near
+        if t.txt_id in kinds and math.dist((t.x, t.y), mark) <= use.near
     ]
     return min(near, key=lambda t: math.dist((t.x, t.y), mark)) if near else None
 

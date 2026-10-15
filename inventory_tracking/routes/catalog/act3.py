@@ -61,7 +61,7 @@ ROUTES = [
     Route(
         'Lower Kurast',
         (79,),
-        (level(79, use('Super chests', pending='the mark is the camp, not its two chests'), loot(), leave()),),
+        (level(79, use('Super chests'), loot(), leave()),),
     ),
     Route(
         'Kurast Sewers',

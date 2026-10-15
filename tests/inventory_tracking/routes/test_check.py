@@ -84,12 +84,12 @@ def test_a_route_that_circles_or_runs_into_a_level_without_a_script_never_ends()
 def test_a_stage_names_a_mark_the_level_has():
     typo = Route('Pit', (27,), (*PIT.scripts[:2], level(7, enter('Pitt', 12)), *PIT.scripts[3:]))
     room = Route('Pit', (27,), (*PIT.scripts[:4], level(16, use('Pit 1'), loot(), leave())))
-    no_object = Route('Kurast', (79,), (level(79, use('Super chests'), leave()),))
+    no_object = Route('Kurast', (79,), (level(79, use('Kurast Bazaar'), leave()),))  # a gate, not an object
     nowhere = Route('Kurast', (79,), (level(79, stand('Bonfire'), fight('Stormtree', 'Bonfire'), leave()),))
 
     assert check(typo) == ["Pit, Tamoe Highland: enter Pitt: no mark 'Pitt'"]
     assert check(room) == ["Pit, Pit 2: use Pit 1: no mark 'Pit 1'"]
-    assert check(no_object) == ["Kurast, Lower Kurast: use Super chests: the mark 'Super chests' is not on an object"]
+    assert check(no_object) == ["Kurast, Lower Kurast: use Kurast Bazaar: the mark 'Kurast Bazaar' is not on an object"]
     assert check(nowhere) == [
         "Kurast, Lower Kurast: stand at Bonfire: no mark 'Bonfire'",
         "Kurast, Lower Kurast: fight Stormtree: no mark 'Bonfire'",
@@ -103,7 +103,7 @@ def test_a_fight_names_a_boss_of_the_game():
 
 
 def test_a_pending_stage_is_let_through_until_its_mark_exists():
-    waiting = Route('Kurast', (79,), (level(79, use('Super chests', pending='the camp, not the chests'), leave()),))
+    waiting = Route('Kurast', (79,), (level(79, use('Kurast Bazaar', pending='a gate, not an object'), leave()),))
     stale = Route('Pit', (27,), (*PIT.scripts[:4], level(16, use('Super chest', pending='no mark'), loot(), leave())))
 
     assert check(waiting) == []
