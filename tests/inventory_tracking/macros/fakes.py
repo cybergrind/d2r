@@ -20,6 +20,7 @@ from inventory_tracking.builds.warlock.skills import (
     SUMMON_DEFILER,
 )
 from inventory_tracking.input.keyboard import MODIFIER_NAMES
+from inventory_tracking.levels.memory import WAYPOINT_CLASSES
 from inventory_tracking.levels.model import HELL_GATE, PORTAL, TOWN_PORTAL
 from inventory_tracking.macros.actuator import Actuator
 from inventory_tracking.macros.build import Build, choose
@@ -401,6 +402,9 @@ class Game:
                 elif self.thing is not None and self.thing_under_pointer():
                     if self.thing.txt_id == TOWN_PORTAL and self.thing.mode != 2:
                         pass  # still opening: not selectable yet
+                    elif self.thing.txt_id in WAYPOINT_CLASSES:  # the walk to it, and its panel
+                        me = replace(character_of(w), x=self.thing.x + 2.0, y=self.thing.y + 2.0)
+                        self.world = replace(w, player=me, open_panels=('waypoint',))
                     elif self.thing.txt_id in (PORTAL, HELL_GATE, TOWN_PORTAL):
                         self.world = replace(w, player=replace(character_of(w), area=self.next_area))
                     else:

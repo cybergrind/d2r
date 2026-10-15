@@ -74,6 +74,17 @@ Facts read for this plan (d2data, 2026-10-15): skill 220 Book of Townportal (219
 
 ### 1. Town walking
 
+**Rescoped and written 2026-10-16 (uncommitted, not played): no walk of the macro's own.** The player's takes of
+2026-10-15 put the waypoint a click away in both towns: every game started in Pandemonium Fortress at (5048, 5044),
+25 units from its waypoint (13 of 13), and every portal from Lower Kurast left them in Kurast Docks at
+(5158, 5068), 20 units from its (9 of 9); they clicked it and the game walked them there (4.5–6 s from arrival to
+the next level, the panel included). So phase 1 is `macros/waypoint.py` `open_panel(run)`: the waypoint object the
+game shows (`levels/memory.py WAYPOINT_CLASSES`, now in `world.USED`: recorded too), clicked on its picture with
+`use_thing` (each aim only with the waypoint under the pointer), done when the `waypoint` panel is open
+(`Use.opens`). objects.txt gives waypoints no click box; the aims round the ground point are a guess for the played
+check to confirm (`Macro: the waypoint took the click … pixels from its ground`). The navigator walk below stays
+unbuilt until a town needs it. Tests: `test_waypoint.py`.
+
 - `macros/town.py`: `walk_to(run, mark)`: the navigator over the town's ground (`travel.py`, walking only: no
   Teleport or Blade Warp in town), clicks within the view toward the mark, done within USE_NEAR. The game's own
   walk-to-click is the step; no pathing beyond the navigator's.

@@ -35,6 +35,7 @@ from functools import lru_cache
 from pathlib import Path
 
 from inventory_tracking.common import LOG
+from inventory_tracking.levels.memory import WAYPOINT_CLASSES
 from inventory_tracking.levels.model import (
     ARCANE_PORTAL,
     HELL_GATE,
@@ -196,6 +197,9 @@ class Use:
     # objects.txt classes the object at the mark may be: a spot whose class the game rolls (levels/model.py
     # UNIQUE_CHEST). Empty: the mark's own id.
     kinds: frozenset[int] = frozenset()
+    # The panel (World.open_panels) whose opening says it took, whatever its mode: a waypoint (macros/waypoint.py).
+    # Empty: `leaves` says.
+    opens: str = ''
 
 
 def classes(use: int) -> frozenset[int]:
@@ -225,6 +229,16 @@ USES = {
         ((0, -45), (0, -75), (0, -15)), 40.0, True,
         'Through the portal to {}', '{}: there', 'no portal to {} is open here',
     ),
+    # A waypoint: objects.txt gives it no box (Left..Height 0), so it is taken by its picture, a disc on its ground
+    # point (Selectable0 and 2: before and after its first use). The click walks the character there and opens the
+    # panel. The aims are a guess round that point, each clicked only with the waypoint under the pointer.
+    **{
+        kind: Use(
+            ((0, 0), (0, -10), (20, -5), (-20, -5)), 15.0, False,
+            'Opening {}', '{}: opened', 'no waypoint at {}', opens='waypoint',
+        )
+        for kind in WAYPOINT_CLASSES
+    },
     # objects.txt gives the body no box: it is taken by its picture, which lies on its ground point. It can
     # be searched once (Selectable0 only): mode 0 until then.
     WIRTS_BODY: Use(
@@ -809,7 +823,7 @@ def use_thing(run: Run, target: Target, player: Player, thing: Thing, aspect: fl
     object's mode did (a body searched). An aim is clicked only with the object under the pointer by the
     game's own record (`run.hovered`); without that record the aims are clicked as they are."""
     use, at = USES[target.use], (thing.x, thing.y)
-    if not use.leaves and thing.mode:
+    if not use.leaves and not use.opens and thing.mode:
         run.say(f'At {target.label}')  # used already: the mark is only a place now
         return
     run.say(f'{use.begun.format(target.label)}, {math.dist((player.x, player.y), at):.0f} away')
@@ -819,6 +833,8 @@ def use_thing(run: Run, target: Target, player: Player, thing: Thing, aspect: fl
     )  # fmt: skip
 
     def took() -> bool:
+        if use.opens:
+            return use.opens in run.world().open_panels
         now = run.world().player
         if use.leaves:
             return now is None or now.area != target.area
