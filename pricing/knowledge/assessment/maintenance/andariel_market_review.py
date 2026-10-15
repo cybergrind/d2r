@@ -13,6 +13,7 @@ from pathlib import Path
 
 from pricing.knowledge.assessment.mechanics.socket_evidence import NATIVE_HASHES, reviewed_native
 from pricing.knowledge.market import scope_status
+from pricing.knowledge.market_rows import file_market
 
 
 ROOT = Path(__file__).resolve().parents[4]
@@ -123,7 +124,7 @@ def audit(rows):
 def main():
     if not reviewed_native(ROOT):
         raise ValueError('Native socket mechanics changed; review Ral effects before rebuilding')
-    rows = [json.loads(line) for line in (ROOT / MARKET).read_text().splitlines()]
+    rows = list(file_market(ROOT / MARKET).rows())
     paths = [
         MARKET,
         RAW,

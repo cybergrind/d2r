@@ -1,12 +1,11 @@
 """Current scoped asking cohorts for original and upgraded Gore Rider rules."""
 
-import hashlib
-import json
 from datetime import date
 
 from pricing.knowledge.assessment.maintenance.trade_war_traveler_evidence import asking_terms
 from pricing.knowledge.assessment.policies.gore_rider_defense import variant_code
 from pricing.knowledge.market import scope_status
+from pricing.knowledge.market_rows import file_market
 
 
 IDENTITY = ('unique', 'Gore Rider')
@@ -82,12 +81,12 @@ def reviewed(evidence):
 def load_evidence(root, document, policies, scopes):
     if not any((r['quality'], r['name']) == IDENTITY and r['scope'] in scopes for r in document['rows']):
         return {}
-    raw = (root / MARKET).read_bytes()
-    snapshot = {'path': MARKET, 'sha256': hashlib.sha256(raw).hexdigest()}
+    market = file_market(root / MARKET)
+    snapshot = {'path': MARKET, 'sha256': market.sha256}
     trade = policies.get(IDENTITY, {}).get('trade_qualification', {})
     if trade.get('market_snapshot') != snapshot:
         return {}
-    evidence = audit(json.loads(line) for line in raw.splitlines())
+    evidence = audit(market.rows())
     if len(trade.get('bands', [])) != 2:
         return {}
     for band, group in zip(trade['bands'], ('original', 'upgraded_perfect'), strict=True):

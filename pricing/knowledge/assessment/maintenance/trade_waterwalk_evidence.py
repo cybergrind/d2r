@@ -9,6 +9,7 @@ from pricing.knowledge.assessment.maintenance.trade_war_traveler_evidence import
 from pricing.knowledge.assessment.mechanics.socket_evidence import NATIVE_HASHES, reviewed_native
 from pricing.knowledge.assessment.mechanics.waterwalk_defense import variant_code
 from pricing.knowledge.market import scope_status
+from pricing.knowledge.market_rows import file_market
 
 
 IDENTITY = ('unique', 'Waterwalk')
@@ -159,12 +160,12 @@ def reviewed(evidence):
 def load_evidence(root, document, policies, scopes):
     if not any((r['quality'], r['name']) == IDENTITY and r['scope'] in scopes for r in document['rows']):
         return {}
-    raw = (root / MARKET).read_bytes()
-    snapshot = {'path': MARKET, 'sha256': hashlib.sha256(raw).hexdigest()}
+    market = file_market(root / MARKET)
+    snapshot = {'path': MARKET, 'sha256': market.sha256}
     trade = policies.get(IDENTITY, {}).get('trade_qualification', {})
     if trade.get('market_snapshot') != snapshot or len(trade.get('bands', [])) != 2:
         return {}
-    evidence = audit(json.loads(line) for line in raw.splitlines())
+    evidence = audit(market.rows())
     for band, group in zip(trade['bands'], ('original', 'supported'), strict=True):
         if not set(band['evidence_ids']) <= set(evidence[group]['rows']):
             return {}
@@ -174,7 +175,7 @@ def load_evidence(root, document, policies, scopes):
 def main():
     if not reviewed_native(ROOT):
         raise ValueError('Waterwalk native tables changed; review variant mechanics')
-    rows = [json.loads(line) for line in (ROOT / MARKET).read_text().splitlines()]
+    rows = list(file_market(ROOT / MARKET).rows())
     paths = [
         MARKET,
         str(Path(__file__).relative_to(ROOT)),

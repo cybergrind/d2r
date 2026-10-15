@@ -1,12 +1,11 @@
 """Source-bound Arachnid census: supported perfect rolls and thin lower evidence."""
 
-import hashlib
-import json
 from datetime import date
 from math import isfinite
 
 from pricing.knowledge.assessment.policies.market_ethereal_inference import BASE_CODE, IDENTITY, MODE, arachnid_ethereal
 from pricing.knowledge.market import scope_status
+from pricing.knowledge.market_rows import file_market
 
 
 MARKET = 'pricing/data/appraisal-market.jsonl'
@@ -93,9 +92,9 @@ def load_evidence(root, document, policies, scopes, definitions):
     variants = definitions.get(IDENTITY, ())
     if len(variants) != 1:
         return {}
-    raw = (root / MARKET).read_bytes()
-    snapshot = {'path': MARKET, 'sha256': hashlib.sha256(raw).hexdigest()}
+    market = file_market(root / MARKET)
+    snapshot = {'path': MARKET, 'sha256': market.sha256}
     if policies.get(IDENTITY, {}).get('trade_qualification', {}).get('market_snapshot') != snapshot:
         return {}
-    evidence = audit_arachnid((json.loads(line) for line in raw.splitlines()), definition=variants[0])
+    evidence = audit_arachnid((market.rows()), definition=variants[0])
     return {IDENTITY: {**evidence, 'market_snapshot': snapshot}}

@@ -4,12 +4,11 @@ A thin priced cohort is evidence-unavailable, never use-only or worthless.
 The entire normalized market snapshot is pinned; new evidence invalidates review.
 """
 
-import hashlib
-import json
 from datetime import date
 from math import isfinite
 
 from pricing.knowledge.assessment.maintenance.trade_compound_rolls import legal_vectors
+from pricing.knowledge.market_rows import file_market
 
 
 MARKET = 'pricing/data/appraisal-market.jsonl'
@@ -106,9 +105,9 @@ def load_evidence(root, document, policies, scopes):
     identities = {(r['quality'], r['name']) for r in document['rows'] if r['scope'] in scopes}
     if not identities:
         return {}
-    raw = (root / MARKET).read_bytes()
-    snapshot = {'path': MARKET, 'sha256': hashlib.sha256(raw).hexdigest()}
-    observations = [json.loads(line) for line in raw.splitlines()]
+    market = file_market(root / MARKET)
+    snapshot = {'path': MARKET, 'sha256': market.sha256}
+    observations = market.named(name for _, name in identities)  # audit_region reads only its identity's rows
     return {
         identity: {**audit_region(observations, identity), 'market_snapshot': snapshot}
         for identity in identities

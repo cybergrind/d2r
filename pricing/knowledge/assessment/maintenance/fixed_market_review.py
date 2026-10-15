@@ -9,6 +9,7 @@ from datetime import date
 
 from pricing.knowledge.assessment.adapters.capture import normalize
 from pricing.knowledge.assessment.comparables import evaluate, price_from_comparables
+from pricing.knowledge.market_rows import file_market
 from pricing.knowledge.names import normalize_name
 
 
@@ -85,6 +86,15 @@ class FixedMarketReview:
             )
         return rows
 
+    def observations(self, root):
+        """The market rows the review reads: those named as a definition, its market name or its contract (`audit`
+        groups by the contract's name, `review_inputs` by the market name); only those are parsed."""
+        names = set()
+        for code, native in self.definitions().items():
+            names |= {native['name'], native.get('market_name', native['name'])}
+            names.add(self.template_contract(code, native)['name'])
+        return file_market(root / MARKET).named(names)
+
     def review_inputs(self, root, observations):
         paths = set(self.inputs)
         names = {normalize_name(row.get('market_name', row['name'])) for row in self.definitions().values()}
@@ -106,7 +116,7 @@ class FixedMarketReview:
         return {path: hashlib.sha256((root / path).read_bytes()).hexdigest() for path in sorted(paths)}
 
     def build(self, root, as_of):
-        observations = [json.loads(line) for line in (root / MARKET).read_text().splitlines()]
+        observations = self.observations(root)
         inputs = self.review_inputs(root, observations)
         return {
             'schema_version': 1,
@@ -128,7 +138,7 @@ class FixedMarketReview:
         if review.get('schema_version') != 1 or review.get('scope') != self.scope:
             raise ValueError(f'Unsupported {self.label.lower()} pricing review scope')
         as_of = date.fromisoformat(review['as_of'])
-        observations = [json.loads(line) for line in (root / MARKET).read_text().splitlines()]
+        observations = self.observations(root)
         expected_inputs = self.review_inputs(root, observations)
         if as_of.isoformat() != review['as_of'] or set(review.get('inputs', {})) != set(expected_inputs):
             raise ValueError(f'Incomplete {self.label.lower()} pricing review provenance')

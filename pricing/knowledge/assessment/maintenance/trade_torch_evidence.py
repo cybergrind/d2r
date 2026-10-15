@@ -1,7 +1,5 @@
 """Scoped class census for Torch trade reviews; thin classes remain unknown."""
 
-import hashlib
-import json
 from collections import Counter
 from datetime import date
 from math import isfinite
@@ -11,6 +9,7 @@ from pricing.knowledge.assessment.policies.trade_class_skills import IDENTITY, m
 from pricing.knowledge.assessment.property_equivalence import ATTRIBUTES, ELEMENTAL_RESISTANCES, canonical_properties
 from pricing.knowledge.date_recovery import fingerprint
 from pricing.knowledge.market import scope_status
+from pricing.knowledge.market_rows import file_market
 
 
 MARKET = 'pricing/data/appraisal-market.jsonl'
@@ -106,8 +105,8 @@ def reviewed_classes(evidence, allowed):
 def load_evidence(root, document, policies, scopes):
     if not any(r['scope'] in scopes and (r['quality'], r['name']) == IDENTITY for r in document['rows']):
         return {}
-    raw = (root / MARKET).read_bytes()
-    snapshot = {'path': MARKET, 'sha256': hashlib.sha256(raw).hexdigest()}
+    market = file_market(root / MARKET)
+    snapshot = {'path': MARKET, 'sha256': market.sha256}
     if policies.get(IDENTITY, {}).get('trade_qualification', {}).get('market_snapshot') != snapshot:
         return {}
-    return {IDENTITY: {**audit(json.loads(line) for line in raw.splitlines()), 'market_snapshot': snapshot}}
+    return {IDENTITY: {**audit(market.rows()), 'market_snapshot': snapshot}}

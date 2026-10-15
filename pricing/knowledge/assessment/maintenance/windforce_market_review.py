@@ -8,6 +8,7 @@ from pathlib import Path
 
 from pricing.knowledge.assessment.maintenance.guardian_market_review import dated_ask
 from pricing.knowledge.market import scope_status
+from pricing.knowledge.market_rows import file_market
 
 
 ROOT = Path(__file__).resolve().parents[4]
@@ -145,7 +146,7 @@ def main():
                 contribution += low
         if contribution != expected:
             raise ValueError('Windforce socket contribution changed')
-    rows = [json.loads(line) for line in (ROOT / MARKET).read_text().splitlines()]
+    rows = list(file_market(ROOT / MARKET).rows())
     result = {
         'schema_version': 1,
         'reviewed_at': date.today().isoformat(),

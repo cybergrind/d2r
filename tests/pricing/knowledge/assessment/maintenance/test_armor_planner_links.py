@@ -1,9 +1,7 @@
 """Completed armor source links retain reviewed use, recipe and wearer boundaries."""
 
 import hashlib
-import json
 from copy import deepcopy
-from functools import lru_cache
 
 import pytest
 
@@ -14,15 +12,13 @@ from pricing.knowledge.assessment.maintenance.armor_planner_links import (
 from pricing.knowledge.assessment.maintenance.guide_inventory import fingerprint
 from pricing.knowledge.assessment.maintenance.inventory import ROOT
 
+# One cache of parsed sources with the swap links' tests: each module's own held the same files twice over.
+from tests.pricing.knowledge.assessment.maintenance.test_swap_planner_links import read
+
 
 PROFILES = 'pricing/data/appraisal-build-profiles.json'
 USES = 'pricing/knowledge/assessment/rules/guide_use_reviews.json'
 NATIVE = 'third-parties/d2data/json/misc.json'
-
-
-@lru_cache
-def read(path):
-    return json.loads((ROOT / path).read_bytes())
 
 
 def example(profile_id='fire-warlock-guide-1-merc-fortitude'):

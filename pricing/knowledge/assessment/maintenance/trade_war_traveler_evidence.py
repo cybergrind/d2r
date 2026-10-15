@@ -1,13 +1,12 @@
 """Scoped asking census for original/upgraded War Traveler roll reviews."""
 
-import hashlib
-import json
 from datetime import date
 from math import isfinite
 
 from pricing.knowledge.assessment.policies.trade_barter import validate_barter
 from pricing.knowledge.assessment.policies.war_traveler_ethereal import infer
 from pricing.knowledge.market import scope_status
+from pricing.knowledge.market_rows import file_market
 
 
 IDENTITY = ('unique', 'War Traveler')
@@ -94,12 +93,12 @@ def reviewed(evidence):
 def load_evidence(root, document, policies, scopes):
     if not any((r['quality'], r['name']) == IDENTITY and r['scope'] in scopes for r in document['rows']):
         return {}
-    raw = (root / MARKET).read_bytes()
-    snapshot = {'path': MARKET, 'sha256': hashlib.sha256(raw).hexdigest()}
+    market = file_market(root / MARKET)
+    snapshot = {'path': MARKET, 'sha256': market.sha256}
     trade = policies.get(IDENTITY, {}).get('trade_qualification', {})
     if trade.get('market_snapshot') != snapshot:
         return {}
-    evidence = audit(json.loads(line) for line in raw.splitlines())
+    evidence = audit(market.rows())
     if set(trade['bands'][0]['evidence_ids']) != set(evidence['cohorts']['perfect']['rows']):
         return {}
     return {IDENTITY: {**evidence, 'market_snapshot': snapshot}}

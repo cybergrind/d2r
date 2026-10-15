@@ -13,6 +13,7 @@ from pricing.knowledge.assessment.handlers.named import NamedHandler
 from pricing.knowledge.assessment.maintenance.fixed_market_review import MARKET
 from pricing.knowledge.assessment.maintenance.inventory import ROOT
 from pricing.knowledge.definition_store import catalog
+from pricing.knowledge.market_rows import file_market
 from pricing.knowledge.names import normalize_name
 from pricing.knowledge.refresh import atomic_json
 
@@ -163,7 +164,7 @@ def review_inputs(root, observations, names):
 
 
 def build_review(root, as_of):
-    observations = [json.loads(line) for line in (root / MARKET).read_text().splitlines()]
+    observations = file_market(root / MARKET).named(SPECS)  # the audit and its inputs read only these names
     return {
         'schema_version': 1,
         'scope': 'reviewed_fixed_unique_jewelry_identities',

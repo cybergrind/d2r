@@ -8,6 +8,7 @@ from pathlib import Path
 
 from pricing.knowledge.assessment.maintenance.trade_waterwalk_evidence import exclusion
 from pricing.knowledge.assessment.mechanics.socket_evidence import NATIVE_HASHES, reviewed_native
+from pricing.knowledge.market_rows import file_market
 
 
 ROOT = Path(__file__).resolve().parents[4]
@@ -89,7 +90,7 @@ def main():
         'armorclass',
     ):
         raise ValueError('Stormshield level-defense operator changed')
-    rows = [json.loads(line) for line in (ROOT / MARKET).read_text().splitlines()]
+    rows = list(file_market(ROOT / MARKET).rows())
     paths = [
         MARKET,
         'third-parties/d2data/json/itemstatcost.json',

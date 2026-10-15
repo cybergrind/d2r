@@ -8,6 +8,7 @@ from pathlib import Path
 
 from pricing.knowledge.assessment.maintenance.trade_waterwalk_evidence import exclusion
 from pricing.knowledge.assessment.mechanics.socket_evidence import reviewed_native
+from pricing.knowledge.market_rows import file_market
 
 
 ROOT = Path(__file__).resolve().parents[4]
@@ -105,7 +106,7 @@ def audit(rows):
 def main():
     if not reviewed_native(ROOT):
         raise ValueError('Native tables changed; review Chance Guards defense arithmetic')
-    rows = [json.loads(line) for line in (ROOT / MARKET).read_text().splitlines()]
+    rows = list(file_market(ROOT / MARKET).rows())
     paths = [
         MARKET,
         str(Path(__file__).relative_to(ROOT)),

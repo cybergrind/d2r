@@ -1,11 +1,10 @@
 """Exact native equipment variants retain separate independent-seller censuses."""
 
-import hashlib
-import json
 from datetime import date
 from math import isfinite
 
 from pricing.knowledge.market import scope_status
+from pricing.knowledge.market_rows import file_market
 
 
 MARKET = 'pricing/data/appraisal-market.jsonl'
@@ -94,8 +93,8 @@ def reviewed_variants(evidence):
 def load_evidence(root, document, policies, scopes):
     if not any((r['quality'], r['name']) == IDENTITY and r['scope'] in scopes for r in document['rows']):
         return {}
-    raw = (root / MARKET).read_bytes()
-    snapshot = {'path': MARKET, 'sha256': hashlib.sha256(raw).hexdigest()}
+    market = file_market(root / MARKET)
+    snapshot = {'path': MARKET, 'sha256': market.sha256}
     if policies.get(IDENTITY, {}).get('trade_qualification', {}).get('market_snapshot') != snapshot:
         return {}
-    return {IDENTITY: {**audit_trek(json.loads(line) for line in raw.splitlines()), 'market_snapshot': snapshot}}
+    return {IDENTITY: {**audit_trek(market.rows()), 'market_snapshot': snapshot}}
