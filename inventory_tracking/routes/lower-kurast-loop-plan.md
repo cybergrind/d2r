@@ -39,6 +39,39 @@ Facts read for this plan (d2data, 2026-10-15): skill 220 Book of Townportal (219
 - **Where a new game starts.** Logs since 2026-10-06: the first area of each game against the last area of the
   game before (`probe.log` `Level guide:` lines). This says whether the trip back to act 4 is needed (Open, Q1).
 
+#### Phase 0 findings (2026-10-16)
+
+- **The portal key: `x`.** CybergrindAA's slot table in the takes of 2026-10-15 (`runs/combat/20261015T181240Z-103`
+  manifest `slots`) holds skill 220 (Book of Townportal) in slot 5 = key action 19, and the key file
+  (`CybergrindAA194867311.keyo`) binds action 19 to `x`. `skill_keys(slots, bindings, (220,))` gives it; nothing
+  to hardcode. (Slot 13 holds 221, Book of Identify, on `7`.) The controller bindings name it too: `LT+X Town
+  Portal` (probe.log 2026-10-15 21:07:50).
+- **Where a new game starts: the town of the act the last one was left in.** The takes since 2026-10-09, 44 games
+  of one character, each game's last area against the next game's first: left in act 4 → started in Pandemonium
+  Fortress (34 of 34); left in act 5 (Frigid Highlands 119) → Harrogath (2 of 2, cber4→5, cber5→6 on 2026-10-14);
+  left in act 2 (area 49) → Lut Gholein (cyber0→cyber1, 2026-10-15). Not "the highest act reached". So a game left
+  in act 3 starts the next in Kurast Docks, one waypoint from Lower Kurast (Open, Q1).
+- **Waypoint marks in town: they exist.** `levels/exits.py` `preset_waypoints` marks each town's waypoint from its
+  DS1 file (`guide_level` gives a town its way out and the waypoint): Kurast Docks preset 529 'Act 3 - Town' at
+  tile (31.8, 9.8) from its origin, Pandemonium Fortress 797 'Act 4 - Fortress' at (8.8, 3.8); one file each.
+  No `build_objects` change and no town handler are needed for the mark.
+- **The waypoint panel, from the game's own UI layout** (`data/global/ui/layouts/waypointspaneloriginalhd.json`,
+  `…expansionhd.json`, `_profilehd.json`, read with `terror_zones/game_files.py`): the panel is `$LeftPanelRect`
+  (x 236, y −651, 1162×1507) at `$LeftPanelAnchor` (0.0, 0.397 of the screen); in it the act tabs from (148, 201),
+  five of 174×70 with −1 padding; the rows from (152, 264), `buttonOffset` 123 apart. Assuming the HD layout's
+  2160-unit reference height scaled to the window's (to confirm), in a 16:9 window the act III tab's centre is at
+  (0.213, 0.205) of the window, act IV's (0.258, 0.205), the first row's top at y 0.218 and each next row 0.057
+  lower. The panel opens on the character's own act (to confirm). Act III's rows: Kurast Docks, Spider Forest,
+  Great Marsh, Flayer Jungle, **Lower Kurast (5th)**, Kurast Bazaar, Upper Kurast, Travincal, Durance of Hate 2.
+  To confirm with one screenshot of the open panel in Kurast Docks (nothing clicked); a click is confirmed by the
+  area changing, as the plan has it.
+- **What the findings change: nothing** (the player, 2026-10-16, Open Q1): "exiting in act 3 is bad, because it
+  requires quite long walk to the waypoint; we're tp's to act 3 town => waypoint => act 4 town => save exit to save
+  time". A game started in Kurast Docks begins far from its waypoint; the portal from Lower Kurast lands near it,
+  and Pandemonium Fortress starts the next game by its own. The loop stays as planned; the waypoint panel needs both
+  tabs: act IV's (first row, Pandemonium Fortress) from Kurast Docks, act III's (fifth row, Lower Kurast) from
+  Pandemonium Fortress.
+
 ### 1. Town walking
 
 - `macros/town.py`: `walk_to(run, mark)`: the navigator over the town's ground (`travel.py`, walking only: no
@@ -56,6 +89,14 @@ Facts read for this plan (d2data, 2026-10-15): skill 220 Book of Townportal (219
 - Tests: the panel's clicks against a fake world whose area changes on the right row.
 
 ### 3. Town Portal
+
+**Written 2026-10-16 (uncommitted, not played):** `macros/portal.py` `to_town(run, key_names)`. Evidence from the
+player's takes of 2026-10-15: each of their casts in Lower Kurast is Quick Cast (the right button shows 220 for
+0.3–0.4 s), and they clicked the portal 0.9–1.4 s after it. objects.txt TownPortal (59): `Selectable2` only, the
+permanent portal's click box. The portal is the one not there before the cast, open (mode 2), nearest the
+character, waited for up to 2.5 s; then `use_thing` with `USES[TOWN_PORTAL]`, done when the level changes.
+59 joins `world.USED`, so the recorder writes portals from now on (the takes had none to measure the spot by).
+The tome's charges are not read: no portal is `Abort`ed as "is the tome empty?". Tests: `test_portal.py`.
 
 - `macros/portal.py`: `to_town(run)`: the tome's key (phase 0), the cast, the portal object (59) that appears
   beside the character (its owner: the character, if the unit says so), clicked with the object aims, done when
@@ -92,10 +133,9 @@ RCA after each session as usual: time per game by leg, chests opened, drops left
 
 ## Open (for the player)
 
-1. **Why back to act 4?** If a new game starts in the town of the act the character was saved in, ending in
-   Kurast Docks would make the next game start there, one waypoint from Lower Kurast: no Town Portal, no second
-   waypoint, no act 4. Phase 0 checks this in the logs; is there another reason for act 4 (the prebuff, the
-   merc, a vendor)?
+1. ~~Why back to act 4?~~ Answered (the player, 2026-10-16): a game left in act 3 starts in Kurast Docks, a long
+   walk from its waypoint; the portal lands near it, and Pandemonium Fortress's start is by its waypoint. The loop
+   goes portal → Kurast Docks → waypoint → Pandemonium Fortress → Save and Exit.
 2. ~~Lower Kurast's own waypoint~~ Answered (the player, 2026-10-15): "in LK we prefer to use portal because it is
    usually faster way, then a navigating back". After the last chest the loop always casts Town Portal.
 3. **Stops**: is the list in phase 4 right? A cap on games or hours?

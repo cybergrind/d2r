@@ -23,7 +23,7 @@ from inventory_tracking.config import RESOURCE_READER
 from inventory_tracking.items.metadata import item_base
 from inventory_tracking.levels.doors import Door, door_sizes
 from inventory_tracking.levels.memory import pointer
-from inventory_tracking.levels.model import CLICKED, PORTAL, WIRTS_BODY
+from inventory_tracking.levels.model import CLICKED, PORTAL, TOWN_PORTAL, WIRTS_BODY
 from inventory_tracking.loot.ground import (
     GROUND_MODES,
     ground_materials,
@@ -640,8 +640,9 @@ def warps(read, table: int) -> tuple[Warp, ...]:
     return tuple(found)
 
 
-# The objects a level's mark may name for a click (levels/model.py): each has its `Use` in macros/teleport.py.
-USED = frozenset((PORTAL, WIRTS_BODY, *CLICKED))
+# The objects a level's mark may name for a click (levels/model.py), and the town portal the character opens
+# (macros/portal.py): each has its `Use` in macros/teleport.py. The combat recorder writes them (`operated`).
+USED = frozenset((PORTAL, TOWN_PORTAL, WIRTS_BODY, *CLICKED))
 
 
 @dataclass(frozen=True)

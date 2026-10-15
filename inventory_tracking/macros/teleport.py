@@ -41,6 +41,7 @@ from inventory_tracking.levels.model import (
     PORTAL,
     SEALS,
     SUPER_CHEST,
+    TOWN_PORTAL,
     UNIQUE_CHEST,
     UNIQUE_CHEST_KINDS,
     WIRTS_BODY,
@@ -215,6 +216,12 @@ USES = {
     # objects.txt's click box of PortalPermanent: 80 pixels wide round its ground point, from 100 above it
     # to 10 below; the aims go down its middle. The stones' map piece is 40 units across, the mark its middle.
     PORTAL: Use(
+        ((0, -45), (0, -75), (0, -15)), 40.0, True,
+        'Through the portal to {}', '{}: there', 'no portal to {} is open here',
+    ),
+    # TownPortal has the same box (objects.txt); it is no mark's: the one the cast opened is clicked
+    # (macros/portal.py), so `near` is never asked of it.
+    TOWN_PORTAL: Use(
         ((0, -45), (0, -75), (0, -15)), 40.0, True,
         'Through the portal to {}', '{}: there', 'no portal to {} is open here',
     ),

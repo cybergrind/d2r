@@ -12,6 +12,7 @@ from inventory_tracking.input.keybindings import MODIFIERS, action_keys, key_fil
 
 
 TELEPORT = 54  # from a charged staff or an oskill alike; the slot table holds it either way
+TOWN_PORTAL = 220  # Book of Townportal: a tome in the inventory puts it in the slot table (macros/portal.py)
 ATTACK = 0  # the plain attack, what a mouse button holds when no skill is on it
 # Not a skill: the Swap Weapons key action. CybergrindAA has `c` on action 44 and says `c`
 # swaps (user, 2026-10-06); unconfirmed against another character's file.
@@ -21,6 +22,7 @@ ACTIONS = {SWAP_WEAPONS: 44}
 # are added by the build (`register_names`: builds/warlock/skills.py), which this module never imports.
 NAMES = {
     TELEPORT: 'Teleport',
+    TOWN_PORTAL: 'Town Portal',
     ATTACK: 'Attack',
     SWAP_WEAPONS: 'Swap Weapons',
 }

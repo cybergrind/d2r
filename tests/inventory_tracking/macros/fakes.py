@@ -20,7 +20,7 @@ from inventory_tracking.builds.warlock.skills import (
     SUMMON_DEFILER,
 )
 from inventory_tracking.input.keyboard import MODIFIER_NAMES
-from inventory_tracking.levels.model import HELL_GATE, PORTAL
+from inventory_tracking.levels.model import HELL_GATE, PORTAL, TOWN_PORTAL
 from inventory_tracking.macros.actuator import Actuator
 from inventory_tracking.macros.build import Build, choose
 from inventory_tracking.macros.engine import Run
@@ -218,6 +218,9 @@ class Game:
         self.thing: Thing | None = None
         self.thing_above = 45.0  # classic pixels its picture is clicked above its ground
         self.next_area = 110
+        # Town Portal (`x`, as CybergrindAA's tome): seconds from the cast to the portal open beside the character
+        # (mode 1 while it opens, 2 open: objects.txt Selectable2); None: the tome casts nothing (empty).
+        self.portal_opens: float | None = 0.5
         self.sigils: list[tuple[float, float]] = []  # ground points Sigil: Lethargy was cast at
         self.engorges: list[tuple[float, float]] = []  # ground points Engorge was cast at
         self.purges: list[float] = []  # clock times Hex: Purge was cast
@@ -320,6 +323,11 @@ class Game:
                 self.kept_hop = self.keeps_keys
             elif key == 't':
                 self.hop()
+            elif key == 'x' and w.in_game and self.portal_opens is not None:
+                self.next_unit += 1
+                me = character_of(w)
+                self.thing = Thing(self.next_unit, TOWN_PORTAL, 1, me.x + 3.0, me.y - 2.0)
+                self.arrivals.append((self.clock.now + self.portal_opens, self.open_portal))
             elif key == 'd' and DEATH_MARK in w.slots:
                 x, y = self.under_pointer()
                 foes = [m for m in w.monsters if m.txt_id not in (744, 700) and math.hypot(m.x - x, m.y - y) < 4]
@@ -391,7 +399,9 @@ class Game:
                 if door and self.door_under_pointer():
                     self.world = replace(w, player=replace(character_of(w), area=self.next_area, x=door[0], y=door[1]))
                 elif self.thing is not None and self.thing_under_pointer():
-                    if self.thing.txt_id in (PORTAL, HELL_GATE):
+                    if self.thing.txt_id == TOWN_PORTAL and self.thing.mode != 2:
+                        pass  # still opening: not selectable yet
+                    elif self.thing.txt_id in (PORTAL, HELL_GATE, TOWN_PORTAL):
                         self.world = replace(w, player=replace(character_of(w), area=self.next_area))
                     else:
                         self.thing = replace(self.thing, mode=2)
@@ -412,6 +422,10 @@ class Game:
                 ):  # a click on the ground: a walk there
                     self.walks.append((gx, gy))
                     self.world = replace(w, player=replace(character_of(w), x=gx, y=gy))
+
+    def open_portal(self) -> None:
+        if self.thing is not None and self.thing.txt_id == TOWN_PORTAL:
+            self.thing = replace(self.thing, mode=2)
 
     def door_under_pointer(self) -> bool:
         """Whether the pointer is on the door (`door_above` pixels above its tile), within a walk."""

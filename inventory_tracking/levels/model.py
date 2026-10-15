@@ -13,6 +13,9 @@ from inventory_tracking.native.layout import TILE_UNITS
 
 # objects.txt ids of the objects a mark may name for the step to click (`Poi.use`).
 PORTAL = 60  # PortalPermanent: the red portal that stays (the Cairn Stones' to Tristram); a town portal is 59
+# TownPortal: the portal a tome or a scroll opens beside the character (macros/portal.py), no mark's; clicked in mode 2
+# only (objects.txt Selectable2: it opens in mode 1)
+TOWN_PORTAL = 59
 WIRTS_BODY = 268
 # Objects the game's map files place at a spot of a preset, which a mark may sit on (`PoiSpec.thing`;
 # levels/data/preset_objects.json, built by build_objects.py). Ids checked against d2data objects.json
