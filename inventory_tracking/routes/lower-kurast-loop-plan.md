@@ -93,6 +93,17 @@ unbuilt until a town needs it. Tests: `test_waypoint.py`.
 
 ### 2. Waypoint travel
 
+**Written 2026-10-16 (uncommitted, not played):** `macros/waypoint.py` `travel(run, to_area)`: the panel (phase 1),
+the level's act tab, its row, done in the level; mouse mode only; not reached → `Abort` with the panel closed
+(Escape). Tab and row from the installed game's levels.txt (`build_waypoints.py` → `macros/data/waypoints.json`,
+39 waypoints: Lower Kurast act III row 4, Pandemonium Fortress act IV row 0). The pixels from the game's own layout
+files (`waypointspanelexpansionhd.json`, `_profilehd.json`), a layout unit 1/2160 of the window's height: the same
+rule puts the pause menu's Save and Exit at 0.440 and Return to Game at 0.505 of the height, where the macros click
+them from screenshots (0.438, 0.509). Unread from the layout: the row button's height (the click goes 45 units into
+the row, the rows 123 apart) and whether a window wider than 16:9 shifts the left panel (CybergrindAA's is
+2560 x 1418, 1.81). The played check confirms both: the level reached is the evidence. Tests: `test_waypoint.py`,
+`test_pad.py` (refused in controller mode).
+
 - `macros/waypoint.py`: `travel(run, to_area)`: walk to the town's waypoint (phase 1), click it (`use_thing`
   with a `Use` for 237/398 whose `took` is the panel open), click the act tab, click the level's row, wait for
   the area. Mouse mode only, refused in controller mode as Save and Exit is.

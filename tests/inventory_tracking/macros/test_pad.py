@@ -745,6 +745,16 @@ def test_save_and_exit_is_refused_in_controller_mode():
     assert play.game.pressed() == []
 
 
+def test_the_waypoint_is_refused_in_controller_mode():
+    from inventory_tracking.macros.waypoint import travel
+
+    play = Controller()
+    with pytest.raises(Abort, match='needs mouse mode'):
+        travel(play.run(), 103)
+    assert play.pad.presses() == []
+    assert play.game.keys.events == []
+
+
 def test_the_swap_is_the_keyboard_key_and_its_outcome_is_said(caplog):
     play = Controller()
     run = play.run()

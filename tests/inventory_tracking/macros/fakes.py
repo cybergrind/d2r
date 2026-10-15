@@ -222,6 +222,12 @@ class Game:
         # Town Portal (`x`, as CybergrindAA's tome): seconds from the cast to the portal open beside the character
         # (mode 1 while it opens, 2 open: objects.txt Selectable2); None: the tome casts nothing (empty).
         self.portal_opens: float | None = 0.5
+        # The waypoint panel: (tab, row) -> the level it takes the character to, the rows greyed (not got), the
+        # act of each level the panel opens on, and the tab shown.
+        self.waypoint_rows = {(2, 0): 75, (2, 4): 79, (3, 0): 103}
+        self.greyed: set[tuple[int, int]] = set()
+        self.acts = {75: 2, 79: 2, 103: 3}
+        self.panel_act: int | None = None
         self.sigils: list[tuple[float, float]] = []  # ground points Sigil: Lethargy was cast at
         self.engorges: list[tuple[float, float]] = []  # ground points Engorge was cast at
         self.purges: list[float] = []  # clock times Hex: Purge was cast
@@ -392,6 +398,8 @@ class Game:
                     self.deaf_clicks -= 1
                 else:
                     self.field_focused = True
+            elif w.in_game and 'waypoint' in w.open_panels:
+                self.panel_click(x, y)
             elif w.in_game and self.swallowed_clicks:
                 self.swallowed_clicks -= 1  # a cast was ending: the game takes no notice
             elif w.in_game:
@@ -402,9 +410,10 @@ class Game:
                 elif self.thing is not None and self.thing_under_pointer():
                     if self.thing.txt_id == TOWN_PORTAL and self.thing.mode != 2:
                         pass  # still opening: not selectable yet
-                    elif self.thing.txt_id in WAYPOINT_CLASSES:  # the walk to it, and its panel
+                    elif self.thing.txt_id in WAYPOINT_CLASSES:  # the walk to it, and its panel on its act
                         me = replace(character_of(w), x=self.thing.x + 2.0, y=self.thing.y + 2.0)
                         self.world = replace(w, player=me, open_panels=('waypoint',))
+                        self.panel_act = self.acts.get(me.area)
                     elif self.thing.txt_id in (PORTAL, HELL_GATE, TOWN_PORTAL):
                         self.world = replace(w, player=replace(character_of(w), area=self.next_area))
                     else:
@@ -426,6 +435,23 @@ class Game:
                 ):  # a click on the ground: a walk there
                     self.walks.append((gx, gy))
                     self.world = replace(w, player=replace(character_of(w), x=gx, y=gy))
+
+    def panel_click(self, x: float, y: float) -> None:
+        """A click in the open waypoint panel, by its layout (waypointspanelexpansionhd.json, restated here): a tab
+        shows its act; a row of the act shown that is not greyed takes the character to its level, the panel closed."""
+        width, height = WINDOW[2], WINDOW[3]
+        scale = height / 2160
+        px = x * width / scale - 236  # layout units from the panel's corner
+        py = (y * height - 0.397 * height) / scale + 651
+        if 201 <= py <= 271 and 148 <= px < 148 + 5 * 173:
+            self.panel_act = int((px - 148) // 173)
+            return
+        row, inside = divmod(py - 264, 123)
+        if 152 <= px <= 1000 and row >= 0 and inside <= 100 and self.panel_act is not None:
+            key = (self.panel_act, int(row))
+            if key in self.waypoint_rows and key not in self.greyed:
+                me = replace(character_of(self.world), area=self.waypoint_rows[key])
+                self.world = replace(self.world, player=me, open_panels=())
 
     def open_portal(self) -> None:
         if self.thing is not None and self.thing.txt_id == TOWN_PORTAL:
