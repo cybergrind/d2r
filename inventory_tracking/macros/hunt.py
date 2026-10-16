@@ -2029,6 +2029,13 @@ class Hunter:
             # remainder. The next look must observe a later game frame.
             run.pace.sleep(max(FRAME, wait))
             return  # the next look must reprice a new leg; never execute an unpriced replacement
+        if not act.reason and step.skill is None and self.warp_ready(run, world, ground, aspect, place, goal, rooms):
+            # The look priced a walk with a jump's casting delay further off than PLAN_AHEAD; by now it is within it,
+            # and the goal's way is that jump (`pause` waits for nothing then): the walk would hold the jump back by
+            # its stride. 22:51:10 on 2026-10-16: 1.2 s on foot, the Blade Warp held 0.9 s past its delay; 17 of the
+            # session's 41 walks between two warps were chosen 0.80-0.90 s after the warp's key.
+            run.pace.sleep(FRAME)
+            return  # the next look prices the jump
         if step.needs == 'battle' and not self.main_weapons(run, world, key_names):
             self.tell(run, 'waiting for the priced battle weapons')
             self.nap(run, POLL)
@@ -2052,6 +2059,20 @@ class Hunter:
         self.travel.make(
             run, step, world, aspect, key_names, ground, name=goal.label, intent=goal.spend, goal=place, hurry=act.dodge
         )
+
+    def warp_ready(
+        self, run: Run, world: World, ground: Ground, aspect: float, place: Point, goal: Goal, rooms: tuple[Room, ...]
+    ) -> bool:
+        """Whether the goal's way from here is a jump whose casting delay still runs, within PLAN_AHEAD of its end
+        (`Travel.toward` counts it as over), where the look gave a walk. A jump the look did not take for any other
+        reason is not looked again for."""
+        player = world.player
+        if player is None or not self.travel.warped_at > -math.inf:
+            return False
+        found = self.travel.toward(run, world, ground, aspect, place, goal.spend, rooms)
+        if not isinstance(found, Step) or found.skill is None:
+            return False
+        return self.travel.left(found.skill, run.clock(), player.cooldown) > 0.0
 
     def operate(self, run: Run, world: World, goal: Goal, key_names) -> None:
         """What is done at a goal reached: its object used and the route told (macros/route.py

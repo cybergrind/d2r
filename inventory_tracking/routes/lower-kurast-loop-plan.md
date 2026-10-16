@@ -391,6 +391,16 @@ you can bulk buy with (shift+right click)".
   (`Pack.key_room`: a stack under 12 keys or none; the tome under 20 charges; d2data misc.json maxstack), and each is
   checked by the count in memory and made once more if the count did not change.
 
+### 11. The walk in Blade Warp's delay (uncommitted, not played)
+
+The time between two warps of the 22:50 games (207 hops, `scratchpad` split of the log's `leg time` lines): the look
+and the choice alone, a median 0.155 s (106 hops); a container opened, 33 s in all; a walk between, 30 s (28 hops);
+a strike, 10 s. The walks: the look priced the goal's move with more than PLAN_AHEAD (0.25 s) of the warp's delay
+left, so it offered a walk; by the move the delay was within PLAN_AHEAD, `Travel.pause` saw the warp as ready and
+waited nothing, and the walk was made (22:51:10: 1.2 s on foot, the warp held 0.9 s past its delay; 17 of 41 walk
+choices came 0.80-0.90 s after the warp's key). Now `Hunter.advance` looks again when the goal's way is by then a
+jump whose delay still runs (`warp_ready`); a walk chosen with no delay running is made as before.
+
 ## Open (for the player)
 
 1. ~~Why back to act 4?~~ Answered (the player, 2026-10-16): a game left in act 3 starts in Kurast Docks, a long

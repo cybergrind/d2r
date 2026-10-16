@@ -2250,3 +2250,49 @@ def test_a_hostile_that_dies_with_its_summoner_is_no_target_while_anything_else_
     assert hunt.only_bound(play.world, [baal, clone], ground, here) is False  # Baal himself in reach
     assert hunt.only_bound(play.world, [far, clone], ground, here) is True
     assert hunt.only_bound(play.world, [far, clone, tentacle], ground, here) is False
+
+
+def test_a_walk_the_look_chose_in_blade_warps_delay_is_not_made_once_the_warp_counts_ready():
+    # 22:51:10 on 2026-10-16, Lower Kurast: the look priced the chest's move with 0.3 s of Blade Warp's delay left (more
+    # than PLAN_AHEAD: no jump offered, a walk of 16); by the move, 0.2 s were left and `pause` saw the warp as ready,
+    # so waited nothing, and the walk was made: 1.2 s on foot, the warp held back 0.9 s past its delay. Of the
+    # session's 41 walks between two warps, 17 were chosen 0.80-0.90 s after the warp's key.
+    from inventory_tracking.macros.goals import USE, Goal
+    from inventory_tracking.macros.pursuit import Move
+    from inventory_tracking.macros.travel import LOOPED, PLAN_AHEAD
+
+    play = game()
+    play.staff = replace(STAFF, charges=0)  # as that evening's: every hop a Blade Warp or a walk
+    hunt = hunter(play)
+    run = play.run()
+    here = me(play.world)
+    goal = Goal('Super chests', (here.x + 56.0, here.y), USE, 4.0, LOOPED)
+    hunt.travel.warped_at = run.clock() - (WARP_DELAY - PLAN_AHEAD + 0.05)  # 0.2 s of the delay left
+    walk = Step((here.x + 16.0, here.y))
+
+    hunt.advance(run, play.world, Ground(()), Move(walk, goal), goal.place, keys)
+
+    assert play.walks == []  # the next look prices the move again: the warp
+    found = hunt.travel.toward(run, play.world, Ground(()), ASPECT, goal.place, LOOPED, ROOMS)
+    assert isinstance(found, Step)
+    assert found.skill == BLADE_WARP
+
+
+def test_a_walk_the_look_chose_with_no_casting_delay_running_is_made():
+    # Only a delay that ended since the look sends the move back to it: a walk priced over a ready warp (the safety's
+    # choice, a shorter way round) is made as it was chosen
+    from inventory_tracking.macros.goals import USE, Goal
+    from inventory_tracking.macros.pursuit import Move
+    from inventory_tracking.macros.travel import LOOPED
+
+    play = game()
+    play.staff = replace(STAFF, charges=0)
+    hunt = hunter(play)
+    run = play.run()
+    here = me(play.world)
+    goal = Goal('Super chests', (here.x + 56.0, here.y), USE, 4.0, LOOPED)
+    hunt.travel.warped_at = run.clock() - 5.0
+
+    hunt.advance(run, play.world, Ground(()), Move(Step((here.x + 16.0, here.y)), goal), goal.place, keys)
+
+    assert len(play.walks) == 1
