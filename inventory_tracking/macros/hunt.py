@@ -585,6 +585,8 @@ class Hunter:
         self.bearings = Bearings()  # the runner's: what a goal is named from
         # the runner's: the key's routine (the route's own step) follows the mode's pause
         self.hand_over: Callable[[str], None] | None = None
+        # the runner's: a level run ended by the hunt itself (the route's end, the character's death), with why
+        self.run_over: Callable[[str], None] | None = None
         self.told = Told()  # the reason last said for a decision that moved nothing
         self.told_at = -math.inf  # clock time it was last said
         self.pursued: Goal | None = None  # the goal of the last decision, for the recorder and the viewer
@@ -750,6 +752,12 @@ class Hunter:
         return self.pursuit is not None and self.pursuit.runs
 
     @property
+    def rushing(self) -> bool:
+        """Whether the level run working now is the KP_6 loop's (`Pursuit.rush`): no look for a better place in a fight
+        on its way (rca/2026-10-16/loop-chests-findings.md §1: 6.8 s of 43 moving to firing spots and better places)."""
+        return self.running and self.pursuit is not None and self.pursuit.rush
+
+    @property
     def leashed(self) -> bool:
         """Whether a level run is held, working or paused by the player's hand."""
         return self.pursuit is not None and self.pursuit.leashed
@@ -764,7 +772,7 @@ class Hunter:
                 self.travel.tally = Tally()  # the run's pace counts from its own first leg (`Travel.paced`)
             if old is not None and old.leashed:
                 # The run's crossing noted (`heading`) and its carrying on (`carried`) stay with it
-                kept = {'area': old.area, 'onward': old.onward, 'entered': old.entered}
+                kept = {'area': old.area, 'onward': old.onward, 'entered': old.entered, 'rush': old.rush}
                 if not pursuit.leashed:
                     pursuit = replace(pursuit, leash=old.leash, paused=old.paused, **kept)
                 elif pursuit.area is None:
@@ -808,6 +816,9 @@ class Hunter:
         self.mode_said = None  # the next run says its mode again
         if run is not None:
             run.say(f'Level run over: {reason}')
+            if self.run_over is not None:
+                # Not for the runner's own ends (run None: the toggles, the request, the game left), made under its lock
+                self.run_over(reason)
 
     def pause_run(self, run: Run, why: str) -> None:
         """The player's hand has the level run (macros/pursuit.py, the module text): the run is paused, said
@@ -1524,7 +1535,8 @@ class Hunter:
         )  # fmt: skip
         # The strike gap counts while a hostile is within the strike's reach, a clear line or not (I2)
         near = any(math.dist(here, (m.x, m.y)) <= self.reach for m in foes)
-        facts = replace(facts, quiet=min(now - self.struck_at, 60.0) if near else 0.0, near=near)
+        rush = posted is not None and posted.rush and posted.runs
+        facts = replace(facts, quiet=min(now - self.struck_at, 60.0) if near else 0.0, near=near, rush=rush)
         if self.pursuing and rect is not None:
             facts = self.safety_priced(run, world, foes, ground, facts, posted, rect)
         act = decide(facts, posted, self.pursuing)
@@ -3326,6 +3338,7 @@ class Hunter:
                 if (
                     self.pursuing
                     and self.running
+                    and not self.rushing
                     and self.build.settings.fight_look
                     and run.clock() - self.sweep.looked >= FOLLOW_CHECK
                 ):

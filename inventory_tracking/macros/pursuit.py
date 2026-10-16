@@ -102,7 +102,8 @@ class Pursuit:
     `paused`: the player's hand has the run (the module text), which then goes on by itself. `onward`: the level
     the run's way out leads into, noted once the run goes for an open passage (`heading`): the level change into it
     carries the run on (`carried`); `entered`: when the run was carried into its level (the clock), None for a run
-    pressed on it."""
+    pressed on it. `rush`: the KP_6 loop's run (the player, 2026-10-16: "don't fight what isn't attacking", for the loop
+    only): its goal first, a strike only where the arbiter prices it under the move (`arbitrate`, no strike gap)."""
 
     key: str
     pressed_at: float
@@ -113,6 +114,7 @@ class Pursuit:
     paused: bool = False
     onward: int | None = None
     entered: float | None = None
+    rush: bool = False
 
     def fresh(self, now: float) -> bool:
         """Whether the press still asks for a move: made no longer than FRESH ago (and not after `now`:
@@ -185,6 +187,7 @@ class Facts:
     safety: SafetySettings = field(default_factory=SafetySettings)
     quiet: float = 0.0  # seconds since the fight last saw a strike, counted while `near`
     near: bool = False  # a hostile within the strike's reach, a clear line or not: the strike gap counts (I2)
+    rush: bool = False  # the KP_6 loop's run (`Pursuit.rush`): no strike gap, the price alone
     # Units the character stands past the goal's `near`, for a goal whose arrival is a distance from its place (a
     # place, a door); inf for the others. Under `least_move`, the shortest move the navigator makes (a walk along the
     # way: travel.py AROUND_LEAST), a way with no step left is an arrival (`moved`).
@@ -262,7 +265,9 @@ def arbitrate(facts: Facts) -> Act:
     """One price in seconds, constrained by both life budget and the unliftable veto."""
     allowed = [c for c in facts.candidates if veto(c.harm, facts.life, facts.safety) is None]
     feasible = [c for c in allowed if c.harm.worst <= facts.budget and not c.retreat]
-    if facts.near and facts.attacking:
+    if facts.near and facts.attacking and not facts.rush:
+        # The KP_6 loop's run has none: its chests first, a strike only where the price has it (a hostile that costs
+        # life on the way), not every Hell Buzzard in the blades' 22 units (rca/2026-10-16/loop-chests-findings.md §1).
         # No attack pause (I2): while a hostile is within the strike's reach, the act is one after which a strike
         # comes within `strike_gap` of the last, whenever such an act fits the budget (a strike here first, an act
         # that waits for one more strike, a firing stand before a walk). A retreat is not held to it, nor is a step

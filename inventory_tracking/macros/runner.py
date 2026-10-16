@@ -354,6 +354,26 @@ class MacroRunner:
             if not self.queue.entries and not self.closed:
                 self.queue.put(routine, time.monotonic() + EXPIRES.get(routine, EXPIRES[TELEPORT]))
 
+    def _run_over(self, why: str) -> None:
+        """A level run ended by the hunt itself (hunt.py `end_run`: what is left of the route is not the run's, the
+        character died). With the loop on, the attack mode its chests' leg turned on ends with the run, and the loop's
+        next leg follows (`_follow`); the mode went on sweeping before, until the player pressed KP_6
+        (rca/2026-10-16/loop-chests-findings.md §2). From the run's thread."""
+        with self.lock:
+            if not (self.loop.on and self.attack_mode):
+                return
+            self.attack_mode = False
+            if self.working and self.routine == ATTACK:
+                self.cancelled.set()
+
+    def _loop_level_run(self, hunter: Hunter) -> None:
+        """The loop's chests leg: the KP_1 level run, as the pickup key starts it (`request`), followed by attack mode;
+        its end is the leg's (`_run_over`)."""
+        with self.lock:
+            hunter.hand_over, hunter.run_over = self._hand_over, self._run_over
+            hunter.post(Pursuit(PICKUP, time.monotonic(), advance=False, leash=FULL, rush=True))
+            self.attack_mode, self.attack_declined = True, False
+
     def _end_run(self, why: str) -> None:
         """A level run of the pickup key ends with attack mode (macros/pursuit.py, the leash): the mode
         off by the toggle or on its own, the macro request, the game left, shutdown."""
@@ -934,13 +954,9 @@ class MacroRunner:
             hunter = self.hunter
 
             def level_run() -> None:
-                # The KP_1 level run, as the pickup key starts it (`request`): it follows this leg as attack mode.
                 if hunter is None:
                     raise Abort('no level guide to hunt with')
-                with self.lock:
-                    hunter.hand_over = self._hand_over
-                    hunter.post(Pursuit(PICKUP, time.monotonic(), advance=False, leash=FULL))
-                    self.attack_mode, self.attack_declined = True, False
+                self._loop_level_run(hunter)
 
             def take_one() -> bool:
                 level = hunter.level() if hunter is not None and hunter.level is not None else None

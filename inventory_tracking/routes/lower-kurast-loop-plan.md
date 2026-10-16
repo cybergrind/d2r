@@ -184,6 +184,67 @@ What to keep an eye on, and stop with KP_6: a click at a wrong row (the level re
 when it is not the one asked for), the character standing still in town (a waypoint not under the pointer: `the
 waypoint is not under the pointer at any aim`), a leg the log repeats.
 
+### 6. After the first played games (rca/2026-10-16/loop-chests-findings.md)
+
+The games of 19:55–20:04 on 2026-10-16 and the player's rulings after them.
+
+- **6a, done (uncommitted).** The loop goes on once its chest run ends:
+  - `Hunter.run_over` → `MacroRunner._run_over`: attack mode stops, the loop's next leg follows.
+  - Before, the mode went on sweeping until KP_6 was pressed: 44, 24 and 9 s.
+- **6b, done (uncommitted).** The loop's chest run doesn't fight what costs it nothing:
+  - `Pursuit.rush` and `Facts.rush` drop the strike gap (I2), and `Hunter.rushing` drops the fight's "better place".
+  - A strike is made only where the arbiter prices it under the move.
+  - The player: "don't fight what isn't attacking", for KP_6 only.
+- **6c.** The shacks' other containers, "only if we encounter them in shacks and direct visibility + close, do not
+  hunt them":
+  - What: the weapon rack (107, fixed at (48, 12) of the camp), the armor stand (104, at (12, 23)), rolled jungle
+    chests (181, 183), and the baskets (208, 209).
+  - The rule: inside the camp's footprint (its 'Slums 16x16' room), a closed one in sight within a short reach is a
+    side goal before the run leaves the camp, as a drop "on the way" is.
+- **6d.** Faster opens:
+  - Hop beside a chest and open it from there, not from 18–23 units away.
+  - Aim the last hop beside the chest, not at its tile.
+  - Order a camp's chests by the shortest tour.
+- **6e.** The arrival wait: a check that the first input took, instead of the fixed 5 s. The view byte showed no load
+  in any of 8 trips.
+
+### 7. Pickup mode (a double press of KP_6)
+
+- **Sure valuables (the default):** rare rings, the uniques `loot/data/uniques.json` prices at `unique_minimum` and
+  up, every rune, every gem, every charm.
+- **Regular:** today's pickup (`pickup.choose`, the config's rules).
+- **Supply in both modes:** potions the belt is short of. Gold too, unless the player says otherwise.
+- **The switch:** made like KP_1's run mode (`runmode.Taps`): exactly two presses within DOUBLE seconds switch the
+  pickup mode and leave the loop as it was. A single press toggles the loop once the window is over, so it now acts
+  0.35 s after the press. The HUD shows the mode.
+- **Where it applies:** a filter over the drops `GameMemory.loot` marks (their `source`: rune, material, unique,
+  named, shown, also), so no rule is written twice.
+
+### 8. Town Portal scrolls and keys (3 or more of each before a run)
+
+- **Counts:** `tracking/resources.py` already reads them (`select_tome`, `select_keys`; offsets verified 2026-09-21).
+  The macros read neither yet.
+- **The leg:** in Pandemonium Fortress, before the waypoint to Lower Kurast, when either is under 3. Jamella (405)
+  sells both; a visit buys both up.
+- **The steps:**
+  1. Find Jamella among the units.
+  2. Click her (the hover check, as for the waypoint).
+  3. Choose Trade.
+  4. Find the scroll and the key in her stock grid (`shop/capture.py`, read the same way).
+  5. Buy with the clicks the game takes.
+  6. Close the panel.
+- **Not known yet:**
+  - the trade menu's layout and the stock panel's cells (from the game's layout JSON, as the waypoint panel was);
+  - whether a shift + right click buys a full stack of keys and fills the tome;
+  - where Jamella stands against the waypoint.
+- **Phase 0 first:** a played evidence pass, reads only, before any click.
+
+### 9. Loot to Cube (more games without the player)
+
+Loot to Cube works only in controller mode (the virtual pad's X, `input/gamepad.py`, `macros/pad.py`). The macros
+follow the game's mode and never switch it. What the player means by "move items to cube from time to time" needs a
+ruling (Open 4).
+
 ## Open (for the player)
 
 1. ~~Why back to act 4?~~ Answered (the player, 2026-10-16): a game left in act 3 starts in Kurast Docks, a long
@@ -192,8 +253,10 @@ waypoint is not under the pointer at any aim`), a leg the log repeats.
 2. ~~Lower Kurast's own waypoint~~ Answered (the player, 2026-10-15): "in LK we prefer to use portal because it is
    usually faster way, then a navigating back". After the last chest the loop always casts Town Portal.
 3. **Stops**: is the list in phase 4 right? A cap on games or hours?
+4. **Loot to Cube (phase 9)**: the drops picked straight into the cube (Loot to Cube) once the inventory is full but
+   the cube has room, or the inventory's items moved into the cube between games?
 
 ## Order
 
-LK plan 1–2 (the chests work) → phase 0 → 3 → 1 → 2 → 4 → LK plan 3–5 → 5. Each phase its own commit with its
-tests (serial, one run at a time).
+LK plan 1–2 (the chests work) → phase 0 → 3 → 1 → 2 → 4 → LK plan 3–5 → 5 → 6a–6e → 7 → 8 → 9. Each phase its own
+commit with its tests (serial, one run at a time).
