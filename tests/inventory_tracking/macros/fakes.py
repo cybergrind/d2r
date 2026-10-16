@@ -24,10 +24,18 @@ from inventory_tracking.levels.memory import WAYPOINT_CLASSES
 from inventory_tracking.levels.model import HELL_GATE, PORTAL, TOWN_PORTAL
 from inventory_tracking.macros.actuator import Actuator
 from inventory_tracking.macros.build import Build, choose
+from inventory_tracking.macros.cube import (
+    CUBE,
+    CUBE_CLASS,
+    INVENTORY,
+    cell_point,
+    fits as cube_fits,
+    taken as cube_taken,
+)
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.skills import SWAP_WEAPONS, TELEPORT
 from inventory_tracking.macros.timing import Pace
-from inventory_tracking.macros.world import Drop, Loot, Monster, Player, Teleport, Thing, World
+from inventory_tracking.macros.world import Carried, Drop, Loot, Monster, Pack, Player, Teleport, Thing, World
 
 
 KEYS = {SUMMON_DEFILER: 'q', CONSUME: '6', HEX_PURGE: 'g', PSYCHIC_WARD: 'r', SWAP_WEAPONS: 'c', TELEPORT: 't'}
@@ -236,6 +244,11 @@ class Game:
         # 2026-10-16: 4.5 s after the waypoint from act 4 to act 3); `deaf_until`: the clock it takes input again.
         self.arrival_deaf = 0.0
         self.deaf_until: float | None = None
+        # The carried inventory and the cube (macros/cube.py): the key `i` opens the inventory, a right click on the
+        # cube opens it, a left click takes an item onto the pointer (`cursor`) and puts it down; None: unread
+        self.pack: Pack | None = None
+        self.cursor: Carried | None = None
+        self.cube_refuses = False  # a cube that takes nothing put on it
         self.sigils: list[tuple[float, float]] = []  # ground points Sigil: Lethargy was cast at
         self.engorges: list[tuple[float, float]] = []  # ground points Engorge was cast at
         self.purges: list[float] = []  # clock times Hex: Purge was cast
@@ -354,6 +367,8 @@ class Game:
             elif key == 'Escape':
                 panels = () if w.open_panels else ('quit_menu',)
                 self.world = replace(w, open_panels=panels)
+            elif key == 'i' and w.in_game and self.pack is not None:
+                self.world = replace(w, open_panels=(*w.open_panels, 'inventory'))
             elif key == 'q' and self.blocked(*self.keys.fraction()):
                 pass
             elif key == 'q':
@@ -387,6 +402,10 @@ class Game:
                 if hit is not None:
                     left = tuple(m for m in w.monsters if m.unit_id != hit)
                     self.world = replace(w, monsters=left, player=replace(character_of(w), consume=True))
+        elif event[0] == 'button' and event[1] == 3 and w.in_game and 'inventory' in w.open_panels:
+            item = self.pack_item_at(*event[2])
+            if item is not None and item.txt == CUBE_CLASS:
+                self.world = replace(w, open_panels=(*w.open_panels, 'cube'))
         elif event[0] == 'button' and event[1] == 9 and w.in_game:
             self.sigils.append(self.ground_under_pointer())
         elif event[0] == 'held':  # a skill input down while the character is free: the game casts it
@@ -408,6 +427,8 @@ class Game:
                     self.field_focused = True
             elif w.in_game and 'waypoint' in w.open_panels:
                 self.panel_click(x, y)
+            elif w.in_game and 'inventory' in w.open_panels and self.pack is not None:
+                self.pack_click(x, y)
             elif w.in_game and self.swallowed_clicks:
                 self.swallowed_clicks -= 1  # a cast was ending: the game takes no notice
             elif w.in_game:
@@ -586,6 +607,45 @@ class Game:
         near = [m for m in self.world.monsters if m.txt_id in (744, 700) and math.hypot(m.x - x, m.y - y) < 5]
         return min(near, key=lambda m: math.hypot(m.x - x, m.y - y)).unit_id if near else None
 
+    def pack_item_at(self, x: float, y: float) -> Carried | None:
+        """The inventory's item under the window fraction (x, y): the cell it falls in, by the grid's layout."""
+        assert self.pack is not None
+        x0, y0 = cell_point(WINDOW, INVENTORY, (0, 0), (0, 0))  # the grid's corner
+        x1, y1 = cell_point(WINDOW, INVENTORY, (1, 1), (0, 0))
+        cx, cy = math.floor((x - x0) / (x1 - x0)), math.floor((y - y0) / (y1 - y0))
+        for item in self.pack.items:
+            if item.x <= cx < item.x + item.size[0] and item.y <= cy < item.y + item.size[1]:
+                return item
+        return None
+
+    def pack_click(self, x: float, y: float) -> None:
+        """A left click with the inventory open: an item taken onto the pointer, or the one on it put down in the
+        cube (its block's middle under the pointer) or back on the inventory."""
+        assert self.pack is not None
+        if self.cursor is None:
+            item = self.pack_item_at(x, y)
+            if item is not None and item.txt != CUBE_CLASS:
+                self.cursor = item
+                self.pack = replace(self.pack, items=tuple(i for i in self.pack.items if i is not item))
+            return
+        item, rows = self.cursor, self.pack.cube
+        if 'cube' in self.world.open_panels and rows is not None and not self.cube_refuses:
+            for cy in range(len(rows)):
+                for cx in range(len(rows[0])):
+                    px, py = cell_point(WINDOW, CUBE, (cx, cy), item.size)
+                    if abs(px - x) < 0.01 and abs(py - y) < 0.02 and cube_fits(rows, (cx, cy), item.size):
+                        self.pack = replace(
+                            self.pack, cube=cube_taken(rows, (cx, cy), item.size),
+                            cube_items=self.pack.cube_items | {item.unit_id},
+                        )  # fmt: skip
+                        self.cursor = None
+                        return
+        x0, y0 = cell_point(WINDOW, INVENTORY, (0, 0), (0, 0))
+        x1, y1 = cell_point(WINDOW, INVENTORY, (10, 4), (0, 0))
+        if x0 <= x < x1 and y0 <= y < y1 and self.pack_item_at(x, y) is None:
+            self.pack = replace(self.pack, items=(*self.pack.items, item))  # put back on the inventory
+            self.cursor = None
+
     def run(self, seed: int = 1) -> Run:
         pace = Pace(random.Random(seed), self.clock.sleep)
         run = Run(
@@ -616,6 +676,7 @@ class Game:
             run.hovered = self.unit_under_pointer
         run.things = lambda: () if self.thing is None else (self.thing,)
         run.containers = run.things
+        run.carried = lambda: self.pack
         run.keys = dict(KEYS)
         run.prebuff_hands = frozenset(PREBUFF_SET)
         run.battle_hands = frozenset(PREBUFF_SET)

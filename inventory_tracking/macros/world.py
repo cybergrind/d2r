@@ -576,6 +576,58 @@ def carried_rows(
     return grid_rows(grids.get(INVENTORY_GRID)), grid_rows(grids.get(CUBE_GRID)), held_items(grids)
 
 
+@dataclass(frozen=True)
+class Carried:
+    """An item in the carried inventory (macros/cube.py): its unit, class (items.txt row), top-left cell and size."""
+
+    unit_id: int
+    txt: int
+    x: int
+    y: int
+    size: tuple[int, int]
+
+
+@dataclass(frozen=True)
+class Pack:
+    """The carried inventory's items and the Horadric Cube's rows ('.' a free cell; None: no cube read)."""
+
+    items: tuple[Carried, ...] = ()
+    cube: tuple[str, ...] | None = None
+    cube_items: frozenset[int] = frozenset()  # the units in the cube
+
+
+def carried_items(read, table: int, player_id: int) -> Pack | None:
+    """The carried inventory's items, each at the first cell (row by row) its pointer lies on, and the cube's rows,
+    from one read of the character's grids (`carried_rows`); None when they cannot be read."""
+    try:
+        heads = struct.unpack('<128Q', read(table, 1024))
+        unit = next((u for u in walk_units(read, heads, 0)['units'] if u['unit_id'] == player_id), None)
+        grids = read_owner_grids(read, unit) if unit is not None else {}
+        item_heads = struct.unpack('<128Q', read(table + ITEM_UNIT * 1024, 1024))
+        by_address = {u['address']: u for u in walk_units(read, item_heads, ITEM_UNIT)['units']}
+    except OSError, ValueError, struct.error:
+        return None
+    return pack_of(grids, by_address)
+
+
+def pack_of(grids: dict, by_address: dict[int, dict]) -> Pack | None:
+    """The carried items of a character's grids (`read_owner_grids`), each at the first cell (row by row) its item
+    pointer lies on, and the cube's rows; `by_address`: the item units by their address. None with no inventory."""
+    grid = grids.get(INVENTORY_GRID)
+    if grid is None:
+        return None
+    width, found, seen = grid['width'], [], set()
+    for index, cell in enumerate(grid['cells']):
+        if not cell or cell in seen or cell not in by_address:
+            continue
+        seen.add(cell)
+        item = by_address[cell]
+        found.append(Carried(item['unit_id'], item['txt_id'], index % width, index // width, item_size(item['txt_id'])))
+    cube = grids.get(CUBE_GRID)
+    in_cube = frozenset(by_address[p]['unit_id'] for p in (cube['cells'] if cube else ()) if p in by_address)
+    return Pack(tuple(found), grid_rows(cube), in_cube)
+
+
 def held_items(grids: dict) -> frozenset[int]:
     """The item pointers in a unit's grids (collection/capture.py `read_owner_grids`: a cell holds the item lying
     on it): what the character carries in its inventory, its cube and its stash tabs."""
@@ -1019,6 +1071,14 @@ class GameMemory:
                 if cell < BELT_SIZE:
                     cells[cell] = unit['txt_id']
             return tuple(cells)
+        except OSError, ValueError, struct.error:
+            return None
+
+    def carried(self) -> Pack | None:
+        """The carried inventory's items and the cube's rows (`carried_items`); None when unread."""
+        try:
+            player = self._player()
+            return None if player is None else carried_items(self.read, self.table, player.unit_id)
         except OSError, ValueError, struct.error:
             return None
 

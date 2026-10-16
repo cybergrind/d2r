@@ -294,8 +294,47 @@ The design, as planned:
   3. Optionally, a key and a scroll bought with a shift + right click (does it buy a full stack, fill the tome?); the
      resource readers will show the counts.
 - **Counts:** `tracking/resources.py` `select_keys` and `select_tome`, to be read by `GameMemory` for the macros.
+- **The player's visit (2026-10-16 21:03 and 21:15, two screenshots, takes `20261016T180313Z-103` and
+  `…181510Z-103`):**
+  - Jamella's menu: her name, then Trade, Gamble, Cancel. In the window, Trade is 0.2214 and 0.2155 of its height above
+    where `routines.screen_fraction` draws her (her place from the take, the character's at the click). It is centred
+    on her, within 0.013. The menu's lines are 0.0226 apart, so an aim at her drawn point plus (0, −0.218) is inside
+    the Trade line.
+  - Each Trade click opened `npc_shop` (with `inventory`) 1.0 to 1.2 s after the click on her: the click is confirmed by
+    the panel flag.
+  - The click on her was made from 3.5 units off. The game walks the character the rest.
+  - The trade window's Misc tab, and its stock grid's last column (the key at row 5), are where the layout puts them:
+    measured on the screenshot, within 2 pixels of the screenshot's scale.
+  - The Misc tab holds the tomes, the potions, the key and the scrolls.
 
-### 9. Loot to Cube (more games without the player)
+### 9. Loot to Cube (more games without the player): done by mouse (uncommitted, not played)
+
+**The code.** `macros/cube.py` (`plan`, `stash`, `cell_point`), `world.carried_items` / `pack_of` /
+`GameMemory.carried` / `Run.carried`, `Loop.own`, the LEAVE leg's `stash`, and `keybindings.action_key` with
+INVENTORY = 1.
+
+**The steps.** In Pandemonium Fortress, before Save and Exit:
+1. The inventory is opened by its key (`i`).
+2. The cube is opened by a right click on it.
+3. Each item that came since the loop began (not in `Loop.own`, by class and cell; never the cube, a tome or a key) is
+   picked up and put on the first free block of the cube that fits it, smaller items first.
+4. Escape closes the panels.
+
+Each click is checked in memory: the item leaves the inventory's grid, then lies in the cube's. An item the cube does
+not take is put back, and the loop stops.
+
+**The evidence.**
+- The layouts: the inventory 10 × 4 at (93, 897) of `$RightPanelRect` (−1394, −651) at (1.0, 0.397); the cube 3 × 4 at
+  (431, 534) of the left panel; 98 units a cell. The screenshot of 21:16 puts the inventory's first cell where they
+  say.
+- The key file's action 1 is Inventory (`i`, `b`).
+- The player opened the cube in Pandemonium Fortress by hand at 21:03 and 21:15.
+
+**In play.** The log says `Macro: cube: N of M of the loop's items moved in` and `Cube: N items put in`.
+
+**Open.** The cube holds 12 cells. An item the player moves in the inventory during a loop is seen as the loop's.
+
+Before, the plan was:
 
 Loot to Cube works only in controller mode (the virtual pad's X, `input/gamepad.py`, `macros/pad.py`). The macros
 follow the game's mode and never switch it. The player's answer (Open 4): the inventory's items are moved into the

@@ -17,6 +17,7 @@ from dataclasses import dataclass, field
 
 from inventory_tracking.levels.presets import display_name
 from inventory_tracking.macros.actuator import Abort
+from inventory_tracking.macros.cube import own_of
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.portal import to_town
 from inventory_tracking.macros.routines import DEAD, character_keys, create_next_game, leave_game, prebuff
@@ -53,9 +54,12 @@ class Loop:
     prebuffed: str | None = None
     done: str | None = None
     made: Counter[tuple[str, str]] = field(default_factory=Counter)
+    # The inventory as the player keeps it, by class and cell, read at the loop's first leg in a game: what is not in
+    # it is the loop's, moved into the cube before a game is left (macros/cube.py, phase 9)
+    own: frozenset[tuple[int, int, int]] | None = None
 
     def start(self) -> None:
-        self.on, self.made = True, Counter()
+        self.on, self.made, self.own = True, Counter(), None
 
     def stop(self) -> None:
         self.on = False
@@ -77,13 +81,19 @@ class Loop:
         progress: Progress | None,
         level_run: Callable[[], None],
         pick_up: Callable[[], bool],
+        stash: Callable[[frozenset[tuple[int, int, int]]], int] | None = None,
     ) -> str:
         """Make the next leg (`next_leg`); the leg made. `level_run()` asks the runner for the KP_1 level run,
-        which follows this leg; `pick_up()` takes one drop, False with nothing worth it on the ground."""
+        which follows this leg; `pick_up()` takes one drop, False with nothing worth it on the ground; `stash(own)`
+        moves the loop's items into the cube (macros/cube.py), `own` the inventory as the player keeps it."""
         world = run.world()
         leg = next_leg(world, progress, self)
         game = world.game_name if world.in_game else ''
         self.count(world, leg)
+        if self.own is None and world.in_game and run.carried is not None:
+            pack = run.carried()
+            if pack is not None:
+                self.own = own_of(pack.items)
         run.say(f'Loop: game {self.games + 1}, {leg}')
         if leg != NEXT_GAME:
             run.keys = character_keys(run, key_names)  # Swap Weapons among them: the arrival's check (`arrived`)
@@ -110,6 +120,8 @@ class Loop:
             self.done = game  # left Lower Kurast: a game begun here is not the loop's to play
             travel(run, PANDEMONIUM_FORTRESS)
         elif leg == LEAVE:
+            if stash is not None and self.own is not None:
+                stash(self.own)  # the loop's items into the cube, before the game is left
             leave_game(run)
             self.games += 1
         return leg

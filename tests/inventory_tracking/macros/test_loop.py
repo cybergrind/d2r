@@ -121,3 +121,22 @@ def test_each_game_left_has_its_own_count_of_the_next_game_leg():
     loop.count(lobby, NEXT_GAME)
     with pytest.raises(Abort, match='next game again and again in the lobby after cyber21'):
         loop.count(lobby, NEXT_GAME)
+
+
+def test_the_inventory_kept_at_the_loops_start_is_what_the_cube_leaves_before_the_game_is_left():
+    # Phase 9: the loop's items into the cube between games (macros/cube.py); the player's own stay
+    from inventory_tracking.macros.cube import CUBE_CLASS
+    from inventory_tracking.macros.world import Carried, Pack
+
+    play = Game(at(PANDEMONIUM_FORTRESS))
+    play.pack = Pack((Carried(1, CUBE_CLASS, 0, 0, (2, 2)),), ('...',) * 4)
+    loop, stashed = Loop(on=True), []
+    loop.done = GAME  # the chests done: the game is left
+
+    def stash(own):
+        stashed.append(own)
+        return 0
+
+    assert loop.leg(play.run(), keys, progress_in(PANDEMONIUM_FORTRESS), lambda: None, lambda: False, stash) == LEAVE
+    assert stashed == [frozenset({(CUBE_CLASS, 0, 0)})]
+    assert 'Save and Exit' in play.said

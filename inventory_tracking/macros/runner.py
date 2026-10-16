@@ -40,12 +40,13 @@ from inventory_tracking.common import LOG
 from inventory_tracking.config import INPUT
 from inventory_tracking.input.compositor import STEP_KEYS
 from inventory_tracking.input.focus import FocusTracker, owns_process
-from inventory_tracking.input.keybindings import show_items_key
+from inventory_tracking.input.keybindings import INVENTORY, action_key, show_items_key
 from inventory_tracking.input.keyboard import X11Keyboard
 from inventory_tracking.levels.model import Ground, Target
 from inventory_tracking.macros import route
 from inventory_tracking.macros.actuator import Abort, Actuator, Cancelled, Flipped
 from inventory_tracking.macros.build import Build, choose
+from inventory_tracking.macros.cube import stash
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.goals import USE_NEAR, spot_of
 from inventory_tracking.macros.hunt import Bearings, Hunter, threat
@@ -841,6 +842,7 @@ class MacroRunner:
                 run.warps = memory.warps
                 run.things = memory.things
                 run.containers = memory.containers
+                run.carried = memory.carried
                 run.objects = memory.objects
                 run.corpses = memory.corpses
                 run.flights = memory.flights
@@ -1013,7 +1015,15 @@ class MacroRunner:
                 level = hunter.level() if hunter is not None and hunter.level is not None else None
                 return pick_up(run, level, key_names, lambda: None, threat(run))
 
-            self.loop.leg(run, key_names, self.progress, level_run, take_one)
+            def stash_loot(own: frozenset[tuple[int, int, int]]) -> int:
+                world = run.world()
+                key = action_key(self.saved_games, world.player.name, INVENTORY) if world.player is not None else None
+                if key is None:
+                    LOG.info("Macro: cube: no key opens the inventory: the loop's items stay where they are")
+                    return 0
+                return stash(run, key, own)
+
+            self.loop.leg(run, key_names, self.progress, level_run, take_one, stash_loot)
         elif routine in (HUNT_ELITES, ATTACK):
             if self.hunter is None:
                 raise Abort('no level guide to hunt with')

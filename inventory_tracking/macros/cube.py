@@ -1,0 +1,150 @@
+"""The loop's loot into the Horadric Cube between games (routes/lower-kurast-loop-plan.md phase 9).
+
+The player, 2026-10-16: "we need to move items to cube from time to time, to have more run loops without
+interactions", then "probably move items between games". Loot to Cube is the controller's (macros/pad.py) and the
+macros never switch the game's input mode, so the items are moved by the mouse, as the player moved them by hand in
+Pandemonium Fortress at 21:03 and 21:15 that day (takes 20261016T180313Z-103, 181510Z-103: `inventory`, `cube`): the
+inventory opened by its key, the cube by a right click on it, then each item picked up from its cell and put down on a
+free block of the cube, each click checked in memory (the item's unit leaves the inventory's grid, then lies in the
+cube's), and the panels closed.
+
+What moves is the loop's: an item that was not in the inventory when the loop began (`Loop.own`, by class and cell:
+the cells of a carried item stay from game to game), never the cube, a tome or the keys. The player's charms, kept
+in the inventory for their stats, were there when the loop began, so they stay. Smaller items first, each into the
+first free block (row by row) that fits it; one that fits nowhere stays.
+
+Where to click is the game's own layout (`data/global/ui/layouts/playerinventoryoriginallayouthd.json`,
+`horadriccubelayouthd.json`, `_profilehd.json`, read on 2026-10-16; a layout unit is 1/2160 of the window's height,
+as for the waypoint panel): the inventory's 10 x 4 grid at (93, 897) of `$RightPanelRect` (-1394, -651) anchored at
+(1.0, 0.397); the cube's 3 x 4 grid at (431, 534) of `$LeftPanelRect` (236, -651) at (0.0, 0.397); 98 units a cell. The
+player's screenshot of 21:16 put the inventory's first column and row where this says, within 2 pixels.
+"""
+
+from collections.abc import Iterable, Sequence
+
+from inventory_tracking.common import LOG
+from inventory_tracking.macros.actuator import Abort
+from inventory_tracking.macros.engine import Run
+from inventory_tracking.macros.world import Carried, Pack
+
+
+__all__ = ['KEPT', 'Move', 'own_of', 'plan', 'stash']
+
+REFERENCE_HEIGHT = 2160
+CELL = 98  # $ItemCellSize
+INVENTORY = ((1.0, 0.397), (-1394, -651), (93, 897))  # anchor, panel origin, grid origin
+CUBE = ((0.0, 0.397), (236, -651), (431, 534))
+CUBE_CLASS = 564  # Horadric Cube (items metadata, 2026-10-16)
+# Never moved: the cube, the tomes, the keys (items metadata: Horadric Cube, Tome of Town Portal, Tome of Identify, Key)
+KEPT = frozenset((CUBE_CLASS, 533, 534, 558))
+PANEL_SECONDS = 1.5  # for a panel to open or close
+ITEM_SECONDS = 1.0  # for an item to leave a grid or land in one
+
+Move = tuple[Carried, tuple[int, int]]  # an item and the cube's cell its top-left goes to
+
+
+def own_of(items: Iterable[Carried]) -> frozenset[tuple[int, int, int]]:
+    """The inventory as the player keeps it: each item's class and cell."""
+    return frozenset((item.txt, item.x, item.y) for item in items)
+
+
+def fits(rows: Sequence[str], at: tuple[int, int], size: tuple[int, int]) -> bool:
+    x, y = at
+    across, down = size
+    if y + down > len(rows) or x + across > len(rows[0]):
+        return False
+    return all(rows[y + dy][x + dx] == '.' for dy in range(down) for dx in range(across))
+
+
+def taken(rows: Sequence[str], at: tuple[int, int], size: tuple[int, int]) -> tuple[str, ...]:
+    x, y = at
+    across, down = size
+    return tuple(
+        ''.join('#' if y <= row < y + down and x <= col < x + across else cell for col, cell in enumerate(line))
+        for row, line in enumerate(rows)
+    )
+
+
+def plan(pack: Pack, own: frozenset[tuple[int, int, int]]) -> list[Move]:
+    """The loop's items in `pack` and the cube's cell each goes to: smaller first, the first free block that fits."""
+    if pack.cube is None:
+        return []
+    loot = [item for item in pack.items if item.txt not in KEPT and (item.txt, item.x, item.y) not in own]
+    rows, moves = pack.cube, []
+    for item in sorted(loot, key=lambda i: (i.size[0] * i.size[1], i.y, i.x)):
+        spot = next(
+            ((x, y) for y in range(len(rows)) for x in range(len(rows[0])) if fits(rows, (x, y), item.size)), None
+        )
+        if spot is not None:
+            moves.append((item, spot))
+            rows = taken(rows, spot, item.size)
+    return moves
+
+
+def cell_point(
+    rect: tuple[int, int, int, int], grid: tuple, at: tuple[int, int], size: tuple[int, int] = (1, 1)
+) -> tuple[float, float]:
+    """The window fraction of the middle of a block of `size` cells at `at` in the grid (`INVENTORY`, `CUBE`)."""
+    (anchor_x, anchor_y), (panel_x, panel_y), (grid_x, grid_y) = grid
+    width, height = rect[2], rect[3]
+    scale = height / REFERENCE_HEIGHT
+    x = panel_x + grid_x + (at[0] + size[0] / 2) * CELL
+    y = panel_y + grid_y + (at[1] + size[1] / 2) * CELL
+    return (anchor_x * width + x * scale) / width, (anchor_y * height + y * scale) / height
+
+
+def stash(run: Run, inventory_key: str, own: frozenset[tuple[int, int, int]]) -> int:
+    """Move the loop's items into the cube (the module text); how many were moved. Mouse mode only. `Abort` with the
+    panels closed when a panel does not open or an item is not where it should be."""
+    if run.pad is not None:
+        raise Abort('the cube needs mouse mode')
+    if run.carried is None:
+        return 0
+    pack = run.carried()
+    moves = plan(pack, own) if pack is not None else []
+    if not moves or pack is None:
+        return 0
+    cube = next((item for item in pack.items if item.txt == CUBE_CLASS), None)
+    rect = run.actuator.keys.focused_window_rect()
+    if cube is None or rect is None:
+        return 0
+    moved = 0
+    try:
+        run.actuator.tap(inventory_key)
+        if run.seen(lambda w: 'inventory' in w.open_panels, PANEL_SECONDS) is None:
+            raise Abort('the inventory did not open')
+        run.actuator.move(*cell_point(rect, INVENTORY, (cube.x, cube.y), cube.size), scatter=(8, 8))
+        run.actuator.tap('Button3')
+        if run.seen(lambda w: 'cube' in w.open_panels, PANEL_SECONDS) is None:
+            raise Abort('the cube did not open')
+        for item, spot in moves:
+            run.actuator.move(*cell_point(rect, INVENTORY, (item.x, item.y), item.size), scatter=(6, 6))
+            run.actuator.click()
+            if not _until(run, lambda p, i=item: all(c.unit_id != i.unit_id for c in p.items)):
+                raise Abort(f'the item at ({item.x}, {item.y}) did not come up')
+            run.actuator.move(*cell_point(rect, CUBE, spot, item.size), scatter=(6, 6))
+            run.actuator.click()
+            if not _until(run, lambda p, i=item: i.unit_id in p.cube_items):
+                # Put back where it was taken from: nothing is left on the pointer
+                run.actuator.move(*cell_point(rect, INVENTORY, (item.x, item.y), item.size), scatter=(4, 4))
+                run.actuator.click()
+                raise Abort(f'the item from ({item.x}, {item.y}) did not go into the cube')
+            moved += 1
+    finally:
+        run.actuator.tap('Escape')
+        run.seen(lambda w: not {'inventory', 'cube'} & set(w.open_panels), PANEL_SECONDS)
+        LOG.info("Macro: cube: %d of %d of the loop's items moved in", moved, len(moves))
+    run.say(f'Cube: {moved} item{"s" if moved != 1 else ""} put in')
+    return moved
+
+
+def _until(run: Run, holds) -> bool:
+    """Whether the carried items come to hold `holds` within ITEM_SECONDS."""
+    deadline = run.clock() + ITEM_SECONDS
+    while True:
+        pack = run.carried() if run.carried is not None else None
+        if pack is not None and holds(pack):
+            return True
+        if run.clock() >= deadline:
+            return False
+        run.pace.sleep(0.05)

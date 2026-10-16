@@ -19,6 +19,9 @@ from pathlib import Path
 
 
 SHOW_ITEMS = 37
+# Inventory: 'i' primary and 'b' second in the untouched AmazonAA file and in CybergrindAA's (2026-10-16), as the
+# game's defaults have them
+INVENTORY = 1
 UNBOUND = 0xFFFF
 HEADER = 2
 RECORD = struct.Struct('<IHI')
@@ -119,6 +122,19 @@ def show_items_key(saved_games: Path, name: str) -> str | None:
     except OSError:
         return None
     keys = (x11_name(code) for code in action_keys(data, SHOW_ITEMS))
+    return next((key for key in keys if key and key not in MODIFIERS and button_number(key) is None), None)
+
+
+def action_key(saved_games: Path, name: str, action: int) -> str | None:
+    """X11 name of the first pressable key bound to `action` for this character, if any (as `show_items_key`)."""
+    path = key_file(saved_games, name)
+    if path is None:
+        return None
+    try:
+        data = path.read_bytes()
+    except OSError:
+        return None
+    keys = (x11_name(code) for code in action_keys(data, action))
     return next((key for key in keys if key and key not in MODIFIERS and button_number(key) is None), None)
 
 

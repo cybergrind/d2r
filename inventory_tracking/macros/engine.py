@@ -15,7 +15,7 @@ from typing import TYPE_CHECKING
 from inventory_tracking.levels.model import Ground
 from inventory_tracking.macros.actuator import Abort, Actuator, Cancelled, Flipped
 from inventory_tracking.macros.timing import Pace
-from inventory_tracking.macros.world import Loot, Teleport, Thing, Warp, World
+from inventory_tracking.macros.world import Loot, Pack, Teleport, Thing, Warp, World
 from inventory_tracking.models import PotionType
 
 
@@ -89,6 +89,7 @@ class Run:
         self.ground: Callable[[], Ground | None] | None = None
         self.things: Callable[[], tuple[Thing, ...]] | None = None  # a mark's objects (world.GameMemory.things)
         self.containers: Callable[[], tuple[Thing, ...]] | None = None  # chests and the like (GameMemory.containers)
+        self.carried: Callable[[], Pack | None] | None = None  # the inventory's items, the cube's rows (GameMemory)
         # research: every object unit shown, raw (world.GameMemory.objects)
         self.objects: Callable[[], list[dict]] | None = None
         self.research: Callable[..., list[str]] | None = None  # world.GameMemory.hover_candidates
