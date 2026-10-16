@@ -23,11 +23,13 @@ player's screenshot of 21:16 put the inventory's first column and row where this
 """
 
 from collections.abc import Iterable, Sequence
+from dataclasses import replace
 
+from inventory_tracking.collection.capture import GRID_CONTAINERS
 from inventory_tracking.common import LOG
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.engine import Run
-from inventory_tracking.macros.world import Carried, Pack
+from inventory_tracking.macros.world import CUBE_GRID, Carried, Pack
 
 
 __all__ = ['KEPT', 'Move', 'loot', 'own_of', 'plan', 'stash']
@@ -114,9 +116,14 @@ def stash(run: Run, inventory_key: str, own: frozenset[tuple[int, int, int]]) ->
         return 0
     cube = next((item for item in pack.items if item.txt == CUBE_CLASS), None)
     rect = run.actuator.keys.focused_window_rect()
+    if cube is not None and pack.cube is None:
+        # An empty cube has no cells to its grid, and the grids read leave such a grid out: every game of 23:28 on
+        # 2026-10-16 said "the cube's grid is not read" with the cube empty (the player: "still we don't use cube
+        # and it is empty"). Each item's move is still checked in memory, in the grid it then has.
+        width, height = GRID_CONTAINERS[CUBE_GRID][1:]
+        pack = replace(pack, cube=('.' * width,) * height)
     why = (
         'no cube in the inventory' if cube is None
-        else "the cube's grid is not read" if pack.cube is None
         else 'no game window' if rect is None
         else None
     )  # fmt: skip

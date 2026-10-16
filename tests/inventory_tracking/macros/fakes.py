@@ -685,8 +685,9 @@ class Game:
         cube (its block's middle under the pointer) or back on the inventory."""
         assert self.pack is not None
         if self.cursor is None and self.keys.ctrl and 'cube' in self.world.open_panels:
-            item, rows = self.pack_item_at(x, y), self.pack.cube
-            if item is None or item.txt == CUBE_CLASS or rows is None or self.cube_refuses:
+            # An empty cube's grid has no cells and reads as none (`Pack.cube` None): the game fills it all the same
+            item, rows = self.pack_item_at(x, y), self.pack.cube or ('...',) * 4
+            if item is None or item.txt == CUBE_CLASS or self.cube_refuses:
                 return
             cells = ((cx, cy) for cy in range(len(rows)) for cx in range(len(rows[0])))
             spot = next((cell for cell in cells if cube_fits(rows, cell, item.size)), None)

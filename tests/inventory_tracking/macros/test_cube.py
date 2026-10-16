@@ -168,3 +168,14 @@ def test_the_loops_items_stay_the_loops_from_one_loop_to_the_next_and_one_servic
     later.sort(own_of((GRAND, THE_CUBE, TOME, KEY, RUNE, CHARM)), 'CybergrindAA')
     assert later.own == OWN | own_of((CHARM,))  # a charm the player put in meanwhile is theirs
     assert later.mine == own_of((RUNE,))
+
+
+def test_an_empty_cube_whose_grid_reads_as_none_takes_the_loops_items():
+    # 23:28 on 2026-10-16, every game: "the cube's grid is not read" with the cube empty (an empty grid has no cells,
+    # and the grids read leave it out); the player: "still we don't use cube and it is empty"
+    play = fortress(Pack((GRAND, THE_CUBE, TOME, KEY, CHARM, RUNE), None))
+
+    assert stash(play.run(), 'i', OWN) == 2
+    assert play.pack is not None
+    assert play.pack.cube_items == {RUNE.unit_id, CHARM.unit_id}
+    assert play.world.open_panels == ()

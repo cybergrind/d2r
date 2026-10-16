@@ -391,6 +391,12 @@ you can bulk buy with (shift+right click)".
   (`Pack.key_room`: a stack under 12 keys or none; the tome under 20 charges; d2data misc.json maxstack), and each is
   checked by the count in memory and made once more if the count did not change.
 
+- **The empty cube (23:28 games, after the above).** Every game said `the cube's grid is not read` with the cube
+  empty (the player: "still we don't use cube and it is empty"): an empty grid has no cells, and
+  `read_owner_grids` leaves such a grid out, so an empty cube read as no cube. The earlier moves were all into a
+  cube with something in it. Now a carried cube with no grid read is an empty 3 x 4 (`GRID_CONTAINERS`); each
+  item's move is still checked in memory.
+
 ### 11. The walk in Blade Warp's delay (uncommitted, not played)
 
 The time between two warps of the 22:50 games (207 hops, `scratchpad` split of the log's `leg time` lines): the look
