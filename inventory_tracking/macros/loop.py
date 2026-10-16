@@ -77,6 +77,8 @@ class Loop:
         if self.made[game, leg] > REPEATS.get(leg, REPEAT):
             raise Abort(f'{leg} again and again in {game or "the lobby"}: nothing came of it')
         run.say(f'Loop: game {self.games + 1}, {leg}')
+        if leg != NEXT_GAME:
+            run.keys = character_keys(run, key_names)  # Swap Weapons among them: the arrival's check (`arrived`)
         if leg == NEXT_GAME:
             trace = create_next_game(run, world.game_name)
             run.keys = character_keys(run, key_names)
@@ -84,7 +86,6 @@ class Loop:
             self.prebuffed = run.world().game_name
         elif leg == TO_THE_CHESTS:
             if self.prebuffed != game:
-                run.keys = character_keys(run, key_names)
                 prebuff(run)
                 self.prebuffed = game
             travel(run, LOWER_KURAST)

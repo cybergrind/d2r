@@ -93,7 +93,8 @@ def test_from_kurast_docks_the_waypoint_takes_the_character_to_pandemonium_fortr
     travel(play.run(), PANDEMONIUM_FORTRESS)
 
     assert play.character.area == PANDEMONIUM_FORTRESS
-    assert [event[0] for event in play.keys.events] == ['click'] * 3  # the waypoint, act IV's tab, its first row
+    # the waypoint, act IV's tab, its first row; then the arrival's check: a weapon swap and back
+    assert [event[0] for event in play.keys.events] == ['click'] * 3 + ['key'] * 2
     assert play.said[-1] == 'The Pandemonium Fortress: there'
 
 

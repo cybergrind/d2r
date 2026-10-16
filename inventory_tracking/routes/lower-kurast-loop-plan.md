@@ -212,8 +212,14 @@ The games of 19:55–20:04 on 2026-10-16 and the player's rulings after them.
   - A shack's container is a side goal of the level's route, so the run still opens one after the last chest.
     Without that, `run_level` ended a run whose goal had no route.
   - In play, `Opening Super chests, N away` should say N ≤ 12.
-- **6e.** The arrival wait: a check that the first input took, instead of the fixed 5 s. The view byte showed no load
-  in any of 8 trips.
+- **6e, done (uncommitted, not played).** The arrival wait. The view byte showed no load in any of 8 trips, so the
+  wait was always the fixed 5 s. Now a weapon swap probes the game (`routines.took_input`):
+  - Swap Weapons is pressed until the set in hand changes, then swapped back to the set held before (a game left with
+    the staff in hand loses Teleport's key).
+  - The 5 s stays only as the most it waits.
+  - Every in-game leg of the loop now has the character's keys, Swap Weapons among them.
+  - In play the log says `<level>: took input N s after the arrival (a weapon swap)`.
+  - `no load shown; 5s …` means the probe could not run, or no swap took.
 
 ### 7. Pickup mode (a double press of KP_6)
 

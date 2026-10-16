@@ -110,7 +110,9 @@ LOAD_LIMIT = 40.0  # seconds from Enter the first summon may take
 # A level change by a waypoint or a portal (`arrived`): the view byte shows a load within ARRIVAL_MARK of it if it
 # shows one at all; the level comes up within ARRIVAL_LIMIT; with no load shown, ARRIVAL_SETTLE stands in. cyber17,
 # 2026-10-16 (rca/2026-10-16/loop-first-game-findings.md §2): after the waypoint from act 4 to act 3 no input took for
-# 4.5 s, the first that did 5.4 s after the arrival. The takes record the byte from then on (`view`).
+# 4.5 s, the first that did 5.4 s after the arrival. The takes record the byte from then on (`view`): in the eight
+# trips of 19:55-20:04 it never showed a load (rca/2026-10-16/loop-chests-findings.md §3), so ARRIVAL_SETTLE is the most
+# waited, and a weapon swap that takes ends the wait sooner (`took_input`).
 ARRIVAL_MARK = 0.3
 ARRIVAL_LIMIT = 20.0
 ARRIVAL_SETTLE = 5.0
@@ -422,10 +424,32 @@ def arrived(run: Run, where: str, *, loading: bool = False) -> None:
             raise Abort(f'{where}: the level did not come up in {ARRIVAL_LIMIT:g}s')
         LOG.info('Macro: %s: playable %.2fs after the arrival (its view byte)', where, run.clock() - began)
         return
+    if took_input(run, where, began):
+        return
     LOG.info('Macro: %s: no load shown; %gs for the game to take input', where, ARRIVAL_SETTLE)
     while run.clock() - began < ARRIVAL_SETTLE:
         run.world()
         run.pace.sleep(0.1)
+
+
+def took_input(run: Run, where: str, began: float) -> bool:
+    """Whether the game took input within ARRIVAL_SETTLE of the arrival at `began`, by a weapon swap: Swap Weapons
+    pressed until the set in hand changes, then once more for the set held before (a game left with the staff in hand
+    loses Teleport's key, runner.py `LOST_KEY`). In game 1 of 2026-10-16 the swaps pressed while the level loaded took
+    nothing, and the first after it took at once. False with no swap key or the hands unread: the wait stands."""
+    hands = run.hands
+    if hands is None or SWAP_WEAPONS not in run.keys:
+        return False
+    before = hands()
+    if not before:
+        return False
+    while run.clock() - began < ARRIVAL_SETTLE:
+        if swap_until(run, lambda: bool(hands()) and hands() != before, tries=1):
+            LOG.info('Macro: %s: took input %.2fs after the arrival (a weapon swap)', where, run.clock() - began)
+            if not swap_until(run, lambda: hands() == before):
+                LOG.info('Macro: %s: the swap back to the set held before did not come', where)
+            return True
+    return False
 
 
 def create_next_game(run: Run, last: str) -> LoadTrace:

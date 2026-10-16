@@ -7,7 +7,7 @@ from inventory_tracking.levels.model import TOWN_PORTAL
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.portal import TOME, to_town
 from inventory_tracking.macros.world import Thing
-from tests.inventory_tracking.macros.fakes import KEYS, Game, world
+from tests.inventory_tracking.macros.fakes import KEYS, PREBUFF_SET, Game, world
 
 
 LOWER_KURAST, KURAST_DOCKS = 79, 75
@@ -29,12 +29,13 @@ def test_the_tome_is_cast_and_its_portal_taken_once_open():
 
     to_town(play.run(), keys)
 
-    assert play.pressed() == ['x']
+    assert play.pressed() == ['x', 'c', 'c']  # the tome; the arrival's check: a swap that takes, and back
+    assert play.sets[0] == PREBUFF_SET  # the set held before (a game left with the staff in hand loses its key)
     assert play.character.area == KURAST_DOCKS
     clicks = [event for event in play.keys.events if event[0] == 'click']
     assert len(clicks) == 1  # not at the portal while it opened
     assert play.clock.now >= 0.6
-    assert play.said[-2:] == ['Through the portal to town, 4 away', 'town: there']
+    assert play.said[-4:] == ['Through the portal to town, 4 away', 'town: there', 'Swap Weapons', 'Swap Weapons']
 
 
 def test_a_portal_that_was_open_before_the_cast_is_not_the_new_one():
@@ -76,12 +77,23 @@ def test_after_the_portal_the_leg_waits_for_the_town_to_come_up():
     assert play.clock.now >= play.arrived_at + 1.2
 
 
-def test_with_no_load_shown_after_the_portal_the_leg_waits_the_settle():
+def test_with_no_load_shown_the_leg_is_over_once_a_swap_takes_and_waits_the_settle_at_most():
+    # The eight trips of 2026-10-16 19:55-20:04 showed no load by the view byte; game 1 took no input for 4.5 s
     from inventory_tracking.macros.routines import ARRIVAL_SETTLE
 
     play = lower_kurast()  # the view byte never shows a load
+    play.arrival_deaf = 2.0
 
     to_town(play.run(), keys)
 
     assert play.arrived_at is not None
-    assert play.clock.now >= play.arrived_at + ARRIVAL_SETTLE
+    assert play.arrived_at + 2.0 <= play.clock.now < play.arrived_at + ARRIVAL_SETTLE
+    assert play.sets[0] == PREBUFF_SET
+
+    deaf = lower_kurast()
+    deaf.arrival_deaf = 60.0  # no input taken at all: the settle, and nothing more
+
+    to_town(deaf.run(), keys)
+
+    assert deaf.arrived_at is not None
+    assert deaf.clock.now >= deaf.arrived_at + ARRIVAL_SETTLE

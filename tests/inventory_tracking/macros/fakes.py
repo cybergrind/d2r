@@ -232,6 +232,10 @@ class Game:
         # shown (the byte stays as it was). `arrived_at`: the clock of the last such change.
         self.arrival_load: float | None = None
         self.arrived_at: float | None = None
+        # Seconds after a level change with no load shown that the game takes no input all the same (game 1 of
+        # 2026-10-16: 4.5 s after the waypoint from act 4 to act 3); `deaf_until`: the clock it takes input again.
+        self.arrival_deaf = 0.0
+        self.deaf_until: float | None = None
         self.sigils: list[tuple[float, float]] = []  # ground points Sigil: Lethargy was cast at
         self.engorges: list[tuple[float, float]] = []  # ground points Engorge was cast at
         self.purges: list[float] = []  # clock times Hex: Purge was cast
@@ -461,6 +465,8 @@ class Game:
         """A level change by a portal or a waypoint row: the area at once, and the load (`arrival_load`) after it."""
         self.world = replace(self.world, player=replace(character_of(self.world), area=area))
         self.arrived_at = self.clock.now
+        if self.arrival_deaf:
+            self.deaf, self.deaf_until = True, self.clock.now + self.arrival_deaf
         if self.arrival_load is not None:
             self.world = replace(self.world, view=0)
             self.arrivals.append((self.clock.now + self.arrival_load, self.loaded_level))
@@ -625,6 +631,8 @@ class Game:
             ]
             self.picked += [d.label for d in on]
             self.loot = replace(self.loot, drops=tuple(d for d in self.loot.drops if d not in on))
+        if self.deaf_until is not None and self.clock.now >= self.deaf_until:
+            self.deaf, self.deaf_until = False, None
         if self.loaded_at is not None and self.clock.now >= self.loaded_at:
             self.deaf, self.loaded, self.loaded_at = False, self.loaded_at, None
             self.world = replace(self.world, view=254)
