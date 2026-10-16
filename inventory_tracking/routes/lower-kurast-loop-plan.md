@@ -267,6 +267,34 @@ The design, as planned:
   - where Jamella stands against the waypoint.
 - **Phase 0 first:** a played evidence pass, reads only, before any click.
 
+#### Phase 8 evidence (2026-10-16, offline)
+
+- **Jamella (monstats 405)** in 101 takes of Pandemonium Fortress: at (5083.5, 5058.5) in 63 of them. She wanders up
+  to 9 units from it. She is 38 units from the game's start (5048, 5044) and 56 from the waypoint, so a shop visit is a
+  walk there and back, made only when a count is under 3.
+- **The vendor panel** (`data/global/ui/layouts/vendorpanellayouthd.json`, `_profilehd.json`, read with
+  `terror_zones/game_files.py`):
+  - `$LeftPanelRect` at `$LeftPanelAnchor`, as the waypoint panel.
+  - 4 tabs from (82, 162), 249 × 75 each: Armor, Weapons, Weapons, Misc.
+  - The stock grid from (91, 233), 10 × 10 cells of `$ItemCellSize` 98 × 98.
+  - Close at (1075, 9).
+- **The stock in memory:** `shop/capture.py` (`locate_stock`, `stock_members`) reads each item of the vendor's four
+  grids (2–5) with its tab (`inventory_page`) and cell (`x`, `y`). So the key's (558) and the Town Portal scroll's
+  cells are read, not assumed. The stock is in memory only once the trade window has been opened in the game
+  ("Shop stock unloaded" before).
+- **The NPC menu** (`npcdialogpanelhd.json`): drawn beside the NPC (`verticalOffset` 20), its lines sized by
+  `$StyleNPCDialogueSize` with 10 units between them. Its place on the screen is not in the layout, so it needs one
+  screenshot of the open menu.
+- **Already recorded by the takes:** each frame has `panels` (`npc_interact` while the menu is open, `npc_shop` while
+  the trade window is), `in` (the pointer), the character and Jamella. A screenshot's moment is matched to the take
+  by its clock.
+- **Asked of the player (one visit, by hand, `make serve` running):**
+  1. A screenshot with Jamella's menu open.
+  2. A screenshot with her trade window on the Misc tab.
+  3. Optionally, a key and a scroll bought with a shift + right click (does it buy a full stack, fill the tome?); the
+     resource readers will show the counts.
+- **Counts:** `tracking/resources.py` `select_keys` and `select_tome`, to be read by `GameMemory` for the macros.
+
 ### 9. Loot to Cube (more games without the player)
 
 Loot to Cube works only in controller mode (the virtual pad's X, `input/gamepad.py`, `macros/pad.py`). The macros

@@ -109,3 +109,15 @@ def test_a_leg_made_again_and_again_with_nothing_coming_of_it_stops_the_loop():
         assert loop.leg(play.run(), keys, progress, lambda: None, lambda: False) == CHESTS
     with pytest.raises(Abort, match='the chests again and again in cyber32'):
         loop.leg(play.run(), keys, progress, lambda: None, lambda: False)
+
+
+def test_each_game_left_has_its_own_count_of_the_next_game_leg():
+    # 20:55:43 and 21:05:53 on 2026-10-16: "next game again and again in the lobby", each the third game after KP_6:
+    # the lobby's leg was counted for the whole loop, not for each game left
+    loop = Loop(on=True)
+    for name in ('cyber18', 'cyber19', 'cyber20', 'cyber21'):
+        loop.count(World(False, (), name, ()), NEXT_GAME)
+    lobby = World(False, (), 'cyber21', ())  # the same game left again: the next one was not made
+    loop.count(lobby, NEXT_GAME)
+    with pytest.raises(Abort, match='next game again and again in the lobby after cyber21'):
+        loop.count(lobby, NEXT_GAME)

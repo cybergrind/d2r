@@ -60,6 +60,16 @@ class Loop:
     def stop(self) -> None:
         self.on = False
 
+    def count(self, world: World, leg: str) -> None:
+        """`leg` made once more where `world` is; `Abort` when that is more than REPEATS allows. A game's legs count
+        in that game; the lobby's (the next game) count by the game just left, so each game left has its own: counted
+        all in one, the third game the loop made stopped it, "next game again and again in the lobby" (20:55:43 and
+        21:05:53 on 2026-10-16, each the third game after KP_6)."""
+        where = world.game_name if world.in_game else f'the lobby after {world.game_name or "no game"}'
+        self.made[where, leg] += 1
+        if self.made[where, leg] > REPEATS.get(leg, REPEAT):
+            raise Abort(f'{leg} again and again in {where}: nothing came of it')
+
     def leg(
         self,
         run: Run,
@@ -73,9 +83,7 @@ class Loop:
         world = run.world()
         leg = next_leg(world, progress, self)
         game = world.game_name if world.in_game else ''
-        self.made[game, leg] += 1
-        if self.made[game, leg] > REPEATS.get(leg, REPEAT):
-            raise Abort(f'{leg} again and again in {game or "the lobby"}: nothing came of it')
+        self.count(world, leg)
         run.say(f'Loop: game {self.games + 1}, {leg}')
         if leg != NEXT_GAME:
             run.keys = character_keys(run, key_names)  # Swap Weapons among them: the arrival's check (`arrived`)
