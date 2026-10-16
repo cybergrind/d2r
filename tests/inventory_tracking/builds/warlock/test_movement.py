@@ -523,3 +523,27 @@ def test_the_pointer_waits_on_the_next_aim_during_the_flight_and_the_legs_are_ti
     assert f'level run (a test): {sum(math.dist(a, b) for a, b in itertools.pairwise(places)):.0f} units' in pace[0]
     assert '3 jumps, 0 walks' in pace[0]
     assert travel.tally.since is None  # begun again
+
+
+def test_the_loops_goals_spare_the_staff_where_blade_warp_reaches_and_keep_its_last_charges():
+    # The player, 2026-10-16: "it actually can get too expensive (~100k+ for full recharge), so probably we need to
+    # carefully use teleport staff charges when running loop". The KP_6 loop's goals (travel.py LOOPED) take a Blade
+    # Warp wherever it reaches toward the hop's landing, whatever the charges; the key's own goal (PRESSED) hops by
+    # Teleport while the staff holds WARP_CHARGES (the player, 2026-10-11).
+    from inventory_tracking.macros.travel import LOOPED, WARP_CHARGES
+    from tests.inventory_tracking.macros.test_hunt import ROOMS
+
+    play = game()
+    play.staff = Teleport(60, 69, True)
+    travel, run = Travel(MOVEMENT), play.run()
+    goal = (5040.0, 5000.0)  # one hop away, over open ground
+
+    pressed = travel.toward(run, run.world(), Ground(()), ASPECT, goal, PRESSED, ROOMS)
+    looped = travel.toward(run, run.world(), Ground(()), ASPECT, goal, LOOPED, ROOMS)
+
+    assert isinstance(pressed, Step)
+    assert pressed.skill == TELEPORT
+    assert isinstance(looped, Step)
+    assert looped.skill == BLADE_WARP
+    assert LOOPED.reserve == LOW_CHARGES  # the player's own steps keep the last of them
+    assert WARP_CHARGES < 60

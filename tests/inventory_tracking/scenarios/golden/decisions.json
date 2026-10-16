@@ -1579,10 +1579,13 @@
    "kind": "valuable",
    "label": "Large Charm",
    "prized": true,
+   "quality": 0,
    "size": [
     1,
     2
    ],
+   "source": "",
+   "txt": 0,
    "unit_id": 70,
    "x": 5008.0,
    "y": 5003.0
@@ -1594,10 +1597,13 @@
    "kind": "healing",
    "label": "a healing potion",
    "prized": true,
+   "quality": 0,
    "size": [
     1,
     1
    ],
+   "source": "",
+   "txt": 0,
    "unit_id": 51,
    "x": 5006.0,
    "y": 4996.0
@@ -1609,10 +1615,13 @@
    "kind": "rejuvenation",
    "label": "a full rejuvenation potion",
    "prized": true,
+   "quality": 0,
    "size": [
     1,
     1
    ],
+   "source": "",
+   "txt": 0,
    "unit_id": 52,
    "x": 4995.0,
    "y": 5004.0
@@ -1624,10 +1633,13 @@
    "kind": "gold",
    "label": "7200 gold",
    "prized": true,
+   "quality": 0,
    "size": [
     0,
     0
    ],
+   "source": "",
+   "txt": 0,
    "unit_id": 60,
    "x": 5015.0,
    "y": 5000.0
@@ -1640,10 +1652,13 @@
    "kind": "gold",
    "label": "7200 gold",
    "prized": true,
+   "quality": 0,
    "size": [
     0,
     0
    ],
+   "source": "",
+   "txt": 0,
    "unit_id": 60,
    "x": 5015.0,
    "y": 5000.0
@@ -1658,10 +1673,13 @@
    "kind": "healing",
    "label": "a healing potion",
    "prized": true,
+   "quality": 0,
    "size": [
     1,
     1
    ],
+   "source": "",
+   "txt": 0,
    "unit_id": 51,
    "x": 5006.0,
    "y": 4996.0
@@ -1674,10 +1692,13 @@
    "kind": "healing",
    "label": "a healing potion",
    "prized": true,
+   "quality": 0,
    "size": [
     1,
     1
    ],
+   "source": "",
+   "txt": 0,
    "unit_id": 51,
    "x": 5006.0,
    "y": 4996.0
@@ -1690,10 +1711,13 @@
    "kind": "valuable",
    "label": "Ist Rune",
    "prized": true,
+   "quality": 0,
    "size": [
     1,
     1
    ],
+   "source": "",
+   "txt": 0,
    "unit_id": 50,
    "x": 5008.0,
    "y": 5003.0
@@ -1706,10 +1730,13 @@
    "kind": "valuable",
    "label": "Ist Rune",
    "prized": true,
+   "quality": 0,
    "size": [
     1,
     1
    ],
+   "source": "",
+   "txt": 0,
    "unit_id": 50,
    "x": 5008.0,
    "y": 5003.0
@@ -1721,10 +1748,13 @@
    "kind": "valuable",
    "label": "Ist Rune",
    "prized": true,
+   "quality": 0,
    "size": [
     1,
     1
    ],
+   "source": "",
+   "txt": 0,
    "unit_id": 50,
    "x": 5008.0,
    "y": 5003.0

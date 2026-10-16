@@ -38,7 +38,8 @@ def test_all_thirteen_skills_are_called_what_they_were():
 
 def test_a_skill_without_a_name_and_no_skill_are_said_as_before():
     assert skill_name(None) == 'unknown'
-    assert skill_name(220) == 'skill 220'
+    assert skill_name(9999) == 'skill 9999'
+    assert skill_name(220) == 'Town Portal'  # any character's, from a tome (macros/portal.py)
 
 
 def test_the_ids_are_the_ones_the_framework_held():
@@ -64,7 +65,9 @@ def test_the_framework_names_only_the_skills_any_character_has_until_a_build_reg
         if isinstance(node, ast.Assign) and any(isinstance(t, ast.Name) and t.id == 'NAMES' for t in node.targets)
     ]
     assert isinstance(names, ast.Dict)
-    assert [key.id for key in names.keys if isinstance(key, ast.Name)] == ['TELEPORT', 'ATTACK', 'SWAP_WEAPONS']
+    assert [key.id for key in names.keys if isinstance(key, ast.Name)] == [
+        'TELEPORT', 'TOWN_PORTAL', 'ATTACK', 'SWAP_WEAPONS',
+    ]  # fmt: skip
     assert not any(isinstance(node, (ast.Import, ast.ImportFrom)) and 'builds' in ast.dump(node) for node in tree.body)
 
 

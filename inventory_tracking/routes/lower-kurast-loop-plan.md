@@ -221,6 +221,13 @@ The games of 19:55–20:04 on 2026-10-16 and the player's rulings after them.
   - In play the log says `<level>: took input N s after the arrival (a weapon swap)`.
   - `no load shown; 5s …` means the probe could not run, or no swap took.
 
+### 6f. The shack stalls and the staff's charges: done (uncommitted, not played)
+
+rca/2026-10-16/loop-shack-stalls-findings.md:
+- No firing spots on the loop's run, and a spot a move failed to reach is barred for 4 s (every run).
+- The loop's goals spare the staff (travel.py `LOOPED`): Blade Warp first wherever it reaches, Teleport only where it
+  does not, the last 10 charges kept.
+
 ### 7. Pickup mode (a double press of KP_6): done (uncommitted, not played)
 
 The code:

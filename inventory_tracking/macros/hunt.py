@@ -175,6 +175,7 @@ from inventory_tracking.macros.travel import (
     AROUND_LEAST,
     GROWING,
     KEY_POLL,
+    LOOPED,
     OWN_MOVE,
     PLAYER_STEP,
     PRESSED,
@@ -262,6 +263,10 @@ HOLD_UNITS = 25.0  # the sweep's own steps end no further than this from it
 GATHER_CHECK = 0.3  # seconds between two looks of the sweep for something to pick up
 GATHER_TRIES = 2  # times the sweep stops for one drop (and a level run goes for one, `side_drop`)
 SHACK_TRIES = 2  # times the KP_6 loop's run tries one of a shack's containers (`shack_goal`)
+# A move that left the character where it was ("the character did not move"): its spot, and any within DEAD_END_NEAR
+# units, is not moved to for DEAD_END_SECONDS (`barred`); the next look takes another way, goal or act
+DEAD_END_SECONDS = 4.0
+DEAD_END_NEAR = 3.0
 # Units: the KP_6 loop's run clicks an object from this near, and hops nearer first. The games of 2026-10-16
 # (rca/2026-10-16/loop-chests-findings.md §3): an open took 0.23-0.4 s from 2 to 6 units, 0.68 s from 14, 1.4 s from
 # 20 (the game walks the character there), and from 18 to 23 units twice ran out of the act's 1.5 s; a Teleport hop
@@ -608,6 +613,7 @@ class Hunter:
         # the runner's: the key's routine (the route's own step) follows the mode's pause
         self.hand_over: Callable[[str], None] | None = None
         self.shack_tries: dict[int, int] = {}  # a shack's container (unit): the loop's tries to open it (`shack_goal`)
+        self.dead_ends: list[tuple[Point, float]] = []  # spots a move did not reach, and until when they are passed
         # the runner's: a level run ended by the hunt itself (the route's end, the character's death), with why
         self.run_over: Callable[[str], None] | None = None
         self.told = Told()  # the reason last said for a decision that moved nothing
@@ -1125,6 +1131,12 @@ class Hunter:
             run.warn(f'Inventory full: {found.label} here — make room{told}')
         return found
 
+    def barred(self, act, now: float) -> bool:
+        """Whether `act` is a move to within DEAD_END_NEAR of a spot a move failed to reach DEAD_END_SECONDS ago."""
+        if not isinstance(act, Advance) or act.dodge or act.reason.startswith('retreat'):
+            return False
+        return any(until > now and math.dist(act.step.spot, spot) <= DEAD_END_NEAR for spot, until in self.dead_ends)
+
     def shack_goal(self, run: Run, world: World, player, route: str) -> Goal | None:
         """On the KP_6 loop's run, a container of the camp the character stands in, closed, in sight and near
         (macros/shacks.py; routes/lower-kurast-loop-plan.md phase 6c): opened as a mark is, from where the character
@@ -1143,7 +1155,7 @@ class Hunter:
         thing, name = found
         mark = Target(player.area, (), (thing.x / TILE_UNITS, thing.y / TILE_UNITS), name, 'target', use=UNIQUE_CHEST)
         label = f'{name}, in the shack'
-        return Goal(label, (thing.x, thing.y), USE, USE_NEAR, PRESSED, unit=thing.unit_id, mark=mark, route=route)
+        return Goal(label, (thing.x, thing.y), USE, USE_NEAR, LOOPED, unit=thing.unit_id, mark=mark, route=route)
 
     def blockers(self, goal: Goal | None, foes: Sequence[Monster], now: float) -> list[Monster]:
         """The hostiles alive that the hands found in the way of `goal`'s act (`Covered`), while that is
@@ -1209,7 +1221,7 @@ class Hunter:
             opens = self.shack_goal(run, world, player, staged[0] if staged is not None else '')
         found = opens or goal_of(
             here,
-            spend=PRESSED if pressed or running else STANDING,
+            spend=LOOPED if posted is not None and posted.rush else PRESSED if pressed or running else STANDING,
             reach=self.reach,
             stage=staged[1] if staged is not None else None,
             route=staged[0] if staged is not None else '',
@@ -1593,7 +1605,12 @@ class Hunter:
         facts = replace(facts, quiet=min(now - self.struck_at, 60.0) if near else 0.0, near=near, rush=rush)
         if self.pursuing and rect is not None:
             facts = self.safety_priced(run, world, foes, ground, facts, posted, rect)
+        if facts.candidates:
+            # A spot a move just failed to reach is not priced again for a while (`barred`)
+            facts = replace(facts, candidates=tuple(c for c in facts.candidates if not self.barred(c.act, now)))
         act = decide(facts, posted, self.pursuing)
+        if isinstance(act, Advance) and self.barred(act, now):
+            act = NoWay(f'{goal.label if goal else "the goal"}: the move there just did not take; looking again')
         if isinstance(act, Advance) and act.reason:
             place = act.step.spot
         if (
@@ -1899,6 +1916,10 @@ class Hunter:
         except Abort as stop:
             if run.stops(stop):
                 raise
+            if isinstance(act, Advance) and 'did not move' in str(stop):
+                # Not tried again at once: 22:04:12 on 2026-10-16 made one walk 16 times in 17 s, each "did not move"
+                # (rca/2026-10-16/loop-shack-stalls-findings.md §2)
+                self.dead_ends = [*self.dead_ends[-20:], (act.step.spot, run.clock() + DEAD_END_SECONDS)]
             if isinstance(act, Operate) and act.goal.do == PICK_UP and act.goal.unit is not None:
                 if len(self.tried) > 200:
                     self.tried.clear()

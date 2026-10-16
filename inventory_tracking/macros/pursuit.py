@@ -257,12 +257,19 @@ class Candidate:
 
 
 NO_STEP_LEFT = 'no step toward it is left'  # the arrival said for that (`moved`)
+FIRING_SPOT = 'firing spot'  # the reason of a move to a stand the strike is made from (macros/safety.py FIRING)
 PASSAGE = 'an open passage: walking through into the next level'  # `through`'s move, said once
 KEEPING = 'retreating within strike reach: no act here fits the life budget'  # `Macro: pursuit: retreating within ...`
 
 
 def arbitrate(facts: Facts) -> Act:
     """One price in seconds, constrained by both life budget and the unliftable veto."""
+    if facts.rush:
+        # The KP_6 loop's run fights only what the price makes it: a stand to fire from is the fight's, priced by its
+        # clear time, and it outpriced the chest itself (22:04:12 on 2026-10-16: 16 walks to one in 17 s, none taken;
+        # rca/2026-10-16/loop-shack-stalls-findings.md §1). A dodge and a retreat stay.
+        kept = tuple(c for c in facts.candidates if not (isinstance(c.act, Move) and c.act.reason == FIRING_SPOT))
+        facts = replace(facts, candidates=kept)
     allowed = [c for c in facts.candidates if veto(c.harm, facts.life, facts.safety) is None]
     feasible = [c for c in allowed if c.harm.worst <= facts.budget and not c.retreat]
     if facts.near and facts.attacking and not facts.rush:

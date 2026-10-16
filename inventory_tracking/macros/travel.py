@@ -169,6 +169,12 @@ PRESSED = Intent(
     walks_under=1,
     routed=True,
 )
+# The KP_6 loop's goals (the chests, a shack's container, a drop on the way): as PRESSED, but the staff's charges are
+# dear (the player, 2026-10-16: "it actually can get too expensive (~100k+ for full recharge), so probably we need to
+# carefully use teleport staff charges when running loop"). A jump that costs nothing always comes first where it
+# reaches toward the hop's landing (`sparing` inf: Blade Warp), a Teleport only where none does (over a wall, out
+# of a dead end); and the last LOW_CHARGES are kept, for the player's own steps.
+LOOPED = replace(PRESSED, name='loop goal', reserve=LOW_CHARGES, sparing=math.inf)
 # The goal attack mode goes to by itself (a boss out of reach): as OWN_MOVE, no swap and the staff's
 # last LOW_CHARGES kept, but a casting delay about to end is waited out: nothing is struck meanwhile.
 STANDING = Intent(

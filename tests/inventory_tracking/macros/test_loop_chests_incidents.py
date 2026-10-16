@@ -82,3 +82,39 @@ def test_the_loop_goes_on_once_the_level_run_of_its_chests_is_over(monkeypatch):
     assert made[:3] == ['loop', 'hunt any', 'loop']
     assert swept
     assert swept[0] < 1.0  # the next leg, not the sweep, once the run is over
+
+
+def test_the_loops_chest_run_goes_for_its_chest_not_for_a_firing_spot():
+    # 22:04:13 on 2026-10-16 (take 20261016T190332Z-79): after a chest, the next at (5140, 2972). Priced: the walk
+    # toward it 3.69 s, a firing spot 21 units east 2.03 s by the fight's arithmetic, both with no harm and no strike
+    # due. The firing spot was chosen 16 times in 17 s, and the character never moved.
+    chests = Goal('Super chests', (5140.0, 2972.0), 'use', 12.0, PRESSED)
+    toward = p.Candidate(p.Move(Step((5121.5, 3019.5)), chests), 3.688, Harm(0.0, 0.0), unstruck=3.688)
+    stand = p.Move(Step((5130.5, 3011.5)), chests, 'firing spot')
+    firing = p.Candidate(stand, 2.031, Harm(0.0, 0.0), unstruck=2.031, strikes=True)
+    facts = p.Facts(
+        0.0, chests, False, False, True, lambda: Step((5121.5, 3019.5)), candidates=(toward, firing), priced=True,
+        budget=636.6, life=1819.0, near=True, quiet=5.0, rush=True,
+    )  # fmt: skip
+    run = Pursuit('pickup', -10.0, advance=False, leash=FULL, rush=True)
+
+    assert p.decide(facts, run) == toward.act
+    # KP_1's own run keeps its stands to fire from (the Chaos Sanctuary, Baal)
+    assert p.decide(replace(facts, rush=False), replace(run, rush=False)) == firing.act
+    # A dodge stays on the loop's run: a step out of a hostile's act under way
+    dodge = replace(firing, act=replace(stand, reason='stepping across', dodge=True), seconds=1.0)
+    assert p.decide(replace(facts, candidates=(toward, dodge)), run) == dodge.act
+
+
+def test_a_spot_a_move_did_not_reach_is_not_moved_to_again_for_a_while():
+    # 22:04:12-30 on 2026-10-16: one walk made 16 times in 17 s, each "the character did not move"
+    from inventory_tracking.macros.hunt import DEAD_END_SECONDS
+
+    hunt = Hunter(build=BUILD)
+    chests = Goal('Super chests', (5140.0, 3012.0), 'use', 12.0, PRESSED)
+    hunt.dead_ends = [((5130.5, 3011.5), 100.0 + DEAD_END_SECONDS)]
+
+    assert hunt.barred(p.Move(Step((5131.0, 3012.0)), chests, 'firing spot'), 100.0)
+    assert not hunt.barred(p.Move(Step((5121.5, 3019.5)), chests), 100.0)  # another way
+    assert not hunt.barred(p.Move(Step((5131.0, 3012.0)), chests, 'stepping across', dodge=True), 100.0)
+    assert not hunt.barred(p.Move(Step((5131.0, 3012.0)), chests), 100.0 + DEAD_END_SECONDS + 0.1)  # tried again later
