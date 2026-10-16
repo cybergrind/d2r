@@ -204,10 +204,14 @@ The games of 19:55–20:04 on 2026-10-16 and the player's rulings after them.
   - The rule: the character and the container in the same camp (the bonfire layout's `Room.block`), the container
     closed (`usable`), in sight (`clear_shot`), within 25 units (clicked from where the character stands), not one of
     the camp's three chest spots (the route's own). Two tries at most per container.
-- **6d.** Faster opens:
-  - Hop beside a chest and open it from there, not from 18–23 units away.
-  - Aim the last hop beside the chest, not at its tile.
-  - Order a camp's chests by the shortest tour.
+- **6d, done (uncommitted, not played).** Faster opens, on the loop's run:
+  - An object is clicked from within 12 units (`hunt.py` OPEN_NEAR), not from 18–23 units away.
+  - The hop toward it aims 3 units short of it, on the character's side (`beside`), not at its tile.
+  - Several marks of one label are led the shortest way through them all (`levels/guide.py` `tour_first`, up to 7
+    marks; for every route, not the loop's alone). Game 1 would have gone 266 units, not 353.
+  - A shack's container is a side goal of the level's route, so the run still opens one after the last chest.
+    Without that, `run_level` ended a run whose goal had no route.
+  - In play, `Opening Super chests, N away` should say N ≤ 12.
 - **6e.** The arrival wait: a check that the first input took, instead of the fixed 5 s. The view byte showed no load
   in any of 8 trips.
 

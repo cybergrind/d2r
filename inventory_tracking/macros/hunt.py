@@ -262,6 +262,25 @@ HOLD_UNITS = 25.0  # the sweep's own steps end no further than this from it
 GATHER_CHECK = 0.3  # seconds between two looks of the sweep for something to pick up
 GATHER_TRIES = 2  # times the sweep stops for one drop (and a level run goes for one, `side_drop`)
 SHACK_TRIES = 2  # times the KP_6 loop's run tries one of a shack's containers (`shack_goal`)
+# Units: the KP_6 loop's run clicks an object from this near, and hops nearer first. The games of 2026-10-16
+# (rca/2026-10-16/loop-chests-findings.md §3): an open took 0.23-0.4 s from 2 to 6 units, 0.68 s from 14, 1.4 s from
+# 20 (the game walks the character there), and from 18 to 23 units twice ran out of the act's 1.5 s; a Teleport hop
+# lands 0.3-0.4 s after its key.
+OPEN_NEAR = 12.0
+# Units short of an object that the loop's hop toward it aims: a Teleport aimed onto a chest's own spot was not cast
+# ("nothing 0.6s after the key, no charge spent", 19:56:40.4 on 2026-10-16, at (4427.0, 3012.0), the chest's mark)
+BESIDE = 3.0
+
+
+def beside(here: Point, at: Point) -> Point:
+    """The place BESIDE units from the object at `at`, on the character's side of it (`at` itself when the character
+    is that near)."""
+    away = math.dist(here, at)
+    if away <= BESIDE:
+        return at
+    return at[0] + (here[0] - at[0]) * BESIDE / away, at[1] + (here[1] - at[1]) * BESIDE / away
+
+
 # Seconds the monsters the hands found in the way of a goal's act (teleport.py `Covered`) stay the fight that
 # comes first for that goal, while any of them lives (goals.py `first_fight`)
 BLOCK_SECONDS = 15.0
@@ -1106,10 +1125,11 @@ class Hunter:
             run.warn(f'Inventory full: {found.label} here — make room{told}')
         return found
 
-    def shack_goal(self, run: Run, world: World, player) -> Goal | None:
+    def shack_goal(self, run: Run, world: World, player, route: str) -> Goal | None:
         """On the KP_6 loop's run, a container of the camp the character stands in, closed, in sight and near
         (macros/shacks.py; routes/lower-kurast-loop-plan.md phase 6c): opened as a mark is, from where the character
-        stands. One tried SHACK_TRIES times is left."""
+        stands, a side goal of the level's route `route` (with none, the run has no stage to work and ends: pursuit.py
+        `run_level`). One tried SHACK_TRIES times is left."""
         level = self.known_level(player)
         if level is None or run.things is None:
             return None
@@ -1122,7 +1142,8 @@ class Hunter:
             return None
         thing, name = found
         mark = Target(player.area, (), (thing.x / TILE_UNITS, thing.y / TILE_UNITS), name, 'target', use=UNIQUE_CHEST)
-        return Goal(f'{name}, in the shack', (thing.x, thing.y), USE, USE_NEAR, PRESSED, unit=thing.unit_id, mark=mark)
+        label = f'{name}, in the shack'
+        return Goal(label, (thing.x, thing.y), USE, USE_NEAR, PRESSED, unit=thing.unit_id, mark=mark, route=route)
 
     def blockers(self, goal: Goal | None, foes: Sequence[Monster], now: float) -> list[Monster]:
         """The hostiles alive that the hands found in the way of `goal`'s act (`Covered`), while that is
@@ -1184,7 +1205,8 @@ class Hunter:
 
         opens = None
         if running and posted is not None and posted.rush and side is None and stay is None:
-            opens = self.shack_goal(run, world, player)  # the KP_6 loop's run: a shack's container in sight first
+            # the KP_6 loop's run: a shack's container in sight first, a side goal of the level's route
+            opens = self.shack_goal(run, world, player, staged[0] if staged is not None else '')
         found = opens or goal_of(
             here,
             spend=PRESSED if pressed or running else STANDING,
@@ -1529,6 +1551,13 @@ class Hunter:
                     thing is not None and math.dist(here, (thing.x, thing.y)) <= goal.near
                 )
                 there = thing is not None and near
+                if thing is not None and posted is not None and posted.rush and posted.runs:
+                    # The KP_6 loop's run opens from beside the object (`OPEN_NEAR`), and its last hop lands short of
+                    # it, not on its tile (`beside`)
+                    at = (thing.x, thing.y)
+                    there = there and math.dist(here, at) <= OPEN_NEAR
+                    if not there:
+                        place = beside(here, at)
             elif goal.do == PICK_UP:
                 # Near enough to click is a walk within reach, not a straight line: a drop across lava is gone to
                 # by the navigator first (run-0025-findings.md §2.2: 17 straight, 43 by walking, both tries cut)

@@ -38,6 +38,7 @@ Each entry into a guided area also yields one evidence record (levels/evidence.p
 after the capture lock is released; a failed lookup is recorded once even while retrying.
 """
 
+import itertools
 import math
 import threading
 import time
@@ -75,19 +76,39 @@ def place(poi: Poi) -> tuple[float, float]:
     return poi.spot or centre(poi.room)
 
 
+# Marks of one label the shortest way through is worked out for, every order tried (7! = 5040 at most, a few ms: the
+# card asks at every refresh); past it the nearest leads. Lower Kurast has two camps of three chests.
+TOUR_MARKS = 7
+
+
+def tour_first(marks: list[Poi], here: tuple[float, float]) -> Poi:
+    """The mark the shortest way from `here` (tiles) through all of `marks` begins with; the nearest past
+    TOUR_MARKS. The loop's game of 2026-10-16 19:56 went nearest first through Lower Kurast's six camp chests, 353
+    units against 266 the shortest way (rca/2026-10-16/loop-chests-findings.md §3); asked again at every mark, the
+    way stays the shortest."""
+    if len(marks) > TOUR_MARKS:
+        return min(marks, key=lambda poi: math.dist(here, place(poi)))
+
+    def length(order: tuple[Poi, ...]) -> float:
+        points = (here, *(place(poi) for poi in order))
+        return sum(math.dist(a, b) for a, b in itertools.pairwise(points))
+
+    return min(itertools.permutations(marks), key=length)[0]
+
+
 def lead_first(pois: tuple[Poi, ...], lead: Lead | None, here: tuple[float, float] | None = None) -> tuple[Poi, ...]:
     """`pois` with the mark `lead` names put first (levels/routes.md: the stage a route is at); as
     they are when it names none of them. Of several with the label, the one leading to the level
-    meant, and of those the nearest to `here` (tiles; lower-kurast-plan.md task 4: Lower Kurast's two
-    camps, a hell pit's chests), the card's order without it. A way back that is led with is a way on:
-    the route goes through it (Outer Cloister to the Monastery Gate), and the teleport step refuses a
+    meant, and of those the first of the shortest way from `here` (tiles) through them all (`tour_first`:
+    Lower Kurast's two camps, a hell pit's chests), the card's order without it. A way back that is led
+    with is a way on: the route goes through it (Outer Cloister to the Monastery Gate), and the teleport step refuses a
     first mark that only leads back. Marks at the places the lead says are done with (`Lead.skip`:
     chests opened) are passed for the next."""
     named = [poi for poi in pois if poi.label == lead.label and place(poi) not in lead.skip] if lead else []
     if lead is None or not named:
         return pois
     meant = [poi for poi in named if poi.area == lead.area] or named
-    first = meant[0] if here is None else min(meant, key=lambda poi: math.dist(here, place(poi)))
+    first = meant[0] if here is None else tour_first(meant, here)
     rest = tuple(poi for poi in pois if poi is not first)
     return (replace(first, kind='stairs') if first.kind == 'previous' else first, *rest)
 

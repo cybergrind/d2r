@@ -7,7 +7,7 @@ from dataclasses import replace
 import pytest
 
 from inventory_tracking.levels.geometry import arrow, compass, pointer
-from inventory_tracking.levels.guide import LevelGuide, lead_first, pointer_lines
+from inventory_tracking.levels.guide import LevelGuide, lead_first, place, pointer_lines
 from inventory_tracking.levels.model import Lead, Location, Poi, Room
 from inventory_tracking.macros.goals import Goal
 from tests.inventory_tracking.levels.fixtures import handler_of, replay
@@ -781,19 +781,30 @@ def test_marks_the_lead_says_are_done_are_passed_for_the_next_with_the_label():
     assert lead_first((BACK, one, two), Lead('Super chest', None, both)) == (BACK, one, two)
 
 
-def test_of_several_marks_with_the_label_the_nearest_leads_and_the_next_nearest_after_it():
-    # lower-kurast-plan.md task 4: two camps of three chests; the character by the second camp starts there.
+def test_of_several_marks_with_the_label_the_shortest_way_through_them_leads():
+    # lower-kurast-plan.md task 4: two camps of three chests; the character by the second camp starts there, at the
+    # end of it that leaves the shorter way to the first (61.2 tiles against 62.2 from the nearest mark).
     first_camp = [Poi('Super chests', Room(1, 0, 0, 8, 8), 'target', spot) for spot in ((5.4, 10.4), (2.4, 11.4))]
     second_camp = [Poi('Super chests', Room(1, 48, 0, 8, 8), 'target', spot) for spot in ((60.4, 10.4), (57.4, 11.4))]
     pois = (BACK, *first_camp, *second_camp)
     here = (58.0, 12.0)
 
-    assert lead_first(pois, Lead('Super chests'), here)[0] is second_camp[1]
+    assert lead_first(pois, Lead('Super chests'), here)[0] is second_camp[0]
     opened = frozenset({(57.4, 11.4)})
     assert lead_first(pois, Lead('Super chests', None, opened), here)[0] is second_camp[0]
     opened |= {(60.4, 10.4)}
     assert lead_first(pois, Lead('Super chests', None, opened), here)[0] is first_camp[0]
     assert lead_first(pois, Lead('Super chests'))[0] is first_camp[0]  # nowhere known: the card's order
+
+
+def test_lower_kurasts_six_chests_are_led_the_shortest_way_not_nearest_first():
+    # The loop's game of 2026-10-16 19:56 (rca/2026-10-16/loop-chests-findings.md §3): from the waypoint the nearest
+    # chest first made 353 units through the six; the shortest way, 266, begins with the far camp's (4427, 3012).
+    spots = ((4460, 2972), (4492, 2937), (4507, 2932), (4540, 2892), (4427, 3012), (4412, 3017))
+    chests = [Poi('Super chests', Room(1, 880, 590, 8, 8), 'target', (x / 5, y / 5)) for x, y in spots]
+    here = (4496.5 / 5, 3016.5 / 5)
+
+    assert place(lead_first(tuple(chests), Lead('Super chests'), here)[0]) == (4427 / 5, 3012 / 5)
 
 
 def test_the_mark_leading_to_the_level_meant_comes_before_a_nearer_one():
