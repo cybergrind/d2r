@@ -44,7 +44,6 @@ from inventory_tracking.levels.model import (
     SUPER_CHEST,
     TOWN_PORTAL,
     UNIQUE_CHEST,
-    UNIQUE_CHEST_KINDS,
     WIRTS_BODY,
     Ground,
     Target,
@@ -57,7 +56,7 @@ from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.routines import ACTING, press_skill, settle, swap_until, world_point
 from inventory_tracking.macros.skills import SWAP_WEAPONS, TELEPORT
 from inventory_tracking.macros.view import CORNER_BOTTOM, UNIT_PIXELS, VIEW, Viewport
-from inventory_tracking.macros.world import Player, Thing, Warp, World
+from inventory_tracking.macros.world import Player, Thing, Warp, World, containers
 from inventory_tracking.native.layout import TILE_UNITS
 
 
@@ -200,6 +199,10 @@ class Use:
     # The panel (World.open_panels) whose opening says it took, whatever its mode: a waypoint (macros/waypoint.py).
     # Empty: `leaves` says.
     opens: str = ''
+    # The object may be gone (a chest another player opened, a spot the game left empty): with the character at the
+    # mark and none shown, the mark is done with (route.note_empty; the player, 2026-10-16). False: none shown is a
+    # read that missed it (a seal is never gone), and the step stops saying so.
+    gone: bool = False
 
 
 def classes(use: int) -> frozenset[int]:
@@ -259,9 +262,13 @@ USES = {
     ),
     # The glowing chest, where the game's files place it (the mark is on it). The aims are the ones that
     # opened the two on the host on 2026-10-12 (macros/opening.py AIMS), each by the first.
-    SUPER_CHEST: Use(CHEST_AIMS, 10.0, False, 'Opening {}', '{}: opened', '{} is not here', brings=CHEST_BRINGS),
-    # A chest the game rolls at a placed spot (Lower Kurast's camp): opened as the glowing one is. Not seen
-    # clicked at its mark yet; the pickup key opened such chests in the camp by the same aims.
+    SUPER_CHEST: Use(
+        CHEST_AIMS, 10.0, False, 'Opening {}', '{}: opened', '{} is not here', brings=CHEST_BRINGS, gone=True
+    ),
+    # A chest the game rolls at a placed spot (Lower Kurast's camp): opened as the glowing one is, whichever
+    # container it is (the player, 2026-10-16: "in LK superchests are looking just like regular chests, so you can
+    # just open everything in our target lists"; the camp dumps showed 181 and 183). The pickup key opened such
+    # chests in the camp by the same aims.
     UNIQUE_CHEST: Use(
         CHEST_AIMS,
         10.0,
@@ -270,7 +277,8 @@ USES = {
         '{}: opened',
         '{} is not here',
         brings=CHEST_BRINGS,
-        kinds=UNIQUE_CHEST_KINDS,
+        kinds=containers(),
+        gone=True,
     ),
     # The Chaos Sanctuary's seals: objects.txt gives them no box (taken by their picture, which stands on
     # their ground point) and one mode they can be clicked in. Not seen clicked by the step yet. The last
@@ -959,10 +967,14 @@ def step_toward(
     key_names,
     afoot: Callable[[Target], None] | None = None,
     warp: Callable[[Target, Player, tuple[float, float]], bool] | None = None,
+    *,
+    empty: Callable[[Target], bool] | None = None,
 ) -> None:
     """One teleport step. `key_names(world, skills)` gives the key per skill (runner). `afoot` makes the
     step without Teleport (the runner: the navigator's way for the means in hand, a Blade Warp or a walk) when
-    the staff has no charge left; `warp` makes a hop by Blade Warp where it can (`hop_toward`)."""
+    the staff has no charge left; `warp` makes a hop by Blade Warp where it can (`hop_toward`). `empty(target)`: at
+    a `use` mark with none of its objects shown, whether the route took the mark as done (route.note_empty); else the
+    step stops saying the object is not here."""
     with run.lightly():
         player, rect = ready(run)
     run.in_time('the step')
@@ -984,6 +996,8 @@ def step_toward(
             return
         if thing is None and at_mark:
             # The game shows the objects a screen round the character: none at the mark is none there.
+            if empty is not None and empty(target):
+                return
             raise Abort(USES[target.use].absent.format(target.label))
     entry = entry_spot(target)
     if entry is not None and math.dist(here, scaled(entry)) <= ENTRY_NEAR:

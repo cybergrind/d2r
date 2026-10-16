@@ -10,7 +10,7 @@ from itertools import pairwise
 import pytest
 
 from inventory_tracking.levels.guide import lead_first
-from inventory_tracking.levels.model import SEALS, SUPER_CHEST, UNIQUE_CHEST, Lead, Poi, Room, Target
+from inventory_tracking.levels.model import PORTAL, SEALS, SUPER_CHEST, UNIQUE_CHEST, Lead, Poi, Room, Target
 from inventory_tracking.macros import route
 from inventory_tracking.macros.teleport import step_toward
 from inventory_tracking.macros.world import Teleport, Thing
@@ -297,9 +297,11 @@ def test_the_camps_chests_are_opened_whichever_class_the_game_rolled():
     assert all(thing.mode for thing in level_.things.values())
 
 
-def test_an_object_of_another_class_at_a_camp_mark_is_not_its_chest():
+def test_any_chest_at_a_camp_mark_is_its_chest_and_nothing_else_is():
+    # The player, 2026-10-16: "in LK superchests are looking just like regular chests, so you can just open everything
+    # in our target lists" (rca/2026-10-16/loop-first-game-findings.md §1): whatever container the game rolled there.
     play = game(79)
-    play.thing = Thing(70, SUPER_CHEST, 2, 5010.0, 5002.0)  # opened, but not a class the spot rolls
+    play.thing = Thing(70, PORTAL, 2, 5010.0, 5002.0)  # no container
     chest = Target(79, ROOMS, (1002.0, 1000.4), 'Super chests', 'target', use=UNIQUE_CHEST)
     progress = Progress(ROUTES, route.PERFORMED)
     progress.note(play.world.game_name, 79)
@@ -307,9 +309,35 @@ def test_an_object_of_another_class_at_a_camp_mark_is_not_its_chest():
     route.note_used(play.run(), chest, progress, None)
     assert progress.lead(79) is not None
 
-    play.thing = Thing(70, 183, 2, 5010.0, 5002.0)
+    play.thing = Thing(70, SUPER_CHEST, 2, 5010.0, 5002.0)  # a chest of a class no camp dump showed, opened
     route.note_used(play.run(), chest, progress, None)
     assert progress.lead(79) is None
+
+
+def test_a_chest_mark_with_no_chest_at_it_is_done_and_the_next_leads():
+    # The player, 2026-10-16: an empty mark counts as done (another player opened it, the spot was left empty).
+    play = game(79)
+    marks = ((1002.0, 1000.4), (1040.0, 1000.4))
+    chest = Target(79, ROOMS, marks[0], 'Super chests', 'target', use=UNIQUE_CHEST)
+    progress = Progress(ROUTES, route.PERFORMED)
+    progress.note(play.world.game_name, 79)
+
+    assert route.note_empty(play.run(), chest, progress, lambda label: marks)
+
+    lead = progress.lead(79)
+    assert lead is not None
+    assert lead.skip == frozenset({marks[0]})
+
+
+def test_a_seal_mark_with_no_seal_shown_is_not_done():
+    # A seal is never gone: none shown is a read that missed it, and the star needs every seal.
+    play = game(108)
+    seal = Target(108, ROOMS, (1002.0, 1000.4), 'Vizier seal 1', 'target', use=SEALS[4])
+    progress = Progress([SANCTUARY], route.PERFORMED)
+    progress.note(play.world.game_name, 108)
+
+    assert not route.note_empty(play.run(), seal, progress, None)
+    assert progress.lead(108) == Lead('Vizier seal 1')
 
 
 def test_the_seals_are_opened_in_the_scripts_order_and_then_the_star_leads():

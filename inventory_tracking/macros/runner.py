@@ -877,10 +877,14 @@ class MacroRunner:
         elif routine == TELEPORT:
             walker = self.hunter
 
+            def empty(target: Target, run=run) -> bool:
+                # A chest mark with no chest shown at it is done with (route.note_empty; the player, 2026-10-16).
+                return route.note_empty(run, target, self.progress, self.marks)
+
             def plain(card: Target | None, run=run, walker=walker) -> None:
                 drop = worth_a_stop(run) if walker is not None else None
                 if walker is None:
-                    step_toward(run, card, key_names)
+                    step_toward(run, card, key_names, empty=empty)
                 elif drop is not None:
                     # The step does not leave a valuable behind: this press takes it, the next hops.
                     LOG.info('Macro: the teleport step takes %s first', drop.label)
@@ -894,6 +898,7 @@ class MacroRunner:
                         key_names,
                         lambda target: walker.foot_step(run, target, key_names),
                         lambda target, player, spot: walker.warp_hop(run, target, player, spot, key_names),
+                        empty=empty,
                     )
 
             # One step of the stage the level is at (macros/route.py); the plain step without one.

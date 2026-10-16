@@ -431,6 +431,9 @@ class Take:
             'late': late,
             'game': world.in_game,
             'panels': list(world.open_panels),
+            # 0 while the game loads (world.VIEW_RVA): how long a waypoint's or a portal's level change loads
+            # (rca/2026-10-16/loop-first-game-findings.md §2)
+            'view': world.view,
             'macro': sample.macro,
             'p': character,
             'm': monsters,

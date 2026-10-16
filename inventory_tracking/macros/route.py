@@ -111,6 +111,28 @@ def note_used(
     LOG.info('Macro: route %s: %s is done at (%.1f, %.1f)', step.route, step.stage.text(), *target.point)
 
 
+def note_empty(
+    run: Run,
+    target: Target,
+    progress: Progress | None,
+    marks: Callable[[str], tuple[Place, ...]] | None,
+) -> bool:
+    """The character is at `target`, a mark of the level's `use` stage, and the game shows none of its objects: when
+    the object may be gone (`Use.gone`: a chest another player opened, a spot left empty) the mark is done with, as
+    if used (the player, 2026-10-16: "count an empty mark as done"), and True. False for an object that is never
+    gone (a seal: none shown is a read that missed it) and for a mark no stage of the level names."""
+    if progress is None or not target.use or not USES[target.use].gone:
+        return False
+    step = progress.step(target.area)
+    if step is None or step.stage.kind != USE or step.stage.mark != target.label:
+        return False
+    places = marks(target.label) if marks is not None else ()
+    progress.used(target.area, target.label, target.point, places or (target.point,))
+    LOG.info('Macro: route %s: %s: none at (%.1f, %.1f): done with it', step.route, target.label, *target.point)
+    run.say(f'{target.label}: none here')
+    return True
+
+
 def leave(run: Run, key_names) -> None:
     """Leave the game, make the next one and cast the buffs: the macro request's steps for a run
     that has ended (routines.run_macro), without its own look at whether it has. The route knows."""

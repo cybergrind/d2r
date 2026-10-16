@@ -228,6 +228,10 @@ class Game:
         self.greyed: set[tuple[int, int]] = set()
         self.acts = {75: 2, 79: 2, 103: 3}
         self.panel_act: int | None = None
+        # Seconds a level change by a waypoint row or a portal loads, its view byte 0 meanwhile; None: no load
+        # shown (the byte stays as it was). `arrived_at`: the clock of the last such change.
+        self.arrival_load: float | None = None
+        self.arrived_at: float | None = None
         self.sigils: list[tuple[float, float]] = []  # ground points Sigil: Lethargy was cast at
         self.engorges: list[tuple[float, float]] = []  # ground points Engorge was cast at
         self.purges: list[float] = []  # clock times Hex: Purge was cast
@@ -415,7 +419,7 @@ class Game:
                         self.world = replace(w, player=me, open_panels=('waypoint',))
                         self.panel_act = self.acts.get(me.area)
                     elif self.thing.txt_id in (PORTAL, HELL_GATE, TOWN_PORTAL):
-                        self.world = replace(w, player=replace(character_of(w), area=self.next_area))
+                        self.arrive(self.next_area)
                     else:
                         self.thing = replace(self.thing, mode=2)
                 elif (drop := self.drop_under_pointer()) is not None and self.deaf_picks:
@@ -450,8 +454,19 @@ class Game:
         if 152 <= px <= 1000 and row >= 0 and inside <= 100 and self.panel_act is not None:
             key = (self.panel_act, int(row))
             if key in self.waypoint_rows and key not in self.greyed:
-                me = replace(character_of(self.world), area=self.waypoint_rows[key])
-                self.world = replace(self.world, player=me, open_panels=())
+                self.world = replace(self.world, open_panels=())
+                self.arrive(self.waypoint_rows[key])
+
+    def arrive(self, area: int) -> None:
+        """A level change by a portal or a waypoint row: the area at once, and the load (`arrival_load`) after it."""
+        self.world = replace(self.world, player=replace(character_of(self.world), area=area))
+        self.arrived_at = self.clock.now
+        if self.arrival_load is not None:
+            self.world = replace(self.world, view=0)
+            self.arrivals.append((self.clock.now + self.arrival_load, self.loaded_level))
+
+    def loaded_level(self) -> None:
+        self.world = replace(self.world, view=255)
 
     def open_portal(self) -> None:
         if self.thing is not None and self.thing.txt_id == TOWN_PORTAL:

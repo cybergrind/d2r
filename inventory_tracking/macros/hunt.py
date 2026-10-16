@@ -1987,6 +1987,8 @@ class Hunter:
             if rect is None:
                 raise Abort('no game window')
             thing = marked_thing(run, goal.mark)
+            if thing is None and route.note_empty(run, goal.mark, bearings.progress, bearings.marks):
+                return  # a chest that is gone: the next mark (rca/2026-10-16/loop-first-game-findings.md)
             if thing is None:
                 raise Abort(USES[goal.mark.use].absent.format(goal.mark.label))
             use_thing(run, goal.mark, player, thing, rect[2] / rect[3])

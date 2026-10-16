@@ -1003,4 +1003,22 @@ def test_the_red_portal_of_the_durance_is_gone_through_like_the_one_to_tristram(
 
 
 def test_the_game_is_asked_for_every_object_the_step_clicks():
-    assert frozenset(teleport.USES) == USED
+    # Every class a mark's `Use` may click, not the mark's own id: Lower Kurast's camp mark is 1000, a class no object
+    # has, and the run read 1000 and never the chest at it (rca/2026-10-16/loop-first-game-findings.md §1).
+    assert all(teleport.classes(use) <= USED for use in teleport.USES)
+
+
+def test_at_an_empty_chest_mark_the_step_tells_the_route_instead_of_stopping():
+    # rca/2026-10-16/loop-first-game-findings.md: an empty mark counts as done (the player, 2026-10-16)
+    from inventory_tracking.levels.model import UNIQUE_CHEST
+
+    play = game()
+    chest = Target(109, (HERE, *EAST), (1000.0, 1000.0), 'Super chests', 'target', use=UNIQUE_CHEST)
+    told = []
+
+    step_toward(play.run(), chest, keys, empty=lambda target: told.append(target.label) or True)
+
+    assert told == ['Super chests']
+    assert play.keys.events == []
+    with pytest.raises(Abort, match='Super chests is not here'):  # a route that has no use for it: said, as before
+        step_toward(play.run(), chest, keys, empty=lambda target: False)

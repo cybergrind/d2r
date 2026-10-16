@@ -18,7 +18,7 @@ from collections.abc import Callable
 from inventory_tracking.levels.model import TOWN_PORTAL, Target
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.engine import Run
-from inventory_tracking.macros.routines import press_skill
+from inventory_tracking.macros.routines import arrived, press_skill
 from inventory_tracking.macros.skills import TOWN_PORTAL as TOME
 from inventory_tracking.macros.teleport import ready_world, use_thing
 from inventory_tracking.macros.world import Thing
@@ -60,3 +60,6 @@ def to_town(run: Run, key_names: Callable[..., dict[int, str]]) -> None:
     here = run.world().player or player
     mark = Target(here.area, (), (opened.x / TILE_UNITS, opened.y / TILE_UNITS), 'town', 'target', use=TOWN_PORTAL)
     use_thing(run, mark, here, opened, rect[2] / rect[3])
+    # Not over before the town takes input (rca/2026-10-16/loop-first-game-findings.md §2: the waypoint's aims were
+    # tried 0.002 s after the portal's arrival and found nothing under the pointer)
+    arrived(run, 'town')

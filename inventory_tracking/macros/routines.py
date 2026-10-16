@@ -107,6 +107,13 @@ DEAD = frozenset((0, 17))
 CREATE_LIMIT = 12.0  # seconds from Enter for the new game to exist
 LOAD_MIN = 8.5  # seconds from Enter before the first key in a new game
 LOAD_LIMIT = 40.0  # seconds from Enter the first summon may take
+# A level change by a waypoint or a portal (`arrived`): the view byte shows a load within ARRIVAL_MARK of it if it
+# shows one at all; the level comes up within ARRIVAL_LIMIT; with no load shown, ARRIVAL_SETTLE stands in. cyber17,
+# 2026-10-16 (rca/2026-10-16/loop-first-game-findings.md §2): after the waypoint from act 4 to act 3 no input took for
+# 4.5 s, the first that did 5.4 s after the arrival. The takes record the byte from then on (`view`).
+ARRIVAL_MARK = 0.3
+ARRIVAL_LIMIT = 20.0
+ARRIVAL_SETTLE = 5.0
 # monstats.txt rows with npc = 1 or inTown = 1 (installed game, 2026-10-07): townsfolk. Consume cannot
 # take them, yet Kashya, Warriv and Cain stand where a new game starts and were in 13 of the 16 logged
 # crowds (host, 2026-10-07), which stopped five prebuffs in the Rogue Encampment. Checked against the
@@ -403,6 +410,22 @@ def leave_game(run: Run) -> None:
     run.actuator.move(*SAVE_AND_EXIT, scatter=(60, 8))
     run.actuator.click()
     run.expect('leaving the game', lambda w: not w.in_game, 10)
+
+
+def arrived(run: Run, where: str, *, loading: bool = False) -> None:
+    """After a level change by a waypoint or a portal: wait until the game takes input, as a new game is waited for
+    (`create_next_game`). `loading`: the view byte was seen at 0 since the click. The level is said playable when the
+    byte comes back; a change that never shows a load waits ARRIVAL_SETTLE."""
+    began = run.clock()
+    if loading or run.seen(lambda w: w.view == 0, ARRIVAL_MARK) is not None:
+        if run.seen(lambda w: w.view != 0, ARRIVAL_LIMIT) is None:
+            raise Abort(f'{where}: the level did not come up in {ARRIVAL_LIMIT:g}s')
+        LOG.info('Macro: %s: playable %.2fs after the arrival (its view byte)', where, run.clock() - began)
+        return
+    LOG.info('Macro: %s: no load shown; %gs for the game to take input', where, ARRIVAL_SETTLE)
+    while run.clock() - began < ARRIVAL_SETTLE:
+        run.world()
+        run.pace.sleep(0.1)
 
 
 def create_next_game(run: Run, last: str) -> LoadTrace:

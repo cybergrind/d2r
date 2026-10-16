@@ -166,6 +166,24 @@ potions as stops of their own (the level run's safety has them), a valuable that
 One game by hand-held stages first (each leg with its own key, the loop off), then the loop for a few games.
 RCA after each session as usual: time per game by leg, chests opened, drops left, every stop and its reason.
 
+**The checklist (2026-10-16).** Only the chests have a key of their own (KP_1); the portal and the waypoints are
+legs of the loop. Since the loop reads its leg from where the character is, a leg is played by hand by pressing
+KP_6 where it starts and KP_6 again once it is over (the loop off at once, the character left where it is).
+`make serve` only; mouse mode.
+
+| # | Where, what | KP | What shows it worked (probe.log, `Macro:` lines) | What it settles |
+| --- | --- | --- | --- | --- |
+| 1 | Lower Kurast with the chests opened (KP_1) and the ground clean | KP_6, then KP_6 in Kurast Docks | `Loop: game 1, Town Portal`; `Town Portal on x`; `object … (class 59) … the character at …`; `town took the click …`; `town: there` | the portal's key, its spot beside the character, its open delay (phase 3) |
+| 2 | Kurast Docks, just through the portal | KP_6, then KP_6 in Pandemonium Fortress | `Loop: game 1, to Pandemonium Fortress`; `the waypoint took the click (x, y) pixels from its ground`; `waypoint: tab 4 at …, row 1 at … of a WxH window`; `The Pandemonium Fortress: there` | the waypoint's aims (phase 1), the panel's tab and row (phase 2) |
+| 3 | Pandemonium Fortress, that game | KP_6, then KP_6 in the lobby | `Loop: game 1, Save and Exit` | the act 4 ending |
+| 4 | the lobby | KP_6, then KP_6 in Lower Kurast | `Loop: game 1, next game`; `Creating cyberN`; the prebuff; `Loop: …, to Lower Kurast`; `waypoint: tab 3 …, row 5 …`; `Lower Kurast: there` | the act III tab and the fifth row |
+| 5 | Lower Kurast | KP_6 and watch | `Loop: …, the chests` then the KP_1 run's own lines; `route Lower Kurast: no Super chests on this level` in a level without a camp | the chests' hand-over and its return to the loop |
+| 6 | then a few games with the loop on | KP_6 once | a `Loop: game N, …` line per leg; `loop stopped: <why>` if it stops | the whole loop; time per game |
+
+What to keep an eye on, and stop with KP_6: a click at a wrong row (the level reached says it: the loop stops
+when it is not the one asked for), the character standing still in town (a waypoint not under the pointer: `the
+waypoint is not under the pointer at any aim`), a leg the log repeats.
+
 ## Open (for the player)
 
 1. ~~Why back to act 4?~~ Answered (the player, 2026-10-16): a game left in act 3 starts in Kurast Docks, a long

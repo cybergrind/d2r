@@ -123,9 +123,11 @@ class CardGoals:
                 continue
             if (area, mark.label, place(mark)) in self.progress.facts.used:
                 continue
-            if any(
-                t.txt_id in classes(mark.use) and t.mode and math.dist((t.x, t.y), spot) <= use.near for t in things
-            ):
+            # The object nearest the mark among its classes, as the step's `marked_thing` takes it: a camp's mark names
+            # any container (macros/teleport.py), and a jar opened beside the chest is not the chest.
+            near = [t for t in things if t.txt_id in classes(mark.use) and math.dist((t.x, t.y), spot) <= use.near]
+            nearest = min(near, key=lambda t: math.dist((t.x, t.y), spot)) if near else None
+            if nearest is not None and nearest.mode:
                 same = tuple(place(other) for other in marks if other.label == mark.label)
                 self.progress.used(area, mark.label, place(mark), same)
         return self.progress.facts is not before

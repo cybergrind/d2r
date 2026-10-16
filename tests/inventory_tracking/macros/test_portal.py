@@ -63,3 +63,25 @@ def test_in_town_nothing_is_cast():
     with pytest.raises(Abort, match='in town already'):
         to_town(play.run(), keys)
     assert play.keys.events == []
+
+
+def test_after_the_portal_the_leg_waits_for_the_town_to_come_up():
+    # rca/2026-10-16/loop-first-game-findings.md §2: the waypoint's aims were tried 0.002 s after the portal's arrival
+    play = lower_kurast()
+    play.arrival_load = 1.2
+
+    to_town(play.run(), keys)
+
+    assert play.arrived_at is not None
+    assert play.clock.now >= play.arrived_at + 1.2
+
+
+def test_with_no_load_shown_after_the_portal_the_leg_waits_the_settle():
+    from inventory_tracking.macros.routines import ARRIVAL_SETTLE
+
+    play = lower_kurast()  # the view byte never shows a load
+
+    to_town(play.run(), keys)
+
+    assert play.arrived_at is not None
+    assert play.clock.now >= play.arrived_at + ARRIVAL_SETTLE

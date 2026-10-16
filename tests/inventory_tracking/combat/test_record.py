@@ -127,6 +127,7 @@ def test_frames_carry_the_world_the_input_and_the_level_map(tmp_path):
     assert frame['x'] == [[3, 750, 0, 5012, 5030, 'ab']]
     assert frame['in'] == [3200, 700, 1 << 10, 0.5, 0.4937, [38]]
     assert frame['macro'] is True
+    assert frame['view'] == 255  # the byte that is 0 while the game loads (rca/2026-10-16/loop-first-game-findings.md)
     assert take.manifest['level'] == 'level.json'
     assert take.manifest['keys'] == {'38': 'a'}
     assert json.loads((take.directory / 'level.json').read_text())['rooms'][0]['preset'] == 1

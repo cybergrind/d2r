@@ -640,12 +640,6 @@ def warps(read, table: int) -> tuple[Warp, ...]:
     return tuple(found)
 
 
-# The objects a level's mark may name for a click (levels/model.py), the town portal the character opens
-# (macros/portal.py) and the waypoints (macros/waypoint.py): each has its `Use` in macros/teleport.py. The combat
-# recorder writes them (`operated`).
-USED = frozenset((PORTAL, TOWN_PORTAL, WIRTS_BODY, *CLICKED, *WAYPOINT_CLASSES))
-
-
 @dataclass(frozen=True)
 class Thing:
     """An object a mark names for a click: an object unit of the loaded rooms."""
@@ -692,6 +686,13 @@ def usable(thing: Thing) -> bool:
 
 def containers() -> frozenset[int]:
     return frozenset(container_names())
+
+
+# The objects the run reads (`GameMemory.things`): those a level's mark may name for a click (levels/model.py), the
+# town portal the character opens (macros/portal.py), the waypoints (macros/waypoint.py) and every container, which a
+# camp's mark opens whatever class the game rolled (macros/teleport.py USES; rca/2026-10-16/loop-first-game-findings.md
+# §1: the run read the mark's own id, 1000, and never the chest at it). The combat recorder writes them (`operated`).
+USED = frozenset((PORTAL, TOWN_PORTAL, WIRTS_BODY, *CLICKED, *WAYPOINT_CLASSES)) | containers()
 
 
 def things(read, table: int, classes: frozenset[int] = USED) -> tuple[Thing, ...]:

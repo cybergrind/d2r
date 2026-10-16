@@ -34,10 +34,9 @@ THRONE_PORTAL = 563  # FinalPortal, to the Worldstone Chamber
 # objpreset.txt's `PlaceUniqueChest`: a spot where the game puts a chest of a class it rolls when the level is made,
 # so it has no objects.txt row; this id is above every row (586 the last in d2data). Lower Kurast's bonfire camp places
 # three ('Act 3 - Slums 16x16' file 1); the 26 level dumps of 2026-09-30 and 2026-10-06 show a JungleChest (181) or a
-# JungleChest2 (183) on each spot, both on every spot (lower-kurast-plan.md). The classes it may roll elsewhere are
-# not known: UNIQUE_CHEST_KINDS grows only with a sighting.
+# JungleChest2 (183) on each spot, both on every spot (lower-kurast-plan.md). The mark opens whichever container the
+# game put there (macros/teleport.py USES; the player, 2026-10-16).
 UNIQUE_CHEST = 1000
-UNIQUE_CHEST_KINDS = frozenset((181, 183))
 PLACEHOLDERS = {'PlaceUniqueChest': UNIQUE_CHEST}  # objpreset ObjectClass -> the id it is marked by
 # The placed objects the teleport step clicks at their mark (macros/teleport.py USES): a mark on one of
 # them carries it as `Poi.use`. The Throne's portal is not among them: objects.txt gives it no click

@@ -24,11 +24,13 @@ import math
 from dataclasses import dataclass
 from pathlib import Path
 
+from inventory_tracking.common import LOG
 from inventory_tracking.levels.memory import WAYPOINT_CLASSES
 from inventory_tracking.levels.model import Target
 from inventory_tracking.levels.presets import display_name
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.engine import Run
+from inventory_tracking.macros.routines import arrived
 from inventory_tracking.macros.teleport import ready_world, use_thing
 from inventory_tracking.native.layout import TILE_UNITS
 
@@ -121,13 +123,28 @@ def travel(run: Run, to_area: int) -> None:
         raise Abort('no game window')
     name = display_name(to_area)
     run.say(f'Waypoint to {name}')
-    run.actuator.move(*panel_point(rect, *tab_point(to.act)), scatter=(20, 6))
+    tab, row = panel_point(rect, *tab_point(to.act)), panel_point(rect, *row_point(to.row))
+    # The evidence for the layout's reading (the played check, phase 5): where each click went in this window.
+    LOG.info(
+        'Macro: waypoint: tab %d at (%.3f, %.3f), row %d at (%.3f, %.3f) of a %dx%d window',
+        to.act + 1, *tab, to.row + 1, *row, rect[2], rect[3],
+    )  # fmt: skip
+    run.actuator.move(*tab, scatter=(20, 6))
     run.actuator.click()
     run.pace.sleep(SETTLES)
-    run.actuator.move(*panel_point(rect, *row_point(to.row)), scatter=(30, 5))
+    run.actuator.move(*row, scatter=(30, 5))
     run.actuator.click()
-    if run.seen(lambda w: w.player is not None and w.player.area == to_area, ARRIVES) is None:
+    loading = []
+
+    def reached(w) -> bool:
+        if w.view == 0:
+            loading.append(True)  # the load began before the area changed: `arrived` waits for its end
+        return w.player is not None and w.player.area == to_area
+
+    if run.seen(reached, ARRIVES) is None:
         if 'waypoint' in run.world().open_panels:
             run.actuator.tap('Escape')
         raise Abort(f'the waypoint did not take the character to {name} (its row greyed: not got yet?)')
+    # Not over before the game takes input there (rca/2026-10-16/loop-first-game-findings.md §2)
+    arrived(run, name, loading=bool(loading))
     run.say(f'{name}: there')
