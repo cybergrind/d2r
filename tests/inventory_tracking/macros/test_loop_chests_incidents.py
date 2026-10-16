@@ -8,8 +8,6 @@ import time
 from dataclasses import replace
 from pathlib import Path
 
-import pytest
-
 from inventory_tracking.combat.harm import Harm
 from inventory_tracking.macros import pursuit as p, runner as runner_module
 from inventory_tracking.macros.actuator import Abort, Cancelled
@@ -84,14 +82,3 @@ def test_the_loop_goes_on_once_the_level_run_of_its_chests_is_over(monkeypatch):
     assert made[:3] == ['loop', 'hunt any', 'loop']
     assert swept
     assert swept[0] < 1.0  # the next leg, not the sweep, once the run is over
-
-
-@pytest.mark.xfail(strict=True, reason="loop-chests-findings.md §5: the camp's weapon rack is no mark")
-def test_the_camps_weapon_rack_is_a_spot_the_card_knows():
-    # The player, 2026-10-16 20:0x: "we should loot other random chests in these two shacks + weapon rack". In all
-    # five camps of the three games a WeaponRack2 (class 107) stood at (48, 12) of the camp, closed when the loop left.
-    from inventory_tracking.levels.presets import PRESET_NAMES, object_spots
-
-    [camp] = [preset for preset, name in PRESET_NAMES.items() if name == 'Act 3 - Slums 16x16']
-
-    assert object_spots(camp, 1, 107) == ((48, 12),)

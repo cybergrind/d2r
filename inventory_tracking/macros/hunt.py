@@ -86,7 +86,7 @@ from inventory_tracking.combat.stance import (
 from inventory_tracking.combat.survival import pressure
 from inventory_tracking.common import LOG
 from inventory_tracking.config import HEAL_PRIORITY
-from inventory_tracking.levels.model import Ground, Level, Room, Target
+from inventory_tracking.levels.model import UNIQUE_CHEST, Ground, Level, Room, Target
 from inventory_tracking.levels.presets import display_name
 from inventory_tracking.levels.route import room_at
 from inventory_tracking.macros import route
@@ -101,6 +101,7 @@ from inventory_tracking.macros.goals import (
     PICK_REACH,
     PICK_UP,
     REACH,
+    USE_NEAR,
     WAIT,
     Goal,
     boss_ahead,
@@ -143,6 +144,7 @@ from inventory_tracking.macros.routines import (
 )
 from inventory_tracking.macros.runmode import DOUBLE, Mode, Taps, aim_of, doubles, mode_of, said, tapped
 from inventory_tracking.macros.safety import AWAY, STEPPING, WAY_SHARE, Safety
+from inventory_tracking.macros.shacks import shack_thing
 from inventory_tracking.macros.sight import clear_shot, firing_spots, in_reach, in_reach as in_reach_of
 from inventory_tracking.macros.skillpanel import select_right
 from inventory_tracking.macros.skills import (
@@ -259,6 +261,7 @@ HOLD_SIGHT = 40.0  # world units: a valuable this near that the sweep does not t
 HOLD_UNITS = 25.0  # the sweep's own steps end no further than this from it
 GATHER_CHECK = 0.3  # seconds between two looks of the sweep for something to pick up
 GATHER_TRIES = 2  # times the sweep stops for one drop (and a level run goes for one, `side_drop`)
+SHACK_TRIES = 2  # times the KP_6 loop's run tries one of a shack's containers (`shack_goal`)
 # Seconds the monsters the hands found in the way of a goal's act (teleport.py `Covered`) stay the fight that
 # comes first for that goal, while any of them lives (goals.py `first_fight`)
 BLOCK_SECONDS = 15.0
@@ -585,6 +588,7 @@ class Hunter:
         self.bearings = Bearings()  # the runner's: what a goal is named from
         # the runner's: the key's routine (the route's own step) follows the mode's pause
         self.hand_over: Callable[[str], None] | None = None
+        self.shack_tries: dict[int, int] = {}  # a shack's container (unit): the loop's tries to open it (`shack_goal`)
         # the runner's: a level run ended by the hunt itself (the route's end, the character's death), with why
         self.run_over: Callable[[str], None] | None = None
         self.told = Told()  # the reason last said for a decision that moved nothing
@@ -1102,6 +1106,24 @@ class Hunter:
             run.warn(f'Inventory full: {found.label} here — make room{told}')
         return found
 
+    def shack_goal(self, run: Run, world: World, player) -> Goal | None:
+        """On the KP_6 loop's run, a container of the camp the character stands in, closed, in sight and near
+        (macros/shacks.py; routes/lower-kurast-loop-plan.md phase 6c): opened as a mark is, from where the character
+        stands. One tried SHACK_TRIES times is left."""
+        level = self.known_level(player)
+        if level is None or run.things is None:
+            return None
+        ground, here = Ground(level.ground), (player.x, player.y)
+        if len(self.shack_tries) > 200:
+            self.shack_tries.clear()  # units of games long left
+        skip = frozenset(unit for unit, tries in self.shack_tries.items() if tries >= SHACK_TRIES)
+        found = shack_thing(run.things(), level.rooms, here, lambda at: clear_shot(ground, here, at, world.doors), skip)
+        if found is None:
+            return None
+        thing, name = found
+        mark = Target(player.area, (), (thing.x / TILE_UNITS, thing.y / TILE_UNITS), name, 'target', use=UNIQUE_CHEST)
+        return Goal(f'{name}, in the shack', (thing.x, thing.y), USE, USE_NEAR, PRESSED, unit=thing.unit_id, mark=mark)
+
     def blockers(self, goal: Goal | None, foes: Sequence[Monster], now: float) -> list[Monster]:
         """The hostiles alive that the hands found in the way of `goal`'s act (`Covered`), while that is
         no older than BLOCK_SECONDS; forgotten once none of them lives or the goal changed."""
@@ -1160,7 +1182,10 @@ class Hunter:
             _, _, (x, y) = frontier
             return ((x + 0.5) * TILE_UNITS, (y + 0.5) * TILE_UNITS), 'an unexplored room'
 
-        found = goal_of(
+        opens = None
+        if running and posted is not None and posted.rush and side is None and stay is None:
+            opens = self.shack_goal(run, world, player)  # the KP_6 loop's run: a shack's container in sight first
+        found = opens or goal_of(
             here,
             spend=PRESSED if pressed or running else STANDING,
             reach=self.reach,
@@ -1998,6 +2023,8 @@ class Hunter:
         elif goal.do == USE and goal.mark is not None:
             if rect is None:
                 raise Abort('no game window')
+            if goal.stage is None and goal.unit is not None:  # a shack's container (`shack_goal`): its tries counted
+                self.shack_tries[goal.unit] = self.shack_tries.get(goal.unit, 0) + 1
             thing = marked_thing(run, goal.mark)
             if thing is None and route.note_empty(run, goal.mark, bearings.progress, bearings.marks):
                 return  # a chest that is gone: the next mark (rca/2026-10-16/loop-first-game-findings.md)

@@ -195,12 +195,15 @@ The games of 19:55–20:04 on 2026-10-16 and the player's rulings after them.
   - `Pursuit.rush` and `Facts.rush` drop the strike gap (I2), and `Hunter.rushing` drops the fight's "better place".
   - A strike is made only where the arbiter prices it under the move.
   - The player: "don't fight what isn't attacking", for KP_6 only.
-- **6c.** The shacks' other containers, "only if we encounter them in shacks and direct visibility + close, do not
-  hunt them":
+- **6c, done (uncommitted, not played).** The shacks' other containers, "only if we encounter them in shacks and
+  direct visibility + close, do not hunt them". The code: `macros/shacks.py` and `Hunter.shack_goal`, as a side goal
+  of the loop's run. Played, the log says `Opening Weapon rack, N away` (or Armor stand, Basket, Jungle chest) and
+  `Weapon rack, in the shack` in the pursuit's lines:
   - What: the weapon rack (107, fixed at (48, 12) of the camp), the armor stand (104, at (12, 23)), rolled jungle
     chests (181, 183), and the baskets (208, 209).
-  - The rule: inside the camp's footprint (its 'Slums 16x16' room), a closed one in sight within a short reach is a
-    side goal before the run leaves the camp, as a drop "on the way" is.
+  - The rule: the character and the container in the same camp (the bonfire layout's `Room.block`), the container
+    closed (`usable`), in sight (`clear_shot`), within 25 units (clicked from where the character stands), not one of
+    the camp's three chest spots (the route's own). Two tries at most per container.
 - **6d.** Faster opens:
   - Hop beside a chest and open it from there, not from 18–23 units away.
   - Aim the last hop beside the chest, not at its tile.
@@ -213,7 +216,8 @@ The games of 19:55–20:04 on 2026-10-16 and the player's rulings after them.
 - **Sure valuables (the default):** rare rings, the uniques `loot/data/uniques.json` prices at `unique_minimum` and
   up, every rune, every gem, every charm.
 - **Regular:** today's pickup (`pickup.choose`, the config's rules).
-- **Supply in both modes:** potions the belt is short of. Gold too, unless the player says otherwise.
+- **Supply in both modes:** potions the belt is short of, and gold (the player, 2026-10-16: "we need it to repair our
+  staff of teleportation").
 - **The switch:** made like KP_1's run mode (`runmode.Taps`): exactly two presses within DOUBLE seconds switch the
   pickup mode and leave the loop as it was. A single press toggles the loop once the window is over, so it now acts
   0.35 s after the press. The HUD shows the mode.
@@ -242,8 +246,8 @@ The games of 19:55–20:04 on 2026-10-16 and the player's rulings after them.
 ### 9. Loot to Cube (more games without the player)
 
 Loot to Cube works only in controller mode (the virtual pad's X, `input/gamepad.py`, `macros/pad.py`). The macros
-follow the game's mode and never switch it. What the player means by "move items to cube from time to time" needs a
-ruling (Open 4).
+follow the game's mode and never switch it. The player's answer (Open 4): the inventory's items are moved into the
+cube between games, so more games run before the inventory is full.
 
 ## Open (for the player)
 
@@ -253,8 +257,8 @@ ruling (Open 4).
 2. ~~Lower Kurast's own waypoint~~ Answered (the player, 2026-10-15): "in LK we prefer to use portal because it is
    usually faster way, then a navigating back". After the last chest the loop always casts Town Portal.
 3. **Stops**: is the list in phase 4 right? A cap on games or hours?
-4. **Loot to Cube (phase 9)**: the drops picked straight into the cube (Loot to Cube) once the inventory is full but
-   the cube has room, or the inventory's items moved into the cube between games?
+4. ~~Loot to Cube (phase 9)~~ Answered (the player, 2026-10-16): "probably move items between games": the
+   inventory's items into the cube between games, not the drops picked into it.
 
 ## Order
 
