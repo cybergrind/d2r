@@ -4,9 +4,9 @@ The player, 2026-10-16: "we need to move items to cube from time to time, to hav
 interactions", then "probably move items between games". Loot to Cube is the controller's (macros/pad.py) and the
 macros never switch the game's input mode, so the items are moved by the mouse, as the player moved them by hand in
 Pandemonium Fortress at 21:03 and 21:15 that day (takes 20261016T180313Z-103, 181510Z-103: `inventory`, `cube`): the
-inventory opened by its key, the cube by a right click on it, then each item picked up from its cell and put down on a
-free block of the cube, each click checked in memory (the item's unit leaves the inventory's grid, then lies in the
-cube's), and the panels closed.
+inventory opened by its key, the cube by a right click on it, then each item sent into the cube by a Ctrl + click on it
+(the player: "we can move faster items to cube - open and ctrl+click on item"), each checked in memory (the item's
+unit lies in the cube's grid), and the panels closed.
 
 What moves is the loop's: an item that was not in the inventory when the loop began (`Loop.own`, by class and cell:
 the cells of a carried item stay from game to game), never the cube, a tome or the keys. The player's charms, kept
@@ -117,18 +117,18 @@ def stash(run: Run, inventory_key: str, own: frozenset[tuple[int, int, int]]) ->
         run.actuator.tap('Button3')
         if run.seen(lambda w: 'cube' in w.open_panels, PANEL_SECONDS) is None:
             raise Abort('the cube did not open')
-        for item, spot in moves:
+        for item, _spot in moves:
+            # A Ctrl + click sends the item into the open cube, wherever the game finds room (the player, 2026-10-16:
+            # "we can move faster items to cube - open and ctrl+click on item"); `plan` has made sure it fits
             run.actuator.move(*cell_point(rect, INVENTORY, (item.x, item.y), item.size), scatter=(6, 6))
-            run.actuator.click()
-            if not _until(run, lambda p, i=item: all(c.unit_id != i.unit_id for c in p.items)):
-                raise Abort(f'the item at ({item.x}, {item.y}) did not come up')
-            run.actuator.move(*cell_point(rect, CUBE, spot, item.size), scatter=(6, 6))
-            run.actuator.click()
+            run.actuator.click('Control_L')
             if not _until(run, lambda p, i=item: i.unit_id in p.cube_items):
-                # Put back where it was taken from: nothing is left on the pointer
-                run.actuator.move(*cell_point(rect, INVENTORY, (item.x, item.y), item.size), scatter=(4, 4))
-                run.actuator.click()
-                raise Abort(f'the item from ({item.x}, {item.y}) did not go into the cube')
+                pack = run.carried()
+                if pack is not None and all(c.unit_id != item.unit_id for c in pack.items):
+                    # On the pointer after all: put back where it was taken from, nothing left on the pointer
+                    run.actuator.move(*cell_point(rect, INVENTORY, (item.x, item.y), item.size), scatter=(4, 4))
+                    run.actuator.click()
+                raise Abort(f'the item at ({item.x}, {item.y}) did not go into the cube')
             moved += 1
     finally:
         if {'inventory', 'cube'} & set(run.world().open_panels):

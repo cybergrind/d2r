@@ -93,6 +93,7 @@ class FakeConnection:
         self.at = (2500, 900)
         self.names: dict[str, int] = {}
         self.shift = False  # Shift was down at the last left click
+        self.ctrl = False  # Control was down at the last left click
         self.on_event: Callable[[Event], object] = lambda event: None
 
     def code(self, name: str) -> int:
@@ -166,6 +167,7 @@ class FakeConnection:
         self.buttons_down.discard(button)
         names = tuple(name for name, value in self.names.items() if value in self.down)
         self.shift = 'Shift_L' in names
+        self.ctrl = 'Control_L' in names
         self._emit(('click', self.fraction()) if button == 1 else ('button', button, self.fraction(), names))
         return True
 
@@ -679,6 +681,18 @@ class Game:
         """A left click with the inventory open: an item taken onto the pointer, or the one on it put down in the
         cube (its block's middle under the pointer) or back on the inventory."""
         assert self.pack is not None
+        if self.cursor is None and self.keys.ctrl and 'cube' in self.world.open_panels:
+            item, rows = self.pack_item_at(x, y), self.pack.cube
+            if item is None or item.txt == CUBE_CLASS or rows is None or self.cube_refuses:
+                return
+            cells = ((cx, cy) for cy in range(len(rows)) for cx in range(len(rows[0])))
+            spot = next((cell for cell in cells if cube_fits(rows, cell, item.size)), None)
+            if spot is not None:  # the game finds the room itself
+                self.pack = replace(
+                    self.pack, items=tuple(i for i in self.pack.items if i is not item),
+                    cube=cube_taken(rows, spot, item.size), cube_items=self.pack.cube_items | {item.unit_id},
+                )  # fmt: skip
+            return
         if self.cursor is None:
             item = self.pack_item_at(x, y)
             if item is not None and item.txt != CUBE_CLASS:

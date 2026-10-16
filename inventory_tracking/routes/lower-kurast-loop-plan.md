@@ -230,6 +230,9 @@ The code:
 - Drops now carry `source`, `txt` and `quality`; `ground_materials` reads the quality.
 - The HUD's mode word is `LOOP SURE` or `LOOP ALL` (`run_badge`).
 - The log says `Loop pickup: regular` or `Loop pickup: sure valuables` when the mode switches.
+- Later that day, the player: "make sure that we still pickup all jewels, + pickup worldstone shards/other valuable
+  drops". The sure mode also takes every jewel (`jewl`, `cjwl`) and whatever the loot marks point at (`Drop.prized`:
+  the shards, essences, statues, flawless and perfect gems, every unique and set item the loot filter shows).
 - The types come from the bundled item metadata (misc.txt's type column): gems `gema` `gemd` `geme` `gemr` `gems`
   `gemt` `gemz`; charms `scha` `mcha` `lcha` `csch`; runes `rune`; rings `ring`, rare at quality 6 (`loot/shown.py`
   RARITIES).
@@ -334,12 +337,13 @@ INVENTORY = 1.
 **The steps.** In Pandemonium Fortress, before Save and Exit:
 1. The inventory is opened by its key (`i`).
 2. The cube is opened by a right click on it.
-3. Each item that came since the loop began (not in `Loop.own`, by class and cell; never the cube, a tome or a key) is
-   picked up and put on the first free block of the cube that fits it, smaller items first.
+3. Each item that came since the loop began (not in `Loop.own`, by class and cell; never the cube, a tome or a key) and
+   fits the cube is sent into it by a Ctrl + click, smaller items first. The player, later that day: "we can move
+   faster items to cube - open and ctrl+click on item". The game finds the room itself.
 4. Escape closes the panels.
 
-Each click is checked in memory: the item leaves the inventory's grid, then lies in the cube's. An item the cube does
-not take is put back, and the loop stops.
+Each click is checked in memory: the item lies in the cube's grid. One that does not go in is put back if it came onto
+the pointer, and the loop stops.
 
 **The evidence.**
 - The layouts: the inventory 10 × 4 at (93, 897) of `$RightPanelRect` (−1394, −651) at (1.0, 0.397); the cube 3 × 4 at

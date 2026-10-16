@@ -4,9 +4,12 @@ The player, 2026-10-16: "by default only 100% valuables (rare rings, known good 
 charms). and can switch for pickup regular - what do we have right now"; and "we pickup gold, we need it to repair our
 staff of teleportation".
 
-- `SURE` (the default): of what the regular pickup takes, only the sure valuables. Every rune, gem and charm; a rare
-  ring; a unique or set item the loot marks price (`source` 'unique': loot/data/uniques.json at `unique_minimum` Ist
-  and up). The supplies stay in both modes: gold, and the potions the belt is short of.
+- `SURE` (the default): of what the regular pickup takes, only the sure valuables. Every rune, gem, charm and jewel
+  (the player, later that day: "make sure that we still pickup all jewels"); a rare ring; a unique or set item the loot
+  marks price (`source` 'unique': loot/data/uniques.json at `unique_minimum` Ist and up); and whatever the loot marks
+  point at (`Drop.prized`, world.py `prized`: the worldstone shards, essences, statues, flawless and perfect gems,
+  every unique and set item the loot filter shows; the player: "+ pickup worldstone shards/other valuable drops").
+  The supplies stay in both modes: gold, and the potions the belt is short of.
 - `REGULAR`: today's pickup, untouched (macros/pickup.py `wanted`, `choose`).
 
 A filter over the drops the regular rules found (`kept`), so no rule is written twice: the sure mode never takes what
@@ -29,6 +32,7 @@ MODES = (SURE, REGULAR)  # in the order a double press goes through them; the fi
 RUNES = frozenset(('rune',))
 GEMS = frozenset(('gema', 'gemd', 'geme', 'gemr', 'gems', 'gemt', 'gemz'))  # amethyst ... skull, every grade
 CHARMS = frozenset(('scha', 'mcha', 'lcha', 'csch'))  # small, large, grand, the Crafted Sunder Charm
+JEWELS = frozenset(('jewl', 'cjwl'))  # Jewel, Colossal Jewel
 RING = 'ring'
 RARE = RARITIES['rare']
 
@@ -37,11 +41,11 @@ def sure(drop: Drop) -> bool:
     """Whether the drop is one the sure mode takes: a supply (gold, a potion), or a valuable of the module text."""
     if drop.kind != VALUABLE:
         return True
-    if drop.source == 'unique':
+    if drop.source == 'unique' or drop.prized:
         return True
     base = item_base(drop.txt) if drop.txt else None
     kind = base['type'] if base is not None else None
-    if kind in RUNES or kind in GEMS or kind in CHARMS:
+    if kind in RUNES or kind in GEMS or kind in CHARMS or kind in JEWELS:
         return True
     return kind == RING and drop.quality == RARE
 

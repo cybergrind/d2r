@@ -1246,7 +1246,7 @@ def test_the_loops_pickup_mode_filters_the_drops_only_with_the_loop_on():
     from inventory_tracking.macros.world import VALUABLE, Drop, Loot
 
     runner = make(lambda cancelled, routine: None, [])
-    blade = Drop(1, 0.0, 0.0, 'Magic Blade', VALUABLE, source='shown', txt=0, quality=4)
+    blade = Drop(1, 0.0, 0.0, 'Magic Blade', VALUABLE, prized=False, source='shown', txt=0, quality=4)
     loot = Loot(drops=(blade,))
     assert runner._picked(loot) == loot  # the loop off: KP_1 and the rest take what they always did
     assert runner.run_badge is None

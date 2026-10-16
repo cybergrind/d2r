@@ -11,8 +11,8 @@ def class_of(name: str) -> int:
     return found
 
 
-def drop(name: str, *, source: str = 'material', quality: int = 2, kind: str = VALUABLE) -> Drop:
-    return Drop(class_of(name), 0.0, 0.0, name, kind, source=source, txt=class_of(name), quality=quality)
+def drop(name: str, *, source: str = 'material', quality: int = 2, kind: str = VALUABLE, prized: bool = False) -> Drop:
+    return Drop(class_of(name), 0.0, 0.0, name, kind, prized=prized, source=source, txt=class_of(name), quality=quality)
 
 
 def test_every_rune_gem_and_charm_is_a_sure_valuable():
@@ -26,12 +26,21 @@ def test_a_ring_is_one_when_rare_and_a_unique_when_the_marks_price_it():
     assert not sure(drop('Ring', quality=4))  # magic
     assert sure(drop('Ring', source='unique', quality=7))
     assert not sure(drop('Amulet', quality=6))  # not asked for
-    assert not sure(drop('Jewel', quality=4))
+
+
+def test_every_jewel_and_whatever_the_loot_marks_point_at_is_one():
+    # The player, later on 2026-10-16: "make sure that we still pickup all jewels, + pickup worldstone shards/other
+    # valuable drops"
+    assert sure(drop('Jewel', quality=4))
+    assert sure(drop('Colossal Jewel', quality=6))
+    assert sure(drop('Southern Worldstone Shard', prized=True))
+    assert sure(drop('Twisted Essence of Suffering', prized=True))
+    assert sure(drop('Archon Plate', source='named', quality=7, prized=True))  # a unique the loot filter shows
 
 
 def test_the_rest_the_regular_pickup_takes_is_left_and_the_supplies_stay():
     assert not sure(drop('Phase Blade', source='shown', quality=4))
-    assert not sure(drop('Archon Plate', source='named', quality=7))  # a unique the marks do not price
+    assert not sure(drop('Archon Plate', source='shown', quality=6))  # rare equipment
     assert sure(Drop(9, 0.0, 0.0, '6000 gold', GOLD))  # the staff's repairs (the player, 2026-10-16)
     assert sure(Drop(10, 0.0, 0.0, 'a super healing potion', HEALING))
 
