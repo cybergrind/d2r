@@ -126,3 +126,13 @@ def test_the_grids_give_each_item_its_first_cell_and_the_cubes_rows():
     assert pack.cube == ('#..', '...', '...', '...')
     assert pack.cube_items == {4}
     assert pack_of({}, units) is None
+
+
+def test_an_inventory_that_does_not_open_is_not_followed_by_escape():
+    # Escape with nothing open opens the game's menu
+    play = fortress(Pack((GRAND, THE_CUBE, TOME, KEY, RUNE), EMPTY_CUBE))
+
+    with pytest.raises(Abort, match='the inventory did not open'):
+        stash(play.run(), 'b', OWN)  # a key the fake game does not take
+
+    assert play.world.open_panels == ()

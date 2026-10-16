@@ -131,8 +131,9 @@ def stash(run: Run, inventory_key: str, own: frozenset[tuple[int, int, int]]) ->
                 raise Abort(f'the item from ({item.x}, {item.y}) did not go into the cube')
             moved += 1
     finally:
-        run.actuator.tap('Escape')
-        run.seen(lambda w: not {'inventory', 'cube'} & set(w.open_panels), PANEL_SECONDS)
+        if {'inventory', 'cube'} & set(run.world().open_panels):
+            run.actuator.tap('Escape')  # with nothing open it opens the game's menu instead
+            run.seen(lambda w: not {'inventory', 'cube'} & set(w.open_panels), PANEL_SECONDS)
         LOG.info("Macro: cube: %d of %d of the loop's items moved in", moved, len(moves))
     run.say(f'Cube: {moved} item{"s" if moved != 1 else ""} put in')
     return moved

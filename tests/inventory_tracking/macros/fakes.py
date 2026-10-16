@@ -33,9 +33,22 @@ from inventory_tracking.macros.cube import (
     taken as cube_taken,
 )
 from inventory_tracking.macros.engine import Run
+from inventory_tracking.macros.routines import screen_fraction
+from inventory_tracking.macros.shop import TRADE_ABOVE, VENDOR
 from inventory_tracking.macros.skills import SWAP_WEAPONS, TELEPORT
 from inventory_tracking.macros.timing import Pace
-from inventory_tracking.macros.world import Carried, Drop, Loot, Monster, Pack, Player, Teleport, Thing, World
+from inventory_tracking.macros.world import (
+    Carried,
+    Drop,
+    Loot,
+    Monster,
+    Pack,
+    Player,
+    Stocked,
+    Teleport,
+    Thing,
+    World,
+)  # fmt: skip
 
 
 KEYS = {SUMMON_DEFILER: 'q', CONSUME: '6', HEX_PURGE: 'g', PSYCHIC_WARD: 'r', SWAP_WEAPONS: 'c', TELEPORT: 't'}
@@ -249,6 +262,12 @@ class Game:
         self.pack: Pack | None = None
         self.cursor: Carried | None = None
         self.cube_refuses = False  # a cube that takes nothing put on it
+        # A vendor (macros/shop.py): a click on her opens her menu, its Trade line her trade window, a shift + right
+        # click on a stock cell buys it (`full`: what the count of that class then is)
+        self.vendor: Monster | None = None
+        self.stock: tuple[Stocked, ...] = ()
+        self.full: dict[int, tuple[str, int]] = {558: ('keys', 12), 544: ('portals', 20)}
+        self.trade_line_off = 0.0  # where her menu's Trade line is drawn against the measured place
         self.sigils: list[tuple[float, float]] = []  # ground points Sigil: Lethargy was cast at
         self.engorges: list[tuple[float, float]] = []  # ground points Engorge was cast at
         self.purges: list[float] = []  # clock times Hex: Purge was cast
@@ -402,6 +421,15 @@ class Game:
                 if hit is not None:
                     left = tuple(m for m in w.monsters if m.unit_id != hit)
                     self.world = replace(w, monsters=left, player=replace(character_of(w), consume=True))
+        elif event[0] == 'button' and event[1] == 3 and w.in_game and 'npc_shop' in w.open_panels:
+            if 'Shift_L' in event[3] and self.pack is not None:
+                bought = next((s for s in self.stock if s.tab == 3 and self.stock_cell(*event[2]) == (s.x, s.y)), None)
+                if bought is not None and bought.txt in self.full:
+                    field_name, full = self.full[bought.txt]
+                    if field_name == 'keys':
+                        self.pack = replace(self.pack, keys=full)
+                    else:
+                        self.pack = replace(self.pack, portals=full)
         elif event[0] == 'button' and event[1] == 3 and w.in_game and 'inventory' in w.open_panels:
             item = self.pack_item_at(*event[2])
             if item is not None and item.txt == CUBE_CLASS:
@@ -427,8 +455,13 @@ class Game:
                     self.field_focused = True
             elif w.in_game and 'waypoint' in w.open_panels:
                 self.panel_click(x, y)
+            elif w.in_game and {'npc_interact', 'npc_shop'} & set(w.open_panels):
+                self.vendor_click(x, y)
             elif w.in_game and 'inventory' in w.open_panels and self.pack is not None:
                 self.pack_click(x, y)
+            elif w.in_game and self.vendor is not None and self.vendor_under(x, y):
+                me = replace(character_of(w), x=self.vendor.x - 3.0, y=self.vendor.y)  # the game walks to her
+                self.world = replace(w, player=me, open_panels=('npc_interact',))
             elif w.in_game and self.swallowed_clicks:
                 self.swallowed_clicks -= 1  # a cast was ending: the game takes no notice
             elif w.in_game:
@@ -523,6 +556,8 @@ class Game:
             return (5, 1)
         if self.thing is not None and self.thing_under_pointer():
             return (2, self.thing.unit_id)
+        if self.vendor is not None and self.vendor_under(*self.keys.fraction()):
+            return (1, self.vendor.unit_id)
         drop = self.drop_under_pointer()
         return (4, drop.unit_id) if drop else (0, 0)
 
@@ -607,6 +642,28 @@ class Game:
         near = [m for m in self.world.monsters if m.txt_id in (744, 700) and math.hypot(m.x - x, m.y - y) < 5]
         return min(near, key=lambda m: math.hypot(m.x - x, m.y - y)).unit_id if near else None
 
+    def vendor_under(self, x: float, y: float) -> bool:
+        assert self.vendor is not None
+        drawn = screen_fraction(character_of(self.world), self.vendor.x, self.vendor.y, WINDOW[2] / WINDOW[3])
+        return abs(drawn[0] - x) < 0.02 and abs(drawn[1] - y) < 0.04
+
+    def vendor_click(self, x: float, y: float) -> None:
+        """A left click with her menu or her trade window open: the Trade line opens the window (its line 0.0226 of
+        the window high), a click elsewhere on the menu closes it; in the window a click (a tab) changes nothing."""
+        if 'npc_shop' in self.world.open_panels or self.vendor is None:
+            return
+        drawn = screen_fraction(character_of(self.world), self.vendor.x, self.vendor.y, WINDOW[2] / WINDOW[3])
+        line = drawn[1] - TRADE_ABOVE + self.trade_line_off
+        if abs(drawn[0] - x) < 0.05 and abs(line - y) < 0.0113:
+            self.world = replace(self.world, open_panels=('inventory', 'npc_interact', 'npc_shop'))
+        else:
+            self.world = replace(self.world, open_panels=())
+
+    def stock_cell(self, x: float, y: float) -> tuple[int, int]:
+        x0, y0 = cell_point(WINDOW, VENDOR, (0, 0), (0, 0))
+        x1, y1 = cell_point(WINDOW, VENDOR, (1, 1), (0, 0))
+        return math.floor((x - x0) / (x1 - x0)), math.floor((y - y0) / (y1 - y0))
+
     def pack_item_at(self, x: float, y: float) -> Carried | None:
         """The inventory's item under the window fraction (x, y): the cell it falls in, by the grid's layout."""
         assert self.pack is not None
@@ -677,6 +734,7 @@ class Game:
         run.things = lambda: () if self.thing is None else (self.thing,)
         run.containers = run.things
         run.carried = lambda: self.pack
+        run.stock = lambda vendor: self.stock if self.vendor is not None and vendor == self.vendor.txt_id else ()
         run.keys = dict(KEYS)
         run.prebuff_hands = frozenset(PREBUFF_SET)
         run.battle_hands = frozenset(PREBUFF_SET)

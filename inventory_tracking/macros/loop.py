@@ -21,6 +21,7 @@ from inventory_tracking.macros.cube import own_of
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.portal import to_town
 from inventory_tracking.macros.routines import DEAD, character_keys, create_next_game, leave_game, prebuff
+from inventory_tracking.macros.shop import restock, short
 from inventory_tracking.macros.waypoint import travel
 from inventory_tracking.macros.world import World
 from inventory_tracking.routes.model import LOOT, USE
@@ -32,6 +33,7 @@ __all__ = ['LOWER_KURAST', 'Loop', 'next_leg']
 KURAST_DOCKS, LOWER_KURAST, PANDEMONIUM_FORTRESS = 75, 79, 103
 # The legs, as the HUD says them.
 NEXT_GAME = 'next game'
+SHOP = 'scrolls and keys'
 TO_THE_CHESTS = 'to Lower Kurast'
 CHESTS = 'the chests'
 PICK_UP = 'what is left'
@@ -57,6 +59,8 @@ class Loop:
     # The inventory as the player keeps it, by class and cell, read at the loop's first leg in a game: what is not in
     # it is the loop's, moved into the cube before a game is left (macros/cube.py, phase 9)
     own: frozenset[tuple[int, int, int]] | None = None
+    # The keys or the Town Portal charges under shop.py MIN_STOCK at the last leg's look: Jamella first (phase 8)
+    short: bool = False
 
     def start(self) -> None:
         self.on, self.made, self.own = True, Counter(), None
@@ -87,13 +91,13 @@ class Loop:
         which follows this leg; `pick_up()` takes one drop, False with nothing worth it on the ground; `stash(own)`
         moves the loop's items into the cube (macros/cube.py), `own` the inventory as the player keeps it."""
         world = run.world()
+        pack = run.carried() if world.in_game and run.carried is not None else None
+        self.short = short(pack)
+        if self.own is None and pack is not None:
+            self.own = own_of(pack.items)
         leg = next_leg(world, progress, self)
         game = world.game_name if world.in_game else ''
         self.count(world, leg)
-        if self.own is None and world.in_game and run.carried is not None:
-            pack = run.carried()
-            if pack is not None:
-                self.own = own_of(pack.items)
         run.say(f'Loop: game {self.games + 1}, {leg}')
         if leg != NEXT_GAME:
             run.keys = character_keys(run, key_names)  # Swap Weapons among them: the arrival's check (`arrived`)
@@ -102,6 +106,8 @@ class Loop:
             run.keys = character_keys(run, key_names)
             prebuff(run, fresh=trace)
             self.prebuffed = run.world().game_name
+        elif leg == SHOP:
+            restock(run)
         elif leg == TO_THE_CHESTS:
             if self.prebuffed != game:
                 prebuff(run)
@@ -137,7 +143,9 @@ def next_leg(world: World, progress: Progress | None, loop: Loop) -> str:
     if player.mode in DEAD:
         raise Abort('the character is dead')
     if player.area == PANDEMONIUM_FORTRESS:
-        return LEAVE if loop.done == world.game_name else TO_THE_CHESTS
+        if loop.done == world.game_name:
+            return LEAVE
+        return SHOP if loop.short else TO_THE_CHESTS
     if player.area == LOWER_KURAST:
         step = progress.step(LOWER_KURAST) if progress is not None else None
         if step is not None and step.stage.kind == USE:

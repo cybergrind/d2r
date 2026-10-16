@@ -42,17 +42,20 @@ from inventory_tracking.native.layout import (
     BELT_SIZE,
     CHARGED_SKILL_STAT,
     DEAD_MODES,
+    KEY_CLASS_ID,
     LEVEL_AREA_ID,
     LIFE_STAT,
     MAX_LIFE_STAT,
     PANEL_FLAGS,
     PATH_ROOM1,
     PLAYER_DEAD_MODES,
+    QUANTITY_STAT,
     ROOM1_ROOM2,
     ROOM2_LEVEL,
     STAFF_CLASS_IDS,
     TELEPORT_SKILL,
     TERROR_SERVICE_RVA,
+    TOME_CLASS_ID,
     TOWN_IDS,
     UI_PANELS_RVA,
     UI_PANELS_SIZE,
@@ -594,6 +597,14 @@ class Pack:
     items: tuple[Carried, ...] = ()
     cube: tuple[str, ...] | None = None
     cube_items: frozenset[int] = frozenset()  # the units in the cube
+    # The keys carried (every stack) and the Town Portal tome's charges (tracking/resources.py, the same stat at the
+    # same offset): None when unread, 0 with none (macros/shop.py restocks under 3)
+    keys: int | None = None
+    portals: int | None = None
+
+
+KEY_STATS = RESOURCE_READER.key_stats_offset
+PORTAL_STATS = RESOURCE_READER.portal_stats_offset
 
 
 def carried_items(read, table: int, player_id: int) -> Pack | None:
@@ -607,7 +618,28 @@ def carried_items(read, table: int, player_id: int) -> Pack | None:
         by_address = {u['address']: u for u in walk_units(read, item_heads, ITEM_UNIT)['units']}
     except OSError, ValueError, struct.error:
         return None
-    return pack_of(grids, by_address)
+    pack = pack_of(grids, by_address)
+    if pack is None:
+        return None
+    units = {u['unit_id']: u for u in by_address.values()}
+
+    def quantity(item: Carried, offset: int | None) -> int | None:
+        unit = units.get(item.unit_id)
+        if offset is None or unit is None or not unit['stats_pointer']:
+            return None
+        try:
+            stats = read_stats(read, unit['stats_pointer'] + offset)
+        except OSError, ValueError, struct.error:
+            return None
+        return next((s['raw'] for s in stats if s['id'] == QUANTITY_STAT and s['layer'] == 0), None)
+
+    keys = [quantity(item, KEY_STATS) for item in pack.items if item.txt == KEY_CLASS_ID]
+    tomes = [quantity(item, PORTAL_STATS) for item in pack.items if item.txt == TOME_CLASS_ID]
+    return replace(
+        pack,
+        keys=None if None in keys else sum(k for k in keys if k is not None),
+        portals=0 if not tomes else tomes[0],
+    )
 
 
 def pack_of(grids: dict, by_address: dict[int, dict]) -> Pack | None:
@@ -626,6 +658,35 @@ def pack_of(grids: dict, by_address: dict[int, dict]) -> Pack | None:
     cube = grids.get(CUBE_GRID)
     in_cube = frozenset(by_address[p]['unit_id'] for p in (cube['cells'] if cube else ()) if p in by_address)
     return Pack(tuple(found), grid_rows(cube), in_cube)
+
+
+SHOP_GRIDS = (2, 3, 4, 5)  # a vendor's four tabs, in order (shop/capture.py SHOP_GRIDS: the tab is the index - 2)
+
+
+@dataclass(frozen=True)
+class Stocked:
+    """An item a vendor sells: its class, the tab (0 Armor ... 3 Misc) and its top-left cell there."""
+
+    txt: int
+    tab: int
+    x: int
+    y: int
+
+
+def stock_of(grids: dict, by_address: dict[int, dict]) -> tuple[Stocked, ...]:
+    """A vendor's stock from its grids (`read_owner_grids`), each item at the first cell its pointer lies on."""
+    found, seen = [], set()
+    for index in SHOP_GRIDS:
+        grid = grids.get(index)
+        if grid is None:
+            continue
+        for cell_index, cell in enumerate(grid['cells']):
+            if not cell or cell in seen or cell not in by_address:
+                continue
+            seen.add(cell)
+            x, y = cell_index % grid['width'], cell_index // grid['width']
+            found.append(Stocked(by_address[cell]['txt_id'], index - SHOP_GRIDS[0], x, y))
+    return tuple(found)
 
 
 def held_items(grids: dict) -> frozenset[int]:
@@ -1073,6 +1134,21 @@ class GameMemory:
             return tuple(cells)
         except OSError, ValueError, struct.error:
             return None
+
+    def stock(self, vendor: int) -> tuple[Stocked, ...]:
+        """What the vendor of monstats class `vendor` sells (`stock_of`); () unread or not loaded: the game has the
+        stock in memory once its trade window has been opened."""
+        try:
+            heads = struct.unpack('<128Q', self.read(self.table + MONSTER_UNIT * 1024, 1024))
+            unit = next((u for u in walk_units(self.read, heads, MONSTER_UNIT)['units'] if u['txt_id'] == vendor), None)
+            if unit is None:
+                return ()
+            grids = read_owner_grids(self.read, unit)
+            item_heads = struct.unpack('<128Q', self.read(self.table + ITEM_UNIT * 1024, 1024))
+            by_address = {u['address']: u for u in walk_units(self.read, item_heads, ITEM_UNIT)['units']}
+        except OSError, ValueError, struct.error:
+            return ()
+        return stock_of(grids, by_address)
 
     def carried(self) -> Pack | None:
         """The carried inventory's items and the cube's rows (`carried_items`); None when unread."""

@@ -843,6 +843,7 @@ class MacroRunner:
                 run.things = memory.things
                 run.containers = memory.containers
                 run.carried = memory.carried
+                run.stock = memory.stock
                 run.objects = memory.objects
                 run.corpses = memory.corpses
                 run.flights = memory.flights

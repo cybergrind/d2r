@@ -248,7 +248,25 @@ The design, as planned:
 - **Where it applies:** a filter over the drops `GameMemory.loot` marks (their `source`: rune, material, unique,
   named, shown, also), so no rule is written twice.
 
-### 8. Town Portal scrolls and keys (3 or more of each before a run)
+### 8. Town Portal scrolls and keys (3 or more of each before a run): done (uncommitted, not played)
+
+**The code.** `macros/shop.py` (`short`, `restock`, `walk_until`); `Pack.keys` and `Pack.portals` (quantity stat 70 at
+the resource reader's verified offsets); `GameMemory.stock`, `world.stock_of`, `Run.stock`; the loop's SHOP leg
+(`scrolls and keys`) in Pandemonium Fortress before the waypoint, while `Loop.short`.
+
+**The steps.**
+1. Walk toward Jamella until she is drawn well inside the window.
+2. Click her: up to three aims on her body, each checked by the game's hover record.
+3. Wait for her menu, then click its Trade line, 0.218 of the window above her.
+4. Require `npc_shop` and a key and a scroll in her stock. Gamble is never tried, and nothing is bought otherwise.
+5. Click the Misc tab, then shift + right click the key and a scroll, each followed by the counts.
+6. Escape, but only with one of her panels open (with nothing open it opens the game's menu).
+7. Walk back until the waypoint is on the screen.
+
+**In play.** The log says `Shop: N keys, M portals` before and after, and `Macro: shop: keys a -> b, portals c -> d`.
+Not known until played: whether a shift + right click buys a full stack of keys and fills the tome. The counts show it.
+
+The design, as planned:
 
 - **Counts:** `tracking/resources.py` already reads them (`select_tome`, `select_keys`; offsets verified 2026-09-21).
   The macros read neither yet.
