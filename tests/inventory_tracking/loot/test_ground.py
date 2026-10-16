@@ -236,6 +236,22 @@ def test_an_identified_charm_on_the_ground_is_one_the_player_dropped():
     assert len(ground_materials(memory.read, TABLE, classes)) == 3
 
 
+def test_a_material_on_the_ground_carries_its_quality():
+    # The KP_6 loop's pickup mode takes a ring only when it is rare (macros/pickmode.py, phase 7)
+    from inventory_tracking.loot.ground import ground_materials
+    from inventory_tracking.loot.materials import material_classes
+
+    classes = material_classes(['rings'])
+    ring = next(class_id for class_id, name in classes.items() if name == 'Ring')
+    memory = Memory()
+    address, rare_id = unique_item(memory, 0, ring, 3, quality=6)
+    chain(memory, [address])
+
+    found = ground_materials(memory.read, TABLE, classes)
+
+    assert [(item.unit_id, item.quality) for item in found] == [(rare_id, 6)]
+
+
 def test_drops_a_rule_of_the_loot_filter_shows_are_named():
     # user, 2026-10-11: the pickup step takes what the loot filter shows
     from inventory_tracking.items.identity import IDENTIFIED_FLAG

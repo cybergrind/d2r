@@ -54,15 +54,16 @@ from inventory_tracking.macros.latency import Press, Trace
 from inventory_tracking.macros.loop import Loop
 from inventory_tracking.macros.opening import open_near
 from inventory_tracking.macros.pad import PadActs, PadActuator, PadPlay, input_policy
+from inventory_tracking.macros.pickmode import MODES, REGULAR, SURE, kept, next_mode
 from inventory_tracking.macros.pickup import pick_up, wanted, worth_a_stop
 from inventory_tracking.macros.pursuit import FULL, Pursuit
 from inventory_tracking.macros.routines import prebuff_keys, run_macro
-from inventory_tracking.macros.runmode import badge
+from inventory_tracking.macros.runmode import DOUBLE, badge
 from inventory_tracking.macros.skills import character_bindings, skill_keys
 from inventory_tracking.macros.teleport import LOST_KEY, ready, step_toward
 from inventory_tracking.macros.timing import Pace
 from inventory_tracking.macros.waiting import Waiting
-from inventory_tracking.macros.world import BeltKept, GameMemory, Player, PutDown, World
+from inventory_tracking.macros.world import BeltKept, GameMemory, Loot, Player, PutDown, World
 from inventory_tracking.models import Actor, SessionIdentity
 from inventory_tracking.routes.model import FIGHT
 from inventory_tracking.routes.progress import Progress
@@ -74,6 +75,8 @@ HUNT_ELITES_PREFIX, HUNT_ANY_PREFIX, PICKUP_PREFIX = 'hunt elites ', 'hunt any '
 LOOP_PREFIX = 'loop '
 PREBUFF, TELEPORT, HUNT_ELITES, HUNT_ANY = 'prebuff', 'teleport', 'hunt elites', 'hunt any'  # routines
 PICKUP = 'pickup'  # the pickup step: pick up what is worth it, else a seek step (pickup.py)
+# The HUD's word for the loop's pickup mode (macros/pickmode.py), with the loop on
+LOOP_WORDS = {SURE: 'LOOP SURE', REGULAR: 'LOOP ALL'}
 LOOP = 'loop'  # the Lower Kurast loop's toggle; a run of it is one leg (macros/loop.py)
 STEPS = frozenset((TELEPORT, HUNT_ELITES, PICKUP))  # one press is one step; the same key queues another
 ATTACK = HUNT_ANY  # the attack mode toggle
@@ -189,6 +192,11 @@ class MacroRunner:
         self.closed = False  # `close` was called: nothing starts any more
         # The Lower Kurast loop (KP_6, macros/loop.py): on, it is what follows every run that nothing else follows.
         self.loop = Loop()
+        # The loop's pickup mode (macros/pickmode.py), switched by a double press of KP_6; the presses of KP_6 not
+        # judged yet (`_loop_tap`) and the timer that judges them once their window is over
+        self.pickup_mode = MODES[0]
+        self.loop_taps: list[float] = []
+        self.loop_timer: threading.Timer | None = None
         self.shut = threading.Event()  # set by `close`: a run's card wait ends with it
         self.trace = trace or Trace()  # how long each press takes (latency.py)
         # the requests whose run has not begun: a step's own key during it, a step during attack mode (waiting.py)
@@ -233,9 +241,9 @@ class MacroRunner:
                 routine, 1000 * (now - requested_at), self.routine if self.working else 'nothing runs',
             )  # fmt: skip
             if routine == LOOP:
-                self._toggle_loop()
+                self._loop_tap(now)
                 press.mark('accepted')
-                self.trace.close(press, outcome='loop on' if self.loop.on else 'loop off')
+                self.trace.close(press, outcome='judged with the presses around it')
                 return True
             if routine == ATTACK:
                 toggled = self._toggle_attack_mode()
@@ -336,9 +344,13 @@ class MacroRunner:
 
     @property
     def run_badge(self) -> str | None:
-        """The HUD's word for the run mode (macros/runmode.py `badge`): shown for a full clear of the level the
-        mode last looked at; None otherwise, in town and before any look."""
-        return badge(self.hunter.mode) if self.hunter is not None else None
+        """The HUD's words for the run mode (macros/runmode.py `badge`): shown for a full clear of the level the
+        mode last looked at; and with the loop on, its pickup mode (`LOOP_WORDS`). None when neither shows."""
+        words = (
+            badge(self.hunter.mode) if self.hunter is not None else None,
+            LOOP_WORDS[self.pickup_mode] if self.loop.on else None,
+        )
+        return ' '.join(word for word in words if word) or None
 
     @property
     def pursuit(self) -> bool:
@@ -384,6 +396,43 @@ class MacroRunner:
         """The pickup step that waited for the fight is not wanted any more (hunt.py `asked_step`)."""
         with self.lock:
             self.queue.drop(PICKUP, 'not wanted any more')
+
+    def _picked(self, loot: Loot) -> Loot:
+        """The drops the pickup goes for: with the loop on, those of its pickup mode (macros/pickmode.py)."""
+        return kept(loot, self.pickup_mode) if self.loop.on else loot
+
+    def _loop_tap(self, at: float) -> None:
+        """A press of KP_6 at `at` (the request's clock), judged with the presses around it once DOUBLE seconds pass
+        with no other (`_judge_loop_taps`), as KP_1's run mode judges its double press (macros/runmode.py): one press
+        turns the loop on or off, exactly two switch the pickup mode (the player, 2026-10-16), more switch nothing. A
+        group whose window closed before this press is judged first. Under the lock."""
+        if self.loop_taps and at - self.loop_taps[-1] > DOUBLE:
+            self._judge_loop_taps()
+        self.loop_taps.append(at)
+        if self.loop_timer is not None:
+            self.loop_timer.cancel()
+        taps = len(self.loop_taps)
+        self.loop_timer = threading.Timer(DOUBLE, self._loop_window, (at, taps))
+        self.loop_timer.daemon = True
+        self.loop_timer.start()
+
+    def _loop_window(self, at: float, taps: int) -> None:
+        """The window after the press at `at` is over: its group is judged, unless a press came since."""
+        with self.lock:
+            if self.closed or len(self.loop_taps) != taps or not self.loop_taps or self.loop_taps[-1] != at:
+                return
+            self._judge_loop_taps()
+
+    def _judge_loop_taps(self) -> None:
+        """The group of KP_6 presses is over (`_loop_tap`). Under the lock."""
+        count, self.loop_taps = len(self.loop_taps), []
+        if count == 1:
+            self._toggle_loop()
+        elif count == 2:
+            self.pickup_mode = next_mode(self.pickup_mode)
+            self._say(f'Loop pickup: {self.pickup_mode}')
+        else:
+            self._say(f'KP_6 pressed {count} times together: nothing switched')
 
     def _toggle_loop(self) -> None:
         """KP_6: the loop on, from where the character is (a run working now is followed by the loop's first
@@ -494,6 +543,8 @@ class MacroRunner:
             self.closed = True
             self.shut.set()
             self.attack_mode = False
+            if self.loop_timer is not None:
+                self.loop_timer.cancel()
             self.loop.stop()
             self._end_run('the service closed')
             self.queue.clear('the service closed')
@@ -775,7 +826,7 @@ class MacroRunner:
                     say=self._say,
                     hands=memory.hands,
                     teleport=memory.teleport,
-                    loot=lambda: self.put_down.see(self.belt.see(memory.loot(**wanted()))),
+                    loot=lambda: self._picked(self.put_down.see(self.belt.see(memory.loot(**wanted())))),
                     build=build,
                 )
                 if os.environ.get(RESEARCH_ENV):

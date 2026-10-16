@@ -26,6 +26,7 @@ from inventory_tracking.levels.memory import WAYPOINT_CLASSES, pointer
 from inventory_tracking.levels.model import CLICKED, PORTAL, TOWN_PORTAL, WIRTS_BODY
 from inventory_tracking.loot.ground import (
     GROUND_MODES,
+    GroundMaterial,
     ground_materials,
     ground_runes,
     ground_shown,
@@ -251,6 +252,11 @@ class Drop:
     # One the loot marks point at (`prized`): with no room for it the pickup press stops; for the rest it
     # warns and goes on. True unless the read says otherwise: a drop of unknown worth stops the press.
     prized: bool = True
+    # What found it (`prized`: 'rune', 'material', 'unique', NAMED, 'shown'; '' for gold and potions), its item class
+    # (items.txt row, the unit's txt id; 0 unread) and ItemData quality (0 unread): the pickup mode's (pickmode.py)
+    source: str = ''
+    txt: int = 0
+    quality: int = 0
 
 
 # The source of a unique or set item the loot filter shows (unidentified, or of any size): one a full inventory
@@ -1073,6 +1079,7 @@ class GameMemory:
                         marked=prized_rune_minimum is None
                         or is_valuable_rune(rune.class_id, minimum=prized_rune_minimum),
                     ),
+                    source='rune',
                 )
                 for rune in ground_runes(read, table, minimum=rune_minimum)
             ]  # fmt: skip
@@ -1089,7 +1096,13 @@ class GameMemory:
             # One drop per unit: a unique ring is both a ring and a marked unique (the unique's label wins,
             # as it does over the label of a base the filter shows).
             labelled = {item.unit_id: item for item in marked}
-            drops += [Drop(item.unit_id, item.x, item.y, item.label, VALUABLE) for item in labelled.values()]
+            drops += [
+                Drop(
+                    item.unit_id, item.x, item.y, item.label, VALUABLE, source=sources.get(item.unit_id, ''),
+                    quality=item.quality if isinstance(item, GroundMaterial) else 0,
+                )
+                for item in labelled.values()
+            ]  # fmt: skip
             heads = struct.unpack('<128Q', read(table + ITEM_UNIT * 1024, 1024))
             items = walk_units(read, heads, ITEM_UNIT)['units']
             classes = {unit['unit_id']: unit['txt_id'] for unit in items}
@@ -1097,6 +1110,7 @@ class GameMemory:
                 replace(
                     drop,
                     size=item_size(classes.get(drop.unit_id)),
+                    txt=classes.get(drop.unit_id, 0),
                     prized=drop.prized
                     if drop.unit_id not in sources
                     else prized(

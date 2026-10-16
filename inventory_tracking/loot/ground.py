@@ -74,7 +74,7 @@ class GroundMaterial:
     unit_id: int
     x: int
     y: int
-    quality: int = field(default=0, compare=False)  # ItemData quality as read (`ground_shown`); 0 when not read
+    quality: int = field(default=0, compare=False)  # ItemData quality as read; 0 when not read
 
 
 @dataclass(frozen=True)
@@ -191,14 +191,18 @@ def ground_materials(read, table_address, classes: dict[int, str], appraised=fro
             x, y = static_position(read, unit) if unit['path_pointer'] else (0, 0)
         except OSError, ValueError:
             continue
-        if unit['txt_id'] in appraised and unit['data_pointer']:
+        quality = flags = 0
+        if unit['data_pointer']:
+            # The quality for the pickup mode's rare rings (macros/pickmode.py), the flags for the appraised classes
             try:
-                flags = struct.unpack_from('<I', read(unit['data_pointer'], ITEM_DATA_SIZE), FLAGS_OFFSET)[0]
+                data = read(unit['data_pointer'], ITEM_DATA_SIZE)
+                quality = struct.unpack_from('<I', data, QUALITY_OFFSET)[0]
+                flags = struct.unpack_from('<I', data, FLAGS_OFFSET)[0]
             except OSError, ValueError:
-                flags = 0
-            if flags & IDENTIFIED_FLAG:
-                continue
-        found.append(GroundMaterial(classes[unit['txt_id']], unit['unit_id'], x, y))
+                pass
+        if unit['txt_id'] in appraised and flags & IDENTIFIED_FLAG:
+            continue
+        found.append(GroundMaterial(classes[unit['txt_id']], unit['unit_id'], x, y, quality))
     return found
 
 

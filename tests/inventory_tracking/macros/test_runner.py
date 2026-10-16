@@ -1161,7 +1161,7 @@ def test_the_loop_key_starts_a_leg_and_each_leg_is_followed_by_the_next_until_on
 
     runner = make(execute, shown)
     assert runner.request(10.0, 10.1, 'loop')
-    assert runner.loop.on
+    assert not runner.loop.on  # a single press is judged once the double press's window is over (phase 7)
     deadline = time.monotonic() + 5
     while len(made) < 3 and time.monotonic() < deadline:
         time.sleep(0.01)
@@ -1210,4 +1210,50 @@ def test_the_loop_key_again_stops_the_leg_working_and_nothing_follows(monkeypatc
     assert not runner.working
     assert made == ['loop']
     assert ['Macro: Loop off'] in shown
+    runner.close()
+
+
+def test_a_double_press_of_the_loop_key_switches_its_pickup_mode_and_leaves_the_loop_as_it_was():
+    # routes/lower-kurast-loop-plan.md phase 7 (the player, 2026-10-16): "show mode (switch with double KP_6 click)"
+    from inventory_tracking.macros.pickmode import REGULAR, SURE
+
+    shown, made = [], []
+    runner = make(lambda cancelled, routine: made.append(routine), shown)
+    assert runner.pickup_mode == SURE  # the default: only the sure valuables
+    assert runner.request(10.0, 10.0, 'loop')
+    assert runner.request(10.2, 10.2, 'loop')
+    deadline = time.monotonic() + 2
+    while runner.pickup_mode == SURE and time.monotonic() < deadline:
+        time.sleep(0.01)
+    assert runner.pickup_mode == REGULAR
+    assert not runner.loop.on
+    assert made == []
+    assert ['Macro: Loop pickup: regular'] in shown
+
+    for at in (20.0, 20.1, 20.2):  # a mashed key: nothing
+        assert runner.request(at, at, 'loop')
+    deadline = time.monotonic() + 2
+    while ['Macro: KP_6 pressed 3 times together: nothing switched'] not in shown and time.monotonic() < deadline:
+        time.sleep(0.01)
+    assert ['Macro: KP_6 pressed 3 times together: nothing switched'] in shown
+    assert runner.pickup_mode == REGULAR
+    assert not runner.loop.on
+    runner.close()
+
+
+def test_the_loops_pickup_mode_filters_the_drops_only_with_the_loop_on():
+    from inventory_tracking.macros.pickmode import REGULAR
+    from inventory_tracking.macros.world import VALUABLE, Drop, Loot
+
+    runner = make(lambda cancelled, routine: None, [])
+    blade = Drop(1, 0.0, 0.0, 'Magic Blade', VALUABLE, source='shown', txt=0, quality=4)
+    loot = Loot(drops=(blade,))
+    assert runner._picked(loot) == loot  # the loop off: KP_1 and the rest take what they always did
+    assert runner.run_badge is None
+    runner.loop.on = True
+    assert runner._picked(loot).drops == ()  # the loop's default: the sure valuables only
+    assert runner.run_badge == 'LOOP SURE'  # on the HUD beside attack mode
+    runner.pickup_mode = REGULAR
+    assert runner._picked(loot) == loot
+    assert runner.run_badge == 'LOOP ALL'
     runner.close()

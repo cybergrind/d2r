@@ -221,7 +221,21 @@ The games of 19:55–20:04 on 2026-10-16 and the player's rulings after them.
   - In play the log says `<level>: took input N s after the arrival (a weapon swap)`.
   - `no load shown; 5s …` means the probe could not run, or no swap took.
 
-### 7. Pickup mode (a double press of KP_6)
+### 7. Pickup mode (a double press of KP_6): done (uncommitted, not played)
+
+The code:
+- `macros/pickmode.py`: `sure`, `kept`, `next_mode`.
+- `MacroRunner._loop_tap` and `_judge_loop_taps` judge the KP_6 presses; `_picked` filters the run's loot while the
+  loop is on.
+- Drops now carry `source`, `txt` and `quality`; `ground_materials` reads the quality.
+- The HUD's mode word is `LOOP SURE` or `LOOP ALL` (`run_badge`).
+- The log says `Loop pickup: regular` or `Loop pickup: sure valuables` when the mode switches.
+- The types come from the bundled item metadata (misc.txt's type column): gems `gema` `gemd` `geme` `gemr` `gems`
+  `gemt` `gemz`; charms `scha` `mcha` `lcha` `csch`; runes `rune`; rings `ring`, rare at quality 6 (`loot/shown.py`
+  RARITIES).
+- KP_1, KP_4 and the rest, with the loop off, pick up as before.
+
+The design, as planned:
 
 - **Sure valuables (the default):** rare rings, the uniques `loot/data/uniques.json` prices at `unique_minimum` and
   up, every rune, every gem, every charm.
