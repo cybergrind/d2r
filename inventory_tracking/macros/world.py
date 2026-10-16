@@ -601,8 +601,13 @@ class Pack:
     # same offset): None when unread, 0 with none (macros/shop.py restocks under 3)
     keys: int | None = None
     portals: int | None = None
+    # Whether a key stack has room for more (KEY_STACK) or none is carried: a Shift + right click on her key fills it
+    # (macros/shop.py), where with every stack full it would take a cell for a new one; None when unread
+    key_room: bool | None = None
 
 
+KEY_STACK = 12  # keys in a stack at most (d2data misc.json `key` maxstack, 2026-10-16)
+TOME_CHARGES = 20  # Town Portal charges in the tome at most (misc.json `tbk` maxstack)
 KEY_STATS = RESOURCE_READER.key_stats_offset
 PORTAL_STATS = RESOURCE_READER.portal_stats_offset
 
@@ -639,6 +644,7 @@ def carried_items(read, table: int, player_id: int) -> Pack | None:
         pack,
         keys=None if None in keys else sum(k for k in keys if k is not None),
         portals=0 if not tomes else tomes[0],
+        key_room=None if None in keys else not keys or any(k is not None and k < KEY_STACK for k in keys),
     )
 
 

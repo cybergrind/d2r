@@ -9,9 +9,11 @@ inventory opened by its key, the cube by a right click on it, then each item sen
 unit lies in the cube's grid), and the panels closed.
 
 What moves is the loop's: an item that was not in the inventory when the loop began (`Loop.own`, by class and cell:
-the cells of a carried item stay from game to game), never the cube, a tome or the keys. The player's charms, kept
-in the inventory for their stats, were there when the loop began, so they stay. Smaller items first, each into the
-first free block (row by row) that fits it; one that fits nowhere stays.
+the cells of a carried item stay from game to game), or that an earlier loop left there (`Loop.mine`, kept on disk),
+never the cube, a tome or the keys. The player's charms, kept in the inventory for their stats, were there when the
+loop began, so they stay. Smaller items first, each into the first free block (row by row) that fits it; one that fits
+nowhere stays, and the HUD says so: the cube holds 12 cells, a grand charm takes 3. Each reason nothing moves is logged
+(`Macro: cube: …`): from game 8 to 17 of 22:50 on 2026-10-16 nothing moved and nothing said why.
 
 Where to click is the game's own layout (`data/global/ui/layouts/playerinventoryoriginallayouthd.json`,
 `horadriccubelayouthd.json`, `_profilehd.json`, read on 2026-10-16; a layout unit is 1/2160 of the window's height,
@@ -28,7 +30,7 @@ from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.world import Carried, Pack
 
 
-__all__ = ['KEPT', 'Move', 'own_of', 'plan', 'stash']
+__all__ = ['KEPT', 'Move', 'loot', 'own_of', 'plan', 'stash']
 
 REFERENCE_HEIGHT = 2160
 CELL = 98  # $ItemCellSize
@@ -65,13 +67,17 @@ def taken(rows: Sequence[str], at: tuple[int, int], size: tuple[int, int]) -> tu
     )
 
 
+def loot(pack: Pack, own: frozenset[tuple[int, int, int]]) -> list[Carried]:
+    """The loop's items in `pack`: neither the player's (`own`) nor KEPT."""
+    return [item for item in pack.items if item.txt not in KEPT and (item.txt, item.x, item.y) not in own]
+
+
 def plan(pack: Pack, own: frozenset[tuple[int, int, int]]) -> list[Move]:
     """The loop's items in `pack` and the cube's cell each goes to: smaller first, the first free block that fits."""
     if pack.cube is None:
         return []
-    loot = [item for item in pack.items if item.txt not in KEPT and (item.txt, item.x, item.y) not in own]
     rows, moves = pack.cube, []
-    for item in sorted(loot, key=lambda i: (i.size[0] * i.size[1], i.y, i.x)):
+    for item in sorted(loot(pack, own), key=lambda i: (i.size[0] * i.size[1], i.y, i.x)):
         spot = next(
             ((x, y) for y in range(len(rows)) for x in range(len(rows[0])) if fits(rows, (x, y), item.size)), None
         )
@@ -98,15 +104,32 @@ def stash(run: Run, inventory_key: str, own: frozenset[tuple[int, int, int]]) ->
     panels closed when a panel does not open or an item is not where it should be."""
     if run.pad is not None:
         raise Abort('the cube needs mouse mode')
-    if run.carried is None:
+    carried = run.carried
+    pack = carried() if carried is not None else None
+    if carried is None or pack is None:
+        LOG.info("Macro: cube: the inventory is not read: the loop's items stay where they are")
         return 0
-    pack = run.carried()
-    moves = plan(pack, own) if pack is not None else []
-    if not moves or pack is None:
+    loop = loot(pack, own)
+    if not loop:
         return 0
     cube = next((item for item in pack.items if item.txt == CUBE_CLASS), None)
     rect = run.actuator.keys.focused_window_rect()
-    if cube is None or rect is None:
+    why = (
+        'no cube in the inventory' if cube is None
+        else "the cube's grid is not read" if pack.cube is None
+        else 'no game window' if rect is None
+        else None
+    )  # fmt: skip
+    if why is not None or rect is None or cube is None:
+        LOG.info("Macro: cube: %s: the loop's %d items stay where they are", why, len(loop))
+        return 0
+    moves = plan(pack, own)
+    if len(moves) < len(loop):
+        # Each game left with them is a game played with less room: the player empties the cube
+        LOG.info('Macro: cube: %d of the loop\'s %d items fit nowhere in it (%s)', len(loop) - len(moves), len(loop),
+                 '/'.join(pack.cube or ()))  # fmt: skip
+        run.say(f"Cube full: {len(loop) - len(moves)} of the loop's items stay in the inventory")
+    if not moves:
         return 0
     moved = 0
     try:
@@ -123,7 +146,7 @@ def stash(run: Run, inventory_key: str, own: frozenset[tuple[int, int, int]]) ->
             run.actuator.move(*cell_point(rect, INVENTORY, (item.x, item.y), item.size), scatter=(6, 6))
             run.actuator.click('Control_L')
             if not _until(run, lambda p, i=item: i.unit_id in p.cube_items):
-                pack = run.carried()
+                pack = carried()
                 if pack is not None and all(c.unit_id != item.unit_id for c in pack.items):
                     # On the pointer after all: put back where it was taken from, nothing left on the pointer
                     run.actuator.move(*cell_point(rect, INVENTORY, (item.x, item.y), item.size), scatter=(4, 4))

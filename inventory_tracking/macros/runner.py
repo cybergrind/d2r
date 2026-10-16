@@ -136,6 +136,7 @@ class MacroRunner:
         trace: Trace | None = None,
         builds: Sequence[Build] = (),
         fallback: Build | None = None,
+        loop_items: Path | None = None,
     ) -> None:
         self.source = source
         # The builds a run is played by, in the order they are asked whose the character is, and the one
@@ -192,7 +193,7 @@ class MacroRunner:
         self.attack_declined = False
         self.closed = False  # `close` was called: nothing starts any more
         # The Lower Kurast loop (KP_6, macros/loop.py): on, it is what follows every run that nothing else follows.
-        self.loop = Loop()
+        self.loop = Loop(store=loop_items)
         # The loop's pickup mode (macros/pickmode.py), switched by a double press of KP_6; the presses of KP_6 not
         # judged yet (`_loop_tap`) and the timer that judges them once their window is over
         self.pickup_mode = MODES[0]

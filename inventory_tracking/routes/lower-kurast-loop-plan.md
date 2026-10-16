@@ -369,6 +369,28 @@ Loot to Cube works only in controller mode (the virtual pad's X, `input/gamepad.
 follow the game's mode and never switch it. The player's answer (Open 4): the inventory's items are moved into the
 cube between games, so more games run before the inventory is full.
 
+### 10. After the games of 22:50 on 2026-10-16: the cube and Jamella (uncommitted, not played)
+
+The player: "moving itmes to the cube from inventory - seems not working. or working not always"; "shop click: we need
+to find out shop characters dynamically - they are moving"; "when you buy tp scrolls or keys: check inventory number.
+you can bulk buy with (shift+right click)".
+
+- **The cube.** From game 8 to game 17 the LEAVE leg moved nothing and logged nothing, though a Flawless Sapphire, a
+  Grand Charm, a Small Charm, a Flawless Ruby and a Large Charm were picked up (game 17: "Inventory full"). `stash` had
+  four silent returns. The likeliest is a full cube (inferred: the 22:11 session had moved 12 items into its 12 cells,
+  and the player opened it by hand at 23:06:26, after which 2 of 2 moved). A second gap (read in the code): an item an
+  earlier loop left in the inventory counted as the player's at the next KP_6, so it was never moved. Now every reason
+  is logged (`Macro: cube: …`), a full cube is said on the HUD (`Cube full: N of the loop's items stay in the
+  inventory`), and the loop's items are kept from one KP_6 to the next and in `runs/alt-d/loop-items.json`
+  (`Loop.mine`, by the character's name).
+- **Jamella.** At 23:07:04 the game's hover record named her at none of the three aims (she stood at (5088.5, 5051.5),
+  11 units off, the take `20261016T200656Z-103`), and the loop stopped without a click. Now each aim is where she is
+  drawn at that moment, following her as she walks; with no aim named hers, the click is made at her body's middle and
+  her menu opening is the check (2 clicks at most).
+- **The buys.** A Shift + right click fills the key stack or the tome, so it is made only where there is room
+  (`Pack.key_room`: a stack under 12 keys or none; the tome under 20 charges; d2data misc.json maxstack), and each is
+  checked by the count in memory and made once more if the count did not change.
+
 ## Open (for the player)
 
 1. ~~Why back to act 4?~~ Answered (the player, 2026-10-16): a game left in act 3 starts in Kurast Docks, a long

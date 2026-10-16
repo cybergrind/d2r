@@ -708,6 +708,7 @@ def run_service(args, directory, report):
                         # The builds a run is played by: handed in here, the framework imports none
                         builds=tuple(map(played, builds.BUILDS)),
                         fallback=played(builds.FALLBACK),
+                        loop_items=args.output / 'loop-items.json',
                     )
                     # Per-game monster/Herald state: the Terror card and the level map shading.
                     zones = ZoneTracker(args.output / 'terror-games.json') if args.terror_probe else None

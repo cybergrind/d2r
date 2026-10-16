@@ -136,3 +136,35 @@ def test_an_inventory_that_does_not_open_is_not_followed_by_escape():
         stash(play.run(), 'b', OWN)  # a key the fake game does not take
 
     assert play.world.open_panels == ()
+
+
+def test_a_full_cube_is_said_and_nothing_is_opened():
+    # The player, 2026-10-16: "moving items to the cube from inventory - seems not working. or working not always";
+    # games 8 to 17 of 22:50 that day left with the loop's items and not a word
+    play = fortress(Pack((GRAND, THE_CUBE, TOME, KEY, RUNE), ('###',) * 4))
+
+    assert stash(play.run(), 'i', OWN) == 0
+    assert play.pressed() == []
+    assert play.said[-1] == "Cube full: 1 of the loop's items stay in the inventory"
+
+
+def test_the_loops_items_stay_the_loops_from_one_loop_to_the_next_and_one_service_to_the_next(tmp_path):
+    from inventory_tracking.macros.loop import Loop
+
+    store = tmp_path / 'loop-items.json'
+    loop = Loop(store=store)
+    loop.start()
+    loop.sort(own_of((GRAND, THE_CUBE, TOME, KEY)), 'CybergrindAA')
+    loop.sort(own_of((GRAND, THE_CUBE, TOME, KEY, RUNE)), 'CybergrindAA')  # the rune picked up, the cube full
+    assert loop.mine == own_of((RUNE,))
+
+    loop.stop()
+    loop.start()  # KP_6 off and on: the rune is still the loop's
+    loop.sort(own_of((GRAND, THE_CUBE, TOME, KEY, RUNE)), 'CybergrindAA')
+    assert loop.own == OWN
+
+    later = Loop(store=store)  # the service started again
+    later.start()
+    later.sort(own_of((GRAND, THE_CUBE, TOME, KEY, RUNE, CHARM)), 'CybergrindAA')
+    assert later.own == OWN | own_of((CHARM,))  # a charm the player put in meanwhile is theirs
+    assert later.mine == own_of((RUNE,))

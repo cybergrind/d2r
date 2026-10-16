@@ -270,6 +270,9 @@ class Game:
         self.stock: tuple[Stocked, ...] = ()
         self.full: dict[int, tuple[str, int]] = {558: ('keys', 12), 544: ('portals', 20)}
         self.trade_line_off = 0.0  # where her menu's Trade line is drawn against the measured place
+        self.vendor_drift = 0.0  # units a second she walks along x (the vendors walk about)
+        self.vendor_named = True  # the game's record of what is under the pointer names her when she is
+        self.vendor_seen: float | None = None  # the clock she was last moved at
         self.sigils: list[tuple[float, float]] = []  # ground points Sigil: Lethargy was cast at
         self.engorges: list[tuple[float, float]] = []  # ground points Engorge was cast at
         self.purges: list[float] = []  # clock times Hex: Purge was cast
@@ -558,7 +561,7 @@ class Game:
             return (5, 1)
         if self.thing is not None and self.thing_under_pointer():
             return (2, self.thing.unit_id)
-        if self.vendor is not None and self.vendor_under(*self.keys.fraction()):
+        if self.vendor is not None and self.vendor_named and self.vendor_under(*self.keys.fraction()):
             return (1, self.vendor.unit_id)
         drop = self.drop_under_pointer()
         return (4, drop.unit_id) if drop else (0, 0)
@@ -647,7 +650,7 @@ class Game:
     def vendor_under(self, x: float, y: float) -> bool:
         assert self.vendor is not None
         drawn = screen_fraction(character_of(self.world), self.vendor.x, self.vendor.y, WINDOW[2] / WINDOW[3])
-        return abs(drawn[0] - x) < 0.02 and abs(drawn[1] - y) < 0.04
+        return abs(drawn[0] - x) < 0.02 and -0.09 < y - drawn[1] < 0.01  # her body, from her feet up
 
     def vendor_click(self, x: float, y: float) -> None:
         """A left click with her menu or her trade window open: the Trade line opens the window (its line 0.0226 of
@@ -755,6 +758,12 @@ class Game:
         return run
 
     def read(self) -> World:
+        if self.vendor is not None and self.vendor_drift:
+            since = self.clock.now - (self.vendor_seen if self.vendor_seen is not None else self.clock.now)
+            self.vendor_seen = self.clock.now
+            her = replace(self.vendor, x=self.vendor.x + self.vendor_drift * since)
+            monsters = tuple(her if m.unit_id == her.unit_id else m for m in self.world.monsters)
+            self.vendor, self.world = her, replace(self.world, monsters=monsters)
         here = self.world.player
         if here is not None and any(d.kind == 'gold' for d in self.loot.drops):  # gold is taken by standing on it
             on = [

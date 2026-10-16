@@ -1,5 +1,7 @@
 """Town Portal scrolls and keys from Jamella (macros/shop.py; routes/lower-kurast-loop-plan.md phase 8)."""
 
+from dataclasses import replace
+
 import pytest
 
 from inventory_tracking.macros.actuator import Abort
@@ -45,6 +47,56 @@ def test_one_visit_buys_keys_and_scrolls_and_walks_back_to_the_waypoint():
     assert play.said[-1] == 'Shop: 12 keys, 20 portals'
     me = play.character
     assert abs(me.x - WAYPOINT.x) < 40  # back by the waypoint: its click is the next leg's
+
+
+def test_she_is_clicked_where_she_is_drawn_as_she_walks():
+    # The player, 2026-10-16: "they are moving, so you cannot expect to find them at the same location"
+    play = fortress()
+    play.vendor_drift = 1.5
+
+    restock(play.run())
+
+    assert play.pack is not None
+    assert (play.pack.keys, play.pack.portals) == (12, 20)
+    assert play.vendor is not None
+    assert play.vendor.x > JAMELLA_AT[0] + 1.0
+
+
+def test_she_is_clicked_when_the_games_record_does_not_name_her_and_her_menu_says_it_took():
+    # 23:07:04 on 2026-10-16: the record named her at none of the three aims and the loop stopped with no click
+    play = fortress()
+    play.vendor_named = False
+
+    restock(play.run())
+
+    assert play.pack is not None
+    assert (play.pack.keys, play.pack.portals) == (12, 20)
+
+
+def test_a_full_key_stack_is_not_bought_again_and_each_buy_is_checked_by_the_count():
+    # The player: "when you buy tp scrolls or keys: check inventory number. you can bulk buy with (shift+right click)"
+    play = fortress(keys=12, portals=2)
+    assert play.pack is not None
+    play.pack = replace(play.pack, key_room=False)  # every stack full: a key bought would take a new cell
+    play.full = {SCROLL: ('portals', 20)}
+
+    restock(play.run())
+
+    assert (play.pack.keys, play.pack.portals) == (12, 20)
+    buys = [e for e in play.keys.events if e[0] == 'button' and e[1] == 3 and 'Shift_L' in e[3]]
+    assert len(buys) == 1  # the scrolls only
+
+
+def test_a_buy_the_count_does_not_show_is_made_once_more_and_no_more():
+    play = fortress()
+    play.full = {SCROLL: ('portals', 20)}  # her key does not come, click as it may
+
+    restock(play.run())
+
+    assert play.pack is not None
+    assert (play.pack.keys, play.pack.portals) == (1, 20)
+    buys = [e for e in play.keys.events if e[0] == 'button' and e[1] == 3 and 'Shift_L' in e[3]]
+    assert len(buys) == 3  # the key twice, the scrolls once
 
 
 def test_a_click_beside_the_trade_line_is_not_tried_on_another_line():

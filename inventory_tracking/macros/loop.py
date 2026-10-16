@@ -11,10 +11,13 @@ It stops by itself, saying why (`Macro: loop stopped: …`): a leg that `Abort`s
 has no leg for, and a leg made again and again in one game with nothing coming of it (`REPEATS`).
 """
 
+import json
 from collections import Counter
 from collections.abc import Callable
 from dataclasses import dataclass, field
+from pathlib import Path
 
+from inventory_tracking.common import LOG
 from inventory_tracking.levels.presets import display_name
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.cube import own_of
@@ -59,6 +62,12 @@ class Loop:
     # The inventory as the player keeps it, by class and cell, read at the loop's first leg in a game: what is not in
     # it is the loop's, moved into the cube before a game is left (macros/cube.py, phase 9)
     own: frozenset[tuple[int, int, int]] | None = None
+    # The loop's items still carried, by class and cell, kept from one KP_6 to the next and in `store` (by the
+    # character's name) from one service to the next: an item the loop left in the inventory, the cube full, is still
+    # the loop's when it starts again, not the player's (the player, 2026-10-16: "moving items to the cube from
+    # inventory - seems not working. or working not always")
+    mine: frozenset[tuple[int, int, int]] = frozenset()
+    store: Path | None = None
     # The keys or the Town Portal charges under shop.py MIN_STOCK at the last leg's look: Jamella first (phase 8)
     short: bool = False
 
@@ -67,6 +76,36 @@ class Loop:
 
     def stop(self) -> None:
         self.on = False
+
+    def sort(self, held: frozenset[tuple[int, int, int]], name: str | None) -> None:
+        """The carried items `held` told apart: at the loop's first look the player's are what is not the loop's
+        (`mine`, read from `store` for the character `name`); then the loop's are what is not the player's."""
+        if self.own is None:
+            self.mine = self.mine or self._stored(name)
+            self.own = held - self.mine
+        mine = held - self.own
+        if mine != self.mine:
+            self.mine = mine
+            self._keep(name)
+
+    def _stored(self, name: str | None) -> frozenset[tuple[int, int, int]]:
+        if self.store is None or name is None:
+            return frozenset()
+        try:
+            rows = json.loads(self.store.read_text()).get(name, [])
+            return frozenset((int(txt), int(x), int(y)) for txt, x, y in rows)
+        except OSError, ValueError, TypeError, AttributeError:
+            return frozenset()
+
+    def _keep(self, name: str | None) -> None:
+        if self.store is None or name is None:
+            return
+        try:
+            kept = json.loads(self.store.read_text()) if self.store.exists() else {}
+            kept[name] = sorted(self.mine)
+            self.store.write_text(json.dumps(kept))
+        except (OSError, ValueError, TypeError, AttributeError) as error:
+            LOG.info("Macro: the loop's items are not kept in %s: %s", self.store, error)
 
     def count(self, world: World, leg: str) -> None:
         """`leg` made once more where `world` is; `Abort` when that is more than REPEATS allows. A game's legs count
@@ -93,8 +132,8 @@ class Loop:
         world = run.world()
         pack = run.carried() if world.in_game and run.carried is not None else None
         self.short = short(pack)
-        if self.own is None and pack is not None:
-            self.own = own_of(pack.items)
+        if pack is not None:
+            self.sort(own_of(pack.items), world.player.name if world.player is not None else None)
         leg = next_leg(world, progress, self)
         game = world.game_name if world.in_game else ''
         self.count(world, leg)
