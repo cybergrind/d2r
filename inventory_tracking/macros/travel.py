@@ -174,7 +174,23 @@ PRESSED = Intent(
 # carefully use teleport staff charges when running loop"). A jump that costs nothing always comes first where it
 # reaches toward the hop's landing (`sparing` inf: Blade Warp), a Teleport only where none does (over a wall, out
 # of a dead end); and the last LOW_CHARGES are kept, for the player's own steps.
-LOOPED = replace(PRESSED, name='loop goal', reserve=LOW_CHARGES, sparing=math.inf)
+#
+# Its moves end LOOP_SHORT short of the goal: a Teleport aimed onto a chest's own spot was not cast ("nothing 0.6s after
+# the key, no charge spent", 19:56:40.4 on 2026-10-16, at (4427.0, 3012.0), the chest's mark), and the chest is clicked
+# from beside it (hunt.py OPEN_NEAR).
+LOOP_SHORT = 3.0
+# Teleport only toward a goal HOP_FROM and further (the player, 2026-10-17, of the charges: "it looks like we're
+# constantly low on tp charges"; chose selective charges): with charges 282 chests an hour of cycles, without 258,
+# but ~7 charges a cycle (~11,900 gold) for ~4 s, more than the sales bring; most on the last short hop to a chest
+# Then, 13:36: with 3.3 casts a stay the chests leg was 27.3 s, as with none (27.7): the charges bought no time and the
+# sessions to pay them cost ~12.7 s a cycle (221 chests an hour of cycles against 279): the player chose "No TP,
+# high-value trade only". No Teleport in the loop's moves (inf): Blade Warp and the walk
+HOP_FROM = math.inf
+LOOPED = replace(PRESSED, name='loop goal', reserve=LOW_CHARGES, sparing=math.inf, short=LOOP_SHORT, hop_from=HOP_FROM)
+# The loop's moves with the staff's Teleport wherever it is faster, as before 13:36 (282 chests an hour of cycles
+# against 258 without): taken while the gold carried is high (macros/loop.py `teleports`), the player, 15:24 on
+# 2026-10-17: "if we make enough gold - we can use teleport staff more often to speed up things"
+LOOPED_TELEPORT = replace(LOOPED, name='loop goal by Teleport', hop_from=0.0)
 # The goal attack mode goes to by itself (a boss out of reach): as OWN_MOVE, no swap and the staff's
 # last LOW_CHARGES kept, but a casting delay about to end is waited out: nothing is struck meanwhile.
 STANDING = Intent(
@@ -814,6 +830,59 @@ def beats_walk(jump: Jump, delay: float, flown: float, gained: float, walked: fl
     return gained / jumping >= walk_gained / walk_seconds(walked)
 
 
+# Footed cells of a jump's reach, the least way left first, that `landing_in_reach` tests for a clear line at most:
+# past them the reach is walled in, and the way's own descent is taken
+LANDING_TRIES = 48
+
+
+def landing_in_reach(
+    field: Walked,
+    here: Point,
+    jump: Jump,
+    short: float,
+    left: float,
+    footed: Callable[[Point], bool],
+    lands: Callable[[Point], bool],
+) -> tuple[Point, float] | None:
+    """The cell centre within the jump's reach (`least` to `reach` units) with the least walked way left, at least
+    `short` and less than `left` (the way from here), `footed` (in view, off a wall) and where it `lands` (over a
+    clear line, the costlier test, made on the LANDING_TRIES best footed cells at most), and that way; None with
+    none.
+
+    Not the furthest cell of the way's descent the jump reaches: along a winding way that one is short of what the
+    reach allows, and a cell off the way's own line can have less of it left. Replayed on the 152 Blade Warps toward
+    goals over 30 units away in the games of 22:50 on 2026-10-16 (their takes' ground): 24.0 units of the way a hop
+    against the descent's 20.8, and 22.0 as made then."""
+    cx, cy = math.floor(here[0]), math.floor(here[1])
+    reach = math.ceil(jump.reach)
+    least, most = jump.least**2, jump.reach**2
+    found: list[tuple[float, float, Point]] = []
+    for dx in range(-reach, reach + 1):
+        for dy in range(-reach, reach + 1):
+            spot = (cx + dx + 0.5, cy + dy + 0.5)
+            far = (spot[0] - here[0]) ** 2 + (spot[1] - here[1]) ** 2
+            if not least <= far <= most:
+                continue
+            # What is settled only, never grown here (`Walked.of` grows on, and in a look's time raises `Unplanned`:
+            # 00:13 on 2026-10-17, every look of the loop's run, "the chests again and again"): every cell with less of
+            # the way left than `left` was settled before the character's own
+            cell = (cx + dx, cy + dy)
+            cost = field.cost[cell] if cell in field.settled else math.inf
+            if short <= cost < left:
+                found.append((cost, far, spot))
+    found.sort()
+    tried = 0
+    for cost, _, spot in found:
+        if not footed(spot):
+            continue
+        if lands(spot):
+            return spot, cost
+        tried += 1
+        if tried >= LANDING_TRIES:
+            break
+    return None
+
+
 def way_leg(
     facts: MoveFacts,
     goal: Point,
@@ -855,15 +924,24 @@ def way_leg(
         return in_view(view.ground(here, *spot)) and not intent.shuns(spot)
 
     jump = next(iter(jumps), None)
+    line = jump is not None and jump.line
+
+    def footed(spot: Point) -> bool:
+        return shown(spot) and not any(barred((spot[0] + dx, spot[1] + dy)) for dx in (-1, 0, 1) for dy in (-1, 0, 1))
+
+    def lands(spot: Point) -> bool:
+        return not line or clear_shot(ground, here, spot, facts.doors)
+
     flown = None
     if jump is not None:
-        for spot, cost in reversed(path):
-            away = math.dist(here, spot)
-            if not jump.least <= away <= jump.reach or not shown(spot):
-                continue
-            if any(barred((spot[0] + dx, spot[1] + dy)) for dx in (-1, 0, 1) for dy in (-1, 0, 1)):
-                continue
-            if not jump.line or clear_shot(ground, here, spot, facts.doors):
+        # The way's end in reach: the last hop lands on the way's own line, from which its end is walked to (a cell
+        # beside the end by the way but off its line can be one no move leads on from: the arena's Icy Cellar door,
+        # 4 units from it with no walk there and no jump that short)
+        flown = None if ends else landing_in_reach(field, here, jump, intent.short, left, footed, lands)
+        for spot, cost in reversed(path) if flown is None else ():
+            # The furthest cell of the way's descent the jump reaches: where the cells with the least way left are
+            # all walled off from here
+            if jump.least <= math.dist(here, spot) <= jump.reach and footed(spot) and lands(spot):
                 flown = (spot, cost)
                 break
     walked = next(
@@ -1538,6 +1616,26 @@ def walk_reaches(ground: Ground | None, doors: Sequence[Door], here: Point, goal
     if clear_line(ground, doors, here, goal):
         return True
     return walked_length(ground, doors, here, goal) <= min(reach, ROUND_CLICK)
+
+
+# An object opened from further than a clear line is opened only where the walk round is at most this many times the
+# straight line: the game walks the character there before the use (`open_reaches`)
+ROUND_OPEN = 1.5
+
+
+def open_reaches(ground: Ground | None, doors: Sequence[Door], here: Point, goal: Point, reach: float) -> bool:
+    """Whether a click on an object at `goal` from `here` opens it soon: within `reach` and on a clear straight line,
+    or a walk round no longer than ROUND_OPEN times the line. A chest in a shack clicked from 12 off outside its wall
+    was walked round 43-55 units, the open's priced 1.5 s ran out and the leg lost 7-8 s (19:54:36 and 20:03:47 on
+    2026-10-17); of 933 opens in Lower Kurast 17:43-20:08 this refuses none of the 896 that opened (a corner clipped:
+    7.5-11.7 by walking, 1.12 the line at most) and all 34 across a wall (rca/2026-10-17/slow-legs-findings.md §5).
+    `walk_reaches`'s ROUND_CLICK, 5 units round, is for a drop clicked from beside it."""
+    away = math.dist(here, goal)
+    if away > reach:
+        return False
+    if clear_line(ground, doors, here, goal):
+        return True
+    return walked_length(ground, doors, here, goal) <= ROUND_OPEN * away
 
 
 def step_line(step: Step | None, here: Point) -> str:

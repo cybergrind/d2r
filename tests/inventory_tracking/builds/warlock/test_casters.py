@@ -252,3 +252,13 @@ def test_consume_is_cast_anew_on_a_defiler_summoned_for_it_and_another_summoned(
     assert game.pressed() == ['q', '6', 'q']
     assert game.character.consume
     assert len([m for m in game.world.monsters if m.txt_id == 744]) == 1
+
+
+def test_a_standing_defiler_out_of_view_is_not_aimed_at_and_another_is_summoned():
+    # 00:42:15 on 2026-10-17: after the KP_6 loop's walk to Jamella the Defiler stood by the game's start, out of view,
+    # and the prebuff stopped the loop on "the Defiler is out of view"
+    far = Monster(60, 744, 1, 5060.0, 5060.0, 0xFFFFFFFF)
+    game = Game(world(monsters=(far,)))
+    prebuff(game.run())
+    assert game.pressed()[:2] == ['q', '6']  # one summoned in view, and consumed
+    assert game.character.consume

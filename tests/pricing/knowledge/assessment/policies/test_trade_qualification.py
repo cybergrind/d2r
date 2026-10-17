@@ -96,12 +96,13 @@ def test_scoped_asking_evidence_is_exactly_preserved_from_offline_snapshot(name)
 
     from pricing.knowledge.assessment.policies.named_tiers import ROOT, RULES
     from pricing.knowledge.assessment.policies.trade_qualification import validate_review
+    from pricing.knowledge.market_rows import file_market
 
     policy = next(r for r in json.loads(RULES.read_bytes())['policies'] if r['name'] == name)
     review = policy['trade_qualification']
-    raw = (ROOT / review['market_snapshot']['path']).read_bytes()
-    assert hashlib.sha256(raw).hexdigest() == review['market_snapshot']['sha256']
-    original = {r['id']: r for r in map(json.loads, raw.splitlines())}
+    market = file_market(ROOT / review['market_snapshot']['path'])  # the 187 MB market, parsed only for the evidence
+    assert market.sha256 == review['market_snapshot']['sha256']
+    original = {r['id']: r for r in market.with_ids(row['id'] for row in review['market_evidence'])}
     for row in review['market_evidence']:
         evidence = original[row['id']]
         if name == 'Hellfire Torch':

@@ -1022,3 +1022,34 @@ def test_at_an_empty_chest_mark_the_step_tells_the_route_instead_of_stopping():
     assert play.keys.events == []
     with pytest.raises(Abort, match='Super chests is not here'):  # a route that has no use for it: said, as before
         step_toward(play.run(), chest, keys, empty=lambda target: False)
+
+
+def test_a_monster_seen_on_the_object_is_told_in_the_way_when_the_acts_time_runs_out():
+    # 21:16:22 on 2026-10-17: two aims at a chest had a monster under them, then the act's priced time ran out; four
+    # tries in 6.5 s until the monster walked off. Told as `Covered`, the hunt fights it first (hunt.py `blocked`)
+    from inventory_tracking.levels.model import UNIQUE_CHEST
+    from inventory_tracking.macros.teleport import EXPIRED, Covered, use_thing
+
+    play = game()
+    run = play.run()
+    me = run.world().player
+    assert me is not None
+    chest = Target(109, (HERE, *EAST), (me.x / 5 + 1, me.y / 5), 'Super chests', 'target', use=UNIQUE_CHEST)
+    thing = Thing(9, 181, 0, me.x + 5.0, me.y)
+    looks = []
+
+    def hovered():
+        looks.append(1)
+        if len(looks) == 1:
+            return (1, 777)  # a monster under the first aim
+        raise Abort(f'{EXPIRED}: look again before continuing')
+
+    run.hovered = hovered
+    with pytest.raises(Covered) as stop:
+        use_thing(run, chest, me, thing, 16 / 9)
+    assert stop.value.units == {777}
+    looks.clear()
+    run.hovered = lambda: (_ for _ in ()).throw(Abort(f'{EXPIRED}: look again before continuing'))
+    with pytest.raises(Abort) as plain:  # nothing seen on it: the stop as it was
+        use_thing(run, chest, me, thing, 16 / 9)
+    assert not isinstance(plain.value, Covered)

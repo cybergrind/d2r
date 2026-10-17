@@ -40,6 +40,7 @@ from inventory_tracking.macros.buffs import (
     phase_keys,
 )
 from inventory_tracking.macros.build import BuffFacts
+from inventory_tracking.macros.cta import BATTLE_ORDERS
 from inventory_tracking.macros.skills import SWAP_WEAPONS
 from inventory_tracking.macros.world import Monster
 from tests.inventory_tracking.macros.fakes import HUNT_SLOTS, KEYS, WINDOW, Game, character_of, world
@@ -111,11 +112,13 @@ def test_the_plan_casts_each_phase_in_the_order_the_hunt_and_the_prebuff_had():
         'prebuff': [CONSUME, HEX_PURGE, PSYCHIC_WARD],
         # A Defiler kept out (2026-10-14, run-1932-findings.md issue 3): after Consume in the quiet (its renewal
         # summons one of its own), before Death Mark under the strike (the mark sends it)
-        'upkeep': [HEX_PURGE, PSYCHIC_WARD, CONSUME, SUMMON_DEFILER],
+        # Battle Orders from a Call to Arms first, out of town (macros/cta.py, 2026-10-17)
+        'upkeep': [BATTLE_ORDERS, HEX_PURGE, PSYCHIC_WARD, CONSUME, SUMMON_DEFILER],
         'fight': [HEX_PURGE, PSYCHIC_WARD, SUMMON_DEFILER, DEATH_MARK, SIGIL_LETHARGY, ENGORGE],
     }
     assert [(row.skill, row.phase, row.caster) for row in BUFFS if row.caster] == [
         (CONSUME, 'prebuff', 'defiler dance'),
+        (BATTLE_ORDERS, 'upkeep', 'cta'),
         (CONSUME, 'upkeep', 'consume'),
         (SUMMON_DEFILER, 'upkeep', 'defiler'),
         (SUMMON_DEFILER, 'fight', 'defiler'),
@@ -134,8 +137,9 @@ def test_the_keys_the_prebuff_needs_are_the_ones_it_always_asked_for_in_that_ord
     assert keys_of(next(row for row in BUFFS if row.caster == 'consume')) == (SUMMON_DEFILER, CONSUME, SWAP_WEAPONS)
 
 
-def test_only_hex_purge_and_psychic_ward_go_by_the_rule_for_a_state_that_reads_and_never_in_the_prebuff():
+def test_only_hex_purge_psychic_ward_and_battle_orders_go_by_the_rule_for_a_state_that_reads_never_in_the_prebuff():
     assert {(row.skill, row.phase) for row in BUFFS if row.state is not None} == {
+        (BATTLE_ORDERS, 'upkeep'),
         (HEX_PURGE, 'upkeep'),
         (PSYCHIC_WARD, 'upkeep'),
         (HEX_PURGE, 'fight'),

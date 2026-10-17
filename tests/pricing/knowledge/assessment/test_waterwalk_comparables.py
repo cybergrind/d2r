@@ -1,6 +1,5 @@
 """Waterwalk defense proof preserves quantity, scope and price-dispersion gates."""
 
-import json
 from copy import deepcopy
 from datetime import date
 from functools import lru_cache
@@ -9,16 +8,15 @@ from pathlib import Path
 from pricing.knowledge.assessment.adapters.capture import normalize
 from pricing.knowledge.assessment.comparables import evaluate, price_from_comparables
 from pricing.knowledge.assessment.handlers.named import NamedHandler
+from pricing.knowledge.market_rows import file_market
 from tests.pricing.knowledge.assessment.item_bank.models import Item
 
 
 @lru_cache
 def listings():
-    return [
-        r
-        for r in map(json.loads, Path('pricing/data/appraisal-market.jsonl').read_text().splitlines())
-        if r.get('name') == 'Waterwalk'
-    ]
+    # The market parsed only for rows named so once normalized, of which the exact name's.
+    market = file_market(Path('pricing/data/appraisal-market.jsonl'))
+    return [r for r in market.named(['Waterwalk']) if r.get('name') == 'Waterwalk']
 
 
 def contract(base, defense):

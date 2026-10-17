@@ -97,13 +97,10 @@ def test_invalid_market_or_native_evidence_cannot_publish(mutation):
     import json
 
     from pricing.knowledge.assessment.policies import crown_trade
+    from pricing.knowledge.market_rows import file_market
 
     rule = json.loads(crown_trade.RULES.read_bytes())
-    rows = [
-        r
-        for line in crown_trade.MARKET.read_bytes().splitlines()
-        if (r := json.loads(line))['id'] in rule['evidence_ids']
-    ]
+    rows = file_market(crown_trade.MARKET).with_ids(rule['evidence_ids'])
     guides = crown_trade.GUIDES.read_bytes()
     native = tuple(p.read_bytes() for p in crown_trade.NATIVE)
     if mutation == 'hardcore':

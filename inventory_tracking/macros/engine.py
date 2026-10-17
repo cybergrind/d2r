@@ -15,7 +15,7 @@ from typing import TYPE_CHECKING
 from inventory_tracking.levels.model import Ground
 from inventory_tracking.macros.actuator import Abort, Actuator, Cancelled, Flipped
 from inventory_tracking.macros.timing import Pace
-from inventory_tracking.macros.world import Loot, Pack, Stocked, Teleport, Thing, Warp, World
+from inventory_tracking.macros.world import Loot, Pack, Stocked, Teleport, Thing, Warp, Wear, World
 from inventory_tracking.models import PotionType
 
 
@@ -60,6 +60,10 @@ class Run:
         self.prebuff_hands: frozenset[str] = frozenset()  # the set the buffs are cast with
         self.battle_hands: frozenset[str] = frozenset()  # the main set: fought with, and held when a game is left
         self.hovered: Callable[[], tuple[int, int] | None] | None = None  # world.GameMemory.hovered
+        # Whether Teleport is the character's own, given by a worn item (Enigma) and not by charges: None unread
+        self.own_teleport: Callable[[], bool | None] | None = None  # world.GameMemory.own_teleport
+        self.wear: Callable[[], Wear | None] | None = None  # the most worn item (world.GameMemory.wear)
+        self.cta: Callable[[], bool | None] | None = None  # a Call to Arms worn in either set (world.GameMemory.cta)
         # skill -> clock time of its last cast that took, kept by the runner across its runs (macros/buffs.py
         # `Buffs.took_of`): the prebuff's Consume is seen by attack mode, which renews it before a boss. None: this
         # run's executor keeps its own.

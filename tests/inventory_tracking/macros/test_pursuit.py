@@ -25,8 +25,10 @@ from inventory_tracking.macros.build import BuildSettings, Intent, JumpSource, M
 from inventory_tracking.macros.goals import PICK_UP, PURSUED, REACH, Goal, goal_of
 from inventory_tracking.macros.pursuit import FRESH, Defer, Facts, Hold, Move, Operate, Pursuit, Told, decide
 from inventory_tracking.macros.runner import EXPIRES, TELEPORT as TELEPORT_KEY
+from inventory_tracking.macros.sight import clear_shot
 from inventory_tracking.macros.skills import TELEPORT
 from inventory_tracking.macros.travel import PRESSED, STANDING, Travel, Walked, navigator, way_leg
+from inventory_tracking.macros.view import Viewport
 from inventory_tracking.macros.world import NO_OWNER, VALUABLE, Drop, Monster, Teleport
 from inventory_tracking.native.layout import TILE_UNITS
 from inventory_tracking.routes.model import ENTER, FIGHT, LEAVE, LOOT, STAND, USE, enter, fight, leave, loot, stand, use
@@ -515,6 +517,62 @@ def test_a_free_jump_leg_is_made_only_where_it_gets_on_faster_than_the_walk() ->
     assert travel.beats_walk(SPARE_JUMP, SPARE_SOURCE.delay, 9.0, 9.0, 16.0, 0.0)  # a walk that saves nothing
 
 
+def test_a_free_jump_lands_where_the_least_of_the_way_is_left_not_on_the_ways_own_line() -> None:
+    """travel.py `landing_in_reach`: the cell in reach with the least walked way left (in view, off a wall, over a clear
+    line), never more of it left than the furthest cell of the way's descent the jump reaches. Out of the pocket and
+    round its wall the way's own line bends at the corner; a landing off it gets further on."""
+    ground, _ = pocket()
+    view = Viewport(16 / 9)
+    better = 0
+    for here in PLACES:
+        if ground.walkable(*here) is not True:
+            continue
+        found = replace(standing(here, charges=0), rooms=())
+        field = travel.walked_for(found, BEHIND)
+        if field is None or field.left(here) == math.inf:
+            continue
+        leg = travel.way_leg(found, BEHIND, PRESSED, jumps=(SPARE_JUMP,))
+        descent = [
+            cost
+            for spot, cost in field.descent(here, travel.JUMP_REACH)
+            if SPARE_JUMP.least <= math.dist(here, spot) <= SPARE_JUMP.reach
+            and view.in_view(view.ground(here, *spot))
+            and not any(field.barred((spot[0] + dx, spot[1] + dy)) for dx in (-1, 0, 1) for dy in (-1, 0, 1))
+            and clear_shot(ground, here, spot, ())
+        ]
+        if not isinstance(leg, Step) or leg.skill != SPARE or not descent:
+            continue
+        assert field.left(leg.spot) <= min(descent) + 1e-9, here
+        better += field.left(leg.spot) < min(descent) - 1.0
+    assert better >= 3  # round the pocket's corners the way's own line is short of the reach
+
+
+def test_a_landing_is_chosen_within_a_looks_time_from_what_the_way_has_settled() -> None:
+    """00:13 on 2026-10-17: `landing_in_reach` asked each cell of the reach for its way by `Walked.of`, which grows
+    the field on to it; in a look's time (`planning`) that raised `Unplanned`, and every look of the loop's run failed
+    ("the chests again and again"). A field that has reached the character answers with no growth at all."""
+    here = (ORIGIN + 80.5, ORIGIN + 50.5)  # open ground east of the pocket: the way round its wall to BEHIND
+    found = replace(standing(here, charges=0), rooms=())
+    field = travel.walked_for(found, BEHIND)  # grown, with no look's time, as far as the character
+    assert field is not None
+    with travel.planning(lambda: 1.0, 0.0):  # the look's time over already
+        leg = way_leg(found, BEHIND, PRESSED, jumps=(SPARE_JUMP,))
+    assert isinstance(leg, Step)
+    assert leg.skill == SPARE
+
+
+def test_a_loop_goals_teleport_hop_lands_short_of_it_never_on_its_own_spot() -> None:
+    """travel.py LOOPED `short`: a Teleport aimed onto a chest's own spot was not cast (19:56:40.4 on 2026-10-16); the
+    loop's goal is the object's own place (it stays put from look to look), and the hop lands LOOP_SHORT of it."""
+    open_ground = (ORIGIN + 80.5, ORIGIN + 80.5)
+    chest = (open_ground[0] + 12.0, open_ground[1])  # in one hop: without `short` the landing is its own spot
+    found = standing(open_ground, charges=30, in_hand=True, slots=(TELEPORT,))
+    leg = movement.hop_leg(found, chest, travel.LOOPED)
+    assert isinstance(leg, Step)
+    assert leg.skill == TELEPORT
+    assert math.dist(leg.spot, chest) >= travel.LOOP_SHORT - 1e-9
+
+
 class Fickle:
     """A set whose first way gives nothing and says so: its second is asked once the first is distrusted."""
 
@@ -566,3 +624,17 @@ def test_the_snapshot_carries_the_pursuits_goal_only_with_the_switch_on() -> Non
         'pressed_at': 10.0,
         'run_mode': None,  # no look has named the run mode yet (macros/runmode.py)
     }
+
+
+def test_the_loops_charges_are_spent_only_toward_a_goal_hop_from_and_further() -> None:
+    # The player, 2026-10-17: "it looks like we're constantly low on tp charges": ~7 a cycle, most on the last 14-20
+    # units to a chest in Blade Warp's delay; the loop's move (LOOPED) hops only toward a goal HOP_FROM and further
+    from inventory_tracking.macros.movement import hops
+    from inventory_tracking.macros.travel import LOOPED
+
+    here = (ORIGIN + 10.5, ORIGIN + 10.5)
+    near = (here[0], here[1] + 20.0)
+    facts = standing(here, charges=40, in_hand=True)
+    assert not hops(facts, near, LOOPED)
+    assert not hops(facts, (here[0], here[1] + 80.0), LOOPED)  # 13:36: no Teleport in the loop at all (HOP_FROM inf)
+    assert hops(facts, near, PRESSED)  # the player's own key: as before

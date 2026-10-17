@@ -1,6 +1,5 @@
 """Numeric Gore Rider comparisons retain exact rolls and scope after variant proof."""
 
-import json
 from copy import deepcopy
 from datetime import date
 from functools import lru_cache
@@ -11,17 +10,16 @@ import pytest
 from pricing.knowledge.assessment.adapters.capture import normalize
 from pricing.knowledge.assessment.comparables import evaluate, price_from_comparables
 from pricing.knowledge.assessment.handlers.named import NamedHandler
+from pricing.knowledge.market_rows import file_market
 from tests.pricing.knowledge.assessment.item_bank.cases.gore_rider_trade import boots
 from tests.pricing.knowledge.assessment.item_bank.cases.gore_rider_upgraded_trade import upgraded
 
 
 @lru_cache
 def listings():
-    return [
-        r
-        for r in map(json.loads, Path('pricing/data/appraisal-market.jsonl').read_text().splitlines())
-        if r.get('name') == 'Gore Rider'
-    ]
+    # The market parsed only for rows named so once normalized, of which the exact name's.
+    market = file_market(Path('pricing/data/appraisal-market.jsonl'))
+    return [r for r in market.named(['Gore Rider']) if r.get('name') == 'Gore Rider']
 
 
 def contract(item=None):

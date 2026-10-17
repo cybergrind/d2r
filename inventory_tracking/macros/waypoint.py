@@ -21,6 +21,7 @@ greyed row that takes nothing, said as the level not reached.
 import functools
 import json
 import math
+from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -30,9 +31,14 @@ from inventory_tracking.levels.model import Target
 from inventory_tracking.levels.presets import display_name
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.engine import Run
-from inventory_tracking.macros.routines import arrived
-from inventory_tracking.macros.teleport import ready_world, use_thing
+from inventory_tracking.macros.routines import arrived, screen_fraction
+from inventory_tracking.macros.teleport import ground_fraction, ready_world, use_thing
+from inventory_tracking.macros.world import World
 from inventory_tracking.native.layout import TILE_UNITS
+
+
+CLOSE = 8.0  # units from the waypoint within which a click finds the character's figure over it (`open_panel`)
+STEP_BACK = 7.0  # units the character steps back from a waypoint too close to be aimed at
 
 
 __all__ = ['WaypointRow', 'open_panel', 'panel_point', 'travel', 'waypoint_of']
@@ -85,8 +91,10 @@ def row_point(row: int) -> tuple[float, float]:
     return ROW_ORIGIN[0] + ROW_AIM[0], ROW_ORIGIN[1] + row * ROW_STEP + ROW_AIM[1]
 
 
-def open_panel(run: Run) -> None:
-    """Click the town's waypoint and wait for its panel. `Abort` out of town and with no waypoint shown."""
+def open_panel(run: Run, marks: Callable[[str], tuple[tuple[float, float], ...]] | None = None) -> None:
+    """Click the town's waypoint and wait for its panel. `Abort` out of town and with no waypoint shown. With none
+    in sight, walked toward the level card's Waypoint mark (`marks`, guide.py: tiles) until it is: a game begun
+    in Kurast Docks starts out of its sight (01:24 on 2026-10-17: "no waypoint in sight", four games running)."""
     with run.lightly():
         world, rect = ready_world(run)
     player = world.player
@@ -94,16 +102,70 @@ def open_panel(run: Run) -> None:
     if not player.in_town:
         raise Abort('not in town: no waypoint to walk to')
     shown = [t for t in (run.things() if run.things is not None else ()) if t.txt_id in WAYPOINT_CLASSES]
+    marked = marks('Waypoint') if marks is not None and not shown else ()
+    if not shown and marked:
+        from inventory_tracking.macros.shop import walk_until  # shop.py imports this module
+
+        def place(now: World) -> tuple[float, float] | None:
+            seen = [t for t in (run.things() if run.things is not None else ()) if t.txt_id in WAYPOINT_CLASSES]
+            if seen:
+                return seen[0].x, seen[0].y
+            return marked[0][0] * TILE_UNITS, marked[0][1] * TILE_UNITS  # tiles to world units
+
+        LOG.info(
+            'Macro: waypoint: none in sight: walking to the mark at (%.0f, %.0f)', *(c * TILE_UNITS for c in marked[0])
+        )
+        world = walk_until(run, place, (0.15, 0.85, 0.15, 0.8), 'the waypoint')
+        player = world.player or player
+        shown = [t for t in (run.things() if run.things is not None else ()) if t.txt_id in WAYPOINT_CLASSES]
     if not shown:
         raise Abort('no waypoint in sight')
+    drawn = ground_fraction(player, shown[0].x, shown[0].y, rect[2] / rect[3]) if rect is not None else None
+    inside = drawn is not None and 0.15 <= drawn[0] <= 0.85 and 0.15 <= drawn[1] <= 0.8
+    if marks is not None and not inside:
+        # In sight but maybe out of the window (the walk to the stash left it so: "the waypoint is not under the
+        # pointer at any aim", 01:31:42 on 2026-10-17): walked to until drawn well inside
+        from inventory_tracking.macros.shop import WALK_SECONDS, WALKING, walk_until
+
+        def near(now: World) -> tuple[float, float] | None:
+            seen = [t for t in (run.things() if run.things is not None else ()) if t.txt_id in WAYPOINT_CLASSES]
+            return (seen[0].x, seen[0].y) if seen else None
+
+        world = walk_until(run, near, (0.15, 0.85, 0.15, 0.8), 'the waypoint')
+        world = run.seen(lambda w: w.player is not None and w.player.mode not in WALKING, WALK_SECONDS) or world
+        player = world.player or player
+        shown = [t for t in (run.things() if run.things is not None else ()) if t.txt_id in WAYPOINT_CLASSES] or shown
+    # Stood still before the aims, the waypoint drawn in view or not: walked back from Halbu, 4 units off, no aim had it
+    # under the pointer (06:50:00 on 2026-10-17); with the character standing the wait returns at once
+    standing = run.seen(lambda w: w.player is not None and w.player.mode not in (2, 3, 6), 1.6)
+    player = (standing.player if standing is not None else None) or player
     thing = min(shown, key=lambda t: math.dist((t.x, t.y), (player.x, player.y)))
     mark = Target(
         player.area, (), (thing.x / TILE_UNITS, thing.y / TILE_UNITS), 'the waypoint', 'waypoint', use=thing.txt_id
     )
-    use_thing(run, mark, player, thing, rect[2] / rect[3])
+    try:
+        use_thing(run, mark, player, thing, rect[2] / rect[3])
+    except Abort as stop:
+        away = math.dist((thing.x, thing.y), (player.x, player.y))
+        if 'not under the pointer' not in str(stop) or away > CLOSE:
+            raise
+        # Too near: the character's own figure covers the aims (4 units off, back from Halbu at 06:50:00 and from
+        # Jamella at 08:13:38 on 2026-10-17): a step back from it, then the aims again
+        from inventory_tracking.macros.shop import WALK_SECONDS, WALKING
+
+        back = (player.x + (player.x - thing.x) / max(away, 0.1) * STEP_BACK,
+                player.y + (player.y - thing.y) / max(away, 0.1) * STEP_BACK)  # fmt: skip
+        LOG.info('Macro: waypoint: %.0f units off and under no aim: a step back to (%.0f, %.0f)', away, *back)
+        # A click on the ground there: a walk toward a place in view ends before it begins (09:43:41 on 2026-10-17)
+        run.actuator.move(*screen_fraction(player, back[0], back[1], rect[2] / rect[3]), scatter=(3, 3))
+        run.actuator.click()
+        stood = (player.x, player.y)
+        run.seen(lambda w: w.player is not None and math.dist((w.player.x, w.player.y), stood) >= STEP_BACK / 2, 1.5)
+        world = run.seen(lambda w: w.player is not None and w.player.mode not in WALKING, WALK_SECONDS) or run.world()
+        use_thing(run, mark, world.player or player, thing, rect[2] / rect[3])
 
 
-def travel(run: Run, to_area: int) -> None:
+def travel(run: Run, to_area: int, marks: Callable[[str], tuple[tuple[float, float], ...]] | None = None) -> None:
     """From the town's waypoint to level `to_area`'s: the panel opened (`open_panel`), the level's tab and row
     clicked, done in that level. Mouse mode only, as Save and Exit. `Abort` with the panel closed again when the
     level is not reached."""
@@ -117,7 +179,7 @@ def travel(run: Run, to_area: int) -> None:
     if world.player is not None and world.player.area == to_area:
         return
     if 'waypoint' not in world.open_panels:
-        open_panel(run)
+        open_panel(run, marks)
     rect = run.actuator.keys.focused_window_rect()
     if rect is None:
         raise Abort('no game window')

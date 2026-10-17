@@ -13,6 +13,7 @@ import os
 import re
 import struct
 import threading
+import time
 from contextlib import suppress
 from dataclasses import dataclass, field, replace
 from pathlib import Path
@@ -20,7 +21,16 @@ from pathlib import Path
 from inventory_tracking.collection.capture import read_owner_grids
 from inventory_tracking.common import LOG
 from inventory_tracking.config import RESOURCE_READER
-from inventory_tracking.items.metadata import item_base
+from inventory_tracking.items.identity import (
+    ETHEREAL_FLAG,
+    FLAGS_OFFSET,
+    IDENTIFIED_FLAG,
+    ITEM_DATA_SIZE,
+    QUALITY_OFFSET,
+    SOCKETED_FLAG,
+)
+from inventory_tracking.items.metadata import item_base, metadata
+from inventory_tracking.items.stat_constants import StatId
 from inventory_tracking.levels.doors import Door, door_sizes
 from inventory_tracking.levels.memory import WAYPOINT_CLASSES, pointer
 from inventory_tracking.levels.model import CLICKED, PORTAL, TOWN_PORTAL, WIRTS_BODY
@@ -38,6 +48,7 @@ from inventory_tracking.loot.materials import appraised_classes
 from inventory_tracking.loot.runes import is_valuable_rune, rune_name
 from inventory_tracking.loot.shown import NAMED_QUALITIES, ShownRule
 from inventory_tracking.native.layout import (
+    BATTLE_ORDERS_SKILL,
     BELT_ITEM_MODE,
     BELT_SIZE,
     CHARGED_SKILL_STAT,
@@ -46,6 +57,7 @@ from inventory_tracking.native.layout import (
     LEVEL_AREA_ID,
     LIFE_STAT,
     MAX_LIFE_STAT,
+    NONCLASS_SKILL_STAT,
     PANEL_FLAGS,
     PATH_ROOM1,
     PLAYER_DEAD_MODES,
@@ -138,6 +150,7 @@ EQUIPPED_MODE = 1
 ITEM_OWNER, ITEM_BODY_LOCATION = 0x0C, 0x54  # item data (native/units.py describe_item)
 # The weapon set in hand; the other set sits at 11 and 12 (config.py: staff 4 -> 11 on swap).
 HANDS = frozenset((4, 5))
+SWAP_SET = WEAPON_SLOTS - HANDS  # what the other set gives is not the character's while it is not in hand
 # An item's full stat list, where a staff's charged skills are (tracking/resources.py select_teleport).
 TELEPORT_STATS = RESOURCE_READER.teleport_stats_offset
 DEFILER_CLASS = 744
@@ -154,6 +167,12 @@ STATE_RUN = (STATE_FLAGS - 6 * 4, 8 * 4)
 TICK_HEAD = 0x20
 HEX_PURGE_BIT = 1 << (202 - 192)
 PSYCHIC_WARD_BIT = 1 << (206 - 192)  # states.txt `psychicward`, the aurastate of skill 387
+# States 32-63, five words before STATE_FLAGS by the layout above (seen: take 20261017T204049Z-129, BC's 51 on 0.3 s
+# after its key and BO's 32 0.35 s after its, 23:41:01 on 2026-10-17):
+# states.txt `battleorders` 32 and `battlecommand` 51, the aurastates of skills 149 and 155 (Call to Arms)
+LOW_STATES = STATE_FLAGS - 5 * 4
+BATTLE_ORDERS_BIT = 1 << (32 - 32)
+BATTLE_COMMAND_BIT = 1 << (51 - 32)
 # State 185 `cooldown`, in the word before STATE_FLAGS (states 160-191): the character's casting delay. Set at
 # a delayed skill's action frame and cleared when its delay is over: for Blade Warp 0.20 s after the key and
 # 0.80 s long, 64 warps of 64 in the take of 12:33 on 2026-10-13 (rca/2026-10-13/run-1233-findings.md §3).
@@ -187,6 +206,8 @@ class Player:
     # A casting delay runs on the character (state 185, COOLDOWN_BIT): the next delayed skill's key is
     # refused until it clears. None when unreadable (macros/travel.py then times the delay by the clock).
     cooldown: bool | None = field(default=None, compare=False)
+    battle_orders: bool | None = None  # Battle Orders (Call to Arms) is on the character; None when unreadable
+    battle_command: bool | None = None  # Battle Command likewise
 
     @property
     def in_town(self) -> bool:
@@ -240,6 +261,10 @@ GOLD_CLASS = 538  # misc.txt `gld` (items/data/item_metadata.json bases)
 GOLD_STAT = 14  # itemstatcost.txt `gold`: a pile's amount
 BASE_STATS = 0x30  # the unit's own stat list (terror/monsters.py)
 GOLD_SEEN: dict[int, int] = {}  # unit id -> amount, of the piles read
+ROLLED_QUALITIES = frozenset((2, 3, 4))  # ItemData quality: normal, superior, magic (loot/shown.py RARITIES)
+# The item types whose rolls are read off the ground (items metadata): the Void line's daggers, shields (Monarch),
+# Paladin shields (Sacred Targe, Sacred Rondache)
+ROLLED_TYPES = frozenset(('knif', 'shie', 'ashd'))
 
 
 @dataclass(frozen=True)
@@ -260,6 +285,9 @@ class Drop:
     source: str = ''
     txt: int = 0
     quality: int = 0
+    # The base's rolls read off the ground (`rolled`) for the bases the loop judges there (pickmode.py `void_base`,
+    # `shield_base`); None unread or of another item
+    rolls: Rolls | None = None
 
 
 # The source of a unique or set item the loot filter shows (unidentified, or of any size): one a full inventory
@@ -402,6 +430,53 @@ class Teleport:
 
 
 @dataclass(frozen=True)
+class Wear:
+    """The worn item with the least of its durability left: its class, its durability and its maximum."""
+
+    txt: int
+    durability: int
+    maximum: int
+
+    @property
+    def share(self) -> float:
+        return self.durability / self.maximum
+
+
+def least_worn(items) -> Wear | None:
+    """Of (class, item flags, full stat list) of the worn items, the one with the least share of its durability left;
+    an ethereal one aside (no vendor repairs it), and one without a maximum (indestructible); None with none."""
+    found = []
+    for txt, flags, stats in items:
+        if flags & ETHEREAL_FLAG:
+            continue
+        values = {stat['id']: stat['raw'] for stat in stats if stat['layer'] == 0}
+        most = values.get(StatId.MAX_DURABILITY, 0)
+        if most > 0:
+            found.append(Wear(txt, min(values.get(StatId.DURABILITY, 0), most), most))
+    return min(found, key=lambda wear: wear.share) if found else None
+
+
+# What `GameMemory.hands` calls a Call to Arms, the weapon that gives Battle Orders: no base code (d2data weapons, armor
+# and misc hold no `cta`). CybergrindAA's is a Flail like his Heart of the Oak (`fla`), Spirit in both sets (22:58 on
+# 2026-10-17): by base codes alone the two sets read the same
+CTA_CODE = 'cta'
+CTA_SECONDS = 10.0  # between two reads of whether a Call to Arms is worn (`GameMemory.cta`)
+
+
+def gives_orders(stats) -> bool:
+    """Whether an item's stat list gives Battle Orders as a skill (NONCLASS_SKILL_STAT), as Call to Arms does."""
+    return any(stat['id'] == NONCLASS_SKILL_STAT and stat['layer'] == BATTLE_ORDERS_SKILL for stat in stats)
+
+
+def gives_teleport(stats) -> bool:
+    """Whether one of the items' stat lists gives Teleport as a skill (NONCLASS_SKILL_STAT, the skill its layer), not
+    as charges."""
+    return any(
+        stat['id'] == NONCLASS_SKILL_STAT and stat['layer'] == TELEPORT_SKILL for found in stats for stat in found
+    )
+
+
+@dataclass(frozen=True)
 class World:
     in_game: bool
     open_panels: tuple[str, ...]
@@ -432,12 +507,17 @@ def decode_name(raw: bytes) -> str:
     return raw.split(b'\0', 1)[0].decode('ascii', errors='replace')
 
 
+NAME_WRAP = 99  # after it the number starts from 1 again (the player, 2026-10-17: "upon reaching 99, we start from 1")
+
+
 def next_name(name: str) -> str:
-    """cyber32 -> cyber33; only names a macro can type (lower-case letters, digits, a number last)."""
+    """cyber32 -> cyber33, cyber99 -> cyber1; only names a macro can type (lower-case letters, digits, a number
+    last)."""
     found = re.fullmatch(r'([a-z0-9]*?)(\d+)', name)
     if not found:
         raise ValueError(f'game name {name!r} does not end in a number')
-    return f'{found[1]}{int(found[2]) + 1}'
+    number = int(found[2])
+    return f'{found[1]}{1 if number >= NAME_WRAP else number + 1}'
 
 
 def position(path: bytes) -> tuple[float, float]:
@@ -588,6 +668,8 @@ class Carried:
     x: int
     y: int
     size: tuple[int, int]
+    quality: int = 0  # ItemData quality (0 unread; 4 magic, 6 rare: macros/junk.py)
+    identified: bool = True  # the ItemData flag (True unread: an item of unknown state is never identified)
 
 
 @dataclass(frozen=True)
@@ -597,6 +679,7 @@ class Pack:
     items: tuple[Carried, ...] = ()
     cube: tuple[str, ...] | None = None
     cube_items: frozenset[int] = frozenset()  # the units in the cube
+    in_cube: tuple[Carried, ...] = ()  # the cube's items, each at its first cell there (macros/stash.py)
     # The keys carried (every stack) and the Town Portal tome's charges (tracking/resources.py, the same stat at the
     # same offset): None when unread, 0 with none (macros/shop.py restocks under 3)
     keys: int | None = None
@@ -604,8 +687,15 @@ class Pack:
     # Whether a key stack has room for more (KEY_STACK) or none is carried: a Shift + right click on her key fills it
     # (macros/shop.py), where with every stack full it would take a cell for a new one; None when unread
     key_room: bool | None = None
+    # The unit id of the item on the pointer (an item unit in CURSOR_MODE), None with none: a click meant to send an
+    # item somewhere that took it up instead (macros/stash.py)
+    pointer: int | None = None
+    # The Tome of Identify's charges (the same stat as the Town Portal tome's): None unread or no tome (macros/junk.py)
+    identifies: int | None = None
 
 
+IDENTIFY_TOME = 534  # Tome of Identify (items metadata `ibk`, 2026-10-17)
+CURSOR_MODE = 4  # an item unit's mode on the pointer (0 stored, 1 worn, 2 belt, 3 ground, 4 cursor: D2 item modes)
 KEY_STACK = 12  # keys in a stack at most (d2data misc.json `key` maxstack, 2026-10-16)
 TOME_CHARGES = 20  # Town Portal charges in the tome at most (misc.json `tbk` maxstack)
 KEY_STATS = RESOURCE_READER.key_stats_offset
@@ -638,13 +728,31 @@ def carried_items(read, table: int, player_id: int) -> Pack | None:
             return None
         return next((s['raw'] for s in stats if s['id'] == QUANTITY_STAT and s['layer'] == 0), None)
 
+    def state(item: Carried) -> Carried:
+        unit = units.get(item.unit_id)
+        if unit is None or not unit['data_pointer']:
+            return item
+        try:
+            data = read(unit['data_pointer'], ITEM_DATA_SIZE)
+            quality, flags = (
+                struct.unpack_from('<I', data, QUALITY_OFFSET)[0],
+                struct.unpack_from('<I', data, FLAGS_OFFSET)[0],
+            )
+        except OSError, ValueError, struct.error:
+            return item
+        return replace(item, quality=quality, identified=bool(flags & IDENTIFIED_FLAG))
+
+    pack = replace(pack, items=tuple(map(state, pack.items)), in_cube=tuple(map(state, pack.in_cube)))
     keys = [quantity(item, KEY_STATS) for item in pack.items if item.txt == KEY_CLASS_ID]
     tomes = [quantity(item, PORTAL_STATS) for item in pack.items if item.txt == TOME_CLASS_ID]
+    identifies = [quantity(item, PORTAL_STATS) for item in pack.items if item.txt == IDENTIFY_TOME]
     return replace(
         pack,
+        identifies=identifies[0] if identifies else None,
         keys=None if None in keys else sum(k for k in keys if k is not None),
         portals=0 if not tomes else tomes[0],
         key_room=None if None in keys else not keys or any(k is not None and k < KEY_STACK for k in keys),
+        pointer=next((u['unit_id'] for u in by_address.values() if u['mode'] == CURSOR_MODE), None),
     )
 
 
@@ -654,6 +762,13 @@ def pack_of(grids: dict, by_address: dict[int, dict]) -> Pack | None:
     grid = grids.get(INVENTORY_GRID)
     if grid is None:
         return None
+    cube = grids.get(CUBE_GRID)
+    held = _held(cube, by_address) if cube is not None else ()
+    return Pack(_held(grid, by_address), grid_rows(cube), frozenset(item.unit_id for item in held), held)
+
+
+def _held(grid: dict, by_address: dict[int, dict]) -> tuple[Carried, ...]:
+    """A grid's items, each at the first cell (row by row) its item pointer lies on."""
     width, found, seen = grid['width'], [], set()
     for index, cell in enumerate(grid['cells']):
         if not cell or cell in seen or cell not in by_address:
@@ -661,9 +776,46 @@ def pack_of(grids: dict, by_address: dict[int, dict]) -> Pack | None:
         seen.add(cell)
         item = by_address[cell]
         found.append(Carried(item['unit_id'], item['txt_id'], index % width, index // width, item_size(item['txt_id'])))
-    cube = grids.get(CUBE_GRID)
-    in_cube = frozenset(by_address[p]['unit_id'] for p in (cube['cells'] if cube else ()) if p in by_address)
-    return Pack(tuple(found), grid_rows(cube), in_cube)
+    return tuple(found)
+
+
+# The ground census (`GameMemory._census`): the item types not said (misc.txt's type column, from the bundled
+# metadata on 2026-10-17): potions, scrolls, keys, ammunition, gold; and the unit ids kept at most before forgetting
+CENSUS_SKIPPED = frozenset(
+    ('hpot', 'mpot', 'rpot', 'apot', 'spot', 'wpot', 'tpot', 'scro', 'key', 'bowq', 'xboq', 'gold')
+)
+CENSUS_KEPT = 20000
+QUALITIES = {1: 'low', 2: 'normal', 3: 'superior', 4: 'magic', 5: 'set', 6: 'rare', 7: 'unique', 8: 'crafted'}
+
+
+def rolls(drop: Drop | None) -> str:
+    """A base's rolls for the census (`rolled`): ' 3os +3 Abyss', ' 4os 15% ED 45 all res'; '' unread."""
+    if drop is None or drop.rolls is None:
+        return ''
+    found, skills = drop.rolls, metadata()['skills']
+    named = ''.join(f' +{level} {skills.get(str(skill), {}).get("name", skill)}' for skill, level in found.skills)
+    defense = f' {found.defense}% ED' if found.defense else ''
+    resists = f' {found.resists} all res' if found.resists else ''
+    return f' {found.sockets}os{named}{defense}{resists}'
+
+
+def census(
+    name: str,
+    quality: int,
+    flags: int,
+    at: tuple[float, float],
+    taken: str | None,
+    label: str | None,
+    rolled: str = '',
+) -> str:
+    """The ground census's line for an item: its quality and base, eth and socketed, a dagger's sockets and staff mods
+    (`rolls`), where, and the rule that takes it ('left' for none)."""
+    marks = ''.join((' eth' if flags & ETHEREAL_FLAG else '', ' socketed' if flags & SOCKETED_FLAG else '', rolled))
+    shown = f' "{label}"' if label and label != name else ''
+    return (
+        f'{QUALITIES.get(quality, f"quality {quality}")} {name}{marks}{shown} at ({at[0]:.0f}, {at[1]:.0f}): '
+        f'{f"taken ({taken})" if taken else "left"}'
+    )
 
 
 SHOP_GRIDS = (2, 3, 4, 5)  # a vendor's four tabs, in order (shop/capture.py SHOP_GRIDS: the tab is the index - 2)
@@ -677,6 +829,7 @@ class Stocked:
     tab: int
     x: int
     y: int
+    unit_id: int = 0  # the item's unit: what the game's record names under the pointer on it
 
 
 def stock_of(grids: dict, by_address: dict[int, dict]) -> tuple[Stocked, ...]:
@@ -691,7 +844,8 @@ def stock_of(grids: dict, by_address: dict[int, dict]) -> tuple[Stocked, ...]:
                 continue
             seen.add(cell)
             x, y = cell_index % grid['width'], cell_index // grid['width']
-            found.append(Stocked(by_address[cell]['txt_id'], index - SHOP_GRIDS[0], x, y))
+            unit = by_address[cell]
+            found.append(Stocked(unit['txt_id'], index - SHOP_GRIDS[0], x, y, unit.get('unit_id', 0)))
     return tuple(found)
 
 
@@ -817,7 +971,8 @@ def containers() -> frozenset[int]:
 # town portal the character opens (macros/portal.py), the waypoints (macros/waypoint.py) and every container, which a
 # camp's mark opens whatever class the game rolled (macros/teleport.py USES; rca/2026-10-16/loop-first-game-findings.md
 # §1: the run read the mark's own id, 1000, and never the chest at it). The combat recorder writes them (`operated`).
-USED = frozenset((PORTAL, TOWN_PORTAL, WIRTS_BODY, *CLICKED, *WAYPOINT_CLASSES)) | containers()
+BANK = 267  # objects.txt `Bank` (*ID), the stash a town's character puts its things in (macros/stash.py)
+USED = frozenset((PORTAL, TOWN_PORTAL, WIRTS_BODY, BANK, *CLICKED, *WAYPOINT_CLASSES)) | containers()
 
 
 def things(read, table: int, classes: frozenset[int] = USED) -> tuple[Thing, ...]:
@@ -875,6 +1030,62 @@ def gold_amount(read, unit: dict) -> int:
                 LOG.info('Macro: gold pile %d: %d gold (the %s stat list)', unit['unit_id'], amount, name)
             return amount
     return 0
+
+
+@dataclass(frozen=True)
+class Rolls:
+    """A base's rolls read off the ground (`base_rolls`): its sockets (stat 194), single class skills ((skill id,
+    level): stat 107, the skill in its layer: a dagger's Warlock staff mods), enhanced defense (stat 16), the least of
+    its four resistances (stats 39, 41, 43, 45: a Paladin shield's all-resistance roll) and the ethereal flag.
+    Items/stat_constants.py `StatId`; the stat ids checked in pricing/raw/game-excel/itemstatcost.txt."""
+
+    sockets: int
+    skills: tuple[tuple[int, int], ...] = ()
+    defense: int = 0
+    resists: int = 0
+    ethereal: bool = False
+
+
+RESISTS = (39, 41, 43, 45)  # fireresist, lightresist, coldresist, poisonresist (itemstatcost.txt)
+DEFENSE_PERCENT = 16  # item_armor_percent: a superior armor's enhanced defense (itemstatcost.txt)
+BASE_ROLLS_SEEN: dict[int, Rolls] = {}  # unit id -> `base_rolls`, of the items read
+
+
+def base_rolls(read, unit: dict) -> Rolls | None:
+    """An item's `Rolls` from its full stat list and its data's flags; None unreadable. An item's rolls do not change:
+    read once a unit."""
+    if unit['unit_id'] in BASE_ROLLS_SEEN:
+        return BASE_ROLLS_SEEN[unit['unit_id']]
+    try:
+        stats = read_stats(read, unit['stats_pointer'] + FULL_STATS) if unit['stats_pointer'] else None
+        data = read(unit['data_pointer'], ITEM_DATA_SIZE) if unit['data_pointer'] else None
+    except OSError, ValueError, struct.error:
+        stats = data = None
+    if stats is None or data is None:
+        return None
+    plain = {s['id']: s['raw'] for s in stats if s['layer'] == 0}
+    rolls = Rolls(
+        plain.get(StatId.SOCKETS, 0),
+        tuple((s['layer'], s['raw']) for s in stats if s['id'] == StatId.CLASS_SINGLE_SKILL),
+        plain.get(DEFENSE_PERCENT, 0),
+        min(plain.get(stat, 0) for stat in RESISTS),
+        bool(struct.unpack_from('<I', data, FLAGS_OFFSET)[0] & ETHEREAL_FLAG),
+    )
+    if len(BASE_ROLLS_SEEN) > 500:
+        BASE_ROLLS_SEEN.clear()
+    BASE_ROLLS_SEEN[unit['unit_id']] = rolls
+    return rolls
+
+
+def rolled(read, drop: Drop, unit: dict | None) -> Drop:
+    """`drop` with its `Rolls` when it is a base the loop judges off the ground (pickmode.py `void_base`,
+    `shield_base`): a white, superior or magic dagger, shield or Paladin shield; as it is otherwise."""
+    base = item_base(drop.txt) if drop.txt else None
+    if unit is None or drop.kind != VALUABLE or drop.quality not in ROLLED_QUALITIES or base is None:
+        return drop
+    if base['type'] not in ROLLED_TYPES:
+        return drop
+    return replace(drop, rolls=base_rolls(read, unit))
 
 
 def unit_stats(read, stats_at: int) -> dict[int, int]:
@@ -1006,11 +1217,12 @@ def local_player(read, table: int) -> Player | None:
         except OSError, ValueError, struct.error:
             pass
         left, right = mouse_skills(read, unit['address'])
-        purge = ward = cooldown = None
+        purge = ward = cooldown = orders = command = None
         with suppress(OSError, ValueError, struct.error):
-            delays, states = struct.unpack('<2I', read(unit['stats_pointer'] + STATE_FLAGS - 4, 8))
+            low, *_, delays, states = struct.unpack('<6I', read(unit['stats_pointer'] + LOW_STATES, 24))
             purge, ward = bool(states & HEX_PURGE_BIT), bool(states & PSYCHIC_WARD_BIT)
             cooldown = bool(delays & COOLDOWN_BIT)
+            orders, command = bool(low & BATTLE_ORDERS_BIT), bool(low & BATTLE_COMMAND_BIT)
         player = Player(
             unit['unit_id'],
             name,
@@ -1027,6 +1239,8 @@ def local_player(read, table: int) -> Player | None:
             unit.get('record', b''),
             skill_in_use(read, unit.get('record', b'')),
             cooldown,
+            orders,
+            command,
         )
         found.append((player, unit['stats_pointer']))
     # Several player units may stand for the one character: the shared stash tabs carry its name
@@ -1049,6 +1263,17 @@ class GameMemory:
         self.base, self.table = base, table
         self.fd = os.open(f'/proc/{pid}/mem', os.O_RDONLY)
         self.hover_raw: tuple[int, int, int, int] | None = None  # the last record read whole (`hovered`)
+        self.stock_note: dict | None = None  # what the last vendor's stock read found (`stock`), logged when it changes
+        self.where: tuple[float, float] | None = None  # where the character was at the last `place` or `loot`
+        self.where_area: int | None = None  # and in which level (`loot`)
+        # (character, item) unit ids the ground census said (`census`): the runner gives the one set its GameMemory
+        # objects share, so an item is said once whatever reads it (a set of each said it 2-4 times, 2026-10-17)
+        self.ground_seen: set[tuple[int, int]] = set()
+        # The worn items (unit id, body location) `own_teleport` last read, and what it found
+        self.worn_held: frozenset[tuple[int, int]] | None = None
+        self.worn_own = False
+        self.orders_of: dict[int, bool] = {}  # item unit id -> whether it gives Battle Orders (`_orders`)
+        self.cta_seen: tuple[float, bool] | None = None  # (monotonic time, a Call to Arms worn) at `cta`
 
     def close(self) -> None:
         os.close(self.fd)
@@ -1154,6 +1379,22 @@ class GameMemory:
             by_address = {u['address']: u for u in walk_units(self.read, item_heads, ITEM_UNIT)['units']}
         except OSError, ValueError, struct.error:
             return ()
+        # What the read found, for the log when it changes (the shop's stock read 14 items, none on its Misc tab, at
+        # 00:37 on 2026-10-17 where the shop's own capture reads 69): each grid's taken cells, how many resolved
+        note = {
+            'grids': {
+                index: (
+                    len({c for c in grids[index]['cells'] if c}),
+                    len({c for c in grids[index]['cells'] if c in by_address}),
+                )
+                for index in SHOP_GRIDS
+                if index in grids
+            },
+            'items walked': len(by_address),
+        }
+        if note != self.stock_note:
+            self.stock_note = note
+            LOG.info('Macro: stock of %d: grid index -> (items, resolved): %s', vendor, note)
         return stock_of(grids, by_address)
 
     def carried(self) -> Pack | None:
@@ -1211,6 +1452,10 @@ class GameMemory:
             player = self._player()
             if player is None:
                 return Loot()
+            self.where, self.where_area = (
+                (player.x, player.y),
+                player.area,
+            )  # the loop's sightings (macros/sightings.py)
             read, table = self.read, self.table
             # Without the marks' own settings every rune and material counts as one of theirs (`prized`).
             drops = [
@@ -1262,6 +1507,9 @@ class GameMemory:
                 )
                 for drop in drops
             ]
+            units = {unit['unit_id']: unit for unit in items}
+            drops = [rolled(read, drop, units.get(drop.unit_id)) for drop in drops]
+            self._census(items, drops, player.unit_id)
             for unit in items:
                 if gold_minimum is None or unit['txt_id'] != GOLD_CLASS:
                     continue
@@ -1311,6 +1559,35 @@ class GameMemory:
         except OSError, ValueError, struct.error:
             return Loot()
 
+    def _census(self, items: list[dict], drops: list[Drop], character: int) -> None:
+        """Say each item on the ground once (`census`): what it is and which pickup rule takes it, if any. The
+        player, 2026-10-17: "maybe we need to log drops in case if we're missing something right now, we would be
+        able to pickup something valuable"."""
+        if len(self.ground_seen) > CENSUS_KEPT:
+            self.ground_seen.clear()
+        taken = {drop.unit_id: drop.source or drop.kind for drop in drops}
+        labels = {drop.unit_id: drop.label for drop in drops}
+        dropped = {drop.unit_id: drop for drop in drops}
+        for unit in items:
+            key = (character, unit['unit_id'])
+            if unit['mode'] not in GROUND_MODES or key in self.ground_seen or not unit['data_pointer']:
+                continue
+            self.ground_seen.add(key)
+            base = item_base(unit['txt_id'])
+            if base is None or base.get('type') in CENSUS_SKIPPED:
+                continue
+            try:
+                data = self.read(unit['data_pointer'], ITEM_DATA_SIZE)
+                x, y = static_position(self.read, unit)
+            except OSError, ValueError, struct.error:
+                continue
+            quality = struct.unpack_from('<I', data, QUALITY_OFFSET)[0]
+            flags = struct.unpack_from('<I', data, FLAGS_OFFSET)[0]
+            unit_id = unit['unit_id']
+            rolled = rolls(dropped.get(unit_id))
+            line = census(base['name'], quality, flags, (x, y), taken.get(unit_id), labels.get(unit_id), rolled)
+            LOG.info('Macro: ground: %s', line)
+
     def _equipped(self):
         """(unit, item data) of what the character wears; ValueError/OSError when unreadable."""
         player = self._player()
@@ -1325,23 +1602,53 @@ class GameMemory:
                 yield unit, data
 
     def hands(self) -> tuple[str, ...]:
-        """Base codes of what the character holds in the weapon set in hand; () when unreadable."""
+        """Base codes of what the character holds in the weapon set in hand, a Call to Arms as CTA_CODE; () when
+        unreadable."""
         try:
             held = []
             for unit, data in self._equipped():
                 base = item_base(unit['txt_id']) if data[ITEM_BODY_LOCATION] in HANDS else None
                 if base is not None:
-                    held.append(base['code'])
+                    held.append(CTA_CODE if self._orders(unit) else base['code'])
             return tuple(sorted(held))
         except OSError, ValueError, struct.error:
             return ()
 
+    def cta(self) -> bool | None:
+        """Whether a Call to Arms (`gives_orders`) is worn in either weapon set, read again every CTA_SECONDS; None when
+        unreadable. Its skills are on keys only while it is in hand (the player, 23:40 on 2026-10-17: "swap weapon and
+        there are 7 and 8 bound to skills"), so the keys tell nothing of it from the other set."""
+        now = time.monotonic()
+        if self.cta_seen is not None and now - self.cta_seen[0] < CTA_SECONDS:
+            return self.cta_seen[1]
+        try:
+            found = any(
+                data[ITEM_BODY_LOCATION] in WEAPON_SLOTS and self._orders(unit) for unit, data in self._equipped()
+            )
+        except OSError, ValueError, struct.error:
+            return None
+        self.cta_seen = (now, found)
+        return found
+
+    def _orders(self, unit) -> bool:
+        """Whether a worn item gives Battle Orders (`gives_orders`), read once for each item."""
+        found = self.orders_of.get(unit['unit_id'])
+        if found is None:
+            stats = read_stats(self.read, unit['stats_pointer'] + TELEPORT_STATS) if TELEPORT_STATS is not None else ()
+            found = self.orders_of[unit['unit_id']] = gives_orders(stats)
+        return found
+
     def teleport(self) -> Teleport | None:
-        """The worn staff with Teleport charges, in either weapon set; None without one or when unreadable."""
+        """The worn staff with Teleport charges, in either weapon set; None without one, when unreadable, and when
+        Teleport is a skill of the character's own (`own_teleport`): a staff in the other set is not swapped in for it
+        then, nor are its charges spent (the player wears Enigma and Naj's Puzzler on the swap, 22:26 on 2026-10-17)."""
         if TELEPORT_STATS is None:
             return None
         try:
-            for unit, data in self._equipped():
+            worn = list(self._equipped())
+            if self._own_teleport(worn):
+                return None
+            for unit, data in worn:
                 if unit['txt_id'] not in STAFF_CLASS_IDS or data[ITEM_BODY_LOCATION] not in WEAPON_SLOTS:
                     continue
                 for stat in read_stats(self.read, unit['stats_pointer'] + TELEPORT_STATS):
@@ -1351,6 +1658,44 @@ class GameMemory:
         except OSError, ValueError, struct.error:
             return None
         return None
+
+    def own_teleport(self) -> bool | None:
+        """Whether Teleport is a skill of the character's own: a worn item outside the other weapon set gives it
+        (Enigma's "+1 to Teleport"), not charges; None when unreadable."""
+        if TELEPORT_STATS is None:
+            return None
+        try:
+            return self._own_teleport(list(self._equipped()))
+        except OSError, ValueError, struct.error:
+            return None
+
+    def wear(self) -> Wear | None:
+        """The worn item with the least of its durability left (`least_worn`); None with none, or when unreadable."""
+        if TELEPORT_STATS is None:
+            return None
+        try:
+            return least_worn(
+                (
+                    unit['txt_id'],
+                    struct.unpack_from('<I', data, FLAGS_OFFSET)[0],
+                    read_stats(self.read, unit['stats_pointer'] + TELEPORT_STATS),
+                )
+                for unit, data in self._equipped()
+            )
+        except OSError, ValueError, struct.error:
+            return None
+
+    def _own_teleport(self, worn) -> bool:
+        """`own_teleport` of the items worn, read once for each set of them: their stats change only with them."""
+        held = frozenset((unit['unit_id'], data[ITEM_BODY_LOCATION]) for unit, data in worn)
+        if held != self.worn_held:
+            stats = [
+                read_stats(self.read, unit['stats_pointer'] + TELEPORT_STATS)
+                for unit, data in worn
+                if data[ITEM_BODY_LOCATION] not in SWAP_SET
+            ]
+            self.worn_held, self.worn_own = held, gives_teleport(stats)
+        return self.worn_own
 
     def hovered(self) -> tuple[int, int] | None:
         """(unit type, unit id) the game holds for the unit under the pointer (HOVER_RVA); None when
@@ -1402,6 +1747,7 @@ class GameMemory:
             player = self._player()
         except OSError, ValueError, struct.error:
             player = None
+        self.where = (player.x, player.y) if player is not None else None
         return name, player.area if player is not None else None
 
     def world(self, light: bool = False) -> World:

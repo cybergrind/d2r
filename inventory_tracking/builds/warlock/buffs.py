@@ -1,7 +1,8 @@
 """The Warlock's buff plan (macros/build.py `Buff`, run by macros/buffs.py): which buffs, when and on what.
 
 At a game's start (prebuff): Consume cast anew on a Defiler with one Defiler left out, then Hex: Purge
-and Psychic Ward. Outside a fight (upkeep): Hex: Purge and Psychic Ward kept up, Consume cast again
+and Psychic Ward. Outside a fight (upkeep): Battle Command and Battle Orders from a Call to Arms out of town
+(macros/cta.py), Hex: Purge and Psychic Ward kept up, Consume cast again
 when it has run out, a Defiler summoned when none is alive (defiler.py). Under the held strike (fight): Hex:
 Purge and Psychic Ward kept up, a Defiler summoned when none is alive and it pays (defiler.py `price`), Death Mark
 on the monster the demons should hold where it pays (mark.py), Sigil: Lethargy under an elite, Engorge on a
@@ -30,6 +31,7 @@ from inventory_tracking.builds.warlock.skills import (
 )
 from inventory_tracking.macros.buffs import Buffs
 from inventory_tracking.macros.build import Buff, BuffFacts, whenever
+from inventory_tracking.macros.cta import ROWS as CTA_ROWS
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.routines import DEAD
 from inventory_tracking.macros.world import DEFILER_CLASS, Monster, World
@@ -161,6 +163,8 @@ BUFFS: tuple[Buff, ...] = (
     ),
     Buff(HEX_PURGE, 'prebuff', whenever, needs='prebuff'),
     Buff(PSYCHIC_WARD, 'prebuff', whenever, needs='prebuff'),
+    # Call to Arms, when one is worn: Battle Command and Battle Orders, out of town only (macros/cta.py)
+    *CTA_ROWS,
     Buff(HEX_PURGE, 'upkeep', whenever, state=purge_shown),
     Buff(PSYCHIC_WARD, 'upkeep', whenever, state=ward_shown),
     Buff(

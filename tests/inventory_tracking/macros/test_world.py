@@ -63,7 +63,10 @@ def test_a_skill_on_a_mouse_button_is_pressed_as_that_button():
     assert skill_keys(SLOTS, bindings({21: 0x102}), (SUMMON_DEFILER,)) == {SUMMON_DEFILER: 'Button9'}
 
 
-@pytest.mark.parametrize(('name', 'following'), [('cyber32', 'cyber33'), ('cyber99', 'cyber100'), ('7', '8')])
+@pytest.mark.parametrize(
+    ('name', 'following'),
+    [('cyber32', 'cyber33'), ('cyber98', 'cyber99'), ('cyber99', 'cyber1'), ('cyber287', 'cyber1'), ('7', '8')],
+)
 def test_next_game_name(name, following):
     assert next_name(name) == following
 
@@ -460,3 +463,120 @@ def test_the_carried_items_are_the_item_pointers_of_the_characters_grids():
     grids = {0: {'width': 2, 'height': 1, 'cells': [0x1000, 0]}, 5: {'width': 1, 'height': 2, 'cells': [0, 0x2000]}}
     assert held_items(grids) == frozenset({0x1000, 0x2000})
     assert held_items({}) == frozenset()
+
+
+def test_a_white_daggers_sockets_and_staff_mods_are_read_off_the_ground_and_said():
+    # The player, 18:56 on 2026-10-17: "we need good staff mod and we need 3os" (macros/pickmode.py `void_base`)
+    from inventory_tracking.items.identity import ITEM_DATA_SIZE
+    from inventory_tracking.macros.world import BASE_ROLLS_SEEN, FULL_STATS, VALUABLE, Drop, Rolls, rolled, rolls
+
+    BASE_ROLLS_SEEN.clear()
+    stats_at, array = 0x1000, 0x2000
+    # (layer, stat id, value): 3 sockets, +3 Abyss (skill 402 in stat 107's layer), a durability that is not a skill
+    entries = [(0, 194, 3), (402, 107, 3), (0, 72, 24)]
+    data_at = 0x3000
+    memory = {
+        stats_at + FULL_STATS: struct.pack('<QQ', array, len(entries)),
+        array: b''.join(struct.pack('<HHi', *entry) for entry in entries),
+        data_at: bytes(ITEM_DATA_SIZE),
+    }
+
+    def read(address: int, size: int) -> bytes:
+        return memory[address][:size]
+
+    kriss = Drop(7, 0.0, 0.0, 'Kriss', VALUABLE, source='shown', txt=41, quality=2)
+    found = rolled(read, kriss, {'unit_id': 7, 'stats_pointer': stats_at, 'data_pointer': data_at})
+    assert found.rolls == Rolls(3, ((402, 3),))
+    assert rolls(found) == ' 3os +3 Abyss'
+    rare = Drop(8, 0.0, 0.0, 'Kriss', VALUABLE, source='shown', txt=41, quality=6)
+    assert rolled(read, rare, {'unit_id': 8, 'stats_pointer': stats_at, 'data_pointer': data_at}) == rare  # identified
+    assert rolls(kriss) == ''
+
+
+def test_enigmas_teleport_is_the_characters_own_and_the_staff_on_the_swap_is_left_alone(monkeypatch):
+    # The live capture of 22:26 on 2026-10-17: Enigma on the body (location 3) gives (97, 54, 1), "+1 to Teleport";
+    # Naj's Puzzler, an Elder Staff (class 261), on the swap (11) holds 69/69 Teleport charges, (204, 54 << 6 | 11)
+    from inventory_tracking.macros import world
+
+    enigma, staff = (
+        {'unit_id': 1, 'txt_id': 373, 'stats_pointer': 100},
+        {'unit_id': 2, 'txt_id': 261, 'stats_pointer': 200},
+    )
+    offset = world.TELEPORT_STATS
+    assert offset is not None
+    stats = {
+        100 + offset: [{'id': 31, 'layer': 0, 'raw': 1005}, {'id': 97, 'layer': 54, 'raw': 1}],
+        200 + offset: [{'id': 204, 'layer': 54 << 6 | 11, 'raw': 69 << 8 | 69}],
+    }
+    reads = []
+
+    def read_stats(read, address):
+        reads.append(address)
+        return stats[address]
+
+    def location(spot: int) -> bytes:
+        data = bytearray(0x60)
+        data[world.ITEM_BODY_LOCATION] = spot
+        return bytes(data)
+
+    monkeypatch.setattr(world, 'read_stats', read_stats)
+    memory = object.__new__(world.GameMemory)
+    memory.worn_held, memory.worn_own = None, False
+    worn = [(staff, location(11))]
+    monkeypatch.setattr(memory, '_equipped', lambda: iter(worn))
+    assert memory.teleport() == world.Teleport(69, 69, in_hand=False)  # the staff alone: its charges, swapped in
+    assert memory.own_teleport() is False
+    worn.append((enigma, location(3)))
+    assert memory.own_teleport() is True
+    assert memory.teleport() is None  # Teleport of its own: no swap, no charge (movement.py OwnTeleport)
+    before = len(reads)
+    assert memory.teleport() is None
+    assert len(reads) == before  # the same items worn: their stats are not read again
+    # A +Teleport item on the other set is not the character's while that set is not in hand
+    worn[:] = [(staff, location(11)), (enigma, location(12))]
+    assert memory.own_teleport() is False
+
+
+def test_the_most_worn_item_is_the_least_share_of_its_durability_with_the_ethereal_and_indestructible_aside():
+    # The live capture of 22:26 on 2026-10-17: Enigma (Mage Plate, class 373) at 33 of 60, Spirit at 86 of 86
+    from inventory_tracking.items.identity import ETHEREAL_FLAG
+    from inventory_tracking.macros.world import Wear, least_worn
+
+    def lasting(now: int, most: int) -> list[dict]:
+        return [{'id': 72, 'layer': 0, 'raw': now}, {'id': 73, 'layer': 0, 'raw': most}]
+
+    enigma, spirit = (373, 0, lasting(33, 60)), (447, 0, lasting(86, 86))
+    assert least_worn([spirit, enigma]) == Wear(373, 33, 60)
+    assert least_worn([spirit, (100, ETHEREAL_FLAG, lasting(1, 50)), enigma]) == Wear(373, 33, 60)  # no vendor mends it
+    assert least_worn([(200, 0, [{'id': 31, 'layer': 0, 'raw': 99}])]) is None  # indestructible: no durability
+    assert least_worn([]) is None
+
+
+def test_a_call_to_arms_in_either_set_is_read_from_the_worn_items(monkeypatch):
+    # CybergrindAA's swap since 22:58 on 2026-10-17: the Call to Arms (a Flail, class 21) at location 11
+    from inventory_tracking.macros import world
+
+    offset = world.TELEPORT_STATS
+    assert offset is not None
+    cta, hoto = {'unit_id': 1, 'txt_id': 21, 'stats_pointer': 100}, {'unit_id': 2, 'txt_id': 21, 'stats_pointer': 200}
+    stats = {100 + offset: [{'id': 97, 'layer': 149, 'raw': 4}], 200 + offset: [{'id': 127, 'layer': 0, 'raw': 3}]}
+    monkeypatch.setattr(world, 'read_stats', lambda read, address: stats[address])
+
+    def location(spot: int) -> bytes:
+        data = bytearray(0x60)
+        data[world.ITEM_BODY_LOCATION] = spot
+        return bytes(data)
+
+    memory = object.__new__(world.GameMemory)
+    memory.orders_of, memory.cta_seen = {}, None
+    worn = [(hoto, location(4)), (cta, location(11))]
+    monkeypatch.setattr(memory, '_equipped', lambda: iter(worn))
+    assert memory.cta() is True
+    memory.cta_seen = None
+    worn[1] = (cta, location(4))  # swapped in: still worn
+    worn[0] = (hoto, location(11))
+    assert memory.cta() is True
+    assert memory.hands() == (world.CTA_CODE,)  # the set in hand reads it as the Call to Arms, not `fla`
+    memory.cta_seen = None
+    worn[:] = [(hoto, location(4))]
+    assert memory.cta() is False

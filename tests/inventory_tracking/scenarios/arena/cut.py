@@ -59,12 +59,13 @@ from inventory_tracking.combat.mechanics.tables import area_level, monster_point
 from inventory_tracking.combat.record import RESIST_STATS
 from inventory_tracking.combat.sim.monsters import MINION, PLAIN, rank_of
 from inventory_tracking.combat.takes import MonsterRow, Take, monsters_of, player_of
+from inventory_tracking.macros.cta import BATTLE_ORDERS
 from inventory_tracking.macros.rotation import ELITE_LIFE
 from inventory_tracking.macros.routines import DEAD
 from inventory_tracking.macros.world import FULL_REJUVENATION, HERALD_TIER_STAT, NO_OWNER, SUPER_HEALING
 from inventory_tracking.native.layout import TILE_UNITS
 from inventory_tracking.terror.monsters import LEVEL_STAT
-from tests.inventory_tracking.macros.fakes import HUNT_SLOTS, OTHER_SET
+from tests.inventory_tracking.macros.fakes import HUNT_SLOTS, OTHER_SET, PREBUFF_SET
 from tests.inventory_tracking.scenarios.arena.scene import Hero, Mob, Scene, WeaponSet
 from tests.inventory_tracking.scenarios.stance.build_fixtures import GROUND_RANGE
 
@@ -91,8 +92,10 @@ NAME = next(iter(CHARACTERS))  # the one character builds/characters.py knows
 # before the penalty) hold stat 36 (`damageresist`) at 10 in 13 and at -90 in one, a curse
 # (evidence/EVIDENCE.md section 11, 2026-10-12). Before that reading it was not named here and the
 # arena let physical damage through whole.
+# The keys as at the takes cut: Battle Orders came with the Call to Arms (2026-10-17)
+TAKE_SLOTS = tuple(None if skill == BATTLE_ORDERS else skill for skill in HUNT_SLOTS)
 MAIN = WeaponSet(
-    tuple(sorted(CHARACTERS[NAME].battle)),
+    tuple(sorted(PREBUFF_SET)),  # as held in the takes cut (2026-10-12/13), before the Call to Arms
     {'fire': through(CAP), 'cold': through(CAP), 'lightning': through(CAP), 'physical': through(10)},
 )
 # The other set: Naj's Puzzler, worn for its Teleport charges (routines.py, the comment on
@@ -124,7 +127,7 @@ DEFAULT_HERO = Hero(
     belt=(FULL_REJUVENATION, FULL_REJUVENATION, SUPER_HEALING, SUPER_HEALING) * 4,
     sets=(MAIN, STAFF),
     hand=0,
-    slots=HUNT_SLOTS,
+    slots=TAKE_SLOTS,
     hex_purge=True,
     ward=True,
     consume=True,

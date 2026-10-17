@@ -19,6 +19,8 @@ Hell cows, the Anya shop…); do not assume a particular run. The farm guide cov
 | asks to update/audit the offline KB, fold in research, or check base-variant coverage | `.agents/skills/update-kb/SKILL.md` | online refresh unless requested |
 | asks to clear the shared stash, organise mules, decide what to drop or where an item goes | `.agents/skills/mules/SKILL.md` | online refresh; the guides |
 | reports a played session with the macros: "new run is here", "do rca", "we got stuck", "KP_4 / attack mode did nothing", "we almost died" | `.agents/skills/d2-rca/SKILL.md` | the pricing skills |
+| asks to start or resume monitoring the KP_6 loop, "watch the runs", "continue the improvement loop", "analyze runs", "optimize speed", or it stalls while watched | `.agents/skills/d2-loop-watch/SKILL.md` | the pricing skills |
+| asks for the loop's best / most expensive finds, "what did we find in the last N games", "top loot" | `.agents/skills/d2-loop-finds/SKILL.md` | the other pricing skills (unless a find needs an appraisal) |
 | asks to list an item on Traderie, post a listing, or review their active listings | `.agents/skills/traderie-list/SKILL.md` | online refresh unless requested |
 
 The appraise skill's report has a "why the filter shows it" part; it links to the filter skill only for the

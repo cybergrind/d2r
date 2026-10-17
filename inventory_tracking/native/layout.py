@@ -75,6 +75,10 @@ LIFE_STAT = 6
 MAX_LIFE_STAT = 7
 QUANTITY_STAT = 70
 CHARGED_SKILL_STAT = 204
+# item_nonclassskill (itemstatcost.txt): a skill of another class the item gives, the skill id as the layer (Enigma's
+# "+1 to Teleport": (97, 54, 1) on the worn Mage Plate, live capture of 22:26 on 2026-10-17)
+NONCLASS_SKILL_STAT = 97
+BATTLE_ORDERS_SKILL = 149  # skills.txt: what Call to Arms gives (97, 149, n), live capture of 22:58 on 2026-10-17
 TELEPORT_SKILL = 54
 LIFE_FRACTION_MAX = 32768
 

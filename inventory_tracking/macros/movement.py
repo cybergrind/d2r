@@ -94,9 +94,12 @@ def hops(facts: MoveFacts, goal: Point, intent: Intent) -> bool:
     """Whether a Teleport hop toward a far goal can be made within `intent`: Teleport on a key and not
     one that moved nothing less than `intent.distrust` seconds ago; of a worn staff a charge left above
     the reserve (the last one is not a reserve: one charge at least), and the staff in hand unless the
-    weapon set may be changed for the move; and the level's rooms known, which the hops are planned over."""
+    weapon set may be changed for the move; the level's rooms known, which the hops are planned over; and the goal no
+    nearer than `intent.hop_from`."""
     if TELEPORT not in facts.slots or facts.since_failed(TELEPORT) <= intent.distrust or not facts.rooms:
         return False
+    if intent.hop_from and math.dist(facts.here, goal) < intent.hop_from:
+        return False  # near: by the free jump (`Intent.hop_from`)
     staff = facts.staff
     return staff is None or (staff.charges >= max(intent.reserve, 1) and (staff.in_hand or intent.may_swap))
 
@@ -138,6 +141,14 @@ def hop_leg(facts: MoveFacts, goal: Point, intent: Intent, spare: tuple[Jump, ..
             return NoWay(f'{NO_LANDING} (the far way)', distrust=far)
         return NoWay(NO_HOP_WAY if now == math.inf else NO_LANDING)
     spot = scaled(found[0])
+    off = math.dist(spot, goal)
+    if off < intent.short:
+        # A landing within `short` of the goal is taken back to `short` of it, on the character's side (LOOPED: a
+        # Teleport aimed onto a chest's own spot is not cast)
+        away = math.dist(here, goal)
+        spot = goal if away <= intent.short else (
+            goal[0] + (here[0] - goal[0]) * intent.short / away, goal[1] + (here[1] - goal[1]) * intent.short / away
+        )  # fmt: skip
     if math.dist(spot, here) < MOVED:
         return NoWay(THERE, arrived=True)  # the best landing is where the character stands
     staff = facts.staff

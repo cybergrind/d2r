@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from inventory_tracking.combat.legs import REFERENCE, STALL_SECONDS, legs_of, report
+from inventory_tracking.combat.legs import REFERENCE, STALL_SECONDS, legs_of, quiet, report
 from inventory_tracking.combat.takes import Take
 
 
@@ -87,3 +87,34 @@ def test_the_first_leg_begins_when_the_game_took_input_and_the_report_names_the_
     assert 'arrival 4.0s' in lines[0]
     assert '1 chests and 0 others opened' in lines[0]
     assert any(line.startswith('  20261016T190332Z-79') for line in lines)
+
+
+def test_idle_is_standing_still_with_no_input_sent_and_away_is_going_back_from_the_container():
+    chest = (7, CHEST, 0, 100.0, 0.0)
+    frames = [
+        frame(0.0, 50.0, 0.0, objects=(chest,)),
+        frame(1.0, 50.0, 0.0, objects=(chest,)),  # still, nothing sent: idle
+        frame(2.0, 50.0, 0.0, objects=(chest,)),  # still, a key sent in the span: busy
+        frame(3.0, 40.0, 0.0, 3, (chest,)),  # a run back, 10 units further from the chest
+        frame(4.0, 98.0, 0.0, 3, (chest,)),
+        frame(5.0, 98.0, 0.0, objects=((7, CHEST, 2, 100.0, 0.0),)),
+    ]
+    sent = [{'t': 1.5, 'event': 'sent', 'input': 'key', 'by': 'macro'}]
+
+    leg = legs_of(take(frames, sent))[0]
+
+    assert leg.idle == pytest.approx(1.0)
+    assert leg.away == pytest.approx(10.0)
+    found = quiet(take(frames, sent))
+    assert found is not None
+    assert (found.seconds, found.idle, found.stretches) == (5.0, pytest.approx(1.0), ())
+    long = quiet(take([frame(t, 0.0, 0.0) for t in (0.0, 1.0, 2.0)]))
+    assert long is not None
+    assert [(s.at, s.seconds) for s in long.stretches] == [(0.0, 2.0)]
+    cast = [{'t': 0.0, 'event': 'cast', 'mode': 10, 'macro': True}]
+    waited = quiet(take([frame(t, 0.0, 0.0) for t in (0.0, 1.1, 2.1)], cast))
+    assert waited is not None
+    assert (waited.delay, waited.idle) == (pytest.approx(1.1), pytest.approx(1.0))  # Blade Warp's delay, then idle
+    loading = quiet(take([{**frame(t, 0.0, 0.0), 'view': 0} for t in (0.0, 1.0, 2.0)]))
+    assert loading is not None
+    assert loading.idle == 0.0  # the game's loading screen, not the macro's

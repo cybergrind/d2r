@@ -898,3 +898,25 @@ def test_past_the_looks_time_no_way_is_asked_and_a_look_over_its_time_is_said_on
         said = [r.getMessage() for r in caplog.records if r.getMessage().startswith('Macro: look:')]
     assert len(said) == 2
     assert said[1].endswith('(1 more since)')
+
+
+def test_with_no_hostile_near_a_look_may_grow_the_goals_way_longer():
+    # 2026-10-17: a cold field to the next chest grew 40 ms a look, the straight line or no way for three or four looks
+    from inventory_tracking.macros.safety import QUIET_WAY_SECONDS, WAY_SHARE, way_seconds
+
+    assert way_seconds((0.0, 0.0), [], 0.08) == QUIET_WAY_SECONDS
+    assert way_seconds((0.0, 0.0), [(50.0, 0.0)], 0.08) == QUIET_WAY_SECONDS  # far off
+    assert way_seconds((0.0, 0.0), [(10.0, 0.0)], 0.08) == 0.08 * WAY_SHARE  # one near: the look's share
+
+
+def test_a_teleports_window_holds_the_keys_second_press_and_its_price_is_unchanged():
+    # rca/2026-10-17/teleport-not-cast-findings.md: ~5% of Teleport keys cast nothing; the press again lands 0.26-0.39 s
+    # later, but the act's window (its price, 0.81 s) ran out first in 115 of 126 and the hop counted as failed
+    from inventory_tracking.macros.build import PricedStep
+    from inventory_tracking.macros.hunt import act_window
+    from inventory_tracking.macros.teleport import REPRESS_SECONDS, TELEPORT
+
+    hop = PricedStep((10.0, 10.0), TELEPORT, needs='travel', seconds=0.81)
+    assert act_window(hop) == pytest.approx(0.81 + REPRESS_SECONDS)
+    assert hop.seconds == 0.81  # the price is the arbiter's as before
+    assert act_window(PricedStep((10.0, 10.0), None, needs='battle', seconds=1.2)) == 1.2  # a walk: its price

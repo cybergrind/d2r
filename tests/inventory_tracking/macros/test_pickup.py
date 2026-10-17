@@ -520,6 +520,18 @@ def test_a_jump_that_does_not_land_is_followed_by_a_click_on_the_gold():
     assert play.picked == ['7200 gold']
 
 
+def test_a_gold_pile_out_of_view_is_left_alone_and_the_press_goes_on(monkeypatch):
+    # 18:26:19 on 2026-10-17: 5024 gold "not in view" 24 units off stopped the loop's pickup, and the loop left Lower
+    # Kurast by Save and Exit: its next game began in act 3
+    monkeypatch.setattr(pickup, 'in_view', lambda where: False)
+    monkeypatch.setattr(pickup, 'SHUNNED', {})
+    play = game(PILE)
+    assert not pick_up(play.run(), LEVEL, keys, nothing)
+    assert play.picked == []
+    assert PILE.unit_id in pickup.SHUNNED
+    assert play.said[-1] == '7200 gold: not in view, left'
+
+
 def test_potions_the_belt_has_no_place_for_are_named_when_a_press_takes_nothing():
     # Halls of Vaught, 13:47:09 on 2026-10-11: three super healing potions, the belt short of one
     # rejuvenation only, the life whole; to the player the press had failed to pick them up.

@@ -90,6 +90,8 @@ def prebuff_keys(build: Build) -> tuple[int, ...]:
 
 SWAP_TRIES = 3  # presses of Swap Weapons before the swap is given up
 SWAP_SETTLE = 0.2  # seconds the character stands free before the first press of a swap
+PROBE_WAIT = 0.25  # seconds an arrival's probe swap is given to show (`took_input`): 249 that took on 2026-10-17
+# showed 0.05 to 0.2 s after the key
 SWAP_WAIT = 0.5  # seconds a swap is given to show before the key is pressed again
 
 # Window fractions. The screenshots (2000 x 1125) show the whole 2560 x 1440 output, whose top
@@ -300,16 +302,19 @@ class LoadTrace:
         )
 
 
-def swap_until(run: Run, in_hand: Callable[[], bool], tries: int = SWAP_TRIES) -> bool:
+def swap_until(
+    run: Run, in_hand: Callable[[], bool], tries: int = SWAP_TRIES, *, wait: float = SWAP_WAIT, settled: bool = False
+) -> bool:
     """Press Swap Weapons until `in_hand()` says the wanted set is held, at most `tries` times, each
     given SWAP_WAIT to show. The game drops a swap pressed in the last moments of a cast or right after
     a teleport lands, though the character already reads as free (host, 2026-10-10 17:26: five swaps
     in one run pressed 0.05-0.4 s after a cast never came, each waited on for 1.2 s). A swap that came
     shows within 0.3 s, so a press that shows nothing in SWAP_WAIT was dropped and is made again."""
-    settle(run)
+    if not settled:
+        settle(run)
     for tried in range(1, tries + 1):
         press_skill(run, SWAP_WEAPONS)
-        deadline = run.clock() + SWAP_WAIT
+        deadline = run.clock() + wait
         while True:
             run.world()  # a cancel stops here
             if in_hand():
@@ -392,6 +397,11 @@ def prebuff(run: Run, *, fresh: LoadTrace | None = None) -> None:
     buffs.prebuff(run, fresh=fresh)
 
 
+LEAVE_TRIES = 3  # clicks on Save and Exit at most
+LEAVE_TRY = 4.0  # seconds for the game to be left after one
+QUIT_MENU_SECONDS = 2.0  # for the game's menu to show after Escape
+
+
 def leave_game(run: Run) -> None:
     if run.pad is not None:  # the menus take the mouse's click (macros/pad.py `input_policy`)
         raise Abort('Save and Exit needs mouse mode: click once to switch, then press again')
@@ -406,12 +416,32 @@ def leave_game(run: Run) -> None:
         raise Abort(f'{world.open_panels[0]} stays open')
     take_battle_weapons(run)
     run.say('Save and Exit')
-    run.actuator.tap('Escape')
-    run.expect('quit menu', lambda w: w.quit_menu, 2)
-    run.pause('screen')
-    run.actuator.move(*SAVE_AND_EXIT, scatter=(60, 8))
-    run.actuator.click()
-    run.expect('leaving the game', lambda w: not w.in_game, 10)
+    # Tried again when the game is still on after LEAVE_TRY seconds: one click left the game on twice in 9 minutes
+    # (13:52:53 and 14:01:27 on 2026-10-17: "leaving the game: not seen in 10s", the second a fourth recovery, the loop
+    # stopped)
+    for attempt in range(LEAVE_TRIES):
+        # A panel that opened since the look above is closed first, and a quit menu that did not show is asked for
+        # again: the walk back from Halbu ended on the waypoint, whose panel opened 0.5 s after that look; Escape
+        # closed it, the quit menu never came, and the loop stopped (15:35:43-47 on 2026-10-17)
+        world = run.world()
+        for _ in range(3):
+            if not world.open_panels:
+                break
+            run.actuator.tap('Escape')
+            run.pause('key')
+            world = run.world()
+        if not world.quit_menu:
+            run.actuator.tap('Escape')
+            if run.seen(lambda w: w.quit_menu, QUIT_MENU_SECONDS) is None:
+                LOG.info('Macro: Save and Exit: no quit menu %gs after Escape (try %d)', QUIT_MENU_SECONDS, attempt + 1)
+                continue
+        run.pause('screen')
+        run.actuator.move(*SAVE_AND_EXIT, scatter=(60, 8))
+        run.actuator.click()
+        if run.seen(lambda w: not w.in_game, LEAVE_TRY) is not None:
+            return
+        LOG.info('Macro: Save and Exit: still in the game %.0fs after the click (try %d)', LEAVE_TRY, attempt + 1)
+    raise Abort(f'leaving the game: not seen in {LEAVE_TRIES * LEAVE_TRY:.0f}s')
 
 
 def arrived(run: Run, where: str, *, loading: bool = False) -> None:
@@ -444,9 +474,14 @@ def took_input(run: Run, where: str, began: float) -> bool:
     if not before:
         return False
     while run.clock() - began < ARRIVAL_SETTLE:
-        if swap_until(run, lambda: bool(hands()) and hands() != before, tries=1):
+        # No settle before each try, and PROBE_WAIT for it to show: a character just arrived stands, and a swap that
+        # came shows within 0.3 s. The 0.8 s a try took found Lower Kurast ready at 3.83 s where it was at about 3.0
+        # (rca/2026-10-17/movement-findings.md §4 #2)
+        if swap_until(run, lambda: bool(hands()) and hands() != before, tries=1, wait=PROBE_WAIT, settled=True):
             LOG.info('Macro: %s: took input %.2fs after the arrival (a weapon swap)', where, run.clock() - began)
-            if not swap_until(run, lambda: hands() == before):
+            # The swap back with no settle either: the character stands, and the 0.2 s settle was 0.2 of the 0.32 s
+            # from the probe's swap to the first act, three times a game (14:35 on 2026-10-17)
+            if not swap_until(run, lambda: hands() == before, settled=True):
                 LOG.info('Macro: %s: the swap back to the set held before did not come', where)
             return True
     return False

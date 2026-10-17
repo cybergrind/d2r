@@ -21,7 +21,7 @@ from dataclasses import dataclass
 
 from inventory_tracking.combat.harm import Look, SafetySettings, harm
 from inventory_tracking.macros.world import Monster
-from inventory_tracking.native.layout import HIRELING_CLASS_ID
+from inventory_tracking.native.layout import HIRELING_CLASS_ID, LIFE_FRACTION_MAX
 
 
 Point = tuple[float, float]
@@ -34,6 +34,10 @@ LETHAL = 0.25
 ESCORTS_MOST = 3  # places offered per look, the most saved first
 RAYS = 12  # directions round the character a place is looked for in
 RINGS = (0.6, 1.0)  # fractions of the jump's reach the places are looked for at
+# A monster's life stat is a share of its most life out of this, the mercenary's too (native/mercenary.py, the healer's
+# reading); its most life is in points. Read as points, a whole mercenary had 128 of its 2367 and was escorted out of
+# Lower Kurast's trash 35 times in 65 stays (2026-10-17)
+LIFE_SHARE = LIFE_FRACTION_MAX >> 8
 
 
 @dataclass(frozen=True)
@@ -72,10 +76,13 @@ ESCORTING = 'escorting the mercenary'  # the act's reason begins so (`Escort.lin
 
 
 def kept_alive(monsters: Iterable[Monster], owner: int) -> tuple[Kept, ...]:
-    """The character's mercenary, alive and with its life read; none otherwise. The summons are left out: one dead is
-    summoned again in a cast, not worth a jump's price (a summon's upkeep is the build's buffs')."""
+    """The character's mercenary, alive and with its life read (in points: its share of its most life); none
+    otherwise. The summons are left out: one dead is summoned again in a cast, not worth a jump's price (a summon's
+    upkeep is the build's buffs')."""
     return tuple(
-        Kept(m.unit_id, (m.x, m.y), float(m.life), float(m.max_life), REHIRE_SECONDS)
+        Kept(
+            m.unit_id, (m.x, m.y), m.max_life * min(m.life, LIFE_SHARE) / LIFE_SHARE, float(m.max_life), REHIRE_SECONDS
+        )
         for m in monsters
         if m.txt_id == HIRELING_CLASS_ID and m.owner == owner and m.max_life > 0 and m.life > 0
     )

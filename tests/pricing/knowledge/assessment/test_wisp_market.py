@@ -117,11 +117,8 @@ def test_complete_native_wisp_matches_cached_rows_with_and_without_fixed_skills(
         for skill, level, capacity in [(226, 2, 15), (236, 5, 13), (246, 7, 11)]
     ]
     contract = native_jewelry_contract('Wisp Projector', {144: 20, 80: 20}, extra_raw=raw)
-    rows = [
-        json.loads(line)
-        for line in Path('pricing/data/appraisal-market.jsonl').read_text().splitlines()
-        if 'Wisp Projector' in line
-    ]
+    with Path('pricing/data/appraisal-market.jsonl').open(encoding='utf-8') as market:  # a line at a time
+        rows = [json.loads(line) for line in market if 'Wisp Projector' in line]
     result = evaluate(contract, rows)
     assert {r['listing_id'] for r in result['accepted']} == {'1002449066094', '1002503704430'}
     assert any('725' not in r['properties'] for r in result['accepted'])

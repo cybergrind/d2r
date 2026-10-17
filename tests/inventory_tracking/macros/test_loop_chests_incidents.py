@@ -45,6 +45,26 @@ def test_a_hostile_that_costs_no_life_does_not_keep_the_loops_chest_run_from_its
     assert p.decide(hurt, run) == hold.act
 
 
+def test_the_loops_run_stands_to_strike_only_after_a_loss_of_life():
+    # rca/2026-10-17/movement-findings.md §4 #1: 1,025 casts in 132 stays, 94% with no life lost in the 3 s before,
+    # 3.5 s a stay: a hold priced under the move to the chest is not made unless the character was just hurt
+    chests = Goal('Super chests', (4507.0, 2932.0), 'use', 2.0, PRESSED)
+    hold = p.Candidate(p.Hold(chests), 0.5, Harm(0.0, 0.0), unstruck=0.0, strikes=True)
+    move = p.Candidate(p.Move(Step((4507.0, 2932.0)), chests), 0.81, Harm(0.0, 0.0), unstruck=0.81)
+    facts = p.Facts(
+        192526.1, chests, False, True, True, lambda: Step((4507.0, 2932.0)), candidates=(hold, move), priced=True,
+        budget=624.4, life=1784.0, near=True, quiet=1.9, rush=True,
+    )  # fmt: skip
+    run = Pursuit('pickup', 192501.4, advance=False, leash=FULL, rush=True)
+
+    assert p.decide(facts, run) == move.act
+    assert p.decide(replace(facts, hurt=True), run) == hold.act  # hurt within HURT_SECONDS: the price decides
+    # 02:22:26 on 2026-10-17: by a shack's chest among idle hostiles, the open priced at a little more harm than the
+    # hold
+    use = p.Candidate(p.Operate(chests), 0.5, Harm(40.0, 80.0), unstruck=0.5)
+    assert p.decide(replace(facts, candidates=(replace(hold, harm=Harm(10.0, 20.0)), use)), run) == use.act
+
+
 def test_the_loop_goes_on_once_the_level_run_of_its_chests_is_over(monkeypatch):
     # 20:00:51.6 "Level run over: what is left of the route is loot, which takes a press"; attack mode went on
     # sweeping (29 s) and then idled (15 s) until the player pressed KP_6 twice (20:01:35, 20:01:38).
@@ -118,3 +138,49 @@ def test_a_spot_a_move_did_not_reach_is_not_moved_to_again_for_a_while():
     assert not hunt.barred(p.Move(Step((5121.5, 3019.5)), chests), 100.0)  # another way
     assert not hunt.barred(p.Move(Step((5131.0, 3012.0)), chests, 'stepping across', dodge=True), 100.0)
     assert not hunt.barred(p.Move(Step((5131.0, 3012.0)), chests), 100.0 + DEAD_END_SECONDS + 0.1)  # tried again later
+
+
+def test_the_loops_run_at_its_chest_among_idle_hostiles_opens_it_unless_just_hurt():
+    # 19:21:34 on 2026-10-17 (take 20261017T162121Z-79): landed 4 away from the chest at (4547, 3012), hostiles in
+    # reach and none striking. Only a hold was offered: 1.7 s standing (RUSH_UNMOVED), 2.3 s of strikes, then opened
+    chests = replace(Goal('Super chests', (4547.0, 3012.0), 'use', 5.0, PRESSED), route='Lower Kurast')
+    facts = p.Facts(276853.7, chests, True, True, True, lambda: Step((4547.0, 3012.0)), rush=True, near=True)
+    run = Pursuit('pickup', 276840.0, advance=False, leash=FULL, rush=True)
+
+    assert p.decide(facts, run) == p.Operate(chests)
+    assert p.decide(replace(facts, hurt=True), run) == p.Hold(chests)  # life lost within HURT_SECONDS: fought
+    # KP_1's own run keeps its fight before the goal (the Chaos Sanctuary's seals)
+    assert p.decide(replace(facts, rush=False), replace(run, rush=False)) == p.Hold(chests)
+    # Not there yet: the hold, which the price weighs against the move toward it (as before)
+    assert p.decide(replace(facts, there=False), run) == p.Hold(chests)
+    # 19:41:17: 2.5 off the chest, inside no `near` but with no step left (the navigator's arrival): opened too
+    arrival = replace(facts, there=False, way=lambda: p.NoWay('at the chest', arrived=True))
+    assert p.decide(arrival, run) == p.Operate(chests)
+    assert p.decide(replace(arrival, hurt=True), run) == p.Hold(chests)
+
+
+def test_a_move_failed_twice_at_one_spot_lets_the_loop_take_teleport_for_a_while():
+    # 21:49:56-21:50:40 on 2026-10-17: one Blade Warp 15 units east "did not move" eight times, the spot barred 4 s each
+    # with no other act (Teleport off for the gold), until the 45 s watchdog left the game
+    from inventory_tracking.macros.hunt import DEAD_END_SECONDS, STUCK_SECONDS
+    from inventory_tracking.macros.pursuit import Move
+    from inventory_tracking.macros.teleport import TELEPORT
+    from inventory_tracking.macros.travel import LOOPED, LOOPED_TELEPORT
+
+    hunt = Hunter(build=BUILD)
+    hunt.looped = LOOPED
+    chests = Goal('Super chests', (5212.0, 2857.0), 'use', 5.0, LOOPED)
+    spot = (5063.5, 2994.5)
+    hunt.dead_end(spot, 100.0)
+    assert hunt.looped_now(101.0) is LOOPED  # once: passed for a while, as before
+    hunt.dead_end(spot, 100.0 + DEAD_END_SECONDS + 1.0)  # the same move again, failed again
+    now = 100.0 + DEAD_END_SECONDS + 1.5
+    assert hunt.looped_now(now) is LOOPED_TELEPORT
+    assert hunt.barred(Move(Step(spot), chests), now)  # the warp to it still passed
+    assert not hunt.barred(Move(Step(spot, TELEPORT), chests), now)  # a Teleport crosses what it did not
+    assert hunt.looped_now(now + STUCK_SECONDS) is LOOPED  # then off again
+    hunt.looped = LOOPED_TELEPORT  # Teleport on already: nothing to allow
+    hunt.stuck_until = -1.0
+    hunt.dead_end(spot, 200.0)
+    hunt.dead_end(spot, 201.0)
+    assert hunt.looped_now(201.5) is LOOPED_TELEPORT

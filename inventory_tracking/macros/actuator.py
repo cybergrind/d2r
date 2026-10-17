@@ -244,6 +244,14 @@ class Actuator:
             self.holding_buttons -= own_buttons
             self._release(pressed)
 
+    def rebase(self) -> None:
+        """The guard's mark (`left_at`) is where the pointer is now: after a panel the macro opened or closed, the game
+        moves the pointer 471 pixels across by itself (the stash and the inventory, 01:33:52 on 2026-10-17: "the mouse
+        was moved" at every one, the player's hand nowhere near)."""
+        now = self.keys.pointer()
+        if now is not None and self.left_at is not None:
+            self.left_at = now
+
     @contextmanager
     def held_act(self, drift: int = POINTER_DRIFT) -> Generator[None]:
         """One act of the loop's own made as a step makes it: the pointer held where it is put (`steady`) and

@@ -188,6 +188,7 @@ class Facts:
     quiet: float = 0.0  # seconds since the fight last saw a strike, counted while `near`
     near: bool = False  # a hostile within the strike's reach, a clear line or not: the strike gap counts (I2)
     rush: bool = False  # the KP_6 loop's run (`Pursuit.rush`): no strike gap, the price alone
+    hurt: bool = False  # life lost within HURT_SECONDS (hunt.py `safety_priced`): the loop's run may stand and strike
     # Units the character stands past the goal's `near`, for a goal whose arrival is a distance from its place (a
     # place, a door); inf for the others. Under `least_move`, the shortest move the navigator makes (a walk along the
     # way: travel.py AROUND_LEAST), a way with no step left is an arrival (`moved`).
@@ -256,6 +257,7 @@ class Candidate:
     keeps: bool = False
 
 
+RUSH_HARM_SHARE = 0.05  # of the life: the harm a move or a use of the loop's run may be priced at over a hold
 NO_STEP_LEFT = 'no step toward it is left'  # the arrival said for that (`moved`)
 FIRING_SPOT = 'firing spot'  # the reason of a move to a stand the strike is made from (macros/safety.py FIRING)
 PASSAGE = 'an open passage: walking through into the next level'  # `through`'s move, said once
@@ -269,6 +271,18 @@ def arbitrate(facts: Facts) -> Act:
         # clear time, and it outpriced the chest itself (22:04:12 on 2026-10-16: 16 walks to one in 17 s, none taken;
         # rca/2026-10-16/loop-shack-stalls-findings.md §1). A dodge and a retreat stay.
         kept = tuple(c for c in facts.candidates if not (isinstance(c.act, Move) and c.act.reason == FIRING_SPOT))
+        holds = [c for c in kept if isinstance(c.act, Hold)]
+        if holds and not facts.hurt:
+            # Nor a stand to strike from where nothing has hurt the character and moving on is no more harmful: 94% of
+            # the loop's strikes followed no loss of life in the 3 s before, 3.5 s a stay (rca/2026-10-17/
+            # movement-findings.md §4 #1). A hostile that costs life on the way is still fought (2026-10-16).
+            # The harm priced for an open or a move among idle hostiles is over the hold's and still small: at 02:22:26
+            # on 2026-10-17 the run stood 1.7 s by a shack's chest and then struck. A move or a use priced under
+            # RUSH_HARM_SHARE of the life is made; one dearer is still fought for (300 of 1,784 life, 2026-10-16).
+            least = max(min(c.harm.mean for c in holds), RUSH_HARM_SHARE * facts.life)
+            moving = tuple(c for c in kept if not isinstance(c.act, Hold))
+            if any(veto(c.harm, facts.life, facts.safety) is None and c.harm.mean <= least for c in moving):
+                kept = moving
         facts = replace(facts, candidates=kept)
     allowed = [c for c in facts.candidates if veto(c.harm, facts.life, facts.safety) is None]
     feasible = [c for c in allowed if c.harm.worst <= facts.budget and not c.retreat]
@@ -408,7 +422,17 @@ def run_level(facts: Facts, pressed: bool) -> Act:
         if pressed:
             return Defer(goal)
         return Ended(f'what is left of the route is {goal.label}, which takes a press')
+    # The KP_6 loop's run at its chest or drop with idle hostiles in reach: the open or the pickup is offered, not a
+    # stand alone; the price may still hold (`arbitrate`). Offered only a hold, it stood RUSH_UNMOVED and then struck,
+    # about 4 s at a chest (19:21:34 on 2026-10-17: 4 away from it, 1.7 s standing, 2.3 s of strikes, then opened;
+    # 30 of 31 strikes from 19:20 to 19:35 followed no loss of life). The player, 2026-10-17: "we don't even need to
+    # kill some trash mobs and can loot and leave"; "strikes on hp loss". Arrived as the navigator has it too (`moved`:
+    # no step left), 2-3 units off a chest whose `near` is less (19:41:17 on 2026-10-17, the first change missed it).
     if facts.in_reach and facts.attacking:
+        if facts.rush and goal.do in OPERATED and not facts.hurt and not facts.settling:
+            found = arrived(facts, goal) if facts.there else moved(facts, goal)
+            if isinstance(found, Operate):
+                return found
         return Hold(goal)
     if facts.settling:
         return NoWay('what the object used brings comes first', arrived=True)

@@ -123,6 +123,10 @@ class Intent:
     # rooms, a set that walks by the walked way), never with a stride that only points at it. Off: the goal
     # is a place the caller chose within a move's reach (a place to stand, a stride's end), as before.
     routed: bool = False
+    # Units of the straight line to the goal under which no Teleport hop is made: a free jump (Blade Warp), its
+    # casting delay waited out, goes there instead (0: no such line). The KP_6 loop's charges are dear: most were
+    # spent on the last 14-20 units to a chest during Blade Warp's delay (12:45 on 2026-10-17), ~7 a cycle
+    hop_from: float = 0.0
 
 
 @dataclass(frozen=True)
@@ -347,6 +351,8 @@ class BuffFacts:
     focused: Callable[[], bool] = in_front
     # The monsters lying dead as (unit id, x, y), world units (`Run.corpses`); None: they cannot be read
     corpses: Callable[[], tuple[tuple[int, float, float], ...]] | None = None
+    # Whether a Call to Arms is worn, in either weapon set (`Run.cta`); None: not known
+    cta: bool | None = None
     # What the safety pricing found the build's `Draw` worth onto each hostile it weighed at its last look, by unit
     # (macros/safety.py `Safety.weigh`); None: no look of it is fresh (the pursuit off, no fight priced): a row
     # that casts the draw goes by its own rule then

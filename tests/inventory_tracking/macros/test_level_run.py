@@ -226,7 +226,8 @@ def test_in_lower_kurast_a_chests_drop_is_taken_before_the_next_chest() -> None:
     first = goal()
     assert (first.do, first.place) == (USE, (5000.0, 5000.0))
     progress.used(79, 'Super chests', chests[0], chests)
-    assert USES[UNIQUE_CHEST].brings == CHEST_BRINGS > 0.2  # over one of the recorder's reads
+    # A little over the 14 ms the macro's own reads saw the drops after the open (01:38:04 on 2026-10-17)
+    assert USES[UNIQUE_CHEST].brings == CHEST_BRINGS >= 0.05
     waited = decide(facts(goal(), settling=True, area=79, way=unasked), replace(RUN, area=79))
     assert isinstance(waited, NoWay)
     assert waited.arrived

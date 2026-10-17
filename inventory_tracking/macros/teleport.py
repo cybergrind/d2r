@@ -56,7 +56,7 @@ from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.routines import ACTING, press_skill, settle, swap_until, world_point
 from inventory_tracking.macros.skills import SWAP_WEAPONS, TELEPORT
 from inventory_tracking.macros.view import CORNER_BOTTOM, UNIT_PIXELS, VIEW, Viewport
-from inventory_tracking.macros.world import Player, Thing, Warp, World, containers
+from inventory_tracking.macros.world import BANK, Player, Thing, Warp, World, containers
 from inventory_tracking.native.layout import TILE_UNITS
 
 
@@ -168,6 +168,9 @@ OBJECT_UNIT = 2
 MONSTER_UNIT = 1  # the same record's type of a monster
 
 
+EXPIRED = 'priced act expired'  # hunt.py `priced_for`'s stop
+
+
 class Covered(Abort):
     """The hands did not make their act because monsters stood where it was to be made: under the
     pointer at every aim on an object, or on the ground a walk was to be clicked at (`units`, their ids).
@@ -217,8 +220,10 @@ SEAL_BRINGS = 1.2  # seconds: the seal's pack was first seen 0.95 to 1.02 s afte
 # (Lower Kurast, 13 chests of classes 181 and 183 opened by the player's click with something on the ground after),
 # every first drop was in the same read as the chest's mode leaving 0 (the recorder reads both every 0.2 s,
 # record.py SLOW_SECONDS); drops seen later near it were the next chest's. One read and a little more, so the look
-# after the click sees what fell before the run goes on to the next chest.
-CHEST_BRINGS = 0.25
+# after the click sees what fell before the run goes on to the next chest. The macro's own reads saw the drops 14 ms
+# after the open (01:38:04.042 -> .056 on 2026-10-17, rca/2026-10-17/movement-findings.md §4 #4): 0.1 s, not the
+# recorder's read and more (0.25 s, about 1 s a game over seven containers).
+CHEST_BRINGS = 0.1
 USES = {
     # objects.txt's click box of PortalPermanent: 80 pixels wide round its ground point, from 100 above it
     # to 10 below; the aims go down its middle. The stones' map piece is 40 units across, the mark its middle.
@@ -242,6 +247,9 @@ USES = {
         )
         for kind in WAYPOINT_CLASSES
     },
+    # The stash (objects.txt `Bank`: no box, Selectable0 only): taken by its picture, a chest on its ground point, as
+    # a chest is. The click walks the character there and opens the stash and the inventory (macros/stash.py).
+    BANK: Use(CHEST_AIMS, 15.0, False, 'Opening {}', '{}: opened', 'no stash at {}', opens='stash'),
     # objects.txt gives the body no box: it is taken by its picture, which lies on its ground point. It can
     # be searched once (Selectable0 only): mode 0 until then.
     WIRTS_BODY: Use(
@@ -855,42 +863,50 @@ def use_thing(run: Run, target: Target, player: Player, thing: Thing, aspect: fl
         raise Abort(f'{target.label} did not take the pad')
     seen = False
     covered: set[int] = set()  # the monsters under the pointer at an aim that was not clicked
-    for aim in use.aims:
-        across, down = ground_fraction(player, *at, aspect)
-        where = (across + aim[0] * UNIT_PIXELS[0] / 16 / aspect, down + aim[1] * UNIT_PIXELS[1] / 8)
-        if not in_view(where):
-            continue
-        run.actuator.aim(*where, scatter=(4, 3))
-        if run.hovered is not None:
-            run.pace.sleep(HOVER_SECONDS)
-            over = run.hovered()
-            if over != (OBJECT_UNIT, thing.unit_id):
-                LOG.info('Macro: the aim %s pixels from %s has %s under it; not clicked', aim, target.label, over)
-                if over is not None and over[0] == MONSTER_UNIT:
-                    covered.add(over[1])
+    try:
+        for aim in use.aims:
+            across, down = ground_fraction(player, *at, aspect)
+            where = (across + aim[0] * UNIT_PIXELS[0] / 16 / aspect, down + aim[1] * UNIT_PIXELS[1] / 8)
+            if not in_view(where):
                 continue
-        seen = True
-        for _ in range(DOOR_CLICKS):
-            settle(run, 0.0, STILL_SECONDS)
-            stood = (player.x, player.y)
-            run.actuator.click()
-            deadline, still, stirred = run.clock() + THING_SECONDS, run.clock() + STILL_SECONDS, False
-            while True:
-                if took():
-                    LOG.info('Macro: %s took the click %s pixels from its ground', target.label, aim)
-                    run.say(use.done.format(target.label))
-                    return
-                player = run.world().player or player
-                stirred = stirred or (player.x, player.y) != stood
-                if run.clock() >= deadline or (run.clock() >= still and not stirred):
-                    break
-                run.pace.sleep(WALK_POLL)
-            LOG.info(
-                'Macro: %s did not take the click %s pixels from its ground; the character now at (%.1f, %.1f)',
-                target.label, aim, player.x, player.y,
-            )  # fmt: skip
-            if stirred:
-                break  # it walked and nothing came of it: the next aim, from where it stands
+            run.actuator.aim(*where, scatter=(4, 3))
+            if run.hovered is not None:
+                run.pace.sleep(HOVER_SECONDS)
+                over = run.hovered()
+                if over != (OBJECT_UNIT, thing.unit_id):
+                    LOG.info('Macro: the aim %s pixels from %s has %s under it; not clicked', aim, target.label, over)
+                    if over is not None and over[0] == MONSTER_UNIT:
+                        covered.add(over[1])
+                    continue
+            seen = True
+            for _ in range(DOOR_CLICKS):
+                settle(run, 0.0, STILL_SECONDS)
+                stood = (player.x, player.y)
+                run.actuator.click()
+                deadline, still, stirred = run.clock() + THING_SECONDS, run.clock() + STILL_SECONDS, False
+                while True:
+                    if took():
+                        LOG.info('Macro: %s took the click %s pixels from its ground', target.label, aim)
+                        run.say(use.done.format(target.label))
+                        return
+                    player = run.world().player or player
+                    stirred = stirred or (player.x, player.y) != stood
+                    if run.clock() >= deadline or (run.clock() >= still and not stirred):
+                        break
+                    run.pace.sleep(WALK_POLL)
+                LOG.info(
+                    'Macro: %s did not take the click %s pixels from its ground; the character now at (%.1f, %.1f)',
+                    target.label, aim, player.x, player.y,
+                )  # fmt: skip
+                if stirred:
+                    break  # it walked and nothing came of it: the next aim, from where it stands
+    except Abort as stop:
+        if covered and not isinstance(stop, Covered) and EXPIRED in str(stop):
+            # The act's priced time ran out with a monster seen on the object (21:16:22 on 2026-10-17: two aims at a
+            # chest had a monster under them, then four tries in 6.5 s until it walked off): told as in the way, so
+            # the fight with it comes first (hunt.py `blocked`), not the same click again
+            raise Covered(f'{target.label}: {stop}', covered) from stop
+        raise
     if not seen:
         if covered:
             raise Covered(f'{target.label} is not under the pointer at any aim', covered)

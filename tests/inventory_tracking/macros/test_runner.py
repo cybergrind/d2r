@@ -8,6 +8,7 @@ import pytest
 from inventory_tracking.macros import runner as runner_module
 from inventory_tracking.macros.actuator import Abort, Cancelled, Flipped
 from inventory_tracking.macros.hunt import Hunter
+from inventory_tracking.macros.loop import RECOVERIES, Dead
 from inventory_tracking.macros.runner import MacroRunner
 from tests.inventory_tracking.macros.fakes import BUILD, KEYS, character_of
 
@@ -17,9 +18,11 @@ SAVED_GAMES = Path('/nonexistent/Saved Games')
 
 
 def make(execute, shown):
-    return MacroRunner(
+    runner = MacroRunner(
         None, capture_lock=threading.Lock(), saved_games=SAVED_GAMES, display=shown.append, execute=execute
     )
+    runner.valuable_left = lambda: None  # nothing on the ground (no game to read)
+    return runner
 
 
 def joined(runner: MacroRunner) -> threading.Thread:
@@ -1150,14 +1153,14 @@ def test_the_run_made_again_after_a_flip_waits_for_the_flip_to_be_over():
 
 
 def test_the_loop_key_starts_a_leg_and_each_leg_is_followed_by_the_next_until_one_stops(monkeypatch):
-    # routes/lower-kurast-loop-plan.md phase 4: KP_6 on; a leg's stop ends the loop, saying why
+    # routes/lower-kurast-loop-plan.md phase 4: KP_6 on; the character's death ends the loop, saying why
     monkeypatch.setattr(runner_module, 'CARD_SECONDS', 0)
     shown, made = [], []
 
     def execute(cancelled, routine):
         made.append(routine)
         if len(made) == 3:
-            raise Abort('the character is dead')
+            raise Dead('the character is dead')
 
     runner = make(execute, shown)
     assert runner.request(10.0, 10.1, 'loop')
@@ -1181,7 +1184,7 @@ def test_the_level_run_a_leg_asks_for_is_followed_by_the_next_leg(monkeypatch):
         if made == ['loop']:
             runner.attack_mode = True  # the chests' leg: the KP_1 level run follows as attack mode
         elif len(made) == 3:
-            raise Abort('enough')
+            raise Dead('enough')
 
     runner = make(execute, shown)
     assert runner.request(10.0, 10.1, 'loop')
@@ -1190,6 +1193,87 @@ def test_the_level_run_a_leg_asks_for_is_followed_by_the_next_leg(monkeypatch):
         time.sleep(0.01)
     joined(runner)
     assert made == ['loop', 'hunt any', 'loop']
+    runner.close()
+
+
+def test_a_legs_stop_leaves_the_game_and_the_loop_goes_on_until_the_recoveries_run_out(monkeypatch):
+    # The player, 2026-10-17: "we should try to not stuck in some weird situation without being able to fix it from
+    # agent": a leg's stop is recovered from by leaving the game (macros/loop.py `recover`), RECOVERIES times
+    monkeypatch.setattr(runner_module, 'CARD_SECONDS', 0)
+    shown, made, abandon = [], [], []
+
+    def execute(cancelled, routine):
+        made.append(routine)
+        abandon.append(runner.loop.abandon)
+        raise Abort('the stash did not open with the inventory')
+
+    runner = make(execute, shown)
+    assert runner.request(10.0, 10.1, 'loop')
+    deadline = time.monotonic() + 5
+    while len(made) < RECOVERIES + 1 and time.monotonic() < deadline:
+        time.sleep(0.01)
+    joined(runner)
+    assert made == ['loop'] * (RECOVERIES + 1)
+    assert abandon == [False] + [True] * RECOVERIES  # each leg after a stop is the one that leaves the game
+    assert not runner.loop.on
+    assert ['Loop stopped: the stash did not open with the inventory'] in shown
+    runner.close()
+
+
+def test_a_game_with_a_valuable_on_the_ground_is_never_left_the_loop_stops_instead(monkeypatch):
+    # The player, 01:21 on 2026-10-17: "you we're killed the game while having valuable pickup on the ground!!! that
+    # is the exact thing we want ot avoid": the loop left a game with a Flawless Diamond on the ground, the inventory
+    # full ("inventory full: no room for Flawless Diamond", 01:20:39)
+    monkeypatch.setattr(runner_module, 'CARD_SECONDS', 0)
+    shown, made = [], []
+
+    def execute(cancelled, routine):
+        made.append(routine)
+        raise Abort('inventory full: no room for Flawless Diamond')
+
+    runner = make(execute, shown)
+    runner.valuable_left = lambda: 'Flawless Diamond'
+    assert runner.request(10.0, 10.1, 'loop')
+    deadline = time.monotonic() + 5
+    while runner.loop.on or not made:
+        if time.monotonic() > deadline:
+            break
+        time.sleep(0.01)
+    joined(runner)
+    assert made == ['loop']
+    assert not runner.loop.abandon
+    assert not runner.loop.on
+    assert [
+        'Loop stopped: inventory full: no room for Flawless Diamond; Flawless Diamond lies on the ground: '
+        'the loop stops here'
+    ] in shown
+    runner.close()
+
+
+def test_a_valuable_with_no_room_makes_room_in_the_cube_then_drops_an_item_once_a_game_then_the_loop_stops(monkeypatch):
+    # 04:32:26 on 2026-10-17: "the character has not moved for 45 s; Grand Charm lies on the ground: the loop stops
+    # here": the first time in a game the loop's items go into the cube at the next leg and the loop goes on; the
+    # second, an item taken only to identify is dropped for it (21:00:03); the third, the loop stops for the player
+    monkeypatch.setattr(runner_module, 'CARD_SECONDS', 0)
+    shown, made, room = [], [], []
+
+    def execute(cancelled, routine):
+        made.append(routine)
+        room.append((runner.loop.make_room, runner.loop.drop_room))
+        runner.loop.seen = ('cyber1', 0.0)  # the service's poll saw the game
+        raise Abort('the character has not moved for 45 s')
+
+    runner = make(execute, shown)
+    runner.valuable_left = lambda: 'Grand Charm'
+    assert runner.request(10.0, 10.1, 'loop')
+    deadline = time.monotonic() + 5
+    while len(made) < 3 and time.monotonic() < deadline:
+        time.sleep(0.01)
+    joined(runner)
+    assert made == ['loop', 'loop', 'loop']
+    assert room == [(False, False), (True, False), (True, True)]  # the cube first, then a drop (this leg acts on none)
+    assert not runner.loop.on  # the same game again: the loop stops for the player
+    assert runner.loop.room_tried == runner.loop.dropped == 'cyber1'
     runner.close()
 
 
@@ -1256,4 +1340,53 @@ def test_the_loops_pickup_mode_filters_the_drops_only_with_the_loop_on():
     runner.pickup_mode = REGULAR
     assert runner._picked(loot) == loot
     assert runner.run_badge == 'LOOP ALL'
+    runner.close()
+
+
+class _Memory:
+    where, where_area = (5695.0, 2857.0), 79
+
+
+class _Run:
+    def __init__(self, x: float, y: float, area: int):
+        self.player = type('P', (), {'x': x, 'y': y, 'area': area})()
+
+    def world(self):
+        return type('W', (), {'player': self.player})()
+
+
+def test_the_loop_goes_back_for_a_valuable_it_saw_and_no_press_picked_up(monkeypatch):
+    # The Flawless Emerald of 08:58:34 on 2026-10-17 (routes/lower-kurast-loop-plan.md §14): seen in a flight, 104
+    # units off when the run ended and no longer read; the "what is left" press found nothing, Town Portal followed
+    from inventory_tracking.macros.world import VALUABLE, Drop, Loot
+
+    gone_to = []
+    monkeypatch.setattr(runner_module, 'approach', lambda run, found, level, keys: gone_to.append(found.label))
+    runner = make(lambda cancelled, routine: None, [])
+    emerald = Loot(drops=(Drop(41, 5798.0, 2870.0, 'Flawless Emerald', VALUABLE),), game=('g', 7))
+    runner._sighted(_Memory(), emerald)  # the loop off: nothing is noted
+    assert runner.sightings.left() is None
+    runner.loop.on = True
+    runner._sighted(_Memory(), emerald)
+    runner._sighted(_Memory(), Loot(game=('g', 7)))  # out of the read
+    assert runner.sightings.left() == 'Flawless Emerald at (5798, 2870)'
+    assert not runner._fetch(_Run(0.0, 0.0, 75), None, KEYS)  # not in its level: no trip
+    assert runner._fetch(_Run(5695.0, 2857.0, 79), None, KEYS)
+    assert gone_to == ['Flawless Emerald']
+    runner.close()
+
+
+def test_a_full_stash_stack_skips_its_rune_but_never_a_gem():
+    # 15:19:42 on 2026-10-17: a Flawless Amethyst, its stash stack at 99, was left on the ground twice (the player:
+    # "we just left flawlest amethyst and left the game. something is wrong"); the ruling was the runes'
+    from inventory_tracking.macros.pickmode import REGULAR
+    from inventory_tracking.macros.world import VALUABLE, Drop, Loot
+
+    runner = make(lambda cancelled, routine: None, [])
+    runner.loop.on, runner.pickup_mode = True, REGULAR
+    amethyst = Drop(1, 0.0, 0.0, 'Flawless Amethyst', VALUABLE, source='material', txt=575)
+    tal = Drop(2, 0.0, 0.0, 'Tal Rune', VALUABLE, source='rune', txt=631)
+    runner.loop.full = {575, 631}
+    assert runner._picked(Loot(drops=(amethyst, tal))).drops == (amethyst,)
+    assert runner.loop.sold_full == {631}
     runner.close()

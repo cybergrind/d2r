@@ -24,6 +24,7 @@ from inventory_tracking.levels.memory import WAYPOINT_CLASSES
 from inventory_tracking.levels.model import HELL_GATE, PORTAL, TOWN_PORTAL
 from inventory_tracking.macros.actuator import Actuator
 from inventory_tracking.macros.build import Build, choose
+from inventory_tracking.macros.cta import BATTLE_ORDERS
 from inventory_tracking.macros.cube import (
     CUBE,
     CUBE_CLASS,
@@ -36,8 +37,12 @@ from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.routines import screen_fraction
 from inventory_tracking.macros.shop import TRADE_ABOVE, VENDOR
 from inventory_tracking.macros.skills import SWAP_WEAPONS, TELEPORT
+from inventory_tracking.macros.stash import RESOURCES, SHARED_LEFT, SHARED_RIGHT, STASH_CUBE, tab_point
 from inventory_tracking.macros.timing import Pace
+from inventory_tracking.macros.waypoint import panel_point
 from inventory_tracking.macros.world import (
+    BANK,
+    IDENTIFY_TOME,
     Carried,
     Drop,
     Loot,
@@ -57,6 +62,7 @@ KEYS[ECHOING_STRIKE] = '7'  # bound by the user on 2026-10-09 so Quick Cast aims
 KEYS[DEATH_MARK] = 'd'
 KEYS[ENGORGE] = 'e'
 KEYS[BLADE_WARP] = 'w'
+KEYS[BATTLE_ORDERS] = 'F8'  # a Call to Arms' skill (macros/cta.py); its state reads None in the fakes: never cast
 [BUILD] = LAYERS  # the build of the fakes' character: the Echoing Strike Warlock as CybergrindAA plays it
 
 
@@ -72,12 +78,16 @@ ACTING_SECONDS = 0.3  # the cast animation
 KEPT_KEYS = frozenset('dq6gew')  # the Quick Cast skill keys of the fakes' character but Teleport (`keeps_keys`)
 PREBUFF_SET, OTHER_SET = ('fla', 'uit'), ('6cs', 'wa3')  # Heart of the Oak + Spirit; Naj's Puzzler + Codex
 SLOTS = (379, 390, 375, 384, 389, 220, 393, 377, None, 382, 387, 54, 381, None, None, None)
-HUNT_SLOTS = (*SLOTS[:13], ECHOING_STRIKE, *SLOTS[14:])  # with Echoing Strike on a key, as since 2026-10-09
+HUNT_SLOTS = (*SLOTS[:13], ECHOING_STRIKE, BATTLE_ORDERS, *SLOTS[15:])  # Echoing Strike on a key since 2026-10-09
 WINDOW = (1920, 0, 2560, 1418)
 
 # What the fake connection sends the game: ('key', name), ('click', fraction), ('button', n, fraction, held
 # key names), and ('held', input) for a skill input the game sees down (`Game.read`).
 Event = tuple[Any, ...]
+
+
+CAIN_CLASS = 246  # Deckard Cain in Pandemonium Fortress (macros/cain.py CAIN)
+CAIN_LINE = 0.2052  # window heights over his drawn point: his Identify Items line in the fake
 
 
 class FakeConnection:
@@ -263,7 +273,11 @@ class Game:
         # cube opens it, a left click takes an item onto the pointer (`cursor`) and puts it down; None: unread
         self.pack: Pack | None = None
         self.cursor: Carried | None = None
+        self.fallen: list[
+            Carried
+        ] = []  # what a click on the ground let fall from the pointer (macros/cube.py `drop_for`)
         self.cube_refuses = False  # a cube that takes nothing put on it
+        self.identifying = False  # the Tome of Identify right clicked: the next item clicked is identified
         # A vendor (macros/shop.py): a click on her opens her menu, its Trade line her trade window, a shift + right
         # click on a stock cell buys it (`full`: what the count of that class then is)
         self.vendor: Monster | None = None
@@ -273,6 +287,17 @@ class Game:
         self.vendor_drift = 0.0  # units a second she walks along x (the vendors walk about)
         self.vendor_named = True  # the game's record of what is under the pointer names her when she is
         self.vendor_seen: float | None = None  # the clock she was last moved at
+        self.stash_tab = 0  # the stash's tab shown (2 Gems: the cube's grid with it)
+        self.stashed: list[Carried] = []  # what went into the stash
+        self.stash_room = [100] * 6  # the items each page takes yet: the personal one, then the shared ones
+        self.shared_page = 0  # the shared page shown
+        # where a cube item no resource tab takes goes on a Ctrl + Shift + click: it stays (01:28:34 on 2026-10-17)
+        self.cube_spill = 'stays'
+        self.stash_refuses: set[int] = set()  # the resource classes whose stash stack is full (99)
+        self.pointer: int | None = None  # the unit id of the item a plain click took up (`Pack.pointer`)
+        self.menu_shut = 0  # her menus a click off its Trade line closed
+        self.stock_delay = 0.0  # seconds her stock takes to be read after her trade window shows
+        self.shop_opened: float | None = None  # the clock her trade window showed at
         self.sigils: list[tuple[float, float]] = []  # ground points Sigil: Lethargy was cast at
         self.engorges: list[tuple[float, float]] = []  # ground points Engorge was cast at
         self.purges: list[float] = []  # clock times Hex: Purge was cast
@@ -298,6 +323,9 @@ class Game:
         self.struck_hold: int | None = None  # the press the last cast came from (hold_serial)
         self.reading = False
         self.loot = Loot()  # the drops, the belt and the life (the pickup step); a click on a drop's ground picks it up
+        self.sale_price = 10_000  # gold a sold item brings (`sell_at`)
+        self.gold_dialog = True  # the gold button opens its dialog (`gold_dialog_at`); typed so far, None: none open
+        self.gold_typed: str | None = None
         self.picked: list[str] = []  # labels of the drops picked up
         self.hover_known = True  # the game's record of the unit under the pointer can be read
         self.deaf_picks = 0  # clicks on a drop the game takes nothing from (a cast was ending)
@@ -352,6 +380,20 @@ class Game:
         w = self.world
         if self.deaf:
             self.ignored.append(event)
+            return
+        if event[0] == 'key' and self.gold_typed is not None:  # the gold dialog (macros/stash.py `deposit`)
+            key = event[1]
+            if key == 'BackSpace':
+                self.gold_typed = self.gold_typed[:-1]
+            elif key.isdigit():
+                self.gold_typed += key
+            elif key in ('Return', 'Escape'):
+                if key == 'Return' and self.gold_typed:
+                    stats = dict(self.loot.stats)
+                    stats[14] = stats.get(14, 0) - int(self.gold_typed)
+                    stats[15] = stats.get(15, 0) + int(self.gold_typed)
+                    self.loot = replace(self.loot, stats=tuple(stats.items()))
+                self.gold_typed = None
             return
         if event[0] == 'key':
             key = event[1]
@@ -431,14 +473,19 @@ class Game:
                 bought = next((s for s in self.stock if s.tab == 3 and self.stock_cell(*event[2]) == (s.x, s.y)), None)
                 if bought is not None and bought.txt in self.full:
                     field_name, full = self.full[bought.txt]
-                    if field_name == 'keys':
-                        self.pack = replace(self.pack, keys=full)
+                    if field_name == 'keys':  # the stack not full filled, else a new one (shop.py KEYS_WANTED)
+                        # a new stack comes a few keys a click (17:31:59 on 2026-10-17: 12 -> 15)
+                        now = self.pack.keys or 0
+                        keys = full if now < full else min(now + 3, 2 * full)
+                        self.pack = replace(self.pack, keys=keys, key_room=keys % full != 0)
                     else:
                         self.pack = replace(self.pack, portals=full)
         elif event[0] == 'button' and event[1] == 3 and w.in_game and 'inventory' in w.open_panels:
             item = self.pack_item_at(*event[2])
             if item is not None and item.txt == CUBE_CLASS:
                 self.world = replace(w, open_panels=(*w.open_panels, 'cube'))
+            elif item is not None and item.txt == IDENTIFY_TOME and self.pack is not None and self.pack.identifies:
+                self.identifying = True
         elif event[0] == 'button' and event[1] == 9 and w.in_game:
             self.sigils.append(self.ground_under_pointer())
         elif event[0] == 'held':  # a skill input down while the character is free: the game casts it
@@ -447,7 +494,7 @@ class Game:
             else:  # the plain attack, in place: an animation and nothing hit (host, 20:07 on 2026-10-09)
                 self.world = replace(w, player=replace(character_of(w), mode=7))
                 self.acting_until = self.clock.now + ACTING_SECONDS
-        elif event[0] == 'click' and w.in_game and self.keys.shift:
+        elif event[0] == 'click' and w.in_game and self.keys.shift and 'stash' not in w.open_panels:
             pass
         elif event[0] == 'click':
             x, y = event[1]
@@ -460,6 +507,8 @@ class Game:
                     self.field_focused = True
             elif w.in_game and 'waypoint' in w.open_panels:
                 self.panel_click(x, y)
+            elif w.in_game and 'npc_shop' in w.open_panels and self.keys.ctrl and self.sell_at(x, y):
+                pass  # a Ctrl + click on an inventory item with her trade window open: sold (shop.py `restock`)
             elif w.in_game and {'npc_interact', 'npc_shop'} & set(w.open_panels):
                 self.vendor_click(x, y)
             elif w.in_game and 'inventory' in w.open_panels and self.pack is not None:
@@ -477,6 +526,10 @@ class Game:
                 elif self.thing is not None and self.thing_under_pointer():
                     if self.thing.txt_id == TOWN_PORTAL and self.thing.mode != 2:
                         pass  # still opening: not selectable yet
+                    elif self.thing.txt_id == BANK:  # the walk to it, and the stash with the inventory
+                        me = replace(character_of(w), x=self.thing.x + 2.0, y=self.thing.y + 2.0)
+                        self.world = replace(w, player=me, open_panels=('inventory', 'stash'))
+                        self.stash_tab = 0
                     elif self.thing.txt_id in WAYPOINT_CLASSES:  # the walk to it, and its panel on its act
                         me = replace(character_of(w), x=self.thing.x + 2.0, y=self.thing.y + 2.0)
                         self.world = replace(w, player=me, open_panels=('waypoint',))
@@ -658,11 +711,19 @@ class Game:
         if 'npc_shop' in self.world.open_panels or self.vendor is None:
             return
         drawn = screen_fraction(character_of(self.world), self.vendor.x, self.vendor.y, WINDOW[2] / WINDOW[3])
+        if self.vendor.txt_id == CAIN_CLASS:  # Deckard Cain: his Identify Items line identifies all carried
+            if abs(drawn[0] - x) < 0.05 and abs(drawn[1] - CAIN_LINE - y) < 0.0113 and self.pack is not None:
+                known = lambda items: tuple(replace(i, identified=True) for i in items)  # ruff: ignore[lambda-assignment]
+                self.pack = replace(self.pack, items=known(self.pack.items), in_cube=known(self.pack.in_cube))
+            self.world = replace(self.world, open_panels=())
+            return
         line = drawn[1] - TRADE_ABOVE + self.trade_line_off
         if abs(drawn[0] - x) < 0.05 and abs(line - y) < 0.0113:
             self.world = replace(self.world, open_panels=('inventory', 'npc_interact', 'npc_shop'))
+            self.shop_opened = self.clock.now
         else:
             self.world = replace(self.world, open_panels=())
+            self.menu_shut += 1
 
     def stock_cell(self, x: float, y: float) -> tuple[int, int]:
         x0, y0 = cell_point(WINDOW, VENDOR, (0, 0), (0, 0))
@@ -680,11 +741,120 @@ class Game:
                 return item
         return None
 
+    def stash_click(self, x: float, y: float) -> bool:
+        """A left click with the stash open (macros/stash.py): a tab shows it, the Gems tab with the cube's grid; the
+        shared pages' right arrow the next one; a Ctrl + click sends an inventory item into the stash, a resource onto
+        its tab, the rest onto the page shown while it has room (`stash_room`); a Ctrl + Shift + click on a resource tab
+        a cube item, one no resource tab takes where `cube_spill` says. Whether it was one."""
+        assert self.pack is not None
+        if not self.keys.ctrl:
+            for tab in range(5):
+                at = panel_point(WINDOW, *tab_point(tab))
+                if abs(at[0] - x) < 0.03 and abs(at[1] - y) < 0.015:
+                    self.stash_tab = tab
+                    return True
+            at = panel_point(WINDOW, *SHARED_RIGHT)
+            if self.stash_tab == 1 and abs(at[0] - x) < 0.01 and abs(at[1] - y) < 0.015:
+                self.shared_page = min(self.shared_page + 1, len(self.stash_room) - 2)
+                return True
+            at = panel_point(WINDOW, *SHARED_LEFT)
+            if self.stash_tab == 1 and abs(at[0] - x) < 0.01 and abs(at[1] - y) < 0.015:
+                self.shared_page = max(self.shared_page - 1, 0)
+                return True
+        if self.keys.ctrl and not self.keys.shift:
+            item = self.pack_item_at(x, y)
+            if item is not None and item.txt != CUBE_CLASS:
+                page = {0: 0, 1: 1 + self.shared_page}.get(self.stash_tab)
+                if item.txt in self.stash_refuses:
+                    return True
+                if item.txt in RESOURCES or (page is not None and self.stash_room[page] > 0):
+                    if item.txt not in RESOURCES and page is not None:
+                        self.stash_room[page] -= 1
+                    self.pack = replace(self.pack, items=tuple(i for i in self.pack.items if i is not item))
+                    self.stashed.append(item)
+            return True
+        if self.keys.ctrl and self.keys.shift and self.stash_tab >= 2:
+            for item in self.pack.in_cube:
+                px, py = cell_point(WINDOW, STASH_CUBE, (item.x, item.y), item.size)
+                if abs(px - x) < 0.01 and abs(py - y) < 0.02:
+                    if item.txt not in RESOURCES and self.cube_spill == 'stays':
+                        continue
+                    self.pack = replace(
+                        self.pack, in_cube=tuple(i for i in self.pack.in_cube if i is not item),
+                        cube_items=self.pack.cube_items - {item.unit_id},
+                    )  # fmt: skip
+                    if item.txt not in RESOURCES and self.cube_spill == 'inventory':
+                        taken = {(i.x + dx, i.y + dy) for i in self.pack.items for dx in range(i.size[0])
+                                 for dy in range(i.size[1])}  # fmt: skip
+                        free = next((x, y) for y in range(4) for x in range(10) if (x, y) not in taken)
+                        self.pack = replace(self.pack, items=(*self.pack.items, replace(item, x=free[0], y=free[1])))
+                    else:
+                        self.stashed.append(item)
+            return True
+        return False
+
+    def _out_of_cube(self, item: Carried) -> None:
+        """`item` out of the cube onto the inventory's first free cell."""
+        assert self.pack is not None
+        taken = {(i.x + dx, i.y + dy) for i in self.pack.items for dx in range(i.size[0]) for dy in range(i.size[1])}
+        free = next((cx, cy) for cy in range(4) for cx in range(10) if (cx, cy) not in taken)
+        self.pack = replace(
+            self.pack, in_cube=tuple(i for i in self.pack.in_cube if i is not item),
+            cube_items=self.pack.cube_items - {item.unit_id},
+            items=(*self.pack.items, replace(item, x=free[0], y=free[1])),
+        )  # fmt: skip
+
+    def gold_dialog_at(self, x: float, y: float) -> bool:
+        """The inventory's gold button clicked with the stash open: its dialog, all the carried gold typed in
+        (`gold_dialog`: False, none shows)."""
+        from inventory_tracking.macros.stash import GOLD_BUTTON
+
+        scale = WINDOW[3] / 2160
+        at = (
+            (WINDOW[2] + (-1394 + GOLD_BUTTON[0]) * scale) / WINDOW[2],
+            (0.397 * WINDOW[3] + (-651 + GOLD_BUTTON[1]) * scale) / WINDOW[3],
+        )
+        if abs(at[0] - x) > 0.01 or abs(at[1] - y) > 0.02:
+            return False
+        if self.gold_dialog:
+            self.gold_typed = str(dict(self.loot.stats).get(14, 0))
+        return True
+
+    def sell_at(self, x: float, y: float) -> bool:
+        """An inventory item under the pointer sold: out of the pack, `sale_price` gold onto the carried stat 14."""
+        item = self.pack_item_at(x, y) if self.pack is not None else None
+        if item is None or self.pack is None:
+            return False
+        self.pack = replace(self.pack, items=tuple(i for i in self.pack.items if i is not item))
+        stats = dict(self.loot.stats)
+        stats[14] = stats.get(14, 0) + self.sale_price
+        self.loot = replace(self.loot, stats=tuple(stats.items()))
+        return True
+
     def pack_click(self, x: float, y: float) -> None:
         """A left click with the inventory open: an item taken onto the pointer, or the one on it put down in the
         cube (its block's middle under the pointer) or back on the inventory."""
         assert self.pack is not None
+        if 'stash' in self.world.open_panels and self.gold_dialog_at(x, y):
+            return
+        if 'stash' in self.world.open_panels and self.stash_click(x, y):
+            return
+        if self.identifying:  # the tome's pointer: the item clicked is identified, a charge spent
+            self.identifying = False
+            item = self.pack_item_at(x, y)
+            if item is not None and not item.identified and self.pack.identifies:
+                known = replace(item, identified=True)
+                self.pack = replace(
+                    self.pack, items=tuple(known if i is item else i for i in self.pack.items),
+                    identifies=self.pack.identifies - 1,
+                )  # fmt: skip
+            return
         if self.cursor is None and self.keys.ctrl and 'cube' in self.world.open_panels:
+            for item in self.pack.in_cube:  # a Ctrl + click on a cube item: into the inventory (cube.py `unpack`)
+                px, py = cell_point(WINDOW, CUBE, (item.x, item.y), item.size)
+                if abs(px - x) < 0.01 and abs(py - y) < 0.02:
+                    self._out_of_cube(item)
+                    return
             # An empty cube's grid has no cells and reads as none (`Pack.cube` None): the game fills it all the same
             item, rows = self.pack_item_at(x, y), self.pack.cube or ('...',) * 4
             if item is None or item.txt == CUBE_CLASS or self.cube_refuses:
@@ -718,7 +888,12 @@ class Game:
         x0, y0 = cell_point(WINDOW, INVENTORY, (0, 0), (0, 0))
         x1, y1 = cell_point(WINDOW, INVENTORY, (10, 4), (0, 0))
         if x0 <= x < x1 and y0 <= y < y1 and self.pack_item_at(x, y) is None:
-            self.pack = replace(self.pack, items=(*self.pack.items, item))  # put back on the inventory
+            # put down on the inventory, its top-left on the cell clicked (macros/cube.py `arrange_keys`)
+            cx, cy = math.floor((x - x0) / ((x1 - x0) / 10)), math.floor((y - y0) / ((y1 - y0) / 4))
+            self.pack = replace(self.pack, items=(*self.pack.items, replace(item, x=cx, y=cy)))
+            self.cursor = None
+        elif x < 0.5:  # on the ground left of the panels: it falls at the character's feet
+            self.fallen.append(item)
             self.cursor = None
 
     def run(self, seed: int = 1) -> Run:
@@ -751,8 +926,15 @@ class Game:
             run.hovered = self.unit_under_pointer
         run.things = lambda: () if self.thing is None else (self.thing,)
         run.containers = run.things
-        run.carried = lambda: self.pack
-        run.stock = lambda vendor: self.stock if self.vendor is not None and vendor == self.vendor.txt_id else ()
+        run.carried = lambda: (
+            replace(self.pack, pointer=self.cursor.unit_id) if self.pack is not None and self.cursor else self.pack
+        )
+        run.stock = lambda vendor: (
+            self.stock
+            if self.vendor is not None and vendor == self.vendor.txt_id
+            and (self.shop_opened is None or self.clock.now >= self.shop_opened + self.stock_delay)
+            else ()
+        )  # fmt: skip
         run.keys = dict(KEYS)
         run.prebuff_hands = frozenset(PREBUFF_SET)
         run.battle_hands = frozenset(PREBUFF_SET)

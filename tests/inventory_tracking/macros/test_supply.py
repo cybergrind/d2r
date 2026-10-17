@@ -28,7 +28,7 @@ from inventory_tracking.macros.hunt import BLOCK_SECONDS, GATHER_TRIES
 from inventory_tracking.macros.pickup import PICK_UNITS, approach, pick_up
 from inventory_tracking.macros.pursuit import FULL, Hold, Move, Operate, Pursuit, decide
 from inventory_tracking.macros.supply import Potions, detour, worth
-from inventory_tracking.macros.travel import PRESSED, clear_line, walk_reaches
+from inventory_tracking.macros.travel import PRESSED, clear_line, open_reaches, walk_reaches
 from inventory_tracking.macros.world import HEALING, REJUVENATION, VALUABLE, Drop, Loot, Monster, PutDown, Teleport
 from tests.inventory_tracking.macros.test_hunt import game, hunter, keys, me
 from tests.inventory_tracking.macros.test_level_run import STEP, facts as level_facts, unasked
@@ -660,3 +660,23 @@ def test_the_life_budget_scales_with_the_potions_the_belt_can_give_back() -> Non
     unread = Loot(belt=LOW_BELT, life=1818, max_life=1818)
     assert spendable(unread, settings.healing_points, settings.floor) is None
     assert stock_share(settings, None) == 1.0
+
+
+# A shack's wall: '#' a column 34 units long, the way round it under its end (one char a unit, from (4980, 4980))
+SHACK_ROWS = (*('....................#...................',) * 34, *('.' * 40,) * 6)
+SHACK = Walkable(996, 996, 8, 8, *(pack_cells(''.join(r.replace('.', '1').replace('#', '0') for r in SHACK_ROWS)),) * 2)
+
+
+def test_a_chest_is_opened_from_afar_only_where_the_walk_to_it_is_not_round_a_wall() -> None:
+    # 19:54:36 on 2026-10-17: a shack's chest clicked from 12 away outside its wall; the open's 1.5 s ran out and the
+    # leg lost 7-8 s. Of 933 opens 17:43-20:08 the walk round 1.5 times the line parts the 896 opened from the 34 not
+    ground = Ground((SHACK,))
+    outside, chest = (4980.0 + 14, 4980.0 + 10), (4980.0 + 25, 4980.0 + 10)
+    assert not open_reaches(ground, (), outside, chest, 12.0)  # 11 straight, ~50 round the wall's end
+    assert open_reaches(ground, (), (4980.0 + 22, 4980.0 + 10), chest, 12.0)  # its own side: a clear line
+    assert open_reaches(Ground(()), (), outside, chest, 12.0)  # open ground: the distance alone
+    assert not open_reaches(Ground(()), (), (4980.0 + 10, 4980.0 + 10), chest, 12.0)  # 15 away: further than reach
+    # 18:38:34: a corner clipped, the walk round 1.12 times the line: opened at once (the emerald's corner here)
+    corner = Ground((CORNER,))
+    assert not clear_line(corner, (), CLICKED_FROM, (GEM.x, GEM.y))
+    assert open_reaches(corner, (), CLICKED_FROM, (GEM.x, GEM.y), 20.0)  # 18.3 straight, 19.4 round

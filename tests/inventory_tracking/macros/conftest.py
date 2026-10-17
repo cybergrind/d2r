@@ -1,6 +1,6 @@
 import pytest
 
-from inventory_tracking.macros import pickup, teleport, view
+from inventory_tracking.macros import pickup, repair, shop, teleport, view
 
 
 @pytest.fixture(autouse=True)
@@ -40,3 +40,12 @@ def no_corners(monkeypatch):
 def corners(no_corners):
     view.CORNERS[0] = True
     teleport.way_for.cache_clear()
+
+
+@pytest.fixture(autouse=True)
+def no_vendor_lifts_kept(monkeypatch, tmp_path):
+    """The vendors' learned menu lifts live under the test's own directory, and no menu is pictured (no `grim`)."""
+    monkeypatch.setattr(shop, 'LIFTS_FILE', tmp_path / 'menu-lifts.json')
+    monkeypatch.setattr(shop, '_picture', lambda run: None)
+    monkeypatch.setattr(repair, 'QUOTE_FILE', tmp_path / 'repair-quote.txt')
+    monkeypatch.setattr(repair, 'QUOTED', [])

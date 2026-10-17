@@ -407,6 +407,111 @@ waited nothing, and the walk was made (22:51:10: 1.2 s on foot, the warp held 0.
 choices came 0.80-0.90 s after the warp's key). Now `Hunter.advance` looks again when the goal's way is by then a
 jump whose delay still runs (`warp_ready`); a walk chosen with no delay running is made as before.
 
+### 12. Longer hops, and a goal that stays put (uncommitted, not played)
+
+The player, 2026-10-17: "continue with analyzing of the movements. try to find some better/faster movement strategies,
+test and implement". Where the time on the level went (26 stays, 805 s, the log's lines): the warps' flight 39%, an
+open 10%, the look after a landing 8.5%, a fight 8%, after an open 7%, a walk 7%, the way growing 5%. A hop costs its
+casting delay (1.05 s) however long it is, so the units each hop gains are the measure.
+
+- **The goal stayed put no more.** On the loop's run the goal's place was 3 units off the object on the character's
+  side (`beside`, phase 6d), so it moved with every move, and the walked way to it, kept by the goal's cell, was grown
+  afresh: in 112 of 213 looks at one goal its cell had changed. Its worst case, every game: the hop out of a shack
+  after its chest, 13 units the straight line into the palisade, gaining 7 of the way where 27 were in reach. The goal
+  is now the object's own place, and the loop's moves end LOOP_SHORT (3) of it (travel.py LOOPED `short`; a Teleport
+  hop within it of the goal is taken back to it, movement.py `hop_leg`: one aimed onto a chest's spot was not cast).
+- **A Blade Warp lands where the least of the way is left** (travel.py `landing_in_reach`), among the cells of its
+  reach in view, off a wall and over a clear line, not on the furthest cell of the way's own descent: along a winding
+  way that one is short of the reach. Replayed on the 152 hops toward goals over 30 units away of the 22:50 games, on
+  their takes' ground: 23.6 units of the way a hop, against 20.8 for the descent and 22.0 as made then (about 13% fewer
+  hops on the long stretches). Of the 32 short walks of the 23:39 games, 9 are now warps. The last hop, the way's end
+  in reach, keeps the descent's cell (the arena's Icy Cellar door: a cell beside the end off the way's line had no move
+  on from it). 1.9 ms a call warm, against 0.2.
+- Left as they are: the 0.25 s a chest's drops are waited for (`CHEST_BRINGS`), and the walk out of a shack's door
+  (no cell 8 units off is in a clear line from inside).
+- The arena's Chaos Sanctuary run of the recorded presses with the staff empty (today's keys) now opens the seals by
+  162 s (173 before) and dies at Diablo at 188 s (at the Infector at 179 s before); the pin is moved.
+
+### 13. Three fixes after the games of 23:39 and 00:12 (uncommitted, not played)
+
+- **The chests (00:12 on 2026-10-17).** Every look of the loop's run failed with `Unplanned`: `landing_in_reach` (12)
+  read each cell of the reach by `Walked.of`, which grows the field on to it, and in a look's time that raises. The
+  loop stopped on "the chests again and again". It reads what is settled only now (every cell with less of the way left
+  than the character's was settled before it); the test asks for a leg in a look whose time is over. The arena plays
+  with no clock, so no test had a look's time: my miss.
+- **Jamella's Trade (the player: "we cannot press trade and open trade window yet", 23:57-23:58).** TRADE_ABOVE was
+  right (the player's four clicks on Trade: 0.212-0.226 above her drawn point). The walk click toward her had landed on
+  her and the game opened her menu (23:57:48); the click on her that followed closed it. Her trade window then opened at
+  the second try, and her stock was read 0.05 and 0.1 s after it showed, held nothing, and the loop stopped on "not her
+  trade window". Now an open menu goes on to its Trade line, the walk stops at an open menu, and her stock is waited
+  for (STOCK_SECONDS 2).
+- **The stash (macros/stash.py; the player: "put resources (stones/runes/gems) into stash: opened stash + ctrl+ click
+  on item ... ctrl + shift + item click - to move it from cube inventory directly into the stash").** When the cube
+  cannot take all the loop's items (cube.py `overflow`), the LEAVE leg first opens the stash (objects.txt `Bank`, 267)
+  and sends the resources there: the loop's from the inventory by Ctrl + click, the cube's from the Gems tab's view of
+  it by Ctrl + Shift + click. The resources are the codes of the stash's resource tabs in the game's layout
+  (data/stash_tabs.json, 91 classes: gems and skulls, the materials, the runes). The tabs and the cube's grid in the
+  stash are the layout's, and fall where the player's screenshot of 23:59 shows them.
+
+### 14. Remembered valuables: no valuable seen is left behind (design, 2026-10-17; not built)
+
+The player, 2026-10-17: "should you check if we have lost something valuable (not picked up) last 200 games?", then
+"yes, do all three" (this design among them). Their hard rule (01:21): never leave a game while a valuable the loop
+would pick up lies on the ground.
+
+**Evidence** (`.agents/skills/d2-loop-watch/tools/games.py --since '2026-10-16 22:00'`, 693 games, each traced in
+the log): five valuables the sure mode takes were never picked up.
+
+| When | Game | Item | Why (verified in the log unless marked) |
+| --- | --- | --- | --- |
+| 01:20:37 | 1 (03d7a161) | Flawless Diamond | a recovery left the game; `runner.valuable_left` guards that since 01:21 |
+| 01:38:51 | 2 (44ad64a7) | set Ring | `pickmode.sure`: rare rings only; fixed 2026-10-17 10:50 (set and unique jewelry) |
+| 04:41:12 | 8 (92e0b765) | Small Charm | in a pile with six potions and gold: two presses aimed at it, both read "unread or nothing" under the pointer; the run went on ("priced act expired") and ended; the PICK_UP leg's press did not list it |
+| 08:10:10 | 84 (a01e22c5) | set Amulet | `pickmode.sure`, as the set Ring; fixed |
+| 08:58:34 | 27 (c437b871) | Flawless Emerald | seen in a Blade Warp's flight, off the route; the run ended 104 units away; the PICK_UP leg's press did not list it |
+
+The two open cases share a cause: **the loop forgets a valuable it cannot read now.** The ground read
+(`loot/ground.py` `ground_materials`: every item unit in the table, no distance filter) did not have the emerald at
+08:59:01. So the client had dropped the unit by then (the client's radius is inferred, not measured). The pickup
+hops toward far drops (`pickup.py`), but only toward drops it reads. `runner.valuable_left` also reads only what is
+there now, and runs only when a leg stops; a normal Town Portal never asks.
+
+**Design (recommended): the runner remembers each valuable the loop would take, until it is picked up or seen gone.**
+
+1. *The sightings* (`runner.py`, one per game): every read whose drops pass `pickmode.kept(loot, mode)` (VALUABLE
+   kind) adds or refreshes `Sighting(unit_id, label, x, y, size, first, last, tries)`. The game's name keys the store;
+   a new game clears it. The census's own `ground_seen` moves there too, so an item is said once
+   (`GameMemory._census` keeps one set per GameMemory, and the runner makes a GameMemory per read: the 2–4 lines
+   per item).
+2. *Taken*: a `picked up` of the unit (pickup.py's proof: the item leaves the ground), or the unit in the inventory
+   or the cube (`Pack`). *Gone*: the character within GONE_UNITS (~12) of the place, the ground read fresh, and the
+   unit not in it. Each is logged (`Macro: remembered <label> at (x, y): taken / gone / given up`).
+3. *The PICK_UP leg* (`loop.py`, before PORTAL): for each remembered sighting not taken or gone, nearest first,
+   travel toward its place (`teleport.hop_toward`, the level's walls, as the pickup's far drops) until it is read or
+   GONE_UNITS near. Then the pickup press as today. At most FETCH_TRIES (2) presses a sighting and FETCH_SECONDS
+   (~20 s) a game.
+4. *The hard rule*: `valuable_left()` also counts the remembered sightings not taken or gone. A sighting given up
+   after FETCH_TRIES is such a one, so the loop stops there for the player ("<label> at (x, y) not picked up after 2
+   tries: the loop stops here"), as for a valuable with no room. It does not leave.
+5. *Measure*: the watch's `MISSED:` line (tools/watch.py) and `games.py`'s MISSED list should stay empty. A
+   sighting fetched says `fetched` and its seconds, so the cost a game is measured (expected rare: 3 cases in 693
+   games, about 0.4%).
+
+**Alternatives.** (B) Make the remembered drops goals of the level run itself (`pursuit.run_level`: the drop on the
+way first, then the route): no trip back, but it touches the run's goal arbitration, the most tested part of the
+framework. A later step if trips back turn out frequent. (C) Pick up every drop as soon as it is seen, off the route
+too: costs time in every game, against the chests-first ruling. Not recommended.
+
+**Tests** (fakes.py's Game needs a client radius: an item further than CLIENT_UNITS is not in the read):
+- an emerald seen in a flight past, 100 units off when the run ends: PICK_UP travels back and picks it up;
+- a drop whose presses fail twice: the loop stops for the player and does not cast Town Portal;
+- a drop gone from its place (read near, not there): no stop, logged gone;
+- a new game clears the sightings, and the census says an item once across reads;
+- a recovery with a remembered unpicked valuable: no leave (`valuable_left`).
+
+**Verify first, in a game, without play changes:** log the character's distance when a remembered unit stops
+being read. That gives the client's radius (CLIENT_UNITS for the fakes) and how often a valuable is forgotten.
+
 ## Open (for the player)
 
 1. ~~Why back to act 4?~~ Answered (the player, 2026-10-16): a game left in act 3 starts in Kurast Docks, a long
@@ -422,3 +527,34 @@ jump whose delay still runs (`warp_ready`); a walk chosen with no delay running 
 
 LK plan 1–2 (the chests work) → phase 0 → 3 → 1 → 2 → 4 → LK plan 3–5 → 5 → 6a–6e → 7 → 8 → 9. Each phase its own
 commit with its tests (serial, one run at a time).
+
+### 15. Items with skills identified, appraised, the junk sold for the repair (2026-10-17; built, live 11:16:42)
+
+The player, 2026-10-17 10:55: "probably we need to steer into picking items with +skill, identifying them, appraising,
+selling [bad ones] and repairing on these money. maybe we don't need to pickup everything, but some smaller things that
+may be good to keep for warlock (good void base with +3 for example) ... remember, that we shouldn't sell our own
+equipment or valuable items". Why: the staff's Teleport charges make a stay shorter (06:51–10:51: 23.6 s against
+30.6 s, 9.7 against 7.8 chests a minute, 23 stays with a charge; no evidence yet), and 69 charges cost 111,469 gold.
+
+- **Pickup** (`pickmode.candidate`, sure mode): of what the loot filter shows, magic or rare items of the types that roll
+  skills (the classes' items, the Warlock's daggers and grimoires, circlets, gloves), rare belts and boots, magic
+  amulets, and white or superior Void bases (Kriss 41, Blade 42, Cinquedeas 134, Stilleto 135, Fanged Knife 237, Legend
+  Spike 238). The night's census (about 700 games) saw, said 2–4 times each: 209 magic Amulet, 77 magic Kriss, 38
+  Blade, 21 Stilleto, about 160 magic gloves, 22 Circlet, 14 Compendium. A candidate keeps no game (`is_candidate`:
+  the valuable-left guard and the sightings skip it).
+- **Identify** (`junk.identify`, the loop's IDENTIFY leg): in Pandemonium Fortress at the game's end, before the stash,
+  the loop's unidentified items, with the Tome of Identify (a right click on it, a click on the item, the flag checked
+  in memory); its charges are read as the Town Portal tome's.
+- **Appraise**: the service's identify watcher appraises each item when it turns identified (`IdentifyWorker`,
+  `verdict_for`; `verdicts_now` by unit id). Junk (`junk.junk`) is only: the loop's own item, magic or rare,
+  identified, with the verdict `vendor`. No verdict in 4 s, any other verdict, set/unique/white: kept (stashed).
+- **Sell, in the same game** (11:21, after the junk was lost in the lobby and stashed at 11:17:50): in Pandemonium
+  Fortress the loop identifies at a game's end (and at its start, for what a restart or a failed click left), then
+  sells the junk at Jamella (`shop.restock`, once a game), then leaves. Junk is kept out of the stash by class and cell
+  meanwhile. Each sale only if the item is still where the look saw it, and `Abort` if any other item left. The shop
+  keeps the Tome of Identify filled (Scrolls of Identify, 545) as it does the Town Portal tome.
+- **Repair**: unchanged (Halbu, carried gold only).
+
+Not yet: socket counts and staff-mods read on the ground (white Void bases are taken whatever their sockets; a 1–2
+socket one is stashed); white grimoires with +3 staff-mods (unshown); gold a sale brings (to measure from the carried
+gold before and after Jamella).

@@ -353,20 +353,22 @@ def test_today_with_the_staff_empty_the_held_teleport_key_opens_the_first_seal_a
 
 
 @RECORDED_EMPTY
-def test_today_the_recordings_own_presses_with_the_staff_empty_open_every_seal_and_die_at_the_infector() -> None:
+def test_today_the_recordings_own_presses_with_the_staff_empty_open_every_seal_and_die_at_diablo() -> None:
     """The one long play (about 15 s of wall time). Pins today's state: the 251 presses of the real game (187
     of the teleport key, 64 of the pickup key) played by today's keys. Since the navigation classes (2026-10-15,
     rca/2026-10-14/navigation-classes.md: the step with the staff empty goes along the walked way by Blade Warp, not
     toward a Teleport landing) they open the five seals by 173 s, ahead of the recording, and the Infector of Souls'
     fight comes under its burst of teleport presses, each of which pauses attack mode (kp4-findings.md §2.4): the
     character dies at 179 s. Before, the play's way ran behind and came to the route's end at 225 to 293 s by the
-    seeds' order. The pursuit loop's play of the same presses (the live game's) kills Diablo at 268 s, as before."""
+    seeds' order. The pursuit loop's play of the same presses (the live game's) kills Diablo at 268 s, as before.
+    Since a Blade Warp lands where the least of the walked way is left in its reach (travel.py `landing_in_reach`,
+    2026-10-17), the seals are open by 162 s and the character comes on to Diablo, where it dies at 188 s."""
     found = play_of(RECORDED, EMPTY, TODAY)
     assert all(at is not None for at in found.seals.values())
-    assert max(at for at in found.seals.values() if at is not None) < 180.0
+    assert max(at for at in found.seals.values() if at is not None) < 170.0
     assert found.kills > 100
     assert found.dead_at is not None
-    assert found.near[0] == 'Infector seal 2'
+    assert found.near[0] == 'Diablo'
 
 
 @pytest.mark.xfail(strict=True, reason='one press of the pickup key is one fight: nothing takes the route on (KP_1)')

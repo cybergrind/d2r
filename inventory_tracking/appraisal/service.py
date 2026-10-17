@@ -33,6 +33,7 @@ import json
 import math
 import os
 import shutil
+import signal
 import socket
 import sqlite3
 import subprocess
@@ -408,15 +409,83 @@ def dispatch(
         return False
 
 
+class Restart(BaseException):
+    """SIGHUP: the service closes as on Ctrl+C and runs again on the code on disk now, the macro's loop and pickup
+    mode carried over (`RESUME_FILE`). The player, 2026-10-17: "give some signal to `make serve` so it restarts itself
+    => re-read new code, get's a previous mode". `target`: the state the next service takes up instead, key by key
+    (`restart_asked`; the player: "signal not just restart, but restart + target mode")."""
+
+    def __init__(self, target: dict | None = None) -> None:
+        super().__init__()
+        self.target = target or {}
+
+
+RESTART = 75  # serve's answer when a restart was asked for: `main` runs the same command again in this process
+RESUME_FILE = 'resume.json'  # in --output: the macro's state written on a restart, read back by the next service
+PID_FILE = 'serve.pid'  # in --output: this service's process, the one SIGHUP goes to (not uv's, not make's)
+RESUME_SECONDS = 120.0  # a resume file older than this is not taken up
+
+
+RESTART_FILE = 'restart.request'  # in --output: made by whoever wants the restart (a sandbox's signal cannot reach)
+
+
+def _restart(signum, frame):
+    raise Restart
+
+
+def restart_asked(output: Path) -> dict | None:
+    """The restart asked for by the file RESTART_FILE (removed), None with none: the agent's sandbox shares the files
+    with the service's, not its processes. The file's JSON object is the state the next service takes up (as
+    `MacroRunner.resume_state`: `{"loop": true}` starts the loop with no press of KP_6); empty, the state as it is."""
+    path = output / RESTART_FILE
+    if not path.exists():
+        return None
+    try:
+        text = path.read_text().strip()
+        path.unlink(missing_ok=True)
+        target = json.loads(text) if text else {}
+    except OSError, ValueError:
+        target = {}
+    return target if isinstance(target, dict) else {}
+
+
+def write_resume(output: Path, state: dict) -> None:
+    try:
+        (output / RESUME_FILE).write_text(json.dumps({**state, 'written': time.time()}))
+    except OSError as error:
+        print(f'resume state not written: {error}', file=sys.stderr)
+
+
+def read_resume(output: Path) -> dict | None:
+    """The macro's state a restart left (`write_resume`), once: the file is removed. None when there is none, or it is
+    older than RESUME_SECONDS (a service stopped some other way long ago)."""
+    path = output / RESUME_FILE
+    try:
+        state = json.loads(path.read_text())
+        path.unlink(missing_ok=True)
+    except OSError, ValueError:
+        return None
+    if not isinstance(state, dict) or time.time() - float(state.get('written', 0)) > RESUME_SECONDS:
+        return None
+    return state
+
+
 def serve(args):
     directory, report = create_run(args.output)
     publish(directory / 'report.json', report)
+    signal.signal(signal.SIGHUP, _restart)
+    (args.output / RESTART_FILE).unlink(missing_ok=True)  # an old request is not this service's
+    with suppress(OSError):
+        (args.output / PID_FILE).write_text(str(os.getpid()))
     try:
         with log_to_file(directory / 'probe.log'):
             return run_service(args, directory, report)
     except KeyboardInterrupt:
         report.update(state='complete', finished_at=timestamp())
         return 130
+    except Restart:
+        report.update(state='restarting', finished_at=timestamp())
+        return RESTART
     except Exception as exc:
         report.update(state='failed', error=str(exc), finished_at=timestamp())
         raise
@@ -710,6 +779,11 @@ def run_service(args, directory, report):
                         fallback=played(builds.FALLBACK),
                         loop_items=args.output / 'loop-items.json',
                     )
+                    macro.verdicts = identify.verdicts_now  # the loop's junk (macros/junk.py)
+                    macro.appraise = identify.appraise
+                    resumed = read_resume(args.output)
+                    if resumed is not None:
+                        macro.resume(resumed)
                     # Per-game monster/Herald state: the Terror card and the level map shading.
                     zones = ZoneTracker(args.output / 'terror-games.json') if args.terror_probe else None
                     map_dots = partial(zones.map_dots, danger=APPRAISAL.danger_marks) if zones is not None else None
@@ -927,6 +1001,9 @@ def run_service(args, directory, report):
                     keys.start()
                     try:
                         while True:
+                            target = restart_asked(args.output)
+                            if target is not None:
+                                raise Restart(target)
                             mode = schedule.update()
                             with timer.step('appraisal'):
                                 worker.tick()
@@ -984,6 +1061,9 @@ def run_service(args, directory, report):
                                         pad=pad,
                                     )
                             timer.finish()
+                    except Restart as restart:
+                        write_resume(args.output, {**macro.resume_state(), **restart.target})
+                        raise
                     finally:
                         keys.close()
                         macro.close()
@@ -1151,7 +1231,11 @@ def main(argv=None):
         args.publication_store = DEFAULT_STORE
     configure_logging()
     if args.command == 'serve':
-        return serve(args)
+        answer = serve(args)
+        if answer == RESTART:
+            print('restarting on the code on disk now', file=sys.stderr, flush=True)
+            os.execv(sys.executable, sys.orig_argv)
+        return answer
     try:
         with socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM) as client:
             client.settimeout(0.25)

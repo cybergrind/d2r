@@ -8,6 +8,7 @@ import pytest
 
 from pricing.knowledge.assessment.policies import magic_trade
 from pricing.knowledge.assessment.policies.trade_qualification import assess_trade_qualification
+from pricing.knowledge.market_rows import file_market
 
 
 def facts(**changes):
@@ -61,11 +62,7 @@ def test_other_magic_shields_do_not_inherit_jmod_demand():
 @pytest.fixture
 def review_inputs():
     rule = json.loads(magic_trade.RULES.read_bytes())
-    rows = [
-        row
-        for line in magic_trade.MARKET.read_bytes().splitlines()
-        if (row := json.loads(line))['id'] in rule['evidence_ids']
-    ]
+    rows = file_market(magic_trade.MARKET).with_ids(rule['evidence_ids'])
     return rule, rows, magic_trade.GUIDES.read_bytes(), tuple(p.read_bytes() for p in magic_trade.NATIVE)
 
 

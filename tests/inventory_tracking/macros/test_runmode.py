@@ -27,7 +27,7 @@ from inventory_tracking.macros.goals import (
     clear_way,
     rest_of_level,
 )
-from inventory_tracking.macros.hunt import BOSS_AHEAD, CLEAR_SECONDS, REST_SECONDS, Bearings
+from inventory_tracking.macros.hunt import BOSS_AHEAD, CLEAR_SECONDS, REMEMBERED_NEAR, REST_SECONDS, Bearings
 from inventory_tracking.macros.movement import HOPS, TELEPORT, WALKS, WARPS, Ways
 from inventory_tracking.macros.pursuit import (
     ENTERING,
@@ -602,7 +602,7 @@ def test_a_run_to_its_goal_fights_what_is_on_its_way_and_passes_what_it_cannot_s
 
 def test_a_full_clear_goes_for_what_is_in_sight_then_what_is_remembered_before_the_route() -> None:
     play = game(area=RIVER)
-    hunt = hunter(play, remembered=[(41, 5200.0, 5000.0, False)])
+    hunt = hunter(play, remembered=[(41, 5000.0 + REMEMBERED_NEAR - 5.0, 5000.0, False)])
     run = play.run()
     hunt.mode = Mode(True, SWITCHED)
     ground = Ground(())
@@ -612,8 +612,23 @@ def test_a_full_clear_goes_for_what_is_in_sight_then_what_is_remembered_before_t
     assert (found.do, found.unit, found.route) == (FIGHT, 31, 'Diablo')
     remembered = hunt.cleared(run, play.world, [], ground, DOOR)
     assert remembered is not None
-    assert (remembered.do, remembered.unit, remembered.place) == (FIGHT, 41, (5200.0, 5000.0))
+    assert (remembered.do, remembered.unit, remembered.place) == (FIGHT, 41, (5000.0 + REMEMBERED_NEAR - 5.0, 5000.0))
     assert getattr(hunt.cleared(run, play.world, [], ground, None), 'unit', None) == 41  # a level with no route too
+
+
+def test_a_monster_remembered_far_off_waits_for_the_tour_of_the_rooms_and_is_gone_for_after_it(monkeypatch) -> None:
+    # The player, 00:10 on 2026-10-18: "when we have lower mobs count, we starts to go from one side to another back
+    # and forward": 126 of 179 legs to a remembered monster went over 60 units
+    play = game(area=RIVER)
+    hunt = hunter(play, remembered=[(41, 5200.0, 5000.0, False)])
+    run = play.run()
+    hunt.mode = Mode(True, SWITCHED)
+    room = ((4900.0, 5000.0), 'an unexplored room', None)
+    monkeypatch.setattr(hunt, 'next_room', lambda run, player, area, now: room)
+    here = (me(play.world).x, me(play.world).y)
+    assert hunt.rest_of(run, play.world, [], here) == room  # the tour first
+    monkeypatch.setattr(hunt, 'next_room', lambda run, player, area, now: None)
+    assert hunt.rest_of(run, play.world, [], here) == ((5200.0, 5000.0), 'the remembered monster', 41)  # toured
 
 
 def stand(play, x: float) -> None:

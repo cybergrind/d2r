@@ -32,7 +32,7 @@ def scene(life: int):
 
 
 def test_a_blade_warp_away_from_diablo_is_offered_for_the_mercenary_beside_him_and_chosen() -> None:
-    play, hunt, look, facts = scene(life=300)
+    play, hunt, look, facts = scene(life=26)
     run = play.run()
     rect = run.actuator.keys.focused_window_rect()
     found = hunt.escorted(run, play.world, Ground(()), rect, look, facts)
@@ -47,7 +47,7 @@ def test_a_blade_warp_away_from_diablo_is_offered_for_the_mercenary_beside_him_a
 
 
 def test_nothing_is_offered_for_a_mercenary_out_of_danger_or_with_nothing_priced() -> None:
-    play, hunt, look, facts = scene(life=1450)
+    play, hunt, look, facts = scene(life=128)
     run = play.run()
     rect = run.actuator.keys.focused_window_rect()
     far = Look((Hostile(1, DIABLO, (5200.0, 5000.0), active=True),), companions=(MERC,), life=1800.0)

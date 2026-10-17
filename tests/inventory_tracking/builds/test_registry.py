@@ -11,7 +11,7 @@ from inventory_tracking.builds.warlock.skills import ECHOING_STRIKE
 from inventory_tracking.macros.build import Loadout, choose
 from inventory_tracking.macros.movement import SHARED
 from inventory_tracking.macros.skills import TELEPORT
-from tests.inventory_tracking.macros.fakes import BUILD, HUNT_SLOTS, PREBUFF_SET, player, world
+from tests.inventory_tracking.macros.fakes import BUILD, HUNT_SLOTS, player, world
 
 
 OFF_KEYS = (TELEPORT, None)  # no Echoing Strike on a key
@@ -25,7 +25,8 @@ def test_the_character_the_macros_know_gets_the_warlock_with_its_weapon_sets():
     build = chosen(world(slots=HUNT_SLOTS))
     assert build is BUILD
     assert build is LAYERS[0]
-    assert build.weapons == Loadout(prebuff=frozenset(PREBUFF_SET), battle=frozenset(PREBUFF_SET))
+    # The Heart of the Oak's Flail alone: Spirit is in both sets since the Call to Arms (22:58 on 2026-10-17)
+    assert build.weapons == Loadout(prebuff=frozenset({'fla'}), battle=frozenset({'fla'}))
     assert build.weapons is CHARACTERS['CybergrindAA']
     # the rest is the build below it, part for part
     for part in ('name', 'attack', 'movement', 'buffs', 'tactics', 'casters', 'settings'):

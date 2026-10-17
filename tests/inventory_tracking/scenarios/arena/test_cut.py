@@ -219,7 +219,7 @@ def test_a_frame_that_cannot_make_a_sound_scene_is_refused_with_the_reason(tmp_p
 def test_the_default_hero_is_the_character_the_repo_knows():
     hero = DEFAULT_HERO
     assert hero.name in CHARACTERS
-    assert frozenset(hero.sets[0].codes) == CHARACTERS[hero.name].battle
+    assert CHARACTERS[hero.name].battle <= frozenset(hero.sets[0].codes)  # its main set, as held in the takes
     assert len(hero.belt) == 16
     assert set(hero.belt[:2]) <= REJUVENATION_POTIONS
     assert set(hero.belt[2:4]) <= HEALING_POTIONS

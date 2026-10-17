@@ -27,7 +27,7 @@ import math
 import re
 import threading
 import time
-from contextlib import nullcontext
+from contextlib import nullcontext, suppress
 from typing import Any
 
 from inventory_tracking.appraisal.owned import AT_LEAST_AS_GOOD, multiple_copy_use, owned_summary
@@ -397,6 +397,9 @@ class IdentifyWorker:
         self.unidentified: set[str] | None = None  # None until the inventory was read once in this game
         self.held: set[str] = set()  # every item unit the character held since that first read
         self.last_result = None
+        # Each identified item's verdict (`verdict_for`) by unit id, for the game in `player_id`: the KP_6 loop sells
+        # the `vendor` ones of its own items (macros/junk.py)
+        self.verdicts: dict[int, str] = {}
         self.showing: list[dict[str, Any]] = []  # item rows of the summary on screen, newest first
         self.future = None
 
@@ -454,6 +457,7 @@ class IdentifyWorker:
             items, town = probe['items'], probe['town']
             if probe['player_id'] != self.player_id:  # a new game deals new unit ids
                 self.player_id, self.unidentified, self.held = probe['player_id'], None, set()
+                self.verdicts = {}
             current = {unit_id for unit_id, item in items.items() if not item['identified']}
             previous, self.unidentified = self.unidentified, current
             held = self.held
@@ -564,6 +568,9 @@ class IdentifyWorker:
             LOG.info('Identify assessment: %s', result)
             with self.lock:
                 self.last_result = result
+                for item in result.get('items', ()):
+                    with suppress(TypeError, ValueError):
+                        self.verdicts[int(item['unit_id'])] = item['verdict']
                 if self.generation != generation:
                     return
                 if result['state'] == 'failed':
@@ -579,6 +586,30 @@ class IdentifyWorker:
         finally:
             with self.lock:
                 self.busy = False
+
+    def verdicts_now(self) -> dict[int, str]:
+        """A copy of `verdicts`."""
+        with self.lock:
+            return dict(self.verdicts)
+
+    def appraise(self, unit_ids) -> dict[int, str]:
+        """The verdicts of the carried, identified items `unit_ids` (the KP_6 loop's, macros/junk.py), read and
+        appraised now for those not yet appraised in this game: junk carried from one game to the next has new unit
+        ids. Not shown and not kept in the corpus; one that cannot be read or appraised has no verdict."""
+        wanted = [unit for unit in unit_ids if unit not in self.verdicts]
+        if wanted:
+            try:
+                _, observations, _ = self._read([str(unit) for unit in wanted], PhaseTiming(len(wanted)), self.clock())
+                for observation, (evidence, error, _) in zip(observations, self._lookups(observations), strict=True):
+                    if error is not None:
+                        continue
+                    row = item_summary(observation, evidence, self.owned(observation))
+                    with self.lock, suppress(TypeError, ValueError):
+                        self.verdicts[int(row['unit_id'])] = row['verdict']
+            except Exception as exc:  # the loop keeps what has no verdict
+                LOG.info('Identify: the appraisal of %d carried items failed: %s', len(wanted), exc)
+        with self.lock:
+            return {unit: self.verdicts[unit] for unit in unit_ids if unit in self.verdicts}
 
     # -- OSD ------------------------------------------------------------------------------------
 

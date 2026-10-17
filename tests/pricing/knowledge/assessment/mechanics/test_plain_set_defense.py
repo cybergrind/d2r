@@ -56,12 +56,12 @@ def test_conflicting_or_unknown_set_defense_is_not_comparable(changes, propertie
 
 
 def test_cached_aldur_elite_selector_cannot_override_original_defense():
-    import json
     from pathlib import Path
 
     from pricing.knowledge.assessment.adapters.capture import normalize
     from pricing.knowledge.assessment.comparables import evaluate
     from pricing.knowledge.assessment.handlers.named import NamedHandler
+    from pricing.knowledge.market_rows import file_market
     from tests.pricing.knowledge.assessment.item_bank.models import Item
 
     item = Item(
@@ -88,11 +88,7 @@ def test_cached_aldur_elite_selector_cannot_override_original_defense():
     item = replace(item, raw_stats=((31, 0, 66), *item.raw_stats[1:]))
     contract, gaps = NamedHandler().contract(normalize(item.capture()), 'accessory')
     assert contract is not None, gaps
-    rows = [
-        r
-        for r in map(json.loads, Path('pricing/data/appraisal-market.jsonl').read_text().splitlines())
-        if r['id'] == '88e98e15926f0a530aec5b77'
-    ]
+    rows = file_market(Path('pricing/data/appraisal-market.jsonl')).with_ids(['88e98e15926f0a530aec5b77'])
     assert len(rows) == 1
     result = evaluate(contract.to_dict(), rows)
     assert not result['accepted']

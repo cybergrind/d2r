@@ -1,9 +1,12 @@
+import io
+import json
 from dataclasses import replace
 
 import pytest
 
 from pricing.knowledge.assessment.adapters.capture import normalize
 from pricing.knowledge.assessment.policies.trade_qualification import assess_trade_qualification
+from pricing.knowledge.market_rows import Market, file_market
 from tests.pricing.knowledge.assessment.item_bank.cases.caster_stormshield import RAW
 from tests.pricing.knowledge.assessment.item_bank.models import Item
 
@@ -48,6 +51,18 @@ def test_insert_uncertainty_is_separate_from_underlying_item_value(contents):
     assert result['reason'].endswith('Assess inserts separately.')
 
 
+def redumped(market: Market, ids, selected) -> bytes:
+    """Every row of `market` as `json.dumps` writes it, joined by newlines, the rows with `ids` replaced by `selected`
+    (the same rows in the file's order, changed): parsed a row at a time, as the market is 1.1 GB parsed whole."""
+    wanted, replaced, out = set(ids), iter(selected), io.BytesIO()
+    for index, line in enumerate(market.lines()):
+        row = json.loads(line)
+        if row['id'] in wanted:
+            row = next(replaced)
+        out.write((b'\n' if index else b'') + json.dumps(row).encode())
+    return out.getvalue()
+
+
 @pytest.mark.parametrize(
     'corruption', ['seller', 'scope', 'defense', 'bonus', 'unit', 'status', 'date', 'native', 'hardcore']
 )
@@ -59,8 +74,8 @@ def test_review_requires_independent_scoped_native_evidence(corruption):
 
     review = json.loads(policy.RULES.read_bytes())
     guides = policy.GUIDES.read_bytes()
-    rows = [json.loads(line) for line in policy.MARKET.read_bytes().splitlines()]
-    selected = [r for r in rows if r['id'] in review['evidence_ids']]
+    original = file_market(policy.MARKET)
+    selected = original.with_ids(review['evidence_ids'])
     native = tuple(p.read_bytes() for p in policy.NATIVE)
     if corruption == 'native':
         native = (b'{}', *native[1:])
@@ -80,7 +95,7 @@ def test_review_requires_independent_scoped_native_evidence(corruption):
         selected[0]['listing_status']['completed'] = True
     elif corruption == 'date':
         selected[0]['observed_at'] = 'not-a-date'
-    market = b'\n'.join(json.dumps(r).encode() for r in rows)
+    market = redumped(original, review['evidence_ids'], selected)
     review['market_sha256'] = hashlib.sha256(market).hexdigest()
     with pytest.raises(ValueError, match=r'Stormshield|isoformat'):
         policy.validate(json.dumps(review).encode(), guides, market, native)

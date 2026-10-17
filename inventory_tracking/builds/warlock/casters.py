@@ -21,6 +21,7 @@ from inventory_tracking.common import LOG
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.buffs import keys_of
 from inventory_tracking.macros.build import Caster, Casting, Tried
+from inventory_tracking.macros.cta import CASTERS as CTA_CASTERS
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.pad import heading_degrees, turned
 from inventory_tracking.macros.routines import (
@@ -232,6 +233,33 @@ def log_pad_consume(run: Run, unit: int, before: dict[int, int], began: float, s
     )  # fmt: skip
 
 
+FOLLOW_SECONDS = 2.0  # for a Defiler left behind to come into view (summons follow the character)
+
+
+def in_view(run: Run) -> Monster | None:
+    """A standing Defiler drawn in the window, waited for FOLLOW_SECONDS when one stands out of it; None with none.
+    The first standing one was taken before, and after the KP_6 loop's walk to Jamella (00:42:15 on 2026-10-17) it
+    stood by the game's start, out of view, and the prebuff stopped the loop on "the Defiler is out of view"."""
+    rect = run.actuator.keys.focused_window_rect()
+
+    def shown(world: World) -> Monster | None:
+        if rect is None or world.player is None:
+            return None
+        player = world.player
+        drawn = [m for m in defilers(world) if on_screen(screen_fraction(player, m.x, m.y, rect[2] / rect[3]))]
+        return drawn[0] if drawn else None
+
+    world = run.world()
+    found = shown(world)
+    if found is not None or not defilers(world):
+        return found
+    LOG.info('Macro: the standing Defiler is out of view: waited for it to follow')
+    if run.seen(lambda w: shown(w) is not None, FOLLOW_SECONDS) is None:
+        LOG.info('Macro: no Defiler came into view: another is summoned')
+        return None
+    return shown(run.world())
+
+
 def aim_at(run: Run, unit: int) -> bool:
     """Put the pointer on this Defiler where it stands now, following it while it walks. False
     when it never stood still: the pointer is then somewhere it was, where the bound demon may
@@ -364,8 +392,7 @@ def defiler_dance(cast: Casting) -> Tried:
         defiler = summon_defiler(run, until=fresh.started + LOAD_LIMIT)
         fresh.finish()
     else:
-        standing = defilers(run.world())
-        defiler = standing[0] if standing else summon_defiler(run)
+        defiler = in_view(run) or summon_defiler(run)
     consume(run, defiler)
     log_consume(run, 'after')
     if not defilers(run.world()):
@@ -535,4 +562,5 @@ CASTERS: dict[str, Caster] = {
     'engorge': engorge,
     'sigil': sigil,
     'defiler': defiler_out,
+    **CTA_CASTERS,  # Call to Arms (macros/cta.py)
 }

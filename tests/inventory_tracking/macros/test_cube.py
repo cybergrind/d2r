@@ -4,7 +4,7 @@ import pytest
 
 from inventory_tracking.items.metadata import metadata
 from inventory_tracking.macros.actuator import Abort
-from inventory_tracking.macros.cube import CUBE, CUBE_CLASS, INVENTORY, cell_point, own_of, plan, stash
+from inventory_tracking.macros.cube import CUBE, CUBE_CLASS, INVENTORY, cell_point, overflow, own_of, plan, stash
 from inventory_tracking.macros.world import Carried, Pack
 from tests.inventory_tracking.macros.fakes import Game, player, world
 
@@ -28,10 +28,10 @@ CHARM = Carried(12, class_of('Large Charm'), 5, 0, (1, 2))  # a large charm the 
 EMPTY_CUBE = ('...', '...', '...', '...')
 
 
-def test_only_what_came_since_the_loop_began_moves_smaller_first_into_the_first_free_block():
+def test_only_what_came_since_the_loop_began_moves_larger_first_into_the_first_free_block():
     pack = Pack((GRAND, THE_CUBE, TOME, KEY, CHARM, RUNE), EMPTY_CUBE)
 
-    assert plan(pack, OWN) == [(RUNE, (0, 0)), (CHARM, (1, 0))]
+    assert plan(pack, OWN) == [(CHARM, (0, 0)), (RUNE, (1, 0))]
     assert plan(Pack((GRAND, THE_CUBE, TOME, KEY), EMPTY_CUBE), OWN) == []
     # The cube, a tome and the keys never move, even ones the loop did not see at its start
     spare_key, book = Carried(5, class_of('Key'), 8, 3, (1, 1)), Carried(6, class_of('Tome of Identify'), 6, 2, (1, 2))
@@ -179,3 +179,92 @@ def test_an_empty_cube_whose_grid_reads_as_none_takes_the_loops_items():
     assert play.pack is not None
     assert play.pack.cube_items == {RUNE.unit_id, CHARM.unit_id}
     assert play.world.open_panels == ()
+
+
+def test_a_cube_item_the_inventory_has_no_block_for_is_not_clicked():
+    # 14:51:04-14 on 2026-10-17: with two cells free, three items were clicked for 3 s each before the stash
+    from inventory_tracking.macros.cube import unpack
+
+    filler = Carried(20, class_of('Grand Charm'), 0, 0, (1, 1))
+    full = tuple(
+        Carried(30 + x + 10 * y, filler.txt, x, y, (1, 1)) for y in range(4) for x in range(10) if (x, y) != (9, 3)
+    )  # one cell free, (9, 3)
+    blade = Carried(41, class_of('Blade'), 0, 0, (1, 3))
+    rune = Carried(42, class_of('Io Rune'), 1, 0, (1, 1))
+    cube = Carried(2, CUBE_CLASS, 0, 0, (2, 2))
+    play = fortress(
+        Pack((cube, *full[1:]), ('##.', '#..', '#..', '...'), in_cube=(blade, rune), cube_items=frozenset({41, 42}))
+    )
+
+    out = unpack(play.run(), 'i', [blade, rune])
+
+    assert out == 1
+    assert play.pack is not None
+    assert play.pack.cube_items == {41}  # the Blade stays for the session's second stash
+    from tests.inventory_tracking.macros.fakes import WINDOW
+
+    at = cell_point(WINDOW, CUBE, (blade.x, blade.y), blade.size)
+    on_blade = [
+        e for e in play.keys.events if e[0] == 'click' and abs(e[1][0] - at[0]) < 0.01 and abs(e[1][1] - at[1]) < 0.02
+    ]
+    assert not on_blade
+
+
+def test_an_empty_cube_takes_a_rune_a_one_by_three_and_a_two_by_two():
+    # 16:39:01 on 2026-10-17: smaller first put the rune at (0, 0) and the Stilleto in the second column, the Antlers
+    # fit nowhere, and the room read as low sent the loop to a whole trade session one game after the last
+    stilleto = Carried(21, class_of('Stilleto'), 2, 2, (1, 3))
+    antlers = Carried(22, class_of('Antlers'), 3, 2, (2, 2))
+    rune = Carried(23, class_of('Io Rune'), 5, 2, (1, 1))
+    pack = Pack((GRAND, THE_CUBE, TOME, KEY, stilleto, antlers, rune), EMPTY_CUBE)
+    assert len(plan(pack, OWN)) == 3
+    assert not overflow(pack, OWN)
+
+
+def test_a_key_stack_that_splits_the_free_cells_is_moved_to_make_the_largest_block():
+    # The player, 19:10 on 2026-10-17: "move key two cells left to make continuous 2x4 space"
+    from dataclasses import replace
+
+    from inventory_tracking.macros.cube import KEY_CLASS, arrange_keys, inventory_rows, keys_move, largest_block, taken
+
+    rest = Carried(30, 600, 4, 0, (6, 4))  # columns 4-9 taken: 16 cells free in columns 0-3
+    stack = Carried(32, KEY_CLASS, 1, 1, (1, 1))  # in the middle of them
+    pack = Pack((rest, stack))
+    assert largest_block(inventory_rows(pack)) == 8
+    move = keys_move(pack)
+    assert move is not None
+    assert move[0] is stack
+    assert largest_block(taken(inventory_rows(Pack((rest,))), move[1], (1, 1))) == 12  # a 3 x 4 block beside it
+    assert keys_move(Pack((rest, replace(stack, x=0, y=0)))) is None  # in a corner already: nothing better
+
+    play = Game(world(103, player=player(103, x=5048.0, y=5044.0)))
+    play.pack = pack
+    assert arrange_keys(play.run(), 'i')
+    moved = next(i for i in play.pack.items if i.unit_id == stack.unit_id)
+    assert (moved.x, moved.y) == move[1]
+    assert 'inventory' not in play.world.open_panels
+
+
+def test_an_item_taken_only_to_identify_is_dropped_for_a_grand_charms_block():
+    # 21:00:03 on 2026-10-17: the cube took what it could, no 1 x 3 block was left, and the loop stopped with a Grand
+    # Charm on the ground. A magic dagger taken to identify (its loss costs a game nothing) is dropped for it
+    from inventory_tracking.macros.cube import SURE_BLOCK, drop_for, droppable, inventory_rows, room_for
+
+    own = tuple(Carried(40 + x, 999 - x, x, 1, (1, 2)) for x in range(1, 10))  # the player's: rows 1-2 of columns 1-9
+    dagger = Carried(50, 135, 0, 0, (1, 3), quality=4, identified=False)  # a magic Stilleto, the loop's: column 0
+    charm = Carried(51, 618, 0, 3, (1, 1), quality=4, identified=False)  # a Small Charm, the loop's: a sure valuable
+    kept = own_of(own)
+    pack = Pack((*own, dagger, charm))
+    assert not room_for(inventory_rows(pack), SURE_BLOCK)
+    assert droppable(pack, kept, SURE_BLOCK) is dagger
+    assert droppable(Pack((*own, charm)), kept, SURE_BLOCK) is None  # room already: nothing dropped
+    grand = Carried(52, 620, 0, 0, (1, 3), quality=4, identified=False)  # a Grand Charm in the dagger's place
+    assert droppable(Pack((*own, grand, charm)), kept, SURE_BLOCK) is None  # a sure valuable is never dropped
+    assert droppable(pack, kept | own_of((dagger,)), SURE_BLOCK) is None  # nor the player's own
+
+    play = Game(world(79, player=player(79, x=5029.0, y=2860.0)))
+    play.pack = pack
+    assert drop_for(play.run(), 'i', kept, SURE_BLOCK) == dagger
+    assert play.fallen == [dagger]
+    assert room_for(inventory_rows(play.pack), SURE_BLOCK)
+    assert 'inventory' not in play.world.open_panels

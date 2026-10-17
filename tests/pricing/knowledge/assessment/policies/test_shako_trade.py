@@ -81,13 +81,10 @@ def evidence():
     import json
 
     from pricing.knowledge.assessment.policies import shako_trade
+    from pricing.knowledge.market_rows import file_market
 
     rule = json.loads(shako_trade.RULES.read_bytes())
-    rows = [
-        r
-        for line in shako_trade.MARKET.read_bytes().splitlines()
-        if (r := json.loads(line))['id'] in rule['evidence_ids']
-    ]
+    rows = file_market(shako_trade.MARKET).with_ids(rule['evidence_ids'])
     return rule, rows, shako_trade.GUIDES.read_bytes(), tuple(p.read_bytes() for p in shako_trade.NATIVE)
 
 

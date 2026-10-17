@@ -125,6 +125,9 @@ CLICKS = 2  # clicks on an aim that has the item under it
 MISSED_AIMS = 3
 SHUN_SECONDS = 30.0
 SHUNNED: dict[int, float] = {}  # unit id -> the clock until which the pickup step leaves the drop alone
+# The valuables the macro picked up itself, by unit id (an item keeps it from the ground into the inventory): outside
+# the KP_6 loop, the ones a full inventory may move into the cube (hunt.py `stay_by`); the player's never are
+TAKEN: set[int] = set()
 STOP_UNITS = 40.0  # world units: a valuable this near holds a teleport step back (`worth_a_stop`)
 STOP_TRIES = 2
 STOPPED: dict[int, int] = {}  # unit id -> the teleport steps that went for the drop instead of hopping
@@ -445,6 +448,8 @@ def collect(run: Run, drop: Drop, key_names, others: Sequence[Drop] = ()) -> boo
         )  # fmt: skip
         if gone:
             run.say(f'{drop.label}: picked up')
+            if drop.kind == VALUABLE:
+                TAKEN.add(drop.unit_id)
             return True
     # Standing where the record puts the pile did not take it (Halls of Vaught, 13:30:30 on 2026-10-11:
     # the jump landed 0.7 from a pile of 7210 and a click on that ground walked 1.2 more, the pile
@@ -503,6 +508,8 @@ def click(run: Run, drop: Drop, aim: tuple[int, int], over: tuple[int, int] | No
                 drop.label, run.clock() - began, aim, away, over,
             )  # fmt: skip
             run.say(f'{drop.label}: picked up')
+            if drop.kind == VALUABLE:
+                TAKEN.add(drop.unit_id)
             return True
         if walker is not None and walker.mode in DEAD:
             # Tower Cellar 5, 22:51:00 on 2026-10-11: the clicks went on 4.7 s over the body.
@@ -663,9 +670,20 @@ def pick_up(
         return False
     if plan.drop.kind == GOLD:
         run.say(f'Going for {plan.drop.label}, {math.dist(here, (plan.drop.x, plan.drop.y)):.0f} away')
-        if not collect(run, plan.drop, key_names, [found for found in loot.drops if found is not plan.drop]):
-            raise Abort(f'{plan.drop.label} was not taken by standing on it')
-        return True
+        try:
+            if collect(run, plan.drop, key_names, [found for found in loot.drops if found is not plan.drop]):
+                return True
+            why = 'not taken by standing on it'
+        except Abort as stop:
+            if 'not in view' not in str(stop):
+                raise
+            why = 'not in view'
+        # A pile is no stop of the press: left alone, the rest goes on. The loop left Lower Kurast by Save and Exit
+        # for 5024 gold "not in view" 24 units off (18:26:19 on 2026-10-17), and its next game began in act 3
+        SHUNNED[plan.drop.unit_id] = run.clock() + SHUN_SECONDS
+        LOG.info('Macro: pickup: %s %s: left alone for %.0fs', plan.drop.label, why, SHUN_SECONDS)
+        run.say(f'{plan.drop.label}: {why}, left')
+        return False
     level = level if level is not None and level.area == player.area else None
     for _ in range(PICKS):
         drop = plan.drop

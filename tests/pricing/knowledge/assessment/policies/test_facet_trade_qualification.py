@@ -159,20 +159,25 @@ def test_cannot_mix_variant_trade_evidence(corruption):
 
 
 def test_actual_facet_reviews_preserve_separate_catalog_evidence():
-    import hashlib
-
     from pricing.knowledge.date_recovery import fingerprint, verify_policy_sources
+    from pricing.knowledge.market_rows import file_market
 
     doc = json.loads(named_tiers.RULES.read_bytes())
     policy = next(p for p in doc['policies'] if p['name'] == 'Rainbow Facet')
-    raw = (named_tiers.ROOT / 'pricing/data/appraisal-market.jsonl').read_bytes()
-    rows = list(map(json.loads, raw.splitlines()))
+    market = file_market(named_tiers.ROOT / 'pricing/data/appraisal-market.jsonl')
+    # Only the rows some review cites, which are all `verify_policy_sources` looks up: the market is 1.1 GB parsed.
+    rows = market.with_ids(
+        evidence['id']
+        for p in doc['policies']
+        for owner in (p, *p.get('variant_rules', []))
+        for evidence in owner.get('trade_qualification', {}).get('market_evidence', ())
+    )
     indexed = {r['id']: r for r in rows}
     verify_policy_sources(rows, doc)
     for variant, spec in zip(policy['variant_rules'], VARIANTS, strict=True):
         review = variant['trade_qualification']
         assert review['facet_table_id'] == spec[0]
-        assert review['market_snapshot']['sha256'] == hashlib.sha256(raw).hexdigest()
+        assert review['market_snapshot']['sha256'] == market.sha256
         for evidence in review['market_evidence']:
             original = indexed[evidence['id']]
             assert evidence['normalized_row_sha256'] == fingerprint(original)

@@ -90,6 +90,12 @@ def phase_keys(rows: Iterable[Buff], phase: str) -> tuple[int, ...]:
     return (*found, *((SWAP_WEAPONS,) if swaps else ()))
 
 
+def worn_cta(run: Run) -> bool | None:
+    """Whether the run's character wears a Call to Arms (`Run.cta`); None: not known."""
+    found = getattr(run, 'cta', None)
+    return found() if found is not None else None
+
+
 class Buffs:
     """A build's buff plan as it is run: when each cast was last made, and the casts."""
 
@@ -143,6 +149,7 @@ class Buffs:
             self.cast_at,
             focused=run.actuator.focused,
             corpses=run.corpses,
+            cta=worn_cta(run),
             draws=draws,
             ahead=ahead,
             took=self.took_of(run),

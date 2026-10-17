@@ -224,7 +224,7 @@ def test_a_field_that_never_takes_keys_stops_the_macro_before_enter():
     [
         ('cyber36', ['BackSpace', '7'], 'cyber37'),
         ('cyber39', ['BackSpace', 'BackSpace', '4', '0'], 'cyber40'),
-        ('cyber99', ['BackSpace', 'BackSpace', '1', '0', '0'], 'cyber100'),
+        ('cyber99', ['BackSpace', 'BackSpace', '1'], 'cyber1'),  # after 99 from 1 again (the player, 2026-10-17)
     ],
 )
 def test_only_the_changed_end_of_the_name_is_retyped(last, edits, following):
@@ -631,3 +631,35 @@ def test_a_key_long_after_the_one_before_says_nothing_of_a_wait_it_did_not_make(
         quick_cast_over(run, DEATH_MARK)
     assert 'still on the right button' not in caplog.text
     assert run.quick is None
+
+
+def test_an_arrivals_probe_swaps_back_without_a_settle(monkeypatch):
+    # 14:35 on 2026-10-17: the swap back after the probe's swap waited the 0.2 s settle meant for after a cast, though
+    # the character just arrived stands
+    from inventory_tracking.macros import routines
+
+    game = Game(world(112))
+    game.sets = [PREBUFF_SET, OTHER_SET]
+    settled = []
+    monkeypatch.setattr(routines, 'settle', lambda *a, **k: settled.append(True))
+    run = game.run()
+    run.keys = dict(KEYS)
+    assert routines.took_input(run, 'Lower Kurast', run.clock())
+    assert game.pressed() == ['c', 'c']
+    assert game.sets[0] == PREBUFF_SET
+    assert not settled
+
+
+def test_a_panel_that_opens_after_the_first_look_does_not_keep_the_game_from_being_left(monkeypatch):
+    # 15:35:43-47 on 2026-10-17: the walk back from Halbu ended on the waypoint, its panel opened after leave_game's
+    # look; Escape closed it, the quit menu never came, and the loop stopped
+    from inventory_tracking.macros import routines
+
+    game = Game(world(103))
+
+    def opens(run):
+        game.world = replace(game.world, open_panels=('waypoint',))
+
+    monkeypatch.setattr(routines, 'take_battle_weapons', opens)
+    routines.leave_game(game.run())
+    assert not game.world.in_game

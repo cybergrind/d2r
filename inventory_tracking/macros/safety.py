@@ -109,6 +109,21 @@ STAND_FRESH = 0.7
 # made two looks of 5.1 and 4.7 s at 23:48 on 2026-10-14 with the strike and the drinker waiting on them
 # (rca/2026-10-14/run-2040-findings.md §1.2).
 WAY_SHARE = 0.5
+# The way's time with no hostile within QUIET_WAY_UNITS: a cold field to the next chest grew 40 ms a look and was the
+# straight line or no way for three or four looks (268 waits in 78 games, 1.1 s a game, 2026-10-17); with nothing near
+# to strike or flee from, one look grows it, well within STALE_LOOK (hunt.py, 0.3 s)
+QUIET_WAY_SECONDS = 0.15
+QUIET_WAY_UNITS = 30.0  # goals.py CLEAR_WAY
+
+
+def way_seconds(here: tuple[float, float], hostiles: Sequence[tuple[float, float]], look_seconds: float) -> float:
+    """The seconds of a look the goal's way may grow in: QUIET_WAY_SECONDS with no hostile within QUIET_WAY_UNITS,
+    else the look's share (WAY_SHARE)."""
+    if all(math.dist(here, at) > QUIET_WAY_UNITS for at in hostiles):
+        return max(QUIET_WAY_SECONDS, look_seconds * WAY_SHARE)
+    return look_seconds * WAY_SHARE
+
+
 # A look over OVER_BUDGET times its time is said (`Macro: look: ...`, with the stage that took the most), at most
 # once in SAID_EVERY seconds of the look's clock, with how many more were since.
 OVER_BUDGET = 2.0
@@ -406,9 +421,11 @@ class Safety:
         goals_way = facts.way
         legs: list[Leg] = []
 
+        way_budget = way_seconds(seen.origin, [m.at for m in look.hostiles], settings.look_seconds)
+
         def way() -> Leg:
             if not legs:
-                with planning(timer, began + settings.look_seconds * WAY_SHARE):
+                with planning(timer, began + way_budget):
                     legs.append(goals_way())
             return legs[0]
 

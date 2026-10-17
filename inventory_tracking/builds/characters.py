@@ -15,12 +15,11 @@ from inventory_tracking.macros.build import Build, Loadout
 from inventory_tracking.macros.world import World
 
 
-# CybergrindAA: Heart of the Oak (Flail) and Spirit (Monarch) for both; the other set holds Naj's Puzzler,
-# worn for its Teleport charges only (user, 2026-10-06; codes from the collection capture of the equipped
-# items). The two differ once Teleport comes from Enigma and the other set is the prebuff one (user,
-# 2026-10-10): what casts Teleport is read from the game (teleport.take_teleport: a worn staff with
-# charges, else the skill), so only this table changes then.
-HEART_OF_THE_OAK = frozenset(('fla', 'uit'))
+# CybergrindAA: Heart of the Oak (Flail) and Spirit (Monarch) for both. The other set held Naj's Puzzler for its
+# Teleport charges (user, 2026-10-06); since 22:58 on 2026-10-17 it holds Call to Arms (a Flail too) and a second
+# Spirit, Teleport coming from Enigma. The Call to Arms reads as world.py CTA_CODE, not `fla`, and Spirit is in both
+# sets: the Heart of the Oak's Flail alone tells the main set (codes from the collection capture of the equipped items).
+HEART_OF_THE_OAK = frozenset(('fla',))
 CHARACTERS = {'CybergrindAA': Loadout(prebuff=HEART_OF_THE_OAK, battle=HEART_OF_THE_OAK)}
 # The build each character plays.
 PLAYS = {'CybergrindAA': ECHOING_STRIKE_BUILD}
