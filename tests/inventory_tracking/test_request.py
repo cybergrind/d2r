@@ -21,6 +21,9 @@ def test_prefixes_are_the_workers_own():
         'pickup': service.PICKUP_PREFIX,
         'pad': service.PAD_PREFIX,
         'loop': service.LOOP_PREFIX,
+        'tz-loop': service.TZ_LOOP_PREFIX,
+        'tz-pickup': service.TZ_PICKUP_PREFIX,
+        'safe-exit': service.SAFE_EXIT_PREFIX,
     }
 
 
@@ -50,6 +53,56 @@ def test_without_a_service_the_sender_says_so(monkeypatch, tmp_path):
     assert request.main(['teleport', '--socket', str(tmp_path / 'none.sock')]) == 1
     assert len(told) == 1
     assert 'not running' in told[0][0]
+
+
+def test_targeted_tz_pickup_sends_an_explicit_ground_item_without_enabling_attack(tmp_path):
+    endpoint = tmp_path / 'service.sock'
+    with socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM) as server:
+        server.bind(str(endpoint))
+        server.settimeout(1)
+        assert request.main(['tz-pickup', 'cyberrd74', '9', 'Tal_Rune', '7809', '6667', '--socket', str(endpoint)]) == 0
+        stamp, game, area, label, x, y = server.recv(128).decode().split()[1:]
+        assert float(stamp) > 0
+        assert (game, area, label, x, y) == ('cyberrd74', '9', 'Tal_Rune', '7809', '6667')
+        assert (
+            request.main(
+                [
+                    'tz-pickup',
+                    'cyberrd74',
+                    '9',
+                    'Magic_Demonhide_Boots',
+                    '7755',
+                    '6709',
+                    '2',
+                    '2',
+                    '--socket',
+                    str(endpoint),
+                ]
+            )
+            == 0
+        )
+        assert server.recv(128).decode().split()[2:] == [
+            'cyberrd74',
+            '9',
+            'Magic_Demonhide_Boots',
+            '7755',
+            '6709',
+            '2',
+            '2',
+        ]
+
+
+def test_safe_exit_sends_exact_current_game(tmp_path):
+    endpoint = tmp_path / 'service.sock'
+    with socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM) as server:
+        server.bind(str(endpoint))
+        server.settimeout(1)
+        assert request.main(['safe-exit', 'cyberrd74', '--socket', str(endpoint)]) == 0
+        prefix, stamp, game = server.recv(128).decode().split()
+        assert prefix == 'safe-exit'
+        assert float(stamp) > 0
+        assert game == 'cyberrd74'
+    assert request.main(['safe-exit', 'bad name']) == 2
 
 
 def test_the_sender_runs_without_the_package_or_site_packages():

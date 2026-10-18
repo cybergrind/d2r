@@ -107,19 +107,33 @@ class Progress:
         self.performed = performed if dead is not None else performed - {FIGHT}
         self.game: str | None = None
         self.facts = Facts()  # replaced whole, never changed: read from the macro's thread
+        self.selected: dict[int, tuple[str, Script]] = {}
 
     def note(self, game: str | None, area: int | None) -> None:
         """`game` is None out of a game; `area` is None when the level could not be read."""
         if game != self.game:  # another game, or the menu: nothing of the last one counts
             self.game, self.facts = game, Facts()
+            self.selected.clear()
         if game is not None and area is not None and area not in self.facts.entered:
             self.facts = replace(self.facts, entered=self.facts.entered | {area})
+
+    def select_route(self, game: str, area: int, route: str) -> bool:
+        """Choose a registered script for an observed area in this game, overriding automatic route selection."""
+        if game != self.game or area not in self.facts.entered:
+            return False
+        matches = [(name, script) for name, script, _ in self.ways.get(area, ()) if name == route]
+        if len(matches) != 1:
+            return False
+        self.selected[area] = matches[0]
+        return True
 
     def chosen(self, area: int) -> tuple[str, Script] | None:
         """(route, script) the level follows: its main script, unless none of the levels the main
         route goes on to is terrorized and those of another route through this level are (the
         Barracks from the Outer Cloister with the Jail terrorized, the Burial Grounds from the Cold
         Plains). The level itself says nothing: every script of it starts there."""
+        if area in self.selected:
+            return self.selected[area]
         ways = self.ways.get(area)
         if not ways or self.wanted is None or ways[0][1].alternate:
             return self.scripts.get(area)

@@ -133,6 +133,7 @@ from inventory_tracking.macros.town import (
     surplus,
     tops_up,
     uncubed,
+    unread_way_for_cube,
 )
 from inventory_tracking.macros.travel import cut
 from inventory_tracking.macros.visitlog import Recorder, Snapshot
@@ -673,6 +674,9 @@ def _drops(run: Run, rect: Rect, items: Sequence[Carried]) -> int:
     not fall, then `Abort`. How many fell."""
     fell = 0
     for item in items:
+        if run.players_item is not None and run.players_item(item):
+            LOG.info("Macro: stash: the %s is the player's by its stats: never put down", _name(item))
+            continue
         held, _in_cube = _now(run, item.unit_id)
         if held is None:
             continue
@@ -835,8 +839,38 @@ def _stash(
                 return full
             LOG.info('Macro: town visit: the stash is not read: the scan, page after page')
             tried = set(sold_full(full))
-            unload(run, own, key, tried, stay, gold_to, Pages())
-            return full | frozenset(tried)
+            pages = Pages()
+            unload(run, own, key, tried, stay, gold_to, pages)
+            after = _pack(run)
+            remaining = [i for i in after.in_cube if i.unit_id not in stay]
+            if key is not None and remaining:
+                # The first scan often frees a keeper's block. If the remaining obstruction is inventory junk,
+                # shift that junk within the inventory here, before Jamella. This keeps the player's one-stash-walk
+                # order even with an unread stash (21:03:47 on 2026-10-18: two rings blocked Humongous).
+                blocked = next((i for i in remaining if not room_for(inventory_rows(after), i.size)), None)
+                moves = unread_way_for_cube(after, blocked, junk, needs.block) if blocked is not None else ()
+                if moves:
+                    rect = run.actuator.keys.focused_window_rect()
+                    if rect is not None:
+                        run.actuator.tap(key)
+                        if run.seen(lambda w: 'inventory' in w.open_panels, PANEL_SECONDS) is not None:
+                            try:
+                                _aside(run, rect, moves, remaining)
+                            finally:
+                                run.actuator.tap('Escape')
+                                run.seen(lambda w: 'inventory' not in w.open_panels, PANEL_SECONDS)
+                after = _pack(run)
+                if any(room_for(inventory_rows(after), i.size) for i in remaining):
+                    LOG.info('Macro: stash: inventory room freed for a cube keeper: the scan again in place')
+                    unload(run, own, key, tried, stay, None, pages)
+            guessed = sorted(tried - set(sold_full(full)) - set(full))
+            if guessed:
+                # A refusal with the stash unread is a guess, never a full stack: kept carried, neither put down nor
+                # kept in FULL_FILE (the Deep Worldstone Shards "full" at 83 dropped and left, 22:14 on 2026-10-18 and
+                # 01:59 on 2026-10-19; the player: "we need to track this correctly")
+                LOG.info('Macro: stash: refused with the stash unread, kept carried, not counted full: %s',
+                         ', '.join(_class_name(txt) for txt in guessed))  # fmt: skip
+            return full
     except Abort as stop:
         if cut(run, stop):
             raise
@@ -845,6 +879,10 @@ def _stash(
     if record is not None:
         record.view = after
     return _full_of(after) if after is not None else full
+
+
+def _class_name(txt: int) -> str:
+    return metadata()['bases'].get(str(txt), {}).get('name', f'item {txt}')
 
 
 def _drop(run: Run, key: str | None, items: Sequence[Carried]) -> None:
@@ -986,6 +1024,12 @@ def visit(
 
     judged = sold(hands.judge([i for i in carried if i.identified]), visitlog.session_directory())
     junk = frozenset(i.unit_id for i in (*judged, *surplus(carried, stacks)))
+    # The player's items by their stats (macros/volatile.py prints: a charm moved into the cube by hand) are never junk:
+    # a keeper, stashed, never sold (the Kriss and the +35 Life charm sold at 23:17 on 2026-10-18)
+    theirs = [i for i in carried if i.unit_id in junk and run.players_item is not None and run.players_item(i)]
+    if theirs:
+        LOG.info("Macro: town visit: %s the player's by their stats: kept, not sold", _keepers(theirs))
+        junk -= {i.unit_id for i in theirs}
     LOG.info('Macro: town visit (%s): %d of the loop\'s items, %d identified at Cain, %d junk; full stacks %d',
              exit.value, len(carried), len(unknown), len(junk), len(stacks))  # fmt: skip
     record = Recorder(visitlog.session_directory())

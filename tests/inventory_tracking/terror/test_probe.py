@@ -156,6 +156,24 @@ def test_probe_writes_events_and_marks_and_skips_when_the_capture_lock_is_busy(t
     assert calls == [(set(), None), ({5}, PLAYER.level)]
 
 
+def test_tz_observer_receives_only_a_snapshot_bracketed_by_the_same_game_and_area(tmp_path):
+    places = iter([('g1', 108), ('g1', 108), ('g1', 108), ('g2', 108)])
+    observed = []
+    entries = (TerrorEntry(108, 96, 18),)
+    probe = TerrorProbe(
+        Source(),
+        tmp_path / 'terror.jsonl',
+        capture_lock=threading.Lock(),
+        poll_interval=0,
+        observe=lambda *args, **kwargs: replace(snapshot(), terror_entries=entries),
+        game_place=lambda: next(places),
+        observed=lambda game, snap, events, now: observed.append((game, snap.terror_entries, now)),
+    )
+    probe.poll(1.0)
+    probe.poll(2.0)
+    assert observed == [('g1', entries, 1.0)]
+
+
 def card_probe(tmp_path, snapshots, *, focused=True, show_unconfirmed=True):
     shown = []
 

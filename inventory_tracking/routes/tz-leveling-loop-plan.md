@@ -1,5 +1,36 @@
 # Terror Zone leveling loop — draft (2026-10-18)
 
+## Implementation status (2026-10-18)
+
+Offline pieces are in `tz_leveling.py` and `tz_execution.py`: a game-scoped TZ/effect
+read with a freshness limit, a conservative [route inventory](tz-leveling-route-inventory.md),
+active/shard itinerary selection, elite hunt scoring, observed area steps, target outcome
+gating, restart-persisted progress and total elapsed-time counters. `Slice` now dispatches
+one area action at a time and advances only on a matching observed result. The request sender
+and HUD seam are separate from KP_6. The KP_7 binding is opt-in, and `make serve` constructs
+the TZ coordinator disabled; the code does not send TZ game input by default.
+
+The existing pursuit has a distinct `HUNT TZ` mode that visits leaders and unexplored
+rooms, then stops before the route boss. The runner has guarded TZ prebuff, waypoint,
+hunt, target and pickup-only entry points; prebuff stays in the current game and a target
+run stops before the route's loot or exit stage. `tz_runtime.py` connects `Slice` to
+those entry points and confirms action results from the macro and route progress. Its
+offline fake completes a one-game boss area. The Terror probe brackets an optional
+observer's reads with the same game and area; the live service wires the observer and
+ticks the runtime only when the coordinator is enabled. `make serve` still constructs
+that coordinator disabled, and every route capability remains unpromoted.
+
+Before enabling the first active TZ slice, a selected waypoint area needs its entry,
+boss/chest, loot and exit checked in play and its capability promoted to `ready`. The
+first slice checks a minimum occupied belt reserve but does not shop in town, so start
+with adequate supplies. It stops in the selected area after observed target and loot
+completion; repeated games and a TZ game-exit policy remain separate work. The route
+inventory has no level marked ready until a selected route's transitions and target are
+checked in play. Character name and difficulty reads for a configured identity gate,
+XP delta, other modifier IDs, rotation behavior and manual shard-use semantics still
+need evidence or wiring. Shard consumption remains disabled even if a shard itinerary
+can be planned offline. No TZ run or manual comparison has been performed.
+
 ## Goal and boundary
 
 Run terrorized areas in repeated games, maximizing **champion, unique, super unique and Herald leaders killed per wall-clock hour**. Record XP per hour as a separate leveling outcome once the player XP read is verified. Kill nearby ordinary monsters when combat, safety or Herald progress makes that worthwhile, but do not require a white-monster full clear. Complete a known route boss or target chest in any selected area, then take worthwhile drops under the loop's pickup policy.

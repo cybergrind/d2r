@@ -762,6 +762,23 @@ def test_a_clearing_goal_left_for_another_is_not_taken_back_while_the_other_hold
     assert unit(4998.0, [west]) == 52  # the other is gone: taken back
 
 
+def test_tz_elite_hunt_takes_a_near_leader_before_a_distant_route_boss(monkeypatch) -> None:
+    play = game(area=RIVER)
+    hunt = hunter(play)
+    run = play.run()
+    hunt.mode = Mode(True, 'TZ elite hunt', elite=True)
+    monkeypatch.setattr(hunt, 'frontier', lambda level, player, rect: None)
+    leader = foe(71, 5020.0, 5000.0, flags=2)
+    white = foe(72, 5005.0, 5000.0)
+    boss = replace(DOOR, do=FIGHT, place=(5100.0, 5000.0))
+    picked = hunt.cleared(run, play.world, [white, leader], Ground(()), boss)
+    assert picked is not None
+    assert picked.unit == leader.unit_id
+    assert hunt.cleared(run, play.world, [white], Ground(()), boss) is None  # hunt ends before the boss stage
+    hunt.mode = Mode(False)
+    assert hunt.cleared(run, play.world, [white], Ground(()), boss) == boss
+
+
 def test_a_valuable_across_the_lava_is_not_on_the_way() -> None:
     """22:36:09-18 on 2026-10-14 (rca/2026-10-14/run-1932-findings.md §1.2.3): an Ith Rune 26 units off in a straight
     line from E and 226 by walking round the lava was "on the way" from E (PICK_NEAR 40, straight) and not from W, 22

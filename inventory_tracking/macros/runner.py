@@ -35,6 +35,7 @@ import time
 from collections.abc import Callable, Sequence
 from contextlib import suppress
 from pathlib import Path
+from typing import Any
 
 from inventory_tracking.automation.ledger import OSD_LEDGER, PotionLedger
 from inventory_tracking.common import LOG
@@ -87,6 +88,7 @@ from inventory_tracking.macros.pickup import (
     TAKEN,
     Refused,
     approach,
+    choose as choose_pickup,
     moved_in_hand,
     pick_up,
     wanted,
@@ -94,7 +96,7 @@ from inventory_tracking.macros.pickup import (
 )
 from inventory_tracking.macros.portal import portal_source
 from inventory_tracking.macros.pursuit import FULL, Pursuit
-from inventory_tracking.macros.routines import prebuff_keys, run_macro, show_items_on
+from inventory_tracking.macros.routines import prebuff, prebuff_keys, run_macro, show_items_on
 from inventory_tracking.macros.runmode import DOUBLE, TERROR, badge
 from inventory_tracking.macros.sightings import Sightings
 from inventory_tracking.macros.skills import character_bindings, skill_keys
@@ -107,12 +109,12 @@ from inventory_tracking.macros.waiting import Waiting
 from inventory_tracking.macros.world import (
     VALUABLE,
     BeltKept,
+    Drop,
     GameMemory,
     Loot,
     Pack,
     Player,
     PutDown,
-    StashView,
     World,
     has_room,
 )
@@ -128,6 +130,12 @@ HUNT_ELITES_PREFIX, HUNT_ANY_PREFIX, PICKUP_PREFIX = 'hunt elites ', 'hunt any '
 LOOP_PREFIX = 'loop '
 PREBUFF, TELEPORT, HUNT_ELITES, HUNT_ANY = 'prebuff', 'teleport', 'hunt elites', 'hunt any'  # routines
 PICKUP = 'pickup'  # the pickup step: pick up what is worth it, else a seek step (pickup.py)
+TZ_PREBUFF, TZ_WAYPOINT, TZ_LOOT = 'tz prebuff', 'tz waypoint', 'tz loot'
+TZ_SUPPLY, TZ_ONWARD, TZ_RETURN_TOWN = 'tz supply', 'tz onward', 'tz return town'
+TZ_LEAVE, TZ_CREATE = 'tz leave', 'tz create'
+TZ_PICKUP = 'tz targeted pickup'
+GUARDED_TOWN_EXIT = 'guarded town exit'
+TZ_ROUTINES = (TZ_PREBUFF, TZ_WAYPOINT, TZ_LOOT, TZ_SUPPLY, TZ_ONWARD, TZ_RETURN_TOWN, TZ_LEAVE, TZ_CREATE, TZ_PICKUP)
 # The HUD's word for the loop's pickup mode (macros/pickmode.py), with the loop on
 LOOP_WORDS = {SURE: 'LOOP SURE', TRADE: 'LOOP TRADE', REGULAR: 'LOOP ALL'}
 TRANSMUTES = 3  # a full gem stack's transmutes in one stash visit, at most (macros/cube.py `transmute`)
@@ -217,6 +225,39 @@ def classify(why: object) -> Cause:
     return 'other'
 
 
+def _tz_no_room_drop(loot: Loot, warned: int, *, cube_tried: bool = False) -> str | None:
+    """Name a ground valuable that the hunter stands by and cannot fit or make room for."""
+    if loot.room is None:
+        return None  # an unread inventory is not proof of a full one
+    for drop in loot.drops:
+        if drop.unit_id != warned or has_room(loot.room, drop.size):
+            continue
+        if not verdict(drop, GUARD, room=False, shown=drop.unit_id in loot.shown, looped=True).hold:
+            continue
+        if loot.cube is None and not cube_tried:
+            return None  # an empty cube has no grid until a room-making attempt checks it
+        if loot.cube is not None and has_room(loot.cube, drop.size) and not cube_tried:
+            return None  # give the hunter's cube room-maker its chance
+        return f'{drop.label} at ({drop.x:.0f}, {drop.y:.0f})'
+    return None
+
+
+def _tz_pickup_drop(loot: Loot, game: str, label: str, x: float, y: float, size: tuple[int, int] | None = None):
+    """Require the exact valuable named by a one-shot pickup request and verified free room."""
+    if loot.game is None or loot.game[0] != game or loot.room is None:
+        return None
+    found = [
+        drop
+        for drop in loot.drops
+        if drop.kind == VALUABLE
+        and drop.label == label
+        and math.dist((drop.x, drop.y), (x, y)) <= 1.0
+        and (size is None or drop.size == size)
+        and has_room(loot.room, drop.size)
+    ]
+    return found[0] if len(found) == 1 else None
+
+
 class MacroRunner:
     def __init__(
         self,
@@ -289,6 +330,18 @@ class MacroRunner:
         # The player's toggle turned the mode off and nothing of theirs has turned it on since: a press of
         # the teleport key whose goal is a fight leaves it off (read with the pursuit on only: `pursues`)
         self.attack_declined = False
+        self.tz_area: int | None = None  # set only by a guarded TZ adapter request
+        self.tz_source: int | None = None
+        self.tz_game: str | None = None
+        self.tz_hunting = False
+        self.tz_hunt_over: str | None = None
+        self.tz_targeting = False
+        self.tz_target_over: str | None = None
+        self.tz_last_action: str | None = None
+        self.tz_last_ok = False
+        self.tz_loot_clear = False
+        self.tz_pickup_spec: tuple[str, int, str, float, float, tuple[int, int]] | None = None
+        self.guarded_exit_game: str | None = None
         self.closed = False  # `close` was called: nothing starts any more
         # The Lower Kurast loop (KP_6, macros/loop.py): on, it is what follows every run that nothing else follows.
         self.loop = Loop(store=loop_items)
@@ -336,6 +389,10 @@ class MacroRunner:
         self.lock = threading.RLock()  # every transition: a request, a run's end and its successor, shutdown
 
     def request(self, requested_at: float, now: float, routine: str = PREBUFF, **notes: object) -> bool:
+        """A player/API request; autonomous continuation uses the private dispatch path."""
+        return self._dispatch(requested_at, now, routine, autonomous=False, **notes)
+
+    def _dispatch(self, requested_at: float, now: float, routine: str, *, autonomous: bool, **notes: object) -> bool:
         """Start `routine` (PREBUFF or a step), or toggle attack mode (HUNT_ANY). While a run works, a
         request cancels it, except a step's own request during the step (one more step) and a step
         during attack mode (the mode pauses for it and resumes after; the pickup step waits for the
@@ -442,6 +499,160 @@ class MacroRunner:
             self._start(routine)
             return True
 
+    def tz_start(self, action: str, area: int, now: float, *, game: str | None = None) -> bool:
+        """Start one TZ slice action only while the ordinary macro and KP_6 are idle."""
+        with self.lock:
+            if self.closed or self.working or self.loop.on:
+                return False
+            actual_game, actual_area = None, None
+            if game is not None or action == 'create':
+                try:
+                    actual_game, actual_area = self.place()
+                except Exception:
+                    return False
+            if action == 'create':
+                if game is None or self.area_seen is not None or actual_game is not None or actual_area is not None:
+                    return False
+                routine = TZ_CREATE
+            elif (
+                game is not None and (actual_game != game or actual_area != self.area_seen)
+            ) or self.area_seen is None:
+                return False
+            elif action == 'prebuff' and self.area_seen in TOWN_IDS:
+                routine = TZ_PREBUFF
+            elif action == 'restock' and self.area_seen in TOWN_IDS:
+                routine = TZ_SUPPLY
+            elif action == 'travel' and self.area_seen in TOWN_IDS:
+                routine = TZ_WAYPOINT
+            elif action == 'travel' and self.progress is not None:
+                step = self.progress.step(self.area_seen)
+                if step is None or step.stage.to != area:
+                    return False
+                routine = TZ_ONWARD
+            elif action == 'loot' and self.area_seen == area:
+                routine = TZ_LOOT
+            elif action == 'return-town' and self.area_seen == area and area not in TOWN_IDS:
+                routine = TZ_RETURN_TOWN
+            elif action == 'leave' and self.area_seen == area and game is not None:
+                routine = TZ_LEAVE
+            elif action in ('hunt', 'target') and self.area_seen == area and self.hunter is not None and self.pursuit:
+                self.hunter.hand_over, self.hunter.run_over = self._hand_over, self._run_over
+                self.hunter.post(
+                    Pursuit(
+                        PICKUP,
+                        now,
+                        advance=False,
+                        leash=FULL,
+                        looped=True,
+                        elite_hunt=action == 'hunt',
+                        rush=action == 'target',
+                    )
+                )
+                self.tz_hunting, self.tz_hunt_over = action == 'hunt', None
+                self.tz_targeting, self.tz_target_over = action == 'target', None
+                self.attack_mode, self.attack_declined = True, False
+                self._start(ATTACK)
+                return True
+            else:
+                return False
+            self.tz_area = area
+            self.tz_source = self.area_seen
+            self.tz_game = game
+            self.tz_last_action, self.tz_last_ok = action, False
+            self.tz_loot_clear = False
+            return self.request(now, now, routine)
+
+    def tz_pickup(
+        self,
+        requested_at: float,
+        now: float,
+        game: str,
+        area: int,
+        label: str,
+        x: float,
+        y: float,
+        size: tuple[int, int] = (1, 1),
+    ) -> bool:
+        """One guarded pickup in the current TZ game; never starts pursuit or leaves the game."""
+        with self.lock:
+            if self.closed or self.working or self.loop.on or self.attack_mode:
+                return False
+            if not math.isfinite(requested_at) or not 0 <= now - requested_at <= 1:
+                return False
+            if (
+                not game
+                or area in TOWN_IDS
+                or not label
+                or not all(map(math.isfinite, (x, y)))
+                or not (1 <= size[0] <= 3 and 1 <= size[1] <= 4)
+            ):
+                return False
+            try:
+                actual_game, actual_area = self.place()
+            except Exception:
+                return False
+            if (actual_game, actual_area) != (game, area) or self.area_seen != area:
+                return False
+            self.tz_pickup_spec = game, area, label, x, y, size
+            accepted = self.request(requested_at, now, TZ_PICKUP)
+            if not accepted:
+                self.tz_pickup_spec = None
+            return accepted
+
+    def guarded_town_exit(self, requested_at: float, now: float, game: str) -> bool:
+        """One explicit Save and Exit from the named game in Rogue Encampment only."""
+        with self.lock:
+            if self.closed or self.working or self.loop.on or self.attack_mode or self.unread:
+                return False
+            if not math.isfinite(requested_at) or not 0 <= now - requested_at <= 1 or not game:
+                return False
+            try:
+                if (
+                    self.place() != (game, 1)
+                    or self.area_seen != 1
+                    or self.valuable_left() is not None
+                    or self.sightings.left() is not None
+                ):
+                    return False
+            except Exception:
+                return False
+            self.guarded_exit_game = game
+            accepted = self.request(requested_at, now, GUARDED_TOWN_EXIT)
+            if not accepted:
+                self.guarded_exit_game = None
+            return accepted
+
+    def _guarded_town_exit(self, run: Run) -> None:
+        from inventory_tracking.macros.routines import leave_game
+
+        world = run.world()
+        player = world.player
+        if (
+            self.guarded_exit_game is None
+            or world.game_name != self.guarded_exit_game
+            or player is None
+            or player.area != 1
+            or not player.in_town
+            or self.loop.on
+            or self.attack_mode
+        ):
+            raise Abort('guarded exit needs the named game in Rogue Encampment with loop and attack off')
+        if self.valuable_left() is not None or self.sightings.left() is not None:
+            raise Abort('guarded exit: valuable ground unread or left behind')
+        leave_game(run)
+
+    def tz_cancel(self) -> None:
+        """Cancel only TZ-owned work; a newer ordinary player request is never cancelled."""
+        with self.lock:
+            if self.tz_hunting or self.tz_targeting:
+                self.attack_mode = False
+                self._end_run('TZ slice stopped')
+                self.tz_hunting = self.tz_targeting = False
+                if self.working and self.routine == ATTACK:
+                    self.cancelled.set()
+            elif self.working and self.routine in TZ_ROUTINES:
+                self.cancelled.set()
+
     def _wait(self, press: Press, outcome: str, until: float) -> None:
         """`press` leads to a run that has not begun: it waits in the queue for it, good until `until`
         (`_start` takes it). Under the lock."""
@@ -492,6 +703,18 @@ class MacroRunner:
         next leg follows (`_follow`); the mode went on sweeping before, until the player pressed KP_6
         (rca/2026-10-16/loop-chests-findings.md §2). From the run's thread."""
         with self.lock:
+            if self.tz_hunting:
+                self.tz_hunting, self.tz_hunt_over = False, why
+                self.attack_mode = False
+                if self.working and self.routine == ATTACK:
+                    self.cancelled.set()
+                return
+            if self.tz_targeting:
+                self.tz_targeting, self.tz_target_over = False, why
+                self.attack_mode = False
+                if self.working and self.routine == ATTACK:
+                    self.cancelled.set()
+                return
             if not self.loop.on:
                 mode = self.hunter.mode if self.hunter is not None else None
                 if self.attack_mode and mode is not None and mode.why == TERROR and DOOR_PRESS in why:
@@ -508,7 +731,7 @@ class MacroRunner:
     def _press(self, routine: str) -> None:
         """A press of the macro's own, as the player's key would make it (`request`)."""
         now = time.monotonic()
-        self.request(now, now, routine)
+        self._dispatch(now, now, routine, autonomous=True)
 
     def _loop_level_run(self, hunter: Hunter, rush: bool = True) -> None:
         """The loop's chests leg: the KP_1 level run, as the pickup key starts it (`request`), followed by attack mode;
@@ -791,6 +1014,26 @@ class MacroRunner:
             LOG.info('Macro: the inventory could not be read (%s)', exc)
             return None
 
+    def tz_supply(self, loot_options: dict[str, Any]) -> int | None:
+        """Count occupied belt cells for a TZ supply gate; unread stays unknown."""
+        try:
+            with self.capture_lock:
+                self.source.ensure_connected()
+                tables = {found['table_address'] for found in self.source.capture['unit_table_candidates']}
+                if len(tables) != 1:
+                    return None
+                memory = GameMemory(self.source.pid, self.source.images['candidate_base'], next(iter(tables)))
+                try:
+                    loot = memory.loot(**loot_options)
+                    if loot.game is None:
+                        return None
+                    return sum(cell is not None for cell in loot.belt)
+                finally:
+                    memory.close()
+        except Exception as exc:
+            LOG.info('Macro: TZ supplies unread: %s', exc)
+            return None
+
     def _toggle_attack_mode(self) -> bool:
         """The attack mode toggle: the mode on or off. On while a step works, it follows the step; off
         while it works, it is cancelled. Under the lock (`request`)."""
@@ -901,6 +1144,27 @@ class MacroRunner:
         finally:
             self.capture_lock.release()
 
+    def tz_no_room(self) -> str | None:
+        """A warned ground valuable with confirmed full inventory, for the TZ hold in this game."""
+        hunter = self.hunter
+        if hunter is None or hunter.warned is None:
+            return None
+        warned = hunter.warned
+        try:
+            tables = {found['table_address'] for found in self.source.capture['unit_table_candidates']}
+            if len(tables) != 1:
+                return None
+            memory = GameMemory(self.source.pid, self.source.images['candidate_base'], next(iter(tables)))
+            memory.ground_seen = self.ground_seen
+            try:
+                loot = self._sighted(memory, self._picked(self.put_down.see(memory.loot(**wanted()))))
+            finally:
+                memory.close()
+        except Exception as exc:
+            LOG.info('TZ: inventory-full ground could not be read (%s)', exc)
+            return None
+        return _tz_no_room_drop(loot, warned, cube_tried=hunter.room_tried == warned)
+
     def _valuable_left(self) -> str | None:
         """What the loop would pick up lying on the ground in sight ('unread' when the ground cannot be read): a game
         with one is never left (`_loop_stopped`)."""
@@ -930,7 +1194,7 @@ class MacroRunner:
         if found:
             return found[0].label
         # One seen this game and not read now (out of the client's reach, macros/sightings.py) lies there all the same
-        return self.sightings.left() if self.loop.on else None
+        return self.sightings.left()
 
     def _place(self) -> tuple[str | None, int | None]:
         self.source.ensure_connected()
@@ -1082,6 +1346,8 @@ class MacroRunner:
                 ended = 'done'
                 try:
                     self.execute(cancelled, routine)
+                    if routine in TZ_ROUTINES and not cancelled.is_set():
+                        self.tz_last_ok = True
                 except Cancelled:
                     ended = 'cancelled'
                     raise
@@ -1338,6 +1604,7 @@ class MacroRunner:
                 run.stock = memory.stock
                 run.stash_view = memory.stash_view
                 self.item_stats = memory.item_stats
+                run.players_item = lambda item: self.loop.players_item(item, memory.item_stats(item.unit_id))
                 run.objects = memory.objects
                 run.corpses = memory.corpses
                 run.flights = memory.flights
@@ -1467,12 +1734,226 @@ class MacroRunner:
         # One step of the stage the level is at (macros/route.py); the plain step without one.
         self.staged(run, key_names, plain)
 
+    def _tz_targeted_pickup(self, run: Run, key_names) -> None:
+        spec = self.tz_pickup_spec
+        if spec is None or run.loot is None:
+            raise Abort('TZ targeted pickup has no armed ground target')
+        game, area, label, x, y, size = spec
+        world = run.world()
+        if world.game_name != game or world.player is None or world.player.area != area:
+            raise Abort('TZ targeted pickup game or area changed')
+        hunter = self.hunter
+        level = hunter.level() if hunter is not None and hunter.level is not None else None
+        if level is None or level.area != area:
+            raise Abort('TZ targeted pickup has no map for the field area')
+        loot = run.loot()
+        if loot.game is None or loot.game[0] != game:
+            raise Abort('TZ targeted pickup ground census unread')
+        if loot.room is None:
+            raise Abort('TZ targeted pickup inventory grid unread')
+        if not has_room(loot.room, size):
+            raise Abort(f'TZ targeted pickup no fitting {size[0]}x{size[1]} inventory room')
+        if threat(run)((world.player.x, world.player.y), (x, y)):
+            raise Abort('TZ targeted pickup hostiles near character or target')
+        seen = [item for item in loot.drops if item.label == label and math.dist((item.x, item.y), (x, y)) <= 1.0]
+        if seen and _tz_pickup_drop(loot, game, label, x, y, size) is None:
+            raise Abort('TZ targeted pickup loaded target has wrong size or duplicate')
+        # A distant item can fall outside the client's loaded ground table. Route by its observed coordinate first;
+        # no click is made until a fresh census at the destination finds the exact unique item.
+        waypoint = seen[0] if seen else Drop(-1, x, y, label, VALUABLE, size)
+        approach(run, waypoint, level, key_names, FETCH_HOPS)
+        world = run.world()
+        if world.game_name != game or world.player is None or world.player.area != area:
+            raise Abort('TZ targeted pickup left its field area')
+        if threat(run)((world.player.x, world.player.y), (x, y)):
+            raise Abort('TZ targeted pickup hostiles near character or target on arrival')
+        arrived = run.loot()
+        if arrived.game is None or arrived.game[0] != game:
+            raise Abort('TZ targeted pickup ground census unread on arrival')
+        if arrived.room is None:
+            raise Abort('TZ targeted pickup inventory grid unread on arrival')
+        if not has_room(arrived.room, size):
+            raise Abort(f'TZ targeted pickup no fitting {size[0]}x{size[1]} inventory room on arrival')
+        drop = _tz_pickup_drop(arrived, game, label, x, y, size)
+        if drop is None:
+            raise Abort(f'TZ targeted pickup {label} not loaded at ({x:.0f}, {y:.0f}) on arrival')
+        if not pick_up(run, level, key_names, lambda: None, unit=drop.unit_id):
+            raise Abort(f'TZ targeted pickup did not take {label}')
+        if any(item.unit_id == drop.unit_id for item in run.loot().drops):
+            raise Abort(f'TZ targeted pickup left {label} on the ground')
+        run.say(f'TZ targeted pickup: {label} recovered in {game}')
+
+    def _identify_loot(self, run: Run, items: Sequence) -> None:
+        # All at once at Deckard Cain (the player, 2026-10-17: "we need to perform mass identify at decard cain"), the
+        # Tome of Identify the fallback for the inventory's (macros/cain.py, macros/junk.py)
+        try:
+            done = identify_all(run, items)
+        except Abort as stop:
+            if cut(run, stop):
+                raise
+            LOG.info('Macro: identify: Cain: %s: the tome instead', stop)
+            player = run.world().player
+            key = action_key(self.saved_games, player.name, INVENTORY) if player is not None else None
+            pack = run.carried() if run.carried is not None else None
+            inside = {i.unit_id for i in pack.items} if pack is not None else set()
+            try:
+                done = len(identify(run, key, [i for i in items if i.unit_id in inside])) if key else 0
+            except Abort as again:
+                if cut(run, again):
+                    raise
+                LOG.info('Macro: identify: %s', again)
+                return
+        units = {item.unit_id for item in items}
+        if done and run.seen(lambda w: units <= set(self.verdicts()), VERDICT_SECONDS) is None:
+            LOG.info('Macro: identify: %d of %d appraised in time', len(units & set(self.verdicts())), len(units))
+        pack = run.carried() if run.carried is not None else None
+        if pack is not None:
+            for item in (*pack.items, *pack.in_cube):
+                if item.unit_id in units and item.unit_id in self.verdicts():
+                    LOG.info('Macro: identify: appraised %s at (%d, %d): %s', named(item), item.x, item.y,
+                             self.verdicts()[item.unit_id])  # fmt: skip
+        run.say(f'Identified {done}')
+
+    def _shared_town_visit(
+        self,
+        run: Run,
+        exit: Exit,
+        transmute_gems: Callable[[frozenset[int]], tuple[int, int]] | None = None,
+        *,
+        tz: bool = False,
+    ) -> Contract:
+        """The town visit (macros/visit.py `visit`) for the loop's items (its `own`: the player's protected cells,
+        macros/volatile.py) or, for TZ, the items the macro did not pick up itself kept (pickup.py TAKEN)."""
+
+        def inventory_key() -> str | None:
+            player = run.world().player
+            return action_key(self.saved_games, player.name, INVENTORY) if player is not None else None
+
+        def identify_loot(items: Sequence) -> None:
+            self._identify_loot(run, items)
+
+        if tz:
+            pack = run.carried() if run.carried is not None else None
+            own = frozenset((i.txt, i.x, i.y) for i in pack.items if i.unit_id not in TAKEN) if pack else None
+        else:
+            own = self.loop.own
+        if own is None:
+            raise Abort("the player's items are not told apart yet")
+        hands = Hands(inventory_key, identify_loot, lambda items: junk_of(items, self.appraise),
+                      lambda: run.stash_view() if run.stash_view is not None else None, transmute_gems)  # fmt: skip
+        needs = Needs(keys=12 if tz else self.loop.kind.keys,
+                      portals=portal_source(run) if tz else self.loop.portal or portal_source(run))  # fmt: skip
+        full = frozenset() if tz else frozenset(self.loop.full)
+        done = visit(run, hands, needs, own, exit, full=full,
+                     waited=tz or self.loop.repair_waited(), memory=self.stash_memory)  # fmt: skip
+        if not tz and done.full != frozenset(self.loop.full):
+            self.loop.full = set(done.full)
+            self.loop.keep_full()
+        if not tz and done.repair_failed:
+            self.loop.repair_failed = self.loop.games
+        if tz and done.contract.stash_full:
+            raise Abort(f'the stash is full: {", ".join(done.contract.stash_full)}', cause='stash')
+        return done.contract
+
     def perform(self, run: Run, actuator: Actuator, routine: str, key_names) -> None:
         """One routine on the run made for it (`_execute`), by the build chosen at its first look (`choosing`)."""
         self.choosing(run)
         if self.hunter is not None:
             self.hunter.bearings = Bearings(self.progress, self.target, self.marks, self.supers)
-        if routine == TELEPORT and self.pursues(run, key_names):
+        if routine == GUARDED_TOWN_EXIT:
+            self._guarded_town_exit(run)
+        elif routine == TZ_PICKUP:
+            self._tz_targeted_pickup(run, key_names)
+        elif routine == TZ_PREBUFF:
+            if not run.world().in_game:
+                raise Abort('TZ prebuff needs the current game')
+            from inventory_tracking.macros.routines import character_keys
+
+            run.keys = character_keys(run, key_names)
+            run.actuator.wait_released()
+            prebuff(run)
+        elif routine == TZ_SUPPLY:
+            player = run.world().player
+            if player is None or not player.in_town:
+                raise Abort('TZ supply check needs town')
+            # The shared disposition route lives in the Fortress. Cross-act
+            # waypoint travel is observed before and after this one visit.
+            from inventory_tracking.macros.waypoint import travel
+
+            origin = player.area
+            if origin != 103:
+                travel(run, 103, self.marks)
+            here = run.world().player
+            if here is None or here.area != 103:
+                raise Abort('TZ supply did not reach the shared Fortress visit')
+            note_view(run, self.stash_memory)
+            self._shared_town_visit(run, Exit.WAYPOINT, tz=True)
+            if origin != 103:
+                travel(run, origin, self.marks)
+                returned = run.world().player
+                if returned is None or returned.area != origin:
+                    raise Abort('TZ supply did not return to its original town')
+        elif routine == TZ_RETURN_TOWN:
+            from inventory_tracking.macros.portal import to_town
+
+            player = run.world().player
+            if player is None or player.in_town or player.area != self.tz_area:
+                raise Abort('TZ return needs the selected field area')
+            to_town(run, key_names)
+        elif routine == TZ_LEAVE:
+            from inventory_tracking.macros.routines import leave_game
+
+            player = run.world().player
+            if player is None or player.area != self.tz_area:
+                raise Abort('TZ exit needs the selected area')
+            if self.sightings.left() or self.valuable_left():
+                raise Abort('TZ exit refused: valuable ground loot remains')
+            leave_game(run)
+        elif routine == TZ_CREATE:
+            from inventory_tracking.macros.routines import create_next_game
+
+            if self.tz_game is None or run.world().in_game:
+                raise Abort('TZ create needs the last game in the lobby')
+            create_next_game(run, self.tz_game)
+        elif routine == TZ_WAYPOINT:
+            from inventory_tracking.macros.waypoint import travel
+
+            player = run.world().player
+            if player is None or not player.in_town or self.tz_area is None:
+                raise Abort('TZ waypoint needs a town and selected area')
+            travel(run, self.tz_area, self.marks)
+        elif routine == TZ_ONWARD:
+            source, destination = self.tz_source, self.tz_area
+            if source is None or destination is None or source in TOWN_IDS:
+                raise Abort('TZ onward has no field route')
+            for _ in range(30):
+                player = run.world().player
+                if player is None:
+                    raise Abort('TZ onward position unread')
+                if player.area == destination:
+                    break
+                if player.area != source or self.progress is None:
+                    raise Abort('TZ onward left the selected route')
+                step = self.progress.step(source)
+                if step is None or step.stage.to != destination:
+                    raise Abort('TZ onward route stage changed')
+                self._teleport_step(run, key_names)
+            else:
+                raise Abort('TZ onward reached its route step cap')
+        elif routine == TZ_LOOT:
+            player = run.world().player
+            if player is None or player.area != self.tz_area or run.loot is None:
+                raise Abort('TZ loot needs the selected area and a readable loot census')
+            level = self.hunter.level() if self.hunter is not None and self.hunter.level is not None else None
+            for _ in range(20):
+                if not pick_up(run, level, key_names, lambda: None):
+                    break
+            else:
+                raise Abort('TZ loot reached its pickup cap')
+            self.tz_loot_clear = choose_pickup(run.loot(), (player.x, player.y)) is None
+            if not self.tz_loot_clear:
+                raise Abort('TZ loot remains on the ground')
+        elif routine == TELEPORT and self.pursues(run, key_names):
             pass  # one pass of the pursuit's decision made the press (hunt.py `pursue_once`)
         elif routine == TELEPORT:
             self._teleport_step(run, key_names)
@@ -1565,10 +2046,6 @@ class MacroRunner:
                     return 0, 0
                 parked: list[int] = []
 
-                def park(unit_id: int) -> None:
-                    self.put_down.park(unit_id)
-                    parked.append(unit_id)
-
                 def staying() -> frozenset[tuple[int, int, int]]:
                     # the cube takes the inventory's loop items for the room to pick the parked ones up: not the full
                     # stacks' runes and materials (for Jamella, put down)
@@ -1576,6 +2053,10 @@ class MacroRunner:
                     sold = self.loop.sold_full
                     held = {(i.txt, i.x, i.y) for i in pack.items if i.txt in sold} if pack is not None else set()
                     return (self.loop.own or frozenset()) | held
+
+                def park(unit_id: int) -> None:
+                    self.put_down.park(unit_id)
+                    parked.append(unit_id)
 
                 made = left = 0
                 for txt in sorted(t for t in full if perfect_of(t) not in (None, *full)):
@@ -1597,64 +2078,15 @@ class MacroRunner:
                             break
                 return made, left
 
-            def identify_loot(items) -> None:
-                # All at once at Deckard Cain (the player, 2026-10-17: "we need to perform mass identify at decard
-                # cain"), the Tome of Identify the fallback for the inventory's (macros/cain.py, macros/junk.py)
-                try:
-                    done = identify_all(run, items)
-                except Abort as stop:
-                    if cut(run, stop):
-                        raise
-                    LOG.info('Macro: identify: Cain: %s: the tome instead', stop)
-                    key = inventory_key()
-                    pack = run.carried() if run.carried is not None else None
-                    inside = {i.unit_id for i in pack.items} if pack is not None else set()
-                    try:
-                        done = len(identify(run, key, [i for i in items if i.unit_id in inside])) if key else 0
-                    except Abort as again:
-                        if cut(run, again):
-                            raise
-                        LOG.info('Macro: identify: %s', again)
-                        return
-                # The identify watcher appraises each the moment it is identified (identify/service.py): waited for
-                units = {item.unit_id for item in items}
-                if done and run.seen(lambda w: units <= set(self.verdicts()), VERDICT_SECONDS) is None:
-                    LOG.info('Macro: identify: %d of %d appraised in time',
-                             len(units & set(self.verdicts())), len(units))  # fmt: skip
-                pack = run.carried() if run.carried is not None else None
-                if pack is not None:
-                    for item in (*pack.items, *pack.in_cube):
-                        if item.unit_id in units and item.unit_id in self.verdicts():
-                            LOG.info('Macro: identify: appraised %s at (%d, %d): %s', named(item), item.x, item.y,
-                                     self.verdicts()[item.unit_id])  # fmt: skip
-                run.say(f'Identified {done}')
+            def town_visit(exit: Exit) -> Contract:
+                return self._shared_town_visit(run, exit, transmute_gems)
 
-            def judge(items: list) -> list:
-                return junk_of(items, self.appraise)
+            def identify_loot(items: Sequence) -> None:
+                self._identify_loot(run, items)
 
-            def bring(items: list) -> int:
+            def bring(items: Sequence) -> int:
                 key = inventory_key()
                 return unpack(run, key, items) if key is not None else 0
-
-            def stash_view() -> StashView | None:
-                return run.stash_view() if run.stash_view is not None else None
-
-            def town_visit(exit: Exit) -> Contract:
-                # The town visit (macros/visit.py `visit`; macros/town-plan.md step 3): Cain, the stash, Jamella, Halbu,
-                # the exit, once; the stash's full stacks as read kept (FULL_FILE) for the pickups out of town
-                own = self.loop.own
-                if own is None:
-                    raise Abort("the player's items are not told apart yet")
-                hands = Hands(inventory_key, identify_loot, judge, stash_view, transmute_gems)
-                needs = Needs(keys=self.loop.kind.keys, portals=self.loop.portal or portal_source(run))
-                done = visit(run, hands, needs, own, exit, full=frozenset(self.loop.full),
-                             waited=self.loop.repair_waited(), memory=self.stash_memory)  # fmt: skip
-                if done.full != frozenset(self.loop.full):
-                    self.loop.full = set(done.full)
-                    self.loop.keep_full()
-                if done.repair_failed:
-                    self.loop.repair_failed = self.loop.games  # not for want of gold: not again for a while
-                return done.contract
 
             self.loop.marks = self.marks
             note_view(run, self.stash_memory)  # the stash as read, once a game in the Fortress (town-plan.md step 0)

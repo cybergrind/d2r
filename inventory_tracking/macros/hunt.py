@@ -90,7 +90,7 @@ from inventory_tracking.levels.model import SUPER_CHEST, UNIQUE_CHEST, Ground, L
 from inventory_tracking.levels.presets import display_name
 from inventory_tracking.levels.route import room_at
 from inventory_tracking.macros import lootpolicy, route
-from inventory_tracking.macros.actuator import POINTER_DRIFT, Abort, Cancelled
+from inventory_tracking.macros.actuator import POINTER_DRIFT, Abort, Cancelled, Expired
 from inventory_tracking.macros.buffs import Buffs
 from inventory_tracking.macros.build import Attack, Build, Intent, NoWay, PricedStep
 from inventory_tracking.macros.drinking import Drinker, key_of, on_belt
@@ -978,7 +978,13 @@ class Hunter:
                 self.travel.tally = Tally()  # the run's pace counts from its own first leg (`Travel.paced`)
             if old is not None and old.leashed and not pursuit.looped:
                 # The run's crossing noted (`heading`) and its carrying on (`carried`) stay with it
-                kept = {'area': old.area, 'onward': old.onward, 'entered': old.entered, 'rush': old.rush}
+                kept = {
+                    'area': old.area,
+                    'onward': old.onward,
+                    'entered': old.entered,
+                    'rush': old.rush,
+                    'elite_hunt': old.elite_hunt,
+                }
                 if not pursuit.leashed:
                     pursuit = replace(pursuit, leash=old.leash, paused=old.paused, **kept)
                 elif pursuit.area is None:
@@ -1346,7 +1352,8 @@ class Hunter:
             return None
         cube = loot is not None and loot.cube is not None and has_room(loot.cube, found.size)
         quiet = all(math.dist(here, (m.x, m.y)) > QUIET_UNITS for m in foes)
-        if cube and quiet and self.room_maker is not None and self.room_tried != found.unit_id:
+        cube_unread = loot is not None and loot.cube is None
+        if (cube or cube_unread) and quiet and self.room_maker is not None and self.room_tried != found.unit_id:
             # The cube has room: the macro's own pickups go into it, and the next look takes the drop (the player,
             # 23:55 on 2026-10-17: "if we have cube space - we should move items there"; two stands for the player on
             # 2026-10-17, 47.5 s by an Amulet and one by a Flawed Sapphire)
@@ -1573,7 +1580,8 @@ class Hunter:
         is still the one to go for (TAKE_BACK, `taken_back`)."""
         mode = self.mode
         clear = mode is not None and mode.clear
-        if found is not None and (found.do in (FIGHT, PICK_UP, WAIT) or found.guarded):
+        elite = mode is not None and mode.elite
+        if found is not None and (found.do in (PICK_UP, WAIT) or found.guarded or (found.do == FIGHT and not elite)):
             return found
         # Nor on the KP_6 loop's rushed run (not a full clear): its way out is gone to, a pack beside it fought only
         # when it hurts or blocks (the player, 2026-10-16: "don't fight what isn't attacking"). Cleared, every pack on
@@ -1592,16 +1600,29 @@ class Hunter:
 
         herald = bool(self.omens) or any(m.tier and m.leader for m in foes)
         route = found.route if found is not None else ''
-        chest = self.super_chest_goal(run, player, here, route, spend, rooms) if clear and not herald else None
+        chest = (
+            self.super_chest_goal(run, player, here, route, spend, rooms)
+            if clear and not herald and not elite
+            else None
+        )
 
         def candidate(skip: frozenset[object]) -> Goal | None:
-            rest = self.rest_of(run, world, foes, here, skip, rooms) if clear and chest is None else None
-            base = chest or (rest_of_level(rest, found, self.reach, spend) if rest is not None else found)
+            rest = (
+                self.rest_of(run, world, foes, here, skip, rooms, leaders_only=elite)
+                if clear and chest is None
+                else None
+            )
+            base = chest or (
+                rest_of_level(rest, None if elite else found, self.reach, spend)
+                if rest is not None
+                else (None if elite else found)
+            )
             near = [
                 m
                 for m in foes
                 if m.unit_id not in self.passed
                 and m.unit_id not in skip
+                and (not elite or m.leader or m.tier)
                 and math.dist(here, (m.x, m.y)) <= CLEAR_WAY
                 and clear_shot(ground, here, (m.x, m.y), world.doors)
             ]
@@ -1760,6 +1781,8 @@ class Hunter:
         here: Point,
         skip: frozenset[object] = frozenset(),
         rooms: Sequence[Room] = (),
+        *,
+        leaders_only: bool = False,
     ) -> tuple[Point, str, int | None] | None:
         """What a full clear goes for next on the character's level: the nearest hostile in sight, else the
         nearest the tracker remembers alive where it was seen, else the first stop of the tour of the rooms not
@@ -1770,7 +1793,7 @@ class Hunter:
         assert player is not None
         area, now = player.area, run.clock()
         out = skip | set(self.passed)
-        live = [m for m in foes if m.unit_id not in out]
+        live = [m for m in foes if m.unit_id not in out and (not leaders_only or m.leader or m.tier)]
         heralds = [m for m in live if m.tier and m.leader]
         if heralds:  # a Herald first, wherever the others stand (HERALD_OMEN)
             herald = min(heralds, key=lambda m: math.dist(here, (m.x, m.y)))
@@ -1791,7 +1814,7 @@ class Hunter:
         known = self.remembered(area) if self.remembered is not None else []
         seen = {m.unit_id for m in foes}
         gone = seen | self.vanished | set(self.untouchable) | out
-        kept = [(x, y, unit) for unit, x, y, _ in known if unit not in gone]
+        kept = [(x, y, unit) for unit, x, y, leader in known if unit not in gone and (not leaders_only or leader)]
         near = [k for k in kept if math.dist(here, (k[0], k[1])) <= REMEMBERED_NEAR]
         if near:
             x, y, unit = min(near, key=lambda k: math.dist(here, (k[0], k[1])))
@@ -1842,7 +1865,12 @@ class Hunter:
             LOG.info(
                 'Macro: run: a double press of the pickup key (%.2f s apart%s): %s -> %s', last - first, late, was, then
             )
-        mode = self.mode = mode_of(area, terror, self.switched)
+        mode = (
+            Mode(True, 'TZ elite hunt', elite=True)
+            if posted is not None and posted.elite_hunt
+            else mode_of(area, terror, self.switched)
+        )
+        self.mode = mode
         if posted is not None and posted.leashed:
             line = said(mode, aim_of(self.bearings.script(area)))
             if self.mode_said != (area, line):
@@ -2412,7 +2440,7 @@ class Hunter:
                 previous(world)
             if run.clock() >= until:
                 self.expired_motion = world.player is not None and world.player.mode in RUN_MODES
-                raise Abort(f'{EXPIRED}: look again before continuing')
+                raise Expired(f'{EXPIRED}: look again before continuing')
 
         run.observe = observed
         try:
@@ -2890,7 +2918,7 @@ class Hunter:
         attack = self.attack
         seen = attack.sees(observe(player, near, companions, ground, world.doors), companions)
         jumps = () if run is None else self.travel.jumps(run, world)
-        return camp(
+        place = camp(
             seen,
             attack,
             no_footing(ground, world.doors),
@@ -2906,6 +2934,26 @@ class Hunter:
             landed=landed,
             walls=landed,
         )
+        if (
+            place is not None
+            and place.skill is not None
+            and place.skill != TELEPORT
+            and TELEPORT in world.slots
+            and run is not None
+        ):
+            # A charged staff, a missing own-skill read, or a temporarily unavailable Teleport can all leave a
+            # different jump first. Record the facts at the firing-stand decision, where the route's later
+            # Teleport log cannot explain which source was available to this look.
+            staff = run.teleport() if run.teleport is not None else None
+            own = run.own_teleport() if run.own_teleport is not None else None
+            LOG.info(
+                'Macro: firing stand jump source: chosen %d, offered %s, own Teleport %s, staff %s',
+                place.skill,
+                [jump.skill for jump in jumps],
+                own,
+                staff,
+            )
+        return place
 
     def next_step(
         self,

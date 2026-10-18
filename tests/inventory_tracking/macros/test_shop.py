@@ -323,3 +323,17 @@ def test_no_rune_is_sold_whoever_asks():
 
     assert rune in play.pack.items
     assert junk not in play.pack.items
+
+
+def test_an_item_the_players_by_its_stats_is_never_sold():
+    # The player's charm moved into the cube by hand and sold at 23:17 on 2026-10-18 (rca/2026-10-18): the stats guard
+    # (macros/volatile.py prints) holds the sale whatever the list handed to her says
+    play, junk = selling(gold=500_000)
+    run = play.run()
+    run.players_item = lambda item: item.unit_id == junk.unit_id
+
+    restock(run, sell=(junk,))
+
+    assert play.pack is not None
+    assert junk in play.pack.items
+    assert dict(play.loot.stats)[14] == 500_000

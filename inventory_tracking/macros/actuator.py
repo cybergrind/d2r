@@ -45,6 +45,10 @@ class Abort(Exception):
         self.cause: Cause | None = cause
 
 
+class Expired(Abort):
+    """An act's allowed time elapsed: observe and choose again, not a failed game input."""
+
+
 class Cancelled(Abort):
     """The run was asked to stop: by a request (runner.py) or, for attack mode, by a step that waited
     for the fight to be over. The runner tells this from a failure by the type, not the message."""

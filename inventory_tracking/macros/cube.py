@@ -307,6 +307,10 @@ def drop_item(run: Run, inventory_key: str, item: Carried, why: str) -> bool:
     """Drop the inventory's `item` at the character's feet: picked up by a click, dropped by a click on the ground left
     of the panel, checked in memory; put back where it was if it does not fall. Whether it fell. Mouse mode only; the
     panels closed after."""
+    if run.players_item is not None and run.players_item(item):
+        LOG.info("Macro: inventory: %s (%d) at (%d, %d) is the player's by its stats: never dropped", item.txt,
+                 item.unit_id, item.x, item.y)  # fmt: skip
+        return False
     rect = run.actuator.keys.focused_window_rect()
     if rect is None or run.pad is not None:
         return False

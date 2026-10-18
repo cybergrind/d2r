@@ -2,15 +2,22 @@ import threading
 import time
 from dataclasses import replace
 from pathlib import Path
+from types import SimpleNamespace
+from typing import cast
 
 import pytest
 
 from inventory_tracking.macros import runner as runner_module
 from inventory_tracking.macros.actuator import Abort, Cancelled, Flipped
+from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.hunt import Hunter
 from inventory_tracking.macros.loop import RECOVERIES, Dead
 from inventory_tracking.macros.runner import MacroRunner
-from tests.inventory_tracking.macros.fakes import BUILD, KEYS, character_of
+from inventory_tracking.macros.town import Exit
+from inventory_tracking.macros.world import GameMemory, Pack
+from inventory_tracking.routes.model import Route, level, use
+from inventory_tracking.routes.progress import Progress
+from tests.inventory_tracking.macros.fakes import BUILD, KEYS, Game, character_of, player, world
 
 
 # No key file is read here: every run is given its keys, or none is played by `_execute`.
@@ -38,6 +45,373 @@ def test_a_stale_request_starts_nothing():
     runner = make(lambda cancelled, routine: started.append(routine), [])
     assert not runner.request(10.0, 12.0)
     assert runner.thread is None
+
+
+def test_tz_actions_use_dedicated_routines_only_when_the_ordinary_runner_is_idle():
+    started = []
+    runner = make(lambda cancelled, routine: started.append(routine), [])
+    runner.area_seen = 1  # town
+    assert runner.tz_start('prebuff', 35, 10.0)
+    joined(runner)
+    assert runner.tz_start('travel', 35, 11.0)
+    joined(runner)
+    assert started == ['tz prebuff', 'tz waypoint']
+    runner.loop.on = True
+    assert not runner.tz_start('travel', 35, 12.0)
+
+
+def test_tz_target_posts_a_goal_only_level_run_and_stops_before_loot_or_exit():
+    started = []
+    runner = make(lambda cancelled, routine: started.append(routine) or cancelled.wait(5), [])
+    posted = []
+    runner.hunter = cast(Hunter, SimpleNamespace(post=posted.append, end_run=lambda *args: None))
+    runner.build = replace(BUILD, settings=BUILD.settings.model_copy(update={'pursuit': True}))
+    runner.area_seen = 35
+    assert runner.tz_start('target', 35, time.monotonic())
+    assert posted[0].rush
+    assert posted[0].looped
+    assert not posted[0].elite_hunt
+    runner._run_over('what is left of the route is loot, which takes a press')
+    joined(runner)
+    assert runner.tz_target_over is not None
+    assert runner.tz_target_over.startswith('what is left')
+    assert runner.attack_mode is False
+
+
+def test_tz_pickup_is_a_dedicated_step_and_never_starts_the_regular_level_run():
+    started = []
+    runner = make(lambda cancelled, routine: started.append(routine), [])
+    runner.area_seen = 35
+    assert runner.tz_start('loot', 35, 10.0)
+    joined(runner)
+    assert started == ['tz loot']
+
+
+def test_tz_inventory_hold_needs_warned_valuable_and_confirmed_full_grids():
+    from inventory_tracking.macros.world import VALUABLE, Drop, Loot
+
+    tal = Drop(41, 7809.0, 6667.0, 'Tal Rune', VALUABLE, source='rune')
+    full = ('##########',) * 4
+    loot = Loot(drops=(tal,), room=full, cube=('###',) * 4)
+    assert runner_module._tz_no_room_drop(loot, 41) == 'Tal Rune at (7809, 6667)'
+    assert runner_module._tz_no_room_drop(loot, 42) is None
+    assert runner_module._tz_no_room_drop(Loot(drops=(tal,), room=full), 41) is None
+    assert (
+        runner_module._tz_no_room_drop(Loot(drops=(tal,), room=full), 41, cube_tried=True) == 'Tal Rune at (7809, 6667)'
+    )
+    assert runner_module._tz_no_room_drop(Loot(drops=(tal,), room=None, cube=('###',) * 4), 41) is None
+    assert runner_module._tz_no_room_drop(Loot(drops=(tal,), room=full, cube=('...',) * 4), 41) is None
+    assert (
+        runner_module._tz_no_room_drop(Loot(drops=(tal,), room=full, cube=('...',) * 4), 41, cube_tried=True)
+        == 'Tal Rune at (7809, 6667)'
+    )
+    assert runner_module._tz_no_room_drop(Loot(drops=(tal,), room=('..........',) * 4), 41) is None
+
+
+def test_targeted_tz_pickup_requires_the_exact_ground_item_and_fresh_free_room():
+    from inventory_tracking.macros.world import VALUABLE, Drop, Loot
+
+    tal = Drop(41, 7809.0, 6667.0, 'Tal Rune', VALUABLE)
+    free = Loot(drops=(tal,), room=('.........#',) * 4, game=('cyberrd74', 1))
+    assert runner_module._tz_pickup_drop(free, 'cyberrd74', 'Tal Rune', 7809, 6667) == tal
+    assert runner_module._tz_pickup_drop(free, 'cyberrd75', 'Tal Rune', 7809, 6667) is None
+    assert runner_module._tz_pickup_drop(free, 'cyberrd74', 'Tir Rune', 7809, 6667) is None
+    assert runner_module._tz_pickup_drop(free, 'cyberrd74', 'Tal Rune', 7799, 6667) is None
+    unread = Loot(drops=(tal,), game=('cyberrd74', 1))
+    assert runner_module._tz_pickup_drop(unread, 'cyberrd74', 'Tal Rune', 7809, 6667) is None
+    full = Loot(drops=(tal,), room=('##########',) * 4, game=('cyberrd74', 1))
+    assert runner_module._tz_pickup_drop(full, 'cyberrd74', 'Tal Rune', 7809, 6667) is None
+
+
+def test_guarded_town_exit_requires_the_current_game_and_no_ground_valuable():
+    started = []
+    runner = make(lambda _cancelled, routine: started.append(routine), [])
+    runner.area_seen = 1
+    runner.place = lambda: ('cyberrd74', 1)
+    runner.valuable_left = lambda: None
+    assert not runner.guarded_town_exit(10.0, 10.1, 'cyberrd75')
+    runner.valuable_left = lambda: 'unread'
+    assert not runner.guarded_town_exit(10.0, 10.1, 'cyberrd74')
+    runner.valuable_left = lambda: None
+    runner.attack_mode = True
+    assert not runner.guarded_town_exit(10.0, 10.1, 'cyberrd74')
+    runner.attack_mode = False
+    assert runner.guarded_town_exit(10.0, 10.1, 'cyberrd74')
+    joined(runner)
+    assert started == ['guarded town exit']
+
+
+def test_guarded_town_exit_refuses_a_remembered_out_of_sight_valuable():
+    from inventory_tracking.macros.sightings import Sighting
+
+    runner = make(lambda _cancelled, _routine: None, [])
+    runner.area_seen = 1
+    runner.place = lambda: ('cyberrd75', 1)
+    runner.valuable_left = lambda: None  # the current town view has no drop
+    runner.sightings.game = ('cyberrd75', 1)
+    runner.sightings.items[88] = Sighting(88, 'Unique Ballista', 22550, 9549, 37, 10.0)
+
+    assert not runner.guarded_town_exit(10.0, 10.1, 'cyberrd75')
+
+
+def test_tz_leave_refuses_remembered_valuable_even_when_loop_is_off(monkeypatch):
+    from inventory_tracking.macros import routines
+    from inventory_tracking.macros.sightings import Sighting
+
+    play = Game(world(9, player=player(9)))
+    run = play.run()
+    runner = make(lambda _cancelled, _routine: None, [])
+    runner.tz_area = 9
+    runner.sightings.game = ('cyberrd75', 1)
+    runner.sightings.items[88] = Sighting(88, 'Unique Ballista', 22550, 9549, 37, 10.0)
+    monkeypatch.setattr(runner, 'choosing', lambda _run: None)
+    left = []
+    monkeypatch.setattr(routines, 'leave_game', lambda _run: left.append(True))
+
+    with pytest.raises(Abort, match='valuable ground loot remains'):
+        runner.perform(run, run.actuator, runner_module.TZ_LEAVE, KEYS)
+
+    assert not left
+
+
+def test_guarded_town_exit_rechecks_game_town_and_ground_before_leave(monkeypatch):
+    from inventory_tracking.macros import routines
+    from inventory_tracking.macros.actuator import Abort
+
+    runner = make(lambda _cancelled, routine: None, [])
+    runner.guarded_exit_game = 'cyberrd74'
+    runner.valuable_left = lambda: None
+    state = {'game': 'cyberrd74', 'area': 1, 'town': True}
+    run = SimpleNamespace(
+        world=lambda: SimpleNamespace(
+            game_name=state['game'],
+            player=SimpleNamespace(area=state['area'], in_town=state['town']),
+        )
+    )
+    calls = []
+    monkeypatch.setattr(routines, 'leave_game', lambda _run: calls.append('leave'))
+    runner._guarded_town_exit(cast(Run, run))
+    assert calls == ['leave']
+    state['area'] = 9
+    with pytest.raises(Abort, match='Rogue Encampment'):
+        runner._guarded_town_exit(cast(Run, run))
+    assert calls == ['leave']
+
+
+def test_targeted_tz_pickup_approaches_its_unit_and_never_invokes_a_seek_fallback(monkeypatch):
+    from inventory_tracking.macros.world import VALUABLE, Drop, Loot
+
+    tal = Drop(41, 7809.0, 6667.0, 'Tal Rune', VALUABLE)
+    drops = [tal]
+    run = SimpleNamespace(
+        world=lambda: SimpleNamespace(
+            game_name='cyberrd74', player=SimpleNamespace(area=9, x=7810.0, y=6668.0), monsters=()
+        ),
+        loot=lambda: Loot(tuple(drops), room=('.........#',) * 4, game=('cyberrd74', 1)),
+        say=lambda message: None,
+    )
+    runner = make(lambda cancelled, routine: None, [])
+    runner.tz_pickup_spec = ('cyberrd74', 9, 'Tal Rune', 7809.0, 6667.0, (1, 1))
+    runner.hunter = cast(Hunter, SimpleNamespace(level=lambda: SimpleNamespace(area=9)))
+    actions: list[tuple] = []
+    monkeypatch.setattr(runner_module, 'approach', lambda *args: actions.append(('approach', args[-1])))
+
+    def take(_run, _level, _keys, otherwise, *, unit):
+        actions.append(('pickup', unit))
+        drops.clear()
+        return True
+
+    monkeypatch.setattr(runner_module, 'pick_up', take)
+    runner._tz_targeted_pickup(cast(Run, run), lambda *args: {})
+    assert actions == [('approach', runner_module.FETCH_HOPS), ('pickup', 41)]
+
+
+def test_targeted_tz_pickup_routes_to_unloaded_coordinate_then_requires_the_exact_drop(monkeypatch):
+    from inventory_tracking.macros.world import VALUABLE, Drop, Loot
+
+    boots = Drop(41, 7755.0, 6709.0, 'Magic Demonhide Boots', VALUABLE, size=(2, 2))
+    drops = []
+    rooms = ('..########', '..########', '##########', '##########')
+    run = SimpleNamespace(
+        world=lambda: SimpleNamespace(
+            game_name='cyberrd74', player=SimpleNamespace(area=9, x=7810.0, y=6668.0), monsters=()
+        ),
+        loot=lambda: Loot(tuple(drops), room=rooms, game=('cyberrd74', 1)),
+        say=lambda message: None,
+    )
+    runner = make(lambda cancelled, routine: None, [])
+    runner.tz_pickup_spec = ('cyberrd74', 9, 'Magic Demonhide Boots', 7755.0, 6709.0, (2, 2))
+    runner.hunter = cast(Hunter, SimpleNamespace(level=lambda: SimpleNamespace(area=9)))
+    actions: list[tuple] = []
+
+    def route(_run, target, _level, _keys, hops):
+        actions.append(('approach', target.x, target.y, hops))
+        drops.append(boots)
+
+    def take(_run, _level, _keys, otherwise, *, unit):
+        actions.append(('pickup', unit))
+        drops.clear()
+        return True
+
+    monkeypatch.setattr(runner_module, 'approach', route)
+    monkeypatch.setattr(runner_module, 'pick_up', take)
+    runner._tz_targeted_pickup(cast(Run, run), lambda *args: {})
+    assert actions == [('approach', 7755.0, 6709.0, runner_module.FETCH_HOPS), ('pickup', 41)]
+
+
+def test_targeted_tz_pickup_does_not_click_when_drop_is_still_unread_after_approach(monkeypatch):
+    from inventory_tracking.macros.actuator import Abort
+    from inventory_tracking.macros.world import Loot
+
+    run = SimpleNamespace(
+        world=lambda: SimpleNamespace(
+            game_name='cyberrd74', player=SimpleNamespace(area=9, x=7810.0, y=6668.0), monsters=()
+        ),
+        loot=lambda: Loot(room=('..########', '..########', '##########', '##########'), game=('cyberrd74', 1)),
+    )
+    runner = make(lambda cancelled, routine: None, [])
+    runner.tz_pickup_spec = ('cyberrd74', 9, 'Magic Demonhide Boots', 7755.0, 6709.0, (2, 2))
+    runner.hunter = cast(Hunter, SimpleNamespace(level=lambda: SimpleNamespace(area=9)))
+    actions = []
+    monkeypatch.setattr(runner_module, 'approach', lambda *args: actions.append('approach'))
+    monkeypatch.setattr(runner_module, 'pick_up', lambda *args, **kwargs: actions.append('pickup'))
+    with pytest.raises(Abort, match=r'not loaded.*on arrival'):
+        runner._tz_targeted_pickup(cast(Run, run), lambda *args: {})
+    assert actions == ['approach']
+
+
+@pytest.mark.parametrize(
+    ('room', 'hostiles', 'reason'),
+    [
+        (('##########',) * 4, 0, 'no fitting 2x2 inventory room'),
+        (('..########', '..########', '##########', '##########'), 1, 'hostiles near'),
+    ],
+)
+def test_targeted_tz_pickup_refuses_to_move_without_room_or_in_combat(monkeypatch, room, hostiles, reason):
+    from inventory_tracking.macros.actuator import Abort
+    from inventory_tracking.macros.world import Loot
+
+    run = SimpleNamespace(
+        world=lambda: SimpleNamespace(
+            game_name='cyberrd74', player=SimpleNamespace(area=9, x=7810.0, y=6668.0), monsters=()
+        ),
+        loot=lambda: Loot(room=room, game=('cyberrd74', 1)),
+    )
+    runner = make(lambda cancelled, routine: None, [])
+    runner.tz_pickup_spec = ('cyberrd74', 9, 'Magic Demonhide Boots', 7755.0, 6709.0, (2, 2))
+    runner.hunter = cast(Hunter, SimpleNamespace(level=lambda: SimpleNamespace(area=9)))
+    actions = []
+    monkeypatch.setattr(runner_module, 'threat', lambda _run: lambda _here, _spot: hostiles)
+    monkeypatch.setattr(runner_module, 'approach', lambda *args: actions.append('approach'))
+    with pytest.raises(Abort, match=reason):
+        runner._tz_targeted_pickup(cast(Run, run), lambda *args: {})
+    assert not actions
+
+
+def test_tz_session_actions_have_separate_guarded_routines():
+    started = []
+    runner = make(lambda _cancelled, routine: started.append(routine), [])
+    runner.area_seen = 1
+    runner.place = lambda: ('cyber1', 1)
+    assert runner.tz_start('restock', 4, 10.0, game='cyber1')
+    joined(runner)
+    runner.area_seen = 38
+    runner.place = lambda: ('cyber1', 38)
+    assert runner.tz_start('return-town', 38, 11.0, game='cyber1')
+    joined(runner)
+    assert runner.tz_start('leave', 38, 12.0, game='cyber1')
+    joined(runner)
+    runner.area_seen = None
+    runner.progress = Progress(())
+    runner.place = lambda: (None, None)
+    assert runner.tz_start('create', 0, 13.0, game='cyber1')
+    joined(runner)
+    assert started == ['tz supply', 'tz return town', 'tz leave', 'tz create']
+    assert runner.tz_game == 'cyber1'
+
+
+def test_tz_supply_uses_the_shared_visit_and_returns_to_its_original_town(monkeypatch):
+    from inventory_tracking.macros import waypoint
+
+    play = Game(world(1, player=player(1)))
+    run = play.run()
+    runner = make(lambda _cancelled, _routine: None, [])
+    monkeypatch.setattr(runner, 'choosing', lambda _run: None)
+    monkeypatch.setattr(runner_module, 'note_view', lambda *_args: None)
+    traveled = []
+    visited = []
+
+    def travel(_run, area, _marks):
+        traveled.append(area)
+        current = play.world.player
+        assert current is not None
+        play.world = replace(play.world, player=replace(current, area=area))
+
+    monkeypatch.setattr(waypoint, 'travel', travel)
+    monkeypatch.setattr(runner, '_shared_town_visit', lambda _run, exit, **kw: visited.append((exit, kw)))
+
+    runner.perform(run, run.actuator, runner_module.TZ_SUPPLY, KEYS)
+
+    assert traveled == [103, 1]
+    assert visited == [(Exit.WAYPOINT, {'tz': True})]
+    returned = play.world.player
+    assert returned is not None
+    assert returned.area == 1
+
+
+def test_loop_town_callback_uses_the_same_shared_visit(monkeypatch):
+    play = Game(world(103, player=player(103)))
+    run = play.run()
+    runner = make(lambda _cancelled, _routine: None, [])
+    monkeypatch.setattr(runner, 'choosing', lambda _run: None)
+    monkeypatch.setattr(runner_module, 'note_view', lambda *_args: None)
+    visited = []
+    monkeypatch.setattr(runner, '_shared_town_visit', lambda _run, exit, _gems: visited.append(exit))
+    monkeypatch.setattr(runner.loop, 'leg', lambda *_args, **kwargs: kwargs['visit'](Exit.WAYPOINT))
+
+    runner.perform(run, run.actuator, runner_module.LOOP, KEYS)
+
+    assert visited == [Exit.WAYPOINT]
+
+
+def test_tz_shared_visit_uses_current_portal_and_ignores_stale_loop_supplies(monkeypatch):
+    from inventory_tracking.macros.portal import FROM_SLING, FROM_TOME
+
+    play = Game(world(103, player=player(103)))
+    play.pack = Pack()
+    runner = make(lambda _cancelled, _routine: None, [])
+    runner.loop.portal = FROM_SLING
+    runner.loop.full = {123}
+    captured = []
+    monkeypatch.setattr(runner_module, 'portal_source', lambda _run: FROM_TOME)
+
+    def visit(_run, _hands, needs, _own, _exit, **kwargs):
+        captured.append((needs, kwargs['full']))
+        return SimpleNamespace(
+            full=frozenset(), repair_failed=False, contract=SimpleNamespace(stash_full=(), misses=())
+        )
+
+    monkeypatch.setattr(runner_module, 'visit', visit)
+
+    runner._shared_town_visit(play.run(), Exit.WAYPOINT, tz=True)
+
+    assert captured[0][0].portals is FROM_TOME
+    assert captured[0][0].keys == 12
+    assert captured[0][1] == frozenset()
+    assert runner.loop.full == {123}
+
+
+def test_tz_onward_requires_route_stage_pointing_to_destination():
+    started = []
+    runner = make(lambda _cancelled, routine: started.append(routine), [])
+    runner.area_seen = 4
+    runner.place = lambda: ('cyber1', 4)
+    runner.progress = Progress((Route('Tristram', (4,), (level(4, use('Tristram', 38)),)),))
+    assert runner.tz_start('travel', 38, 10.0, game='cyber1')
+    joined(runner)
+    assert started == ['tz onward']
+    runner.progress = Progress((Route('wrong', (4,), (level(4, use('other portal', 37)),)),))
+    assert not runner.tz_start('travel', 38, 11.0, game='cyber1')
 
 
 def test_a_press_during_a_run_cancels_it(monkeypatch):
@@ -985,6 +1359,25 @@ def test_the_macro_request_prebuffs_by_the_chosen_build_and_asks_for_its_keys():
     assert play.said[-1] == 'Prebuff done'
 
 
+def test_tz_prebuff_loads_character_skill_keys_before_the_first_cast():
+    from inventory_tracking.builds.warlock.skills import SUMMON_DEFILER
+    from inventory_tracking.macros.routines import prebuff_keys
+    from tests.inventory_tracking.macros.fakes import KEYS, Game, world
+
+    play, asked = Game(world()), []
+    runner, run, _ = building(play)
+    run.keys = {}
+
+    def key_names(found, skills=None):
+        asked.append(prebuff_keys(run.build) if skills is None else skills)
+        return dict(KEYS)
+
+    runner.perform(run, run.actuator, 'tz prebuff', key_names)
+    assert SUMMON_DEFILER in run.keys
+    assert asked == [prebuff_keys(BUILD)]
+    assert play.pressed() == ['q', '6', 'q', 'g', 'r']
+
+
 @pytest.mark.parametrize('strike', [False, True])
 def test_the_macro_request_of_a_character_without_weapon_sets_stops_as_it_did(strike):
     from inventory_tracking.builds.generic import GENERIC
@@ -1406,14 +1799,14 @@ def test_the_loop_goes_back_for_a_valuable_it_saw_and_no_press_picked_up(monkeyp
     )
     runner = make(lambda cancelled, routine: None, [])
     emerald = Loot(drops=(Drop(41, 5798.0, 2870.0, 'Flawless Emerald', VALUABLE),), game=('g', 7))
-    runner._sighted(_Memory(), emerald)  # the loop off: nothing is noted
+    runner._sighted(cast(GameMemory, _Memory()), emerald)  # the loop off: nothing is noted
     assert runner.sightings.left() is None
     runner.loop.on = True
-    runner._sighted(_Memory(), emerald)
-    runner._sighted(_Memory(), Loot(game=('g', 7)))  # out of the read
+    runner._sighted(cast(GameMemory, _Memory()), emerald)
+    runner._sighted(cast(GameMemory, _Memory()), Loot(game=('g', 7)))  # out of the read
     assert runner.sightings.left() == 'Flawless Emerald at (5798, 2870)'
-    assert not runner._fetch(_Run(0.0, 0.0, 75), None, KEYS)  # not in its level: no trip
-    assert runner._fetch(_Run(5695.0, 2857.0, 79), None, KEYS)
+    assert not runner._fetch(cast(Run, _Run(0.0, 0.0, 75)), None, KEYS)  # not in its level: no trip
+    assert runner._fetch(cast(Run, _Run(5695.0, 2857.0, 79)), None, KEYS)
     assert gone_to == [('Flawless Emerald', FETCH_HOPS)]  # the whole way (a Flawless Topaz 92 short, 13:15:37)
     runner.close()
 
@@ -1480,7 +1873,7 @@ def test_a_restart_keeps_the_valuables_seen_and_still_on_the_ground():
     runner = make(lambda cancelled, routine: None, [])
     runner.loop.on = True
     topaz = Loot(drops=(Drop(41, 22628.0, 6700.0, 'Flawless Topaz', VALUABLE),), game=('cyber9', 7))
-    runner._sighted(_Memory(), topaz)
+    runner._sighted(cast(GameMemory, _Memory()), topaz)
     runner.sightings.items[41].tries = 2  # its trips back spent (15:53:19 on 2026-10-18: a Ring)
     state = json.loads(json.dumps(runner.resume_state()))  # as appraisal/service.py `write_resume` keeps it
     runner.close()
@@ -1946,3 +2339,40 @@ def test_a_named_room_cause_takes_the_room_rules_whatever_the_words():
     assert runner.loop.drop_room
     assert runner.loop.fetch_again is None
     runner.close()
+
+
+def test_a_farming_visit_short_of_its_contract_hands_it_to_the_loop_and_does_not_stop(monkeypatch):
+    """The loop's visit as it was through 2026-10-18 (84.6 kills an hour): a miss is the loop's to weigh (a trip, the
+    next visit), never a stop of its own (the stop at every miss stood the loop on 2026-10-19)."""
+    from inventory_tracking.macros.town import Contract
+
+    play = Game(world(103, player=player(103)))
+    runner = make(lambda _cancelled, _routine: None, [])
+    runner.loop.own = frozenset()
+    short = Contract(0, False, 0, 0, 11, 'from the Sling', 0, misses=('block 2x4 taken',))
+    monkeypatch.setattr(
+        runner_module,
+        'visit',
+        lambda *a, **k: SimpleNamespace(full=frozenset(), repair_failed=False, contract=short),
+    )
+    assert runner._shared_town_visit(play.run(), Exit.PORTAL) == short
+    runner.close()
+
+
+def test_shared_town_visit_accepts_explicitly_deferred_cube_keeper(monkeypatch):
+    from inventory_tracking.macros.town import Contract
+
+    play = Game(world(103, player=player(103)))
+    runner = make(lambda _cancelled, _routine: None, [])
+    runner.loop.own = frozenset()
+    done = Contract(1, True, 1, 0, 12, 'from the Sling', 0, deferred=('set Boots',))
+    monkeypatch.setattr(
+        runner_module,
+        'visit',
+        lambda *a, **k: SimpleNamespace(
+            full=frozenset(),
+            repair_failed=False,
+            contract=done,
+        ),
+    )
+    assert runner._shared_town_visit(play.run(), Exit.PORTAL) == done

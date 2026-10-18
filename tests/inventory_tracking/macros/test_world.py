@@ -688,3 +688,9 @@ def test_the_stash_view_orders_the_shared_pages_and_drops_the_resource_tabs_owne
     assert view.said() == 'pages free 0:99 1:0 2:100 3:100 4:100 5:98; full stacks Tal Rune'
     # A shared page missing: no view (the pages' numbers would be told wrong)
     assert stash_view_of(main, shared[1:], grids, items) is None
+    # A shared page emptied (the player's mules, 20:18 on 2026-10-18) has no grid allocated: an empty page, not no view
+    emptied = {**grids, 50: {}}
+    again = stash_view_of(main, [*shared, party], emptied, [i for i in items if i['unit_id'] != 902])
+    assert again is not None
+    assert [page.free for page in again.pages] == [99, 0, 100, 100, 100, 100]
+    assert again.full() == {631}

@@ -474,6 +474,28 @@ def test_the_junk_moved_into_the_cube_is_sold_at_jamella(monkeypatch, caplog):
     assert "Macro: cube: 1 of 1 junk items put in for Jamella: room for the cube's Embossed Plate" in caplog.text
 
 
+def test_the_players_item_by_its_stats_in_the_cube_is_kept_not_sold(monkeypatch, caplog):
+    # 23:16:58 on 2026-10-18: the player's Kriss and +35 Life charm, put in the cube by hand, appraised vendor and sold.
+    # The cube is the loop's (the player, 2026-10-19), but an item whose stats are one of the player's
+    # (macros/volatile.py prints) is never junk: kept, never offered to Jamella
+    from tests.inventory_tracking.macros.test_town import BLOCK_BUT_ONE, grid
+
+    ring = replace(thing(60, 'Ring', 4, 2), quality=4)
+    rings = [replace(thing(61 + n, 'Ring', x, 3), quality=4) for n, x in enumerate((3, 4))]
+    pack, own = grid(BLOCK_BUT_ONE, [ring, *rings])
+    play = fortress(replace(pack, keys=24), [FULL_PAGE] * 5 + [OPEN_PAGE])
+    town = Town(monkeypatch, play, frozenset({60, 61, 62}))
+    town.run = play.run()
+    town.run.players_item = lambda item: item.unit_id == 60
+
+    with caplog.at_level('INFO'):
+        visit(town.run, town.hands(), LK_NEEDS, own, Exit.WAYPOINT)
+
+    assert 60 not in town.sold
+    assert sorted(town.sold) == [61, 62]
+    assert "the player's by their stats: kept, not sold" in caplog.text
+
+
 @pytest.mark.parametrize(
     ('case', 'keepers', 'name'), [('1505', (51, 53), 'Boots'), ('1514', (50, 41, 53), 'Serpentskin Armor')]
 )
@@ -938,3 +960,70 @@ def test_a_rune_whose_gem_is_missing_is_skipped_with_one_line(monkeypatch, caplo
         )
         == 1
     )
+
+
+def test_unread_stash_retries_a_large_cube_keeper_after_inventory_keepers_make_room(monkeypatch):
+    # 20:48:36 on 2026-10-18: a 2x3 Humongous stayed in the cube even though the scan stored five keepers and
+    # finished with a 2x4 inventory block free. The scan needs a second opening in place while still at the stash.
+    rings = tuple(thing(100 + n, 'Ring', 6 + n % 4, n // 4) for n in range(12))
+    axe = replace(thing(50, 'Giant Axe', 0, 0), quality=7)
+    pack = Pack((THE_CUBE, *OWN_CHARMS, *rings), ('##.', '##.', '##.', '...'), frozenset({50}), (axe,), keys=24)
+    play = fortress(pack, [OPEN_PAGE] * 6)
+    town = Town(monkeypatch, play)
+    town.hands = lambda: Hands(lambda: 'i', town.identify, lambda items: [], lambda: None)
+
+    done = town.visit(Exit.LEAVE)
+
+    assert done.contract.misses == ()
+    assert carried(play).in_cube == ()
+    assert any(axe.unit_id in items for items in play.page_items.values())
+    assert play.stash_opened == 2
+
+
+def test_unread_stash_moves_junk_aside_for_a_cube_keeper_before_jamella(monkeypatch):
+    # 21:03:47 on 2026-10-18: the unread scan stored six items, but junk rings at (3,1) and (3,2)
+    # still blocked a 2x3 Humongous. Jamella sold them afterward, leaving the axe in the cube.
+    fixed = tuple(
+        thing(300 + y * 10 + x, 'Small Charm', x, y)
+        for y in range(4)
+        for x in range(10)
+        if x in (2, 5, 6, 7, 8, 9) or (y >= 2 and x in (0, 1))
+    )
+    rings = tuple(
+        thing(100 + n, 'Ring', x, y) for n, (x, y) in enumerate(((3, 0), (4, 0), (4, 1), (4, 2), (3, 3), (4, 3)))
+    )
+    junk = (thing(201, 'Ring', 3, 1), thing(202, 'Ring', 3, 2))
+    axe = replace(thing(50, 'Giant Axe', 0, 0), quality=7)
+    pack = Pack((THE_CUBE, *fixed, *rings, *junk), ('##.', '##.', '##.', '...'),
+                frozenset({50}), (axe,), keys=24)  # fmt: skip
+    play = fortress(pack, [OPEN_PAGE] * 6)
+    town = Town(monkeypatch, play, frozenset(i.unit_id for i in junk))
+    town.hands = lambda: Hands(lambda: 'i', town.identify, lambda items: [i for i in items if i.unit_id in town.junked],
+                               lambda: None)  # fmt: skip
+    town.run = play.run()
+
+    done = visit(town.run, town.hands(), LK_NEEDS, own_of((THE_CUBE, *fixed)), Exit.LEAVE)
+
+    assert town.stops() == ['jamella']  # the unread scan opens the stash through its own macro
+    assert done.contract.misses == ()
+    assert carried(play).in_cube == ()
+    assert any(axe.unit_id in items for items in play.page_items.values())
+    assert sorted(town.sold) == [201, 202]
+
+
+def test_a_refusal_with_the_stash_unread_is_no_full_stack_and_the_item_stays_carried(monkeypatch, caplog):
+    # 22:14 on 2026-10-18: the scan's refused Deep Worldstone Shard was taken for a full stack (it held 83): dropped in
+    # town, kept in FULL_FILE, and every Deep Shard after was left on the ground (01:59 on 2026-10-19)
+    shard = thing(70, 'Deep Worldstone Shard', 6, 0)
+    pack = Pack((THE_CUBE, *OWN_CHARMS, shard), ('...', '...', '...', '...'), keys=24)
+    play = fortress(pack, [OPEN_PAGE] * 6)
+    play.stash_refuses = {shard.txt}
+    town = Town(monkeypatch, play)
+    town.hands = lambda: Hands(lambda: 'i', town.identify, lambda items: [], lambda: None)
+
+    with caplog.at_level('INFO'):
+        done = town.visit(Exit.LEAVE)
+
+    assert shard.txt not in done.full
+    assert any(i.unit_id == 70 for i in carried(play).items)
+    assert 'refused with the stash unread, kept carried, not counted full: Deep Worldstone Shard' in caplog.text

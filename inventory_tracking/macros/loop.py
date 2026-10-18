@@ -21,7 +21,7 @@ import json
 import math
 import time
 from collections import Counter
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import NamedTuple
@@ -41,6 +41,7 @@ from inventory_tracking.macros.charms import (
     park,
 )
 from inventory_tracking.macros.cube import (
+    KEPT,
     SURE_BLOCK,
     inventory_rows,
     loot,
@@ -60,8 +61,17 @@ from inventory_tracking.macros.shop import KEYS_ONE_STACK, KEYS_WANTED, gold_cap
 from inventory_tracking.macros.stash import INVENTORY_CELLS, RESOURCES
 from inventory_tracking.macros.town import GEMS_A_KIND, TRADE_ROOM, Exit, sold_full, surplus, tops_up
 from inventory_tracking.macros.visit import Remembered
+from inventory_tracking.macros.volatile import (
+    STORE_FILE,
+    Cell,
+    Volatile,
+    empty,
+    own_of as players_of,
+    picture,
+    print_of,
+)
 from inventory_tracking.macros.waypoint import travel
-from inventory_tracking.macros.world import Carried, World
+from inventory_tracking.macros.world import Carried, Pack, World
 from inventory_tracking.routes.model import FIGHT, LOOT, USE
 from inventory_tracking.routes.progress import Progress
 from inventory_tracking.terror.bosses import KILLED_AT
@@ -238,6 +248,10 @@ class Loop:
     # inventory - seems not working. or working not always")
     mine: frozenset[tuple[int, int, int]] = frozenset()
     store: Path | None = None
+    # The player's protected inventory cells (macros/volatile.py) are kept per character in STORE_FILE beside `store`;
+    # `own` is told from them at every leg; `printed`: the `own` whose items' stats were last learnt
+    printed: frozenset[tuple[int, int, int]] | None = None
+    character: str | None = None
     # The keys or the Town Portal charges under shop.py MIN_STOCK at the last leg's look: Jamella first (phase 8)
     short: bool = False
     # How the character casts Town Portal at the last look in a game (macros/portal.py `portal_source`): the Sling's
@@ -325,7 +339,7 @@ class Loop:
     def start(self) -> None:
         self.full |= self._full_stored()
         self.on, self.made, self.own, self.abandon, self.seen, self.moved = True, Counter(), None, False, None, None
-        self.counted_in, self.placed, self.portal = None, False, None
+        self.counted_in, self.placed, self.portal, self.printed = None, False, None, None
 
     def recover(self, why: object, now: float) -> bool:
         """Whether the loop goes on after `why` stopped a leg, by leaving the game: not with the character dead.
@@ -389,6 +403,54 @@ class Loop:
         if mine != self.mine:
             self.mine = mine
             self._keep(name)
+
+    @property
+    def volatile(self) -> Volatile:
+        return Volatile(self.store.parent / STORE_FILE if self.store is not None else None)
+
+    def protected(self, pack: Pack, name: str, loose: frozenset[tuple[int, int, int]]) -> frozenset[Cell]:
+        """The character's protected cells as kept; none kept, seeded from `pack` (the player's items told apart as
+        `sort` tells them at the loop's first look: neither the loop's stored items nor `loose`)."""
+        store = self.volatile
+        cells = store.protected(name)
+        if cells is None:
+            self.mine = self.mine or self._stored(name)
+            theirs = (own_of(pack.items) - self.mine - loose) | {(i.txt, i.x, i.y) for i in pack.items if i.txt in KEPT}
+            cells = store.seed(name, [i for i in pack.items if (i.txt, i.x, i.y) in theirs], "the loop's first look")
+        return cells
+
+    def tell(
+        self,
+        pack: Pack,
+        name: str,
+        loose: frozenset[tuple[int, int, int]] = frozenset(),
+        item_stats: Stats | None = None,
+    ) -> None:
+        """`own` at every leg: the inventory's items on the player's protected cells (macros/volatile.py); the cube's
+        and the volatile cells' are the loop's. The stats of the player's items learnt whenever `own` changes."""
+        first = self.own is None
+        cells = self.protected(pack, name, loose)
+        self.own, self.character = players_of(pack, cells), name
+        if first:
+            LOG.info("Macro: loop: volatile cells %s ('#' the player's); %d of the player's items; protected cells "
+                     'empty: %s', picture(cells), len(self.own), sorted(empty(pack, cells)) or 'none')  # fmt: skip
+        if item_stats is None or self.own == self.printed:
+            return
+        self.printed = self.own
+        found = []
+        for item in pack.items:
+            if (item.txt, item.x, item.y) in self.own and item.txt not in KEPT:
+                stats = item_stats(item.unit_id)
+                if stats:
+                    found.append(print_of(item, stats))
+        if new := self.volatile.learn(name, found):
+            LOG.info("Macro: volatile cells: %d more of the player's items known by their stats", new)
+
+    def players_item(self, item: Carried, stats: Mapping[int, int]) -> bool:
+        """Whether `item` is one of the player's by its stats (macros/volatile.py `prints`): never sold nor dropped."""
+        from inventory_tracking.macros.volatile import is_players
+
+        return self.store is not None and is_players(item, stats, self.volatile.prints(self.character))
 
     def visit_due(self, game: str) -> bool:
         """Whether a town visit is due in `game` (once: `visited`): the room low (TRADE_ROOM; a trip for room whatever
@@ -587,7 +649,10 @@ class Loop:
             loose = frozenset(
                 (i.txt, i.x, i.y) for i in pack.items if (not i.identified and i.quality >= MAGIC) or i.txt in RESOURCES
             )
-            self.sort(own_of(pack.items), world.player.name, loose)
+            if self.store is not None:
+                self.tell(pack, world.player.name, loose, item_stats)  # the kept volatile cells (macros/volatile.py)
+            else:
+                self.sort(own_of(pack.items), world.player.name, loose)  # no store (tests): the first look's
         items = loot(pack, self.own) if pack and self.own else []
         in_town = world.player is not None and world.player.area == PANDEMONIUM_FORTRESS
         if self.parked is not None and pack is not None:

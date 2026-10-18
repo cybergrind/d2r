@@ -644,6 +644,7 @@ def corpses(read, table: int) -> tuple[tuple[int, float, float], ...]:
 INVENTORY_GRID = 2  # the carried inventory among a player's grids (collection/capture.py GRID_CONTAINERS)
 CUBE_GRID = 5  # the Horadric Cube's (the same table)
 STASH_GRID = 6  # the personal stash page's, 10 x 10 (the same table)
+PAGE_SIDE = 10  # a stash page's columns and rows
 
 
 @functools.cache
@@ -791,6 +792,11 @@ def stash_view_of(
         return replace(item, quality=entry['quality'], identified=entry['identified'], unique=entry['unique'])
 
     def page(index: int, owner: int, grid: dict | None) -> Page | None:
+        if grid is None and index > 0:
+            # A shared page with no item has no grid allocated, as an empty cube has none (65cfebc): an empty page.
+            # Read as no view, it left the stash unread at every visit from 20:18 on 2026-10-18 (the player emptied
+            # shared page 5 for the mules), and the scan's guesses marked the Deep Worldstone Shards full
+            return Page(index, ('.' * PAGE_SIDE,) * PAGE_SIDE, owner)
         rows = grid_rows(grid)
         if grid is None or rows is None:
             return None

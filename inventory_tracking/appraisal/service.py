@@ -43,6 +43,7 @@ import time
 from collections import deque
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import ExitStack, contextmanager, nullcontext, suppress
+from dataclasses import replace
 from functools import partial
 from pathlib import Path
 from tempfile import mkdtemp
@@ -128,13 +129,22 @@ from inventory_tracking.macros.runner import (
     MacroRunner,
 )
 from inventory_tracking.macros.skills import NAMES as SKILL_NAMES
-from inventory_tracking.macros.world import observe_things
+from inventory_tracking.macros.world import next_name, observe_things
 from inventory_tracking.native.process import find_game_processes
 from inventory_tracking.native.session import GameNotReady, GameProcessUnavailable
 from inventory_tracking.osd.__main__ import positive_float
 from inventory_tracking.reports import create_run, publish
 from inventory_tracking.routes.catalog import ROUTES
 from inventory_tracking.routes.progress import Progress
+from inventory_tracking.routes.tz_leveling import (
+    TOWER_GROUP_ITINERARY,
+    Capability,
+    Config as TzConfig,
+    Coordinator as TzCoordinator,
+    route_inventory,
+)
+from inventory_tracking.routes.tz_pilot import receipt_path, validated_receipt
+from inventory_tracking.routes.tz_runtime import TzRuntime
 from inventory_tracking.shop.service import REQUEST_PREFIX as SHOP_PREFIX, ShopWorker, triage_stock
 from inventory_tracking.terror.bosses import BossTracker
 from inventory_tracking.terror.probe import TerrorProbe
@@ -326,6 +336,70 @@ def publish_request(directory, record: dict[str, Any], *, notifications=True):
 
 
 PAD_PREFIX = 'pad '  # request.py PREFIXES['pad']
+TZ_LOOP_PREFIX = 'tz-loop '  # separate disabled TZ coordinator
+TZ_PICKUP_PREFIX = 'tz-pickup '  # one guarded ground item; no pursuit or game exit
+SAFE_EXIT_PREFIX = 'safe-exit '  # explicit named-game town exit; no loop continuation
+
+
+def tz_active_arm(path: Path) -> tuple[tuple[int, ...], str, int] | None:
+    """An explicit restart-safe active TZ arm; the separate request still starts play."""
+    if not path.exists():
+        return None
+    saved = json.loads(path.read_text(encoding='utf-8'))
+    if not isinstance(saved, dict) or set(saved) != {'source', 'itinerary', 'last_game', 'max_games'}:
+        raise ValueError(f'invalid TZ arm file: {path}')
+    itinerary = saved['itinerary']
+    if (
+        saved['source'] != 'active'
+        or itinerary not in ([4, 38], [3, 9, 13], list(TOWER_GROUP_ITINERARY))
+        or type(saved['max_games']) is not int
+    ):
+        raise ValueError(f'invalid active TZ arm: {path}')
+    last_game, max_games = saved['last_game'], saved['max_games']
+    if not isinstance(last_game, str) or max_games < 1:
+        raise ValueError(f'invalid TZ game limit or lobby name: {path}')
+    if (
+        max_games > 1
+        and tuple(itinerary) in ((3, 9, 13), TOWER_GROUP_ITINERARY)
+        and not validated_receipt(receipt_path(path.parent, tuple(itinerary)), tuple(itinerary))
+    ):
+        raise ValueError(f'active TZ pilot receipt missing or invalid: {path}')
+    next_name(last_game)  # the game creator's own name rule
+    return tuple(itinerary), last_game, max_games
+
+
+def tz_active_setup(
+    itinerary: tuple[int, ...], max_games: int, pilot_receipt: Path | None = None
+) -> tuple[TzConfig, dict[int, Capability]]:
+    """Promote only the explicit service arm's routes; the catalog remains conservative.
+
+    Cave and the Tower group require a verified played pilot before multiple games.
+    Their bosses and chests must still be observed by the runtime each game.
+    """
+    evidence = {
+        (4, 38): '20261017T200134Z-7985852c/probe.log',
+        (3, 9, 13): 'one-shot validation; 20261017T193656Z-531cb41e/probe.log',
+        TOWER_GROUP_ITINERARY: 'one-shot validation; Countess 20261011T182536Z-48660a16/probe.log; Hole unplayed',
+    }
+    if itinerary not in evidence or max_games < 1:
+        raise ValueError('invalid active TZ itinerary or game limit')
+    if max_games > 1 and itinerary in ((3, 9, 13), TOWER_GROUP_ITINERARY):
+        if pilot_receipt is None or not validated_receipt(pilot_receipt, itinerary):
+            raise ValueError('active TZ pilot receipt missing or invalid')
+        evidence[itinerary] = f'played pilot receipt: {pilot_receipt}'
+    caps = route_inventory()
+    if itinerary == TOWER_GROUP_ITINERARY:
+        # Forgotten Tower is terrorized with Act1-Tower, but has no Herald group,
+        # so the general Herald-derived inventory deliberately omits it.
+        caps[20] = Capability(
+            20, 'Countess', 6, None, 'ready', evidence[itinerary], 'enter Forgotten Tower', 'enter Tower Cellar 1'
+        )
+    for area in itinerary:
+        if caps[area].status == 'unavailable':
+            raise ValueError(f'active TZ route {area} unavailable')
+        caps[area] = replace(caps[area], status='ready', reason=evidence[itinerary])
+    return TzConfig('active', itinerary, max_games=max_games), caps
+
 
 # The macro's datagrams: handed to the runner the moment they are read (appraisal/hotkeys.py).
 MACRO_ROUTINES = (
@@ -339,7 +413,14 @@ MACRO_ROUTINES = (
 
 
 def for_macro(data: bytes) -> bool:
-    return data.startswith(tuple(prefix.encode('ascii') for prefix, _ in MACRO_ROUTINES))
+    return data.startswith(
+        (
+            TZ_LOOP_PREFIX.encode('ascii'),
+            TZ_PICKUP_PREFIX.encode('ascii'),
+            SAFE_EXIT_PREFIX.encode('ascii'),
+            *(prefix.encode('ascii') for prefix, _ in MACRO_ROUTINES),
+        )
+    )
 
 
 def dispatch(
@@ -356,6 +437,7 @@ def dispatch(
     macro=None,
     notes: dict[str, object] | None = None,
     pad=None,
+    tz_loop=None,
 ) -> bool:
     """Route `shop <t>`, `collect <t>`, `equipped <t>`, `level <t>` and bare Alt+D timestamps to their workers.
 
@@ -367,6 +449,22 @@ def dispatch(
         if text.startswith('disagree '):
             requested = float(text[len('disagree ') :])
             return bool(disagree and 0 <= now - requested <= 1 and disagree())
+        if text == TZ_LOOP_PREFIX.strip():
+            return False
+        if text.startswith(TZ_LOOP_PREFIX):
+            return tz_loop is not None and tz_loop.request(float(text[len(TZ_LOOP_PREFIX) :].split()[0]), now)
+        if text.startswith(TZ_PICKUP_PREFIX):
+            parts = text[len(TZ_PICKUP_PREFIX) :].split()
+            if len(parts) not in (6, 8) or macro is None:
+                return False
+            stamp, game, area, label, x, y = parts[:6]
+            size = (int(parts[6]), int(parts[7])) if len(parts) == 8 else (1, 1)
+            return macro.tz_pickup(
+                float(stamp), now, game, int(area), label.replace('_', ' '), float(x), float(y), size
+            )
+        if text.startswith(SAFE_EXIT_PREFIX):
+            parts = text[len(SAFE_EXIT_PREFIX) :].split()
+            return len(parts) == 2 and macro is not None and macro.guarded_town_exit(float(parts[0]), now, parts[1])
         for prefix, routine in MACRO_ROUTINES:
             # The macro request (the macro for where the character is; a press while one runs cancels
             # it), the teleport, seek and pickup steps and the attack mode toggle (macros/runner.py).
@@ -779,6 +877,30 @@ def run_service(args, directory, report):
                         fallback=played(builds.FALLBACK),
                         loop_items=args.output / 'loop-items.json',
                     )
+                    # A separate fresh request starts an explicit arm; every default serve is inactive.
+                    tz_caps = route_inventory()
+                    tz_config = None
+                    arm_path = args.output / 'tz-active-arm.json'
+                    arm = tz_active_arm(arm_path)
+                    if args.tz_active_stony_tristram or arm is not None:
+                        itinerary = arm[0] if arm is not None else (4, 38)
+                        max_games = arm[2] if arm is not None else args.tz_max_games
+                        pilot_receipt = (
+                            receipt_path(args.output, itinerary)
+                            if itinerary in ((3, 9, 13), TOWER_GROUP_ITINERARY)
+                            else None
+                        )
+                        tz_config, tz_caps = tz_active_setup(itinerary, max_games, pilot_receipt)
+                    tz_loop = TzCoordinator(tz_config, enabled=tz_config is not None)
+                    tz_runtime = TzRuntime(
+                        tz_loop,
+                        macro,
+                        tz_caps,
+                        lambda: macro.tz_supply(wanted()),
+                        start_game=arm[1] if arm is not None else args.tz_last_game,
+                    )
+                    if arm is not None:
+                        arm_path.unlink()  # a later ordinary restart must be disarmed
                     macro.verdicts = identify.verdicts_now  # the loop's junk (macros/junk.py)
                     macro.appraise = identify.appraise
                     resumed = read_resume(args.output)
@@ -890,6 +1012,8 @@ def run_service(args, directory, report):
                             danger=APPRAISAL.danger_marks,
                             elites=APPRAISAL.elite_line,
                             shards=ShardWatch(terrorized=zones.terrorized) if zones is not None else None,
+                            game_place=macro.place if tz_loop.enabled else None,
+                            observed=tz_runtime.on_probe if tz_loop.enabled else None,
                         )
                     stash = None
                     if args.stash_auto:
@@ -938,7 +1062,11 @@ def run_service(args, directory, report):
                             lambda widgets: publish_layer(args.hud_scene, 'mode', widgets),
                             input_mode=lambda: input_watch.current,
                             legend=pad_legend,
-                            run_mode=lambda: macro.run_badge,  # 'CLEAR' / 'CLEAR TZ' for a full clear (runmode.py)
+                            run_mode=lambda: (
+                                ' · '.join(x for x in (macro.run_badge, tz_loop.hud_line) if x)
+                                if tz_loop.on
+                                else macro.run_badge
+                            ),
                         )
                         if args.osd
                         else None
@@ -976,7 +1104,7 @@ def run_service(args, directory, report):
                     def macro_key(data, received):
                         step, since = timer.current
                         notes = {'pass': step, 'pass_ms': round(1000 * (received - since), 1)} if step else None
-                        dispatch(data, received, worker, collector, macro=macro, notes=notes)
+                        dispatch(data, received, worker, collector, macro=macro, notes=notes, tz_loop=tz_loop)
 
                     keys = Hotkeys(server, for_macro, macro_key)
                     if pad is not None:
@@ -1035,6 +1163,8 @@ def run_service(args, directory, report):
                                     terror.tick()
                             with timer.step('macro'):
                                 macro.poll(time.monotonic())
+                                if tz_loop.enabled:
+                                    tz_runtime.tick(time.monotonic())
                             if combat is not None:
                                 combat.poll(time.monotonic())
                             if panel_beacon is not None:
@@ -1059,6 +1189,7 @@ def run_service(args, directory, report):
                                         disagree=disagree,
                                         macro=macro,
                                         pad=pad,
+                                        tz_loop=tz_loop,
                                     )
                             timer.finish()
                     except Restart as restart:
@@ -1119,6 +1250,13 @@ def main(argv=None):
     knowledge.add_argument('--database', type=Path, help='Explicit legacy/test index; bypass publication selection')
     knowledge.add_argument('--publication-store', type=Path, help=f'Published KB store (default: {DEFAULT_STORE})')
     parser.add_argument('--pid', type=int)
+    parser.add_argument(
+        '--tz-active-stony-tristram',
+        action='store_true',
+        help='serve: arm played Stony Field (4) and Tristram (38); start separately with request --tz-loop',
+    )
+    parser.add_argument('--tz-last-game', help='serve: lobby game name ending in a number')
+    parser.add_argument('--tz-max-games', type=int, default=1, help='serve: active TZ games per request (default 1)')
     parser.add_argument('--osd', action=argparse.BooleanOptionalAction, default=APPRAISAL.osd)
     parser.add_argument('--osd-seconds', type=positive_float, default=APPRAISAL.display_seconds)
     parser.add_argument(
@@ -1174,6 +1312,7 @@ def main(argv=None):
         action='store_true',
         help='request: the pickup step instead (pick up a valuable or a potion, else a seek step)',
     )
+    requests.add_argument('--tz-loop', action='store_true', help='request: start or stop an explicitly armed TZ loop')
     parser.add_argument('--level-output', type=Path, default=LEVEL_OUTPUT, help='Win+C level dump runs')
     parser.add_argument(
         '--combat-paths',
@@ -1227,6 +1366,8 @@ def main(argv=None):
     )
     parser.add_argument('--identify-poll-seconds', type=positive_float, default=APPRAISAL.identify_poll_interval)
     args = parser.parse_args(argv)
+    if args.tz_active_stony_tristram and (not args.tz_last_game or args.tz_max_games < 1):
+        parser.error('--tz-active-stony-tristram requires --tz-last-game and positive --tz-max-games')
     if args.database is None and args.publication_store is None:
         args.publication_store = DEFAULT_STORE
     configure_logging()
@@ -1256,6 +1397,8 @@ def main(argv=None):
                 if args.hunt_any
                 else PICKUP_PREFIX
                 if args.pickup
+                else TZ_LOOP_PREFIX
+                if args.tz_loop
                 else EQUIPMENT_PREFIX
                 if args.equipped
                 else REQUEST_PREFIX

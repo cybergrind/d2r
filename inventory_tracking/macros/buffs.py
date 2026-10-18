@@ -52,13 +52,9 @@ STATE_RETRY = 3.0
 STATE_DISTRUST = 60.0
 STATE_TRIES = 2
 RESUME_WAIT = 0.25  # seconds for the macro's own cast to show before the strike is pressed again
-# No sigil and no side goal but a potion while the run's boss is in reach and nothing hurts the character: F3 of
-# rca/2026-10-18/andariel-cadence-findings.md §5 (the player, 18:00 on 2026-10-18: "F3: let's test it"). The sigil under
-# Andariel took 0.31 s of her 3.61 s in nearly every fight with life never under 97% (§2.3; builds/warlock/buffs.py
-# `sigil_due`: Death Mark stays, it is priced and pays, and a Herald keeps its sigil); a Dol Rune 32 away took 5.7 s of
-# her fight at 11:49:03 (§2.4; macros/hunt.py `side_drop`: her drops land after her death, loop.py DROPS_LAND, and the
-# ground is looked at again). Trial on 2026-10-18 after 48 F1 kills; measure Andariel's
-# in-reach time, life, potions, MISSED, and kills/hour before keeping it.
+# Defer side drops while the run's boss is in reach, but keep potions. A Dol Rune 32 away took 5.7 s of Andariel's
+# fight at 11:49:03 (rca/2026-10-18/andariel-cadence-findings.md §2.4); her drops land after death and the ground is
+# read again then. The F3 sigil skip trial ended on 2026-10-18: the player wants Sigil on all strong enemies.
 QUIET_BY_THE_BOSS = True
 HURT_SECONDS = 2.0  # life lost this recently hurts: macros/hunt.py HURT_SECONDS (a test holds them equal)
 LIFE_LOOK = 0.25  # seconds between two reads of the life for `Buffs.hurt` (`Run.loot` reads the drops with it)
@@ -139,7 +135,7 @@ class Buffs:
 
     @property
     def quiet_by_the_boss(self) -> bool:
-        """QUIET_BY_THE_BOSS as it reads now: the hunt's side drops go by it too (macros/hunt.py `side_drop`)."""
+        """Whether the hunt defers side drops while its boss is in reach (macros/hunt.py `side_drop`)."""
         return QUIET_BY_THE_BOSS
 
     def hurt(self, run: Run) -> bool:

@@ -139,10 +139,20 @@ def open_panel(run: Run, marks: Callable[[str], tuple[tuple[float, float], ...]]
             seen = [t for t in (run.things() if run.things is not None else ()) if t.txt_id in WAYPOINT_CLASSES]
             return (seen[0].x, seen[0].y) if seen else None
 
-        world = walk_until(run, near, (0.15, 0.85, 0.15, 0.8), 'the waypoint')
-        world = run.seen(lambda w: w.player is not None and w.player.mode not in WALKING, WALK_SECONDS) or world
-        player = world.player or player
-        shown = [t for t in (run.things() if run.things is not None else ()) if t.txt_id in WAYPOINT_CLASSES] or shown
+        for attempt in range(3):
+            world = walk_until(run, near, (0.15, 0.85, 0.15, 0.8), 'the waypoint')
+            world = run.seen(lambda w: w.player is not None and w.player.mode not in WALKING, WALK_SECONDS) or world
+            player = world.player or player
+            shown = [
+                t for t in (run.things() if run.things is not None else ()) if t.txt_id in WAYPOINT_CLASSES
+            ] or shown
+            drawn = ground_fraction(player, shown[0].x, shown[0].y, rect[2] / rect[3])
+            if is_open(world) or (0.15 <= drawn[0] <= 0.85 and 0.15 <= drawn[1] <= 0.8):
+                break
+            LOG.info('Macro: waypoint: walk corrected outside safe view to %s: approaching again (%d/3)',
+                     drawn, attempt + 1)  # fmt: skip
+        else:
+            raise Abort('the waypoint stayed outside the safe view after three walks')
     # Stood still before the aims, the waypoint drawn in view or not: walked back from Halbu, 4 units off, no aim had it
     # under the pointer (06:50:00 on 2026-10-17); with the character standing the wait returns at once
     standing = run.seen(lambda w: w.player is not None and w.player.mode not in (2, 3, 6), 1.6)

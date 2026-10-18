@@ -45,6 +45,7 @@ BINDS = {
     'KP_Begin': 'pad',  # keypad 5: the gamepad experiment (input/gamepad.py)
     'KP_Right': 'loop',  # keypad 6: the Lower Kurast loop on/off (macros/loop.py)
 }
+TZ_BIND = {'KP_Home': 'tz-loop'}  # keypad 7; installed only by an explicit future enable
 # X key names a step binding may leave down when its request arrives: the keypad keys above under either
 # Num Lock state (the compositor swallows them, but a release can come late) and the Mod key.
 STEP_KEYS = (
@@ -92,11 +93,13 @@ def binds_text(
     sender: str = request.__file__,
     compiled: str | None = None,
     endpoint: str = request.DEFAULT_SOCKET,
+    *,
+    tz_loop: bool = False,
 ) -> str:
     """The binds section: each key spawns a sender with its kind: request.py, or for the COMPILED
     kinds the binary `compiled` (sender.c) with the kind's datagram prefix and the socket."""
     lines = []
-    for key, kind in BINDS.items():
+    for key, kind in (BINDS | (TZ_BIND if tz_loop else {})).items():
         if compiled is not None and kind in COMPILED:
             lines.append(f'    {key} repeat=false {{ spawn "{compiled}" "{request.PREFIXES[kind]}" "{endpoint}"; }}\n')
         else:

@@ -125,6 +125,45 @@ def test_every_level_of_the_catalogue_with_a_door_first_leads_with_it():
     assert progress.lead(25) is None  # the Countess: nothing leads on
 
 
+def test_black_marsh_route_can_be_selected_explicitly_in_one_game():
+    progress = Progress(ROUTES, wanted=lambda area: area in {11, 15, 21, 22, 23, 24, 25})
+    progress.note('cyber32', 6)
+    assert progress.lead(6) == Lead('Forgotten Tower', 20)
+
+    assert progress.select_route('cyber32', 6, 'Hole')
+    assert progress.lead(6) == Lead('Hole 1', 11)
+    assert step_at(progress, 6).route == 'Hole'
+
+    assert progress.select_route('cyber32', 6, 'Countess')
+    assert progress.lead(6) == Lead('Forgotten Tower', 20)
+
+
+def test_explicit_route_selection_rejects_unobserved_games_areas_and_scripts():
+    progress = Progress(ROUTES)
+    assert not progress.select_route('cyber32', 6, 'Hole')  # no game seen yet
+    progress.note('cyber32', 6)
+
+    assert not progress.select_route('cyber31', 6, 'Hole')
+    assert not progress.select_route('cyber32', 11, 'Hole')  # area 11 not entered yet
+    assert not progress.select_route('cyber32', 6, 'Pit')  # no Pit script in Black Marsh
+    assert progress.lead(6) == Lead('Forgotten Tower', 20)
+
+
+def test_explicit_route_selection_is_forgotten_on_game_change_or_menu():
+    progress = Progress(ROUTES)
+    progress.note('cyber32', 6)
+    assert progress.select_route('cyber32', 6, 'Hole')
+    assert progress.lead(6) == Lead('Hole 1', 11)
+
+    progress.note('cyber33', 6)
+    assert progress.lead(6) == Lead('Forgotten Tower', 20)
+    assert not progress.select_route('cyber32', 6, 'Hole')
+    assert progress.select_route('cyber33', 6, 'Hole')
+    progress.note(None, None)
+    progress.note('cyber33', 6)  # even a reused name is a fresh game after the menu
+    assert progress.lead(6) == Lead('Forgotten Tower', 20)
+
+
 FIXTURES = sorted(path.stem for path in (Path(__file__).parents[1] / 'fixtures' / 'levels').glob('*.json'))
 
 

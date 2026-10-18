@@ -1364,3 +1364,277 @@ Chipped Topaz now keep it moving).
   logs the projected ground position, whether route marks exist, and open panels when the waypoint is outside the
   safe view; it changes no movement. Focused waypoint tests 14 passed, wide suite 2334 passed and 7 skipped; ruff,
   format, pyrefly, diff check clean. Watch the next out-of-view attempt to choose a fix from evidence.
+
+### 2026-10-18 20:43 — low-value set jewelry appraisal
+
+- Player ruling (verbatim): "Keep one, sell duplicates (recommended)" for low-value set rings and amulets. The existing
+  `macros/copies.py` guard protects the first or better owned copy, but sparse name asks caused Angelic Halo, Angelic
+  Wings, Cathan's Sigil and Civerb's Icon to receive `check`, so duplicates never reached that guard.
+- The 2026-10-04 SC/NL/PC/RotW offline ask snapshot has both Q1 and median below 0.25 Ist for these four. The triage
+  engine now assigns `vendor` only to the reviewed set ring/amulet names with both figures still below the keep
+  threshold and no matched pattern, roll comparison, placement or own-use rule. Sparse asks remain reference only;
+  the other already-vendor cheap set jewelry keeps its existing verdict. Arcanna's Sign, Tal Rasha's Adjudication and
+  Telling of Beads remain outside the vendor bucket.
+- Tests: focused triage/copy guard 38 passed; broader pricing triage and identify 783 passed; pre-restart loop suite
+  2335 passed, 7 skipped. Ruff, formatting and diff check clean. Pyrefly reports 21 existing errors on the unchanged
+  dynamic portions of `pricing/triage/engine.py`, none in the new rule. Reloaded at the lobby into
+  `20261018T174318Z-50855956` at 20:43:23; Andariel loop on. A live duplicate sale under the new rule remains to be
+  observed.
+- Replayed the actual Civerb's Icon identify read from the preceding service through the new retrieval and identify
+  summary: triage is enabled for it, and the summary now says `vendor` with a one-seller reference band and no claimed
+  price estimate. The restarted service completed its first Andariel game in 32 s.
+
+### 2026-10-18 20:47 — watch after the appraisal reload
+
+- Current service `20261018T174318Z-50855956` remains on Andariel. The first completed game killed her in 32 s.
+  Game 2 took 79 s because the first attempt (`cyberrd46`) left from Catacombs 2 at 20:44:22 without a macro Save and
+  Exit, then `cyberrd47` reached and killed Andariel. Before that exit, Teleport and Blade Warp both left the
+  character at (22826, 6516); the take `20261018T174409Z-35` has 49 sent macro inputs and no player/healer input.
+  There was no ground valuable seen in that attempt. The mechanism of the game exit or no-move inputs is unverified;
+  watch the next occurrence against `rca/2026-10-18/freeze-findings.md` before changing movement code.
+- F3 through 20:45: 62 Andariel kills in 0.75 h active play, 82.6 kills/hour; 54 clean cycles. Compared with
+  18:50–19:07, 81.6 → 83.5 kills/hour of cycles, 90% interval −7.5..+11.8: no rate evidence yet. Continue toward
+  the 90-game no-evidence decision. The latest three-minute inactivity watcher remains live.
+
+### 2026-10-18 21:03 — Sigil ruling, town and waypoint fixes
+
+- Player ruling: keep Sigil: Lethargy for all strong enemies. The F3 skip had only an estimated 0.31 s cast cost and
+  no clear improvement in kills/hour, so `sigil_due` again applies to bosses, champions and uniques while
+  unharmed. Herald priority remains. The separate rule to defer side drops beside a live boss remains enabled.
+- Final F3 window before reversal, 19:07–21:02: 85 Andariel kills in 1.03 h active play, 82.2 kills/hour; 75 clean
+  kill-to-kill cycles. Against 18:50–19:07, cycle rate 81.6→82.2 kills/hour, 90% interval −8.7..+10.2: no evidence
+  of a speed gain. The user ruling ended the trial; it is not a measured proof of Sigil's safety or damage benefit.
+- The unread stash fallback left Humongous (unique Giant Axe) in the cube at 20:48:36, 20:55:01 and 20:57:40: a first
+  cube unload had no 2x3 space, but stashing carried keepers freed 2x4 and the fallback never retried. It now makes
+  one more unload after that space opens. Regression test went red on the contract then green.
+- At 20:50:25 the waypoint walk ended on predicted proximity before a game correction moved the character ~25 units
+  away; the projected waypoint was again outside safe view. The waypoint action now rechecks the settled position and
+  approaches again, at most three times. A corrected-walk regression went red then green. Live recurrence still
+  needed to confirm the recovery is gone.
+- Focused combat tests 185 passed; waypoint and town tests 52 passed. Pre-restart wide suite 2336 passed, 7 skipped;
+  ruff, formatting, pyrefly on edited files and diff check clean. Lobby restart at 21:02:46 loaded the changes into
+  `20261018T180247Z-aa3e0870`, Andariel loop on. First game killed Andariel in 35 s. The new log records Sigil at
+  21:03:17 after the first strike on elite 156 (Andariel), confirming the ruling is live. The 3-minute watcher follows
+  the new service.
+
+### 2026-10-18 21:07 — unread-stash follow-up
+
+- First town visit after the 21:02 reload still left Humongous in the cube at 21:04:01. The first fix retried only
+  when inventory room already existed after the scan. Snapshot `210347.json` shows junk rings at (3,1) and (3,2)
+  blocked the only 2x3 opening at that point; Jamella sold them later, leaving a 2x4 opening. This is a different
+  state from the initial regression. A later 21:06:51 town visit stashed the axe after those rings were gone.
+- A second red/green regression now holds the right columns as owned charms, the two blocking junk rings, and the
+  cube axe. The unread scan shifts the junk rings within the inventory while at the stash, repeats the scan, and
+  sells the rings at Jamella. This preserves the player's stash-then-Jamella, one-stash-walk order. Focused town
+  suite 98 passed; lint and type checks clean. The required pre-restart suite passed 2339 tests, 7 skipped; TZ service
+  and route checks passed 79. Lobby restart at 21:16:11 loaded it into `20261018T181613Z-cb6f45c4`, Andariel on;
+  first completed game 33 s. A fresh blocked cube keeper has not yet occurred, so live confirmation of the junk
+  shuffle remains open. The watcher follows the new service.
+
+### 2026-10-18 21:28 — watch and TZ offline implementation
+
+- The Andariel service `20261018T181613Z-cb6f45c4` completed 19 games after the reload while watched, without a
+  reported recovery or sure-loot miss. Town visits at 21:19:15 and 21:26:25 ended cube 0, block 2x4 free and no junk;
+  neither reproduced the two-junk-ring block. Sigil remained enabled for strong enemies.
+- The separate TZ one-game path has a disabled request and HUD seam, fresh client-service TZ/effect reads, route
+  inventory, elite hunt, observed boss/chest target and loot steps, restart-safe planning and elapsed-time metrics.
+  Its service runtime is gated off by default and no route is marked played-ready; no TZ run was launched. Offline
+  focused suite 245 passed; final macro/combat/build/skill suite 2341 passed, 7 skipped. Ruff, format, pyrefly on
+  changed TZ and town files, and diff check clean. The TZ plan names the played route and shard evidence still needed.
+
+### 2026-10-19 00:03 — code activation, loop held off
+
+- Player requested the new code activated. Wide gate: 2368 passed, 7 skipped; pricing triage: 707 passed. Focused
+  ownership/town/TZ checks: 446 passed; Hunt: 169 passed. Ruff and Pyrefly on the changed Hunt file passed.
+- Restart request with `--loop keep` loaded session `20261018T210345Z-3c922404` at 00:03:51. Startup confirmed
+  `loop off, pickup sure valuables, run Andariel`; the player's manual game remains open. No automated Andy run was
+  started because protected inventory still lacks the live shadow town visit and identical item-ID reuse after an
+  unobserved manual sale is not ruled out.
+- The navigation diagnostic in `hunt.better_stand` is live; it logs ready jumps and own-Teleport/staff reads when a
+  non-Teleport firing-spot jump is chosen while Teleport is on a key. No movement policy changed.
+- River of Flame entrance incident at 23:59:11–20: the crossing click was covered by a monster across the border,
+  and the run had no clear shot or firing move from the River side. RCA:
+  `rca/2026-10-19/chaos-entrance-pack-findings.md`. No passage fallback was shipped in this restart.
+
+### 2026-10-19 — minute health checks
+
+- Replaced three simultaneous watchers with one `flock --nonblock` guarded watcher, running through `uv run --offline`.
+  Persistent output: `inventory_tracking/runs/alt-d/watch.log`; active exec handle 97053.
+- Added a health report every 60 seconds, even while farming is off and manual play generates fresh log lines.
+  Reports loop state separately from log freshness; unavailable/stale evidence does not declare the host service dead.
+  Historical loop legs retain their logged time, so rearming does not make an old stalled loop appear fresh.
+- Regression suite: 83 passed. Ruff and formatting clean; Pyrefly 0 errors with the tools directory on its search path
+  (the standalone scripts import `games` and `logwords` from that directory).
+- Player pressed KP_6 at 00:07:20; service confirmed Loop on at 00:07:21 and the watcher observed game 1 complete
+  in 33 seconds. The watcher did not initiate that transition. No service restart or inventory action made for this change.
+- Watcher flagged the earlier manual Chaos Grand Charm as missed (game None); initial carried inventory has a Grand
+  Charm but logs alone do not prove it is that drop. First town visit reported the 2x4 block still occupied; protected
+  baseline items were left in place. These are follow-up findings, not evidence of a clean unattended run.
+
+- Live health reports verified at 00:07:42, 00:08:42, 00:09:42 and 00:10:42. The watcher followed the player's
+  pause at 00:09:27, service replacement at 00:09:31, and loop-on at 00:09:40. Five Andariel kills through 00:11:
+  82.5 kills/h over 0.06 h of active play (short sample, not an optimization result).
+
+### 2026-10-19 — conditional Fortress visit ruling
+
+- Player: “we need to visit it when we need to perform town sell/clear inventory/refill consumables and only in such cases”.
+- Do not introduce a visit after every game just because an item was picked up. Town scheduling must use the same
+  positive ownership evidence as the shared town visit, so protected starting items cannot cause empty detours.
+  Preserve actual low-room disposition, consumable needs and existing repair requirements.
+- The pickup ledger currently resets at a game boundary. Loot whose positive identity cannot be carried across that
+  boundary remains protected; legacy location/quality guesses must not regain authority to move or sell it.
+
+### 2026-10-19 00:21–00:33 — town completion and ownership failures
+
+- Navigation fixes (expired-act cancellation, successful retry clearing old failure, own Teleport before rooms arrive)
+  and conditional town trigger passed combined gate 2381 tests, 7 skipped. Root restart --loop keep at 00:21:37 loaded
+  session 20261018T212132Z-0cb3352a with loop off: the preceding game had already stopped for full inventory with
+  Talic's Anguish on the ground. The game was preserved.
+- User correctly identified broken clearing despite an empty cube. At 00:21:16 the physical inventory was full, the
+  cube empty, and shared visit had zero authorized items. Items were prior-game pickups; their grants had expired.
+  Skipping false detours was not a complete ownership fix. The user later cleared space and resumed at 00:24:30;
+  the first-look inventory at 00:24:40 contains charms and supplies, without the old belt, amulet, gems and rune.
+- Fixed an additional same-game defect: temporary in-game unread player suspends grants, rather than discarding them.
+  Actual exit still clears grants. Added shared completion enforcement: any required town contract miss stops all
+  callers before return/exit; deferred cube keeper exemption retained. Combined gate 2386 passed, 7 skipped.
+  Changed files' Ruff/format/types passed; the user's 00:27:53 and later restart loaded those settled changes.
+- Crossgame continuity remains unresolved. Snapshot content alone cannot safely restore grants. New work is isolated:
+  continuous input audit, strict complete pack snapshot, and pure controlled-handoff verification. No new grants are
+  enabled by this work yet. Do not claim town automation fully fixed until that path is proven.
+- Minute watcher continues in handle97053 with singleton lock; reports stops, player pauses/resumes and service changes.
+  Current service after user's 00:32:13 restart: 20261018T213213Z-c4faa25f; loop on at 00:32:52.
+
+### 2026-10-19 00:37–00:50 — recent pickups still skipped by cube
+
+- Player ruling: “we must not move any item that wasn't done by us ... then we just track what was picked up by us
+  and what was picked up by user”. Empty cells are available capacity, not permission to move later occupants.
+- Clean first-look at 00:37:16 followed by pickups Talic's Anguish 00:37:41, Chipped Diamond 00:39:24,
+  Unique Legend Sword 00:40:01 and Amulet 00:41:17. Each was followed by a new game before the first cube attempt.
+  At 00:41:51 full inventory stopped the loop beside Unique Demonhide Sash. `cube.stash` returned zero because
+  `Ownership.observe` had cleared these receipts; there was no evidence of a failed cube click.
+- Controlled save/load handoff and strict complete inventory reader are implemented, including empty unallocated
+  cube and native cursor rejection. Combined focused check: 100 passed. Service lifecycle wiring added and tested.
+  Not yet deployed: live input attribution and sanctioned identification continuity still under integration.
+  Do not interpret passing pure eligibility tests as proof of an actual cube/town completion.
+- Minute health watcher remains active; loop off after automatic inventory stop, fresh service logs through 00:48:54.
+
+### 2026-10-19 01:00–01:13 — requested rollback to cells
+
+- Player requested “just track inventory cells” and “restore older version”; priority is working Andy runs,
+  inventory space and selling without selling player charms. The native input-audit experiment was removed from
+  service/OSD delivery. No OSD restart is required by the restored path. Prior experiment saved under
+  `rca/2026-10-19/before-cell-rollback/`.
+- Historical e73eaa8 supplies the prior working flow but blindly counted all cube items as loot; that original
+  charm-sale defect is not restored. Complete initial inventory/cube rectangles are protected; confirmed pickups
+  get cell records that follow verified automation moves and rebind across automatic game changes.
+- New lightweight lifecycle test includes actual cube clicks, Cain identification and shared-tab3 storage.
+  Vendor regression refuses initial player charm and sells confirmed automation loot. Temporary stash staging
+  regression covers park→retrieve→sale. All remain subject to final wide gate and live verification.
+- User restarted serve at01:10:23, session20261018T221023Z-cfe7956b, loop off in Rogue Encampment.
+  Final stash-staging hook was added afterward, so root must reload the final tested tree before farming.
+
+- Final rollback gate:2483 passed,7 skipped (89.16s); changed production Ruff/format and targeted types clean.
+  Two old synthetic loop fixtures were corrected to use valid non-overlapping rectangles and actual cube occupants.
+- Root restart --loop on --kind andariel succeeded at01:20:01, session20261018T221956Z-a63cf4ce.
+  Live strict baseline succeeded:30/40 inventory cells protected,0/12 cube cells protected. Andariel enabled;
+  service waits for game-window focus. User asked to focus it; no kill/storage/sale live proof yet.
+
+### 2026-10-19 01:22–01:28 — live rollback verification in progress
+
+- Focus restored through the reusable `tools/focus_game.py` niri helper at01:22:40. Actual Andariel
+  games2–10 completed in31–37s; automatic exits and next-game cell reconciliation logged each cycle.
+- Singleton minute watcher handle97053 was polled live at01:27; health lines at01:25:06,01:26:06,
+  01:27:07 show fresh logs and advancing game numbers. No restart or duplicate watcher needed.
+- Four pickups observed (two rings, Grand Charm, Tal Rune). No cube transfer or town sale yet;
+  live inventory clearing remains unverified. Initial baseline protects16charms among30occupied cells.
+- Historical game=None MISSED alerts were investigated separately in
+  `rca/2026-10-19/manual-fullclear-missed-loot-findings.md`; they concern preceding manual sessions,
+  not evidence that these new Andariel runs lost those items.
+
+### 2026-10-19 01:30 — first live cube and town completion verified
+
+- Full inventory beside Grand Charm triggered cube at01:30:07;7of7 farmeditems moved at01:30:10,
+  GrandCharm picked immediately, followed by successful automatic game reconciliation.
+- Next game visited Fortress for accumulated loot. Six appraised vendor items sold (three newly farmed
+  charms and three rings), two runes stashed; town completed01:30:50 in23.6s with cube empty,
+  10freecells including2x4block, junk0, keys12, identifies20, groundclear.
+- Root compared all19 protected inventory item records in visits/013030.json start versus end:
+  same unitIDs, types, coordinates, sizes, qualities and unique rows; zero changes. This includes all16
+  starting charms. Cursor empty, contract misses empty. Snapshot does not include individual item stats.
+- Loop resumed Catacombs immediately. Minute watcher97053 remains live; no service restart needed.
+- Follow-up measurement at01:31: `andy.py --since 2026-10-19\ 01:23 --no-takes` reports14kills,
+  95.6kills/h over0.15h including town;13kill-to-kill cycles median34.8s,p9037.2s.
+  Short observation window, not evidence for a speed optimization. Town game completed82s and next game started.
+  Independent baseline collection comparison also confirms exact16/16 original charm layout.
+
+### 2026-10-19 01:35 — inventory code restored, volatile cells (Claude)
+
+- The player: "we had it working for the major part of the day ... broken it with some recent changes"; "issue isn't
+  assuming the all cube cells as volatile. issue was that we have moved our charms there"; "cube is volatile; empty
+  cells on the start of character - are volatile ... do not lose this when we restart game, reload `make serve`".
+- Codex's ownership ledger and audit removed (it stopped the cube stash and town visits after every new game); the
+  inventory modules are back at e73eaa8 (84.6 kills/h, 18:00–22:20) with the unread-stash fixes, movement fixes and TZ
+  kept. New `macros/volatile.py`: per-character volatile cells in `runs/alt-d/volatile-cells.json` (CybergrindAA:
+  10 cells, seeded from the 00:37:16 first look), plus stats prints of the player's items: never junk, sold or dropped.
+  Design: `rca/2026-10-19/volatile-cells-restore.md`. Wide suite 3047 passed, 7 skipped. `make serve` was not running:
+  nothing restarted; the next start loads it.
+
+### 2026-10-19 01:35–01:36 — concurrent worktree change; live service retained
+
+- Root found the deployed ownership.py/ownership_cycle.py absent from disk and new volatile.py plus caller
+  changes. These were not made by root or the assigned TZ agent. No root restart: live session remains
+  20261018T221956Z-a63cf4ce with its verified inventory behavior. Asked player which concurrent work owns this.
+- TZ mode candidate is documented in rca/2026-10-19/andariel-terror-phase-findings.md. Agent confirmed no
+  implementation/test edits were made before hold. Do not reload the mixed tree based on the old2483test gate.
+- Watcher97053 polled live;01:36:09 health confirms fresh log, game20 completed56s, game21creating01:36:10.
+  Continue monitoring existing process; clarification blocks deployment, not farming or live checks.
+
+### 2026-10-19 01:38–01:40 — keeper stop and external restart
+
+- Second townvisit013830 completed sales but stopped for cube-held uniqueEmbossedPlate (Atma'sWail).
+  Unread stash fallback tried to unload it before sales while insufficient space existed, then left it after
+  selling junk. End snapshot has10freecells; all19protectedrows unchanged. Need fallback keeper follow-up.
+- External restart (not requested by root) loaded20261018T223906Z-91ca0ee6 at01:39:11 and resumedAndy.
+  Firstlook confirms original16charms pluscube/tome/key in place, EmbossedPlate stillincube.
+  New volatile-cell implementation logs19protecteditems and16learnedstatsprints; no root changes deployed.
+- One open-waypoint recovery exited initialgame; nextgame reachedAndy and killedher01:39:50.
+  Singleton watcher97053 remains live across restart. New implementation's full towncycle notyetverified.
+
+### 2026-10-19 01:44–01:45 — new service town audit
+
+- Currentservice townvisit reached unreadstash fallback; five items stashed, DwarfStar and Vidala'sSnare
+  sold only after duplicate check confirmed an owned copy at least as good. All19protectedinventoryrows
+  identical between start/end in visits/014437.json; cube stillholdsAtma'sWail.
+- Keeper remains unresolved: firstfallback cannotunload2x3armor beforestashing; secondattempt reports
+  inventorydidnotopen, cube0of1takenout. Townlogs contractmisses but newexternalversion continuesfarming.
+  Root assigned read-onlyRCA; productionedits/restarts stillheld pending concurrentownershipclarification.
+-01:45:11 health fresh, game7activelyfighting; Andydead01:45:12. Singletonmonitor live.
+- RCA correction: secondfallback was a retry after `the mouse was moved` at01:44:37.613.
+  Recordedpanels: firstinventorypress386236.683 opensinventory(.687), abort.745; retrykey.798
+  closesinventory(.807). Unconditionalinventorytoggle caused thetimeout; ensure-open should be idempotent.
+  Evidence reviewed by inventoryagent; report pending. No productionfixdeployedbyroot.
+
+### 2026-10-19 01:52 — current service complete town cycle
+
+- At01:52:00 fourfarmitems movedcube, groundpickup completed, nextgame requiredtown.
+- Unreadstash fallback freedroom, then rescannedinplace for cubekeeper: stash5, unload1, stash1.
+  End01:52:35: cube0,10freecells,2x4block,junk0,keys12,groundclear,18.4s. Catacombsresumed.
+- Root compared visits/015220.json protected19records start/end: no identity, position, size,quality,
+  identified orunique-rowchanges; cubeempty,cursorempty,missesempty. Includes original16charms.
+- This confirms currentfallback succeeds without interruption; it does not fix the separately proven
+  retry-closes-inventory defect. No root codeedit/restart.
+-01:54:26 secondnewservicecube clear moved4items and pickedUniqueLargeShield beforeexit.
+  Town015447 ended01:55:00: cube0,10freecells,contractcomplete. Rootcompared19protectedrows
+  start/end: unchanged (all16originalcharms included). DuplicatecheckedvendorLargeShield and
+  newlypickedSmallCharm sold; farmingresumed andAndydead01:55:22. No rootrestart.
+
+### 2026-10-19 02:02 — player pause
+
+- Newservice town020107 completed02:01:33 with cube0,10freecells,contractcomplete; all19protectedrows
+  unchanged. Andydead02:01:58, exit02:02:01. Nextgame23 started; playerpausedloop02:02:12.
+- Rootwillnotresumeorrestartrunwhileplayerpauseholds. Minute watcher97053 remainsactive to detectresume.
+- Outstanding codefixes are documented (TZmode coupling; inventorytoggleonretry), notdeployedbyroot.
+  Concurrentinventoryrewrite/restartwasexternal; noownerclarificationreceivedyet.
+- Playerresumed02:03:41; rootdidnotsendtoggle. Game23completed24s active, game24completed36s,
+  Andydead02:04:37 andgame25started02:04:41.02:04:17 minutecheck confirms freshactiveprogress.
+  Pace returns afterTZrotationwithoutrootcodechange. Monitor97053confirmedlive.

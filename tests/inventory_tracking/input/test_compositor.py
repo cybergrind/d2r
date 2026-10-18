@@ -6,6 +6,7 @@ import subprocess
 import pytest
 
 from inventory_tracking import request
+from inventory_tracking.appraisal import service
 from inventory_tracking.input import compositor
 
 
@@ -88,8 +89,6 @@ def test_the_compiled_sender_speaks_the_services_dialect(tmp_path):
     import socket
     import time
 
-    from inventory_tracking.appraisal import service
-
     binary = compositor.build_sender(tmp_path)
     assert binary is not None
     endpoint = tmp_path / 'service.sock'
@@ -114,6 +113,11 @@ def test_the_compiled_sender_speaks_the_services_dialect(tmp_path):
     assert 0 <= notes['spawn_ms'] < 1000
     assert 0 <= notes['spawn_cpu_ms'] < 1000
     assert subprocess.run([binary, 'teleport ', str(tmp_path / 'none.sock')], timeout=5, check=False).returncode == 1
+
+
+def test_tz_key_is_available_only_for_an_explicit_future_install():
+    assert 'KP_Home' not in compositor.binds_text()
+    assert '"tz-loop"' in compositor.binds_text(tz_loop=True)
 
 
 def test_without_a_compiler_the_binds_keep_the_script(monkeypatch, tmp_path):

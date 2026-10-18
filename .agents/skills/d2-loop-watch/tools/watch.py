@@ -105,6 +105,28 @@ class Watch:
         self.cut = False
         self.cycles: deque[tuple[float, int]] = deque(maxlen=60)
         self.counted = 0
+        self.next_health = 0.0
+
+    def health(self, source: Path | None) -> None:
+        """Minute check independent of log traffic; old logs cannot prove an active loop."""
+        now = time.monotonic()
+        if now < self.next_health:
+            return
+        self.next_health = now + 60.0
+        try:
+            age = max(0.0, time.time() - source.stat().st_mtime) if source is not None else None
+        except OSError:
+            age = None
+        state = 'loop on' if self.on else 'loop off'
+        if age is None:
+            evidence = 'log unavailable; service state unknown'
+        elif age >= 60:
+            evidence = f'log stale ({age:.0f}s); service state unknown'
+        else:
+            evidence = f'log fresh ({age:.0f}s)'
+        if self.on and time.time() - self.last_leg_wall >= self.stall:
+            state += ', stalled'
+        self.say(f'HEALTH {datetime.now():%Y-%m-%d %H:%M:%S}: {state}; {evidence}; {self.last_leg or "no loop leg"}')
 
     def say(self, text: str) -> None:
         if self.loud:
@@ -174,7 +196,7 @@ class Watch:
         if REQUEST_LOOP in line:
             self.asked_loop = True
         if LOOP_ON in line or LOOP_RESUMED in line:
-            self.on, self.last_leg_wall = True, time.time()
+            self.on, self.last_leg_wall = True, at.timestamp() if at is not None else time.time()
             if self.asked_loop:
                 self.say(f'PLAYER: loop on at {line[11:19]}')
             self.asked_loop = False
@@ -192,7 +214,7 @@ class Watch:
                 self.finish(at, whole=False)
         if (m := LEG.search(line)) and at is not None:
             number, leg = int(m.group(1)), m.group(2).strip()
-            self.on, self.last_leg_wall, self.last_leg = True, time.time(), f'game {number}, {leg} at {line[11:19]}'
+            self.on, self.last_leg_wall, self.last_leg = True, at.timestamp(), f'game {number}, {leg} at {line[11:19]}'
             if self.game is None or self.game[0] != number:
                 self.finish(at)
                 self.game, self.legs, self.notes = (number, at), {}, []
@@ -249,11 +271,11 @@ def main() -> None:
                 for old in handle:
                     watch.line(old)
                 watch.loud = True
-                watch.last_leg_wall = time.time()
                 state = f'loop {"on" if watch.on else "off"}'
                 print(f'== {state}; {watch.last_leg or "no leg yet"}', flush=True)
             first = False
         text = handle.readline() if handle else ''
+        watch.health(current)
         if not text:
             watch.idle()
             time.sleep(0.5)

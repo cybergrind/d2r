@@ -88,6 +88,19 @@ def test_a_valuable_with_no_room_has_the_macros_pickups_moved_into_the_cube_in_t
     assert len(moved) == 1
 
 
+def test_an_unread_cube_gets_one_room_making_attempt_before_standing_by_a_valuable():
+    from inventory_tracking.macros.world import VALUABLE, Drop, Loot
+
+    _, hunt, run, here = setup()
+    tal = Drop(9, here[0] + 1.0, here[1], 'Tal Rune', VALUABLE)
+    run.loot = lambda: Loot(drops=(tal,), room=('#' * 10,) * 4, cube=None)
+    moved = []
+    hunt.room_maker = lambda playing: moved.append(playing) or 1
+    assert hunt.stay_by(run, here) is None
+    assert moved == [run]
+    assert hunt.room_tried == tal.unit_id
+
+
 # -- a full clear's super chests (the player, 00:19 on 2026-10-18: "in auto mode - we should open at least glowing
 # superchests") --
 

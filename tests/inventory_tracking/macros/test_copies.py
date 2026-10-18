@@ -141,6 +141,20 @@ def test_two_copies_in_one_visit_keep_the_better_and_sell_the_other(tmp_path):
     assert sold([BELT, worse], tmp_path, lambda observation: []) == [BELT]
 
 
+def test_two_identical_low_value_set_amulets_keep_one_and_sell_the_duplicate(tmp_path):
+    first = Carried(31, 520, 4, 0, (1, 1), SET)
+    duplicate = Carried(32, 520, 5, 0, (1, 1), SET)
+    observations = []
+    for unit in (31, 32):
+        item = read(unit)
+        item['item'] |= {'rarity': 'set', 'name': "Civerb's Icon", 'base_name': 'Amulet'}
+        item['decoded_stats'] = []  # the item's base properties have fixed rolls
+        observations.append(item)
+    keep(tmp_path, *observations)
+
+    assert sold([first, duplicate], tmp_path, lambda observation: []) == [duplicate]
+
+
 def test_outside_the_service_or_with_no_read_or_on_a_failure(tmp_path):
     assert sold([BELT, RING], None, lambda observation: []) == [BELT, RING]
     assert sold([BELT, RING], tmp_path, lambda observation: []) == [RING]  # no identify read: kept

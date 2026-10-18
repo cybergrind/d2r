@@ -154,7 +154,7 @@ def walk_until(run: Run, place: Callable[[World], tuple[float, float] | None], b
                 player.x + dx * math.cos(angle) - dy * math.sin(angle),
                 player.y + dx * math.sin(angle) + dy * math.cos(angle),
             )
-        run.actuator.move(*screen_fraction(player, *toward, aspect), scatter=(4, 4))
+        run.actuator.move(*screen_fraction(player, toward[0], toward[1], aspect), scatter=(4, 4))
         run.actuator.click()
         began = (player.x, player.y)
 
@@ -282,6 +282,10 @@ def restock(run: Run, sell: Sequence[Carried] = (), back: bool = True, keys: int
             now = run.carried()
             if now is None or all((c.unit_id, c.x, c.y) != (each.unit_id, each.x, each.y) for c in now.items):
                 LOG.info('Macro: shop: the item %d is no longer at (%d, %d): not sold', each.txt, each.x, each.y)
+                continue
+            if run.players_item is not None and run.players_item(each):
+                LOG.info("Macro: shop: the %s at (%d, %d) is the player's by its stats: never sold", named(each),
+                         each.x, each.y)  # fmt: skip
                 continue
             others = {c.unit_id for c in now.items} - {each.unit_id}
             # A Ctrl + click on an inventory item with her trade window open sells it; checked by its leaving

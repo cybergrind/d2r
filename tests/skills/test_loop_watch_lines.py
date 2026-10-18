@@ -601,3 +601,35 @@ def test_trade_counts_cains_identification(tmp_path: Path) -> None:
     )
     found = trade.read(session, logwords.stamp('2026-10-18 15:00:00,000'), logwords.stamp('2026-10-18 17:00:00,000'))
     assert found['tries'] == [8, 9]
+
+
+def test_watch_reports_off_every_minute_even_with_fresh_manual_game_logs(tmp_path, monkeypatch, capsys):
+    log = tmp_path / 'probe.log'
+    log.write_text('manual game activity\n')
+    clock = [100.0]
+    monkeypatch.setattr(watch.time, 'monotonic', lambda: clock[0])
+    seen = watch.Watch(75, 120)
+    seen.health(log)
+    assert 'loop off' in capsys.readouterr().out
+    clock[0] = 159.0
+    seen.health(log)
+    assert capsys.readouterr().out == ''
+    clock[0] = 160.0
+    seen.health(log)
+    assert 'loop off' in capsys.readouterr().out
+    assert not seen.on
+
+
+def test_watch_does_not_report_old_loop_on_as_active(tmp_path, capsys):
+    log = tmp_path / 'probe.log'
+    log.write_text('old session\n')
+    seen = watch.Watch(75, 120)
+    seen.line('2026-10-18 15:02:40,000 INFO Macro: Loop: game 7, the chests')
+    seen.health(log)
+    assert 'stalled' in capsys.readouterr().out
+
+
+def test_watch_reports_missing_evidence_without_claiming_service_dead(tmp_path, capsys):
+    seen = watch.Watch(75, 120)
+    seen.health(tmp_path / 'missing.log')
+    assert 'unavailable' in capsys.readouterr().out

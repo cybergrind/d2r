@@ -31,7 +31,7 @@ from inventory_tracking.combat.stance import RUN_SPEED, WALK_LATENCY, Camp, Jump
 from inventory_tracking.common import LOG
 from inventory_tracking.levels.doors import Door
 from inventory_tracking.levels.model import Ground, Room, Target, Walkable
-from inventory_tracking.macros.actuator import Abort, Cancelled, Hand
+from inventory_tracking.macros.actuator import Abort, Cancelled, Expired, Hand
 from inventory_tracking.macros.build import Intent, Leg, MoveFacts, MovementSet, NoWay, Step, nowhere
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.routines import ACTING, DEAD, ONE_CAST, SWAP_SETTLE, press_skill, settle
@@ -967,11 +967,12 @@ def way_leg(
 
 def cut(run: Run, stop: Abort) -> bool:
     """Whether a jump was stopped by the player or the run, not failed by the game: the player's hand (a key, the
-    mouse, the focus: actuator `Hand`), the run cancelled (`Cancelled`) or its input mode flipped (`Run.stops`). Such a
+    mouse, the focus: actuator `Hand`), the run cancelled (`Cancelled`), its priced act expired (`Expired`), or its
+    input mode flipped (`Run.stops`). Such a
     jump is no way that leads nowhere and is not distrusted (`Travel.jump_failed`): 22:54:40.78 on 2026-10-14 the
     player's mouse cut a Blade Warp at its aim and the next 15 s were walked (rca/2026-10-14/run-1932-findings.md
     §1.2.4)."""
-    return isinstance(stop, (Hand, Cancelled)) or run.stops(stop)
+    return isinstance(stop, (Hand, Cancelled, Expired)) or run.stops(stop)
 
 
 class Stale(Abort):
@@ -1332,6 +1333,7 @@ class Travel:
             self.refusals.pop(skill, None)
             raise
         self.refusals.pop(skill, None)
+        self.jump_failed.pop(skill, None)  # an observed landing supersedes a previous failed attempt
         landed_at = run.clock()
         landed = landing.player
         assert landed is not None
@@ -1491,6 +1493,7 @@ class Travel:
                 if not cut(run, stop):
                     self.jump_failed[TELEPORT] = run.clock()
                 raise
+            self.jump_failed.pop(TELEPORT, None)  # all callers may trust the observed successful retry
             return
         if skill is not None and key_names is not None:
             jumps = self.jumps(run, world, intent)

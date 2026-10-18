@@ -440,6 +440,18 @@ def _opening(
     return None if best is None else best[1:]
 
 
+def unread_way_for_cube(pack: Pack, keeper: Carried, junk: Set[int], block: tuple[int, int]) -> tuple[Move, ...]:
+    """Inventory-only junk moves that let an unread-stash scan take a cube keeper out (visit.py `_stash`).
+
+    No stash page is predicted here. The caller tries the actual page after moving the junk, and keeps the junk
+    carried for Jamella. The cube is excluded as temporary space so the keeper's space is not consumed by junk.
+    """
+    if room_for(inventory_rows(pack), keeper.size):
+        return ()
+    found = _opening(inventory_rows(pack), pack.items, junk, junk, keeper.size, None, block)
+    return tuple(found[0]) if found is not None and not found[1] else ()
+
+
 def _make_way(
     items: Sequence[Carried],
     keepers: Sequence[Carried],

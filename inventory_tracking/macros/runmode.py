@@ -84,6 +84,7 @@ class Mode:
 
     clear: bool
     why: str = ''
+    elite: bool = False
 
 
 def mode_of(area: int | None, terror: bool | None, switched: tuple[int, bool] | None) -> Mode:
@@ -111,6 +112,8 @@ def aim_of(script: Script | None) -> str | None:
 
 def said(mode: Mode, aim: str | None) -> str:
     """The mode as the log says it (`Macro: run: ...`)."""
+    if mode.elite:
+        return f'elite hunt, then {aim}' if aim else 'elite hunt'
     if mode.clear:
         return f'full clear ({mode.why or SWITCHED})'
     head = f'to {aim}, clearing the way' if aim else 'no route on this level: the key works around the character'
@@ -121,4 +124,6 @@ def badge(mode: Mode | None) -> str | None:
     """The HUD's word for the mode (hud/process.py `ModeBeacon`): shown only for a full clear."""
     if mode is None or not mode.clear:
         return None
+    if mode.elite:
+        return 'HUNT TZ'
     return 'CLEAR TZ' if mode.why == TERROR else 'CLEAR'

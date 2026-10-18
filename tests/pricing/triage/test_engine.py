@@ -184,8 +184,26 @@ def test_reviewed_cheap_set_jewelry_is_vendor_even_when_asks_are_sparse(name, ba
 
     assert assess(item, tables)['verdict'] == 'vendor'
     assert assess(item | {'name': 'An unreviewed set amulet'}, tables)['verdict'] == 'check'
-    tables['bands'][('sets', name.casefold(), 'name')] = band | {'q1_ist': 0.3, 'median_ist': 0.3}
+    tables['bands']['sets', name.casefold(), 'name'] = band | {'q1_ist': 0.3, 'median_ist': 0.3}
     assert assess(item, tables)['verdict'] == 'check'
+
+
+def test_cached_set_jewelry_keeps_only_the_reviewed_low_value_names_in_vendor_bucket():
+    from pricing.triage.engine import Tables
+
+    tables = Tables().load()
+    for name, base in (
+        ('Angelic Halo', 'rin'),
+        ('Angelic Wings', 'amu'),
+        ("Cathan's Sigil", 'amu'),
+        ("Civerb's Icon", 'amu'),
+    ):
+        result = assess({'category': 'sets', 'name': name, 'base_code': base, 'properties': {}}, tables)
+        assert result['verdict'] == 'vendor', name
+        assert result['decision_ist'] is None  # sparse asks remain a reference, not an estimate
+    for name in ("Arcanna's Sign", "Tal Rasha's Adjudication", 'Telling of Beads'):
+        result = assess({'category': 'sets', 'name': name, 'base_code': 'amu', 'properties': {}}, tables)
+        assert result['verdict'] != 'vendor', name
 
 
 @pytest.mark.parametrize('sellers', [1, 2, 3])

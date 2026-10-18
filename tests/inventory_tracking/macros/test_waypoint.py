@@ -203,3 +203,33 @@ def test_a_waypoint_never_under_the_pointer_still_steps_back_with_the_panel_clos
         open_panel(run)
 
     assert [e for e in play.keys.events if e[0] == 'click']  # the step back's click
+
+
+def test_a_corrected_walk_reapproaches_an_out_of_view_waypoint():
+    # Take 20261018T175014Z-1: after three walk clicks the client reached within 8 units, then snapped back to 25.
+    class Corrected(Game):
+        corrected = False
+
+        def react(self, event):
+            before = len(self.walks)
+            super().react(event)
+            if not self.corrected and before < 2 <= len(self.walks):
+                self.corrected = True
+                self.world = replace(self.world, player=replace(self.character, mode=3))
+                self.later(
+                    0.12,
+                    lambda: setattr(
+                        self,
+                        'world',
+                        replace(self.world, player=replace(self.character, x=5866.9, y=5727.1, mode=5)),
+                    ),
+                )
+
+    play = Corrected(world(PANDEMONIUM_FORTRESS, player=player(PANDEMONIUM_FORTRESS, x=5863.5, y=5733.5)))
+    play.thing = Thing(9, WAYPOINT_ACT4, 2, 5884.0, 5709.0)
+    play.thing_above = 0.0
+
+    open_panel(play.run(), lambda label: ())
+
+    assert play.corrected
+    assert play.world.open_panels == ('waypoint',)

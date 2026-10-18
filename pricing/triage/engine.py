@@ -27,6 +27,22 @@ from pricing.triage.variants import base_bucket, profile_for, scoped_bucket, soc
 
 DATA = Path(__file__).resolve().parents[1] / 'data/triage'
 
+# 2026-10-04 SC/NL/PC/RotW asks: both Q1 and median are below the 0.25-Ist keep threshold for these set jewelry
+# pieces. Four have fewer than three priced sellers, so the normal sparse-name gate says CHECK even for ordinary
+# fixed-stat copies. The player, 2026-10-18: keep one and sell duplicates of low-valued set rings and amulets.
+LOW_VALUE_SET_JEWELRY = frozenset(
+    {
+        'angelic halo',
+        'angelic wings',
+        "cathan's seal",
+        "cathan's sigil",
+        "civerb's icon",
+        "iratha's collar",
+        "tancred's weird",
+        "vidala's snare",
+    }
+)
+
 
 def matches(item, rule):
     for key in ('category', 'name', 'family'):
@@ -365,6 +381,21 @@ def assess(item, tables, *, today=None):
         # Sparse asks explain why an item needs review; they do not establish
         # its price. Keep the actual matched quote, rather than a pooled name.
         reference, band, price, liquidity = band, None, None, 'none'
+    if (
+        category == 'sets'
+        and name in LOW_VALUE_SET_JEWELRY
+        and item.get('base_code') in ('amu', 'rin')
+        and verdict == 'check'
+        and not (patterns or comparison or placement or own_use)
+        and all(
+            type((reference or {}).get(field)) in (int, float)
+            and (reference or {})[field] < tables['rules']['keep_ist']
+            for field in ('q1_ist', 'median_ist')
+        )
+    ):
+        # A sparse low ask is not a price estimate. These exact fixed-stat pieces were reviewed as low value; the
+        # copy guard in macros/copies.py keeps the first and sells only duplicates of a VENDOR verdict.
+        verdict, reason = 'vendor', 'reviewed low-value set jewelry; sparse asks are reference only'
     return {
         'verdict': verdict,
         'reason': reason,

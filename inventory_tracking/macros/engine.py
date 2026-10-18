@@ -15,7 +15,7 @@ from typing import TYPE_CHECKING
 from inventory_tracking.levels.model import Ground
 from inventory_tracking.macros.actuator import Abort, Actuator, Cancelled, Flipped
 from inventory_tracking.macros.timing import Pace
-from inventory_tracking.macros.world import Loot, Pack, StashView, Stocked, Teleport, Thing, Warp, Wear, World
+from inventory_tracking.macros.world import Carried, Loot, Pack, StashView, Stocked, Teleport, Thing, Warp, Wear, World
 from inventory_tracking.models import PotionType
 
 
@@ -100,6 +100,9 @@ class Run:
         self.things: Callable[[], tuple[Thing, ...]] | None = None  # a mark's objects (world.GameMemory.things)
         self.containers: Callable[[], tuple[Thing, ...]] | None = None  # chests and the like (GameMemory.containers)
         self.carried: Callable[[], Pack | None] | None = None  # the inventory's items, the cube's rows (GameMemory)
+        # Whether a carried item is one of the player's by its stats (macros/volatile.py, loop.py `players_item`):
+        # never sold nor dropped, wherever it lies; None: no such check (tests, no loop store)
+        self.players_item: Callable[[Carried], bool] | None = None
         self.stock: Callable[[int], tuple[Stocked, ...]] | None = None  # a vendor's stock (GameMemory.stock)
         # the stash's pages and resource stacks, None unread (world.GameMemory.stash_view, macros/town-plan.md step 0)
         self.stash_view: Callable[[], StashView | None] | None = None

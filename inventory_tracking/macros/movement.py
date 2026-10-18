@@ -94,9 +94,12 @@ def hops(facts: MoveFacts, goal: Point, intent: Intent) -> bool:
     """Whether a Teleport hop toward a far goal can be made within `intent`: Teleport on a key and not
     one that moved nothing less than `intent.distrust` seconds ago; of a worn staff a charge left above
     the reserve (the last one is not a reserve: one charge at least), and the staff in hand unless the
-    weapon set may be changed for the move; the level's rooms known, which the hops are planned over; and the goal no
-    nearer than `intent.hop_from`."""
-    if TELEPORT not in facts.slots or facts.since_failed(TELEPORT) <= intent.distrust or not facts.rooms:
+    weapon set may be changed for the move; and the goal no nearer than `intent.hop_from`. With no room map yet,
+    own Teleport can still make a local stride using the collision already known; charged staff routing waits for
+    the rooms as before."""
+    if TELEPORT not in facts.slots or facts.since_failed(TELEPORT) <= intent.distrust:
+        return False
+    if not facts.rooms and facts.staff is not None:
         return False
     if intent.hop_from and math.dist(facts.here, goal) < intent.hop_from:
         return False  # near: by the free jump (`Intent.hop_from`)
@@ -119,6 +122,8 @@ def hop_way(facts: MoveFacts, goal: Point) -> tuple[Target, Way, object]:
 
 def hops_left(facts: MoveFacts, goal: Point) -> float:
     """Units of the way left to `goal` by hops; inf: none leads there."""
+    if not facts.rooms:
+        return math.dist(facts.here, goal)  # local strides until the level's room graph arrives
     _, way, _ = hop_way(facts, goal)
     return way.from_here((facts.here[0] / TILE_UNITS, facts.here[1] / TILE_UNITS)) * TILE_UNITS
 
@@ -131,6 +136,12 @@ def hop_leg(facts: MoveFacts, goal: Point, intent: Intent, spare: tuple[Jump, ..
     here = facts.here
     if math.dist(here, goal) - intent.short < MOVED:
         return NoWay(THERE, arrived=True)
+    if not facts.rooms:
+        # A level change can expose the goal and collision before its room graph. Keep own Teleport as the
+        # navigation means, using the same bounded, visible, footed stride as combat; do not replace it with
+        # the slower free-jump route merely because long-distance planning is not ready yet.
+        jump = replace(TELEPORT_JUMP, least=TELEPORT_RING[0], reach=TELEPORT_RING[1]) if facts.pad else TELEPORT_JUMP
+        return stride_of(facts, goal, intent.short, intent.shot, intent.shuns, jumps=(jump,))
     target, way, far = hop_way(facts, goal)
     start = (here[0] / TILE_UNITS, here[1] / TILE_UNITS)
     now = way.from_here(start)
