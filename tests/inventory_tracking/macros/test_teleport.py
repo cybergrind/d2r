@@ -574,6 +574,47 @@ def test_a_level_change_far_from_the_mark_teaches_nothing():
     assert teleport.ENTRIES.offset(mark) is None
 
 
+def test_a_remembered_spot_the_click_walked_on_from_is_replaced_by_where_the_level_changed():
+    # 11:42-11:52 on 2026-10-18: preset 292's stairs remembered +2, -2, learned from a click that walked 5.6 units;
+    # each visit hopped onto it and walked round the block of walls again (rca/2026-10-18/stairs-walks-findings.md)
+    door = (1001.0, 1000.6)  # world (5005, 5003): the character at (5000, 5000) is its remembered spot
+    mark = target(door, warp=True)
+    teleport.ENTRIES.learn(mark, (-5.0, -3.0))
+    play = walking_game(door, (5005.0, 5006.0))  # the click walks 6 units to 3 south of the mark
+    step_toward(play.run(), mark, keys)
+    assert play.character.area == 110
+    assert teleport.ENTRIES.offset(mark) == (0.0, 3.0)
+
+
+def test_a_walk_in_from_elsewhere_keeps_the_remembered_spot(caplog):
+    door = (1001.3, 1000.3)  # world (5006.5, 5001.5); its spot 3 south of it, a walk over open ground away
+    mark = replace(target(door, warp=True), ground=(SOLID,))
+    teleport.ENTRIES.learn(mark, (0.0, 3.0))
+    play = walking_game(door, (5007.5, 5003.0))
+    with caplog.at_level('INFO'):
+        step_toward(play.run(), mark, keys)
+    assert play.character.area == 110
+    assert teleport.ENTRIES.offset(mark) == (0.0, 3.0)
+    assert any(r.message.endswith('(not remembered: walked in from elsewhere)') for r in caplog.records)
+
+
+def test_a_short_walk_round_to_the_remembered_spot_near_the_stairs_is_the_clicks_not_a_hop(monkeypatch):
+    # The Catacombs stairs: a run that ends east of the block of walls walks ~6 units round to the spot; a hop onto
+    # it first cost 0.37 s more (rca/2026-10-18/stairs-walks-findings.md §5 C)
+    door = (1001.3, 1000.3)
+    rows = ''.join('0' if 23 <= col <= 24 else '1' for col in range(40)) * 40  # a wall at world x 5003-5004
+    mark = replace(target(door, warp=True), ground=(Walkable(996, 996, 8, 8, pack_cells(rows)),))
+    teleport.ENTRIES.learn(mark, (0.0, 3.0))
+    assert not teleport._around(mark, (5000.0, 5000.0), (5006.5, 5004.5))  # no way round this wall
+    assert teleport._around(replace(mark, ground=(SOLID,)), (5000.0, 5000.0), (5006.5, 5004.5))
+    monkeypatch.setattr(teleport, '_around', lambda *_: True)
+    play = game()
+    play.door = door
+    step_toward(play.run(), mark, keys)
+    assert play.pressed() == []  # no hop
+    assert play.character.area == 110
+
+
 def test_a_remembered_entry_is_hopped_onto_and_the_door_clicked_from_there():
     # The stairs' mark sits in a block of walls; the spot the game walks to is 3 units south of it.
     door = (1003.0, 1000.0)  # world (5015, 5000): 15 away, a walk by the old rule would not start, a hop would
@@ -622,6 +663,64 @@ def test_a_remembered_spot_behind_a_wall_is_still_hopped_onto():
     step_toward(play.run(), mark, keys)
     assert play.pressed() == ['t']
     assert math.dist((play.character.x, play.character.y), (5006.5, 5004.5)) < 1.5
+
+
+def stairs_block(door: tuple[float, float]) -> Walkable:
+    """The Catacombs stairs as the read grids have them (presets 291-294, 2026-10-18): a block of walls 8 units across
+    whose east edge holds the mark, with a 3 x 3 alcove 2-4 units west of the mark open to the south. Units from the
+    mark: the block x -7..0, y -7..+1; the alcove x -4..-2, y -1..+1. One 8 x 8 room of tiles from (996, 996)."""
+    mark = (math.floor(door[0] * 5) - 4980, math.floor(door[1] * 5) - 4980)
+
+    def open_(col: int, row: int) -> bool:
+        dx, dy = col - mark[0], row - mark[1]
+        block = -7 <= dx <= 0 and -7 <= dy <= 1
+        alcove = -4 <= dx <= -2 and -1 <= dy <= 1
+        return not block or alcove
+
+    return Walkable(
+        996, 996, 8, 8, pack_cells(''.join('1' if open_(c, r) else '0' for r in range(40) for c in range(40)))
+    )
+
+
+def test_a_remembered_spot_by_a_corner_of_walls_is_stood_on_from_the_footing_beside_it():
+    # 13:00-13:10 on 2026-10-18: preset 292's spot, -2.5, +1.9 from the mark, has a corner of the block one unit off: no
+    # footing, so no hop was aimed at it, and the level runs ended east of the block, the click walking round it
+    door = (1003.5, 1000.5)  # world (5017.5, 5002.5)
+    mark = replace(target(door, warp=True), ground=(stairs_block(door),))
+    teleport.ENTRIES.learn(mark, (-2.5, 1.9))
+    remembered = teleport.entry_spot(mark)
+    assert remembered is not None
+    assert footing(Ground(mark.ground), remembered) is False
+    stand = teleport.entry_stand(mark)
+    assert stand is not None
+    assert teleport.scaled(stand) == (5014.5, 5004.5)  # -3, +2: south of the alcove, a unit off the spot
+    assert footing(Ground(mark.ground), stand) is True
+    teleport.ENTRIES.learn(mark, (-3.0, 0.0))  # in the alcove: footing, kept as it is
+    assert teleport.entry_stand(mark) == teleport.entry_spot(mark)
+    teleport.ENTRIES.learn(mark, (-2.5, 1.9))
+    assert teleport.entry_stand(replace(mark, ground=())) == teleport.entry_spot(mark)  # no grid read: as remembered
+    teleport.ENTRIES.learn(mark, (0.0, 0.0))  # on the mark, inside the block by the grids: as remembered
+    assert teleport.entry_stand(mark) == teleport.entry_spot(mark)
+    # The level run's goal at the door is the spot it stands on (macros/goals.py `way_out`)
+    from inventory_tracking.macros.hunt import door_entry
+
+    teleport.ENTRIES.learn(mark, (-2.5, 1.9))
+    assert door_entry(mark) == (5014.5, 5004.5)
+    assert door_entry(target(door)) is None  # not a door
+
+
+def test_a_hop_onto_the_doors_spot_lands_on_the_footing_beside_it_and_the_click_follows():
+    door = (1003.5, 1000.5)  # world (5017.5, 5002.5), the character 17.7 away: a hop
+    mark = replace(target(door, warp=True), ground=(stairs_block(door),))
+    teleport.ENTRIES.learn(mark, (-2.5, 1.9))
+    play = game()
+    step_toward(play.run(), mark, keys)
+    assert play.pressed() == ['t']
+    assert math.dist((play.character.x, play.character.y), (5014.5, 5004.5)) < 0.6
+    play.door = door
+    step_toward(play.run(), mark, keys)  # from the spot: the click, no second hop
+    assert play.pressed() == ['t']
+    assert play.character.area == 110
 
 
 def test_door_entries_are_kept_in_a_file_across_games(tmp_path):
@@ -1053,3 +1152,97 @@ def test_a_monster_seen_on_the_object_is_told_in_the_way_when_the_acts_time_runs
     with pytest.raises(Abort) as plain:  # nothing seen on it: the stop as it was
         use_thing(run, chest, me, thing, 16 / 9)
     assert not isinstance(plain.value, Covered)
+
+
+def fortress_stash(**changes) -> tuple[Game, Target, Thing]:
+    """The character in Pandemonium Fortress 6 units from the stash, its picture drawn where no aim has it (an
+    object `thing_above` 300 pixels up): every aim reads something else under the pointer."""
+    from inventory_tracking.macros.world import BANK
+
+    play = Game(world(103, player=player(103, x=5044.0, y=5046.0)))
+    play.thing, play.thing_above = Thing(9, BANK, 0, 5038.0, 5040.0), 300.0
+    for name, value in changes.items():
+        setattr(play, name, value)
+    mark = Target(103, (), (5038.0 / 5, 5040.0 / 5), 'the stash', 'stash', use=BANK)
+    return play, mark, play.thing
+
+
+def stash_opens(play: Game, after: float) -> None:
+    play.later(after, lambda: setattr(play, 'world', replace(play.world, open_panels=('inventory', 'stash'))))
+
+
+def test_an_object_whose_panel_is_open_already_is_not_aimed_at():
+    """14:42:09 on 2026-10-18 at the stash: the walk's click opened it; no aim, no click (rca/2026-10-18/
+    arch-actions.md §2 A)."""
+    from inventory_tracking.macros.teleport import use_thing
+
+    play, mark, thing = fortress_stash(panel_covers=True)
+    play.world = replace(play.world, open_panels=('inventory', 'stash'))
+
+    use_thing(play.run(), mark, play.character, thing, 16 / 9)
+
+    assert play.keys.events == []
+    assert play.said[-1] == 'the stash: opened'
+
+
+def test_a_panel_opening_within_the_grace_takes_no_aim():
+    from inventory_tracking.macros.teleport import PANEL_GRACE, use_thing
+
+    play, mark, thing = fortress_stash(panel_covers=True)
+    stash_opens(play, 0.12)  # the walk's click, 0.05-0.19 s after the stop
+
+    use_thing(play.run(), mark, play.character, thing, 16 / 9)
+
+    assert play.keys.events == []
+    assert play.clock.now < PANEL_GRACE
+
+
+def test_a_panel_opening_between_the_aims_ends_them_with_no_click(caplog):
+    """Opened after the grace, under the aims (each read nothing under the pointer): done at the next aim, not said
+    "not under the pointer at any aim"."""
+    from inventory_tracking.macros.teleport import PANEL_GRACE, use_thing
+
+    play, mark, thing = fortress_stash(panel_covers=True)
+    stash_opens(play, PANEL_GRACE + 0.1)
+
+    with caplog.at_level('INFO'):
+        use_thing(play.run(), mark, play.character, thing, 16 / 9)
+
+    assert [e for e in play.keys.events if e[0] == 'click'] == []
+    assert any('the stash took before aim' in r.getMessage() for r in caplog.records)
+
+
+def test_a_panel_never_opening_is_still_said_not_under_the_pointer():
+    from inventory_tracking.macros.teleport import use_thing
+
+    play, mark, thing = fortress_stash(panel_covers=True)
+
+    with pytest.raises(Abort, match='the stash is not under the pointer at any aim'):
+        use_thing(play.run(), mark, play.character, thing, 16 / 9)
+
+
+def test_with_no_grace_one_look_is_made_before_the_aims():
+    """waypoint.py waits its own OPENS_SECONDS before it calls: no second wait (grace=0.0)."""
+    from inventory_tracking.macros.teleport import use_thing
+
+    play, mark, thing = fortress_stash()
+    stash_opens(play, 0.12)
+    run = play.run()
+    run.hovered = lambda: (2, 9)  # the stash under every aim
+
+    use_thing(run, mark, play.character, thing, 16 / 9, grace=0.0)
+
+    assert [e[0] for e in play.keys.events].count('click') == 1  # the panel had not come: the first aim clicked
+
+
+def test_a_portal_left_already_is_not_clicked():
+    from inventory_tracking.macros.teleport import use_thing
+
+    play = game()
+    play.thing = Thing(77, PORTAL, 2, 5012.0, 5004.0)
+    me = play.character
+    play.world = replace(play.world, player=replace(me, area=110))  # through it by an earlier click
+
+    use_thing(play.run(), portal_mark((1001.0, 1000.0)), me, play.thing, 16 / 9)
+
+    assert play.keys.events == []

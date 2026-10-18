@@ -640,6 +640,67 @@ def test_a_valuable_not_on_the_way_hides_no_potion_nearer() -> None:
     assert (goal.do, goal.unit) == (PICK_UP, potion.unit_id)
 
 
+# -- the KP_6 loop's run: visible loot is taken now (the player, 2026-10-18 18:24) --------------------------------
+
+# Catacombs Level 2, 18:22:17.35 on 2026-10-18 (take 20261018T152213Z-35): a Ko Rune read 34.5 units behind the
+# character, 117 by walking (the hops had crossed a wall), and the run teleported on toward the stairs. Here: a wall
+# (x 5020, y 4980-5013) between the character east of it and the rune 35 units west, the walk round its end ~100.
+WALL_ROWS = ''.join(('1' * 40 + '0' + '1' * 39) if row < 34 else '1' * 80 for row in range(40))
+WALL = Walkable(996, 996, 16, 8, pack_cells(WALL_ROWS), pack_cells(WALL_ROWS))
+BEHIND = (5037.0, 4985.0)
+KO = Drop(901, 5002.0, 4985.0, 'Ko Rune', VALUABLE)
+
+
+def loop_run(play, loot: Loot, *, teleport: bool = True):
+    """A hunter on the KP_6 loop's run (`looped`, rushed) on test_hunt's level, the character at BEHIND, the wall
+    between it and KO; its moves by Teleport (the character's own: LOOPED_TELEPORT) unless `teleport` is off."""
+    from inventory_tracking.macros.travel import LOOPED, LOOPED_TELEPORT
+
+    play.world = replace(play.world, player=replace(me(play.world), x=BEHIND[0], y=BEHIND[1]))
+    play.loot = loot
+    hunt = hunter(play, ground=(WALL,))
+    hunt.build = pursuing(hunt.build)
+    hunt.looped = LOOPED_TELEPORT if teleport else LOOPED
+    hunt.post(Pursuit('pickup', 0.0, advance=False, leash=FULL, area=AREA, rush=True, looped=True))
+    return hunt
+
+
+def test_the_loops_run_takes_a_valuable_read_behind_it_across_a_wall_before_it_goes_on() -> None:
+    assert not clear_line(Ground((WALL,)), (), BEHIND, (KO.x, KO.y))
+    play = game()
+    hunt = loop_run(play, Loot((KO,), room=FREE))
+    run = play.run()
+    assert not hunt.walked_near(run, BEHIND, KO, play.world)  # 35 straight, ~100 walked: no side goal before
+    assert hunt.side_drop(run, BEHIND, [], play.world) == KO
+    found = hunt.judge(run, play.world, [], Ground((WALL,)), in_reach=False)
+    assert found.goal is not None
+    assert (found.goal.do, found.goal.unit) == (PICK_UP, KO.unit_id)
+    assert isinstance(found.act, Move)  # gone for by Teleport now, not after the stairs
+    # A level run of the player's own key (no loop): PICK_NEAR by walking, as before
+    play = game()
+    hunt = loop_run(play, Loot((KO,), room=FREE))
+    hunt.post(Pursuit('pickup', 0.0, advance=False, leash=FULL, area=AREA))
+    assert hunt.side_drop(play.run(), BEHIND, [], play.world) is None
+
+
+def test_the_loops_run_with_no_teleport_keeps_the_walked_bound() -> None:
+    """The lava's Ith Rune (2026-10-14: 26 straight, 226 walked, 8 warps back and forth): with no Teleport in the
+    loop's moves the far side of a wall is no side goal; the sightings' trip back stays the safety net."""
+    play = game()
+    hunt = loop_run(play, Loot((KO,), room=FREE), teleport=False)
+    assert hunt.side_drop(play.run(), BEHIND, [], play.world) is None
+
+
+def test_the_loops_far_valuable_hides_no_potion_the_belt_wants_nearer() -> None:
+    potion = Drop(902, BEHIND[0] + 8.0, BEHIND[1], 'a super healing potion', HEALING)
+    play = game()
+    hunt = loop_run(play, Loot((KO, potion), LOW_BELT, 1748, 1818, room=FREE, game=NAMED))
+    run = play.run()
+    assert hunt.side_drop(run, BEHIND, [], play.world) == potion  # the belt 6 short: the potion 8 away first
+    play.loot = replace(play.loot, drops=(KO,))
+    assert hunt.side_drop(run, BEHIND, [], play.world) == KO  # then the rune
+
+
 def test_the_life_budget_scales_with_the_potions_the_belt_can_give_back() -> None:
     """22:55:09 (8 of 8) and 22:55:38 (2 of 8): the budget was 636.3 both times at full life. The player, 2026-10-15:
     the whole budget down to 4 healing potions, never under about half of it (the curve once gave none at 2 of 8)."""

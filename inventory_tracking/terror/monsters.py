@@ -74,6 +74,17 @@ class Monster:
 
 
 @dataclass(frozen=True)
+class TerrorEntry:
+    area: int  # level id, entry +0
+    level: int  # displayed terror level, entry +8
+    modifier_word: int  # packed field at entry +12; automap uses its low byte
+
+    @property
+    def modifier(self) -> int:
+        return self.modifier_word & 0xFF
+
+
+@dataclass(frozen=True)
 class MonsterSnapshot:
     location: Location | None
     room2s: frozenset[Bounds]  # bounds of the Room2s of the loaded Room1s in the player's level
@@ -86,6 +97,7 @@ class MonsterSnapshot:
     player_states: frozenset[int] | None = None  # states.txt ids on the player now (curses, chill); None: unread
     items: tuple[ItemSighting, ...] | None = None  # item units of the watched classes; None: not read
     terror_levels: tuple[int, ...] | None = None  # the levels the client holds as terrorized now; None: unread
+    terror_entries: tuple[TerrorEntry, ...] | None = None  # service entries: area, displayed level, modifier
 
 
 def room_bounds(read, room2) -> Bounds:
@@ -162,10 +174,13 @@ def player_states(read, table_address) -> frozenset[int] | None:
     return frozenset(state for state in range(8 * STATES_SIZE) if bits >> state & 1)
 
 
-def terror_levels(read, base) -> tuple[int, ...] | None:
-    """The level ids the client's Terror Zone service holds as terrorized now, in every difficulty
-    (native/layout.py TERROR_SERVICE_RVA); None with no service. What does not read as level ids is
-    a ValueError that shows the bytes."""
+def terror_entries(read, base) -> tuple[TerrorEntry, ...] | None:
+    """The client's current TZ entries, including its displayed level and modifier id.
+
+    The automap code reads the latter two fields at +8/+12 of each 16-byte entry,
+    and passes only the low byte of +12 to its modifier-name formatter.
+    (`D2R-decrypted.exe` 0x140ca6ab0); this read does not need monster sightings.
+    """
     service = pointer(read, base + TERROR_SERVICE_RVA)
     if not service:
         return None
@@ -176,10 +191,22 @@ def terror_levels(read, base) -> tuple[int, ...] | None:
     if not entries or count > MAX_TERROR_LEVELS:
         raise ValueError(f'Terror Zone levels: {count} entries at {entries:#x}')
     raw = read(entries, count * TERROR_LEVEL_ENTRY)
-    levels = tuple(struct.unpack_from('<I', raw, at)[0] for at in range(0, len(raw), TERROR_LEVEL_ENTRY))
+    found = tuple(
+        TerrorEntry(*struct.unpack_from('<I', raw, at), *struct.unpack_from('<II', raw, at + 8))
+        for at in range(0, len(raw), TERROR_LEVEL_ENTRY)
+    )
+    levels = tuple(entry.area for entry in found)
     if not all(0 < level <= MAX_LEVEL_ID for level in levels) or len(set(levels)) != len(levels):
         raise ValueError(f'Terror Zone levels do not read as level ids: {raw.hex()}')
-    return levels
+    return found
+
+
+def terror_levels(read, base) -> tuple[int, ...] | None:
+    """The level ids the client's Terror Zone service holds as terrorized now, in every difficulty
+    (native/layout.py TERROR_SERVICE_RVA); None with no service. What does not read as level ids is
+    a ValueError that shows the bytes."""
+    found = terror_entries(read, base)
+    return None if found is None else tuple(entry.area for entry in found)
 
 
 def player_life(read, table_address) -> tuple[int, int] | None:
@@ -270,8 +297,10 @@ def observe_monsters(pid, images, capture, *, known, counted_level, item_classes
             with contextlib.suppress(OSError, ValueError, struct.error):
                 states = player_states(read, table)
             terrorized = None
+            tz_entries = None
             try:
-                terrorized = terror_levels(read, images['candidate_base'])
+                tz_entries = terror_entries(read, images['candidate_base'])
+                terrorized = None if tz_entries is None else tuple(entry.area for entry in tz_entries)
             except (OSError, ValueError, struct.error, KeyError) as exc:
                 if str(exc) not in UNREAD_TERROR_LEVELS:
                     UNREAD_TERROR_LEVELS.add(str(exc))
@@ -292,6 +321,7 @@ def observe_monsters(pid, images, capture, *, known, counted_level, item_classes
                 states,
                 items,
                 terrorized,
+                tz_entries,
             )
     finally:
         os.close(fd)

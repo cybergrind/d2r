@@ -31,6 +31,11 @@ from statistics import median_low
 from inventory_tracking.common import LOG
 
 
+# time.monotonic() of each boss's last kill this service saw (the KP_6 loop waits for a boss's drops to land from it:
+# macros/loop.py DROPS_AFTER_KILL)
+KILLED_AT: dict[str, float] = {}
+
+
 BOSSES = {
     156: 'Andariel',
     211: 'Duriel',
@@ -117,6 +122,7 @@ class BossTracker:
                 self.kills[name] = [*self.kills.get(name, []), self.clock()][-MAX_KILLS:]
                 changed = True
                 LOG.info('Boss kill: %s, %s this launch', name, len(self.kills[name]))
+                KILLED_AT[name] = time.monotonic()
         if changed:
             self.save()
 

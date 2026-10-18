@@ -350,3 +350,28 @@ def test_what_else_is_in_the_cube_comes_out_first_and_with_too_few_gems_nothing_
     assert not transmute(few.run(), 'i', FLAWLESS_RUBY)
     assert few.transmutes == []
     assert few.keys.events == []
+
+
+def test_the_keys_move_out_of_the_only_two_by_four_block_before_a_larger_square():
+    # 12:36 on 2026-10-18: a Unique Brandistock (2 x 4) found no room; the loop's keys at (3, 0) stood in columns 3-4,
+    # the only 2 x 4 the player's charms leave (the player: "in this particular case we even have all the required
+    # space to get it inside the inventory")
+    from inventory_tracking.macros.cube import BIG_BLOCK, KEY_CLASS, inventory_rows, keys_move, room_for, taken
+
+    def at(unit, x, y, size=(1, 1), txt=603):
+        return Carried(unit, txt, x, y, size)
+
+    items = (
+        at(1, 0, 0, (1, 3), 620), at(2, 1, 0, (2, 2), 564), at(3, 3, 0, txt=KEY_CLASS), at(4, 5, 0), at(5, 6, 0),
+        at(6, 7, 0, txt=KEY_CLASS), at(7, 8, 0, (1, 2), 534), at(8, 9, 0), at(9, 5, 1, (1, 3), 620), at(10, 6, 1),
+        at(11, 7, 1), at(12, 9, 1), at(13, 1, 2, (1, 2), 604), at(14, 6, 2, (1, 2), 604), at(15, 7, 2),
+        at(16, 8, 2, (1, 2), 604), at(17, 9, 2), at(18, 0, 3), at(19, 7, 3), at(20, 9, 3),
+    )  # fmt: skip
+    pack = Pack(items)
+    assert not room_for(inventory_rows(pack), BIG_BLOCK)
+    move = keys_move(pack)
+    assert move is not None
+    key, cell = move
+    assert (key.x, key.y) == (3, 0)
+    without = Pack(tuple(i for i in items if i is not key))
+    assert room_for(taken(inventory_rows(without), cell, (1, 1)), BIG_BLOCK)

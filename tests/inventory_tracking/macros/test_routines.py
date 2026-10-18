@@ -4,9 +4,11 @@ import pytest
 
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.routines import (
+    SHOW_ITEMS_TRIES,
     prebuff,
     run_macro,
     screen_fraction,
+    show_items_on,
 )
 from inventory_tracking.macros.world import Monster
 from tests.inventory_tracking.macros.fakes import KEYS, OTHER_SET, PREBUFF_SET, Game, player, world
@@ -663,3 +665,30 @@ def test_a_panel_that_opens_after_the_first_look_does_not_keep_the_game_from_bei
     monkeypatch.setattr(routines, 'take_battle_weapons', opens)
     routines.leave_game(game.run())
     assert not game.world.in_game
+
+
+def test_a_level_run_turns_the_item_labels_on_first():
+    # Game 40 at 18:22 on 2026-10-18: `make osd` gave up on Show Items during the load, the run went with it off
+    game = Game(world(show_items=False))
+
+    def toggle(event) -> None:
+        if event[:2] == ('key', 'z'):
+            game.world = replace(game.world, show_items=not game.world.show_items)
+
+    game.keys.on_event = toggle
+    show_items_on(game.run(), 'z')
+    assert game.world.show_items is True
+    assert game.pressed().count('z') == 1
+    show_items_on(game.run(), 'z')  # on already: nothing pressed, never toggled back off
+    assert game.pressed().count('z') == 1
+
+
+def test_item_labels_that_stay_off_stop_the_level_run():
+    game = Game(world(show_items=False))
+    game.keys.on_event = lambda event: None
+    with pytest.raises(Abort, match='Show Items stays off'):
+        show_items_on(game.run(), 'z')
+    assert game.pressed().count('z') == SHOW_ITEMS_TRIES
+    with pytest.raises(Abort, match='no Show Items key'):
+        show_items_on(game.run(), None)
+    show_items_on(Game(world(show_items=None)).run(), 'z')  # unread: not pressed blind

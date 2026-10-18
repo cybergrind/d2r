@@ -1,6 +1,8 @@
 """The town's waypoint, clicked from where a game or a portal puts the character (routes/lower-kurast-loop-plan.md
 phase 1): the game walks there and opens the panel."""
 
+from dataclasses import replace
+
 import pytest
 
 from inventory_tracking.macros.actuator import Abort
@@ -141,3 +143,63 @@ def test_the_table_is_built_from_levels_txt_in_its_waypoint_order():
         '103': {'act': 3, 'row': 0},
         '106': {'act': 3, 'row': 1},
     }
+
+
+def near() -> Game:
+    """The character 3 units from the waypoint, within CLOSE: where the step back applies."""
+    play = docks()
+    play.world = replace(play.world, player=player(KURAST_DOCKS, x=5156.0, y=5050.0))
+    return play
+
+
+def test_a_panel_the_walk_opened_is_done_with_no_aim_and_no_step_back():
+    """14:42:09 on 2026-10-18: the walk's last click opened the panel; the aims read None under the pointer and
+    the step back clicked onto it, then the game was left."""
+    play = near()
+    play.panel_covers = True
+    play.later(0.12, lambda: setattr(play, 'world', replace(play.world, open_panels=('waypoint',))))  # the walk's click
+
+    open_panel(play.run())
+
+    assert play.keys.events == []
+    assert play.world.open_panels == ('waypoint',)
+
+
+def test_a_panel_opening_between_the_aims_stops_the_aiming_with_no_step_back():
+    play = near()
+    reads = []
+
+    def hovered():
+        reads.append(True)
+        if len(reads) == 2:
+            play.world = replace(play.world, open_panels=('waypoint',))
+        return None  # the open panel covers the waypoint: nothing under the pointer
+
+    run = play.run()
+    run.hovered = hovered
+
+    open_panel(run)
+
+    assert len(reads) >= 2
+    assert [e for e in play.keys.events if e[0] == 'click'] == []
+    assert play.world.open_panels == ('waypoint',)
+
+
+def test_with_the_panel_closed_the_aims_still_find_the_waypoint_and_click_it():
+    play = docks()
+
+    open_panel(play.run())
+
+    assert [event[0] for event in play.keys.events] == ['click']
+    assert play.world.open_panels == ('waypoint',)
+
+
+def test_a_waypoint_never_under_the_pointer_still_steps_back_with_the_panel_closed():
+    play = near()
+    run = play.run()
+    run.hovered = lambda: None
+
+    with pytest.raises(Abort, match='not under the pointer'):
+        open_panel(run)
+
+    assert [e for e in play.keys.events if e[0] == 'click']  # the step back's click

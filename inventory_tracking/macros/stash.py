@@ -38,9 +38,9 @@ from inventory_tracking.levels.model import Target
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.cube import (
     INVENTORY,
-    ITEM_SECONDS,
     PANEL_SECONDS,
     REFERENCE_HEIGHT,
+    _until,  # the one wait for the carried items (act.py `until`), as charms.py and visit.py import it from here
     cell_point,
     loot,
     unpack,
@@ -83,16 +83,18 @@ SHARED_LEFT = (369 + 29 + 32, 1211 + 13 + 32)  # both where the player's screens
 STASH_SEEN = (0.2, 0.8, 0.2, 0.75)  # window fractions the stash is walked to be drawn within
 SHARED_PAGES = 5  # the shared pages ("Page 1 / 5", the player's screenshot of 01:46 on 2026-10-17)
 TAB_SETTLE = 0.4
+# The player's stash priority, 2026-10-18: shared 3 > 4 > 5 > 2 > 1 > personal.
+# Page 0 is personal; resource items still go to their dedicated tabs.
+PAGE_PRIORITY = (3, 4, 5, 2, 1, 0)
+SHARED_PRIORITY = PAGE_PRIORITY[:-1]
 
 
 @dataclass
 class Pages:
-    """Where the stash had room last (0 the personal page, n the n-th shared one), kept across visits: a visit starts
-    there, not at the personal page. With the personal page and three shared ones full, each visit opened them in turn
-    for 10 s before the fourth took its items (17:52 on 2026-10-17). A page passed over may still fit a smaller item:
-    that cell is given up for the visits' time."""
+    """The last page that took an item, for the scan's report. Each item starts at the first priority page again:
+    a page passed over for a larger item may still fit a smaller one, and the player can free room between visits."""
 
-    first: int = 0
+    first: int = PAGE_PRIORITY[0]
 
 
 @functools.cache
@@ -303,8 +305,7 @@ def unload(
         moved -= len(spilled)  # out of the cube into the inventory: counted where it goes next
         if spilled:
             LOG.info("Macro: stash: %d of the cube's items came to the inventory", len(spilled))
-        # The resources by a Ctrl + click onto their tabs' stacks, then the rest onto the pages: the personal one,
-        # then the shared ones (the player, 2026-10-17: any free space)
+        # Resources by Ctrl + click onto their tabs' stacks, then keepers onto pages in PAGE_PRIORITY.
         if full:
             kept = [item for item in held if item.txt in full]
             if kept:
@@ -314,9 +315,27 @@ def unload(
             item for item in held if item.txt not in RESOURCES
         ]
         pages = pages if pages is not None else Pages()
-        page = min(pages.first, SHARED_PAGES)  # 0 the personal page, n the n-th shared one
-        on_pages = False
+        shown_page: int | None = None
+
+        def show_page(page: int) -> None:
+            nonlocal shown_page
+            if page == shown_page:
+                return
+            if page == 0:
+                _tab(run, rect, PERSONAL_TAB)
+            elif shown_page is None or shown_page == 0:
+                _shared(run, rect, page)
+            else:
+                steps = page - shown_page
+                arrow = SHARED_RIGHT if steps > 0 else SHARED_LEFT
+                for _ in range(abs(steps)):
+                    run.actuator.move(*panel_point(rect, *arrow), scatter=(8, 8))
+                    run.actuator.click()
+                    run.pace.sleep(TAB_SETTLE)
+            shown_page = page
+
         for item in ordered:
+            page = PAGE_PRIORITY[0]
             if full is not None and item.txt in full and not _potion(item):
                 # Its kind refused earlier this visit: the stack is full, the rest of the kind is not tried (seven
                 # flawless gems of four full stacks, ~1.3 s each, at 06:08:50-55 on 2026-10-18)
@@ -325,12 +344,8 @@ def unload(
             # A resource goes onto its own tab whatever tab is shown (the player, 2026-10-18): its tab is shown only
             # after a refusal, which on its own tab is a full stack. The refusal that once had every tab shown first, a
             # Tal Rune at 01:28:46 on 2026-10-17, was the Tal Runes' full stack
-            if item.txt not in RESOURCES and not on_pages:
-                on_pages = True
-                if page == 0:
-                    _tab(run, rect, PERSONAL_TAB)
-                else:
-                    _shared(run, rect, page)
+            if item.txt not in RESOURCES:
+                show_page(page)
             while True:
                 run.actuator.move(*cell_point(rect, INVENTORY, (item.x, item.y), item.size), scatter=(6, 6))
                 run.actuator.click('Control_L')
@@ -343,25 +358,22 @@ def unload(
                     shown_tab = resource_tabs()[item.txt]
                     LOG.info('Macro: stash: the %s did not go: its own tab shown, and again', _name(item))
                     _tab(run, rect, tab_point(shown_tab))
+                    shown_page = None
                     continue
                 if item.txt in RESOURCES and full is not None and not _potion(item):
                     full.add(item.txt)  # its tab shown and refused: the stack holds 99 (the Tal Runes, 2026-10-17)
                     # a rune's then sold at Jamella; a gem's kept and cubed into perfect ones (macros/loop.py
                     # `sold_full`, macros/cube.py `transmute`)
                     LOG.info('Macro: stash: the %s stack is full', _name(item))
-                if item.txt in RESOURCES or page >= SHARED_PAGES:
+                if item.txt in RESOURCES or page == PAGE_PRIORITY[-1]:
                     left += 1
                     stuffed = stuffed or item.txt not in RESOURCES
                     LOG.info('Macro: stash: no room for the %s at (%d, %d)', _name(item), item.x, item.y)
                     break
-                page += 1  # this page is full: the next
-                LOG.info('Macro: stash: page %d is full: shared page %d', page - 1, page)
-                if page == 1:
-                    _shared(run, rect, page)
-                else:
-                    run.actuator.move(*panel_point(rect, *SHARED_RIGHT), scatter=(8, 8))
-                    run.actuator.click()
-                    run.pace.sleep(TAB_SETTLE)
+                previous = page
+                page = PAGE_PRIORITY[PAGE_PRIORITY.index(page) + 1]
+                LOG.info('Macro: stash: page %d is full: next priority page %d', previous, page)
+                show_page(page)
         if gold_to is not None:
             deposit(run, rect, gold_to)
     finally:
@@ -470,15 +482,3 @@ def _potion(item: Carried) -> bool:
 def _name(item: Carried) -> str:
     base = metadata()['bases'].get(str(item.txt))
     return base['name'] if base is not None else f'item {item.txt}'
-
-
-def _until(run: Run, holds) -> bool:
-    """Whether the carried items come to hold `holds` within ITEM_SECONDS."""
-    deadline = run.clock() + ITEM_SECONDS
-    while True:
-        pack = run.carried() if run.carried is not None else None
-        if pack is not None and holds(pack):
-            return True
-        if run.clock() >= deadline:
-            return False
-        run.pace.sleep(0.05)

@@ -46,7 +46,7 @@ the way (the potential from the character's own tile). An elite already in reach
 import math
 import threading
 import time
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Collection, Sequence
 from contextlib import ExitStack, contextmanager, nullcontext
 from dataclasses import dataclass, field, replace
 
@@ -89,7 +89,7 @@ from inventory_tracking.config import HEAL_PRIORITY
 from inventory_tracking.levels.model import SUPER_CHEST, UNIQUE_CHEST, Ground, Level, Room, Target
 from inventory_tracking.levels.presets import display_name
 from inventory_tracking.levels.route import room_at
-from inventory_tracking.macros import route
+from inventory_tracking.macros import lootpolicy, route
 from inventory_tracking.macros.actuator import POINTER_DRIFT, Abort, Cancelled
 from inventory_tracking.macros.buffs import Buffs
 from inventory_tracking.macros.build import Attack, Build, Intent, NoWay, PricedStep
@@ -112,9 +112,20 @@ from inventory_tracking.macros.goals import (
     nearer,
     rest_of_level,
 )
-from inventory_tracking.macros.movement import WALKS, WARPS
+from inventory_tracking.macros.movement import HOPS, WALKS, WARPS
 from inventory_tracking.macros.pad import MONSTER_UNIT
-from inventory_tracking.macros.pickup import POTION_UNITS, choose, pick_up, shortages, unshunned, worth_a_stop
+from inventory_tracking.macros.pickmode import is_candidate
+from inventory_tracking.macros.pickup import (
+    POTION_UNITS,
+    Refused,
+    choose,
+    gheeds_carried,
+    pick_up,
+    shortages,
+    unique_grand_charm,
+    unshunned,
+    worth_a_stop,
+)
 from inventory_tracking.macros.pursuit import (
     NONE,
     PASSAGE,
@@ -163,6 +174,7 @@ from inventory_tracking.macros.teleport import (
     Covered,
     Way,
     entry_spot,
+    entry_stand,
     ground_fraction,
     hop_toward,
     in_view,
@@ -220,7 +232,7 @@ from inventory_tracking.macros.world import (
 )
 from inventory_tracking.models import PotionType
 from inventory_tracking.native.layout import TILE_UNITS
-from inventory_tracking.routes.model import ENTER, FIGHT, STAND, USE, Script
+from inventory_tracking.routes.model import ENTER, FIGHT, LEAVE, LOOT, STAND, USE, Script
 from inventory_tracking.routes.progress import Progress
 from inventory_tracking.terror.bosses import BOSSES
 from inventory_tracking.terror.danger import Unit, packs
@@ -268,6 +280,14 @@ HOLD_SIGHT = 40.0  # world units: a valuable this near that the sweep does not t
 HOLD_UNITS = 25.0  # the sweep's own steps end no further than this from it
 GATHER_CHECK = 0.3  # seconds between two looks of the sweep for something to pick up
 GATHER_TRIES = 2  # times the sweep stops for one drop (and a level run goes for one, `side_drop`)
+# The KP_6 loop's run takes a valuable it reads beyond PICK_NEAR walked when Teleport brings it there within these
+# seconds by the navigator (`on_the_way`; the player, 2026-10-18 18:24: "before running the level -- you must be sure
+# that loot is visible, we left Ko rune on ground and moved away"). A hop makes 84 units a second (26 in 0.31 s), so
+# 2.5 s is 210 units of hop way: all the read reaches (126 units off it was out of it, 18:22:19 on 2026-10-18). The Ko
+# Rune lay 34.5 straight and 117 walked behind the character (a wall between: the hops had crossed it), and the run
+# went on. With no Teleport in the moves the walked PICK_NEAR stays (the lava's Ith Rune: 26 straight, 226 walked).
+LOOP_PICK_SECONDS = 2.5
+FAR_JUDGED = 0.5  # seconds a far valuable's Teleport reach is judged for (`on_the_way`): the navigator's eta is dear
 SHACK_TRIES = 2  # times the KP_6 loop's run tries one of a shack's containers (`shack_goal`)
 # A full clear opens a closed glowing super chest (objects.txt 397) streamed within SUPER_NEAR before the rest of the
 # level (the player, 00:19 on 2026-10-18: "we're not always opening target chest on all levels that has it (like cave
@@ -504,6 +524,30 @@ def threat(run: Run) -> Callable[[Point, Point], int]:
     return near
 
 
+def stands_by(drop: Drop, loot: Loot, waived: Collection[int]) -> bool:
+    """Whether a level run stands by `drop` (`Hunter.stay_by`, within PICK_NEAR): a valuable the inventory has no room
+    for, not taken only because the loot filter shows it (`Loot.shown`), and not one a press went on from (`waived`).
+    Macros/lootpolicy.py `RUN` answers the same."""
+    return (
+        drop.kind == VALUABLE
+        and drop.unit_id not in loot.shown
+        and drop.unit_id not in waived
+        and not has_room(loot.room, drop.size)
+    )
+
+
+def holds(drop: Drop, loot: Loot, looped: bool = False) -> bool:
+    """Whether the sweep stays by `drop` (`Hunter.gather`'s `held`, within HOLD_SIGHT, of the drops not given up): a
+    valuable prized (world.py `prized`) or with room for it; in the KP_6 loop (`looped`) also one not taken only
+    because the filter shows it (`Loot.shown`) and no identify candidate (the player, 2026-10-18 17:50: "we should stop
+    and clear inventory with our designated town routine"). Macros/lootpolicy.py `SWEEP` answers the same; `gather`
+    asks it."""
+    if drop.kind != VALUABLE:
+        return False
+    plain = looped and drop.unit_id not in loot.shown and not is_candidate(drop)
+    return drop.prized or has_room(loot.room, drop.size) or plain
+
+
 def passing_key(place: Point, unit: int | None, rooms: Sequence[Room] = ()) -> object:
     """What a level run's clearing goal is passed and judged by (`Hunter.cleared`): its monster; else the room its
     place lies in (of `rooms`, the level's), else its place to the unit. A room's goal is the tile of it nearest by the
@@ -530,6 +574,13 @@ class Judging:
     best: float
     last: float
     checked: float = -math.inf  # the look that last asked the way left
+
+
+def door_entry(card: Target | None) -> Point | None:
+    """Where the character stands to click the card's door, world units: its remembered entry on footing (teleport.py
+    `entry_stand`; macros/goals.py `way_out`: a level run's last hop lands on it); None with none."""
+    entry = entry_stand(card) if card is not None else None
+    return scaled(entry) if entry is not None else None
 
 
 def hostiles(world: World) -> list[Monster]:
@@ -645,6 +696,8 @@ class Hunter:
         # where they were made (`untouched`: a boss is never left alone)
         self.nearing: dict[int, float] = {}
         self.restock_said: set[int] = set()  # the potions a restock went for, said once each (`restock`)
+        # unit -> (clock judged, Teleport brings it within LOOP_PICK_SECONDS): the loop's far valuables (`on_the_way`)
+        self.far_judged: dict[int, tuple[float, bool]] = {}
         self.untouchable: dict[int, float] = {}  # unit -> clock time until which it is left alone
         self.swap_failed_at = -math.inf  # clock time a swap to the main weapons last did not come
         self.move: Move | None = None  # the move the player asked for and has not got yet: before any strike
@@ -701,6 +754,12 @@ class Hunter:
         self.dead_ends: list[tuple[Point, float]] = []  # spots a move did not reach, and until when they are passed
         # the runner's: a level run ended by the hunt itself (the route's end, the character's death), with why
         self.run_over: Callable[[str], None] | None = None
+        # The runner's (runner.py `_carry_one`): whether a unique Grand Charm refused for the Gheed's Fortune carried
+        # (macros/pickup.py `Refused`) starts the KP_6 loop's Gheed's swap, which the level run then ends for
+        # (`carry_one_swap`); None, or False: the run's own rules (the try counted, the drop given up after
+        # GATHER_TRIES). `swap_asked`: the drops given up whose swap was asked (`side_drop`), once each
+        self.carry_one: Callable[[Refused], bool] | None = None
+        self.swap_asked: set[int] = set()
         self.told = Told()  # the reason last said for a decision that moved nothing
         self.told_at = -math.inf  # clock time it was last said
         self.pursued: Goal | None = None  # the goal of the last decision, for the recorder and the viewer
@@ -750,6 +809,9 @@ class Hunter:
         # it, macros/cube.py `stash`), how many went; None: none is made. Tried once a drop (`room_tried`)
         self.room_maker: Callable[[Run], int] | None = None
         self.room_tried: int | None = None
+        # Whether the KP_6 loop is on (the runner's): the sweep then holds a plain valuable with no room too, for the
+        # loop's room rules (macros/lootpolicy.py `NO_ROOM_PLAIN`, ruled 2026-10-18 17:50)
+        self.looping: Callable[[], bool] = lambda: False
 
     def use(self, build: Build) -> None:
         """The build the hunt plays from now on: the runner's, named at a run's first look that shows
@@ -1042,17 +1104,34 @@ class Hunter:
             if found.unit_id in given_up:
                 self.refused_potion(found, here, given_up[found.unit_id])
                 self.left(found, here, given_up[found.unit_id], 'the level run')
+                if self.given_up_charm(run, found, given_up[found.unit_id]):
+                    return None  # the run ends for the Gheed's swap
         loot = replace(loot, drops=tuple(found for found in loot.drops if found.unit_id not in given_up))
         if restocking:
             return self.restock(run, loot, here, foes, world)
+        if self.buffs.quiet_by_the_boss and any(
+            self.boss(m) and math.dist(here, (m.x, m.y)) <= self.reach for m in foes
+        ):
+            # No side goal but a potion while the run's boss is in reach (macros/buffs.py QUIET_BY_THE_BOSS, F3 of
+            # rca/2026-10-18/andariel-cadence-findings.md §5): her death first, then her drops land (loop.py DROPS_LAND)
+            # and the ground is looked at again. A Dol Rune 32 away took 5.7 s of Andariel's fight at 11:49:03.
+            loot = replace(loot, drops=tuple(found for found in loot.drops if found.kind in (HEALING, REJUVENATION)))
         plan = choose(loot, here)
         drop = plan.drop if plan is not None else None
-        while drop is not None and drop.kind == VALUABLE and not self.on_the_way(run, here, drop, world):
+        looped = self.pursuit is not None and self.pursuit.looped
+        while drop is not None and drop.kind == VALUABLE and not self.on_the_way(run, here, drop, world, looped=looped):
             # Out of the choice, and nothing nearer hidden by it: at 22:56:06 on 2026-10-14 a Flawless Sapphire 43
             # away hid a super healing potion 8 away with the belt 6 short (run-1932-findings.md issue 2)
             loot = replace(loot, drops=tuple(found for found in loot.drops if found.unit_id != drop.unit_id))
             plan = choose(loot, here)
             drop = plan.drop if plan is not None else None
+        if drop is not None and drop.kind == VALUABLE and looped and not self.walked_near(run, here, drop, world):
+            # The loop's far valuable (beyond PICK_NEAR walked) hides no potion the belt wants nearer: that one first
+            supplies = choose(replace(loot, drops=tuple(found for found in loot.drops if found.kind != VALUABLE)), here)
+            potion = supplies.drop if supplies is not None else None
+            nearer = potion is not None and math.dist(here, (potion.x, potion.y)) < math.dist(here, (drop.x, drop.y))
+            if potion is not None and potion.kind in (HEALING, REJUVENATION) and nearer:
+                drop = potion
         if drop is not None and drop.kind in (HEALING, REJUVENATION):
             guards = threat(run)(here, (drop.x, drop.y))
             if not guards:
@@ -1095,6 +1174,37 @@ class Hunter:
                 belt[PotionType.REJUVENATION], QUIET_UNITS,
             )  # fmt: skip
         return found
+
+    def given_up_charm(self, run: Run, drop: Drop, why: str) -> bool:
+        """The backstop of the Gheed's swap (macros/pickup.py `Refused`): a unique Grand Charm the level run gives up
+        on with a Gheed's Fortune carried is the carry-one refusal, whatever its tries came to (13:56:41 on 2026-10-18:
+        both ended as "priced act expired", no click was refused, and only the 45 s stand reached the swap at
+        13:57:26). Asked once a drop (`swap_asked`); whether the swap starts and the run ended for it."""
+        if self.carry_one is None or drop.kind != VALUABLE or drop.unit_id in self.swap_asked:
+            return False
+        if not unique_grand_charm(drop) or not gheeds_carried(run):
+            return False
+        if len(self.swap_asked) > 200:
+            self.swap_asked.clear()
+        self.swap_asked.add(drop.unit_id)
+        refused = Refused(drop, f"{drop.label} {why}, a Gheed's Fortune carried")
+        return self.carry_one_swap(run, refused)
+
+    def carry_one_swap(self, run: Run, refused: Refused) -> bool:
+        """Whether the runner starts the Gheed's swap for `refused` (`carry_one`); the level run ends for it then, so
+        the loop's swap leg follows at once (runner.py `_run_over`)."""
+        if self.carry_one is None or not self.carry_one(refused):
+            return False
+        self.end_run(run, f"{refused}: the Gheed's swap")
+        return True
+
+    def forget_given_up(self) -> None:
+        """The give-up memory of the drops (`gathered`, `tried`, `retried`, `left_said`, `swap_asked`) cleared: the
+        player's Gheed's Fortune went onto a shared page (macros/loop.py GHEED_STASH), and the charm refused for it is
+        tried again. At 13:57:50 on 2026-10-18 the new one (the same unit 3821340916) was never tried: only the pickup
+        step's own (`SHUNNED`) was cleared, and the level run stood 45 s by it."""
+        for memory in (self.gathered, self.tried, self.retried, self.left_said, self.swap_asked):
+            memory.clear()
 
     def given_up(self, unit: int) -> str:
         """Why a drop gone for GATHER_TRIES times is left: what its last try came to, as the hands said it (a
@@ -1220,15 +1330,14 @@ class Hunter:
         loot = unshunned(run.loot(), run.clock()) if run.loot is not None and wanted else None
         found = None
         if loot is not None:
-            left = [
-                d
-                for d in loot.drops
-                if d.kind == VALUABLE
-                and d.unit_id not in loot.shown
-                and d.unit_id not in self.waived
-                and not has_room(loot.room, d.size)
-                and math.dist(here, (d.x, d.y)) <= PICK_NEAR
-            ]
+            near = [d for d in loot.drops if d.kind == VALUABLE and math.dist(here, (d.x, d.y)) <= PICK_NEAR]
+            left = [d for d in near if stands_by(d, loot, self.waived)]
+            for d in near:
+                # Beside the decision, never in place of it (macros/lootpolicy.py, shadow mode)
+                lootpolicy.SHADOW.check(
+                    lootpolicy.RUN, d, stands_by(d, loot, self.waived), game=loot.game,
+                    room=has_room(loot.room, d.size), shown=d.unit_id in loot.shown, given_up=d.unit_id in self.waived,
+                )  # fmt: skip
             found = min(left, key=lambda d: math.dist(here, (d.x, d.y))) if left else None
         if found is None:
             if self.warned is not None:
@@ -1427,6 +1536,7 @@ class Hunter:
             # Only a press or a level run looks for a boss nothing is known of: the mode by itself goes
             # nowhere for it (macros/pursuit.py `decide`), and the look costs a potential over the whole level.
             elsewhere=elsewhere if pressed or running else None,
+            entry=door_entry(card),
             drop=drop,
             side=side,
             stay=stay,
@@ -1580,11 +1690,18 @@ class Hunter:
         )
         return False
 
-    def on_the_way(self, run: Run, here: Point, drop: Drop, world: World | None) -> bool:
+    def on_the_way(self, run: Run, here: Point, drop: Drop, world: World | None, *, looped: bool = False) -> bool:
         """Whether a valuable is near enough for a level run to take on its way (`side_drop`): PICK_NEAR by walking
-        (travel.py `walked_length`), not in a straight line. The Ith Rune of 22:36:09 on 2026-10-14 was 26 straight
+        (`walked_near`), not in a straight line. The Ith Rune of 22:36:09 on 2026-10-14 was 26 straight
         and 226 by walking across the lava: taken for "on the way" from one side and not from the other, it had the
-        run warp back and forth 8 times (rca/2026-10-14/run-1932-findings.md §1.2.3)."""
+        run warp back and forth 8 times (rca/2026-10-14/run-1932-findings.md §1.2.3). `looped`: the KP_6 loop's run,
+        which takes anything it reads that Teleport brings it to (`teleport_reach`): visible loot is taken now."""
+        if self.walked_near(run, here, drop, world):
+            return True
+        return looped and self.teleport_reach(run, here, drop, world)
+
+    def walked_near(self, run: Run, here: Point, drop: Drop, world: World | None) -> bool:
+        """Whether `drop` is within PICK_NEAR of `here` by walking (travel.py `walked_length`)."""
         place = (drop.x, drop.y)
         if math.dist(here, place) > PICK_NEAR:
             return False
@@ -1592,6 +1709,39 @@ class Hunter:
         level = self.known_level(world.player) if world.player is not None else None
         ground = Ground(level.ground) if level is not None else None
         return walked_length(ground, world.doors, here, place) <= PICK_NEAR
+
+    def teleport_reach(self, run: Run, here: Point, drop: Drop, world: World | None) -> bool:
+        """Whether the navigator's way to `drop` is of Teleport hops (movement.py HOPS: they cross walls and lava) and
+        takes LOOP_PICK_SECONDS at most by its eta: the loop's run goes for it now (`on_the_way`). Judged once in
+        FAR_JUDGED a drop, said once a drop when it is gone for (18:22:17 on 2026-10-18: a Ko Rune 34.5 straight, 117
+        walked behind the character, left)."""
+        now = run.clock()
+        judged = self.far_judged.get(drop.unit_id)
+        if judged is not None and 0.0 <= now - judged[0] < FAR_JUDGED:
+            return judged[1]
+        world = world if world is not None else run.world()
+        player, rect = world.player, run.actuator.keys.focused_window_rect()
+        level = self.known_level(player) if player is not None else None
+        found, eta = False, math.inf
+        if level is not None and rect is not None:
+            ground, aspect, place = Ground(level.ground), rect[2] / rect[3], (drop.x, drop.y)
+            intent = self.looped_now(now)
+            if self.travel.means(run, world, ground, aspect, place, intent, level.rooms) == HOPS:
+                eta = self.travel.eta(run, world, ground, aspect, place, intent, level.rooms)
+                found = eta <= LOOP_PICK_SECONDS
+        if len(self.far_judged) > 200:
+            self.far_judged.clear()
+        said = judged is not None and judged[1] == found
+        self.far_judged[drop.unit_id] = (now, found)
+        if not said:
+            LOG.info(
+                'Macro: run: %s at (%.0f, %.0f), %.0f away: %s',
+                drop.label, drop.x, drop.y, math.dist(here, (drop.x, drop.y)),
+                f'Teleport brings it in {eta:.1f} s: taken now, the run waits'
+                if found
+                else f'not taken from here: no Teleport way within {LOOP_PICK_SECONDS:g} s (eta {eta:.1f} s)',
+            )  # fmt: skip
+        return found
 
     def pass_by(self, goal: Goal, why: str, now: float, rooms: Sequence[Room] = ()) -> None:
         """A level run's clearing goal is passed for PASS_SECONDS from `now` (`cleared`), said."""
@@ -1844,6 +1994,18 @@ class Hunter:
             # A spot a move just failed to reach is not priced again for a while (`barred`)
             facts = replace(facts, candidates=tuple(c for c in facts.candidates if not self.barred(c.act, now)))
         act = decide(facts, posted, self.pursuing)
+        if (
+            isinstance(act, Hold)
+            and posted is not None
+            and posted.looped
+            and goal is not None
+            and goal.do in (LOOT, LEAVE)
+            and now - self.hurt_at > HURT_SECONDS
+        ):
+            # The KP_6 loop's run with its route's boss dead: her pack is not fought while nothing hurts the character,
+            # the loot and the game's end come next (11.5 s and 30 kills after Andariel's death at 13:26:39 on
+            # 2026-10-18; the player, 2026-10-17: "we don't even need to kill some trash mobs and can loot and leave")
+            act = Ended(f"the route's boss is dead: {goal.label} next, what does not hurt is not fought")
         if isinstance(act, Advance) and self.barred(act, now):
             act = NoWay(f'{goal.label if goal else "the goal"}: the move there just did not take; looking again')
         if isinstance(act, Advance) and act.reason:
@@ -2004,21 +2166,26 @@ class Hunter:
                 raise
             LOG.info('Macro: attack mode: the step to (%.1f, %.1f) failed (%s)', *act.step.spot, stop)
 
-    def key_asks(self, run: Run, world: World, foes: list[Monster], ground: Ground) -> bool:
+    def key_asks(self, run: Run, world: World, foes: list[Monster], ground: Ground, *, unstruck: bool = False) -> bool:
         """Inside a fight: whether the key pressed asks for something other than the strike now (a move,
         an object to use, the route's own step), for which the fight lets go as it does for the player's
         own move. Decided once a press and again every DECIDE_SECONDS while the press is fresh: a goal in
-        reach is held, and the strike is not let go for a press that asks for nothing else."""
+        reach is held, and the strike is not let go for a press that asks for nothing else. `unstruck`: the
+        strike not pressed yet in this fight: the Hold that began it is its judgement until then, short of a
+        fresh press (a second look and price before the press held the first strike after a landing 0.48 s,
+        44 of 61 landings on Catacombs 4 on 2026-10-18, rca/2026-10-18/andariel-cadence-findings.md F2)."""
         now = run.clock()
         if not self.pursuing:
             return False
         current = self.pursuit.pressed_at if self.pursuit is not None else -math.inf
         stamp, at, asks = self.judged
-        if stamp != current or now - at >= DECIDE_SECONDS:
+        if stamp != current or (now - at >= DECIDE_SECONDS and not unstruck):
             found = self.judge(run, world, foes, ground, in_reach=True)
             act = found.act
-            asks = isinstance(act, Advance | Operate | Defer) or (
-                isinstance(act, NoWay) and act.reason.startswith('safety:')
+            asks = (
+                isinstance(act, Advance | Operate | Defer)
+                or (isinstance(act, NoWay) and act.reason.startswith('safety:'))
+                or (isinstance(act, Ended) and found.posted is not None and found.posted.looped)  # the loop's run over
             )
             if isinstance(act, Hold) and found.pressed:
                 # A fresh press answered by the strike says so at that look (I6), as `pursue` does
@@ -2156,6 +2323,8 @@ class Hunter:
         except Abort as stop:
             if run.stops(stop):
                 raise
+            if isinstance(stop, Refused) and self.carry_one_swap(run, stop):
+                return True  # carry-one: the Gheed's swap, not a try counted toward giving the charm up
             if isinstance(act, Advance) and 'did not move' in str(stop) and not isinstance(stop, Untaken):
                 # Not tried again at once: 22:04:12 on 2026-10-16 made one walk 16 times in 17 s, each "did not move"
                 # (rca/2026-10-16/loop-shack-stalls-findings.md §2). Not a key the game took no cast for (`Untaken`,
@@ -2828,13 +2997,20 @@ class Hunter:
         # Not by gear the filter shows that there is no room for (world.py `prized`): the mode goes on to
         # the hostiles (Drifter Cavern, 19:59:52 on 2026-10-12: "the sweep stays by Magic Kriss", 13
         # hostiles 39 away and attack mode idle; user: "allow moving when the item isn't very valuable").
-        near = [
-            d
-            for d in loot.drops
-            if d.kind == VALUABLE
-            and math.dist(here, (d.x, d.y)) <= HOLD_SIGHT
-            and (d.prized or has_room(loot.room, d.size))
-        ]
+        # The sweep's "must not leave it" is the policy's (macros/lootpolicy.py `verdict`, step 4 of rca/2026-10-18/
+        # arch-level-behaviour.md); in the KP_6 loop a plain valuable with no room is held too (the player, 2026-10-18
+        # 17:50: "we should stop and clear inventory with our designated town routine"). The loop's attack mode ends
+        # with its level run (runner.py `_run_over`) and the sweep runs only outside one: the loop's press holds it
+        # first (macros/pickup.py `pick_up`), and a stand here is the watchdog's 45 s 'stall', a room cause.
+        looped = self.looping()
+        sight = [d for d in loot.drops if d.kind == VALUABLE and math.dist(here, (d.x, d.y)) <= HOLD_SIGHT]
+        facts = {d.unit_id: {'room': has_room(loot.room, d.size), 'shown': d.unit_id in loot.shown} for d in sight}
+        near = [d for d in sight if lootpolicy.verdict(d, lootpolicy.SWEEP, **facts[d.unit_id], looped=looped).hold]
+        for d in sight:
+            # the shadow beside it (the spent are out already): the class's cases counted, `holds` against the verdict
+            lootpolicy.SHADOW.check(
+                lootpolicy.SWEEP, d, holds(d, loot, looped), game=loot.game, **facts[d.unit_id], looped=looped
+            )
         self.held = min(near, key=lambda d: math.dist(here, (d.x, d.y))) if near else None
         if plan is None:
             held = self.held
@@ -3678,7 +3854,7 @@ class Hunter:
                 if not reachable:
                     ended = 'Nothing left in reach'
                     break
-                if self.pursuing and self.key_asks(run, world, foes, ground):
+                if self.pursuing and self.key_asks(run, world, foes, ground, unstruck=again is None):
                     ended = 'Yielded (the key asks for a move)'  # the mode makes it at its next look
                     break
                 if until is not None and run.clock() >= until:
@@ -3713,6 +3889,7 @@ class Hunter:
                     and self.running
                     and not self.rushing
                     and self.build.settings.fight_look
+                    and again is not None  # after the strike's press: the look held it back (F2, `key_asks`)
                     and run.clock() - self.sweep.looked >= FOLLOW_CHECK
                 ):
                     # A level run's fight keeps the sweep's look for a better place (rca/2026-10-13/kp1-level-run.md

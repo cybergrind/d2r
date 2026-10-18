@@ -6,7 +6,7 @@ import pytest
 
 from inventory_tracking.items.metadata import metadata
 from inventory_tracking.macros.cube import CUBE_CLASS, overflow, own_of
-from inventory_tracking.macros.stash import GEMS_TAB, RESOURCES, STASH_CUBE, Pages, resources, unload
+from inventory_tracking.macros.stash import GEMS_TAB, RESOURCES, STASH_CUBE, Pages, open_stash, resources, unload
 from inventory_tracking.macros.waypoint import panel_point
 from inventory_tracking.macros.world import BANK, Carried, Pack, Thing
 from tests.inventory_tracking.macros.fakes import Game, player, world
@@ -110,21 +110,16 @@ def test_a_cube_item_no_resource_tab_holds_comes_out_through_the_inventory():
     assert play.pack.in_cube == ()
 
 
-def test_a_visit_starts_at_the_page_that_had_room_last():
-    # 17:52 on 2026-10-17: the personal page and three shared ones full, each visit opened them in turn for 10 s
+def test_scan_uses_the_page_priority_even_after_a_previous_page_took_an_item():
     play = fortress(Pack((GRAND, THE_CUBE, CHARM), ('...',) * 4))
-    play.stash_room = [0, 0, 1, 1, 0, 0]
-    play.shared_page = 4
+    play.stash_room = [1] * 6
+    play.shared_page = 4  # the Shared tab shows page 5 from an earlier visit
     pages = Pages()
-    assert unload(play.run(), OWN, pages=pages) == 1
-    assert pages.first == 2  # the second shared page took the charm
-    play.pack = Pack((GRAND, THE_CUBE, replace(CHARM, unit_id=99)), ('...',) * 4)
-    play.stash_room[2] = 0  # full now: the third shared one takes the next
-    play.stash_room[0] = 1  # a cell freed on the personal page is not looked at again
-    play.shared_page = 4
-    assert unload(play.run(), OWN, pages=pages) == 1
-    assert pages.first == 3
-    assert play.stash_room == [1, 0, 0, 0, 0, 0]
+    for unit, wanted in enumerate((3, 4, 5, 2, 1, 0), start=13):
+        play.pack = Pack((GRAND, THE_CUBE, replace(CHARM, unit_id=unit)), ('...',) * 4)
+        assert unload(play.run(), OWN, pages=pages) == 1
+        assert pages.first == wanted
+        assert play.stash_room[wanted] == 0
 
 
 def test_a_full_page_sends_the_rest_to_the_shared_pages_and_with_all_full_they_stay():
@@ -272,3 +267,19 @@ def test_once_a_kind_is_refused_the_rest_of_it_is_not_tried_in_that_visit():
         return sum(event[0] == 'click' for event in play.keys.events)
 
     assert clicks(GEM, replace(GEM, unit_id=77, x=GEM.x + 1)) == clicks(GEM)
+
+
+def test_a_stash_the_walks_click_opened_is_done_with_no_aim():
+    """The stash version of 14:42:09 on 2026-10-18 (the waypoint's: rca/2026-10-18/arch-actions.md §2 A): the walk's
+    last click lands on the stash's picture, which opens 0.12 s after the character stops; the aims then read nothing
+    under the pointer (the panel is drawn over it), and the stash was said not under the pointer at any aim."""
+    play = fortress(Pack((GRAND, THE_CUBE, RUNE), ('...',) * 4))
+    play.world = world(FORTRESS, player=player(FORTRESS, x=5048.0, y=5050.0))  # drawn above the window's fifth
+    play.walk_reach, play.opens_after, play.panel_covers = 3.0, 0.12, True
+
+    open_stash(play.run())
+
+    clicks = [e for e in play.keys.events if e[0] == 'click']
+    assert len(clicks) == 1  # the walk's, and no aim's
+    assert play.stash_opened == 1
+    assert set(play.world.open_panels) == {'inventory', 'stash'}

@@ -23,6 +23,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(ROOT))
 
+from logwords import TELEPORT  # ruff: ignore[module-import-not-at-top-of-file] - beside this tool
+
 from inventory_tracking.combat.legs import CASTING, MOVING  # ruff: ignore[module-import-not-at-top-of-file]
 from inventory_tracking.combat.takes import Take  # ruff: ignore[module-import-not-at-top-of-file]
 
@@ -79,7 +81,7 @@ def stay(path: Path) -> dict | None:
         for u in take.units
         if HERALD_TIER in (u.get('stats') or {}) and u.get('flags', 0) & UNIQUE and not u.get('ally')
     ]
-    teleports = sum(e['event'] == 'log' and 'Macro: Teleport toward' in e.get('text', '') for e in take.events)
+    teleports = sum(e['event'] == 'log' and TELEPORT in e.get('text', '') for e in take.events)
     return {
         'take': path.name,
         'area': int(take.manifest.get('area', 0)),

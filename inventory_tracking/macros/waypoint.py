@@ -39,6 +39,7 @@ from inventory_tracking.native.layout import TILE_UNITS
 
 CLOSE = 8.0  # units from the waypoint within which a click finds the character's figure over it (`open_panel`)
 STEP_BACK = 7.0  # units the character steps back from a waypoint too close to be aimed at
+OPENS_SECONDS = 0.25  # the walk's own click opens the panel 0.05-0.19 s after the stop (`open_panel`)
 
 
 __all__ = ['WaypointRow', 'open_panel', 'panel_point', 'travel', 'waypoint_of']
@@ -91,6 +92,10 @@ def row_point(row: int) -> tuple[float, float]:
     return ROW_ORIGIN[0] + ROW_AIM[0], ROW_ORIGIN[1] + row * ROW_STEP + ROW_AIM[1]
 
 
+def is_open(world: World) -> bool:
+    return 'waypoint' in world.open_panels
+
+
 def open_panel(run: Run, marks: Callable[[str], tuple[tuple[float, float], ...]] | None = None) -> None:
     """Click the town's waypoint and wait for its panel. `Abort` out of town and with no waypoint shown. With none
     in sight, walked toward the level card's Waypoint mark (`marks`, guide.py: tiles) until it is: a game begun
@@ -122,6 +127,9 @@ def open_panel(run: Run, marks: Callable[[str], tuple[tuple[float, float], ...]]
         raise Abort('no waypoint in sight')
     drawn = ground_fraction(player, shown[0].x, shown[0].y, rect[2] / rect[3]) if rect is not None else None
     inside = drawn is not None and 0.15 <= drawn[0] <= 0.85 and 0.15 <= drawn[1] <= 0.8
+    if not inside:
+        LOG.info('Macro: waypoint: outside safe view: drawn %s, marks %s, panels %s', drawn,
+                 marks is not None, world.open_panels)  # fmt: skip
     if marks is not None and not inside:
         # In sight but maybe out of the window (the walk to the stash left it so: "the waypoint is not under the
         # pointer at any aim", 01:31:42 on 2026-10-17): walked to until drawn well inside
@@ -139,13 +147,26 @@ def open_panel(run: Run, marks: Callable[[str], tuple[tuple[float, float], ...]]
     # under the pointer (06:50:00 on 2026-10-17); with the character standing the wait returns at once
     standing = run.seen(lambda w: w.player is not None and w.player.mode not in (2, 3, 6), 1.6)
     player = (standing.player if standing is not None else None) or player
+    # The walk's last click often opened the panel itself, 0.05-0.19 s after the stop: every aim then read None under
+    # the pointer, and the step back clicked onto the open panel (14:42:09 on 2026-10-18, 17 cases on 2026-10-17/18).
+    # Since that evening `use_thing` looks for the panel itself before the first aim and between the aims (teleport.py
+    # PANEL_GRACE), so this look and the `is_open` below in the `except` are redundant: kept until the live logs show
+    # use_thing's own line ("took before any aim"), then to go (rca/2026-10-18/arch-actions.md §4 step 2)
+    if run.seen(is_open, OPENS_SECONDS) is not None:
+        LOG.info("Macro: waypoint: the walk's click opened the panel; no aim")
+        run.say('the waypoint: opened')
+        return
     thing = min(shown, key=lambda t: math.dist((t.x, t.y), (player.x, player.y)))
     mark = Target(
         player.area, (), (thing.x / TILE_UNITS, thing.y / TILE_UNITS), 'the waypoint', 'waypoint', use=thing.txt_id
     )
     try:
-        use_thing(run, mark, player, thing, rect[2] / rect[3])
+        use_thing(run, mark, player, thing, rect[2] / rect[3], grace=0.0)  # the grace was waited above
     except Abort as stop:
+        if is_open(run.world()):  # opened under the aims (they read None once it is): done, not a step back
+            LOG.info('Macro: waypoint: the panel opened while aiming (%s); done', stop)
+            run.say('the waypoint: opened')
+            return
         away = math.dist((thing.x, thing.y), (player.x, player.y))
         if 'not under the pointer' not in str(stop) or away > CLOSE:
             raise

@@ -365,6 +365,10 @@ class BuffFacts:
     # The row asked is a buff with a duration (`Buff.lasts`) that would end before the fight ahead does (`ahead`):
     # the executor's, per row (macros/buffs.py `lapsing`). A row's `due` may cast it again on it, in the quiet.
     lapsing: bool = False
+    # Whether the character lost life within HURT_SECONDS (macros/buffs.py `Buffs.hurt`, the hunt's rule): a question
+    # to the game, asked only by a row that cares (the sigil by the run's boss, QUIET_BY_THE_BOSS). None: not known,
+    # which a row takes for hurt.
+    hurt: Callable[[], bool] | None = None
 
     def since(self, skill: int, unit: int | None = None) -> float:
         """Seconds since `skill` was last cast (on or under `unit`); inf when it never was."""

@@ -32,8 +32,9 @@ ECHOING_MODULE = 'inventory_tracking.combat.mechanics.echoing_strike'
 ECHOING_PSEUDO = '<echoing_strike module>'
 BUILDS_PACKAGE = 'inventory_tracking.builds'
 BUILDS_PSEUDO = '<builds import>'
-# Town Portal: any character with a tome has it on a key (macros/portal.py, the KP_6 loop's phase 3)
-GENERIC = frozenset({'TELEPORT', 'TOWN_PORTAL', 'ATTACK', 'SWAP_WEAPONS'})
+# Town Portal: any character with a tome has it on a key (macros/portal.py, the KP_6 loop's phase 3), and any wearing
+# the Sling, a unique Ring of no class (uniqueitems.txt `oskill` "Townportal O Skill": macros/sling-plan.md)
+GENERIC = frozenset({'TELEPORT', 'TOWN_PORTAL', 'SLING_TOWN_PORTAL', 'ATTACK', 'SWAP_WEAPONS'})
 UPPER = re.compile(r'^[A-Z][A-Z0-9_]*$')
 
 NAMED: dict[str, str] = {

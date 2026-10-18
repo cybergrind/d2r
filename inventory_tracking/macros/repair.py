@@ -43,7 +43,7 @@ from inventory_tracking.macros.waypoint import panel_point
 from inventory_tracking.macros.world import GOLD_STAT, Teleport, Wear, World
 
 
-__all__ = ['HALBU', 'REPAIR_BELOW', 'WEAR_BELOW', 'WEAR_CARRIED', 'back', 'repair', 'wants', 'worn_out']
+__all__ = ['HALBU', 'REPAIR_BELOW', 'WEAR_BELOW', 'WEAR_CARRIED', 'back', 'due', 'repair', 'wants', 'worn_out']
 
 HALBU = 257
 # Of the staff's maximum charges, for a visit of its own: with Teleport in the loop's moves (~7.5 charges a stay) the
@@ -146,6 +146,19 @@ def wants(staff: Teleport | None) -> bool:
         and staff.maximum > 0
         and staff.charges < staff.maximum * REPAIR_BELOW
     )
+
+
+def due(
+    staff: Teleport | None, wear: Wear | None, coins: int | None, *, top_up: bool = False, waited: bool = True
+) -> bool:
+    """Whether Halbu is visited: the staff's charges low (`wants`) or, in a visit, any missing (`top_up`: town.py
+    `tops_up`) with the carried gold covering the cost; a worn item low on durability (its repair of its own, the
+    staff's charges full: Teleport of the character's own) with WEAR_CARRIED carried; his line not learned yet
+    (`unknown`: his panel only opened, no gold spent); none for RETRY_GAMES games after a visit that raised nothing
+    (`waited`)."""
+    charged = (wants(staff) or top_up) and affordable(coins)
+    mends = worn_out(wear) and coins is not None and coins >= WEAR_CARRIED
+    return (charged or mends or ((staff is not None or wear is not None) and unknown())) and waited
 
 
 def lifts() -> tuple[float, ...]:

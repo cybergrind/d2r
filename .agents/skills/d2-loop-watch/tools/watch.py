@@ -22,7 +22,6 @@ loop is on. `--from-start` prints the whole current log's games instead.
 """
 
 import argparse
-import re
 import sys
 import time
 from collections import deque
@@ -30,6 +29,23 @@ from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import games
+from logwords import (
+    AIMED,
+    FULL,
+    GROUND,
+    LEG,
+    LOOP_OFF,
+    LOOP_ON,
+    LOOP_RESUMED,
+    LOOP_STOPPED,
+    NOTE,
+    NOW,
+    PICKED,
+    REQUEST_LOOP,
+    RESUMED_OFF,
+    SAID,
+    stamp,
+)
 
 
 RUNS = Path(__file__).resolve().parents[4] / 'inventory_tracking' / 'runs' / 'alt-d'
@@ -60,27 +76,9 @@ def chests_between(start: datetime, end: datetime) -> int | None:
     return found
 
 
-LEG = re.compile(r'Macro: Loop: game (\d+), (.+)$')
-NOW = re.compile(
-    r'Macro: (loop stopped|loop: .*(game is left|stops here)|stash: the .* stack is full|shop: (sold|could not)'
-    r'|repair: the (staff|stash|cost)|resumed after a restart|identify: |shop: the item .* no longer'
-    r'|trade session done)'
-    r'|Macro failed|Traceback|ERROR'
-)
-NOTE = re.compile(r'Macro: (cube: .*moved|stash: .*put in|shop: keys)')
-
-
 def newest() -> Path | None:
     dirs = sorted(d for d in RUNS.iterdir() if d.is_dir() and d.name.startswith('20'))
     return dirs[-1] / 'probe.log' if dirs else None
-
-
-def clock(line: str) -> datetime | None:
-    """The line's local date and time (the date too: the cycles' takes are found by it)."""
-    try:
-        return datetime.strptime(line[:23], '%Y-%m-%d %H:%M:%S,%f')
-    except ValueError:
-        return None
 
 
 class Watch:
@@ -99,6 +97,8 @@ class Watch:
         self.items: dict[tuple, games.Seen] = {}
         self.picks: list[str] = []
         self.aims: dict[str, set[tuple[int, int]]] = {}
+        self.clicks: list[tuple[tuple[int, int], int]] = []  # games.py `clicked`: the press's clicks, by line number
+        self.number = 0
         self.full = games.full_stacks()
         # The cycles (RATE): the one under way (its game and start), whether a pause or a restart cut it, the last 60
         self.cycle: tuple[int, datetime] | None = None
@@ -114,6 +114,7 @@ class Watch:
         """Say the game's items the sure mode takes and no pickup took (`whole`: the game ended by the next one; a
         pause or a stop leaves them to the player, said as such)."""
         seen = list(self.items.values())
+        games.clicked(seen, self.clicks)
         games.reconcile(seen, self.picks, self.aims)
         for item in seen:
             why = None if item.picked else item.missed(self.full)
@@ -125,22 +126,27 @@ class Watch:
         self.items.clear()
         self.picks.clear()
         self.aims.clear()
+        self.clicks.clear()
 
     def track(self, line: str) -> None:
-        if (m := games.FULL.search(line)) is not None:
+        self.number += 1
+        if (m := FULL.search(line)) is not None:
             self.full.add(m.group(1))
-        elif (m := games.PICKED.search(line)) is not None:
+        elif (m := PICKED.search(line)) is not None:
             self.picks.append(m.group(1))
-        elif (m := games.AIMED.search(line)) is not None:
+        elif (m := AIMED.search(line)) is not None:
             label = m.group(1) or m.group(4)
             x, y = (m.group(2), m.group(3)) if m.group(1) else (m.group(5), m.group(6))
             self.aims.setdefault(label, set()).add((round(float(x)), round(float(y))))
-        elif (m := games.GROUND.search(line)) is not None:
+            if m.group(4):
+                self.clicks.append(((round(float(x)), round(float(y))), self.number))
+        elif (m := GROUND.search(line)) is not None:
             quality, name, place = m.group(1), m.group(2), (int(m.group(6)), int(m.group(7)))
             number = self.game[0] if self.game is not None else None
             item = self.items.setdefault(
                 (quality, name, place), games.Seen(line[11:19], '', number, quality, name, m.group(5) or '', place)
             )
+            item.last = self.number
             if m.group(8):
                 item.verdicts.add(m.group(8))
 
@@ -163,18 +169,18 @@ class Watch:
         self.game = None
 
     def line(self, line: str) -> None:
-        at = clock(line)
+        at = stamp(line)
         self.track(line)
-        if 'Macro: request loop' in line:
+        if REQUEST_LOOP in line:
             self.asked_loop = True
-        if 'Macro: Loop on' in line or 'Loop resumed' in line:
+        if LOOP_ON in line or LOOP_RESUMED in line:
             self.on, self.last_leg_wall = True, time.time()
             if self.asked_loop:
                 self.say(f'PLAYER: loop on at {line[11:19]}')
             self.asked_loop = False
-        if 'Macro: Loop off' in line or 'loop stopped' in line or 'restart: loop off' in line:
+        if LOOP_OFF in line or LOOP_STOPPED in line or RESUMED_OFF in line:
             self.on = False
-            if 'Loop off' in line and self.asked_loop:
+            if LOOP_OFF in line and self.asked_loop:
                 self.say(f'PLAYER: loop off at {line[11:19]}')
                 if self.game is not None:
                     self.notes.append('paused by the player')
@@ -194,7 +200,7 @@ class Watch:
             if leg == 'the chests' and (self.cycle is None or self.cycle[0] != number):
                 self.close_cycle(number, at)
         if NOTE.search(line) and self.game is not None:
-            self.notes.append(line[line.index('Macro: ') + 7 :].strip()[:80])
+            self.notes.append(line[line.index(SAID) + len(SAID) :].strip()[:80])
         if NOW.search(line):
             self.say(line[11:300].rstrip())
 

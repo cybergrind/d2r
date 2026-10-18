@@ -21958,18 +21958,18 @@
     "kind": "table",
     "cells": [
       "Amulet (skills, any class)",
-      "+2 class skills with one companion; or +1 class skills with two; or +2 to a skill tree with two",
+      "+2 class skills with one companion; or +1 class skills with two; or +2 to a skill tree with two; or +1 class skills or +2 to a skill tree with both 10 FCR and life \u226520 (player ruling 2026-10-18)",
       "companions: 10 FCR \u00b7 life \u226540 \u00b7 mana \u226560 \u00b7 all-res \u226515 or one resistance \u226530 \u00b7 strength \u226520 \u00b7 dexterity \u226515 \u00b7 magic find \u226520 \u00b7 minimum damage \u22654 \u00b7 life or mana leech \u22655",
-      "CHECK, no price (2026-10-08): 16, 11 and 17 priced sellers, lowest asks 11.4, 34.3 and 5.2 Ist. Bare +2 class skills: one seller at 1 Ist, and two of the 20 stored rare amulets \u2014 vendor. +2 to a tree with one companion: lower quartile 1 Ist \u2014 vendor"
+      "CHECK, no price (2026-10-08): 16, 11 and 17 priced sellers, lowest asks 11.4, 34.3 and 5.2 Ist. Bare +2 class skills: one seller at 1 Ist, and two of the 20 stored rare amulets \u2014 vendor. +2 to a tree with one companion: lower quartile 1 Ist \u2014 vendor. Skills + 10 FCR + life \u226520 (2026-10-18): +1 class 6 and +2 tree 10 priced sellers, lowest asks 34.3 and 8.2 Ist (asks to 2026-10-04); +2 tree with FCR alone asks from 0.57 Ist; 0 of 45 stored rare amulets match"
     ],
     "resolved_cells": [
       "Amulet (skills, any class)",
-      "+2 class skills with one companion; or +1 class skills with two; or +2 to a skill tree with two",
+      "+2 class skills with one companion; or +1 class skills with two; or +2 to a skill tree with two; or +1 class skills or +2 to a skill tree with both 10 FCR and life \u226520 (player ruling 2026-10-18)",
       "companions: 10 FCR \u00b7 life \u226540 \u00b7 mana \u226560 \u00b7 all-res \u226515 or one resistance \u226530 \u00b7 strength \u226520 \u00b7 dexterity \u226515 \u00b7 magic find \u226520 \u00b7 minimum damage \u22654 \u00b7 life or mana leech \u22655",
-      "CHECK, no price (2026-10-08): 16, 11 and 17 priced sellers, lowest asks 11.4, 34.3 and 5.2 Ist. Bare +2 class skills: one seller at 1 Ist, and two of the 20 stored rare amulets \u2014 vendor. +2 to a tree with one companion: lower quartile 1 Ist \u2014 vendor"
+      "CHECK, no price (2026-10-08): 16, 11 and 17 priced sellers, lowest asks 11.4, 34.3 and 5.2 Ist. Bare +2 class skills: one seller at 1 Ist, and two of the 20 stored rare amulets \u2014 vendor. +2 to a tree with one companion: lower quartile 1 Ist \u2014 vendor. Skills + 10 FCR + life \u226520 (2026-10-18): +1 class 6 and +2 tree 10 priced sellers, lowest asks 34.3 and 8.2 Ist (asks to 2026-10-04); +2 tree with FCR alone asks from 0.57 Ist; 0 of 45 stored rare amulets match"
     ],
     "description": "Amulet (skills, any class)",
-    "text": "Amulet (skills, any class)+2 class skills with one companion; or +1 class skills with two; or +2 to a skill tree with twocompanions: 10 FCR \u00b7 life \u226540 \u00b7 mana \u226560 \u00b7 all-res \u226515 or one resistance \u226530 \u00b7 strength \u226520 \u00b7 dexterity \u226515 \u00b7 magic find \u226520 \u00b7 minimum damage \u22654 \u00b7 life or mana leech \u22655CHECK, no price (2026-10-08): 16, 11 and 17 priced sellers, lowest asks 11.4, 34.3 and 5.2 Ist. Bare +2 class skills: one seller at 1 Ist, and two of the 20 stored rare amulets \u2014 vendor. +2 to a tree with one companion: lower quartile 1 Ist \u2014 vendor",
+    "text": "Amulet (skills, any class)+2 class skills with one companion; or +1 class skills with two; or +2 to a skill tree with two; or +1 class skills or +2 to a skill tree with both 10 FCR and life \u226520 (player ruling 2026-10-18)companions: 10 FCR \u00b7 life \u226540 \u00b7 mana \u226560 \u00b7 all-res \u226515 or one resistance \u226530 \u00b7 strength \u226520 \u00b7 dexterity \u226515 \u00b7 magic find \u226520 \u00b7 minimum damage \u22654 \u00b7 life or mana leech \u22655CHECK, no price (2026-10-08): 16, 11 and 17 priced sellers, lowest asks 11.4, 34.3 and 5.2 Ist. Bare +2 class skills: one seller at 1 Ist, and two of the 20 stored rare amulets \u2014 vendor. +2 to a tree with one companion: lower quartile 1 Ist \u2014 vendor. Skills + 10 FCR + life \u226520 (2026-10-18): +1 class 6 and +2 tree 10 priced sellers, lowest asks 34.3 and 8.2 Ist (asks to 2026-10-04); +2 tree with FCR alone asks from 0.57 Ist; 0 of 45 stored rare amulets match",
     "expected": null,
     "examples": [
       {
@@ -22084,6 +22084,87 @@
           "vendor"
         ],
         "rationale": "Reviewed 2026-10-08 against the scoped cache (one vote per seller): +2 tree with one companion."
+      },
+      {
+        "spec": {
+          "base": "Amulet",
+          "rarity": "rare",
+          "stats": {},
+          "sockets": 0,
+          "ethereal": false,
+          "properties": {
+            "516": 2,
+            "520": 10,
+            "418": 20
+          }
+        },
+        "expected": [
+          "check",
+          "sell",
+          "slow",
+          "self"
+        ],
+        "rationale": "Reviewed 2026-10-18 against the scoped cache (one vote per seller) and the player ruling of 2026-10-18: +2 tree with 10 FCR and 20 life."
+      },
+      {
+        "spec": {
+          "base": "Amulet",
+          "rarity": "rare",
+          "stats": {},
+          "sockets": 0,
+          "ethereal": false,
+          "properties": {
+            "498": 1,
+            "520": 10,
+            "418": 20
+          }
+        },
+        "expected": [
+          "check",
+          "sell",
+          "slow",
+          "self"
+        ],
+        "rationale": "Reviewed 2026-10-18 against the scoped cache (one vote per seller) and the player ruling of 2026-10-18: +1 class skills with 10 FCR and 20 life."
+      },
+      {
+        "spec": {
+          "base": "Amulet",
+          "rarity": "rare",
+          "stats": {},
+          "sockets": 0,
+          "ethereal": false,
+          "properties": {
+            "516": 2,
+            "520": 10,
+            "418": 19
+          }
+        },
+        "expected": [
+          "vendor"
+        ],
+        "rationale": "Reviewed 2026-10-18 against the scoped cache (one vote per seller) and the player ruling of 2026-10-18: +2 tree with 10 FCR and 19 life."
+      },
+      {
+        "spec": {
+          "base": "Amulet",
+          "rarity": "rare",
+          "stats": {},
+          "sockets": 0,
+          "ethereal": false,
+          "properties": {
+            "516": 1,
+            "520": 10,
+            "418": 8,
+            "437": 8,
+            "401": 25,
+            "461": 7
+          }
+        },
+        "expected": [
+          "vendor"
+        ],
+        "rationale": "Reviewed 2026-10-18 against the scoped cache (one vote per seller) and the player ruling of 2026-10-18: +1 tree with FCR and 8 life (Beast Clasp, sold 2026-10-18)."
       }
     ],
     "classification": "verdict",

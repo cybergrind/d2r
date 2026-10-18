@@ -248,7 +248,7 @@ class ZoneTracker:
         return result
 
     def apply(self, events):
-        heralds = len(self.heralds)
+        heralds, slain = len(self.heralds), len(self.slain)
         for event in events:
             kind = event['event']
             if kind == 'left_game':
@@ -257,6 +257,12 @@ class ZoneTracker:
                 self.reset()
             elif kind == 'seen':
                 self.saw(event)
+                named = SLAIN_BOSSES.get(event.get('txt_id'))
+                if named and event.get('mode') in DEAD_MODES:
+                    # A boss first seen already dead was killed this game before this service read it (a restart):
+                    # the route's fight stage is over. Andariel's after a restart stood 45 s at her mark and the loop
+                    # left the game (12:42:19, 13:58:36 on 2026-10-18)
+                    self.slain = self.slain | {named}
             elif kind == 'terror_levels':
                 self.terror_levels = frozenset(event['levels'])
             elif kind == 'area':
@@ -281,7 +287,10 @@ class ZoneTracker:
                     if named:
                         self.slain = self.slain | {named}
 
-        if events and (len(self.heralds) != heralds or self.clock() - self.saved_at >= SAVE_SECONDS):
+        # A boss kill saves at once: a restart before the next periodic save forgot Andariel's death (2026-10-18)
+        if events and (
+            len(self.heralds) != heralds or len(self.slain) != slain or self.clock() - self.saved_at >= SAVE_SECONDS
+        ):
             self.save()
 
     def level_read(self, area: int, level_rooms: int | None, level_hex: str):
@@ -348,6 +357,7 @@ class ZoneTracker:
             'modifiers': {zone: list(mods) for zone, mods in self.modifiers.items()},
             'offsets': self.offsets,
             'elites': {unit_id: list(first) for unit_id, first in self.elites.items()},
+            'slain': sorted(self.slain),
         }
 
     def restore(self, state: dict, *, merge: bool = False):
@@ -368,7 +378,19 @@ class ZoneTracker:
             int(unit_id): (int(area), str(kind), int(txt_id), int(x), int(y), name)
             for unit_id, (area, kind, txt_id, x, y, name) in state.get('elites', {}).items()
         }
+        # Absent in games stored before 2026-10-18: a named elite that is among the dead was slain. Andariel's kill,
+        # lost in a restart, left the route standing at her mark (13:56, 14:00).
+        try:
+            slain = {str(name) for name in state['slain']}
+        except KeyError, TypeError:
+            slain = set()
+        slain |= {
+            named
+            for unit_id, (_, _, txt_id, _, _, name) in found.items()
+            if unit_id in dead and (named := name or SLAIN_BOSSES.get(txt_id))
+        }
         if not merge:
+            self.slain = frozenset()
             self.areas, self.level_rooms, self.heralds, self.loaded, self.dead = {}, {}, [], {}, {}
             self.herald_units, self.allies, self.zones = set(), set(), set()
             self.visited, self.explored, self.votes, self.modifiers, self.offsets, self.elites = {}, {}, {}, {}, {}, {}
@@ -393,6 +415,7 @@ class ZoneTracker:
             self.modifiers.setdefault(zone, deque(maxlen=TERROR_VOTES)).extend(values)
         self.offsets |= offsets
         self.elites = found | self.elites  # as first seen
+        self.slain = self.slain | slain
 
     def save(self):
         """Keep this game in the store, in place of what was stored of it before."""

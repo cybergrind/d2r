@@ -393,3 +393,59 @@ def test_the_prebuffs_casts_are_the_age_attack_mode_reads_through_the_runs_share
     facts = mode.facts(later, play.world, ahead=60.0)
     assert facts.took[AURA] == 10.0
     assert lapsing(LASTING, facts)  # 50 s left of the prebuff's cast
+
+
+# -- the life the rows may ask about (`Buffs.hurt`, BuffFacts.hurt): F3 of rca/2026-10-18/andariel-cadence-findings.md
+
+
+def test_hurt_is_a_loss_of_life_within_hurt_seconds_as_the_hunt_counts_it():
+    from inventory_tracking.macros import buffs as executor, hunt
+    from inventory_tracking.macros.world import Loot
+
+    assert executor.HURT_SECONDS == hunt.HURT_SECONDS  # the same rule as the hunt's `Facts.hurt`
+    play = game()
+    run = play.run()
+    buffs = plan(AURA_ROW)
+    play.loot = Loot(life=1800, max_life=1800)
+    assert not buffs.hurt(run)
+    play.clock.now += executor.LIFE_LOOK
+    play.loot = Loot(life=1750, max_life=1800)
+    assert buffs.hurt(run)
+    play.clock.now += executor.HURT_SECONDS - 0.1
+    assert buffs.hurt(run)  # no further loss, but the last within HURT_SECONDS
+    play.clock.now += 0.2
+    assert not buffs.hurt(run)
+    # Read at most every LIFE_LOOK: a loss within it shows at the next read
+    play.loot = Loot(life=1700, max_life=1800)
+    assert not buffs.hurt(run)
+    play.clock.now += executor.LIFE_LOOK
+    assert buffs.hurt(run)
+
+
+def test_hurt_is_not_known_better_than_hurt():
+    from inventory_tracking.macros.world import Loot
+
+    play = game()
+    run = play.run()
+    play.loot = Loot()  # no life read
+    assert plan(AURA_ROW).hurt(run)
+    play.loot = Loot(life=1700, max_life=1800)  # a first read under the full life: hurt, as far as it shows
+    assert plan(AURA_ROW).hurt(run)
+    run.loot = None
+    assert plan(AURA_ROW).hurt(run)
+
+
+def test_the_facts_ask_the_life_only_when_a_row_does():
+    from inventory_tracking.macros.world import Loot
+
+    play = game()
+    run = play.run()
+    reads: list[int] = []
+    play.loot = Loot(life=1800, max_life=1800)
+    run.loot = lambda: reads.append(1) or play.loot
+    buffs = plan(AURA_ROW)
+    facts = buffs.facts(run, play.world)
+    assert reads == []
+    assert facts.hurt is not None
+    assert not facts.hurt()
+    assert reads == [1]

@@ -8,13 +8,14 @@ description: Plan moving items from the shared stash tabs to mule characters in 
 Output is a plan the player executes by hand in game. Nothing here moves items.
 Values are offline KB **asks** in Ist (snapshot date from the KB); no online refresh.
 
-## Standing rules (the player's, 2026-10-04 and 2026-10-07)
+## Standing rules (the player's, 2026-10-04, 2026-10-07 and 2026-10-18)
 
 1. **Shared tabs are 1–5. There is no tab 6.** The `shared_stash 6` row in `collection space` is the
    unit behind the Gems/Materials/Runes tabs; never count it as free space.
-2. **Clear tabs 3–5.** Tabs 1–2 stay as the buffer for small items (rings, amulets, jewels, charms):
-   sorting those onto mules costs too many clicks, so only plan tabs 1–2 when asked or when they are
-   nearly full, and then as one bulk step.
+2. **Clear all shared tabs, 1–5 (2026-10-18).** Every item in every tab gets an action; tabs 1–2 are
+   not a buffer to skip. The small items there (rings, amulets, jewels, charms) cost clicks, so move
+   them in bulk: one take line per tab per receiving mule (`Jewel*`/`MJewelry`, `MCharm*`), and
+   drop the junk in the same pass.
 3. **Respect mule names.** Read the purpose from the name before using free space:
 
    | Name pattern | Holds |
@@ -54,7 +55,7 @@ Values are offline KB **asks** in Ist (snapshot date from the KB); no online ref
     Items the triage marks for a played character (`OWN:`, class uniques, its mercenary gear) go to
     a mule as one block and are listed after the steps under "For your characters" (item, mule,
     who it is for), so the player picks them up when they choose. A playable character may still
-    appear as a login for work in the shared tabs only (dropping from tabs 3–5).
+    appear as a login for work in the shared tabs only (dropping from tabs 1–5).
 
 ## Procedure
 
@@ -73,7 +74,7 @@ Values are offline KB **asks** in Ist (snapshot date from the KB); no online ref
    of every mule the plan relies on; if a mule's capture is older than the last session that touched
    it, say so and put "press Win+S" in its step. Shared tabs are captured with whichever character
    is logged in.
-3. **Classify the items in tabs 3–5** (and in tabs 1–2 only if in scope):
+3. **Classify the items in all shared tabs, 1–5:**
    - *own/played character*: `notes` has `OWN:` → a mule block, reported per rule 11.
    - *trade*: rule 4.
    - *surplus copy*: `copies` > 1 → compare rolls on the variable stats in `stats` across all
@@ -84,7 +85,8 @@ Values are offline KB **asks** in Ist (snapshot date from the KB); no online ref
    Reading the verdicts: `sell`/`slow` have a usable median; on `vendor` and `check` the median is
    only a name-level reference band (white bases and class-level names can show absurd numbers), so
    treat those as low value unless the roll is near perfect. Magic/rare rings, amulets, jewels and
-   charms have no priced rule: judge them by affixes with the appraise skill, or leave them in tabs 1–2.
+   charms have no priced rule: judge them by affixes with the appraise skill; drop the clear junk and
+   send the undecided ones to their jewel/charm mule, not back into the tabs.
    For a borderline roll, `uv run --offline python -m pricing.knowledge lookup "<name>" --rarity
    <rarity> --limit 2` gives the roll range.
 4. **Make room on the mules.** For each purpose group, list surplus copies and the lowest-value
@@ -98,7 +100,7 @@ Values are offline KB **asks** in Ist (snapshot date from the KB); no online ref
      a named tab and cell block so the receiver's step can say where to find them;
    - if two mules must exchange, one of them gets two logins; say so and keep it to that one.
    Start with the character that is logged in now when it has work to do.
-6. **Verify the plan before sending it:** every item in tabs 3–5 has exactly one action; no sole
+6. **Verify the plan before sending it:** every item in tabs 1–5 has exactly one action; no sole
    copy is dropped; no mule receives more than it can hold; CyberTrade's inventory ends empty; nothing is planned
    into a playable character;
    no step refers to tab 6.
@@ -113,7 +115,7 @@ above it; never answer with a delta plus "the other steps are unchanged".
 - One numbered step per login, in login order. The heading carries the character and its capture
   date.
 - Inside a step, one checkbox line per item, grouped in the order the player does it: **drop** on
-  the mule, then **take** per shared tab (tab 3, tab 4, tab 5), then **put** into a shared tab.
+  the mule, then **take** per shared tab (tab 1 to tab 5), then **put** into a shared tab.
 - Concrete item names, with the distinguishing roll when copies exist ("Hexfire 147%"); never
   "the rest" or "misc uniques". A short reason in brackets on every drop ("MUniqA has 93%").
 - Close each step with "Win+S" and the expected free space.
@@ -137,6 +139,6 @@ Put
 ## Follow-up: "check what is remaining"
 
 Re-run step 1 and diff against the plan: done / not done per step, items that went somewhere other
-than planned, and new arrivals in tabs 3–5 since the plan. An item missing from every capture is
+than planned, and new arrivals in tabs 1–5 since the plan. An item missing from every capture is
 either dropped or on a mule without a fresh capture — say which mules are stale rather than
 calling it gone.

@@ -6,11 +6,14 @@ The player, 2026-10-17: "you need to measure our trading efficiency time/gold. w
 From serve's probe.logs (stdlib only):
 
 - **identified**: `Macro: identify: appraised <quality> <base> (<class>) at (x, y): <verdict>` (macros/junk.py), by
-  base and verdict;
+  base and verdict; the tries from the tome's `identify: N of M items identified` and, since the town visit
+  (2026-10-18), Cain's `Cain: N of M items identified` (logwords.py `IDENTIFIED`);
 - **sold**: `Macro: shop: sold the item <class> at (x, y) for <gold> gold: <quality> <base> (<class>)` (macros/shop.py),
   the full stacks' runes and gems apart from the junk;
 - **time**: the `identify` legs, and the `scrolls and keys` legs that sold junk (the visit at a game's end is made for
-  the sales; at a game's start it also buys keys and scrolls), from `Macro: Loop: game N, <leg>` to the next leg;
+  the sales; at a game's start it also buys keys and scrolls), from `Macro: Loop: game N, <leg>` to the next leg; since
+  2026-10-18 one `town visit` leg (macros/visit.py), its stops' seconds from its `trade session done` line
+  (`(cain C, stash S, jamella J, halbu H, walk W)`): Cain's as the identify time, Jamella's as the visit's;
 - **gold**: per sale, per hour of play (the games' seconds, `games.py`), per second of trade time; and each repair's
   cost (`Macro: repair: the staff A -> B charges (of C), gold X -> Y`) against it.
 - **shopping** (the player, 2026-10-17: "we visited shop just to purchase keys/tps ... measure shopping time
@@ -41,6 +44,22 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 
 import games  # ruff: ignore[module-import-not-at-top-of-file] - the skill's own tool, beside this one
+from logwords import (  # ruff: ignore[module-import-not-at-top-of-file]
+    AFTER,
+    APPRAISED,
+    IDENTIFIED,
+    LEG,
+    LOOP_OFF,
+    MACRO_STOPPED,
+    PICKED,
+    PICKUP,
+    REPAIRED,
+    SOLD,
+    TELEPORT,
+    UNSOLD,
+    VISIT_STOPS,
+    stamp,
+)
 
 
 ROOT = HERE.parents[3]
@@ -49,18 +68,8 @@ METADATA = ROOT / 'inventory_tracking' / 'items' / 'data' / 'item_metadata.json'
 GOLD_A_CHARGE = 111469 / 64  # the repair of 10:33 on 2026-10-17: 5 -> 69 charges for 111,469 gold
 CHARGES_A_STAY = 7.5  # Teleport casts a game with charges after the repair of 10:33 on 2026-10-17 (8 games)
 SAVED = 7.0  # seconds a stay with a staff charge is shorter (speed.py, 06:51-10:51 on 2026-10-17: 30.6 -> 23.6, n 23)
-PICKUP = re.compile(r'Macro: pickup: .*?; (.+?) at \(')
-PICKED = re.compile(r'Macro: picked up (.+?) [\d.]+s after')
-TELEPORT = 'Macro: Teleport toward'
 PREFIXES = ('Magic ', 'Rare ', 'Superior ', 'Socketed ', 'Set ', 'Unique ', 'Low Quality ', 'Crafted ')
 
-
-APPRAISED = re.compile(r'Macro: identify: appraised (?:the item (\d+)|(\w+) (.+?) \((\d+)\)) at \(\d+, \d+\): (\w+)')
-IDENTIFIED = re.compile(r'Macro: identify: (\d+) of (\d+) items identified')
-SOLD = re.compile(r'Macro: shop: sold the item (\d+) at \(\d+, \d+\)(?: for (-?\d+) gold)?(?:: (.+))?$')
-AFTER = re.compile(r'Macro: shop: carried gold (\d+) -> (\d+) after the sales')
-UNSOLD = re.compile(r'Macro: shop: could not sell the item (\d+)')
-REPAIRED = re.compile(r'Macro: repair: the staff (\d+) -> (\S+) charges \(of \d+\), gold (\d+) -> (\d+)')
 JUNK_NAME = re.compile(r'^(magic|rare|set|unique|crafted|white) ')
 
 
@@ -98,6 +107,7 @@ def read(directory: Path, since: datetime, until: datetime) -> dict:
     leg: tuple[str, datetime] | None = None
     sold_in_leg = False
     sold_count = [0]  # the items the visit in progress sold
+    stops: dict[str, float] = {}  # the town visit's stops' seconds (its `trade session done` line)
 
     def close(at: datetime) -> None:
         if leg is None:
@@ -111,14 +121,26 @@ def read(directory: Path, since: datetime, until: datetime) -> dict:
             if sold_in_leg:
                 found['selling_s'] += seconds
                 game['selling'] = game.get('selling', 0.0) + seconds
+        elif leg[0] == 'town visit':
+            # One leg for Cain, the stash, Jamella, Halbu: each stop by its own seconds
+            cain, jamella = stops.get('cain'), stops.get('jamella')
+            if cain is not None:
+                found['identify_s'] += cain
+                game['identify'] = game.get('identify', 0.0) + cain
+            if jamella is not None:
+                found['visits'].append((jamella, sold_count[0]))
+                if sold_in_leg:
+                    found['selling_s'] += jamella
+                    game['selling'] = game.get('selling', 0.0) + jamella
 
     for line in (directory / 'probe.log').read_text(errors='replace').splitlines():
-        at = games.stamp(line)
+        at = stamp(line)
         if at is None or at < since or at > until:
             continue
-        if (m := games.LEG.search(line)) is not None:
+        if (m := LEG.search(line)) is not None:
             close(at)
             leg, sold_in_leg, sold_count[0] = (m.group(2).strip(), at), False, 0
+            stops.clear()
             if game.get('number') != m.group(1):
                 settle()
                 game.update(number=m.group(1), picks=defaultdict(list), items=[], identify=0.0, selling=0.0,
@@ -135,7 +157,7 @@ def read(directory: Path, since: datetime, until: datetime) -> dict:
                 label = label.removeprefix(prefix)
             if game:
                 game['picks'][label].append((at - began).total_seconds())
-        elif 'Macro: Loop off' in line or 'Macro stopped' in line:
+        elif LOOP_OFF in line or MACRO_STOPPED in line:
             close(at)
             leg = None
         elif (m := APPRAISED.search(line)) is not None:
@@ -167,6 +189,9 @@ def read(directory: Path, since: datetime, until: datetime) -> dict:
             found['gained'] += int(m.group(2)) - int(m.group(1))
         elif UNSOLD.search(line):
             found['unsold'] += 1
+        elif (m := VISIT_STOPS.search(line)) is not None:
+            seconds = zip(('cain', 'jamella'), m.groups(), strict=True)
+            stops.update({name: float(value) for name, value in seconds if value != '-'})
         elif (m := REPAIRED.search(line)) is not None:
             found['repairs'].append((int(m.group(3)) - int(m.group(4)), m.group(1), m.group(2)))
     close(until)
@@ -235,7 +260,7 @@ def main() -> None:
     print(f'window {since:%Y-%m-%d %H:%M} .. {until:%H:%M}: {len(played)} whole games, {seconds / 60:.0f} min of play')
     appraised = total['appraised']
     verdicts = Counter(v for _, _, v in appraised)
-    print(f'\nidentified: {done} of {tried} tried with the tome; appraised {len(appraised)}: '
+    print(f'\nidentified: {done} of {tried} tried (the tome or Cain); appraised {len(appraised)}: '
           + ', '.join(f'{v} {n}' for v, n in verdicts.most_common()))  # fmt: skip
     by_base: dict[str, Counter] = defaultdict(Counter)
     for quality, name, verdict in appraised:

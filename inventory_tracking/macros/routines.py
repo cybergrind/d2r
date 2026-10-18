@@ -180,6 +180,30 @@ def quick_cast_over(run: Run, skill: int) -> None:
     run.quick = None
 
 
+SHOW_ITEMS_TRIES = 3  # presses of the Show Items key before a level run gives up on the item labels
+SHOW_ITEMS_WAIT = 0.6  # seconds a press of Show Items is given to show in its byte
+
+
+def show_items_on(run: Run, key: str | None) -> None:
+    """The game's Show Items toggle (the item labels on the ground) on before a level run of the KP_6 loop (the
+    player, 18:47 on 2026-10-18: "we MUST check if loot toggle is enabled"). `make osd` turns it on once a game starts
+    (automation/show_items.py) and leaves it after three presses: in game 40 its presses came during the load
+    (18:22:02-07), the byte stayed off, and the loop ran the game with the labels off (a Ko Rune left behind). Pressed
+    with the character's own key (input/keybindings.py) while the byte reads off, up to SHOW_ITEMS_TRIES; still off,
+    or no key: the run does not go."""
+    world = run.world()
+    if not world.in_game or world.show_items is not False:
+        return
+    if key is None:
+        raise Abort('Show Items is off and the character has no Show Items key')
+    for attempt in range(1, SHOW_ITEMS_TRIES + 1):
+        run.actuator.tap(key)
+        if run.seen(lambda w: w.show_items is True, SHOW_ITEMS_WAIT) is not None:
+            LOG.info('Macro: Show Items was off before the level run: turned on by %s (press %d)', key, attempt)
+            return
+    raise Abort(f'Show Items stays off after {SHOW_ITEMS_TRIES} presses of {key}')
+
+
 def press_skill(run: Run, skill: int, poll: float = 0.03, *, wait: bool = True) -> float:
     """Press the skill's key once the character is free to act, looked for every `poll` seconds.
     `wait` off: pressed now, whatever the character does; the game keeps a Quick Cast key pressed

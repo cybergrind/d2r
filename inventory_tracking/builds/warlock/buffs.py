@@ -30,6 +30,7 @@ from inventory_tracking.builds.warlock.skills import (
     SIGIL_LETHARGY,
     SUMMON_DEFILER,
 )
+from inventory_tracking.macros import buffs as executor
 from inventory_tracking.macros.buffs import Buffs
 from inventory_tracking.macros.build import Buff, BuffFacts, whenever
 from inventory_tracking.macros.cta import ROWS as CTA_ROWS
@@ -37,6 +38,7 @@ from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.routines import DEAD
 from inventory_tracking.macros.world import DEFILER_CLASS, Monster, World
 from inventory_tracking.native.layout import HIRELING_CLASS_ID
+from inventory_tracking.terror.bosses import BOSSES
 
 
 # Engorge (skills.txt 379, cast on a corpse): heals the demons 30% of their life and more, and cuts the damage
@@ -101,14 +103,25 @@ def herald_in_reach(facts: BuffFacts) -> Monster | None:
     return min(found, key=lambda m: math.dist((player.x, player.y), (m.x, m.y)))
 
 
+def by_the_boss(facts: BuffFacts) -> bool:
+    """Whether the sigil waits (macros/buffs.py QUIET_BY_THE_BOSS, F3 of rca/2026-10-18/andariel-cadence-findings.md
+    §5): an act boss (terror/bosses.py BOSSES) in the attack's reach and nothing hurts the character (`BuffFacts.hurt`;
+    not known: hurt). Death Mark is not asked: it is priced and pays (mark.py)."""
+    if not executor.QUIET_BY_THE_BOSS or not any(m.txt_id in BOSSES for m in facts.reachable):
+        return False
+    return facts.hurt is not None and not facts.hurt()
+
+
 def sigil_due(facts: BuffFacts) -> bool:
     """Whether a sigil is due: under a Herald in reach, its last one HERALD_SIGIL_SECONDS old; else under the monster
-    the strike is aimed through, an elite, its last one SIGIL_SECONDS old."""
+    the strike is aimed through, an elite, its last one SIGIL_SECONDS old, but not by the run's boss while nothing
+    hurts (`by_the_boss`)."""
     first = herald_in_reach(facts)
     if first is not None:
         return facts.since(SIGIL_LETHARGY, first.unit_id) > HERALD_SIGIL_SECONDS
     prey = facts.prey
-    return prey is not None and prey.leader and facts.since(SIGIL_LETHARGY, prey.unit_id) > SIGIL_SECONDS
+    due = prey is not None and prey.leader and facts.since(SIGIL_LETHARGY, prey.unit_id) > SIGIL_SECONDS
+    return due and not by_the_boss(facts)
 
 
 def prey(facts: BuffFacts) -> Monster | None:

@@ -11,6 +11,7 @@ from pricing.triage.patterns import support_pattern
 SOURCE = 'guides/pricing.html §2 blue/yellow/orange'
 CLASS_SKILLS = ('453', '514', '498', '442', '403', '488', '519', '1862')
 RESISTS = ('427', '428', '426', '401')
+CASTER_LIFE_OWN_DROPS = '0 of 45'
 
 
 def stats(**values):
@@ -394,6 +395,16 @@ def market_source(sellers, lowest, own_drops):
     }
 
 
+def caster_life_source(sellers, lowest):
+    """Player ruling plus the scoped cache that supports it; no numerical price is inferred."""
+    return {
+        **market_source(sellers, lowest, CASTER_LIFE_OWN_DROPS),
+        'reviewed_at': '2026-10-18',
+        'ruling': 'player 2026-10-18: rare amulets with FCR, +2 skills and life are good',
+        'tree_fcr_alone_lowest_ask_ist': 0.57,
+    }
+
+
 def glove_patterns(add):
     # A skill prefix is not required: 20 IAS with two useful companions is
     # listed by 38 priced sellers (lower quartile 11 Ist). One companion is not
@@ -626,6 +637,26 @@ def remaining_type_patterns(add):
             relax_support=False,
             source=market_source(11, 34.3, '0 of 20'),
         )
+    # Player ruling 2026-10-18: skills + FCR + life is a kept caster amulet.
+    # 20+ life is the companion here, not 40: every scoped seller of +1 class
+    # or +2 tree with 10 FCR and 20+ life asks 8 Ist or more, while +2 tree and
+    # FCR alone has a 0.57 Ist lowest ask (asks to 2026-10-04, one vote per seller).
+    caster_life = [
+        ('+1 class skills', CLASS_SKILLS, 1, 6, 34.3),
+        ('+2 skill tree', trees, 2, 10, 8.2),
+    ]
+    for skills, props, level, sellers, lowest in caster_life:
+        for prop in props:
+            # Exact level: +2 class skills keep their own rules and shortfall reasons.
+            required = stats(**{'520': 10, '418': 20})
+            required['properties'][prop] = {'min': level, 'max': level}
+            add(
+                'amul',
+                'rare',
+                f'Caster amulet: {skills} + 10 FCR + 20 life',
+                required,
+                source=caster_life_source(sellers, lowest),
+            )
     magic_suffix = counted(
         1, stats(**{'520': 10}), stats(**{'418': 80}), stats(**{'437': 25}), stats(**{'429': 25}), stats(**{'461': 30})
     )

@@ -23,6 +23,7 @@ from inventory_tracking.combat.mechanics.tables import points_of
 from inventory_tracking.combat.policy import Choice
 from inventory_tracking.combat.stance import CAMP_REACH
 from inventory_tracking.levels.model import Ground, Level, Room, Walkable, pack_cells
+from inventory_tracking.macros import lootpolicy
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.buffs import STATE_DISTRUST as HEX_DISTRUST
 from inventory_tracking.macros.hunt import (
@@ -2035,6 +2036,52 @@ def test_the_sweep_does_not_stay_by_gear_it_has_no_room_for():
     assert not any(line.startswith('Staying by') for line in play.said)
 
 
+def test_by_hand_the_sweep_goes_on_from_a_low_rune_with_no_room_and_the_shadow_names_the_class(monkeypatch, caplog):
+    # macros/lootpolicy.py (rca/2026-10-18/arch-level-behaviour.md §2.1, Q1): by hand the sweep sweeps on as before the
+    # player's ruling (not prized); the shadow says the class once
+    monkeypatch.setattr(lootpolicy, 'SHADOW', lootpolicy.Shadow())
+    play, hunt = far_one()
+    rune = Drop(61, 4990.0, 5000.0, 'El Rune', 'valuable', (1, 1), prized=False, source='rune')
+    play.loot = replace(play.loot, drops=(rune,), room=('####', '####'))
+    hunt.pick = lambda: None
+    with caplog.at_level(logging.INFO):
+        swept(play, hunt)
+    assert math.dist((me(play.world).x, me(play.world).y), (rune.x, rune.y)) > 25.0
+    line = 'Macro: lootpolicy: the sweep El Rune (unit 61): site says leave; a plain valuable with no room'
+    assert caplog.text.count(line) == 1
+    assert 'policy says' not in caplog.text
+
+
+def test_in_the_loop_the_sweep_stays_by_a_chipped_gem_with_no_room(monkeypatch, caplog):
+    # The player, 2026-10-18 17:50, on Q1: "we should stop and clear inventory with our designated town routine": with
+    # the KP_6 loop on the sweep holds a plain valuable it has no room for, as the loop's press does
+    monkeypatch.setattr(lootpolicy, 'SHADOW', lootpolicy.Shadow())
+    play, hunt = far_one()
+    gem = Drop(63, 4990.0, 5000.0, 'Chipped Amethyst', 'valuable', (1, 1), prized=False, source='material')
+    play.loot = replace(play.loot, drops=(gem,), room=('####', '####'))
+    hunt.pick = lambda: None
+    hunt.looping = lambda: True
+    with caplog.at_level(logging.INFO):
+        swept(play, hunt)
+    assert math.dist((me(play.world).x, me(play.world).y), (gem.x, gem.y)) <= 25.0
+    assert 'Staying by Chipped Amethyst: the inventory has no room for it' in play.said
+    assert 'Macro: lootpolicy: the sweep Chipped Amethyst (unit 63): site says hold; a plain valuable' in caplog.text
+    assert 'policy says' not in caplog.text
+
+
+def test_the_level_run_stands_by_a_low_rune_with_no_room_and_the_shadow_names_the_class(monkeypatch, caplog):
+    monkeypatch.setattr(lootpolicy, 'SHADOW', lootpolicy.Shadow())
+    play, hunt = far_one()
+    rune = Drop(62, 5010.0, 5000.0, 'El Rune', 'valuable', (1, 1), prized=False, source='rune')
+    play.loot = replace(play.loot, drops=(rune,), room=('####', '####'))
+    with caplog.at_level(logging.INFO):
+        assert hunt.stay_by(play.run(), (5000.0, 5000.0)) == rune
+        assert hunt.stay_by(play.run(), (5000.0, 5000.0)) == rune
+    line = 'Macro: lootpolicy: the level run El Rune (unit 62): site says hold; a plain valuable with no room'
+    assert caplog.text.count(line) == 1
+    assert 'policy says' not in caplog.text
+
+
 def test_the_sweep_still_steps_within_the_radius_of_the_valuable_it_stays_by():
     play, hunt = far_one()
     charm = Drop(60, 5012.0, 5000.0, 'Grand Charm', 'valuable', (1, 3))
@@ -2296,3 +2343,176 @@ def test_a_walk_the_look_chose_with_no_casting_delay_running_is_made():
     hunt.advance(run, play.world, Ground(()), Move(Step((here.x + 16.0, here.y)), goal), goal.place, keys)
 
     assert len(play.walks) == 1
+
+
+def test_the_hold_that_began_a_fight_is_not_judged_again_before_the_strike_is_pressed(monkeypatch):
+    # 2026-10-18: a second look and price before the press held the first strike after a landing on Catacombs 4
+    # 0.48 s, 44 of 61 landings (rca/2026-10-18/andariel-cadence-findings.md F2); a fresh press is still judged
+    from types import SimpleNamespace
+
+    play = game(foe(10, 5008.0, 5000.0))
+    hunted = hunter(play)
+    monkeypatch.setattr(type(hunted), 'pursuing', property(lambda _self: True))
+    run = play.run()
+    looks = []
+    monkeypatch.setattr(
+        hunted, 'judge', lambda *_a, **_k: looks.append(1) or SimpleNamespace(act=None, pressed=False, goal=None)
+    )
+    hunted.pursuit = SimpleNamespace(pressed_at=1.0)
+    hunted.judged = (1.0, run.clock() - 1.0, False)  # the Hold's, a second old
+    assert not hunted.key_asks(run, play.world, [], ())  # (the fakes' ground: unread)
+    assert len(looks) == 1  # struck: judged again, as every DECIDE_SECONDS
+    hunted.judged = (1.0, run.clock() - 1.0, False)
+    assert not hunted.key_asks(run, play.world, [], (), unstruck=True)
+    assert len(looks) == 1  # not before the press
+    hunted.pursuit = SimpleNamespace(pressed_at=2.0)  # a fresh press of the key
+    hunted.key_asks(run, play.world, [], (), unstruck=True)
+    assert len(looks) == 2
+
+
+def test_the_loops_fight_lets_go_when_its_run_is_over(monkeypatch):
+    # 13:26:39-13:26:51 on 2026-10-18: Andariel dead, her pack fought 11.5 s; the run's end now yields the fight (the
+    # loop's run only: a level run of the player's hand fights on as before)
+    from types import SimpleNamespace
+
+    from inventory_tracking.macros.pursuit import Ended
+
+    play = game(foe(10, 5008.0, 5000.0))
+    hunted = hunter(play)
+    monkeypatch.setattr(type(hunted), 'pursuing', property(lambda _self: True))
+    run = play.run()
+    hunted.pursuit = SimpleNamespace(pressed_at=1.0)
+    for looped, yields in ((True, True), (False, False)):
+        posted = SimpleNamespace(looped=looped)
+        monkeypatch.setattr(
+            hunted,
+            'judge',
+            lambda *_a, p=posted, **_k: SimpleNamespace(act=Ended('over'), pressed=False, goal=None, posted=p),
+        )
+        hunted.judged = (0.0, -10.0, False)
+        assert hunted.key_asks(run, play.world, [], ()) is yields
+
+
+# --- the Gheed's swap (macros/pickup.py `Refused`): the level run ends for it ---
+
+
+def gheeds_run(*, gheeds: bool = True, swap: bool = True):
+    """A level run by a unique Grand Charm 4 units off, the player's Gheed's Fortune carried (`gheeds`), the runner's
+    answer to a refusal `swap`; the refusals asked and the run's ends."""
+    from inventory_tracking.builds import pursuing
+    from inventory_tracking.macros.charms import GHEEDS_FORTUNE, UNIQUE, grand_charm
+    from inventory_tracking.macros.pursuit import FULL, Pursuit
+    from inventory_tracking.macros.world import Carried, Loot, Pack
+
+    play = game()
+    charm = Drop(60, 5004.0, 5000.0, "Unique Grand Charm (Gheed's Fortune?)", VALUABLE, (1, 3), txt=grand_charm(),
+                 quality=UNIQUE)  # fmt: skip
+    play.loot = Loot((charm,), room=('..........',) * 4)
+    theirs = Carried(1, grand_charm(), 0, 0, (1, 3), quality=UNIQUE, unique=GHEEDS_FORTUNE)
+    play.pack = Pack((theirs,) if gheeds else ())
+    hunt = hunter(play)
+    hunt.build = pursuing(hunt.build)
+    hunt.post(Pursuit('pickup', 0.0, advance=False, leash=FULL, area=101))
+    asked: list = []
+    ended: list[str] = []
+    hunt.carry_one = lambda refused: asked.append(refused) or swap
+    hunt.run_over = ended.append
+    return play, hunt, charm, asked, ended
+
+
+def test_a_unique_grand_charm_the_level_run_gives_up_with_a_gheeds_carried_is_the_gheeds_swap():
+    # 13:56:41.578 on 2026-10-18: the run gave the charm up after 2 tries ("priced act expired"), went on, and only the
+    # 45 s stand reached the swap (13:57:26)
+    from inventory_tracking.macros.hunt import GATHER_TRIES
+
+    play, hunt, charm, asked, ended = gheeds_run()
+    run = play.run()
+    hunt.gathered[charm.unit_id] = GATHER_TRIES
+    hunt.retried.add(charm.unit_id)  # (its one more try from near made: `again`)
+    hunt.tried[charm.unit_id] = 'priced act expired: look again before continuing'
+    assert hunt.side_drop(run, (5000.0, 5000.0), [], play.world) is None
+    assert [refused.drop for refused in asked] == [charm]
+    assert 'given up after 2 tries' in str(asked[0])
+    assert len(ended) == 1
+    assert "the Gheed's swap" in ended[0]
+    hunt.side_drop(run, (5000.0, 5000.0), [], play.world)
+    assert len(asked) == 1  # asked once a drop
+
+
+@pytest.mark.parametrize('which', ['a rune', 'no gheeds carried', 'no swap'])
+def test_a_drop_given_up_with_no_gheeds_swap_is_left_as_before(which):
+    from inventory_tracking.macros.hunt import GATHER_TRIES
+
+    play, hunt, charm, asked, ended = gheeds_run(gheeds=which != 'no gheeds carried', swap=which != 'no swap')
+    if which == 'a rune':
+        charm = Drop(61, 5004.0, 5000.0, 'Ist Rune', VALUABLE)
+        play.loot = replace(play.loot, drops=(charm,))
+    run = play.run()
+    hunt.gathered[charm.unit_id] = GATHER_TRIES
+    hunt.retried.add(charm.unit_id)
+    assert hunt.side_drop(run, (5000.0, 5000.0), [], play.world) is None
+    assert len(asked) == (1 if which == 'no swap' else 0)
+    assert ended == []
+
+
+def test_a_refused_click_of_the_level_run_ends_it_for_the_gheeds_swap_at_once():
+    # The level run's pickup (hunt.py `operate`) met the refusal at its first click: no try counted toward giving up
+    from inventory_tracking.macros.goals import PICK_UP, Goal
+    from inventory_tracking.macros.hunt import Judged
+    from inventory_tracking.macros.pickup import Refused
+    from inventory_tracking.macros.pursuit import Operate
+    from inventory_tracking.macros.travel import PRESSED
+
+    play, hunt, charm, asked, ended = gheeds_run()
+    play.deaf_picks = 999
+    run = play.run()
+    goal = Goal(charm.label, (charm.x, charm.y), PICK_UP, 4.0, PRESSED, unit=charm.unit_id)
+    hunt.judge = lambda *_, **__: Judged(Operate(goal), goal, (charm.x, charm.y), hunt.pursuit)  # type: ignore[method-assign]
+    assert hunt.pursue(run, play.world, [], Ground(()), None, in_reach=False)
+    assert 999 - play.deaf_picks == 1
+    assert len(asked) == 1
+    assert isinstance(asked[0], Refused)
+    assert len(ended) == 1
+    assert charm.unit_id not in hunt.tried  # not a failed try
+
+
+def test_the_level_runs_give_up_memory_is_forgotten_for_the_new_gheeds():
+    # 13:57:50 on 2026-10-18: back for the new one after the player's went onto a shared page, the level run never
+    # tried it (the same unit, still given up); macros/loop.py GHEED_STASH forgets it (runner.py `_forget_given_up`)
+    from inventory_tracking.macros.hunt import GATHER_TRIES
+
+    play, hunt, charm, _, _ = gheeds_run(gheeds=False)  # the player's on a shared page now
+    run = play.run()
+    hunt.gathered[charm.unit_id] = GATHER_TRIES
+    hunt.retried.add(charm.unit_id)
+    hunt.swap_asked.add(charm.unit_id)
+    assert hunt.side_drop(run, (5000.0, 5000.0), [], play.world) is None
+    hunt.forget_given_up()
+    assert hunt.side_drop(run, (5000.0, 5000.0), [], play.world) == charm
+
+
+# --- F3 (rca/2026-10-18/andariel-cadence-findings.md §5): no side drop but a potion with the run's boss in reach ---
+
+
+@pytest.mark.parametrize('quiet', [True, False])
+def test_no_side_drop_but_a_potion_while_the_runs_boss_is_in_reach(monkeypatch, quiet):
+    # 11:49:03 on 2026-10-18 (084856Z-37): one strike at Andariel, then "pursuit: Teleport toward Dol Rune ... 32 away";
+    # back in reach at 11:49:09.6, dead at 11:49:11.56: 9.3 s in her window against a 3.6 s median
+    from inventory_tracking.macros import buffs
+    from inventory_tracking.macros.world import SUPER_HEALING, Loot
+
+    monkeypatch.setattr(buffs, 'QUIET_BY_THE_BOSS', quiet)
+    play = game()
+    hunt = hunter(play)
+    run = play.run()
+    here = (5000.0, 5000.0)
+    rune = Drop(80, 5006.0, 5000.0, 'Dol Rune', VALUABLE)
+    play.loot = Loot((rune,), room=('..........',) * 4)
+    her = foe(81, 5015.0, 5000.0, txt_id=156)
+    assert hunt.side_drop(run, here, [her], play.world) == (None if quiet else rune)
+    assert hunt.side_drop(run, here, [replace(her, x=5060.0)], play.world) == rune  # out of the strike's reach
+    assert hunt.side_drop(run, here, [foe(82, 5015.0, 5000.0)], play.world) == rune  # no boss
+    # A potion the belt wants is still a side goal by her (supply)
+    potion = Drop(83, 5004.0, 5000.0, 'Super Healing Potion', HEALING, txt=SUPER_HEALING)
+    play.loot = replace(play.loot, drops=(potion,))
+    assert hunt.side_drop(run, here, [her], play.world) == potion

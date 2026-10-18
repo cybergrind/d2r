@@ -196,7 +196,7 @@ def test_nothing_is_bought_in_a_window_whose_stock_holds_no_key_and_no_scroll():
 
 
 def test_the_loop_goes_to_her_before_lower_kurast_when_short():
-    from inventory_tracking.macros.loop import SHOP, TO_THE_CHESTS, Loop, next_leg
+    from inventory_tracking.macros.loop import TO_THE_CHESTS, TOWN, Loop, next_leg
     from inventory_tracking.macros.route import PERFORMED
     from inventory_tracking.routes.catalog import ROUTES
     from inventory_tracking.routes.progress import Progress
@@ -205,7 +205,7 @@ def test_the_loop_goes_to_her_before_lower_kurast_when_short():
     progress, loop = Progress(ROUTES, PERFORMED), Loop(on=True)
     assert next_leg(here, progress, loop) == TO_THE_CHESTS
     loop.short = True
-    assert next_leg(here, progress, loop) == SHOP
+    assert next_leg(here, progress, loop) == TOWN  # the town visit, her stop in it (macros/visit.py)
 
 
 def test_a_vendors_grids_give_each_item_its_tab_and_first_cell():
@@ -306,3 +306,20 @@ def test_a_click_that_buys_nothing_between_ones_that_do_does_not_end_the_keys_to
     restock(play.run())
 
     assert play.pack.keys == 24
+
+
+def test_no_rune_is_sold_whoever_asks():
+    # The player, 17:50 on 2026-10-18: the full rune stacks are "cubed, aim to 80 or lower", no longer sold (a full
+    # stack's Tal Runes were sold here since 2026-10-17); the junk beside it is sold as before
+    from inventory_tracking.loot.runes import RUNES
+
+    play, junk = selling(gold=500_000)
+    assert play.pack is not None
+    [tal] = [int(cid) for cid, row in RUNES.items() if row['name'] == 'Tal Rune']
+    rune = Carried(10, tal, 6, 0, (1, 1), 2)
+    play.pack = replace(play.pack, items=(*play.pack.items, rune))
+
+    restock(play.run(), sell=(rune, junk))
+
+    assert rune in play.pack.items
+    assert junk not in play.pack.items

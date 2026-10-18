@@ -69,6 +69,17 @@ def test_fetch_has_nothing_to_do_elsewhere_and_a_game_has_its_seconds():
         seen.fetch((5700.0, 2860.0), LK, 2.0 + FETCH_SECONDS, lambda found: None)
 
 
+def test_again_after_a_trip_for_room_gives_the_trips_back_and_the_seconds_again():
+    # 13:16:00 on 2026-10-18: "not picked up after 2 trips back" 2 s after the return through the portal
+    seen = Sightings()
+    seen.update(loot(emerald()), (5700.0, 2860.0), LK, 0.0)
+    for _ in range(FETCH_TRIES):
+        assert seen.fetch((5700.0, 2860.0), LK, 1.0, lambda found: None)
+    seen.again()
+    assert seen.fetch((5700.0, 2860.0), LK, 3.0 + FETCH_SECONDS, lambda found: None)  # the trip's seconds forgiven
+    assert seen.outstanding()[0].tries == 1
+
+
 def test_a_candidate_for_an_identify_is_not_remembered():
     # A magic Kriss is taken to be identified and maybe sold (macros/pickmode.py `candidate`): no game is kept for it
     kriss = Drop(43, 5798.0, 2870.0, 'Magic Kriss', VALUABLE, (1, 3), prized=False, source='shown', txt=41, quality=4)

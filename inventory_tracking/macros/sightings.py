@@ -19,14 +19,15 @@ filter), by unit, for the game it was seen in:
   `Abort`: the leg stops, and the runner's guard (`outstanding`) keeps the game rather than leaving it.
 """
 
+import dataclasses
 import math
 from collections.abc import Callable
 from dataclasses import dataclass
 
 from inventory_tracking.common import LOG
 from inventory_tracking.macros.actuator import Abort
-from inventory_tracking.macros.pickmode import is_candidate
-from inventory_tracking.macros.world import VALUABLE, Loot
+from inventory_tracking.macros.lootpolicy import SIGHTINGS, verdict
+from inventory_tracking.macros.world import Drop, Loot, has_room
 
 
 __all__ = ['FETCH_SECONDS', 'FETCH_TRIES', 'GONE_UNITS', 'Sighting', 'Sightings']
@@ -66,8 +67,10 @@ class Sightings:
             return
         if loot.game != self.game:
             self.game, self.items, self.fetching = loot.game, {}, None
-        # a candidate for an identify (macros/pickmode.py) is no valuable a game is kept for
-        read = {drop.unit_id: drop for drop in loot.drops if drop.kind == VALUABLE and not is_candidate(drop)}
+        # The sightings' "must not leave it" is the policy's (macros/lootpolicy.py `verdict`): a candidate for an
+        # identify (macros/pickmode.py) is no valuable a game is kept for; a plain one with no room is (the ruling of
+        # 2026-10-18 17:50)
+        read = {drop.unit_id: drop for drop in loot.drops if self.held(drop, loot)}
         for drop in read.values():
             found = self.items.get(drop.unit_id)
             if found is None:
@@ -92,6 +95,40 @@ class Sightings:
                 found.read = False
                 LOG.info('Macro: remembered %s at (%.0f, %.0f): out of the read, the character %.0f away',
                          found.label, found.x, found.y, away)  # fmt: skip
+
+    @staticmethod
+    def held(drop: Drop, loot: Loot) -> bool:
+        """Whether `drop`, read in `loot`, is remembered until it is off the ground (lootpolicy.py `SIGHTINGS`)."""
+        room = has_room(loot.room, drop.size)
+        return verdict(drop, SIGHTINGS, room=room, shown=drop.unit_id in loot.shown, looped=True).hold
+
+    def state(self) -> dict:
+        """What a restart of the service carries over (runner.py `resume_state`): the game and its valuables still on
+        the ground. A restart forgot a Flawless Topaz 94 units off, and the game was left with it (13:18 on 2026-10-18).
+        The clocks are time.monotonic(), one clock for every process."""
+        return {
+            'game': list(self.game) if self.game is not None else None,
+            'items': [dataclasses.asdict(found) for found in self.items.values()],
+            'fetching': self.fetching,
+        }
+
+    def restore(self, state: dict) -> None:
+        """Take up `state` (`state`); a malformed one is none."""
+        try:
+            game = tuple(state['game']) if state.get('game') else None
+            items = {int(found['unit_id']): Sighting(**found) for found in state.get('items', ())}
+        except KeyError, TypeError, ValueError:
+            return
+        self.game = (str(game[0]), int(game[1])) if game is not None else None
+        self.items, self.fetching = items, state.get('fetching')
+
+    def again(self) -> None:
+        """A trip to town for room is over: the valuables' trips back and the game's seconds for them begin again
+        (13:16:00 on 2026-10-18: "not picked up after 2 trips back" 2 s after the return, the seconds counted from
+        before the trip's 37 s)."""
+        self.fetching = None
+        for found in self.items.values():
+            found.tries = 0
 
     def outstanding(self) -> list[Sighting]:
         """The game's valuables seen and not yet off the ground."""

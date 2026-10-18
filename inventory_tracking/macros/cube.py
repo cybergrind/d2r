@@ -22,19 +22,39 @@ as for the waypoint panel): the inventory's 10 x 4 grid at (93, 897) of `$RightP
 player's screenshot of 21:16 put the inventory's first column and row where this says, within 2 pixels.
 """
 
+import functools
+import json
 from collections.abc import Callable, Iterable, Sequence
-from dataclasses import replace
+from dataclasses import dataclass, replace
+from pathlib import Path
 
 from inventory_tracking.collection.capture import GRID_CONTAINERS
 from inventory_tracking.common import LOG
 from inventory_tracking.items.metadata import item_base, metadata
+from inventory_tracking.macros.act import until
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.pickmode import MAGIC, RARE, SKILLED
 from inventory_tracking.macros.world import CUBE_GRID, INVENTORY_GRID, Carried, Pack
 
 
-__all__ = ['KEPT', 'Move', 'loot', 'overflow', 'own_of', 'perfect_of', 'plan', 'roomed', 'stash', 'transmute', 'unpack']
+__all__ = [
+    'KEPT',
+    'Move',
+    'RuneRecipe',
+    'loot',
+    'overflow',
+    'own_of',
+    'perfect_of',
+    'plan',
+    'roomed',
+    'rune_recipe',
+    'rune_slot',
+    'stash',
+    'stash_transmute',
+    'transmute',
+    'unpack',
+]
 
 REFERENCE_HEIGHT = 2160
 CELL = 98  # $ItemCellSize
@@ -167,12 +187,25 @@ def largest_block(rows: Sequence[str]) -> int:
     )
 
 
-def keys_move(pack: Pack) -> Move | None:
-    """A key stack and the free inventory cell it goes to that makes the largest free block larger, the largest
-    first; None when no move does (the player, 2026-10-17 19:10: "move key two cells left to make continuous 2x4
-    space": the second stack, bought at Jamella, landed where it split the free cells)."""
+BIG_BLOCK = (
+    2,
+    4,
+)  # the largest item's cells (an armour, a polearm): the room a session leaves (the player, 2026-10-18)
+
+
+def keys_move(pack: Pack, size: tuple[int, int] = BIG_BLOCK) -> Move | None:
+    """A key stack and the free inventory cell it goes to that frees a block of `size`, else makes the largest free
+    block larger, the largest first; None when no move does (the player, 2026-10-17 19:10: "move key two cells left to
+    make continuous 2x4 space": the second stack, bought at Jamella, landed where it split the free cells). The block
+    of `size` first: a 3 x 3 block counted larger than a 2 x 4 and a Unique Brandistock found no room while the loop's
+    keys stood in the only 2 x 4 (12:36 on 2026-10-18; the player: "in this particular case we even have all the
+    required space to get it inside the inventory")."""
     rows = inventory_rows(pack)
-    best, found = largest_block(rows), None
+
+    def score(lines: Sequence[str]) -> tuple[bool, int]:
+        return room_for(lines, size), largest_block(lines)
+
+    best, found = score(rows), None
     for key in (item for item in pack.items if item.txt == KEY_CLASS and item.size == (1, 1)):
         without = tuple(
             ''.join('.' if (col, row) == (key.x, key.y) else cell for col, cell in enumerate(line))
@@ -182,7 +215,7 @@ def keys_move(pack: Pack) -> Move | None:
             for x, cell in enumerate(line):
                 if cell != '.' or (x, y) == (key.x, key.y):
                     continue
-                block = largest_block(taken(without, (x, y), (1, 1)))
+                block = score(taken(without, (x, y), (1, 1)))
                 if block > best:
                     best, found = block, (key, (x, y))
     return found
@@ -262,13 +295,21 @@ def drop_for(
 ) -> Carried | None:
     """Drop the loop's item `droppable` names at the character's feet: room for a sure valuable the inventory has no
     block of `size` for, after the cube took what it could (the loop stopped by a Grand Charm, 21:00:03 on
-    2026-10-17). Picked up by a click, dropped by a click on the ground left of the panel, checked in memory; put back
-    where it was if it does not fall. The item dropped, or None. Mouse mode only; the panels closed after."""
-    rect = run.actuator.keys.focused_window_rect()
+    2026-10-17). The item dropped, or None. Mouse mode only; the panels closed after."""
     pack = run.carried() if run.carried is not None else None
     item = droppable(pack, own, size) if pack is not None else None
-    if item is None or rect is None or run.pad is not None:
+    if item is None:
         return None
+    return item if drop_item(run, inventory_key, item, f'for a {size[0]}x{size[1]} block') else None
+
+
+def drop_item(run: Run, inventory_key: str, item: Carried, why: str) -> bool:
+    """Drop the inventory's `item` at the character's feet: picked up by a click, dropped by a click on the ground left
+    of the panel, checked in memory; put back where it was if it does not fall. Whether it fell. Mouse mode only; the
+    panels closed after."""
+    rect = run.actuator.keys.focused_window_rect()
+    if rect is None or run.pad is not None:
+        return False
     dropped = False
     try:
         run.actuator.tap(inventory_key)
@@ -282,7 +323,7 @@ def drop_for(
             if now is not None and now.pointer is not None:
                 run.actuator.click()  # something else taken up: put down where it was, the pointer not moved
                 _until(run, lambda p: p.pointer is None)
-            return None
+            return False
         run.actuator.move(*DROP_POINT, scatter=(4, 4))
         run.actuator.click()
         dropped = _until(run, lambda p: p.pointer is None and all(i.unit_id != item.unit_id for i in p.items))
@@ -295,11 +336,9 @@ def drop_for(
             run.actuator.tap('Escape')
             run.seen(lambda w: 'inventory' not in w.open_panels, PANEL_SECONDS)
             run.actuator.rebase()
-    LOG.info(
-        'Macro: inventory: %s (%d) at (%d, %d) %s for a %dx%d block',
-        item.txt, item.unit_id, item.x, item.y, 'dropped' if dropped else 'not dropped', *size,
-    )  # fmt: skip
-    return item if dropped else None
+    LOG.info('Macro: inventory: %s (%d) at (%d, %d) %s %s',
+             item.txt, item.unit_id, item.x, item.y, 'dropped' if dropped else 'not dropped', why)  # fmt: skip
+    return dropped
 
 
 def cell_point(
@@ -479,7 +518,9 @@ def transmute(run: Run, inventory_key: str, txt: int, park: Callable[[int], None
                 raise Abort('the inventory is not read')
             if not room_for(inventory_rows(now), item.size):
                 if park is None:
-                    raise Abort(f'no room in the inventory for the item {item.txt} the cube must be emptied of')
+                    raise Abort(
+                        f'no room in the inventory for the item {item.txt} the cube must be emptied of', cause='room'
+                    )
                 _park(run, rect, item, park)
                 continue
             run.actuator.move(*cell_point(rect, CUBE, (item.x, item.y), item.size), scatter=(6, 6))
@@ -553,18 +594,51 @@ def _park(run: Run, rect: tuple[int, int, int, int], item: Carried, park: Callab
              item.unit_id)  # fmt: skip
 
 
+@dataclass(frozen=True)
+class RuneRecipe:
+    """A Horadric Cube recipe of the game's data (cubemain.txt, data/rune_cube.json): `runes` of the input's class and
+    the `gems` (classes) into one rune of class `into`."""
+
+    into: int
+    runes: int
+    gems: tuple[int, ...] = ()
+    description: str = ''
+
+
+@functools.cache
+def _rune_cube() -> dict:
+    return json.loads((Path(__file__).parent / 'data' / 'rune_cube.json').read_text())
+
+
+def rune_recipe(txt: int) -> RuneRecipe | None:
+    """The cube's recipe that takes runes of class `txt` into the next one (cubemain.txt, built by build_rune_cube.py
+    from the installed game: never from memory); None for no rune or no such recipe."""
+    row = _rune_cube()['recipes'].get(str(txt))
+    if row is None:
+        return None
+    return RuneRecipe(row['into'], row['runes'], tuple(row['gems']), row['description'])
+
+
+def rune_slot(txt: int) -> tuple[float, float] | None:
+    """The middle of the Runes or Gems tab's stack of class `txt` (the layout's `AdvancedStashSlotWidget`), in layout
+    units of the left panel; None for a class neither tab has a slot for."""
+    rect = _rune_cube()['slots'].get(str(txt))
+    return None if rect is None else (rect[0] + rect[2] / 2, rect[1] + rect[3] / 2)
+
+
+def stash_transmute() -> tuple[float, float]:
+    """The cube's Transmute button on a resource tab (`advancedstash_horadriccube/convert`), clicked TRANSMUTE_INSIDE
+    units in as cube mode's, in layout units of the left panel."""
+    x, y = _rune_cube()['convert']
+    return x + TRANSMUTE_INSIDE, y + TRANSMUTE_INSIDE
+
+
 def _gem_name(txt: int) -> str:
     base = item_base(txt)
     return base['name'] if base is not None else str(txt)
 
 
-def _until(run: Run, holds) -> bool:
-    """Whether the carried items come to hold `holds` within ITEM_SECONDS."""
-    deadline = run.clock() + ITEM_SECONDS
-    while True:
-        pack = run.carried() if run.carried is not None else None
-        if pack is not None and holds(pack):
-            return True
-        if run.clock() >= deadline:
-            return False
-        run.pace.sleep(0.05)
+def _until(run: Run, holds: Callable[[Pack], bool]) -> bool:
+    """Whether the carried items come to hold `holds` within ITEM_SECONDS (act.py `until`, which stash.py's copy of
+    this became too on 2026-10-18; charms.py and visit.py import it from stash.py)."""
+    return until(run, holds, ITEM_SECONDS, read=lambda: run.carried() if run.carried is not None else None) is not None

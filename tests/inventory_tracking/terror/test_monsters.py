@@ -13,6 +13,7 @@ from inventory_tracking.terror.monsters import (
     player_level,
     player_life,
     player_states,
+    terror_entries,
     terror_levels,
 )
 
@@ -212,6 +213,24 @@ def test_the_terrorized_levels_are_the_clients_own_list():
     # service: 16-byte entries, the level id first).
     memory = Memory()
     assert terror_levels(memory.read, terror_service(memory, [115, 116])) == (115, 116)
+
+
+def test_the_clients_tz_entries_include_level_and_effect_before_monsters_are_seen():
+    # The automap reads 16-byte entries: area at +0, displayed TZ level at +8,
+    # a packed modifier field at +12. These bytes are in the service, not monster units.
+    memory = Memory()
+    base = terror_service(memory, [115, 116])
+    struct.pack_into('<I', memory.blocks[0x810000], 8, 95)
+    struct.pack_into('<I', memory.blocks[0x810000], 12, 274)  # low byte 18: Cold Enchanted
+    struct.pack_into('<I', memory.blocks[0x810000], 24, 95)
+    struct.pack_into('<I', memory.blocks[0x810000], 28, 274)
+
+    found = terror_entries(memory.read, base)
+    assert found is not None
+    assert [(entry.area, entry.level, entry.modifier, entry.modifier_word) for entry in found] == [
+        (115, 95, 18, 274),
+        (116, 95, 18, 274),
+    ]
 
 
 def test_no_terrorized_levels_is_an_empty_list_and_no_service_is_unread():

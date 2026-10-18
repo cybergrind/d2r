@@ -6,7 +6,7 @@ from dataclasses import replace
 
 from inventory_tracking.levels.model import Location
 from inventory_tracking.terror.bosses import BossTracker
-from inventory_tracking.terror.monsters import Monster, MonsterSnapshot
+from inventory_tracking.terror.monsters import Monster, MonsterSnapshot, TerrorEntry
 from inventory_tracking.terror.probe import MonsterLedger, TerrorProbe
 from inventory_tracking.terror.tracker import ZoneTracker
 
@@ -467,3 +467,39 @@ def test_the_clients_terrorized_levels_are_logged_when_they_change():
     ]  # an unread list changes nothing
     rotated = MonsterSnapshot(PLAYER, frozenset(), None, (), terror_levels=(6, 7))
     assert [e['levels'] for e in ledger.update(rotated, 4.0) if e['event'] == 'terror_levels'] == [[6, 7]]
+
+
+def test_serve_logs_the_tz_name_and_memory_effect_in_town(tmp_path, caplog):
+    assert 'terror_entries' in MonsterSnapshot.__dataclass_fields__
+    town = Location(103, 0x500000, 5000, 5000)  # Pandemonium Fortress; no monsters streamed
+    snap = MonsterSnapshot(
+        town,
+        frozenset(),
+        None,
+        (),
+        terror_levels=(115, 116),
+        terror_entries=(TerrorEntry(115, 95, 274), TerrorEntry(116, 95, 274)),
+    )
+    probe = TerrorProbe(
+        Source(),
+        tmp_path / 'terror.jsonl',
+        capture_lock=threading.Lock(),
+        poll_interval=0,
+        observe=lambda *args, **kwargs: snap,
+    )
+
+    with caplog.at_level('INFO'):
+        probe.poll(1.0)
+
+    state = next(
+        e
+        for e in map(json.loads, (tmp_path / 'terror.jsonl').read_text().splitlines())
+        if e['event'] == 'terror_levels'
+    )
+    assert state['entries'] == [
+        {'area': 115, 'level': 95, 'modifier': 18, 'modifier_word': 274},
+        {'area': 116, 'level': 95, 'modifier': 18, 'modifier_word': 274},
+    ]
+    assert 'Glacial Trail and Drifter Cavern' in caplog.text
+    assert 'Cold Enchanted (18)' in caplog.text
+    assert 'area 103' in caplog.text

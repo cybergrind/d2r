@@ -26,7 +26,9 @@ from typing import Any
 
 from inventory_tracking.common import LOG, timestamp
 from inventory_tracking.native.layout import DEAD_MODES, TOWN_IDS
-from inventory_tracking.terror.monsters import Monster, MonsterSnapshot, observe_monsters
+from inventory_tracking.terror.monsters import Monster, MonsterSnapshot, TerrorEntry, observe_monsters
+from inventory_tracking.terror.tracker import MODIFIER_NAMES
+from inventory_tracking.terror.zones import group_of
 
 
 AROUND_REACH = 60  # world units: about a screen, the reach of what can hurt the player now
@@ -53,6 +55,7 @@ class MonsterLedger:
         self.life: tuple[int, int] | None = None  # the player's life as last logged
         self.next_around = -math.inf
         self.terror_levels: tuple[int, ...] | None = None  # the client's terrorized levels as last logged
+        self.terror_entries: tuple[TerrorEntry, ...] | None = None
 
     @property
     def known(self) -> set[int]:
@@ -78,9 +81,24 @@ class MonsterLedger:
             if snapshot.level_hex is not None:
                 event['level_hex'] = snapshot.level_hex
             events.append(event)
-        if snapshot.terror_levels is not None and snapshot.terror_levels != self.terror_levels:
+        if snapshot.terror_levels is not None and (
+            snapshot.terror_levels != self.terror_levels
+            or (snapshot.terror_entries is not None and snapshot.terror_entries != self.terror_entries)
+        ):
             self.terror_levels = snapshot.terror_levels
-            events.append({'event': 'terror_levels', 't': t, 'area': here, 'levels': list(self.terror_levels)})
+            self.terror_entries = snapshot.terror_entries
+            event = {'event': 'terror_levels', 't': t, 'area': here, 'levels': list(self.terror_levels)}
+            if self.terror_entries is not None:
+                event['entries'] = [
+                    {
+                        'area': entry.area,
+                        'level': entry.level,
+                        'modifier': entry.modifier,
+                        'modifier_word': entry.modifier_word,
+                    }
+                    for entry in self.terror_entries
+                ]
+            events.append(event)
         if snapshot.player_life is not None and snapshot.player_life != self.life:
             self.life = snapshot.player_life
             position = {'x': location.x, 'y': location.y}
@@ -255,6 +273,26 @@ class TerrorProbe:
         for event in events:
             if event['event'] == 'left_game' and event['killed']:
                 LOG.info('Terror probe: game left; kills by area %s, seen %s', event['killed'], event['seen'])
+            elif event['event'] == 'terror_levels' and 'entries' in event:
+                entries = event['entries']
+                zones = list(
+                    dict.fromkeys(
+                        group.name if (group := group_of(entry['area'])) else f'area {entry["area"]}'
+                        for entry in entries
+                    )
+                )
+                effects = list(
+                    dict.fromkeys(
+                        f'{MODIFIER_NAMES.get(entry["modifier"], "unknown")} ({entry["modifier"]})' for entry in entries
+                    )
+                )
+                LOG.info(
+                    'Terror Zone memory: area %d; zones %s; effects %s; entries %s',
+                    event['area'],
+                    ', '.join(zones) or 'none',
+                    ', '.join(effects) or 'none',
+                    entries,
+                )
         self.write(events)
         if self.tracker is not None:
             self.tracker.apply(events)

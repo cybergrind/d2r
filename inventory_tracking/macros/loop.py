@@ -12,22 +12,34 @@ the portal (portal.py), Save and Exit. The player, 2026-10-16: games end in act 
 A leg that `Abort`s (a place the loop has no leg for, a leg made again and again in one game with nothing coming of
 it: `REPEATS`) or a game that lasts over GAME_SECONDS is recovered from by leaving the game (`recover`, `abandon`): the
 player, 2026-10-17: "we should try to not stuck in some weird situation without being able to fix it from agent". It
-stops by itself, saying why (`Macro: loop stopped: …`), with the character dead (`Dead`) and after RECOVERIES
-recoveries within RECOVERY_SECONDS.
+stops by itself, saying why (`Macro: loop stopped: …`), only with the character dead (`Dead`); past RECOVERIES
+recoveries within RECOVERY_SECONDS it goes on after RECOVERY_PAUSE, saying so for the watch to fix (the player,
+2026-10-18: "how to setup the loop in the way that would fully prevent us from stopping").
 """
 
 import json
 import math
+import time
 from collections import Counter
-from collections.abc import Callable, Set
-from dataclasses import dataclass, field
+from collections.abc import Callable
+from dataclasses import dataclass, field, replace
 from pathlib import Path
+from typing import NamedTuple
 
 from inventory_tracking.common import LOG
 from inventory_tracking.levels.presets import display_name
-from inventory_tracking.loot.runes import RUNES as RUNE_CLASSES
 from inventory_tracking.macros.actuator import Abort, Hand
-from inventory_tracking.macros.charms import gheeds, is_unique_grand_charm, put_away, take_back
+from inventory_tracking.macros.charms import (
+    GHEEDS_FORTUNE,
+    Parked,
+    Stats,
+    candidates,
+    choose,
+    gheeds,
+    magic_find,
+    newcomers,
+    park,
+)
 from inventory_tracking.macros.cube import (
     SURE_BLOCK,
     inventory_rows,
@@ -42,29 +54,34 @@ from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.junk import MAGIC
 from inventory_tracking.macros.pickup import SHUNNED
 from inventory_tracking.macros.portal import FROM_TOME, PortalSource, portal_source, slot_note, through_portal, to_town
-from inventory_tracking.macros.repair import (
-    ENABLED,
-    RETRY_GAMES,
-    WEAR_CARRIED,
-    affordable,
-    back,
-    gold,
-    repair,
-    unknown,
-    wants,
-    worn_out,
-    worn_text,
-)
+from inventory_tracking.macros.repair import RETRY_GAMES, due, gold, wants, worn_out, worn_text
 from inventory_tracking.macros.routines import DEAD, character_keys, create_next_game, leave_game, prebuff
-from inventory_tracking.macros.shop import SALE_MOST, gold_cap, restock, short
-from inventory_tracking.macros.stash import INVENTORY_CELLS, MATERIALS_TAB, RESOURCES, is_potion, resource_tabs
+from inventory_tracking.macros.shop import KEYS_ONE_STACK, KEYS_WANTED, gold_cap, short
+from inventory_tracking.macros.stash import INVENTORY_CELLS, RESOURCES
+from inventory_tracking.macros.town import GEMS_A_KIND, TRADE_ROOM, Exit, sold_full, surplus, tops_up
+from inventory_tracking.macros.visit import Remembered
 from inventory_tracking.macros.waypoint import travel
 from inventory_tracking.macros.world import Carried, World
 from inventory_tracking.routes.model import FIGHT, LOOT, USE
 from inventory_tracking.routes.progress import Progress
+from inventory_tracking.terror.bosses import KILLED_AT
 
 
-__all__ = ['ANDARIEL', 'KINDS', 'LK', 'LOWER_KURAST', 'Dead', 'Kind', 'Loop', 'kind_of', 'next_leg']
+__all__ = [
+    'ANDARIEL',
+    'KINDS',
+    'LK',
+    'LOWER_KURAST',
+    'TOWN',
+    'TRADE_ROOM',
+    'TRIPS_A_GAME',
+    'Dead',
+    'GameId',
+    'Kind',
+    'Loop',
+    'kind_of',
+    'next_leg',
+]
 
 KURAST_DOCKS, LOWER_KURAST, PANDEMONIUM_FORTRESS = 75, 79, 103
 ROGUE_ENCAMPMENT, CATACOMBS_2, CATACOMBS_3, CATACOMBS_4 = 1, 35, 36, 37  # levels.txt
@@ -73,16 +90,18 @@ ROGUE_ENCAMPMENT, CATACOMBS_2, CATACOMBS_3, CATACOMBS_4 = 1, 35, 36, 37  # level
 @dataclass(frozen=True)
 class Kind:
     """A kind of the loop's run: `start` the level its waypoint leads to, `levels` the run's levels (its sightings),
-    `home` the town of its act (where its new games start, or its portal leads)."""
+    `home` the town of its act (where its new games start, or its portal leads), `keys` the keys a visit to Jamella buys
+    up to (macros/shop.py: two stacks for the chests, one where none is opened)."""
 
     key: str
     name: str
     start: int
     levels: frozenset[int]
     home: int
+    keys: int = KEYS_ONE_STACK
 
 
-LK = Kind('lk', 'Lower Kurast', LOWER_KURAST, frozenset((LOWER_KURAST,)), KURAST_DOCKS)
+LK = Kind('lk', 'Lower Kurast', LOWER_KURAST, frozenset((LOWER_KURAST,)), KURAST_DOCKS, KEYS_WANTED)
 # Andariel (routes/andariel-loop-plan.md): the waypoint to Catacombs Level 2, its stairs and Level 3's down, her fight
 # on Level 4, the loot, Save and Exit there: the next game starts in the Rogue Encampment, a waypoint from Level 2
 ANDARIEL = Kind(
@@ -99,8 +118,11 @@ def kind_of(area: int | None) -> Kind | None:
 
 # The legs, as the HUD says them.
 NEXT_GAME = 'next game'
-SHOP = 'scrolls and keys'
-REPAIR = "the staff's charges"
+# The town visit (macros/visit.py `visit`; macros/town-plan.md step 3): Cain, the stash, Jamella, Halbu, the exit, each
+# once and only with something to do. It took the place of four legs (identify, the stash, scrolls and keys, the staff's
+# charges), which walked back and forth between them (the player, 2026-10-18 12:55: "we visit the stash only ONE time,
+# no running back and forward")
+TOWN = 'town visit'
 TO_THE_CHESTS = 'to Lower Kurast'
 CHESTS = 'the chests'
 PICK_UP = 'what is left'
@@ -115,35 +137,57 @@ FIGHT_ANDARIEL = 'Andariel'  # the level run on Level 4: her fight
 TRIP = 'to town for room'
 TO_THE_ENCAMPMENT = 'to the Rogue Encampment'
 THROUGH_PORTAL = 'back through the portal'
-# The player's Gheed's Fortune onto the stash page for another one on the ground (macros/charms.py), and back
+# Another Gheed's Fortune on the ground, carry-one (macros/charms.py; the player, 2026-10-18 13:39: "go to town; put our
+# own gheed into SHARED tab; go back and pick new one; go to town, identify; check what is better (magic find roll);
+# keep in own inventory better one"): to town by the portal (`SWAP_OUT`), the Fortress's stash (`GHEED_STASH`), back
+# by the Rogue Encampment and the portal for the new one; to town again (`SWAP_BACK`), Cain and the stash
+# (`GHEED_CHOOSE`), back through the portal for the rest of the level
 SWAP_OUT = "Gheed's Fortune away"
-SWAP_BACK = "Gheed's Fortune back"
-STASH = 'the stash'  # the trade session's second visit: the cube emptied once the sales made room
-IDENTIFY = 'identify'  # the loop's items identified at Deckard Cain, appraised (macros/cain.py, macros/junk.py)
+GHEED_STASH = "Gheed's Fortune onto a shared page"
+SWAP_BACK = "Gheed's Fortunes to compare"
+GHEED_CHOOSE = "the better Gheed's Fortune"
+# `Loop.gheed`, the swap's stage: on the way to the stash with the player's; back for the new one (theirs parked); on
+# the way to compare; back to the level after the choice
+OUT, PICK, CHOOSE, RETURN = 'out', 'pick', 'choose', 'return'
+# Trips for room a game (`Loop.may_trip`; the player, 2026-10-18 16:50: "one game can do several trips to the town"),
+# each only after one that made room: a trip whose visit can take nothing away (the player's charms, 13:38:17 on
+# 2026-10-18) is not made again and again. Three: the inventory filled twice more on one level is rare (one game of
+# 173 cycles needed two that day), and each trip is ~37 s of a 240 s game (GAME_SECONDS)
+TRIPS_A_GAME = 3
 # How often one leg may be made in one game before the loop gives up on it: a pickup a drop at a time, the level run
 # again after it stopped short, any other leg once more after a failure that left the character where it was.
-REPEATS = {PICK_UP: 20, CHESTS: 3, DOWN: 8, FIGHT_ANDARIEL: 3}
+REPEATS = {PICK_UP: 20, CHESTS: 3, DOWN: 12, FIGHT_ANDARIEL: 3}  # DOWN: the pickups at the stairs too
+# A game's trips for room and its Gheed's swap each go to the Fortress and back by the portal, the swap twice; the
+# Fortress once more at an Andariel game's start (the Rogue Encampment's errands)
+REPEATS |= {
+    TRIP: TRIPS_A_GAME,
+    TO_THE_FORTRESS: 1 + TRIPS_A_GAME + 2,
+    TO_THE_ENCAMPMENT: TRIPS_A_GAME + 2,
+    THROUGH_PORTAL: TRIPS_A_GAME + 2,
+}
+# A game's visits: the start's, each trip's, and one cut by the player's hand (REPEAT 2 stopped the loop on the third)
+REPEATS |= {TOWN: 1 + TRIPS_A_GAME + 1}
+# Andariel's drops land through her death animation (mode 0, 1.55 s in the takes of 11:39-11:48 on 2026-10-18), the
+# last 1.7 s after the kill was said; her fight's level run ends 0.4 s or more after it. Four games of 19 left 0.5-0.8 s
+# after the kill (11:41:52, 11:51:39, 11:52:14): her level is not left with nothing to pick up before this long after
+# the fight's end, and the ground is looked at again
+DROPS_LAND = 2.0
+# From her kill as the service saw it (terror/bosses.py KILLED_AT: the probe sees a death start within 0.25 s): the
+# last item came 1.7 s after it. Timed from the first loot leg instead, every game waited 2 s, her pack's fight long
+# after her death included (13:21 on 2026-10-18); DROPS_LAND stays for a kill this service did not see (a restart)
+DROPS_AFTER_KILL = 1.9
+KILL_FRESH = 120.0  # seconds: a kill older than this is another game's
 REPEAT = 2
 # A game longer than this is left (a game takes 40-75 s, 2026-10-17); a leg's stop or such a game is recovered from
-# by leaving the game at most RECOVERIES times in RECOVERY_SECONDS, then the loop stops
+# by leaving the game; past RECOVERIES times in RECOVERY_SECONDS the next leg waits RECOVERY_PAUSE first (`recover`)
 FULL_FILE = 'full-stacks.json'
-# The trade (routes/lower-kurast-loop-plan.md §15; the player, 2026-10-17: "we need to perform mass identify at decard
-# cain -> stash good -> sell junk -> return to loop"; then "probably we need to trade not by 2 junk items, but by
-# remaining free slots"): the loop's unidentified items and its junk wait, in the inventory and the cube, until fewer
-# than TRADE_ROOM cells are free in both together (a 2 x 4 shield, the largest candidate, fits nowhere); then the whole
-# session at once: Cain identifies all, the stash beside him takes the keepers, Jamella buys all the junk. A visit to
-# her made anyway for keys and scrolls sells what is carried too. (Counted by items before, 3 then 4 to Cain, 2 then 3
-# to her: Cain nearly every game for one item, the trade ~6.8 s a cycle, 12:00-12:30 on 2026-10-17.)
-TRADE_ROOM = 8
-# A full stash stack's flawless gems the loop keeps for the cube: at most GEMS_A_KIND of a kind (one transmute's) and
-# GEMS_KEPT in all; the rest are sold at Jamella, but only once the perfect gem's stack is full too (the player, 09:51
-# on 2026-10-18: "we don't need to do gem sale until we have 99 pgems of type and we must cube them up first").
-# Kept with no bound, all seven kinds full, they filled the cube: no transmute had the room to empty it, a trade
-# session every game, then the loop stood by a Flawless Sapphire and a Grand Charm with no room for either (09:22-09:45)
-GEMS_A_KIND = 3
-GEMS_KEPT = 6
-SELL_PASSES = 4  # the cube's junk out and sold, pass after pass, as the inventory's room allows
+# The trade's trigger (town.py TRADE_ROOM): the loop's unidentified items and its junk wait, in the inventory and the
+# cube, until fewer than TRADE_ROOM cells are free in both together; then the whole visit at once (`TOWN`)
 GAME_SECONDS = 240.0
+# A trip for room's time (`overdue`): the p90 of 2026-10-18's, 78.3 s (rca/2026-10-18/trips-and-towns-findings.md §2.4);
+# several trips a game (TRIPS_A_GAME) would take a game with its fight and loot past GAME_SECONDS, and the watchdog's
+# stop in town would stand the loop with the valuable on the level
+TRIP_SECONDS = 80.0
 LOADING_SECONDS = 10.0  # for a game's character to be read after it shows as in a game
 # The character not moving STILL_SECONDS in a game, by STILL_UNITS, is the loop stuck too (the level run stood by a
 # Flawless Diamond with the inventory full from 01:15:03 on 2026-10-17, the player's "we stuck, but didn't detect it
@@ -152,31 +196,24 @@ STILL_SECONDS = 45.0
 STILL_UNITS = 2.0
 RECOVERIES = 3
 RECOVERY_SECONDS = 600.0
+RECOVERY_PAUSE = 30.0  # past RECOVERIES: a failing leg is not tried again at once, nor the loop stopped (`recover`)
 
 
 class Dead(Abort):
     """The character is dead: the loop stops for the player."""
 
 
-def surplus(carried: list[Carried], full: Set[int]) -> tuple[Carried, ...]:
-    """The flawless gems among `carried` (the loop's items, the cube's too) of the `full` stacks the loop does not keep
-    (GEMS_A_KIND, GEMS_KEPT): the kinds with the most first, those nearest a transmute. Only a kind whose perfect gem's
-    stack is full too: the others are cubed."""
-    kinds = Counter(i.txt for i in carried if i.txt in full and perfect_of(i.txt) in full)
-    kept: dict[int, int] = {}
-    room = GEMS_KEPT
-    for txt, count in sorted(kinds.items(), key=lambda kind: (-kind[1], kind[0])):
-        kept[txt] = min(count, GEMS_A_KIND, room)
-        room -= kept[txt]
-    sold: list[Carried] = []
-    for item in carried:
-        if item.txt not in kept:
-            continue
-        if kept[item.txt] > 0:
-            kept[item.txt] -= 1
-        else:
-            sold.append(item)
-    return tuple(sold)
+class GameId(NamedTuple):
+    """A game as the loop tells one from the next: its name and the player's unit id in it (the key `Sightings` keeps,
+    world.py `Loot.game`). Names come round again (cyber99 -> cyber1, the second cyber81 of a session at 09:19:49 on
+    2026-10-18); the unit id is a new one in a new game. The seed of the per-game record (rca/2026-10-18/
+    arch-loop-orchestration.md Option B, step 1): logged when it changes (`Loop.observe`), read by nothing yet."""
+
+    name: str
+    player: int
+
+    def __str__(self) -> str:
+        return f'{self.name} (player unit {self.player})'
 
 
 @dataclass
@@ -208,6 +245,9 @@ class Loop:
     portal: PortalSource | None = None
     # The game is to be left from wherever the character is (`recover`), and when the recoveries were
     abandon: bool = False
+    fetch_again: str | None = None  # the game a leg was made again for a valuable left for no lack of room (runner.py)
+    cooling: float = 0.0  # time.monotonic() before which no leg is made (`recover`, RECOVERY_PAUSE)
+    fought: tuple[str, float] | None = None  # (the game, the run's clock) at her level's first loot leg (`DROPS_LAND`)
     recovered: list[float] = field(default_factory=list)
     # The game (None: the lobby) the loop was last seen in, and since when (`overdue`)
     seen: tuple[str | None, float] | None = None
@@ -220,22 +260,15 @@ class Loop:
     selling: tuple[Carried, ...] = ()
     # The staff's Teleport in the loop's moves (`teleports`): while the gold carried pays for it
     teleports: bool | None = None  # None: not decided since the start (`teleports`)
-    capped: bool = False  # the gold carried too near its cap for a sale, at the last look (`leg`)
     wear: str = '?'  # the most worn item's durability at the last look (`leg`), for the log
+    # The game the last look in one was of (`observe`): kept through the lobby and over a KP_6 off and on
+    game_id: GameId | None = None
 
     @property
     def sold_full(self) -> frozenset[int]:
-        """The full stacks' classes that are not picked up and are sold: the runes alone. The ruling was the runes'
-        ("other runes that will have 99"); a Flawless Amethyst whose stack was full was left on the ground twice, the
-        player: "we just left flawlest amethyst and left the game. something is wrong" (15:19 on 2026-10-17). A gem
-        of a full stack is picked up and kept carried, not sold, until the player rules on it. The materials too (the
-        Materials tab: essences, shards, keys; the player, 10:37 on 2026-10-18: "essensies are stacking to 99, when we
-        have full stash cell - just stop picking it up, there is no use for it"), never a potion (the belt's)."""
-        return frozenset(
-            txt
-            for txt in self.full
-            if txt in RUNE_CLASSES or (resource_tabs().get(txt) == MATERIALS_TAB and not is_potion(txt))
-        )
+        """The full stacks' classes that are not picked up (town.py `sold_full`): the runes (sold), the materials (put
+        down), never a gem or a potion."""
+        return sold_full(self.full)
 
     # The staff's charges low enough for Halbu's repair (macros/repair.py `wants`), and the game count of a visit that
     # did not raise them (none tried again for RETRY_GAMES games)
@@ -249,39 +282,45 @@ class Loop:
     # `drop_for`), once a game (`dropped`), before the loop stops for the player
     drop_room: bool = False
     dropped: str | None = None
-    # The trade (MASS): the loop's items in the inventory and the cube the appraisal calls junk (macros/junk.py
-    # `junk_of`, judged at each look in the fortress) and the unidentified ones; the game of the last visit to Cain and
-    # to Jamella (each once a game); the inventory cells free at the last look; the stash's next visit made whatever
-    # its room (the keepers, after Cain)
-    junk: tuple[Carried, ...] = ()
-    unknown: tuple[Carried, ...] = ()
-    identified: str | None = None
-    shopped: str | None = None
+    # The trade (`TOWN`): the inventory and cube cells free at the last look, whether the loop carried anything a visit
+    # takes away (`carrying`); the game whose visit began (`visiting`: a visit cut by the player's hand is made again,
+    # and plans only what is left) and the game whose visit is done (`visited`: once a game; a trip's own: `TRIP`)
     free: int | None = None
-    carrying: bool = False  # the loop's items in the inventory or the cube at the last look: a session has work
-    reported: str | None = None  # the game whose trade session's state was said (`report`)
-    cubed: bool = False  # the loop's items in the cube at the last look (the session's contract: an empty cube)
-    restashed: str | None = None  # the game of the session's second visit to the stash (`STASH`)
-    stash_now: bool = False
+    carrying: bool = False
+    visiting: str | None = None
+    visited: str | None = None
     waiting: bool = False  # for the game window's focus (runner.py): the watchdogs pause
     moved: tuple[tuple[float, float], float] | None = None  # where the character last moved to, and when (`still`)
     counted_in: str | None = None  # where `made` counts (`count`)
     # A valuable on the level with no room for it, the cube tried (runner.py `_loop_stopped`): a trip to town for
-    # room, once a game (`trip`, its game); the Fortress reached on it (`fortressed`), the portal's town end
-    # (`portal_at`), the level reached again (`returned`)
+    # room (`trip`, its game; `trips` made in it, up to TRIPS_A_GAME: `may_trip`); the Fortress reached on it
+    # (`fortressed`), the portal's town end (`portal_at`), the level reached again (`returned`), the sightings' trips
+    # back given again for it (`forgiven`: the game and the trip's number); the cells free as it began (`trip_free`)
+    # and those it made (`trip_gained`, at its return: None unread)
     trip_due: bool = False
     trip: str | None = None
+    trips: int = 0
     fortressed: str | None = None
     portal_at: tuple[float, float] | None = None
     returned: str | None = None
-    # A unique Grand Charm the pickup could not take with the player's Gheed's Fortune carried (runner.py
-    # `_loop_stopped`): theirs onto the stash page and back (`SWAP_OUT`, `SWAP_BACK`), once a game (`swap`); `parked`
-    # theirs as it lies there, `parked_from` its inventory cell, `swap_units` the units carried before
+    forgiven: tuple[str, int] | None = None
+    trip_free: int | None = None
+    trip_gained: int | None = None
+    # A unique Grand Charm on the ground the pickup could not take with the player's Gheed's Fortune carried (runner.py
+    # `_loop_stopped`): the swap (SWAP_OUT ... GHEED_CHOOSE), once a game (`swap`, its game; `swap_level` where it
+    # began); `parked` the player's on a shared page (kept over a restart: runner.py `resume_state`), `gheed` the
+    # stage (OUT, PICK, CHOOSE, RETURN), `swap_units` the units carried before, `fresh` a new one carried at the last
+    # look (macros/charms.py `candidates`)
     swap_due: bool = False
     swap: str | None = None
-    parked: Carried | None = None
-    parked_from: tuple[int, int, int] | None = None
+    swap_level: int | None = None
+    parked: Parked | None = None
+    gheed: str | None = None
     swap_units: frozenset[int] = frozenset()
+    fresh: bool = False
+    # The runner's (runner.py `_forget_given_up`): the level run's give-up memory cleared once the player's Gheed's
+    # Fortune is on a shared page (`GHEED_STASH`), as the pickup step's `SHUNNED` is: the refused charm is tried again
+    forget: Callable[[], None] | None = None
 
     def start(self) -> None:
         self.full |= self._full_stored()
@@ -289,23 +328,29 @@ class Loop:
         self.counted_in, self.placed, self.portal = None, False, None
 
     def recover(self, why: object, now: float) -> bool:
-        """Whether the loop goes on after `why` stopped a leg, by leaving the game: not with the character dead,
-        nor after RECOVERIES recoveries within RECOVERY_SECONDS."""
+        """Whether the loop goes on after `why` stopped a leg, by leaving the game: not with the character dead.
+        Past RECOVERIES recoveries within RECOVERY_SECONDS the next leg waits RECOVERY_PAUSE (`cooling`) and the loop
+        goes on: a stopped loop stood until someone looked (10 stops of "Save and Exit again and again", 200 min, on
+        2026-10-17; the player, 2026-10-18: "fully prevent us from stopping")."""
         if isinstance(why, Dead):
             return False
         self.recovered = [at for at in self.recovered if now - at < RECOVERY_SECONDS]
         if len(self.recovered) >= RECOVERIES:
-            return False
+            self.cooling = now + RECOVERY_PAUSE
+            LOG.warning('Macro: loop: %d recoveries in %.0f s: the next leg after %.0f s (%s)',
+                        len(self.recovered) + 1, RECOVERY_SECONDS, RECOVERY_PAUSE, why)  # fmt: skip
         self.recovered.append(now)
         self.abandon = True
         return True
 
     def overdue(self, game: str | None, now: float) -> bool:
-        """Whether the loop has been in `game` (None: the lobby) over GAME_SECONDS, seen now."""
+        """Whether the loop has been in `game` (None: the lobby) over GAME_SECONDS, and TRIP_SECONDS more for each trip
+        for room made in it, seen now."""
         if self.seen is None or self.seen[0] != game:
             self.seen = (game, now)
             return False
-        return now - self.seen[1] > GAME_SECONDS and not self.abandon
+        allowed = GAME_SECONDS + TRIP_SECONDS * self.trips_in(game)
+        return now - self.seen[1] > allowed and not self.abandon
 
     def still(self, where: tuple[float, float] | None, now: float) -> bool:
         """Whether the character, at `where` now, has stood within STILL_UNITS for over STILL_SECONDS."""
@@ -345,39 +390,51 @@ class Loop:
             self.mine = mine
             self._keep(name)
 
-    def walks_back(self, game: str) -> bool:
-        """Whether the walk toward the waypoint follows a visit to Halbu: not with Jamella next (she stands 34 units
-        off), nor when the game is left from there: a new game starts by its waypoint anyway (18:04:54 on 2026-10-17:
-        8.6 s walked back before Save and Exit). The stash again for the cube's keepers is by the waypoint."""
-        leaving = self.done == game and (self.restashed == game or not self.cubed)
-        return not self.shop_next(game) and not leaving
+    def visit_due(self, game: str) -> bool:
+        """Whether a town visit is due in `game` (once: `visited`): the room low (TRADE_ROOM; a trip for room whatever
+        the cells count) with anything a visit takes away, or, but at a game's end, keys or scrolls short or a repair
+        due. Any errand to a vendor is the whole visit (the player, 15:52 on 2026-10-17: "when we get to maintenance
+        (refilling, trading, repairing) - it is better to identify everything, stash good, sell junk, refill, optionally
+        repair ... right now we're running between vendors/stash/waypoint with items that could be already 10 times
+        sold"). At a game's end the room alone: a refill or a repair waits for the next game's start."""
+        if self.visited == game:
+            return False
+        if self.visiting == game:
+            return True  # begun and cut short: made again, from what is left
+        cramped = self.tripping(game) or (self.free is not None and self.free < TRADE_ROOM)
+        return (cramped and self.carrying) or (self.done != game and (self.short or self.repair))
 
-    def shop_next(self, game: str) -> bool:
-        """Whether Jamella is still to be visited in `game` (keys or scrolls short, or the session's sales): after Halbu
-        the loop goes to her, not back to the waypoint first (the player, 2026-10-17: "we repaired staff -> walked to
-        wp -> walked to jamella")."""
-        return self.shopped != game and (self.short or (self.identified == game and bool(self.junk or self.selling)))
+    def tripping(self, game: str) -> bool:
+        """Whether a trip for room is on its way in `game`: begun (`TRIP`) and not back through the portal."""
+        return self.trip == game and self.returned != game
 
-    def report(self, run: Run, game: str, pack, staff) -> None:
-        """Once a session's legs are done (this game's, `identified`), what it left, as the player's contract has it
-        (the player, 2026-10-17: "we must go to LK with all refilled and empty cube and free inventory slots"): the
-        loop's items still in the cube, the inventory's free cells, the junk left, keys, scrolls, the staff's
-        charges."""
-        if self.identified != game or self.reported == game or self.own is None:
-            return
-        self.reported = game
-        now = run.carried() if run.carried is not None else pack
-        if now is None:
-            return
-        free = INVENTORY_CELLS - sum(item.size[0] * item.size[1] for item in now.items)
-        left = [i for i in loot(now, self.own) if i.unit_id in {j.unit_id for j in self.junk}]
-        charges = f'{staff.charges}/{staff.maximum}' if staff is not None else '?'
-        whole = not now.in_cube and not left and not self.short
-        source = self.portal or FROM_TOME
-        portals = now.portals if source.stocked else f'from {source.name}'
-        LOG.info('Macro: trade session done%s: cube %d items, %d inventory cells free, junk left %d, keys %s, '
-                 'portals %s, staff %s', '' if whole else ' (short of the contract)', len(now.in_cube), free,
-                 len(left), now.keys, portals, charges)  # fmt: skip
+    def trips_in(self, game: str | None) -> int:
+        """The trips for room made in `game`."""
+        return self.trips if game is not None and self.trip == game else 0
+
+    def may_trip(self, game: str | None) -> bool:
+        """Whether another trip for room may be made in `game` (the player, 2026-10-18 16:50: "one game can do several
+        trips to the town"): none on its way, fewer than TRIPS_A_GAME made, and the last one made room (a visit that
+        took nothing away would take nothing away again); a last one whose room was unread may be made once more."""
+        made = self.trips_in(game)
+        if made == 0:
+            return True
+        if made >= TRIPS_A_GAME or game is None or self.tripping(game):
+            return False
+        return self.trip_gained is None or self.trip_gained > 0
+
+    def repair_waited(self) -> bool:
+        """Whether a repair may be tried: none for RETRY_GAMES games after a visit to Halbu that raised nothing."""
+        return self.repair_failed is None or self.games - self.repair_failed >= RETRY_GAMES
+
+    def exit_of(self, game: str) -> Exit:
+        """How the visit in `game` ends: none at a game's end (Save and Exit from where it ends), the portal back on a
+        trip for room, else the waypoint."""
+        if self.done == game:
+            return Exit.LEAVE
+        if self.tripping(game):
+            return Exit.PORTAL
+        return Exit.WAYPOINT
 
     def _full_stored(self) -> set[int]:
         if self.store is None:
@@ -415,6 +472,33 @@ class Loop:
         except (OSError, ValueError, TypeError, AttributeError) as error:
             LOG.info("Macro: the loop's items are not kept in %s: %s", self.store, error)
 
+    def _back_from_trip(self) -> None:
+        """A trip for room through the portal back to its level: the room it made (`trip_gained`, `may_trip`); the cube
+        tried again before another trip (the visit emptied it: `room_tried`); the level's ground tried again with the
+        room, by the pickup (`SHUNNED`) and the level run (`forget`), as at the Gheed's swap's GHEED_STASH (the player,
+        2026-10-18 16:50: "one game can do several trips to the town")."""
+        if self.free is not None and self.trip_free is not None:
+            self.trip_gained = self.free - self.trip_free
+        LOG.info('Macro: loop: back from trip %d of this game for room: %s cells free, %s before it', self.trips,
+                 self.free if self.free is not None else '?',
+                 self.trip_free if self.trip_free is not None else '?')  # fmt: skip
+        self.room_tried = None
+        SHUNNED.clear()
+        if self.forget is not None:
+            self.forget()
+
+    def observe(self, world: World) -> GameId | None:
+        """The game `world` is in, by its name and the player's unit (`GameId`), logged when it is another than the
+        last look's; the lobby, or a game whose character is not read yet, keeps the last. Nothing reads it yet: the
+        log says whether the unit id tells every new game apart before the per-game record is keyed by it."""
+        if not world.in_game or world.player is None:
+            return self.game_id
+        seen = GameId(world.game_name, world.player.unit_id)
+        if seen != self.game_id:
+            LOG.info('Macro: loop: game changed: %s, was %s', seen, self.game_id or 'none')
+            self.game_id = seen
+        return seen
+
     def count(self, world: World, leg: str) -> None:
         """`leg` made once more where `world` is; `Abort` when that is more than REPEATS allows. A game's legs count
         in that game; the lobby's (the next game) count by the game just left, so each game left has its own: counted
@@ -429,6 +513,10 @@ class Loop:
             self.counted_in = where
         self.made[where, leg] += 1
         if self.made[where, leg] > REPEATS.get(leg, REPEAT):
+            # Said once, then counted afresh: the recovery that follows makes the leg again, and a count left over the
+            # limit stopped each try at once, 4 recoveries in 20 ms and the loop held 30 s (the player's mouse in the
+            # lobby twice, 18:55:33-34 on 2026-10-18)
+            del self.made[where, leg]
             raise Abort(f'{leg} again and again in {where}: nothing came of it')
 
     def leg(
@@ -438,28 +526,32 @@ class Loop:
         progress: Progress | None,
         level_run: Callable[[], None],
         pick_up: Callable[[], bool],
-        stash: Callable[..., int] | None = None,
+        visit: Callable[[Exit], object] | None = None,
         identify: Callable[[tuple[Carried, ...]], object] | None = None,
-        judge: Callable[[list[Carried]], list[Carried]] | None = None,
         bring: Callable[[list[Carried]], int] | None = None,
-        arrange: Callable[[], object] | None = None,
         down: Callable[[], None] | None = None,
         fight: Callable[[], None] | None = None,
+        item_stats: Stats | None = None,
+        shown: Remembered | None = None,
+        left: Callable[[], str | None] | None = None,
     ) -> str:
         """Make the next leg (`next_leg`); the leg made. `level_run()` asks the runner for the KP_1 level run,
-        which follows this leg; `pick_up()` takes one drop, False with nothing worth it on the ground; `stash(own)`
-        moves the loop's items into the stash and the cube (macros/stash.py, macros/cube.py), `own` the inventory as the
-        player keeps it, `keep` the units that stay (unidentified, junk), `force` whatever the room; `identify(items)`
-        identifies the loop's `items` (at Cain, macros/cain.py); `judge(items)` says the junk among them (macros/junk.py
-        `junk_of`); `bring(items)` takes items out of the cube into the inventory (macros/cube.py `unpack`);
-        `arrange()` moves a key stack where the free cells make the largest block, once a session (macros/cube.py
-        `arrange_keys`); `down()` Andariel's level run to the stairs or the press through them; `fight()` her level
-        run, fighting."""
+        which follows this leg; `pick_up()` takes one drop, False with nothing worth it on the ground; `visit(exit)`
+        makes the town visit (macros/visit.py `visit`: Cain, the stash, Jamella, Halbu, the exit) and says what it left;
+        `identify(items)` identifies `items` (at Cain, macros/cain.py) and `bring(items)` takes items out of the cube
+        into the inventory (macros/cube.py `unpack`), for the Gheed's swap; `down()` Andariel's level run to the stairs
+        or the press through them; `fight()` her level run, fighting; `item_stats(unit)` an item's stats
+        (world.GameMemory.item_stats: a Gheed's Fortune's Magic Find), `shown` the shared page the stash showed last
+        (macros/visit.py `Remembered`), `left()` a valuable seen and still on the ground (runner.py
+        `_valuable_left`)."""
+        if (cooling := self.cooling - time.monotonic()) > 0:
+            run.pace.sleep(cooling)  # recoveries one after another: a pause, not a stop (`recover`)
         world = run.world()
         if world.in_game and world.player is None:
             # A game still loading: its character not read yet. Waited for, not a leg's stop: three recoveries in 20 ms
             # from it stopped the loop (12:45:41 on 2026-10-17, "not in a game")
             world = run.seen(lambda w: w.player is not None or not w.in_game, LOADING_SECONDS) or run.world()
+        self.observe(world)
         if not world.in_game:
             self.abandon = False  # left
         if not self.placed and not self.chosen and world.player is not None:
@@ -498,6 +590,8 @@ class Loop:
             self.sort(own_of(pack.items), world.player.name, loose)
         items = loot(pack, self.own) if pack and self.own else []
         in_town = world.player is not None and world.player.area == PANDEMONIUM_FORTRESS
+        if self.parked is not None and pack is not None:
+            self.fresh = bool(candidates(pack, self.parked, self.swap_units))
         if pack is not None and self.own is not None:  # unread in the lobby: the last look's stand
             carried = [*items, *pack.in_cube]
             cube = roomed(pack).cube or ()
@@ -516,9 +610,9 @@ class Loop:
                 LOG.info('Macro: loop: room low: %d cells free (inventory %d, cube %d, loop items %d in the inventory '
                          'and %d in the cube; cube rows %s)', self.free, in_inventory, in_cube, len(items),
                          len(pack.in_cube), '/'.join(cube))  # fmt: skip
-            # What a session can take away: not a full gem stack's gems, kept and neither stashed nor sold (`sold_full`
-            # is the runes'), which sent the loop to a session every game, each leaving the room as low (the cube full
-            # of them, 07:05-07:07 on 2026-10-18)
+            # What a visit can take away: not a full gem stack's gems, kept and neither stashed nor sold (`sold_full`
+            # is the runes' and the materials'), which sent the loop to a session every game, each leaving the room as
+            # low (the cube full of them, 07:05-07:07 on 2026-10-18)
             stuck = self.full - self.sold_full
             # A transmute's worth of one kind (cube.py `transmute`, three into a perfect one) is a session's work too:
             # without it the kept gems filled the cube and the inventory, and no session came (21 items, 09:43 to 10:22
@@ -529,38 +623,21 @@ class Loop:
                 or bool(surplus(carried, stuck))
                 or any(count >= GEMS_A_KIND for count in cubable.values())
             )
-            self.cubed = bool(pack.in_cube)
-            session = self.identified == (world.game_name if world.in_game else '') or self.free < TRADE_ROOM
-            if in_town and in_inventory < TRADE_ROOM and in_cube >= 3 and items and not session:
+            visiting = world.in_game and self.visiting == world.game_name and self.visited != world.game_name
+            if in_town and in_inventory < TRADE_ROOM <= self.free and in_cube >= 3 and items and not visiting:
                 # the loop's items into the cube (the runner's `make_room`, no walk): the inventory's room for pickups,
-                # between sessions only (in one it moved the session's junk into the cube, 13:03 on 2026-10-17)
+                # between visits only (in one it moved the session's junk into the cube, 13:03 on 2026-10-17)
                 self.make_room = True
-            self.unknown = tuple(i for i in carried if not i.identified and i.quality >= MAGIC)
-            if in_town and judge is not None:
-                judged = tuple(judge([i for i in carried if i.identified]))
-                seen = {i.unit_id for i in judged}
-                self.junk = judged + tuple(i for i in surplus(carried, stuck) if i.unit_id not in seen)
-        junked = {i.unit_id for i in self.junk}
-        self.selling = tuple(i for i in items if i.txt in self.sold_full or i.unit_id in junked)
-        keep = frozenset(i.unit_id for i in self.unknown) | junked
         staff = run.teleport() if world.in_game and run.teleport is not None else None
-        waited = self.repair_failed is None or self.games - self.repair_failed >= RETRY_GAMES
-        # His line learned first, his panel only opened (no gold spent) while repairs are off (macros/repair.py)
-        in_session = world.in_game and self.identified == world.game_name
-        # In a trade session any charge missing is repaired if the carried gold covers it (the player, 2026-10-17: "we
-        # must go to LK with all refilled"); else under REPAIR_BELOW of them
-        topped = tops_up(staff, in_session, self.reported == world.game_name)
+        # His line learned first, his panel only opened (no gold spent) while repairs are off (macros/repair.py); in a
+        # visit (town.py `tops_up`) any charge missing, decided again at Halbu's stop (macros/visit.py)
+        in_session = world.in_game and self.visiting == world.game_name
+        topped = tops_up(staff, in_session, self.visited == world.game_name)
         # A worn item low on durability: a repair of its own, the staff's charges full (Teleport of the character's own)
         wear = run.wear() if world.in_game and run.wear is not None else None
         self.wear = worn_text(wear)
-        worn = worn_out(wear)
-        coins = gold(run) if (staff is not None and (wants(staff) or topped)) or worn else None
-        # Near the gold cap no sale is made (shop.py `restock`): the repair goes first then (`next_leg`)
-        cap = gold_cap(run) if coins is not None else None
-        self.capped = coins is not None and cap is not None and coins + SALE_MOST > cap
-        charged = (wants(staff) or topped) and affordable(coins)
-        mends = worn and coins is not None and coins >= WEAR_CARRIED
-        self.repair = (charged or mends or ((staff is not None or wear is not None) and unknown())) and waited
+        coins = gold(run) if (staff is not None and (wants(staff) or topped)) or worn_out(wear) else None
+        self.repair = due(staff, wear, coins, top_up=topped, waited=self.repair_waited())
         leg = next_leg(world, progress, self)
         game = world.game_name if world.in_game else ''
         self.count(world, leg)
@@ -568,7 +645,8 @@ class Loop:
         if leg != NEXT_GAME:
             run.keys = character_keys(run, key_names)  # Swap Weapons among them: the arrival's check (`arrived`)
         if leg == NEXT_GAME:
-            self.trip_due = self.swap_due = False
+            self.trip_due = self.swap_due = self.fresh = False
+            self.gheed = None  # a player's Gheed's Fortune still parked is fetched from the next game's town
             trace = create_next_game(run, world.game_name)
             run.keys = character_keys(run, key_names)
             now = run.world()
@@ -587,58 +665,23 @@ class Loop:
                 # TOWN_NPCS; three tries and the game left, 10:20:17 on 2026-10-18): cast again on Catacombs Level 2
                 # (`DOWN`), the game not left for it
                 LOG.info('Macro: loop: the prebuff in the Rogue Encampment failed (%s): again on Catacombs 2', stop)
-        elif leg == SHOP:
-            self.shopped = game
-            cubed = [i for i in self.junk if pack is not None and i.unit_id in pack.cube_items]
-            if cubed and bring is not None and self.own is not None and bring(cubed):
-                # The cube's junk out before her window opens, as much as the room takes: one window sells it all (a
-                # second pass opened it again, ~6 s: the player, 2026-10-17, "we spend a lot of time just to open
-                # trade window")
-                after = run.carried() if run.carried is not None else None
-                if after is not None:
-                    self.selling = tuple(
-                        i for i in loot(after, self.own) if i.txt in self.sold_full or i.unit_id in junked
-                    )
-                    cubed = [i for i in cubed if i.unit_id in after.cube_items]
-            if self.selling:
-                LOG.info('Macro: loop: %s cells free: %d items sold', self.free, len(self.selling))
-            # at a game's end the game is left from her: no walk back to the waypoint, and Save and Exit begins with the
-            # character standing (a run back still under way spoilt it at 11:42:32 on 2026-10-17)
-            # Not back to the waypoint with Halbu next: he stands 34 units from her, the waypoint west of both (the
-            # player, 2026-10-17: "we repaired staff -> walked to wp -> walked to jamella")
-            restock(run, self.selling, back=self.done != game and not cubed and not self.repair)
-            for _ in range(SELL_PASSES):
-                # The cube's junk out into the room the sales made, then sold too (the player: "both from cube and
-                # inventory"); taken out first, a Grand Charm found no room and stayed (12:13:06 on 2026-10-17); as
-                # much as the room takes each pass (one of four at 12:54:10)
-                if not cubed or bring is None or self.own is None or not bring(cubed):
-                    break
-                after = run.carried() if run.carried is not None else None
-                rest = tuple(i for i in loot(after, self.own) if i.unit_id in junked) if after is not None else ()
-                if not rest:
-                    break
-                restock(run, rest, back=False)
-                sold = {i.unit_id for i in rest}
-                cubed = [
-                    i for i in cubed if i.unit_id not in sold and after is not None and i.unit_id in after.cube_items
-                ]
-        elif leg == REPAIR:
-            try:
-                if not repair(run, fix=ENABLED) and ENABLED and affordable(gold(run)):
-                    self.repair_failed = self.games  # not for want of gold: something else, not again for a while
-            except Abort as stop:
-                LOG.info('Macro: repair: %s: not tried again for %d games', stop, RETRY_GAMES)
-                self.repair_failed = self.games
+        elif leg == TOWN:
+            # One town visit (macros/visit.py `visit`; the player, 2026-10-18 12:55: "identify everything with cain;
+            # move to the shared stash; put all items that we need to keep in stash ... visit store and sell junk items
+            # from inventory and cube; refill the consumables; if we need to repair things - repair things; go to
+            # waypoint"): begun (`visiting`), a cut one made again from what is left; done once a game (`visited`)
+            if visit is None:
+                raise Abort('no town visit to make')
+            self.visiting = game
+            contract = visit(self.exit_of(game))
+            self.visited = game
             self.repair = False
-            if self.walks_back(game):
-                back(run)
-        elif leg in (TO_THE_CHESTS, TO_THE_CATACOMBS, LEAVE):
-            if arrange is not None and self.identified == game and self.reported != game:
-                try:
-                    arrange()
-                except Abort as stop:
-                    LOG.info('Macro: inventory: the keys not arranged: %s', stop)
-            self.report(run, game, pack, staff)
+            # A keeper no stash page takes (town.py `Contract.stash_full`): the loop stops (the player, 2026-10-18
+            # 16:50: "if stash is full - we need to stop loop"), here in town after the visit's own end, nothing of the
+            # level's left behind by a game left; not a recovery (runner.py `_loop_stopped`, cause 'stash')
+            full = tuple(getattr(contract, 'stash_full', None) or ())
+            if full:
+                raise Abort(f'the stash is full: {", ".join(full)}', cause='stash')
         if leg in (TO_THE_CHESTS, TO_THE_CATACOMBS):
             # The carried gold once a game: the repairs' and the sales' (the player, 2026-10-17: "just use gold in the
             # inventory")
@@ -648,12 +691,6 @@ class Loop:
                 # The staff's charges priced by the gold; Teleport of the character's own (Enigma) is in every move
                 # whatever the gold (runner.py, LOOPED_TELEPORT)
                 self.teleports = teleports(coins, gold_cap(run), self.teleports)
-            if stash is not None and self.own is not None:
-                # What the loop carries goes into the stash first (none: nothing is walked to): a game begun with the
-                # inventory full stood by a drop it had no room for (01:15 on 2026-10-17)
-                stash(self.own, keep, self.stash_now)  # the unidentified and the junk stay
-                self.stash_now = False
-                self.keep_full()
             if self.prebuffed != game and (world.player is None or world.player.area != ROGUE_ENCAMPMENT):
                 prebuff(run)
                 self.prebuffed = game
@@ -670,16 +707,42 @@ class Loop:
         elif leg == FIGHT_ANDARIEL:
             if fight is None:
                 raise Abort('no level run to fight with')
-            fight()
+            fight()  # posts her level run and returns; the run's end is the next leg's (`PICK_UP`)
         elif leg == PICK_UP:
+            if self.kind == ANDARIEL and (self.fought is None or self.fought[0] != game):
+                # The first look at her level's loot: her fight's run has just ended (`fight` only posts it: the clock
+                # at its leg let the game be left 0.05 s into the loot, 13:02:58 on 2026-10-18)
+                self.fought = (game, run.clock())
             if not pick_up() and progress is not None and world.player is not None:
-                progress.looted(world.player.area)
+                killed = time.monotonic() - KILLED_AT.get('Andariel', -math.inf)
+                if self.kind == ANDARIEL and killed < KILL_FRESH:
+                    landing = DROPS_AFTER_KILL - killed
+                elif self.fought and self.fought[0] == game:
+                    landing = DROPS_LAND - (run.clock() - self.fought[1])
+                else:
+                    landing = 0.0
+                if landing > 0:
+                    LOG.info("Macro: loop: Andariel's drops may still be landing: %.1fs more, then the ground again",
+                             landing)  # fmt: skip
+                    run.pace.sleep(landing)
+                else:
+                    progress.looted(world.player.area)
         elif leg == PORTAL:
             if not pick_up():
                 self.done = game
                 to_town(run, key_names, pick_up)
         elif leg == TRIP:
-            self.trip_due, self.trip = False, game
+            # The Fortress of this trip: one reached before it this game (the game's own trade session) is not its
+            # (11:56:48 on 2026-10-18: back through the portal 3 s after the trip, with no session and still no room)
+            self.trips = self.trips_in(game) + 1  # several a game (`may_trip`)
+            self.trip_due, self.trip, self.fortressed = False, game, None
+            self.trip_free, self.trip_gained = self.free, None
+            # and its own way back: one the Gheed's swap made this game is not this trip's (13:59:45 on 2026-10-18:
+            # the trip went to the Catacombs, not the Fortress, and the loop stopped 14:00:04)
+            self.returned = None
+            # and a whole visit of its own: one the game began with is over, and its mark would skip this one's
+            # identify, sales and stash (12:36 on 2026-10-18: the Fortress and straight back, still no room)
+            self.visiting = self.visited = None
             to_town(run, key_names)  # no pickup at the portal: there is no room
             here = run.world().player
             self.portal_at = (here.x, here.y) if here is not None else None
@@ -689,70 +752,113 @@ class Loop:
             ours = gheeds(now, self.own) if now is not None and self.own is not None else None
             if now is None or ours is None:
                 raise Abort("a unique Grand Charm the pickup could not take, and no Gheed's Fortune of the player's")
-            self.swap_units = frozenset(i.unit_id for i in now.items)
-            to_town(run, key_names)
+            self.swap_units = frozenset(i.unit_id for i in (*now.items, *now.in_cube))
+            self.swap_level = world.player.area if world.player is not None else None
+            found = magic_find(item_stats, ours.unit_id)
+            LOG.info("Macro: charms: another Gheed's Fortune on the ground, the player's carried at (%d, %d) (unit %d, "
+                     'magic find %s%%): to town, it goes onto a shared stash page', ours.x, ours.y, ours.unit_id,
+                     found if found is not None else '?')  # fmt: skip
+            to_town(run, key_names)  # no pickup at the portal: the charm is refused
             here = run.world().player
-            portal_at = (here.x, here.y) if here is not None else None
-            self.parked = put_away(run, ours)
-            self.parked_from = (ours.txt, ours.x, ours.y)
-            through_portal(run, portal_at)
+            self.portal_at = (here.x, here.y) if here is not None else None
+            self.gheed = OUT
+        elif leg == GHEED_STASH:
+            now = run.carried() if run.carried is not None else None
+            ours = gheeds(now, self.own) if now is not None and self.own is not None else None
+            if ours is None:
+                self.gheed = RETURN
+                raise Abort("no Gheed's Fortune of the player's carried to put onto a shared page")
+            try:
+                self.parked = park(run, ours, item_stats, shown)
+            except Abort:
+                self.gheed = RETURN  # it stays carried: back to the level, whose valuable keeps the game
+                raise
+            self.gheed = PICK
             SHUNNED.clear()  # the refused charm is taken now
+            if self.forget is not None:
+                # and by the level run too, which gave it up: at 13:57:50 on 2026-10-18 the new one (the same unit) was
+                # never tried, the run stood 45 s by it (rca/2026-10-18/loop-robustness-findings.md §2.3)
+                self.forget()
+            LOG.info("Macro: charms: back through the portal for the new Gheed's Fortune")
         elif leg == SWAP_BACK:
             parked = self.parked
             assert parked is not None
+            now = run.carried() if run.carried is not None else None
+            found = candidates(now, parked, self.swap_units) if now is not None else []
+            if found:
+                LOG.info("Macro: charms: the new Gheed's Fortune picked up (unit %d at (%d, %d)%s): to town to compare",
+                         found[0].unit_id, found[0].x, found[0].y,
+                         ', unidentified' if not found[0].identified else '')  # fmt: skip
+            else:
+                LOG.info("Macro: charms: no new Gheed's Fortune picked up: to town for the player's, on shared page %s",
+                         parked.page)  # fmt: skip
+            self.gheed = CHOOSE
             if world.player is not None and not world.player.in_town:
                 to_town(run, key_names)
+                here = run.world().player
+                self.portal_at = (here.x, here.y) if here is not None else None
+        elif leg == GHEED_CHOOSE:
+            parked = self.parked
+            assert parked is not None
             now = run.carried() if run.carried is not None else None
-            new = next(
-                (
-                    i.unit_id
-                    for i in (now.items if now is not None else ())
-                    if is_unique_grand_charm(i.txt, i.quality) and i.unit_id not in self.swap_units
-                ),
-                None,
-            )
-            theirs = take_back(run, parked, new)
-            if self.own is not None and self.parked_from is not None:
-                self.own = (self.own - {self.parked_from}) | {(theirs.txt, theirs.x, theirs.y)}
-            self.parked, self.parked_from, self.done = None, None, game
+            found = candidates(now, parked, self.swap_units) if now is not None else []
+            unread = tuple(i for i in found if not i.identified)
+            if unread and identify is not None:
+                LOG.info('Macro: charms: the new unique Grand Charm identified at Cain')
+                identify(unread)
+                now = run.carried() if run.carried is not None else now
+                found = candidates(now, parked, self.swap_units) if now is not None else []
+            rivals = [i for i in found if i.identified and i.unique == GHEEDS_FORTUNE]
+            for other in (i for i in found if i not in rivals):
+                LOG.info(
+                    "Macro: charms: the new unique Grand Charm (unit %d) is %s: no Gheed's Fortune to compare",
+                    other.unit_id,
+                    f'unique row {other.unique}' if other.identified else 'still unidentified',
+                )
+            new = max(rivals, key=lambda i: magic_find(item_stats, i.unit_id) or 0) if rivals else None
+            if new is not None and now is not None and new.unit_id in now.cube_items and bring is not None:
+                bring([new])  # out of the cube: a Ctrl + click from the inventory takes it to the stash
+                after = run.carried() if run.carried is not None else None
+                new = next((i for i in after.items if i.unit_id == new.unit_id), None) if after is not None else None
+            # A Latent Sunder charm picked up in the swap made with no 1 x 3 free (runner.py `_gheeds_swap`) lies in
+            # the player's cell: onto a shared page, so the player's comes back
+            others = newcomers(now, parked, self.swap_units) if now is not None else []
+            kept = choose(run, parked, new, item_stats, shown, others=others)
+            if self.own is not None:
+                self.own = (self.own - {parked.cell}) | {(kept.txt, kept.x, kept.y)}
+            self.parked = None
+            level = self.swap_level
+            seen = left() if left is not None else None
+            done = progress is not None and level is not None and progress.step(level) is None and seen is None
+            if self.swap == game and not done:
+                self.gheed = RETURN
+                LOG.info('Macro: charms: back through the portal for the rest of the level%s',
+                         f' ({seen})' if seen else '')  # fmt: skip
+            else:
+                self.gheed = None
+                if self.swap == game:
+                    self.done = game  # the level's loot done: Save and Exit from here
+                    LOG.info("Macro: charms: the level's loot is done: the game is left from town")
         elif leg == TO_THE_ENCAMPMENT:
             travel(run, ROGUE_ENCAMPMENT, self.marks)
         elif leg == THROUGH_PORTAL:
+            if self.tripping(game):
+                self._back_from_trip()
             self.returned = game
             through_portal(run, self.portal_at)
+            if self.gheed in (PICK, RETURN) and progress is not None and self.swap_level is not None:
+                # The level's ground looked at again: a pickup that found nothing it could take (the refused charm
+                # shunned) marked it looted, and the leg after would leave it with the new one on the ground
+                progress.facts = replace(progress.facts, looted=progress.facts.looted - {self.swap_level})
+            if self.gheed == RETURN:
+                self.gheed = None
         elif leg == TO_THE_FORTRESS:
             self.fortressed = game
             if self.kind == LK:
                 self.done = game  # left Lower Kurast: a game begun here is not the loop's to play
             # (Andariel's: from the Rogue Encampment to the Fortress's trade session, her level still ahead)
             travel(run, PANDEMONIUM_FORTRESS, self.marks)
-        elif leg == STASH:
-            self.restashed = game
-            if stash is not None and self.own is not None:
-                stash(self.own, keep, True)  # the cube's keepers out into the room the sales made, into the stash
-        elif leg == IDENTIFY:
-            self.identified = game
-            # The session ends at Jamella even after a visit for keys this game (12:48:41 on 2026-10-17: keys first,
-            # then the session, its junk left unsold)
-            self.shopped = None
-            if identify is not None:
-                if self.unknown:
-                    identify(self.unknown)
-                # The keepers into the stash at once: it stands beside Cain (5019, 5040; he at 5023, 5033), out of
-                # sight from Jamella's (12:13:16 on 2026-10-17); the junk and what is still unidentified stay
-                after = run.carried() if run.carried is not None else None
-                if stash is not None and self.own is not None and after is not None:
-                    carried = [*loot(after, self.own), *after.in_cube]
-                    self.junk = tuple(judge([i for i in carried if i.identified])) if judge is not None else ()
-                    waiting = {i.unit_id for i in carried if not i.identified and i.quality >= MAGIC}
-                    stash(self.own, frozenset(waiting | {i.unit_id for i in self.junk}), True)
-                    self.keep_full()
         elif leg == LEAVE:
-            in_town = world.player is not None and world.player.area == PANDEMONIUM_FORTRESS
-            if stash is not None and self.own is not None and in_town:
-                stash(self.own, keep, self.stash_now)  # the loop's items into the stash or the cube, before it is left
-                self.stash_now = False
-                self.keep_full()
             self.done = game  # Andariel's games are left from her level: done there
             leave_game(run)
             self.abandon = False
@@ -766,25 +872,6 @@ class Loop:
 # at level 94: a full repair, ~118,000, is still paid from it)
 TELEPORT_ON, TELEPORT_OFF = 0.35, 0.15
 GOLD_CAP = 990_000  # the cap at level 99, for a level unread
-
-
-DEPOSIT_NEAR = 2 * SALE_MOST  # gold this near the cap is deposited at the stash (macros/stash.py `deposit`)
-DEPOSIT_ROOM = 250_000  # down to the cap less this: room for a session's sales, Teleport still on (TELEPORT_ON)
-
-
-def deposit_to(coins: int | None, cap: int | None) -> int | None:
-    """The carried gold to keep when the stash is open, None for no deposit: near the cap a sale drops the gold over it
-    on the ground (the player, 2026-10-17: "probably we need to move extra gold to our cube [stash]")."""
-    if coins is None or cap is None or coins < cap - DEPOSIT_NEAR:
-        return None
-    return cap - DEPOSIT_ROOM
-
-
-def tops_up(staff, in_session: bool, reported: bool) -> bool:
-    """Whether a trade session repairs any charge missing (the player, 2026-10-17: "we must go to LK with all
-    refilled"): only until it is done (`Loop.report`); one done at a game's start sent the loop to Halbu again at the
-    game's end for 5 charges, ~8 s (15:48:43 on 2026-10-17)."""
-    return staff is not None and in_session and not reported and staff.charges < staff.maximum
 
 
 def teleports(coins: int | None, cap: int | None, now: bool | None) -> bool | None:
@@ -826,48 +913,21 @@ def next_leg(world: World, progress: Progress | None, loop: Loop) -> str:
         raise Abort('not in a game')
     if player.mode in DEAD:
         raise Dead('the character is dead')
+    swapping = gheeds_leg(world, loop)
+    if swapping is not None:
+        return swapping
     if loop.abandon:
         return LEAVE
     if player.area == PANDEMONIUM_FORTRESS:
         game = world.game_name
-        # The trade session (TRADE_ROOM), once a game when the room is low and the loop carries anything: Cain if there
-        # is anything to identify, the stash (keepers, resources), Jamella (junk, keys, scrolls); the repair as ever.
-        # The player, 2026-10-17: "we should aim for runs where identifying is triggered: we moved all good to our
-        # chest, moved all resources, sold all junk, refill tp/keys, repaired staff if we can afford it; thus -> have
-        # full cube free slots + some free inventory slots"; "we do not need to go cain every game"
-        cramped = loop.free is not None and loop.free < TRADE_ROOM
-        # Any errand to a vendor is the whole session: the room low, keys or scrolls short, the staff to repair (the
-        # player, 15:52 on 2026-10-17: "when we get to maintenance (refilling, trading, repairing) - it is better to
-        # identify everything, stash good, sell junk, refill, optionally repair ... right now we're running between
-        # vendors/stash/waypoint with items that could be already 10 times sold"). At a game's end the room alone:
-        # a refill or a repair waits for the next game's start, as before
-        errand = cramped or (loop.done != game and (loop.short or loop.repair))
-        if errand and loop.carrying and loop.identified != game:
-            return IDENTIFY
-        to_sell = len(loop.junk) + sum(1 for i in loop.selling if i.txt in loop.sold_full)
-        # a batch, or what there is when the room is low; a visit made anyway (`short`) sells it all too
-        batch = loop.shopped != game and to_sell > 0 and (cramped or loop.identified == game)
-        # The session's contract (an empty cube): the stash again when the sales have made room for the cube's keepers
-        # (13:15:47 on 2026-10-17: three stayed in the cube, the inventory full of the junk still to sell)
-        if loop.identified == game and loop.shopped == game and loop.cubed and loop.restashed != game:
-            # Halbu first when he is due: he stands by Jamella, the stash by the waypoint, west (the session of 16:54 on
-            # 2026-10-17 went Jamella, the stash, Halbu, across the fortress and back)
-            return REPAIR if loop.repair else STASH
-        if batch and loop.repair and loop.capped:
-            # The gold near its cap, no sale is made: the repair first, its cost the sales' room (15:33:27 on
-            # 2026-10-17: three items kept at 908,518 of 940,000, then the repair spent 39,237)
-            return REPAIR
+        # The town visit (`Loop.visit_due`): the room low with anything a visit takes, keys or scrolls short, a repair
+        # due; once a game, the cut one made again
+        if loop.visit_due(game):
+            return TOWN
         if loop.done == game:
-            if batch:
-                return SHOP
-            # a session at a game's end repairs before the game is left (the contract: "all refilled")
-            return REPAIR if loop.repair and loop.identified == game else LEAVE
-        if loop.short or batch:
-            return SHOP
-        if loop.repair:
-            return REPAIR
+            return LEAVE
         if loop.kind == ANDARIEL:
-            return TO_THE_ENCAMPMENT if loop.trip == game and loop.returned != game else TO_THE_CATACOMBS
+            return TO_THE_ENCAMPMENT if loop.tripping(game) else TO_THE_CATACOMBS
         return TO_THE_CHESTS
     if loop.kind == ANDARIEL:
         return andariel_leg(world, progress, loop)
@@ -883,6 +943,41 @@ def next_leg(world: World, progress: Progress | None, loop: Loop) -> str:
     raise Abort(f'the loop has nothing to do in {display_name(player.area)}')
 
 
+def gheeds_leg(world: World, loop: Loop) -> str | None:
+    """The Gheed's swap's leg where the character is (macros/charms.py; `Loop.gheed` its stage), None for the loop's
+    others. The player's Gheed's Fortune is never left in the stash at a game's end: with it parked the Fortress's leg
+    is the choice, the Rogue Encampment's the way there, a level's (the new one carried, or no stage of picking it up)
+    the way to town; a game given up (`abandon`) tries each of these REPEAT times before it is left, and the next game's
+    town fetches it."""
+    player = world.player
+    assert player is not None
+    game, area, parked, stage = world.game_name, player.area, loop.parked, loop.gheed
+    if loop.abandon:
+        if parked is None:
+            return None
+        legs = {PANDEMONIUM_FORTRESS: GHEED_CHOOSE, ROGUE_ENCAMPMENT: TO_THE_FORTRESS}
+        leg = legs.get(area, SWAP_BACK if area in ANDARIEL.levels else None)
+        return leg if leg is not None and loop.made[game, leg] < REPEAT else None
+    if area == PANDEMONIUM_FORTRESS:
+        if parked is not None:
+            return TO_THE_ENCAMPMENT if stage == PICK else GHEED_CHOOSE
+        if stage == OUT:
+            return GHEED_STASH
+        return TO_THE_ENCAMPMENT if stage == RETURN else None
+    if area == ROGUE_ENCAMPMENT:
+        if parked is not None:
+            return THROUGH_PORTAL if stage == PICK else TO_THE_FORTRESS
+        if stage == OUT:
+            return TO_THE_FORTRESS
+        return THROUGH_PORTAL if stage == RETURN else None
+    if area in ANDARIEL.levels:
+        if parked is not None and (stage != PICK or loop.fresh):
+            return SWAP_BACK
+        if parked is None and loop.swap_due and loop.swap != game and loop.kind == ANDARIEL:
+            return SWAP_OUT
+    return None
+
+
 def andariel_leg(world: World, progress: Progress | None, loop: Loop) -> str:
     """Andariel's legs out of the Fortress (`next_leg`): from the Rogue Encampment the waypoint to Catacombs Level 2, or
     to the Fortress first when a trade session is due there (the player, 2026-10-18: "inventory management and trading
@@ -891,11 +986,9 @@ def andariel_leg(world: World, progress: Progress | None, loop: Loop) -> str:
     assert player is not None
     game = world.game_name
     if player.area == ROGUE_ENCAMPMENT:
-        if loop.parked is not None:
-            return SWAP_BACK  # the player's Gheed's Fortune is never left in the stash
         if loop.done == game:
             return LEAVE
-        if loop.trip == game and loop.returned != game:
+        if loop.tripping(game):
             # On a trip for room: the Fortress's session, then back through the portal to the level
             return TO_THE_FORTRESS if loop.fortressed != game else THROUGH_PORTAL
         cramped = loop.free is not None and loop.free < TRADE_ROOM
@@ -904,10 +997,13 @@ def andariel_leg(world: World, progress: Progress | None, loop: Loop) -> str:
         if (cramped and loop.carrying) or loop.short or loop.repair:
             return TO_THE_FORTRESS
         return TO_THE_CATACOMBS
-    if loop.swap_due and loop.swap != game and player.area in ANDARIEL.levels:
-        return SWAP_OUT
-    if loop.trip_due and loop.trip != game and player.area in ANDARIEL.levels:
-        return TRIP
+    if (
+        loop.trip_due
+        and not loop.tripping(game)
+        and loop.trips_in(game) < TRIPS_A_GAME
+        and player.area in ANDARIEL.levels
+    ):
+        return TRIP  # several a game (`Loop.may_trip`, the runner's rule): none while one is on its way
     if player.area in (CATACOMBS_2, CATACOMBS_3):
         return DOWN
     if player.area == CATACOMBS_4:

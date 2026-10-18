@@ -63,7 +63,7 @@ from dataclasses import dataclass, field, replace
 
 from inventory_tracking.combat.harm import Harm, SafetySettings, veto
 from inventory_tracking.macros.build import Leg, NoWay, Step
-from inventory_tracking.macros.goals import PICK_UP, PURSUED, WAIT, Goal
+from inventory_tracking.macros.goals import ENTRY_GOAL_NEAR, PICK_UP, PURSUED, WAIT, Goal
 from inventory_tracking.routes.model import ENTER, FIGHT, STAND, USE
 
 
@@ -263,13 +263,48 @@ class Candidate:
 
 RUSH_HARM_SHARE = 0.05  # of the life: the harm a move or a use of the loop's run may be priced at over a hold
 NO_STEP_LEFT = 'no step toward it is left'  # the arrival said for that (`moved`)
+ENTRY_REACH = 10.0  # units from a door's entry with no way nearer: the run ends there (`to_the_door`; NEAR_WARP)
 FIRING_SPOT = 'firing spot'  # the reason of a move to a stand the strike is made from (macros/safety.py FIRING)
 PASSAGE = 'an open passage: walking through into the next level'  # `through`'s move, said once
 KEEPING = 'retreating within strike reach: no act here fits the life budget'  # `Macro: pursuit: retreating within ...`
+# The approach to a level run's boss is not held to the strike gap while nothing hurts (`onward`): F1 of
+# rca/2026-10-18/andariel-cadence-findings.md §5, the player at 18:00 on 2026-10-18: "F1: ok". After A1 the Teleport
+# toward Andariel landed among her pack 0.6 to 0.9 s after the last strike, the gap's room left only the hold, and every
+# hop cost a strike: 1.34 s a hop cycle where a chained hop takes ~0.6 s, 1.96 s a fight (§2.1; 11:41:45.63, take
+# 084143Z-37). Off: I2 as it was, so the change is measured alone (arrival -> Andariel dead, median 7.60 s on 23 games).
+RUSH_THE_BOSS = True
 
 
-def arbitrate(facts: Facts) -> Act:
-    """One price in seconds, constrained by both life budget and the unliftable veto."""
+def the_runs_boss(goal: Goal | None, pursuit: Pursuit | None) -> bool:
+    """Whether `goal` is the boss of the route's fight stage (goals.py `fight_goal`) on a level run that works: not a
+    fight on its way or of the rest of the level (`Goal.clearing`), not a goal of the key's own press."""
+    return (
+        pursuit is not None
+        and pursuit.runs
+        and goal is not None
+        and goal.do == FIGHT
+        and not goal.clearing
+        and goal.stage is not None
+        and goal.stage.kind == FIGHT
+    )
+
+
+def onward(facts: Facts, feasible: list[Candidate], pursuit: Pursuit | None) -> list[Candidate]:
+    """The moves toward a level run's boss that the strike gap does not hold (RUSH_THE_BOSS): while nothing hurts the
+    character (`Facts.hurt`), the navigator's own moves toward the goal no more harmful than the hold, by the rush
+    branch's test (`arbitrate`: the least harm of a hold, or RUSH_HARM_SHARE of the life). None otherwise."""
+    if not RUSH_THE_BOSS or facts.hurt or not the_runs_boss(facts.goal, pursuit):
+        return []
+    holds = [c for c in feasible if isinstance(c.act, Hold)]
+    if not holds:
+        return []
+    least = max(min(c.harm.mean for c in holds), RUSH_HARM_SHARE * facts.life)
+    return [c for c in feasible if isinstance(c.act, Move) and not c.act.reason and c.harm.mean <= least]
+
+
+def arbitrate(facts: Facts, pursuit: Pursuit | None = None) -> Act:
+    """One price in seconds, constrained by both life budget and the unliftable veto. `pursuit`: the mailbox, for a
+    level run's boss (`onward`); None: no run."""
     if facts.rush:
         # The KP_6 loop's run fights only what the price makes it: a stand to fire from is the fight's, priced by its
         # clear time, and it outpriced the chest itself (22:04:12 on 2026-10-16: 16 walks to one in 17 s, none taken;
@@ -303,8 +338,15 @@ def arbitrate(facts: Facts) -> Act:
         striking = [c for c in feasible if c.strikes]
         if striking:
             room = max(facts.safety.strike_gap - facts.quiet, min(c.unstruck for c in striking))
+            # Nor a move toward a level run's boss while nothing hurts (`onward`, RUSH_THE_BOSS: the player, 18:00 on
+            # 2026-10-18): the hops chain to her and the strike is held where she is in reach; the first loss of life
+            # makes I2 whole again. The key's own press and every other goal keep the gap (KP_1's Diablo and seals
+            # see it only through `hurt`).
+            rushed = onward(facts, feasible, pursuit)
             feasible = [
-                c for c in feasible if (c.strikes and c.unstruck <= room) or (isinstance(c.act, Move) and c.act.dodge)
+                c
+                for c in feasible
+                if (c.strikes and c.unstruck <= room) or (isinstance(c.act, Move) and c.act.dodge) or c in rushed
             ]
     if feasible:
 
@@ -361,7 +403,7 @@ def decide(facts: Facts, pursuit: Pursuit | None, enabled: bool = True) -> Act:
     if not enabled:
         return Hold() if facts.in_reach else NoWay('the pursuit is off')
     if facts.priced or facts.candidates:
-        return arbitrate(facts)
+        return arbitrate(facts, pursuit)
     pressed = pursuit is not None and pursuit.fresh(facts.now)
     if pursuit is not None and pursuit.leashed:
         if pursuit.area is not None and facts.area is not None and facts.area != pursuit.area:
@@ -462,6 +504,11 @@ def to_the_door(facts: Facts, goal: Goal) -> Act:
     found = moved(facts, goal)
     if isinstance(found, NoWay) and found.arrived and NO_STEP_LEFT in found.reason:
         return Ended(f'{found.reason}: going through takes a press')
+    if isinstance(found, NoWay) and goal.near == ENTRY_GOAL_NEAR and facts.beyond + goal.near <= ENTRY_REACH:
+        # The door's remembered entry (goals.py `way_out`) no hop lands nearer to: the press goes through from here (its
+        # step walks or hops onto the entry, teleport.py `step_toward`). The run stood 48 s 5.4 units off it with "no
+        # footing in view brings the character nearer by hops" (12:46:41 on 2026-10-18)
+        return Ended(f'{found.reason}, {facts.beyond + goal.near:.1f} from the entry: going through takes a press')
     return ended if isinstance(found, NoWay) and found.arrived else found
 
 

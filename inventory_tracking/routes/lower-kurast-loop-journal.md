@@ -152,6 +152,191 @@ on the level. 18.3 s a stay are lost against Blade Warp's pace (21 u/s) over the
 Newest first. One entry per round: the time, what was seen (with the clock), what was changed (files), the tests run,
 when it was restarted, what the next games showed.
 
+### 2026-10-18 17:50: rulings, second set; restart 17:54 with the 16:50 rulings built
+
+- Built and live at 17:54:22 (service 20261018T145422Z-a9c1363b; 2286 macro tests, 702 triage): junk parked on a page
+  for a stranded keeper (`town.PARK_JUNK`), `Contract.stash_full` and the loop's stop on it, several trips a game
+  (`TRIPS_A_GAME` 3, only after a trip that gained room), a refused Grand Charm with no room: the cube, then the swap
+  by a trip; the best copy of a unique/set kept (`copies.py`, live since 17:09); unidentified items in the shuffle;
+  the rare amulet rule (+1 class or +2 tree with 10 FCR and 20+ life; rules rebuilt: 462). None of today's 12 sold
+  rare amulets would have been kept. Knowledge test `test_scoped_asking_evidence_is_exactly_preserved_from_offline_snapshot`
+  fails on a market snapshot hash (cached data, not the diff).
+- The player, 17:50: a keeper may wait in the cube (not a miss); a valuable with no room: stop and clear the inventory
+  with the town routine, then take it; a 45 s stall: analyse each case; 99 rune stacks: cube them, aim at 80 or lower.
+
+### 2026-10-18 17:10: the stash full for a Grand Charm: the loop off (the 16:50 ruling)
+
+- 17:09 visit: a Latent Bone Break (unique Grand Charm, 1x3, a Sunder charm, "slow") stayed in the cube: `town.place`
+  over the visit snapshot (`visits/170903.json`) finds no page with a free 1x3 (pages free 0:0 1:0 2:1 3:2 4:0 5:5).
+  The planner predicted it and matched. By the ruling "if stash is full - we need to stop loop" (its code not live:
+  agents at work), the loop was turned off by hand at the lobby: restart 17:09:53 (20261018T140953Z-9eb06bab), loop
+  off. The charm is safe in the cube. The loop waits for the player to clear stash space.
+
+### 2026-10-18 16:50: the player's rulings (town, sales, trips)
+
+- Junk may be parked on a stash page during the stash stop and sold after (the stranded-keeper case; `JAMELLA_FIRST`
+  stays off).
+- A full stash (a keeper no page takes) stops the loop.
+- Loop sales keep the best copy of each unique and set item first; only surplus copies are sold.
+- Rare amulets with +FCR, +2 skills, +life are good, and other combinations may be; a high vendor price alone does not
+  make one a keeper.
+- The shuffle may move unidentified items. One game may make several trips to town. A refused Grand Charm (the
+  Gheed's carry-one) causes a trip.
+- Still open: a keeper deferred in the cube, the full-inventory class (lootpolicy `NO_ROOM_PLAIN`), the guard and
+  give-ups, a 45 s stall as room, 99 rune stacks, the rune backlog pace, the cube plan, F1/F3.
+
+### 2026-10-18 16:10-16:35: the architecture plan, first round (the player: "go ahead with parallel sub-agents")
+
+Five agents in parallel, disjoint files, each the first steps of its study (`rca/2026-10-18/arch-*.md`); behaviour kept
+except step 4's fix. Wide suite 2253 passed; ruff and pyrefly clean. Restart 16:34:19 (service 20261018T133419Z-2e7dc9ff).
+- Step 1 (observability): every pattern the loop-watch tools read in `tools/logwords.py` (producer `file:line`, a real
+  line each); 80 contract tests (`tests/skills/test_loop_watch_lines.py`) build the core lines from production format
+  strings. Fixed: Cain's identify count in `trade.py`, the "put down: its stack is full" kind, `REPAIRED` missing every
+  repair since 8accb7d. Replays before/after identical but for those.
+- Step 2 (orchestration): `Abort(cause=...)` (actuator.py `Cause`: hand, refused, room, stall, other) and
+  `runner.classify`; the words are the fallback, same branches (31-text table); "has not moved" = stall, still a room
+  cause (ruling pending). `loop.GameId` and `Loop.observe` log "game changed", no readers yet.
+- Step 3 (level behaviour): `lootpolicy.verdict` reproduces the five sites (press, run, sweep, guard, sightings) over a
+  5040-row golden table; shadow calls in `pick_up`, `stay_by`, `gather` log disagreements and the disputed class
+  `NO_ROOM_PLAIN` (ruling pending), once per site, unit and game.
+- Step 4 (actions): `act.py` (`until`, `perform`, `Failed`); the `_until` copies through it; `use_thing` asks `took()`
+  before the first aim and between aims (`PANEL_GRACE` 0.25 s; the 14:42:09 class), red test first. Fakes: `opens_after`,
+  `walk_reach`, `panel_covers`.
+- Step 5 (town planning): a snapshot per visit (`<session>/visits/<HHMMSS>.json`, `visitlog.py`), `townplan.plan_visit`
+  in shadow ("town plan: predicts …", then "matched"/"differs"); fixtures of 14:28, 14:56, 15:06, 15:14, 15:20.
+- 16:30, 16:31, 16:35: a set Battle Boots (verdict self, 2x2) stayed in the cube three visits. First told as a full stash
+  (wrong): the 16:35 snapshot (`visits/163522.json`) shows `town.place` puts it on shared page 5 (a 2x2 at (2, 8)); the
+  inventory had no 2x2 for it to come out through before the stash (a junk unique Fuscina 2x4 sold only after it): the
+  stranded case, waiting for the ruling (park junk on a page, or Jamella first). The planner predicted the miss and
+  matched; with the park-junk ruling its fixtures (15:06, 15:14, 15:20) show none.
+
+### 2026-10-18 15:35-16:00: a Ring the clicks did not take; the watch's MISSED; architecture studies
+
+- 15:49 MISSED Flawless Skull was the watch's own false alarm: `watch.py` kept its own ground tracking, without the
+  click rule `games.py` gained at 15:34. One rule now (`games.clicked`), used by both; today's log replayed through the
+  watch gives what `games.py` gives (one left: the 15:35 Flawless Amethyst, walked to from 3 away, "did not move",
+  never in the census again: taken by the walk's click most likely, not proven).
+- 15:53:05 stop (game 67): a set Ring 5 away under the pointer; 11 clicks from one footing took nothing, the character
+  stepping 0.4 and snapped back (take 20261018T125257Z-37; open ground between, allies only near). Both trips back went
+  nowhere in 0.2 s: the pickup's SHUNNED (30 s) hid the Ring from the press after, and `approach` does nothing within a
+  click. Fix (`runner._go_back`): a trip back lifts the shun and, more than `AT_DROP_UNITS` 3 away, moves to the drop
+  in hand (`pickup.moved_in_hand`); a resume gives the sightings their trips again (`sightings.again`). Tests:
+  `test_a_trip_back_lifts_the_pickups_give_up_and_moves_to_a_valuable_within_a_click`, the restart test pins tries 0.
+  Restart 15:58:30 (service 20261018T125830Z-c4eec9ab): the trip teleported onto the Ring, picked up from 0.7 at
+  15:58:41, the game left after.
+- The Jamella-before-the-stash reorder (`visit.JAMELLA_FIRST`) is off until the player rules; its tests switch it on.
+- Architecture studies (read-only): `rca/2026-10-18/arch-{loop-orchestration,town-planning,level-behaviour,actions,
+  observability}.md`.
+
+### 2026-10-18 14:05-15:00: studies of what is left; trips, restart and waypoint fixes
+
+- Measure since 14:29 (`andy.py`): 88.9 Andariel kills an hour, clean cycle median 36.9 s; stairs 1 press, 0 walked.
+  Town visits (step 3's TOWN leg) held the contract at 14:31, 14:38, 14:45, 14:50 (20-28 s; cube empty, 2x4 free).
+- Studies (read-only, `rca/2026-10-18/`): `town-remaining-findings.md` (the 14:28 miss: a unique Embossed Plate
+  2x3 stayed in the cube, its only block held a junk Amulet sold later at Jamella; steps 4-5: 35 rune transmutes of
+  backlog, perfect gems/shards/essences cannot be freed), `loop-robustness-findings.md` (restart forgets Andariel
+  slain; Gheed's swap late; the waypoint panel already opened by the walk's click; HUD shop errors harmless),
+  `trips-and-towns-findings.md` (D1-D5 trip defects, LK trips, act 1/3 services). Cube wrapper design:
+  `macros/cube-plan.md` (not built, for the player's review).
+- Fixed, restart 14:48:40 (service 20261018T114835Z-2dc9cf24): TRIP resets `returned` (D4, the 14:00 stop); the
+  return from a trip gives the sightings their trips back (`Sightings.again`, D2); trip and drop only for a room
+  cause, a trip only when `carrying` (D1, D3); REPEATS TOWN 3 (D5); tracker keeps `slain` over a restart and saves a
+  boss kill at once; `waypoint.open_panel` takes an open panel as done, no step back onto it (seen live once by 14:51).
+  Tests: test_runner, test_sightings, test_waypoint, test_tracker; wide suite 2209 passed.
+- Restart 15:02:19 (service 20261018T120214Z-72a31d3f), 399 focused tests: the Gheed's swap at the first refused
+  click (`pickup.Refused`; in a level run through `hunter.carry_one`, the hunt's give-up as a backstop) and the level
+  run's give-up memory cleared at GHEED_STASH (`Loop.forget`); the stash stop moves junk/keys aside or puts junk into
+  the cube for a cube keeper with no block (`town._make_way`, `StashStop.shuffles`/`into_cube`, `visit._aside`). The
+  contract had missed a cube keeper again at 14:56 (unique Spiked Club) and 15:01 (set Boots). Unproven in the game:
+  a pick-up/put-down in the inventory with the stash open.
+- 15:06 miss (set Boots, 2x2): no move could free a block (a junk unique Fuscina 2x4 held the inventory, the cube full:
+  15 cells needed, 13 free). Built, in the tree but not restarted: `StashStop.stranded` and a visit order Cain ->
+  Jamella -> stash in that case only (`visit._stranded`); 178 focused tests pass. Waits for the player's ruling: it
+  departs from the ruled order Cain -> stash -> Jamella. The keeper is not lost meanwhile (it waits in the cube).
+- Waiting for the player: rune backlog pace; 99 rune stacks sold or cubed; may the shuffle move unidentified items; a
+  second trip a game; a refused charm as a trip's cause; the cube wrapper plan.
+
+### 2026-10-18 12:55-14:03: town visit by the stash view, precise stairs, Gheed's swap to the shared stash
+
+- Town visit (the player, 12:55: one visit, no back and forth, the stash known): plan `macros/town-plan.md` (study),
+  steps 0-2 built by an agent: `world.stash_view` (shared pages by +0xD8, resource stacks by +0x9C), `town.py`
+  planner, `visit.py` stash stop (no page tries; the shared page last shown remembered). Live 13:26/13:31: the 13:27
+  session arrival->waypoint 20.1 s (32-40 s before), stash 6.5 s, one opening. Steps 3-7 open (one TOWN leg).
+- Stairs (the player, 13:05: "make teleport location to next level entrance more precise"): an agent found the door
+  goal kept the loop's 3-unit short stop and the remembered entries sat where no hop lands; `teleport.entry_stand`
+  (nearest landable spot within 2), `way_out` short 0. Live 13:26: walks 0.0, in after 0.26-0.28 s (36 of 58 walked
+  before). Also `pursuit.to_the_door` ends a run within ENTRY_REACH of an entry no hop gets nearer to (a 48 s stall,
+  12:46:41).
+- Drops: DROPS_LAND was timed from the fight's post (no wait at all, 13:02:58), then from the first loot leg (2 s every
+  game); now from the kill (terror/bosses.py KILLED_AT, DROPS_AFTER_KILL 1.9).
+- Fetch: a trip back takes FETCH_HOPS 16 (HOPS 4 left a Flawless Topaz 92 short, 13:15); a non-room stop is a repeated
+  leg, not a room trip. The sightings survive a restart (`resume_state['sightings']`; a restart lost that topaz).
+- After her death the loop's run is over while nothing hurts (hunt.py judge: Hold -> Ended for a looped run at
+  LOOT/LEAVE; key_asks yields on Ended): 11.5 s and 30 kills of her pack at 13:26:39. To measure.
+- Gheed's (the player, 13:39-13:41: own Gheed's to the SHARED tab, pick the new, identify, keep the better MF; "you
+  cannot pickup another gheed if you have another in inventory/private tab"): rebuilt by an agent (charms.py `park`,
+  `choose`; legs GHEED_STASH, GHEED_CHOOSE; runner `_gheeds_swap` on any stop with a unique Grand Charm left).
+  My mistake: the 13:16 non-room rule ran before the swap check (the loop stood 13:35-13:56). Live 13:57-14:03: theirs
+  (34%) to shared page 1, the new picked up, identified 34%, tie kept theirs, the new on shared page 2 ("sell").
+- Tracker: a boss first seen dead counts as killed (a restart mid-game); did not fire at 14:00 (her corpse gone).
+- Open: a restart mid-game on Catacombs 4 with her corpse gone still stands 45 s; the shop check's HUD read races
+  (harmless); town steps 3-7; F1/F3 rulings.
+
+### 2026-10-18 12:33-12:50: the loop never stands stopped (room by shape, recoveries pause, essence dropped)
+
+- The player, 12:30-12:40: "analyze when we have stopped and how to setup the loop in the way that would fully
+  prevent us from stopping"; "you have all the facilites to solve this issue? don't you think about it?"; "we're just
+  need to make some space ... we should have 2x4 inventory space when we have emptied cube/inventory"; "probably we
+  don't need 2x sets of keys for non LK loop".
+- Stops 10-16 to 10-18: 52; today 5 of 6 were no room for a valuable (35 + 3 + 16 + 37 min idle), the rest repeats.
+  My mistake: the 11:56 Brandistock stop stood 37 min while I did speed work (the skill's "wait for the player").
+- 12:36: the trip for room did nothing in the Fortress (9 cells free by count) and the 2 x 4 Brandistock still found
+  no room: the loop's key stack at (3, 0) split the only 2 x 4 the player's charms leave.
+- Changed: cube.py `keys_move` frees a BIG_BLOCK 2 x 4 first (a 3 x 3 counted larger); runner.py make_room arranges
+  the keys before the cube (12:41:39 "the keys moved (3, 0) to (2, 2)", the Brandistock picked up); loop.py TRIP is a
+  whole session of its own (cramped whatever the count; identified/shopped/restashed/arranged reset) and the keys are
+  arranged after every session (TO_THE_ENCAMPMENT too); Kind.keys: Andariel buys one key stack (KEYS_ONE_STACK), LK
+  two; `recover` never stops the loop (past RECOVERIES a RECOVERY_PAUSE 30 s, a warning), only death does; a full
+  stack's material no vendor buys is dropped in town (cube.py `drop_item`, loop `discard`). Tests: test_cube,
+  test_loop (4), test_runner. Skill rule 3c and the "stops here" row: fix and turn the loop on at once.
+- Restarts 12:41:26 (Brandistock taken), 12:43:47, then the next lobby with the essence drop.
+- Open: a restart mid-game on Catacombs 4 does not know Andariel died (12:42:19: stood 45 s, then left).
+
+### 2026-10-18 11:38-12:25: Andariel kills an hour; drops, stairs, trip and strike-first fixes
+
+- The player, 11:41: "next level teleports: now we walk from time to time ... engagement speed on level 4: we're
+  rolling our attack not as fast as we can ... use sub-agent to build metric: andy kills per hour and then work
+  towards to improve it".
+- **Metric:** `tools/andy.py` (kills an hour of play, cycle phases, stairs walks, the fight from the takes). Baseline:
+  10:20-11:38 54 kills/h (median cycle 49.7 s); 11:38-11:56 (A1 live) 83 kills/h (39.5 s; +28, 90% +16..+39).
+  Phases since 11:38 (s a cycle): next game 7.8, Catacombs 3 run 6.7, Catacombs 2 run 4.5, in reach to dead 4.2,
+  loot after 4.1, arrival to in reach 4.0, waypoint 3.4, town 3.1.
+- **Studies:** `rca/2026-10-18/stairs-walks-findings.md` (walks at the stairs from a learning bug: a spot the click
+  walked on from was learned as proven; ~0.3 s a game), `rca/2026-10-18/andariel-cadence-findings.md` (1.25 strikes/s
+  of 2.78; the hop/strike alternation of I2's strike gap 1.96 s a fight; landing to the strike press 0.48 s; casts
+  under the strike 0.8 s; a Dol Rune side drop cost 5.7 s once).
+- **11:52, MISSED Sol Rune** on Catacombs 2 (left for 2 hostiles, then the stairs): runner.py `down` takes what was
+  seen on the level (`take_one`: pickup, then `_fetch`) before the stairs press; REPEATS DOWN 8 -> 12.
+- **11:52, Save and Exit 0.6 s after her kill:** her drops land through her 1.55 s death animation (items seen up to
+  1.7 s after the kill); 4 of 19 games left at 0.5-0.8 s. loop.py `DROPS_LAND` 2.0 s after her fight's end before her
+  level is left with nothing picked up. Tests: test_loop (2).
+- **11:56, stop: a Unique Brandistock with no room:** the trip for room went back through the portal 3 s later with no
+  session (`fortressed` set by the game's own session before the trip). TRIP resets `fortressed`. Test: test_loop.
+  The loop waits for the player there (Catacombs 4, game 24).
+- **Stairs** (findings §5 A+B+C): teleport.py learns a clicked-from spot only when the click walked under NO_WALK 0.5
+  (else where the level changed, and only over a spot it was clicked from); a walk round to the entry of ENTRY_AROUND
+  8 within NEAR_WARP is the click's, not a hop; goals.py `way_out` aims the run at the remembered entry within
+  ENTRY_GOAL_NEAR 2 (hunt.py `door_entry`). Tests: test_teleport (3), test_pursuit (1).
+- **F2, strike first:** hunt.py `key_asks(unstruck=)`: no second judgement before the strike's press short of a fresh
+  press; the better-place look after the press. Test: test_hunt.
+- Suites: 4870 passed (macros, combat, builds, scenarios, levels, routes) before F2; 4037 passed (macros, scenarios,
+  builds) with F2. Service restarted 12:25 with all of it, the loop off (waiting for the player).
+- Waiting for the player: F1 (Teleport toward the boss not held to the strike gap while nothing hurts: bends U1); F3
+  (no sigil, no side drop while the boss is in reach and nothing hurts); the Twisted Essence (vendors refuse it: drop
+  a full-stack material in town, or keep carrying it); the Brandistock (loop on for a trip, or by hand).
+- To measure once on: `andy.py --since '<on>' --against '2026-10-18 11:38' '2026-10-18 11:56'`: arrival to dead (7.6
+  s), landing to strike, stairs presses a visit, kills an hour; guards: least life on Level 4, MISSED.
+
 ### 2026-10-18 10:05-10:40: the Andariel loop (KP_6 run kinds); room, prebuff, double-tap fixes
 
 The player, 10:05: "I want to build andariel loop that will be similar to lower kurast loop, we're going to use the same
@@ -1035,3 +1220,147 @@ movements"; "feel free to launch loop again" (restarted 10:56:10, loop on).
   wrongly marked as a full class and one Full Rejuvenation Potion was sold (`stash._potion`).
 - Not committed: everything above (the player commits).
 - 09:48:50: the player turned the loop off (KP_6). 09:56: the watch was paused at the player's ask.
+
+### 2026-10-18 18:10 — stall study and rulings
+
+- `rca/2026-10-18/stalls-findings.md`: 25 firings of the 45 s watchdog from 10-16 to now (count checked); 5 real no-room,
+  4+ standing at Andariel's mark after a restart, 7 refused Gheed's charm, 7 path dead ends, 1 focus wait, 1 at 17:58.
+- Rulings: no room only when it is real; kill memory only for Andariel; a dead end skips the goal. The 17:58 game
+  (Teleport cast but no move, Save and Exit ×5 failed): the player says it is our code — an RCA runs
+  (`rca/2026-10-18/freeze-findings.md`).
+- Loop agent done (Q1 in the loop: hold → cube → trip); 381 focused tests pass. Waiting for the reload: town agent,
+  F1/F3 agent, then the wide suite (player, 18:03: reload only after the agents finish).
+- Waiting for the player: LK has no trip, so no room there drops an unidentified carried item even for a cheap find.
+
+### 2026-10-18 18:25 — agents done; visible-loot rule
+
+- F1/F3 agent done: `pursuit.RUSH_THE_BOSS = True` (F1), `buffs.QUIET_BY_THE_BOSS = False` (F3, flip after ~30 games of
+  F1). 468 tests re-run here pass.
+- Town agent done: `town.KEEPER_IN_CUBE = True` (a keeper with a page but no way out waits in the cube); rune stacks over
+  80 cubed down (El..Ort, gem-free; recipes from cubemain.txt via `build_rune_cube.py` → `data/rune_cube.json`), 3 a
+  visit; rune sales stopped. Thul and up need a gem: not cubed (a ruling for the player). 156 town tests pass here.
+- Game 40 (18:22:16): the run teleported 3.5 units past a Ko Rune not read yet, first read it 34 away behind, ran on
+  ("not on the way"); the player stopped the loop and took it. Ruling (IMPORTANT): loot visible before the run starts,
+  a valuable seen is taken now. A fix agent is on it (arrival wait for the loot read; valuables in the read taken).
+- Reload waits for that fix, then the wide suite.
+- 18:27:27 restart (`20261018T152722Z-44de31b1`, the player: "restart on the next town"): wide suite 2320 passed first.
+  Live: F1, keeper in cube, rune stacks cubed to 80 (3 a visit), no rune sales, Q1 hold → cube → trip in the loop.
+  Not yet live: the visible-loot fix (agent working), the stall rulings (room only when real, dead end skips the goal).
+- Freeze RCA (`rca/2026-10-18/freeze-findings.md`): not the server. The game took our keys but not our pointer moves
+  or clicks from the level load on; the first hop landed on the stale cursor spot (the town waypoint row). Teleport's
+  own no-move check is cut off by `priced_for` (~1.4 s), so it was replanned 10×. Fix A (detect a lost pointer, fail
+  fast, log XQueryPointer's window) then B (Save and Exit by keyboard) recommended. Open: where was the real mouse?
+- 18:42:09 restart (`20261018T154203Z-045794c2`), wide suite 2332 passed. Live now: gem rune recipes (Thul/Amn with
+  Chipped Topaz/Amethyst from the Gems tab; never a Ber), and the visible-loot fix. Cause of the Ko Rune (verified in
+  take 20261018T152213Z-35): a fresh drop (monster 2809246671 died at t=3.41, rune read at 3.49), 34.5 straight but
+  117 walked behind a wall, so `on_the_way` (walked ≤ PICK_NEAR 40) refused it. Fix: on the loop's Teleport run a
+  valuable is taken when Teleport reaches it within 2.5 s; and the first move on a level waits until 2.0 s after the
+  arrival (item units near the arrival appeared 0.74–1.89 s late in 20 of 2211 cases). Cost expected ≈1.5–2 s on
+  Catacombs 3 and 4 each (~3.5 s a game). Measure kills an hour against 84/h.
+- 18:47 the player: the arrival wait is "totally wrong. we DO not need to wait. we MUST check if loot toggle is
+  enabled". Verified in `runs/osd/.../osd.log`: game 40 (18:22:02-07) `make osd` pressed Show Items 3 times during the
+  load and gave up ("still off after 3 presses"). The 2.0 s hold is removed (hunt.py, runner, engine, journey back to
+  as before); `World.show_items` reads the toggle's byte (UI panels + 0xC) and `routines.show_items_on` presses the
+  character's Show Items key before every loop level run (≤3 presses, else Abort). The Teleport-reach valuable rule
+  stays. Gem step: Ctrl+Shift+left click moves 1 gem (the player, 18:48).
+- 18:50:03 restart (`20261018T154958Z-f1eb20c4`), wide suite 2332 passed.
+
+## Handoff — 2026-10-18 19:00
+
+**State.** `make serve` session `20261018T155841Z-a09873cf` (restart 18:58:47; F1 window from 18:50:03), the loop on, kind Andariel; `make
+osd` running (Show Items presses, healer). Watch: monitor on `tools/watch.py` (re-arm every 30 min). No agent running.
+Nothing committed (branch `combat-framework`, a large uncommitted tree: the player says "commit").
+
+**Live since 18:50 (wide suite 2332 passed before it):**
+- F1 `pursuit.RUSH_THE_BOSS = True` (since 18:27); F3 `buffs.QUIET_BY_THE_BOSS = False` (flip after F1 is measured).
+- Town: keeper waits in the cube (`KEEPER_IN_CUBE`), junk parked on a page (`PARK_JUNK`), stash full stops the loop,
+  best copy kept (`copies.py`), rare amulet rule; rune stacks over 80 cubed toward 80, 3 a visit, gem recipes with
+  the gem from the Gems tab by Ctrl+Shift+left click (7.3 s for 3 at 18:54); no rune sales; never a Ber.
+- Loop: a valuable with no room → hold, cube, trip (`lootpolicy`, `pickup`, `runner`); a valuable Teleport reaches
+  within 2.5 s is taken now (`hunt.on_the_way`, `LOOP_PICK_SECONDS`); Show Items checked before every loop level run
+  (`routines.show_items_on`, `World.show_items`). The 2 s arrival hold was removed (the player: "totally wrong").
+
+**Live since the 18:58:47 restart (`20261018T155841Z-a09873cf`, wide suite 2333 passed):**
+- `loop.Loop.count`: a leg over its count is counted afresh after its stop (18:55:34: the player's mouse in the lobby
+  twice, then 4 "next game again and again" recoveries in 20 ms and a 30 s hold). Test
+  `test_a_leg_over_its_count_is_counted_afresh_after_its_stop`.
+
+**Measure next:** F1 on games since 18:50 (`andy.py --since '2026-10-18 18:50' --against '2026-10-18 17:54'
+'2026-10-18 18:27'`): Catacombs 4 arrival → Andariel dead (was 7.3 s a cycle; in reach to dead 3.4 s median), guards:
+lowest life on Level 4, potions drunk, MISSED. Kills an hour against 84/h (17:54-18:15). Then flip F3 and measure.
+Confirm the first `Show Items was off before the level run: turned on` line (osd still wastes its presses during the
+load: make it wait for the load, a small fix in `automation/show_items.py`).
+
+**Ready to build (rulings given, 18:10):** watchdog names its cause; 45 s stall = no room only when a valuable is
+remembered and the inventory has no room for its size (`ROOM_CAUSES = {'room'}`; tests pinned at test_runner.py
+~1262, 1505-1517, 1620-1660, 1805-1875; keep 04:32:26 and 13:36-13:39 behaviour); a dead end skips the goal (leave only
+when the run's last goal is unreachable); Andariel: the kill memory only. See `rca/2026-10-18/stalls-findings.md`.
+The lost pointer of 17:58 (`rca/2026-10-18/freeze-findings.md`): fix A (a hop landing on the last pointer spot, or two
+casts with no move toward a walkable aim → lost pointer: log XQueryPointer's window, end the run) then B (Save and Exit
+by keyboard; probe the menu's keys first). Also: Teleport's own no-move check is cut off by `hunt.priced_for` (~1.4 s).
+
+**Waiting for the player:** where the mouse was at 17:58-17:59; Lower Kurast with no room drops an unidentified carried
+item even for a cheap find (no trip leg there) — allowed?; the cube plan review (`cube-plan.md`); the guard and
+give-ups (Q2).
+
+**Queue:** Catacombs 2 run to the stairs p90 10 s (median 4.6 s) — the top speed candidate; the HUD shop card's
+"Shop check failed" during sales (skip it); the watch's MISSED after the player's own pickup (`game None`); key
+top-up misses (~3 s a visit); pre-existing pyrefly errors in tests (`shop.py:157` false positive on `*toward`);
+round 2 of the architecture plan (GameState/Excursion, events.jsonl, DropLedger, ensure_panels, the planner taking the
+clicks after ~30 matched visits); Lower Kurast trips; act 1/3 town services; Thul feeds from Ort (Thul transmutes with
+Chipped Topaz now keep it moving).
+
+### 2026-10-18 19:07 — Andariel watch, F1 measure, F3 trial
+
+- Watch re-armed on `20261018T155841Z-a09873cf` at 19:02; loop on, Andariel. The player turned it off at 19:03:13
+  and back on at 19:03:27; no agent restart during that pause. No MISSED in the 18:50–19:07 window.
+- F1 since 18:27: 48 kills by 19:02 (41 clean cycles); 83.0 kills/hour of play vs 80.3 in the 17:54–18:27 window.
+  Cycle rate 82.9 → 82.6/hour (90% interval on the difference −10.6..+9.9: no evidence). Catacombs 4 arrival →
+  Andariel in reach 3.4 → 2.6 s in the 18:50–19:07 window (90% interval −1.2..−0.3), arrival → kill 7.1 →
+  6.1 s (−1.2..−0.3). In reach → dead stayed 3.4 s. The later 18:50–19:07 window had 22 kills in 0.28 h of
+  play, 79.8/hour; one 28 s lobby recovery, one 14 s player pause, two town visits. No overall rate win is proven.
+- F3 `buffs.QUIET_BY_THE_BOSS = True` trial began in service `20261018T160706Z-281e5e6c` at 19:07:12. It
+  postpones side drops near a live boss and skips the optional sigil only while unharmed; Death Mark and potions stay.
+  Expected saving: ~0.3 s in reach from the sigil, plus avoided loot detours when they occur. Measure in reach → dead,
+  arrival → kill, kills/hour, lowest life, potions, and MISSED after 30+ clean cycles; compare 18:50–19:07. Focused
+  tests: 182 passed; wide restart suite: 2333 passed, 7 skipped; ruff and pyrefly on `buffs.py` clean. The restart
+  waited for the lobby and resumed with Andariel on. No commit.
+- Trade in 18:50–19:07: 6 appraised `vendor` items sold for 7,558 carried gold; two slow uniques kept. The two sales
+  visits used ~1.0 s per game including identify, and the payback of each sold kind was under 1; consider the pickup
+  mix only after the F3 trial, without relaxing the player's pickup rulings.
+- At 19:20:07 the player turned KP_6 off in the next game after the previous Save and Exit; no valuable was left in
+  that game. F3 so far: 19 kills in 0.21 h of play = 88.6/hour; 18 kill-to-kill cycles, 17 clean; no MISSED, stop or
+  recovery. In reach → dead 3.4 → 3.3 s (90% interval −0.3..+0.2, no evidence); rate 81.6 → 84.6/hour of cycles
+  (+3.0, interval −8.0..+13.1, no evidence). The lowest life in 18 Catacombs 4 takes was 94%; none below 90%.
+  The player remains in control; leave the loop off. Continue the same F3 trial after `PLAYER: loop on` until 30+
+  clean cycles before a keep/revert decision.
+
+### 2026-10-18 20:18 — stash page priority
+
+- Player ruling (verbatim): "I want to change priority for storing items: shared tab 3 > 4 > 5 and only after that shared tabs 2 > 1 > personal".
+- Implemented in `macros/stash.py`, `town.py`, `visit.py`, `charms.py`: the planned town visit, fallback scan, temporary
+  shared parking and Gheed's storage follow 3, 4, 5, 2, 1, 0. Resource items retain their dedicated tabs. Each new
+  fallback item starts at page 3 so a newly freed preferred page is checked again.
+- Tests: focused town/stash/charms/townplan/visit 149 passed; wide macro/combat/builds/skills suite 2334 passed,
+  7 skipped. Ruff, format, pyrefly and `git diff --check` clean. `restart.py --loop keep` waited for the lobby at
+  20:18:53 and resumed service `20261018T171854Z-6096f3b0` at 20:18:59, loop on, Andariel. The new service has not
+  yet logged a keeper stash put; that live placement remains to be observed.
+
+### 2026-10-18 20:27 — Andariel watch after the stash reload
+
+- Service `20261018T171854Z-6096f3b0` resumed Andariel on. The 20:20:31 town visit used the unread-view fallback,
+  stashed 7 items in 6.2 s, and ended with cube 0, junk 0 and the 2x4 block free. The log did not record the destination
+  pages, so live confirmation of the new page priority remains open.
+- F3 trial from 19:07 through 20:25: 37 kills in 0.43 h active play, 85.9 kills/h; 36 kill-to-kill cycles (31 clean),
+  median 40.3 s. Versus 18:50–19:07: cycles 81.6→84.4 kills/h, 90% interval for the difference −7.0..+12.9;
+  in-reach→dead 3.4→3.3 s, interval −0.3..+0.1. Neither target shows a clear improvement; keep observing toward the
+  90-game no-evidence rule. No valuable was reported missed in the 20:15–20:25 games (`games.py`).
+- Two recoveries lost an Andariel game to `no click took the waypoint` (20:18:14 and 20:21:01). The second followed
+  the town visit: eight waypoint clicks near y=0.09–0.11 of the game window, character unchanged at (5058, 5034),
+  then Save and Exit. The take `20261018T172026Z-103` shows the macro sent those clicks; the reason the existing
+  walk-into-view guard did not take the character closer is under investigation. Brief `no level map yet` stops in
+  later games recovered and the loop continued.
+- 20:29:28 diagnostic restart `20261018T172924Z-e22d123e` at the lobby, loop kept on, Andariel. `waypoint.py` now
+  logs the projected ground position, whether route marks exist, and open panels when the waypoint is outside the
+  safe view; it changes no movement. Focused waypoint tests 14 passed, wide suite 2334 passed and 7 skipped; ruff,
+  format, pyrefly, diff check clean. Watch the next out-of-view attempt to choose a fix from evidence.

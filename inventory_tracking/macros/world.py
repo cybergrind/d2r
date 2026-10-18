@@ -14,11 +14,12 @@ import re
 import struct
 import threading
 import time
+from collections.abc import Mapping, Sequence
 from contextlib import suppress
 from dataclasses import dataclass, field, replace
 from pathlib import Path
 
-from inventory_tracking.collection.capture import read_owner_grids
+from inventory_tracking.collection.capture import STASH_ORDER_OFFSET, is_shared_candidate, read_owner_grids
 from inventory_tracking.common import LOG
 from inventory_tracking.config import RESOURCE_READER
 from inventory_tracking.items.identity import (
@@ -65,6 +66,7 @@ from inventory_tracking.native.layout import (
     QUANTITY_STAT,
     ROOM1_ROOM2,
     ROOM2_LEVEL,
+    SHOW_ITEMS_RVA,
     STAFF_CLASS_IDS,
     TELEPORT_SKILL,
     TERROR_SERVICE_RVA,
@@ -75,6 +77,7 @@ from inventory_tracking.native.layout import (
     WEAPON_SLOTS,
 )
 from inventory_tracking.native.process import identity, process_mappings
+from inventory_tracking.native.stack_items import read_stack_count
 from inventory_tracking.native.unit_probe import ResearchReader
 from inventory_tracking.native.units import read_stats, walk_units
 from inventory_tracking.tracking.belt import BeltColumns, remember
@@ -183,6 +186,7 @@ LYING_DEAD = 12  # monster mode: dead, the death animation (mode 0) over
 # Flags that mean something is open over the game view; the array also holds bytes that are
 # set with nothing open (Show Items, belt rows and unnamed ones).
 OPEN_PANELS = {name: offset for name, offset in PANEL_FLAGS.items() if name != 'belt_rows'}
+SHOW_ITEMS = SHOW_ITEMS_RVA - UI_PANELS_RVA  # the Show Items toggle's byte in the panels' read: 1 on, 0 off
 
 
 @dataclass(frozen=True)
@@ -495,6 +499,7 @@ class World:
     monsters: tuple[Monster, ...] = ()  # alive, with a position
     doors: tuple[Door, ...] = ()  # door objects streamed around the character, open or closed
     dead: frozenset[int] = frozenset()  # unit ids of the monsters lying dead (a kill, where a unit only gone is not)
+    show_items: bool | None = None  # the game's Show Items toggle (item labels on the ground); None: not read
 
     @property
     def quit_menu(self) -> bool:
@@ -705,6 +710,117 @@ class Pack:
     # The personal stash page's items and rows ('.' free), read whatever panel is open (macros/charms.py)
     stashed: tuple[Carried, ...] = ()
     stash: tuple[str, ...] | None = None
+
+
+STACK_MOST = 99  # a resource tab's stack at most: the Tal Runes' refused at 99 (the player, 2026-10-17)
+SHARED_PAGES = 5  # the shared stash's pages ("Page 1 / 5", macros/stash.py SHARED_PAGES)
+ITEM_PAGE = 0x55  # item data: the inventory page byte (native/units.py describe_item; 4 a stash's)
+STASH_ITEM_PAGE = 4  # collection/capture.py STASH_PAGE
+
+
+@dataclass(frozen=True)
+class Page:
+    """A stash page (macros/town-plan.md §2.1): 0 the personal one, 1..5 the shared ones in the owners' +0xD8 order
+    (collection/research.md R1); its 10 x 10 rows ('.' a free cell), its owner unit and the item units on it."""
+
+    index: int
+    rows: tuple[str, ...]
+    owner: int | None = None
+    units: frozenset[int] = frozenset()
+    # Its items, each at its first cell (row by row) with its quality, identified flag and unique row as the inventory's
+    # are read (`carried_items`): a Gheed's Fortune taken back from a shared page by a Ctrl + click on its cell
+    # (macros/charms.py)
+    items: tuple[Carried, ...] = ()
+
+    @property
+    def free(self) -> int:
+        return sum(row.count('.') for row in self.rows)
+
+
+@dataclass(frozen=True)
+class StashView:
+    """The stash as memory holds it in town, its panel shut or open (collection/research.md R2): the pages, and the
+    resource tabs' stacks by item class (a class not held has no unit: count 0)."""
+
+    pages: tuple[Page, ...]
+    stacks: tuple[tuple[int, int], ...] = ()  # (item class, count), sorted
+
+    def count(self, txt: int) -> int:
+        return dict(self.stacks).get(txt, 0)
+
+    def room(self, txt: int) -> int:
+        """How many more of class `txt` its tab's stack takes."""
+        return max(STACK_MOST - self.count(txt), 0)
+
+    def full(self) -> frozenset[int]:
+        return frozenset(txt for txt, count in self.stacks if count >= STACK_MOST)
+
+    def page_of(self, unit_id: int) -> int | None:
+        """The page the item unit lies on, None on none."""
+        return next((page.index for page in self.pages if unit_id in page.units), None)
+
+    def said(self) -> str:
+        """`pages free 0:n 1:n …; full stacks <names>` for the log."""
+        bases = metadata()['bases']
+        names = sorted(bases.get(str(txt), {}).get('name', f'item {txt}') for txt in self.full())
+        pages = ' '.join(f'{page.index}:{page.free}' for page in self.pages)
+        return f'pages free {pages}; full stacks {", ".join(names) or "none"}'
+
+
+def stash_view_of(
+    main: dict, players: Sequence[dict], grids_by_owner: Mapping[int, dict], items: Sequence[dict]
+) -> StashView | None:
+    """The stash from one read (`GameMemory.stash_view`): `main` the character's player unit, `players` the other
+    player units (each with its `details` name and full stats, as collection/capture.py `is_shared_candidate` reads
+    them, and its `order`, the u64 at STASH_ORDER_OFFSET), `grids_by_owner` their grids by unit id
+    (`read_owner_grids`), `items` the item units (`unit_id`, `address`, `txt_id`, `mode`, `owner`, `page`, `count`).
+
+    The personal page is the character's grid 6; the shared pages are the same-name units with no level or life, in
+    their order. One more such unit owns the Gems, Materials and Runes tabs, its grid 6 always empty, and orders last
+    (research.md R1): dropped. Any other count of such units than SHARED_PAGES + 1, or a last one holding items, is no
+    view (None): a page told wrong would misplace. The stacks are the owner-less stash units, one a class held, each
+    with its count."""
+    by_address = {item['address']: item['unit_id'] for item in items}
+    entries = {item['address']: item for item in items}
+    by_unit = {item['unit_id']: item for item in items}
+
+    def state(item: Carried) -> Carried:
+        entry = by_unit.get(item.unit_id)
+        if entry is None or 'quality' not in entry:
+            return item
+        return replace(item, quality=entry['quality'], identified=entry['identified'], unique=entry['unique'])
+
+    def page(index: int, owner: int, grid: dict | None) -> Page | None:
+        rows = grid_rows(grid)
+        if grid is None or rows is None:
+            return None
+        units = frozenset(by_address[cell] for cell in grid['cells'] if cell in by_address)
+        return Page(index, rows, owner, units, tuple(map(state, _held(grid, entries))))
+
+    personal = page(0, main['unit_id'], grids_by_owner.get(main['unit_id'], {}).get(STASH_GRID))
+    if personal is None:
+        return None
+    shared = sorted(
+        (unit for unit in players if is_shared_candidate(unit, main) and unit['unit_id'] in grids_by_owner),
+        key=lambda unit: unit['order'],
+    )
+    # Exactly one unit more than the pages, the last in order with an empty grid: any other count is no view
+    if len(shared) != SHARED_PAGES + 1:
+        return None
+    if any(grids_by_owner[shared[-1]['unit_id']].get(STASH_GRID, {}).get('cells', ())):
+        return None
+    shared.pop()  # the resource tabs' owner
+    pages = [personal]
+    for index, unit in enumerate(shared, 1):
+        found = page(index, unit['unit_id'], grids_by_owner[unit['unit_id']].get(STASH_GRID))
+        if found is None:
+            return None
+        pages.append(found)
+    stacks: dict[int, int] = {}
+    for item in items:
+        if item['mode'] == 0 and item['page'] == STASH_ITEM_PAGE and item['owner'] == NO_OWNER:
+            stacks[item['txt_id']] = stacks.get(item['txt_id'], 0) + item.get('count', 0)
+    return StashView(tuple(pages), tuple(sorted(stacks.items())))
 
 
 IDENTIFY_TOME = 534  # Tome of Identify (items metadata `ibk`, 2026-10-17)
@@ -1432,6 +1548,66 @@ class GameMemory:
         except OSError, ValueError, struct.error:
             return None
 
+    def stash_view(self) -> StashView | None:
+        """The stash's pages and resource stacks (`stash_view_of`), read whatever panel is open; None when the read is
+        not whole or the pages cannot be told (macros/town-plan.md step 0)."""
+        read = self.read
+        try:
+            player = self._player()
+            if player is None:
+                return None
+            walked = walk_units(read, struct.unpack('<128Q', read(self.table, 1024)), 0)
+            item_walk = walk_units(read, struct.unpack('<128Q', read(self.table + ITEM_UNIT * 1024, 1024)), ITEM_UNIT)
+            if not walked['complete'] or not item_walk['complete']:
+                return None
+            main, players = None, []
+            for unit in walked['units']:
+                if not unit['data_pointer']:
+                    continue
+                stats = read_stats(read, unit['stats_pointer'] + FULL_STATS) if unit['stats_pointer'] else []
+                order = struct.unpack('<Q', read(unit['address'] + STASH_ORDER_OFFSET, 8))[0]
+                name = decode_name(read(unit['data_pointer'], 16))
+                entry = unit | {'details': {'name': name, 'full_stats': stats}, 'order': order}
+                if unit['unit_id'] == player.unit_id:
+                    main = entry
+                else:
+                    players.append(entry)
+            if main is None:
+                return None
+            owners = [main, *(unit for unit in players if is_shared_candidate(unit, main))]
+            grids_by_owner = {unit['unit_id']: read_owner_grids(read, unit) for unit in owners}
+            items = []
+            for unit in item_walk['units']:
+                entry = {key: unit[key] for key in ('unit_id', 'address', 'txt_id', 'mode')}
+                entry |= {'owner': None, 'page': None}
+                if unit['mode'] == 0 and unit['data_pointer']:
+                    data = read(unit['data_pointer'], ITEM_DATA_SIZE)
+                    entry |= {'owner': struct.unpack_from('<I', data, ITEM_OWNER)[0], 'page': data[ITEM_PAGE]}
+                    entry |= {
+                        'quality': struct.unpack_from('<I', data, QUALITY_OFFSET)[0],
+                        'identified': bool(struct.unpack_from('<I', data, FLAGS_OFFSET)[0] & IDENTIFIED_FLAG),
+                        'unique': struct.unpack_from('<I', data, IDENTITY_OFFSET)[0],
+                    }
+                    if entry['owner'] == NO_OWNER and entry['page'] == STASH_ITEM_PAGE:
+                        entry['count'] = read_stack_count(read, unit)
+                items.append(entry)
+        except OSError, ValueError, struct.error:
+            return None
+        return stash_view_of(main, players, grids_by_owner, items)
+
+    def item_stats(self, unit_id: int) -> dict[int, int]:
+        """An item unit's full stat list (+0xE8, the item's totals: items/decode.py) as {stat id: raw value}, layer 0,
+        wherever it lies (the inventory, the cube, a stash page); {} when it is not found or unreadable: a Gheed's
+        Fortune's Magic Find (macros/charms.py)."""
+        try:
+            heads = struct.unpack('<128Q', self.read(self.table + ITEM_UNIT * 1024, 1024))
+            unit = next((u for u in walk_units(self.read, heads, ITEM_UNIT)['units'] if u['unit_id'] == unit_id), None)
+        except OSError, ValueError, struct.error:
+            return {}
+        if unit is None or not unit['stats_pointer']:
+            return {}
+        return unit_stats(self.read, unit['stats_pointer'])
+
     def containers(self) -> tuple[Thing, ...]:
         """The chests and the like the game shows now, opened or not (the pickup step opens them)."""
         try:
@@ -1816,4 +1992,5 @@ class GameMemory:
             monsters=monsters,
             doors=doors,
             dead=dead,
+            show_items=panels[SHOW_ITEMS] == 1,
         )

@@ -9,6 +9,7 @@ of the game window. Keys the OSD presses on its own (`allow`) are not the player
 from collections.abc import Callable, Generator
 from contextlib import contextmanager
 from threading import Event
+from typing import Literal
 
 from inventory_tracking.common import LOG
 from inventory_tracking.input.keybindings import button_number
@@ -27,8 +28,21 @@ AIM_TOLERANCE = 25
 AIM_TRIES = 3
 
 
+# Why a macro stopped, as the KP_6 loop's stop rules tell stops apart (runner.py `classify`, `_loop_stopped`): the
+# player's hand, the carry-one refusal of a Gheed's Fortune, no room in the inventory for an item, the watchdog's stand
+# ("has not moved"), a keeper no stash page takes after a town visit (the loop stops: the player, 2026-10-18 16:50),
+# anything else. Strings, so a raise names its cause with no import (rca/2026-10-18/arch-loop-orchestration.md Option
+# A, step 1: a message's words stop being the only sign of its cause)
+Cause = Literal['hand', 'refused', 'room', 'stall', 'stash', 'other']
+
+
 class Abort(Exception):
-    """The macro stops here; the message is shown to the player."""
+    """The macro stops here; the message is shown to the player. `cause` why, for the KP_6 loop's stop rules; None:
+    told by the type and the message as before (runner.py `classify`)."""
+
+    def __init__(self, *args: object, cause: Cause | None = None) -> None:
+        super().__init__(*args)
+        self.cause: Cause | None = cause
 
 
 class Cancelled(Abort):

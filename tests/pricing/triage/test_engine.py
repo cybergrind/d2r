@@ -163,6 +163,31 @@ def test_named_missing_or_thin_evidence_is_check_not_vendor(category):
     assert 'sellers' in result['reason']
 
 
+@pytest.mark.parametrize(
+    ('name', 'base'),
+    [
+        ('Angelic Halo', 'rin'),
+        ('Angelic Wings', 'amu'),
+        ("Cathan's Sigil", 'amu'),
+        ("Civerb's Icon", 'amu'),
+    ],
+)
+def test_reviewed_cheap_set_jewelry_is_vendor_even_when_asks_are_sparse(name, base):
+    # 2026-10-04 scoped asks: each had fewer than three priced sellers and both Q1 and median below 0.25 Ist.
+    band = {'q1_ist': 0.15, 'median_ist': 0.20, 'sellers': 2, 'liquidity': 'none'}
+    tables = {
+        'bands': {('sets', name.casefold(), 'name'): band},
+        'rules': {'keep_ist': 0.25, 'rows': []},
+        'own': {'rows': []},
+    }
+    item = {'category': 'sets', 'name': name, 'base_code': base, 'properties': {}}
+
+    assert assess(item, tables)['verdict'] == 'vendor'
+    assert assess(item | {'name': 'An unreviewed set amulet'}, tables)['verdict'] == 'check'
+    tables['bands'][('sets', name.casefold(), 'name')] = band | {'q1_ist': 0.3, 'median_ist': 0.3}
+    assert assess(item, tables)['verdict'] == 'check'
+
+
 @pytest.mark.parametrize('sellers', [1, 2, 3])
 @pytest.mark.parametrize('price', [0.24, 0.25])
 def test_paid_base_bucket_retains_sparse_variant_evidence(sellers, price):

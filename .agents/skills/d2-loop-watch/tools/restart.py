@@ -17,17 +17,17 @@ Exit 0: restarted and resumed; 1: no safe moment within --wait (nothing written)
 
 import argparse
 import json
-import re
 import sys
 import time
 from pathlib import Path
 
+from logwords import LEG, LOOP_OFF, LOOP_ON, LOOP_RESUMED, LOOP_STOPPED, RESUMED_ANY, RESUMED_OFF, RESUMED_ON
+
 
 RUNS = Path(__file__).resolve().parents[4] / 'inventory_tracking' / 'runs' / 'alt-d'
 REQUEST = RUNS / 'restart.request'
-LEG = re.compile(r'Macro: Loop: game (\d+), (.+)$')
-ON = ('Macro: Loop on', 'Loop resumed', 'resumed after a restart: loop on')
-OFF = ('Macro: Loop off', 'loop stopped', 'resumed after a restart: loop off')
+ON = (LOOP_ON, LOOP_RESUMED, RESUMED_ON)
+OFF = (LOOP_OFF, LOOP_STOPPED, RESUMED_OFF)
 
 
 def newest() -> Path:
@@ -85,7 +85,7 @@ def main() -> int:
         if fresh == log or not fresh.exists():
             continue
         for text in fresh.read_text(errors='replace').splitlines():
-            if 'resumed after a restart' in text:
+            if RESUMED_ANY in text:
                 print(f'{fresh.parent.name}: {text[11:200]}', flush=True)
                 return 0
     print('no resume line within 60 s: check `make serve` (the restart file is '

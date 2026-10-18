@@ -24,11 +24,12 @@ import time
 from collections import Counter
 from collections.abc import Callable, Generator, Sequence
 from contextlib import contextmanager
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 
 from inventory_tracking.common import LOG
 from inventory_tracking.levels.memory import WAYPOINT_CLASSES
+from inventory_tracking.loot.runes import RUNES as RUNE_CLASSES
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.cube import INVENTORY, cell_point
 from inventory_tracking.macros.engine import Run
@@ -237,12 +238,17 @@ def _waypoint(run: Run) -> Callable[[World], tuple[float, float] | None]:
     return place
 
 
-def restock(run: Run, sell: Sequence[Carried] = (), back: bool = True) -> None:
-    """One visit to Jamella that buys keys and Town Portal scrolls (the module text), and sells `sell` (full stash
-    stacks' items, macros/loop.py `full`). Mouse mode only. `Abort` with her windows closed when a step does not
-    take."""
+def restock(run: Run, sell: Sequence[Carried] = (), back: bool = True, keys: int | None = None) -> None:
+    """One visit to Jamella that buys keys and Town Portal scrolls (the module text), and sells `sell` (the junk, never
+    a rune). Mouse mode only. `Abort` with her windows closed when a step does not take."""
     if run.pad is not None:
         raise Abort('the shop needs mouse mode')
+    # No rune is sold (the player, 17:50 on 2026-10-18: the full stacks "cubed, aim to 80 or lower", macros/town.py
+    # RUNES_AIM; a full stack's Tal Runes were sold here since 2026-10-17): one given is kept, whoever asks
+    runes = [each for each in sell if each.txt in RUNE_CLASSES]
+    if runes:
+        LOG.info('Macro: shop: %d runes not sold: %s', len(runes), ', '.join(named(each) for each in runes))
+        sell = [each for each in sell if each.txt not in RUNE_CLASSES]
     if run.carried is None or run.stock is None:
         raise Abort('the shop cannot be read')
     before = run.carried()
@@ -299,7 +305,7 @@ def restock(run: Run, sell: Sequence[Carried] = (), back: bool = True) -> None:
                 raise Abort(f'an item other than the one sold left the inventory at ({each.x}, {each.y})')
         if sell:
             LOG.info('Macro: shop: carried gold %s -> %s after the sales', first, _gold(run))
-        for what in buys(source):
+        for what in buys(source, KEYS_WANTED if keys is None else keys):
             item = stock.get(what.txt)
             if item is None:
                 LOG.info('Macro: shop: no %s in her stock', what.name)
@@ -368,6 +374,9 @@ class Buy:
 # Two stacks of keys (one more cell): with ~2.5 a game opened, one stack sent the loop to Jamella every 4 games, each
 # errand a whole session (the player, 2026-10-17: "probably we need to carry 2 sets of keys, instead of 12 => 24")
 KEYS_WANTED = 2 * KEY_STACK
+# One stack where no chest is opened (Andariel's run: the player, 2026-10-18, "probably we don't need 2x sets of keys
+# for non LK loop"): the second stack's cell stays free
+KEYS_ONE_STACK = KEY_STACK
 BUYS = (
     Buy(KEY, 'keys', lambda p: p.keys, lambda p: p.keys is None or p.keys < KEYS_WANTED),
     Buy(SCROLL, 'portals', lambda p: p.portals, lambda p: p.portals is None or p.portals < TOME_CHARGES),
@@ -378,10 +387,16 @@ BUYS = (
 )
 
 
-def buys(source: PortalSource) -> tuple[Buy, ...]:
+def buys(source: PortalSource, keys: int = KEYS_WANTED) -> tuple[Buy, ...]:
     """What a visit buys: every BUYS but the scrolls when Town Portal is the Sling's (macros/portal.py): with no tome to
-    take them a Shift + right click would put a scroll in a cell, and nothing casts it."""
-    return BUYS if source.stocked else tuple(what for what in BUYS if what.txt != SCROLL)
+    take them a Shift + right click would put a scroll in a cell, and nothing casts it; the keys up to `keys`."""
+    found = BUYS if source.stocked else tuple(what for what in BUYS if what.txt != SCROLL)
+    if keys == KEYS_WANTED:
+        return found
+    return tuple(
+        replace(what, room=lambda p, most=keys: p.keys is None or p.keys < most) if what.txt == KEY else what
+        for what in found
+    )
 
 
 def _buy(run: Run, rect, item: Stocked, what: Buy) -> None:

@@ -46,14 +46,17 @@ from inventory_tracking.config import APPRAISAL, BELT, INPUT
 from inventory_tracking.levels.model import Ground, Level, Target
 from inventory_tracking.loot.materials import material_classes
 from inventory_tracking.loot.shown import game_filter, pickup_rules, shown_gems
+from inventory_tracking.macros import lootpolicy
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.build import Step
+from inventory_tracking.macros.charms import GHEEDS_FORTUNE, is_unique_grand_charm
 from inventory_tracking.macros.engine import Run
+from inventory_tracking.macros.pickmode import is_candidate
 from inventory_tracking.macros.routines import ACTING, DEAD, UNIT_PIXELS, press_skill
 from inventory_tracking.macros.skills import skill_name
 from inventory_tracking.macros.teleport import HOVER_SECONDS, ground_fraction, hop_toward, in_view, ready, ready_world
 from inventory_tracking.macros.travel import JUMP_REACH, PRESSED, Travel, spare_jump, walk_reaches
-from inventory_tracking.macros.world import GOLD, HEALING, REJUVENATION, VALUABLE, Drop, Loot, has_room
+from inventory_tracking.macros.world import GOLD, HEALING, REJUVENATION, VALUABLE, Drop, Loot, Player, has_room
 from inventory_tracking.models import PotionType
 from inventory_tracking.native.layout import BELT_COLUMNS, TILE_UNITS
 from inventory_tracking.tracking.belt import column_shortages, potion_kind
@@ -68,6 +71,9 @@ GOLD_SECONDS = 0.9  # for the pile to leave the ground after the key (a Blade Wa
 POTION_UNITS = 25.0  # world units: a potion further off is not worth the walk
 PICK_UNITS = 20.0  # a drop this near, in view, is clicked (the character walks); further, hopped toward
 HOPS = 4  # teleports toward one drop per press at most
+# A trip back to a remembered valuable (runner.py `_fetch`): the whole way, ~25 units a hop. HOPS left a Flawless Topaz
+# 92 units short twice from 182 away, and the loop stopped (13:15:35-13:16:00 on 2026-10-18)
+FETCH_HOPS = 16
 # The belt is looked at after the drink's key: Frigid Highlands, 03:00:04 on 2026-10-11, the key went
 # out 0.3 s after a teleport, the belt stayed full, and six clicks on two potions picked nothing up
 # (6.4 s, "under the pointer at 3 aims and no click picked it up"); the next press, the belt one
@@ -149,6 +155,52 @@ class Plan:
     drink: str | None = None  # the belt key to press first
 
 
+class Refused(Abort):
+    """A unique Grand Charm the game would not let the character pick up: a Gheed's Fortune is carried, and it is
+    carry-one (macros/charms.py; the player, 2026-10-18 13:41: "you cannot pickup another gheed if you have another in
+    inventory/private tab"). The sign is the first click with the charm under the pointer that leaves it on the ground,
+    the character up to it and room in the inventory (`refusal`); the KP_6 loop's Gheed's swap starts on it (runner.py
+    `_gheeds_swap`) in place of two more aims, two trips back and a stop (13:34:48.1-13:34:53.8 on 2026-10-18), or of
+    the 45 s stand of a level run that gave the charm up (13:56:41-13:57:26). `drop` the charm."""
+
+    def __init__(self, drop: Drop, why: str) -> None:
+        super().__init__(why)
+        self.drop = drop
+
+
+def gheeds_carried(run: Run) -> bool:
+    """Whether a Gheed's Fortune is in the carried inventory now (identified, its row read: macros/charms.py
+    `gheeds`, whoever's it is: the game's carry-one counts any); False unread."""
+    pack = run.carried() if run.carried is not None else None
+    return pack is not None and any(
+        is_unique_grand_charm(item.txt, item.quality) and item.identified and item.unique == GHEEDS_FORTUNE
+        for item in pack.items
+    )
+
+
+def unique_grand_charm(drop: Drop) -> bool:
+    """Whether `drop` is a unique Grand Charm (its class and quality, or the label when they are unread): a Gheed's
+    Fortune or a Latent Sunder charm, alike until identified (macros/charms.py)."""
+    return is_unique_grand_charm(drop.txt, drop.quality) or 'Unique Grand Charm' in drop.label
+
+
+def refusal(run: Run, drop: Drop, after: Player | None) -> Refused | None:
+    """The carry-one refusal (`Refused`) a click on `drop` that left it on the ground was, None for any other miss:
+    `drop` a unique Grand Charm, the character (`after`, as it stood after the click) within NEAR_UNITS of it (a click
+    that walked it up there, or one from there: not a walk cut short), a Gheed's Fortune carried, and room for the charm
+    (a full inventory is the room rules', not the swap's)."""
+    if not unique_grand_charm(drop):
+        return None
+    if after is None or math.dist((after.x, after.y), (drop.x, drop.y)) > NEAR_UNITS:
+        return None
+    if not gheeds_carried(run):
+        return None
+    loot = run.loot() if run.loot is not None else None
+    if loot is None or not has_room(loot.room, drop.size):
+        return None
+    return Refused(drop, f"{drop.label} was refused by the game: another Gheed's Fortune is carried")
+
+
 def wanted() -> dict:
     """What counts as valuable: the loot marks' own settings (config.AppraisalConfig), and every rune
     from `pickup_rune_minimum` (all of them: the marks point only at the dearer ones) and the groups
@@ -224,15 +276,15 @@ class Spot(Protocol):
     def label(self) -> str: ...
 
 
-def approach(run: Run, drop: Spot, level: Level | None, key_names) -> None:
+def approach(run: Run, drop: Spot, level: Level | None, key_names, hops: int = HOPS) -> None:
     """Bring `drop` within a click: nothing when it is in view, within PICK_UNITS and on a clear line (travel.py
     `walk_reaches`: a drop 17 away across lava is 43 by walking, rca/2026-10-14/run-0025-findings.md §2.2; one
     18 away round a wall corner was never walked to, run-1214-findings.md §3.2), teleport hops otherwise. Where no
     hop can be made (the staff empty, no Teleport), a move by the movement in hand (`moved_in_hand`: the build's own
     sets, a Blade Warp or a walk) in its place:
     rca/2026-10-13/run-2110-findings.md §2.3, an Amn Rune 24 away left twice with "the Teleport staff has no
-    charges left"."""
-    for hop in range(HOPS + 1):
+    charges left". `hops`: the teleports at most (a trip back to a remembered valuable takes FETCH_HOPS)."""
+    for hop in range(hops + 1):
         world, rect = ready_world(run)
         player = world.player
         assert player is not None
@@ -250,7 +302,7 @@ def approach(run: Run, drop: Spot, level: Level | None, key_names) -> None:
                 'from afar',
                 drop.label, away, *here,
             )  # fmt: skip
-        if level is None or hop == HOPS:
+        if level is None or hop == hops:
             if seen:
                 return  # clicked from afar: the game walks the character
             raise Abort(f'{drop.label} is {away:.0f} away' + ('' if level else ' and there is no level map to hop by'))
@@ -374,6 +426,14 @@ def _take(
                 if click(run, under or drop, aim, over):
                     return under or drop
                 now = run.world().player
+                refused = refusal(run, under, now) if under is not None else None
+                if refused is not None:
+                    # Carry-one: no other click takes it while a Gheed's Fortune is carried; the swap does (`Refused`)
+                    looked[-1] += ' refused'
+                    SHUNNED[refused.drop.unit_id] = run.clock() + SHUN_SECONDS
+                    LOG.info("Macro: pickup: %s (unit %d) refused at the first click: a Gheed's Fortune is carried",
+                             refused.drop.label, refused.drop.unit_id)  # fmt: skip
+                    raise refused
                 if now is None or math.dist((player.x, player.y), (now.x, now.y)) > MOVED_UNITS:
                     # The click walked the character: the pointer is no longer where the aim was
                     # taken, and a second click there walks further off (8 units, that Eth Rune).
@@ -574,6 +634,19 @@ def worth_a_stop(run: Run) -> Drop | None:
     return drop
 
 
+def stops_for(drop: Drop, loot: Loot, looped: bool = False) -> bool:
+    """Whether a press with nothing to pick up stops for `drop` (`pick_up`'s "inventory full" stop): a valuable the
+    inventory has no room for, and prized (world.py `prized`: what the marks point at, every unique or set item the
+    filter shows). The rest it warns of and goes on (user, 2026-10-12: "allow moving when the item isn't very
+    valuable"), but in the KP_6 loop (`looped`): there it stops for every one not taken only because the filter shows it
+    (`Loot.shown`) and no identify candidate (the player, 2026-10-18 17:50: "we should stop and clear inventory with our
+    designated town routine"). Macros/lootpolicy.py `PRESS` answers the same; `pick_up` asks it."""
+    if drop.kind != VALUABLE or has_room(loot.room, drop.size):
+        return False
+    plain = looped and drop.unit_id not in loot.shown and not is_candidate(drop)
+    return drop.prized or plain
+
+
 def unshunned(loot: Loot, now: float) -> Loot:
     """`loot` without the drops a press gave up on less than SHUN_SECONDS ago. A valuable clicked and not seen to go
     (`CLICKED`) that the character now carries is said picked up, late."""
@@ -619,13 +692,15 @@ def pick_up(
     otherwise: Callable[[], None],
     threat: Threat | None = None,
     unit: int | None = None,
+    looped: bool = False,
 ) -> bool:
     """One press of the pickup action; whether there was something to pick up. `level` is the level
     map if known, `otherwise` what the press does with nothing to pick up (the runner: the seek step).
     With `threat` a potion is left where monsters are near it or the character, and the press goes on
     to `otherwise`; a valuable or gold is gone for all the same. `unit`: the drop a goal names (the pursuit's
     act, priced for it: hunt.py `operate`), taken in place of the one `choose` would put first; gone from the
-    ground (taken meanwhile), the press has nothing to pick up."""
+    ground (taken meanwhile), the press has nothing to pick up. `looped`: the KP_6 loop's press (runner.py `take_one`):
+    a valuable with no room stops it whenever lootpolicy.py's `verdict` holds it (`NO_ROOM_PLAIN` ruled)."""
     player, _ = ready(run)
     loot = unshunned(run.loot() if run.loot is not None else Loot(), run.clock())
     here = (player.x, player.y)
@@ -669,15 +744,26 @@ def pick_up(
         # would wipe was read as a key that does nothing (user, 2026-10-12: "an active warning that
         # must be visible to the user").
         run.warn(f'Inventory full: {named} left on the ground')
-        dear = ', '.join(sorted({drop.label for drop in left if drop.prized}))
+        # The press's "must not leave it" is the policy's (macros/lootpolicy.py `verdict`, step 4 of rca/2026-10-18/
+        # arch-level-behaviour.md): the loot is the pickup mode's already (runner.py `_picked`) and unshunned. In the
+        # loop that holds the plain valuables too (the player, 2026-10-18 17:50: "we should stop and clear inventory
+        # with our designated town routine"): the stop is the room rules' (runner.py `_loop_stopped`: the cube, a trip)
+        facts = {drop.unit_id: {'room': False, 'shown': drop.unit_id in loot.shown, 'looped': looped} for drop in left}
+        held = [drop for drop in left if lootpolicy.verdict(drop, lootpolicy.PRESS, **facts[drop.unit_id]).hold]
+        dear = ', '.join(sorted({drop.label for drop in held}))
+        for drop in left:
+            # the shadow beside it: the class's cases counted, and `stops_for` against the verdict
+            says = stops_for(drop, loot, looped)
+            lootpolicy.SHADOW.check(lootpolicy.PRESS, drop, says, game=loot.game, **facts[drop.unit_id])
         if plan is None and dear:
             # The press stops here and says so: going on to the seek step would teleport away from
             # the drop (user, 2026-10-10 night). Only for what the marks point at (world.py `prized`):
             # for gear the filter shows the press goes on (user, 2026-10-12: "allow moving when the item
             # isn't very valuable"; Drifter Cavern, 20:00 that day: 37 presses in a row stopped for a
             # Superior Old Book, 13 hostiles 38 away). A unique or set item the filter shows is prized (the
-            # player, 2026-10-14: the Unique Plate Mail fetched by hand, run-1214-findings.md §3.1).
-            raise Abort(f'inventory full: no room for {dear}')
+            # player, 2026-10-14: the Unique Plate Mail fetched by hand, run-1214-findings.md §3.1). In the loop
+            # a chipped gem, a low rune, a jewel or a magic ring too (the ruling of 2026-10-18 17:50, above).
+            raise Abort(f'inventory full: no room for {dear}', cause='room')
         if plan is not None:
             run.say(f'Inventory full: no room for {named}')
     else:

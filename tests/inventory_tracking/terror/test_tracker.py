@@ -838,3 +838,67 @@ def test_the_super_uniques_and_bosses_killed_this_game_are_named_for_the_routes(
     assert tracker.killed() == {'The Countess', 'Mephisto'}
     tracker.apply([{'event': 'left_game'}])
     assert tracker.killed() == frozenset()
+
+
+def test_a_boss_first_seen_dead_is_killed_this_game():
+    # 12:42:19 and 13:58:36 on 2026-10-18: after a restart mid-game the route waited 45 s at Andariel's mark, her corpse
+    # in sight; a corpse seen first is a kill before this service read the game
+    tracker = ZoneTracker()
+    tracker.apply([at({**seen(5, 37, data_hex=PLAIN_DATA), 'txt_id': 156, 'mode': 12}, 22556, 9556)])
+    assert tracker.killed() == {'Andariel'}
+    other = ZoneTracker()
+    other.apply([at({**seen(6, 37, data_hex=PLAIN_DATA), 'txt_id': 156, 'mode': 1}, 22556, 9556)])  # alive
+    assert other.killed() == frozenset()
+
+
+def andariel_game(tracker):
+    """Andariel seen alive as a unique leader, then killed."""
+    tracker.apply([elite(5, 22556, 9556, area=37, txt_id=156), {**died(5, 37), 'txt_id': 156}])
+
+
+def test_the_bosses_killed_survive_a_restart_and_merge_with_the_parts_of_a_game():
+    # 13:56 and 14:00 on 2026-10-18: a restart with her corpse out of sight forgot Andariel's death
+    first = ZoneTracker()
+    andariel_game(first)
+    assert first.state()['slain'] == ['Andariel']
+    again = ZoneTracker()
+    again.restore(first.state())
+    assert again.killed() == {'Andariel'}
+
+    part = ZoneTracker()
+    part.apply([at({**seen(8, 102, data_hex=PLAIN_DATA), 'txt_id': 242}, 5000, 5000), {**died(8, 102), 'txt_id': 242}])
+    part.restore(first.state(), merge=True)
+    assert part.killed() == {'Andariel', 'Mephisto'}
+    again.restore(part.state())  # without merge: replaced
+    assert again.killed() == {'Andariel', 'Mephisto'}
+    again.restore({**first.state(), 'slain': []})
+    assert again.killed() == {'Andariel'}  # her dead unit is still among the dead elites
+
+
+def test_a_game_stored_before_slain_was_kept_rebuilds_it_from_the_dead_elites():
+    first = ZoneTracker()
+    andariel_game(first)
+    first.apply([elite(6, 22556, 9556, area=37, txt_id=160)])  # a unique of the level, alive
+    old = first.state()
+    del old['slain']
+    again = ZoneTracker()
+    again.restore(old)
+    assert again.killed() == {'Andariel'}
+
+
+def test_a_malformed_slain_entry_is_ignored():
+    state = ZoneTracker().state()
+    for bad in (None, 5, 'x'):
+        tracker = ZoneTracker()
+        tracker.restore({**state, 'slain': bad})
+        assert tracker.killed() == (frozenset({'x'}) if bad == 'x' else frozenset())
+
+
+def test_a_boss_kill_is_saved_at_once(tmp_path):
+    store = tmp_path / 'terror-games.json'
+    tracker = ZoneTracker(store, clock=lambda: 100.0)
+    tracker.apply([entered(37, 0xAAAA)])  # saves; the next save is 5 s away
+    andariel_game(tracker)
+    again = ZoneTracker(store)
+    again.apply([entered(37, 0xAAAA)])
+    assert again.killed() == {'Andariel'}

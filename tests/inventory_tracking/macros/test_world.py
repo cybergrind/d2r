@@ -629,3 +629,62 @@ def test_a_call_to_arms_in_either_set_is_read_from_the_worn_items(monkeypatch):
     memory.cta_seen = None
     worn[:] = [(hoto, location(4))]
     assert memory.cta() is False
+
+
+def stash_owner(unit_id: int, order: int, stats=()) -> dict:
+    """A player unit as `GameMemory.stash_view` reads it: its name and full stats (collection/capture.py)."""
+    return {
+        'unit_id': unit_id,
+        'type': 0,
+        'details': {'name': 'CybergrindAA', 'full_stats': [{'id': s, 'layer': 0, 'raw': 1} for s in stats]},
+        'order': order,
+    }
+
+
+def stash_grid(cells: dict[int, int]) -> dict:
+    """A 10 x 10 grid whose cells (index -> item address) hold items."""
+    return {'width': 10, 'height': 10, 'cells': [cells.get(i, 0) for i in range(100)]}
+
+
+def test_the_stash_view_orders_the_shared_pages_and_drops_the_resource_tabs_owner():
+    # collection/research.md R1: the shared owners ordered by +0xD8 (1105634203 -> 1227, ..., 2719888953 -> 1314), the
+    # empty sixth unit (order 1329) owns the Gems, Materials and Runes tabs; the stacks are owner-less page-4 units
+    from inventory_tracking.macros.world import NO_OWNER, stash_view_of
+
+    main = stash_owner(1, 1226, stats=(6, 7, 12))
+    shared = [stash_owner(u, o) for u, o in ((50, 1314), (10, 1227), (30, 1289), (20, 1268), (40, 1308), (60, 1329))]
+    party = stash_owner(70, 1000, stats=(6, 7, 12))  # another player's character: a level and a life
+    grids = {
+        1: {6: stash_grid({0: 0xA0})},
+        10: {6: stash_grid(dict.fromkeys(range(100), 176))},  # full
+        20: {6: stash_grid({})},
+        30: {6: stash_grid({})},
+        40: {6: stash_grid({})},
+        50: {6: stash_grid({5: 0xC0, 6: 0xC0})},
+        60: {6: stash_grid({})},
+        70: {6: stash_grid({})},
+    }
+    items = [
+        {'unit_id': 900, 'address': 0xA0, 'txt_id': 537, 'mode': 0, 'owner': 1, 'page': 4},
+        {'unit_id': 901, 'address': 0xB0, 'txt_id': 363, 'mode': 0, 'owner': 10, 'page': 4},
+        {'unit_id': 902, 'address': 0xC0, 'txt_id': 620, 'mode': 0, 'owner': 50, 'page': 4},
+        {'unit_id': 903, 'address': 0xD0, 'txt_id': 631, 'mode': 0, 'owner': NO_OWNER, 'page': 4, 'count': 99},
+        {'unit_id': 904, 'address': 0xD8, 'txt_id': 639, 'mode': 0, 'owner': NO_OWNER, 'page': 4, 'count': 25},
+        {'unit_id': 905, 'address': 0xE0, 'txt_id': 585, 'mode': 3, 'owner': NO_OWNER, 'page': 0},  # on the ground
+    ]
+
+    view = stash_view_of(main, [*shared, party], grids, items)
+
+    assert view is not None
+    assert [page.owner for page in view.pages] == [1, 10, 20, 30, 40, 50]
+    assert [page.free for page in view.pages] == [99, 0, 100, 100, 100, 98]
+    assert view.page_of(902) == 5
+    assert view.page_of(900) == 0
+    assert view.page_of(903) is None
+    assert view.stacks == ((631, 99), (639, 25))
+    assert view.full() == {631}
+    assert view.room(639) == 74
+    assert view.room(585) == 99  # a class not held: an empty stack
+    assert view.said() == 'pages free 0:99 1:0 2:100 3:100 4:100 5:98; full stacks Tal Rune'
+    # A shared page missing: no view (the pages' numbers would be told wrong)
+    assert stash_view_of(main, shared[1:], grids, items) is None

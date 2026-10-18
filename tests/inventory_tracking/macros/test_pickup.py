@@ -13,7 +13,7 @@ import pytest
 
 from inventory_tracking.config import BeltConfig
 from inventory_tracking.levels.model import Level, Room
-from inventory_tracking.macros import pickup
+from inventory_tracking.macros import lootpolicy, pickup
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.pickup import POTION_UNITS, Plan, choose, pick_up
 from inventory_tracking.macros.world import (
@@ -718,6 +718,68 @@ def test_a_prized_drop_with_no_room_for_it_still_stops_the_press_and_is_warned_o
     assert warned == ['Inventory full: Ist Rune, Superior Old Book left on the ground']
 
 
+def test_by_hand_a_low_rune_with_no_room_lets_the_press_go_on_and_the_shadow_names_the_class(monkeypatch, caplog):
+    # macros/lootpolicy.py (rca/2026-10-18/arch-level-behaviour.md §2.1, Q1): KP_1 by hand goes on as before the
+    # player's ruling of 2026-10-18 17:50 (it is the loop's); the shadow says the class once
+    monkeypatch.setattr(lootpolicy, 'SHADOW', lootpolicy.Shadow())
+    rune = Drop(73, 5008.0, 5003.0, 'El Rune', VALUABLE, (1, 1), prized=False, source='rune')
+    play = game(rune)
+    play.loot = Loot((rune,), FULL, 1000, 1000, FULL_ROOM)
+    went_on = []
+    with caplog.at_level('INFO'):
+        assert not pick_up(play.run(), LEVEL, keys, lambda: went_on.append(True))
+        assert not pick_up(play.run(), LEVEL, keys, lambda: went_on.append(True))
+    assert went_on == [True, True]
+    line = 'Macro: lootpolicy: the press El Rune (unit 73): site says leave; a plain valuable with no room'
+    assert caplog.text.count(line) == 1
+    assert 'policy says' not in caplog.text  # the site and its verdict agree
+
+
+CHIPPED = Drop(74, 5008.0, 5003.0, 'Chipped Amethyst', VALUABLE, (1, 1), prized=False, source='material')
+
+
+def test_in_the_loop_a_chipped_gem_with_no_room_stops_the_press_with_a_room_cause(monkeypatch, caplog):
+    # The player, 2026-10-18 17:50, on Q1: "we should stop and clear inventory with our designated town routine": the
+    # loop's press (runner.py `take_one`) does not move on from it; its stop is the room rules' (the cube, a trip)
+    from inventory_tracking.macros.runner import classify
+
+    monkeypatch.setattr(lootpolicy, 'SHADOW', lootpolicy.Shadow())
+    play = game(CHIPPED)
+    play.loot = Loot((CHIPPED,), FULL, 1000, 1000, FULL_ROOM)
+    run = play.run()
+    warned = warned_by(run)
+    with caplog.at_level('INFO'), pytest.raises(Abort, match=r'inventory full: no room for Chipped Amethyst$') as stop:
+        pick_up(run, LEVEL, keys, nothing, looped=True)
+    assert stop.value.cause == 'room'
+    assert classify(stop.value) == 'room'
+    assert warned == ['Inventory full: Chipped Amethyst left on the ground']
+    assert play.picked == []
+    line = 'Macro: lootpolicy: the press Chipped Amethyst (unit 74): site says hold; a plain valuable with no room'
+    assert caplog.text.count(line) == 1
+    assert 'policy says' not in caplog.text
+    # By hand, the same ground: the press goes on to its seek step
+    went_on = []
+    assert not pick_up(play.run(), LEVEL, keys, lambda: went_on.append(True))
+    assert went_on == [True]
+
+
+def test_in_the_loop_gear_the_filter_shows_or_an_identify_candidate_with_no_room_still_lets_the_press_go_on():
+    # The ruling is the plain class's: filter-shown gear stays as the 2026-10-12 rule has it
+    book = Drop(71, 5008.0, 5003.0, 'Superior Old Book', VALUABLE, (2, 2), prized=False, source='shown')
+    play = game(book)
+    play.loot = Loot((book,), FULL, 1000, 1000, FULL_ROOM, shown=frozenset((71,)))
+    went_on = []
+    assert not pick_up(play.run(), LEVEL, keys, lambda: went_on.append(True), looped=True)
+    assert went_on == [True]
+
+
+def test_in_the_loop_a_chipped_gem_is_taken_once_there_is_room():
+    play = game(CHIPPED)
+    play.loot = Loot((CHIPPED,), FULL, 1000, 1000, ('#########.',) + ('##########',) * 3)
+    assert pick_up(play.run(), LEVEL, keys, nothing, looped=True)
+    assert play.picked == ['Chipped Amethyst']
+
+
 def test_the_warning_is_taken_back_when_nothing_is_left_for_want_of_room():
     play = game()
     play.loot = Loot((), FULL, 1000, 1000, FULL_ROOM)
@@ -753,3 +815,72 @@ def test_a_valuable_clicked_and_found_carried_at_a_later_look_is_said_picked_up_
     pickup.CLICKED[78] = (jewel, 100.0)
     pickup.unshunned(Loot(carried=frozenset({78})), 100.0 + pickup.LATE_SECONDS + 1)  # too late to be the click's
     assert 78 not in pickup.CLICKED
+
+
+# --- a unique Grand Charm refused for the Gheed's Fortune carried (macros/pickup.py `Refused`) ---
+
+
+def gheeds_game(drop: Drop, *, gheeds: bool = True) -> Game:
+    """A press by `drop` within NEAR_UNITS whose every click the game refuses, the player's Gheed's Fortune carried
+    (`gheeds`) or none."""
+    from inventory_tracking.macros.charms import GHEEDS_FORTUNE, UNIQUE, grand_charm
+    from inventory_tracking.macros.world import Carried, Pack
+
+    play = game(drop)
+    play.deaf_picks = 999
+    theirs = Carried(1, grand_charm(), 0, 0, (1, 3), quality=UNIQUE, unique=GHEEDS_FORTUNE)
+    play.pack = Pack((theirs,) if gheeds else (), ('..........',) * 4)
+    return play
+
+
+def unique_charm() -> Drop:
+    from inventory_tracking.macros.charms import UNIQUE, grand_charm
+
+    return Drop(60, 5004.0, 5003.0, "Unique Grand Charm (Gheed's Fortune?)", VALUABLE, (1, 3), txt=grand_charm(),
+                quality=UNIQUE)  # fmt: skip
+
+
+def test_a_unique_grand_charm_refused_with_a_gheeds_carried_stops_at_the_first_click(caplog):
+    # 13:34:48.1-13:34:53.8 on 2026-10-18: five clicks at three aims, two trips back, then the stop and the swap; the
+    # first click that leaves it on the ground is the sign (the player, 13:41: "you cannot pickup another gheed if you
+    # have another in inventory/private tab")
+    from inventory_tracking.macros.pickup import Refused
+
+    charm = unique_charm()
+    play = gheeds_game(charm)
+    caplog.set_level('INFO')
+    with pytest.raises(Refused, match="another Gheed's Fortune is carried") as stop:
+        pick_up(play.run(), LEVEL, keys, nothing)
+    assert stop.value.drop == charm
+    assert 999 - play.deaf_picks == 1  # no second click, no further aim
+    assert charm.unit_id in pickup.SHUNNED  # the next press does something else, as after the three aims
+    assert "refused at the first click: a Gheed's Fortune is carried" in caplog.text
+
+
+@pytest.mark.parametrize('which', ['a rune', 'no gheeds carried'])
+def test_a_refused_click_on_anything_else_keeps_the_three_aims(which):
+    # Not the carry-one sign: a click a cast swallowed is tried again, up to MISSED_AIMS aims (unchanged)
+    from inventory_tracking.macros.pickup import Refused
+
+    near_rune = replace(RUNE, x=5004.0)
+    play = gheeds_game(near_rune) if which == 'a rune' else gheeds_game(unique_charm(), gheeds=False)
+    with pytest.raises(Abort, match='under the pointer at 3 aims and no click picked it up') as stop:
+        pick_up(play.run(), LEVEL, keys, nothing)
+    assert not isinstance(stop.value, Refused)
+    assert 999 - play.deaf_picks == pickup.MISSED_AIMS * pickup.CLICKS
+
+
+def test_a_unique_grand_charm_with_no_room_for_it_is_no_refusal():
+    # A full inventory is the room rules' (runner.py `_loop_stopped`), not the Gheed's swap's
+    from inventory_tracking.macros.pickup import refusal
+
+    charm = unique_charm()
+    play = gheeds_game(charm)
+    run = play.run()
+    player = run.world().player
+    assert refusal(run, charm, player) is not None
+    play.loot = replace(play.loot, room=('#.........', '#.........', '##########', '##########'))
+    assert refusal(run, charm, player) is None
+    far = replace(charm, x=5020.0)  # a click that did not bring the character up to it
+    play.loot = replace(play.loot, room=None)
+    assert refusal(run, far, player) is None

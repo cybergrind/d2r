@@ -29,27 +29,31 @@ import re
 import statistics
 import sys
 from collections import Counter
+from collections.abc import Iterable
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from pathlib import Path
 
+from logwords import (
+    AIMED,
+    DID,
+    EVENT,
+    FULL,
+    GAME_LEFT,
+    GROUND,
+    LEG,
+    LOOP_OFF,
+    LOOP_ON,
+    LOOP_STOPPED,
+    PICKED,
+    REQUEST_LOOP,
+    STOPS_HERE,
+    stamp,
+)
+
 
 ROOT = Path(__file__).resolve().parents[4]
 RUNS = ROOT / 'inventory_tracking' / 'runs' / 'alt-d'
-LEG = re.compile(r'Macro: Loop: game (\d+), (.+)$')
-EVENT = re.compile(
-    r'Macro: (loop stopped.*|loop: .*(game is left|stops here).*)|Macro failed.*|Traceback.*|\bERROR\b.*'
-)
-DID = re.compile(r'Macro: (stash: .*put in.*|repair: the staff .*|shop: sold .*|shop: keys .*|cube: .*moved.*)')
-PICKED = re.compile(r'Macro: picked up (.+?) [\d.]+s after')
-# Where a pickup aimed: the press's choice (before the click) and its aims (after it)
-AIMED = re.compile(
-    r'Macro: (?:pickup: .*?; (.+?) at \((-?\d+), (-?\d+)\)$|aims for (.+?) \(unit \d+\) at \((-?[\d.]+), (-?[\d.]+)\))'
-)
-GROUND = re.compile(
-    r'Macro: ground: (\w+) (.+?)( eth)?( socketed)?(?: "([^"]*)")? at \((-?\d+), (-?\d+)\): (?:taken \((\w+)\)|left)'
-)
-FULL = re.compile(r'Macro: stash: the (.+?) stack is full')
 GEM = re.compile(r'^(Chipped |Flawed |Flawless |Perfect )?(Amethyst|Diamond|Emerald|Ruby|Sapphire|Topaz|Skull)$')
 MARKED = re.compile(r'Essence|Key of|Token|Worldstone Shard|Statue')
 JEWELRY_QUALITIES = ('rare', 'set', 'unique')
@@ -68,6 +72,7 @@ class Seen:
     place: tuple[int, int]
     verdicts: set[str] = field(default_factory=set)  # the census's words after 'taken (...)'; empty: only "left"
     picked: bool = False
+    last: int = 0  # the log line the census last said it on
 
     def missed(self, full: set[str]) -> str | None:
         """Why the sure mode would have taken it (pickmode.py `sure`), None for an item left by design."""
@@ -137,13 +142,6 @@ class Game:
         return (self.ended - self.started).total_seconds() if self.ended else None
 
 
-def stamp(line: str) -> datetime | None:
-    try:
-        return datetime.strptime(line[:23], '%Y-%m-%d %H:%M:%S,%f')
-    except ValueError:
-        return None
-
-
 def sessions(args) -> list[Path]:
     if args.sessions:
         return [Path(s) for s in args.sessions]
@@ -156,6 +154,13 @@ def sessions(args) -> list[Path]:
     return found
 
 
+def clicked(items: Iterable[Seen], clicks: list[tuple[tuple[int, int], int]]) -> None:
+    """Mark taken each item a pickup's click landed on (within 2 units) that the census never said again after it."""
+    for item in items:
+        if any(abs(item.place[0] - x) <= 2 and abs(item.place[1] - y) <= 2 and item.last < n for (x, y), n in clicks):
+            item.picked = True
+
+
 def read(directory: Path, since: datetime | None, until: datetime | None):
     games: list[Game] = []
     events: list[str] = []
@@ -166,11 +171,17 @@ def read(directory: Path, since: datetime | None, until: datetime | None):
     items: dict[tuple, Seen] = {}
     picks: list[str] = []
     aims: dict[str, set[tuple[int, int]]] = {}
+    # A pickup's click on an item, its press cut before "picked up" was said (15:02:56 and 15:22:10 on 2026-10-18:
+    # "aims for Jewel ... clicked", then "priced act expired"; 15:34:06, the click from 9 away took it and the aims
+    # found nothing): taken when the census never says it again (each confirmed by Cain's appraisal after)
+    clicks: list[tuple[tuple[int, int], int]] = []
     game: Game | None = None
     leg: tuple[str, datetime] | None = None
     asked = False
 
     def settle() -> None:
+        clicked(items.values(), clicks)
+        clicks.clear()
         reconcile(list(items.values()), picks, aims)
         ground.extend(items.values())
         items.clear()
@@ -185,11 +196,11 @@ def read(directory: Path, since: datetime | None, until: datetime | None):
             game.ended, game.end = at, how
         game, leg = None, None
 
-    for line in (directory / 'probe.log').read_text(errors='replace').splitlines():
+    for number_of_line, line in enumerate((directory / 'probe.log').read_text(errors='replace').splitlines()):
         at = stamp(line)
         if at is None or (since and at < since) or (until and at > until):
             continue
-        if 'Macro: request loop' in line:
+        if REQUEST_LOOP in line:
             asked = True
         if (m := FULL.search(line)) is not None:
             full.add(m.group(1))
@@ -205,20 +216,20 @@ def read(directory: Path, since: datetime | None, until: datetime | None):
                 game.legs[leg[0]] = game.legs.get(leg[0], 0) + (at - leg[1]).total_seconds()
             leg = (name, at)
             continue
-        if 'Macro: Loop off' in line:
+        if LOOP_OFF in line:
             close(at, 'player' if asked else 'stopped')
             asked = False
             continue
-        if 'Macro: Loop on' in line:
+        if LOOP_ON in line:
             asked = False
         if (m := EVENT.search(line)) is not None:
             text = f'{line[:19]} {m.group(0)[:200]}'
             events.append(text)
             if game is not None:
                 game.notes.append(m.group(0)[:100])
-            if 'game is left' in line:
+            if GAME_LEFT in line:
                 close(at, 'left')
-            elif 'loop stopped' in line or 'stops here' in line:
+            elif LOOP_STOPPED in line or STOPS_HERE in line:
                 close(at, 'stopped')
             continue
         if (m := DID.search(line)) is not None:
@@ -234,6 +245,8 @@ def read(directory: Path, since: datetime | None, until: datetime | None):
             label = m.group(1) or m.group(4)
             x, y = (m.group(2), m.group(3)) if m.group(1) else (m.group(5), m.group(6))
             aims.setdefault(label, set()).add((round(float(x)), round(float(y))))
+            if m.group(4):  # an aim after the press's click (15:34:06: the click from 9 away walked and took it)
+                clicks.append(((round(float(x)), round(float(y))), number_of_line))
             continue
         if (m := GROUND.search(line)) is not None:
             quality, name, label = m.group(1), m.group(2), m.group(5) or ''
@@ -245,6 +258,7 @@ def read(directory: Path, since: datetime | None, until: datetime | None):
                 )
             elif item.game is None and game is not None:
                 item.game = game.number
+            item.last = number_of_line
             if m.group(8):
                 item.verdicts.add(m.group(8))
     settle()

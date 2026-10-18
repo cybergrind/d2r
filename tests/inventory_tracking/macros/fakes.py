@@ -50,7 +50,9 @@ from inventory_tracking.macros.world import (
     Loot,
     Monster,
     Pack,
+    Page,
     Player,
+    StashView,
     Stocked,
     Teleport,
     Thing,
@@ -254,6 +256,17 @@ class Game:
         # an object a mark names: a click on its picture sends the character through (a portal) or opens it
         self.thing: Thing | None = None
         self.thing_above = 45.0  # classic pixels its picture is clicked above its ground
+        # Seconds from a click on the stash or the waypoint to its panel: the walk's own click opened the waypoint's
+        # 0.05-0.19 s after the character stopped (14:42:09 on 2026-10-18, rca/2026-10-18/arch-actions.md §2 A); the
+        # panel comes through `arrivals`. 0: at once.
+        self.opens_after = 0.0
+        # World units: a click on the ground this near the object is a click on it (a walk's last click lands on the
+        # place itself, shop.py `walk_until`, and the object's picture is larger than its ground point). 0: only a
+        # click on its picture.
+        self.walk_reach = 0.0
+        # An open panel is drawn over the ground: the game's record under the pointer names nothing then (17 "pointer
+        # found 471 px off ... aiming again" lines on 2026-10-17/18, all at an already open panel). False: as if not.
+        self.panel_covers = False
         self.next_area = 110
         # Town Portal (`x`, as CybergrindAA's tome): seconds from the cast to the portal open beside the character
         # (mode 1 while it opens, 2 open: objects.txt Selectable2); None: the tome casts nothing (empty).
@@ -297,6 +310,16 @@ class Game:
         # where a cube item no resource tab takes goes on a Ctrl + Shift + click: it stays (01:28:34 on 2026-10-17)
         self.cube_spill = 'stays'
         self.stash_refuses: set[int] = set()  # the resource classes whose stash stack is full (99)
+        # The stash as memory holds it (world.py `StashView`, macros/town-plan.md step 2): each page's rows ('.' free;
+        # 0 the personal page, 1..5 the shared ones) and the units on it, and the resource stacks' counts; None: the
+        # stash is not read (`run.stash_view` gives None) and the pages take items by `stash_room`
+        self.stash_pages: list[tuple[str, ...]] | None = None
+        self.page_items: dict[int, list[int]] = {}
+        self.page_cells: dict[int, list[Carried]] = {}  # the items put onto each page, at their cells there
+        self.stacks: dict[int, int] = {}
+        self.stash_opened = 0  # the stash's openings (a click on it)
+        self.stash_clicks: list[tuple[int | None, int]] = []  # (page shown or None on a tab, unit) per Ctrl + click
+        self.stash_refused: list[int] = []  # the units a Ctrl + click did not send
         self.transmutes: list[tuple[int, ...]] = []  # what the cube held at each Transmute click
         self.buys_take: list[bool] = []  # whether each Shift + right click at a vendor buys (empty: each does)
         self.pointer: int | None = None  # the unit id of the item a plain click took up (`Pack.pointer`)
@@ -529,17 +552,17 @@ class Game:
                 door = None if self.door is None else (self.door[0] * 5, self.door[1] * 5)
                 if door and self.door_under_pointer():
                     self.world = replace(w, player=replace(character_of(w), area=self.next_area, x=door[0], y=door[1]))
-                elif self.thing is not None and self.thing_under_pointer():
+                elif self.thing is not None and (self.thing_under_pointer() or self.thing_in_reach(gx, gy)):
                     if self.thing.txt_id == TOWN_PORTAL and self.thing.mode != 2:
                         pass  # still opening: not selectable yet
                     elif self.thing.txt_id == BANK:  # the walk to it, and the stash with the inventory
                         me = replace(character_of(w), x=self.thing.x + 2.0, y=self.thing.y + 2.0)
-                        self.world = replace(w, player=me, open_panels=('inventory', 'stash'))
-                        self.stash_tab = 0
+                        self.world = replace(w, player=me)
+                        self.opens(('inventory', 'stash'))
                     elif self.thing.txt_id in WAYPOINT_CLASSES:  # the walk to it, and its panel on its act
                         me = replace(character_of(w), x=self.thing.x + 2.0, y=self.thing.y + 2.0)
-                        self.world = replace(w, player=me, open_panels=('waypoint',))
-                        self.panel_act = self.acts.get(me.area)
+                        self.world = replace(w, player=me)
+                        self.opens(('waypoint',))
                     elif self.thing.txt_id in (PORTAL, HELL_GATE, TOWN_PORTAL):
                         self.arrive(self.next_area)
                     else:
@@ -561,6 +584,35 @@ class Game:
                 ):  # a click on the ground: a walk there
                     self.walks.append((gx, gy))
                     self.world = replace(w, player=replace(character_of(w), x=gx, y=gy))
+
+    def later(self, seconds: float, what: Callable[[], object]) -> None:
+        """`what` happens in the game on its own `seconds` from now (`arrivals`, kept in time order)."""
+        at = self.clock.now + seconds
+        index = next((i for i, (when, _) in enumerate(self.arrivals) if when > at), len(self.arrivals))
+        self.arrivals.insert(index, (at, what))
+
+    def opens(self, panels: tuple[str, ...]) -> None:
+        """The stash's or the waypoint's panels open, `opens_after` seconds on (at once with 0)."""
+
+        def shown() -> None:
+            self.world = replace(self.world, open_panels=panels)
+            if 'stash' in panels:
+                self.stash_tab = 0
+                self.stash_opened += 1
+            if 'waypoint' in panels:
+                self.panel_act = self.acts.get(self.character.area)
+
+        if self.opens_after:
+            self.later(self.opens_after, shown)
+        else:
+            shown()
+
+    def thing_in_reach(self, gx: float, gy: float) -> bool:
+        """Whether a click on the ground at (gx, gy) is within `walk_reach` of the object, within a walk."""
+        if self.thing is None or not self.walk_reach:
+            return False
+        at, player = (self.thing.x, self.thing.y), self.character
+        return math.dist((gx, gy), at) <= self.walk_reach and math.dist((player.x, player.y), at) < 30
 
     def panel_click(self, x: float, y: float) -> None:
         """A click in the open waypoint panel, by its layout (waypointspanelexpansionhd.json, restated here): a tab
@@ -616,6 +668,10 @@ class Game:
 
     def unit_under_pointer(self) -> tuple[int, int]:
         """(unit type, unit id) under the pointer: a door's tile, an object, a drop, else nothing."""
+        if self.panel_covers:
+            self.read()  # the game goes on between two looks at the record: a panel due opens
+            if self.world.open_panels:
+                return (0, 0)  # the panel is drawn over the ground
         if self.door_under_pointer():
             return (5, 1)
         if self.thing is not None and self.thing_under_pointer():
@@ -767,6 +823,39 @@ class Game:
             if self.stash_tab == 1 and abs(at[0] - x) < 0.01 and abs(at[1] - y) < 0.015:
                 self.shared_page = max(self.shared_page - 1, 0)
                 return True
+        if self.keys.ctrl and not self.keys.shift and self.stash_pages is not None:
+            item = self.pack_item_at(x, y)
+            page = {0: 0, 1: 1 + self.shared_page}.get(self.stash_tab)
+            if item is None and page is not None:
+                # A Ctrl + click on the shown page's item: onto the inventory's first free block (macros/charms.py)
+                for lying in self.page_cells.get(page, []):
+                    px, py = cell_point(WINDOW, STASH_PAGE, (lying.x, lying.y), lying.size)
+                    spot = _free_block(_rows(self.pack.items, 10, 4), lying.size)
+                    if abs(px - x) < 0.01 and abs(py - y) < 0.02 and spot is not None:
+                        self.page_cells[page].remove(lying)
+                        self.page_items[page].remove(lying.unit_id)
+                        self.stash_pages[page] = _rows(self.page_cells[page], 10, 10)
+                        self.pack = replace(self.pack, items=(*self.pack.items, replace(lying, x=spot[0], y=spot[1])))
+                        return True
+            if item is None or item.txt == CUBE_CLASS:
+                return True
+            self.stash_clicks.append((page, item.unit_id))
+            if item.txt in RESOURCES:
+                if self.stacks.get(item.txt, 0) >= 99 or item.txt in self.stash_refuses:
+                    self.stash_refused.append(item.unit_id)
+                    return True
+                self.stacks[item.txt] = self.stacks.get(item.txt, 0) + 1
+            else:
+                spot = _free_block(self.stash_pages[page], item.size) if page is not None else None
+                if spot is None or page is None:
+                    self.stash_refused.append(item.unit_id)
+                    return True
+                self.stash_pages[page] = _taken(self.stash_pages[page], spot, item.size)
+                self.page_items.setdefault(page, []).append(item.unit_id)
+                self.page_cells.setdefault(page, []).append(replace(item, x=spot[0], y=spot[1]))
+            self.pack = replace(self.pack, items=tuple(i for i in self.pack.items if i is not item))
+            self.stashed.append(item)
+            return True
         if self.keys.ctrl and not self.keys.shift and self.pack.stash is not None and self.stash_tab == 0:
             # The personal page read (world.py `Pack.stashed`, macros/charms.py): an item onto its first free block,
             # and one of its own back onto the inventory's
@@ -810,6 +899,10 @@ class Game:
                 if abs(px - x) < 0.01 and abs(py - y) < 0.02:
                     if item.txt not in RESOURCES and self.cube_spill == 'stays':
                         continue
+                    if item.txt in RESOURCES and self.stash_pages is not None:
+                        if self.stacks.get(item.txt, 0) >= 99:
+                            continue
+                        self.stacks[item.txt] = self.stacks.get(item.txt, 0) + 1
                     self.pack = replace(
                         self.pack, in_cube=tuple(i for i in self.pack.in_cube if i is not item),
                         cube_items=self.pack.cube_items - {item.unit_id},
@@ -938,9 +1031,17 @@ class Game:
                         return
         x0, y0 = cell_point(WINDOW, INVENTORY, (0, 0), (0, 0))
         x1, y1 = cell_point(WINDOW, INVENTORY, (10, 4), (0, 0))
-        if x0 <= x < x1 and y0 <= y < y1 and self.pack_item_at(x, y) is None:
-            # put down on the inventory, its top-left on the cell clicked (macros/cube.py `arrange_keys`)
-            cx, cy = math.floor((x - x0) / ((x1 - x0) / 10)), math.floor((y - y0) / ((y1 - y0) / 4))
+        # put down on the inventory, its block's middle on the point clicked (a 1 x 1's cell: macros/cube.py
+        # `arrange_keys`)
+        cx = math.floor((x - x0) / ((x1 - x0) / 10) - item.size[0] / 2 + 0.5)
+        cy = math.floor((y - y0) / ((y1 - y0) / 4) - item.size[1] / 2 + 0.5)
+        rows = _rows(self.pack.items, 10, 4)
+        fits = (
+            0 <= cx <= 10 - item.size[0]
+            and 0 <= cy <= 4 - item.size[1]
+            and all(rows[cy + dy][cx + dx] == '.' for dx in range(item.size[0]) for dy in range(item.size[1]))
+        )
+        if x0 <= x < x1 and y0 <= y < y1 and fits:
             self.pack = replace(self.pack, items=(*self.pack.items, replace(item, x=cx, y=cy)))
             self.cursor = None
         elif x < 0.6:  # on the ground left of the inventory's panel: it falls at the character's feet
@@ -995,10 +1096,22 @@ class Game:
             and (self.shop_opened is None or self.clock.now >= self.shop_opened + self.stock_delay)
             else ()
         )  # fmt: skip
+        run.stash_view = self.stash_view
         run.keys = dict(KEYS)
         run.prebuff_hands = frozenset(PREBUFF_SET)
         run.battle_hands = frozenset(PREBUFF_SET)
         return run
+
+    def stash_view(self) -> StashView | None:
+        """The stash as read (`stash_pages`, `page_items`, `stacks`); None with no pages given."""
+        if self.stash_pages is None:
+            return None
+        units = self.page_items
+        pages = tuple(
+            Page(i, rows, units=frozenset(units.get(i, ())), items=tuple(self.page_cells.get(i, ())))
+            for i, rows in enumerate(self.stash_pages)
+        )
+        return StashView(pages, tuple(sorted(self.stacks.items())))
 
     def read(self) -> World:
         if self.vendor is not None and self.vendor_drift:
@@ -1064,6 +1177,12 @@ def _rows(items, width: int, height: int) -> tuple[str, ...]:
     """A grid's rows ('.' free) with `items` on it."""
     taken = {(i.x + dx, i.y + dy) for i in items for dx in range(i.size[0]) for dy in range(i.size[1])}
     return tuple(''.join('#' if (x, y) in taken else '.' for x in range(width)) for y in range(height))
+
+
+def _taken(rows, at: tuple[int, int], size: tuple[int, int]) -> tuple[str, ...]:
+    """`rows` with the block of `size` at `at` taken."""
+    cells = {(at[0] + dx, at[1] + dy) for dx in range(size[0]) for dy in range(size[1])}
+    return tuple(''.join('#' if (x, y) in cells else c for x, c in enumerate(row)) for y, row in enumerate(rows))
 
 
 def _free_block(rows, size: tuple[int, int]) -> tuple[int, int] | None:

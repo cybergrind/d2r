@@ -47,7 +47,7 @@ def test_the_loop_on_before_a_restart_is_on_again_at_the_first_poll_that_reads_t
     before = MacroRunner(None, capture_lock=threading.Lock(), saved_games=Path('/nonexistent'))
     before.loop.on, before.pickup_mode = True, MODES[1]
     state = before.resume_state()
-    assert state == {'loop': True, 'pickup_mode': MODES[1]}
+    assert {key: state[key] for key in ('loop', 'pickup_mode')} == {'loop': True, 'pickup_mode': MODES[1]}
 
     after = MacroRunner(
         None,

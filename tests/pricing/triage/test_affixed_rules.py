@@ -340,7 +340,9 @@ def test_complete_support_pattern_survives_low_rolls_and_explains_shortfall():
     # +2 class skills with 10 FCR needs no further support (7 priced sellers from 34 Ist, 2026-10-08).
     for props in ({'514': 2, '520': 10, '418': 39}, {'514': 2, '520': 10, '418': 0, '427': 14}):
         assert assess(amulet | {'properties': props}, tables)['verdict'] == 'check'
-    for props in ({'514': 1, '520': 10, '418': 39, '427': 14}, {'514': 2, '520': 9, '418': 39, '427': 14}):
+    # Since 2026-10-18 +1 class skills with 10 FCR and 20+ life is CHECK (player ruling).
+    assert assess(amulet | {'properties': {'514': 1, '520': 10, '418': 39, '427': 14}}, tables)['verdict'] == 'check'
+    for props in ({'514': 1, '520': 10, '418': 19, '427': 14}, {'514': 2, '520': 9, '418': 39, '427': 14}):
         assert assess(amulet | {'properties': props}, tables)['verdict'] == 'vendor'
     boots = {'category': 'rare', 'family': 'boot', 'properties': {'480': 30, '427': 30, '428': 24}}
     result = assess(boots, tables)
@@ -602,8 +604,10 @@ def test_primer_caster_amulet_accepts_one_strong_support_without_inventing_price
     assert result['decision_ist'] is None
     # +2 class skills with 10 FCR stands alone since 2026-10-08; without the FCR the weak support fails.
     assert assess(item | {'properties': {'514': 2, '520': 10, support: minimum - 1}}, tables)['verdict'] == 'check'
-    for properties in ({'514': 1, '520': 10, support: minimum - 1}, {'514': 2, '520': 9, support: minimum - 1}):
-        assert assess(item | {'properties': properties}, tables)['verdict'] == 'vendor'
+    weak = {'514': 1, '520': 10, support: minimum - 1}
+    # Since 2026-10-18 +1 class skills with 10 FCR and 20+ life is CHECK on its own (player ruling).
+    assert assess(item | {'properties': weak}, tables)['verdict'] == ('check' if support == '418' else 'vendor')
+    assert assess(item | {'properties': {'514': 2, '520': 9, support: minimum - 1}}, tables)['verdict'] == 'vendor'
 
 
 def test_blood_ring_support_pattern_does_not_require_rare_ring_attack_rating():
@@ -866,6 +870,57 @@ def test_rare_amulet_skill_rolls_need_companions():
     assert verdict('amul', {'408': 2, '418': 40, '441': 15}) == 'check'
     assert verdict('amul', {'408': 2, '418': 40}) == 'vendor'
     assert verdict('amul', {'418': 40, '441': 15, '437': 20}) == 'vendor'
+
+
+@pytest.mark.parametrize('skill', ['453', '514', '498', '442', '403', '488', '519', '1862', '516', '1547'])
+def test_rare_caster_amulet_with_skills_fcr_and_life_is_check(skill):
+    # Player ruling 2026-10-18: FCR, skills and life. +1 class or +2 tree with 10 FCR
+    # and 20+ life asks from 34.3 / 8.2 Ist; +2 tree with FCR alone from 0.57 Ist.
+    level = 2 if skill in ('516', '1547') else 1
+    result = assess(
+        {'category': 'rare', 'family': 'amul', 'name': 'Amulet', 'properties': {skill: level, '520': 10, '418': 20}},
+        {'bands': {}, 'rules': {'keep_ist': 0.25, 'rows': affixed_rules()}, 'own': {'rows': []}},
+    )
+    assert result['verdict'] == 'check'
+    assert result['band'] is None
+    for props in (
+        {skill: level, '520': 10, '418': 19},
+        {skill: level, '520': 9, '418': 20},
+        {skill: level - 1, '520': 10, '418': 20} if level == 2 else {'520': 10, '418': 60},
+    ):
+        assert verdict('amul', props) == 'vendor'
+
+
+# The loop's 2026-10-18 rare amulets, projected from their captures (vendor gold in brackets).
+# None has skills, FCR and life together, so each stays vendor; vendor gold never keeps one.
+SOLD_2026_10_18 = {
+    'Havoc Noose [33280]': {'437': 4, '414': 2, '427': 28, '428': 5, '426': 5, '401': 5, '442': 1, '441': 5},
+    'Chaos Beads [30573]': {'437': 5, '400': 5, '414': 1, '427': 8, '460': 34, '519': 1},
+    'Doom Collar [11240]': {'437': 17, '400': 12, '427': 12, '408': 1},
+    'Rune Noose [8884]': {'413': 4, '428': 9, '444': 1},
+    'Beast Eye [12312]': {'428': 15, '426': 39, '463': 7, '516': 1},
+    'Blood Heart [5355]': {'400': 5, '427': 9, '520': 10},
+    'Stone Collar [28224]': {'421': 16, '400': 49, '413': 4, '427': 7, '1547': 2},
+    'Beast Beads [20873]': {'427': 17, '426': 14, '478': 1, '479': 11, '520': 10, '516': 1},
+    'Death Necklace [24286]': {'421': 20, '423': 12, '427': 17, '428': 17, '426': 17, '401': 17, '487': 1, '441': 17},
+    'Stone Necklace': {'421': 10, '427': 40, '401': 17, '488': 1},
+    'Beast Clasp': {'437': 8, '418': 8, '401': 25, '461': 7, '520': 10, '516': 1},
+    'Ghoulri Eye [13204]': {'418': 14, '427': 9, '428': 7, '463': 4, '501': 2},
+}
+
+
+@pytest.mark.parametrize('name', SOLD_2026_10_18)
+def test_sold_rare_amulets_of_2026_10_18_stay_vendor(name):
+    assert verdict('amul', SOLD_2026_10_18[name]) == 'vendor'
+
+
+def test_sold_caster_amulets_of_2026_10_18_would_be_check_with_the_missing_roll():
+    # Beast Clasp: +1 tree, 8 life. As +1 class with 20 life it would be kept.
+    clasp = SOLD_2026_10_18['Beast Clasp']
+    assert verdict('amul', clasp | {'418': 20}) == 'vendor'
+    assert verdict('amul', {k: v for k, v in clasp.items() if k != '516'} | {'514': 1, '418': 20}) == 'check'
+    # Stone Collar: +2 Eldritch with 49 mana needs FCR and 20 life (or two full companions).
+    assert verdict('amul', SOLD_2026_10_18['Stone Collar [28224]'] | {'520': 10, '418': 20}) == 'check'
 
 
 def test_magic_tree_amulets_and_circlets_need_a_paid_suffix():

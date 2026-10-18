@@ -46,6 +46,7 @@ ROOT = HERE.parents[3]
 sys.path[:0] = [str(HERE), str(ROOT)]
 
 import games  # ruff: ignore[module-import-not-at-top-of-file] - the skill's own tool, beside this one
+from logwords import LEG, LOOP_OFF, TELEPORT, stamp  # ruff: ignore[module-import-not-at-top-of-file]
 
 from inventory_tracking.combat.legs import (  # ruff: ignore[module-import-not-at-top-of-file]
     CHESTS,
@@ -123,9 +124,7 @@ def stays(paths: list[Path]) -> tuple[list[dict], list[tuple]]:
                 'stalls': dict(stalls),
                 'lost': sum(leg.lost for leg in found if leg.to is not None),
                 'idle': sum(leg.idle for leg in found),
-                'teleports': sum(
-                    e['event'] == 'log' and 'Macro: Teleport toward' in e.get('text', '') for e in take.events
-                ),
+                'teleports': sum(e['event'] == 'log' and TELEPORT in e.get('text', '') for e in take.events),
                 'delay': sum(leg.delay for leg in found),
                 'away': sum(leg.away for leg in found),
                 'tail': sum(leg.seconds for leg in found if leg.to is None),
@@ -147,12 +146,12 @@ def cycles(since: datetime, until: datetime, rows: list[dict]) -> list[dict]:
         game = None
         paused = False
         for line in (directory / 'probe.log').read_text(errors='replace').splitlines():
-            at = games.stamp(line)
+            at = stamp(line)
             if at is None or at < since or at > until:
                 continue
-            if 'Macro: Loop off' in line:
+            if LOOP_OFF in line:
                 paused = True
-            m = games.LEG.search(line)
+            m = LEG.search(line)
             if m is None:
                 continue
             if leg is not None:

@@ -66,7 +66,7 @@ def test_the_framework_names_only_the_skills_any_character_has_until_a_build_reg
     ]
     assert isinstance(names, ast.Dict)
     assert [key.id for key in names.keys if isinstance(key, ast.Name)] == [
-        'TELEPORT', 'TOWN_PORTAL', 'ATTACK', 'SWAP_WEAPONS',
+        'TELEPORT', 'TOWN_PORTAL', 'SLING_TOWN_PORTAL', 'ATTACK', 'SWAP_WEAPONS',
     ]  # fmt: skip
     assert not any(isinstance(node, (ast.Import, ast.ImportFrom)) and 'builds' in ast.dump(node) for node in tree.body)
 

@@ -52,6 +52,16 @@ STATE_RETRY = 3.0
 STATE_DISTRUST = 60.0
 STATE_TRIES = 2
 RESUME_WAIT = 0.25  # seconds for the macro's own cast to show before the strike is pressed again
+# No sigil and no side goal but a potion while the run's boss is in reach and nothing hurts the character: F3 of
+# rca/2026-10-18/andariel-cadence-findings.md §5 (the player, 18:00 on 2026-10-18: "F3: let's test it"). The sigil under
+# Andariel took 0.31 s of her 3.61 s in nearly every fight with life never under 97% (§2.3; builds/warlock/buffs.py
+# `sigil_due`: Death Mark stays, it is priced and pays, and a Herald keeps its sigil); a Dol Rune 32 away took 5.7 s of
+# her fight at 11:49:03 (§2.4; macros/hunt.py `side_drop`: her drops land after her death, loop.py DROPS_LAND, and the
+# ground is looked at again). Trial on 2026-10-18 after 48 F1 kills; measure Andariel's
+# in-reach time, life, potions, MISSED, and kills/hour before keeping it.
+QUIET_BY_THE_BOSS = True
+HURT_SECONDS = 2.0  # life lost this recently hurts: macros/hunt.py HURT_SECONDS (a test holds them equal)
+LIFE_LOOK = 0.25  # seconds between two reads of the life for `Buffs.hurt` (`Run.loot` reads the drops with it)
 
 
 @dataclass(frozen=True)
@@ -111,6 +121,10 @@ class Buffs:
         # skill -> clock time of its last cast that took (`Tried.cast`, a prebuff row cast): the age of a buff that
         # ends by itself. Shared with the other runs of the service once a run brings `Run.lasting` (`took_of`).
         self.took: dict[int, float] = {}
+        # The life as `hurt` last read it, when, and when it last went down (clock times)
+        self.life_seen: int | None = None
+        self.life_read_at = -math.inf
+        self.hurt_at = -math.inf
 
     def took_of(self, run: Run) -> dict[int, float]:
         """The record of casts that took, the one the runner keeps across runs (`Run.lasting`: the prebuff's
@@ -122,6 +136,29 @@ class Buffs:
                     lasting[skill] = at
             self.took = lasting
         return self.took
+
+    @property
+    def quiet_by_the_boss(self) -> bool:
+        """QUIET_BY_THE_BOSS as it reads now: the hunt's side drops go by it too (macros/hunt.py `side_drop`)."""
+        return QUIET_BY_THE_BOSS
+
+    def hurt(self, run: Run) -> bool:
+        """Whether the character lost life within HURT_SECONDS, by the hunt's rule (macros/hunt.py `safety_priced`),
+        from the life read at most every LIFE_LOOK seconds while a row asks (`BuffFacts.hurt`). Not known counts as
+        hurt: no life read, and a read under the full life with no recent read to compare it with."""
+        now = run.clock()
+        if now - self.life_read_at >= LIFE_LOOK:
+            loot = run.loot() if run.loot is not None else None
+            seen = None
+            if loot is None or loot.max_life <= 0 or loot.life <= 0:
+                self.hurt_at = now
+            else:
+                before = self.life_seen if now - self.life_read_at <= HURT_SECONDS else None
+                if loot.life < (before if before is not None else loot.max_life):
+                    self.hurt_at = now
+                seen = loot.life
+            self.life_seen, self.life_read_at = seen, now
+        return now - self.hurt_at <= HURT_SECONDS
 
     def rows(self, phase: str) -> tuple[Buff, ...]:
         """The rows of one phase, in the order they are cast."""
@@ -153,6 +190,7 @@ class Buffs:
             draws=draws,
             ahead=ahead,
             took=self.took_of(run),
+            hurt=lambda: self.hurt(run),
         )
 
     def missing(self, row: Buff, facts: BuffFacts) -> bool:

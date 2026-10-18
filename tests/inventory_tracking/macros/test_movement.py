@@ -172,3 +172,25 @@ def test_the_navigators_set_answers_for_every_situation_of_the_staff():
         assert movement is not None
         assert movement.applies(here)
         assert isinstance(movement.leg(here, GOAL, OWN_MOVE), Step)
+
+
+def test_a_hop_toward_a_doors_spot_lands_on_it_with_nothing_short():
+    # The Catacombs stairs (13:00-13:10 on 2026-10-18): the run east of the block of walls went to the door's spot 3
+    # units south-west of the mark; the loop's LOOP_SHORT took the last hop 3 units back toward the character, east of
+    # the block, and the click walked round it. A door's goal goes with nothing short (macros/goals.py `way_out`).
+    from inventory_tracking.levels.model import Room
+    from inventory_tracking.macros.travel import LOOP_SHORT, LOOPED_TELEPORT
+
+    mark = (5020.5, 5000.5)
+
+    def stairs(x, y) -> bool:  # the block x -7..0, y -7..+1 from the mark, an alcove x -4..-2, y -1..+1 open south
+        dx, dy = int(x - mark[0] + 0.5), int(y - mark[1] + 0.5)
+        return not (-7 <= dx <= 0 and -7 <= dy <= 1) or (-4 <= dx <= -2 and -1 <= dy <= 1)
+
+    spot = (mark[0] - 3.0, mark[1] + 2.0)
+    east = facts(here=(mark[0] + 5.0, mark[1]), ground=walled(stairs), area=35, rooms=(Room(1, 984, 984, 32, 32),))
+    own = OwnTeleport()
+    assert own.leg(east, spot, replace(LOOPED_TELEPORT, short=0.0)) == Step(spot, TELEPORT)
+    short = own.leg(east, spot, LOOPED_TELEPORT)
+    assert isinstance(short, Step)
+    assert math.dist(short.spot, spot) == pytest.approx(LOOP_SHORT)  # on the character's side: east of the block

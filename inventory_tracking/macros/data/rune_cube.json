@@ -1,0 +1,657 @@
+{
+ "source": "the installed game: data/global/excel/cubemain.txt (enabled, not ladder-only rows, a rune into the next), data/global/ui/layouts/bankexpansionlayouthd.json (the Runes and Gems tabs' slots and the cube's convert button); read 2026-10-18",
+ "recipes": {
+  "625": {
+   "into": 626,
+   "runes": 3,
+   "gems": [],
+   "description": "3 El Runes -> Eld Rune"
+  },
+  "626": {
+   "into": 627,
+   "runes": 3,
+   "gems": [],
+   "description": "3 Eld Runes -> Tir Rune"
+  },
+  "627": {
+   "into": 628,
+   "runes": 3,
+   "gems": [],
+   "description": "3 Tir Runes -> Nef Rune"
+  },
+  "628": {
+   "into": 629,
+   "runes": 3,
+   "gems": [],
+   "description": "3 Nef Runes -> Eth Rune"
+  },
+  "629": {
+   "into": 630,
+   "runes": 3,
+   "gems": [],
+   "description": "3 Eth Runes -> Ith Rune"
+  },
+  "630": {
+   "into": 631,
+   "runes": 3,
+   "gems": [],
+   "description": "3 Ith Runes -> Tal Rune"
+  },
+  "631": {
+   "into": 632,
+   "runes": 3,
+   "gems": [],
+   "description": "3 Tal Runes -> Ral Rune"
+  },
+  "632": {
+   "into": 633,
+   "runes": 3,
+   "gems": [],
+   "description": "3 Ral Runes -> Ort Rune"
+  },
+  "633": {
+   "into": 634,
+   "runes": 3,
+   "gems": [],
+   "description": "3 Ort Runes -> Thul Rune"
+  },
+  "634": {
+   "into": 635,
+   "runes": 3,
+   "gems": [
+    577
+   ],
+   "description": "3 Thul Runes + 1 Chipped Topaz -> Amn Rune"
+  },
+  "635": {
+   "into": 636,
+   "runes": 3,
+   "gems": [
+    572
+   ],
+   "description": "3 Amn Runes + 1 Chipped Amethyst -> Sol Rune"
+  },
+  "636": {
+   "into": 637,
+   "runes": 3,
+   "gems": [
+    582
+   ],
+   "description": "3 Sol Runes + 1 Chipped Sapphire -> Shael Rune"
+  },
+  "637": {
+   "into": 638,
+   "runes": 3,
+   "gems": [
+    592
+   ],
+   "description": "3 Shael Runes + 1 Chipped Ruby -> Dol Rune"
+  },
+  "638": {
+   "into": 639,
+   "runes": 3,
+   "gems": [
+    587
+   ],
+   "description": "3 Dol Runes + 1 Chipped Emerald -> Hel Rune"
+  },
+  "639": {
+   "into": 640,
+   "runes": 3,
+   "gems": [
+    597
+   ],
+   "description": "3 Hel Runes + 1 Chipped Diamond -> Io Rune"
+  },
+  "640": {
+   "into": 641,
+   "runes": 3,
+   "gems": [
+    578
+   ],
+   "description": "3 Io Runes + 1 Flawed Topaz -> Lum Rune"
+  },
+  "641": {
+   "into": 642,
+   "runes": 3,
+   "gems": [
+    573
+   ],
+   "description": "3 Lum Runes + 1 Flawed Amethyst -> Ko Rune"
+  },
+  "642": {
+   "into": 643,
+   "runes": 3,
+   "gems": [
+    583
+   ],
+   "description": "3 Ko Runes + 1 Flawed Sapphire -> Fal Rune"
+  },
+  "643": {
+   "into": 644,
+   "runes": 3,
+   "gems": [
+    593
+   ],
+   "description": "3 Fal Runes + 1 Flawed Ruby -> Lem Rune"
+  },
+  "644": {
+   "into": 645,
+   "runes": 3,
+   "gems": [
+    588
+   ],
+   "description": "3 Lem Runes + 1 Flawed Emerald -> Pul Rune"
+  },
+  "645": {
+   "into": 646,
+   "runes": 2,
+   "gems": [
+    598
+   ],
+   "description": "2 Pul Runes + 1 Flawed Diamond -> Um Rune"
+  },
+  "646": {
+   "into": 647,
+   "runes": 2,
+   "gems": [
+    579
+   ],
+   "description": "2 Um Runes + 1 Standard Topaz -> Mal Rune"
+  },
+  "647": {
+   "into": 648,
+   "runes": 2,
+   "gems": [
+    574
+   ],
+   "description": "2 Mal Runes + 1 Standard Amethyst -> Ist Rune"
+  },
+  "648": {
+   "into": 649,
+   "runes": 2,
+   "gems": [
+    584
+   ],
+   "description": "2 Ist Runes + 1 Standard Sapphire -> Gul Rune"
+  },
+  "649": {
+   "into": 650,
+   "runes": 2,
+   "gems": [
+    594
+   ],
+   "description": "2 Gul Runes + 1 Standard Ruby -> Vex Rune"
+  },
+  "650": {
+   "into": 651,
+   "runes": 2,
+   "gems": [
+    589
+   ],
+   "description": "2 Vex Runes + 1 Standard Emerald -> Ohm Rune"
+  },
+  "651": {
+   "into": 652,
+   "runes": 2,
+   "gems": [
+    599
+   ],
+   "description": "2 Ohm Runes + 1 Standard Diamond -> Lo Rune"
+  },
+  "652": {
+   "into": 653,
+   "runes": 2,
+   "gems": [
+    580
+   ],
+   "description": "2 Lo Runes + 1 Flawless Topaz -> Sur Rune"
+  },
+  "653": {
+   "into": 654,
+   "runes": 2,
+   "gems": [
+    575
+   ],
+   "description": "2 Sur Runes + 1 Flawless Amethyst -> Ber Rune"
+  },
+  "654": {
+   "into": 655,
+   "runes": 2,
+   "gems": [
+    585
+   ],
+   "description": "2 Ber Runes + 1 Flawless Sapphire -> Jah Rune"
+  },
+  "655": {
+   "into": 656,
+   "runes": 2,
+   "gems": [
+    595
+   ],
+   "description": "2 Jah Runes + 1 Flawless Ruby -> Cham Rune"
+  },
+  "656": {
+   "into": 657,
+   "runes": 2,
+   "gems": [
+    590
+   ],
+   "description": "2 Cham Runes + 1 Flawless Emerald -> Zod Rune"
+  }
+ },
+ "slots": {
+  "597": [
+   164,
+   232,
+   98,
+   98
+  ],
+  "598": [
+   164,
+   330,
+   98,
+   98
+  ],
+  "599": [
+   164,
+   430,
+   98,
+   98
+  ],
+  "600": [
+   164,
+   530,
+   98,
+   98
+  ],
+  "601": [
+   164,
+   630,
+   98,
+   98
+  ],
+  "587": [
+   286,
+   232,
+   98,
+   98
+  ],
+  "588": [
+   286,
+   330,
+   98,
+   98
+  ],
+  "589": [
+   286,
+   430,
+   98,
+   98
+  ],
+  "590": [
+   286,
+   530,
+   98,
+   98
+  ],
+  "591": [
+   286,
+   630,
+   98,
+   98
+  ],
+  "592": [
+   408,
+   232,
+   98,
+   98
+  ],
+  "593": [
+   408,
+   330,
+   98,
+   98
+  ],
+  "594": [
+   408,
+   430,
+   98,
+   98
+  ],
+  "595": [
+   408,
+   530,
+   98,
+   98
+  ],
+  "596": [
+   408,
+   630,
+   98,
+   98
+  ],
+  "577": [
+   530,
+   232,
+   98,
+   98
+  ],
+  "578": [
+   530,
+   330,
+   98,
+   98
+  ],
+  "579": [
+   530,
+   430,
+   98,
+   98
+  ],
+  "580": [
+   530,
+   530,
+   98,
+   98
+  ],
+  "581": [
+   530,
+   630,
+   98,
+   98
+  ],
+  "572": [
+   652,
+   232,
+   98,
+   98
+  ],
+  "573": [
+   652,
+   330,
+   98,
+   98
+  ],
+  "574": [
+   652,
+   430,
+   98,
+   98
+  ],
+  "575": [
+   652,
+   530,
+   98,
+   98
+  ],
+  "576": [
+   652,
+   630,
+   98,
+   98
+  ],
+  "582": [
+   774,
+   232,
+   98,
+   98
+  ],
+  "583": [
+   774,
+   330,
+   98,
+   98
+  ],
+  "584": [
+   774,
+   430,
+   98,
+   98
+  ],
+  "585": [
+   774,
+   530,
+   98,
+   98
+  ],
+  "586": [
+   774,
+   630,
+   98,
+   98
+  ],
+  "612": [
+   896,
+   232,
+   98,
+   98
+  ],
+  "613": [
+   896,
+   330,
+   98,
+   98
+  ],
+  "614": [
+   896,
+   430,
+   98,
+   98
+  ],
+  "615": [
+   896,
+   530,
+   98,
+   98
+  ],
+  "616": [
+   896,
+   630,
+   98,
+   98
+  ],
+  "625": [
+   114,
+   268,
+   98,
+   98
+  ],
+  "626": [
+   218,
+   272,
+   98,
+   98
+  ],
+  "627": [
+   322,
+   270,
+   98,
+   98
+  ],
+  "628": [
+   426,
+   270,
+   98,
+   98
+  ],
+  "629": [
+   530,
+   270,
+   98,
+   98
+  ],
+  "630": [
+   634,
+   270,
+   98,
+   98
+  ],
+  "631": [
+   738,
+   270,
+   98,
+   98
+  ],
+  "632": [
+   842,
+   270,
+   98,
+   98
+  ],
+  "633": [
+   946,
+   270,
+   98,
+   98
+  ],
+  "634": [
+   114,
+   374,
+   98,
+   98
+  ],
+  "635": [
+   218,
+   374,
+   98,
+   98
+  ],
+  "636": [
+   322,
+   374,
+   98,
+   98
+  ],
+  "637": [
+   426,
+   374,
+   98,
+   98
+  ],
+  "638": [
+   530,
+   374,
+   98,
+   98
+  ],
+  "639": [
+   634,
+   374,
+   98,
+   98
+  ],
+  "640": [
+   738,
+   374,
+   98,
+   98
+  ],
+  "641": [
+   842,
+   374,
+   98,
+   98
+  ],
+  "642": [
+   946,
+   374,
+   98,
+   98
+  ],
+  "643": [
+   114,
+   478,
+   98,
+   98
+  ],
+  "644": [
+   218,
+   478,
+   98,
+   98
+  ],
+  "645": [
+   322,
+   478,
+   98,
+   98
+  ],
+  "646": [
+   426,
+   478,
+   98,
+   98
+  ],
+  "647": [
+   530,
+   478,
+   98,
+   98
+  ],
+  "648": [
+   634,
+   478,
+   98,
+   98
+  ],
+  "649": [
+   738,
+   478,
+   98,
+   98
+  ],
+  "650": [
+   842,
+   478,
+   98,
+   98
+  ],
+  "651": [
+   946,
+   478,
+   98,
+   98
+  ],
+  "652": [
+   114,
+   582,
+   98,
+   98
+  ],
+  "653": [
+   218,
+   582,
+   98,
+   98
+  ],
+  "654": [
+   842,
+   582,
+   98,
+   98
+  ],
+  "655": [
+   946,
+   582,
+   98,
+   98
+  ],
+  "656": [
+   114,
+   688,
+   98,
+   98
+  ],
+  "657": [
+   946,
+   684,
+   98,
+   98
+  ]
+ },
+ "convert": [
+  520,
+  1239
+ ]
+}

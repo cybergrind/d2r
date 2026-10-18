@@ -1196,10 +1196,14 @@ def test_the_level_run_a_leg_asks_for_is_followed_by_the_next_leg(monkeypatch):
     runner.close()
 
 
-def test_a_legs_stop_leaves_the_game_and_the_loop_goes_on_until_the_recoveries_run_out(monkeypatch):
+def test_a_legs_stop_leaves_the_game_and_the_loop_goes_on_past_the_recoveries_after_a_pause(monkeypatch):
     # The player, 2026-10-17: "we should try to not stuck in some weird situation without being able to fix it from
-    # agent": a leg's stop is recovered from by leaving the game (macros/loop.py `recover`), RECOVERIES times
+    # agent": a leg's stop is recovered from by leaving the game (macros/loop.py `recover`); 2026-10-18: "fully
+    # prevent us from stopping": past RECOVERIES the next leg waits RECOVERY_PAUSE, and the loop stays on
+    from inventory_tracking.macros import loop as loop_module
+
     monkeypatch.setattr(runner_module, 'CARD_SECONDS', 0)
+    monkeypatch.setattr(loop_module, 'RECOVERY_PAUSE', 0.05)
     shown, made, abandon = [], [], []
 
     def execute(cancelled, routine):
@@ -1210,13 +1214,18 @@ def test_a_legs_stop_leaves_the_game_and_the_loop_goes_on_until_the_recoveries_r
     runner = make(execute, shown)
     assert runner.request(10.0, 10.1, 'loop')
     deadline = time.monotonic() + 5
-    while len(made) < RECOVERIES + 1 and time.monotonic() < deadline:
+    while len(made) < RECOVERIES + 3 and time.monotonic() < deadline:
         time.sleep(0.01)
-    joined(runner)
-    assert made == ['loop'] * (RECOVERIES + 1)
-    assert abandon == [False] + [True] * RECOVERIES  # each leg after a stop is the one that leaves the game
-    assert not runner.loop.on
-    assert ['Loop stopped: the stash did not open with the inventory'] in shown
+    assert runner.loop.on  # past the recoveries too
+    assert runner.loop.cooling > 0
+    runner.loop.stop()
+    deadline = time.monotonic() + 5
+    while runner.working and time.monotonic() < deadline:  # the leg under way ends: no new one with the loop off
+        time.sleep(0.01)
+    assert not runner.working
+    assert made[: RECOVERIES + 3] == ['loop'] * (RECOVERIES + 3)
+    assert abandon[: RECOVERIES + 1] == [False] + [True] * RECOVERIES  # each leg after a stop leaves the game
+    assert ['Loop stopped: the stash did not open with the inventory'] not in shown
     runner.close()
 
 
@@ -1388,10 +1397,13 @@ class _Run:
 def test_the_loop_goes_back_for_a_valuable_it_saw_and_no_press_picked_up(monkeypatch):
     # The Flawless Emerald of 08:58:34 on 2026-10-17 (routes/lower-kurast-loop-plan.md §14): seen in a flight, 104
     # units off when the run ended and no longer read; the "what is left" press found nothing, Town Portal followed
+    from inventory_tracking.macros.pickup import FETCH_HOPS
     from inventory_tracking.macros.world import VALUABLE, Drop, Loot
 
     gone_to = []
-    monkeypatch.setattr(runner_module, 'approach', lambda run, found, level, keys: gone_to.append(found.label))
+    monkeypatch.setattr(
+        runner_module, 'approach', lambda run, found, level, keys, hops: gone_to.append((found.label, hops))
+    )
     runner = make(lambda cancelled, routine: None, [])
     emerald = Loot(drops=(Drop(41, 5798.0, 2870.0, 'Flawless Emerald', VALUABLE),), game=('g', 7))
     runner._sighted(_Memory(), emerald)  # the loop off: nothing is noted
@@ -1402,7 +1414,7 @@ def test_the_loop_goes_back_for_a_valuable_it_saw_and_no_press_picked_up(monkeyp
     assert runner.sightings.left() == 'Flawless Emerald at (5798, 2870)'
     assert not runner._fetch(_Run(0.0, 0.0, 75), None, KEYS)  # not in its level: no trip
     assert runner._fetch(_Run(5695.0, 2857.0, 79), None, KEYS)
-    assert gone_to == ['Flawless Emerald']
+    assert gone_to == [('Flawless Emerald', FETCH_HOPS)]  # the whole way (a Flawless Topaz 92 short, 13:15:37)
     runner.close()
 
 
@@ -1457,3 +1469,480 @@ def test_a_terror_zones_run_ended_at_a_door_goes_through_and_runs_the_next_level
     runner._run_over('at Next level: going through takes a press')
     time.sleep(0.05)
     assert pressed == ['teleport', 'pickup', 'teleport']
+
+
+def test_a_restart_keeps_the_valuables_seen_and_still_on_the_ground():
+    # 13:18 on 2026-10-18: a restart forgot a Flawless Topaz 94 units off, and the game was left with it on the ground
+    import json
+
+    from inventory_tracking.macros.world import VALUABLE, Drop, Loot
+
+    runner = make(lambda cancelled, routine: None, [])
+    runner.loop.on = True
+    topaz = Loot(drops=(Drop(41, 22628.0, 6700.0, 'Flawless Topaz', VALUABLE),), game=('cyber9', 7))
+    runner._sighted(_Memory(), topaz)
+    runner.sightings.items[41].tries = 2  # its trips back spent (15:53:19 on 2026-10-18: a Ring)
+    state = json.loads(json.dumps(runner.resume_state()))  # as appraisal/service.py `write_resume` keeps it
+    runner.close()
+
+    after = make(lambda cancelled, routine: None, [])
+    after.resume(state)
+    assert after.sightings.left() == 'Flawless Topaz at (22628, 6700)'
+    assert after.sightings.items[41].tries == 0  # a restart is made for a fix: its trips back begin again
+    assert after.sightings.game == ('cyber9', 7)
+    after.resume({'loop': False, 'sightings': {'items': [{'bad': 1}]}})  # a malformed state is none
+    after.close()
+
+
+def andariel_room_runner(carrying: bool):
+    from inventory_tracking.macros.loop import ANDARIEL
+
+    runner = make(lambda cancelled, routine: None, [])
+    runner.loop.on, runner.loop.kind, runner.loop.seen = True, ANDARIEL, ('cyberr60', 0.0)
+    runner.loop.carrying = carrying
+    runner.valuable_left = lambda: 'Flawless Topaz at (22540, 9550)'
+    runner.loop.room_tried = runner.loop.fetch_again = 'cyberr60'  # the cube tried, the leg made again
+    return runner
+
+
+def test_in_the_loop_a_chipped_gem_with_no_room_is_held_the_cube_then_a_trip_to_town_then_taken(monkeypatch):
+    # The player, 2026-10-18 17:50, on Q1: "we should stop and clear inventory with our designated town routine": the
+    # loop's press holds a plain valuable with no room (cause 'room'), the guard keeps the game for it, the room rules
+    # make room in the cube first, then a trip to town and back through the portal, and the press after takes it
+    from dataclasses import replace
+
+    from inventory_tracking.macros import lootpolicy
+    from inventory_tracking.macros.loop import ANDARIEL, CATACOMBS_4, TRIP, next_leg
+    from inventory_tracking.macros.pickup import pick_up
+    from inventory_tracking.macros.world import VALUABLE, Drop, Loot
+    from tests.inventory_tracking.macros.fakes import Game, world
+
+    monkeypatch.setattr(lootpolicy, 'SHADOW', lootpolicy.Shadow())
+    gem = Drop(74, 5008.0, 5003.0, 'Chipped Amethyst', VALUABLE, (1, 1), prized=False, source='material')
+    full, roomy = ('##########',) * 4, ('#########.',) + ('##########',) * 3
+    play = Game(world(area=CATACOMBS_4))
+    play.loot = Loot((gem,), room=full, game=('cyber32', 1))
+    assert lootpolicy.verdict(gem, lootpolicy.GUARD, room=False, shown=False).hold  # the game is kept for it
+
+    def press() -> bool:  # runner.py `take_one`'s press
+        return pick_up(play.run(), None, lambda _world, skills: KEYS, lambda: None, looped=True)
+
+    runner = make(lambda cancelled, routine: None, [])
+    loop = runner.loop
+    loop.on, loop.kind, loop.seen, loop.carrying = True, ANDARIEL, ('cyber32', 0.0), True
+    runner.valuable_left = lambda: 'Chipped Amethyst'
+    with pytest.raises(Abort) as held:
+        press()
+    runner._loop_stopped(held.value)
+    assert (loop.make_room, loop.room_tried, loop.trip_due) == (True, 'cyber32', False)  # the cube first
+    loop.make_room = False  # (the next leg's: the cube took nothing that made room for it)
+    with pytest.raises(Abort) as again:
+        press()
+    runner._loop_stopped(again.value)
+    assert loop.trip_due  # a trip to town, not a drop
+    assert loop.on
+    assert not loop.drop_room
+    assert next_leg(play.world, None, loop) == TRIP
+    play.loot = replace(play.loot, room=roomy)  # back through the portal, the visit made room
+    assert press()
+    assert play.picked == ['Chipped Amethyst']
+    runner.close()
+
+
+def test_by_hand_the_press_still_moves_on_from_a_chipped_gem_with_no_room():
+    # Outside the loop nothing changed with the ruling: KP_1's press goes on to its seek step
+    from inventory_tracking.macros.pickup import pick_up
+    from inventory_tracking.macros.world import VALUABLE, Drop, Loot
+    from tests.inventory_tracking.macros.fakes import Game, world
+
+    gem = Drop(74, 5008.0, 5003.0, 'Chipped Amethyst', VALUABLE, (1, 1), prized=False, source='material')
+    play = Game(world(area=101))
+    play.loot = Loot((gem,), room=('##########',) * 4)
+    went_on = []
+    assert not pick_up(play.run(), None, lambda _world, skills: KEYS, lambda: went_on.append(True))
+    assert went_on == [True]
+    assert play.picked == []
+
+
+def test_a_room_stop_on_andariels_level_is_a_trip_only_with_something_the_visit_takes_away():
+    # 13:38:17 on 2026-10-18: only the player's charms carried, the Fortress did nothing and the trip came straight back
+    runner = andariel_room_runner(carrying=True)
+    runner._loop_stopped(Abort('the character has not moved for 45 s'))
+    assert runner.loop.trip_due
+    runner.close()
+    runner = andariel_room_runner(carrying=False)
+    runner._loop_stopped(Abort('the character has not moved for 45 s'))
+    assert not runner.loop.trip_due
+    assert runner.loop.drop_room  # the next room rule
+    runner.close()
+
+
+def test_a_stop_for_another_cause_than_room_is_no_trip_nor_drop():
+    # 13:15:40 on 2026-10-18: "Flawless Topaz is 94 away" (a trip back cut short) bought a trip to town that could not
+    # help: the guard stops the loop for the valuable
+    runner = andariel_room_runner(carrying=True)
+    runner._loop_stopped(Abort('Flawless Topaz is 94 away'))
+    assert not runner.loop.trip_due
+    assert not runner.loop.drop_room
+    assert not runner.loop.on
+    runner.close()
+
+
+def test_the_return_from_a_trip_gives_the_sightings_their_trips_back_again_once(monkeypatch):
+    from types import SimpleNamespace
+    from typing import Any, cast
+
+    runner = andariel_room_runner(carrying=True)
+    again = []
+    monkeypatch.setattr(runner.sightings, 'again', lambda: again.append(1))
+    monkeypatch.setattr(runner.sightings, 'fetch', lambda *a: False)
+    run = cast(Any, SimpleNamespace(world=lambda: SimpleNamespace(player=SimpleNamespace(x=1.0, y=2.0, area=37))))
+    runner._fetch(run, None, None)
+    assert again == []  # no trip this game
+    runner.loop.trip = runner.loop.returned = 'cyberr60'
+    runner._fetch(run, None, None)
+    runner._fetch(run, None, None)
+    assert again == [1]
+    # The player, 2026-10-18 16:50: "one game can do several trips to the town": each return gives them again, once
+    runner.loop.trips, runner.loop.returned = 2, None  # the second trip: on its way
+    runner._fetch(run, None, None)
+    assert again == [1]
+    runner.loop.returned = 'cyberr60'  # back through the portal
+    runner._fetch(run, None, None)
+    runner._fetch(run, None, None)
+    assert again == [1, 1]
+    runner.close()
+
+
+def test_a_game_makes_another_trip_for_room_after_one_that_made_room():
+    # The player, 2026-10-18 16:50: "one game can do several trips to the town"
+    runner = andariel_room_runner(carrying=True)
+    loop = runner.loop
+    loop.trip = loop.returned = 'cyberr60'
+    loop.trips, loop.trip_gained = 1, 6  # the first trip is back, 6 cells more room
+    runner._loop_stopped(Abort('the character has not moved for 45 s'))
+    assert loop.trip_due
+    assert loop.on
+    runner.close()
+
+
+@pytest.mark.parametrize(
+    ('trips', 'returned', 'gained'),
+    [(1, None, 6), (1, 'cyberr60', 0), (3, 'cyberr60', 6)],
+    ids=['the last one not back yet', 'the last one made no room', 'TRIPS_A_GAME made'],
+)
+def test_no_trip_for_room_while_one_is_on_its_way_after_one_that_made_no_room_or_past_the_bound(
+    trips, returned, gained
+):
+    # A trip that cannot help is not made again and again: the drop rule, then the guard's stop
+    from inventory_tracking.macros.loop import TRIPS_A_GAME
+
+    assert TRIPS_A_GAME == 3
+    runner = andariel_room_runner(carrying=True)
+    loop = runner.loop
+    loop.trip, loop.returned, loop.trips, loop.trip_gained = 'cyberr60', returned, trips, gained
+    runner._loop_stopped(Abort('the character has not moved for 45 s'))
+    assert not loop.trip_due
+    assert loop.drop_room
+    runner.close()
+
+
+def test_a_full_stash_after_a_town_visit_stops_the_loop_in_town(caplog):
+    # The player, 2026-10-18 16:50: "if stash is full - we need to stop loop": no recovery, no game left, whatever
+    # the level holds (the loop stands in town: nothing is left behind by it)
+    runner = andariel_room_runner(carrying=True)
+    caplog.set_level('INFO')
+    runner._loop_stopped(Abort('the stash is full: Ber Rune, Battle Boots', cause='stash'))
+    assert not runner.loop.on
+    assert not runner.loop.abandon
+    assert not runner.loop.trip_due
+    assert not runner.loop.make_room
+    assert not runner.loop.drop_room
+    assert 'Macro: loop stopped: the stash is full: Ber Rune, Battle Boots' in caplog.text
+    runner.close()
+
+
+def gheeds_runner(rows_free: bool = True):
+    from inventory_tracking.macros.charms import GHEEDS_FORTUNE, UNIQUE, grand_charm
+    from inventory_tracking.macros.loop import ANDARIEL
+    from inventory_tracking.macros.world import Carried, Pack
+
+    runner = make(lambda cancelled, routine: None, [])
+    runner.loop.on, runner.loop.kind, runner.loop.seen = True, ANDARIEL, ('cyberr48', 0.0)
+    theirs = Carried(1, grand_charm(), 0, 0, (1, 3), quality=UNIQUE, unique=GHEEDS_FORTUNE)
+    filler = tuple(Carried(10 + x, 999, x, 0, (1, 4)) for x in range(1, 10 if not rows_free else 5))
+    runner.loop.own = frozenset({(theirs.txt, 0, 0), *((i.txt, i.x, i.y) for i in filler)})
+    runner.carried_now = lambda: Pack((theirs, *filler))
+    runner.valuable_left = lambda: "Unique Grand Charm (Gheed's Fortune?) at (22543, 9556)"
+    return runner
+
+
+@pytest.mark.parametrize(
+    'why',
+    [
+        "Unique Grand Charm (Gheed's Fortune?) was under the pointer at 3 aims and no click picked it up",
+        'the character has not moved for 45 s',  # 13:37:31 on 2026-10-18: the stand-by, then room, a trip, a drop
+    ],
+)
+def test_a_unique_grand_charm_left_with_the_players_gheeds_carried_is_the_swap_before_any_room_rule(why):
+    runner = gheeds_runner()
+    runner._loop_stopped(Abort(why))
+    assert runner.loop.swap_due
+    assert not runner.loop.make_room
+    assert not runner.loop.trip_due
+    assert not runner.loop.drop_room
+    assert runner.loop.on
+    runner.loop.swap_due, runner.loop.swap = False, 'cyberr48'  # once a game
+    runner._loop_stopped(Abort(why))
+    assert not runner.loop.swap_due
+    runner.close()
+
+
+@pytest.mark.parametrize('stop', ['stall', 'refused'])
+def test_with_no_1x3_free_the_cube_first_then_the_gheeds_swap_is_the_trip_to_town_all_the_same(stop):
+    # The player, 2026-10-18 16:50: "refused grand charm - should cause a trip": with no block for it the room rules
+    # passed a refusal by (not room), and the loop stood by the charm; the swap needs no 1 x 3 free: the player's
+    # charm goes onto a shared page, and its own block takes the new one
+    runner = gheeds_runner(rows_free=False)
+    why = Abort('the character has not moved for 45 s') if stop == 'stall' else refused_charm()
+    runner._loop_stopped(why)
+    assert not runner.loop.swap_due
+    assert runner.loop.make_room  # the cube first: a block may come of it
+    assert runner.loop.room_tried == 'cyberr48'
+    runner.loop.make_room = False  # (the next leg's)
+    runner._loop_stopped(why)
+    assert runner.loop.swap_due
+    assert not runner.loop.trip_due
+    assert not runner.loop.drop_room
+    assert runner.loop.on
+    runner.close()
+
+
+def test_a_refusal_with_no_1x3_free_outside_the_loops_routine_makes_room_then_asks_the_swap():
+    runner = gheeds_runner(rows_free=False)
+    assert runner._carry_one(refused_charm())  # the level run ends: the cube's move, then the run again
+    assert runner.loop.make_room
+    assert not runner.loop.swap_due
+    assert runner._carry_one(refused_charm())
+    assert runner.loop.swap_due
+    runner.close()
+
+
+def test_the_new_gheeds_still_not_taken_with_the_players_parked_fetches_theirs_back_first():
+    from inventory_tracking.macros.charms import Parked
+    from inventory_tracking.macros.loop import CHOOSE, PICK
+
+    runner = gheeds_runner()
+    runner.loop.swap, runner.loop.parked, runner.loop.gheed = 'cyberr48', Parked(1, 2, (620, 0, 0), 30), PICK
+    runner._loop_stopped(Abort('the character has not moved for 45 s'))
+    assert runner.loop.gheed == CHOOSE
+    assert runner.loop.on
+    state = runner.resume_state()
+    assert state['gheeds'] == {'unit': 1, 'page': 2, 'cell': [620, 0, 0], 'magic_find': 30}
+    runner.close()
+    after = make(lambda cancelled, routine: None, [])
+    after.resume(state)
+    assert after.loop.parked == Parked(1, 2, (620, 0, 0), 30)
+    after.close()
+
+
+def refused_charm():
+    from inventory_tracking.macros.charms import UNIQUE, grand_charm
+    from inventory_tracking.macros.pickup import Refused
+    from inventory_tracking.macros.world import VALUABLE, Drop
+
+    charm = Drop(60, 22543.0, 9556.0, "Unique Grand Charm (Gheed's Fortune?)", VALUABLE, (1, 3), txt=grand_charm(),
+                 quality=UNIQUE)  # fmt: skip
+    return Refused(charm, f"{charm.label} was refused by the game: another Gheed's Fortune is carried")
+
+
+def test_a_refused_click_is_the_gheeds_swap_whatever_valuable_the_ground_names_first(caplog):
+    # The refusal names its charm (macros/pickup.py `Refused`): the ground's first valuable may be another
+    runner = gheeds_runner()
+    runner.valuable_left = lambda: 'Flawless Topaz'
+    caplog.set_level('INFO')
+    runner._loop_stopped(refused_charm())
+    assert runner.loop.swap_due
+    assert not runner.loop.make_room
+    assert "another Gheed's Fortune is carried; Unique Grand Charm (Gheed's Fortune?) with the player's" in caplog.text
+    runner.close()
+
+
+def test_a_refusal_outside_the_loops_routine_asks_the_swap_only_with_the_loop_on():
+    runner = gheeds_runner()
+    assert runner._carry_one(refused_charm())
+    assert runner.loop.swap_due
+    runner.loop.swap_due = False
+    runner.loop.on = False
+    assert not runner._carry_one(refused_charm())
+    assert not runner.loop.swap_due
+    runner.close()
+
+
+def test_the_pickup_steps_refusal_during_the_loop_ends_attack_mode_and_the_swap_leg_follows(monkeypatch):
+    # The pickup step attack mode asked for met the carry-one refusal: no leg of the mode's follows, the loop's does
+    monkeypatch.setattr(runner_module, 'CARD_SECONDS', 0)
+    made: list[str] = []
+    looped = threading.Event()
+
+    def execute(cancelled, routine):
+        made.append(routine)
+        if routine == 'pickup':
+            raise refused_charm()
+        runner.loop.on = False  # the loop's leg (the swap's): nothing after it here
+        looped.set()
+
+    runner = gheeds_runner()
+    runner.execute = execute
+    runner.attack_mode = True
+    assert runner.request(10.0, 10.1, 'pickup')
+    assert looped.wait(5)
+    joined(runner)
+    assert made == ['pickup', 'loop']
+    assert runner.loop.swap_due
+    assert not runner.attack_mode
+    runner.close()
+
+
+def test_the_runner_forgets_the_level_runs_give_ups_at_gheed_stash():
+    runner = gheeds_runner()
+    forgot: list[bool] = []
+
+    class Hunter:
+        def forget_given_up(self) -> None:
+            forgot.append(True)
+
+    runner.hunter = Hunter()  # type: ignore[assignment]
+    assert runner.loop.forget is not None
+    runner.loop.forget()
+    assert forgot == [True]
+    runner.hunter = None
+    runner.close()
+
+
+def test_a_trip_back_lifts_the_pickups_give_up_and_moves_to_a_valuable_within_a_click(monkeypatch):
+    # 15:53:05 on 2026-10-18: a set Ring 5 away under the pointer, 11 clicks from one place took nothing; both trips
+    # back found it given up by the pickup (SHUNNED), went nowhere in 0.2 s, and the loop stopped for it
+    from types import SimpleNamespace
+    from typing import Any, cast
+
+    from inventory_tracking.macros.sightings import Sighting
+
+    gone, moved = [], []
+    monkeypatch.setattr(runner_module, 'approach', lambda run, found, level, keys, hops: gone.append(found.label))
+    monkeypatch.setattr(
+        runner_module, 'moved_in_hand', lambda run, found, level, aspect, keys, why: moved.append((found.label, aspect))
+    )
+    runner = make(lambda cancelled, routine: None, [])
+    ring = Sighting(1235397469, 'Ring', 22553.0, 9560.0, 37, 0.0)
+    runner_module.SHUNNED[ring.unit_id] = 1e9
+
+    def run_at(x: float, y: float) -> Any:
+        keys = SimpleNamespace(focused_window_rect=lambda: (0, 0, 2560, 1440))
+        player = SimpleNamespace(x=x, y=y, area=37)
+        return cast(
+            Any, SimpleNamespace(world=lambda: SimpleNamespace(player=player), actuator=SimpleNamespace(keys=keys))
+        )
+
+    runner._go_back(run_at(22556.3, 9564.3), ring, object(), KEYS)
+    assert ring.unit_id not in runner_module.SHUNNED  # the press after tries it again
+    assert gone == ['Ring']
+    assert moved == [('Ring', 2560 / 1440)]  # 5 away: to it first, the clicks from another footing
+    runner._go_back(run_at(22554.0, 9561.0), ring, object(), KEYS)
+    assert len(moved) == 1  # at it: clicked from there
+    runner._go_back(run_at(22556.3, 9564.3), ring, None, KEYS)
+    assert len(moved) == 1  # no level map: no move
+    runner.close()
+
+
+# Every stop text the KP_6 loop's stop rules met, in the tests and in the probe.logs of 2026-10-18 (`Macro: loop: … lies
+# on the ground: …`, `Macro: loop stopped: …`), with the room rules' answer of ROOM_WORDS before causes: `classify`
+# (rca/2026-10-18/arch-loop-orchestration.md Option A, step 1) answers the same for each untagged
+STOP_TEXTS = [
+    ('inventory full: no room for Flawless Diamond', True),
+    ('inventory full: no room for Flawless Sapphire, Grand Charm', True),
+    ('inventory full: no room for Flawless Topaz', True),
+    ('inventory full: no room for Grand Charm', True),
+    ("inventory full: no room for Talic's Anguish", True),
+    ('inventory full: no room for Unique Brandistock', True),
+    ('inventory full: no room for Unique Demonhide Armor', True),
+    ("inventory full: no room for Unique Grand Charm (Gheed's Fortune?)", True),
+    ("no room on the personal stash page for the player's Gheed's Fortune", True),
+    ('no room in the inventory for the item 603 the cube must be emptied of', True),
+    ('inventory full: Grand Charm here — make room', True),  # pursuit.py's stand, a NoWay's reason
+    ('no way toward Grand Charm by walk: inventory full: Grand Charm here — make room', True),
+    ('the character has not moved for 45 s', True),  # ruling pending: the stand counts as room
+    ('Flawless Topaz is 92 away', False),
+    ('Flawless Topaz is 94 away', False),
+    ('Eth Rune at (22562, 9542) was not picked up after 2 trips back', False),
+    ('Flawless Topaz at (22628, 6700) was not picked up after 2 trips back', False),
+    ('Ring at (22553, 9560) was not picked up after 2 trips back', False),
+    ('Ring was under the pointer at 3 aims and no click picked it up', False),
+    ("Unique Grand Charm (Gheed's Fortune?) was under the pointer at 3 aims and no click picked it up", False),
+    ('Andariel again and again in cyber17: nothing came of it', False),
+    ('Andariel again and again in cyberr48: nothing came of it', False),
+    ('down the Catacombs again and again in cyberr48: nothing came of it', False),
+    ('next game again and again in the lobby after cyber81: nothing came of it', False),
+    ("no shared stash page has room for the player's Gheed's Fortune: it stays carried", False),
+    ('over 300 s in cyber32', False),
+    ('the stash did not open with the inventory', False),
+    ('no level map for this level yet', False),
+    ('attack mode off: the game was left', False),
+    ('the waypoint did not open', False),
+    ('Consume: not seen in 2.5s, 3 times over', False),
+]
+
+
+@pytest.mark.parametrize(('why', 'roomy'), STOP_TEXTS)
+def test_classify_keeps_todays_room_words(why, roomy):
+    from inventory_tracking.macros.runner import ROOM_CAUSES, ROOM_WORDS, classify
+
+    assert any(word in why for word in ROOM_WORDS) == roomy  # the table is today's rule
+    assert (classify(Abort(why)) in ROOM_CAUSES) == roomy
+    assert classify(Abort(why)) not in ('hand', 'refused')
+    assert (classify(Flipped(why)) in ROOM_CAUSES) == roomy  # a subclass with no type of its own: by the words
+    assert (classify(RuntimeError(why)) in ROOM_CAUSES) == roomy  # a failure, not an Abort (`Macro failed`)
+
+
+def test_classify_tells_the_hand_and_the_refusal_by_their_type_and_a_named_cause_first():
+    from inventory_tracking.macros.actuator import Hand
+    from inventory_tracking.macros.runner import ROOM_CAUSES, classify
+
+    assert classify(Hand('the mouse was moved')) == 'hand'
+    assert classify(Hand('a key was pressed (key code 30)')) == 'hand'
+    assert classify(refused_charm()) == 'refused'
+    assert classify(Dead('the character is dead')) == 'other'
+    assert classify(Cancelled()) == 'other'
+    assert classify(Abort('the character has not moved for 45 s')) == 'stall'
+    assert classify(Abort('inventory full: no room for Grand Charm')) == 'room'
+    # The raise's cause wins over its words
+    assert classify(Abort('inventory full: no room for Grand Charm', cause='room')) == 'room'
+    assert classify(Abort('the character has not moved for 45 s', cause='stall')) == 'stall'
+    assert classify(Abort('Grand Charm is 40 away', cause='room')) == 'room'
+    assert classify(Abort('inventory full: no room for Grand Charm', cause='other')) == 'other'
+    # Ruling pending (rca/2026-10-18/arch-loop-orchestration.md §5): the stand is answered as a lack of room
+    assert 'stall' in ROOM_CAUSES
+
+
+@pytest.mark.parametrize('cause', [None, 'stall'])
+def test_a_stand_named_or_told_by_its_words_takes_the_same_room_rule(cause):
+    # The watchdog names its stand ('stall'); untagged, the words tell it as before: the same rule either way (04:32:26
+    # on 2026-10-17: "the character has not moved for 45 s; Grand Charm lies on the ground")
+    runner = make(lambda cancelled, routine: None, [])
+    runner.loop.on, runner.loop.seen = True, ('cyber32', 0.0)
+    runner.valuable_left = lambda: 'Grand Charm'
+    runner._loop_stopped(Abort('the character has not moved for 45 s', cause=cause))
+    assert runner.loop.make_room
+    assert runner.loop.room_tried == 'cyber32'
+    runner.close()
+
+
+def test_a_named_room_cause_takes_the_room_rules_whatever_the_words():
+    runner = make(lambda cancelled, routine: None, [])
+    runner.loop.on, runner.loop.seen = True, ('cyber32', 0.0)
+    runner.valuable_left = lambda: 'Grand Charm'
+    runner.loop.room_tried = 'cyber32'  # the cube tried: the next room rule
+    runner._loop_stopped(Abort('Grand Charm is 40 away', cause='room'))
+    assert runner.loop.drop_room
+    assert runner.loop.fetch_again is None
+    runner.close()

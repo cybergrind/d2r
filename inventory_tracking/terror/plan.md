@@ -175,5 +175,30 @@ normal/tz, where mobs are capped to 45 lvl max".
   not; plain monsters with the forced modifier outvote a list without their level (one warning).
   With the level listed and plain monsters without a modifier the card is 'Terror · <group>' and
   'No Heralds below Hell'.
-- Open: the other 12 bytes of an entry; the terrorized level shown below Hell (45 or 71 needs the
+- Open: the entry's +4 field; the terrorized level shown below Hell (45 or 71 needs the
   difficulty, not read); the RVA is this build's (sha 1e2ac459…), a new build needs it found again.
+
+## 2026-10-18 — TZ name and effect from the client service in town
+
+- Binary Ninja's decompilation of `D2R-decrypted.exe` 0x140ca6ab0 shows the automap reading
+  each 16-byte service entry: +0 is area ID, +8 is the displayed terror level, and +12 is
+  a word whose low byte is passed as the modifier ID to the localization formatter at
+  0x140ca7250. The modifier ID is
+  read from the service, not from monsters. REA evidence: `ev_0865e64f311d7400d07e6845e7ef291b3136c5bbce82f5cc51df74721b8bce41`
+  and `ev_20b6a33c57056dba8eb64fbe931fb6728c0066bb6aa971773a011bc54538dd78`.
+- `monsters.py` now captures the service entries on each probe pass; `probe.py` logs
+  `Terror Zone memory: area <town>; zones <name>; effects <name> (<id>); entries <raw>`
+  when the list or its fields change. The same raw entries appear in `terror-probe.jsonl`.
+  Zone names come from `zones.py`'s area groups, and effect names from the installed-game
+  modifier table already used by `tracker.py`. The service's area list was observed to
+  rotate in town in `runs/alt-d/20261018T125830Z-c4eec9ab/terror-probe.jsonl`.
+  In the 14:54 UTC probe the list changed in town at 15:00 UTC from Lut Gholein
+  Sewers `[47, 48, 49]` to Dry Hills and Halls of the Dead `[42, 56, 57, 60]`;
+  the player confirmed those locations match the game.
+- Live check, 15:27 UTC: a new `make serve` run in Rogue Encampment read `[42, 56, 57, 60]`,
+  displayed level 96, and +12 word `274` (`0x112`) in all entries. The first logger version
+  treated the full word as an ID and printed `unknown (274)`; the client formatter truncates
+  it to the low byte `18`, which is Cold Enchanted. The player confirmed that the in-game
+  effect is Cold Enchanted. The corrected JSONL records both `modifier: 18` and
+  `modifier_word: 274`. The high byte's meaning remains unknown. A fresh service launch is
+  needed to see the corrected log line; other effects and difficulties remain to be checked.

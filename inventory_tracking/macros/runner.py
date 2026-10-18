@@ -45,35 +45,77 @@ from inventory_tracking.input.keybindings import INVENTORY, action_key, show_ite
 from inventory_tracking.input.keyboard import X11Keyboard
 from inventory_tracking.levels.model import Ground, Target
 from inventory_tracking.macros import route
-from inventory_tracking.macros.actuator import Abort, Actuator, Cancelled, Flipped, Hand
+from inventory_tracking.macros.actuator import Abort, Actuator, Cancelled, Cause, Flipped, Hand
 from inventory_tracking.macros.build import Build, choose
 from inventory_tracking.macros.cain import identify_all
+from inventory_tracking.macros.charms import Parked, gheeds
 from inventory_tracking.macros.cta import cast_in_hand
-from inventory_tracking.macros.cube import SURE_BLOCK, arrange_keys, drop_for, perfect_of, stash, transmute, unpack
+from inventory_tracking.macros.cube import (
+    SURE_BLOCK,
+    arrange_keys,
+    drop_for,
+    inventory_rows,
+    perfect_of,
+    room_for,
+    stash,
+    transmute,
+    unpack,
+)
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.goals import USE_NEAR, spot_of
 from inventory_tracking.macros.hunt import Bearings, Hunter, threat
 from inventory_tracking.macros.journey import Journey
 from inventory_tracking.macros.junk import identify, junk_of, named
 from inventory_tracking.macros.latency import Press, Trace
-from inventory_tracking.macros.loop import ANDARIEL, GAME_SECONDS, KINDS, LK, STILL_SECONDS, Loop, deposit_to
+from inventory_tracking.macros.loop import (
+    ANDARIEL,
+    CHOOSE,
+    GAME_SECONDS,
+    KINDS,
+    LK,
+    PICK,
+    STILL_SECONDS,
+    Loop,
+)
+from inventory_tracking.macros.lootpolicy import GUARD, verdict
 from inventory_tracking.macros.opening import open_near
 from inventory_tracking.macros.pad import PadActs, PadActuator, PadPlay, input_policy
-from inventory_tracking.macros.pickmode import MODES, REGULAR, SURE, TRADE, is_candidate, kept, next_mode
-from inventory_tracking.macros.pickup import SHUNNED, TAKEN, approach, pick_up, wanted, worth_a_stop
+from inventory_tracking.macros.pickmode import MODES, REGULAR, SURE, TRADE, kept, next_mode
+from inventory_tracking.macros.pickup import (
+    FETCH_HOPS,
+    SHUNNED,
+    TAKEN,
+    Refused,
+    approach,
+    moved_in_hand,
+    pick_up,
+    wanted,
+    worth_a_stop,
+)
+from inventory_tracking.macros.portal import portal_source
 from inventory_tracking.macros.pursuit import FULL, Pursuit
-from inventory_tracking.macros.repair import gold
-from inventory_tracking.macros.routines import prebuff_keys, run_macro
+from inventory_tracking.macros.routines import prebuff_keys, run_macro, show_items_on
 from inventory_tracking.macros.runmode import DOUBLE, TERROR, badge
-from inventory_tracking.macros.shop import gold_cap
 from inventory_tracking.macros.sightings import Sightings
 from inventory_tracking.macros.skills import character_bindings, skill_keys
-from inventory_tracking.macros.stash import Pages, unload
 from inventory_tracking.macros.teleport import LOST_KEY, ready, step_toward
 from inventory_tracking.macros.timing import Pace
+from inventory_tracking.macros.town import Contract, Exit, Needs
 from inventory_tracking.macros.travel import LOOPED, LOOPED_TELEPORT, cut
+from inventory_tracking.macros.visit import Hands, Remembered, note_view, visit
 from inventory_tracking.macros.waiting import Waiting
-from inventory_tracking.macros.world import VALUABLE, BeltKept, GameMemory, Loot, Player, PutDown, World
+from inventory_tracking.macros.world import (
+    VALUABLE,
+    BeltKept,
+    GameMemory,
+    Loot,
+    Pack,
+    Player,
+    PutDown,
+    StashView,
+    World,
+    has_room,
+)
 from inventory_tracking.models import Actor, SessionIdentity
 from inventory_tracking.native.layout import TOWN_IDS
 from inventory_tracking.routes.model import FIGHT
@@ -89,7 +131,7 @@ PICKUP = 'pickup'  # the pickup step: pick up what is worth it, else a seek step
 # The HUD's word for the loop's pickup mode (macros/pickmode.py), with the loop on
 LOOP_WORDS = {SURE: 'LOOP SURE', TRADE: 'LOOP TRADE', REGULAR: 'LOOP ALL'}
 TRANSMUTES = 3  # a full gem stack's transmutes in one stash visit, at most (macros/cube.py `transmute`)
-PICK_SLACK = 3  # pickups past the parked gems' count before the ground is taken for clear (`stash_loot`)
+PICK_SLACK = 3  # pickups past the parked gems' count before the ground is taken for clear (`transmute_gems`)
 MAKE_ROOM_AFTER = 5.0  # seconds stood by a valuable with no room before the loop makes room in the cube
 FOCUS_POLL = 0.5  # seconds between looks for the game window's focus while the loop waits for it
 DROPPED_SECONDS = 600.0  # an item dropped for a valuable's room is not taken up again for this long (a game)
@@ -116,6 +158,15 @@ EXPIRES = {TELEPORT: 1.0, HUNT_ELITES: 1.5, PREBUFF: 3.0, PICKUP: 2.0}
 # through (rca/2026-10-15/kp1-door-findings.md): an object's click range (goals.py USE_NEAR), as a level run ends at a
 # door either within its PLACE_NEAR or where the navigator has no step left toward it.
 DOOR_NEAR = USE_NEAR
+# The stops a lack of room explains (`_loop_stopped`: room made, a trip to town, an item dropped): the pickup's and the
+# pursuit's "inventory full", "no room", and the stand-by by a valuable ("has not moved")
+AT_DROP_UNITS = 3.0  # a trip back to a valuable this near is at it: no move to it first
+ROOM_WORDS = ('no room', 'inventory full', 'Inventory full', 'has not moved')
+# The causes the room rules of `_loop_stopped` answer (`classify`). Ruling pending: whether the watchdog's 45 s stand
+# ('stall', "has not moved") is ever a lack of room (rca/2026-10-18/arch-loop-orchestration.md §5); today it is, as it
+# was by ROOM_WORDS: the stand by a valuable must still reach the cube (04:32:26 on 2026-10-17), and a stand at
+# Andariel's mark with a sighting remembered gets the cube, a trip and a drop too (13:36-13:39 on 2026-10-18)
+ROOM_CAUSES: frozenset[Cause] = frozenset({'room', 'stall'})
 THROTTLE = 0.3  # seconds between accepted macro requests (a bounce is not a cancel)
 CARD_SECONDS = 4.0
 # A warning of a routine (engine.Run `warn`: the inventory full) stays on the card this long after it was
@@ -143,6 +194,27 @@ MOUSE_WORK: dict[str, str] = {}
 FLIP_SETTLE = 1.0
 FLIP_POLL = 0.02
 FLIPS_AGAIN, FLIPS_WINDOW = 3, 10.0
+
+
+def classify(why: object) -> Cause:
+    """The cause of the stop `why` (actuator.py `Cause`), for `_loop_stopped`: the one its raise named; with none, told
+    as the stop rules told it before causes (2026-10-18): the player's hand by the type (`Hand`), a lack of room by the
+    message's words (ROOM_WORDS, "has not moved" the watchdog's stand), the Gheed's carry-one refusal by the type
+    (`Refused`, after the words: a refusal whose message names no room was never room), the rest 'other'. The words are
+    the fallback only, until every raise the room rules answer names its cause (rca/2026-10-18/
+    arch-loop-orchestration.md Option A)."""
+    if isinstance(why, Abort) and why.cause is not None:
+        return why.cause
+    if isinstance(why, Hand):
+        return 'hand'
+    said = str(why)
+    if 'has not moved' in said:
+        return 'stall'
+    if any(word in said for word in ROOM_WORDS):
+        return 'room'
+    if isinstance(why, Refused):
+        return 'refused'
+    return 'other'
 
 
 class MacroRunner:
@@ -220,9 +292,14 @@ class MacroRunner:
         self.closed = False  # `close` was called: nothing starts any more
         # The Lower Kurast loop (KP_6, macros/loop.py): on, it is what follows every run that nothing else follows.
         self.loop = Loop(store=loop_items)
-        self.stash_pages = Pages()  # where the stash had room last: the next visit starts there (macros/stash.py)
+        self.loop.forget = self._forget_given_up  # the Gheed's swap's GHEED_STASH: the level run tries the charm again
+        # the game whose stash view was logged, the shared page shown last (macros/visit.py `Remembered`)
+        self.stash_memory = Remembered()
         self.where: tuple[float, float] | None = None  # where the character was at the last poll (`_place`)
         self.valuable_left: Callable[[], str | None] = self._valuable_left  # (tests give their own)
+        self.carried_now: Callable[[], Pack | None] = self._carried_now  # the inventory now, for `_gheeds_swap`
+        # An item unit's stats, from the run's own memory (world.GameMemory.item_stats): a Gheed's Fortune's Magic Find
+        self.item_stats: Callable[[int], dict[int, int]] | None = None
         # The valuables the loop has seen this game and not yet off the ground (macros/sightings.py), and the items the
         # ground census has said (world.py `_census`), shared by every GameMemory the runner makes
         self.sightings = Sightings()
@@ -237,7 +314,6 @@ class MacroRunner:
         # The loop's pickup mode (macros/pickmode.py), switched by a double press of KP_6; the presses of KP_6 not
         # judged yet (`_loop_tap`) and the timer that judges them once their window is over
         self.pickup_mode = MODES[0]
-        self.gems_tried: str | None = None  # the game whose stash visit tried the full gem stacks (`stash_loot`)
         self.loop_taps: list[float] = []
         self.loop_timer: threading.Timer | None = None
         self.shut = threading.Event()  # set by `close`: a run's card wait ends with it
@@ -440,6 +516,7 @@ class MacroRunner:
         for Andariel's fight."""
         with self.lock:
             hunter.hand_over, hunter.run_over = self._hand_over, self._run_over
+            hunter.carry_one = self._carry_one  # a refused unique Grand Charm: the Gheed's swap (macros/pickup.py)
             hunter.post(Pursuit(PICKUP, time.monotonic(), advance=False, leash=FULL, rush=rush, looped=True))
             self.attack_mode, self.attack_declined = True, False
 
@@ -480,12 +557,39 @@ class MacroRunner:
         player = run.world().player
         if player is None:
             return False
+        trip = self.loop.trip
+        if trip is not None and self.loop.returned == trip and self.loop.forgiven != (trip, self.loop.trips):
+            # Back from a trip for room: its valuables' trips back begin again, at each trip's return (the player,
+            # 2026-10-18 16:50: "one game can do several trips to the town")
+            self.loop.forgiven = (trip, self.loop.trips)
+            self.sightings.again()
         return self.sightings.fetch(
             (player.x, player.y),
             player.area,
             time.monotonic(),
-            lambda found: approach(run, found, level, key_names),
+            lambda found: self._go_back(run, found, level, key_names),
         )
+
+    def _go_back(self, run: Run, found, level, key_names) -> None:
+        """A trip back to `found`: brought within a click (`approach`, the whole way), its give-up by the pickup
+        lifted so the press after tries it again, and, within a click but not at it, a move to it by the movement in
+        hand, so the clicks come from another footing (15:53:05 on 2026-10-18: a set Ring 5 away under the pointer, 11
+        clicks from one place took nothing and the character did not move; both trips back found it given up by the
+        pickup, went nowhere in 0.2 s, and the loop stopped)."""
+        SHUNNED.pop(found.unit_id, None)
+        approach(run, found, level, key_names, FETCH_HOPS)
+        player = run.world().player if level is not None else None
+        if player is None or math.dist((player.x, player.y), (found.x, found.y)) <= AT_DROP_UNITS:
+            return
+        rect = run.actuator.keys.focused_window_rect()
+        if rect is None:
+            return
+        try:
+            moved_in_hand(run, found, level, rect[2] / rect[3], key_names, Abort('a trip back, within a click'))
+        except Abort as stop:
+            if run.stops(stop):
+                raise
+            LOG.info('Macro: a trip back to %s: no move to it (%s); clicked from here', found.label, stop)
 
     def _loop_tap(self, at: float) -> None:
         """A press of KP_6 at `at` (the request's clock), judged with the presses around it once DOUBLE seconds pass
@@ -546,20 +650,30 @@ class MacroRunner:
     def _loop_stopped(self, why: object) -> None:
         """A leg's stop: the loop leaves the game and goes on (macros/loop.py `recover`), or ends by itself, saying
         why. Under the lock or from the run's thread."""
-        if self.loop.on and isinstance(why, Hand):
+        cause = classify(why)
+        roomy = cause in ROOM_CAUSES
+        if self.loop.on and cause == 'hand':
             # The player's hand (or a pointer read as moved): the leg is made again, the game not left (01:28:48 on
             # 2026-10-17, the loop left two games for "the mouse was moved"); REPEATS bounds it
             LOG.info('Macro: loop: %s: the leg is made again', why)
             return
+        if self.loop.on and cause == 'stash':
+            # A keeper no stash page takes, after a town visit (macros/loop.py TOWN): the loop stops in town, whatever
+            # lies on the level (the player, 2026-10-18 16:50: "if stash is full - we need to stop loop"); no game is
+            # left for it, no room rule helps it
+            self._stop_loop(why)
+            return
         left = self.valuable_left() if self.loop.on else None
         game = self.loop.seen[0] if self.loop.seen is not None else None
-        refused = 'no click picked it up' in str(why) or 'not picked up after' in str(why)
-        swaps = left is not None and 'Grand Charm' in left and refused and self.loop.kind == ANDARIEL
-        if swaps and game is not None and self.loop.swap != game:
-            # A unique Grand Charm no click takes: a second Gheed's Fortune, carry-one (macros/charms.py): the player's
-            # onto the stash page, this one taken, theirs back (the player, 2026-10-18)
-            self.loop.swap_due = True
-            LOG.info("Macro: loop: %s; %s: the player's Gheed's Fortune goes to the stash for it", why, left)
+        # A refused click names its charm (macros/pickup.py `Refused`): the ground's first valuable may be another
+        if self._gheeds_swap(why, why.drop.label if isinstance(why, Refused) and self.loop.on else left, game):
+            return
+        if left is not None and not roomy and self.loop.fetch_again != game:
+            # After the Gheed's swap (a refused click is its sign: put after it, 13:34:53 on 2026-10-18): a valuable
+            # left for a cause other than room (a trip back cut short: "Flawless Topaz is 92 away"): the leg is made
+            # again, once a game, with no room made nor a trip to town for it (13:15:37: the cube, a trip, the stop)
+            self.loop.fetch_again = game
+            LOG.info('Macro: loop: %s; %s lies on the ground: the leg is made again', why, left)
             return
         if left is not None and game is not None and self.loop.room_tried != game:
             # A valuable it has no room for: the loop's items into the cube, and the loop goes on to take it (04:32:26
@@ -567,13 +681,19 @@ class MacroRunner:
             self.loop.make_room, self.loop.room_tried = True, game
             LOG.info('Macro: loop: %s; %s lies on the ground: room is made in the cube', why, left)
             return
-        if left is not None and game is not None and self.loop.kind == ANDARIEL and self.loop.trip != game:
+        # The rules below make room: a stop for another cause (a trip back cut short, the leg made again already) is
+        # not helped by them (13:15:40 on 2026-10-18: "Flawless Topaz is 94 away" bought a trip to town), nor a trip
+        # by a visit with nothing to take away (13:38:17: only the player's charms, the Fortress and straight back)
+        # Several trips a game (the player, 2026-10-18 16:50: "one game can do several trips to the town"), each after
+        # one that made room, up to TRIPS_A_GAME (macros/loop.py `may_trip`)
+        trip = self.loop.kind == ANDARIEL and self.loop.may_trip(game) and self.loop.carrying
+        if roomy and left is not None and game is not None and trip:
             # The cube took what it could: a trip to town for room, back through the portal for it (macros/loop.py
             # TRIP; the loop stood by a Flawless Topaz and an Amulet on Catacombs Level 4, 10:22:20 on 2026-10-18)
             self.loop.trip_due = True
             LOG.info('Macro: loop: %s; %s lies on the ground: a trip to town for room', why, left)
             return
-        if left is not None and game is not None and self.loop.dropped != game:
+        if roomy and left is not None and game is not None and self.loop.dropped != game:
             # The cube took what it could: one of the loop's items taken only to identify it is dropped for it
             # (21:00:03 on 2026-10-17: a Grand Charm, the loop stopped for the player)
             self.loop.drop_room, self.loop.dropped = True, game
@@ -589,9 +709,87 @@ class MacroRunner:
             self._show([f'Loop: {why}: leaving the game'])
             return
         if self.loop.on:
-            self.loop.stop()
-            LOG.info('Macro: loop stopped: %s', why)
-            self._show([f'Loop stopped: {why}'])
+            self._stop_loop(why)
+
+    def _stop_loop(self, why: object) -> None:
+        """The loop off by itself, saying why (the watch tools read the line: d2-loop-watch logwords.py STOPPED)."""
+        self.loop.stop()
+        LOG.info('Macro: loop stopped: %s', why)
+        self._show([f'Loop stopped: {why}'])
+
+    def _gheeds_swap(self, why: object, left: str | None, game: str | None) -> bool:
+        """Whether the stop `why` is the Gheed's swap's (macros/charms.py; the player, 2026-10-18 13:39: "picking up
+        another gheed ... put our own gheed into SHARED tab"): a unique Grand Charm left on the ground in the Andariel
+        loop with the player's Gheed's Fortune carried, whatever the stop's words (at 13:36-13:39 it was a stand-by,
+        "the character has not moved for 45 s", and the room rules made room, a trip to town and dropped an item for
+        it): the swap is due, once a game; before every room rule. With no 1 x 3 free the cube is tried first (the
+        stop is the swap's still: `make_room`), then the swap all the same (the player, 2026-10-18 16:50: "refused
+        grand charm - should cause a trip"). With the player's already in the stash and the new one still not taken,
+        theirs is fetched back first (`CHOOSE`)."""
+        loop = self.loop
+        if left is None or 'Unique Grand Charm' not in left or loop.kind != ANDARIEL or game is None:
+            return False
+        if loop.parked is not None:
+            if loop.gheed != PICK:
+                return False
+            loop.gheed = CHOOSE
+            LOG.info("Macro: charms: %s; %s is still not taken with the player's Gheed's Fortune on shared page %s: "
+                     'to town for theirs', why, left, loop.parked.page)  # fmt: skip
+            return True
+        if loop.swap == game or loop.own is None:
+            return False
+        pack = self.carried_now()
+        ours = gheeds(pack, loop.own) if pack is not None else None
+        if pack is None or ours is None:
+            return False
+        if not room_for(inventory_rows(pack), ours.size):
+            if loop.room_tried != game:
+                # Room first, in the cube (a block for the new one, and for the player's to come back to)
+                loop.make_room, loop.room_tried = True, game
+                LOG.info("Macro: charms: %s; %s lies on the ground, the player's Gheed's Fortune carried, and no %d x "
+                         '%d free: room is made in the cube first', why, left, *ours.size)  # fmt: skip
+                return True
+            # The cube tried: the swap all the same, the trip to town it is (the player, 2026-10-18 16:50: "refused
+            # grand charm - should cause a trip"; the room rules pass a refusal by, and the loop stood by the charm).
+            # The player's goes onto a shared page and its own block takes the new one (macros/charms.py `choose`)
+            LOG.info("Macro: charms: %s lies on the ground, the player's Gheed's Fortune carried, no %d x %d free and "
+                     "the cube tried: the swap all the same, the player's block takes the new one", left,
+                     *ours.size)  # fmt: skip
+        loop.swap_due = True
+        LOG.info("Macro: charms: %s; %s with the player's Gheed's Fortune carried at (%d, %d) and room for another: "
+                 'the swap is due', why, left, ours.x, ours.y)  # fmt: skip
+        return True
+
+    def _carry_one(self, refused: Refused) -> bool:
+        """A unique Grand Charm refused for the Gheed's Fortune carried (macros/pickup.py `Refused`) outside the loop's
+        own routine (the level run's pickup, hunt.py `carry_one_swap`; the pickup step attack mode asked for): whether
+        the swap is due for it (`_gheeds_swap`, the same rules as a stop's); the run stops for it then. With the loop
+        off, or no swap (once a game, no room), False: the run's own rules go on."""
+        with self.lock:
+            if not self.loop.on:
+                return False
+            game = self.loop.seen[0] if self.loop.seen is not None else None
+            return self._gheeds_swap(refused, refused.drop.label, game)
+
+    def _forget_given_up(self) -> None:
+        """The level run's give-up memory cleared (hunt.py `forget_given_up`): the Gheed's swap's GHEED_STASH."""
+        if self.hunter is not None:
+            self.hunter.forget_given_up()
+
+    def _carried_now(self) -> Pack | None:
+        """The carried inventory as read now (a GameMemory of its own, as `_valuable_left`); None unread."""
+        try:
+            tables = {found['table_address'] for found in self.source.capture['unit_table_candidates']}
+            if len(tables) != 1:
+                return None
+            memory = GameMemory(self.source.pid, self.source.images['candidate_base'], next(iter(tables)))
+            try:
+                return memory.carried()
+            finally:
+                memory.close()
+        except Exception as exc:
+            LOG.info('Macro: the inventory could not be read (%s)', exc)
+            return None
 
     def _toggle_attack_mode(self) -> bool:
         """The attack mode toggle: the mode on or off. On while a step works, it follows the step; off
@@ -651,6 +849,7 @@ class MacroRunner:
             self.unread = False
             with self.lock:
                 why = None
+                cause: Cause | None = None
                 warned = self.warning
                 if (
                     warned is not None
@@ -664,9 +863,11 @@ class MacroRunner:
                     and self.loop.on
                     and self.loop.room_tried != game
                 ):
-                    # Stood by a valuable with no room (hunt.py `stay_by`): made room for before the watchdog
-                    self.loop.make_room, self.loop.room_tried = True, game
-                    LOG.info('Macro: loop: %s: room is made in the cube', warned[0])
+                    # Stood by a valuable with no room (hunt.py `stay_by`): made room for before the watchdog; the
+                    # Gheed's swap first when it is one (`_gheeds_swap`)
+                    if not self._gheeds_swap(warned[0], self.valuable_left(), game):
+                        self.loop.make_room, self.loop.room_tried = True, game
+                        LOG.info('Macro: loop: %s: room is made in the cube', warned[0])
                     self.attack_mode = False
                     if self.working:
                         self.cancelled.set()
@@ -675,11 +876,11 @@ class MacroRunner:
                 elif self.loop.on and self.loop.overdue(game, now):
                     why = f'over {GAME_SECONDS:.0f} s in {game or "the lobby"}'
                 elif self.loop.on and game is not None and self.loop.still(self.where, now):
-                    why = f'the character has not moved for {STILL_SECONDS:.0f} s'
+                    why, cause = f'the character has not moved for {STILL_SECONDS:.0f} s', 'stall'
                 if why is not None:
                     # The loop is stuck (macros/loop.py GAME_SECONDS, STILL_SECONDS): the run is cancelled, the next
-                    # leg leaves the game
-                    self._loop_stopped(Abort(why))
+                    # leg leaves the game. The stand names its cause (`ROOM_CAUSES`: a lack of room, ruling pending)
+                    self._loop_stopped(Abort(why, cause=cause))
                     self.attack_mode = False
                     if self.working:
                         self.cancelled.set()
@@ -716,8 +917,16 @@ class MacroRunner:
         except Exception as exc:
             LOG.info('Macro: the ground could not be read (%s)', exc)
             return 'unread'
-        # a candidate for an identify (macros/pickmode.py `is_candidate`) does not keep the game
-        found = [drop for drop in loot.drops if drop.kind == VALUABLE and not is_candidate(drop)]
+        # The guard's "must not leave it" is the policy's (macros/lootpolicy.py `verdict`: every valuable but a
+        # candidate for an identify, room or none, shunned or given up; the plain ones with no room by the ruling of
+        # 2026-10-18 17:50, as before it)
+        found = [
+            drop
+            for drop in loot.drops
+            if verdict(
+                drop, GUARD, room=has_room(loot.room, drop.size), shown=drop.unit_id in loot.shown, looped=True
+            ).hold
+        ]
         if found:
             return found[0].label
         # One seen this game and not read now (out of the client's reach, macros/sightings.py) lies there all the same
@@ -767,7 +976,14 @@ class MacroRunner:
         """What a restart of the service carries over (appraisal/service.py `Restart`): the loop on or off, its pickup
         mode."""
         with self.lock:
-            return {'loop': self.loop.on, 'pickup_mode': self.pickup_mode, 'loop_kind': self.loop.kind.key}
+            return {
+                'loop': self.loop.on,
+                'pickup_mode': self.pickup_mode,
+                'loop_kind': self.loop.kind.key,
+                'sightings': self.sightings.state(),  # the valuables seen and still on the ground (sightings.py)
+                # The player's Gheed's Fortune on a shared page mid-swap (macros/charms.py): fetched back after it
+                'gheeds': self.loop.parked.state() if self.loop.parked is not None else None,
+            }
 
     def resume(self, state: dict) -> None:
         """Take up what the service before a restart left (`resume_state`): the pickup mode at once, the loop at the
@@ -778,6 +994,16 @@ class MacroRunner:
             if state.get('loop_kind') in KINDS:
                 self.loop.kind = KINDS[state['loop_kind']]
                 self.loop.chosen = True  # the service's before: kept
+            if isinstance(state.get('sightings'), dict):
+                self.sightings.restore(state['sightings'])
+                # A restart is made for a fix: the valuables' trips back begin again (15:53:19 on 2026-10-18: a Ring
+                # left after its 2 trips back would have stopped the restarted loop again at once)
+                self.sightings.again()
+            parked = Parked.restore(state.get('gheeds'))
+            if parked is not None:
+                self.loop.parked = parked
+                LOG.info("Macro: charms: the player's Gheed's Fortune (unit %d) is on shared page %s: fetched back "
+                         'first', parked.unit_id, parked.page)  # fmt: skip
             self.resuming = bool(state.get('loop'))
         LOG.info(
             'Macro: resumed after a restart: loop %s, pickup %s, run %s',
@@ -895,6 +1121,12 @@ class MacroRunner:
             failed = True
             if routine == LOOP:
                 self._loop_stopped(stop)
+            elif isinstance(stop, Refused) and self._carry_one(stop):
+                # The pickup step attack mode asked for (or a teleport press's) met the carry-one refusal: the mode
+                # and its level run end, and the loop's swap leg follows (`_follow`)
+                with self.lock:
+                    self.attack_mode = False
+                    self._end_run("the Gheed's swap")
         except Exception as exc:
             LOG.exception('Macro failed')
             self._show([f'Macro failed: {exc}'])
@@ -1089,6 +1321,7 @@ class MacroRunner:
                 run.worn_skills = memory.worn_skills
                 if self.hunter is not None:
                     self.hunter.room_maker = self._room_in_cube
+                    self.hunter.looping = lambda: self.loop.on  # the sweep holds a plain valuable then (`take_one`)
                 run.wear = memory.wear
                 run.cta = memory.cta
                 run.arrival_swap = lambda: cast_in_hand(run, key_names)
@@ -1103,6 +1336,8 @@ class MacroRunner:
                 run.containers = memory.containers
                 run.carried = memory.carried
                 run.stock = memory.stock
+                run.stash_view = memory.stash_view
+                self.item_stats = memory.item_stats
                 run.objects = memory.objects
                 run.corpses = memory.corpses
                 run.flights = memory.flights
@@ -1271,9 +1506,16 @@ class MacroRunner:
         elif routine == LOOP:
             hunter = self.hunter
 
+            def labels() -> None:
+                # The item labels on before a level run: what lies on the ground is seen (routines.py `show_items_on`)
+                world = run.world()
+                name = world.player.name if world.player is not None else None
+                show_items_on(run, show_items_key(self.saved_games, name) if name else None)
+
             def level_run() -> None:
                 if hunter is None:
                     raise Abort('no level guide to hunt with')
+                labels()
                 self._loop_level_run(hunter)
 
             def down() -> None:
@@ -1281,6 +1523,10 @@ class MacroRunner:
                 # ends at a warp: going through takes a press, macros/pursuit.py `to_the_door`)
                 player = run.world().player
                 if player is not None and self.at_the_way_on(player):
+                    # Not before what the rushed run passed by on this level is taken: the level is not come back to
+                    # (a Sol Rune left for 2 hostiles near it, then the stairs, 11:52:00 on 2026-10-18)
+                    if take_one():
+                        return
                     self._teleport_step(run, key_names)
                 else:
                     level_run()
@@ -1288,11 +1534,16 @@ class MacroRunner:
             def fight() -> None:
                 if hunter is None:
                     raise Abort('no level guide to hunt with')
+                labels()
                 self._loop_level_run(hunter, rush=False)
 
             def take_one() -> bool:
                 level = hunter.level() if hunter is not None and hunter.level is not None else None
-                if pick_up(run, level, key_names, lambda: None, threat(run)):
+                # The loop's press holds a valuable it has no room for, a plain one too (macros/lootpolicy.py
+                # `NO_ROOM_PLAIN`; the player, 2026-10-18 17:50: "we should stop and clear inventory with our designated
+                # town routine"): its stop is cause 'room', and the room rules (`_loop_stopped`) make the room: the
+                # cube, then a trip to town and back through the portal, and the next press takes it
+                if pick_up(run, level, key_names, lambda: None, threat(run), looped=True):
                     return True
                 # Nothing to pick up here: a valuable seen this game and not picked up is gone back for, so none is
                 # left behind (routes/lower-kurast-loop-plan.md §14: a Flawless Emerald seen in a flight, 08:58:34)
@@ -1302,76 +1553,49 @@ class MacroRunner:
                 world = run.world()
                 return action_key(self.saved_games, world.player.name, INVENTORY) if world.player is not None else None
 
-            def stash_loot(own: frozenset[tuple[int, int, int]], keep=frozenset(), force=False) -> int:
-                if not force:
-                    # Only in a trade session (macros/loop.py TRADE_ROOM): until then the loop's items wait in the
-                    # inventory and the cube (the player, 2026-10-17: "we should aim for runs where identifying is
-                    # triggered: we moved all good to our chest, moved all resources ...")
-                    return 0
-                key = inventory_key()
-                try:
-                    # The full runes stay for Jamella; a gem is tried at the game's first visit (the player cubes full
-                    # stacks into perfect ones: "I have cubed some perfect gems by hand, now we have some space", 15:27
-                    # on 2026-10-17), a refusal learned again; at its second the full ones are not: four refusals, ~5 s
-                    # a visit (04:47:25-29 on 2026-10-18)
-                    game = run.world().game_name
-                    tried = set(self.loop.sold_full)
-                    stay = keep
-                    if self.gems_tried == game:
-                        now = run.carried() if run.carried is not None else None
-                        gems = self.loop.full - self.loop.sold_full
-                        stay = keep | frozenset(
-                            i.unit_id for i in ((*now.items, *now.in_cube) if now is not None else ()) if i.txt in gems
-                        )  # fmt: skip
-                    self.gems_tried = game
-                    # the gold near its cap into the stash too (macros/loop.py `deposit_to`)
-                    gold_to = deposit_to(gold(run), gold_cap(run))
-                    unload(run, own, key, tried, stay, gold_to, self.stash_pages)  # the cube and the loop's items in
-                    self.loop.full |= tried
-                except Abort as stop:
-                    if cut(run, stop):
-                        raise
-                    LOG.info('Macro: stash: %s: the cube takes what it has room for', stop)
-                if key is None:
-                    LOG.info("Macro: cube: no key opens the inventory: the loop's items stay where they are")
-                    return 0
-
-                def staying() -> frozenset[tuple[int, int, int]]:
-                    pack = run.carried() if run.carried is not None else None
-                    # A full stash stack's items stay in the inventory for Jamella (macros/loop.py `full`): not the
-                    # cube's; the unidentified and the junk may go into the cube (Cain identifies it, the shop takes
-                    # them out)
-                    sold = self.loop.sold_full
-                    held = {(i.txt, i.x, i.y) for i in pack.items if i.txt in sold} if pack is not None else set()
-                    # nor the kept ones (the session's junk, for Jamella next: moved into the cube, only one came out
-                    # again for her, the inventory full, 12:54:10 on 2026-10-17)
-                    held |= {(i.txt, i.x, i.y) for i in pack.items if i.unit_id in keep} if pack is not None else set()
-                    return own | held
-
+            def transmute_gems(full: frozenset[int]) -> tuple[int, int]:
                 # A full stack's flawless gems, kept (never sold), three at a time into a perfect one by the cube (the
-                # player, 2026-10-17: "for gems - we need to cube 3 flawless -> perfect"); the stash takes it next. What
-                # the inventory has no room for while the cube is emptied is put down and picked up again after (the
-                # player, 09:53 on 2026-10-18: "drop on the ground then pickup and move to cube"): 19 gems kept, no
-                # transmute had the room, a trade session every game (09:22-09:45)
+                # player, 2026-10-17: "for gems - we need to cube 3 flawless -> perfect"), standing at the stash; the
+                # visit's stash stop takes the perfect gem next. What the inventory has no room for while the cube is
+                # emptied is put down and picked up again after (the player, 09:53 on 2026-10-18: "drop on the ground
+                # then pickup and move to cube"): 19 gems kept, no transmute had the room, a trade session every game
+                # (09:22-09:45). How many were made, how many put down are still on the ground.
+                key = inventory_key()
+                if key is None:
+                    return 0, 0
                 parked: list[int] = []
 
                 def park(unit_id: int) -> None:
                     self.put_down.park(unit_id)
                     parked.append(unit_id)
 
-                for txt in sorted(t for t in self.loop.full if perfect_of(t) is not None):
+                def staying() -> frozenset[tuple[int, int, int]]:
+                    # the cube takes the inventory's loop items for the room to pick the parked ones up: not the full
+                    # stacks' runes and materials (for Jamella, put down)
+                    pack = run.carried() if run.carried is not None else None
+                    sold = self.loop.sold_full
+                    held = {(i.txt, i.x, i.y) for i in pack.items if i.txt in sold} if pack is not None else set()
+                    return (self.loop.own or frozenset()) | held
+
+                made = left = 0
+                for txt in sorted(t for t in full if perfect_of(t) not in (None, *full)):
                     for _ in range(TRANSMUTES):
-                        made = transmute(run, key, txt, park)
+                        done = transmute(run, key, txt, park)
+                        made += done
                         if parked:
                             stash(run, key, staying())  # the inventory's into the cube: room to pick them up
                             for _ in range(len(parked) + PICK_SLACK):
                                 if not pick_up(run, None, key_names, lambda: None):
                                     break
-                            LOG.info('Macro: cube: %d put down for the transmute, picked up again', len(parked))
+                            now = run.carried() if run.carried is not None else None
+                            held = {i.unit_id for i in (*now.items, *now.in_cube)} if now is not None else set()
+                            left = sum(1 for unit in parked if unit not in held)
+                            LOG.info('Macro: cube: %d put down for the transmute, %d picked up again', len(parked),
+                                     len(parked) - left)  # fmt: skip
                             parked.clear()
-                        if not made:
+                        if not done:
                             break
-                return stash(run, key, staying())  # what the stash left, into the cube
+                return made, left
 
             def identify_loot(items) -> None:
                 # All at once at Deckard Cain (the player, 2026-10-17: "we need to perform mass identify at decard
@@ -1412,13 +1636,37 @@ class MacroRunner:
                 key = inventory_key()
                 return unpack(run, key, items) if key is not None else 0
 
+            def stash_view() -> StashView | None:
+                return run.stash_view() if run.stash_view is not None else None
+
+            def town_visit(exit: Exit) -> Contract:
+                # The town visit (macros/visit.py `visit`; macros/town-plan.md step 3): Cain, the stash, Jamella, Halbu,
+                # the exit, once; the stash's full stacks as read kept (FULL_FILE) for the pickups out of town
+                own = self.loop.own
+                if own is None:
+                    raise Abort("the player's items are not told apart yet")
+                hands = Hands(inventory_key, identify_loot, judge, stash_view, transmute_gems)
+                needs = Needs(keys=self.loop.kind.keys, portals=self.loop.portal or portal_source(run))
+                done = visit(run, hands, needs, own, exit, full=frozenset(self.loop.full),
+                             waited=self.loop.repair_waited(), memory=self.stash_memory)  # fmt: skip
+                if done.full != frozenset(self.loop.full):
+                    self.loop.full = set(done.full)
+                    self.loop.keep_full()
+                if done.repair_failed:
+                    self.loop.repair_failed = self.loop.games  # not for want of gold: not again for a while
+                return done.contract
+
             self.loop.marks = self.marks
+            note_view(run, self.stash_memory)  # the stash as read, once a game in the Fortress (town-plan.md step 0)
             if self.loop.make_room:
                 self.loop.make_room = False
                 world = run.world()
                 key = action_key(self.saved_games, world.player.name, INVENTORY) if world.player is not None else None
                 if key is not None and self.loop.own is not None:
                     try:
+                        # A key stack out of the 2 x 4 block first: the room is often there already, in pieces (a
+                        # Unique Brandistock, 12:36 on 2026-10-18); then the loop's items into the cube
+                        arrange_keys(run, key)
                         stash(run, key, self.loop.own)  # the loop's items into the cube: room for what lies there
                     except Abort as stop:
                         if cut(run, stop):
@@ -1459,23 +1707,20 @@ class MacroRunner:
                     LOG.info("Macro: loop: Teleport is the character's own: in every move")
                 self.hunter.looped = looped
 
-            def arrange() -> bool:
-                key = inventory_key()
-                return arrange_keys(run, key) if key is not None else False
-
             self.loop.leg(
                 run,
                 key_names,
                 self.progress,
                 level_run,
                 take_one,
-                stash_loot,
-                identify_loot,
-                judge,
-                bring,
-                arrange,
-                down,
-                fight,
+                visit=town_visit,
+                identify=identify_loot,
+                bring=bring,
+                down=down,
+                fight=fight,
+                item_stats=self.item_stats,
+                shown=self.stash_memory,
+                left=self.valuable_left,
             )
         elif routine in (HUNT_ELITES, ATTACK):
             if self.hunter is None:

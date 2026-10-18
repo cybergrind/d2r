@@ -147,6 +147,32 @@ def test_without_a_stage_the_goal_is_the_cards_first_mark() -> None:
     assert named() is None
 
 
+def test_a_doors_remembered_entry_is_where_the_way_to_it_ends() -> None:
+    # The Catacombs stairs: a run ended at the mark's far side walked round its block of walls, or hopped onto the
+    # entry first (rca/2026-10-18/stairs-walks-findings.md §5 B)
+    from inventory_tracking.macros.goals import ENTRY_GOAL_NEAR, PLACE_NEAR
+
+    stairs = card('the stairs', (4.0, 4.0), warp=True)
+    plain = goal_named(card=stairs)
+    assert (plain.place, plain.near) == ((4.0 * TILE_UNITS, 4.0 * TILE_UNITS), PLACE_NEAR)
+    door = goal_named(card=stairs, entry=(18.0, 22.0))
+    assert (door.place, door.near, door.do) == ((18.0, 22.0), ENTRY_GOAL_NEAR, ENTER)
+
+
+def test_the_way_to_a_doors_entry_ends_on_it_not_the_loops_short_of_it() -> None:
+    # 13:00-13:10 on 2026-10-18: the loop's goals end LOOP_SHORT 3 short (a chest's own spot); the runs to the Catacombs
+    # stairs ended 2.2-3.0 off the entry, east of the block of walls, and the click walked round it
+    from inventory_tracking.macros.travel import LOOP_SHORT, LOOPED_TELEPORT
+
+    stairs = card('the stairs', (4.0, 4.0), warp=True)
+    door = goal_of((0.0, 0.0), spend=LOOPED_TELEPORT, reach=REACH_UNITS, card=stairs, entry=(18.0, 22.0))
+    assert door is not None
+    assert door.spend == replace(LOOPED_TELEPORT, short=0.0)
+    plain = goal_of((0.0, 0.0), spend=LOOPED_TELEPORT, reach=REACH_UNITS, card=stairs)
+    assert plain is not None
+    assert plain.spend.short == LOOP_SHORT  # no entry known: the mark, as before
+
+
 def test_a_stage_whose_mark_the_card_does_not_hold_follows_the_card_and_says_so() -> None:
     found = goal_named(stage=use('Vizier seal 1'), card=card('Diablo', (4.0, 4.0)))
     assert (found.do, found.place) == (REACH, (20.0, 20.0))
@@ -638,3 +664,82 @@ def test_the_loops_charges_are_spent_only_toward_a_goal_hop_from_and_further() -
     assert not hops(facts, near, LOOPED)
     assert not hops(facts, (here[0], here[1] + 80.0), LOOPED)  # 13:36: no Teleport in the loop at all (HOP_FROM inf)
     assert hops(facts, near, PRESSED)  # the player's own key: as before
+
+
+def test_a_door_entry_no_hop_lands_nearer_to_ends_the_run_there() -> None:
+    # 12:46:41 on 2026-10-18: the run to Catacombs 3's stairs aimed at the remembered entry (within 2) stood 48 s 5.4
+    # units off it, "no footing in view brings the character nearer by hops"
+    from dataclasses import replace
+
+    from inventory_tracking.macros.goals import ENTRY_GOAL_NEAR
+    from inventory_tracking.macros.movement import NO_LANDING
+    from inventory_tracking.macros.pursuit import Ended, to_the_door
+
+    stairs = card('the stairs', (4.0, 4.0), warp=True)
+    door = goal_named(card=stairs, entry=(18.0, 22.0))
+    assert door.near == ENTRY_GOAL_NEAR
+    near = replace(facts(door, way=lambda: NoWay(NO_LANDING)), beyond=3.4, attacking=False)
+    assert isinstance(to_the_door(near, door), Ended)
+    far = replace(near, beyond=20.0)
+    assert not isinstance(to_the_door(far, door), Ended)  # far off: not at the door
+
+
+# -- F1: the run's boss is rushed while nothing hurts (rca/2026-10-18/andariel-cadence-findings.md §5 F1) ------------
+
+
+def _andariel_look(**given):
+    """The look of 11:41:45.63 on 2026-10-18 (take 084143Z-37, the study's §6): landed among Andariel's pack 0.8 s after
+    the last strike, a Hold (3.112 s) and a plain Teleport toward her (2.627 s, 0.81 s unstruck, landing in reach)."""
+    from inventory_tracking.combat.harm import Harm
+    from inventory_tracking.macros.pursuit import FULL, Candidate
+
+    goal = Goal('Andariel', (40.0, 0.0), FIGHT, REACH_UNITS, PRESSED, unit=7, stage=fight('Andariel'))
+    goal = replace(goal, **{k: v for k, v in given.items() if k in ('stage', 'clearing', 'do')})
+    hold = Candidate(Hold(goal), 3.112, Harm(10, 30), unstruck=0.0, strikes=True)
+    step = Step((25.0, 0.0), TELEPORT)
+    hop = Candidate(Move(step, goal), 2.627, Harm(10, 30), unstruck=0.81, strikes=True)
+    hop = replace(hop, harm=given.get('harm', hop.harm))
+    look = Facts(
+        100.0, goal, False, True, True, lambda: step, area=37, candidates=(hold, hop), priced=True,
+        budget=500, life=1800, near=True, quiet=0.8, hurt=given.get('hurt', False),
+    )  # fmt: skip
+    run = Pursuit('pickup', 0.0, advance=False, leash=FULL, area=37, looped=True)
+    return look, given.get('run', run), hold, hop
+
+
+def test_a_move_toward_the_runs_boss_is_not_held_to_the_strike_gap_while_nothing_hurts(monkeypatch) -> None:
+    # 11:41:45.63: "decision Hold (Hold T3.112, Move/Teleport T2.627)", one strike, then the Move; 1.34 s a hop cycle
+    # where a chained hop takes ~0.6 s (the player, 18:00 on 2026-10-18: "F1: ok")
+    from inventory_tracking.combat.harm import Harm
+    from inventory_tracking.macros import pursuit
+
+    monkeypatch.setattr(pursuit, 'RUSH_THE_BOSS', True)
+    look, run, hold, hop = _andariel_look()
+    assert decide(look, run) == hop.act
+    # Anything hurts: I2 is whole again, one strike first
+    look, run, hold, hop = _andariel_look(hurt=True)
+    assert decide(look, run) == hold.act
+    # The move dearer in life than the hold (and over RUSH_HARM_SHARE of the life): held to the gap as before
+    look, run, hold, hop = _andariel_look(harm=Harm(200, 300))
+    assert decide(look, run) == hold.act
+    # The switch off: today's I2
+    monkeypatch.setattr(pursuit, 'RUSH_THE_BOSS', False)
+    look, run, hold, hop = _andariel_look()
+    assert decide(look, run) == hold.act
+
+
+def test_the_strike_gap_holds_as_before_on_every_goal_but_the_runs_boss(monkeypatch) -> None:
+    from inventory_tracking.macros import pursuit
+
+    monkeypatch.setattr(pursuit, 'RUSH_THE_BOSS', True)
+    # No level run: the key's own press (KP_4) toward the same boss
+    look, _, hold, _ = _andariel_look()
+    assert decide(look, Pursuit('teleport', 99.9)) == hold.act
+    assert decide(look, None) == hold.act
+    # A run's fight on its way (`clear_way`) or of the rest of the level, and a goal of no fight stage
+    for given in ({'clearing': True}, {'stage': None}, {'stage': use('seal')}):
+        look, run, hold, _ = _andariel_look(**given)
+        assert decide(look, run) == hold.act, given
+    # A run paused by the player's hand is no run working
+    look, run, hold, _ = _andariel_look()
+    assert decide(look, replace(run, paused=True)) == hold.act
