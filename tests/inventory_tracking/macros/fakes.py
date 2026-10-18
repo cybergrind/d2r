@@ -247,6 +247,7 @@ class Game:
         )  # window fractions where a summon cannot stand
         self.deaf_clicks = 0  # clicks the lobby ignores while it is still coming up
         self.staff: Teleport | None = None  # the worn Teleport staff; None: Teleport as a skill, if in a slot
+        self.worn: frozenset[int] | None = None  # the worn items' own skills (`Run.worn_skills`); None: unread
         self.door: tuple[float, float] | None = None  # a warp, in tiles: a click near it walks the character in
         self.swallowed_clicks = 0  # clicks in a game the game takes no notice of (a cast ends)
         self.door_above = 0.0  # classic pixels (600 high) the door is clicked above its tile; 0: on the ground
@@ -982,6 +983,7 @@ class Game:
             run.read = first
         if self.hover_known:
             run.hovered = self.unit_under_pointer
+        run.worn_skills = lambda: self.worn
         run.things = lambda: () if self.thing is None else (self.thing,)
         run.containers = run.things
         run.carried = lambda: (

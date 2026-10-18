@@ -33,6 +33,7 @@ from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.cube import INVENTORY, cell_point
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.junk import named
+from inventory_tracking.macros.portal import FROM_TOME, PortalSource, portal_source
 from inventory_tracking.macros.routines import screen_fraction
 from inventory_tracking.macros.waypoint import panel_point
 from inventory_tracking.macros.world import (
@@ -104,14 +105,16 @@ GOLD_SETTLE = 0.25
 WALKING = (2, 3, 6)  # the character's walk, run and town walk: the view moves with it
 
 
-def short(pack: Pack | None) -> bool:
+def short(pack: Pack | None, source: PortalSource = FROM_TOME) -> bool:
     """Whether the keys or the Town Portal charges are under MIN_STOCK (an unread count says nothing): a visit for them
     alone. The Tome of Identify's charges are filled on a visit made anyway (Cain identifies: macros/cain.py), and so
     are the others (the player, 2026-10-17: "refill when we have to sell something, and keep bare refills at
-    minimum")."""
+    minimum"). With the Sling's Town Portal (`source`, macros/portal.py) the portals are no stock: the keys alone (the
+    player, 2026-10-18: "when we have sling ring equipped - we don't need to run any logic in regard of town portal (do
+    not track, do not buy)"), the tome carried or not."""
     if pack is None:
         return False
-    return any(count is not None and count < MIN_STOCK for count in (pack.keys, pack.portals))
+    return any(count is not None and count < MIN_STOCK for count in (pack.keys, source.count(pack)))
 
 
 def _drawn(world: World, place: tuple[float, float], aspect: float) -> tuple[float, float] | None:
@@ -243,13 +246,14 @@ def restock(run: Run, sell: Sequence[Carried] = (), back: bool = True) -> None:
     if run.carried is None or run.stock is None:
         raise Abort('the shop cannot be read')
     before = run.carried()
-    if before is None or before.keys is None or before.portals is None:
+    source = portal_source(run)  # the Sling's Town Portal: no scrolls, nothing counted (macros/portal.py)
+    if before is None or before.keys is None or (source.stocked and before.portals is None):
         raise Abort('the keys and the Town Portal charges are not read')
     rect = run.actuator.keys.focused_window_rect()
     if rect is None:
         raise Abort('no game window')
     aspect = rect[2] / rect[3]
-    run.say(f'Shop: {before.keys} keys, {before.portals} portals')
+    run.say(f'Shop: {before.keys} keys, {source.said(before)}')
     walk_until(run, _jamella, SEEN, 'Jamella')
     run.seen(lambda w: w.player is not None and w.player.mode not in WALKING, WALK_SECONDS)  # the view still
     try:
@@ -295,7 +299,7 @@ def restock(run: Run, sell: Sequence[Carried] = (), back: bool = True) -> None:
                 raise Abort(f'an item other than the one sold left the inventory at ({each.x}, {each.y})')
         if sell:
             LOG.info('Macro: shop: carried gold %s -> %s after the sales', first, _gold(run))
-        for what in BUYS:
+        for what in buys(source):
             item = stock.get(what.txt)
             if item is None:
                 LOG.info('Macro: shop: no %s in her stock', what.name)
@@ -315,9 +319,10 @@ def restock(run: Run, sell: Sequence[Carried] = (), back: bool = True) -> None:
     after = run.carried()
     keys = after.keys if after is not None else None
     portals = after.portals if after is not None else None
-    LOG.info('Macro: shop: keys %s -> %s, portals %s -> %s, identifies %s -> %s', before.keys, keys, before.portals,
-             portals, before.identifies, after.identifies if after is not None else None)  # fmt: skip
-    run.say(f'Shop: {keys} keys, {portals} portals')
+    LOG.info('Macro: shop: keys %s -> %s, portals %s -> %s%s, identifies %s -> %s', before.keys, keys, before.portals,
+             portals, '' if source.stocked else f' (Town Portal from {source.name}: none bought)', before.identifies,
+             after.identifies if after is not None else None)  # fmt: skip
+    run.say(f'Shop: {keys} keys, {source.said(after)}')
     if back:  # toward the chests: the waypoint; before Save and Exit there is no need (macros/loop.py)
         walk_until(run, _waypoint(run), (0.15, 0.85, 0.15, 0.8), 'the waypoint')
 
@@ -371,6 +376,12 @@ BUYS = (
         IDENTIFY_SCROLL, 'identifies', lambda p: p.identifies, lambda p: p.identifies is not None and p.identifies < 20
     ),
 )
+
+
+def buys(source: PortalSource) -> tuple[Buy, ...]:
+    """What a visit buys: every BUYS but the scrolls when Town Portal is the Sling's (macros/portal.py): with no tome to
+    take them a Shift + right click would put a scroll in a cell, and nothing casts it."""
+    return BUYS if source.stocked else tuple(what for what in BUYS if what.txt != SCROLL)
 
 
 def _buy(run: Run, rect, item: Stocked, what: Buy) -> None:

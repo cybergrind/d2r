@@ -1086,6 +1086,7 @@ class MacroRunner:
                     run.research = memory.hover_candidates  # a scan of the whole data section per Consume
                 run.hovered = memory.hovered
                 run.own_teleport = memory.own_teleport
+                run.worn_skills = memory.worn_skills
                 if self.hunter is not None:
                     self.hunter.room_maker = self._room_in_cube
                 run.wear = memory.wear

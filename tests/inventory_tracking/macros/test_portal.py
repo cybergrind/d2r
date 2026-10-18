@@ -5,9 +5,10 @@ import pytest
 
 from inventory_tracking.levels.model import TOWN_PORTAL
 from inventory_tracking.macros.actuator import Abort
-from inventory_tracking.macros.portal import TOME, to_town
-from inventory_tracking.macros.world import Thing
-from tests.inventory_tracking.macros.fakes import KEYS, PREBUFF_SET, Game, world
+from inventory_tracking.macros.portal import FROM_SLING, FROM_TOME, TOME, portal_source, to_town
+from inventory_tracking.macros.skills import SLING_TOWN_PORTAL
+from inventory_tracking.macros.world import Pack, Thing
+from tests.inventory_tracking.macros.fakes import KEYS, PREBUFF_SET, SLOTS, Game, world
 
 
 LOWER_KURAST, KURAST_DOCKS = 79, 75
@@ -128,3 +129,62 @@ def test_a_portal_whose_middle_is_covered_is_taken_by_its_top():
     to_town(play.run(), keys)
 
     assert play.character.area == KURAST_DOCKS
+
+
+# The Sling (uniqueitems.txt, a Ring: `oskill` "Townportal O Skill", skills.txt 411) in place of the tome: the player,
+# 2026-10-18, "when we have sling ring equipped - we don't need to run any logic in regard of town portal"
+SLING_SLOTS = tuple(SLING_TOWN_PORTAL if skill == TOME else skill for skill in SLOTS)  # bound where the tome was: `x`
+
+
+def sling_keys(world, skills):
+    found = {**KEYS, **{s: 'x' for s in (TOME, SLING_TOWN_PORTAL) if s in world.slots}}
+    missing = [s for s in skills if s not in found]
+    if missing:
+        raise Abort(f'skill {missing[0]} is not on a skill key')
+    return {skill: found[skill] for skill in skills}
+
+
+def test_the_source_is_the_slings_when_it_is_worn_and_the_tomes_otherwise_unread_too():
+    play = Game(world(LOWER_KURAST))
+    assert portal_source(play.run()) == FROM_TOME  # unread
+    play.worn = frozenset({54})  # Enigma's Teleport alone
+    assert portal_source(play.run()) == FROM_TOME
+    play.worn = frozenset({54, SLING_TOWN_PORTAL})
+    assert portal_source(play.run()) == FROM_SLING
+    assert FROM_SLING.count(Pack(portals=0)) is None  # no tome carried: nothing to count
+    assert FROM_TOME.count(Pack(portals=0)) == 0
+    assert FROM_SLING.said(Pack(portals=0)) == 'portals from the Sling'
+    assert FROM_TOME.said(Pack(portals=7)) == '7 portals'
+
+
+def test_with_the_sling_worn_its_town_portal_is_cast_and_the_portal_taken():
+    play = Game(world(LOWER_KURAST, slots=SLING_SLOTS))
+    play.next_area = KURAST_DOCKS
+    play.worn = frozenset({SLING_TOWN_PORTAL})
+    play.portal_opens = 0.6
+    run = play.run()
+
+    to_town(run, sling_keys)
+
+    assert play.pressed()[0] == 'x'
+    assert run.keys[SLING_TOWN_PORTAL] == 'x'
+    assert 'Town Portal (Sling)' in play.said
+    assert play.character.area == KURAST_DOCKS
+
+
+def test_with_the_sling_worn_and_its_skill_on_no_key_nothing_is_cast_and_the_tome_is_not_tried():
+    play = lower_kurast()  # the tome's 220 on `x`, the Sling's 411 on no key
+    play.worn = frozenset({SLING_TOWN_PORTAL})
+
+    with pytest.raises(Abort, match=f'skill {SLING_TOWN_PORTAL} is not on a skill key'):
+        to_town(play.run(), sling_keys)
+    assert play.pressed() == []
+
+
+def test_a_sling_cast_with_no_portal_does_not_ask_about_the_tome():
+    play = Game(world(LOWER_KURAST, slots=SLING_SLOTS))
+    play.worn = frozenset({SLING_TOWN_PORTAL})
+    play.portal_opens = None
+
+    with pytest.raises(Abort, match=r'no Town Portal opened 2.5s after the cast from the Sling$'):
+        to_town(play.run(), sling_keys)

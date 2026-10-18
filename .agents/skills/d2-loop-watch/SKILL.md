@@ -32,12 +32,14 @@ player's rulings: AGENTS.md, the memory `d2r-kp6-loop-rulings`, and the journal.
 2. **Gold.** Repairs and purchases use only the gold carried in the inventory. Never use the stash's gold ("I don't
    want to touch this 9M of gold atm"). `repair.py` checks the quoted cost and the stash gold after. If
    `runs/alt-d/repair-touched-stash.txt` exists, repairs are off: tell the player.
-3. **Selling.** Full stash stacks (99), and the loop's junk (plan §15, approved 2026-10-17): its own items of the kinds
-   taken to identify, and magic or rare charms, identified and appraised `vendor`. Never a potion, a jewel, a ring, a rune, a
-   set or unique item, or anything of the player's.
+3. **Selling.** Full rune and material stacks (99), and the loop's junk: its own items, identified and appraised
+   `vendor` (magic, rare, set, unique or crafted: the player, 2026-10-18 11:10, "we should sell junk rings and other
+   junk items; imporant!: do not sell own equipment or valuable items"). Never a potion, a rune, a gem, a set or
+   unique charm (the Sunders, Gheed's, Annihilus, the Torch), anything appraised other than `vendor`, or anything of
+   the player's.
 3b. **The trade session** (the player, 2026-10-17; loop.py TRADE_ROOM): only when the free room (inventory + cube) runs
    low; it must leave the character for Lower Kurast with keepers and resources stashed, all junk sold (never the
-   player's gear, sets, uniques, jewels, rings, runes, gems), keys and scrolls refilled, the staff repaired if the
+   player's gear, runes, gems, unique charms), keys and scrolls refilled, the staff repaired if the
    carried gold covers it, **the cube empty and inventory cells free**. Its `trade session done:` line says each; a
    gap is a Fix. No Cain, stash or Jamella between sessions (but a bare keys/scrolls refill at 3).
 4. **The player's pause wins.** A `PLAYER: loop off` line means the player turned the loop off with KP_6. Never turn

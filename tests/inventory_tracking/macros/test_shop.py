@@ -7,7 +7,9 @@ import pytest
 
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.cube import CUBE_CLASS
+from inventory_tracking.macros.portal import FROM_SLING
 from inventory_tracking.macros.shop import JAMELLA, KEY, SCROLL, restock, short
+from inventory_tracking.macros.skills import SLING_TOWN_PORTAL
 from inventory_tracking.macros.world import Carried, Monster, Pack, Stocked, Thing
 from tests.inventory_tracking.macros.fakes import Game, player, world
 
@@ -34,6 +36,31 @@ def test_under_three_keys_or_portals_is_short_and_an_unread_count_is_not():
     assert not short(Pack(keys=3, portals=3))
     assert not short(Pack(keys=None, portals=None))
     assert not short(None)
+
+
+def test_with_the_slings_town_portal_the_portals_are_no_stock_and_the_keys_still_are():
+    # The player, 2026-10-18: "when we have sling ring equipped - we don't need to run any logic in regard of town
+    # portal (do not track, do not buy)"
+    assert not short(Pack(keys=12, portals=0), FROM_SLING)  # no tome carried
+    assert not short(Pack(keys=12, portals=None), FROM_SLING)
+    assert short(Pack(keys=2, portals=20), FROM_SLING)
+    assert short(Pack(keys=12, portals=0))  # the tome's, as before
+
+
+def test_with_the_sling_worn_and_no_tome_a_visit_buys_keys_and_no_scroll():
+    play = fortress(keys=1, portals=0)  # no tome: `carried_items` reads 0
+    play.worn = frozenset({SLING_TOWN_PORTAL})
+
+    restock(play.run())
+
+    assert play.pack is not None
+    assert (play.pack.keys, play.pack.portals) == (24, 0)  # a scroll clicked would read 20 in the fake
+    scrolls = {(item.x, item.y) for item in STOCK if item.txt == SCROLL}
+    buys = [e for e in play.keys.events if e[0] == 'button' and e[1] == 3 and 'Shift_L' in e[3]]
+    assert buys
+    assert all(play.stock_cell(*e[2]) not in scrolls for e in buys)  # the keys' alone
+    assert play.said[0] == 'Shop: 1 keys, portals from the Sling'
+    assert play.said[-1] == 'Shop: 24 keys, portals from the Sling'
 
 
 def test_one_visit_buys_keys_and_scrolls_and_walks_back_to_the_waypoint():

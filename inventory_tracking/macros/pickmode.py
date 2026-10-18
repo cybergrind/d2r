@@ -70,6 +70,7 @@ AMULET = 'amul'
 RARE = RARITIES['rare']
 JEWELRY_QUALITIES = frozenset((RARE, RARITIES['set'], RARITIES['unique']))
 MAGIC = RARITIES['magic']
+SET, UNIQUE, CRAFTED = RARITIES['set'], RARITIES['unique'], 8  # ItemData quality (8: crafted)
 # The types that roll skills (the classes' items: the Amazon's bows, spears and javelins, the Sorceress's orbs, the
 # Necromancer's wands and heads, the Paladin's scepters and shields, the Barbarian's helms, the Druid's pelts,
 # the Assassin's claws; the Warlock's grimoires and daggers, guides/warlock.html §6) and circlets: magic or rare. The
@@ -188,10 +189,13 @@ def sellable(kind: str | None, quality: int, txt: int | None = None) -> bool:
     2026-10-17 11:25: "you can sell identified junk charms"), and a white or superior Void base (the player, 17:45:
     "we're storing every 3os dagger, while in reality we need something that is really good for void": the appraisal
     prices its sockets and Warlock skills, pricing/triage `void-three-socket`), and magic or rare jewels, rings and
-    amulets (the player, 19:06: "actually, we can sell trash jewels/rings/amus"). Never a rune or gem, nor a set,
-    unique or crafted item; nor the Crafted Sunder Charm."""
+    amulets (the player, 19:06: "actually, we can sell trash jewels/rings/amus"); and a set, unique or crafted item
+    the appraisal calls junk (the player, 11:10 on 2026-10-18: "we should sell junk rings and other junk items;
+    imporant!: do not sell own equipment or valuable items"), but never a charm of them: the Sunders, Gheed's, Annihilus
+    and the Torch are the loop's quarry whatever a price says. Never a rune or gem; nor the Crafted Sunder Charm."""
     return (
         identified_for(kind, quality)
+        or (quality in (SET, UNIQUE, CRAFTED) and kind is not None and kind not in CHARMS)
         or (quality in (MAGIC, RARE) and kind in (*CHARMS, *JEWELS, RING, AMULET) and kind != 'csch')
         or (quality in WHITE and txt in VOID_BASES)
         or (quality == MAGIC and txt == MONARCH)

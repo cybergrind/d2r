@@ -139,6 +139,72 @@ def test_a_game_goes_from_the_fortress_through_the_chests_and_the_portal_back_to
     assert 'Save and Exit' in play.said
 
 
+def test_with_the_sling_worn_and_no_tome_a_game_casts_its_town_portal_and_never_goes_for_scrolls(caplog):
+    # The player, 2026-10-18: "sling provides town teleport skill, that frees two slots in inventory (we can replace
+    # tome of town portals) ... when we have sling ring equipped - we don't need to run any logic in regard of town
+    # portal (do not track, do not buy)". The tome taken out: its charges read 0 (world.py `carried_items`)
+    from dataclasses import replace
+
+    from inventory_tracking.macros.cube import CUBE_CLASS
+    from inventory_tracking.macros.skills import SLING_TOWN_PORTAL
+    from inventory_tracking.macros.world import Pack
+    from tests.inventory_tracking.macros.fakes import SLOTS
+
+    slots = tuple(SLING_TOWN_PORTAL if skill == 220 else skill for skill in SLOTS)  # bound where the tome was: `x`
+    play = Game(replace(at(PANDEMONIUM_FORTRESS, x=5048.0, y=5044.0), slots=slots))
+    play.thing, play.thing_above = Thing(6, WAYPOINT_ACT4, 2, 5044.0, 5019.0), 0.0
+    play.next_area = KURAST_DOCKS
+    play.pack = Pack((Carried(1, CUBE_CLASS, 0, 0, (2, 2)),), ('...',) * 4, keys=12, portals=0)
+    play.worn = frozenset({54, SLING_TOWN_PORTAL})
+    progress = progress_in(PANDEMONIUM_FORTRESS)
+    loop = Loop(on=True, prebuffed=GAME)
+    loop.start()
+
+    def sling_keys(_world, skills=None):
+        return {skill: {**KEYS, SLING_TOWN_PORTAL: 'x'}[skill] for skill in skills or ()}
+
+    def level_run() -> None:
+        progress.absent(LOWER_KURAST, 'Super chests')
+
+    legs = []
+    with caplog.at_level('INFO'):
+        for _ in range(6):
+            here = play.world.player
+            if here is not None:
+                progress.note(GAME, here.area)
+            if here is not None and here.area == KURAST_DOCKS:
+                break
+            legs.append(loop.leg(play.run(), sling_keys, progress, level_run, lambda: False))
+
+    assert legs == [TO_THE_CHESTS, CHESTS, PICK_UP, PORTAL]  # not to Jamella for scrolls first (`SHOP`)
+    assert not loop.short
+    assert play.character.area == KURAST_DOCKS
+    assert 'Town Portal (Sling)' in play.said
+    # Said once, at the first leg: the live game's confirmation (macros/sling-plan.md)
+    assert caplog.text.count('Macro: loop: Town Portal from the Sling: skill 411 in slot 5; worn skills [54, 411]') == 1
+
+
+def test_without_the_sling_the_tome_is_counted_and_the_session_report_says_which(caplog):
+    from inventory_tracking.macros.portal import FROM_SLING
+    from inventory_tracking.macros.world import Pack
+
+    pack = Pack(keys=12, portals=0)
+    play = Game(at(PANDEMONIUM_FORTRESS))
+    play.pack = pack
+    loop = Loop(on=True, prebuffed=GAME)
+    loop.start()
+    with caplog.at_level('INFO'), suppress(Abort):  # her visit, which the fake has no Jamella for
+        loop.leg(play.run(), keys, progress_in(PANDEMONIUM_FORTRESS), lambda: None, lambda: False)
+    assert loop.short  # no tome and no Sling: short, as before
+    assert next_leg(at(PANDEMONIUM_FORTRESS), progress_in(PANDEMONIUM_FORTRESS), loop) == SHOP
+    assert 'Macro: loop: Town Portal from the tome: skill 220 in slot 5; worn skills unread' in caplog.text
+
+    loop.identified, loop.own, loop.portal = GAME, frozenset(), FROM_SLING
+    with caplog.at_level('INFO'):
+        loop.report(play.run(), GAME, pack, None)
+    assert 'keys 12, portals from the Sling, staff ?' in caplog.text
+
+
 def test_a_leg_made_again_and_again_with_nothing_coming_of_it_stops_the_loop():
     play = Game(at(LOWER_KURAST))
     progress, loop = progress_in(LOWER_KURAST), Loop(on=True)

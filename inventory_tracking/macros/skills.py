@@ -13,6 +13,9 @@ from inventory_tracking.input.keybindings import MODIFIERS, action_keys, key_fil
 
 TELEPORT = 54  # from a charged staff or an oskill alike; the slot table holds it either way
 TOWN_PORTAL = 220  # Book of Townportal: a tome in the inventory puts it in the slot table (macros/portal.py)
+# Townportal O Skill (skills.txt 411, no mana, no delay): the Sling's oskill (uniqueitems.txt Sling, a Ring: `oskill`
+# "Townportal O Skill" 1), in place of the tome (the player, 2026-10-18; macros/portal.py `FROM_SLING`)
+SLING_TOWN_PORTAL = 411
 ATTACK = 0  # the plain attack, what a mouse button holds when no skill is on it
 # Not a skill: the Swap Weapons key action. CybergrindAA has `c` on action 44 and says `c`
 # swaps (user, 2026-10-06); unconfirmed against another character's file.
@@ -23,6 +26,7 @@ ACTIONS = {SWAP_WEAPONS: 44}
 NAMES = {
     TELEPORT: 'Teleport',
     TOWN_PORTAL: 'Town Portal',
+    SLING_TOWN_PORTAL: 'Town Portal (Sling)',
     ATTACK: 'Attack',
     SWAP_WEAPONS: 'Swap Weapons',
 }

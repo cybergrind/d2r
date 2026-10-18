@@ -41,7 +41,7 @@ from inventory_tracking.macros.cube import (
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.junk import MAGIC
 from inventory_tracking.macros.pickup import SHUNNED
-from inventory_tracking.macros.portal import through_portal, to_town
+from inventory_tracking.macros.portal import FROM_TOME, PortalSource, portal_source, slot_note, through_portal, to_town
 from inventory_tracking.macros.repair import (
     ENABLED,
     RETRY_GAMES,
@@ -203,6 +203,9 @@ class Loop:
     store: Path | None = None
     # The keys or the Town Portal charges under shop.py MIN_STOCK at the last leg's look: Jamella first (phase 8)
     short: bool = False
+    # How the character casts Town Portal at the last look in a game (macros/portal.py `portal_source`): the Sling's
+    # has no charges to count or buy (the player, 2026-10-18); None: not read since the start
+    portal: PortalSource | None = None
     # The game is to be left from wherever the character is (`recover`), and when the recoveries were
     abandon: bool = False
     recovered: list[float] = field(default_factory=list)
@@ -283,7 +286,7 @@ class Loop:
     def start(self) -> None:
         self.full |= self._full_stored()
         self.on, self.made, self.own, self.abandon, self.seen, self.moved = True, Counter(), None, False, None, None
-        self.counted_in, self.placed = None, False
+        self.counted_in, self.placed, self.portal = None, False, None
 
     def recover(self, why: object, now: float) -> bool:
         """Whether the loop goes on after `why` stopped a leg, by leaving the game: not with the character dead,
@@ -370,9 +373,11 @@ class Loop:
         left = [i for i in loot(now, self.own) if i.unit_id in {j.unit_id for j in self.junk}]
         charges = f'{staff.charges}/{staff.maximum}' if staff is not None else '?'
         whole = not now.in_cube and not left and not self.short
+        source = self.portal or FROM_TOME
+        portals = now.portals if source.stocked else f'from {source.name}'
         LOG.info('Macro: trade session done%s: cube %d items, %d inventory cells free, junk left %d, keys %s, '
                  'portals %s, staff %s', '' if whole else ' (short of the contract)', len(now.in_cube), free,
-                 len(left), now.keys, now.portals, charges)  # fmt: skip
+                 len(left), now.keys, portals, charges)  # fmt: skip
 
     def _full_stored(self) -> set[int]:
         if self.store is None:
@@ -466,7 +471,16 @@ class Loop:
                 LOG.info('Macro: loop: %s, by where the character is', found.name)
                 self.kind = found
         pack = run.carried() if world.in_game and run.carried is not None else None
-        self.short = short(pack)
+        if world.in_game and world.player is not None:
+            source = portal_source(run)
+            if source != self.portal:
+                # Said at the loop's first leg in a game and whenever it changes (the ring put on or taken off): the
+                # first live game confirms the Sling is read and its skill bound (macros/sling-plan.md)
+                worn = run.worn_skills() if run.worn_skills is not None else None
+                LOG.info('Macro: loop: Town Portal from %s: skill %d %s; worn skills %s', source.name, source.skill,
+                         slot_note(world, source), sorted(worn) if worn is not None else 'unread')  # fmt: skip
+                self.portal = source
+        self.short = short(pack, self.portal or FROM_TOME)
         if pack is not None and world.player is not None and self.own is None:
             # What the loop's first look finds carried, told apart (the player's own, the loop's, the cube's)
             mine_now = self.mine or self._stored(world.player.name)

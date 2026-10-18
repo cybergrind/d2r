@@ -389,6 +389,7 @@ class Safety:
         hands: Hands = 'battle',
         options: Callable[[Point], tuple[Step, ...]] | None = None,
         battle_ready: bool = True,
+        teleport_hands: Hands = 'travel',
     ) -> Facts:
         """Assemble prices without selecting a goal; the decision is pursuit.decide's.
 
@@ -565,7 +566,11 @@ class Safety:
             gap = math.dist(here, step.spot)
             jump = next((j for j in jumps if j.skill == step.skill), None)
             seconds = jump.takes(gap) if jump else (0.31 if step.skill == TELEPORT else 0.36 + gap / 20.0)
-            needs = 'travel' if step.skill == TELEPORT else 'battle'
+            # The set a Teleport is cast with: the staff's (`travel`), or the battle set's own where Teleport is the
+            # character's skill (Enigma): no swap there and back. Priced with both swaps, every Teleport to a firing
+            # spot lost to the stand (172 of 172 offered beside a hold on Catacombs 4, 10:55-11:08 on 2026-10-18:
+            # rca/2026-10-18/sluggish-engagement-findings.md)
+            needs = teleport_hands if step.skill == TELEPORT else 'battle'
             swap = SWAP_SECONDS if needs != hands else 0.0
             seconds += swap + settings.move_overhead
             # A charged hop can leave quickly; a delayed jump/walk cannot. The

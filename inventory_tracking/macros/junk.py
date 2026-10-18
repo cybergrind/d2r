@@ -38,9 +38,11 @@ __all__ = ['JUNK_QUALITIES', 'MAGIC', 'VENDOR', 'identify', 'junk', 'junk_of', '
 
 Cell = tuple[int, int, int]  # an item's class and top-left inventory cell
 MAGIC, RARE = 4, 6  # ItemData quality (loot/shown.py RARITIES)
-# The only qualities ever sold as junk: a set or unique never is; a white or superior one only as a Void base
-# (macros/pickmode.py `sellable`)
-JUNK_QUALITIES = frozenset((MAGIC, RARE, *WHITE))
+# The qualities sold as junk once appraised `vendor`: magic, rare, set, unique and crafted (the player, 11:10 on
+# 2026-10-18: "we should sell junk rings and other junk items; imporant!: do not sell own equipment or valuable items"),
+# never a set or unique charm (macros/pickmode.py `sellable`); a white or superior one only as a Void base
+SET, UNIQUE, CRAFTED = 5, 7, 8
+JUNK_QUALITIES = frozenset((MAGIC, RARE, SET, UNIQUE, CRAFTED, *WHITE))
 VENDOR = 'vendor'  # identify/service.py `verdict_for`: no reason to keep it (the module text)
 IDENTIFY_SECONDS = 1.0  # for an item's identified flag to turn on after the click
 CURSOR_SETTLE = 0.15  # seconds after the right click on the tome, before the click on the item

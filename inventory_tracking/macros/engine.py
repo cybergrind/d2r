@@ -62,6 +62,9 @@ class Run:
         self.hovered: Callable[[], tuple[int, int] | None] | None = None  # world.GameMemory.hovered
         # Whether Teleport is the character's own, given by a worn item (Enigma) and not by charges: None unread
         self.own_teleport: Callable[[], bool | None] | None = None  # world.GameMemory.own_teleport
+        # The skills of the character's own the worn items give (world.GameMemory.worn_skills): the Sling's Town Portal
+        # (macros/portal.py `portal_source`); None unread
+        self.worn_skills: Callable[[], frozenset[int] | None] | None = None
         self.wear: Callable[[], Wear | None] | None = None  # the most worn item (world.GameMemory.wear)
         self.cta: Callable[[], bool | None] | None = None  # a Call to Arms worn in either set (world.GameMemory.cta)
         # What is done with the other weapon set in hand at an arrival's input check, before the swap back

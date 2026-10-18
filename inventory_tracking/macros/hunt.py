@@ -345,6 +345,7 @@ VANISH_UNITS = 25.0
 SLICE = 0.01  # seconds between looks at the left mouse button while the mode waits or fights
 # Seconds after a loss of life within which the KP_6 loop's run may stand and strike (pursuit.py `arbitrate`)
 HURT_SECONDS = 2.0
+OWN_TELEPORT_SECONDS = 5.0  # between reads of whether Teleport is the character's own (`Hunter.own_teleport`)
 RUSH_UNMOVED = 1.5  # seconds with no move after which the loop's run fights what is in reach (blocking it)
 TOUGH_POINTS = 40_000.0  # life points in reach from which a pack is worth the main weapons
 HARD_SCORE = 4.0  # the threat score (terror/danger.py) of what is in reach from which it is, whatever its life
@@ -656,6 +657,7 @@ class Hunter:
         self.struck_at = -math.inf  # clock time the fight last saw the character cast under the held strike
         self.life_seen: int | None = None  # the character's life at the last priced look (`safety_priced`)
         self.hurt_at = -math.inf  # clock time a priced look last saw the character's life go down
+        self.own_read: tuple[bool, float] | None = None  # (Teleport the character's own, read at) (`own_teleport`)
         self.unmoved_since: float | None = None  # since when the loop's run made no move with a hostile in reach
         self.stands: Point | None = None  # where attack mode last saw the character
         # (where, since when, said) the character has been walking or running without getting anywhere
@@ -1896,6 +1898,7 @@ class Hunter:
                 hands,
                 options=lambda point: self.travel.options(run, world, ground, rect[2] / rect[3], point, SAFE_MOVE),
                 battle_ready=now - self.swap_failed_at >= SWAP_RETRY_SECONDS,
+                teleport_hands='battle' if self.own_teleport(run, now) else 'travel',
             )
             facts = self.escorted(run, world, ground, rect, look, facts)
         return facts
@@ -2461,6 +2464,13 @@ class Hunter:
                 name, *here, *goal, math.dist(here, goal),
             )  # fmt: skip
             run.say(f'No move toward {name}: {math.dist(here, goal):.0f} from its firing spot')
+
+    def own_teleport(self, run: Run, now: float) -> bool:
+        """Whether Teleport is the character's own skill (Enigma: world.py `own_teleport`), read again at most every
+        OWN_TELEPORT_SECONDS: the safety prices each look with it."""
+        if self.own_read is None or now - self.own_read[1] > OWN_TELEPORT_SECONDS or now < self.own_read[1]:
+            self.own_read = (bool(run.own_teleport is not None and run.own_teleport()), now)
+        return self.own_read[0]
 
     @staticmethod
     def worn(run: Run) -> Teleport | None:

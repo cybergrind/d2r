@@ -477,12 +477,10 @@ def gives_orders(stats) -> bool:
     return any(stat['id'] == NONCLASS_SKILL_STAT and stat['layer'] == BATTLE_ORDERS_SKILL for stat in stats)
 
 
-def gives_teleport(stats) -> bool:
-    """Whether one of the items' stat lists gives Teleport as a skill (NONCLASS_SKILL_STAT, the skill its layer), not
-    as charges."""
-    return any(
-        stat['id'] == NONCLASS_SKILL_STAT and stat['layer'] == TELEPORT_SKILL for found in stats for stat in found
-    )
+def given_skills(stats) -> frozenset[int]:
+    """The skills the items' stat lists give as skills of the character's own (NONCLASS_SKILL_STAT, the skill its
+    layer: Enigma's "+1 to Teleport" (97, 54, 1), the Sling's Town Portal (97, 411, 1)), not as charges."""
+    return frozenset(stat['layer'] for found in stats for stat in found if stat['id'] == NONCLASS_SKILL_STAT)
 
 
 @dataclass(frozen=True)
@@ -1298,9 +1296,9 @@ class GameMemory:
         # (character, item) unit ids the ground census said (`census`): the runner gives the one set its GameMemory
         # objects share, so an item is said once whatever reads it (a set of each said it 2-4 times, 2026-10-17)
         self.ground_seen: set[tuple[int, int]] = set()
-        # The worn items (unit id, body location) `own_teleport` last read, and what it found
+        # The worn items (unit id, body location) `worn_skills` last read, and the skills they give (`given_skills`)
         self.worn_held: frozenset[tuple[int, int]] | None = None
-        self.worn_own = False
+        self.worn_skills_of: frozenset[int] = frozenset()
         self.orders_of: dict[int, bool] = {}  # item unit id -> whether it gives Battle Orders (`_orders`)
         self.cta_seen: tuple[float, bool] | None = None  # (monotonic time, a Call to Arms worn) at `cta`
 
@@ -1675,7 +1673,7 @@ class GameMemory:
             return None
         try:
             worn = list(self._equipped())
-            if self._own_teleport(worn):
+            if TELEPORT_SKILL in self._worn_skills(worn):
                 return None
             for unit, data in worn:
                 if unit['txt_id'] not in STAFF_CLASS_IDS or data[ITEM_BODY_LOCATION] not in WEAPON_SLOTS:
@@ -1694,9 +1692,21 @@ class GameMemory:
         if TELEPORT_STATS is None:
             return None
         try:
-            return self._own_teleport(list(self._equipped()))
+            return TELEPORT_SKILL in self._worn_skills(list(self._equipped()))
         except OSError, ValueError, struct.error:
             return None
+
+    def worn_skills(self) -> frozenset[int] | None:
+        """The skills of the character's own the worn items outside the other weapon set give (`given_skills`): Teleport
+        (54) from Enigma, Town Portal (411) from the Sling (macros/portal.py `portal_source`). An unreadable look gives
+        the last read: a lost read must not take the Sling off and send the loop to buy scrolls it has no tome for.
+        None when never read."""
+        if TELEPORT_STATS is None:
+            return None
+        try:
+            return self._worn_skills(list(self._equipped()))
+        except OSError, ValueError, struct.error:
+            return self.worn_skills_of if self.worn_held is not None else None
 
     def wear(self) -> Wear | None:
         """The worn item with the least of its durability left (`least_worn`); None with none, or when unreadable."""
@@ -1714,8 +1724,8 @@ class GameMemory:
         except OSError, ValueError, struct.error:
             return None
 
-    def _own_teleport(self, worn) -> bool:
-        """`own_teleport` of the items worn, read once for each set of them: their stats change only with them."""
+    def _worn_skills(self, worn) -> frozenset[int]:
+        """`worn_skills` of the items worn, read once for each set of them: their stats change only with them."""
         held = frozenset((unit['unit_id'], data[ITEM_BODY_LOCATION]) for unit, data in worn)
         if held != self.worn_held:
             stats = [
@@ -1723,8 +1733,8 @@ class GameMemory:
                 for unit, data in worn
                 if data[ITEM_BODY_LOCATION] not in SWAP_SET
             ]
-            self.worn_held, self.worn_own = held, gives_teleport(stats)
-        return self.worn_own
+            self.worn_held, self.worn_skills_of = held, given_skills(stats)
+        return self.worn_skills_of
 
     def hovered(self) -> tuple[int, int] | None:
         """(unit type, unit id) the game holds for the unit under the pointer (HOVER_RVA); None when

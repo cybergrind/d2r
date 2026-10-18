@@ -521,7 +521,7 @@ def test_enigmas_teleport_is_the_characters_own_and_the_staff_on_the_swap_is_lef
 
     monkeypatch.setattr(world, 'read_stats', read_stats)
     memory = object.__new__(world.GameMemory)
-    memory.worn_held, memory.worn_own = None, False
+    memory.worn_held, memory.worn_skills_of = None, frozenset()
     worn = [(staff, location(11))]
     monkeypatch.setattr(memory, '_equipped', lambda: iter(worn))
     assert memory.teleport() == world.Teleport(69, 69, in_hand=False)  # the staff alone: its charges, swapped in
@@ -535,6 +535,55 @@ def test_enigmas_teleport_is_the_characters_own_and_the_staff_on_the_swap_is_lef
     # A +Teleport item on the other set is not the character's while that set is not in hand
     worn[:] = [(staff, location(11)), (enigma, location(12))]
     assert memory.own_teleport() is False
+
+
+def test_the_slings_town_portal_is_a_worn_skill_and_an_unreadable_look_keeps_the_last_read(monkeypatch):
+    # uniqueitems.txt Sling (a Ring, `rin`): `oskill` "Townportal O Skill" 1, item_nonclassskill (97) with skill 411 its
+    # layer, as Enigma's Teleport is (97, 54, 1); the player, 2026-10-18: the Sling in place of the tome
+    from inventory_tracking.macros import world
+    from inventory_tracking.macros.skills import SLING_TOWN_PORTAL
+
+    sling, enigma = (
+        {'unit_id': 1, 'txt_id': 537, 'stats_pointer': 100},
+        {'unit_id': 2, 'txt_id': 373, 'stats_pointer': 200},
+    )
+    offset = world.TELEPORT_STATS
+    assert offset is not None
+    stats = {
+        100 + offset: [{'id': 105, 'layer': 0, 'raw': 10}, {'id': 97, 'layer': SLING_TOWN_PORTAL, 'raw': 1}],
+        200 + offset: [{'id': 97, 'layer': 54, 'raw': 1}],
+    }
+    monkeypatch.setattr(world, 'read_stats', lambda read, address: stats[address])
+
+    def location(spot: int) -> bytes:
+        data = bytearray(0x60)
+        data[world.ITEM_BODY_LOCATION] = spot
+        return bytes(data)
+
+    memory = object.__new__(world.GameMemory)
+    memory.worn_held, memory.worn_skills_of = None, frozenset()
+    worn: list = []
+    unreadable = []
+
+    def equipped():
+        if unreadable:
+            raise OSError('short read')
+        return iter(worn)
+
+    monkeypatch.setattr(memory, '_equipped', equipped)
+    unreadable.append(True)
+    assert memory.worn_skills() is None  # never read: not known
+    unreadable.clear()
+    assert memory.worn_skills() == frozenset()
+    worn[:] = [(sling, location(7)), (enigma, location(3))]  # a ring finger, the body
+    assert memory.worn_skills() == {SLING_TOWN_PORTAL, 54}
+    assert memory.own_teleport() is True
+    unreadable.append(True)
+    assert memory.worn_skills() == {SLING_TOWN_PORTAL, 54}  # the last read: the Sling is not taken off by a lost read
+    assert memory.own_teleport() is None
+    unreadable.clear()
+    worn[:] = [(enigma, location(3))]
+    assert memory.worn_skills() == {54}
 
 
 def test_the_most_worn_item_is_the_least_share_of_its_durability_with_the_ethereal_and_indestructible_aside():

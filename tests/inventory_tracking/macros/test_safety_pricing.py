@@ -920,3 +920,35 @@ def test_a_teleports_window_holds_the_keys_second_press_and_its_price_is_unchang
     assert act_window(hop) == pytest.approx(0.81 + REPRESS_SECONDS)
     assert hop.seconds == 0.81  # the price is the arbiter's as before
     assert act_window(PricedStep((10.0, 10.0), None, needs='battle', seconds=1.2)) == 1.2  # a walk: its price
+
+
+def test_a_teleport_of_the_characters_own_is_priced_with_no_weapon_swap(monkeypatch):
+    # 10:55-11:08 on 2026-10-18: with Enigma's Teleport priced with a swap there and back (2.31 s unstruck), none of
+    # 172 Teleports to a firing spot fitted the strike gap on Catacombs 4 (rca/2026-10-18/sluggish-engagement-findings.md)
+    from types import SimpleNamespace
+
+    from inventory_tracking.combat.harm import Look, SafetySettings
+    from inventory_tracking.combat.policy import Observation
+    from inventory_tracking.combat.survival import CALM
+    from inventory_tracking.macros import safety as module
+    from inventory_tracking.macros.skills import TELEPORT
+    from inventory_tracking.macros.world import Loot
+
+    monkeypatch.setattr(module, 'harm', lambda *a: Harm(10, 20))
+    monkeypatch.setattr(module, 'harm_path', lambda *a: Harm(10, 20))
+    monkeypatch.setattr(module, 'taken', lambda *a, **kw: (100.0, 0))
+    monkeypatch.setattr(module, 'camp', lambda *a, **kw: None)
+    goal = Goal('goal', (40.0, 0.0), 'use', 5.0, PRESSED)
+
+    def teleport(hands) -> tuple[p.Candidate, ...]:
+        facts = p.Facts(1.0, goal, False, False, False, lambda: Step(goal.place, TELEPORT))
+        priced = module.Safety().price(
+            facts, p.Pursuit('teleport', 1.0), Look((), life=1000), Loot(life=1000, max_life=1000), CALM,
+            SafetySettings(), Observation((0.0, 0.0), {}), SimpleNamespace(reach=22), lambda point: Step(point, TELEPORT),
+            teleport_hands=hands,
+        )  # fmt: skip
+        return tuple(c for c in priced.candidates if isinstance(c.act, p.Move) and c.act.step.skill == TELEPORT)
+
+    staff, own = teleport('travel'), teleport('battle')
+    assert staff and own
+    assert min(c.unstruck for c in staff) - min(c.unstruck for c in own) == pytest.approx(2 * module.SWAP_SECONDS)

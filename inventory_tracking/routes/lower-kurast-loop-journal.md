@@ -196,6 +196,17 @@ the stash. Plan: `andariel-loop-plan.md`. Nothing committed.
   clear) keeps the route's goal (hunt.py `cleared`; test_runmode). Measured 10:55-10:58, 5 games: down the Catacombs
   median 14.3 s (27-33 s before, 51-57 s in games 6-8), games 46.5 s median, 88/h (58.9/h before); no "clearing the
   way (" goal. Wide suite 1926 passed.
+- **11:00, the prebuff back in town** (the player, 10:58: "consume buff grants +run/walk speed and make things faster
+  in town, so, probably we should keep it up in town too ... battle orders, summon defiler - we can do it on entering
+  battleground"): the town's prebuff (Consume, Hex: Purge, Psychic Ward) at the game's start again, Battle Orders at
+  the arrival's swap and the Defiler on the field as they were; a town prebuff the Rogue Encampment's townsfolk spoil
+  is made again on Catacombs 2 and the game kept (loop.py `NEXT_GAME`; test_loop). Measured 11:00-11:04: Consume in
+  the Rogue Encampment 5 of 5; to the Catacombs median 5.3 s (6.6), down the Catacombs 11.4 s (14.3: no prebuff
+  there), games 39.8 s median, 105/h.
+- **11:12, junk set, unique and crafted items sold** (the player, 11:10: "we should sell junk rings and other junk
+  items; imporant!: do not sell own equipment or valuable items", "also, we can sell set/unique junk items"): junk.py
+  JUNK_QUALITIES and pickmode.py `sellable` take them when appraised `vendor`; never a set or unique charm (Sunders,
+  Gheed's, Annihilus, the Torch), never the player's items (`loot` excludes `own`). Tests: test_junk.
 - Open: a restart mid-game does not know Andariel died (the fight stands at her mark 45 s, then the game is left);
   Andariel's mark (46, 46) worked in every game so far.
 

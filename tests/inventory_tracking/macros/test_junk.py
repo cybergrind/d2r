@@ -55,29 +55,31 @@ def test_an_empty_tome_or_none_identifies_nothing():
     assert identify(play.run(), 'i', (KRISS,)) == []
 
 
-def test_only_the_loops_identified_magic_or_rare_items_the_appraisal_calls_vendor_are_junk():
+def test_only_the_loops_identified_items_the_appraisal_calls_vendor_are_junk():
     kriss, circlet = (Carried(i.unit_id, i.txt, i.x, i.y, i.size, i.quality) for i in (KRISS, CIRCLET))
     set_gloves = Carried(13, GAUNTLETS, 5, 2, (2, 2), SET)
     pack = Pack((THE_CUBE, TOME, WORN_GLOVES, kriss, circlet, set_gloves, Carried(14, 41, 7, 2, (1, 3), MAGIC)))
     verdicts = {
         kriss.unit_id: 'vendor',
         circlet.unit_id: 'keep',  # a +2 skills circlet: kept
-        set_gloves.unit_id: 'vendor',  # a set item: never junk, whatever the verdict
+        set_gloves.unit_id: 'vendor',  # a set item too (the player, 11:10 on 2026-10-18: "set/unique junk items")
         WORN_GLOVES.unit_id: 'vendor',  # the player's own: never junk
     }  # the fourth, item 14, has no verdict: kept
     said: list[str] = []
 
     found = junk(pack, OWN, verdicts, said.append)
 
-    assert found == {(kriss.txt, kriss.x, kriss.y)}
-    assert said == ['appraised magic Kriss (41) at (0, 2): vendor', 'appraised rare Circlet (418) at (2, 2): keep']
+    assert found == {(kriss.txt, kriss.x, kriss.y), (set_gloves.txt, set_gloves.x, set_gloves.y)}
+    assert said[:2] == ['appraised magic Kriss (41) at (0, 2): vendor', 'appraised rare Circlet (418) at (2, 2): keep']
     unknown = Pack((THE_CUBE, KRISS))
     assert junk(unknown, OWN, {KRISS.unit_id: 'vendor'}, said.append) == set()  # not identified: never junk
 
 
-def test_a_rune_gem_set_or_unique_is_never_junk_but_a_charm_jewel_ring_or_amulet_may_be():
+def test_a_rune_gem_or_a_set_or_unique_charm_is_never_junk_but_any_other_item_may_be():
     # A magic Large Charm appraised `vendor` was sold at 11:23:55 on 2026-10-17; the player: "you can sell identified
-    # junk charms", and at 19:06: "actually, we can sell trash jewels/rings/amus"
+    # junk charms", and at 19:06: "actually, we can sell trash jewels/rings/amus"; 11:10 on 2026-10-18: "we should
+    # sell junk rings and other junk items; imporant!: do not sell own equipment or valuable items", "also, we can
+    # sell set/unique junk items". A unique charm (a Sunder, Gheed's, Annihilus, the Torch) never is"
     charm = Carried(15, class_of('Large Charm'), 0, 2, (1, 2), MAGIC)
     jewel = Carried(16, class_of('Jewel'), 1, 2, (1, 1), MAGIC)
     ring = Carried(17, class_of('Ring'), 2, 2, (1, 1), RARE)
@@ -86,10 +88,12 @@ def test_a_rune_gem_set_or_unique_is_never_junk_but_a_charm_jewel_ring_or_amulet
     unique_ring = Carried(20, class_of('Ring'), 4, 1, (1, 1), 7)
     set_amulet = Carried(21, class_of('Amulet'), 4, 2, (1, 1), SET)
     gem = Carried(22, class_of('Flawless Ruby'), 4, 3, (1, 1), 2)
-    pack = Pack((THE_CUBE, TOME, charm, jewel, ring, wand, amulet, unique_ring, set_amulet, gem))
-    verdicts = dict.fromkeys(range(15, 23), 'vendor')
+    sunder = Carried(23, class_of('Grand Charm'), 5, 0, (1, 3), 7)
+    annihilus = Carried(24, class_of('Small Charm'), 6, 0, (1, 1), 7)
+    pack = Pack((THE_CUBE, TOME, charm, jewel, ring, wand, amulet, unique_ring, set_amulet, gem, sunder, annihilus))
+    verdicts = dict.fromkeys(range(15, 25), 'vendor')
     found = junk(pack, own_of((THE_CUBE, TOME)), verdicts, lambda text: None)
-    assert found == {(c.txt, c.x, c.y) for c in (charm, jewel, ring, wand, amulet)}
+    assert found == {(c.txt, c.x, c.y) for c in (charm, jewel, ring, wand, amulet, unique_ring, set_amulet)}
 
 
 def test_a_white_void_base_is_junk_when_the_appraisal_calls_it_vendor_and_kept_otherwise():

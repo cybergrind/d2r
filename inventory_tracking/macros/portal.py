@@ -10,22 +10,77 @@ its unit: it was not there before the cast.
 
 No portal after the cast is said, not guessed: the tome empty (its charges are not read yet) or the cast not made.
 The player clicked theirs 0.9 to 1.4 s after the cast (the same takes): it was open by then.
+
+The Sling casts it instead when it is worn (the player, 2026-10-18: "sling provides town teleport skill, that frees two
+slots in inventory (we can replace tome of town portals) ... when we have sling ring equipped - we don't need to run any
+logic in regard of town portal (do not track, do not buy)"): uniqueitems.txt Sling, a Ring, gives `oskill`
+"Townportal O Skill" (skills.txt 411: no mana, no delay, no charges). How the character casts it is one fact,
+`portal_source`, which the cast here, the stock's count (shop.py `short`, `restock`) and the loop's texts all take
+(macros/sling-plan.md).
 """
 
 import math
 from collections.abc import Callable
+from dataclasses import dataclass
 
 from inventory_tracking.levels.model import TOWN_PORTAL, Target
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.routines import arrived, press_skill
-from inventory_tracking.macros.skills import TOWN_PORTAL as TOME
+from inventory_tracking.macros.skills import SLING_TOWN_PORTAL, TOWN_PORTAL as TOME
 from inventory_tracking.macros.teleport import ready_world, use_thing
-from inventory_tracking.macros.world import Thing
+from inventory_tracking.macros.world import Pack, Thing, World
 from inventory_tracking.native.layout import TILE_UNITS
 
 
-__all__ = ['TOME', 'through_portal', 'to_town']
+__all__ = [
+    'FROM_SLING',
+    'FROM_TOME',
+    'TOME',
+    'PortalSource',
+    'portal_source',
+    'slot_note',
+    'through_portal',
+    'to_town',
+]
+
+
+@dataclass(frozen=True)
+class PortalSource:
+    """How the character casts Town Portal: the skill pressed, what it is called, and whether its casts are a stock to
+    keep (the tome's charges, Town Portal scrolls bought into it at Jamella: macros/shop.py) or cost nothing."""
+
+    skill: int
+    name: str
+    stocked: bool
+
+    def count(self, pack: Pack) -> int | None:
+        """The casts left as the stock goes: the tome's charges (0 with no tome), None with no stock to keep (an unread
+        count, which never makes the loop short: shop.py `short`)."""
+        return pack.portals if self.stocked else None
+
+    def said(self, pack: Pack | None) -> str:
+        """The casts left for a text: '<n> portals', or the Sling's."""
+        return f'{pack.portals if pack is not None else None} portals' if self.stocked else f'portals from {self.name}'
+
+
+FROM_TOME = PortalSource(TOME, 'the tome', stocked=True)
+FROM_SLING = PortalSource(SLING_TOWN_PORTAL, 'the Sling', stocked=False)
+
+
+def portal_source(run: Run) -> PortalSource:
+    """The Sling's Town Portal when the worn items give it (`Run.worn_skills`: world.GameMemory.worn_skills, the skill
+    411 a worn item's item_nonclassskill), else the tome's, as before the Sling, unread worn items too. The Sling's is
+    taken whether or not it is on a skill key: the player's ruling is the ring worn, and a cast with no key stops
+    saying so (`to_town`), where the tome's would buy scrolls into cells with no tome to take them."""
+    worn = run.worn_skills() if run.worn_skills is not None else None
+    return FROM_SLING if worn is not None and SLING_TOWN_PORTAL in worn else FROM_TOME
+
+
+def slot_note(world: World, source: PortalSource) -> str:
+    """Where the source's skill is in the slot table, for the log: 'in slot N' or 'on no skill key'."""
+    return f'in slot {world.slots.index(source.skill)}' if source.skill in world.slots else 'on no skill key'
+
 
 OPEN = 2  # the portal's mode once it can be clicked (objects.txt Selectable2)
 OPENS = 2.5  # seconds from the cast to the portal open: the player's clicks came 0.9 to 1.4 s after it
@@ -41,10 +96,11 @@ PICKS_AT_PORTAL = 4
 
 
 def to_town(run: Run, key_names: Callable[..., dict[int, str]], first: Callable[[], bool] | None = None) -> None:
-    """Cast Town Portal and go through the portal it opens: done in town. `Abort` in town already, with the
-    tome on no skill key (`key_names`), and with no portal open after the cast. `first`: a pickup made once the
-    portal is open, again while it picks something up: a chest's drops come out over a second and more, and a Chipped
-    Ruby that landed 0.8 s after its chest's click, while the portal opened, was left (03:04:17 on 2026-10-18)."""
+    """Cast Town Portal (`portal_source`: the Sling's or the tome's) and go through the portal it opens: done in town.
+    `Abort` in town already, with its skill on no skill key (`key_names`), and with no portal open after the cast.
+    `first`: a pickup made once the portal is open, again while it picks something up: a chest's drops come out over a
+    second and more, and a Chipped Ruby that landed 0.8 s after its chest's click, while the portal opened, was left
+    (03:04:17 on 2026-10-18)."""
     with run.lightly():
         world, rect = ready_world(run)
     player = world.player
@@ -52,15 +108,17 @@ def to_town(run: Run, key_names: Callable[..., dict[int, str]], first: Callable[
     if player.in_town:
         raise Abort('in town already')
     before = {t.unit_id for t in portals(run)}
-    run.keys.update(key_names(world, (TOME,)))
-    cast = press_skill(run, TOME)
+    source = portal_source(run)
+    run.keys.update(key_names(world, (source.skill,)))
+    cast = press_skill(run, source.skill)
     opened = None
     while opened is None:
         here = run.world().player or player
         new = [t for t in portals(run) if t.unit_id not in before and t.mode == OPEN]
         opened = min(new, key=lambda t: math.dist((t.x, t.y), (here.x, here.y))) if new else None
         if opened is None and run.clock() - cast >= OPENS:
-            raise Abort(f'no Town Portal opened {OPENS:g}s after the cast: is the tome empty?')
+            empty = ': is the tome empty?' if source.stocked else ''
+            raise Abort(f'no Town Portal opened {OPENS:g}s after the cast from {source.name}{empty}')
         if opened is None:
             run.pace.sleep(POLL)
     if first is not None:
