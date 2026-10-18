@@ -128,6 +128,11 @@ SHUNNED: dict[int, float] = {}  # unit id -> the clock until which the pickup st
 # The valuables the macro picked up itself, by unit id (an item keeps it from the ground into the inventory): outside
 # the KP_6 loop, the ones a full inventory may move into the cube (hunt.py `stay_by`); the player's never are
 TAKEN: set[int] = set()
+# The valuables a click was made on and not seen to leave the ground in its wait (`click`), by unit id, with the clock
+# of the click: one in the character's grids at a later look was picked up late (`late`). A magic Jewel left the ground
+# ~0.25 s after its wait (02:10:14.70-14.95 on 2026-10-18) and the watch called it missed
+CLICKED: dict[int, tuple[Drop, float]] = {}
+LATE_SECONDS = 5.0  # after its click, a valuable found carried counts as picked up by it
 STOP_UNITS = 40.0  # world units: a valuable this near holds a teleport step back (`worth_a_stop`)
 STOP_TRIES = 2
 STOPPED: dict[int, int] = {}  # unit id -> the teleport steps that went for the drop instead of hopping
@@ -385,6 +390,21 @@ def _take(
     raise Abort(f'no click picked up {drop.label}')
 
 
+def late(loot: Loot, now: float) -> None:
+    """The clicked valuables (`CLICKED`) found in the character's grids within LATE_SECONDS of their click: picked up,
+    said as a click's pickup is (the watch's tools match the line); the rest forgotten after it."""
+    for unit, (drop, at) in list(CLICKED.items()):
+        if unit in loot.carried and now - at <= LATE_SECONDS:
+            LOG.info(
+                'Macro: picked up %s %.2fs after the click, late: carried at a later look; at (%.1f, %.1f)',
+                drop.label, now - at, drop.x, drop.y,
+            )  # fmt: skip
+            TAKEN.add(unit)
+            del CLICKED[unit]
+        elif now - at > LATE_SECONDS:
+            del CLICKED[unit]
+
+
 def lifted(run: Run, drop: Drop) -> bool:
     return not on_ground(run, drop)
 
@@ -521,6 +541,8 @@ def click(run: Run, drop: Drop, aim: tuple[int, int], over: tuple[int, int] | No
             break  # the walk the click made is over and the item is still there
         run.pace.sleep(POLL)
     now = run.world().player
+    if drop.kind == VALUABLE:
+        CLICKED[drop.unit_id] = (drop, began)
     LOG.info(
         'Macro: %s at (%.1f, %.1f) still on the ground after the click %s pixels from it; the character from '
         '(%.1f, %.1f) to %s; under the pointer %s',
@@ -553,7 +575,9 @@ def worth_a_stop(run: Run) -> Drop | None:
 
 
 def unshunned(loot: Loot, now: float) -> Loot:
-    """`loot` without the drops a press gave up on less than SHUN_SECONDS ago."""
+    """`loot` without the drops a press gave up on less than SHUN_SECONDS ago. A valuable clicked and not seen to go
+    (`CLICKED`) that the character now carries is said picked up, late."""
+    late(loot, now)
     for unit in [unit for unit, until in SHUNNED.items() if until <= now]:
         del SHUNNED[unit]
     return replace(loot, drops=tuple(drop for drop in loot.drops if drop.unit_id not in SHUNNED))

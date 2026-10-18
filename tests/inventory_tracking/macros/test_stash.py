@@ -249,3 +249,26 @@ def test_with_the_stash_shut_the_gold_button_is_never_clicked():
     play.world = replace(play.world, open_panels=('inventory',))
     assert deposit(play.run(), WINDOW, 690_000) == 0
     assert not [e for e in play.keys.events if e[0] == 'click']
+
+
+def test_the_inventorys_resources_go_onto_their_tabs_with_no_tab_clicked():
+    # The player, 2026-10-18: "when you move runes/gems/dusts/worldstone shards from inventory to stash - you don't need
+    # to open appropriate tab. these items automatically gets to corrrect tab in stash"
+    play = fortress(Pack((GRAND, THE_CUBE, RUNE, GEM), ('...',) * 4))
+    play.stash_tab = 0  # the Personal tab, as the stash opens
+
+    assert unload(play.run(), OWN) == 2
+
+    assert play.stashed == [RUNE, GEM]
+    assert play.stash_tab == 0  # no tab was clicked
+
+
+def test_once_a_kind_is_refused_the_rest_of_it_is_not_tried_in_that_visit():
+    # 06:08:50-55 on 2026-10-18: seven flawless gems of four full stacks, each tried (~1.3 s each)
+    def clicks(*gems: Carried) -> int:
+        play = fortress(Pack((GRAND, THE_CUBE, *gems), ('...',) * 4))
+        play.stash_refuses = {GEM.txt}
+        unload(play.run(), OWN, 'i', set())
+        return sum(event[0] == 'click' for event in play.keys.events)
+
+    assert clicks(GEM, replace(GEM, unit_id=77, x=GEM.x + 1)) == clicks(GEM)

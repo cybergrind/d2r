@@ -178,6 +178,10 @@ class Ways:
         """This set with `sources` before its own: jumps a build adds that are preferred to the set's."""
         return replace(self, sources=(*sources, *self.sources))
 
+    def then(self, *sources: JumpSource) -> Self:
+        """This set with `sources` after its own: jumps a build adds that its own are preferred to."""
+        return replace(self, sources=(*self.sources, *sources))
+
     def jumps(self, facts: MoveFacts, intent: Intent) -> tuple[Jump, ...]:
         """The jumps that can be made now within `intent`, in the sources' order: no weapon swap is
         made for any of them."""
@@ -290,6 +294,8 @@ class Ways:
         here = facts.here
         away = math.dist(here, goal)
         for source in self.sources:
+            if source.ready(facts, intent):
+                return 0.0  # a jump preferred to the ones after it can be made now: none of theirs is waited for
             left = source.cooling(facts)
             if left <= 0 or source.jump.skill not in facts.slots:
                 continue
@@ -307,6 +313,8 @@ class Ways:
         the delay over: the next move asked with that jump taken as ready is a jump by it, and that jump made
         after the wait gets on faster than the move there is now (a walk: `waited`). 0.0 otherwise."""
         for source in self.sources:
+            if source.ready(facts, intent):
+                return 0.0
             left = source.cooling(facts)
             if left <= 0 or source.jump.skill not in facts.slots:
                 continue

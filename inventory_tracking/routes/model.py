@@ -40,11 +40,15 @@ class Stage:
     by: int = 0  # stand: the skill that makes the move
     opener: tuple[int, ...] = ()  # fight: skills cast once before attack mode
     pending: str = ''  # why the stage cannot be acted on yet
+    # enter: the levels a tour of the marks with this label leads into, one by one (the Canyon of the Magi's seven
+    # tombs): done once each was entered; the marks gone through are passed (`Progress.lead`)
+    tours: tuple[int, ...] = ()
+    back: bool = False  # enter: a way back the level's run takes at its end; never done while on the level
 
     def text(self) -> str:
         """The stage as the route table prints it."""
         words = {
-            ENTER: f'enter {self.mark}',
+            ENTER: f'tour {self.mark}' if self.tours else f'back to {self.mark}' if self.back else f'enter {self.mark}',
             USE: f'use {self.mark}',
             STAND: f'stand at {self.mark}',
             FIGHT: f'fight {self.boss}',
@@ -57,6 +61,17 @@ class Stage:
 
 def enter(mark: str, to: int, pending: str = '') -> Stage:
     return Stage(ENTER, mark, to, pending=pending)
+
+
+def tour(mark: str, areas: tuple[int, ...]) -> Stage:
+    """Every mark labelled `mark` gone through, one by one, the nearest not yet taken first: done once each level of
+    `areas` was entered."""
+    return Stage(ENTER, mark, tours=areas)
+
+
+def back(mark: str, to: int) -> Stage:
+    """The way back to level `to` at mark `mark`, taken when the level is done (its full clear first)."""
+    return Stage(ENTER, mark, to, back=True)
 
 
 def use(mark: str, to: int = 0, pending: str = '') -> Stage:

@@ -21,7 +21,7 @@ from inventory_tracking.common import LOG
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.buffs import STATE_RETRY
 from inventory_tracking.macros.build import Buff, BuffFacts, Casting, Tried
-from inventory_tracking.macros.routines import cast as cast_free, swap_until
+from inventory_tracking.macros.routines import ACTING, cast as cast_free, swap_until
 from inventory_tracking.macros.skills import SWAP_WEAPONS, register_names
 from inventory_tracking.macros.world import CTA_CODE, World
 from inventory_tracking.native.layout import BATTLE_ORDERS_SKILL, TOWN_IDS
@@ -32,6 +32,11 @@ BATTLE_COMMAND = 155
 register_names({BATTLE_ORDERS: 'Battle Orders', BATTLE_COMMAND: 'Battle Command'})
 # Seconds before a try that found no Call to Arms, or its skills on no key, is made again: it is said each time
 MISSING_WAIT = 300.0
+CAST_OVER = 1.0  # seconds at most for a cast to end before the weapons are swapped
+# Seconds from the last cast's key before a weapon swap is taken: the arrival's swap back 0.39-0.42 s after Battle
+# Orders' key was refused 25 times in 26, though the character's mode read the cast over (01:41-01:56 on 2026-10-18);
+# the caster's own, 0.56-0.61 s after it, was taken 44 times in 44 (2026-10-18 01:05-01:36)
+SWAP_AFTER_CAST = 0.6
 
 
 def orders_shown(world: World) -> bool | None:
@@ -93,6 +98,40 @@ def call_to_arms(cast: Casting) -> Tried:
         if swapped and run.hands() != before and not swap_until(run, lambda: run.hands() == before):
             LOG.warning('Macro: Call to Arms: the weapons found in hand are not back after the swaps')
     return Tried(started, cast=True)
+
+
+def cast_in_hand(run, key_names) -> bool:
+    """At an arrival's input check, with the other weapon set just swapped in (routines.py `took_input`): Battle Command
+    and Battle Orders when that set is the Call to Arms and Battle Orders is due out of town (`orders_shown`), before
+    the check swaps back. The upkeep row then finds it shown. At Lower Kurast's arrival the check's swap pair and the
+    caster's own came one after the other: 1.5 s for the cast with its own pair (01:15:49-52 on 2026-10-18)."""
+    if run.hands is None or not holding(run):
+        return False
+    world = run.world()
+    if orders_shown(world) is not False:
+        return False
+    skills = tuple(skill for skill in (BATTLE_COMMAND, BATTLE_ORDERS) if skill in world.slots)
+    if BATTLE_ORDERS not in skills:
+        return False
+    try:
+        run.keys.update(key_names(world, skills))
+        run.say(
+            'Call to Arms at the arrival: '
+            + ', '.join('Battle Command' if s == BATTLE_COMMAND else 'Battle Orders' for s in skills)
+        )
+        pressed = run.clock()
+        for skill in skills:
+            pressed = cast_free(run, skill)  # the key's down: a cast waits for the one before it to end
+        # The cast over before the check's swap back (SWAP_AFTER_CAST): one pressed 0.4 s after Battle Orders' key was
+        # not taken, and the next 0.6 s later was (01:36:21 on 2026-10-18)
+        run.seen(lambda w: w.player is not None and w.player.mode not in ACTING, CAST_OVER)
+        run.pace.sleep(max(0.0, pressed + SWAP_AFTER_CAST - run.clock()))
+    except (Abort, ValueError) as stop:
+        if run.stops(stop):
+            raise
+        LOG.info('Macro: Call to Arms at the arrival: not cast (%s); the upkeep casts it', stop)
+        return False
+    return True
 
 
 # The rows a build adds to its plan, and the caster they name (`Build.casters`)

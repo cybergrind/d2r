@@ -268,3 +268,14 @@ def test_a_second_key_stack_is_bought_with_the_first_full():
     restock(play.run())
 
     assert play.pack.keys == 24
+
+
+def test_a_click_that_buys_nothing_between_ones_that_do_does_not_end_the_keys_top_up():
+    # 01:47:20 and 01:57:00 on 2026-10-18: 2 -> 12, nothing, 15, nothing: the top-up ended at 15 of 24
+    play = fortress(keys=2, portals=20)
+    assert play.pack is not None
+    play.buys_take = [True, False, True, False, True, False, True, True]
+
+    restock(play.run())
+
+    assert play.pack.keys == 24

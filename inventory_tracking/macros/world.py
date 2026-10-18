@@ -25,6 +25,7 @@ from inventory_tracking.items.identity import (
     ETHEREAL_FLAG,
     FLAGS_OFFSET,
     IDENTIFIED_FLAG,
+    IDENTITY_OFFSET,
     ITEM_DATA_SIZE,
     QUALITY_OFFSET,
     SOCKETED_FLAG,
@@ -377,7 +378,15 @@ class PutDown:
         self.game: tuple[str, int] | None = None
         self.carried: set[int] = set()
         self.places: list[tuple[int | None, float, float]] = []  # (class, x, y) of each item put down
+        # The units the macro itself put down to take back (macros/cube.py `transmute`'s parked gems): not the
+        # player's, so picked up again and kept in the game's guard (runner `_valuable_left`)
+        self.parked: set[int] = set()
         self.lock = threading.Lock()
+
+    def park(self, unit_id: int) -> None:
+        """`unit_id` is put down by the macro to be picked up again: never taken for the player's."""
+        with self.lock:
+            self.parked.add(unit_id)
 
     def see(self, loot: Loot) -> Loot:
         if loot.game is None:
@@ -396,7 +405,7 @@ class PutDown:
                 kind = kinds.get(drop.unit_id)
                 if self._at(drop.x, drop.y, kind):
                     continue
-                if drop.unit_id in self.carried:
+                if drop.unit_id in self.carried and drop.unit_id not in self.parked:
                     self.places.append((kind, drop.x, drop.y))
                     LOG.info(
                         'Macro: put down: %s at (%.0f, %.0f), unit %d, was carried this game: the player put it '
@@ -631,6 +640,7 @@ def corpses(read, table: int) -> tuple[tuple[int, float, float], ...]:
 
 INVENTORY_GRID = 2  # the carried inventory among a player's grids (collection/capture.py GRID_CONTAINERS)
 CUBE_GRID = 5  # the Horadric Cube's (the same table)
+STASH_GRID = 6  # the personal stash page's, 10 x 10 (the same table)
 
 
 @functools.cache
@@ -670,6 +680,8 @@ class Carried:
     size: tuple[int, int]
     quality: int = 0  # ItemData quality (0 unread; 4 magic, 6 rare: macros/junk.py)
     identified: bool = True  # the ItemData flag (True unread: an item of unknown state is never identified)
+    # ItemData +0x34: a unique's row in uniqueitems.txt once identified (0 before: loot/ground.py; 359 Gheed's Fortune)
+    unique: int = 0
 
 
 @dataclass(frozen=True)
@@ -692,6 +704,9 @@ class Pack:
     pointer: int | None = None
     # The Tome of Identify's charges (the same stat as the Town Portal tome's): None unread or no tome (macros/junk.py)
     identifies: int | None = None
+    # The personal stash page's items and rows ('.' free), read whatever panel is open (macros/charms.py)
+    stashed: tuple[Carried, ...] = ()
+    stash: tuple[str, ...] | None = None
 
 
 IDENTIFY_TOME = 534  # Tome of Identify (items metadata `ibk`, 2026-10-17)
@@ -734,15 +749,21 @@ def carried_items(read, table: int, player_id: int) -> Pack | None:
             return item
         try:
             data = read(unit['data_pointer'], ITEM_DATA_SIZE)
-            quality, flags = (
+            quality, flags, unique = (
                 struct.unpack_from('<I', data, QUALITY_OFFSET)[0],
                 struct.unpack_from('<I', data, FLAGS_OFFSET)[0],
+                struct.unpack_from('<I', data, IDENTITY_OFFSET)[0],
             )
         except OSError, ValueError, struct.error:
             return item
-        return replace(item, quality=quality, identified=bool(flags & IDENTIFIED_FLAG))
+        return replace(item, quality=quality, identified=bool(flags & IDENTIFIED_FLAG), unique=unique)
 
-    pack = replace(pack, items=tuple(map(state, pack.items)), in_cube=tuple(map(state, pack.in_cube)))
+    pack = replace(
+        pack,
+        items=tuple(map(state, pack.items)),
+        in_cube=tuple(map(state, pack.in_cube)),
+        stashed=tuple(map(state, pack.stashed)),
+    )
     keys = [quantity(item, KEY_STATS) for item in pack.items if item.txt == KEY_CLASS_ID]
     tomes = [quantity(item, PORTAL_STATS) for item in pack.items if item.txt == TOME_CLASS_ID]
     identifies = [quantity(item, PORTAL_STATS) for item in pack.items if item.txt == IDENTIFY_TOME]
@@ -764,7 +785,15 @@ def pack_of(grids: dict, by_address: dict[int, dict]) -> Pack | None:
         return None
     cube = grids.get(CUBE_GRID)
     held = _held(cube, by_address) if cube is not None else ()
-    return Pack(_held(grid, by_address), grid_rows(cube), frozenset(item.unit_id for item in held), held)
+    page = grids.get(STASH_GRID)
+    return Pack(
+        _held(grid, by_address),
+        grid_rows(cube),
+        frozenset(item.unit_id for item in held),
+        held,
+        stashed=_held(page, by_address) if page is not None else (),
+        stash=grid_rows(page),
+    )
 
 
 def _held(grid: dict, by_address: dict[int, dict]) -> tuple[Carried, ...]:

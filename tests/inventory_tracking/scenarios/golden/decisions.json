@@ -1099,19 +1099,19 @@
  "jumps:synthetic:staff-none+warp-ready": [
   {
    "least": 8.0,
-   "line": true,
-   "reach": 26.0,
-   "seconds": 0.35,
-   "skill": 390,
-   "speed": 45.0
-  },
-  {
-   "least": 8.0,
    "line": false,
    "reach": 26.0,
    "seconds": 0.31,
    "skill": 54,
    "speed": "inf"
+  },
+  {
+   "least": 8.0,
+   "line": true,
+   "reach": 26.0,
+   "seconds": 0.35,
+   "skill": 390,
+   "speed": 45.0
   }
  ],
  "jumps:synthetic:staff-none+warp-teleport-failed": [
@@ -1926,17 +1926,17 @@
   "worth": 10456.88
  },
  "stand:20261010T204653Z-23-234702:staff-none+warp-ready": {
-  "casts": 3,
+  "casts": 2,
   "here": 2966.64,
   "hop": true,
   "seconds": 0.31,
   "skill": 54,
   "spot": [
-   12724.5,
-   8054.5
+   12733.5,
+   8063.5
   ],
-  "walk": 18.248,
-  "worth": 9699.44
+  "walk": 10.817,
+  "worth": 10456.88
  },
  "stand:20261010T204733Z-25-234739:staff-hand69+warp-delay": {
   "casts": 1,
@@ -2007,14 +2007,14 @@
   "casts": 1,
   "here": 0.0,
   "hop": true,
-  "seconds": 0.772,
-  "skill": 390,
+  "seconds": 0.31,
+  "skill": 54,
   "spot": [
    12592.5,
    11072.5
   ],
   "walk": 18.974,
-  "worth": 2547.447
+  "worth": 2789.006
  },
  "stand:20261010T204733Z-25-234800:staff-hand69+warp-delay": null,
  "stand:20261010T204733Z-25-234800:staff-hand69+warp-ready": null,
@@ -2091,14 +2091,14 @@
   "casts": 5,
   "here": 7574.99,
   "hop": true,
-  "seconds": 0.709,
-  "skill": 390,
+  "seconds": 0.31,
+  "skill": 54,
   "spot": [
    12548.5,
-   11096.5
+   11099.5
   ],
-  "walk": 16.155,
-  "worth": 13779.379
+  "walk": 17.493,
+  "worth": 15354.326
  },
  "stand:20261010T204733Z-25-234803:staff-hand69+warp-delay": {
   "casts": 2,
@@ -2169,14 +2169,14 @@
   "casts": 2,
   "here": 2298.08,
   "hop": true,
-  "seconds": 0.648,
-  "skill": 390,
+  "seconds": 0.31,
+  "skill": 54,
   "spot": [
-   12545.5,
-   11096.5
+   12548.5,
+   11099.5
   ],
-  "walk": 13.416,
-  "worth": 10904.201
+  "walk": 17.493,
+  "worth": 11700.247
  },
  "stand:20261010T204733Z-25-234805:staff-hand69+warp-delay": {
   "casts": 2,
@@ -2247,14 +2247,14 @@
   "casts": 2,
   "here": 0.0,
   "hop": true,
-  "seconds": 0.739,
-  "skill": 390,
+  "seconds": 0.31,
+  "skill": 54,
   "spot": [
    12548.5,
    11099.5
   ],
   "walk": 17.493,
-  "worth": 2082.279
+  "worth": 2278.861
  },
  "stand:20261010T204733Z-25-234807:staff-hand69+warp-delay": {
   "casts": 2,
@@ -2325,14 +2325,14 @@
   "casts": 2,
   "here": 0.0,
   "hop": true,
-  "seconds": 0.821,
-  "skill": 390,
+  "seconds": 0.31,
+  "skill": 54,
   "spot": [
    12561.5,
    11100.5
   ],
   "walk": 21.213,
-  "worth": 20811.237
+  "worth": 23198.303
  },
  "stand:20261010T204733Z-25-234809:staff-hand69+warp-delay": {
   "casts": 2,
@@ -2403,14 +2403,14 @@
   "casts": 2,
   "here": 1270.351,
   "hop": true,
-  "seconds": 0.625,
-  "skill": 390,
+  "seconds": 0.31,
+  "skill": 54,
   "spot": [
    12559.5,
    11101.5
   ],
   "walk": 12.369,
-  "worth": 10852.821
+  "worth": 11586.908
  },
  "stand:20261010T204733Z-25-234810:staff-hand69+warp-delay": {
   "casts": 3,
@@ -2478,17 +2478,17 @@
   "worth": 18481.046
  },
  "stand:20261010T204733Z-25-234810:staff-none+warp-ready": {
-  "casts": 2,
+  "casts": 3,
   "here": 0.0,
   "hop": true,
-  "seconds": 0.59,
-  "skill": 390,
+  "seconds": 0.31,
+  "skill": 54,
   "spot": [
-   12566.5,
-   11108.5
+   12569.5,
+   11105.5
   ],
   "walk": 10.817,
-  "worth": 16225.668
+  "worth": 18481.046
  },
  "stand:20261010T204733Z-25-234812:staff-hand69+warp-delay": null,
  "stand:20261010T204733Z-25-234812:staff-hand69+warp-ready": null,
@@ -2733,14 +2733,14 @@
   "casts": 2,
   "here": 10996.12,
   "hop": true,
-  "seconds": 0.539,
-  "skill": 390,
+  "seconds": 0.31,
+  "skill": 54,
   "spot": [
-   12661.5,
-   5061.5
+   12655.5,
+   5055.5
   ],
-  "walk": 8.485,
-  "worth": 36976.896
+  "walk": 16.971,
+  "worth": 38759.373
  },
  "stand:20261010T205314Z-21-235333:staff-hand69+warp-delay": {
   "casts": 1,
@@ -2814,10 +2814,10 @@
   "seconds": 0.31,
   "skill": 54,
   "spot": [
-   12681.5,
-   5122.5
+   12678.5,
+   5125.5
   ],
-  "walk": 17.493,
+  "walk": 18.974,
   "worth": 5361.98
  },
  "stand:20261010T205403Z-23-235414:staff-hand69+warp-delay": {
@@ -2970,17 +2970,17 @@
   "worth": 5802.309
  },
  "stand:20261010T205403Z-23-235417:staff-none+warp-ready": {
-  "casts": 2,
+  "casts": 1,
   "here": 2966.64,
   "hop": true,
-  "seconds": 0.59,
-  "skill": 390,
+  "seconds": 0.31,
+  "skill": 54,
   "spot": [
-   12568.5,
-   8141.5
+   12559.5,
+   8147.5
   ],
-  "walk": 10.817,
-  "worth": 4933.491
+  "walk": 18.0,
+  "worth": 5802.309
  },
  "stand:20261010T205403Z-23-235418:staff-hand69+warp-delay": null,
  "stand:20261010T205403Z-23-235418:staff-hand69+warp-ready": null,
@@ -3057,14 +3057,14 @@
   "casts": 2,
   "here": 8835.053,
   "hop": true,
-  "seconds": 0.739,
-  "skill": 390,
+  "seconds": 0.31,
+  "skill": 54,
   "spot": [
    12542.5,
    11088.5
   ],
   "walk": 17.493,
-  "worth": 21141.876
+  "worth": 23137.829
  },
  "stand:20261010T205432Z-25-235451:staff-hand69+warp-delay": {
   "casts": 1,
@@ -3270,10 +3270,10 @@
   "seconds": 0.31,
   "skill": 54,
   "spot": [
-   12568.5,
-   6729.5
+   12547.5,
+   6717.5
   ],
-  "walk": 21.213,
+  "walk": 15.0,
   "worth": 5514.475
  },
  "stand:20261010T205557Z-22-235612:staff-hand69+warp-delay": {
@@ -3423,14 +3423,14 @@
   "casts": 3,
   "here": 5442.6,
   "hop": true,
-  "seconds": 0.59,
-  "skill": 390,
+  "seconds": 0.31,
+  "skill": 54,
   "spot": [
    12594.5,
    6641.5
   ],
   "walk": 10.817,
-  "worth": 16990.911
+  "worth": 18091.177
  },
  "stand:20261010T205557Z-22-235615:staff-hand69+warp-delay": {
   "casts": 3,
@@ -3501,14 +3501,14 @@
   "casts": 3,
   "here": 10190.4,
   "hop": true,
-  "seconds": 0.561,
-  "skill": 390,
+  "seconds": 0.31,
+  "skill": 54,
   "spot": [
    12594.5,
    6644.5
   ],
   "walk": 9.487,
-  "worth": 21313.491
+  "worth": 22539.827
  },
  "stand:20261010T205557Z-22-235616:staff-hand69+warp-delay": {
   "casts": 1,
@@ -3744,10 +3744,10 @@
   "seconds": 0.31,
   "skill": 54,
   "spot": [
-   12722.5,
-   8174.5
+   12713.5,
+   8180.5
   ],
-  "walk": 21.213,
+  "walk": 12.369,
   "worth": 60156.88
  },
  "stand:20261010T205658Z-24-235701:staff-hand69+warp-delay": {
@@ -3897,14 +3897,14 @@
   "casts": 2,
   "here": 0.0,
   "hop": true,
-  "seconds": 0.797,
-  "skill": 390,
+  "seconds": 0.31,
+  "skill": 54,
   "spot": [
    12533.5,
    9638.5
   ],
   "walk": 20.125,
-  "worth": 10309.872
+  "worth": 11430.405
  },
  "stand:20261010T205658Z-24-235707:staff-hand69+warp-delay": {
   "casts": 4,
@@ -4131,14 +4131,14 @@
   "casts": 1,
   "here": 0.0,
   "hop": true,
-  "seconds": 0.752,
-  "skill": 390,
+  "seconds": 0.31,
+  "skill": 54,
   "spot": [
    12547.5,
    11079.5
   ],
   "walk": 18.099,
-  "worth": 13417.012
+  "worth": 14630.85
  },
  "step:20261010T204605Z-21-234607:staff-hand69+warp-ready": {
   "camp": {
@@ -5757,7 +5757,7 @@
  },
  "toward:20261010T204733Z-25-234739:staff-none+warp-ready": {
   "camp": null,
-  "skill": 390,
+  "skill": 54,
   "spot": [
    12562.5,
    11066.5
@@ -5837,7 +5837,7 @@
  },
  "toward:20261010T204733Z-25-234805:staff-none+warp-ready": {
   "camp": null,
-  "skill": 390,
+  "skill": 54,
   "spot": [
    12546.076,
    11099.408
@@ -5917,7 +5917,7 @@
  },
  "toward:20261010T204733Z-25-234807:staff-none+warp-ready": {
   "camp": null,
-  "skill": 390,
+  "skill": 54,
   "spot": [
    12554.535,
    11103.218
@@ -6007,7 +6007,7 @@
  },
  "toward:20261010T205120Z-25-235126:staff-none+warp-ready": {
   "camp": null,
-  "skill": 390,
+  "skill": 54,
   "spot": [
    12625.841,
    11068.254
@@ -6097,7 +6097,7 @@
  },
  "toward:20261010T205432Z-25-235451:staff-none+warp-ready": {
   "camp": null,
-  "skill": 390,
+  "skill": 54,
   "spot": [
    12531.175,
    11065.99
@@ -6207,7 +6207,7 @@
  },
  "toward:20261010T205629Z-23-235652:staff-none+warp-ready": {
   "camp": null,
-  "skill": 390,
+  "skill": 54,
   "spot": [
    12710.041,
    8181.066
@@ -6297,7 +6297,7 @@
  },
  "toward:20261010T205658Z-24-235706:staff-none+warp-ready": {
   "camp": null,
-  "skill": 390,
+  "skill": 54,
   "spot": [
    12539.248,
    9645.144
@@ -6377,7 +6377,7 @@
  },
  "toward:20261010T205658Z-24-235707:staff-none+warp-ready": {
   "camp": null,
-  "skill": 390,
+  "skill": 54,
   "spot": [
    12533.099,
    9641.245
@@ -6827,7 +6827,7 @@
  },
  "toward:lone-24-units-bearing-0:staff-none+warp-ready": {
   "camp": null,
-  "skill": 390,
+  "skill": 54,
   "spot": [
    12584.5,
    11066.5
@@ -6907,7 +6907,7 @@
  },
  "toward:lone-24-units-bearing-1:staff-none+warp-ready": {
   "camp": null,
-  "skill": 390,
+  "skill": 54,
   "spot": [
    12581.571,
    11073.571
@@ -6987,7 +6987,7 @@
  },
  "toward:lone-24-units-bearing-2:staff-none+warp-ready": {
   "camp": null,
-  "skill": 390,
+  "skill": 54,
   "spot": [
    12574.5,
    11076.5
@@ -7067,7 +7067,7 @@
  },
  "toward:lone-24-units-bearing-3:staff-none+warp-ready": {
   "camp": null,
-  "skill": 390,
+  "skill": 54,
   "spot": [
    12567.429,
    11073.571
@@ -7147,7 +7147,7 @@
  },
  "toward:lone-24-units-bearing-4:staff-none+warp-ready": {
   "camp": null,
-  "skill": 390,
+  "skill": 54,
   "spot": [
    12564.5,
    11066.5
@@ -7237,7 +7237,7 @@
  },
  "toward:lone-24-units-bearing-6:staff-none+warp-ready": {
   "camp": null,
-  "skill": 390,
+  "skill": 54,
   "spot": [
    12574.5,
    11056.5
@@ -7327,7 +7327,7 @@
  },
  "toward:lone-34-units-bearing-0:staff-none+warp-ready": {
   "camp": null,
-  "skill": 390,
+  "skill": 54,
   "spot": [
    12594.5,
    11066.5
@@ -7407,7 +7407,7 @@
  },
  "toward:lone-34-units-bearing-1:staff-none+warp-ready": {
   "camp": null,
-  "skill": 390,
+  "skill": 54,
   "spot": [
    12585.107,
    11077.107
@@ -7487,7 +7487,7 @@
  },
  "toward:lone-34-units-bearing-2:staff-none+warp-ready": {
   "camp": null,
-  "skill": 390,
+  "skill": 54,
   "spot": [
    12574.5,
    11086.5
@@ -7567,7 +7567,7 @@
  },
  "toward:lone-34-units-bearing-3:staff-none+warp-ready": {
   "camp": null,
-  "skill": 390,
+  "skill": 54,
   "spot": [
    12563.893,
    11077.107
@@ -7633,7 +7633,7 @@
  },
  "toward:lone-34-units-bearing-4:staff-none+warp-ready": {
   "camp": null,
-  "skill": 390,
+  "skill": 54,
   "spot": [
    12564.5,
    11066.5
@@ -7709,10 +7709,10 @@
  },
  "toward:lone-34-units-bearing-6:staff-none+warp-ready": {
   "camp": null,
-  "skill": 390,
+  "skill": 54,
   "spot": [
    12574.5,
-   11056.5
+   11046.5
   ]
  },
  "toward:lone-34-units-bearing-7:staff-hand0+warp-delay": null,
@@ -7745,7 +7745,14 @@
    11052.358
   ]
  },
- "toward:lone-34-units-bearing-7:staff-none+warp-ready": null,
+ "toward:lone-34-units-bearing-7:staff-none+warp-ready": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12588.642,
+   11052.358
+  ]
+ },
  "toward:lone-46-units-bearing-0:staff-hand0+warp-delay": {
   "camp": null,
   "skill": null,
@@ -7820,7 +7827,7 @@
  },
  "toward:lone-46-units-bearing-0:staff-none+warp-ready": {
   "camp": null,
-  "skill": 390,
+  "skill": 54,
   "spot": [
    12594.0,
    11066.5
@@ -7900,7 +7907,7 @@
  },
  "toward:lone-46-units-bearing-1:staff-none+warp-ready": {
   "camp": null,
-  "skill": 390,
+  "skill": 54,
   "spot": [
    12583.692,
    11075.692
@@ -7980,7 +7987,7 @@
  },
  "toward:lone-46-units-bearing-2:staff-none+warp-ready": {
   "camp": null,
-  "skill": 390,
+  "skill": 54,
   "spot": [
    12574.5,
    11086.0
@@ -8060,7 +8067,7 @@
  },
  "toward:lone-46-units-bearing-3:staff-none+warp-ready": {
   "camp": null,
-  "skill": 390,
+  "skill": 54,
   "spot": [
    12565.308,
    11075.692
@@ -8096,7 +8103,14 @@
    11066.5
   ]
  },
- "toward:lone-46-units-bearing-4:staff-none+warp-ready": null,
+ "toward:lone-46-units-bearing-4:staff-none+warp-ready": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12548.5,
+   11066.5
+  ]
+ },
  "toward:lone-46-units-bearing-5:staff-hand0+warp-delay": null,
  "toward:lone-46-units-bearing-5:staff-hand0+warp-ready": null,
  "toward:lone-46-units-bearing-5:staff-hand14+warp-delay": null,
@@ -8167,10 +8181,10 @@
  },
  "toward:lone-46-units-bearing-6:staff-none+warp-ready": {
   "camp": null,
-  "skill": 390,
+  "skill": 54,
   "spot": [
    12574.5,
-   11053.5
+   11040.5
   ]
  },
  "toward:lone-46-units-bearing-7:staff-hand0+warp-delay": null,
@@ -8203,5 +8217,12 @@
    11052.711
   ]
  },
- "toward:lone-46-units-bearing-7:staff-none+warp-ready": null
+ "toward:lone-46-units-bearing-7:staff-none+warp-ready": {
+  "camp": null,
+  "skill": 54,
+  "spot": [
+   12588.289,
+   11052.711
+  ]
+ }
 }

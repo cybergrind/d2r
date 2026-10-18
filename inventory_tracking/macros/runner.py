@@ -48,22 +48,23 @@ from inventory_tracking.macros import route
 from inventory_tracking.macros.actuator import Abort, Actuator, Cancelled, Flipped, Hand
 from inventory_tracking.macros.build import Build, choose
 from inventory_tracking.macros.cain import identify_all
-from inventory_tracking.macros.cube import SURE_BLOCK, arrange_keys, drop_for, stash, unpack
+from inventory_tracking.macros.cta import cast_in_hand
+from inventory_tracking.macros.cube import SURE_BLOCK, arrange_keys, drop_for, perfect_of, stash, transmute, unpack
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.goals import USE_NEAR, spot_of
 from inventory_tracking.macros.hunt import Bearings, Hunter, threat
 from inventory_tracking.macros.journey import Journey
 from inventory_tracking.macros.junk import identify, junk_of, named
 from inventory_tracking.macros.latency import Press, Trace
-from inventory_tracking.macros.loop import GAME_SECONDS, LOWER_KURAST, STILL_SECONDS, Loop, deposit_to
+from inventory_tracking.macros.loop import ANDARIEL, GAME_SECONDS, KINDS, LK, STILL_SECONDS, Loop, deposit_to
 from inventory_tracking.macros.opening import open_near
 from inventory_tracking.macros.pad import PadActs, PadActuator, PadPlay, input_policy
-from inventory_tracking.macros.pickmode import MODES, REGULAR, SURE, is_candidate, kept, next_mode
+from inventory_tracking.macros.pickmode import MODES, REGULAR, SURE, TRADE, is_candidate, kept, next_mode
 from inventory_tracking.macros.pickup import SHUNNED, TAKEN, approach, pick_up, wanted, worth_a_stop
 from inventory_tracking.macros.pursuit import FULL, Pursuit
 from inventory_tracking.macros.repair import gold
 from inventory_tracking.macros.routines import prebuff_keys, run_macro
-from inventory_tracking.macros.runmode import DOUBLE, badge
+from inventory_tracking.macros.runmode import DOUBLE, TERROR, badge
 from inventory_tracking.macros.shop import gold_cap
 from inventory_tracking.macros.sightings import Sightings
 from inventory_tracking.macros.skills import character_bindings, skill_keys
@@ -74,6 +75,7 @@ from inventory_tracking.macros.travel import LOOPED, LOOPED_TELEPORT, cut
 from inventory_tracking.macros.waiting import Waiting
 from inventory_tracking.macros.world import VALUABLE, BeltKept, GameMemory, Loot, Player, PutDown, World
 from inventory_tracking.models import Actor, SessionIdentity
+from inventory_tracking.native.layout import TOWN_IDS
 from inventory_tracking.routes.model import FIGHT
 from inventory_tracking.routes.progress import Progress
 
@@ -85,13 +87,22 @@ LOOP_PREFIX = 'loop '
 PREBUFF, TELEPORT, HUNT_ELITES, HUNT_ANY = 'prebuff', 'teleport', 'hunt elites', 'hunt any'  # routines
 PICKUP = 'pickup'  # the pickup step: pick up what is worth it, else a seek step (pickup.py)
 # The HUD's word for the loop's pickup mode (macros/pickmode.py), with the loop on
-LOOP_WORDS = {SURE: 'LOOP SURE', REGULAR: 'LOOP ALL'}
+LOOP_WORDS = {SURE: 'LOOP SURE', TRADE: 'LOOP TRADE', REGULAR: 'LOOP ALL'}
+TRANSMUTES = 3  # a full gem stack's transmutes in one stash visit, at most (macros/cube.py `transmute`)
+PICK_SLACK = 3  # pickups past the parked gems' count before the ground is taken for clear (`stash_loot`)
 MAKE_ROOM_AFTER = 5.0  # seconds stood by a valuable with no room before the loop makes room in the cube
 FOCUS_POLL = 0.5  # seconds between looks for the game window's focus while the loop waits for it
 DROPPED_SECONDS = 600.0  # an item dropped for a valuable's room is not taken up again for this long (a game)
 VERDICT_SECONDS = 4.0  # for the identify watcher's appraisals of the items just identified (it polls once a second)
-LOOP = 'loop'  # the Lower Kurast loop's toggle; a run of it is one leg (macros/loop.py)
+LOOP = 'loop'  # the KP_6 loop's toggle (Lower Kurast, Andariel); a run of it is one leg (macros/loop.py)
 STEPS = frozenset((TELEPORT, HUNT_ELITES, PICKUP))  # one press is one step; the same key queues another
+# A terror zone's full clear that ends at a door goes on through it with no press (the player, 00:27 on 2026-10-18:
+# "yes, go to next level without press"; up to 21 s and 50 s waited at doors that night): the teleport key's press
+# the player made there, then, the level changed and terrorized, the pickup key's that runs it. Pressed ONWARD_PAUSE
+# after; the door not gone through within ONWARD_SECONDS, nothing more is pressed.
+DOOR_PRESS = 'going through takes a press'
+ONWARD_PAUSE = 0.3
+ONWARD_SECONDS = 20.0
 ATTACK = HUNT_ANY  # the attack mode toggle
 # What waits for the run working now, the first to go first: where the player wants to be, then what
 # to fight, then the macro, then what lies on the ground.
@@ -179,6 +190,9 @@ class MacroRunner:
         self.progress: Progress | None = None
         self.marks: Callable[[str], tuple[tuple[float, float], ...]] | None = None
         self.hunter: Hunter | None = None  # the seek step's and attack mode's state and sources (hunt.py)
+        # The level and clock of a terror zone's run that ended at a door (`_run_over`); the level the last poll read
+        self.onward: tuple[int | None, float] | None = None
+        self.area_seen: int | None = None
         self.supers: Callable[[int], list[tuple[float, float]]] | None = None  # terror tracker's `supers`
         # what each belt column last held this game, across presses: an emptied healing column stays one
         # (rca/2026-10-13/potions-findings.md, step 1); every run's loot carries it (`Loot.columns`)
@@ -223,6 +237,7 @@ class MacroRunner:
         # The loop's pickup mode (macros/pickmode.py), switched by a double press of KP_6; the presses of KP_6 not
         # judged yet (`_loop_tap`) and the timer that judges them once their window is over
         self.pickup_mode = MODES[0]
+        self.gems_tried: str | None = None  # the game whose stash visit tried the full gem stacks (`stash_loot`)
         self.loop_taps: list[float] = []
         self.loop_timer: threading.Timer | None = None
         self.shut = threading.Event()  # set by `close`: a run's card wait ends with it
@@ -304,7 +319,7 @@ class MacroRunner:
                 # automatically"; "KP_1 should enable auto-attack"). A step working now is followed by the
                 # mode; a press during the run only renews it.
                 assert self.hunter is not None
-                self.hunter.hand_over = self._hand_over
+                self.hunter.hand_over, self.hunter.run_over = self._hand_over, self._run_over
                 self.hunter.post(Pursuit(PICKUP, time.monotonic() - (now - requested_at), advance=False, leash=FULL))
                 self.attack_mode, self.attack_declined = True, False
                 if not self.working:
@@ -377,6 +392,7 @@ class MacroRunner:
         words = (
             badge(self.hunter.mode) if self.hunter is not None else None,
             LOOP_WORDS[self.pickup_mode] if self.loop.on else None,
+            self.loop.kind.name.upper() if self.loop.on and self.loop.kind != LK else None,  # LK's the plain word
         )
         return ' '.join(word for word in words if word) or None
 
@@ -400,18 +416,31 @@ class MacroRunner:
         next leg follows (`_follow`); the mode went on sweeping before, until the player pressed KP_6
         (rca/2026-10-16/loop-chests-findings.md §2). From the run's thread."""
         with self.lock:
-            if not (self.loop.on and self.attack_mode):
+            if not self.loop.on:
+                mode = self.hunter.mode if self.hunter is not None else None
+                if self.attack_mode and mode is not None and mode.why == TERROR and DOOR_PRESS in why:
+                    self.onward = (self.area_seen, time.monotonic())
+                    LOG.info('Macro: run: terror zone: through the door with no press, then the next level runs')
+                    threading.Timer(ONWARD_PAUSE, self._press, args=(TELEPORT,)).start()
+                return
+            if not self.attack_mode:
                 return
             self.attack_mode = False
             if self.working and self.routine == ATTACK:
                 self.cancelled.set()
 
-    def _loop_level_run(self, hunter: Hunter) -> None:
+    def _press(self, routine: str) -> None:
+        """A press of the macro's own, as the player's key would make it (`request`)."""
+        now = time.monotonic()
+        self.request(now, now, routine)
+
+    def _loop_level_run(self, hunter: Hunter, rush: bool = True) -> None:
         """The loop's chests leg: the KP_1 level run, as the pickup key starts it (`request`), followed by attack mode;
-        its end is the leg's (`_run_over`)."""
+        its end is the leg's (`_run_over`). `rush`: past what does not attack (the chests, the Catacombs' stairs); not
+        for Andariel's fight."""
         with self.lock:
             hunter.hand_over, hunter.run_over = self._hand_over, self._run_over
-            hunter.post(Pursuit(PICKUP, time.monotonic(), advance=False, leash=FULL, rush=True))
+            hunter.post(Pursuit(PICKUP, time.monotonic(), advance=False, leash=FULL, rush=rush, looped=True))
             self.attack_mode, self.attack_declined = True, False
 
     def _end_run(self, why: str) -> None:
@@ -440,7 +469,7 @@ class MacroRunner:
     def _sighted(self, memory: GameMemory, loot: Loot) -> Loot:
         """`loot` (the loop's pickup's drops) noted in the game's sightings (macros/sightings.py), the loop on and the
         character in Lower Kurast (the loop's town reads, a repair's gold, are no level of its pickup)."""
-        if self.loop.on and memory.where_area == LOWER_KURAST:
+        if self.loop.on and memory.where_area in self.loop.kind.levels:
             self.sightings.update(loot, memory.where, memory.where_area, time.monotonic())
         return loot
 
@@ -488,6 +517,13 @@ class MacroRunner:
         elif count == 2:
             self.pickup_mode = next_mode(self.pickup_mode)
             self._say(f'Loop pickup: {self.pickup_mode}')
+        elif count == 3:
+            # The run's kind (macros/loop.py KINDS; the player, 2026-10-18: "rebuild loop start to accept what type of
+            # run we're going to run"), for a start in the Fortress or the lobby: elsewhere the character's place says
+            kinds = list(KINDS.values())
+            self.loop.kind = kinds[(kinds.index(self.loop.kind) + 1) % len(kinds)]
+            self.loop.chosen = True  # by hand: no place overrides it
+            self._say(f'Loop run: {self.loop.kind.name}')
         else:
             self._say(f'KP_6 pressed {count} times together: nothing switched')
 
@@ -517,11 +553,25 @@ class MacroRunner:
             return
         left = self.valuable_left() if self.loop.on else None
         game = self.loop.seen[0] if self.loop.seen is not None else None
+        refused = 'no click picked it up' in str(why) or 'not picked up after' in str(why)
+        swaps = left is not None and 'Grand Charm' in left and refused and self.loop.kind == ANDARIEL
+        if swaps and game is not None and self.loop.swap != game:
+            # A unique Grand Charm no click takes: a second Gheed's Fortune, carry-one (macros/charms.py): the player's
+            # onto the stash page, this one taken, theirs back (the player, 2026-10-18)
+            self.loop.swap_due = True
+            LOG.info("Macro: loop: %s; %s: the player's Gheed's Fortune goes to the stash for it", why, left)
+            return
         if left is not None and game is not None and self.loop.room_tried != game:
             # A valuable it has no room for: the loop's items into the cube, and the loop goes on to take it (04:32:26
             # on 2026-10-17: "the character has not moved for 45 s; Grand Charm lies on the ground")
             self.loop.make_room, self.loop.room_tried = True, game
             LOG.info('Macro: loop: %s; %s lies on the ground: room is made in the cube', why, left)
+            return
+        if left is not None and game is not None and self.loop.kind == ANDARIEL and self.loop.trip != game:
+            # The cube took what it could: a trip to town for room, back through the portal for it (macros/loop.py
+            # TRIP; the loop stood by a Flawless Topaz and an Amulet on Catacombs Level 4, 10:22:20 on 2026-10-18)
+            self.loop.trip_due = True
+            LOG.info('Macro: loop: %s; %s lies on the ground: a trip to town for room', why, left)
             return
         if left is not None and game is not None and self.loop.dropped != game:
             # The cube took what it could: one of the loop's items taken only to identify it is dropped for it
@@ -579,6 +629,17 @@ class MacroRunner:
         try:
             game, area = self.place()
             self.journey.note(game, area, now)
+            self.area_seen = area
+            onward = self.onward
+            if onward is not None and area is not None and area != onward[0]:
+                # Through the door (`_run_over`): the next level's run, when it is the zone's too
+                self.onward = None
+                hunter = self.hunter
+                if area not in TOWN_IDS and hunter is not None and hunter.bearings.terror(area) and self.attack_mode:
+                    LOG.info('Macro: run: terror zone: level %d entered: its full clear with no press', area)
+                    threading.Timer(ONWARD_PAUSE, self._press, args=(PICKUP,)).start()
+            elif onward is not None and now - onward[1] > ONWARD_SECONDS:
+                self.onward = None
             if self.resuming:
                 with self.lock:
                     self.resuming = False
@@ -706,7 +767,7 @@ class MacroRunner:
         """What a restart of the service carries over (appraisal/service.py `Restart`): the loop on or off, its pickup
         mode."""
         with self.lock:
-            return {'loop': self.loop.on, 'pickup_mode': self.pickup_mode}
+            return {'loop': self.loop.on, 'pickup_mode': self.pickup_mode, 'loop_kind': self.loop.kind.key}
 
     def resume(self, state: dict) -> None:
         """Take up what the service before a restart left (`resume_state`): the pickup mode at once, the loop at the
@@ -714,9 +775,15 @@ class MacroRunner:
         with self.lock:
             if state.get('pickup_mode') in MODES:
                 self.pickup_mode = state['pickup_mode']
+            if state.get('loop_kind') in KINDS:
+                self.loop.kind = KINDS[state['loop_kind']]
+                self.loop.chosen = True  # the service's before: kept
             self.resuming = bool(state.get('loop'))
         LOG.info(
-            'Macro: resumed after a restart: loop %s, pickup %s', 'on' if self.resuming else 'off', self.pickup_mode
+            'Macro: resumed after a restart: loop %s, pickup %s, run %s',
+            'on' if self.resuming else 'off',
+            self.pickup_mode,
+            self.loop.kind.name,
         )
 
     def close(self) -> None:
@@ -1023,6 +1090,7 @@ class MacroRunner:
                     self.hunter.room_maker = self._room_in_cube
                 run.wear = memory.wear
                 run.cta = memory.cta
+                run.arrival_swap = lambda: cast_in_hand(run, key_names)
                 run.lasting = self.lasting  # the buffs' casts that took, across runs (macros/buffs.py `took_of`)
                 run.hover_note = memory.hover_note
                 run.mark = mark
@@ -1131,6 +1199,38 @@ class MacroRunner:
             return False
         return math.dist((player.x, player.y), spot_of(card)) <= DOOR_NEAR
 
+    def _teleport_step(self, run: Run, key_names) -> None:
+        """One press of the teleport key with no pursuit to make it: a step of the stage the level is at
+        (`staged`), the plain step without one. Also the Andariel loop's press through the stairs."""
+        walker = self.hunter
+
+        def empty(target: Target, run=run) -> bool:
+            # A chest mark with no chest shown at it is done with (route.note_empty; the player, 2026-10-16).
+            return route.note_empty(run, target, self.progress, self.marks)
+
+        def plain(card: Target | None, run=run, walker=walker) -> None:
+            drop = worth_a_stop(run) if walker is not None else None
+            if walker is None:
+                step_toward(run, card, key_names, empty=empty)
+            elif drop is not None:
+                # The step does not leave a valuable behind: this press takes it, the next hops.
+                LOG.info('Macro: the teleport step takes %s first', drop.label)
+                pick_up(run, walker.level() if walker.level is not None else None, key_names, lambda: None)
+            elif card is not None and walker.boss_step(run, card, key_names):
+                pass  # the boss stands where its mark has no shot at it: the step went for the boss
+            else:
+                step_toward(
+                    run,
+                    card,
+                    key_names,
+                    lambda target: walker.foot_step(run, target, key_names),
+                    lambda target, player, spot: walker.warp_hop(run, target, player, spot, key_names),
+                    empty=empty,
+                )
+
+        # One step of the stage the level is at (macros/route.py); the plain step without one.
+        self.staged(run, key_names, plain)
+
     def perform(self, run: Run, actuator: Actuator, routine: str, key_names) -> None:
         """One routine on the run made for it (`_execute`), by the build chosen at its first look (`choosing`)."""
         self.choosing(run)
@@ -1139,34 +1239,7 @@ class MacroRunner:
         if routine == TELEPORT and self.pursues(run, key_names):
             pass  # one pass of the pursuit's decision made the press (hunt.py `pursue_once`)
         elif routine == TELEPORT:
-            walker = self.hunter
-
-            def empty(target: Target, run=run) -> bool:
-                # A chest mark with no chest shown at it is done with (route.note_empty; the player, 2026-10-16).
-                return route.note_empty(run, target, self.progress, self.marks)
-
-            def plain(card: Target | None, run=run, walker=walker) -> None:
-                drop = worth_a_stop(run) if walker is not None else None
-                if walker is None:
-                    step_toward(run, card, key_names, empty=empty)
-                elif drop is not None:
-                    # The step does not leave a valuable behind: this press takes it, the next hops.
-                    LOG.info('Macro: the teleport step takes %s first', drop.label)
-                    pick_up(run, walker.level() if walker.level is not None else None, key_names, lambda: None)
-                elif card is not None and walker.boss_step(run, card, key_names):
-                    pass  # the boss stands where its mark has no shot at it: the step went for the boss
-                else:
-                    step_toward(
-                        run,
-                        card,
-                        key_names,
-                        lambda target: walker.foot_step(run, target, key_names),
-                        lambda target, player, spot: walker.warp_hop(run, target, player, spot, key_names),
-                        empty=empty,
-                    )
-
-            # One step of the stage the level is at (macros/route.py); the plain step without one.
-            self.staged(run, key_names, plain)
+            self._teleport_step(run, key_names)
         elif routine == PICKUP:
             hunter = self.hunter
             if hunter is None:
@@ -1202,6 +1275,20 @@ class MacroRunner:
                     raise Abort('no level guide to hunt with')
                 self._loop_level_run(hunter)
 
+            def down() -> None:
+                # Andariel's Catacombs: the level run to the stairs, rushed; at them, the press through (a level run
+                # ends at a warp: going through takes a press, macros/pursuit.py `to_the_door`)
+                player = run.world().player
+                if player is not None and self.at_the_way_on(player):
+                    self._teleport_step(run, key_names)
+                else:
+                    level_run()
+
+            def fight() -> None:
+                if hunter is None:
+                    raise Abort('no level guide to hunt with')
+                self._loop_level_run(hunter, rush=False)
+
             def take_one() -> bool:
                 level = hunter.level() if hunter is not None and hunter.level is not None else None
                 if pick_up(run, level, key_names, lambda: None, threat(run)):
@@ -1222,13 +1309,23 @@ class MacroRunner:
                     return 0
                 key = inventory_key()
                 try:
-                    # The full runes stay for Jamella; a gem is tried at every visit (the player cubes full stacks
-                    # into perfect ones: "I have cubed some perfect gems by hand, now we have some space", 15:27 on
-                    # 2026-10-17), a refusal learned again
+                    # The full runes stay for Jamella; a gem is tried at the game's first visit (the player cubes full
+                    # stacks into perfect ones: "I have cubed some perfect gems by hand, now we have some space", 15:27
+                    # on 2026-10-17), a refusal learned again; at its second the full ones are not: four refusals, ~5 s
+                    # a visit (04:47:25-29 on 2026-10-18)
+                    game = run.world().game_name
                     tried = set(self.loop.sold_full)
+                    stay = keep
+                    if self.gems_tried == game:
+                        now = run.carried() if run.carried is not None else None
+                        gems = self.loop.full - self.loop.sold_full
+                        stay = keep | frozenset(
+                            i.unit_id for i in ((*now.items, *now.in_cube) if now is not None else ()) if i.txt in gems
+                        )  # fmt: skip
+                    self.gems_tried = game
                     # the gold near its cap into the stash too (macros/loop.py `deposit_to`)
                     gold_to = deposit_to(gold(run), gold_cap(run))
-                    unload(run, own, key, tried, keep, gold_to, self.stash_pages)  # the cube and the loop's items in
+                    unload(run, own, key, tried, stay, gold_to, self.stash_pages)  # the cube and the loop's items in
                     self.loop.full |= tried
                 except Abort as stop:
                     if cut(run, stop):
@@ -1237,15 +1334,43 @@ class MacroRunner:
                 if key is None:
                     LOG.info("Macro: cube: no key opens the inventory: the loop's items stay where they are")
                     return 0
-                pack = run.carried() if run.carried is not None else None
-                # A full stash stack's items stay in the inventory for Jamella (macros/loop.py `full`): not the cube's;
-                # the unidentified and the junk may go into the cube (Cain identifies it, the shop takes them out)
-                sold = self.loop.sold_full
-                held = {(i.txt, i.x, i.y) for i in pack.items if i.txt in sold} if pack is not None else set()
-                # nor the kept ones (the session's junk, for Jamella next: moved into the cube, only one came out again
-                # for her, the inventory full, 12:54:10 on 2026-10-17)
-                held |= {(i.txt, i.x, i.y) for i in pack.items if i.unit_id in keep} if pack is not None else set()
-                return stash(run, key, own | held)  # what the stash left, into the cube
+
+                def staying() -> frozenset[tuple[int, int, int]]:
+                    pack = run.carried() if run.carried is not None else None
+                    # A full stash stack's items stay in the inventory for Jamella (macros/loop.py `full`): not the
+                    # cube's; the unidentified and the junk may go into the cube (Cain identifies it, the shop takes
+                    # them out)
+                    sold = self.loop.sold_full
+                    held = {(i.txt, i.x, i.y) for i in pack.items if i.txt in sold} if pack is not None else set()
+                    # nor the kept ones (the session's junk, for Jamella next: moved into the cube, only one came out
+                    # again for her, the inventory full, 12:54:10 on 2026-10-17)
+                    held |= {(i.txt, i.x, i.y) for i in pack.items if i.unit_id in keep} if pack is not None else set()
+                    return own | held
+
+                # A full stack's flawless gems, kept (never sold), three at a time into a perfect one by the cube (the
+                # player, 2026-10-17: "for gems - we need to cube 3 flawless -> perfect"); the stash takes it next. What
+                # the inventory has no room for while the cube is emptied is put down and picked up again after (the
+                # player, 09:53 on 2026-10-18: "drop on the ground then pickup and move to cube"): 19 gems kept, no
+                # transmute had the room, a trade session every game (09:22-09:45)
+                parked: list[int] = []
+
+                def park(unit_id: int) -> None:
+                    self.put_down.park(unit_id)
+                    parked.append(unit_id)
+
+                for txt in sorted(t for t in self.loop.full if perfect_of(t) is not None):
+                    for _ in range(TRANSMUTES):
+                        made = transmute(run, key, txt, park)
+                        if parked:
+                            stash(run, key, staying())  # the inventory's into the cube: room to pick them up
+                            for _ in range(len(parked) + PICK_SLACK):
+                                if not pick_up(run, None, key_names, lambda: None):
+                                    break
+                            LOG.info('Macro: cube: %d put down for the transmute, picked up again', len(parked))
+                            parked.clear()
+                        if not made:
+                            break
+                return stash(run, key, staying())  # what the stash left, into the cube
 
             def identify_loot(items) -> None:
                 # All at once at Deckard Cain (the player, 2026-10-17: "we need to perform mass identify at decard
@@ -1338,7 +1463,18 @@ class MacroRunner:
                 return arrange_keys(run, key) if key is not None else False
 
             self.loop.leg(
-                run, key_names, self.progress, level_run, take_one, stash_loot, identify_loot, judge, bring, arrange
+                run,
+                key_names,
+                self.progress,
+                level_run,
+                take_one,
+                stash_loot,
+                identify_loot,
+                judge,
+                bring,
+                arrange,
+                down,
+                fight,
             )
         elif routine in (HUNT_ELITES, ATTACK):
             if self.hunter is None:

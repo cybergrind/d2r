@@ -268,3 +268,85 @@ def test_an_item_taken_only_to_identify_is_dropped_for_a_grand_charms_block():
     assert play.fallen == [dagger]
     assert room_for(inventory_rows(play.pack), SURE_BLOCK)
     assert 'inventory' not in play.world.open_panels
+
+
+# -- a full stack's flawless gems: three into a perfect one (the player, 2026-10-17: "for gems - we need to cube 3
+# flawless -> perfect"; the Flawless Ruby and Sapphire stacks full at 04:30:31 on 2026-10-18) --
+
+FLAWLESS_RUBY, PERFECT_RUBY = class_of('Flawless Ruby'), class_of('Perfect Ruby')
+
+
+def rubies(*cells: tuple[int, int]) -> tuple[Carried, ...]:
+    return tuple(Carried(40 + n, FLAWLESS_RUBY, x, y, (1, 1)) for n, (x, y) in enumerate(cells))
+
+
+def test_three_flawless_gems_go_alone_into_the_cube_and_transmute_into_a_perfect_one():
+    from inventory_tracking.macros.cube import perfect_of, transmute
+
+    assert perfect_of(FLAWLESS_RUBY) == PERFECT_RUBY
+    assert perfect_of(class_of('Perfect Ruby')) is None
+    assert perfect_of(RUNE.txt) is None
+    play = fortress(Pack((GRAND, THE_CUBE, TOME, KEY, *rubies((4, 2), (5, 2), (6, 2), (7, 2))), EMPTY_CUBE))
+
+    assert transmute(play.run(), 'i', FLAWLESS_RUBY)
+
+    assert play.transmutes == [(FLAWLESS_RUBY,) * 3]  # the button clicked with the three alone in the cube
+    assert play.pack is not None
+    assert [item.txt for item in play.pack.in_cube] == [PERFECT_RUBY]
+    assert sum(item.txt == FLAWLESS_RUBY for item in play.pack.items) == 1  # the fourth stays
+    assert play.world.open_panels == ()
+
+
+def test_what_the_inventory_has_no_room_for_is_put_down_while_the_cube_transmutes():
+    # 09:22-09:45 on 2026-10-18: 19 flawless gems of full stacks, the cube full of them, no transmute had the room to
+    # empty it (the player: "drop on the ground then pickup and move to cube")
+    from inventory_tracking.macros.cube import transmute
+
+    emerald = class_of('Flawless Emerald')
+    others = tuple(Carried(60 + n, emerald, n % 3, 1 + n // 3, (1, 1)) for n in range(9))
+    cubed = (*rubies((0, 0), (1, 0), (2, 0)), *others)
+    # the inventory: the player's, with two cells free
+    own = tuple(Carried(80 + n, 999, n % 10, n // 10, (1, 1)) for n in range(38) if n not in (1, 2, 11, 12))
+    play = fortress(Pack(()))
+    play.pack = Pack(
+        (THE_CUBE, *own), ('###',) * 4, in_cube=cubed, cube_items=frozenset(i.unit_id for i in cubed),
+    )  # fmt: skip
+    parked: list[int] = []
+
+    assert transmute(play.run(), 'i', FLAWLESS_RUBY, parked.append)
+
+    assert play.transmutes == [(FLAWLESS_RUBY,) * 3]
+    assert len(parked) == 7  # two out into the inventory
+    assert {i.unit_id for i in play.fallen} == set(parked)
+    assert play.pack is not None
+    assert [i.txt for i in play.pack.in_cube] == [PERFECT_RUBY]
+    assert play.cursor is None
+    assert play.world.open_panels == ()
+    full = fortress(Pack(()))
+    full.pack = Pack((THE_CUBE, *own), ('###',) * 4, in_cube=cubed, cube_items=frozenset(i.unit_id for i in cubed))
+    assert not transmute(full.run(), 'i', FLAWLESS_RUBY)  # no `park`: nothing put down, not clicked
+    assert full.fallen == []
+    assert full.transmutes == []
+
+
+def test_what_else_is_in_the_cube_comes_out_first_and_with_too_few_gems_nothing_is_clicked():
+    from inventory_tracking.macros.cube import transmute
+
+    cubed = (Carried(50, class_of('Large Charm'), 2, 0, (1, 2)), *rubies((0, 0), (1, 0)))
+    play = fortress(Pack(()))
+    play.pack = Pack(
+        (GRAND, THE_CUBE, TOME, KEY, Carried(43, FLAWLESS_RUBY, 4, 2, (1, 1))),
+        ('###', '#..', '...', '...'),
+        in_cube=cubed,
+        cube_items=frozenset(i.unit_id for i in cubed),
+    )
+
+    assert transmute(play.run(), 'i', FLAWLESS_RUBY)
+
+    assert play.transmutes == [(FLAWLESS_RUBY,) * 3]  # the charm out before the click
+    assert play.pack is not None
+    assert any(item.unit_id == 50 for item in play.pack.items)
+    few = fortress(Pack((GRAND, THE_CUBE, *rubies((4, 2), (5, 2))), EMPTY_CUBE))
+    assert not transmute(few.run(), 'i', FLAWLESS_RUBY)
+    assert few.transmutes == []
+    assert few.keys.events == []

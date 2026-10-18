@@ -274,6 +274,18 @@ def test_a_valuable_the_player_put_down_is_neither_gone_for_nor_stood_by_nor_war
     assert play.picked == []
 
 
+def test_a_gem_the_macro_parked_for_a_transmute_is_picked_up_again() -> None:
+    """The cube's flawless gems put down while it transmutes (macros/cube.py `transmute`, 2026-10-18): carried this
+    game, then on the ground, yet the macro's own: picked up again, not taken for the player's."""
+    gem = Drop(77, 5003.0, 5000.0, 'Flawless Ruby', VALUABLE, (1, 1))
+    put_down = PutDown()
+    put_down.see(Loot((), game=('cyber32', 1), carried=frozenset({gem.unit_id})))
+    put_down.park(gem.unit_id)
+    seen = put_down.see(Loot((gem,), room=FREE, game=('cyber32', 1)))
+    assert seen.drops == (gem,)
+    assert not put_down.at(gem.x, gem.y)
+
+
 # -- potions: guards first, said, remembered, worth a detour --------------------------------------------------
 
 

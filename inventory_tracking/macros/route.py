@@ -111,11 +111,30 @@ def note_used(
     LOG.info('Macro: route %s: %s is done at (%.1f, %.1f)', step.route, step.stage.text(), *target.point)
 
 
+def note_toured(run: Run, target: Target | None, progress: Progress | None, area: int | None) -> None:
+    """After a step toward `target` from level `area`: when it is a mark of the level's tour (routes/model.py `tour`:
+    the canyon's tombs) and the level changed, that mark is gone through, and the tour passes it from now on
+    (`Progress.lead`'s skip)."""
+    if target is None or progress is None or area is None or target.area != area:
+        return
+    step = progress.step(area)
+    if step is None or not step.stage.tours or step.stage.mark != target.label:
+        return
+    with run.lightly():
+        player = run.world().player
+    if player is None or player.area == area:
+        return
+    progress.used(area, target.label, target.point, ())
+    LOG.info('Macro: route %s: %s at (%.1f, %.1f) gone through into level %d', step.route, target.label,
+             *target.point, player.area)  # fmt: skip
+
+
 def note_empty(
     run: Run,
     target: Target,
     progress: Progress | None,
     marks: Callable[[str], tuple[Place, ...]] | None,
+    why: str = 'none here',
 ) -> bool:
     """The character is at `target`, a mark of the level's `use` stage, and the game shows none of its objects: when
     the object may be gone (`Use.gone`: a chest another player opened, a spot left empty) the mark is done with, as
@@ -128,8 +147,8 @@ def note_empty(
         return False
     places = marks(target.label) if marks is not None else ()
     progress.used(target.area, target.label, target.point, places or (target.point,))
-    LOG.info('Macro: route %s: %s: none at (%.1f, %.1f): done with it', step.route, target.label, *target.point)
-    run.say(f'{target.label}: none here')
+    LOG.info('Macro: route %s: %s: %s at (%.1f, %.1f): done with it', step.route, target.label, why, *target.point)
+    run.say(f'{target.label}: {why}')
     return True
 
 
@@ -260,6 +279,7 @@ def press(
         return
     plain(target)
     note_used(run, target, progress, marks)
+    note_toured(run, target, progress, area)
     if found is None or progress is None or target is None or target.label != found[1].mark:
         return
     name, stage = found

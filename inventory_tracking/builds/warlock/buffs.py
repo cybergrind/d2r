@@ -13,6 +13,7 @@ import math
 
 from inventory_tracking.builds.warlock.defiler import defiler_missing, worth_a_defiler
 from inventory_tracking.builds.warlock.mark import (
+    herald,
     mark_due,
     mark_passed,
     mark_refusal,
@@ -57,6 +58,9 @@ ENGORGE_LOOKS = 2  # corpses the pointer is put on for one cast at most
 WARD_SECONDS = 5.0
 # Death Mark: mark.py (what it buys, when it is cast, its numbers).
 SIGIL_SECONDS = 10.0  # between two sigils under the same monster
+# Under a Herald (macros/hunt.py HERALD_OMEN) a sigil goes first, and again every HERALD_SIGIL_SECONDS: the Herald moves
+# off the one laid (the player, 01:01 on 2026-10-18: "prioritizing keeping herald on sigil lethargy + death mark")
+HERALD_SIGIL_SECONDS = 6.0
 # Consume (skills.txt 381: 15% more life and a faster run for 300 s at CybergrindAA's level) is cast again by
 # attack mode when the character's state reads without it and no hostile is within CONSUME_CLEAR: a Defiler is
 # summoned and the pointer put on it, about two seconds in which nothing is struck. After a try that failed
@@ -88,16 +92,28 @@ def ward_in_a_fight(facts: BuffFacts) -> bool:
     return facts.since(PSYCHIC_WARD) > WARD_SECONDS
 
 
+def herald_in_reach(facts: BuffFacts) -> Monster | None:
+    """The nearest Herald in the attack's reach (mark.py `herald`), None with none."""
+    player = facts.world.player
+    found = [m for m in facts.reachable if herald(m)]
+    if player is None or not found:
+        return None
+    return min(found, key=lambda m: math.dist((player.x, player.y), (m.x, m.y)))
+
+
 def sigil_due(facts: BuffFacts) -> bool:
-    """Whether a sigil is due under the monster the strike is aimed through: an elite, and the last
-    one under it SIGIL_SECONDS old."""
+    """Whether a sigil is due: under a Herald in reach, its last one HERALD_SIGIL_SECONDS old; else under the monster
+    the strike is aimed through, an elite, its last one SIGIL_SECONDS old."""
+    first = herald_in_reach(facts)
+    if first is not None:
+        return facts.since(SIGIL_LETHARGY, first.unit_id) > HERALD_SIGIL_SECONDS
     prey = facts.prey
     return prey is not None and prey.leader and facts.since(SIGIL_LETHARGY, prey.unit_id) > SIGIL_SECONDS
 
 
 def prey(facts: BuffFacts) -> Monster | None:
-    """Whom the sigil is laid under: the monster the strike is aimed through."""
-    return facts.prey
+    """Whom the sigil is laid under: a Herald in reach, else the monster the strike is aimed through."""
+    return herald_in_reach(facts) or facts.prey
 
 
 def engorge_due(facts: BuffFacts) -> bool:

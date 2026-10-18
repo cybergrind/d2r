@@ -11,16 +11,17 @@ What goes: everything in the cube (the loop's bag) and the loop's items in the i
 player's, as the loop's first look found them, nor the cube, the tomes and the keys).
 
 The steps (`unload`), in Pandemonium Fortress before Save and Exit: the stash (objects.txt `Bank`, world.py BANK)
-clicked as the waypoint is (teleport.py `use_thing`), which opens it with the inventory; the Gems tab clicked, on which
-the stash shows the cube's grid, and each cube item sent by a Ctrl + Shift + click; then each inventory resource
-(`RESOURCES`: the codes the resource tabs name, data/stash_tabs.json) by a Ctrl + click onto its tab's stack; then the
+clicked as the waypoint is (teleport.py `use_thing`), which opens it with the inventory; a resource tab clicked once, on
+which the stash shows the cube's grid, and each cube item sent by a Ctrl + Shift + click; then each inventory resource
+(`RESOURCES`: the codes the resource tabs name, data/stash_tabs.json) by a Ctrl + click, which puts it onto its own
+tab's stack whatever tab is shown (the player, 2026-10-18), its tab shown only after a refusal; then the
 Personal tab and each other item by a Ctrl + click; on a page with no room for it the Shared tab, then its right
 arrow, page after page (SHARED_PAGES at most); each move checked in memory (the item has left its grid, and is not on
 the pointer); Escape. Where to click is the game's layout (`bankexpansionlayouthd.json`, read 2026-10-17): the stash
 is the left panel, as the cube's; its tabs 195 x 72 from (82, 146), the cube's grid at (431, 784) on a resource tab,
 the shared pages' arrows in StashNavigation at (369, 1211). The player's screenshot of 23:59 that day put the Gems tab
 and the cube's cells where these say. Not yet seen in a game: where a cube item no resource tab takes goes on a
-Ctrl + Shift + click, whether a resource's Ctrl + click needs its tab shown, the shared pages' arrow.
+Ctrl + Shift + click, the shared pages' arrow.
 """
 
 import functools
@@ -52,9 +53,21 @@ from inventory_tracking.macros.world import BANK, Carried, Pack, World
 from inventory_tracking.native.layout import TILE_UNITS
 
 
-__all__ = ['RESOURCES', 'Pages', 'crowded', 'occupied', 'resources', 'unload']
+__all__ = [
+    'RESOURCES',
+    'STASH_PAGE',
+    'Pages',
+    'close_stash',
+    'crowded',
+    'occupied',
+    'open_stash',
+    'resources',
+    'unload',
+]
 
 STASH_CUBE = ((0.0, 0.397), (236, -651), (431, 784))  # the cube's grid on a resource tab, as cube.py's grids
+# A page's 10 x 10 grid: `bankexpansionlayouthd.json` `basicstash_container` `grid` at (89, 219) (read 2026-10-18)
+STASH_PAGE = ((0.0, 0.397), (236, -651), (89, 219))
 
 
 def tab_point(tab: int) -> tuple[float, float]:
@@ -272,7 +285,9 @@ def unload(
         for item in pack.in_cube:
             if item.txt not in RESOURCES or item.unit_id in keep:
                 continue  # stays: a Ctrl + Shift + click does not send it (01:28:34 on 2026-10-17)
-            if shown_tab != resource_tabs()[item.txt]:
+            if shown_tab is None:
+                # Any resource tab shows the cube's grid, and the item goes onto its own tab by itself (the player,
+                # 2026-10-18: "you don't need to open appropriate tab. these items automatically gets to correct tab")
                 shown_tab = resource_tabs()[item.txt]
                 _tab(run, rect, tab_point(shown_tab))
             run.actuator.move(*cell_point(rect, STASH_CUBE, (item.x, item.y), item.size), scatter=(6, 6))
@@ -302,9 +317,14 @@ def unload(
         page = min(pages.first, SHARED_PAGES)  # 0 the personal page, n the n-th shared one
         on_pages = False
         for item in ordered:
-            if item.txt in RESOURCES and shown_tab != resource_tabs()[item.txt]:
-                shown_tab = resource_tabs()[item.txt]
-                _tab(run, rect, tab_point(shown_tab))
+            if full is not None and item.txt in full and not _potion(item):
+                # Its kind refused earlier this visit: the stack is full, the rest of the kind is not tried (seven
+                # flawless gems of four full stacks, ~1.3 s each, at 06:08:50-55 on 2026-10-18)
+                left += 1
+                continue
+            # A resource goes onto its own tab whatever tab is shown (the player, 2026-10-18): its tab is shown only
+            # after a refusal, which on its own tab is a full stack. The refusal that once had every tab shown first, a
+            # Tal Rune at 01:28:46 on 2026-10-17, was the Tal Runes' full stack
             if item.txt not in RESOURCES and not on_pages:
                 on_pages = True
                 if page == 0:
@@ -319,9 +339,16 @@ def unload(
                     if item.txt not in RESOURCES:
                         pages.first = page
                     break
+                if item.txt in RESOURCES and shown_tab != resource_tabs()[item.txt]:
+                    shown_tab = resource_tabs()[item.txt]
+                    LOG.info('Macro: stash: the %s did not go: its own tab shown, and again', _name(item))
+                    _tab(run, rect, tab_point(shown_tab))
+                    continue
                 if item.txt in RESOURCES and full is not None and not _potion(item):
                     full.add(item.txt)  # its tab shown and refused: the stack holds 99 (the Tal Runes, 2026-10-17)
-                    LOG.info('Macro: stash: the %s stack is full: sold at Jamella from now on', _name(item))
+                    # a rune's then sold at Jamella; a gem's kept and cubed into perfect ones (macros/loop.py
+                    # `sold_full`, macros/cube.py `transmute`)
+                    LOG.info('Macro: stash: the %s stack is full', _name(item))
                 if item.txt in RESOURCES or page >= SHARED_PAGES:
                     left += 1
                     stuffed = stuffed or item.txt not in RESOURCES
@@ -345,6 +372,50 @@ def unload(
         LOG.info('Macro: stash: %d items put in, %d left%s', moved, left, ': the stash is full' if stuffed else '')
     run.say(f'Stash: {moved} item{"s" if moved != 1 else ""} put in' + (f', {left} left' if left else ''))
     return moved
+
+
+def open_stash(run: Run) -> tuple[int, int, int, int]:
+    """Walk to the stash in sight (or the Fortress's own place) and open it with the inventory, as `unload` does; the
+    window's rect. `Abort` with none in sight or when it does not open."""
+    if run.pad is not None:
+        raise Abort('the stash needs mouse mode')
+    rect = run.actuator.keys.focused_window_rect()
+    if rect is None:
+        raise Abort('no game window')
+
+    def place(world: World) -> tuple[float, float] | None:
+        shown = [t for t in (run.things() if run.things is not None else ()) if t.txt_id == BANK]
+        if world.player is not None and not shown and world.player.area == FORTRESS:
+            return USUAL
+        if world.player is None or not shown:
+            return None
+        here = (world.player.x, world.player.y)
+        thing = min(shown, key=lambda t: math.dist((t.x, t.y), here))
+        return thing.x, thing.y
+
+    if place(run.world()) is None:
+        raise Abort('no stash in sight')
+    walk_until(run, place, STASH_SEEN, 'the stash')
+    world = run.seen(lambda w: w.player is not None and w.player.mode not in WALKING, WALK_SECONDS) or run.world()
+    player = world.player
+    shown = [t for t in (run.things() if run.things is not None else ()) if t.txt_id == BANK]
+    if player is None or not shown:
+        raise Abort('the stash is not in sight')
+    thing = min(shown, key=lambda t: math.dist((t.x, t.y), (player.x, player.y)))
+    mark = Target(player.area, (), (thing.x / TILE_UNITS, thing.y / TILE_UNITS), 'the stash', 'stash', use=BANK)
+    use_thing(run, mark, player, thing, rect[2] / rect[3])
+    if run.seen(lambda w: {'stash', 'inventory'} <= set(w.open_panels), PANEL_SECONDS) is None:
+        raise Abort('the stash did not open with the inventory')
+    run.actuator.rebase()
+    return rect
+
+
+def close_stash(run: Run) -> None:
+    """Escape out of the stash's panels, if open."""
+    if {'stash', 'inventory', 'cube'} & set(run.world().open_panels):
+        run.actuator.tap('Escape')
+        run.seen(lambda w: not {'stash', 'inventory', 'cube'} & set(w.open_panels), PANEL_SECONDS)
+        run.actuator.rebase()
 
 
 def _shared(run: Run, rect, page: int) -> None:
@@ -378,6 +449,15 @@ def _sent(run: Run, rect, item: Carried, grid, gone) -> bool:
         run.actuator.click()
         raise Abort(f'the {_name(item)} went onto the pointer, not into the stash')
     return True
+
+
+MATERIALS_TAB = 3  # `resource_tabs`: the essences, shards, keys and the rest
+
+
+def is_potion(txt: int) -> bool:
+    """Whether the class is a potion's (misc.txt types `rpot`, `hpot`, ...)."""
+    base = metadata()['bases'].get(str(txt))
+    return base is not None and str(base.get('type', '')).endswith('pot')
 
 
 def _potion(item: Carried) -> bool:

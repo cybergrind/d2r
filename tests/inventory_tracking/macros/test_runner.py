@@ -1299,7 +1299,7 @@ def test_the_loop_key_again_stops_the_leg_working_and_nothing_follows(monkeypatc
 
 def test_a_double_press_of_the_loop_key_switches_its_pickup_mode_and_leaves_the_loop_as_it_was():
     # routes/lower-kurast-loop-plan.md phase 7 (the player, 2026-10-16): "show mode (switch with double KP_6 click)"
-    from inventory_tracking.macros.pickmode import REGULAR, SURE
+    from inventory_tracking.macros.pickmode import SURE, TRADE
 
     shown, made = [], []
     runner = make(lambda cancelled, routine: made.append(routine), shown)
@@ -1309,20 +1309,46 @@ def test_a_double_press_of_the_loop_key_switches_its_pickup_mode_and_leaves_the_
     deadline = time.monotonic() + 2
     while runner.pickup_mode == SURE and time.monotonic() < deadline:
         time.sleep(0.01)
-    assert runner.pickup_mode == REGULAR
+    assert runner.pickup_mode == TRADE  # the trade goods too (the player, 2026-10-18)
     assert not runner.loop.on
     assert made == []
-    assert ['Macro: Loop pickup: regular'] in shown
+    assert ['Macro: Loop pickup: sure and trade goods'] in shown
 
-    for at in (20.0, 20.1, 20.2):  # a mashed key: nothing
+    for at in (20.0, 20.1, 20.2, 20.3):  # a mashed key: nothing
         assert runner.request(at, at, 'loop')
     deadline = time.monotonic() + 2
-    while ['Macro: KP_6 pressed 3 times together: nothing switched'] not in shown and time.monotonic() < deadline:
+    while ['Macro: KP_6 pressed 4 times together: nothing switched'] not in shown and time.monotonic() < deadline:
         time.sleep(0.01)
-    assert ['Macro: KP_6 pressed 3 times together: nothing switched'] in shown
-    assert runner.pickup_mode == REGULAR
+    assert ['Macro: KP_6 pressed 4 times together: nothing switched'] in shown
+    assert runner.pickup_mode == TRADE
     assert not runner.loop.on
     runner.close()
+
+
+def test_three_presses_of_the_loop_key_switch_its_run_and_a_restart_keeps_it():
+    # The player, 2026-10-18: "rebuild loop start to accept what type of run we're going to run"
+    from inventory_tracking.macros.loop import ANDARIEL, LK
+
+    shown, made = [], []
+    runner = make(lambda cancelled, routine: made.append(routine), shown)
+    assert runner.loop.kind == LK
+    for at in (10.0, 10.1, 10.2):
+        assert runner.request(at, at, 'loop')
+    deadline = time.monotonic() + 2
+    while runner.loop.kind == LK and time.monotonic() < deadline:
+        time.sleep(0.01)
+    assert runner.loop.kind == ANDARIEL
+    assert runner.loop.chosen  # no place overrides it
+    assert ['Macro: Loop run: Andariel'] in shown
+    assert not runner.loop.on
+    assert runner.resume_state()['loop_kind'] == 'andariel'
+    runner.close()
+
+    after = make(lambda cancelled, routine: None, [])
+    after.resume({'loop': False, 'loop_kind': 'andariel'})
+    assert after.loop.kind == ANDARIEL
+    assert after.loop.chosen
+    after.close()
 
 
 def test_the_loops_pickup_mode_filters_the_drops_only_with_the_loop_on():
@@ -1340,6 +1366,10 @@ def test_the_loops_pickup_mode_filters_the_drops_only_with_the_loop_on():
     runner.pickup_mode = REGULAR
     assert runner._picked(loot) == loot
     assert runner.run_badge == 'LOOP ALL'
+    from inventory_tracking.macros.loop import ANDARIEL
+
+    runner.loop.kind = ANDARIEL
+    assert runner.run_badge == 'LOOP ALL ANDARIEL'
     runner.close()
 
 
@@ -1390,3 +1420,40 @@ def test_a_full_stash_stack_skips_its_rune_but_never_a_gem():
     assert runner._picked(Loot(drops=(amethyst, tal))).drops == (amethyst,)
     assert runner.loop.sold_full == {631}
     runner.close()
+
+
+def test_a_terror_zones_run_ended_at_a_door_goes_through_and_runs_the_next_level_with_no_press(monkeypatch):
+    # The player, 00:27 on 2026-10-18: "yes, go to next level without press"
+    from types import SimpleNamespace
+
+    from inventory_tracking.macros.runmode import TERROR, Mode
+
+    monkeypatch.setattr(runner_module, 'ONWARD_PAUSE', 0.0)
+    places = iter([('cyber32', 36), ('cyber32', 37), ('cyber32', 38), ('cyber32', 39)])
+    runner = MacroRunner(None, capture_lock=threading.Lock(), saved_games=SAVED_GAMES, place=lambda: next(places))
+    pressed: list[str] = []
+    monkeypatch.setattr(runner, '_press', pressed.append)
+    hunter = SimpleNamespace(mode=Mode(True, TERROR), bearings=SimpleNamespace(terror=lambda area: area < 38))
+    monkeypatch.setattr(runner, 'hunter', hunter)
+    runner.attack_mode = True
+
+    def presses(n: int) -> list[str]:
+        deadline = time.monotonic() + 2.0
+        while len(pressed) < n and time.monotonic() < deadline:
+            time.sleep(0.01)
+        return pressed
+
+    runner.poll(10.0)  # in level 36
+    runner._run_over('at Next level: going through takes a press')
+    assert presses(1) == ['teleport']  # the door
+    runner.poll(12.0)  # level 37 entered, the zone's
+    assert presses(2) == ['teleport', 'pickup']
+    runner._run_over('at Next level: going through takes a press')
+    runner.poll(14.0)  # level 38: not the zone's: no run pressed
+    time.sleep(0.05)
+    assert pressed == ['teleport', 'pickup', 'teleport']
+    runner._run_over('nothing is left to go to on this level')  # no door: nothing pressed
+    hunter.mode = Mode(True)  # nor out of a terror zone
+    runner._run_over('at Next level: going through takes a press')
+    time.sleep(0.05)
+    assert pressed == ['teleport', 'pickup', 'teleport']

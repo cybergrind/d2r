@@ -10,7 +10,9 @@ from inventory_tracking.macros.cta import (
     BATTLE_COMMAND,
     BATTLE_ORDERS,
     ROWS,
+    SWAP_AFTER_CAST,
     call_to_arms,
+    cast_in_hand,
     orders_shown,
     worn_and_in_front,
 )
@@ -86,3 +88,44 @@ def test_no_call_to_arms_in_the_other_set_is_said_asked_again_later_and_the_set_
     assert tried.at > run.clock()  # not asked again for a while (MISSING_WAIT)
     assert 'F8' not in play.pressed()
     assert play.sets[0] == PREBUFF_SET
+
+
+def test_the_arrivals_input_check_casts_them_with_the_call_to_arms_its_swap_put_in_hand():
+    # 01:15:46-52 on 2026-10-18: the check's swap pair, then the caster's own pair for the cast (1.5 s)
+    from inventory_tracking.macros.routines import took_input
+    from inventory_tracking.macros.skills import SWAP_WEAPONS
+
+    play = Game(world(LOWER_KURAST, slots=CTA_SLOTS, player=player(LOWER_KURAST, battle_orders=False)))
+    play.staff = None
+    play.sets = [PREBUFF_SET, CTA_SET]
+    run = play.run()
+    run.keys.update(keys(run.world(), (SWAP_WEAPONS,)))
+    run.arrival_swap = lambda: cast_in_hand(run, keys)
+    timed, heard = [], play.keys.on_event
+
+    def timing(event):
+        if event[0] == 'key':
+            timed.append((event[1], play.clock.now))
+        heard(event)
+
+    play.keys.on_event = timing
+    assert took_input(run, 'Lower Kurast', run.clock())
+    assert [key for key in play.pressed() if key in ('c', 'F7', 'F8')] == ['c', 'F7', 'F8', 'c']
+    assert play.sets[0] == PREBUFF_SET
+    # The swap back SWAP_AFTER_CAST after Battle Orders' key: one 0.4 s after it was refused (01:41-01:58)
+    orders = next(at for key, at in timed if key == 'F8')
+    back = [at for key, at in timed if key == 'c' and at > orders]
+    assert back[0] - orders >= SWAP_AFTER_CAST
+
+
+def test_at_the_arrival_nothing_is_cast_with_battle_orders_shown_in_a_town_or_no_call_to_arms_in_hand():
+    for shown, area, sets in (
+        (True, LOWER_KURAST, [PREBUFF_SET, CTA_SET]),
+        (False, PANDEMONIUM_FORTRESS, [PREBUFF_SET, CTA_SET]),
+        (False, LOWER_KURAST, [PREBUFF_SET, OTHER_SET]),
+    ):
+        play = Game(world(area, slots=CTA_SLOTS, player=player(area, battle_orders=shown)))
+        play.staff = None
+        play.sets = [sets[1], sets[0]]  # the other set in hand, as after the check's swap
+        assert not cast_in_hand(play.run(), keys)
+        assert not {'F7', 'F8'} & set(play.pressed())

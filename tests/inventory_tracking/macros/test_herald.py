@@ -3,6 +3,8 @@ client holds 5 s where the Herald appears keeps the run there, and a live Herald
 
 import math
 
+import pytest
+
 from inventory_tracking.macros.hunt import HERALD_OMEN, OMEN_SECONDS, OMEN_STAND, omen_stand
 from tests.inventory_tracking.macros.test_hunt import foe, game, hunter, me
 
@@ -84,3 +86,67 @@ def test_a_valuable_with_no_room_has_the_macros_pickups_moved_into_the_cube_in_t
     hunt.room_tried, hunt.room_maker = None, lambda run: moved.append(run) or 2
     assert hunt.stay_by(run, here) == amulet
     assert len(moved) == 1
+
+
+# -- a full clear's super chests (the player, 00:19 on 2026-10-18: "in auto mode - we should open at least glowing
+# superchests") --
+
+
+def test_a_closed_super_chest_near_is_the_full_clears_goal_before_the_rest_and_a_herald_before_it():
+    from inventory_tracking.levels.model import Ground
+    from inventory_tracking.macros.goals import USE
+    from inventory_tracking.macros.hunt import SUPER_NEAR, SUPER_TRIES
+    from inventory_tracking.macros.runmode import SWITCHED, Mode
+    from inventory_tracking.macros.world import Thing
+
+    play, hunt, run, here = setup()
+    hunt.mode = Mode(True, SWITCHED)
+    chest = Thing(70, 397, 0, here[0] + 30.0, here[1])
+    run.things = lambda: (chest, Thing(71, 397, 1, here[0] + 5.0, here[1]))  # the open one is no goal
+    far = foe(1, here[0] - 40.0, here[1])  # off the way: the chest first
+    goal = hunt.cleared(run, play.world, [far], Ground(()), None)
+    assert goal is not None
+    assert (goal.do, goal.unit, goal.place) == (USE, 70, (chest.x, chest.y))
+    run.things = lambda: (Thing(70, 397, 0, here[0] + SUPER_NEAR + 5.0, here[1]),)  # too far: the rest of the level
+    assert getattr(hunt.cleared(run, play.world, [far], Ground(()), None), 'unit', None) == 1
+    run.things = lambda: (chest,)
+    herald = foe(2, here[0] - 40.0, here[1], flags=UNIQUE, tier=5)
+    assert getattr(hunt.cleared(run, play.world, [herald], Ground(()), None), 'unit', None) == 2  # a Herald first
+    hunt.shack_tries[70] = SUPER_TRIES  # tried enough: left
+    assert getattr(hunt.cleared(run, play.world, [far], Ground(()), None), 'unit', None) == 1
+
+
+def test_a_route_chest_no_try_opens_is_left_as_gone_after_route_use_tries(monkeypatch):
+    # 01:37:56-01:38:42 on 2026-10-18: another object under the pointer at every aim at Lower Kurast's chest, 46 tries
+    # in 47 s, until the loop's watchdog left the game
+    from inventory_tracking.levels.model import Target
+    from inventory_tracking.macros import hunt as hunt_module
+    from inventory_tracking.macros.actuator import Abort
+    from inventory_tracking.macros.goals import USE, Goal
+    from inventory_tracking.macros.hunt import ROUTE_USE_TRIES
+    from inventory_tracking.macros.travel import LOOPED
+    from inventory_tracking.macros.world import Thing
+    from inventory_tracking.routes.model import Stage
+
+    play, hunt, run, here = setup()
+    chest = Thing(70, 183, 0, here[0] + 3.0, here[1])
+    mark = Target(79, (), (chest.x / 5, chest.y / 5), 'Super chests', 'target', use=183)
+    goal = Goal(
+        'Super chests', (chest.x, chest.y), USE, 3.0, LOOPED, unit=70, mark=mark, stage=Stage(USE, 'Super chests')
+    )
+    tried, left = [], []
+    monkeypatch.setattr(hunt_module, 'marked_thing', lambda run, target: chest)
+
+    def refused(*_args):
+        tried.append(True)
+        raise Abort('Super chests is not under the pointer at any aim')
+
+    monkeypatch.setattr(hunt_module, 'use_thing', refused)
+    monkeypatch.setattr(hunt_module.route, 'note_empty', lambda *args: left.append(args[-1]) or True)
+    for _ in range(ROUTE_USE_TRIES):
+        with pytest.raises(Abort):
+            hunt.operate(run, play.world, goal, None)
+    assert len(tried) == ROUTE_USE_TRIES
+    hunt.operate(run, play.world, goal, None)  # one more: left as gone, no click
+    assert len(tried) == ROUTE_USE_TRIES
+    assert left == [f'not opened in {ROUTE_USE_TRIES} tries']

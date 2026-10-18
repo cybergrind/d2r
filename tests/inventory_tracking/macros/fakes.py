@@ -29,15 +29,17 @@ from inventory_tracking.macros.cube import (
     CUBE,
     CUBE_CLASS,
     INVENTORY,
+    TRANSMUTE,
     cell_point,
     fits as cube_fits,
+    perfect_of,
     taken as cube_taken,
 )
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.routines import screen_fraction
 from inventory_tracking.macros.shop import TRADE_ABOVE, VENDOR
 from inventory_tracking.macros.skills import SWAP_WEAPONS, TELEPORT
-from inventory_tracking.macros.stash import RESOURCES, SHARED_LEFT, SHARED_RIGHT, STASH_CUBE, tab_point
+from inventory_tracking.macros.stash import RESOURCES, SHARED_LEFT, SHARED_RIGHT, STASH_CUBE, STASH_PAGE, tab_point
 from inventory_tracking.macros.timing import Pace
 from inventory_tracking.macros.waypoint import panel_point
 from inventory_tracking.macros.world import (
@@ -294,6 +296,8 @@ class Game:
         # where a cube item no resource tab takes goes on a Ctrl + Shift + click: it stays (01:28:34 on 2026-10-17)
         self.cube_spill = 'stays'
         self.stash_refuses: set[int] = set()  # the resource classes whose stash stack is full (99)
+        self.transmutes: list[tuple[int, ...]] = []  # what the cube held at each Transmute click
+        self.buys_take: list[bool] = []  # whether each Shift + right click at a vendor buys (empty: each does)
         self.pointer: int | None = None  # the unit id of the item a plain click took up (`Pack.pointer`)
         self.menu_shut = 0  # her menus a click off its Trade line closed
         self.stock_delay = 0.0  # seconds her stock takes to be read after her trade window shows
@@ -471,7 +475,8 @@ class Game:
         elif event[0] == 'button' and event[1] == 3 and w.in_game and 'npc_shop' in w.open_panels:
             if 'Shift_L' in event[3] and self.pack is not None:
                 bought = next((s for s in self.stock if s.tab == 3 and self.stock_cell(*event[2]) == (s.x, s.y)), None)
-                if bought is not None and bought.txt in self.full:
+                took = self.buys_take.pop(0) if self.buys_take else True  # a click that buys nothing now and then
+                if bought is not None and bought.txt in self.full and took:
                     field_name, full = self.full[bought.txt]
                     if field_name == 'keys':  # the stack not full filled, else a new one (shop.py KEYS_WANTED)
                         # a new stack comes a few keys a click (17:31:59 on 2026-10-17: 12 -> 15)
@@ -761,6 +766,31 @@ class Game:
             if self.stash_tab == 1 and abs(at[0] - x) < 0.01 and abs(at[1] - y) < 0.015:
                 self.shared_page = max(self.shared_page - 1, 0)
                 return True
+        if self.keys.ctrl and not self.keys.shift and self.pack.stash is not None and self.stash_tab == 0:
+            # The personal page read (world.py `Pack.stashed`, macros/charms.py): an item onto its first free block,
+            # and one of its own back onto the inventory's
+            item = self.pack_item_at(x, y)
+            if item is not None and item.txt != CUBE_CLASS:
+                spot = _free_block(self.pack.stash, item.size)
+                if spot is not None:
+                    placed = replace(item, x=spot[0], y=spot[1])
+                    self.pack = replace(
+                        self.pack, items=tuple(i for i in self.pack.items if i is not item),
+                        stashed=(*self.pack.stashed, placed), stash=_rows((*self.pack.stashed, placed), 10, 10),
+                    )  # fmt: skip
+                return True
+            for lying in self.pack.stashed:
+                px, py = cell_point(WINDOW, STASH_PAGE, (lying.x, lying.y), lying.size)
+                if abs(px - x) < 0.01 and abs(py - y) < 0.02:
+                    spot = _free_block(_rows(self.pack.items, 10, 4), lying.size)
+                    if spot is not None:
+                        left = tuple(i for i in self.pack.stashed if i is not lying)
+                        self.pack = replace(
+                            self.pack, stashed=left, stash=_rows(left, 10, 10),
+                            items=(*self.pack.items, replace(lying, x=spot[0], y=spot[1])),
+                        )  # fmt: skip
+                    return True
+            return True
         if self.keys.ctrl and not self.keys.shift:
             item = self.pack_item_at(x, y)
             if item is not None and item.txt != CUBE_CLASS:
@@ -865,8 +895,28 @@ class Game:
                 self.pack = replace(
                     self.pack, items=tuple(i for i in self.pack.items if i is not item),
                     cube=cube_taken(rows, spot, item.size), cube_items=self.pack.cube_items | {item.unit_id},
+                    in_cube=(*self.pack.in_cube, replace(item, x=spot[0], y=spot[1])),
                 )  # fmt: skip
             return
+        if self.cursor is None and 'cube' in self.world.open_panels and self.on_transmute(x, y):
+            self.transmutes.append(tuple(i.txt for i in self.pack.in_cube))
+            inside = self.pack.in_cube
+            made = perfect_of(inside[0].txt) if inside else None
+            if made is not None and len(inside) == 3 and len({i.txt for i in inside}) == 1:
+                gem = replace(inside[0], unit_id=9000 + len(self.transmutes), txt=made, x=0, y=0)
+                self.pack = replace(self.pack, in_cube=(gem,), cube_items=frozenset({gem.unit_id}),
+                                    cube=cube_taken(('...',) * 4, (0, 0), gem.size))  # fmt: skip
+            return
+        if self.cursor is None and 'cube' in self.world.open_panels:
+            for item in self.pack.in_cube:  # a plain click on a cube item: onto the pointer (cube.py `_park`)
+                px, py = cell_point(WINDOW, CUBE, (item.x, item.y), item.size)
+                if abs(px - x) < 0.01 and abs(py - y) < 0.02:
+                    self.cursor = item
+                    self.pack = replace(
+                        self.pack, in_cube=tuple(i for i in self.pack.in_cube if i is not item),
+                        cube_items=self.pack.cube_items - {item.unit_id},
+                    )  # fmt: skip
+                    return
         if self.cursor is None:
             item = self.pack_item_at(x, y)
             if item is not None and item.txt != CUBE_CLASS:
@@ -892,9 +942,17 @@ class Game:
             cx, cy = math.floor((x - x0) / ((x1 - x0) / 10)), math.floor((y - y0) / ((y1 - y0) / 4))
             self.pack = replace(self.pack, items=(*self.pack.items, replace(item, x=cx, y=cy)))
             self.cursor = None
-        elif x < 0.5:  # on the ground left of the panels: it falls at the character's feet
+        elif x < 0.6:  # on the ground left of the inventory's panel: it falls at the character's feet
             self.fallen.append(item)
             self.cursor = None
+
+    def on_transmute(self, x: float, y: float) -> bool:
+        """Whether (x, y) is on the cube's Transmute button (macros/cube.py TRANSMUTE, a button some 80 units wide)."""
+        (ax, ay), (px, py), _ = CUBE
+        scale = WINDOW[3] / 2160
+        left = (ax * WINDOW[2] + (px + TRANSMUTE[0]) * scale) / WINDOW[2]
+        top = (ay * WINDOW[3] + (py + TRANSMUTE[1]) * scale) / WINDOW[3]
+        return left <= x <= left + 80 * scale / WINDOW[2] and top <= y <= top + 80 * scale / WINDOW[3]
 
     def run(self, seed: int = 1) -> Run:
         pace = Pace(random.Random(seed), self.clock.sleep)
@@ -998,3 +1056,18 @@ class Game:
 
     def pressed(self) -> list[str]:
         return [event[1] for event in self.keys.events if event[0] == 'key']
+
+
+def _rows(items, width: int, height: int) -> tuple[str, ...]:
+    """A grid's rows ('.' free) with `items` on it."""
+    taken = {(i.x + dx, i.y + dy) for i in items for dx in range(i.size[0]) for dy in range(i.size[1])}
+    return tuple(''.join('#' if (x, y) in taken else '.' for x in range(width)) for y in range(height))
+
+
+def _free_block(rows, size: tuple[int, int]) -> tuple[int, int] | None:
+    """The first cell (row by row) whose block of `size` is free in `rows`."""
+    for y in range(len(rows) - size[1] + 1):
+        for x in range(len(rows[0]) - size[0] + 1):
+            if all(rows[y + dy][x + dx] == '.' for dx in range(size[0]) for dy in range(size[1])):
+                return x, y
+    return None

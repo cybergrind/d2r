@@ -64,8 +64,8 @@ STEP_WALK_SECONDS = 0.7
 HURRY_FREE = 0.02
 HURRY_SECONDS = 0.3
 HOVER_UNITS = 12.0  # a monster named as under the pointer stands this near the ground aimed at, or is not there
-# A stride is a jump when a skill makes one without a weapon swap: Blade Warp first (skills.txt 390, a casting
-# delay of 20 frames, spends no charges), else Teleport when in hand or a skill of the character's own (Enigma).
+# A stride is a jump when a skill makes one without a weapon swap: the first the movement set has ready (the Warlock:
+# Blade Warp before a staff's Teleport in hand, after Teleport of the character's own, builds/warlock/movement.py).
 JUMP_REACH = 26.0  # units of a jump: in view, and within the blade's range
 JUMP_LEAST = 8.0  # a stride shorter than this is walked
 JUMP_SECONDS = 1.5  # for the character to be seen somewhere else after the key

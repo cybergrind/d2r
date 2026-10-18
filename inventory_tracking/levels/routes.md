@@ -368,14 +368,7 @@ Each row is one route: where it may start, then each level with its stages in or
 | Maggot Lair | Far Oasis | Far Oasis: enter Maggot Lair<br>Maggot Lair 1: enter Next level<br>Maggot Lair 2: enter Next level<br>Maggot Lair 3: fight Coldworm the Burrower → loot → leave |
 | Ancient Tunnels | Lost City | Lost City: enter Ancient Tunnels<br>Ancient Tunnels: use Chest → loot → leave |
 | Claw Viper Temple | Lost City | *Lost City*: enter Valley of Snakes<br>Valley of Snakes: enter Claw Viper Temple<br>Claw Viper Temple 1: enter Next level<br>Claw Viper Temple 2: fight Fangskin → loot → leave |
-| Canyon of the Magi | Canyon of the Magi | Canyon of the Magi: clear → loot → leave |
-| Tal Rasha's Tomb 1 | Canyon of the Magi | *Canyon of the Magi*: enter Tomb<br>Tal Rasha's Tomb: clear → loot → leave |
-| Tal Rasha's Tomb 2 | Canyon of the Magi | *Canyon of the Magi*: enter Tomb<br>Tal Rasha's Tomb: clear → loot → leave |
-| Tal Rasha's Tomb 3 | Canyon of the Magi | *Canyon of the Magi*: enter Tomb<br>Tal Rasha's Tomb: clear → loot → leave |
-| Tal Rasha's Tomb 4 | Canyon of the Magi | *Canyon of the Magi*: enter Tomb<br>Tal Rasha's Tomb: clear → loot → leave |
-| Tal Rasha's Tomb 5 | Canyon of the Magi | *Canyon of the Magi*: enter Tomb<br>Tal Rasha's Tomb: clear → loot → leave |
-| Tal Rasha's Tomb 6 | Canyon of the Magi | *Canyon of the Magi*: enter Tomb<br>Tal Rasha's Tomb: clear → loot → leave |
-| Tal Rasha's Tomb 7 | Canyon of the Magi | *Canyon of the Magi*: enter Tomb<br>Tal Rasha's Tomb: clear → loot → leave |
+| Tal Rasha's Tombs | Canyon of the Magi | Canyon of the Magi: tour Tomb → loot → leave<br>Tal Rasha's Tomb: back to Canyon of the Magi<br>Tal Rasha's Tomb: back to Canyon of the Magi<br>Tal Rasha's Tomb: back to Canyon of the Magi<br>Tal Rasha's Tomb: back to Canyon of the Magi<br>Tal Rasha's Tomb: back to Canyon of the Magi<br>Tal Rasha's Tomb: back to Canyon of the Magi<br>Tal Rasha's Tomb: back to Canyon of the Magi |
 | Summoner | Lut Gholein, Palace Cellar 1, Arcane Sanctuary | Harem 1: enter Harem 2<br>Harem 2: enter Palace Cellar 1<br>Palace Cellar 1: enter Palace Cellar 2<br>Palace Cellar 2: enter Palace Cellar 3<br>Palace Cellar 3: use Arcane Sanctuary<br>Arcane Sanctuary: fight The Summoner → loot → leave |
 
 ### Act 3

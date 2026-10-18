@@ -173,8 +173,15 @@ def test_the_key_pressed_from_a_routes_start_passes_its_doors_to_the_last_level(
 
 
 def starts():
+    """The levels with a door to take, but a tour's and the ways back of its levels (the Canyon of the Magi's tombs:
+    a loop by design, test_progress.py `test_the_canyon_tours_its_tombs_...`)."""
     progress = Progress(ROUTES)
-    return [area for area in sorted(progress.scripts) if progress.lead(area) is not None]
+
+    def looped(area: int) -> bool:
+        step = progress.step(area)
+        return step is not None and (bool(step.stage.tours) or step.stage.back)
+
+    return [area for area in sorted(progress.scripts) if progress.lead(area) is not None and not looped(area)]
 
 
 @pytest.mark.parametrize('start', starts())

@@ -51,6 +51,10 @@ class Step:
 
 def done(area: int, stage: Stage, facts: Facts) -> bool | None:
     """Whether the stage of level `area` is done in this game; None for a stage the facts do not judge yet."""
+    if stage.back:
+        return False  # the level's way back: the level left, its own script is over
+    if stage.tours:
+        return set(stage.tours) <= facts.entered
     if stage.to:
         return stage.to in facts.entered
     if stage.kind == USE:

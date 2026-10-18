@@ -226,6 +226,24 @@ def worth_of(facts: BuffFacts, unit: int) -> float:
     return found.worth if found is not None else -math.inf
 
 
+def herald(monster: Monster) -> bool:
+    """A Terror Zone's Herald: stat 367 with the unique flag (terror/tracker.py); its minions carry the stat too and
+    are no leaders."""
+    return bool(monster.tier) and monster.leader
+
+
+def unmarked_herald(facts: BuffFacts) -> Monster | None:
+    """The nearest Herald in reach whose mark has run out or was never laid: the mark's first target (the player, 01:01
+    on 2026-10-18: "prioritizing keeping herald on sigil lethargy + death mark"; a tier 5 Apparition Herald's pack
+    killed the character at 00:54:55, its mark laid 1 s before)."""
+    player = facts.world.player
+    if player is None:
+        return None
+    here = (player.x, player.y)
+    found = [m for m in facts.reachable if herald(m) and facts.since(DEATH_MARK, m.unit_id) >= MARK_SECONDS]
+    return min(found, key=lambda m: math.dist(here, (m.x, m.y))) if found else None
+
+
 def ranked(facts: BuffFacts) -> list[Monster]:
     """The leaders and bosses in reach a mark may go on (`fits`): a unique, a champion, a super unique, an act boss.
     While one is in reach no plain monster of the fight is marked (the player, 2026-10-14: the mark goes "on the
@@ -248,6 +266,9 @@ def target(facts: BuffFacts) -> Monster | None:
     the rest. With the safety's prices fresh: the one it priced best; while a mark lasts on a live one, only another
     it prices above nothing, and MARK_AGAIN after the last mark. With none: by `strongest`, and none while a mark
     lasts on a live one (it is renewed when that dies or runs out)."""
+    first_of_all = unmarked_herald(facts)
+    if first_of_all is not None:
+        return first_of_all
     held = marked(facts)
     if facts.draws is None:
         return None if held else strongest(facts)
@@ -299,6 +320,8 @@ def why_not(facts: BuffFacts, monster: Monster) -> str | None:
     each, death-mark-engage.md §5), and the takes show no life the character kept by a mark (death-mark.md §2)."""
     if not demons(facts.world):
         return "no demon of the character's is out (the skill needs one)"
+    if herald(monster):
+        return None  # a Herald is marked whatever the price (`unmarked_herald`)
     seen = seen_of(facts, monster)
     if seen is None:
         return 'no character'

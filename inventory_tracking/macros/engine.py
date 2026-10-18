@@ -64,6 +64,9 @@ class Run:
         self.own_teleport: Callable[[], bool | None] | None = None  # world.GameMemory.own_teleport
         self.wear: Callable[[], Wear | None] | None = None  # the most worn item (world.GameMemory.wear)
         self.cta: Callable[[], bool | None] | None = None  # a Call to Arms worn in either set (world.GameMemory.cta)
+        # What is done with the other weapon set in hand at an arrival's input check, before the swap back
+        # (routines.py `took_input`): the Call to Arms' buffs (macros/cta.py `cast_in_hand`)
+        self.arrival_swap: Callable[[], object] | None = None
         # skill -> clock time of its last cast that took, kept by the runner across its runs (macros/buffs.py
         # `Buffs.took_of`): the prebuff's Consume is seen by attack mode, which renews it before a boss. None: this
         # run's executor keeps its own.

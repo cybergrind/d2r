@@ -1,20 +1,23 @@
-"""How a Warlock moves: the shared movement sets, each with Blade Warp before its own jumps.
+"""How a Warlock moves: the shared movement sets with Blade Warp among their jumps.
 
 Blade Warp throws a blade and puts the character where it lands, so it needs a clear line there, as
 a shot does; it spends no charge of a staff and needs no weapon swap, and it has a casting delay.
-That is why it comes first in every set: with a staff worn, with Teleport as a skill of the
-character's own, and with neither.
+That is why it comes before a staff's Teleport, and is the only jump with neither. Teleport as a skill
+of the character's own (Enigma) costs nothing either, crosses walls, and has no casting delay: it comes
+first, and Blade Warp only where Teleport cannot be made (the player, 2026-10-18: "now we have an enigma ...
+stop using blade warp in almost all situations"). Blade Warp is still asked for by name where only it
+serves: bringing the mercenary out of danger (`JumpSource.brings`, hunt.py `escorted`) and Mephisto's bridge.
 """
 
 from inventory_tracking.builds.warlock.skills import BLADE_WARP
 from inventory_tracking.combat.stance import Jump
 from inventory_tracking.macros.build import JumpSource
-from inventory_tracking.macros.movement import SHARED
+from inventory_tracking.macros.movement import SHARED, OwnTeleport
 from inventory_tracking.macros.travel import JUMP_LEAST, JUMP_REACH
 
 
-# A stride is a jump when a skill makes one without a weapon swap: Blade Warp first (skills.txt 390, a casting
-# delay of 20 frames, spends no charges), else Teleport when in hand or a skill of the character's own (Enigma).
+# A stride is a jump when a skill makes one without a weapon swap: Blade Warp (skills.txt 390, a casting delay of
+# 20 frames, spends no charges) before a staff's Teleport in hand, after Teleport of the character's own (Enigma).
 # Seconds between the keys of two Blade Warps. The game counts the skill's delay of 20 frames (0.8 s) not
 # from the key but from the cast's action frame: in the take of 12:33 on 2026-10-13 the character's state
 # 185 `cooldown` was set 0.20 s after the key (0.17 to 0.23) and held 0.80 s (0.77 to 0.82), 64 warps of 64.
@@ -41,5 +44,11 @@ BLADE_WARP_SOURCE = JumpSource(
     BLADE_WARP_JUMP, delay=WARP_DELAY, cleared=WARP_CLEARED, pad_reach=BLADE_WARP_PAD_REACH, brings=True
 )
 
-# The shared sets in their order, the blade first in each: Blade Warp, then Teleport, then the walk.
-MOVEMENT = tuple(shared.led_by(BLADE_WARP_SOURCE) for shared in SHARED)
+# The shared sets in their order: the blade before a staff's Teleport and alone with none, after Teleport of the
+# character's own. With Enigma at 01:05-01:08 on 2026-10-18 the loop still warped where the set's first jump was
+# taken (a safe approach, a retreat, the sweep's stride): 0.44-0.76 s from the key against a Teleport's 0.31
+# (TELEPORT_SECONDS), and the warp's 1.05 s delay after.
+MOVEMENT = tuple(
+    shared.then(BLADE_WARP_SOURCE) if isinstance(shared, OwnTeleport) else shared.led_by(BLADE_WARP_SOURCE)
+    for shared in SHARED
+)

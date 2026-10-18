@@ -97,3 +97,34 @@ def test_with_no_load_shown_the_leg_is_over_once_a_swap_takes_and_waits_the_sett
 
     assert deaf.arrived_at is not None
     assert deaf.clock.now >= deaf.arrived_at + ARRIVAL_SETTLE
+
+
+def test_what_lands_while_the_portal_opens_is_picked_up_before_it_is_gone_through():
+    # 03:04:16-17 on 2026-10-18: a chest's Chipped Ruby landed 0.8 s after its click, while the portal opened, and the
+    # character went through without it
+    play = lower_kurast()
+    play.portal_opens = 0.6
+    asked: list[tuple[float, int]] = []
+
+    def first() -> bool:
+        clicks = sum(event[0] == 'click' for event in play.keys.events)
+        asked.append((play.clock.now, clicks))
+        return len(asked) < 2  # one drop picked up, then nothing more
+
+    to_town(play.run(), keys, first)
+
+    assert len(asked) == 2
+    assert all(now >= 0.6 and clicks == 0 for now, clicks in asked)  # the portal open, not yet clicked
+    assert play.character.area == KURAST_DOCKS
+
+
+def test_a_portal_whose_middle_is_covered_is_taken_by_its_top():
+    # 05:25:08 on 2026-10-18: a Doom Ape killed on the portal lay under the three aims down its middle, and the game was
+    # left for it (teleport.py PORTAL_AIMS)
+    play = lower_kurast()
+    play.portal_opens = 0.6
+    play.thing_above = 110  # only the portal's top is under the pointer: its middle shows the body
+
+    to_town(play.run(), keys)
+
+    assert play.character.area == KURAST_DOCKS

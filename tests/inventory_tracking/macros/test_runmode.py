@@ -526,6 +526,23 @@ def test_a_double_press_switches_the_level_to_a_full_clear_and_both_presses_run_
     ]
 
 
+def test_the_loops_own_posts_are_no_double_press_and_take_no_run_of_another_level() -> None:
+    # 10:26:40 on 2026-10-18: the KP_6 loop posted its run twice 0.35 s apart (the first took the last game's run of
+    # Catacombs Level 4, which ended at once): read as a double press, Catacombs Level 2 got a full clear, 80 s
+    play = game(area=RIVER)
+    hunt = hunter(play)
+    hunt.build = pursuing(hunt.build)
+    hunt.bearings = Bearings(Progress(ROUTES, PERFORMED, wanted=lambda area: False))
+    run = play.run()
+    hunt.post(Pursuit('pickup', 9.0, advance=False, leash=FULL, area=SANCTUARY))  # a run held from before
+    hunt.post(Pursuit('pickup', 10.0, advance=False, leash=FULL, looped=True))
+    assert hunt.pursuit is not None
+    assert hunt.pursuit.area is None  # its own run: the level is the first look's
+    hunt.post(Pursuit('pickup', 10.24, advance=False, leash=FULL, looped=True))
+    play.clock.now = 10.24 + DOUBLE + 0.01
+    assert hunt.run_mode(run, RIVER, hunt.pursuit) == Mode(False)
+
+
 def test_a_pair_no_look_came_in_the_window_of_still_switches_the_level(caplog) -> None:
     """A double press while the run was looking elsewhere (a warp in flight, the hand's pause) and a press after its
     window: the next look switches the level all the same, said with how late."""
@@ -561,6 +578,21 @@ def test_a_mashed_pickup_key_switches_nothing_and_a_terror_zone_is_a_full_clear(
     hunt.post(Pursuit('teleport', 20.2))
     play.clock.now = 30.0
     assert hunt.run_mode(run, RIVER, hunt.pursuit) == Mode(True, TERROR)
+
+
+def test_the_loops_rushed_run_goes_to_its_way_out_past_a_pack_but_its_full_clear_clears() -> None:
+    # 10:20-10:41 on 2026-10-18: every pack on the way down the Catacombs was the loop's goal, the run stood ~1.8 s at
+    # each (RUSH_UNMOVED), 41 stands, 74 s (the player: "we're freezing ... then, after a few seconds we starts
+    # attacking"); the player's ruling for the loop, 2026-10-16: "don't fight what isn't attacking"
+    play = game(area=RIVER)
+    hunt = hunter(play)
+    run = play.run()
+    hunt.mode = Mode(False)
+    hunt.pursuit = Pursuit('pickup', 10.0, advance=False, leash=FULL, rush=True, looped=True)
+    near = foe(31, 5010.0, 5000.0)
+    assert hunt.cleared(run, play.world, [near], Ground(()), DOOR) == DOOR
+    hunt.pursuit = Pursuit('pickup', 10.0, advance=False, leash=FULL)  # KP_1's own run clears its way still
+    assert getattr(hunt.cleared(run, play.world, [near], Ground(()), DOOR), 'unit', None) == 31
 
 
 def test_a_run_to_its_goal_fights_what_is_on_its_way_and_passes_what_it_cannot_strike(caplog) -> None:

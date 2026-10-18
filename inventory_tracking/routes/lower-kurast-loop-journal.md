@@ -14,11 +14,13 @@ counted. The baseline window for `--against` is the newest row marked **baseline
 | Window (local) | Code | Games | Chests an hour | Game median / p90 s | Chests leg s | Chests a stay (median) | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | 2026-10-16 22:50–23:07 | 65cfebc | 18 | – | 52.3 / 67.9 | 27.7 | – | before the stash and repair legs |
-| 2026-10-17 02:43–04:31 | + uncommitted | 116 | **280** | 51.4 / 80 | 25.1 | 3 | **baseline**: strike rules, CHEST_BRINGS 0.1 |
+| 2026-10-17 02:43–04:31 | + uncommitted | 116 | **280** | 51.4 / 80 | 25.1 | 3 | baseline until 2026-10-18: strike rules, CHEST_BRINGS 0.1 |
 | 2026-10-17 04:34–06:50 | + uncommitted | 135 | 280 (±26) | 59.1 / 83 | 32.8 | 4 | longer games, more chests a stay: same yield |
 | 2026-10-17 06:51–09:44 | + uncommitted | 179 | 271 (−35..+18) | 55.8 / 79 | 26–31 | | no evidence of a change |
 | 2026-10-17 19:45–20:08 | + uncommitted | 26 | 291 (cycles 288; +14, −31..+63) | 47.4 / – | 22.8 | 3 | open at the chest among idle hostiles; Teleport on in all 26 |
 | 2026-10-17 20:23–20:47 | + uncommitted | 30 | 296 (cycles 288; +10, −44..+71) | 42.2 / – | 18.0 | 3 | no open across a wall; Teleport on 14 stays, off 15 |
+| 2026-10-18 01:14–01:44 | + uncommitted | 46 | **422** (cycles 397; +121, +48..+191 against 20:23) | 36.1 / – | 10.6 | 4 | **baseline**: Enigma, Teleport before Blade Warp, CTA at the arrival; 18.2 chests a minute on the level |
+| 2026-10-18 02:01–02:42 | + uncommitted | 70 | 403 (cycles 405; −27, −90..+31: no evidence) | 33.5 / 44.5 | 8.4 | – | one swap back, keys to 24, route chest cap, late pickups; game −2.8 s and chests leg −2.2 s (both better) |
 
 Rates: 60–65 games an hour; 3 waypoint recoveries in 4 h (06:50, 08:13, 09:43), no stop that left loot.
 
@@ -27,6 +29,64 @@ moving 1.9 s, and 1.8 s after the last container. 4.7 chests and 3.1 other conta
 on the level. 18.3 s a stay are lost against Blade Warp's pace (21 u/s) over the straight lines.
 
 ## Queue (no ruling needed), most valuable first
+
+- (2026-10-18 03:22) Every key top-up since the BUY_MOST fix goes 12, a click that buys nothing ("still 12"), 15-16, a
+  click that buys nothing ("still 16"), 24: two misses of BOUGHT_SECONDS 1.5 s each, ~3 s a trade session (~0.3 s a
+  game). Measure how soon a key purchase shows in the count; a shorter wait for keys, or why the click after a full
+  stack buys nothing.
+
+- (2026-10-18 02:10) A false MISSED: a magic Jewel at (5382, 3219) "still on the ground after the click" (02:10:14.70),
+  gone from the ground reads at ~02:10:14.95 with the character beside it, identified and sold from the inventory at
+  02:11:33-45 (no other Jewel picked up between). The pickup's check window ended before the item left the ground.
+  Done 02:16: `pickup.CLICKED`/`late`: a valuable clicked and not seen to go, found in the character's grids within
+  LATE_SECONDS 5 of the click, is logged "picked up X ...s after the click, late" (the watch's PICKED). Test: test_pickup.
+- Wide suite after this hour's changes (macros, combat, builds, scenarios, appraisal): 4652 passed, 86 xfailed.
+- 02:18-02:28, 17 games: median 32.5 s, chests 7.6 s, no recovery, no MISSED. A one-off "portals 0" in the trade
+  report at 02:20:11.6 (the shop read 20 at 11.56; Town Portal cast at 02:20:34): a read as the shop closed, not acted on.
+- 02:18-03:04, 76 games: no recovery. 03:04:16-17 a MISSED: the last chest opened at 16.28, the run ended at 16.43,
+  the pickup found nothing, Town Portal cast at 16.57; a Chipped Ruby landed at 17.10 and the portal was gone through at
+  17.75. `portal.to_town(..., first)`: the loop's pickup made at the open portal, again while it picks something up
+  (PICKS_AT_PORTAL 4), before the click. Test: test_portal. A "Shop check failed" (ownership/page mismatch) at
+  02:59:40 is the stock scan read mid-sale, retried clean 2 s later; 10 such in the logs since 2026-10-17.
+- 03:05-04:06, 95 games: 383 chests an hour of play against 431 at 01:14-01:44 (no evidence), game 35.7 s (same),
+  chests leg 10.3 s (same). The yield's dip is the maps': chests opened a game equal the level guide's Super chests
+  marks a game in every session (4.5 and 4.69 before 01:36; 4.0 and 4.03 since; the one short game, 64 at 03:46, had its
+  third chest opened by a click whose act expired, then noted operated). No "not opened in 8 tries", no "none here".
+  A recovery at 04:06:56: Consume showed nothing twice in town (a unit crowding the Defiler), "not seen 3 times over",
+  the game left (~15 s); 5 such since 2026-10-17.
+- 04:30:31-04:31:00: the Flawless Ruby and Flawless Sapphire stash stacks full (99); the gems are kept, never sold
+  (`Loop.sold_full`: runes only), so they stay in the cube and the inventory ("trade session done (short of the
+  contract): cube 4 items"), and each stash visit tries them again. The player's ruling of 2026-10-17 ("cube 3 flawless
+  -> perfect") built: `cube.transmute(run, key, txt)`: the cube emptied of all else, three of the gems in, its units
+  read back as exactly those three, then Transmute (`horadriccubelayouthd.json` "convert" at (520, 969) of the left
+  panel, clicked 35 units in), then one perfect gem of the kind must be all it holds; `perfect_of` by the metadata's
+  names. The runner calls it after each stash visit for every full flawless class, up to TRANSMUTES 3. The stash's
+  "sold at Jamella from now on" line now says only "stack is full". Tests: test_cube (fakes model the button).
+  Restarted 04:35:41. Live 04:39:59: "cube: three Flawless Ruby into a Perfect Ruby" (the button's place right).
+  The same session kept a set Ring the appraisal called vendor (`junk.JUNK_QUALITIES`: magic, rare, white only).
+- 04:47:00-29: each stash visit tried the full stacks' gems again (out of the cube, refused, back in: ~5 s a visit, two
+  visits a session). `stash_loot`: at a game's second visit the full gem stacks' items are passed as `keep` (they stay
+  where they are); the first visit still tries them (the player may have cubed some by hand). Runes as before (out of
+  the cube, for Jamella).
+- Transmutes live: 04:39:59 and 04:53:13 a Perfect Ruby, 05:08:18 a Perfect Sapphire; at 04:52:58 one was not
+  made (no room to empty the cube of a junk charm) and was made after the sales.
+- 05:25:08 a recovery: a Doom Ape killed on the Town Portal's spot (5210.5, 2813.5) 0.5 s before its click lay under
+  the three aims down the portal's middle ("town is not under the pointer at any aim"); the game was left and the next
+  began in act 3 (~27 s). The first such in the logs. `teleport.PORTAL_AIMS`: the middle, then the box's top
+  (0, -95) and its sides (+-30, -60 / -25), for PORTAL and TOWN_PORTAL. Test: test_portal (red without the change).
+  The same game's third Super chest was not skipped: it opened at 313065.4 during the fight with the apes (a click
+  that took), and the route saw it operated.
+- 05:46:05 a Perfect Amethyst, 06:02:44 a Perfect Ruby (after the sales made room: the first try at 06:02:22 found
+  a junk charm in the cube and no room). Four flawless stacks full now (Amethyst, Sapphire, Ruby, Diamond).
+- 06:08:50-55: the first stash visit tried each of seven full-stack gems (~1.3 s each). `stash.unload`: a kind
+  refused once in a visit is not tried again in it (one try a kind). Test: test_stash (red without the change).
+- 07:03-07:07: ten full-stack flawless gems (five kinds, two each) filled the cube; the room read low every game and
+  a session ran every game (07:05:21, 07:06:35), each leaving it as low (~30 s a game). `Loop.carrying` leaves out the
+  full gem stacks' gems (`full - sold_full`): a room-low session only with something it can take away (junk, the
+  unidentified, what the stash takes); keys and scrolls send the loop as before. Test: test_loop (red without it).
+  The stash's page grid read for a later move of such gems to a page (`bankexpansionlayouthd.json`: 10 x 10 at
+  (89, 219) of the left panel); not built: the pages' free cells are not read, and a click on a taken one swaps.
+
 
 0. (14:15; the settle and PROBE_WAIT part done 14:36) **Arrival probes cost about 1 s a game in swaps back.** `routines.took_input` swaps until the hands change,
    then swaps back: Lower Kurast takes input 3.5 s after arrival (3.41–3.66, 579 arrivals; the press at about 3.0 never
@@ -70,7 +130,16 @@ on the level. 18.3 s a stay are lost against Blade Warp's pace (21 u/s) over the
 
 ## Waiting for the player (asked 2026-10-17)
 
-- Teleport charges: use them only where Blade Warp does not reach (recommended), or spend freely after each repair.
+- Teleport charges: moot since Enigma (2026-10-18): Teleport is the character's own, no staff, no charges.
+- (2026-10-18 05:51) Full flawless gem stacks: Amethyst, Sapphire, Ruby and Diamond at 99. The loop keeps their gems
+  (never sold, never left) and cubes each three into a perfect one (4 made by 05:46); up to two of each kind wait in
+  the cube, up to 8 of its 12 cells, so the room runs low sooner (a trade session at 05:51, 6 games after the last).
+  Options: the player empties some flawless stacks (the loop then stashes them again); sell flawless gems of a full
+  stack; or keep as is (~2 s a game).
+  06:20: Flawless Emerald full too (five kinds); six leftovers in the cube, trade sessions every 5-8 games.
+  07:57 Flawless Skull, 08:42 Flawless Topaz: all seven kinds full. Leftovers up to 14 cells (the cube holds 12).
+  **Ruled 09:40-09:53**: cube them first, parking on the ground what the inventory cannot hold; sell a kind's surplus
+  only once its perfect stack is 99 too (the 09:22-09:58 round).
 - Shack side containers: ruled 2026-10-17 10:55, only those beside a chest and in sight of it (live 11:02).
 - Trim the loop's prebuff (Summon Defiler ×2 + Consume, Hex: Purge, Psychic Ward: ~3 s a game).
 - Shorten the human-like pauses (lobby, Save and Exit, waypoint panel: 0.5–1 s a game).
@@ -82,6 +151,146 @@ on the level. 18.3 s a stay are lost against Blade Warp's pace (21 u/s) over the
 
 Newest first. One entry per round: the time, what was seen (with the clock), what was changed (files), the tests run,
 when it was restarted, what the next games showed.
+
+### 2026-10-18 10:05-10:40: the Andariel loop (KP_6 run kinds); room, prebuff, double-tap fixes
+
+The player, 10:05: "I want to build andariel loop that will be similar to lower kurast loop, we're going to use the same
+KP_6 run start/stop it"; "inventory management and trading - same as LK"; Gheed's Fortune carry-one to be swapped through
+the stash. Plan: `andariel-loop-plan.md`. Nothing committed.
+
+- **Run kinds** (`macros/loop.py` `Kind`, `KINDS`, `kind_of`): KP_6 three times switches the kind; a start with none
+  chosen takes the kind of where the character is; a restart keeps it (`resume_state` `loop_kind`, `restart.py --kind`);
+  the HUD badge `LOOP SURE ANDARIEL`. Andariel's legs: `to the Catacombs`, `down the Catacombs` (rushed level run to
+  the stairs, then the press through them), `Andariel` (the level run, fighting), `what is left`, Save and Exit on
+  Level 4; the next game starts in the Rogue Encampment. A session due there: `to Pandemonium Fortress`, LK's session.
+- **10:20:17, the prebuff in the Rogue Encampment**: Consume three times unseen, the game left (townsfolk: routines.py
+  TOWN_NPCS). Now cast on Catacombs Level 2.
+- **10:22:20, the inventory full at a restart's first leg**: the room was read only from the second look; the player's
+  items now told first (`sort` before the room). And a transmute's worth of kept gems (3 of a kind, perfect not full)
+  is a session's work (`carrying`): 21 such items had brought no session since 09:43.
+- **Town trip for room** (`TRIP`, `TO_THE_ENCAMPMENT`, `THROUGH_PORTAL`, portal.py `through_portal`): a valuable on an
+  Andariel level with no room, the cube tried: portal, the Fortress's session, the Rogue Encampment's waypoint, back
+  through the portal; once a game. Played 10:28:18-10:28:38 (20 s end to end); that time no session came (see next).
+- **Items moved by hand read as the player's** (`sort` `loose`): after game 28's by-hand sorting, Antlers, a Ring, two
+  runes and a Topaz took the loop's room (no 1 x 3 for a Grand Charm). An unidentified item, a rune or a gem is never
+  taken for the player's at the first look (10:32:03: 5 taken; the Grand Charm picked up, the session at 10:33 sold
+  three, an empty cube and 9 cells after).
+- **10:26:40, a full clear of Catacombs Level 2 (80 s)**: the loop's two posts 0.35 s apart (the first took the last
+  game's held run of Level 4 and ended at once) read as a double press of KP_1. The loop's posts (`Pursuit.looped`) are
+  no taps and take no run of before.
+- **Gheed's Fortune swap** (`macros/charms.py`, `SWAP_OUT`, `SWAP_BACK`; world.py `Carried.unique`, `Pack.stashed`):
+  a refused unique Grand Charm with the player's Gheed's carried (row 359 read: 10:39:10 "Grand Charm (0,0) unique row
+  359"): theirs onto the personal stash page (read exactly; a shared page is not), back through the portal, the new one
+  picked, then the new one into the stash and theirs back, `own` moved to its new cell. Fakes only; not seen in a game.
+- **Full material stacks** (the player, 10:37: "essensies are stacking to 99, when we have full stash cell - just stop
+  picking it up"): `sold_full` takes the Materials tab's kinds too (not potions): not picked up, carried ones sold.
+- **My mistake, 10:39:02-10:39:10**: the player paused with KP_6 while `restart.py --loop on` waited; it turned the loop
+  on again (it was off 0.04 s later). restart.py now keeps the loop off when it sees it go off while waiting.
+- Tests: test_loop (Andariel legs, trip, swap legs, kinds, materials), test_runner (three presses, resume), test_charms
+  (fakes model the personal page), test_runmode (looped posts). Wide suite 1918 passed.
+- Seen: clean games 55-61 s (down the Catacombs 27-33 s, Andariel 14 s, next game 7 s), the player's by hand 59 s.
+- **10:55, the stands by packs on the way down** (the player: "when we're teleporting along the level near group of
+  mobs, we're freezing ... then, after a few seconds we starts attacking"; rca/2026-10-18/freeze-near-mobs-findings.md):
+  the stairs are a way, so `Hunter.cleared` made each pack within 30 units the goal, and the rush gate held the strike
+  RUSH_UNMOVED (1.5 s) after each Teleport: 41 stands, 74 s, 10:20-10:41. Now the loop's rushed run (not a full
+  clear) keeps the route's goal (hunt.py `cleared`; test_runmode). Measured 10:55-10:58, 5 games: down the Catacombs
+  median 14.3 s (27-33 s before, 51-57 s in games 6-8), games 46.5 s median, 88/h (58.9/h before); no "clearing the
+  way (" goal. Wide suite 1926 passed.
+- Open: a restart mid-game does not know Andariel died (the fight stands at her mark 45 s, then the game is left);
+  Andariel's mark (46, 46) worked in every game so far.
+
+### 2026-10-18 09:22-09:58: full flawless gems jammed the cube; parked on the ground for the transmute
+
+- Seen: from 09:22 every game was a trade session (60-80 s, ~33 s before): the loop's 14 then 19 items were all
+  flawless gems of the seven full stacks, the cube full of them; a transmute must empty the cube but the inventory had
+  room for 9, so none ran ("no room in the inventory for the item ... the cube must be emptied of"). Each session also
+  spent ~14 s on stash refusals of those gems. 09:45:38, game 28: the loop stood by a Flawless Sapphire and a Grand
+  Charm with no room (the guard); the player handles it by hand.
+- Rulings (the player, 09:40-09:53): first "sell surplus to Jamella"; then "we don't need to do gem sale until we have
+  99 pgems of type and we must cube them up first"; parking: "drop on the ground then pickup and move to cube".
+- Changed:
+  - `loop.py` `surplus` (GEMS_A_KIND 3, GEMS_KEPT 6): a full kind's flawless gems past that are junk for Jamella, only
+    when the perfect gem's stack is full too (none is today: no sale now).
+  - `cube.py` `transmute(..., park)` / `_park`: a cube item the inventory has no room for is taken up and dropped at
+    PARK_POINT (0.5, 0.7, between the panels), `park` told first.
+  - `world.py` `PutDown.park`: a parked unit is not the player's put-down (picked up again, kept in the leave guard).
+  - `runner.py` `stash_loot`: after a transmute that parked, the inventory's loop items go into the cube, then
+    `pick_up` takes the parked gems back (len + PICK_SLACK 3 presses).
+- Tests: test_loop (surplus, perfect gate), test_cube (seven parked, the perfect made; no `park`: nothing dropped),
+  test_supply (a parked unit stays in the drops), fakes (a plain click takes a cube item up; ground below 0.6);
+  198 focused passed; ruff, pyrefly clean. The runner's pick-up after parking is not tested on fakes: first seen live.
+- Restart 09:58:31, loop off (the player is at game 28). Expect at the next session: "put down for the transmute",
+  "three Flawless X into a Perfect X", "picked up again", and nothing left on the town ground.
+- Not done: the stash's per-session refusals of the full gems (~14 s a session) are still tried each first visit.
+
+### 2026-10-18 09:19: a game name come round again stopped the loop
+
+- Seen: 09:19:49, game 198, at Save and Exit: "next game again and again in the lobby after cyber81: nothing came of
+  it" four times in 20 ms, then the loop stopped. Not the player (no `PLAYER: loop off`). Cause (verified): names wrap
+  cyber99 → cyber1 (`world.py:514`); cyber81 was made at 08:14:05 and again at 09:19:16, and `Loop.count` keyed its
+  counts by the name, so the second cyber81's lobby began at the first one's count and every recovery hit the guard.
+- Changed: `Loop.count` counts only where the loop is now (`counted_in`; `made` cleared when the place changes). The
+  repeat guard is unchanged within one game or one lobby (the 2026-10-16 per-game-left test still passes).
+- Tests: `test_loop.py` 28 passed (new `test_a_game_name_come_round_again_starts_its_own_count`); ruff, pyrefly clean.
+- Restart 09:21:58, loop on, pickup sure. Expect: no stop at the next wrap (about 99 games on, ~11:15).
+
+### 2026-10-18 01:36: CTA at the arrival's swap; trade goods out of the sure mode; resources with no tab clicked
+
+- Teleport-first round (01:14-01:36): 30 games, 0 Blade Warps. Goldens: the 47 `staff-none+warp-ready` decisions
+  rebuilt (each Blade Warp → Teleport, nothing else changed).
+- Call to Arms at the arrival (the player: "go ahead with the CTA at the arrival swap"): `routines.took_input` calls
+  `run.arrival_swap` with the other set in hand; `cta.cast_in_hand` casts BC/BO there when the Call to Arms is held,
+  out of town, Battle Orders not shown. Saves the caster's own swap pair (~0.5-0.7 s a game). Tests: test_cta.
+- Pickup modes (the player: "we now don't need gold anymore ... move things that we're added for gold trades ... into
+  separate category ... use sure for valuable things or small things"): SURE no longer takes the skilled magic/rare
+  trade goods (`identified_for`); TRADE (`traded`) = sure + them; REGULAR as before. Double KP_6: SURE → TRADE →
+  REGULAR. HUD "LOOP TRADE". The bases judged by rolls (Void, Monarch, Paladin shields) stay in SURE.
+- Stash (the player: "you don't need to open appropriate tab ... automatically gets to correct tab"): inventory
+  resources Ctrl + clicked with the tab shown; their own tab only after a refusal, which there means a full stack;
+  the cube's resources from one resource tab shown once. Test: `test_the_inventorys_resources_go_onto_their_tabs_...`.
+- Restarted 01:36:04 (pickup sure valuables). To check: "Call to Arms at the arrival" lines and no separate CTA swap;
+  stash visits with no tab clicks; trade sessions rarer.
+- 01:36:20 live: cast at the arrival swap; the swap back pressed 0.4 s after Battle Orders was not taken (a second
+  0.6 s later was): `cast_in_hand` waits for the cast to end (CAST_OVER 1.0). Restarted 01:37:37; at 01:37:52 one swap
+  back, the first hop 1.2 s after the input check. Stash 01:37:17: 12 items in 4.9 s, no refusal.
+- 01:37:56-01:38:42 a recovery: Lower Kurast's route chest (5100, 2532) never under the pointer, another object
+  (2, 1408512986, not one the takes list) at all 6 aims, 46 tries until the 45 s watchdog left the game. Not new
+  code (use_thing untouched), first seen. `hunt.ROUTE_USE_TRIES` 8: then the chest is left as gone
+  (`route.note_empty`, "not opened in 8 tries"); seals never. Test: test_herald. Restarted 01:41:27.
+- 01:41-01:56: the swap back after the arrival's Battle Orders was refused 25 of 26 times at 0.39-0.42 s from its key
+  (the mode read the cast over), and taken at the retry ~1.0 s; the caster's own at 0.56-0.61 s was taken 44 of 44.
+  `cta.SWAP_AFTER_CAST` 0.6 s from the last cast's key before the swap back: ~0.4 s an arrival.
+  First taken from before `routines.cast` (which waits for the cast before it), so still 0.42 s (01:57-01:59); now
+  from the key's down (`cast` returns it): 02:01:19 one swap back, 0.61 s after Battle Orders. Restarted 02:01:05.
+- 02:01-02:07, 10 games: one swap back at each arrival, median game 31.4 s, chests 6.9 s, no recovery.
+- Where the town's ~25 s goes (game 10, 02:06:16-02:06:33.8): Save and Exit to the lobby 1.1 s; create to loaded 5.3 s;
+  the town prebuff 3.0 s (Summon Defiler, Consume, Summon Defiler, Hex: Purge, Psychic Ward); to the waypoint and its
+  click 1.4 s; Lower Kurast's load until a swap takes 3.5 s; Call to Arms 1.3 s. The loads are the game's own; the
+  prebuff is the one part the macro could cut, and it is the player's ruling (Waiting for the player).
+- 25 games 01:41-01:56: median 32.4 s, chests leg 7.5 s, no recovery. Town is ~25 s of the 32 s game: next game 8.1,
+  to Lower Kurast 8.1, to the fortress 4.8, Town Portal 2.7 (the next candidates).
+- Keys topped up to 15, not 24, at 01:47:23 and 01:57:01 (from 2): 2 -> 12, a click that bought nothing, 15 (+3), another
+  that bought nothing, and BUY_CLICKS 2 counted both. Over the sessions: 86 top-ups to 24, 3 to 15, 1 to 3.
+  `shop._buy`: misses counted in a row, BUY_MOST 6 -> 9. Test: test_shop (fakes `buys_take`). Restarted at the lobby.
+  Live 02:08:23: "still 15", then 24 carried: keys 7 -> 24.
+
+### 2026-10-18 01:14: Enigma's Teleport before Blade Warp
+
+- The loop since 01:05 (Enigma, no staff): its routed legs were Teleports (88 casts), but 4 short pursuits to chests
+  ("safe approach", "retreating") and one sweep stride were Blade Warps, 0.44-0.76 s from the key, then its 1.05 s
+  delay. These take the movement set's first jump (`stride_of`, the retreats' `options`), and the Warlock's sets all
+  led with the blade. The player: "now we have an enigma ... for LK runs we need to use only enigma and stop using
+  blade warp in almost all situations".
+- `builds/warlock/movement.py`: the own-Teleport set has Teleport first, the blade after (`Ways.then`); the staff set
+  and the walk keep the blade first. `Ways.wait`/`routed_wait`: no casting delay is waited for while a jump before it
+  in the set is ready. Still by Blade Warp by name: the mercenary's escort (`hunt.escorted`, a jump that brings) and
+  Mephisto's bridge. `loop.py`: the gold rule's "Blade Warp alone" line is not said with Teleport of one's own.
+- Tests: builds/warlock/test_movement.py (the blade's tests now with a staff in hand; the own-Teleport order, the
+  stride over a wall, no wait). Restarted 01:14:23. To check: Blade Warp lines a game (was 5 in 12 games).
+- 5 games after: 62 Teleports, 0 Blade Warps; 538 chests an hour of play against 396 (6 games: too few to judge).
+- Next candidate (queued, after this one is measured): the arrival is ~6.5 s before the first hop (01:15:45-52):
+  the input check's swaps 3.5 s, the cube 1.2 s, the Call to Arms' swap there and back 1.5 s. The check's last swap
+  puts the Call to Arms in hand: casting BC/BO then would save a swap pair (~0.5-0.7 s a game).
 
 ### 2026-10-17 17:26: Halbu's menu opened standing; two key stacks; the repair errand at 20%; names wrap at 99
 
@@ -105,6 +314,24 @@ when it was restarted, what the next games showed.
   lifts drift with where the vendor is drawn (Jamella 0.2346 → 0.2290 the same minute). `cain.lifts`: the scan sorted
   by its distance from the learned lift. Test: `test_his_lines_are_tried_nearest_the_learned_one_first`. Restarted
   17:09:11.
+
+### 2026-10-18 00:10-01:03: terror zones: clear order, super chests, doors, tomb tour; a death to a Herald
+
+- Clear order (hunt.py REMEMBERED_NEAR 45): the player, "we starts to go from one side to another back and forward";
+  126 of 179 legs to a remembered monster were over 60 units. Now: in sight, remembered within 45, the room tour, the
+  far remembered last. Loaded 00:23:07.
+- Super chests (hunt.py `super_chest_goal`, SUPER_NEAR 60): opened live at 00:24:26 (Infernal Pit), 00:49, 00:52.
+- Doors with no press in a terror zone (runner.py `_run_over`, `onward`): live at 00:35:46, door to the next level's
+  run in 1.5 s.
+- Tomb tour (routes: `tour`, `back`; the player: canyon first, then tombs; trade by Town Portal in Lut Gholein):
+  route "Tal Rasha's Tombs"; live at 01:00:38 (into tomb 69). Plan: rca/2026-10-18/canyon-loop-plan.md (trade: next).
+- Death at 00:54:55: a tier 5 Apparition Herald (Extra Fast, Cursed, Mana Burn, Aura Enchanted) and 15 came up 13
+  units from the Herald stand (OMEN_STAND 14), all within 10 at once; 2634 life in 0.6 s after two rejuvenations.
+  Stand now 20 (reach 22); Death Mark and Sigil: Lethargy go on a Herald in reach first (the player: "prioritizing
+  keeping herald on sigil lethargy + death mark"): mark.py `unmarked_herald`, buffs.py HERALD_SIGIL_SECONDS 6.
+  Loaded 01:03:21, not played yet.
+- Zones rotate on the hour: at 01:00 the run in the canyon was no longer a terror zone's (no auto door, tomb 69 ran
+  to its way back, not a full clear).
 
 ### 2026-10-17 23:57: terror zones: Herald omen, cube room; CTA keys per weapon set
 

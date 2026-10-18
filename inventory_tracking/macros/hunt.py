@@ -86,7 +86,7 @@ from inventory_tracking.combat.stance import (
 from inventory_tracking.combat.survival import pressure
 from inventory_tracking.common import LOG
 from inventory_tracking.config import HEAL_PRIORITY
-from inventory_tracking.levels.model import UNIQUE_CHEST, Ground, Level, Room, Target
+from inventory_tracking.levels.model import SUPER_CHEST, UNIQUE_CHEST, Ground, Level, Room, Target
 from inventory_tracking.levels.presets import display_name
 from inventory_tracking.levels.route import room_at
 from inventory_tracking.macros import route
@@ -269,6 +269,16 @@ HOLD_UNITS = 25.0  # the sweep's own steps end no further than this from it
 GATHER_CHECK = 0.3  # seconds between two looks of the sweep for something to pick up
 GATHER_TRIES = 2  # times the sweep stops for one drop (and a level run goes for one, `side_drop`)
 SHACK_TRIES = 2  # times the KP_6 loop's run tries one of a shack's containers (`shack_goal`)
+# A full clear opens a closed glowing super chest (objects.txt 397) streamed within SUPER_NEAR before the rest of the
+# level (the player, 00:19 on 2026-10-18: "we're not always opening target chest on all levels that has it (like cave
+# 2 - I had to open it by hands). in auto mode - we should open at least glowing superchests"): the route's chest stage
+# came only after the whole level, and a level whose route has none never opened one. Left after SUPER_TRIES tries.
+SUPER_NEAR = 60.0
+SUPER_TRIES = 3
+# Tries of one route chest after which it is left as if gone (route.py `note_empty`): one never under the pointer, the
+# same other object at every aim, was tried 46 times in 47 s until the loop's watchdog left the game (01:37:56-01:38:42
+# on 2026-10-18, Lower Kurast). A chest opens at the first or second try; one covered by a monster has it fought first
+ROUTE_USE_TRIES = 8
 # A move that left the character where it was ("the character did not move"): its spot, and any within DEAD_END_NEAR
 # units, is not moved to for DEAD_END_SECONDS (`barred`); the next look takes another way, goal or act
 DEAD_END_SECONDS = 4.0
@@ -385,7 +395,10 @@ REMEMBERED_NEAR = 45.0
 HERALD_OMEN = 737
 OMEN_SECONDS = 8.0  # its 5 s and a margin for the Herald to show
 OMEN_NEAR = 22.0
-OMEN_STAND = 14.0
+# 14 (the engage ring) at first: at 00:54:55 on 2026-10-18 a tier 5 Apparition Herald (Extra Fast, Cursed, Mana Burn,
+# Aura Enchanted) and its 15 came up 13 units off, all 15 within 10 at once, and 2634 life went in 0.6 s, two
+# rejuvenations drunk before: the stand is at the attack's reach (22) less a margin, so the pack is struck coming in
+OMEN_STAND = 20.0
 OMEN_SLACK = 4.0  # a stand this near OMEN_STAND from the spot already is kept: no move
 OMEN_LOOK = 0.25
 # Seconds of fighting a buff with a duration has to last through when the route's stage brings a boss (goals.py
@@ -682,6 +695,7 @@ class Hunter:
         # the runner's: the key's routine (the route's own step) follows the mode's pause
         self.hand_over: Callable[[str], None] | None = None
         self.shack_tries: dict[int, int] = {}  # a shack's container (unit): the loop's tries to open it (`shack_goal`)
+        self.use_tries: dict[int, int] = {}  # a route's object (unit): the tries to use it (ROUTE_USE_TRIES)
         self.dead_ends: list[tuple[Point, float]] = []  # spots a move did not reach, and until when they are passed
         # the runner's: a level run ended by the hunt itself (the route's end, the character's death), with why
         self.run_over: Callable[[str], None] | None = None
@@ -729,6 +743,7 @@ class Hunter:
         self.omens: dict[Point, float] = {}
         self.omen_area: int | None = None
         self.omen_looked = -math.inf
+        self.toured: tuple[int, int, int] | None = None  # (level, rooms, explored) said to have no stop
         # Makes room in the cube for a valuable the inventory has none for (the runner's: the macro's own pickups into
         # it, macros/cube.py `stash`), how many went; None: none is made. Tried once a drop (`room_tried`)
         self.room_maker: Callable[[Run], int] | None = None
@@ -897,7 +912,7 @@ class Hunter:
             old = self.pursuit
             if pursuit.leashed and (old is None or not old.leashed):
                 self.travel.tally = Tally()  # the run's pace counts from its own first leg (`Travel.paced`)
-            if old is not None and old.leashed:
+            if old is not None and old.leashed and not pursuit.looped:
                 # The run's crossing noted (`heading`) and its carrying on (`carried`) stay with it
                 kept = {'area': old.area, 'onward': old.onward, 'entered': old.entered, 'rush': old.rush}
                 if not pursuit.leashed:
@@ -910,7 +925,7 @@ class Hunter:
                 if len(self.waived) > 200:
                     self.waived.clear()
                 self.waived.add(waited.unit)
-            if pursuit.leashed and not pursuit.advance:
+            if pursuit.leashed and not pursuit.advance and not pursuit.looped:
                 self.taps = tapped(self.taps, pursuit.pressed_at)  # a double press switches the run mode (`run_mode`)
             self.pursuit = pursuit
 
@@ -1292,6 +1307,32 @@ class Hunter:
         label = f'{name}, in the shack'
         return Goal(label, (thing.x, thing.y), USE, USE_NEAR, self.looped, unit=thing.unit_id, mark=mark, route=route)
 
+    def super_chest_goal(
+        self, run: Run, player, here: Point, route: str, spend: Intent, rooms: Sequence[Room] = ()
+    ) -> Goal | None:
+        """A full clear's closed super chest within SUPER_NEAR, nearest first, opened as a route's chest is; one tried
+        SUPER_TRIES times is left (its tries counted with the shacks' containers, `act`)."""
+        if run.things is None:
+            return None
+        chests = [
+            thing
+            for thing in run.things()
+            if thing.txt_id == SUPER_CHEST
+            and thing.mode == 0
+            and thing.selectable is not False
+            and self.shack_tries.get(thing.unit_id, 0) < SUPER_TRIES
+            and math.dist(here, (thing.x, thing.y)) <= SUPER_NEAR
+            and passing_key((thing.x, thing.y), thing.unit_id, rooms) not in self.passed
+        ]
+        if not chests:
+            return None
+        thing = min(chests, key=lambda t: math.dist(here, (t.x, t.y)))
+        place = (thing.x / TILE_UNITS, thing.y / TILE_UNITS)
+        mark = Target(player.area, (), place, 'Super chest', 'target', use=SUPER_CHEST)
+        # A clearing goal: passed like one when it is gone for CLEAR_SECONDS with no progress (`goes_on`)
+        return Goal('full clear: Super chest', (thing.x, thing.y), USE, USE_NEAR, spend, unit=thing.unit_id, mark=mark,
+                    route=route, clearing=True)  # fmt: skip
+
     def at_hand(self, found: Goal | None, player, world: World) -> bool:
         """Whether the route's `found` is a chest the character opens from where it stands (travel.py `open_reaches`):
         before the shack's container then, not after a hop to the rack and one back (9 of 27 stays 19:45-20:08 on
@@ -1422,7 +1463,11 @@ class Hunter:
         clear = mode is not None and mode.clear
         if found is not None and (found.do in (FIGHT, PICK_UP, WAIT) or found.guarded):
             return found
-        if not clear and (found is None or not found.route or found.do not in WAYS):
+        # Nor on the KP_6 loop's rushed run (not a full clear): its way out is gone to, a pack beside it fought only
+        # when it hurts or blocks (the player, 2026-10-16: "don't fight what isn't attacking"). Cleared, every pack on
+        # the way down the Catacombs was a goal, and the run stood ~1.8 s at each before its strike (RUSH_UNMOVED): 41
+        # stands, 74 s, at 10:20-10:41 on 2026-10-18 (rca/2026-10-18/freeze-near-mobs-findings.md)
+        if not clear and (self.rushing or found is None or not found.route or found.do not in WAYS):
             return found
         player = world.player
         assert player is not None
@@ -1433,9 +1478,13 @@ class Hunter:
         self.left_for = {key: left for key, left in self.left_for.items() if left[0] > now}
         spend = found.spend if found is not None else PRESSED
 
+        herald = bool(self.omens) or any(m.tier and m.leader for m in foes)
+        route = found.route if found is not None else ''
+        chest = self.super_chest_goal(run, player, here, route, spend, rooms) if clear and not herald else None
+
         def candidate(skip: frozenset[object]) -> Goal | None:
-            rest = self.rest_of(run, world, foes, here, skip, rooms) if clear else None
-            base = rest_of_level(rest, found, self.reach, spend) if rest is not None else found
+            rest = self.rest_of(run, world, foes, here, skip, rooms) if clear and chest is None else None
+            base = chest or (rest_of_level(rest, found, self.reach, spend) if rest is not None else found)
             near = [
                 m
                 for m in foes
@@ -2291,6 +2340,14 @@ class Hunter:
                 return  # a chest that is gone: the next mark (rca/2026-10-16/loop-first-game-findings.md)
             if thing is None:
                 raise Abort(USES[goal.mark.use].absent.format(goal.mark.label))
+            if goal.stage is not None:
+                if len(self.use_tries) > 200:
+                    self.use_tries.clear()  # units of games long left
+                tries = self.use_tries[thing.unit_id] = self.use_tries.get(thing.unit_id, 0) + 1
+                if tries > ROUTE_USE_TRIES and route.note_empty(
+                    run, goal.mark, bearings.progress, bearings.marks, f'not opened in {ROUTE_USE_TRIES} tries'
+                ):
+                    return
             use_thing(run, goal.mark, player, thing, rect[2] / rect[3])
             self.settled_at = run.clock() + USES[goal.mark.use].brings
             route.note_used(run, goal.mark, bearings.progress, bearings.marks)
@@ -3195,6 +3252,12 @@ class Hunter:
         before = self.route[1] if self.route[0] == level.area else []
         stops = tour(bounds, here, seen, nearest.keys(), before)
         self.route = (level.area, stops)
+        if not stops and self.toured != (level.area, len(level.rooms), len(seen)):
+            # Said once a level and a count: a full clear ended 8 s into Tal Rasha's Tomb with its rooms unexplored
+            # (00:35:56 on 2026-10-18), and nothing told why
+            self.toured = (level.area, len(level.rooms), len(seen))
+            LOG.info('Macro: run: the tour has no stop on level %d: %d rooms, %d explored, %d with a way from here',
+                     level.area, len(level.rooms), len(seen), len(nearest))  # fmt: skip
         return nearest[stops[0]] if stops else None
 
     def explore(self, run: Run, level: Level, player, rect, key_names, frontier=None) -> None:

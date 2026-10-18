@@ -214,6 +214,9 @@ def classes(use: int) -> frozenset[int]:
 
 
 CHEST_AIMS = ((0, -10), (0, 0), (0, -22), (12, -10), (-12, -10), (0, -36))
+# A portal's aims down its middle, then its top and its sides: a Doom Ape killed on the portal at 05:25:08 on
+# 2026-10-18 lay under all three of the middle's, and the game was left for it
+PORTAL_AIMS = ((0, -45), (0, -75), (0, -15), (0, -95), (30, -60), (-30, -60), (30, -25), (-30, -25))
 SUMMONING_SEALS = (392, 394, 396)  # DiabloSeal1, 3, 5: the Infector's, De Seis's, the Vizier's (levels/model.py SEALS)
 SEAL_BRINGS = 1.2  # seconds: the seal's pack was first seen 0.95 to 1.02 s after it opened, with a frame to spare
 # Seconds a chest's drops take to show after it shows opened: none to speak of. In the takes of 2026-10-15 21:08-21:28
@@ -226,15 +229,16 @@ SEAL_BRINGS = 1.2  # seconds: the seal's pack was first seen 0.95 to 1.02 s afte
 CHEST_BRINGS = 0.1
 USES = {
     # objects.txt's click box of PortalPermanent: 80 pixels wide round its ground point, from 100 above it
-    # to 10 below; the aims go down its middle. The stones' map piece is 40 units across, the mark its middle.
+    # to 10 below; the aims go down its middle, then its top and its sides (PORTAL_AIMS). The stones' map piece is 40
+    # units across, the mark its middle.
     PORTAL: Use(
-        ((0, -45), (0, -75), (0, -15)), 40.0, True,
+        PORTAL_AIMS, 40.0, True,
         'Through the portal to {}', '{}: there', 'no portal to {} is open here',
     ),
     # TownPortal has the same box (objects.txt); it is no mark's: the one the cast opened is clicked
     # (macros/portal.py), so `near` is never asked of it.
     TOWN_PORTAL: Use(
-        ((0, -45), (0, -75), (0, -15)), 40.0, True,
+        PORTAL_AIMS, 40.0, True,
         'Through the portal to {}', '{}: there', 'no portal to {} is open here',
     ),
     # A waypoint: objects.txt gives it no box (Left..Height 0), so it is taken by its picture, a disc on its ground

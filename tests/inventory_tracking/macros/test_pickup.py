@@ -725,3 +725,31 @@ def test_the_warning_is_taken_back_when_nothing_is_left_for_want_of_room():
     warned = warned_by(run)
     pick_up(run, LEVEL, keys, lambda: None)
     assert warned == [None]
+
+
+def test_a_valuable_clicked_and_found_carried_at_a_later_look_is_said_picked_up_late(caplog):
+    # 02:10:14.70 on 2026-10-18: a magic Jewel "still on the ground after the click", off the ground 0.25 s later and
+    # in the inventory at the next trade; the watch, which reads the pickups, called it missed
+    import logging
+    import re
+
+    from inventory_tracking.macros import pickup
+    from inventory_tracking.macros.world import VALUABLE, Drop, Loot
+
+    jewel = Drop(77, 5382.0, 3219.0, 'Jewel', VALUABLE)
+    pickup.CLICKED.clear()
+    pickup.CLICKED[77] = (jewel, 100.0)
+    with caplog.at_level(logging.INFO):
+        pickup.unshunned(Loot(carried=frozenset()), 100.5)  # not carried yet: still waited for
+        assert 77 in pickup.CLICKED
+        pickup.unshunned(Loot(carried=frozenset({77})), 101.3)
+    assert 77 not in pickup.CLICKED
+    assert 77 in pickup.TAKEN
+    said = [r.getMessage() for r in caplog.records if 'late' in r.getMessage()]
+    assert said
+    found = re.search(r'Macro: picked up (.+?) [\d.]+s after', said[0])  # the watch's PICKED
+    assert found is not None
+    assert found.group(1) == 'Jewel'
+    pickup.CLICKED[78] = (jewel, 100.0)
+    pickup.unshunned(Loot(carried=frozenset({78})), 100.0 + pickup.LATE_SECONDS + 1)  # too late to be the click's
+    assert 78 not in pickup.CLICKED

@@ -92,8 +92,10 @@ LIFTS_FILE = Path(__file__).resolve().parents[1] / 'runs' / 'alt-d' / 'menu-lift
 SERVING = [JAMELLA]  # the vendor visited now (`serving`)
 LIFT = TRADE_ABOVE  # the lift that opened her trade window last (`_open_trade`)
 STOCK_SECONDS = 2.0  # for her stock to be read after her trade window shows
-BUY_CLICKS = 2  # Shift + right clicks on one item that bought nothing, at most
-BUY_MOST = 6  # Shift + right clicks on one item in all
+BUY_CLICKS = 2  # Shift + right clicks on one item that bought nothing, in a row, at most
+# Shift + right clicks on one item in all: the second key stack comes 3 keys a click now and then, between clicks that
+# buy nothing (2 -> 12, nothing, 15, nothing at 01:47:20 and 01:57:00 on 2026-10-18), so 24 takes up to 8
+BUY_MOST = 9
 LEVEL_STAT = 12  # itemstatcost.txt 'level'
 GOLD_PER_LEVEL = 10_000  # the gold a character carries at most, a level
 SALE_MOST = 35_000  # the most a vendor pays for an item (every best sale of 2026-10-17)
@@ -395,7 +397,8 @@ def _buy(run: Run, rect, item: Stocked, what: Buy) -> None:
             return p is not None and what.count(p) != h
 
         if run.seen(came, BOUGHT_SECONDS) is not None:
-            continue  # bought: again while there is room
+            missed = 0  # bought: again while there is room
+            continue
         missed += 1
         LOG.info('Macro: shop: %s: still %s after the Shift + right click', what.name, had)
 

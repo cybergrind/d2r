@@ -1,4 +1,5 @@
-"""How a Warlock moves (builds/warlock/movement.py): Blade Warp as a jump source, before Teleport in every set.
+"""How a Warlock moves (builds/warlock/movement.py): Blade Warp as a jump source, before a staff's Teleport and after
+Teleport of the character's own (Enigma).
 
 The first half asks the sets with facts alone; the second makes moves with `Travel` in the fakes' game.
 """
@@ -55,8 +56,10 @@ from tests.inventory_tracking.macros.moves import ASPECT, HERE, IN_HAND, NOW, sk
 
 
 def facts(**changes) -> MoveFacts:
-    """The character at HERE on a level with no wall read, Blade Warp and Teleport on keys, no staff worn."""
+    """The character at HERE on a level with no wall read, Blade Warp and Teleport on keys, a staff with charges in
+    hand (where the blade comes first)."""
     changes.setdefault('slots', (BLADE_WARP, None, TELEPORT))
+    changes.setdefault('staff', IN_HAND)
     return moves.facts(**changes)
 
 
@@ -81,10 +84,12 @@ def test_the_blade_is_a_thrown_jump_with_a_casting_delay():
     assert WARP_DELAY == 1.05  # from the key: the game's 0.8 s runs from the cast's action frame, 0.2 s later
 
 
-def test_the_warlocks_sets_are_the_shared_ones_with_the_blade_first():
+def test_the_warlocks_sets_are_the_shared_ones_with_the_blade_first_but_after_its_own_teleport():
     assert [type(movement) for movement in MOVEMENT] == [StaffTeleport, OwnTeleport, Walk]
-    for movement, shared in zip(MOVEMENT, SHARED, strict=True):
-        assert movement.sources == (BLADE_WARP_SOURCE, *shared.sources)
+    staff, own, walk = MOVEMENT
+    assert staff.sources == (BLADE_WARP_SOURCE, *SHARED[0].sources)
+    assert own.sources == (*SHARED[1].sources, BLADE_WARP_SOURCE)
+    assert walk.sources == (BLADE_WARP_SOURCE,)
     assert spare_jump(MOVEMENT, HUNT_SLOTS) == BLADE_WARP_JUMP
     assert spare_jump(MOVEMENT, (TELEPORT,)) is None
 
@@ -132,9 +137,32 @@ def test_the_staff_in_the_other_weapon_set_is_a_swap_away_and_no_jump():
     assert skills(jumps_of(facts(staff=replace(IN_HAND, in_hand=False)))) == [BLADE_WARP]
 
 
-def test_with_no_staff_teleport_is_the_characters_own_skill():
-    assert skills(jumps_of(facts(staff=None))) == [BLADE_WARP, TELEPORT]
+def test_with_no_staff_teleport_is_the_characters_own_skill_and_comes_before_the_blade():
+    # The player, 2026-10-18: "now we have an enigma ... stop using blade warp in almost all situations"
+    assert skills(jumps_of(facts(staff=None))) == [TELEPORT, BLADE_WARP]
     assert skills(jumps_of(facts(staff=None, slots=(TELEPORT,)))) == [TELEPORT]
+    # Teleport distrusted (a hop that moved nobody): the blade is the jump left
+    assert skills(jumps_of(facts(staff=None, failed={TELEPORT: NOW - 1.0}))) == [BLADE_WARP]
+
+
+def test_with_its_own_teleport_a_stride_is_teleported_and_the_blades_delay_is_never_waited_for():
+    goal = (HERE[0] + 30.0, HERE[1])
+    short = replace(OWN_MOVE, short=14.0)
+    own = facts(staff=None)
+    assert leg_of(own, goal, short) == Step(
+        pytest.approx((HERE[0] + 16.0, HERE[1])),  # pyrefly: ignore[bad-argument-type]
+        TELEPORT,
+    )
+    # Over a wall too: Teleport needs no line (the blade would have walked)
+    over = leg_of(facts(staff=None, ground=walled(wall_with_a_gap)), (5020.5, 5000.5))
+    assert isinstance(over, Step)
+    assert over.skill == TELEPORT
+    # The blade in its delay: Teleport is ready, nothing is waited for, whoever asks
+    just = replace(own, last_used={BLADE_WARP: NOW - 0.3})
+    movement = navigator(MOVEMENT, just)
+    assert isinstance(movement, OwnTeleport)
+    for intent in (SEEK, PRESSED, OWN_MOVE):
+        assert movement.wait(just, goal, intent) == 0.0
 
 
 def test_a_skill_that_is_on_no_key_is_no_jump():

@@ -100,7 +100,7 @@ def shape(where: str, script: Script, after: Script | None) -> list[str]:
     """A script ends by `leave` or by its way on; in a route, the way on is the next script's level."""
     found = []
     kinds = [stage.kind for stage in script.stages]
-    ways = [stage for stage in script.stages if stage.to]
+    ways = [stage for stage in script.stages if stage.to or stage.tours]
     if len(ways) > 1:
         found.append(f'{where}: {len(ways)} ways on')
     last = script.stages[-1] if script.stages else None
@@ -108,13 +108,20 @@ def shape(where: str, script: Script, after: Script | None) -> list[str]:
         found.append(f'{where}: no stages')
     elif LEAVE in kinds[:-1]:
         found.append(f'{where}: stages after leave')
-    elif ways and ways[0] is not last and not (ways[0].to in TOWNS and script.stages[-2] is ways[0]):
+    elif (
+        ways
+        and ways[0] is not last
+        and not ways[0].tours
+        and not (ways[0].to in TOWNS and script.stages[-2] is ways[0])
+    ):
         found.append(f'{where}: stages after the way on')
     elif not ways and last.kind != LEAVE:
         found.append(f'{where}: ends without leaving the level or the game')
     elif ways and ways[0].to in TOWNS and last.kind != LEAVE:
         found.append(f'{where}: goes to town without leaving the game')
-    if after is not None and (not ways or ways[0].to != after.area):
+    # A tour leads into each of its levels, and a way back (`back`) is a branch's end: the next script is another branch
+    leads = bool(ways) and (ways[0].to == after.area or after.area in ways[0].tours or ways[0].back) if after else True
+    if after is not None and not leads:
         found.append(f'{where}: does not lead to {short_name(after.area)}, the next level of the route')
     return found
 

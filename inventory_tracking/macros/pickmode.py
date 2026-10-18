@@ -12,15 +12,20 @@ staff of teleportation".
   loot marks point at (`Drop.prized`, world.py `prized`: the worldstone shards, essences, statues, flawless and
   perfect gems, every unique and set item the loot filter shows; the player: "+ pickup worldstone shards/other
   valuable drops").
-  The supplies stay in both modes: gold, and the potions the belt is short of.
-  And the candidates for an identify (`candidate`; the player, 2026-10-17: "picking items with +skill, identifying
-  them, appraising, selling [bad ones] and repairing on these money ... maybe we don't need to pickup everything, but
-  some smaller things that may be good to keep for warlock (good void base with +3 for example)"): of what the loot
-  filter shows, a magic or rare item of a type that rolls skills (the class items, the Warlock's daggers and
-  grimoires, circlets); and a white or superior base of the Void line
-  (Thul-Zod-Ist, guides/warlock.html), which needs no identify. Identified and appraised in town, the junk sold for
-  the repair's gold (macros/junk.py).
+  The supplies stay in every mode: gold, and the potions the belt is short of.
+  And the bases judged by their rolls off the ground, which need no identify: a white or superior base of the Void
+  line (Thul-Zod-Ist, guides/warlock.html, `void_base`; the player, 2026-10-17: "good void base with +3 for
+  example"), a Monarch or an elite Paladin shield (`shield_base`).
+- `TRADE`: the sure valuables, and the trade goods (`identified_for`): of what the loot filter shows, a magic or rare
+  item of a type that rolls skills (the class items, the Warlock's daggers and grimoires, circlets), taken to be
+  identified and appraised in town and the junk sold for gold (macros/junk.py; the player, 2026-10-17: "picking items
+  with +skill, identifying them, appraising, selling [bad ones] and repairing on these money"). They were in the sure
+  mode while the gold paid the staff's Teleport charges; with Enigma the gold has little use (the player, 2026-10-18:
+  "because we now don't need gold anymore ... move things that we're added for gold trades (to repair our staff
+  charges) into separate category ... and use sure for valuable things or small things").
 - `REGULAR`: today's pickup, untouched (macros/pickup.py `wanted`, `choose`).
+
+A double press of KP_6 goes SURE, TRADE, REGULAR and round again.
 
 A filter over the drops the regular rules found (`kept`), so no rule is written twice: the sure mode never takes what
 the regular one would not. The item types are the game's own (items/metadata.py `item_base`: misc.txt's type column),
@@ -38,6 +43,7 @@ __all__ = [
     'MODES',
     'REGULAR',
     'SURE',
+    'TRADE',
     'WHITE',
     'candidate',
     'identified_for',
@@ -47,12 +53,14 @@ __all__ = [
     'sellable',
     'shield_base',
     'sure',
+    'traded',
     'void_base',
 ]
 
 SURE = 'sure valuables'
+TRADE = 'sure and trade goods'
 REGULAR = 'regular'
-MODES = (SURE, REGULAR)  # in the order a double press goes through them; the first is the default
+MODES = (SURE, TRADE, REGULAR)  # in the order a double press goes through them; the first is the default
 RUNES = frozenset(('rune',))
 GEMS = frozenset(('gema', 'gemd', 'geme', 'gemr', 'gems', 'gemt', 'gemz'))  # amethyst ... skull, every grade
 CHARMS = frozenset(('scha', 'mcha', 'lcha', 'csch'))  # small, large, grand, the Crafted Sunder Charm
@@ -104,7 +112,8 @@ WHITE = frozenset((RARITIES['normal'], RARITIES['hiQuality']))
 
 
 def sure(drop: Drop) -> bool:
-    """Whether the drop is one the sure mode takes: a supply (gold, a potion), or a valuable of the module text."""
+    """Whether the drop is one the sure mode takes: a supply (gold, a potion), or a valuable of the module text; not a
+    trade good (`traded`)."""
     if drop.kind != VALUABLE:
         return True
     if drop.source == 'unique' or drop.prized:
@@ -115,7 +124,21 @@ def sure(drop: Drop) -> bool:
         return True
     if kind in (RING, AMULET) and drop.quality in JEWELRY_QUALITIES:
         return True
-    return candidate(drop, kind)
+    return judged_base(drop)
+
+
+def traded(drop: Drop) -> bool:
+    """Whether the drop is one the trade mode takes: what the sure mode takes, and a trade good (the module text)."""
+    if sure(drop):
+        return True
+    base = item_base(drop.txt) if drop.txt else None
+    return candidate(drop, base['type'] if base is not None else None)
+
+
+def judged_base(drop: Drop) -> bool:
+    """Whether the drop is a base kept by its rolls read off the ground (`void_base`, `shield_base`), of what the loot
+    filter shows."""
+    return drop.source in ('shown', 'material') and (void_base(drop) or shield_base(drop))
 
 
 def candidate(drop: Drop, kind: str | None) -> bool:
@@ -195,7 +218,8 @@ def kept(loot: Loot, mode: str) -> Loot:
     """`loot` with only the drops `mode` takes."""
     if mode == REGULAR:
         return loot
-    return replace(loot, drops=tuple(drop for drop in loot.drops if sure(drop)))
+    takes = traded if mode == TRADE else sure
+    return replace(loot, drops=tuple(drop for drop in loot.drops if takes(drop)))
 
 
 def next_mode(mode: str) -> str:

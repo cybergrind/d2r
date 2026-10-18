@@ -267,12 +267,14 @@ def standable(ground: Ground, here: tuple[float, float], spot: tuple[float, floa
     )
 
 
-def cast(run: Run, skill: int) -> None:
-    """A self or area cast with no known mark in memory yet: the cast animation is the evidence."""
-    press_skill(run, skill)
+def cast(run: Run, skill: int) -> float:
+    """A self or area cast with no known mark in memory yet: the cast animation is the evidence. Returns the clock time
+    the key went down (`press_skill`)."""
+    down = press_skill(run, skill)
     if run.seen(lambda w: w.player is not None and w.player.mode in ACTING, 0.8) is None:
         LOG.warning('Macro: no cast seen after %s', skill_name(skill))
     run.pause('key')
+    return down
 
 
 class LoadTrace:
@@ -479,6 +481,9 @@ def took_input(run: Run, where: str, began: float) -> bool:
         # (rca/2026-10-17/movement-findings.md §4 #2)
         if swap_until(run, lambda: bool(hands()) and hands() != before, tries=1, wait=PROBE_WAIT, settled=True):
             LOG.info('Macro: %s: took input %.2fs after the arrival (a weapon swap)', where, run.clock() - began)
+            if run.arrival_swap is not None:
+                # The other set is in hand already: what it is wanted for is done now, not by a swap pair of its own
+                run.arrival_swap()
             # The swap back with no settle either: the character stands, and the 0.2 s settle was 0.2 of the 0.32 s
             # from the probe's swap to the first act, three times a game (14:35 on 2026-10-17)
             if not swap_until(run, lambda: hands() == before, settled=True):

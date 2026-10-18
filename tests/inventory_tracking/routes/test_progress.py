@@ -328,3 +328,26 @@ def test_the_catalogues_outer_cloister_leads_to_the_barracks_when_the_jail_is_te
     assert progress.lead(27) == Lead('Barracks', 28)
     assert Progress(ROUTES, wanted=lambda area: area in (17, 18, 19)).lead(3) == Lead('Burial Grounds', 17)
     assert Progress(ROUTES, wanted=lambda area: area in (11, 15)).lead(6) == Lead('Hole 1', 11)
+
+
+def test_the_canyon_tours_its_tombs_one_by_one_and_each_tomb_is_left_by_its_way_back():
+    # The player, 00:45 on 2026-10-18: "for canyon of the magi loop: we should go through every tomb one by one";
+    # "Canyon first, then tombs" (a full clear's rest of the level comes before the route's goal)
+    from inventory_tracking.routes.catalog.act2 import TOMBS
+
+    progress = Progress(ROUTES)
+    progress.note('cyber40', 46)
+    stage = step_at(progress, 46).stage
+    assert (stage.kind, stage.mark, stage.tours) == (ENTER, 'Tomb', TOMBS)
+    assert progress.lead(46) == Lead('Tomb', None, frozenset())  # the nearest entrance by the card's tour
+    progress.used(46, 'Tomb', (100.0, 200.0), ())  # gone through (macros/route.py `note_toured`)
+    progress.note('cyber40', 68)
+    assert progress.lead(46) == Lead('Tomb', None, frozenset({(100.0, 200.0)}))  # that entrance passed
+    back = step_at(progress, 68).stage
+    assert (back.kind, back.mark, back.to, back.back) == (ENTER, 'Canyon of the Magi', 46, True)
+    assert not done(68, back, progress.facts)  # the canyon was entered, and the way back is still the tomb's
+    assert progress.lead(68) == Lead('Canyon of the Magi', 46, frozenset())
+    for tomb in TOMBS:
+        progress.note('cyber40', tomb)
+    progress.note('cyber40', 46)
+    assert step_at(progress, 46).stage.kind == 'loot'  # every tomb entered: the tour is done

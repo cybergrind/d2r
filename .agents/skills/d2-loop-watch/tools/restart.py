@@ -47,6 +47,7 @@ def loop_on(lines: list[str]) -> bool:
 def main() -> int:
     parser = argparse.ArgumentParser(description=(__doc__ or '').splitlines()[0])
     parser.add_argument('--loop', choices=('on', 'off', 'keep'), default='keep')
+    parser.add_argument('--kind', choices=('lk', 'andariel'), help="the loop's run (macros/loop.py KINDS)")
     parser.add_argument('--wait', type=float, default=300.0, help='seconds to wait for a safe moment')
     args = parser.parse_args()
     log = newest()
@@ -64,12 +65,17 @@ def main() -> int:
                     time.sleep(0.2)
                     continue
                 if any(word in text for word in OFF):
-                    print(f'the loop went off: {text[11:160].rstrip()}', flush=True)
+                    # The player's pause wins (SKILL.md hard rule 4): the restart keeps the loop off whatever was
+                    # asked (10:39:02 on 2026-10-18: KP_6 pressed while a restart waited, and it turned the loop on)
+                    print(f'the loop went off: {text[11:160].rstrip()}: it stays off', flush=True)
+                    args.loop = 'off'
                     break
                 if (m := LEG.search(text)) and m.group(2).strip() == 'next game':
                     print(f'at the lobby: {text[11:120].rstrip()}', flush=True)
                     break
     target = {} if args.loop == 'keep' else {'loop': args.loop == 'on'}
+    if args.kind is not None:
+        target['loop_kind'] = args.kind
     REQUEST.write_text(json.dumps(target) if target else '')
     print(f'restart asked: {target or "the state as it is"}', flush=True)
     deadline = time.time() + 60

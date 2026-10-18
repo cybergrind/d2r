@@ -22,19 +22,19 @@ as for the waypoint panel): the inventory's 10 x 4 grid at (93, 897) of `$RightP
 player's screenshot of 21:16 put the inventory's first column and row where this says, within 2 pixels.
 """
 
-from collections.abc import Iterable, Sequence
+from collections.abc import Callable, Iterable, Sequence
 from dataclasses import replace
 
 from inventory_tracking.collection.capture import GRID_CONTAINERS
 from inventory_tracking.common import LOG
-from inventory_tracking.items.metadata import item_base
+from inventory_tracking.items.metadata import item_base, metadata
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.pickmode import MAGIC, RARE, SKILLED
 from inventory_tracking.macros.world import CUBE_GRID, INVENTORY_GRID, Carried, Pack
 
 
-__all__ = ['KEPT', 'Move', 'loot', 'overflow', 'own_of', 'plan', 'roomed', 'stash', 'unpack']
+__all__ = ['KEPT', 'Move', 'loot', 'overflow', 'own_of', 'perfect_of', 'plan', 'roomed', 'stash', 'transmute', 'unpack']
 
 REFERENCE_HEIGHT = 2160
 CELL = 98  # $ItemCellSize
@@ -51,8 +51,17 @@ RETRY_PAUSE = 0.3  # seconds before an item that did not come out is clicked aga
 # Charm left on the ground and the loop stopped (21:00:03 on 2026-10-17)
 SURE_BLOCK = (1, 3)
 DROP_POINT = (0.3, 0.5)  # a click on the ground left of the inventory's panel: what the pointer holds falls at the feet
+# With the cube's panel open on the left as well: a click on the ground between the two panels, below the character
+# ($LeftPanelRect ends near 0.36 of a 16:9 window, $RightPanelRect begins near 0.64)
+PARK_POINT = (0.5, 0.7)
 
 Move = tuple[Carried, tuple[int, int]]  # an item and the cube's cell its top-left goes to
+# The cube's Transmute button (`horadriccubelayouthd.json`, ButtonWidget "convert", read 2026-10-18): its top-left at
+# (520, 969) of `$LeftPanelRect`, below the grid (which ends at 534 + 4 x 98 = 926); clicked TRANSMUTE_INSIDE units in
+TRANSMUTE = (520, 969)
+TRANSMUTE_INSIDE = 35
+GEMS_A_TRANSMUTE = 3  # the cube's recipe: three flawless gems of a kind into one perfect gem of it
+TRANSMUTE_SECONDS = 1.5  # for the perfect gem to show in the cube after the click
 
 
 def own_of(items: Iterable[Carried]) -> frozenset[tuple[int, int, int]]:
@@ -420,6 +429,133 @@ def unpack(run: Run, inventory_key: str, items: Sequence[Carried]) -> int:
             run.actuator.rebase()
         LOG.info('Macro: cube: %d of %d items taken out', out, len(items))
     return out
+
+
+def perfect_of(txt: int) -> int | None:
+    """The class of the perfect gem three flawless gems of class `txt` transmute into (the names of the items
+    metadata, never a code from memory); None for any other class."""
+    base = item_base(txt)
+    name = base['name'] if base is not None else ''
+    if not name.startswith('Flawless '):
+        return None
+    wanted = 'Perfect ' + name.removeprefix('Flawless ')
+    return next((int(cid) for cid, other in metadata()['bases'].items() if other['name'] == wanted), None)
+
+
+def transmute(run: Run, inventory_key: str, txt: int, park: Callable[[int], None] | None = None) -> bool:
+    """Three flawless gems of class `txt` into one perfect gem by the cube (the player, 2026-10-17: "for gems - we need
+    to cube 3 flawless -> perfect"): for a gem whose stash stack is full (99), which the loop keeps and never sells
+    (macros/loop.py `sold_full`). The cube must hold nothing else when Transmute is clicked, so no other recipe can
+    take what is in it: what else is in it comes out first, then three of the gems go in, the cube's units are read
+    again and must be exactly those three, and only then is the button clicked; one perfect gem of the kind must be all
+    it holds after. Whether it was made. Mouse mode only; the panels closed after; what was not made stays where it is
+    (all of it the loop's). `park(unit)`: what the inventory has no room for is put down at the character's feet
+    instead, `park` told first (the player, 09:53 on 2026-10-18: "drop on the ground then pickup and move to cube");
+    the caller picks it up again."""
+    perfect = perfect_of(txt)
+    rect = run.actuator.keys.focused_window_rect()
+    pack = run.carried() if run.carried is not None else None
+    cube = next((item for item in pack.items if item.txt == CUBE_CLASS), None) if pack is not None else None
+    if perfect is None or pack is None or rect is None or cube is None or run.pad is not None:
+        return False
+    if sum(item.txt == txt for item in (*pack.items, *pack.in_cube)) < GEMS_A_TRANSMUTE:
+        return False
+    made = False
+    try:
+        run.actuator.tap(inventory_key)
+        if run.seen(lambda w: 'inventory' in w.open_panels, PANEL_SECONDS) is None:
+            raise Abort('the inventory did not open')
+        run.actuator.rebase()
+        run.actuator.move(*cell_point(rect, INVENTORY, (cube.x, cube.y), cube.size), scatter=(8, 8))
+        run.actuator.tap('Button3')
+        if run.seen(lambda w: 'cube' in w.open_panels, PANEL_SECONDS) is None:
+            raise Abort('the cube did not open')
+        run.actuator.rebase()
+        # What else is in the cube, and gems past three, out into the inventory
+        inside = [item for item in pack.in_cube if item.txt == txt][:GEMS_A_TRANSMUTE]
+        for item in [i for i in pack.in_cube if i not in inside]:
+            now = run.carried() if run.carried is not None else None
+            if now is None:
+                raise Abort('the inventory is not read')
+            if not room_for(inventory_rows(now), item.size):
+                if park is None:
+                    raise Abort(f'no room in the inventory for the item {item.txt} the cube must be emptied of')
+                _park(run, rect, item, park)
+                continue
+            run.actuator.move(*cell_point(rect, CUBE, (item.x, item.y), item.size), scatter=(6, 6))
+            run.actuator.click('Control_L')
+            if not _until(run, lambda p, i=item: i.unit_id not in p.cube_items):
+                raise Abort(f'the item {item.txt} did not come out of the cube')
+        # Then the gems from the inventory until three are in
+        now = (run.carried() if run.carried is not None else None) or pack
+        for item in [i for i in now.items if i.txt == txt][: GEMS_A_TRANSMUTE - len(inside)]:
+            run.actuator.move(*cell_point(rect, INVENTORY, (item.x, item.y), item.size), scatter=(6, 6))
+            run.actuator.click('Control_L')
+            if not _until(run, lambda p, i=item: i.unit_id in p.cube_items):
+                raise Abort(f'the gem at ({item.x}, {item.y}) did not go into the cube')
+            inside.append(item)
+        now = run.carried() if run.carried is not None else None
+        three = {item.unit_id for item in inside}
+        if now is None or set(now.cube_items) != three or len(three) != GEMS_A_TRANSMUTE:
+            raise Abort('the cube does not hold exactly the three gems: Transmute is not clicked')
+        (anchor_x, anchor_y), (panel_x, panel_y), _grid = CUBE
+        scale = rect[3] / REFERENCE_HEIGHT
+        at = (
+            (anchor_x * rect[2] + (panel_x + TRANSMUTE[0] + TRANSMUTE_INSIDE) * scale) / rect[2],
+            (anchor_y * rect[3] + (panel_y + TRANSMUTE[1] + TRANSMUTE_INSIDE) * scale) / rect[3],
+        )
+        run.actuator.move(*at, scatter=(3, 3))
+        run.actuator.click()
+        deadline = run.clock() + TRANSMUTE_SECONDS
+        while not made and run.clock() < deadline:
+            after = run.carried() if run.carried is not None else None
+            made = (
+                after is not None and len(after.cube_items) == 1
+                and len(after.in_cube) == 1 and after.in_cube[0].txt == perfect
+            )  # fmt: skip
+            if not made:
+                run.pace.sleep(0.05)
+    except Abort as stop:
+        LOG.info('Macro: cube: no transmute of %s: %s', _gem_name(txt), stop)
+        if run.stops(stop):
+            raise
+    finally:
+        if {'inventory', 'cube'} & set(run.world().open_panels):
+            run.actuator.tap('Escape')
+            run.seen(lambda w: not {'inventory', 'cube'} & set(w.open_panels), PANEL_SECONDS)
+            run.actuator.rebase()
+    LOG.info('Macro: cube: three %s %s', _gem_name(txt), f'into a {_gem_name(perfect)}' if made else 'not transmuted')
+    if made:
+        run.say(f'Cube: a {_gem_name(perfect)} made')
+    return made
+
+
+def _park(run: Run, rect: tuple[int, int, int, int], item: Carried, park: Callable[[int], None]) -> None:
+    """The cube's `item` put down at the character's feet (`transmute`): taken up by a click, dropped by a click on
+    the ground between the panels, checked in memory; put back where it was if it does not fall, then `Abort`."""
+    park(item.unit_id)  # before it lies on the ground: never read as the player's (world.py `PutDown`)
+    run.actuator.move(*cell_point(rect, CUBE, (item.x, item.y), item.size), scatter=(4, 4))
+    run.actuator.click()
+    if not _until(run, lambda p: p.pointer == item.unit_id):
+        now = run.carried() if run.carried is not None else None
+        if now is not None and now.pointer is not None:
+            run.actuator.click()  # something else taken up: put down where it was, the pointer not moved
+            _until(run, lambda p: p.pointer is None)
+        raise Abort(f'the item {item.txt} was not taken up out of the cube')
+    run.actuator.move(*PARK_POINT, scatter=(4, 4))
+    run.actuator.click()
+    if not _until(run, lambda p: p.pointer is None and item.unit_id not in p.cube_items):
+        run.actuator.move(*cell_point(rect, CUBE, (item.x, item.y), item.size), scatter=(4, 4))
+        run.actuator.click()
+        _until(run, lambda p: p.pointer is None)
+        raise Abort(f'the item {item.txt} did not fall')
+    LOG.info('Macro: cube: %s (%d) put down for the transmute, to be picked up again', _gem_name(item.txt),
+             item.unit_id)  # fmt: skip
+
+
+def _gem_name(txt: int) -> str:
+    base = item_base(txt)
+    return base['name'] if base is not None else str(txt)
 
 
 def _until(run: Run, holds) -> bool:
