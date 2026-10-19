@@ -10,6 +10,8 @@ from dataclasses import replace
 
 import pytest
 
+from inventory_tracking.game.decode import USED
+from inventory_tracking.game.records import Teleport, Thing, Warp
 from inventory_tracking.levels.model import (
     HELL_GATE,
     PORTAL,
@@ -25,8 +27,6 @@ from inventory_tracking.levels.model import (
 )
 from inventory_tracking.macros import teleport
 from inventory_tracking.macros.actuator import Abort
-from inventory_tracking.macros.game.decode import USED
-from inventory_tracking.macros.game.records import Teleport, Thing, Warp
 from inventory_tracking.macros.teleport import (
     NEAR_WARP,
     Way,
@@ -1159,7 +1159,7 @@ def test_a_monster_seen_on_the_object_is_told_in_the_way_when_the_acts_time_runs
 def fortress_stash(**changes) -> tuple[Game, Target, Thing]:
     """The character in Pandemonium Fortress 6 units from the stash, its picture drawn where no aim has it (an
     object `thing_above` 300 pixels up): every aim reads something else under the pointer."""
-    from inventory_tracking.macros.game.layout import BANK
+    from inventory_tracking.game.layout import BANK
 
     play = Game(world(103, player=player(103, x=5044.0, y=5046.0)))
     play.thing, play.thing_above = Thing(9, BANK, 0, 5038.0, 5040.0), 300.0

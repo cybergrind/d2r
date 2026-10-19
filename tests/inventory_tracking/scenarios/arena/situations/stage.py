@@ -36,7 +36,7 @@ from dataclasses import dataclass, field, replace
 from inventory_tracking.combat.sim import monsters as model
 from inventory_tracking.combat.sim.monsters import MELEE
 from inventory_tracking.config import HealingConfig
-from inventory_tracking.macros.game.layout import NO_OWNER
+from inventory_tracking.game.layout import NO_OWNER
 from inventory_tracking.native.layout import DEAD_MODES
 from tests.inventory_tracking.scenarios.arena.game import BLOCK_CHANCE, Arena, Flight
 from tests.inventory_tracking.scenarios.arena.mobs import BLAST_KIND, Mobs, explodes

@@ -7,7 +7,7 @@ over) and keeps the last WINDOW seconds:
   client its life fraction; every source counts, the companions' too);
 - the kills: a hostile that was within COMBAT_REACH and is now among the dead the game holds
   (`dead`, the unit ids lying in a dead mode), with the life it had left. This is the recorder's
-  `kill` event (combat/record.py);
+  `kill` event (takes/record.py);
 - the hostiles only gone: no longer in memory and not seen dead (the character teleported away, the
   monster left the streamed area). The recorder's `gone`: counted beside the kills, worth nothing;
 - the combat seconds: an interval is combat when a live hostile was within COMBAT_REACH at its start,
@@ -42,7 +42,7 @@ class LiveScore:
     place: tuple[int, int] | None = None  # (the character's unit id, its level) at the last read
 
     def note(self, clock: float, player: Any, hostiles: Iterable[Any], dead: Collection[int] = ()) -> None:
-        """One read: `player` and `hostiles` are macros/game/records.py records (None: not in a game), `dead`
+        """One read: `player` and `hostiles` are game/records.py records (None: not in a game), `dead`
         the unit ids of the monsters lying dead (World.dead)."""
         if player is None:
             self.life, self.last, self.place = {}, None, None

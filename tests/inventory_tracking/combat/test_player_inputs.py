@@ -7,8 +7,8 @@ import json
 from datetime import datetime
 from pathlib import Path
 
-from inventory_tracking.combat.record import Recorder, Sample
-from tests.inventory_tracking.combat.test_record import RECT, Script, world
+from inventory_tracking.takes.record import Recorder, Sample
+from tests.inventory_tracking.takes.test_record import RECT, Script, world
 
 
 TOOL = Path(__file__).parents[3] / '.agents/skills/d2-rca/tools/session.py'

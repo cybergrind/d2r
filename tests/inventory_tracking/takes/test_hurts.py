@@ -1,9 +1,9 @@
-"""What took the character's life: the suspects of a drop (combat/hurts.py)."""
+"""What took the character's life: the suspects of a drop (takes/hurts.py)."""
 
 import json
 from types import SimpleNamespace
 
-from inventory_tracking.combat.hurts import (
+from inventory_tracking.takes.hurts import (
     BESIDE,
     HURT_LEAST,
     Foe,

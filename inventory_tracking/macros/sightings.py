@@ -25,8 +25,8 @@ from collections.abc import Callable
 from dataclasses import dataclass
 
 from inventory_tracking.common import LOG
+from inventory_tracking.game.records import Drop, Loot, has_room
 from inventory_tracking.macros.actuator import Abort
-from inventory_tracking.macros.game.records import Drop, Loot, has_room
 from inventory_tracking.macros.lootpolicy import SIGHTINGS, verdict
 
 

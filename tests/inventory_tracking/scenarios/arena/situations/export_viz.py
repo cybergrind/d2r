@@ -36,7 +36,7 @@ into the index without its file ("stale: ..."), which the viewer exports again w
 
 **A take's tasks** (`--tasks`): `<out>/<take>.tasks.json` with the same `debug` built from a schema 4 take's
 own events (`state`, `request`, `press`, `said`, `hurt`); an older take gets `tasks: null`. The viewer reads
-it beside the take's file. Ticks are the take's game ticks (combat/timeline.py `ticks`).
+it beside the take's file. Ticks are the take's game ticks (takes/timeline.py `ticks`).
 """
 
 import argparse
@@ -65,15 +65,15 @@ from inventory_tracking.builds.warlock.echoing_strike.viz import (
     track,
     walls,
 )  # fmt: skip
-from inventory_tracking.combat import macro_state
-from inventory_tracking.combat.takes import Take
-from inventory_tracking.combat.timeline import GAME_RATE, ticks as game_ticks
 from inventory_tracking.levels.doors import Door
 from inventory_tracking.levels.model import Ground, Walkable
 from inventory_tracking.levels.presets import display_name
 from inventory_tracking.macros.route import FIGHT_NEAR
 from inventory_tracking.macros.runner import ATTACK, HUNT_ELITES, PICKUP, TELEPORT
 from inventory_tracking.native.layout import DEAD_MODES, TILE_UNITS
+from inventory_tracking.takes import macro_state
+from inventory_tracking.takes.takes import Take
+from inventory_tracking.takes.timeline import GAME_RATE, ticks as game_ticks
 from tests.inventory_tracking.scenarios.arena.game import POTIONS
 from tests.inventory_tracking.scenarios.arena.kp4 import RoutePlay
 from tests.inventory_tracking.scenarios.arena.situations.bestiary import name_of

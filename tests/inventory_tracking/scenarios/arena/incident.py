@@ -30,9 +30,9 @@ from itertools import pairwise
 from pathlib import Path
 
 from inventory_tracking.builds.warlock.echoing_strike.mechanics import MISSILE
-from inventory_tracking.combat.takes import Take, missiles_of, monsters_of, player_of
 from inventory_tracking.config import PLAYER_HEALING
 from inventory_tracking.macros.runner import ATTACK, PICKUP
+from inventory_tracking.takes.takes import Take, missiles_of, monsters_of, player_of
 from tests.inventory_tracking.scenarios.arena import scene as scene_file
 from tests.inventory_tracking.scenarios.arena.cut import DEFAULT_HERO, cut
 from tests.inventory_tracking.scenarios.arena.driver import Play, Press

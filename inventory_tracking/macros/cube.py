@@ -29,12 +29,12 @@ from dataclasses import dataclass, replace
 from pathlib import Path
 
 from inventory_tracking.common import LOG
+from inventory_tracking.game.records import Carried, Pack
 from inventory_tracking.items.grid import CUBE_SIZE, Grid
 from inventory_tracking.items.metadata import item_base, metadata
 from inventory_tracking.macros.act import until
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.engine import Run, protected
-from inventory_tracking.macros.game.records import Carried, Pack
 from inventory_tracking.macros.pickmode import MAGIC, RARE, SKILLED
 
 

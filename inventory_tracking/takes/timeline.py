@@ -7,7 +7,7 @@ import math
 from collections.abc import Mapping, Sequence
 from typing import Any
 
-from inventory_tracking.combat.takes import player_of
+from inventory_tracking.takes.takes import player_of
 
 
 GAME_RATE = 25.0  # game frames a second

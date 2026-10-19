@@ -2,7 +2,7 @@
 objects that are: close to current location; superchests").
 
 With nothing to pick up (macros/pickup.py), a press opens what holds something and was not opened yet:
-the containers within NEAR_UNITS of the character (chests, caskets, urns, corpses, racks: macros/game/
+the containers within NEAR_UNITS of the character (chests, caskets, urns, corpses, racks: game/
 `containers`), the nearest first and OPENS of them at most, and with none that near a super chest
 wherever the game shows one ("we need to always click superchests/glowing chests"), which is hopped
 toward like a drop. What falls out is the next press's. Only then is the press a seek step.
@@ -24,12 +24,12 @@ from dataclasses import dataclass
 from functools import partial
 
 from inventory_tracking.common import LOG
+from inventory_tracking.game.decode import container_names, usable
+from inventory_tracking.game.records import Thing
 from inventory_tracking.levels.model import Level
 from inventory_tracking.loot.ground import SPARKLY_CHEST
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.engine import Run
-from inventory_tracking.macros.game.decode import container_names, usable
-from inventory_tracking.macros.game.records import Thing
 from inventory_tracking.macros.pickup import PICK_SECONDS, WALK_SPEED, Threat, approach, standing
 from inventory_tracking.macros.routines import UNIT_PIXELS
 from inventory_tracking.macros.teleport import HOVER_SECONDS, OBJECT_UNIT, ground_fraction, in_view, ready

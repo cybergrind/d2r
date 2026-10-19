@@ -4,7 +4,7 @@ split of the takes into the half the refit is fitted on and the half it is judge
 A take is loaded, walked and dropped in a worker process; what it leaves is a JSON file in the cache
 (not in the repo), named by the take and a stamp of this package's code and the take's manifest, so a
 change to either reads the take again and nothing else does. The enchantments of takes from before
-2026-10-11 22:23 UTC come from the terror probe logs (combat/hurts.py `sightings`), read once and
+2026-10-11 22:23 UTC come from the terror probe logs (takes/hurts.py `sightings`), read once and
 cached as well: the logs are 264 MB.
 """
 
@@ -19,8 +19,8 @@ from multiprocessing import get_context
 from pathlib import Path
 from typing import Any
 
-from inventory_tracking.combat.hurts import Sightings, enchantments, sightings
-from inventory_tracking.combat.takes import Take
+from inventory_tracking.takes.hurts import Sightings, enchantments, sightings
+from inventory_tracking.takes.takes import Take
 from tests.inventory_tracking.scenarios.arena.cut import level_of
 from tests.inventory_tracking.scenarios.arena.evidence import blows, rates
 

@@ -1,6 +1,6 @@
 """Every drop of the character's life in a take, put on whoever dealt it as far as the take can say.
 
-combat/hurts.py lists a drop's suspects; this goes one step on and names a class for each drop, so
+takes/hurts.py lists a drop's suspects; this goes one step on and names a class for each drop, so
 that the monster model can be fitted on the drops one monster dealt alone and the rest is counted,
 not guessed. What a take holds that makes this possible, each checked over the 670 schema 2 takes
 under runs/combat on 2026-10-12:
@@ -48,7 +48,10 @@ from functools import cache
 from pathlib import Path
 from typing import Any
 
-from inventory_tracking.combat.hurts import (
+from inventory_tracking.combat.mechanics.tables import area_level, tables
+from inventory_tracking.combat.sim.monsters import CHAMPION_FLAG, SUPER_FLAG, UNIQUE_FLAG
+from inventory_tracking.game.layout import HERALD_TIER_STAT, MINION_FLAG, NO_OWNER
+from inventory_tracking.takes.hurts import (
     ATTACK_MODES,
     BESIDE,
     COLD,
@@ -62,11 +65,8 @@ from inventory_tracking.combat.hurts import (
     lost,
     missile_point,
 )
-from inventory_tracking.combat.mechanics.tables import area_level, tables
-from inventory_tracking.combat.record import RESIST_STATS
-from inventory_tracking.combat.sim.monsters import CHAMPION_FLAG, SUPER_FLAG, UNIQUE_FLAG
-from inventory_tracking.combat.takes import MonsterRow, PlayerRow, Take, player_of
-from inventory_tracking.macros.game.layout import HERALD_TIER_STAT, MINION_FLAG, NO_OWNER
+from inventory_tracking.takes.record import RESIST_STATS
+from inventory_tracking.takes.takes import MonsterRow, PlayerRow, Take, player_of
 from inventory_tracking.terror.danger import DATA as THREATS
 from inventory_tracking.terror.monsters import LEVEL_STAT
 

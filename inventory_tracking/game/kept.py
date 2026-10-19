@@ -7,7 +7,7 @@ import threading
 from dataclasses import replace
 
 from inventory_tracking.common import LOG
-from inventory_tracking.macros.game.records import Loot
+from inventory_tracking.game.records import Loot
 from inventory_tracking.tracking.belt import BeltColumns, remember
 
 

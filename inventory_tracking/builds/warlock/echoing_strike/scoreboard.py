@@ -18,7 +18,7 @@ from inventory_tracking.builds.warlock.echoing_strike.damage import fit_takes
 from inventory_tracking.builds.warlock.echoing_strike.sim.engine import gate, score, simulate
 from inventory_tracking.builds.warlock.echoing_strike.sim.policy import MODES, compare
 from inventory_tracking.builds.warlock.echoing_strike.sim.situation import Situation, cut, describe
-from inventory_tracking.combat.takes import Take
+from inventory_tracking.takes.takes import Take
 
 
 SCOREBOARD = 'scoreboard.json'

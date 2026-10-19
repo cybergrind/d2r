@@ -444,7 +444,7 @@ class AppraisalConfig(Config):
     danger_marks: bool = True  # deadly packs: own map dots, ground marks and a warning row (terror/danger.py)
     terror_card: bool = True  # HUD card: next Herald tier, group kills, breakpoint and spawn odds
     boss_stats: bool = True  # Terror card slot: kills, average time between kills and time since the last, per boss
-    combat_record: bool = True  # record takes of play in combat_areas for combat/plan.md (combat/record.py)
+    combat_record: bool = True  # record takes of play in combat_areas for combat/plan.md (takes/record.py)
     # Chaos Sanctuary (2026-10-09), Catacombs 1-4 (2026-10-10), Worldstone Keep 1-3 and the Throne
     # (levels.txt 128-131; the first run there, 2026-10-10 night, left no take to read).
     # Tower Cellar 1-5 (levels handler areas 21-25): the Tower runs of 2026-10-10 left none either.
@@ -544,7 +544,7 @@ class AppraisalConfig(Config):
     # Reads a second of the game's input mode (tracking/input_mode.py InputModeWatch): flips are timed to
     # this resolution, the controller's target is followed at it.
     input_mode_rate: Positive = 100.0
-    # What the takes are held to (combat/retain.py): each is gzipped as it closes (about a fifteenth of
+    # What the takes are held to (takes/retain.py): each is gzipped as it closes (about a fifteenth of
     # its size), and past this many gigabytes in all the oldest are removed, one the character died
     # in last. 3.4 GB were 730 takes unpacked on 2026-10-12; packed, 20 GB are tens of thousands.
     combat_keep_gb: float = 20.0

@@ -44,12 +44,12 @@ from inventory_tracking.builds.warlock.echoing_strike.sim.policy import (
 from inventory_tracking.builds.warlock.echoing_strike.sim.situation import Situation, cut
 from inventory_tracking.combat.mechanics.tables import tables
 from inventory_tracking.combat.policy import RUN_MODES
-from inventory_tracking.combat.takes import Take
-from inventory_tracking.combat.timeline import GAME_RATE
-from inventory_tracking.combat.viz_moments import Trace, find_moments
 from inventory_tracking.levels.model import Ground, unpack_cells
 from inventory_tracking.levels.presets import display_name
 from inventory_tracking.native.layout import PLAYER_DEAD_MODES, TILE_UNITS
+from inventory_tracking.takes.takes import Take
+from inventory_tracking.takes.timeline import GAME_RATE
+from inventory_tracking.takes.viz_moments import Trace, find_moments
 
 
 Point = tuple[float, float]

@@ -61,8 +61,8 @@ def chests_between(start: datetime, end: datetime) -> int | None:
     """The chests the Lower Kurast takes started between `start` and `end` (local) opened; None without the repo."""
     try:
         sys.path.insert(0, str(COMBAT.parents[2]))
-        from inventory_tracking.combat.legs import CHESTS, legs_of
-        from inventory_tracking.combat.takes import Take
+        from inventory_tracking.takes.legs import CHESTS, legs_of
+        from inventory_tracking.takes.takes import Take
     except ImportError:
         return None
     low = (start - timedelta(seconds=TAKE_LEAD)).astimezone(UTC).strftime('%Y%m%dT%H%M%S')

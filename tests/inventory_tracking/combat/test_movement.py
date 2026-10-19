@@ -9,7 +9,7 @@ from inventory_tracking.builds.warlock.echoing_strike.attack import LinePolicy, 
 from inventory_tracking.builds.warlock.echoing_strike.sim.situation import routes_of
 from inventory_tracking.combat.mechanics.movement import CURRENT, RUN, WALK, WAYPOINTS, Route, route_of, speed_of
 from inventory_tracking.combat.policy import Foe, Observation
-from inventory_tracking.combat.takes import Take
+from inventory_tracking.takes.takes import Take
 
 
 DOOM_KNIGHT = 310  # monstats Velocity 6, Run 7

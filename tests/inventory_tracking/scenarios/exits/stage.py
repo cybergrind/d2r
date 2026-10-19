@@ -32,6 +32,7 @@ from functools import cache
 from itertools import pairwise
 from pathlib import Path
 
+from inventory_tracking.game.records import Monster, Teleport
 from inventory_tracking.levels.doors import Door
 from inventory_tracking.levels.exits import guide_level
 from inventory_tracking.levels.level_map import centre
@@ -39,7 +40,6 @@ from inventory_tracking.levels.model import Ground, LevelSnapshot, Location, Roo
 from inventory_tracking.levels.registry import handler_for
 from inventory_tracking.levels.spots import WAYS_OUT, pinpoint
 from inventory_tracking.macros.actuator import Abort
-from inventory_tracking.macros.game.records import Monster, Teleport
 from inventory_tracking.macros.skills import TELEPORT
 from inventory_tracking.macros.teleport import card_for, step_toward
 from inventory_tracking.native.layout import TILE_UNITS

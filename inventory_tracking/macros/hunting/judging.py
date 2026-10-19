@@ -13,13 +13,13 @@ from inventory_tracking.combat.policy import STRIKE_REACH, observe
 from inventory_tracking.combat.stance import no_footing
 from inventory_tracking.combat.survival import pressure
 from inventory_tracking.common import LOG
+from inventory_tracking.game.layout import NO_OWNER
+from inventory_tracking.game.records import Monster, World
 from inventory_tracking.levels.model import Ground
 from inventory_tracking.levels.route import room_at
 from inventory_tracking.macros.actuator import Abort, Cancelled
 from inventory_tracking.macros.build import NoWay, PricedStep
 from inventory_tracking.macros.engine import Run
-from inventory_tracking.macros.game.layout import NO_OWNER
-from inventory_tracking.macros.game.records import Monster, World
 from inventory_tracking.macros.goals import PICK_UP, Goal
 from inventory_tracking.macros.hunting.base import (
     BLOCK_SECONDS,

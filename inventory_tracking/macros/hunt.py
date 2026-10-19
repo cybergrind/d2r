@@ -67,6 +67,8 @@ from inventory_tracking.combat.controller import (
 from inventory_tracking.combat.policy import MIN_FOCAL, RUN_MODES, STRIKE_REACH, Choice, Policy, observe
 from inventory_tracking.combat.score import LiveScore
 from inventory_tracking.common import LOG
+from inventory_tracking.game.layout import NO_OWNER
+from inventory_tracking.game.records import Drop, Monster, World
 from inventory_tracking.levels.model import Ground, Level, Room, Target
 from inventory_tracking.levels.route import room_at
 from inventory_tracking.macros.actuator import POINTER_DRIFT, Abort, Cancelled
@@ -76,8 +78,6 @@ from inventory_tracking.macros.build import Attack, Build, Intent
 from inventory_tracking.macros.drinking import Drinker
 from inventory_tracking.macros.drop_ledger import DropLedger
 from inventory_tracking.macros.engine import Run
-from inventory_tracking.macros.game.layout import NO_OWNER
-from inventory_tracking.macros.game.records import Drop, Monster, World
 from inventory_tracking.macros.goals import WAIT, Goal, boss_ahead
 from inventory_tracking.macros.hunting import choice, judging, moves, sweep
 from inventory_tracking.macros.hunting.base import (

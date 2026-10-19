@@ -33,11 +33,11 @@ from inventory_tracking.builds.warlock.echoing_strike.attack import REACH
 from inventory_tracking.builds.warlock.echoing_strike.sim.situation import load_ground
 from inventory_tracking.builds.warlock.skills import ECHOING_STRIKE
 from inventory_tracking.combat.policy import RUN_MODES
-from inventory_tracking.combat.takes import Take, monsters_of, player_of
 from inventory_tracking.levels.doors import Door
 from inventory_tracking.levels.model import Ground
 from inventory_tracking.macros.routines import ACTING, TOWN_NPCS
 from inventory_tracking.macros.sight import in_reach
+from inventory_tracking.takes.takes import Take, monsters_of, player_of
 from inventory_tracking.terror.tracker import UNKILLABLE
 
 

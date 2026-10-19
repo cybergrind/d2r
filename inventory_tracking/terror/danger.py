@@ -37,12 +37,10 @@ from functools import cache
 from pathlib import Path
 
 from inventory_tracking.config import Config
+from inventory_tracking.game.layout import LEADER_FLAGS, MINION_FLAG
 
 
 DATA = Path(__file__).parent / 'data' / 'threats.json'
-# Monster data byte +0x1A (macros/game/layout.py TYPE_FLAGS): 0x02 super unique, 0x04 champion, 0x08 unique
-# (Heralds too), 0x10 a minion of one of those.
-LEADER_FLAGS, MINION_FLAG = 0x02 | 0x04 | 0x08, 0x10
 
 # monumod.txt ids
 STRONG, FAST, CURSED, FIRE, LIGHTNING, COLD, TELEPORT, MULTISHOT, FANATIC, BERSERKER = (

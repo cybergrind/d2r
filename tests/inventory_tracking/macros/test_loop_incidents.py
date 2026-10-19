@@ -1,8 +1,8 @@
 """The KP_6 loop's first played game, cyber17 (2026-10-16 02:48, rca/2026-10-16/loop-first-game-findings.md): the
 requirements it showed unmet, held since the fix of that day."""
 
-from inventory_tracking.macros.game.decode import USED
-from inventory_tracking.macros.game.records import Thing
+from inventory_tracking.game.decode import USED
+from inventory_tracking.game.records import Thing
 from inventory_tracking.macros.teleport import USES, classes
 from inventory_tracking.macros.waypoint import travel
 from tests.inventory_tracking.macros.fakes import Game, player, world

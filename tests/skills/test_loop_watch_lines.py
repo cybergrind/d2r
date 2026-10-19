@@ -18,8 +18,8 @@ from pathlib import Path
 
 import pytest
 
+from inventory_tracking.game.decode import census
 from inventory_tracking.items.identity import ETHEREAL_FLAG, SOCKETED_FLAG
-from inventory_tracking.macros.game.decode import census
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -387,7 +387,7 @@ def test_the_game_is_left_and_the_loop_goes_on() -> None:
     ],
 )
 def test_a_census_line_from_the_world(name, quality, flags, taken, label, groups) -> None:
-    form = one('macros/game/memory.py', 'Macro: ground: ')
+    form = one('game/memory.py', 'Macro: ground: ')
     line = logged(form % census(name, quality, flags, (22561.6, 9539.2), taken, label))
     found = logwords.GROUND.search(line)
     assert found is not None
@@ -527,7 +527,7 @@ def test_a_teleport_and_the_andariel_marks() -> None:
     assert 'Save and Exit' in produced('macros/routines.py', 'Save and Exit')
     kill = one('terror/bosses.py', 'Boss kill: ') % ('Andariel', 284)
     assert logwords.KILL.search(logged(kill))
-    opened = logwords.OPENED.search(logged(one('combat/record.py', 'opened in area') % ('20261018T125836Z-37', 37)))
+    opened = logwords.OPENED.search(logged(one('takes/record.py', 'opened in area') % ('20261018T125836Z-37', 37)))
     assert opened is not None
     assert opened.groups() == ('20261018T125836Z-37', '37')
 

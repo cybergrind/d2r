@@ -7,12 +7,12 @@ from pathlib import Path
 
 import pytest
 
+from inventory_tracking.game.decode import item_size
+from inventory_tracking.game.layout import BANK
+from inventory_tracking.game.records import Carried, Pack, StashView, Teleport, Thing
 from inventory_tracking.items.metadata import metadata
 from inventory_tracking.macros.actuator import Hand
 from inventory_tracking.macros.cube import CUBE_CLASS, own_of
-from inventory_tracking.macros.game.decode import item_size
-from inventory_tracking.macros.game.layout import BANK
-from inventory_tracking.macros.game.records import Carried, Pack, StashView, Teleport, Thing
 from inventory_tracking.macros.town import Exit, Holdings, Needs, stash_stop as plan_stop
 from inventory_tracking.macros.visit import Hands, Visited, stash_stop, visit
 from tests.inventory_tracking.macros.fakes import Game, player, world

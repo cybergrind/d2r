@@ -3,7 +3,7 @@
 
 import pytest
 
-from inventory_tracking.macros.game.records import Carried
+from inventory_tracking.game.records import Carried
 from inventory_tracking.macros.keepers import amulet_keeper
 
 

@@ -35,6 +35,9 @@ from functools import lru_cache
 from pathlib import Path
 
 from inventory_tracking.common import LOG
+from inventory_tracking.game.decode import containers
+from inventory_tracking.game.layout import BANK
+from inventory_tracking.game.records import Player, Thing, Warp, World
 from inventory_tracking.levels.memory import WAYPOINT_CLASSES
 from inventory_tracking.levels.model import (
     ARCANE_PORTAL,
@@ -54,9 +57,6 @@ from inventory_tracking.macros.act import until
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.build import Build
 from inventory_tracking.macros.engine import Run
-from inventory_tracking.macros.game.decode import containers
-from inventory_tracking.macros.game.layout import BANK
-from inventory_tracking.macros.game.records import Player, Thing, Warp, World
 from inventory_tracking.macros.routines import ACTING, press_skill, settle, swap_until, world_point
 from inventory_tracking.macros.skills import SWAP_WEAPONS, TELEPORT
 from inventory_tracking.macros.view import CORNER_BOTTOM, UNIT_PIXELS, VIEW, Viewport

@@ -12,8 +12,8 @@ import bisect
 from collections.abc import Callable
 from dataclasses import replace
 
-from inventory_tracking.combat.takes import monsters_of
 from inventory_tracking.levels.model import Ground
+from inventory_tracking.takes.takes import monsters_of
 from tests.inventory_tracking.scenarios.battle.replay import Replay, character
 from tests.inventory_tracking.scenarios.stance import harness
 

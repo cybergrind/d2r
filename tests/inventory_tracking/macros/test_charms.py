@@ -5,6 +5,8 @@ identify; check what is better (magic find roll); keep in own inventory better o
 
 import pytest
 
+from inventory_tracking.game.layout import BANK
+from inventory_tracking.game.records import Carried, Pack, Thing
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.charms import (
     GHEEDS_FORTUNE,
@@ -18,8 +20,6 @@ from inventory_tracking.macros.charms import (
     park,
 )
 from inventory_tracking.macros.cube import CUBE_CLASS, own_of
-from inventory_tracking.macros.game.layout import BANK
-from inventory_tracking.macros.game.records import Carried, Pack, Thing
 from inventory_tracking.macros.visit import Remembered
 from tests.inventory_tracking.macros.fakes import Game, player, world
 

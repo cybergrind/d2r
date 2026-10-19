@@ -4,6 +4,7 @@ import ctypes
 import errno
 import struct
 
+from inventory_tracking.game.records import Monster
 from inventory_tracking.hud.dots import (
     HELD_TILES,
     UNIT_RECORD,
@@ -14,7 +15,6 @@ from inventory_tracking.hud.dots import (
 from inventory_tracking.hud.live import follow
 from inventory_tracking.hud.scene import Widget
 from inventory_tracking.native.memory import vm_read_spans
-from inventory_tracking.terror.monsters import Monster
 from inventory_tracking.terror.tracker import ALIGNMENT_STAT, HELD_RANGE
 
 
@@ -94,13 +94,29 @@ def test_new_hostiles_come_from_the_canvas_walk_and_allies_never_do():
     for uid in (1, 5, 6, 7):
         memory[0x6000 + uid], memory[0x5000 + uid] = record(uid, path=0x5000 + uid), path_bytes(24, 30)
     plain = 'ff' * 0x1A + '00' + '00' * 0x40
+
+    def held_one(uid, txt=300, mode=2, area=108, stats=()):
+        return Monster(
+            uid,
+            txt,
+            mode,
+            120,
+            150,
+            area=area,
+            data_hex=plain,
+            stats=stats,
+            base_stats=(),
+            path_at=0x5000 + uid,
+            unit_at=0x6000 + uid,
+        )
+
     held = [
-        Monster(5, 300, 2, 120, 150, 108, None, plain, (), (), path=0x5005, unit=0x6005),  # new: a dot
-        Monster(6, 300, 2, 120, 150, 108, None, plain, ((0, ALIGNMENT_STAT, 1),), (), path=0x5006, unit=0x6006),
-        Monster(7, min(BARRICADES), 2, 120, 150, 108, None, plain, (), (), path=0x5007, unit=0x6007),
-        Monster(1, 300, 2, 120, 150, 108, None, plain, (), (), path=0x5001, unit=0x6001),  # on the card already
-        Monster(8, 300, 12, 120, 150, 108, None, plain, (), (), path=0x5008, unit=0x6008),  # dead
-        Monster(9, 300, 2, 120, 150, 40, None, plain, (), (), path=0x5009, unit=0x6009),  # another level
+        held_one(5),  # new: a dot
+        held_one(6, stats=((0, ALIGNMENT_STAT, 1),)),
+        held_one(7, txt=min(BARRICADES)),
+        held_one(1),  # on the card already
+        held_one(8, mode=12),  # dead
+        held_one(9, area=40),  # another level
     ]
     walks = []
 

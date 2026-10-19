@@ -6,8 +6,8 @@ from bisect import bisect_right
 from dataclasses import dataclass
 from math import hypot
 
-from inventory_tracking.combat.takes import PlayerRow, Take, monsters_of, player_of
 from inventory_tracking.macros.routines import DEAD
+from inventory_tracking.takes.takes import PlayerRow, Take, monsters_of, player_of
 
 
 BURST_SHARE = 0.3  # of the most life (inventory_tracking/terror/bursts.py SHARE)

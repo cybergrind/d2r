@@ -4,9 +4,10 @@ import json
 import threading
 from dataclasses import replace
 
+from inventory_tracking.game.records import Monster
 from inventory_tracking.levels.model import Location
 from inventory_tracking.terror.bosses import BossTracker
-from inventory_tracking.terror.monsters import Monster, MonsterSnapshot, TerrorEntry
+from inventory_tracking.terror.monsters import MonsterSnapshot, TerrorEntry
 from inventory_tracking.terror.probe import MonsterLedger, TerrorProbe
 from inventory_tracking.terror.tracker import ZoneTracker
 
@@ -27,11 +28,11 @@ def events(ledger, snap, now=1.0):
 
 
 def alive(unit_id, x=5030, y=5040, **extra):
-    return Monster(unit_id, 156, 1, x, y, 108, room(1), **extra)
+    return Monster(unit_id, 156, 1, x, y, area=108, room=room(1), **extra)
 
 
 def dead(unit_id, mode=12):
-    return Monster(unit_id, 156, mode, 5030, 5040, 108, room(1))
+    return Monster(unit_id, 156, mode, 5030, 5040, area=108, room=room(1))
 
 
 def test_a_kill_is_counted_once_when_a_seen_monster_dies():
@@ -181,7 +182,7 @@ def black_marsh(*monsters):
 
 
 def marsh(unit_id, mode=1, **extra):
-    return Monster(unit_id, 156, mode, 5030, 5040, 6, room(1), **extra)
+    return Monster(unit_id, 156, mode, 5030, 5040, area=6, room=room(1), **extra)
 
 
 def test_the_card_counts_kills_in_the_current_group(tmp_path):
@@ -226,7 +227,7 @@ def test_no_card_in_town_or_when_the_game_is_not_focused(tmp_path):
 def test_research_fields_are_logged_on_first_sight_and_level_entry():
     ledger = MonsterLedger()
     room = (100, 200, 8, 8)
-    monster = Monster(3, 156, 1, 5030, 5040, 108, room, base_stats=((0, 12, 95),))
+    monster = Monster(3, 156, 1, 5030, 5040, area=108, room=room, base_stats=((0, 12, 95),))
 
     events = ledger.update(MonsterSnapshot(PLAYER, frozenset({room}), 40, (monster,), True, level_hex='ab'), 1.0)
 
@@ -238,7 +239,7 @@ def test_research_fields_are_logged_on_first_sight_and_level_entry():
 
 def test_the_card_follows_a_live_herald_with_the_player_position(tmp_path):
     herald = marsh(9, stats=((0, 367, 1),))
-    moved = Monster(9, 156, 1, 5000, 4900, 6, room(1))
+    moved = Monster(9, 156, 1, 5000, 4900, area=6, room=room(1))
     probe, shown = card_probe(tmp_path, [black_marsh(herald), black_marsh(moved)])
     probe.poll(1.0)
     probe.tick()
@@ -328,7 +329,7 @@ def test_a_deadly_pack_is_warned_of_on_the_card_outside_terror_zones_too(tmp_pat
     # player: up-right on screen.
     aura = ((0, 350, 122), (0, 351, 9))
     archers = [
-        Monster(unit_id, 160, 1, 5000 + 2 * unit_id, 4900, 6, room(1), data_hex='00' * 0x80, stats=aura)
+        Monster(unit_id, 160, 1, 5000 + 2 * unit_id, 4900, area=6, room=room(1), data_hex='00' * 0x80, stats=aura)
         for unit_id in range(8)
     ]
     probe, shown = card_probe(tmp_path, [black_marsh(*archers), black_marsh(*archers)])
@@ -348,7 +349,7 @@ def test_a_deadly_pack_is_warned_of_on_the_card_outside_terror_zones_too(tmp_pat
 def test_the_card_counts_the_levels_elite_groups_under_the_terror_lines(tmp_path):
     # Black Marsh (6) rolls 7-9 random groups in Hell; the line is there outside Terror Zones too
     # (user, 2026-10-06: on this card, not on the map).
-    unique = Monster(50, 160, 1, 5100, 5000, 6, room(1), data_hex='00' * 0x1A + '08' + '00' * 0x65)
+    unique = Monster(50, 160, 1, 5100, 5000, area=6, room=room(1), data_hex='00' * 0x1A + '08' + '00' * 0x65)
     probe, shown = card_probe(tmp_path, [black_marsh(unique), black_marsh()])
     probe.poll(1.0)
     probe.tick()

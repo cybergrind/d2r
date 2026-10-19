@@ -2,8 +2,8 @@
 
 import pytest
 
+from inventory_tracking.game.records import Monster
 from inventory_tracking.levels.model import Location
-from inventory_tracking.terror.monsters import Monster
 from inventory_tracking.terror.tracker import ZoneTracker
 
 
@@ -59,7 +59,7 @@ def test_a_revived_monster_counts_one_kill():
     # Fallen Shamans revive their Fallen: same unit id, dead again (Blood Moor, 2026-10-03 logs).
     tracker = ZoneTracker()
     tracker.apply([at(seen(7, 6, data_hex=PLAIN_DATA), 5000, 5000), died(7, 6)])
-    tracker.track([Monster(7, 19, 1, 5000, 5000, 6, None)])  # revived
+    tracker.track([Monster(7, 19, 1, 5000, 5000, area=6)])  # revived
 
     assert [dot.kind for dot in tracker.map_dots(6)] == ['mob']
 
@@ -311,7 +311,7 @@ def test_map_dots_put_each_live_hostile_at_its_last_seen_position():
             herald(9, 6, 5100, 5200),
         ]
     )
-    tracker.track([Monster(1, 1, 2, 5005, 5015, 6, None)])
+    tracker.track([Monster(1, 1, 2, 5005, 5015, area=6)])
     tracker.apply([died(3, 6)])
 
     assert [(dot.kind, dot.x, dot.y) for dot in tracker.map_dots(6)] == [
@@ -340,9 +340,9 @@ def test_every_dot_carries_its_units_path_and_record_last_seen():
 
     tracker.track(
         [
-            Monster(1, 1, 2, 5000, 5000, 6, None, path=0x10, unit=0x110),
-            Monster(2, 1, 2, 5010, 5000, 6, None, path=0x20, unit=0x120),
-            Monster(9, 1, 2, 5100, 5200, 6, None, path=0x90, unit=0x190),
+            Monster(1, 1, 2, 5000, 5000, area=6, path_at=0x10, unit_at=0x110),
+            Monster(2, 1, 2, 5010, 5000, area=6, path_at=0x20, unit_at=0x120),
+            Monster(9, 1, 2, 5100, 5200, area=6, path_at=0x90, unit_at=0x190),
         ]
     )
 
@@ -351,7 +351,7 @@ def test_every_dot_carries_its_units_path_and_record_last_seen():
 
     # The champion walks out of the client's range: its dot stays where it was last seen, but its
     # path and record are freed and reused (by another monster or a missile), so they must not be followed.
-    tracker.track([Monster(9, 1, 2, 5100, 5200, 6, None, path=0x90, unit=0x190)])
+    tracker.track([Monster(9, 1, 2, 5100, 5200, area=6, path_at=0x90, unit_at=0x190)])
     found = [(dot.kind, dot.path, dot.unit) for dot in tracker.map_dots(6)]
     assert found == [('mob', 0, 0), ('leader', 0, 0), ('herald', 0x90, 0x190)]
 
@@ -386,7 +386,7 @@ def test_a_remembered_monster_that_is_not_there_when_the_player_comes_close_lose
     assert tracker.map_dots(6) == []
     assert tracker.herald_marks(6) == []
 
-    tracker.track([Monster(2, 1, 2, 5300, 5300, 6, None), Monster(9, 1, 2, 5310, 5300, 6, None)])  # found again
+    tracker.track([Monster(2, 1, 2, 5300, 5300, area=6), Monster(9, 1, 2, 5310, 5300, area=6)])  # found again
     assert [(dot.kind, dot.x, dot.y) for dot in tracker.map_dots(6)] == [
         ('leader', 1060.0, 1060.0),
         ('herald', 1062.0, 1060.0),
@@ -397,7 +397,7 @@ def test_a_monster_followed_into_another_level_moves_its_dot_there():
     tracker = ZoneTracker()
     tracker.apply([at(seen(1, 6, data_hex=PLAIN_DATA), 5000, 5000)])
 
-    tracker.track([Monster(1, 1, 2, 300, 400, 11, None)])
+    tracker.track([Monster(1, 1, 2, 300, 400, area=11)])
 
     assert tracker.map_dots(6) == []
     assert [(dot.x, dot.y) for dot in tracker.map_dots(11)] == [(60.0, 80.0)]
@@ -462,7 +462,7 @@ def test_a_live_herald_is_marked_until_it_dies_and_follows_its_position():
     assert tracker.herald_marks(6) == [(1, 5100, 5200)]
     assert tracker.herald_marks(11) == []  # another level
 
-    tracker.track([Monster(9, 1, 2, 5150, 5260, 6, None)])
+    tracker.track([Monster(9, 1, 2, 5150, 5260, area=6)])
     assert tracker.herald_marks(6) == [(1, 5150, 5260)]
 
     tracker.apply([died(9, 6)])
@@ -572,7 +572,7 @@ def test_a_monster_without_a_position_yet_gets_no_dot_until_it_has_one():
     tracker.apply([at(seen(1, 6, data_hex=PLAIN_DATA), 0, 0), at(seen(2, 6, data_hex=PLAIN_DATA), 5000, 5000)])
     assert [(dot.x, dot.y) for dot in tracker.map_dots(6)] == [(1000.0, 1000.0)]
 
-    tracker.track([Monster(1, 1, 2, 5010, 5000, 6, None), Monster(2, 1, 2, 0, 0, 6, None)])
+    tracker.track([Monster(1, 1, 2, 5010, 5000, area=6), Monster(2, 1, 2, 0, 0, area=6)])
     assert [(dot.x, dot.y) for dot in tracker.map_dots(6)] == [(1000.0, 1000.0), (1002.0, 1000.0)]
 
 
@@ -594,7 +594,7 @@ def test_archers_first_seen_under_fanaticism_are_danger_dots_with_a_pack_point_s
     # Stats 350/351: the aura's skill id and level, on every monster standing in it (probe logs).
     tracker = ZoneTracker()
     tracker.apply([*archers(8, stats=[(350, 122), (351, 9)]), at(seen(1, 7, data_hex=PLAIN_DATA), 6000, 6000)])
-    tracker.track([Monster(100, 160, 1, 5000, 5000, 7, None, path=0x7000)])
+    tracker.track([Monster(100, 160, 1, 5000, 5000, area=7, path_at=0x7000)])
 
     dots = tracker.map_dots(7)
 

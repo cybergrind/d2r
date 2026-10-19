@@ -12,11 +12,8 @@ from dataclasses import replace
 import pytest
 
 from inventory_tracking.config import BeltConfig
-from inventory_tracking.levels.model import Level, Room
-from inventory_tracking.macros import pickup
-from inventory_tracking.macros.actuator import Abort
-from inventory_tracking.macros.game.kept import BeltKept
-from inventory_tracking.macros.game.records import (
+from inventory_tracking.game.kept import BeltKept
+from inventory_tracking.game.records import (
     GOLD,
     HEALING,
     REJUVENATION,
@@ -27,6 +24,9 @@ from inventory_tracking.macros.game.records import (
     Teleport,
     World,
 )
+from inventory_tracking.levels.model import Level, Room
+from inventory_tracking.macros import pickup
+from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.pickup import POTION_UNITS, Plan, choose, pick_up
 from inventory_tracking.models import PotionType
 from tests.inventory_tracking.macros.fakes import KEYS, SLOTS, Game, world
@@ -786,8 +786,8 @@ def test_a_valuable_clicked_and_found_carried_at_a_later_look_is_said_picked_up_
     import logging
     import re
 
+    from inventory_tracking.game.records import VALUABLE, Drop, Loot
     from inventory_tracking.macros import pickup
-    from inventory_tracking.macros.game.records import VALUABLE, Drop, Loot
 
     jewel = Drop(77, 5382.0, 3219.0, 'Jewel', VALUABLE)
     pickup.CLICKED.clear()
@@ -814,8 +814,8 @@ def test_a_valuable_clicked_and_found_carried_at_a_later_look_is_said_picked_up_
 def gheeds_game(drop: Drop, *, gheeds: bool = True) -> Game:
     """A press by `drop` within NEAR_UNITS whose every click the game refuses, the player's Gheed's Fortune carried
     (`gheeds`) or none."""
+    from inventory_tracking.game.records import Carried, Pack
     from inventory_tracking.macros.charms import GHEEDS_FORTUNE, UNIQUE, grand_charm
-    from inventory_tracking.macros.game.records import Carried, Pack
 
     play = game(drop)
     play.deaf_picks = 999

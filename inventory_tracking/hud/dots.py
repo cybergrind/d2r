@@ -29,6 +29,7 @@ import struct
 import time
 
 from inventory_tracking.common import LOG
+from inventory_tracking.game.layout import MONSTER_UNIT
 from inventory_tracking.hud.live import LiveMemory
 from inventory_tracking.native.layout import DEAD_MODES, TILE_UNITS
 from inventory_tracking.native.memory import open_memory, vm_call, vm_read_spans
@@ -36,7 +37,6 @@ from inventory_tracking.terror.monsters import monster_units
 from inventory_tracking.terror.tracker import HELD_RANGE, counted, leading
 
 
-MONSTER_UNIT = 1
 UNIT_RECORD = 0x40  # bytes of a unit record read per dot: its type +0x00, id +0x08, mode +0x0C, path pointer +0x38
 UNIT_ID, UNIT_MODE, UNIT_PATH = 0x08, 0x0C, 0x38  # native/units.py `walk_units`
 PATH_BYTES = 8  # +0x00..+0x08 of the dynamic path: the position (hud/live.py `position`)
@@ -192,7 +192,7 @@ class LiveDots(LiveMemory):
                 continue
             label = 'unique' if kind == 'leader' else 'monster'
             x, y = monster.x / TILE_UNITS, monster.y / TILE_UNITS
-            extra[uid] = [label, kind, x, y, monster.path, monster.unit, uid]
+            extra[uid] = [label, kind, x, y, monster.path_at, monster.unit_at, uid]
         self.extra = extra
         self.stats.walked(now, 1000 * (time.perf_counter() - started), extra)
 

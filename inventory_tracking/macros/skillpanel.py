@@ -16,9 +16,9 @@ build layer (`Build.skill_icons`, builds/characters.py). A skill with no place t
 """
 
 from inventory_tracking.common import LOG
+from inventory_tracking.game.records import World
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.engine import Run
-from inventory_tracking.macros.game.records import World
 from inventory_tracking.macros.skills import skill_name
 
 

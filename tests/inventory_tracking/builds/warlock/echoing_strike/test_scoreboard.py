@@ -14,7 +14,7 @@ from inventory_tracking.builds.warlock.echoing_strike.scoreboard import build, c
 from inventory_tracking.builds.warlock.echoing_strike.sim.engine import curves, gate, score, simulate, verdict
 from inventory_tracking.builds.warlock.echoing_strike.sim.policy import YIELD, candidate, policy_score, run_policy
 from inventory_tracking.builds.warlock.echoing_strike.sim.situation import MonsterTrack, Situation, cut, describe
-from inventory_tracking.combat.takes import Take, trim
+from inventory_tracking.takes.takes import Take, trim
 
 
 FIXTURES = Path(__file__).parents[3] / 'combat' / 'fixtures'  # trimmed takes of real play

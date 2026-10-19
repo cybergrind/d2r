@@ -24,12 +24,12 @@ from collections.abc import Callable
 from functools import partial
 
 from inventory_tracking.common import LOG
+from inventory_tracking.game.records import Player, World
 from inventory_tracking.levels.exits import outward
 from inventory_tracking.levels.model import Level, Target
 from inventory_tracking.levels.presets import has_warps
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.engine import Run
-from inventory_tracking.macros.game.records import Player, World
 from inventory_tracking.macros.pickup import pick_up
 from inventory_tracking.macros.routines import character_keys, create_next_game, leave_game, prebuff
 from inventory_tracking.macros.teleport import (

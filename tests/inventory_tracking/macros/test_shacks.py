@@ -6,9 +6,9 @@ import math
 from dataclasses import replace
 
 from inventory_tracking.builds.generic import GENERIC
+from inventory_tracking.game.records import Thing
 from inventory_tracking.levels.model import UNIQUE_CHEST, Level, Room
 from inventory_tracking.levels.presets import PRESET_NAMES
-from inventory_tracking.macros.game.records import Thing
 from inventory_tracking.macros.goals import USE
 from inventory_tracking.macros.hunt import Hunter
 from inventory_tracking.macros.shacks import BY_CHEST, REACH, camps, shack_thing

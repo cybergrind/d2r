@@ -8,10 +8,10 @@ import random
 import pytest
 
 from inventory_tracking.collection import capture
+from inventory_tracking.game import records
+from inventory_tracking.game.records import Carried, Pack, has_room
 from inventory_tracking.items.grid import CUBE_SIZE, GRID_CONTAINERS, INVENTORY_SIZE, STASH_SIZE, Grid
 from inventory_tracking.macros import charms, volatile
-from inventory_tracking.macros.game import records
-from inventory_tracking.macros.game.records import Carried, Pack, has_room
 
 
 SEEDS = range(400)

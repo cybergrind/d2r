@@ -1,11 +1,11 @@
-"""The loop's efficiency read from its takes (combat/legs.py)."""
+"""The loop's efficiency read from its takes (takes/legs.py)."""
 
 from pathlib import Path
 
 import pytest
 
-from inventory_tracking.combat.legs import REFERENCE, STALL_SECONDS, legs_of, quiet, report
-from inventory_tracking.combat.takes import Take
+from inventory_tracking.takes.legs import REFERENCE, STALL_SECONDS, legs_of, quiet, report
+from inventory_tracking.takes.takes import Take
 
 
 AREA = 79

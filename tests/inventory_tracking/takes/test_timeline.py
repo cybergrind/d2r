@@ -1,10 +1,10 @@
-"""combat/timeline.py: game ticks from the sample timestamps, stays in an area and mouse buttons."""
+"""takes/timeline.py: game ticks from the sample timestamps, stays in an area and mouse buttons."""
 
 import random
 from itertools import pairwise
 from typing import Any
 
-from inventory_tracking.combat.timeline import (
+from inventory_tracking.takes.timeline import (
     GAME_RATE,
     button_down,
     longest_visit,
@@ -148,8 +148,8 @@ def test_a_take_says_its_rows_layout_and_an_unknown_one_is_refused(tmp_path) -> 
 
     import pytest
 
-    from inventory_tracking.combat.record import SCHEMA
-    from inventory_tracking.combat.takes import SCHEMAS, Take
+    from inventory_tracking.takes.record import SCHEMA
+    from inventory_tracking.takes.takes import SCHEMAS, Take
 
     assert SCHEMA in SCHEMAS
     (tmp_path / 'manifest.json').write_text(json.dumps({'area': 108}))

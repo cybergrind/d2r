@@ -16,7 +16,7 @@ monster lets go (`coldunique` 194, `lightunique` 195) with their element columns
 (`unique`: the elemental damage an enchantment adds to a blow, percent of the blow, by rank; the damage
 and life bonuses) and the Terror Zone's Herald tiers (`heralds`: life and damage boosts of a Herald
 and of its minions, terror_zones/data/desecratedzones-game.json), and `harmless_missiles`: the ids of
-the missiles that take nothing off the character (combat/hurts.py leaves them out of a drop's `near`).
+the missiles that take nothing off the character (takes/hurts.py leaves them out of a drop's `near`).
 """
 
 import argparse
@@ -101,7 +101,7 @@ def build(install: Path) -> dict[str, Any]:
     difficulty = next(r for r in rows(game, 'difficultylevels') if r['Name'] == 'Hell')
     unique = {name: [constants[text] for text in texts] for name, texts in UNIQUE_CONSTANTS.items()}
     unique.update((name, [int(difficulty[column])]) for name, column in RANK_DAMAGE.items())
-    # Missiles that take nothing off the character (combat/hurts.py): those that collide with nothing
+    # Missiles that take nothing off the character (takes/hurts.py): those that collide with nothing
     # and carry no damage (blood, ice breaking, a sigil's mark), and its own skills' and blades'.
     own = {mid for mid, r in missiles.items() if r.get('Skill') in SKILLS.values()} | set(MISSILES[:2])
     damage = ('MinDamage', 'MaxDamage', 'EMin', 'EMax')

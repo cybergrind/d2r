@@ -68,7 +68,7 @@ def test_the_stand_is_on_the_characters_side_and_kept_when_near_enough():
 
 
 def test_a_valuable_with_no_room_has_the_macros_pickups_moved_into_the_cube_in_the_quiet_once():
-    from inventory_tracking.macros.game.records import VALUABLE, Drop, Loot
+    from inventory_tracking.game.records import VALUABLE, Drop, Loot
 
     _, hunt, run, here = setup()
     amulet = Drop(9, here[0] + 3.0, here[1], 'Amulet', VALUABLE, size=(1, 1))
@@ -91,7 +91,7 @@ def test_a_valuable_with_no_room_has_the_macros_pickups_moved_into_the_cube_in_t
 
 
 def test_an_unread_cube_gets_one_room_making_attempt_before_standing_by_a_valuable():
-    from inventory_tracking.macros.game.records import VALUABLE, Drop, Loot
+    from inventory_tracking.game.records import VALUABLE, Drop, Loot
 
     _, hunt, run, here = setup()
     tal = Drop(9, here[0] + 1.0, here[1], 'Tal Rune', VALUABLE)
@@ -108,8 +108,8 @@ def test_an_unread_cube_gets_one_room_making_attempt_before_standing_by_a_valuab
 
 
 def test_a_closed_super_chest_near_is_the_full_clears_goal_before_the_rest_and_a_herald_before_it():
+    from inventory_tracking.game.records import Thing
     from inventory_tracking.levels.model import Ground
-    from inventory_tracking.macros.game.records import Thing
     from inventory_tracking.macros.goals import USE
     from inventory_tracking.macros.hunting.base import SUPER_NEAR, SUPER_TRIES
     from inventory_tracking.macros.runmode import SWITCHED, Mode
@@ -134,10 +134,10 @@ def test_a_closed_super_chest_near_is_the_full_clears_goal_before_the_rest_and_a
 def test_a_route_chest_no_try_opens_is_left_as_gone_after_route_use_tries(monkeypatch):
     # 01:37:56-01:38:42 on 2026-10-18: another object under the pointer at every aim at Lower Kurast's chest, 46 tries
     # in 47 s, until the loop's watchdog left the game
+    from inventory_tracking.game.records import Thing
     from inventory_tracking.levels.model import Target
     from inventory_tracking.macros import route
     from inventory_tracking.macros.actuator import Abort
-    from inventory_tracking.macros.game.records import Thing
     from inventory_tracking.macros.goals import USE, Goal
     from inventory_tracking.macros.hunting.base import ROUTE_USE_TRIES
     from inventory_tracking.macros.travel import LOOPED

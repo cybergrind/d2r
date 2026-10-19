@@ -10,10 +10,10 @@ from types import SimpleNamespace
 
 import pytest
 
+from inventory_tracking.game.records import GOLD, HEALING, NAMED, VALUABLE, Drop, Loot, Rolls, has_room, prized
 from inventory_tracking.items.metadata import metadata
 from inventory_tracking.loot.shown import RARITIES
 from inventory_tracking.macros import pickup
-from inventory_tracking.macros.game.records import GOLD, HEALING, NAMED, VALUABLE, Drop, Loot, Rolls, has_room, prized
 from inventory_tracking.macros.lootpolicy import (
     GUARD,
     LOOP_HOLDS,

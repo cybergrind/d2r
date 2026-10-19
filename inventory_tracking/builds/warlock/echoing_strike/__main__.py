@@ -4,7 +4,7 @@ error against a take's recorded blades, `calibrate` its hit model against the re
 calibration gate), `inputs` the input model against the recorded casts, `policy` the cast policies
 on a take, `gate` the scoreboard over a directory of takes, `compare` the macro's takes against the
 manual ones. A take's timeline, its play metrics and trimming are any build's:
-`python -m inventory_tracking.combat`."""
+`python -m inventory_tracking.takes`."""
 
 import argparse
 import json
@@ -24,8 +24,8 @@ from inventory_tracking.builds.warlock.echoing_strike.sim.input import validate_
 from inventory_tracking.builds.warlock.echoing_strike.sim.policy import LEAD, MODES, compare
 from inventory_tracking.builds.warlock.echoing_strike.sim.situation import cut, describe
 from inventory_tracking.builds.warlock.echoing_strike.validate import validate
-from inventory_tracking.combat.takes import Take
-from inventory_tracking.combat.timeline import longest_visit
+from inventory_tracking.takes.takes import Take
+from inventory_tracking.takes.timeline import longest_visit
 
 
 def window(take: Take, area: int | None):

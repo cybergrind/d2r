@@ -19,6 +19,8 @@ from dataclasses import dataclass, replace
 from enum import Enum
 from typing import Literal
 
+from inventory_tracking.game.layout import STACK_MOST
+from inventory_tracking.game.records import Carried, Pack, Page, StashView, Teleport
 from inventory_tracking.items.grid import CUBE_SIZE, INVENTORY_SIZE, Grid
 from inventory_tracking.loot.runes import RUNES as RUNE_CLASSES
 from inventory_tracking.macros.cube import (
@@ -30,8 +32,6 @@ from inventory_tracking.macros.cube import (
     perfect_of,
     rune_recipe,
 )
-from inventory_tracking.macros.game.layout import STACK_MOST
-from inventory_tracking.macros.game.records import Carried, Pack, Page, StashView, Teleport
 from inventory_tracking.macros.portal import FROM_TOME, PortalSource
 from inventory_tracking.macros.shop import MIN_STOCK, SALE_MOST
 from inventory_tracking.macros.stash import (

@@ -12,9 +12,9 @@ import statistics
 
 import pytest
 
-from inventory_tracking.combat.hurts import ATTACK_MODES, hurts, missile_point, sole
 from inventory_tracking.combat.sim.monsters import Pack, Traits, Walker, fitted
-from inventory_tracking.combat.takes import Take
+from inventory_tracking.takes.hurts import ATTACK_MODES, hurts, missile_point, sole
+from inventory_tracking.takes.takes import Take
 from tests.inventory_tracking.scenarios.battle import tower_cellar5 as battle
 
 

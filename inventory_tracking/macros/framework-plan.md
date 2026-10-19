@@ -172,7 +172,7 @@ with the staff empty, a Chaos Sanctuary run, a quiet clear). A replay needs a ha
 `Script` per battle (`tower_cellar5.py`: presses, loot, modes, busy spans, places — typed in,
 not parsed), so:
 
-- [ ] (C) Cut two fixtures from `inventory_tracking/runs/combat` with `combat/takes.py` `trim`
+- [ ] (C) Cut two fixtures from `inventory_tracking/runs/combat` with `takes/takes.py` `trim`
   where the script is cheapest — an attack-mode-only stretch with no pickup and no teleport (a
   quiet clear; a cows stand) — and write their `Script`s and log goldens as 0.3 does.
 - [ ] (M) Report to the user what each further incident's script would cost and let them decide;
@@ -319,7 +319,7 @@ Only fields stamped by the arena's clock: nothing of wall time.
 ### Task 1.4 (H): `moments.py`
 
 `def moments(take: Take, probe: Sequence[str] = ()) -> list[Moment]` with
-`Moment(frame, kind, note)`; `Take` is `inventory_tracking.combat.takes.Take` (the reader).
+`Moment(frame, kind, note)`; `Take` is `inventory_tracking.takes.takes.Take` (the reader).
 Kinds: `death`; `burst` (30% of max life within 1.0 s, as `terror/bursts.py` SHARE/WINDOW);
 `potions` (3 presses of belt keys within 10 s — the take's `keys` events); `long` (hostiles
 within 30 units for 20 s); `stuck` (3 routine presses in 5 s with the character moved under
@@ -385,7 +385,7 @@ What a take holds, and what a scene does without (Task 1.0 corrects this table f
 | Scene field | From | Otherwise |
 | --- | --- | --- |
 | mobs: place, txt, flags, life share, mode | the frame's monster rows | — |
-| mob level, mods, tier | `combat/hurts.py`'s lookup (probe log `--probe` for takes before 2026-10-12) | level from the area; `assumed` |
+| mob level, mods, tier | `takes/hurts.py`'s lookup (probe log `--probe` for takes before 2026-10-12) | level from the area; `assumed` |
 | hero place, life, max life | the frame's `p` row (schema 2; 74 of 746 takes are schema 1) | schema 1: not cut |
 | ground, rooms | the take's `level.json` | not cut |
 | doors | the frame's `d` rows | — |
@@ -620,7 +620,7 @@ Outside the two packages (`ELSEWHERE`, guarded so it cannot grow): `routes/model
 `config.py`).
 
 What may honestly remain outside `builds/` after Stage 3 (the residue, to be confirmed then):
-`combat/hurts.py` and `combat/__main__.py` reports that name the strike in their output, and
+`takes/hurts.py` and `combat/__main__.py` reports that name the strike in their output, and
 data files under `combat/data/`.
 
 ## Stage 3½ — the arena's monsters refitted (before any safety verdict)

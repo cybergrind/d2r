@@ -14,10 +14,10 @@ import pytest
 
 from inventory_tracking.combat.stance import Jump, no_footing
 from inventory_tracking.common import LOG
+from inventory_tracking.game.records import Teleport
 from inventory_tracking.levels.model import Ground, Walkable, pack_cells
 from inventory_tracking.macros.actuator import Abort, Cancelled, Hand
 from inventory_tracking.macros.build import JumpSource, NoWay
-from inventory_tracking.macros.game.records import Teleport
 from inventory_tracking.macros.movement import SHARED, TELEPORT_JUMP, OwnTeleport, StaffTeleport, Walk
 from inventory_tracking.macros.routines import SWAP_SETTLE
 from inventory_tracking.macros.skills import TELEPORT

@@ -5,9 +5,9 @@ from dataclasses import replace
 
 import pytest
 
+from inventory_tracking.game.records import Carried, Monster, Pack, Stocked, Thing
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.cube import CUBE_CLASS
-from inventory_tracking.macros.game.records import Carried, Monster, Pack, Stocked, Thing
 from inventory_tracking.macros.portal import FROM_SLING
 from inventory_tracking.macros.shop import JAMELLA, KEY, SCROLL, restock, short
 from inventory_tracking.macros.skills import SLING_TOWN_PORTAL
@@ -209,7 +209,7 @@ def test_the_loop_goes_to_her_before_lower_kurast_when_short():
 
 
 def test_a_vendors_grids_give_each_item_its_tab_and_first_cell():
-    from inventory_tracking.macros.game.decode import stock_of
+    from inventory_tracking.game.decode import stock_of
 
     misc = [0] * 100
     misc[5 * 10 + 9] = 0xA  # the key
@@ -245,7 +245,7 @@ def test_a_kind_full_already_gets_no_tab_click():
 
 
 def selling(gold: int, level: int = 90) -> tuple[Game, Carried]:
-    from inventory_tracking.macros.game.records import Loot
+    from inventory_tracking.game.records import Loot
 
     play = fortress(keys=12, portals=20)
     assert play.pack is not None

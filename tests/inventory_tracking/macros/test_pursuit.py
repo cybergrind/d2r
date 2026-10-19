@@ -19,11 +19,11 @@ from pathlib import Path
 import pytest
 
 from inventory_tracking.combat.stance import Jump, no_footing
+from inventory_tracking.game.layout import NO_OWNER
+from inventory_tracking.game.records import VALUABLE, Drop, Monster, Teleport
 from inventory_tracking.levels.model import Ground, Room, Target, Walkable, pack_cells
 from inventory_tracking.macros import goals, movement, pickup, route, teleport, travel
 from inventory_tracking.macros.build import BuildSettings, Intent, JumpSource, MoveFacts, NoWay, Step
-from inventory_tracking.macros.game.layout import NO_OWNER
-from inventory_tracking.macros.game.records import VALUABLE, Drop, Monster, Teleport
 from inventory_tracking.macros.goals import PICK_UP, PURSUED, REACH, Goal, goal_of
 from inventory_tracking.macros.hunting import base as hunt_base
 from inventory_tracking.macros.pursuit import FRESH, Defer, Facts, Hold, Move, Operate, Pursuit, Told, decide
@@ -630,7 +630,7 @@ def test_travel_remembers_a_way_the_set_distrusts_and_asks_again() -> None:
 def test_the_snapshot_carries_the_pursuits_goal_only_with_the_switch_on() -> None:
     from types import SimpleNamespace
 
-    from inventory_tracking.combat import macro_state
+    from inventory_tracking.takes import macro_state
 
     def runner(pursuing: bool) -> SimpleNamespace:
         hunter = SimpleNamespace(pursuing=pursuing, pursued=BOSS, pursuit=PRESS, sweep=SimpleNamespace(steps=0))

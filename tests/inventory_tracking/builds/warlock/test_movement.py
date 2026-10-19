@@ -21,10 +21,10 @@ from inventory_tracking.builds.warlock.movement import (
     WARP_SPEED,
 )
 from inventory_tracking.builds.warlock.skills import BLADE_WARP
+from inventory_tracking.game.records import Teleport
 from inventory_tracking.levels.model import Ground
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.build import MoveFacts, NoWay
-from inventory_tracking.macros.game.records import Teleport
 from inventory_tracking.macros.movement import SHARED, OwnTeleport, StaffTeleport, Walk
 from inventory_tracking.macros.skills import TELEPORT
 from inventory_tracking.macros.travel import (

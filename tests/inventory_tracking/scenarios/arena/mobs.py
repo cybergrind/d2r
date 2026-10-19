@@ -54,13 +54,13 @@ from inventory_tracking.combat.sim.monsters import (
     shoots,
 )
 from inventory_tracking.combat.stance import WAY_SAMPLE, no_footing
-from inventory_tracking.combat.timeline import GAME_RATE
+from inventory_tracking.game.layout import LYING_DEAD, NO_OWNER
+from inventory_tracking.game.records import Monster
 from inventory_tracking.levels.doors import Door
 from inventory_tracking.levels.model import Ground, Walkable
-from inventory_tracking.macros.game.layout import LYING_DEAD, NO_OWNER
-from inventory_tracking.macros.game.records import Monster
 from inventory_tracking.macros.sight import clear_shot
 from inventory_tracking.macros.travel import walked_way
+from inventory_tracking.takes.timeline import GAME_RATE
 from inventory_tracking.terror.danger import DANGER, MIGHT
 from tests.inventory_tracking.scenarios.arena.scene import Mob, Scene
 
@@ -72,7 +72,7 @@ from tests.inventory_tracking.scenarios.threat.harness import BLAST, BLAST_RADIU
 from tests.inventory_tracking.scenarios.threat.table import table
 
 
-# monmode.txt: the client's modes of a monster's strikes and casts (macros/game/layout.py STRIKING_MODES), and the
+# monmode.txt: the client's modes of a monster's strikes and casts (game/layout.py STRIKING_MODES), and the
 # sequence (SQ 14) Baal's inferno shows (the probe, sim/baal.py)
 CAST_MODES = {'A1': 4, 'A2': 5, 'SC': 7, 'S1': 8, 'S2': 9, 'S3': 10, 'S4': 11, 'SQ': 14}
 SUMMONED = 7_000_000  # unit ids of the monsters a cast raises (sim/casters.py `Summon`), counted from here
@@ -476,14 +476,14 @@ class Mobs:
         return CAST_MODES.get(mind.mode, mob.mode) if self.frame - 1 < begun + frames else mob.mode
 
     def flights(self, kinds: frozenset[int]) -> tuple[tuple[int, int, float, float], ...]:
-        """The missiles in flight of the classes `kinds` as macros/game/decode.py `flights` reads them: (owner unit,
+        """The missiles in flight of the classes `kinds` as game/decode.py `flights` reads them: (owner unit,
         class, x, y)."""
         return tuple(
             (bolt.unit, bolt.missile, bolt.x, bolt.y) for bolt in self.pack.minds.bolts if bolt.missile in kinds
         )
 
     def monsters(self) -> list[Monster]:
-        """The monsters as macros/game/ reads them now: life in whole points, a dead one lying
+        """The monsters as game/ reads them now: life in whole points, a dead one lying
         (mode 12) where it fell, the character's companions where the scene has them."""
         return [
             Monster(

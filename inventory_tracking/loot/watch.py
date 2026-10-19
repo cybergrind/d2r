@@ -37,7 +37,7 @@ class RuneWatcher:
         self.poll_interval, self.minimum, self.observe = poll_interval, minimum, observe
         self.shrine_types, self.super_chests, self.unique_minimum = shrine_types, super_chests, unique_minimum
         self.materials = materials
-        # (x, y, class) -> whether the player put an item down there this game (macros/game/kept.py `PutDown.at`): no
+        # (x, y, class) -> whether the player put an item down there this game (game/kept.py `PutDown.at`): no
         # arrow to it (rca/2026-10-14/run-0025-findings.md §3)
         self.left = left
         self.last_poll = -math.inf

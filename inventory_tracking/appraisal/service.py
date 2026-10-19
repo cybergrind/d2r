@@ -78,10 +78,9 @@ from inventory_tracking.collection.service import (
 )
 from inventory_tracking.collection.store import DEFAULT_DATABASE as COLLECTION_DATABASE
 from inventory_tracking.collection.watch import StashWatcher
-from inventory_tracking.combat import macro_state
-from inventory_tracking.combat.record import CombatRecorder
 from inventory_tracking.common import LOG, configure_logging, log_to_file, timestamp
 from inventory_tracking.config import APPRAISAL, DCLONE, SHOW_ITEMS, TRADERIE
+from inventory_tracking.game.decode import observe_things
 from inventory_tracking.hud.dclone import dclone_watch
 from inventory_tracking.hud.process import (
     ModeBeacon,
@@ -109,7 +108,6 @@ from inventory_tracking.levels.walls import WallLibrary
 from inventory_tracking.loot.materials import material_classes
 from inventory_tracking.loot.watch import RuneWatcher
 from inventory_tracking.macros.card_goal import CardGoals
-from inventory_tracking.macros.game.decode import observe_things
 from inventory_tracking.macros.hunt import Hunter
 from inventory_tracking.macros.latency import FILE as LATENCY_FILE, Trace
 from inventory_tracking.macros.pad import KeyRoute, PadPlay
@@ -137,6 +135,8 @@ from inventory_tracking.reports import create_run, publish
 from inventory_tracking.routes.catalog import ROUTES
 from inventory_tracking.routes.progress import Progress
 from inventory_tracking.shop.service import REQUEST_PREFIX as SHOP_PREFIX, ShopWorker, triage_stock
+from inventory_tracking.takes import macro_state
+from inventory_tracking.takes.record import CombatRecorder
 from inventory_tracking.terror.bosses import BossTracker
 from inventory_tracking.terror.probe import TerrorProbe
 from inventory_tracking.terror.shards import ShardWatch
@@ -1185,7 +1185,7 @@ def main(argv=None):
         '--combat-record',
         action=argparse.BooleanOptionalAction,
         default=APPRAISAL.combat_record,
-        help='serve: record takes of play in the configured levels under runs/combat (combat/record.py)',
+        help='serve: record takes of play in the configured levels under runs/combat (takes/record.py)',
     )
     parser.add_argument(
         '--level-evidence', type=Path, default=DEFAULT_EVIDENCE, help='evidence saved on each guided level entry'

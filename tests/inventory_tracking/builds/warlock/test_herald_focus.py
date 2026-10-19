@@ -7,9 +7,9 @@ from dataclasses import replace
 from inventory_tracking.builds.warlock.buffs import HERALD_SIGIL_SECONDS, prey, sigil_due
 from inventory_tracking.builds.warlock.mark import MARK_SECONDS, herald, target, why_not
 from inventory_tracking.builds.warlock.skills import DEATH_MARK, SIGIL_LETHARGY
+from inventory_tracking.game.layout import DEFILER_CLASS
+from inventory_tracking.game.records import Monster
 from inventory_tracking.macros.build import BuffFacts
-from inventory_tracking.macros.game.layout import DEFILER_CLASS
-from inventory_tracking.macros.game.records import Monster
 from tests.inventory_tracking.macros.fakes import HUNT_SLOTS, player, world
 
 

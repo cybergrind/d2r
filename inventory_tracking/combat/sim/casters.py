@@ -52,6 +52,7 @@ from pathlib import Path
 from typing import Any, Protocol
 
 from inventory_tracking.combat.mechanics.tables import tables
+from inventory_tracking.game.layout import MINION_FLAG, SUPER_FLAG, UNIQUE_FLAG
 
 
 Point = tuple[float, float]
@@ -849,7 +850,7 @@ class Minds:
     def _led(self, walker: Any) -> bool:
         """[inferred] a minion's leader stands while a unique of its AI lives in the pack (the scene does not
         say whose minion it is); a monster of no rank has none."""
-        if not walker.flags & MINION:
+        if not walker.flags & MINION_FLAG:
             return False
         return any(
             other.mind is not None and other.mind.ai == walker.mind.ai and other.flags & LEADERS
@@ -1161,4 +1162,4 @@ def missile_by_name(name: str) -> str:
 
 FINGER_MISSILE = 177  # missiles.txt `fingermagespider`: the Storm Caster's lead
 MELEE_KIND = 'melee'  # sim/monsters.py MELEE
-MINION, LEADERS = 0x10, 0x02 | 0x08  # macros/game/layout.py MINION_FLAG; sim/monsters.py SUPER_FLAG | UNIQUE_FLAG
+LEADERS = SUPER_FLAG | UNIQUE_FLAG

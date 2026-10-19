@@ -7,8 +7,8 @@ from pathlib import Path
 
 import pytest
 
+from inventory_tracking.game.records import Carried, Thing, World
 from inventory_tracking.macros.actuator import Abort
-from inventory_tracking.macros.game.records import Carried, Thing, World
 from inventory_tracking.macros.loop import (
     CHESTS,
     GAME_SECONDS,
@@ -155,8 +155,8 @@ def test_with_the_sling_worn_and_no_tome_a_game_casts_its_town_portal_and_never_
     # portal (do not track, do not buy)". The tome taken out: its charges read 0 (game/decode.py `carried_items`)
     from dataclasses import replace
 
+    from inventory_tracking.game.records import Pack
     from inventory_tracking.macros.cube import CUBE_CLASS
-    from inventory_tracking.macros.game.records import Pack
     from inventory_tracking.macros.skills import SLING_TOWN_PORTAL
     from tests.inventory_tracking.macros.fakes import SLOTS
 
@@ -195,7 +195,7 @@ def test_with_the_sling_worn_and_no_tome_a_game_casts_its_town_portal_and_never_
 
 
 def test_without_the_sling_the_tome_is_counted_and_the_session_report_says_which(caplog):
-    from inventory_tracking.macros.game.records import Pack
+    from inventory_tracking.game.records import Pack
     from inventory_tracking.macros.portal import FROM_SLING
     from inventory_tracking.macros.town import Needs, contract
 
@@ -271,8 +271,8 @@ def test_a_game_name_come_round_again_starts_its_own_count():
 def test_the_inventory_kept_at_the_loops_start_is_what_the_cube_leaves_before_the_game_is_left():
     # Phase 9: the player's own items are what the loop's first look finds carried; with nothing of the loop's and the
     # room fine, the game's end is no visit
+    from inventory_tracking.game.records import Carried, Pack
     from inventory_tracking.macros.cube import CUBE_CLASS
-    from inventory_tracking.macros.game.records import Carried, Pack
 
     play = Game(at(PANDEMONIUM_FORTRESS))
     play.pack = Pack((Carried(1, CUBE_CLASS, 0, 0, (2, 2)),), ('...',) * 4)
@@ -317,7 +317,7 @@ def test_a_new_game_and_the_recovery_pause_count_no_stand():
 
 def test_the_staff_under_20_percent_of_its_charges_is_repaired_before_the_chests(monkeypatch):
     # The player, 2026-10-17: "we can start thinking on repairing teleport charges ... to travel more efficiently"
-    from inventory_tracking.macros.game.records import Teleport
+    from inventory_tracking.game.records import Teleport
     from inventory_tracking.macros.repair import wants
 
     monkeypatch.setattr('inventory_tracking.macros.repair.STASH_TOUCHED', Path('/nonexistent/touched'))
@@ -338,8 +338,8 @@ def test_the_staff_under_20_percent_of_its_charges_is_repaired_before_the_chests
 def test_the_trade_waits_for_the_room_to_run_low_then_identifies_stashes_and_sells_in_one_session():
     # The player, 2026-10-17: "we need to perform mass identify at decard cain -> stash good -> sell junk -> return to
     # loop"; "probably we need to trade not by 2 junk items, but by remaining free slots"; 2026-10-18 12:55: one visit
+    from inventory_tracking.game.records import Carried, Pack
     from inventory_tracking.macros.cube import CUBE_CLASS
-    from inventory_tracking.macros.game.records import Carried, Pack
 
     cube = Carried(1, CUBE_CLASS, 0, 0, (2, 2))
     charms = Carried(2, 999, 0, 2, (10, 2))  # the player's own items: two rows of the inventory
@@ -381,7 +381,7 @@ def test_the_session_waits_for_the_room_to_run_low_and_is_made_once_a_game():
 
 
 def carried_of():
-    from inventory_tracking.macros.game.records import Carried
+    from inventory_tracking.game.records import Carried
 
     return Carried(11, 41, 4, 0, (1, 3), quality=4, identified=False)
 
@@ -389,8 +389,8 @@ def carried_of():
 def test_a_cube_whose_room_no_item_of_the_loop_fits_is_no_room():
     # 12:44-12:45 on 2026-10-17: the cube's 9 free cells in pieces ('.#./.#./.#./...'), two items out, the inventory
     # full, no session: a Rage Mask left on the ground
+    from inventory_tracking.game.records import Carried, Pack
     from inventory_tracking.macros.cube import CUBE_CLASS
-    from inventory_tracking.macros.game.records import Carried, Pack
 
     cube = Carried(1, CUBE_CLASS, 0, 0, (2, 2))
     charms = Carried(2, 999, 0, 2, (10, 2))  # the player's own: two rows
@@ -413,8 +413,8 @@ def test_a_cube_whose_room_no_item_of_the_loop_fits_is_no_room():
 def test_cells_free_with_no_block_a_grand_charm_fits_are_no_room():
     # 21:00:03 on 2026-10-17: free cells left in pieces, the cube's last two ('##.' twice), no session before the game;
     # a Grand Charm (1 x 3) found no room and the loop stopped with it on the ground
+    from inventory_tracking.game.records import Carried, Pack
     from inventory_tracking.macros.cube import CUBE_CLASS
-    from inventory_tracking.macros.game.records import Carried, Pack
 
     cube = Carried(1, CUBE_CLASS, 0, 2, (2, 2))
     dagger = Carried(20, 135, 0, 0, (1, 2), quality=4, identified=False)  # the loop's, to identify
@@ -463,7 +463,7 @@ def test_a_visit_cut_by_the_players_hand_is_made_again_and_only_once_done():
 def test_a_worn_item_low_on_durability_sends_the_loop_to_halbu_with_the_staffs_charges_full(monkeypatch):
     # 22:37 on 2026-10-17: Enigma's Teleport is the character's own, the staff's charges stay full, and their repairs
     # had been what mended the gear; Enigma read 33 of 60
-    from inventory_tracking.macros.game.records import Loot, Wear
+    from inventory_tracking.game.records import Loot, Wear
     from inventory_tracking.macros.repair import WEAR_BELOW, WEAR_CARRIED, due, worn_out
 
     monkeypatch.setattr('inventory_tracking.macros.repair.STASH_TOUCHED', Path('/nonexistent/touched'))
@@ -533,7 +533,7 @@ def test_the_loops_teleport_intent_hops_and_the_plain_one_does_not():
 
 def test_a_session_tops_the_staff_up_only_until_it_is_done():
     # 15:48:43 on 2026-10-17: a session done at the game's start sent the loop to Halbu at its end for 5 charges
-    from inventory_tracking.macros.game.records import Teleport
+    from inventory_tracking.game.records import Teleport
     from inventory_tracking.macros.town import tops_up
 
     staff = Teleport(64, 69, False)
@@ -582,8 +582,8 @@ def test_after_a_start_teleport_is_on_over_the_lower_mark():
 def test_a_cube_holding_only_a_full_gem_stacks_gems_sends_the_loop_to_no_session():
     # 07:05-07:07 on 2026-10-18: ten flawless gems of full stacks (kept, neither stashed nor sold) filled the cube, the
     # room read low every game, and a session every game left it as low
+    from inventory_tracking.game.records import Carried, Pack
     from inventory_tracking.macros.cube import CUBE_CLASS
-    from inventory_tracking.macros.game.records import Carried, Pack
 
     flawless = 595  # Flawless Ruby (items metadata)
     cube = Carried(1, CUBE_CLASS, 0, 2, (2, 2))
@@ -893,10 +893,10 @@ def test_the_players_gheeds_is_never_left_in_the_stash_at_a_games_end():
 
 
 def gheeds_play(new: Carried | None = None):
+    from inventory_tracking.game.layout import BANK
+    from inventory_tracking.game.records import Pack
     from inventory_tracking.macros.charms import GHEEDS_FORTUNE, UNIQUE, grand_charm
     from inventory_tracking.macros.cube import CUBE_CLASS
-    from inventory_tracking.macros.game.layout import BANK
-    from inventory_tracking.macros.game.records import Pack
 
     cube = Carried(2, CUBE_CLASS, 1, 0, (2, 2))
     theirs = Carried(1, grand_charm(), 0, 0, (1, 3), quality=UNIQUE, unique=GHEEDS_FORTUNE)
@@ -1063,7 +1063,7 @@ def test_a_trip_for_room_is_a_whole_session_whatever_the_cells_count():
 
 def test_an_andariel_visit_to_jamella_buys_one_key_stack():
     # The player, 2026-10-18: "probably we don't need 2x sets of keys for non LK loop; LK loop needs 2x12 keys"
-    from inventory_tracking.macros.game.records import Pack
+    from inventory_tracking.game.records import Pack
     from inventory_tracking.macros.loop import ANDARIEL, LK
     from inventory_tracking.macros.portal import FROM_SLING
     from inventory_tracking.macros.shop import KEY, buys

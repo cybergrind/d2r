@@ -1,4 +1,4 @@
-"""Readers of what a schema 4 take holds raw (combat/record.py): the unit records of `records.jsonl`, the
+"""Readers of what a schema 4 take holds raw (takes/record.py): the unit records of `records.jsonl`, the
 path records of `paths.jsonl` and the missiles' first sights, by the offsets the client's code gives
 (rca/2026-10-13/re-findings.md, "What to decode from the raw bytes now on record" and the fourth and fifth
 pass). Nothing in the production code reads these yet; this is the decode step the replay of a take needs
@@ -15,7 +15,7 @@ from collections.abc import Iterator
 from dataclasses import dataclass
 from pathlib import Path
 
-from inventory_tracking.combat.takes import Take, carried, monsters_of, player_of, records
+from inventory_tracking.takes.takes import Take, carried, monsters_of, player_of, records
 
 
 UNIT_RECORD = 0x1C0  # bytes of a unit record in a row; a monster's 0x58 of monster data follow

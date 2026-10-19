@@ -12,7 +12,7 @@ unloads, button and key changes, derived while recording). Reads only; nothing t
 Since 2026-10-12 a take also holds what hurts the character (user: "we need to record such things"):
 each unit's enchantments (`mods`, monumod ids) in `units.jsonl`, the character's own stat list in the
 manifest (`character_stats`: its resistances, which a blow's size is cut by) and a `hurt` event at
-every drop of its life, with who was striking, what flew by (combat/hurts.py) and the character's
+every drop of its life, with who was striking, what flew by (takes/hurts.py) and the character's
 resistances at that frame (`resists`: physical, fire, lightning, cold, poison as the stat list holds
 them, so a curse on it shows). Since 2026-10-13 (schema 3) the same list is in a frame as `r`, in the
 first frame that has the character and in every frame it differs from the one written last: a curse is
@@ -45,10 +45,10 @@ The same day, after a review of the recorder against the goal of re-creating any
 - `g`: what lies on the ground that the pickup step would go for, as [unit, x, y, kind, label, width,
   height, prized]; `i`: the inventory's rows ('.' free, '#' taken): a pickup press replays against these;
 - a `state` event when a take opens and whenever it changes: what the macro carries between its looks
-  (combat/macro_state.py: attack mode, the routine, the build and its settings, the route's facts and
+  (takes/macro_state.py: attack mode, the routine, the build and its settings, the route's facts and
   stages, the card's mark);
 - `records.jsonl`: the character's and each monster's unit record raw (0x1C0 bytes, and the 0x58 of
-  monster data after them), its state words and, in a striking mode, the skill it is using (macros/game/
+  monster data after them), its state words and, in a striking mode, the skill it is using (game/
   `skill_in_use`), as [unit, record, states, skill] in hex, at every change of its mode and once in
   RECORD_SECONDS. What the client's code says lies in them (rca/2026-10-13/re-findings.md: the animation
   frame at +0x5C, its length at +0x64, the boss's row at +0x2A of the monster data, state 185 `cooldown`)
@@ -80,7 +80,7 @@ implemented"), still schema 4 and each optional to a reader:
   (units.jsonl at first sight), so its resistances under a curse are on record;
 - `g` rows end with the item's code (the game's tables by the class the item's unit record holds) and
   its quality (item data +0x00), read once a drop;
-- the `state` event carries the macro's memory (combat/macro_state.py `memory`).
+- the `state` event carries the macro's memory (takes/macro_state.py `memory`).
 
 The game's input mode (rca/2026-10-13/controller-mode.md, 2026-10-13 night), still schema 4, each optional:
 the manifest's `input_mode` ('keyboard' or 'controller' when the take opened; None: unread); an `input_mode`
@@ -121,19 +121,18 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, NamedTuple
 
-from inventory_tracking.combat import hurts, retain
 from inventory_tracking.common import LOG, timestamp
+from inventory_tracking.game.layout import ACTING, ITEM_UNIT, NO_OWNER
+from inventory_tracking.game.memory import GameMemory
+from inventory_tracking.game.records import Loot, Monster, Player, Teleport, Thing, World
 from inventory_tracking.input import gamepad, sent
 from inventory_tracking.input.keyboard import X11Keyboard
 from inventory_tracking.items.identity import QUALITY_OFFSET
 from inventory_tracking.items.metadata import item_base
 from inventory_tracking.levels.model import Level
-from inventory_tracking.macros.game.layout import ITEM_UNIT, NO_OWNER
-from inventory_tracking.macros.game.memory import GameMemory
-from inventory_tracking.macros.game.records import Loot, Monster, Player, Teleport, Thing, World
-from inventory_tracking.macros.routines import ACTING
 from inventory_tracking.native.layout import DEAD_MODES, TOWN_IDS
 from inventory_tracking.native.units import walk_units
+from inventory_tracking.takes import hurts, retain
 
 
 SCHEMA = 4  # the rows' layout (takes.py `SCHEMAS`): written to the manifest since 2026-10-10 night
@@ -223,7 +222,7 @@ class Sample:
     staff: Teleport | None = None  # the worn Teleport staff; None: none worn, or unread
     belt: tuple[int | None, ...] | None = None  # item class by belt cell
     loot: Loot | None = None  # the drops the pickup step would go for and the inventory's room; None: unread
-    macro_state: dict[str, Any] | None = None  # what the macro carries (combat/macro_state.py); None: not asked
+    macro_state: dict[str, Any] | None = None  # what the macro carries (takes/macro_state.py); None: not asked
     tick: bytes | None = None  # the head of the client's clock object (game/memory.py `tick`)
     hovered: tuple[int, int] | None = None  # (unit type, unit id) under the pointer
     hover_read: bool = False  # the read of it was made (None then means nothing is under the pointer)
@@ -540,7 +539,7 @@ class Take:
             self.records.write(json.dumps(line, separators=(',', ':')) + '\n')
 
     def hurt(self, clock: float, sample: Sample, player: Player, life: int, max_life: int) -> None:
-        """A `hurt` event when the character's life fell since the frame before (combat/hurts.py)."""
+        """A `hurt` event when the character's life fell since the frame before (takes/hurts.py)."""
         foes = [
             hurts.Foe(
                 m.unit_id, m.txt_id, m.flags, m.mode, m.x, m.y,
@@ -666,7 +665,7 @@ class Recorder:
     ) -> None:
         """`areas`: the levels recorded; None for every level that is no town, and with `town` the towns
         too. `keep`: the bytes the takes
-        under `output` are held to, each packed as it closes (combat/retain.py); None: left as written.
+        under `output` are held to, each packed as it closes (takes/retain.py); None: left as written.
         `server_frame`: the frame of the character's last life message (`sf`); None: not read."""
         self.sample, self.output, self.areas, self.rate = sample, output, areas, rate
         self.keep, self.town, self.server_frame = keep, town, server_frame

@@ -39,6 +39,9 @@ from pathlib import Path
 from inventory_tracking.automation.ledger import OSD_LEDGER, PotionLedger
 from inventory_tracking.common import LOG
 from inventory_tracking.config import INPUT
+from inventory_tracking.game.kept import BeltKept, PutDown
+from inventory_tracking.game.memory import GameMemory
+from inventory_tracking.game.records import VALUABLE, Loot, Pack, Player, World, has_room
 from inventory_tracking.input.compositor import STEP_KEYS
 from inventory_tracking.input.focus import FocusTracker, owns_process
 from inventory_tracking.input.keybindings import INVENTORY, action_key, show_items_key
@@ -61,9 +64,6 @@ from inventory_tracking.macros.cube import (
     unpack,
 )
 from inventory_tracking.macros.engine import Run
-from inventory_tracking.macros.game.kept import BeltKept, PutDown
-from inventory_tracking.macros.game.memory import GameMemory
-from inventory_tracking.macros.game.records import VALUABLE, Loot, Pack, Player, World, has_room
 from inventory_tracking.macros.goals import USE_NEAR, spot_of
 from inventory_tracking.macros.hunt import Bearings, Hunter, threat
 from inventory_tracking.macros.journey import Journey
@@ -316,7 +316,7 @@ class MacroRunner:
         # told the seconds of each look a run takes at the game (the service's load meter, appraisal/load.py)
         self.looked: Callable[[float], None] | None = None
         self.quiet_until = -math.inf  # attack mode resumes no sooner (TRAVEL_QUIET)
-        # the combat recorder's `note` (combat/record.py): each request and each line said goes into the take
+        # the combat recorder's `note` (takes/record.py): each request and each line said goes into the take
         self.noted: Callable[..., None] | None = None
         # The pad and the game's input mode, from the service (macros/pad.py): a run in controller mode plays by
         # the pad. None: every run plays by the keys and the mouse, as before.

@@ -14,7 +14,7 @@ from inventory_tracking.builds.warlock.echoing_strike.sim.situation import (
     cut,
     describe,
 )
-from inventory_tracking.combat.takes import Take
+from inventory_tracking.takes.takes import Take
 
 
 NO_LINK = (0.0, 0, 0.0)
@@ -201,7 +201,7 @@ def test_death_marks_are_read_from_the_key_presses_at_the_hostile_under_the_poin
     (directory / 'manifest.json').write_text(json.dumps({'area': 108, 'keys': {'40': 'd', '16': '7'}}))
     rect = [1920, 0, 2560, 1418]
     aspect = rect[2] / rect[3]
-    from inventory_tracking.macros.game.records import Player
+    from inventory_tracking.game.records import Player
 
     fx, fy = screen_fraction(Player(1, '', 1, 108, 5000.0, 5000.0, None), 5010.0, 5004.0, aspect)
     near = [7, 310, 1, 5010.0, 5004.0, 128, 128, 0, 0xFFFFFFFF, 0]

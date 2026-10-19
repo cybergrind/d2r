@@ -1,6 +1,6 @@
 """What took the character's life: every drop of it, with who was striking and what flew by.
 
-The recorder writes a `hurt` event at each drop (combat/record.py), and `hurts` derives the same rows
+The recorder writes a `hurt` event at each drop (takes/record.py), and `hurts` derives the same rows
 from a take recorded before it did, so that the size of a blow can be laid against the type, the
 rank and the enchantments of whoever dealt it (user, 2026-10-12: "we need to record such things and
 use it in our threat calculation and tests"). A row:
@@ -18,7 +18,7 @@ use it in our threat calculation and tests"). A row:
 A row does not say who dealt the blow. `sole` picks the rows where one monster alone was striking
 (beside the character or aimed at it) and nothing flew by: those are what a blow's size is fitted on.
 
-    uv run --offline python -m inventory_tracking.combat.hurts [take directories ...]
+    uv run --offline python -m inventory_tracking.takes.hurts [take directories ...]
 
 prints the drops of the takes (default: all under runs/combat) by the rank and enchantment of the one
 that struck alone. A take from before 2026-10-12 does not hold the enchantments: they are then looked
@@ -36,7 +36,7 @@ from pathlib import Path
 from typing import Any
 
 from inventory_tracking.combat.mechanics.tables import tables
-from inventory_tracking.macros.game.layout import LEADER_FLAGS, MINION_FLAG, MODIFIERS, NO_OWNER
+from inventory_tracking.game.layout import LEADER_FLAGS, MINION_FLAG, MODIFIERS, NO_OWNER
 from inventory_tracking.native.layout import DEAD_MODES
 
 
@@ -137,7 +137,7 @@ def sole(hurt: Mapping[str, Any]) -> list[Any] | None:
 
 
 def hurts(take: Any, mods: Mapping[int, Sequence[int]] | None = None) -> list[dict[str, Any]]:
-    """The rows of a take (combat/takes.py `Take`), each with its frame's `t`. Enchantments from the
+    """The rows of a take (takes/takes.py `Take`), each with its frame's `t`. Enchantments from the
     take's units when it holds them, else from `mods` (unit id -> monumod ids)."""
     known: dict[int, tuple[int, ...]] = {unit: tuple(found) for unit, found in (mods or {}).items()}
     known.update((unit['unit'], tuple(unit['mods'])) for unit in take.units if 'mods' in unit)
@@ -228,7 +228,7 @@ def report(rows: Sequence[Mapping[str, Any]]) -> str:
 
 
 def main(argv=None) -> int:
-    from inventory_tracking.combat.takes import Take
+    from inventory_tracking.takes.takes import Take
 
     parser = argparse.ArgumentParser(description="The drops of the character's life in the takes, by who struck.")
     runs = Path(__file__).resolve().parents[1] / 'runs'

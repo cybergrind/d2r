@@ -37,9 +37,9 @@ from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 from typing import Any
 
-from inventory_tracking.combat.hurts import HURT_LEAST
 from inventory_tracking.combat.sim import casters
-from inventory_tracking.combat.takes import Take
+from inventory_tracking.takes.hurts import HURT_LEAST
+from inventory_tracking.takes.takes import Take
 
 
 HERE = Path(__file__).parent
@@ -188,7 +188,7 @@ class Sampler:
 
 
 def casters_rate() -> float:
-    from inventory_tracking.combat.timeline import GAME_RATE
+    from inventory_tracking.takes.timeline import GAME_RATE
 
     return GAME_RATE
 

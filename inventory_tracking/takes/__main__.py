@@ -8,8 +8,8 @@ import argparse
 import json
 from pathlib import Path
 
-from inventory_tracking.combat.analysis import write_analysis
-from inventory_tracking.combat.takes import Take, timeline, trim
+from inventory_tracking.takes.analysis import write_analysis
+from inventory_tracking.takes.takes import Take, timeline, trim
 
 
 def main(argv=None) -> int:

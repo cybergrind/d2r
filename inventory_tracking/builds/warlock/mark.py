@@ -43,15 +43,15 @@ from inventory_tracking.combat.policy import Observation, observe
 from inventory_tracking.combat.sim import casters as rules
 from inventory_tracking.combat.sim.casters import hit_chance
 from inventory_tracking.combat.stance import CAST_SECONDS
-from inventory_tracking.combat.timeline import GAME_RATE
+from inventory_tracking.game.layout import DEFILER_CLASS
+from inventory_tracking.game.records import Monster, World
 from inventory_tracking.macros.build import BuffFacts, Draw, DrawPrice
-from inventory_tracking.macros.game.layout import DEFILER_CLASS
-from inventory_tracking.macros.game.records import Monster, World
 from inventory_tracking.macros.goals import is_boss
 from inventory_tracking.macros.rotation import ELITE_LIFE
 from inventory_tracking.macros.skills import skill_name
 from inventory_tracking.macros.travel import label, life
 from inventory_tracking.native.layout import HIRELING_CLASS_ID
+from inventory_tracking.takes.timeline import GAME_RATE
 
 
 _MARK = damage_data()['death_mark']

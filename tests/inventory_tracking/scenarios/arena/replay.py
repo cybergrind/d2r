@@ -1,4 +1,4 @@
-"""A moment of a schema 4 take played again in the arena from the take alone (combat/record.py, schema 4;
+"""A moment of a schema 4 take played again in the arena from the take alone (takes/record.py, schema 4;
 rca/2026-10-13/replay-readiness.md is what this file was written to find out).
 
 kp4.py staged its two moments by hand from the session log: the presses, the staff's charges, the weapon
@@ -45,12 +45,12 @@ from pathlib import Path
 
 from inventory_tracking.builds.warlock.echoing_strike.mechanics import MISSILE
 from inventory_tracking.combat.mechanics.tables import area_level
-from inventory_tracking.combat.takes import MonsterRow, Take, carried, monsters_of, player_of
 from inventory_tracking.config import PLAYER_HEALING
+from inventory_tracking.game.layout import HERALD_TIER_STAT
 from inventory_tracking.input.compositor import STEP_KEYS
-from inventory_tracking.macros.game.layout import HERALD_TIER_STAT
 from inventory_tracking.macros.runner import ATTACK, PICKUP, TELEPORT
 from inventory_tracking.native.layout import TILE_UNITS
+from inventory_tracking.takes.takes import MonsterRow, Take, carried, monsters_of, player_of
 from inventory_tracking.terror.monsters import LEVEL_STAT
 from tests.inventory_tracking.scenarios.arena import records4, scene as scene_file
 from tests.inventory_tracking.scenarios.arena.cut import DEFAULT_HERO, HELL_PENALTY, cut, full_points, level_of, through

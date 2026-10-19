@@ -3,14 +3,14 @@ logs for all levels? maybe we can retire some very old or have some policy for h
 keep"), so what is written has to stay small by itself.
 
 - **A closed take is packed**: its `.jsonl` files become `.jsonl.gz` (the readers take either:
-  combat/takes.py `lines`). A take of 15 MB is about 1 MB packed, and nothing is lost.
+  takes/takes.py `lines`). A take of 15 MB is about 1 MB packed, and nothing is lost.
 - **Past `keep` bytes in all, the oldest takes go**, a take the character died in last of all (those
   are what the analyses come back to). Nothing else is ever removed, and only directories a recorder
   named (`<start>-<area>` with a manifest) are looked at.
 
-The recorder does both when a take closes (combat/record.py), off its own thread.
+The recorder does both when a take closes (takes/record.py), off its own thread.
 
-    uv run --offline python -m inventory_tracking.combat.retain [--keep-gb N] [--dry-run] [directory]
+    uv run --offline python -m inventory_tracking.takes.retain [--keep-gb N] [--dry-run] [directory]
 
 packs every take under the directory (default: runs/combat) and reports what the limit would remove;
 without `--dry-run` it removes it.
@@ -21,8 +21,8 @@ import gzip
 import shutil
 from pathlib import Path
 
-from inventory_tracking.combat.takes import RECORDING_NAME
 from inventory_tracking.common import LOG
+from inventory_tracking.takes.takes import RECORDING_NAME
 
 
 GIGABYTE = 1024**3

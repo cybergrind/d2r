@@ -63,10 +63,10 @@ class Hero:
     sets: tuple[WeaponSet, WeaponSet]
     hand: int = 0  # index into sets of the set in hand
     slots: tuple[int | None, ...] = ()  # skill id on each skill key
-    hex_purge: bool | None = None  # buff states as macros/game/ Player reads them; None: unknown
+    hex_purge: bool | None = None  # buff states as game/ Player reads them; None: unknown
     ward: bool | None = None
     consume: bool | None = None
-    # the skill on each mouse button (macros/game/ Player); None: not known, the arena's default holds
+    # the skill on each mouse button (game/ Player); None: not known, the arena's default holds
     left_skill: int | None = None
     right_skill: int | None = None
 
@@ -84,7 +84,7 @@ class Drop:
 
 @dataclass
 class Prop:
-    """An object that can be operated in the scene (a chest, a body): macros/game/records.py `Thing`."""
+    """An object that can be operated in the scene (a chest, a body): game/records.py `Thing`."""
 
     unit: int
     txt: int  # objects.txt id

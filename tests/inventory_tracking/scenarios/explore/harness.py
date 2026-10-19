@@ -14,9 +14,9 @@ from dataclasses import replace
 from pathlib import Path
 
 from inventory_tracking.builds.warlock.echoing_strike.build import ECHOING_STRIKE_BUILD
+from inventory_tracking.game.records import Player
 from inventory_tracking.levels.model import Level, Room, Target, Walkable
 from inventory_tracking.macros import teleport
-from inventory_tracking.macros.game.records import Player
 from inventory_tracking.macros.hunt import Hunter
 from inventory_tracking.macros.tour import Bounds
 from inventory_tracking.macros.view import Viewport

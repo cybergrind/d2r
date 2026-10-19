@@ -346,8 +346,8 @@ def test_a_valuable_with_no_room_on_a_terror_zone_kind_pushes_the_room_package_a
 def test_a_super_chest_in_sight_is_opened_on_the_way_after_the_leaders_and_never_again(caplog):
     # 2026-10-19, the player: "also in marsh (and I think in other places) - we don't open intermediate goals, like
     # superchests. probably we should add superchests to intemediate goals and open them along the way"
+    from inventory_tracking.game.records import Thing
     from inventory_tracking.levels.model import SUPER_CHEST, Ground
-    from inventory_tracking.macros.game.records import Thing
     from inventory_tracking.macros.goals import PLACE_NEAR, USE_NEAR, Goal
     from inventory_tracking.macros.hunting.base import SUPER_TRIES
     from inventory_tracking.macros.teleport import marked_thing
@@ -386,9 +386,9 @@ def test_a_super_chest_in_sight_is_opened_on_the_way_after_the_leaders_and_never
 
 
 def test_a_super_chest_far_off_is_no_detour_for_the_agenda_run():
+    from inventory_tracking.game.records import Thing
     from inventory_tracking.levels.model import SUPER_CHEST, Ground
     from inventory_tracking.macros.agenda import CHEST_NEAR
-    from inventory_tracking.macros.game.records import Thing
     from inventory_tracking.macros.goals import PLACE_NEAR, Goal
     from inventory_tracking.macros.travel import PRESSED
     from inventory_tracking.routes.model import ENTER

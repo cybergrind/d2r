@@ -20,7 +20,7 @@ from inventory_tracking.builds.warlock.echoing_strike.hits import CONTACT_RADIUS
 from inventory_tracking.builds.warlock.skills import ECHOING_STRIKE
 from inventory_tracking.combat import stance
 from inventory_tracking.combat.policy import MIN_SCORE, Foe, Observation
-from inventory_tracking.macros.game.records import Monster
+from inventory_tracking.game.records import Monster
 from tests.inventory_tracking.scenarios.stance import harness
 
 

@@ -1,8 +1,8 @@
 """blows.py on takes made by hand (synthetic.py): each class of a drop from the least that makes it."""
 
-from inventory_tracking.combat.hurts import COLD
 from inventory_tracking.combat.sim.monsters import CHAMPION_FLAG, SUPER_FLAG, UNIQUE_FLAG
-from inventory_tracking.macros.game.layout import MINION_FLAG, NO_OWNER
+from inventory_tracking.game.layout import MINION_FLAG, NO_OWNER
+from inventory_tracking.takes.hurts import COLD
 from tests.inventory_tracking.scenarios.arena.evidence import blows
 from tests.inventory_tracking.scenarios.arena.evidence.blows import (
     DEATH,

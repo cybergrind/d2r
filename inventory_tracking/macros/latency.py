@@ -95,7 +95,7 @@ class Trace:
         self.lock = threading.Lock()
         self.count = 0
         self.closed: list[Press] = []  # the last few, for tests and a look from a debugger
-        # the combat recorder's `note` (combat/record.py): each press over, with what became of it
+        # the combat recorder's `note` (takes/record.py): each press over, with what became of it
         self.noted: Callable[..., None] | None = None
 
     def press(self, routine: str, stamp: float, received: float, **notes: object) -> Press:

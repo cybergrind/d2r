@@ -157,7 +157,7 @@ def unit(args: argparse.Namespace) -> None:
 # 0.15 s is that with a late frame's margin, and less than the gap between two of the player's own clicks.
 WINDOW = 0.15
 POINTER_TOLERANCE = 3  # pixels: a frame's pointer at a sent move's target
-BUTTON_BITS = {1: 1 << 8, 2: 1 << 9, 3: 1 << 10, 8: 1 << 15, 9: 1 << 16}  # combat/record.py
+BUTTON_BITS = {1: 1 << 8, 2: 1 << 9, 3: 1 << 10, 8: 1 << 15, 9: 1 << 16}  # takes/record.py
 OSD_PRESS = re.compile(r'(?:(\w+) \w+ potion: column (\d)|Show Items was off: pressed (\S+))')
 STROKE_GAP = 0.2  # seconds between two of the player's pointer changes that are one stroke
 

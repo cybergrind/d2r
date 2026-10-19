@@ -6,9 +6,9 @@ import math
 
 import pytest
 
-from inventory_tracking.combat.hurts import COLD
 from inventory_tracking.combat.sim.monsters import REACH, STRIKE_FRAMES, Traits
-from inventory_tracking.combat.timeline import GAME_RATE
+from inventory_tracking.takes.hurts import COLD
+from inventory_tracking.takes.timeline import GAME_RATE
 from tests.inventory_tracking.scenarios.arena.evidence import blows, model, rates, report, scan
 from tests.inventory_tracking.scenarios.arena.evidence.blows import (
     FRIEND,

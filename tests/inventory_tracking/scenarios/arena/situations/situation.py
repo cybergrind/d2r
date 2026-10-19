@@ -44,8 +44,8 @@ from typing import Any, Self
 from inventory_tracking.combat.mechanics.tables import points_of, tables
 from inventory_tracking.combat.sim.monsters import CHAMPION_FLAG, COLD, FIRE, LIGHTNING, STRONG, UNIQUE_FLAG
 from inventory_tracking.config import PLAYER_HEALING
+from inventory_tracking.game.layout import MINION_FLAG
 from inventory_tracking.levels.model import Walkable, pack_cells
-from inventory_tracking.macros.game.layout import MINION_FLAG
 from inventory_tracking.macros.rotation import ELITE_LIFE
 from inventory_tracking.macros.runner import ATTACK, HUNT_ELITES, PICKUP, TELEPORT
 from inventory_tracking.native.layout import TILE_UNITS

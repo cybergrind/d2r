@@ -155,7 +155,7 @@ def observe(
     moving: bool = False,
     aimable: Callable[[Point], Point | None] | None = None,
 ) -> Observation:
-    """The observation of the running game: `player` and the monsters are macros/game/records.py records
+    """The observation of the running game: `player` and the monsters are game/records.py records
     (`hostiles` the ones that may be struck). A monster's points are its type's in the character's
     area by the life fraction the client shows. `companions`, the character's own units, are not
     read here: what an attack reads off them (a link they hold between monsters) is its `sees`

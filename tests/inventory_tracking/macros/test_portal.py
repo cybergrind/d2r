@@ -3,9 +3,9 @@ character once it is open, the click, the town."""
 
 import pytest
 
+from inventory_tracking.game.records import Pack, Thing
 from inventory_tracking.levels.model import TOWN_PORTAL
 from inventory_tracking.macros.actuator import Abort
-from inventory_tracking.macros.game.records import Pack, Thing
 from inventory_tracking.macros.portal import FROM_SLING, FROM_TOME, TOME, portal_source, to_town
 from inventory_tracking.macros.skills import SLING_TOWN_PORTAL
 from tests.inventory_tracking.macros.fakes import KEYS, PREBUFF_SET, SLOTS, Game, world

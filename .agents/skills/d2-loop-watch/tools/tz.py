@@ -3,7 +3,7 @@ improve routing and full map clear speed").
 
 The measure is **kills a minute of time in the zone's levels**: a full clear is worth its kills. Per stay (one combat
 take, `inventory_tracking/runs/combat/<UTC>-<area>`): the level, seconds, kills (`kill` events), hostiles seen, the
-share of them killed, the time casting / moving / standing (the character's modes, combat/legs.py CASTING and MOVING),
+share of them killed, the time casting / moving / standing (the character's modes, takes/legs.py CASTING and MOVING),
 the longest stretch standing, Teleports, and the Herald if one came (stat 367 with the unique flag 0x08,
 terror/tracker.py). Towns and stays under MIN_SECONDS are left out.
 
@@ -26,8 +26,8 @@ sys.path.insert(0, str(ROOT))
 import logwords  # ruff: ignore[module-import-not-at-top-of-file] - beside this tool
 from logwords import TELEPORT  # ruff: ignore[module-import-not-at-top-of-file] - beside this tool
 
-from inventory_tracking.combat.legs import CASTING, MOVING  # ruff: ignore[module-import-not-at-top-of-file]
-from inventory_tracking.combat.takes import Take  # ruff: ignore[module-import-not-at-top-of-file]
+from inventory_tracking.takes.legs import CASTING, MOVING  # ruff: ignore[module-import-not-at-top-of-file]
+from inventory_tracking.takes.takes import Take  # ruff: ignore[module-import-not-at-top-of-file]
 
 
 COMBAT = ROOT / 'inventory_tracking' / 'runs' / 'combat'

@@ -16,8 +16,8 @@ from itertools import pairwise
 from pathlib import Path
 from typing import Any
 
-from inventory_tracking.combat.takes import LIFE_SCALE, Take, ground_under_pointer, monsters_of, player_of
-from inventory_tracking.macros.routines import ACTING
+from inventory_tracking.game.layout import ACTING
+from inventory_tracking.takes.takes import LIFE_SCALE, Take, ground_under_pointer, monsters_of, player_of
 
 
 RUN_MODES = frozenset((2, 3, 6))  # walk, run, town walk

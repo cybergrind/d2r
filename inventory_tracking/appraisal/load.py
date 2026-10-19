@@ -2,7 +2,7 @@
 
 The 21:42 game of 2026-10-13 could not tell host load from the GIL convoy: the slow passes were logged in wall
 time only and the host's load average only at KP_4 presses. Now, once a second while the character is out of town
-(appraisal/cadence.py modes level and working), the service loop notes a `load` event (combat/record.py
+(appraisal/cadence.py modes level and working), the service loop notes a `load` event (takes/record.py
 `Recorder.note`, schema 4, additive):
 
 - `s`: the window's seconds; `mode`: the service cadence's mode then (appraisal/cadence.py: town, level, working);
@@ -121,7 +121,7 @@ def percentile(values: list[float], share: float) -> float:
 
 def summary(directory: Path) -> str:
     """One line on a take's `load` events."""
-    from inventory_tracking.combat.takes import lines
+    from inventory_tracking.takes.takes import lines
 
     windows = [event for event in lines(directory / 'events.jsonl') if event.get('event') == 'load']
     if not windows:

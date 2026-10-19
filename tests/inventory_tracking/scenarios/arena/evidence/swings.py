@@ -76,10 +76,10 @@ from multiprocessing import get_context
 from pathlib import Path
 from typing import Any
 
-from inventory_tracking.combat.hurts import ATTACK_MODES, BESIDE, SUSPECT_REACH
 from inventory_tracking.combat.sim.monsters import AWARE
-from inventory_tracking.combat.takes import MonsterRow, Take
-from inventory_tracking.combat.timeline import GAME_RATE
+from inventory_tracking.takes.hurts import ATTACK_MODES, BESIDE, SUSPECT_REACH
+from inventory_tracking.takes.takes import MonsterRow, Take
+from inventory_tracking.takes.timeline import GAME_RATE
 from tests.inventory_tracking.scenarios.arena.evidence import blows, scan
 from tests.inventory_tracking.scenarios.arena.evidence.blows import HERO, SOLE_MELEE, Moment, name_of, rank_of
 from tests.inventory_tracking.scenarios.arena.evidence.rates import HIT_AFTER, MODEL_REACH, MOVED, melee_type

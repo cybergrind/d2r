@@ -15,12 +15,12 @@ from dataclasses import replace
 import pytest
 
 from inventory_tracking.builds import pursuing
+from inventory_tracking.game.layout import NO_OWNER
+from inventory_tracking.game.records import HEALING, VALUABLE, Drop, Monster
 from inventory_tracking.levels.model import Ground, Target
 from inventory_tracking.macros import goals
 from inventory_tracking.macros.actuator import Cancelled
 from inventory_tracking.macros.build import NoWay, Step
-from inventory_tracking.macros.game.layout import NO_OWNER
-from inventory_tracking.macros.game.records import HEALING, VALUABLE, Drop, Monster
 from inventory_tracking.macros.goals import PICK_UP, Goal, first_fight, goal_of, in_the_way, nearer
 from inventory_tracking.macros.hunt import Hunter
 from inventory_tracking.macros.pursuit import (

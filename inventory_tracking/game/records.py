@@ -2,13 +2,13 @@
 
 from dataclasses import dataclass, field
 
+from inventory_tracking.game.layout import LEADER_FLAGS, MINION_FLAG, NO_OWNER, STACK_MOST
 from inventory_tracking.items.grid import INVENTORY_SIZE, Grid
 from inventory_tracking.items.identity import ETHEREAL_FLAG
 from inventory_tracking.items.metadata import metadata
 from inventory_tracking.items.stat_constants import StatId
 from inventory_tracking.levels.doors import Door
 from inventory_tracking.loot.shown import NAMED_QUALITIES
-from inventory_tracking.macros.game.layout import LEADER_FLAGS, MINION_FLAG, STACK_MOST
 from inventory_tracking.native.layout import BATTLE_ORDERS_SKILL, BELT_SIZE, NONCLASS_SKILL_STAT, TOWN_IDS
 from inventory_tracking.tracking.belt import BeltColumns
 
@@ -27,7 +27,7 @@ class Player:
     right_skill: int | None = None
     stats_at: int = field(
         default=0, compare=False, repr=False
-    )  # the unit's stat list (combat/record.py reads life and mana)
+    )  # the unit's stat list (takes/record.py reads life and mana)
     hex_purge: bool | None = None  # the Hex: Purge buff is on the character; None when unreadable
     ward: bool | None = None  # Psychic Ward likewise
     record: bytes = field(default=b'', compare=False, repr=False)  # the unit record as read (research)
@@ -48,14 +48,25 @@ class Player:
         return (self.ward, self.hex_purge, self.consume)
 
 
+Bounds = tuple[int, int, int, int]  # a Room2's (x, y, w, h) tiles: the key the level map names rooms by
+Stats = tuple[tuple[int, int, int], ...]  # (layer, stat id, raw) of a stat list as read
+
+
 @dataclass(frozen=True)
 class Monster:
+    """A monster unit as one walk of the unit table read it. Two walks fill it (game/decode.py `monster_table`):
+    the look's (`monsters`, every look: position in fractions of a world unit, then type flags, owner, life,
+    alliance, modifiers and Herald tier from the monster data and stats, read each time) and the Terror Zone
+    probe's and the HUD's (terror/monsters.py `monster_units`: the whole world units of the position, the room's
+    area and bounds, and the monster data and stat lists raw on first sight only). A field the walk does not read
+    keeps its default: no owner, no flags, not an ally (hostile is the safe reading)."""
+
     unit_id: int
     txt_id: int
     mode: int
     x: float
     y: float
-    owner: int
+    owner: int = NO_OWNER
     flags: int = 0  # type flags (TYPE_FLAGS byte)
     ally: bool = False  # alignment stat set: a summon or the mercenary
     life: int = 0  # whole points (stats 6 and 7); 0 when the stats were unreadable
@@ -66,10 +77,19 @@ class Monster:
     modifiers: tuple[int, ...] = field(default=(), compare=False)  # monumod ids: Lightning Enchanted is 17
     tier: int = field(default=0, compare=False)  # the tier of the Herald it is or follows (stat 367); 0: none
     # On request (`records`): the unit record and the monster data as this walk read them, for the fields
-    # nobody has named yet (the animation frame, the skill in use: combat/record.py `records.jsonl`).
+    # nobody has named yet (the animation frame, the skill in use: takes/record.py `records.jsonl`).
     record: bytes = field(default=b'', compare=False, repr=False)
     states: bytes = field(default=b'', compare=False, repr=False)  # its state words (STATE_RUN), with `records`
     skill: bytes = field(default=b'', compare=False, repr=False)  # the skill in use, raw, in a striking mode
+    # The Terror Zone walk's (terror/monsters.py): the level and Room2 the path's Room1 belongs to (None: unread),
+    # and on first sight the monster data (MONSTER_DATA_SIZE bytes, hex) and the full and base stat lists.
+    area: int | None = None
+    room: Bounds | None = None
+    data_hex: str | None = None
+    stats: Stats | None = None
+    base_stats: Stats | None = None
+    path_at: int = field(default=0, compare=False)  # the dynamic path's address: the HUD reads the position live there
+    unit_at: int = field(default=0, compare=False)  # the unit record's address: its mode and path (hud/dots.py)
 
     @property
     def leader(self) -> bool:

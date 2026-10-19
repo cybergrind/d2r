@@ -3,9 +3,9 @@
 import threading
 
 from inventory_tracking.appraisal.load import LoadMeter, main, summary
-from inventory_tracking.combat.record import Recorder, Sample
-from inventory_tracking.combat.takes import Take
-from inventory_tracking.macros.game.records import World
+from inventory_tracking.game.records import World
+from inventory_tracking.takes.record import Recorder, Sample
+from inventory_tracking.takes.takes import Take
 from tests.inventory_tracking.macros.fakes import player
 
 
@@ -119,7 +119,7 @@ def test_the_take_manifest_carries_the_services_switch_interval(tmp_path, monkey
     import contextlib
     import sys
 
-    from inventory_tracking.combat import record
+    from inventory_tracking.takes import record
 
     class Keyboard:
         def connect(self, exclusive=False):

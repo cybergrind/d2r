@@ -6,9 +6,9 @@ from dataclasses import replace
 
 import pytest
 
+from inventory_tracking.game.records import Pack
 from inventory_tracking.macros.act import NOT_DONE, Action, Failed, perform, until
 from inventory_tracking.macros.actuator import Cancelled
-from inventory_tracking.macros.game.records import Pack
 from tests.inventory_tracking.macros.fakes import Game, world
 
 

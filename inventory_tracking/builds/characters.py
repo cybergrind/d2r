@@ -11,8 +11,8 @@ from dataclasses import replace
 
 from inventory_tracking.builds.warlock.echoing_strike.build import ECHOING_STRIKE_BUILD
 from inventory_tracking.builds.warlock.skills import ECHOING_STRIKE
+from inventory_tracking.game.records import World
 from inventory_tracking.macros.build import Build, Loadout
-from inventory_tracking.macros.game.records import World
 
 
 # CybergrindAA: Heart of the Oak (Flail) and Spirit (Monarch) for both. The other set held Naj's Puzzler for its

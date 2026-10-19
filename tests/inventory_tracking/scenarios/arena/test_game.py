@@ -13,14 +13,14 @@ from itertools import pairwise
 import pytest
 
 from inventory_tracking.builds.warlock.skills import ECHOING_STRIKE
-from inventory_tracking.combat.timeline import GAME_RATE
 from inventory_tracking.config import PLAYER_HEALING
-from inventory_tracking.macros.game.layout import FULL_REJUVENATION, NO_OWNER, SUPER_HEALING
-from inventory_tracking.macros.game.records import HEALING, Loot, Teleport
+from inventory_tracking.game.layout import FULL_REJUVENATION, NO_OWNER, SUPER_HEALING
+from inventory_tracking.game.records import HEALING, Loot, Teleport
 from inventory_tracking.macros.routines import DEAD
 from inventory_tracking.macros.skills import SWAP_WEAPONS, TELEPORT
 from inventory_tracking.macros.view import Viewport
 from inventory_tracking.models import Outcome, PotionType
+from inventory_tracking.takes.timeline import GAME_RATE
 from tests.inventory_tracking.macros.fakes import KEYS, OTHER_SET, PREBUFF_SET, WINDOW
 from tests.inventory_tracking.scenarios.arena.evidence.sure import sure
 from tests.inventory_tracking.scenarios.arena.game import OSD, POTIONS, SERVE, Arena

@@ -1,6 +1,10 @@
 """Valuable runes, materials (loot/materials.py) and expensive uniques on the ground, from streamed
 item units (only items near the player exist).
 
+A look walks the item table once (game/units.py) and reads each ground item's place and data once (`on_ground`);
+the classifiers (`runes_among`, `materials_among`, `shown_among`, `uniques_among`, `sightings_among`) are pure
+functions of those rows. Each `ground_*` function is one of them over a walk of its own.
+
 Item modes: 0 stored, 1 equipped, 2 belt (confirmed here, layout.py/layout_notes.md); 3 on
 the ground and 5 dropping per MapAssist ItemMode. Position is the item's static path x/y
 (+0x10/+0x14, as for objects) in world units. Ground mode and position are UNCONFIRMED on this
@@ -20,9 +24,11 @@ chests are ordinary jungle chests; the level guide marks those (levels/handlers/
 """
 
 import struct
+from contextlib import suppress
 from dataclasses import dataclass, field
 from typing import ClassVar
 
+from inventory_tracking.game.units import walked
 from inventory_tracking.items.identity import (
     FLAGS_OFFSET,
     IDENTIFIED_FLAG,
@@ -39,7 +45,6 @@ from inventory_tracking.loot.shrines import SHRINE_NAMES
 from inventory_tracking.loot.uniques import BASES, unique_drop
 from inventory_tracking.native.layout import OBJECT_SHRINE_TABLE, OBJECT_SHRINE_TYPE
 from inventory_tracking.native.memory import game_read
-from inventory_tracking.native.units import walk_units
 
 
 OBJECT_UNIT, ITEM_UNIT = 2, 4
@@ -113,9 +118,8 @@ def static_position(read, unit):
 
 def nearby_super_chests(read, table_address) -> list[SuperChest]:
     """Closed glowing chests among the streamed object units."""
-    heads = struct.unpack('<128Q', read(table_address + OBJECT_UNIT * 1024, 1024))
     chests = []
-    for unit in walk_units(read, heads, OBJECT_UNIT)['units']:
+    for unit in walked(read, table_address, OBJECT_UNIT)['units']:
         if unit['txt_id'] != SPARKLY_CHEST or unit['mode'] != CLOSED_CHEST_MODE:
             continue
         try:
@@ -128,9 +132,8 @@ def nearby_super_chests(read, table_address) -> list[SuperChest]:
 
 def nearby_shrines(read, table_address, *, types: frozenset[int]) -> list[Shrine]:
     """Unused shrines of the wanted types among the streamed object units."""
-    heads = struct.unpack('<128Q', read(table_address + OBJECT_UNIT * 1024, 1024))
     shrines = []
-    for unit in walk_units(read, heads, OBJECT_UNIT)['units']:
+    for unit in walked(read, table_address, OBJECT_UNIT)['units']:
         if unit['mode'] != UNUSED_SHRINE_MODE:
             continue
         try:
@@ -148,9 +151,8 @@ def nearby_shrines(read, table_address, *, types: frozenset[int]) -> list[Shrine
 
 def item_units(read, table_address, class_ids) -> list[ItemSighting]:
     """Every streamed item unit of the given classes (terror/shards.py tells drops from carried ones)."""
-    heads = struct.unpack('<128Q', read(table_address + ITEM_UNIT * 1024, 1024))
     found = []
-    for unit in walk_units(read, heads, ITEM_UNIT)['units']:
+    for unit in walked(read, table_address, ITEM_UNIT)['units']:
         if unit['txt_id'] not in class_ids:
             continue
         try:
@@ -161,95 +163,143 @@ def item_units(read, table_address, class_ids) -> list[ItemSighting]:
     return found
 
 
-def ground_runes(read, table_address, *, minimum: str) -> list[GroundRune]:
-    heads = struct.unpack('<128Q', read(table_address + ITEM_UNIT * 1024, 1024))
-    runes = []
-    for unit in walk_units(read, heads, ITEM_UNIT)['units']:
-        if unit['mode'] not in GROUND_MODES or not is_valuable_rune(unit['txt_id'], minimum=minimum):
-            continue
-        try:
-            path = read(unit['path_pointer'], 0x18)
-        except OSError, ValueError:
-            continue
-        x, y = struct.unpack_from('<I', path, 0x10)[0] & 0xFFFF, struct.unpack_from('<I', path, 0x14)[0] & 0xFFFF
-        runes.append(GroundRune(unit['txt_id'], unit['unit_id'], x, y))
-    return runes
+@dataclass(frozen=True)
+class GroundItem:
+    """An item unit on the ground or dropping (GROUND_MODES) and what one look read of it, once for every
+    classifier below: its static path position and its ItemData's (quality, flags, table index at +0x34). Either
+    is None when the unit has no pointer to it or the read failed; the classifiers tell the two apart by the
+    unit's pointer where they treat them apart (`materials_among`)."""
+
+    unit: dict  # the walk's row (native/units.py `walk_units`)
+    at: tuple[int, int] | None
+    data: tuple[int, int, int] | None
+
+    @property
+    def txt(self) -> int:
+        return self.unit['txt_id']
+
+    @property
+    def unit_id(self) -> int:
+        return self.unit['unit_id']
 
 
-def ground_materials(read, table_address, classes: dict[int, str], appraised=frozenset()) -> list[GroundMaterial]:
+def on_ground(read, units) -> list[GroundItem]:
+    """The walked item units on the ground or dropping, in the walk's order, each read once (`GroundItem`)."""
+    found = []
+    for unit in units:
+        if unit['mode'] not in GROUND_MODES:
+            continue
+        at = data = None
+        if unit['path_pointer']:
+            with suppress(OSError, ValueError):
+                at = static_position(read, unit)
+        if unit['data_pointer']:
+            with suppress(OSError, ValueError):
+                raw = read(unit['data_pointer'], ITEM_DATA_SIZE)
+                fields = (QUALITY_OFFSET, FLAGS_OFFSET, IDENTITY_OFFSET)
+                quality, flags, table_id = (struct.unpack_from('<I', raw, offset)[0] for offset in fields)
+                data = (quality, flags, table_id)
+        found.append(GroundItem(unit, at, data))
+    return found
+
+
+def runes_among(ground: list[GroundItem], *, minimum: str) -> list[GroundRune]:
+    """The valuable runes (loot/runes.py) whose place was read."""
+    return [
+        GroundRune(item.txt, item.unit_id, *item.at)
+        for item in ground
+        if item.at is not None and is_valuable_rune(item.txt, minimum=minimum)
+    ]
+
+
+def materials_among(ground: list[GroundItem], classes: dict[int, str], appraised=frozenset()) -> list[GroundMaterial]:
     """Ground items of the given classes (class ID -> label, loot/materials.py). Of the `appraised`
     classes only the unidentified ones: an identified charm on the ground is one the player read and
-    dropped (an item whose flags cannot be read counts as unidentified)."""
-    heads = struct.unpack('<128Q', read(table_address + ITEM_UNIT * 1024, 1024))
+    dropped (an item whose flags cannot be read counts as unidentified). One with no path lies at (0, 0);
+    one whose path is unread is left out; one whose data is unread has quality 0."""
     found = []
-    for unit in walk_units(read, heads, ITEM_UNIT)['units']:
-        if unit['txt_id'] not in classes or unit['mode'] not in GROUND_MODES:
+    for item in ground:
+        if item.txt not in classes:
             continue
-        try:
-            x, y = static_position(read, unit) if unit['path_pointer'] else (0, 0)
-        except OSError, ValueError:
+        at = item.at if item.unit['path_pointer'] else (0, 0)
+        if at is None:
             continue
-        quality = flags = 0
-        if unit['data_pointer']:
-            # The quality for the pickup mode's rare rings (macros/pickmode.py), the flags for the appraised classes
-            try:
-                data = read(unit['data_pointer'], ITEM_DATA_SIZE)
-                quality = struct.unpack_from('<I', data, QUALITY_OFFSET)[0]
-                flags = struct.unpack_from('<I', data, FLAGS_OFFSET)[0]
-            except OSError, ValueError:
-                pass
-        if unit['txt_id'] in appraised and flags & IDENTIFIED_FLAG:
+        # The quality for the pickup mode's rare rings (macros/pickmode.py), the flags for the appraised classes
+        quality, flags, _ = item.data or (0, 0, 0)
+        if item.txt in appraised and flags & IDENTIFIED_FLAG:
             continue
-        found.append(GroundMaterial(classes[unit['txt_id']], unit['unit_id'], x, y, quality))
+        found.append(GroundMaterial(classes[item.txt], item.unit_id, *at, quality))
     return found
 
 
-def ground_shown(read, table_address, rules) -> list[GroundMaterial]:
-    """Ground items a rule of the loot filter shows (loot/shown.py `pickup_rules`)."""
-    heads = struct.unpack('<128Q', read(table_address + ITEM_UNIT * 1024, 1024))
+def shown_among(ground: list[GroundItem], rules) -> list[GroundMaterial]:
+    """Ground items a rule of the loot filter shows (loot/shown.py `pickup_rules`), read whole."""
     classes = frozenset().union(*(rule.classes for rule in rules))
     found = []
-    for unit in walk_units(read, heads, ITEM_UNIT)['units']:
-        if unit['mode'] not in GROUND_MODES or unit['txt_id'] not in classes:
+    for item in ground:
+        if item.txt not in classes or item.at is None or item.data is None:
             continue
-        try:
-            data = read(unit['data_pointer'], ITEM_DATA_SIZE)
-            x, y = static_position(read, unit)
-        except OSError, ValueError:
-            continue
-        quality, flags = (struct.unpack_from('<I', data, offset)[0] for offset in (QUALITY_OFFSET, FLAGS_OFFSET))
-        label = shown_label(rules, unit['txt_id'], quality, flags)
+        quality, flags, _ = item.data
+        label = shown_label(rules, item.txt, quality, flags)
         if label is not None:
-            found.append(GroundMaterial(label, unit['unit_id'], x, y, quality))
+            found.append(GroundMaterial(label, item.unit_id, *item.at, quality))
     return found
 
 
-def ground_uniques(read, table_address, *, minimum: float, rules=None) -> list[GroundUnique]:
+def uniques_among(ground: list[GroundItem], *, minimum: float, rules=None) -> list[GroundUnique]:
     """Unique- and set-quality ground items whose base has such an item asking `minimum` Ist or more.
 
     Not one the loot filter hides (`rules`, loot/shown.py; the filter's own by default): the filter
     goes by sales and the mark by asks, and a mark on a drop without a label points at nothing to click
     (user, 2026-10-12: Tarnhelm asked 2.58 Ist on 2026-09-18 and sold at a median of 0.20 on 2026-10-09)."""
     rules = filter_rules() if rules is None else rules
-    heads = struct.unpack('<128Q', read(table_address + ITEM_UNIT * 1024, 1024))
     uniques = []
-    for unit in walk_units(read, heads, ITEM_UNIT)['units']:
-        if unit['mode'] not in GROUND_MODES or unit['txt_id'] not in BASES:
+    for item in ground:
+        if item.txt not in BASES or item.at is None or item.data is None:
             continue
-        try:
-            data = read(unit['data_pointer'], ITEM_DATA_SIZE)
-            x, y = static_position(read, unit)
-        except OSError, ValueError:
+        quality, flags, table_id = item.data
+        if hides(rules, item.txt, quality):
             continue
-        quality = struct.unpack_from('<I', data, QUALITY_OFFSET)[0]
-        table_id = struct.unpack_from('<I', data, IDENTITY_OFFSET)[0]
-        identified = bool(struct.unpack_from('<I', data, FLAGS_OFFSET)[0] & IDENTIFIED_FLAG)
-        if hides(rules, unit['txt_id'], quality):
-            continue
-        label = unique_drop(unit['txt_id'], minimum=minimum, table_id=table_id, identified=identified, quality=quality)
+        identified = bool(flags & IDENTIFIED_FLAG)
+        label = unique_drop(item.txt, minimum=minimum, table_id=table_id, identified=identified, quality=quality)
         if label is not None:
-            uniques.append(GroundUnique(label, unit['unit_id'], x, y, table_id))
+            uniques.append(GroundUnique(label, item.unit_id, *item.at, table_id))
     return uniques
+
+
+def sightings_among(ground: list[GroundItem], class_ids) -> list[ItemSighting]:
+    """The ground items of the given classes as `item_units` sees them: one with no path at (0, 0), one whose path
+    is unread left out."""
+    found = []
+    for item in ground:
+        at = item.at if item.unit['path_pointer'] else (0, 0)
+        if item.txt in class_ids and at is not None:
+            found.append(ItemSighting(item.txt, item.unit_id, item.unit['mode'], *at))
+    return found
+
+
+def ground_items(read, table_address) -> list[GroundItem]:
+    """`on_ground` of a walk of its own of the item table."""
+    return on_ground(read, walked(read, table_address, ITEM_UNIT)['units'])
+
+
+def ground_runes(read, table_address, *, minimum: str) -> list[GroundRune]:
+    return runes_among(ground_items(read, table_address), minimum=minimum)
+
+
+def ground_materials(read, table_address, classes: dict[int, str], appraised=frozenset()) -> list[GroundMaterial]:
+    """`materials_among` of a walk of its own."""
+    return materials_among(ground_items(read, table_address), classes, appraised)
+
+
+def ground_shown(read, table_address, rules) -> list[GroundMaterial]:
+    """`shown_among` of a walk of its own."""
+    return shown_among(ground_items(read, table_address), rules)
+
+
+def ground_uniques(read, table_address, *, minimum: float, rules=None) -> list[GroundUnique]:
+    """`uniques_among` of a walk of its own."""
+    return uniques_among(ground_items(read, table_address), minimum=minimum, rules=rules)
 
 
 def observe_ground(
@@ -266,9 +316,10 @@ def observe_ground(
     """(location, valuable runes, marked spots: expensive uniques, materials, wanted shrines, then super chests)."""
     with game_read(pid, images, capture, changed='Game process changed during the ground read') as (read, table):
         location = player_location(read, table)
-        runes = ground_runes(read, table, minimum=minimum) if location else []
+        ground = ground_items(read, table) if location else []
+        runes = runes_among(ground, minimum=minimum)
         shrines = nearby_shrines(read, table, types=shrine_types) if location and shrine_types else []
         chests = nearby_super_chests(read, table) if location and super_chests else []
-        uniques = ground_uniques(read, table, minimum=unique_minimum) if location and unique_minimum is not None else []
-        found = ground_materials(read, table, materials, appraised_classes()) if location and materials else []
+        uniques = uniques_among(ground, minimum=unique_minimum) if location and unique_minimum is not None else []
+        found = materials_among(ground, materials, appraised_classes()) if location and materials else []
     return location, runes, [*uniques, *found, *shrines, *chests]

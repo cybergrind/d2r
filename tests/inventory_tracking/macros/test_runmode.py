@@ -13,13 +13,13 @@ from pathlib import Path
 from inventory_tracking.builds import pursuing
 from inventory_tracking.builds.warlock.movement import BLADE_WARP_SOURCE, MOVEMENT
 from inventory_tracking.builds.warlock.skills import BLADE_WARP
+from inventory_tracking.game.records import VALUABLE, Drop
 from inventory_tracking.levels.exits import passage_of
 from inventory_tracking.levels.handlers.river_of_flame import bridge_end
 from inventory_tracking.levels.model import Ground, Room, Target, Walkable
 from inventory_tracking.levels.presets import open_passage
 from inventory_tracking.macros import goals
 from inventory_tracking.macros.build import MoveFacts, NoWay, Step
-from inventory_tracking.macros.game.records import VALUABLE, Drop
 from inventory_tracking.macros.goals import (
     CLEAR_WAY,
     REACH,

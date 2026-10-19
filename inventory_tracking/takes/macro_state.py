@@ -5,7 +5,7 @@ whether attack mode is wanted, which routine works, the build chosen, how far th
 game and the mark the level card leads with. `snapshot` reads those off a `MacroRunner` without
 touching it (attribute reads from the recorder's thread; a value caught mid-change is of the frame
 before or the frame after, and the next snapshot rights it). The recorder writes the row as a `state`
-event when a take opens and whenever it differs from the one written last (combat/record.py), so an
+event when a take opens and whenever it differs from the one written last (takes/record.py), so an
 incident can be replayed "as it was" without anything taken from the log by hand.
 """
 

@@ -17,13 +17,13 @@ import pytest
 from inventory_tracking.builds.warlock.movement import WARP_SECONDS, WARP_SPEED
 from inventory_tracking.builds.warlock.skills import BLADE_WARP
 from inventory_tracking.combat.policy import RUN_MODES
-from inventory_tracking.combat.timeline import GAME_RATE
 from inventory_tracking.config import PLAYER_HEALING
 from inventory_tracking.macros.movement import TELEPORT_SECONDS
 from inventory_tracking.macros.routines import ACTING
 from inventory_tracking.macros.runner import ATTACK, PICKUP
 from inventory_tracking.macros.skills import TELEPORT
 from inventory_tracking.macros.teleport import MOVED, WALKING
+from inventory_tracking.takes.timeline import GAME_RATE
 from tests.inventory_tracking.macros.fakes import KEYS
 from tests.inventory_tracking.scenarios.arena.driver import Press, play
 from tests.inventory_tracking.scenarios.arena.evidence.sure import sure

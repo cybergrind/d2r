@@ -19,6 +19,21 @@ from inventory_tracking.builds.warlock.skills import (
     SIGIL_LETHARGY,
     SUMMON_DEFILER,
 )
+from inventory_tracking.game.layout import BANK, IDENTIFY_TOME
+from inventory_tracking.game.records import (
+    Carried,
+    Drop,
+    Loot,
+    Monster,
+    Pack,
+    Page,
+    Player,
+    StashView,
+    Stocked,
+    Teleport,
+    Thing,
+    World,
+)
 from inventory_tracking.input.keyboard import MODIFIER_NAMES
 from inventory_tracking.items.grid import CUBE_SIZE, INVENTORY_SIZE, STASH_SIZE, Grid
 from inventory_tracking.levels.memory import WAYPOINT_CLASSES
@@ -35,21 +50,6 @@ from inventory_tracking.macros.cube import (
     perfect_of,
 )
 from inventory_tracking.macros.engine import Run
-from inventory_tracking.macros.game.layout import BANK, IDENTIFY_TOME
-from inventory_tracking.macros.game.records import (
-    Carried,
-    Drop,
-    Loot,
-    Monster,
-    Pack,
-    Page,
-    Player,
-    StashView,
-    Stocked,
-    Teleport,
-    Thing,
-    World,
-)
 from inventory_tracking.macros.routines import screen_fraction
 from inventory_tracking.macros.shop import TRADE_ABOVE, VENDOR
 from inventory_tracking.macros.skills import SWAP_WEAPONS, TELEPORT

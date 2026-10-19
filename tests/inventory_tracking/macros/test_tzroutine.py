@@ -1,6 +1,7 @@
 """The Terror Zone leveling routine (macros/tzroutine.py): any zone's itinerary, each area's policy, and the game-level
 goals derived from the facts; the navigation controller (macros/navigation.py)."""
 
+from inventory_tracking.game.records import Teleport
 from inventory_tracking.macros.agenda import (
     COVER,
     ERRAND,
@@ -18,7 +19,6 @@ from inventory_tracking.macros.agenda import (
     LevelView,
     Objective,
 )
-from inventory_tracking.macros.game.records import Teleport
 from inventory_tracking.macros.movement import HOPS, WALKS, WARPS
 from inventory_tracking.macros.navigation import Abilities, means
 from inventory_tracking.macros.travel import LOOPED, LOOPED_TELEPORT

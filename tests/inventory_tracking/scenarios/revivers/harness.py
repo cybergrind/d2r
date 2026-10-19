@@ -38,9 +38,9 @@ from inventory_tracking.builds.warlock.echoing_strike.sim.input import BIRTH_LAG
 from inventory_tracking.combat.controller import LiveAim
 from inventory_tracking.combat.mechanics.tables import points_of
 from inventory_tracking.combat.policy import STRIKE_REACH, Choice, Foe, Observation, clear_line
-from inventory_tracking.combat.timeline import GAME_RATE
 from inventory_tracking.macros.hunt import ELITE_LIFE
 from inventory_tracking.macros.view import Viewport
+from inventory_tracking.takes.timeline import GAME_RATE
 
 
 Point = tuple[float, float]

@@ -22,7 +22,7 @@ first combat take after the restart).
    within the strike's reach in the take (in reach to dead; the take's kill event is her death's time). Trade
    sessions, trips for room and Gheed's swaps are phases of their own, counted with how often they come.
 3. **Walks on the down legs**: per level and game, the `W walks` of its `leg time` lines, the walking stretches of the
-   take (modes walk / run: combat/legs.py MOVING; those starting in the first second are the game's walk-out of the
+   take (modes walk / run: takes/legs.py MOVING; those starting in the first second are the game's walk-out of the
    stairs), the distance from the stairs' mark when the press was made and the way walked into them (`door Next
    level: ... walked X`); the worst games with their clock time.
 4. **The fight on Catacombs 4**: per game arrival to the kill, arrival to in reach, the strikes (Echoing Strike blade
@@ -86,8 +86,8 @@ from inventory_tracking.builds.warlock.echoing_strike.mechanics import (  # ruff
     MISSILE,
     RANGE,
 )
-from inventory_tracking.combat.legs import CASTING, MOVING  # ruff: ignore[module-import-not-at-top-of-file]
-from inventory_tracking.combat.takes import (  # ruff: ignore[module-import-not-at-top-of-file]
+from inventory_tracking.takes.legs import CASTING, MOVING  # ruff: ignore[module-import-not-at-top-of-file]
+from inventory_tracking.takes.takes import (  # ruff: ignore[module-import-not-at-top-of-file]
     Take,
     monsters_of,
     player_of,

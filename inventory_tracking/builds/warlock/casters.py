@@ -18,13 +18,13 @@ from inventory_tracking.builds.warlock.buffs import (
 from inventory_tracking.builds.warlock.defiler import DEFILER_RETRY
 from inventory_tracking.builds.warlock.skills import CONSUME, ENGORGE, SUMMON_DEFILER
 from inventory_tracking.common import LOG
+from inventory_tracking.game.layout import DEFILER_CLASS as DEFILER, NO_OWNER
+from inventory_tracking.game.records import Monster, Player, World
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.buffs import keys_of
 from inventory_tracking.macros.build import Caster, Casting, Tried
 from inventory_tracking.macros.cta import CASTERS as CTA_CASTERS
 from inventory_tracking.macros.engine import Run
-from inventory_tracking.macros.game.layout import DEFILER_CLASS as DEFILER, NO_OWNER
-from inventory_tracking.macros.game.records import Monster, Player, World
 from inventory_tracking.macros.pad import heading_degrees, turned
 from inventory_tracking.macros.routines import (
     ACTING,

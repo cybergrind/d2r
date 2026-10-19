@@ -3,7 +3,7 @@
 from pathlib import Path
 
 from inventory_tracking.builds.warlock.echoing_strike.compare import compare, lines, opportunities, row
-from inventory_tracking.combat.takes import Take, ground_under_pointer, monsters_of, player_of
+from inventory_tracking.takes.takes import Take, ground_under_pointer, monsters_of, player_of
 
 
 FIXTURES = Path(__file__).parents[3] / 'combat' / 'fixtures'  # trimmed takes of real play

@@ -9,10 +9,10 @@ from inventory_tracking.builds.warlock.casters import CASTERS, consume_again, su
 from inventory_tracking.builds.warlock.defiler import DEFILER_RETRY, defiler_missing, price, worth_a_defiler
 from inventory_tracking.builds.warlock.echoing_strike.build import ECHOING_STRIKE_BUILD
 from inventory_tracking.builds.warlock.skills import CONSUME, SUMMON_DEFILER
+from inventory_tracking.game.records import Monster
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.buffs import Buffs
 from inventory_tracking.macros.build import BuffFacts, Casting
-from inventory_tracking.macros.game.records import Monster
 from tests.inventory_tracking.macros.fakes import HUNT_SLOTS, Game, character_of, world
 
 

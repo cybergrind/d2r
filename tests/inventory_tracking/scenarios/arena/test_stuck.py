@@ -3,8 +3,8 @@
 from datetime import timedelta
 from pathlib import Path
 
-from inventory_tracking.combat.takes import Take
 from inventory_tracking.macros.teleport import MOVED
+from inventory_tracking.takes.takes import Take
 from tests.inventory_tracking.scenarios.arena.moments import Moment
 from tests.inventory_tracking.scenarios.arena.stuck import offset, presses, stuck
 from tests.inventory_tracking.scenarios.stance.build_fixtures import LOCAL_OFFSET

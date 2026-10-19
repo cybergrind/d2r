@@ -239,7 +239,7 @@ VISIT_STOPS = re.compile(r'Macro: trade session done.*\(cain (\S+), stash \S+, j
 # terror/bosses.py:124 BossTracker.apply `'Boss kill: %s, %s this launch'`.
 # 2026-10-18 15:59:24,412 INFO Boss kill: Andariel, 284 this launch
 KILL = re.compile(r'Boss kill: Andariel, \d+ this launch')
-# A combat take opened: (take, area). combat/record.py:767 Recorder.open `'Combat take %s opened in area %d'`.
+# A combat take opened: (take, area). takes/record.py:767 Recorder.open `'Combat take %s opened in area %d'`.
 # 2026-10-18 15:58:36,182 INFO Combat take 20261018T125836Z-37 opened in area 37
 OPENED = re.compile(r'Combat take (\S+) opened in area (\d+)')
 # The next game made: (its name). routines.py:500 create_next_game `run.say(f'Creating {name}')`.

@@ -9,9 +9,9 @@ from inventory_tracking.builds.warlock.echoing_strike.attack import ECHOING_STRI
 from inventory_tracking.builds.warlock.echoing_strike.damage import link_table
 from inventory_tracking.combat.mechanics.tables import points_of
 from inventory_tracking.combat.policy import AIM_BEYOND, Foe, NearestPolicy, Observation, clear_line, observe, walls
+from inventory_tracking.game.records import Monster, Player
 from inventory_tracking.levels.doors import Door
 from inventory_tracking.levels.model import Ground, Walkable, pack_cells
-from inventory_tracking.macros.game.records import Monster, Player
 
 
 HERE = (5000.0, 5000.0)

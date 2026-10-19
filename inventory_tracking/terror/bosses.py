@@ -29,6 +29,7 @@ from pathlib import Path
 from statistics import median_low
 
 from inventory_tracking.common import LOG
+from inventory_tracking.game.layout import SUPER_FLAG as SUPER_UNIQUE_FLAG, TYPE_FLAGS
 
 
 # time.monotonic() of each boss's last kill this service saw (the KP_6 loop waits for a boss's drops to land from it:
@@ -51,7 +52,6 @@ BOSSES = {
 # below it, at the top of the Bloody Foothills): each the only super unique of its class
 # (2026-10-06). Their packs and the area's own Enslaved are the same classes without the flag.
 SUPER_UNIQUES = {440: 'Pindleskin', 45: 'Countess', 453: 'Eldritch', 479: 'Shenk'}
-TYPE_FLAGS, SUPER_UNIQUE_FLAG = 0x1A, 0x02  # monster data byte
 OUTLIER = 2.5  # times the median gap: longer is a break
 IDLE_SECONDS, IDLE_GAPS = 600, 3  # without a kill for this long: no longer farmed, not shown
 MAX_KILLS = 500  # kill times kept per boss

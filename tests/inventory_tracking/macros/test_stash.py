@@ -4,10 +4,10 @@ from dataclasses import replace
 
 import pytest
 
+from inventory_tracking.game.layout import BANK
+from inventory_tracking.game.records import Carried, Pack, Thing
 from inventory_tracking.items.metadata import metadata
 from inventory_tracking.macros.cube import CUBE_CLASS, overflow, own_of
-from inventory_tracking.macros.game.layout import BANK
-from inventory_tracking.macros.game.records import Carried, Pack, Thing
 from inventory_tracking.macros.stash import GEMS_TAB, RESOURCES, STASH_CUBE, Pages, open_stash, resources, unload
 from inventory_tracking.macros.waypoint import panel_point
 from tests.inventory_tracking.macros.fakes import Game, player, world
@@ -201,7 +201,7 @@ def test_a_refused_potion_is_never_a_full_stack():
 
 
 def deposit_game(dialog: bool):
-    from inventory_tracking.macros.game.records import Loot
+    from inventory_tracking.game.records import Loot
 
     play = Game(world(103, open_panels=('inventory', 'stash')))
     play.loot = Loot(stats=((12, 94), (14, 924_000), (15, 9_000_000)))

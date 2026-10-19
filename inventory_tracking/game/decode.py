@@ -12,22 +12,7 @@ from pathlib import Path
 
 from inventory_tracking.collection.capture import is_shared_candidate, read_owner_grids
 from inventory_tracking.common import LOG
-from inventory_tracking.items.grid import CUBE_GRID, INVENTORY_GRID, STASH_GRID, STASH_SIZE, Grid
-from inventory_tracking.items.identity import (
-    ETHEREAL_FLAG,
-    FLAGS_OFFSET,
-    IDENTIFIED_FLAG,
-    IDENTITY_OFFSET,
-    ITEM_DATA_SIZE,
-    QUALITY_OFFSET,
-    SOCKETED_FLAG,
-)
-from inventory_tracking.items.metadata import item_base, metadata
-from inventory_tracking.items.stat_constants import StatId
-from inventory_tracking.levels.doors import Door, door_sizes
-from inventory_tracking.levels.memory import WAYPOINT_CLASSES, pointer
-from inventory_tracking.levels.model import CLICKED, PORTAL, TOWN_PORTAL, WIRTS_BODY
-from inventory_tracking.macros.game.layout import (
+from inventory_tracking.game.layout import (
     ALIGNMENT_STAT,
     BANK,
     BASE_STATS,
@@ -42,7 +27,6 @@ from inventory_tracking.macros.game.layout import (
     HERALD_TIER_STAT,
     HEX_PURGE_BIT,
     IDENTIFY_TOME,
-    ITEM_UNIT,
     KEY_STACK,
     KEY_STATS,
     LAYERED_SKILLS,
@@ -87,7 +71,7 @@ from inventory_tracking.macros.game.layout import (
     UNIT_FLAGS,
     UNIT_SLOTS,
 )
-from inventory_tracking.macros.game.records import (
+from inventory_tracking.game.records import (
     VALUABLE,
     Carried,
     Drop,
@@ -102,6 +86,21 @@ from inventory_tracking.macros.game.records import (
     Warp,
     _rows,
 )
+from inventory_tracking.items.grid import CUBE_GRID, INVENTORY_GRID, STASH_GRID, STASH_SIZE, Grid
+from inventory_tracking.items.identity import (
+    ETHEREAL_FLAG,
+    FLAGS_OFFSET,
+    IDENTIFIED_FLAG,
+    IDENTITY_OFFSET,
+    ITEM_DATA_SIZE,
+    QUALITY_OFFSET,
+    SOCKETED_FLAG,
+)
+from inventory_tracking.items.metadata import item_base, metadata
+from inventory_tracking.items.stat_constants import StatId
+from inventory_tracking.levels.doors import Door, door_sizes
+from inventory_tracking.levels.memory import WAYPOINT_CLASSES, pointer
+from inventory_tracking.levels.model import CLICKED, PORTAL, TOWN_PORTAL, WIRTS_BODY
 from inventory_tracking.native.layout import (
     DEAD_MODES,
     KEY_CLASS_ID,
@@ -178,6 +177,14 @@ def skill_in_use(read, record: bytes) -> bytes:
         return b''
 
 
+def monster_table(read, table: int, *, records: bool = False) -> dict:
+    """The monster slot of the unit table walked (native/units.py `walk_units`: 'units', 'complete'): where every
+    reader of monsters starts, the look's (`monsters_and_dead`, `corpses`) and the Terror Zone probe's
+    (terror/monsters.py `monster_units`), which read different parts of each unit (game/records.py `Monster`)."""
+    heads = struct.unpack('<128Q', read(table + MONSTER_UNIT * 1024, 1024))
+    return walk_units(read, heads, MONSTER_UNIT, records=records)
+
+
 def monsters(
     read, table: int, *, dead: bool = False, paths: bool = False, records: bool = False
 ) -> tuple[Monster, ...]:
@@ -191,10 +198,9 @@ def monsters_and_dead(
     read, table: int, *, dead: bool = False, paths: bool = False, records: bool = False
 ) -> tuple[tuple[Monster, ...], frozenset[int]]:
     """`monsters`, and the unit ids of the monsters lying dead (from the same walk of the unit table)."""
-    heads = struct.unpack('<128Q', read(table + MONSTER_UNIT * 1024, 1024))
     found = []
     corpses = set()
-    for unit in walk_units(read, heads, MONSTER_UNIT, records=records)['units']:
+    for unit in monster_table(read, table, records=records)['units']:
         if unit['mode'] in DEAD_MODES:
             corpses.add(unit['unit_id'])
         if (unit['mode'] in DEAD_MODES and not dead) or not unit['path_pointer'] or not unit['data_pointer']:
@@ -239,9 +245,8 @@ def monsters_and_dead(
 def corpses(read, table: int) -> tuple[tuple[int, float, float], ...]:
     """The monsters lying dead (mode 12, the death animation over) as (unit id, x, y), world units.
     Its own walk of the unit table: asked for now and then (Engorge), not at every look at the world."""
-    heads = struct.unpack('<128Q', read(table + MONSTER_UNIT * 1024, 1024))
     found = []
-    for unit in walk_units(read, heads, MONSTER_UNIT)['units']:
+    for unit in monster_table(read, table)['units']:
         if unit['mode'] != LYING_DEAD or not unit['path_pointer']:
             continue
         with contextlib.suppress(OSError, ValueError):
@@ -251,7 +256,7 @@ def corpses(read, table: int) -> tuple[tuple[int, float, float], ...]:
 
 @functools.cache
 def item_sizes() -> dict[int, tuple[int, int]]:
-    table = json.loads((Path(__file__).parents[2] / 'loot' / 'data' / 'sizes.json').read_text())
+    table = json.loads((Path(__file__).parents[1] / 'loot' / 'data' / 'sizes.json').read_text())
     return {int(class_id): (size[0], size[1]) for class_id, size in table['sizes'].items()}
 
 
@@ -260,15 +265,11 @@ def item_size(class_id: int | None) -> tuple[int, int]:
     return item_sizes().get(class_id, (1, 1)) if class_id is not None else (1, 1)
 
 
-def carried_rows(
-    read, table: int, player_id: int
-) -> tuple[tuple[str, ...] | None, tuple[str, ...] | None, frozenset[int]]:
+def carried_rows(read, unit: dict | None) -> tuple[tuple[str, ...] | None, tuple[str, ...] | None, frozenset[int]]:
     """The rows of the carried inventory and of the Horadric Cube, '.' a free cell, and the item pointers of all
     the character's grids (`held_items`), from one read of them; the rows None when they cannot be read (no cube:
-    no grid of it)."""
+    no grid of it). `unit`: the character's walked player unit; None when the walk did not find it."""
     try:
-        heads = struct.unpack('<128Q', read(table, 1024))
-        unit = next((u for u in walk_units(read, heads, 0)['units'] if u['unit_id'] == player_id), None)
         grids = read_owner_grids(read, unit) if unit is not None else {}
     except OSError, ValueError, struct.error:
         return None, None, frozenset()
@@ -335,17 +336,15 @@ def stash_view_of(
     return StashView(tuple(pages), tuple(sorted(stacks.items())))
 
 
-def carried_items(read, table: int, player_id: int) -> Pack | None:
+def carried_items(read, unit: dict | None, items: Sequence[dict]) -> Pack | None:
     """The carried inventory's items, each at the first cell (row by row) its pointer lies on, and the cube's rows,
-    from one read of the character's grids (`carried_rows`); None when they cannot be read."""
+    from one read of the character's grids (`carried_rows`); None when they cannot be read. `unit`: the character's
+    walked player unit (None: not found), `items`: the walked item units."""
     try:
-        heads = struct.unpack('<128Q', read(table, 1024))
-        unit = next((u for u in walk_units(read, heads, 0)['units'] if u['unit_id'] == player_id), None)
         grids = read_owner_grids(read, unit) if unit is not None else {}
-        item_heads = struct.unpack('<128Q', read(table + ITEM_UNIT * 1024, 1024))
-        by_address = {u['address']: u for u in walk_units(read, item_heads, ITEM_UNIT)['units']}
     except OSError, ValueError, struct.error:
         return None
+    by_address = {u['address']: u for u in items}
     pack = pack_of(grids, by_address)
     if pack is None:
         return None
@@ -526,7 +525,7 @@ def container_table() -> dict[int, tuple[str, frozenset[int]]]:
     """Object class id -> (objects.txt Class, the modes it can be clicked or struck in) of what is opened
     for what it holds: chests, caskets, urns, corpses and the like (data/containers.json,
     macros/build_containers.py)."""
-    data = json.loads((Path(__file__).parents[1] / 'data' / 'containers.json').read_text())
+    data = json.loads((Path(__file__).parents[1] / 'macros' / 'data' / 'containers.json').read_text())
     return {int(txt): (row['class'], frozenset(row['modes'])) for txt, row in data['containers'].items()}
 
 
@@ -756,8 +755,13 @@ def mouse_skills(read, unit_address: int) -> tuple[int | None, int | None]:
 def local_player(read, table: int) -> Player | None:
     """The character played, among the player units; None in menus or when it cannot be told."""
     heads = struct.unpack('<128Q', read(table, 1024))
+    return player_among(read, walk_units(read, heads, 0, records=True)['units'])
+
+
+def player_among(read, units: Sequence[dict]) -> Player | None:
+    """`local_player` of the walked player units (their records read: `walk_units` records=True)."""
     found = []
-    for unit in walk_units(read, heads, 0, records=True)['units']:
+    for unit in units:
         if not unit['path_pointer']:
             continue
         try:

@@ -28,8 +28,9 @@ it is in them already (sim/casters.py's module text; rca/2026-10-13/sim-casters.
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 
+from inventory_tracking.game.layout import UNIQUE_FLAG  # the type flag the routine tests (monster data +0x1A bit 3)
 
-UNIQUE_FLAG = 0x08  # the type flag the routine tests (monster data +0x1A bit 3; macros/game/layout.py LEADER_FLAGS)
+
 UNIQUE_STUN = 0.10  # [code] ai_d2_stun_apply 0x14038C2F0: a monster with type flag 8 only when roll % 100 >= 90
 STUN_MOST = 250  # [code] frames: the same routine's cap
 # [table] monstats.txt rows with `boss` 1 (pricing/raw/game-excel, the extraction of 2026-10-13): never stunned

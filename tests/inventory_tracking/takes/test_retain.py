@@ -1,12 +1,12 @@
-"""How much of the takes is kept (combat/retain.py): packed when closed, the oldest removed past a size."""
+"""How much of the takes is kept (takes/retain.py): packed when closed, the oldest removed past a size."""
 
 import gzip
 import json
 
-from inventory_tracking.combat.record import Recorder, Sample
-from inventory_tracking.combat.retain import died, over, pack, recordings, size, tidy
-from inventory_tracking.combat.takes import Take
-from inventory_tracking.macros.game.records import World
+from inventory_tracking.game.records import World
+from inventory_tracking.takes.record import Recorder, Sample
+from inventory_tracking.takes.retain import died, over, pack, recordings, size, tidy
+from inventory_tracking.takes.takes import Take
 from tests.inventory_tracking.macros.fakes import player
 
 

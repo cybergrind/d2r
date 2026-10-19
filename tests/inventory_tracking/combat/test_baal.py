@@ -11,7 +11,7 @@ from inventory_tracking.combat.sim import baal as rules, casters
 from inventory_tracking.combat.sim.monsters import Pack, Walker
 from inventory_tracking.combat.threats import baal as threat
 from inventory_tracking.combat.threats.diablo import Way
-from inventory_tracking.macros.game.records import Monster
+from inventory_tracking.game.records import Monster
 from inventory_tracking.macros.safety import in_flight
 
 

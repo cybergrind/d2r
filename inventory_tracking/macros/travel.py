@@ -29,13 +29,13 @@ from functools import partial
 
 from inventory_tracking.combat.stance import RUN_SPEED, WALK_LATENCY, Camp, Jump, no_footing, way
 from inventory_tracking.common import LOG
+from inventory_tracking.game.layout import NO_OWNER
+from inventory_tracking.game.records import Monster, Player, Teleport, World
 from inventory_tracking.levels.doors import Door
 from inventory_tracking.levels.model import Ground, Room, Target, Walkable
 from inventory_tracking.macros.actuator import Abort, Cancelled, Expired, Hand
 from inventory_tracking.macros.build import Intent, Leg, MoveFacts, MovementSet, NoWay, Step, nowhere
 from inventory_tracking.macros.engine import Run
-from inventory_tracking.macros.game.layout import NO_OWNER
-from inventory_tracking.macros.game.records import Monster, Player, Teleport, World
 from inventory_tracking.macros.routines import ACTING, DEAD, ONE_CAST, SWAP_SETTLE, press_skill, settle
 from inventory_tracking.macros.sight import clear_shot
 from inventory_tracking.macros.skills import TELEPORT, skill_name
@@ -70,7 +70,7 @@ HOVER_UNITS = 12.0  # a monster named as under the pointer stands this near the 
 JUMP_REACH = 26.0  # units of a jump: in view, and within the blade's range
 JUMP_LEAST = 8.0  # a stride shorter than this is walked
 JUMP_SECONDS = 1.5  # for the character to be seen somewhere else after the key
-# A jump's casting delay (`JumpSource.delay`) as the game shows it: the character's state 185 (macros/game/
+# A jump's casting delay (`JumpSource.delay`) as the game shows it: the character's state 185 (game/
 # `Player.cooldown`) is set at the cast's action frame and cleared when the delay is over. Blade Warp in the
 # four takes of 21:42 on 2026-10-13, 123 keys counted from the key's down: set after 0.17 to 0.24 s (p10 to p90;
 # p99 0.35, the most 0.40), cleared after 0.96 to 1.03 s (p50 1.00; p99 1.09 in a clean take, 1.17 with the

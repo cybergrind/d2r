@@ -16,11 +16,11 @@ from typing import Any
 
 from inventory_tracking.builds.warlock.echoing_strike.damage import damage_table
 from inventory_tracking.builds.warlock.echoing_strike.sim.situation import cut
-from inventory_tracking.combat.analysis import combat_time
 from inventory_tracking.combat.mechanics.tables import points_of
 from inventory_tracking.combat.policy import RUN_MODES, Foe, NearestPolicy, Observation
-from inventory_tracking.combat.takes import LIFE_SCALE, Take
 from inventory_tracking.macros.routines import ACTING
+from inventory_tracking.takes.analysis import combat_time
+from inventory_tracking.takes.takes import LIFE_SCALE, Take
 
 
 LEAST_COMBAT_SECONDS = 10.0  # a take with less combat than this says nothing

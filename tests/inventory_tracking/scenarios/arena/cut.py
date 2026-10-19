@@ -34,7 +34,7 @@ Where each field of a `Scene` comes from, checked against the takes of 2026-10-1
     its Herald's tier (the tables' `heralds`). A type without a monstats row has the area's base.
 (4) A unit's stat list is there for 98.7% of the units, a tier on 57 units of 9 takes. `mods` are in
     `units.jsonl` since 2026-10-11 22:23 UTC (32 takes); before, they are looked up in the session's
-    terror probe log (combat/hurts.py `enchantments`) and handed to `cut`.
+    terror probe log (takes/hurts.py `enchantments`) and handed to `cut`.
 (5) 27 takes have no level file. Also refused: a level file of another area than the character is
     in, and no ground within `reach`.
 
@@ -56,14 +56,14 @@ from typing import Any
 from inventory_tracking.builds.characters import CHARACTERS
 from inventory_tracking.builds.warlock.buffs import ENGORGE_REACH
 from inventory_tracking.combat.mechanics.tables import area_level, monster_points, points_of, tables
-from inventory_tracking.combat.record import RESIST_STATS
 from inventory_tracking.combat.sim.monsters import MINION, PLAIN, rank_of
-from inventory_tracking.combat.takes import MonsterRow, Take, monsters_of, player_of
+from inventory_tracking.game.layout import FULL_REJUVENATION, HERALD_TIER_STAT, NO_OWNER, SUPER_HEALING
 from inventory_tracking.macros.cta import BATTLE_ORDERS
-from inventory_tracking.macros.game.layout import FULL_REJUVENATION, HERALD_TIER_STAT, NO_OWNER, SUPER_HEALING
 from inventory_tracking.macros.rotation import ELITE_LIFE
 from inventory_tracking.macros.routines import DEAD
 from inventory_tracking.native.layout import TILE_UNITS
+from inventory_tracking.takes.record import RESIST_STATS
+from inventory_tracking.takes.takes import MonsterRow, Take, monsters_of, player_of
 from inventory_tracking.terror.monsters import LEVEL_STAT
 from tests.inventory_tracking.macros.fakes import HUNT_SLOTS, OTHER_SET, PREBUFF_SET
 from tests.inventory_tracking.scenarios.arena.scene import Hero, Mob, Scene, WeaponSet
@@ -226,7 +226,7 @@ def cut(
 ) -> Scene:
     """The scene of frame `frame` (an index into `take.frames`). What a take does not hold is the
     `defaults`' and is named in the scene's `assumed`. `mods` (unit id -> monumod ids) are the
-    enchantments of a take recorded before it held them (combat/hurts.py `enchantments`); `reach` is
+    enchantments of a take recorded before it held them (takes/hurts.py `enchantments`); `reach` is
     how far from the character ground and monsters are kept. A frame that cannot make a sound scene
     is refused with a ValueError that says why (`Refused`, whose `reason` is the kind)."""
     label = take.directory.name

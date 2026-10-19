@@ -12,8 +12,8 @@ from inventory_tracking.builds.warlock.mark import DEATH_MARK_DRAW
 from inventory_tracking.builds.warlock.movement import MOVEMENT
 from inventory_tracking.builds.warlock.skills import ECHOING_STRIKE
 from inventory_tracking.builds.warlock.ward import PSYCHIC_WARD_GUARD
+from inventory_tracking.game.records import World
 from inventory_tracking.macros.build import Build, Shield
-from inventory_tracking.macros.game.records import World
 
 
 def strikes(world: World) -> bool:

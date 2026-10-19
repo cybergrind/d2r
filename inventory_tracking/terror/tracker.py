@@ -43,6 +43,16 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from inventory_tracking.common import LOG
+from inventory_tracking.game.layout import (
+    ALIGNMENT_STAT,
+    CHAMPION_FLAG,
+    HERALD_TIER_STAT,
+    LEADER_FLAGS,
+    MINION_FLAG,
+    MODIFIERS,
+    SUPER_FLAG,
+    TYPE_FLAGS,
+)
 from inventory_tracking.levels.geometry import Pointer
 from inventory_tracking.levels.map_card import MapPoi
 from inventory_tracking.native.layout import DEAD_MODES, TILE_UNITS, TOWN_IDS
@@ -53,15 +63,7 @@ from inventory_tracking.terror.danger import Pack, Unit, packs, table
 from inventory_tracking.terror.zones import GROUPS, HeraldGroup, group_of, group_population
 
 
-ALIGNMENT_STAT = 172
-HERALD_TIER_STAT = 367
 MAX_TIER = 5
-TYPE_FLAGS = 0x1A  # monster data byte
-MINION_FLAG = 0x10
-# Type flags of a pack leader, from the probe logs (2026-10-02/03): 0x08 unique (Heralds too),
-# 0x0c champion, 0x0a super unique, 0x4c ghostly champion; minions carry 0x10 alone.
-LEADER_FLAGS = 0x02 | 0x04 | 0x08
-SUPER_FLAG, CHAMPION_FLAG = 0x02, 0x04
 # Monster data u16: a super unique's superuniques.txt hcIdx (probe logs to 2026-10-06: 36-38 on the
 # seal bosses, 61-65 on Baal's waves, 52 on Pindleskin).
 SUPER_ID = 0x2A
@@ -70,8 +72,7 @@ SUPER_ID = 0x2A
 # 2026-10-12). A boss that is also a super unique is named by its superuniques.txt row, with or
 # without the super unique flag on its unit (the Summoner carries the unique flag only).
 SLAIN_BOSSES = {**BOSSES, 250: 'The Summoner', 526: 'Nihlathak Boss', 267: 'Blood Raven'}
-FIRST_MODIFIER = 0x20  # monster data byte: first special modifier (monumod.json id)
-MODIFIER_SLOTS = 9  # modifier bytes from there on; 0 = none (uniques show 3 in Hell, minions 2)
+FIRST_MODIFIER = MODIFIERS.start  # monster data byte: first special modifier (monumod.json id)
 AURA_MODIFIER = 30  # aura enchanted: the monster's aura is its own
 # itemstatcost.txt `modifierlist_skill` / `modifierlist_level`: the aura a monster carries, its own
 # or one it stands in (all 1,223 aura-enchanted uniques of the probe logs to 2026-10-06 have them).
@@ -138,7 +139,7 @@ def data_byte(event, offset) -> int | None:
 
 def modifiers(event) -> tuple[int, ...]:
     data = event.get('data_hex') or ''
-    found = bytes.fromhex(data[2 * FIRST_MODIFIER : 2 * (FIRST_MODIFIER + MODIFIER_SLOTS)])
+    found = bytes.fromhex(data[2 * MODIFIERS.start : 2 * MODIFIERS.stop])
     return tuple(modifier for modifier in found if modifier)
 
 
@@ -479,8 +480,8 @@ class ZoneTracker:
         self.player_states = states or frozenset()
         # Only units the client holds now: one that left its range keeps its dot, but the game frees
         # its path and reuses the memory for other units, missiles included (RCA 2026-10-05).
-        self.paths = {monster.unit_id: monster.path for monster in monsters if monster.path}
-        self.units = {monster.unit_id: monster.unit for monster in monsters if getattr(monster, 'unit', 0)}
+        self.paths = {monster.unit_id: monster.path_at for monster in monsters if monster.path_at}
+        self.units = {monster.unit_id: monster.unit_at for monster in monsters if monster.unit_at}
         if location is not None:
             self.explore(location)
         for monster in monsters:

@@ -18,9 +18,9 @@ from dataclasses import dataclass
 from typing import overload
 
 from inventory_tracking.common import LOG
+from inventory_tracking.game.records import World
 from inventory_tracking.macros.actuator import Abort, Cancelled
 from inventory_tracking.macros.engine import Run
-from inventory_tracking.macros.game.records import World
 
 
 __all__ = ['NOT_DONE', 'Action', 'Failed', 'Outcome', 'perform', 'until']

@@ -304,7 +304,7 @@ the viewer always was; a situation: the map about 60% of the width, the macro co
 
 ## Checking it
 
-- The exporter: `uv run --offline pytest tests/inventory_tracking/combat/test_viz.py tests/inventory_tracking/combat/test_viz_moments.py -q`.
+- The exporter: `uv run --offline pytest tests/inventory_tracking/combat/test_viz.py tests/inventory_tracking/takes/test_viz_moments.py -q`.
 - The viewer without a person: `make combat-view-check` prints one line of state per key and per take; a
   script error would show as a `SCRIPT ERROR` line.
 - A picture without a person: `godot --path combat_viewer -- <take.json> --tick=1040 --policy=live

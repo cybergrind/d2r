@@ -23,7 +23,7 @@ from itertools import pairwise
 from pathlib import Path
 
 from inventory_tracking.builds.warlock.echoing_strike.attack import REACH
-from inventory_tracking.combat.takes import ground_under_pointer
+from inventory_tracking.takes.takes import ground_under_pointer
 from inventory_tracking.terror.danger import DANGER, Unit, table, threat
 
 

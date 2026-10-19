@@ -89,7 +89,7 @@ from inventory_tracking.combat.sim.monsters import (
     shoots,
     swing_of,
 )
-from inventory_tracking.combat.timeline import GAME_RATE
+from inventory_tracking.takes.timeline import GAME_RATE
 from tests.inventory_tracking.scenarios.arena.cut import MAIN
 from tests.inventory_tracking.scenarios.arena.evidence.fit import EVIDENCE, SPARKS, SWINGS, middle
 from tests.inventory_tracking.scenarios.arena.evidence.model import FLAGS, SPARKS_BEFORE, SWINGS_BEFORE

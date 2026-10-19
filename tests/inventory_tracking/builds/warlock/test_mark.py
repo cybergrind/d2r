@@ -17,8 +17,8 @@ from inventory_tracking.builds.warlock.mark import (
     worth_a_mark,
 )
 from inventory_tracking.builds.warlock.skills import DEATH_MARK
+from inventory_tracking.game.records import Monster
 from inventory_tracking.macros.build import BuffFacts, DrawPrice
-from inventory_tracking.macros.game.records import Monster
 from tests.inventory_tracking.macros.fakes import HUNT_SLOTS, world
 
 

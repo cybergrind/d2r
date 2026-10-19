@@ -25,7 +25,7 @@ A leg runs from the character's arrival, or the last container opened, to the ne
 - `away`: the units moved that took the character further from the leg's container: going back ("backtracking
   movements").
 
-Read-only, over the takes on disk (combat/record.py writes them): `python -m inventory_tracking.combat.legs <take>...`.
+Read-only, over the takes on disk (takes/record.py writes them): `python -m inventory_tracking.takes.legs <take>...`.
 """
 
 import argparse
@@ -40,7 +40,7 @@ from collections.abc import Iterable, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from inventory_tracking.combat.takes import Take
+from inventory_tracking.takes.takes import Take
 
 
 __all__ = ['Leg', 'Quiet', 'legs_of', 'main', 'quiet', 'report']

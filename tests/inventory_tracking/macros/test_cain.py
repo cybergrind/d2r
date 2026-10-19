@@ -4,10 +4,10 @@ loop"."""
 
 import pytest
 
+from inventory_tracking.game.records import Carried, Monster, Pack
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.cain import CAIN, identify_all
 from inventory_tracking.macros.cube import CUBE_CLASS
-from inventory_tracking.macros.game.records import Carried, Monster, Pack
 from inventory_tracking.macros.shop import known
 from tests.inventory_tracking.macros.fakes import CAIN_LINE, Game, player, world
 

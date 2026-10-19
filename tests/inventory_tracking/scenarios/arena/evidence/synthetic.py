@@ -1,5 +1,5 @@
 """Small takes made by hand for the evidence tests: frames, path records and missile records in the
-layout combat/record.py writes, with only the bytes the evidence reads filled in.
+layout takes/record.py writes, with only the bytes the evidence reads filled in.
 
 Nothing here is a game id from memory: modes come from hurts.ATTACK_MODES and layout.DEAD_MODES, the
 types from the threat table (one it calls ranged, one it does not), the missile from the bundled
@@ -12,11 +12,11 @@ from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
 
-from inventory_tracking.combat.hurts import ATTACK_MODES, TARGET_UNIT, harmless
 from inventory_tracking.combat.mechanics.tables import MISSILES, tables
-from inventory_tracking.combat.takes import Take
-from inventory_tracking.macros.game.layout import NO_OWNER
+from inventory_tracking.game.layout import NO_OWNER
 from inventory_tracking.native.layout import DEAD_MODES
+from inventory_tracking.takes.hurts import ATTACK_MODES, TARGET_UNIT, harmless
+from inventory_tracking.takes.takes import Take
 from tests.inventory_tracking.scenarios.arena.evidence.blows import (
     MONSTER_KIND,
     OWNER,

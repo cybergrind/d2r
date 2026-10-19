@@ -18,7 +18,7 @@ from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
-from inventory_tracking.combat.takes import MonsterRow, Take, monsters_of, player_of
+from inventory_tracking.takes.takes import MonsterRow, Take, monsters_of, player_of
 
 
 REPO = Path(__file__).resolve().parents[4]

@@ -26,12 +26,12 @@ there.
 from collections.abc import Callable, Iterable, Mapping, Sequence
 
 from inventory_tracking.common import LOG
+from inventory_tracking.game.layout import IDENTIFY_TOME
+from inventory_tracking.game.records import Carried, Pack
 from inventory_tracking.items.metadata import item_base
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.cube import INVENTORY, PANEL_SECONDS, cell_point, loot, open_inventory
 from inventory_tracking.macros.engine import Run
-from inventory_tracking.macros.game.layout import IDENTIFY_TOME
-from inventory_tracking.macros.game.records import Carried, Pack
 from inventory_tracking.macros.pickmode import WHITE, sellable
 
 

@@ -14,7 +14,7 @@ import statistics
 import pytest
 
 from inventory_tracking.combat.sim.monsters import REACH, STOP, Pack, Traits, Walker
-from inventory_tracking.combat.takes import monsters_of
+from inventory_tracking.takes.takes import monsters_of
 from tests.inventory_tracking.scenarios.battle import tower_cellar5 as battle
 from tests.inventory_tracking.scenarios.battle.replay import Replay, character
 

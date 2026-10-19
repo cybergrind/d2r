@@ -27,7 +27,12 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 SKILLS = ROOT / 'inventory_tracking' / 'builds' / 'warlock' / 'skills.py'  # the Warlock's skill ids
 SHARED_SKILLS = ROOT / 'inventory_tracking' / 'macros' / 'skills.py'  # the skills any character has
-FRAMEWORK = ('inventory_tracking/macros', 'inventory_tracking/combat')
+FRAMEWORK = (
+    'inventory_tracking/macros',
+    'inventory_tracking/combat',
+    'inventory_tracking/game',
+    'inventory_tracking/takes',
+)
 ECHOING_MODULE = 'inventory_tracking.combat.mechanics.echoing_strike'
 ECHOING_PSEUDO = '<echoing_strike module>'
 BUILDS_PACKAGE = 'inventory_tracking.builds'
@@ -49,7 +54,7 @@ NAMED: dict[str, str] = {
     'damage_table': "this build's damage file",
     'link_table': "the Defiler's Health Link",
     'linked_set': "the Defiler's Health Link",
-    # The Warlock's buffs as the world reads them off the character (macros/game/records.py `Player`)
+    # The Warlock's buffs as the world reads them off the character (game/records.py `Player`)
     'HEX_PURGE_BIT': 'the state bit of Hex: Purge',
     'PSYCHIC_WARD_BIT': 'the state bit of Psychic Ward',
     'hex_purge': 'whether Hex: Purge is on the character',
@@ -150,9 +155,9 @@ def found() -> set[tuple[str, str]]:
     return pairs
 
 
-LAYOUT = 'inventory_tracking/macros/game/layout.py'
-RECORDS = 'inventory_tracking/macros/game/records.py'
-DECODE = 'inventory_tracking/macros/game/decode.py'
+LAYOUT = 'inventory_tracking/game/layout.py'
+RECORDS = 'inventory_tracking/game/records.py'
+DECODE = 'inventory_tracking/game/decode.py'
 
 # Why each allowed pair is still in the framework. All of it is the world's reading of the game: what
 # the Warlock's own units and buffs look like in memory, read for every character and used by the
@@ -193,7 +198,7 @@ UNSEEN: dict[tuple[str, str], str] = {
     ('inventory_tracking/combat/stance.py', 'CAST_SECONDS'): "one cast of this build's held strike, 9 frames",
     (TABLES, 'SKILLS'): "the Warlock's skill rows bundled into data/tables.json, by id",
     (TABLES, 'MISSILES'): 'the blade missiles 706 and 720 bundled beside the two any monster casts',
-    ('inventory_tracking/combat/viz_moments.py', 'blade_life'): "a default of 38 frames: the blades' life",
+    ('inventory_tracking/takes/viz_moments.py', 'blade_life'): "a default of 38 frames: the blades' life",
 }
 
 # The packages that are neither the framework nor a build, with what they name of the Warlock's.
@@ -277,7 +282,7 @@ def test_what_the_scan_cannot_see_is_still_where_the_note_says() -> None:
 def test_the_other_packages_are_all_the_packages_there_are() -> None:
     package = ROOT / 'inventory_tracking'
     has_code = {path.name for path in package.iterdir() if path.is_dir() and any(path.glob('*.py'))}
-    assert has_code - {'macros', 'combat', 'builds'} == set(OTHER)
+    assert has_code - {'macros', 'combat', 'game', 'takes', 'builds'} == set(OTHER)
 
 
 def test_nothing_new_is_named_in_the_other_packages() -> None:

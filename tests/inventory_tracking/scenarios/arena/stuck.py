@@ -27,8 +27,8 @@ from collections import Counter
 from collections.abc import Sequence
 from datetime import UTC, datetime, timedelta
 
-from inventory_tracking.combat.takes import Take, player_of
 from inventory_tracking.macros.teleport import MOVED
+from inventory_tracking.takes.takes import Take, player_of
 from tests.inventory_tracking.scenarios.arena.moments import APART, Moment
 from tests.inventory_tracking.scenarios.battle.tower_cellar5 import LINE
 from tests.inventory_tracking.scenarios.stance.build_fixtures import LOCAL_OFFSET
@@ -37,7 +37,7 @@ from tests.inventory_tracking.scenarios.stance.build_fixtures import LOCAL_OFFSE
 PRESSES = 3  # routine presses ...
 WINDOW = 5.0  # ... within this many seconds
 PRESS = re.compile(r'Macro: request ([a-z ]+), (\d+) ms old')  # macros/runner.py `request`; as tower_cellar5.presses
-OPENED = re.compile(r'Combat take (\S+) opened in area \d+')  # combat/record.py, the line of a take's opening
+OPENED = re.compile(r'Combat take (\S+) opened in area \d+')  # takes/record.py, the line of a take's opening
 QUARTER = 900.0  # seconds: a clock's offset from UTC is a whole number of these
 
 

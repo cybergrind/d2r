@@ -4,7 +4,7 @@ The player, 2026-10-17: "now we have call to arms, so we need to use it and keep
 there is cta and use it if we have it ... probably cta cannot be used in town". The game's skills.txt agrees: Battle
 Orders (149), Battle Command (155) and Battle Cry (146) have no `InTown`, where the Warlock's own buffs (Consume,
 Psychic Ward, Hex: Purge) have it. So the town's prebuff cannot cast them: a row of the upkeep does (`ROWS`), the first
-quiet look outside a town with Battle Orders not shown on the character (states.txt `battleorders` 32, macros/game/
+quiet look outside a town with Battle Orders not shown on the character (states.txt `battleorders` 32, game/
 BATTLE_ORDERS_BIT, seen to read in the game at 23:41:01 on 2026-10-17).
 
 A cast at Battle Orders 12 (CybergrindAA's CTA +4 and +8 to all skills, 22:58 on 2026-10-17) lasts 750 + 250 per level
@@ -19,11 +19,11 @@ to it, casts, and swaps back to the set it found in hand: a game is never left h
 """
 
 from inventory_tracking.common import LOG
+from inventory_tracking.game.memory import CTA_CODE
+from inventory_tracking.game.records import World
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.buffs import STATE_RETRY
 from inventory_tracking.macros.build import Buff, BuffFacts, Casting, Tried
-from inventory_tracking.macros.game.memory import CTA_CODE
-from inventory_tracking.macros.game.records import World
 from inventory_tracking.macros.routines import ACTING, cast as cast_free, swap_until
 from inventory_tracking.macros.skills import SWAP_WEAPONS, register_names
 from inventory_tracking.native.layout import BATTLE_ORDERS_SKILL, TOWN_IDS

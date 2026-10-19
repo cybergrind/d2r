@@ -12,9 +12,9 @@ from dataclasses import replace
 import pytest
 
 from inventory_tracking.builds.warlock.echoing_strike.attack import REACH
+from inventory_tracking.game.records import Player
 from inventory_tracking.levels.doors import CLOSED_MODE, Door
 from inventory_tracking.levels.model import Target
-from inventory_tracking.macros.game.records import Player
 from inventory_tracking.macros.hunt import DECIDE_SECONDS, Hunter, hostiles
 from inventory_tracking.macros.sight import in_reach
 from inventory_tracking.macros.teleport import Way, landing

@@ -7,10 +7,10 @@ from typing import Any
 
 import pytest
 
-from inventory_tracking.combat.hurts import ATTACK_MODES
 from inventory_tracking.combat.mechanics.tables import tables
-from inventory_tracking.combat.record import RESIST_STATS
-from inventory_tracking.combat.takes import Take
+from inventory_tracking.takes.hurts import ATTACK_MODES
+from inventory_tracking.takes.record import RESIST_STATS
+from inventory_tracking.takes.takes import Take
 from tests.inventory_tracking.scenarios.arena.evidence import blows, curses
 from tests.inventory_tracking.scenarios.arena.evidence.synthetic import IDLE, MELEE_TXT, RATE, START, frame, monster
 

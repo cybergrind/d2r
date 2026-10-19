@@ -17,8 +17,8 @@ from dataclasses import asdict, replace
 from inventory_tracking.builds.characters import CHARACTERS
 from inventory_tracking.builds.warlock.skills import BLADE_WARP
 from inventory_tracking.combat.mechanics.tables import points_of, tables
+from inventory_tracking.game.layout import FULL_REJUVENATION, SUPER_HEALING
 from inventory_tracking.levels.model import Walkable, pack_cells
-from inventory_tracking.macros.game.layout import FULL_REJUVENATION, SUPER_HEALING
 from inventory_tracking.native.layout import TILE_UNITS
 from tests.inventory_tracking.macros.fakes import HUNT_SLOTS, OTHER_SET, PREBUFF_SET
 from tests.inventory_tracking.scenarios.arena.game import POTIONS

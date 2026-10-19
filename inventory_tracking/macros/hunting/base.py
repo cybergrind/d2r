@@ -5,12 +5,12 @@ from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
 
 from inventory_tracking.common import LOG
+from inventory_tracking.game.layout import NO_OWNER
+from inventory_tracking.game.records import Monster, Thing, World
 from inventory_tracking.levels.model import Room, Target
 from inventory_tracking.levels.route import room_at
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.engine import Run
-from inventory_tracking.macros.game.layout import NO_OWNER
-from inventory_tracking.macros.game.records import Monster, Thing, World
 from inventory_tracking.macros.goals import (
     CLEAR_WAY,
     REACH,

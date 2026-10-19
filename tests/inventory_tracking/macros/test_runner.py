@@ -7,11 +7,11 @@ from typing import cast
 
 import pytest
 
+from inventory_tracking.game.memory import GameMemory
+from inventory_tracking.game.records import Pack
 from inventory_tracking.macros import runner as runner_module
 from inventory_tracking.macros.actuator import Abort, Cancelled, Flipped
 from inventory_tracking.macros.engine import Run
-from inventory_tracking.macros.game.memory import GameMemory
-from inventory_tracking.macros.game.records import Pack
 from inventory_tracking.macros.hunt import Hunter
 from inventory_tracking.macros.loop import RECOVERIES, Dead
 from inventory_tracking.macros.runner import MacroRunner
@@ -1353,7 +1353,7 @@ def test_three_presses_of_the_loop_key_switch_its_run_and_a_restart_keeps_it():
 
 
 def test_the_loops_pickup_mode_filters_the_drops_only_with_the_loop_on():
-    from inventory_tracking.macros.game.records import VALUABLE, Drop, Loot
+    from inventory_tracking.game.records import VALUABLE, Drop, Loot
     from inventory_tracking.macros.pickmode import REGULAR
 
     runner = make(lambda cancelled, routine: None, [])
@@ -1389,7 +1389,7 @@ class _Run:
 def test_the_loop_goes_back_for_a_valuable_it_saw_and_no_press_picked_up(monkeypatch):
     # The Flawless Emerald of 08:58:34 on 2026-10-17 (routes/lower-kurast-loop-plan.md §14): seen in a flight, 104
     # units off when the run ended and no longer read; the "what is left" press found nothing, Town Portal followed
-    from inventory_tracking.macros.game.records import VALUABLE, Drop, Loot
+    from inventory_tracking.game.records import VALUABLE, Drop, Loot
     from inventory_tracking.macros.pickup import FETCH_HOPS
 
     gone_to = []
@@ -1413,7 +1413,7 @@ def test_the_loop_goes_back_for_a_valuable_it_saw_and_no_press_picked_up(monkeyp
 def test_a_full_stash_stack_skips_its_rune_but_never_a_gem():
     # 15:19:42 on 2026-10-17: a Flawless Amethyst, its stash stack at 99, was left on the ground twice (the player:
     # "we just left flawlest amethyst and left the game. something is wrong"); the ruling was the runes'
-    from inventory_tracking.macros.game.records import VALUABLE, Drop, Loot
+    from inventory_tracking.game.records import VALUABLE, Drop, Loot
     from inventory_tracking.macros.pickmode import REGULAR
 
     runner = make(lambda cancelled, routine: None, [])
@@ -1467,7 +1467,7 @@ def test_a_restart_keeps_the_valuables_seen_and_still_on_the_ground():
     # 13:18 on 2026-10-18: a restart forgot a Flawless Topaz 94 units off, and the game was left with it on the ground
     import json
 
-    from inventory_tracking.macros.game.records import VALUABLE, Drop, Loot
+    from inventory_tracking.game.records import VALUABLE, Drop, Loot
 
     runner = make(lambda cancelled, routine: None, [])
     runner.loop.on = True
@@ -1503,8 +1503,8 @@ def test_in_the_loop_a_chipped_gem_with_no_room_is_held_the_cube_then_a_trip_to_
     # make room in the cube first, then a trip to town and back through the portal, and the press after takes it
     from dataclasses import replace
 
+    from inventory_tracking.game.records import VALUABLE, Drop, Loot
     from inventory_tracking.macros import lootpolicy
-    from inventory_tracking.macros.game.records import VALUABLE, Drop, Loot
     from inventory_tracking.macros.loop import ANDARIEL, CATACOMBS_4, TRIP, next_leg
     from inventory_tracking.macros.pickup import pick_up
     from tests.inventory_tracking.macros.fakes import Game, world
@@ -1542,7 +1542,7 @@ def test_in_the_loop_a_chipped_gem_with_no_room_is_held_the_cube_then_a_trip_to_
 
 def test_by_hand_the_press_still_moves_on_from_a_chipped_gem_with_no_room():
     # Outside the loop nothing changed with the ruling: KP_1's press goes on to its seek step
-    from inventory_tracking.macros.game.records import VALUABLE, Drop, Loot
+    from inventory_tracking.game.records import VALUABLE, Drop, Loot
     from inventory_tracking.macros.pickup import pick_up
     from tests.inventory_tracking.macros.fakes import Game, world
 
@@ -1654,8 +1654,8 @@ def test_a_full_stash_after_a_town_visit_stops_the_loop_in_town(caplog):
 
 
 def gheeds_runner(rows_free: bool = True):
+    from inventory_tracking.game.records import Carried
     from inventory_tracking.macros.charms import GHEEDS_FORTUNE, UNIQUE, grand_charm
-    from inventory_tracking.macros.game.records import Carried
     from inventory_tracking.macros.loop import ANDARIEL
 
     runner = make(lambda cancelled, routine: None, [])
@@ -1738,8 +1738,8 @@ def test_the_new_gheeds_still_not_taken_with_the_players_parked_fetches_theirs_b
 
 
 def refused_charm():
+    from inventory_tracking.game.records import VALUABLE, Drop
     from inventory_tracking.macros.charms import UNIQUE, grand_charm
-    from inventory_tracking.macros.game.records import VALUABLE, Drop
     from inventory_tracking.macros.pickup import Refused
 
     charm = Drop(60, 22543.0, 9556.0, "Unique Grand Charm (Gheed's Fortune?)", VALUABLE, (1, 3), txt=grand_charm(),

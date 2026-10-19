@@ -10,8 +10,8 @@ import math
 
 import pytest
 
-from inventory_tracking.combat.takes import monsters_of
 from inventory_tracking.macros.routines import press_skill
+from inventory_tracking.takes.takes import monsters_of
 from tests.inventory_tracking.scenarios.battle import evidence, tower_cellar5 as battle
 from tests.inventory_tracking.scenarios.battle.replay import Replay, character
 

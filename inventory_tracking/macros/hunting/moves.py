@@ -9,14 +9,14 @@ from inventory_tracking.combat.policy import RUN_MODES, observe
 from inventory_tracking.combat.stance import CAMP_GAIN, CAMP_REACH, Camp, camp, no_footing
 from inventory_tracking.combat.survival import pressure
 from inventory_tracking.common import LOG
+from inventory_tracking.game.layout import NO_OWNER
+from inventory_tracking.game.records import Monster, Teleport, World
 from inventory_tracking.levels.model import Ground, Level, Room, Target
 from inventory_tracking.macros import route
 from inventory_tracking.macros.actuator import Abort, Expired
 from inventory_tracking.macros.build import Intent, NoWay
 from inventory_tracking.macros.drinking import key_of, on_belt
 from inventory_tracking.macros.engine import Run
-from inventory_tracking.macros.game.layout import NO_OWNER
-from inventory_tracking.macros.game.records import Monster, Teleport, World
 from inventory_tracking.macros.goals import PICK_UP, Goal
 from inventory_tracking.macros.hunting.base import (
     BLOCK_SECONDS,

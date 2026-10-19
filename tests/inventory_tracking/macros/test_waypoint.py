@@ -5,8 +5,8 @@ from dataclasses import replace
 
 import pytest
 
+from inventory_tracking.game.records import Thing
 from inventory_tracking.macros.actuator import Abort
-from inventory_tracking.macros.game.records import Thing
 from inventory_tracking.macros.waypoint import open_panel
 from tests.inventory_tracking.macros.fakes import Game, player, world
 

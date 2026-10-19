@@ -53,7 +53,7 @@ def walk_units(read, heads, expected_type, *, max_units=2048, records=False) -> 
                         'next_pointer': struct.unpack_from('<Q', data, 0x158)[0],
                     }
                 )
-                if records:  # the whole unit record as read (combat/record.py writes it raw)
+                if records:  # the whole unit record as read (takes/record.py writes it raw)
                     result['units'][-1]['record'] = whole
                 pointer = result['units'][-1]['next_pointer']
             except (OSError, ValueError) as exc:

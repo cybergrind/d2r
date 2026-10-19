@@ -32,13 +32,17 @@ MONSTER_OWNER = 84  # monster data u32[21]: the owning player's unit id (native/
 MONSTER_DATA = 0x58  # monster data bytes read per live monster: the type flags and the owner lie within
 NO_OWNER = 0xFFFFFFFF
 # Monster data byte +0x1A (terror/tracker.py, probe logs 2026-10-02/03): 0x08 unique (Heralds too),
-# 0x04 champion, 0x02 super unique, 0x10 a minion of one of those.
+# 0x04 champion, 0x02 super unique, 0x10 a minion of one of those. A leader's flags seen: 0x08 unique,
+# 0x0c champion, 0x0a super unique, 0x4c ghostly champion; minions carry 0x10 alone.
 TYPE_FLAGS = 0x1A
-# Monster data bytes from +0x20: its special modifiers (monumod ids; 0 = none), the enchantments of a
-# unique and what its minions inherit (terror/tracker.py FIRST_MODIFIER, MODIFIER_SLOTS).
-MODIFIERS = slice(0x20, 0x29)
-LEADER_FLAGS = 0x02 | 0x04 | 0x08
+SUPER_FLAG, CHAMPION_FLAG, UNIQUE_FLAG = 0x02, 0x04, 0x08
+LEADER_FLAGS = SUPER_FLAG | CHAMPION_FLAG | UNIQUE_FLAG
 MINION_FLAG = 0x10
+# Monster data bytes from +0x20: its special modifiers (monumod ids; 0 = none), the enchantments of a
+# unique and what its minions inherit (uniques show 3 in Hell, minions 2).
+MODIFIERS = slice(0x20, 0x29)
+# Player modes that are an action under way: attacks, casts, skill sequences (classic table; macros/routines.py).
+ACTING = frozenset((7, 8, 10, 11, 12, 13, 14, 15, 16, 18))
 HERALD_TIER_STAT = 367  # itemstatcost `heraldtier`: on a Terror Zone's Herald and on its minions (terror/tracker.py)
 ALIGNMENT_STAT = 172  # non-zero on allies: summons, the mercenary (terror/tracker.py)
 # A unit's skill list (third-parties/d2go memory/player.go; the Defiler dump of 2026-10-09 holds a heap
@@ -49,7 +53,7 @@ LEFT_SKILL, RIGHT_SKILL = 0x08, 0x10
 MONSTER_UNIT = 1
 OBJECT_UNIT = 2  # doors among the objects (levels/doors.py)
 OBJECT_PATH = 0x18  # an object's static path: x at 0x10, y at 0x14 (loot/ground.py static_position)
-MISSILE_UNIT = 3  # blades and bolts in flight (combat/record.py dumps them raw: layout research)
+MISSILE_UNIT = 3  # blades and bolts in flight (takes/record.py dumps them raw: layout research)
 # The unit hash table has twelve slots of 128 heads (MapAssist UnitType): the client's six, then the
 # "server" six; the player's own missiles hang off the server missile slot, other units' off the
 # client one (MapAssist GameMemory.cs: Missile and ServerMissile both hold type 3 units). The first
@@ -84,7 +88,7 @@ DEFILER_CLASS = 744
 STATE_FLAGS = 0xB48
 # Every state word of a unit, as that reading has them laid out: states 0-31 in the first word, six
 # words before STATE_FLAGS, to 224-255 in the one after it. Only the word at STATE_FLAGS is confirmed;
-# the recorder writes the whole run raw (combat/record.py `s`), for a curse on the character
+# the recorder writes the whole run raw (takes/record.py `s`), for a curse on the character
 # (states.txt `amplifydamage` 9, `ironmaiden` 55, `decrepify` 60, `lowerresist` 61), poison (2) and a
 # skill's delay to be read off it once a take shows them change.
 STATE_RUN = (STATE_FLAGS - 6 * 4, 8 * 4)

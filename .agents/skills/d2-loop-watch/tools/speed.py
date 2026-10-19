@@ -7,7 +7,7 @@ A window is a stretch of local clock time (`--since`, `--until`; default the las
 
 1. **Games** (serve's probe.logs, `games.py`): the median game and each leg's median: the town's legs are the same
    work every game, so a leg over its floor is time to win.
-2. **The level** (the Lower Kurast takes, `runs/combat/<UTC>-79`, read by `inventory_tracking.combat.legs`): per stay
+2. **The level** (the Lower Kurast takes, `runs/combat/<UTC>-79`, read by `inventory_tracking.takes.legs`): per stay
    the seconds, chests and other containers, chests a minute, the split casting / moving / standing, the macro's stalls
    (standing 1.5 s and more) and the time lost against Blade Warp's pace.
 3. **Where the time goes, ranked**: the stall reasons (the log lines said most in each stall, numbers folded) by their
@@ -49,14 +49,14 @@ import games  # ruff: ignore[module-import-not-at-top-of-file] - the skill's own
 import logwords  # ruff: ignore[module-import-not-at-top-of-file] - beside this tool
 from logwords import LEG, LOOP_OFF, TELEPORT, stamp  # ruff: ignore[module-import-not-at-top-of-file]
 
-from inventory_tracking.combat.legs import (  # ruff: ignore[module-import-not-at-top-of-file]
+from inventory_tracking.takes.legs import (  # ruff: ignore[module-import-not-at-top-of-file]
     CHESTS,
     REFERENCE,
     clock_of,
     legs_of,
     quiet,
 )
-from inventory_tracking.combat.takes import Take  # ruff: ignore[module-import-not-at-top-of-file]
+from inventory_tracking.takes.takes import Take  # ruff: ignore[module-import-not-at-top-of-file]
 
 
 COMBAT = ROOT / 'inventory_tracking' / 'runs' / 'combat'

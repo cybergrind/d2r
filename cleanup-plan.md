@@ -54,11 +54,20 @@ Evidence: five read-only studies in `rca/2026-10-19/cleanup/` (git-ignored, loca
   - step 3 done: `native/memory.py` is the one /proc/<pid>/mem open (`ProcessMemory`, `BoundedReader`, `bounded`,
     `game_read`, `stable_read`, `one_unit_table`); ~30 opens and ~17 table picks moved onto it; hud/live.py's reader
     is `LiveMemory` (it reads raw and rebinds per pid: kept apart from the macro's). Left: macros/probe.py's two opens,
-    the table picks in combat/record.py and levels/guide.py.
-  - step 4, first part: world.py (1,998 lines) split as pure moves into `macros/game/`: `layout.py` (addresses,
+    the table picks in takes/record.py and levels/guide.py.
+  - step 4, first part: world.py (1,998 lines) split as pure moves into `game/`: `layout.py` (addresses,
     offsets, classes), `records.py` (`Player` … `World`, `prized`, `has_room`), `kept.py` (`BeltKept`, `PutDown`),
     `decode.py` (the `read`-taking decoders, the census), `memory.py` (`GameMemory`); 173 importers rewritten, no
-    shim. Left: one unit walk per look (study A4), one `Monster` type, `prized`/`shown_source` to lootpolicy.
+    shim. Then one `Monster` record (game/records.py; terror's fields optional on it, `path_at`/`unit_at`) and one
+    walk entry (`decode.monster_table`) for the look, terror's tracker and the HUD; the monster flags, `NO_OWNER`
+    and `ACTING` defined once in game/layout.py. The per-unit reads stay two on purpose: the look reads owner,
+    flags and life every pass, the tracker and HUD only a path (data and stats on first sight). Left:
+    `prized`/`shown_source` to lootpolicy; terror's player readers against `local_player`.
+  - step 4, second part: the game package is `inventory_tracking/game/`, below macros (study O A2): combat, terror,
+    hud and probes read the game without importing macros. Step 8, second part: `inventory_tracking/takes/` holds
+    the recorder and the take readers (record, retain, takes, timeline, hurts, macro_state, legs, analysis,
+    viz_moments, the `python -m inventory_tracking.takes` CLI) and their tests; combat/ keeps the decisions. The
+    ratchet scans both as framework packages.
   - step 10 done: `pricing/api.py` (47 names, lazy); inventory_tracking imports only it (boundary test
     tests/pricing/test_api.py); `detail`/`guarded_retrieve` moved to `appraisal/retrieval.py`; the replay and guide
     reports run as `python -m inventory_tracking.corpus.replay [--guides]`. Left: two frozen maintenance tools

@@ -9,8 +9,8 @@ import pytest
 
 from inventory_tracking.collection.models import CaptureRun, Character, ItemRecord, Location, Sighting
 from inventory_tracking.collection.store import CollectionStore
+from inventory_tracking.game.records import Carried
 from inventory_tracking.macros.copies import Appraisal, keep_copy, owned_copies, sold
-from inventory_tracking.macros.game.records import Carried
 from tests.inventory_tracking.appraisal.test_owned import unique
 
 

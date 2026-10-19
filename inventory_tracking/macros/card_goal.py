@@ -20,9 +20,9 @@ import math
 from collections.abc import Callable, Iterable, Sequence
 
 from inventory_tracking.common import LOG
+from inventory_tracking.game.records import Monster, Thing
 from inventory_tracking.levels.guide import place
 from inventory_tracking.levels.model import Poi, Target
-from inventory_tracking.macros.game.records import Monster, Thing
 from inventory_tracking.macros.goals import STAND_NEAR, Goal, route_goal
 from inventory_tracking.macros.route import staged
 from inventory_tracking.macros.teleport import USES, classes

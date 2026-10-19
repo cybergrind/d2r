@@ -1,4 +1,4 @@
-"""Situations cut from takes in game ticks (combat/timeline.py, sim/situation.py `cut` and `in_ticks`): sample
+"""Situations cut from takes in game ticks (takes/timeline.py, sim/situation.py `cut` and `in_ticks`): sample
 numbers become ticks from the timestamps, a late sample takes the ticks it was late by, what a sample showed is
 held through the ticks skipped before the next one, and events and presses follow their frames."""
 
@@ -8,8 +8,8 @@ import pytest
 
 from inventory_tracking.builds.warlock.echoing_strike.__main__ import window
 from inventory_tracking.builds.warlock.echoing_strike.sim.situation import cut, describe
-from inventory_tracking.combat.takes import Take
-from inventory_tracking.combat.timeline import HOLD_TICKS
+from inventory_tracking.takes.takes import Take
+from inventory_tracking.takes.timeline import HOLD_TICKS
 
 
 EVEN = 0.04  # seconds between samples when nothing is late

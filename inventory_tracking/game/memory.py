@@ -12,29 +12,7 @@ from dataclasses import replace
 
 from inventory_tracking.collection.capture import STASH_ORDER_OFFSET, is_shared_candidate, read_owner_grids
 from inventory_tracking.common import LOG
-from inventory_tracking.items.identity import (
-    FLAGS_OFFSET,
-    IDENTIFIED_FLAG,
-    IDENTITY_OFFSET,
-    ITEM_DATA_SIZE,
-    QUALITY_OFFSET,
-)
-from inventory_tracking.items.metadata import item_base
-from inventory_tracking.levels.doors import Door
-from inventory_tracking.loot.ground import (
-    GROUND_MODES,
-    GroundMaterial,
-    ground_materials,
-    ground_runes,
-    ground_shown,
-    ground_uniques,
-    item_units,
-    static_position,
-)
-from inventory_tracking.loot.materials import appraised_classes
-from inventory_tracking.loot.runes import is_valuable_rune, rune_name
-from inventory_tracking.loot.shown import ShownRule
-from inventory_tracking.macros.game.decode import (
+from inventory_tracking.game.decode import (
     CENSUS_KEPT,
     CENSUS_SKIPPED,
     USED,
@@ -50,10 +28,10 @@ from inventory_tracking.macros.game.decode import (
     gold_amount,
     item_size,
     item_values,
-    local_player,
     missiles,
     monsters,
     monsters_and_dead,
+    player_among,
     rolled,
     rolls,
     stash_view_of,
@@ -63,7 +41,7 @@ from inventory_tracking.macros.game.decode import (
     unit_stats,
     warps,
 )
-from inventory_tracking.macros.game.layout import (
+from inventory_tracking.game.layout import (
     DATA_RVA,
     DATA_SIZE,
     EQUIPPED_MODE,
@@ -98,7 +76,7 @@ from inventory_tracking.macros.game.layout import (
     TRACE_RVAS,
     VIEW_RVA,
 )
-from inventory_tracking.macros.game.records import (
+from inventory_tracking.game.records import (
     GOLD,
     HEALING,
     REJUVENATION,
@@ -121,6 +99,29 @@ from inventory_tracking.macros.game.records import (
     prized,
     shown_source,
 )
+from inventory_tracking.game.units import walked
+from inventory_tracking.items.identity import (
+    FLAGS_OFFSET,
+    IDENTIFIED_FLAG,
+    IDENTITY_OFFSET,
+    ITEM_DATA_SIZE,
+    QUALITY_OFFSET,
+)
+from inventory_tracking.items.metadata import item_base
+from inventory_tracking.levels.doors import Door
+from inventory_tracking.loot.ground import (
+    GroundItem,
+    GroundMaterial,
+    materials_among,
+    on_ground,
+    runes_among,
+    shown_among,
+    sightings_among,
+    uniques_among,
+)
+from inventory_tracking.loot.materials import appraised_classes
+from inventory_tracking.loot.runes import is_valuable_rune, rune_name
+from inventory_tracking.loot.shown import ShownRule
 from inventory_tracking.native.layout import (
     BELT_ITEM_MODE,
     BELT_SIZE,
@@ -144,6 +145,11 @@ from inventory_tracking.native.units import read_stats, walk_units
 # 2026-10-17): by base codes alone the two sets read the same
 CTA_CODE = 'cta'
 CTA_SECONDS = 10.0  # between two reads of whether a Call to Arms is worn (`GameMemory.cta`)
+
+
+def _unit_of(walk: dict, player: Player) -> dict | None:
+    """The character's unit among the walked player units; None when the walk did not find it."""
+    return next((unit for unit in walk['units'] if unit['unit_id'] == player.unit_id), None)
 
 
 class GameMemory:
@@ -174,7 +180,12 @@ class GameMemory:
         return self.memory.read(address, size)
 
     def _player(self) -> Player | None:
-        return local_player(self.read, self.table)
+        return self._players()[0]
+
+    def _players(self) -> tuple[Player | None, dict]:
+        """(the character, `local_player`; the walk of the player units it was told among, records read)."""
+        walk = walked(self.read, self.table, 0, records=True)
+        return player_among(self.read, walk['units']), walk
 
     def _monsters(self) -> tuple[tuple[Monster, ...], frozenset[int]]:
         return monsters_and_dead(self.read, self.table)
@@ -289,8 +300,11 @@ class GameMemory:
     def carried(self) -> Pack | None:
         """The carried inventory's items and the cube's rows (`carried_items`); None when unread."""
         try:
-            player = self._player()
-            return None if player is None else carried_items(self.read, self.table, player.unit_id)
+            player, players = self._players()
+            if player is None:
+                return None
+            items = walked(self.read, self.table, ITEM_UNIT)['units']
+            return carried_items(self.read, _unit_of(players, player), items)
         except OSError, ValueError, struct.error:
             return None
 
@@ -299,15 +313,14 @@ class GameMemory:
         not whole or the pages cannot be told (macros/town-plan.md step 0)."""
         read = self.read
         try:
-            player = self._player()
+            player, player_walk = self._players()
             if player is None:
                 return None
-            walked = walk_units(read, struct.unpack('<128Q', read(self.table, 1024)), 0)
-            item_walk = walk_units(read, struct.unpack('<128Q', read(self.table + ITEM_UNIT * 1024, 1024)), ITEM_UNIT)
-            if not walked['complete'] or not item_walk['complete']:
+            item_walk = walked(read, self.table, ITEM_UNIT)
+            if not player_walk['complete'] or not item_walk['complete']:
                 return None
             main, players = None, []
-            for unit in walked['units']:
+            for unit in player_walk['units']:
                 if not unit['data_pointer']:
                     continue
                 stats = read_stats(read, unit['stats_pointer'] + FULL_STATS) if unit['stats_pointer'] else []
@@ -399,16 +412,21 @@ class GameMemory:
         prized_materials: frozenset[int] | None = None,
     ) -> Loot:
         """The drops the loot marks would show (loot/ground.py, the same rules), the potions on the
-        ground, the character's belt and life. An empty Loot when the character cannot be read."""
+        ground, the character's belt and life. An empty Loot when the character cannot be read.
+
+        One walk of the player units and one of the item units for the whole look: the ground's classifiers,
+        the census, the gold, the potions, the belt and the grids all take their rows (game/units.py)."""
         try:
-            player = self._player()
+            player, players = self._players()
             if player is None:
                 return Loot()
             self.where, self.where_area = (
                 (player.x, player.y),
                 player.area,
             )  # the loop's sightings (macros/sightings.py)
-            read, table = self.read, self.table
+            read = self.read
+            items = walked(read, self.table, ITEM_UNIT)['units']
+            ground = on_ground(read, items)
             # Without the marks' own settings every rune and material counts as one of theirs (`prized`).
             drops = [
                 Drop(
@@ -420,16 +438,16 @@ class GameMemory:
                     ),
                     source='rune',
                 )
-                for rune in ground_runes(read, table, minimum=rune_minimum)
+                for rune in runes_among(ground, minimum=rune_minimum)
             ]  # fmt: skip
-            marked = [*ground_materials(read, table, materials, appraised_classes())] if materials else []
+            marked = [*materials_among(ground, materials, appraised_classes())] if materials else []
             sources = dict.fromkeys((item.unit_id for item in marked), 'material')
             if shown:
-                found = ground_shown(read, table, shown)
+                found = shown_among(ground, shown)
                 marked += found
                 sources.update({item.unit_id: shown_source(item.quality) for item in found})
             if unique_minimum is not None:
-                found = ground_uniques(read, table, minimum=unique_minimum)
+                found = uniques_among(ground, minimum=unique_minimum)
                 marked += found
                 sources.update(dict.fromkeys((item.unit_id for item in found), 'unique'))
             # One drop per unit: a unique ring is both a ring and a marked unique (the unique's label wins,
@@ -442,8 +460,6 @@ class GameMemory:
                 )
                 for item in labelled.values()
             ]  # fmt: skip
-            heads = struct.unpack('<128Q', read(table + ITEM_UNIT * 1024, 1024))
-            items = walk_units(read, heads, ITEM_UNIT)['units']
             classes = {unit['unit_id']: unit['txt_id'] for unit in items}
             drops = [
                 replace(
@@ -461,28 +477,26 @@ class GameMemory:
             ]
             units = {unit['unit_id']: unit for unit in items}
             drops = [rolled(read, drop, units.get(drop.unit_id)) for drop in drops]
-            self._census(items, drops, player.unit_id)
-            for unit in items:
-                if gold_minimum is None or unit['txt_id'] != GOLD_CLASS:
+            self._census(ground, drops, player.unit_id)
+            for item in ground:
+                if gold_minimum is None or item.txt != GOLD_CLASS or not item.unit['path_pointer']:
                     continue
-                if unit['mode'] not in GROUND_MODES or not unit['path_pointer']:
-                    continue
-                amount = gold_amount(read, unit)
+                amount = gold_amount(read, item.unit)
                 if amount >= gold_minimum:
-                    x, y = static_position(read, unit)
-                    drops.append(Drop(unit['unit_id'], x, y, f'{amount} gold', GOLD, (0, 0)))
-            for potion in item_units(read, table, {SUPER_HEALING, FULL_REJUVENATION}):
-                if potion.mode in GROUND_MODES:
-                    kind = REJUVENATION if potion.class_id == FULL_REJUVENATION else HEALING
-                    drops.append(
-                        Drop(
-                            potion.unit_id,
-                            potion.x,
-                            potion.y,
-                            f'a {"full rejuvenation" if kind == REJUVENATION else "super healing"} potion',
-                            kind,
-                        )
+                    if item.at is None:  # no look, as when the pile read its place itself (before 2026-10-19)
+                        raise ValueError('a gold pile whose place cannot be read')
+                    drops.append(Drop(item.unit_id, *item.at, f'{amount} gold', GOLD, (0, 0)))
+            for potion in sightings_among(ground, {SUPER_HEALING, FULL_REJUVENATION}):
+                kind = REJUVENATION if potion.class_id == FULL_REJUVENATION else HEALING
+                drops.append(
+                    Drop(
+                        potion.unit_id,
+                        potion.x,
+                        potion.y,
+                        f'a {"full rejuvenation" if kind == REJUVENATION else "super healing"} potion',
+                        kind,
                     )
+                )
             belt: list[int | None] = [None] * BELT_SIZE
             for unit in items:
                 if unit['mode'] != BELT_ITEM_MODE or not unit['data_pointer'] or not unit['path_pointer']:
@@ -493,7 +507,7 @@ class GameMemory:
                 if cell < BELT_SIZE:
                     belt[cell] = unit['txt_id']
             stats = unit_stats(read, player.stats_at) if player.stats_at else {}
-            room, cube, held = carried_rows(read, table, player.unit_id)
+            room, cube, held = carried_rows(read, _unit_of(players, player))
             carried = frozenset(unit['unit_id'] for unit in items if unit['address'] in held)
             return Loot(
                 tuple(drops),
@@ -511,7 +525,7 @@ class GameMemory:
         except OSError, ValueError, struct.error:
             return Loot()
 
-    def _census(self, items: list[dict], drops: list[Drop], character: int) -> None:
+    def _census(self, ground: list[GroundItem], drops: list[Drop], character: int) -> None:
         """Say each item on the ground once (`census`): what it is and which pickup rule takes it, if any. The
         player, 2026-10-17: "maybe we need to log drops in case if we're missing something right now, we would be
         able to pickup something valuable"."""
@@ -520,24 +534,17 @@ class GameMemory:
         taken = {drop.unit_id: drop.source or drop.kind for drop in drops}
         labels = {drop.unit_id: drop.label for drop in drops}
         dropped = {drop.unit_id: drop for drop in drops}
-        for unit in items:
-            key = (character, unit['unit_id'])
-            if unit['mode'] not in GROUND_MODES or key in self.ground_seen or not unit['data_pointer']:
+        for item in ground:
+            key = (character, item.unit_id)
+            if key in self.ground_seen or not item.unit['data_pointer']:
                 continue
             self.ground_seen.add(key)
-            base = item_base(unit['txt_id'])
-            if base is None or base.get('type') in CENSUS_SKIPPED:
+            base = item_base(item.txt)
+            if base is None or base.get('type') in CENSUS_SKIPPED or item.data is None or item.at is None:
                 continue
-            try:
-                data = self.read(unit['data_pointer'], ITEM_DATA_SIZE)
-                x, y = static_position(self.read, unit)
-            except OSError, ValueError, struct.error:
-                continue
-            quality = struct.unpack_from('<I', data, QUALITY_OFFSET)[0]
-            flags = struct.unpack_from('<I', data, FLAGS_OFFSET)[0]
-            unit_id = unit['unit_id']
-            rolled = rolls(dropped.get(unit_id))
-            line = census(base['name'], quality, flags, (x, y), taken.get(unit_id), labels.get(unit_id), rolled)
+            quality, flags, _ = item.data
+            unit_id, rolled = item.unit_id, rolls(dropped.get(item.unit_id))
+            line = census(base['name'], quality, flags, item.at, taken.get(unit_id), labels.get(unit_id), rolled)
             LOG.info('Macro: ground: %s', line)
 
     def _equipped(self):

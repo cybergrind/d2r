@@ -2,8 +2,8 @@ from dataclasses import replace
 
 import pytest
 
+from inventory_tracking.game.records import Monster
 from inventory_tracking.macros.actuator import Abort
-from inventory_tracking.macros.game.records import Monster
 from inventory_tracking.macros.routines import (
     SHOW_ITEMS_TRIES,
     prebuff,

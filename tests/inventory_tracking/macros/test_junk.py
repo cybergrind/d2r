@@ -2,10 +2,10 @@
 plan.md §15). The player, 2026-10-17: "picking items with +skill, identifying them, appraising, selling [bad ones] and
 repairing on these money ... we shouldn't sell our own equipment or valuable items"."""
 
+from inventory_tracking.game.layout import IDENTIFY_TOME
+from inventory_tracking.game.records import Carried, Pack
 from inventory_tracking.items.metadata import metadata
 from inventory_tracking.macros.cube import CUBE_CLASS, own_of
-from inventory_tracking.macros.game.layout import IDENTIFY_TOME
-from inventory_tracking.macros.game.records import Carried, Pack
 from inventory_tracking.macros.junk import identify, junk, junk_of, unidentified
 from tests.inventory_tracking.macros.fakes import Game, player, world
 

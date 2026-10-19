@@ -31,10 +31,10 @@ matched it at the end; no click is made by it.
 from collections.abc import Iterable, Sequence
 from dataclasses import dataclass, replace
 
+from inventory_tracking.game.records import Carried, Pack, Page, StashView
 from inventory_tracking.items.grid import CUBE_SIZE, Grid
 from inventory_tracking.loot.runes import RUNES as RUNE_CLASSES
 from inventory_tracking.macros.cube import KEY_CLASS, keys_move, loot
-from inventory_tracking.macros.game.records import Carried, Pack, Page, StashView
 from inventory_tracking.macros.shop import short
 from inventory_tracking.macros.stash import is_potion
 from inventory_tracking.macros.town import (

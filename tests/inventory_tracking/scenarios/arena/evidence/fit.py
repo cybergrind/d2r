@@ -75,7 +75,7 @@ from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import Any
 
-from inventory_tracking.combat.hurts import HURT_LEAST
+from inventory_tracking.takes.hurts import HURT_LEAST
 
 
 HERE = Path(__file__).parent
@@ -85,7 +85,7 @@ SPARKS = HERE / 'sparks.json'
 SWINGS = HERE / 'swings.json'
 FITTED = REPO / 'inventory_tracking' / 'combat' / 'data' / 'monsters_fit.json'
 EXCEL = REPO / 'pricing' / 'raw' / 'game-excel'
-GAME_RATE = 25.0  # frames a second (combat/timeline.py)
+GAME_RATE = 25.0  # frames a second (takes/timeline.py)
 STRIKE_FRAMES = 16  # the model's swing where no length was measured (sim/monsters.py)
 BODY = 3.5  # units: the evidence counts time "in reach" within this (rates.py MODEL_REACH)
 FAR = 12.0  # units: a striker further off is no suspect of a drop (hurts.SUSPECT_REACH): the tail ends here

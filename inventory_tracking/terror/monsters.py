@@ -13,15 +13,20 @@ struct bytes for that research.
 
 import contextlib
 import struct
-from dataclasses import dataclass, field, replace
+from dataclasses import dataclass
 
 from inventory_tracking.common import LOG
+from inventory_tracking.game.decode import monster_table
+from inventory_tracking.game.layout import BASE_STATS, FULL_STATS
+from inventory_tracking.game.records import Bounds, Monster
 from inventory_tracking.levels.memory import MAX_LOADED, MAX_NEAR, MAX_ROOMS, player_room, pointer
 from inventory_tracking.levels.model import Location
 from inventory_tracking.loot.ground import ItemSighting, item_units
 from inventory_tracking.native.layout import (
     LEVEL_AREA_ID,
     LEVEL_FIRST_ROOM2,
+    LIFE_STAT,
+    MAX_LIFE_STAT,
     PATH_ROOM1,
     ROOM1_NEAR,
     ROOM1_NEAR_COUNT,
@@ -38,12 +43,8 @@ from inventory_tracking.native.memory import game_read
 from inventory_tracking.native.units import read_stats, walk_units
 
 
-MONSTER_UNIT = 1
 MONSTER_DATA_SIZE = 0x80
-FULL_STATS = 0xE8
-BASE_STATS = 0x30
 LEVEL_STAT = 12
-LIFE_STAT, MAX_LIFE_STAT = 6, 7  # raw values are life x 256
 # The player's states: 32 a word beside its stats. State 208 (Consume) is bit 0x10000 at +0xB48
 # (tracking/consume.py, verified 2026-09-21), so state 0 is bit 0 at +0xB30; ids are states.txt rows.
 STATES, STATES_SIZE = 0xB30, 0x20
@@ -51,24 +52,6 @@ MAX_TERROR_LEVELS = 64  # a zone has 9 levels at most (desecratedzones.json); mo
 MAX_LEVEL_ID = 200  # levels.txt ends below it
 UNREAD_TERROR_LEVELS: set[str] = set()  # failures of that read already logged
 LEVEL_SIZE = 0x400  # as the Win+C research dump (levels/research.py)
-
-Bounds = tuple[int, int, int, int]
-
-
-@dataclass(frozen=True)
-class Monster:
-    unit_id: int
-    txt_id: int
-    mode: int
-    x: int
-    y: int
-    area: int | None
-    room: Bounds | None
-    data_hex: str | None = None  # first sight only
-    stats: tuple[tuple[int, int, int], ...] | None = None  # (layer, stat id, raw); first sight only
-    base_stats: tuple[tuple[int, int, int], ...] | None = None  # first sight only
-    path: int = field(default=0, compare=False)  # address of the dynamic path (hud/live.py)
-    unit: int = field(default=0, compare=False)  # the unit record's address: its mode and path, read by hud/dots.py
 
 
 @dataclass(frozen=True)
@@ -129,11 +112,15 @@ def first_sight(read, unit) -> dict:
 
 
 def monster_units(read, table_address, *, known) -> tuple[list[Monster], bool]:
-    """(monsters, complete); a chain the game changed mid-walk loses the units after the break."""
-    heads = struct.unpack('<128Q', read(table_address + MONSTER_UNIT * 1024, 1024))
+    """(monsters, complete); a chain the game changed mid-walk loses the units after the break.
+
+    The Terror Zone view of the look's walk (game/decode.py `monster_table`): every monster unit with a readable
+    path, the dead and those without monster data too, each with its position in whole world units, its room's
+    area and bounds and, on first sight only (not in `known`), its monster data and stat lists. Cheap by design: the
+    probe and the HUD's 0.2 s walk read one path per unit a pass, not the look's monster data and stats."""
     rooms: dict[int, tuple[int | None, Bounds | None]] = {}
     found = []
-    walked = walk_units(read, heads, MONSTER_UNIT)
+    walked = monster_table(read, table_address)
     for unit in walked['units']:
         if not unit['path_pointer']:
             continue
@@ -144,8 +131,20 @@ def monster_units(read, table_address, *, known) -> tuple[list[Monster], bool]:
         x, y = struct.unpack_from('<HxxH', path, 0x02)
         area, room = room_area(read, struct.unpack_from('<Q', path, PATH_ROOM1)[0], rooms)
         details = {} if unit['unit_id'] in known else first_sight(read, unit)
-        monster = Monster(unit['unit_id'], unit['txt_id'], unit['mode'], x, y, area, room, **details)
-        found.append(replace(monster, path=unit['path_pointer'], unit=unit['address']))
+        found.append(
+            Monster(
+                unit['unit_id'],
+                unit['txt_id'],
+                unit['mode'],
+                x,
+                y,
+                area=area,
+                room=room,
+                path_at=unit['path_pointer'],
+                unit_at=unit['address'],
+                **details,
+            )
+        )
     return found, walked['complete']
 
 

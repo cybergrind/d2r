@@ -11,14 +11,14 @@ import time
 import pytest
 
 from inventory_tracking.config import APPRAISAL
+from inventory_tracking.game.decode import monsters_and_dead
+from inventory_tracking.game.layout import ITEM_UNIT, TRACE_RVAS
+from inventory_tracking.game.memory import GameMemory
+from inventory_tracking.game.records import Player
 from inventory_tracking.levels import model
 from inventory_tracking.levels.model import Level, Target
 from inventory_tracking.loot.materials import material_classes
 from inventory_tracking.macros.actuator import Cancelled
-from inventory_tracking.macros.game.decode import monsters_and_dead
-from inventory_tracking.macros.game.layout import ITEM_UNIT, TRACE_RVAS
-from inventory_tracking.macros.game.memory import GameMemory
-from inventory_tracking.macros.game.records import Player
 from inventory_tracking.macros.hunt import SLICE
 from inventory_tracking.macros.pickup import pick_up
 from inventory_tracking.macros.runner import ATTACK, TELEPORT, TRAVEL_QUIET, MacroRunner
@@ -193,19 +193,17 @@ def memory_of(counted: CountedMemory) -> GameMemory:
     return memory
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason='GameMemory.loot walks the item table five times a call: the runes, the marked materials, the uniques, '
-    'the potions and the belt each walk it on their own',
-)
 def test_one_look_at_the_loot_walks_the_item_table_once():
+    # Up to 2026-10-19 the runes, the marked materials, the uniques, the look itself and the potions each walked it
     counted = CountedMemory()
     counted.block(TABLE + ITEM_UNIT * 1024, 1024)  # no item units: every walk is the read of the heads
     memory = memory_of(counted)
-    memory._player = lambda: Player(1, 'CybergrindAA', 1, 35, 5000.0, 5000.0, False)  # type: ignore[method-assign]
+    player = Player(1, 'CybergrindAA', 1, 35, 5000.0, 5000.0, False)
+    memory._players = lambda: (player, {'units': [], 'complete': True})  # type: ignore[method-assign]
+    memory.ground_seen = set()
     loot = memory.loot(rune_minimum='r01', unique_minimum=1.0, materials=material_classes(APPRAISAL.material_marks))
     assert loot.drops == ()
-    assert len(counted.reads) == 1
+    assert counted.reads.count((TABLE + ITEM_UNIT * 1024, 1024)) == 1
 
 
 @pytest.mark.xfail(

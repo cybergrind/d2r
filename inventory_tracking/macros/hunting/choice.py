@@ -9,6 +9,17 @@ from typing import TYPE_CHECKING
 from inventory_tracking.automation.priority import reserve
 from inventory_tracking.common import LOG
 from inventory_tracking.config import HEAL_PRIORITY
+from inventory_tracking.game.records import (
+    HEALING,
+    REJUVENATION,
+    VALUABLE,
+    Drop,
+    Loot,
+    Monster,
+    Thing,
+    World,
+    has_room,
+)
 from inventory_tracking.levels.model import SUPER_CHEST, UNIQUE_CHEST, Ground, Room, Target
 from inventory_tracking.levels.presets import display_name
 from inventory_tracking.macros import lootpolicy, route, supply
@@ -28,17 +39,6 @@ from inventory_tracking.macros.build import Intent
 from inventory_tracking.macros.drinking import on_belt
 from inventory_tracking.macros.drop_ledger import GATHER_TRIES
 from inventory_tracking.macros.engine import Run
-from inventory_tracking.macros.game.records import (
-    HEALING,
-    REJUVENATION,
-    VALUABLE,
-    Drop,
-    Loot,
-    Monster,
-    Thing,
-    World,
-    has_room,
-)
 from inventory_tracking.macros.goals import (
     CLEAR_WAY,
     PICK_NEAR,

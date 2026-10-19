@@ -17,6 +17,7 @@ import math
 import time
 
 from inventory_tracking.common import LOG
+from inventory_tracking.game.records import World
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.agenda import (
     EXCURSION,
@@ -35,7 +36,6 @@ from inventory_tracking.macros.agenda import (
     room_package,
 )
 from inventory_tracking.macros.engine import Run
-from inventory_tracking.macros.game.records import World
 from inventory_tracking.macros.loop import (
     DROPS_AFTER_KILL,
     LEAVE,

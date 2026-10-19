@@ -2,7 +2,7 @@
 movement research of 2026-10-11).
 
 The client holds, for every monster, the waypoints it is walking and which one it is going to
-(macros/game/layout.py PATH_RECORD; the recorder writes the records to a take's paths.jsonl). A monster
+(game/layout.py PATH_RECORD; the recorder writes the records to a take's paths.jsonl). A monster
 walks straight from waypoint to waypoint at its monstats Velocity (Run when it runs), in world units
 a second. On the Far Oasis take of 2026-10-10 22:42 UTC, 15 frames ahead, this put a moving hostile
 1.46 units off on average and more than 2 units off 24% of the time; its last three frames'
@@ -15,7 +15,7 @@ import struct
 from dataclasses import dataclass
 
 from inventory_tracking.combat.mechanics.tables import tables
-from inventory_tracking.combat.timeline import GAME_RATE
+from inventory_tracking.takes.timeline import GAME_RATE
 
 
 Point = tuple[float, float]

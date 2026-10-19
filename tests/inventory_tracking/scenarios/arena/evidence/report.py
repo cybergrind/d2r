@@ -24,9 +24,9 @@ from functools import cache
 from pathlib import Path
 from typing import Any
 
-from inventory_tracking.combat.hurts import BESIDE, HURT_LEAST, MISSILE_REACH, SUSPECT_REACH
 from inventory_tracking.combat.mechanics.tables import tables
 from inventory_tracking.combat.sim.monsters import AWARE, CHARACTER_FIRST, REACH
+from inventory_tracking.takes.hurts import BESIDE, HURT_LEAST, MISSILE_REACH, SUSPECT_REACH
 from tests.inventory_tracking.scenarios.arena.evidence import model, rates, scan
 from tests.inventory_tracking.scenarios.arena.evidence.blows import (
     CLASSES,
@@ -884,7 +884,7 @@ def render(
         'for both. Takes of one game session fall in both halves, so the halves are not independent of each other '
         'in area and monster mix: check guards against fitting noise, not against a different zone.',
         f"- **A drop** is a fall of the character's life of {HURT_LEAST} points or more between two read frames "
-        '(combat/hurts.py `lost`: a fall of the most life with it is no blow), counted across frames whose vitals '
+        '(takes/hurts.py `lost`: a fall of the most life with it is no blow), counted across frames whose vitals '
         'were not read.',
         '- **Sample sizes are small.** The takes hold '
         f'{whole["classes"]["n"]:,} drops in {whole["seconds"] / 3600:.1f} hours; '

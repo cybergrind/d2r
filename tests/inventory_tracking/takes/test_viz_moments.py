@@ -2,7 +2,7 @@
 
 from itertools import pairwise
 
-from inventory_tracking.combat.viz_moments import (
+from inventory_tracking.takes.viz_moments import (
     IDLE,
     KILL,
     KINDS,

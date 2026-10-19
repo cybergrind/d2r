@@ -122,15 +122,9 @@ from inventory_tracking.combat.sim import casters
 from inventory_tracking.combat.sim.casters import mind_of
 from inventory_tracking.combat.sim.guard import Guard
 from inventory_tracking.combat.stance import no_footing, way
-from inventory_tracking.combat.timeline import GAME_RATE
 from inventory_tracking.config import INPUT, HealingConfig
-from inventory_tracking.input import Refused
-from inventory_tracking.levels.doors import Door
-from inventory_tracking.levels.model import Ground, Walkable
-from inventory_tracking.macros.build import Attack
-from inventory_tracking.macros.engine import Run
-from inventory_tracking.macros.game.layout import FULL_REJUVENATION, MONSTER_UNIT, NO_OWNER, OBJECT_UNIT, SUPER_HEALING
-from inventory_tracking.macros.game.records import (
+from inventory_tracking.game.layout import FULL_REJUVENATION, MONSTER_UNIT, NO_OWNER, OBJECT_UNIT, SUPER_HEALING
+from inventory_tracking.game.records import (
     GOLD,
     HEALING,
     REJUVENATION,
@@ -141,6 +135,11 @@ from inventory_tracking.macros.game.records import (
     Thing,
     World,
 )
+from inventory_tracking.input import Refused
+from inventory_tracking.levels.doors import Door
+from inventory_tracking.levels.model import Ground, Walkable
+from inventory_tracking.macros.build import Attack
+from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.movement import TELEPORT_JUMP
 from inventory_tracking.macros.routines import ACTING
 from inventory_tracking.macros.skills import SWAP_WEAPONS, TELEPORT
@@ -158,6 +157,7 @@ from inventory_tracking.models import (
     State,
 )
 from inventory_tracking.native.layout import BELT_COLUMNS, BELT_SIZE, CORPSE_MODE, DEAD_MODES
+from inventory_tracking.takes.timeline import GAME_RATE
 from inventory_tracking.tracking.belt import potion_kind
 from tests.inventory_tracking.macros.fakes import KEYS, Clock, Game, player
 from tests.inventory_tracking.scenarios.arena.mobs import Mobs, raw_resists
@@ -173,7 +173,7 @@ POTIONS = {
     if not class_id.startswith('_')
 }
 POTION_CLASS = {row['code']: class_id for class_id, row in POTIONS.items()}  # a scene's drop has the code
-# The potions the pickup step sees on the ground and what it takes them for (macros/game/
+# The potions the pickup step sees on the ground and what it takes them for (game/
 # `GameMemory.loot`: only these two are worth a belt cell), with the labels it gives them.
 GROUND_POTIONS = {
     FULL_REJUVENATION: (REJUVENATION, 'a full rejuvenation potion'),
@@ -215,7 +215,7 @@ assert BLOCKING not in ACTING
 BLOCK_CHANCE = 0.10  # of a melee blow that would land (the module text has the measure)
 BLOCK_SECONDS = 0.44
 OPEN_REACH = 3.0  # units: an object clicked is operated from this near
-# Blade Warp's casting delay as the game plays it: the character's state 185 `cooldown` (macros/game/
+# Blade Warp's casting delay as the game plays it: the character's state 185 `cooldown` (game/
 # `Player.cooldown`) is set WARP_DELAY_SHOWN after the key and cleared WARP_DELAY_OVER after it (the take of
 # 12:33 on 2026-10-13: 0.20 s, then 0.80 s long, 64 warps of 64); a warp key before that is refused: it moves
 # nobody and is counted (`Arena.refused_warps`, its seconds after the key before).
@@ -355,7 +355,7 @@ class Healer:
         state = State(
             sampled_at=arena.clock(),
             session=self.session,
-            # the raw stat: points times 256 (macros/game/ reads `stats.get(LIFE_STAT) >> 8`)
+            # the raw stat: points times 256 (game/ reads `stats.get(LIFE_STAT) >> 8`)
             health=PlayerHealth(round(arena.life * 256), round(arena.max_life * 256)),
             belt=BeltSnapshot(
                 contents=belt,
@@ -484,7 +484,7 @@ class Arena(Game):
             self.cleared_at = 0.0
 
     def _drops(self) -> list[Drop]:
-        """The scene's drops as the pickup step reads them (macros/game/memory.py `GameMemory.loot`): a pile
+        """The scene's drops as the pickup step reads them (game/memory.py `GameMemory.loot`): a pile
         of gold, a potion worth a belt cell (a smaller one is not read at all), and every other one a
         valuable under its code. The sizes of valuables and the inventory's room are not in a scene:
         one cell each (`Drop.size`) and room unread (`Loot.room`), so room is never short."""
@@ -512,7 +512,7 @@ class Arena(Game):
     def show(self) -> None:
         """The world as it is now, for the next look: the hostiles alive and the dead from `Mobs`,
         every other monster (a companion of the scene's, a Defiler the macro summoned) as it was, and
-        the life in whole points (macros/game/records.py `Loot.life`; 0 is unreadable there, so 1 at least
+        the life in whole points (game/records.py `Loot.life`; 0 is unreadable there, so 1 at least
         while the character lives)."""
         hostile = set(self.mobs.hostile)
         theirs = [m for m in self.mobs.monsters() if m.unit_id in hostile]

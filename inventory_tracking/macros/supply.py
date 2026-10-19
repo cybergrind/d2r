@@ -29,10 +29,10 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 
 from inventory_tracking.config import BELT, HEAL_PRIORITY, MERC_HEALING
+from inventory_tracking.game.records import HEALING, REJUVENATION, Drop, Loot
 from inventory_tracking.levels.doors import Door
 from inventory_tracking.levels.model import Ground
 from inventory_tracking.macros.drinking import on_belt
-from inventory_tracking.macros.game.records import HEALING, REJUVENATION, Drop, Loot
 from inventory_tracking.macros.travel import walked_length
 from inventory_tracking.models import PotionType
 from inventory_tracking.tracking.belt import column_shortages

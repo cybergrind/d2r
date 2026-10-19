@@ -60,8 +60,6 @@ from typing import Any
 
 from inventory_tracking.builds.warlock.echoing_strike.mechanics import MISSILE
 from inventory_tracking.combat.stance import CROWD_MOST, CROWD_UNITS
-from inventory_tracking.combat.takes import Take, monsters_of, player_of
-from inventory_tracking.combat.timeline import GAME_RATE
 from inventory_tracking.config import PLAYER_HEALING, with_overrides
 from inventory_tracking.input.compositor import STEP_KEYS
 from inventory_tracking.levels.guide import lead_first, place
@@ -79,6 +77,8 @@ from inventory_tracking.macros.teleport import USES, ready
 from inventory_tracking.native.layout import TILE_UNITS
 from inventory_tracking.routes.catalog import ROUTES
 from inventory_tracking.routes.progress import Progress
+from inventory_tracking.takes.takes import Take, monsters_of, player_of
+from inventory_tracking.takes.timeline import GAME_RATE
 from tests.inventory_tracking.macros.fakes import LAYERS
 from tests.inventory_tracking.scenarios.arena import scene as scene_file
 from tests.inventory_tracking.scenarios.arena.cut import DEFAULT_HERO, MAIN, STAFF, cut, level_of

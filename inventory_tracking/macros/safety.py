@@ -50,10 +50,10 @@ from inventory_tracking.combat.stance import (
 )
 from inventory_tracking.combat.survival import Pressure, Supply
 from inventory_tracking.common import LOG
+from inventory_tracking.game.layout import NO_OWNER
+from inventory_tracking.game.records import Loot, World
 from inventory_tracking.macros.build import Attack, Draw, DrawPrice, Leg, NoWay, PricedStep, Shield, Step
 from inventory_tracking.macros.drinking import on_belt
-from inventory_tracking.macros.game.layout import NO_OWNER
-from inventory_tracking.macros.game.records import Loot, World
 from inventory_tracking.macros.goals import Goal
 from inventory_tracking.macros.pursuit import Act, Candidate, Facts, Hold, Move, Operate, decide
 from inventory_tracking.macros.skills import TELEPORT

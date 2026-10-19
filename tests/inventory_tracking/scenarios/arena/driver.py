@@ -47,12 +47,12 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from inventory_tracking.config import HealingConfig
+from inventory_tracking.game.records import World
 from inventory_tracking.input.compositor import STEP_KEYS
 from inventory_tracking.levels.model import Level, Room
 from inventory_tracking.macros import opening, pickup, runner as runner_module, teleport
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.build import Build
-from inventory_tracking.macros.game.records import World
 from inventory_tracking.macros.hunt import Hunter, threat
 from inventory_tracking.macros.latency import Trace
 from inventory_tracking.macros.opening import open_near

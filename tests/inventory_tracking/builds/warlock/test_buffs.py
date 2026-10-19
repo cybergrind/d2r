@@ -30,6 +30,7 @@ from inventory_tracking.builds.warlock.skills import (
     SIGIL_LETHARGY,
     SUMMON_DEFILER,
 )
+from inventory_tracking.game.records import Monster
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.buffs import (
     STATE_DISTRUST as HEX_DISTRUST,
@@ -41,7 +42,6 @@ from inventory_tracking.macros.buffs import (
 )
 from inventory_tracking.macros.build import BuffFacts
 from inventory_tracking.macros.cta import BATTLE_ORDERS
-from inventory_tracking.macros.game.records import Monster
 from inventory_tracking.macros.skills import SWAP_WEAPONS
 from tests.inventory_tracking.macros.fakes import HUNT_SLOTS, KEYS, WINDOW, Game, character_of, world
 

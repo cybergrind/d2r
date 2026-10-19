@@ -4,7 +4,7 @@ companions' recorded paths (the mercenary and the pets, whose damage the engine 
 the recorded casts with their focal points, and the recorded kills to compare with.
 
 A situation's frames are game ticks, 25 a second, not the recorder's sample numbers: a sample that
-came late takes the ticks it was late by with it (combat/timeline.py), and what stood in the sample
+came late takes the ticks it was late by with it (takes/timeline.py), and what stood in the sample
 before it is held through them, so a cast's cadence, a blade's flight and the seconds a score is
 divided by are the game's (review.md, finding 6: a take with 28 late samples ran 10% short). The
 frames of another level than the situation's are left out, and the strike button held when the
@@ -28,12 +28,12 @@ from inventory_tracking.builds.warlock.echoing_strike.validate import full_casts
 from inventory_tracking.combat.mechanics.movement import Route, route_of
 from inventory_tracking.combat.mechanics.tables import monster_points, points_of
 from inventory_tracking.combat.policy import walls
-from inventory_tracking.combat.takes import LIFE_SCALE, PlayerRow, Take, ground_under_pointer, monsters_of, player_of
-from inventory_tracking.combat.timeline import GAME_RATE, HOLD_TICKS, button_down, ticks
 from inventory_tracking.levels.doors import Door
 from inventory_tracking.levels.model import Ground, Walkable
 from inventory_tracking.macros.routines import BODY_LIFT
 from inventory_tracking.native.layout import CORPSE_MODE, PLAYER_DEAD_MODES
+from inventory_tracking.takes.takes import LIFE_SCALE, PlayerRow, Take, ground_under_pointer, monsters_of, player_of
+from inventory_tracking.takes.timeline import GAME_RATE, HOLD_TICKS, button_down, ticks
 
 
 Point = tuple[float, float]

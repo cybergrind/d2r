@@ -24,7 +24,7 @@ as before: the press and the sweep move on from it.
 
 from dataclasses import dataclass
 
-from inventory_tracking.macros.game.records import VALUABLE, Drop
+from inventory_tracking.game.records import VALUABLE, Drop
 from inventory_tracking.macros.pickmode import REGULAR, SURE, TRADE, is_candidate, sure, traded
 
 

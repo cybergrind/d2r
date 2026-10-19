@@ -57,13 +57,13 @@ from multiprocessing import get_context
 from pathlib import Path
 from typing import Any
 
-from inventory_tracking.combat.hurts import LIGHTNING, Sightings, enchantments
 from inventory_tracking.combat.mechanics.tables import tables
 from inventory_tracking.combat.sim.monsters import SPARK as SPARK_KIND, SPARK_MISSILE
-from inventory_tracking.combat.takes import Take
-from inventory_tracking.combat.timeline import GAME_RATE
-from inventory_tracking.macros.game.layout import HERALD_TIER_STAT
+from inventory_tracking.game.layout import HERALD_TIER_STAT
 from inventory_tracking.native.layout import PLAYER_DEAD_MODES
+from inventory_tracking.takes.hurts import LIGHTNING, Sightings, enchantments
+from inventory_tracking.takes.takes import Take
+from inventory_tracking.takes.timeline import GAME_RATE
 from inventory_tracking.terror.monsters import LEVEL_STAT
 from tests.inventory_tracking.scenarios.arena.evidence import blows, scan
 from tests.inventory_tracking.scenarios.arena.evidence.blows import (

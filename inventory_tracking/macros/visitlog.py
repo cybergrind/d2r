@@ -24,7 +24,7 @@ from pathlib import Path
 from typing import Any
 
 from inventory_tracking.common import LOG
-from inventory_tracking.macros.game.records import Carried, Pack, Page, StashView
+from inventory_tracking.game.records import Carried, Pack, Page, StashView
 from inventory_tracking.macros.portal import FROM_SLING, FROM_TOME, PortalSource
 from inventory_tracking.macros.town import Cell, Exit, Needs
 

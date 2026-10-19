@@ -49,7 +49,7 @@ from inventory_tracking.appraisal.owned import (
 )
 from inventory_tracking.collection.store import DEFAULT_DATABASE, _row_item, _row_placement
 from inventory_tracking.common import LOG
-from inventory_tracking.macros.game.records import Carried
+from inventory_tracking.game.records import Carried
 from inventory_tracking.macros.junk import VENDOR, named
 from inventory_tracking.macros.pickmode import SET, UNIQUE
 

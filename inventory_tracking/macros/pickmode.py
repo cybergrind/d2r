@@ -34,9 +34,9 @@ listed from the bundled metadata on 2026-10-16, not written from memory.
 
 from dataclasses import replace
 
+from inventory_tracking.game.records import VALUABLE, Drop, Loot
 from inventory_tracking.items.metadata import item_base
 from inventory_tracking.loot.shown import RARITIES
-from inventory_tracking.macros.game.records import VALUABLE, Drop, Loot
 
 
 __all__ = [
@@ -151,7 +151,7 @@ def candidate(drop: Drop, kind: str | None) -> bool:
 
 def void_base(drop: Drop) -> bool:
     """Whether the drop is a white or superior Void base worth keeping: VOID_SOCKETS sockets and a staff mod of
-    VOID_STAFFMODS at VOID_LEVEL or more, or no socket and ABYSS at VOID_LEVEL, read off the ground (macros/game/
+    VOID_STAFFMODS at VOID_LEVEL or more, or no socket and ABYSS at VOID_LEVEL, read off the ground (game/
     `rolled`). Unread: not taken (a base is worth little, and one taken unread fills the stash: the player's daggers
     with one socket, 18:56 on 2026-10-17)."""
     found = drop.rolls

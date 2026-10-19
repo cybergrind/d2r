@@ -25,8 +25,9 @@ import threading
 from typing import Any
 
 from inventory_tracking.common import LOG, timestamp
+from inventory_tracking.game.records import Monster
 from inventory_tracking.native.layout import DEAD_MODES, TOWN_IDS
-from inventory_tracking.terror.monsters import Monster, MonsterSnapshot, TerrorEntry, observe_monsters
+from inventory_tracking.terror.monsters import MonsterSnapshot, TerrorEntry, observe_monsters
 from inventory_tracking.terror.tracker import MODIFIER_NAMES
 from inventory_tracking.terror.zones import group_of
 

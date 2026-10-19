@@ -9,6 +9,7 @@ import pytest
 from pydantic import ValidationError
 
 from inventory_tracking.config import with_overrides
+from inventory_tracking.game.records import Player, World
 from inventory_tracking.macros import build as contracts
 from inventory_tracking.macros.build import (
     Buff,
@@ -24,7 +25,6 @@ from inventory_tracking.macros.build import (
     Tried,
     choose,
 )
-from inventory_tracking.macros.game.records import Player, World
 from inventory_tracking.macros.travel import Step
 
 

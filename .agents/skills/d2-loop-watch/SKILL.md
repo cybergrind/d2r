@@ -114,7 +114,7 @@ Switches for a change under test are module constants with a dated comment (e.g.
 | `trade.py [--since ..] [--until ..]` | Items identified by base and verdict, junk sold and its gold, gold an hour of play and a second of trade time, payback by kind (under 1 over 20+ items: leave that kind on the ground). |
 | `logwords.py` | The shared log patterns of watch/games/andy (a log line changed in code is changed here, and its test). |
 
-Deeper: `python -m inventory_tracking.combat.legs <take>...`; `.agents/skills/d2-rca/tools/session.py` (`log`, `idle`,
+Deeper: `python -m inventory_tracking.takes.legs <take>...`; `.agents/skills/d2-rca/tools/session.py` (`log`, `idle`,
 `unit`, `inputs`: the service's `sent` events against the player's own). Logs: `runs/alt-d/<UTC>-<id>/probe.log`
 (serve, local times), `runs/combat/<UTC>-<area>/` (takes: frames at 25/s, events, `level.json`), `runs/osd/<stamp>/
 osd.log` (`make osd`: healer, Show Items presses), `<session>/visits/<HHMMSS>.json` (town visit snapshots).

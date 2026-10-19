@@ -27,6 +27,7 @@ from pathlib import Path
 from typing import NamedTuple
 
 from inventory_tracking.common import LOG
+from inventory_tracking.game.records import Carried, Pack, World
 from inventory_tracking.items.grid import Grid
 from inventory_tracking.levels.presets import display_name
 from inventory_tracking.macros.actuator import Abort, Hand
@@ -52,7 +53,6 @@ from inventory_tracking.macros.cube import (
     roomed,
 )
 from inventory_tracking.macros.engine import Run
-from inventory_tracking.macros.game.records import Carried, Pack, World
 from inventory_tracking.macros.junk import MAGIC
 from inventory_tracking.macros.pickup import SHUNNED
 from inventory_tracking.macros.portal import FROM_TOME, PortalSource, portal_source, slot_note, through_portal, to_town

@@ -1,16 +1,16 @@
-"""The combat recorder (combat/record.py): takes open and close with the level, frames and the
+"""The combat recorder (takes/record.py): takes open and close with the level, frames and the
 events derived from them, the late-frame count; all on a scripted sample sequence and a fake clock."""
 
 import json
 import threading
 from dataclasses import replace
 
-from inventory_tracking.combat import macro_state
-from inventory_tracking.combat.record import IDLE_SECONDS, LEVEL_SECONDS, NOTE_SECONDS, MacroLines, Recorder, Sample
-from inventory_tracking.combat.takes import Take, carried, records, resists_by_frame, timeline
+from inventory_tracking.game.memory import GameMemory
+from inventory_tracking.game.records import Drop, Loot, Monster, Teleport, Thing, World
 from inventory_tracking.levels.model import Level, Room, Walkable, pack_cells
-from inventory_tracking.macros.game.memory import GameMemory
-from inventory_tracking.macros.game.records import Drop, Loot, Monster, Teleport, Thing, World
+from inventory_tracking.takes import macro_state
+from inventory_tracking.takes.record import IDLE_SECONDS, LEVEL_SECONDS, NOTE_SECONDS, MacroLines, Recorder, Sample
+from inventory_tracking.takes.takes import Take, carried, records, resists_by_frame, timeline
 from tests.inventory_tracking.macros.fakes import player
 
 
@@ -695,8 +695,8 @@ def item_unit(unit_id, class_id, data, following=0):
 
 
 def test_a_drop_is_named_by_its_code_and_quality_read_once_while_it_lies_there(tmp_path):
-    from inventory_tracking.combat.record import LiveSampler, item_identity
     from inventory_tracking.items.metadata import item_base
+    from inventory_tracking.takes.record import LiveSampler, item_identity
 
     # Item unit 300 hashes to bucket 44 (300 % 128), behind another item in the same chain; a rune of class
     # 640, quality 2 (normal). Its code is the game's tables', not written here.
@@ -729,7 +729,7 @@ def test_a_drop_is_named_by_its_code_and_quality_read_once_while_it_lies_there(t
 
 
 def test_the_server_frame_is_read_through_the_player_data_and_the_block_pointer_is_kept():
-    from inventory_tracking.combat.record import LIFE_BLOCK, LIFE_FRAME, LiveSampler
+    from inventory_tracking.takes.record import LIFE_BLOCK, LIFE_FRAME, LiveSampler
 
     record = bytes(0x10) + (0x9000).to_bytes(8, 'little') + bytes(0x1C0 - 0x18)
     memory = Memory(

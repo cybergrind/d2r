@@ -38,9 +38,9 @@ from collections import Counter
 from collections.abc import Iterator, Sequence
 from pathlib import Path
 
-from inventory_tracking.combat.hurts import Sightings, enchantments, sightings
-from inventory_tracking.combat.takes import Take
-from inventory_tracking.macros.game.layout import LYING_DEAD
+from inventory_tracking.game.layout import LYING_DEAD
+from inventory_tracking.takes.hurts import Sightings, enchantments, sightings
+from inventory_tracking.takes.takes import Take
 from tests.inventory_tracking.scenarios.arena import moments as rules
 from tests.inventory_tracking.scenarios.arena.cut import DEFAULT_HERO, Refused, cut
 from tests.inventory_tracking.scenarios.arena.fixed import fixed, spread, strides
@@ -62,7 +62,7 @@ BELT_COLUMNS = 4
 
 def belt_keys(take: Take) -> frozenset[int]:
     """The key codes of the belt keys 1 to 4. The manifest names the codes of the skill keys only
-    (combat/record.py NAMED_KEYS), `6` among them: the number row's codes are one after another, so
+    (takes/record.py NAMED_KEYS), `6` among them: the number row's codes are one after another, so
     `1` is five before it (the take 20261011T195037Z-25 has `6` at 15 and the three potions of its
     last seconds at 12, 12 and 13: "Drinking (3)" in its log)."""
     six = next((int(code) for code, name in take.manifest.get('keys', {}).items() if name == '6'), None)
@@ -109,7 +109,7 @@ class Sessions:
         return None if session is None else self.lines[session]
 
     def mods(self, take: Take) -> dict[int, tuple[int, ...]]:
-        """The enchantments of a take's units by its session's terror probe (combat/hurts.py); nothing
+        """The enchantments of a take's units by its session's terror probe (takes/hurts.py); nothing
         for a take that holds its own, or without the log."""
         session = self.of.get(take.directory.name)
         if session is None or any('mods' in unit for unit in take.units):

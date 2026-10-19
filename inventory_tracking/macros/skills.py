@@ -1,6 +1,6 @@
 """The key that casts a skill, for the character in the game: skill id -> slot -> key.
 
-The slot comes from the game's memory (macros/game/), the key from the character's own key file
+The slot comes from the game's memory (game/), the key from the character's own key file
 (input/keybindings.py). Slot `i` is key action `14 + i` for the first eight slots and
 `46 + (i - 8)` after them (record probe, 2026-10-06: the four keys the user named agree).
 """

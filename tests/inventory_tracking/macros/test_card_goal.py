@@ -1,8 +1,8 @@
 """The level card's goal is the route's, as the macro's (rca/2026-10-14/run-1916-hud-findings.md §1)."""
 
+from inventory_tracking.game.records import Drop, Thing
 from inventory_tracking.levels.model import SEALS, Poi, Room, Target
 from inventory_tracking.macros.card_goal import NOT_SEEN, CardGoals
-from inventory_tracking.macros.game.records import Drop, Thing
 from inventory_tracking.macros.goals import FIGHT, USE, goal_of, route_goal
 from inventory_tracking.macros.route import PERFORMED
 from inventory_tracking.macros.travel import STANDING

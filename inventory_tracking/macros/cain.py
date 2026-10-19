@@ -15,9 +15,9 @@ menu's lines are not measured. A line that opens his talk instead is closed (`_c
 from collections.abc import Sequence
 
 from inventory_tracking.common import LOG
+from inventory_tracking.game.records import Carried, World
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.engine import Run
-from inventory_tracking.macros.game.records import Carried, World
 from inventory_tracking.macros.shop import (
     LINE,
     WALK_SECONDS,

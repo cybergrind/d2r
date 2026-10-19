@@ -42,7 +42,7 @@ attributed one where the take's drops were attributed (`Fit.life_ratio`).
 
 **What is compared.** The life the character lost (`life_lost`: the sum of the falls of its life from
 tick to tick, in the take and in the arena alike, so a potion hides only what it gives within one
-tick; a fall of the most life is not a blow, combat/hurts.py `lost`) and the scene's hostiles that
+tick; a fall of the most life is not a blow, takes/hurts.py `lost`) and the scene's hostiles that
 died. The window ends early where the comparison would stop being of the same thing: at the
 character's death in the take or in the arena (the arena's world stands still from there), and where
 the take leaves the level or ends.
@@ -81,7 +81,6 @@ from typing import Any
 
 from inventory_tracking.builds.warlock.echoing_strike.mechanics import LIFE, cast
 from inventory_tracking.builds.warlock.echoing_strike.sim.situation import Situation, cut as situation_of
-from inventory_tracking.combat.hurts import SUSPECT_REACH, hurts, lost, sole
 from inventory_tracking.combat.mechanics.tables import tables
 from inventory_tracking.combat.sim.monsters import (
     AWARE,
@@ -92,12 +91,13 @@ from inventory_tracking.combat.sim.monsters import (
     nova_points,
     spread as size_factor,
 )
-from inventory_tracking.combat.takes import Take, monsters_of
-from inventory_tracking.combat.timeline import GAME_RATE
+from inventory_tracking.game.layout import LYING_DEAD, NO_OWNER
+from inventory_tracking.game.records import Monster
 from inventory_tracking.levels.presets import display_name
-from inventory_tracking.macros.game.layout import LYING_DEAD, NO_OWNER
-from inventory_tracking.macros.game.records import Monster
 from inventory_tracking.native.layout import DEAD_MODES, PLAYER_DEAD_MODES
+from inventory_tracking.takes.hurts import SUSPECT_REACH, hurts, lost, sole
+from inventory_tracking.takes.takes import Take, monsters_of
+from inventory_tracking.takes.timeline import GAME_RATE
 from tests.inventory_tracking.scenarios.arena.build_scenes import FIXTURES, REPO, ROOT, SCENE_FILE, belt_keys
 from tests.inventory_tracking.scenarios.arena.cut import ALWAYS_ASSUMED, hand_of
 from tests.inventory_tracking.scenarios.arena.evidence import blows as attribution, scan
@@ -126,7 +126,7 @@ MIN_TAKEN = 90.0
 TRUST = (0.5, 2.0)  # arena / take: within these the arena is believed
 CAST_LEAD = LIFE  # ticks before the scene's frame whose casts are still in the air at it
 # Units from the recorded character within which a hostile the scene does not hold is a stranger: the
-# reach combat/hurts.py takes a striker for a suspect of a drop within.
+# reach takes/hurts.py takes a striker for a suspect of a drop within.
 STRANGER_REACH = SUSPECT_REACH
 MIN_SECONDS = 2.0  # a comparison shorter than this is said to be short in the notes
 # A drop of the take this many times the heaviest blow the scene's monsters can deal in the arena is
@@ -200,7 +200,7 @@ def life_lost(samples: Iterable[Vitals | None]) -> float:
     to the next, so what a potion gives back between two blows hides nothing. A sample not read (None,
     or a most life of 0: the recorder's failed read shows 0 of 0) is skipped and the fall is counted
     across it. A fall that came with a fall of the most life (Consume ran out, the other weapons were
-    taken) is not a blow as far as the life only kept its share: combat/hurts.py `lost`."""
+    taken) is not a blow as far as the life only kept its share: takes/hurts.py `lost`."""
     total, before = 0.0, None
     for sample in samples:
         if sample is None or not sample[1]:
@@ -226,7 +226,7 @@ class Replay:
     dead_at: int | None = None  # the tick the character lay dead at
     strangers: list[int] = field(default_factory=list)  # by tick: hostiles near the character the scene lacks
     left_at: int | None = None  # the first tick with a stranger, whether or not the window was cut there
-    # The drops of the character's life in the window (combat/hurts.py `hurts`): (tick, points, the
+    # The drops of the character's life in the window (takes/hurts.py `hurts`): (tick, points, the
     # type of the one monster striking alone or None when the drop cannot be put on one).
     drops: list[tuple[int, float, int | None]] = field(default_factory=list)
     # The same drops as evidence/blows.py classes them: (tick, points, class); None: not attributed.
@@ -413,7 +413,7 @@ def recorded(
 
 def attributed(take: Take, seen: scan.Sightings | None = None) -> list[dict[str, Any]]:
     """The take's drops, each put on its suspects (evidence/blows.py `blows`). `seen` are the terror
-    probe logs' sightings (combat/hurts.py `sightings`), for the enchantments of a take recorded before
+    probe logs' sightings (takes/hurts.py `sightings`), for the enchantments of a take recorded before
     it held them; without them a death with no missile of its own is not known to have been enchanted."""
     return attribution.blows(take, scan.enchantments(seen, take) if seen else None)
 
@@ -796,7 +796,7 @@ def why_not(rows: Sequence[Row]) -> list[str]:
 
 def blow_table(rows: Sequence[Row]) -> list[str]:
     """The blows by the type that struck: the arena's, each one, by its kind (a strike, a shot, a
-    spark); the take's drops that one monster striking alone explains (combat/hurts.py `sole`), and
+    spark); the take's drops that one monster striking alone explains (takes/hurts.py `sole`), and
     all its drops in the last row."""
     arena: dict[tuple[int, str], list[float]] = {}
     take: dict[int | None, list[float]] = {}
@@ -1019,7 +1019,7 @@ def report(
         'Over the compared windows, first seed. An arena blow is one strike, shot or spark after the',
         'resistances of the set in hand. A drop of the take is the life gone between two samples (several',
         'blows landing together are one drop); it is put on a type only when one monster alone was striking',
-        "(`combat/hurts.py` `sole`), so the take's rows by type are a part of its drops: the last row has all,",
+        "(`takes/hurts.py` `sole`), so the take's rows by type are a part of its drops: the last row has all,",
         'the drops nobody is blamed for among them.',
         '',
         *blow_table(rows),

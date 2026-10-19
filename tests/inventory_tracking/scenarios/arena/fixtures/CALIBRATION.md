@@ -354,7 +354,7 @@ The takes' by class: several 9, nova/explosion 3, unknown 2, sole ranged 1. The 
 Over the compared windows, first seed. An arena blow is one strike, shot or spark after the
 resistances of the set in hand. A drop of the take is the life gone between two samples (several
 blows landing together are one drop); it is put on a type only when one monster alone was striking
-(`combat/hurts.py` `sole`), so the take's rows by type are a part of its drops: the last row has all,
+(`takes/hurts.py` `sole`), so the take's rows by type are a part of its drops: the last row has all,
 the drops nobody is blamed for among them.
 
 | striker | arena: kind | blows | median | points | take: drops put on it | median | points |

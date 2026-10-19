@@ -28,8 +28,8 @@ from functools import cache
 from pathlib import Path
 
 from inventory_tracking.combat.mechanics.tables import points_of, tables
-from inventory_tracking.combat.timeline import GAME_RATE
 from inventory_tracking.macros.runner import ATTACK
+from inventory_tracking.takes.timeline import GAME_RATE
 from tests.inventory_tracking.scenarios.arena.driver import Press, play
 from tests.inventory_tracking.scenarios.arena.mobs import Mobs, explodes, is_ranged
 from tests.inventory_tracking.scenarios.arena.result import Result, scorecard

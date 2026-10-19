@@ -21,8 +21,8 @@ areas of the recordings, not the newest evening.
 from bisect import bisect_right
 from math import hypot
 
-from inventory_tracking.combat.takes import Take, monsters_of, player_of
 from inventory_tracking.macros.routines import DEAD
+from inventory_tracking.takes.takes import Take, monsters_of, player_of
 from tests.inventory_tracking.scenarios.arena.moments import LONG_GAP, Moment
 
 

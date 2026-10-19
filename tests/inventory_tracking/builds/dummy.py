@@ -6,8 +6,8 @@ from dataclasses import dataclass
 
 from inventory_tracking.combat.policy import AIM_BEYOND, Choice, Foe, Observation, Point
 from inventory_tracking.combat.stance import Jump
+from inventory_tracking.game.records import Monster, World
 from inventory_tracking.macros.build import Build, Intent, JumpSource, Leg, MoveFacts, NoWay
-from inventory_tracking.macros.game.records import Monster, World
 from inventory_tracking.macros.skills import ATTACK
 from inventory_tracking.macros.travel import Step
 

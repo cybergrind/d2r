@@ -47,6 +47,7 @@ from contextlib import contextmanager
 from dataclasses import dataclass, field, replace
 
 from inventory_tracking.common import LOG
+from inventory_tracking.game.records import Carried, Pack, StashView
 from inventory_tracking.items.metadata import metadata
 from inventory_tracking.loot.runes import RUNES as RUNE_CLASSES
 from inventory_tracking.macros import townplan, visitlog
@@ -72,7 +73,6 @@ from inventory_tracking.macros.cube import (
     unpack,
 )
 from inventory_tracking.macros.engine import Run, protected
-from inventory_tracking.macros.game.records import Carried, Pack, StashView
 from inventory_tracking.macros.junk import MAGIC
 from inventory_tracking.macros.repair import (
     HALBU,
@@ -714,7 +714,7 @@ def _scan(run: Run, missed: Sequence[Carried], inventory_key: str | None, own: f
 class Hands:
     """The runner's closures a visit takes: the key that opens the inventory; Cain's identify (the tome the fallback),
     the appraisals waited for; the junk among identified items (macros/junk.py `junk_of`); the stash as read
-    (macros/game/ `StashView`, None unread); the full gem stacks' transmutes (cube.py `transmute`, what it puts down
+    (game/ `StashView`, None unread); the full gem stacks' transmutes (cube.py `transmute`, what it puts down
     picked up again): how many perfect gems were made and how many units it left on the ground."""
 
     inventory_key: Callable[[], str | None]

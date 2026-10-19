@@ -16,12 +16,12 @@ from collections.abc import Callable
 from typing import TYPE_CHECKING
 
 from inventory_tracking.common import LOG
+from inventory_tracking.game.decode import next_name
+from inventory_tracking.game.layout import ACTING, SUPER_FLAG as SUPER_UNIQUE_FLAG, TRACE_RVAS
+from inventory_tracking.game.records import Player, World
 from inventory_tracking.levels.model import Ground
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.engine import Run
-from inventory_tracking.macros.game.decode import next_name
-from inventory_tracking.macros.game.layout import TRACE_RVAS
-from inventory_tracking.macros.game.records import Player, World
 from inventory_tracking.macros.skills import SWAP_WEAPONS, skill_name
 from inventory_tracking.macros.view import (
     AIM_LIMITS as AIM_LIMITS,
@@ -76,7 +76,6 @@ SUMMONER = 250  # monstats.txt `summoner`
 # The level -> its boss: with him alive the macro request never leaves, and without the tracker's
 # word on where he was seen it does not leave either.
 BOSS_OF = {HALLS_OF_VAUGHT: NIHLATHAK, ARCANE_SANCTUARY: SUMMONER}
-SUPER_UNIQUE_FLAG = 0x02  # the monster's type flags, as terror/bosses.py
 PANDEMONIUM_FORTRESS = 103
 ACT_3 = range(75, 103)
 ARRIVAL_SECONDS = 180.0
@@ -103,8 +102,6 @@ SWAP_WAIT = 0.5  # seconds a swap is given to show before the key is pressed aga
 SAVE_AND_EXIT = (0.5, 0.438)
 GAME_NAME_FIELD = (0.8, 0.158)  # right of the text, so the caret lands at its end
 
-# Player modes that are an action under way: attacks, casts, skill sequences (classic table).
-ACTING = frozenset((7, 8, 10, 11, 12, 13, 14, 15, 16, 18))
 QUICK_SECONDS = 1.0  # at most, for the skill key before to give the right button back (that Sigil: 0.9 s)
 QUICK_UNSEEN = 0.35  # a key tapped with nothing held whose skill never showed on the button: not waited for
 DEAD = frozenset((0, 17))

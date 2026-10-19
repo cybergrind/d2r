@@ -1,10 +1,10 @@
-"""Play metrics from a take (combat/analysis.py) on a small scripted take."""
+"""Play metrics from a take (takes/analysis.py) on a small scripted take."""
 
 import json
 from pathlib import Path
 
-from inventory_tracking.combat.analysis import analyse, write_analysis
-from inventory_tracking.combat.takes import Take
+from inventory_tracking.takes.analysis import analyse, write_analysis
+from inventory_tracking.takes.takes import Take
 
 
 NO_OWNER = 0xFFFFFFFF

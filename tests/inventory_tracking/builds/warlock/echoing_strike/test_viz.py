@@ -19,8 +19,8 @@ from inventory_tracking.builds.warlock.echoing_strike.mechanics import cast
 from inventory_tracking.builds.warlock.echoing_strike.sim.engine import simulate
 from inventory_tracking.builds.warlock.echoing_strike.sim.policy import compare
 from inventory_tracking.builds.warlock.echoing_strike.sim.situation import Situation, cut
-from inventory_tracking.combat.takes import Take
-from inventory_tracking.combat.viz_moments import KINDS
+from inventory_tracking.takes.takes import Take
+from inventory_tracking.takes.viz_moments import KINDS
 
 
 FIXTURES = Path(__file__).parents[3] / 'combat' / 'fixtures'  # trimmed takes of real play

@@ -77,7 +77,7 @@ def test_a_firing_stand_needs_a_material_gain_but_an_unsafe_hold_has_no_commitme
 
 
 def test_escape_options_include_a_charged_set_on_the_back_and_a_walk():
-    from inventory_tracking.macros.game.records import Teleport
+    from inventory_tracking.game.records import Teleport
     from inventory_tracking.macros.movement import SHARED
     from inventory_tracking.macros.skills import TELEPORT
     from inventory_tracking.macros.travel import SAFE_MOVE, Travel
@@ -181,8 +181,8 @@ def test_insistence_survives_retreats_but_a_single_press_does_not_buy_more_budge
     from inventory_tracking.combat.harm import Look, SafetySettings
     from inventory_tracking.combat.policy import Observation
     from inventory_tracking.combat.survival import CALM
+    from inventory_tracking.game.records import Loot
     from inventory_tracking.macros import safety as module
-    from inventory_tracking.macros.game.records import Loot
 
     damage = Harm(100, 1000, losses=(100.0,) * 64)
     monkeypatch.setattr(module, 'harm', lambda *a: damage)
@@ -276,8 +276,8 @@ def _price_against(monkeypatch, look):
     from inventory_tracking.combat.harm import SafetySettings
     from inventory_tracking.combat.policy import Observation
     from inventory_tracking.combat.survival import CALM
+    from inventory_tracking.game.records import Loot
     from inventory_tracking.macros import safety as module
-    from inventory_tracking.macros.game.records import Loot
 
     monkeypatch.setattr(module, 'taken', lambda *a: (100.0, 0))
     monkeypatch.setattr(module, 'falls', lambda *a, **kw: {})
@@ -319,8 +319,8 @@ def _pressed_pack(monkeypatch, *, draw):
     from inventory_tracking.combat.harm import Hostile, Look, SafetySettings
     from inventory_tracking.combat.policy import Foe, Observation
     from inventory_tracking.combat.survival import CALM
+    from inventory_tracking.game.records import Loot
     from inventory_tracking.macros import safety as module
-    from inventory_tracking.macros.game.records import Loot
 
     monkeypatch.setattr(module, 'taken', lambda *a: (100.0, 0))
     monkeypatch.setattr(module, 'falls', lambda *a, **kw: {})
@@ -386,9 +386,9 @@ def _seal(monkeypatch, *, deaths, demons=((0.0, 0.0), (0.4, 0.4))):
     from inventory_tracking.combat.harm import Hostile, Look, SafetySettings
     from inventory_tracking.combat.policy import Foe, Observation
     from inventory_tracking.combat.survival import CALM
+    from inventory_tracking.game.records import Loot
     from inventory_tracking.macros import safety as module
     from inventory_tracking.macros.build import Draw
-    from inventory_tracking.macros.game.records import Loot
 
     monkeypatch.setattr(module, 'taken', lambda *a: (3000.0, 0))
     monkeypatch.setattr(module, 'falls', lambda *a, **kw: dict(deaths))
@@ -460,8 +460,8 @@ def _after_diablo(monkeypatch, age: int, start=STAND, drop=AMULET):
     from inventory_tracking.combat.harm import SafetySettings
     from inventory_tracking.combat.policy import Observation
     from inventory_tracking.combat.survival import CALM
+    from inventory_tracking.game.records import Loot, Monster
     from inventory_tracking.macros import safety as module
-    from inventory_tracking.macros.game.records import Loot, Monster
     from inventory_tracking.macros.goals import PICK_UP
     from tests.inventory_tracking.macros.fakes import player, world
 
@@ -517,8 +517,8 @@ def test_the_loot_walk_waits_for_his_flames_across_the_way_where_the_character_s
     from inventory_tracking.combat.harm import SafetySettings
     from inventory_tracking.combat.policy import Observation
     from inventory_tracking.combat.survival import CALM
+    from inventory_tracking.game.records import Loot, Monster
     from inventory_tracking.macros import safety as module
-    from inventory_tracking.macros.game.records import Loot, Monster
     from inventory_tracking.macros.goals import PICK_UP
     from tests.inventory_tracking.macros.fakes import player, world
 
@@ -563,8 +563,8 @@ def test_while_diablo_lives_his_fire_wall_coming_at_the_character_is_stepped_out
     from inventory_tracking.combat.harm import SafetySettings
     from inventory_tracking.combat.policy import Observation
     from inventory_tracking.combat.survival import CALM
+    from inventory_tracking.game.records import Loot, Monster
     from inventory_tracking.macros import safety as module
-    from inventory_tracking.macros.game.records import Loot, Monster
     from tests.inventory_tracking.macros.fakes import player, world
 
     monkeypatch.setattr(module, 'taken', lambda *a: (100.0, 0))
@@ -605,8 +605,8 @@ def _diablo_looks(monkeypatch, looks):
     from inventory_tracking.combat.harm import SafetySettings
     from inventory_tracking.combat.policy import Observation
     from inventory_tracking.combat.survival import CALM
+    from inventory_tracking.game.records import Loot, Monster
     from inventory_tracking.macros import safety as module
-    from inventory_tracking.macros.game.records import Loot, Monster
     from tests.inventory_tracking.macros.fakes import player, world
 
     monkeypatch.setattr(module, 'taken', lambda *a: (100.0, 0))
@@ -753,8 +753,8 @@ def _clump_fight(monkeypatch, *, offer=None, posted='run', now=5.0, harm_at_stan
     from inventory_tracking.combat.harm import Hostile, Look, SafetySettings
     from inventory_tracking.combat.policy import Foe, Observation
     from inventory_tracking.combat.survival import CALM
+    from inventory_tracking.game.records import Loot
     from inventory_tracking.macros import safety as module
-    from inventory_tracking.macros.game.records import Loot
     from inventory_tracking.macros.goals import FIGHT
 
     stand = offer[0] if offer is not None else None
@@ -825,8 +825,8 @@ def _run_fight(monkeypatch, *, way, timer=None, safety=None):
     from inventory_tracking.combat.harm import Hostile, Look, SafetySettings
     from inventory_tracking.combat.policy import Foe, Observation
     from inventory_tracking.combat.survival import CALM
+    from inventory_tracking.game.records import Loot
     from inventory_tracking.macros import safety as module
-    from inventory_tracking.macros.game.records import Loot
     from inventory_tracking.macros.goals import FIGHT
 
     monkeypatch.setattr(module, 'taken', lambda *a, **kw: (100.0, 0))
@@ -931,8 +931,8 @@ def test_a_teleport_of_the_characters_own_is_priced_with_no_weapon_swap(monkeypa
     from inventory_tracking.combat.harm import Look, SafetySettings
     from inventory_tracking.combat.policy import Observation
     from inventory_tracking.combat.survival import CALM
+    from inventory_tracking.game.records import Loot
     from inventory_tracking.macros import safety as module
-    from inventory_tracking.macros.game.records import Loot
     from inventory_tracking.macros.skills import TELEPORT
 
     monkeypatch.setattr(module, 'harm', lambda *a: Harm(10, 20))

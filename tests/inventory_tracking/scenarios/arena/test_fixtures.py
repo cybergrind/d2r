@@ -7,8 +7,8 @@ from pathlib import Path
 
 import pytest
 
-from inventory_tracking.combat.takes import Take
-from inventory_tracking.macros.game.layout import LYING_DEAD
+from inventory_tracking.game.layout import LYING_DEAD
+from inventory_tracking.takes.takes import Take
 from tests.inventory_tracking.scenarios.arena import moments as rules
 from tests.inventory_tracking.scenarios.arena.build_scenes import (
     FIXTURES,

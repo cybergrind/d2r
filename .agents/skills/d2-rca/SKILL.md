@@ -49,7 +49,7 @@ All under `inventory_tracking/runs/` (git-ignored). Directory names are UTC; log
 
 Frame row: `t` (monotonic s), `p` = `[unit, mode, area, x, y, left skill, right skill, life, max life, mana, max mana]`,
 `m` = monsters `[unit, txt, mode, x, y, life 0–128, max, flags, owner, ally]`, `x` missiles, `r`
-resistances (schema 3, at a change), `macro`, `in`. Reader: `inventory_tracking/combat/takes.py`
+resistances (schema 3, at a change), `macro`, `in`. Reader: `inventory_tracking/takes/takes.py`
 (`PlayerRow`, `MonsterRow`, `timeline`, `trim`). The character's mode 10 is a cast, 1 standing;
 monster modes 0 and 12 are dying and dead, 4 is hit recovery. Area numbers: 107 River of Flame, 108 Chaos Sanctuary,
 39 the cow level. A super unique or champion is told by `flags`/`mods` in `units.jsonl.gz`.

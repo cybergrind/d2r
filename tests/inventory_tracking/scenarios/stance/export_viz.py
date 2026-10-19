@@ -32,9 +32,9 @@ from inventory_tracking.builds.warlock.echoing_strike.viz import (
     walls,
     write_index,
 )
-from inventory_tracking.combat.timeline import GAME_RATE
 from inventory_tracking.levels.presets import display_name
 from inventory_tracking.macros.view import Viewport
+from inventory_tracking.takes.timeline import GAME_RATE
 
 from .first_rule import stand
 from .harness import (

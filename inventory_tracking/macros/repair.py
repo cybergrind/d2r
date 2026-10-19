@@ -20,10 +20,10 @@ import time
 from pathlib import Path
 
 from inventory_tracking.common import LOG
+from inventory_tracking.game.layout import GOLD_STAT
+from inventory_tracking.game.records import Teleport, Wear, World
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.engine import Run
-from inventory_tracking.macros.game.layout import GOLD_STAT
-from inventory_tracking.macros.game.records import Teleport, Wear, World
 from inventory_tracking.macros.shop import (
     LINE,
     PANEL_SECONDS,

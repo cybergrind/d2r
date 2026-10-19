@@ -510,7 +510,7 @@ threat-aware pricing adds damage *taken* (missile range, melee closing pace — 
   unit-seconds, Black Soul 0.2 over 601, Stygian Doll and Hell Temptress about 2 when warned);
   act bosses are not in it (Diablo 2.1% a second, Baal 0.7%).
 - `terror/bursts.py`: the seconds that took 30% of the life, with the packs around.
-- `combat/hurts.py` over all 746 takes that day: 1855 drops of life, 1 death, 104 with one
+- `takes/hurts.py` over all 746 takes that day: 1855 drops of life, 1 death, 104 with one
   monster striking alone. One blow is small — median 26 to 112 points by rank and enchantment,
   the largest 320 (a plain monster), 252 for a pack leader — against a death of 1051 inside a
   second. Life goes to *several striking at once*, not to one big hit: what a place has to be
@@ -908,7 +908,7 @@ What follows from it:
 - The refit, in the order the misses point to: the ranged attacker (a missile that flies and can
   miss, a rate from the takes); a melee chance to hit and the physical resistance; whom a
   monster goes for; the big single blows (an elite's reach and top blow, death novas). Per-type
-  rates need the drops dealt by one monster alone: `combat/hurts.py` over all takes, or
+  rates need the drops dealt by one monster alone: `takes/hurts.py` over all takes, or
   `terror/exposure.py`'s rates. This is a task of its own before Stage 4 (framework-plan.md).
 - Also for Stage 4, from the arena itself: walks, hops and warps are instant there (the
   character is never hit on the way), which flatters any repositioning rule; and the standalone
