@@ -58,6 +58,7 @@ from inventory_tracking.builds.warlock.buffs import ENGORGE_REACH
 from inventory_tracking.combat.mechanics.tables import area_level, monster_points, points_of, tables
 from inventory_tracking.combat.sim.monsters import MINION, PLAIN, rank_of
 from inventory_tracking.game.layout import FULL_REJUVENATION, HERALD_TIER_STAT, NO_OWNER, SUPER_HEALING
+from inventory_tracking.levels.geometry import Point
 from inventory_tracking.macros.cta import BATTLE_ORDERS
 from inventory_tracking.macros.rotation import ELITE_LIFE
 from inventory_tracking.macros.routines import DEAD
@@ -70,7 +71,6 @@ from tests.inventory_tracking.scenarios.arena.scene import Hero, Mob, Scene, Wea
 from tests.inventory_tracking.scenarios.stance.build_fixtures import GROUND_RANGE
 
 
-Point = tuple[float, float]
 MOB_RANGE = GROUND_RANGE  # units: hostiles further from the character than the ground kept are left out
 CORPSE_RANGE = 2 * ENGORGE_REACH  # units: a corpse in Engorge's reach from anywhere a reach from the start
 # The resistances as the stat list holds them are before the Hell penalty of 100, and count up to the

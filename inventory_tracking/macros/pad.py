@@ -55,6 +55,7 @@ from inventory_tracking.common import LOG
 from inventory_tracking.game.layout import NO_OWNER
 from inventory_tracking.input.gamepad import KEY_RECORDS, MODIFIER, Pad, record_buttons, record_label
 from inventory_tracking.input.keybindings import MODIFIERS, action_keys, button_number, x11_name
+from inventory_tracking.levels.geometry import Point
 from inventory_tracking.macros.actuator import Abort, Actuator, Cancelled, Flipped
 from inventory_tracking.macros.skills import (
     ACTIONS,
@@ -73,8 +74,6 @@ if TYPE_CHECKING:
     from inventory_tracking.macros.engine import Run
     from inventory_tracking.tracking.input_mode import ControllerState
 
-
-Point = tuple[float, float]
 
 # The controller's own pickup skills (skills.txt; controllerskillsettings.json: the nearest item within 4 units).
 LOOT, LOOT_TO_CUBE = 358, 370

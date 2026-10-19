@@ -61,8 +61,10 @@ Evidence: five read-only studies in `rca/2026-10-19/cleanup/` (git-ignored, loca
     shim. Then one `Monster` record (game/records.py; terror's fields optional on it, `path_at`/`unit_at`) and one
     walk entry (`decode.monster_table`) for the look, terror's tracker and the HUD; the monster flags, `NO_OWNER`
     and `ACTING` defined once in game/layout.py. The per-unit reads stay two on purpose: the look reads owner,
-    flags and life every pass, the tracker and HUD only a path (data and stats on first sight). Left:
-    `prized`/`shown_source` to lootpolicy; terror's player readers against `local_player`.
+    flags and life every pass, the tracker and HUD only a path (data and stats on first sight). `Point` is defined
+    once (levels/geometry.py; 59 copies gone). Kept in game/ on reading: `prized`/`shown_source` (the memory reader
+    classifies a drop's source as it reads: in lootpolicy, game would import macros). Left: terror's player readers
+    against `local_player`; the world-to-screen projection's copies (`world_point`, hud/ground.py, macros/view.py).
   - step 4, second part: the game package is `inventory_tracking/game/`, below macros (study O A2): combat, terror,
     hud and probes read the game without importing macros. Step 8, second part: `inventory_tracking/takes/` holds
     the recorder and the take readers (record, retain, takes, timeline, hurts, macro_state, legs, analysis,

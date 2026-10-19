@@ -24,10 +24,9 @@ from collections.abc import Callable, Iterable
 from dataclasses import dataclass, field
 
 from inventory_tracking.common import LOG
+from inventory_tracking.levels.geometry import Point
 from inventory_tracking.macros.goals import GUARD_NEAR
 
-
-Point = tuple[float, float]
 
 # Game-level goals: one leg of the loop each
 NEW_GAME, WAYPOINT, TOWN_ROUTINE = 'new game', 'waypoint', 'town routine'

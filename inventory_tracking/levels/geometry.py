@@ -12,6 +12,7 @@ from inventory_tracking.levels.model import Location, Poi, Room
 from inventory_tracking.native.layout import TILE_UNITS
 
 
+Point = tuple[float, float]  # an (x, y) place: world units unless a module says otherwise
 # Screen-space arrows, counter-clockwise from right in 45° steps.
 ARROWS = ('→', '↗', '↑', '↖', '←', '↙', '↓', '↘')
 

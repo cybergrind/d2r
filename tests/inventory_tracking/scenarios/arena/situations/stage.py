@@ -37,6 +37,7 @@ from inventory_tracking.combat.sim import monsters as model
 from inventory_tracking.combat.sim.monsters import MELEE
 from inventory_tracking.config import HealingConfig
 from inventory_tracking.game.layout import NO_OWNER
+from inventory_tracking.levels.geometry import Point
 from inventory_tracking.native.layout import DEAD_MODES
 from tests.inventory_tracking.scenarios.arena.game import BLOCK_CHANCE, Arena, Flight
 from tests.inventory_tracking.scenarios.arena.mobs import BLAST_KIND, Mobs, explodes
@@ -44,7 +45,6 @@ from tests.inventory_tracking.scenarios.arena.scene import Mob, Scene
 from tests.inventory_tracking.scenarios.threat.harness import BLAST, BLAST_RADIUS
 
 
-Point = tuple[float, float]
 ARENA_AWARE = model.AWARE  # units: what the monster model has (20)
 GAME_AWARE = 35.0  # units (sub-tiles): the client's own radius (rca/2026-10-13/re/notes-ai.md)
 EVERYONE = 10_000.0  # units: every monster of the scene knows of the character from the first tick

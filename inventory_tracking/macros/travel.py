@@ -32,6 +32,7 @@ from inventory_tracking.common import LOG
 from inventory_tracking.game.layout import NO_OWNER
 from inventory_tracking.game.records import Monster, Player, Teleport, World
 from inventory_tracking.levels.doors import Door
+from inventory_tracking.levels.geometry import Point
 from inventory_tracking.levels.model import Ground, Room, Target, Walkable
 from inventory_tracking.macros.actuator import Abort, Cancelled, Expired, Hand
 from inventory_tracking.macros.build import Intent, Leg, MoveFacts, MovementSet, NoWay, Step, nowhere
@@ -111,7 +112,6 @@ AROUND_DETOUR = 4.0
 AROUND_LEAST = 3.0  # units a move along that way has to make
 NEIGHBOURS = tuple((dx, dy, math.hypot(dx, dy)) for dx in (-1, 0, 1) for dy in (-1, 0, 1) if dx or dy)
 NO_ASPECT = 0.0  # the window's shape in facts asked only for the jumps: not read
-Point = tuple[float, float]
 
 
 # What the caller of a move allows, one for each kind of caller (architecture.md 4.3). A movement set

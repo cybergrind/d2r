@@ -13,8 +13,7 @@ from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from functools import cache
 
-
-Point = tuple[float, float]
+from inventory_tracking.levels.geometry import Point
 
 
 @dataclass(frozen=True)

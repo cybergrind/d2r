@@ -53,9 +53,9 @@ from typing import Any, Protocol
 
 from inventory_tracking.combat.mechanics.tables import tables
 from inventory_tracking.game.layout import MINION_FLAG, SUPER_FLAG, UNIQUE_FLAG
+from inventory_tracking.levels.geometry import Point
 
 
-Point = tuple[float, float]
 DATA = Path(__file__).parent / 'casters.json'
 # False: every type plays by sim/monsters.py's fit as before 2026-10-13 (the before/after comparisons of
 # rca/2026-10-13/sim-casters.md are made by setting it before a play's pack is made).

@@ -44,8 +44,9 @@ from functools import cache
 from pathlib import Path
 from typing import Any
 
+from inventory_tracking.levels.geometry import Point
 
-Point = tuple[float, float]
+
 DATA = Path(__file__).parent / 'diablo.json'
 SOURCE = Path(__file__).parents[3] / 'pricing' / 'raw' / 'game-excel'
 AI = 'Diablo'  # monstats `AI` of his rows (diablo 243, diabloclone 333)

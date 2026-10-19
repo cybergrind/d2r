@@ -93,6 +93,7 @@ from inventory_tracking.combat.sim.monsters import (
 )
 from inventory_tracking.game.layout import LYING_DEAD, NO_OWNER
 from inventory_tracking.game.records import Monster
+from inventory_tracking.levels.geometry import Point
 from inventory_tracking.levels.presets import display_name
 from inventory_tracking.native.layout import DEAD_MODES, PLAYER_DEAD_MODES
 from inventory_tracking.takes.hurts import SUSPECT_REACH, hurts, lost, sole
@@ -106,7 +107,6 @@ from tests.inventory_tracking.scenarios.arena.mobs import AURA_FACTOR, AURA_MOD,
 from tests.inventory_tracking.scenarios.arena.scene import Scene, load
 
 
-Point = tuple[float, float]
 Vitals = tuple[float, float]  # life, most life
 
 # Seconds compared. Long enough for the moment a scene was cut for to be inside it (moments.py LEAD:

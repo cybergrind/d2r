@@ -45,6 +45,7 @@ from typing import Any
 
 from inventory_tracking.combat.sim.monsters import AWARE
 from inventory_tracking.game.layout import HERALD_TIER_STAT
+from inventory_tracking.levels.geometry import Point
 from inventory_tracking.levels.model import Ground, Walkable
 from inventory_tracking.macros.sight import clear_shot
 from inventory_tracking.takes.hurts import ATTACK_MODES, BESIDE, MISSILE_REACH
@@ -76,7 +77,6 @@ from tests.inventory_tracking.scenarios.arena.evidence.blows import (
 )
 
 
-Point = tuple[float, float]
 BIN = 0.5  # units: the width of a distance bin
 FAR = 40.0  # units: further from the character than this nothing is tallied (over a screen)
 STEP = 0.2  # seconds at most a frame stands for: a longer gap is the recorder's pause, not time in reach

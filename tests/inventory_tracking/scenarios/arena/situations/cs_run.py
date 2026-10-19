@@ -69,6 +69,7 @@ from inventory_tracking.combat.mechanics.tables import area_level
 from inventory_tracking.combat.stance import no_footing
 from inventory_tracking.game.layout import HERALD_TIER_STAT, MINION_FLAG, NO_OWNER
 from inventory_tracking.game.records import HEALING, REJUVENATION, Drop
+from inventory_tracking.levels.geometry import Point
 from inventory_tracking.levels.model import SEALS, Ground, Walkable
 from inventory_tracking.native.layout import DEAD_MODES, TILE_UNITS
 from inventory_tracking.takes.takes import MonsterRow, Take, monsters_of
@@ -95,7 +96,6 @@ from tests.inventory_tracking.scenarios.arena.situations.situation import (
 from tests.inventory_tracking.scenarios.arena.situations.stage import GAME_AWARE, Spawn, Stage
 
 
-Point = tuple[float, float]
 NAME = 'cs-run'
 TAKE = '20261013T093331Z-108'
 ABOUT = (

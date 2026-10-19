@@ -61,8 +61,9 @@ from functools import cache
 from pathlib import Path
 from typing import Any
 
+from inventory_tracking.levels.geometry import Point
 
-Point = tuple[float, float]
+
 DATA = Path(__file__).parent / 'baal.json'
 SOURCE = Path(__file__).parents[3] / 'pricing' / 'raw' / 'game-excel'
 AIS = ('BaalCrab', 'BaalCrabClone')  # monstats `AI` of his rows and his clone's

@@ -10,11 +10,11 @@ from typing import Any, NamedTuple
 
 from inventory_tracking.game.layout import LEADER_FLAGS, MINION_FLAG, NO_OWNER
 from inventory_tracking.game.records import Player
+from inventory_tracking.levels.geometry import Point
 from inventory_tracking.macros.routines import world_point
 from inventory_tracking.native.layout import DEAD_MODES
 
 
-Point = tuple[float, float]
 # The layouts a take's rows have had, by the manifest's `schema` (a take without one is 1). The readers
 # below take both: a row of schema 1 is a prefix of schema 2's.
 SCHEMAS = {

@@ -27,9 +27,9 @@ from typing import Any
 
 from inventory_tracking.combat.mechanics.movement import Route
 from inventory_tracking.combat.mechanics.tables import points_of
+from inventory_tracking.levels.geometry import Point
 
 
-Point = tuple[float, float]
 RUN_MODES = frozenset((2, 3, 6))  # walk, run, town walk: the character is going somewhere
 # The two below are read by the framework and by the build's sweep alike, so they stay here. Both were
 # set with the Echoing Strike Warlock's blades (builds/warlock/echoing_strike/attack.py) and no other

@@ -24,9 +24,9 @@ from typing import Any, Protocol
 
 from inventory_tracking.combat.mechanics.tables import tables
 from inventory_tracking.combat.policy import ELITE_WEIGHT, MIN_SCORE, Foe, Observation
+from inventory_tracking.levels.geometry import Point
 
 
-Point = tuple[float, float]
 KEEP_AWAY = 6.0  # units: no place with a hostile this near
 # No place in the middle of a pack: one with more than CROWD_MOST hostiles within CROWD_UNITS is left out,
 # unless as many stand that near the character already. Drifter Cavern, 09:55:34 on 2026-10-12 (user: "we

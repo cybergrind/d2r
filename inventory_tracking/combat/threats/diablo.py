@@ -33,9 +33,9 @@ from functools import cache, lru_cache
 from inventory_tracking.combat.sim import diablo as rules
 from inventory_tracking.combat.sim.casters import CONTACT
 from inventory_tracking.combat.threats import Acting, Legs, Lingering, Lying, Part, Threat
+from inventory_tracking.levels.geometry import Point
 
 
-Point = tuple[float, float]
 FRAME = 1 / 25  # seconds a game frame
 TXT = 243  # monstats `diablo`
 MODE = 7  # monmode.txt SC: the mode of his lightning (his row's Sk1mode), as the client reads it of the unit

@@ -37,9 +37,9 @@ from dataclasses import dataclass, field
 from inventory_tracking.combat.sim import diablo as rules
 from inventory_tracking.combat.sim.monsters import Pack, Walker
 from inventory_tracking.combat.threats import diablo as threat
+from inventory_tracking.levels.geometry import Point
 
 
-Point = tuple[float, float]
 LIFE = 1818.0  # the character's most life in the takes (hurt events: max_life 1818)
 WARD = 185.0  # its ward's pool (sim-casters.md section 9)
 WARD_AGAIN = 25  # frames after the pool falls until the macro has cast it again [take: "Psychic Ward" 0.4..1 s on]

@@ -57,6 +57,7 @@ from inventory_tracking.combat.stance import WAY_SAMPLE, no_footing
 from inventory_tracking.game.layout import LYING_DEAD, NO_OWNER
 from inventory_tracking.game.records import Monster
 from inventory_tracking.levels.doors import Door
+from inventory_tracking.levels.geometry import Point
 from inventory_tracking.levels.model import Ground, Walkable
 from inventory_tracking.macros.sight import clear_shot
 from inventory_tracking.macros.travel import walked_way
@@ -78,7 +79,6 @@ CAST_MODES = {'A1': 4, 'A2': 5, 'SC': 7, 'S1': 8, 'S2': 9, 'S3': 10, 'S4': 11, '
 SUMMONED = 7_000_000  # unit ids of the monsters a cast raises (sim/casters.py `Summon`), counted from here
 
 
-Point = tuple[float, float]
 # The shooter's cycle before the refit: one shot every SHOT_FRAMES, landed SHOT_LANDS into it. Nothing
 # here plays by them any more (sim.monsters has the cycle, at the rate of the takes); they stay as
 # the yardstick evidence/model.py lays the takes against, and a shot's points are still "a second

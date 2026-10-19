@@ -28,6 +28,7 @@ from collections.abc import Callable, Sequence
 from dataclasses import dataclass, replace
 
 from inventory_tracking.game.records import HEALING, REJUVENATION, Drop, Monster
+from inventory_tracking.levels.geometry import Point
 from inventory_tracking.levels.model import Target
 from inventory_tracking.macros.build import Intent
 from inventory_tracking.native.layout import TILE_UNITS
@@ -35,7 +36,6 @@ from inventory_tracking.routes.model import ENTER, FIGHT, LEAVE, LOOT, STAND, US
 from inventory_tracking.terror.bosses import BOSSES, SUPER_UNIQUE_FLAG
 
 
-Point = tuple[float, float]
 REACH, PICK_UP = 'reach', 'pick up'  # with the routes' USE, STAND, FIGHT, ENTER, LOOT and LEAVE: what is done at a goal
 # A level run stays by a valuable the inventory has no room for (the player, 2026-10-13: "when valuable doesn't
 # fit: we need to stop near it"): what is done there is to wait for room.

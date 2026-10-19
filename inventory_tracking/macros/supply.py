@@ -31,6 +31,7 @@ from dataclasses import dataclass
 from inventory_tracking.config import BELT, HEAL_PRIORITY, MERC_HEALING
 from inventory_tracking.game.records import HEALING, REJUVENATION, Drop, Loot
 from inventory_tracking.levels.doors import Door
+from inventory_tracking.levels.geometry import Point
 from inventory_tracking.levels.model import Ground
 from inventory_tracking.macros.drinking import on_belt
 from inventory_tracking.macros.travel import walked_length
@@ -38,7 +39,6 @@ from inventory_tracking.models import PotionType
 from inventory_tracking.tracking.belt import column_shortages
 
 
-Point = tuple[float, float]
 SEEN_GONE = 20.0  # units: a remembered potion not in a look made this near its place is gone (taken, by anyone)
 DRUNK_BY = 1.0  # seconds: a potion gone from the belt this soon after the macro's key for its kind was the macro's
 GONE_KEPT = 8  # potions gone from the belt remembered for the warning

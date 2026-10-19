@@ -66,6 +66,7 @@ from inventory_tracking.builds.warlock.echoing_strike.viz import (
     walls,
 )  # fmt: skip
 from inventory_tracking.levels.doors import Door
+from inventory_tracking.levels.geometry import Point
 from inventory_tracking.levels.model import Ground, Walkable
 from inventory_tracking.levels.presets import display_name
 from inventory_tracking.macros.route import FIGHT_NEAR
@@ -83,7 +84,6 @@ from tests.inventory_tracking.scenarios.arena.situations.stage import Stage
 from tests.inventory_tracking.scenarios.stance.export_viz import MARGIN, grow, pack
 
 
-Point = tuple[float, float]
 ROOT = Path(__file__).parents[5]
 OUT = ROOT / 'inventory_tracking' / 'runs' / 'combat' / 'viz-situations'
 TAKES_OUT = ROOT / 'inventory_tracking' / 'runs' / 'combat' / 'viz'

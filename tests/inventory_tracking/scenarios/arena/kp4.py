@@ -62,6 +62,7 @@ from inventory_tracking.builds.warlock.echoing_strike.mechanics import MISSILE
 from inventory_tracking.combat.stance import CROWD_MOST, CROWD_UNITS
 from inventory_tracking.config import PLAYER_HEALING, with_overrides
 from inventory_tracking.input.compositor import STEP_KEYS
+from inventory_tracking.levels.geometry import Point
 from inventory_tracking.levels.guide import lead_first, place
 from inventory_tracking.levels.handler import marker_room
 from inventory_tracking.levels.model import Level, LevelSnapshot, Location, Poi, Room, Target
@@ -88,7 +89,6 @@ from tests.inventory_tracking.scenarios.arena.incident import FIXTURES, TAKES, I
 from tests.inventory_tracking.scenarios.arena.scene import Prop, Scene
 
 
-Point = tuple[float, float]
 GAME = 'arena'  # the game's name the progress is told (`World.game_name` of the arena's world)
 MADE_UP = 990_000_000  # unit ids of the marked objects the session log does not name, counted from here
 

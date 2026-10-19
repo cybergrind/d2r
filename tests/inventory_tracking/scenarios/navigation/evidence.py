@@ -23,12 +23,12 @@ from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from pathlib import Path
 
+from inventory_tracking.levels.geometry import Point
 from inventory_tracking.levels.model import Ground, Walkable
 from inventory_tracking.macros.view import Viewport
 from tests.inventory_tracking.scenarios.navigation.harness import Footing, HopField
 
 
-Point = tuple[float, float]
 LOGS = Path('inventory_tracking/runs/alt-d')
 TAKES = Path('inventory_tracking/runs/combat')
 SLACK = timedelta(seconds=1)  # a hop may be logged a moment after its take ended

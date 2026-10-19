@@ -16,12 +16,12 @@ import json
 from dataclasses import dataclass
 from pathlib import Path
 
+from inventory_tracking.levels.geometry import Point
 from inventory_tracking.levels.model import Room
 from inventory_tracking.native.layout import TILE_UNITS
 from tests.inventory_tracking.scenarios.navigation.harness import FIXTURES
 
 
-Point = tuple[float, float]
 TAKES = Path('inventory_tracking/runs/combat')
 LOGS = 'inventory_tracking/runs/alt-d'
 

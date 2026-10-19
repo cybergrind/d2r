@@ -14,6 +14,7 @@ from typing import Any
 
 from inventory_tracking.combat.mechanics.tables import MISSILES, tables
 from inventory_tracking.game.layout import NO_OWNER
+from inventory_tracking.levels.geometry import Point
 from inventory_tracking.native.layout import DEAD_MODES
 from inventory_tracking.takes.hurts import ATTACK_MODES, TARGET_UNIT, harmless
 from inventory_tracking.takes.takes import Take
@@ -27,7 +28,6 @@ from tests.inventory_tracking.scenarios.arena.evidence.blows import (
 )
 
 
-Point = tuple[float, float]
 HERO_UNIT, AREA = 1, 25
 STRIKE = min(ATTACK_MODES)  # a monster mode in which it strikes
 IDLE = next(mode for mode in range(1, 16) if mode not in ATTACK_MODES and mode not in DEAD_MODES)

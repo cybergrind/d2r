@@ -22,6 +22,7 @@ import pytest
 
 from inventory_tracking.builds.warlock.echoing_strike.hits import CONTACT_RADIUS
 from inventory_tracking.builds.warlock.echoing_strike.mechanics import RANGE
+from inventory_tracking.levels.geometry import Point
 from inventory_tracking.macros import goals
 from inventory_tracking.macros.build import MoveFacts
 from inventory_tracking.macros.hunting import base as hunt_base
@@ -45,7 +46,6 @@ from tests.inventory_tracking.scenarios.arena.situations.stage import Stage
 from tests.inventory_tracking.scenarios.arena.situations.vizier import BOSS, SEAL, STALL
 
 
-Point = tuple[float, float]
 SEEDS = (1, 2, 3)
 TEN = tuple(range(1, 11))
 FIGHT_STAGE = 'fight Grand Vizier of Chaos'

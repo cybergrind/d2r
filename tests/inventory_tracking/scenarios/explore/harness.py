@@ -15,6 +15,7 @@ from pathlib import Path
 
 from inventory_tracking.builds.warlock.echoing_strike.build import ECHOING_STRIKE_BUILD
 from inventory_tracking.game.records import Player
+from inventory_tracking.levels.geometry import Point
 from inventory_tracking.levels.model import Level, Room, Target, Walkable
 from inventory_tracking.macros import teleport
 from inventory_tracking.macros.hunt import Hunter
@@ -25,7 +26,6 @@ from inventory_tracking.native.layout import TILE_UNITS
 
 FIXTURES = Path(__file__).parent / 'fixtures'
 RECT = (1920, 0, 2560, 1418)  # the host's game window
-Point = tuple[float, float]
 Pick = Callable[[Level, Player, tuple[int, int, int, int]], tuple[float, Room, tuple[int, int]] | None]
 
 

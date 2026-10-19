@@ -48,6 +48,7 @@ from inventory_tracking.combat.mechanics.tables import area_level
 from inventory_tracking.config import PLAYER_HEALING
 from inventory_tracking.game.layout import HERALD_TIER_STAT
 from inventory_tracking.input.compositor import STEP_KEYS
+from inventory_tracking.levels.geometry import Point
 from inventory_tracking.macros.runner import ATTACK, PICKUP, TELEPORT
 from inventory_tracking.native.layout import TILE_UNITS
 from inventory_tracking.takes.takes import MonsterRow, Take, carried, monsters_of, player_of
@@ -62,7 +63,6 @@ from tests.inventory_tracking.scenarios.arena.mobs import AURA_FACTOR, AURA_MOD,
 from tests.inventory_tracking.scenarios.arena.scene import Mob, Prop, Scene
 
 
-Point = tuple[float, float]
 FIXTURES = Path(__file__).parent / 'fixtures' / 'replay'
 TAKE = '20261013T093331Z-108'  # Chaos Sanctuary, 2026-10-13 12:33:31 local, 252 s: the first schema 4 take
 SPAWN_SECONDS = (

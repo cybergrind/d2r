@@ -21,6 +21,7 @@ from collections.abc import Callable, Iterable, Sequence
 
 from inventory_tracking.common import LOG
 from inventory_tracking.game.records import Monster, Thing
+from inventory_tracking.levels.geometry import Point
 from inventory_tracking.levels.guide import place
 from inventory_tracking.levels.model import Poi, Target
 from inventory_tracking.macros.goals import STAND_NEAR, Goal, route_goal
@@ -32,7 +33,6 @@ from inventory_tracking.routes.model import LEAVE, LOOT, STAND, USE
 from inventory_tracking.routes.progress import Place, Progress
 
 
-Point = tuple[float, float]
 NOT_SEEN = 'not seen'  # what a goal with no known place is "toward" on the card: no arrow
 # World units: a `use` mark's object is read only with the character this near it. The client holds the objects of
 # the rooms loaded around the character, a room (40 units) or two past its own: further off there is none to read,

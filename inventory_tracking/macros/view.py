@@ -7,10 +7,9 @@ nothing from the macros, so the routines, teleport and hunt modules can all use 
 
 from dataclasses import dataclass
 
+from inventory_tracking.levels.geometry import Point
 from inventory_tracking.native.layout import TILE_UNITS
 
-
-Point = tuple[float, float]
 
 # Where the character's feet are drawn. Host run 17:38, 2026-10-06: two summons landed 0.027 and
 # 0.020 of the height above the pointer with 0.47 here, and within 0.003 across.

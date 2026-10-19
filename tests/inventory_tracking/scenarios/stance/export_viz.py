@@ -32,6 +32,7 @@ from inventory_tracking.builds.warlock.echoing_strike.viz import (
     walls,
     write_index,
 )
+from inventory_tracking.levels.geometry import Point
 from inventory_tracking.levels.presets import display_name
 from inventory_tracking.macros.view import Viewport
 from inventory_tracking.takes.timeline import GAME_RATE
@@ -53,7 +54,6 @@ from .harness import (
 )
 
 
-Point = tuple[float, float]
 FIXTURES = Path(__file__).parent / 'fixtures'
 OUT = Path(__file__).parents[4] / 'inventory_tracking' / 'runs' / 'combat' / 'viz-stance'
 SECONDS = 15.0

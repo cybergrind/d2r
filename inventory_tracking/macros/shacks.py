@@ -24,6 +24,7 @@ from collections.abc import Callable, Iterable, Sequence
 
 from inventory_tracking.game.decode import usable
 from inventory_tracking.game.records import Thing
+from inventory_tracking.levels.geometry import Point
 from inventory_tracking.levels.model import UNIQUE_CHEST, Room
 from inventory_tracking.levels.presets import PRESET_NAMES, object_spots
 from inventory_tracking.native.layout import TILE_UNITS
@@ -31,7 +32,6 @@ from inventory_tracking.native.layout import TILE_UNITS
 
 __all__ = ['BY_CHEST', 'CAMP', 'OPENED', 'REACH', 'camps', 'shack_thing']
 
-Point = tuple[float, float]
 Block = tuple[int, int, int, int]  # a preset's x, y, width, height in tiles (`Room.block`)
 
 CAMP = ('Act 3 - Slums 16x16', 1)  # the bonfire camp, preset name and DS1 variant (lower_kurast.py)

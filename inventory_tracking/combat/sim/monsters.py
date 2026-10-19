@@ -166,10 +166,10 @@ from typing import Any
 from inventory_tracking.combat.mechanics.tables import tables
 from inventory_tracking.combat.sim import casters
 from inventory_tracking.game.layout import CHAMPION_FLAG, MINION_FLAG, SUPER_FLAG, UNIQUE_FLAG
+from inventory_tracking.levels.geometry import Point
 from inventory_tracking.takes.timeline import GAME_RATE
 
 
-Point = tuple[float, float]
 FIT = Path(__file__).parent.parent / 'data' / 'monsters_fit.json'
 STAND, WALK, STRIKE, STAGGER = 'stand', 'walk', 'strike', 'stagger'
 # Units between the middles of a monster and what it strikes. Tower Cellar 5: Blood Clan minions

@@ -37,10 +37,10 @@ from typing import Any
 
 from inventory_tracking.combat.mechanics.tables import tables
 from inventory_tracking.game.layout import LEADER_FLAGS, MINION_FLAG, MODIFIERS, NO_OWNER
+from inventory_tracking.levels.geometry import Point
 from inventory_tracking.native.layout import DEAD_MODES
 
 
-Point = tuple[float, float]
 # Monster modes in which it strikes: attack 1 and 2, cast, skills 1-4, sequence (monmode.txt).
 ATTACK_MODES = frozenset((4, 5, 7, 8, 9, 10, 11, 14))
 TARGET_UNIT = 0x7C  # path record: the unit id of the target (combat/plan.md, the Tower Cellar 5 take)

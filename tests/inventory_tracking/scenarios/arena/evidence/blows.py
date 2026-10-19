@@ -51,6 +51,7 @@ from typing import Any
 from inventory_tracking.combat.mechanics.tables import area_level, tables
 from inventory_tracking.combat.sim.monsters import CHAMPION_FLAG, SUPER_FLAG, UNIQUE_FLAG
 from inventory_tracking.game.layout import HERALD_TIER_STAT, MINION_FLAG, NO_OWNER
+from inventory_tracking.levels.geometry import Point
 from inventory_tracking.takes.hurts import (
     ATTACK_MODES,
     BESIDE,
@@ -71,7 +72,6 @@ from inventory_tracking.terror.danger import DATA as THREATS
 from inventory_tracking.terror.monsters import LEVEL_STAT
 
 
-Point = tuple[float, float]
 THREAT_TABLE = Path(__file__).parents[2] / 'threat' / 'threat_table.json'
 # The missile's unit record (missiles.jsonl `record`): its owner's unit type, then its unit id.
 # Found by looking for the take's unit ids in the records of 20261012T065226Z-130: 1,771 of 1,866

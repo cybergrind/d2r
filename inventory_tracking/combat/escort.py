@@ -21,10 +21,10 @@ from dataclasses import dataclass
 
 from inventory_tracking.combat.harm import Look, SafetySettings, harm
 from inventory_tracking.game.records import Monster
+from inventory_tracking.levels.geometry import Point
 from inventory_tracking.native.layout import HIRELING_CLASS_ID, LIFE_FRACTION_MAX
 
 
-Point = tuple[float, float]
 # Seconds a dead mercenary costs the run: a town portal, the hire at the act's NPC and its gear put back, the way back
 # (a named stand-in, not measured: the healer's ledger has no death of one yet)
 REHIRE_SECONDS = 60.0

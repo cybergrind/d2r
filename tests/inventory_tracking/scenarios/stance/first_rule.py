@@ -12,9 +12,9 @@ from inventory_tracking.builds.warlock.echoing_strike.attack import LinePolicy
 from inventory_tracking.builds.warlock.echoing_strike.hits import CONTACT_RADIUS
 from inventory_tracking.combat.policy import MIN_SCORE, Observation, clear_line
 from inventory_tracking.combat.stance import KEEP_AWAY, way
+from inventory_tracking.levels.geometry import Point
 
 
-Point = tuple[float, float]
 RINGS = (4.0, 8.0, 12.0)
 BEARINGS = 16
 CROWD = 8.0

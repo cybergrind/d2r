@@ -45,6 +45,7 @@ from inventory_tracking.combat.mechanics.tables import points_of, tables
 from inventory_tracking.combat.sim.monsters import CHAMPION_FLAG, COLD, FIRE, LIGHTNING, STRONG, UNIQUE_FLAG
 from inventory_tracking.config import PLAYER_HEALING
 from inventory_tracking.game.layout import MINION_FLAG
+from inventory_tracking.levels.geometry import Point
 from inventory_tracking.levels.model import Walkable, pack_cells
 from inventory_tracking.macros.rotation import ELITE_LIFE
 from inventory_tracking.macros.runner import ATTACK, HUNT_ELITES, PICKUP, TELEPORT
@@ -59,7 +60,6 @@ from tests.inventory_tracking.scenarios.arena.situations.bestiary import name_of
 from tests.inventory_tracking.scenarios.arena.situations.stage import ARENA_AWARE, Hurt, Spawn, Stage, Tick, awareness
 
 
-Point = tuple[float, float]
 FIXTURES = Path(__file__).parent / 'fixtures'
 AREA = 137  # the module text has why
 LIFE = 1783.0  # the character's most life in the takes of 2026-10-13 (the Vizier fixture's hero)

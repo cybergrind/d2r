@@ -26,10 +26,9 @@ five.
 import math
 from collections.abc import Callable, Sequence
 
+from inventory_tracking.levels.geometry import Point
 from inventory_tracking.native.layout import TILE_UNITS
 
-
-Point = tuple[float, float]
 
 MISSILE = 706  # missiles.txt id of the blade (the player's, slot 9 of the unit table)
 BLADES = 5

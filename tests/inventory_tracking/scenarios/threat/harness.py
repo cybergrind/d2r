@@ -48,11 +48,11 @@ from inventory_tracking.combat.mechanics.tables import tables
 from inventory_tracking.combat.policy import AIM_BEYOND, MIN_FOCAL, Foe, observe
 from inventory_tracking.game.layout import LEADER_FLAGS, NO_OWNER
 from inventory_tracking.game.records import Monster, Player
+from inventory_tracking.levels.geometry import Point
 from inventory_tracking.terror.danger import DANGER
 from tests.inventory_tracking.scenarios.threat.table import TERROR_LEVEL, base_damage, multiple, row_of, table
 
 
-Point = tuple[float, float]
 TICKS = 25  # a second
 LIFE = 1800.0  # the character's (the takes of 2026-10-10: 1778-1813)
 RUN = 18.75  # units a second: the character's run in the take 20261010T162810Z-35

@@ -29,6 +29,7 @@ from inventory_tracking.combat.mechanics.movement import Route, route_of
 from inventory_tracking.combat.mechanics.tables import monster_points, points_of
 from inventory_tracking.combat.policy import walls
 from inventory_tracking.levels.doors import Door
+from inventory_tracking.levels.geometry import Point
 from inventory_tracking.levels.model import Ground, Walkable
 from inventory_tracking.macros.routines import BODY_LIFT
 from inventory_tracking.native.layout import CORPSE_MODE, PLAYER_DEAD_MODES
@@ -36,7 +37,6 @@ from inventory_tracking.takes.takes import LIFE_SCALE, PlayerRow, Take, ground_u
 from inventory_tracking.takes.timeline import GAME_RATE, HOLD_TICKS, button_down, ticks
 
 
-Point = tuple[float, float]
 STRIKE_BUTTON = 3  # the right mouse button holds Echoing Strike (the takes' manifests: right_skill 388)
 
 

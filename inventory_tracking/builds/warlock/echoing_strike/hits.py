@@ -17,10 +17,10 @@ from typing import Any
 
 from inventory_tracking.builds.warlock.echoing_strike.mechanics import OUT_FRAMES, POINTER_LAG, cast, focal_point
 from inventory_tracking.builds.warlock.echoing_strike.validate import full_casts
+from inventory_tracking.levels.geometry import Point
 from inventory_tracking.takes.takes import ground_under_pointer, monsters_of, player_of
 
 
-Point = tuple[float, float]
 Contact = tuple[int, int, int, str]  # cast frame, monster unit, contact frame, 'out' | 'back'
 
 CONTACT_RADIUS = 2.0  # world units between a blade and a monster's recorded position

@@ -13,14 +13,13 @@ import heapq
 import math
 from collections.abc import Iterable, Sequence
 
+from inventory_tracking.levels.geometry import Point
 from inventory_tracking.levels.handler import instances
 from inventory_tracking.levels.model import Room
 
 
 REACH = 4.0  # tiles of void one teleport crosses: half a screen's width
 STEP = 0.25  # tiles between samples along a hop (walls between rooms are thinner than a tile)
-
-Point = tuple[float, float]
 
 
 def room_at(rooms: Iterable[Room], tile: Point) -> Room | None:

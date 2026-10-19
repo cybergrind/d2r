@@ -60,6 +60,7 @@ from typing import Any
 from inventory_tracking.combat.mechanics.tables import tables
 from inventory_tracking.combat.sim.monsters import SPARK as SPARK_KIND, SPARK_MISSILE
 from inventory_tracking.game.layout import HERALD_TIER_STAT
+from inventory_tracking.levels.geometry import Point
 from inventory_tracking.native.layout import PLAYER_DEAD_MODES
 from inventory_tracking.takes.hurts import LIGHTNING, Sightings, enchantments
 from inventory_tracking.takes.takes import Take
@@ -79,7 +80,6 @@ from tests.inventory_tracking.scenarios.arena.evidence.blows import (
 from tests.inventory_tracking.scenarios.arena.evidence.rates import ELITE, END_ON, STEP, quantile
 
 
-Point = tuple[float, float]
 HERE = Path(__file__).parent
 SPLIT = HERE / 'split.json'
 CACHE = scan.CACHE / 'sparks'

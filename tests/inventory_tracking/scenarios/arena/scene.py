@@ -12,12 +12,11 @@ from pathlib import Path
 from types import UnionType
 from typing import TYPE_CHECKING, Union
 
+from inventory_tracking.levels.geometry import Point
+
 
 if TYPE_CHECKING:
     from _typeshed import DataclassInstance
-
-
-Point = tuple[float, float]
 
 
 @dataclass

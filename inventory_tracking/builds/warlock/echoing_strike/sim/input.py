@@ -13,9 +13,9 @@ from collections.abc import Callable
 from typing import Any
 
 from inventory_tracking.builds.warlock.echoing_strike.validate import full_casts
+from inventory_tracking.levels.geometry import Point
 
 
-Point = tuple[float, float]
 CAST_FRAMES = 9  # frames one cast occupies the character (0.36 s cast bouts; 9 beats 10 and 11 on the takes)
 BIRTH_LAG = 5  # frames from the cast start to the blades' first frame
 POINTER_LEAD = 1  # frames before the cast start whose pointer the game takes

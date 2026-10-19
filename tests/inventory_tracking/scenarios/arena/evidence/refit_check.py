@@ -89,6 +89,7 @@ from inventory_tracking.combat.sim.monsters import (
     shoots,
     swing_of,
 )
+from inventory_tracking.levels.geometry import Point
 from inventory_tracking.takes.timeline import GAME_RATE
 from tests.inventory_tracking.scenarios.arena.cut import MAIN
 from tests.inventory_tracking.scenarios.arena.evidence.fit import EVIDENCE, SPARKS, SWINGS, middle
@@ -97,7 +98,6 @@ from tests.inventory_tracking.scenarios.arena.evidence.swings import DIED, RAN_O
 from tests.inventory_tracking.scenarios.arena.mobs import is_ranged, shot_parts
 
 
-Point = tuple[float, float]
 HERE: Point = (0.0, 0.0)
 MATE: Point = (0.0, 6.0)  # a companion beside the character, out of a missile's contact with it
 BESIDE = 2.0  # units: where the melee monster stands

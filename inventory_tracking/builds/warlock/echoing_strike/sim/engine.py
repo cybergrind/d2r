@@ -42,9 +42,9 @@ from inventory_tracking.builds.warlock.echoing_strike.hits import CONTACT_RADIUS
 from inventory_tracking.builds.warlock.echoing_strike.mechanics import OUT_FRAMES, cast
 from inventory_tracking.builds.warlock.echoing_strike.sim.situation import Situation
 from inventory_tracking.combat.policy import RUN_MODES, Foe, Observation, Policy
+from inventory_tracking.levels.geometry import Point
 
 
-Point = tuple[float, float]
 KILL_TOLERANCE = 0.2  # a simulated kill within this share of the recorded time from first sight counts as matched
 KILL_FLOOR_FRAMES = 12  # and never tighter than this
 COMPANION_NEAR = 8.0  # units: a monster a companion came this near carries the companion model too

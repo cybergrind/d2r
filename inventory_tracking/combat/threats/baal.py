@@ -35,9 +35,9 @@ from inventory_tracking.combat.sim import baal as rules
 from inventory_tracking.combat.sim.casters import CONTACT
 from inventory_tracking.combat.threats import Acting, Legs, Part, Threat
 from inventory_tracking.combat.threats.diablo import AIMED, FRAME, Way
+from inventory_tracking.levels.geometry import Point
 
 
-Point = tuple[float, float]
 A1, S2, S3, SQ = 4, 9, 10, 14  # monmode.txt: his cold missiles and teleport, tentacles, nova and curse, inferno
 AT_CHARACTER = 1.0  # [code] the chance an act not yet aimed is at the character, while it hits him (module text)
 LIFE = 0.5  # [inferred] his life share for the weights of his acts to come (a look does not give it here)

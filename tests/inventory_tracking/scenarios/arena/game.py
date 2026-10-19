@@ -137,6 +137,7 @@ from inventory_tracking.game.records import (
 )
 from inventory_tracking.input import Refused
 from inventory_tracking.levels.doors import Door
+from inventory_tracking.levels.geometry import Point
 from inventory_tracking.levels.model import Ground, Walkable
 from inventory_tracking.macros.build import Attack
 from inventory_tracking.macros.engine import Run
@@ -166,7 +167,6 @@ from tests.inventory_tracking.scenarios.arena.scene import Scene
 from tests.inventory_tracking.scenarios.threat.harness import RUN
 
 
-Point = tuple[float, float]
 POTIONS = {
     int(class_id): row
     for class_id, row in json.loads((Path(__file__).parent / 'potions.json').read_text()).items()

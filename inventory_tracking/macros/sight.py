@@ -16,12 +16,11 @@ import math
 from collections.abc import Sequence
 
 from inventory_tracking.levels.doors import Door
+from inventory_tracking.levels.geometry import Point
 from inventory_tracking.levels.model import Ground
 from inventory_tracking.macros.teleport import footing
 from inventory_tracking.native.layout import TILE_UNITS
 
-
-Point = tuple[float, float]
 
 SAMPLE = 0.5  # world units between the sub-tiles looked at along a shot
 # World units at both ends of a shot not looked at: a monster often stands on a wall's very edge, and so

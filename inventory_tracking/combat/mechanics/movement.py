@@ -15,10 +15,10 @@ import struct
 from dataclasses import dataclass
 
 from inventory_tracking.combat.mechanics.tables import tables
+from inventory_tracking.levels.geometry import Point
 from inventory_tracking.takes.timeline import GAME_RATE
 
 
-Point = tuple[float, float]
 WALK, RUN = 2, 15  # monster modes that follow a route
 CURRENT, COUNT = 0x30, 0x34  # the waypoint the monster is going to, and how many there are
 WAYPOINTS = 0xC8  # x, y cells (u16 pairs)

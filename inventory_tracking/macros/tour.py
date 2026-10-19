@@ -18,9 +18,10 @@ import math
 from collections.abc import Collection, Sequence
 from functools import lru_cache
 
+from inventory_tracking.levels.geometry import Point
+
 
 Bounds = tuple[int, int, int, int]  # a room's x, y, width, height in tiles
-Point = tuple[float, float]
 ROUNDS = 3  # passes of dropping and shifting stops, each followed by a reordering
 # The tour is planned anew at every step, from where the fights left the character. The one before is
 # kept while a new one is not this many tiles shorter (a room's side): two tours as long that start

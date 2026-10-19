@@ -21,6 +21,7 @@ import pytest
 from inventory_tracking.combat.stance import Jump, no_footing
 from inventory_tracking.game.layout import NO_OWNER
 from inventory_tracking.game.records import VALUABLE, Drop, Monster, Teleport
+from inventory_tracking.levels.geometry import Point
 from inventory_tracking.levels.model import Ground, Room, Target, Walkable, pack_cells
 from inventory_tracking.macros import goals, movement, pickup, route, teleport, travel
 from inventory_tracking.macros.build import BuildSettings, Intent, JumpSource, MoveFacts, NoWay, Step
@@ -37,7 +38,6 @@ from inventory_tracking.routes.model import ENTER, FIGHT, LEAVE, LOOT, STAND, US
 from inventory_tracking.terror.bosses import SUPER_UNIQUE_FLAG
 
 
-Point = tuple[float, float]
 ROOT = Path(__file__).resolve().parents[3]
 REACH_UNITS = 22.0  # a build's strike reach, for the goals
 AREA = 108
