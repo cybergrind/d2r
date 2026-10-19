@@ -18,8 +18,9 @@ from inventory_tracking.macros.charms import (
     park,
 )
 from inventory_tracking.macros.cube import CUBE_CLASS, own_of
+from inventory_tracking.macros.game.layout import BANK
+from inventory_tracking.macros.game.records import Carried, Pack, Thing
 from inventory_tracking.macros.visit import Remembered
-from inventory_tracking.macros.world import BANK, Carried, Pack, Thing
 from tests.inventory_tracking.macros.fakes import Game, player, world
 
 

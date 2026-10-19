@@ -12,8 +12,8 @@ import pytest
 from inventory_tracking.levels.guide import lead_first
 from inventory_tracking.levels.model import PORTAL, SEALS, SUPER_CHEST, UNIQUE_CHEST, Lead, Poi, Room, Target
 from inventory_tracking.macros import route
+from inventory_tracking.macros.game.records import Teleport, Thing
 from inventory_tracking.macros.teleport import step_toward
-from inventory_tracking.macros.world import Teleport, Thing
 from inventory_tracking.routes.catalog import ROUTES
 from inventory_tracking.routes.model import Route, enter, fight, leave, level, loot, stand, use
 from inventory_tracking.routes.progress import Progress

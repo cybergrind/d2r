@@ -4,8 +4,9 @@ import pytest
 
 from inventory_tracking.loot.ground import SPARKLY_CHEST
 from inventory_tracking.macros import opening
+from inventory_tracking.macros.game.decode import containers
+from inventory_tracking.macros.game.records import Teleport, Thing
 from inventory_tracking.macros.opening import NEAR_UNITS, Container, choose, open_near
-from inventory_tracking.macros.world import Teleport, Thing, containers
 from tests.inventory_tracking.macros.fakes import KEYS, SLOTS, Game, world
 
 

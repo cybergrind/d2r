@@ -1,7 +1,7 @@
 """A small battlefield with incoming damage, to score where the fight aims (the production simulator
 has none: the build's sim replays recorded monsters and counts only what the blades take).
 
-The decision under test is the game's own: `today` builds macros/world.py records, passes them through
+The decision under test is the game's own: `today` builds macros/game/records.py records, passes them through
 combat/policy.py `observe` and asks combat/controller.py `aim_choice` with `LinePolicy`, as
 macros/hunt.py `Hunter.choose` does. The fight never moves the character and never looks at its life
 (hunt.py `fight`: it ends only when nothing is in reach, the player moves or the clock runs out), so
@@ -46,7 +46,8 @@ from inventory_tracking.builds.warlock.echoing_strike.sim.input import CAST_FRAM
 from inventory_tracking.combat.controller import aim_choice
 from inventory_tracking.combat.mechanics.tables import tables
 from inventory_tracking.combat.policy import AIM_BEYOND, MIN_FOCAL, Foe, observe
-from inventory_tracking.macros.world import LEADER_FLAGS, NO_OWNER, Monster, Player
+from inventory_tracking.macros.game.layout import LEADER_FLAGS, NO_OWNER
+from inventory_tracking.macros.game.records import Monster, Player
 from inventory_tracking.terror.danger import DANGER
 from tests.inventory_tracking.scenarios.threat.table import TERROR_LEVEL, base_damage, multiple, row_of, table
 
@@ -269,7 +270,7 @@ def run(scene: Scene, controller: Controller, horizon: int = HORIZON) -> Result:
 
 
 def records(scene: Scene) -> tuple[Player, list[Monster]]:
-    """The scene as the memory read gives it (macros/world.py): the life as a share of 128."""
+    """The scene as the memory read gives it (macros/game/): the life as a share of 128."""
     player = Player(1, 'scenario', 1, scene.area, scene.origin[0], scene.origin[1], None)
     monsters = [
         Monster(

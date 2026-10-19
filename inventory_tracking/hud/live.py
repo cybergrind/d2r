@@ -43,7 +43,7 @@ def position(data: bytes) -> tuple[float, float]:
 
 
 class LiveMemory:
-    """Keeps /proc/<pid>/mem open for the game the payloads name, rebound when it changes (macros/world.py
+    """Keeps /proc/<pid>/mem open for the game the payloads name, rebound when it changes (macros/game/
     GameMemory is the macro's: one game a run, short reads refused). `read(fd, size, address)`: a pread, whose short
     reads the callers' decoders reject."""
 

@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Any
 
 from inventory_tracking.combat.takes import Take
-from inventory_tracking.macros.world import NO_OWNER
+from inventory_tracking.macros.game.layout import NO_OWNER
 from tests.inventory_tracking.scenarios.arena.moments import Moment, moments
 
 

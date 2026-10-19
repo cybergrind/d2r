@@ -34,8 +34,11 @@ Evidence: five read-only studies in `rca/2026-10-19/cleanup/` (git-ignored, loca
     its words ("a stop with no cause read as room by its words"): delete `ROOM_WORDS` after a day with none.
   - step 6, first part: kind branches are `Kind` data (`agenda`, `trips`, `swaps_gheeds`, `boss`, `badge`,
     `fortress_ends_game`, `full_clear`) and `LEGS` (each kind's leg chooser); shared `Loop.begin_trip`,
-    `back_through_portal`, `note_portal`, `prebuff_once`, runner `_way_on`. Not done: one `LegHands` replacing the
-    runner's LOOP closures and `TzHands` (the leg bodies stay in `Loop.leg`).
+    `back_through_portal`, `note_portal`, `prebuff_once`, runner `_way_on`. Then one `LegHands` (loop.py) replacing the
+    runner's eight leg callbacks and `TzHands`: built once a leg by runner `_loop_hands`; the kind picks its level run
+    (the agenda's for the TZ kinds), so Andariel's `down` and a zone's `door` are one `way_on`. Skipped on reading:
+    P7 `LoopWatch` (`overdue`/`still`/`beset` are ~50 cohesive lines reading `abandon`, `cooling`, the kind and the
+    trips; out of `Loop` each call and test would pass them in: churn in the near-death guard for little gain).
   - step 8, part: map data in `levels/map_card.py`, drawing in `hud/map.py`, `hud/direction.py`; one `ARROWS`.
   - step 9, part: one session/date reader in logwords.py (`sessions`, `local`, `newest`), tool outputs byte-identical.
   - step 2 done (`items/grid.py` `Grid`, parity test against every old helper; `room_for`/`inventory_rows` gone).
@@ -48,6 +51,14 @@ Evidence: five read-only studies in `rca/2026-10-19/cleanup/` (git-ignored, loca
     `judging.py`, `moves.py`, `sweep.py`; constants and helpers in `base.py`), bound as class attributes
     (`judge = judging.judge`; `self: Hunter`, which pyrefly checks; mixins with `self: Hunter` it rejects). Tests patch
     module names through `fakes.patch_hunt` (each module reads its own import) and import constants from their home.
+  - step 3 done: `native/memory.py` is the one /proc/<pid>/mem open (`ProcessMemory`, `BoundedReader`, `bounded`,
+    `game_read`, `stable_read`, `one_unit_table`); ~30 opens and ~17 table picks moved onto it; hud/live.py's reader
+    is `LiveMemory` (it reads raw and rebinds per pid: kept apart from the macro's). Left: macros/probe.py's two opens,
+    the table picks in combat/record.py and levels/guide.py.
+  - step 4, first part: world.py (1,998 lines) split as pure moves into `macros/game/`: `layout.py` (addresses,
+    offsets, classes), `records.py` (`Player` … `World`, `prized`, `has_room`), `kept.py` (`BeltKept`, `PutDown`),
+    `decode.py` (the `read`-taking decoders, the census), `memory.py` (`GameMemory`); 173 importers rewritten, no
+    shim. Left: one unit walk per look (study A4), one `Monster` type, `prized`/`shown_source` to lootpolicy.
   - step 10 done: `pricing/api.py` (47 names, lazy); inventory_tracking imports only it (boundary test
     tests/pricing/test_api.py); `detail`/`guarded_retrieve` moved to `appraisal/retrieval.py`; the replay and guide
     reports run as `python -m inventory_tracking.corpus.replay [--guides]`. Left: two frozen maintenance tools

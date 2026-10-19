@@ -22,12 +22,12 @@ from inventory_tracking.macros.loop import (
     TZ_PICKUP,
     TZ_PORTAL,
     TZ_WAYPOINT,
+    LegHands,
     Loop,
     loop_kinds,
 )
 from inventory_tracking.macros.route import PERFORMED
 from inventory_tracking.macros.town import Exit
-from inventory_tracking.macros.tzloop import TzHands
 from inventory_tracking.routes.catalog import ROUTES
 from inventory_tracking.routes.progress import Progress
 from tests.inventory_tracking.macros.fakes import KEYS, Game, player, world
@@ -104,13 +104,18 @@ class Script:
         found = [label for where, label in self.sightings.items() if area is None or where == area]
         return found[0] if found else None
 
-    def hands(self) -> TzHands:
-        return TzHands(self.level_run, self.take_one, self.door, self.sighted, lambda area: area in self.zone)
+    def hands(self, visit=None) -> LegHands:
+        return LegHands(
+            self.level_run,
+            self.take_one,
+            visit=visit,
+            way_on=self.door,
+            sighted=self.sighted,
+            terrorized=lambda area: area in self.zone,
+        )
 
     def leg(self, visit=None) -> str:
-        return self.loop.leg(
-            self.play.run(), keys, self.progress, lambda: None, self.take_one, visit=visit, tz=self.hands()
-        )
+        return self.loop.leg(self.play.run(), keys, self.progress, self.hands(visit))
 
 
 def test_a_catacombs_terror_zone_game_kills_the_elites_on_the_way_then_andariel_and_is_left(monkeypatch):
@@ -194,7 +199,7 @@ def test_the_leave_leg_itself_refuses_a_game_with_a_valuable_on_another_level(mo
     game.sightings[36] = 'Ber Rune at (1, 2)'
     goal = Objective(LEAVE_GAME, 'no goals left', 60)
     with pytest.raises(Abort, match='Ber Rune') as stop:
-        tzloop.perform(game.loop, game.play.run(), keys, game.progress, goal, game.hands(), None)
+        tzloop.perform(game.loop, game.play.run(), keys, game.progress, goal, game.hands())
     assert stop.value.cause == 'room'  # the room rules, then the stop for the player (runner.py `_loop_stopped`)
     assert 'Save and Exit' not in game.play.said
 
@@ -342,11 +347,11 @@ def test_a_super_chest_in_sight_is_opened_on_the_way_after_the_leaders_and_never
     # 2026-10-19, the player: "also in marsh (and I think in other places) - we don't open intermediate goals, like
     # superchests. probably we should add superchests to intemediate goals and open them along the way"
     from inventory_tracking.levels.model import SUPER_CHEST, Ground
+    from inventory_tracking.macros.game.records import Thing
     from inventory_tracking.macros.goals import PLACE_NEAR, USE_NEAR, Goal
     from inventory_tracking.macros.hunting.base import SUPER_TRIES
     from inventory_tracking.macros.teleport import marked_thing
     from inventory_tracking.macros.travel import PRESSED
-    from inventory_tracking.macros.world import Thing
     from inventory_tracking.routes.model import ENTER, FIGHT, USE
     from tests.inventory_tracking.macros.test_hunt import CHAMPION, foe
 
@@ -383,9 +388,9 @@ def test_a_super_chest_in_sight_is_opened_on_the_way_after_the_leaders_and_never
 def test_a_super_chest_far_off_is_no_detour_for_the_agenda_run():
     from inventory_tracking.levels.model import SUPER_CHEST, Ground
     from inventory_tracking.macros.agenda import CHEST_NEAR
+    from inventory_tracking.macros.game.records import Thing
     from inventory_tracking.macros.goals import PLACE_NEAR, Goal
     from inventory_tracking.macros.travel import PRESSED
-    from inventory_tracking.macros.world import Thing
     from inventory_tracking.routes.model import ENTER
 
     play, hunt, run = agenda_hunt(ON_THE_WAY)

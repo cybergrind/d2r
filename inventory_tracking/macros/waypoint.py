@@ -31,9 +31,9 @@ from inventory_tracking.levels.model import Target
 from inventory_tracking.levels.presets import display_name
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.engine import Run
+from inventory_tracking.macros.game.records import World
 from inventory_tracking.macros.routines import arrived, screen_fraction
 from inventory_tracking.macros.teleport import ground_fraction, ready_world, use_thing
-from inventory_tracking.macros.world import World
 from inventory_tracking.native.layout import TILE_UNITS
 
 

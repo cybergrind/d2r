@@ -19,6 +19,8 @@ from inventory_tracking.levels.model import Ground, Target
 from inventory_tracking.macros import goals
 from inventory_tracking.macros.actuator import Cancelled
 from inventory_tracking.macros.build import NoWay, Step
+from inventory_tracking.macros.game.layout import NO_OWNER
+from inventory_tracking.macros.game.records import HEALING, VALUABLE, Drop, Monster
 from inventory_tracking.macros.goals import PICK_UP, Goal, first_fight, goal_of, in_the_way, nearer
 from inventory_tracking.macros.hunt import Hunter
 from inventory_tracking.macros.pursuit import (
@@ -37,7 +39,6 @@ from inventory_tracking.macros.pursuit import (
 from inventory_tracking.macros.route import PERFORMED, staged
 from inventory_tracking.macros.runner import MacroRunner
 from inventory_tracking.macros.travel import PRESSED
-from inventory_tracking.macros.world import HEALING, NO_OWNER, VALUABLE, Drop, Monster
 from inventory_tracking.native.layout import TILE_UNITS
 from inventory_tracking.routes.catalog import ROUTES
 from inventory_tracking.routes.model import FIGHT, LOOT

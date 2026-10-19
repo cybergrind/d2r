@@ -24,10 +24,11 @@ from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.buffs import Buffs
 from inventory_tracking.macros.build import Casting
 from inventory_tracking.macros.engine import Run
+from inventory_tracking.macros.game.layout import DEFILER_CLASS
+from inventory_tracking.macros.game.records import Monster
 from inventory_tracking.macros.pad import MONSTER_UNIT, KeyRoute, pad_slots, records
 from inventory_tracking.macros.routines import prebuff, press_skill, run_macro
 from inventory_tracking.macros.skills import slot_action
-from inventory_tracking.macros.world import DEFILER_CLASS, Monster
 from tests.inventory_tracking.macros.fakes import SLOTS, character_of, player, world
 from tests.inventory_tracking.macros.moves import ASPECT
 from tests.inventory_tracking.macros.test_pad import BINDINGS, Controller, pad_of

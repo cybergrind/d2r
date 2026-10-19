@@ -27,21 +27,17 @@ repos:
 
   - repo: local
     hooks:
-      # pricing/tools are standalone scripts not yet brought under the ruff config
-      # (hundreds of findings); clean them up in their own pass before removing the exclude.
       - id: ruff-check
         name: ruff check
         entry: uv run ruff check --fix --force-exclude
         language: system
         types_or: [python, pyi]
-        exclude: ^pricing/tools/
         require_serial: true
       - id: ruff-format
         name: ruff format
         entry: uv run ruff format --force-exclude
         language: system
         types_or: [python, pyi]
-        exclude: ^pricing/tools/
         require_serial: true
       # The whole project: every error fails (0 since 2026-10-15).
       - id: pyrefly-check

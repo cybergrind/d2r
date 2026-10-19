@@ -23,6 +23,8 @@ from inventory_tracking.macros.buffs import keys_of
 from inventory_tracking.macros.build import Caster, Casting, Tried
 from inventory_tracking.macros.cta import CASTERS as CTA_CASTERS
 from inventory_tracking.macros.engine import Run
+from inventory_tracking.macros.game.layout import DEFILER_CLASS as DEFILER, NO_OWNER
+from inventory_tracking.macros.game.records import Monster, Player, World
 from inventory_tracking.macros.pad import heading_degrees, turned
 from inventory_tracking.macros.routines import (
     ACTING,
@@ -38,7 +40,6 @@ from inventory_tracking.macros.routines import (
 from inventory_tracking.macros.teleport import HOVER_SECONDS, ground_fraction
 from inventory_tracking.macros.travel import MONSTER_UNIT_TYPE
 from inventory_tracking.macros.view import BODY_LIFT, FEET
-from inventory_tracking.macros.world import DEFILER_CLASS as DEFILER, NO_OWNER, Monster, Player, World
 from inventory_tracking.native.layout import HIRELING_CLASS_ID
 
 

@@ -19,9 +19,9 @@ cannot be made now is walked or warped by the set itself. The order:
 from dataclasses import dataclass
 
 from inventory_tracking.macros.build import Intent
+from inventory_tracking.macros.game.records import Teleport
 from inventory_tracking.macros.movement import HOPS, WALKS, WARPS
 from inventory_tracking.macros.travel import LOOPED, LOOPED_TELEPORT, LOW_CHARGES
-from inventory_tracking.macros.world import Teleport
 
 
 @dataclass(frozen=True)

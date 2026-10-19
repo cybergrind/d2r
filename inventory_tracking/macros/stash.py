@@ -10,7 +10,7 @@ on 2026-10-16.
 What goes: everything in the cube (the loop's bag) and the loop's items in the inventory (cube.py `loot`: neither the
 player's, as the loop's first look found them, nor the cube, the tomes and the keys).
 
-The steps (`unload`), in Pandemonium Fortress before Save and Exit: the stash (objects.txt `Bank`, world.py BANK)
+The steps (`unload`), in Pandemonium Fortress before Save and Exit: the stash (objects.txt `Bank`, game/layout.py BANK)
 clicked as the waypoint is (teleport.py `use_thing`), which opens it with the inventory; a resource tab clicked once, on
 which the stash shows the cube's grid, and each cube item sent by a Ctrl + Shift + click; then each inventory resource
 (`RESOURCES`: the codes the resource tabs name, data/stash_tabs.json) by a Ctrl + click, which puts it onto its own
@@ -47,10 +47,11 @@ from inventory_tracking.macros.cube import (
     unpack,
 )
 from inventory_tracking.macros.engine import Run
+from inventory_tracking.macros.game.layout import BANK
+from inventory_tracking.macros.game.records import Carried, Pack, World
 from inventory_tracking.macros.shop import WALK_SECONDS, WALKING, walk_until
 from inventory_tracking.macros.teleport import use_thing
 from inventory_tracking.macros.waypoint import panel_point
-from inventory_tracking.macros.world import BANK, Carried, Pack, World
 from inventory_tracking.native.layout import TILE_UNITS
 
 

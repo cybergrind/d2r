@@ -29,7 +29,7 @@ from dataclasses import dataclass, replace
 
 from inventory_tracking.levels.model import Target
 from inventory_tracking.macros.build import Intent
-from inventory_tracking.macros.world import HEALING, REJUVENATION, Drop, Monster
+from inventory_tracking.macros.game.records import HEALING, REJUVENATION, Drop, Monster
 from inventory_tracking.native.layout import TILE_UNITS
 from inventory_tracking.routes.model import ENTER, FIGHT, LEAVE, LOOT, STAND, USE, Stage
 from inventory_tracking.terror.bosses import BOSSES, SUPER_UNIQUE_FLAG

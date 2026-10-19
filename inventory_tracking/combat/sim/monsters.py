@@ -166,7 +166,7 @@ from typing import Any
 from inventory_tracking.combat.mechanics.tables import tables
 from inventory_tracking.combat.sim import casters
 from inventory_tracking.combat.timeline import GAME_RATE
-from inventory_tracking.macros.world import MINION_FLAG
+from inventory_tracking.macros.game.layout import MINION_FLAG
 
 
 Point = tuple[float, float]
@@ -201,7 +201,8 @@ CHARACTER_FIRST = frozenset(('Goatman',))
 HOLD = {'Goatman': 7.0, 'Fallen': 6.5}  # units from the target where the approach ends (a Devilkin's stop 12 or 14)
 CHARGE = 30  # the chance in 100, at a think held there, to go in (four charges seen: not a measurement)
 DEFAULT = {'Velocity': '6', 'aip1(H)': '70', 'aip2(H)': '10', 'aip3(H)': '80', 'aidel(H)': '13'}
-SUPER_FLAG, CHAMPION_FLAG, UNIQUE_FLAG = 0x02, 0x04, 0x08  # the type flags of a monster (macros/world.py TYPE_FLAGS)
+# the type flags of a monster (macros/game/layout.py TYPE_FLAGS)
+SUPER_FLAG, CHAMPION_FLAG, UNIQUE_FLAG = 0x02, 0x04, 0x08
 PLAIN, MINION, CHAMPION, UNIQUE = 'plain', 'minion', 'champion', 'unique'
 STRONG, FIRE, LIGHTNING, COLD = 5, 9, 17, 18  # monumod ids
 PHYSICAL = 'physical'

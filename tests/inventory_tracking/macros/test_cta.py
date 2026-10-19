@@ -16,7 +16,8 @@ from inventory_tracking.macros.cta import (
     orders_shown,
     worn_and_in_front,
 )
-from inventory_tracking.macros.world import CTA_CODE, gives_orders
+from inventory_tracking.macros.game.memory import CTA_CODE
+from inventory_tracking.macros.game.records import gives_orders
 from tests.inventory_tracking.macros.fakes import BUILD, KEYS, OTHER_SET, PREBUFF_SET, SLOTS, Game, player, world
 
 

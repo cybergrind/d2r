@@ -95,7 +95,8 @@ from inventory_tracking.combat.sim.monsters import (
 from inventory_tracking.combat.takes import Take, monsters_of
 from inventory_tracking.combat.timeline import GAME_RATE
 from inventory_tracking.levels.presets import display_name
-from inventory_tracking.macros.world import LYING_DEAD, NO_OWNER, Monster
+from inventory_tracking.macros.game.layout import LYING_DEAD, NO_OWNER
+from inventory_tracking.macros.game.records import Monster
 from inventory_tracking.native.layout import DEAD_MODES, PLAYER_DEAD_MODES
 from tests.inventory_tracking.scenarios.arena.build_scenes import FIXTURES, REPO, ROOT, SCENE_FILE, belt_keys
 from tests.inventory_tracking.scenarios.arena.cut import ALWAYS_ASSUMED, hand_of

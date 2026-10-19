@@ -14,11 +14,11 @@ from pathlib import Path
 import pytest
 
 from inventory_tracking.macros.cube import own_of
+from inventory_tracking.macros.game.records import Pack
 from inventory_tracking.macros.stash import is_potion
 from inventory_tracking.macros.town import Exit, Needs, contract
 from inventory_tracking.macros.townplan import RULED, Rulings, State, kind_of, kinds, plan_visit, simulate
 from inventory_tracking.macros.visitlog import VERSION, Snapshot, load, snapshot_json
-from inventory_tracking.macros.world import Pack
 from tests.inventory_tracking.macros import test_town
 
 

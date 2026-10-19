@@ -14,11 +14,11 @@ import pytest
 from inventory_tracking.builds.warlock.echoing_strike.attack import REACH
 from inventory_tracking.levels.doors import CLOSED_MODE, Door
 from inventory_tracking.levels.model import Target
+from inventory_tracking.macros.game.records import Player
 from inventory_tracking.macros.hunt import DECIDE_SECONDS, Hunter, hostiles
 from inventory_tracking.macros.sight import in_reach
 from inventory_tracking.macros.teleport import Way, landing
 from inventory_tracking.macros.view import Viewport
-from inventory_tracking.macros.world import Player
 from tests.inventory_tracking.macros.fakes import warlock
 from tests.inventory_tracking.scenarios.loop.helpers import ASPECT, TICK, busiest_frame, recorded, recorded_world
 from tests.inventory_tracking.scenarios.loop.tick_cost import decision, fastest

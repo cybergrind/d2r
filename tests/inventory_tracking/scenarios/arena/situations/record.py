@@ -44,8 +44,8 @@ from typing import Any
 
 from inventory_tracking.builds.warlock.echoing_strike.mechanics import MISSILE
 from inventory_tracking.combat.takes import Take, monsters_of, player_of
+from inventory_tracking.macros.game.records import GOLD, HEALING, REJUVENATION
 from inventory_tracking.macros.runner import ATTACK
-from inventory_tracking.macros.world import GOLD, HEALING, REJUVENATION
 from inventory_tracking.native.layout import TILE_UNITS
 from tests.inventory_tracking.scenarios.arena.cut import DEFAULT_HERO, cut, level_of
 from tests.inventory_tracking.scenarios.arena.game import GROUND_POTIONS, POTIONS

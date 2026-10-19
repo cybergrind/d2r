@@ -2,10 +2,10 @@
 
 from inventory_tracking.levels.model import SEALS, Poi, Room, Target
 from inventory_tracking.macros.card_goal import NOT_SEEN, CardGoals
+from inventory_tracking.macros.game.records import Drop, Thing
 from inventory_tracking.macros.goals import FIGHT, USE, goal_of, route_goal
 from inventory_tracking.macros.route import PERFORMED
 from inventory_tracking.macros.travel import STANDING
-from inventory_tracking.macros.world import Drop, Thing
 from inventory_tracking.native.layout import TILE_UNITS
 from inventory_tracking.routes.catalog import ROUTES
 from inventory_tracking.routes.progress import Progress

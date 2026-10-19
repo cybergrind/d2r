@@ -49,7 +49,7 @@ NAMED: dict[str, str] = {
     'damage_table': "this build's damage file",
     'link_table': "the Defiler's Health Link",
     'linked_set': "the Defiler's Health Link",
-    # The Warlock's buffs as the world reads them off the character (macros/world.py `Player`)
+    # The Warlock's buffs as the world reads them off the character (macros/game/records.py `Player`)
     'HEX_PURGE_BIT': 'the state bit of Hex: Purge',
     'PSYCHIC_WARD_BIT': 'the state bit of Psychic Ward',
     'hex_purge': 'whether Hex: Purge is on the character',
@@ -150,35 +150,32 @@ def found() -> set[tuple[str, str]]:
     return pairs
 
 
-WORLD = 'inventory_tracking/macros/world.py'
-ALLOWED: frozenset[tuple[str, str]] = frozenset(
-    {
-        (WORLD, 'DEFILER_CLASS'),
-        (WORLD, 'HEX_PURGE_BIT'),
-        (WORLD, 'PSYCHIC_WARD_BIT'),
-        (WORLD, 'consume'),
-        (WORLD, 'hex_purge'),
-        (WORLD, 'read_consume'),
-        (WORLD, 'ward'),
-    }
-)
+LAYOUT = 'inventory_tracking/macros/game/layout.py'
+RECORDS = 'inventory_tracking/macros/game/records.py'
+DECODE = 'inventory_tracking/macros/game/decode.py'
 
 # Why each allowed pair is still in the framework. All of it is the world's reading of the game: what
 # the Warlock's own units and buffs look like in memory, read for every character and used by the
 # build alone. A build cannot be asked for it yet: `World` is read before a build is chosen, and a
 # build has no part in reading memory (architecture.md 4.0; framework-plan.md Task 3.8, out of scope).
 RESIDUE: dict[tuple[str, str], str] = {
-    (WORLD, 'DEFILER_CLASS'): "the Defiler's txt id: its raw unit bytes are read into `Monster.raw` for research",
-    (WORLD, 'HEX_PURGE_BIT'): "the state bit `Player.hex_purge` is read from; the build's buff row asks the field",
-    (WORLD, 'PSYCHIC_WARD_BIT'): "the state bit `Player.ward` is read from; the build's buff row asks the field",
+    (LAYOUT, 'DEFILER_CLASS'): "the Defiler's txt id: its raw unit bytes are read into `Monster.raw` for research",
+    (LAYOUT, 'HEX_PURGE_BIT'): "the state bit `Player.hex_purge` is read from; the build's buff row asks the field",
+    (LAYOUT, 'PSYCHIC_WARD_BIT'): "the state bit `Player.ward` is read from; the build's buff row asks the field",
+    (DECODE, 'DEFILER_CLASS'): 'the import of the txt id, for the raw bytes of the Defiler `monsters_and_dead` keeps',
+    (DECODE, 'HEX_PURGE_BIT'): 'the import of the state bit `local_player` reads into `Player.hex_purge`',
+    (DECODE, 'PSYCHIC_WARD_BIT'): 'the import of the state bit `local_player` reads into `Player.ward`',
+    (DECODE, 'consume'): '`local_player` fills `Player.consume` as tracking/consume.py reads it',
+    (DECODE, 'read_consume'): 'the import of tracking/consume.py, the reader behind `Player.consume`',
+    (DECODE, 'ward'): '`local_player` fills `Player.ward`',
     (
-        WORLD,
+        RECORDS,
         'consume',
     ): "`Player.consume`, the Consume buff as tracking/consume.py reads it; the build's caster asks it",
-    (WORLD, 'hex_purge'): "`Player.hex_purge`: a Warlock buff as a field of every character's record",
-    (WORLD, 'read_consume'): 'the import of tracking/consume.py, the reader behind `Player.consume`',
-    (WORLD, 'ward'): "`Player.ward`: a Warlock buff as a field of every character's record",
+    (RECORDS, 'hex_purge'): "`Player.hex_purge`: a Warlock buff as a field of every character's record",
+    (RECORDS, 'ward'): "`Player.ward`: a Warlock buff as a field of every character's record",
 }
+ALLOWED: frozenset[tuple[str, str]] = frozenset(RESIDUE)
 
 POLICY = 'inventory_tracking/combat/policy.py'
 TABLES = 'inventory_tracking/combat/mechanics/tables.py'

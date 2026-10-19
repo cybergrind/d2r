@@ -52,13 +52,13 @@ from inventory_tracking.levels.model import Level, Room
 from inventory_tracking.macros import opening, pickup, runner as runner_module, teleport
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.build import Build
+from inventory_tracking.macros.game.records import World
 from inventory_tracking.macros.hunt import Hunter, threat
 from inventory_tracking.macros.latency import Trace
 from inventory_tracking.macros.opening import open_near
 from inventory_tracking.macros.pickup import pick_up
 from inventory_tracking.macros.runner import ATTACK, PICKUP, TELEPORT, MacroRunner
 from inventory_tracking.macros.skills import ACTIONS, NAMES
-from inventory_tracking.macros.world import World
 from tests.inventory_tracking.macros.fakes import KEYS, warlock
 from tests.inventory_tracking.scenarios.arena.game import EDGE, Arena
 from tests.inventory_tracking.scenarios.arena.result import Result

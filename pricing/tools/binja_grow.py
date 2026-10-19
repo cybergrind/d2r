@@ -115,4 +115,4 @@ def main(view) -> None:
     print('Analysis is running; save the database when it has settled.')
 
 
-main(bv)  # noqa: F821 (the console's view in front)
+main(bv)  # ruff: ignore[undefined-name] (the console's view in front)

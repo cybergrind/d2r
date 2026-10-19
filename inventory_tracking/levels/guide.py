@@ -208,7 +208,7 @@ class LevelGuide:
         # the card's first row points at the goal the macro goes to, the done marks have no row, and no goal left
         # is no arrow (rca/2026-10-14/run-1916-hud-findings.md §1). None: the rows are the marks in `_marks` order.
         self.goals = goals
-        # (pid, images, capture, classes) -> the object units of those classes near the player (macros/world.py
+        # (pid, images, capture, classes) -> the object units of those classes near the player (macros/game/
         # `observe_things`), read at each poll for the marks `goals.wanted` names: a seal opened by hand is done.
         self.observe_things = observe_things
         self.drawn: tuple | None = None  # the goal and done marks the visible card was drawn with

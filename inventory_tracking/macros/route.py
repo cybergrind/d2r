@@ -29,6 +29,7 @@ from inventory_tracking.levels.model import Level, Target
 from inventory_tracking.levels.presets import has_warps
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.engine import Run
+from inventory_tracking.macros.game.records import Player, World
 from inventory_tracking.macros.pickup import pick_up
 from inventory_tracking.macros.routines import character_keys, create_next_game, leave_game, prebuff
 from inventory_tracking.macros.teleport import (
@@ -42,7 +43,6 @@ from inventory_tracking.macros.teleport import (
     marked_thing,
     scaled,
 )
-from inventory_tracking.macros.world import Player, World
 from inventory_tracking.native.layout import TILE_UNITS
 from inventory_tracking.routes.model import ENTER, FIGHT, LEAVE, LOOT, STAND, USE, Stage
 from inventory_tracking.routes.progress import Place, Progress

@@ -39,16 +39,17 @@ from pathlib import Path
 
 from inventory_tracking.combat.takes import PlayerRow, Take, monsters_of, player_of
 from inventory_tracking.common import LOG
+from inventory_tracking.levels.doors import Door
 from inventory_tracking.levels.model import Level, Room, Walkable
 from inventory_tracking.macros import runner as runner_module
 from inventory_tracking.macros.actuator import Actuator
 from inventory_tracking.macros.engine import Run
+from inventory_tracking.macros.game.records import Loot, Monster, Player, Teleport, World
 from inventory_tracking.macros.hunt import Hunter, threat
 from inventory_tracking.macros.pickup import pick_up
 from inventory_tracking.macros.routines import ACTING
 from inventory_tracking.macros.runner import ATTACK, PICKUP, TELEPORT, MacroRunner
 from inventory_tracking.macros.timing import Pace
-from inventory_tracking.macros.world import Door, Loot, Monster, Player, Teleport, World
 from tests.inventory_tracking.macros.fakes import BUILD, Clock, FakeConnection
 
 

@@ -22,6 +22,8 @@ from pathlib import Path
 from inventory_tracking.common import LOG
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.engine import Run
+from inventory_tracking.macros.game.layout import GOLD_STAT
+from inventory_tracking.macros.game.records import Teleport, Wear, World
 from inventory_tracking.macros.shop import (
     LINE,
     PANEL_SECONDS,
@@ -36,7 +38,6 @@ from inventory_tracking.macros.shop import (
     whereabouts,
 )
 from inventory_tracking.macros.waypoint import panel_point
-from inventory_tracking.macros.world import GOLD_STAT, Teleport, Wear, World
 
 
 __all__ = ['HALBU', 'REPAIR_BELOW', 'WEAR_BELOW', 'WEAR_CARRIED', 'back', 'due', 'repair', 'wants', 'worn_out']

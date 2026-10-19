@@ -5,8 +5,8 @@ import pytest
 from inventory_tracking.items.metadata import metadata
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.cube import CUBE, CUBE_CLASS, INVENTORY, cell_point, overflow, own_of, plan, stash
+from inventory_tracking.macros.game.records import Carried, Pack
 from inventory_tracking.macros.stash import STASH_CUBE, STASH_PAGE
-from inventory_tracking.macros.world import Carried, Pack
 from tests.inventory_tracking.macros.fakes import Game, player, world
 
 
@@ -118,7 +118,7 @@ def test_with_nothing_of_the_loops_nothing_is_opened():
 
 
 def test_the_grids_give_each_item_its_first_cell_and_the_cubes_rows():
-    from inventory_tracking.macros.world import pack_of
+    from inventory_tracking.macros.game.decode import pack_of
 
     width = 10
     cells = [0] * (width * 4)

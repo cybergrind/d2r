@@ -9,6 +9,8 @@ from inventory_tracking.levels.model import Room, Target
 from inventory_tracking.levels.route import room_at
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.engine import Run
+from inventory_tracking.macros.game.layout import NO_OWNER
+from inventory_tracking.macros.game.records import Monster, Thing, World
 from inventory_tracking.macros.goals import (
     CLEAR_WAY,
     REACH,
@@ -33,12 +35,6 @@ from inventory_tracking.macros.teleport import (
 )
 from inventory_tracking.macros.travel import (
     Point,
-)
-from inventory_tracking.macros.world import (
-    NO_OWNER,
-    Monster,
-    Thing,
-    World,
 )
 from inventory_tracking.native.layout import TILE_UNITS
 from inventory_tracking.routes.model import ENTER, STAND, Script

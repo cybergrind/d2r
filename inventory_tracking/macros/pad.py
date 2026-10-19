@@ -69,7 +69,7 @@ from inventory_tracking.models import InputMode
 
 if TYPE_CHECKING:
     from inventory_tracking.macros.engine import Run
-    from inventory_tracking.macros.world import World
+    from inventory_tracking.macros.game.records import World
     from inventory_tracking.tracking.input_mode import ControllerState
 
 
@@ -129,7 +129,7 @@ KEY_WATCH = 1.5  # seconds the probe's state is watched for after its key
 PROBE_CLEAR = AWARE  # no hostile within this many units: the probe's quiet moment
 # Keys a keyboard slot may hold that the route never presses: keypad 5 is the service's own pad hotkey (it taps X).
 UNPRESSABLE = frozenset(('KP_5', 'KP_Begin'))
-NO_OWNER = 0xFFFFFFFF  # macros/world.py: a monster nobody owns
+NO_OWNER = 0xFFFFFFFF  # macros/game/: a monster nobody owns
 
 
 def heading_degrees(vector: Point) -> float:

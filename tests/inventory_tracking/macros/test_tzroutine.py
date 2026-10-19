@@ -18,6 +18,7 @@ from inventory_tracking.macros.agenda import (
     LevelView,
     Objective,
 )
+from inventory_tracking.macros.game.records import Teleport
 from inventory_tracking.macros.movement import HOPS, WALKS, WARPS
 from inventory_tracking.macros.navigation import Abilities, means
 from inventory_tracking.macros.travel import LOOPED, LOOPED_TELEPORT
@@ -30,7 +31,6 @@ from inventory_tracking.macros.tzroutine import (
     policy_of,
     produce,
 )
-from inventory_tracking.macros.world import Teleport
 from inventory_tracking.routes.model import ENTER, FIGHT, LEAVE, LOOT as LOOT_STAGE
 
 

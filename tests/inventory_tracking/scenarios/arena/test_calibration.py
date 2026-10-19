@@ -12,7 +12,7 @@ import pytest
 from inventory_tracking.combat.sim.monsters import MELEE, spread as size_factor
 from inventory_tracking.combat.takes import Take
 from inventory_tracking.combat.timeline import GAME_RATE
-from inventory_tracking.macros.world import FULL_REJUVENATION, LYING_DEAD, NO_OWNER
+from inventory_tracking.macros.game.layout import FULL_REJUVENATION, LYING_DEAD, NO_OWNER
 from tests.inventory_tracking.scenarios.arena.build_scenes import FIXTURES, SCENE_FILE
 from tests.inventory_tracking.scenarios.arena.calibrate import (
     BEYOND_NOTE,

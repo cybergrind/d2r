@@ -6,7 +6,7 @@ import math
 
 from inventory_tracking.combat import escort
 from inventory_tracking.combat.harm import Hostile, Look, SafetySettings
-from inventory_tracking.macros.world import Monster
+from inventory_tracking.macros.game.records import Monster
 from inventory_tracking.native.layout import HIRELING_CLASS_ID
 
 

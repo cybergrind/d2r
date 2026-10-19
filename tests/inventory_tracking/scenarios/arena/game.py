@@ -129,20 +129,11 @@ from inventory_tracking.levels.doors import Door
 from inventory_tracking.levels.model import Ground, Walkable
 from inventory_tracking.macros.build import Attack
 from inventory_tracking.macros.engine import Run
-from inventory_tracking.macros.movement import TELEPORT_JUMP
-from inventory_tracking.macros.routines import ACTING
-from inventory_tracking.macros.skills import SWAP_WEAPONS, TELEPORT
-from inventory_tracking.macros.teleport import WALKING
-from inventory_tracking.macros.travel import walked_way
-from inventory_tracking.macros.world import (
-    FULL_REJUVENATION,
+from inventory_tracking.macros.game.layout import FULL_REJUVENATION, MONSTER_UNIT, NO_OWNER, OBJECT_UNIT, SUPER_HEALING
+from inventory_tracking.macros.game.records import (
     GOLD,
     HEALING,
-    MONSTER_UNIT,
-    NO_OWNER,
-    OBJECT_UNIT,
     REJUVENATION,
-    SUPER_HEALING,
     VALUABLE,
     Drop,
     Loot,
@@ -150,6 +141,11 @@ from inventory_tracking.macros.world import (
     Thing,
     World,
 )
+from inventory_tracking.macros.movement import TELEPORT_JUMP
+from inventory_tracking.macros.routines import ACTING
+from inventory_tracking.macros.skills import SWAP_WEAPONS, TELEPORT
+from inventory_tracking.macros.teleport import WALKING
+from inventory_tracking.macros.travel import walked_way
 from inventory_tracking.models import (
     Actor,
     BeltCell,
@@ -177,7 +173,7 @@ POTIONS = {
     if not class_id.startswith('_')
 }
 POTION_CLASS = {row['code']: class_id for class_id, row in POTIONS.items()}  # a scene's drop has the code
-# The potions the pickup step sees on the ground and what it takes them for (macros/world.py
+# The potions the pickup step sees on the ground and what it takes them for (macros/game/
 # `GameMemory.loot`: only these two are worth a belt cell), with the labels it gives them.
 GROUND_POTIONS = {
     FULL_REJUVENATION: (REJUVENATION, 'a full rejuvenation potion'),
@@ -219,7 +215,7 @@ assert BLOCKING not in ACTING
 BLOCK_CHANCE = 0.10  # of a melee blow that would land (the module text has the measure)
 BLOCK_SECONDS = 0.44
 OPEN_REACH = 3.0  # units: an object clicked is operated from this near
-# Blade Warp's casting delay as the game plays it: the character's state 185 `cooldown` (macros/world.py
+# Blade Warp's casting delay as the game plays it: the character's state 185 `cooldown` (macros/game/
 # `Player.cooldown`) is set WARP_DELAY_SHOWN after the key and cleared WARP_DELAY_OVER after it (the take of
 # 12:33 on 2026-10-13: 0.20 s, then 0.80 s long, 64 warps of 64); a warp key before that is refused: it moves
 # nobody and is counted (`Arena.refused_warps`, its seconds after the key before).
@@ -359,7 +355,7 @@ class Healer:
         state = State(
             sampled_at=arena.clock(),
             session=self.session,
-            # the raw stat: points times 256 (macros/world.py reads `stats.get(LIFE_STAT) >> 8`)
+            # the raw stat: points times 256 (macros/game/ reads `stats.get(LIFE_STAT) >> 8`)
             health=PlayerHealth(round(arena.life * 256), round(arena.max_life * 256)),
             belt=BeltSnapshot(
                 contents=belt,
@@ -488,7 +484,7 @@ class Arena(Game):
             self.cleared_at = 0.0
 
     def _drops(self) -> list[Drop]:
-        """The scene's drops as the pickup step reads them (macros/world.py `GameMemory.loot`): a pile
+        """The scene's drops as the pickup step reads them (macros/game/memory.py `GameMemory.loot`): a pile
         of gold, a potion worth a belt cell (a smaller one is not read at all), and every other one a
         valuable under its code. The sizes of valuables and the inventory's room are not in a scene:
         one cell each (`Drop.size`) and room unread (`Loot.room`), so room is never short."""
@@ -516,7 +512,7 @@ class Arena(Game):
     def show(self) -> None:
         """The world as it is now, for the next look: the hostiles alive and the dead from `Mobs`,
         every other monster (a companion of the scene's, a Defiler the macro summoned) as it was, and
-        the life in whole points (macros/world.py `Loot.life`; 0 is unreadable there, so 1 at least
+        the life in whole points (macros/game/records.py `Loot.life`; 0 is unreadable there, so 1 at least
         while the character lives)."""
         hostile = set(self.mobs.hostile)
         theirs = [m for m in self.mobs.monsters() if m.unit_id in hostile]

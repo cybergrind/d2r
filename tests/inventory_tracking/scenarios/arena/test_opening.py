@@ -6,7 +6,7 @@ import random
 import pytest
 
 from inventory_tracking.builds.warlock.skills import PSYCHIC_WARD
-from inventory_tracking.macros.world import MONSTER_UNIT, OBJECT_UNIT
+from inventory_tracking.macros.game.layout import MONSTER_UNIT, OBJECT_UNIT
 from tests.inventory_tracking.macros.fakes import KEYS
 from tests.inventory_tracking.scenarios.arena.evidence.sure import sure
 from tests.inventory_tracking.scenarios.arena.game import (

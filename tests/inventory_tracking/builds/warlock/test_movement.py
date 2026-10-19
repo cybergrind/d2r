@@ -24,6 +24,7 @@ from inventory_tracking.builds.warlock.skills import BLADE_WARP
 from inventory_tracking.levels.model import Ground
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.build import MoveFacts, NoWay
+from inventory_tracking.macros.game.records import Teleport
 from inventory_tracking.macros.movement import SHARED, OwnTeleport, StaffTeleport, Walk
 from inventory_tracking.macros.skills import TELEPORT
 from inventory_tracking.macros.travel import (
@@ -49,7 +50,6 @@ from inventory_tracking.macros.travel import (
     spare_jump,
     step_line,
 )
-from inventory_tracking.macros.world import Teleport
 from tests.inventory_tracking.macros import moves
 from tests.inventory_tracking.macros.fakes import HUNT_SLOTS, KEYS, Game, character_of, world
 from tests.inventory_tracking.macros.moves import ASPECT, HERE, IN_HAND, NOW, skills, wall_with_a_gap, walled

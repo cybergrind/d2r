@@ -4,8 +4,8 @@ from dataclasses import replace
 
 from inventory_tracking.levels.model import Ground, Walkable, pack_cells
 from inventory_tracking.macros.build import MoveFacts
+from inventory_tracking.macros.game.records import Teleport
 from inventory_tracking.macros.skills import TELEPORT
-from inventory_tracking.macros.world import Teleport
 
 
 ASPECT = 2560 / 1418

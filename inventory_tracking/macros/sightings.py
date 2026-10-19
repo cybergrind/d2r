@@ -26,8 +26,8 @@ from dataclasses import dataclass
 
 from inventory_tracking.common import LOG
 from inventory_tracking.macros.actuator import Abort
+from inventory_tracking.macros.game.records import Drop, Loot, has_room
 from inventory_tracking.macros.lootpolicy import SIGHTINGS, verdict
-from inventory_tracking.macros.world import Drop, Loot, has_room
 
 
 __all__ = ['FETCH_SECONDS', 'FETCH_TRIES', 'GONE_UNITS', 'Sighting', 'Sightings']

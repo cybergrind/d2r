@@ -19,6 +19,9 @@ from inventory_tracking.common import LOG
 from inventory_tracking.levels.model import Ground
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.engine import Run
+from inventory_tracking.macros.game.decode import next_name
+from inventory_tracking.macros.game.layout import TRACE_RVAS
+from inventory_tracking.macros.game.records import Player, World
 from inventory_tracking.macros.skills import SWAP_WEAPONS, skill_name
 from inventory_tracking.macros.view import (
     AIM_LIMITS as AIM_LIMITS,
@@ -27,7 +30,6 @@ from inventory_tracking.macros.view import (
     UNIT_PIXELS as UNIT_PIXELS,
     Viewport,
 )
-from inventory_tracking.macros.world import TRACE_RVAS, Player, World, next_name
 
 
 if TYPE_CHECKING:

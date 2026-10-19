@@ -41,8 +41,8 @@ from inventory_tracking.macros.buffs import (
 )
 from inventory_tracking.macros.build import BuffFacts
 from inventory_tracking.macros.cta import BATTLE_ORDERS
+from inventory_tracking.macros.game.records import Monster
 from inventory_tracking.macros.skills import SWAP_WEAPONS
-from inventory_tracking.macros.world import Monster
 from tests.inventory_tracking.macros.fakes import HUNT_SLOTS, KEYS, WINDOW, Game, character_of, world
 
 

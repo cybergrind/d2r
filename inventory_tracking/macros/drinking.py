@@ -26,8 +26,8 @@ from inventory_tracking.common import LOG
 from inventory_tracking.config import INPUT
 from inventory_tracking.macros.actuator import Abort, Cancelled
 from inventory_tracking.macros.engine import Run
+from inventory_tracking.macros.game.records import HEALING, REJUVENATION, Loot
 from inventory_tracking.macros.pad import DRINK_WATCH
-from inventory_tracking.macros.world import HEALING, REJUVENATION, Loot
 from inventory_tracking.models import Actor, PotionType
 from inventory_tracking.native.layout import BELT_COLUMNS
 from inventory_tracking.tracking.belt import potion_kind

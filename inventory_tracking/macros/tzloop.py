@@ -6,7 +6,7 @@
 then LEAVE_GAME). `perform` makes it one leg, by the routines that exist: the next game and Save and Exit
 (routines.py, through `Loop.next_game` and `Loop.leave`), the waypoint (waypoint.py), the town visit (visit.py through
 `Loop.town`), Town Portal and back through it (portal.py), and the level run (pursuit.py, posted by the runner with
-the agenda: `TzHands.level_run`), which asks `Agenda.in_level` at every look for its next target.
+the agenda: `LegHands.level_run`), which asks `Agenda.in_level` at every look for its next target.
 
 On since 08:58 on 2026-10-19 (`ENABLED`): the kinds are offered by three presses of KP_6 and restart.py
 `--kind tz` / `--kind tzclear`. With it off nothing here runs.
@@ -15,8 +15,6 @@ On since 08:58 on 2026-10-19 (`ENABLED`): the kinds are offered by three presses
 import functools
 import math
 import time
-from collections.abc import Callable
-from dataclasses import dataclass
 
 from inventory_tracking.common import LOG
 from inventory_tracking.macros.actuator import Abort
@@ -37,6 +35,7 @@ from inventory_tracking.macros.agenda import (
     room_package,
 )
 from inventory_tracking.macros.engine import Run
+from inventory_tracking.macros.game.records import World
 from inventory_tracking.macros.loop import (
     DROPS_AFTER_KILL,
     LEAVE,
@@ -51,6 +50,7 @@ from inventory_tracking.macros.loop import (
     TZ_PORTAL,
     TZ_WAYPOINT,
     Dead,
+    LegHands,
     Loop,
     teleports,
 )
@@ -61,7 +61,6 @@ from inventory_tracking.macros.shop import gold_cap
 from inventory_tracking.macros.town import Exit
 from inventory_tracking.macros.tzroutine import GameView, Itinerary, itinerary, produce
 from inventory_tracking.macros.waypoint import travel
-from inventory_tracking.macros.world import World
 from inventory_tracking.routes.model import FIGHT
 from inventory_tracking.routes.progress import Progress
 from inventory_tracking.routes.tz_groups import installed_active_zones
@@ -88,23 +87,6 @@ LEGS = {
 }
 
 
-@dataclass(frozen=True)
-class TzHands:
-    """What the runner hands the terror zone kinds (runner.py `perform`, LOOP). `level_run()` posts the level run of
-    the area with the agenda (`Pursuit.agenda`, its end the next leg's); `take_one()` one pickup, else a trip back to
-    a valuable seen (sightings), False with neither; `door()` the way on: at it, what lies there first and then the
-    press through, else the level run to it; `sighted(area)` a valuable seen in `area` (None: in the game) still on
-    the ground; `terrorized(area)` the tracker's word (terror/tracker.py); `navigate()` the means in hand set for the
-    loop's moves (macros/navigation.py)."""
-
-    level_run: Callable[[], None]
-    take_one: Callable[[], bool]
-    door: Callable[[], None]
-    sighted: Callable[[int | None], str | None]
-    terrorized: Callable[[int], bool | None]
-    navigate: Callable[[], None] = lambda: None
-
-
 @functools.cache
 def zone_levels() -> frozenset[int]:
     """Every level of an installed Terror Zone."""
@@ -116,12 +98,12 @@ def leg_of(goal: Objective) -> str:
     return LEGS[goal.kind]
 
 
-def zone_of(tz: TzHands) -> Itinerary | None:
+def zone_of(tz: LegHands) -> Itinerary | None:
     """The itinerary of the zone the tracker reads as terrorized now (tzroutine.py `itinerary`)."""
     return itinerary(frozenset(area for area in zone_levels() if tz.terrorized(area)))
 
 
-def choose(world: World, progress: Progress | None, loop: Loop, tz: TzHands | None) -> Objective:
+def choose(world: World, progress: Progress | None, loop: Loop, tz: LegHands | None) -> Objective:
     """The goal of the next leg (the module text). `Dead` with the character dead; `Abort` with no zone read."""
     agenda = loop.agenda
     if not world.in_game:
@@ -176,8 +158,7 @@ def perform(
     key_names,
     progress: Progress | None,
     goal: Objective,
-    tz: TzHands | None,
-    visit: Callable[[Exit], object] | None,
+    tz: LegHands | None,
 ) -> None:
     """Make `goal` one leg (the module text); done on the agenda unless it stops (`Abort`: counted, `Agenda.failed`)."""
     agenda = loop.agenda
@@ -212,7 +193,7 @@ def perform(
             if excursion:
                 loop.prebuff_once(run, game)  # out of the Rogue Encampment, whose townsfolk Consume cannot take
         elif goal.kind == TOWN_ROUTINE:
-            loop.town(run, visit, game, Exit(goal.exit or 'waypoint'))
+            loop.town(run, tz.visit, game, Exit(goal.exit or 'waypoint'))
         elif goal.kind == PORTAL_TO_TOWN:
             if not packaged:
                 agenda.finish(player.area)  # the excursion's end: the next one from town
@@ -238,7 +219,9 @@ def perform(
                 raise Abort(f'{goal.label}: no pickup and no trip back took it')
         elif goal.kind == NEXT_LEVEL:
             agenda.finish(player.area)
-            tz.door()
+            if tz.way_on is None:
+                raise Abort(f'{goal.label}: no way on')
+            tz.way_on()
         else:
             raise Abort(f'the agenda has no leg for {goal.kind}')
     except Abort:

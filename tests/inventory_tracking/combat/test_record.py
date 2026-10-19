@@ -9,7 +9,8 @@ from inventory_tracking.combat import macro_state
 from inventory_tracking.combat.record import IDLE_SECONDS, LEVEL_SECONDS, NOTE_SECONDS, MacroLines, Recorder, Sample
 from inventory_tracking.combat.takes import Take, carried, records, resists_by_frame, timeline
 from inventory_tracking.levels.model import Level, Room, Walkable, pack_cells
-from inventory_tracking.macros.world import Drop, GameMemory, Loot, Monster, Teleport, Thing, World
+from inventory_tracking.macros.game.memory import GameMemory
+from inventory_tracking.macros.game.records import Drop, Loot, Monster, Teleport, Thing, World
 from tests.inventory_tracking.macros.fakes import player
 
 

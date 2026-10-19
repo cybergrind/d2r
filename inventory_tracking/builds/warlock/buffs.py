@@ -34,8 +34,9 @@ from inventory_tracking.macros.buffs import Buffs
 from inventory_tracking.macros.build import Buff, BuffFacts, whenever
 from inventory_tracking.macros.cta import ROWS as CTA_ROWS
 from inventory_tracking.macros.engine import Run
+from inventory_tracking.macros.game.layout import DEFILER_CLASS
+from inventory_tracking.macros.game.records import Monster, World
 from inventory_tracking.macros.routines import DEAD
-from inventory_tracking.macros.world import DEFILER_CLASS, Monster, World
 from inventory_tracking.native.layout import HIRELING_CLASS_ID
 
 

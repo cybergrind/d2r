@@ -8,8 +8,9 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, NamedTuple
 
+from inventory_tracking.macros.game.layout import LEADER_FLAGS, MINION_FLAG, NO_OWNER
+from inventory_tracking.macros.game.records import Player
 from inventory_tracking.macros.routines import world_point
-from inventory_tracking.macros.world import LEADER_FLAGS, MINION_FLAG, NO_OWNER, Player
 from inventory_tracking.native.layout import DEAD_MODES
 
 

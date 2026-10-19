@@ -9,8 +9,9 @@ import pytest
 
 from inventory_tracking.collection import capture
 from inventory_tracking.items.grid import CUBE_SIZE, GRID_CONTAINERS, INVENTORY_SIZE, STASH_SIZE, Grid
-from inventory_tracking.macros import charms, volatile, world
-from inventory_tracking.macros.world import Carried, Pack, has_room
+from inventory_tracking.macros import charms, volatile
+from inventory_tracking.macros.game import records
+from inventory_tracking.macros.game.records import Carried, Pack, has_room
 
 
 SEEDS = range(400)
@@ -101,7 +102,7 @@ def test_the_spots_room_and_largest_block_are_the_models():
         assert list(grid.spots(size)) == spots
         assert grid.first_spot(size) == (spots[0] if spots else None)
         assert grid.has_room(size) is bool(spots)
-        assert world.has_room(rows, size) is bool(spots)
+        assert records.has_room(rows, size) is bool(spots)
         assert Grid(rows).has_room(size) is bool(spots)
         assert grid.largest_block() == model_largest(rows)
         assert grid.free == len(_free(rows))
@@ -153,9 +154,9 @@ def test_an_item_moved_within_the_inventory_counts_its_own_cells_free():
 
 
 def test_unread_rows_have_room_at_the_pickup_sites_and_no_rows_have_none():
-    assert world.has_room(None, (1, 1)) is True
-    assert world.has_room(None, (99, 99)) is True
-    assert not world.has_room((), (1, 1))
+    assert records.has_room(None, (1, 1)) is True
+    assert records.has_room(None, (99, 99)) is True
+    assert not records.has_room((), (1, 1))
     assert not Grid(()).has_room((1, 1))
     assert Grid(()).first_spot((1, 1)) is None
     assert Grid(()).largest_block() == 0

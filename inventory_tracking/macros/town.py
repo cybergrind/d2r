@@ -2,9 +2,9 @@
 
 The player, 2026-10-18 12:55: "when we're putting items to shared stash, we just brute forcing each tab, despite we
 could exactly know where we can put items"; "we visit the stash only ONE time". The stash is read from memory in town
-(world.py `StashView`: every page's rows, every resource stack's count), so where each item goes is planned before a
-click: a resource onto its tab only while its stack has room (never a full stack's Ctrl + click), a keeper onto the page
-whose free cells fit it (`place`, shared 3, 4, 5, 2, 1, then personal: no page tried and refused), a
+(game/records.py `StashView`: every page's rows, every resource stack's count), so where each item goes is planned
+before a click: a resource onto its tab only while its stack has room (never a full stack's Ctrl + click), a keeper onto
+the page whose free cells fit it (`place`, shared 3, 4, 5, 2, 1, then personal: no page tried and refused), a
 cube keeper out through the room the inventory's keepers leave, the cube's junk out for Jamella as the room allows, a
 full stack's material put down (no vendor buys one: the player, 10:37, "there is no use for it").
 
@@ -30,6 +30,8 @@ from inventory_tracking.macros.cube import (
     perfect_of,
     rune_recipe,
 )
+from inventory_tracking.macros.game.layout import STACK_MOST
+from inventory_tracking.macros.game.records import Carried, Pack, Page, StashView, Teleport
 from inventory_tracking.macros.portal import FROM_TOME, PortalSource
 from inventory_tracking.macros.shop import MIN_STOCK, SALE_MOST
 from inventory_tracking.macros.stash import (
@@ -40,7 +42,6 @@ from inventory_tracking.macros.stash import (
     is_potion,
     resource_tabs,
 )
-from inventory_tracking.macros.world import STACK_MOST, Carried, Pack, Page, StashView, Teleport
 
 
 __all__ = [

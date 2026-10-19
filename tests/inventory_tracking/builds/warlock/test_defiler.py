@@ -12,7 +12,7 @@ from inventory_tracking.builds.warlock.skills import CONSUME, SUMMON_DEFILER
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.buffs import Buffs
 from inventory_tracking.macros.build import BuffFacts, Casting
-from inventory_tracking.macros.world import Monster
+from inventory_tracking.macros.game.records import Monster
 from tests.inventory_tracking.macros.fakes import HUNT_SLOTS, Game, character_of, world
 
 

@@ -61,6 +61,9 @@ from inventory_tracking.macros.cube import (
     unpack,
 )
 from inventory_tracking.macros.engine import Run
+from inventory_tracking.macros.game.kept import BeltKept, PutDown
+from inventory_tracking.macros.game.memory import GameMemory
+from inventory_tracking.macros.game.records import VALUABLE, Loot, Pack, Player, World, has_room
 from inventory_tracking.macros.goals import USE_NEAR, spot_of
 from inventory_tracking.macros.hunt import Bearings, Hunter, threat
 from inventory_tracking.macros.journey import Journey
@@ -72,6 +75,7 @@ from inventory_tracking.macros.loop import (
     GAME_SECONDS,
     PICK,
     STILL_SECONDS,
+    LegHands,
     Loop,
     loop_kinds,
 )
@@ -102,21 +106,10 @@ from inventory_tracking.macros.teleport import LOST_KEY, ready, step_toward
 from inventory_tracking.macros.timing import Pace
 from inventory_tracking.macros.town import Contract, Exit, Needs, kept_gem
 from inventory_tracking.macros.travel import LOOPED, LOOPED_TELEPORT, cut
-from inventory_tracking.macros.tzloop import TzHands, full_clear, trip as tz_trip
+from inventory_tracking.macros.tzloop import full_clear, trip as tz_trip
 from inventory_tracking.macros.tzroutine import Itinerary, policy_of
 from inventory_tracking.macros.visit import Hands, Remembered, note_view, visit
 from inventory_tracking.macros.waiting import Waiting
-from inventory_tracking.macros.world import (
-    VALUABLE,
-    BeltKept,
-    GameMemory,
-    Loot,
-    Pack,
-    Player,
-    PutDown,
-    World,
-    has_room,
-)
 from inventory_tracking.models import Actor, SessionIdentity
 from inventory_tracking.native.layout import TOWN_IDS
 from inventory_tracking.native.memory import one_unit_table
@@ -263,7 +256,7 @@ class MacroRunner:
         # what each belt column last held this game, across presses: an emptied healing column stays one
         # (rca/2026-10-13/potions-findings.md, step 1); every run's loot carries it (`Loot.columns`)
         self.belt = BeltKept()
-        # the items the player put down this game (world.py `PutDown`): out of every run's loot, and of the HUD's
+        # the items the player put down this game (game/kept.py `PutDown`): out of every run's loot, and of the HUD's
         # ground marks (the service hands `put_down.at` to loot/watch.py)
         self.put_down = PutDown()
         # skill -> clock time of its last cast that took, across runs (`Run.lasting`, macros/buffs.py `took_of`): the
@@ -298,7 +291,7 @@ class MacroRunner:
         # An item unit's stats, from the run's own memory (world.GameMemory.item_stats): a Gheed's Fortune's Magic Find
         self.item_stats: Callable[[int], dict[int, int]] | None = None
         # The valuables the loop has seen this game and not yet off the ground (macros/sightings.py), and the items the
-        # ground census has said (world.py `_census`), shared by every GameMemory the runner makes
+        # ground census has said (game/memory.py `_census`), shared by every GameMemory the runner makes
         self.sightings = Sightings()
         self.ground_seen: set[tuple[int, int]] = set()
         # The appraisal of each item the identify watcher saw identified, by unit id (identify/service.py
@@ -549,17 +542,115 @@ class MacroRunner:
         else:
             level_run()
 
-    def _tz_hands(self, run: Run, hunter: Hunter | None, key_names, labels, take_one) -> TzHands:
-        """The terror zone kinds' hands (macros/tzloop.py `TzHands`) for one leg of the loop."""
+    def _loop_hands(self, run: Run, key_names) -> LegHands:
+        """The hands of one leg of the KP_6 loop (macros/loop.py `LegHands`)."""
+        hunter = self.hunter
+
+        def labels() -> None:
+            # The item labels on before a level run: what lies on the ground is seen (routines.py `show_items_on`)
+            world = run.world()
+            name = world.player.name if world.player is not None else None
+            show_items_on(run, show_items_key(self.saved_games, name) if name else None)
+
+        agenda = self.loop.kind.agenda
 
         def level_run() -> None:
             if hunter is None:
                 raise Abort('no level guide to hunt with')
             labels()  # the item labels on before a level run (the player's hard rule)
-            self._loop_level_run(hunter, rush=False, agenda=True)
+            if agenda:
+                self._loop_level_run(hunter, rush=False, agenda=True)  # the terror zone kinds: the agenda's targets
+            else:
+                self._loop_level_run(hunter)
 
-        def door() -> None:
-            self._way_on(run, key_names, take_one, level_run)  # with the agenda
+        def way_on() -> None:
+            self._way_on(run, key_names, take_one, level_run)  # Andariel's Catacombs rushed; a zone's with the agenda
+
+        def fight() -> None:
+            if hunter is None:
+                raise Abort('no level guide to hunt with')
+            labels()
+            self._loop_level_run(hunter, rush=False)
+
+        def take_one() -> bool:
+            level = hunter.level() if hunter is not None and hunter.level is not None else None
+            # The loop's press holds a valuable it has no room for, a plain one too (macros/lootpolicy.py
+            # `NO_ROOM_PLAIN`; the player, 2026-10-18 17:50: "we should stop and clear inventory with our designated
+            # town routine"): its stop is cause 'room', and the room rules (`_loop_stopped`) make the room: the
+            # cube, then a trip to town and back through the portal, and the next press takes it
+            if pick_up(run, level, key_names, lambda: None, threat(run), looped=True):
+                return True
+            # Nothing to pick up here: a valuable seen this game and not picked up is gone back for, so none is
+            # left behind (routes/lower-kurast-loop-plan.md §14: a Flawless Emerald seen in a flight, 08:58:34)
+            return self._fetch(run, level, key_names)
+
+        def inventory_key() -> str | None:
+            world = run.world()
+            return action_key(self.saved_games, world.player.name, INVENTORY) if world.player is not None else None
+
+        def transmute_gems(full: frozenset[int]) -> tuple[int, int]:
+            # A full stack's flawless gems, kept (never sold), three at a time into a perfect one by the cube (the
+            # player, 2026-10-17: "for gems - we need to cube 3 flawless -> perfect"), standing at the stash; the
+            # visit's stash stop takes the perfect gem next. What the inventory has no room for while the cube is
+            # emptied is put down and picked up again after (the player, 09:53 on 2026-10-18: "drop on the ground
+            # then pickup and move to cube"): 19 gems kept, no transmute had the room, a trade session every game
+            # (09:22-09:45). How many were made, how many put down are still on the ground.
+            key = inventory_key()
+            if key is None:
+                return 0, 0
+            parked: list[int] = []
+
+            def staying() -> frozenset[tuple[int, int, int]]:
+                # the cube takes the inventory's loop items for the room to pick the parked ones up: not the full
+                # stacks' runes and materials (for Jamella, put down)
+                pack = run.reads.carried()
+                sold = self.loop.sold_full
+                held = {(i.txt, i.x, i.y) for i in pack.items if i.txt in sold} if pack is not None else set()
+                return (self.loop.own or frozenset()) | held
+
+            def park(unit_id: int) -> None:
+                self.put_down.park(unit_id)
+                parked.append(unit_id)
+
+            made = left = 0
+            for txt in sorted(t for t in full if perfect_of(t) not in (None, *full)):
+                for _ in range(TRANSMUTES):
+                    done = transmute(run, key, txt, park)
+                    made += done
+                    if parked:
+                        stash(run, key, staying())  # the inventory's into the cube: room to pick them up
+                        for _ in range(len(parked) + PICK_SLACK):
+                            if not pick_up(run, None, key_names, lambda: None):
+                                break
+                        now = run.reads.carried()
+                        held = {i.unit_id for i in (*now.items, *now.in_cube)} if now is not None else set()
+                        left = sum(1 for unit in parked if unit not in held)
+                        LOG.info('Macro: cube: %d put down for the transmute, %d picked up again', len(parked),
+                                 len(parked) - left)  # fmt: skip
+                        parked.clear()
+                    if not done:
+                        break
+            if made:
+                # A kept gem still carried after the transmutes (a fourth of a kind: at 07:26 on 2026-10-19 it
+                # stayed in the block, "short of the contract: block 2x4 taken") goes into the emptied cube, where
+                # it waits for its next three; the stash stop leaves a full stack's gem there
+                try:
+                    stash_only(run, key, self.loop.own or frozenset(), lambda item: kept_gem(item, full))
+                except Abort as stop:
+                    if run.stops(stop):
+                        raise
+                    LOG.info('Macro: cube: the kept gems not put in: %s', stop)
+            return made, left
+
+        def town_visit(exit: Exit) -> Contract:
+            return self._shared_town_visit(run, exit, transmute_gems)
+
+        def identify_loot(items: Sequence) -> None:
+            self._identify_loot(run, items)
+
+        def bring(items: Sequence) -> int:
+            key = inventory_key()
+            return unpack(run, key, items) if key is not None else 0
 
         def sighted(area: int | None) -> str | None:
             found = [s for s in self.sightings.outstanding() if area is None or s.area == area]
@@ -592,7 +683,19 @@ class MacroRunner:
                 LOG.info('Macro: navigation: %s (%s)', found.kind, found.why)
             hunter.looped = found.intent
 
-        return TzHands(level_run, take_one, door, sighted, terrorized, navigate)
+        return LegHands(
+            level_run,
+            take_one,
+            visit=town_visit,
+            identify=identify_loot,
+            bring=bring,
+            way_on=way_on,
+            fight=fight,
+            left=self.valuable_left,
+            sighted=sighted,
+            terrorized=terrorized,
+            navigate=navigate,
+        )
 
     def _end_run(self, why: str) -> None:
         """A level run of the pickup key ends with attack mode (macros/pursuit.py, the leash): the mode
@@ -1360,7 +1463,7 @@ class MacroRunner:
             self.focus.wait_ready(timeout=1)
         focus = self.focus
         memory = GameMemory(pid, images['candidate_base'], table)
-        memory.ground_seen = self.ground_seen  # one census across runs: an item is said once (world.py `_census`)
+        memory.ground_seen = self.ground_seen  # one census across runs: an item is said once (game/memory.py `_census`)
         reads = [0, 0.0]  # how many looks at the game this run took, and their seconds (latency.py)
 
         looked = self.looked
@@ -1677,109 +1780,6 @@ class MacroRunner:
             if stepped:
                 self.attack_mode = True  # nothing to pick up or open: a seek step, the mode follows
         elif routine == LOOP:
-            hunter = self.hunter
-
-            def labels() -> None:
-                # The item labels on before a level run: what lies on the ground is seen (routines.py `show_items_on`)
-                world = run.world()
-                name = world.player.name if world.player is not None else None
-                show_items_on(run, show_items_key(self.saved_games, name) if name else None)
-
-            def level_run() -> None:
-                if hunter is None:
-                    raise Abort('no level guide to hunt with')
-                labels()
-                self._loop_level_run(hunter)
-
-            def down() -> None:
-                self._way_on(run, key_names, take_one, level_run)  # Andariel's Catacombs, rushed
-
-            def fight() -> None:
-                if hunter is None:
-                    raise Abort('no level guide to hunt with')
-                labels()
-                self._loop_level_run(hunter, rush=False)
-
-            def take_one() -> bool:
-                level = hunter.level() if hunter is not None and hunter.level is not None else None
-                # The loop's press holds a valuable it has no room for, a plain one too (macros/lootpolicy.py
-                # `NO_ROOM_PLAIN`; the player, 2026-10-18 17:50: "we should stop and clear inventory with our designated
-                # town routine"): its stop is cause 'room', and the room rules (`_loop_stopped`) make the room: the
-                # cube, then a trip to town and back through the portal, and the next press takes it
-                if pick_up(run, level, key_names, lambda: None, threat(run), looped=True):
-                    return True
-                # Nothing to pick up here: a valuable seen this game and not picked up is gone back for, so none is
-                # left behind (routes/lower-kurast-loop-plan.md §14: a Flawless Emerald seen in a flight, 08:58:34)
-                return self._fetch(run, level, key_names)
-
-            def inventory_key() -> str | None:
-                world = run.world()
-                return action_key(self.saved_games, world.player.name, INVENTORY) if world.player is not None else None
-
-            def transmute_gems(full: frozenset[int]) -> tuple[int, int]:
-                # A full stack's flawless gems, kept (never sold), three at a time into a perfect one by the cube (the
-                # player, 2026-10-17: "for gems - we need to cube 3 flawless -> perfect"), standing at the stash; the
-                # visit's stash stop takes the perfect gem next. What the inventory has no room for while the cube is
-                # emptied is put down and picked up again after (the player, 09:53 on 2026-10-18: "drop on the ground
-                # then pickup and move to cube"): 19 gems kept, no transmute had the room, a trade session every game
-                # (09:22-09:45). How many were made, how many put down are still on the ground.
-                key = inventory_key()
-                if key is None:
-                    return 0, 0
-                parked: list[int] = []
-
-                def staying() -> frozenset[tuple[int, int, int]]:
-                    # the cube takes the inventory's loop items for the room to pick the parked ones up: not the full
-                    # stacks' runes and materials (for Jamella, put down)
-                    pack = run.reads.carried()
-                    sold = self.loop.sold_full
-                    held = {(i.txt, i.x, i.y) for i in pack.items if i.txt in sold} if pack is not None else set()
-                    return (self.loop.own or frozenset()) | held
-
-                def park(unit_id: int) -> None:
-                    self.put_down.park(unit_id)
-                    parked.append(unit_id)
-
-                made = left = 0
-                for txt in sorted(t for t in full if perfect_of(t) not in (None, *full)):
-                    for _ in range(TRANSMUTES):
-                        done = transmute(run, key, txt, park)
-                        made += done
-                        if parked:
-                            stash(run, key, staying())  # the inventory's into the cube: room to pick them up
-                            for _ in range(len(parked) + PICK_SLACK):
-                                if not pick_up(run, None, key_names, lambda: None):
-                                    break
-                            now = run.reads.carried()
-                            held = {i.unit_id for i in (*now.items, *now.in_cube)} if now is not None else set()
-                            left = sum(1 for unit in parked if unit not in held)
-                            LOG.info('Macro: cube: %d put down for the transmute, %d picked up again', len(parked),
-                                     len(parked) - left)  # fmt: skip
-                            parked.clear()
-                        if not done:
-                            break
-                if made:
-                    # A kept gem still carried after the transmutes (a fourth of a kind: at 07:26 on 2026-10-19 it
-                    # stayed in the block, "short of the contract: block 2x4 taken") goes into the emptied cube, where
-                    # it waits for its next three; the stash stop leaves a full stack's gem there
-                    try:
-                        stash_only(run, key, self.loop.own or frozenset(), lambda item: kept_gem(item, full))
-                    except Abort as stop:
-                        if run.stops(stop):
-                            raise
-                        LOG.info('Macro: cube: the kept gems not put in: %s', stop)
-                return made, left
-
-            def town_visit(exit: Exit) -> Contract:
-                return self._shared_town_visit(run, exit, transmute_gems)
-
-            def identify_loot(items: Sequence) -> None:
-                self._identify_loot(run, items)
-
-            def bring(items: Sequence) -> int:
-                key = inventory_key()
-                return unpack(run, key, items) if key is not None else 0
-
             self.loop.marks = self.marks
             note_view(run, self.stash_memory)  # the stash as read, once a game in the Fortress (town-plan.md step 0)
             if self.loop.make_room:
@@ -1835,17 +1835,9 @@ class MacroRunner:
                 run,
                 key_names,
                 self.progress,
-                level_run,
-                take_one,
-                visit=town_visit,
-                identify=identify_loot,
-                bring=bring,
-                down=down,
-                fight=fight,
+                self._loop_hands(run, key_names),
                 item_stats=self.item_stats,
                 shown=self.stash_memory,
-                left=self.valuable_left,
-                tz=self._tz_hands(run, hunter, key_names, labels, take_one) if self.loop.kind.agenda else None,
             )
         elif routine in (HUNT_ELITES, ATTACK):
             if self.hunter is None:

@@ -1,8 +1,8 @@
 import pytest
 
 from inventory_tracking.macros.actuator import Abort
+from inventory_tracking.macros.game.records import GOLD, VALUABLE, Drop, Loot
 from inventory_tracking.macros.sightings import FETCH_SECONDS, FETCH_TRIES, Sightings
-from inventory_tracking.macros.world import GOLD, VALUABLE, Drop, Loot
 
 
 LK = 79

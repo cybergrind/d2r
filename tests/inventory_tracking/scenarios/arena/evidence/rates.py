@@ -47,8 +47,8 @@ from inventory_tracking.combat.hurts import ATTACK_MODES, BESIDE, MISSILE_REACH
 from inventory_tracking.combat.sim.monsters import AWARE
 from inventory_tracking.combat.timeline import GAME_RATE
 from inventory_tracking.levels.model import Ground, Walkable
+from inventory_tracking.macros.game.layout import HERALD_TIER_STAT
 from inventory_tracking.macros.sight import clear_shot
-from inventory_tracking.macros.world import HERALD_TIER_STAT
 from inventory_tracking.terror.monsters import LEVEL_STAT
 from tests.inventory_tracking.scenarios.arena.evidence.blows import (
     CLASSES,

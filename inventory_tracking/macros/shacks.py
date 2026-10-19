@@ -24,7 +24,8 @@ from collections.abc import Callable, Iterable, Sequence
 
 from inventory_tracking.levels.model import UNIQUE_CHEST, Room
 from inventory_tracking.levels.presets import PRESET_NAMES, object_spots
-from inventory_tracking.macros.world import Thing, usable
+from inventory_tracking.macros.game.decode import usable
+from inventory_tracking.macros.game.records import Thing
 from inventory_tracking.native.layout import TILE_UNITS
 
 

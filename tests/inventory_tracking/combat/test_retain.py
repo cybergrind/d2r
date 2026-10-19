@@ -6,7 +6,7 @@ import json
 from inventory_tracking.combat.record import Recorder, Sample
 from inventory_tracking.combat.retain import died, over, pack, recordings, size, tidy
 from inventory_tracking.combat.takes import Take
-from inventory_tracking.macros.world import World
+from inventory_tracking.macros.game.records import World
 from tests.inventory_tracking.macros.fakes import player
 
 

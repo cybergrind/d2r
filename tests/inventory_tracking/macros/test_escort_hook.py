@@ -9,8 +9,8 @@ from inventory_tracking.combat import escort
 from inventory_tracking.combat.harm import Hostile, Look
 from inventory_tracking.levels.model import Ground
 from inventory_tracking.macros.build import NoWay
+from inventory_tracking.macros.game.records import Monster
 from inventory_tracking.macros.pursuit import Facts, Move, decide
-from inventory_tracking.macros.world import Monster
 from inventory_tracking.native.layout import HIRELING_CLASS_ID
 from tests.inventory_tracking.macros.test_hunt import game, hunter, me
 

@@ -9,7 +9,7 @@ staff of teleportation".
   (the player, 2026-10-17: "rare amulets - also pickup"; the read finds jewelry as a material, so a set or unique
   one is not the loot filter's `NAMED` and is taken here: a set Amulet was left at 08:10:10); a unique or set item
   the loot marks price (`source` 'unique': loot/data/uniques.json at `unique_minimum` Ist and up); and whatever the
-  loot marks point at (`Drop.prized`, world.py `prized`: the worldstone shards, essences, statues, flawless and
+  loot marks point at (`Drop.prized`, game/records.py `prized`: the worldstone shards, essences, statues, flawless and
   perfect gems, every unique and set item the loot filter shows; the player: "+ pickup worldstone shards/other
   valuable drops").
   The supplies stay in every mode: gold, and the potions the belt is short of.
@@ -36,7 +36,7 @@ from dataclasses import replace
 
 from inventory_tracking.items.metadata import item_base
 from inventory_tracking.loot.shown import RARITIES
-from inventory_tracking.macros.world import VALUABLE, Drop, Loot
+from inventory_tracking.macros.game.records import VALUABLE, Drop, Loot
 
 
 __all__ = [
@@ -151,7 +151,7 @@ def candidate(drop: Drop, kind: str | None) -> bool:
 
 def void_base(drop: Drop) -> bool:
     """Whether the drop is a white or superior Void base worth keeping: VOID_SOCKETS sockets and a staff mod of
-    VOID_STAFFMODS at VOID_LEVEL or more, or no socket and ABYSS at VOID_LEVEL, read off the ground (world.py
+    VOID_STAFFMODS at VOID_LEVEL or more, or no socket and ABYSS at VOID_LEVEL, read off the ground (macros/game/
     `rolled`). Unread: not taken (a base is worth little, and one taken unread fills the stash: the player's daggers
     with one socket, 18:56 on 2026-10-17)."""
     found = drop.rolls

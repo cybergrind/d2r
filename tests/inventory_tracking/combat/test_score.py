@@ -4,7 +4,7 @@ from dataclasses import replace
 
 from inventory_tracking.combat.mechanics.tables import points_of
 from inventory_tracking.combat.score import LiveScore
-from inventory_tracking.macros.world import Monster, Player
+from inventory_tracking.macros.game.records import Monster, Player
 
 
 PLAYER = Player(1, 'CybergrindAA', 1, 108, 5000.0, 5000.0, None)

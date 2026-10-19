@@ -51,11 +51,11 @@ from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.build import Step
 from inventory_tracking.macros.charms import GHEEDS_FORTUNE, is_unique_grand_charm
 from inventory_tracking.macros.engine import Run
+from inventory_tracking.macros.game.records import GOLD, HEALING, REJUVENATION, VALUABLE, Drop, Loot, Player, has_room
 from inventory_tracking.macros.routines import ACTING, DEAD, UNIT_PIXELS, Dead, press_skill
 from inventory_tracking.macros.skills import skill_name
 from inventory_tracking.macros.teleport import HOVER_SECONDS, ground_fraction, hop_toward, in_view, ready, ready_world
 from inventory_tracking.macros.travel import JUMP_REACH, PRESSED, Travel, spare_jump, walk_reaches
-from inventory_tracking.macros.world import GOLD, HEALING, REJUVENATION, VALUABLE, Drop, Loot, Player, has_room
 from inventory_tracking.models import PotionType
 from inventory_tracking.native.layout import BELT_COLUMNS, TILE_UNITS
 from inventory_tracking.tracking.belt import column_shortages, potion_kind
@@ -215,7 +215,7 @@ def wanted() -> dict:
         'materials': materials,
         'gold_minimum': APPRAISAL.pickup_gold_minimum,
         'shown': pickup_rules(APPRAISAL.pickup_shown_cells) if APPRAISAL.pickup_filter_shown else (),
-        # What a full inventory stops the press for: what the marks point at (world.py `prized`).
+        # What a full inventory stops the press for: what the marks point at (game/records.py `prized`).
         'prized_rune_minimum': APPRAISAL.rune_minimum,
         'prized_materials': frozenset(material_classes(APPRAISAL.material_marks)),
     }
@@ -739,7 +739,7 @@ def pick_up(
         dear = ', '.join(sorted({drop.label for drop in held}))
         if plan is None and dear:
             # The press stops here and says so: going on to the seek step would teleport away from
-            # the drop (user, 2026-10-10 night). Only for what the marks point at (world.py `prized`):
+            # the drop (user, 2026-10-10 night). Only for what the marks point at (game/records.py `prized`):
             # for gear the filter shows the press goes on (user, 2026-10-12: "allow moving when the item
             # isn't very valuable"; Drifter Cavern, 20:00 that day: 37 presses in a row stopped for a
             # Superior Old Book, 13 hostiles 38 away). A unique or set item the filter shows is prized (the

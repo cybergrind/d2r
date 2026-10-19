@@ -21,11 +21,13 @@ from inventory_tracking.builds.warlock.echoing_strike.attack import REACH
 from inventory_tracking.combat.policy import STRIKE_REACH, observe
 from inventory_tracking.combat.takes import Take
 from inventory_tracking.levels.model import Ground, Room, Target, Walkable
+from inventory_tracking.macros.game.decode import monsters_and_dead
+from inventory_tracking.macros.game.layout import NO_OWNER
+from inventory_tracking.macros.game.records import World
 from inventory_tracking.macros.hunt import SIGHT, Hunter, hostiles
 from inventory_tracking.macros.sight import clear_shot, firing_spots, in_reach
 from inventory_tracking.macros.teleport import Way, landing
 from inventory_tracking.macros.view import Viewport
-from inventory_tracking.macros.world import NO_OWNER, World, monsters_and_dead
 from inventory_tracking.native.layout import TILE_UNITS
 from tests.inventory_tracking.macros.fakes import warlock
 from tests.inventory_tracking.scenarios.loop.helpers import (

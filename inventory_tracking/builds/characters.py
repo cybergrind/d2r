@@ -12,13 +12,14 @@ from dataclasses import replace
 from inventory_tracking.builds.warlock.echoing_strike.build import ECHOING_STRIKE_BUILD
 from inventory_tracking.builds.warlock.skills import ECHOING_STRIKE
 from inventory_tracking.macros.build import Build, Loadout
-from inventory_tracking.macros.world import World
+from inventory_tracking.macros.game.records import World
 
 
 # CybergrindAA: Heart of the Oak (Flail) and Spirit (Monarch) for both. The other set held Naj's Puzzler for its
 # Teleport charges (user, 2026-10-06); since 22:58 on 2026-10-17 it holds Call to Arms (a Flail too) and a second
-# Spirit, Teleport coming from Enigma. The Call to Arms reads as world.py CTA_CODE, not `fla`, and Spirit is in both
-# sets: the Heart of the Oak's Flail alone tells the main set (codes from the collection capture of the equipped items).
+# Spirit, Teleport coming from Enigma. The Call to Arms reads as game/memory.py CTA_CODE, not `fla`, and Spirit is in
+# both sets: the Heart of the Oak's Flail alone tells the main set (codes from the collection capture of the equipped
+# items).
 HEART_OF_THE_OAK = frozenset(('fla',))
 CHARACTERS = {'CybergrindAA': Loadout(prebuff=HEART_OF_THE_OAK, battle=HEART_OF_THE_OAK)}
 # The build each character plays.

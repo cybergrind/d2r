@@ -34,8 +34,8 @@ from inventory_tracking.items.metadata import item_base, metadata
 from inventory_tracking.macros.act import until
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.engine import Run, protected
+from inventory_tracking.macros.game.records import Carried, Pack
 from inventory_tracking.macros.pickmode import MAGIC, RARE, SKILLED
-from inventory_tracking.macros.world import Carried, Pack
 
 
 __all__ = [
@@ -536,7 +536,7 @@ def _park(run: Run, rect: tuple[int, int, int, int], item: Carried, park: Callab
     the ground between the panels, checked in memory; put back where it was if it does not fall, then `Abort`."""
     if why := protected(run, item):
         raise Abort(f'the item {item.txt} is {why}: never put down')
-    park(item.unit_id)  # before it lies on the ground: never read as the player's (world.py `PutDown`)
+    park(item.unit_id)  # before it lies on the ground: never read as the player's (game/kept.py `PutDown`)
     run.actuator.move(*cell_point(rect, CUBE, (item.x, item.y), item.size), scatter=(4, 4))
     run.actuator.click()
     if not _until(run, lambda p: p.pointer == item.unit_id):

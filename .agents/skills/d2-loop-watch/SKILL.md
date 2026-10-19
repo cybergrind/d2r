@@ -96,7 +96,7 @@ rulings: AGENTS.md, the memory `d2r-kp6-loop-rulings` (every ruling, dated, verb
 | Pickup and what is valuable | `pickup.py`, `pickmode.py`, `lootpolicy.py` (`verdict`, hold classes), `sightings.py` (remembered drops) |
 | Town visit and its plan | `visit.py` (`visit`, `_cube_runes`, `JAMELLA_FIRST`), `town.py` (`contract`, `rune_transmutes`, `PARK_JUNK`, `KEEPER_IN_CUBE`, `RUNE_TRANSMUTES`), `townplan.py` (shadow planner: "town plan: matched"), `visitlog.py` (snapshots in `<session>/visits/`) |
 | Cube, stash, shop, repair, Cain | `cube.py` (`data/rune_cube.json` from `build_rune_cube.py`), `stash.py`, `shop.py`, `repair.py`, `cain.py`, `copies.py` |
-| Game reads, keys, Save and Exit | `world.py` (`World`, `GameMemory`), `routines.py` (`show_items_on`, Save and Exit, prebuff), `actuator.py` (`Abort(cause=)`) |
+| Game reads, keys, Save and Exit | `game/` (`records.py` `World`, `memory.py` `GameMemory`, `decode.py`, `layout.py`), `routines.py` (`show_items_on`, Save and Exit, prebuff), `actuator.py` (`Abort(cause=)`) |
 | Log words the tools read | `.agents/skills/d2-loop-watch/tools/logwords.py`, pinned by `tests/skills/test_loop_watch_lines.py` |
 
 Switches for a change under test are module constants with a dated comment (e.g. `RUSH_THE_BOSS = True`,

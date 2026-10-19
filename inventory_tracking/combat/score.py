@@ -42,7 +42,7 @@ class LiveScore:
     place: tuple[int, int] | None = None  # (the character's unit id, its level) at the last read
 
     def note(self, clock: float, player: Any, hostiles: Iterable[Any], dead: Collection[int] = ()) -> None:
-        """One read: `player` and `hostiles` are macros/world.py records (None: not in a game), `dead`
+        """One read: `player` and `hostiles` are macros/game/records.py records (None: not in a game), `dead`
         the unit ids of the monsters lying dead (World.dead)."""
         if player is None:
             self.life, self.last, self.place = {}, None, None

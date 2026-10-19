@@ -48,8 +48,8 @@ from inventory_tracking.combat.mechanics.tables import area_level
 from inventory_tracking.combat.takes import MonsterRow, Take, carried, monsters_of, player_of
 from inventory_tracking.config import PLAYER_HEALING
 from inventory_tracking.input.compositor import STEP_KEYS
+from inventory_tracking.macros.game.layout import HERALD_TIER_STAT
 from inventory_tracking.macros.runner import ATTACK, PICKUP, TELEPORT
-from inventory_tracking.macros.world import HERALD_TIER_STAT
 from inventory_tracking.native.layout import TILE_UNITS
 from inventory_tracking.terror.monsters import LEVEL_STAT
 from tests.inventory_tracking.scenarios.arena import records4, scene as scene_file

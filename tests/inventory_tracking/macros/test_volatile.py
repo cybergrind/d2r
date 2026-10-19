@@ -4,6 +4,7 @@ kept across a new game, a loop toggle and a restart of the service; the stats gu
 from dataclasses import replace
 
 from inventory_tracking.macros.cube import CUBE_CLASS, loot
+from inventory_tracking.macros.game.records import Carried, Pack
 from inventory_tracking.macros.loop import Loop
 from inventory_tracking.macros.volatile import (
     STORE_FILE,
@@ -15,7 +16,6 @@ from inventory_tracking.macros.volatile import (
     picture,
     print_of,
 )
-from inventory_tracking.macros.world import Carried, Pack
 
 
 CHARM_SMALL, CHARM_LARGE, CHARM_GRAND, RING = 603, 604, 605, 522

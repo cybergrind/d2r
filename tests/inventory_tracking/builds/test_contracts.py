@@ -14,9 +14,9 @@ from inventory_tracking.combat.policy import Choice, Foe, Observation
 from inventory_tracking.levels.model import Ground
 from inventory_tracking.macros.buffs import Buffs, keys_of, phase_keys
 from inventory_tracking.macros.build import Build, Intent, JumpSource, Loadout, MoveFacts, NoWay, choose
+from inventory_tracking.macros.game.records import Player, Teleport, World
 from inventory_tracking.macros.skills import ACTIONS, skill_name
 from inventory_tracking.macros.travel import OWN_MOVE, PLAYER_STEP, SEEK, Step, navigator
-from inventory_tracking.macros.world import Player, Teleport, World
 from tests.inventory_tracking.builds.dummy import DUMMY
 from tests.inventory_tracking.macros.fakes import HUNT_SLOTS, KEYS, Game, world
 

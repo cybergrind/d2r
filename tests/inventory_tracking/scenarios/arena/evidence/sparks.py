@@ -62,7 +62,7 @@ from inventory_tracking.combat.mechanics.tables import tables
 from inventory_tracking.combat.sim.monsters import SPARK as SPARK_KIND, SPARK_MISSILE
 from inventory_tracking.combat.takes import Take
 from inventory_tracking.combat.timeline import GAME_RATE
-from inventory_tracking.macros.world import HERALD_TIER_STAT
+from inventory_tracking.macros.game.layout import HERALD_TIER_STAT
 from inventory_tracking.native.layout import PLAYER_DEAD_MODES
 from inventory_tracking.terror.monsters import LEVEL_STAT
 from tests.inventory_tracking.scenarios.arena.evidence import blows, scan

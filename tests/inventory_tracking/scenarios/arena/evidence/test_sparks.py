@@ -7,7 +7,7 @@ import pytest
 
 from inventory_tracking.combat.hurts import LIGHTNING
 from inventory_tracking.combat.sim.monsters import UNIQUE_FLAG
-from inventory_tracking.macros.world import HERALD_TIER_STAT, MINION_FLAG
+from inventory_tracking.macros.game.layout import HERALD_TIER_STAT, MINION_FLAG
 from inventory_tracking.terror.monsters import LEVEL_STAT
 from tests.inventory_tracking.scenarios.arena.evidence import blows, sparks
 from tests.inventory_tracking.scenarios.arena.evidence.blows import SOLE_RANGED

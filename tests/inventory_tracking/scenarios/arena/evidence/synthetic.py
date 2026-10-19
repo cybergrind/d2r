@@ -15,7 +15,7 @@ from typing import Any
 from inventory_tracking.combat.hurts import ATTACK_MODES, TARGET_UNIT, harmless
 from inventory_tracking.combat.mechanics.tables import MISSILES, tables
 from inventory_tracking.combat.takes import Take
-from inventory_tracking.macros.world import NO_OWNER
+from inventory_tracking.macros.game.layout import NO_OWNER
 from inventory_tracking.native.layout import DEAD_MODES
 from tests.inventory_tracking.scenarios.arena.evidence.blows import (
     MONSTER_KIND,

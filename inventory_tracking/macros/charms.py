@@ -9,9 +9,9 @@ Charm, its row unread until identified (ItemData +0x34 is 0), so one left on the
 tells it (macros/runner.py `_loop_stopped`).
 
 The legs are the loop's (macros/loop.py SWAP_OUT, GHEED_STASH, SWAP_BACK, GHEED_CHOOSE); here the stash's part:
-`park` puts the player's charm onto a shared page with room (the stash as read, world.py `StashView`; each shared page
-tried when it is unread), never the personal page, which blocks the pickup as the inventory does; `choose` compares the
-two Magic Find rolls (itemstatcost.txt `item_magicbonus`, stat 80) once the new one is identified, the better one
+`park` puts the player's charm onto a shared page with room (the stash as read, game/records.py `StashView`; each shared
+page tried when it is unread), never the personal page, which blocks the pickup as the inventory does; `choose` compares
+the two Magic Find rolls (itemstatcost.txt `item_magicbonus`, stat 80) once the new one is identified, the better one
 carried at the player's cell, the other on a shared page (a tie keeps the player's).
 """
 
@@ -24,9 +24,9 @@ from inventory_tracking.items.metadata import metadata
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.cube import INVENTORY, cell_point
 from inventory_tracking.macros.engine import Run
+from inventory_tracking.macros.game.records import Carried, Pack, StashView
 from inventory_tracking.macros.stash import SHARED_PRIORITY, STASH_PAGE, _sent, _until, close_stash, open_stash
 from inventory_tracking.macros.visit import Remembered, Tally, _show
-from inventory_tracking.macros.world import Carried, Pack, StashView
 
 
 __all__ = [

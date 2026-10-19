@@ -15,6 +15,8 @@ from inventory_tracking.macros.actuator import Abort, Expired
 from inventory_tracking.macros.build import Intent, NoWay
 from inventory_tracking.macros.drinking import key_of, on_belt
 from inventory_tracking.macros.engine import Run
+from inventory_tracking.macros.game.layout import NO_OWNER
+from inventory_tracking.macros.game.records import Monster, Teleport, World
 from inventory_tracking.macros.goals import PICK_UP, Goal
 from inventory_tracking.macros.hunting.base import (
     BLOCK_SECONDS,
@@ -83,7 +85,6 @@ from inventory_tracking.macros.travel import (
     spare_jump,
     step_walk,
 )
-from inventory_tracking.macros.world import NO_OWNER, Monster, Teleport, World
 from inventory_tracking.models import PotionType
 from inventory_tracking.native.layout import TILE_UNITS
 from inventory_tracking.routes.model import FIGHT, STAND, USE
@@ -532,7 +533,7 @@ def go(self: Hunter, run: Run, level: Level, ground: Ground, player, rect, mob, 
 
 
 def own_teleport(self: Hunter, run: Run, now: float) -> bool:
-    """Whether Teleport is the character's own skill (Enigma: world.py `own_teleport`), read again at most every
+    """Whether Teleport is the character's own skill (Enigma: game/memory.py `own_teleport`), read again at most every
     OWN_TELEPORT_SECONDS: the safety prices each look with it."""
     if self.own_read is None or now - self.own_read[1] > OWN_TELEPORT_SECONDS or now < self.own_read[1]:
         self.own_read = (bool(run.own_teleport is not None and run.own_teleport()), now)

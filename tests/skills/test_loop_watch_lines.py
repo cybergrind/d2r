@@ -19,7 +19,7 @@ from pathlib import Path
 import pytest
 
 from inventory_tracking.items.identity import ETHEREAL_FLAG, SOCKETED_FLAG
-from inventory_tracking.macros.world import census
+from inventory_tracking.macros.game.decode import census
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -387,7 +387,7 @@ def test_the_game_is_left_and_the_loop_goes_on() -> None:
     ],
 )
 def test_a_census_line_from_the_world(name, quality, flags, taken, label, groups) -> None:
-    form = one('macros/world.py', 'Macro: ground: ')
+    form = one('macros/game/memory.py', 'Macro: ground: ')
     line = logged(form % census(name, quality, flags, (22561.6, 9539.2), taken, label))
     found = logwords.GROUND.search(line)
     assert found is not None

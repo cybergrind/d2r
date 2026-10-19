@@ -17,7 +17,8 @@ from pathlib import Path
 from typing import Any
 
 from inventory_tracking.items.metadata import metadata
-from inventory_tracking.macros.world import GameMemory, local_player
+from inventory_tracking.macros.game.decode import local_player
+from inventory_tracking.macros.game.memory import GameMemory
 from inventory_tracking.native.process import find_game_processes
 from inventory_tracking.native.units import walk_units
 from inventory_tracking.reports import publish

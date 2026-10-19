@@ -66,7 +66,7 @@ from inventory_tracking.combat.mechanics.tables import area_level, tables
 from inventory_tracking.combat.record import RESIST_STATS
 from inventory_tracking.combat.sim.monsters import CHAMPION_FLAG, SUPER_FLAG, UNIQUE_FLAG
 from inventory_tracking.combat.takes import MonsterRow, PlayerRow, Take, player_of
-from inventory_tracking.macros.world import HERALD_TIER_STAT, MINION_FLAG, NO_OWNER
+from inventory_tracking.macros.game.layout import HERALD_TIER_STAT, MINION_FLAG, NO_OWNER
 from inventory_tracking.terror.danger import DATA as THREATS
 from inventory_tracking.terror.monsters import LEVEL_STAT
 

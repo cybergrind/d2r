@@ -32,8 +32,8 @@ from inventory_tracking.config import BELT, HEAL_PRIORITY, MERC_HEALING
 from inventory_tracking.levels.doors import Door
 from inventory_tracking.levels.model import Ground
 from inventory_tracking.macros.drinking import on_belt
+from inventory_tracking.macros.game.records import HEALING, REJUVENATION, Drop, Loot
 from inventory_tracking.macros.travel import walked_length
-from inventory_tracking.macros.world import HEALING, REJUVENATION, Drop, Loot
 from inventory_tracking.models import PotionType
 from inventory_tracking.tracking.belt import column_shortages
 
@@ -53,7 +53,8 @@ REJUVENATION_RESERVE = MERC_HEALING.rejuvenation_reserve
 
 @dataclass(frozen=True)
 class Seen:
-    """A potion seen on the ground of the level: its unit, kind (world.py HEALING or REJUVENATION), place and label."""
+    """A potion seen on the ground of the level: its unit, kind (game/records.py HEALING or REJUVENATION), place and
+    label."""
 
     unit: int
     kind: str
@@ -69,12 +70,12 @@ def worth(count: int, reserve: int, seconds: float) -> float:
 
 
 def unread(loot: Loot) -> bool:
-    """Whether the belt is not known: no life read, or no game it is of (world.py `Loot.game`)."""
+    """Whether the belt is not known: no life read, or no game it is of (game/records.py `Loot.game`)."""
     return not loot.max_life or loot.game is None
 
 
 def low(loot: Loot) -> tuple[str, ...]:
-    """The kinds (world.py HEALING, REJUVENATION) a belt low on potions restocks, the rarer first (the player,
+    """The kinds (game/records.py HEALING, REJUVENATION) a belt low on potions restocks, the rarer first (the player,
     2026-10-14): rejuvenations under the REJUVENATION_RESERVE kept for the character, healing potions under half of
     what their columns hold (pickup.py `shortages`: the columns by what they hold, an empty one by the configured
     layout). At 22:55:31 on 2026-10-14 the belt held 2 healing potions of 8 and the run warped on past three potions

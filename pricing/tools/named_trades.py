@@ -18,8 +18,8 @@ import sys
 from pathlib import Path
 
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from traderie_trades import item_name, load_json, trades
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root, for runs by path
+from pricing.tools.traderie_trades import item_name, load_json, trades
 
 
 def summarise(directory):

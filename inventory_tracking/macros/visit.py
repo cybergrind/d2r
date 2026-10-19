@@ -15,13 +15,13 @@ stack moved out of the build's free block; the exit: the waypoint walked to from
 contract (town.py `contract`), logged with each stop's seconds. Every stop is planned from memory read at it: a visit
 cut by the player's hand and made again does only what is left.
 
-`stash_stop` makes a stop `town.stash_stop` planned from the stash as read (world.py `StashView`): one walk to the
-stash, each put clicked once, onto the page planned and no other. The steps: the cube's keepers that fit the inventory
-now come out first (cube.py `unpack`), with the cube's junk for Jamella when no keeper waits for room; the stash opened
-(stash.py `open_stash`); the cube's resources by Ctrl + Shift on a resource tab, the inventory's by Ctrl + click (each
-onto its own tab whatever tab is shown: the player, 2026-10-18); the keepers onto their pages, the Personal tab, then
-the Shared tab at its first planned page (stash.py `_shared`), its right arrow to each next one; the full stacks'
-materials put down between the panels; the gold deposited; Escape.
+`stash_stop` makes a stop `town.stash_stop` planned from the stash as read (game/records.py `StashView`): one walk to
+the stash, each put clicked once, onto the page planned and no other. The steps: the cube's keepers that fit the
+inventory now come out first (cube.py `unpack`), with the cube's junk for Jamella when no keeper waits for room; the
+stash opened (stash.py `open_stash`); the cube's resources by Ctrl + Shift on a resource tab, the inventory's by Ctrl +
+click (each onto its own tab whatever tab is shown: the player, 2026-10-18); the keepers onto their pages, the Personal
+tab, then the Shared tab at its first planned page (stash.py `_shared`), its right arrow to each next one; the full
+stacks' materials put down between the panels; the gold deposited; Escape.
 
 A cube keeper the inventory had no room for before the stash took its keepers goes through the room they left: whether a
 Ctrl + click on a cube item in the stash's resource view sends it to the inventory is not known (the plan's probe P1),
@@ -72,6 +72,7 @@ from inventory_tracking.macros.cube import (
     unpack,
 )
 from inventory_tracking.macros.engine import Run, protected
+from inventory_tracking.macros.game.records import Carried, Pack, StashView
 from inventory_tracking.macros.junk import MAGIC
 from inventory_tracking.macros.repair import (
     HALBU,
@@ -136,7 +137,6 @@ from inventory_tracking.macros.town import (
 from inventory_tracking.macros.travel import cut
 from inventory_tracking.macros.visitlog import Recorder, Snapshot
 from inventory_tracking.macros.waypoint import panel_point
-from inventory_tracking.macros.world import Carried, Pack, StashView
 
 
 __all__ = ['FORTRESS_MAP', 'Hands', 'Remembered', 'TownMap', 'Visited', 'note_view', 'stash_stop', 'visit']
@@ -713,9 +713,9 @@ def _scan(run: Run, missed: Sequence[Carried], inventory_key: str | None, own: f
 @dataclass
 class Hands:
     """The runner's closures a visit takes: the key that opens the inventory; Cain's identify (the tome the fallback),
-    the appraisals waited for; the junk among identified items (macros/junk.py `junk_of`); the stash as read (world.py
-    `StashView`, None unread); the full gem stacks' transmutes (cube.py `transmute`, what it puts down picked up
-    again): how many perfect gems were made and how many units it left on the ground."""
+    the appraisals waited for; the junk among identified items (macros/junk.py `junk_of`); the stash as read
+    (macros/game/ `StashView`, None unread); the full gem stacks' transmutes (cube.py `transmute`, what it puts down
+    picked up again): how many perfect gems were made and how many units it left on the ground."""
 
     inventory_key: Callable[[], str | None]
     identify: Callable[[Sequence[Carried]], object]

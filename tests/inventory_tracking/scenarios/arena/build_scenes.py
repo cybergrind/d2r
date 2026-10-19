@@ -40,7 +40,7 @@ from pathlib import Path
 
 from inventory_tracking.combat.hurts import Sightings, enchantments, sightings
 from inventory_tracking.combat.takes import Take
-from inventory_tracking.macros.world import LYING_DEAD
+from inventory_tracking.macros.game.layout import LYING_DEAD
 from tests.inventory_tracking.scenarios.arena import moments as rules
 from tests.inventory_tracking.scenarios.arena.cut import DEFAULT_HERO, Refused, cut
 from tests.inventory_tracking.scenarios.arena.fixed import fixed, spread, strides

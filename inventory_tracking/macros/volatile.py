@@ -31,7 +31,7 @@ from pathlib import Path
 
 from inventory_tracking.common import LOG
 from inventory_tracking.items.grid import INVENTORY_SIZE, Grid
-from inventory_tracking.macros.world import Carried, Pack
+from inventory_tracking.macros.game.records import Carried, Pack
 
 
 STORE_FILE = 'volatile-cells.json'

@@ -24,7 +24,7 @@ from collections import Counter
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field, replace
 from pathlib import Path
-from typing import TYPE_CHECKING, NamedTuple
+from typing import NamedTuple
 
 from inventory_tracking.common import LOG
 from inventory_tracking.items.grid import Grid
@@ -52,6 +52,7 @@ from inventory_tracking.macros.cube import (
     roomed,
 )
 from inventory_tracking.macros.engine import Run
+from inventory_tracking.macros.game.records import Carried, Pack, World
 from inventory_tracking.macros.junk import MAGIC
 from inventory_tracking.macros.pickup import SHUNNED
 from inventory_tracking.macros.portal import FROM_TOME, PortalSource, portal_source, slot_note, through_portal, to_town
@@ -71,14 +72,10 @@ from inventory_tracking.macros.volatile import (
     print_of,
 )
 from inventory_tracking.macros.waypoint import travel
-from inventory_tracking.macros.world import TOWN_IDS, Carried, Pack, World
+from inventory_tracking.native.layout import TOWN_IDS
 from inventory_tracking.routes.model import FIGHT, LOOT, USE
 from inventory_tracking.routes.progress import Progress
 from inventory_tracking.terror.bosses import KILLED_AT
-
-
-if TYPE_CHECKING:
-    from inventory_tracking.macros.tzloop import TzHands
 
 
 __all__ = [
@@ -92,6 +89,7 @@ __all__ = [
     'Dead',
     'GameId',
     'Kind',
+    'LegHands',
     'Loop',
     'kind_of',
     'next_leg',
@@ -274,8 +272,8 @@ BESET_LOSS = 0.05
 
 class GameId(NamedTuple):
     """A game as the loop tells one from the next: its name and the player's unit id in it (the key `Sightings` keeps,
-    world.py `Loot.game`). Names come round again (cyber99 -> cyber1, the second cyber81 of a session at 09:19:49 on
-    2026-10-18); the unit id is a new one in a new game. The seed of the per-game record (rca/2026-10-18/
+    game/records.py `Loot.game`). Names come round again (cyber99 -> cyber1, the second cyber81 of a session at 09:19:49
+    on 2026-10-18); the unit id is a new one in a new game. The seed of the per-game record (rca/2026-10-18/
     arch-loop-orchestration.md Option B, step 1): logged when it changes (`Loop.observe`); the TZ agenda keys its
     game by it (tzloop.py)."""
 
@@ -284,6 +282,31 @@ class GameId(NamedTuple):
 
     def __str__(self) -> str:
         return f'{self.name} (player unit {self.player})'
+
+
+@dataclass(frozen=True)
+class LegHands:
+    """What the runner hands a leg of the loop (runner.py `_loop_hands`). `level_run()` posts the kind's level run,
+    which follows the leg (Lower Kurast's chests, Andariel's Catacombs rushed; the agenda's for the terror zone kinds);
+    `take_one()` takes one drop, else goes back for a valuable seen, False with neither; `visit(exit)` the town visit
+    (macros/visit.py `visit`), what it left; `identify(items)` at Cain; `bring(items)` out of the cube into the
+    inventory (macros/cube.py `unpack`), for the Gheed's swap; `way_on()` the way on: at it, what lies there first,
+    then the press through, else the level run to it; `fight()` Andariel's level run, fighting; `left()` a valuable
+    seen and still on the ground (runner.py `_valuable_left`); the terror zone kinds': `sighted(area)` a valuable seen
+    in `area` (None: in the game) still on the ground, `terrorized(area)` the tracker's word (terror/tracker.py),
+    `navigate()` the means in hand set for the loop's moves (macros/navigation.py)."""
+
+    level_run: Callable[[], None]
+    take_one: Callable[[], bool]
+    visit: Callable[[Exit], object] | None = None
+    identify: Callable[[tuple[Carried, ...]], object] | None = None
+    bring: Callable[[list[Carried]], int] | None = None
+    way_on: Callable[[], None] | None = None
+    fight: Callable[[], None] | None = None
+    left: Callable[[], str | None] | None = None
+    sighted: Callable[[int | None], str | None] = lambda area: None
+    terrorized: Callable[[int], bool | None] = lambda area: None
+    navigate: Callable[[], None] = lambda: None
 
 
 @dataclass
@@ -761,27 +784,16 @@ class Loop:
         run: Run,
         key_names,
         progress: Progress | None,
-        level_run: Callable[[], None],
-        pick_up: Callable[[], bool],
-        visit: Callable[[Exit], object] | None = None,
-        identify: Callable[[tuple[Carried, ...]], object] | None = None,
-        bring: Callable[[list[Carried]], int] | None = None,
-        down: Callable[[], None] | None = None,
-        fight: Callable[[], None] | None = None,
+        hands: LegHands,
+        *,
         item_stats: Stats | None = None,
         shown: Remembered | None = None,
-        left: Callable[[], str | None] | None = None,
-        tz: TzHands | None = None,
     ) -> str:
-        """Make the next leg (`next_leg`); the leg made. `level_run()` asks the runner for the KP_1 level run,
-        which follows this leg; `pick_up()` takes one drop, False with nothing worth it on the ground; `visit(exit)`
-        makes the town visit (macros/visit.py `visit`: Cain, the stash, Jamella, Halbu, the exit) and says what it left;
-        `identify(items)` identifies `items` (at Cain, macros/cain.py) and `bring(items)` takes items out of the cube
-        into the inventory (macros/cube.py `unpack`), for the Gheed's swap; `down()` Andariel's level run to the stairs
-        or the press through them; `fight()` her level run, fighting; `item_stats(unit)` an item's stats
-        (world.GameMemory.item_stats: a Gheed's Fortune's Magic Find), `shown` the shared page the stash showed last
-        (macros/visit.py `Remembered`), `left()` a valuable seen and still on the ground (runner.py
-        `_valuable_left`); `tz` the terror zone kinds' hands (macros/tzloop.py `TzHands`)."""
+        """Make the next leg (`next_leg`); the leg made, by the runner's `hands` (`LegHands`). `item_stats(unit)` an
+        item's stats (game/memory.py `GameMemory.item_stats`: a Gheed's Fortune's Magic Find), `shown` the shared page
+        the stash showed last (macros/visit.py `Remembered`)."""
+        level_run, pick_up, visit, down, fight = hands.level_run, hands.take_one, hands.visit, hands.way_on, hands.fight
+        identify, bring, left = hands.identify, hands.bring, hands.left
         world = run.world()
         if (cooling := self.cooling - time.monotonic()) > 0:
             # Recoveries one after another: a pause, not a stop (`recover`), and only where nothing attacks: the lobby
@@ -895,7 +907,7 @@ class Loop:
             from inventory_tracking.macros import tzloop  # late: tzloop imports this module
 
             # The terror zone kinds' legs are the agenda's goals (macros/goals-plan.md), performed by tzloop
-            goal = tzloop.choose(world, progress, self, tz)
+            goal = tzloop.choose(world, progress, self, hands)
             leg = tzloop.leg_of(goal)
         else:
             leg = next_leg(world, progress, self)
@@ -907,7 +919,7 @@ class Loop:
         if goal is not None:
             from inventory_tracking.macros import tzloop
 
-            tzloop.perform(self, run, key_names, progress, goal, tz, visit)
+            tzloop.perform(self, run, key_names, progress, goal, hands)
             return leg
         if leg == NEXT_GAME:
             self.next_game(run, world, key_names)

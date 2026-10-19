@@ -27,6 +27,7 @@ from inventory_tracking.common import LOG
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.build import Buff, BuffFacts, Build, Casting, DrawPrice, Tried
 from inventory_tracking.macros.engine import Run
+from inventory_tracking.macros.game.records import Monster, World
 from inventory_tracking.macros.pad import MONSTER_UNIT
 from inventory_tracking.macros.routines import (
     ACTING,
@@ -42,7 +43,6 @@ from inventory_tracking.macros.routines import (
 from inventory_tracking.macros.skills import SWAP_WEAPONS, skill_name
 from inventory_tracking.macros.teleport import ground_fraction
 from inventory_tracking.macros.travel import label, life
-from inventory_tracking.macros.world import Monster, World
 
 
 # The rule for a buff whose state the game shows on the character (`Buff.state`): it is cast whenever the

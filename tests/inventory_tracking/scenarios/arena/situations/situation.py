@@ -45,9 +45,9 @@ from inventory_tracking.combat.mechanics.tables import points_of, tables
 from inventory_tracking.combat.sim.monsters import CHAMPION_FLAG, COLD, FIRE, LIGHTNING, STRONG, UNIQUE_FLAG
 from inventory_tracking.config import PLAYER_HEALING
 from inventory_tracking.levels.model import Walkable, pack_cells
+from inventory_tracking.macros.game.layout import MINION_FLAG
 from inventory_tracking.macros.rotation import ELITE_LIFE
 from inventory_tracking.macros.runner import ATTACK, HUNT_ELITES, PICKUP, TELEPORT
-from inventory_tracking.macros.world import MINION_FLAG
 from inventory_tracking.native.layout import TILE_UNITS
 from tests.inventory_tracking.scenarios.arena import scene as scene_file
 from tests.inventory_tracking.scenarios.arena.cut import DEFAULT_HERO

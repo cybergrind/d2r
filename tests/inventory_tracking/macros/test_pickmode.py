@@ -4,6 +4,7 @@ items.txt row as the bundled metadata names them (items/metadata.py `item_base`)
 from dataclasses import replace
 
 from inventory_tracking.items.metadata import metadata
+from inventory_tracking.macros.game.records import GOLD, HEALING, VALUABLE, Drop, Loot, Rolls
 from inventory_tracking.macros.pickmode import (
     MODES,
     REGULAR,
@@ -15,7 +16,6 @@ from inventory_tracking.macros.pickmode import (
     sure,
     traded,
 )
-from inventory_tracking.macros.world import GOLD, HEALING, VALUABLE, Drop, Loot, Rolls
 
 
 def class_of(name: str) -> int:
@@ -100,7 +100,7 @@ def test_the_trade_goods_are_taken_in_the_trade_mode_only():
 def test_the_ground_census_says_what_an_item_is_and_whether_a_rule_takes_it():
     # The player, 2026-10-17: "maybe we need to log drops in case if we're missing something right now"
     from inventory_tracking.items.identity import ETHEREAL_FLAG, SOCKETED_FLAG
-    from inventory_tracking.macros.world import census
+    from inventory_tracking.macros.game.decode import census
 
     assert census('Amulet', 6, 0, (5100.4, 5200.0), None, None) == 'rare Amulet at (5100, 5200): left'
     assert (

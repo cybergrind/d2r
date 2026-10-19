@@ -35,15 +35,8 @@ from inventory_tracking.macros.cube import (
     perfect_of,
 )
 from inventory_tracking.macros.engine import Run
-from inventory_tracking.macros.routines import screen_fraction
-from inventory_tracking.macros.shop import TRADE_ABOVE, VENDOR
-from inventory_tracking.macros.skills import SWAP_WEAPONS, TELEPORT
-from inventory_tracking.macros.stash import RESOURCES, SHARED_LEFT, SHARED_RIGHT, STASH_CUBE, STASH_PAGE, tab_point
-from inventory_tracking.macros.timing import Pace
-from inventory_tracking.macros.waypoint import panel_point
-from inventory_tracking.macros.world import (
-    BANK,
-    IDENTIFY_TOME,
+from inventory_tracking.macros.game.layout import BANK, IDENTIFY_TOME
+from inventory_tracking.macros.game.records import (
     Carried,
     Drop,
     Loot,
@@ -56,7 +49,13 @@ from inventory_tracking.macros.world import (
     Teleport,
     Thing,
     World,
-)  # fmt: skip
+)
+from inventory_tracking.macros.routines import screen_fraction
+from inventory_tracking.macros.shop import TRADE_ABOVE, VENDOR
+from inventory_tracking.macros.skills import SWAP_WEAPONS, TELEPORT
+from inventory_tracking.macros.stash import RESOURCES, SHARED_LEFT, SHARED_RIGHT, STASH_CUBE, STASH_PAGE, tab_point
+from inventory_tracking.macros.timing import Pace
+from inventory_tracking.macros.waypoint import panel_point
 
 
 KEYS = {SUMMON_DEFILER: 'q', CONSUME: '6', HEX_PURGE: 'g', PSYCHIC_WARD: 'r', SWAP_WEAPONS: 'c', TELEPORT: 't'}
@@ -309,9 +308,9 @@ class Game:
         # where a cube item no resource tab takes goes on a Ctrl + Shift + click: it stays (01:28:34 on 2026-10-17)
         self.cube_spill = 'stays'
         self.stash_refuses: set[int] = set()  # the resource classes whose stash stack is full (99)
-        # The stash as memory holds it (world.py `StashView`, macros/town-plan.md step 2): each page's rows ('.' free;
-        # 0 the personal page, 1..5 the shared ones) and the units on it, and the resource stacks' counts; None: the
-        # stash is not read (`run.stash_view` gives None) and the pages take items by `stash_room`
+        # The stash as memory holds it (game/records.py `StashView`, macros/town-plan.md step 2): each page's rows ('.'
+        # free; 0 the personal page, 1..5 the shared ones) and the units on it, and the resource stacks' counts; None:
+        # the stash is not read (`run.stash_view` gives None) and the pages take items by `stash_room`
         self.stash_pages: list[tuple[str, ...]] | None = None
         self.page_items: dict[int, list[int]] = {}
         self.page_cells: dict[int, list[Carried]] = {}  # the items put onto each page, at their cells there
@@ -856,8 +855,8 @@ class Game:
             self.stashed.append(item)
             return True
         if self.keys.ctrl and not self.keys.shift and self.pack.stash is not None and self.stash_tab == 0:
-            # The personal page read (world.py `Pack.stashed`, macros/charms.py): an item onto its first free block,
-            # and one of its own back onto the inventory's
+            # The personal page read (game/records.py `Pack.stashed`, macros/charms.py): an item onto its first free
+            # block, and one of its own back onto the inventory's
             item = self.pack_item_at(x, y)
             if item is not None and item.txt != CUBE_CLASS:
                 spot = Grid(self.pack.stash).first_spot(item.size)

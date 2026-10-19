@@ -18,8 +18,8 @@ build layer (`Build.skill_icons`, builds/characters.py). A skill with no place t
 from inventory_tracking.common import LOG
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.engine import Run
+from inventory_tracking.macros.game.records import World
 from inventory_tracking.macros.skills import skill_name
-from inventory_tracking.macros.world import World
 
 
 Place = tuple[float, float]  # (right of the window's centre, below its bottom edge), in window heights

@@ -9,12 +9,16 @@ time with a fixed delay: the unpaced three-thread refresh hit HTTP 429 on 2026-0
 
 import argparse
 import json
+import sys
 import time
 from datetime import UTC, datetime
 from pathlib import Path
 
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root, for runs by path
 from pricing.knowledge.market import normalize_listing, summarize
-from pricing.knowledge.refresh import API, RateLimited, RequestRejected, atomic_json, fetch_json
+from pricing.knowledge.refresh import RateLimited, RequestRejected, atomic_json, fetch_json
+from pricing.tools.traderie import listings_url
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -42,7 +46,7 @@ def pull_item(item, directory, currencies, *, pages, deep_pages, sellers, delay,
             response = json.loads(path.read_text())
         else:
             try:
-                response = fetch(f'{API}/listings?item={item["id"]}&page={page}')
+                response = fetch(listings_url(item['id'], page))
             except RateLimited:
                 raise
             except RequestRejected:
@@ -60,7 +64,7 @@ def pull_item(item, directory, currencies, *, pages, deep_pages, sellers, delay,
                 row,
                 name=item['name'],
                 category=item['type'],
-                source=f'{API}/listings?item={item["id"]}&page={page}',
+                source=listings_url(item['id'], page),
                 observed_at=response.get('_pulled_at'),
                 currencies=currencies,
             )

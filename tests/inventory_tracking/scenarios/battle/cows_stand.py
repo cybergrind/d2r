@@ -17,8 +17,8 @@ from pathlib import Path
 
 from inventory_tracking.builds.warlock.buffs import ENGORGE_HURT_SECONDS, ENGORGE_RETRY, Rotation
 from inventory_tracking.macros.actuator import Abort
+from inventory_tracking.macros.game.records import Loot, Teleport
 from inventory_tracking.macros.skills import NAMES
-from inventory_tracking.macros.world import Loot, Teleport
 from tests.inventory_tracking.scenarios.battle.replay import Script
 
 # The belt's item classes and the key of each skill are the character's of four hours before (Tower

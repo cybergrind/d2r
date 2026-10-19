@@ -12,6 +12,7 @@ from inventory_tracking.levels.model import Ground
 from inventory_tracking.macros import lootpolicy
 from inventory_tracking.macros.actuator import Abort, Cancelled
 from inventory_tracking.macros.engine import Run
+from inventory_tracking.macros.game.records import HEALING, REJUVENATION, VALUABLE, Monster, World, has_room
 from inventory_tracking.macros.hunting.base import (
     FOLLOW_SECONDS,
     GATHER_CHECK,
@@ -27,7 +28,6 @@ from inventory_tracking.macros.hunting.base import (
 )
 from inventory_tracking.macros.pickup import choose, unshunned
 from inventory_tracking.macros.travel import OWN_MOVE, Point, Step, label, step_line
-from inventory_tracking.macros.world import HEALING, REJUVENATION, VALUABLE, Monster, World, has_room
 
 
 if TYPE_CHECKING:
@@ -95,7 +95,7 @@ def gather(self: Hunter, run: Run, here: Point, foes: Sequence[Monster] = ()) ->
     # and stood 31 from it; the player went back for it by hand. Not one given up (above): its tries are
     # spent, and staying by it holds the sweep for nothing (River of Flame, 00:26:49 on 2026-10-14: 3.9 s
     # of "no better place" by a Large Charm with six hostiles near, run-0025-findings.md §2.3).
-    # Not by gear the filter shows that there is no room for (world.py `prized`): the mode goes on to
+    # Not by gear the filter shows that there is no room for (game/records.py `prized`): the mode goes on to
     # the hostiles (Drifter Cavern, 19:59:52 on 2026-10-12: "the sweep stays by Magic Kriss", 13
     # hostiles 39 away and attack mode idle; user: "allow moving when the item isn't very valuable").
     # The sweep's "must not leave it" is the policy's (macros/lootpolicy.py `verdict`, step 4 of rca/2026-10-18/

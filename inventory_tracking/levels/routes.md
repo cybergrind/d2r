@@ -90,7 +90,7 @@ a later step and not needed for the main routes. A stage that cannot be acted on
 | Facts | `levels/build_objects.py`, `levels/data/objects.json`, `levels/objects.py`; `PoiSpec.thing` (a mark on an object the files place, by layout variant, with its click) | handlers for one-preset levels (Pit 2, Drifter Cavern…); object ids in `levels/model.py` |
 | Catalogue | `routes/model.py` (Route, Level, the stage types), `routes/catalog/act1.py`…`act5.py`, `routes/check.py` (the validation below), `python -m inventory_tracking.routes` (prints the table) | — |
 | Progress | `routes/progress.py` | `levels/guide.py` takes the current stage's mark as the card's first mark (injected, so `levels` does not import `routes`) |
-| Execution | `macros/route.py`; `USES` entries for the chest, the seals and the portals | `macros/runner.py` routes the teleport key through it; `macros/world.py` reads the new object ids |
+| Execution | `macros/route.py`; `USES` entries for the chest, the seals and the portals | `macros/runner.py` routes the teleport key through it; `macros/game/` reads the new object ids |
 
 ## Tests
 

@@ -24,8 +24,8 @@ as before: the press and the sweep move on from it.
 
 from dataclasses import dataclass
 
+from inventory_tracking.macros.game.records import VALUABLE, Drop
 from inventory_tracking.macros.pickmode import REGULAR, SURE, TRADE, is_candidate, sure, traded
-from inventory_tracking.macros.world import VALUABLE, Drop
 
 
 __all__ = [
@@ -77,8 +77,8 @@ class Dispute:
     ruling: str
 
 
-# Q1 of rca/2026-10-18/arch-level-behaviour.md §5. A valuable that is not prized (world.py `prized`: below the marks),
-# not taken only because the loot filter shows it (`Loot.shown`) and no identify candidate (pickmode.py
+# Q1 of rca/2026-10-18/arch-level-behaviour.md §5. A valuable that is not prized (game/records.py `prized`: below the
+# marks), not taken only because the loot filter shows it (`Loot.shown`) and no identify candidate (pickmode.py
 # `is_candidate`), with no room for it: a low rune El-Ral (taken from r01, marked from Io), a chipped or plain gem, a
 # jewel or a magic ring or amulet (REGULAR only: the sure mode keeps rings and amulets only when rare, set or unique).
 # By hand the press warns and goes on, and the sweep sweeps on; a level run stands by it. Ruled by the player,
@@ -126,7 +126,7 @@ def verdict(
 ) -> Verdict:
     """What `site` (one of SITES) does today with `drop`, of the facts:
 
-    - `room`: the inventory has room for it (world.py `has_room`; True unread).
+    - `room`: the inventory has room for it (game/records.py `has_room`; True unread).
     - `shown`: taken only because the loot filter shows it (`drop.unit_id in loot.shown`).
     - `mode`: the pickup mode the loot was filtered by (runner.py `_picked`: the loop's, REGULAR with the loop off).
     - `sold_full`: its stack in the stash is full (loop.py `sold_full`): not picked up.

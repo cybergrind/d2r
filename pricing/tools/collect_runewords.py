@@ -2,11 +2,15 @@
 
 import argparse
 import json
+import sys
 import time
 from datetime import UTC, datetime
 from pathlib import Path
 
-from pricing.knowledge.refresh import API, RateLimited, atomic_json, fetch_json
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root, for runs by path
+from pricing.knowledge.refresh import RateLimited, atomic_json, fetch_json
+from pricing.tools.traderie import listings_url
 
 
 def main():
@@ -30,7 +34,7 @@ def main():
             elif not args.collect:
                 break
             else:
-                url = f'{API}/listings?item={item["id"]}&page={page}'
+                url = listings_url(item['id'], page)
                 try:
                     response = fetch_json(url)
                     if not isinstance(response.get('listings'), list):

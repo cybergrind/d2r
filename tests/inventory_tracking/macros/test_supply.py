@@ -24,13 +24,14 @@ from inventory_tracking.levels.model import Ground, Walkable, pack_cells
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.build import NoWay
 from inventory_tracking.macros.drop_ledger import GATHER_TRIES
+from inventory_tracking.macros.game.kept import PutDown
+from inventory_tracking.macros.game.records import HEALING, REJUVENATION, VALUABLE, Drop, Loot, Monster, Teleport
 from inventory_tracking.macros.goals import FIGHT, PICK_REACH, PICK_UP, STAND_NEAR, WAIT, Goal, goal_of, in_the_way
 from inventory_tracking.macros.hunting.base import BLOCK_SECONDS
 from inventory_tracking.macros.pickup import PICK_UNITS, approach, pick_up
 from inventory_tracking.macros.pursuit import FULL, Hold, Move, Operate, Pursuit, decide
 from inventory_tracking.macros.supply import Potions, detour, worth
 from inventory_tracking.macros.travel import PRESSED, clear_line, open_reaches, walk_reaches
-from inventory_tracking.macros.world import HEALING, REJUVENATION, VALUABLE, Drop, Loot, Monster, PutDown, Teleport
 from tests.inventory_tracking.macros.test_hunt import game, hunter, keys, me
 from tests.inventory_tracking.macros.test_level_run import STEP, facts as level_facts, unasked
 
@@ -549,7 +550,7 @@ def test_a_given_up_drop_the_player_put_down_is_not_tried_again() -> None:
 
 # run-1214-findings.md §3.1: "Inventory full: Unique Plate Mail left on the ground" at 15:19:21.99 and "Magic Bone
 # Knife" at 15:19:49.74; the run went on from both, and the player made room and fetched each by hand.
-PLATE = Drop(301, 5010.0, 5004.0, 'Unique Plate Mail', VALUABLE, (2, 3), prized=True)  # world.py `NAMED`
+PLATE = Drop(301, 5010.0, 5004.0, 'Unique Plate Mail', VALUABLE, (2, 3), prized=True)  # game/records.py `NAMED`
 KNIFE = Drop(302, 5006.0, 4998.0, 'Magic Bone Knife', VALUABLE, (1, 2), prized=False)
 
 

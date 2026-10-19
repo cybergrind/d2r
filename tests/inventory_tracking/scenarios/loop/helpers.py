@@ -18,8 +18,8 @@ from inventory_tracking.combat.takes import Take, monsters_of, player_of
 from inventory_tracking.levels.doors import Door
 from inventory_tracking.levels.model import Ground, Level, Room, Walkable
 from inventory_tracking.macros.actuator import Abort
+from inventory_tracking.macros.game.records import Monster, Player, Teleport, World
 from inventory_tracking.macros.hunt import Hunter, hostiles
-from inventory_tracking.macros.world import Monster, Player, Teleport, World
 from tests.inventory_tracking.macros.fakes import HUNT_SLOTS, KEYS, Game, warlock, world
 
 

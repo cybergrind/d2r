@@ -148,7 +148,7 @@ NOTE = re.compile(r'Macro: (cube: .*moved|stash: .*put in|shop: keys)')
 # --- The ground and the pickups --------------------------------------------------------------------------------------
 
 # The ground census: (quality, base, ' eth', ' socketed', the filter's label, x, y, the rule's word after "taken").
-# world.py:1789 GameMemory._census `'Macro: ground: %s'` with world.py:957 `census()`: quality, base, ' eth',
+# game/memory.py GameMemory._census `'Macro: ground: %s'` with game/decode.py `census()`: quality, base, ' eth',
 # ' socketed', a base's rolls (' 3os ...'), ' "label"' when the label differs from the base, ' at (x, y): ', then
 # 'taken (rule)' or 'left'. A base's rolls (`rolls`, after the marks) fold into the base and its marks into it too:
 # 'Sacred Rondache 0os', 'Dagger socketed 3os' (the label, which the pickup names, is still read apart).

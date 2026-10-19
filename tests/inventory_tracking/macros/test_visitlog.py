@@ -6,6 +6,7 @@ from datetime import datetime
 from pathlib import Path
 
 from inventory_tracking.common import LOG, log_to_file
+from inventory_tracking.macros.game.records import Carried, Pack, Page, StashView
 from inventory_tracking.macros.portal import FROM_SLING
 from inventory_tracking.macros.town import Exit, Needs
 from inventory_tracking.macros.visitlog import (
@@ -22,7 +23,6 @@ from inventory_tracking.macros.visitlog import (
     view_from,
     view_json,
 )
-from inventory_tracking.macros.world import Carried, Pack, Page, StashView
 
 
 RING = Carried(10, 537, 6, 0, (1, 1), quality=5, identified=False, unique=0)

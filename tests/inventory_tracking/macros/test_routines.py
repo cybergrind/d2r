@@ -3,6 +3,7 @@ from dataclasses import replace
 import pytest
 
 from inventory_tracking.macros.actuator import Abort
+from inventory_tracking.macros.game.records import Monster
 from inventory_tracking.macros.routines import (
     SHOW_ITEMS_TRIES,
     prebuff,
@@ -10,7 +11,6 @@ from inventory_tracking.macros.routines import (
     screen_fraction,
     show_items_on,
 )
-from inventory_tracking.macros.world import Monster
 from tests.inventory_tracking.macros.fakes import KEYS, OTHER_SET, PREBUFF_SET, Game, character_of, player, world
 
 

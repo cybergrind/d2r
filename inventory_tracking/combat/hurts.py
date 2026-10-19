@@ -36,7 +36,7 @@ from pathlib import Path
 from typing import Any
 
 from inventory_tracking.combat.mechanics.tables import tables
-from inventory_tracking.macros.world import LEADER_FLAGS, MINION_FLAG, MODIFIERS, NO_OWNER
+from inventory_tracking.macros.game.layout import LEADER_FLAGS, MINION_FLAG, MODIFIERS, NO_OWNER
 from inventory_tracking.native.layout import DEAD_MODES
 
 

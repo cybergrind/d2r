@@ -19,6 +19,7 @@ from inventory_tracking.levels.model import Ground, Room, Target, Walkable
 from inventory_tracking.levels.presets import open_passage
 from inventory_tracking.macros import goals
 from inventory_tracking.macros.build import MoveFacts, NoWay, Step
+from inventory_tracking.macros.game.records import VALUABLE, Drop
 from inventory_tracking.macros.goals import (
     CLEAR_WAY,
     REACH,
@@ -62,7 +63,6 @@ from inventory_tracking.macros.runmode import (
     tapped,
 )
 from inventory_tracking.macros.travel import AROUND_LEAST, NO_SPOT_ON_WAY, PRESSED, navigator, way_leg
-from inventory_tracking.macros.world import VALUABLE, Drop
 from inventory_tracking.routes.catalog import ROUTES
 from inventory_tracking.routes.model import ENTER, FIGHT, USE, Script
 from inventory_tracking.routes.progress import Progress

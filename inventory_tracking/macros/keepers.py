@@ -15,7 +15,7 @@ skill's class or tree is not kept), so +2 to any class or any tree counts as two
 from collections.abc import Mapping
 
 from inventory_tracking.items.metadata import item_base
-from inventory_tracking.macros.world import Carried
+from inventory_tracking.macros.game.records import Carried
 
 
 RARE, CRAFTED = 6, 8  # ItemData quality (macros/junk.py)

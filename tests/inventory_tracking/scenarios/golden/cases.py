@@ -22,22 +22,12 @@ from inventory_tracking.builds.warlock.echoing_strike.attack import REACH
 from inventory_tracking.builds.warlock.skills import BLADE_WARP
 from inventory_tracking.levels.model import Ground
 from inventory_tracking.macros import pickup, teleport, view
+from inventory_tracking.macros.game.layout import DEFILER_CLASS, NO_OWNER
+from inventory_tracking.macros.game.records import GOLD, VALUABLE, Drop, Loot, Monster, Player, Teleport as Staff, World
 from inventory_tracking.macros.hunt import Hunter
 from inventory_tracking.macros.sight import in_reach
 from inventory_tracking.macros.skills import TELEPORT
 from inventory_tracking.macros.view import Viewport
-from inventory_tracking.macros.world import (
-    DEFILER_CLASS,
-    GOLD,
-    NO_OWNER,
-    VALUABLE,
-    Drop,
-    Loot,
-    Monster,
-    Player,
-    Teleport as Staff,
-    World,
-)
 from tests.inventory_tracking.macros import test_pickup as drops
 from tests.inventory_tracking.macros.fakes import HUNT_SLOTS, WINDOW, Game, warlock
 from tests.inventory_tracking.scenarios.loop.helpers import CHAMPION, foe

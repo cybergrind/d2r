@@ -34,8 +34,9 @@ from inventory_tracking.combat.policy import observe
 from inventory_tracking.combat.timeline import GAME_RATE
 from inventory_tracking.common import LOG
 from inventory_tracking.macros.build import BuffFacts, DrawPrice
+from inventory_tracking.macros.game.layout import DEFILER_CLASS
+from inventory_tracking.macros.game.records import Monster, World
 from inventory_tracking.macros.routines import DEAD
-from inventory_tracking.macros.world import DEFILER_CLASS, Monster, World
 
 
 DEFILER_RETRY = 5.0  # seconds between two tries at a missing Defiler (one that came shows in under 1.5 s)
@@ -49,7 +50,7 @@ DEFILER_CAST_SECONDS = MARK_CAST_SECONDS  # one key and one pointer move under t
 
 
 def defilers(world: World) -> list[Monster]:
-    """The Defilers alive (the world leaves out the dead: world.py, modes 0 and 12)."""
+    """The Defilers alive (the world leaves out the dead: macros/game/, modes 0 and 12)."""
     return [m for m in world.monsters if m.txt_id == DEFILER_CLASS]
 
 

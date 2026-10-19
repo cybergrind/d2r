@@ -1161,4 +1161,4 @@ def missile_by_name(name: str) -> str:
 
 FINGER_MISSILE = 177  # missiles.txt `fingermagespider`: the Storm Caster's lead
 MELEE_KIND = 'melee'  # sim/monsters.py MELEE
-MINION, LEADERS = 0x10, 0x02 | 0x08  # macros/world.py MINION_FLAG; sim/monsters.py SUPER_FLAG | UNIQUE_FLAG
+MINION, LEADERS = 0x10, 0x02 | 0x08  # macros/game/layout.py MINION_FLAG; sim/monsters.py SUPER_FLAG | UNIQUE_FLAG

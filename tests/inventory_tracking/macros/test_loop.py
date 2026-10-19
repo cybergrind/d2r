@@ -8,6 +8,7 @@ from pathlib import Path
 import pytest
 
 from inventory_tracking.macros.actuator import Abort
+from inventory_tracking.macros.game.records import Carried, Thing, World
 from inventory_tracking.macros.loop import (
     CHESTS,
     GAME_SECONDS,
@@ -21,12 +22,12 @@ from inventory_tracking.macros.loop import (
     TOWN,
     TRADE_ROOM,
     Dead,
+    LegHands,
     Loop,
     next_leg,
 )
 from inventory_tracking.macros.route import PERFORMED
 from inventory_tracking.macros.town import Exit
-from inventory_tracking.macros.world import Carried, Thing, World
 from inventory_tracking.routes.catalog import ROUTES
 from inventory_tracking.routes.progress import Progress
 from tests.inventory_tracking.macros.fakes import KEYS, Game, player, world
@@ -138,7 +139,7 @@ def test_a_game_goes_from_the_fortress_through_the_chests_and_the_portal_back_to
             # The portal leaves the character 20 units south of the waypoint (the player's nine trips); the fake's
             # portal changes only the level, so the waypoint is put that far from where the character stands.
             play.thing = Thing(5, WAYPOINT_ACT3, 2, here.x + 1.0, here.y - 19.0)
-        legs.append(loop.leg(play.run(), keys, progress, level_run, pick_up))
+        legs.append(loop.leg(play.run(), keys, progress, LegHands(level_run, pick_up)))
         if not play.world.in_game:
             break
 
@@ -151,12 +152,12 @@ def test_a_game_goes_from_the_fortress_through_the_chests_and_the_portal_back_to
 def test_with_the_sling_worn_and_no_tome_a_game_casts_its_town_portal_and_never_goes_for_scrolls(caplog):
     # The player, 2026-10-18: "sling provides town teleport skill, that frees two slots in inventory (we can replace
     # tome of town portals) ... when we have sling ring equipped - we don't need to run any logic in regard of town
-    # portal (do not track, do not buy)". The tome taken out: its charges read 0 (world.py `carried_items`)
+    # portal (do not track, do not buy)". The tome taken out: its charges read 0 (game/decode.py `carried_items`)
     from dataclasses import replace
 
     from inventory_tracking.macros.cube import CUBE_CLASS
+    from inventory_tracking.macros.game.records import Pack
     from inventory_tracking.macros.skills import SLING_TOWN_PORTAL
-    from inventory_tracking.macros.world import Pack
     from tests.inventory_tracking.macros.fakes import SLOTS
 
     slots = tuple(SLING_TOWN_PORTAL if skill == 220 else skill for skill in SLOTS)  # bound where the tome was: `x`
@@ -183,7 +184,7 @@ def test_with_the_sling_worn_and_no_tome_a_game_casts_its_town_portal_and_never_
                 progress.note(GAME, here.area)
             if here is not None and here.area == KURAST_DOCKS:
                 break
-            legs.append(loop.leg(play.run(), sling_keys, progress, level_run, lambda: False))
+            legs.append(loop.leg(play.run(), sling_keys, progress, LegHands(level_run, lambda: False)))
 
     assert legs == [TO_THE_CHESTS, CHESTS, PICK_UP, PORTAL]  # not to Jamella for scrolls first (`TOWN`)
     assert not loop.short
@@ -194,9 +195,9 @@ def test_with_the_sling_worn_and_no_tome_a_game_casts_its_town_portal_and_never_
 
 
 def test_without_the_sling_the_tome_is_counted_and_the_session_report_says_which(caplog):
+    from inventory_tracking.macros.game.records import Pack
     from inventory_tracking.macros.portal import FROM_SLING
     from inventory_tracking.macros.town import Needs, contract
-    from inventory_tracking.macros.world import Pack
 
     pack = Pack(keys=12, portals=0)
     play = Game(at(PANDEMONIUM_FORTRESS))
@@ -204,7 +205,7 @@ def test_without_the_sling_the_tome_is_counted_and_the_session_report_says_which
     loop = Loop(on=True, prebuffed=GAME)
     loop.start()
     with caplog.at_level('INFO'), suppress(Abort):  # her visit, which the fake has no town visit for
-        loop.leg(play.run(), keys, progress_in(PANDEMONIUM_FORTRESS), lambda: None, lambda: False)
+        loop.leg(play.run(), keys, progress_in(PANDEMONIUM_FORTRESS), LegHands(lambda: None, lambda: False))
     assert loop.short  # no tome and no Sling: short, as before
     assert next_leg(at(PANDEMONIUM_FORTRESS), progress_in(PANDEMONIUM_FORTRESS), loop) == TOWN
     assert 'Macro: loop: Town Portal from the tome: skill 220 in slot 5; worn skills unread' in caplog.text
@@ -222,9 +223,9 @@ def test_a_leg_made_again_and_again_with_nothing_coming_of_it_stops_the_loop():
     progress, loop = progress_in(LOWER_KURAST), Loop(on=True)
 
     for _ in range(3):
-        assert loop.leg(play.run(), keys, progress, lambda: None, lambda: False) == CHESTS
+        assert loop.leg(play.run(), keys, progress, LegHands(lambda: None, lambda: False)) == CHESTS
     with pytest.raises(Abort, match='the chests again and again in cyber32'):
-        loop.leg(play.run(), keys, progress, lambda: None, lambda: False)
+        loop.leg(play.run(), keys, progress, LegHands(lambda: None, lambda: False))
 
 
 def test_each_game_left_has_its_own_count_of_the_next_game_leg():
@@ -271,14 +272,16 @@ def test_the_inventory_kept_at_the_loops_start_is_what_the_cube_leaves_before_th
     # Phase 9: the player's own items are what the loop's first look finds carried; with nothing of the loop's and the
     # room fine, the game's end is no visit
     from inventory_tracking.macros.cube import CUBE_CLASS
-    from inventory_tracking.macros.world import Carried, Pack
+    from inventory_tracking.macros.game.records import Carried, Pack
 
     play = Game(at(PANDEMONIUM_FORTRESS))
     play.pack = Pack((Carried(1, CUBE_CLASS, 0, 0, (2, 2)),), ('...',) * 4)
     loop, visits = Loop(on=True), []
     loop.done = GAME  # the chests done: the game is left
 
-    made = loop.leg(play.run(), keys, progress_in(PANDEMONIUM_FORTRESS), lambda: None, lambda: False, visits.append)
+    made = loop.leg(
+        play.run(), keys, progress_in(PANDEMONIUM_FORTRESS), LegHands(lambda: None, lambda: False, visit=visits.append)
+    )
     assert made == LEAVE
     assert visits == []
     assert loop.own == frozenset({(CUBE_CLASS, 0, 0)})
@@ -314,8 +317,8 @@ def test_a_new_game_and_the_recovery_pause_count_no_stand():
 
 def test_the_staff_under_20_percent_of_its_charges_is_repaired_before_the_chests(monkeypatch):
     # The player, 2026-10-17: "we can start thinking on repairing teleport charges ... to travel more efficiently"
+    from inventory_tracking.macros.game.records import Teleport
     from inventory_tracking.macros.repair import wants
-    from inventory_tracking.macros.world import Teleport
 
     monkeypatch.setattr('inventory_tracking.macros.repair.STASH_TOUCHED', Path('/nonexistent/touched'))
     assert wants(Teleport(3, 20, False))  # under 20% (repair.py REPAIR_BELOW: the visits top it up meanwhile)
@@ -336,7 +339,7 @@ def test_the_trade_waits_for_the_room_to_run_low_then_identifies_stashes_and_sel
     # The player, 2026-10-17: "we need to perform mass identify at decard cain -> stash good -> sell junk -> return to
     # loop"; "probably we need to trade not by 2 junk items, but by remaining free slots"; 2026-10-18 12:55: one visit
     from inventory_tracking.macros.cube import CUBE_CLASS
-    from inventory_tracking.macros.world import Carried, Pack
+    from inventory_tracking.macros.game.records import Carried, Pack
 
     cube = Carried(1, CUBE_CLASS, 0, 0, (2, 2))
     charms = Carried(2, 999, 0, 2, (10, 2))  # the player's own items: two rows of the inventory
@@ -354,7 +357,7 @@ def test_the_trade_waits_for_the_room_to_run_low_then_identifies_stashes_and_sel
         play.pack = Pack((cube, charms), ('...',) * 4)  # identified, stashed, sold: the contract kept
 
     def leg():
-        return loop.leg(play.run(), keys, lk, lambda: None, lambda: False, visit)
+        return loop.leg(play.run(), keys, lk, LegHands(lambda: None, lambda: False, visit=visit))
 
     assert leg() == LEAVE  # 7 + 12 cells free in the inventory and the cube: no trade yet
     assert visits == []
@@ -378,7 +381,7 @@ def test_the_session_waits_for_the_room_to_run_low_and_is_made_once_a_game():
 
 
 def carried_of():
-    from inventory_tracking.macros.world import Carried
+    from inventory_tracking.macros.game.records import Carried
 
     return Carried(11, 41, 4, 0, (1, 3), quality=4, identified=False)
 
@@ -387,7 +390,7 @@ def test_a_cube_whose_room_no_item_of_the_loop_fits_is_no_room():
     # 12:44-12:45 on 2026-10-17: the cube's 9 free cells in pieces ('.#./.#./.#./...'), two items out, the inventory
     # full, no session: a Rage Mask left on the ground
     from inventory_tracking.macros.cube import CUBE_CLASS
-    from inventory_tracking.macros.world import Carried, Pack
+    from inventory_tracking.macros.game.records import Carried, Pack
 
     cube = Carried(1, CUBE_CLASS, 0, 0, (2, 2))
     charms = Carried(2, 999, 0, 2, (10, 2))  # the player's own: two rows
@@ -398,7 +401,12 @@ def test_a_cube_whose_room_no_item_of_the_loop_fits_is_no_room():
     loop = Loop(on=True)
     loop.own = frozenset({(CUBE_CLASS, 0, 0), (999, 0, 2), (998, 4, 0)})
     loop.done = GAME
-    town = loop.leg(play.run(), keys, progress_in(PANDEMONIUM_FORTRESS), lambda: None, lambda: False, lambda exit: None)
+    town = loop.leg(
+        play.run(),
+        keys,
+        progress_in(PANDEMONIUM_FORTRESS),
+        LegHands(lambda: None, lambda: False, visit=lambda exit: None),
+    )
     assert town == TOWN
 
 
@@ -406,7 +414,7 @@ def test_cells_free_with_no_block_a_grand_charm_fits_are_no_room():
     # 21:00:03 on 2026-10-17: free cells left in pieces, the cube's last two ('##.' twice), no session before the game;
     # a Grand Charm (1 x 3) found no room and the loop stopped with it on the ground
     from inventory_tracking.macros.cube import CUBE_CLASS
-    from inventory_tracking.macros.world import Carried, Pack
+    from inventory_tracking.macros.game.records import Carried, Pack
 
     cube = Carried(1, CUBE_CLASS, 0, 2, (2, 2))
     dagger = Carried(20, 135, 0, 0, (1, 2), quality=4, identified=False)  # the loop's, to identify
@@ -420,7 +428,10 @@ def test_cells_free_with_no_block_a_grand_charm_fits_are_no_room():
         loop.own = frozenset({(CUBE_CLASS, 0, 2), *((item.txt, item.x, item.y) for item in own)})
         loop.done = GAME
         made = loop.leg(
-            play.run(), keys, progress_in(PANDEMONIUM_FORTRESS), lambda: None, lambda: False, lambda e: None
+            play.run(),
+            keys,
+            progress_in(PANDEMONIUM_FORTRESS),
+            LegHands(lambda: None, lambda: False, visit=lambda e: None),
         )
         return made, loop
 
@@ -452,8 +463,8 @@ def test_a_visit_cut_by_the_players_hand_is_made_again_and_only_once_done():
 def test_a_worn_item_low_on_durability_sends_the_loop_to_halbu_with_the_staffs_charges_full(monkeypatch):
     # 22:37 on 2026-10-17: Enigma's Teleport is the character's own, the staff's charges stay full, and their repairs
     # had been what mended the gear; Enigma read 33 of 60
+    from inventory_tracking.macros.game.records import Loot, Wear
     from inventory_tracking.macros.repair import WEAR_BELOW, WEAR_CARRIED, due, worn_out
-    from inventory_tracking.macros.world import Loot, Wear
 
     monkeypatch.setattr('inventory_tracking.macros.repair.STASH_TOUCHED', Path('/nonexistent/touched'))
     monkeypatch.setattr('inventory_tracking.macros.repair.unknown', lambda: False)  # his line learned
@@ -474,7 +485,9 @@ def test_a_worn_item_low_on_durability_sends_the_loop_to_halbu_with_the_staffs_c
         run = play.run()
         run.wear = lambda: wear
         with suppress(Abort):  # (the fakes' waypoint to the chests: the leg is what counts)
-            loop.leg(run, keys, progress_in(PANDEMONIUM_FORTRESS), lambda: None, lambda: False, visits.append)
+            loop.leg(
+                run, keys, progress_in(PANDEMONIUM_FORTRESS), LegHands(lambda: None, lambda: False, visit=visits.append)
+            )
         worn.append(loop.wear)
         return visits == [Exit.WAYPOINT]
 
@@ -520,8 +533,8 @@ def test_the_loops_teleport_intent_hops_and_the_plain_one_does_not():
 
 def test_a_session_tops_the_staff_up_only_until_it_is_done():
     # 15:48:43 on 2026-10-17: a session done at the game's start sent the loop to Halbu at its end for 5 charges
+    from inventory_tracking.macros.game.records import Teleport
     from inventory_tracking.macros.town import tops_up
-    from inventory_tracking.macros.world import Teleport
 
     staff = Teleport(64, 69, False)
     assert tops_up(staff, in_session=True, reported=False)
@@ -570,7 +583,7 @@ def test_a_cube_holding_only_a_full_gem_stacks_gems_sends_the_loop_to_no_session
     # 07:05-07:07 on 2026-10-18: ten flawless gems of full stacks (kept, neither stashed nor sold) filled the cube, the
     # room read low every game, and a session every game left it as low
     from inventory_tracking.macros.cube import CUBE_CLASS
-    from inventory_tracking.macros.world import Carried, Pack
+    from inventory_tracking.macros.game.records import Carried, Pack
 
     flawless = 595  # Flawless Ruby (items metadata)
     cube = Carried(1, CUBE_CLASS, 0, 2, (2, 2))
@@ -585,7 +598,10 @@ def test_a_cube_holding_only_a_full_gem_stacks_gems_sends_the_loop_to_no_session
         loop.full = {flawless}
         loop.done = GAME
         return loop.leg(
-            play.run(), keys, progress_in(PANDEMONIUM_FORTRESS), lambda: None, lambda: False, lambda e: None
+            play.run(),
+            keys,
+            progress_in(PANDEMONIUM_FORTRESS),
+            LegHands(lambda: None, lambda: False, visit=lambda e: None),
         )
 
     assert leg(()) != TOWN  # only the gems, less than a transmute's: a session would take nothing away
@@ -676,12 +692,12 @@ def test_the_loop_runs_the_kind_of_where_it_is_started_unless_chosen_by_hand():
     loop = Loop(prebuffed=GAME)
     loop.start()
     with suppress(Abort):  # (the fakes' waypoint: the leg is what counts)
-        loop.leg(play.run(), keys, progress_in(ROGUE_ENCAMPMENT), lambda: None, lambda: False)
+        loop.leg(play.run(), keys, progress_in(ROGUE_ENCAMPMENT), LegHands(lambda: None, lambda: False))
     assert loop.kind == ANDARIEL
     hand = Loop(chosen=True)
     hand.start()
     with pytest.raises(Abort, match='nothing to do in'):
-        hand.leg(play.run(), keys, progress_in(ROGUE_ENCAMPMENT), lambda: None, lambda: False)
+        hand.leg(play.run(), keys, progress_in(ROGUE_ENCAMPMENT), LegHands(lambda: None, lambda: False))
     assert hand.kind == LK
 
 
@@ -713,7 +729,7 @@ def trip_legs(loop: Loop, found: Progress, area: int) -> str:
     play = Game(at(area))
     leg = next_leg(at(area), found, loop)
     with suppress(Abort):
-        loop.leg(play.run(), keys, found, lambda: None, lambda: False, visit=lambda exit: None)
+        loop.leg(play.run(), keys, found, LegHands(lambda: None, lambda: False, visit=lambda exit: None))
     return leg
 
 
@@ -792,14 +808,14 @@ def test_a_full_stash_after_a_town_visit_stops_the_leg_with_its_names():
 
     play = Game(at(PANDEMONIUM_FORTRESS))
     with pytest.raises(Abort, match=r'^the stash is full: Ber Rune, Battle Boots$') as stop:
-        loop.leg(play.run(), keys, found, lambda: None, lambda: False, visit=visit)
+        loop.leg(play.run(), keys, found, LegHands(lambda: None, lambda: False, visit=visit))
     assert stop.value.cause == 'stash'
     assert loop.visited == GAME
     for _ in range(2):  # a stash with room, and a contract from before the field
         loop.visited = None
         with suppress(Abort):
-            assert loop.leg(Game(at(PANDEMONIUM_FORTRESS)).run(), keys, found, lambda: None, lambda: False,
-                            visit=visit) == TOWN  # fmt: skip
+            hands = LegHands(lambda: None, lambda: False, visit=visit)
+            assert loop.leg(Game(at(PANDEMONIUM_FORTRESS)).run(), keys, found, hands) == TOWN
         assert loop.visited == GAME
 
 
@@ -879,7 +895,8 @@ def test_the_players_gheeds_is_never_left_in_the_stash_at_a_games_end():
 def gheeds_play(new: Carried | None = None):
     from inventory_tracking.macros.charms import GHEEDS_FORTUNE, UNIQUE, grand_charm
     from inventory_tracking.macros.cube import CUBE_CLASS
-    from inventory_tracking.macros.world import BANK, Pack
+    from inventory_tracking.macros.game.layout import BANK
+    from inventory_tracking.macros.game.records import Pack
 
     cube = Carried(2, CUBE_CLASS, 1, 0, (2, 2))
     theirs = Carried(1, grand_charm(), 0, 0, (1, 3), quality=UNIQUE, unique=GHEEDS_FORTUNE)
@@ -903,7 +920,7 @@ def test_the_fortress_legs_park_the_players_gheeds_then_keep_the_better_one(capl
     stats = {1: {MAGIC_FIND: 25}, 7: {MAGIC_FIND: 38}}
 
     def leg() -> str:
-        return loop.leg(play.run(), keys, progress, lambda: None, lambda: False, item_stats=stats.get)
+        return loop.leg(play.run(), keys, progress, LegHands(lambda: None, lambda: False), item_stats=stats.get)
 
     assert leg() == GHEED_STASH
     assert loop.parked is not None
@@ -924,8 +941,8 @@ def test_the_fortress_legs_park_the_players_gheeds_then_keep_the_better_one(capl
         ))  # fmt: skip
 
     caplog.set_level('INFO')
-    assert loop.leg(play.run(), keys, progress, lambda: None, lambda: False, identify=identify,
-                    item_stats=stats.get, left=lambda: None) == GHEED_CHOOSE  # fmt: skip
+    hands = LegHands(lambda: None, lambda: False, identify=identify, left=lambda: None)
+    assert loop.leg(play.run(), keys, progress, hands, item_stats=stats.get) == GHEED_CHOOSE
     assert loop.parked is None
     assert loop.gheed == RETURN
     assert sorted((i.unit_id, i.x, i.y) for i in carried(play).items) == [(2, 1, 0), (7, 0, 0)]  # the new one kept
@@ -967,13 +984,13 @@ def test_a_prebuff_the_rogue_encampments_townsfolk_spoil_is_made_again_on_the_ca
         play.world = at(ROGUE_ENCAMPMENT)
 
     monkeypatch.setattr(looping, 'create_next_game', made)
-    assert loop.leg(play.run(), keys, progress_in(ROGUE_ENCAMPMENT), lambda: None, lambda: False) == NEXT_GAME
+    assert loop.leg(play.run(), keys, progress_in(ROGUE_ENCAMPMENT), LegHands(lambda: None, lambda: False)) == NEXT_GAME
     assert loop.prebuffed is None  # cast on Catacombs Level 2 (`DOWN`)
 
     play.world = World(False, (), GAME, ())
     monkeypatch.setattr(looping, 'create_next_game', lambda run, name: setattr(play, 'world', at(PANDEMONIUM_FORTRESS)))
     with pytest.raises(Abort, match='Consume'):  # elsewhere the game is left as before
-        loop.leg(play.run(), keys, progress_in(PANDEMONIUM_FORTRESS), lambda: None, lambda: False)
+        loop.leg(play.run(), keys, progress_in(PANDEMONIUM_FORTRESS), LegHands(lambda: None, lambda: False))
 
 
 def test_andariels_level_is_not_left_with_nothing_picked_up_before_her_drops_land():
@@ -991,10 +1008,10 @@ def test_andariels_level_is_not_left_with_nothing_picked_up_before_her_drops_lan
     loop.fought = ('an earlier game', run.clock() - 60.0)  # her fight was posted long before, in this game too
     begun = run.clock()
 
-    assert loop.leg(run, keys, found, lambda: None, lambda: False) == PICK_UP
+    assert loop.leg(run, keys, found, LegHands(lambda: None, lambda: False)) == PICK_UP
     assert run.clock() - begun >= DROPS_LAND - 0.01  # waited from the first loot leg, not the fight's post
     assert next_leg(at(CATACOMBS_4), found, loop) == PICK_UP  # the ground looked at again
-    assert loop.leg(run, keys, found, lambda: None, lambda: False) == PICK_UP
+    assert loop.leg(run, keys, found, LegHands(lambda: None, lambda: False)) == PICK_UP
     assert next_leg(at(CATACOMBS_4), found, loop) == LEAVE  # landed, nothing: left
 
 
@@ -1010,7 +1027,7 @@ def test_a_fight_long_over_leaves_her_level_with_no_wait():
     loop.fought = (GAME, run.clock() - DROPS_LAND)
     begun = run.clock()
 
-    assert loop.leg(run, keys, found, lambda: None, lambda: False) == PICK_UP
+    assert loop.leg(run, keys, found, LegHands(lambda: None, lambda: False)) == PICK_UP
     assert run.clock() - begun < 0.5
     assert next_leg(at(CATACOMBS_4), found, loop) == LEAVE
 
@@ -1026,7 +1043,7 @@ def test_a_trip_for_room_makes_its_own_session_after_one_the_game_began_with():
     loop = Loop(kind=ANDARIEL, prebuffed=GAME, chosen=True, trip_due=True, fortressed=GAME, visited=GAME)
     loop.start()
     with suppress(Abort):  # (the fakes' portal: the leg's state is what counts)
-        loop.leg(play.run(), keys, found, lambda: None, lambda: False)
+        loop.leg(play.run(), keys, found, LegHands(lambda: None, lambda: False))
     assert loop.trip == GAME
     assert loop.visited is None  # the game's own visit is not the trip's
     assert next_leg(at(ROGUE_ENCAMPMENT), found, loop) == TO_THE_FORTRESS
@@ -1046,10 +1063,10 @@ def test_a_trip_for_room_is_a_whole_session_whatever_the_cells_count():
 
 def test_an_andariel_visit_to_jamella_buys_one_key_stack():
     # The player, 2026-10-18: "probably we don't need 2x sets of keys for non LK loop; LK loop needs 2x12 keys"
+    from inventory_tracking.macros.game.records import Pack
     from inventory_tracking.macros.loop import ANDARIEL, LK
     from inventory_tracking.macros.portal import FROM_SLING
     from inventory_tracking.macros.shop import KEY, buys
-    from inventory_tracking.macros.world import Pack
 
     def wants(keys: int, most: int) -> bool:
         key = next(b for b in buys(FROM_SLING, most) if b.txt == KEY)
@@ -1078,14 +1095,14 @@ def test_her_drops_are_waited_for_from_her_kill_not_from_the_loot_leg(monkeypatc
     loop.start()
 
     monkeypatch.setitem(bosses.KILLED_AT, 'Andariel', time.monotonic() - 10.0)  # her pack fought 10 s on
-    assert loop.leg(run, keys, found, lambda: None, lambda: False) == PICK_UP
+    assert loop.leg(run, keys, found, LegHands(lambda: None, lambda: False)) == PICK_UP
     assert not [w for w in waits if w > 0.2]
     assert next_leg(at(CATACOMBS_4), found, loop) == LEAVE
 
     found = Progress(ROUTES, PERFORMED, lambda: frozenset({'Andariel'}))
     found.note(GAME, CATACOMBS_4)
     monkeypatch.setitem(bosses.KILLED_AT, 'Andariel', time.monotonic() - 0.5)  # just died
-    loop.leg(run, keys, found, lambda: None, lambda: False)
+    loop.leg(run, keys, found, LegHands(lambda: None, lambda: False))
     assert any(DROPS_AFTER_KILL - 0.6 < w <= DROPS_AFTER_KILL - 0.5 for w in waits)
 
 
@@ -1108,7 +1125,7 @@ def test_the_gheed_stash_leg_forgets_the_level_runs_give_up_of_the_refused_charm
     loop.own = frozenset({(theirs.txt, 0, 0), (cube.txt, 1, 0)})
     loop.forget = lambda: forgot.append(True)
     loop_module.SHUNNED[3821340916] = 1e9  # the pickup step's own (loop.py holds it by its import)
-    assert loop.leg(play.run(), keys, progress, lambda: None, lambda: False) == GHEED_STASH
+    assert loop.leg(play.run(), keys, progress, LegHands(lambda: None, lambda: False)) == GHEED_STASH
     assert loop.gheed == PICK
     assert forgot == [True]
     assert not loop_module.SHUNNED
@@ -1127,7 +1144,7 @@ def test_a_game_is_its_name_and_the_players_unit_and_a_change_is_logged(caplog):
     assert loop.observe(World(False, (), 'cyber81', ())) == GameId('cyber81', 7)  # the lobby keeps the last
     assert loop.observe(replace(first, player=None)) == GameId('cyber81', 7)  # a game still loading too
     assert loop.observe(replace(first, player=player(LOWER_KURAST, unit_id=9))) == GameId('cyber81', 9)
-    assert loop.game_id == ('cyber81', 9)  # the key `Sightings` keeps (world.py `Loot.game`)
+    assert loop.game_id == ('cyber81', 9)  # the key `Sightings` keeps (game/records.py `Loot.game`)
     changes = [line for line in caplog.text.splitlines() if 'Macro: loop: game changed' in line]
     assert len(changes) == 2
     assert changes[0].endswith('Macro: loop: game changed: cyber81 (player unit 7), was none')
@@ -1140,7 +1157,7 @@ def test_a_leg_observes_the_game_it_is_made_in(caplog):
     play = Game(at(LOWER_KURAST))
     caplog.set_level('INFO')
     with suppress(Abort):
-        loop.leg(play.run(), lambda _world, skills=None: KEYS, lk, lambda: None, lambda: False)
+        loop.leg(play.run(), lambda _world, skills=None: KEYS, lk, LegHands(lambda: None, lambda: False))
     assert loop.game_id == (GAME, 1)
     assert caplog.text.count('Macro: loop: game changed') == 1
 
@@ -1199,7 +1216,7 @@ def test_the_pause_after_recoveries_is_not_stood_in_a_battle_level_the_game_is_l
     loop.start()
     recovered_past_the_limit(loop)
     with caplog.at_level('INFO'):
-        assert loop.leg(play.run(), keys, progress_in(LOWER_KURAST), lambda: None, lambda: False) == LEAVE
+        assert loop.leg(play.run(), keys, progress_in(LOWER_KURAST), LegHands(lambda: None, lambda: False)) == LEAVE
     assert play.clock.now < RECOVERY_PAUSE / 2  # not stood: Save and Exit at once
     assert 'Save and Exit' in play.said
     assert 'the pause after recoveries (30 s) is not stood in level 79: the game is left first' in caplog.text
@@ -1212,5 +1229,5 @@ def test_the_pause_after_recoveries_is_waited_in_a_town():
     loop = Loop(on=True, prebuffed=GAME)
     loop.start()
     recovered_past_the_limit(loop)
-    assert loop.leg(play.run(), keys, progress_in(PANDEMONIUM_FORTRESS), lambda: None, lambda: False) == LEAVE
+    assert loop.leg(play.run(), keys, progress_in(PANDEMONIUM_FORTRESS), LegHands(lambda: None, lambda: False)) == LEAVE
     assert play.clock.now >= RECOVERY_PAUSE - 1  # the town: the pause kept, as before

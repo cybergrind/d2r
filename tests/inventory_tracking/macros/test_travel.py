@@ -17,6 +17,7 @@ from inventory_tracking.common import LOG
 from inventory_tracking.levels.model import Ground, Walkable, pack_cells
 from inventory_tracking.macros.actuator import Abort, Cancelled, Hand
 from inventory_tracking.macros.build import JumpSource, NoWay
+from inventory_tracking.macros.game.records import Teleport
 from inventory_tracking.macros.movement import SHARED, TELEPORT_JUMP, OwnTeleport, StaffTeleport, Walk
 from inventory_tracking.macros.routines import SWAP_SETTLE
 from inventory_tracking.macros.skills import TELEPORT
@@ -58,7 +59,6 @@ from inventory_tracking.macros.travel import (
     way_left,
     way_leg,
 )
-from inventory_tracking.macros.world import Teleport
 from tests.inventory_tracking.macros.fakes import HUNT_SLOTS, KEYS, Game, world
 from tests.inventory_tracking.macros.moves import ASPECT, HERE, IN_HAND, NOW, facts, wall_with_a_gap, walled
 

@@ -22,11 +22,11 @@ from collections.abc import Callable, Iterable, Sequence
 from inventory_tracking.common import LOG
 from inventory_tracking.levels.guide import place
 from inventory_tracking.levels.model import Poi, Target
+from inventory_tracking.macros.game.records import Monster, Thing
 from inventory_tracking.macros.goals import STAND_NEAR, Goal, route_goal
 from inventory_tracking.macros.route import staged
 from inventory_tracking.macros.teleport import USES, classes
 from inventory_tracking.macros.travel import STANDING
-from inventory_tracking.macros.world import Monster, Thing
 from inventory_tracking.native.layout import TILE_UNITS
 from inventory_tracking.routes.model import LEAVE, LOOT, STAND, USE
 from inventory_tracking.routes.progress import Place, Progress

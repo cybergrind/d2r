@@ -17,6 +17,7 @@ from collections.abc import Sequence
 from inventory_tracking.common import LOG
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.engine import Run
+from inventory_tracking.macros.game.records import Carried, World
 from inventory_tracking.macros.shop import (
     LINE,
     WALK_SECONDS,
@@ -28,7 +29,6 @@ from inventory_tracking.macros.shop import (
     walk_until,
     whereabouts,
 )
-from inventory_tracking.macros.world import Carried, World
 
 
 __all__ = ['CAIN', 'identify_all']

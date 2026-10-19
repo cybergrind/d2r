@@ -4,9 +4,7 @@ import pytest
 
 from inventory_tracking.builds.warlock.skills import CONSUME, HEX_PURGE, PSYCHIC_WARD, SUMMON_DEFILER
 from inventory_tracking.input.keybindings import RECORD
-from inventory_tracking.macros.skills import SWAP_WEAPONS, skill_keys
-from inventory_tracking.macros.world import (
-    PATH_RECORD,
+from inventory_tracking.macros.game.decode import (
     decode_slots,
     doors,
     local_player,
@@ -16,6 +14,8 @@ from inventory_tracking.macros.world import (
     unit_census,
     unit_stats,
 )
+from inventory_tracking.macros.game.layout import PATH_RECORD
+from inventory_tracking.macros.skills import SWAP_WEAPONS, skill_keys
 from inventory_tracking.native.layout import LEVEL_AREA_ID, PATH_ROOM1, ROOM1_ROOM2, ROOM2_LEVEL
 from tests.inventory_tracking.fake_memory import Memory
 from tests.inventory_tracking.macros.fakes import SLOTS
@@ -328,7 +328,8 @@ def test_door_objects_are_read_with_their_mode_and_static_position():
 
 
 def hover_memory(records):
-    from inventory_tracking.macros.world import HOVER_RVA, GameMemory
+    from inventory_tracking.macros.game.layout import HOVER_RVA
+    from inventory_tracking.macros.game.memory import GameMemory
 
     memory = object.__new__(GameMemory)
     memory.base, memory.hover_raw = 0x1000, None
@@ -355,7 +356,7 @@ def test_a_hover_record_without_its_flag_is_a_leftover():
 
 def test_what_the_marks_point_at_is_prized_and_the_rest_of_the_pickup_is_not():
     """user, 2026-10-12: a full inventory stops the pickup press only for what is "very valuable"."""
-    from inventory_tracking.macros.world import prized
+    from inventory_tracking.macros.game.records import prized
 
     assert prized('rune', marked=True)  # a rune from the marks' own minimum up
     assert not prized('rune', marked=False)  # the low runes the pickup takes besides
@@ -368,7 +369,7 @@ def test_what_the_marks_point_at_is_prized_and_the_rest_of_the_pickup_is_not():
 def test_a_unique_or_set_item_the_filter_shows_is_prized_and_magic_rare_or_white_gear_is_not():
     """The player, 2026-10-14 (rca/2026-10-14/run-1214-findings.md §3.1): the run walked past a Unique Plate Mail
     with the inventory full and the player fetched it by hand; the Magic Bone Knife stays as ruled on 2026-10-12."""
-    from inventory_tracking.macros.world import NAMED, prized, shown_source
+    from inventory_tracking.macros.game.records import NAMED, prized, shown_source
 
     unique, set_item, magic, rare, superior = 7, 5, 4, 6, 3  # ItemData quality (loot/shown.py RARITIES)
     assert shown_source(unique) == shown_source(set_item) == NAMED
@@ -385,7 +386,8 @@ def test_an_item_the_character_carried_and_the_player_put_down_is_left_for_the_g
     warning), by its class and place for the rest of the game."""
     from dataclasses import replace
 
-    from inventory_tracking.macros.world import VALUABLE, Drop, Loot, PutDown
+    from inventory_tracking.macros.game.kept import PutDown
+    from inventory_tracking.macros.game.records import VALUABLE, Drop, Loot
 
     game = ('cyber32', 7)
     sword = Drop(490846825, 7771.0, 5358.0, 'Superior Crystal Sword', VALUABLE, (2, 3), prized=False)
@@ -412,7 +414,8 @@ def test_an_item_picked_up_between_a_looks_drops_and_its_grids_is_not_put_down(c
     clicked it at 58.05 and had it 0.61 s later; one `Loot` read it on the ground (the drops are read first) and in
     the inventory (the grids last), and the memory said "put down" for the macro's own pickup. A drop counts as put
     down only when an earlier look had it carried."""
-    from inventory_tracking.macros.world import VALUABLE, Drop, Loot, PutDown
+    from inventory_tracking.macros.game.kept import PutDown
+    from inventory_tracking.macros.game.records import VALUABLE, Drop, Loot
 
     game = ('cbyer9', 7)
     amulet = Drop(2285477250, 7793.0, 5296.0, 'Amulet', VALUABLE, (1, 1), prized=False)
@@ -431,7 +434,7 @@ def test_an_item_picked_up_between_a_looks_drops_and_its_grids_is_not_put_down(c
 
 
 def test_the_carried_items_are_the_item_pointers_of_the_characters_grids():
-    from inventory_tracking.macros.world import held_items
+    from inventory_tracking.macros.game.decode import held_items
 
     grids = {0: {'width': 2, 'height': 1, 'cells': [0x1000, 0]}, 5: {'width': 1, 'height': 2, 'cells': [0, 0x2000]}}
     assert held_items(grids) == frozenset({0x1000, 0x2000})
@@ -441,7 +444,9 @@ def test_the_carried_items_are_the_item_pointers_of_the_characters_grids():
 def test_a_white_daggers_sockets_and_staff_mods_are_read_off_the_ground_and_said():
     # The player, 18:56 on 2026-10-17: "we need good staff mod and we need 3os" (macros/pickmode.py `void_base`)
     from inventory_tracking.items.identity import ITEM_DATA_SIZE
-    from inventory_tracking.macros.world import BASE_ROLLS_SEEN, FULL_STATS, VALUABLE, Drop, Rolls, rolled, rolls
+    from inventory_tracking.macros.game.decode import BASE_ROLLS_SEEN, rolled, rolls
+    from inventory_tracking.macros.game.layout import FULL_STATS
+    from inventory_tracking.macros.game.records import VALUABLE, Drop, Rolls
 
     BASE_ROLLS_SEEN.clear()
     stats_at, array = 0x1000, 0x2000
@@ -469,13 +474,18 @@ def test_a_white_daggers_sockets_and_staff_mods_are_read_off_the_ground_and_said
 def test_enigmas_teleport_is_the_characters_own_and_the_staff_on_the_swap_is_left_alone(monkeypatch):
     # The live capture of 22:26 on 2026-10-17: Enigma on the body (location 3) gives (97, 54, 1), "+1 to Teleport";
     # Naj's Puzzler, an Elder Staff (class 261), on the swap (11) holds 69/69 Teleport charges, (204, 54 << 6 | 11)
-    from inventory_tracking.macros import world
+    from inventory_tracking.macros.game import (
+        decode as game_decode,
+        layout as game_layout,
+        memory as game_memory,
+        records as game_records,
+    )
 
     enigma, staff = (
         {'unit_id': 1, 'txt_id': 373, 'stats_pointer': 100},
         {'unit_id': 2, 'txt_id': 261, 'stats_pointer': 200},
     )
-    offset = world.TELEPORT_STATS
+    offset = game_layout.TELEPORT_STATS
     assert offset is not None
     stats = {
         100 + offset: [{'id': 31, 'layer': 0, 'raw': 1005}, {'id': 97, 'layer': 54, 'raw': 1}],
@@ -489,15 +499,16 @@ def test_enigmas_teleport_is_the_characters_own_and_the_staff_on_the_swap_is_lef
 
     def location(spot: int) -> bytes:
         data = bytearray(0x60)
-        data[world.ITEM_BODY_LOCATION] = spot
+        data[game_layout.ITEM_BODY_LOCATION] = spot
         return bytes(data)
 
-    monkeypatch.setattr(world, 'read_stats', read_stats)
-    memory = object.__new__(world.GameMemory)
+    for module in (game_decode, game_memory):
+        monkeypatch.setattr(module, 'read_stats', read_stats)
+    memory = object.__new__(game_memory.GameMemory)
     memory.worn_held, memory.worn_skills_of = None, frozenset()
     worn = [(staff, location(11))]
     monkeypatch.setattr(memory, '_equipped', lambda: iter(worn))
-    assert memory.teleport() == world.Teleport(69, 69, in_hand=False)  # the staff alone: its charges, swapped in
+    assert memory.teleport() == game_records.Teleport(69, 69, in_hand=False)  # the staff alone: its charges, swapped in
     assert memory.own_teleport() is False
     worn.append((enigma, location(3)))
     assert memory.own_teleport() is True
@@ -513,27 +524,32 @@ def test_enigmas_teleport_is_the_characters_own_and_the_staff_on_the_swap_is_lef
 def test_the_slings_town_portal_is_a_worn_skill_and_an_unreadable_look_keeps_the_last_read(monkeypatch):
     # uniqueitems.txt Sling (a Ring, `rin`): `oskill` "Townportal O Skill" 1, item_nonclassskill (97) with skill 411 its
     # layer, as Enigma's Teleport is (97, 54, 1); the player, 2026-10-18: the Sling in place of the tome
-    from inventory_tracking.macros import world
+    from inventory_tracking.macros.game import (
+        decode as game_decode,
+        layout as game_layout,
+        memory as game_memory,
+    )
     from inventory_tracking.macros.skills import SLING_TOWN_PORTAL
 
     sling, enigma = (
         {'unit_id': 1, 'txt_id': 537, 'stats_pointer': 100},
         {'unit_id': 2, 'txt_id': 373, 'stats_pointer': 200},
     )
-    offset = world.TELEPORT_STATS
+    offset = game_layout.TELEPORT_STATS
     assert offset is not None
     stats = {
         100 + offset: [{'id': 105, 'layer': 0, 'raw': 10}, {'id': 97, 'layer': SLING_TOWN_PORTAL, 'raw': 1}],
         200 + offset: [{'id': 97, 'layer': 54, 'raw': 1}],
     }
-    monkeypatch.setattr(world, 'read_stats', lambda read, address: stats[address])
+    for module in (game_decode, game_memory):
+        monkeypatch.setattr(module, 'read_stats', lambda read, address: stats[address])
 
     def location(spot: int) -> bytes:
         data = bytearray(0x60)
-        data[world.ITEM_BODY_LOCATION] = spot
+        data[game_layout.ITEM_BODY_LOCATION] = spot
         return bytes(data)
 
-    memory = object.__new__(world.GameMemory)
+    memory = object.__new__(game_memory.GameMemory)
     memory.worn_held, memory.worn_skills_of = None, frozenset()
     worn: list = []
     unreadable = []
@@ -562,7 +578,7 @@ def test_the_slings_town_portal_is_a_worn_skill_and_an_unreadable_look_keeps_the
 def test_the_most_worn_item_is_the_least_share_of_its_durability_with_the_ethereal_and_indestructible_aside():
     # The live capture of 22:26 on 2026-10-17: Enigma (Mage Plate, class 373) at 33 of 60, Spirit at 86 of 86
     from inventory_tracking.items.identity import ETHEREAL_FLAG
-    from inventory_tracking.macros.world import Wear, least_worn
+    from inventory_tracking.macros.game.records import Wear, least_worn
 
     def lasting(now: int, most: int) -> list[dict]:
         return [{'id': 72, 'layer': 0, 'raw': now}, {'id': 73, 'layer': 0, 'raw': most}]
@@ -576,20 +592,25 @@ def test_the_most_worn_item_is_the_least_share_of_its_durability_with_the_ethere
 
 def test_a_call_to_arms_in_either_set_is_read_from_the_worn_items(monkeypatch):
     # CybergrindAA's swap since 22:58 on 2026-10-17: the Call to Arms (a Flail, class 21) at location 11
-    from inventory_tracking.macros import world
+    from inventory_tracking.macros.game import (
+        decode as game_decode,
+        layout as game_layout,
+        memory as game_memory,
+    )
 
-    offset = world.TELEPORT_STATS
+    offset = game_layout.TELEPORT_STATS
     assert offset is not None
     cta, hoto = {'unit_id': 1, 'txt_id': 21, 'stats_pointer': 100}, {'unit_id': 2, 'txt_id': 21, 'stats_pointer': 200}
     stats = {100 + offset: [{'id': 97, 'layer': 149, 'raw': 4}], 200 + offset: [{'id': 127, 'layer': 0, 'raw': 3}]}
-    monkeypatch.setattr(world, 'read_stats', lambda read, address: stats[address])
+    for module in (game_decode, game_memory):
+        monkeypatch.setattr(module, 'read_stats', lambda read, address: stats[address])
 
     def location(spot: int) -> bytes:
         data = bytearray(0x60)
-        data[world.ITEM_BODY_LOCATION] = spot
+        data[game_layout.ITEM_BODY_LOCATION] = spot
         return bytes(data)
 
-    memory = object.__new__(world.GameMemory)
+    memory = object.__new__(game_memory.GameMemory)
     memory.orders_of, memory.cta_seen = {}, None
     worn = [(hoto, location(4)), (cta, location(11))]
     monkeypatch.setattr(memory, '_equipped', lambda: iter(worn))
@@ -598,7 +619,7 @@ def test_a_call_to_arms_in_either_set_is_read_from_the_worn_items(monkeypatch):
     worn[1] = (cta, location(4))  # swapped in: still worn
     worn[0] = (hoto, location(11))
     assert memory.cta() is True
-    assert memory.hands() == (world.CTA_CODE,)  # the set in hand reads it as the Call to Arms, not `fla`
+    assert memory.hands() == (game_memory.CTA_CODE,)  # the set in hand reads it as the Call to Arms, not `fla`
     memory.cta_seen = None
     worn[:] = [(hoto, location(4))]
     assert memory.cta() is False
@@ -622,7 +643,8 @@ def stash_grid(cells: dict[int, int]) -> dict:
 def test_the_stash_view_orders_the_shared_pages_and_drops_the_resource_tabs_owner():
     # collection/research.md R1: the shared owners ordered by +0xD8 (1105634203 -> 1227, ..., 2719888953 -> 1314), the
     # empty sixth unit (order 1329) owns the Gems, Materials and Runes tabs; the stacks are owner-less page-4 units
-    from inventory_tracking.macros.world import NO_OWNER, stash_view_of
+    from inventory_tracking.macros.game.decode import stash_view_of
+    from inventory_tracking.macros.game.layout import NO_OWNER
 
     main = stash_owner(1, 1226, stats=(6, 7, 12))
     shared = [stash_owner(u, o) for u, o in ((50, 1314), (10, 1227), (30, 1289), (20, 1268), (40, 1308), (60, 1329))]
@@ -672,8 +694,9 @@ def test_the_stash_view_orders_the_shared_pages_and_drops_the_resource_tabs_owne
 def test_an_items_tree_and_class_skills_are_read_off_their_layers():
     # 08:17 on 2026-10-19: Wraithra Clasp, +2 to Summoning Skills (188 on the tree's layer), read on layer 0 alone had
     # no skills and was sold; keepers.py keeps a rare amulet with +2 skills
+    from inventory_tracking.macros.game.decode import item_values
+    from inventory_tracking.macros.game.records import Carried
     from inventory_tracking.macros.keepers import amulet_keeper
-    from inventory_tracking.macros.world import Carried, item_values
 
     read = [
         {'id': 188, 'layer': 41, 'raw': 2},  # +2 to a skill tree

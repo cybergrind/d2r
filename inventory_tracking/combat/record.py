@@ -26,7 +26,7 @@ in the first frame that has it and in every frame it differs from the one writte
 - `o`: the level's objects a mark may name and its containers (seals, chests, portals), as
   [unit, class, mode, x, y, selectable]: a seal's change of mode is the moment it was opened, which a
   seal boss's pack is timed from;
-- `s`: the character's state words, raw hex (world.py STATE_RUN): curses, poison, a skill's delay (a
+- `s`: the character's state words, raw hex (game/layout.py STATE_RUN): curses, poison, a skill's delay (a
   Blade Warp the game refuses);
 - `w`: the Teleport staff as [charges, most, in hand]: the weapon set held and what a hop costs;
 - `b`: the belt's cells by item class: a potion drunk by anyone;
@@ -48,14 +48,14 @@ The same day, after a review of the recorder against the goal of re-creating any
   (combat/macro_state.py: attack mode, the routine, the build and its settings, the route's facts and
   stages, the card's mark);
 - `records.jsonl`: the character's and each monster's unit record raw (0x1C0 bytes, and the 0x58 of
-  monster data after them), its state words and, in a striking mode, the skill it is using (world.py
+  monster data after them), its state words and, in a striking mode, the skill it is using (macros/game/
   `skill_in_use`), as [unit, record, states, skill] in hex, at every change of its mode and once in
   RECORD_SECONDS. What the client's code says lies in them (rca/2026-10-13/re-findings.md: the animation
   frame at +0x5C, its length at +0x64, the boss's row at +0x2A of the monster data, state 185 `cooldown`)
   can be read out of every take that has them, also after it is found;
 - `h`: the unit the game holds under the pointer, as [unit type, unit id] (None: nothing), at a change
-  (world.py `hovered`): what a click landed on (a seal's click that did not take, 12:36:28 that day);
-- `k`: the head of the client's clock object, raw hex, in every frame (world.py `tick`): the game's own
+  (game/memory.py `hovered`): what a click landed on (a seal's click that did not take, 12:36:28 that day);
+- `k`: the head of the client's clock object, raw hex, in every frame (game/memory.py `tick`): the game's own
   tick, to tell a frame sampled twice or never;
 - `units.jsonl` holds the companions too (the mercenary, the pets), with their stat lists;
 - the manifest: `clock` (the frame clock and the wall clock read together), `game` (its name),
@@ -128,18 +128,10 @@ from inventory_tracking.input.keyboard import X11Keyboard
 from inventory_tracking.items.identity import QUALITY_OFFSET
 from inventory_tracking.items.metadata import item_base
 from inventory_tracking.levels.model import Level
+from inventory_tracking.macros.game.layout import ITEM_UNIT, NO_OWNER
+from inventory_tracking.macros.game.memory import GameMemory
+from inventory_tracking.macros.game.records import Loot, Monster, Player, Teleport, Thing, World
 from inventory_tracking.macros.routines import ACTING
-from inventory_tracking.macros.world import (
-    ITEM_UNIT,
-    NO_OWNER,
-    GameMemory,
-    Loot,
-    Monster,
-    Player,
-    Teleport,
-    Thing,
-    World,
-)
 from inventory_tracking.native.layout import DEAD_MODES, TOWN_IDS
 from inventory_tracking.native.units import walk_units
 
@@ -227,12 +219,12 @@ class Sample:
     macro: bool = False  # a macro run was acting
     census: list[dict] | None = None  # the unit table census, when the sampler took one this frame
     things: tuple[Thing, ...] | None = None  # the objects a mark may name and the containers; None: unread
-    states: bytes | None = None  # the character's state words (world.py STATE_RUN)
+    states: bytes | None = None  # the character's state words (game/layout.py STATE_RUN)
     staff: Teleport | None = None  # the worn Teleport staff; None: none worn, or unread
     belt: tuple[int | None, ...] | None = None  # item class by belt cell
     loot: Loot | None = None  # the drops the pickup step would go for and the inventory's room; None: unread
     macro_state: dict[str, Any] | None = None  # what the macro carries (combat/macro_state.py); None: not asked
-    tick: bytes | None = None  # the head of the client's clock object (world.py `tick`)
+    tick: bytes | None = None  # the head of the client's clock object (game/memory.py `tick`)
     hovered: tuple[int, int] | None = None  # (unit type, unit id) under the pointer
     hover_read: bool = False  # the read of it was made (None then means nothing is under the pointer)
     items: dict[int, tuple[str | None, int | None]] | None = None  # drop unit id -> (item code, quality)

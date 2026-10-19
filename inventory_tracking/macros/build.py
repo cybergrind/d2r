@@ -41,8 +41,8 @@ from inventory_tracking.config import Config
 from inventory_tracking.levels.doors import Door
 from inventory_tracking.levels.model import Ground, Room
 from inventory_tracking.macros.engine import Run
+from inventory_tracking.macros.game.records import Monster, Teleport, World
 from inventory_tracking.macros.routines import LoadTrace
-from inventory_tracking.macros.world import Monster, Teleport, World
 from inventory_tracking.terror.danger import Pack
 
 

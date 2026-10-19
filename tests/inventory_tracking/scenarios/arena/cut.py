@@ -60,9 +60,9 @@ from inventory_tracking.combat.record import RESIST_STATS
 from inventory_tracking.combat.sim.monsters import MINION, PLAIN, rank_of
 from inventory_tracking.combat.takes import MonsterRow, Take, monsters_of, player_of
 from inventory_tracking.macros.cta import BATTLE_ORDERS
+from inventory_tracking.macros.game.layout import FULL_REJUVENATION, HERALD_TIER_STAT, NO_OWNER, SUPER_HEALING
 from inventory_tracking.macros.rotation import ELITE_LIFE
 from inventory_tracking.macros.routines import DEAD
-from inventory_tracking.macros.world import FULL_REJUVENATION, HERALD_TIER_STAT, NO_OWNER, SUPER_HEALING
 from inventory_tracking.native.layout import TILE_UNITS
 from inventory_tracking.terror.monsters import LEVEL_STAT
 from tests.inventory_tracking.macros.fakes import HUNT_SLOTS, OTHER_SET, PREBUFF_SET

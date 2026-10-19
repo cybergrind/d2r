@@ -13,6 +13,7 @@ import pytest
 from inventory_tracking.items.metadata import metadata
 from inventory_tracking.loot.shown import RARITIES
 from inventory_tracking.macros import pickup
+from inventory_tracking.macros.game.records import GOLD, HEALING, NAMED, VALUABLE, Drop, Loot, Rolls, has_room, prized
 from inventory_tracking.macros.lootpolicy import (
     GUARD,
     LOOP_HOLDS,
@@ -28,7 +29,6 @@ from inventory_tracking.macros.pickmode import MODES, REGULAR, SURE, TRADE, is_c
 from inventory_tracking.macros.pickup import choose, unshunned
 from inventory_tracking.macros.runner import MacroRunner
 from inventory_tracking.macros.sightings import Sightings
-from inventory_tracking.macros.world import GOLD, HEALING, NAMED, VALUABLE, Drop, Loot, Rolls, has_room, prized
 
 
 NORMAL, MAGIC, SET, RARE, UNIQUE = (RARITIES[name] for name in ('normal', 'magic', 'set', 'rare', 'unique'))
@@ -45,7 +45,7 @@ def class_of(name: str) -> int:
 
 
 def item(name: str, source: str, quality: int = NORMAL, *, marked: bool = False, rolls: Rolls | None = None) -> Drop:
-    """A drop as the read makes it (world.py `GameMemory.loot`): `prized` from its source and the marks."""
+    """A drop as the read makes it (game/memory.py `GameMemory.loot`): `prized` from its source and the marks."""
     return Drop(
         50, 5010.0, 5000.0, name, VALUABLE, (1, 1), prized=prized(source, marked=marked), source=source,
         txt=class_of(name), quality=quality, rolls=rolls,

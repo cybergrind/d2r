@@ -13,8 +13,8 @@ from inventory_tracking.builds.warlock.skills import ECHOING_STRIKE
 from inventory_tracking.combat.mechanics.tables import area_level, points_of, tables
 from inventory_tracking.combat.takes import Take
 from inventory_tracking.levels.model import Walkable
+from inventory_tracking.macros.game.layout import LYING_DEAD, NO_OWNER
 from inventory_tracking.macros.rotation import ELITE_LIFE
-from inventory_tracking.macros.world import LYING_DEAD, NO_OWNER
 from inventory_tracking.native.layout import HEALING_POTIONS, REJUVENATION_POTIONS
 from tests.inventory_tracking.scenarios.arena.cut import (
     ALWAYS_ASSUMED,

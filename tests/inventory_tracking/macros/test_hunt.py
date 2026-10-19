@@ -25,6 +25,7 @@ from inventory_tracking.combat.stance import CAMP_REACH
 from inventory_tracking.levels.model import Ground, Level, Room, Walkable, pack_cells
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.buffs import STATE_DISTRUST as HEX_DISTRUST
+from inventory_tracking.macros.game.records import HEALING, VALUABLE, Drop, Monster, Player, Teleport, World
 from inventory_tracking.macros.hunt import (
     MISSES_IN_A_ROW,
     NEARING_SECONDS,
@@ -41,7 +42,6 @@ from inventory_tracking.macros.hunt import (
 from inventory_tracking.macros.hunting.base import FOLLOW_SECONDS, SWEEP_UNITS
 from inventory_tracking.macros.skills import ATTACK, SWAP_WEAPONS, TELEPORT
 from inventory_tracking.macros.travel import JUMP_REACH, Step, attackable, step_walk
-from inventory_tracking.macros.world import HEALING, VALUABLE, Drop, Monster, Player, Teleport, World
 from inventory_tracking.native.layout import HIRELING_CLASS_ID
 from tests.inventory_tracking.macros.fakes import (
     BUILD,
@@ -2392,8 +2392,8 @@ def gheeds_run(*, gheeds: bool = True, swap: bool = True):
     answer to a refusal `swap`; the refusals asked and the run's ends."""
     from inventory_tracking.builds import pursuing
     from inventory_tracking.macros.charms import GHEEDS_FORTUNE, UNIQUE, grand_charm
+    from inventory_tracking.macros.game.records import Carried, Loot, Pack
     from inventory_tracking.macros.pursuit import FULL, Pursuit
-    from inventory_tracking.macros.world import Carried, Loot, Pack
 
     play = game()
     charm = Drop(60, 5004.0, 5000.0, "Unique Grand Charm (Gheed's Fortune?)", VALUABLE, (1, 3), txt=grand_charm(),
@@ -2491,7 +2491,8 @@ def test_no_side_drop_but_a_potion_while_the_runs_boss_is_in_reach(monkeypatch, 
     # 11:49:03 on 2026-10-18 (084856Z-37): one strike at Andariel, then "pursuit: Teleport toward Dol Rune ... 32 away";
     # back in reach at 11:49:09.6, dead at 11:49:11.56: 9.3 s in her window against a 3.6 s median
     from inventory_tracking.macros import buffs
-    from inventory_tracking.macros.world import SUPER_HEALING, Loot
+    from inventory_tracking.macros.game.layout import SUPER_HEALING
+    from inventory_tracking.macros.game.records import Loot
 
     monkeypatch.setattr(buffs, 'QUIET_BY_THE_BOSS', quiet)
     play = game()

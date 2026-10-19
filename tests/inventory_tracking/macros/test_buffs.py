@@ -17,8 +17,8 @@ from inventory_tracking.macros.buffs import (
     phase_keys,
 )
 from inventory_tracking.macros.build import Buff, BuffFacts, Build, Casting, Tried, whenever
+from inventory_tracking.macros.game.records import Monster, Player, World
 from inventory_tracking.macros.skills import ATTACK, SWAP_WEAPONS, TELEPORT
-from inventory_tracking.macros.world import Monster, Player, World
 from tests.inventory_tracking.macros.fakes import OTHER_SET, PREBUFF_SET, WINDOW, Game, world
 
 
@@ -400,7 +400,7 @@ def test_the_prebuffs_casts_are_the_age_attack_mode_reads_through_the_runs_share
 
 def test_hurt_is_a_loss_of_life_within_hurt_seconds_as_the_hunt_counts_it():
     from inventory_tracking.macros import buffs as executor, hunt
-    from inventory_tracking.macros.world import Loot
+    from inventory_tracking.macros.game.records import Loot
 
     assert executor.HURT_SECONDS == hunt.HURT_SECONDS  # the same rule as the hunt's `Facts.hurt`
     play = game()
@@ -423,7 +423,7 @@ def test_hurt_is_a_loss_of_life_within_hurt_seconds_as_the_hunt_counts_it():
 
 
 def test_hurt_is_not_known_better_than_hurt():
-    from inventory_tracking.macros.world import Loot
+    from inventory_tracking.macros.game.records import Loot
 
     play = game()
     run = play.run()
@@ -436,7 +436,7 @@ def test_hurt_is_not_known_better_than_hurt():
 
 
 def test_the_facts_ask_the_life_only_when_a_row_does():
-    from inventory_tracking.macros.world import Loot
+    from inventory_tracking.macros.game.records import Loot
 
     play = game()
     run = play.run()

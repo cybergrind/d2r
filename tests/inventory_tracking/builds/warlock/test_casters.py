@@ -8,8 +8,8 @@ import pytest
 from inventory_tracking.builds.warlock.casters import NEAR_SPOTS, SUMMON_SPOTS, open_spots, renew_consume
 from inventory_tracking.levels.model import Ground, Walkable, pack_cells
 from inventory_tracking.macros.actuator import Abort
+from inventory_tracking.macros.game.records import Monster
 from inventory_tracking.macros.routines import prebuff, world_point
-from inventory_tracking.macros.world import Monster
 from tests.inventory_tracking.macros.fakes import WINDOW, Game, world
 
 

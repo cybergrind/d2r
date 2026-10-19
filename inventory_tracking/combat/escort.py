@@ -20,7 +20,7 @@ from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
 
 from inventory_tracking.combat.harm import Look, SafetySettings, harm
-from inventory_tracking.macros.world import Monster
+from inventory_tracking.macros.game.records import Monster
 from inventory_tracking.native.layout import HIRELING_CLASS_ID, LIFE_FRACTION_MAX
 
 

@@ -9,7 +9,7 @@ from inventory_tracking.combat.survival import DrinkSettings
 from inventory_tracking.macros.actuator import Cancelled
 from inventory_tracking.macros.drinking import EVERY, Drinker, key_of, on_belt
 from inventory_tracking.macros.engine import Run
-from inventory_tracking.macros.world import HEALING, Drop, Loot
+from inventory_tracking.macros.game.records import HEALING, Drop, Loot
 from inventory_tracking.models import PotionType
 from tests.inventory_tracking.macros.fakes import SLOTS, Game, world
 

@@ -36,7 +36,7 @@ from inventory_tracking.combat.sim.monsters import (
     spark_points,
 )
 from inventory_tracking.combat.timeline import GAME_RATE
-from inventory_tracking.macros.world import MINION_FLAG
+from inventory_tracking.macros.game.layout import MINION_FLAG
 from tests.inventory_tracking.scenarios.arena.cut import MAIN
 from tests.inventory_tracking.scenarios.arena.evidence.blows import CHAMPION, MINION, SUPER, UNIQUE
 from tests.inventory_tracking.scenarios.arena.mobs import SHOT_FRAMES, SHOT_LANDS, is_ranged, shot_parts

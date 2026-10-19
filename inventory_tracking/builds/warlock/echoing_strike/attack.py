@@ -45,7 +45,7 @@ from inventory_tracking.builds.warlock.echoing_strike.mechanics import (
 )
 from inventory_tracking.builds.warlock.skills import ECHOING_STRIKE
 from inventory_tracking.combat.policy import ELITE_WEIGHT, MIN_FOCAL, MIN_SCORE, Choice, Foe, Observation, Point
-from inventory_tracking.macros.world import Monster
+from inventory_tracking.macros.game.records import Monster
 
 
 DUPLICATE = 1 / (2 * BLADES)  # skills.txt calc6 (100 / count) / 2: a cast's blades after the first on a monster and leg

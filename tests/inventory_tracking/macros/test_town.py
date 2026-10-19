@@ -6,6 +6,8 @@ from dataclasses import replace
 from inventory_tracking.items.grid import Grid
 from inventory_tracking.items.metadata import metadata
 from inventory_tracking.macros.cube import CUBE_CLASS, KEY_CLASS, keys_move, own_of
+from inventory_tracking.macros.game.decode import item_size
+from inventory_tracking.macros.game.records import Carried, Pack, Page, StashView
 from inventory_tracking.macros.town import (
     DEPOSIT_ROOM,
     RUNE_TRANSMUTES,
@@ -25,7 +27,6 @@ from inventory_tracking.macros.town import (
     surplus,
     uncubed,
 )
-from inventory_tracking.macros.world import Carried, Pack, Page, StashView, item_size
 
 
 def class_of(name: str) -> int:

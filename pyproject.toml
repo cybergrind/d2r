@@ -44,12 +44,12 @@ lines-after-imports = 2
 # (named suppressions such as `# ruff: ignore[lambda-assignment]` are a preview feature).
 preview = true
 ignore = [
-  'T201',  # print
-  'G004',  # logging format
-  'Q000',  # quotes
-  'Q001',  # quotes
-  'Q003',  # quotes
-  'RUF067',  # code in __init__.py: packages keep their registries there (user, 2026-10-15)
+  'print',
+  'logging-f-string',
+  'bad-quotes-inline-string',
+  'bad-quotes-multiline-string',
+  'avoidable-escaped-quote',
+  'non-empty-init-module',  # packages keep their registries in __init__.py (user, 2026-10-15)
 ]
 fixable = ['ALL']
 select = [
@@ -72,7 +72,7 @@ exclude = []
 
 [tool.ruff.lint.per-file-ignores]
 # Tests compare exact floats on purpose: golden values and constants the code under test returns unchanged.
-'tests/**' = ['RUF069']
+'tests/**' = ['float-equality-comparison']
 
 [tool.ruff.lint.flake8-quotes]
 docstring-quotes = 'double'
@@ -84,8 +84,8 @@ testpaths = ['tests']
 markers = ['slow: a full arena play (tests/inventory_tracking/scenarios/conftest.py SLOW); skipped by -m "not slow"']
 
 [tool.pyrefly]
-# Scope the type checker to the package under active development; pricing/tools are
-# standalone scripts with their own import style and an undeclared numpy dependency.
+# Scope the type checker to the package under active development; pricing waits for its own pass
+# (rca/2026-10-19/cleanup/pricing.md, "Pyrefly on pricing").
 project-includes = ['inventory_tracking', 'tests']
 project-excludes = ['**/__pycache__', '.venv', 'inventory_tracking/runs']
 python-version = '3.14'

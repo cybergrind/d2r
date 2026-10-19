@@ -9,8 +9,8 @@ import pytest
 from inventory_tracking.builds.generic import GENERIC
 from inventory_tracking.config import PLAYER_HEALING
 from inventory_tracking.macros import runner as runner_module
+from inventory_tracking.macros.game.layout import DEFILER_CLASS, FULL_REJUVENATION, SUPER_HEALING
 from inventory_tracking.macros.runner import ATTACK, HUNT_ELITES, PICKUP, PREBUFF, TELEPORT
-from inventory_tracking.macros.world import DEFILER_CLASS, FULL_REJUVENATION, SUPER_HEALING
 from tests.inventory_tracking.macros.fakes import BUILD
 from tests.inventory_tracking.scenarios.arena import driver
 from tests.inventory_tracking.scenarios.arena.driver import Play, Press, play

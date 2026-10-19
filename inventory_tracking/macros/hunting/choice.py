@@ -28,6 +28,17 @@ from inventory_tracking.macros.build import Intent
 from inventory_tracking.macros.drinking import on_belt
 from inventory_tracking.macros.drop_ledger import GATHER_TRIES
 from inventory_tracking.macros.engine import Run
+from inventory_tracking.macros.game.records import (
+    HEALING,
+    REJUVENATION,
+    VALUABLE,
+    Drop,
+    Loot,
+    Monster,
+    Thing,
+    World,
+    has_room,
+)
 from inventory_tracking.macros.goals import (
     CLEAR_WAY,
     PICK_NEAR,
@@ -90,7 +101,6 @@ from inventory_tracking.macros.shacks import shack_thing
 from inventory_tracking.macros.sight import clear_shot
 from inventory_tracking.macros.supply import detour, low, worth
 from inventory_tracking.macros.travel import PRESSED, STANDING, Point, clear_line, label, open_reaches, walked_length
-from inventory_tracking.macros.world import HEALING, REJUVENATION, VALUABLE, Drop, Loot, Monster, Thing, World, has_room
 from inventory_tracking.models import PotionType
 from inventory_tracking.native.layout import TILE_UNITS
 from inventory_tracking.routes.model import FIGHT, USE
@@ -241,7 +251,7 @@ def again(self: Hunter, run: Run, drops: Sequence[Drop], here: Point, world: Wor
     2026-10-14 (rca/2026-10-14/run-1214-findings.md §3.2): the Flawless Emerald clicked four times round a wall
     corner from 18.3 away was given up, and 2 s later the character passed 5.7 from it on a clear line and went
     on; the player went back for it by hand. Once a drop: a click that takes nothing from there is not looped
-    on. What the player put down is never among `drops` (world.py `PutDown`: the runner's loot passes through
+    on. What the player put down is never among `drops` (game/kept.py `PutDown`: the runner's loot passes through
     it). The level's ground is read only when a drop is a candidate."""
     spent = [
         d
@@ -342,7 +352,7 @@ def stay_by(self: Hunter, run: Run, here: Point, *, wanted: bool = True, foes: S
     player, 2026-10-13: "when valuable doesn't fit: we need to stop near it"): the level run stands by it
     (goals.py `WAIT`). Not magic, rare or white equipment taken only because the loot filter shows it
     (`Loot.shown`: the player, 2026-10-12, "allow moving when the item isn't very valuable"); a unique or set
-    item the filter shows is stood by (world.py `NAMED`: the player, 2026-10-14, the Unique Plate Mail of
+    item the filter shows is stood by (game/records.py `NAMED`: the player, 2026-10-14, the Unique Plate Mail of
     run-1214-findings.md §3.1), and not one a press went on from
     (`waived`). The card's warning says it while it lasts; taken back after. Not `wanted`: a drop to take
     comes first (the room may have come), and only the warning is taken back."""

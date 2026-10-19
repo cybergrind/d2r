@@ -17,7 +17,7 @@ from inventory_tracking.combat.sim.monsters import (
     shooter_of,
 )
 from inventory_tracking.levels.model import Walkable, pack_cells
-from inventory_tracking.macros.world import LYING_DEAD, NO_OWNER
+from inventory_tracking.macros.game.layout import LYING_DEAD, NO_OWNER
 from inventory_tracking.native.layout import TILE_UNITS
 from tests.inventory_tracking.scenarios.arena.evidence.sure import sure
 from tests.inventory_tracking.scenarios.arena.mobs import (

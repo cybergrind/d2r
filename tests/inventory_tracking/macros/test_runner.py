@@ -10,11 +10,12 @@ import pytest
 from inventory_tracking.macros import runner as runner_module
 from inventory_tracking.macros.actuator import Abort, Cancelled, Flipped
 from inventory_tracking.macros.engine import Run
+from inventory_tracking.macros.game.memory import GameMemory
+from inventory_tracking.macros.game.records import Pack
 from inventory_tracking.macros.hunt import Hunter
 from inventory_tracking.macros.loop import RECOVERIES, Dead
 from inventory_tracking.macros.runner import MacroRunner
 from inventory_tracking.macros.town import Exit
-from inventory_tracking.macros.world import GameMemory, Pack
 from inventory_tracking.routes.model import Route, level
 from inventory_tracking.routes.progress import Progress
 from tests.inventory_tracking.macros.fakes import BUILD, KEYS, Game, character_of, player, world
@@ -55,7 +56,7 @@ def test_loop_town_callback_uses_the_same_shared_visit(monkeypatch):
     monkeypatch.setattr(runner_module, 'note_view', lambda *_args: None)
     visited = []
     monkeypatch.setattr(runner, '_shared_town_visit', lambda _run, exit, _gems: visited.append(exit))
-    monkeypatch.setattr(runner.loop, 'leg', lambda *_args, **kwargs: kwargs['visit'](Exit.WAYPOINT))
+    monkeypatch.setattr(runner.loop, 'leg', lambda run, keys, progress, hands, **kwargs: hands.visit(Exit.WAYPOINT))
 
     runner.perform(run, run.actuator, runner_module.LOOP, KEYS)
 
@@ -1352,8 +1353,8 @@ def test_three_presses_of_the_loop_key_switch_its_run_and_a_restart_keeps_it():
 
 
 def test_the_loops_pickup_mode_filters_the_drops_only_with_the_loop_on():
+    from inventory_tracking.macros.game.records import VALUABLE, Drop, Loot
     from inventory_tracking.macros.pickmode import REGULAR
-    from inventory_tracking.macros.world import VALUABLE, Drop, Loot
 
     runner = make(lambda cancelled, routine: None, [])
     blade = Drop(1, 0.0, 0.0, 'Magic Blade', VALUABLE, prized=False, source='shown', txt=0, quality=4)
@@ -1388,8 +1389,8 @@ class _Run:
 def test_the_loop_goes_back_for_a_valuable_it_saw_and_no_press_picked_up(monkeypatch):
     # The Flawless Emerald of 08:58:34 on 2026-10-17 (routes/lower-kurast-loop-plan.md §14): seen in a flight, 104
     # units off when the run ended and no longer read; the "what is left" press found nothing, Town Portal followed
+    from inventory_tracking.macros.game.records import VALUABLE, Drop, Loot
     from inventory_tracking.macros.pickup import FETCH_HOPS
-    from inventory_tracking.macros.world import VALUABLE, Drop, Loot
 
     gone_to = []
     monkeypatch.setattr(
@@ -1412,8 +1413,8 @@ def test_the_loop_goes_back_for_a_valuable_it_saw_and_no_press_picked_up(monkeyp
 def test_a_full_stash_stack_skips_its_rune_but_never_a_gem():
     # 15:19:42 on 2026-10-17: a Flawless Amethyst, its stash stack at 99, was left on the ground twice (the player:
     # "we just left flawlest amethyst and left the game. something is wrong"); the ruling was the runes'
+    from inventory_tracking.macros.game.records import VALUABLE, Drop, Loot
     from inventory_tracking.macros.pickmode import REGULAR
-    from inventory_tracking.macros.world import VALUABLE, Drop, Loot
 
     runner = make(lambda cancelled, routine: None, [])
     runner.loop.on, runner.pickup_mode = True, REGULAR
@@ -1466,7 +1467,7 @@ def test_a_restart_keeps_the_valuables_seen_and_still_on_the_ground():
     # 13:18 on 2026-10-18: a restart forgot a Flawless Topaz 94 units off, and the game was left with it on the ground
     import json
 
-    from inventory_tracking.macros.world import VALUABLE, Drop, Loot
+    from inventory_tracking.macros.game.records import VALUABLE, Drop, Loot
 
     runner = make(lambda cancelled, routine: None, [])
     runner.loop.on = True
@@ -1503,9 +1504,9 @@ def test_in_the_loop_a_chipped_gem_with_no_room_is_held_the_cube_then_a_trip_to_
     from dataclasses import replace
 
     from inventory_tracking.macros import lootpolicy
+    from inventory_tracking.macros.game.records import VALUABLE, Drop, Loot
     from inventory_tracking.macros.loop import ANDARIEL, CATACOMBS_4, TRIP, next_leg
     from inventory_tracking.macros.pickup import pick_up
-    from inventory_tracking.macros.world import VALUABLE, Drop, Loot
     from tests.inventory_tracking.macros.fakes import Game, world
 
     gem = Drop(74, 5008.0, 5003.0, 'Chipped Amethyst', VALUABLE, (1, 1), prized=False, source='material')
@@ -1541,8 +1542,8 @@ def test_in_the_loop_a_chipped_gem_with_no_room_is_held_the_cube_then_a_trip_to_
 
 def test_by_hand_the_press_still_moves_on_from_a_chipped_gem_with_no_room():
     # Outside the loop nothing changed with the ruling: KP_1's press goes on to its seek step
+    from inventory_tracking.macros.game.records import VALUABLE, Drop, Loot
     from inventory_tracking.macros.pickup import pick_up
-    from inventory_tracking.macros.world import VALUABLE, Drop, Loot
     from tests.inventory_tracking.macros.fakes import Game, world
 
     gem = Drop(74, 5008.0, 5003.0, 'Chipped Amethyst', VALUABLE, (1, 1), prized=False, source='material')
@@ -1654,8 +1655,8 @@ def test_a_full_stash_after_a_town_visit_stops_the_loop_in_town(caplog):
 
 def gheeds_runner(rows_free: bool = True):
     from inventory_tracking.macros.charms import GHEEDS_FORTUNE, UNIQUE, grand_charm
+    from inventory_tracking.macros.game.records import Carried
     from inventory_tracking.macros.loop import ANDARIEL
-    from inventory_tracking.macros.world import Carried
 
     runner = make(lambda cancelled, routine: None, [])
     runner.loop.on, runner.loop.kind, runner.loop.seen = True, ANDARIEL, ('cyberr48', 0.0)
@@ -1738,8 +1739,8 @@ def test_the_new_gheeds_still_not_taken_with_the_players_parked_fetches_theirs_b
 
 def refused_charm():
     from inventory_tracking.macros.charms import UNIQUE, grand_charm
+    from inventory_tracking.macros.game.records import VALUABLE, Drop
     from inventory_tracking.macros.pickup import Refused
-    from inventory_tracking.macros.world import VALUABLE, Drop
 
     charm = Drop(60, 22543.0, 9556.0, "Unique Grand Charm (Gheed's Fortune?)", VALUABLE, (1, 3), txt=grand_charm(),
                  quality=UNIQUE)  # fmt: skip

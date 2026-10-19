@@ -24,8 +24,8 @@ from inventory_tracking.macros.build import (
     Tried,
     choose,
 )
+from inventory_tracking.macros.game.records import Player, World
 from inventory_tracking.macros.travel import Step
-from inventory_tracking.macros.world import Player, World
 
 
 SOMEONE = Player(unit_id=1, name='Someone', mode=1, area=1, x=0.0, y=0.0, consume=None)

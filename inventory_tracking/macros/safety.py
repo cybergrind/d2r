@@ -15,6 +15,7 @@ import math
 from collections import deque
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field, replace
+from typing import NamedTuple
 
 from inventory_tracking.combat import threats
 from inventory_tracking.combat.harm import (
@@ -36,17 +37,28 @@ from inventory_tracking.combat.harm import (
     veto,
 )
 from inventory_tracking.combat.policy import Observation, Point
-from inventory_tracking.combat.stance import HORIZON, KEEP_AWAY, RUN_SPEED, WALK_LATENCY, Field, camp, falls, taken
+from inventory_tracking.combat.stance import (
+    HORIZON,
+    KEEP_AWAY,
+    RUN_SPEED,
+    WALK_LATENCY,
+    Field,
+    Jump,
+    camp,
+    falls,
+    taken,
+)
 from inventory_tracking.combat.survival import Pressure, Supply
 from inventory_tracking.common import LOG
 from inventory_tracking.macros.build import Attack, Draw, DrawPrice, Leg, NoWay, PricedStep, Shield, Step
 from inventory_tracking.macros.drinking import on_belt
+from inventory_tracking.macros.game.layout import NO_OWNER
+from inventory_tracking.macros.game.records import Loot, World
 from inventory_tracking.macros.goals import Goal
-from inventory_tracking.macros.pursuit import Candidate, Facts, Hold, Move, Operate, decide
+from inventory_tracking.macros.pursuit import Act, Candidate, Facts, Hold, Move, Operate, decide
 from inventory_tracking.macros.skills import TELEPORT
 from inventory_tracking.macros.supply import spendable as stock_life
 from inventory_tracking.macros.travel import planning
-from inventory_tracking.macros.world import NO_OWNER, Loot, World
 from inventory_tracking.models import PotionType
 
 
@@ -196,6 +208,409 @@ def in_flight(
         if at is not None and txt in kinds and (x, y) != at:
             found.append((owner, (x, y), math.atan2(y - at[1], x - at[0]), txt))
     return tuple(found)
+
+
+@dataclass
+class LookClock:
+    """A look's own clock (`Safety.timer`): its deadline and each stage's seconds (`laps`, for `Safety.over`). No
+    timer: never late, no laps."""
+
+    timer: Callable[[], float] | None
+    seconds: float  # the look's time (`SafetySettings.look_seconds`)
+    began: float = 0.0
+    deadline: float = math.inf
+    laps: dict[str, float] = field(default_factory=dict)
+    lapped: float = 0.0
+
+    def __post_init__(self) -> None:
+        if self.timer is not None:
+            self.began = self.timer()
+            self.deadline = self.began + self.seconds
+        self.lapped = self.began
+
+    def late(self) -> bool:
+        return self.timer is not None and self.timer() >= self.deadline
+
+    def lap(self, stage: str) -> None:
+        """The seconds since the last stage ended are `stage`'s."""
+        if self.timer is not None:
+            now = self.timer()
+            self.laps[stage] = self.laps.get(stage, 0.0) + now - self.lapped
+            self.lapped = now
+
+    def ms(self) -> float | None:
+        """Milliseconds since the look began; None without a timer."""
+        return round((self.timer() - self.began) * 1000, 1) if self.timer is not None else None
+
+
+def bounded_way(facts: Facts, clock: LookClock, until: float) -> tuple[Facts, list[Leg]]:
+    """`facts` with the goal's way asked once a look, grown until `until` on the look's clock (travel.py `planning`):
+    the act asked for, the Hold branch's advance and the arbiter all go by that one leg. The list holds it once
+    asked."""
+    goals_way = facts.way
+    legs: list[Leg] = []
+
+    def way() -> Leg:
+        if not legs:
+            with planning(clock.timer, until):
+                legs.append(goals_way())
+        return legs[0]
+
+    return replace(facts, way=way), legs
+
+
+def life_budget(
+    loot: Loot, felt: Pressure, settings: SafetySettings, look: Look, here: Point, insisting: float
+) -> tuple[float, float | None, float, float]:
+    """The life an act may cost (combat/harm.py `budget`), the belt's spendable life it counts, the price of life
+    (kappa) and the fight's factor in it (`SafetySettings.dear`: dearer while a dear class is in the fight)."""
+    # The belt counted (`stock_share`): a low potion stock keeps a share of the budget, half at least
+    spendable = stock_life(loot, settings.healing_points, settings.floor)
+    allowance = budget(loot.life, loot.max_life, felt, settings, insisting=insisting, spendable=spendable)
+    supply = on_belt(loot)
+    kappa = life_price(Supply(supply[PotionType.HEALING], supply[PotionType.REJUVENATION]), loot.max_life, settings)
+    dear = life_factor(look, here, settings)
+    kappa *= dear
+    return allowance, spendable, kappa, dear
+
+
+class Held(NamedTuple):
+    """Holding here as priced (`Safety.hold`)."""
+
+    harm: Harm  # to the next decision, with the losses and bar of the longer escape horizon
+    ahead: Harm  # over that horizon
+    seconds: float
+    unstruck: float  # the strike gap (`Candidate.unstruck`)
+
+
+@dataclass
+class Pricing:
+    """One look's candidates (`Safety.price`), what they are priced from and the forecast here."""
+
+    facts: Facts
+    look: Look
+    seen: Observation
+    settings: SafetySettings
+    attack: Attack
+    leg: Callable[[Point], Leg]
+    jumps: Sequence[Jump]
+    barred: Callable[[Point], bool] | None
+    hands: Hands
+    options: Callable[[Point], tuple[Step, ...]] | None
+    battle_ready: bool
+    teleport_hands: Hands
+    goal: Goal
+    clock: LookClock
+    legs: list[Leg]  # the goal's way once asked (`bounded_way`)
+    allowance: float
+    kappa: float
+    candidates: list[Candidate] = field(default_factory=list)
+    # The forecast here (`__post_init__`)
+    here: Point = field(init=False)
+    field_: Field = field(init=False)
+    swap_path: tuple[tuple[Point, float, Hands], ...] = field(init=False)
+    swap_seconds: float = field(init=False)
+    killed: dict[int, float] = field(init=False)  # what the strikes from here kill, and when
+    worth: float = field(init=False)  # what casting from here takes over the HORIZON (stance `taken`)
+    clear: float = field(init=False)  # holding's clear time (`clear_time`)
+    remaining: float = field(init=False)  # local ETA stand-in, full routed leg supplied by navigation
+    # A hostile bound to a summoner about (combat/threats `bound`: Baal's clone) dies with it: a strike on it is lost
+    # while the summoner lives, so a stand that reaches only such is no strike (baal-sim.md fix 2)
+    lost: dict[int, tuple[int, ...]] = field(init=False)
+    landing: list[float] = field(default_factory=list, init=False)  # `landed_here`, once a look
+
+    def __post_init__(self) -> None:
+        seen, here = self.seen, self.seen.origin
+        self.here = here
+        self.field_ = Field(seen.blocked, self.barred)
+        self.swap_path = ((here, SWAP_SECONDS, self.hands),) if self.hands != 'battle' else ()
+        self.swap_seconds = SWAP_SECONDS if self.swap_path else 0.0
+        self.killed = self.deaths_from(here, self.swap_seconds)
+        self.worth, _ = taken(seen, self.attack, self.field_, here, 0.0)
+        self.clear = self.clear_time()
+        self.remaining = math.dist(here, self.goal.place) / 20.0
+        self.lost = threats.bound({unit: foe.txt for unit, foe in seen.foes.items()})
+
+    def deaths_from(self, spot: Point, after: float) -> dict[int, float]:
+        """What the build's own strikes kill from `spot`, begun `after` seconds from now (stance `falls`); nothing
+        with attack mode off."""
+        if not self.facts.attacking:
+            return {}
+        return falls(self.seen, self.attack, self.field_, spot, after, after + FALL_HORIZON)
+
+    def clear_time(self) -> float:
+        """Seconds holding here takes to clear what is in reach, within 0.36 and 10: by the strikes' forecast where it
+        kills all of it, else what is left of it at the pace here."""
+        seen, killed = self.seen, self.killed
+        in_reach = [u for u, f in seen.foes.items() if math.dist(self.here, f.at) <= self.attack.reach]
+        if in_reach and all(u in killed for u in in_reach):
+            # The forecast's own pace is quicker than the strikes' (`strike_spread`): its median stands for them.
+            spread = self.settings.strike_spread
+            clear = (max(killed[u] for u in in_reach) - self.swap_seconds) * spread[len(spread) // 2]
+        else:
+            clear = sum(seen.foes[u].left for u in in_reach) / max(self.worth / HORIZON, 1.0)
+        return max(0.36, min(clear, 10.0))
+
+    def landed_here(self) -> float:
+        """What casting from here takes over the HORIZON as the casts land by distance (a firing stand's pace)."""
+        if not self.landing:
+            self.landing.append(taken(self.seen, self.attack, self.field_, self.here, 0.0, landed=True)[0])
+        return self.landing[0]
+
+    def holding(self, seen_: Look, deaths: dict[int, float] | None = None) -> tuple[Harm, Harm]:
+        """Holding here priced on `seen_` (`deaths`: the forecast's by default): the work until the next decision,
+        and the longer escape horizon."""
+        deaths = self.killed if deaths is None else deaths
+        settings, here, dwell = self.settings, self.here, min(self.settings.hold_dwell, self.clear)
+        held = harm_path(seen_, (*self.swap_path, (here, dwell, 'battle')), settings, deaths)
+        # Priced to the next decision, vetoed over the longer escape horizon: repeated short holds must not walk
+        # the loop into a place every way out of is lethal.
+        ahead = harm_path(seen_, (*self.swap_path, (here, max(settings.horizon, dwell), 'battle')), settings, deaths)
+        return replace(held, losses=ahead.losses, barred=held.barred or ahead.barred), ahead
+
+    def strikes_from(self, spot: Point) -> bool:
+        return any(
+            math.dist(spot, foe.at) <= self.attack.reach and self.field_.clear(spot, foe.at)
+            for unit, foe in self.seen.foes.items()
+            if unit not in self.lost
+        )
+
+    def feasible(self, c: Candidate) -> bool:
+        return c.harm.worst <= self.allowance and veto(c.harm, self.look.life, self.settings) is None
+
+    def move_price(
+        self, step: Step, *, retreat=False, firing=False, why: str | None = None, dodge=False, keeps=False
+    ) -> tuple[tuple, float]:
+        """A move to `step` priced and added to the candidates: its path and seconds."""
+        look, settings, here, hands = self.look, self.settings, self.here, self.hands
+        gap = math.dist(here, step.spot)
+        jump = next((j for j in self.jumps if j.skill == step.skill), None)
+        seconds = jump.takes(gap) if jump else (0.31 if step.skill == TELEPORT else 0.36 + gap / 20.0)
+        # The set a Teleport is cast with: the staff's (`travel`), or the battle set's where Teleport is the
+        # character's own (Enigma): no swap there and back. Priced with both swaps, every Teleport to a firing spot
+        # lost to the stand (172 of 172 on Catacombs 4, 2026-10-18: rca/2026-10-18/sluggish-engagement-findings.md)
+        needs = self.teleport_hands if step.skill == TELEPORT else 'battle'
+        swap = SWAP_SECONDS if needs != hands else 0.0
+        seconds += swap + settings.move_overhead
+        # A charged hop leaves quickly, a delayed jump or walk does not; the stand after the landing and the exposure
+        # before the swap both count.
+        dwell = settings.landing_dwell if step.skill is not None else 0.12
+        path = []
+        if swap:
+            path.append((here, swap, hands))
+        if step.skill is None:
+            # The straight walk in three slices; the navigator checked its footing and line.
+            for fraction in (0.0, 0.5, 1.0):
+                point = (
+                    here[0] + (step.spot[0] - here[0]) * fraction,
+                    here[1] + (step.spot[1] - here[1]) * fraction,
+                )
+                path.append((point, (seconds - swap) / 3, needs))
+        else:
+            path.append((here, max(0.12, seconds - swap), needs))
+        path.append((step.spot, dwell, needs))
+        # Strikes begin at the landing, after the swap back to the battle set where the move took the other.
+        landed = self.deaths_from(step.spot, SWAP_SECONDS if needs != 'battle' else 0.0)
+        arrival = sum(part for _, part, _ in path[:-1])
+        struck = {u: t + arrival for u, t in landed.items()}
+        damage = harm_path(look, tuple(path), settings, struck)
+        future = harm(look, step.spot, settings.horizon, needs, settings, landed)
+        damage = replace(damage, barred=damage.barred or veto(future, look.life, settings))
+        if needs == 'battle' and not self.battle_ready:
+            damage = replace(damage, barred='battle weapon swap is unavailable')
+        duration = math.dist(step.spot, self.goal.place) / 20.0
+        if firing and not why:
+            # A firing stand: holding's clear time at the stand's pace over its next HORIZON seconds against here's,
+            # the move's own seconds lost inside them (stance `taken` from `seconds` on, as `camp` chose it), both as
+            # the casts land by distance. Counted on top as well until 2026-10-14, a stand taking twice what here does
+            # lost to holding in a safe fight (rca/2026-10-14/run-1932-findings.md §4, Fixes).
+            there_worth, _ = taken(self.seen, self.attack, self.field_, step.spot, seconds, landed=True)
+            duration += self.clear * self.landed_here() / max(there_worth, 1.0)
+        else:
+            duration += seconds
+        if firing and why:
+            # An escape's own seconds are in `seconds` already: its stand's pace is counted from its landing.
+            there_worth, _ = taken(self.seen, self.attack, self.field_, step.spot, 0.0)
+            duration += self.clear * self.worth / max(there_worth, 1.0)
+        step = PricedStep(step.spot, step.skill, step.camp, needs, seconds)
+        act = Move(step, self.goal, why or ('retreat' if retreat else FIRING if firing else ''), dodge=dodge)
+        unstruck = seconds + (SWAP_SECONDS if needs != 'battle' else 0.0)  # the strike needs the battle set
+        self.candidates.append(Candidate(act, duration, damage, retreat, unstruck, self.strikes_from(step.spot), keeps))
+        return tuple(path), duration
+
+    def burnt_out(self, path: tuple, seconds: float, priced: Harm) -> None:
+        """The act asked for, begun once what lies on its way has burnt out (combat/threats `Lingering`: Diablo's
+        fire wall, which outlives him; rca/2026-10-14/run-0305-findings.md §5.6): standing here meanwhile, then the
+        same path, priced as one, at the time it has all gone and at half that. Or a step out of it first (the
+        model's places). Offered when what lies on the ground is part of the act's price."""
+        look, here = self.look, self.here
+        if not look.ground or not any(unit == GROUND_UNIT and points > 0 for unit, points in priced.by):
+            return
+        gone = max(model.clears(lying) for model, lying in look.ground)
+        for wait in sorted({gone / 2, gone}):
+            if wait <= 0:
+                continue
+            later = harm_path(look, ((here, wait, self.hands), *path), self.settings)
+            self.candidates.append(Candidate(NoWay(BURNING), wait + seconds, later, False, wait + seconds, False))
+        places = [place for model, lying in look.ground for place in model.escapes(lying, here)]
+        for point, why in places:
+            if self.clock.late():
+                break
+            spot = footing(self.field_, here, point)
+            if spot is not None and math.dist(here, spot) > 2:
+                self.move_price(Step(spot), why=f'{STEPPING} {why}')
+
+    def asked_for(self, base: Move | Hold | Operate | NoWay, fresh: bool, posted) -> None:
+        """The act asked for: a use where it stands, a move (with shorter approaches when it is over the budget), or
+        a running fight's advance."""
+        facts = self.facts
+        if isinstance(base, Operate):
+            self.operate(base)
+        elif isinstance(base, Move):
+            self.approach(base)
+        # A running fight also compares advancing once it is safe, not only the old in-reach branch.
+        elif (
+            isinstance(base, Hold)
+            and not facts.there
+            and not facts.settling
+            and (fresh or (posted is not None and posted.runs))
+            and (self.legs or not self.clock.late())  # past the look's time no way is asked: the next look's
+        ):
+            step = facts.way()
+            if isinstance(step, Step):
+                self.move_price(step)
+
+    def operate(self, base: Operate) -> None:
+        """A use: the hands walk to a drop or object (in three slices, as a leg's) and work it there for its dwell.
+        No strike meanwhile, so nothing is credited as killed."""
+        here, place = self.here, self.goal.place
+        gap = math.dist(here, place)
+        walk = WALK_LATENCY + gap / RUN_SPEED if gap > 2 else 0.0
+        path: tuple = tuple(
+            ((here[0] + (place[0] - here[0]) * f, here[1] + (place[1] - here[1]) * f), walk / 3, self.hands)
+            for f in (0.0, 0.5, 1.0)
+            if walk
+        )
+        path += ((place if walk else here, self.settings.use_dwell, self.hands),)
+        damage = harm_path(self.look, path, self.settings)
+        used = walk + self.settings.use_dwell
+        self.candidates.append(Candidate(base, used, damage, False, used, self.strikes_from(place if walk else here)))
+        self.burnt_out(path, used, damage)
+
+    def approach(self, base: Move) -> None:
+        """A move toward the goal; over the budget or vetoed, the navigator's earlier stands on the same approach
+        too (a long leg may end inside a pack), before a retreat is conceded."""
+        here = self.here
+        path, seconds = self.move_price(base.step)
+        self.burnt_out(path, seconds, self.candidates[-1].harm)
+        last = self.candidates[-1]
+        if last.harm.worst > self.allowance or veto(last.harm, self.look.life, self.settings):
+            for fraction in (0.25, 0.5, 0.75):
+                if self.clock.late():
+                    break
+                point = (
+                    here[0] + (base.step.spot[0] - here[0]) * fraction,
+                    here[1] + (base.step.spot[1] - here[1]) * fraction,
+                )
+                shorter = self.leg(point)
+                if isinstance(shorter, Step) and math.dist(here, shorter.spot) > 2:
+                    self.move_price(shorter)
+                    last = self.candidates[-1]
+                    assert isinstance(last.act, Move)
+                    self.candidates[-1] = replace(last, act=replace(last.act, reason='safe approach'))
+
+    def firing_stand(self, unsafe: bool, hold_harm: Harm) -> None:
+        """Camp's stand (stance `camp`, with the old crowd and keep-away floors) priced beside holding, so the sweep
+        never moves outside the safety constraint: when nothing is safe, near a hostile with no clear line to strike
+        it (the act that keeps the strike gap, I2), or when holding takes over half the budget."""
+        facts = self.facts
+        lineless = facts.near and facts.attacking and not facts.in_reach
+        if not self.clock.late() and (
+            unsafe or lineless or (facts.in_reach and hold_harm.worst > self.allowance * 0.5)
+        ):
+            found = camp(self.seen, self.attack, barred=self.barred, jumps=self.jumps)
+            if found is not None:
+                self.move_price(Step.to(found), firing=True)
+
+    def retreat_to(self, point: Point, asked: list[Point], at: Point | None = None) -> None:
+        """The navigator's ways toward `point`, each a retreat (a real leg: an open point may be behind a wall), not
+        within ESCAPE_SAME of one `asked` already. `at`: the hostile a retreat that keeps the fight stays within the
+        strike's reach and line of (`keeper`)."""
+        here = self.here
+        offered = self.options(point) if self.options is not None else (self.leg(point),)
+        for step in offered:
+            if (
+                isinstance(step, Step)
+                and math.dist(here, step.spot) > 2
+                and (at is None or (math.dist(step.spot, at) <= self.attack.reach and self.field_.clear(step.spot, at)))
+                and all(math.dist(step.spot, other) >= ESCAPE_SAME for other in asked)
+            ):
+                asked.append(step.spot)
+                self.move_price(step, retreat=True, keeps=at is not None)
+
+    def obstructed(self) -> Candidate | None:
+        """The first move or use toward the goal over the budget (its blockers bar the way: `Safety.blocked_by`)."""
+        return next(
+            (
+                c
+                for c in self.candidates
+                if not c.retreat and isinstance(c.act, (Move, Operate)) and c.harm.worst > self.allowance
+            ),
+            None,
+        )
+
+    def record(
+        self,
+        chosen: Act,
+        *,
+        dear: float,
+        insisting: float,
+        spendable: float | None,
+        blocked_by: tuple[int, ...],
+        draws: dict[int, DrawPrice] | None,
+    ) -> dict:
+        """The look's decision as `Safety.decision` keeps it."""
+        facts, goal, look, here, hands = self.facts, self.goal, self.look, self.here, self.hands
+        settings, allowance = self.settings, self.allowance
+        return {
+            'looked_at': facts.now,
+            'goal': goal.label,
+            'goal_place': goal.place,
+            'life': look.life,
+            'hands': hands,
+            'budget': round(allowance, 1),
+            'dear': dear,
+            'floor_raised': insisting > 0,
+            'stock_share': round(stock_share(settings, spendable), 3),
+            'chosen': type(chosen).__name__,
+            'chosen_place': chosen.step.spot if isinstance(chosen, Move) else here,
+            'reason': getattr(chosen, 'reason', ''),
+            'blocked_by': blocked_by,
+            'killed': {unit: round(at, 2) for unit, at in sorted(self.killed.items(), key=lambda r: r[1])[:8]},
+            'draws': {unit: round(price.worth, 2) for unit, price in (draws or {}).items()},
+            'late': self.clock.late(),
+            'ms': self.clock.ms(),
+            'candidates': [
+                {
+                    'act': type(c.act).__name__,
+                    'why': c.act.reason if isinstance(c.act, Move) else '',
+                    'place': c.act.step.spot if isinstance(c.act, Move) else here,
+                    'skill': c.act.step.skill if isinstance(c.act, Move) else None,
+                    'hands': c.act.step.needs if isinstance(c.act, Move) else hands,
+                    'T': round(c.seconds, 3) if math.isfinite(c.seconds) else None,
+                    'H': round(c.harm.mean, 1),
+                    'worst': round(c.harm.worst, 1),
+                    'veto': veto(c.harm, look.life, settings),
+                    'retreat': c.retreat,
+                    'dodge': isinstance(c.act, Move) and c.act.dodge,
+                    'keeps': c.keeps,
+                    'contributors': c.harm.by,
+                    'stand_ins': c.harm.stand_ins,
+                    'blocked_by': blockers(c.harm, allowance),
+                }
+                for c in self.candidates
+            ],
+        }
 
 
 @dataclass
@@ -400,39 +815,11 @@ class Safety:
         has passed (`timer`): the act asked for and holding are always priced,
         and with nothing safe among them two escapes still are, so the answer
         is the best found in time."""
-        timer = self.timer
-        began = timer() if timer is not None else 0.0
-        deadline = began + settings.look_seconds if timer is not None else math.inf
-
-        def late() -> bool:
-            return timer is not None and timer() >= deadline
-
-        laps: dict[str, float] = {}
-        lapped = [began]
-
-        def lap(stage: str) -> None:
-            """The seconds since the last stage ended are this stage's (the look's clock), for `over`."""
-            if timer is not None:
-                now = timer()
-                laps[stage] = laps.get(stage, 0.0) + now - lapped[0]
-                lapped[0] = now
-
-        # The goal's way once a look, within its share of the look's time (WAY_SHARE, travel.py `planning`): the
-        # act asked for, the Hold branch's advance and the arbiter after this all go by the same leg
-        goals_way = facts.way
-        legs: list[Leg] = []
-
-        way_budget = way_seconds(seen.origin, [m.at for m in look.hostiles], settings.look_seconds)
-
-        def way() -> Leg:
-            if not legs:
-                with planning(timer, began + way_budget):
-                    legs.append(goals_way())
-            return legs[0]
-
-        facts = replace(facts, way=way)
+        clock = LookClock(self.timer, settings.look_seconds)
+        until = clock.began + way_seconds(seen.origin, [m.at for m in look.hostiles], settings.look_seconds)
+        facts, legs = bounded_way(facts, clock, until)
         base = decide(facts, posted)
-        lap("the goal's way")
+        clock.lap("the goal's way")
         self.blocked_by = ()
         if not isinstance(base, (Move, Hold, Operate, NoWay)):
             return facts
@@ -447,378 +834,176 @@ class Safety:
         # A fresh press asks for the goal; so does a level run at every look (`run_insists`).
         running = posted is not None and posted.runs and settings.run_insists and not posted.spent
         asking = fresh or running
-        insisting = 0.0
-        if (
-            asking
-            and key == self.blocked_goal
-            and facts.now - self.last_press < 0.7
-            and (running or posted.pressed_at > self.first_press)
-        ):
-            insisting = facts.now - self.blocked_since
-        # The belt counted (combat/harm.py `stock_share`): a low potion stock keeps a share of the budget, half at least
-        spendable = stock_life(loot, settings.healing_points, settings.floor)
-        allowance = budget(loot.life, loot.max_life, felt, settings, insisting=insisting, spendable=spendable)
-        supply = on_belt(loot)
-        kappa = life_price(Supply(supply[PotionType.HEALING], supply[PotionType.REJUVENATION]), loot.max_life, settings)
-        here = seen.origin
-        # The life price by fight (`SafetySettings.dear`): dearer while a dear class is in the fight.
-        dear = life_factor(look, here, settings)
-        kappa *= dear
-        field_ = Field(seen.blocked, barred)
-        striking = facts.attacking  # attack mode on: what is in reach of a stand is struck from it
-
-        def deaths_from(spot: Point, after: float) -> dict[int, float]:
-            """What the build's own strikes kill from `spot`, begun `after` seconds from now (stance `falls`)."""
-            if not striking:
-                return {}
-            return falls(seen, attack, field_, spot, after, after + FALL_HORIZON)
-
-        swap_path = ((here, SWAP_SECONDS, hands),) if hands != 'battle' else ()
-        swap_seconds = SWAP_SECONDS if swap_path else 0.0
-        killed = deaths_from(here, swap_seconds)
-        worth, _ = taken(seen, attack, field_, here, 0.0)
-        rate = worth / HORIZON
-        landing: list[float] = []
-
-        def landed_here() -> float:
-            """What casting from here takes over the HORIZON as the casts land by distance (a firing stand's pace)."""
-            if not landing:
-                landing.append(taken(seen, attack, field_, here, 0.0, landed=True)[0])
-            return landing[0]
-
-        in_reach = [u for u, f in seen.foes.items() if math.dist(here, f.at) <= attack.reach]
-        if in_reach and all(u in killed for u in in_reach):
-            # The forecast's own pace is quicker than the strikes' (`strike_spread`): its median stands for them.
-            spread = settings.strike_spread
-            clear = (max(killed[u] for u in in_reach) - swap_seconds) * spread[len(spread) // 2]
-        else:
-            clear = sum(seen.foes[u].left for u in in_reach) / max(rate, 1.0)
-        clear = max(0.36, min(clear, 10.0))
-        remaining = math.dist(here, goal.place) / 20.0  # local ETA stand-in, full routed leg supplied by navigation
-        candidates = []
-
-        def holding(seen_: Look, deaths: dict[int, float] = killed) -> tuple[Harm, Harm]:
-            """Holding here priced on `seen_`: the work until the next decision, and the longer escape horizon."""
-            held = harm_path(seen_, (*swap_path, (here, min(settings.hold_dwell, clear), 'battle')), settings, deaths)
-            # Price the work until the next decision, but veto a stand that cannot
-            # survive the longer escape horizon. Repeated short holds must not walk
-            # the loop into a state from which every departure is lethal.
-            ahead = harm_path(
-                seen_,
-                (*swap_path, (here, max(settings.horizon, min(settings.hold_dwell, clear)), 'battle')),
-                settings,
-                deaths,
-            )
-            return replace(held, losses=ahead.losses, barred=held.barred or ahead.barred), ahead
-
-        lap('the forecast')
-        hold_harm, future = holding(look)
-        hold_seconds = clear + swap_seconds
-        hold_unstruck = swap_seconds
-        self.draws, self.drawn_at = (None if self.draw is None else {}), facts.now
-        if facts.in_reach and facts.attacking:
-            # The build's draw (`weigh`): holding is priced with the companions sent onto the hostile it pays most
-            # on, its cast in the hold's time and its strike gap, when it pays (T + kappa x H over its span); so the
-            # hold with it competes with the escapes and the retreat as one act.
-            pressed = hold_harm.worst > allowance
-            drawn = self.weigh(look, seen, settings, kappa, here, clear, swap_path, killed, pressed=pressed)
-            if drawn is not None:
-                target = next(m.at for m in look.hostiles if m.unit == drawn.unit)
-                assert self.draw is not None
-                sent = tuple(index for index, _ in self.sendable)
-                later = {unit: at + drawn.cost for unit, at in killed.items()}  # no strike during the cast
-                drawn_look = sent_onto(look, sent, target, self.draw.reach, self.draw.beside, self.draw.pack)
-                hold_harm, future = holding(drawn_look, later)
-                hold_seconds += drawn.cost - drawn.gain
-                hold_unstruck += drawn.cost
-        if not battle_ready:
-            hold_harm = replace(hold_harm, barred='battle weapon swap is unavailable')
-        lap('holding')
+        insisting = self.insisting(facts.now, posted, key, asking, running)
+        allowance, spendable, kappa, dear = life_budget(loot, felt, settings, look, seen.origin, insisting)
+        p = Pricing(
+            facts, look, seen, settings, attack, leg, jumps, barred, hands, options, battle_ready, teleport_hands,
+            goal, clock, legs, allowance, kappa,
+        )  # fmt: skip
+        clock.lap('the forecast')
+        held = self.hold(p)
+        clock.lap('holding')
         # What an escape could save (holding's life at the look's price) against the least it costs (a walk's start
         # and overhead; the swap where the set in hand is not the battle set): below it no escape is worth pricing.
-        saving = kappa * hold_harm.mean
+        saving = kappa * held.harm.mean
         least = settings.move_overhead + WALK_LATENCY + (SWAP_SECONDS if hands != 'battle' else 0.0)
         waiting = isinstance(base, NoWay)
-        if waiting and hold_harm.worst <= allowance and veto(hold_harm, look.life, settings) is None:
+        if waiting and held.harm.worst <= allowance and veto(held.harm, look.life, settings) is None:
             if saving <= least:
-                # Waiting for a summoned pack or a boss to appear is not a failed
-                # safety constraint. With no danger, keep the goal and its reason.
+                # Waiting for a summoned pack or a boss to appear is no failed safety constraint: the goal and its
+                # reason are kept.
                 return facts
-            # Waiting is an act priced as one when an escape could be worth more than it (an act under way at
-            # where the character waits): staying, the goal's reason kept, against the escapes below.
-            candidates.append(Candidate(base, hold_seconds + remaining, hold_harm, False, 0.0, False))
+            # Waiting priced as an act (staying, the goal's reason kept) when an escape could be worth more.
+            p.candidates.append(Candidate(base, held.seconds + p.remaining, held.harm, False, 0.0, False))
         if facts.in_reach and facts.attacking and (settings.fight_through or not fresh):
-            hold = Candidate(Hold(facts.goal), hold_seconds + remaining, hold_harm, False, hold_unstruck, True)
-            candidates.append(hold)
-
-        # A hostile bound to a summoner about (combat/threats `bound`: Baal's clone) dies with it: a strike on it is
-        # lost while the summoner lives, so a stand that reaches only such is no strike (baal-sim.md fix 2)
-        lost = threats.bound({unit: foe.txt for unit, foe in seen.foes.items()})
-
-        def strikes_from(spot: Point) -> bool:
-            return any(
-                math.dist(spot, foe.at) <= attack.reach and field_.clear(spot, foe.at)
-                for unit, foe in seen.foes.items()
-                if unit not in lost
-            )
-
-        def move_price(step: Step, *, retreat=False, firing=False, why: str | None = None, dodge=False, keeps=False):
-            gap = math.dist(here, step.spot)
-            jump = next((j for j in jumps if j.skill == step.skill), None)
-            seconds = jump.takes(gap) if jump else (0.31 if step.skill == TELEPORT else 0.36 + gap / 20.0)
-            # The set a Teleport is cast with: the staff's (`travel`), or the battle set's own where Teleport is the
-            # character's skill (Enigma): no swap there and back. Priced with both swaps, every Teleport to a firing
-            # spot lost to the stand (172 of 172 offered beside a hold on Catacombs 4, 10:55-11:08 on 2026-10-18:
-            # rca/2026-10-18/sluggish-engagement-findings.md)
-            needs = teleport_hands if step.skill == TELEPORT else 'battle'
-            swap = SWAP_SECONDS if needs != hands else 0.0
-            seconds += swap + settings.move_overhead
-            # A charged hop can leave quickly; a delayed jump/walk cannot. The
-            # post-landing stand and the exposure before the swap both count.
-            dwell = settings.landing_dwell if step.skill is not None else 0.12
-            path = []
-            if swap:
-                path.append((here, swap, hands))
-            if step.skill is None:
-                # Three integration slices of the actual straight walking leg;
-                # the navigator already checked its footing and line.
-                for fraction in (0.0, 0.5, 1.0):
-                    point = (
-                        here[0] + (step.spot[0] - here[0]) * fraction,
-                        here[1] + (step.spot[1] - here[1]) * fraction,
-                    )
-                    path.append((point, (seconds - swap) / 3, needs))
-            else:
-                path.append((here, max(0.12, seconds - swap), needs))
-            path.append((step.spot, dwell, needs))
-            # Strikes begin at the landing, after the swap back to the battle set where the move took the other.
-            landed = deaths_from(step.spot, SWAP_SECONDS if needs != 'battle' else 0.0)
-            arrival = sum(part for _, part, _ in path[:-1])
-            struck = {u: t + arrival for u, t in landed.items()}
-            damage = harm_path(look, tuple(path), settings, struck)
-            future = harm(look, step.spot, settings.horizon, needs, settings, landed)
-            damage = replace(damage, barred=damage.barred or veto(future, look.life, settings))
-            if needs == 'battle' and not battle_ready:
-                damage = replace(damage, barred='battle weapon swap is unavailable')
-            duration = math.dist(step.spot, goal.place) / 20.0
-            if firing and not why:
-                # A firing stand: holding's clear time at the pace of the stand's next HORIZON seconds against here,
-                # the move's own seconds lost inside them (stance `taken` from `seconds` on, as `camp` chose it). Its
-                # seconds were counted on top of that until 2026-10-14: twice, so that a stand taking twice what here
-                # does lost to holding in a safe fight (rca/2026-10-14/run-1932-findings.md §4, Fixes).
-                # Both priced as the casts land by distance (stance `taken` `landed`): a stand nearer the pack hits more
-                there_worth, _ = taken(seen, attack, field_, step.spot, seconds, landed=True)
-                duration += clear * landed_here() / max(there_worth, 1.0)
-            else:
-                duration += seconds
-            if firing and why:
-                # An escape's own seconds are in `seconds` already: its stand's pace is counted from its landing.
-                there_worth, _ = taken(seen, attack, field_, step.spot, 0.0)
-                duration += clear * worth / max(there_worth, 1.0)
-            step = PricedStep(step.spot, step.skill, step.camp, needs, seconds)
-            act = Move(step, goal, why or ('retreat' if retreat else FIRING if firing else ''), dodge=dodge)
-            unstruck = seconds + (SWAP_SECONDS if needs != 'battle' else 0.0)  # the strike needs the battle set
-            candidates.append(Candidate(act, duration, damage, retreat, unstruck, strikes_from(step.spot), keeps))
-            return tuple(path), duration
-
-        def burnt_out(path: tuple, seconds: float, priced: Harm) -> None:
-            """The act asked for, begun once what lies on its way has burnt out (combat/threats `Lingering`: Diablo's
-            fire wall, which outlives him; rca/2026-10-14/run-0305-findings.md §5.6): standing here meanwhile, then
-            the same path, priced as one path, so the wait is worth it only where it saves more life than its time
-            costs. Offered when what lies on the ground is part of the act's price; at the time it has all gone and
-            at half that (the next look prices it again)."""
-            if not look.ground or not any(unit == GROUND_UNIT and points > 0 for unit, points in priced.by):
-                return
-            gone = max(model.clears(lying) for model, lying in look.ground)
-            for wait in sorted({gone / 2, gone}):
-                if wait <= 0:
-                    continue
-                later = harm_path(look, ((here, wait, hands), *path), settings)
-                candidates.append(Candidate(NoWay(BURNING), wait + seconds, later, False, wait + seconds, False))
-            # Or round it: a step out of it first (the model's places), the act asked for from there at a later look
-            places = [place for model, lying in look.ground for place in model.escapes(lying, here)]
-            for point, why in places:
-                if late():
-                    break
-                spot = footing(field_, here, point)
-                if spot is not None and math.dist(here, spot) > 2:
-                    move_price(Step(spot), why=f'{STEPPING} {why}')
-
-        if isinstance(base, Operate):
-            # The hands walk to a drop or object and work it there: the walk in three slices, as a leg's, then
-            # the act's own dwell at its place. No strike is made meanwhile, so nothing is credited as killed.
-            gap = math.dist(here, goal.place)
-            walk = WALK_LATENCY + gap / RUN_SPEED if gap > 2 else 0.0
-            path: tuple = tuple(
-                ((here[0] + (goal.place[0] - here[0]) * f, here[1] + (goal.place[1] - here[1]) * f), walk / 3, hands)
-                for f in (0.0, 0.5, 1.0)
-                if walk
-            )
-            path += ((goal.place if walk else here, settings.use_dwell, hands),)
-            damage = harm_path(look, path, settings)
-            used = walk + settings.use_dwell
-            candidates.append(Candidate(base, used, damage, False, used, strikes_from(goal.place if walk else here)))
-            burnt_out(path, used, damage)
-        elif isinstance(base, Move):
-            path, seconds = move_price(base.step)
-            burnt_out(path, seconds, candidates[-1].harm)
-            if candidates[-1].harm.worst > allowance or veto(candidates[-1].harm, look.life, settings):
-                # A long navigation leg may end inside a pack. Ask navigation for
-                # earlier stands on that same approach before conceding a retreat.
-                for fraction in (0.25, 0.5, 0.75):
-                    if late():
-                        break
-                    point = (
-                        here[0] + (base.step.spot[0] - here[0]) * fraction,
-                        here[1] + (base.step.spot[1] - here[1]) * fraction,
-                    )
-                    shorter = leg(point)
-                    if isinstance(shorter, Step) and math.dist(here, shorter.spot) > 2:
-                        move_price(shorter)
-                        last = candidates[-1]
-                        assert isinstance(last.act, Move)
-                        candidates[-1] = replace(last, act=replace(last.act, reason='safe approach'))
-        # A running fight must also compare advancing once it is safe, rather than
-        # treating the old in-reach branch as the arbiter.
-        elif (
-            isinstance(base, Hold)
-            and not facts.there
-            and not facts.settling
-            and (fresh or (posted is not None and posted.runs))
-            and (legs or not late())  # past the look's time no way is asked for: the next look prices the advance
-        ):
-            step = facts.way()
-            if isinstance(step, Step):
-                move_price(step)
-        lap('the act asked for')
-
-        def feasible(c: Candidate) -> bool:
-            return c.harm.worst <= allowance and veto(c.harm, look.life, settings) is None
-
-        unsafe = not any(feasible(c) for c in candidates)
-        # Camp retains the old crowd/keep-away floors. Price its answer alongside
-        # holding, rather than letting the sweep move outside the safety constraint.
-        # Near a hostile with no clear line to strike it, the firing stand is the act that keeps the strike gap (I2).
-        lineless = facts.near and facts.attacking and not facts.in_reach
-        if not late() and (unsafe or lineless or (facts.in_reach and hold_harm.worst > allowance * 0.5)):
-            found = camp(seen, attack, barred=barred, jumps=jumps)
-            if found is not None:
-                move_price(Step.to(found), firing=True)
-        lap('the firing stand')
-        # In a running fight (a level run's, or a press's) also the better place its own look found (`offer`): a
-        # closer stand whose casts take more (stance `taken` counts what lands from there) is a firing stand priced
-        # against holding by T + kappa x H, held to the commitment (pursuit.py `arbitrate`); its harm decides how
-        # near a dangerous pack it goes.
-        offered = self.stand
-        if (
-            offered is not None
-            and 0.0 <= facts.now - offered[1] <= STAND_FRESH
-            and facts.in_reach
-            and facts.attacking
-            and (fresh or (posted is not None and posted.runs))
-            and math.dist(here, offered[0].spot) > 2
-            and not any(math.dist(offered[0].spot, foe.at) < KEEP_AWAY for foe in seen.foes.values())
-        ):
-            move_price(offered[0], firing=True)
-        # An escape is priced whenever what it could save may exceed what it costs, not only when nothing else is
-        # safe: holding's life at the look's price (all of it, were the escape to cost none) against the least
-        # seconds a walk there takes (its start, the walk, the overhead; the swap where the set in hand is not
-        # the battle set; `saving`, `least` above). Offered as a stand the strike goes on from, competing with
-        # holding or waiting by T + kappa x H (STEPPING: the life it saves is why, not a better strike pace): the
-        # read models' places first (an act under way, combat/threats), then the threat's geometry where a strike
-        # can be made from.
-        staying = (facts.in_reach and facts.attacking) or waiting
-        if not unsafe and staying and saving > least:
-            offered = 0
-            for point, why, dodge in self.offered(here, look, hold_harm):
-                if offered >= ESCAPES_MOST or late():
-                    break
-                if why == AWAY and not strikes_from(point):
-                    continue
-                if saving <= least + math.dist(here, point) / RUN_SPEED:
-                    continue
-                spot = footing(field_, here, point)
-                if spot is None:
-                    continue
-                offered += 1
-                move_price(Step(spot), firing=True, why=f'{STEPPING} {why}', dodge=dodge)
-        lap('the escapes')
+            hold = Candidate(Hold(facts.goal), held.seconds + p.remaining, held.harm, False, held.unstruck, True)
+            p.candidates.append(hold)
+        p.asked_for(base, fresh, posted)
+        clock.lap('the act asked for')
+        unsafe = not any(p.feasible(c) for c in p.candidates)
+        p.firing_stand(unsafe, held.harm)
+        clock.lap('the firing stand')
+        self.offered_stand(p, fresh, posted)
+        if not unsafe and ((facts.in_reach and facts.attacking) or waiting) and saving > least:
+            self.stepping(p, held.harm, saving, least)
+        clock.lap('the escapes')
         if unsafe:
-            # Every retreat is a real navigational leg; never assume that an open
-            # point is reachable through a wall. Equal harm prefers less time.
-            asked: list[Point] = []
-
-            def escape(point: Point) -> None:
-                offered = options(point) if options is not None else (leg(point),)
-                for step in offered:
-                    if (
-                        isinstance(step, Step)
-                        and math.dist(here, step.spot) > 2
-                        and all(math.dist(step.spot, other) >= ESCAPE_SAME for other in asked)
-                    ):
-                        asked.append(step.spot)
-                        move_price(step, retreat=True)
-
-            # First the places within the strike's reach of what ends the harm (`keeper`), the nearest first: a retreat
-            # there keeps the fight going (pursuit.py `arbitrate` prefers one that fits the budget).
-            ender = keeper(look, seen, hold_harm if hold_harm.by else future)
-            if ender is not None:
-                at = seen.foes[ender].at
-                for index, point in enumerate(keeping(here, at, attack.reach)):
-                    if index >= 2 and late():
-                        break
-                    offered = options(point) if options is not None else (leg(point),)
-                    for step in offered:
-                        if (
-                            isinstance(step, Step)
-                            and math.dist(here, step.spot) > 2
-                            and math.dist(step.spot, at) <= attack.reach
-                            and field_.clear(step.spot, at)
-                            and all(math.dist(step.spot, other) >= ESCAPE_SAME for other in asked)
-                        ):
-                            asked.append(step.spot)
-                            move_price(step, retreat=True, keeps=True)
-            places = [point for point, _, _ in self.offered(here, look, hold_harm if hold_harm.by else future)]
-            for index, point in enumerate(places[:ESCAPES_MOST]):
-                if index >= 2 and late():
-                    break
-                escape(point)
-            if not places or not any(feasible(c) for c in candidates if c.retreat):
-                for i in range(RAYS):
-                    if late():
-                        break
-                    angle = i * math.tau / RAYS
-                    escape((here[0] + 22 * math.cos(angle), here[1] + 22 * math.sin(angle)))
-            # Fighting in place may be the least-harm escape if it removes the
-            # threats sooner than a walk. It still never lifts the lethal veto.
-            if facts.in_reach and facts.attacking and veto(hold_harm, look.life, settings) is None:
-                candidates.append(Candidate(Hold(facts.goal), hold_seconds, hold_harm, True, hold_unstruck, True))
-            elif not (facts.in_reach and facts.attacking):
-                # Staying where it stands, striking nothing, is an act too, priced as one: chosen only when it is
-                # the least harm of all (no strike from here would lower it, every way out costs more).
-                idle = harm(look, here, settings.horizon, hands, settings)
-                candidates.append(Candidate(NoWay(WAITING), math.inf, idle, True))
-        lap('the retreats')
+            self.retreats(p, held)
+        clock.lap('the retreats')
         priced = replace(
             facts,
-            candidates=tuple(candidates),
+            candidates=tuple(p.candidates),
             priced=True,
             budget=allowance,
             life=look.life,
             kappa=kappa,
             safety=settings,
         )
-        obstructed = next(
-            (
-                c
-                for c in candidates
-                if not c.retreat and isinstance(c.act, (Move, Operate)) and c.harm.worst > allowance
-            ),
-            None,
-        )
+        obstructed = p.obstructed()
         if obstructed is not None:
             self.blocked_by = blockers(obstructed.harm, allowance)
         chosen = decide(priced, posted)
+        self.remember(chosen, look, p.here, asking, key, facts.now, posted)
+        self.decision = p.record(
+            chosen, dear=dear, insisting=insisting, spendable=spendable, blocked_by=self.blocked_by, draws=self.draws
+        )
+        if clock.timer is not None:
+            clock.lap('the choice')
+            self.over(facts.now, clock.timer() - clock.began, settings.look_seconds, clock.laps, chosen)
+        return priced
+
+    def insisting(self, now: float, posted, key: tuple, asking: bool, running: bool) -> float:
+        """Seconds the goal `key` has been asked for and blocked without a gap of 0.7 s (`budget`'s `insisting`); 0
+        when not."""
+        if (
+            asking
+            and key == self.blocked_goal
+            and now - self.last_press < 0.7
+            and (running or posted.pressed_at > self.first_press)
+        ):
+            return now - self.blocked_since
+        return 0.0
+
+    def hold(self, p: Pricing) -> Held:
+        """Holding here; in a fight with the build's draw (`weigh`) where it pays: the companions sent onto the hostile
+        it pays most on, its cast in the hold's time and its strike gap (T + kappa x H over its span), so the hold
+        with it competes with the escapes and the retreat as one act."""
+        facts, look = p.facts, p.look
+        hold_harm, future = p.holding(look)
+        hold_seconds = p.clear + p.swap_seconds
+        hold_unstruck = p.swap_seconds
+        self.draws, self.drawn_at = (None if self.draw is None else {}), facts.now
+        if facts.in_reach and facts.attacking:
+            pressed = hold_harm.worst > p.allowance
+            drawn = self.weigh(
+                look, p.seen, p.settings, p.kappa, p.here, p.clear, p.swap_path, p.killed, pressed=pressed
+            )
+            if drawn is not None:
+                target = next(m.at for m in look.hostiles if m.unit == drawn.unit)
+                assert self.draw is not None
+                sent = tuple(index for index, _ in self.sendable)
+                later = {unit: at + drawn.cost for unit, at in p.killed.items()}  # no strike during the cast
+                drawn_look = sent_onto(look, sent, target, self.draw.reach, self.draw.beside, self.draw.pack)
+                hold_harm, future = p.holding(drawn_look, later)
+                hold_seconds += drawn.cost - drawn.gain
+                hold_unstruck += drawn.cost
+        if not p.battle_ready:
+            hold_harm = replace(hold_harm, barred='battle weapon swap is unavailable')
+        return Held(hold_harm, future, hold_seconds, hold_unstruck)
+
+    def offered_stand(self, p: Pricing, fresh: bool, posted) -> None:
+        """In a running fight (a level run's or a press's), the better place its own look found (`offer`): a closer
+        stand whose casts take more (stance `taken` counts what lands from there), priced as a firing stand against
+        holding by T + kappa x H and held to the commitment (pursuit.py `arbitrate`); its harm decides how near a
+        dangerous pack it goes."""
+        facts, offered = p.facts, self.stand
+        if (
+            offered is not None
+            and 0.0 <= facts.now - offered[1] <= STAND_FRESH
+            and facts.in_reach
+            and facts.attacking
+            and (fresh or (posted is not None and posted.runs))
+            and math.dist(p.here, offered[0].spot) > 2
+            and not any(math.dist(offered[0].spot, foe.at) < KEEP_AWAY for foe in p.seen.foes.values())
+        ):
+            p.move_price(offered[0], firing=True)
+
+    def stepping(self, p: Pricing, hold_harm: Harm, saving: float, least: float) -> None:
+        """Escapes while something is safe, priced whenever what one could save (`saving`) may exceed the least it
+        costs (`least` and the walk there): stands the strike goes on from, competing with holding or waiting by
+        T + kappa x H (STEPPING: the life saved is why, not a better strike pace). The read models' places first (an
+        act under way, combat/threats), then the threat's geometry where a strike can be made from; ESCAPES_MOST."""
+        here, count = p.here, 0
+        for point, why, dodge in self.offered(here, p.look, hold_harm):
+            if count >= ESCAPES_MOST or p.clock.late():
+                break
+            if why == AWAY and not p.strikes_from(point):
+                continue
+            if saving <= least + math.dist(here, point) / RUN_SPEED:
+                continue
+            spot = footing(p.field_, here, point)
+            if spot is None:
+                continue
+            count += 1
+            p.move_price(Step(spot), firing=True, why=f'{STEPPING} {why}', dodge=dodge)
+
+    def retreats(self, p: Pricing, held: Held) -> None:
+        """Nothing is safe: the retreats, each a real leg (equal harm prefers less time). First within the strike's
+        reach of what ends the harm (`keeper`, the nearest first: the fight goes on, pursuit.py `arbitrate` prefers
+        one that fits the budget), then the escapes (`offered`), then the plain rays when no retreat fits; last,
+        holding (never past the lethal veto) or, out of reach, standing idle (WAITING)."""
+        facts, look, seen, settings, here = p.facts, p.look, p.seen, p.settings, p.here
+        asked: list[Point] = []
+        threat = held.harm if held.harm.by else held.ahead
+        ender = keeper(look, seen, threat)
+        if ender is not None:
+            at = seen.foes[ender].at
+            for index, point in enumerate(keeping(here, at, p.attack.reach)):
+                if index >= 2 and p.clock.late():
+                    break
+                p.retreat_to(point, asked, at)
+        places = [point for point, _, _ in self.offered(here, look, threat)]
+        for index, point in enumerate(places[:ESCAPES_MOST]):
+            if index >= 2 and p.clock.late():
+                break
+            p.retreat_to(point, asked)
+        if not places or not any(p.feasible(c) for c in p.candidates if c.retreat):
+            for i in range(RAYS):
+                if p.clock.late():
+                    break
+                angle = i * math.tau / RAYS
+                p.retreat_to((here[0] + 22 * math.cos(angle), here[1] + 22 * math.sin(angle)), asked)
+        # Fighting in place may be the least-harm escape if it removes the threats sooner than a walk.
+        if facts.in_reach and facts.attacking and veto(held.harm, look.life, settings) is None:
+            p.candidates.append(Candidate(Hold(facts.goal), held.seconds, held.harm, True, held.unstruck, True))
+        elif not (facts.in_reach and facts.attacking):
+            # Standing, striking nothing: chosen only when it is the least harm of all.
+            idle = harm(look, here, settings.horizon, p.hands, settings)
+            p.candidates.append(Candidate(NoWay(WAITING), math.inf, idle, True))
+
+    def remember(self, chosen: Act, look: Look, here: Point, asking: bool, key: tuple, now: float, posted) -> None:
+        """What the choice leaves for the next looks: the read models' acts stepped across from here (`stepped`), and
+        the goal asked for blocked while the choice is neither a move toward it nor a use (`insisting`)."""
         if isinstance(chosen, Move) and chosen.reason.startswith(STEPPING):
             for m in look.hostiles:
                 if threats.of(m.txt) is not None:
@@ -828,56 +1013,13 @@ class Safety:
             or (isinstance(chosen, Move) and chosen.reason.startswith('retreating'))
         )
         if blocked_goal:
-            if self.blocked_goal != key or facts.now - self.last_press >= 0.7:
-                self.blocked_since = facts.now
+            if self.blocked_goal != key or now - self.last_press >= 0.7:
+                self.blocked_since = now
                 self.first_press = posted.pressed_at
             self.blocked_goal = key
-            self.last_press = facts.now
+            self.last_press = now
         else:
             self.blocked_goal = None
-        self.decision = {
-            'looked_at': facts.now,
-            'goal': goal.label,
-            'goal_place': goal.place,
-            'life': look.life,
-            'hands': hands,
-            'budget': round(allowance, 1),
-            'dear': dear,
-            'floor_raised': insisting > 0,
-            'stock_share': round(stock_share(settings, spendable), 3),
-            'chosen': type(chosen).__name__,
-            'chosen_place': chosen.step.spot if isinstance(chosen, Move) else here,
-            'reason': getattr(chosen, 'reason', ''),
-            'blocked_by': self.blocked_by,
-            'killed': {unit: round(at, 2) for unit, at in sorted(killed.items(), key=lambda r: r[1])[:8]},
-            'draws': {unit: round(price.worth, 2) for unit, price in (self.draws or {}).items()},
-            'late': late(),
-            'ms': round((timer() - began) * 1000, 1) if timer is not None else None,
-            'candidates': [
-                {
-                    'act': type(c.act).__name__,
-                    'why': c.act.reason if isinstance(c.act, Move) else '',
-                    'place': c.act.step.spot if isinstance(c.act, Move) else here,
-                    'skill': c.act.step.skill if isinstance(c.act, Move) else None,
-                    'hands': c.act.step.needs if isinstance(c.act, Move) else hands,
-                    'T': round(c.seconds, 3) if math.isfinite(c.seconds) else None,
-                    'H': round(c.harm.mean, 1),
-                    'worst': round(c.harm.worst, 1),
-                    'veto': veto(c.harm, look.life, settings),
-                    'retreat': c.retreat,
-                    'dodge': isinstance(c.act, Move) and c.act.dodge,
-                    'keeps': c.keeps,
-                    'contributors': c.harm.by,
-                    'stand_ins': c.harm.stand_ins,
-                    'blocked_by': blockers(c.harm, allowance),
-                }
-                for c in candidates
-            ],
-        }
-        if timer is not None:
-            lap('the choice')
-            self.over(facts.now, timer() - began, settings.look_seconds, laps, chosen)
-        return priced
 
     def over(self, now: float, took: float, budget: float, laps: dict[str, float], chosen) -> None:
         """A look that took more than OVER_BUDGET times its time (`SafetySettings.look_seconds`) is said with the

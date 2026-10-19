@@ -8,8 +8,8 @@ import random
 import pytest
 
 from inventory_tracking.macros import routines, teleport
+from inventory_tracking.macros.game.records import Player
 from inventory_tracking.macros.view import FEET, Viewport
-from inventory_tracking.macros.world import Player
 
 
 ASPECTS = (16 / 9, 4 / 3, 21 / 9, 1.0)
