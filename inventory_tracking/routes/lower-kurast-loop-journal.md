@@ -378,7 +378,7 @@ the stash. Plan: `andariel-loop-plan.md`. Nothing committed.
   mobs, we're freezing ... then, after a few seconds we starts attacking"; rca/2026-10-18/freeze-near-mobs-findings.md):
   the stairs are a way, so `Hunter.cleared` made each pack within 30 units the goal, and the rush gate held the strike
   RUSH_UNMOVED (1.5 s) after each Teleport: 41 stands, 74 s, 10:20-10:41. Now the loop's rushed run (not a full
-  clear) keeps the route's goal (hunt.py `cleared`; test_runmode). Measured 10:55-10:58, 5 games: down the Catacombs
+  clear) keeps the route's goal (hunting/choice.py `cleared`; test_runmode). Measured 10:55-10:58, 5 games: down the Catacombs
   median 14.3 s (27-33 s before, 51-57 s in games 6-8), games 46.5 s median, 88/h (58.9/h before); no "clearing the
   way (" goal. Wide suite 1926 passed.
 - **11:00, the prebuff back in town** (the player, 10:58: "consume buff grants +run/walk speed and make things faster
@@ -516,7 +516,7 @@ the stash. Plan: `andariel-loop-plan.md`. Nothing committed.
 - Clear order (hunt.py REMEMBERED_NEAR 45): the player, "we starts to go from one side to another back and forward";
   126 of 179 legs to a remembered monster were over 60 units. Now: in sight, remembered within 45, the room tour, the
   far remembered last. Loaded 00:23:07.
-- Super chests (hunt.py `super_chest_goal`, SUPER_NEAR 60): opened live at 00:24:26 (Infernal Pit), 00:49, 00:52.
+- Super chests (hunting/choice.py `super_chest_goal`, SUPER_NEAR 60): opened live at 00:24:26 (Infernal Pit), 00:49, 00:52.
 - Doors with no press in a terror zone (runner.py `_run_over`, `onward`): live at 00:35:46, door to the next level's
   run in 1.5 s.
 - Tomb tour (routes: `tour`, `back`; the player: canyon first, then tombs; trade by Town Portal in Lut Gholein):
@@ -558,7 +558,7 @@ the stash. Plan: `andariel-loop-plan.md`. Nothing committed.
   and whether the state reads (else the row recasts every 60 s: STATE_DISTRUST).
 - Terror zones: tools/tz.py (kills a minute per level stay). Baseline 23:00-23:33: 19 stays, 29.4 min, 1610 kills,
   54.9 kills a minute, standing 37%. One 47.5 s stand by an Amulet with the inventory full and the cube with room
-  (hunt.py `stay_by`: waits for the player).
+  (hunting/choice.py `stay_by`: waits for the player).
 
 ### 2026-10-17 22:37: Enigma worn: its Teleport is the character's own (no game played yet)
 
@@ -1825,7 +1825,7 @@ Chipped Topaz now keep it moving).
   `test_a_new_game_and_the_recovery_pause_count_no_stand`. Wide suite 2447 passed (without scenarios). Restart due
   with the menu change. Open: Consume by the Fortress waypoint showing nothing (once in ~10 games so far).
 - 09:33:30 restart `20261019T063324Z-9e62e834`: the stillness fix, menu_line (Cain, Jamella, Halbu), super chests as
-  the agenda's CHEST tier (agent; agenda.py, hunt.py `agenda_chests`/`agenda_chest`).
+  the agenda's CHEST tier (agent; agenda.py, hunting/choice.py `agenda_chests`/`agenda_chest`).
 - 09:32-09:38 **Frozen River never entered** (zone Crystalline Passage → Frozen River): the side-trip entrance (POI
   kind 'target', PoiSpec.warp) was no door for guide.py `_target_of` (warp only for WAYS_OUT): "no hop toward Frozen
   River: the character is beside it", "TZ next level" ×40 in 2 s, the game left, every game. Fix: Poi.entrance set by

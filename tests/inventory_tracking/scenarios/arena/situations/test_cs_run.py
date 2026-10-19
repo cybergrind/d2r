@@ -328,8 +328,8 @@ def test_today_the_pickup_key_and_a_held_teleport_key_open_the_viziers_seals_and
 @HELD_EMPTY
 def test_today_with_the_staff_empty_the_held_teleport_key_opens_the_first_seal_and_dies_without_a_strike() -> None:
     """Pins today's state. Since the navigation classes (2026-10-15, rca/2026-10-14/navigation-classes.md) the step
-    with the staff empty goes by the class in hand (hunt.py `class_step`: the walked way, a Blade Warp over a clear
-    line), not toward a Teleport landing: it no longer stops on "no Blade Warp or walk leads toward Vizier seal 1"
+    with the staff empty goes by the class in hand (hunting/moves.py `class_step`: the walked way, a Blade Warp over a
+    clear line), not toward a Teleport landing: it no longer stops on "no Blade Warp or walk leads toward Vizier seal 1"
     by the star (before: six seeds of ten stalled there or in the entrance's hall, alive, one died on the way,
     three opened the seal and died). It comes to Vizier seal 1 and opens it at about 21 s, and then dies as the
     full staff's play does (`test_today_the_pickup_key_and_a_held_teleport_key_...`): today's held key pauses

@@ -60,7 +60,9 @@ def quick_cast_over_as_it_was(run, skill):
 # Also since: a jump keeps clear of where the melee monsters will be when it lands (stance.CLOSING_MOST),
 # and a Herald's pack gets the main weapons (hunt.Hunter.tough).
 AS_IT_WAS = {
-    'inventory_tracking.macros.hunt.GATHER_CLEAR': 0.0,
+    'inventory_tracking.macros.hunting.base.GATHER_CLEAR': 0.0,
+    'inventory_tracking.macros.hunting.choice.GATHER_CLEAR': 0.0,
+    'inventory_tracking.macros.hunting.sweep.GATHER_CLEAR': 0.0,
     'inventory_tracking.macros.rotation.Rotation.key': key_as_it_was,
     'inventory_tracking.combat.stance.CLOSING_MOST': 0.0,
     'inventory_tracking.combat.stance.CROWD_ESCAPE': 0.0,  # no step out of a pack stood in (2026-10-13)
@@ -68,7 +70,9 @@ AS_IT_WAS = {
     # and attack mode drinks beside the fight (macros/drinking.py, 2026-10-13)
     'inventory_tracking.macros.drinking.Drinker.look': lambda self, run, here: None,
     # and a potion among monsters is left by the pickup key too (hunt.threat, the same day)
-    'inventory_tracking.macros.hunt.threat': lambda run: lambda here, spot: 0,
+    'inventory_tracking.macros.hunting.choice.threat': lambda run: lambda here, spot: 0,
+    'inventory_tracking.macros.hunting.moves.threat': lambda run: lambda here, spot: 0,
+    'inventory_tracking.macros.hunting.sweep.threat': lambda run: lambda here, spot: 0,
     'tests.inventory_tracking.scenarios.battle.replay.threat': lambda run: lambda here, spot: 0,
     # and a key waits only for the button's return once any look saw the key before's cast (2026-10-14)
     'inventory_tracking.macros.routines.quick_cast_over': quick_cast_over_as_it_was,

@@ -2,10 +2,7 @@
 
 from inventory_tracking.items.metadata import metadata
 from inventory_tracking.items.ranges import annotate_roll_ranges
-from pricing.knowledge.assessment.adapters.capture import normalize
-from pricing.knowledge.assessment.mechanics.runeword_rolls import BOUNDED_STATS, enhancement_gaps
-from pricing.knowledge.assessment.registry import classify
-from pricing.knowledge.definition_store import catalog
+from pricing.api import BOUNDED_STATS, catalog, classify, enhancement_gaps, normalize
 
 
 ROLL_FIELDS = ('roll_range', 'roll_quality', 'roll_quality_range', 'roll_tier', 'roll_tier_count')

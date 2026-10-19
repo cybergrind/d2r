@@ -11,6 +11,7 @@ from inventory_tracking.macros import pursuit as p
 from inventory_tracking.macros.build import Step
 from inventory_tracking.macros.goals import Goal
 from inventory_tracking.macros.travel import PRESSED
+from tests.inventory_tracking.macros.fakes import patch_hunt
 
 
 def step_of(act: object) -> Step:
@@ -91,14 +92,13 @@ def test_escape_options_include_a_charged_set_on_the_back_and_a_walk():
 
 
 def test_failed_weapon_swap_cannot_authorize_a_battle_priced_act(monkeypatch):
-    from inventory_tracking.macros import hunt as module
     from tests.inventory_tracking.macros.test_hunt import game, hunter, keys
 
     play = game()
     play.sets.reverse()
     hunt = hunter(play)
     hunt.build = replace(hunt.build, settings=hunt.build.settings.model_copy(update={'pursuit': True}))
-    monkeypatch.setattr(module, 'take_battle_weapons', lambda run: None)
+    patch_hunt(monkeypatch, 'take_battle_weapons', lambda run: None)
     run = play.run()
     assert not hunt.main_weapons(run, play.world, keys)
     assert not hunt.main_weapons(run, play.world, keys)  # failed-swap cooldown grants no licence
@@ -913,7 +913,7 @@ def test_a_teleports_window_holds_the_keys_second_press_and_its_price_is_unchang
     # rca/2026-10-17/teleport-not-cast-findings.md: ~5% of Teleport keys cast nothing; the press again lands 0.26-0.39 s
     # later, but the act's window (its price, 0.81 s) ran out first in 115 of 126 and the hop counted as failed
     from inventory_tracking.macros.build import PricedStep
-    from inventory_tracking.macros.hunt import act_window
+    from inventory_tracking.macros.hunting.base import act_window
     from inventory_tracking.macros.teleport import REPRESS_SECONDS, TELEPORT
 
     hop = PricedStep((10.0, 10.0), TELEPORT, needs='travel', seconds=0.81)

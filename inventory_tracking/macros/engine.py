@@ -28,6 +28,50 @@ if TYPE_CHECKING:
 POLL = 0.03
 
 
+class Reads:
+    """A run's optional game reads, None where the run has no reader for one (`Run`'s closures: a test's fake, a
+    harness, the service without memory). Spares each caller its own `run.X() if run.X is not None else None`."""
+
+    def __init__(self, run: Run) -> None:
+        self._run = run
+
+    def carried(self) -> Pack | None:
+        read = self._run.carried
+        return read() if read is not None else None
+
+    def teleport(self) -> Teleport | None:
+        read = self._run.teleport
+        return read() if read is not None else None
+
+    def stash_view(self) -> StashView | None:
+        read = self._run.stash_view
+        return read() if read is not None else None
+
+    def loot(self) -> Loot | None:
+        read = self._run.loot
+        return read() if read is not None else None
+
+    def wear(self) -> Wear | None:
+        read = self._run.wear
+        return read() if read is not None else None
+
+    def own_teleport(self) -> bool | None:
+        read = self._run.own_teleport
+        return read() if read is not None else None
+
+    def worn_skills(self) -> frozenset[int] | None:
+        read = self._run.worn_skills
+        return read() if read is not None else None
+
+    def hovered(self) -> tuple[int, int] | None:
+        read = self._run.hovered
+        return read() if read is not None else None
+
+    def ground(self) -> Ground | None:
+        read = self._run.ground
+        return read() if read is not None else None
+
+
 class Run:
     def __init__(
         self,
@@ -44,6 +88,7 @@ class Run:
         build: Build,
     ) -> None:
         self.read = read
+        self.reads = Reads(self)
         # The build the run plays (macros/build.py): what the character moves by, casts before a game and holds.
         # The runner's, chosen again at the run's first look that shows the character (runner.py `choosing`);
         # until that look, the one it played before.
@@ -122,8 +167,8 @@ class Run:
         self.mark: Callable[[str], None] = lambda name: None  # a moment of the press's trace (latency.py)
         # a warning that stays on the card until it is taken back with None (runner.py `_warn`)
         self.warn: Callable[[str | None], None] = lambda text: None
-        # the same warning, of the level run standing by a valuable it has no room for (hunt.py `stay_by`): the loop's
-        # watchdog makes room for it by this, not by the text (runner.py `_stand_by`)
+        # the same warning, of the level run standing by a valuable it has no room for (hunting/choice.py `stay_by`):
+        # the loop's watchdog makes room for it by this, not by the text (runner.py `_stand_by`)
         self.stand_by: Callable[[str], None] = lambda text: self.warn(text)
         # on `clock`: the press this run answers is not worth an input after it (runner.EXPIRES)
         self.deadline = math.inf

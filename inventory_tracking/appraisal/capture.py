@@ -1,7 +1,6 @@
 """Host-only request capture; freeze one selected item before local KB work."""
 
 import copy
-import os
 import threading
 import time
 from typing import Any
@@ -15,14 +14,14 @@ from inventory_tracking.items.context import viewer_context
 from inventory_tracking.items.decode import decode_items
 from inventory_tracking.items.modifiers import owned_damage_modifiers, owned_defense_modifiers
 from inventory_tracking.models import SessionIdentity
-from inventory_tracking.native.image_probe import read_mappings
 from inventory_tracking.native.item_diagnostics import capture_stat_candidates
 from inventory_tracking.native.layout import SUPPORTED_SHA256
+from inventory_tracking.native.memory import BoundedReader, ProcessMemory, mappings_held
 from inventory_tracking.native.process import identity, process_mappings
 from inventory_tracking.native.resource_probe import read_item_arrays
 from inventory_tracking.native.socket_items import read_socket_items
 from inventory_tracking.native.stack_items import read_stack_count
-from inventory_tracking.native.unit_probe import ResearchReader, sample_units
+from inventory_tracking.native.unit_probe import sample_units
 from inventory_tracking.native.units import describe_item, unit_matches
 
 
@@ -103,9 +102,9 @@ def verify_item(pid, images, item, expected_arrays=None, *, socket_candidates=No
     if identity(pid) != images['identity']:
         raise ValueError('Game process changed')
     before = process_mappings(pid)
-    fd = os.open(f'/proc/{pid}/mem', os.O_RDONLY)
+    memory = ProcessMemory(pid)
     try:
-        reader = ResearchReader(fd, before)
+        reader = BoundedReader(memory.fileno(), before)
         item_data = reader.read(item['data_pointer'], 0x60)
         stack = stack or 'stack_count' in (expected_arrays or {})
         quantity = read_stack_count(reader.read, item) if stack else None
@@ -165,11 +164,9 @@ def verify_item(pid, images, item, expected_arrays=None, *, socket_candidates=No
         if expected_arrays is None and item['stats_pointer']:
             arrays['stat_diagnostics'] = diagnostics
     finally:
-        os.close(fd)
+        memory.close()
     after = process_mappings(pid)
-    if identity(pid) != images['identity'] or any(
-        read_mappings(before, a, n) != read_mappings(after, a, n) for a, n in reader.ranges
-    ):
+    if identity(pid) != images['identity'] or not mappings_held(before, after, reader.ranges):
         raise ValueError('Selected item process/mapping changed')
     return arrays
 

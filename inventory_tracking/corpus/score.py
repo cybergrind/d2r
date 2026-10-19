@@ -34,15 +34,14 @@ def load(data: Path):
 
 def _init(store):
     from inventory_tracking.appraisal.published_backend import process_publications
-    from pricing.knowledge.publication import pointer_generation
+    from pricing.api import pointer_generation
 
     global _LOADED
     _LOADED = process_publications(store).get(pointer_generation(store), validate=False)
 
 
 def _assess(row) -> dict[str, Any]:
-    from pricing.knowledge.pipeline import retrieve_draft
-    from pricing.knowledge.published_runtime import published_snapshot
+    from pricing.api import published_snapshot, retrieve_draft
 
     try:
         loaded = _LOADED
@@ -111,7 +110,7 @@ def score(results, labels, *, legacy=False) -> dict:
 
 
 def main(argv=None):
-    from pricing.knowledge.publication import DEFAULT_STORE
+    from pricing.api import DEFAULT_STORE
 
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--data', type=Path, default=DATA)

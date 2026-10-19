@@ -6,7 +6,7 @@ from types import SimpleNamespace
 import pytest
 
 from inventory_tracking.appraisal import published_backend
-from pricing.knowledge.definition_store import fingerprint
+from pricing.api import definitions_fingerprint as fingerprint
 
 
 class Publications:

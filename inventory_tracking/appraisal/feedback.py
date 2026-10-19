@@ -4,7 +4,7 @@ import json
 
 from inventory_tracking.common import timestamp
 from inventory_tracking.corpus.build import item_id
-from pricing.knowledge.refresh import atomic_json
+from pricing.api import atomic_json
 
 
 def flag(record, directory, source):

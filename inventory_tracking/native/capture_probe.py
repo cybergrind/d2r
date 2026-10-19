@@ -1,21 +1,20 @@
 """Persist a sparse image capture for offline location research."""
 
 import hashlib
-import os
 from typing import Any
 
 from inventory_tracking.common import LOG
 from inventory_tracking.native.capture import MAX_CAPTURE, capture_ranges, scan_unit_table
-from inventory_tracking.native.image_probe import read_mappings
 from inventory_tracking.native.images import read_pe
+from inventory_tracking.native.memory import ProcessMemory, read_mappings
 from inventory_tracking.native.process import identity, process_mappings
 from inventory_tracking.reports import publish
 
 
-def headers_match(fd, base, pe) -> bool:
+def headers_match(memory: ProcessMemory, base, pe) -> bool:
     """False when the loaded PE headers differ or cannot be read (the game starting or exiting)."""
     try:
-        return read_pe(lambda offset, size: os.pread(fd, size, base + offset)) == pe
+        return read_pe(lambda offset, size: memory.pread(base + offset, size)) == pe
     except OSError, ValueError:
         return False
 
@@ -35,14 +34,13 @@ def capture_image(pid, images, directory) -> dict[str, Any]:
         for m in before
         if m['permissions'].startswith('r') and m['start'] < end and m['end'] > base
     ]
-    fd = os.open(f'/proc/{pid}/mem', os.O_RDONLY)
-    try:
-        if identity(pid) != token or not headers_match(fd, base, pe):
+    with ProcessMemory(pid) as memory:
+        if identity(pid) != token or not headers_match(memory, base, pe):
             return {'status': 'stale', 'error': 'Process or PE headers changed before capture'}
         path = directory / 'image.bin'
         with path.open('xb') as stream:
             path.chmod(0o600)
-            result = capture_ranges(lambda address, size: os.pread(fd, size, address), ranges, stream)
+            result = capture_ranges(memory.pread, ranges, stream)
         after = process_mappings(pid)
         result.update(
             status='captured',
@@ -56,7 +54,7 @@ def capture_image(pid, images, directory) -> dict[str, Any]:
         for block in result['blocks']:
             address, size = block['address'], block['size']
             block['mapping_stable'] = read_mappings(before, address, size) == read_mappings(after, address, size)
-        if identity(pid) != token or not headers_match(fd, base, pe):
+        if identity(pid) != token or not headers_match(memory, base, pe):
             result['status'] = 'stale'
         with path.open('rb') as stream:
             result['sha256'] = hashlib.file_digest(stream, 'sha256').hexdigest()
@@ -78,8 +76,6 @@ def capture_image(pid, images, directory) -> dict[str, Any]:
             result['unit_table_candidates'] = (
                 scan_unit_table(code_blocks(), base, pe['image_size']) if result['status'] != 'stale' else []
             )
-    finally:
-        os.close(fd)
     publish(directory / 'capture.json', result)
     LOG.info(
         'Captured %s bytes; %s signature candidates; status=%s',

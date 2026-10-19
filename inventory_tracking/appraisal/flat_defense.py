@@ -5,12 +5,14 @@ properties add to that base. Enhanced/per-level and set contributions are separa
 """
 
 from inventory_tracking.items.ranges import annotate_roll_ranges
-from pricing.knowledge.assessment.adapters.capture import normalize
-from pricing.knowledge.assessment.handlers.definitions import resolve_named_definition
-from pricing.knowledge.assessment.handlers.socket_fillers import compare_named_sockets
-from pricing.knowledge.assessment.policies.trade_defense import girth_bounds
-from pricing.knowledge.assessment.registry import classify
-from pricing.knowledge.market_base_catalog import equipment_base
+from pricing.api import (
+    classify,
+    compare_named_sockets,
+    equipment_base,
+    girth_bounds,
+    normalize,
+    resolve_named_definition,
+)
 
 
 def display_flat_defense(extraction, rows):

@@ -99,7 +99,8 @@ def test_the_loops_run_hops_beside_what_it_opens_and_opens_it_from_there():
     # chest (1.4 s, twice past the act's 1.5 s), and a hop aimed onto a chest's own spot was not cast.
     from inventory_tracking.builds import pursuing
     from inventory_tracking.levels.model import Ground
-    from inventory_tracking.macros.hunt import OPEN_NEAR, Bearings
+    from inventory_tracking.macros.hunt import Bearings
+    from inventory_tracking.macros.hunting.base import OPEN_NEAR
     from inventory_tracking.macros.pursuit import FULL, Move, Operate, Pursuit
     from inventory_tracking.macros.route import PERFORMED
     from inventory_tracking.macros.travel import LOOP_SHORT
@@ -171,7 +172,7 @@ def test_the_shacks_other_container_is_clicked_from_beside_the_one_opened():
     # The player, 21:50 on 2026-10-17: "we teleport into center of it and then go to weapon stand and travel back to
     # chest". From beside one, the other was 13-17 away and hopped to: 1.75 s first open to second (81 times), against
     # 0.72 s clicked and walked to (160)
-    from inventory_tracking.macros.hunt import PAIR_NEAR, paired
+    from inventory_tracking.macros.hunting.base import PAIR_NEAR, paired
 
     opened = replace(CHEST, mode=1)
     by_the_chest = (CHEST.x + 2.0, CHEST.y + 2.0)  # 14.1 from the rack

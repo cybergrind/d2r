@@ -6,15 +6,15 @@ This recorder never enables an OSD warning or sends game input.
 
 import argparse
 import json
-import os
 import struct
 import time
 from collections import deque
 from pathlib import Path
 
 from inventory_tracking.common import LOG, configure_logging, log_to_file, timestamp
+from inventory_tracking.native.memory import bounded
 from inventory_tracking.native.process import identity, process_mappings
-from inventory_tracking.native.unit_probe import ResearchReader, sample_units
+from inventory_tracking.native.unit_probe import sample_units
 from inventory_tracking.native.units import read_stats, unit_matches
 from inventory_tracking.reports import create_run, publish
 from inventory_tracking.tracking.reader import LiveReader
@@ -103,9 +103,7 @@ def capture_sample(pid, images, capture):
     mappings = process_mappings(pid)
     if identity(pid) != token:
         raise ValueError('Process changed before buff capture')
-    fd = os.open(f'/proc/{pid}/mem', os.O_RDONLY)
-    try:
-        reader = ResearchReader(fd, mappings)
+    with bounded(pid, mappings) as reader:
         if not unit_matches(reader.read, player):
             raise ValueError('Player changed before buff capture')
         effects = collect_effect_lists(reader.read, player['stats_pointer'])
@@ -129,8 +127,6 @@ def capture_sample(pid, images, capture):
             'effect_lists': effects,
             **result,
         }
-    finally:
-        os.close(fd)
 
 
 def record(directory, report, *, seconds, pid=None):

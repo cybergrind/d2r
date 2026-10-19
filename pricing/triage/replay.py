@@ -1,12 +1,13 @@
-"""Both triage score reports from local data, without detail-engine appraisal."""
+"""Both triage score reports from local data, without detail-engine appraisal.
+
+The corpus and its scorer are the host's: `python -m inventory_tracking.corpus.replay` passes them in.
+"""
 
 import json
 import time
 from collections import Counter
 from statistics import median
 
-from inventory_tracking.corpus.build import DATA, RUNS, merge
-from inventory_tracking.corpus.score import load, score
 from pricing.triage.adapters import from_drop, from_listing
 from pricing.triage.analyze_rolls import analyze
 from pricing.triage.bands import eligible, latest_rows
@@ -177,14 +178,15 @@ def compare_types(items, results, legacy, *, keep_ist):
     return dict(sorted(groups.items()))
 
 
-def main():
+def report(data, read_corpus, scorer):
+    """Write score-guides/-triage/-listings.json into `data`; `read_corpus()` -> (items, labels),
+    `scorer(results, labels)` -> the explicit-regression score."""
     from inventory_tracking.items.metadata import metadata
     from pricing.knowledge.refresh import atomic_json
 
     started = time.perf_counter()
     tables = Tables().load()
-    merge(RUNS, DATA)
-    items, labels = load(DATA)
+    items, labels = read_corpus()
     results, timings = [], []
     for row in items:
         before = time.perf_counter()
@@ -194,9 +196,9 @@ def main():
         results.append({'id': row['id'], 'name': item.get('name'), 'rarity': item.get('rarity'), **result})
     from pricing.triage.guide_cases import build_cases, evaluate
 
-    guide_score = evaluate(build_cases(), lambda item: assess(item, tables))
-    atomic_json(DATA / 'score-guides.json', guide_score)
-    summary = {'explicit_regressions': score(results, labels), 'guide_cases': guide_score['groups']}
+    guide_score = evaluate(build_cases(), lambda item: assess(item, tables), scorer=scorer)
+    atomic_json(data / 'score-guides.json', guide_score)
+    summary = {'explicit_regressions': scorer(results, labels), 'guide_cases': guide_score['groups']}
     rarity_counts = {}
     for result in results:
         rarity_counts.setdefault(result.get('rarity', 'unknown'), Counter())[result['verdict']] += 1
@@ -210,9 +212,9 @@ def main():
     }
     named = sum((counts for rarity, counts in rarity_counts.items() if rarity in ('unique', 'set')), Counter())
     summary['named_check_share'] = named['check'] / sum(named.values()) if named else None
-    baseline = json.loads((DATA / 'score-legacy-baseline-20261003.json').read_text())
+    baseline = json.loads((data / 'score-legacy-baseline-20261003.json').read_text())
     comparison = compare_types(items, results, baseline['results'], keep_ist=tables['rules']['keep_ist'])
-    atomic_json(DATA / 'score-triage.json', {'summary': summary, 'results': results, 'per_type': comparison})
+    atomic_json(data / 'score-triage.json', {'summary': summary, 'results': results, 'per_type': comparison})
     normalization_cache = {}
     rows, _ = market_rows(normalization_cache=normalization_cache)
     listing = listing_score(rows, tables)
@@ -234,7 +236,7 @@ def main():
     from pricing.triage.market_demand import agreement
 
     listing['demand_agreement'] = agreement(listing['cohort_verdicts'], listing['turnover'])
-    atomic_json(DATA / 'score-listings.json', listing)
+    atomic_json(data / 'score-listings.json', listing)
     print(
         json.dumps(
             {
@@ -252,7 +254,3 @@ def main():
             indent=2,
         )
     )
-
-
-if __name__ == '__main__':
-    main()

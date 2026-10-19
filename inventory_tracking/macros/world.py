@@ -9,7 +9,6 @@ import contextlib
 import functools
 import json
 import math
-import os
 import re
 import struct
 import threading
@@ -77,9 +76,8 @@ from inventory_tracking.native.layout import (
     UI_PANELS_SIZE,
     WEAPON_SLOTS,
 )
-from inventory_tracking.native.process import identity, process_mappings
+from inventory_tracking.native.memory import ProcessMemory, game_read
 from inventory_tracking.native.stack_items import read_stack_count
-from inventory_tracking.native.unit_probe import ResearchReader
 from inventory_tracking.native.units import read_stats, walk_units
 from inventory_tracking.tracking.belt import BeltColumns, remember
 from inventory_tracking.tracking.consume import read_consume
@@ -1134,17 +1132,8 @@ def things(read, table: int, classes: frozenset[int] = USED) -> tuple[Thing, ...
 def observe_things(pid, images, capture, classes: frozenset[int]) -> tuple[Thing, ...]:
     """The objects of `classes` near the player, opened read-only for this one read (the level guide's poll:
     a `use` mark's object operated by anyone, macros/card_goal.py)."""
-    tables = {x['table_address'] for x in capture['unit_table_candidates']}
-    if len(tables) != 1:
-        raise ValueError('Expected one freshly scanned unit table address')
-    token = images['identity']
-    fd = os.open(f'/proc/{pid}/mem', os.O_RDONLY)
-    try:
-        found = things(ResearchReader(fd, process_mappings(pid)).read, next(iter(tables)), classes)
-    finally:
-        os.close(fd)
-    if identity(pid) != token:
-        raise ValueError('Game process changed during the object read')
+    with game_read(pid, images, capture, changed='Game process changed during the object read') as (read, table):
+        found = things(read, table, classes)
     return found
 
 
@@ -1412,7 +1401,7 @@ class GameMemory:
 
     def __init__(self, pid: int, base: int, table: int) -> None:
         self.base, self.table = base, table
-        self.fd = os.open(f'/proc/{pid}/mem', os.O_RDONLY)
+        self.memory = ProcessMemory(pid)
         self.hover_raw: tuple[int, int, int, int] | None = None  # the last record read whole (`hovered`)
         self.stock_note: dict | None = None  # what the last vendor's stock read found (`stock`), logged when it changes
         self.where: tuple[float, float] | None = None  # where the character was at the last `place` or `loot`
@@ -1429,13 +1418,10 @@ class GameMemory:
         self.cta_seen: tuple[float, bool] | None = None  # (monotonic time, a Call to Arms worn) at `cta`
 
     def close(self) -> None:
-        os.close(self.fd)
+        self.memory.close()
 
     def read(self, address: int, size: int) -> bytes:
-        data = os.pread(self.fd, size, address)
-        if len(data) != size:
-            raise ValueError('short read')
-        return data
+        return self.memory.read(address, size)
 
     def _player(self) -> Player | None:
         return local_player(self.read, self.table)
@@ -1956,7 +1942,7 @@ class GameMemory:
         unit under the pointer would while the pointer is on it. Never raises."""
         try:
             data = b''.join(
-                os.pread(self.fd, 0x100000, self.base + DATA_RVA + offset).ljust(0x100000, b'\0')
+                self.memory.pread(self.base + DATA_RVA + offset, 0x100000).ljust(0x100000, b'\0')
                 for offset in range(0, DATA_SIZE, 0x100000)
             )
         except OSError:

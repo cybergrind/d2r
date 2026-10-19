@@ -5,7 +5,7 @@ from contextlib import closing
 from pathlib import Path
 
 from inventory_tracking.appraisal.owned import connect_readonly
-from pricing.knowledge.assessment.commodity_sets import relevant_set
+from pricing.api import relevant_set
 
 
 # Native codes verified in misc.json; market bundle meanings in commodity_sets.SETS.

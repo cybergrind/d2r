@@ -134,8 +134,8 @@ def test_restart_during_scan_discards_candidates():
             side_effect=[token, token, {'pid': 123, 'start_ticks': '2'}],
         ),
         patch('inventory_tracking.native.image_probe.process_mappings', return_value=[]),
-        patch('inventory_tracking.native.image_probe.os.open', return_value=77),
-        patch('inventory_tracking.native.image_probe.os.close'),
+        patch('inventory_tracking.native.memory.os.open', return_value=77),
+        patch('inventory_tracking.native.memory.os.close'),
         patch('inventory_tracking.native.image_probe.discover_images', return_value={'candidate_base': 4096}),
     ):
         result = inspect_images(123, game)
@@ -158,11 +158,9 @@ def test_unrelated_mapping_changes_do_not_discard_image():
         patch('inventory_tracking.native.image_probe.identity', return_value=token),
         patch('inventory_tracking.native.image_probe.disk_headers', return_value=({}, disk)),
         patch('inventory_tracking.native.image_probe.process_mappings', side_effect=[before, after]),
-        patch('inventory_tracking.native.image_probe.os.open', return_value=77),
-        patch('inventory_tracking.native.image_probe.os.close'),
-        patch(
-            'inventory_tracking.native.image_probe.os.pread', side_effect=lambda fd, a, o: data[o - 8192 : o - 8192 + a]
-        ),
+        patch('inventory_tracking.native.memory.os.open', return_value=77),
+        patch('inventory_tracking.native.memory.os.close'),
+        patch('inventory_tracking.native.memory.os.pread', side_effect=lambda fd, a, o: data[o - 8192 : o - 8192 + a]),
     ):
         result = inspect_images(123, game)
     assert result['status'] == 'candidate'
@@ -181,11 +179,9 @@ def test_read_mapping_change_discards_image():
         patch('inventory_tracking.native.image_probe.identity', return_value=token),
         patch('inventory_tracking.native.image_probe.disk_headers', return_value=({}, disk)),
         patch('inventory_tracking.native.image_probe.process_mappings', side_effect=[[mapping(8192)], []]),
-        patch('inventory_tracking.native.image_probe.os.open', return_value=77),
-        patch('inventory_tracking.native.image_probe.os.close'),
-        patch(
-            'inventory_tracking.native.image_probe.os.pread', side_effect=lambda fd, a, o: data[o - 8192 : o - 8192 + a]
-        ),
+        patch('inventory_tracking.native.memory.os.open', return_value=77),
+        patch('inventory_tracking.native.memory.os.close'),
+        patch('inventory_tracking.native.memory.os.pread', side_effect=lambda fd, a, o: data[o - 8192 : o - 8192 + a]),
     ):
         result = inspect_images(123, game)
     assert result['status'] == 'stale'

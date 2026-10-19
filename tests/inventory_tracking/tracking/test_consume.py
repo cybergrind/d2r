@@ -66,7 +66,7 @@ def test_process_change_refuses_memory_access(monkeypatch):
     def forbidden(*args):
         pytest.fail('Changed process must not be opened')
 
-    monkeypatch.setattr('inventory_tracking.tracking.consume.os.open', forbidden)
+    monkeypatch.setattr('inventory_tracking.native.memory.os.open', forbidden)
     result = observe_consume(1, {'identity': {'pid': 1}}, {'groups': {'players': {'units': [{'unit_id': 3}]}}}, 3)
     assert result.status == ObservationStatus.UNAVAILABLE
     assert result.reason == 'Consume process changed'

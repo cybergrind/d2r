@@ -817,7 +817,7 @@ class Loop:
             if source != self.portal:
                 # Said at the loop's first leg in a game and whenever it changes (the ring put on or taken off): the
                 # first live game confirms the Sling is read and its skill bound (macros/sling-plan.md)
-                worn = run.worn_skills() if run.worn_skills is not None else None
+                worn = run.reads.worn_skills()
                 LOG.info('Macro: loop: Town Portal from %s: skill %d %s; worn skills %s', source.name, source.skill,
                          slot_note(world, source), sorted(worn) if worn is not None else 'unread')  # fmt: skip
                 self.portal = source
@@ -966,7 +966,7 @@ class Loop:
             self.note_portal(run)
         elif leg == SWAP_OUT:
             self.swap_due, self.swap = False, game
-            now = run.carried() if run.carried is not None else None
+            now = run.reads.carried()
             ours = gheeds(now, self.own) if now is not None and self.own is not None else None
             if now is None or ours is None:
                 raise Abort("a unique Grand Charm the pickup could not take, and no Gheed's Fortune of the player's")
@@ -980,7 +980,7 @@ class Loop:
             self.note_portal(run)
             self.gheed = OUT
         elif leg == GHEED_STASH:
-            now = run.carried() if run.carried is not None else None
+            now = run.reads.carried()
             ours = gheeds(now, self.own) if now is not None and self.own is not None else None
             if ours is None:
                 self.gheed = RETURN
@@ -1000,7 +1000,7 @@ class Loop:
         elif leg == SWAP_BACK:
             parked = self.parked
             assert parked is not None
-            now = run.carried() if run.carried is not None else None
+            now = run.reads.carried()
             found = candidates(now, parked, self.swap_units) if now is not None else []
             if found:
                 LOG.info("Macro: charms: the new Gheed's Fortune picked up (unit %d at (%d, %d)%s): to town to compare",
@@ -1016,7 +1016,7 @@ class Loop:
         elif leg == GHEED_CHOOSE:
             parked = self.parked
             assert parked is not None
-            now = run.carried() if run.carried is not None else None
+            now = run.reads.carried()
             found = candidates(now, parked, self.swap_units) if now is not None else []
             unread = tuple(i for i in found if not i.identified)
             if unread and identify is not None:
@@ -1034,7 +1034,7 @@ class Loop:
             new = max(rivals, key=lambda i: magic_find(item_stats, i.unit_id) or 0) if rivals else None
             if new is not None and now is not None and new.unit_id in now.cube_items and bring is not None:
                 bring([new])  # out of the cube: a Ctrl + click from the inventory takes it to the stash
-                after = run.carried() if run.carried is not None else None
+                after = run.reads.carried()
                 new = next((i for i in after.items if i.unit_id == new.unit_id), None) if after is not None else None
             # A Latent Sunder charm picked up in the swap made with no 1 x 3 free (runner.py `_gheeds_swap`) lies in
             # the player's cell: onto a shared page, so the player's comes back

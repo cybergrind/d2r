@@ -29,6 +29,7 @@ from inventory_tracking.common import LOG
 from inventory_tracking.config import HUD
 from inventory_tracking.hud.scene import Widget
 from inventory_tracking.native.layout import TILE_UNITS, UI_PANELS_SIZE
+from inventory_tracking.native.memory import ProcessMemory, open_memory
 from inventory_tracking.tracking.panels import decode_panels
 
 
@@ -41,27 +42,31 @@ def position(data: bytes) -> tuple[float, float]:
     return (x + x_fraction / 65536) / TILE_UNITS, (y + y_fraction / 65536) / TILE_UNITS
 
 
-class GameMemory:
-    """Keeps /proc/<pid>/mem open for the game the payloads name."""
+class LiveMemory:
+    """Keeps /proc/<pid>/mem open for the game the payloads name, rebound when it changes (macros/world.py
+    GameMemory is the macro's: one game a run, short reads refused). `read(fd, size, address)`: a pread, whose short
+    reads the callers' decoders reject."""
 
-    def __init__(self, open_memory=lambda pid: os.open(f'/proc/{pid}/mem', os.O_RDONLY), read=os.pread):
-        self.open_memory, self.read = open_memory, read
-        self.pid: int | None = None
-        self.fd: int | None = None
+    def __init__(self, open_memory=open_memory, read=os.pread):
+        self.memory = ProcessMemory(opener=open_memory)
+        self.read = read
         self.warned: int | None = None
 
+    @property
+    def pid(self) -> int | None:
+        return self.memory.pid
+
+    @property
+    def fd(self) -> int | None:
+        return self.memory.fd
+
     def close(self):
-        if self.fd is not None:
-            os.close(self.fd)
-        self.pid, self.fd = None, None
+        self.memory.close()
 
     def attach(self, pid) -> bool:
         """Whether `pid`'s memory is open for reading (opened here when the game changed)."""
-        if pid == self.pid:
-            return True
-        self.close()
         try:
-            self.pid, self.fd = pid, self.open_memory(pid)
+            self.memory.bind(pid)
         except OSError as exc:
             if self.warned != pid:
                 LOG.warning('HUD cannot read the memory of pid %s: %s', pid, exc)
@@ -75,7 +80,7 @@ class GameMemory:
         return self.read(self.fd, size, address)
 
 
-class LiveUnits(GameMemory):
+class LiveUnits(LiveMemory):
     def at(self, address, x, y) -> tuple[float, float]:
         """Where the unit whose path is at `address` is now; the published (x, y) when that is unknown."""
         try:
@@ -99,7 +104,7 @@ class LiveUnits(GameMemory):
         return {**payload, 'player': list(self.at(address, *payload['player'])), 'marks': marks}
 
 
-class OpenPanels(GameMemory):
+class OpenPanels(LiveMemory):
     """Whether one of the panels `names` (native/layout.py PANEL_FLAGS) is open right now."""
 
     def __init__(self, names, **memory):
@@ -121,7 +126,7 @@ class OpenPanels(GameMemory):
         return any(flags[name] for name in self.names)
 
 
-class InputModeByte(GameMemory):
+class InputModeByte(LiveMemory):
     """Whether the game is in controller mode right now (native/layout.py CONTROLLER_MODE_RVA)."""
 
     def reading(self, live) -> bool:

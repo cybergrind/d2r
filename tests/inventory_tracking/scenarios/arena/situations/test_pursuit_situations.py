@@ -22,8 +22,9 @@ import pytest
 
 from inventory_tracking.builds.warlock.echoing_strike.hits import CONTACT_RADIUS
 from inventory_tracking.builds.warlock.echoing_strike.mechanics import RANGE
-from inventory_tracking.macros import goals, hunt
+from inventory_tracking.macros import goals
 from inventory_tracking.macros.build import MoveFacts
+from inventory_tracking.macros.hunting import base as hunt_base
 from inventory_tracking.macros.runner import TELEPORT
 from inventory_tracking.macros.skills import TELEPORT as TELEPORT_SKILL
 from inventory_tracking.macros.travel import PRESSED, navigator
@@ -232,7 +233,7 @@ def test_attack_mode_alone_does_not_go_to_a_boss_beyond_its_sight(caplog) -> Non
     """The player's ruling of 2026-10-15 ("only nearby"; run-2040-findings.md §5: Izual 342 units off was attack mode's
     goal after a level run ended): the same pack beyond twice the fight's sight is not gone to without a press, and
     that is said once in the log."""
-    far = hunt.ALONE_BOSS_UNITS + 15.0
+    far = hunt_base.ALONE_BOSS_UNITS + 15.0
     situation, presses = vizier.distanced(far)['attack mode alone']
     with caplog.at_level(logging.INFO, logger='inventory_tracking'):
         outcome = situation.logic('new').play(presses, seed=1)  # type: ignore[arg-type]
@@ -276,8 +277,8 @@ def test_in_the_pocket_the_way_left_never_grows_between_two_presses(key) -> None
 @IN_POCKET
 def test_today_too_the_way_left_in_the_pocket_never_grows() -> None:
     """The recording's defect (the way left 318, 325, 312, 333, 308, 314) is gone from today's keys too: with the
-    staff empty their teleport step goes by the navigation class in hand (hunt.py `class_step`: the walked way, a
-    Blade Warp over a clear line; rca/2026-10-14/navigation-classes.md), not toward a Teleport landing."""
+    staff empty their teleport step goes by the navigation class in hand (hunting/moves.py `class_step`: the walked way,
+    a Blade Warp over a clear line; rca/2026-10-14/navigation-classes.md), not toward a Teleport landing."""
     base = pocket.stored(POCKET)
     seal = next(prop.unit for prop in base.scene.things if math.dist(prop.at, pocket.seal_place(base)) < 1)
     watch = in_pocket('today', False, 1)

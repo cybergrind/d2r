@@ -12,7 +12,6 @@ struct bytes for that research.
 """
 
 import contextlib
-import os
 import struct
 from dataclasses import dataclass, field, replace
 
@@ -35,8 +34,7 @@ from inventory_tracking.native.layout import (
     TERROR_LEVELS,
     TERROR_SERVICE_RVA,
 )
-from inventory_tracking.native.process import identity, process_mappings
-from inventory_tracking.native.unit_probe import ResearchReader
+from inventory_tracking.native.memory import game_read
 from inventory_tracking.native.units import read_stats, walk_units
 
 
@@ -270,14 +268,7 @@ def level_entry(read, level, *, max_rooms=MAX_ROOMS) -> tuple[int, str]:
 def observe_monsters(pid, images, capture, *, known, counted_level, item_classes=()) -> MonsterSnapshot:
     """Read-only, bounded. The level's Room2s are counted only when it is not `counted_level`.
     `item_classes`: item class ids whose units are read too (Worldstone Shards, terror/shards.py)."""
-    tables = {x['table_address'] for x in capture['unit_table_candidates']}
-    if len(tables) != 1:
-        raise ValueError('Expected one freshly scanned unit table address')
-    token = images['identity']
-    fd = os.open(f'/proc/{pid}/mem', os.O_RDONLY)
-    try:
-        read = ResearchReader(fd, process_mappings(pid)).read
-        table = next(iter(tables))
+    with game_read(pid, images, capture, changed='Game process changed during the monster read') as (read, table):
         found = player_room(read, table)
         if found is None:
             snapshot = MonsterSnapshot(None, frozenset(), None, ())
@@ -323,8 +314,4 @@ def observe_monsters(pid, images, capture, *, known, counted_level, item_classes
                 terrorized,
                 tz_entries,
             )
-    finally:
-        os.close(fd)
-    if identity(pid) != token:
-        raise ValueError('Game process changed during the monster read')
     return snapshot

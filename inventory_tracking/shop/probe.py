@@ -12,8 +12,9 @@ from inventory_tracking.common import configure_logging, log_to_file, timestamp
 from inventory_tracking.hover.sampling import observe_ui
 from inventory_tracking.hud.process import card_widgets, hud_process
 from inventory_tracking.hud.scene import DEFAULT_SCENE, publish_layer
-from inventory_tracking.native.process import identity, process_mappings
-from inventory_tracking.native.unit_probe import ResearchReader, sample_units
+from inventory_tracking.native.memory import bounded
+from inventory_tracking.native.process import identity
+from inventory_tracking.native.unit_probe import sample_units
 from inventory_tracking.reports import create_run, publish
 from inventory_tracking.tracking.reader import LiveReader
 
@@ -27,8 +28,7 @@ def dump(pid, images, capture):
     if snapshot.get('status') != 'research':
         raise ValueError(snapshot.get('error', 'Unit snapshot unavailable'))
     items = snapshot['groups']['items']['units']
-    with open(f'/proc/{pid}/mem', 'rb', buffering=0) as memory:
-        reader = ResearchReader(memory.fileno(), process_mappings(pid))
+    with bounded(pid) as reader:
         pointers = set()
         for unit in snapshot['groups']['monsters']['units']:
             owner = {key: unit[key] for key in ('address', 'unit_id', 'txt_id')}

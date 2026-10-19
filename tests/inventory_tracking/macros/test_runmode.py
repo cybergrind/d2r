@@ -27,7 +27,8 @@ from inventory_tracking.macros.goals import (
     clear_way,
     rest_of_level,
 )
-from inventory_tracking.macros.hunt import BOSS_AHEAD, CLEAR_SECONDS, REMEMBERED_NEAR, REST_SECONDS, Bearings
+from inventory_tracking.macros.hunt import BOSS_AHEAD, Bearings
+from inventory_tracking.macros.hunting.base import CLEAR_SECONDS, REMEMBERED_NEAR, REST_SECONDS
 from inventory_tracking.macros.movement import HOPS, TELEPORT, WALKS, WARPS, Ways
 from inventory_tracking.macros.pursuit import (
     ENTERING,
@@ -354,9 +355,10 @@ def test_a_run_whose_way_out_is_an_open_passage_goes_on_into_the_level_it_leads_
 
 
 def test_a_run_carried_into_a_level_waits_for_its_card_and_then_ends_for_its_own_reasons() -> None:
-    """Across the passage the level guide's card is still the River's for a poll or two (hunt.py `goal`: none): the
-    carried run waits ENTERING seconds for the Sanctuary's, holding what is in reach meanwhile. A run that finds nothing
-    to go to after that, or whose route ends at a door, a boss dead, ends as any run does: nothing carries it on."""
+    """Across the passage the level guide's card is still the River's for a poll or two (hunting/choice.py `goal`:
+    none): the carried run waits ENTERING seconds for the Sanctuary's, holding what is in reach meanwhile. A run that
+    finds nothing to go to after that, or whose route ends at a door, a boss dead, ends as any run does: nothing carries
+    it on."""
     on = replace(RUN, area=SANCTUARY, entered=50.0)
     nothing = Facts(51.0, None, False, False, True, lambda: STEP, SANCTUARY)
     assert decide(nothing, on) == NoWay(ENTERING_SAID)

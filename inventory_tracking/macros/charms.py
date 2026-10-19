@@ -148,14 +148,14 @@ def newcomers(pack: Pack, parked: Parked, before: frozenset[int]) -> list[Carrie
 
 
 def _pack(run: Run) -> Pack:
-    pack = run.carried() if run.carried is not None else None
+    pack = run.reads.carried()
     if pack is None:
         raise Abort('the inventory is not read')
     return pack
 
 
 def _view(run: Run) -> StashView | None:
-    return run.stash_view() if run.stash_view is not None else None
+    return run.reads.stash_view()
 
 
 def shared_pages(view: StashView | None, size: tuple[int, int]) -> list[int]:

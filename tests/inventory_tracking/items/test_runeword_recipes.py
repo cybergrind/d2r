@@ -158,7 +158,7 @@ def test_ambiguous_recipes_remain_unresolved(recipes, monkeypatch):
 
 def test_unreadable_flagged_runeword_is_reported_as_an_issue():
     from inventory_tracking.items.decode import decode_items
-    from pricing.knowledge.assessment.adapters.capture import normalize
+    from pricing.api import normalize
 
     data = json.loads((ROOT / 'tests/inventory_tracking/fixtures/spirit_monarch.json').read_text())
     row = data['snapshot']['resources']['items'][0]
@@ -181,7 +181,7 @@ def test_unreadable_flagged_runeword_is_reported_as_an_issue():
 )
 def test_recipe_identity_reaches_report_ranges_and_preserves_its_evidence(recipes, name, base_name, stat):
     from inventory_tracking.items.decode import decode_items
-    from pricing.knowledge.assessment.adapters.capture import normalize
+    from pricing.api import normalize
 
     data = json.loads((ROOT / 'tests/inventory_tracking/fixtures/spirit_monarch.json').read_text())
     row = data['snapshot']['resources']['items'][0]

@@ -22,6 +22,7 @@ from inventory_tracking.macros.teleport import Way, landing
 from inventory_tracking.macros.view import Viewport
 from inventory_tracking.macros.world import ITEM_UNIT, TRACE_RVAS, GameMemory, Player, monsters_and_dead
 from inventory_tracking.native.layout import UI_PANELS_RVA
+from inventory_tracking.native.memory import ProcessMemory
 from tests.inventory_tracking.macros.fakes import SLOTS
 from tests.inventory_tracking.scenarios.loop.helpers import (
     ASPECT,
@@ -184,7 +185,7 @@ def test_the_left_button_is_looked_at_once_a_slice(place):
 def memory_of(counted: CountedMemory) -> GameMemory:
     """`GameMemory` over the counted blocks: no process is opened."""
     memory = object.__new__(GameMemory)
-    memory.base, memory.table, memory.fd = BASE, TABLE, -1
+    memory.base, memory.table, memory.memory = BASE, TABLE, ProcessMemory()  # unbound
     memory.read = counted.read  # type: ignore[method-assign]
     return memory
 

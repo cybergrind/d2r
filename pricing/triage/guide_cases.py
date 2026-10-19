@@ -2,7 +2,8 @@
 
 The generated case file retains verbatim text and source anchors. Concrete items
 and expectations must be transcribed from that evidence, never from engine output.
-Run with ``python -m pricing.triage.guide_cases`` to extract and score offline.
+Run with ``python -m inventory_tracking.corpus.replay --guides`` to extract and score offline
+(the exact-verdict scorer is the corpus's).
 """
 
 import json
@@ -10,8 +11,6 @@ import re
 from collections import Counter
 from html.parser import HTMLParser
 from pathlib import Path
-
-from inventory_tracking.corpus.score import score
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -303,7 +302,8 @@ def item_from_spec(spec):
     return item
 
 
-def evaluate(cases, assess):
+def evaluate(cases, assess, *, scorer=None):
+    """Score `cases` against `assess`; `scorer(results, labels)` adds the exact-verdict score (None without)."""
     groups, unresolved, results, labels, failures = {}, [], [], {}, []
     context, pickup = [], []
     classifications = dict.fromkeys(('verdict', 'own-use', 'pickup', 'context'), 0)
@@ -425,7 +425,7 @@ def evaluate(cases, assess):
         'context': context,
         'unresolved': unresolved,
         'failures': failures,
-        'exact_verdict_score': score(results, labels),
+        'exact_verdict_score': scorer(results, labels) if scorer is not None else None,
     }
 
 
@@ -465,28 +465,25 @@ def build_cases():
     return cases
 
 
-def main():
+def report(data, scorer):
+    """Extract the guide cases, score them with the current tables and write `data`/score-guides.json."""
     from pricing.knowledge.refresh import atomic_json
     from pricing.triage.engine import Tables, assess
 
     cases = build_cases()
     tables = Tables().load()
-    report = evaluate(cases, lambda item: assess(item, tables))
-    atomic_json(ROOT / 'inventory_tracking/corpus/data/score-guides.json', report)
+    scored = evaluate(cases, lambda item: assess(item, tables), scorer=scorer)
+    atomic_json(data / 'score-guides.json', scored)
     print(
         json.dumps(
             {
                 'cases': len(cases),
-                'classifications': report['classifications'],
-                'table_score': report['table_score'],
-                'groups': report['groups'],
-                'unresolved': len(report['unresolved']),
-                'failures': len(report['failures']),
+                'classifications': scored['classifications'],
+                'table_score': scored['table_score'],
+                'groups': scored['groups'],
+                'unresolved': len(scored['unresolved']),
+                'failures': len(scored['failures']),
             },
             indent=2,
         )
     )
-
-
-if __name__ == '__main__':
-    main()

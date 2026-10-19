@@ -178,7 +178,7 @@ def arrange_keys(run: Run, inventory_key: str) -> bool:
     put down by a click on its cell, each checked in memory; put back where it was if it does not land. Whether it
     moved. Mouse mode only; the panels closed after."""
     rect = run.actuator.keys.focused_window_rect()
-    pack = run.carried() if run.carried is not None else None
+    pack = run.reads.carried()
     move = keys_move(pack) if pack is not None else None
     if move is None or rect is None or run.pad is not None:
         return False
@@ -189,7 +189,7 @@ def arrange_keys(run: Run, inventory_key: str) -> bool:
         run.actuator.move(*cell_point(rect, INVENTORY, (key.x, key.y)), scatter=(4, 4))
         run.actuator.click()
         if not _until(run, lambda p: p.pointer == key.unit_id):
-            now = run.carried() if run.carried is not None else None
+            now = run.reads.carried()
             if now is not None and now.pointer is not None:
                 run.actuator.click()  # something else taken up: put down where it was, the pointer not moved
                 _until(run, lambda p: p.pointer is None)
@@ -244,7 +244,7 @@ def drop_for(
     """Drop the loop's item `droppable` names at the character's feet: room for a sure valuable the inventory has no
     block of `size` for, after the cube took what it could (the loop stopped by a Grand Charm, 21:00:03 on
     2026-10-17). The item dropped, or None. Mouse mode only; the panels closed after."""
-    pack = run.carried() if run.carried is not None else None
+    pack = run.reads.carried()
     item = droppable(pack, own, size) if pack is not None else None
     if item is None:
         return None
@@ -268,7 +268,7 @@ def drop_item(run: Run, inventory_key: str, item: Carried, why: str) -> bool:
         run.actuator.move(*cell_point(rect, INVENTORY, (item.x, item.y), item.size), scatter=(4, 4))
         run.actuator.click()
         if not _until(run, lambda p: p.pointer == item.unit_id):
-            now = run.carried() if run.carried is not None else None
+            now = run.reads.carried()
             if now is not None and now.pointer is not None:
                 run.actuator.click()  # something else taken up: put down where it was, the pointer not moved
                 _until(run, lambda p: p.pointer is None)
@@ -370,7 +370,7 @@ def stash_only(
 ) -> int:
     """The loop's items `wanted` picks into the cube, its others left where they are (`stash`, with them counted the
     player's); how many were moved, none opened for none."""
-    pack = run.carried() if run.carried is not None else None
+    pack = run.reads.carried()
     if pack is None or not any(wanted(item) for item in loot(pack, own)):
         return 0
     return stash(run, inventory_key, own | own_of(item for item in pack.items if not wanted(item)))
@@ -391,7 +391,7 @@ def unpack(run: Run, inventory_key: str, items: Sequence[Carried]) -> int:
     a ring, a jewel stayed in the cube on a Ctrl + Shift + click (01:28:34 on 2026-10-17). One that does not come out
     after two clicks is passed over. Mouse mode only; the panels closed after."""
     rect = run.actuator.keys.focused_window_rect()
-    pack = run.carried() if run.carried is not None else None
+    pack = run.reads.carried()
     cube = next((item for item in pack.items if item.txt == CUBE_CLASS), None) if pack is not None else None
     if not items or rect is None or cube is None or run.pad is not None:
         return 0
@@ -408,7 +408,7 @@ def unpack(run: Run, inventory_key: str, items: Sequence[Carried]) -> int:
         for item in sorted(items, key=lambda i: (-i.size[1], -i.size[0] * i.size[1])):
             # One the inventory has no block for is not clicked: three such were tried for 3 s each with two cells
             # free, before the stash (14:51:04-14 on 2026-10-17); the session's second stash takes them
-            now = run.carried() if run.carried is not None else None
+            now = run.reads.carried()
             if now is not None and not now.inventory.has_room(item.size):
                 LOG.info('Macro: cube: no room in the inventory for the item %d at (%d, %d)', item.txt, item.x, item.y)
                 continue
@@ -456,7 +456,7 @@ def transmute(run: Run, inventory_key: str, txt: int, park: Callable[[int], None
     the caller picks it up again."""
     perfect = perfect_of(txt)
     rect = run.actuator.keys.focused_window_rect()
-    pack = run.carried() if run.carried is not None else None
+    pack = run.reads.carried()
     cube = next((item for item in pack.items if item.txt == CUBE_CLASS), None) if pack is not None else None
     if perfect is None or pack is None or rect is None or cube is None or run.pad is not None:
         return False
@@ -473,7 +473,7 @@ def transmute(run: Run, inventory_key: str, txt: int, park: Callable[[int], None
         # What else is in the cube, and gems past three, out into the inventory
         inside = [item for item in pack.in_cube if item.txt == txt][:GEMS_A_TRANSMUTE]
         for item in [i for i in pack.in_cube if i not in inside]:
-            now = run.carried() if run.carried is not None else None
+            now = run.reads.carried()
             if now is None:
                 raise Abort('the inventory is not read')
             if not now.inventory.has_room(item.size):
@@ -488,14 +488,14 @@ def transmute(run: Run, inventory_key: str, txt: int, park: Callable[[int], None
             if not _until(run, lambda p, i=item: i.unit_id not in p.cube_items):
                 raise Abort(f'the item {item.txt} did not come out of the cube')
         # Then the gems from the inventory until three are in
-        now = (run.carried() if run.carried is not None else None) or pack
+        now = (run.reads.carried()) or pack
         for item in [i for i in now.items if i.txt == txt][: GEMS_A_TRANSMUTE - len(inside)]:
             run.actuator.move(*cell_point(rect, INVENTORY, (item.x, item.y), item.size), scatter=(6, 6))
             run.actuator.click('Control_L')
             if not _until(run, lambda p, i=item: i.unit_id in p.cube_items):
                 raise Abort(f'the gem at ({item.x}, {item.y}) did not go into the cube')
             inside.append(item)
-        now = run.carried() if run.carried is not None else None
+        now = run.reads.carried()
         three = {item.unit_id for item in inside}
         if now is None or set(now.cube_items) != three or len(three) != GEMS_A_TRANSMUTE:
             raise Abort('the cube does not hold exactly the three gems: Transmute is not clicked')
@@ -509,7 +509,7 @@ def transmute(run: Run, inventory_key: str, txt: int, park: Callable[[int], None
         run.actuator.click()
         deadline = run.clock() + TRANSMUTE_SECONDS
         while not made and run.clock() < deadline:
-            after = run.carried() if run.carried is not None else None
+            after = run.reads.carried()
             made = (
                 after is not None and len(after.cube_items) == 1
                 and len(after.in_cube) == 1 and after.in_cube[0].txt == perfect
@@ -540,7 +540,7 @@ def _park(run: Run, rect: tuple[int, int, int, int], item: Carried, park: Callab
     run.actuator.move(*cell_point(rect, CUBE, (item.x, item.y), item.size), scatter=(4, 4))
     run.actuator.click()
     if not _until(run, lambda p: p.pointer == item.unit_id):
-        now = run.carried() if run.carried is not None else None
+        now = run.reads.carried()
         if now is not None and now.pointer is not None:
             run.actuator.click()  # something else taken up: put down where it was, the pointer not moved
             _until(run, lambda p: p.pointer is None)
@@ -603,4 +603,4 @@ def _gem_name(txt: int) -> str:
 def _until(run: Run, holds: Callable[[Pack], bool]) -> bool:
     """Whether the carried items come to hold `holds` within ITEM_SECONDS (act.py `until`, which stash.py's copy of
     this became too on 2026-10-18; charms.py and visit.py import it from stash.py)."""
-    return until(run, holds, ITEM_SECONDS, read=lambda: run.carried() if run.carried is not None else None) is not None
+    return until(run, holds, ITEM_SECONDS, read=lambda: run.reads.carried()) is not None

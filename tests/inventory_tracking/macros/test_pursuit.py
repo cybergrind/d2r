@@ -20,9 +20,10 @@ import pytest
 
 from inventory_tracking.combat.stance import Jump, no_footing
 from inventory_tracking.levels.model import Ground, Room, Target, Walkable, pack_cells
-from inventory_tracking.macros import goals, hunt, movement, pickup, route, teleport, travel
+from inventory_tracking.macros import goals, movement, pickup, route, teleport, travel
 from inventory_tracking.macros.build import BuildSettings, Intent, JumpSource, MoveFacts, NoWay, Step
 from inventory_tracking.macros.goals import PICK_UP, PURSUED, REACH, Goal, goal_of
+from inventory_tracking.macros.hunting import base as hunt_base
 from inventory_tracking.macros.pursuit import FRESH, Defer, Facts, Hold, Move, Operate, Pursuit, Told, decide
 from inventory_tracking.macros.runner import EXPIRES, TELEPORT as TELEPORT_KEY
 from inventory_tracking.macros.sight import clear_shot
@@ -69,8 +70,8 @@ def test_the_goals_distances_are_the_hands_own() -> None:
     assert goals.PLACE_NEAR == teleport.SPOT_NEAR
     assert goals.PICK_NEAR == pickup.STOP_UNITS
     assert goals.PICK_REACH == pickup.PICK_UNITS  # a level run's drop is clicked from within the pickup's own reach
-    assert goals.GUARD_NEAR == hunt.GATHER_CLEAR  # a potion's guards are the pickup key's own measure
-    assert goals.BOSS_MARK_UNITS == hunt.BOSS_MARK_UNITS
+    assert goals.GUARD_NEAR == hunt_base.GATHER_CLEAR  # a potion's guards are the pickup key's own measure
+    assert goals.BOSS_MARK_UNITS == hunt_base.BOSS_MARK_UNITS
 
 
 def test_a_use_stage_is_the_object_on_the_stages_mark_within_a_clicks_reach() -> None:

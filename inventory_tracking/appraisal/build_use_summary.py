@@ -4,7 +4,7 @@ import json
 from dataclasses import dataclass
 
 from inventory_tracking.appraisal.sections import build_name
-from pricing.knowledge.assessment.domain.facts import freeze
+from pricing.api import freeze
 
 
 @dataclass(frozen=True)

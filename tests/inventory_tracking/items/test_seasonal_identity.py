@@ -8,7 +8,7 @@ import pytest
 
 from inventory_tracking.items.identity import identity_issues, resolve_identity
 from inventory_tracking.items.ranges import annotate_roll_ranges
-from pricing.knowledge.definitions import build_definitions
+from pricing.api import build_definitions
 
 
 @pytest.fixture(scope='module')

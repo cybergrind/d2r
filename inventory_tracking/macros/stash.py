@@ -158,7 +158,7 @@ DEPOSIT_LEAST = 50_000  # a deposit smaller is not worth its seconds
 
 
 def _carried_gold(run: Run, stat: int = GOLD_STAT) -> int | None:
-    loot = run.loot() if run.loot is not None else None
+    loot = run.reads.loot()
     return dict(loot.stats).get(stat) if loot is not None and loot.stats else None
 
 
@@ -466,7 +466,7 @@ def _sent(run: Run, rect, item: Carried, grid, gone) -> bool:
     instead, after putting it back where it was."""
     if not _until(run, gone):
         return False
-    pack = run.carried() if run.carried is not None else None
+    pack = run.reads.carried()
     if pack is not None and pack.pointer is not None:
         run.actuator.move(*cell_point(rect, grid, (item.x, item.y), item.size), scatter=(4, 4))
         run.actuator.click()

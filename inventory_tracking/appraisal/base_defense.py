@@ -1,9 +1,7 @@
 """Display the unmodified native defense range after contribution validation."""
 
 from inventory_tracking.items.ranges import annotate_roll_ranges
-from pricing.knowledge.assessment.adapters.capture import normalize
-from pricing.knowledge.assessment.policies.trade_base_defense import IDENTITY, capture_bounds
-from pricing.knowledge.definition_store import catalog
+from pricing.api import BASE_DEFENSE_IDENTITY as IDENTITY, capture_bounds, catalog, normalize
 
 
 def display_base_defense(extraction, rows):

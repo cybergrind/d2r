@@ -34,7 +34,7 @@ from pathlib import Path
 
 from inventory_tracking.items.metadata import metadata
 from inventory_tracking.reports import publish
-from pricing.knowledge.assessment.mechanics.base_tiers import base_tier
+from pricing.api import base_tier
 
 
 TEMPLATE = Path('lootfilter/warlock_lean.json')

@@ -115,7 +115,7 @@ class Leader:
 
 @dataclass(frozen=True)
 class LevelView:
-    """What a level run's look hands the agenda (macros/hunt.py `Hunter.agenda_target`). `hostiles`: (unit, place) of
+    """What a level run's look hands the agenda (macros/hunting/choice.py `agenda_target`). `hostiles`: (unit, place) of
     every hostile in the read, a drop's guards among them; `omens`: (spot, stand) of a Herald coming; `side`: the drop
     the pickup rules take now (a PICKUP); `frontier()`: the next unexplored room (place, what), asked only when it is
     wanted; `passed(place, unit)`: a target the run passed for a while (no progress toward it); `chests`: (unit, place)

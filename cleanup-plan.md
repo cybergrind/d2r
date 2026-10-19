@@ -38,6 +38,20 @@ Evidence: five read-only studies in `rca/2026-10-19/cleanup/` (git-ignored, loca
     runner's LOOP closures and `TzHands` (the leg bodies stay in `Loop.leg`).
   - step 8, part: map data in `levels/map_card.py`, drawing in `hud/map.py`, `hud/direction.py`; one `ARROWS`.
   - step 9, part: one session/date reader in logwords.py (`sessions`, `local`, `newest`), tool outputs byte-identical.
+  - step 2 done (`items/grid.py` `Grid`, parity test against every old helper; `room_for`/`inventory_rows` gone).
+  - step 5, part: `Run.reads` (engine.py `Reads`): 85 `run.X() if run.X is not None else None` guards gone.
+  - step 7, part: `cleared`/`agenda_cleared` share `_forget_passed`, `_on_the_way`, `_clear_through`; the drop
+    give-up memory is `macros/drop_ledger.py` `DropLedger` (`Hunter.drops`). Skipped on reading: `LevelMemory` (the
+    memories have no common lifetime: each is pruned on its own clock), P5 `RunSpec` (three flags left after the old
+    TZ coordinator went; little gain). Then the split: `Hunter` (hunt.py, 1,457 lines) keeps its state, the
+    fight and attack mode; its other 79 methods are module functions in `macros/hunting/` (`choice.py` goal,
+    `judging.py`, `moves.py`, `sweep.py`; constants and helpers in `base.py`), bound as class attributes
+    (`judge = judging.judge`; `self: Hunter`, which pyrefly checks; mixins with `self: Hunter` it rejects). Tests patch
+    module names through `fakes.patch_hunt` (each module reads its own import) and import constants from their home.
+  - step 10 done: `pricing/api.py` (47 names, lazy); inventory_tracking imports only it (boundary test
+    tests/pricing/test_api.py); `detail`/`guarded_retrieve` moved to `appraisal/retrieval.py`; the replay and guide
+    reports run as `python -m inventory_tracking.corpus.replay [--guides]`. Left: two frozen maintenance tools
+    (`named_gate.py`, `maintenance/replay.py`) still import appraisal presentation (study A2).
 
 ## Where we are
 
@@ -46,7 +60,7 @@ Evidence: five read-only studies in `rca/2026-10-19/cleanup/` (git-ignored, loca
 | `inventory_tracking` tests (serial) | 616–631 s, 7,835 tests; 66 tests take 74 % of it (arena scenarios) |
 | `tests/pricing` (serial) | ≈ 4.7 h, 41,824 tests; 76 % is the item bank |
 | Red | 5 arena goldens (a new log line, b3757e4); ≈ 250 pricing tests (sampled), incl. the frozen market-sha one |
-| Largest files | hunt.py 4,254 (Hunter: 120 methods), runner.py 2,300, world.py 2,025, travel.py 1,742 |
+| Largest files | hunt.py 4,254 (Hunter: 120 methods; 1,457 after step 7), runner.py 2,300, world.py 2,025, travel.py 1,742 |
 | Prose share | comments + docstrings ≈ 39 % of characters in the loop area, 29–42 % in combat/levels/config |
 | Dead or superseded | the old TZ coordinator (≈ 1,350 + 1,400 test lines), 15 dead pricing modules, town types, hover legacy |
 | Disk (git-ignored) | `tmp/` 65 GB, `runs/` 60 GB (`alt-d/` 36 GB, no retention), `pricing/data` 20 GB (16 GB old generations) |

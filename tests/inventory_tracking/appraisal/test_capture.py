@@ -6,6 +6,7 @@ import pytest
 
 from inventory_tracking.appraisal import capture as appraisal_capture
 from inventory_tracking.appraisal.capture import AppraisalCapture, selected_observation
+from inventory_tracking.native import memory as native_memory
 
 
 @pytest.fixture
@@ -191,9 +192,9 @@ def test_metadata_changes_during_selected_read_reject(monkeypatch):
 
     monkeypatch.setattr(appraisal_capture, 'identity', lambda _: token)
     monkeypatch.setattr(appraisal_capture, 'process_mappings', lambda _: [])
-    monkeypatch.setattr(appraisal_capture.os, 'open', lambda *_: 123)
-    monkeypatch.setattr(appraisal_capture.os, 'close', lambda _: None)
-    monkeypatch.setattr(appraisal_capture, 'ResearchReader', Reader)
+    monkeypatch.setattr(native_memory.os, 'open', lambda *_: 123)
+    monkeypatch.setattr(native_memory.os, 'close', lambda _: None)
+    monkeypatch.setattr(appraisal_capture, 'BoundedReader', Reader)
     monkeypatch.setattr(appraisal_capture, 'unit_matches', lambda *_: True)
     monkeypatch.setattr(appraisal_capture, 'describe_item', lambda *_: {})
     monkeypatch.setattr(appraisal_capture, 'read_item_arrays', lambda *_: {'complete': True, 'arrays': []})
@@ -270,9 +271,9 @@ def test_revalidation_ignores_research_candidates_but_checks_stat_values(monkeyp
 
     monkeypatch.setattr(appraisal_capture, 'identity', lambda _: token)
     monkeypatch.setattr(appraisal_capture, 'process_mappings', lambda _: [])
-    monkeypatch.setattr(appraisal_capture.os, 'open', lambda *_: 123)
-    monkeypatch.setattr(appraisal_capture.os, 'close', lambda _: None)
-    monkeypatch.setattr(appraisal_capture, 'ResearchReader', Reader)
+    monkeypatch.setattr(native_memory.os, 'open', lambda *_: 123)
+    monkeypatch.setattr(native_memory.os, 'close', lambda _: None)
+    monkeypatch.setattr(appraisal_capture, 'BoundedReader', Reader)
     monkeypatch.setattr(appraisal_capture, 'unit_matches', lambda *_: True)
     monkeypatch.setattr(appraisal_capture, 'describe_item', lambda *_: {})
     monkeypatch.setattr(appraisal_capture, 'read_item_arrays', lambda *_: copy.deepcopy(arrays))

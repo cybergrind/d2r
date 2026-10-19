@@ -7,7 +7,6 @@ turns that record into decoded observations and collection sightings, one
 `decode_items` call per item so a single undecodable item never hides the rest.
 """
 
-import os
 import struct
 import time
 from typing import Any, Literal
@@ -30,11 +29,12 @@ from inventory_tracking.items.metadata import decode_stats, metadata
 from inventory_tracking.items.modifiers import owned_damage_modifiers, owned_defense_modifiers
 from inventory_tracking.native.item_diagnostics import capture_stat_candidates
 from inventory_tracking.native.layout import HIRELING_CLASS_ID, SUPPORTED_SHA256
+from inventory_tracking.native.memory import bounded
 from inventory_tracking.native.process import identity, process_mappings
 from inventory_tracking.native.resource_probe import read_item_arrays, read_location
 from inventory_tracking.native.socket_items import read_socket_items
 from inventory_tracking.native.stack_items import STACK_COUNT_OFFSET as STACK_COUNT_OFFSET, read_stack_count
-from inventory_tracking.native.unit_probe import ResearchReader, sample_units
+from inventory_tracking.native.unit_probe import sample_units
 from inventory_tracking.native.units import describe_item, unit_matches
 from inventory_tracking.tracking.state import select_player
 
@@ -300,9 +300,7 @@ def collect_inventory(pid, images, capture, *, scope: Scope = 'all') -> dict[str
     items = groups['items']['units']
     issues: list[str] = []
     mappings = process_mappings(pid)
-    fd = os.open(f'/proc/{pid}/mem', os.O_RDONLY)
-    try:
-        reader = ResearchReader(fd, mappings)
+    with bounded(pid, mappings) as reader:
         read = reader.read
         stash_units = []
         for unit in [] if equipment_only else players:
@@ -377,8 +375,6 @@ def collect_inventory(pid, images, capture, *, scope: Scope = 'all') -> dict[str
         if identity(pid) != images['identity']:
             raise ValueError('Game process changed during the pass')
         bytes_requested = reader.bytes_requested
-    finally:
-        os.close(fd)
     snapshot['resources'] = {'complete': True, 'items': rows, 'kinds': kinds}
     return {
         'snapshot': snapshot,

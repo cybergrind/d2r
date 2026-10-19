@@ -68,7 +68,7 @@ def test_null_market_charm_publishes_text_and_notification(tmp_path, monkeypatch
 def test_worker_defaults_to_publication_but_explicit_database_stays_legacy(tmp_path, monkeypatch):
     import pytest
 
-    from pricing.knowledge.publication import DEFAULT_STORE
+    from pricing.api import DEFAULT_STORE
 
     seen = []
     monkeypatch.setattr(appraisal_service, 'serve', lambda args: seen.append(args) or 0)

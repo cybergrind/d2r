@@ -1,7 +1,7 @@
 """Keep ordinary named-item ranges when seasonal overlays reuse their ID."""
 
 from inventory_tracking.items.metadata import metadata
-from pricing.knowledge.seasonal_variants import select_scalar_candidates
+from pricing.api import select_scalar_candidates
 
 
 def resolve_seasonal_identity(entry, arrays, *, socketed):

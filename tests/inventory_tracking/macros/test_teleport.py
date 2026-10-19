@@ -702,7 +702,7 @@ def test_a_remembered_spot_by_a_corner_of_walls_is_stood_on_from_the_footing_bes
     teleport.ENTRIES.learn(mark, (0.0, 0.0))  # on the mark, inside the block by the grids: as remembered
     assert teleport.entry_stand(mark) == teleport.entry_spot(mark)
     # The level run's goal at the door is the spot it stands on (macros/goals.py `way_out`)
-    from inventory_tracking.macros.hunt import door_entry
+    from inventory_tracking.macros.hunting.base import door_entry
 
     teleport.ENTRIES.learn(mark, (-2.5, 1.9))
     assert door_entry(mark) == (5014.5, 5004.5)
@@ -1125,7 +1125,8 @@ def test_at_an_empty_chest_mark_the_step_tells_the_route_instead_of_stopping():
 
 def test_a_monster_seen_on_the_object_is_told_in_the_way_when_the_acts_time_runs_out():
     # 21:16:22 on 2026-10-17: two aims at a chest had a monster under them, then the act's priced time ran out; four
-    # tries in 6.5 s until the monster walked off. Told as `Covered`, the hunt fights it first (hunt.py `blocked`)
+    # tries in 6.5 s until the monster walked off. Told as `Covered`, the hunt fights it first (hunting/judging.py
+    # `blocked`)
     from inventory_tracking.levels.model import UNIQUE_CHEST
     from inventory_tracking.macros.teleport import EXPIRED, Covered, use_thing
 

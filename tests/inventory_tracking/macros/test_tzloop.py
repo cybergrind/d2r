@@ -121,8 +121,8 @@ def test_a_catacombs_terror_zone_game_kills_the_elites_on_the_way_then_andariel_
     here = (5000.0, 5000.0)
 
     def run_of(area: int) -> None:
-        # What the level run asks the agenda at its looks (hunt.py `agenda_target`): a champion in the read on Level 2,
-        # on Level 4 a unique by Andariel; once dead, nothing of the agenda's: the route's own goal (her fight)
+        # What the level run asks the agenda at its looks (hunting/choice.py `agenda_target`): a champion in the read on
+        # Level 2, on Level 4 a unique by Andariel; once dead, nothing of the agenda's: the route's own goal (her fight)
         agenda = game.loop.agenda
         seen = {35: Leader(7, (5060.0, 5000.0), 'a champion'), 37: Leader(8, (5020.0, 5000.0), 'a unique')}
         if area in seen:
@@ -231,7 +231,8 @@ def test_a_runner_restarted_with_a_terror_zone_kind_keeps_its_own_while_it_is_of
     made.close()
 
 
-# -- the level run with the agenda (hunt.py `agenda_cleared`, `agenda_target`) and its mode -------------------------
+# -- the level run with the agenda (hunting/choice.py `agenda_cleared`, `agenda_target`) and its mode
+# -------------------------
 
 
 def agenda_hunt(policy: str):
@@ -342,7 +343,7 @@ def test_a_super_chest_in_sight_is_opened_on_the_way_after_the_leaders_and_never
     # superchests. probably we should add superchests to intemediate goals and open them along the way"
     from inventory_tracking.levels.model import SUPER_CHEST, Ground
     from inventory_tracking.macros.goals import PLACE_NEAR, USE_NEAR, Goal
-    from inventory_tracking.macros.hunt import SUPER_TRIES
+    from inventory_tracking.macros.hunting.base import SUPER_TRIES
     from inventory_tracking.macros.teleport import marked_thing
     from inventory_tracking.macros.travel import PRESSED
     from inventory_tracking.macros.world import Thing

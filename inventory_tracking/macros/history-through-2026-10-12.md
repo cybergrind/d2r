@@ -30,7 +30,7 @@ The actions
   down to 0.95 of the window height. A door is clicked, never teleported onto. Teleport comes from
   a staff with charges, swapped in and left in hand, or from a skill slot when no staff is known.
   With the staff out of charges the step stops and says so.
-- The seek step (hunt.py, `Hunter.seek`). One step toward the nearest elite (unique, champion or
+- The seek step (hunting/moves.py, `seek`). One step toward the nearest elite (unique, champion or
   super unique), live in memory first, else remembered alive by the terror tracker; one already in
   reach is only named. With none known, toward the first stop of the room tour (below). The step
   goes onto the nearest spot with a shot at the target (within STRIKE_REACH): a walk click when it
@@ -103,7 +103,7 @@ Rules that hold across actions
   jump that moved nobody leaves that skill alone for 30 s. A walk that failed leaves its place
   alone for 10 s; two steps in a row failing end the sweep. The seek step's hops are the teleport
   step's (swap in the staff if needed).
-- The sweep (hunt.py `step`, `follow_on`): after the pickup request with hostiles near, attack mode
+- The sweep (hunting/moves.py `step`, `follow_on`): after the pickup request with hostiles near, attack mode
   takes steps by itself, with nothing in reach to a better place worth SWEEP_GAIN (2) times where
   the character stands, else a stride toward the nearest hostile within SWEEP_UNITS, ending
   STAND_OFF (14) short of it, else (a wall between) the seek step's move onto a firing spot. In a
@@ -2485,7 +2485,7 @@ User: "probably we also should pickup gold >5k"; "we don't need to click on it, 
   the ground within `GOLD_SECONDS` the proof; nearer than `GOLD_WALK` (6), or when the jump did not
   take it, one click on its ground for the walk. No walls are looked at for the jump. A pile neither
   takes is left alone for `SHUN_SECONDS`.
-- Gold does not stop a fight (only a valuable does, hunt.py `asked_step`): asked for in one, it waits
+- Gold does not stop a fight (only a valuable does, hunting/sweep.py `asked_step`): asked for in one, it waits
   for the fight like a potion.
 
 ## 2026-10-11 (13:40): the gold pile the jump did not take
@@ -3480,7 +3480,7 @@ the straight line to the goal only (travel.py `stride`).
   cell nearest it. `Travel.around` takes from that way the furthest spot a Blade Warp flies to over a
   clear line (8 to 26 units, in view), else the furthest one click's straight walk reaches (3 to 16).
 - Used where the staff is empty and no straight stride leads on: the seek step and the sweep
-  (hunt.py `afoot`, logged "round the wall by ...") and the teleport step's hop (`empty_hop`). With a
+  (hunting/moves.py `afoot`, logged "round the wall by ...") and the teleport step's hop (`empty_hop`). With a
   charge left nothing changes: the hop is still a Teleport.
 - Not played. Known gap: a move along the way can be followed by a straight stride back into a
   pocket on the next press (the straight stride is tried first); not seen, not guarded against.

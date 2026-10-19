@@ -51,9 +51,9 @@ def test_loaded_vendors_reads_only_stable_vendor_units():
 def test_open_shop_names_the_single_loaded_vendor(flags, loaded, expected):
     with (
         patch('inventory_tracking.tracking.shop_panel.observe_panels', return_value=panels(*flags)),
-        patch('inventory_tracking.tracking.shop_panel.os.open', return_value=3),
-        patch('inventory_tracking.tracking.shop_panel.os.close'),
-        patch('inventory_tracking.tracking.shop_panel.process_mappings', return_value=[]),
+        patch('inventory_tracking.native.memory.os.open', return_value=3),
+        patch('inventory_tracking.native.memory.os.close'),
+        patch('inventory_tracking.native.memory.process_mappings', return_value=[]),
         patch('inventory_tracking.tracking.shop_panel.loaded_vendors', return_value=loaded),
     ):
         observation = observe_shop_panel(12, IMAGES, snapshot())
@@ -74,9 +74,9 @@ def test_ambiguous_or_changing_stock_is_unavailable_not_a_guess(loaded, after, r
     vendors = Mock(side_effect=loaded) if isinstance(loaded, Exception) else Mock(return_value=loaded)
     with (
         patch('inventory_tracking.tracking.shop_panel.observe_panels', side_effect=[panels('npc_shop'), after]),
-        patch('inventory_tracking.tracking.shop_panel.os.open', return_value=3),
-        patch('inventory_tracking.tracking.shop_panel.os.close') as close,
-        patch('inventory_tracking.tracking.shop_panel.process_mappings', return_value=[]),
+        patch('inventory_tracking.native.memory.os.open', return_value=3),
+        patch('inventory_tracking.native.memory.os.close') as close,
+        patch('inventory_tracking.native.memory.process_mappings', return_value=[]),
         patch('inventory_tracking.tracking.shop_panel.loaded_vendors', vendors),
     ):
         observation = observe_shop_panel(12, IMAGES, snapshot())
@@ -89,7 +89,7 @@ def test_unreadable_panel_flags_skip_the_grid_reads():
     unavailable = Observation.unavailable(100, 'Panel flags are unreadable')
     with (
         patch('inventory_tracking.tracking.shop_panel.observe_panels', return_value=unavailable),
-        patch('inventory_tracking.tracking.shop_panel.os.open') as opened,
+        patch('inventory_tracking.native.memory.os.open') as opened,
     ):
         observation = observe_shop_panel(12, IMAGES, snapshot())
     assert observation.status == ObservationStatus.UNAVAILABLE

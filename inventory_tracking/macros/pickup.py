@@ -131,7 +131,7 @@ MISSED_AIMS = 3
 SHUN_SECONDS = 30.0
 SHUNNED: dict[int, float] = {}  # unit id -> the clock until which the pickup step leaves the drop alone
 # The valuables the macro picked up itself, by unit id (an item keeps it from the ground into the inventory): outside
-# the KP_6 loop, the ones a full inventory may move into the cube (hunt.py `stay_by`); the player's never are
+# the KP_6 loop, the ones a full inventory may move into the cube (hunting/choice.py `stay_by`); the player's never are
 TAKEN: set[int] = set()
 # The valuables a click was made on and not seen to leave the ground in its wait (`click`), by unit id, with the clock
 # of the click: one in the character's grids at a later look was picked up late (`late`). A magic Jewel left the ground
@@ -170,7 +170,7 @@ class Refused(Abort):
 def gheeds_carried(run: Run) -> bool:
     """Whether a Gheed's Fortune is in the carried inventory now (identified, its row read: macros/charms.py
     `gheeds`, whoever's it is: the game's carry-one counts any); False unread."""
-    pack = run.carried() if run.carried is not None else None
+    pack = run.reads.carried()
     return pack is not None and any(
         is_unique_grand_charm(item.txt, item.quality) and item.identified and item.unique == GHEEDS_FORTUNE
         for item in pack.items
@@ -194,7 +194,7 @@ def refusal(run: Run, drop: Drop, after: Player | None) -> Refused | None:
         return None
     if not gheeds_carried(run):
         return None
-    loot = run.loot() if run.loot is not None else None
+    loot = run.reads.loot()
     if loot is None or not has_room(loot.room, drop.size):
         return None
     return Refused(drop, f"{drop.label} was refused by the game: another Gheed's Fortune is carried")
@@ -565,7 +565,7 @@ def walk_up(run: Run, drop: Drop) -> bool:
     if not in_view(where):
         return False
     run.actuator.aim(*where, scatter=(2, 2))
-    return click(run, drop, (0, 0), run.hovered() if run.hovered is not None else None)
+    return click(run, drop, (0, 0), run.reads.hovered())
 
 
 def click(run: Run, drop: Drop, aim: tuple[int, int], over: tuple[int, int] | None) -> bool:
@@ -684,7 +684,7 @@ def pick_up(
     map if known, `otherwise` what the press does with nothing to pick up (the runner: the seek step).
     With `threat` a potion is left where monsters are near it or the character, and the press goes on
     to `otherwise`; a valuable or gold is gone for all the same. `unit`: the drop a goal names (the pursuit's
-    act, priced for it: hunt.py `operate`), taken in place of the one `choose` would put first; gone from the
+    act, priced for it: hunting/moves.py `operate`), taken in place of the one `choose` would put first; gone from the
     ground (taken meanwhile), the press has nothing to pick up. `looped`: the KP_6 loop's press (runner.py `take_one`):
     a valuable with no room stops it whenever lootpolicy.py's `verdict` holds it (`NO_ROOM_PLAIN` ruled)."""
     player, _ = ready(run)

@@ -59,10 +59,10 @@ def test_restart_after_capture_suppresses_signature_results():
             side_effect=[token, token, {'pid': 123, 'start_ticks': '2'}],
         ),
         patch('inventory_tracking.native.capture_probe.process_mappings', return_value=[mapping(8192)]),
-        patch('inventory_tracking.native.capture_probe.os.open', return_value=77),
-        patch('inventory_tracking.native.capture_probe.os.close'),
+        patch('inventory_tracking.native.memory.os.open', return_value=77),
+        patch('inventory_tracking.native.memory.os.close'),
         patch(
-            'inventory_tracking.native.capture_probe.os.pread',
+            'inventory_tracking.native.memory.os.pread',
             side_effect=lambda fd, size, offset: data[offset - 8192 : offset - 8192 + size],
         ),
     ):
@@ -102,9 +102,9 @@ def test_short_header_read_while_the_game_starts_or_exits_is_stale_not_a_crash(f
         tempfile.TemporaryDirectory() as directory,
         patch('inventory_tracking.native.capture_probe.identity', return_value=token),
         patch('inventory_tracking.native.capture_probe.process_mappings', return_value=[mapping(8192)]),
-        patch('inventory_tracking.native.capture_probe.os.open', return_value=77),
-        patch('inventory_tracking.native.capture_probe.os.close'),
-        patch('inventory_tracking.native.capture_probe.os.pread', side_effect=pread),
+        patch('inventory_tracking.native.memory.os.open', return_value=77),
+        patch('inventory_tracking.native.memory.os.close'),
+        patch('inventory_tracking.native.memory.os.pread', side_effect=pread),
     ):
         result = capture_image(123, images, Path(directory))
 

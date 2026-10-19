@@ -79,7 +79,7 @@ In level (`Agenda.in_level`, first match wins; within a tier the nearest):
 
 | Tier | Target | Why |
 | ---: | --- | --- |
-| 0 | a live Herald | "a Herald first, wherever the others stand" (hunt.py `rest_of`, HERALD_OMEN) |
+| 0 | a live Herald | "a Herald first, wherever the others stand" (hunting/choice.py `rest_of`, HERALD_OMEN) |
 | 1 | a pending Herald omen: the hostile nearest the spot within `omen_near`, else the stand by it | rca/2026-10-17/herald-findings.md |
 | 2 | the side drop's guards: hostiles within `GUARD_NEAR` (12) of the drop or of the character, nearest first | **a pickup near a pack is ordered after the kill near it** (the player's example) |
 | 3 | the side drop itself (the pickup rules' choice: a valuable within PICK_NEAR walked or LOOP_PICK_SECONDS by Teleport, gold, a potion) | "picking up items — goes into their own priority": before any travel to a farther pack; the drop tiers (2–3) are above every metric tier (the 02:12 ruling) |

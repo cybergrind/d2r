@@ -115,7 +115,7 @@ Point = tuple[float, float]
 
 # What the caller of a move allows, one for each kind of caller (architecture.md 4.3). A movement set
 # reads `reserve`, `distrust`, `may_wait`, `waits_blind`, `short`, `shot`, `shuns` and `detour`; the
-# rest say what the caller itself does around the set's answer (hunt.py `afoot`, `warp_hop`), which
+# rest say what the caller itself does around the set's answer (hunting/moves.py `afoot`, `warp_hop`), which
 # is not one `leg`: `sparing` and `walks_under` there, and `may_swap`, which only tells that the
 # caller's own hop (teleport.py `take_teleport`) changes the weapon set where a set's jump never does.
 # Every one of them asks a set's own jumps with the same floor of charges, LOW_CHARGES: the charges
@@ -129,7 +129,7 @@ OWN_MOVE = Intent(
 # Safety asks for alternatives with every currently usable means, including a
 # charged set on the back. The caller prices the swap before authorizing a leg.
 SAFE_MOVE = replace(OWN_MOVE, name='priced move', may_swap=True, reserve=1)
-# The seek step (hunt.py `afoot`): a casting delay is waited out where the line toward the goal is
+# The seek step (hunting/moves.py `afoot`): a casting delay is waited out where the line toward the goal is
 # clear, and with fewer than LOW_CHARGES a walk too comes before the hop.
 SEEK = Intent(
     'seek',
@@ -140,7 +140,7 @@ SEEK = Intent(
     sparing=math.inf,
     walks_under=LOW_CHARGES,
 )
-# The player's own teleport step (hunt.py `warp_hop`, `empty_hop`): under WARP_CHARGES a jump that
+# The player's own teleport step (hunting/moves.py `warp_hop`, `empty_hop`): under WARP_CHARGES a jump that
 # spares the staff comes first, one that moved nothing is tried again after WARP_RETRY, a walk is
 # made only with the staff empty, and a casting delay is waited out with the line looked at by the caller.
 PLAYER_STEP = Intent(
@@ -215,7 +215,7 @@ NO_SPOT_ON_WAY = 'no spot on the walked way is in view and reached by a jump ove
 NO_SET = 'no movement set of the build is for the character as it is now'
 WAY_UNKNOWN = 'no walked way to the goal is known (its ground is not read, or nothing leads there)'
 # The walked way is still being grown within the looks' time (`planning`) and no straight stride leads on meanwhile:
-# no failed way (a run's clearing goal is not passed by for it, hunt.py `judge`), the next look grows it on.
+# no failed way (a run's clearing goal is not passed by for it, hunting/judging.py `judge`), the next look grows it on.
 GROWING = 'the walked way there is still being grown'
 NO_NEARER = 'the move found brings the goal no nearer by the way'
 # The walked way to a far goal (`Walked`). A cell beside a barred one counts HUG times its length: a
@@ -1609,8 +1609,8 @@ def walked_length(ground: Ground | None, doors: Sequence[Door], here: Point, goa
 def walk_reaches(ground: Ground | None, doors: Sequence[Door], here: Point, goal: Point, reach: float) -> bool:
     """Whether a click on a drop at `goal` from `here` walks the character to it: within `reach` and on a clear
     straight line (`clear_line`), or else by a walked way round (`walked_way`) no longer than ROUND_CLICK. What
-    "near enough to click" means for a drop (macros/hunt.py `judge`, macros/pickup.py `approach`); further, the
-    drop is gone to first. A drop 17 units off across lava was 43 by walking (River of Flame, 00:26:36 on
+    "near enough to click" means for a drop (macros/hunting/judging.py `judge`, macros/pickup.py `approach`); further,
+    the drop is gone to first. A drop 17 units off across lava was 43 by walking (River of Flame, 00:26:36 on
     2026-10-14, rca/2026-10-14/run-0025-findings.md §2.2), and one 18.3 off round a wall corner, 19.4 by walking,
     was clicked four times and never walked to (run-1214-findings.md §3.2). With no walls read (open ground) the
     straight distance alone decides."""

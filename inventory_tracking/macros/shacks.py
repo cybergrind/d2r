@@ -10,7 +10,7 @@ close".
 So one is opened only when the character stands in a camp and the container stands in the same camp, closed, in
 sight and within REACH: a side goal of the run, as a drop on the way is, never a place gone to for its own sake. The
 camp's chest spots are the card's marks, opened as the route's stage, and are left to it. Pure: the hunt hands in
-what the game shows (hunt.py `shack_goal`).
+what the game shows (hunting/choice.py `shack_goal`).
 
 And only one beside a chest (2026-10-17, the player: "we often diverge from our activities to interact with baskets
 well outside the shacks, maybe we need to interact only with interactables directly visible from superchests within

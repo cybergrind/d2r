@@ -5,6 +5,7 @@ import struct
 import pytest
 
 from inventory_tracking.models import InputMode
+from inventory_tracking.native import memory as native_memory
 from inventory_tracking.native.layout import (
     CONTROLLER_MODE_RVA,
     CTL_BINDINGS_RVA,
@@ -17,7 +18,6 @@ from inventory_tracking.native.layout import (
     PANEL_PENDING,
     PLAYER_SLOT_RVA,
 )
-from inventory_tracking.tracking import input_mode
 from inventory_tracking.tracking.input_mode import (
     Flips,
     InputModeWatch,
@@ -153,7 +153,7 @@ class Source:
 
 def watch_on(cells: Memory, **kwargs) -> InputModeWatch:
     watch = InputModeWatch(Source(), start=False, **kwargs)
-    watch.fd, watch.bound = 99, (1234, BASE)
+    watch.memory.fd, watch.bound = 99, (1234, BASE)
     watch.read = cells  # type: ignore[method-assign]
     return watch
 
@@ -182,8 +182,8 @@ def test_an_unreadable_game_reads_as_none_and_poll_binds_the_attached_game(monke
     watch.step(1.0)
     assert watch.current is None
     opened = []
-    monkeypatch.setattr(input_mode.os, 'open', lambda path, flags: opened.append(path) or 77)
-    monkeypatch.setattr(input_mode.os, 'close', lambda fd: None)
+    monkeypatch.setattr(native_memory.os, 'open', lambda path, flags: opened.append(path) or 77)
+    monkeypatch.setattr(native_memory.os, 'close', lambda fd: None)
     fresh = InputModeWatch(Source(), start=False)
     fresh.poll(0.0)
     fresh.poll(0.5)  # within the poll interval: nothing

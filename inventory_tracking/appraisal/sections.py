@@ -2,7 +2,7 @@
 
 from typing import Any
 
-from pricing.knowledge.assessment.policies.value_watch import softcore_watches
+from pricing.api import softcore_watches
 
 
 WATCH_PLACEHOLDERS = frozenset({'-', 'no roll', 'no roll bucket'})

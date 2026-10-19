@@ -1,7 +1,6 @@
 """Current area and its preset rooms, through the confirmed level/room chain (layout.py)."""
 
 import contextlib
-import os
 import struct
 
 from inventory_tracking.levels.model import Location, Room, Walkable, pack_cells, pack_masks
@@ -28,8 +27,7 @@ from inventory_tracking.native.layout import (
     ROOM2_PRESET,
     TILE_UNITS,
 )
-from inventory_tracking.native.process import identity, process_mappings
-from inventory_tracking.native.unit_probe import ResearchReader
+from inventory_tracking.native.memory import game_read
 from inventory_tracking.native.units import walk_units
 
 
@@ -202,19 +200,9 @@ def preset_rooms(read, level, *, max_rooms=MAX_ROOMS) -> list[Room]:
 
 def observe_level(pid, images, capture, *, rooms=False) -> tuple[Location | None, list[Room]]:
     """Read-only, bounded; rooms are read only when asked (once per area entry)."""
-    tables = {x['table_address'] for x in capture['unit_table_candidates']}
-    if len(tables) != 1:
-        raise ValueError('Expected one freshly scanned unit table address')
-    token = images['identity']
-    fd = os.open(f'/proc/{pid}/mem', os.O_RDONLY)
-    try:
-        read = ResearchReader(fd, process_mappings(pid)).read
-        location = player_location(read, next(iter(tables)))
+    with game_read(pid, images, capture, changed='Game process changed during the level read') as (read, table):
+        location = player_location(read, table)
         found = preset_rooms(read, location.level) if rooms and location else []
-    finally:
-        os.close(fd)
-    if identity(pid) != token:
-        raise ValueError('Game process changed during the level read')
     return location, found
 
 
@@ -237,34 +225,15 @@ def nearby_waypoints(read, table_address) -> list[tuple[float, float]]:
 
 def observe_waypoints(pid, images, capture) -> list[tuple[float, float]]:
     """Waypoints near the player, in tiles (read-only, bounded)."""
-    tables = {x['table_address'] for x in capture['unit_table_candidates']}
-    if len(tables) != 1:
-        raise ValueError('Expected one freshly scanned unit table address')
-    token = images['identity']
-    fd = os.open(f'/proc/{pid}/mem', os.O_RDONLY)
-    try:
-        found = nearby_waypoints(ResearchReader(fd, process_mappings(pid)).read, next(iter(tables)))
-    finally:
-        os.close(fd)
-    if identity(pid) != token:
-        raise ValueError('Game process changed during the waypoint read')
+    with game_read(pid, images, capture, changed='Game process changed during the waypoint read') as (read, table):
+        found = nearby_waypoints(read, table)
     return found
 
 
 def observe_walkable(pid, images, capture, *, cache: dict | None = None) -> list[Walkable]:
     """Walkable tiles of the loaded rooms around the player (read-only, bounded). `cache`: a dict the
     caller keeps between reads, so unchanged rooms come back as the same objects (`walkable_tiles`)."""
-    tables = {x['table_address'] for x in capture['unit_table_candidates']}
-    if len(tables) != 1:
-        raise ValueError('Expected one freshly scanned unit table address')
-    token = images['identity']
-    fd = os.open(f'/proc/{pid}/mem', os.O_RDONLY)
-    try:
-        read = ResearchReader(fd, process_mappings(pid)).read
-        found = player_room(read, next(iter(tables)))
+    with game_read(pid, images, capture, changed='Game process changed during the walls read') as (read, table):
+        found = player_room(read, table)
         grids = loaded_walkable(read, found[1], found[0].level, cache=cache) if found else []
-    finally:
-        os.close(fd)
-    if identity(pid) != token:
-        raise ValueError('Game process changed during the walls read')
     return grids

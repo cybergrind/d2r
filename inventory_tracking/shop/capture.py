@@ -5,7 +5,6 @@ category) in vendor, tab and cell order: its base, quality, cell and native stat
 Unit IDs and addresses are excluded so a closed and reopened shop keeps its key.
 """
 
-import os
 import time
 from typing import Any
 
@@ -14,11 +13,11 @@ from inventory_tracking.common import timestamp
 from inventory_tracking.items.decode import decode_items
 from inventory_tracking.items.identity import IDENTIFIED_FLAG, item_flags
 from inventory_tracking.items.metadata import item_base
-from inventory_tracking.native.image_probe import read_mappings
 from inventory_tracking.native.layout import SUPPORTED_SHA256, TOWN_IDS
+from inventory_tracking.native.memory import bounded, mappings_held
 from inventory_tracking.native.process import identity, process_mappings
 from inventory_tracking.native.resource_probe import read_location
-from inventory_tracking.native.unit_probe import ResearchReader, sample_units
+from inventory_tracking.native.unit_probe import sample_units
 from inventory_tracking.native.units import describe_item, unit_matches
 from inventory_tracking.tracking.state import select_player
 
@@ -222,17 +221,11 @@ def _with_reader(pid, images, capture, work):
     if snapshot.get('status') != 'research':
         raise ValueError(snapshot.get('error', 'Unit snapshot unavailable'))
     before = process_mappings(pid)
-    fd = os.open(f'/proc/{pid}/mem', os.O_RDONLY)
-    try:
-        reader = ResearchReader(fd, before)
+    with bounded(pid, before) as reader:
         record = work(reader.read, snapshot)
         after = process_mappings(pid)
-        if identity(pid) != images['identity'] or any(
-            read_mappings(before, a, n) != read_mappings(after, a, n) for a, n in reader.ranges
-        ):
+        if identity(pid) != images['identity'] or not mappings_held(before, after, reader.ranges):
             raise ValueError('Shop process/mappings changed')
-    finally:
-        os.close(fd)
     record['timing'] = {
         'capture_ms': round((time.monotonic() - started) * 1000, 1),
         'bytes_requested': reader.bytes_requested + snapshot.get('bytes_requested', 0),

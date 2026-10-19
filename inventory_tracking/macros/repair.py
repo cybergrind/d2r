@@ -176,7 +176,7 @@ def unknown() -> bool:
 
 def gold(run: Run, stat: int = GOLD_STAT) -> int | None:
     """The gold the character carries (the player's stat 14; `GOLDBANK`, 15: the stash's), None unread."""
-    loot = run.loot() if run.loot is not None else None
+    loot = run.reads.loot()
     if loot is None or not loot.stats:
         return None
     return dict(loot.stats).get(stat)
@@ -256,8 +256,8 @@ def repair(run: Run, fix: bool = True) -> bool:
     mode only. Not `fix`: his panel only opened and closed again, to learn his line (`unknown`)."""
     if run.pad is not None:
         raise Abort('the repair needs mouse mode')
-    before = run.teleport() if run.teleport is not None else None
-    worn = run.wear() if run.wear is not None else None
+    before = run.reads.teleport()
+    worn = run.reads.wear()
     coins = gold(run)
     rect = run.actuator.keys.focused_window_rect()
     if (before is None and worn is None) or rect is None:
@@ -315,10 +315,10 @@ def repair(run: Run, fix: bool = True) -> bool:
             run.actuator.click()
 
             def rose(_: World) -> bool:
-                now = run.teleport() if run.teleport is not None else None
+                now = run.reads.teleport()
                 if before is not None and now is not None and now.charges > before.charges:
                     return True
-                mended = run.wear() if run.wear is not None else None
+                mended = run.reads.wear()
                 return worn is not None and (mended is None or mended.share > worn.share)
 
             took = run.seen(rose, REPAIR_SECONDS) is not None
@@ -331,8 +331,8 @@ def repair(run: Run, fix: bool = True) -> bool:
                 run.seen(lambda _w: (gold(run) or coins) <= least, GOLD_SETTLE_SECONDS)
         finally:
             _close(run)
-    after = run.teleport() if run.teleport is not None else None
-    mended = run.wear() if run.wear is not None else None
+    after = run.reads.teleport()
+    mended = run.reads.wear()
     left, banked = gold(run), gold(run, GOLDBANK)
     if took and coins is not None and left == coins:
         LOG.warning('Macro: repair: the carried gold did not move (%s)', coins)

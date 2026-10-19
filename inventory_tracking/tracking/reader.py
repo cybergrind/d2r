@@ -23,6 +23,7 @@ from inventory_tracking.models import State
 from inventory_tracking.native.capture_probe import capture_image
 from inventory_tracking.native.image_probe import inspect_images
 from inventory_tracking.native.layout import SUPPORTED_SHA256
+from inventory_tracking.native.memory import one_unit_table
 from inventory_tracking.native.session import GameNotReady, inspect_game, select_game_process
 from inventory_tracking.native.unit_probe import sample_units
 from inventory_tracking.reports import publish
@@ -106,7 +107,7 @@ class LiveReader:
             raise GameNotReady(f'game image changed during attach: {capture.get("error", "stale capture")}')
         if capture['status'] != 'captured':
             raise GameNotReady('unit table unavailable; enter a game with a character')
-        if len({x['table_address'] for x in capture['unit_table_candidates']}) == 1:
+        if one_unit_table(capture) is not None:
             self.remember_table(build, capture)
         else:
             # In the menus the signature's code page is usually still encrypted (module docstring).

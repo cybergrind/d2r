@@ -87,7 +87,7 @@ NONE, FULL = 'none', 'full'
 # Seconds a run carried into a level across its way out (`carried`) waits for that level's card before it finds
 # nothing to go to there: the level guide sees a new level at its next poll (every 0.5 s, config.py
 # level_guide_poll_interval) and then reads its rooms and walls, and until then the card is still the level left
-# (hunt.py `goal`: none). A fresh run is a press made with the card up; this one comes with the crossing.
+# (hunting/choice.py `goal`: none). A fresh run is a press made with the card up; this one comes with the crossing.
 ENTERING = 3.0
 ENTERING_SAID = 'the level is being read: the run goes on once its card is up'
 
@@ -195,7 +195,8 @@ class Facts:
     quiet: float = 0.0  # seconds since the fight last saw a strike, counted while `near`
     near: bool = False  # a hostile within the strike's reach, a clear line or not: the strike gap counts (I2)
     rush: bool = False  # the KP_6 loop's run (`Pursuit.rush`): no strike gap, the price alone
-    hurt: bool = False  # life lost within HURT_SECONDS (hunt.py `safety_priced`): the loop's run may stand and strike
+    # life lost within HURT_SECONDS (hunting/judging.py `safety_priced`): the loop's run may stand and strike
+    hurt: bool = False
     # Units the character stands past the goal's `near`, for a goal whose arrival is a distance from its place (a
     # place, a door); inf for the others. Under `least_move`, the shortest move the navigator makes (a walk along the
     # way: travel.py AROUND_LEAST), a way with no step left is an arrival (`moved`).

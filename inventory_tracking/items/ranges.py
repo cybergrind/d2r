@@ -5,7 +5,7 @@ from typing import Any
 from inventory_tracking.items.per_level_ranges import annotate_per_level_range
 from inventory_tracking.items.poison_ranges import annotate_poison_range
 from inventory_tracking.items.stat_constants import TOTAL_LABELS
-from pricing.knowledge.property_groups import selected_ranges
+from pricing.api import selected_ranges
 
 
 def annotate_roll_ranges(decoded: list[dict[str, Any]], identity):

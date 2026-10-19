@@ -146,7 +146,7 @@ def test_named_combinations_do_not_drop_a_required_modifier():
 
 @pytest.mark.parametrize(('value', 'expected'), [(15, True), (14, False)])
 def test_socket_predicate_requires_linked_jewel_evidence_and_preserves_unknown(value, expected):
-    from pricing.knowledge.assessment.adapters.capture import normalize
+    from pricing.api import normalize
 
     rule = {'op': 'socket_jewel_matches', 'stats': {'93:0': 15}, 'count': 1}
     capture = observed('Diadem', [(194, 0, 1)])

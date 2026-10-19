@@ -4,9 +4,9 @@ import pytest
 
 from inventory_tracking.items.metadata import decode_stats
 from inventory_tracking.items.ranges import annotate_roll_ranges
+from pricing.api import catalog
 from pricing.knowledge.assessment.domain.facts import thaw
 from pricing.knowledge.assessment.policies.named_tiers import assess_tier
-from pricing.knowledge.definition_store import catalog
 from tests.pricing.knowledge.assessment.policies.test_socketed_ravenlore import raven
 
 

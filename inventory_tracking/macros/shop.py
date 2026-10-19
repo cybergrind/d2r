@@ -173,7 +173,7 @@ def _along(run: Run, here: tuple[float, float], there: tuple[float, float], stra
     from inventory_tracking.combat.stance import no_footing
     from inventory_tracking.macros.travel import clear_line, walked_way
 
-    ground = run.ground() if run.ground is not None else None
+    ground = run.reads.ground()
     if ground is None or clear_line(ground, (), here, straight):
         return straight
     barred = no_footing(ground, ())
@@ -220,14 +220,14 @@ def _settled(run: Run) -> int | None:
 
 def gold_cap(run: Run) -> int | None:
     """The gold the character may carry: its level x GOLD_PER_LEVEL (stat 12 of its stats); None unread."""
-    loot = run.loot() if run.loot is not None else None
+    loot = run.reads.loot()
     level = dict(loot.stats).get(LEVEL_STAT) if loot is not None and loot.stats else None
     return level * GOLD_PER_LEVEL if level else None
 
 
 def _gold(run: Run) -> int | None:
     """The gold carried (stat 14), None unread: what the sales brought, for the repair (macros/junk.py)."""
-    loot = run.loot() if run.loot is not None else None
+    loot = run.reads.loot()
     return dict(loot.stats).get(GOLD_STAT) if loot is not None and loot.stats else None
 
 
@@ -293,7 +293,7 @@ def restock(run: Run, sell: Sequence[Carried] = (), back: bool = True, keys: int
             run.actuator.click('Control_L')
 
             def sold(w: World, i=each) -> bool:
-                p = run.carried() if run.carried is not None else None
+                p = run.reads.carried()
                 return p is not None and all(c.unit_id != i.unit_id for c in p.items)
 
             took = run.seen(sold, BOUGHT_SECONDS) is not None
@@ -423,7 +423,7 @@ def _buy(run: Run, rect, item: Stocked, what: Buy) -> None:
         run.actuator.tap('Shift_L', 'Button3')
 
         def came(w: World, h=had) -> bool:
-            p = run.carried() if run.carried is not None else None
+            p = run.reads.carried()
             return p is not None and what.count(p) != h
 
         if run.seen(came, BOUGHT_SECONDS) is not None:
@@ -641,7 +641,7 @@ def _open_menu(run: Run, aspect: float) -> tuple[float, float]:
             continue
         if not _point_at_her(run, aspect):
             LOG.info('Macro: shop: the game names %s under the pointer, not Jamella: clicked at her all the same',
-                     run.hovered() if run.hovered is not None else None)  # fmt: skip
+                     run.reads.hovered())  # fmt: skip
             world = run.world()
             her = _her(world)
             drawn = _drawn(world, (her.x, her.y), aspect) if her is not None else None

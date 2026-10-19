@@ -1,11 +1,11 @@
 """Host workflow for matching loaded PE headers against the disk candidate."""
 
 import hashlib
-import os
 from pathlib import Path
 
 from inventory_tracking.common import error
 from inventory_tracking.native.images import discover_images, read_pe
+from inventory_tracking.native.memory import ProcessMemory, read_mappings
 from inventory_tracking.native.process import identity, process_mappings
 
 
@@ -35,17 +35,10 @@ def inspect_images(pid, game):
         return {'status': 'stale', 'error': 'Process changed before image discovery'}
     disk, pe = disk_headers(game['executable_fingerprint'])
     mappings = process_mappings(pid)
-    fd = os.open(f'/proc/{pid}/mem', os.O_RDONLY)
-    try:
+    with ProcessMemory(pid) as memory:
         if identity(pid) != token:
             return {'status': 'stale', 'error': 'Process changed while opening memory'}
-
-        def read(address, size):
-            return os.pread(fd, size, address)
-
-        result = discover_images(read, mappings, pe)
-    finally:
-        os.close(fd)
+        result = discover_images(memory.pread, mappings, pe)
     if identity(pid) != token:
         return {'status': 'stale', 'error': 'Process identity changed during image discovery'}
     after = process_mappings(pid)
@@ -61,16 +54,3 @@ def inspect_images(pid, game):
     result['disk'] = disk
     result['identity'] = token
     return result
-
-
-def read_mappings(mappings, address, size):
-    """Compare only mapping portions used by a read, ignoring unrelated allocations.
-
-    This is a before/after consistency check, not an atomic memory snapshot.
-    """
-    end = address + size
-    return [
-        (max(address, m['start']), min(end, m['end']), m['start'], m['permissions'], m['path'])
-        for m in mappings
-        if m['start'] < end and m['end'] > address
-    ]

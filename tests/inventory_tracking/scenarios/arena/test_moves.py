@@ -46,7 +46,7 @@ from tests.inventory_tracking.scenarios.threat.harness import RUN
 
 STRIDE = RUN_SPEED / GAME_RATE  # units of one tick's run
 # What the macro says when a wait of its own for a move ran out (macros/travel.py `step_walk` and
-# `Travel.jump`, macros/hunt.py `take_step` and `go`).
+# `Travel.jump`, macros/hunting/sweep.py `take_step` and `go`).
 TIMED_OUT = ('did not move', 'No step', 'No move toward')
 
 

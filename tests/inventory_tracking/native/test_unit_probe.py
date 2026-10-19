@@ -40,9 +40,9 @@ def snapshot(*, mutation=None, late=False):
 
         mock('identity', return_value={'pid': 1})
         mock('process_mappings', return_value=[])
-        mock('os.open', return_value=42)
-        mock('os.close')
-        reader = mock('ResearchReader').return_value
+        stack.enter_context(patch('inventory_tracking.native.memory.os.open', return_value=42))
+        stack.enter_context(patch('inventory_tracking.native.memory.os.close'))
+        reader = mock('BoundedReader').return_value
         reader.read.side_effect = read
         reader.ranges = set()
         reader.bytes_requested = 0
@@ -80,20 +80,3 @@ def test_change_after_initial_unit_check_rejects_snapshot():
     assert not result['complete']
     assert result['summary'] == {}
     assert manifest['groups']['items']['errors']
-
-
-def test_indexed_reader_keeps_gap_and_permission_checks():
-    from inventory_tracking.native.unit_probe import ResearchReader
-
-    mappings = [
-        {'start': 100, 'end': 104, 'permissions': 'r--p'},
-        {'start': 104, 'end': 108, 'permissions': 'r--p'},
-        {'start': 112, 'end': 116, 'permissions': 'r--p'},
-        {'start': 116, 'end': 120, 'permissions': '---p'},
-    ]
-    with patch('inventory_tracking.native.unit_probe.os.pread', return_value=b'abcdef') as read:
-        assert ResearchReader(1, mappings).read(102, 6) == b'abcdef'
-        read.assert_called_once_with(1, 6, 102)
-    for address, size in [(106, 8), (114, 4), (90, 4)]:
-        with pytest.raises(ValueError, match='Unmapped or unreadable'):
-            ResearchReader(1, mappings).read(address, size)

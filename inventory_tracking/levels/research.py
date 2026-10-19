@@ -18,15 +18,14 @@ back-pointer (a Room2 whose +0x90 is the level), and every candidate offset is k
 Seed hashes are recorded as observed; nothing here decodes a seed or generates a map.
 """
 
-import os
 import struct
 from typing import Any, TypedDict
 
 from inventory_tracking.loot.runes import RUNES
 from inventory_tracking.loot.shrines import SHRINE_NAMES
 from inventory_tracking.native.layout import OBJECT_SHRINE_TABLE, OBJECT_SHRINE_TYPE
-from inventory_tracking.native.process import identity, process_mappings
-from inventory_tracking.native.unit_probe import ResearchReader
+from inventory_tracking.native.memory import bounded, unit_table
+from inventory_tracking.native.process import identity
 from inventory_tracking.native.units import walk_units
 
 
@@ -438,19 +437,13 @@ def survey(read, table_address) -> dict[str, Any]:
 
 
 def dump_level(pid, images, capture) -> dict[str, Any]:
-    tables = sorted({x['table_address'] for x in capture['unit_table_candidates']})
-    if len(tables) != 1:
-        raise ValueError('Expected one freshly scanned unit table address')
+    table = unit_table(capture)
     token = images['identity']
     if identity(pid) != token:
         raise ValueError('Game process changed before the level dump')
-    fd = os.open(f'/proc/{pid}/mem', os.O_RDONLY)
-    try:
-        reader = ResearchReader(fd, process_mappings(pid), budget=READ_BUDGET)
-        result = survey(reader.read, tables[0])
+    with bounded(pid, budget=READ_BUDGET) as reader:
+        result = survey(reader.read, table)
         result['bytes_requested'] = reader.bytes_requested
-    finally:
-        os.close(fd)
     if identity(pid) != token:
         raise ValueError('Game process changed during the level dump')
     return result

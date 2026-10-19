@@ -23,8 +23,9 @@ from inventory_tracking.builds import pursuing
 from inventory_tracking.levels.model import Ground, Walkable, pack_cells
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.build import NoWay
+from inventory_tracking.macros.drop_ledger import GATHER_TRIES
 from inventory_tracking.macros.goals import FIGHT, PICK_REACH, PICK_UP, STAND_NEAR, WAIT, Goal, goal_of, in_the_way
-from inventory_tracking.macros.hunt import BLOCK_SECONDS, GATHER_TRIES
+from inventory_tracking.macros.hunting.base import BLOCK_SECONDS
 from inventory_tracking.macros.pickup import PICK_UNITS, approach, pick_up
 from inventory_tracking.macros.pursuit import FULL, Hold, Move, Operate, Pursuit, decide
 from inventory_tracking.macros.supply import Potions, detour, worth
@@ -70,7 +71,7 @@ def running(play, *, loot: Loot, ground=()):
 
 
 def look(hunt, play, run, foes=()):
-    """The goal of the run's look now (hunt.py `goal`), with `foes` standing in the world."""
+    """The goal of the run's look now (hunting/choice.py `goal`), with `foes` standing in the world."""
     play.world = replace(play.world, monsters=tuple(foes))
     hunt.pursued = hunt.goal(run, play.world, list(foes), False, hunt.pursuit)  # as `judge` keeps it
     return hunt.pursued
@@ -159,8 +160,8 @@ def test_the_sweep_does_not_stay_by_a_drop_whose_tries_are_spent_and_says_why_it
     play = game()
     play.loot = Loot((CHARM,), room=('..........',) * 4)
     hunt, run, stopped = sweeping(play, (LAVA,))  # across the lava: no clear line, no one more try (`again`)
-    hunt.gathered[CHARM.unit_id] = GATHER_TRIES
-    hunt.tried[CHARM.unit_id] = 'priced act expired: look again before continuing'
+    hunt.drops.gathered[CHARM.unit_id] = GATHER_TRIES
+    hunt.drops.tried[CHARM.unit_id] = 'priced act expired: look again before continuing'
     with caplog.at_level(logging.INFO):
         hunt.gather(run, (5000.0, 5000.0))
     assert not stopped
@@ -511,8 +512,8 @@ def test_the_given_up_emerald_is_tried_once_more_from_a_clear_line_and_no_more(c
     standing(play, CLICKED_FROM)
     hunt = running(play, loot=Loot((GEM,), room=FREE), ground=(CORNER,))
     run = play.run()
-    hunt.gathered[GEM.unit_id] = GATHER_TRIES
-    hunt.tried[GEM.unit_id] = 'priced act expired: look again before continuing'
+    hunt.drops.gathered[GEM.unit_id] = GATHER_TRIES
+    hunt.drops.tried[GEM.unit_id] = 'priced act expired: look again before continuing'
     with caplog.at_level(logging.INFO):
         assert look(hunt, play, run) is None  # from where the clicks were made: still given up
         assert 'one more try' not in caplog.text
@@ -524,7 +525,7 @@ def test_the_given_up_emerald_is_tried_once_more_from_a_clear_line_and_no_more(c
         '(given up after 2 tries (the last: priced act expired' in caplog.text
     )
     assert 'One more try at Flawless Emerald' in play.said
-    hunt.gathered[GEM.unit_id] = GATHER_TRIES  # the one more try took nothing either
+    hunt.drops.gathered[GEM.unit_id] = GATHER_TRIES  # the one more try took nothing either
     with caplog.at_level(logging.INFO):
         assert look(hunt, play, run) is None
     assert caplog.text.count('one more try') == 1
@@ -539,9 +540,9 @@ def test_a_given_up_drop_the_player_put_down_is_not_tried_again() -> None:
     hunt = running(play, loot=Loot((GEM,), room=FREE, game=('cyber32', 1)), ground=(CORNER,))
     run = play.run()
     run.loot = lambda: put_down.see(play.loot)
-    hunt.gathered[GEM.unit_id] = GATHER_TRIES
+    hunt.drops.gathered[GEM.unit_id] = GATHER_TRIES
     assert look(hunt, play, run) is None
-    assert GEM.unit_id not in hunt.retried
+    assert GEM.unit_id not in hunt.drops.retried
 
 
 # -- a unique or set item the filter shows, with no room: stood by (the player, 2026-10-14) -----------------------

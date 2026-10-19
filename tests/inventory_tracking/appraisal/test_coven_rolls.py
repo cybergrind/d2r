@@ -5,9 +5,8 @@ from dataclasses import replace
 import pytest
 
 from inventory_tracking.appraisal.runeword_rolls import display_runeword_rolls
-from pricing.knowledge.assessment.adapters.capture import normalize
+from pricing.api import catalog, normalize
 from pricing.knowledge.assessment.mechanics.runeword_rolls import variable_roll_gaps
-from pricing.knowledge.definition_store import catalog
 from tests.pricing.knowledge.assessment.item_bank.models import SocketItem
 from tests.pricing.knowledge.assessment.item_bank.native_runeword import NativeRunewordItem
 

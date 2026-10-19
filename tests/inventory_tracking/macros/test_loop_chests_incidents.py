@@ -127,7 +127,7 @@ def test_the_loops_chest_run_goes_for_its_chest_not_for_a_firing_spot():
 
 def test_a_spot_a_move_did_not_reach_is_not_moved_to_again_for_a_while():
     # 22:04:12-30 on 2026-10-16: one walk made 16 times in 17 s, each "the character did not move"
-    from inventory_tracking.macros.hunt import DEAD_END_SECONDS
+    from inventory_tracking.macros.hunting.base import DEAD_END_SECONDS
 
     hunt = Hunter(build=BUILD)
     chests = Goal('Super chests', (5140.0, 3012.0), 'use', 12.0, PRESSED)
@@ -161,7 +161,7 @@ def test_the_loops_run_at_its_chest_among_idle_hostiles_opens_it_unless_just_hur
 def test_a_move_failed_twice_at_one_spot_lets_the_loop_take_teleport_for_a_while():
     # 21:49:56-21:50:40 on 2026-10-17: one Blade Warp 15 units east "did not move" eight times, the spot barred 4 s each
     # with no other act (Teleport off for the gold), until the 45 s watchdog left the game
-    from inventory_tracking.macros.hunt import DEAD_END_SECONDS, STUCK_SECONDS
+    from inventory_tracking.macros.hunting.base import DEAD_END_SECONDS, STUCK_SECONDS
     from inventory_tracking.macros.pursuit import Move
     from inventory_tracking.macros.teleport import TELEPORT
     from inventory_tracking.macros.travel import LOOPED, LOOPED_TELEPORT

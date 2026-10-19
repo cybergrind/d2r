@@ -4,14 +4,12 @@
 previous +0x68, state +0x20, stats +0x30. Applied level survives gear swap.
 """
 
-import os
 import struct
 import time
 
 from inventory_tracking.models import ConsumeBuff, Observation
-from inventory_tracking.native.image_probe import read_mappings
+from inventory_tracking.native.memory import bounded, mappings_held
 from inventory_tracking.native.process import identity, process_mappings
-from inventory_tracking.native.unit_probe import ResearchReader
 from inventory_tracking.native.units import read_stats, unit_matches
 
 
@@ -54,21 +52,14 @@ def observe_consume(pid, images, snapshot, player_id):
         before = process_mappings(pid)
         if identity(pid) != token:
             raise ValueError('Consume process changed')
-        fd = os.open(f'/proc/{pid}/mem', os.O_RDONLY)
-        try:
-            reader = ResearchReader(fd, before)
+        with bounded(pid, before) as reader:
             if not unit_matches(reader.read, player):
                 raise ValueError('Consume player changed')
             value = read_consume(reader.read, player['stats_pointer'])
             if not unit_matches(reader.read, player):
                 raise ValueError('Consume player changed')
-        finally:
-            os.close(fd)
         after = process_mappings(pid)
-        if identity(pid) != token or any(
-            read_mappings(before, address, size) != read_mappings(after, address, size)
-            for address, size in reader.ranges
-        ):
+        if identity(pid) != token or not mappings_held(before, after, reader.ranges):
             raise ValueError('Consume process/mappings changed')
         return Observation(sampled, value)
     except (OSError, ValueError, KeyError, StopIteration, struct.error) as exc:

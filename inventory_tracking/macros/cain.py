@@ -64,7 +64,7 @@ def identify_all(run: Run, unknown: Sequence[Carried]) -> int:
     units = {item.unit_id for item in unknown}
 
     def known_now() -> int:
-        pack = run.carried() if run.carried is not None else None
+        pack = run.reads.carried()
         if pack is None:
             return 0
         return sum(1 for item in (*pack.items, *pack.in_cube) if item.unit_id in units and item.identified)

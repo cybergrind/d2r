@@ -6,13 +6,11 @@ with occupied shop grids is the vendor being traded with. Zero or several loaded
 vendors make the observation unavailable rather than a guess.
 """
 
-import os
 import time
 
 from inventory_tracking.collection.capture import read_owner_grids
 from inventory_tracking.models import Observation, ShopPanel
-from inventory_tracking.native.process import process_mappings
-from inventory_tracking.native.unit_probe import ResearchReader
+from inventory_tracking.native.memory import bounded
 from inventory_tracking.shop.capture import VENDORS
 from inventory_tracking.tracking.panels import observe_panels
 
@@ -42,11 +40,8 @@ def observe_shop_panel(pid, images, snapshot) -> Observation[ShopPanel]:
     if not panels.value['npc_shop']:
         return Observation(sampled, ShopPanel(False))
     try:
-        fd = os.open(f'/proc/{pid}/mem', os.O_RDONLY)
-        try:
-            loaded = loaded_vendors(ResearchReader(fd, process_mappings(pid)).read, snapshot)
-        finally:
-            os.close(fd)
+        with bounded(pid) as reader:
+            loaded = loaded_vendors(reader.read, snapshot)
         if len(loaded) != 1:
             raise ValueError('No loaded vendor stock' if not loaded else 'Several vendors have loaded stock')
         after = observe_panels(pid, images)

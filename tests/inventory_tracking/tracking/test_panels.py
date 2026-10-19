@@ -48,11 +48,11 @@ def test_decode_rejects_short_and_non_boolean_arrays(raw, message):
 )
 def test_observation_rejects_partial_invalid_and_changing_reads(reads, expected):
     with (
-        patch('inventory_tracking.tracking.panels.identity', return_value=TOKEN),
-        patch('inventory_tracking.tracking.panels.process_mappings', return_value=[MAPPING]),
-        patch('inventory_tracking.tracking.panels.os.open', return_value=9),
-        patch('inventory_tracking.tracking.panels.os.close') as close,
-        patch('inventory_tracking.tracking.panels.os.pread', side_effect=reads) as read,
+        patch('inventory_tracking.native.memory.identity', return_value=TOKEN),
+        patch('inventory_tracking.native.memory.process_mappings', return_value=[MAPPING]),
+        patch('inventory_tracking.native.memory.os.open', return_value=9),
+        patch('inventory_tracking.native.memory.os.close') as close,
+        patch('inventory_tracking.native.memory.os.pread', side_effect=reads) as read,
     ):
         observation = observe_panels(12, IMAGES)
     assert (None if observation.value is None else observation.value['stash']) is expected
@@ -63,10 +63,10 @@ def test_observation_rejects_partial_invalid_and_changing_reads(reads, expected)
 
 def test_observation_suppresses_identity_changes():
     with (
-        patch('inventory_tracking.tracking.panels.identity', side_effect=[TOKEN, {}]),
-        patch('inventory_tracking.tracking.panels.process_mappings', return_value=[MAPPING]),
-        patch('inventory_tracking.tracking.panels.os.open', return_value=9),
-        patch('inventory_tracking.tracking.panels.os.close'),
-        patch('inventory_tracking.tracking.panels.os.pread', return_value=flags()),
+        patch('inventory_tracking.native.memory.identity', side_effect=[TOKEN, {}]),
+        patch('inventory_tracking.native.memory.process_mappings', return_value=[MAPPING]),
+        patch('inventory_tracking.native.memory.os.open', return_value=9),
+        patch('inventory_tracking.native.memory.os.close'),
+        patch('inventory_tracking.native.memory.os.pread', return_value=flags()),
     ):
         assert observe_panels(12, IMAGES).status == ObservationStatus.UNAVAILABLE

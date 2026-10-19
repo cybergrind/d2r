@@ -52,8 +52,7 @@ def test_saved_crowbill_capture_with_upgraded_base_reaches_assessment_identity()
     from pathlib import Path
 
     from inventory_tracking.items.decode import decode_items
-    from pricing.knowledge.assessment.adapters.capture import normalize
-    from pricing.knowledge.assessment.handlers.definitions import resolve_named_definition
+    from pricing.api import normalize, resolve_named_definition
 
     capture = json.loads((Path(__file__).parents[1] / 'fixtures/tancred_crowbill.json').read_text())
     target_id, target = next((k, v) for k, v in metadata()['bases'].items() if v['name'] == 'War Spike')

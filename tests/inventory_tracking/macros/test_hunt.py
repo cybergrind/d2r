@@ -26,13 +26,11 @@ from inventory_tracking.levels.model import Ground, Level, Room, Walkable, pack_
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.buffs import STATE_DISTRUST as HEX_DISTRUST
 from inventory_tracking.macros.hunt import (
-    FOLLOW_SECONDS,
     MISSES_IN_A_ROW,
     NEARING_SECONDS,
     QUIET_UNITS,
     RUN_IN_PLACE,
     STRIKE_REACH,
-    SWEEP_UNITS,
     TOUGH_POINTS,
     UNTOUCHABLE_SECONDS,
     UNTOUCHED_CASTS,
@@ -40,11 +38,22 @@ from inventory_tracking.macros.hunt import (
     hostiles,
     strike_input,
 )
+from inventory_tracking.macros.hunting.base import FOLLOW_SECONDS, SWEEP_UNITS
 from inventory_tracking.macros.skills import ATTACK, SWAP_WEAPONS, TELEPORT
 from inventory_tracking.macros.travel import JUMP_REACH, Step, attackable, step_walk
 from inventory_tracking.macros.world import HEALING, VALUABLE, Drop, Monster, Player, Teleport, World
 from inventory_tracking.native.layout import HIRELING_CLASS_ID
-from tests.inventory_tracking.macros.fakes import BUILD, HUNT_SLOTS, KEYS, PREBUFF_SET, Game, player, warlock, world
+from tests.inventory_tracking.macros.fakes import (
+    BUILD,
+    HUNT_SLOTS,
+    KEYS,
+    PREBUFF_SET,
+    Game,
+    patch_hunt,
+    player,
+    warlock,
+    world,
+)
 
 
 @pytest.fixture
@@ -573,11 +582,10 @@ def test_an_elite_already_in_reach_is_only_named():
 def test_a_firing_spot_under_the_characters_feet_is_no_walk(monkeypatch):
     # The run of 18:38 on 2026-10-10: "Walking 1 toward the elite", a click under the feet, "the
     # character did not move". The shot read blocked from the exact place, clear from 0.6 units beside it.
-    from inventory_tracking.macros import hunt as hunt_module
 
     play = game(foe(10, 5014.0, 5000.0, CHAMPION))
-    monkeypatch.setattr(hunt_module, 'in_reach', lambda *args: False)
-    monkeypatch.setattr(hunt_module, 'firing_spots', lambda *args: [(5000.5, 5000.3)])
+    patch_hunt(monkeypatch, 'in_reach', lambda *args: False)
+    patch_hunt(monkeypatch, 'firing_spots', lambda *args: [(5000.5, 5000.3)])
     hunter(play).seek(play.run(), keys)
     assert play.said == ['the elite 19 (10) is in reach: attack mode takes it']
     assert play.keys.events == []
@@ -1111,9 +1119,8 @@ def test_a_pickup_asked_for_in_a_fight_with_gold_within_a_jump_stops_the_fight_f
 
 def test_the_sweep_stops_for_something_to_pick_up_without_a_press(caplog, monkeypatch):
     # user, 2026-10-11: "when doing KP_1 auto-movement, we should also auto-pickup items/gold"
-    from inventory_tracking.macros import hunt as hunt_module
 
-    monkeypatch.setattr(hunt_module, 'GATHER_CLEAR', 0.0)  # the monsters here are not beside the drop (its own test)
+    patch_hunt(monkeypatch, 'GATHER_CLEAR', 0.0)  # the monsters here are not beside the drop (its own test)
     caplog.set_level(logging.INFO)
     play = row(tough=1000)
     hunt = hunter(play)
@@ -1147,9 +1154,8 @@ def test_without_the_sweep_the_mode_does_not_stop_for_what_lies_on_the_ground():
 
 
 def test_the_sweep_stops_for_one_drop_twice_at_most(monkeypatch):
-    from inventory_tracking.macros import hunt as hunt_module
 
-    monkeypatch.setattr(hunt_module, 'GATHER_CLEAR', 0.0)  # the monsters here are not beside the drop (its own test)
+    patch_hunt(monkeypatch, 'GATHER_CLEAR', 0.0)  # the monsters here are not beside the drop (its own test)
     play = row(tough=1000)
     play.loot = replace(play.loot, drops=(Drop(60, 5010.0, 5006.0, '5221 gold', 'gold', (0, 0)),))
     hunt = hunter(play)
@@ -1261,7 +1267,6 @@ def test_without_a_press_the_mode_never_steps():
 
 
 def test_the_sweep_ends_some_seconds_after_its_last_step_and_after_its_steps(monkeypatch):
-    from inventory_tracking.macros import hunt as hunt_module
 
     play = game(foe(11, 5028.0, 5000.0))
     hunt = hunter(play)
@@ -1269,7 +1274,7 @@ def test_the_sweep_ends_some_seconds_after_its_last_step_and_after_its_steps(mon
     late = FOLLOW_SECONDS + 3.0
     attack_mode(play, hunt, until=late + 3.0, events=[(late, beside(play, 12, 27.0))])
     assert [m.unit_id for m in play.world.monsters] == [12]  # the first was gone to, the late one not
-    monkeypatch.setattr(hunt_module, 'FOLLOW_STEPS', 2)
+    patch_hunt(monkeypatch, 'FOLLOW_STEPS', 2)
     play = game(foe(11, 5028.0, 5000.0))
     hunt = hunter(play)
     hunt.step(play.run(), keys)
@@ -2152,12 +2157,11 @@ def test_with_the_staff_empty_and_in_hand_the_step_takes_the_main_weapons_first(
 
 
 def test_a_seek_step_with_the_staff_empty_and_in_hand_takes_the_main_weapons_first(monkeypatch):
-    from inventory_tracking.macros import hunt as hunt_module
 
     play = game(foe(10, 5040.0, 5000.0, CHAMPION))
     play.sets.reverse()
     play.staff = replace(STAFF, charges=0, in_hand=True)
-    monkeypatch.setattr(hunt_module, 'in_reach', lambda *args: False)
+    patch_hunt(monkeypatch, 'in_reach', lambda *args: False)
     hunter(play).seek(play.run(), keys)
     assert play.pressed()[0] == KEYS[SWAP_WEAPONS]
     assert play.staff.in_hand is False
@@ -2167,13 +2171,12 @@ def test_a_firing_spot_a_few_units_off_behind_a_corner_is_still_gone_to(monkeypa
     # Tower Cellar 5, 20:14:45 on 2026-10-11: the firing spot 4.1 from the character, no clear line
     # to it and no shot from where it stood. Seven seek presses said "the character is beside it"
     # and moved nothing, while attack mode went on with "none in reach".
-    from inventory_tracking.macros import hunt as hunt_module
 
     play = game(foe(10, 5012.0, 5000.0, CHAMPION))
     play.staff = replace(STAFF, charges=40)
-    monkeypatch.setattr(hunt_module, 'in_reach', lambda *args: False)
-    monkeypatch.setattr(hunt_module, 'clear_shot', lambda *args: False)
-    monkeypatch.setattr(hunt_module, 'firing_spots', lambda *args: [(5004.0, 5001.0)])
+    patch_hunt(monkeypatch, 'in_reach', lambda *args: False)
+    patch_hunt(monkeypatch, 'clear_shot', lambda *args: False)
+    patch_hunt(monkeypatch, 'firing_spots', lambda *args: [(5004.0, 5001.0)])
     start = (me(play.world).x, me(play.world).y)
     hunter(play).seek(play.run(), keys)
     assert play.pressed() == [KEYS[TELEPORT]]
@@ -2182,14 +2185,13 @@ def test_a_firing_spot_a_few_units_off_behind_a_corner_is_still_gone_to(monkeypa
 
 
 def test_a_seek_step_that_moves_nothing_says_so(monkeypatch):
-    from inventory_tracking.macros import hunt as hunt_module
 
     play = game(foe(10, 5012.0, 5000.0, CHAMPION))
     play.staff = replace(STAFF, charges=40)
-    monkeypatch.setattr(hunt_module, 'in_reach', lambda *args: False)
-    monkeypatch.setattr(hunt_module, 'clear_shot', lambda *args: False)
-    monkeypatch.setattr(hunt_module, 'firing_spots', lambda *args: [(5004.0, 5001.0)])
-    monkeypatch.setattr(hunt_module, 'hop_toward', lambda *args: None)  # a hop that does nothing, whatever the cause
+    patch_hunt(monkeypatch, 'in_reach', lambda *args: False)
+    patch_hunt(monkeypatch, 'clear_shot', lambda *args: False)
+    patch_hunt(monkeypatch, 'firing_spots', lambda *args: [(5004.0, 5001.0)])
+    patch_hunt(monkeypatch, 'hop_toward', lambda *args: None)  # a hop that does nothing, whatever the cause
     hunter(play).seek(play.run(), keys)
     assert play.said[-1] == 'No move toward the elite 19 (10): 4 from its firing spot'
 
@@ -2202,13 +2204,12 @@ def boss_card(play, mark=(1010.5, 1000.5)):
 
 def test_the_teleport_step_goes_for_a_boss_its_mark_has_no_shot_at(monkeypatch):
     # Tower Cellar 5, 20:14:33 on 2026-10-11: the Countess 29 from her mark, behind a wall.
-    from inventory_tracking.macros import hunt as hunt_module
 
     countess = foe(10, 5025.0, 5030.0, 0x02, txt_id=45)  # a super unique, 32 from the mark at (5052.5, 5002.5)
     play = game(countess)
     play.staff = replace(STAFF, charges=40)
-    monkeypatch.setattr(hunt_module, 'in_reach', lambda *args: False)  # no shot from the mark, none from here
-    monkeypatch.setattr(hunt_module, 'firing_spots', lambda *args: [(5020.0, 5012.0)])
+    patch_hunt(monkeypatch, 'in_reach', lambda *args: False)  # no shot from the mark, none from here
+    patch_hunt(monkeypatch, 'firing_spots', lambda *args: [(5020.0, 5012.0)])
     hunt = hunter(play)
     assert hunt.boss_step(play.run(), boss_card(play), keys)
     assert play.pressed()  # a jump toward the firing spot at her
@@ -2216,11 +2217,10 @@ def test_the_teleport_step_goes_for_a_boss_its_mark_has_no_shot_at(monkeypatch):
 
 
 def test_the_teleport_step_stays_when_the_boss_is_in_reach_and_the_mark_has_no_shot(monkeypatch):
-    from inventory_tracking.macros import hunt as hunt_module
 
     play = game(foe(10, 5015.0, 5000.0, 0x02, txt_id=45))
     marks = iter([False, True])  # no shot from the mark; one from where the character stands
-    monkeypatch.setattr(hunt_module, 'in_reach', lambda *args: next(marks))
+    patch_hunt(monkeypatch, 'in_reach', lambda *args: next(marks))
     assert hunter(play).boss_step(play.run(), boss_card(play), keys)
     assert play.keys.events == []
     assert play.said[-1].endswith('is in reach: attack mode takes it')
@@ -2228,13 +2228,12 @@ def test_the_teleport_step_stays_when_the_boss_is_in_reach_and_the_mark_has_no_s
 
 def test_the_teleport_step_goes_to_a_mark_with_a_shot_at_its_boss_and_to_any_other_mark_as_ever(monkeypatch):
     from inventory_tracking.levels.model import Target
-    from inventory_tracking.macros import hunt as hunt_module
 
     play = game(foe(10, 5060.0, 5000.0, 0x02, txt_id=45))
-    monkeypatch.setattr(hunt_module, 'in_reach', lambda *args: True)  # the stand has the shot
+    patch_hunt(monkeypatch, 'in_reach', lambda *args: True)  # the stand has the shot
     hunt = hunter(play)
     assert not hunt.boss_step(play.run(), boss_card(play), keys)
-    monkeypatch.setattr(hunt_module, 'in_reach', lambda *args: False)
+    patch_hunt(monkeypatch, 'in_reach', lambda *args: False)
     stairs = Target(me(play.world).area, ROOMS, (1010.5, 1000.5), 'Next level', 'stairs', True, ())
     assert not hunt.boss_step(play.run(), stairs, keys)
     assert not hunter(game()).boss_step(game().run(), boss_card(play), keys)  # no boss in sight
@@ -2415,13 +2414,13 @@ def gheeds_run(*, gheeds: bool = True, swap: bool = True):
 def test_a_unique_grand_charm_the_level_run_gives_up_with_a_gheeds_carried_is_the_gheeds_swap():
     # 13:56:41.578 on 2026-10-18: the run gave the charm up after 2 tries ("priced act expired"), went on, and only the
     # 45 s stand reached the swap (13:57:26)
-    from inventory_tracking.macros.hunt import GATHER_TRIES
+    from inventory_tracking.macros.drop_ledger import GATHER_TRIES
 
     play, hunt, charm, asked, ended = gheeds_run()
     run = play.run()
-    hunt.gathered[charm.unit_id] = GATHER_TRIES
-    hunt.retried.add(charm.unit_id)  # (its one more try from near made: `again`)
-    hunt.tried[charm.unit_id] = 'priced act expired: look again before continuing'
+    hunt.drops.gathered[charm.unit_id] = GATHER_TRIES
+    hunt.drops.retried.add(charm.unit_id)  # (its one more try from near made: `again`)
+    hunt.drops.tried[charm.unit_id] = 'priced act expired: look again before continuing'
     assert hunt.side_drop(run, (5000.0, 5000.0), [], play.world) is None
     assert [refused.drop for refused in asked] == [charm]
     assert 'given up after 2 tries' in str(asked[0])
@@ -2433,24 +2432,25 @@ def test_a_unique_grand_charm_the_level_run_gives_up_with_a_gheeds_carried_is_th
 
 @pytest.mark.parametrize('which', ['a rune', 'no gheeds carried', 'no swap'])
 def test_a_drop_given_up_with_no_gheeds_swap_is_left_as_before(which):
-    from inventory_tracking.macros.hunt import GATHER_TRIES
+    from inventory_tracking.macros.drop_ledger import GATHER_TRIES
 
     play, hunt, charm, asked, ended = gheeds_run(gheeds=which != 'no gheeds carried', swap=which != 'no swap')
     if which == 'a rune':
         charm = Drop(61, 5004.0, 5000.0, 'Ist Rune', VALUABLE)
         play.loot = replace(play.loot, drops=(charm,))
     run = play.run()
-    hunt.gathered[charm.unit_id] = GATHER_TRIES
-    hunt.retried.add(charm.unit_id)
+    hunt.drops.gathered[charm.unit_id] = GATHER_TRIES
+    hunt.drops.retried.add(charm.unit_id)
     assert hunt.side_drop(run, (5000.0, 5000.0), [], play.world) is None
     assert len(asked) == (1 if which == 'no swap' else 0)
     assert ended == []
 
 
 def test_a_refused_click_of_the_level_run_ends_it_for_the_gheeds_swap_at_once():
-    # The level run's pickup (hunt.py `operate`) met the refusal at its first click: no try counted toward giving up
+    # The level run's pickup (hunting/moves.py `operate`) met the refusal at its first click: no try counted toward
+    # giving up
     from inventory_tracking.macros.goals import PICK_UP, Goal
-    from inventory_tracking.macros.hunt import Judged
+    from inventory_tracking.macros.hunting.base import Judged
     from inventory_tracking.macros.pickup import Refused
     from inventory_tracking.macros.pursuit import Operate
     from inventory_tracking.macros.travel import PRESSED
@@ -2465,19 +2465,19 @@ def test_a_refused_click_of_the_level_run_ends_it_for_the_gheeds_swap_at_once():
     assert len(asked) == 1
     assert isinstance(asked[0], Refused)
     assert len(ended) == 1
-    assert charm.unit_id not in hunt.tried  # not a failed try
+    assert charm.unit_id not in hunt.drops.tried  # not a failed try
 
 
 def test_the_level_runs_give_up_memory_is_forgotten_for_the_new_gheeds():
     # 13:57:50 on 2026-10-18: back for the new one after the player's went onto a shared page, the level run never
     # tried it (the same unit, still given up); macros/loop.py GHEED_STASH forgets it (runner.py `_forget_given_up`)
-    from inventory_tracking.macros.hunt import GATHER_TRIES
+    from inventory_tracking.macros.drop_ledger import GATHER_TRIES
 
     play, hunt, charm, _, _ = gheeds_run(gheeds=False)  # the player's on a shared page now
     run = play.run()
-    hunt.gathered[charm.unit_id] = GATHER_TRIES
-    hunt.retried.add(charm.unit_id)
-    hunt.swap_asked.add(charm.unit_id)
+    hunt.drops.gathered[charm.unit_id] = GATHER_TRIES
+    hunt.drops.retried.add(charm.unit_id)
+    hunt.drops.swap_asked.add(charm.unit_id)
     assert hunt.side_drop(run, (5000.0, 5000.0), [], play.world) is None
     hunt.forget_given_up()
     assert hunt.side_drop(run, (5000.0, 5000.0), [], play.world) == charm

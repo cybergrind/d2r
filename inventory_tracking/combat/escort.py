@@ -7,8 +7,8 @@ the mercenary stands in a place it dies at within the safety's horizon (Diablo's
 it), such a jump to a place it lives at saves what its death costs: the way to town, the hire and its gear again,
 priced in seconds (`Kept.worth`, REHIRE_SECONDS), the arbiter's one unit (macros/pursuit.py `arbitrate`: T + kappa H).
 `escorts` names those places and what each saves; the caller makes them legs by the movement set (a jump that brings,
-over a clear line) and offers them as acts among the others (macros/hunt.py `escorted`), which price the character's
-own harm as every act's is. Pure: no input, no game read.
+over a clear line) and offers them as acts among the others (macros/hunting/judging.py `escorted`), which price the
+character's own harm as every act's is. Pure: no input, no game read.
 
 How a companion dies is the character's harm model at its place (combat/harm.py `harm`): the hostiles go for the
 nearest body, and one standing there is that body. Its resistances are not read: the character's battle set stands

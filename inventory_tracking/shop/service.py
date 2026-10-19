@@ -28,7 +28,7 @@ QUIET_SECONDS = 5  # OSD lease for no-target results, status and failures
 
 
 def triage_stock(record):
-    from pricing.triage.runtime import shop_retrieve
+    from pricing.api import shop_triage as shop_retrieve
 
     return assess(record, retrieve=shop_retrieve)
 

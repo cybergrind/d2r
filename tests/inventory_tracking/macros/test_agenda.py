@@ -240,7 +240,7 @@ def test_a_passed_target_gives_its_place_to_the_next():
 
 
 def test_the_towns_of_the_acts_and_the_remembered_reach_held_to_the_hunts():
-    from inventory_tracking.macros.hunt import REMEMBERED_NEAR
+    from inventory_tracking.macros.hunting.base import REMEMBERED_NEAR
 
     assert [town_of(area) for area in (2, 37, 39, 40, 74, 75, 102, 103, 108, 109, 132)] == [
         1, 1, 1, 40, 40, 75, 75, 103, 103, 109, 109,
@@ -296,6 +296,6 @@ def test_a_super_chest_passed_gives_its_place_to_the_next():
 
 
 def test_the_chest_reach_is_held_to_the_full_clears():
-    from inventory_tracking.macros.hunt import SUPER_NEAR
+    from inventory_tracking.macros.hunting.base import SUPER_NEAR
 
     assert CHEST_NEAR == SUPER_NEAR

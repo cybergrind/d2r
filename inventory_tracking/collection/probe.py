@@ -5,14 +5,13 @@ by correlating with counts the user reads off the in-game tab. Evidence only; no
 interpretation here.
 """
 
-import os
 import struct
 from typing import Any
 
 from inventory_tracking.collection.capture import NO_OWNER, STASH_PAGE, is_shared_candidate, read_owner_grids
 from inventory_tracking.items.metadata import item_base
-from inventory_tracking.native.process import process_mappings
-from inventory_tracking.native.unit_probe import ResearchReader, sample_units
+from inventory_tracking.native.memory import bounded
+from inventory_tracking.native.unit_probe import sample_units
 from inventory_tracking.tracking.state import select_player
 
 
@@ -44,9 +43,8 @@ def probe_materials(pid, images, capture) -> dict[str, Any]:
         and u['details'].get('owner_id') == NO_OWNER
         and u['details'].get('inventory_page') == STASH_PAGE
     ]
-    fd = os.open(f'/proc/{pid}/mem', os.O_RDONLY)
-    try:
-        read = ResearchReader(fd, process_mappings(pid)).read
+    with bounded(pid) as reader:
+        read = reader.read
         owners = []
         for unit in players:
             if not is_shared_candidate(unit, main):
@@ -81,6 +79,4 @@ def probe_materials(pid, images, capture) -> dict[str, Any]:
                 else None,
             }
             items.append(entry)
-    finally:
-        os.close(fd)
     return {'identity': images['identity'], 'player_id': player_id, 'owners': owners, 'materials': items}

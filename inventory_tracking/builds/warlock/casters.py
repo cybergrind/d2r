@@ -116,7 +116,7 @@ def open_spots(run: Run, world: World, skip: int = 0) -> list[tuple[float, float
     if rect is None or world.player is None:
         return spots
     player, aspect = world.player, rect[2] / rect[3]
-    ground = run.ground() if run.ground is not None else None
+    ground = run.reads.ground()
     if ground:
         here = (player.x, player.y)
         known = [*spots, *NEAR_SPOTS]

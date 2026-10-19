@@ -1,14 +1,13 @@
 """Bounded unit snapshots shared by diagnostics and the validated live reader."""
 
-import os
 import struct
 import time
 from bisect import bisect_right
 from typing import Any
 
 from inventory_tracking.common import LOG
-from inventory_tracking.native.image_probe import read_mappings
 from inventory_tracking.native.images import read_pe
+from inventory_tracking.native.memory import BoundedReader, ProcessMemory, one_unit_table, read_mappings
 from inventory_tracking.native.mercenary import describe_monster
 from inventory_tracking.native.process import identity, process_mappings
 from inventory_tracking.native.resource_probe import collect_resources
@@ -16,43 +15,10 @@ from inventory_tracking.native.units import describe_item, describe_player, summ
 from inventory_tracking.reports import publish
 
 
-class ResearchReader:
-    def __init__(self, fd, mappings, *, budget=8 * 1024 * 1024):
-        self.fd = fd
-        self.budget = budget
-        self.mappings = mappings
-        self.starts = [m['start'] for m in mappings]
-        self.bytes_requested = 0
-        self.ranges = set()
-
-    def read(self, address, size):
-        self.bytes_requested += size
-        if not 0 < size <= 8192 or self.bytes_requested > self.budget:
-            raise ValueError('research read budget exceeded')
-        cursor = address
-        start_index = max(0, bisect_right(self.starts, address) - 1)
-        for index in range(start_index, len(self.mappings)):
-            mapping = self.mappings[index]
-            if mapping['start'] > cursor:
-                break
-            if mapping['start'] <= cursor < mapping['end']:
-                if not mapping['permissions'].startswith('r'):
-                    break
-                cursor = min(address + size, mapping['end'])
-                if cursor == address + size:
-                    self.ranges.add((address, size))
-                    data = os.pread(self.fd, size, address)
-                    if len(data) != size:
-                        raise ValueError('short research read')
-                    return data
-        raise ValueError(f'Unmapped or unreadable range at {address:#x}')
-
-
 def sample_units(pid, images, capture, *, merc=False, resources=False, item_class=None) -> dict[str, Any]:
     """Return the complete in-memory research snapshot."""
-    candidates = capture['unit_table_candidates']
-    addresses = sorted({x['table_address'] for x in candidates})
-    if len(addresses) != 1:
+    table_address = one_unit_table(capture)
+    if table_address is None:
         return {'status': 'unavailable', 'error': 'Expected one freshly scanned table address'}
     token = images['identity']
     base = images['candidate_base']
@@ -60,13 +26,11 @@ def sample_units(pid, images, capture, *, merc=False, resources=False, item_clas
     if identity(pid) != token:
         return {'status': 'stale', 'error': 'Process changed before unit research'}
     before = process_mappings(pid)
-    fd = os.open(f'/proc/{pid}/mem', os.O_RDONLY)
-    try:
-        reader = ResearchReader(fd, before)
+    with ProcessMemory(pid) as memory:
+        reader = BoundedReader(memory.fileno(), before)
         read = reader.read
         if identity(pid) != token or read_pe(lambda o, n: read(base + o, n)) != pe:
             return {'status': 'stale', 'error': 'Image identity changed'}
-        table_address = addresses[0]
         result: dict[str, Any] = {
             'status': 'research',
             'validated': False,
@@ -136,7 +100,7 @@ def sample_units(pid, images, capture, *, merc=False, resources=False, item_clas
             result['status'] = 'stale'
         if resources or item_class is not None:
             # Separate budget and mappings: optional research cannot invalidate core data.
-            optional = ResearchReader(fd, after)
+            optional = BoundedReader(memory.fileno(), after)
             try:
                 result['resources'] = collect_resources(
                     optional.read, result['groups'], **({'item_class': item_class} if item_class is not None else {})
@@ -158,8 +122,6 @@ def sample_units(pid, images, capture, *, merc=False, resources=False, item_clas
             except (OSError, ValueError) as exc:
                 result['resources'] = {'complete': False, 'reason': str(exc)}
         result['bytes_requested'] = reader.bytes_requested
-    finally:
-        os.close(fd)
     return result
 
 

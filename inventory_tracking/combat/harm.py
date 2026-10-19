@@ -105,7 +105,7 @@ class SafetySettings(Config):
     move_overhead: Positive = 0.5
     hold_dwell: Positive = 0.72
     landing_dwell: Positive = 0.36  # following decision and residual cast delay, separate from transit
-    operate_dwell: Positive = 1.5  # the hands' time limit at an object or a drop (macros/hunt.py `priced_for`)
+    operate_dwell: Positive = 1.5  # the hands' time limit at an object or a drop (macros/hunting/moves.py `priced_for`)
     # Seconds at an object after the walk to it until its use takes: the exposure of the act (second pass: in the
     # arena a seal 10 units off opened 0.9 to 1.3 s after the decision, the walk included).
     use_dwell: Positive = 0.5

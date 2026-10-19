@@ -45,8 +45,8 @@ __all__ = [
 
 # The sites that ask (the study's N1-N5), named as their own log lines name them
 PRESS = 'the press'  # macros/pickup.py `pick_up`: a KP_1 press stops ("inventory full") or goes on to its seek step
-RUN = 'the level run'  # macros/hunt.py `Hunter.stay_by`: the level run (the KP_1 run, the loop's) stands by it
-SWEEP = 'the sweep'  # macros/hunt.py `Hunter.gather`: the sweep stays by it (`held`)
+RUN = 'the level run'  # macros/hunting/choice.py `stay_by`: the level run (the KP_1 run, the loop's) stands by it
+SWEEP = 'the sweep'  # macros/hunting/sweep.py `gather`: the sweep stays by it (`held`)
 GUARD = 'the guard'  # runner.py `_valuable_left`: the loop does not leave the game with it on the ground
 SIGHTINGS = 'the sightings'  # macros/sightings.py `Sightings.update`: remembered until off the ground
 SITES = (PRESS, RUN, SWEEP, GUARD, SIGHTINGS)

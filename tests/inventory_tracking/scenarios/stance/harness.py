@@ -308,7 +308,7 @@ def stay(view: View) -> None:
 def production(first: int = 1, follow: int = 0, hop: bool = False) -> Strategy:
     """The production step (combat/stance.py `camp`): the press's own step (`first`, taken wherever a
     place is worth it), then up to `follow` more, each only when nothing is in reach from where the
-    character stands (macros/hunt.py `follow_on`). `hop` lets it teleport, which the game's step does not."""
+    character stands (macros/hunting/sweep.py `follow_on`). `hop` lets it teleport, which the game's step does not."""
     policy = EchoingStrike.of(LinePolicy(yields=True))  # the sweep as the attack a place is priced by
 
     def strategy(view: View) -> Move | None:

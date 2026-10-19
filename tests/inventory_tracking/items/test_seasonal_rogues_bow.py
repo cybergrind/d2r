@@ -4,7 +4,7 @@ import pytest
 
 from inventory_tracking.items.metadata import metadata
 from inventory_tracking.items.seasonal_identity import resolve_seasonal_identity
-from pricing.knowledge.seasonal_variants import select_scalar_candidates
+from pricing.api import select_scalar_candidates
 
 
 @pytest.fixture
@@ -70,9 +70,8 @@ def test_published_report_rejects_seasonal_rogues_bow(monkeypatch, skill):
     from datetime import date
 
     from inventory_tracking.appraisal.text import format_appraisal
-    from pricing.knowledge.pipeline import retrieve_draft
+    from pricing.api import load_runtime, published_snapshot, retrieve_draft
     from pricing.knowledge.publication import current_generation
-    from pricing.knowledge.published_runtime import load_runtime, published_snapshot
     from tests.pricing.knowledge.assessment.item_bank.models import Item
 
     monkeypatch.setattr('inventory_tracking.items.identity.resolve_seasonal_identity', resolve_seasonal_identity)

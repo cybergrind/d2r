@@ -29,8 +29,9 @@ import struct
 import time
 
 from inventory_tracking.common import LOG
+from inventory_tracking.hud.live import LiveMemory
 from inventory_tracking.native.layout import DEAD_MODES, TILE_UNITS
-from inventory_tracking.native.memory import vm_call, vm_read_spans
+from inventory_tracking.native.memory import open_memory, vm_call, vm_read_spans
 from inventory_tracking.terror.monsters import monster_units
 from inventory_tracking.terror.tracker import HELD_RANGE, counted, leading
 
@@ -49,23 +50,21 @@ STATS_SECONDS = 60.0  # between the `HUD: dots:` lines
 VM_CALL = vm_call()  # None where libc has no process_vm_readv
 
 
-class LiveDots:
+class LiveDots(LiveMemory):
     """The canvas's reader of the map's monsters (module text). `open_memory(pid)` -> fd, `read(fd, size, address)`
     a pread; `call` libc's process_vm_readv (None: pread only); `walk(read, table, known)` the probe's walk."""
 
     def __init__(
         self,
-        open_memory=lambda pid: os.open(f'/proc/{pid}/mem', os.O_RDONLY),
+        open_memory=open_memory,
         read=os.pread,
         call=VM_CALL,
         walk=monster_units,
         stats=None,
     ):
-        self.open_memory, self.read, self.call, self.walk = open_memory, read, call, walk
+        super().__init__(open_memory, read)
+        self.call, self.walk = call, walk
         self.stats = stats if stats is not None else DotStats()
-        self.pid: int | None = None
-        self.fd: int | None = None
-        self.warned = None
         self.reset()
 
     def reset(self):
@@ -76,20 +75,9 @@ class LiveDots:
         self.area: int | None = None
 
     def attach(self, pid) -> bool:
-        if pid == self.pid:
-            return True
-        if self.fd is not None:
-            os.close(self.fd)
-        self.pid, self.fd = None, None
-        self.reset()
-        try:
-            self.pid, self.fd = pid, self.open_memory(pid)
-        except OSError as exc:
-            if self.warned != pid:
-                LOG.warning('HUD cannot read the memory of pid %s: %s', pid, exc)
-                self.warned = pid
-            return False
-        return True
+        if pid != self.pid:
+            self.reset()  # another game: nothing read of the last one holds
+        return super().attach(pid)
 
     def spans(self, spans) -> list[bytes | None]:
         """The bytes of each (address, size), None where unreadable: one batched call, or a pread each."""

@@ -192,7 +192,7 @@ def stash_stop(
     with the panels closed when the stash does not open or a click takes an item onto the pointer."""
     if run.pad is not None:
         raise Abort('the stash needs mouse mode')
-    pack = run.carried() if run.carried is not None else None
+    pack = run.reads.carried()
     if pack is None or stop.idle:
         LOG.info("Macro: stash: by the view: nothing of the loop's to put in")
         return 0
@@ -267,7 +267,7 @@ def stash_stop(
 
 def _now(run: Run, unit_id: int) -> tuple[Carried | None, bool]:
     """The unit's item in the inventory as read now (None: not there), and whether the unit is in the cube."""
-    pack = run.carried() if run.carried is not None else None
+    pack = run.reads.carried()
     if pack is None:
         return None, False
     return next((i for i in pack.items if i.unit_id == unit_id), None), unit_id in pack.cube_items
@@ -364,7 +364,7 @@ def _pages(run: Run, rect: Rect, puts: Sequence[Put], tally: Tally) -> None:
             continue
         tally.moved += 1
         tally.guessed = False
-        view = run.stash_view() if run.stash_view is not None else None
+        view = run.reads.stash_view()
         landed = view.page_of(held.unit_id) if view is not None else None
         if landed is not None and landed != put.to:
             LOG.warning('Macro: stash: the %s went onto page %d, planned %d: page %d is the one shown', _name(held),
@@ -391,7 +391,7 @@ def _aside(run: Run, rect: Rect, moves: Sequence[tuple[Carried, tuple[int, int]]
         run.actuator.move(*cell_point(rect, INVENTORY, (held.x, held.y), held.size), scatter=(4, 4))
         run.actuator.click()
         if not _until(run, lambda p, i=held: p.pointer == i.unit_id):
-            pack = run.carried() if run.carried is not None else None
+            pack = run.reads.carried()
             if pack is not None and pack.pointer is not None:
                 run.actuator.click()  # something else taken up: put down where it was, the pointer not moved
                 _until(run, lambda p: p.pointer is None)
@@ -444,7 +444,7 @@ def _park(
             LOG.info('Macro: stash: page %d refused the %s to park: it stays carried', put.to, _name(held))
             continue
         tally.guessed = False
-        view = run.stash_view() if run.stash_view is not None else None
+        view = run.reads.stash_view()
         landed = view.page_of(held.unit_id) if view is not None else None
         page = landed if landed is not None else put.to
         if landed is not None and landed != put.to:
@@ -460,7 +460,7 @@ def _unpark(run: Run, rect: Rect, parked: Sequence[tuple[Carried, int]], tally: 
     stash."""
     left: list[tuple[Carried, int]] = []
     for item, page in sorted(parked, key=lambda p: (-p[0].size[0] * p[0].size[1], -p[0].size[1], p[0].unit_id)):
-        view = run.stash_view() if run.stash_view is not None else None
+        view = run.reads.stash_view()
         lying = next(((p.index, i) for p in (view.pages if view else ()) for i in p.items if i.unit_id == item.unit_id),
                      None)  # fmt: skip
         if lying is None:
@@ -507,7 +507,7 @@ def _into_cube(run: Run, inventory_key: str, items: Sequence[Carried], later: Se
     (`visit`'s passes take the cube's junk out): the inventory and the cube opened, a Ctrl + click on each (as cube.py
     `stash` puts the loop's items in), checked in memory; the panels closed after. How many went in."""
     rect = run.actuator.keys.focused_window_rect()
-    pack = run.carried() if run.carried is not None else None
+    pack = run.reads.carried()
     cube = next((item for item in pack.items if item.txt == CUBE_CLASS), None) if pack is not None else None
     if not items or rect is None or cube is None:
         return 0
@@ -552,7 +552,7 @@ def _cube_runes(run: Run, rect: Rect, stop: StashStop, tally: Tally) -> int:
     (`StashStop.rune_puts`), each by a Ctrl + click as the stash read now gives its stack room; one refused stays
     carried (never the scan). Anything unexpected ends the transmutes, the runes and gems taken back onto their stacks
     first: none is ever left in the cube by them. Never a Ber Rune (town.py BER). How many were made."""
-    pack = run.carried() if run.carried is not None else None
+    pack = run.reads.carried()
     if pack is None or pack.in_cube or all(i.txt != CUBE_CLASS for i in pack.items):
         LOG.info('Macro: stash: no rune transmute: %s', 'the inventory is not read' if pack is None
                  else f'the cube holds {len(pack.in_cube)} items' if pack.in_cube else 'no cube carried')  # fmt: skip
@@ -603,14 +603,14 @@ def _cube_runes(run: Run, rect: Rect, stop: StashStop, tally: Tally) -> int:
         if not _runes_back(run, rect, _inside(run)):
             break
         made += 1
-        view = run.stash_view() if run.stash_view is not None else None
+        view = run.reads.stash_view()
         LOG.info('Macro: cube: three %s%s into a %s at the stash (stacks %s)', _rune(rune.txt),
                  f' and a {_rune(rune.gem)}' if rune.gem is not None else '', _rune(rune.into),
                  f'{view.count(rune.txt)} and {view.count(rune.into)}' if view is not None else 'unread')  # fmt: skip
     late = 0
     for put in stop.rune_puts:
         held, _in_cube = _now(run, put.item.unit_id)
-        view = run.stash_view() if run.stash_view is not None else None
+        view = run.reads.stash_view()
         if held is None or view is None or view.room(held.txt) <= 0:
             continue
         run.actuator.move(*cell_point(rect, INVENTORY, (held.x, held.y), held.size), scatter=(6, 6))
@@ -628,7 +628,7 @@ def _cube_runes(run: Run, rect: Rect, stop: StashStop, tally: Tally) -> int:
 
 
 def _carried(run: Run) -> Pack | None:
-    return run.carried() if run.carried is not None else None
+    return run.reads.carried()
 
 
 def _inside(run: Run) -> tuple[Carried, ...]:
@@ -678,7 +678,7 @@ def _drops(run: Run, rect: Rect, items: Sequence[Carried]) -> int:
         run.actuator.move(*cell_point(rect, INVENTORY, (held.x, held.y), held.size), scatter=(4, 4))
         run.actuator.click()
         if not _until(run, lambda p, i=held: p.pointer == i.unit_id):
-            pack = run.carried() if run.carried is not None else None
+            pack = run.reads.carried()
             if pack is not None and pack.pointer is not None:
                 run.actuator.click()  # something else taken up: put down where it was, the pointer not moved
                 _until(run, lambda p: p.pointer is None)
@@ -698,7 +698,7 @@ def _drops(run: Run, rect: Rect, items: Sequence[Carried]) -> int:
 
 def _scan(run: Run, missed: Sequence[Carried], inventory_key: str | None, own: frozenset[Cell]) -> int:
     """Today's scan (stash.py `unload`) for the items a put missed, and only them."""
-    pack = run.carried() if run.carried is not None else None
+    pack = run.reads.carried()
     if pack is None:
         return 0
     ids = {item.unit_id for item in missed}
@@ -755,7 +755,7 @@ class Visited:
 
 
 def _pack(run: Run) -> Pack:
-    pack = run.carried() if run.carried is not None else None
+    pack = run.reads.carried()
     if pack is None:
         raise Abort('the inventory is not read')
     return pack
@@ -802,7 +802,7 @@ def _stash(
     added to it (the keepers no page takes, the junk parked)."""
     pack = _pack(run)
     waiting = frozenset(i.unit_id for i in _unknown(pack, own))
-    staff = run.teleport() if run.teleport is not None else None
+    staff = run.reads.teleport()
     cost = expected(staff.maximum - staff.charges) if staff is not None else None
     coins, cap = gold(run), gold_cap(run)
     if record is not None:
@@ -900,8 +900,8 @@ def _halbu(run: Run) -> bool:
 
 
 def _repair_due(run: Run, waited: bool) -> bool:
-    staff = run.teleport() if run.teleport is not None else None
-    wear = run.wear() if run.wear is not None else None
+    staff = run.reads.teleport()
+    wear = run.reads.wear()
     return due(staff, wear, gold(run), top_up=tops_up(staff, True, False), waited=waited)
 
 
@@ -972,7 +972,7 @@ def _stranded(run: Run, hands: Hands, own: frozenset[Cell], junk: frozenset[int]
     """The cube's keepers the stash stop as planned now leaves in the cube that the inventory's junk sold first would
     let out (town.py `StashStop.stranded`); none with the stash unread."""
     view = hands.view()
-    pack = run.carried() if run.carried is not None else None
+    pack = run.reads.carried()
     if view is None or pack is None:
         return ()
     waiting = frozenset(i.unit_id for i in _unknown(pack, own))
@@ -1099,7 +1099,7 @@ def visit(
         parked_left = 0
         now = _pack(run) if hands.transmute is not None else None
         if now is None and record.active:
-            now = run.carried() if run.carried is not None else None  # no transmute (a test): read for the snapshot
+            now = run.reads.carried()  # no transmute (a test): read for the snapshot
         _note(record, start, 'stash', now, view=record.view, full=stacks)
         if hands.transmute is not None and now is not None and _cubable([*loot(now, own), *now.in_cube], stacks):
             # The full flawless stacks three at a time into a perfect one, standing at the stash; its stop again for
@@ -1155,7 +1155,7 @@ def visit(
     done = contract(pack, own, needs, junk=junk, full=stacks, restocked=shop, parked_left=parked_left,
                     stash_full=homeless, in_stash=in_stash, deferred=deferred)  # fmt: skip
     _note(record, start, 'end', pack, full=stacks, misses=done.misses)
-    staff = run.teleport() if run.teleport is not None else None
+    staff = run.reads.teleport()
     free = sum(row.count('.') for row in pack.inventory)
     LOG.info(
         'Macro: trade session done%s: cube %d items, block %dx%d %s, %d inventory cells free, junk left %d, keys %s, '

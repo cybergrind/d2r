@@ -6,7 +6,7 @@ That is why it comes before a staff's Teleport, and is the only jump with neithe
 of the character's own (Enigma) costs nothing either, crosses walls, and has no casting delay: it comes
 first, and Blade Warp only where Teleport cannot be made (the player, 2026-10-18: "now we have an enigma ...
 stop using blade warp in almost all situations"). Blade Warp is still asked for by name where only it
-serves: bringing the mercenary out of danger (`JumpSource.brings`, hunt.py `escorted`) and Mephisto's bridge.
+serves: bringing the mercenary out of danger (`JumpSource.brings`, hunting/judging.py `escorted`) and Mephisto's bridge.
 """
 
 from inventory_tracking.builds.warlock.skills import BLADE_WARP

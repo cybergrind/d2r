@@ -1165,3 +1165,15 @@ class Game:
 
     def pressed(self) -> list[str]:
         return [event[1] for event in self.keys.events if event[0] == 'key']
+
+
+def patch_hunt(monkeypatch, name: str, value: Any) -> None:
+    """Patch `name` in macros/hunt.py and in each of its parts (macros/hunting/) that has it: each module reads its
+    own import."""
+    from inventory_tracking.macros import hunt
+    from inventory_tracking.macros.hunting import base, choice, judging, moves, sweep
+
+    found = [module for module in (hunt, base, choice, judging, moves, sweep) if hasattr(module, name)]
+    assert found, f'no hunt module has {name}'
+    for module in found:
+        monkeypatch.setattr(module, name, value)

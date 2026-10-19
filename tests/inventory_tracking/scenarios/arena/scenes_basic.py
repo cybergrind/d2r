@@ -101,7 +101,7 @@ def potion_on_the_ground() -> Scene:
 def afoot(scene: Scene) -> Scene:
     """`scene` with a character that can only walk: Blade Warp on no key and no charge left on the
     staff. With a worn staff that has charges the seek step leaves a walk to a Teleport hop
-    (macros/hunt.py `Hunter.afoot`), and with Blade Warp on a key every stride is a warp."""
+    (macros/hunting/moves.py `afoot`), and with Blade Warp on a key every stride is a warp."""
     slots = tuple(None if skill == BLADE_WARP else skill for skill in scene.hero.slots)
     scene.hero = replace(scene.hero, slots=slots, sets=(MAIN, replace(STAFF, teleport_charges=0)))
     return scene

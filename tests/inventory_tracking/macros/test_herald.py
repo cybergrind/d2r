@@ -5,7 +5,9 @@ import math
 
 import pytest
 
-from inventory_tracking.macros.hunt import HERALD_OMEN, OMEN_SECONDS, OMEN_STAND, omen_stand
+from inventory_tracking.macros.hunt import HERALD_OMEN, OMEN_SECONDS
+from inventory_tracking.macros.hunting.base import OMEN_STAND, omen_stand
+from tests.inventory_tracking.macros.fakes import patch_hunt
 from tests.inventory_tracking.macros.test_hunt import foe, game, hunter, me
 
 
@@ -108,7 +110,7 @@ def test_an_unread_cube_gets_one_room_making_attempt_before_standing_by_a_valuab
 def test_a_closed_super_chest_near_is_the_full_clears_goal_before_the_rest_and_a_herald_before_it():
     from inventory_tracking.levels.model import Ground
     from inventory_tracking.macros.goals import USE
-    from inventory_tracking.macros.hunt import SUPER_NEAR, SUPER_TRIES
+    from inventory_tracking.macros.hunting.base import SUPER_NEAR, SUPER_TRIES
     from inventory_tracking.macros.runmode import SWITCHED, Mode
     from inventory_tracking.macros.world import Thing
 
@@ -133,10 +135,10 @@ def test_a_route_chest_no_try_opens_is_left_as_gone_after_route_use_tries(monkey
     # 01:37:56-01:38:42 on 2026-10-18: another object under the pointer at every aim at Lower Kurast's chest, 46 tries
     # in 47 s, until the loop's watchdog left the game
     from inventory_tracking.levels.model import Target
-    from inventory_tracking.macros import hunt as hunt_module
+    from inventory_tracking.macros import route
     from inventory_tracking.macros.actuator import Abort
     from inventory_tracking.macros.goals import USE, Goal
-    from inventory_tracking.macros.hunt import ROUTE_USE_TRIES
+    from inventory_tracking.macros.hunting.base import ROUTE_USE_TRIES
     from inventory_tracking.macros.travel import LOOPED
     from inventory_tracking.macros.world import Thing
     from inventory_tracking.routes.model import Stage
@@ -148,14 +150,14 @@ def test_a_route_chest_no_try_opens_is_left_as_gone_after_route_use_tries(monkey
         'Super chests', (chest.x, chest.y), USE, 3.0, LOOPED, unit=70, mark=mark, stage=Stage(USE, 'Super chests')
     )
     tried, left = [], []
-    monkeypatch.setattr(hunt_module, 'marked_thing', lambda run, target: chest)
+    patch_hunt(monkeypatch, 'marked_thing', lambda run, target: chest)
 
     def refused(*_args):
         tried.append(True)
         raise Abort('Super chests is not under the pointer at any aim')
 
-    monkeypatch.setattr(hunt_module, 'use_thing', refused)
-    monkeypatch.setattr(hunt_module.route, 'note_empty', lambda *args: left.append(args[-1]) or True)
+    patch_hunt(monkeypatch, 'use_thing', refused)
+    monkeypatch.setattr(route, 'note_empty', lambda *args: left.append(args[-1]) or True)
     for _ in range(ROUTE_USE_TRIES):
         with pytest.raises(Abort):
             hunt.operate(run, play.world, goal, None)

@@ -189,7 +189,7 @@ OBJECT_UNIT = 2
 MONSTER_UNIT = 1  # the same record's type of a monster
 
 
-EXPIRED = 'priced act expired'  # hunt.py `priced_for`'s stop
+EXPIRED = 'priced act expired'  # hunting/moves.py `priced_for`'s stop
 
 
 class Covered(Abort):
@@ -650,7 +650,7 @@ def take_teleport(run: Run, key_names) -> None:
     world = run.world()
     if TELEPORT not in world.slots:
         raise Abort('Teleport is not on a skill key')
-    staff = run.teleport() if run.teleport is not None else None
+    staff = run.reads.teleport()
     if staff is None:
         run.keys = key_names(world, (TELEPORT,))
         return
@@ -662,7 +662,7 @@ def take_teleport(run: Run, key_names) -> None:
     run.keys = key_names(world, (TELEPORT, SWAP_WEAPONS))
 
     def in_hand() -> bool:
-        now = run.teleport() if run.teleport is not None else None
+        now = run.reads.teleport()
         return now is not None and now.in_hand
 
     if not swap_until(run, in_hand):  # pressed again when the game drops it (routines.swap_until)
@@ -992,7 +992,7 @@ def use_thing(
         if covered and not isinstance(stop, Covered) and EXPIRED in str(stop):
             # The act's priced time ran out with a monster seen on the object (21:16:22 on 2026-10-17: two aims at a
             # chest had a monster under them, then four tries in 6.5 s until it walked off): told as in the way, so
-            # the fight with it comes first (hunt.py `blocked`), not the same click again
+            # the fight with it comes first (hunting/judging.py `blocked`), not the same click again
             raise Covered(f'{target.label}: {stop}', covered) from stop
         raise
     if taken('after the last aim'):
@@ -1128,7 +1128,7 @@ def step_toward(
         at_door = False  # the spot is a hop away: onto it first, however near the door is
     else:
         at_door = target.warp and math.dist(here, scaled(target.point)) <= NEAR_WARP
-    staff = run.teleport() if run.teleport is not None else None
+    staff = run.reads.teleport()
     if at_door:
         walk_into(run, target, player, aspect)
     elif afoot is not None and staff is not None and staff.charges == 0:
@@ -1316,7 +1316,7 @@ def hop_to(
     aspect = rect[2] / rect[3]
     take_teleport(run, key_names)
     left = math.dist(spot, target.point) * TILE_UNITS
-    staff = run.teleport() if run.teleport is not None else None
+    staff = run.reads.teleport()
     charges = f', {staff.charges} charges' if staff is not None else ''
     run.say(f'Teleport toward {target.label}: {left:.0f} left after this{charges}')
     run.in_time('the hop')  # a hop long after its key is a surprise, not a step
@@ -1344,7 +1344,7 @@ def hop_to(
         return w.player is not None and landed_from(w.player, player, aim)
 
     def unspent() -> bool:
-        now = run.teleport() if run.teleport is not None else None
+        now = run.reads.teleport()
         return staff is not None and now is not None and now.in_hand and now.charges == staff.charges > 0
 
     seen = run.seen(arrived, REPRESS_SECONDS, HOP_POLL)
@@ -1353,7 +1353,7 @@ def hop_to(
             'Macro: teleport %s; nothing %.1fs after the key, no charge spent: pressed again', where, REPRESS_SECONDS
         )
         press_skill(run, TELEPORT, HOP_POLL)
-    now = run.teleport() if run.teleport is not None else None
+    now = run.reads.teleport()
     spent = staff is not None and now is not None and now.charges < staff.charges
     if seen is None and spent and not target.warp and math.dist(aim, (player.x, player.y)) <= 2 * SPOT_NEAR:
         # A charge spent on a short hop onto a spot and no move: the spot is taken (above), and the
@@ -1362,7 +1362,7 @@ def hop_to(
         run.say(f'At {target.label}')
         return
     if seen is None and run.seen(arrived, HOP_SECONDS, HOP_POLL) is None:
-        after, now = run.world(), run.teleport() if run.teleport is not None else None
+        after, now = run.world(), run.reads.teleport()
         LOG.info(
             'Macro: teleport %s; the character did not move: key %s, slots %s, staff %s, mode now %s, right skill %s',
             where, run.keys.get(TELEPORT), world_slots(after), now,

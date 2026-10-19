@@ -68,7 +68,7 @@ def identify(run: Run, inventory_key: str, items: Iterable[Carried]) -> list[Car
     Stops at the first that does not take, or when the tome is empty. Mouse mode only; the panels closed after."""
     if run.pad is not None:
         raise Abort('identifying needs mouse mode')
-    pack = run.carried() if run.carried is not None else None
+    pack = run.reads.carried()
     rect = run.actuator.keys.focused_window_rect()
     tome = next((item for item in pack.items if item.txt == IDENTIFY_TOME), None) if pack is not None else None
     items = list(items)
@@ -93,7 +93,7 @@ def identify(run: Run, inventory_key: str, items: Iterable[Carried]) -> list[Car
             run.actuator.click()
 
             def known(_w, i=item) -> bool:
-                p = run.carried() if run.carried is not None else None
+                p = run.reads.carried()
                 return p is not None and any(c.unit_id == i.unit_id and c.identified for c in p.items)
 
             if run.seen(known, IDENTIFY_SECONDS) is None:

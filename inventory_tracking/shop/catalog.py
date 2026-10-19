@@ -33,7 +33,7 @@ def predicate(node, item, stats, charges, *, resolve_facts=None):
         return None if value is None else value >= node['value']
     # Socket payload/innate/affix rules use the same evidence semantics as Alt-D.
     # Resolve lazily: ordinary shop stat matching needs no assessment projection.
-    from pricing.knowledge.assessment.roles.predicates import Truth, evaluate, validate
+    from pricing.api import Truth, evaluate_predicate as evaluate, validate_predicate as validate
 
     validate(node)
     if resolve_facts is None:
@@ -67,7 +67,7 @@ def match_catalog(observation, stats):
 
     @cache
     def resolve_facts():
-        from pricing.knowledge.assessment.adapters.capture import normalize
+        from pricing.api import normalize
 
         return normalize(observation)
 

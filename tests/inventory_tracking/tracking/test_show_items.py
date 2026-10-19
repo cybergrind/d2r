@@ -25,11 +25,11 @@ MAPPING = {'start': ADDRESS, 'end': ADDRESS + 4096, 'permissions': 'rw-p', 'path
 )
 def test_label_observation_rejects_partial_invalid_and_changing_reads(reads, expected):
     with (
-        patch('inventory_tracking.tracking.show_items.identity', return_value=TOKEN),
-        patch('inventory_tracking.tracking.show_items.process_mappings', return_value=[MAPPING]),
-        patch('inventory_tracking.tracking.show_items.os.open', return_value=9),
-        patch('inventory_tracking.tracking.show_items.os.close') as close,
-        patch('inventory_tracking.tracking.show_items.os.pread', side_effect=reads) as read,
+        patch('inventory_tracking.native.memory.identity', return_value=TOKEN),
+        patch('inventory_tracking.native.memory.process_mappings', return_value=[MAPPING]),
+        patch('inventory_tracking.native.memory.os.open', return_value=9),
+        patch('inventory_tracking.native.memory.os.close') as close,
+        patch('inventory_tracking.native.memory.os.pread', side_effect=reads) as read,
     ):
         observation = observe_show_items(12, IMAGES)
     assert observation.value is expected
@@ -42,17 +42,17 @@ def test_label_observation_rejects_partial_invalid_and_changing_reads(reads, exp
 def test_label_observation_suppresses_process_mapping_and_access_failures(change):
     with (
         patch(
-            'inventory_tracking.tracking.show_items.identity',
+            'inventory_tracking.native.memory.identity',
             side_effect=[TOKEN, {}] if change == 'identity' else [TOKEN, TOKEN],
         ),
         patch(
-            'inventory_tracking.tracking.show_items.process_mappings',
+            'inventory_tracking.native.memory.process_mappings',
             side_effect=[[MAPPING], []] if change == 'mapping' else [[MAPPING], [MAPPING]],
         ),
-        patch('inventory_tracking.tracking.show_items.os.open', return_value=9),
-        patch('inventory_tracking.tracking.show_items.os.close'),
+        patch('inventory_tracking.native.memory.os.open', return_value=9),
+        patch('inventory_tracking.native.memory.os.close'),
         patch(
-            'inventory_tracking.tracking.show_items.os.pread',
+            'inventory_tracking.native.memory.os.pread',
             side_effect=PermissionError('denied') if change == 'access' else None,
             return_value=b'\x00',
         ),

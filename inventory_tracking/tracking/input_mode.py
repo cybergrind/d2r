@@ -13,7 +13,6 @@ a reload of the whole interface, done a moment later (native/layout.py CONTROLLE
 """
 
 import logging
-import os
 import struct
 import threading
 import time
@@ -37,6 +36,7 @@ from inventory_tracking.native.layout import (
     PANEL_WANTED,
     PLAYER_SLOT_RVA,
 )
+from inventory_tracking.native.memory import ProcessMemory
 
 
 LOG = logging.getLogger(__name__)
@@ -67,13 +67,8 @@ def observe_input_mode(pid: int, images: dict) -> Observation[InputMode]:
     """One reading for the OSD's reader (tracking/reader.py), with its own short-lived handle."""
     sampled = time.monotonic()
     try:
-        fd = os.open(f'/proc/{pid}/mem', os.O_RDONLY)
-        try:
-            return Observation(
-                sampled, read_input_mode(lambda address, size: os.pread(fd, size, address), images['candidate_base'])
-            )
-        finally:
-            os.close(fd)
+        with ProcessMemory(pid) as memory:
+            return Observation(sampled, read_input_mode(memory.pread, images['candidate_base']))
     except (OSError, ValueError, KeyError, struct.error, IndexError) as exc:
         return Observation.unavailable(sampled, str(exc))
 
@@ -229,7 +224,7 @@ class InputModeWatch:
         self.bindings: tuple[int, ...] | None = None
         self.bindings_at = -float('inf')
         self.bound: tuple[int, int] | None = None
-        self.fd: int | None = None
+        self.memory = ProcessMemory()
         self.last_poll = -float('inf')
         self.lock = threading.Lock()
         self.stop = threading.Event()
@@ -251,19 +246,17 @@ class InputModeWatch:
             self.close_memory()
             if target is not None:
                 try:
-                    self.fd = os.open(f'/proc/{target[0]}/mem', os.O_RDONLY)
+                    self.memory.bind(target[0])
                     self.bound = target
                 except OSError as exc:
                     LOG.info('Input mode: the game memory cannot be read (%s)', exc)
 
     def close_memory(self) -> None:
-        if self.fd is not None:
-            os.close(self.fd)
-        self.fd, self.bound, self.bindings = None, None, None
+        self.memory.close()
+        self.bound, self.bindings = None, None
 
     def read(self, address: int, size: int) -> bytes:
-        assert self.fd is not None
-        data = os.pread(self.fd, size, address)
+        data = self.memory.pread(address, size)
         if len(data) != size:
             raise OSError(f'{len(data)} of {size} bytes at {address:#x}')
         return data
@@ -271,7 +264,7 @@ class InputModeWatch:
     def step(self, now: float) -> None:
         """One reading."""
         with self.lock:
-            if self.fd is None or self.bound is None:
+            if self.memory.fd is None or self.bound is None:
                 mode = None
             else:
                 base = self.bound[1]

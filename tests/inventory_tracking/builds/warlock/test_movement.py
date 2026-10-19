@@ -384,7 +384,7 @@ class Delayed(Game):
 
 
 def legs(play: Game, travel: Travel, run, count: int = 3, intent=PRESSED) -> None:
-    """`count` Blade Warps toward FAR as the pursuit makes them (hunt.py `advance`): a delay not about to end
+    """`count` Blade Warps toward FAR as the pursuit makes them (hunting/moves.py `advance`): a delay not about to end
     slept out (`Travel.pause`), then the leg asked for (`toward`) and made (`make`)."""
     for _ in range(count):
         while (wait := travel.pause(run, run.world(), Ground(()), ASPECT, FAR, intent)) > 0:

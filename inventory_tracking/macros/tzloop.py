@@ -202,7 +202,7 @@ def perform(
                 raise Abort(f'{goal.label}: no level to go to')
             excursion = goal.tier == EXCURSION  # to a zone's waypoint; a package's or an errand's goes town to town
             if excursion:
-                own = run.own_teleport() if run.own_teleport is not None else None
+                own = run.reads.own_teleport()
                 if not own:
                     loop.teleports = teleports(gold(run), gold_cap(run), loop.teleports)
                 tz.navigate()

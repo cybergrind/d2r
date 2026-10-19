@@ -10,7 +10,7 @@ to the appraisal socket:
 - `hunt any <monotonic>`, the attack mode toggle (hunt.py).
 - `pickup <monotonic>`, the pickup step: pick up what is worth it, else with hostiles near the sweep
   (attack mode moves on its own), else a seek step toward any hostile or the tour's next stop
-  (pickup.py, hunt.py `step`); inside a fight also a step to a better stand.
+  (pickup.py, hunting/moves.py `step`); inside a fight also a step to a better stand.
 
 A run works on its own thread with its own memory handle and X connection. A request while a run
 works cancels it, except a step's own request during the step, which queues one more: steps are
@@ -119,6 +119,7 @@ from inventory_tracking.macros.world import (
 )
 from inventory_tracking.models import Actor, SessionIdentity
 from inventory_tracking.native.layout import TOWN_IDS
+from inventory_tracking.native.memory import one_unit_table
 from inventory_tracking.routes.model import FIGHT
 from inventory_tracking.routes.progress import Progress
 
@@ -456,7 +457,8 @@ class MacroRunner:
         return ranked[0] if ranked else None
 
     def _pick(self) -> None:
-        """The sweep found something to pick up (hunt.py `gather`): the pickup step follows the mode's pause."""
+        """The sweep found something to pick up (hunting/sweep.py `gather`): the pickup step follows the mode's
+        pause."""
         with self.lock:
             if not self.queue.entries and not self.closed:
                 self.queue.put(PICKUP)
@@ -479,7 +481,7 @@ class MacroRunner:
         return self.hunter is not None and self.build is not None and self.build.settings.pursuit
 
     def _hand_over(self, routine: str = TELEPORT) -> None:
-        """The key posted to the mode is the route's own step's after all (hunt.py `defer`: a door, the
+        """The key posted to the mode is the route's own step's after all (hunting/judging.py `defer`: a door, the
         loot, the leaving), or its own routine's: that routine (the teleport or the pickup step) follows
         the mode's pause."""
         with self.lock:
@@ -580,8 +582,8 @@ class MacroRunner:
                         free = skill_name(skill)
             found = means(
                 Abilities(
-                    run.own_teleport() if run.own_teleport is not None else None,
-                    run.teleport() if run.teleport is not None else None,
+                    run.reads.own_teleport(),
+                    run.reads.teleport(),
                     self.loop.teleports,
                     free,
                 )
@@ -599,7 +601,7 @@ class MacroRunner:
             self.hunter.end_run(None, why)
 
     def _unwait(self) -> None:
-        """The pickup step that waited for the fight is not wanted any more (hunt.py `asked_step`)."""
+        """The pickup step that waited for the fight is not wanted any more (hunting/sweep.py `asked_step`)."""
         with self.lock:
             self.queue.drop(PICKUP, 'not wanted any more')
 
@@ -839,9 +841,9 @@ class MacroRunner:
 
     def _carry_one(self, refused: Refused) -> bool:
         """A unique Grand Charm refused for the Gheed's Fortune carried (macros/pickup.py `Refused`) outside the loop's
-        own routine (the level run's pickup, hunt.py `carry_one_swap`; the pickup step attack mode asked for): whether
-        the swap is due for it (`_gheeds_swap`, the same rules as a stop's); the run stops for it then. With the loop
-        off, or no swap (once a game, no room), False: the run's own rules go on."""
+        own routine (the level run's pickup, hunting/choice.py `carry_one_swap`; the pickup step attack mode asked for):
+        whether the swap is due for it (`_gheeds_swap`, the same rules as a stop's); the run stops for it then. With the
+        loop off, or no swap (once a game, no room), False: the run's own rules go on."""
         with self.lock:
             if not self.loop.on:
                 return False
@@ -849,17 +851,18 @@ class MacroRunner:
             return self._gheeds_swap(refused, refused.drop.label, game)
 
     def _forget_given_up(self) -> None:
-        """The level run's give-up memory cleared (hunt.py `forget_given_up`): the Gheed's swap's GHEED_STASH."""
+        """The level run's give-up memory cleared (hunting/choice.py `forget_given_up`): the Gheed's swap's
+        GHEED_STASH."""
         if self.hunter is not None:
             self.hunter.forget_given_up()
 
     def _carried_now(self) -> Pack | None:
         """The carried inventory as read now (a GameMemory of its own, as `_valuable_left`); None unread."""
         try:
-            tables = {found['table_address'] for found in self.source.capture['unit_table_candidates']}
-            if len(tables) != 1:
+            table = one_unit_table(self.source.capture)
+            if table is None:
                 return None
-            memory = GameMemory(self.source.pid, self.source.images['candidate_base'], next(iter(tables)))
+            memory = GameMemory(self.source.pid, self.source.images['candidate_base'], table)
             try:
                 return memory.carried()
             finally:
@@ -932,17 +935,17 @@ class MacroRunner:
                 warned = self.warning
                 if (
                     warned is not None
-                    # only the stand-by by a valuable (hunt.py `stay_by`), in a game: a candidate merely left on the
-                    # ground (pickup.py's warning) warned on into the lobby and cancelled the next game's creation
-                    # twice, the loop stopped (12:45:39 on 2026-10-17)
+                    # only the stand-by by a valuable (hunting/choice.py `stay_by`), in a game: a candidate merely left
+                    # on the ground (pickup.py's warning) warned on into the lobby and cancelled the next game's
+                    # creation twice, the loop stopped (12:45:39 on 2026-10-17)
                     and self.standing
                     and game is not None
                     and now - warned[1] > MAKE_ROOM_AFTER
                     and self.loop.on
                     and self.loop.room_tried != game
                 ):
-                    # Stood by a valuable with no room (hunt.py `stay_by`): made room for before the watchdog; the
-                    # Gheed's swap first when it is one (`_gheeds_swap`)
+                    # Stood by a valuable with no room (hunting/choice.py `stay_by`): made room for before the watchdog;
+                    # the Gheed's swap first when it is one (`_gheeds_swap`)
                     if not self._gheeds_swap(warned[0], self.valuable_left(), game):
                         self.loop.make_room, self.loop.room_tried = True, game
                         LOG.info('Macro: loop: %s: room is made in the cube', warned[0])
@@ -994,10 +997,10 @@ class MacroRunner:
         """What the loop would pick up lying on the ground in sight ('unread' when the ground cannot be read): a game
         with one is never left (`_loop_stopped`)."""
         try:
-            tables = {found['table_address'] for found in self.source.capture['unit_table_candidates']}
-            if len(tables) != 1:
+            table = one_unit_table(self.source.capture)
+            if table is None:
                 return 'unread'
-            memory = GameMemory(self.source.pid, self.source.images['candidate_base'], next(iter(tables)))
+            memory = GameMemory(self.source.pid, self.source.images['candidate_base'], table)
             memory.ground_seen = self.ground_seen
             try:
                 loot = self._sighted(memory, self._picked(self.put_down.see(memory.loot(**wanted()))))
@@ -1031,10 +1034,10 @@ class MacroRunner:
 
     def _place(self) -> tuple[str | None, int | None]:
         self.source.ensure_connected()
-        tables = {found['table_address'] for found in self.source.capture['unit_table_candidates']}
-        if len(tables) != 1:
+        table = one_unit_table(self.source.capture)
+        if table is None:
             raise ValueError('the game is not attached')
-        memory = GameMemory(self.source.pid, self.source.images['candidate_base'], next(iter(tables)))
+        memory = GameMemory(self.source.pid, self.source.images['candidate_base'], table)
         try:
             place = memory.place()
             self.where, self.dead_mode, self.life_seen = memory.where, memory.mode, memory.life
@@ -1059,10 +1062,10 @@ class MacroRunner:
 
     def _staff_in_hand(self) -> bool | None:
         """Whether the Teleport staff is in the set in hand; None without a staff or when unreadable."""
-        tables = {found['table_address'] for found in self.source.capture['unit_table_candidates']}
-        if len(tables) != 1:
+        table = one_unit_table(self.source.capture)
+        if table is None:
             return None
-        memory = GameMemory(self.source.pid, self.source.images['candidate_base'], next(iter(tables)))
+        memory = GameMemory(self.source.pid, self.source.images['candidate_base'], table)
         try:
             staff = memory.teleport()
             return None if staff is None else staff.in_hand
@@ -1294,7 +1297,7 @@ class MacroRunner:
             return False
         if routine == TELEPORT and following == ATTACK and not self.pursuit:
             # Not with the pursuit on: a strike begun after the step is given up by the mode itself for
-            # the next press's move (hunt.py `key_asks`), so nothing has to be held back for it.
+            # the next press's move (hunting/judging.py `key_asks`), so nothing has to be held back for it.
             self.quiet_until = time.monotonic() + TRAVEL_QUIET
         self._start(following)
         return True
@@ -1348,15 +1351,15 @@ class MacroRunner:
             mark('locked')
             self.source.ensure_connected()
             pid, images, capture = self.source.pid, self.source.images, self.source.capture
-        tables = {found['table_address'] for found in capture['unit_table_candidates']}
-        if len(tables) != 1:
+        table = one_unit_table(capture)
+        if table is None:
             raise Abort('the game is not attached')
         session = SessionIdentity(pid, images['identity']['start_ticks'], 0)
         if self.focus is None:
             self.focus = FocusTracker(INPUT)
             self.focus.wait_ready(timeout=1)
         focus = self.focus
-        memory = GameMemory(pid, images['candidate_base'], next(iter(tables)))
+        memory = GameMemory(pid, images['candidate_base'], table)
         memory.ground_seen = self.ground_seen  # one census across runs: an item is said once (world.py `_census`)
         reads = [0, 0.0]  # how many looks at the game this run took, and their seconds (latency.py)
 
@@ -1495,7 +1498,7 @@ class MacroRunner:
 
     def pursues(self, run: Run, key_names) -> bool:
         """With the pursuit on for the build this run plays: the teleport key's press made by one pass of
-        the decision attack mode makes (hunt.py `pursue_once`), and whether it was. No look at the game
+        the decision attack mode makes (hunting/moves.py `pursue_once`), and whether it was. No look at the game
         is made for it while no build has the pursuit on. A press whose goal is a fight wants the mode
         on after it, as the route's fight stage has it (macros/route.py), unless the player's own toggle
         turned it off: then it stays off, whatever is pressed (rca/2026-10-13/kp4-findings.md §1, §2.8)."""
@@ -1586,7 +1589,7 @@ class MacroRunner:
             LOG.info('Macro: identify: Cain: %s: the tome instead', stop)
             player = run.world().player
             key = action_key(self.saved_games, player.name, INVENTORY) if player is not None else None
-            pack = run.carried() if run.carried is not None else None
+            pack = run.reads.carried()
             inside = {i.unit_id for i in pack.items} if pack is not None else set()
             try:
                 done = len(identify(run, key, [i for i in items if i.unit_id in inside])) if key else 0
@@ -1598,7 +1601,7 @@ class MacroRunner:
         units = {item.unit_id for item in items}
         if done and run.seen(lambda w: units <= set(self.verdicts()), VERDICT_SECONDS) is None:
             LOG.info('Macro: identify: %d of %d appraised in time', len(units & set(self.verdicts())), len(units))
-        pack = run.carried() if run.carried is not None else None
+        pack = run.reads.carried()
         if pack is not None:
             for item in (*pack.items, *pack.in_cube):
                 if item.unit_id in units and item.unit_id in self.verdicts():
@@ -1626,7 +1629,7 @@ class MacroRunner:
         if own is None:
             raise Abort("the player's items are not told apart yet")
         hands = Hands(inventory_key, identify_loot, lambda items: junk_of(items, self.appraise),
-                      lambda: run.stash_view() if run.stash_view is not None else None, transmute_gems)  # fmt: skip
+                      lambda: run.reads.stash_view(), transmute_gems)  # fmt: skip
         needs = Needs(keys=self.loop.kind.keys, portals=self.loop.portal or portal_source(run))
         done = visit(run, hands, needs, own, exit, full=frozenset(self.loop.full),
                      waited=self.loop.repair_waited(), memory=self.stash_memory)  # fmt: skip
@@ -1643,7 +1646,7 @@ class MacroRunner:
         if self.hunter is not None:
             self.hunter.bearings = Bearings(self.progress, self.target, self.marks, self.supers)
         if routine == TELEPORT and self.pursues(run, key_names):
-            pass  # one pass of the pursuit's decision made the press (hunt.py `pursue_once`)
+            pass  # one pass of the pursuit's decision made the press (hunting/moves.py `pursue_once`)
         elif routine == TELEPORT:
             self._teleport_step(run, key_names)
         elif routine == PICKUP:
@@ -1728,7 +1731,7 @@ class MacroRunner:
                 def staying() -> frozenset[tuple[int, int, int]]:
                     # the cube takes the inventory's loop items for the room to pick the parked ones up: not the full
                     # stacks' runes and materials (for Jamella, put down)
-                    pack = run.carried() if run.carried is not None else None
+                    pack = run.reads.carried()
                     sold = self.loop.sold_full
                     held = {(i.txt, i.x, i.y) for i in pack.items if i.txt in sold} if pack is not None else set()
                     return (self.loop.own or frozenset()) | held
@@ -1747,7 +1750,7 @@ class MacroRunner:
                             for _ in range(len(parked) + PICK_SLACK):
                                 if not pick_up(run, None, key_names, lambda: None):
                                     break
-                            now = run.carried() if run.carried is not None else None
+                            now = run.reads.carried()
                             held = {i.unit_id for i in (*now.items, *now.in_cube)} if now is not None else set()
                             left = sum(1 for unit in parked if unit not in held)
                             LOG.info('Macro: cube: %d put down for the transmute, %d picked up again', len(parked),
@@ -1822,7 +1825,7 @@ class MacroRunner:
             if self.hunter is not None:
                 # Teleport while the gold pays for the staff's charges (macros/loop.py `teleports`), and always when it
                 # is the character's own (Enigma: no charge, no swap)
-                own = run.own_teleport() if run.own_teleport is not None else None
+                own = run.reads.own_teleport()
                 looped = LOOPED_TELEPORT if self.loop.teleports or own else LOOPED
                 if own and self.hunter.looped is not looped:
                     LOG.info("Macro: loop: Teleport is the character's own: in every move")

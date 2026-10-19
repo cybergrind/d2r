@@ -85,7 +85,7 @@ def hold_detail_queue(started, release):
 
 def test_identify_finishes_while_detail_worker_is_busy(tmp_path):
     from inventory_tracking.appraisal.service import identify_retrieval
-    from pricing.triage.runtime import enabled, fast_retrieve, warm
+    from pricing.api import fast_triage as fast_retrieve, triage_enabled as enabled, warm_triage as warm
     from tests.inventory_tracking.appraisal.test_text import saved_result
 
     observation = saved_result()['result']['extraction']

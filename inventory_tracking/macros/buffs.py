@@ -135,16 +135,16 @@ class Buffs:
 
     @property
     def quiet_by_the_boss(self) -> bool:
-        """Whether the hunt defers side drops while its boss is in reach (macros/hunt.py `side_drop`)."""
+        """Whether the hunt defers side drops while its boss is in reach (macros/hunting/choice.py `side_drop`)."""
         return QUIET_BY_THE_BOSS
 
     def hurt(self, run: Run) -> bool:
-        """Whether the character lost life within HURT_SECONDS, by the hunt's rule (macros/hunt.py `safety_priced`),
-        from the life read at most every LIFE_LOOK seconds while a row asks (`BuffFacts.hurt`). Not known counts as
-        hurt: no life read, and a read under the full life with no recent read to compare it with."""
+        """Whether the character lost life within HURT_SECONDS, by the hunt's rule (macros/hunting/judging.py
+        `safety_priced`), from the life read at most every LIFE_LOOK seconds while a row asks (`BuffFacts.hurt`). Not
+        known counts as hurt: no life read, and a read under the full life with no recent read to compare it with."""
         now = run.clock()
         if now - self.life_read_at >= LIFE_LOOK:
-            loot = run.loot() if run.loot is not None else None
+            loot = run.reads.loot()
             seen = None
             if loot is None or loot.max_life <= 0 or loot.life <= 0:
                 self.hurt_at = now

@@ -19,7 +19,6 @@ dump 20260930T135418Z-6b2890e1 had one in Cave 2, mode 0 while closed. Lower Kur
 chests are ordinary jungle chests; the level guide marks those (levels/handlers/lower_kurast.py).
 """
 
-import os
 import struct
 from dataclasses import dataclass, field
 from typing import ClassVar
@@ -39,8 +38,7 @@ from inventory_tracking.loot.shown import filter_rules, hides, shown_label
 from inventory_tracking.loot.shrines import SHRINE_NAMES
 from inventory_tracking.loot.uniques import BASES, unique_drop
 from inventory_tracking.native.layout import OBJECT_SHRINE_TABLE, OBJECT_SHRINE_TYPE
-from inventory_tracking.native.process import identity, process_mappings
-from inventory_tracking.native.unit_probe import ResearchReader
+from inventory_tracking.native.memory import game_read
 from inventory_tracking.native.units import walk_units
 
 
@@ -266,22 +264,11 @@ def observe_ground(
     materials: dict[int, str] | None = None,
 ) -> tuple[Location | None, list[GroundRune], list[GroundUnique | GroundMaterial | Shrine | SuperChest]]:
     """(location, valuable runes, marked spots: expensive uniques, materials, wanted shrines, then super chests)."""
-    tables = {x['table_address'] for x in capture['unit_table_candidates']}
-    if len(tables) != 1:
-        raise ValueError('Expected one freshly scanned unit table address')
-    token = images['identity']
-    fd = os.open(f'/proc/{pid}/mem', os.O_RDONLY)
-    try:
-        read = ResearchReader(fd, process_mappings(pid)).read
-        table = next(iter(tables))
+    with game_read(pid, images, capture, changed='Game process changed during the ground read') as (read, table):
         location = player_location(read, table)
         runes = ground_runes(read, table, minimum=minimum) if location else []
         shrines = nearby_shrines(read, table, types=shrine_types) if location and shrine_types else []
         chests = nearby_super_chests(read, table) if location and super_chests else []
         uniques = ground_uniques(read, table, minimum=unique_minimum) if location and unique_minimum is not None else []
         found = ground_materials(read, table, materials, appraised_classes()) if location and materials else []
-    finally:
-        os.close(fd)
-    if identity(pid) != token:
-        raise ValueError('Game process changed during the ground read')
     return location, runes, [*uniques, *found, *shrines, *chests]

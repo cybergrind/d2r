@@ -1,6 +1,6 @@
 """Unpublished-KB retrieval for a memory snapshot (the service's fallback without a publication store)."""
 
-from pricing.knowledge.pipeline import retrieve_draft
+from pricing.api import retrieve_draft
 
 
 def memory_evidence(observation, database):

@@ -17,7 +17,7 @@ def test_the_fight_is_in_the_catalog_with_today_and_new():
 
 def test_the_recorded_fight_plays_with_his_missiles_taking_life(monkeypatch):
     # The take's macro held through his casts: its calibration is played so, without the mode alone's safety step
-    # that came later (hunt.py `guard`, rca/2026-10-14/baal-sim.md fix 3: seed 1 then takes 64 of his spell)
+    # that came later (hunting/judging.py `guard`, rca/2026-10-14/baal-sim.md fix 3: seed 1 then takes 64 of his spell)
     monkeypatch.setattr(Hunter, 'guard', lambda *args: None)
     situation = diablo.stored()
     assert situation.source is not None
@@ -48,8 +48,8 @@ def test_pricing_his_stream_halves_what_it_takes_at_little_cost_in_time():
 
 def test_attack_mode_alone_steps_across_his_lightning_and_strikes_on():
     """rca/2026-10-14/baal-sim.md fix 3: with the pursuit loop off, attack mode takes the loop's priced step across
-    his stream (hunt.py `guard`), then strikes again; it does not wander. Seed 1 held through it before: 295 of his
-    lightning, not a unit moved."""
+    his stream (hunting/judging.py `guard`), then strikes again; it does not wander. Seed 1 held through it before: 295
+    of his lightning, not a unit moved."""
     situation, presses = {label: (s, p) for label, s, p in diablo.variants()}['attack mode alone: today']
     assert not situation.pursuit
     outcome = situation.play(presses, seed=1)

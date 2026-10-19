@@ -8,8 +8,7 @@ from inventory_tracking.appraisal.runeword_rolls import display_runeword_rolls
 from inventory_tracking.appraisal.socket_ranges import display_socket_ranges
 from inventory_tracking.items.ranges import annotate_roll_ranges
 from inventory_tracking.items.stat_constants import TOTAL_LABELS
-from pricing.knowledge.assessment.domain.facts import FactStatus
-from pricing.knowledge.assessment.domain.sockets import socket_state
+from pricing.api import FactStatus, socket_state
 
 
 ROLL_FIELDS = ('roll_range', 'roll_quality', 'roll_quality_range', 'roll_tier', 'roll_tier_count')

@@ -3,9 +3,7 @@
 from inventory_tracking.appraisal.runeword_rolls import verified_recipe
 from inventory_tracking.items.metadata import metadata
 from inventory_tracking.items.ranges import annotate_roll_ranges
-from pricing.knowledge.assessment.adapters.capture import normalize
-from pricing.knowledge.assessment.registry import classify
-from pricing.knowledge.definition_store import catalog
+from pricing.api import catalog, classify, normalize
 
 
 def display_inherent_skills(extraction, rows):

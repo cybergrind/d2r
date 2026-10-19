@@ -73,7 +73,7 @@ def portal_source(run: Run) -> PortalSource:
     411 a worn item's item_nonclassskill), else the tome's, as before the Sling, unread worn items too. The Sling's is
     taken whether or not it is on a skill key: the player's ruling is the ring worn, and a cast with no key stops
     saying so (`to_town`), where the tome's would buy scrolls into cells with no tome to take them."""
-    worn = run.worn_skills() if run.worn_skills is not None else None
+    worn = run.reads.worn_skills()
     return FROM_SLING if worn is not None and SLING_TOWN_PORTAL in worn else FROM_TOME
 
 
