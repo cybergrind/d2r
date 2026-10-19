@@ -270,6 +270,7 @@ class Loop:
     kind: Kind = LK
     placed: bool = False  # the kind told by where the first leg finds the character (`kind_of`)
     chosen: bool = False  # chosen by hand or carried over a restart: kept wherever
+    pending: Kind | None = None  # chosen while on (runner.py `choose_kind`): the kind from the next game
     games: int = 0
     prebuffed: str | None = None
     done: str | None = None
@@ -827,6 +828,9 @@ class Loop:
             tzloop.perform(self, run, key_names, progress, goal, hands)
             return leg
         if leg == NEXT_GAME:
+            if self.pending is not None:
+                self.kind, self.pending, self.chosen = self.pending, None, True
+                run.say(f'Loop run: {self.kind.name}')  # the request's kind takes (runner.py `choose_kind`)
             self.next_game(run, world, key_names)
         elif leg == FIGHT_BACK:
             if hands.fight_back is None:
@@ -1066,6 +1070,11 @@ def lk_leg(world: World, progress: Progress | None, loop: Loop) -> str:
         return PORTAL
     if player.area == KURAST_DOCKS:
         return TO_THE_FORTRESS
+    if player.in_town:
+        # A game begins where the character was last saved: from any other town its waypoint (Lut Gholein after a
+        # terror zone played by hand left game after game, 2026-10-19 18:54; the player: "let's add handling for
+        # every town")
+        return TO_THE_CHESTS
     raise Abort(f'the loop has nothing to do in {display_name(player.area)}')
 
 
@@ -1119,6 +1128,8 @@ def andariel_leg(world: World, progress: Progress | None, loop: Loop) -> str:
         if (cramped and loop.carrying) or loop.short or loop.repair:
             return TO_THE_FORTRESS
         return TO_THE_CATACOMBS
+    if player.in_town:
+        return TO_THE_CATACOMBS  # any other town: its waypoint (as `lk_leg`)
     if (
         loop.trip_due
         and not loop.tripping(game)

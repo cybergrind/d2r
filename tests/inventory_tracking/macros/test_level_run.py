@@ -446,8 +446,11 @@ def test_without_the_pursuit_the_pickup_key_is_its_old_step(monkeypatch, tmp_pat
         saved_games=tmp_path,
         execute=lambda cancelled, routine: started.append(routine),
     )
-    made.build = made.fallback = BUILD
-    made.hunter = Hunter(build=BUILD)
+    from inventory_tracking.builds import pursuing
+
+    walking = pursuing(BUILD, False)
+    made.build = made.fallback = walking
+    made.hunter = Hunter(build=walking)
     assert made.request(10.0, 10.1, 'pickup')
     assert made.thread is not None
     made.thread.join(5)

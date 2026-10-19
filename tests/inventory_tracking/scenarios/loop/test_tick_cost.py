@@ -1,12 +1,12 @@
-"""What a decision tick costs in wall time, on a recorded Catacombs frame: bounds that catch a
-regression, and the bounds wanted.
-
-Wall time is noisy (other work on the host only ever adds), so each call is timed several times and
-the fastest kept, a regression bound is several times today's cost, and a wanted bound is marked as
-failing only where today's cost is several times over it. Counts stand in for time where they can:
-they do not depend on the host. tick_cost.py prints the same numbers for any take.
+"""What a decision tick costs, on a recorded Catacombs frame: regression bounds on the work done (cell
+asks and door tests, which do not depend on the host), a loose wall-time sanity bound beside them, and the
+wall-time bounds wanted (marked `slow`: nice 19 on a busy host makes wall time noisy). tick_cost.py prints
+the same numbers in milliseconds for any take.
 """
 
+import math
+import time
+from collections import Counter
 from dataclasses import replace
 
 import pytest
@@ -15,8 +15,8 @@ from inventory_tracking.builds.warlock.echoing_strike.attack import REACH
 from inventory_tracking.game.records import Player
 from inventory_tracking.game.view import Viewport
 from inventory_tracking.levels.doors import CLOSED_MODE, Door
-from inventory_tracking.levels.model import Target
-from inventory_tracking.macros.hunt import DECIDE_SECONDS, Hunter, hostiles
+from inventory_tracking.levels.model import Ground, Target
+from inventory_tracking.macros.hunt import DECIDE_SECONDS, SIGHT, Hunter, hostiles
 from inventory_tracking.macros.sight import in_reach
 from inventory_tracking.macros.teleport import Way, landing
 from tests.inventory_tracking.macros.fakes import warlock
@@ -30,14 +30,45 @@ def scene():
     return busiest_frame(take), ground, rooms, grids
 
 
-@pytest.mark.parametrize(('count', 'limit'), [(5, 0.5), (20, 1.5), (60, 5.0)])
-def test_a_decision_stays_within_many_times_what_it_costs_today(scene, count, limit):
-    # Today, the fastest of 5 on the host with other work running: 15 to 23 ms, 72 to 112 ms, 350 to 600 ms.
+def counted(monkeypatch) -> Counter:
+    """Calls of the two things a decision spends its time in: grid cells asked (Ground.walkable) and door
+    tests (Door.blocks). They do not depend on the host, and sit at the boundary the geometry is asked through."""
+    calls: Counter = Counter()
+    for cls, name in ((Ground, 'walkable'), (Door, 'blocks')):
+        original = getattr(cls, name)
+
+        def wrapped(self, *args, _name=name, _original=original):
+            calls[_name] += 1
+            return _original(self, *args)
+
+        monkeypatch.setattr(cls, name, wrapped)
+    return calls
+
+
+# Counted 2026-10-19 on the recorded Catacombs frame (deterministic): walkable 5.5k, 19.2k, 50.3k and blocks 11.1k,
+# 38.3k, 100.5k for 5, 20, 60 hostiles; the bounds are 1.5x. The wall limits are 10x today's worst, a sanity check only.
+@pytest.mark.parametrize(
+    ('count', 'cells', 'doors', 'limit'),
+    [(5, 8_500, 17_000, 5.0), (20, 29_000, 58_000, 15.0), (60, 76_000, 151_000, 50.0)],
+)
+def test_a_decision_stays_within_the_work_it_does_today(scene, monkeypatch, count, cells, doors, limit):
     frame, ground, _, _ = scene
-    cost = decision(recorded_world(frame, count), ground)
-    assert cost['choose'] / 1000 < limit
+    seen = recorded_world(frame, count)
+    hunter = Hunter(build=warlock(seen))
+    assert seen.player is not None
+    here = (seen.player.x, seen.player.y)
+    foes = hostiles(seen)
+    reachable = [m for m in foes if in_reach(ground, here, (m.x, m.y), REACH, seen.doors)]
+    near = [m for m in foes if math.dist(here, (m.x, m.y)) <= SIGHT]
+    calls = counted(monkeypatch)
+    began = time.perf_counter()
+    hunter.choose(seen, foes, reachable or near[:1], ground, Viewport(ASPECT))
+    assert time.perf_counter() - began < limit
+    assert calls['walkable'] <= cells
+    assert calls['blocks'] <= doors
 
 
+@pytest.mark.slow  # wall time: host-dependent
 @pytest.mark.xfail(
     strict=True,
     reason='LinePolicy.choose lays three lines through every hostile in reach and flies five blades along each '
@@ -55,15 +86,17 @@ def test_a_decision_over_sixty_hostiles_fits_between_two_looks_of_the_fight(scen
     assert TICK < DECIDE_SECONDS
 
 
-def test_the_reach_of_sixty_hostiles_is_told_well_within_a_tick(scene):
-    # Twice a look in a fight and once while idle: 2 to 4 ms today.
+def test_the_reach_of_sixty_hostiles_is_told_in_few_cell_asks(scene, monkeypatch):
+    # Twice a look in a fight and once while idle. Counted 2026-10-19: 850 cells, 1.65k door tests; bounds 1.5x.
     frame, ground, _, _ = scene
     seen = recorded_world(frame, 60)
     assert seen.player is not None
     here = (seen.player.x, seen.player.y)
     foes = hostiles(seen)
-    cost = fastest(lambda: [in_reach(ground, here, (m.x, m.y), REACH, seen.doors) for m in foes])
-    assert cost / 1000 < TICK / 2
+    calls = counted(monkeypatch)
+    [in_reach(ground, here, (m.x, m.y), REACH, seen.doors) for m in foes]
+    assert calls['walkable'] <= 1_300
+    assert calls['blocks'] <= 2_500
 
 
 @pytest.mark.xfail(
@@ -106,12 +139,15 @@ def plan(scene):
     return target, stand, Way(target, Viewport(ASPECT))
 
 
-def test_a_hops_landing_is_found_within_many_times_what_it_costs_today(scene):
-    # Today 47 to 50 ms on this 12-room level, 113 to 131 ms on a 15-room one.
+def test_a_hops_landing_is_found_within_the_work_it_does_today(scene, monkeypatch):
+    # Counted 2026-10-19: 6.1k cell asks on this 12-room level; bound 1.5x. Wall: 10x today's worst (131 ms).
     target, stand, way = plan(scene)
-    assert fastest(lambda: landing(target, stand, way, ASPECT), 3) / 1000 < 1.0
+    calls = counted(monkeypatch)
+    assert fastest(lambda: landing(target, stand, way, ASPECT), 1) / 1000 < 1.3
+    assert calls['walkable'] <= 9_200
 
 
+@pytest.mark.slow  # wall time: host-dependent
 def test_a_hops_landing_is_found_within_a_quarter_tick(scene):
     target, stand, way = plan(scene)
     assert fastest(lambda: landing(target, stand, way, ASPECT), 3) / 1000 <= TICK / 4

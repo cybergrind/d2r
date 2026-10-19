@@ -12,10 +12,10 @@ import pricing.api as api
 ROOT = Path(__file__).resolve().parents[2]
 # Host packages pricing must not reach into: the service glue lives there (cleanup phase 3 step 10).
 HOST_ONLY = ('inventory_tracking.appraisal', 'inventory_tracking.corpus')
-# Frozen maintenance tools that render host reports (study A2 splits maintenance/); no new entries.
+# Maintenance tools that render host reports (now in compile/); no new entries.
 RENDERS_HOST_REPORTS = {
-    'pricing/knowledge/assessment/maintenance/named_gate.py',
-    'pricing/knowledge/assessment/maintenance/replay.py',
+    'pricing/knowledge/assessment/compile/named_gate.py',
+    'pricing/knowledge/assessment/compile/replay.py',
 }
 
 

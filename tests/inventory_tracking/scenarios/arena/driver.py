@@ -50,7 +50,7 @@ from inventory_tracking.config import HealingConfig
 from inventory_tracking.game.records import World
 from inventory_tracking.input.compositor import STEP_KEYS
 from inventory_tracking.levels.model import Level, Room
-from inventory_tracking.macros import opening, pickup, runner as runner_module, teleport
+from inventory_tracking.macros import opening, pickup, teleport
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.build import Build
 from inventory_tracking.macros.hunt import Hunter, threat
@@ -59,7 +59,7 @@ from inventory_tracking.macros.opening import open_near
 from inventory_tracking.macros.pickup import pick_up
 from inventory_tracking.macros.runner import ATTACK, PICKUP, TELEPORT, MacroRunner
 from inventory_tracking.macros.skills import ACTIONS, NAMES
-from tests.inventory_tracking.macros.fakes import KEYS, warlock
+from tests.inventory_tracking.macros.fakes import KEYS, set_runner, warlock
 from tests.inventory_tracking.scenarios.arena.game import EDGE, Arena
 from tests.inventory_tracking.scenarios.arena.result import Result
 from tests.inventory_tracking.scenarios.arena.scene import Scene
@@ -252,9 +252,7 @@ class Play:
     def run(self) -> Result:
         fresh()
         arena = self.arena
-        saved, card = runner_module.time, runner_module.CARD_SECONDS
-        runner_module.time = ArenaTime(arena)  # type: ignore[assignment]
-        runner_module.CARD_SECONDS = 0.0
+        restore = set_runner(time=ArenaTime(arena), CARD_SECONDS=0.0)  # the runner and its parts (macros/running/)
         arena.each_tick = self.tick
         try:
             while True:
@@ -272,7 +270,7 @@ class Play:
         finally:
             if not self.ended:
                 self.end()
-            runner_module.time, runner_module.CARD_SECONDS = saved, card
+            restore()
             arena.each_tick = None
         if self.failed:
             raise self.failed[0]

@@ -69,9 +69,23 @@ def test_the_loop_stops_where_it_has_no_leg_and_with_the_character_dead():
     loop, lk = Loop(), progress_in(LOWER_KURAST)
 
     with pytest.raises(Abort, match='nothing to do in'):
-        next_leg(at(1), lk, loop)
+        next_leg(at(2), lk, loop)  # the Blood Moor: no leg of Lower Kurast's
     with pytest.raises(Dead, match='the character is dead'):
         next_leg(at(LOWER_KURAST, mode=0), lk, loop)
+
+
+def test_a_game_begun_in_any_other_town_takes_its_waypoint_to_the_kinds_start():
+    # 2026-10-19 18:54: games begun in Lut Gholein were left one after another ("nothing to do in Lut Gholein")
+    from inventory_tracking.macros.loop import ANDARIEL, TO_THE_CATACOMBS
+
+    lk, andariel = Loop(), Loop(kind=ANDARIEL)
+    for town in (1, 40, 109):  # the Rogue Encampment, Lut Gholein, Harrogath
+        assert next_leg(at(town), progress_in(LOWER_KURAST), lk) == TO_THE_CHESTS
+    for town in (40, KURAST_DOCKS, 109):
+        assert next_leg(at(town), None, andariel) == TO_THE_CATACOMBS
+    assert next_leg(at(KURAST_DOCKS), progress_in(LOWER_KURAST), lk) == TO_THE_FORTRESS  # as before
+    with pytest.raises(Abort, match='nothing to do in'):
+        next_leg(at(2), None, andariel)  # out of town: no leg, as before
 
 
 def test_a_recovery_leaves_the_game_from_wherever_the_character_is_and_not_after_death():
@@ -696,7 +710,7 @@ def test_the_loop_runs_the_kind_of_where_it_is_started_unless_chosen_by_hand():
     assert loop.kind == ANDARIEL
     hand = Loop(chosen=True)
     hand.start()
-    with pytest.raises(Abort, match='nothing to do in'):
+    with pytest.raises(Abort, match='no waypoint in sight'):  # Lower Kurast's waypoint leg (the fakes have none)
         hand.leg(play.run(), keys, progress_in(ROGUE_ENCAMPMENT), LegHands(lambda: None, lambda: False))
     assert hand.kind == LK
 
@@ -991,6 +1005,20 @@ def test_a_prebuff_the_rogue_encampments_townsfolk_spoil_is_made_again_on_the_ca
     monkeypatch.setattr(looping, 'create_next_game', lambda run, name: setattr(play, 'world', at(PANDEMONIUM_FORTRESS)))
     with pytest.raises(Abort, match='Consume'):  # elsewhere the game is left as before
         loop.leg(play.run(), keys, progress_in(PANDEMONIUM_FORTRESS), LegHands(lambda: None, lambda: False))
+
+
+def test_a_kind_chosen_while_the_loop_runs_is_the_next_games_kind(monkeypatch):
+    # The player, 2026-10-19: "I want you to have the ability to dynamically switch loop type" (runner.py
+    # `choose_kind`): the game played ends as its kind, the next one is made for the new kind
+    from inventory_tracking.macros import loop as looping
+
+    monkeypatch.setattr(looping, 'character_keys', lambda run, key_names: {})
+    monkeypatch.setattr(looping, 'prebuff', lambda run, fresh=None: None)
+    loop = Loop(kind=looping.LK, pending=looping.ANDARIEL)
+    play = Game(World(False, (), GAME, ()))
+    monkeypatch.setattr(looping, 'create_next_game', lambda run, name: setattr(play, 'world', at(ROGUE_ENCAMPMENT)))
+    assert loop.leg(play.run(), keys, progress_in(ROGUE_ENCAMPMENT), LegHands(lambda: None, lambda: False)) == NEXT_GAME
+    assert (loop.kind, loop.pending, loop.chosen) == (looping.ANDARIEL, None, True)
 
 
 def test_andariels_level_is_not_left_with_nothing_picked_up_before_her_drops_land():

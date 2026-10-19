@@ -21,6 +21,7 @@ def test_prefixes_are_the_workers_own():
         'pickup': service.PICKUP_PREFIX,
         'pad': service.PAD_PREFIX,
         'loop': service.LOOP_PREFIX,
+        'loop-kind': service.KIND_PREFIX,
     }
 
 
@@ -78,3 +79,34 @@ def test_a_press_does_not_pay_for_modules_it_does_not_use():
 def test_a_wrong_kind_is_refused():
     assert request.main(['nothing']) == 2
     assert request.main([]) == 2
+    assert request.main(['loop-kind']) == 2  # which kind
+    assert request.main(['loop', 'andariel']) == 2  # only `loop-kind` takes a word
+
+
+def test_the_loop_kind_request_reaches_the_runner_and_no_loop_toggle():
+    # 'kind ' is no 'loop ': the loop toggle never takes it (appraisal/service.py `dispatch`)
+    sent: list[tuple[object, ...]] = []
+
+    class Macro:
+        def choose_kind(self, stamp, now, key):
+            sent.append(('kind', stamp, key))
+            return True
+
+        def request(self, *args, **kwargs):
+            sent.append(('request', args))
+            return True
+
+    assert service.for_macro(b'kind 12.5 andariel')
+    assert service.dispatch(b'kind 12.5 andariel', 12.6, None, None, macro=Macro())
+    assert sent == [('kind', 12.5, 'andariel')]
+
+
+def test_the_kind_datagram_carries_the_kind_after_the_stamp(tmp_path):
+    endpoint = tmp_path / 'service.sock'
+    with socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM) as server:
+        server.bind(str(endpoint))
+        server.settimeout(1)
+        assert request.send('loop-kind', endpoint, clock=lambda: 12.5, began=(31.2, 12.0), word='lk')
+        assert server.recv(64) == b'kind 12.5 lk'
+        assert request.main(['loop-kind', 'andariel', '--socket', str(endpoint)]) == 0
+        assert server.recv(64).split()[2] == b'andariel'

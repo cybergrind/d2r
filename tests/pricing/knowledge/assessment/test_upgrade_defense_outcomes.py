@@ -1,8 +1,8 @@
 from dataclasses import replace
 from typing import Any
 
+from pricing.knowledge.assessment.compile.replay import replay
 from pricing.knowledge.assessment.engine import assess_result
-from pricing.knowledge.assessment.maintenance.replay import replay
 
 
 def test_saved_set_upgrade_preserves_flat_defense_and_enumerates_base_rolls():

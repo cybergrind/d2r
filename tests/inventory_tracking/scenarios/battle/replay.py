@@ -41,7 +41,6 @@ from inventory_tracking.common import LOG
 from inventory_tracking.game.records import Loot, Monster, Player, Teleport, World
 from inventory_tracking.levels.doors import Door
 from inventory_tracking.levels.model import Level, Room, Walkable
-from inventory_tracking.macros import runner as runner_module
 from inventory_tracking.macros.actuator import Actuator
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.hunt import Hunter, threat
@@ -50,7 +49,8 @@ from inventory_tracking.macros.routines import ACTING
 from inventory_tracking.macros.runner import ATTACK, PICKUP, TELEPORT, MacroRunner
 from inventory_tracking.macros.timing import Pace
 from inventory_tracking.takes.takes import PlayerRow, Take, monsters_of, player_of
-from tests.inventory_tracking.macros.fakes import BUILD, Clock, FakeConnection
+from inventory_tracking.builds import pursuing
+from tests.inventory_tracking.macros.fakes import BUILD, Clock, FakeConnection, set_runner
 
 
 @dataclass
@@ -113,6 +113,9 @@ X_KEYCODES = {
     '6': 15,
 }
 SYNC_WINDOW = 0.35  # seconds a press of the replay may be from the take's and still be that press
+# The takes (2026-10-11 and 12) predate the pursuit loop (2026-10-13): replayed with it off, as recorded (the default
+# is on since 2026-10-19, batch E).
+RECORDED = pursuing(BUILD, False)
 
 
 class Capture(logging.Handler):
@@ -177,7 +180,7 @@ class Replay:
         self.keys.press, self.keys.button = pressing, clicking
         self.pending = sorted(script.presses)
         self.runner: MacroRunner | None = None
-        self.hunter = Hunter(lambda: self.level, None, None, build=BUILD)
+        self.hunter = Hunter(lambda: self.level, None, None, build=RECORDED)
         script.prepare(self.hunter)
         self.failed: list[BaseException] = []
 
@@ -327,7 +330,7 @@ class Replay:
             hands=lambda: self.script.hands,
             teleport=lambda: self.script.staff,
             loot=lambda: self.script.loot(self.clock.now, self.frame()),
-            build=BUILD,  # the take's character is the fakes': the Echoing Strike Warlock with its weapon sets
+            build=RECORDED,  # the take's character is the fakes': the Echoing Strike Warlock with its weapon sets
         )
         run.hovered = lambda: self.script.hovered(self.clock.now, self.keys.pointer())
         run.hover_note = lambda: 'replayed'
@@ -365,8 +368,7 @@ class Replay:
         level = LOG.level
         LOG.addHandler(capture)
         LOG.setLevel(logging.INFO)
-        saved = {name: getattr(runner_module, name) for name in ('CARD_SECONDS', 'TRAVEL_QUIET')}
-        runner_module.CARD_SECONDS = runner_module.TRAVEL_QUIET = 0
+        restore = set_runner(CARD_SECONDS=0, TRAVEL_QUIET=0)  # the runner and its parts (macros/running/)
         patched = []
         for path, value in self.script.patches.items():
             module, name = path.rsplit('.', 1)
@@ -405,8 +407,7 @@ class Replay:
                 self.press(routine)
             self.runner.close()
         finally:
-            for name, value in saved.items():
-                setattr(runner_module, name, value)
+            restore()
             for owner, name, value in patched:
                 setattr(owner, name, value)
             LOG.removeHandler(capture)

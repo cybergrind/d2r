@@ -64,7 +64,7 @@ def test_charged_alternatives_preserve_skill_remaining_charges_and_explicit_base
 
 
 def test_decorated_charge_combinations_are_not_reduced_to_generic_charge_utility():
-    from pricing.knowledge.assessment.maintenance.profile_templates import expand_profile
+    from pricing.knowledge.assessment.compile.profile_templates import expand_profile
 
     row = {
         'id': 'example',

@@ -69,7 +69,7 @@ def test_mismatched_intrinsic_evidence_cannot_color_a_different_capture():
 
 def test_saved_shako_keeps_its_independently_verified_base_defense_range():
     from inventory_tracking.appraisal.intrinsic_rolls import display_stats
-    from pricing.knowledge.assessment.maintenance.replay import replay
+    from pricing.knowledge.assessment.compile.replay import replay
 
     result = replay('harlequin_crest')
     row = next(r for r in display_stats(result) if r.get('memory_stat', {}).get('id') == 31)
@@ -113,7 +113,7 @@ def test_verified_empty_item_keeps_its_native_range(sockets):
 @pytest.mark.parametrize('unknown_sockets', [False, True])
 def test_guardian_angel_roll_color_requires_verified_empty_sockets(unknown_sockets):
     from inventory_tracking.appraisal.intrinsic_rolls import display_stats
-    from pricing.knowledge.assessment.maintenance.replay import replay
+    from pricing.knowledge.assessment.compile.replay import replay
 
     result = replay('guardian_angel')
     if unknown_sockets:

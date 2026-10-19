@@ -2,8 +2,8 @@ from dataclasses import replace
 from datetime import date
 
 from pricing.knowledge.assessment.comparables import evaluate, price_from_comparables, reject_reasons
+from pricing.knowledge.assessment.compile.replay import replay
 from pricing.knowledge.assessment.handlers import HANDLERS
-from pricing.knowledge.assessment.maintenance.replay import replay
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
 
 

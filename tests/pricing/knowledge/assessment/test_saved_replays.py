@@ -1,6 +1,6 @@
 import pytest
 
-from pricing.knowledge.assessment.maintenance.replay import replay
+from pricing.knowledge.assessment.compile.replay import replay
 
 
 @pytest.mark.parametrize(

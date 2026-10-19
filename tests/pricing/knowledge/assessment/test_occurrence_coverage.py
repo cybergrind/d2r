@@ -1,6 +1,6 @@
 from typing import Any
 
-from pricing.knowledge.assessment.maintenance.inventory import audit_occurrences
+from pricing.knowledge.assessment.compile.inventory import audit_occurrences
 
 
 def occurrence(key, **changes):
@@ -62,7 +62,7 @@ def test_discovery_and_unresolved_rows_are_retained_without_becoming_executed_ru
 
 
 def test_standalone_variants_preserve_swaps_mercenary_and_literal_source_paths():
-    from pricing.knowledge.assessment.maintenance.inventory import variant_occurrences
+    from pricing.knowledge.assessment.compile.inventory import variant_occurrences
 
     document = {
         'slug': 'build',

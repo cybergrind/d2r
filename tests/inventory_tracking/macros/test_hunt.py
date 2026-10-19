@@ -97,7 +97,10 @@ def game(*monsters, **changes):
     return play
 
 
-def hunter(play, *, ground=(), remembered=(), explored=None):
+def hunter(play, *, ground=(), remembered=(), explored=None, pursuit=True):
+    """`pursuit`: False for the old loop's own rules (the default is on, as `make serve` plays)."""
+    from inventory_tracking.builds import pursuing
+
     def level():
         return Level(me(play.world).area, ROOMS, tuple(ground))
 
@@ -105,7 +108,7 @@ def hunter(play, *, ground=(), remembered=(), explored=None):
         level,
         lambda area: list(remembered),
         None if explored is None else lambda area: set(explored),
-        build=warlock(play.world),
+        build=pursuing(warlock(play.world), pursuit),
     )
 
 
@@ -778,7 +781,7 @@ def test_plain_monsters_that_hit_hard_together_get_the_main_weapons():
 def test_one_plain_monster_in_reach_is_fought_with_what_is_held():
     play = game()
     play.sets.reverse()
-    attack_mode(play, hunter(play), until=6.0, events=[(2.0, appear(play, foe(100, 5006.0, 4998.0)))])
+    attack_mode(play, hunter(play, pursuit=False), until=6.0, events=[(2.0, appear(play, foe(100, 5006.0, 4998.0)))])
     assert 'c' not in play.pressed()
     assert play.strikes
 
@@ -791,7 +794,7 @@ def test_a_fight_right_after_a_step_starts_with_what_is_held_and_stops_for_the_m
     for monster in pack:
         play.toughness[monster.unit_id] = 1000
     play.sets.reverse()
-    attack_mode(play, hunter(play), until=4.0)
+    attack_mode(play, hunter(play, pursuit=False), until=4.0)
     keys_pressed = play.pressed()
     assert keys_pressed[:2] == ['7', 'd']  # the strike, let go for the mark under it: no swap first
     assert keys_pressed.count('c') == 1
@@ -812,7 +815,7 @@ def test_a_pack_no_longer_tough_when_the_swap_is_due_is_fought_on_without_a_stop
     def thin_out():
         play.world = replace(play.world, monsters=tuple(m for m in play.world.monsters if m.unit_id == survivor))
 
-    attack_mode(play, hunter(play), until=4.0, events=[(0.5, thin_out)])
+    attack_mode(play, hunter(play, pursuit=False), until=4.0, events=[(0.5, thin_out)])
     assert 'c' not in play.pressed()
     assert not [text for text in play.said if text.startswith('Stopping for the main weapons')]
     assert sum(text.startswith('Echoing Strike (key 7)') for text in play.said) == 1
@@ -833,13 +836,13 @@ def test_a_plain_pack_is_fought_with_what_is_held_and_a_big_one_gets_the_main_we
     play = game()
     play.sets.reverse()
     few = [foe(10 + i, 5006.0 + i, 5000.0) for i in range(3)]
-    attack_mode(play, hunter(play), until=6.0, events=[(2.0, appear(play, *few))])
+    attack_mode(play, hunter(play, pursuit=False), until=6.0, events=[(2.0, appear(play, *few))])
     assert 'c' not in play.pressed()
     assert play.strikes
 
     play = game()
     play.sets.reverse()
-    attack_mode(play, hunter(play), until=6.0, events=[(2.0, appear(play, *tough_pack()))])
+    attack_mode(play, hunter(play, pursuit=False), until=6.0, events=[(2.0, appear(play, *tough_pack()))])
     assert play.pressed()[0] == 'c'
 
 

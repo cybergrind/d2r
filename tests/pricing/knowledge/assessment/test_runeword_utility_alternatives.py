@@ -4,7 +4,7 @@ import pytest
 
 from inventory_tracking.items.metadata import metadata
 from pricing.knowledge.assessment.build_profiles import build
-from pricing.knowledge.assessment.maintenance.profile_templates import expand_profile
+from pricing.knowledge.assessment.compile.profile_templates import expand_profile
 from pricing.knowledge.assessment.profiles import assess_role_results
 from pricing.knowledge.assessment.stat_bundle import configuration_from_row
 from pricing.knowledge.assessment.stat_evaluation import StatsEvaluator

@@ -32,11 +32,15 @@ PREFIXES = {
     'hunt-any': 'hunt any ',  # the attack mode toggle: attack mode on/off
     'pickup': 'pickup ',  # the pickup step: pick up a valuable or a potion, else a seek step
     'pad': 'pad ',  # the gamepad experiment: one tap of a virtual pad's button (input/gamepad.py)
-    'loop': 'loop ',  # the Lower Kurast loop on/off (macros/loop.py)
+    'loop': 'loop ',  # the KP_6 loop on/off (macros/loop.py)
+    'loop-kind': 'kind ',  # the loop's kind, `loop-kind andariel`: at once with the loop off, else from the next game
 }
 TIMED = frozenset(('macro', 'teleport', 'hunt-elites', 'hunt-any', 'pickup', 'loop'))
 DEFAULT_SOCKET = os.path.join(os.environ.get('XDG_RUNTIME_DIR', f'/run/user/{os.getuid()}'), 'd2r-appraisal.sock')
-USAGE = f'usage: request.py [--socket PATH] {{{",".join(sorted(PREFIXES))}}}\nSend one hotkey request to `make serve`.'
+USAGE = (
+    f'usage: request.py [--socket PATH] {{{",".join(sorted(PREFIXES))}}} [kind]\n'
+    'Send one hotkey request to `make serve`.'
+)
 
 
 def startup() -> tuple[float, float] | None:
@@ -50,11 +54,11 @@ def startup() -> tuple[float, float] | None:
     return 1000 * age, 1000 * time.process_time()
 
 
-def send(kind: str, endpoint=DEFAULT_SOCKET, *, clock=time.monotonic, began=None) -> bool:
+def send(kind: str, endpoint=DEFAULT_SOCKET, *, clock=time.monotonic, began=None, word: str = '') -> bool:
     """Send `kind`'s datagram, stamped with the monotonic clock the service compares against; a
-    macro request with `began` (`startup`) says after the stamp how long the start took."""
+    macro request with `began` (`startup`) says after the stamp how long the start took, `loop-kind` its `word`."""
     took = f' {began[0]:.1f} {began[1]:.1f}' if began is not None and kind in TIMED else ''
-    message = f'{PREFIXES[kind]}{clock()}{took}'
+    message = f'{PREFIXES[kind]}{clock()}{took}{f" {word}" if word else ""}'
     try:
         with socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM) as client:
             client.sendto(message.encode('ascii'), str(endpoint))
@@ -74,10 +78,11 @@ def main(argv=None) -> int:
         at = words.index('--socket')
         endpoint = words[at + 1]
         del words[at : at + 2]
-    if len(words) != 1 or words[0] not in PREFIXES:
+    word = words.pop() if len(words) == 2 and words[0] == 'loop-kind' else ''
+    if len(words) != 1 or words[0] not in PREFIXES or (words[0] == 'loop-kind') != bool(word):
         print(USAGE, file=sys.stderr)
         return 2
-    if send(words[0], endpoint, began=began):
+    if send(words[0], endpoint, began=began, word=word):
         return 0
     import contextlib
     import subprocess

@@ -118,6 +118,7 @@ from inventory_tracking.macros.runner import (
     HUNT_ANY_PREFIX,
     HUNT_ELITES,
     HUNT_ELITES_PREFIX,
+    KIND_PREFIX,
     LOOP,
     LOOP_PREFIX,
     PICKUP,
@@ -339,7 +340,7 @@ MACRO_ROUTINES = (
 
 
 def for_macro(data: bytes) -> bool:
-    return data.startswith(tuple(prefix.encode('ascii') for prefix, _ in MACRO_ROUTINES))
+    return data.startswith((*(prefix.encode('ascii') for prefix, _ in MACRO_ROUTINES), KIND_PREFIX.encode('ascii')))
 
 
 def dispatch(
@@ -367,6 +368,9 @@ def dispatch(
         if text.startswith('disagree '):
             requested = float(text[len('disagree ') :])
             return bool(disagree and 0 <= now - requested <= 1 and disagree())
+        if text.startswith(KIND_PREFIX):  # the loop's kind (macros/runner.py `choose_kind`)
+            stamp, key = text[len(KIND_PREFIX) :].split()
+            return macro is not None and macro.choose_kind(float(stamp), now, key)
         for prefix, routine in MACRO_ROUTINES:
             # The macro request (the macro for where the character is; a press while one runs cancels
             # it), the teleport, seek and pickup steps and the attack mode toggle (macros/runner.py).
@@ -767,7 +771,9 @@ def run_service(args, directory, report):
                         if args.osd:
                             publish_layer(args.hud_scene, 'macro', card_widgets(lines, 'macro'))
 
-                    played = builds.pursuing if APPRAISAL.macro_pursuit else (lambda build: build)
+                    def played(build):
+                        return builds.pursuing(build, APPRAISAL.macro_pursuit)
+
                     macro = MacroRunner(
                         source,
                         capture_lock=worker.capture_lock,

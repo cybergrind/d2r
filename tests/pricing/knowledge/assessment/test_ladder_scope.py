@@ -33,7 +33,7 @@ def test_non_ladder_source_cannot_be_mislabeled_ladder(tmp_path, variant):
 
 def test_ladder_demand_does_not_vote_for_non_ladder_value():
     from pricing.knowledge.assessment.demand_counts import summarize_demand
-    from tests.pricing.knowledge.assessment.maintenance.test_guide_demand import use
+    from tests.pricing.knowledge.assessment.compile.test_guide_demand import use
 
     assert summarize_demand([use('ladder-build', season='ladder')], complete=False)['distinct_builds'] == 0
     assert summarize_demand([use('non-ladder-build', season='non_ladder')], complete=False)['distinct_builds'] == 1
@@ -68,9 +68,9 @@ def test_ladder_profile_is_archived_but_not_a_runtime_candidate(tmp_path):
 
 
 def test_ladder_guide_use_cannot_default_to_non_ladder():
-    from pricing.knowledge.assessment.maintenance.guide_demand import compile_demand
-    from pricing.knowledge.assessment.maintenance.guide_inventory import fingerprint
-    from tests.pricing.knowledge.assessment.maintenance.test_guide_demand import use
+    from pricing.knowledge.assessment.compile.guide_demand import compile_demand
+    from pricing.knowledge.assessment.compile.guide_inventory import fingerprint
+    from tests.pricing.knowledge.assessment.compile.test_guide_demand import use
 
     profile = {
         'id': 'example',

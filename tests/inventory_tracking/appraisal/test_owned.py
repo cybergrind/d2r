@@ -88,6 +88,28 @@ def test_better_rolls_than_every_owned_copy(collection):
     assert 'new better: +165% Enhanced Defense vs 160' in lines[1]
 
 
+def test_copies_in_the_playing_characters_inventory_and_cube_are_told_carried(tmp_path):
+    # The loop's own items (identify/service.py `owned_verdict`): not owned
+    inventory = unique(x=1)
+    inventory['source']['container'] = {'page': 0, 'name': 'Main inventory'}
+    database = tmp_path / 'collection.sqlite'
+    capture = CaptureRun(
+        id='c1',
+        character=Character(name='Mule'),
+        containers=[('Mule', 'stash', None), ('Mule', 'inventory', None)],
+        started_at='2026-09-30T00:00:00Z',
+    )
+    sightings = [
+        Sighting(item=ItemRecord.from_observation(o), location=Location.from_source(o['source'], 'Mule'))
+        for o in (unique(x=0), inventory)
+    ]
+    with CollectionStore(database) as store:
+        store.record_capture(capture, sightings)
+    owned = owned_copies(unique(defense=165), database)
+    assert owned is not None
+    assert sorted(copy['carried'] for copy in owned['copies']) == [False, True]
+
+
 def test_one_better_owned_copy_makes_the_new_item_worse(collection):
     database = collection(unique(defense=140, cold=10, x=0), unique(defense=170, cold=15, x=2))
     owned = owned_copies(unique(defense=150, cold=12), database)

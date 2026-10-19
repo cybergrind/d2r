@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 
 from pricing.knowledge.assessment.build_profiles import build
-from pricing.knowledge.assessment.maintenance.reviewed_source_issues import reviewed_source_issues
+from pricing.knowledge.assessment.compile.reviewed_source_issues import reviewed_source_issues
 from pricing.knowledge.assessment.profiles import assess_role_results
 from pricing.knowledge.assessment.stat_bundle import configuration_from_row
 from pricing.knowledge.assessment.stat_evaluation import StatsEvaluator

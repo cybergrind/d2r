@@ -18,7 +18,7 @@ BUILDS: tuple[Build, ...] = (*LAYERS, ECHOING_STRIKE_BUILD)
 FALLBACK: Build = GENERIC  # for a character no build claims, and while no character is in the world
 
 
-def pursuing(build: Build) -> Build:
-    """`build` with the pursuit loop on (BuildSettings.pursuit, macros/pursuit.py): what the process
-    hands the runner when its configuration asks for the loop (config.py `macro_pursuit`)."""
-    return replace(build, settings=with_overrides(build.settings, pursuit=True))
+def pursuing(build: Build, on: bool = True) -> Build:
+    """`build` with the pursuit loop on or off (BuildSettings.pursuit, macros/pursuit.py): what the process
+    hands the runner as its configuration asks (config.py `macro_pursuit`)."""
+    return replace(build, settings=with_overrides(build.settings, pursuit=on))

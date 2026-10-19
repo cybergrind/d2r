@@ -58,7 +58,7 @@ def test_reviewed_teleport_amulets_require_class_and_available_charges_in_report
 
     from inventory_tracking.appraisal.stat_markers import stat_line
     from pricing.knowledge.assessment.build_profiles import ROOT, build
-    from pricing.knowledge.assessment.maintenance.stat_configurations import compile_stat_configurations
+    from pricing.knowledge.assessment.compile.stat_configurations import compile_stat_configurations
     from pricing.knowledge.assessment.profiles import assess_role_results
     from pricing.knowledge.assessment.stat_evaluation import StatsEvaluator
 

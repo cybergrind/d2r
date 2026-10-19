@@ -92,7 +92,7 @@ def test_staged_hardcore_roles_cannot_supply_softcore_stat_priorities():
 
 
 def test_guide_demand_cannot_relabel_a_hardcore_profile_as_softcore():
-    from pricing.knowledge.assessment.maintenance.guide_demand import compile_demand
+    from pricing.knowledge.assessment.compile.guide_demand import compile_demand
 
     document = json.loads(Path('pricing/data/appraisal-build-profiles.json').read_text())
     profile = next(p for p in document['profiles'] if p.get('scope') == 'hardcore')

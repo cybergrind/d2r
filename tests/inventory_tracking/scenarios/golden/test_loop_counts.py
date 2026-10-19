@@ -108,7 +108,7 @@ def swap_to_main_weapons():
     for monster in pack:
         play.toughness[monster.unit_id] = 1000
     play.sets.reverse()  # the staff's set in hand, as after a hop
-    attack_mode(play, hunter(play), until=4.0)
+    attack_mode(play, hunter(play, pursuit=False), until=4.0)  # as test_reaction.py's: the pursuit-off stop
     return [play]
 
 

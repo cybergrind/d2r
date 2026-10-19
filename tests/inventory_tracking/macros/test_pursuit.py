@@ -348,7 +348,7 @@ def test_the_navigators_arrival_is_what_is_done_at_the_goal() -> None:
 
 
 def test_with_the_switch_off_the_decision_is_the_old_loops() -> None:
-    assert BuildSettings().pursuit is False
+    assert BuildSettings().pursuit is True  # on as `make serve` plays (2026-10-19)
     assert decide(facts(SEAL, in_reach=True, way=unasked), PRESS, enabled=False) == Hold()
     assert isinstance(decide(facts(BOSS, now=20.0, way=unasked), None, enabled=False), NoWay)
 

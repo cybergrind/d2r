@@ -5,7 +5,7 @@ import pytest
 
 from inventory_tracking.items.identity import IDENTIFIED_FLAG, SOCKETED_FLAG
 from inventory_tracking.items.sockets import infer_nonsocketable
-from pricing.knowledge.assessment.maintenance.replay import replay
+from pricing.knowledge.assessment.compile.replay import replay
 
 
 @pytest.mark.parametrize('stem', ['atma_scarab', 'large_charm_life20', 'large_charm_life35'])

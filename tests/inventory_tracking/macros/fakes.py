@@ -4,6 +4,7 @@ import math
 import random
 from collections.abc import Callable, Iterable, Sequence
 from dataclasses import replace
+from types import ModuleType
 from typing import Any
 
 from inventory_tracking.builds.characters import LAYERS
@@ -1176,3 +1177,38 @@ def patch_hunt(monkeypatch, name: str, value: Any) -> None:
     assert found, f'no hunt module has {name}'
     for module in found:
         monkeypatch.setattr(module, name, value)
+
+
+def runner_modules() -> tuple[ModuleType, ...]:
+    """macros/runner.py and its parts (macros/running/): each reads its own import of a name."""
+    from inventory_tracking.macros import runner
+    from inventory_tracking.macros.running import base, execution, legs, recovery, valuables, watch
+
+    return runner, base, execution, legs, recovery, valuables, watch
+
+
+def patch_runner(monkeypatch, name: str, value: Any) -> None:
+    """Patch `name` in macros/runner.py and in each of its parts that has it."""
+    found = [module for module in runner_modules() if hasattr(module, name)]
+    assert found, f'no runner module has {name}'
+    for module in found:
+        monkeypatch.setattr(module, name, value)
+
+
+def set_runner(**values: Any) -> Callable[[], None]:
+    """`values` set in macros/runner.py and each of its parts that has the name, outside a test's monkeypatch (the
+    arena's plays); the call returned puts the old ones back."""
+    saved = [
+        (module, name, getattr(module, name)) for name in values for module in runner_modules() if hasattr(module, name)
+    ]
+    assert {name for _, name, _ in saved} == set(values), (
+        f'no runner module has {set(values) - {n for _, n, _ in saved}}'
+    )
+    for module, name, _ in saved:
+        setattr(module, name, values[name])
+
+    def restore() -> None:
+        for module, name, value in saved:
+            setattr(module, name, value)
+
+    return restore

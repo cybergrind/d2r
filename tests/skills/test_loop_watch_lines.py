@@ -317,7 +317,7 @@ def test_the_loop_switched_by_kp6(text: str, word: str) -> None:
 
 
 def test_the_loop_resumed_by_a_restart() -> None:
-    (text,) = (s for s in produced('macros/runner.py', 'Loop resumed') if s.startswith('Loop resumed'))
+    (text,) = (s for s in produced('macros/running/watch.py', 'Loop resumed') if s.startswith('Loop resumed'))
     assert logwords.LOOP_RESUMED in logged(said(text))
     form = one('macros/runner.py', 'resumed after a restart: loop')
     for state in ('on', 'off'):
@@ -342,8 +342,8 @@ def test_the_run_kind_chosen() -> None:
 
 
 def test_the_loop_stopped_with_a_valuable_on_the_ground() -> None:
-    why = one('macros/runner.py', 'the loop stops here').format('Ring was not picked up', 'Ring')
-    line = logged(one('macros/runner.py', 'Macro: loop stopped: ') % why)
+    why = one('macros/running/recovery.py', 'the loop stops here').format('Ring was not picked up', 'Ring')
+    line = logged(one('macros/running/recovery.py', 'Macro: loop stopped: ') % why)
     found = logwords.STOPPED.search(line)
     assert found is not None
     assert found.group(1) == why
@@ -354,7 +354,9 @@ def test_the_loop_stopped_with_a_valuable_on_the_ground() -> None:
 
 
 def test_the_game_is_left_and_the_loop_goes_on() -> None:
-    line = logged(one('macros/runner.py', 'the game is left and the loop goes on') % 'the waypoint is not in view')
+    line = logged(
+        one('macros/running/recovery.py', 'the game is left and the loop goes on') % 'the waypoint is not in view'
+    )
     found = logwords.LEFT.search(line)
     assert found is not None
     assert found.group(1) == 'the waypoint is not in view'
@@ -453,7 +455,7 @@ def test_identified_by_the_tome_or_cain(path: str, anchor: str) -> None:
 
 
 def test_an_appraisal() -> None:
-    form = one('macros/runner.py', 'identify: appraised')
+    form = one('macros/running/legs.py', 'identify: appraised')
     found = logwords.APPRAISED.search(logged(form % ('magic Large Charm (619)', 3, 0, 'vendor')))
     assert found is not None
     assert found.groups() == (None, 'magic', 'Large Charm', '619', 'vendor')

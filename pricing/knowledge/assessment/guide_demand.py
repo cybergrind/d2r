@@ -63,7 +63,7 @@ def demand_for_item(name, roles, document=None):
 
 
 def validate_demand(document):
-    from pricing.knowledge.assessment.maintenance.guide_demand import compile_demand
+    from pricing.knowledge.assessment.compile.guide_demand import compile_demand
 
     if 'guide_demand' not in document:
         return

@@ -4,7 +4,7 @@ from dataclasses import replace
 import pytest
 
 from pricing.knowledge.assessment.build_profiles import ROOT, build
-from pricing.knowledge.assessment.maintenance.stat_configurations import compile_stat_configurations
+from pricing.knowledge.assessment.compile.stat_configurations import compile_stat_configurations
 from pricing.knowledge.assessment.profiles import assess_role_results
 from pricing.knowledge.assessment.stat_evaluation import StatsEvaluator
 from tests.pricing.knowledge.assessment.fact_changes import fact_changes
@@ -80,8 +80,8 @@ def test_insight_mana_priority_preserves_identity_recipe_and_merc_conditions(rol
 
 
 def test_saved_insight_bill_supplies_native_aura_when_mercenary_context_is_known():
+    from pricing.knowledge.assessment.compile.replay import replay
     from pricing.knowledge.assessment.engine import assess
-    from pricing.knowledge.assessment.maintenance.replay import replay
 
     saved = replay('insight_bill')
     assert not saved['assessment']['stat_evaluation']['annotations']

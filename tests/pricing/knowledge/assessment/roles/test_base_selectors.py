@@ -2,9 +2,9 @@ from dataclasses import replace
 
 import pytest
 
+from pricing.knowledge.assessment.compile.guide_inventory import fingerprint
+from pricing.knowledge.assessment.compile.stat_configurations import compile_stat_configurations
 from pricing.knowledge.assessment.domain.facts import thaw
-from pricing.knowledge.assessment.maintenance.guide_inventory import fingerprint
-from pricing.knowledge.assessment.maintenance.stat_configurations import compile_stat_configurations
 from pricing.knowledge.assessment.profiles import assess_roles, validate_profiles
 from pricing.knowledge.assessment.roles.candidates import CandidateIndex
 from pricing.knowledge.assessment.roles.predicates import evaluate

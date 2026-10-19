@@ -14,13 +14,13 @@ RULES = Path(__file__).resolve().parent / 'rules/reviewed_profiles.json'
 
 
 def build(root=ROOT):
-    from pricing.knowledge.assessment.maintenance.compile import compile_profiles
-    from pricing.knowledge.assessment.maintenance.rule_bundle import load_rule_bundle
+    from pricing.knowledge.assessment.compile.compile import compile_profiles
+    from pricing.knowledge.assessment.compile.rule_bundle import load_rule_bundle
 
     result = compile_profiles(load_rule_bundle(RULES), root)
     review_path = Path(root) / 'pricing/knowledge/assessment/rules/guide_use_reviews.json'
     if review_path.exists():
-        from pricing.knowledge.assessment.maintenance.guide_demand import compile_demand
+        from pricing.knowledge.assessment.compile.guide_demand import compile_demand
 
         reviews = json.loads(review_path.read_text())
         if reviews.get('schema_version') != 1:
@@ -31,7 +31,7 @@ def build(root=ROOT):
         }
     stat_path = Path(root) / 'pricing/knowledge/assessment/rules/stat_use_reviews.json'
     if stat_path.exists():
-        from pricing.knowledge.assessment.maintenance.stat_configurations import compile_stat_configurations
+        from pricing.knowledge.assessment.compile.stat_configurations import compile_stat_configurations
         from pricing.knowledge.assessment.stat_bundle import configuration_row
 
         reviews = json.loads(stat_path.read_text())

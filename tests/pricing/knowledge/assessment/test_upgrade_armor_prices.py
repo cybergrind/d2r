@@ -2,8 +2,8 @@ from datetime import date
 from typing import Any
 
 from inventory_tracking.appraisal.sections import price_lines
+from pricing.knowledge.assessment.compile.replay import replay
 from pricing.knowledge.assessment.engine import assess_result
-from pricing.knowledge.assessment.maintenance.replay import replay
 from pricing.knowledge.pipeline import retrieve_draft
 from tests.pricing.knowledge.assessment.test_pipeline_context import database
 

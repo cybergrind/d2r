@@ -4,7 +4,7 @@ from dataclasses import replace
 import pytest
 
 from pricing.knowledge.assessment.build_profiles import ROOT, build
-from pricing.knowledge.assessment.maintenance.stat_configurations import compile_stat_configurations
+from pricing.knowledge.assessment.compile.stat_configurations import compile_stat_configurations
 from pricing.knowledge.assessment.profiles import assess_role_results
 from pricing.knowledge.assessment.stat_evaluation import StatsEvaluator
 from tests.pricing.knowledge.assessment.fact_changes import fact_changes

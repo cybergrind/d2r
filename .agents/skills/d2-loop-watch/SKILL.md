@@ -59,7 +59,10 @@ rulings: AGENTS.md, the memory `d2r-kp6-loop-rulings` (every ruling, dated, verb
    touch this 9M of gold atm"). `repair.py` checks the quoted cost and the stash gold after. If
    `runs/alt-d/repair-touched-stash.txt` exists, repairs are off: tell the player.
 4. **Selling** only what the appraisal calls `vendor` among the loop's own items (identified at Cain), and only surplus
-   copies: `copies.py` keeps the best copy of a unique or set first ("loop should keep the best copy first"). Never the
+   copies: `copies.py` keeps the best copy of a unique or set first ("loop should keep the best copy first"). Owned
+   copies decide the verdict (identify/service.py `owned_verdict`, 2026-10-19): 1+ Ist stays as appraised, better rolls
+   than every owned copy are `keep`, a rolled duplicate an owned copy rolls at least as well as is `vendor` (charms,
+   jewels, runes, bases, runewords excepted; the loop's carried copies are not owned). Never the
    player's gear or anything of the player's, a potion, a rune (rune sales stopped 2026-10-18: stacks over 80 are cubed
    down instead), a gem, a set or unique charm (Sunders, Gheed's, Annihilus, Torch), anything appraised other than
    `vendor` ("do not sell own equipment or valuable items"). A rare amulet with +FCR, +2 skills or +life is kept
@@ -91,7 +94,7 @@ rulings: AGENTS.md, the memory `d2r-kp6-loop-rulings` (every ruling, dated, verb
 | Concern | Files |
 | --- | --- |
 | Legs, kinds, room and trade triggers | `loop.py` (`next_leg`, KINDS, TRADE_ROOM use, TRIPS_A_GAME) |
-| The service's routines, stops and recoveries, watchdogs | `runner.py` (`_loop_stopped`, `classify`, `_fetch`, `_go_back`, the LOOP closures); the stop rules in their order: `stops.py` (`first`, `decide`, `ROOM_CAUSES`) |
+| The service's routines, stops and recoveries, watchdogs | `runner.py` (requests, the runs' lifecycle) and its parts in `running/`: `recovery.py` (`_loop_stopped`, `classify`, `_gheeds_swap`), `valuables.py` (`_fetch`, `_go_back`, `_valuable_left`), `watch.py` (`poll`: the watchdogs), `legs.py` (`_loop_hands`: the LOOP closures), `execution.py` (`perform`); the stop rules in their order: `stops.py` (`first`, `decide`, `ROOM_CAUSES`) |
 | Level run, fight, side goals, pickups on the way | `hunt.py` (`Hunter`, the fight), `hunting/` (`choice.py` `side_drop`, `on_the_way`; `judging.py` `judge`), `pursuit.py` (`RUSH_THE_BOSS`), `buffs.py` (`QUIET_BY_THE_BOSS`) |
 | Pickup and what is valuable | `pickup.py`, `pickmode.py`, `lootpolicy.py` (`verdict`, hold classes), `sightings.py` (remembered drops) |
 | Town visit | `visit.py` (`visit`, `_cube_runes`, `JAMELLA_FIRST`, `REREAD_SECONDS`: one short stash re-read before the page-by-page scan), `town.py` (`contract`, `rune_transmutes`, `PARK_JUNK`, `KEEPER_IN_CUBE`, `RUNE_TRANSMUTES`), `visitlog.py` (snapshots in `<session>/visits/`; the shadow planner townplan.py was removed 2026-10-19) |
@@ -108,6 +111,7 @@ Switches for a change under test are module constants with a dated comment (e.g.
 | --- | --- |
 | `watch.py` | Follows the newest `runs/alt-d/*/probe.log` across restarts. Prints one line per game (seconds, legs over 25 s, cube/stash/shop notes), and a `MISSED:` line for each valuable of the game never picked up. At once: stops, recoveries ("the game is left"), guard stops, identify verdicts, sales, repairs, errors, tracebacks, `PLAYER: loop on/off`, and `STALL` after `--stall` s with no leg while on. A re-armed watch reads the current log quietly first. |
 | `restart.py --loop on\|off\|keep [--kind andariel\|lk]` | Waits for a safe moment: at once if the loop is off, else the next `next game` leg (the lobby). Then it writes `runs/alt-d/restart.request` and confirms the new service's `resumed after a restart` line. Exit 1: no safe moment, nothing written. Exit 2: no resume seen. |
+| `kind.py andariel\|lk\|tz\|tzclear` | Switches the loop's kind without a restart (`loop-kind` request, runner.py `choose_kind`): at once with the loop off, else from the next game. The card says `Loop run: <kind>[ from the next game]`; a restart keeps it. |
 | `andy.py [--since ..] [--until ..] [--against SINCE UNTIL] [--no-takes] [--json]` | **Andariel kills an hour of play** and the kill-to-kill cycle by phase (loot, next game, town/prebuff, waypoint, Catacombs 2 arrival, each level's run to the stairs and press, Catacombs 4 arrival to in reach, in reach to dead, trade sessions, recoveries); walks on the down levels; the fight per take; `--against` with a 90% bootstrap interval. About 9 s for 2 h. |
 | `games.py [--since 'YYYY-MM-DD HH:MM'] [--last N] [--sessions DIR...] [--json]` | Games, games an hour, median/p90, each leg, slowest games, every recovery, stop and error, what was done, **MISSED** valuables, what is left by design. |
 | `speed.py [--since ..] [--until ..] [--against SINCE UNTIL] [--no-towns]` | The Lower Kurast run: chests an hour (YIELD), where a stay's time goes (standing / casting / moving, stall reasons by log line, legs against Blade Warp's pace), inactive time in town and on the level. |

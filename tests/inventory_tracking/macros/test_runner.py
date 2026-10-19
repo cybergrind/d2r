@@ -13,12 +13,12 @@ from inventory_tracking.macros import runner as runner_module
 from inventory_tracking.macros.actuator import Abort, Cancelled, Flipped
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.hunt import Hunter
-from inventory_tracking.macros.loop import RECOVERIES, Dead
+from inventory_tracking.macros.loop import LK, RECOVERIES, Dead
 from inventory_tracking.macros.runner import MacroRunner
 from inventory_tracking.macros.town import Exit
 from inventory_tracking.routes.model import Route, level
 from inventory_tracking.routes.progress import Progress
-from tests.inventory_tracking.macros.fakes import BUILD, KEYS, Game, character_of, player, world
+from tests.inventory_tracking.macros.fakes import BUILD, KEYS, Game, character_of, patch_runner, player, world
 
 
 # No key file is read here: every run is given its keys, or none is played by `_execute`.
@@ -53,7 +53,7 @@ def test_loop_town_callback_uses_the_same_shared_visit(monkeypatch):
     run = play.run()
     runner = make(lambda _cancelled, _routine: None, [])
     monkeypatch.setattr(runner, 'choosing', lambda _run: None)
-    monkeypatch.setattr(runner_module, 'note_view', lambda *_args: None)
+    patch_runner(monkeypatch, 'note_view', lambda *_args: None)
     visited = []
     monkeypatch.setattr(runner, '_shared_town_visit', lambda _run, exit, _gems: visited.append(exit))
     monkeypatch.setattr(runner.loop, 'leg', lambda run, keys, progress, hands, **kwargs: hands.visit(Exit.WAYPOINT))
@@ -1328,28 +1328,55 @@ def test_a_double_press_of_the_loop_key_switches_its_pickup_mode_and_leaves_the_
 
 def test_three_presses_of_the_loop_key_switch_its_run_and_a_restart_keeps_it():
     # The player, 2026-10-18: "rebuild loop start to accept what type of run we're going to run"
-    from inventory_tracking.macros.loop import ANDARIEL, LK
+    from inventory_tracking.macros.loop import ANDARIEL, loop_kinds
 
+    kinds = list(loop_kinds().values())
+    following = kinds[(kinds.index(ANDARIEL) + 1) % len(kinds)]
     shown, made = [], []
     runner = make(lambda cancelled, routine: made.append(routine), shown)
-    assert runner.loop.kind == LK
+    assert runner.loop.kind == ANDARIEL  # the player, 2026-10-19: "switch loop to the andariel"
+    assert not runner.loop.chosen  # a start in Lower Kurast still runs its chests
     for at in (10.0, 10.1, 10.2):
         assert runner.request(at, at, 'loop')
     deadline = time.monotonic() + 2
-    while runner.loop.kind == LK and time.monotonic() < deadline:
+    while runner.loop.kind == ANDARIEL and time.monotonic() < deadline:
         time.sleep(0.01)
-    assert runner.loop.kind == ANDARIEL
+    assert runner.loop.kind == following
     assert runner.loop.chosen  # no place overrides it
-    assert ['Macro: Loop run: Andariel'] in shown
+    assert [f'Macro: Loop run: {following.name}'] in shown
     assert not runner.loop.on
-    assert runner.resume_state()['loop_kind'] == 'andariel'
+    assert runner.resume_state()['loop_kind'] == following.key
     runner.close()
 
     after = make(lambda cancelled, routine: None, [])
-    after.resume({'loop': False, 'loop_kind': 'andariel'})
-    assert after.loop.kind == ANDARIEL
+    after.resume({'loop': False, 'loop_kind': following.key})
+    assert after.loop.kind == following
     assert after.loop.chosen
     after.close()
+
+
+def test_a_kind_request_switches_at_once_with_the_loop_off_and_from_the_next_game_with_it_on():
+    # The player, 2026-10-19: "I want you to have the ability to dynamically switch loop type"
+    from inventory_tracking.macros.loop import ANDARIEL
+
+    shown = []
+    runner = make(lambda cancelled, routine: None, shown)
+    assert runner.choose_kind(10.0, 10.0, 'lk')
+    assert (runner.loop.kind, runner.loop.pending, runner.loop.chosen) == (LK, None, True)
+    assert ['Macro: Loop run: Lower Kurast'] in shown
+    assert not runner.choose_kind(11.0, 11.0, 'baal')  # no such kind
+    assert not runner.choose_kind(10.0, 12.0, 'andariel')  # too old
+    assert runner.loop.kind == LK
+
+    runner.loop.on = True  # mid-game: the kind waits for the lobby
+    assert runner.choose_kind(13.0, 13.0, 'andariel')
+    assert (runner.loop.kind, runner.loop.pending) == (LK, ANDARIEL)
+    assert ['Macro: Loop run from the next game: Andariel'] in shown
+    assert runner.resume_state()['loop_kind'] == 'andariel'  # a restart waits for the lobby
+    assert runner.choose_kind(14.0, 14.0, 'lk')  # chosen back before the game ended
+    assert (runner.loop.kind, runner.loop.pending) == (LK, None)
+    runner.loop.on = False
+    runner.close()
 
 
 def test_the_loops_pickup_mode_filters_the_drops_only_with_the_loop_on():
@@ -1357,6 +1384,7 @@ def test_the_loops_pickup_mode_filters_the_drops_only_with_the_loop_on():
     from inventory_tracking.macros.pickmode import REGULAR
 
     runner = make(lambda cancelled, routine: None, [])
+    runner.loop.kind = LK  # Lower Kurast's levels
     blade = Drop(1, 0.0, 0.0, 'Magic Blade', VALUABLE, prized=False, source='shown', txt=0, quality=4)
     loot = Loot(drops=(blade,))
     assert runner._picked(loot) == loot  # the loop off: KP_1 and the rest take what they always did
@@ -1393,10 +1421,9 @@ def test_the_loop_goes_back_for_a_valuable_it_saw_and_no_press_picked_up(monkeyp
     from inventory_tracking.macros.pickup import FETCH_HOPS
 
     gone_to = []
-    monkeypatch.setattr(
-        runner_module, 'approach', lambda run, found, level, keys, hops: gone_to.append((found.label, hops))
-    )
+    patch_runner(monkeypatch, 'approach', lambda run, found, level, keys, hops: gone_to.append((found.label, hops)))
     runner = make(lambda cancelled, routine: None, [])
+    runner.loop.kind = LK  # Lower Kurast's levels
     emerald = Loot(drops=(Drop(41, 5798.0, 2870.0, 'Flawless Emerald', VALUABLE),), game=('g', 7))
     runner._sighted(cast(GameMemory, _Memory()), emerald)  # the loop off: nothing is noted
     assert runner.sightings.left() is None
@@ -1432,7 +1459,7 @@ def test_a_terror_zones_run_ended_at_a_door_goes_through_and_runs_the_next_level
 
     from inventory_tracking.macros.runmode import TERROR, Mode
 
-    monkeypatch.setattr(runner_module, 'ONWARD_PAUSE', 0.0)
+    patch_runner(monkeypatch, 'ONWARD_PAUSE', 0.0)
     places = iter([('cyber32', 36), ('cyber32', 37), ('cyber32', 38), ('cyber32', 39)])
     runner = MacroRunner(None, capture_lock=threading.Lock(), saved_games=SAVED_GAMES, place=lambda: next(places))
     pressed: list[str] = []
@@ -1470,6 +1497,7 @@ def test_a_restart_keeps_the_valuables_seen_and_still_on_the_ground():
     from inventory_tracking.game.records import VALUABLE, Drop, Loot
 
     runner = make(lambda cancelled, routine: None, [])
+    runner.loop.kind = LK  # Lower Kurast's levels
     runner.loop.on = True
     topaz = Loot(drops=(Drop(41, 22628.0, 6700.0, 'Flawless Topaz', VALUABLE),), game=('cyber9', 7))
     runner._sighted(cast(GameMemory, _Memory()), topaz)
@@ -1478,6 +1506,7 @@ def test_a_restart_keeps_the_valuables_seen_and_still_on_the_ground():
     runner.close()
 
     after = make(lambda cancelled, routine: None, [])
+    after.loop.kind = LK  # Lower Kurast's levels
     after.resume(state)
     assert after.sightings.left() == 'Flawless Topaz at (22628, 6700)'
     assert after.sightings.items[41].tries == 0  # a restart is made for a fix: its trips back begin again
@@ -1816,16 +1845,17 @@ def test_a_trip_back_lifts_the_pickups_give_up_and_moves_to_a_valuable_within_a_
     from types import SimpleNamespace
     from typing import Any, cast
 
+    from inventory_tracking.macros.running import valuables
     from inventory_tracking.macros.sightings import Sighting
 
     gone, moved = [], []
-    monkeypatch.setattr(runner_module, 'approach', lambda run, found, level, keys, hops: gone.append(found.label))
-    monkeypatch.setattr(
-        runner_module, 'moved_in_hand', lambda run, found, level, aspect, keys, why: moved.append((found.label, aspect))
+    patch_runner(monkeypatch, 'approach', lambda run, found, level, keys, hops: gone.append(found.label))
+    patch_runner(
+        monkeypatch, 'moved_in_hand', lambda run, found, level, aspect, keys, why: moved.append((found.label, aspect))
     )
     runner = make(lambda cancelled, routine: None, [])
     ring = Sighting(1235397469, 'Ring', 22553.0, 9560.0, 37, 0.0)
-    runner_module.SHUNNED[ring.unit_id] = 1e9
+    valuables.SHUNNED[ring.unit_id] = 1e9  # the give-up the trip back reads (pickup.py's, as imported there)
 
     def run_at(x: float, y: float) -> Any:
         keys = SimpleNamespace(focused_window_rect=lambda: (0, 0, 2560, 1440))
@@ -1835,7 +1865,7 @@ def test_a_trip_back_lifts_the_pickups_give_up_and_moves_to_a_valuable_within_a_
         )
 
     runner._go_back(run_at(22556.3, 9564.3), ring, object(), KEYS)
-    assert ring.unit_id not in runner_module.SHUNNED  # the press after tries it again
+    assert ring.unit_id not in valuables.SHUNNED  # the press after tries it again
     assert gone == ['Ring']
     assert moved == [('Ring', 2560 / 1440)]  # 5 away: to it first, the clicks from another footing
     runner._go_back(run_at(22554.0, 9561.0), ring, object(), KEYS)
@@ -1905,8 +1935,8 @@ def test_a_farming_visit_short_of_its_contract_hands_it_to_the_loop_and_does_not
     runner = make(lambda _cancelled, _routine: None, [])
     runner.loop.own = frozenset()
     short = Contract(0, False, 0, 0, 11, 'from the Sling', 0, misses=('block 2x4 taken',))
-    monkeypatch.setattr(
-        runner_module,
+    patch_runner(
+        monkeypatch,
         'visit',
         lambda *a, **k: SimpleNamespace(full=frozenset(), repair_failed=False, contract=short),
     )
@@ -1921,8 +1951,8 @@ def test_shared_town_visit_accepts_explicitly_deferred_cube_keeper(monkeypatch):
     runner = make(lambda _cancelled, _routine: None, [])
     runner.loop.own = frozenset()
     done = Contract(1, True, 1, 0, 12, 'from the Sling', 0, deferred=('set Boots',))
-    monkeypatch.setattr(
-        runner_module,
+    patch_runner(
+        monkeypatch,
         'visit',
         lambda *a, **k: SimpleNamespace(
             full=frozenset(),

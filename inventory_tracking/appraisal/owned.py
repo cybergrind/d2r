@@ -25,6 +25,7 @@ Relation = Literal['better', 'worse', 'equal', 'mixed', 'same']
 # 'same': nothing variable to compare (fixed-stat unique, plain base): an exact duplicate kind.
 AT_LEAST_AS_GOOD = frozenset(('worse', 'equal', 'same'))
 SHOWN_COPIES = 3
+CARRIED = ('inventory', 'cube')  # the playing character's containers: the loop's items, not owned (macros/copies.py)
 
 
 def multiple_copy_use(result: dict[str, Any]) -> bool:
@@ -223,6 +224,8 @@ def owned_copies(observation: dict[str, Any], database: Path | str) -> dict[str,
     )
     with closing(connect_readonly(database)) as db:
         rows = [(_row_item(r), _row_placement(r)) for r in db.execute(sql, params)]
+        playing = db.execute('SELECT name FROM characters ORDER BY last_seen DESC LIMIT 1').fetchone()
+    carried = {(playing['name'], container) for container in CARRIED} if playing is not None else set()
     new_rolls = variable_rolls(observation)
     copies = []
     relations: list[Relation] = []
@@ -237,6 +240,7 @@ def owned_copies(observation: dict[str, Any], database: Path | str) -> dict[str,
             {
                 'name': record.name,
                 'location': placement.location.label,
+                'carried': (placement.location.owner, placement.location.container) in carried,
                 'identical': record.fingerprint == own_fingerprint,
                 'perfection': None if old_perfection is None else round(old_perfection, 3),
                 'relation': relation,

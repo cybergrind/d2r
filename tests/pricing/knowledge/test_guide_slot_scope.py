@@ -1,6 +1,6 @@
 import pytest
 
-from pricing.knowledge.assessment.maintenance.guide_spans import audit_spans
+from pricing.knowledge.assessment.compile.guide_spans import audit_spans
 from pricing.knowledge.builds import guide_mentions
 
 

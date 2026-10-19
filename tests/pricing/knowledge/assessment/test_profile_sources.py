@@ -4,7 +4,7 @@ import json
 import pytest
 
 from pricing.knowledge.assessment.build_profiles import build
-from pricing.knowledge.assessment.maintenance.compile import compile_profiles
+from pricing.knowledge.assessment.compile.compile import compile_profiles
 
 
 def document_for(tmp_path, pointer):

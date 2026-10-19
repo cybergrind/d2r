@@ -67,7 +67,6 @@ from inventory_tracking.levels.guide import lead_first, place
 from inventory_tracking.levels.handler import marker_room
 from inventory_tracking.levels.model import Level, LevelSnapshot, Location, Poi, Room, Target
 from inventory_tracking.levels.registry import handler_for
-from inventory_tracking.macros import runner as runner_module
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.hunt import Hunter
 from inventory_tracking.macros.pickup import worth_a_stop
@@ -80,7 +79,7 @@ from inventory_tracking.routes.catalog import ROUTES
 from inventory_tracking.routes.progress import Progress
 from inventory_tracking.takes.takes import Take, monsters_of, player_of
 from inventory_tracking.takes.timeline import GAME_RATE
-from tests.inventory_tracking.macros.fakes import LAYERS
+from tests.inventory_tracking.macros.fakes import LAYERS, set_runner
 from tests.inventory_tracking.scenarios.arena import scene as scene_file
 from tests.inventory_tracking.scenarios.arena.cut import DEFAULT_HERO, MAIN, STAFF, cut, level_of
 from tests.inventory_tracking.scenarios.arena.driver import Play, Press, key_names
@@ -350,17 +349,17 @@ class RoutePlay(Play):
                 self.progress.used(area, label, spot, self.card.marks(label))
         runner.target, runner.marks = self.card.target, self.card.marks
 
-    def pursuing(self) -> None:
-        """The play's builds with the pursuit loop on (`BuildSettings.pursuit`, macros/pursuit.py): the one
+    def pursuing(self, on: bool = True) -> None:
+        """The play's builds with the pursuit loop on or off (`BuildSettings.pursuit`, macros/pursuit.py): the one
         played, the runner's fallback and layers (it names the run's build from them at its first look) and
         the hunter's."""
 
-        def on(build):
-            return replace(build, settings=with_overrides(build.settings, pursuit=True))
+        def chosen(build):
+            return replace(build, settings=with_overrides(build.settings, pursuit=on))
 
         runner = self.runner
-        self.build = self.arena.build = runner.fallback = runner.build = on(self.build)
-        runner.builds = tuple(on(layer) for layer in runner.builds)
+        self.build = self.arena.build = runner.fallback = runner.build = chosen(self.build)
+        runner.builds = tuple(chosen(layer) for layer in runner.builds)
         self.hunter.use(self.build)
 
     def slain(self) -> frozenset[str]:
@@ -401,12 +400,11 @@ class RoutePlay(Play):
             del runner.staged
 
     def run(self):
-        saved = runner_module.threading
-        runner_module.threading = ArenaThreading(self.arena)  # type: ignore[assignment]
+        restore = set_runner(threading=ArenaThreading(self.arena))  # the runner and its parts (macros/running/)
         try:
             return super().run()
         finally:
-            runner_module.threading = saved
+            restore()
 
 
 # -- what a play and the recording came to --------------------------------------------------------------
@@ -476,10 +474,13 @@ def played(
     seed: int,
     presses: Sequence[tuple] | None = None,
     as_it_was: bool | None = None,
+    pursuit: bool = False,
 ):
     """One play of the moment in the arena, the standalone healer beside the macro: (`Told`, the lines the
     macro said with their times). `presses`: other presses than the recorded ones. `as_it_was`: with the
-    rules of the recording's day (None: as the moment was recorded, `Staged.as_it_was`); False: today's."""
+    rules of the recording's day (None: as the moment was recorded, `Staged.as_it_was`); False: today's.
+    `pursuit`: off as recorded (the morning of 2026-10-13, before the pursuit loop; the default is on since
+    2026-10-19, batch E)."""
     incident = staged.incident
     arena = Arena(scene, seed=seed, osd=PLAYER_HEALING)
     given = incident.presses if presses is None else presses
@@ -487,6 +488,7 @@ def played(
         arena, [Press(at, routine) for at, routine in given], incident.seconds, seed, marks,
         staged.opened, staged.bosses, staged.as_it_was if as_it_was is None else as_it_was,
     )  # fmt: skip
+    play.pursuing(pursuit)
     reach = play.build.attack.reach if play.build.attack is not None else 0.0
     seal = mark_of(marks, staged.seal)
     boss = next((unit for unit, name in staged.bosses if name == staged.boss), None)

@@ -1,4 +1,4 @@
-from pricing.knowledge.assessment.maintenance.coverage import audit_named
+from pricing.knowledge.assessment.compile.coverage import audit_named
 
 
 def test_named_coverage_links_build_and_leveling_evidence_without_inventing_tiers(tmp_path):

@@ -57,8 +57,8 @@ _EXPORTS = {
     'validate_predicate': ('pricing.knowledge.assessment.roles.predicates', 'validate'),
     # Item metadata build (`inventory_tracking.items.build_metadata`) and the range tables
     'build_definitions': ('pricing.knowledge.definitions', 'build_definitions'),
-    'compile_fillers': ('pricing.knowledge.assessment.maintenance.comparison_fillers', 'compile_fillers'),
-    'compile_scalars': ('pricing.knowledge.assessment.maintenance.socket_scalars', 'compile_scalars'),
+    'compile_fillers': ('pricing.knowledge.assessment.compile.comparison_fillers', 'compile_fillers'),
+    'compile_scalars': ('pricing.knowledge.assessment.compile.socket_scalars', 'compile_scalars'),
     'merge_game_strings': ('pricing.knowledge.localization', 'merge_game_strings'),
     'named_upgrade_variants': ('pricing.knowledge.named_upgrades', 'named_upgrade_variants'),
     'selected_ranges': ('pricing.knowledge.property_groups', 'selected_ranges'),
@@ -73,12 +73,12 @@ _EXPORTS = {
 if TYPE_CHECKING:
     from pricing.knowledge.assessment.adapters.capture import normalize
     from pricing.knowledge.assessment.commodity_sets import relevant_set
+    from pricing.knowledge.assessment.compile.comparison_fillers import compile_fillers
+    from pricing.knowledge.assessment.compile.socket_scalars import compile_scalars
     from pricing.knowledge.assessment.domain.facts import FactStatus, freeze
     from pricing.knowledge.assessment.domain.sockets import socket_state
     from pricing.knowledge.assessment.handlers.definitions import resolve_named_definition
     from pricing.knowledge.assessment.handlers.socket_fillers import compare_named_sockets
-    from pricing.knowledge.assessment.maintenance.comparison_fillers import compile_fillers
-    from pricing.knowledge.assessment.maintenance.socket_scalars import compile_scalars
     from pricing.knowledge.assessment.mechanics.base_tiers import base_tier
     from pricing.knowledge.assessment.mechanics.named_sockets import native_socket_roll, socket_gaps, socket_outcomes
     from pricing.knowledge.assessment.mechanics.runeword_rolls import BOUNDED_STATS, enhancement_gaps

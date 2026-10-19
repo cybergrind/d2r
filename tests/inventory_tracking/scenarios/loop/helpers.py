@@ -14,6 +14,7 @@ from pathlib import Path
 
 import pytest
 
+from inventory_tracking.builds import pursuing
 from inventory_tracking.game.records import Monster, Player, Teleport, World
 from inventory_tracking.levels.doors import Door
 from inventory_tracking.levels.model import Ground, Level, Room, Walkable
@@ -97,11 +98,13 @@ def game(*monsters, **changes) -> Play:
     return play
 
 
-def hunter(play, *, ground=(), remembered=(), policy=None) -> Hunter:
+def hunter(play, *, ground=(), remembered=(), policy=None, pursuit=True) -> Hunter:
+    """`pursuit`: False for the old loop's own rules (the default is on since 2026-10-19, batch E)."""
+
     def level():
         return Level(play.world.player.area, ROOMS, tuple(ground))
 
-    return Hunter(level, lambda area: list(remembered), None, policy, build=warlock(play.world))
+    return Hunter(level, lambda area: list(remembered), None, policy, build=pursuing(warlock(play.world), pursuit))
 
 
 def attack_mode(play, hunt, *, until=30.0, events=()):

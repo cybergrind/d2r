@@ -52,8 +52,8 @@ def test_clearing_named_item_retains_identity_and_restores_fixed_property_rules(
 def test_saved_um_shako_prices_empty_outcome_without_changing_filled_price(tmp_path):
     from datetime import date
 
+    from pricing.knowledge.assessment.compile.replay import replay
     from pricing.knowledge.assessment.engine import assess_result
-    from pricing.knowledge.assessment.maintenance.replay import replay
     from pricing.knowledge.pipeline import retrieve_draft
     from tests.pricing.knowledge.assessment.test_pipeline_context import database
 

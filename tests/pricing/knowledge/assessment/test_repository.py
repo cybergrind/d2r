@@ -5,8 +5,8 @@ from pricing.knowledge.assessment.build_profiles import build
 
 def renew_stat_reviews(document):
     """Simulate a reviewed role edit, including its dependent compiled priorities."""
-    from pricing.knowledge.assessment.maintenance.guide_inventory import fingerprint
-    from pricing.knowledge.assessment.maintenance.stat_configurations import compile_stat_configurations
+    from pricing.knowledge.assessment.compile.guide_inventory import fingerprint
+    from pricing.knowledge.assessment.compile.stat_configurations import compile_stat_configurations
     from pricing.knowledge.assessment.stat_bundle import configuration_row
 
     profiles = {p['id']: p for p in document['profiles']}
@@ -71,7 +71,7 @@ def test_compiler_rejects_changed_source_even_when_rule_shape_is_valid(tmp_path)
 
     import pytest
 
-    from pricing.knowledge.assessment.maintenance.compile import compile_profiles
+    from pricing.knowledge.assessment.compile.compile import compile_profiles
     from pricing.knowledge.assessment.profile_sources import profile_references
 
     document = build()

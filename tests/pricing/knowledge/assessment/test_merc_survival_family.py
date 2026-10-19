@@ -44,7 +44,7 @@ def test_early_mercenary_family_annotates_native_benefit_without_vitality_or_def
 
 
 def test_early_mercenary_source_links_retain_the_ledger_variant_name():
-    from pricing.knowledge.assessment.maintenance.inventory import audit_occurrences
+    from pricing.knowledge.assessment.compile.inventory import audit_occurrences
 
     profiles = [r for r in build()['profiles'] if '-early-merc-' in r['id'] and r['variant'] == 'early']
     assert len(profiles) >= 85

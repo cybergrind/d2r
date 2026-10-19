@@ -59,7 +59,7 @@ def test_compiled_skill_catalog_projects_class_tree_and_staffmod_independently()
 
 def test_projection_compiler_refuses_ambiguous_market_labels():
     from inventory_tracking.items.metadata import metadata
-    from pricing.knowledge.assessment.maintenance.market_projection import compile_projection
+    from pricing.knowledge.assessment.compile.market_projection import compile_projection
 
     properties = {
         'first': {'labels': ['+{{value}} to Necromancer Skill Levels'], 'types': ['number']},
@@ -118,7 +118,7 @@ def test_town_portal_oskill_mapping_is_specific_to_native_identity():
     assert properties['1878']['labels'] == ['+{{value}} to Town Portal']
     assert properties['1878']['types'] == ['number']
     from inventory_tracking.items.metadata import metadata
-    from pricing.knowledge.assessment.maintenance.market_projection import compile_projection
+    from pricing.knowledge.assessment.compile.market_projection import compile_projection
 
     compiled = compile_projection(metadata(), properties)
     assert compiled['mappings']['97:411']['property_id'] == '1878'

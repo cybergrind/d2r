@@ -100,6 +100,14 @@ def chaos() -> Case:
     return load('chaos-manual')
 
 
+@pytest.fixture
+def cached_export(monkeypatch):
+    """The writers' tests are about files and indexes: they get the session's export, not a new one."""
+    monkeypatch.setattr(
+        viz, 'export', lambda take, policies=viz.POLICIES, progress=viz.quiet: load(take.directory.name).data
+    )
+
+
 def ticks_of(spans: list[list[int]]) -> list[int]:
     return [tick for first, last in spans for tick in range(first, last + 1)]
 
@@ -428,7 +436,7 @@ def test_export_is_deterministic(case):
     assert viz.dumps(viz.export(Take.load(case.directory))) == viz.dumps(case.data)  # against the session's export
 
 
-def test_write_puts_the_export_in_the_named_file(case, tmp_path):
+def test_write_puts_the_export_in_the_named_file(case, tmp_path, cached_export):
     entry = viz.write(case.directory, tmp_path)
     assert entry is not None
     file = tmp_path / f'{case.name}.json'
@@ -443,7 +451,7 @@ def test_write_puts_the_export_in_the_named_file(case, tmp_path):
     assert set(entry['moments']) == set(MODES)
 
 
-def test_write_all_exports_both_fixtures_and_indexes_them_by_name(tmp_path):
+def test_write_all_exports_both_fixtures_and_indexes_them_by_name(tmp_path, cached_export):
     left_out = viz.write_all(FIXTURES, tmp_path, jobs=1)
     assert left_out == {}
     index = json.loads((tmp_path / viz.INDEX).read_text())
@@ -453,7 +461,7 @@ def test_write_all_exports_both_fixtures_and_indexes_them_by_name(tmp_path):
         assert (tmp_path / f'{name}.json').exists()
 
 
-def test_main_writes_the_take_and_its_index(chaos, tmp_path):
+def test_main_writes_the_take_and_its_index(chaos, tmp_path, cached_export):
     assert viz.main([str(chaos.directory), '--out', str(tmp_path)]) == 0
     assert (tmp_path / 'chaos-manual.json').exists()
     index = json.loads((tmp_path / viz.INDEX).read_text())
@@ -503,7 +511,7 @@ def test_one_take_prints_every_stage_in_order(chaos, tmp_path, capsys):
     assert json.loads((tmp_path / viz.INDEX).read_text())['source'] == str(chaos.directory.parent.resolve())
 
 
-def test_one_take_with_too_few_casts_is_listed_as_left_out(chaos, tmp_path, monkeypatch):
+def test_one_take_with_too_few_casts_is_listed_as_left_out(chaos, tmp_path, monkeypatch, cached_export):
     monkeypatch.setattr(viz, 'LEAST_CASTS', 10**6)
     assert viz.main([str(chaos.directory), '--out', str(tmp_path)]) == 1
     index = json.loads((tmp_path / viz.INDEX).read_text())

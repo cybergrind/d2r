@@ -566,6 +566,9 @@ def played(
         arena, [Press(at, routine) for at, routine in given], moment.seconds, seed, staging.marks,
         staging.opened, staging.bosses, dead_before=staging.dead_before, hands_given=hands_given,
     )  # fmt: skip
+    # The takes of 12:33 and before on 2026-10-13 hold no pursuit rows (takes/macro_state.py): played with it off, as
+    # recorded (the default is on since 2026-10-19, batch E).
+    play.pursuing(False)
     if staging.sweep:
         # The licence to move as the take's `state` has it. Its age and its last look are not there: taken
         # as renewed and looked now (a hunt begun anew looks for a better place in its first instant, which

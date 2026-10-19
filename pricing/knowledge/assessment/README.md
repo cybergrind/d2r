@@ -40,7 +40,7 @@ or a passing unit suite does not establish the current contract's completion.
 | Socket, upgrade and other derived mechanics | [mechanics/](mechanics/) |
 | Scoped comparable retrieval | [market_repository.py](market_repository.py), [comparables.py](comparables.py) |
 | Commodity amounts and basket references | [commodities.py](commodities.py), [commodity_sets.py](commodity_sets.py) |
-| Maintenance and replay tools | [maintenance/](maintenance/) |
+| Build-time compile and replay tools | [compile/](compile/) |
 | Data restore, index and publication workflow | [Knowledge-base guide](../README.md), [update-kb skill](../../../.agents/skills/update-kb/SKILL.md) |
 
 Named items, bases, affixed items, completed runewords and commodities have implemented

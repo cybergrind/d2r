@@ -647,6 +647,71 @@ def test_qualified_trade_item_is_keep_even_when_a_better_copy_satisfies_build(st
     assert verdict_for(result, owned) == ('keep', 'Reviewed valuable combination.')
 
 
+# The player, 2026-10-19: "we keep all expensive items 1+ ist value; we keep all items that have better rolls that we
+# had; we sell all dublicated items with worse rolls than we have"
+def owned_of(*relations, carried=()):
+    copies = [
+        {'location': f'stash {n}', 'relation': r, 'carried': n in carried, 'better': [], 'worse': []}
+        for n, r in enumerate(relations)
+    ]
+    return {'kind': 'magic Ring with the same stats', 'count': len(copies), 'relation': None, 'copies': copies}
+
+
+@pytest.mark.parametrize('relation', ['worse', 'equal', 'same'])
+def test_a_duplicate_an_owned_copy_rolls_as_well_as_is_vendor_under_one_ist(relation):
+    result = saved_result()['result']
+    result.setdefault('assessment', {})['roles'] = [role('matched')]
+    result['price_estimate'] = {'estimate_ist': 0.5}
+    verdict, reason = verdict_for(result, owned_of('better', relation))
+    assert verdict == 'vendor'
+    assert reason.startswith('an owned copy rolls at least as well, asks ~0.5 Ist; was keep: ')
+
+
+def test_a_duplicate_worth_one_ist_or_more_stays_as_appraised():
+    result = saved_result()['result']
+    result['price_estimate'] = {'estimate_ist': 1.0}
+    assert verdict_for(result, owned_of('worse')) == ('keep', 'asks ~1 Ist')
+    result['triage'] = {'verdict': 'sell', 'reason': 'asks', 'band': {'q1_ist': 2.0, 'sellers': 3}}
+    assert verdict_for(result, owned_of('worse'))[0] == 'sell'
+    result['triage']['band'] = {'q1_ist': 0.5, 'sellers': 3}  # the triage's price, not the estimate
+    assert verdict_for(result, owned_of('worse'))[0] == 'vendor'
+
+
+@pytest.mark.parametrize('verdict', ['vendor', 'check'])
+def test_better_rolls_than_every_owned_copy_are_kept(verdict):
+    result = saved_result()['result']
+    if verdict == 'check':
+        result['price_estimate'] = {'estimate_ist': 0.3}
+    assert verdict_for(result)[0] == verdict
+    kept, reason = verdict_for(result, owned_of('better', 'better'))
+    assert (kept, reason.split(';')[0]) == ('keep', 'rolls better than the 2 owned')
+    assert verdict_for(result, owned_of('better', 'mixed'))[0] == verdict  # not better than every copy
+
+
+def test_carried_copies_are_the_loops_and_no_owned_copy():
+    # Two equal copies picked up in one game would each sell the other
+    result = saved_result()['result']
+    result.setdefault('assessment', {})['roles'] = [role('matched')]
+    assert verdict_for(result, owned_of('equal', carried={0}))[0] == 'keep'
+    assert verdict_for(result, owned_of('equal', 'equal', carried={0}))[0] == 'vendor'
+
+
+def test_a_trade_item_with_no_price_is_not_sold_for_a_duplicate():
+    result = saved_result()['result']
+    result.setdefault('assessment', {})['trade_qualification'] = {'status': 'candidate', 'reason': 'Reviewed.'}
+    assert verdict_for(result, owned_of('worse')) == ('keep', 'Reviewed.')
+
+
+@pytest.mark.parametrize(
+    'item', [{'base_name': 'Grand Charm'}, {'rarity': 'normal'}, {'rarity': 'unique', 'runeword': 'Spirit'}]
+)
+def test_charms_bases_and_runewords_are_not_decided_by_their_copies(item):
+    result = saved_result()['result']
+    result['extraction']['item'].update(item)
+    result.setdefault('assessment', {})['roles'] = [role('matched')]
+    assert verdict_for(result, owned_of('worse'))[0] == 'keep'
+
+
 @pytest.mark.parametrize(('unstable_reads', 'state'), [(2, 'complete'), (3, 'partial')])
 def test_snapshot_that_changed_during_the_read_is_read_again(parts, unstable_reads, state):
     worker, probe_state, _, _, tmp_path = parts

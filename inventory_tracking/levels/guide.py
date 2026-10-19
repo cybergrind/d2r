@@ -29,6 +29,7 @@ from inventory_tracking.levels.registry import handler_for
 from inventory_tracking.levels.session import LevelMemory, layout_key
 from inventory_tracking.levels.spots import WAYS_OUT, on_waypoint, pinpoint
 from inventory_tracking.native.layout import TILE_UNITS
+from inventory_tracking.native.memory import one_unit_table
 from inventory_tracking.presentation import StyledLine, Tone
 
 
@@ -465,8 +466,8 @@ class LevelGuide:
         """(unit table address, area) for the HUD's own walk of the monster table (hud/live.py), with dots shown."""
         if self.map_dots is None:
             return None
-        tables = {found.get('table_address') for found in (self.source.capture or {}).get('unit_table_candidates', ())}
-        return (tables.pop(), area) if len(tables) == 1 and None not in tables else None
+        table = one_unit_table(self.source.capture)
+        return (table, area) if table is not None else None
 
     def _target_of(self, snapshot: LevelSnapshot, poi: Poi) -> Target:
         # A side-trip entrance is a door too (Poi.entrance): as a mere place it was stood beside, never entered

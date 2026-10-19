@@ -106,7 +106,7 @@ def test_affix_predicate_rejects_invalid_schema(rule):
 
 
 def test_native_affixes_flow_through_snapshot_decoding_and_fact_normalization():
-    from pricing.knowledge.assessment.maintenance.replay import decode_snapshot
+    from pricing.knowledge.assessment.compile.replay import decode_snapshot
 
     saved = json.loads(Path('tests/pricing/knowledge/assessment/fixtures/replays/large_charm_life20.json').read_text())
     decoded = decode_snapshot(saved)

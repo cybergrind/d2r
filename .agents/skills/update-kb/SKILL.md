@@ -93,7 +93,7 @@ metadata, definitions, rules and bundled source evidence before atomically selec
 the generation under `pricing/data/generations`. Failure preserves the previous
 pointer; fix the specific mismatch and republish instead of editing generation files.
 Verify the selected bundle with
-`uv run --offline python -m pricing.knowledge.assessment.maintenance.replay --publication-store pricing/data/generations`
+`uv run --offline python -m pricing.knowledge.assessment.compile.replay --publication-store pricing/data/generations`
 and compare saved report/price output. Publishing integrity does not establish missing
 tier/build/market coverage; report coverage gaps under the active contract.
 

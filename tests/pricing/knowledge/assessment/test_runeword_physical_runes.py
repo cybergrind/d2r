@@ -1,7 +1,7 @@
 from copy import deepcopy
 
+from pricing.knowledge.assessment.compile.replay import replay
 from pricing.knowledge.assessment.engine import assess_result
-from pricing.knowledge.assessment.maintenance.replay import replay
 
 
 def test_saved_insight_fixed_sol_mirror_does_not_hide_missing_enhanced_damage():

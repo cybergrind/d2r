@@ -141,7 +141,8 @@ def test_the_swap_to_the_main_weapons_keeps_the_strike_up_half_a_second_at_most(
     for monster in pack:
         play.toughness[monster.unit_id] = 1000
     play.sets.reverse()  # the staff's set in hand, as after a hop
-    attack_mode(play, hunter(play), until=4.0)
+    # The stop is the pursuit-off loop's: with it on the swap comes before the first strike (hunt.py `tough`).
+    attack_mode(play, hunter(play, pursuit=False), until=4.0)
     assert play.pressed().count('c') == 1
     released, pressed = play.strike_releases()[0], play.strike_presses()[1]
     assert pressed - released <= 0.5

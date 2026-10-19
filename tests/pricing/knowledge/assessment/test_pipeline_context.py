@@ -4,7 +4,7 @@ from datetime import date
 import pytest
 
 from inventory_tracking.items.metadata import metadata
-from pricing.knowledge.assessment.maintenance.replay import replay
+from pricing.knowledge.assessment.compile.replay import replay
 from pricing.knowledge.index import build_index
 from pricing.knowledge.pipeline import retrieve_draft
 

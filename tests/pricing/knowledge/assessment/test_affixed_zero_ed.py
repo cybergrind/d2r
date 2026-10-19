@@ -6,8 +6,8 @@ from typing import Any
 
 import pytest
 
+from pricing.knowledge.assessment.compile.replay import decode_snapshot
 from pricing.knowledge.assessment.engine import assess_result
-from pricing.knowledge.assessment.maintenance.replay import decode_snapshot
 
 
 ROOT = Path(__file__).resolve().parents[4]

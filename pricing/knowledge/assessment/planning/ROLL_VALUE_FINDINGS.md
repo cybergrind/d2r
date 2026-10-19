@@ -677,7 +677,7 @@ No full-bank or full-goal completion claim follows from this identity review.
 ## Andariel’s Visage — material evidence reviewed 2026-10-02
 
 Reproducible offline review:
-`uv run --offline python -m pricing.knowledge.assessment.maintenance.andariel_market_review`.
+`uv run --offline python -m pricing.knowledge.assessment.compile.andariel_market_review`.
 Output: `pricing/data/appraisal-andariel-material-review.json`, including market,
 raw response, native-table, guide and implementation SHA256 bindings.
 
@@ -707,7 +707,7 @@ is available. Continue other named reviews and broader required work.
 
 ## Guardian Angel material evidence audit — 2026-10-02
 
-Reproducible command: `uv run --offline python -m pricing.knowledge.assessment.maintenance.guardian_market_review`.
+Reproducible command: `uv run --offline python -m pricing.knowledge.assessment.compile.guardian_market_review`.
 Output: `pricing/data/appraisal-guardian-material-review.json` binds market, raw
 cache, implementation and native armor/unique/gem table hashes. All 81 cached
 observations lack collection dates. Seller listing update dates are not substituted
@@ -812,7 +812,7 @@ and behavior are unchanged. Do not mark Waterwalk or the all-item goal complete.
 
 ## Waterwalk whole-cache census — 2026-10-02
 
-Run `uv run --offline python -m pricing.knowledge.assessment.maintenance.trade_waterwalk_evidence`.
+Run `uv run --offline python -m pricing.knowledge.assessment.compile.trade_waterwalk_evidence`.
 Source-bound output pricing/data/appraisal-waterwalk-evidence-census.json accounts
 for100 observations: supported upgraded cohort3sellers;20 other exact cohorts
 (one seller each);19 unproven variant/material observations;54 unverified scope,

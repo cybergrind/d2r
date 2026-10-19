@@ -35,6 +35,7 @@ from inventory_tracking.items.identity import QUALITY_OFFSET
 from inventory_tracking.items.metadata import item_base
 from inventory_tracking.levels.model import Level
 from inventory_tracking.native.layout import DEAD_MODES, TOWN_IDS
+from inventory_tracking.native.memory import one_unit_table
 from inventory_tracking.native.units import walk_units
 from inventory_tracking.takes import hurts, retain
 
@@ -894,10 +895,10 @@ class CombatRecorder:
         self.last_poll = now
         try:
             self.source.ensure_connected()
-            tables = {found['table_address'] for found in self.source.capture['unit_table_candidates']}
-            if len(tables) != 1:
+            table = one_unit_table(self.source.capture)
+            if table is None:
                 raise ValueError('the game is not attached')
-            self.sampler.attach(self.source.pid, self.source.images['candidate_base'], next(iter(tables)))
+            self.sampler.attach(self.source.pid, self.source.images['candidate_base'], table)
             self.warned = False
         except Exception as exc:
             self.sampler.detach()

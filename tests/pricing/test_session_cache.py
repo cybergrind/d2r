@@ -3,7 +3,7 @@ import os
 import pytest
 
 from pricing.knowledge.assessment import build_profiles
-from pricing.knowledge.assessment.maintenance import stat_configurations
+from pricing.knowledge.assessment.compile import stat_configurations
 from tests.pricing import session_cache
 from tests.pricing.session_cache import memoize
 

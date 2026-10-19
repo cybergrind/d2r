@@ -25,7 +25,7 @@ def configuration_from_row(row):
 def validate_stat_bundle(document):
     if 'stat_evaluation' not in document:
         return
-    from pricing.knowledge.assessment.maintenance.stat_configurations import compile_stat_configurations
+    from pricing.knowledge.assessment.compile.stat_configurations import compile_stat_configurations
 
     bundle = document['stat_evaluation']
     expected = [configuration_row(c) for c in compile_stat_configurations(bundle['reviews'], document['profiles'])]

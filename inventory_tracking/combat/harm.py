@@ -187,6 +187,44 @@ def traits(txt: int, level: int | None, flags: int, mods: tuple[int, ...], tier:
     return Traits.of(txt, level, flags, mods, tier)
 
 
+@lru_cache(maxsize=4096)
+def kind_of(
+    txt: int, level: int | None, flags: int, mods: tuple[int, ...], tier: int
+) -> tuple[dict[str, str] | None, Traits, str | None, float, float]:
+    """A hostile's type and roll as the tables price them: its monstats row, its traits, the read AI it thinks by,
+    its walk (units a second) and its AI delay (frames)."""
+    row = rules.row_of(txt)
+    model = traits(txt, level, flags, mods, tier)
+    speed = rules.speed_of(row) * 25 if row else model.speed * 25
+    delay = rules.number(row, 'aidel(H)', 15) if row else 13
+    return row, model, rules.mind_of(txt), speed, delay
+
+
+@lru_cache(maxsize=4096)
+def hit_of(txt: int, level: int, defence: float, against: int) -> float:
+    row = rules.row_of(txt)
+    assert row is not None
+    return rules.hit_chance(row, level, defence, against)
+
+
+@lru_cache(maxsize=4096)
+def missile_terms(mid: int, txt: int, slot: int) -> tuple[float, tuple[tuple[str, float, float, float], ...]]:
+    """A caster's missile as the tables give it: how far it flies, and its damage by kind at the caster's skill
+    level as (kind, least, most, length)."""
+    mr = rules.missile_row(mid)
+    row = rules.row_of(txt)
+    assert row is not None
+    level = rules.skill_level(row, slot)
+    damage = []
+    for k, (lo, hi) in rules.missile_damage(mid, level).items():
+        # Reserve the full poison duration at impact. This deliberately
+        # overprices damage after the look, but does not forget it when a
+        # trajectory is split or an afflicted character leaves missile range.
+        length = rules.number(mr, 'ELen') if k == 'poison' else 1.0
+        damage.append((k, lo, hi, length))
+    return rules.missile_step(mid) * rules.number(mr, 'Range') + rules.CONTACT, tuple(damage)
+
+
 def exposure(
     seen: Look,
     place: Point,
@@ -220,6 +258,17 @@ def exposure(
     return priced
 
 
+def sighted(seen: Look, start: Point, end: Point) -> bool:
+    """`clear_line` over the look's walls, once a look: its walls do not change within it (the memo prices on that)."""
+    if seen.blocked is None:
+        return True
+    key = ('line', seen.blocked, start, end)
+    known = seen.memo.get(key)
+    if known is None:
+        known = seen.memo[key] = clear_line(seen.blocked, start, end)
+    return known
+
+
 def hostile_exposure(
     m: Hostile, seen: Look, place: Point, dwell: float, protection: Protection, settings: SafetySettings
 ):
@@ -229,24 +278,20 @@ def hostile_exposure(
     curses = 0.0
     d = rules.ai_distance(m.at, place)
     near = min((rules.ai_distance(m.at, p) for p in bodies(seen, m)), default=math.inf)
-    if min(d, near) >= rules.RADIUS or (not m.active and not clear_line(seen.blocked, m.at, place)):
+    if min(d, near) >= rules.RADIUS or (not m.active and not sighted(seen, m.at, place)):
         return (), 0.0, ()
     share = 1.0 if d <= near else settings.companion_uncertainty
     t = max(0.0, dwell - m.stunned)
     if t <= 0:
         return (), 0.0, ()
-    row = rules.row_of(m.txt)
-    model = traits(m.txt, m.level, m.flags, m.modifiers, m.tier)
-    ai = rules.mind_of(m.txt)
-    speed = rules.speed_of(row) * 25 if row else model.speed * 25
-    delay = rules.number(row, 'aidel(H)', 15) if row else 13
+    row, model, ai, speed, delay = kind_of(m.txt, m.level, m.flags, m.modifiers, m.tier)
     # Reach during the dwell. A monster spends the approach time walking, not striking.
     melee_time = max(0.0, t - max(0.0, d - rules.REACH) / max(speed, 0.1))
 
     def swing(chance=1.0):
         frames = rules.MODE_FRAMES.get((ai, 'A1'), 12) if ai else 12
         period = (frames + delay) / 25 if ai else settings.unknown_period
-        hit = rules.hit_chance(row, model.level, protection.defence, protection.level) if row else 0.95
+        hit = hit_of(m.txt, model.level, protection.defence, protection.level) if row else 0.95
         parts = [('physical', *model.damage)]
         if not ai and model.damage[1] <= 0:
             parts = [('physical', settings.unknown_points / 2, settings.unknown_points)]
@@ -273,17 +318,10 @@ def hostile_exposure(
         moving = max(0.0, d - reach) / max(speed, 0.1)
         active = max(0.0, t - moving)
         distance = min(d, reach)
-        mr = rules.missile_row(mid)
-        if distance > rules.missile_step(mid) * rules.number(mr, 'Range') + rules.CONTACT:
+        flies, damage = missile_terms(mid, m.txt, slot)
+        if distance > flies:
             return
-        level = rules.skill_level(row, slot)
-        parts = []
-        for k, (lo, hi) in rules.missile_damage(mid, level).items():
-            # Reserve the full poison duration at impact. This deliberately
-            # overprices damage after the look, but does not forget it when a
-            # trajectory is split or an afflicted character leaves missile range.
-            length = rules.number(mr, 'ELen') if k == 'poison' else 1.0
-            parts.append((k, lo * count * length, hi * count * length))
+        parts = [(k, lo * count * length, hi * count * length) for k, lo, hi, length in damage]
         period = max((rules.MODE_FRAMES[ai, 'S1'] + delay) / 25, cooldown)
         found.append(Exposure(m.unit, active / period * chance, share, tuple(parts), False, dwell - active, dwell))
 
@@ -390,7 +428,7 @@ def threat_exposure(
             parts = seen.memo[key] = model.exposure(
                 acting,
                 legs,
-                seen=clear_line(seen.blocked, m.at, end),
+                seen=sighted(seen, m.at, end),
                 companions=len(seen.companions),
                 resists=dict(protection.resists) or None,
             )
@@ -463,7 +501,7 @@ def approach(seen: Look, place: Point, elapsed: float) -> Look:
         if travel and distance and (m.active or distance < rules.RADIUS):
             fraction = min(1.0, travel / max(math.dist(m.at, target), 1e-9))
             point = (m.at[0] + (target[0] - m.at[0]) * fraction, m.at[1] + (target[1] - m.at[1]) * fraction)
-            if clear_line(seen.blocked, m.at, point):
+            if sighted(seen, m.at, point):
                 m = replace(m, at=point)
         moved.append(m)
     return replace(seen, hostiles=tuple(moved))
@@ -542,71 +580,7 @@ def harm_path(
         barred = 'an exploding corpse can reach this place'
     if not any(events for events, _, _ in phases):
         return Harm(barred=barred, stand_ins=tuple(sorted(unknown)))
-    rng = random.Random(settings.seed)
-    losses: list[float] = []
-    totals: dict[int, float] = {}
-    # A curse is shared by all blows in a rollout. No healing promised in advance.
-    spread = settings.strike_spread
-    for _ in range(settings.trials):
-        curse = rng.randrange(3) if rng.random() < 1 - uncursed else -1
-        late = math.inf
-        if deaths:
-            # How much later than forecast the strikes kill in this rollout, one factor for all (misses, moves).
-            roll = rng.random()
-            if roll >= settings.strike_never / 100:
-                place_ = roll * (len(spread) - 1)
-                low = min(int(place_), len(spread) - 2)
-                late = spread[low] + (spread[low + 1] - spread[low]) * (place_ - low)
-        pool = phases[0][1].pool
-        clocks: dict[tuple, float] = {}
-        loss = 0.0
-        for events, protection, start in phases:
-            resists, flat, absorb = dict(protection.resists), dict(protection.flat), dict(protection.absorb)
-            for event in events:
-                key = (event.unit, event.parts, event.melee)
-                if key not in clocks:
-                    clocks[key] = rng.random()
-                # The blows fall where the event's phase crosses a whole number; a stun sets it back.
-                phase, remaining = clocks[key], event.blows
-                death = deaths.get(event.unit) if deaths else None
-                if death is not None and event.ends > event.begins:
-                    # Its blows are spread over [begins, ends] of the dwell; none after the rollout's death.
-                    lived = min(event.ends, death * late - start) - event.begins
-                    remaining *= min(1.0, max(0.0, lived / (event.ends - event.begins)))
-                while True:
-                    ahead = math.floor(phase) + 1 - phase
-                    if ahead > remaining:
-                        phase += remaining
-                        break
-                    remaining -= ahead
-                    phase = math.floor(phase) + 1
-                    if rng.random() >= event.chance:
-                        continue
-                    points = 0.0
-                    guarded = pool > 0
-                    for kind, low, high in event.parts:
-                        raw = rng.uniform(low, high)
-                        if protection.guard is not None and kind in protection.guard.kinds:
-                            taken = min(pool, raw)
-                            pool -= taken
-                            raw -= taken
-                        delta = (
-                            (-100 if curse == 0 else -50 if curse == 1 else 0)
-                            if kind == 'physical'
-                            else (-55 if curse == 2 and kind not in ('magic',) else 0)
-                        )
-                        resistance = min(
-                            50.0 if kind == 'physical' else 75.0, max(-100.0, resists.get(kind, 0.0) + delta)
-                        )
-                        after = max(0.0, raw - flat.get(kind, 0.0)) * (1 - resistance / 100)
-                        points += max(0.0, after - min(after, absorb.get(kind, 0.0)))
-                    loss += points
-                    totals[event.unit] = totals.get(event.unit, 0.0) + points
-                    # Not for the blow that took the pool to 0 (combat/sim/guard.py).
-                    if event.stun and guarded and pool > 0 and (event.stuns >= 1 or rng.random() < event.stuns):
-                        phase -= event.stun
-                clocks[key] = phase
-        losses.append(loss)
+    losses, totals = rollouts(phases, uncursed, settings, deaths)
     mean = sum(losses) / len(losses)
     worst = max(mean, sorted(losses)[min(len(losses) - 1, math.ceil(0.95 * len(losses)) - 1)])
     return Harm(
@@ -617,6 +591,128 @@ def harm_path(
         barred,
         tuple(sorted(unknown)),
     )
+
+
+@lru_cache(maxsize=4096)
+def resisted(kind: str, resistances: tuple[tuple[str, float], ...]) -> tuple[float, float, float, float]:
+    """The factor a blow of `kind` keeps after the resistances (`Protection.resists`), by the rollout's curse + 1
+    (none, Amplify Damage, Decrepify, Lower Resist)."""
+    resists = dict(resistances)
+    factors = []
+    for curse in (-1, 0, 1, 2):
+        delta = (
+            (-100 if curse == 0 else -50 if curse == 1 else 0)
+            if kind == 'physical'
+            else (-55 if curse == 2 and kind not in ('magic',) else 0)
+        )
+        resistance = min(50.0 if kind == 'physical' else 75.0, max(-100.0, resists.get(kind, 0.0) + delta))
+        factors.append(1 - resistance / 100)
+    return factors[0], factors[1], factors[2], factors[3]
+
+
+def rollouts(
+    phases: list, uncursed: float, settings: SafetySettings, deaths: Mapping[int, float] | None
+) -> tuple[list[float], dict[int, float]]:
+    """The seeded rollouts of `harm_path`: each one's loss and the points by contributor over all of them.
+
+    The hot loop of the safety: what no rollout changes is computed once per call, and the draws, the operations
+    and their order are those of the plain loop (rng.uniform(a, b) is a + (b - a) * random()), so every number is
+    bit-identical to it (tests/inventory_tracking/combat/test_harm_parity.py)."""
+    rng = random.Random(settings.seed)
+    draw = rng.random
+    floor = math.floor
+    slots: dict[tuple, int] = {}
+    units: dict[int, int] = {}
+    steps = []
+    for events, protection, start in phases:
+        resists, flat, absorb = protection.resists, dict(protection.flat), dict(protection.absorb)
+        guarded_kinds = protection.guard.kinds if protection.guard is not None else ()
+        for event in events:
+            slot = slots.setdefault((event.unit, event.parts, event.melee), len(slots))
+            death = deaths.get(event.unit) if deaths else None
+            if death is not None and not event.ends > event.begins:
+                death = None
+            terms = [
+                (low, high - low, kind in guarded_kinds, flat.get(kind, 0.0), absorb.get(kind, 0.0), kind)
+                for kind, low, high in event.parts
+            ]
+            # The parts by the rollout's curse + 1, each with the factor its resistance leaves under that curse.
+            parts = tuple(tuple((*term[:5], resisted(term[5], resists)[curse]) for term in terms) for curse in range(4))
+            steps.append(
+                (
+                    units.setdefault(event.unit, len(units)), slot, event.blows, event.chance, event.stun,
+                    event.stuns, parts, death, start, event.begins, event.ends, event.ends - event.begins,
+                )
+            )  # fmt: skip
+    losses: list[float] = []
+    # Points by contributor (`units`' order), None until a blow of its lands: summed in the plain loop's order.
+    totals: list[float | None] = [None] * len(units)
+    # A curse is shared by all blows in a rollout. No healing promised in advance.
+    spread = settings.strike_spread
+    never = settings.strike_never / 100
+    cursing = 1 - uncursed
+    first_pool = phases[0][1].pool
+    for _ in range(settings.trials):
+        curse = rng.randrange(3) if draw() < cursing else -1
+        index = curse + 1
+        late = math.inf
+        if deaths:
+            # How much later than forecast the strikes kill in this rollout, one factor for all (misses, moves).
+            roll = draw()
+            if roll >= never:
+                place_ = roll * (len(spread) - 1)
+                low = min(int(place_), len(spread) - 2)
+                late = spread[low] + (spread[low + 1] - spread[low]) * (place_ - low)
+        pool = first_pool
+        clocks: list = [None] * len(slots)
+        loss = 0.0
+        for unit, slot, blows, chance, stun, stuns, by_curse, death, start, begins, ends, width in steps:
+            parts = by_curse[index]
+            phase = clocks[slot]
+            if phase is None:
+                phase = draw()
+            # The blows fall where the event's phase crosses a whole number; a stun sets it back.
+            remaining = blows
+            # min(a, b) is `b if b < a else a` and max(a, b) `b if b > a else a`, as the builtins pick.
+            if death is not None:
+                # Its blows are spread over [begins, ends] of the dwell; none after the rollout's death.
+                dies = death * late - start
+                share = ((dies if dies < ends else ends) - begins) / width
+                share = share if share > 0.0 else 0.0
+                remaining *= share if share < 1.0 else 1.0
+            # Past a crossing the phase is a whole number (an int, as floor gives it): the next is 1 ahead.
+            up = floor(phase) + 1
+            ahead = up - phase
+            while not ahead > remaining:
+                remaining -= ahead
+                phase = up
+                up += 1
+                ahead = 1
+                if draw() >= chance:
+                    continue
+                points = 0.0
+                guarded = pool > 0
+                for low, span, guarding, flat_, absorb_, factor in parts:
+                    raw = low + span * draw()
+                    if guarding:
+                        taken = raw if raw < pool else pool
+                        pool -= taken
+                        raw -= taken
+                    after = raw - flat_
+                    after = (after if after > 0.0 else 0.0) * factor
+                    kept = after - (absorb_ if absorb_ < after else after)
+                    points += kept if kept > 0.0 else 0.0
+                loss += points
+                total = totals[unit]
+                totals[unit] = (0.0 if total is None else total) + points
+                # Not for the blow that took the pool to 0 (combat/sim/guard.py).
+                if stun and guarded and pool > 0 and (stuns >= 1 or draw() < stuns):
+                    phase -= stun
+                    up = floor(phase) + 1
+                    ahead = up - phase
+            clocks[slot] = phase + remaining
+        losses.append(loss)
+    return losses, {unit: total for unit, at in units.items() if (total := totals[at]) is not None}
 
 
 def veto(priced: Harm, life: float, settings: SafetySettings | None = None) -> str | None:

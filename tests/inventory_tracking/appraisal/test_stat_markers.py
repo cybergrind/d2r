@@ -117,7 +117,7 @@ def test_real_cruel_configuration_marks_decoder_combined_ed_in_terminal_and_osd(
     from inventory_tracking.appraisal.presentation import ItemAssessment
     from inventory_tracking.items.metadata import combine_enhanced_damage
     from pricing.knowledge.assessment.build_profiles import ROOT, build
-    from pricing.knowledge.assessment.maintenance.stat_configurations import compile_stat_configurations
+    from pricing.knowledge.assessment.compile.stat_configurations import compile_stat_configurations
     from pricing.knowledge.assessment.profiles import assess_role_results
     from pricing.knowledge.assessment.stat_evaluation import StatsEvaluator
     from tests.pricing.knowledge.assessment.test_family_contracts import facts

@@ -502,8 +502,9 @@ class BuildSettings(Config):
     drink: DrinkSettings = DrinkSettings()  # combat/survival.py
     safety: SafetySettings = SafetySettings()
     # The pursuit loop (macros/pursuit.py, rca/2026-10-13/pursuit-v1.md): in attack mode a teleport press
-    # names a goal the mode goes to itself. Off: every key is its own routine.
-    pursuit: bool = False
+    # names a goal the mode goes to itself. Off: every key is its own routine. On by default, as `make serve` plays
+    # (config.py `macro_pursuit`; the player, 2026-10-19, batch E: the arena plays as the live loop does).
+    pursuit: bool = True
     # A level run's fight offers a better place to the safety every FOLLOW_CHECK (macros/hunt.py `fight`,
     # run-1932-findings.md "Fixes: positioning"). Off: it holds unless the safety prices a move itself.
     fight_look: bool = True

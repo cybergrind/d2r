@@ -229,6 +229,15 @@ summaries. Research and old plan notes (six of them) into a history folder (O1).
   maintenance modules, 217 test files, 23 rules JSON, the per-item planning files, STATUS/handoff/history): the
   pricing test run 12,053 → 9,020 tests, 13 → 5 min, the same 35 red; the 50 live maintenance modules under pyrefly.
 
+- 2026-10-19 batch E: runner.py split into `macros/running/` (1,775 → 714 lines; execution, legs, recovery,
+  valuables, watch, base; AST-checked pure moves); harm_path ×1.7 a call, bit-identical (106k captured calls;
+  `test_harm_parity.py`); `assessment/maintenance` → `assessment/compile`; probe and the take recorder on
+  `open_memory`/`one_unit_table`; slow wall-time tests marked, `test_viz` export cached; disk: alt-d sessions over 14
+  days, tmp/ and 14 old pricing generations deleted (`make prune-runs`); `BuildSettings.pursuit` on by default (serve
+  passes `macro_pursuit` through `builds.pursuing(build, on)`). With it, at the player's asks: a game begun in any other
+  town takes the kind's waypoint, the `loop-kind` request (tools/kind.py; the service starts as Andariel), owned copies
+  deciding the identify verdict (identify/service.py `owned_verdict`).
+
 ## The player's rulings (2026-10-19, batch D)
 
 1. Town shadow planner: delete townplan, `_predict`, `_matched` (≈ 520 lines with tests); the visit snapshots stay
@@ -242,6 +251,15 @@ summaries. Research and old plan notes (six of them) into a history folder (O1).
 7. Belt read: skip an unreadable belt item, keep the ground drops, the belt "unread" for that look (no refill from it).
 8. Fire on the way: shorter approaches only when the move itself is over budget or vetoed (as fixed in batch C).
 Not asked yet: full exploration of levels before a TZ boss; an instant first aim instead of the flick.
+
+## The player's rulings (2026-10-19, batch E)
+
+1. Serve logs: delete `runs/alt-d` sessions older than 14 days; `make prune-runs` repeats it.
+2. `tmp/` at the root: delete what is older than 7 days.
+   All of `tmp/` went (65 GB), the MrLlamaSC transcript that `appraisal-leveling-candidates-2026-09-23.json` names
+   with it; the player: "we're fine to delete tmp" (not fetched again).
+3. Pricing generations: prune with the publication tool (`--prune-only`).
+4. Arena: `BuildSettings.pursuit` defaults to on, as the live loop runs; changed goldens re-pinned after a check.
 
 ## Suggested order of work
 

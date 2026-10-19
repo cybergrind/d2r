@@ -2,7 +2,7 @@
 UV ?= uv run --offline
 COLLECTION_HTML ?= inventory_tracking/runs/collection/collection.html
 
-.PHONY: export open serve collect equipped status test test-all lint hud traderie-preview
+.PHONY: export open serve collect equipped status test test-all lint prune-runs hud traderie-preview
 
 ## export: write the searchable single-file HTML from the collection database
 export:
@@ -52,6 +52,11 @@ lint:
 	$(UV) ruff check .
 	$(UV) ruff format --check .
 	$(UV) pyrefly check
+
+# Serve sessions older than DAYS days (the player, 2026-10-19: 14)
+DAYS ?= 14
+prune-runs:
+	find inventory_tracking/runs/alt-d -mindepth 1 -maxdepth 1 -type d -name '20*' -mtime +$(DAYS) -exec rm -rf {} +
 
 .PHONY: combat-viz combat-view combat-view-check stance-viz stance-view
 

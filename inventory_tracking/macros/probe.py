@@ -27,6 +27,7 @@ from inventory_tracking.macros.actuator import eased_path
 from inventory_tracking.models import SessionIdentity
 from inventory_tracking.native.image_probe import inspect_images
 from inventory_tracking.native.layout import PANEL_FLAGS, UI_PANELS_RVA, UI_PANELS_SIZE
+from inventory_tracking.native.memory import open_memory
 from inventory_tracking.native.process import identity, process_mappings
 from inventory_tracking.native.session import inspect_game, select_game_process
 from inventory_tracking.reports import create_run, publish
@@ -113,7 +114,7 @@ def record(args) -> int:
                 args.duration,
             )
             token = identity(pid)
-            fd = os.open(f'/proc/{pid}/mem', os.O_RDONLY)
+            fd = open_memory(pid)
             try:
                 started = time.monotonic()
                 while time.monotonic() - started < args.duration and identity(pid) == token:
@@ -179,7 +180,7 @@ def pointer(args) -> int:
             session = SessionIdentity(pid, identity(pid)['start_ticks'], 0)
             report.update(probe='pointer', target=list(RETURN_TO_GAME), stages=[])
             focus.wait_ready(timeout=1)
-            fd = os.open(f'/proc/{pid}/mem', os.O_RDONLY)
+            fd = open_memory(pid)
             try:
                 with X11Keyboard().connect() as keys:
                     if keys is None:

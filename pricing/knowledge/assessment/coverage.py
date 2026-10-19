@@ -7,7 +7,7 @@ from typing import Any
 
 from inventory_tracking.items.metadata import metadata
 from pricing.knowledge.artifacts import read_artifact
-from pricing.knowledge.assessment.maintenance.coverage import ROOT, audit_named
+from pricing.knowledge.assessment.compile.coverage import ROOT, audit_named
 from pricing.knowledge.assessment.policies.named_tiers import RULES, _policies
 from pricing.knowledge.assessment.profiles import load_profiles
 from pricing.knowledge.assessment.registry import FAMILIES
@@ -83,7 +83,7 @@ def coverage():
 
 
 def main():
-    from pricing.knowledge.assessment.maintenance.named_gate import audit
+    from pricing.knowledge.assessment.compile.named_gate import audit
 
     result: dict[str, Any] = coverage()
     gate = audit()

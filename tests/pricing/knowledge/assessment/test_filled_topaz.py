@@ -4,8 +4,8 @@ from typing import Any
 from inventory_tracking.items.metadata import metadata
 from pricing.knowledge.assessment.adapters.capture import normalize
 from pricing.knowledge.assessment.comparables import reject_reasons
+from pricing.knowledge.assessment.compile.replay import replay
 from pricing.knowledge.assessment.handlers.named import NamedHandler
-from pricing.knowledge.assessment.maintenance.replay import replay
 
 
 def topaz_shako():

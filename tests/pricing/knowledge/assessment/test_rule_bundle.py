@@ -2,7 +2,7 @@ import json
 
 import pytest
 
-from pricing.knowledge.assessment.maintenance.rule_bundle import load_rule_bundle
+from pricing.knowledge.assessment.compile.rule_bundle import load_rule_bundle
 
 
 def write_bundle(root):

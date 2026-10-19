@@ -8,7 +8,7 @@ from pathlib import Path
 import pytest
 
 from pricing.knowledge.assessment import build_profiles
-from pricing.knowledge.assessment.maintenance import stat_configurations
+from pricing.knowledge.assessment.compile import stat_configurations
 from tests.pricing.matchers import forget_comparisons
 from tests.pricing.session_cache import memoize
 

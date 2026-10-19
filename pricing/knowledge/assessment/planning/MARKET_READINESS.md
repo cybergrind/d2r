@@ -24,7 +24,7 @@ Priorities:
 Reproduce with:
 
 ```sh
-uv run --offline python -m pricing.knowledge.assessment.maintenance.market_readiness --all-items --as-of 2026-09-25
+uv run --offline python -m pricing.knowledge.assessment.compile.market_readiness --all-items --as-of 2026-09-25
 ```
 
 Input: `pricing/data/appraisal-market.jsonl`

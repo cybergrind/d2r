@@ -5,7 +5,7 @@ using the checked-out English strings and cached planner translations. Native sk
 IDs remain unchanged; differing internal names are retained as `internal_name`.
 Non-player variants and missing translations retain their internal names. The
 metadata provenance records hashes for all three localization inputs. After changing
-skill names, regenerate `pricing.knowledge.assessment.maintenance.market_projection`
+skill names, regenerate `pricing.knowledge.assessment.compile.market_projection`
 before rebuilding and publishing the index: market labels use displayed skill names
 (for example, Fissure rather than the internal Eruption).
 

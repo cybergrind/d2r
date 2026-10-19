@@ -3,7 +3,7 @@ import json
 
 import pytest
 
-from pricing.knowledge.assessment.maintenance.coverage import audit_named
+from pricing.knowledge.assessment.compile.coverage import audit_named
 
 
 def test_named_audit_keeps_unreviewed_items_and_cached_research_distinct(tmp_path):

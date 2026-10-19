@@ -136,9 +136,9 @@ def bounded(pid: int, mappings: list[dict[str, Any]] | None = None, *, budget: i
 
 
 def one_unit_table(capture) -> int | None:
-    """The unit table address the attach's scan found; None unless exactly one."""
-    tables = {found['table_address'] for found in capture['unit_table_candidates']}
-    return next(iter(tables)) if len(tables) == 1 else None
+    """The unit table address the attach's scan found; None unless exactly one (or with no capture yet)."""
+    tables = {found.get('table_address') for found in (capture or {}).get('unit_table_candidates', ())}
+    return next(iter(tables)) if len(tables) == 1 and None not in tables else None
 
 
 def unit_table(capture) -> int:

@@ -232,7 +232,7 @@ def test_a_runner_restarted_with_a_terror_zone_kind_keeps_its_own_while_it_is_of
     monkeypatch.setattr(tzloop, 'ENABLED', False)
     made = make(lambda cancelled, routine: None, [])
     made.resume({'loop': False, 'loop_kind': 'tz'})
-    assert made.loop.kind.key == 'lk'
+    assert made.loop.kind.key == 'andariel'  # the service's own first kind
     made.close()
 
 

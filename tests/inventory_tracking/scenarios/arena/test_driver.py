@@ -11,7 +11,7 @@ from inventory_tracking.config import PLAYER_HEALING
 from inventory_tracking.game.layout import DEFILER_CLASS, FULL_REJUVENATION, SUPER_HEALING
 from inventory_tracking.macros import runner as runner_module
 from inventory_tracking.macros.runner import ATTACK, HUNT_ELITES, PICKUP, PREBUFF, TELEPORT
-from tests.inventory_tracking.macros.fakes import BUILD
+from tests.inventory_tracking.macros.fakes import BUILD, runner_modules
 from tests.inventory_tracking.scenarios.arena import driver
 from tests.inventory_tracking.scenarios.arena.driver import Play, Press, play
 from tests.inventory_tracking.scenarios.arena.game import OSD, SERVE, Arena
@@ -209,7 +209,7 @@ def test_the_runners_time_is_the_arenas_for_the_play_and_put_back_after(monkeypa
     monkeypatch.setattr(Play, 'execute', looking)
     play(one_in_the_open(), [Press(1.0, ATTACK)], 3.0)
     assert seen == [(1.0, 1.0)]
-    assert runner_module.time is time
+    assert all(module.time is time for module in runner_modules() if hasattr(module, 'time'))
 
 
 def test_wall_time_decides_nothing(monkeypatch):
@@ -228,4 +228,4 @@ def test_a_fault_is_raised_not_played_as_a_result(monkeypatch):
     monkeypatch.setattr(driver, 'pick_up', broken)
     with pytest.raises(ZeroDivisionError, match='a fault of the arena'):
         play(potion_on_the_ground(), [Press(0, PICKUP)], 5.0)
-    assert runner_module.time is time
+    assert all(module.time is time for module in runner_modules() if hasattr(module, 'time'))

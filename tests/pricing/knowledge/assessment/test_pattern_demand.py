@@ -53,7 +53,7 @@ def test_pattern_review_cannot_pool_another_configuration_or_changed_predicate()
 
     import pytest
 
-    from pricing.knowledge.assessment.maintenance.guide_demand import compile_demand
+    from pricing.knowledge.assessment.compile.guide_demand import compile_demand
 
     document = build()
     row = next(r for r in document['guide_demand']['uses'] if r.get('pattern') == 'nova-starter-amulet')

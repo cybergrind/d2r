@@ -60,7 +60,8 @@ also uses tiles; screen input uses pixels. Check the boundary's conversion
 
 | Change | Start here |
 | --- | --- |
-| Request lifecycle, queue, cancellation | [runner.py](runner.py), [waiting.py](waiting.py) |
+| Request lifecycle, queue, cancellation | [runner.py](runner.py) (the state, the requests, the runs' lifecycle), [waiting.py](waiting.py) |
+| The runner's other methods (module functions bound on `MacroRunner`) | [running/](running/__init__.py): [execution.py](running/execution.py) (a run's making, `perform`, the teleport press's steps), [legs.py](running/legs.py) (the loop's legs, `_loop_hands`), [recovery.py](running/recovery.py) (the loop's stops, `classify`, the Gheed's swap), [valuables.py](running/valuables.py) (the ground's valuables, the trips back), [watch.py](running/watch.py) (`poll`'s watchdogs); constants in [base.py](running/base.py) |
 | Fight orchestration / player intervention | [hunt.py](hunt.py), [combat/controller.py](../combat/controller.py) |
 | Aim/damage specific to this build | [Echoing Strike attack](../builds/warlock/echoing_strike/attack.py) and its sibling mechanics/data |
 | Position scoring | [combat/stance.py](../combat/stance.py); pure, shared by live play and simulation |

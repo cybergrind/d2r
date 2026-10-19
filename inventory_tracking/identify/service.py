@@ -7,8 +7,9 @@ identified now are read in full, decoded and run through
 the same offline knowledge base Alt+D uses; one OSD summary and one desktop
 notification give each a verdict — keep, check or vendor — with the reason (value
 watch, build use, trade tier, leveling use, asks) and its best-rolled stats. Owned copies
-from the collection database are named in the reason; a build-use-only keep becomes a
-check when a copy that rolls at least as well is already owned (appraisal/owned.py).
+from the collection database are named in the reason and decide with the price (`owned_verdict`): an item worth
+1 Ist or more stays as appraised, one that rolls better than every owned copy is kept, and a duplicate an owned copy
+rolls at least as well as is vendor (appraisal/owned.py).
 
 The previous read lasts for the whole game: through a portal, and through reads that failed
 or were skipped, so Cain right after the portal still finds the unidentified items of the
@@ -30,7 +31,7 @@ import time
 from contextlib import nullcontext, suppress
 from typing import Any
 
-from inventory_tracking.appraisal.owned import AT_LEAST_AS_GOOD, multiple_copy_use, owned_summary
+from inventory_tracking.appraisal.owned import AT_LEAST_AS_GOOD, multiple_copy_use, overall, owned_summary
 from inventory_tracking.appraisal.presentation import item_tone
 from inventory_tracking.appraisal.triage import LABELS, TONES, demand_unmeasured, description, tone as triage_tone
 from inventory_tracking.common import LOG, timestamp
@@ -150,7 +151,61 @@ def notable_stats(observation, limit=3) -> list[str]:
     return [text for _, _, text in entries[:limit]]
 
 
+# Rolled items whose duplicates the owned copies decide (`owned_verdict`): no charm or jewel (used in multiples,
+# `multiple_copy_use`), rune, gem, base or runeword
+ROLLED = frozenset(('unique', 'set', 'magic', 'rare', 'crafted'))
+
+
+def value_ist(result) -> float | None:
+    """The item's price in Ist: the triage's band (lower quartile, else median), else the estimate; None unknown."""
+    band = (result.get('triage') or {}).get('band') or {}
+    price = band.get('q1_ist', band.get('median_ist'))
+    return price if price is not None else (result.get('price_estimate') or {}).get('estimate_ist')
+
+
+def trade_reason(result) -> bool:
+    """Whether the assessment says the item sells, whatever its price is (`verdict_for`'s trade reasons)."""
+    assessment = result.get('assessment', {})
+    tier = assessment.get('trade_tier', {})
+    return (
+        (result.get('triage') or {}).get('verdict') in ('sell', 'slow')
+        or any(row['details'].get('priority') == 'valuable_candidate' for row in result.get('value_watch', [])[:1])
+        or assessment.get('trade_qualification', {}).get('status') in ('candidate', 'premium')
+        or (
+            tier.get('status') in ('reviewed', 'conditional', 'market_supported')
+            and tier.get('tier') in ('high', 'med')
+        )
+    )
+
+
+def owned_verdict(result, owned, verdict: str, reason: str) -> tuple[str, str]:
+    """`verdict` decided again by the owned copies (the player, 2026-10-19: "we keep all expensive items 1+ ist value;
+    we keep all items that have better rolls that we had; we sell all dublicated items with worse rolls than we have").
+    Copies in the playing character's inventory and cube are the loop's own, not owned: two carried copies would each
+    sell the other. The first copy stays as appraised (macros/copies.py keeps a first set or unique)."""
+    item = result.get('extraction', {}).get('item', {})
+    if not owned or item.get('rarity') not in ROLLED or item.get('runeword') or multiple_copy_use(result):
+        return verdict, reason
+    kept = [copy for copy in owned.get('copies', ()) if not copy.get('carried')]
+    value = value_ist(result)
+    if not kept or (value is not None and value >= KEEP_IST):
+        return verdict, reason
+    relation = overall([copy['relation'] for copy in kept])
+    if relation == 'better' and verdict in ('vendor', 'check'):
+        return 'keep', f'rolls better than the {len(kept)} owned; {reason}'
+    if relation in AT_LEAST_AS_GOOD and verdict != 'vendor' and (value is not None or not trade_reason(result)):
+        price = f'asks ~{value:g} Ist' if value is not None else 'no price'
+        return 'vendor', f'an owned copy rolls at least as well, {price}; was {verdict}: {reason}'
+    return verdict, reason
+
+
 def verdict_for(result, owned=None) -> tuple[str, str]:
+    """(keep|check|vendor, reason) from what the offline assessment established, decided again by the owned copies
+    (`owned_verdict`)."""
+    return owned_verdict(result, owned, *assessed_verdict(result, owned))
+
+
+def assessed_verdict(result, owned=None) -> tuple[str, str]:
     """(keep|check|vendor, reason) from what the offline assessment established.
 
     Keep: a value watch, a farming build use, a high/mid trade tier or a real estimate.

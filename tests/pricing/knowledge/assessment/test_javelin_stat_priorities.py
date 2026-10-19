@@ -2,7 +2,7 @@ import json
 from dataclasses import replace
 
 from pricing.knowledge.assessment.build_profiles import ROOT, build
-from pricing.knowledge.assessment.maintenance.stat_configurations import compile_stat_configurations
+from pricing.knowledge.assessment.compile.stat_configurations import compile_stat_configurations
 from pricing.knowledge.assessment.profiles import assess_role_results
 from pricing.knowledge.assessment.stat_evaluation import StatsEvaluator
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
