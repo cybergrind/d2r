@@ -3,12 +3,13 @@
 import hashlib
 import io
 import os
-from collections.abc import Iterator
+from collections.abc import Iterator, Mapping
 from contextlib import contextmanager
 from contextvars import ContextVar
 from dataclasses import dataclass
 from pathlib import Path
 from types import MappingProxyType
+from typing import Any
 
 from pricing.knowledge.definition_store import fingerprint
 
@@ -61,7 +62,7 @@ def lazy_artifact(path) -> LazyArtifact:
     return LazyArtifact(path, digest.hexdigest(), stamp)
 
 
-_PINNED = ContextVar('appraisal_artifacts', default=None)
+_PINNED: ContextVar[Mapping[Path, Any] | None] = ContextVar('appraisal_artifacts', default=None)
 _STRICT = ContextVar('appraisal_artifacts_strict', default=False)
 
 
@@ -111,7 +112,7 @@ def artifact_lines(path) -> Iterator[bytes]:
 
 @contextmanager
 def artifact_snapshot(paths):
-    pinned = dict(_PINNED.get() or {})
+    pinned: dict[Path, Any] = dict(_PINNED.get() or {})
     for value in paths:
         path = Path(value).resolve()
         if path not in pinned:

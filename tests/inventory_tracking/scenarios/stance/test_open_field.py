@@ -22,9 +22,9 @@ from functools import cache
 
 from inventory_tracking.builds.warlock.echoing_strike.attack import EchoingStrike, LinePolicy
 from inventory_tracking.combat import stance
+from inventory_tracking.game.view import Viewport
 from inventory_tracking.macros.hunting.base import STAND_OFF
 from inventory_tracking.macros.travel import STRIDE
-from inventory_tracking.macros.view import Viewport
 
 from .first_rule import stand
 from .harness import ASPECT, Move, Result, Scene, Strategy, View, body, play, scene

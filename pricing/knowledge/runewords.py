@@ -3,6 +3,7 @@
 import json
 from collections import Counter
 from pathlib import Path
+from typing import Any
 
 from pricing.knowledge.refresh import atomic_json
 
@@ -16,7 +17,7 @@ def build(root):
         row = json.loads(line)
         if row.get('scope_status') == 'verified':
             market[row['name']] += 1
-    rows = []
+    rows: list[dict[str, Any]] = []
     for definition in definitions:
         if definition.get('rarity') != 'runeword':
             continue

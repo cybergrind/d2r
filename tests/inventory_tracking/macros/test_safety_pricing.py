@@ -954,3 +954,44 @@ def test_a_teleport_of_the_characters_own_is_priced_with_no_weapon_swap(monkeypa
     assert staff
     assert own
     assert min(c.unstruck for c in staff) - min(c.unstruck for c in own) == pytest.approx(2 * module.SWAP_SECONDS)
+
+
+@pytest.mark.parametrize(
+    ('at_goal', 'at_step', 'shorter'),
+    [
+        # The move over the budget, the step out of the fire within it: shorter stands are priced (were not)
+        (Harm(400, 900, by=((GROUND_UNIT, 400.0),)), Harm(1, 2), True),
+        # The move within it, the step over it: no shorter stand (they were priced)
+        (Harm(100, 200, by=((GROUND_UNIT, 100.0),)), Harm(400, 900), False),
+    ],
+)
+def test_shorter_approaches_follow_the_moves_own_price_not_what_its_fire_adds(monkeypatch, at_goal, at_step, shorter):
+    # Fire on the way adds burnt-out waits and steps out of it after the move; the over-budget check read the last
+    # of them, not the move (found splitting `Safety.price`, fixed 2026-10-19).
+    from inventory_tracking.combat.harm import Look, SafetySettings
+    from inventory_tracking.combat.policy import Observation
+    from inventory_tracking.combat.survival import CALM
+    from inventory_tracking.game.records import Loot
+    from inventory_tracking.macros import safety as module
+
+    goal, out = (20.0, 0.0), (0.0, 6.0)
+
+    def priced(look, path, *rest):
+        end = path[-1][0] if isinstance(path, tuple) and path and isinstance(path[0], tuple) else path
+        return at_goal if end == goal else at_step if end == out else Harm(1, 2)
+
+    fire = SimpleNamespace(clears=lambda lying: 2.0, escapes=lambda lying, here: [(out, 'out of the fire')])
+    monkeypatch.setattr(module, 'harm_path', priced)
+    monkeypatch.setattr(module, 'harm', lambda look, at, *rest: priced(look, at))
+    monkeypatch.setattr(module, 'taken', lambda *a, **kw: (100.0, 0))
+    monkeypatch.setattr(module, 'camp', lambda *a, **kw: None)
+    monkeypatch.setattr(module, 'footing', lambda field, here, point: point)
+    facts = p.Facts(1.0, Goal('goal', goal, 'use', 5.0, PRESSED), False, False, False, lambda: Step(goal))
+    found = module.Safety().price(
+        facts, p.Pursuit('teleport', 1.0), Look((), life=1000, ground=((fire, ()),)),  # pyrefly: ignore[bad-argument-type]  # a fake read model
+        Loot(life=1000, max_life=1000), CALM, SafetySettings(), Observation((0.0, 0.0), {}), SimpleNamespace(reach=22),
+        Step,
+    )  # fmt: skip
+    reasons = [c.act.reason for c in found.candidates if isinstance(c.act, (p.Move, p.NoWay))]
+    assert reasons[:4] == ['', module.BURNING, module.BURNING, f'{module.STEPPING} out of the fire']
+    assert ('safe approach' in reasons) is shorter

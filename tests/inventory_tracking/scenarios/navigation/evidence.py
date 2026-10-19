@@ -23,9 +23,9 @@ from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from pathlib import Path
 
+from inventory_tracking.game.view import Viewport
 from inventory_tracking.levels.geometry import Point
 from inventory_tracking.levels.model import Ground, Walkable
-from inventory_tracking.macros.view import Viewport
 from tests.inventory_tracking.scenarios.navigation.harness import Footing, HopField
 
 

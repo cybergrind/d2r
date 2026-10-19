@@ -40,6 +40,7 @@ import math
 import statistics
 import sys
 from pathlib import Path
+from typing import Any, cast
 
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root, for runs by path
@@ -77,7 +78,7 @@ def raw_listings(rune):
 def lstsq(rows, rhs):
     """Least-squares x of rows · x ≈ rhs by the normal equations; an unknown no row names stays 0 (numpy's lstsq)."""
     live = [j for j in range(len(rows[0])) if any(row[j] for row in rows)]
-    aug = [
+    aug: list[list[float]] = [
         [sum(row[i] * row[j] for row in rows) for j in live]
         + [sum(row[i] * b for row, b in zip(rows, rhs, strict=True))]
         for i in live
@@ -196,7 +197,7 @@ def solve(data):
 def main(a):
     data = load()
     used, perunit, iters = solve(data)
-    out = {}
+    out: dict[str, dict[str, Any]] = {}
     for r in RUNES:
         u = [s for _, _, s in used[r]]
         lo, hi = GUIDE[r]
@@ -205,7 +206,7 @@ def main(a):
         dev = (val / lo - 1) if val < lo else ((val / hi - 1) if val > hi else 0.0)
         out[r] = {
             'ist': round(val, 3),
-            'ist_median': round(wm, 3) if u else None,
+            'ist_median': round(cast(float, wm), 3) if u else None,
             'ist_median_unweighted': round(statistics.median(u), 3) if u else None,
             'n_sellers': len({row['seller'] for row, _, _ in used[r]}),
             'ist_min': round(min(u), 3) if u else None,

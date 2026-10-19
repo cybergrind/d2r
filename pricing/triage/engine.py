@@ -3,6 +3,7 @@
 import json
 from datetime import UTC, date, datetime
 from pathlib import Path
+from typing import Any, cast
 
 from pricing.knowledge.assessment.ethereal_use import market_item
 from pricing.triage.bands import ethereal_bucket, quantity_bucket
@@ -123,7 +124,8 @@ def assess(item, tables, *, today=None):
         candidates = candidates[:1]
     if not policy.get('require_bucket'):
         candidates.append(name_bucket)
-    band, bucket = None, name_bucket
+    band: Any = None
+    bucket = name_bucket
     for candidate in candidates:
         bucket = ethereal_bucket(candidate, item.get('ethereal')) if separate else candidate
         bucket = scoped_bucket(bucket, item, facets)
@@ -222,7 +224,7 @@ def assess(item, tables, *, today=None):
     ):
         verdict, reason = 'vendor', 'below keep price'
     elif patterns:
-        verdict, reason = 'check', min((check_reason(captured, r) for r in patterns), key=len)
+        verdict, reason = 'check', cast(str, min((check_reason(captured, r) for r in patterns), key=len))
     elif (
         category in ('magic', 'rare', 'crafted')
         and price is not None
@@ -292,7 +294,9 @@ def assess(item, tables, *, today=None):
             if quote.get('quantity', 1) != item.get('quantity', 1):
                 reason = 'only sparse unit asks; stack price unavailable'
             band, price, bucket = quote, quote['q1_ist'], quote['bucket']
-    comparison = roll_model(item, tables.get('roll_models', []), keep_ist=tables['rules']['keep_ist'])
+    comparison = cast(
+        dict[str, Any] | None, roll_model(item, tables.get('roll_models', []), keep_ist=tables['rules']['keep_ist'])
+    )
     if comparison is not None:
         verdict, reason = comparison['verdict'], comparison['reason']
         band, reference = comparison['band'], comparison['reference_band']
@@ -309,7 +313,7 @@ def assess(item, tables, *, today=None):
         reason += f' · comparable-or-worse {label}'
     from pricing.triage.named_roll_placement import lookup as roll_placement, ordinary_has_demand
 
-    placement = roll_placement(item, tables.get('named_roll_placements', []))
+    placement = cast(dict[str, Any] | None, roll_placement(item, tables.get('named_roll_placements', [])))
     if placement:
         reason = placement['reason']
         if not placement['valid']:
@@ -367,7 +371,7 @@ def assess(item, tables, *, today=None):
     if category == 'affixed_unknown':
         from pricing.triage.unknown_affixed import review_pattern
 
-        matched = review_pattern(item, tables)
+        matched = cast(str | None, review_pattern(item, tables))
         verdict = 'check' if matched else 'vendor'
         reason = 'rarity unreported; ' + (matched or 'no reviewed trade combination for the reported stats')
         band, reference, price, bucket, liquidity = None, None, None, None, 'none'
@@ -469,7 +473,7 @@ class Tables:
             if self.stamp is not None and stamp[0] == self.stamp[0]:
                 # Build a replacement before publishing; failed reads must leave
                 # the old snapshot and revision intact for a later retry.
-                data = self.data
+                data = cast(dict[str, Any], self.data)
                 if stamp[1] != self.stamp[1]:
                     data = prepare_rules(data, json.loads(paths[1].read_text()))
                 if stamp[2] != self.stamp[2]:
@@ -479,4 +483,4 @@ class Tables:
                 bands, rules, own = [json.loads(p.read_text()) for p in paths]
                 self.data = prepare_tables(bands, rules, own)
             self.stamp = stamp
-        return self.data
+        return cast(dict[str, Any], self.data)

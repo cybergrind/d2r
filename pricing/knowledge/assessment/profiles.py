@@ -1,5 +1,7 @@
 """Evaluate reviewed profiles; guide mentions alone never become executable rules."""
 
+from typing import Any
+
 from pricing.knowledge.assessment.adapters.roles import legacy_roles
 from pricing.knowledge.assessment.build_profiles import OUTPUT
 from pricing.knowledge.assessment.domain.context import AssessmentContext
@@ -244,34 +246,31 @@ def assess_role_results(facts, profiles, loadout=None, *, upgrades=None):
             else:
                 missing.append('Equipment requirements or wearer attributes need verification.')
         missing.extend(p.get('conditions', []))
-        roles.append(
-            RoleAssessment(
-                **{
-                    **{k: p[k] for k in ('id', 'build', 'variant', 'side', 'slot', 'role', 'review_status', 'source')},
-                    'status': 'unknown'
-                    if facts.identified is not True
-                    else 'failed'
-                    if failed
-                    else 'partial'
-                    if missing
-                    else 'matched',
-                    'rule_trace': trace.to_dict() if trace else None,
-                    'skill_trace': skill_trace.to_dict() if skill_trace else None,
-                    'dependencies': dependencies,
-                    'equipment': equipment,
-                    'socket_requirement': socket_requirement,
-                    'ethereal_preference': p.get('ethereal_preference'),
-                    'preferences': [
-                        {'label': pref['label'], 'status': evaluate(pref['when'], facts, loadout).truth}
-                        for pref in p.get('preferences', [])
-                    ],
-                    'matched': matched,
-                    'missing': missing,
-                    'advisory_conditions': p.get('advisory_conditions', ()),
-                    'failed': failed,
-                    'important_rolls': [facts.stats[k] for k in p.get('important_stats', []) if k in facts.stats],
-                    'alternatives': p.get('alternatives', []),
-                }
-            )
-        )
+        role_fields: dict[str, Any] = {
+            **{k: p[k] for k in ('id', 'build', 'variant', 'side', 'slot', 'role', 'review_status', 'source')},
+            'status': 'unknown'
+            if facts.identified is not True
+            else 'failed'
+            if failed
+            else 'partial'
+            if missing
+            else 'matched',
+            'rule_trace': trace.to_dict() if trace else None,
+            'skill_trace': skill_trace.to_dict() if skill_trace else None,
+            'dependencies': dependencies,
+            'equipment': equipment,
+            'socket_requirement': socket_requirement,
+            'ethereal_preference': p.get('ethereal_preference'),
+            'preferences': [
+                {'label': pref['label'], 'status': evaluate(pref['when'], facts, loadout).truth}
+                for pref in p.get('preferences', [])
+            ],
+            'matched': matched,
+            'missing': missing,
+            'advisory_conditions': p.get('advisory_conditions', ()),
+            'failed': failed,
+            'important_rolls': [facts.stats[k] for k in p.get('important_stats', []) if k in facts.stats],
+            'alternatives': p.get('alternatives', []),
+        }
+        roles.append(RoleAssessment(**role_fields))
     return tuple(roles)

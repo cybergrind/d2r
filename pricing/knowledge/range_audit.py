@@ -4,6 +4,7 @@ import argparse
 import json
 from collections import Counter
 from pathlib import Path
+from typing import Any
 
 from pricing.knowledge.definitions import build_definitions
 from pricing.knowledge.set_properties import extra_properties_are_unconditional
@@ -14,7 +15,7 @@ def audit_ranges(root):
     definitions = build_definitions(root)
     indexed = {(r['rarity'], r['table_id']): r for r in definitions['rows'] if r['rarity'] in ('set', 'unique')}
     properties = json.loads((root / 'third-parties/d2data/json/properties.json').read_text())
-    items = []
+    items: list[dict[str, Any]] = []
     for rarity, table in (('unique', 'uniqueitems'), ('set', 'setitems')):
         records = json.loads((root / f'pricing/raw/d2data/{table}.json').read_text())
         for record in records.values():

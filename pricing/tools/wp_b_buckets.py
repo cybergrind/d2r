@@ -13,6 +13,7 @@ import re
 import statistics
 import sys
 from pathlib import Path
+from typing import Any
 
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root, for runs by path
@@ -195,7 +196,7 @@ def analyze(slug, item_id):
         p = props(listing)
         k = bucket_key(p, slug)
         ist, flags = to_ist(listing)
-        row = {
+        row: dict[str, Any] = {
             'ask': ask_str_chosen(listing),
             'ask_full': ask_str(listing),
             'ist': ist,
@@ -403,7 +404,7 @@ def blues(out):
 def final(out):
     import collections
 
-    meta = {
+    meta: dict[str, Any] = {
         'pulled': '2026-09-18',
         'regenerated': 'v2: OR-group price reading + WP-F ladder (same raw pulls)',
         'source': (
@@ -446,7 +447,7 @@ def final(out):
         ),
         'thin': 'bucket with n<3 listings',
     }
-    res = {'_meta': meta}
+    res: dict[str, Any] = {'_meta': meta}
     tot = sc = 0
     gvall = collections.Counter()
     gvsc = collections.Counter()

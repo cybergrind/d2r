@@ -4,11 +4,9 @@ import argparse
 import concurrent.futures
 import hashlib
 import json
-import subprocess
-import time
 from datetime import UTC, datetime
 from pathlib import Path
-from tempfile import NamedTemporaryFile
+from typing import Any
 
 from pricing.knowledge.market import (
     import_cache,
@@ -18,6 +16,7 @@ from pricing.knowledge.market import (
     scope_status,
     summarize,
 )
+from pricing.knowledge.traderie_client import API, RateLimited, RequestRejected, fetch_json
 
 
 def reconcile_listing_properties(row):
@@ -25,74 +24,6 @@ def reconcile_listing_properties(row):
     row['properties'] = property_values(row.get('raw_properties', []))
     row['scope_status'] = scope_status(row['properties'])
     normalize_facets(row)
-
-
-API = 'https://traderie.com/api/diablo2resurrected'
-
-
-USER_AGENT = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0 Safari/537.36'
-
-
-class RequestRejected(OSError):
-    """HTTP rejection or challenge: stop rather than retrying a denied request."""
-
-
-class RateLimited(RequestRejected):
-    """Server rate limit: stop this maintenance batch."""
-
-
-def _fetch_response(url):
-    with NamedTemporaryFile() as header_file:
-        response = subprocess.run(
-            [
-                'curl',
-                '--write-out',
-                '\n%{http_code}',
-                '--dump-header',
-                header_file.name,
-                '-sSL',
-                '-A',
-                USER_AGENT,
-                '--max-time',
-                '40',
-                url,
-            ],
-            capture_output=True,
-            text=True,
-            check=True,
-        )
-        # curl includes proxy/redirect headers; only the final response applies.
-        headers = {}
-        for line in Path(header_file.name).read_text().splitlines():
-            if line.startswith('HTTP/'):
-                headers = {}
-            elif ':' in line:
-                name, value = line.split(':', 1)
-                headers[name.strip().lower()] = value.strip()
-    body, status = response.stdout.rsplit('\n', 1)
-    return body, status, headers
-
-
-def fetch_json(url):
-    for attempt in range(3):
-        try:
-            body, status, headers = _fetch_response(url)
-            if status == '429' or (status != '200' and 'Error 1015' in body):
-                retry = headers.get('retry-after', 'unavailable')
-                raise RateLimited(f'HTTP {status}; Retry-After: {retry}; stop batch: {url}')
-            if headers.get('cf-mitigated', '').lower() == 'challenge':
-                ray = headers.get('cf-ray', 'unavailable')
-                raise RequestRejected(f'HTTP {status}; Cloudflare challenge; Ray ID: {ray}; stop batch: {url}')
-            if status != '200':
-                raise RequestRejected(f'HTTP {status}; request rejected: {url}')
-            return json.loads(body)
-        except RequestRejected:
-            raise
-        except (OSError, ValueError, subprocess.CalledProcessError) as error:
-            if attempt == 2:
-                raise OSError(f'JSON request failed: {url}: {error}') from error
-            time.sleep(2**attempt)
-    raise RuntimeError('unreachable')
 
 
 def refresh_item(item, fetch, currencies, *, page_cap=4, seller_target=10, previous=None):
@@ -154,7 +85,7 @@ def atomic_json(path, data):
 
 def catalog_census(directory):
     path = directory / 'appraisal-traderie-catalog.json'
-    previous = json.loads(path.read_text()) if path.exists() else {'items': [], 'types': {}}
+    previous: dict[str, Any] = json.loads(path.read_text()) if path.exists() else {'items': [], 'types': {}}
     for category in ('uniques', 'sets', 'runes', 'gems', 'misc', 'base', 'runewords', 'charms', 'crafted'):
         if previous['types'].get(category, {}).get('complete'):
             continue
@@ -230,7 +161,7 @@ def main():
         },
     )
     jobs_path = directory / 'appraisal-refresh-jobs.json'
-    jobs = json.loads(jobs_path.read_text()) if jobs_path.exists() else {}
+    jobs: dict[str, Any] = json.loads(jobs_path.read_text()) if jobs_path.exists() else {}
     targets = [i for i in watch if not i['cached_scoped'] and i['demanded']][: args.refresh_limit]
 
     def run(item):

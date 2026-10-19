@@ -9,14 +9,15 @@ import json
 import re
 from collections import defaultdict
 from statistics import median
+from typing import Any, cast
 
 from pricing.triage.bands import eligible, instant
 
 
 def price_median(rows):
-    sellers = {}
+    sellers: dict[Any, Any] = {}
     for row in rows:
-        price, seller = row.get('ask_ist'), row.get('seller_id')
+        price, seller = cast(float, row.get('ask_ist')), row.get('seller_id')
         if type(price) in (int, float) and price > 0 and seller:
             sellers[seller] = min(sellers.get(seller, price), price)
     return median(sellers.values()) if sellers else None

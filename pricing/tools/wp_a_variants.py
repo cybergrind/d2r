@@ -19,6 +19,7 @@ import os
 import re
 import sys
 from pathlib import Path
+from typing import Any, cast
 
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -133,7 +134,7 @@ def main():
         for it in v.get('prose_only_items', []) or []:
             add_hit(index, slug, b, it, 'prose', 'player', 'prose')
     # new demand = items whose every hit comes from a build whose main tables do not list it
-    groups = {}  # canonical key -> {'names': set, 'builds': {slug: set(variant/side)}}
+    groups: dict[str, dict[str, Any]] = {}  # canonical key -> {'names': set, 'builds': {slug: set(variant/side)}}
     for item, hits in index.items():
         if NON_ITEMS.search(item):
             continue
@@ -146,10 +147,10 @@ def main():
             g = groups.setdefault(key, {'names': set(), 'builds': {}})
             g['names'].add(item)
             g['builds'].setdefault(h['build'], set()).add(f'{h["variant"]}/{h["side"]}')
-    rows = []
+    rows: list[tuple[int, str, Any, list[str]]] = []
     for g in groups.values():
         weight = sum(W.get(ledger[s].get('tier'), 1) for s in g['builds'])
-        label = min(g['names'], key=len)
+        label = cast(str, min(g['names'], key=len))
         rows.append((weight, label, g['builds'], sorted(g['names'])))
     rows.sort(key=lambda r: (-r[0], r[1].lower()))
     lines = [

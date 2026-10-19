@@ -145,6 +145,7 @@ from inventory_tracking.native.units import read_stats, walk_units
 # 2026-10-17): by base codes alone the two sets read the same
 CTA_CODE = 'cta'
 CTA_SECONDS = 10.0  # between two reads of whether a Call to Arms is worn (`GameMemory.cta`)
+UNPLACED_GOLD: set[int] = set()  # gold piles `loot` said it left out for an unread place: said once a pile
 
 
 def _unit_of(walk: dict, player: Player) -> dict | None:
@@ -482,10 +483,17 @@ class GameMemory:
                 if gold_minimum is None or item.txt != GOLD_CLASS or not item.unit['path_pointer']:
                     continue
                 amount = gold_amount(read, item.unit)
-                if amount >= gold_minimum:
-                    if item.at is None:  # no look, as when the pile read its place itself (before 2026-10-19)
-                        raise ValueError('a gold pile whose place cannot be read')
-                    drops.append(Drop(item.unit_id, *item.at, f'{amount} gold', GOLD, (0, 0)))
+                if amount < gold_minimum:
+                    continue
+                if item.at is None:
+                    # Left out alone: it used to empty the whole look, every other drop unseen (2026-10-19)
+                    if item.unit_id not in UNPLACED_GOLD:
+                        if len(UNPLACED_GOLD) > CENSUS_KEPT:
+                            UNPLACED_GOLD.clear()
+                        UNPLACED_GOLD.add(item.unit_id)
+                        LOG.info('Macro: gold pile %d: its place is unread: left out of this look', item.unit_id)
+                    continue
+                drops.append(Drop(item.unit_id, *item.at, f'{amount} gold', GOLD, (0, 0)))
             for potion in sightings_among(ground, {SUPER_HEALING, FULL_REJUVENATION}):
                 kind = REJUVENATION if potion.class_id == FULL_REJUVENATION else HEALING
                 drops.append(

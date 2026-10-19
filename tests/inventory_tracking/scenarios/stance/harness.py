@@ -37,11 +37,11 @@ from inventory_tracking.combat import stance
 from inventory_tracking.combat.controller import LiveAim
 from inventory_tracking.combat.mechanics.tables import points_of
 from inventory_tracking.combat.policy import Foe, Observation, walls
+from inventory_tracking.game.view import Viewport
 from inventory_tracking.levels.doors import Door
 from inventory_tracking.levels.geometry import Point
 from inventory_tracking.levels.model import Ground, Walkable
 from inventory_tracking.macros.hunt import ELITE_LIFE
-from inventory_tracking.macros.view import Viewport
 from inventory_tracking.takes.timeline import GAME_RATE
 
 

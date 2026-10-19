@@ -13,7 +13,7 @@ COLD_CODES = frozenset({'cold-min', 'cold-max', 'cold-len', 'dmg-cold'})
 
 
 def cold_bounds(record):
-    mods = {}
+    mods: dict[str, tuple[int, ...]] = {}
     for slot in (1, 2, 3):
         code = record.get(f'mod{slot}code')
         if code not in COLD_CODES:

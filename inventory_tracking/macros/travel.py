@@ -21,8 +21,9 @@ from functools import partial
 
 from inventory_tracking.combat.stance import RUN_SPEED, WALK_LATENCY, Camp, Jump, no_footing, way
 from inventory_tracking.common import LOG
-from inventory_tracking.game.layout import NO_OWNER
+from inventory_tracking.game.layout import MONSTER_UNIT, NO_OWNER
 from inventory_tracking.game.records import Monster, Player, Teleport, World
+from inventory_tracking.game.view import Viewport
 from inventory_tracking.levels.doors import Door
 from inventory_tracking.levels.geometry import Point
 from inventory_tracking.levels.model import Ground, Room, Target, Walkable
@@ -42,11 +43,9 @@ from inventory_tracking.macros.teleport import (
     landed_from,
     moved,
 )
-from inventory_tracking.macros.view import Viewport
 from inventory_tracking.native.layout import TILE_UNITS
 
 
-MONSTER_UNIT_TYPE = 1  # unit type of a monster in the under-the-pointer record
 STRIDE = 16.0  # units of one walk stride (the click must be in view)
 STEP_WALK_SECONDS = 0.7  # a walk's click must show the character moving within this
 # A hurried walk's first click goes at the first look that reads the cast over; unseen going within HURRY_SECONDS,
@@ -1516,7 +1515,7 @@ def step_walk(
         if run.hovered is not None:
             run.pace.sleep(HOVER_SECONDS)
             over = run.hovered()
-            if over is not None and over[0] == MONSTER_UNIT_TYPE:
+            if over is not None and over[0] == MONSTER_UNIT:
                 under = [m for m in alive if m.unit_id == over[1] and math.dist((m.x, m.y), goal) <= HOVER_UNITS]
                 if under:
                     raise Covered(f'{label(under[0])} is under the pointer there', (under[0].unit_id,))

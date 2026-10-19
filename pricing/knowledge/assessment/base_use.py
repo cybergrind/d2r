@@ -190,6 +190,7 @@ def assess_runeword_base(facts):
                 '15% ED and +3 AR are premiums, not prerequisites for useful gear.'
             )
         else:
+            assert player is not None  # the guard above skips non-merc bases without a player quality
             role, strengths, missing, tradeoff = player
         if facts.socket_contents != 'empty':
             strengths = []
@@ -251,9 +252,13 @@ def additional_player_use(facts, recipe, recommendation):
     elif (
         name == 'Treachery' and facts.base_name == 'Mage Plate' and recommendation.get('details', {}).get('recommended')
     ):
-        role, strengths, missing, tradeoff = player_quality(facts, name, wearer='player')
+        quality = player_quality(facts, name, wearer='player')
+        assert quality is not None  # these branches are in player_quality's own reviewed set
+        role, strengths, missing, tradeoff = quality
     elif name == 'Fortitude' and facts.base_name == 'Archon Plate' and context.get('builds_char'):
-        role, strengths, missing, tradeoff = player_quality(facts, name, wearer='player')
+        quality = player_quality(facts, name, wearer='player')
+        assert quality is not None  # these branches are in player_quality's own reviewed set
+        role, strengths, missing, tradeoff = quality
         tradeoff = 'Player use values survivability and physical damage; compare strength requirements and repair cost.'
     else:
         return None

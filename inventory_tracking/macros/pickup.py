@@ -19,6 +19,7 @@ from typing import Protocol
 from inventory_tracking.combat.policy import RUN_MODES
 from inventory_tracking.common import LOG
 from inventory_tracking.config import APPRAISAL, BELT, INPUT
+from inventory_tracking.game.layout import ITEM_UNIT, MONSTER_UNIT
 from inventory_tracking.game.records import GOLD, HEALING, REJUVENATION, VALUABLE, Drop, Loot, Player, has_room
 from inventory_tracking.levels.model import Ground, Level, Target
 from inventory_tracking.loot.materials import material_classes
@@ -85,8 +86,6 @@ STOP_TRIES = 2
 STOPPED: dict[int, int] = {}  # unit id -> the teleport steps that went for the drop instead of hopping
 STOOD_SECONDS = 0.4  # the character standing this long after a click with the item still there: a miss
 POLL = 0.05
-ITEM_UNIT = 4
-MONSTER_UNIT = 1  # in the record of the unit under the pointer
 KINDS = {HEALING: PotionType.HEALING, REJUVENATION: PotionType.REJUVENATION}
 
 

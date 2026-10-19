@@ -13,6 +13,7 @@ from datetime import UTC, datetime
 from html import unescape
 from html.parser import HTMLParser
 from pathlib import Path
+from typing import Any
 
 from inventory_tracking.items.stat_constants import CLASS_NAMES
 from pricing.knowledge.localization import merge_game_strings
@@ -25,6 +26,8 @@ _NAMED_TYPOGRAPHY = re.compile(r"[\s'\u2019\u2018-]+")
 # Cached Zeal/Fissure mercenary labels. Identity only: the original setup text
 # retains multiplicity; this does not prove two weapons are owned or equipped.
 _SETUP_IDENTITY_ALIASES = {'lawbringers': 'lawbringer', 'lawbringer(s)': 'lawbringer'}
+
+_RARITY_BY_QUALITY: dict[Any, str] = {3: 'magic', 4: 'rare', 5: 'set', 6: 'unique', 7: 'runeword', 8: 'crafted'}
 
 
 def decode_planner(document):
@@ -44,7 +47,7 @@ def load_catalog(root=ROOT):
         json.loads((root / 'third-parties/d2data/json/allstrings-eng.json').read_text()),
         json.loads((root / 'pricing/raw/mr/planners/game-strings.json').read_text()),
     )
-    catalog = {}
+    catalog: dict[str, dict[str, Any]] = {}
     for group, category in [
         ('armor', 'armor'),
         ('weapons', 'weapon'),
@@ -114,7 +117,9 @@ def resolve_named_label(label, catalog):
     Never substring-match generic bases or composite prose. Preserve decorations
     in original_label; resolving identity does not certify the pictured variant.
     """
-    names = {name.casefold(): row for row in catalog.values() for name in [row['name'], *row.get('aliases', [])]}
+    names: dict[str, dict[str, Any]] = {
+        name.casefold(): row for row in catalog.values() for name in [row['name'], *row.get('aliases', [])]
+    }
     text = label.casefold().strip()
     # Variant qualifier is retained in original_label; it is not part of identity.
     if text.startswith('ethereal '):
@@ -168,7 +173,7 @@ def resolve_named_label(label, catalog):
     return None
 
 
-def _record(name, source_id, locator, build, class_name, variant, side, slot, **extra):
+def _record(name, source_id, locator, build, class_name, variant, side, slot, **extra) -> dict[str, Any]:
     identity = f'{source_id}:{build}:{locator}'
     return {
         'id': hashlib.sha256(identity.encode()).hexdigest()[:24],
@@ -188,7 +193,7 @@ def _record(name, source_id, locator, build, class_name, variant, side, slot, **
 
 def planner_rows(document, catalog, source_id, build, class_name):
     planner = decode_planner(document)
-    rows = []
+    rows: list[dict[str, Any]] = []
     used = set()
     unresolved = 0
     reconciled_sets = []
@@ -200,7 +205,7 @@ def planner_rows(document, catalog, source_id, build, class_name):
         key = str(ref)
         if key in ancestors:
             raise ValueError(f'Cyclic socket reference at {locator}')
-        item = ref if isinstance(ref, dict) else planner['items'].get(key)
+        item: dict[str, Any] | None = ref if isinstance(ref, dict) else planner['items'].get(key)
         if item is not None:
             used.add(key)
         else:
@@ -242,9 +247,7 @@ def planner_rows(document, catalog, source_id, build, class_name):
                 aliases=(resolved or {}).get('aliases', []),
                 sockets=item.get('sockets'),
                 ethereal=item.get('ethereal'),
-                rarity={3: 'magic', 4: 'rare', 5: 'set', 6: 'unique', 7: 'runeword', 8: 'crafted'}.get(
-                    item.get('quality')
-                ),
+                rarity=_RARITY_BY_QUALITY.get(item.get('quality')),
                 predicates={k: item[k] for k in ('sockets', 'ethereal', 'quality') if k in item},
                 details=details,
             )
@@ -364,8 +367,8 @@ def build_dataset(root=ROOT):
     sources = {}
     if reviews:
         sources[str(review_path.relative_to(root))] = _source(root, review_path)
-    rows = []
-    coverage = {'guides': {}, 'planners': {}, 'unresolved_labels': []}
+    rows: list[dict[str, Any]] = []
+    coverage: dict[str, Any] = {'guides': {}, 'planners': {}, 'unresolved_labels': []}
     profile_builds = {}
     name_catalog = {name.casefold(): v for v in catalog.values() for name in [v['name'], *v.get('aliases', [])]}
     for slug in inventory['mandatory_top_builds']:

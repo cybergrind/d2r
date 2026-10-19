@@ -6,6 +6,7 @@ This component has no file access and reuses the shared typed predicate evaluato
 
 from collections.abc import Mapping
 from dataclasses import dataclass, fields
+from typing import Any, cast
 
 from pricing.knowledge.assessment.domain.facts import freeze, thaw
 from pricing.knowledge.assessment.domain.roles import RoleAssessment
@@ -99,7 +100,7 @@ class StatsEvaluator:
             role = roles.get(config.role_id)
             if status == 'matched':
                 status = {'matched': 'matched', 'partial': 'conditional', 'failed': 'failed'}.get(
-                    role.get('status') if role else None, 'unknown'
+                    cast(Any, role.get('status') if role else None), 'unknown'
                 )
             if status == 'conditional' and _only_reviewed_advice(role, config):
                 status = 'matched'

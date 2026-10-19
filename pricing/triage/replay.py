@@ -7,6 +7,7 @@ import json
 import time
 from collections import Counter
 from statistics import median
+from typing import Any, cast
 
 from pricing.triage.adapters import from_drop, from_listing
 from pricing.triage.analyze_rolls import analyze
@@ -120,7 +121,7 @@ def explained_vendor(item, result, keep_ist):
     if item['category'] not in ('uniques', 'sets', 'runewords'):
         return False
     band = result.get('band') or {}
-    price = band.get('q1_ist')
+    price = cast(float, band.get('q1_ist'))
     known = (
         item.get('base_code') is not None
         and (item['category'] == 'sets' or type(item.get('ethereal')) is bool)
@@ -130,7 +131,7 @@ def explained_vendor(item, result, keep_ist):
     if known and type(price) in (int, float) and 0 < price < keep_ist and band.get('sellers', 0) >= 3:
         return True
     comparison = result.get('roll_comparison') or {}
-    ceiling = comparison.get('upper_bound_ist')
+    ceiling = cast(float, comparison.get('upper_bound_ist'))
     return known and type(ceiling) in (int, float) and 0 < ceiling < keep_ist
 
 
@@ -217,7 +218,7 @@ def report(data, read_corpus, scorer):
     atomic_json(data / 'score-triage.json', {'summary': summary, 'results': results, 'per_type': comparison})
     normalization_cache = {}
     rows, _ = market_rows(normalization_cache=normalization_cache)
-    listing = listing_score(rows, tables)
+    listing: dict[str, Any] = listing_score(rows, tables)
     from pricing.triage.demand import cohorts_without_demand
 
     listing['sub_ist_without_demand'] = cohorts_without_demand(tables)

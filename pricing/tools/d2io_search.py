@@ -32,6 +32,7 @@ import subprocess
 import sys
 import urllib.parse
 from pathlib import Path
+from typing import cast
 
 
 UA = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0 Safari/537.36'
@@ -44,7 +45,7 @@ def parse(t):
     seen = set()
     for part in parts[1:]:
         m = re.match(r'<a[^>]+href="(/trade/[^"]+\.html)"', part)
-        slug = m.group(1)
+        slug = cast(re.Match[str], m).group(1)
         if slug in seen:
             continue
         seen.add(slug)

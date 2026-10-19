@@ -54,7 +54,7 @@ The authoritative interfaces are in [build.py](build.py).
 
 Movement and combat positions normally use **world units**. Room/route geometry
 also uses tiles; screen input uses pixels. Check the boundary's conversion
-(`TILE_UNITS`, [view.py](view.py)) before passing coordinates.
+(`TILE_UNITS`, [game/view.py](../game/view.py)) before passing coordinates.
 
 ## Where changes belong
 

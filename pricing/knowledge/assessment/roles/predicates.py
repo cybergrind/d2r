@@ -3,6 +3,7 @@
 import math
 from dataclasses import asdict, dataclass
 from enum import StrEnum
+from typing import Any
 
 from pricing.knowledge.assessment.domain.context import (
     COLLECTION_CONTEXT_FIELDS,
@@ -169,9 +170,10 @@ def validate(rule):
                 if field == 'sockets' or field in NUMERIC_CONTEXT_FIELDS
                 else str
             )
+        bound: Any = rule['value']
         if type(rule['value']) is not expected_type:
             raise ValueError('Predicate value type disagrees with field type')
-        if expected_type is int and rule['value'] < 0:
+        if expected_type is int and bound < 0:
             raise ValueError('Predicate integer type requires nonnegative value')
     else:
         raise ValueError(f'Unknown predicate operation: {op}')

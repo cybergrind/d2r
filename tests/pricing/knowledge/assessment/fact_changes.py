@@ -1,5 +1,6 @@
 """Typed field changes for `dataclasses.replace` on `ItemFacts` in tests."""
 
+from collections.abc import Mapping, Sequence
 from typing import TypedDict
 
 
@@ -16,13 +17,13 @@ class FactChanges(TypedDict, total=False):
     ethereal: bool | None
     sockets: int | None
     socket_contents: str | None
-    socket_items: list
+    socket_items: Sequence
     capture_complete: bool
-    stats: dict
-    properties: dict
-    gaps: list
-    projection_gaps: list
-    provenance: dict
+    stats: Mapping
+    properties: Mapping
+    gaps: Sequence
+    projection_gaps: Sequence
+    provenance: Mapping
     filled_sockets: int | None
     empty_sockets: int | None
     item_level: int | None

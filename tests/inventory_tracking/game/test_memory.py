@@ -177,6 +177,7 @@ def game(monkeypatch) -> Game:
     monkeypatch.setattr(game_memory, 'ProcessMemory', lambda pid: ProcessMemory())  # unbound
     GOLD_SEEN.clear()
     BASE_ROLLS_SEEN.clear()
+    game_memory.UNPLACED_GOLD.clear()
     play = Game()
     carried = play.item(RING, 128 * 10 + 5, 0, quality=RARE, owner=PLAYER)  # in the inventory
     cubed = play.item(SHARD, 128 * 11 + 5, 0, owner=PLAYER)  # in the cube
@@ -273,6 +274,29 @@ def test_a_look_at_the_loot_gives_what_one_walk_per_classifier_gave(game, caplog
         'Macro: ground: unique Unearthed Wand "Death\'s Web" at (5021, 5031): taken (unique)',
         'Macro: gold pile 2697: 4200 gold (the full stat list)',
     ]
+
+
+def test_a_gold_pile_whose_place_is_unread_is_left_out_and_the_rest_of_the_look_kept(game, caplog):
+    # It used to empty the whole look (a ValueError), every other drop unseen (player, 2026-10-19: "Never leave a game
+    # while a valuable the loop would pick up lies on the ground")
+    pile = game.item(GOLD_CLASS, 128 * 23 + 9, 3, path=UNMAPPED)
+    struct.pack_into('<Q', game.memory.blocks[pile], 0x88, game.stats([(0, GOLD_STAT, 5000)]))
+    game.chain()
+    memory = game.game_memory()
+
+    with caplog.at_level('INFO'):
+        loot = look(memory)
+        again = look(memory)
+
+    assert loot.drops == again.drops == LOOT_DROPS
+    assert loot.belt == (None, None, FULL_REJUVENATION) + (None,) * 13
+    assert (loot.life, loot.carried) == (900, frozenset({128 * 10 + 5, 128 * 11 + 5}))
+    assert (loot.room, loot.cube) == (('#.........',) + ('..........',) * 3, ('...', '.#.', '.#.', '...'))
+    unread = [record.getMessage() for record in caplog.records if 'gold pile 2953' in record.getMessage()]
+    assert unread == [
+        'Macro: gold pile 2953: 5000 gold (the full stat list)',
+        'Macro: gold pile 2953: its place is unread: left out of this look',
+    ]  # once, not at every look
 
 
 def test_the_ground_classifiers_of_one_walk_give_what_their_own_walks_gave(game):

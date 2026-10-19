@@ -3,6 +3,7 @@
 import json
 from bisect import bisect_right
 from itertools import product
+from typing import cast
 
 from pricing.triage.adapters import expanded_properties
 from pricing.triage.bands import band_for, eligible
@@ -66,7 +67,9 @@ def compile_model(report, rows, *, require_supported_split=False):
             if numeric(r['properties'].get(prop)) and spec['min'] <= r['properties'][prop] <= spec['max']
         ]
         if valid:
-            spec['selection_floor'] = sign * lower_quartile([sign * r['properties'][prop] for r in seller_rows(valid)])
+            spec['selection_floor'] = sign * cast(
+                float, lower_quartile([sign * r['properties'][prop] for r in seller_rows(valid)])
+            )
     axes, stand_ins = {}, {}
     for prop, spec in deciding.items():
         sign = -1 if spec.get('better') == 'lower' else 1

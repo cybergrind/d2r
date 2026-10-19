@@ -2,6 +2,7 @@
 
 import hashlib
 import json
+from typing import Any
 
 
 CLASSES = ('amazon', 'assassin', 'barbarian', 'druid', 'necromancer', 'paladin', 'sorceress', 'warlock')
@@ -295,7 +296,7 @@ def recommend(
                 context = source_coverage.get('classes', {}).get(class_name, {})
                 if context.get('gap'):
                     class_gaps.append(context['gap'])
-    result = {
+    result: dict[str, Any] = {
         'query': {
             'class': class_name,
             'quality': qualities,

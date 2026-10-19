@@ -7,17 +7,18 @@ and the mercenary table 'Slot | Early-Game | Mid-Game | End-Game'. Item names in
 import sys
 from html.parser import HTMLParser
 from pathlib import Path
+from typing import cast
 
 
 class TP(HTMLParser):
     def __init__(s):
         super().__init__()
-        s.tables = []
-        s.cur = None
-        s.row = None
-        s.cell = None
+        s.tables: list[list[list[str]]] = []
+        s.cur: list[list[str]] | None = None
+        s.row: list[str] | None = None
+        s.cell: list[str] | None = None
 
-    def handle_starttag(s, tag, a):
+    def handle_starttag(s, tag, attrs):
         if tag == 'table':
             s.cur = []
         elif tag == 'tr' and s.cur is not None:
@@ -27,18 +28,18 @@ class TP(HTMLParser):
 
     def handle_endtag(s, tag):
         if tag in ('td', 'th') and s.cell is not None:
-            s.row.append(' '.join(''.join(s.cell).split()))
+            cast(list[str], s.row).append(' '.join(''.join(s.cell).split()))
             s.cell = None
         elif tag == 'tr' and s.row is not None:
-            s.cur.append(s.row)
+            cast(list[list[str]], s.cur).append(s.row)
             s.row = None
         elif tag == 'table' and s.cur is not None:
             s.tables.append(s.cur)
             s.cur = None
 
-    def handle_data(s, d):
+    def handle_data(s, data):
         if s.cell is not None:
-            s.cell.append('  ' + d + '  ')
+            s.cell.append('  ' + data + '  ')
 
 
 p = TP()

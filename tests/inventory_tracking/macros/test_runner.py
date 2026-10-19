@@ -1232,7 +1232,7 @@ def test_a_game_with_a_valuable_on_the_ground_is_never_left_the_loop_stops_inste
 
     def execute(cancelled, routine):
         made.append(routine)
-        raise Abort('inventory full: no room for Flawless Diamond')
+        raise Abort('inventory full: no room for Flawless Diamond', cause='room')
 
     runner = make(execute, shown)
     runner.valuable_left = lambda: 'Flawless Diamond'
@@ -1263,7 +1263,7 @@ def test_a_valuable_with_no_room_makes_room_in_the_cube_then_drops_an_item_once_
         made.append(routine)
         room.append((runner.loop.make_room, runner.loop.drop_room))
         runner.loop.seen = ('cyber1', 0.0)  # the service's poll saw the game
-        raise Abort('the character has not moved for 45 s')
+        raise Abort('the character has not moved for 45 s', cause='stall')
 
     runner = make(execute, shown)
     runner.valuable_left = lambda: 'Grand Charm'
@@ -1558,11 +1558,11 @@ def test_by_hand_the_press_still_moves_on_from_a_chipped_gem_with_no_room():
 def test_a_room_stop_on_andariels_level_is_a_trip_only_with_something_the_visit_takes_away():
     # 13:38:17 on 2026-10-18: only the player's charms carried, the Fortress did nothing and the trip came straight back
     runner = andariel_room_runner(carrying=True)
-    runner._loop_stopped(Abort('the character has not moved for 45 s'))
+    runner._loop_stopped(Abort('the character has not moved for 45 s', cause='stall'))
     assert runner.loop.trip_due
     runner.close()
     runner = andariel_room_runner(carrying=False)
-    runner._loop_stopped(Abort('the character has not moved for 45 s'))
+    runner._loop_stopped(Abort('the character has not moved for 45 s', cause='stall'))
     assert not runner.loop.trip_due
     assert runner.loop.drop_room  # the next room rule
     runner.close()
@@ -1611,7 +1611,7 @@ def test_a_game_makes_another_trip_for_room_after_one_that_made_room():
     loop = runner.loop
     loop.trip = loop.returned = 'cyberr60'
     loop.trips, loop.trip_gained = 1, 6  # the first trip is back, 6 cells more room
-    runner._loop_stopped(Abort('the character has not moved for 45 s'))
+    runner._loop_stopped(Abort('the character has not moved for 45 s', cause='stall'))
     assert loop.trip_due
     assert loop.on
     runner.close()
@@ -1632,7 +1632,7 @@ def test_no_trip_for_room_while_one_is_on_its_way_after_one_that_made_no_room_or
     runner = andariel_room_runner(carrying=True)
     loop = runner.loop
     loop.trip, loop.returned, loop.trips, loop.trip_gained = 'cyberr60', returned, trips, gained
-    runner._loop_stopped(Abort('the character has not moved for 45 s'))
+    runner._loop_stopped(Abort('the character has not moved for 45 s', cause='stall'))
     assert not loop.trip_due
     assert loop.drop_room
     runner.close()
@@ -1695,7 +1695,7 @@ def test_with_no_1x3_free_the_cube_first_then_the_gheeds_swap_is_the_trip_to_tow
     # passed a refusal by (not room), and the loop stood by the charm; the swap needs no 1 x 3 free: the player's
     # charm goes onto a shared page, and its own block takes the new one
     runner = gheeds_runner(rows_free=False)
-    why = Abort('the character has not moved for 45 s') if stop == 'stall' else refused_charm()
+    why = Abort('the character has not moved for 45 s', cause='stall') if stop == 'stall' else refused_charm()
     runner._loop_stopped(why)
     assert not runner.loop.swap_due
     assert runner.loop.make_room  # the cube first: a block may come of it
@@ -1725,7 +1725,7 @@ def test_the_new_gheeds_still_not_taken_with_the_players_parked_fetches_theirs_b
 
     runner = gheeds_runner()
     runner.loop.swap, runner.loop.parked, runner.loop.gheed = 'cyberr48', Parked(1, 2, (620, 0, 0), 30), PICK
-    runner._loop_stopped(Abort('the character has not moved for 45 s'))
+    runner._loop_stopped(Abort('the character has not moved for 45 s', cause='stall'))
     assert runner.loop.gheed == CHOOSE
     assert runner.loop.on
     state = runner.resume_state()
@@ -1845,54 +1845,13 @@ def test_a_trip_back_lifts_the_pickups_give_up_and_moves_to_a_valuable_within_a_
     runner.close()
 
 
-# Every stop text the KP_6 loop's stop rules met, in the tests and in the probe.logs of 2026-10-18 (`Macro: loop: … lies
-# on the ground: …`, `Macro: loop stopped: …`), with the room rules' answer of ROOM_WORDS before causes: `classify`
-# (rca/2026-10-18/arch-loop-orchestration.md Option A, step 1) answers the same for each untagged
-STOP_TEXTS = [
-    ('inventory full: no room for Flawless Diamond', True),
-    ('inventory full: no room for Flawless Sapphire, Grand Charm', True),
-    ('inventory full: no room for Flawless Topaz', True),
-    ('inventory full: no room for Grand Charm', True),
-    ("inventory full: no room for Talic's Anguish", True),
-    ('inventory full: no room for Unique Brandistock', True),
-    ('inventory full: no room for Unique Demonhide Armor', True),
-    ("inventory full: no room for Unique Grand Charm (Gheed's Fortune?)", True),
-    ("no room on the personal stash page for the player's Gheed's Fortune", True),
-    ('no room in the inventory for the item 603 the cube must be emptied of', True),
-    ('inventory full: Grand Charm here — make room', True),  # pursuit.py's stand, a NoWay's reason
-    ('no way toward Grand Charm by walk: inventory full: Grand Charm here — make room', True),
-    ('the character has not moved for 45 s', True),  # ruling pending: the stand counts as room
-    ('Flawless Topaz is 92 away', False),
-    ('Flawless Topaz is 94 away', False),
-    ('Eth Rune at (22562, 9542) was not picked up after 2 trips back', False),
-    ('Flawless Topaz at (22628, 6700) was not picked up after 2 trips back', False),
-    ('Ring at (22553, 9560) was not picked up after 2 trips back', False),
-    ('Ring was under the pointer at 3 aims and no click picked it up', False),
-    ("Unique Grand Charm (Gheed's Fortune?) was under the pointer at 3 aims and no click picked it up", False),
-    ('Andariel again and again in cyber17: nothing came of it', False),
-    ('Andariel again and again in cyberr48: nothing came of it', False),
-    ('down the Catacombs again and again in cyberr48: nothing came of it', False),
-    ('next game again and again in the lobby after cyber81: nothing came of it', False),
-    ("no shared stash page has room for the player's Gheed's Fortune: it stays carried", False),
-    ('over 300 s in cyber32', False),
-    ('the stash did not open with the inventory', False),
-    ('no level map for this level yet', False),
-    ('attack mode off: the game was left', False),
-    ('the waypoint did not open', False),
-    ('Consume: not seen in 2.5s, 3 times over', False),
-]
+def test_classify_never_reads_the_words():
+    from inventory_tracking.macros.runner import classify
 
-
-@pytest.mark.parametrize(('why', 'roomy'), STOP_TEXTS)
-def test_classify_keeps_todays_room_words(why, roomy):
-    from inventory_tracking.macros.runner import ROOM_WORDS, classify
-    from inventory_tracking.macros.stops import ROOM_CAUSES
-
-    assert any(word in why for word in ROOM_WORDS) == roomy  # the table is today's rule
-    assert (classify(Abort(why)) in ROOM_CAUSES) == roomy
-    assert classify(Abort(why)) not in ('hand', 'refused')
-    assert (classify(Flipped(why)) in ROOM_CAUSES) == roomy  # a subclass with no type of its own: by the words
-    assert (classify(RuntimeError(why)) in ROOM_CAUSES) == roomy  # a failure, not an Abort (`Macro failed`)
+    assert classify(Abort('inventory full: no room for Grand Charm')) == 'other'
+    assert classify(Abort('the character has not moved for 45 s')) == 'other'
+    assert classify(Flipped('inventory full: no room for Grand Charm')) == 'other'
+    assert classify(RuntimeError('no room in the inventory')) == 'other'
 
 
 def test_classify_tells_the_hand_and_the_refusal_by_their_type_and_a_named_cause_first():
@@ -1905,8 +1864,6 @@ def test_classify_tells_the_hand_and_the_refusal_by_their_type_and_a_named_cause
     assert classify(refused_charm()) == 'refused'
     assert classify(Dead('the character is dead')) == 'other'
     assert classify(Cancelled()) == 'other'
-    assert classify(Abort('the character has not moved for 45 s')) == 'stall'
-    assert classify(Abort('inventory full: no room for Grand Charm')) == 'room'
     # The raise's cause wins over its words
     assert classify(Abort('inventory full: no room for Grand Charm', cause='room')) == 'room'
     assert classify(Abort('the character has not moved for 45 s', cause='stall')) == 'stall'
@@ -1916,14 +1873,13 @@ def test_classify_tells_the_hand_and_the_refusal_by_their_type_and_a_named_cause
     assert 'stall' in ROOM_CAUSES
 
 
-@pytest.mark.parametrize('cause', [None, 'stall'])
-def test_a_stand_named_or_told_by_its_words_takes_the_same_room_rule(cause):
-    # The watchdog names its stand ('stall'); untagged, the words tell it as before: the same rule either way (04:32:26
-    # on 2026-10-17: "the character has not moved for 45 s; Grand Charm lies on the ground")
+def test_a_named_stand_takes_the_room_rule():
+    # The watchdog names its stand 'stall' (04:32:26 on 2026-10-17: "the character has not moved for 45 s; Grand
+    # Charm lies on the ground")
     runner = make(lambda cancelled, routine: None, [])
     runner.loop.on, runner.loop.seen = True, ('cyber32', 0.0)
     runner.valuable_left = lambda: 'Grand Charm'
-    runner._loop_stopped(Abort('the character has not moved for 45 s', cause=cause))
+    runner._loop_stopped(Abort('the character has not moved for 45 s', cause='stall'))
     assert runner.loop.make_room
     assert runner.loop.room_tried == 'cyber32'
     runner.close()
@@ -1982,14 +1938,14 @@ def test_any_stop_with_the_character_dead_stops_the_loop_and_leaves_no_game():
     # all": a watchdog's stop or a leg's with the character dead is no recovery (whose next leg is Save and Exit)
     runner = andariel_room_runner(carrying=True)
     runner._dead = lambda: True
-    runner._loop_stopped(Abort('the character has not moved for 45 s'))
+    runner._loop_stopped(Abort('the character has not moved for 45 s', cause='stall'))
     assert not runner.loop.on
     assert not runner.loop.abandon
     assert not runner.loop.trip_due
     runner.close()
     runner = andariel_room_runner(carrying=True)
     runner._dead = lambda: False
-    runner._loop_stopped(Abort('the character has not moved for 45 s'))
+    runner._loop_stopped(Abort('the character has not moved for 45 s', cause='stall'))
     assert runner.loop.on  # alive: the room rules as before
     runner.close()
 

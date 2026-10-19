@@ -13,6 +13,7 @@ import json
 import re
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import Any
 
 from pricing.knowledge.item_requirements import fixed_requirements, single_skill_level
 from pricing.knowledge.localization import merge_game_strings
@@ -147,7 +148,7 @@ def build_item_facts(root: Path) -> dict:
 
     root = Path(root)
     raw = root / 'pricing/raw/d2data'
-    bases = {}
+    bases: dict[str, tuple[Any, dict[str, Any]]] = {}
     for table in ('weapons', 'armor', 'misc'):
         for key, record in _read(raw / f'{table}.json').items():
             bases[key] = (table, record)
@@ -158,8 +159,8 @@ def build_item_facts(root: Path) -> dict:
     english_path = 'third-parties/d2data/json/allstrings-eng.json'
     planner_rows = _read(root / string_path, [])
     planner_strings = merge_game_strings({}, planner_rows)
-    strings = merge_game_strings(_read(root / english_path, {}), planner_rows)
-    rows = []
+    strings: dict[Any, Any] = merge_game_strings(_read(root / english_path, {}), planner_rows)
+    rows: list[dict[str, Any]] = []
     ordinary_items = None
     ordinary_uniques = None
     mode_inputs = {}

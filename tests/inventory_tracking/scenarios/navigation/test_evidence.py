@@ -2,7 +2,7 @@
 
 import pytest
 
-from inventory_tracking.macros.view import Viewport
+from inventory_tracking.game.view import Viewport
 from tests.inventory_tracking.scenarios.navigation.evidence import free_hops, hops_of, journeys_of, reach_along
 
 

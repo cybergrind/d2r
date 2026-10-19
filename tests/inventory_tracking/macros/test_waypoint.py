@@ -152,17 +152,20 @@ def near() -> Game:
     return play
 
 
-def test_a_panel_the_walk_opened_is_done_with_no_aim_and_no_step_back():
+def test_a_panel_the_walk_opened_is_done_with_no_aim_and_no_step_back(caplog):
     """14:42:09 on 2026-10-18: the walk's last click opened the panel; the aims read None under the pointer and
-    the step back clicked onto it, then the game was left."""
+    the step back clicked onto it, then the game was left. Caught by use_thing's PANEL_GRACE."""
     play = near()
     play.panel_covers = True
     play.later(0.12, lambda: setattr(play, 'world', replace(play.world, open_panels=('waypoint',))))  # the walk's click
 
-    open_panel(play.run())
+    with caplog.at_level('INFO'):
+        open_panel(play.run())
 
     assert play.keys.events == []
     assert play.world.open_panels == ('waypoint',)
+    assert any('the waypoint took before any aim' in r.getMessage() for r in caplog.records)
+    assert play.said[-1] == 'the waypoint: opened'
 
 
 def test_a_panel_opening_between_the_aims_stops_the_aiming_with_no_step_back():

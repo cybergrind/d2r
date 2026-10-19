@@ -19,17 +19,17 @@ from inventory_tracking.common import LOG
 from inventory_tracking.game.decode import next_name
 from inventory_tracking.game.layout import ACTING, SUPER_FLAG as SUPER_UNIQUE_FLAG, TRACE_RVAS
 from inventory_tracking.game.records import Player, World
-from inventory_tracking.levels.model import Ground
-from inventory_tracking.macros.actuator import Abort
-from inventory_tracking.macros.engine import Run
-from inventory_tracking.macros.skills import SWAP_WEAPONS, skill_name
-from inventory_tracking.macros.view import (
+from inventory_tracking.game.view import (
     AIM_LIMITS as AIM_LIMITS,
     BODY_LIFT as BODY_LIFT,
     FEET as FEET,
     UNIT_PIXELS as UNIT_PIXELS,
     Viewport,
 )
+from inventory_tracking.levels.model import Ground
+from inventory_tracking.macros.actuator import Abort
+from inventory_tracking.macros.engine import Run
+from inventory_tracking.macros.skills import SWAP_WEAPONS, skill_name
 
 
 if TYPE_CHECKING:

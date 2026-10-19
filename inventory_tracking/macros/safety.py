@@ -454,9 +454,9 @@ class Pricing:
         inside a pack)."""
         here = self.here
         path, seconds = self.move_price(base.step)
-        self.burnt_out(path, seconds, self.candidates[-1].harm)
-        last = self.candidates[-1]
-        if last.harm.worst > self.allowance or veto(last.harm, self.look.life, self.settings):
+        moved = self.candidates[-1]  # the move's own price, not the waits and steps `burnt_out` adds after it
+        self.burnt_out(path, seconds, moved.harm)
+        if moved.harm.worst > self.allowance or veto(moved.harm, self.look.life, self.settings):
             for fraction in (0.25, 0.5, 0.75):
                 if self.clock.late():
                     break
@@ -791,6 +791,7 @@ class Safety:
         p.firing_stand(unsafe, held.harm)
         clock.lap('the firing stand')
         self.offered_stand(p, fresh, posted)
+        clock.lap('the offered stand')
         if not unsafe and ((facts.in_reach and facts.attacking) or waiting) and saving > least:
             self.stepping(p, held.harm, saving, least)
         clock.lap('the escapes')

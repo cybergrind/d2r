@@ -3,6 +3,7 @@
 import json
 from collections import defaultdict
 from pathlib import Path
+from typing import Any
 
 
 CASES = Path(__file__).with_name('guide-cases.json')
@@ -26,7 +27,7 @@ def compile_cases(cases):
             expected = [expected] if isinstance(expected, str) else expected
             if not {'sell', 'slow'}.intersection(expected):
                 continue
-            item = item_from_spec(entry['spec']) if entry.get('spec') else entry.get('item')
+            item: Any = item_from_spec(entry['spec']) if entry.get('spec') else entry.get('item')
             if not item or not item.get('category') or not item.get('name'):
                 continue
             conditions = {

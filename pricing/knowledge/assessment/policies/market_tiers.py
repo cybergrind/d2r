@@ -5,6 +5,8 @@ high; the Floor band maps to the requested trash trade tier, not a discard rule.
 This policy never relaxes comparisons or creates a numerical price estimate.
 """
 
+from typing import Any, cast
+
 from pricing.knowledge.assessment.comparables import MIN_SELLERS
 from pricing.knowledge.assessment.domain.comparison_results import ComparisonResult
 from pricing.knowledge.market import valid_positive
@@ -39,7 +41,7 @@ def resolve_market_tier(facts, reviewed, current):
         or estimate['sellers'] < MIN_SELLERS
     ):
         return reviewed
-    low, median, high = (estimate.get(key) for key in ('low_ist', 'estimate_ist', 'high_ist'))
+    low, median, high = (cast(Any, estimate.get(key)) for key in ('low_ist', 'estimate_ist', 'high_ist'))
     dates = estimate.get('dates')
     if (
         not all(valid_positive(value) for value in (low, median, high))

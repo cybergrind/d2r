@@ -6,6 +6,7 @@ from datetime import date
 from functools import lru_cache
 from math import isfinite
 from pathlib import Path
+from typing import Any
 
 from pricing.knowledge.artifacts import read_artifact
 from pricing.knowledge.assessment.handlers.definitions import resolve_named_definition
@@ -56,7 +57,8 @@ def validate(raw, guides, market, native):
         raise ValueError('Missing or duplicate Crown evidence')
     sellers = set()
     for row in rows:
-        props, ask = row.get('properties', {}), row.get('ask_ist')
+        props = row.get('properties', {})
+        ask: Any = row.get('ask_ist')
         if (
             (row.get('rarity'), row.get('name')) != IDENTITY
             or row.get('base_code') != 'urn'

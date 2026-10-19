@@ -9,9 +9,8 @@ from pathlib import Path
 from typing import Any, NamedTuple
 
 from inventory_tracking.game.layout import LEADER_FLAGS, MINION_FLAG, NO_OWNER
-from inventory_tracking.game.records import Player
+from inventory_tracking.game.view import Viewport
 from inventory_tracking.levels.geometry import Point
-from inventory_tracking.macros.routines import world_point
 from inventory_tracking.native.layout import DEAD_MODES
 
 
@@ -155,8 +154,7 @@ def ground_under_pointer(frame: dict[str, Any], aspect: float, lift: float = 0.0
     player, pointer = player_of(frame), pointer_of(frame)
     if player is None or pointer is None:
         return None
-    stand = Player(player.unit, '', player.mode, player.area, player.x, player.y, None)
-    return world_point(stand, pointer[0], pointer[1] + lift, aspect)
+    return Viewport(aspect).world((player.x, player.y), pointer[0], pointer[1] + lift)
 
 
 def lines(path: Path) -> Iterator[dict[str, Any]]:

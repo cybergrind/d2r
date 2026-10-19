@@ -1,5 +1,7 @@
 """Bind reviewed asking segments to the same native predicates as captured items."""
 
+from typing import Any
+
 from pricing.knowledge.assessment.domain.facts import ItemFacts
 from pricing.knowledge.assessment.handlers.definitions import resolve_named_definition
 from pricing.knowledge.assessment.mechanics import waterwalk_defense
@@ -57,9 +59,9 @@ def validate_segments(review, parent_valid_if):
         raise ValueError('Unsupported trade evidence ethereal inference')
     mapping = market_mapping(review)
     validity = {'all': [parent_valid_if, review['valid_if']]}
-    expected = {None: set(review['default_evidence_ids'])}
+    expected: dict[Any, set] = {None: set(review['default_evidence_ids'])}
     expected.update({index: set(band['evidence_ids']) for index, band in enumerate(review['bands'])})
-    actual = {key: set() for key in expected}
+    actual: dict[Any, set] = {key: set() for key in expected}
     for row in review['market_evidence']:
         properties = project_properties(review, row, mapping)
         properties = listing_absorb({'policy': 'named', 'rarity': row['rarity'], 'name': row['name']}, row, properties)

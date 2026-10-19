@@ -2,6 +2,7 @@
 
 from collections import defaultdict
 from statistics import median
+from typing import Any, cast
 
 from pricing.knowledge.market import convert_groups, valid_positive
 from pricing.triage.bands import eligible, latest_rows, timestamp
@@ -31,8 +32,8 @@ def apply_gem_quotes(rows, rune_rates):
             quotes[name] = {
                 'ist': median(votes.values()),
                 'sellers': len(votes),
-                'observed_at': max(timestamp(r['observed_at']) for r in members),
-                'oldest_observation': min(timestamp(r['observed_at']) for r in members),
+                'observed_at': max(cast(str, timestamp(r['observed_at'])) for r in members),
+                'oldest_observation': min(cast(str, timestamp(r['observed_at'])) for r in members),
                 'listing_ids': sorted(str(r['listing_id']) for r in members),
                 'sources': sorted({r['source'] for r in members if r.get('source')}),
                 'basis': 'scoped rune asks per gem; one minimum ask per seller',
@@ -45,7 +46,7 @@ def apply_gem_quotes(rows, rune_rates):
             ask, conversion = convert_groups(row['prices'], rates)
             if ask is not None and row['unit_policy'] == 'stack_total':
                 ask /= row['amount']
-            conversion.update(
+            cast(dict[str, Any], conversion).update(
                 rune_snapshot='pricing/data/wp-f-ladder.json',
                 gem_quotes={name: quotes[name] for name in sorted(used)},
             )

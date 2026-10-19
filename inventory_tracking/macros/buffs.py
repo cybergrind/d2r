@@ -15,11 +15,11 @@ from collections.abc import Callable, Iterable, Mapping, Sequence
 from dataclasses import dataclass, replace
 
 from inventory_tracking.common import LOG
+from inventory_tracking.game.layout import MONSTER_UNIT
 from inventory_tracking.game.records import Monster, World
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.build import Buff, BuffFacts, Build, Casting, DrawPrice, Tried
 from inventory_tracking.macros.engine import Run
-from inventory_tracking.macros.pad import MONSTER_UNIT
 from inventory_tracking.macros.routines import (
     ACTING,
     LOAD_LIMIT,

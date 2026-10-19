@@ -16,7 +16,7 @@ from typing import TYPE_CHECKING
 
 from inventory_tracking.combat.stance import AWARE, RUN_SPEED, WALK_LATENCY
 from inventory_tracking.common import LOG
-from inventory_tracking.game.layout import NO_OWNER
+from inventory_tracking.game.layout import ITEM_UNIT, NO_OWNER
 from inventory_tracking.input.gamepad import KEY_RECORDS, MODIFIER, Pad, record_buttons, record_label
 from inventory_tracking.input.keybindings import MODIFIERS, action_keys, button_number, x11_name
 from inventory_tracking.levels.geometry import Point
@@ -43,8 +43,6 @@ if TYPE_CHECKING:
 LOOT, LOOT_TO_CUBE = 358, 370
 register_names({LOOT: 'Loot', LOOT_TO_CUBE: 'Loot to Cube'})
 RECORDS = 12  # records 0-5 are A X B Y RB RT, 6-11 the same with LT held (input/gamepad.py)
-# Unit types as the client's records name them (native units): the controller's target is (type, id).
-MONSTER_UNIT, OBJECT_UNIT, ITEM_UNIT, TILE_UNIT = 1, 2, 4, 5
 
 # World heading -> stick: the client turns the stick by -45 degrees into the world (0x1400d7630, constant
 # 0xbec90fdb). Pad.stick takes screen directions (x right, y down). Squash and y sign inferred (history/pad.md).

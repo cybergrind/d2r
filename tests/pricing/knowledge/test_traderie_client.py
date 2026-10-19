@@ -4,7 +4,7 @@ from unittest.mock import Mock
 
 import pytest
 
-from pricing.knowledge import refresh
+from pricing.knowledge import refresh, traderie_client
 
 
 def response(monkeypatch, status, body, headers=''):
@@ -14,8 +14,8 @@ def response(monkeypatch, status, body, headers=''):
         return subprocess.CompletedProcess(args, 0, f'{body}\n{status}')
 
     request = Mock(side_effect=run)
-    monkeypatch.setattr(refresh.subprocess, 'run', request)
-    monkeypatch.setattr(refresh.time, 'sleep', Mock())
+    monkeypatch.setattr(traderie_client.subprocess, 'run', request)
+    monkeypatch.setattr(traderie_client.time, 'sleep', Mock())
     return request
 
 
@@ -31,23 +31,23 @@ def response(monkeypatch, status, body, headers=''):
 def test_rejected_responses_stop_without_retry(monkeypatch, status, body, headers, message):
     request = response(monkeypatch, status, body, headers)
     with pytest.raises(OSError, match=message):
-        refresh.fetch_json('https://traderie.com/api/test')
+        traderie_client.fetch_json('https://traderie.com/api/test')
     assert request.call_count == 1
-    sleep = refresh.time.sleep
+    sleep = traderie_client.time.sleep
     assert isinstance(sleep, Mock)  # patched by response()
     sleep.assert_not_called()
 
 
 def test_rate_limit_preserves_retry_after(monkeypatch):
     request = response(monkeypatch, '429', '<html>limited</html>', 'Retry-After: 120\r\n')
-    with pytest.raises(refresh.RateLimited, match='Retry-After: 120'):
-        refresh.fetch_json('https://traderie.com/api/test')
+    with pytest.raises(traderie_client.RateLimited, match='Retry-After: 120'):
+        traderie_client.fetch_json('https://traderie.com/api/test')
     assert request.call_count == 1
 
 
 def test_success_uses_browser_user_agent(monkeypatch):
     request = response(monkeypatch, '200', '{"listings": []}')
-    assert refresh.fetch_json('https://traderie.com/api/test') == {'listings': []}
+    assert traderie_client.fetch_json('https://traderie.com/api/test') == {'listings': []}
     args = request.call_args.args[0]
     assert 'Chrome/' in args[args.index('-A') + 1]
 
@@ -55,7 +55,7 @@ def test_success_uses_browser_user_agent(monkeypatch):
 def test_invalid_json_retries_then_preserves_cause(monkeypatch):
     request = response(monkeypatch, '200', 'invalid')
     with pytest.raises(OSError, match='JSON request failed'):
-        refresh.fetch_json('https://traderie.com/api/test')
+        traderie_client.fetch_json('https://traderie.com/api/test')
     assert request.call_count == 3
 
 

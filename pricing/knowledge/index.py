@@ -9,6 +9,7 @@ import sqlite3
 import tempfile
 from contextlib import nullcontext
 from pathlib import Path
+from typing import Any
 
 from pricing.knowledge.names import normalize_name
 from pricing.knowledge.numeric_search import build_numeric_index, candidate_clauses
@@ -104,7 +105,7 @@ def build_index(paths, database):
     fd, temporary = tempfile.mkstemp(prefix='.appraisal-', suffix='.sqlite3', dir=database.parent)
     os.close(fd)
     source_versions = {}
-    report = {'schema_version': SCHEMA_VERSION, 'records': 0, 'sources': [], 'by_kind': {}}
+    report: dict[str, Any] = {'schema_version': SCHEMA_VERSION, 'records': 0, 'sources': [], 'by_kind': {}}
     try:
         with sqlite3.connect(temporary) as connection:
             connection.executescript("""
@@ -137,7 +138,7 @@ def build_index(paths, database):
                     row['artifact'] = {'path': str(source_path), 'locator': locator, 'sha256': digest}
                     if row['kind'] in ('item_fact', 'recommendation'):
                         prepared_rows.append(row)
-                    values = [str(row['name']), normalize_name(row['name'])]
+                    values: list[Any] = [str(row['name']), normalize_name(row['name'])]
                     values.extend(next(iter(_facet_values(row, key)), None) for key in FACETS)
                     payload = json.dumps(row, ensure_ascii=False, sort_keys=True, separators=(',', ':'))
                     cursor = connection.execute(
@@ -186,7 +187,7 @@ def build_index(paths, database):
     return report
 
 
-def _connect(database):
+def _connect(database) -> sqlite3.Connection | nullcontext[sqlite3.Connection]:
     if isinstance(database, sqlite3.Connection):
         # Borrow an appraisal snapshot without committing its read transaction.
         return nullcontext(database)
@@ -298,7 +299,7 @@ def lookup(database, name, *, limit=5, **facets):
                 (normalize_name(name), normalize_name(name)),
             )
         ]
-    result = {
+    result: dict[str, Any] = {
         'query': name,
         'facets': facets,
         'status': 'known' if rows else 'unknown',
@@ -315,7 +316,7 @@ def lookup(database, name, *, limit=5, **facets):
             {'name': row['name'], 'kind': row['kind']} for row in search(database, name, limit=limit)
         ]
         return result
-    market = []
+    market: list[dict[str, Any]] = []
     for row in rows:
         if row['kind'] == 'market':
             market.append(row)

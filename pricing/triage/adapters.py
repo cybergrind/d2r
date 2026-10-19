@@ -1,6 +1,7 @@
 """Captured drops and normalized listings share property IDs and triage selectors."""
 
 from functools import lru_cache
+from typing import cast
 
 from inventory_tracking.items.metadata import metadata, metadata_generation
 from pricing.knowledge.material_items import MATERIAL_POTIONS
@@ -94,7 +95,7 @@ def base_facets(properties, rarity, sockets, contents, *, base=None):
         inherent = base.get('undead_damage_bonus')
         if inherent and properties.get('538') == inherent:
             properties.pop('538')
-    enhanced_ids = {'armor': ('425',), 'weapons': ('510',)}.get(base.get('category'), ('425', '510'))
+    enhanced_ids = {'armor': ('425',), 'weapons': ('510',)}.get(cast(str, base.get('category')), ('425', '510'))
     enhanced = [properties[p] for p in enhanced_ids if p in properties]
     unreadable_enhancement = any(type(value) not in (int, float) for value in enhanced)
     modifiers = base_modifiers(properties)
@@ -178,7 +179,7 @@ def from_drop(observation):
         # The captured blocking stat is base + affix; sellers list the affix bonus alone.
         from pricing.knowledge.definition_store import catalog
 
-        bonus = properties['446'] - catalog().shield_base_blocks.get(facts.base_code, 0)
+        bonus = properties['446'] - cast(dict[str | None, int], catalog().shield_base_blocks).get(facts.base_code, 0)
         if bonus > 0:
             properties['446'] = bonus
         else:
@@ -192,7 +193,7 @@ def from_drop(observation):
         and type(defense.get('value')) in (int, float)
     ):
         properties['1855'] = defense['value']
-    category = {'unique': 'uniques', 'set': 'sets'}.get(facts.rarity, facts.rarity)
+    category = {'unique': 'uniques', 'set': 'sets'}.get(facts.rarity or '', facts.rarity)
     name = facts.base_name if facts.rarity in AFFIXED else facts.name
     if facts.runeword:
         category, name = 'runewords', facts.runeword
@@ -206,7 +207,7 @@ def from_drop(observation):
             if facts.item_type == 'ques' or facts.base_code in MATERIAL_POTIONS
             else 'base'
         )
-        name = NAMES.get(facts.base_code, name)
+        name = NAMES.get(facts.base_code or '', name)
     return {
         'category': category,
         'name': name,

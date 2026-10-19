@@ -2,6 +2,7 @@
 
 import re
 from pathlib import Path
+from typing import Any
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -36,7 +37,7 @@ def _confidence(line, field, value):
 
 def parse_lines(lines, catalog, properties):
     """Conservative English tooltip grammar; retain unrecognized item lines verbatim."""
-    item = {
+    item: dict[str, Any] = {
         'name': None,
         'base_code': None,
         'base_name': None,
@@ -53,7 +54,7 @@ def parse_lines(lines, catalog, properties):
         'superior': None,
         'socket_contents': None,
     }
-    result = {
+    result: dict[str, Any] = {
         'item': item,
         'evidence': {},
         'unparsed_lines': [],

@@ -16,6 +16,7 @@ import json
 import statistics
 import sys
 from pathlib import Path
+from typing import Any
 
 
 KEEP = ('/offers?', '/items/prices?')
@@ -40,7 +41,7 @@ def label(pid):
 
 def ist(prices):
     """Ist value of a price list; OR-groups take the cheapest; None when empty or in items the ladder lacks."""
-    groups = {}
+    groups: dict[Any, float] = {}
     for p in prices or []:
         name = p.get('name') or ''
         value = LADDER.get(name.replace(' Rune', ''))

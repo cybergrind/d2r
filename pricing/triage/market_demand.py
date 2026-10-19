@@ -1,6 +1,7 @@
 """Demand qualification from completed offline measurements, never seller count alone."""
 
 from math import isfinite
+from typing import cast
 
 
 def qualify(verdict, price, guide_use, observation):
@@ -8,7 +9,7 @@ def qualify(verdict, price, guide_use, observation):
         return verdict, None
     observation = observation or {}
     signal = bool(guide_use or observation.get('buyers', 0) or observation.get('uncensored_disappeared', 0))
-    hours = observation.get('maximum_interval_hours')
+    hours = cast(float, observation.get('maximum_interval_hours'))
     measured = (
         observation.get('previous_listings', 0) > 0
         and 'current_listings' in observation

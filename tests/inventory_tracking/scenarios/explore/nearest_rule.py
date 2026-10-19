@@ -5,10 +5,10 @@ step's heading counted as up to TURN_TILES more. Rooms no teleport lands in were
 
 import math
 
+from inventory_tracking.game.view import Viewport
 from inventory_tracking.levels.model import Target
 from inventory_tracking.levels.route import room_at
 from inventory_tracking.macros.teleport import Way
-from inventory_tracking.macros.view import Viewport
 from inventory_tracking.native.layout import TILE_UNITS
 
 from .harness import Pick, Replay

@@ -1,5 +1,7 @@
 """Named additive rolls with linked socket contributions removed."""
 
+from typing import Any
+
 from pricing.knowledge.assessment.domain.facts import Fact, FactStatus, StatKey
 from pricing.knowledge.assessment.handlers.definitions import resolve_named_definition
 from pricing.knowledge.assessment.roles.socket_payload import child_stat
@@ -46,7 +48,7 @@ def innate_stat(facts, key):
             return unknown
     elif facts.socket_contents != 'empty' or children:
         return unknown
-    values = [child_stat(child, key) for child in children]
+    values: list[Any] = [child_stat(child, key) for child in children]
     if any(type(value) is not int or value < 0 for value in values):
         return unknown
     innate = observed.value - sum(values)

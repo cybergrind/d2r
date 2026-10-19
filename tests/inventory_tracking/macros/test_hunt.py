@@ -2270,7 +2270,7 @@ def test_a_hostile_that_dies_with_its_summoner_is_no_target_while_anything_else_
     """rca/2026-10-14/baal-sim.md fix 2: Baal's clone (combat/threats `bound`) is not aimed at while Baal or anything
     else is in reach; with nothing else in reach the mode alone strikes it, and the pursuit loop's look does not hold
     for it (`only_bound`)."""
-    from inventory_tracking.macros.view import Viewport
+    from inventory_tracking.game.view import Viewport
 
     baal = foe(1, 5015.0, 5000.0, txt_id=544)
     clone = foe(2, 5006.0, 5000.0, txt_id=570, life=129882, max_life=129882)

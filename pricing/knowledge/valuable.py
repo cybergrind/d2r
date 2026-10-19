@@ -9,6 +9,7 @@ import json
 from collections import defaultdict
 from html.parser import HTMLParser
 from pathlib import Path
+from typing import Any, cast
 
 from pricing.knowledge.index import normalize_name
 from pricing.knowledge.market import summarize
@@ -20,7 +21,9 @@ GUIDE_URL = 'https://maxroll.gg/d2/items/valuable-unique-set-items'
 class GuideTable(HTMLParser):
     def __init__(self):
         super().__init__()
-        self.rows, self.row, self.cell = [], None, None
+        self.rows: list[list[str]] = []
+        self.row: list[str] | None = None
+        self.cell: list[str] | None = None
 
     def handle_starttag(self, tag, attrs):
         if tag == 'tr':
@@ -34,7 +37,7 @@ class GuideTable(HTMLParser):
 
     def handle_endtag(self, tag):
         if tag in ('td', 'th') and self.cell is not None:
-            self.row.append(' '.join(' '.join(self.cell).split()))
+            cast('list[str]', self.row).append(' '.join(' '.join(self.cell).split()))  # a cell opens only inside a row
             self.cell = None
         elif tag == 'tr' and self.row is not None:
             self.rows.append(self.row)
@@ -76,7 +79,7 @@ def build_watchlist(root):
         row = json.loads(line)
         if row.get('rarity') in ('unique', 'set'):
             market_by_name[normalize_name(row['name'])].append(row)
-    rows = []
+    rows: list[dict[str, Any]] = []
     for definition in definitions:
         if definition.get('rarity') not in ('unique', 'set'):
             continue

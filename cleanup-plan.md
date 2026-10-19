@@ -88,6 +88,16 @@ Evidence: five read-only studies in `rca/2026-10-19/cleanup/` (git-ignored, loca
   field comments and dated rulings. Kept stories went to `<package>/history/<module>.md`; the take format is
   `takes/README.md`. Not in this pass: appraisal/, items/, shop/, identify/, collection/, pricing/, tests/.
 
+- 2026-10-19 batch C (the player's rulings of 2026-10-19): `ROOM_WORDS` gone (no untagged room stop in the logs since
+  13:27 or in the code: stops are told by their named cause or type); `appraisal_service.py` deleted; `grow.py` and
+  `binja_grow.py` in `inventory_tracking/native/`; the Traderie client is `pricing/knowledge/traderie_client.py`;
+  `pricing/` under pyrefly (0 errors; `assessment/maintenance/` excluded until ruling 2), type-level edits only;
+  `pricing/api.py` in the validation code. Bugs fixed: safety's shorter approaches read the move's own price when
+  fire is on the way (and the offered stand has its own lap); an unreadable gold pile is left out, not the whole
+  look; waypoint.py's own panel wait is gone (`use_thing`'s PANEL_GRACE does it: 282 acts, all the same). Unit-type
+  constants from game/layout.py; `macros/view.py` is `game/view.py` (takes import no macros). Pricing tests: the
+  same 74 red as HEAD (checked on a copy of HEAD). Open: one unreadable belt item still empties a look (ruling).
+
 ## Where we are
 
 | | Now |

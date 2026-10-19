@@ -2,7 +2,7 @@
 
 TOTAL_STATS_OFFSET = 0xE8
 SOCKETS_STAT_ID = 194
-ITEM_UNIT_TYPE = 4
+ITEM_UNIT = 4  # game/layout.py ITEM_UNIT; items stays below game (pricing validation imports it)
 
 
 def socket_count(arrays):
@@ -27,7 +27,7 @@ def captured_runes(capture, count, bases):
         if not isinstance(child, dict) or child.get('position') != position:
             return None
         unit = child.get('unit')
-        if not isinstance(unit, dict) or unit.get('type') != ITEM_UNIT_TYPE or unit.get('identity_stable') is not True:
+        if not isinstance(unit, dict) or unit.get('type') != ITEM_UNIT or unit.get('identity_stable') is not True:
             return None
         base = bases.get(str(unit.get('txt_id')))
         unit_id = unit.get('unit_id')

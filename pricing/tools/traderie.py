@@ -60,10 +60,8 @@ from urllib.parse import quote
 
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root, for runs by path
-# The one Traderie HTTP client: retries, and stops on a rate limit, challenge or rejection. It stays in
-# pricing/knowledge/refresh.py, whose edits re-validate the published runtime (published_runtime.VALIDATION_CODE).
-from pricing.knowledge.refresh import API, fetch_json
 from pricing.knowledge.scope import in_scope  # the one scope predicate: 799 softcore, 800 NL, 798 PC, 1854 RotW
+from pricing.knowledge.traderie_client import API, fetch_json  # the one Traderie HTTP client
 
 
 def get(url):

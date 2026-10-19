@@ -811,7 +811,7 @@ def test_a_press_the_game_drops_is_pressed_again_and_the_lost_key_is_not_named_a
 def test_a_hop_aimed_beside_the_skill_bar_that_moves_nothing_is_judged_like_any_other(corners):
     # The corners are confirmed in the game: a failed hop there is a lost key or the like, not a reason
     # to stop aiming there.
-    from inventory_tracking.macros import view
+    from inventory_tracking.game import view
 
     play = game()
     play.keys.on_event = lambda event: None  # the game takes no cast
@@ -1221,20 +1221,6 @@ def test_a_panel_never_opening_is_still_said_not_under_the_pointer():
 
     with pytest.raises(Abort, match='the stash is not under the pointer at any aim'):
         use_thing(play.run(), mark, play.character, thing, 16 / 9)
-
-
-def test_with_no_grace_one_look_is_made_before_the_aims():
-    """waypoint.py waits its own OPENS_SECONDS before it calls: no second wait (grace=0.0)."""
-    from inventory_tracking.macros.teleport import use_thing
-
-    play, mark, thing = fortress_stash()
-    stash_opens(play, 0.12)
-    run = play.run()
-    run.hovered = lambda: (2, 9)  # the stash under every aim
-
-    use_thing(run, mark, play.character, thing, 16 / 9, grace=0.0)
-
-    assert [e[0] for e in play.keys.events].count('click') == 1  # the panel had not come: the first aim clicked
 
 
 def test_a_portal_left_already_is_not_clicked():

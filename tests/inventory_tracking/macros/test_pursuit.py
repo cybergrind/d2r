@@ -21,6 +21,7 @@ import pytest
 from inventory_tracking.combat.stance import Jump, no_footing
 from inventory_tracking.game.layout import NO_OWNER
 from inventory_tracking.game.records import VALUABLE, Drop, Monster, Teleport
+from inventory_tracking.game.view import Viewport
 from inventory_tracking.levels.geometry import Point
 from inventory_tracking.levels.model import Ground, Room, Target, Walkable, pack_cells
 from inventory_tracking.macros import goals, movement, pickup, route, teleport, travel
@@ -32,7 +33,6 @@ from inventory_tracking.macros.runner import EXPIRES, TELEPORT as TELEPORT_KEY
 from inventory_tracking.macros.sight import clear_shot
 from inventory_tracking.macros.skills import TELEPORT
 from inventory_tracking.macros.travel import PRESSED, STANDING, Travel, Walked, navigator, way_leg
-from inventory_tracking.macros.view import Viewport
 from inventory_tracking.native.layout import TILE_UNITS
 from inventory_tracking.routes.model import ENTER, FIGHT, LEAVE, LOOT, STAND, USE, enter, fight, leave, loot, stand, use
 from inventory_tracking.terror.bosses import SUPER_UNIQUE_FLAG

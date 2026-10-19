@@ -2,7 +2,7 @@ import json
 
 import pytest
 
-from pricing.knowledge import refresh
+from pricing.knowledge import traderie_client
 from pricing.tools import traderie
 from tests.pricing.scope_cases import ROTW, VERIFIED, changed, listings, raw_properties
 
@@ -10,9 +10,9 @@ from tests.pricing.scope_cases import ROTW, VERIFIED, changed, listings, raw_pro
 API = 'https://traderie.com/api/diablo2resurrected'
 
 
-def test_the_tools_use_the_one_refresh_client():
-    assert traderie.fetch_json is refresh.fetch_json
-    assert traderie.API == refresh.API == API
+def test_the_tools_use_the_one_client():
+    assert traderie.fetch_json is traderie_client.fetch_json
+    assert traderie.API == traderie_client.API == API
 
 
 def test_request_urls():
@@ -23,12 +23,12 @@ def test_request_urls():
 
 
 def test_get_answers_the_clients_json(monkeypatch):
-    monkeypatch.setattr(refresh, '_fetch_response', lambda url: ('{"items": []}', '200', {}))
+    monkeypatch.setattr(traderie_client, '_fetch_response', lambda url: ('{"items": []}', '200', {}))
     assert traderie.get(traderie.search_url('Ist')) == {'items': []}
 
 
 def test_get_ends_the_tool_on_a_rate_limit(monkeypatch):
-    monkeypatch.setattr(refresh, '_fetch_response', lambda url: ('slow down', '429', {'retry-after': '60'}))
+    monkeypatch.setattr(traderie_client, '_fetch_response', lambda url: ('slow down', '429', {'retry-after': '60'}))
     with pytest.raises(SystemExit, match='HTTP 429; Retry-After: 60'):
         traderie.get(traderie.search_url('Ist'))
 

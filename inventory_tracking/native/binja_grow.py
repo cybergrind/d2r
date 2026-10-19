@@ -6,7 +6,7 @@ and prototypes already in the database stay, and only what lies on the changed p
 
 In Binary Ninja, with the D2R view in front, in the Python console:
 
-    exec(open('/mnt/extra/1000/games/d2r/pricing/tools/binja_grow.py').read())
+    exec(open('/mnt/extra/1000/games/d2r/inventory_tracking/native/binja_grow.py').read())
 
 It only reads the file on disk and writes to the view in front (`bv`). Save the database afterwards
 (a copy of the .bndb beforehand costs nothing but disk). Run it again after every `make grow`.
@@ -17,7 +17,7 @@ from pathlib import Path
 
 GROWN = Path('/mnt/extra/1000/games/d2r/pricing/raw/re/D2R-decrypted.exe')
 BASE = 0x140000000
-TEXT_FILE, TEXT_SIZE, TEXT_RVA = 0x400, 0x15CB800, 0x1000  # as pricing/tools/grow.py has them
+TEXT_FILE, TEXT_SIZE, TEXT_RVA = 0x400, 0x15CB800, 0x1000  # as native/grow.py has them
 PAGE = 0x1000
 DONE = 'ai_d2_grown_pages'  # the database's own note of the pages analysed again
 
@@ -115,4 +115,4 @@ def main(view) -> None:
     print('Analysis is running; save the database when it has settled.')
 
 
-main(bv)  # ruff: ignore[undefined-name] (the console's view in front)
+main(bv)  # ruff: ignore[undefined-name]  # pyrefly: ignore[unknown-name]  (the console's view in front)

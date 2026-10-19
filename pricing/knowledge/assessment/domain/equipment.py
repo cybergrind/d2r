@@ -7,6 +7,7 @@ supplied loadout; a hover, name list or inventory capture does not populate them
 from collections.abc import Mapping
 from dataclasses import fields
 from types import MappingProxyType
+from typing import Any
 
 from pricing.knowledge.assessment.domain.facts import Fact, FactStatus, ItemFacts
 
@@ -38,7 +39,7 @@ def item_snapshot(value):
         or any(not isinstance(g, str) for g in gaps)
     ):
         return Fact(None, FactStatus.UNKNOWN, 'equipped_slot')
-    normalized = {
+    normalized: dict[str, Any] = {
         key: value.get(key) if type(value.get(key)) is str and value[key].strip() else None for key in STRING_FIELDS
     }
     normalized.update(

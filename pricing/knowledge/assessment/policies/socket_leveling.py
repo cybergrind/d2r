@@ -2,6 +2,7 @@
 
 import math
 from collections import Counter
+from typing import Any
 
 from inventory_tracking.items.metadata import metadata
 from pricing.knowledge.assessment.domain.facts import FactStatus, StatKey
@@ -74,7 +75,7 @@ def diamond_resistance(facts):
     return True
 
 
-def complete_fillers(facts):
+def complete_fillers(facts) -> list[Any]:
     state = facts.socket_state
     if (
         facts.runeword

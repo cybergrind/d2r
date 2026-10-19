@@ -1,13 +1,16 @@
 """Prepared stat configurations and semantic validation; no source-file reads."""
 
 from dataclasses import fields
+from typing import Any
 
 from pricing.knowledge.assessment.domain.facts import thaw
 from pricing.knowledge.assessment.stat_evaluation import StatConfiguration, StatPriority
 
 
 def configuration_row(config):
-    row = {field.name: thaw(getattr(config, field.name)) for field in fields(config) if field.name != 'priorities'}
+    row: dict[str, Any] = {
+        field.name: thaw(getattr(config, field.name)) for field in fields(config) if field.name != 'priorities'
+    }
     row['priorities'] = [{field.name: thaw(getattr(p, field.name)) for field in fields(p)} for p in config.priorities]
     if not config.advisory_conditions:
         row.pop('advisory_conditions')
@@ -15,7 +18,8 @@ def configuration_row(config):
 
 
 def configuration_from_row(row):
-    return StatConfiguration(**{**row, 'priorities': tuple(StatPriority(**p) for p in row['priorities'])})
+    kwargs: dict[str, Any] = {**row, 'priorities': tuple(StatPriority(**p) for p in row['priorities'])}
+    return StatConfiguration(**kwargs)
 
 
 def validate_stat_bundle(document):

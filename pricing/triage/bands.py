@@ -3,6 +3,7 @@
 from collections import defaultdict
 from datetime import UTC, datetime
 from statistics import median, quantiles
+from typing import Any
 
 from pricing.knowledge.market import scope_status, valid_positive
 from pricing.triage.family_bands import compile_comparisons, compile_pattern, family_name, pattern_bucket, roll_bucket
@@ -111,7 +112,7 @@ def build_bands(rows, catalog, *, rules=(), policies=()):
     from pricing.triage.engine import matches
 
     groups = defaultdict(list)
-    names = {(r['type'], r['name'], 1) for r in catalog}
+    names: set[tuple[Any, Any, Any]] = {(r['type'], r['name'], 1) for r in catalog}
     for row in latest_rows(rows):
         row = listing_defaults(row)
         key = row.get('category'), row.get('name'), row.get('amount')

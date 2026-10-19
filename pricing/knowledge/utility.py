@@ -11,6 +11,7 @@ from datetime import UTC, datetime
 from html import unescape
 from html.parser import HTMLParser
 from pathlib import Path
+from typing import Any
 
 
 CLASSES = ('amazon', 'assassin', 'barbarian', 'druid', 'necromancer', 'paladin', 'sorceress', 'warlock')
@@ -176,7 +177,7 @@ def legal_recipe_edges(game, strings):
 def transcript_rows(data):
     rows = []
     for entry in data['items']:
-        predicates = {}
+        predicates: dict[str, Any] = {}
         if entry['name'] == "Death's Hand":
             predicates['requires_items'] = ["Death's Guard"]
         if entry['name'].startswith("Sigon's"):
@@ -281,13 +282,13 @@ class GuideItems(HTMLParser):
     def handle_startendtag(self, tag, attrs):
         pass
 
-    def handle_data(self, text):
+    def handle_data(self, data):
         if self.checklist is not None:
-            self.checklist['text'].append(text)
+            self.checklist['text'].append(data)
         if self.capture is not None:
-            self.capture['text'].append(text)
+            self.capture['text'].append(data)
         if self.heading_text is not None:
-            self.heading_text.append(text)
+            self.heading_text.append(data)
 
 
 def _source(root, relative, source_id, url=None, date=None):

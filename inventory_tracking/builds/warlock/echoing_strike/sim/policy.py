@@ -17,7 +17,7 @@ from inventory_tracking.builds.warlock.echoing_strike.sim.input import BIRTH_LAG
 from inventory_tracking.builds.warlock.echoing_strike.sim.situation import Situation
 from inventory_tracking.combat.controller import LiveAim
 from inventory_tracking.combat.policy import RUN_MODES, Choice, NearestPolicy, Observation, Policy
-from inventory_tracking.macros.view import Viewport
+from inventory_tracking.game.view import Viewport
 from inventory_tracking.takes.timeline import GAME_RATE
 
 

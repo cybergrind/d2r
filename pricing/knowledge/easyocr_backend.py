@@ -16,7 +16,7 @@ def load_reader(model_dir):
     model_dir = Path(model_dir).resolve()
     if any(not (model_dir / name).is_file() for name in MODELS):
         raise FileNotFoundError(f'Local EasyOCR models missing in {model_dir}; see pricing/knowledge/OCR.md')
-    import easyocr
+    import easyocr  # pyrefly: ignore[missing-import]
 
     return easyocr.Reader(
         ['en'],
@@ -100,7 +100,7 @@ def retry_regions(gray, lines, reader, *, limit=3):
 
 
 def extract_image(path, *, model_dir=None, reader=None, retry_limit=0):
-    from PIL import Image
+    from PIL import Image  # pyrefly: ignore[missing-import]
 
     model_dir = Path(model_dir or ROOT / 'pricing/raw/ocr/easyocr').resolve()
     start = time.perf_counter()
@@ -120,7 +120,7 @@ def extract_image(path, *, model_dir=None, reader=None, retry_limit=0):
     with Image.open(path) as image:
         dimensions = list(image.size)
     if retry_limit:
-        import numpy as np
+        import numpy as np  # pyrefly: ignore[missing-import]
 
         with Image.open(path) as image:
             gray = np.asarray(image.convert('L'))

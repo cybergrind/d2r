@@ -33,8 +33,9 @@ from inventory_tracking.combat.controller import (
 from inventory_tracking.combat.policy import MIN_FOCAL, RUN_MODES, STRIKE_REACH, Choice, Policy, observe
 from inventory_tracking.combat.score import LiveScore
 from inventory_tracking.common import LOG
-from inventory_tracking.game.layout import NO_OWNER
+from inventory_tracking.game.layout import ITEM_UNIT, MONSTER_UNIT, NO_OWNER
 from inventory_tracking.game.records import Drop, Monster, World
+from inventory_tracking.game.view import Viewport
 from inventory_tracking.levels.model import Ground, Level, Room, Target
 from inventory_tracking.levels.route import room_at
 from inventory_tracking.macros.actuator import POINTER_DRIFT, Abort, Cancelled
@@ -58,7 +59,6 @@ from inventory_tracking.macros.hunting.base import (
     HURT_SECONDS,
     IDLE_LOG_SECONDS,
     INPUT_SECONDS,
-    ITEM_UNIT_TYPE,
     LABEL_SECONDS,
     LABEL_SHIFTS,
     MAIN_AFTER,
@@ -86,7 +86,6 @@ from inventory_tracking.macros.hunting.base import (
     strike_input,
     threat,
 )
-from inventory_tracking.macros.pad import MONSTER_UNIT
 from inventory_tracking.macros.pickup import Refused
 from inventory_tracking.macros.pursuit import NONE, SETTLE, Move as Advance, Pursuit, Told, settled
 from inventory_tracking.macros.rotation import ELITE_LIFE
@@ -100,7 +99,6 @@ from inventory_tracking.macros.supply import Potions
 from inventory_tracking.macros.teleport import HOVER_SECONDS, MOVED, Way, hop_toward
 from inventory_tracking.macros.tour import Bounds, tour
 from inventory_tracking.macros.travel import LOOPED, Point, Step, Tally, Travel, label, life, step_line
-from inventory_tracking.macros.view import Viewport
 from inventory_tracking.models import PotionType
 from inventory_tracking.native.layout import TILE_UNITS
 from inventory_tracking.terror.bosses import BOSSES
@@ -1051,7 +1049,7 @@ class Hunter:
                 run.actuator.aim(*where, scatter=(2, 2))
                 run.pace.sleep(HOVER_SECONDS)
             over = run.hovered()
-            if over is None or over[0] != ITEM_UNIT_TYPE:
+            if over is None or over[0] != ITEM_UNIT:
                 if tried:
                     LOG.info(
                         "Macro: an item's label under the aim at (%.1f, %.1f) (%s): the pointer %+.0f units along "
@@ -1226,7 +1224,7 @@ class Hunter:
                     # The pointer stands where the macro left it: an item's label may be under it now.
                     labels_due = run.clock() + LABEL_SECONDS
                     over = run.hovered()
-                    if over is not None and over[0] == ITEM_UNIT_TYPE:
+                    if over is not None and over[0] == ITEM_UNIT:
                         self.off_labels(run, view, here, choice.focal)
                         aim.put(choice.focal, here, run.actuator.keys.pointer())
                 if again is None:

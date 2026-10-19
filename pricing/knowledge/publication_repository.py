@@ -19,7 +19,7 @@ class RuntimeLoad:
 class PublicationRepository:
     def __init__(self, store):
         self.store = Path(store)
-        self._current = None
+        self._current: LoadedRuntime | None = None
         self._index_signature = None
         self._seen = None
         self._issues = ()
@@ -41,7 +41,7 @@ class PublicationRepository:
                 if raw == self._seen and usable:
                     return RuntimeLoad(self._current, self._issues)
                 pointer = json.loads(raw)
-                if usable and pointer.get('generation') == self._current.generation:
+                if usable and self._current is not None and pointer.get('generation') == self._current.generation:
                     self._seen, self._issues = raw, ()
                     return RuntimeLoad(self._current)
                 bundle = current_generation(self.store)
@@ -55,7 +55,7 @@ class PublicationRepository:
             except (OSError, ValueError, KeyError, TypeError, AttributeError) as error:
                 self._issues = (f'Publication update unavailable: {error}',)
                 if 'raw' in locals():
-                    self._seen = raw
+                    self._seen = raw  # pyrefly: ignore[unbound-name]
                 # Parsed artifact bytes remain pinned in memory. The index is
                 # still a file, so a changed/deleted old index cannot be reused.
                 return RuntimeLoad(self._current if self._usable() else None, self._issues)

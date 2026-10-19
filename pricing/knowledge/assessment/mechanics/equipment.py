@@ -4,6 +4,8 @@ Meeting these numeric requirements does not prove class/slot legality or that a
 build's companion conditions are satisfied.
 """
 
+from typing import Any
+
 from pricing.knowledge.assessment.domain.context import AssessmentContext
 from pricing.knowledge.assessment.domain.facts import FactStatus
 from pricing.knowledge.item_requirements import fixed_requirements
@@ -49,7 +51,7 @@ def named_requirements(facts, definition, reviewed):
     return requirements if all(type(v) is int and v >= 0 for v in requirements.values()) else {}
 
 
-def assess_requirements(requirements, side, loadout=None):
+def assess_requirements(requirements, side, loadout=None) -> dict[str, Any]:
     context = AssessmentContext.from_input(loadout)
     prefix = {'player': 'player', 'merc': 'mercenary'}.get(side)
     checks, shortfalls = [], []
@@ -70,6 +72,7 @@ def assess_requirements(requirements, side, loadout=None):
         )
         checks.append({'attribute': attribute, 'required': required, 'observed': observed, 'status': status})
         if status == 'unmet':
+            assert prefix  # 'unmet' is only reached with a known side
             shortfalls.append(f'{prefix.title()} {attribute} {observed}; requires {required}.')
     statuses = {check['status'] for check in checks}
     return {

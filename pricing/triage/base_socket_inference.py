@@ -3,6 +3,7 @@
 import json
 from collections import defaultdict
 from statistics import quantiles
+from typing import Any, cast
 
 from pricing.triage.bands import eligible, latest_rows
 
@@ -11,10 +12,10 @@ def key(row):
     return json.dumps([row.get('base_code') or row.get('name'), row.get('ethereal'), row.get('rarity')])
 
 
-def distribution(rows):
-    sellers = {}
+def distribution(rows) -> dict[str, Any]:
+    sellers: dict[str, Any] = {}
     for row in rows:
-        price, seller = row.get('ask_ist'), row.get('seller_id')
+        price, seller = cast(float, row.get('ask_ist')), row.get('seller_id')
         if seller and type(price) in (int, float) and price > 0:
             sellers[str(seller)] = min(price, sellers.get(str(seller), price))
     values = sorted(sellers.values())

@@ -1,5 +1,7 @@
 """Guide-reviewed named roll groups; asking premiums do not establish demand."""
 
+from typing import Any
+
 from pricing.triage.bands import band_for, eligible, latest_rows
 from pricing.triage.roll_comparisons import numeric
 
@@ -22,7 +24,9 @@ def compile_placements(rows, policies):
             value = row.get('properties', {}).get(policy['property'])
             if numeric(value) and policy['min'] <= value <= policy['max']:
                 groups['ordinary' if value < policy['valuable_min'] else 'top'].append(row)
-        bands = {key: band_for(policy['category'], policy['name'], group) for key, group in groups.items()}
+        bands: dict[str, Any] = {
+            key: band_for(policy['category'], policy['name'], group) for key, group in groups.items()
+        }
         ordinary, top = bands['ordinary'], bands['top']
         if min(ordinary['sellers'], top['sellers']) < 3:
             continue

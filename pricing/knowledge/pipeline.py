@@ -2,6 +2,7 @@
 
 import time
 from datetime import UTC, date, datetime
+from typing import Any, cast
 
 from pricing.knowledge import definition_store
 from pricing.knowledge.artifacts import artifact_snapshot
@@ -52,8 +53,8 @@ def _retrieve_draft(extraction, database, *, loadout, as_of):
     if properties:
         facets['properties'] = properties
     queries = []
-    evidence = {}
-    base_assessment = None
+    evidence: dict[str, Any] = {}
+    base_assessment: Any = None
     if item.get('name'):
         name = item.get('base_name') if item.get('rarity') in ('magic', 'rare', 'crafted') else item['name']
         name = name or item['name']
@@ -61,7 +62,8 @@ def _retrieve_draft(extraction, database, *, loadout, as_of):
         is_base = item.get('rarity') in BASE_QUALITIES and not item.get('runeword')
         found = lookup(database, name, **facets, limit=1000 if is_base else 3)
         if is_base:
-            base_assessment = assess_base(item, compact_result(found))
+            # is_base is assess_base's own non-None condition.
+            base_assessment = cast('dict[str, Any]', assess_base(item, compact_result(found)))
             found['evidence']['historical_market'] = base_assessment['historical_asks']
             found['evidence'] = {kind: rows[:3] for kind, rows in found['evidence'].items()}
         evidence['identity'] = compact_result(found)

@@ -3,6 +3,7 @@
 import json
 import math
 from collections import Counter
+from typing import cast
 
 from pricing.triage.patterns import matched_patterns
 from pricing.triage.rule_index import candidates
@@ -20,7 +21,7 @@ def evidence_backed_check(item, result, tables):
     if matched_patterns(item, rows, socket_preparation=result.get('preparation')):
         return True
     reference = result.get('reference_band') or {}
-    price = reference.get('q1_ist')
+    price = cast(float, reference.get('q1_ist'))
     if result.get('sale_mode') == 'accumulate' and type(price) in (int, float):
         price *= reference.get('quantity', 1)
     priced = type(price) in (int, float) and math.isfinite(price) and price >= tables['rules']['keep_ist']

@@ -15,7 +15,7 @@ def fixed_property(definition, name):
 
 
 def intrinsic_ethereal(variants):
-    states = set()
+    states: set[bool | None] = set()
     for definition in variants:
         if fixed_property(definition, 'ethereal'):
             states.add(True)

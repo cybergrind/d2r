@@ -15,6 +15,7 @@ from dataclasses import dataclass, replace
 from typing import Self
 
 from inventory_tracking.combat.stance import RUN_SPEED, WALK_LATENCY, Jump
+from inventory_tracking.game.view import Viewport
 from inventory_tracking.levels.model import Target
 from inventory_tracking.macros.build import PAD_SLACK, Intent, JumpSource, Leg, MoveFacts, NoWay, Point, Step
 from inventory_tracking.macros.pad import TELEPORT_REACH
@@ -33,7 +34,6 @@ from inventory_tracking.macros.travel import (
     way_left,
     way_leg,
 )
-from inventory_tracking.macros.view import Viewport
 from inventory_tracking.native.layout import TILE_UNITS
 
 

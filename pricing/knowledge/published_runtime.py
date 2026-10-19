@@ -5,6 +5,7 @@ import json
 import os
 import sys
 import tempfile
+from collections.abc import Mapping
 from contextlib import contextmanager, suppress
 from dataclasses import dataclass
 from pathlib import Path
@@ -12,11 +13,13 @@ from types import MappingProxyType
 
 from inventory_tracking.items import metadata as item_metadata
 from pricing.knowledge import artifacts, definition_store
+from pricing.knowledge.artifacts import Artifact, LazyArtifact
 from pricing.knowledge.assessment.build_profiles import OUTPUT
 from pricing.knowledge.assessment.inputs import artifact_inputs
 from pricing.knowledge.assessment.profile_sources import profile_source_paths
 from pricing.knowledge.documented_cache_dates import REVIEW_PATH, parse_reviews
 from pricing.knowledge.pipeline import retrieve_draft
+from pricing.knowledge.publication import PublishedGeneration
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -31,13 +34,14 @@ VALIDATION_CODE = (
     Path(item_metadata.__file__).resolve().parent,
     ROOT / 'inventory_tracking/__init__.py',
     ROOT / 'inventory_tracking/common.py',
+    ROOT / 'pricing/api.py',  # items/ imports pricing through it
 )
 
 
 @dataclass(frozen=True)
 class LoadedRuntime:
-    bundle: object
-    mapping: object
+    bundle: PublishedGeneration
+    mapping: Mapping[Path, Artifact | LazyArtifact]
     definitions: definition_store.DefinitionCatalog
 
     @property
@@ -111,7 +115,7 @@ def load_runtime(bundle, *, validate=True):
     missing = required - bundle.artifacts.keys()
     if missing:
         raise ValueError(f'Incomplete runtime publication: {sorted(missing)}')
-    mapping = {}
+    mapping: dict[Path, Artifact | LazyArtifact] = {}
     for name in sorted(required):
         expected = bundle.artifacts[name]
         artifact = (artifacts.lazy_artifact if name in LAZY else artifacts._read)(bundle.artifact(name))

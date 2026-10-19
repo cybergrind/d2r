@@ -2,7 +2,8 @@ from pathlib import Path
 
 import pytest
 
-from inventory_tracking.macros import teleport, view
+from inventory_tracking.game import view
+from inventory_tracking.macros import teleport
 
 
 HERE = Path(__file__).parent

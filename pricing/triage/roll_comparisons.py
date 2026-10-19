@@ -2,6 +2,7 @@
 
 from math import isfinite, log2
 from statistics import median, quantiles
+from typing import cast
 
 
 def numeric(value):
@@ -70,7 +71,7 @@ def price_split(rows, prop, spec, *, minimum_sellers=6, side=3, ratio=1.5):
         good, bad = (low, high) if spec.get('better') == 'lower' else (high, low)
         if (
             min(len(low), len(high)) >= side
-            and lower_quartile(good) >= ratio * lower_quartile(bad)
+            and cast(float, lower_quartile(good)) >= ratio * cast(float, lower_quartile(bad))
             and median(good) >= ratio * median(bad)
         ):
             return {

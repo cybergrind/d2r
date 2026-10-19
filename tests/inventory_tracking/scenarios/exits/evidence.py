@@ -21,8 +21,8 @@ from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any
 
+from inventory_tracking.game.view import Viewport
 from inventory_tracking.macros.teleport import ENTRY_WALK, NEAR_WARP
-from inventory_tracking.macros.view import Viewport
 
 
 LOGS = Path('inventory_tracking/runs/alt-d')

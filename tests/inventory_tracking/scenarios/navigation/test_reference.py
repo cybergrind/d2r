@@ -11,9 +11,9 @@ from itertools import pairwise
 
 import pytest
 
+from inventory_tracking.game.view import Viewport
 from inventory_tracking.levels.model import Ground, Walkable, pack_cells
 from inventory_tracking.macros.teleport import footing
-from inventory_tracking.macros.view import Viewport
 from inventory_tracking.native.layout import TILE_UNITS
 from tests.inventory_tracking.macros.fakes import KEYS, WINDOW
 from tests.inventory_tracking.scenarios.navigation.harness import (

@@ -32,7 +32,7 @@ HOST_VERIFIED_RUNEWORD_IDS = {'Authority': 20509}
 
 
 def scalar_ranges(record, properties, stat_ids, *, runeword=False, skill_ids=None, affix_flat_damage=False):
-    ranges = []
+    ranges: list[dict[str, Any]] = []
     for i in range(1, 13):
         code = record.get(f'T1Code{i}' if runeword else f'prop{i}')
         low = record.get(f'T1Min{i}' if runeword else f'min{i}')

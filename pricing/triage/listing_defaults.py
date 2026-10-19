@@ -6,6 +6,7 @@ rolls are preserved rather than guessed.
 """
 
 from functools import lru_cache
+from typing import cast
 
 from inventory_tracking.items.metadata import metadata, metadata_generation
 from pricing.knowledge.definition_store import catalog
@@ -49,7 +50,7 @@ def superior_base(row):
     if base.get('category') not in ('armor', 'weapons'):
         return False
     facets = base_facets(row.get('properties', {}), 'normal', row.get('sockets'), 'empty', base=base)
-    ed, modifiers = facets['base_ed'], facets['base_modifiers']
+    ed, modifiers = cast(float, facets['base_ed']), facets['base_modifiers']
     if type(ed) not in (int, float) or ed != int(ed) or (ed != 0 and not 5 <= ed <= 15) or modifiers is None:
         return False
     # qualityitems.json also allows attack rating or durability without ED.

@@ -37,7 +37,7 @@ def summarise(directory):
                 'pulled_at': document.get('pulled_at'),
                 'trades': len(rows),
                 'days_span': span,
-                'per_day': round(len(rows) / span, 3) if rows else 0.0,
+                'per_day': round(len(rows) / span, 3) if span else 0.0,
                 'last': rows[0]['when'] if rows else None,
                 'last_30d': sum(r['days_ago'] <= 30 for r in rows),
                 'last_90d': sum(r['days_ago'] <= 90 for r in rows),

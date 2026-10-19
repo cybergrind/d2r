@@ -2,6 +2,7 @@
 
 import json
 from math import isfinite
+from typing import cast
 
 from pricing.triage.roll_comparisons import lower_quartile, seller_rows
 
@@ -13,7 +14,7 @@ def worthwhile(groups):
     votes = [seller_rows(group) for group in groups]
     if any(len(group) < 3 for group in votes):
         return False
-    prices = [lower_quartile([row['ask_ist'] for row in group]) for group in votes]
+    prices = [cast(float, lower_quartile([row['ask_ist'] for row in group])) for group in votes]
     return min(prices) > 0 and max(prices) >= 1.5 * min(prices)
 
 

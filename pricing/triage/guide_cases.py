@@ -11,6 +11,7 @@ import re
 from collections import Counter
 from html.parser import HTMLParser
 from pathlib import Path
+from typing import Any, cast
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -224,7 +225,7 @@ def base_table_examples(case):
         return [
             example
             for text in variants
-            for example in base_table_examples(case | {'resolved_cells': [cells[0], text, *cells[2:]]})
+            for example in cast(list, base_table_examples(case | {'resolved_cells': [cells[0], text, *cells[2:]]}))
         ]
     match = re.fullmatch(
         r'(?:(?P<eth>eth) )?(?:(?P<res>45)@ )?(?P<sockets>[0-6])os '
@@ -412,7 +413,7 @@ def evaluate(cases, assess, *, scorer=None):
         group['passed'] += passed
     for group in groups.values():
         group['accuracy'] = group['passed'] / group['total'] if group['total'] else None
-    table_score = {
+    table_score: dict[str, Any] = {
         key: sum(groups.get(kind, {}).get(key, 0) for kind in ('table', 'verdict', 'own-use'))
         for key in ('total', 'evaluated', 'passed')
     }

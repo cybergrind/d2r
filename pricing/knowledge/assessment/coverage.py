@@ -3,6 +3,7 @@
 import json
 from collections import Counter
 from pathlib import Path
+from typing import Any
 
 from inventory_tracking.items.metadata import metadata
 from pricing.knowledge.artifacts import read_artifact
@@ -84,7 +85,7 @@ def coverage():
 def main():
     from pricing.knowledge.assessment.maintenance.named_gate import audit
 
-    result = coverage()
+    result: dict[str, Any] = coverage()
     gate = audit()
     result['named_tiers'].update(
         eligible=gate['counts']['eligible_named'],

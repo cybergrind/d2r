@@ -2,6 +2,7 @@
 
 import math
 from collections import Counter, defaultdict
+from typing import Any
 
 from pricing.triage.adapters import AFFIXED, BASE_CONTEXT, from_listing
 from pricing.triage.bands import band_for, eligible, latest_rows, timestamp
@@ -45,7 +46,7 @@ def derive(rows, property_ids, keep_ist):
         if keys:
             key = item['category'], item['family'], item['ethereal'], item['sockets'], keys
             groups[key].append((row, item))
-    result = []
+    result: list[dict[str, Any]] = []
     for (category, family, ethereal, sockets, signature), members in sorted(groups.items()):
         paid = [
             (row, item)

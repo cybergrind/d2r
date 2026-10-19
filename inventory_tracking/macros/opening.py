@@ -13,6 +13,7 @@ from functools import partial
 
 from inventory_tracking.common import LOG
 from inventory_tracking.game.decode import container_names, usable
+from inventory_tracking.game.layout import OBJECT_UNIT
 from inventory_tracking.game.records import Thing
 from inventory_tracking.levels.model import Level
 from inventory_tracking.loot.ground import SPARKLY_CHEST
@@ -20,7 +21,7 @@ from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.pickup import PICK_SECONDS, WALK_SPEED, Threat, approach, standing
 from inventory_tracking.macros.routines import UNIT_PIXELS
-from inventory_tracking.macros.teleport import HOVER_SECONDS, OBJECT_UNIT, ground_fraction, in_view, ready
+from inventory_tracking.macros.teleport import HOVER_SECONDS, ground_fraction, in_view, ready
 
 
 NEAR_UNITS = 12.0  # world units: a container this near is opened on the way

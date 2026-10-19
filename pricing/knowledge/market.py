@@ -6,6 +6,7 @@ import math
 import statistics
 from collections import Counter
 from pathlib import Path
+from typing import Any
 
 from pricing.knowledge.assessment.observations import superseded_rows
 from pricing.knowledge.cache_dates import collection_day_evidence
@@ -227,7 +228,7 @@ def import_cache(root, catalog=None):
     rows = []
     seen = set()
     date_reviews, date_registry = load_reviews(root)
-    manifest = {
+    manifest: dict[str, Any] = {
         'schema_version': 1,
         'files': [],
         'currency_snapshot': str(ladder_path.relative_to(root)),

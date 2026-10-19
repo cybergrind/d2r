@@ -8,6 +8,7 @@ pricing.knowledge.recommendations`` after exporting item facts.
 import hashlib
 import json
 from pathlib import Path
+from typing import Any
 
 
 CLASSES = ('amazon', 'assassin', 'barbarian', 'druid', 'necromancer', 'paladin', 'sorceress', 'warlock')
@@ -607,13 +608,14 @@ def _key(name):
     return name.casefold().replace('\u2019', "'").strip()
 
 
-def build_recommendations(candidates, facts, utility):
+def build_recommendations(candidates, facts, utility) -> dict[str, Any]:
     """Build reviewed records; unreviewed evidence cannot become recommendations."""
     identities = {}
     for fact in facts['rows']:
         for name in [fact['name'], *fact.get('aliases', [])]:
             identities.setdefault(_key(name), {})[fact['item_id']] = fact
-    rows, census = [], []
+    rows: list[dict[str, Any]] = []
+    census: list[dict[str, Any]] = []
     for candidate in candidates['items']:
         name = candidate['name']
         record = {'name': name, 'source_locator': candidate['source_timestamp']}
@@ -640,7 +642,7 @@ def build_recommendations(candidates, facts, utility):
             continue
         fact = next(iter(matches.values()))
         conditions = CONDITIONS.get(name, []).copy()
-        entry = {
+        entry: dict[str, Any] = {
             'id': 'leveling:' + fact['item_id'],
             'item_id': fact['item_id'],
             'name': fact['name'],
@@ -683,13 +685,15 @@ def build_recommendations(candidates, facts, utility):
     reviewed_rows = {(r.get('source_id'), r.get('source_locator'), r['name']): r for r in utility['rows']}
     for cls, name, locator in GUIDE_REVIEW:
         source_id = 'leveling-' + cls
-        entry = next((r for r in rows if r['name'] == name and r['side'] == 'player'), None)
+        guide_entry: dict[str, Any] | None = next(
+            (r for r in rows if r['name'] == name and r['side'] == 'player'), None
+        )
         benefit = GUIDE_BENEFITS.get((cls, name))
         matches = identities.get(_key(name), {})
         if benefit and len(matches) == 1:
             fact = next(iter(matches.values()))
             reason, conditions = benefit
-            entry = {
+            guide_entry = {
                 'id': 'leveling:' + fact['item_id'],
                 'item_id': fact['item_id'],
                 'name': fact['name'],
@@ -719,18 +723,18 @@ def build_recommendations(candidates, facts, utility):
                 'source_id': source_id,
                 'source_locator': locator,
                 **({'source_label': source_name} if source_name != name else {}),
-                'status': 'accepted' if present and entry else 'gap',
+                'status': 'accepted' if present and guide_entry else 'gap',
                 **({} if source_verified else {'reason': 'Missing, ambiguous or changed reviewed source snapshot.'}),
             }
         )
-        if not present or entry is None:
+        if not present or guide_entry is None:
             continue
         source_ids.add(source_id)
         source_meta = snapshots[0]
         rows.append(
             {
-                **entry,
-                'id': entry['id'] + ':' + cls,
+                **guide_entry,
+                'id': guide_entry['id'] + ':' + cls,
                 'classes': [cls],
                 'evidence_strength': 'explicit',
                 'source_id': source_id,

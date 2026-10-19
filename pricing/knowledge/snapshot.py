@@ -1,14 +1,17 @@
 """Pin one read-only index generation for a multi-query appraisal."""
 
+import sqlite3
 from contextlib import contextmanager
 from pathlib import Path
+from typing import cast
 
 from pricing.knowledge.index import _connect, index_status
 
 
 @contextmanager
 def read_snapshot(database):
-    connection = _connect(database)
+    # A path opens a real connection; only a borrowed Connection comes back wrapped (and is never snapshotted).
+    connection = cast(sqlite3.Connection, _connect(database))
     try:
         connection.execute('BEGIN')
         # Establish the read snapshot before assessment or other work can publish

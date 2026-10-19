@@ -2,6 +2,7 @@
 
 import json
 from datetime import UTC, datetime
+from typing import Any
 
 from pricing.knowledge.assessment.adapters.comparisons import legacy_comparisons
 from pricing.knowledge.assessment.comparables import evaluate, price_from_comparables
@@ -15,7 +16,7 @@ def evaluate_requests(requests, rows_by_name, *, today=None):
 
 def evaluate_request_results(requests, rows_by_name, *, today=None):
     today = today or datetime.now(UTC).date()
-    grouped = {}
+    grouped: dict[Any, dict[str, Any]] = {}
     seen = set()
     for request in requests:
         if request.request_id in seen:
@@ -35,13 +36,13 @@ def evaluate_request_results(requests, rows_by_name, *, today=None):
     results = []
     for group in grouped.values():
         observed = group['state'] == 'observed'
-        contract = group['contract'] if observed else None
+        contract: Any = group['contract'] if observed else None
         rows = rows_by_name.get(normalize_name(contract['name']), ()) if observed else ()
         comparisons = evaluate(contract, rows)
         price = price_from_comparables(comparisons, today=today)
         if not observed:
             price['unavailable_reason'] = 'hypothetical'
-        result = {**group, 'comparisons': comparisons, 'price_estimate': price}
+        result: dict[str, Any] = {**group, 'comparisons': comparisons, 'price_estimate': price}
         if not observed and group.get('preparation'):
             outcome_rows = rows_by_name.get(normalize_name(group['contract']['name']), ())
             outcome = evaluate(group['contract'], outcome_rows)

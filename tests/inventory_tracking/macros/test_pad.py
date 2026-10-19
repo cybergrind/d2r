@@ -10,7 +10,9 @@ import pytest
 
 from inventory_tracking.builds.warlock.movement import BLADE_WARP_PAD_REACH, MOVEMENT
 from inventory_tracking.builds.warlock.skills import BLADE_WARP, ECHOING_STRIKE, HEX_PURGE, SUMMON_DEFILER
+from inventory_tracking.game.layout import ITEM_UNIT, MONSTER_UNIT, OBJECT_UNIT, TILE_UNIT
 from inventory_tracking.game.records import Drop, Loot, Monster, Thing
+from inventory_tracking.game.view import Viewport
 from inventory_tracking.input.gamepad import Pad, record_buttons
 from inventory_tracking.levels.model import Level, Room, Target
 from inventory_tracking.macros import pad as pad_module, teleport
@@ -21,10 +23,7 @@ from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.hunt import Hunter, strike_input
 from inventory_tracking.macros.movement import TELEPORT_RING, StaffTeleport
 from inventory_tracking.macros.pad import (
-    ITEM_UNIT,
     LOOT_TO_CUBE,
-    MONSTER_UNIT,
-    OBJECT_UNIT,
     PadActs,
     PadActuator,
     PadPlay,
@@ -38,7 +37,6 @@ from inventory_tracking.macros.runner import PICKUP, PREBUFF, MacroRunner
 from inventory_tracking.macros.skills import ATTACK, SWAP_WEAPONS, TELEPORT
 from inventory_tracking.macros.teleport import landing, scaled, way_for
 from inventory_tracking.macros.travel import JUMP_LEAST, JUMP_REACH, OWN_MOVE, Travel, step_walk, stride_of
-from inventory_tracking.macros.view import Viewport
 from inventory_tracking.models import InputMode, PotionType
 from inventory_tracking.native.layout import TILE_UNITS
 from inventory_tracking.tracking.input_mode import ControllerState
@@ -712,7 +710,7 @@ def test_the_pad_walks_through_a_door_with_no_door_unit_not_onto_its_entry_spot(
 
 def test_a_door_the_walk_does_not_take_is_used_by_a_on_the_tile_the_client_targets(caplog):
     play, run = at_the_door(walks_in=False)
-    play.target = (pad_module.TILE_UNIT, 77)  # the client's Interact group names the door tile once beside it
+    play.target = (TILE_UNIT, 77)  # the client's Interact group names the door tile once beside it
 
     def enter() -> None:
         w = play.game.world

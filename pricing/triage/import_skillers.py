@@ -2,6 +2,7 @@
 
 import json
 import re
+from typing import Any
 
 from pricing.knowledge.refresh import atomic_json
 from pricing.triage.build import ROOT
@@ -96,7 +97,7 @@ def compile_skillers(document):
 def main():
     path = ROOT / 'pricing/data/triage/rules.json'
     document = json.loads(path.read_text())
-    rules = compile_skillers(json.loads((ROOT / SOURCE).read_text()))
+    rules: list[dict[str, Any]] = compile_skillers(json.loads((ROOT / SOURCE).read_text()))
     document['rows'] = [r for r in document['rows'] if not r.get('imported_skiller')] + rules
     atomic_json(path, document)
     print(

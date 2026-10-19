@@ -58,7 +58,7 @@ class Observation:
     marked: frozenset[int] = frozenset()  # the monsters under Death Mark
     frame: int = 0  # the simulator's frame (0 in the game)
     # The focal point the pointer can really be put on for a wanted one (the window shows less than the
-    # blades reach: macros/view.py), or None when no point of that line can; None here: any focal point.
+    # blades reach: game/view.py), or None when no point of that line can; None here: any focal point.
     aimable: Callable[[Point], Point | None] | None = None
 
 

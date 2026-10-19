@@ -1,9 +1,10 @@
 """Immutable semantic capture facts, independent of storage and presentation."""
 
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field, fields
 from enum import StrEnum
 from types import MappingProxyType
+from typing import Any
 
 
 class FactStatus(StrEnum):
@@ -29,7 +30,7 @@ class StatKey:
         return f'{self.stat_id}:{self.parameter}'
 
 
-def freeze(value):
+def freeze(value: Any) -> Any:
     if isinstance(value, Mapping):
         return MappingProxyType({k: freeze(v) for k, v in value.items()})
     if isinstance(value, (list, tuple)):
@@ -37,7 +38,7 @@ def freeze(value):
     return value
 
 
-def thaw(value):
+def thaw(value: Any) -> Any:
     if isinstance(value, Mapping):
         return {k: thaw(v) for k, v in value.items()}
     if isinstance(value, (list, tuple)):
@@ -57,13 +58,13 @@ class ItemFacts:
     ethereal: bool | None
     sockets: int | None
     socket_contents: str | None
-    socket_items: list
+    socket_items: Sequence  # frozen to a tuple in __post_init__
     capture_complete: bool
-    stats: dict = field(default_factory=dict)
-    properties: dict = field(default_factory=dict)
-    gaps: list = field(default_factory=list)
-    projection_gaps: list = field(default_factory=list)
-    provenance: dict = field(default_factory=dict)
+    stats: Mapping = field(default_factory=dict)
+    properties: Mapping = field(default_factory=dict)
+    gaps: Sequence = field(default_factory=list)
+    projection_gaps: Sequence = field(default_factory=list)
+    provenance: Mapping = field(default_factory=dict)
 
     filled_sockets: int | None = None
     empty_sockets: int | None = None

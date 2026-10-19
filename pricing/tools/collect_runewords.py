@@ -6,6 +6,7 @@ import sys
 import time
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import Any
 
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root, for runs by path
@@ -23,7 +24,7 @@ def main():
     directory.mkdir(exist_ok=True)
     items = json.loads((root / 'pricing/data/appraisal-traderie-catalog.json').read_text())['items']
     items = sorted((i for i in items if i['type'] == 'runewords'), key=lambda i: i['name'])
-    status = {'started_at': datetime.now(UTC).isoformat(), 'items': {}, 'state': 'complete'}
+    status: dict[str, Any] = {'started_at': datetime.now(UTC).isoformat(), 'items': {}, 'state': 'complete'}
     for item in items:
         count = 0
         for page in range(args.pages):

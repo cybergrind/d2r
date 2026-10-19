@@ -3,6 +3,7 @@
 import contextlib
 import struct
 
+from inventory_tracking.game.layout import OBJECT_UNIT
 from inventory_tracking.levels.model import Location, Room, Walkable, pack_cells, pack_masks
 from inventory_tracking.native.layout import (
     COLLISION_BLOCK_MISSILE,
@@ -36,7 +37,6 @@ MAX_NEAR = 16  # observed 5-9 (a 3x3 neighbourhood)
 MAX_LOADED = 64  # loaded Room1s: about 9-35 in the dumps
 MAX_SUBTILES = 400 * 400
 MAX_CACHED_GRIDS = 2048  # rooms kept by `walkable_tiles`' cache (a level has up to ~250; 3 KB a room)
-OBJECT_UNIT = 2
 # Waypoint object classes: every d2data objects.json row with OperateFn 23 (all named 'Waypoint'), by *ID.
 WAYPOINT_CLASSES = frozenset((119, 145, 156, 157, 237, 238, 288, 323, 324, 398, 402, 429, 494, 496, 511, 539))
 

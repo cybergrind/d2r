@@ -31,7 +31,7 @@ class ProfileRepository:
     def __init__(self, path):
         self.path = Path(path)
         self._current = None
-        self._pinned = ContextVar('reviewed_profile_bundle', default=None)
+        self._pinned = ContextVar[BundleLoad | None]('reviewed_profile_bundle', default=None)
 
     @contextmanager
     def snapshot(self):

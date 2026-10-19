@@ -4,6 +4,7 @@ import hashlib
 import json
 import re
 from pathlib import Path
+from typing import Any
 
 from pricing.knowledge.base_resistances import resistance_options
 
@@ -18,7 +19,7 @@ def _source(root, path):
 
 def import_catalog(root):
     root = Path(root)
-    result = {'schema_version': 1, 'sources': [], 'rows': []}
+    result: dict[str, Any] = {'schema_version': 1, 'sources': [], 'rows': []}
     automagic_path = root / 'third-parties/d2data/json/automagic.json'
     automagic = json.loads(automagic_path.read_text()) if automagic_path.exists() else {}
     if automagic_path.exists():
@@ -85,7 +86,7 @@ def _charm_name(key, row):
 
 def import_legacy(root):
     root = Path(root)
-    result = {'schema_version': 1, 'sources': [], 'rows': []}
+    result: dict[str, Any] = {'schema_version': 1, 'sources': [], 'rows': []}
     files = (
         'wp-b-prices.json',
         'wp-g-bases.json',

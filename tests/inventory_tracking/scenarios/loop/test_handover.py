@@ -15,6 +15,7 @@ from inventory_tracking.game.decode import monsters_and_dead
 from inventory_tracking.game.layout import ITEM_UNIT, TRACE_RVAS
 from inventory_tracking.game.memory import GameMemory
 from inventory_tracking.game.records import Player
+from inventory_tracking.game.view import Viewport
 from inventory_tracking.levels import model
 from inventory_tracking.levels.model import Level, Target
 from inventory_tracking.loot.materials import material_classes
@@ -23,7 +24,6 @@ from inventory_tracking.macros.hunt import SLICE
 from inventory_tracking.macros.pickup import pick_up
 from inventory_tracking.macros.runner import ATTACK, TELEPORT, TRAVEL_QUIET, MacroRunner
 from inventory_tracking.macros.teleport import Way, landing
-from inventory_tracking.macros.view import Viewport
 from inventory_tracking.native.layout import UI_PANELS_RVA
 from inventory_tracking.native.memory import ProcessMemory
 from tests.inventory_tracking.macros.fakes import SLOTS

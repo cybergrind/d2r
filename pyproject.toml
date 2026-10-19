@@ -84,10 +84,12 @@ testpaths = ['tests']
 markers = ['slow: a full arena play (tests/inventory_tracking/scenarios/conftest.py SLOW); skipped by -m "not slow"']
 
 [tool.pyrefly]
-# Scope the type checker to the package under active development; pricing waits for its own pass
-# (rca/2026-10-19/cleanup/pricing.md, "Pyrefly on pricing").
-project-includes = ['inventory_tracking', 'tests']
-project-excludes = ['**/__pycache__', '.venv', 'inventory_tracking/runs']
+project-includes = ['inventory_tracking', 'pricing', 'tests']
+# The frozen assessment maintenance modules wait for the archive ruling (cleanup-plan.md, rulings 2).
+project-excludes = [
+  '**/__pycache__', '.venv', 'inventory_tracking/runs', 'pricing/raw', 'pricing/data',
+  'pricing/knowledge/assessment/maintenance',
+]
 python-version = '3.14'
 preset = 'default'
 # gi.repository is populated by GObject introspection at import time.

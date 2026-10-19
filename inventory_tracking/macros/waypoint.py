@@ -28,7 +28,6 @@ from inventory_tracking.native.layout import TILE_UNITS
 
 CLOSE = 8.0  # units from the waypoint within which a click finds the character's figure over it (`open_panel`)
 STEP_BACK = 7.0  # units the character steps back from a waypoint too close to be aimed at
-OPENS_SECONDS = 0.25  # the walk's own click opens the panel 0.05-0.19 s after the stop (`open_panel`)
 
 
 __all__ = ['WaypointRow', 'open_panel', 'panel_point', 'travel', 'waypoint_of']
@@ -143,19 +142,13 @@ def open_panel(run: Run, marks: Callable[[str], tuple[tuple[float, float], ...]]
     # Stood still before the aims: aims while walking miss
     standing = run.seen(lambda w: w.player is not None and w.player.mode not in (2, 3, 6), 1.6)
     player = (standing.player if standing is not None else None) or player
-    # The walk's last click often opens the panel itself. Redundant with teleport.py PANEL_GRACE: kept, with the
-    # `is_open` in the `except`, until live logs show use_thing's "took before any aim" (rca/2026-10-18/arch-actions.md
-    # §4 step 2)
-    if run.seen(is_open, OPENS_SECONDS) is not None:
-        LOG.info("Macro: waypoint: the walk's click opened the panel; no aim")
-        run.say('the waypoint: opened')
-        return
     thing = min(shown, key=lambda t: math.dist((t.x, t.y), (player.x, player.y)))
     mark = Target(
         player.area, (), (thing.x / TILE_UNITS, thing.y / TILE_UNITS), 'the waypoint', 'waypoint', use=thing.txt_id
     )
     try:
-        use_thing(run, mark, player, thing, rect[2] / rect[3], grace=0.0)  # the grace was waited above
+        # A panel the walk's last click opened is waited for there (teleport.py PANEL_GRACE): no aim then
+        use_thing(run, mark, player, thing, rect[2] / rect[3])
     except Abort as stop:
         if is_open(run.world()):  # opened under the aims (they read None once it is): done, not a step back
             LOG.info('Macro: waypoint: the panel opened while aiming (%s); done', stop)

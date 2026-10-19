@@ -100,7 +100,7 @@ def compile_bands(name, rows, policy):
     from pricing.triage.bands import band_for
     from pricing.triage.base_floor import key as floor_key, pooled_key, targets
 
-    floors = defaultdict(list)
+    floors: defaultdict[str | None, list] = defaultdict(list)
     for row in valid:
         item = from_listing(row)
         for target in targets(item, base, policy):

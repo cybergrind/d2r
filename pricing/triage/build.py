@@ -3,6 +3,7 @@
 import json
 from collections import Counter
 from pathlib import Path
+from typing import Any
 
 from pricing.knowledge.artifacts import artifact_snapshot
 from pricing.knowledge.assessment.mechanics.base_tiers import CATALOG as BASE_CATALOG
@@ -77,7 +78,7 @@ def main():
     socket_inferences = compile_inferences(rows, utility)
     rows = [listing_defaults(apply(row, socket_inferences)) for row in rows]
     rules = json.loads((ROOT / 'pricing/data/triage/rules.json').read_text())
-    document = build_bands(rows, catalog, rules=rules['rows'], policies=rules.get('policies', []))
+    document: dict[str, Any] = build_bands(rows, catalog, rules=rules['rows'], policies=rules.get('policies', []))
     document['base_socket_inferences'] = socket_inferences
     from pricing.triage.named_roll_placement import compile_placements
 

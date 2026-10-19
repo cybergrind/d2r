@@ -1,4 +1,4 @@
-"""The viewport value (macros/view.py): the projection itself, and that the older helpers in routines
+"""The viewport value (game/view.py): the projection itself, and that the older helpers in routines
 and teleport, which now delegate to it, still answer as it does."""
 
 import dataclasses
@@ -8,8 +8,8 @@ import random
 import pytest
 
 from inventory_tracking.game.records import Player
+from inventory_tracking.game.view import FEET, Viewport
 from inventory_tracking.macros import routines, teleport
-from inventory_tracking.macros.view import FEET, Viewport
 
 
 ASPECTS = (16 / 9, 4 / 3, 21 / 9, 1.0)

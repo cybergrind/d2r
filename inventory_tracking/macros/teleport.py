@@ -36,8 +36,9 @@ from pathlib import Path
 
 from inventory_tracking.common import LOG
 from inventory_tracking.game.decode import containers
-from inventory_tracking.game.layout import BANK
+from inventory_tracking.game.layout import BANK, ITEM_UNIT, MONSTER_UNIT, OBJECT_UNIT, TILE_UNIT
 from inventory_tracking.game.records import Player, Thing, Warp, World
+from inventory_tracking.game.view import CORNER_BOTTOM, UNIT_PIXELS, VIEW, Viewport
 from inventory_tracking.levels.memory import WAYPOINT_CLASSES
 from inventory_tracking.levels.model import (
     ARCANE_PORTAL,
@@ -59,7 +60,6 @@ from inventory_tracking.macros.build import Build
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.routines import ACTING, press_skill, settle, swap_until, world_point
 from inventory_tracking.macros.skills import SWAP_WEAPONS, TELEPORT
-from inventory_tracking.macros.view import CORNER_BOTTOM, UNIT_PIXELS, VIEW, Viewport
 from inventory_tracking.native.layout import TILE_UNITS
 
 
@@ -159,13 +159,12 @@ HOVER_SECONDS = 0.06  # for the game to note what is under the pointer after it 
 # Unit types of the record of the unit under the pointer that are not a door: a monster (the mercenary
 # and the summons land beside the character after a hop), an item. An aim with one of them under it is
 # left for last: the click would go to that unit.
-IN_THE_WAY = frozenset((1, 4))
-# The unit type of a door (a warp tile) in that record. In the logs to 2026-10-10 each of the 31 clicks
+IN_THE_WAY = frozenset((MONSTER_UNIT, ITEM_UNIT))
+# A door is a warp tile (TILE_UNIT) in that record. In the logs to 2026-10-10 each of the 31 clicks
 # a door took had a tile in the record, and none of the 4 made with an object in it took: those were
 # clicks on the ground, each walking the character off for 1.4 s (the tower's door in Black Marsh,
 # host, 22:43 on 2026-10-10: 6 s around the entrance). The record keeps the last unit when the pointer
 # is on nothing, so a tile in it may be the door just come through: such an aim is clicked as before.
-TILE_UNIT = 5
 # A click made while a cast ends is swallowed: the character neither walks nor goes in. Tower Cellar,
 # host, 23:26 and 23:35 on 2026-10-10: attack mode's strike 0.04 s and 0.7 s before the click on the
 # stairs, the character where it stood 1.4 s later, then two aims off the door and 4.8 s in all; the
@@ -174,7 +173,7 @@ TILE_UNIT = 5
 DOOR_CLICKS = 2
 # Seconds an object with a panel (`Use.opens`: the stash, a waypoint) is looked at for its panel before the first aim:
 # the walk's own last click opened the waypoint's 0.05-0.19 s after the character stopped (14:42:09 and 14:18:25 on
-# 2026-10-18; waypoint.py OPENS_SECONDS, which waits as much before it calls `use_thing`)
+# 2026-10-18; waypoint.py `open_panel` relies on it)
 PANEL_GRACE = 0.25
 # A character that has not moved this long after a click was not sent anywhere (a door took one in 0.37 s at most).
 STILL_SECONDS = 0.5
@@ -186,9 +185,7 @@ DOOR_LINE = 2.0
 # An object the mark names (`Target.use`) is clicked like a door, but it is an object unit, not a warp
 # tile: the door code has no place for it and takes an object under the pointer for a miss. Stony Field
 # (user, 2026-10-12): the step stood at the Cairn Stones, "At Tristram", and the portal was never taken.
-# An aim is clicked only with that object in the game's record of the unit under the pointer.
-OBJECT_UNIT = 2
-MONSTER_UNIT = 1  # the same record's type of a monster
+# An aim is clicked only with that object (OBJECT_UNIT) in the game's record of the unit under the pointer.
 
 
 EXPIRED = 'priced act expired'  # hunting/moves.py `priced_for`'s stop
@@ -898,14 +895,12 @@ def marked_thing(run: Run, target: Target) -> Thing | None:
     return min(near, key=lambda t: math.dist((t.x, t.y), mark)) if near else None
 
 
-def use_thing(
-    run: Run, target: Target, player: Player, thing: Thing, aspect: float, grace: float | None = None
-) -> None:
+def use_thing(run: Run, target: Target, player: Player, thing: Thing, aspect: float) -> None:
     """Click the object's picture and watch the walk until it took: the level changed (a portal), its panel opened
     (the stash, a waypoint) or the object's mode did (a body searched). An aim is clicked only with the object under
     the pointer by the game's own record (`run.hovered`); without that record the aims are clicked as they are. An
-    object with a panel or one that leaves is looked at before the first aim (for `grace` seconds; None: PANEL_GRACE
-    with a panel, else one look), before each aim after it and after the last: once it took, no aim more."""
+    object with a panel or one that leaves is looked at before the first aim (PANEL_GRACE with a panel, else one
+    look), before each aim after it and after the last: once it took, no aim more."""
     use, at = USES[target.use], (thing.x, thing.y)
     if not use.leaves and not use.opens and thing.mode:
         run.say(f'At {target.label}')  # used already: the mark is only a place now
@@ -947,7 +942,7 @@ def use_thing(
     # read nothing under the pointer: "not under the pointer at any aim" with the panel open, the waypoint's step back
     # clicked onto it (14:42:09 on 2026-10-18; seven such incidents in five modules, rca/2026-10-18/arch-actions.md
     # §2 A)
-    if taken('before any aim', (PANEL_GRACE if use.opens else 0.0) if grace is None else grace):
+    if taken('before any aim', PANEL_GRACE if use.opens else 0.0):
         return
     seen = False
     covered: set[int] = set()  # the monsters under the pointer at an aim that was not clicked

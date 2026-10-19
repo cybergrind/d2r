@@ -4,6 +4,7 @@ import argparse
 import json
 import sys
 from pathlib import Path
+from typing import Any
 
 from pricing.knowledge.index import build_index, compact_result, index_status, lookup, search
 
@@ -142,14 +143,8 @@ def main(argv=None):
             if not full:
                 result = compact_result(result)
                 output_indent = None
-        print(
-            json.dumps(
-                result,
-                ensure_ascii=False,
-                indent=output_indent,
-                **({'separators': (',', ':')} if command in ('recommend', 'item') else {}),
-            )
-        )
+        dumps_options: dict[str, Any] = {'separators': (',', ':')} if command in ('recommend', 'item') else {}
+        print(json.dumps(result, ensure_ascii=False, indent=output_indent, **dumps_options))
     except (OSError, ValueError, ImportError, RuntimeError) as error:
         print(json.dumps({'error': str(error), 'offline': True}), file=sys.stderr)
         return 2

@@ -1,6 +1,7 @@
 import pytest
 
-from inventory_tracking.macros import pickup, repair, runner, shop, stash, teleport, view
+from inventory_tracking.game import view
+from inventory_tracking.macros import pickup, repair, runner, shop, stash, teleport
 
 
 @pytest.fixture(autouse=True)

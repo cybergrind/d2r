@@ -1,6 +1,7 @@
 """Pure finalization of an assessment with its evaluated market evidence."""
 
 from dataclasses import replace
+from typing import Any
 
 from pricing.knowledge.assessment.comparables import evaluate, price_from_comparables
 from pricing.knowledge.assessment.domain.facts import thaw
@@ -9,7 +10,7 @@ from pricing.knowledge.assessment.policies.market_tiers import resolve_market_ti
 
 
 def finalize_assessment(assessment, results, *, fallback_rows=(), today=None):
-    current = next((result for result in results if result.is_current), None)
+    current: Any = next((result for result in results if result.is_current), None)
     comparisons = current.comparisons if current else evaluate(None, fallback_rows)
     estimate = thaw(current.price_estimate) if current else price_from_comparables(comparisons, today=today)
     if (

@@ -2,6 +2,7 @@
 
 from collections import Counter
 from datetime import UTC, date, datetime
+from typing import Any
 
 from pricing.knowledge.assessment.mechanics.market_named_defense import with_variant_evidence
 from pricing.knowledge.assessment.mechanics.sunder import listing_penalties
@@ -179,7 +180,7 @@ def publication_rows(rows, today):
 
 def independent_asks(rows):
     """Retain the cheapest eligible ask per seller, with its actual provenance."""
-    sellers = {}
+    sellers: dict[Any, Any] = {}
     for row in sorted(rows, key=lambda r: (r['ask_ist'], str(r['seller_id']), str(r.get('listing_id', '')))):
         sellers.setdefault(row['seller_id'], row)
     return [
@@ -191,8 +192,8 @@ def independent_asks(rows):
 def price_from_comparables(comparables, *, today=None):
     today = today or datetime.now(UTC).date()
     eligible, excluded = publication_rows(comparables['accepted'], today)
-    summary = summarize(eligible)
-    result = {
+    summary: dict[str, Any] = summarize(eligible)
+    result: dict[str, Any] = {
         'estimate_ist': None,
         'confidence': 'insufficient',
         'basis': 'unavailable',

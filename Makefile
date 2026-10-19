@@ -85,4 +85,4 @@ filter:
 
 ## grow: dump the running game and merge its newly decrypted code pages into pricing/raw/re/D2R-decrypted.exe (ARGS="--at 0x…" checks addresses)
 grow:
-	$(UV) python pricing/tools/grow.py $(ARGS)
+	$(UV) python inventory_tracking/native/grow.py $(ARGS)

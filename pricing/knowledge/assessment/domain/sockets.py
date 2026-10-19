@@ -1,6 +1,7 @@
 """Socket occupancy: a partial child list never proves empty slots."""
 
 from dataclasses import dataclass
+from typing import TypeGuard
 
 from pricing.knowledge.assessment.domain.facts import Fact, FactStatus
 
@@ -13,7 +14,7 @@ class SocketState:
     identities_complete: bool
 
 
-def valid(n):
+def valid(n) -> TypeGuard[int]:
     return type(n) is int and 0 <= n <= 6
 
 

@@ -129,7 +129,6 @@ STEP_FAILURES = 2
 UNTOUCHED_CASTS = 4
 # Units along the line the pointer is tried at when an item's label lies under the aim (`off_labels`).
 LABEL_SHIFTS = (0.0, 4.0, 8.0, -3.0, 12.0, -6.0)
-ITEM_UNIT_TYPE = 4  # in the record of the unit under the pointer
 LABEL_SECONDS = 0.5  # between two looks for a label under a pointer that stands
 UNTOUCHABLE_SECONDS = 20.0
 # A boss is never left alone so (`untouched`): for this long after its strikes did nothing, its fight counts only

@@ -1,6 +1,6 @@
 """Send one hotkey request to the running service, fast: the standard library only, no package imports.
 
-The compositor spawns a process per key press. `appraisal_service request` imports the whole service
+The compositor spawns a process per key press. The service's own `request` imports the whole service
 before it sends (0.35 s measured on 2026-10-09), too slow for a step asked for again and again (macros/teleport.py,
 macros/hunt.py). This file imports only what a press needs: with
 argparse, subprocess and pathlib its start took 57 ms of every press with the game running (36

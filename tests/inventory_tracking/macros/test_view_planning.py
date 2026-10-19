@@ -10,9 +10,9 @@ from itertools import pairwise
 
 import pytest
 
+from inventory_tracking.game.view import Viewport
 from inventory_tracking.levels.model import Room, Target
 from inventory_tracking.macros.teleport import Way, landing, way_for
-from inventory_tracking.macros.view import Viewport
 from inventory_tracking.native.layout import TILE_UNITS
 from tests.inventory_tracking.macros.fakes import player
 

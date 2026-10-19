@@ -18,8 +18,9 @@ from inventory_tracking.builds.warlock.buffs import (
 from inventory_tracking.builds.warlock.defiler import DEFILER_RETRY
 from inventory_tracking.builds.warlock.skills import CONSUME, ENGORGE, SUMMON_DEFILER
 from inventory_tracking.common import LOG
-from inventory_tracking.game.layout import DEFILER_CLASS as DEFILER, NO_OWNER
+from inventory_tracking.game.layout import DEFILER_CLASS as DEFILER, ITEM_UNIT, MONSTER_UNIT, NO_OWNER
 from inventory_tracking.game.records import Monster, Player, World
+from inventory_tracking.game.view import BODY_LIFT, FEET
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.buffs import keys_of
 from inventory_tracking.macros.build import Caster, Casting, Tried
@@ -38,8 +39,6 @@ from inventory_tracking.macros.routines import (
     world_point,
 )
 from inventory_tracking.macros.teleport import HOVER_SECONDS, ground_fraction
-from inventory_tracking.macros.travel import MONSTER_UNIT_TYPE
-from inventory_tracking.macros.view import BODY_LIFT, FEET
 from inventory_tracking.native.layout import HIRELING_CLASS_ID
 
 
@@ -264,7 +263,7 @@ def aim_at(run: Run, unit: int) -> bool:
         if run.pad is not None:
             # Controller mode: the client's target has to name it (macros/pad.py); nothing else is consumed.
             here = (world.player.x, world.player.y)
-            return run.pad.aim_unit(MONSTER_UNIT_TYPE, unit, here, (target.x, target.y), 'the Defiler')
+            return run.pad.aim_unit(MONSTER_UNIT, unit, here, (target.x, target.y), 'the Defiler')
         point = screen_fraction(world.player, target.x, target.y, rect[2] / rect[3])
         if not on_screen(point):
             raise Abort('the Defiler is out of view')
@@ -460,9 +459,6 @@ def defiler_out(cast: Casting) -> Tried:
     return Tried(started, cast=True)
 
 
-ITEM_UNIT_TYPE = 4
-
-
 def engorge(cast: Casting) -> Tried:
     """Engorge on the nearest corpse in view within ENGORGE_REACH. With no corpse there nothing is
     touched; with one that the pointer could not be kept on, the pointer was moved and no cast made."""
@@ -487,7 +483,7 @@ def engorge(cast: Casting) -> Tried:
     for unit, x, y in sorted(near, key=lambda corpse: math.dist(here, corpse[1:]))[:ENGORGE_LOOKS]:
         if run.pad is not None:
             # Controller mode: the client's target has to name the corpse (macros/pad.py).
-            if not run.pad.aim_unit(MONSTER_UNIT_TYPE, unit, here, (x, y), f'the corpse {unit}'):
+            if not run.pad.aim_unit(MONSTER_UNIT, unit, here, (x, y), f'the corpse {unit}'):
                 continue
             cast.buffs.key(run, ENGORGE)
             # Whether Engorge's target (controllerskillsettings.json targetGroup 0, the monsters) can name a corpse
@@ -505,7 +501,7 @@ def engorge(cast: Casting) -> Tried:
             over = run.hovered()
             # Not cast with a live monster or an item's label under the pointer; with nothing
             # there it is (whether the record shows a corpse at all is not known yet).
-            if over is not None and (over[0] == ITEM_UNIT_TYPE or (over[0] == MONSTER_UNIT_TYPE and over[1] in alive)):
+            if over is not None and (over[0] == ITEM_UNIT or (over[0] == MONSTER_UNIT and over[1] in alive)):
                 LOG.info('Macro: no Engorge at (%.1f, %.1f): under the pointer %s, not the corpse %d', x, y, over, unit)
                 continue
         cast.buffs.key(run, ENGORGE)

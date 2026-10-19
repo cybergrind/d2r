@@ -128,8 +128,6 @@ EXPIRES = {TELEPORT: 1.0, HUNT_ELITES: 1.5, PREBUFF: 3.0, PICKUP: 2.0}
 # Within this of the route's door an empty pickup press is the step through it (rca/2026-10-15/kp1-door-findings.md).
 DOOR_NEAR = USE_NEAR
 AT_DROP_UNITS = 3.0  # a trip back to a valuable this near is at it: no move to it first
-# Stop words that mean a lack of room (`classify`'s fallback; "has not moved" is the stand-by by a valuable)
-ROOM_WORDS = ('no room', 'inventory full', 'Inventory full', 'has not moved')
 THROTTLE = 0.3  # seconds between accepted macro requests (a bounce is not a cancel)
 CARD_SECONDS = 4.0
 # A routine's warning (engine.Run `warn`) stays on the card this long after it was last given, unless taken back.
@@ -147,19 +145,12 @@ FLIPS_AGAIN, FLIPS_WINDOW = 3, 10.0
 
 
 def classify(why: object) -> Cause:
-    """The cause of the stop `why` (actuator.py `Cause`): the one its raise named, else guessed by type and ROOM_WORDS
-    until every room raise names its cause (rca/2026-10-18/arch-loop-orchestration.md Option A)."""
+    """The cause of the stop `why` (actuator.py `Cause`): the one its raise named, else by its type; a room stop and
+    the watchdog's stand always name theirs."""
     if isinstance(why, Abort) and why.cause is not None:
         return why.cause
     if isinstance(why, Hand):
         return 'hand'
-    said = str(why)
-    if 'has not moved' in said:
-        return 'stall'
-    if any(word in said for word in ROOM_WORDS):
-        # Logged to learn whether the word fallback can go (cleanup phase 3, 2026-10-19)
-        LOG.info('Macro: loop: a stop with no cause read as room by its words: %s', said)
-        return 'room'
     if isinstance(why, Refused):
         return 'refused'
     return 'other'

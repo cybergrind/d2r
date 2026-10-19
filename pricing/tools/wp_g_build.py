@@ -13,6 +13,7 @@ import os
 import re
 import sys
 from pathlib import Path
+from typing import Any
 
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # repo root, for runs by path
@@ -1327,7 +1328,7 @@ add(
 )
 
 # ---------- assemble ----------
-out = {
+out: dict[str, Any] = {
     '_meta': {
         'package': 'WP-G white bases',
         'date': DATE,

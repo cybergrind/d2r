@@ -3,6 +3,7 @@
 import json
 from collections import defaultdict
 from functools import lru_cache
+from typing import Any
 
 from pricing.triage.cohort_splits import numeric_partition, worthwhile
 
@@ -113,7 +114,7 @@ def compile_named(category, name, rows, rules, *, facets=FACETS, bucket='name'):
         band = band_for(category, name, [r for r, _ in members])
         band['bucket'] = bucket + '|cohort:' + token(path)
         band['cohort_depth'] = len(path) - 1
-        result = {'band': band}
+        result: dict[str, Any] = {'band': band}
         for index, facet in enumerate(facets):
             groups = defaultdict(list)
             for row, item in members:

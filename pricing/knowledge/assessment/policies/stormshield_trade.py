@@ -6,6 +6,7 @@ import math
 from datetime import date
 from functools import lru_cache
 from pathlib import Path
+from typing import Any
 
 from pricing.knowledge.artifacts import read_artifact
 from pricing.knowledge.assessment.handlers.definitions import resolve_named_definition
@@ -57,7 +58,7 @@ def validate(raw, guides, market, native):
     sellers = set()
     for row in rows:
         props = row.get('properties', {})
-        ask = row.get('ask_ist')
+        ask: Any = row.get('ask_ist')
         sockets = row.get('sockets')
         if (
             (row.get('rarity'), row.get('name'), row.get('base_code')) != ('unique', 'Stormshield', 'uit')
