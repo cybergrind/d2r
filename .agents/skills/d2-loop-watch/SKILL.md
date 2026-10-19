@@ -91,7 +91,7 @@ rulings: AGENTS.md, the memory `d2r-kp6-loop-rulings` (every ruling, dated, verb
 | Concern | Files |
 | --- | --- |
 | Legs, kinds, room and trade triggers | `loop.py` (`next_leg`, KINDS, TRADE_ROOM use, TRIPS_A_GAME) |
-| The service's routines, stops and recoveries, watchdogs | `runner.py` (`_loop_stopped`, `classify`, `ROOM_CAUSES`, `_fetch`, `_go_back`, the LOOP closures) |
+| The service's routines, stops and recoveries, watchdogs | `runner.py` (`_loop_stopped`, `classify`, `_fetch`, `_go_back`, the LOOP closures); the stop rules in their order: `stops.py` (`first`, `decide`, `ROOM_CAUSES`) |
 | Level run, fight, side goals, pickups on the way | `hunt.py` (`side_drop`, `on_the_way`, `judge`), `pursuit.py` (`RUSH_THE_BOSS`), `buffs.py` (`QUIET_BY_THE_BOSS`) |
 | Pickup and what is valuable | `pickup.py`, `pickmode.py`, `lootpolicy.py` (`verdict`, hold classes), `sightings.py` (remembered drops) |
 | Town visit and its plan | `visit.py` (`visit`, `_cube_runes`, `JAMELLA_FIRST`), `town.py` (`contract`, `rune_transmutes`, `PARK_JUNK`, `KEEPER_IN_CUBE`, `RUNE_TRANSMUTES`), `townplan.py` (shadow planner: "town plan: matched"), `visitlog.py` (snapshots in `<session>/visits/`) |

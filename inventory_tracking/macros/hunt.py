@@ -1381,7 +1381,7 @@ class Hunter:
                 'Macro: pursuit: the inventory has no room for %s at (%.0f, %.0f), %.0f away: the run stands by it%s',
                 found.label, found.x, found.y, math.dist(here, (found.x, found.y)), told,
             )  # fmt: skip
-            run.warn(f'Inventory full: {found.label} here — make room{told}')
+            run.stand_by(f'Inventory full: {found.label} here — make room{told}')
         return found
 
     def dead_end(self, spot: Point, now: float) -> None:

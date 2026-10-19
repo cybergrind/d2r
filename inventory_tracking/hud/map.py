@@ -2,7 +2,7 @@
 
 Coordinates are Room2 tiles (map plane). The screen is isometric like the game: +x runs
 down-right, +y down-left, so the dots sit where the arrow points. The card travels in the
-HUD guide widget's payload and is drawn by hud/widgets.py; this module has no GTK import so
+HUD guide widget's payload (levels/map_card.py) and is drawn by hud/widgets.py; this module has no GTK import so
 it stays unit-testable with cairo alone.
 Room2 carries no walls; loaded rooms add walkable sub-tiles from their collision grids (`walkable`),
 drawn as light floor with rock left transparent, so explored parts show corridors (levels/plan.md).
@@ -19,11 +19,11 @@ too much colour over the game). `MapCard.whole` asks for the whole level anyway 
 
 import math
 import re
-from dataclasses import dataclass
 
+from inventory_tracking.levels.map_card import KIND_TONES, MapCard
 from inventory_tracking.levels.model import unpack_cells
 from inventory_tracking.native.layout import TILE_UNITS
-from inventory_tracking.presentation import Tone, tone_rgb
+from inventory_tracking.presentation import tone_rgb
 
 
 # Room fill/outline by kind. Edges (outdoor level borders: fences, cliffs) are darker and dimmer,
@@ -33,23 +33,6 @@ ROOM_STYLES = {
     'edge': ((0.20, 0.17, 0.14, 0.85), (0.35, 0.30, 0.22, 0.60)),
 }
 
-# One colour per POI kind for rows, arrows and dots (user, 2026-09-30): next level green,
-# previous level purple, waypoint blue, POI (boss, chest, rune, shrine) bright yellow.
-# Unknown kinds use the POI colour.
-KIND_TONES = {
-    'stairs': Tone.LEVEL_NEXT,
-    'previous': Tone.LEVEL_PREVIOUS,
-    'waypoint': Tone.WAYPOINT,
-    'target': Tone.POI,
-    'exit': Tone.EXIT,  # an exit whose destination is not known yet
-    'herald': Tone.HERALD,  # a live Herald (terror/tracker.py)
-    'mob': Tone.MOB,  # a hostile monster alive (terror/tracker.py)
-    'leader': Tone.MOB_LEADER,  # a unique, champion or super unique alive
-    'danger': Tone.MOB_DANGER,  # a monster of a deadly pack (terror/danger.py)
-    'caution': Tone.MOB_CAUTION,  # a monster of a pack to be careful with
-    'pack': Tone.MOB_DANGER,  # a deadly pack's centre: the ground arrow towards it, no dot of its own
-    'elite': Tone.MOB_LEADER,  # a deadly pack's leader: a leader's dot ringed in the pack's colour
-}
 KIND_COLOURS = {kind: tone_rgb(tone) for kind, tone in KIND_TONES.items()}
 POI_RADIUS = 5.5
 MONSTER_KINDS = frozenset(('mob', 'leader', 'herald', 'danger', 'caution', 'pack', 'elite'))  # from terror/tracker.py
@@ -74,78 +57,6 @@ def room_fill(fill, visited: bool, alpha: float = 1.0):
     if not visited:
         r, g, b, a = r * UNVISITED_DIM, g * UNVISITED_DIM, b * UNVISITED_DIM, a * 0.8
     return r, g, b, a * alpha
-
-
-@dataclass(frozen=True)
-class MapPoi:
-    label: str
-    kind: str
-    x: float
-    y: float
-    path: int = 0  # address of a monster's dynamic path, when the HUD can follow it (hud/live.py)
-    # A monster's unit record and id: the HUD reads its mode and position every frame (hud/live.py `LiveDots`)
-    unit: int = 0
-    uid: int = 0
-
-    def row(self) -> list:
-        """The payload row: [label, kind, x, y], plus the path address when known, plus the unit's address and id."""
-        tail = [self.path, self.unit, self.uid] if self.unit else [self.path] if self.path else []
-        return [self.label, self.kind, self.x, self.y, *tail]
-
-
-@dataclass(frozen=True)
-class MapCard:
-    rooms: tuple[tuple[int, int, int, int], ...]  # x, y, width, height in tiles
-    player: tuple[float, float]
-    pois: tuple[MapPoi, ...] = ()
-    route: tuple[tuple[float, float], ...] = ()  # player → teleport hops → POI, in tiles
-    room_kinds: tuple[str, ...] = ()  # per room: 'room' or 'edge' (outdoor level border); empty = all 'room'
-    walkable: tuple[tuple[int, int, int, int, str], ...] = ()  # x, y, w, h tiles, packed sub-tiles (levels/model.py)
-    visited: tuple[int, ...] = ()  # per room: ever loaded 0/1; empty = unshaded
-    live: tuple[int, int] | None = None  # (pid, player path address): the position's source (hud/live.py)
-    whole: bool = False  # draw the whole level however small, not the part around the player
-    # (unit table address, area): the HUD walks the game's monster table for monsters the card has no dot for
-    # yet (hud/live.py `LiveDots`); None: it does not
-    units: tuple[int, int] | None = None
-
-    def to_payload(self) -> dict:
-        return {
-            'map': {
-                'rooms': [list(room) for room in self.rooms],
-                'player': list(self.player),
-                'pois': [p.row() for p in self.pois],
-                'route': [list(point) for point in self.route],
-                'room_kinds': list(self.room_kinds),
-                'walkable': [list(grid) for grid in self.walkable],
-                'visited': list(self.visited),
-                'live': list(self.live) if self.live else None,
-                'whole': self.whole,
-                'units': list(self.units) if self.units else None,
-            }
-        }
-
-    @classmethod
-    def from_payload(cls, value) -> MapCard:
-        try:
-            data = value['map']
-            rooms = tuple((int(x), int(y), int(w), int(h)) for x, y, w, h in data['rooms'])
-            px, py = (float(v) for v in data['player'])
-            pois = tuple(
-                MapPoi(str(label), str(kind), float(x), float(y), *(int(value) for value in rest[:3]))
-                for label, kind, x, y, *rest in data['pois']
-            )
-            route = tuple((float(x), float(y)) for x, y in data.get('route', ()))
-            kinds = tuple(str(kind) for kind in data.get('room_kinds', ()))
-            walkable = tuple((int(x), int(y), int(w), int(h), str(c)) for x, y, w, h, c in data.get('walkable', ()))
-            visited = tuple(int(flag) for flag in data.get('visited', ()))
-            live = data.get('live')
-            live = (int(live[0]), int(live[1])) if live else None
-            units = data.get('units')
-            units = (int(units[0]), int(units[1])) if units else None
-        except (KeyError, TypeError, ValueError) as exc:
-            raise ValueError('Invalid map payload') from exc
-        whole = bool(data.get('whole', False))
-        return cls(rooms, (px, py), pois, route, kinds, walkable, visited, live, whole, units)
 
 
 def project(x: float, y: float) -> tuple[float, float]:

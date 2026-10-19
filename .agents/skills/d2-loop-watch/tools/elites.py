@@ -42,6 +42,7 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[3]
 sys.path[:0] = [str(HERE), str(ROOT)]
 
+import logwords  # ruff: ignore[module-import-not-at-top-of-file] - beside this tool
 from logwords import (  # ruff: ignore[module-import-not-at-top-of-file] - beside this tool
     FIGHT,
     KIND,
@@ -175,10 +176,6 @@ class Window:
     sessions: list[str] = field(default_factory=list)
 
 
-def local(text: str) -> datetime:
-    return datetime.strptime(text, '%Y-%m-%d %H:%M')
-
-
 def parse(lines: list[str]) -> list[Event]:
     """A session's log as this tool's events."""
     events: list[Event] = []
@@ -308,23 +305,9 @@ def kills_in(directory: Path) -> list[Kill]:
     return found
 
 
-def sessions(since: datetime, until: datetime, runs: Path = RUNS) -> list[Path]:
-    """The serve sessions whose log overlaps the window."""
-    found = []
-    if not runs.exists():
-        return found
-    for directory in sorted(d for d in runs.iterdir() if d.is_dir() and d.name.startswith('20')):
-        log = directory / 'probe.log'
-        if not log.exists():
-            continue
-        if datetime.fromtimestamp(log.stat().st_mtime) >= since:
-            found.append(directory)
-    return found
-
-
 def read(since: datetime, until: datetime, kind: str, runs: Path = RUNS) -> Window:
     window = Window(since, until, kind)
-    for directory in sessions(since, until, runs):
+    for directory in logwords.sessions(since, until, runs):
         window.sessions.append(directory.name)
         lines = (directory / 'probe.log').read_text(errors='replace').splitlines()
         before = len(window.pieces)
@@ -426,10 +409,10 @@ def report(result: dict, games: list[dict]) -> None:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     now = datetime.now()
-    parser.add_argument('--since', type=local, default=now - timedelta(hours=2))
-    parser.add_argument('--until', type=local, default=now)
+    parser.add_argument('--since', type=logwords.local, default=now - timedelta(hours=2))
+    parser.add_argument('--until', type=logwords.local, default=now)
     parser.add_argument('--kind', default='tz', choices=('tz', 'tzclear', 'andariel', 'lk', 'any'))
-    parser.add_argument('--against', nargs=2, type=local, metavar=('SINCE', 'UNTIL'))
+    parser.add_argument('--against', nargs=2, type=logwords.local, metavar=('SINCE', 'UNTIL'))
     parser.add_argument('--json', action='store_true')
     parser.add_argument('--runs', type=Path, default=RUNS, help="the sessions directory (default: this checkout's)")
     args = parser.parse_args()

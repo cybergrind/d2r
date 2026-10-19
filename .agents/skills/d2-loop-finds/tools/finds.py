@@ -33,6 +33,7 @@ LOOP_TOOLS = HERE.parents[1] / 'd2-loop-watch' / 'tools'
 sys.path.insert(0, str(LOOP_TOOLS))
 
 import games  # ruff: ignore[module-import-not-at-top-of-file] - the loop-watch skill's log reader
+import logwords  # ruff: ignore[module-import-not-at-top-of-file] - beside this tool
 
 
 ROOT = HERE.parents[3]
@@ -57,10 +58,6 @@ class Find:
     reason: str = ''
     stats: list[str] = field(default_factory=list)
     evidence: str = ''
-
-
-def local(text: str) -> datetime:
-    return datetime.strptime(text, '%Y-%m-%d %H:%M')
 
 
 def window(args) -> tuple[list[Path], list[games.Game]]:
@@ -188,7 +185,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=(__doc__ or '').splitlines()[0])
     parser.add_argument('--games', type=int, default=200, help='the last N games (default 200)')
     parser.add_argument('--top', type=int, default=5, help='how many finds to rank (default 5)')
-    parser.add_argument('--until', type=local)
+    parser.add_argument('--until', type=logwords.local)
     parser.add_argument('--json', action='store_true')
     args = parser.parse_args()
 

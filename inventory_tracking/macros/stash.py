@@ -33,6 +33,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from inventory_tracking.common import LOG
+from inventory_tracking.items.grid import INVENTORY_SIZE
 from inventory_tracking.items.metadata import metadata
 from inventory_tracking.levels.model import Target
 from inventory_tracking.macros.actuator import Abort
@@ -121,7 +122,7 @@ def resource_tabs() -> dict[int, int]:
 FORTRESS = 103
 USUAL = (5019.0, 5040.0)  # the stash in Pandemonium Fortress (the takes of 2026-10-17), beside Deckard Cain
 STASH_ABOVE = 0.5  # the inventory's share of cells taken over which the loop goes to the stash
-INVENTORY_CELLS = 10 * 4
+INVENTORY_CELLS = INVENTORY_SIZE[0] * INVENTORY_SIZE[1]
 
 
 def occupied(pack: Pack, own: frozenset[tuple[int, int, int]] = frozenset()) -> float:

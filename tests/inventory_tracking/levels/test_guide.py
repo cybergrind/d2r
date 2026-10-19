@@ -212,7 +212,7 @@ def test_evidence_failure_is_a_warning_not_a_crash(caplog):
 
 
 def test_card_carries_the_level_map():
-    from inventory_tracking.osd.level_map import MapCard
+    from inventory_tracking.levels.map_card import MapCard
 
     guide, shown, _ = make_guide([40, 74])
     guide.poll(1.0)
@@ -225,7 +225,7 @@ def test_card_carries_the_level_map():
 
 
 def test_player_dot_and_arrow_follow_the_player_while_shown():
-    from inventory_tracking.osd.level_map import MapCard
+    from inventory_tracking.levels.map_card import MapCard
 
     guide, shown, _ = make_guide([74, 74, 74])
     guide.poll(1.0)
@@ -258,7 +258,7 @@ def test_no_position_updates_after_expiry():
 
 
 def test_show_redisplays_the_card_with_a_fresh_position():
-    from inventory_tracking.osd.level_map import MapCard
+    from inventory_tracking.levels.map_card import MapCard
 
     guide, shown, clock = make_guide([74, 74])
     guide.poll(1.0)
@@ -279,7 +279,7 @@ def test_show_redisplays_the_card_with_a_fresh_position():
 
 
 def test_show_in_an_unguided_level_draws_just_the_map():
-    from inventory_tracking.osd.level_map import MapCard
+    from inventory_tracking.levels.map_card import MapCard
 
     snapshot = replay('arcane_summoner_s')
     guide, shown, _ = make_guide([])
@@ -355,7 +355,7 @@ def test_single_press_while_pinned_refreshes_and_stays_pinned():
 
 
 def test_pinned_card_follows_into_an_unguided_level_as_a_map():
-    from inventory_tracking.osd.level_map import MapCard
+    from inventory_tracking.levels.map_card import MapCard
 
     guide, shown, _ = pinned_guide([])
     guide.press(10.0)
@@ -405,8 +405,8 @@ def test_a_level_with_nothing_to_mark_is_read_once_and_stays_quiet():
 def test_walkable_tiles_survive_leaving_and_returning_in_the_same_game():
     # User, 2026-09-30: Cold Plains walls (generated terrain, never in the wall library) were
     # lost after a trip to town. The same level (same rooms) keeps what was read this game.
+    from inventory_tracking.levels.map_card import MapCard
     from inventory_tracking.levels.model import Walkable
-    from inventory_tracking.osd.level_map import MapCard
 
     reads = iter([[Walkable(0, 0, 1, 1, '1')], [Walkable(8, 0, 1, 1, '0')], [], []])
     guide, shown, _ = make_guide([74, 74, 1, 74])
@@ -426,8 +426,8 @@ def test_walkable_tiles_survive_leaving_and_returning_in_the_same_game():
 
 
 def test_a_new_game_with_other_rooms_does_not_inherit_walls():
+    from inventory_tracking.levels.map_card import MapCard
     from inventory_tracking.levels.model import Walkable
-    from inventory_tracking.osd.level_map import MapCard
 
     reads = iter([[Walkable(0, 0, 1, 1, '1')], []])
     guide, shown, _ = make_guide([74, 1, 74])
@@ -449,7 +449,7 @@ def test_a_new_game_with_other_rooms_does_not_inherit_walls():
 
 
 def test_a_failing_walls_read_keeps_the_card():
-    from inventory_tracking.osd.level_map import MapCard
+    from inventory_tracking.levels.map_card import MapCard
 
     guide, shown, _ = make_guide([74])
 
@@ -464,9 +464,9 @@ def test_a_failing_walls_read_keeps_the_card():
 
 
 def test_rooms_of_a_learned_layout_have_walls_on_entry_and_live_reads_teach_the_library(tmp_path):
+    from inventory_tracking.levels.map_card import MapCard
     from inventory_tracking.levels.model import Walkable, pack_tiles
     from inventory_tracking.levels.walls import WallLibrary
-    from inventory_tracking.osd.level_map import MapCard
 
     rooms = [r for r in replay('lower_kurast_camp').rooms if r.variant is not None and r.preset]
     known, loaded = rooms[0], rooms[1]
@@ -489,7 +489,7 @@ def test_rooms_of_a_learned_layout_have_walls_on_entry_and_live_reads_teach_the_
 
 
 def test_the_map_carries_the_visited_rooms_of_the_current_area():
-    from inventory_tracking.osd.level_map import MapCard
+    from inventory_tracking.levels.map_card import MapCard
 
     guide, shown, _ = make_guide([74])
     asked = []
@@ -508,7 +508,7 @@ def test_the_map_carries_the_visited_rooms_of_the_current_area():
 
 
 def test_the_map_carries_live_dots_of_the_current_area():
-    from inventory_tracking.osd.level_map import MapCard, MapPoi
+    from inventory_tracking.levels.map_card import MapCard, MapPoi
 
     guide, shown, _ = make_guide([74])
     dot = MapPoi('Herald T1', 'herald', 3.0, 4.0)
@@ -628,8 +628,8 @@ def test_an_exit_named_once_stays_named_for_the_game_and_is_forgotten_in_the_men
 
 
 def test_walls_survive_room_details_that_load_later():
+    from inventory_tracking.levels.map_card import MapCard
     from inventory_tracking.levels.model import Walkable
-    from inventory_tracking.osd.level_map import MapCard
 
     reads = iter([[Walkable(0, 0, 1, 1, '1')], [], []])
     guide, shown, _ = make_guide([3, 1, 3], fixture='cold_plains_entry')

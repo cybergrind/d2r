@@ -3,9 +3,10 @@ next level green, previous level purple, waypoint blue, POI (boss, chest, rune, 
 
 import pytest
 
+from inventory_tracking.hud.map import KIND_COLOURS
 from inventory_tracking.levels.geometry import Pointer
 from inventory_tracking.levels.guide import pointer_lines
-from inventory_tracking.osd.level_map import KIND_COLOURS, KIND_TONES
+from inventory_tracking.levels.map_card import KIND_TONES
 from inventory_tracking.presentation import Tone, tone_rgb
 from tests.inventory_tracking.levels.fixtures import handler_of
 

@@ -25,6 +25,7 @@ from inventory_tracking.collection.models import (
     Sighting,
 )
 from inventory_tracking.items.decode import decode_items
+from inventory_tracking.items.grid import GRID_CONTAINERS, STASH_SIZE, Grid
 from inventory_tracking.items.metadata import decode_stats, metadata
 from inventory_tracking.items.modifiers import owned_damage_modifiers, owned_defense_modifiers
 from inventory_tracking.native.item_diagnostics import capture_stat_candidates
@@ -94,8 +95,6 @@ SHEET_STATS = {
 }
 SHEET_ONLY_LINES = frozenset((6, 7, 8, 9, 10, 11, 12, 13, 14, 15))
 EQUIPMENT_SLOTS = 13
-# Grid index = inventory page + 2 (hover/selection.py); host-verified dimensions.
-GRID_CONTAINERS = {2: ('inventory', 10, 4), 5: ('cube', 3, 4), 6: ('stash', 10, 10)}
 SHARED_GRID = 6
 ITEM_SIZES = ((1, 1), (1, 2), (1, 3), (1, 4), (2, 2), (2, 3), (2, 4))
 
@@ -182,7 +181,7 @@ def read_owner_grids(read, unit) -> dict[int, dict[str, Any]]:
 def grid_space(grid: dict[str, Any], container: str, tab: int | None = None) -> dict[str, Any]:
     """Occupancy of one grid: row bitmaps ('.' free, '#' used) and how many items of each size still fit."""
     width, height, cells = grid['width'], grid['height'], grid['cells']
-    rows: list[str] = [''.join('#' if cells[y * width + x] else '.' for x in range(width)) for y in range(height)]
+    rows = list(Grid.from_cells(grid))
     return {
         'container': container,
         'tab': tab,
@@ -197,21 +196,8 @@ def grid_space(grid: dict[str, Any], container: str, tab: int | None = None) -> 
 
 def fits_counts(rows: list[str]) -> dict[str, int]:
     """Greedy row-major packing count per item size; a lower bound on what still fits."""
-    result: dict[str, int] = {}
-    height = len(rows)
-    width = len(rows[0]) if rows else 0
-    for w, h in ITEM_SIZES:
-        used = [list(r) for r in rows]
-        count = 0
-        for y in range(height - h + 1):
-            for x in range(width - w + 1):
-                if all(used[y + dy][x + dx] == '.' for dy in range(h) for dx in range(w)):
-                    for dy in range(h):
-                        for dx in range(w):
-                            used[y + dy][x + dx] = '#'
-                    count += 1
-        result[f'{w}x{h}'] = count
-    return result
+    grid = Grid(rows)
+    return {f'{w}x{h}': grid.packed((w, h)) for w, h in ITEM_SIZES}
 
 
 def item_sizes(grids: dict[int, dict[str, Any]]) -> dict[int, tuple[int, int]]:
@@ -353,7 +339,7 @@ def collect_inventory(pid, images, capture, *, scope: Scope = 'all') -> dict[str
                 issues.append(f'Grids of unit {unit["unit_id"]}: {exc}')
                 continue
             sizes.update(item_sizes(grids))
-            wanted = {SHARED_GRID: ('shared_stash', 10, 10)} if shared_id is not None else GRID_CONTAINERS
+            wanted = {SHARED_GRID: ('shared_stash', *STASH_SIZE)} if shared_id is not None else GRID_CONTAINERS
             for index, (container, width, height) in wanted.items():
                 grid = grids.get(index)
                 if grid is None:

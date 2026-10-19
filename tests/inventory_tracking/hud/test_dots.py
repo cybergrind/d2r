@@ -207,7 +207,7 @@ def test_the_stats_line_says_who_saw_a_monster_first_and_how_much_later_the_card
 def test_the_card_carries_each_dots_unit_and_the_table_to_the_canvas():
     from inventory_tracking.hud.ground import ground_payload
     from inventory_tracking.hud.live import map_card_of
-    from inventory_tracking.osd.level_map import MapCard, MapPoi
+    from inventory_tracking.levels.map_card import MapCard, MapPoi
 
     dot = MapPoi('unique', 'leader', 21.0, 30.0, 0x5001, 0x6001, 1)
     card = MapCard(((0, 0, 8, 8),), (20.0, 30.0), (dot, MapPoi('Cave', 'stairs', 4.0, 4.0)), units=(TABLE, 108))

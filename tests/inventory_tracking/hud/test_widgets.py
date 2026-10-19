@@ -6,7 +6,7 @@ import pytest
 from inventory_tracking.hud.payloads import guide_payload
 from inventory_tracking.hud.scene import Widget
 from inventory_tracking.hud.widgets import RENDERERS, GroundMarks, draw_scene, measure
-from inventory_tracking.osd.level_map import MapCard, MapPoi
+from inventory_tracking.levels.map_card import MapCard, MapPoi
 from inventory_tracking.presentation import StyledLine
 
 

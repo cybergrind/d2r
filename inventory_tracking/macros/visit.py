@@ -63,12 +63,10 @@ from inventory_tracking.macros.cube import (
     arrange_keys,
     cell_point,
     drop_item,
-    inventory_rows,
     keys_move,
     loot,
     open_inventory,
     perfect_of,
-    room_for,
     rune_slot,
     stash_transmute,
     unpack,
@@ -208,10 +206,10 @@ def stash_stop(
     )
     if inventory_key is None:
         cube_keepers = []  # no key opens the inventory: the cube's keepers stay
-    first = out_now(inventory_rows(pack), cube_keepers)
+    first = out_now(pack.inventory, cube_keepers)
     later = [item for item in cube_keepers if item not in first]
     sale = list(stop.out_for_sale) if inventory_key is not None else []
-    out = first if later else out_now(inventory_rows(pack), [*first, *sale])
+    out = first if later else out_now(pack.inventory, [*first, *sale])
     if out and inventory_key is not None:
         unpack(run, inventory_key, out)  # before the stash: what the room takes now
     tally, openings, dropped = Tally(memory if memory is not None else Remembered()), 1, 0
@@ -844,7 +842,7 @@ def _stash(
                 # The first scan often frees a keeper's block. If the remaining obstruction is inventory junk,
                 # shift that junk within the inventory here, before Jamella. This keeps the player's one-stash-walk
                 # order even with an unread stash (21:03:47 on 2026-10-18: two rings blocked Humongous).
-                blocked = next((i for i in remaining if not room_for(inventory_rows(after), i.size)), None)
+                blocked = next((i for i in remaining if not after.inventory.has_room(i.size)), None)
                 moves = unread_way_for_cube(after, blocked, junk, needs.block) if blocked is not None else ()
                 if moves:
                     rect = run.actuator.keys.focused_window_rect()
@@ -857,7 +855,7 @@ def _stash(
                                 run.actuator.tap('Escape')
                                 run.seen(lambda w: 'inventory' not in w.open_panels, PANEL_SECONDS)
                 after = _pack(run)
-                if any(room_for(inventory_rows(after), i.size) for i in remaining):
+                if any(after.inventory.has_room(i.size) for i in remaining):
                     LOG.info('Macro: stash: inventory room freed for a cube keeper: the scan again in place')
                     unload(run, own, key, tried, stay, None, pages)
             guessed = sorted(tried - set(sold_full(full)) - set(full))
@@ -1124,7 +1122,7 @@ def visit(
     # The build's free block: a key stack out of it (the player, 2026-10-18: "we should have 2x4 inventory space")
     pack = _pack(run)
     _note(record, start, 'shops', pack, full=stacks)
-    if key is not None and not room_for(inventory_rows(pack), needs.block) and keys_move(pack, needs.block):
+    if key is not None and not pack.inventory.has_room(needs.block) and keys_move(pack, needs.block):
         try:
             arrange_keys(run, key)
         except Abort as stop:
@@ -1158,7 +1156,7 @@ def visit(
                     stash_full=homeless, in_stash=in_stash, deferred=deferred)  # fmt: skip
     _note(record, start, 'end', pack, full=stacks, misses=done.misses)
     staff = run.teleport() if run.teleport is not None else None
-    free = sum(row.count('.') for row in inventory_rows(pack))
+    free = sum(row.count('.') for row in pack.inventory)
     LOG.info(
         'Macro: trade session done%s: cube %d items, block %dx%d %s, %d inventory cells free, junk left %d, keys %s, '
         'portals %s, staff %s, ground %s, %.1f s (%s)',

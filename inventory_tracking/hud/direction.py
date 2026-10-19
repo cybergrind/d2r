@@ -2,8 +2,9 @@
 
 import math
 
+from inventory_tracking.levels.geometry import ARROWS
 
-ARROWS = ('→', '↗', '↑', '↖', '←', '↙', '↓', '↘')
+
 # Logical pixels (260x180 x1.5, user 2026-10-02); a level is scaled to fit, down to level_map.WHOLE_SCALE.
 MAP_SIZE = (390, 270)
 

@@ -34,6 +34,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from pathlib import Path
 
+import logwords
 from logwords import (
     AIMED,
     DID,
@@ -145,13 +146,7 @@ class Game:
 def sessions(args) -> list[Path]:
     if args.sessions:
         return [Path(s) for s in args.sessions]
-    since = args.since or datetime.now() - timedelta(hours=24)
-    found = []
-    for directory in sorted(d for d in RUNS.iterdir() if d.is_dir() and d.name.startswith('20')):
-        log = directory / 'probe.log'
-        if log.exists() and datetime.fromtimestamp(log.stat().st_mtime) >= since:
-            found.append(directory)
-    return found
+    return logwords.sessions(args.since or datetime.now() - timedelta(hours=24), runs=RUNS)
 
 
 def clicked(items: Iterable[Seen], clicks: list[tuple[tuple[int, int], int]]) -> None:

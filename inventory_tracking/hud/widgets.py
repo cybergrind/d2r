@@ -18,10 +18,11 @@ from gi.repository import Pango, PangoCairo  # ruff: ignore[module-import-not-at
 
 from inventory_tracking.common import LOG  # ruff: ignore[module-import-not-at-top-of-file]
 from inventory_tracking.config import HUD, OSD  # ruff: ignore[module-import-not-at-top-of-file]
+from inventory_tracking.hud.direction import MAP_SIZE, draw_indicator  # ruff: ignore[module-import-not-at-top-of-file]
 from inventory_tracking.hud.ground import arrow_reach, arrow_shown, ground_marks, place_mark  # ruff: ignore[module-import-not-at-top-of-file]
+from inventory_tracking.hud.map import KIND_COLOURS, LOCAL_SCALE, WHOLE_SCALE, draw_map  # ruff: ignore[module-import-not-at-top-of-file]
 from inventory_tracking.hud.payloads import card_lines  # ruff: ignore[module-import-not-at-top-of-file]
-from inventory_tracking.osd.direction import MAP_SIZE, draw_indicator  # ruff: ignore[module-import-not-at-top-of-file]
-from inventory_tracking.osd.level_map import KIND_COLOURS, LOCAL_SCALE, WHOLE_SCALE, MapCard, draw_map  # ruff: ignore[module-import-not-at-top-of-file]
+from inventory_tracking.levels.map_card import MapCard  # ruff: ignore[module-import-not-at-top-of-file]
 from inventory_tracking.presentation import StyledLine, render_markup, tone_rgb  # ruff: ignore[module-import-not-at-top-of-file]
 
 

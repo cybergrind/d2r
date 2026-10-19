@@ -44,6 +44,7 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 
 import games  # ruff: ignore[module-import-not-at-top-of-file] - the skill's own tool, beside this one
+import logwords  # ruff: ignore[module-import-not-at-top-of-file] - beside this tool
 from logwords import (  # ruff: ignore[module-import-not-at-top-of-file]
     AFTER,
     APPRAISED,
@@ -71,10 +72,6 @@ SAVED = 7.0  # seconds a stay with a staff charge is shorter (speed.py, 06:51-10
 PREFIXES = ('Magic ', 'Rare ', 'Superior ', 'Socketed ', 'Set ', 'Unique ', 'Low Quality ', 'Crafted ')
 
 JUNK_NAME = re.compile(r'^(magic|rare|set|unique|crafted|white) ')
-
-
-def local(text: str) -> datetime:
-    return datetime.strptime(text, '%Y-%m-%d %H:%M')
 
 
 def read(directory: Path, since: datetime, until: datetime) -> dict:
@@ -232,8 +229,8 @@ def kinds(items: list[dict], seconds_a_gold: float) -> list[str]:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=(__doc__ or '').splitlines()[0])
-    parser.add_argument('--since', type=local)
-    parser.add_argument('--until', type=local)
+    parser.add_argument('--since', type=logwords.local)
+    parser.add_argument('--until', type=logwords.local)
     parser.add_argument('--items', type=int, default=15, help='the bases listed, the most identified first')
     parser.add_argument('--saved', type=float, default=SAVED, help='seconds a stay with a staff charge is shorter')
     args = parser.parse_args()

@@ -55,6 +55,7 @@ ROOT = HERE.parents[3]
 sys.path[:0] = [str(HERE), str(ROOT)]
 
 import games  # ruff: ignore[module-import-not-at-top-of-file] - the skill's own tool, beside this one
+import logwords  # ruff: ignore[module-import-not-at-top-of-file] - beside this tool
 import speed  # ruff: ignore[module-import-not-at-top-of-file]
 from logwords import (  # ruff: ignore[module-import-not-at-top-of-file]
     CREATING,
@@ -187,25 +188,8 @@ class Game:
     played: datetime | None = None  # its first leg made in the window with the loop on
 
 
-def local(text: str) -> datetime:
-    return datetime.strptime(text, '%Y-%m-%d %H:%M')
-
-
 def utc_name(when: datetime) -> str:
     return when.astimezone(UTC).strftime('%Y%m%dT%H%M%S')
-
-
-def sessions(since: datetime, until: datetime) -> list[Path]:
-    """The serve sessions whose log overlaps the window (started before its end, written after its start)."""
-    high = utc_name(until)
-    found = []
-    for directory in sorted(d for d in RUNS.iterdir() if d.is_dir() and d.name.startswith('20')):
-        log = directory / 'probe.log'
-        if directory.name.split('Z')[0] > high or not log.exists():
-            continue
-        if datetime.fromtimestamp(log.stat().st_mtime) >= since:
-            found.append(directory)
-    return found
 
 
 def parse(directory: Path) -> list[Event]:
@@ -417,7 +401,7 @@ class Window:
 def read(since: datetime, until: datetime, takes: bool = True) -> Window:
     window = Window(since, until)
     every: list[tuple[str, list[Event]]] = []
-    for directory in sessions(since, until):
+    for directory in logwords.sessions(since, until):
         every.append((directory.name, parse(directory)))
         window.sessions.append(directory.name)
     if takes:
@@ -862,9 +846,9 @@ def summary(window: Window, result: dict) -> dict:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=(__doc__ or '').splitlines()[0])
-    parser.add_argument('--since', type=local)
-    parser.add_argument('--until', type=local)
-    parser.add_argument('--against', nargs=2, type=local, metavar=('SINCE', 'UNTIL'))
+    parser.add_argument('--since', type=logwords.local)
+    parser.add_argument('--until', type=logwords.local)
+    parser.add_argument('--against', nargs=2, type=logwords.local, metavar=('SINCE', 'UNTIL'))
     parser.add_argument('--worst', type=int, default=8)
     parser.add_argument(
         '--no-takes', action='store_true', help='the log alone: no reach (Catacombs 4 is one phase), strikes or walks'

@@ -30,12 +30,12 @@ from datetime import datetime
 from pathlib import Path
 
 from inventory_tracking.common import LOG
+from inventory_tracking.items.grid import INVENTORY_SIZE, Grid
 from inventory_tracking.macros.world import Carried, Pack
 
 
 STORE_FILE = 'volatile-cells.json'
 SERVE_DIR = Path(__file__).resolve().parents[1] / 'runs' / 'alt-d'  # `make serve`'s output (loop-items.json)
-GRID = (10, 4)  # the inventory's columns and rows
 # Stats that change while an item is carried and so tell nothing about which item it is: its quantity and durability
 QUANTITY, DURABILITY = 70, 72
 CHANGING = frozenset({QUANTITY, DURABILITY})
@@ -103,7 +103,7 @@ class Volatile:
         }
         self._write(data)
         LOG.info('Macro: volatile cells: seeded for %s (%s): %d protected, %d volatile: %s', name, why, len(cells),
-                 GRID[0] * GRID[1] - len(cells), picture(cells))  # fmt: skip
+                 INVENTORY_SIZE[0] * INVENTORY_SIZE[1] - len(cells), picture(cells))  # fmt: skip
         return cells
 
     def prints(self, name: str | None) -> frozenset[Print]:
@@ -151,7 +151,7 @@ def empty(pack: Pack, protected: frozenset[Cell]) -> frozenset[Cell]:
 
 def picture(protected: frozenset[Cell]) -> str:
     """The grid as rows: '#' protected, '.' volatile."""
-    return '/'.join(''.join('#' if (x, y) in protected else '.' for x in range(GRID[0])) for y in range(GRID[1]))
+    return '/'.join(Grid.from_taken(protected, INVENTORY_SIZE))
 
 
 def is_players(item: Carried, stats: Mapping[int, int], prints: frozenset[Print]) -> bool:

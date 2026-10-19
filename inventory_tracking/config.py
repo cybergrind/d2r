@@ -574,7 +574,7 @@ class HudGroundConfig(Config):
     """Marks on the game view at map positions (hud/ground.py); shown while the level map is."""
 
     enabled: bool = True
-    # Map dot kinds (osd/level_map.KIND_TONES) that also get a ground mark: unique/champion
+    # Map dot kinds (levels/map_card.py KIND_TONES) that also get a ground mark: unique/champion
     # monsters, Heralds, the next level, exits and waypoints (user, 2026-10-05).
     # 'danger': every monster of a deadly pack, 'elite': its leader; 'pack': the arrow to such a
     # pack out of view (2026-10-06).

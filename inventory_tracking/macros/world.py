@@ -22,6 +22,7 @@ from pathlib import Path
 from inventory_tracking.collection.capture import STASH_ORDER_OFFSET, is_shared_candidate, read_owner_grids
 from inventory_tracking.common import LOG
 from inventory_tracking.config import RESOURCE_READER
+from inventory_tracking.items.grid import CUBE_GRID, INVENTORY_GRID, INVENTORY_SIZE, STASH_GRID, STASH_SIZE, Grid
 from inventory_tracking.items.identity import (
     ETHEREAL_FLAG,
     FLAGS_OFFSET,
@@ -640,12 +641,6 @@ def corpses(read, table: int) -> tuple[tuple[int, float, float], ...]:
     return tuple(found)
 
 
-INVENTORY_GRID = 2  # the carried inventory among a player's grids (collection/capture.py GRID_CONTAINERS)
-CUBE_GRID = 5  # the Horadric Cube's (the same table)
-STASH_GRID = 6  # the personal stash page's, 10 x 10 (the same table)
-PAGE_SIDE = 10  # a stash page's columns and rows
-
-
 @functools.cache
 def item_sizes() -> dict[int, tuple[int, int]]:
     table = json.loads((Path(__file__).parents[1] / 'loot' / 'data' / 'sizes.json').read_text())
@@ -669,7 +664,7 @@ def carried_rows(
         grids = read_owner_grids(read, unit) if unit is not None else {}
     except OSError, ValueError, struct.error:
         return None, None, frozenset()
-    return grid_rows(grids.get(INVENTORY_GRID)), grid_rows(grids.get(CUBE_GRID)), held_items(grids)
+    return _rows(grids.get(INVENTORY_GRID)), _rows(grids.get(CUBE_GRID)), held_items(grids)
 
 
 @dataclass(frozen=True)
@@ -710,6 +705,11 @@ class Pack:
     # The personal stash page's items and rows ('.' free), read whatever panel is open (macros/charms.py)
     stashed: tuple[Carried, ...] = ()
     stash: tuple[str, ...] | None = None
+
+    @property
+    def inventory(self) -> Grid:
+        """The carried inventory's grid from its items' cells and sizes."""
+        return Grid.from_items(self.items, INVENTORY_SIZE)
 
 
 STACK_MOST = 99  # a resource tab's stack at most: the Tal Runes' refused at 99 (the player, 2026-10-17)
@@ -795,12 +795,11 @@ def stash_view_of(
             # A shared page with no item has no grid allocated, as an empty cube has none (65cfebc): an empty page.
             # Read as no view, it left the stash unread at every visit from 20:18 on 2026-10-18 (the player emptied
             # shared page 5 for the mules), and the scan's guesses marked the Deep Worldstone Shards full
-            return Page(index, ('.' * PAGE_SIDE,) * PAGE_SIDE, owner)
-        rows = grid_rows(grid)
-        if grid is None or rows is None:
+            return Page(index, Grid.empty(STASH_SIZE), owner)
+        if grid is None:
             return None
         units = frozenset(by_address[cell] for cell in grid['cells'] if cell in by_address)
-        return Page(index, rows, owner, units, tuple(map(state, _held(grid, entries))))
+        return Page(index, Grid.from_cells(grid), owner, units, tuple(map(state, _held(grid, entries))))
 
     personal = page(0, main['unit_id'], grids_by_owner.get(main['unit_id'], {}).get(STASH_GRID))
     if personal is None:
@@ -907,11 +906,11 @@ def pack_of(grids: dict, by_address: dict[int, dict]) -> Pack | None:
     page = grids.get(STASH_GRID)
     return Pack(
         _held(grid, by_address),
-        grid_rows(cube),
+        _rows(cube),
         frozenset(item.unit_id for item in held),
         held,
         stashed=_held(page, by_address) if page is not None else (),
-        stash=grid_rows(page),
+        stash=_rows(page),
     )
 
 
@@ -1003,24 +1002,14 @@ def held_items(grids: dict) -> frozenset[int]:
     return frozenset(cell for grid in grids.values() for cell in grid['cells'] if cell)
 
 
-def grid_rows(grid: dict | None) -> tuple[str, ...] | None:
-    """A grid's rows, '#' a taken cell and '.' a free one; None for no grid."""
-    if grid is None:
-        return None
-    width, cells = grid['width'], grid['cells']
-    return tuple(''.join('#' if cells[y * width + x] else '.' for x in range(width)) for y in range(grid['height']))
+def _rows(grid: dict | None) -> Grid | None:
+    """A grid's rows; None for no grid."""
+    return Grid.from_cells(grid) if grid is not None else None
 
 
 def has_room(rows: tuple[str, ...] | None, size: tuple[int, int]) -> bool:
-    """Whether a free block of `size` cells is left in the rows; True when they were not read."""
-    if rows is None:
-        return True
-    across, down = size
-    return any(
-        all(rows[y + dy][x + dx] == '.' for dy in range(down) for dx in range(across))
-        for y in range(len(rows) - down + 1)
-        for x in range(len(rows[0]) - across + 1)
-    )
+    """Whether a free block of `size` cells is left in the rows; True when they were not read (the pickup sites')."""
+    return rows is None or Grid(rows).has_room(size)
 
 
 def doors(read, table: int) -> tuple[Door, ...]:

@@ -4,7 +4,7 @@ import pytest
 
 from inventory_tracking.config import HudGroundConfig
 from inventory_tracking.hud.ground import arrow_reach, arrow_shown, ground_marks, ground_payload, place_mark, project
-from inventory_tracking.osd.level_map import MapCard, MapPoi
+from inventory_tracking.levels.map_card import MapCard, MapPoi
 
 
 CONFIG = HudGroundConfig(

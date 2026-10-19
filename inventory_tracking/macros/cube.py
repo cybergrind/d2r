@@ -28,14 +28,14 @@ from collections.abc import Callable, Iterable, Sequence
 from dataclasses import dataclass, replace
 from pathlib import Path
 
-from inventory_tracking.collection.capture import GRID_CONTAINERS
 from inventory_tracking.common import LOG
+from inventory_tracking.items.grid import CUBE_SIZE, Grid
 from inventory_tracking.items.metadata import item_base, metadata
 from inventory_tracking.macros.act import until
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.engine import Run, protected
 from inventory_tracking.macros.pickmode import MAGIC, RARE, SKILLED
-from inventory_tracking.macros.world import CUBE_GRID, INVENTORY_GRID, Carried, Pack
+from inventory_tracking.macros.world import Carried, Pack
 
 
 __all__ = [
@@ -89,37 +89,7 @@ def own_of(items: Iterable[Carried]) -> frozenset[tuple[int, int, int]]:
     return frozenset((item.txt, item.x, item.y) for item in items)
 
 
-def fits(rows: Sequence[str], at: tuple[int, int], size: tuple[int, int]) -> bool:
-    x, y = at
-    across, down = size
-    if y + down > len(rows) or x + across > len(rows[0]):
-        return False
-    return all(rows[y + dy][x + dx] == '.' for dy in range(down) for dx in range(across))
-
-
-def inventory_rows(pack: Pack) -> tuple[str, ...]:
-    """The carried inventory's 10 x 4 grid as rows ('.' a free cell), from its items' cells and sizes."""
-    width, height = GRID_CONTAINERS[INVENTORY_GRID][1:]
-    rows: tuple[str, ...] = ('.' * width,) * height
-    for item in pack.items:
-        rows = taken(rows, (item.x, item.y), item.size)
-    return rows
-
-
-def room_for(rows: Sequence[str], size: tuple[int, int]) -> bool:
-    """Whether a block of `size` is free anywhere in `rows`."""
-    return any(fits(rows, (x, y), size) for y in range(len(rows)) for x in range(len(rows[0])))
-
-
-def taken(rows: Sequence[str], at: tuple[int, int], size: tuple[int, int]) -> tuple[str, ...]:
-    x, y = at
-    across, down = size
-    return tuple(
-        ''.join('#' if y <= row < y + down and x <= col < x + across else cell for col, cell in enumerate(line))
-        for row, line in enumerate(rows)
-    )
-
-
+# For runner.py, loop.py and visit.py, which still hold rows (items/grid.py `Grid`)
 def roomed(pack: Pack) -> Pack:
     """`pack` with a carried cube whose grid was not read as an empty one. An empty cube has no cells to its grid, and
     the grids read leave such a grid out: every game of 23:28 on 2026-10-16 said "the cube's grid is not read" with
@@ -127,8 +97,7 @@ def roomed(pack: Pack) -> Pack:
     memory, in the grid it then has."""
     if pack.cube is not None or all(item.txt != CUBE_CLASS for item in pack.items):
         return pack
-    width, height = GRID_CONTAINERS[CUBE_GRID][1:]
-    return replace(pack, cube=('.' * width,) * height)
+    return replace(pack, cube=Grid.empty(CUBE_SIZE))
 
 
 def overflow(pack: Pack, own: frozenset[tuple[int, int, int]]) -> bool:
@@ -158,33 +127,16 @@ def plan(pack: Pack, own: frozenset[tuple[int, int, int]]) -> list[Move]:
 def _placed(rows: Sequence[str], items: Sequence[Carried]) -> list[Move]:
     """`items` in their order, each into the first free block of `rows` that fits it."""
     moves: list[Move] = []
+    grid = Grid(rows)
     for item in items:
-        spot = next(
-            ((x, y) for y in range(len(rows)) for x in range(len(rows[0])) if fits(rows, (x, y), item.size)), None
-        )
+        spot = grid.first_spot(item.size)
         if spot is not None:
             moves.append((item, spot))
-            rows = taken(rows, spot, item.size)
+            grid = grid.take(spot, item.size)
     return moves
 
 
 KEY_CLASS = 558  # Key (items metadata, 2026-10-16; macros/shop.py KEY)
-
-
-def largest_block(rows: Sequence[str]) -> int:
-    """The cells of the largest free rectangle in `rows`."""
-    height, width = len(rows), len(rows[0]) if rows else 0
-    return max(
-        (
-            across * down
-            for y in range(height)
-            for x in range(width)
-            for down in range(1, height - y + 1)
-            for across in range(1, width - x + 1)
-            if fits(rows, (x, y), (across, down))
-        ),
-        default=0,
-    )
 
 
 BIG_BLOCK = (
@@ -200,14 +152,14 @@ def keys_move(pack: Pack, size: tuple[int, int] = BIG_BLOCK) -> Move | None:
     of `size` first: a 3 x 3 block counted larger than a 2 x 4 and a Unique Brandistock found no room while the loop's
     keys stood in the only 2 x 4 (12:36 on 2026-10-18; the player: "in this particular case we even have all the
     required space to get it inside the inventory")."""
-    rows = inventory_rows(pack)
+    rows = pack.inventory
 
-    def score(lines: Sequence[str]) -> tuple[bool, int]:
-        return room_for(lines, size), largest_block(lines)
+    def score(lines: Grid) -> tuple[bool, int]:
+        return lines.has_room(size), lines.largest_block()
 
     best, found = score(rows), None
     for key in (item for item in pack.items if item.txt == KEY_CLASS and item.size == (1, 1)):
-        without = tuple(
+        without = Grid(
             ''.join('.' if (col, row) == (key.x, key.y) else cell for col, cell in enumerate(line))
             for row, line in enumerate(rows)
         )
@@ -215,7 +167,7 @@ def keys_move(pack: Pack, size: tuple[int, int] = BIG_BLOCK) -> Move | None:
             for x, cell in enumerate(line):
                 if cell != '.' or (x, y) == (key.x, key.y):
                     continue
-                block = score(taken(without, (x, y), (1, 1)))
+                block = score(without.take((x, y), (1, 1)))
                 if block > best:
                     best, found = block, (key, (x, y))
     return found
@@ -272,8 +224,7 @@ def droppable(pack: Pack, own: frozenset[tuple[int, int, int]], size: tuple[int,
     """The loop's item in the inventory to drop for a block of `size`: one taken only to identify it (a magic or rare
     item of a type that rolls skills, unidentified: pickmode.py `candidate`, whose loss costs a game nothing) whose
     cells free such a block; the smallest. None where none does, or the block is free already."""
-    rows = inventory_rows(pack)
-    if room_for(rows, size):
+    if pack.inventory.has_room(size):
         return None
     found = [
         item
@@ -282,7 +233,7 @@ def droppable(pack: Pack, own: frozenset[tuple[int, int, int]], size: tuple[int,
         and item.quality in (MAGIC, RARE)
         and (base := item_base(item.txt)) is not None
         and base['type'] in SKILLED
-        and room_for(inventory_rows(replace(pack, items=tuple(i for i in pack.items if i is not item))), size)
+        and replace(pack, items=tuple(i for i in pack.items if i is not item)).inventory.has_room(size)
     ]
     return min(found, key=cells) if found else None
 
@@ -458,7 +409,7 @@ def unpack(run: Run, inventory_key: str, items: Sequence[Carried]) -> int:
             # One the inventory has no block for is not clicked: three such were tried for 3 s each with two cells
             # free, before the stash (14:51:04-14 on 2026-10-17); the session's second stash takes them
             now = run.carried() if run.carried is not None else None
-            if now is not None and not room_for(inventory_rows(now), item.size):
+            if now is not None and not now.inventory.has_room(item.size):
                 LOG.info('Macro: cube: no room in the inventory for the item %d at (%d, %d)', item.txt, item.x, item.y)
                 continue
             # Each item tried twice, and one that does not come out is passed over, not the end: at 12:54:10 on
@@ -525,7 +476,7 @@ def transmute(run: Run, inventory_key: str, txt: int, park: Callable[[int], None
             now = run.carried() if run.carried is not None else None
             if now is None:
                 raise Abort('the inventory is not read')
-            if not room_for(inventory_rows(now), item.size):
+            if not now.inventory.has_room(item.size):
                 if park is None:
                     raise Abort(
                         f'no room in the inventory for the item {item.txt} the cube must be emptied of', cause='room'

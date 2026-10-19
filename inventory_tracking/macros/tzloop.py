@@ -44,7 +44,6 @@ from inventory_tracking.macros.loop import (
     ROGUE_ENCAMPMENT,
     TOWN,
     TZ_BACK,
-    TZ_CLEAR,
     TZ_LEVEL,
     TZ_LOOT,
     TZ_NEXT_LEVEL,
@@ -55,9 +54,9 @@ from inventory_tracking.macros.loop import (
     Loop,
     teleports,
 )
-from inventory_tracking.macros.portal import through_portal, to_town
+from inventory_tracking.macros.portal import to_town
 from inventory_tracking.macros.repair import gold
-from inventory_tracking.macros.routines import DEAD, prebuff
+from inventory_tracking.macros.routines import DEAD
 from inventory_tracking.macros.shop import gold_cap
 from inventory_tracking.macros.town import Exit
 from inventory_tracking.macros.tzroutine import GameView, Itinerary, itinerary, produce
@@ -167,10 +166,7 @@ def trip(loop: Loop, game: str, area: int) -> None:
     """A trip to town for room from level `area` (runner.py `_loop_stopped`'s room rules): the room package onto the
     agenda's stack (agenda.py `room_package`), with the loop's trip bookkeeping as the Andariel kind's TRIP keeps it
     (`may_trip`, `tripping`, `_back_from_trip`)."""
-    loop.trips = loop.trips_in(game) + 1
-    loop.trip_due, loop.trip, loop.fortressed = False, game, None
-    loop.trip_free, loop.trip_gained, loop.returned = loop.free, None, None
-    loop.visiting = loop.visited = None  # a whole visit of its own
+    loop.begin_trip(game)
     loop.agenda.push(*room_package(area))
 
 
@@ -210,26 +206,20 @@ def perform(
                 if not own:
                     loop.teleports = teleports(gold(run), gold_cap(run), loop.teleports)
                 tz.navigate()
-                if loop.prebuffed != game and player.area != ROGUE_ENCAMPMENT:
-                    prebuff(run)
-                    loop.prebuffed = game
+                if player.area != ROGUE_ENCAMPMENT:
+                    loop.prebuff_once(run, game)
             travel(run, goal.to, loop.marks)
-            if excursion and loop.prebuffed != game:
-                prebuff(run)  # out of the Rogue Encampment, whose townsfolk Consume cannot take (routines.py TOWN_NPCS)
-                loop.prebuffed = game
+            if excursion:
+                loop.prebuff_once(run, game)  # out of the Rogue Encampment, whose townsfolk Consume cannot take
         elif goal.kind == TOWN_ROUTINE:
             loop.town(run, visit, game, Exit(goal.exit or 'waypoint'))
         elif goal.kind == PORTAL_TO_TOWN:
             if not packaged:
                 agenda.finish(player.area)  # the excursion's end: the next one from town
             to_town(run, key_names, None if packaged else tz.take_one)  # a trip for room has no room at the portal
-            here = run.world().player
-            loop.portal_at = (here.x, here.y) if here is not None else None
+            loop.note_portal(run)
         elif goal.kind == THROUGH_PORTAL:
-            if loop.tripping(game):
-                loop._back_from_trip()
-            loop.returned = game
-            through_portal(run, loop.portal_at)
+            loop.back_through_portal(run, game)
         elif goal.kind == LEVEL:
             tz.navigate()
             tz.level_run()  # posts the run and returns: its end is the next leg's
@@ -267,4 +257,4 @@ def boss_of(progress: Progress, area: int) -> str:
 
 def full_clear(loop: Loop) -> bool:
     """Whether the loop's kind is Full clear TZ (the Herald hunt: every hostile, every room)."""
-    return loop.kind == TZ_CLEAR
+    return loop.kind.full_clear

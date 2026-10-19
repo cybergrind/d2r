@@ -1,6 +1,6 @@
 """Widget payloads, built by producers. Pure data: no GTK/Pango, so producers never import renderers."""
 
-from inventory_tracking.osd.level_map import MapCard
+from inventory_tracking.levels.map_card import MapCard
 from inventory_tracking.presentation import StyledLine
 
 

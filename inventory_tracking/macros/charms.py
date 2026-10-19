@@ -19,9 +19,10 @@ from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 
 from inventory_tracking.common import LOG
+from inventory_tracking.items.grid import INVENTORY_SIZE, Grid
 from inventory_tracking.items.metadata import metadata
 from inventory_tracking.macros.actuator import Abort
-from inventory_tracking.macros.cube import INVENTORY, cell_point, inventory_rows, room_for
+from inventory_tracking.macros.cube import INVENTORY, cell_point
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.stash import SHARED_PRIORITY, STASH_PAGE, _sent, _until, close_stash, open_stash
 from inventory_tracking.macros.visit import Remembered, Tally, _show
@@ -47,7 +48,6 @@ UNIQUE = 7  # ItemData quality
 # itemstatcost.txt `item_magicbonus` *ID 80 (pricing/raw/game-excel/itemstatcost.txt, third-parties/d2data, read
 # 2026-10-18): the "mag%" property of Gheed's Fortune
 MAGIC_FIND = 80
-INVENTORY_SIZE = (10, 4)
 GRAND_CHARM_SIZE = (1, 3)
 
 Stats = Callable[[int], Mapping[int, int] | None]  # None: unread
@@ -158,23 +158,11 @@ def _view(run: Run) -> StashView | None:
     return run.stash_view() if run.stash_view is not None else None
 
 
-def _fits(rows: Sequence[str], at: tuple[int, int], size: tuple[int, int]) -> bool:
-    x, y = at
-    if y + size[1] > len(rows) or x + size[0] > len(rows[0]):
-        return False
-    return all(rows[y + dy][x + dx] == '.' for dy in range(size[1]) for dx in range(size[0]))
-
-
 def shared_pages(view: StashView | None, size: tuple[int, int]) -> list[int]:
     """The shared pages a block of `size` fits on, in storage priority; every one when the stash is unread."""
     if view is None:
         return list(SHARED_PRIORITY)
-    fitting = {
-        page.index
-        for page in view.pages
-        if page.index >= 1
-        and any(_fits(page.rows, (x, y), size) for y in range(len(page.rows)) for x in range(len(page.rows[0])))
-    }
+    fitting = {page.index for page in view.pages if page.index >= 1 and Grid(page.rows).has_room(size)}
     return [page for page in SHARED_PRIORITY if page in fitting]
 
 
@@ -230,17 +218,8 @@ def _take(run: Run, rect, tally: Tally, unit_id: int, page: int | None) -> Carri
 
 def _free_for(pack: Pack, item: Carried, at: tuple[int, int]) -> bool:
     """Whether `item`'s block at `at` is free in the inventory, the item's own cells counted free."""
-    x, y = at
-    if x < 0 or y < 0 or x + item.size[0] > INVENTORY_SIZE[0] or y + item.size[1] > INVENTORY_SIZE[1]:
-        return False
-    taken = {
-        (i.x + dx, i.y + dy)
-        for i in pack.items
-        if i.unit_id != item.unit_id
-        for dx in range(i.size[0])
-        for dy in range(i.size[1])
-    }
-    return all((x + dx, y + dy) not in taken for dx in range(item.size[0]) for dy in range(item.size[1]))
+    others = (i for i in pack.items if i.unit_id != item.unit_id)
+    return Grid.from_items(others, INVENTORY_SIZE).fits(at, item.size)
 
 
 def settle(run: Run, rect, item: Carried, cell: Cell) -> Carried:
@@ -278,7 +257,7 @@ def _make_way(run: Run, rect, tally: Tally, others: Sequence[Carried]) -> None:
     it too."""
     for other in others:
         pack = _pack(run)
-        if room_for(inventory_rows(pack), GRAND_CHARM_SIZE):
+        if pack.inventory.has_room(GRAND_CHARM_SIZE):
             return
         lying = next((i for i in pack.items if i.unit_id == other.unit_id), None)
         if lying is None:

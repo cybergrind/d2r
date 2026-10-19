@@ -173,7 +173,7 @@ def ground_payload_of(boxes) -> dict | None:
 
 
 def map_card_of(boxes) -> dict | None:
-    """The level map card's own dict (osd/level_map.py MapCard payload 'map'), or None."""
+    """The level map card's own dict (levels/map_card.py MapCard payload 'map'), or None."""
     for widget, _ in boxes:
         card = widget.payload.get('map') if widget.kind == 'guide' and isinstance(widget.payload, dict) else None
         if isinstance(card, dict) and isinstance(card.get('map'), dict):
@@ -184,7 +184,7 @@ def map_card_of(boxes) -> dict | None:
 def follow(boxes, ground, moved=None):
     """`boxes` with the ground widget's payload replaced by its live one (None = unchanged), and
     the map card's player moved with it: a map that keeps the player in the middle
-    (osd/level_map.py LOCAL_SCALE) would otherwise scroll in half-second steps. `moved` (hud/dots.py
+    (hud/map.py LOCAL_SCALE) would otherwise scroll in half-second steps. `moved` (hud/dots.py
     `LiveDots.frame`): every monster dot where it is now, the dead and gone dropped, the new added."""
     if ground is None and moved is None:
         return boxes

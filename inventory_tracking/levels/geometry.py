@@ -34,7 +34,7 @@ class Pointer:
     dx: float
     dy: float
     here: bool = False  # the player stands in the POI's room: no direction to give
-    kind: str = 'target'  # Poi kind; picks the row colour (osd/level_map.KIND_TONES)
+    kind: str = 'target'  # Poi kind; picks the row colour (levels/map_card.py KIND_TONES)
 
     @property
     def arrow(self) -> str:

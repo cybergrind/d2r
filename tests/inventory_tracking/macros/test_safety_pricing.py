@@ -924,7 +924,8 @@ def test_a_teleports_window_holds_the_keys_second_press_and_its_price_is_unchang
 
 def test_a_teleport_of_the_characters_own_is_priced_with_no_weapon_swap(monkeypatch):
     # 10:55-11:08 on 2026-10-18: with Enigma's Teleport priced with a swap there and back (2.31 s unstruck), none of
-    # 172 Teleports to a firing spot fitted the strike gap on Catacombs 4 (rca/2026-10-18/sluggish-engagement-findings.md)
+    # 172 Teleports to a firing spot fitted the strike gap on Catacombs 4
+    # (rca/2026-10-18/sluggish-engagement-findings.md)
     from types import SimpleNamespace
 
     from inventory_tracking.combat.harm import Look, SafetySettings
@@ -944,11 +945,12 @@ def test_a_teleport_of_the_characters_own_is_priced_with_no_weapon_swap(monkeypa
         facts = p.Facts(1.0, goal, False, False, False, lambda: Step(goal.place, TELEPORT))
         priced = module.Safety().price(
             facts, p.Pursuit('teleport', 1.0), Look((), life=1000), Loot(life=1000, max_life=1000), CALM,
-            SafetySettings(), Observation((0.0, 0.0), {}), SimpleNamespace(reach=22), lambda point: Step(point, TELEPORT),
-            teleport_hands=hands,
+            SafetySettings(), Observation((0.0, 0.0), {}), SimpleNamespace(reach=22),
+            lambda point: Step(point, TELEPORT), teleport_hands=hands,
         )  # fmt: skip
         return tuple(c for c in priced.candidates if isinstance(c.act, p.Move) and c.act.step.skill == TELEPORT)
 
     staff, own = teleport('travel'), teleport('battle')
-    assert staff and own
+    assert staff
+    assert own
     assert min(c.unstruck for c in staff) - min(c.unstruck for c in own) == pytest.approx(2 * module.SWAP_SECONDS)

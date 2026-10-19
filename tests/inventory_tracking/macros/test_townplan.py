@@ -13,7 +13,7 @@ from pathlib import Path
 
 import pytest
 
-from inventory_tracking.macros.cube import inventory_rows, own_of, room_for
+from inventory_tracking.macros.cube import own_of
 from inventory_tracking.macros.stash import is_potion
 from inventory_tracking.macros.town import Exit, Needs, contract
 from inventory_tracking.macros.townplan import RULED, Rulings, State, kind_of, kinds, plan_visit, simulate
@@ -109,7 +109,7 @@ def test_the_ruled_order_predicts_the_misses_the_code_leaves(case, before, ruled
     assert kinds(plan.misses) == ruled
     assert plan.end.pack.in_cube == ()
     assert plan.end.parked == ()
-    assert room_for(inventory_rows(plan.end.pack), Needs().block)
+    assert plan.end.pack.inventory.has_room(Needs().block)
 
 
 VARIANTS = {
@@ -127,7 +127,7 @@ def test_each_ruling_variant_lets_the_stranded_keeper_out(case, variant):
     assert plan.variant == variant
     assert plan.misses == ()
     assert plan.end.pack.in_cube == ()
-    assert room_for(inventory_rows(plan.end.pack), Needs().block)
+    assert plan.end.pack.inventory.has_room(Needs().block)
 
 
 @pytest.mark.parametrize('case', ['1505', '1514', '1520'])

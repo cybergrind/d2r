@@ -13,7 +13,7 @@ script over) no goal row and no route line; the marks of stages done have no row
 rebuilds the card at the next poll, the walls as they are (rca/2026-10-14/run-1916-hud-findings.md §1).
 
 Win+C calls `press()`: a single press on a shown card switches a big level between the view
-around the player and the whole level (osd/level_map.py; user, 2026-10-06); with no card up it
+around the player and the whole level (hud/map.py; user, 2026-10-06); with no card up it
 shows the card again. Either way from a fresh room and position read,
 in any level (levels without a handler get the map and their ways out, levels/exits.py), waiting
 up to `lock_timeout` for the capture lock. Two presses within DOUBLE_PRESS seconds (hotkey
@@ -50,13 +50,13 @@ from inventory_tracking.levels.evidence import evidence_record
 from inventory_tracking.levels.exits import guide_level, passage_of
 from inventory_tracking.levels.geometry import Pointer, pointer
 from inventory_tracking.levels.level_map import build_map, centre
+from inventory_tracking.levels.map_card import KIND_TONES
 from inventory_tracking.levels.memory import observe_level
 from inventory_tracking.levels.model import Guidance, Lead, Level, LevelSnapshot, Location, Poi, Room, Target
 from inventory_tracking.levels.registry import handler_for
 from inventory_tracking.levels.session import LevelMemory, layout_key
 from inventory_tracking.levels.spots import WAYS_OUT, on_waypoint, pinpoint
 from inventory_tracking.native.layout import TILE_UNITS
-from inventory_tracking.osd.level_map import KIND_TONES
 from inventory_tracking.presentation import StyledLine, Tone
 
 

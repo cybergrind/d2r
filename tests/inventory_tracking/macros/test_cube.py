@@ -245,16 +245,16 @@ def test_a_key_stack_that_splits_the_free_cells_is_moved_to_make_the_largest_blo
     # The player, 19:10 on 2026-10-17: "move key two cells left to make continuous 2x4 space"
     from dataclasses import replace
 
-    from inventory_tracking.macros.cube import KEY_CLASS, arrange_keys, inventory_rows, keys_move, largest_block, taken
+    from inventory_tracking.macros.cube import KEY_CLASS, arrange_keys, keys_move
 
     rest = Carried(30, 600, 4, 0, (6, 4))  # columns 4-9 taken: 16 cells free in columns 0-3
     stack = Carried(32, KEY_CLASS, 1, 1, (1, 1))  # in the middle of them
     pack = Pack((rest, stack))
-    assert largest_block(inventory_rows(pack)) == 8
+    assert pack.inventory.largest_block() == 8
     move = keys_move(pack)
     assert move is not None
     assert move[0] is stack
-    assert largest_block(taken(inventory_rows(Pack((rest,))), move[1], (1, 1))) == 12  # a 3 x 4 block beside it
+    assert Pack((rest,)).inventory.take(move[1], (1, 1)).largest_block() == 12  # a 3 x 4 block beside it
     assert keys_move(Pack((rest, replace(stack, x=0, y=0)))) is None  # in a corner already: nothing better
 
     play = Game(world(103, player=player(103, x=5048.0, y=5044.0)))
@@ -268,14 +268,14 @@ def test_a_key_stack_that_splits_the_free_cells_is_moved_to_make_the_largest_blo
 def test_an_item_taken_only_to_identify_is_dropped_for_a_grand_charms_block():
     # 21:00:03 on 2026-10-17: the cube took what it could, no 1 x 3 block was left, and the loop stopped with a Grand
     # Charm on the ground. A magic dagger taken to identify (its loss costs a game nothing) is dropped for it
-    from inventory_tracking.macros.cube import SURE_BLOCK, drop_for, droppable, inventory_rows, room_for
+    from inventory_tracking.macros.cube import SURE_BLOCK, drop_for, droppable
 
     own = tuple(Carried(40 + x, 999 - x, x, 1, (1, 2)) for x in range(1, 10))  # the player's: rows 1-2 of columns 1-9
     dagger = Carried(50, 135, 0, 0, (1, 3), quality=4, identified=False)  # a magic Stilleto, the loop's: column 0
     charm = Carried(51, 618, 0, 3, (1, 1), quality=4, identified=False)  # a Small Charm, the loop's: a sure valuable
     kept = own_of(own)
     pack = Pack((*own, dagger, charm))
-    assert not room_for(inventory_rows(pack), SURE_BLOCK)
+    assert not pack.inventory.has_room(SURE_BLOCK)
     assert droppable(pack, kept, SURE_BLOCK) is dagger
     assert droppable(Pack((*own, charm)), kept, SURE_BLOCK) is None  # room already: nothing dropped
     grand = Carried(52, 620, 0, 0, (1, 3), quality=4, identified=False)  # a Grand Charm in the dagger's place
@@ -286,7 +286,7 @@ def test_an_item_taken_only_to_identify_is_dropped_for_a_grand_charms_block():
     play.pack = pack
     assert drop_for(play.run(), 'i', kept, SURE_BLOCK) == dagger
     assert play.fallen == [dagger]
-    assert room_for(inventory_rows(play.pack), SURE_BLOCK)
+    assert play.pack.inventory.has_room(SURE_BLOCK)
     assert 'inventory' not in play.world.open_panels
 
 
@@ -376,7 +376,7 @@ def test_the_keys_move_out_of_the_only_two_by_four_block_before_a_larger_square(
     # 12:36 on 2026-10-18: a Unique Brandistock (2 x 4) found no room; the loop's keys at (3, 0) stood in columns 3-4,
     # the only 2 x 4 the player's charms leave (the player: "in this particular case we even have all the required
     # space to get it inside the inventory")
-    from inventory_tracking.macros.cube import BIG_BLOCK, KEY_CLASS, inventory_rows, keys_move, room_for, taken
+    from inventory_tracking.macros.cube import BIG_BLOCK, KEY_CLASS, keys_move
 
     def at(unit, x, y, size=(1, 1), txt=603):
         return Carried(unit, txt, x, y, size)
@@ -388,13 +388,13 @@ def test_the_keys_move_out_of_the_only_two_by_four_block_before_a_larger_square(
         at(16, 8, 2, (1, 2), 604), at(17, 9, 2), at(18, 0, 3), at(19, 7, 3), at(20, 9, 3),
     )  # fmt: skip
     pack = Pack(items)
-    assert not room_for(inventory_rows(pack), BIG_BLOCK)
+    assert not pack.inventory.has_room(BIG_BLOCK)
     move = keys_move(pack)
     assert move is not None
     key, cell = move
     assert (key.x, key.y) == (3, 0)
     without = Pack(tuple(i for i in items if i is not key))
-    assert room_for(taken(inventory_rows(without), cell, (1, 1)), BIG_BLOCK)
+    assert without.inventory.take(cell, (1, 1)).has_room(BIG_BLOCK)
 
 
 def test_only_the_wanted_loop_items_go_into_the_cube():

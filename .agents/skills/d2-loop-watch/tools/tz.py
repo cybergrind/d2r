@@ -23,6 +23,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(ROOT))
 
+import logwords  # ruff: ignore[module-import-not-at-top-of-file] - beside this tool
 from logwords import TELEPORT  # ruff: ignore[module-import-not-at-top-of-file] - beside this tool
 
 from inventory_tracking.combat.legs import CASTING, MOVING  # ruff: ignore[module-import-not-at-top-of-file]
@@ -36,7 +37,7 @@ HERALD_TIER, UNIQUE = '367', 0x08
 
 
 def local(text: str) -> datetime:
-    return datetime.strptime(text, '%Y-%m-%d %H:%M').astimezone()
+    return logwords.local(text).astimezone()
 
 
 def level_names() -> dict[int, str]:

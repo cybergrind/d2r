@@ -122,6 +122,9 @@ class Run:
         self.mark: Callable[[str], None] = lambda name: None  # a moment of the press's trace (latency.py)
         # a warning that stays on the card until it is taken back with None (runner.py `_warn`)
         self.warn: Callable[[str | None], None] = lambda text: None
+        # the same warning, of the level run standing by a valuable it has no room for (hunt.py `stay_by`): the loop's
+        # watchdog makes room for it by this, not by the text (runner.py `_stand_by`)
+        self.stand_by: Callable[[str], None] = lambda text: self.warn(text)
         # on `clock`: the press this run answers is not worth an input after it (runner.EXPIRES)
         self.deadline = math.inf
         self.light = 0  # above 0 the looks at the game leave the monsters and doors out (`lightly`)

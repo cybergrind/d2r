@@ -31,12 +31,12 @@ matched it at the end; no click is made by it.
 from collections.abc import Iterable, Sequence
 from dataclasses import dataclass, replace
 
+from inventory_tracking.items.grid import CUBE_SIZE, Grid
 from inventory_tracking.loot.runes import RUNES as RUNE_CLASSES
-from inventory_tracking.macros.cube import KEY_CLASS, inventory_rows, keys_move, loot, room_for, taken
+from inventory_tracking.macros.cube import KEY_CLASS, keys_move, loot
 from inventory_tracking.macros.shop import short
 from inventory_tracking.macros.stash import is_potion
 from inventory_tracking.macros.town import (
-    CUBE_SIZE,
     RUNES_A_TAKE,
     Cell,
     Contract,
@@ -173,32 +173,15 @@ def kinds(misses: Iterable[str]) -> tuple[str, ...]:
 # The stops
 
 
-def _first_fit(rows: Sequence[str], size: tuple[int, int]) -> tuple[int, int] | None:
-    """The first cell, row by row, whose block of `size` is free (the game's Ctrl + click, as everywhere: §1.2)."""
-    width = len(rows[0]) if rows else 0
-    for y in range(len(rows) - size[1] + 1):
-        for x in range(width - size[0] + 1):
-            if all(rows[y + dy][x + dx] == '.' for dy in range(size[1]) for dx in range(size[0])):
-                return x, y
-    return None
-
-
 def _tallest_first(items: Iterable[Carried]) -> list[Carried]:
     """cube.py `unpack`'s order."""
     return sorted(items, key=lambda i: (-i.size[1], -i.size[0] * i.size[1]))
 
 
-def _cube_rows(in_cube: Iterable[Carried]) -> tuple[str, ...]:
-    rows: tuple[str, ...] = ('.' * CUBE_SIZE[0],) * CUBE_SIZE[1]
-    for item in in_cube:
-        rows = taken(rows, (item.x, item.y), item.size)
-    return rows
-
-
 def _pack(pack: Pack, items: Iterable[Carried], in_cube: Iterable[Carried]) -> Pack:
     """`pack` with these items and cube items, the cube's rows and units told again."""
     cubed = tuple(in_cube)
-    rows = _cube_rows(cubed) if pack.cube is not None or cubed else pack.cube
+    rows = Grid.from_items(cubed, CUBE_SIZE) if pack.cube is not None or cubed else pack.cube
     return replace(pack, items=tuple(items), in_cube=cubed, cube_items=frozenset(i.unit_id for i in cubed), cube=rows)
 
 
@@ -209,14 +192,15 @@ def _without(pack: Pack, gone: Iterable[Carried]) -> Pack:
 
 def _unpacked(pack: Pack, items: Sequence[Carried]) -> tuple[Pack, list[Carried]]:
     """`items` out of the cube (cube.py `unpack`: the tallest first, each one the inventory has a block for, into its
-    first free block); the pack after, and those that came out at their new cells."""
-    rows, held, out = inventory_rows(pack), list(pack.items), []
+    first free block, the game's Ctrl + click as everywhere: §1.2); the pack after, and those that came out at their
+    new cells."""
+    rows, held, out = pack.inventory, list(pack.items), []
     units: set[int] = set()
     for item in _tallest_first(items):
-        spot = _first_fit(rows, item.size)
+        spot = rows.first_spot(item.size)
         if spot is None:
             continue
-        rows = taken(rows, spot, item.size)
+        rows = rows.take(spot, item.size)
         moved = replace(item, x=spot[0], y=spot[1])
         held.append(moved)
         out.append(moved)
@@ -231,12 +215,12 @@ def _put_on_pages(pages: tuple[Page, ...], puts: Iterable[tuple[Carried, int]]) 
         page = by_index.get(index)
         if page is None:
             continue
-        spot = _first_fit(page.rows, item.size)
+        spot = Grid(page.rows).first_spot(item.size)
         if spot is None:
             continue
         by_index[index] = replace(
             page,
-            rows=taken(page.rows, spot, item.size),
+            rows=Grid(page.rows).take(spot, item.size),
             units=page.units | {item.unit_id},
             items=(*page.items, replace(item, x=spot[0], y=spot[1])),
         )
@@ -338,7 +322,7 @@ def _jamella(state: State, needs: Needs, *, stock: bool) -> tuple[State, list[St
 def _keys(state: State, needs: Needs) -> tuple[State, list[Step]]:
     """The key stack moved out of the build's block when it holds it (visit.py after her, cube.py `arrange_keys`)."""
     pack = state.pack
-    if room_for(inventory_rows(pack), needs.block):
+    if pack.inventory.has_room(needs.block):
         return state, []
     move = keys_move(pack, needs.block)
     if move is None:

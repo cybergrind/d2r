@@ -27,6 +27,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, NamedTuple
 
 from inventory_tracking.common import LOG
+from inventory_tracking.items.grid import Grid
 from inventory_tracking.levels.presets import display_name
 from inventory_tracking.macros.actuator import Abort, Hand
 from inventory_tracking.macros.agenda import Agenda
@@ -44,12 +45,10 @@ from inventory_tracking.macros.charms import (
 from inventory_tracking.macros.cube import (
     KEPT,
     SURE_BLOCK,
-    inventory_rows,
     loot,
     overflow,
     own_of,
     perfect_of,
-    room_for,
     roomed,
 )
 from inventory_tracking.macros.engine import Run
@@ -120,11 +119,20 @@ class Kind:
     metric: str = ''
     # Seconds a game of the kind may last before the watchdog leaves it (`overdue`); None: GAME_SECONDS
     game_seconds: float | None = None
+    # Where the kinds differ, as the code asks it (never the kind itself; cleanup phase 3, 2026-10-19)
+    agenda: bool = False  # its legs are the agenda's goals (macros/tzloop.py), not `next_leg`'s
+    trips: bool = False  # a valuable with no room is a trip to town and back through the portal (macros/stops.py)
+    swaps_gheeds: bool = False  # the Gheed's swap (macros/charms.py)
+    boss: str | None = None  # whose drops may still be landing after the kill at the PICK_UP leg (`KILLED_AT`)
+    badge: bool = True  # the HUD's badge names the kind (runner.py `run_badge`)
+    fortress_ends_game: bool = False  # its level left for the Fortress ends its game (`done`)
+    full_clear: bool = False  # every hostile, every room: the Herald hunt (macros/tzloop.py `full_clear`)
 
 
 LK = Kind(
-    'lk', 'Lower Kurast', LOWER_KURAST, frozenset((LOWER_KURAST,)), KURAST_DOCKS, KEYS_WANTED, 'chests opened an hour'
-)
+    'lk', 'Lower Kurast', LOWER_KURAST, frozenset((LOWER_KURAST,)), KURAST_DOCKS, KEYS_WANTED, 'chests opened an hour',
+    badge=False, fortress_ends_game=True,
+)  # fmt: skip
 # Andariel (routes/andariel-loop-plan.md): the waypoint to Catacombs Level 2, its stairs and Level 3's down, her fight
 # on Level 4, the loot, Save and Exit there: the next game starts in the Rogue Encampment, a waypoint from Level 2
 ANDARIEL = Kind(
@@ -134,6 +142,9 @@ ANDARIEL = Kind(
     frozenset((CATACOMBS_2, CATACOMBS_3, CATACOMBS_4)),
     ROGUE_ENCAMPMENT,
     metric='Andariel kills an hour',
+    trips=True,
+    swaps_gheeds=True,
+    boss='Andariel',
 )
 KINDS = {kind.key: kind for kind in (LK, ANDARIEL)}
 # The terror zone kinds (macros/goals-plan.md; the player, 2026-10-19 ~02:12: "we're going to have separate mods: -
@@ -143,10 +154,11 @@ KINDS = {kind.key: kind for kind in (LK, ANDARIEL)}
 FIELD = frozenset(range(137)) - {ROGUE_ENCAMPMENT, 40, KURAST_DOCKS, PANDEMONIUM_FORTRESS, 109}
 TZ_GAME_SECONDS = 1200.0
 TZ = Kind(
-    'tz', 'TZ leveling', 0, FIELD, PANDEMONIUM_FORTRESS, metric='elite kills an hour', game_seconds=TZ_GAME_SECONDS
-)
+    'tz', 'TZ leveling', 0, FIELD, PANDEMONIUM_FORTRESS, metric='elite kills an hour', game_seconds=TZ_GAME_SECONDS,
+    agenda=True,
+)  # fmt: skip
 # The Herald hunt's measure is not ruled yet (goals-plan.md open question 8): Heralds and elites an hour, both reported
-TZ_CLEAR = replace(TZ, key='tzclear', name='Full clear TZ', metric='Herald and elite kills an hour')
+TZ_CLEAR = replace(TZ, key='tzclear', name='Full clear TZ', metric='Herald and elite kills an hour', full_clear=True)
 TZ_KINDS = frozenset((TZ.key, TZ_CLEAR.key))
 
 
@@ -619,6 +631,35 @@ class Loop:
         except (OSError, ValueError, TypeError, AttributeError) as error:
             LOG.info("Macro: the loop's items are not kept in %s: %s", self.store, error)
 
+    def begin_trip(self, game: str) -> None:
+        """A trip to town for room starts in `game` (the TRIP leg, macros/tzloop.py `trip`): counted (`may_trip`), and
+        with its own Fortress, its own way back and a whole visit of its own: a Fortress reached before it this game is
+        not its (11:56:48 on 2026-10-18), nor a way back the Gheed's swap made (13:59:45), nor the game's first visit
+        (12:36: the Fortress and straight back, still no room)."""
+        self.trips = self.trips_in(game) + 1
+        self.trip_due, self.trip, self.fortressed = False, game, None
+        self.trip_free, self.trip_gained = self.free, None
+        self.returned = None
+        self.visiting = self.visited = None
+
+    def back_through_portal(self, run: Run, game: str) -> None:
+        """Through the portal back to the level it was opened on (`portal_at`), a trip's end told first."""
+        if self.tripping(game):
+            self._back_from_trip()
+        self.returned = game
+        through_portal(run, self.portal_at)
+
+    def note_portal(self, run: Run) -> None:
+        """Where the character stands after a portal to town: the way back's spot (`back_through_portal`)."""
+        here = run.world().player
+        self.portal_at = (here.x, here.y) if here is not None else None
+
+    def prebuff_once(self, run: Run, game: str) -> None:
+        """The prebuff, once a game."""
+        if self.prebuffed != game:
+            prebuff(run)
+            self.prebuffed = game
+
     def _back_from_trip(self) -> None:
         """A trip for room through the portal back to its level: the room it made (`trip_gained`, `may_trip`); the cube
         tried again before another trip (the visit emptied it: `room_tried`); the level's ground tried again with the
@@ -813,7 +854,7 @@ class Loop:
                 # The cube's room in pieces none of the loop's items fits ('.#./.#./.#./...': 9 cells, two items
                 # stayed out, the inventory full, a Rage Mask left, 12:44-12:45 on 2026-10-17): no room as such
                 self.free = min(self.free, in_inventory)
-            if not any(rows and room_for(rows, SURE_BLOCK) for rows in (inventory_rows(pack), cube)):
+            if not any(rows and Grid(rows).has_room(SURE_BLOCK) for rows in (pack.inventory, cube)):
                 # No SURE_BLOCK free in the inventory nor in the cube, whatever the cells count: no room as such
                 self.free = min(self.free, TRADE_ROOM - 1)
             if in_town and self.free < TRADE_ROOM:
@@ -850,7 +891,7 @@ class Loop:
         coins = gold(run) if (staff is not None and (wants(staff) or topped)) or worn_out(wear) else None
         self.repair = due(staff, wear, coins, top_up=topped, waited=self.repair_waited())
         goal = None
-        if self.kind.key in TZ_KINDS:
+        if self.kind.agenda:
             from inventory_tracking.macros import tzloop  # late: tzloop imports this module
 
             # The terror zone kinds' legs are the agenda's goals (macros/goals-plan.md), performed by tzloop
@@ -881,31 +922,29 @@ class Loop:
                 # The staff's charges priced by the gold; Teleport of the character's own (Enigma) is in every move
                 # whatever the gold (runner.py, LOOPED_TELEPORT)
                 self.teleports = teleports(coins, gold_cap(run), self.teleports)
-            if self.prebuffed != game and (world.player is None or world.player.area != ROGUE_ENCAMPMENT):
-                prebuff(run)
-                self.prebuffed = game
+            if world.player is None or world.player.area != ROGUE_ENCAMPMENT:
+                self.prebuff_once(run, game)
             travel(run, self.kind.start, self.marks)
         elif leg == CHESTS:
             level_run()
         elif leg == DOWN:
             if down is None:
                 raise Abort('no level run to the stairs')
-            if self.prebuffed != game:
-                prebuff(run)  # by the waypoint it came in by (none in the Rogue Encampment: `NEXT_GAME`)
-                self.prebuffed = game
+            self.prebuff_once(run, game)  # by the waypoint it came in by (none in the Rogue Encampment: `NEXT_GAME`)
             down()
         elif leg == FIGHT_ANDARIEL:
             if fight is None:
                 raise Abort('no level run to fight with')
             fight()  # posts her level run and returns; the run's end is the next leg's (`PICK_UP`)
         elif leg == PICK_UP:
-            if self.kind == ANDARIEL and (self.fought is None or self.fought[0] != game):
+            boss = self.kind.boss
+            if boss is not None and (self.fought is None or self.fought[0] != game):
                 # The first look at her level's loot: her fight's run has just ended (`fight` only posts it: the clock
                 # at its leg let the game be left 0.05 s into the loot, 13:02:58 on 2026-10-18)
                 self.fought = (game, run.clock())
             if not pick_up() and progress is not None and world.player is not None:
-                killed = time.monotonic() - KILLED_AT.get('Andariel', -math.inf)
-                if self.kind == ANDARIEL and killed < KILL_FRESH:
+                killed = time.monotonic() - KILLED_AT.get(boss, -math.inf) if boss is not None else math.inf
+                if killed < KILL_FRESH:
                     landing = DROPS_AFTER_KILL - killed
                 elif self.fought and self.fought[0] == game:
                     landing = DROPS_LAND - (run.clock() - self.fought[1])
@@ -922,20 +961,9 @@ class Loop:
                 self.done = game
                 to_town(run, key_names, pick_up)
         elif leg == TRIP:
-            # The Fortress of this trip: one reached before it this game (the game's own trade session) is not its
-            # (11:56:48 on 2026-10-18: back through the portal 3 s after the trip, with no session and still no room)
-            self.trips = self.trips_in(game) + 1  # several a game (`may_trip`)
-            self.trip_due, self.trip, self.fortressed = False, game, None
-            self.trip_free, self.trip_gained = self.free, None
-            # and its own way back: one the Gheed's swap made this game is not this trip's (13:59:45 on 2026-10-18:
-            # the trip went to the Catacombs, not the Fortress, and the loop stopped 14:00:04)
-            self.returned = None
-            # and a whole visit of its own: one the game began with is over, and its mark would skip this one's
-            # identify, sales and stash (12:36 on 2026-10-18: the Fortress and straight back, still no room)
-            self.visiting = self.visited = None
+            self.begin_trip(game)
             to_town(run, key_names)  # no pickup at the portal: there is no room
-            here = run.world().player
-            self.portal_at = (here.x, here.y) if here is not None else None
+            self.note_portal(run)
         elif leg == SWAP_OUT:
             self.swap_due, self.swap = False, game
             now = run.carried() if run.carried is not None else None
@@ -949,8 +977,7 @@ class Loop:
                      'magic find %s%%): to town, it goes onto a shared stash page', ours.x, ours.y, ours.unit_id,
                      found if found is not None else '?')  # fmt: skip
             to_town(run, key_names)  # no pickup at the portal: the charm is refused
-            here = run.world().player
-            self.portal_at = (here.x, here.y) if here is not None else None
+            self.note_portal(run)
             self.gheed = OUT
         elif leg == GHEED_STASH:
             now = run.carried() if run.carried is not None else None
@@ -985,8 +1012,7 @@ class Loop:
             self.gheed = CHOOSE
             if world.player is not None and not world.player.in_town:
                 to_town(run, key_names)
-                here = run.world().player
-                self.portal_at = (here.x, here.y) if here is not None else None
+                self.note_portal(run)
         elif leg == GHEED_CHOOSE:
             parked = self.parked
             assert parked is not None
@@ -1032,10 +1058,7 @@ class Loop:
         elif leg == TO_THE_ENCAMPMENT:
             travel(run, ROGUE_ENCAMPMENT, self.marks)
         elif leg == THROUGH_PORTAL:
-            if self.tripping(game):
-                self._back_from_trip()
-            self.returned = game
-            through_portal(run, self.portal_at)
+            self.back_through_portal(run, game)
             if self.gheed in (PICK, RETURN) and progress is not None and self.swap_level is not None:
                 # The level's ground looked at again: a pickup that found nothing it could take (the refused charm
                 # shunned) marked it looted, and the leg after would leave it with the new one on the ground
@@ -1044,7 +1067,7 @@ class Loop:
                 self.gheed = None
         elif leg == TO_THE_FORTRESS:
             self.fortressed = game
-            if self.kind == LK:
+            if self.kind.fortress_ends_game:
                 self.done = game  # left Lower Kurast: a game begun here is not the loop's to play
             # (Andariel's: from the Rogue Encampment to the Fortress's trade session, her level still ahead)
             travel(run, PANDEMONIUM_FORTRESS, self.marks)
@@ -1113,11 +1136,15 @@ def next_leg(world: World, progress: Progress | None, loop: Loop) -> str:
             return TOWN
         if loop.done == game:
             return LEAVE
-        if loop.kind == ANDARIEL:
-            return TO_THE_ENCAMPMENT if loop.tripping(game) else TO_THE_CATACOMBS
+    return LEGS.get(loop.kind.key, lk_leg)(world, progress, loop)
+
+
+def lk_leg(world: World, progress: Progress | None, loop: Loop) -> str:
+    """Lower Kurast's legs (`next_leg`): the waypoint from the Fortress, the chests, what is left, the portal home."""
+    player = world.player
+    assert player is not None
+    if player.area == PANDEMONIUM_FORTRESS:
         return TO_THE_CHESTS
-    if loop.kind == ANDARIEL:
-        return andariel_leg(world, progress, loop)
     if player.area == LOWER_KURAST:
         step = progress.step(LOWER_KURAST) if progress is not None else None
         if step is not None and step.stage.kind == USE:
@@ -1160,7 +1187,7 @@ def gheeds_leg(world: World, loop: Loop) -> str | None:
     if area in ANDARIEL.levels:
         if parked is not None and (stage != PICK or loop.fresh):
             return SWAP_BACK
-        if parked is None and loop.swap_due and loop.swap != game and loop.kind == ANDARIEL:
+        if parked is None and loop.swap_due and loop.swap != game and loop.kind.swaps_gheeds:
             return SWAP_OUT
     return None
 
@@ -1172,6 +1199,8 @@ def andariel_leg(world: World, progress: Progress | None, loop: Loop) -> str:
     player = world.player
     assert player is not None
     game = world.game_name
+    if player.area == PANDEMONIUM_FORTRESS:
+        return TO_THE_ENCAMPMENT if loop.tripping(game) else TO_THE_CATACOMBS
     if player.area == ROGUE_ENCAMPMENT:
         if loop.done == game:
             return LEAVE
@@ -1201,6 +1230,10 @@ def andariel_leg(world: World, progress: Progress | None, loop: Loop) -> str:
             return PICK_UP
         return SWAP_BACK if loop.parked is not None else LEAVE
     raise Abort(f'the Andariel loop has nothing to do in {display_name(player.area)}')
+
+
+# Each kind's legs out of the trade's reach (`next_leg`); a terror zone kind's are the agenda's (`Kind.agenda`)
+LEGS = {LK.key: lk_leg, ANDARIEL.key: andariel_leg}
 
 
 def _named(item: Carried) -> str:

@@ -383,6 +383,7 @@ class RoutePlay(Play):
         run.actuator.allow(*STEP_KEYS)
         run.say = runner._say
         run.warn = runner._warn
+        run.stand_by = runner._stand_by
         run.deadline = runner.deadline
         run.ground = runner.ground
         run.ending = self.progress.ending

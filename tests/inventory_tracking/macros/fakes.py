@@ -20,6 +20,7 @@ from inventory_tracking.builds.warlock.skills import (
     SUMMON_DEFILER,
 )
 from inventory_tracking.input.keyboard import MODIFIER_NAMES
+from inventory_tracking.items.grid import CUBE_SIZE, INVENTORY_SIZE, STASH_SIZE, Grid
 from inventory_tracking.levels.memory import WAYPOINT_CLASSES
 from inventory_tracking.levels.model import HELL_GATE, PORTAL, TOWN_PORTAL
 from inventory_tracking.macros.actuator import Actuator
@@ -31,9 +32,7 @@ from inventory_tracking.macros.cube import (
     INVENTORY,
     TRANSMUTE,
     cell_point,
-    fits as cube_fits,
     perfect_of,
-    taken as cube_taken,
 )
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.routines import screen_fraction
@@ -830,11 +829,11 @@ class Game:
                 # A Ctrl + click on the shown page's item: onto the inventory's first free block (macros/charms.py)
                 for lying in self.page_cells.get(page, []):
                     px, py = cell_point(WINDOW, STASH_PAGE, (lying.x, lying.y), lying.size)
-                    spot = _free_block(_rows(self.pack.items, 10, 4), lying.size)
+                    spot = Grid.from_items(self.pack.items, INVENTORY_SIZE).first_spot(lying.size)
                     if abs(px - x) < 0.01 and abs(py - y) < 0.02 and spot is not None:
                         self.page_cells[page].remove(lying)
                         self.page_items[page].remove(lying.unit_id)
-                        self.stash_pages[page] = _rows(self.page_cells[page], 10, 10)
+                        self.stash_pages[page] = Grid.from_items(self.page_cells[page], STASH_SIZE)
                         self.pack = replace(self.pack, items=(*self.pack.items, replace(lying, x=spot[0], y=spot[1])))
                         return True
             if item is None or item.txt == CUBE_CLASS:
@@ -846,11 +845,11 @@ class Game:
                     return True
                 self.stacks[item.txt] = self.stacks.get(item.txt, 0) + 1
             else:
-                spot = _free_block(self.stash_pages[page], item.size) if page is not None else None
+                spot = Grid(self.stash_pages[page]).first_spot(item.size) if page is not None else None
                 if spot is None or page is None:
                     self.stash_refused.append(item.unit_id)
                     return True
-                self.stash_pages[page] = _taken(self.stash_pages[page], spot, item.size)
+                self.stash_pages[page] = Grid(self.stash_pages[page]).take(spot, item.size)
                 self.page_items.setdefault(page, []).append(item.unit_id)
                 self.page_cells.setdefault(page, []).append(replace(item, x=spot[0], y=spot[1]))
             self.pack = replace(self.pack, items=tuple(i for i in self.pack.items if i is not item))
@@ -861,22 +860,23 @@ class Game:
             # and one of its own back onto the inventory's
             item = self.pack_item_at(x, y)
             if item is not None and item.txt != CUBE_CLASS:
-                spot = _free_block(self.pack.stash, item.size)
+                spot = Grid(self.pack.stash).first_spot(item.size)
                 if spot is not None:
                     placed = replace(item, x=spot[0], y=spot[1])
                     self.pack = replace(
                         self.pack, items=tuple(i for i in self.pack.items if i is not item),
-                        stashed=(*self.pack.stashed, placed), stash=_rows((*self.pack.stashed, placed), 10, 10),
+                        stashed=(*self.pack.stashed, placed),
+                        stash=Grid.from_items((*self.pack.stashed, placed), STASH_SIZE),
                     )  # fmt: skip
                 return True
             for lying in self.pack.stashed:
                 px, py = cell_point(WINDOW, STASH_PAGE, (lying.x, lying.y), lying.size)
                 if abs(px - x) < 0.01 and abs(py - y) < 0.02:
-                    spot = _free_block(_rows(self.pack.items, 10, 4), lying.size)
+                    spot = Grid.from_items(self.pack.items, INVENTORY_SIZE).first_spot(lying.size)
                     if spot is not None:
                         left = tuple(i for i in self.pack.stashed if i is not lying)
                         self.pack = replace(
-                            self.pack, stashed=left, stash=_rows(left, 10, 10),
+                            self.pack, stashed=left, stash=Grid.from_items(left, STASH_SIZE),
                             items=(*self.pack.items, replace(lying, x=spot[0], y=spot[1])),
                         )  # fmt: skip
                     return True
@@ -980,15 +980,14 @@ class Game:
                     self._out_of_cube(item)
                     return
             # An empty cube's grid has no cells and reads as none (`Pack.cube` None): the game fills it all the same
-            item, rows = self.pack_item_at(x, y), self.pack.cube or ('...',) * 4
+            item, rows = self.pack_item_at(x, y), Grid(self.pack.cube or Grid.empty(CUBE_SIZE))
             if item is None or item.txt == CUBE_CLASS or self.cube_refuses:
                 return
-            cells = ((cx, cy) for cy in range(len(rows)) for cx in range(len(rows[0])))
-            spot = next((cell for cell in cells if cube_fits(rows, cell, item.size)), None)
+            spot = rows.first_spot(item.size)
             if spot is not None:  # the game finds the room itself
                 self.pack = replace(
                     self.pack, items=tuple(i for i in self.pack.items if i is not item),
-                    cube=cube_taken(rows, spot, item.size), cube_items=self.pack.cube_items | {item.unit_id},
+                    cube=rows.take(spot, item.size), cube_items=self.pack.cube_items | {item.unit_id},
                     in_cube=(*self.pack.in_cube, replace(item, x=spot[0], y=spot[1])),
                 )  # fmt: skip
             return
@@ -999,7 +998,7 @@ class Game:
             if made is not None and len(inside) == 3 and len({i.txt for i in inside}) == 1:
                 gem = replace(inside[0], unit_id=9000 + len(self.transmutes), txt=made, x=0, y=0)
                 self.pack = replace(self.pack, in_cube=(gem,), cube_items=frozenset({gem.unit_id}),
-                                    cube=cube_taken(('...',) * 4, (0, 0), gem.size))  # fmt: skip
+                                    cube=Grid.empty(CUBE_SIZE).take((0, 0), gem.size))  # fmt: skip
             return
         if self.cursor is None and 'cube' in self.world.open_panels:
             for item in self.pack.in_cube:  # a plain click on a cube item: onto the pointer (cube.py `_park`)
@@ -1022,9 +1021,9 @@ class Game:
             for cy in range(len(rows)):
                 for cx in range(len(rows[0])):
                     px, py = cell_point(WINDOW, CUBE, (cx, cy), item.size)
-                    if abs(px - x) < 0.01 and abs(py - y) < 0.02 and cube_fits(rows, (cx, cy), item.size):
+                    if abs(px - x) < 0.01 and abs(py - y) < 0.02 and Grid(rows).fits((cx, cy), item.size):
                         self.pack = replace(
-                            self.pack, cube=cube_taken(rows, (cx, cy), item.size),
+                            self.pack, cube=Grid(rows).take((cx, cy), item.size),
                             cube_items=self.pack.cube_items | {item.unit_id},
                         )  # fmt: skip
                         self.cursor = None
@@ -1035,12 +1034,7 @@ class Game:
         # `arrange_keys`)
         cx = math.floor((x - x0) / ((x1 - x0) / 10) - item.size[0] / 2 + 0.5)
         cy = math.floor((y - y0) / ((y1 - y0) / 4) - item.size[1] / 2 + 0.5)
-        rows = _rows(self.pack.items, 10, 4)
-        fits = (
-            0 <= cx <= 10 - item.size[0]
-            and 0 <= cy <= 4 - item.size[1]
-            and all(rows[cy + dy][cx + dx] == '.' for dx in range(item.size[0]) for dy in range(item.size[1]))
-        )
+        fits = Grid.from_items(self.pack.items, INVENTORY_SIZE).fits((cx, cy), item.size)
         if x0 <= x < x1 and y0 <= y < y1 and fits:
             self.pack = replace(self.pack, items=(*self.pack.items, replace(item, x=cx, y=cy)))
             self.cursor = None
@@ -1171,24 +1165,3 @@ class Game:
 
     def pressed(self) -> list[str]:
         return [event[1] for event in self.keys.events if event[0] == 'key']
-
-
-def _rows(items, width: int, height: int) -> tuple[str, ...]:
-    """A grid's rows ('.' free) with `items` on it."""
-    taken = {(i.x + dx, i.y + dy) for i in items for dx in range(i.size[0]) for dy in range(i.size[1])}
-    return tuple(''.join('#' if (x, y) in taken else '.' for x in range(width)) for y in range(height))
-
-
-def _taken(rows, at: tuple[int, int], size: tuple[int, int]) -> tuple[str, ...]:
-    """`rows` with the block of `size` at `at` taken."""
-    cells = {(at[0] + dx, at[1] + dy) for dx in range(size[0]) for dy in range(size[1])}
-    return tuple(''.join('#' if (x, y) in cells else c for x, c in enumerate(row)) for y, row in enumerate(rows))
-
-
-def _free_block(rows, size: tuple[int, int]) -> tuple[int, int] | None:
-    """The first cell (row by row) whose block of `size` is free in `rows`."""
-    for y in range(len(rows) - size[1] + 1):
-        for x in range(len(rows[0]) - size[0] + 1):
-            if all(rows[y + dy][x + dx] == '.' for dx in range(size[0]) for dy in range(size[1])):
-                return x, y
-    return None

@@ -19,20 +19,16 @@ from dataclasses import dataclass, replace
 from enum import Enum
 from typing import Literal
 
+from inventory_tracking.items.grid import CUBE_SIZE, INVENTORY_SIZE, Grid
 from inventory_tracking.loot.runes import RUNES as RUNE_CLASSES
 from inventory_tracking.macros.cube import (
     BIG_BLOCK,
     CUBE_CLASS,
     KEY_CLASS,
     Move,
-    fits,
-    inventory_rows,
-    largest_block,
     loot,
     perfect_of,
-    room_for,
     rune_recipe,
-    taken,
 )
 from inventory_tracking.macros.portal import FROM_TOME, PortalSource
 from inventory_tracking.macros.shop import MIN_STOCK, SALE_MOST
@@ -79,7 +75,6 @@ __all__ = [
 Cell = tuple[int, int, int]  # an item's class and cell, as `Loop.own` tells the player's
 STACK_ROOM = 20  # the player, 2026-10-18: "at least 20 free slots" on a resource stack (step 5)
 RUNES_TAB = 4  # stash.py `resource_tabs`: 2 Gems, 3 Materials, 4 Runes
-CUBE_SIZE = (3, 4)
 # The trade (routes/lower-kurast-loop-plan.md §15; the player, 2026-10-17: "we need to perform mass identify at decard
 # cain -> stash good -> sell junk -> return to loop"; then "probably we need to trade not by 2 junk items, but by
 # remaining free slots"): the loop's unidentified items and its junk wait, in the inventory and the cube, until fewer
@@ -253,11 +248,6 @@ def _cells(item: Carried) -> int:
     return item.size[0] * item.size[1]
 
 
-def _spot(rows: Sequence[str], size: tuple[int, int]) -> tuple[int, int] | None:
-    """The first cell (row by row) whose block of `size` is free in `rows`."""
-    return next(((x, y) for y in range(len(rows)) for x in range(len(rows[0])) if fits(rows, (x, y), size)), None)
-
-
 def _largest_first(items: Iterable[Carried]) -> list[Carried]:
     return sorted(items, key=lambda i: (-_cells(i), -i.size[1], i.y, i.x, i.unit_id))
 
@@ -269,10 +259,10 @@ def _place(rows: dict[int, tuple[str, ...]], items: Iterable[Carried]) -> dict[i
         for index in PAGE_PRIORITY:
             if index not in rows:
                 continue
-            lines = rows[index]
-            spot = _spot(lines, item.size)
+            lines = Grid(rows[index])
+            spot = lines.first_spot(item.size)
             if spot is not None:
-                rows[index] = taken(lines, spot, item.size)
+                rows[index] = lines.take(spot, item.size)
                 placed[item.unit_id] = index
                 break
     return placed
@@ -287,11 +277,11 @@ def place(pages: Sequence[Page], items: Sequence[Carried]) -> dict[int, int]:
 def out_now(rows: Sequence[str], items: Sequence[Carried]) -> tuple[Carried, ...]:
     """Those of `items` (in their order) that come out of the cube into an inventory of `rows` together, each into the
     first free block (as `cube.unpack` takes them out)."""
-    lines, out = tuple(rows), []
+    lines, out = Grid(rows), []
     for item in items:
-        spot = _spot(lines, item.size)
+        spot = lines.first_spot(item.size)
         if spot is not None:
-            lines = taken(lines, spot, item.size)
+            lines = lines.take(spot, item.size)
             out.append(item)
     return tuple(out)
 
@@ -299,10 +289,6 @@ def out_now(rows: Sequence[str], items: Sequence[Carried]) -> tuple[Carried, ...
 def _without(pack: Pack, gone: Iterable[Carried]) -> Pack:
     units = {item.unit_id for item in gone}
     return replace(pack, items=tuple(i for i in pack.items if i.unit_id not in units))
-
-
-def _rows_of(items: Iterable[Carried]) -> tuple[str, ...]:
-    return inventory_rows(Pack(tuple(items)))
 
 
 def _over(item: Carried, at: tuple[int, int], size: tuple[int, int]) -> bool:
@@ -316,13 +302,13 @@ def _over(item: Carried, at: tuple[int, int], size: tuple[int, int]) -> bool:
 
 
 def _settled(
-    work: tuple[str, ...],
+    work: Grid,
     movers: Sequence[Carried],
     stay: Sequence[Carried],
-    cube: tuple[str, ...] | None,
+    cube: Grid | None,
     block: tuple[int, int],
     junk: Set[int],
-) -> tuple[list[Move], list[Carried], tuple[str, ...] | None, tuple[str, ...]] | None:
+) -> tuple[list[Move], list[Carried], Grid | None, Grid] | None:
     """Where each of `movers` goes, the largest first, in the inventory `work` (the block to free already taken): a key
     stack to the cell that leaves the build's block free once the junk is sold (`stay`: what the visit ends with), else
     its largest free block, as `keys_move` scores; a junk item to its first free block, else into the first block of
@@ -333,21 +319,18 @@ def _settled(
     into: list[Carried] = []
     kept: list[Carried] = []  # the keys and the unidentified at their new cells: the visit ends with them
     for item in _largest_first(movers):
-        spots = [(x, y) for y in range(len(work)) for x in range(len(work[0])) if fits(work, (x, y), item.size)]
+        spots = list(work.spots(item.size))
         if item.txt == KEY_CLASS and spots:
-            spot = max(
-                spots,
-                key=lambda at, i=item: (
-                    room_for(final := _rows_of([*stay, *kept, replace(i, x=at[0], y=at[1])]), block),
-                    largest_block(final),
-                    -at[1],
-                    -at[0],
-                ),
-            )
+
+            def rank(at: tuple[int, int], i: Carried = item) -> tuple[bool, int, int, int]:
+                final = Grid.from_items([*stay, *kept, replace(i, x=at[0], y=at[1])], INVENTORY_SIZE)
+                return final.has_room(block), final.largest_block(), -at[1], -at[0]
+
+            spot = max(spots, key=rank)
         elif spots:
             spot = spots[0]
-        elif item.unit_id in junk and cube is not None and (inside := _spot(cube, item.size)) is not None:
-            cube = taken(cube, inside, item.size)
+        elif item.unit_id in junk and cube is not None and (inside := cube.first_spot(item.size)) is not None:
+            cube = cube.take(inside, item.size)
             into.append(item)
             continue
         else:
@@ -355,24 +338,24 @@ def _settled(
         if item.unit_id not in junk:
             kept.append(replace(item, x=spot[0], y=spot[1]))
         moves.append((item, spot))
-        work = taken(work, spot, item.size)
-    return moves, into, cube, _rows_of([*stay, *kept])
+        work = work.take(spot, item.size)
+    return moves, into, cube, Grid.from_items([*stay, *kept], INVENTORY_SIZE)
 
 
 def _opening(
-    lines: tuple[str, ...],
+    lines: Grid,
     items: Sequence[Carried],
     movable: Set[int],
     junk: Set[int],
     size: tuple[int, int],
-    cube: tuple[str, ...] | None,
+    cube: Grid | None,
     block: tuple[int, int],
-) -> tuple[list[Move], list[Carried], tuple[str, ...] | None] | None:
+) -> tuple[list[Move], list[Carried], Grid | None] | None:
     """The cheapest way to free a block of `size` in the inventory `lines` (`items` in it, and cells already planned
     for the cube's keepers) by moving only `movable` items aside (`_settled`; `junk` among them sold at Jamella, the
     rest carried on): none into the cube when moves within the inventory do it, then the build's block free at the
     visit's end, then the fewest moves; None when no block can be freed so."""
-    best: tuple[tuple[int, bool, int, int, int, int], list[Move], list[Carried], tuple[str, ...] | None] | None = None
+    best: tuple[tuple[int, bool, int, int, int, int], list[Move], list[Carried], Grid | None] | None = None
     for y in range(len(lines) - size[1] + 1):
         for x in range(len(lines[0]) - size[0] + 1):
             movers = [i for i in items if _over(i, (x, y), size)]
@@ -380,21 +363,21 @@ def _opening(
                 continue
             freed = lines
             for item in movers:
-                freed = tuple(
+                freed = Grid(
                     ''.join(
                         '.' if item.x <= col < item.x + item.size[0] and item.y <= row < item.y + item.size[1] else cell
                         for col, cell in enumerate(line)
                     )
                     for row, line in enumerate(freed)
                 )
-            if not fits(freed, (x, y), size):
+            if not freed.fits((x, y), size):
                 continue  # a cell of it is a keeper's planned before, not an item's
             stay = [i for i in items if i not in movers and i.unit_id not in junk]
-            settled = _settled(taken(freed, (x, y), size), movers, stay, cube, block, junk)
+            settled = _settled(freed.take((x, y), size), movers, stay, cube, block, junk)
             if settled is None:
                 continue
             moves, into, after_cube, final = settled
-            rank = (len(into), not room_for(final, block), len(moves) + len(into), -largest_block(final), y, x)
+            rank = (len(into), not final.has_room(block), len(moves) + len(into), -final.largest_block(), y, x)
             if best is None or rank < best[0]:
                 best = (rank, moves, into, after_cube)
     return None if best is None else best[1:]
@@ -406,9 +389,9 @@ def unread_way_for_cube(pack: Pack, keeper: Carried, junk: Set[int], block: tupl
     No stash page is predicted here. The caller tries the actual page after moving the junk, and keeps the junk
     carried for Jamella. The cube is excluded as temporary space so the keeper's space is not consumed by junk.
     """
-    if room_for(inventory_rows(pack), keeper.size):
+    if pack.inventory.has_room(keeper.size):
         return ()
-    found = _opening(inventory_rows(pack), pack.items, junk, junk, keeper.size, None, block)
+    found = _opening(pack.inventory, pack.items, junk, junk, keeper.size, None, block)
     return tuple(found[0]) if found is not None and not found[1] else ()
 
 
@@ -418,7 +401,7 @@ def _make_way(
     pages: dict[int, tuple[str, ...]],
     movable: Set[int],
     junk: Set[int],
-    cube: tuple[str, ...] | None,
+    cube: Grid | None,
     block: tuple[int, int],
 ) -> tuple[tuple[Move, ...], tuple[Carried, ...], tuple[Carried, ...], tuple[Carried, ...]]:
     """Step (iv)'s moves aside: for each cube keeper (in `keepers`' order) with room on a page but no free block in the
@@ -434,21 +417,21 @@ def _make_way(
     stranded: list[Carried] = []
     homeless: list[Carried] = []
 
-    def lines(sold: bool = False) -> tuple[str, ...]:
-        rows = _rows_of(i for i in now if not (sold and i.unit_id in junk))
+    def lines(sold: bool = False) -> Grid:
+        rows = Grid.from_items((i for i in now if not (sold and i.unit_id in junk)), INVENTORY_SIZE)
         for at, size in planned:
-            rows = taken(rows, at, size)
+            rows = rows.take(at, size)
         return rows
 
     for keeper in keepers:
         if not _place(dict(trial), [keeper]):
             homeless.append(keeper)
             continue  # no page has room for it: it stays in the cube, nothing moved for it
-        spot = _spot(lines(), keeper.size)
+        spot = lines().first_spot(keeper.size)
         if spot is None:
             found = _opening(lines(), now, movable, junk, keeper.size, cube, block)
             if found is None:
-                if _spot(lines(sold=True), keeper.size) is not None:
+                if lines(sold=True).has_room(keeper.size):
                     stranded.append(keeper)
                 continue
             made, went, cube = found
@@ -461,7 +444,7 @@ def _make_way(
                 for i in now
                 if i.unit_id not in gone
             ]
-            spot = _spot(lines(), keeper.size)
+            spot = lines().first_spot(keeper.size)
             if spot is None:
                 continue
         planned.append((spot, keeper.size))
@@ -529,10 +512,10 @@ def _lands(rows: dict[int, tuple[str, ...]], puts: Iterable[tuple[Carried, int]]
     """Whether each of `puts`, in order, finds a block on its page of `rows` (the game's Ctrl + click: its first free
     block on the page shown); `rows` updated."""
     for item, index in puts:
-        spot = _spot(rows[index], item.size) if index in rows else None
+        spot = Grid(rows[index]).first_spot(item.size) if index in rows else None
         if spot is None:
             return False
-        rows[index] = taken(rows[index], spot, item.size)
+        rows[index] = Grid(rows[index]).take(spot, item.size)
     return True
 
 
@@ -609,25 +592,24 @@ def _planned(
     loop_junk = {i.unit_id for i in loot(staying, h.own) if i.unit_id in h.junk and i.unit_id not in h.unknown}
     waiting = {i.unit_id for i in loot(staying, h.own) if i.unit_id in h.unknown}
     keys = {i.unit_id for i in staying.items if i.txt == KEY_CLASS and i.size == (1, 1)}
-    cube_then: tuple[str, ...] | None = None
+    cube_then: Grid | None = None
     if any(i.txt == CUBE_CLASS for i in pack.items):
-        cube_then = ('.' * CUBE_SIZE[0],) * CUBE_SIZE[1]  # the cube while its keepers are in it: its resources out
+        # The cube while its keepers are in it: its resources out
         tabbed = {put.item.unit_id for put in tab_puts if put.source == 'cube'}
-        for item in (i for i in pack.in_cube if i.unit_id not in tabbed):
-            cube_then = taken(cube_then, (item.x, item.y), item.size)
+        cube_then = Grid.from_items((i for i in pack.in_cube if i.unit_id not in tabbed), CUBE_SIZE)
     shuffles, into_cube, stranded, homeless = _make_way(
         staying.items, cube_keepers, rows, loop_junk | keys | waiting, loop_junk, cube_then, needs.block
     )
     moved = _shuffled(staying, StashStop(shuffles=shuffles, into_cube=into_cube))
-    left = inventory_rows(moved)
+    left = moved.inventory
     trial = dict(rows)
     paged = _place(trial, out_now(left, cube_keepers))
     through = out_now(left, [i for i in cube_keepers if i.unit_id in paged])
     on_pages |= _place(rows, through)
     for item in through:
-        spot = _spot(left, item.size)
+        spot = left.first_spot(item.size)
         if spot is not None:
-            left = taken(left, spot, item.size)
+            left = left.take(spot, item.size)
     junk = [i for i in pack.in_cube if i.unit_id in h.junk]
     out_for_sale = () if parked else out_now(left, sorted([*junk, *sale], key=lambda i: (-i.size[1], -_cells(i))))
     by_page = sorted(
@@ -640,11 +622,11 @@ def _planned(
         # The parks clicked between the puts made with the stash's first opening and the cube keepers' after it (macros/
         # visit.py `stash_stop`: those out before the stash as the inventory was, the tallest first)
         tallest = sorted(through, key=lambda i: (-i.size[1], -_cells(i)))
-        early = {i.unit_id for i in out_now(inventory_rows(pack), tallest)}
+        early = {i.unit_id for i in out_now(pack.inventory, tallest)}
         before = [put for put in by_page if put.source == 'inventory' or put.item.unit_id in early]
         later = [put for put in by_page if put.source == 'cube' and put.item.unit_id not in early]
         found = _park_pages(first_rows, before, later, parked)
-        if found is None or len(out_now(inventory_rows(moved), _largest_first(parked))) < len(parked):
+        if found is None or len(out_now(moved.inventory, _largest_first(parked))) < len(parked):
             return None  # no page for one, or no room for it back: never left in the stash
         parks = found
     stop = StashStop(
@@ -764,26 +746,22 @@ def after(pack: Pack, stop: StashStop) -> Pack:
     parked = {put.item.unit_id for put in stop.parks}
     shuffled = _shuffled(pack, stop)
     items = [i for i in shuffled.items if i.unit_id not in gone | parked]
-    rows = inventory_rows(replace(pack, items=tuple(items)))
+    rows = Grid.from_items(items, INVENTORY_SIZE)
     for item in (*stop.out_for_sale, *_largest_first(put.item for put in stop.parks)):
-        spot = _spot(rows, item.size)
+        spot = rows.first_spot(item.size)
         if spot is not None:
-            rows = taken(rows, spot, item.size)
+            rows = rows.take(spot, item.size)
             items.append(replace(item, x=spot[0], y=spot[1]))
     in_cube = tuple(i for i in pack.in_cube if i.unit_id not in gone | out)
     if stop.into_cube:
         tabbed = {put.item.unit_id for put in stop.puts if put.source == 'cube' and put.tab}
-        then: tuple[str, ...] = ('.' * CUBE_SIZE[0],) * CUBE_SIZE[1]
-        for item in (i for i in pack.in_cube if i.unit_id not in tabbed):
-            then = taken(then, (item.x, item.y), item.size)
+        then = Grid.from_items((i for i in pack.in_cube if i.unit_id not in tabbed), CUBE_SIZE)
         for item in stop.into_cube:
-            spot = _spot(then, item.size)
+            spot = then.first_spot(item.size)
             if spot is not None:
-                then = taken(then, spot, item.size)
+                then = then.take(spot, item.size)
                 in_cube += (replace(item, x=spot[0], y=spot[1]),)
-    cube: tuple[str, ...] = ('.' * CUBE_SIZE[0],) * CUBE_SIZE[1]
-    for item in in_cube:
-        cube = taken(cube, (item.x, item.y), item.size)
+    cube = Grid.from_items(in_cube, CUBE_SIZE)
     return replace(
         pack,
         items=tuple(items),
@@ -901,7 +879,7 @@ def contract(
         for i in items
         if i.unit_id not in junk | later and i.identified and not kept_gem(i, full) and i.txt not in sold_full(full)
     ]
-    block = room_for(inventory_rows(pack), needs.block)
+    block = pack.inventory.has_room(needs.block)
     misses: list[str] = []
     cubed = [i for i in pack.in_cube if i.unit_id not in later]
     if cubed:

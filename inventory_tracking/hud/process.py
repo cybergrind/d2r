@@ -10,8 +10,8 @@ from inventory_tracking.common import LOG
 from inventory_tracking.hud.ground import ground_payload
 from inventory_tracking.hud.payloads import card_payload, guide_payload
 from inventory_tracking.hud.scene import LEASE_SECONDS, Widget
+from inventory_tracking.levels.map_card import MapCard
 from inventory_tracking.native.layout import CONTROLLER_MODE_RVA, UI_PANELS_RVA
-from inventory_tracking.osd.level_map import MapCard
 from inventory_tracking.presentation import StyledLine, Tone
 
 

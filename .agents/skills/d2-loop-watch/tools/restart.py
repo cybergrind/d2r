@@ -21,6 +21,7 @@ import sys
 import time
 from pathlib import Path
 
+import logwords
 from logwords import LEG, LOOP_OFF, LOOP_ON, LOOP_RESUMED, LOOP_STOPPED, RESUMED_ANY, RESUMED_OFF, RESUMED_ON
 
 
@@ -31,7 +32,10 @@ OFF = (LOOP_OFF, LOOP_STOPPED, RESUMED_OFF)
 
 
 def newest() -> Path:
-    return sorted(d for d in RUNS.iterdir() if d.is_dir() and d.name.startswith('20'))[-1] / 'probe.log'
+    log = logwords.newest(RUNS)
+    if log is None:
+        raise SystemExit('no serve session under runs/alt-d')
+    return log
 
 
 def loop_on(lines: list[str]) -> bool:

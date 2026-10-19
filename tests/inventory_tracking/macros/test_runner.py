@@ -1884,7 +1884,8 @@ STOP_TEXTS = [
 
 @pytest.mark.parametrize(('why', 'roomy'), STOP_TEXTS)
 def test_classify_keeps_todays_room_words(why, roomy):
-    from inventory_tracking.macros.runner import ROOM_CAUSES, ROOM_WORDS, classify
+    from inventory_tracking.macros.runner import ROOM_WORDS, classify
+    from inventory_tracking.macros.stops import ROOM_CAUSES
 
     assert any(word in why for word in ROOM_WORDS) == roomy  # the table is today's rule
     assert (classify(Abort(why)) in ROOM_CAUSES) == roomy
@@ -1895,7 +1896,8 @@ def test_classify_keeps_todays_room_words(why, roomy):
 
 def test_classify_tells_the_hand_and_the_refusal_by_their_type_and_a_named_cause_first():
     from inventory_tracking.macros.actuator import Hand
-    from inventory_tracking.macros.runner import ROOM_CAUSES, classify
+    from inventory_tracking.macros.runner import classify
+    from inventory_tracking.macros.stops import ROOM_CAUSES
 
     assert classify(Hand('the mouse was moved')) == 'hand'
     assert classify(Hand('a key was pressed (key code 30)')) == 'hand'

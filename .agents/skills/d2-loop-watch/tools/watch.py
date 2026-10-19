@@ -29,6 +29,7 @@ from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import games
+import logwords
 from logwords import (
     AIMED,
     FULL,
@@ -77,8 +78,7 @@ def chests_between(start: datetime, end: datetime) -> int | None:
 
 
 def newest() -> Path | None:
-    dirs = sorted(d for d in RUNS.iterdir() if d.is_dir() and d.name.startswith('20'))
-    return dirs[-1] / 'probe.log' if dirs else None
+    return logwords.newest(RUNS)
 
 
 class Watch:

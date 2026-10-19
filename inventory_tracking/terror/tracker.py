@@ -44,8 +44,8 @@ from pathlib import Path
 
 from inventory_tracking.common import LOG
 from inventory_tracking.levels.geometry import Pointer
+from inventory_tracking.levels.map_card import MapPoi
 from inventory_tracking.native.layout import DEAD_MODES, TILE_UNITS, TOWN_IDS
-from inventory_tracking.osd.level_map import MapPoi
 from inventory_tracking.terror import elites
 from inventory_tracking.terror.bosses import BOSSES
 from inventory_tracking.terror.chance import Level, group_completion, odds

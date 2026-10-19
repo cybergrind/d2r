@@ -25,6 +25,19 @@ Evidence: five read-only studies in `rca/2026-10-19/cleanup/` (git-ignored, loca
   KB loads (test_base_defense, test_commodity, …), not the arena; it is under the 2 GB measured before, left as is.
   Then: pinned panel pixels (test_cube), one `Memory` fake (tests/inventory_tracking/fake_memory.py, 5 copies out).
   Left: `test_tick_cost` (deliberate time budgets, slow lane), `harm_path` (L, behaviour risk), the ruled rows.
+  Pricing (test side only): session caches for `build_profiles.build`/`compile_stat_configurations` (mtime-checked,
+  `D2R_PRICING_CACHE=off`), item bank default = 1,927-case stratified subset (`D2R_ITEM_BANK=full` for all; required
+  before publishing): default `tests/pricing` ≈ 4.7 h → ≈ 1.1 h (extrapolated from samples).
+- 2026-10-19 phase 3:
+  - step 1: `macros/stops.py` `first`/`decide` (pure, table test test_stops.py against the old chain); the stand-by
+    is typed (`Run.stand_by`, runner `standing`), no warning text read; `classify` logs any stop it still reads by
+    its words ("a stop with no cause read as room by its words"): delete `ROOM_WORDS` after a day with none.
+  - step 6, first part: kind branches are `Kind` data (`agenda`, `trips`, `swaps_gheeds`, `boss`, `badge`,
+    `fortress_ends_game`, `full_clear`) and `LEGS` (each kind's leg chooser); shared `Loop.begin_trip`,
+    `back_through_portal`, `note_portal`, `prebuff_once`, runner `_way_on`. Not done: one `LegHands` replacing the
+    runner's LOOP closures and `TzHands` (the leg bodies stay in `Loop.leg`).
+  - step 8, part: map data in `levels/map_card.py`, drawing in `hud/map.py`, `hud/direction.py`; one `ARROWS`.
+  - step 9, part: one session/date reader in logwords.py (`sessions`, `local`, `newest`), tool outputs byte-identical.
 
 ## Where we are
 

@@ -14,9 +14,11 @@ Times: every line starts with the logger's local `%Y-%m-%d %H:%M:%S,%f` (common.
 """
 
 import re
-from datetime import datetime
+from datetime import UTC, datetime
+from pathlib import Path
 
 
+RUNS = Path(__file__).resolve().parents[4] / 'inventory_tracking' / 'runs' / 'alt-d'  # serve's sessions
 STAMP_FORMAT = '%Y-%m-%d %H:%M:%S,%f'
 STAMP_LEN = 23
 # The runner's `_say` (runner.py:1026 MacroRunner._say: `LOG.info('Macro: %s', text)`): every `run.say(...)` line has
@@ -30,6 +32,33 @@ def stamp(line: str) -> datetime | None:
         return datetime.strptime(line[:STAMP_LEN], STAMP_FORMAT)
     except ValueError:
         return None
+
+
+def local(text: str) -> datetime:
+    """A tool's `--since`/`--until`: local 'YYYY-MM-DD HH:MM'."""
+    return datetime.strptime(text, '%Y-%m-%d %H:%M')
+
+
+def sessions(since: datetime, until: datetime | None = None, runs: Path = RUNS) -> list[Path]:
+    """The serve sessions whose log overlaps the window: written after `since`, started before `until` (by the
+    directory's UTC name; `until` naive is local)."""
+    if not runs.exists():
+        return []
+    high = until.astimezone(UTC).strftime('%Y%m%dT%H%M%S') if until is not None else None
+    found = []
+    for directory in sorted(d for d in runs.iterdir() if d.is_dir() and d.name.startswith('20')):
+        log = directory / 'probe.log'
+        if not log.exists() or (high is not None and directory.name.split('Z')[0] > high):
+            continue
+        if datetime.fromtimestamp(log.stat().st_mtime) >= since:
+            found.append(directory)
+    return found
+
+
+def newest(runs: Path = RUNS) -> Path | None:
+    """The newest session's probe.log, None with no session."""
+    dirs = sorted(d for d in runs.iterdir() if d.is_dir() and d.name.startswith('20')) if runs.exists() else []
+    return dirs[-1] / 'probe.log' if dirs else None
 
 
 # --- The loop's legs and state ---------------------------------------------------------------------------------------

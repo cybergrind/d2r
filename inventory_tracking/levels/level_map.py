@@ -3,11 +3,11 @@
 import re
 from collections.abc import Iterable
 
+from inventory_tracking.levels.map_card import MapCard, MapPoi
 from inventory_tracking.levels.model import LevelSnapshot, Location, Poi, Room, Walkable
 from inventory_tracking.levels.presets import preset_name
 from inventory_tracking.levels.route import route
 from inventory_tracking.native.layout import TILE_UNITS
-from inventory_tracking.osd.level_map import MapCard, MapPoi
 
 
 # Outdoor level edges (fences, cliffs, ravines): 'Border' in every act's names, e.g. 'Act 1 - Wild
@@ -41,7 +41,7 @@ def build_map(
     `visited` (bounds of the rooms ever loaded, terror/tracker.py) shades the rooms: the others
     are drawn dimmer. `dots` are extra live marks in tiles (monsters, a Herald).
     `pid` (the game process) lets the HUD follow the player between cards when the location has its path.
-    `whole` draws a big level whole instead of the part around the player (osd/level_map.py).
+    `whole` draws a big level whole instead of the part around the player (hud/map.py).
 
     The route is the teleport path to the first POI reachable over rooms (levels/route.py), or to `toward`
     (tiles: the route's goal, levels/guide.py) when given; none when not `routed` (no goal left).

@@ -2,7 +2,7 @@
 
 from inventory_tracking.config import HUD
 from inventory_tracking.hud.process import acquire_instance, card_widgets, guide_widgets, terror_widgets
-from inventory_tracking.osd.level_map import MapCard, MapPoi
+from inventory_tracking.levels.map_card import MapCard, MapPoi
 from inventory_tracking.presentation import StyledLine
 
 

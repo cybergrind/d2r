@@ -4,9 +4,9 @@ import math
 
 import pytest
 
+from inventory_tracking.hud.map import project
 from inventory_tracking.levels.geometry import ARROWS, pointer
 from inventory_tracking.levels.level_map import build_map
-from inventory_tracking.osd.level_map import project
 from tests.inventory_tracking.levels.fixtures import handler_of, replay
 
 
@@ -108,8 +108,8 @@ def test_visited_rooms_follow_the_room_order():
 
 def test_extra_dots_are_added_after_the_handler_pois():
     from inventory_tracking.levels.level_map import build_map
+    from inventory_tracking.levels.map_card import MapPoi
     from inventory_tracking.levels.model import LevelSnapshot, Location, Room
-    from inventory_tracking.osd.level_map import MapPoi
 
     snapshot = LevelSnapshot(Location(6, 0, 20, 20), (Room(0, 0, 0, 8, 8),))
     dot = MapPoi('Herald T1', 'herald', 3.0, 4.0)

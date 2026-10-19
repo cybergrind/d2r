@@ -14,7 +14,7 @@ import math
 import zlib
 
 from inventory_tracking.config import HUD, HudGroundConfig
-from inventory_tracking.osd.level_map import MapCard
+from inventory_tracking.levels.map_card import MapCard
 
 
 def ground_payload(card: MapCard, config: HudGroundConfig = HUD.ground) -> dict | None:

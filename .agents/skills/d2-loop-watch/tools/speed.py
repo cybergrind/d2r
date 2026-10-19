@@ -46,6 +46,7 @@ ROOT = HERE.parents[3]
 sys.path[:0] = [str(HERE), str(ROOT)]
 
 import games  # ruff: ignore[module-import-not-at-top-of-file] - the skill's own tool, beside this one
+import logwords  # ruff: ignore[module-import-not-at-top-of-file] - beside this tool
 from logwords import LEG, LOOP_OFF, TELEPORT, stamp  # ruff: ignore[module-import-not-at-top-of-file]
 
 from inventory_tracking.combat.legs import (  # ruff: ignore[module-import-not-at-top-of-file]
@@ -63,10 +64,6 @@ AREA = '79'  # Lower Kurast
 TOWNS = {'75': 'Kurast Docks', '103': 'Pandemonium Fortress'}  # the loop's town legs' takes
 DRAWS = 2000  # bootstrap resamples
 MINIMUM = 8  # samples a side for a comparison
-
-
-def local(text: str) -> datetime:
-    return datetime.strptime(text, '%Y-%m-%d %H:%M')
 
 
 def takes_in(since: datetime, until: datetime, area: str = AREA) -> list[Path]:
@@ -347,9 +344,9 @@ def charges(rows: list[dict]) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=(__doc__ or '').splitlines()[0])
-    parser.add_argument('--since', type=local)
-    parser.add_argument('--until', type=local)
-    parser.add_argument('--against', nargs=2, type=local, metavar=('SINCE', 'UNTIL'))
+    parser.add_argument('--since', type=logwords.local)
+    parser.add_argument('--until', type=logwords.local)
+    parser.add_argument('--against', nargs=2, type=logwords.local, metavar=('SINCE', 'UNTIL'))
     parser.add_argument('--worst', type=int, default=8)
     parser.add_argument('--reasons', type=int, default=12)
     parser.add_argument('--no-towns', action='store_true', help="skip the towns' takes (about 0.1 s each)")

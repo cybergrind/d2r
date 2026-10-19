@@ -3,8 +3,9 @@
 import cairo
 import pytest
 
+from inventory_tracking.hud.map import draw_map, fit, project
+from inventory_tracking.levels.map_card import MapCard, MapPoi
 from inventory_tracking.levels.model import pack_cells, pack_tiles
-from inventory_tracking.osd.level_map import MapCard, MapPoi, draw_map, fit, project
 
 
 CARD = MapCard(
@@ -145,7 +146,7 @@ def test_visited_rooms_round_trip_and_default_to_none():
 
 
 def test_room_fill_dims_unvisited_rooms_slightly():
-    from inventory_tracking.osd.level_map import ROOM_STYLES, room_fill
+    from inventory_tracking.hud.map import ROOM_STYLES, room_fill
 
     base = ROOM_STYLES['room'][0]
     visited, unvisited = room_fill(base, True), room_fill(base, False)
@@ -193,7 +194,8 @@ def test_unvisited_rooms_and_their_floor_are_drawn_dimmer():
 
 
 def test_monsters_are_small_dots_at_their_position_leaders_in_their_own_colour():
-    from inventory_tracking.osd.level_map import KIND_COLOURS, KIND_RADII, MapPoi
+    from inventory_tracking.hud.map import KIND_COLOURS, KIND_RADII
+    from inventory_tracking.levels.map_card import MapPoi
 
     card = MapCard(
         ((0, 0, 16, 8),),
@@ -221,7 +223,7 @@ def test_monsters_are_small_dots_at_their_position_leaders_in_their_own_colour()
 
 
 def test_herald_dots_have_their_own_colour():
-    from inventory_tracking.osd.level_map import KIND_COLOURS
+    from inventory_tracking.hud.map import KIND_COLOURS
 
     assert KIND_COLOURS['herald'] not in [colour for kind, colour in KIND_COLOURS.items() if kind != 'herald']
 
@@ -262,7 +264,7 @@ def test_the_local_view_stops_at_the_level_edge():
 
 
 def test_pin_moves_a_point_outside_the_box_to_its_edge_towards_it():
-    from inventory_tracking.osd.level_map import pin
+    from inventory_tracking.hud.map import pin
 
     assert pin((195, 135), (200, 100), 390, 270, inset=9) == (200, 100, False)
     assert pin((195, 135), (995, 135), 390, 270, inset=9) == pytest.approx((381, 135, True))
@@ -272,7 +274,7 @@ def test_pin_moves_a_point_outside_the_box_to_its_edge_towards_it():
 
 
 def test_a_poi_beyond_the_local_view_is_an_arrowhead_on_the_edge_and_far_monsters_are_not_drawn():
-    from inventory_tracking.osd.level_map import KIND_COLOURS
+    from inventory_tracking.hud.map import KIND_COLOURS
 
     surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 390, 270)
     far_pack = MapCard(BIG.rooms, BIG.player, (*BIG.pois, MapPoi('unique', 'leader', 150.0, 4.0)))
@@ -289,7 +291,8 @@ def test_a_poi_beyond_the_local_view_is_an_arrowhead_on_the_edge_and_far_monster
 
 
 def test_dangerous_packs_have_their_own_dot_colours_and_the_pack_point_is_not_drawn():
-    from inventory_tracking.osd.level_map import KIND_COLOURS, KIND_RADII, MapPoi
+    from inventory_tracking.hud.map import KIND_COLOURS, KIND_RADII
+    from inventory_tracking.levels.map_card import MapPoi
 
     card = MapCard(
         ((0, 0, 16, 8),),

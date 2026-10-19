@@ -3,8 +3,9 @@
 from collections.abc import Sequence
 from dataclasses import replace
 
+from inventory_tracking.items.grid import Grid
 from inventory_tracking.items.metadata import metadata
-from inventory_tracking.macros.cube import CUBE_CLASS, KEY_CLASS, inventory_rows, keys_move, own_of, room_for
+from inventory_tracking.macros.cube import CUBE_CLASS, KEY_CLASS, keys_move, own_of
 from inventory_tracking.macros.town import (
     DEPOSIT_ROOM,
     RUNE_TRANSMUTES,
@@ -134,7 +135,7 @@ def test_a_cube_keeper_goes_through_the_room_the_inventory_keepers_leave_onto_th
     ))  # fmt: skip
     mail = Carried(50, class_of('Linked Mail'), 0, 0, (2, 3))
     pack = Pack((THE_CUBE, *OWN_CHARMS, *keepers, *junk), ('##.', '##.', '##.', '...'), frozenset({50}), (mail,))
-    assert not room_for(inventory_rows(pack), mail.size)
+    assert not pack.inventory.has_room(mail.size)
     room = ('#' * 10,) * 6 + ('.' * 10,) * 4
 
     stop = stash_stop(Holdings(pack, OWN, junk=frozenset(i.unit_id for i in junk)), view({5: room}))
@@ -144,7 +145,7 @@ def test_a_cube_keeper_goes_through_the_room_the_inventory_keepers_leave_onto_th
         (11, 'inventory', 5),
         (50, 'cube', 5),
     ]
-    assert out_now(inventory_rows(pack), [mail]) == ()  # not before the stash: through the room the keepers leave
+    assert out_now(pack.inventory, [mail]) == ()  # not before the stash: through the room the keepers leave
     left = after(pack, stop)
     assert left.in_cube == ()
     assert all(i.unit_id not in (10, 11, 50) for i in left.items)
@@ -171,9 +172,9 @@ def test_the_cubes_junk_comes_out_as_the_room_left_after_the_keepers_allows_and_
     assert {i.unit_id for i in stop.out_for_sale} == {60, 61, 63}
     sold = after(pack, stop)
     sold = Pack(tuple(i for i in sold.items if i.unit_id not in junk))
-    assert room_for(inventory_rows(sold), Needs().block) is False  # the unidentified still hold columns 7 and 8
+    assert sold.inventory.has_room(Needs().block) is False  # the unidentified still hold columns 7 and 8
     sold = Pack(tuple(i for i in sold.items if i.unit_id not in (70, 71)))
-    assert room_for(inventory_rows(sold), Needs().block)
+    assert sold.inventory.has_room(Needs().block)
 
 
 def test_the_players_own_items_are_never_put():
@@ -194,8 +195,8 @@ def test_a_key_stack_in_the_block_is_moved_out_of_it():
     assert move is not None
     moved, cell = move
     assert moved == keys
-    rows = inventory_rows(Pack((THE_CUBE, *OWN_CHARMS, Carried(80, KEY_CLASS, *cell, (1, 1)))))
-    assert room_for(rows, (2, 4))
+    rows = Pack((THE_CUBE, *OWN_CHARMS, Carried(80, KEY_CLASS, *cell, (1, 1)))).inventory
+    assert Grid(rows).has_room((2, 4))
 
 
 def test_a_kind_whose_perfect_stack_is_full_has_its_surplus_sold():
@@ -274,7 +275,7 @@ def test_a_cube_keeper_blocked_by_inventory_junk_gets_a_shuffle_that_frees_its_b
     # 14:28 on 2026-10-18: the plate had no put, stayed in the cube, "short of the contract: cube 1 items, 1 keepers
     # carried"; the Amulet moved aside frees columns 3-4, rows 0-2 inside the stop's close and reopen
     pack, own, junk = pack_1428()
-    assert out_now(inventory_rows(pack), [pack.in_cube[0]]) == ()
+    assert out_now(pack.inventory, [pack.in_cube[0]]) == ()
 
     stop = stash_stop(Holdings(pack, own, junk), view_1428())
 
@@ -389,7 +390,7 @@ def test_a_shuffle_never_takes_the_2x4_block_at_the_end():
     assert [(item.unit_id, cell) for item, cell in stop.shuffles] == [(70, (9, 3))]  # not (6, 0)
     left = after(pack, stop)
     sold = Pack(tuple(i for i in left.items if i.unit_id not in junk))
-    assert room_for(inventory_rows(sold), (2, 4))
+    assert sold.inventory.has_room((2, 4))
 
 
 def pack_1455() -> tuple[Pack, frozenset[tuple[int, int, int]], frozenset[int]]:

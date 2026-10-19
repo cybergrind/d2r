@@ -7,7 +7,7 @@ from dataclasses import replace
 
 import pytest
 
-from inventory_tracking.macros import tzloop
+from inventory_tracking.macros import loop as loop_module, tzloop
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.agenda import KILL, LEAVE_GAME, ON_THE_WAY, Leader, LevelView, Objective, town_of
 from inventory_tracking.macros.loop import (
@@ -65,8 +65,8 @@ class Script:
         self.on_run = lambda area: None
         monkeypatch.setattr(tzloop, 'travel', lambda run, to, marks=None: self.go('waypoint', to))
         monkeypatch.setattr(tzloop, 'to_town', self.to_town)
-        monkeypatch.setattr(tzloop, 'through_portal', lambda run, near=None: self.go('through', self.portal_from))
-        monkeypatch.setattr(tzloop, 'prebuff', lambda run, **_: self.calls.append(('prebuff',)))
+        monkeypatch.setattr(loop_module, 'through_portal', lambda run, near=None: self.go('through', self.portal_from))
+        monkeypatch.setattr(loop_module, 'prebuff', lambda run, **_: self.calls.append(('prebuff',)))
         monkeypatch.setattr(tzloop, 'gold', lambda run: None)
 
     @property

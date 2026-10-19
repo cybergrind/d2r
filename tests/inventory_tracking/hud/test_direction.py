@@ -20,20 +20,20 @@ def test_invalid_arrow_payload_is_rejected():
 
 @pytest.mark.parametrize(('glyph', 'tip'), [('→', (68.8, 40)), ('←', (11.2, 40)), ('↑', (40, 11.2)), ('↓', (40, 68.8))])
 def test_vector_tip_points_in_screen_direction(glyph, tip):
-    from inventory_tracking.osd.direction import arrow_polygon
+    from inventory_tracking.hud.direction import arrow_polygon
 
     assert arrow_polygon(glyph, 80, 80)[3] == pytest.approx(tip)
 
 
 def test_all_diagonals_fit_inside_the_indicator():
-    from inventory_tracking.osd.direction import ARROWS, arrow_polygon
+    from inventory_tracking.hud.direction import ARROWS, arrow_polygon
 
     for glyph in ARROWS:
         assert all(0 < x < 80 and 0 < y < 80 for x, y in arrow_polygon(glyph, 80, 80))
 
 
 def test_level_map_is_half_again_the_first_card():
-    from inventory_tracking.osd.direction import MAP_SIZE
+    from inventory_tracking.hud.direction import MAP_SIZE
 
     width, height = MAP_SIZE
 

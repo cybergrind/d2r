@@ -70,6 +70,7 @@ def test_outer_entry_depends_on_files_an_inner_hit_served(tree):
     assert calls == [1, 1]
 
 
+@pytest.mark.skipif(os.environ.get('D2R_PRICING_CACHE') == 'off', reason='caches turned off')
 def test_pricing_session_installs_the_caches():
     assert hasattr(build_profiles.build, '__wrapped__')
     assert hasattr(stat_configurations.compile_stat_configurations, '__wrapped__')

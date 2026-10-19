@@ -1,6 +1,7 @@
 """Shared hooks for the pricing tests."""
 
 import hashlib
+import os
 import pickle
 from pathlib import Path
 
@@ -29,10 +30,12 @@ def _configurations_key(reviews, profiles, *, root=None):
 
 # Installed before the test modules import them: build() took 3.5 s and the stat compiler 1.7 s per call,
 # from ~340 call sites (cleanup phase 2, 2026-10-19). Compiled configurations are deeply frozen, so shared.
-build_profiles.build = memoize(build_profiles.build, _profiles_key)
-stat_configurations.compile_stat_configurations = memoize(
-    stat_configurations.compile_stat_configurations, _configurations_key, copy=False
-)
+# D2R_PRICING_CACHE=off runs without them, to rule the caches out.
+if os.environ.get('D2R_PRICING_CACHE') != 'off':
+    build_profiles.build = memoize(build_profiles.build, _profiles_key)
+    stat_configurations.compile_stat_configurations = memoize(
+        stat_configurations.compile_stat_configurations, _configurations_key, copy=False
+    )
 
 
 @pytest.hookimpl(trylast=True)
