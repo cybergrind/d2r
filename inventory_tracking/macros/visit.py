@@ -1030,6 +1030,14 @@ def visit(
     if theirs:
         LOG.info("Macro: town visit: %s the player's by their stats: kept, not sold", _keepers(theirs))
         junk -= {i.unit_id for i in theirs}
+    # A rare amulet with life, FCR or +2 skills is a keeper whatever the appraisal says (macros/keepers.py: two sold at
+    # 03:48 on 2026-10-19)
+    kept = [(i, why) for i in carried if i.unit_id in junk and run.kept_item is not None and (why := run.kept_item(i))]
+    if kept:
+        LOG.info(
+            'Macro: town visit: %s kept by its stats, not sold', ', '.join(f'{_name(i)} ({why})' for i, why in kept)
+        )
+        junk -= {i.unit_id for i, _why in kept}
     LOG.info('Macro: town visit (%s): %d of the loop\'s items, %d identified at Cain, %d junk; full stacks %d',
              exit.value, len(carried), len(unknown), len(junk), len(stacks))  # fmt: skip
     record = Recorder(visitlog.session_directory())

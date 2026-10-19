@@ -55,3 +55,35 @@ def test_his_lines_are_tried_nearest_the_learned_one_first(monkeypatch):
     tried = cain.lifts()
     assert tried[0] == 0.2165
     assert {round(abs(lift - 0.2165), 4) for lift in tried[1:3]} == {round(cain.LINE / 2, 4)}  # a half line either side
+
+
+def test_his_line_is_clicked_at_the_middle_of_the_lifts_that_took_and_takes_at_once(caplog):
+    # 2026-10-18/19: the last lift that took alone sat on an edge of his line (0.2052 and 0.2165 both took, half a
+    # line apart) and missed now and then, ~4 s each (the player: "looks like we're cannot lick identify all from the
+    # first attempt"); the middle of the two takes at once
+    import json
+    import logging
+
+    from inventory_tracking.macros import shop
+
+    shop.LIFTS_FILE.write_text(json.dumps({str(CAIN): [round(CAIN_LINE - 0.0113, 4), round(CAIN_LINE + 0.0113, 4)]}))
+    assert known(CAIN) == pytest.approx(CAIN_LINE, abs=1e-4)
+    play = fortress()
+    with caplog.at_level(logging.INFO):
+        assert identify_all(play.run(), (KRISS, CODEX)) == 2
+    assert caplog.text.count('the Identify Items line clicked') == 1
+    assert 'menu line missed' not in caplog.text
+    assert 'over Deckard Cain' in caplog.text  # named, not "Jamella"
+
+
+def test_a_single_learned_lift_of_before_reads_as_one_hit():
+    import json
+
+    from inventory_tracking.macros import shop
+
+    shop.LIFTS_FILE.write_text(json.dumps({str(CAIN): 0.2052}))
+    assert shop.hits(CAIN) == [0.2052]
+    assert known(CAIN) == 0.2052
+    shop.learned(CAIN, 0.2165)
+    assert shop.hits(CAIN) == [0.2052, 0.2165]
+    assert known(CAIN) == pytest.approx(0.2108, abs=1e-4)

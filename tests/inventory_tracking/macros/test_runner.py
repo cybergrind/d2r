@@ -2376,3 +2376,72 @@ def test_shared_town_visit_accepts_explicitly_deferred_cube_keeper(monkeypatch):
         ),
     )
     assert runner._shared_town_visit(play.run(), Exit.PORTAL) == done
+
+
+def test_any_stop_with_the_character_dead_stops_the_loop_and_leaves_no_game():
+    # The player, 2026-10-19: "if we died - we MUST not take ANY other actions, no reviving, no save/exits, nothing at
+    # all": a watchdog's stop or a leg's with the character dead is no recovery (whose next leg is Save and Exit)
+    runner = andariel_room_runner(carrying=True)
+    runner._dead = lambda: True
+    runner._loop_stopped(Abort('the character has not moved for 45 s'))
+    assert not runner.loop.on
+    assert not runner.loop.abandon
+    assert not runner.loop.trip_due
+    runner.close()
+    runner = andariel_room_runner(carrying=True)
+    runner._dead = lambda: False
+    runner._loop_stopped(Abort('the character has not moved for 45 s'))
+    assert runner.loop.on  # alive: the room rules as before
+    runner.close()
+
+
+def beset_runner(lives, *, attack_mode=False, left=None):
+    """A runner whose polls read the character standing at the Frozen River door (area 113) with `lives`, the loop on
+    and outside a fight unless `attack_mode` (rca/2026-10-19/near-death-findings.md)."""
+    looks = iter(lives)
+    shown: list = []
+    runner = MacroRunner(
+        None, capture_lock=threading.Lock(), saved_games=SAVED_GAMES, display=shown.append, place=lambda: place()
+    )
+
+    def place():
+        runner.where, runner.life_seen = (10212.5, 5359.5), (next(looks), 3134)
+        return 'cyber13', 113
+
+    runner.valuable_left = lambda: left
+    runner.loop.on, runner.attack_mode = True, attack_mode
+    return runner, shown
+
+
+def test_a_character_hit_standing_outside_a_fight_leaves_the_game_at_once(caplog):
+    # The player, 2026-10-19: "we stood still while under attack and almost died, only user intervented and helped to
+    # kill attackers ... we must not die or we lose exp and our gear"
+    runner, shown = beset_runner([3119, 3119, 2986, 2789])
+    with caplog.at_level('INFO'):
+        for now in (10.0, 11.0, 12.0, 13.0):
+            runner.poll(now)
+    assert runner.loop.abandon  # the next leg is Save and Exit
+    assert runner.loop.on
+    assert 'the character is hit standing outside a fight (life 2789/3134): the game is left at once' in caplog.text
+    assert shown[-1] == ['Loop: the character is hit standing outside a fight (life 2789/3134): leaving the game']
+    runner.close()
+
+
+def test_hit_standing_the_game_is_left_even_with_a_valuable_on_the_ground():
+    runner, _ = beset_runner([3119, 2789], left='Flawless Topaz')
+    for now in (10.0, 11.0):
+        runner.poll(now)
+    assert runner.loop.abandon
+    assert not runner.loop.make_room
+    assert runner.loop.fetch_again is None
+    runner.close()
+
+
+def test_a_fights_losses_are_not_a_stand_under_attack():
+    runner, _ = beset_runner([3119, 2789, 2500], attack_mode=True)
+    for now in (10.0, 11.0):
+        runner.poll(now)
+    runner.attack_mode = False  # the fight over, the character where it fought
+    runner.poll(12.0)
+    assert not runner.loop.abandon
+    runner.close()

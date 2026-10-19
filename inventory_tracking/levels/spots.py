@@ -36,7 +36,7 @@ def pinpoint(poi: Poi, *, warp: bool = False) -> Poi:
         return poi
     ((x, y),) = spots.values()
     origin_x, origin_y, _w, _h = room.block or (room.x, room.y, room.width, room.height)
-    return replace(poi, spot=(origin_x + x, origin_y + y))
+    return replace(poi, spot=(origin_x + x, origin_y + y), entrance=warp)
 
 
 def on_waypoint(poi: Poi, waypoints) -> Poi:

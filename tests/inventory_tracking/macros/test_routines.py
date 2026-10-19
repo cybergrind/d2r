@@ -11,7 +11,7 @@ from inventory_tracking.macros.routines import (
     show_items_on,
 )
 from inventory_tracking.macros.world import Monster
-from tests.inventory_tracking.macros.fakes import KEYS, OTHER_SET, PREBUFF_SET, Game, player, world
+from tests.inventory_tracking.macros.fakes import KEYS, OTHER_SET, PREBUFF_SET, Game, character_of, player, world
 
 
 BOUND_DEMON = Monster(50, 700, 1, 4995.0, 5003.0, 0xFFFFFFFF)  # summons carry no owner (host, 2026-10-06)
@@ -692,3 +692,18 @@ def test_item_labels_that_stay_off_stop_the_level_run():
     with pytest.raises(Abort, match='no Show Items key'):
         show_items_on(game.run(), None)
     show_items_on(Game(world(show_items=None)).run(), 'z')  # unread: not pressed blind
+
+
+def test_a_dead_character_is_not_saved_and_exited_and_nothing_is_pressed():
+    # The player, 2026-10-19: "if we died - we MUST not take ANY other actions, no reviving, no save/exits, nothing at
+    # all / we could lose all our gear if do something incorrectly"
+    from dataclasses import replace
+
+    from inventory_tracking.macros.routines import Dead, leave_game
+
+    game = Game(world(121))
+    game.world = replace(game.world, player=replace(character_of(game.world), mode=0))
+    with pytest.raises(Dead):
+        leave_game(game.run())
+    assert game.pressed() == []
+    assert game.world.in_game

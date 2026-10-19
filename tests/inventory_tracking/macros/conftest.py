@@ -1,6 +1,6 @@
 import pytest
 
-from inventory_tracking.macros import pickup, repair, shop, teleport, view
+from inventory_tracking.macros import pickup, repair, shop, stash, teleport, view
 
 
 @pytest.fixture(autouse=True)
@@ -49,3 +49,10 @@ def no_vendor_lifts_kept(monkeypatch, tmp_path):
     monkeypatch.setattr(shop, '_picture', lambda run: None)
     monkeypatch.setattr(repair, 'QUOTE_FILE', tmp_path / 'repair-quote.txt')
     monkeypatch.setattr(repair, 'QUOTED', [])
+
+
+@pytest.fixture(autouse=True)
+def no_deposit_refused(monkeypatch):
+    """A refused deposit ends the deposits per process (stash.py REFUSED): none from test to test, no picture."""
+    monkeypatch.setattr(stash, 'REFUSED', [])
+    monkeypatch.setattr(stash, '_picture', lambda what: None)

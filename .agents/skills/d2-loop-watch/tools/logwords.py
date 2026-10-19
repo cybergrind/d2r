@@ -65,6 +65,11 @@ RESUMED_OFF = 'resumed after a restart: loop off'
 # `self._say(f'Loop run: {self.loop.kind.name}')`. No such line in runs/alt-d up to 2026-10-18 (the test builds one).
 KIND = re.compile(r'Macro: Loop run: (.+)$')
 
+# A fight's end and its length (hunt.py `fight`), and the TZ agenda's target and its kind (hunt.py `agenda_cleared`):
+# elites.py's activities (engaging, approach, explore, chests, pickup)
+FIGHT = re.compile(r'Macro: fight \([^)]*\): \d+ casts? seen in ([\d.]+)s')
+TARGET = re.compile(r'Macro: agenda: target .* \((\w+), tier \d+')
+
 # A leg's stop ends the loop: (why). runner.py:700 MacroRunner._loop_stopped `'Macro: loop stopped: %s'`; with a
 # valuable on the ground `why` ends in "...: the loop stops here" (runner.py:693).
 # 2026-10-18 15:53:19,020 INFO Macro: loop stopped: Ring at (22553, 9560) was not picked up after 2 trips back; Ring

@@ -22,10 +22,8 @@ from inventory_tracking.macros.shop import (
     WALK_SECONDS,
     WALKING,
     _close,
-    _note,
-    _open_menu,
     known,
-    learned,
+    menu_line,
     serving,
     walk_until,
     whereabouts,
@@ -41,8 +39,8 @@ IDENTIFIED_SECONDS = 1.5  # for the items' flags to turn after the click
 
 
 def lifts() -> tuple[float, ...]:
-    """The lifts over his drawn point (as his menu opened) the Identify Items line is clicked at: the learned one, then
-    those from 0.16 up by half a line (LINE), the nearest it first."""
+    """The lifts over his drawn point (as his menu opened) the Identify Items line is clicked at: the learned one (the
+    middle of those that took, shop.py `known`), then those from 0.16 up by half a line (LINE), the nearest it first."""
     scan = tuple(0.16 + step * LINE / 2 for step in range(12))
     learned_lift = known(CAIN)
     if learned_lift:
@@ -80,17 +78,10 @@ def identify_all(run: Run, unknown: Sequence[Carried]) -> int:
         walk_until(run, place, SEEN, 'Deckard Cain')
         run.seen(lambda w: w.player is not None and w.player.mode not in WALKING, WALK_SECONDS)
         try:
-            for lift in lifts():
-                drawn = _open_menu(run, aspect)
-                run.actuator.move(drawn[0], drawn[1] - lift, scatter=(6, 1))
-                _note(run, aspect, f'the Identify Items line clicked {lift:.4f} over him')
-                run.actuator.click()
-                if run.seen(lambda _w: known_now() == len(units), IDENTIFIED_SECONDS) is not None:
-                    learned(CAIN, lift)
-                    break
-                _close(run)
-            else:
-                raise Abort("Cain's Identify Items line did not take at any line tried")
+            menu_line(
+                run, aspect, 'Identify Items', lifts(),
+                lambda _lift: run.seen(lambda _w: known_now() == len(units), IDENTIFIED_SECONDS) is not None,
+            )  # fmt: skip
         finally:
             _close(run)
     done = known_now()

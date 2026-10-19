@@ -22,6 +22,23 @@ lobby, recoveries), not game time:
 - Lower Kurast: **chests an hour** (`speed.py` CYCLES); 422/h on 2026-10-18 01:14-01:44. A game that opens one more
   chest is longer and still better.
 
+**Every loop optimizes its own metric, and only the drops come before it** (the player, 2026-10-19 02:12: "every loop
+has it's own metric, that it must optimize: boss kills/elites kill/opened chest. the only thing that has more priority -
+proper interactions with drops (we cannot run without picking desired items just with killing boss alone)"):
+
+| Loop / mode | Its metric (an hour of cycles) | Not its job |
+| --- | --- | --- |
+| Andariel (KP_6) | boss kills | full-clearing a level, a terror zone or not ("andy loop shouldn't focus on full clearing level") |
+| Lower Kurast (KP_6) | chests opened | fights that are not in the way |
+| TZ leveling | elite kills (champions, uniques, super uniques, Herald leaders) | white packs that neither block nor threaten |
+| Full clear TZ | Herald hunting (a clear of everything) | — |
+
+- Priority in every loop: 1. the drops (pick up what the pickup mode wants, never leave a valuable the loop would take
+  on the ground: hard rule 1); 2. the loop's metric; 3. anything else only if it does not cost (1) or (2).
+- A goal that helps another metric (XP, a terror zone's extra loot, a full clear) is a mode of its own, never folded
+  into a loop. The KP_6 loops ignore the terror-zone full-clear default (`hunt.Hunter.run_mode`, `posted.looped`).
+- A change is judged by the loop's own metric (`andy.py`, `speed.py`, the TZ tool); drops lost (MISSED) veto it.
+
 State between rounds and sessions: [the journal](../../../inventory_tracking/routes/lower-kurast-loop-journal.md)
 (baseline, queue, rulings waiting, rounds). Design: `inventory_tracking/routes/lower-kurast-loop-plan.md`. The player's
 rulings: AGENTS.md, the memory `d2r-kp6-loop-rulings` (every ruling, dated, verbatim), and the journal. Studies:
@@ -45,8 +62,9 @@ rulings: AGENTS.md, the memory `d2r-kp6-loop-rulings` (every ruling, dated, verb
    copies: `copies.py` keeps the best copy of a unique or set first ("loop should keep the best copy first"). Never the
    player's gear or anything of the player's, a potion, a rune (rune sales stopped 2026-10-18: stacks over 80 are cubed
    down instead), a gem, a set or unique charm (Sunders, Gheed's, Annihilus, Torch), anything appraised other than
-   `vendor` ("do not sell own equipment or valuable items"). A rare amulet with +FCR, +2 skills or +life is kept; a high
-   vendor price alone is no reason to keep. Never a Ber Rune in a transmute (Enigma).
+   `vendor` ("do not sell own equipment or valuable items"). A rare amulet with +FCR, +2 skills or +life is kept
+   (`keepers.py`, whatever the appraisal says: two were sold at 03:48 on 2026-10-19); a high vendor price alone is no
+   reason to keep. Never a Ber Rune in a transmute (Enigma).
 5. **The town visit** (`town visit` leg, macros/visit.py, town.py, townplan.py) only when the room runs low
    (`town.TRADE_ROOM`); it leaves keepers stashed, junk sold (junk may be parked on a stash page and sold after), keys
    and scrolls refilled, the staff repaired if the carried gold covers it, **the cube empty, a 2x4 block free**. The

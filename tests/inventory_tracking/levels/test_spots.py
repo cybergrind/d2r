@@ -60,7 +60,7 @@ def test_an_entrance_kept_as_a_target_is_marked_on_its_warp():
 
     [river] = [poi for poi in handler_of(113).guide(snapshot).pois if poi.label == 'Frozen River']
 
-    assert (river.kind, river.spot) == ('target', (310.0, 405.5))
+    assert (river.kind, river.spot, river.entrance) == ('target', (310.0, 405.5), True)
 
 
 def test_arrows_and_map_dots_aim_at_the_spot():

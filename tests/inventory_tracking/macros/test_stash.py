@@ -235,6 +235,23 @@ def test_with_no_dialog_nothing_is_deposited_and_escape_closes_what_opened(monke
     assert play.pressed()[-1] == 'Escape'
 
 
+def test_the_deposit_shows_the_personal_tab_and_one_refused_ends_the_deposits(monkeypatch):
+    # 07:38 on 2026-10-19: the Shared tab shown, its gold at 12500000, refused 181494 twice a visit, ~3 s each
+    from inventory_tracking.macros.stash import deposit
+    from tests.inventory_tracking.macros.fakes import WINDOW
+
+    monkeypatch.setattr('inventory_tracking.macros.stash._picture', lambda what: None)
+    play = deposit_game(dialog=True)
+    play.stash_tab = 2  # the Gems tab shown, as the rune transmutes leave it
+    assert deposit(play.run(), WINDOW, 690_000) == 234_000
+    assert play.stash_tab == 0  # the Personal tab
+    refused = deposit_game(dialog=False)
+    assert deposit(refused.run(), WINDOW, 690_000) == 0
+    again = deposit_game(dialog=True)
+    assert deposit(again.run(), WINDOW, 690_000) == 0
+    assert not [e for e in again.keys.events if e[0] == 'click']
+
+
 def test_with_the_stash_shut_the_gold_button_is_never_clicked():
     # the same button drops the gold on the ground with the stash shut
     from inventory_tracking.macros.stash import deposit

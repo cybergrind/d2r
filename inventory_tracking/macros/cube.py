@@ -423,6 +423,17 @@ def stash(run: Run, inventory_key: str, own: frozenset[tuple[int, int, int]]) ->
     return moved
 
 
+def stash_only(
+    run: Run, inventory_key: str, own: frozenset[tuple[int, int, int]], wanted: Callable[[Carried], bool]
+) -> int:
+    """The loop's items `wanted` picks into the cube, its others left where they are (`stash`, with them counted the
+    player's); how many were moved, none opened for none."""
+    pack = run.carried() if run.carried is not None else None
+    if pack is None or not any(wanted(item) for item in loot(pack, own)):
+        return 0
+    return stash(run, inventory_key, own | own_of(item for item in pack.items if not wanted(item)))
+
+
 def unpack(run: Run, inventory_key: str, items: Sequence[Carried]) -> int:
     """Take `items` out of the cube into the inventory, by a Ctrl + click on each with the cube open; how many came
     out. For the stash (macros/stash.py), which takes from the cube's grid only what a resource tab holds: a charm,

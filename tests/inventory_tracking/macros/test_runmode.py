@@ -580,6 +580,19 @@ def test_a_mashed_pickup_key_switches_nothing_and_a_terror_zone_is_a_full_clear(
     assert hunt.run_mode(run, RIVER, hunt.pursuit) == Mode(True, TERROR)
 
 
+def test_the_loops_boss_fight_is_no_full_clear_on_a_terror_zone() -> None:
+    # 01:45-02:00 on 2026-10-19: Catacombs 4 a terror zone, the Andariel fight (no rush) full-cleared the level, 26.7 s
+    # of a cycle after her kill (the player: "andy loop shouldn't focus on full clearing level")
+    play = game(area=RIVER)
+    hunt = hunter(play)
+    hunt.bearings = Bearings(Progress(ROUTES, PERFORMED, wanted=lambda area: area == RIVER))
+    run = play.run()
+    fight = Pursuit('pickup', 10.0, advance=False, leash=FULL, rush=False, looped=True)
+    assert hunt.run_mode(run, RIVER, fight) == Mode(False)
+    kp1 = Pursuit('pickup', 10.0, advance=False, leash=FULL)  # KP_1's own run on a terror zone still clears it
+    assert hunt.run_mode(run, RIVER, kp1) == Mode(True, TERROR)
+
+
 def test_the_loops_rushed_run_goes_to_its_way_out_past_a_pack_but_its_full_clear_clears() -> None:
     # 10:20-10:41 on 2026-10-18: every pack on the way down the Catacombs was the loop's goal, the run stood ~1.8 s at
     # each (RUSH_UNMOVED), 41 stands, 74 s (the player: "we're freezing ... then, after a few seconds we starts

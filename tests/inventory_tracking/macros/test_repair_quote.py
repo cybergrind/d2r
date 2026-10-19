@@ -33,8 +33,10 @@ def test_the_cost_expected_is_the_last_quotes_gold_a_charge_times_the_charges_mi
     monkeypatch.setattr(repair, 'QUOTE_FILE', tmp_path / 'repair-quote.txt')
     monkeypatch.setattr(repair, 'QUOTED', [])
     (tmp_path / 'repair-quote.txt').write_text('101677 60')
-    assert repair.expected(37) == round(101677 / 60 * 37)
-    assert abs(62918 - repair.expected(37)) <= repair.QUOTE_DRIFT * repair.expected(37)
+    cost = repair.expected(37)
+    assert cost is not None
+    assert cost == round(101677 / 60 * 37)
+    assert abs(62918 - cost) <= repair.QUOTE_DRIFT * cost
     monkeypatch.setattr(repair, 'QUOTED', [])
     (tmp_path / 'repair-quote.txt').write_text('101677')  # the old file: the quote alone
     assert repair.expected(37) == 101677

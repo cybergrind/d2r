@@ -37,6 +37,23 @@ trade = importlib.import_module('trade')
 REAL = [
     ('LEG', '2026-10-18 15:58:35,969 INFO Macro: Loop: game 1, what is left', ('1', 'what is left')),
     (
+        'FIGHT',
+        '2026-10-19 09:27:43,584 INFO Macro: fight (right click): 2 casts seen in 1.4s, 5 down; Yielded (the key asks '
+        'for a move)',
+        ('1.4',),
+    ),
+    (
+        'TARGET',
+        '2026-10-19 09:27:40,514 INFO Macro: agenda: target the elite 279 (1817783950) (kill, tier 4, 2 leaders known '
+        'here)',
+        ('kill',),
+    ),
+    (
+        'TARGET',
+        '2026-10-19 09:20:11,002 INFO Macro: agenda: target Amulet, on the way (pickup, tier 3, 1 leaders known here)',
+        ('pickup',),
+    ),
+    (
         'RESUMED',
         '2026-10-18 15:58:35,613 INFO Macro: resumed after a restart: loop on, pickup sure valuables, run Andariel',
         ('on', 'Andariel'),

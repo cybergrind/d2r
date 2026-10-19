@@ -106,6 +106,14 @@ ACTING = frozenset((7, 8, 10, 11, 12, 13, 14, 15, 16, 18))
 QUICK_SECONDS = 1.0  # at most, for the skill key before to give the right button back (that Sigil: 0.9 s)
 QUICK_UNSEEN = 0.35  # a key tapped with nothing held whose skill never showed on the button: not waited for
 DEAD = frozenset((0, 17))
+
+
+class Dead(Abort):
+    """The character is dead: the loop stops for the player, and nothing more is pressed. The player, 2026-10-19: "if
+    we died - we MUST not take ANY other actions, no reviving, no save/exits, nothing at all / we could lose all our
+    gear if do something incorrectly"."""
+
+
 CREATE_LIMIT = 12.0  # seconds from Enter for the new game to exist
 LOAD_MIN = 8.5  # seconds from Enter before the first key in a new game
 LOAD_LIMIT = 40.0  # seconds from Enter the first summon may take
@@ -217,7 +225,7 @@ def press_skill(run: Run, skill: int, poll: float = 0.03, *, wait: bool = True) 
     else:
         ready = run.world()
     if ready.player is not None and ready.player.mode in DEAD:
-        raise Abort('the character is dead')
+        raise Dead('the character is dead')
     home = ready.player.right_skill if ready.player is not None else None
     held = bool(run.actuator.holding or run.actuator.holding_buttons)  # under a held strike the game makes it wait
     run.quick = (skill, home, run.clock(), held) if home != skill and run.pad is None else None
@@ -432,6 +440,8 @@ def leave_game(run: Run) -> None:
     if run.pad is not None:  # the menus take the mouse's click (macros/pad.py `input_policy`)
         raise Abort('Save and Exit needs mouse mode: click once to switch, then press again')
     world = run.world()
+    if world.player is not None and world.player.mode in DEAD:
+        raise Dead('the character is dead: no Save and Exit')  # nothing at all is pressed (`Dead`)
     for _ in range(3):  # Escape closes an open panel first
         if not world.open_panels:
             break

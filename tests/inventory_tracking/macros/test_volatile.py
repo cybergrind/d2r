@@ -112,6 +112,21 @@ def test_the_players_items_are_known_by_their_stats_in_the_cube_too(tmp_path):
     assert not loop.players_item(in_cube, {7: 20 << 8})
 
 
+def test_a_new_item_in_the_same_cell_is_learnt_too(tmp_path):
+    # 06:02 on 2026-10-19: the Gheed's swap put the new Gheed's Fortune (36% MF) where the player's old one (34%) was:
+    # the same class and cell, so its stats were not learnt; the unit ids tell it
+    old = Carried(30, CHARM_LARGE, 6, 2, (1, 2), quality=7)
+    loop = Loop(store=tmp_path / 'loop-items.json')
+    stats = {30: {80: 34}, 31: {80: 36}}
+    loop.tell(Pack((THE_CUBE, *CHARMS[:1], old)), 'Cyber', item_stats=lambda unit: stats.get(unit, {}))
+    loop.tell(
+        Pack((THE_CUBE, *CHARMS[:1], replace(old, unit_id=31))), 'Cyber', item_stats=lambda unit: stats.get(unit, {})
+    )
+
+    assert loop.players_item(replace(old, unit_id=99, x=0, y=0), {80: 36})
+    assert loop.players_item(replace(old, unit_id=98, x=0, y=0), {80: 34})
+
+
 def test_unread_stats_hold_an_item_of_a_players_class_and_quality():
     prints = frozenset({print_of(Carried(1, CHARM_LARGE, 0, 0, (1, 2), quality=4), LIFE)})
 

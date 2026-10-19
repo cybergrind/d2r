@@ -1237,6 +1237,21 @@ def rolled(read, drop: Drop, unit: dict | None) -> Drop:
     return replace(drop, rolls=base_rolls(read, unit))
 
 
+# Stats an item keeps on a layer other than 0 (itemstatcost.txt): item_addclassskills (83, the layer the class),
+# item_addskill_tab (188, the layer the skill tree). Read on layer 0 alone they were missing: a rare amulet with +2 to
+# Summoning Skills was sold at 08:17 on 2026-10-19 (keepers.py's "+2 skills" never saw them)
+LAYERED_SKILLS = (83, 188)
+
+
+def item_values(stats: Sequence[Mapping]) -> dict[int, int]:
+    """An item's read stats as {stat id: raw value}: layer 0, and LAYERED_SKILLS at the most of any layer."""
+    values = {s['id']: s['raw'] for s in stats if s['layer'] == 0}
+    for s in stats:
+        if s['id'] in LAYERED_SKILLS:
+            values[s['id']] = max(values.get(s['id'], 0), s['raw'])
+    return values
+
+
 def unit_stats(read, stats_at: int) -> dict[int, int]:
     """A unit's full stat list as {stat id: raw value} (layer 0 only); {} when unreadable."""
     try:
@@ -1414,6 +1429,8 @@ class GameMemory:
         self.hover_raw: tuple[int, int, int, int] | None = None  # the last record read whole (`hovered`)
         self.stock_note: dict | None = None  # what the last vendor's stock read found (`stock`), logged when it changes
         self.where: tuple[float, float] | None = None  # where the character was at the last `place` or `loot`
+        self.mode: int | None = None  # the character's mode at the last `place` (runner.py `_dead`)
+        self.life: tuple[int, int] | None = None  # (life, max life) at the last `place` (runner.py `poll`)
         self.where_area: int | None = None  # and in which level (`loot`)
         # (character, item) unit ids the ground census said (`census`): the runner gives the one set its GameMemory
         # objects share, so an item is said once whatever reads it (a set of each said it 2-4 times, 2026-10-17)
@@ -1612,7 +1629,10 @@ class GameMemory:
             return {}
         if unit is None or not unit['stats_pointer']:
             return {}
-        return unit_stats(self.read, unit['stats_pointer'])
+        try:
+            return item_values(read_stats(self.read, unit['stats_pointer'] + FULL_STATS))
+        except OSError, ValueError, struct.error:
+            return {}
 
     def containers(self) -> tuple[Thing, ...]:
         """The chests and the like the game shows now, opened or not (the pickup step opens them)."""
@@ -1969,6 +1989,9 @@ class GameMemory:
         except OSError, ValueError, struct.error:
             player = None
         self.where = (player.x, player.y) if player is not None else None
+        self.mode = player.mode if player is not None else None
+        stats = unit_stats(self.read, player.stats_at) if player is not None and player.stats_at else {}
+        self.life = (stats.get(LIFE_STAT, 0) >> 8, stats[MAX_LIFE_STAT] >> 8) if MAX_LIFE_STAT in stats else None
         return name, player.area if player is not None else None
 
     def world(self, light: bool = False) -> World:

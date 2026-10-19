@@ -325,6 +325,19 @@ def test_no_rune_is_sold_whoever_asks():
     assert junk not in play.pack.items
 
 
+def test_an_item_kept_by_its_stats_is_never_sold():
+    # 03:48 on 2026-10-19: two rare amulets with +41 and +59 life appraised vendor and sold (macros/keepers.py)
+    play, junk = selling(gold=500_000)
+    run = play.run()
+    run.kept_item = lambda item: '+59 life' if item.unit_id == junk.unit_id else None
+
+    restock(run, sell=(junk,))
+
+    assert play.pack is not None
+    assert junk in play.pack.items
+    assert dict(play.loot.stats)[14] == 500_000
+
+
 def test_an_item_the_players_by_its_stats_is_never_sold():
     # The player's charm moved into the cube by hand and sold at 23:17 on 2026-10-18 (rca/2026-10-18): the stats guard
     # (macros/volatile.py prints) holds the sale whatever the list handed to her says

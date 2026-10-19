@@ -35,6 +35,7 @@ from inventory_tracking.routes.model import ENTER, FIGHT, STAND, USE, Script
 # level run came 0.20 to 0.29 s apart (session logs 2026-10-13 23:56 to 2026-10-14 15:16, kp1-mode.md §2).
 DOUBLE = 0.35
 TERROR = 'terror zone'
+AGENDA = 'the terror zone loop'  # macros/tzloop.py: the agenda's targets, then the route's stages
 SWITCHED = 'switched by the player'
 
 
@@ -85,6 +86,9 @@ class Mode:
     clear: bool
     why: str = ''
     elite: bool = False
+    # The terror zone kinds' run (macros/tzloop.py): what of the level is worked is the agenda's (its policy: TZ
+    # leveling's leaders, Full clear TZ's every hostile), then the route's stages
+    agenda: bool = False
 
 
 def mode_of(area: int | None, terror: bool | None, switched: tuple[int, bool] | None) -> Mode:
@@ -112,6 +116,8 @@ def aim_of(script: Script | None) -> str | None:
 
 def said(mode: Mode, aim: str | None) -> str:
     """The mode as the log says it (`Macro: run: ...`)."""
+    if mode.agenda:
+        return f'the agenda, then {aim}' if aim else 'the agenda'
     if mode.elite:
         return f'elite hunt, then {aim}' if aim else 'elite hunt'
     if mode.clear:
@@ -124,6 +130,8 @@ def badge(mode: Mode | None) -> str | None:
     """The HUD's word for the mode (hud/process.py `ModeBeacon`): shown only for a full clear."""
     if mode is None or not mode.clear:
         return None
+    if mode.agenda:
+        return 'TZ LOOP'
     if mode.elite:
         return 'HUNT TZ'
     return 'CLEAR TZ' if mode.why == TERROR else 'CLEAR'

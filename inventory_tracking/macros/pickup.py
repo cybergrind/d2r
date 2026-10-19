@@ -52,7 +52,7 @@ from inventory_tracking.macros.build import Step
 from inventory_tracking.macros.charms import GHEEDS_FORTUNE, is_unique_grand_charm
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.pickmode import is_candidate
-from inventory_tracking.macros.routines import ACTING, DEAD, UNIT_PIXELS, press_skill
+from inventory_tracking.macros.routines import ACTING, DEAD, UNIT_PIXELS, Dead, press_skill
 from inventory_tracking.macros.skills import skill_name
 from inventory_tracking.macros.teleport import HOVER_SECONDS, ground_fraction, hop_toward, in_view, ready, ready_world
 from inventory_tracking.macros.travel import JUMP_REACH, PRESSED, Travel, spare_jump, walk_reaches
@@ -593,7 +593,7 @@ def click(run: Run, drop: Drop, aim: tuple[int, int], over: tuple[int, int] | No
             return True
         if walker is not None and walker.mode in DEAD:
             # Tower Cellar 5, 22:51:00 on 2026-10-11: the clicks went on 4.7 s over the body.
-            raise Abort('the character is dead')
+            raise Dead('the character is dead')
         place = None if walker is None or walker.mode in RUN_MODES else (walker.x, walker.y)
         if place is None or stood is None or stood[0] != place:
             stood = None if place is None else (place, run.clock())

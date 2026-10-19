@@ -694,3 +694,21 @@ def test_the_stash_view_orders_the_shared_pages_and_drops_the_resource_tabs_owne
     assert again is not None
     assert [page.free for page in again.pages] == [99, 0, 100, 100, 100, 100]
     assert again.full() == {631}
+
+
+def test_an_items_tree_and_class_skills_are_read_off_their_layers():
+    # 08:17 on 2026-10-19: Wraithra Clasp, +2 to Summoning Skills (188 on the tree's layer), read on layer 0 alone had
+    # no skills and was sold; keepers.py keeps a rare amulet with +2 skills
+    from inventory_tracking.macros.keepers import amulet_keeper
+    from inventory_tracking.macros.world import Carried, item_values
+
+    read = [
+        {'id': 188, 'layer': 41, 'raw': 2},  # +2 to a skill tree
+        {'id': 83, 'layer': 7, 'raw': 1},  # +1 to a class's skills
+        {'id': 0, 'layer': 0, 'raw': 18},  # strength
+        {'id': 34, 'layer': 0, 'raw': 3},  # damage reduced
+    ]
+    values = item_values(read)
+    assert values == {188: 2, 83: 1, 0: 18, 34: 3}
+    amulet = Carried(1, 535, 0, 0, (1, 1), quality=6)
+    assert amulet_keeper(amulet, values) == '+2 skills'

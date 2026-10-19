@@ -742,6 +742,21 @@ def test_a_cube_keeper_with_no_way_out_waits_in_the_cube_named_on_the_contract_n
     )
 
 
+def test_a_full_stacks_flawless_gem_kept_in_the_cube_waits_there_not_a_miss():
+    # 06:18 on 2026-10-19: "short of the contract: cube 1 items (normal Flawless Amethyst at (1, 1))", its stash stack
+    # full and the gem kept for the transmute of three into a perfect one
+    amethyst = Carried(51, class_of('Flawless Amethyst'), 2, 0, (1, 1), quality=2)
+    pack = Pack((THE_CUBE,), ('..#', '...', '...', '...'), frozenset({51}), (amethyst,))
+    own = own_of((THE_CUBE,))
+    full = frozenset({class_of('Flawless Amethyst')})
+
+    done = contract(pack, own, Needs(), full=full)
+
+    assert done.misses == ()
+    assert done.deferred == ('normal Flawless Amethyst at (2, 0)',)
+    assert 'cube 1 items (normal Flawless Amethyst at (2, 0))' in contract(pack, own, Needs()).misses
+
+
 def test_a_keeper_no_page_takes_is_the_stash_full_never_waiting():
     pack, own = grid(BLOCK_BUT_ONE | {(9, 3)})
 

@@ -299,6 +299,19 @@ def test_a_character_standing_still_too_long_is_said_once_and_moving_counts_afre
     assert not loop.still(None, 10 * STILL_SECONDS)
 
 
+def test_a_new_game_and_the_recovery_pause_count_no_stand():
+    """09:22:44-09:23:50 on 2026-10-19: the stand of the game before and the 30 s pause counted on into the next game,
+    left 5 s in, 5 recoveries in a row."""
+    loop = Loop()
+    assert not loop.still((5384.3, 2614.3), 0.0, 'g1')
+    assert not loop.still((5384.3, 2614.3), STILL_SECONDS + 1, 'g2')  # the same spot, a new game: afresh
+    assert loop.still((5384.3, 2614.3), 2 * STILL_SECONDS + 2, 'g2')
+    loop.cooling = 4 * STILL_SECONDS
+    assert not loop.still((5384.3, 2614.3), 3.5 * STILL_SECONDS, 'g2')  # pausing: no stand
+    assert not loop.still((5384.3, 2614.3), 4 * STILL_SECONDS + 1, 'g2')  # counted from the pause's end
+    assert loop.still((5384.3, 2614.3), 5 * STILL_SECONDS + 2, 'g2')
+
+
 def test_the_staff_under_20_percent_of_its_charges_is_repaired_before_the_chests(monkeypatch):
     # The player, 2026-10-17: "we can start thinking on repairing teleport charges ... to travel more efficiently"
     from inventory_tracking.macros.repair import wants
@@ -1130,3 +1143,74 @@ def test_a_leg_observes_the_game_it_is_made_in(caplog):
         loop.leg(play.run(), lambda _world, skills=None: KEYS, lk, lambda: None, lambda: False)
     assert loop.game_id == (GAME, 1)
     assert caplog.text.count('Macro: loop: game changed') == 1
+
+
+CRYSTALLINE_PASSAGE = 113
+
+
+def test_a_character_hit_standing_outside_a_fight_is_beset_once():
+    # 09:36:54-09:37:02 on 2026-10-19 at the Frozen River door (rca/2026-10-19/near-death-findings.md): standing, life
+    # 3119 -> 2986 -> 2789 -> 2592 -> 2334 in hits of 130-260 (the player: "we stood still while under attack and
+    # almost died")
+    from inventory_tracking.macros.loop import BESET_SECONDS
+
+    loop, door = Loop(), (10212.5, 5359.5)
+    loop.start()
+    assert not loop.beset(door, (3119, 3134), 0.0, GAME, CRYSTALLINE_PASSAGE)
+    assert not loop.beset(door, (2986, 3134), 1.0, GAME, CRYSTALLINE_PASSAGE)  # 4 %: one small hit
+    assert loop.beset(door, (2789, 3134), 3.0, GAME, CRYSTALLINE_PASSAGE)  # 11 % in 3 s
+    assert not loop.beset(door, (2592, 3134), 4.0, GAME, CRYSTALLINE_PASSAGE)  # said once: counted afresh
+    assert loop.beset(door, (2334, 3134), 6.0, GAME, CRYSTALLINE_PASSAGE)
+    # A loss spread over more than BESET_SECONDS, a loss while moving, in a town or a new game: no stand under attack
+    assert not loop.beset(door, (3000, 3134), 10.0, GAME, CRYSTALLINE_PASSAGE)
+    assert not loop.beset(door, (2900, 3134), 10.0 + BESET_SECONDS + 0.5, GAME, CRYSTALLINE_PASSAGE)
+    assert not loop.beset((10230.0, 5359.5), (2700, 3134), 16.0, GAME, CRYSTALLINE_PASSAGE)
+    assert not loop.beset(door, (3134, 3134), 20.0, GAME, PANDEMONIUM_FORTRESS)
+    assert not loop.beset(door, (2700, 3134), 21.0, GAME, PANDEMONIUM_FORTRESS)
+    assert not loop.beset(door, (3134, 3134), 30.0, GAME, CRYSTALLINE_PASSAGE)
+    assert not loop.beset(door, (2700, 3134), 31.0, 'cyber33', CRYSTALLINE_PASSAGE)
+    assert not loop.beset(None, (2700, 3134), 32.0, GAME, CRYSTALLINE_PASSAGE)  # unread
+    assert not loop.beset(door, None, 33.0, GAME, CRYSTALLINE_PASSAGE)
+    # Being left already: no second recovery
+    loop.abandon = True
+    assert not loop.beset(door, (3134, 3134), 40.0, GAME, CRYSTALLINE_PASSAGE)
+    assert not loop.beset(door, (2700, 3134), 41.0, GAME, CRYSTALLINE_PASSAGE)
+
+
+def recovered_past_the_limit(loop: Loop) -> None:
+    """Recoveries one after another, past RECOVERIES: the next leg is to wait RECOVERY_PAUSE (`cooling`)."""
+    import time
+
+    from inventory_tracking.macros.loop import RECOVERIES
+
+    now = time.monotonic()
+    for at in range(RECOVERIES + 1):
+        assert loop.recover(Abort('TZ next level again and again in cyber32: nothing came of it'), now + at * 0.01)
+    assert loop.cooling > now
+
+
+def test_the_pause_after_recoveries_is_not_stood_in_a_battle_level_the_game_is_left_first(caplog):
+    # 09:36:41-09:37:11 on 2026-10-19: the pause stood 30 s at the Frozen River door, three hostiles hit the character
+    # from 3119 to 2334 life until the player struck them; then Save and Exit (rca/2026-10-19/near-death-findings.md)
+    from inventory_tracking.macros.loop import RECOVERY_PAUSE
+
+    play = Game(at(LOWER_KURAST))
+    loop = Loop(on=True)
+    loop.start()
+    recovered_past_the_limit(loop)
+    with caplog.at_level('INFO'):
+        assert loop.leg(play.run(), keys, progress_in(LOWER_KURAST), lambda: None, lambda: False) == LEAVE
+    assert play.clock.now < RECOVERY_PAUSE / 2  # not stood: Save and Exit at once
+    assert 'Save and Exit' in play.said
+    assert 'the pause after recoveries (30 s) is not stood in level 79: the game is left first' in caplog.text
+
+
+def test_the_pause_after_recoveries_is_waited_in_a_town():
+    from inventory_tracking.macros.loop import RECOVERY_PAUSE
+
+    play = Game(at(PANDEMONIUM_FORTRESS))
+    loop = Loop(on=True, prebuffed=GAME)
+    loop.start()
+    recovered_past_the_limit(loop)
+    assert loop.leg(play.run(), keys, progress_in(PANDEMONIUM_FORTRESS), lambda: None, lambda: False) == LEAVE
+    assert play.clock.now >= RECOVERY_PAUSE - 1  # the town: the pause kept, as before

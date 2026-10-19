@@ -496,6 +496,27 @@ def test_the_players_item_by_its_stats_in_the_cube_is_kept_not_sold(monkeypatch,
     assert "the player's by their stats: kept, not sold" in caplog.text
 
 
+def test_an_amulet_kept_by_its_stats_is_no_junk(monkeypatch, caplog):
+    # 03:48 on 2026-10-19: Corruption Scarab (+41 life) and Havoc Torc (+59 life) appraised vendor and sold; the
+    # player's words keep a rare amulet with life, FCR or +2 skills (macros/keepers.py): no junk, never sold
+    from tests.inventory_tracking.macros.test_town import BLOCK_BUT_ONE, grid
+
+    ring = replace(thing(60, 'Ring', 4, 2), quality=4)
+    rings = [replace(thing(61 + n, 'Ring', x, 3), quality=4) for n, x in enumerate((3, 4))]
+    pack, own = grid(BLOCK_BUT_ONE, [ring, *rings])
+    play = fortress(replace(pack, keys=24), [FULL_PAGE] * 5 + [OPEN_PAGE])
+    town = Town(monkeypatch, play, frozenset({60, 61, 62}))
+    town.run = play.run()
+    town.run.kept_item = lambda item: '+41 life' if item.unit_id == 60 else None
+
+    with caplog.at_level('INFO'):
+        visit(town.run, town.hands(), LK_NEEDS, own, Exit.WAYPOINT)
+
+    assert 60 not in town.sold
+    assert sorted(town.sold) == [61, 62]
+    assert 'kept by its stats, not sold' in caplog.text
+
+
 @pytest.mark.parametrize(
     ('case', 'keepers', 'name'), [('1505', (51, 53), 'Boots'), ('1514', (50, 41, 53), 'Serpentskin Armor')]
 )

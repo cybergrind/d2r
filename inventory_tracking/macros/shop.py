@@ -54,6 +54,7 @@ from inventory_tracking.shop.capture import VENDORS
 __all__ = ['MIN_STOCK', 'restock', 'short']
 
 JAMELLA = 405  # monstats *hcIdx (shop/capture.py VENDORS)
+NAMES = {**VENDORS, 246: 'Deckard Cain'}  # the ones served, for the log: the vendors and Cain (macros/cain.py CAIN)
 KEY, SCROLL = 558, 544  # Key, Scroll of Town Portal (items metadata, 2026-10-16)
 IDENTIFY_SCROLL = 545  # Scroll of Identify (items metadata, 2026-10-17): the Tome of Identify's (macros/junk.py)
 MIN_STOCK = 3  # the player: "keep 3+ of each before run"
@@ -91,6 +92,7 @@ FOLLOW_POLL = 0.04
 MENU_CLICKS = 3  # one may go to a menu that opened mid-walk, closed and opened again standing
 LINE = 0.0226  # window heights from one line of her menu to the next (the player's clicks of 2026-10-16)
 LIFTS_FILE = Path(__file__).resolve().parents[1] / 'runs' / 'alt-d' / 'menu-lifts.json'  # `learned` lifts by vendor
+HITS_KEPT = 40  # the lifts that took kept by vendor (`hits`): their middle is clicked first (`known`)
 SERVING = [JAMELLA]  # the vendor visited now (`serving`)
 LIFT = TRADE_ABOVE  # the lift that opened her trade window last (`_open_trade`)
 STOCK_SECONDS = 2.0  # for her stock to be read after her trade window shows
@@ -287,6 +289,10 @@ def restock(run: Run, sell: Sequence[Carried] = (), back: bool = True, keys: int
                 LOG.info("Macro: shop: the %s at (%d, %d) is the player's by its stats: never sold", named(each),
                          each.x, each.y)  # fmt: skip
                 continue
+            if run.kept_item is not None and (why := run.kept_item(each)):
+                LOG.info('Macro: shop: the %s at (%d, %d) is kept by its stats (%s): never sold', named(each), each.x,
+                         each.y, why)  # fmt: skip
+                continue
             others = {c.unit_id for c in now.items} - {each.unit_id}
             # A Ctrl + click on an inventory item with her trade window open sells it; checked by its leaving
             run.actuator.move(*cell_point(rect, INVENTORY, (each.x, each.y), each.size), scatter=(5, 5))
@@ -447,10 +453,10 @@ def _note(run: Run, aspect: float, what: str) -> None:
         else None
     )
     LOG.info(
-        'Macro: shop: %s: panels %s; the character %s mode %s; Jamella %s drawn %s; pointer %s; under it %s',
+        'Macro: shop: %s: panels %s; the character %s mode %s; %s %s drawn %s; pointer %s; under it %s',
         what, list(world.open_panels),
         None if me is None else (round(me.x, 1), round(me.y, 1)), None if me is None else me.mode,
-        None if her is None else (round(her.x, 1), round(her.y, 1)),
+        NAMES.get(SERVING[0], 'the vendor'), None if her is None else (round(her.x, 1), round(her.y, 1)),
         None if drawn is None else (round(drawn[0], 4), round(drawn[1], 4)),
         None if at is None else (round(at[0], 4), round(at[1], 4)),
         run.hovered() if run.hovered is not None else 'unread',
@@ -503,22 +509,25 @@ def _open_trade(run: Run, aspect: float) -> dict[int, Stocked]:
     on Trade were 0.212 to 0.226 over it. So each lift of `lifts()` is tried in turn, the window that is not hers
     closed between, and the lift that opened it is kept for the next visit (`LIFT`)."""
     global LIFT
-    for lift in lifts():
-        drawn = _open_menu(run, aspect)
-        run.actuator.move(drawn[0], drawn[1] - lift, scatter=(6, 1))
-        _note(run, aspect, f'the Trade line clicked {lift:.4f} over her')
-        run.actuator.click()
+    found: list[dict[int, Stocked]] = []
+
+    def took(lift: float) -> bool:
         shown = run.seen(lambda w: 'npc_shop' in w.open_panels, PANEL_SECONDS)
         _note(run, aspect, 'after the Trade click')
-        if shown is not None:
-            stock = _stock(run)
-            if KEY in stock and SCROLL in stock:
-                LIFT = lift
-                learned(JAMELLA, lift)
-                return stock
-            LOG.info('Macro: shop: the window %.4f over her is not her trade window (no key, no scroll): closed', lift)
-        _close(run)
-    raise Abort('her trade window did not open at any line tried')
+        if shown is None:
+            return False
+        stock = _stock(run)
+        if KEY in stock and SCROLL in stock:
+            found.append(stock)
+            return True
+        LOG.info('Macro: shop: the window %.4f over her is not her trade window (no key, no scroll): closed', lift)
+        return False
+
+    try:
+        LIFT = menu_line(run, aspect, 'Trade', lifts(), took)
+    except Abort:
+        raise Abort('her trade window did not open at any line tried') from None
+    return found[-1]
 
 
 def lifts() -> tuple[float, ...]:
@@ -554,29 +563,69 @@ def _picture(run: Run, always: bool = False) -> None:
     path = LIFTS_FILE.parent / f'menu-{SERVING[0]}-{time.strftime("%H%M%S")}.png'
     try:
         subprocess.run(['grim', str(path)], timeout=3, check=True, capture_output=True)
-        LOG.info('Macro: shop: the menu of %s pictured: %s', VENDORS.get(SERVING[0]), path)
+        LOG.info('Macro: shop: the menu of %s pictured: %s', NAMES.get(SERVING[0]), path)
     except (OSError, subprocess.SubprocessError) as error:
         LOG.info('Macro: shop: the menu not pictured: %s', error)
 
 
-def known(vendor: int) -> float | None:
-    """The lift that opened `vendor`'s vendor panel last (LIFTS_FILE), None not learned."""
+def hits(vendor: int) -> list[float]:
+    """The lifts that took on `vendor`'s line, the latest last (LIFTS_FILE; a single number before 2026-10-19)."""
     try:
-        return json.loads(LIFTS_FILE.read_text()).get(str(vendor))
+        kept = json.loads(LIFTS_FILE.read_text()).get(str(vendor))
     except OSError, ValueError, AttributeError:
-        return None
+        return []
+    if isinstance(kept, (int, float)):
+        return [float(kept)]
+    return [float(lift) for lift in kept] if isinstance(kept, list) else []
+
+
+def known(vendor: int) -> float | None:
+    """Where `vendor`'s line is clicked first: the middle of the lifts that took (`hits`), None not learned. The last
+    one that took alone sat on an edge of the line: Cain's took at 0.2052 and at 0.2165, half a line apart, and each
+    missed now and then (9 of 212 visits, ~4 s each, 2026-10-18/19; the player: "looks like we're cannot lick identify
+    all from the first attempt"); Jamella's at 0.229 and 0.2346 likewise."""
+    took = hits(vendor)
+    return round((min(took) + max(took)) / 2, 4) if took else None
 
 
 def learned(vendor: int, lift: float) -> None:
-    """`lift` opened `vendor`'s vendor panel: kept in LIFTS_FILE."""
+    """`lift` took on `vendor`'s line: kept in LIFTS_FILE among the last HITS_KEPT."""
     try:
         kept = json.loads(LIFTS_FILE.read_text()) if LIFTS_FILE.exists() else {}
-        if kept.get(str(vendor)) != lift:
-            kept[str(vendor)] = lift
-            LIFTS_FILE.write_text(json.dumps(kept))
-            LOG.info('Macro: shop: %s line learned: %.4f over the drawn point', VENDORS.get(vendor), lift)
+        before = known(vendor)
+        kept[str(vendor)] = [*hits(vendor), round(lift, 4)][-HITS_KEPT:]
+        LIFTS_FILE.write_text(json.dumps(kept))
+        if known(vendor) != before:
+            LOG.info('Macro: shop: %s line learned: %.4f over the drawn point (%.4f took)', NAMES.get(vendor),
+                     known(vendor), lift)  # fmt: skip
     except (OSError, ValueError, AttributeError) as error:
         LOG.info('Macro: shop: the lift not kept: %s', error)
+
+
+def menu_line(
+    run: Run, aspect: float, line: str, lifts: Sequence[float], took: Callable[[float], bool], picture: bool = False
+) -> float:
+    """The menu of the one served (`SERVING`) opened by a click on them (`_open_menu`), its `line` clicked at each of
+    `lifts` over where they were drawn as it opened, until `took(lift)`; the lift that took is learned (`learned`) and
+    returned. Every vendor's and Cain's menu line goes through here (2026-10-19, the player: "track/check all failed
+    attempts to reach required menu (identify all, trade, trade/repair) and make sure that we have generic code"): each
+    miss is said, its menu closed and opened again for the next lift. `picture`: the menu pictured once a lift missed.
+    `Abort` when none took."""
+    name = NAMES.get(SERVING[0], 'the vendor')
+    for tried, lift in enumerate(lifts):
+        drawn = _open_menu(run, aspect)
+        if picture and tried == 1:
+            _picture(run, always=True)  # the first lift missed: the menu, open again, as it is drawn
+        run.actuator.move(drawn[0], drawn[1] - lift, scatter=(6, 1))
+        _note(run, aspect, f'the {line} line clicked {lift:.4f} over {name}')
+        run.actuator.click()
+        if took(lift):
+            learned(SERVING[0], lift)
+            return lift
+        LOG.info('Macro: shop: menu line missed: %s, %s %.4f over the drawn point (try %d)', name, line, lift,
+                 tried + 1)  # fmt: skip
+        _close(run)
+    raise Abort(f"{name}'s {line} line did not take at any line tried")
 
 
 def _open_menu(run: Run, aspect: float) -> tuple[float, float]:

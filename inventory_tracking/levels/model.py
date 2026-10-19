@@ -246,6 +246,9 @@ class Poi:
     spot: tuple[float, float] | None = None  # tiles: the warp itself (levels/spots.py); None = room centre
     area: int | None = None  # the level this way out leads to, when the rule that made it knows
     use: int = 0  # objects.txt id of an object near the mark to click: a portal, a body (PoiSpec.use)
+    # An entrance kept as a side trip (PoiSpec.warp, levels/spots.py `pinpoint`: Frozen River), its spot the warp tile:
+    # a door to walk into whatever its kind (guide.py `_target_of`)
+    entrance: bool = False
 
     @property
     def point(self) -> tuple[float, float]:

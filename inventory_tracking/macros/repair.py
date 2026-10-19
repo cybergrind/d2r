@@ -29,12 +29,9 @@ from inventory_tracking.macros.shop import (
     WALK_SECONDS,
     WALKING,
     _close,
-    _note,
-    _open_menu,
-    _picture,
     _waypoint,
     known,
-    learned,
+    menu_line,
     serving,
     walk_until,
     whereabouts,
@@ -280,19 +277,14 @@ def repair(run: Run, fix: bool = True) -> bool:
         walk_until(run, place, HIS_SEEN, 'Halbu')  # low enough on the screen for his menu over him
         run.seen(lambda w: w.player is not None and w.player.mode not in WALKING, WALK_SECONDS)
         try:
-            for tried, lift in enumerate(lifts()):
-                drawn = _open_menu(run, aspect)
-                if tried == 1:
-                    _picture(run, always=True)  # the learned lift missed: his menu, open again, as it is drawn
-                run.actuator.move(drawn[0], drawn[1] - lift, scatter=(6, 1))
-                _note(run, aspect, f'the Trade/Repair line clicked {lift:.4f} over him')
-                run.actuator.click()
-                if run.seen(lambda w: 'npc_shop' in w.open_panels, PANEL_SECONDS) is not None:
-                    learned(HALBU, lift)
-                    break
-                _close(run)
-            else:
-                raise Abort("Halbu's vendor panel did not open at any line tried")
+            try:
+                menu_line(
+                    run, aspect, 'Trade/Repair', lifts(),
+                    lambda _lift: run.seen(lambda w: 'npc_shop' in w.open_panels, PANEL_SECONDS) is not None,
+                    picture=True,
+                )  # fmt: skip
+            except Abort:
+                raise Abort("Halbu's vendor panel did not open at any line tried") from None
             if not fix:
                 LOG.info('Macro: repair: his panel opened; repairs are off: nothing clicked in it')
                 return False

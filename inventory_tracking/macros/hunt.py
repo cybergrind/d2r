@@ -91,6 +91,18 @@ from inventory_tracking.levels.presets import display_name
 from inventory_tracking.levels.route import room_at
 from inventory_tracking.macros import lootpolicy, route
 from inventory_tracking.macros.actuator import POINTER_DRIFT, Abort, Cancelled, Expired
+from inventory_tracking.macros.agenda import (
+    COVER,
+    FULL_CLEAR,
+    KILL,
+    ON_THE_WAY,
+    OPEN,
+    PICKUP as SIDE,
+    Agenda,
+    Leader,
+    LevelView,
+    Objective,
+)
 from inventory_tracking.macros.buffs import Buffs
 from inventory_tracking.macros.build import Attack, Build, Intent, NoWay, PricedStep
 from inventory_tracking.macros.drinking import Drinker, key_of, on_belt
@@ -151,9 +163,10 @@ from inventory_tracking.macros.routines import (
     DEAD,
     SUPER_UNIQUE_FLAG,
     TOWN_NPCS,
+    Dead,
     take_battle_weapons,
 )
-from inventory_tracking.macros.runmode import DOUBLE, Mode, Taps, aim_of, doubles, mode_of, said, tapped
+from inventory_tracking.macros.runmode import AGENDA, DOUBLE, Mode, Taps, aim_of, doubles, mode_of, said, tapped
 from inventory_tracking.macros.safety import AWAY, STEPPING, WAY_SHARE, Safety
 from inventory_tracking.macros.shacks import shack_thing
 from inventory_tracking.macros.sight import clear_shot, firing_spots, in_reach, in_reach as in_reach_of
@@ -242,6 +255,11 @@ from inventory_tracking.terror.tracker import BARRICADES, UNKILLABLE
 # monstats.txt hydra1-3 (AI Hydra, no life of their own): the fire heads the Council casts, which never die
 # and are left out of the hostiles
 HYDRAS = frozenset((351, 352, 353))
+# monstats.txt tentacle1-3 and tentaclehead1-3 (258-263): the Water Watchers in the water (Great Marsh, the act 3
+# rivers), unseen under it, untouched there and harmless but at its edge. The terror zone run struck each 4 times
+# (~8 s) before `untouched` left it alone, ~25 s of one fight (09:04:24-55 on 2026-10-19; the player: "in marsh we can
+# stuck and try to attack mobs that aren't visible and don't attack us at all"): left out of the hostiles
+SUBMERGED = frozenset(range(258, 264))
 # monstats.txt MonType `vulture` (vulture1-5: combat/data/tables.json): the birds the blades pass through in the air
 # (AIRBORNE: their modes 1 and 8); on the ground they are fought like other monsters
 VULTURES = frozenset((110, 111, 112, 113, 608))
@@ -594,6 +612,7 @@ def hostiles(world: World) -> list[Monster]:
         and (m.x or m.y)
         and m.txt_id not in UNKILLABLE
         and m.txt_id not in HYDRAS
+        and m.txt_id not in SUBMERGED
         and m.txt_id not in TOWN_NPCS
         and m.txt_id not in BARRICADES
         and not (m.txt_id in VULTURES and m.mode in AIRBORNE)
@@ -759,6 +778,14 @@ class Hunter:
         # (`carry_one_swap`); None, or False: the run's own rules (the try counted, the drop given up after
         # GATHER_TRIES). `swap_asked`: the drops given up whose swap was asked (`side_drop`), once each
         self.carry_one: Callable[[Refused], bool] | None = None
+        # The terror zone kinds' agenda (macros/agenda.py), and the policy of each level (macros/tzroutine.py
+        # `policy_of`): the runner's, set when it posts their level run (runner.py `_loop_level_run`)
+        self.agenda: Agenda | None = None
+        self.agenda_policy: Callable[[int], str] | None = None
+        self.agenda_said: tuple | None = None  # the last target said (`agenda_target`)
+        # (game, level)s whose route goal the run found no way to: worked as COVER from then on (`agenda_target`)
+        self.wayless: set[tuple[str, int]] = set()
+        self.ended_area: int | None = None  # the level of the level run that ended last (`end_run`)
         self.swap_asked: set[int] = set()
         self.told = Told()  # the reason last said for a decision that moved nothing
         self.told_at = -math.inf  # clock time it was last said
@@ -984,6 +1011,7 @@ class Hunter:
                     'entered': old.entered,
                     'rush': old.rush,
                     'elite_hunt': old.elite_hunt,
+                    'agenda': old.agenda,
                 }
                 if not pursuit.leashed:
                     pursuit = replace(pursuit, leash=old.leash, paused=old.paused, **kept)
@@ -1022,6 +1050,7 @@ class Hunter:
                 return
             ended = replace(posted, leash=NONE, area=None, paused=False, onward=None, entered=None)
             self.pursuit = ended if posted.advance else None
+            self.ended_area = posted.area  # the level the run was of (runner.py `_run_over`: the agenda's area worked)
         LOG.info('Macro: pursuit: the level run ends: %s', reason)
         self.travel.paced(run.clock() if run is not None else None, reason)
         self.told.new(None)
@@ -1579,6 +1608,8 @@ class Hunter:
         to, is passed for PASS_SECONDS (`goes_on`, `judge`); a goal left for another is not taken back while that other
         is still the one to go for (TAKE_BACK, `taken_back`)."""
         mode = self.mode
+        if mode is not None and mode.agenda and self.agenda is not None:
+            return self.agenda_cleared(run, world, foes, ground, found)
         clear = mode is not None and mode.clear
         elite = mode is not None and mode.elite
         if found is not None and (found.do in (PICK_UP, WAIT) or found.guarded or (found.do == FIGHT and not elite)):
@@ -1639,6 +1670,163 @@ class Hunter:
                 break
         self.went_for(chosen, rooms, now)
         return chosen
+
+    def agenda_cleared(
+        self, run: Run, world: World, foes: list[Monster], ground: Ground, found: Goal | None
+    ) -> Goal | None:
+        """The terror zone kinds' run (`cleared`, macros/goals-plan.md §3): the agenda's next target first (agenda.py
+        `Agenda.in_level`: a Herald, its omen, a side drop's guards then the drop, the leaders, the rooms), the
+        route's stage of the level (`found`) after it. Passing, judging and taking back are the full clear's (`goes_on`,
+        `taken_back`), and so are the hostiles on the way (leaders within CLEAR_WAY with a clear line; every one on a
+        Full clear TZ). A drop's guards are the fight first (the player's example: "we may need some kill action near
+        pickup item, then pickup"); a stand-by by a valuable, a guarded potion, a boss's fight are left as they are."""
+        player = world.player
+        assert player is not None
+        here, now, area = (player.x, player.y), run.clock(), player.area
+        level = self.known_level(player)
+        rooms = level.rooms if level is not None else ()
+        self.passed = {key: until for key, until in self.passed.items() if until > now}
+        self.left_for = {key: left for key, left in self.left_for.items() if left[0] > now}
+        if found is not None and (found.do == WAIT or found.guarded):
+            return found
+        if found is not None and found.do == PICK_UP:
+            side = Objective(SIDE, found.label, 3, area, found.place, found.unit)
+            target = self.agenda_target(run, world, foes, here, frozenset(), rooms, side)
+            guard = next(
+                (m for m in foes if target is not None and target.kind == KILL and m.unit_id == target.unit), None
+            )
+            if guard is None:
+                return found
+            # The fight first is the level run's own work (`clearing`): the drop's goal holds no route stage on a level
+            # with no route (Great Marsh), and a fight goal with neither ended the run there, the elite and the gold
+            # left (09:01:51 on 2026-10-19, pursuit.py `run_level`: "nothing is left to go to on this level")
+            return replace(first_fight(found, here, [guard], self.reach), clearing=True)
+        spend = found.spend if found is not None else PRESSED
+        everyone = self.agenda_policy is not None and self.agenda_policy(area) == FULL_CLEAR
+        things = run.things() if run.things is not None else ()  # read once a look: the super chests (`agenda_chests`)
+
+        def candidate(skip: frozenset[object]) -> Goal | None:
+            target = self.agenda_target(run, world, foes, here, skip, rooms, None, things)
+            if target is None:
+                base = found
+            elif target.kind == OPEN:
+                base = self.agenda_chest(area, target, found, spend)
+            else:
+                unit = target.unit if target.kind == KILL else None
+                assert target.place is not None
+                base = rest_of_level((target.place, target.label, unit), found, self.reach, spend)
+            if base is None or (base is found and found is not None and found.do == FIGHT):
+                return base
+            near = [
+                m
+                for m in foes
+                if m.unit_id not in self.passed
+                and m.unit_id not in skip
+                and (everyone or m.leader or m.tier)
+                and math.dist(here, (m.x, m.y)) <= CLEAR_WAY
+                and clear_shot(ground, here, (m.x, m.y), world.doors)
+            ]
+            return clear_way(base, here, near, self.reach) if near else base
+
+        chosen = found
+        for _ in range(3):  # a goal passed now gives its place to the next
+            goal = self.taken_back(candidate, rooms, found)
+            if goal is None or not goal.clearing or self.goes_on(run, world, ground, goal, rooms, now):
+                chosen = goal
+                break
+        self.went_for(chosen, rooms, now)
+        return chosen
+
+    def agenda_target(
+        self,
+        run: Run,
+        world: World,
+        foes: Sequence[Monster],
+        here: Point,
+        skip: frozenset[object],
+        rooms: Sequence[Room],
+        side: Objective | None,
+        things: Sequence[Thing] = (),
+    ) -> Objective | None:
+        """The agenda's next target on this level (agenda.py `Agenda.in_level`) from what this look knows: the leaders
+        in sight and remembered alive (every hostile on a Full clear TZ), the hostiles (a drop's guards), a Herald's
+        omens, the side drop, the super chests among `things` (`agenda_chests`), the next unexplored room (asked only
+        when wanted), the goals passed."""
+        agenda, player = self.agenda, world.player
+        assert agenda is not None
+        assert player is not None
+        area, now = player.area, run.clock()
+        policy = self.agenda_policy(area) if self.agenda_policy is not None else FULL_CLEAR
+        if policy == ON_THE_WAY and (world.game_name, area) in self.wayless:
+            policy = COVER  # no way to the route's goal: the rooms are explored for it (`judge`)
+        everyone = policy == FULL_CLEAR
+        out = skip | set(self.passed)
+        live = [m for m in foes if everyone or m.leader or m.tier]
+        leaders = [Leader(m.unit_id, (m.x, m.y), label(m), bool(m.tier and m.leader)) for m in live]
+        seen = {m.unit_id for m in foes}
+        gone = seen | self.vanished | set(self.untouchable)
+        known = self.remembered(area) if self.remembered is not None else []
+        leaders += [
+            Leader(unit, (x, y), 'the remembered monster', live=False)
+            for unit, x, y, leader in known
+            if unit not in gone and (everyone or leader)
+        ]
+        omens = tuple((spot, omen_stand(spot, here)) for spot in self.omens_now(run, area, now))
+
+        def frontier() -> tuple[Point, str] | None:
+            room = self.next_room(run, player, area, now)
+            return (room[0], room[1]) if room is not None else None
+
+        view = LevelView(
+            area,
+            here,
+            tuple(leaders),
+            tuple((m.unit_id, (m.x, m.y)) for m in foes),
+            omens,
+            side,
+            frontier,
+            policy,
+            lambda place, unit: passing_key(place, unit, rooms) in out or (unit is not None and unit in out),
+            OMEN_NEAR,
+            *self.agenda_chests(things),
+        )
+        target = agenda.in_level(view)
+        said = (target.kind, target.unit, target.label) if target is not None else None
+        if said != self.agenda_said:
+            self.agenda_said = said
+            if target is None:
+                LOG.info("Macro: agenda: no target here: the route's own goal")
+            else:
+                LOG.info('Macro: agenda: target %s (%s, tier %d, %d leaders known here)', target.label, target.kind,
+                         target.tier, agenda.known(area))  # fmt: skip
+        return target
+
+    def agenda_chests(self, things: Sequence[Thing]) -> tuple[tuple[tuple[int, Point], ...], frozenset[int]]:
+        """The super chests (objects.txt 397, levels/model.py SUPER_CHEST) among the streamed `things`, for the
+        agenda's CHEST tier (2026-10-19, the player: "we don't open intermediate goals, like superchests ... open them
+        along the way"): (unit, place) of the closed ones (mode 0, not flagged unselectable), and the units seen open
+        or tried SUPER_TRIES times (`operate` counts them with the shacks' containers), never targets again."""
+        closed, spent = [], set()
+        for thing in things:
+            if thing.txt_id != SUPER_CHEST:
+                continue
+            if thing.mode != 0 or self.shack_tries.get(thing.unit_id, 0) >= SUPER_TRIES:
+                spent.add(thing.unit_id)
+            elif thing.selectable is not False:
+                closed.append((thing.unit_id, (thing.x, thing.y)))
+        return tuple(closed), frozenset(spent)
+
+    def agenda_chest(self, area: int, target: Objective, found: Goal | None, spend: Intent) -> Goal:
+        """The agenda's OPEN `target` as the run's goal: the super chest opened as a full clear's is
+        (`super_chest_goal`: a USE of a SUPER_CHEST mark, its tries counted in `operate`), a clearing goal of the
+        run's own (passed by `goes_on` with no progress; never the end of a level with no route, pursuit.py
+        `run_level`), the route of `found` kept for the log. Its spill is the drop tiers' at the next looks."""
+        assert target.place is not None
+        x, y = target.place
+        mark = Target(area, (), (x / TILE_UNITS, y / TILE_UNITS), 'Super chest', 'target', use=SUPER_CHEST)
+        route = found.route if found is not None else ''
+        return Goal(f'agenda: {target.label}', (x, y), USE, USE_NEAR, spend, unit=target.unit, mark=mark, route=route,
+                    clearing=True)  # fmt: skip
 
     def goal_key(self, goal: Goal | None, rooms: Sequence[Room]) -> object | None:
         """The key a level run's goal is judged and left by: a clearing goal's `passing_key`, the route's by itself."""
@@ -1854,7 +2042,9 @@ class Hunter:
             pairs, self.taps = doubles(self.taps, now)
         # Not on the KP_6 loop's run: its chests first, a terror zone or not (the player, 2026-10-16: "focus on reaching
         # chests as fast as possible"; at 08:30:26 on 2026-10-17 Lower Kurast was terrorized and the run cleared it)
-        terror = self.bearings.terror(area) and not (posted is not None and posted.rush)
+        # Nor on any KP_6 loop's run (the player, 2026-10-19 ~02:12: "andy loop shouldn't focus on full clearing level.
+        # we're going to have separate mods"): a terror zone's work is the terror zone kinds' own, by their agenda
+        terror = self.bearings.terror(area) and not (posted is not None and (posted.rush or posted.looped))
         for first, last in pairs:
             # Each double press by the clock, also one no look came in the window of (runmode.py `owed`)
             before = mode_of(area, terror, self.switched)
@@ -1865,11 +2055,12 @@ class Hunter:
             LOG.info(
                 'Macro: run: a double press of the pickup key (%.2f s apart%s): %s -> %s', last - first, late, was, then
             )
-        mode = (
-            Mode(True, 'TZ elite hunt', elite=True)
-            if posted is not None and posted.elite_hunt
-            else mode_of(area, terror, self.switched)
-        )
+        if posted is not None and posted.agenda:
+            mode = Mode(True, AGENDA, agenda=True)
+        elif posted is not None and posted.elite_hunt:
+            mode = Mode(True, 'TZ elite hunt', elite=True)
+        else:
+            mode = mode_of(area, terror, self.switched)
         self.mode = mode
         if posted is not None and posted.leashed:
             line = said(mode, aim_of(self.bearings.script(area)))
@@ -2047,6 +2238,19 @@ class Hunter:
         ):
             # a run's clearing goal it has no way to: the next look goes on
             self.pass_by(goal, act.reason, now, level.rooms if level is not None else ())
+        elif (
+            isinstance(act, NoWay)
+            and goal is not None
+            and self.agenda is not None
+            and act.reason.startswith('no way toward')
+            and (world.game_name, player.area) not in self.wayless
+        ):
+            # The route's own goal with no way over the rooms known (Frozenstein's mark 214 away in Frozen River): the
+            # level is explored from here, which grows the way, instead of standing (09:46:02-43 on 2026-10-19: 40 s
+            # idle, the game left by the 45 s watchdog, Frozenstein never reached; the player: "we stuck and exit
+            # without visiting next location and probably without full exploration")
+            self.wayless.add((world.game_name, player.area))
+            LOG.info('Macro: agenda: no way to %s: the level is explored for it (cover)', goal.label)
         return Judged(act, goal, place, posted, pressed)
 
     def safety_priced(
@@ -3876,7 +4080,7 @@ class Hunter:
                 if player is None:
                     raise Abort('not in a game')
                 if player.mode in DEAD:
-                    raise Abort('the character is dead')
+                    raise Dead('the character is dead')
                 alive = {m.unit_id for m in world.monsters}
                 down += len(watched - alive)
                 watched &= alive

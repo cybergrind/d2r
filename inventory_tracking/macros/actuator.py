@@ -31,9 +31,10 @@ AIM_TRIES = 3
 # Why a macro stopped, as the KP_6 loop's stop rules tell stops apart (runner.py `classify`, `_loop_stopped`): the
 # player's hand, the carry-one refusal of a Gheed's Fortune, no room in the inventory for an item, the watchdog's stand
 # ("has not moved"), a keeper no stash page takes after a town visit (the loop stops: the player, 2026-10-18 16:50),
-# anything else. Strings, so a raise names its cause with no import (rca/2026-10-18/arch-loop-orchestration.md Option
-# A, step 1: a message's words stop being the only sign of its cause)
-Cause = Literal['hand', 'refused', 'room', 'stall', 'stash', 'other']
+# the character hit standing outside a fight (the game left at once: loop.py `beset`, 2026-10-19), anything else.
+# Strings, so a raise names its cause with no import (rca/2026-10-18/arch-loop-orchestration.md Option A, step 1: a
+# message's words stop being the only sign of its cause)
+Cause = Literal['hand', 'refused', 'room', 'stall', 'stash', 'beset', 'other']
 
 
 class Abort(Exception):

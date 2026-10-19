@@ -525,7 +525,10 @@ class LevelGuide:
         return (tables.pop(), area) if len(tables) == 1 and None not in tables else None
 
     def _target_of(self, snapshot: LevelSnapshot, poi: Poi) -> Target:
-        warp = poi.kind in WAYS_OUT and poi.spot is not None
+        # An entrance kept as a side trip is a door too (Poi.entrance): as a mere place, Crystalline Passage's way into
+        # Frozen River was stood beside and never gone through, "TZ next level" again and again, the game left (09:32:49
+        # and every game after on 2026-10-19)
+        warp = (poi.kind in WAYS_OUT or poi.entrance) and poi.spot is not None
         area, mark = snapshot.location.area_id, place(poi)
         passage = passage_of(area, snapshot.rooms, poi, mark)
         into = poi.area if passage is not None else None

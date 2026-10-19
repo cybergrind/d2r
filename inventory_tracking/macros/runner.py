@@ -59,6 +59,7 @@ from inventory_tracking.macros.cube import (
     perfect_of,
     room_for,
     stash,
+    stash_only,
     transmute,
     unpack,
 )
@@ -67,18 +68,21 @@ from inventory_tracking.macros.goals import USE_NEAR, spot_of
 from inventory_tracking.macros.hunt import Bearings, Hunter, threat
 from inventory_tracking.macros.journey import Journey
 from inventory_tracking.macros.junk import identify, junk_of, named
+from inventory_tracking.macros.keepers import amulet_keeper
 from inventory_tracking.macros.latency import Press, Trace
 from inventory_tracking.macros.loop import (
     ANDARIEL,
     CHOOSE,
     GAME_SECONDS,
-    KINDS,
     LK,
     PICK,
     STILL_SECONDS,
+    TZ_KINDS,
     Loop,
+    loop_kinds,
 )
 from inventory_tracking.macros.lootpolicy import GUARD, verdict
+from inventory_tracking.macros.navigation import Abilities, means
 from inventory_tracking.macros.opening import open_near
 from inventory_tracking.macros.pad import PadActs, PadActuator, PadPlay, input_policy
 from inventory_tracking.macros.pickmode import MODES, REGULAR, SURE, TRADE, kept, next_mode
@@ -96,14 +100,16 @@ from inventory_tracking.macros.pickup import (
 )
 from inventory_tracking.macros.portal import portal_source
 from inventory_tracking.macros.pursuit import FULL, Pursuit
-from inventory_tracking.macros.routines import prebuff, prebuff_keys, run_macro, show_items_on
+from inventory_tracking.macros.routines import DEAD, Dead, prebuff, prebuff_keys, run_macro, show_items_on
 from inventory_tracking.macros.runmode import DOUBLE, TERROR, badge
 from inventory_tracking.macros.sightings import Sightings
-from inventory_tracking.macros.skills import character_bindings, skill_keys
+from inventory_tracking.macros.skills import TELEPORT as TELEPORT_SKILL, character_bindings, skill_keys, skill_name
 from inventory_tracking.macros.teleport import LOST_KEY, ready, step_toward
 from inventory_tracking.macros.timing import Pace
-from inventory_tracking.macros.town import Contract, Exit, Needs
+from inventory_tracking.macros.town import Contract, Exit, Needs, kept_gem
 from inventory_tracking.macros.travel import LOOPED, LOOPED_TELEPORT, cut
+from inventory_tracking.macros.tzloop import TzHands, full_clear, trip as tz_trip
+from inventory_tracking.macros.tzroutine import Itinerary, policy_of
 from inventory_tracking.macros.visit import Hands, Remembered, note_view, visit
 from inventory_tracking.macros.waiting import Waiting
 from inventory_tracking.macros.world import (
@@ -349,6 +355,8 @@ class MacroRunner:
         # the game whose stash view was logged, the shared page shown last (macros/visit.py `Remembered`)
         self.stash_memory = Remembered()
         self.where: tuple[float, float] | None = None  # where the character was at the last poll (`_place`)
+        self.dead_mode: int | None = None  # the character's mode at the last poll (`_dead`)
+        self.life_seen: tuple[int, int] | None = None  # (life, max life) at the last poll (`poll`: loop.py `beset`)
         self.valuable_left: Callable[[], str | None] = self._valuable_left  # (tests give their own)
         self.carried_now: Callable[[], Pack | None] = self._carried_now  # the inventory now, for `_gheeds_swap`
         # An item unit's stats, from the run's own memory (world.GameMemory.item_stats): a Gheed's Fortune's Magic Find
@@ -715,6 +723,11 @@ class MacroRunner:
                 if self.working and self.routine == ATTACK:
                     self.cancelled.set()
                 return
+            if self.loop.on and self.loop.kind.key in TZ_KINDS and why != 'the level was left':
+                # A terror zone kind's level run ended by itself: its own level worked (macros/agenda.py `Agenda.ran`);
+                # one that ended because the level was left worked nothing
+                area = self.hunter.ended_area if self.hunter is not None else None
+                self.loop.agenda.ran(area if area is not None else self.area_seen)
             if not self.loop.on:
                 mode = self.hunter.mode if self.hunter is not None else None
                 if self.attack_mode and mode is not None and mode.why == TERROR and DOOR_PRESS in why:
@@ -733,15 +746,77 @@ class MacroRunner:
         now = time.monotonic()
         self._dispatch(now, now, routine, autonomous=True)
 
-    def _loop_level_run(self, hunter: Hunter, rush: bool = True) -> None:
+    def _loop_level_run(self, hunter: Hunter, rush: bool = True, agenda: bool = False) -> None:
         """The loop's chests leg: the KP_1 level run, as the pickup key starts it (`request`), followed by attack mode;
         its end is the leg's (`_run_over`). `rush`: past what does not attack (the chests, the Catacombs' stairs); not
-        for Andariel's fight."""
+        for Andariel's fight. `agenda`: a terror zone kind's run, its targets the agenda's (macros/goals-plan.md)."""
         with self.lock:
             hunter.hand_over, hunter.run_over = self._hand_over, self._run_over
             hunter.carry_one = self._carry_one  # a refused unique Grand Charm: the Gheed's swap (macros/pickup.py)
-            hunter.post(Pursuit(PICKUP, time.monotonic(), advance=False, leash=FULL, rush=rush, looped=True))
+            if agenda:
+                hunter.agenda, hunter.agenda_policy = self.loop.agenda, self._agenda_policy
+            post = Pursuit(PICKUP, time.monotonic(), advance=False, leash=FULL, rush=rush, looped=True, agenda=agenda)
+            hunter.post(post)
             self.attack_mode, self.attack_declined = True, False
+
+    def _agenda_policy(self, area: int) -> str:
+        """How a terror zone kind's level run works level `area` (macros/tzroutine.py `policy_of`)."""
+        plan = self.loop.agenda.plan
+        trip = plan.excursion_of(area, self.loop.agenda.finished) if isinstance(plan, Itinerary) else None
+        return policy_of(area, trip, full_clear(self.loop))
+
+    def _tz_hands(self, run: Run, hunter: Hunter | None, key_names, labels, take_one) -> TzHands:
+        """The terror zone kinds' hands (macros/tzloop.py `TzHands`) for one leg of the loop."""
+
+        def level_run() -> None:
+            if hunter is None:
+                raise Abort('no level guide to hunt with')
+            labels()  # the item labels on before a level run (the player's hard rule)
+            self._loop_level_run(hunter, rush=False, agenda=True)
+
+        def door() -> None:
+            # The way on: at it, what lies there first, then the press through (a level run ends at a warp: going
+            # through takes a press, macros/pursuit.py `to_the_door`); else the level run to it, with the agenda
+            player = run.world().player
+            if player is not None and self.at_the_way_on(player):
+                if take_one():
+                    return
+                self._teleport_step(run, key_names)
+            else:
+                level_run()
+
+        def sighted(area: int | None) -> str | None:
+            found = [s for s in self.sightings.outstanding() if area is None or s.area == area]
+            return f'{found[0].label} at ({found[0].x:.0f}, {found[0].y:.0f})' if found else None
+
+        def terrorized(area: int) -> bool | None:
+            wanted = getattr(self.progress, 'wanted', None)
+            return wanted(area) if wanted is not None else None
+
+        def navigate() -> None:
+            if hunter is None:
+                return
+            world = run.world()
+            build = run.build or self.build
+            free = None
+            for moves in build.movement if build is not None else ():
+                for source in getattr(moves, 'sources', ()):
+                    skill = source.jump.skill
+                    if skill != TELEPORT_SKILL and skill in world.slots and free is None:
+                        free = skill_name(skill)
+            found = means(
+                Abilities(
+                    run.own_teleport() if run.own_teleport is not None else None,
+                    run.teleport() if run.teleport is not None else None,
+                    self.loop.teleports,
+                    free,
+                )
+            )
+            if hunter.looped is not found.intent:
+                LOG.info('Macro: navigation: %s (%s)', found.kind, found.why)
+            hunter.looped = found.intent
+
+        return TzHands(level_run, take_one, door, sighted, terrorized, navigate)
 
     def _end_run(self, why: str) -> None:
         """A level run of the pickup key ends with attack mode (macros/pursuit.py, the leash): the mode
@@ -847,7 +922,7 @@ class MacroRunner:
         elif count == 3:
             # The run's kind (macros/loop.py KINDS; the player, 2026-10-18: "rebuild loop start to accept what type of
             # run we're going to run"), for a start in the Fortress or the lobby: elsewhere the character's place says
-            kinds = list(KINDS.values())
+            kinds = list(loop_kinds().values())  # the terror zone kinds once promoted (macros/tzloop.py ENABLED)
             self.loop.kind = kinds[(kinds.index(self.loop.kind) + 1) % len(kinds)]
             self.loop.chosen = True  # by hand: no place overrides it
             self._say(f'Loop run: {self.loop.kind.name}')
@@ -873,8 +948,24 @@ class MacroRunner:
     def _loop_stopped(self, why: object) -> None:
         """A leg's stop: the loop leaves the game and goes on (macros/loop.py `recover`), or ends by itself, saying
         why. Under the lock or from the run's thread."""
+        if isinstance(why, Dead) or self._dead():
+            # Dead: the loop stops and presses nothing more, no recovery's Save and Exit (the player, 2026-10-19: "if
+            # we died - we MUST not take ANY other actions, no reviving, no save/exits, nothing at all")
+            self.attack_mode = False
+            self._stop_loop(why if isinstance(why, Dead) else Dead(f'the character is dead ({why})'))
+            return
         cause = classify(why)
         roomy = cause in ROOM_CAUSES
+        if self.loop.on and cause == 'beset':
+            # Hit standing outside a fight (macros/loop.py `beset`): the game is left at once, a valuable on the ground
+            # or not, no room rule nor a fetch first (the player, 2026-10-19: "we must not die or we lose exp and our
+            # gear"); the pause after recoveries is not stood in a battle level (loop.py `leg`)
+            if self.loop.recover(why, time.monotonic()):
+                LOG.info('Macro: loop: %s: the game is left at once and the loop goes on', why)
+                self._show([f'Loop: {why}: leaving the game'])
+            else:
+                self._stop_loop(why)
+            return
         if self.loop.on and cause == 'hand':
             # The player's hand (or a pointer read as moved): the leg is made again, the game not left (01:28:48 on
             # 2026-10-17, the loop left two games for "the mouse was moved"); REPEATS bounds it
@@ -910,6 +1001,15 @@ class MacroRunner:
         # Several trips a game (the player, 2026-10-18 16:50: "one game can do several trips to the town"), each after
         # one that made room, up to TRIPS_A_GAME (macros/loop.py `may_trip`)
         trip = self.loop.kind == ANDARIEL and self.loop.may_trip(game) and self.loop.carrying
+        tz = self.loop.kind.key in TZ_KINDS and self.loop.may_trip(game) and self.loop.carrying
+        if roomy and left is not None and game is not None and tz and self.area_seen is not None:
+            # A terror zone kind: the room package onto the agenda's stack (macros/tzloop.py `trip`; the player's
+            # example of 2026-10-19: portal, town routine, back through the portal, continue)
+            tz_trip(self.loop, game, self.area_seen)
+            LOG.info(
+                "Macro: loop: %s; %s lies on the ground: a trip to town for room (the agenda's package)", why, left
+            )
+            return
         if roomy and left is not None and game is not None and trip:
             # The cube took what it could: a trip to town for room, back through the portal for it (macros/loop.py
             # TRIP; the loop stood by a Flawless Topaz and an Amulet on Catacombs Level 4, 10:22:20 on 2026-10-18)
@@ -1093,6 +1193,8 @@ class MacroRunner:
             with self.lock:
                 why = None
                 cause: Cause | None = None
+                if self.attack_mode:
+                    self.loop.hurt.clear()  # a fight's losses are not a stand's (`beset`): counted from its end
                 warned = self.warning
                 if (
                     warned is not None
@@ -1117,8 +1219,19 @@ class MacroRunner:
                 if self.loop.waiting:
                     pass  # for the game window's focus: the player's time, not the loop's
                 elif self.loop.on and self.loop.overdue(game, now):
-                    why = f'over {GAME_SECONDS:.0f} s in {game or "the lobby"}'
-                elif self.loop.on and game is not None and self.loop.still(self.where, now):
+                    seconds = self.loop.kind.game_seconds or GAME_SECONDS
+                    why = f'over {seconds:.0f} s in {game or "the lobby"}'
+                elif (
+                    self.loop.on
+                    and not self.attack_mode
+                    and self.loop.beset(self.where, self.life_seen, now, game, area)
+                ):
+                    # Hit standing outside a fight (a leg's wait or spin, attack mode off): the game is left at once
+                    # (the player, 2026-10-19: "we stood still while under attack and almost died ... we must not die
+                    # or we lose exp and our gear"; rca/2026-10-19/near-death-findings.md)
+                    life = self.life_seen or (0, 0)
+                    why, cause = f'the character is hit standing outside a fight (life {life[0]}/{life[1]})', 'beset'
+                elif self.loop.on and game is not None and self.loop.still(self.where, now, game):
                     why, cause = f'the character has not moved for {STILL_SECONDS:.0f} s', 'stall'
                 if why is not None:
                     # The loop is stuck (macros/loop.py GAME_SECONDS, STILL_SECONDS): the run is cancelled, the next
@@ -1196,6 +1309,14 @@ class MacroRunner:
         # One seen this game and not read now (out of the client's reach, macros/sightings.py) lies there all the same
         return self.sightings.left()
 
+    def _dead(self) -> bool:
+        """Whether the character reads dead now (routines.py DEAD); False when the game is not read."""
+        try:
+            self._place()
+        except Exception:  # an unread game is no death
+            return False
+        return self.dead_mode in DEAD
+
     def _place(self) -> tuple[str | None, int | None]:
         self.source.ensure_connected()
         tables = {found['table_address'] for found in self.source.capture['unit_table_candidates']}
@@ -1204,7 +1325,7 @@ class MacroRunner:
         memory = GameMemory(self.source.pid, self.source.images['candidate_base'], next(iter(tables)))
         try:
             place = memory.place()
-            self.where = memory.where
+            self.where, self.dead_mode, self.life_seen = memory.where, memory.mode, memory.life
             return place
         finally:
             memory.close()
@@ -1255,8 +1376,8 @@ class MacroRunner:
         with self.lock:
             if state.get('pickup_mode') in MODES:
                 self.pickup_mode = state['pickup_mode']
-            if state.get('loop_kind') in KINDS:
-                self.loop.kind = KINDS[state['loop_kind']]
+            if state.get('loop_kind') in loop_kinds():
+                self.loop.kind = loop_kinds()[state['loop_kind']]
                 self.loop.chosen = True  # the service's before: kept
             if isinstance(state.get('sightings'), dict):
                 self.sightings.restore(state['sightings'])
@@ -1605,6 +1726,7 @@ class MacroRunner:
                 run.stash_view = memory.stash_view
                 self.item_stats = memory.item_stats
                 run.players_item = lambda item: self.loop.players_item(item, memory.item_stats(item.unit_id))
+                run.kept_item = lambda item: amulet_keeper(item, memory.item_stats(item.unit_id))
                 run.objects = memory.objects
                 run.corpses = memory.corpses
                 run.flights = memory.flights
@@ -2076,6 +2198,16 @@ class MacroRunner:
                             parked.clear()
                         if not done:
                             break
+                if made:
+                    # A kept gem still carried after the transmutes (a fourth of a kind: at 07:26 on 2026-10-19 it
+                    # stayed in the block, "short of the contract: block 2x4 taken") goes into the emptied cube, where
+                    # it waits for its next three; the stash stop leaves a full stack's gem there
+                    try:
+                        stash_only(run, key, self.loop.own or frozenset(), lambda item: kept_gem(item, full))
+                    except Abort as stop:
+                        if run.stops(stop):
+                            raise
+                        LOG.info('Macro: cube: the kept gems not put in: %s', stop)
                 return made, left
 
             def town_visit(exit: Exit) -> Contract:
@@ -2153,6 +2285,7 @@ class MacroRunner:
                 item_stats=self.item_stats,
                 shown=self.stash_memory,
                 left=self.valuable_left,
+                tz=self._tz_hands(run, hunter, key_names, labels, take_one) if self.loop.kind.key in TZ_KINDS else None,
             )
         elif routine in (HUNT_ELITES, ATTACK):
             if self.hunter is None:

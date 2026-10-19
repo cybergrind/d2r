@@ -99,7 +99,10 @@ class Watch:
         self.aims: dict[str, set[tuple[int, int]]] = {}
         self.clicks: list[tuple[tuple[int, int], int]] = []  # games.py `clicked`: the press's clicks, by line number
         self.number = 0
+        # The full stacks: the file as it is at each game's end (a stash visit or an agent may change it while the watch
+        # runs: 02:10 on 2026-10-19) and those the log said full since
         self.full = games.full_stacks()
+        self.said_full: set[str] = set()
         # The cycles (RATE): the one under way (its game and start), whether a pause or a restart cut it, the last 60
         self.cycle: tuple[int, datetime] | None = None
         self.cut = False
@@ -135,6 +138,7 @@ class Watch:
     def ground(self, whole: bool) -> None:
         """Say the game's items the sure mode takes and no pickup took (`whole`: the game ended by the next one; a
         pause or a stop leaves them to the player, said as such)."""
+        self.full = games.full_stacks() | self.said_full
         seen = list(self.items.values())
         games.clicked(seen, self.clicks)
         games.reconcile(seen, self.picks, self.aims)
@@ -154,6 +158,7 @@ class Watch:
         self.number += 1
         if (m := FULL.search(line)) is not None:
             self.full.add(m.group(1))
+            self.said_full.add(m.group(1))
         elif (m := PICKED.search(line)) is not None:
             self.picks.append(m.group(1))
         elif (m := AIMED.search(line)) is not None:

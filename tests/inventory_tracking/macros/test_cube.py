@@ -375,3 +375,22 @@ def test_the_keys_move_out_of_the_only_two_by_four_block_before_a_larger_square(
     assert (key.x, key.y) == (3, 0)
     without = Pack(tuple(i for i in items if i is not key))
     assert room_for(taken(inventory_rows(without), cell, (1, 1)), BIG_BLOCK)
+
+
+def test_only_the_wanted_loop_items_go_into_the_cube():
+    """A fourth kept Flawless Ruby left carried after a transmute (07:26 on 2026-10-19: the block taken) goes into the
+    cube alone; the loop's other items stay where they are; with none wanted nothing is opened."""
+    from inventory_tracking.macros.cube import stash_only
+
+    gem = rubies((4, 2))[0]
+    play = fortress(Pack((GRAND, THE_CUBE, TOME, KEY, CHARM, gem), EMPTY_CUBE))
+
+    assert stash_only(play.run(), 'i', OWN, lambda item: item.txt == FLAWLESS_RUBY) == 1
+
+    assert play.pack is not None
+    assert play.pack.cube_items == {gem.unit_id}
+    assert CHARM in play.pack.items
+    assert play.world.open_panels == ()
+    idle = fortress(Pack((GRAND, THE_CUBE, TOME, KEY, CHARM), EMPTY_CUBE))
+    assert stash_only(idle.run(), 'i', OWN, lambda item: item.txt == FLAWLESS_RUBY) == 0
+    assert idle.pressed() == []

@@ -71,6 +71,7 @@ also uses tiles; screen input uses pixels. Check the boundary's conversion
 | Potion judgement / delivery | [combat/survival.py](../combat/survival.py) / [drinking.py](drinking.py); settings via `BuildSettings.drink` |
 | Character weapon choices / build registration | [characters.py](../builds/characters.py) / [builds/__init__.py](../builds/__init__.py) |
 | Level stages and progress | [route.py](route.py), [levels/routes.md](../levels/routes.md) |
+| The goal queue and the terror zone kinds (TZ leveling, Full clear TZ; off: `tzloop.ENABLED`) | [goals-plan.md](goals-plan.md): [agenda.py](agenda.py), [tzroutine.py](tzroutine.py), [navigation.py](navigation.py), [tzloop.py](tzloop.py) |
 | Controller mode: the pad back end, the mode policy | [pad.py](pad.py), `runner.py` `play_by` (a flip under a run ends it, `Flipped`, and the runner makes the same request again in the new mode: `again`); [rca/2026-10-13/controller-mode.md](../../rca/2026-10-13/controller-mode.md) §10 |
 
 Keep class/skill-specific logic under `builds/`. Builds import framework contracts;

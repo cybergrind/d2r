@@ -145,15 +145,20 @@ def crowded(pack: Pack, own: frozenset[tuple[int, int, int]] = frozenset()) -> b
 # all the carried gold typed in (the player, 2026-10-17)
 GOLD_BUTTON = (429 + 27, 1347 + 24)
 GOLD_STAT = 14
+BANK_STAT = 15  # itemstatcost.txt `goldbank`: logged with a refused deposit (which tab's gold it is: unverified)
+# The gold goes to the tab shown: at 07:38 on 2026-10-19 the Shared/Gems tab was, its gold at 12500000, and it refused
+# 181494 twice a visit, ~3 s each (deposit-failed-073808.png, 075352.png); the deposit shows the Personal tab first.
+# One refused all the same ends the deposits until the service restarts (REFUSED)
+REFUSED: list[int] = []  # the carried gold when a deposit was refused
 DIALOG_WAIT = 0.3  # for the gold dialog to show (no flag tells it)
 DEPOSIT_SECONDS = 1.5  # for the carried gold to fall after Enter
 DIGITS_HELD = 8  # erased first: the prefilled amount (at most 7 digits)
 DEPOSIT_LEAST = 50_000  # a deposit smaller is not worth its seconds
 
 
-def _carried_gold(run: Run) -> int | None:
+def _carried_gold(run: Run, stat: int = GOLD_STAT) -> int | None:
     loot = run.loot() if run.loot is not None else None
-    return dict(loot.stats).get(GOLD_STAT) if loot is not None and loot.stats else None
+    return dict(loot.stats).get(stat) if loot is not None and loot.stats else None
 
 
 def deposit(run: Run, rect, down_to: int) -> int:
@@ -167,7 +172,10 @@ def deposit(run: Run, rect, down_to: int) -> int:
     coins = _carried_gold(run)
     if coins is None or coins - down_to < DEPOSIT_LEAST or 'stash' not in world.open_panels:
         return 0
+    if REFUSED:
+        return 0
     amount = coins - down_to
+    _tab(run, rect, PERSONAL_TAB)
     (anchor_x, anchor_y), (panel_x, panel_y), _ = INVENTORY
     scale = rect[3] / REFERENCE_HEIGHT
     at = (
@@ -189,7 +197,9 @@ def deposit(run: Run, rect, down_to: int) -> int:
         run.actuator.tap(digit)
     run.actuator.tap('Return')
     if run.seen(lambda _w: (_carried_gold(run) or coins) <= coins - amount + 1, DEPOSIT_SECONDS) is None:
-        LOG.info('Macro: stash: %d gold to deposit, the carried gold still %s', amount, _carried_gold(run))
+        LOG.info('Macro: stash: %d gold to deposit, the carried gold still %s (stat 15: %s): no deposit again until '
+                 'a restart', amount, _carried_gold(run), _carried_gold(run, BANK_STAT))  # fmt: skip
+        REFUSED.append(coins)
         _picture('deposit-failed')
         run.actuator.tap('Escape')  # the dialog, or the chat a Return opened with none: closed
         run.pause('key')

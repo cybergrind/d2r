@@ -47,7 +47,11 @@ def loop_on(lines: list[str]) -> bool:
 def main() -> int:
     parser = argparse.ArgumentParser(description=(__doc__ or '').splitlines()[0])
     parser.add_argument('--loop', choices=('on', 'off', 'keep'), default='keep')
-    parser.add_argument('--kind', choices=('lk', 'andariel'), help="the loop's run (macros/loop.py KINDS)")
+    parser.add_argument(
+        '--kind',
+        choices=('lk', 'andariel', 'tz', 'tzclear'),
+        help="the loop's run (macros/loop.py `loop_kinds`: tz and tzclear only once macros/tzloop.py ENABLED)",
+    )
     parser.add_argument('--wait', type=float, default=300.0, help='seconds to wait for a safe moment')
     args = parser.parse_args()
     log = newest()

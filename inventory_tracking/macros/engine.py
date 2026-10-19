@@ -103,6 +103,9 @@ class Run:
         # Whether a carried item is one of the player's by its stats (macros/volatile.py, loop.py `players_item`):
         # never sold nor dropped, wherever it lies; None: no such check (tests, no loop store)
         self.players_item: Callable[[Carried], bool] | None = None
+        # Why a carried item is kept whatever the appraisal says, by its own stats (macros/keepers.py: a rare amulet
+        # with life, FCR or +2 skills), None when nothing keeps it; never sold; None: no such check (tests)
+        self.kept_item: Callable[[Carried], str | None] | None = None
         self.stock: Callable[[int], tuple[Stocked, ...]] | None = None  # a vendor's stock (GameMemory.stock)
         # the stash's pages and resource stacks, None unread (world.GameMemory.stash_view, macros/town-plan.md step 0)
         self.stash_view: Callable[[], StashView | None] | None = None

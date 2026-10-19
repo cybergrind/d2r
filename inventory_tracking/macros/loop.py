@@ -24,11 +24,12 @@ from collections import Counter
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field, replace
 from pathlib import Path
-from typing import NamedTuple
+from typing import TYPE_CHECKING, NamedTuple
 
 from inventory_tracking.common import LOG
 from inventory_tracking.levels.presets import display_name
 from inventory_tracking.macros.actuator import Abort, Hand
+from inventory_tracking.macros.agenda import Agenda
 from inventory_tracking.macros.charms import (
     GHEEDS_FORTUNE,
     Parked,
@@ -56,7 +57,7 @@ from inventory_tracking.macros.junk import MAGIC
 from inventory_tracking.macros.pickup import SHUNNED
 from inventory_tracking.macros.portal import FROM_TOME, PortalSource, portal_source, slot_note, through_portal, to_town
 from inventory_tracking.macros.repair import RETRY_GAMES, due, gold, wants, worn_out, worn_text
-from inventory_tracking.macros.routines import DEAD, character_keys, create_next_game, leave_game, prebuff
+from inventory_tracking.macros.routines import DEAD, Dead, character_keys, create_next_game, leave_game, prebuff
 from inventory_tracking.macros.shop import KEYS_ONE_STACK, KEYS_WANTED, gold_cap, short
 from inventory_tracking.macros.stash import INVENTORY_CELLS, RESOURCES
 from inventory_tracking.macros.town import GEMS_A_KIND, TRADE_ROOM, Exit, sold_full, surplus, tops_up
@@ -71,10 +72,14 @@ from inventory_tracking.macros.volatile import (
     print_of,
 )
 from inventory_tracking.macros.waypoint import travel
-from inventory_tracking.macros.world import Carried, Pack, World
+from inventory_tracking.macros.world import TOWN_IDS, Carried, Pack, World
 from inventory_tracking.routes.model import FIGHT, LOOT, USE
 from inventory_tracking.routes.progress import Progress
 from inventory_tracking.terror.bosses import KILLED_AT
+
+
+if TYPE_CHECKING:
+    from inventory_tracking.macros.tzloop import TzHands
 
 
 __all__ = [
@@ -109,15 +114,48 @@ class Kind:
     levels: frozenset[int]
     home: int
     keys: int = KEYS_ONE_STACK
+    # The measure the kind is tuned by (the player, 2026-10-19 ~02:12: "every loop has it's own metric, that it must
+    # optimize: boss kills/elites kill/opened chest. the only thing that has more priority - proper interactions with
+    # drops"), named for the log and the watch tools
+    metric: str = ''
+    # Seconds a game of the kind may last before the watchdog leaves it (`overdue`); None: GAME_SECONDS
+    game_seconds: float | None = None
 
 
-LK = Kind('lk', 'Lower Kurast', LOWER_KURAST, frozenset((LOWER_KURAST,)), KURAST_DOCKS, KEYS_WANTED)
+LK = Kind(
+    'lk', 'Lower Kurast', LOWER_KURAST, frozenset((LOWER_KURAST,)), KURAST_DOCKS, KEYS_WANTED, 'chests opened an hour'
+)
 # Andariel (routes/andariel-loop-plan.md): the waypoint to Catacombs Level 2, its stairs and Level 3's down, her fight
 # on Level 4, the loot, Save and Exit there: the next game starts in the Rogue Encampment, a waypoint from Level 2
 ANDARIEL = Kind(
-    'andariel', 'Andariel', CATACOMBS_2, frozenset((CATACOMBS_2, CATACOMBS_3, CATACOMBS_4)), ROGUE_ENCAMPMENT
+    'andariel',
+    'Andariel',
+    CATACOMBS_2,
+    frozenset((CATACOMBS_2, CATACOMBS_3, CATACOMBS_4)),
+    ROGUE_ENCAMPMENT,
+    metric='Andariel kills an hour',
 )
 KINDS = {kind.key: kind for kind in (LK, ANDARIEL)}
+# The terror zone kinds (macros/goals-plan.md; the player, 2026-10-19 ~02:12: "we're going to have separate mods: -
+# full clear tz : for herald hunting - tz leveling: clear only elites/champs"): any zone, its goals from the agenda
+# (macros/tzloop.py), never chosen by where the character stands (`kind_of`), offered only with macros/tzloop.py
+# ENABLED (`loop_kinds`). A zone's game lasts minutes, not the Andariel run's one (open question 5 of goals-plan.md)
+FIELD = frozenset(range(137)) - {ROGUE_ENCAMPMENT, 40, KURAST_DOCKS, PANDEMONIUM_FORTRESS, 109}
+TZ_GAME_SECONDS = 1200.0
+TZ = Kind(
+    'tz', 'TZ leveling', 0, FIELD, PANDEMONIUM_FORTRESS, metric='elite kills an hour', game_seconds=TZ_GAME_SECONDS
+)
+# The Herald hunt's measure is not ruled yet (goals-plan.md open question 8): Heralds and elites an hour, both reported
+TZ_CLEAR = replace(TZ, key='tzclear', name='Full clear TZ', metric='Herald and elite kills an hour')
+TZ_KINDS = frozenset((TZ.key, TZ_CLEAR.key))
+
+
+def loop_kinds() -> dict[str, Kind]:
+    """The kinds the player may choose (KP_6 three times, restart.py --kind): the terror zone kinds only once they are
+    promoted (macros/tzloop.py ENABLED)."""
+    from inventory_tracking.macros import tzloop  # late: tzloop imports this module
+
+    return {**KINDS, **({TZ.key: TZ, TZ_CLEAR.key: TZ_CLEAR} if tzloop.ENABLED else {})}
 
 
 def kind_of(area: int | None) -> Kind | None:
@@ -177,6 +215,12 @@ REPEATS |= {
 }
 # A game's visits: the start's, each trip's, and one cut by the player's hand (REPEAT 2 stopped the loop on the third)
 REPEATS |= {TOWN: 1 + TRIPS_A_GAME + 1}
+# The terror zone kinds' legs (macros/tzloop.py, the agenda's goals by kind); a zone's game has up to ~8 excursions
+# (the Kurast temples) of up to 7 levels: each bound is a game's worth, the agenda's own TRIES bound each goal
+TZ_WAYPOINT, TZ_LEVEL, TZ_LOOT, TZ_PICKUP = 'TZ waypoint', 'TZ level', 'TZ loot', 'TZ pickup'
+TZ_NEXT_LEVEL, TZ_PORTAL, TZ_BACK = 'TZ next level', 'TZ Town Portal', 'TZ back through the portal'
+REPEATS |= {TZ_WAYPOINT: 12 + 2 * TRIPS_A_GAME, TZ_LEVEL: 40, TZ_LOOT: 20, TZ_PICKUP: 20, TZ_NEXT_LEVEL: 30}
+REPEATS |= {TZ_PORTAL: 10 + TRIPS_A_GAME, TZ_BACK: 1 + TRIPS_A_GAME}
 # Andariel's drops land through her death animation (mode 0, 1.55 s in the takes of 11:39-11:48 on 2026-10-18), the
 # last 1.7 s after the kill was said; her fight's level run ends 0.4 s or more after it. Four games of 19 left 0.5-0.8 s
 # after the kill (11:41:52, 11:51:39, 11:52:14): her level is not left with nothing to pick up before this long after
@@ -207,10 +251,13 @@ STILL_UNITS = 2.0
 RECOVERIES = 3
 RECOVERY_SECONDS = 600.0
 RECOVERY_PAUSE = 30.0  # past RECOVERIES: a failing leg is not tried again at once, nor the loop stopped (`recover`)
-
-
-class Dead(Abort):
-    """The character is dead: the loop stops for the player."""
+# The character standing in a battle level outside a fight (attack mode off: a leg's own wait or spin) and losing
+# BESET_LOSS of its life within BESET_SECONDS is beset (`beset`): the game is left at once. 09:36:41-09:37:11 on
+# 2026-10-19 the recovery's pause stood 30 s at the Frozen River door among three hostiles, life 3119 -> 2334, until
+# the player struck them (the player: "we stood still while under attack and almost died, only user intervented and
+# helped to kill attackers ... we must not die or we lose exp and our gear"); a hit there was 130-260 life (4-8 %)
+BESET_SECONDS = 4.0
+BESET_LOSS = 0.05
 
 
 class GameId(NamedTuple):
@@ -249,8 +296,9 @@ class Loop:
     mine: frozenset[tuple[int, int, int]] = frozenset()
     store: Path | None = None
     # The player's protected inventory cells (macros/volatile.py) are kept per character in STORE_FILE beside `store`;
-    # `own` is told from them at every leg; `printed`: the `own` whose items' stats were last learnt
-    printed: frozenset[tuple[int, int, int]] | None = None
+    # `own` is told from them at every leg; `printed`: the unit ids of the player's items whose stats were last learnt
+    # (ids, not class and cell: the Gheed's swap at 06:02 on 2026-10-19 put a new charm of its class in its cell)
+    printed: frozenset[int] | None = None
     character: str | None = None
     # The keys or the Town Portal charges under shop.py MIN_STOCK at the last leg's look: Jamella first (phase 8)
     short: bool = False
@@ -263,6 +311,8 @@ class Loop:
     cooling: float = 0.0  # time.monotonic() before which no leg is made (`recover`, RECOVERY_PAUSE)
     fought: tuple[str, float] | None = None  # (the game, the run's clock) at her level's first loot leg (`DROPS_LAND`)
     recovered: list[float] = field(default_factory=list)
+    # The character's looks in a stand outside a fight (`beset`): (when, where, life, the game)
+    hurt: list[tuple[float, tuple[float, float], int, str]] = field(default_factory=list)
     # The game (None: the lobby) the loop was last seen in, and since when (`overdue`)
     seen: tuple[str | None, float] | None = None
     # The level card's marks by label, in tiles (levels/guide.py `marks`): the town's waypoint out of sight
@@ -305,6 +355,7 @@ class Loop:
     visited: str | None = None
     waiting: bool = False  # for the game window's focus (runner.py): the watchdogs pause
     moved: tuple[tuple[float, float], float] | None = None  # where the character last moved to, and when (`still`)
+    moved_in: str | None = None  # the game `moved` was read in (`still`: a new game counts afresh)
     counted_in: str | None = None  # where `made` counts (`count`)
     # A valuable on the level with no room for it, the cube tried (runner.py `_loop_stopped`): a trip to town for
     # room (`trip`, its game; `trips` made in it, up to TRIPS_A_GAME: `may_trip`); the Fortress reached on it
@@ -335,6 +386,9 @@ class Loop:
     # The runner's (runner.py `_forget_given_up`): the level run's give-up memory cleared once the player's Gheed's
     # Fortune is on a shared page (`GHEED_STASH`), as the pickup step's `SHUNNED` is: the refused charm is tried again
     forget: Callable[[], None] | None = None
+    # The terror zone kinds' goals (macros/agenda.py, macros/goals-plan.md): the game's queue, its package stack, the
+    # leaders seen; a new game starts them afresh (`Agenda.begin`). The Lower Kurast and Andariel kinds read none of it
+    agenda: Agenda = field(default_factory=Agenda)
 
     def start(self) -> None:
         self.full |= self._full_stored()
@@ -363,18 +417,48 @@ class Loop:
         if self.seen is None or self.seen[0] != game:
             self.seen = (game, now)
             return False
-        allowed = GAME_SECONDS + TRIP_SECONDS * self.trips_in(game)
+        allowed = (self.kind.game_seconds or GAME_SECONDS) + TRIP_SECONDS * self.trips_in(game)
         return now - self.seen[1] > allowed and not self.abandon
 
-    def still(self, where: tuple[float, float] | None, now: float) -> bool:
-        """Whether the character, at `where` now, has stood within STILL_UNITS for over STILL_SECONDS."""
+    def still(self, where: tuple[float, float] | None, now: float, game: str | None = None) -> bool:
+        """Whether the character, at `where` now, has stood within STILL_UNITS for over STILL_SECONDS in `game`. A new
+        game counts afresh: every game begins by the Fortress's waypoint, the same place, and the stand of the game
+        before (a recovery's RECOVERY_PAUSE in it) counted on into the next, which was left 5 s in, then again
+        (09:22:44-09:23:50 on 2026-10-19: 5 recoveries in a row). `now` is time.monotonic()."""
         if where is None:
             return False
-        if self.moved is None or math.dist(where, self.moved[0]) > STILL_UNITS:
-            self.moved = (where, now)
+        cooling = now < self.cooling  # the pause after recoveries (`recover`) is the loop's own wait, no stand
+        if self.moved is None or cooling or math.dist(where, self.moved[0]) > STILL_UNITS or game != self.moved_in:
+            self.moved, self.moved_in = (where, now), game
             return False
         if now - self.moved[1] > STILL_SECONDS and not self.abandon:
             self.moved = (where, now)  # once: the next stand counts afresh
+            return True
+        return False
+
+    def beset(
+        self,
+        where: tuple[float, float] | None,
+        life: tuple[int, int] | None,
+        now: float,
+        game: str | None,
+        area: int | None,
+    ) -> bool:
+        """Whether the character, at `where` in level `area` of `game` with `life` (points, maximum) now, has stood
+        (within STILL_UNITS) losing BESET_LOSS of its maximum life within BESET_SECONDS: hit with no fight. The caller
+        asks it only outside a fight (runner.py `poll`: attack mode off). Said once, then counted afresh; not while the
+        game is being left already (`abandon`), nor in a town or the lobby. `now` is time.monotonic()."""
+        if where is None or life is None or game is None or area is None or area in TOWN_IDS or life[1] <= 0:
+            self.hurt.clear()
+            return False
+        self.hurt = [
+            look
+            for look in self.hurt
+            if now - look[0] <= BESET_SECONDS and look[3] == game and math.dist(look[1], where) <= STILL_UNITS
+        ]
+        self.hurt.append((now, where, life[0], game))
+        if max(look[2] for look in self.hurt) - life[0] >= BESET_LOSS * life[1] and not self.abandon:
+            self.hurt.clear()
             return True
         return False
 
@@ -434,15 +518,16 @@ class Loop:
         if first:
             LOG.info("Macro: loop: volatile cells %s ('#' the player's); %d of the player's items; protected cells "
                      'empty: %s', picture(cells), len(self.own), sorted(empty(pack, cells)) or 'none')  # fmt: skip
-        if item_stats is None or self.own == self.printed:
+        theirs = [i for i in pack.items if (i.txt, i.x, i.y) in self.own and i.txt not in KEPT]
+        units = frozenset(i.unit_id for i in theirs)
+        if item_stats is None or units == self.printed:
             return
-        self.printed = self.own
+        self.printed = units
         found = []
-        for item in pack.items:
-            if (item.txt, item.x, item.y) in self.own and item.txt not in KEPT:
-                stats = item_stats(item.unit_id)
-                if stats:
-                    found.append(print_of(item, stats))
+        for item in theirs:
+            stats = item_stats(item.unit_id)
+            if stats:
+                found.append(print_of(item, stats))
         if new := self.volatile.learn(name, found):
             LOG.info("Macro: volatile cells: %d more of the player's items known by their stats", new)
 
@@ -581,6 +666,55 @@ class Loop:
             del self.made[where, leg]
             raise Abort(f'{leg} again and again in {where}: nothing came of it')
 
+    def next_game(self, run: Run, world: World, key_names) -> None:
+        """The NEXT_GAME leg: the next game made from the lobby, prebuffed in its town."""
+        self.trip_due = self.swap_due = self.fresh = False
+        self.gheed = None  # a player's Gheed's Fortune still parked is fetched from the next game's town
+        trace = create_next_game(run, world.game_name)
+        run.keys = character_keys(run, key_names)
+        now = run.world()
+        try:
+            # In town: Consume's speed is the town's walks' too (the player, 10:58 on 2026-10-18: "consume buff
+            # grants +run/walk speed and make things faster in town, so, probably we should keep it up in town
+            # too"); the battleground's own (Battle Orders at the arrival's swap, the Defiler) are cast there
+            prebuff(run, fresh=trace)
+            self.prebuffed = now.game_name
+        except Hand:
+            raise
+        except Abort as stop:
+            if now.player is None or now.player.area != ROGUE_ENCAMPMENT:
+                raise
+            # Kashya, Warriv and Cain stand where a game starts there, and Consume cannot take them (routines.py
+            # TOWN_NPCS; three tries and the game left, 10:20:17 on 2026-10-18): cast again on Catacombs Level 2
+            # (`DOWN`), the game not left for it
+            LOG.info('Macro: loop: the prebuff in the Rogue Encampment failed (%s): again on Catacombs 2', stop)
+
+    def town(self, run: Run, visit: Callable[[Exit], object] | None, game: str, exit: Exit) -> None:
+        """The TOWN leg: the town visit, ending by `exit`."""
+        # One town visit (macros/visit.py `visit`; the player, 2026-10-18 12:55: "identify everything with cain;
+        # move to the shared stash; put all items that we need to keep in stash ... visit store and sell junk items
+        # from inventory and cube; refill the consumables; if we need to repair things - repair things; go to
+        # waypoint"): begun (`visiting`), a cut one made again from what is left; done once a game (`visited`)
+        if visit is None:
+            raise Abort('no town visit to make')
+        self.visiting = game
+        contract = visit(exit)
+        self.visited = game
+        self.repair = False
+        # A keeper no stash page takes (town.py `Contract.stash_full`): the loop stops (the player, 2026-10-18
+        # 16:50: "if stash is full - we need to stop loop"), here in town after the visit's own end, nothing of the
+        # level's left behind by a game left; not a recovery (runner.py `_loop_stopped`, cause 'stash')
+        full = tuple(getattr(contract, 'stash_full', None) or ())
+        if full:
+            raise Abort(f'the stash is full: {", ".join(full)}', cause='stash')
+
+    def leave(self, run: Run, game: str) -> None:
+        """The LEAVE leg: Save and Exit, the game done and counted."""
+        self.done = game  # Andariel's games are left from her level: done there
+        leave_game(run)
+        self.abandon = False
+        self.games += 1
+
     def leg(
         self,
         run: Run,
@@ -596,6 +730,7 @@ class Loop:
         item_stats: Stats | None = None,
         shown: Remembered | None = None,
         left: Callable[[], str | None] | None = None,
+        tz: TzHands | None = None,
     ) -> str:
         """Make the next leg (`next_leg`); the leg made. `level_run()` asks the runner for the KP_1 level run,
         which follows this leg; `pick_up()` takes one drop, False with nothing worth it on the ground; `visit(exit)`
@@ -605,10 +740,21 @@ class Loop:
         or the press through them; `fight()` her level run, fighting; `item_stats(unit)` an item's stats
         (world.GameMemory.item_stats: a Gheed's Fortune's Magic Find), `shown` the shared page the stash showed last
         (macros/visit.py `Remembered`), `left()` a valuable seen and still on the ground (runner.py
-        `_valuable_left`)."""
-        if (cooling := self.cooling - time.monotonic()) > 0:
-            run.pace.sleep(cooling)  # recoveries one after another: a pause, not a stop (`recover`)
+        `_valuable_left`); `tz` the terror zone kinds' hands (macros/tzloop.py `TzHands`)."""
         world = run.world()
+        if (cooling := self.cooling - time.monotonic()) > 0:
+            # Recoveries one after another: a pause, not a stop (`recover`), and only where nothing attacks: the lobby
+            # or a town. In a battle level the game is left first (the recovery's leg) and the rest of the pause waited
+            # in the lobby: the pause stood 30 s in the Crystalline Passage among three hostiles, 09:36:41-09:37:11 on
+            # 2026-10-19, life 3119 -> 2334 until the player struck them ("we stood still while under attack and
+            # almost died")
+            if not world.in_game or (world.player is not None and world.player.in_town):
+                run.pace.sleep(cooling)
+                world = run.world()
+            else:
+                area = world.player.area if world.player is not None else 'an unread level'
+                LOG.info('Macro: loop: the pause after recoveries (%.0f s) is not stood in level %s: the game is left '
+                         'first', cooling, area)  # fmt: skip
         if world.in_game and world.player is None:
             # A game still loading: its character not read yet. Waited for, not a leg's stop: three recoveries in 20 ms
             # from it stopped the loop (12:45:41 on 2026-10-17, "not in a game")
@@ -703,50 +849,29 @@ class Loop:
         self.wear = worn_text(wear)
         coins = gold(run) if (staff is not None and (wants(staff) or topped)) or worn_out(wear) else None
         self.repair = due(staff, wear, coins, top_up=topped, waited=self.repair_waited())
-        leg = next_leg(world, progress, self)
+        goal = None
+        if self.kind.key in TZ_KINDS:
+            from inventory_tracking.macros import tzloop  # late: tzloop imports this module
+
+            # The terror zone kinds' legs are the agenda's goals (macros/goals-plan.md), performed by tzloop
+            goal = tzloop.choose(world, progress, self, tz)
+            leg = tzloop.leg_of(goal)
+        else:
+            leg = next_leg(world, progress, self)
         game = world.game_name if world.in_game else ''
         self.count(world, leg)
         run.say(f'Loop: game {self.games + 1}, {leg}')
         if leg != NEXT_GAME:
             run.keys = character_keys(run, key_names)  # Swap Weapons among them: the arrival's check (`arrived`)
+        if goal is not None:
+            from inventory_tracking.macros import tzloop
+
+            tzloop.perform(self, run, key_names, progress, goal, tz, visit)
+            return leg
         if leg == NEXT_GAME:
-            self.trip_due = self.swap_due = self.fresh = False
-            self.gheed = None  # a player's Gheed's Fortune still parked is fetched from the next game's town
-            trace = create_next_game(run, world.game_name)
-            run.keys = character_keys(run, key_names)
-            now = run.world()
-            try:
-                # In town: Consume's speed is the town's walks' too (the player, 10:58 on 2026-10-18: "consume buff
-                # grants +run/walk speed and make things faster in town, so, probably we should keep it up in town
-                # too"); the battleground's own (Battle Orders at the arrival's swap, the Defiler) are cast there
-                prebuff(run, fresh=trace)
-                self.prebuffed = now.game_name
-            except Hand:
-                raise
-            except Abort as stop:
-                if now.player is None or now.player.area != ROGUE_ENCAMPMENT:
-                    raise
-                # Kashya, Warriv and Cain stand where a game starts there, and Consume cannot take them (routines.py
-                # TOWN_NPCS; three tries and the game left, 10:20:17 on 2026-10-18): cast again on Catacombs Level 2
-                # (`DOWN`), the game not left for it
-                LOG.info('Macro: loop: the prebuff in the Rogue Encampment failed (%s): again on Catacombs 2', stop)
+            self.next_game(run, world, key_names)
         elif leg == TOWN:
-            # One town visit (macros/visit.py `visit`; the player, 2026-10-18 12:55: "identify everything with cain;
-            # move to the shared stash; put all items that we need to keep in stash ... visit store and sell junk items
-            # from inventory and cube; refill the consumables; if we need to repair things - repair things; go to
-            # waypoint"): begun (`visiting`), a cut one made again from what is left; done once a game (`visited`)
-            if visit is None:
-                raise Abort('no town visit to make')
-            self.visiting = game
-            contract = visit(self.exit_of(game))
-            self.visited = game
-            self.repair = False
-            # A keeper no stash page takes (town.py `Contract.stash_full`): the loop stops (the player, 2026-10-18
-            # 16:50: "if stash is full - we need to stop loop"), here in town after the visit's own end, nothing of the
-            # level's left behind by a game left; not a recovery (runner.py `_loop_stopped`, cause 'stash')
-            full = tuple(getattr(contract, 'stash_full', None) or ())
-            if full:
-                raise Abort(f'the stash is full: {", ".join(full)}', cause='stash')
+            self.town(run, visit, game, self.exit_of(game))
         if leg in (TO_THE_CHESTS, TO_THE_CATACOMBS):
             # The carried gold once a game: the repairs' and the sales' (the player, 2026-10-17: "just use gold in the
             # inventory")
@@ -924,10 +1049,7 @@ class Loop:
             # (Andariel's: from the Rogue Encampment to the Fortress's trade session, her level still ahead)
             travel(run, PANDEMONIUM_FORTRESS, self.marks)
         elif leg == LEAVE:
-            self.done = game  # Andariel's games are left from her level: done there
-            leave_game(run)
-            self.abandon = False
-            self.games += 1
+            self.leave(run, game)
         return leg
 
 

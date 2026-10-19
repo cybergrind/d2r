@@ -1638,3 +1638,216 @@ Chipped Topaz now keep it moving).
 - Playerresumed02:03:41; rootdidnotsendtoggle. Game23completed24s active, game24completed36s,
   Andydead02:04:37 andgame25started02:04:41.02:04:17 minutecheck confirms freshactiveprogress.
   Pace returns afterTZrotationwithoutrootcodechange. Monitor97053confirmedlive.
+
+### 2026-10-19 01:39–02:10 — watch, Deep shards, stash view (Claude)
+
+- 01:39 restart (`20261018T223906Z-91ca0ee6`): the 01:19:56 service had loaded a half-edited tree (Codex's runner
+  stop on any contract miss). Volatile cells live at the first look (19 player items, 16 prints). Sales 01:38–02:01
+  all `vendor` among loop items (surplus Dwarf Star, Vidala's Snare, Stormguild; loop charms in volatile cells).
+  Room-making works again (cube 4–8 items mid-run; Unique Cryptic Axe kept, stashed as `sell`). The unread-stash
+  retry freed the stuck Embossed Plate at 01:52.
+- 01:45–02:00 Catacombs was the terror zone: full clear after Andariel (`runmode.mode_of`), loot-after-kill median
+  26.7 s vs 2.4 s, 56 kills/h; asked the player whether the Andariel loop should skip the TZ full clear (no answer
+  yet). From 02:00 games 24–37 s again.
+- Player: "we have left deepworld worldstone shard and left the game". 01:59:14 game 19: the shard was never in the
+  pickup's drops: class 677 was in FULL_FILE since 22:14 on 2026-10-18, when the unread scan took two refused puts for
+  a full stack (it held 83: collection DB and the player) and dropped that shard in town. Cause of the unread stash
+  since 20:18: the player emptied shared page 5; an empty page has no grid allocated and `stash_view_of` read it as no
+  view (collection: page 5 has 0 items). Fixes: an absent shared-page grid is an empty page (world.py); a refusal with
+  the stash unread is logged, kept carried, never a full stack nor a drop (visit.py `_stash`); FULL_FILE set to [669]
+  (Twisted Essence of Suffering, 99). Tests red/green (test_world, test_visit); wide suite 2534 passed, 7 skipped.
+  Restart 02:10:15 `20261018T231015Z-d282b6a6`, loop on. Two Deep shards lost (22:14 in town, 01:59 on Catacombs 4).
+- Verify: the next Fortress visit logs `stash view: pages free ...` (not `unread`), and Deep shards are picked up.
+- TZ leveling goal-queue work runs in a separate worktree `.claude/worktrees/tz-goals` (agent), not live.
+
+### 2026-10-19 02:10–02:13 — external reload and inventory continuity verified
+
+- Externalrestart02:10:19 loaded20261018T231015Z-d282b6a6; rootdidnotrequestit.
+  Beforeexit8items movedcube, Amulet/SmallCharm picked. Newbaseline retains30protectedcells,
+  16fingerprints,19protecteditems. Games1–3completed39/35/34s.
+- Town021226 completed02:12:50: cube0,10freecells,2x4block,junk0,contractcomplete,27.1s.
+  Rootcompared19protecteditemrowsbefore/after: unchanged,includingall16originalcharms.
+  Recentloot carriedacrossrestart was processed; Catacombsresumed andAndyphase02:13:07.
+- Minute watcher97053confirmedlive andfollowedreload. Concurrentownerclarification remainsunanswered;
+  rootproductionfixesremainheld. No blanketclaimthatunfixedretrycaseisresolved.
+- 02:12 rulings: "andy loop shouldn't focus on full clearing level"; "full clear tz: for herald hunting; tz leveling:
+  clear only elites/champs"; "every loop has it's own metric, that it must optimize: boss kills/elites kill/opened
+  chest. the only thing that has more priority - proper interactions with drops". `hunt.Hunter.run_mode`: no terror
+  full clear on any `looped` pursuit (the Andariel fight had rush=False). Test in test_runmode.py; wide suite 2535
+  passed. Stash view confirmed read at 02:12:23 (`pages free 0:15 1:87 2:34 3:21 4:96 5:100`; full stacks Full
+  Rejuvenation Potion, Twisted Essence of Suffering). Restart 02:15:05 `20261018T231505Z-a0398029`, loop on.
+  Rulings relayed to the TZ agent.
+
+### 2026-10-19 02:33 — measured: no terror full clear in the loop (since the 02:15 restart)
+
+- `andy.py --since '2026-10-19 02:15' --against '2026-10-18 18:00' '2026-10-18 22:20'`: 31 kills in 0.30 h,
+  **99.1 kills an hour of cycles** against 84.6 (+14.5, 90% [+8.0, +20.8]: better); cycle median 35.4 s against 37.4;
+  Catacombs 3 run 3.9 s against 4.8, loot after the kill 1.9 against 2.4. MISSED 0. Kept.
+- The watch read full-stacks.json only at its start (armed 02:10, the file changed 02:10:09), so it reported the
+  full Twisted Essence of Suffering as MISSED each game: watch.py now re-reads the file at each game's end.
+- Next candidates (most seconds a cycle): loot after the kill p90 8.1 s (median 1.9); the trade session 36.3 s (the
+  stash stop 17.1 s at 02:24); Catacombs 2/3 runs p90 6.8/6.6 s against 5.0/3.9.
+- 02:36 the slow loot phases (8.1-8.7 s at 02:17, 02:20, 02:22): a drop (a Large Charm 22 away at 02:17:18) lies
+  among Andariel's escort (34 hostiles); the loop teleports to it and fights the 17-23 in reach on the way. That is
+  the drops-first rule at work, no defect; not a speed candidate without a ruling.
+- 02:45 the stash stop (13.8 s at 02:40): open 0.8 s, 4 items in 3.4 s, the cube's 2 out and the reopening 2.1 s, three
+  rune transmutes 4.6 s (the ruling: stacks over 80 cubed toward 80). At most ~2 s a visit to gain (a visit every ~10
+  games: ~0.2 s a cycle): no candidate. Noted: `stash: the Ornate Armor went onto page 1, planned 3: page 1 is the one
+  shown` (stashed, not lost; the page shown wins over the plan).
+- 02:50 candidate waiting a ruling: the pickup step's `opening.open_near` (KP_1 ruling 2026-10-12, containers within
+  12 units) opens containers on the Andariel run: since 02:15, 53 opened in ~52 games, 38.9 s from "Opening" to
+  "opened" (~0.75 s a cycle, ~2%), 32 of them Barrels on the way to Andariel (02:46:03 three barrels, 1.5 s before
+  the first Teleport toward her). Proposal for the player: no containers on the Andariel loop (or no barrels), the LK
+  loop and KP_1 unchanged. Not changed without the ruling (rule 9).
+- 03:02 borderline sale, for the player: rare Amulet "Rune Wing" (+1 Warlock skills, all resistances +13%, 8 MF)
+  sold for 35000 gold as `vendor`: the triage pattern wants +1 class skills with two of the listed stats, all
+  resistances at 15+ (13 of 15). By the rules (not +2 skills, FCR or life); the threshold is the pricing KB's.
+- 03:07 an hour since the 02:15 restart: 82 kills in 0.87 h, **93.6 kills an hour of cycles** against 84.6 (+9.0, 90%
+  [+3.7, +14.2]: better), cycle median 36.2 s, 6 trade sessions (median 32.3 s, all clean), MISSED 0, no stop.
+- 03:20 game 100 (56 s, Andariel 27 s): a unique Death Mask (Hellwarden's Will?) with the inventory full; the run
+  stood by it 03:19:45.7-03:19:50.4 (`idle`, 4.7 s) before `room is made in the cube`, cubed 5, picked it up 03:19:53.
+  No loss. Small candidate: the 4.7 s wait before the cube move (rare: ~0.15 s a cycle).
+- 03:48 **two rare amulets sold against the 16:50 ruling** ("Rare amulets with +FCR, +2 skills, +life are good"):
+  Corruption Scarab (+41 life, FR 35%) for 12110 and Havoc Torc (+59 life, +1 Eldritch Skills) for 3664, both
+  appraised `vendor`: the triage pattern built from the ruling (+1 class or +2 tree with 10 FCR and 20+ life) is
+  narrower than its words. Fix: `macros/keepers.py` `amulet_keeper` (a rare or crafted amulet with any FCR, any life
+  or 2+ skills, or its stats unread, is kept; stat ids from itemstatcost.txt: maxhp 7 >> 8, FCR 105, all skills 127,
+  class 83, tree 188), `Run.kept_item` set by the runner, checked in `visit` (no junk: "kept by its stats, not sold")
+  and `shop.restock` ("kept by its stats (...): never sold"). Tests: test_keepers.py (11), test_shop, test_visit;
+  wide suite 2399 passed, 7 skipped. Restart 03:53:37 `20261019T005337Z-58e34851`, loop on. Verify: the next rare
+  amulet with life shows `kept by its stats`. The pricing rule itself (pricing/data/triage) not changed.
+- 04:13 two hours since 02:15 (both services): 183 kills in 1.97 h, **92.5 kills an hour of cycles** against 84.6
+  (+7.8, 90% [+3.7, +12.0]), cycle median 35.9 s, 16 trade sessions (median 33.0 s), MISSED 0, no stop.
+- 04:23 one stash view unread: read at 04:23:09.967 (`pages free ... 4:70 5:100`), `hands.view()` None at 04:23:12.955
+  (`the stash is not read: the scan`); the scan put 5 in, 0 left, the session clean. First of this service; watch for
+  a repeat before a study (a transient read of the shared pages' units).
+- 04:13 keeper guard check: no rare amulet with life seen since the 03:53 restart yet (not verified live).
+- 04:53 keeper guard verified live: Corruption Mark (rare Amulet: +32 life, +74 mana) appraised `vendor`, `town
+  visit: Amulet (+32 life) kept by its stats, not sold` (04:53:30.159).
+- 05:31 since the 03:53 restart: 152 kills in 1.63 h, **93.2 kills an hour of cycles** against 84.6 (+8.6, 90% [+4.3,
+  +12.9]), cycle median 35.6 s, 13 trade sessions (median 30.4 s), MISSED 0, no stop. The keeper guard costs no time.
+- 06:02 Gheed's swap: a Gheed's Fortune (36 MF, 89 GF, 12% prices; "sell") replaced the player's (34 MF) at (0, 0);
+  the old one on shared page 1. Gap found: `Loop.tell` learnt the player's prints only when `own` (class and cell)
+  changed, so the new charm in the same cell was not learnt (16 prints). Fix: `printed` keyed by the unit ids of the
+  player's items (loop.py); test_volatile `test_a_new_item_in_the_same_cell_is_learnt_too`; wide suite 2400 passed.
+  Restart 06:06:03 `20261019T030603Z-fb5d2a99`; 06:06:17 `1 more of the player's items known by their stats` (17).
+  (No loss risk meanwhile: unique charms are never `sellable`.)
+- 06:04 copies: Hwanin's Refuge sold as surplus; Demon Limb kept (FR 20 against the owned 16).
+- 06:18 `trade session done (short of the contract: cube 1 items (normal Flawless Amethyst at (1, 1)))`: its stash
+  stack full (FULL_FILE now [575, 669]), the gem kept in the cube for the 3 -> perfect transmute (town.py GEMS_A_KIND,
+  the 09:51 ruling on 2026-10-18); the planner predicted it. No loss; the contract counted the kept gem as a cube miss.
+  Fix: `town.contract` counts a kept gem in the cube as waiting (deferred), as `_kept_gem` already did for keepers;
+  test_town `test_a_full_stacks_flawless_gem_kept_in_the_cube_waits_there_not_a_miss`; wide suite 2401 passed.
+  Restart 06:22:31 `20261019T032231Z-a3e99abf`, loop on.
+- 06:13 a second Gheed's Fortune (35 MF): the player's (36) kept, the new one onto shared page 5.
+- 06:29 stash room: the shared pages' free cells 337 at 02:23 (1:87 2:34 3:20 4:96 5:100) -> 136 at 06:28 (1:29 2:12
+  3:0 4:6 5:89): ~50 cells an hour of keepers, ~2.5 h left at that pace (less for a big keeper's block). A keeper no
+  page takes stops the loop (the 16:50 ruling): told the player.
+- 07:26 `short of the contract: block 2x4 taken`: four Flawless Amethysts kept (the stack full); the transmute took
+  three at 07:26:19 (a Perfect Amethyst, stashed); the fourth stayed carried at (4, 2), in the block (visit
+  snapshot 072614.json). The loop's own (a volatile cell); the next room check cubes it. Not fixed live (rare: a 4th
+  kept gem of a kind): queue — after `hands.transmute`, a kept gem carried in the block goes into the emptied cube.
+- 07:34 `andy.py --since 06:22`: 106 kills in 1.19 h, **89.1/h** (median cycle 36.5 s, p90 61.0 s), MISSED 0, no
+  stop. 11 trade sessions (median 24.9 s), one trip to town for room (49.8 s). Loot after the kill p90 9.6 s (median
+  2.3 s): the next speed candidate once the stash question is settled. 07:31 trade: four `vendor` charms sold
+  (3485 gold, all from the loop's cells), Thundergod's Vigor (`slow`) stashed (page 1, planned 4), cube 2 = kept
+  flawless gems, contract held. Shared stash free: 1:10 2:6 3:0 4:3 5:75 before it.
+- 07:38 `stash: 181494 gold to deposit, the carried gold still 871494` twice a visit (~3 s each, again 07:42): the
+  stash showed 12500000 gold (deposit-failed-073808.png), a round number taken as its most; deposits refused. Fix:
+  `stash.deposit` reads the stash's gold (stat 15 `goldbank`) and deposits only what BANK_MOST leaves room for, none
+  under DEPOSIT_LEAST (BANK_MOST inferred from the picture). test_stash
+  `test_a_stash_at_its_most_gold_takes_no_deposit_and_one_near_it_only_what_fits`. **For the player**: carried gold
+  872740 of the 940000 cap and the stash full of gold: sales stop when a sale could pass the cap (SALE_MOST), about
+  an hour of trade sessions away; then junk stays unsold. Needs a gold ruling.
+- 07:40 queued fix done: after the gem transmutes, a kept gem still carried goes into the emptied cube
+  (`cube.stash_only`, runner `transmute_gems`; `town.kept_gem` made public). test_cube
+  `test_only_the_wanted_loop_items_go_into_the_cube`. Wide suite 2403 passed. Restart 07:42:53
+  `20261019T044248Z-e41838bc`, loop on. Verify: the next deposit says `its gold 12500000 of 12500000` and no
+  deposit-failed picture; a 4th kept gem ends in the cube.
+- 07:41 The Rising Sun sold (`vendor`, copies: an owned copy rolls at least as well): correct.
+- 07:53 the goldbank fix did not fire (deposit-failed-075352.png): the gold goes to the tab shown, there the
+  Shared/Gems tab (its gold 12500000), the personal stash's gold separate. Fix replaced: `stash.deposit` clicks the
+  Personal tab first; one refused deposit ends the deposits until a restart (`stash.REFUSED`), its line now with
+  stat 15. Dropped the BANK_MOST guess. test_stash `test_the_deposit_shows_the_personal_tab_and_one_refused_ends_the_
+  deposits`; conftest `no_deposit_refused`. Wide suite 2403 passed. Restart 07:57:15 `20261019T045711Z-5a295660`.
+  Verify: the next trade session's `gold deposited` line (carried falls to ~690000) and the sales go on.
+  07:57:49 verified: `stash: 188959 gold deposited, 690000 carried` (Personal tab); sales went on (690000 -> 702759).
+- 08:15 `andy.py --since 07:42`: 49 kills in 0.55 h, **88.3/h** (median cycle 36.2 s), MISSED 0, no stop. Loot after
+  the kill median 6.2 s (2.3 s at 06:22-07:33): candidate to study (more pickups, or a slower pickup?). Shared
+  stash page 5 at 39 free (75 at 07:31): ~60 cells an hour, about an hour of keepers' room left.
+- 08:17 **Wraithra Clasp sold** (rare amulet, +2 to Summoning Skills, +18 str, DR 3; 10993 gold): the amulet keeper
+  never saw the skills. `World.item_stats` kept layer 0 alone, and item_addskill_tab (188) sits on the tree's layer,
+  item_addclassskills (83) on the class's: keepers.py's "+2 skills" was blind to them since 03:48 (FCR and life were
+  read). Fix: `world.item_values` adds LAYERED_SKILLS (83, 188) at the most of any layer. test_world
+  `test_an_items_tree_and_class_skills_are_read_off_their_layers`. Wide suite 2404 passed. Restart 08:20:22
+  `20261019T052017Z-ea7b4e47`. Verify: the next rare amulet with +2 tree/class skills logs `kept by its stats`.
+- 08:47 `andy.py --since 07:57`: 70 kills in 0.82 h, **85.1/h** (median cycle 36.8 s), MISSED 0, no stop; loot after
+  the kill back to median 2.0 s (the 6.2 s of 07:42-08:15 was the drops). Shared stash free 1:5 2:6 3:0 4:3 5:13
+  (27; personal 15) at 08:44: a large keeper may find no page soon, then the loop stops (the 16:50 ruling).
+  Not yet seen live: a +2 tree/class amulet (the 08:20 fix).
+
+## 2026-10-19 09:00 — TZ leveling loop launched (the player: "launch tz-leveling loop after then next run and monitor/improve it")
+
+- The TZ goals work of the sub-agent (worktree `tz-goals`, design `macros/goals-plan.md`) applied to the live tree
+  (patch of 02:33, one import hunk of runner.py by hand: `kept_gem`); `tzloop.ENABLED = True`; two tests of the off
+  state pin it off. Wide suite + routes + terror 2808 passed. Restart 09:00:39 `20261019T060035Z-b858f8b1`
+  `--kind tz`. Andariel loop until 09:00: 85.1/h (07:57-08:46).
+- First game: `tz: zone Act3-GreatMarsh: Great Marsh from 77`, waypoint, level run with `agenda: target an
+  unexplored room` (Great Marsh is COVER). Metric: `elites.py` (elite kills an hour; Andariel baseline 213.6/h).
+  §9 checks to watch: zone read, level run with the agenda, room package, leave guard, game length (1200 s cap).
+- 09:01-09:04 **the level run ended at a drop's guards**: `agenda_cleared`'s fight-first goal (`first_fight` from the
+  drop's PICK_UP) had no route, no `clearing`, no `guarded`; on a routeless level (Great Marsh) `pursuit.run_level`
+  ended the run ("nothing is left to go to on this level"), the elites known and the gold left, the game left after
+  20-55 s. Fix: the fight is `clearing=True` (hunt.py). test_tzloop side-drop test asserts it. Restart 09:05:12.
+- 09:04-09:15 **Water Watchers** (tentacle1-3, tentaclehead1-3: 258-263) under the marsh's water: struck 4 casts each
+  (~8 s) before `untouched` left them alone 20 s, then again: 25 s of one fight, a 45 s watchdog leave (09:08:00),
+  8 episodes in the 330 s game 4. The player: "in marsh we can stuck and try to attack mobs that aren't visible and
+  don't attack us at all". Fix: hunt.py SUBMERGED left out of `hostiles` (the safety no longer prices their harm:
+  they hurt only at the water's edge). test_hunt `test_a_water_watcher_under_the_water_is_no_hostile`. Wide suite
+  2809 passed. Restart 09:15:54 `20261019T061550Z-9e514b94`.
+- 09:11 `elites.py --since 09:00`: 175.3 elite kills an hour over 10 games (0.17 h; Andariel 213.6/h): lobby 16% and
+  travel 18% for 60 s games (most cut short by the first bug), level 65%. The player: "our current elites kill ratio
+  is under the any meaningful value". Next: measure after the two fixes; candidate: an exploring budget (leave a
+  COVER level when no leader is found for N s of exploring: a new game costs ~25 s of lobby and travel).
+- 09:15-09:20 **NPC menus** (the player: "we cannot click identify all from the first attempt ... make sure that we
+  have generic code"): over the sessions Identify took first try 206/212, Trade 208/214; the lifts that took sit on
+  a line's edges (Cain 0.2052 and 0.2165, Jamella 0.229 and 0.2346), so one learned lift misses by a pixel or two.
+  shop.py `menu_line` (generic: open, click at each lift, the line's own check, learn, close), used by cain.py,
+  `_open_trade` and repair.py; menu-lifts.json keeps the last HITS_KEPT=40 hits per NPC and aims at their middle.
+  Logged "menu line missed: <npc>, <line> <lift> (try N)". In the tree, not yet live.
+- 09:22 **my mistake**: menu-lifts.json written in the new list format while the old code was live: 3 town visits
+  failed (09:22:07/18/30, "unsupported operand type(s) for -: 'float' and 'list'"), the game left each time, nothing
+  lost. File reverted. A shared data file changes format only after the code that reads it is live.
+- 09:22:44-09:23:50 **recovery chain**: after the 4th recovery (game 6: Consume showed nothing 3 times by the
+  Fortress waypoint), RECOVERY_PAUSE 30 s stood in the game, and `Loop.still`'s clock ran on through the pause and
+  into game 7 (the same waypoint spot): "has not moved for 45 s" 5 s into game 7, a 5th recovery. Fix: loop.py
+  `still(where, now, game)` counts afresh in a new game and while cooling; runner passes the game. test_loop
+  `test_a_new_game_and_the_recovery_pause_count_no_stand`. Wide suite 2447 passed (without scenarios). Restart due
+  with the menu change. Open: Consume by the Fortress waypoint showing nothing (once in ~10 games so far).
+- 09:33:30 restart `20261019T063324Z-9e62e834`: the stillness fix, menu_line (Cain, Jamella, Halbu), super chests as
+  the agenda's CHEST tier (agent; agenda.py, hunt.py `agenda_chests`/`agenda_chest`).
+- 09:32-09:38 **Frozen River never entered** (zone Crystalline Passage → Frozen River): the side-trip entrance (POI
+  kind 'target', PoiSpec.warp) was no door for guide.py `_target_of` (warp only for WAYS_OUT): "no hop toward Frozen
+  River: the character is beside it", "TZ next level" ×40 in 2 s, the game left, every game. Fix: Poi.entrance set by
+  spots.py `pinpoint(warp=True)`, guide.py counts it a door. test_spots. Restart 09:38:54 `e1cbc3d4`: "door Frozen
+  River: in after 0.28s".
+- ~09:43 the player: "we stood still while under attack and almost died, only user intervented ... we must not die".
+  Not found yet in the logs (no healer drink); an agent studies it (rca/2026-10-19/near-death-findings.md, fix to come).
+- ~09:45 the player's ruling: "if we died - we MUST not take ANY other actions, no reviving, no save/exits, nothing at
+  all". Before: only `choose`/`next_leg` raised Dead; a death seen anywhere else (press_skill's Abort, a watchdog, a
+  leg's stop) was a recovery, whose next leg is Save and Exit. Fix: routines.Dead (press_skill, pickup, hunt raise it),
+  leave_game refuses when dead, runner `_loop_stopped` reads the mode (`_dead`) and stops the loop, presses nothing.
+  test_routines, test_runner. Restart 09:46:50 `c0f1cd6e`.
+- 09:46:02-43 Frozen River: "no way toward Frozenstein ... no way of hops leads over the rooms", 40 s idle, the 45 s
+  watchdog left the game (ON_THE_WAY: no rooms explored). Fix: hunt.py `wayless`: a route goal with no way turns that
+  level to COVER for the game ("agenda: no way to X: the level is explored for it"). test_tzloop. The player turned the
+  loop off at 09:48:21; restart 09:50:46 `88b8c83d` with the loop kept off. menu-lifts.json seeded with the line edges
+  (Cain 0.2052/0.2165 → aim 0.2108, Jamella 0.229/0.2346 → 0.2318).
+- elites.py now prints activities (engaging = fight seconds; approach, explore, chests, pickup, travel, town, lobby).
+- **Near death found** (agent, rca/2026-10-19/near-death-findings.md; checked in the frames: p[7] life): take
+  20261019T063559Z-113, 09:36:41 "4 recoveries ... the next leg after 30 s": `Loop.leg` slept RECOVERY_PAUSE standing
+  in Crystalline Passage, attack mode off; three monsters (508) hit the character 3119 -> 2335 (09:36:53-:03), the
+  player struck 14 times at 09:37:05. Fix A: the pause is waited only in the lobby or a town (Save and Exit first in a
+  level). Fix B: `Loop.beset` (BESET_LOSS 5% within BESET_SECONDS 4 standing outside a fight, attack mode off): the
+  game is left at once, cause 'beset', even with a valuable on the ground (departs from the 2026-10-17 ruling:
+  survival first; the player's ruling asked). Wide suite 2903 passed. Restart 09:59:00 `77542362`, loop kept off.

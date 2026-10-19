@@ -68,6 +68,7 @@ __all__ = [
     'after',
     'contract',
     'deposit_to',
+    'kept_gem',
     'named',
     'out_now',
     'place',
@@ -895,7 +896,7 @@ def tops_up(staff: Teleport | None, in_session: bool, reported: bool) -> bool:
     return staff is not None and in_session and not reported and staff.charges < staff.maximum
 
 
-def _kept_gem(item: Carried, full: Set[int]) -> bool:
+def kept_gem(item: Carried, full: Set[int]) -> bool:
     """A full stack's flawless gem, kept carried for the cube (`surplus`): no keeper the stash missed."""
     return item.txt in full and item.txt not in sold_full(full) and perfect_of(item.txt) is not None
 
@@ -941,12 +942,15 @@ def contract(
     (`StashStop.full`), told apart from the misses: the loop stops on them. `deferred`: the cube's keepers that wait in
     it for the next visit (`StashStop.waits`, KEEPER_IN_CUBE): named, neither the cube's miss nor a keeper's."""
     later = {i.unit_id for i in deferred if i.unit_id in pack.cube_items}
+    # A full stack's flawless gem kept in the cube for its transmute waits there too (the player, 09:51 on 2026-10-18:
+    # "we must cube them up first"; "cube 1 items (normal Flawless Amethyst at (1, 1))" at 06:18 on 2026-10-19)
+    later |= {i.unit_id for i in pack.in_cube if kept_gem(i, full)}
     items = [*loot(pack, own), *pack.in_cube]
     junk_left = sum(1 for i in items if i.unit_id in junk)
     keepers = [
         i
         for i in items
-        if i.unit_id not in junk | later and i.identified and not _kept_gem(i, full) and i.txt not in sold_full(full)
+        if i.unit_id not in junk | later and i.identified and not kept_gem(i, full) and i.txt not in sold_full(full)
     ]
     block = room_for(inventory_rows(pack), needs.block)
     misses: list[str] = []

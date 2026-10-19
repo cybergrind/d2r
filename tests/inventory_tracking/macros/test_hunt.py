@@ -647,6 +647,13 @@ def test_a_siege_door_or_wall_is_no_hostile_and_the_imps_hut_and_the_tower_are()
     assert [m.txt_id for m in hostiles(world(monsters=foes))] == [528, 435]
 
 
+def test_a_water_watcher_under_the_water_is_no_hostile():
+    # Great Marsh, 09:04 on 2026-10-19 (the player: "try to attack mobs that aren't visible and don't attack us at
+    # all"): tentacle2 (259) and tentaclehead2 (262) struck 4 times each for nothing; a frog demon (247) is fought
+    foes = tuple(foe(unit, 5001.0, 5001.0, txt_id=txt) for unit, txt in enumerate((258, 259, 263, 247), 1))
+    assert [m.txt_id for m in hostiles(world(monsters=foes))] == [247]
+
+
 def test_a_monster_behind_a_closed_door_is_not_struck_until_the_door_opens():
     from inventory_tracking.levels.doors import Door
 
@@ -2358,15 +2365,15 @@ def test_the_hold_that_began_a_fight_is_not_judged_again_before_the_strike_is_pr
     monkeypatch.setattr(
         hunted, 'judge', lambda *_a, **_k: looks.append(1) or SimpleNamespace(act=None, pressed=False, goal=None)
     )
-    hunted.pursuit = SimpleNamespace(pressed_at=1.0)
+    monkeypatch.setattr(hunted, 'pursuit', SimpleNamespace(pressed_at=1.0))
     hunted.judged = (1.0, run.clock() - 1.0, False)  # the Hold's, a second old
-    assert not hunted.key_asks(run, play.world, [], ())  # (the fakes' ground: unread)
+    assert not hunted.key_asks(run, play.world, [], Ground(()))  # (the fakes' ground: unread)
     assert len(looks) == 1  # struck: judged again, as every DECIDE_SECONDS
     hunted.judged = (1.0, run.clock() - 1.0, False)
-    assert not hunted.key_asks(run, play.world, [], (), unstruck=True)
+    assert not hunted.key_asks(run, play.world, [], Ground(()), unstruck=True)
     assert len(looks) == 1  # not before the press
-    hunted.pursuit = SimpleNamespace(pressed_at=2.0)  # a fresh press of the key
-    hunted.key_asks(run, play.world, [], (), unstruck=True)
+    monkeypatch.setattr(hunted, 'pursuit', SimpleNamespace(pressed_at=2.0))  # a fresh press of the key
+    hunted.key_asks(run, play.world, [], Ground(()), unstruck=True)
     assert len(looks) == 2
 
 
@@ -2381,7 +2388,7 @@ def test_the_loops_fight_lets_go_when_its_run_is_over(monkeypatch):
     hunted = hunter(play)
     monkeypatch.setattr(type(hunted), 'pursuing', property(lambda _self: True))
     run = play.run()
-    hunted.pursuit = SimpleNamespace(pressed_at=1.0)
+    monkeypatch.setattr(hunted, 'pursuit', SimpleNamespace(pressed_at=1.0))
     for looped, yields in ((True, True), (False, False)):
         posted = SimpleNamespace(looped=looped)
         monkeypatch.setattr(
@@ -2390,7 +2397,7 @@ def test_the_loops_fight_lets_go_when_its_run_is_over(monkeypatch):
             lambda *_a, p=posted, **_k: SimpleNamespace(act=Ended('over'), pressed=False, goal=None, posted=p),
         )
         hunted.judged = (0.0, -10.0, False)
-        assert hunted.key_asks(run, play.world, [], ()) is yields
+        assert hunted.key_asks(run, play.world, [], Ground(())) is yields
 
 
 # --- the Gheed's swap (macros/pickup.py `Refused`): the level run ends for it ---
