@@ -51,7 +51,6 @@ from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.build import Step
 from inventory_tracking.macros.charms import GHEEDS_FORTUNE, is_unique_grand_charm
 from inventory_tracking.macros.engine import Run
-from inventory_tracking.macros.pickmode import is_candidate
 from inventory_tracking.macros.routines import ACTING, DEAD, UNIT_PIXELS, Dead, press_skill
 from inventory_tracking.macros.skills import skill_name
 from inventory_tracking.macros.teleport import HOVER_SECONDS, ground_fraction, hop_toward, in_view, ready, ready_world
@@ -634,19 +633,6 @@ def worth_a_stop(run: Run) -> Drop | None:
     return drop
 
 
-def stops_for(drop: Drop, loot: Loot, looped: bool = False) -> bool:
-    """Whether a press with nothing to pick up stops for `drop` (`pick_up`'s "inventory full" stop): a valuable the
-    inventory has no room for, and prized (world.py `prized`: what the marks point at, every unique or set item the
-    filter shows). The rest it warns of and goes on (user, 2026-10-12: "allow moving when the item isn't very
-    valuable"), but in the KP_6 loop (`looped`): there it stops for every one not taken only because the filter shows it
-    (`Loot.shown`) and no identify candidate (the player, 2026-10-18 17:50: "we should stop and clear inventory with our
-    designated town routine"). Macros/lootpolicy.py `PRESS` answers the same; `pick_up` asks it."""
-    if drop.kind != VALUABLE or has_room(loot.room, drop.size):
-        return False
-    plain = looped and drop.unit_id not in loot.shown and not is_candidate(drop)
-    return drop.prized or plain
-
-
 def unshunned(loot: Loot, now: float) -> Loot:
     """`loot` without the drops a press gave up on less than SHUN_SECONDS ago. A valuable clicked and not seen to go
     (`CLICKED`) that the character now carries is said picked up, late."""
@@ -751,10 +737,6 @@ def pick_up(
         facts = {drop.unit_id: {'room': False, 'shown': drop.unit_id in loot.shown, 'looped': looped} for drop in left}
         held = [drop for drop in left if lootpolicy.verdict(drop, lootpolicy.PRESS, **facts[drop.unit_id]).hold]
         dear = ', '.join(sorted({drop.label for drop in held}))
-        for drop in left:
-            # the shadow beside it: the class's cases counted, and `stops_for` against the verdict
-            says = stops_for(drop, loot, looped)
-            lootpolicy.SHADOW.check(lootpolicy.PRESS, drop, says, game=loot.game, **facts[drop.unit_id])
         if plan is None and dear:
             # The press stops here and says so: going on to the seek step would teleport away from
             # the drop (user, 2026-10-10 night). Only for what the marks point at (world.py `prized`):

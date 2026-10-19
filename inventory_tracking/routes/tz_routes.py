@@ -14,9 +14,68 @@ from typing import Literal
 
 from inventory_tracking.routes.catalog import ROUTES
 from inventory_tracking.routes.links import WAYPOINTS, linked
-from inventory_tracking.routes.model import Route, Stage
-from inventory_tracking.routes.tz_groups import ActiveZone
-from inventory_tracking.routes.tz_leveling import Capability, route_inventory
+from inventory_tracking.routes.model import FIGHT, USE, Route, Stage
+from inventory_tracking.routes.tz_groups import ActiveZone, installed_active_zones
+
+
+Status = Literal['ready', 'needs-played-check', 'unavailable']
+
+
+@dataclass(frozen=True)
+class Capability:
+    area: int
+    route: str
+    waypoint: int | None
+    target: Literal['boss', 'chest', 'object'] | None
+    status: Status
+    reason: str = ''
+    entry: str = 'unmapped'
+    exit: str = 'unmapped'
+
+
+def route_inventory() -> dict[int, Capability]:
+    """Conservative catalog audit of every installed TZ level, including no-Herald transit levels."""
+    found: dict[int, Capability] = {}
+    for zone in installed_active_zones():
+        for area in zone.areas:
+            if area in found:
+                continue
+            options = [(route, script) for route in ROUTES for script in route.scripts if script.area == area]
+            if not options:
+                found[area] = Capability(area, '', None, None, 'unavailable', 'no route script')
+                continue
+            route, script = options[0]
+            waypoint = next((start for start in route.starts if start in WAYPOINTS), None)
+            leading = next(
+                (stage for prior in route.scripts for stage in prior.stages if stage.to == area or area in stage.tours),
+                None,
+            )
+            entry = (
+                leading.text()
+                if leading is not None
+                else (f'waypoint {area}' if area in WAYPOINTS else 'route entry needs played check')
+            )
+            leaving = next((stage for stage in script.stages if stage.to), None)
+            exit_stage = leaving or next((stage for stage in script.stages if stage.kind == 'leave'), None)
+            exit_text = exit_stage.text() if exit_stage is not None else 'route exit needs played check'
+            target = (
+                'boss'
+                if any(stage.kind == FIGHT for stage in script.stages)
+                else (
+                    'chest'
+                    if any(stage.kind == USE and 'chest' in stage.mark.lower() for stage in script.stages)
+                    else ('object' if any(stage.kind == USE and not stage.to for stage in script.stages) else None)
+                )
+            )
+            pending = next((stage.pending for stage in script.stages if stage.pending), '')
+            if waypoint is None or pending:
+                reason = pending or 'no entry waypoint'
+                found[area] = Capability(area, route.name, waypoint, target, 'unavailable', reason, entry, exit_text)
+            else:
+                found[area] = Capability(
+                    area, route.name, waypoint, target, 'needs-played-check', entry=entry, exit=exit_text
+                )
+    return found
 
 
 @dataclass(frozen=True)

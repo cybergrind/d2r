@@ -139,12 +139,6 @@ def test_the_stall_reproduces_the_recording() -> None:
         assert not outcome.dead
 
 
-@pytest.mark.parametrize('name', [STALL, SEAL])
-def test_the_same_seed_gives_the_same_play(name) -> None:
-    again = vizier.stored(name).play(seed=2)
-    assert again == played(name, 2)
-
-
 # -- the stall as a base for experiments ----------------------------------------------------------------
 
 
@@ -279,12 +273,34 @@ def test_the_character_can_die_in_the_example_and_the_story_says_how() -> None:
     assert dead[0].life[-1][1] == 0.0
 
 
-@pytest.mark.xdist_group("situations: the example's variants twice")
-def test_the_example_plays_the_same_twice_and_every_variant_runs() -> None:
-    for name, (situation, presses) in variants().items():
-        first = situation.play(presses, seconds=3.0, seed=4)
-        assert first == situation.play(presses, seconds=3.0, seed=4), name
-        assert first.hostiles == 24
+@functools.cache
+def variant_played(name: str) -> Outcome:
+    situation, presses = variants()[name]
+    return situation.play(presses, seconds=3.0, seed=4)
+
+
+@pytest.mark.xdist_group("situations: the example's variants")
+def test_every_variant_of_the_example_runs() -> None:
+    for name in variants():
+        assert variant_played(name).hostiles == 24, name
+
+
+# The variants that press the pickup key and the teleport key beside the attack mode: between them every routine the
+# arena plays, and so every memory of the production code a play could leave to the next (driver.py `fresh`).
+PRESSED = ('attack on + pickup key at 0.5 s', 'attack on + KP_4 held (every 0.3 s) toward a mark beyond the Souls')
+
+
+@pytest.mark.xdist_group("situations: the example's variants")
+def test_the_example_plays_the_same_twice() -> None:
+    """The arena is deterministic for a seed: a second play of the same situation, presses and seed is the first.
+    One test for the harness (`Situation.play`: `Stage` and `RoutePlay` over driver.py `Play`, every roll from the
+    seed); the per-scene repeats of the Vizier's moments, the Chaos Sanctuary run, the teleport key's moments, the
+    incidents and the threat scenes were merged into it (rca/2026-10-19/cleanup/tests.md P5). Ten plays of one seed by
+    driver.py's `play` are test_driver.py's."""
+    assert all(name in variants() for name in PRESSED)
+    for name in PRESSED:
+        situation, presses = variants()[name]
+        assert situation.play(presses, seconds=3.0, seed=4) == variant_played(name), name
 
 
 # -- the viewer's files ---------------------------------------------------------------------------------

@@ -81,6 +81,7 @@ multiline-quotes = 'single'
 
 [tool.pytest.ini_options]
 testpaths = ['tests']
+markers = ['slow: a full arena play (tests/inventory_tracking/scenarios/conftest.py SLOW); skipped by -m "not slow"']
 
 [tool.pyrefly]
 # Scope the type checker to the package under active development; pricing/tools are

@@ -493,7 +493,7 @@ def test_the_players_item_by_its_stats_in_the_cube_is_kept_not_sold(monkeypatch,
 
     assert 60 not in town.sold
     assert sorted(town.sold) == [61, 62]
-    assert "the player's by their stats: kept, not sold" in caplog.text
+    assert "(the player's by its stats): kept, not sold" in caplog.text
 
 
 def test_an_amulet_kept_by_its_stats_is_no_junk(monkeypatch, caplog):
@@ -514,7 +514,7 @@ def test_an_amulet_kept_by_its_stats_is_no_junk(monkeypatch, caplog):
 
     assert 60 not in town.sold
     assert sorted(town.sold) == [61, 62]
-    assert 'kept by its stats, not sold' in caplog.text
+    assert '(kept by its stats (+41 life)): kept, not sold' in caplog.text
 
 
 @pytest.mark.parametrize(

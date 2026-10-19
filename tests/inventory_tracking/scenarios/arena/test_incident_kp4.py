@@ -84,10 +84,12 @@ def test_the_card_is_the_handlers_and_leads_with_the_seal_the_route_is_at() -> N
 
 
 @pytest.mark.parametrize('staged', STAGED, ids=lambda staged: staged.name)
-def test_a_stored_moment_plays_and_the_same_seed_gives_the_same_play(staged) -> None:
-    scene, marks, _ = moment(staged.name)
-    told, lines = kp4.played(scene, marks, staged, 3)
-    assert play(staged.name, 3) == (told, tuple(lines))
+def test_a_stored_moment_plays(staged) -> None:
+    # A play of the seeds the tests below read (`plays`), so a moment that no longer plays fails here and not only
+    # inside their strict expected failures. That the same seed gives the same play is the arena's, tested once
+    # (situations/test_situations.py `test_the_example_plays_the_same_twice`).
+    _, lines = play(staged.name, 3)
+    assert lines
 
 
 # -- the pack by the seal, the key mashed: as it was that morning ---------------------------------------

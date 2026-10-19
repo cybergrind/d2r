@@ -1,7 +1,14 @@
 """A current TZ group's route is derived from catalog edges, including blockers."""
 
 from inventory_tracking.routes.tz_groups import installed_active_zones
-from inventory_tracking.routes.tz_routes import RouteExcursion, ZoneRoutePlan, route_leg, zone_route_plan
+from inventory_tracking.routes.tz_routes import (
+    RouteExcursion,
+    ZoneRoutePlan,
+    route_inventory,
+    route_leg,
+    zone_route_plan,
+)
+from inventory_tracking.terror.zones import GROUPS
 
 
 def test_cave_and_tower_legs_use_catalog_hops_and_explicit_branch_names():
@@ -86,3 +93,11 @@ def test_a_plan_with_a_blocked_excursion_is_not_ready_even_if_individual_legs_ar
     plan = ZoneRoutePlan(zone, {}, (), (), (trip,), ())
 
     assert not plan.ready
+
+
+def test_route_inventory_covers_every_herald_group_level_conservatively():
+    inventory = route_inventory()
+    herald_areas = {area for group in GROUPS for area in group.areas}
+    assert set(inventory) - herald_areas == {20, 45, 50, 73, 132}
+    assert all(capability.status != 'ready' for capability in inventory.values())
+    assert all(capability.entry and capability.exit for capability in inventory.values())

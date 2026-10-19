@@ -12,6 +12,8 @@ def ormus(skill=None, bonus=3):
     definition = named_definitions()['unique', "Ormus' Robes"]
     stats = {f'{s["stat_id"]}:0': {'status': 'decoded', 'value': s['min']} for s in definition['roll_ranges'].values()}
     properties = scalar_properties(stats)
+    # 31:0 is total defense: a Dusk Shroud base (361-467) plus the flat +10-20, not the bonus alone.
+    stats['31:0'] = {'status': 'decoded', 'value': 400, 'raw': 400}
     if skill is not None:
         key = f'107:{skill}'
         stats[key] = {'status': 'decoded', 'value': bonus}

@@ -27,7 +27,6 @@ from inventory_tracking.macros.cube import (
     Move,
     fits,
     inventory_rows,
-    keys_move,
     largest_block,
     loot,
     perfect_of,
@@ -56,15 +55,12 @@ __all__ = [
     'Contract',
     'Exit',
     'Holdings',
-    'Itinerary',
     'Needs',
     'Page',
     'Put',
     'RuneCube',
-    'ShopStop',
     'StashStop',
     'StashView',
-    'Transmute',
     'after',
     'contract',
     'deposit_to',
@@ -75,7 +71,6 @@ __all__ = [
     'rune_transmutes',
     'sold_full',
     'stash_stop',
-    'stop_collecting',
     'surplus',
     'tops_up',
     'uncubed',
@@ -178,15 +173,6 @@ class Put:
 
 
 @dataclass(frozen=True)
-class Transmute:
-    """Three flawless gems of class `txt` into a perfect one (step 4); `park`: units put on the ground meanwhile."""
-
-    txt: int
-    gems: tuple[int, ...]
-    park: tuple[int, ...] = ()
-
-
-@dataclass(frozen=True)
 class RuneCube:
     """One transmute at the stash's cube (RUNES_AIM): RUNES_A_TAKE runes of class `txt` taken from its stack into the
     cube, with one gem of class `gem` from its stack when the recipe takes one, transmuted into one rune of class
@@ -200,8 +186,8 @@ class RuneCube:
 @dataclass(frozen=True)
 class StashStop:
     """The stash stop's plan: the puts grouped (the tabs, the personal page, the shared pages ascending), the cube's
-    junk to the inventory for Jamella while the stash is open, the full stacks' materials put down, the transmutes
-    (step 4), the gold to keep when depositing, the key stack's move that frees the block; `shuffles`: the inventory's
+    junk to the inventory for Jamella while the stash is open, the full stacks' materials put down, the gold to keep
+    when depositing; `shuffles`: the inventory's
     junk and key stacks moved within it, in order, each to the cell given (its top-left), to free the block a cube
     keeper comes out into; `into_cube`: junk that finds no cell for it put into the cube instead (sold from there at
     Jamella), both in the interlude before the cube's keepers come out (`stash_stop` (iv)); `stranded`: the cube's
@@ -216,9 +202,7 @@ class StashStop:
     puts: tuple[Put, ...] = ()
     out_for_sale: tuple[Carried, ...] = ()
     drops: tuple[Carried, ...] = ()
-    transmutes: tuple[Transmute, ...] = ()
     deposit_to: int | None = None
-    keys_to: Move | None = None
     shuffles: tuple[Move, ...] = ()
     into_cube: tuple[Carried, ...] = ()
     # The cube's keepers with room on a page that no block, move aside or junk into the cube gets out of it, but the
@@ -233,38 +217,13 @@ class StashStop:
     @property
     def idle(self) -> bool:
         """Whether the stop has nothing to do: no walk to the stash."""
-        busy = self.puts or self.out_for_sale or self.drops or self.transmutes or self.runes
+        busy = self.puts or self.out_for_sale or self.drops or self.runes
         return not busy and self.deposit_to is None
 
     def pages(self) -> tuple[int, ...]:
         """The pages the puts go to, in storage priority (the tabs not among them)."""
         used = {put.to for put in self.puts if not put.tab}
         return tuple(page for page in PAGE_PRIORITY if page in used)
-
-
-@dataclass(frozen=True)
-class Buy:
-    """A stock bought at the vendor: what, and how many it comes to (step 3)."""
-
-    what: Literal['keys', 'portals', 'identifies']
-    to: int
-
-
-@dataclass(frozen=True)
-class ShopStop:
-    sell: tuple[Carried, ...] = ()
-    from_cube: tuple[Carried, ...] = ()
-    buys: tuple[Buy, ...] = ()
-
-
-@dataclass(frozen=True)
-class Itinerary:
-    identify: tuple[Carried, ...]
-    stash: StashStop | None
-    shop: ShopStop | None
-    repair: bool
-    exit: Exit
-    why: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -700,8 +659,7 @@ def _planned(
         full=tuple(i for i in keepers if i.unit_id not in on_pages) + homeless,
         waits=tuple(i for i in cube_keepers if i.unit_id not in on_pages and i not in homeless),
     )
-    stop = _runes(stop, h, view, took)
-    return replace(stop, keys_to=keys_move(after(pack, stop), needs.block))
+    return _runes(stop, h, view, took)
 
 
 def _runes(stop: StashStop, h: Holdings, view: StashView, took: Mapping[int, int]) -> StashStop:
@@ -832,15 +790,6 @@ def after(pack: Pack, stop: StashStop) -> Pack:
         in_cube=in_cube,
         cube_items=frozenset(i.unit_id for i in in_cube),
         cube=cube if pack.cube is not None or in_cube else pack.cube,
-    )
-
-
-def stop_collecting(view: StashView) -> frozenset[int]:
-    """The gem classes no longer collected (§2.3, the player 12:55: "if we have 99pgems - we can stop colleting this
-    type of gems"): a kind's flawless and perfect classes once its perfect stack holds STACK_MOST."""
-    full = view.full()
-    return frozenset(
-        txt for flawless in RESOURCES if (perfect := perfect_of(flawless)) in full for txt in (flawless, perfect)
     )
 
 

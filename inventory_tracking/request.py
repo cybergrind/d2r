@@ -13,7 +13,6 @@ The prefixes must stay those of the workers (tests/inventory_tracking/test_reque
 against the modules). Without a running service a desktop notification says so, as the CLI does.
 """
 
-import math
 import os
 import socket
 import sys
@@ -34,11 +33,8 @@ PREFIXES = {
     'pickup': 'pickup ',  # the pickup step: pick up a valuable or a potion, else a seek step
     'pad': 'pad ',  # the gamepad experiment: one tap of a virtual pad's button (input/gamepad.py)
     'loop': 'loop ',  # the Lower Kurast loop on/off (macros/loop.py)
-    'tz-loop': 'tz-loop ',  # separate TZ coordinator; unbound and disabled until explicitly configured
-    'tz-pickup': 'tz-pickup ',  # one explicitly named ground valuable; no attack or seek fallback
-    'safe-exit': 'safe-exit ',  # one explicit named-game Rogue Encampment Save and Exit
 }
-TIMED = frozenset(('macro', 'teleport', 'hunt-elites', 'hunt-any', 'pickup', 'loop', 'tz-loop'))
+TIMED = frozenset(('macro', 'teleport', 'hunt-elites', 'hunt-any', 'pickup', 'loop'))
 DEFAULT_SOCKET = os.path.join(os.environ.get('XDG_RUNTIME_DIR', f'/run/user/{os.getuid()}'), 'd2r-appraisal.sock')
 USAGE = f'usage: request.py [--socket PATH] {{{",".join(sorted(PREFIXES))}}}\nSend one hotkey request to `make serve`.'
 
@@ -54,11 +50,11 @@ def startup() -> tuple[float, float] | None:
     return 1000 * age, 1000 * time.process_time()
 
 
-def send(kind: str, endpoint=DEFAULT_SOCKET, *, clock=time.monotonic, began=None, payload: str = '') -> bool:
+def send(kind: str, endpoint=DEFAULT_SOCKET, *, clock=time.monotonic, began=None) -> bool:
     """Send `kind`'s datagram, stamped with the monotonic clock the service compares against; a
     macro request with `began` (`startup`) says after the stamp how long the start took."""
     took = f' {began[0]:.1f} {began[1]:.1f}' if began is not None and kind in TIMED else ''
-    message = f'{PREFIXES[kind]}{clock()}{took}{payload}'
+    message = f'{PREFIXES[kind]}{clock()}{took}'
     try:
         with socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM) as client:
             client.sendto(message.encode('ascii'), str(endpoint))
@@ -78,32 +74,7 @@ def main(argv=None) -> int:
         at = words.index('--socket')
         endpoint = words[at + 1]
         del words[at : at + 2]
-    if len(words) in (6, 8) and words[0] == 'tz-pickup':
-        _, game, area, label, x, y = words[:6]
-        size = words[6:]
-        try:
-            valid = (
-                bool(game)
-                and all(char.isascii() and (char.isalnum() or char in '_-') for char in game)
-                and bool(label)
-                and label[0].isascii()
-                and label[0].isalpha()
-                and all(char.isascii() and (char.isalnum() or char == '_') for char in label)
-                and int(area) > 0
-                and all(math.isfinite(float(value)) for value in (x, y))
-                and (not size or (1 <= int(size[0]) <= 3 and 1 <= int(size[1]) <= 4))
-            )
-        except ValueError:
-            valid = False
-        payload = f' {game} {area} {label} {x} {y}' + ''.join(f' {value}' for value in size)
-        if valid and send('tz-pickup', endpoint, payload=payload):
-            return 0
-        return 2
-    if len(words) == 2 and words[0] == 'safe-exit':
-        game = words[1]
-        valid = bool(game) and all(char.isascii() and (char.isalnum() or char in '_-') for char in game)
-        return 0 if valid and send('safe-exit', endpoint, payload=f' {game}') else 2
-    if len(words) != 1 or words[0] not in PREFIXES or words[0] in ('tz-pickup', 'safe-exit'):
+    if len(words) != 1 or words[0] not in PREFIXES:
         print(USAGE, file=sys.stderr)
         return 2
     if send(words[0], endpoint, began=began):

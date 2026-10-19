@@ -54,7 +54,6 @@ def make(execute):
 
 
 def test_a_teleport_step_that_waited_past_its_limit_behind_a_step_is_not_made(monkeypatch):
-    monkeypatch.setattr(runner_module, 'CARD_SECONDS', 0)
     monkeypatch.setitem(runner_module.EXPIRES, 'teleport', 0.05)
     runs, go, inside = [], threading.Event(), threading.Event()
 
@@ -75,8 +74,7 @@ def test_a_teleport_step_that_waited_past_its_limit_behind_a_step_is_not_made(mo
     assert runner.trace.closed[-1].notes['ended'] == 'expired'
 
 
-def test_a_teleport_key_pressed_after_a_seek_key_during_attack_mode_goes_first_and_the_seek_step_after(monkeypatch):
-    monkeypatch.setattr(runner_module, 'CARD_SECONDS', 0)
+def test_a_teleport_key_pressed_after_a_seek_key_during_attack_mode_goes_first_and_the_seek_step_after():
     runs, both, done = [], threading.Event(), threading.Event()
 
     def execute(cancelled, routine):
@@ -99,9 +97,8 @@ def test_a_teleport_key_pressed_after_a_seek_key_during_attack_mode_goes_first_a
     runner.close()
 
 
-def test_a_pickup_that_waits_is_given_up_when_the_player_moves_on(monkeypatch):
+def test_a_pickup_that_waits_is_given_up_when_the_player_moves_on():
     # As the sweep: a teleport step is not followed by a walk back for what lay there.
-    monkeypatch.setattr(runner_module, 'CARD_SECONDS', 0)
     go = threading.Event()
 
     def execute(cancelled, routine):

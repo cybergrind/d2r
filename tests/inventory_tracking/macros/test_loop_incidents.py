@@ -1,5 +1,5 @@
 """The KP_6 loop's first played game, cyber17 (2026-10-16 02:48, rca/2026-10-16/loop-first-game-findings.md): the
-requirements it showed unmet (strict xfail tests until the fix of that day)."""
+requirements it showed unmet, held since the fix of that day."""
 
 from inventory_tracking.macros.teleport import USES, classes
 from inventory_tracking.macros.waypoint import travel

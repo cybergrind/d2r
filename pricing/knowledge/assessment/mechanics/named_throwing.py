@@ -5,6 +5,7 @@ from functools import lru_cache
 from pathlib import Path
 
 from pricing.knowledge.artifacts import read_artifact
+from pricing.knowledge.assessment.adapters.market_projection import NATIVE_PROPERTIES
 from pricing.knowledge.assessment.mechanics.base_tiers import is_base_upgrade
 
 
@@ -35,7 +36,7 @@ def fixed_quantity_keys(facts, definition):
         or type(row.get('value')) is not int
         or row['value'] != rate
         or row.get('unit') != 'replenishment_rate'
-        or row.get('market_property') is not None
+        or row.get('market_property') not in (None, NATIVE_PROPERTIES['253:0'])  # the capture's own projection
     ):
         return set(), ['Named replenishment rate is missing, changed or unverified.']
     return {'253:0'}, []

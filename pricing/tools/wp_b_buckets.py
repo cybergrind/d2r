@@ -1,11 +1,15 @@
 #!/usr/bin/env python3
 """WP-B bucketing of raw Traderie pulls (pricing/raw/traderie/<slug>.json, pulled 2026-09-18).
-Scope filter: 799 softcore, 800 False (NL), 798 PC, 1854 not containing 'lord of destruction'/'classic' (unset kept).
+Scope filter: pricing.knowledge.scope.in_scope, the KB's predicate (799 softcore, 800 False (NL), 798 PC, 1854 containing
+'reign of the warlock'; unset = unknown scope, left out but counted). Before 2026-10-19 unset was kept and combined values with
+LoD/classic were dropped, so wp-b-prices.json (2026-09-18) predates this rule.
 Buckets: <sockets>os/<eth|noneth>/<rarity>[/15ed]; 'filled' sockets (934) go to a separate bucket suffix.
 Ist conversion: §1.2 NL ladder midpoints (diablo2.io price guide 2026-08-28). Sub-Lem runes = 0.1 (flagged).
 """
 import json, statistics, sys, os, glob, re
 ROOT = '/mnt/extra/1000/games/d2r'
+sys.path.insert(0, ROOT)
+from pricing.knowledge.scope import in_scope  # the one scope predicate; stdlib only
 # Rune ladder: pricing/data/wp-f-ladder.json field "ist" (joint NL solution, Ist = 1.0, dated 2026-09-18) for Pul..Zod.
 # Runes below Pul are not in the WP-F ladder: Lem = 0.2 = midpoint of the diablo2.io 2026-08-28 NL band (0.15-0.25).
 _WPF = json.load(open(ROOT + '/pricing/data/wp-f-ladder.json'))
@@ -126,7 +130,7 @@ def analyze(slug, item_id):
         gv_all[gv] = gv_all.get(gv, 0) + 1
         if p.get(799) == 'softcore' and p.get(800) is False and p.get(798) == 'PC':
             gv_scope[gv] = gv_scope.get(gv, 0) + 1
-            if 'lord of destruction' not in gv and 'classic' not in gv: scope.append(l)  # excludes LoD/classic and combined values; 'unset' kept
+            if in_scope(l): scope.append(l)
     buckets = {}
     for l in scope:
         p = props(l)
@@ -155,7 +159,7 @@ def analyze(slug, item_id):
         out[k] = b
     return {'item_id': item_id, 'pulled_pages': (n_total + 49) // 50, 'n_total': n_total, 'n_scope': len(scope),
             'game_version_dist_all': gv_all, 'game_version_dist_sc_nl_pc': gv_scope, 'buckets': out,
-            'pulled': '2026-09-18', 'filter': 'SC/NL/PC (props 799/800/798) + 1854 not in {lord of destruction, classic} (unset kept), client-side; server: item id only'}
+            'pulled': '2026-09-18', 'filter': 'pricing.knowledge.scope.in_scope: SC/NL/PC (props 799/800/798) + 1854 containing reign of the warlock (unset left out), client-side; server: item id only'}
 
 NAMES = {'archon-plate':'Archon Plate','mage-plate':'Mage Plate','dusk-shroud':'Dusk Shroud','wire-fleece':'Wire Fleece','monarch':'Monarch','sacred-targe':'Sacred Targe','sacred-rondache':'Sacred Rondache','phase-blade':'Phase Blade','berserker-axe':'Berserker Axe','colossus-blade':'Colossus Blade','thresher':'Thresher','giant-thresher':'Giant Thresher','cryptic-axe':'Cryptic Axe','great-poleaxe':'Great Poleaxe','colossus-voulge':'Colossus Voulge','flail':'Flail','crystal-sword':'Crystal Sword','grand-matron-bow':'Grand Matron Bow','matriarchal-bow':'Matriarchal Bow','matriarchal-javelin':'Matriarchal Javelin','greater-talons':'Greater Talons','runic-talons':'Runic Talons','diadem':'Diadem','tiara':'Tiara','circlet':'Circlet','coronet':'Coronet','blasphemous-grimoire':'Blasphemous Grimoire','possessed-grimoire':'Possessed Grimoire','grimoire':'Grimoire','legend-spike':'Legend Spike','fanged-knife':'Fanged Knife','mithril-point':'Mithril Point','bone-knife':'Bone Knife','vampirebone-gloves':'Vampirebone Gloves','sharkskin-gloves':'Sharkskin Gloves','heavy-bracers':'Heavy Bracers','demonhide-gloves':'Demonhide Gloves','chain-gloves':'Chain Gloves','vambraces':'Vambraces','bone-shield':'Bone Shield','sacred-armor':'Sacred Armor','targe':'Targe','mask':'Mask','preserved-head':'Preserved Head','mancatcher':'Mancatcher'}
 
@@ -192,7 +196,7 @@ def final(out):
     meta = {
         'pulled': '2026-09-18', 'regenerated': 'v2: OR-group price reading + WP-F ladder (same raw pulls)',
         'source': 'Traderie JSON API https://traderie.com/api/diablo2resurrected/listings?item=<id>&page=0..3 (50/page, page 0-based), via pricing/tools/traderie.py listings <id> 4 --json (no server filter); raw in pricing/raw/traderie/<slug>.json',
-        'scope_filter': 'client-side: 799 Mode=softcore, 800 Ladder=false (Non-Ladder), 798 Platform=PC, 1854 Game version not containing "lord of destruction"/"classic" (unset kept, counted)',
+        'scope_filter': 'client-side, pricing.knowledge.scope.in_scope: 799 Mode=softcore, 800 Ladder=false (Non-Ladder), 798 Platform=PC, 1854 Game version containing "reign of the warlock" (unset = unknown scope, left out, counted)',
         'ladder_ist': dict(LADDER, **{'sub-Lem runes (El..Fal)': SUBLEM_IST, 'Perfect Gem': 0.025, 'Perfect Amethyst': round(1/12, 4)}),
         'ladder_source': LADDER_SOURCE + '; sub-Lem runes 0.1 (below the guide floor, flagged "sublem"); PGem 1/40 Ist and PAmethyst 1/12 Ist from the guide line "Ist ~40 PGems or ~12 PAmethyst"',
         'bucket_key': '<sockets>os/<eth|noneth>/<rarity 797 or unset>[/15ed = 425 Enhanced Defense >=15 or 510 Enhanced Damage >=15][/res45|res40-44|res<40|res? on Sacred Targe/Rondache = prop 441][/skill3|skillN|skill? on Grand Matron/Matriarchal Bow = prop 454][/affixed = white-labelled but carries affix/staff-mod props -> not a clean base][/filled = 934 sockets contain runes/gems]',

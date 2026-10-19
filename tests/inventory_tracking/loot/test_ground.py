@@ -3,25 +3,11 @@
 import struct
 
 from inventory_tracking.loot.ground import GroundRune, ground_runes
+from tests.inventory_tracking.fake_memory import Memory
 
 
 TABLE = 0x100000
 ITEMS = TABLE + 4 * 1024
-
-
-class Memory:
-    def __init__(self):
-        self.blocks = {}
-
-    def block(self, address, size):
-        self.blocks[address] = bytearray(size)
-        return self.blocks[address]
-
-    def read(self, address, size):
-        for start, data in self.blocks.items():
-            if start <= address and address + size <= start + len(data):
-                return bytes(data[address - start : address - start + size])
-        raise ValueError(f'Unmapped or unreadable range at {address:#x}')
 
 
 def item(memory, index, class_id, mode, x, y):

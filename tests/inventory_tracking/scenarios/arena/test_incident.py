@@ -48,11 +48,11 @@ def test_the_band_is_the_tenth_and_ninetieth_percentile_of_the_plays() -> None:
 
 
 @pytest.mark.parametrize('incident', INCIDENTS, ids=lambda incident: incident.name)
-def test_a_stored_incident_plays_and_the_same_seed_gives_the_same_track(incident) -> None:
+def test_a_stored_incident_plays_a_track_at_every_mark(incident) -> None:
+    # That the same seed gives the same track is the arena's, tested once (situations/test_situations.py
+    # `test_the_example_plays_the_same_twice`).
     found = stored(incident)
     assert found is not None, 'cut it: python -m tests.inventory_tracking.scenarios.arena.incident --cut'
     scene, truth = found
     assert len(truth.taken) == len(truth.alive) == len(truth.strikes) == len(incident.marks)
-    first = played(scene, incident, 3)
-    assert first == played(scene, incident, 3)
-    assert len(first.taken) == len(incident.marks)
+    assert len(played(scene, incident, 3).taken) == len(incident.marks)

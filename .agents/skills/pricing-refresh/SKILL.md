@@ -38,13 +38,15 @@ See `pricing/knowledge/README.md` for commands. Portable `pricing/data/appraisal
 
 The new importer requires explicit RotW membership, quarantines unknown versions, preserves
 array properties, and separates name-level watch bands from facet-matched evidence. Legacy tools
-below remain research helpers; their old cache flags are not a strict offline or strict-scope contract.
+below remain research helpers; their old cache flags are not a strict offline contract. Their scope filter is
+the importer's own (`pricing.knowledge.scope`, since 2026-10-19): `traderie.py --scope`, `pricecheck.py`,
+`wp_b_buckets.py` and `rune_ladder.py` drop unknown-version listings too.
 
 ## Tools (`pricing/tools/`, all verified 2026-09-18; run from the repo root)
 
 ```
 python3 pricing/tools/traderie.py search <name>                       # catalog id
-python3 pricing/tools/traderie.py listings <itemId> 4 --sc --nl --pc --props   # 50/page, 0-based; --rarity rare|magic|unique, --eth/--noeth, --json
+python3 pricing/tools/traderie.py listings <itemId> 4 --scope --props   # SC/NL/PC/RotW (--sc --nl --pc = same); 50/page, 0-based; --rarity rare|magic|unique, --eth/--noeth, --json
 python3 pricing/tools/traderie.py runes Pul Um Mal Ist Gul Vex Ohm Lo Sur Ber Jah Cham Zod   # rune-for-rune asks → pricing/raw/traderie/rune-*.json
 python3 pricing/tools/d2io_search.py "<keyword>" ladder=2 hc=2 plat_pc=1 activesold=1 legacy_resu=2 --out pricing/raw/d2io/search-<x>.html
 python3 pricing/tools/d2io_search.py --parse pricing/raw/d2io/search-<x>.html   # re-parse a cached page

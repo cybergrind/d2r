@@ -425,9 +425,7 @@ def test_bounds_hold_every_keyframe_and_cast_point(case):
 
 
 def test_export_is_deterministic(case):
-    first = viz.dumps(viz.export(Take.load(case.directory)))
-    second = viz.dumps(viz.export(Take.load(case.directory)))
-    assert first == second
+    assert viz.dumps(viz.export(Take.load(case.directory))) == viz.dumps(case.data)  # against the session's export
 
 
 def test_write_puts_the_export_in_the_named_file(case, tmp_path):

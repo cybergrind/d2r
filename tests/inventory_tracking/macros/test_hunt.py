@@ -23,7 +23,6 @@ from inventory_tracking.combat.mechanics.tables import points_of
 from inventory_tracking.combat.policy import Choice
 from inventory_tracking.combat.stance import CAMP_REACH
 from inventory_tracking.levels.model import Ground, Level, Room, Walkable, pack_cells
-from inventory_tracking.macros import lootpolicy
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.buffs import STATE_DISTRUST as HEX_DISTRUST
 from inventory_tracking.macros.hunt import (
@@ -2043,50 +2042,36 @@ def test_the_sweep_does_not_stay_by_gear_it_has_no_room_for():
     assert not any(line.startswith('Staying by') for line in play.said)
 
 
-def test_by_hand_the_sweep_goes_on_from_a_low_rune_with_no_room_and_the_shadow_names_the_class(monkeypatch, caplog):
+def test_by_hand_the_sweep_goes_on_from_a_low_rune_with_no_room():
     # macros/lootpolicy.py (rca/2026-10-18/arch-level-behaviour.md §2.1, Q1): by hand the sweep sweeps on as before the
-    # player's ruling (not prized); the shadow says the class once
-    monkeypatch.setattr(lootpolicy, 'SHADOW', lootpolicy.Shadow())
+    # player's ruling (not prized)
     play, hunt = far_one()
     rune = Drop(61, 4990.0, 5000.0, 'El Rune', 'valuable', (1, 1), prized=False, source='rune')
     play.loot = replace(play.loot, drops=(rune,), room=('####', '####'))
     hunt.pick = lambda: None
-    with caplog.at_level(logging.INFO):
-        swept(play, hunt)
+    swept(play, hunt)
     assert math.dist((me(play.world).x, me(play.world).y), (rune.x, rune.y)) > 25.0
-    line = 'Macro: lootpolicy: the sweep El Rune (unit 61): site says leave; a plain valuable with no room'
-    assert caplog.text.count(line) == 1
-    assert 'policy says' not in caplog.text
 
 
-def test_in_the_loop_the_sweep_stays_by_a_chipped_gem_with_no_room(monkeypatch, caplog):
+def test_in_the_loop_the_sweep_stays_by_a_chipped_gem_with_no_room():
     # The player, 2026-10-18 17:50, on Q1: "we should stop and clear inventory with our designated town routine": with
     # the KP_6 loop on the sweep holds a plain valuable it has no room for, as the loop's press does
-    monkeypatch.setattr(lootpolicy, 'SHADOW', lootpolicy.Shadow())
     play, hunt = far_one()
     gem = Drop(63, 4990.0, 5000.0, 'Chipped Amethyst', 'valuable', (1, 1), prized=False, source='material')
     play.loot = replace(play.loot, drops=(gem,), room=('####', '####'))
     hunt.pick = lambda: None
     hunt.looping = lambda: True
-    with caplog.at_level(logging.INFO):
-        swept(play, hunt)
+    swept(play, hunt)
     assert math.dist((me(play.world).x, me(play.world).y), (gem.x, gem.y)) <= 25.0
     assert 'Staying by Chipped Amethyst: the inventory has no room for it' in play.said
-    assert 'Macro: lootpolicy: the sweep Chipped Amethyst (unit 63): site says hold; a plain valuable' in caplog.text
-    assert 'policy says' not in caplog.text
 
 
-def test_the_level_run_stands_by_a_low_rune_with_no_room_and_the_shadow_names_the_class(monkeypatch, caplog):
-    monkeypatch.setattr(lootpolicy, 'SHADOW', lootpolicy.Shadow())
+def test_the_level_run_stands_by_a_low_rune_with_no_room():
     play, hunt = far_one()
     rune = Drop(62, 5010.0, 5000.0, 'El Rune', 'valuable', (1, 1), prized=False, source='rune')
     play.loot = replace(play.loot, drops=(rune,), room=('####', '####'))
-    with caplog.at_level(logging.INFO):
-        assert hunt.stay_by(play.run(), (5000.0, 5000.0)) == rune
-        assert hunt.stay_by(play.run(), (5000.0, 5000.0)) == rune
-    line = 'Macro: lootpolicy: the level run El Rune (unit 62): site says hold; a plain valuable with no room'
-    assert caplog.text.count(line) == 1
-    assert 'policy says' not in caplog.text
+    assert hunt.stay_by(play.run(), (5000.0, 5000.0)) == rune
+    assert hunt.stay_by(play.run(), (5000.0, 5000.0)) == rune
 
 
 def test_the_sweep_still_steps_within_the_radius_of_the_valuable_it_stays_by():

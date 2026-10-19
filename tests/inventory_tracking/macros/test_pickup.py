@@ -13,7 +13,7 @@ import pytest
 
 from inventory_tracking.config import BeltConfig
 from inventory_tracking.levels.model import Level, Room
-from inventory_tracking.macros import lootpolicy, pickup
+from inventory_tracking.macros import pickup
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.pickup import POTION_UNITS, Plan, choose, pick_up
 from inventory_tracking.macros.world import (
@@ -718,45 +718,36 @@ def test_a_prized_drop_with_no_room_for_it_still_stops_the_press_and_is_warned_o
     assert warned == ['Inventory full: Ist Rune, Superior Old Book left on the ground']
 
 
-def test_by_hand_a_low_rune_with_no_room_lets_the_press_go_on_and_the_shadow_names_the_class(monkeypatch, caplog):
+def test_by_hand_a_low_rune_with_no_room_lets_the_press_go_on():
     # macros/lootpolicy.py (rca/2026-10-18/arch-level-behaviour.md §2.1, Q1): KP_1 by hand goes on as before the
-    # player's ruling of 2026-10-18 17:50 (it is the loop's); the shadow says the class once
-    monkeypatch.setattr(lootpolicy, 'SHADOW', lootpolicy.Shadow())
+    # player's ruling of 2026-10-18 17:50 (it is the loop's)
     rune = Drop(73, 5008.0, 5003.0, 'El Rune', VALUABLE, (1, 1), prized=False, source='rune')
     play = game(rune)
     play.loot = Loot((rune,), FULL, 1000, 1000, FULL_ROOM)
     went_on = []
-    with caplog.at_level('INFO'):
-        assert not pick_up(play.run(), LEVEL, keys, lambda: went_on.append(True))
-        assert not pick_up(play.run(), LEVEL, keys, lambda: went_on.append(True))
+    assert not pick_up(play.run(), LEVEL, keys, lambda: went_on.append(True))
+    assert not pick_up(play.run(), LEVEL, keys, lambda: went_on.append(True))
     assert went_on == [True, True]
-    line = 'Macro: lootpolicy: the press El Rune (unit 73): site says leave; a plain valuable with no room'
-    assert caplog.text.count(line) == 1
-    assert 'policy says' not in caplog.text  # the site and its verdict agree
 
 
 CHIPPED = Drop(74, 5008.0, 5003.0, 'Chipped Amethyst', VALUABLE, (1, 1), prized=False, source='material')
 
 
-def test_in_the_loop_a_chipped_gem_with_no_room_stops_the_press_with_a_room_cause(monkeypatch, caplog):
+def test_in_the_loop_a_chipped_gem_with_no_room_stops_the_press_with_a_room_cause():
     # The player, 2026-10-18 17:50, on Q1: "we should stop and clear inventory with our designated town routine": the
     # loop's press (runner.py `take_one`) does not move on from it; its stop is the room rules' (the cube, a trip)
     from inventory_tracking.macros.runner import classify
 
-    monkeypatch.setattr(lootpolicy, 'SHADOW', lootpolicy.Shadow())
     play = game(CHIPPED)
     play.loot = Loot((CHIPPED,), FULL, 1000, 1000, FULL_ROOM)
     run = play.run()
     warned = warned_by(run)
-    with caplog.at_level('INFO'), pytest.raises(Abort, match=r'inventory full: no room for Chipped Amethyst$') as stop:
+    with pytest.raises(Abort, match=r'inventory full: no room for Chipped Amethyst$') as stop:
         pick_up(run, LEVEL, keys, nothing, looped=True)
     assert stop.value.cause == 'room'
     assert classify(stop.value) == 'room'
     assert warned == ['Inventory full: Chipped Amethyst left on the ground']
     assert play.picked == []
-    line = 'Macro: lootpolicy: the press Chipped Amethyst (unit 74): site says hold; a plain valuable with no room'
-    assert caplog.text.count(line) == 1
-    assert 'policy says' not in caplog.text
     # By hand, the same ground: the press goes on to its seek step
     went_on = []
     assert not pick_up(play.run(), LEVEL, keys, lambda: went_on.append(True))

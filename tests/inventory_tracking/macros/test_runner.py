@@ -15,7 +15,7 @@ from inventory_tracking.macros.loop import RECOVERIES, Dead
 from inventory_tracking.macros.runner import MacroRunner
 from inventory_tracking.macros.town import Exit
 from inventory_tracking.macros.world import GameMemory, Pack
-from inventory_tracking.routes.model import Route, level, use
+from inventory_tracking.routes.model import Route, level
 from inventory_tracking.routes.progress import Progress
 from tests.inventory_tracking.macros.fakes import BUILD, KEYS, Game, character_of, player, world
 
@@ -47,318 +47,6 @@ def test_a_stale_request_starts_nothing():
     assert runner.thread is None
 
 
-def test_tz_actions_use_dedicated_routines_only_when_the_ordinary_runner_is_idle():
-    started = []
-    runner = make(lambda cancelled, routine: started.append(routine), [])
-    runner.area_seen = 1  # town
-    assert runner.tz_start('prebuff', 35, 10.0)
-    joined(runner)
-    assert runner.tz_start('travel', 35, 11.0)
-    joined(runner)
-    assert started == ['tz prebuff', 'tz waypoint']
-    runner.loop.on = True
-    assert not runner.tz_start('travel', 35, 12.0)
-
-
-def test_tz_target_posts_a_goal_only_level_run_and_stops_before_loot_or_exit():
-    started = []
-    runner = make(lambda cancelled, routine: started.append(routine) or cancelled.wait(5), [])
-    posted = []
-    runner.hunter = cast(Hunter, SimpleNamespace(post=posted.append, end_run=lambda *args: None))
-    runner.build = replace(BUILD, settings=BUILD.settings.model_copy(update={'pursuit': True}))
-    runner.area_seen = 35
-    assert runner.tz_start('target', 35, time.monotonic())
-    assert posted[0].rush
-    assert posted[0].looped
-    assert not posted[0].elite_hunt
-    runner._run_over('what is left of the route is loot, which takes a press')
-    joined(runner)
-    assert runner.tz_target_over is not None
-    assert runner.tz_target_over.startswith('what is left')
-    assert runner.attack_mode is False
-
-
-def test_tz_pickup_is_a_dedicated_step_and_never_starts_the_regular_level_run():
-    started = []
-    runner = make(lambda cancelled, routine: started.append(routine), [])
-    runner.area_seen = 35
-    assert runner.tz_start('loot', 35, 10.0)
-    joined(runner)
-    assert started == ['tz loot']
-
-
-def test_tz_inventory_hold_needs_warned_valuable_and_confirmed_full_grids():
-    from inventory_tracking.macros.world import VALUABLE, Drop, Loot
-
-    tal = Drop(41, 7809.0, 6667.0, 'Tal Rune', VALUABLE, source='rune')
-    full = ('##########',) * 4
-    loot = Loot(drops=(tal,), room=full, cube=('###',) * 4)
-    assert runner_module._tz_no_room_drop(loot, 41) == 'Tal Rune at (7809, 6667)'
-    assert runner_module._tz_no_room_drop(loot, 42) is None
-    assert runner_module._tz_no_room_drop(Loot(drops=(tal,), room=full), 41) is None
-    assert (
-        runner_module._tz_no_room_drop(Loot(drops=(tal,), room=full), 41, cube_tried=True) == 'Tal Rune at (7809, 6667)'
-    )
-    assert runner_module._tz_no_room_drop(Loot(drops=(tal,), room=None, cube=('###',) * 4), 41) is None
-    assert runner_module._tz_no_room_drop(Loot(drops=(tal,), room=full, cube=('...',) * 4), 41) is None
-    assert (
-        runner_module._tz_no_room_drop(Loot(drops=(tal,), room=full, cube=('...',) * 4), 41, cube_tried=True)
-        == 'Tal Rune at (7809, 6667)'
-    )
-    assert runner_module._tz_no_room_drop(Loot(drops=(tal,), room=('..........',) * 4), 41) is None
-
-
-def test_targeted_tz_pickup_requires_the_exact_ground_item_and_fresh_free_room():
-    from inventory_tracking.macros.world import VALUABLE, Drop, Loot
-
-    tal = Drop(41, 7809.0, 6667.0, 'Tal Rune', VALUABLE)
-    free = Loot(drops=(tal,), room=('.........#',) * 4, game=('cyberrd74', 1))
-    assert runner_module._tz_pickup_drop(free, 'cyberrd74', 'Tal Rune', 7809, 6667) == tal
-    assert runner_module._tz_pickup_drop(free, 'cyberrd75', 'Tal Rune', 7809, 6667) is None
-    assert runner_module._tz_pickup_drop(free, 'cyberrd74', 'Tir Rune', 7809, 6667) is None
-    assert runner_module._tz_pickup_drop(free, 'cyberrd74', 'Tal Rune', 7799, 6667) is None
-    unread = Loot(drops=(tal,), game=('cyberrd74', 1))
-    assert runner_module._tz_pickup_drop(unread, 'cyberrd74', 'Tal Rune', 7809, 6667) is None
-    full = Loot(drops=(tal,), room=('##########',) * 4, game=('cyberrd74', 1))
-    assert runner_module._tz_pickup_drop(full, 'cyberrd74', 'Tal Rune', 7809, 6667) is None
-
-
-def test_guarded_town_exit_requires_the_current_game_and_no_ground_valuable():
-    started = []
-    runner = make(lambda _cancelled, routine: started.append(routine), [])
-    runner.area_seen = 1
-    runner.place = lambda: ('cyberrd74', 1)
-    runner.valuable_left = lambda: None
-    assert not runner.guarded_town_exit(10.0, 10.1, 'cyberrd75')
-    runner.valuable_left = lambda: 'unread'
-    assert not runner.guarded_town_exit(10.0, 10.1, 'cyberrd74')
-    runner.valuable_left = lambda: None
-    runner.attack_mode = True
-    assert not runner.guarded_town_exit(10.0, 10.1, 'cyberrd74')
-    runner.attack_mode = False
-    assert runner.guarded_town_exit(10.0, 10.1, 'cyberrd74')
-    joined(runner)
-    assert started == ['guarded town exit']
-
-
-def test_guarded_town_exit_refuses_a_remembered_out_of_sight_valuable():
-    from inventory_tracking.macros.sightings import Sighting
-
-    runner = make(lambda _cancelled, _routine: None, [])
-    runner.area_seen = 1
-    runner.place = lambda: ('cyberrd75', 1)
-    runner.valuable_left = lambda: None  # the current town view has no drop
-    runner.sightings.game = ('cyberrd75', 1)
-    runner.sightings.items[88] = Sighting(88, 'Unique Ballista', 22550, 9549, 37, 10.0)
-
-    assert not runner.guarded_town_exit(10.0, 10.1, 'cyberrd75')
-
-
-def test_tz_leave_refuses_remembered_valuable_even_when_loop_is_off(monkeypatch):
-    from inventory_tracking.macros import routines
-    from inventory_tracking.macros.sightings import Sighting
-
-    play = Game(world(9, player=player(9)))
-    run = play.run()
-    runner = make(lambda _cancelled, _routine: None, [])
-    runner.tz_area = 9
-    runner.sightings.game = ('cyberrd75', 1)
-    runner.sightings.items[88] = Sighting(88, 'Unique Ballista', 22550, 9549, 37, 10.0)
-    monkeypatch.setattr(runner, 'choosing', lambda _run: None)
-    left = []
-    monkeypatch.setattr(routines, 'leave_game', lambda _run: left.append(True))
-
-    with pytest.raises(Abort, match='valuable ground loot remains'):
-        runner.perform(run, run.actuator, runner_module.TZ_LEAVE, KEYS)
-
-    assert not left
-
-
-def test_guarded_town_exit_rechecks_game_town_and_ground_before_leave(monkeypatch):
-    from inventory_tracking.macros import routines
-    from inventory_tracking.macros.actuator import Abort
-
-    runner = make(lambda _cancelled, routine: None, [])
-    runner.guarded_exit_game = 'cyberrd74'
-    runner.valuable_left = lambda: None
-    state = {'game': 'cyberrd74', 'area': 1, 'town': True}
-    run = SimpleNamespace(
-        world=lambda: SimpleNamespace(
-            game_name=state['game'],
-            player=SimpleNamespace(area=state['area'], in_town=state['town']),
-        )
-    )
-    calls = []
-    monkeypatch.setattr(routines, 'leave_game', lambda _run: calls.append('leave'))
-    runner._guarded_town_exit(cast(Run, run))
-    assert calls == ['leave']
-    state['area'] = 9
-    with pytest.raises(Abort, match='Rogue Encampment'):
-        runner._guarded_town_exit(cast(Run, run))
-    assert calls == ['leave']
-
-
-def test_targeted_tz_pickup_approaches_its_unit_and_never_invokes_a_seek_fallback(monkeypatch):
-    from inventory_tracking.macros.world import VALUABLE, Drop, Loot
-
-    tal = Drop(41, 7809.0, 6667.0, 'Tal Rune', VALUABLE)
-    drops = [tal]
-    run = SimpleNamespace(
-        world=lambda: SimpleNamespace(
-            game_name='cyberrd74', player=SimpleNamespace(area=9, x=7810.0, y=6668.0), monsters=()
-        ),
-        loot=lambda: Loot(tuple(drops), room=('.........#',) * 4, game=('cyberrd74', 1)),
-        say=lambda message: None,
-    )
-    runner = make(lambda cancelled, routine: None, [])
-    runner.tz_pickup_spec = ('cyberrd74', 9, 'Tal Rune', 7809.0, 6667.0, (1, 1))
-    runner.hunter = cast(Hunter, SimpleNamespace(level=lambda: SimpleNamespace(area=9)))
-    actions: list[tuple] = []
-    monkeypatch.setattr(runner_module, 'approach', lambda *args: actions.append(('approach', args[-1])))
-
-    def take(_run, _level, _keys, otherwise, *, unit):
-        actions.append(('pickup', unit))
-        drops.clear()
-        return True
-
-    monkeypatch.setattr(runner_module, 'pick_up', take)
-    runner._tz_targeted_pickup(cast(Run, run), lambda *args: {})
-    assert actions == [('approach', runner_module.FETCH_HOPS), ('pickup', 41)]
-
-
-def test_targeted_tz_pickup_routes_to_unloaded_coordinate_then_requires_the_exact_drop(monkeypatch):
-    from inventory_tracking.macros.world import VALUABLE, Drop, Loot
-
-    boots = Drop(41, 7755.0, 6709.0, 'Magic Demonhide Boots', VALUABLE, size=(2, 2))
-    drops = []
-    rooms = ('..########', '..########', '##########', '##########')
-    run = SimpleNamespace(
-        world=lambda: SimpleNamespace(
-            game_name='cyberrd74', player=SimpleNamespace(area=9, x=7810.0, y=6668.0), monsters=()
-        ),
-        loot=lambda: Loot(tuple(drops), room=rooms, game=('cyberrd74', 1)),
-        say=lambda message: None,
-    )
-    runner = make(lambda cancelled, routine: None, [])
-    runner.tz_pickup_spec = ('cyberrd74', 9, 'Magic Demonhide Boots', 7755.0, 6709.0, (2, 2))
-    runner.hunter = cast(Hunter, SimpleNamespace(level=lambda: SimpleNamespace(area=9)))
-    actions: list[tuple] = []
-
-    def route(_run, target, _level, _keys, hops):
-        actions.append(('approach', target.x, target.y, hops))
-        drops.append(boots)
-
-    def take(_run, _level, _keys, otherwise, *, unit):
-        actions.append(('pickup', unit))
-        drops.clear()
-        return True
-
-    monkeypatch.setattr(runner_module, 'approach', route)
-    monkeypatch.setattr(runner_module, 'pick_up', take)
-    runner._tz_targeted_pickup(cast(Run, run), lambda *args: {})
-    assert actions == [('approach', 7755.0, 6709.0, runner_module.FETCH_HOPS), ('pickup', 41)]
-
-
-def test_targeted_tz_pickup_does_not_click_when_drop_is_still_unread_after_approach(monkeypatch):
-    from inventory_tracking.macros.actuator import Abort
-    from inventory_tracking.macros.world import Loot
-
-    run = SimpleNamespace(
-        world=lambda: SimpleNamespace(
-            game_name='cyberrd74', player=SimpleNamespace(area=9, x=7810.0, y=6668.0), monsters=()
-        ),
-        loot=lambda: Loot(room=('..########', '..########', '##########', '##########'), game=('cyberrd74', 1)),
-    )
-    runner = make(lambda cancelled, routine: None, [])
-    runner.tz_pickup_spec = ('cyberrd74', 9, 'Magic Demonhide Boots', 7755.0, 6709.0, (2, 2))
-    runner.hunter = cast(Hunter, SimpleNamespace(level=lambda: SimpleNamespace(area=9)))
-    actions = []
-    monkeypatch.setattr(runner_module, 'approach', lambda *args: actions.append('approach'))
-    monkeypatch.setattr(runner_module, 'pick_up', lambda *args, **kwargs: actions.append('pickup'))
-    with pytest.raises(Abort, match=r'not loaded.*on arrival'):
-        runner._tz_targeted_pickup(cast(Run, run), lambda *args: {})
-    assert actions == ['approach']
-
-
-@pytest.mark.parametrize(
-    ('room', 'hostiles', 'reason'),
-    [
-        (('##########',) * 4, 0, 'no fitting 2x2 inventory room'),
-        (('..########', '..########', '##########', '##########'), 1, 'hostiles near'),
-    ],
-)
-def test_targeted_tz_pickup_refuses_to_move_without_room_or_in_combat(monkeypatch, room, hostiles, reason):
-    from inventory_tracking.macros.actuator import Abort
-    from inventory_tracking.macros.world import Loot
-
-    run = SimpleNamespace(
-        world=lambda: SimpleNamespace(
-            game_name='cyberrd74', player=SimpleNamespace(area=9, x=7810.0, y=6668.0), monsters=()
-        ),
-        loot=lambda: Loot(room=room, game=('cyberrd74', 1)),
-    )
-    runner = make(lambda cancelled, routine: None, [])
-    runner.tz_pickup_spec = ('cyberrd74', 9, 'Magic Demonhide Boots', 7755.0, 6709.0, (2, 2))
-    runner.hunter = cast(Hunter, SimpleNamespace(level=lambda: SimpleNamespace(area=9)))
-    actions = []
-    monkeypatch.setattr(runner_module, 'threat', lambda _run: lambda _here, _spot: hostiles)
-    monkeypatch.setattr(runner_module, 'approach', lambda *args: actions.append('approach'))
-    with pytest.raises(Abort, match=reason):
-        runner._tz_targeted_pickup(cast(Run, run), lambda *args: {})
-    assert not actions
-
-
-def test_tz_session_actions_have_separate_guarded_routines():
-    started = []
-    runner = make(lambda _cancelled, routine: started.append(routine), [])
-    runner.area_seen = 1
-    runner.place = lambda: ('cyber1', 1)
-    assert runner.tz_start('restock', 4, 10.0, game='cyber1')
-    joined(runner)
-    runner.area_seen = 38
-    runner.place = lambda: ('cyber1', 38)
-    assert runner.tz_start('return-town', 38, 11.0, game='cyber1')
-    joined(runner)
-    assert runner.tz_start('leave', 38, 12.0, game='cyber1')
-    joined(runner)
-    runner.area_seen = None
-    runner.progress = Progress(())
-    runner.place = lambda: (None, None)
-    assert runner.tz_start('create', 0, 13.0, game='cyber1')
-    joined(runner)
-    assert started == ['tz supply', 'tz return town', 'tz leave', 'tz create']
-    assert runner.tz_game == 'cyber1'
-
-
-def test_tz_supply_uses_the_shared_visit_and_returns_to_its_original_town(monkeypatch):
-    from inventory_tracking.macros import waypoint
-
-    play = Game(world(1, player=player(1)))
-    run = play.run()
-    runner = make(lambda _cancelled, _routine: None, [])
-    monkeypatch.setattr(runner, 'choosing', lambda _run: None)
-    monkeypatch.setattr(runner_module, 'note_view', lambda *_args: None)
-    traveled = []
-    visited = []
-
-    def travel(_run, area, _marks):
-        traveled.append(area)
-        current = play.world.player
-        assert current is not None
-        play.world = replace(play.world, player=replace(current, area=area))
-
-    monkeypatch.setattr(waypoint, 'travel', travel)
-    monkeypatch.setattr(runner, '_shared_town_visit', lambda _run, exit, **kw: visited.append((exit, kw)))
-
-    runner.perform(run, run.actuator, runner_module.TZ_SUPPLY, KEYS)
-
-    assert traveled == [103, 1]
-    assert visited == [(Exit.WAYPOINT, {'tz': True})]
-    returned = play.world.player
-    assert returned is not None
-    assert returned.area == 1
-
-
 def test_loop_town_callback_uses_the_same_shared_visit(monkeypatch):
     play = Game(world(103, player=player(103)))
     run = play.run()
@@ -374,48 +62,7 @@ def test_loop_town_callback_uses_the_same_shared_visit(monkeypatch):
     assert visited == [Exit.WAYPOINT]
 
 
-def test_tz_shared_visit_uses_current_portal_and_ignores_stale_loop_supplies(monkeypatch):
-    from inventory_tracking.macros.portal import FROM_SLING, FROM_TOME
-
-    play = Game(world(103, player=player(103)))
-    play.pack = Pack()
-    runner = make(lambda _cancelled, _routine: None, [])
-    runner.loop.portal = FROM_SLING
-    runner.loop.full = {123}
-    captured = []
-    monkeypatch.setattr(runner_module, 'portal_source', lambda _run: FROM_TOME)
-
-    def visit(_run, _hands, needs, _own, _exit, **kwargs):
-        captured.append((needs, kwargs['full']))
-        return SimpleNamespace(
-            full=frozenset(), repair_failed=False, contract=SimpleNamespace(stash_full=(), misses=())
-        )
-
-    monkeypatch.setattr(runner_module, 'visit', visit)
-
-    runner._shared_town_visit(play.run(), Exit.WAYPOINT, tz=True)
-
-    assert captured[0][0].portals is FROM_TOME
-    assert captured[0][0].keys == 12
-    assert captured[0][1] == frozenset()
-    assert runner.loop.full == {123}
-
-
-def test_tz_onward_requires_route_stage_pointing_to_destination():
-    started = []
-    runner = make(lambda _cancelled, routine: started.append(routine), [])
-    runner.area_seen = 4
-    runner.place = lambda: ('cyber1', 4)
-    runner.progress = Progress((Route('Tristram', (4,), (level(4, use('Tristram', 38)),)),))
-    assert runner.tz_start('travel', 38, 10.0, game='cyber1')
-    joined(runner)
-    assert started == ['tz onward']
-    runner.progress = Progress((Route('wrong', (4,), (level(4, use('other portal', 37)),)),))
-    assert not runner.tz_start('travel', 38, 11.0, game='cyber1')
-
-
-def test_a_press_during_a_run_cancels_it(monkeypatch):
-    monkeypatch.setattr(runner_module, 'CARD_SECONDS', 0)
+def test_a_press_during_a_run_cancels_it():
     shown = []
 
     def execute(cancelled, routine):
@@ -429,8 +76,7 @@ def test_a_press_during_a_run_cancels_it(monkeypatch):
     assert shown == [['Macro stopped: cancelled'], []]
 
 
-def test_a_crash_is_shown_and_the_next_press_starts_again(monkeypatch):
-    monkeypatch.setattr(runner_module, 'CARD_SECONDS', 0)
+def test_a_crash_is_shown_and_the_next_press_starts_again():
     shown = []
     calls = []
 
@@ -460,7 +106,6 @@ def test_the_levels_noted_between_presses_are_what_a_run_is_told():
 def test_the_game_and_level_are_noted_for_the_routes_too():
     places = iter([('cyber32', 3), ('cyber32', 9), (None, None)])
     runner = MacroRunner(None, capture_lock=threading.Lock(), saved_games=SAVED_GAMES, place=lambda: next(places))
-    from inventory_tracking.routes.progress import Progress
 
     noted = []
 
@@ -484,8 +129,7 @@ def test_a_level_that_cannot_be_read_does_not_stop_the_service():
     assert not runner.capture_lock.locked()
 
 
-def test_a_teleport_request_during_a_teleport_step_queues_one_more_step_instead_of_cancelling(monkeypatch):
-    monkeypatch.setattr(runner_module, 'CARD_SECONDS', 0)
+def test_a_teleport_request_during_a_teleport_step_queues_one_more_step_instead_of_cancelling():
     steps, go_on = [], threading.Event()
 
     def execute(cancelled, routine):
@@ -518,8 +162,9 @@ def test_a_press_right_after_a_step_starts_the_next_while_the_card_still_shows(m
     assert steps == ['teleport', 'teleport']
 
 
-def test_closing_ends_the_card_wait_of_a_run_that_ended():
+def test_closing_ends_the_card_wait_of_a_run_that_ended(monkeypatch):
     # The card of a run that ended stays CARD_SECONDS (4 s); shutdown must not wait it out.
+    monkeypatch.setattr(runner_module, 'CARD_SECONDS', 4.0)
     runner = make(lambda cancelled, routine: None, [])
     assert runner.request(10.0, 10.1, 'teleport')
     thread = runner.thread
@@ -530,8 +175,7 @@ def test_closing_ends_the_card_wait_of_a_run_that_ended():
     assert not thread.is_alive()
 
 
-def test_a_macro_request_during_a_teleport_step_cancels_it(monkeypatch):
-    monkeypatch.setattr(runner_module, 'CARD_SECONDS', 0)
+def test_a_macro_request_during_a_teleport_step_cancels_it():
 
     def execute(cancelled, routine):
         assert cancelled.wait(5)
@@ -544,8 +188,7 @@ def test_a_macro_request_during_a_teleport_step_cancels_it(monkeypatch):
     assert not runner.working
 
 
-def test_a_seek_request_during_its_own_step_queues_one_more_and_a_teleport_request_cancels(monkeypatch):
-    monkeypatch.setattr(runner_module, 'CARD_SECONDS', 0)
+def test_a_seek_request_during_its_own_step_queues_one_more_and_a_teleport_request_cancels():
     steps, go_on, attacking = [], threading.Event(), threading.Event()
 
     def execute(cancelled, routine):
@@ -581,9 +224,8 @@ def test_a_seek_request_during_its_own_step_queues_one_more_and_a_teleport_reque
     runner.close()
 
 
-def test_the_toggle_turns_attack_mode_on_and_off(monkeypatch):
+def test_the_toggle_turns_attack_mode_on_and_off():
     # user, 2026-10-10 evening: the toggle turns it off too (the morning's "never off" is withdrawn).
-    monkeypatch.setattr(runner_module, 'CARD_SECONDS', 0)
     shown = []
 
     def execute(cancelled, routine):
@@ -606,10 +248,9 @@ def test_the_toggle_turns_attack_mode_on_and_off(monkeypatch):
     joined(runner)
 
 
-def test_a_seek_request_does_its_step_and_turns_attack_mode_on(monkeypatch):
+def test_a_seek_request_does_its_step_and_turns_attack_mode_on():
     # user, 2026-10-10 evening: after the seek step the character stood beside the monsters until attack
     # mode was turned on by hand.
-    monkeypatch.setattr(runner_module, 'CARD_SECONDS', 0)
     runs, attacking = [], threading.Event()
 
     def execute(cancelled, routine):
@@ -635,8 +276,7 @@ def test_a_seek_request_does_its_step_and_turns_attack_mode_on(monkeypatch):
     assert not runner.attack_mode
 
 
-def test_a_step_during_attack_mode_pauses_it_and_it_resumes_after(monkeypatch):
-    monkeypatch.setattr(runner_module, 'CARD_SECONDS', 0)
+def test_a_step_during_attack_mode_pauses_it_and_it_resumes_after():
     runs, resumed = [], threading.Event()
 
     def execute(cancelled, routine):
@@ -657,12 +297,11 @@ def test_a_step_during_attack_mode_pauses_it_and_it_resumes_after(monkeypatch):
     joined(runner)
 
 
-def test_a_pickup_request_during_attack_mode_asks_for_a_step_and_is_dropped_when_the_mode_says_so(monkeypatch):
+def test_a_pickup_request_during_attack_mode_asks_for_a_step_and_is_dropped_when_the_mode_says_so():
     # The press inside a fight is a step to a better stand; with nothing on the ground the mode tells
     # the runner that no pickup step (and so no seek step) is to follow the fight.
     from inventory_tracking.macros.hunt import Hunter
 
-    monkeypatch.setattr(runner_module, 'CARD_SECONDS', 0)
     runs, asked = [], threading.Event()
     hunter = Hunter(build=BUILD)
 
@@ -688,11 +327,10 @@ def test_a_pickup_request_during_attack_mode_asks_for_a_step_and_is_dropped_when
     assert runs == ['hunt any']
 
 
-def test_a_teleport_or_seek_request_ends_the_sweep_and_a_pickup_request_does_not(monkeypatch):
+def test_a_teleport_or_seek_request_ends_the_sweep_and_a_pickup_request_does_not():
     # Tower Cellar 3, 2026-10-11: the sweep walked the character back between two teleport steps.
     from inventory_tracking.macros.hunt import Hunter
 
-    monkeypatch.setattr(runner_module, 'CARD_SECONDS', 0)
     runner = make(lambda cancelled, routine: None, [])
     runner.hunter = Hunter(build=BUILD)
     for routine, left in (('pickup', 5), ('teleport', 0), ('hunt elites', 0), ('prebuff', 0)):
@@ -703,11 +341,10 @@ def test_a_teleport_or_seek_request_ends_the_sweep_and_a_pickup_request_does_not
         assert runner.hunter.sweep.steps == left, routine
 
 
-def test_a_pickup_request_during_attack_mode_waits_for_the_fight_and_the_mode_resumes_after(monkeypatch):
+def test_a_pickup_request_during_attack_mode_waits_for_the_fight_and_the_mode_resumes_after():
     # user, 2026-10-10: the pickup is queued behind the killing, not put before it.
     from inventory_tracking.macros.hunt import Hunter
 
-    monkeypatch.setattr(runner_module, 'CARD_SECONDS', 0)
     runs, resumed, fight_over = [], threading.Event(), threading.Event()
     hunter = Hunter(build=BUILD)
 
@@ -735,10 +372,9 @@ def test_a_pickup_request_during_attack_mode_waits_for_the_fight_and_the_mode_re
     joined(runner)
 
 
-def test_closing_during_a_seek_step_starts_nothing_after_it(monkeypatch):
+def test_closing_during_a_seek_step_starts_nothing_after_it():
     # review.md, finding 1: the cancelled seek step used to be followed by attack mode on a fresh,
     # unset cancellation, after the service had shut down.
-    monkeypatch.setattr(runner_module, 'CARD_SECONDS', 0)
     runs, started = [], threading.Event()
 
     def execute(cancelled, routine):
@@ -758,10 +394,9 @@ def test_closing_during_a_seek_step_starts_nothing_after_it(monkeypatch):
     assert runs == ['hunt elites']
 
 
-def test_closing_with_a_pickup_waiting_for_the_fight_drops_it(monkeypatch):
+def test_closing_with_a_pickup_waiting_for_the_fight_drops_it():
     from inventory_tracking.macros.hunt import Hunter
 
-    monkeypatch.setattr(runner_module, 'CARD_SECONDS', 0)
     runs, started = [], threading.Event()
 
     def execute(cancelled, routine):
@@ -780,9 +415,8 @@ def test_closing_with_a_pickup_waiting_for_the_fight_drops_it(monkeypatch):
     assert runs == ['hunt any']
 
 
-def test_a_macro_request_ends_attack_mode_and_runs_the_macro(monkeypatch):
+def test_a_macro_request_ends_attack_mode_and_runs_the_macro():
     # user, 2026-10-10: the macro request must not only stop the mode but run the macro as it does otherwise.
-    monkeypatch.setattr(runner_module, 'CARD_SECONDS', 0)
     runs, done = [], threading.Event()
 
     def execute(cancelled, routine):
@@ -801,8 +435,7 @@ def test_a_macro_request_ends_attack_mode_and_runs_the_macro(monkeypatch):
     assert not runner.attack_mode
 
 
-def test_attack_mode_returning_on_its_own_turns_the_toggle_off(monkeypatch):
-    monkeypatch.setattr(runner_module, 'CARD_SECONDS', 0)
+def test_attack_mode_returning_on_its_own_turns_the_toggle_off():
     shown = []
     runner = make(lambda cancelled, routine: None, shown)
     assert runner.request(10.0, 10.1, 'hunt any')
@@ -814,8 +447,7 @@ def test_attack_mode_returning_on_its_own_turns_the_toggle_off(monkeypatch):
     assert ['Macro: Attack mode off'] not in shown
 
 
-def test_attack_mode_ending_on_its_own_turns_the_toggle_off(monkeypatch):
-    monkeypatch.setattr(runner_module, 'CARD_SECONDS', 0)
+def test_attack_mode_ending_on_its_own_turns_the_toggle_off():
     shown = []
     runner = make(lambda cancelled, routine: (_ for _ in ()).throw(Abort('attack mode off: the game was left')), shown)
     assert runner.request(10.0, 10.1, 'hunt any')
@@ -824,10 +456,9 @@ def test_attack_mode_ending_on_its_own_turns_the_toggle_off(monkeypatch):
     assert ['Macro stopped: attack mode off: the game was left'] in shown
 
 
-def test_requests_racing_a_runs_end_never_leave_two_runs_acting(monkeypatch):
+def test_requests_racing_a_runs_end_never_leave_two_runs_acting():
     # review.md, finding 1: `working` went off before the successor was chosen, so a request and the
     # ending run could each start one. Steps that end at once, under a storm of requests.
-    monkeypatch.setattr(runner_module, 'CARD_SECONDS', 0)
     acting, most, runs = [0], [0], [0]
     guard = threading.Lock()
 
@@ -862,8 +493,7 @@ def test_requests_racing_a_runs_end_never_leave_two_runs_acting(monkeypatch):
     assert most[0] == 1
 
 
-def test_a_request_after_close_and_a_run_ending_after_close_start_nothing(monkeypatch):
-    monkeypatch.setattr(runner_module, 'CARD_SECONDS', 0)
+def test_a_request_after_close_and_a_run_ending_after_close_start_nothing():
     runs, started, release = [], threading.Event(), threading.Event()
 
     def execute(cancelled, routine):
@@ -887,10 +517,9 @@ def test_a_request_after_close_and_a_run_ending_after_close_start_nothing(monkey
     assert not runner.working
 
 
-def test_a_request_while_a_run_hands_over_to_its_successor_waits_for_the_handover(monkeypatch):
+def test_a_request_while_a_run_hands_over_to_its_successor_waits_for_the_handover():
     # review.md, finding 1: the seek step is over and attack mode is being started after it; a teleport
     # request in that moment must find the mode (and pause it), not an idle runner to start beside it.
-    monkeypatch.setattr(runner_module, 'CARD_SECONDS', 0)
     acting, most, runs = [0], [0], []
     guard, handing_over, teleported = threading.Lock(), threading.Event(), threading.Event()
 
@@ -959,12 +588,11 @@ def test_a_game_begun_with_the_staff_in_hand_is_said_once():
     assert len(shown) == 2
 
 
-def test_a_teleport_request_during_a_pickup_stops_it_and_the_step_follows_at_once(monkeypatch):
+def test_a_teleport_request_during_a_pickup_stops_it_and_the_step_follows_at_once():
     # Tower Cellar 5, 22:51:00 on 2026-10-11: the press to get out waited behind a pickup that clicked
     # 5 s at a potion among eight monsters, and the character died 0.4 s after it. (The Ring of
     # 17:35:18 that day, whose pickup such a press cancelled, is the teleport step's own business
     # now: it takes a valuable near before it hops, pickup.worth_a_stop.)
-    monkeypatch.setattr(runner_module, 'CARD_SECONDS', 0)
     steps, stepped = [], threading.Event()
 
     def execute(cancelled, routine):
@@ -984,7 +612,6 @@ def test_a_teleport_request_during_a_pickup_stops_it_and_the_step_follows_at_onc
 def test_attack_mode_stays_out_a_moment_after_a_teleport_step_and_a_press_in_it_goes_at_once(monkeypatch):
     # 21:26 on 2026-10-11: the next press of a player travelling came 40 to 700 ms after the step
     # before, found the mode running again and waited for it and its strike: half took over 250 ms.
-    monkeypatch.setattr(runner_module, 'CARD_SECONDS', 0)
     monkeypatch.setattr(runner_module, 'TRAVEL_QUIET', 30.0)
     runs, first, second = [], threading.Event(), threading.Event()
 
@@ -1008,7 +635,6 @@ def test_attack_mode_stays_out_a_moment_after_a_teleport_step_and_a_press_in_it_
 
 
 def test_attack_mode_resumes_at_once_after_a_seek_step(monkeypatch):
-    monkeypatch.setattr(runner_module, 'CARD_SECONDS', 0)
     monkeypatch.setattr(runner_module, 'TRAVEL_QUIET', 30.0)
     runs, resumed = [], threading.Event()
 
@@ -1170,7 +796,7 @@ def test_the_pickup_step_jumps_by_the_chosen_builds_own_jump():
 def test_at_a_routes_end_the_pickup_step_seeks_nothing_and_the_press_after_leaves_the_game():
     # Chaos Sanctuary, 23:18:27 on 2026-10-12: Diablo dead, nothing to pick up, and the pickup key went by
     # Blade Warp for "the remembered monster", three presses running (user: "no mobs around, so we can exit").
-    from inventory_tracking.routes.model import Route, fight, leave, level, loot
+    from inventory_tracking.routes.model import fight, leave, loot
     from inventory_tracking.routes.progress import Progress
     from tests.inventory_tracking.macros import test_pickup as drops
 
@@ -1202,7 +828,7 @@ def at_a_door(away: float):
     from inventory_tracking.levels.model import Target
     from inventory_tracking.macros.route import PERFORMED
     from inventory_tracking.native.layout import TILE_UNITS
-    from inventory_tracking.routes.model import Route, enter, fight, leave, level, loot
+    from inventory_tracking.routes.model import enter, fight, leave, loot
     from inventory_tracking.routes.progress import Progress
     from tests.inventory_tracking.macros import test_pickup as drops
 
@@ -1359,25 +985,6 @@ def test_the_macro_request_prebuffs_by_the_chosen_build_and_asks_for_its_keys():
     assert play.said[-1] == 'Prebuff done'
 
 
-def test_tz_prebuff_loads_character_skill_keys_before_the_first_cast():
-    from inventory_tracking.builds.warlock.skills import SUMMON_DEFILER
-    from inventory_tracking.macros.routines import prebuff_keys
-    from tests.inventory_tracking.macros.fakes import KEYS, Game, world
-
-    play, asked = Game(world()), []
-    runner, run, _ = building(play)
-    run.keys = {}
-
-    def key_names(found, skills=None):
-        asked.append(prebuff_keys(run.build) if skills is None else skills)
-        return dict(KEYS)
-
-    runner.perform(run, run.actuator, 'tz prebuff', key_names)
-    assert SUMMON_DEFILER in run.keys
-    assert asked == [prebuff_keys(BUILD)]
-    assert play.pressed() == ['q', '6', 'q', 'g', 'r']
-
-
 @pytest.mark.parametrize('strike', [False, True])
 def test_the_macro_request_of_a_character_without_weapon_sets_stops_as_it_did(strike):
     from inventory_tracking.builds.generic import GENERIC
@@ -1455,11 +1062,10 @@ def test_every_run_is_given_the_builds_weapon_sets_not_only_the_prebuff_and_atta
 # -- a flip of the game's input mode under a run (rca/2026-10-14/run-1904-findings.md §3.2) -------------------------
 
 
-def test_a_flip_under_a_step_ends_it_and_the_same_request_starts_again(monkeypatch, caplog):
+def test_a_flip_under_a_step_ends_it_and_the_same_request_starts_again(caplog):
     """KP_5 (the service's pad hotkey) flipped the game to controller mode under a run by the keys: the run could not
     act, and the pursuit looped 57 times in 7 s. Now the flip ends the run and the request is made again once, in
     the new mode (`play_by` chooses it at the run's start), said once."""
-    monkeypatch.setattr(runner_module, 'CARD_SECONDS', 0)
     shown, runs, done = [], [], threading.Event()
 
     def execute(cancelled, routine):
@@ -1482,8 +1088,7 @@ def test_a_flip_under_a_step_ends_it_and_the_same_request_starts_again(monkeypat
     assert not any(line and line[0].startswith('Macro stopped') for line in shown)
 
 
-def test_a_flip_under_attack_mode_keeps_it_on_and_starts_it_again(monkeypatch):
-    monkeypatch.setattr(runner_module, 'CARD_SECONDS', 0)
+def test_a_flip_under_attack_mode_keeps_it_on_and_starts_it_again():
     runs, again = [], threading.Event()
 
     def execute(cancelled, routine):
@@ -1504,8 +1109,7 @@ def test_a_flip_under_attack_mode_keeps_it_on_and_starts_it_again(monkeypatch):
     assert not runner.attack_mode
 
 
-def test_a_mode_that_keeps_flipping_stops_the_run(monkeypatch, caplog):
-    monkeypatch.setattr(runner_module, 'CARD_SECONDS', 0)
+def test_a_mode_that_keeps_flipping_stops_the_run(caplog):
     shown, runs = [], []
 
     def execute(cancelled, routine):
@@ -1545,9 +1149,8 @@ def test_the_run_made_again_after_a_flip_waits_for_the_flip_to_be_over():
     assert not runner.settling
 
 
-def test_the_loop_key_starts_a_leg_and_each_leg_is_followed_by_the_next_until_one_stops(monkeypatch):
+def test_the_loop_key_starts_a_leg_and_each_leg_is_followed_by_the_next_until_one_stops():
     # routes/lower-kurast-loop-plan.md phase 4: KP_6 on; the character's death ends the loop, saying why
-    monkeypatch.setattr(runner_module, 'CARD_SECONDS', 0)
     shown, made = [], []
 
     def execute(cancelled, routine):
@@ -1568,8 +1171,7 @@ def test_the_loop_key_starts_a_leg_and_each_leg_is_followed_by_the_next_until_on
     runner.close()
 
 
-def test_the_level_run_a_leg_asks_for_is_followed_by_the_next_leg(monkeypatch):
-    monkeypatch.setattr(runner_module, 'CARD_SECONDS', 0)
+def test_the_level_run_a_leg_asks_for_is_followed_by_the_next_leg():
     shown, made = [], []
 
     def execute(cancelled, routine):
@@ -1595,7 +1197,6 @@ def test_a_legs_stop_leaves_the_game_and_the_loop_goes_on_past_the_recoveries_af
     # prevent us from stopping": past RECOVERIES the next leg waits RECOVERY_PAUSE, and the loop stays on
     from inventory_tracking.macros import loop as loop_module
 
-    monkeypatch.setattr(runner_module, 'CARD_SECONDS', 0)
     monkeypatch.setattr(loop_module, 'RECOVERY_PAUSE', 0.05)
     shown, made, abandon = [], [], []
 
@@ -1622,11 +1223,10 @@ def test_a_legs_stop_leaves_the_game_and_the_loop_goes_on_past_the_recoveries_af
     runner.close()
 
 
-def test_a_game_with_a_valuable_on_the_ground_is_never_left_the_loop_stops_instead(monkeypatch):
+def test_a_game_with_a_valuable_on_the_ground_is_never_left_the_loop_stops_instead():
     # The player, 01:21 on 2026-10-17: "you we're killed the game while having valuable pickup on the ground!!! that
     # is the exact thing we want ot avoid": the loop left a game with a Flawless Diamond on the ground, the inventory
     # full ("inventory full: no room for Flawless Diamond", 01:20:39)
-    monkeypatch.setattr(runner_module, 'CARD_SECONDS', 0)
     shown, made = [], []
 
     def execute(cancelled, routine):
@@ -1652,11 +1252,10 @@ def test_a_game_with_a_valuable_on_the_ground_is_never_left_the_loop_stops_inste
     runner.close()
 
 
-def test_a_valuable_with_no_room_makes_room_in_the_cube_then_drops_an_item_once_a_game_then_the_loop_stops(monkeypatch):
+def test_a_valuable_with_no_room_makes_room_in_the_cube_then_drops_an_item_once_a_game_then_the_loop_stops():
     # 04:32:26 on 2026-10-17: "the character has not moved for 45 s; Grand Charm lies on the ground: the loop stops
     # here": the first time in a game the loop's items go into the cube at the next leg and the loop goes on; the
     # second, an item taken only to identify is dropped for it (21:00:03); the third, the loop stops for the player
-    monkeypatch.setattr(runner_module, 'CARD_SECONDS', 0)
     shown, made, room = [], [], []
 
     def execute(cancelled, routine):
@@ -1679,8 +1278,7 @@ def test_a_valuable_with_no_room_makes_room_in_the_cube_then_drops_an_item_once_
     runner.close()
 
 
-def test_the_loop_key_again_stops_the_leg_working_and_nothing_follows(monkeypatch):
-    monkeypatch.setattr(runner_module, 'CARD_SECONDS', 0)
+def test_the_loop_key_again_stops_the_leg_working_and_nothing_follows():
     shown, made = [], []
 
     def execute(cancelled, routine):
@@ -1898,7 +1496,7 @@ def andariel_room_runner(carrying: bool):
     return runner
 
 
-def test_in_the_loop_a_chipped_gem_with_no_room_is_held_the_cube_then_a_trip_to_town_then_taken(monkeypatch):
+def test_in_the_loop_a_chipped_gem_with_no_room_is_held_the_cube_then_a_trip_to_town_then_taken():
     # The player, 2026-10-18 17:50, on Q1: "we should stop and clear inventory with our designated town routine": the
     # loop's press holds a plain valuable with no room (cause 'room'), the guard keeps the game for it, the room rules
     # make room in the cube first, then a trip to town and back through the portal, and the press after takes it
@@ -1910,7 +1508,6 @@ def test_in_the_loop_a_chipped_gem_with_no_room_is_held_the_cube_then_a_trip_to_
     from inventory_tracking.macros.world import VALUABLE, Drop, Loot
     from tests.inventory_tracking.macros.fakes import Game, world
 
-    monkeypatch.setattr(lootpolicy, 'SHADOW', lootpolicy.Shadow())
     gem = Drop(74, 5008.0, 5003.0, 'Chipped Amethyst', VALUABLE, (1, 1), prized=False, source='material')
     full, roomy = ('##########',) * 4, ('#########.',) + ('##########',) * 3
     play = Game(world(area=CATACOMBS_4))
@@ -2058,7 +1655,7 @@ def test_a_full_stash_after_a_town_visit_stops_the_loop_in_town(caplog):
 def gheeds_runner(rows_free: bool = True):
     from inventory_tracking.macros.charms import GHEEDS_FORTUNE, UNIQUE, grand_charm
     from inventory_tracking.macros.loop import ANDARIEL
-    from inventory_tracking.macros.world import Carried, Pack
+    from inventory_tracking.macros.world import Carried
 
     runner = make(lambda cancelled, routine: None, [])
     runner.loop.on, runner.loop.kind, runner.loop.seen = True, ANDARIEL, ('cyberr48', 0.0)
@@ -2172,9 +1769,8 @@ def test_a_refusal_outside_the_loops_routine_asks_the_swap_only_with_the_loop_on
     runner.close()
 
 
-def test_the_pickup_steps_refusal_during_the_loop_ends_attack_mode_and_the_swap_leg_follows(monkeypatch):
+def test_the_pickup_steps_refusal_during_the_loop_ends_attack_mode_and_the_swap_leg_follows():
     # The pickup step attack mode asked for met the carry-one refusal: no leg of the mode's follows, the loop's does
-    monkeypatch.setattr(runner_module, 'CARD_SECONDS', 0)
     made: list[str] = []
     looped = threading.Event()
 

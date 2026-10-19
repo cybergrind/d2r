@@ -191,3 +191,14 @@ class Run:
         if self.cancelled.is_set():
             raise Cancelled
         self.pace.pause(kind)
+
+
+def protected(run: Run, item: Carried) -> str | None:
+    """Why `item` is never sold, dropped or put down: the player's by its stats, or kept by its stats; None when it is
+    the loop's to give up. Every action that gives an item up asks this first (the player, 2026-10-17: "we shouldn't
+    sell our own equipment or valuable items")."""
+    if run.players_item is not None and run.players_item(item):
+        return "the player's by its stats"
+    if run.kept_item is not None and (why := run.kept_item(item)):
+        return f'kept by its stats ({why})'
+    return None

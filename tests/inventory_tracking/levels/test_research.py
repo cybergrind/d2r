@@ -5,6 +5,7 @@ import struct
 import pytest
 
 from inventory_tracking.levels.research import survey
+from tests.inventory_tracking.fake_memory import Memory
 
 
 TABLE, PLAYER, OBJECT, PATH, OBJECT_PATH = 0x100000, 0x200000, 0x200400, 0x210000, 0x210100
@@ -12,21 +13,6 @@ ACT, MISC = 0x220000, 0x230000
 LEVEL, NEXT_LEVEL = 0x400000, 0x401000
 ROOM1_A, ROOM1_B, NEAR = 0x300000, 0x300200, 0x300400
 ROOM2_A, ROOM2_B, ROOM2_C, PRESET = 0x310000, 0x310200, 0x310400, 0x320000
-
-
-class Memory:
-    def __init__(self):
-        self.blocks = {}
-
-    def block(self, address, size):
-        self.blocks[address] = bytearray(size)
-        return self.blocks[address]
-
-    def read(self, address, size):
-        for start, data in self.blocks.items():
-            if start <= address and address + size <= start + len(data):
-                return bytes(data[address - start : address - start + size])
-        raise ValueError(f'Unmapped or unreadable range at {address:#x}')
 
 
 def unit(memory, address, unit_type, txt_id, unit_id, path):

@@ -5,13 +5,15 @@
   traderie.py search TEXT              search catalog by name
   traderie.py props [FILTER]           list property ids (e.g. props Socket)
   traderie.py listings ITEM_ID [N]     fetch up to N pages (50/page) of active sell listings, print one line each
-        --sc --nl --pc                 keep only softcore / non-ladder / PC listings (client-side; server ignores bool/string prop filters)
+        --scope                        keep only in-scope listings: SC / Non-Ladder / PC / Reign of the Warlock, the KB's predicate
+                                       (pricing.knowledge.scope.in_scope; no game version = unknown = left out). Client-side: the server
+                                       ignores bool/string prop filters. --sc, --nl and --pc are the old spelling: any of them = --scope.
         --sockets-min K                server-side numeric filter (prop_402Min)
         --rarity R                     keep only rarity R (unique|set|rare|magic|superior|normal|low quality|crafted) — property 797, client-side
         --eth / --noeth                keep only ethereal / non-ethereal (property 738)
         --props                        append every non-meta property (affix=value) to each line — needed for jewels, charms, uniques' rolls
         --json                         dump raw listings JSON instead of lines
-  traderie.py runes RUNE [RUNE...]     rune-for-rune asks (SC/NL/PC only): what sellers of e.g. "Ist" ask, when the ask is paid purely in runes.
+  traderie.py runes RUNE [RUNE...]     rune-for-rune asks (in scope only, as --scope): what sellers of e.g. "Ist" ask, when the ask is paid purely in runes.
                                        Use it to build the empirical NL rune ladder (WP-F) instead of trusting any static table.
 
 Facts verified against the live API on 2026-09-18:
@@ -35,8 +37,10 @@ Facts verified against the live API on 2026-09-18:
     Jewel has ~31 pages (~1,500 listings) — sample 4-6 pages sorted by updated_at, do not pull everything.
   * prop_1076 is "+x to Dragon Flight (Assassin Only)" — the filter in the user's original URL; it returns 0 listings for bases. Almost certainly a mis-copied id; intended filter is probably Ethereal (738).
 """
-import json, subprocess, sys
+import json, os, subprocess, sys
 from urllib.parse import quote
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))  # repo root
+from pricing.knowledge.scope import in_scope  # the one scope predicate; stdlib only
 UA='Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0 Safari/537.36'
 API='https://traderie.com/api/diablo2resurrected'
 def get(url):
@@ -44,6 +48,7 @@ def get(url):
     try: return json.loads(out)
     except Exception: sys.exit(f'non-JSON from {url}: {out[:200]}')
 META={797,798,799,800,1854,932}
+SCOPE_FLAGS={'--scope','--sc','--nl','--pc'}
 def fmt_price(pr):
     # prices[].group: entries sharing a group are summed ("1 Jah + 1 Lo"); different groups are ALTERNATIVES ("Small Charm OR 18x Jah")
     groups={}
@@ -79,9 +84,7 @@ def main(a):
             d=get(f'{API}/listings?item={iid}&page={pg}{q}'); ls=d.get('listings',[])
             if not ls: break
             out+=ls
-        if '--sc' in a: out=[l for l in out if props(l).get(799)=='softcore']
-        if '--nl' in a: out=[l for l in out if props(l).get(800) is False]
-        if '--pc' in a: out=[l for l in out if props(l).get(798)=='PC']
+        if SCOPE_FLAGS & set(a): out=[l for l in out if in_scope(l)]
         if '--rarity' in a: out=[l for l in out if (props(l).get(797) or '').lower()==a[a.index('--rarity')+1].lower()]
         if '--eth' in a: out=[l for l in out if props(l).get(738) is True]
         if '--noeth' in a: out=[l for l in out if not props(l).get(738)]
@@ -104,8 +107,7 @@ def main(a):
                 if not ls: break
                 out+=ls
             for l in out:
-                p=props(l)
-                if not(p.get(799)=='softcore' and p.get(800) is False and p.get(798)=='PC'): continue
+                if not in_scope(l): continue
                 pr=l.get('prices') or []
                 if not pr or any(x.get('type')!='runes' for x in pr): continue
                 ask=fmt_price(pr)

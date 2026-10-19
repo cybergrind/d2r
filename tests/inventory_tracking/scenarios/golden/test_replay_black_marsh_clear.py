@@ -18,15 +18,13 @@ from tests.inventory_tracking.scenarios.battle.replay import Replay
 GOLDEN = Path(__file__).parent / 'black_marsh_clear.log.json'
 
 
-def replayed() -> list[list]:
-    replay = Replay(battle.FIXTURE, battle.script())
-    replay.key_names = battle.key_names
-    return [[round(line.at, 2), line.text] for line in replay.run(battle.END)]
-
-
 @functools.cache
 def once() -> tuple[tuple[float, str], ...]:
-    return tuple((at, text) for at, text in replayed())
+    """The replay, made once for the tests here. That a second replay says the same is the harness's, tested once for
+    every take (battle/test_tower_cellar5.py `test_a_replay_is_the_same_replay_again`)."""
+    replay = Replay(battle.FIXTURE, battle.script())
+    replay.key_names = battle.key_names
+    return tuple((round(line.at, 2), line.text) for line in replay.run(battle.END))
 
 
 def test_the_replayed_battle_says_what_it_said():
@@ -38,12 +36,6 @@ def test_the_replayed_battle_says_what_it_said():
     for index, (got, want) in enumerate(zip(lines, stored, strict=False)):
         assert got == want, f'first differing line is index {index}: replayed {got!r}, stored {want!r}'
     assert len(lines) == len(stored), f'{len(lines)} lines replayed, {len(stored)} stored'
-
-
-def test_three_replays_say_the_same():
-    first = [list(line) for line in once()]
-    assert replayed() == first
-    assert replayed() == first
 
 
 def test_the_replay_fights_the_fight_of_the_record():

@@ -19,6 +19,7 @@ from inventory_tracking.macros.world import (
     unit_stats,
 )
 from inventory_tracking.native.layout import LEVEL_AREA_ID, PATH_ROOM1, ROOM1_ROOM2, ROOM2_LEVEL
+from tests.inventory_tracking.fake_memory import Memory
 from tests.inventory_tracking.macros.fakes import SLOTS
 
 
@@ -86,21 +87,6 @@ def test_the_swap_key_is_read_from_the_key_file_not_assumed():
 
 TABLE = 0x100000
 LEVEL, ROOM2, ROOM1 = 0x500000, 0x510000, 0x520000
-
-
-class Memory:
-    def __init__(self):
-        self.blocks = {}
-
-    def block(self, address, size):
-        self.blocks[address] = bytearray(size)
-        return self.blocks[address]
-
-    def read(self, address, size):
-        for start, data in self.blocks.items():
-            if start <= address and address + size <= start + len(data):
-                return bytes(data[address - start : address - start + size])
-        raise ValueError(f'Unmapped or unreadable range at {address:#x}')
 
 
 def character(memory, index, name, *, life=None, area=109, mode=1):

@@ -274,14 +274,12 @@ def test_in_controller_mode_the_world_has_the_records_skills_for_slots():
 
 def test_the_policy_follows_the_games_mode_and_never_flips_it():
     assert input_policy(None, enabled=True) is False  # unread: the keys, as before
-    assert input_policy(KEYBOARD, enabled=True, needs_mouse='the macro request') is False
+    assert input_policy(KEYBOARD, enabled=True) is False
     assert input_policy(CONTROLLER, enabled=True) is True
     with pytest.raises(Abort, match='switching to keyboard'):
         input_policy(SWITCHING, enabled=True)
     with pytest.raises(Abort, match='controller_play'):
         input_policy(CONTROLLER, enabled=False)
-    with pytest.raises(Abort, match='the macro request needs mouse mode: click once'):
-        input_policy(CONTROLLER, enabled=True, needs_mouse='the macro request')
 
 
 def runner_run(mode: InputMode | None, enabled: bool = True):

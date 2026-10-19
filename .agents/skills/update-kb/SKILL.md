@@ -84,6 +84,8 @@ A running worker needs a restart for Python/metadata changes.
 
 ## Publish the validated runtime generation
 
+Before publishing, run the full item bank against the staged artifacts (≈ 2.1 h; a plain run takes a
+1.9k-case subset): `D2R_ITEM_BANK=full uv run --offline pytest tests/pricing/knowledge/assessment/item_bank --item-bank-staged -q`.
 After rebuilding the affected artifacts/index and passing regression checks, run
 `uv run --offline python -m pricing.knowledge.publication`. It validates staged
 metadata, definitions, rules and bundled source evidence before atomically selecting

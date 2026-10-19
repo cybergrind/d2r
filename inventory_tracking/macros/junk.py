@@ -28,7 +28,7 @@ from collections.abc import Callable, Iterable, Mapping, Sequence
 from inventory_tracking.common import LOG
 from inventory_tracking.items.metadata import item_base
 from inventory_tracking.macros.actuator import Abort
-from inventory_tracking.macros.cube import INVENTORY, PANEL_SECONDS, cell_point, loot
+from inventory_tracking.macros.cube import INVENTORY, PANEL_SECONDS, cell_point, loot, open_inventory
 from inventory_tracking.macros.engine import Run
 from inventory_tracking.macros.pickmode import WHITE, sellable
 from inventory_tracking.macros.world import IDENTIFY_TOME, Carried, Pack
@@ -84,10 +84,7 @@ def identify(run: Run, inventory_key: str, items: Iterable[Carried]) -> list[Car
         return []
     done: list[Carried] = []
     try:
-        run.actuator.tap(inventory_key)
-        if run.seen(lambda w: 'inventory' in w.open_panels, PANEL_SECONDS) is None:
-            raise Abort('the inventory did not open')
-        run.actuator.rebase()
+        open_inventory(run, inventory_key)
         for item in items[: pack.identifies]:
             run.actuator.move(*cell_point(rect, INVENTORY, (tome.x, tome.y), tome.size), scatter=(5, 5))
             run.actuator.tap('Button3')  # the tome's right click: the pointer identifies the next item clicked

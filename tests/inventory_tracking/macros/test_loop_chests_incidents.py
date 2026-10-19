@@ -9,7 +9,7 @@ from dataclasses import replace
 from pathlib import Path
 
 from inventory_tracking.combat.harm import Harm
-from inventory_tracking.macros import pursuit as p, runner as runner_module
+from inventory_tracking.macros import pursuit as p
 from inventory_tracking.macros.actuator import Abort, Cancelled
 from inventory_tracking.macros.build import Step
 from inventory_tracking.macros.goals import Goal
@@ -65,10 +65,9 @@ def test_the_loops_run_stands_to_strike_only_after_a_loss_of_life():
     assert p.decide(replace(facts, candidates=(replace(hold, harm=Harm(10.0, 20.0)), use)), run) == use.act
 
 
-def test_the_loop_goes_on_once_the_level_run_of_its_chests_is_over(monkeypatch):
+def test_the_loop_goes_on_once_the_level_run_of_its_chests_is_over():
     # 20:00:51.6 "Level run over: what is left of the route is loot, which takes a press"; attack mode went on
     # sweeping (29 s) and then idled (15 s) until the player pressed KP_6 twice (20:01:35, 20:01:38).
-    monkeypatch.setattr(runner_module, 'CARD_SECONDS', 0)
     made, shown, swept = [], [], []
     hunter = Hunter(build=BUILD)
     runner = MacroRunner(

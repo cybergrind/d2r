@@ -4,7 +4,7 @@ from collections.abc import Sequence
 from dataclasses import replace
 
 from inventory_tracking.items.metadata import metadata
-from inventory_tracking.macros.cube import CUBE_CLASS, KEY_CLASS, inventory_rows, own_of, room_for
+from inventory_tracking.macros.cube import CUBE_CLASS, KEY_CLASS, inventory_rows, keys_move, own_of, room_for
 from inventory_tracking.macros.town import (
     DEPOSIT_ROOM,
     RUNE_TRANSMUTES,
@@ -21,7 +21,6 @@ from inventory_tracking.macros.town import (
     place,
     rune_transmutes,
     stash_stop,
-    stop_collecting,
     surplus,
     uncubed,
 )
@@ -190,22 +189,19 @@ def test_a_key_stack_in_the_block_is_moved_out_of_it():
     keys = Carried(80, KEY_CLASS, 8, 1, (1, 1))
     pack = Pack((THE_CUBE, *OWN_CHARMS, keys))
 
-    stop = stash_stop(Holdings(pack, OWN), view(), Needs(block=(2, 4)))
+    move = keys_move(pack, (2, 4))
 
-    assert stop.keys_to is not None
-    moved, cell = stop.keys_to
+    assert move is not None
+    moved, cell = move
     assert moved == keys
     rows = inventory_rows(Pack((THE_CUBE, *OWN_CHARMS, Carried(80, KEY_CLASS, *cell, (1, 1)))))
     assert room_for(rows, (2, 4))
 
 
-def test_a_kind_whose_perfect_stack_is_full_is_no_longer_collected_and_its_surplus_sold():
-    flawless, perfect = class_of('Flawless Sapphire'), class_of('Perfect Sapphire')
+def test_a_kind_whose_perfect_stack_is_full_has_its_surplus_sold():
+    flawless = class_of('Flawless Sapphire')
     full = view(Flawless_Sapphire=99, Perfect_Sapphire=99)
     half = view(Flawless_Sapphire=99, Perfect_Sapphire=40)
-
-    assert stop_collecting(full) == {flawless, perfect}
-    assert stop_collecting(half) == frozenset()
     gems = [Carried(90 + i, flawless, i, 3, (1, 1)) for i in range(5)]
     assert surplus(gems, full) == tuple(gems[3:])  # one transmute's worth kept
     assert surplus(gems, half) == ()  # cubed into perfect ones first

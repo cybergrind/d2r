@@ -25,7 +25,7 @@ open: export
 
 ## serve: start the Alt+D / Win+S / Win+D / Win+C worker (binds its hotkeys in niri while it runs, input/compositor.py; collects on stash close; Win+C re-shows the level map and dumps level memory; Win+X runs the prebuff macro; KP_4 teleports toward the level map's mark or walks into a near door; KP_2 teleports toward the nearest elite, else an unexplored room; KP_3 toggles attack mode, which kills whatever comes into reach while you move about; KP_1 picks up a valuable drop or a potion the belt wants (after the fight when one is on), else steps to where the monsters near can be struck, else does KP_2; inside a fight it also steps to a better place to stand; shows unread Traderie notifications, also without the game)
 serve:
-	$(UV) python -m inventory_tracking.appraisal_service serve
+	$(UV) python -m inventory_tracking.appraisal serve
 
 ## collect: read the running game's items once without the hotkey
 collect:

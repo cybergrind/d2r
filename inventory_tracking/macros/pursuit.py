@@ -119,7 +119,6 @@ class Pursuit:
     # and a run of its own, not the one before (a game's last run held into the next: two posts 0.35 s apart switched
     # the run to a full clear of Catacombs Level 2, 80 s, 10:26:40 on 2026-10-18)
     looped: bool = False
-    elite_hunt: bool = False  # TZ slice: leaders and unexplored rooms before the route target
     # The terror zone kinds' level run (macros/tzloop.py, goals-plan.md): its targets are the agenda's
     # (`Hunter.agenda_target`, agenda.py `Agenda.in_level`), the route's stage of the level after them
     agenda: bool = False

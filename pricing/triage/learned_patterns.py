@@ -151,28 +151,3 @@ def supported_rows(item, pattern):
             seller = str(row['seller_id'])
             sellers[seller] = min(sellers.get(seller, math.inf), row['ask_ist'])
     return rows if sum(value >= pattern['keep_ist'] for value in sellers.values()) >= 3 else []
-
-
-def guide_negatives(cases):
-    """Explicit guide VENDOR examples constrain learned subsets, not market prices."""
-    from pricing.triage.guide_cases import item_from_spec
-
-    result = []
-    for case in cases:
-        if case.get('classification') == 'own-use':
-            continue
-        entries = case.get('examples')
-        if entries is None:
-            entries = [
-                {'spec': spec, 'expected': case.get('expected')}
-                for spec in case.get('specs', []) or ([case['spec']] if case.get('spec') else [])
-            ] + [
-                {'item': item, 'expected': case.get('expected')}
-                for item in case.get('items', []) or ([case['item']] if case.get('item') else [])
-            ]
-        for entry in entries:
-            if entry.get('expected') == ['vendor']:
-                item = item_from_spec(entry['spec']) if entry.get('spec') else entry['item']
-                if item['category'] in AFFIXED:
-                    result.append(item)
-    return result

@@ -8,7 +8,8 @@
                the "fills"/"bids_active" arrays are emitted empty and must be merged from search-rune-*-sold.html by hand.
       --legacy: the original {"ladder": {...}, "iterations", "lem_fixed"} shape.  --verbose lists every listing used on stderr.
 
-Input: pricing/raw/traderie/rune-<Name>.json (raw listings, already SC/NL/PC filtered by `traderie.py listings ID 2 --sc --nl --pc --json`).
+Input: pricing/raw/traderie/rune-<Name>.json (raw listings from `traderie.py listings ID 2 --scope --json`); load() keeps only
+pricing.knowledge.scope.in_scope listings, so a file pulled under the older SC/NL/PC-only filter loses its LoD/classic/unset rows.
 Reading of a Traderie price (verified on the raw JSON, 2026-09-18):
   * listing.prices[] entries carry "group": entries sharing a group are ONE bundle (summed); different groups are ALTERNATIVE asks
     the seller accepts ("1x Jah OR 1x Zod"). "add" is False/None everywhere in the rune pulls (not used).
@@ -25,8 +26,10 @@ midpoints; Lem is fixed at its guide midpoint (0.20 Ist, too few observations); 
 Sellers multi-list (Zod: 41 of 61 listings from one seller): every listing is weighted 1/(listings of its seller) in the LS and in the median.
 Output per rune: ist (joint solution), ist_median (seller-weighted) / min / max = spread of individual per-listing asks valued at the joint solution, n_asks, n_sellers.
 """
-import json, sys, statistics, math
+import json, os, sys, statistics, math
 import numpy as np
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))  # repo root
+from pricing.knowledge.scope import in_scope  # the one scope predicate; stdlib only
 RUNES=['Pul','Um','Mal','Ist','Gul','Vex','Ohm','Lo','Sur','Ber','Jah','Cham','Zod']
 GUIDE={'Lem':(0.15,0.25),'Pul':(0.25,0.35),'Um':(0.35,0.5),'Mal':(0.55,0.7),'Ist':(1,1),'Gul':(1.4,1.7),'Vex':(2.5,3),'Ohm':(3.5,4),
        'Lo':(5,6),'Sur':(7,9),'Ber':(10,12),'Jah':(10,12),'Zod':(10,12),'Cham':(4,8)}  # Cham "offer" in NL column → seeded from its Ladder column 4-8
@@ -38,7 +41,7 @@ def load():
         rows=[]
         for l in json.load(open(f'pricing/raw/traderie/rune-{r}.json')):
             pr=l.get('prices') or []
-            if not pr or any(x.get('type')!='runes' for x in pr) or not l.get('amount'): continue
+            if not in_scope(l) or not pr or any(x.get('type')!='runes' for x in pr) or not l.get('amount'): continue
             g={}
             for x in pr: g.setdefault(x['group'],[]).append((x['name'].replace(' Rune',''),x.get('quantity') or 1))
             alts=[b for b in g.values() if all(n!=r and n in v for n,_ in b)]   # drop self-referencing / unknown-rune alternatives

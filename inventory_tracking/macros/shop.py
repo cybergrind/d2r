@@ -32,7 +32,7 @@ from inventory_tracking.levels.memory import WAYPOINT_CLASSES
 from inventory_tracking.loot.runes import RUNES as RUNE_CLASSES
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.cube import INVENTORY, cell_point
-from inventory_tracking.macros.engine import Run
+from inventory_tracking.macros.engine import Run, protected
 from inventory_tracking.macros.junk import named
 from inventory_tracking.macros.portal import FROM_TOME, PortalSource, portal_source
 from inventory_tracking.macros.routines import screen_fraction
@@ -67,7 +67,6 @@ def tab_point(tab: int) -> tuple[float, float]:
     return TABS[0] + tab * TAB_SIZE[0] + TAB_SIZE[0] / 2, TABS[1] + TAB_SIZE[1] / 2
 
 
-MISC_TAB = tab_point(3)
 VENDOR = ((0.0, 0.397), (236, -651), (91, 233))  # the stock grid, as cube.py's grids
 # Window fractions she is drawn within before she is clicked: her menu (up to TRADE_ABOVE and a line higher) and her
 # feet inside the window, the bottom bar's controls clear
@@ -285,13 +284,8 @@ def restock(run: Run, sell: Sequence[Carried] = (), back: bool = True, keys: int
             if now is None or all((c.unit_id, c.x, c.y) != (each.unit_id, each.x, each.y) for c in now.items):
                 LOG.info('Macro: shop: the item %d is no longer at (%d, %d): not sold', each.txt, each.x, each.y)
                 continue
-            if run.players_item is not None and run.players_item(each):
-                LOG.info("Macro: shop: the %s at (%d, %d) is the player's by its stats: never sold", named(each),
-                         each.x, each.y)  # fmt: skip
-                continue
-            if run.kept_item is not None and (why := run.kept_item(each)):
-                LOG.info('Macro: shop: the %s at (%d, %d) is kept by its stats (%s): never sold', named(each), each.x,
-                         each.y, why)  # fmt: skip
+            if why := protected(run, each):
+                LOG.info('Macro: shop: the %s at (%d, %d) is %s: never sold', named(each), each.x, each.y, why)
                 continue
             others = {c.unit_id for c in now.items} - {each.unit_id}
             # A Ctrl + click on an inventory item with her trade window open sells it; checked by its leaving
@@ -569,13 +563,11 @@ def _picture(run: Run, always: bool = False) -> None:
 
 
 def hits(vendor: int) -> list[float]:
-    """The lifts that took on `vendor`'s line, the latest last (LIFTS_FILE; a single number before 2026-10-19)."""
+    """The lifts that took on `vendor`'s line, the latest last (LIFTS_FILE)."""
     try:
         kept = json.loads(LIFTS_FILE.read_text()).get(str(vendor))
     except OSError, ValueError, AttributeError:
         return []
-    if isinstance(kept, (int, float)):
-        return [float(kept)]
     return [float(lift) for lift in kept] if isinstance(kept, list) else []
 
 

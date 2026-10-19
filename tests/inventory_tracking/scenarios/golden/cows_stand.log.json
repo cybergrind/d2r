@@ -33,6 +33,10 @@
  ],
  [
   0.59,
+  "Macro: firing stand jump source: chosen 390, offered [390], own Teleport None, staff Teleport(charges=66, maximum=69, in_hand=False)"
+ ],
+ [
+  0.59,
   "Macro: sweeping with 21 hostiles near and none in reach, from (25321.0, 6023.8): a place at (25330.5, 6035.5), a jump by Blade Warp of 15 (0.7s), worth 47600 against 0 here, more than the horizon's casts"
  ],
  [
@@ -185,6 +189,10 @@
  ],
  [
   11.61,
+  "Macro: firing stand jump source: chosen 390, offered [390], own Teleport None, staff Teleport(charges=66, maximum=69, in_hand=False)"
+ ],
+ [
+  11.61,
   "Macro: sweeping in the fight with 2 of 31 hostiles in reach, from (25306.5, 6062.5): a place at (25324.5, 6068.5), a jump by Blade Warp of 19 (0.8s), worth 53773 against 18855 here, 6 casts"
  ],
  [
@@ -237,6 +245,10 @@
  ],
  [
   15.11,
+  "Macro: firing stand jump source: chosen 390, offered [390], own Teleport None, staff Teleport(charges=66, maximum=69, in_hand=False)"
+ ],
+ [
+  15.11,
   "Macro: sweeping in the fight with 1 of 5 hostiles in reach, from (25325.5, 6068.5): a place at (25319.5, 6077.5), a jump by Blade Warp of 11 (0.6s), worth 35583 against 15036 here, 5 casts"
  ],
  [
@@ -278,6 +290,10 @@
  [
   17.24,
   "Macro: line through the monster 391 (1674814355), 41/128, 10.9 away, focal (25314.0, 6068.6), worth 3368, pointer (3404, 427)"
+ ],
+ [
+  17.53,
+  "Macro: firing stand jump source: chosen 390, offered [390], own Teleport None, staff Teleport(charges=66, maximum=69, in_hand=False)"
  ],
  [
   17.53,

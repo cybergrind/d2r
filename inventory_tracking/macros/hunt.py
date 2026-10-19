@@ -46,7 +46,7 @@ the way (the potential from the character's own tile). An elite already in reach
 import math
 import threading
 import time
-from collections.abc import Callable, Collection, Sequence
+from collections.abc import Callable, Sequence
 from contextlib import ExitStack, contextmanager, nullcontext
 from dataclasses import dataclass, field, replace
 
@@ -126,7 +126,6 @@ from inventory_tracking.macros.goals import (
 )
 from inventory_tracking.macros.movement import HOPS, WALKS, WARPS
 from inventory_tracking.macros.pad import MONSTER_UNIT
-from inventory_tracking.macros.pickmode import is_candidate
 from inventory_tracking.macros.pickup import (
     POTION_UNITS,
     Refused,
@@ -540,30 +539,6 @@ def threat(run: Run) -> Callable[[Point, Point], int]:
         )
 
     return near
-
-
-def stands_by(drop: Drop, loot: Loot, waived: Collection[int]) -> bool:
-    """Whether a level run stands by `drop` (`Hunter.stay_by`, within PICK_NEAR): a valuable the inventory has no room
-    for, not taken only because the loot filter shows it (`Loot.shown`), and not one a press went on from (`waived`).
-    Macros/lootpolicy.py `RUN` answers the same."""
-    return (
-        drop.kind == VALUABLE
-        and drop.unit_id not in loot.shown
-        and drop.unit_id not in waived
-        and not has_room(loot.room, drop.size)
-    )
-
-
-def holds(drop: Drop, loot: Loot, looped: bool = False) -> bool:
-    """Whether the sweep stays by `drop` (`Hunter.gather`'s `held`, within HOLD_SIGHT, of the drops not given up): a
-    valuable prized (world.py `prized`) or with room for it; in the KP_6 loop (`looped`) also one not taken only
-    because the filter shows it (`Loot.shown`) and no identify candidate (the player, 2026-10-18 17:50: "we should stop
-    and clear inventory with our designated town routine"). Macros/lootpolicy.py `SWEEP` answers the same; `gather`
-    asks it."""
-    if drop.kind != VALUABLE:
-        return False
-    plain = looped and drop.unit_id not in loot.shown and not is_candidate(drop)
-    return drop.prized or has_room(loot.room, drop.size) or plain
 
 
 def passing_key(place: Point, unit: int | None, rooms: Sequence[Room] = ()) -> object:
@@ -1010,7 +985,6 @@ class Hunter:
                     'onward': old.onward,
                     'entered': old.entered,
                     'rush': old.rush,
-                    'elite_hunt': old.elite_hunt,
                     'agenda': old.agenda,
                 }
                 if not pursuit.leashed:
@@ -1366,13 +1340,13 @@ class Hunter:
         found = None
         if loot is not None:
             near = [d for d in loot.drops if d.kind == VALUABLE and math.dist(here, (d.x, d.y)) <= PICK_NEAR]
-            left = [d for d in near if stands_by(d, loot, self.waived)]
-            for d in near:
-                # Beside the decision, never in place of it (macros/lootpolicy.py, shadow mode)
-                lootpolicy.SHADOW.check(
-                    lootpolicy.RUN, d, stands_by(d, loot, self.waived), game=loot.game,
-                    room=has_room(loot.room, d.size), shown=d.unit_id in loot.shown, given_up=d.unit_id in self.waived,
-                )  # fmt: skip
+            left = [
+                d for d in near
+                if lootpolicy.verdict(
+                    d, lootpolicy.RUN, room=has_room(loot.room, d.size), shown=d.unit_id in loot.shown,
+                    given_up=d.unit_id in self.waived,
+                ).hold
+            ]  # fmt: skip
             found = min(left, key=lambda d: math.dist(here, (d.x, d.y))) if left else None
         if found is None:
             if self.warned is not None:
@@ -1611,8 +1585,7 @@ class Hunter:
         if mode is not None and mode.agenda and self.agenda is not None:
             return self.agenda_cleared(run, world, foes, ground, found)
         clear = mode is not None and mode.clear
-        elite = mode is not None and mode.elite
-        if found is not None and (found.do in (PICK_UP, WAIT) or found.guarded or (found.do == FIGHT and not elite)):
+        if found is not None and (found.do in (PICK_UP, WAIT, FIGHT) or found.guarded):
             return found
         # Nor on the KP_6 loop's rushed run (not a full clear): its way out is gone to, a pack beside it fought only
         # when it hurts or blocks (the player, 2026-10-16: "don't fight what isn't attacking"). Cleared, every pack on
@@ -1631,29 +1604,16 @@ class Hunter:
 
         herald = bool(self.omens) or any(m.tier and m.leader for m in foes)
         route = found.route if found is not None else ''
-        chest = (
-            self.super_chest_goal(run, player, here, route, spend, rooms)
-            if clear and not herald and not elite
-            else None
-        )
+        chest = self.super_chest_goal(run, player, here, route, spend, rooms) if clear and not herald else None
 
         def candidate(skip: frozenset[object]) -> Goal | None:
-            rest = (
-                self.rest_of(run, world, foes, here, skip, rooms, leaders_only=elite)
-                if clear and chest is None
-                else None
-            )
-            base = chest or (
-                rest_of_level(rest, None if elite else found, self.reach, spend)
-                if rest is not None
-                else (None if elite else found)
-            )
+            rest = self.rest_of(run, world, foes, here, skip, rooms) if clear and chest is None else None
+            base = chest or (rest_of_level(rest, found, self.reach, spend) if rest is not None else found)
             near = [
                 m
                 for m in foes
                 if m.unit_id not in self.passed
                 and m.unit_id not in skip
-                and (not elite or m.leader or m.tier)
                 and math.dist(here, (m.x, m.y)) <= CLEAR_WAY
                 and clear_shot(ground, here, (m.x, m.y), world.doors)
             ]
@@ -1969,8 +1929,6 @@ class Hunter:
         here: Point,
         skip: frozenset[object] = frozenset(),
         rooms: Sequence[Room] = (),
-        *,
-        leaders_only: bool = False,
     ) -> tuple[Point, str, int | None] | None:
         """What a full clear goes for next on the character's level: the nearest hostile in sight, else the
         nearest the tracker remembers alive where it was seen, else the first stop of the tour of the rooms not
@@ -1981,7 +1939,7 @@ class Hunter:
         assert player is not None
         area, now = player.area, run.clock()
         out = skip | set(self.passed)
-        live = [m for m in foes if m.unit_id not in out and (not leaders_only or m.leader or m.tier)]
+        live = [m for m in foes if m.unit_id not in out]
         heralds = [m for m in live if m.tier and m.leader]
         if heralds:  # a Herald first, wherever the others stand (HERALD_OMEN)
             herald = min(heralds, key=lambda m: math.dist(here, (m.x, m.y)))
@@ -2002,7 +1960,7 @@ class Hunter:
         known = self.remembered(area) if self.remembered is not None else []
         seen = {m.unit_id for m in foes}
         gone = seen | self.vanished | set(self.untouchable) | out
-        kept = [(x, y, unit) for unit, x, y, leader in known if unit not in gone and (not leaders_only or leader)]
+        kept = [(x, y, unit) for unit, x, y, _leader in known if unit not in gone]
         near = [k for k in kept if math.dist(here, (k[0], k[1])) <= REMEMBERED_NEAR]
         if near:
             x, y, unit = min(near, key=lambda k: math.dist(here, (k[0], k[1])))
@@ -2057,8 +2015,6 @@ class Hunter:
             )
         if posted is not None and posted.agenda:
             mode = Mode(True, AGENDA, agenda=True)
-        elif posted is not None and posted.elite_hunt:
-            mode = Mode(True, 'TZ elite hunt', elite=True)
         else:
             mode = mode_of(area, terror, self.switched)
         self.mode = mode
@@ -3258,11 +3214,6 @@ class Hunter:
         sight = [d for d in loot.drops if d.kind == VALUABLE and math.dist(here, (d.x, d.y)) <= HOLD_SIGHT]
         facts = {d.unit_id: {'room': has_room(loot.room, d.size), 'shown': d.unit_id in loot.shown} for d in sight}
         near = [d for d in sight if lootpolicy.verdict(d, lootpolicy.SWEEP, **facts[d.unit_id], looped=looped).hold]
-        for d in sight:
-            # the shadow beside it (the spent are out already): the class's cases counted, `holds` against the verdict
-            lootpolicy.SHADOW.check(
-                lootpolicy.SWEEP, d, holds(d, loot, looped), game=loot.game, **facts[d.unit_id], looped=looped
-            )
         self.held = min(near, key=lambda d: math.dist(here, (d.x, d.y))) if near else None
         if plan is None:
             held = self.held

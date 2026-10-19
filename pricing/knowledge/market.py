@@ -13,23 +13,7 @@ from pricing.knowledge.documented_cache_dates import documented_day, load_review
 from pricing.knowledge.market_mechanics import apply_mechanics
 from pricing.knowledge.market_named_aliases import canonicalize_named_catalog
 from pricing.knowledge.material_items import material_lot
-
-
-VERSION = 'reign of the warlock'
-
-
-def scope_status(properties):
-    """Return verified, rejected, or unknown; absent scope is never accepted."""
-    if '800' in properties and properties['800'] is not False:
-        return 'rejected'
-    expected = {'799': 'softcore', '800': False, '798': 'PC'}
-    if any(key in properties and properties[key] != value for key, value in expected.items()):
-        return 'rejected'
-    versions = {part.strip().lower() for part in str(properties.get('1854', '')).split(',')}
-    if VERSION not in versions:
-        known = {'classic', 'classic (base game)', 'lord of destruction'}
-        return 'rejected' if versions & known else 'unknown'
-    return 'verified' if all(key in properties for key in expected) else 'unknown'
+from pricing.knowledge.scope import property_values, scope_status
 
 
 def valid_positive(value):
@@ -52,11 +36,6 @@ def convert_groups(prices, currencies):
             group['total'] += value * quantity
     complete = [group['total'] for group in groups.values() if group['complete']]
     return (min(complete) if complete else None), {'groups': groups, 'unknown_currencies': sorted(unknown)}
-
-
-def property_values(raw):
-    """Traderie array-valued metadata is serialized in its string field."""
-    return {str(p['property_id']): p.get(p['type'] if p['type'] in ('number', 'bool') else 'string') for p in raw}
 
 
 def socket_contents(properties):

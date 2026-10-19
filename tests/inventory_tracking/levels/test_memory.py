@@ -6,6 +6,7 @@ import pytest
 
 from inventory_tracking.levels.memory import player_location, preset_rooms
 from inventory_tracking.levels.model import Location, Room
+from tests.inventory_tracking.fake_memory import Memory
 
 
 TABLE, PLAYER, PATH, ROOM1, ROOM2_A, ROOM2_B, LEVEL = (
@@ -18,21 +19,6 @@ TABLE, PLAYER, PATH, ROOM1, ROOM2_A, ROOM2_B, LEVEL = (
     0x400000,
 )
 PRESET_A, PRESET_B, OBJECT = 0x320000, 0x320100, 0x330000
-
-
-class Memory:
-    def __init__(self):
-        self.blocks = {}
-
-    def block(self, address, size):
-        self.blocks[address] = bytearray(size)
-        return self.blocks[address]
-
-    def read(self, address, size):
-        for start, data in self.blocks.items():
-            if start <= address and address + size <= start + len(data):
-                return bytes(data[address - start : address - start + size])
-        raise ValueError(f'Unmapped or unreadable range at {address:#x}')
 
 
 @pytest.fixture

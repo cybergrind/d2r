@@ -69,10 +69,6 @@ def _split(skill: str, points: float) -> tuple[tuple[str, float], ...]:
     return tuple((kind, points * value / total) for kind, value in hit.items())
 
 
-def _bodies(way: Way, frames: int) -> list[Point]:
-    return [way.at(frame) for frame in range(frames)]
-
-
 def stream_points(origin: Point, births: Sequence[int], flying: Sequence[tuple[Point, float]], way: Way) -> float:
     """The raw points his inferno takes from a character on `way`: its missiles in flight (`flying`: where, heading;
     their age reckoned from how far they are from him) and those still to be made `births` frames from now, each

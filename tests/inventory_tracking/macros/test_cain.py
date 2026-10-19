@@ -74,16 +74,3 @@ def test_his_line_is_clicked_at_the_middle_of_the_lifts_that_took_and_takes_at_o
     assert caplog.text.count('the Identify Items line clicked') == 1
     assert 'menu line missed' not in caplog.text
     assert 'over Deckard Cain' in caplog.text  # named, not "Jamella"
-
-
-def test_a_single_learned_lift_of_before_reads_as_one_hit():
-    import json
-
-    from inventory_tracking.macros import shop
-
-    shop.LIFTS_FILE.write_text(json.dumps({str(CAIN): 0.2052}))
-    assert shop.hits(CAIN) == [0.2052]
-    assert known(CAIN) == 0.2052
-    shop.learned(CAIN, 0.2165)
-    assert shop.hits(CAIN) == [0.2052, 0.2165]
-    assert known(CAIN) == pytest.approx(0.2108, abs=1e-4)

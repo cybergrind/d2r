@@ -184,17 +184,23 @@ osd.log` (`make osd`: healer, Show Items presses), `<session>/visits/<HHMMSS>.js
 
 ## Test
 
-- Focused: `uv run --offline pytest tests/inventory_tracking/macros/test_<module>.py -q -x` (several files with
-  `-n 6`), plus `uv run --offline ruff check <files>`, `ruff format --check <files>`, `uv run --offline pyrefly check
-  <files>`. Pyright's "import could not be resolved" in the editor is noise.
+- Focused: `uv run --offline pytest tests/inventory_tracking/macros/test_<module>.py -q -x`, plus `uv run --offline
+  ruff check <files>`, `ruff format --check <files>`, `uv run --offline pyrefly check <files>`. Pyright's "import could
+  not be resolved" in the editor is noise.
 - **Wide suite before every restart** (about 1 min): `uv run --offline pytest tests/inventory_tracking/macros
-  tests/inventory_tracking/combat tests/inventory_tracking/builds tests/skills -q -n 6 -p no:cacheprovider`. A red
-  suite is no restart: it is the tree with someone's unfinished work, or a real break.
+  tests/inventory_tracking/combat tests/inventory_tracking/builds tests/inventory_tracking/scenarios/golden
+  tests/inventory_tracking/scenarios/battle tests/skills -q -p no:cacheprovider`. A red suite is no restart: it is the
+  tree with someone's unfinished work, or a real break. The goldens and battle replays catch a changed decision.
+- **Routine whole tree**: `uv run --offline pytest tests/inventory_tracking tests/skills -m "not slow" -q -p
+  no:cacheprovider` (about 2-3 min); the full run (no `-m`, ≈ 9-10 min, in the background) after a change to combat,
+  hunt or pursuit: the `slow` lane is the arena plays (tests/inventory_tracking/scenarios/conftest.py `SLOW`).
 - A triage rule change (pricing): `uv run --offline pytest tests/pricing/triage -q`, then rebuild the rules
-  (`pricing/data/triage/rules.json`) as the rule's importer says. The knowledge test's market-sha failure is old.
+  (`pricing/data/triage/rules.json`) as the rule's importer says. The knowledge test's market-sha check is skipped
+  (frozen artifacts, 2026-10-19).
 - A log line changed: `tests/skills/test_loop_watch_lines.py` and `tools/logwords.py` together.
-- Tests run at nice 19 (`tests/conftest.py`); never with a pipe in front of a restart (`pytest ... | tail && restart`
-  restarts on a red suite: the pipe's status is `tail`'s, 13:17 on 2026-10-17).
+- Tests run serially at nice 19 (`tests/conftest.py`: one test slot on the host, `-n` is ignored); never with a pipe
+  in front of a restart (`pytest ... | tail && restart` restarts on a red suite: the pipe's status is `tail`'s, 13:17
+  on 2026-10-17).
 
 ## Restart
 

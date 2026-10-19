@@ -283,14 +283,6 @@ def test_the_memory_is_the_trackers_explored_rooms_and_monsters_last_seen() -> N
 # -- the plays: what today's code comes to (seed 3; pins of 2026-10-13, to be moved with the code) --------------
 
 
-def test_a_play_is_the_same_play_for_a_seed() -> None:
-    label, run, presses = pair(ONCE, FULL)[TODAY]
-    first, one = watched(ONCE, FULL, TODAY)
-    second, two, _ = played(label, run, presses, seed=SEED)
-    assert (one.track, one.kills, one.said, one.life) == (two.track, two.kills, two.said, two.life)
-    assert replace(first, wall=0.0) == replace(second, wall=0.0)
-
-
 def test_today_one_press_of_the_pickup_key_fights_what_is_near_and_stands() -> None:
     """Pins today's state (the pursuit off): KP_1 turns attack mode on with its sweep, the sweep takes one step to
     the pack by the entrance, the fight there ends with "Nothing left in reach" and nothing follows: no hostile is

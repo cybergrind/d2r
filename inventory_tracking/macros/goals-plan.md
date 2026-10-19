@@ -4,8 +4,9 @@ Written for the player's request of 2026-10-19 ~01:57 ("spawn sub-agent that wil
 loop … right now, I'm thinking that we can create some kind prioritized goals queue"). Code:
 [agenda.py](agenda.py) (queue, stack, in-level choice), [tzroutine.py](tzroutine.py) (the TZ leveling routine: the
 zone's itinerary and the goals of each area), [navigation.py](navigation.py) (the means in hand), [tzloop.py](tzloop.py)
-(the KP_6 kind that executes the agenda). All of it is behind `tzloop.ENABLED` (False): the Andariel and Lower Kurast
-loops run as before. Offline fakes are no proof of game behaviour: §9 lists what live play must check first.
+(the KP_6 kind that executes the agenda). All of it is behind `tzloop.ENABLED`, True since 08:58 on 2026-10-19 (the
+player promoted it; §9's checks are made live, watched); with it False the Andariel and Lower Kurast loops run as
+before. Offline fakes are no proof of game behaviour: §9 lists what live play must check.
 
 ## 1. What the player asked for
 
@@ -199,7 +200,7 @@ the route's last stage ("use Worldstone Chamber"), then no goals.
 | `goals.Goal`, `goal_of`, `route_goal` | the navigator's place-goal for one move; the area's end goal | agenda targets become `goals.Goal` through `rest_of_level`, `first_fight` |
 | `card_goal.CardGoals` | unchanged: the card's arrow follows the route's goal | a later change may show the agenda's top |
 | `Hunter.side_drop`, `on_the_way`, `stay_by`, `restock`, `scarce` | the in-level pickup tier (2–3) | the agenda decides guards-first; the hunter still chooses the drop |
-| `Hunter.rest_of` with `leaders_only` (Codex's `elite_hunt`) | the in-level choice for COVER | replaced by `Agenda.in_level` on an agenda run; kept for KP_1/TZ elite hunt |
+| `Hunter.rest_of` (its `leaders_only` and Codex's `elite_hunt` deleted 2026-10-19, cleanup phase 1) | the in-level choice for COVER | replaced by `Agenda.in_level` on an agenda run; kept for the KP_1 full clear |
 | `loop.next_leg` legs (LK, Andariel) | each a game-level goal: NEXT_GAME = `NEW_GAME`, TO_THE_* = `WAYPOINT`, CHESTS/DOWN/FIGHT_ANDARIEL = `LEVEL`, PICK_UP = `LOOT`, PORTAL = `PORTAL_TO_TOWN`, TO_THE_FORTRESS = `WAYPOINT(103)`, TOWN = `TOWN_ROUTINE`, LEAVE = `LEAVE_GAME` | not migrated: LK and Andariel keep `next_leg` until the TZ kind is proven |
 | `TRIP`, TO_THE_ENCAMPMENT, THROUGH_PORTAL | the room package on the stack | `tzloop.trip` pushes it; the same `Loop` trip bookkeeping (`trips`, `may_trip`, `_back_from_trip`) |
 | the Gheed's swap (SWAP_OUT … GHEED_CHOOSE) | a two-trip package: [portal, Fortress, park the player's, back, through, pick the new one, portal, Fortress, Cain, choose, back, through, RESUME] | not migrated; on the TZ kind a refused charm falls to the room rules (open question 4) |
@@ -207,8 +208,8 @@ the route's last stage ("use Worldstone Chamber"), then no goals.
 | `sightings.Sightings` | `PICKUP` producer and the `LEAVE_GAME` guard | unchanged |
 | `levels/handlers`, `routes/progress` | per-area end goals and ways on | unchanged |
 | `routes/tz_groups.py`, `tz_routes.py` (Codex) | the zone and its excursions | **kept** and used by `tzroutine.itinerary` |
-| `routes/tz_leveling.py` (Codex) `FreshTerror`, `route_inventory`, `Metrics`, `choose_hunt`, `Coordinator` | — | `route_inventory` (via `tz_routes`) kept; the rest **left unused**: `next_area` picks one area, not an itinerary; `choose_hunt` is replaced by `Agenda.in_level`; `Metrics` by the log-based tool (§8) |
-| `routes/tz_execution.py` `Slice`, `tz_runtime.py` `TzRuntime`, runner `tz_start`/`TZ_*` routines, KP_7 | — | **left unused** (still gated off): an external coordinator ticking one guarded action at a time fights the one-agenda-per-loop design and duplicates the KP_6 loop's game/town/trip handling; its town visit uses the pickup ledger (`TAKEN`), which the player ruled out on 2026-10-19 (volatile cells only) |
+| `routes/tz_leveling.py` (Codex) `FreshTerror`, `route_inventory`, `Metrics`, `choose_hunt`, `Coordinator` | — | **deleted 2026-10-19, cleanup phase 1**; `Capability` and `route_inventory` moved to `tz_routes.py`. `next_area` picked one area, not an itinerary; `choose_hunt` is replaced by `Agenda.in_level`; `Metrics` by the log-based tool (§8) |
+| `routes/tz_execution.py` `Slice`, `tz_runtime.py` `TzRuntime`, `tz_pilot.py`, runner `tz_start`/`tz_pickup`/`TZ_*` routines, service.py `--tz-active-*`, KP_7, the `HUNT TZ` mode | — | **deleted 2026-10-19, cleanup phase 1** (it was never on in `make serve`): an external coordinator ticking one guarded action at a time fights the one-agenda-per-loop design and duplicates the KP_6 loop's game/town/trip handling; its town visit uses the pickup ledger (`TAKEN`), which the player ruled out on 2026-10-19 (volatile cells only) |
 
 ## 8. The metric
 
@@ -222,7 +223,7 @@ from the live logs on 2026-10-19: the Andariel loop 18:00–22:20 on 2026-10-18,
 3.20 h of play (684 kills: 501 uniques, 182 champions, 1 Herald; 679 of them on Catacombs 4), 210.5 in 15:00–18:00
 (no evidence of a difference). A TZ kind has to beat that on the same zone to be worth its longer games.
 
-## 9. Before promotion (`tzloop.ENABLED = True`): checks in live play
+## 9. Before promotion (`tzloop.ENABLED = True`, made 08:58 on 2026-10-19): checks in live play
 
 Offline fakes prove the order of the goals, not the game. Before the first unattended TZ game:
 

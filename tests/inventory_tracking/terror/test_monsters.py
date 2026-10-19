@@ -16,27 +16,13 @@ from inventory_tracking.terror.monsters import (
     terror_entries,
     terror_levels,
 )
+from tests.inventory_tracking.fake_memory import Memory
 
 
 TABLE = 0x100000
 MONSTERS = TABLE + 1 * 1024
 LEVEL, ROOM2, ROOM1 = 0x500000, 0x510000, 0x520000
 BOUNDS = (100, 200, 8, 8)
-
-
-class Memory:
-    def __init__(self):
-        self.blocks = {}
-
-    def block(self, address, size):
-        self.blocks[address] = bytearray(size)
-        return self.blocks[address]
-
-    def read(self, address, size):
-        for start, data in self.blocks.items():
-            if start <= address and address + size <= start + len(data):
-                return bytes(data[address - start : address - start + size])
-        raise ValueError(f'Unmapped or unreadable range at {address:#x}')
 
 
 def level_rooms(memory, area=108):

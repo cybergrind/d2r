@@ -43,13 +43,8 @@ terminal formatting or the KB. Run artifacts remain under `inventory_tracking/ru
 
 Preferred commands are `uv run --offline -m inventory_tracking.appraisal serve`,
 `uv run --offline -m inventory_tracking.probes.hover_ui`, and
-`uv run --offline -m inventory_tracking.items.build_metadata`. The old
-`appraisal_service`, `hover_ui_probe`, `hover_probe`, `buff_probe` and
-`build_item_metadata` module commands remain thin compatibility wrappers, so
-existing desktop bindings and host commands continue to work. `inventory_tracking`,
+`uv run --offline -m inventory_tracking.items.build_metadata`. `inventory_tracking`,
 `inventory_tracking.input` and `inventory_tracking.osd` commands are unchanged.
-The legacy hover implementation lives in `hover/legacy.py`; its removal remains
-separate follow-up work.
 
 ## Host probes
 

@@ -223,8 +223,6 @@ class TerrorProbe:
         danger=True,
         elites=True,
         shards=None,
-        game_place=None,
-        observed=None,
     ):
         self.source, self.output, self.capture_lock = source, output, capture_lock
         self.poll_interval, self.observe = poll_interval, observe
@@ -238,7 +236,6 @@ class TerrorProbe:
         self.danger = danger  # warning rows for deadly packs above the Terror lines (terror/danger.py)
         self.elites = elites  # the level's elite groups under the Terror lines (terror/elites.py)
         self.shards = shards  # elite kills and Worldstone Shard drops, logged with the events (terror/shards.py)
-        self.game_place, self.observed = game_place, observed  # optional game-scoped TZ adapter observation
         self.card: list[str] = []
 
     def poll(self, now):
@@ -247,7 +244,6 @@ class TerrorProbe:
         self.last_poll = now
         try:
             self.source.ensure_connected()
-            before = self.game_place() if self.game_place is not None else None
             snapshot = self.observe(
                 self.source.pid,
                 self.source.images,
@@ -256,7 +252,6 @@ class TerrorProbe:
                 counted_level=self.level,
                 **({'item_classes': frozenset(self.shards.model.items)} if self.shards is not None else {}),
             )
-            after = self.game_place() if self.game_place is not None else None
         except Exception as exc:
             text = f'Terror probe: read failed: {exc}'
             if text != self.last_warning:
@@ -275,10 +270,6 @@ class TerrorProbe:
         self.note_marks(events)
         if self.shards is not None:
             events += self.shards.update(events, now, items=snapshot.items, area=location and location.area_id)
-        if self.observed is not None and before is not None and before == after:
-            game, area = before
-            if game and location is not None and area == location.area_id:
-                self.observed(game, snapshot, events, now)
         for event in events:
             if event['event'] == 'left_game' and event['killed']:
                 LOG.info('Terror probe: game left; kills by area %s, seen %s', event['killed'], event['seen'])

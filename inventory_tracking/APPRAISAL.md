@@ -311,8 +311,6 @@ and saved-item evidence to establish which gaps remain.
 - Compare general decoder output with tooltips for rare/crafted, unique/set,
   runeword/socketed items, charms/jewels, charged items and chance-to-cast effects.
 - Extend stat decoding and equipment-widget selection with separate evidence.
-- User TODO later: remove superseded `hover/legacy.py`/`probes/hover_legacy.py` and their tests
-  once the replacement is accepted, preserving the failed-lead documentation.
 
 Variable scalar modifiers show definition ranges next to observed values. Rich
 highlights perfect rolls bright green and the bottom 20% bright red. Unknown stats

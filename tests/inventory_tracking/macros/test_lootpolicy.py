@@ -1,11 +1,10 @@
 """The loot policy (macros/lootpolicy.py; rca/2026-10-18/arch-level-behaviour.md, Option A steps 1, 2 and 4): every
-site's answer of today, by hand and in the KP_6 loop, pinned by a golden table checked against the sites' own predicates
-called directly, the disagreements of the study's §2.1 and §2.2 named, the player's ruling of Q1 (2026-10-18 17:50: in
-the loop a plain valuable with no room is held by every site), and the shadow's log. Item classes by their items.txt
-row as the bundled metadata names them (items/metadata.py), looked up, not written from memory."""
+site's answer, by hand and in the KP_6 loop, pinned by a golden table against the rules the sites had before they asked
+`verdict` (kept below as the spec), the disagreements of the study's §2.1 and §2.2 named, and the player's ruling of Q1
+(2026-10-18 17:50: in the loop a plain valuable with no room is held by every site). Item classes by their items.txt row
+as the bundled metadata names them (items/metadata.py), looked up, not written from memory."""
 
 import itertools
-import logging
 from dataclasses import replace
 from types import SimpleNamespace
 
@@ -14,7 +13,6 @@ import pytest
 from inventory_tracking.items.metadata import metadata
 from inventory_tracking.loot.shown import RARITIES
 from inventory_tracking.macros import pickup
-from inventory_tracking.macros.hunt import holds, stands_by
 from inventory_tracking.macros.lootpolicy import (
     GUARD,
     LOOP_HOLDS,
@@ -24,14 +22,13 @@ from inventory_tracking.macros.lootpolicy import (
     SIGHTINGS,
     SITES,
     SWEEP,
-    Shadow,
     verdict,
 )
 from inventory_tracking.macros.pickmode import MODES, REGULAR, SURE, TRADE, is_candidate
-from inventory_tracking.macros.pickup import choose, stops_for, unshunned
+from inventory_tracking.macros.pickup import choose, unshunned
 from inventory_tracking.macros.runner import MacroRunner
 from inventory_tracking.macros.sightings import Sightings
-from inventory_tracking.macros.world import GOLD, HEALING, NAMED, VALUABLE, Drop, Loot, Rolls, prized
+from inventory_tracking.macros.world import GOLD, HEALING, NAMED, VALUABLE, Drop, Loot, Rolls, has_room, prized
 
 
 NORMAL, MAGIC, SET, RARE, UNIQUE = (RARITIES[name] for name in ('normal', 'magic', 'set', 'rare', 'unique'))
@@ -79,6 +76,30 @@ ITEMS = (
     item('Plate Mail', NAMED, UNIQUE),
     item('Archon Plate', NAMED, SET),
 )
+
+
+# The sites' own rules before they asked `verdict` (pickup.py `stops_for`, hunt.py `stands_by` and `holds`, removed
+# 2026-10-19): the spec the table pins.
+def stops_for(drop: Drop, loot: Loot, looped: bool = False) -> bool:
+    if drop.kind != VALUABLE or has_room(loot.room, drop.size):
+        return False
+    return drop.prized or (looped and drop.unit_id not in loot.shown and not is_candidate(drop))
+
+
+def stands_by(drop: Drop, loot: Loot, waived: set[int]) -> bool:
+    return (
+        drop.kind == VALUABLE
+        and drop.unit_id not in loot.shown
+        and drop.unit_id not in waived
+        and not has_room(loot.room, drop.size)
+    )
+
+
+def holds(drop: Drop, loot: Loot, looped: bool = False) -> bool:
+    if drop.kind != VALUABLE:
+        return False
+    plain = looped and drop.unit_id not in loot.shown and not is_candidate(drop)
+    return drop.prized or has_room(loot.room, drop.size) or plain
 
 
 def today(
@@ -237,42 +258,3 @@ def test_supplies_are_not_the_policys():
     for supply in (Drop(9, 0.0, 0.0, '6000 gold', GOLD), Drop(10, 0.0, 0.0, 'a super healing potion', HEALING)):
         found = verdict(supply, PRESS, room=True, shown=False)
         assert (found.take, found.hold, found.disputed) == (False, False, False)
-
-
-# --- the shadow (step 2): said once a site and unit a game, never raising -------------------------------
-
-
-def test_the_shadow_says_a_site_that_decided_otherwise_once_a_unit_a_game(caplog):
-    caplog.set_level(logging.INFO)
-    shadow, rune = Shadow(), ITEMS[2]  # Ist, prized: every site holds it with no room
-    shadow.check(RUN, rune, True, game=GAME, room=False, shown=False)
-    assert 'lootpolicy' not in caplog.text  # agreed, and not disputed: nothing said
-    shadow.check(RUN, rune, False, game=GAME, room=False, shown=False)
-    line = 'Macro: lootpolicy: the level run Ist Rune (unit 50): site says leave, policy says hold'
-    assert line in caplog.text
-    shadow.check(RUN, rune, False, game=GAME, room=False, shown=False)
-    assert caplog.text.count(line) == 1
-    shadow.check(RUN, rune, False, game=('lk-2', 1), room=False, shown=False)
-    assert caplog.text.count(line) == 2  # a new game says it again
-
-
-def test_the_shadow_names_the_ruled_class_where_it_meets_it(caplog):
-    # The count of Q1's cases and what each site did (two today, 16:59:14 and 17:26:50, both the level run's stands)
-    caplog.set_level(logging.INFO)
-    shadow = Shadow()
-    shadow.check(PRESS, ITEMS[0], False, game=GAME, room=False, shown=False)
-    assert (
-        'Macro: lootpolicy: the press El Rune (unit 50): site says leave; a plain valuable with no room, held in the '
-        'loop (its town routine makes room), moved on from by hand'
-    ) in caplog.text
-    shadow.check(SWEEP, ITEMS[0], True, game=GAME, room=False, shown=False, looped=True)
-    assert 'the sweep El Rune (unit 50): site says hold; a plain valuable with no room' in caplog.text
-    assert 'policy says' not in caplog.text
-
-
-def test_a_shadow_check_that_fails_is_said_once_and_never_raises(caplog):
-    caplog.set_level(logging.INFO)
-    shadow = Shadow()
-    for _ in range(3):
-        shadow.check('nowhere', ITEMS[2], True, game=GAME, room=False, shown=False)
-    assert caplog.text.count('the shadow check failed') == 1

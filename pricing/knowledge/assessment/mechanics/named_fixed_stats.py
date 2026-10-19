@@ -6,6 +6,9 @@ contribution. Exact named identity guarantees this fixed bonus in a comparison.
 Variable rolls and unreviewed stats must retain their mapping gaps.
 """
 
+from pricing.knowledge.assessment.adapters.market_projection import NATIVE_PROPERTIES
+
+
 FIXED_SCALARS = {33: 'ac-hth', 157: 'magicarrow', 158: 'explosivearrow'}
 
 
@@ -48,7 +51,8 @@ def fixed_repair_keys(facts, definition):
     """PropertyFunc17 takes rep-dur's parameter as the native repair rate.
 
     The displayed integer seconds lose information, so compare both the native
-    rate and its decoded seconds. Do not manufacture a market property for it.
+    rate and its decoded seconds. The only market property allowed is the
+    capture's own self-repair projection (252:0 → 431, added 2026-10-09).
     """
     record = definition.get('game_definition', {})
     slots = [i for i in range(1, 13) if record.get(f'prop{i}') == 'rep-dur']
@@ -65,7 +69,7 @@ def fixed_repair_keys(facts, definition):
         or row['raw'] != rate
         or type(row.get('value')) is not int
         or row['value'] != 100 // rate
-        or row.get('market_property') is not None
+        or row.get('market_property') not in (None, NATIVE_PROPERTIES['252:0'])
     ):
         return set(), ['Named fixed repair rate 252:0 is missing, changed or unverified.']
     return {'252:0'}, []

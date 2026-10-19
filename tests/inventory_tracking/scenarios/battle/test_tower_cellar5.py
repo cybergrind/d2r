@@ -83,12 +83,24 @@ def record() -> list[evidence.Action]:
     return evidence.read([(at, text) for at, text in battle.recorded() if 0.4 <= at <= END])
 
 
-@functools.cache
-def played(as_it_was: bool, until: float = END) -> list[evidence.Action]:
+def replayed(as_it_was: bool) -> tuple[tuple[float, str], ...]:
+    """The macro's lines of one replay to END: (seconds into the take, the line), by the rules of that evening or
+    today's."""
     replay = Replay(battle.FIXTURE, battle.script(patches=AS_IT_WAS if as_it_was else {}))
     replay.key_names = battle.key_names
-    said = replay.run(until)
-    actions = evidence.read([(line.at, line.text) for line in said if line.at <= until])
+    return tuple((line.at, line.text) for line in replay.run(END))
+
+
+@functools.cache
+def said(as_it_was: bool) -> tuple[tuple[float, str], ...]:
+    """One replay by each rules, made once for the tests here and golden/test_replay_log.py, which freezes the same
+    two logs."""
+    return replayed(as_it_was)
+
+
+@functools.cache
+def played(as_it_was: bool) -> list[evidence.Action]:
+    actions = evidence.read([(at, text) for at, text in said(as_it_was) if at <= END])
     # The mode's start is the replay's own first press (battle.script), not a key of the player's.
     return [action for action in actions if (action.kind, action.what) != ('press', 'hunt any')]
 
@@ -176,11 +188,12 @@ def test_the_slow_keys_under_the_held_strike_are_replayed_at_their_moments():
     assert same['skill', 'Engorge', 10.2] == pytest.approx(10.22, abs=0.05)
 
 
-def test_two_replays_are_the_same():
-    played.cache_clear()
-    first = [(round(action.at, 3), action.kind, action.what) for action in played(True)]
-    played.cache_clear()
-    assert [(round(action.at, 3), action.kind, action.what) for action in played(True)] == first
+def test_a_replay_is_the_same_replay_again():
+    """The replay harness (battle/replay.py `Replay`) is deterministic: the same take and script give the same lines
+    at the same moments. One test for the harness: every take is replayed by the same `Replay.run` with the script's
+    one seed (`Script.seed`), so the cows' and Black Marsh's goldens no longer replay theirs a second and third time
+    (rca/2026-10-19/cleanup/tests.md P5)."""
+    assert replayed(True) == said(True)
 
 
 @pytest.mark.xfail(

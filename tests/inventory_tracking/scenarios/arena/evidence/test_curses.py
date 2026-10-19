@@ -178,7 +178,8 @@ def test_takes_are_gathered_from_disk_and_the_report_is_written_by_group(tmp_pat
     assert '| physical -50 | 1 | 0 |' in text
 
 
-def test_the_command_writes_both_files_with_the_takes_since_the_split_by_its_rule(tmp_path):
+def test_the_command_writes_both_files_with_the_takes_since_the_split_by_its_rule(tmp_path, monkeypatch):
+    monkeypatch.setattr(curses.scan, 'PROBES', tmp_path / 'no-logs')  # never the host's probe logs
     out, root = tmp_path / 'out', tmp_path / 'takes'
     out.mkdir()
     write(curse_take([(10, [10, *SET_A])], '20261011T120000Z-25'), root)

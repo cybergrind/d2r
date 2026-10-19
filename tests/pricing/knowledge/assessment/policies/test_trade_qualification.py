@@ -50,6 +50,10 @@ def test_unreviewed_identity_gets_no_invented_qualification():
     assert assess_trade_qualification(facts('Ring', 'unique', "Nature's Peace")) == {}
 
 
+@pytest.mark.skip(
+    reason='Pinned to a frozen review: each policy names a market_snapshot sha256 that the regenerated market no '
+    "longer has. The frozen review work awaits the player's ruling (cleanup-plan.md phase 0, 2026-10-19)."
+)
 @pytest.mark.parametrize(
     'name',
     [

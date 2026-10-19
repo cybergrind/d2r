@@ -8,7 +8,7 @@ then LEAVE_GAME). `perform` makes it one leg, by the routines that exist: the ne
 `Loop.town`), Town Portal and back through it (portal.py), and the level run (pursuit.py, posted by the runner with
 the agenda: `TzHands.level_run`), which asks `Agenda.in_level` at every look for its next target.
 
-Off until the player promotes it (`ENABLED`): the kinds are then offered by three presses of KP_6 and restart.py
+On since 08:58 on 2026-10-19 (`ENABLED`): the kinds are offered by three presses of KP_6 and restart.py
 `--kind tz` / `--kind tzclear`. With it off nothing here runs.
 """
 

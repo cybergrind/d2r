@@ -264,7 +264,8 @@ class GameId(NamedTuple):
     """A game as the loop tells one from the next: its name and the player's unit id in it (the key `Sightings` keeps,
     world.py `Loot.game`). Names come round again (cyber99 -> cyber1, the second cyber81 of a session at 09:19:49 on
     2026-10-18); the unit id is a new one in a new game. The seed of the per-game record (rca/2026-10-18/
-    arch-loop-orchestration.md Option B, step 1): logged when it changes (`Loop.observe`), read by nothing yet."""
+    arch-loop-orchestration.md Option B, step 1): logged when it changes (`Loop.observe`); the TZ agenda keys its
+    game by it (tzloop.py)."""
 
     name: str
     player: int
@@ -319,9 +320,8 @@ class Loop:
     marks: Callable[[str], tuple[tuple[float, float], ...]] | None = None
     # The resource classes whose stash stack is full (99: the player, 2026-10-17, "we have 99 tal runes and cannot add
     # more. probably we better just sell them (and other runes that will have 99)"), kept in FULL_FILE beside `store`:
-    # not picked up, and those carried are sold at Jamella (`selling`, shop.py `restock`)
+    # not picked up, and those carried are sold at Jamella (shop.py `restock`)
     full: set[int] = field(default_factory=set)
-    selling: tuple[Carried, ...] = ()
     # The staff's Teleport in the loop's moves (`teleports`): while the gold carried pays for it
     teleports: bool | None = None  # None: not decided since the start (`teleports`)
     wear: str = '?'  # the most worn item's durability at the last look (`leg`), for the log

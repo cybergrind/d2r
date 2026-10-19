@@ -212,7 +212,6 @@ class Player:
     # refused until it clears. None when unreadable (macros/travel.py then times the delay by the clock).
     cooldown: bool | None = field(default=None, compare=False)
     battle_orders: bool | None = None  # Battle Orders (Call to Arms) is on the character; None when unreadable
-    battle_command: bool | None = None  # Battle Command likewise
 
     @property
     def in_town(self) -> bool:
@@ -1381,12 +1380,12 @@ def local_player(read, table: int) -> Player | None:
         except OSError, ValueError, struct.error:
             pass
         left, right = mouse_skills(read, unit['address'])
-        purge = ward = cooldown = orders = command = None
+        purge = ward = cooldown = orders = None
         with suppress(OSError, ValueError, struct.error):
             low, *_, delays, states = struct.unpack('<6I', read(unit['stats_pointer'] + LOW_STATES, 24))
             purge, ward = bool(states & HEX_PURGE_BIT), bool(states & PSYCHIC_WARD_BIT)
             cooldown = bool(delays & COOLDOWN_BIT)
-            orders, command = bool(low & BATTLE_ORDERS_BIT), bool(low & BATTLE_COMMAND_BIT)
+            orders = bool(low & BATTLE_ORDERS_BIT)
         player = Player(
             unit['unit_id'],
             name,
@@ -1404,7 +1403,6 @@ def local_player(read, table: int) -> Player | None:
             skill_in_use(read, unit.get('record', b'')),
             cooldown,
             orders,
-            command,
         )
         found.append((player, unit['stats_pointer']))
     # Several player units may stand for the one character: the shared stash tabs carry its name

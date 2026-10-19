@@ -1,6 +1,13 @@
 import pytest
 
-from inventory_tracking.macros import pickup, repair, shop, stash, teleport, view
+from inventory_tracking.macros import pickup, repair, runner, shop, stash, teleport, view
+
+
+@pytest.fixture(autouse=True)
+def no_card_wait(monkeypatch):
+    """A run's card stays 4 s after it ends (runner.py CARD_SECONDS): not under test. A test of the card's own
+    lifetime sets it back."""
+    monkeypatch.setattr(runner, 'CARD_SECONDS', 0)
 
 
 @pytest.fixture(autouse=True)

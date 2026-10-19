@@ -5,7 +5,7 @@ import threading
 from pathlib import Path
 
 from inventory_tracking.appraisal import service
-from inventory_tracking.macros import latency, runner as runner_module
+from inventory_tracking.macros import latency
 from inventory_tracking.macros.actuator import Abort, Cancelled
 from inventory_tracking.macros.latency import Trace
 from inventory_tracking.macros.runner import MacroRunner
@@ -47,8 +47,7 @@ def test_a_press_is_written_with_its_marks_after_the_stamp(tmp_path):
     assert 'during' not in record
 
 
-def test_a_started_press_carries_its_runs_marks_and_cost(monkeypatch, tmp_path):
-    monkeypatch.setattr(runner_module, 'CARD_SECONDS', 0)
+def test_a_started_press_carries_its_runs_marks_and_cost(tmp_path):
     trace = Trace(tmp_path / latency.FILE)
 
     def execute(cancelled, routine):
@@ -66,8 +65,7 @@ def test_a_started_press_carries_its_runs_marks_and_cost(monkeypatch, tmp_path):
     assert {'cpu_ms', 'switches', 'load'} <= set(record)
 
 
-def test_a_press_during_its_own_step_is_traced_through_the_step_it_queued(monkeypatch, tmp_path):
-    monkeypatch.setattr(runner_module, 'CARD_SECONDS', 0)
+def test_a_press_during_its_own_step_is_traced_through_the_step_it_queued(tmp_path):
     trace = Trace(tmp_path / latency.FILE)
     go, inside = threading.Event(), threading.Event()
 
@@ -88,8 +86,7 @@ def test_a_press_during_its_own_step_is_traced_through_the_step_it_queued(monkey
     assert second['ended'] == 'done'
 
 
-def test_a_dropped_and_a_cancelling_press_are_recorded_too(monkeypatch, tmp_path, caplog):
-    monkeypatch.setattr(runner_module, 'CARD_SECONDS', 0)
+def test_a_dropped_and_a_cancelling_press_are_recorded_too(tmp_path, caplog):
     trace = Trace(tmp_path / latency.FILE)
 
     def execute(cancelled, routine):
@@ -109,8 +106,7 @@ def test_a_dropped_and_a_cancelling_press_are_recorded_too(monkeypatch, tmp_path
     assert cancelled['ended'] == 'cancelled'
 
 
-def test_a_run_that_stops_says_why(monkeypatch, tmp_path):
-    monkeypatch.setattr(runner_module, 'CARD_SECONDS', 0)
+def test_a_run_that_stops_says_why(tmp_path):
     trace = Trace(tmp_path / latency.FILE)
 
     def execute(cancelled, routine):

@@ -234,21 +234,6 @@ def main():
     from pricing.triage.market_demand import agreement
 
     listing['demand_agreement'] = agreement(listing['cohort_verdicts'], listing['turnover'])
-    from pricing.knowledge.assessment.adapters.market_projection import market_properties
-    from pricing.triage.learned_patterns import guide_negatives
-    from pricing.triage.paid_validation import validate
-
-    property_ids = {str(stat['property_id']) for stat in metadata()['stats'].values() if stat.get('property_id')}
-    property_ids.update(str(prop) for prop in market_properties().values())
-    property_ids.update({'441', '510'})
-    listing['paid_property_validation'] = validate(
-        rows,
-        [from_drop(row['observation']) for row in items],
-        [result['verdict'] for result in results],
-        property_ids,
-        tables,
-        negatives=guide_negatives(build_cases()),
-    )
     atomic_json(DATA / 'score-listings.json', listing)
     print(
         json.dumps(

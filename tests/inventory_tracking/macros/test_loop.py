@@ -321,8 +321,8 @@ def test_the_staff_under_20_percent_of_its_charges_is_repaired_before_the_chests
     assert wants(Teleport(3, 20, False))  # under 20% (repair.py REPAIR_BELOW: the visits top it up meanwhile)
     assert not wants(Teleport(4, 20, False))
     assert not wants(None)
-    monkeypatch.setattr('inventory_tracking.macros.repair.ENABLED', False)
-    assert not wants(Teleport(0, 69, False))  # off
+    monkeypatch.setattr('inventory_tracking.macros.repair.STASH_TOUCHED', Path(__file__))
+    assert not wants(Teleport(0, 69, False))  # off: a repair once touched the stash's gold
     loop, lk = Loop(), progress_in(LOWER_KURAST)
     loop.repair = True
     assert next_leg(at(PANDEMONIUM_FORTRESS), lk, loop) == TOWN  # the visit: Halbu in it (macros/visit.py)

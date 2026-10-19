@@ -1,6 +1,37 @@
+from pathlib import Path
+
 import pytest
 
 from inventory_tracking.macros import teleport, view
+
+
+HERE = Path(__file__).parent
+# The full arena plays (≈430 tests, ≈440 s of the ≈620 s full run; rca/2026-10-19/cleanup/tests.md P3). A routine run
+# skips them (`-m "not slow"`); the full run (no `-m`) runs them, before a commit and after a change to combat, hunt
+# or pursuit. The goldens and battle replays stay in the fast lane: a changed decision fails at once.
+SLOW = tuple(
+    HERE / path
+    for path in (
+        'arena/situations',
+        'arena/evidence',
+        'arena/test_replay.py',
+        'arena/test_incident_kp4.py',
+        'arena/test_scenes_threat.py',
+        'stance/test_moments.py',
+        'stance/test_open_field.py',
+        'stance/test_export_viz.py',
+        'stance/test_revivers.py',
+        'explore',
+        'loop/test_tick_cost.py',
+        'revivers/test_scenarios.py',
+    )
+)
+
+
+def pytest_collection_modifyitems(items):
+    for item in items:
+        if any(item.path == path or path in item.path.parents for path in SLOW):
+            item.add_marker(pytest.mark.slow)
 
 
 @pytest.fixture(autouse=True)

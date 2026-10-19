@@ -12,9 +12,8 @@ test of what each said before (tests/…/macros/test_lootpolicy.py, a golden tab
 The supplies (gold, potions) are not here: the belt's and gold's rules (pickup.py `choose`, macros/supply.py) decide
 them, and `verdict` calls them neither taken nor held.
 
-Shadow mode (step 2): the sites of pickup.py and hunt.py ask `SHADOW.check` beside their own decision; a site that
-decided otherwise than its verdict, or a drop of the once disputed class (`NO_ROOM_PLAIN`), is said once a unit a game.
-Nothing here reads the game.
+Every site decides by `verdict` since 2026-10-19 (cleanup phase 1): the shadow checks beside the old predicates had
+logged no disagreement. Nothing here reads the game.
 
 Step 4 (the player's ruling of Q1, 2026-10-18 17:50: "we should stop and clear inventory with our designated town
 routine"): with the KP_6 loop on (`looped`) the press and the sweep decide `NO_ROOM_PLAIN` by `verdict(...).hold`, as
@@ -25,7 +24,6 @@ as before: the press and the sweep move on from it.
 
 from dataclasses import dataclass
 
-from inventory_tracking.common import LOG
 from inventory_tracking.macros.pickmode import REGULAR, SURE, TRADE, is_candidate, sure, traded
 from inventory_tracking.macros.world import VALUABLE, Drop
 
@@ -36,12 +34,10 @@ __all__ = [
     'NO_ROOM_PLAIN',
     'PRESS',
     'RUN',
-    'SHADOW',
     'SIGHTINGS',
     'SITES',
     'SWEEP',
     'Dispute',
-    'Shadow',
     'Verdict',
     'disputed',
     'verdict',
@@ -54,7 +50,6 @@ SWEEP = 'the sweep'  # macros/hunt.py `Hunter.gather`: the sweep stays by it (`h
 GUARD = 'the guard'  # runner.py `_valuable_left`: the loop does not leave the game with it on the ground
 SIGHTINGS = 'the sightings'  # macros/sightings.py `Sightings.update`: remembered until off the ground
 SITES = (PRESS, RUN, SWEEP, GUARD, SIGHTINGS)
-SAID_MOST = 500  # (site, unit) pairs the shadow remembers saying in a game; cleared past it
 
 
 @dataclass(frozen=True)
@@ -182,51 +177,3 @@ def verdict(
             return Verdict(False, True, LOOP_HOLDS, pending)
         return Verdict(False, False, 'not prized, no room: the sweep goes on', pending)
     raise ValueError(f'no such site: {site}')
-
-
-def word(hold: bool) -> str:
-    return 'hold' if hold else 'leave'
-
-
-class Shadow:
-    """The shadow checks of one process (step 2 of the study): `check` is asked by a site beside its own decision and
-    logs, once a site and unit a game, a decision other than its verdict, or a drop of the once disputed class (the
-    count of Q1's cases the loop meets, and what each site did). It never raises: a check that fails is said once and
-    the site goes on."""
-
-    def __init__(self) -> None:
-        self.game: object = None
-        self.said: set[tuple[str, int]] = set()
-        self.failed = False
-
-    def check(self, site: str, drop: Drop, says: bool, *, game: object, **facts) -> None:
-        """`says`: the site's own "must not leave it" for `drop`; `game`: the loot's (`Loot.game`); `facts`: those of
-        `verdict`."""
-        try:
-            if game != self.game:
-                self.game, self.said = game, set()
-            if drop.kind != VALUABLE or (site, drop.unit_id) in self.said:
-                return
-            found = verdict(drop, site, **facts)
-            if found.hold == says and not found.disputed:
-                return
-            if len(self.said) > SAID_MOST:
-                self.said.clear()
-            self.said.add((site, drop.unit_id))
-            if found.hold != says:
-                LOG.info(
-                    'Macro: lootpolicy: %s %s (unit %d): site says %s, policy says %s (%s)',
-                    site, drop.label, drop.unit_id, word(says), word(found.hold), found.why,
-                )  # fmt: skip
-            else:
-                LOG.info(
-                    'Macro: lootpolicy: %s %s (unit %d): site says %s; %s, %s',
-                    site, drop.label, drop.unit_id, word(says), NO_ROOM_PLAIN.name, NO_ROOM_PLAIN.ruling,
-                )  # fmt: skip
-        except Exception as exc:
-            if not self.failed:
-                self.failed = True
-                LOG.info('Macro: lootpolicy: the shadow check failed (%r); the site decides alone', exc)
-
-
-SHADOW = Shadow()

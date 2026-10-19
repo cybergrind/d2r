@@ -16,10 +16,6 @@ ROOT = Path(__file__).resolve().parents[2]
     [
         'inventory_tracking',
         'inventory_tracking.appraisal_service',
-        'inventory_tracking.hover_ui_probe',
-        'inventory_tracking.hover_probe',
-        'inventory_tracking.buff_probe',
-        'inventory_tracking.build_item_metadata',
         'inventory_tracking.appraisal',
         'inventory_tracking.probes.hover_ui',
         'inventory_tracking.items.build_metadata',

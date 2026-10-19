@@ -33,7 +33,7 @@ from inventory_tracking.common import LOG
 from inventory_tracking.items.metadata import item_base, metadata
 from inventory_tracking.macros.act import until
 from inventory_tracking.macros.actuator import Abort
-from inventory_tracking.macros.engine import Run
+from inventory_tracking.macros.engine import Run, protected
 from inventory_tracking.macros.pickmode import MAGIC, RARE, SKILLED
 from inventory_tracking.macros.world import CUBE_GRID, INVENTORY_GRID, Carried, Pack
 
@@ -233,10 +233,7 @@ def arrange_keys(run: Run, inventory_key: str) -> bool:
     key, (x, y) = move
     moved = False
     try:
-        run.actuator.tap(inventory_key)
-        if run.seen(lambda w: 'inventory' in w.open_panels, PANEL_SECONDS) is None:
-            raise Abort('the inventory did not open')
-        run.actuator.rebase()
+        open_inventory(run, inventory_key)
         run.actuator.move(*cell_point(rect, INVENTORY, (key.x, key.y)), scatter=(4, 4))
         run.actuator.click()
         if not _until(run, lambda p: p.pointer == key.unit_id):
@@ -307,19 +304,16 @@ def drop_item(run: Run, inventory_key: str, item: Carried, why: str) -> bool:
     """Drop the inventory's `item` at the character's feet: picked up by a click, dropped by a click on the ground left
     of the panel, checked in memory; put back where it was if it does not fall. Whether it fell. Mouse mode only; the
     panels closed after."""
-    if run.players_item is not None and run.players_item(item):
-        LOG.info("Macro: inventory: %s (%d) at (%d, %d) is the player's by its stats: never dropped", item.txt,
-                 item.unit_id, item.x, item.y)  # fmt: skip
+    if spared := protected(run, item):
+        LOG.info('Macro: inventory: %s (%d) at (%d, %d) is %s: never dropped', item.txt, item.unit_id, item.x, item.y,
+                 spared)  # fmt: skip
         return False
     rect = run.actuator.keys.focused_window_rect()
     if rect is None or run.pad is not None:
         return False
     dropped = False
     try:
-        run.actuator.tap(inventory_key)
-        if run.seen(lambda w: 'inventory' in w.open_panels, PANEL_SECONDS) is None:
-            raise Abort('the inventory did not open')
-        run.actuator.rebase()
+        open_inventory(run, inventory_key)
         run.actuator.move(*cell_point(rect, INVENTORY, (item.x, item.y), item.size), scatter=(4, 4))
         run.actuator.click()
         if not _until(run, lambda p: p.pointer == item.unit_id):
@@ -391,10 +385,7 @@ def stash(run: Run, inventory_key: str, own: frozenset[tuple[int, int, int]]) ->
         return 0
     moved = 0
     try:
-        run.actuator.tap(inventory_key)
-        if run.seen(lambda w: 'inventory' in w.open_panels, PANEL_SECONDS) is None:
-            raise Abort('the inventory did not open')
-        run.actuator.rebase()
+        open_inventory(run, inventory_key)
         run.actuator.move(*cell_point(rect, INVENTORY, (cube.x, cube.y), cube.size), scatter=(8, 8))
         run.actuator.tap('Button3')
         if run.seen(lambda w: 'cube' in w.open_panels, PANEL_SECONDS) is None:
@@ -434,6 +425,15 @@ def stash_only(
     return stash(run, inventory_key, own | own_of(item for item in pack.items if not wanted(item)))
 
 
+def open_inventory(run: Run, inventory_key: str) -> None:
+    """The inventory open, its key tapped only when it is closed: a tap on an open one closes it."""
+    if 'inventory' not in run.world().open_panels:
+        run.actuator.tap(inventory_key)
+        if run.seen(lambda w: 'inventory' in w.open_panels, PANEL_SECONDS) is None:
+            raise Abort('the inventory did not open')
+    run.actuator.rebase()
+
+
 def unpack(run: Run, inventory_key: str, items: Sequence[Carried]) -> int:
     """Take `items` out of the cube into the inventory, by a Ctrl + click on each with the cube open; how many came
     out. For the stash (macros/stash.py), which takes from the cube's grid only what a resource tab holds: a charm,
@@ -446,10 +446,7 @@ def unpack(run: Run, inventory_key: str, items: Sequence[Carried]) -> int:
         return 0
     out = 0
     try:
-        run.actuator.tap(inventory_key)
-        if run.seen(lambda w: 'inventory' in w.open_panels, PANEL_SECONDS) is None:
-            raise Abort('the inventory did not open')
-        run.actuator.rebase()
+        open_inventory(run, inventory_key)
         run.actuator.move(*cell_point(rect, INVENTORY, (cube.x, cube.y), cube.size), scatter=(8, 8))
         run.actuator.tap('Button3')
         if run.seen(lambda w: 'cube' in w.open_panels, PANEL_SECONDS) is None:
@@ -516,10 +513,7 @@ def transmute(run: Run, inventory_key: str, txt: int, park: Callable[[int], None
         return False
     made = False
     try:
-        run.actuator.tap(inventory_key)
-        if run.seen(lambda w: 'inventory' in w.open_panels, PANEL_SECONDS) is None:
-            raise Abort('the inventory did not open')
-        run.actuator.rebase()
+        open_inventory(run, inventory_key)
         run.actuator.move(*cell_point(rect, INVENTORY, (cube.x, cube.y), cube.size), scatter=(8, 8))
         run.actuator.tap('Button3')
         if run.seen(lambda w: 'cube' in w.open_panels, PANEL_SECONDS) is None:
@@ -589,6 +583,8 @@ def transmute(run: Run, inventory_key: str, txt: int, park: Callable[[int], None
 def _park(run: Run, rect: tuple[int, int, int, int], item: Carried, park: Callable[[int], None]) -> None:
     """The cube's `item` put down at the character's feet (`transmute`): taken up by a click, dropped by a click on
     the ground between the panels, checked in memory; put back where it was if it does not fall, then `Abort`."""
+    if why := protected(run, item):
+        raise Abort(f'the item {item.txt} is {why}: never put down')
     park(item.unit_id)  # before it lies on the ground: never read as the player's (world.py `PutDown`)
     run.actuator.move(*cell_point(rect, CUBE, (item.x, item.y), item.size), scatter=(4, 4))
     run.actuator.click()

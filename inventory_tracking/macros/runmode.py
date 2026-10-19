@@ -85,7 +85,6 @@ class Mode:
 
     clear: bool
     why: str = ''
-    elite: bool = False
     # The terror zone kinds' run (macros/tzloop.py): what of the level is worked is the agenda's (its policy: TZ
     # leveling's leaders, Full clear TZ's every hostile), then the route's stages
     agenda: bool = False
@@ -118,8 +117,6 @@ def said(mode: Mode, aim: str | None) -> str:
     """The mode as the log says it (`Macro: run: ...`)."""
     if mode.agenda:
         return f'the agenda, then {aim}' if aim else 'the agenda'
-    if mode.elite:
-        return f'elite hunt, then {aim}' if aim else 'elite hunt'
     if mode.clear:
         return f'full clear ({mode.why or SWITCHED})'
     head = f'to {aim}, clearing the way' if aim else 'no route on this level: the key works around the character'
@@ -132,6 +129,4 @@ def badge(mode: Mode | None) -> str | None:
         return None
     if mode.agenda:
         return 'TZ LOOP'
-    if mode.elite:
-        return 'HUNT TZ'
     return 'CLEAR TZ' if mode.why == TERROR else 'CLEAR'

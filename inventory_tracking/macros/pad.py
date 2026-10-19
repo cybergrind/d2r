@@ -214,13 +214,13 @@ def hostile_near(world: World, reach: float) -> bool:
     )
 
 
-def input_policy(mode: InputMode | None, *, enabled: bool, needs_mouse: str | None = None) -> bool:
+def input_policy(mode: InputMode | None, *, enabled: bool) -> bool:
     """Whether a run plays by the pad (True) or the keys and mouse (False), the game's mode as read at its start;
     Abort with the reason when it cannot be played now. The game's mode is followed and never changed by the run:
     a flip asks for a click or a movement key (which acts in the world as well) or a pad press (which is thrown
     away by the client), takes 1-2 s by players' reports and is not measured yet (plan step 8a); flips by the
-    macros are step 10. `needs_mouse`: what the routine does that only mouse mode can (panels, menus, a prebuff
-    with a skill on no record), said when the game is in controller mode. Unreadable: keyboard, as before."""
+    macros are step 10. What of a routine needs the mouse refuses on its own (a skill on no record: `PadActs.keys`;
+    Save and Exit; a new game). Unreadable: keyboard, as before."""
     if mode is None:
         return False
     if mode.pending:
@@ -230,8 +230,6 @@ def input_policy(mode: InputMode | None, *, enabled: bool, needs_mouse: str | No
         return False
     if not enabled:
         raise Abort('the game is in controller mode and controller play is off (config controller_play): click once')
-    if needs_mouse is not None:
-        raise Abort(f'{needs_mouse} needs mouse mode: click once to switch, then press again')
     return True
 
 

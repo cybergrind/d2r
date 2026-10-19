@@ -12,7 +12,6 @@ is (shop.py, `serving`); his Trade/Repair line clicked at each of `lifts` until 
 line fewer than hers, Gamble: the line is not where hers is, so a lift a line lower is tried first); the panel's Repair
 All button clicked (the game's vendorpanellayouthd.json, read 2026-10-17: `button_repair_all` at (877, 1277) in the left
 panel, its sprite 116 x 116 a frame); the charges read again; his windows closed. The gold before and after is said.
-Not yet played.
 """
 
 import re
@@ -65,10 +64,9 @@ LIFT: list[float] = []  # the lift that opened his panel last
 QUOTED: list[int] = []  # the cost the game quoted at the last visit: none again before the carried gold covers it
 
 
-# Off until the repair's cost is known before the click: a vendor takes what the carried gold does not cover from the
-# stash's (D2MOO SUnitNpc.cpp 1782-1795: STAT_GOLDBANK), and the player, 2026-10-17: "I don't want to touch this 9M of
-# gold atm; you can repair only on collected gold in the inventory"
-ENABLED = True  # with the game's quoted cost read first (`quoted`): the player's leave for the carried gold
+# A vendor takes what the carried gold does not cover from the stash's (D2MOO SUnitNpc.cpp 1782-1795: STAT_GOLDBANK),
+# so the game's quoted cost is read before the click (`quoted`); the player, 2026-10-17: "you can repair only on
+# collected gold in the inventory". STASH_TOUCHED turns repairs off if the stash's gold ever moves.
 GOLDBANK = 15  # itemstatcost.txt `goldbank`: the stash's gold
 # The share of the carried gold a repair may cost: under it the vendor takes nothing from the stash's. 0.9 refused
 # 101,803 with 107,753 carried (12:41:43 on 2026-10-17), 0.98 102,206 with 104,270 (13:12:13); a misread cost is caught
@@ -120,8 +118,8 @@ def covered(expected_cost: int | None, coins: int | None) -> bool:
 
 
 def worn_out(wear: Wear | None) -> bool:
-    """Whether a worn item is under WEAR_BELOW of its durability (never while not ENABLED)."""
-    return ENABLED and not STASH_TOUCHED.exists() and wear is not None and wear.share < WEAR_BELOW
+    """Whether a worn item is under WEAR_BELOW of its durability (never with STASH_TOUCHED)."""
+    return not STASH_TOUCHED.exists() and wear is not None and wear.share < WEAR_BELOW
 
 
 def worn_text(wear: Wear | None) -> str:
@@ -135,10 +133,9 @@ def affordable(coins: int | None) -> bool:
 
 
 def wants(staff: Teleport | None) -> bool:
-    """Whether the staff's charges are low enough for a repair (never while not ENABLED)."""
+    """Whether the staff's charges are low enough for a repair (never with STASH_TOUCHED)."""
     return (
-        ENABLED
-        and not STASH_TOUCHED.exists()
+        not STASH_TOUCHED.exists()
         and staff is not None
         and staff.maximum > 0
         and staff.charges < staff.maximum * REPAIR_BELOW

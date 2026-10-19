@@ -81,6 +81,7 @@ QUIET = (
     'Last minute:', 'first cast', 'aims for', ': 1 down in', 'down in', 'unit table census', 'Combat take',
     'slow press', '(replay)', 'leg time:',  # a move's measure (macros/travel.py), not an action
     'mark: no ',  # why a Death Mark was not cast (builds/warlock/mark.py, 2026-10-14): a reason, not an action
+    'firing stand jump source',  # which jump a firing stand took (macros/hunt.py, b3757e4): a reason
 )  # fmt: skip
 
 

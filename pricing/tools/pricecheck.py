@@ -7,8 +7,9 @@
   pricecheck.py --save             write the pull to pricing/raw/traderie/<slug>.json
   pricecheck.py --pages N          listings pages to pull (default 3 = 150)
 
-Scope filter (client-side, per AGENTS.md): 799 softcore, 800 not-Ladder, 798 PC,
-1854 not lord-of-destruction/classic. Effective ask = cheapest OR-group of prices[]
+Scope filter (client-side, per AGENTS.md): pricing.knowledge.scope.in_scope, the KB's own
+predicate: 799 softcore, 800 Non-Ladder, 798 PC and 1854 containing Reign of the Warlock; a
+listing with no game version is unknown scope and left out. Effective ask = cheapest OR-group of prices[]
 (same group summed). One vote per seller_id (its cheapest). Stackable items
 (runes/gems) report per-unit = ask / amount.
 
@@ -16,14 +17,14 @@ Prices are converted with pricing/data/wp-f-ladder.json. Sub-Lem runes, perfect
 gems, keys and tokens use the §0/§6.2 approximations and are flagged '~'.
 Listings priced in anything else are listed under 'unconverted' and excluded.
 
-Reuses traderie.py's get()/props() — do NOT re-parse properties by hand:
+Reuses traderie.py's get()/props()/in_scope() — do NOT re-parse properties by hand:
 string props live in ['string'], bools in ['bool'], numbers in ['number'];
 listing['prices'] and price['group'] can be None.
 """
 import json, os, re, statistics, sys
 from urllib.parse import quote
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from traderie import get, props, API
+from traderie import get, API, in_scope
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # pricing/
 CACHE = os.path.join(ROOT, 'raw', 'traderie')
@@ -71,14 +72,11 @@ def price_ist(pr):
     return None
 
 def band(listings, stackable=False):
-    in_scope, offer_only, votes, approx_sellers, unconv = [], 0, {}, set(), {}
+    scoped, offer_only, votes, approx_sellers, unconv = [], 0, {}, set(), {}
     for l in listings:
-        p = props(l)
-        if p.get(799) != 'softcore' or p.get(800) is not False or p.get(798) != 'PC':
+        if not in_scope(l):
             continue
-        if str(p.get(1854)).lower() in ('lord of destruction', 'classic (base game)'):
-            continue
-        in_scope.append(l)
+        scoped.append(l)
         prices = l.get('prices') or []
         if not prices:
             offer_only += 1
@@ -102,14 +100,14 @@ def band(listings, stackable=False):
             votes[s] = eff
             if approx: approx_sellers.add(s)
     vals = sorted(votes.values())
-    return in_scope, offer_only, vals, approx_sellers, unconv
+    return scoped, offer_only, vals, approx_sellers, unconv
 
 def report(name, item_id, itype, listings, cached):
     stackable = itype in ('runes', 'gems')
-    in_scope, offer_only, vals, approx, unconv = band(listings, stackable)
+    scoped, offer_only, vals, approx, unconv = band(listings, stackable)
     print(f"== {name} (id {item_id}, {itype}) — {'cache' if cached else 'LIVE'} — "
-          f"{len(in_scope)}/{len(listings)} in scope (SC/NL/PC/RotW)")
-    if not in_scope:
+          f"{len(scoped)}/{len(listings)} in scope (SC/NL/PC/RotW)")
+    if not scoped:
         print('   no in-scope listings'); return
     print(f"   {len(vals)} sellers priced, {offer_only} offer-only/no-price"
           + (f", unconverted price items: {unconv}" if unconv else ''))

@@ -16,7 +16,7 @@ import pytest
 
 from inventory_tracking.builds import pursuing
 from inventory_tracking.levels.model import Ground, Target
-from inventory_tracking.macros import goals, runner as runner_module
+from inventory_tracking.macros import goals
 from inventory_tracking.macros.actuator import Cancelled
 from inventory_tracking.macros.build import NoWay, Step
 from inventory_tracking.macros.goals import PICK_UP, Goal, first_fight, goal_of, in_the_way, nearer
@@ -401,7 +401,6 @@ def test_the_mailbox_takes_the_loops_write_only_over_what_it_read() -> None:
 
 @pytest.fixture
 def runner(monkeypatch, tmp_path):
-    monkeypatch.setattr(runner_module, 'CARD_SECONDS', 0)
     started = []
 
     def execute(cancelled, routine):
@@ -439,7 +438,6 @@ def test_the_pickup_key_with_the_pursuit_on_starts_attack_mode_with_the_level_ru
 
 
 def test_without_the_pursuit_the_pickup_key_is_its_old_step(monkeypatch, tmp_path) -> None:
-    monkeypatch.setattr(runner_module, 'CARD_SECONDS', 0)
     started = []
     made = MacroRunner(
         None,

@@ -66,16 +66,16 @@ from inventory_tracking.macros.cube import (
     inventory_rows,
     keys_move,
     loot,
+    open_inventory,
     perfect_of,
     room_for,
     rune_slot,
     stash_transmute,
     unpack,
 )
-from inventory_tracking.macros.engine import Run
+from inventory_tracking.macros.engine import Run, protected
 from inventory_tracking.macros.junk import MAGIC
 from inventory_tracking.macros.repair import (
-    ENABLED,
     HALBU,
     RETRY_GAMES,
     WAYPOINT_SEEN,
@@ -515,10 +515,7 @@ def _into_cube(run: Run, inventory_key: str, items: Sequence[Carried], later: Se
         return 0
     put = 0
     try:
-        run.actuator.tap(inventory_key)
-        if run.seen(lambda w: 'inventory' in w.open_panels, PANEL_SECONDS) is None:
-            raise Abort('the inventory did not open')
-        run.actuator.rebase()
+        open_inventory(run, inventory_key)
         run.actuator.move(*cell_point(rect, INVENTORY, (cube.x, cube.y), cube.size), scatter=(8, 8))
         run.actuator.tap('Button3')
         if run.seen(lambda w: 'cube' in w.open_panels, PANEL_SECONDS) is None:
@@ -674,8 +671,8 @@ def _drops(run: Run, rect: Rect, items: Sequence[Carried]) -> int:
     not fall, then `Abort`. How many fell."""
     fell = 0
     for item in items:
-        if run.players_item is not None and run.players_item(item):
-            LOG.info("Macro: stash: the %s is the player's by its stats: never put down", _name(item))
+        if why := protected(run, item):
+            LOG.info('Macro: stash: the %s is %s: never put down', _name(item), why)
             continue
         held, _in_cube = _now(run, item.unit_id)
         if held is None:
@@ -896,7 +893,7 @@ def _drop(run: Run, key: str | None, items: Sequence[Carried]) -> None:
 def _halbu(run: Run) -> bool:
     """Halbu's Repair All; whether it failed for want of something other than gold (not tried again for a while)."""
     try:
-        return not repair(run, fix=ENABLED) and ENABLED and affordable(gold(run))
+        return not repair(run) and affordable(gold(run))
     except Abort as stop:
         if cut(run, stop):
             raise
@@ -1024,20 +1021,11 @@ def visit(
 
     judged = sold(hands.judge([i for i in carried if i.identified]), visitlog.session_directory())
     junk = frozenset(i.unit_id for i in (*judged, *surplus(carried, stacks)))
-    # The player's items by their stats (macros/volatile.py prints: a charm moved into the cube by hand) are never junk:
-    # a keeper, stashed, never sold (the Kriss and the +35 Life charm sold at 23:17 on 2026-10-18)
-    theirs = [i for i in carried if i.unit_id in junk and run.players_item is not None and run.players_item(i)]
-    if theirs:
-        LOG.info("Macro: town visit: %s the player's by their stats: kept, not sold", _keepers(theirs))
-        junk -= {i.unit_id for i in theirs}
-    # A rare amulet with life, FCR or +2 skills is a keeper whatever the appraisal says (macros/keepers.py: two sold at
-    # 03:48 on 2026-10-19)
-    kept = [(i, why) for i in carried if i.unit_id in junk and run.kept_item is not None and (why := run.kept_item(i))]
-    if kept:
-        LOG.info(
-            'Macro: town visit: %s kept by its stats, not sold', ', '.join(f'{_name(i)} ({why})' for i, why in kept)
-        )
-        junk -= {i.unit_id for i, _why in kept}
+    # The player's items and the keepers by their stats are never junk, whatever the appraisal (engine.py `protected`)
+    spared = [(i, why) for i in carried if i.unit_id in junk and (why := protected(run, i))]
+    if spared:
+        LOG.info('Macro: town visit: %s: kept, not sold', ', '.join(f'{_name(i)} ({why})' for i, why in spared))
+        junk -= {i.unit_id for i, _why in spared}
     LOG.info('Macro: town visit (%s): %d of the loop\'s items, %d identified at Cain, %d junk; full stacks %d',
              exit.value, len(carried), len(unknown), len(junk), len(stacks))  # fmt: skip
     record = Recorder(visitlog.session_directory())

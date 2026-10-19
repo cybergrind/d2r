@@ -5,6 +5,7 @@ import pytest
 from inventory_tracking.items.metadata import metadata
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.cube import CUBE, CUBE_CLASS, INVENTORY, cell_point, overflow, own_of, plan, stash
+from inventory_tracking.macros.stash import STASH_CUBE, STASH_PAGE
 from inventory_tracking.macros.world import Carried, Pack
 from tests.inventory_tracking.macros.fakes import Game, player, world
 
@@ -55,6 +56,25 @@ def test_the_grids_are_where_the_layout_puts_them():
     left, top = cell_point(window, CUBE, (0, 0), (0, 0))
     assert left == pytest.approx((236 + 431) * 1418 / 2160 / 2560)
     assert top == pytest.approx(0.397 + (534 - 651) / 2160)
+
+
+@pytest.mark.parametrize(
+    ('grid', 'at', 'pixel'),
+    [
+        (INVENTORY, (0, 0), (1725.3, 768.3)),
+        (INVENTORY, (9, 3), (2313.3, 964.3)),
+        (CUBE, (0, 0), (477.3, 526.3)),
+        (CUBE, (2, 3), (608.0, 722.3)),
+        (STASH_PAGE, (0, 0), (249.3, 316.3)),
+        (STASH_PAGE, (9, 9), (837.3, 904.3)),
+        (STASH_CUBE, (0, 0), (477.3, 693.0)),
+    ],
+)
+def test_each_panels_corner_cells_sit_at_their_pinned_pixel(grid, at, pixel):
+    # Literal pixels of a 2560 x 1440 window, as the live loop clicked them on 2026-10-19: the fakes compute their
+    # clicks from these same constants (fakes.py), so a moved panel origin would pass every other test
+    x, y = cell_point((0, 0, 2560, 1440), grid, at)
+    assert (x * 2560, y * 1440) == pytest.approx(pixel, abs=0.1)
 
 
 def fortress(pack: Pack) -> Game:
@@ -394,3 +414,52 @@ def test_only_the_wanted_loop_items_go_into_the_cube():
     idle = fortress(Pack((GRAND, THE_CUBE, TOME, KEY, CHARM), EMPTY_CUBE))
     assert stash_only(idle.run(), 'i', OWN, lambda item: item.txt == FLAWLESS_RUBY) == 0
     assert idle.pressed() == []
+
+
+def test_no_action_gives_up_an_item_the_guard_protects(caplog):
+    # Every action that gives an item up asks engine.py `protected` first (cleanup-plan.md phase 0): with every item
+    # the player's, nothing is dropped nor put down; the sale's own test is test_shop's
+    from inventory_tracking.macros.cube import SURE_BLOCK, drop_for, transmute
+
+    own = tuple(Carried(40 + x, 999 - x, x, 1, (1, 2)) for x in range(1, 10))
+    dagger = Carried(50, 135, 0, 0, (1, 3), quality=4, identified=False)
+    charm = Carried(51, 618, 0, 3, (1, 1), quality=4, identified=False)
+    play = Game(world(79, player=player(79, x=5029.0, y=2860.0)))
+    play.pack = Pack((*own, dagger, charm))
+    run = play.run()
+    run.players_item = lambda _item: True
+    assert drop_for(run, 'i', own_of(own), SURE_BLOCK) is None
+    assert play.fallen == []
+
+    emerald = class_of('Flawless Emerald')
+    others = tuple(Carried(60 + n, emerald, n % 3, 1 + n // 3, (1, 1)) for n in range(9))
+    cubed = (*rubies((0, 0), (1, 0), (2, 0)), *others)
+    mine = tuple(Carried(80 + n, 999, n % 10, n // 10, (1, 1)) for n in range(38) if n not in (1, 2, 11, 12))
+    full = fortress(Pack(()))
+    full.pack = Pack(
+        (THE_CUBE, *mine), ('###',) * 4, in_cube=cubed, cube_items=frozenset(i.unit_id for i in cubed),
+    )  # fmt: skip
+    run = full.run()
+    run.kept_item = lambda _item: '+2 skills'
+    parked: list[int] = []
+    with caplog.at_level('INFO'):
+        assert not transmute(run, 'i', FLAWLESS_RUBY, parked.append)
+    assert 'is kept by its stats (+2 skills): never put down' in caplog.text
+    assert parked == []
+    assert full.fallen == []
+
+
+def test_an_inventory_already_open_is_not_closed_by_its_key():
+    # cube.py tapped the inventory key unconditionally: with the inventory open the tap closed it (rca/2026-10-19
+    # cleanup/tests.md gaps); `open_inventory` taps only a closed one
+    from dataclasses import replace
+
+    from inventory_tracking.macros.cube import unpack
+
+    rune = Carried(42, class_of('Io Rune'), 1, 0, (1, 1))
+    cube = Carried(2, CUBE_CLASS, 0, 0, (2, 2))
+    play = fortress(Pack((cube,), ('...',) * 4, in_cube=(rune,), cube_items=frozenset({42})))
+    play.world = replace(play.world, open_panels=('inventory',))
+
+    assert unpack(play.run(), 'i', [rune]) == 1
+    assert 'i' not in play.pressed()
