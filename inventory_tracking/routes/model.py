@@ -1,23 +1,10 @@
-"""What a farming route is: plain data (levels/routes.md, the catalogue layer).
+"""What a farming route is: plain data (levels/routes.md, the catalogue layer); no memory reads, no input.
 
-A route is a chain of level scripts; a script is the ordered stages of one level. The stage that is
-not done yet is the one a press performs (routes/progress.py, macros/route.py: later phases). A
-stage names a mark by the label the level's handler gives it (levels/handlers/), so the catalogue
-holds no coordinates. Nothing here reads memory or sends input.
-
-Stages:
-- `enter(mark, to)`: go to the door, gap or border the mark is on and into level `to`.
-- `use(mark)`: go to the object the mark sits on and click it; with `to`, it is a portal to that
-  level. A label that marks several objects (a hell pit's chests) means each of them.
-- `stand(mark, by)`: move onto the mark, with skill `by` when one is given.
-- `fight(boss, at, opener)`: go to mark `at` (none: fight from where the character stands), cast
-  the opener once, then attack mode until the boss is dead.
-- `clear()`: the seek step, until no elite is known and no room is unexplored.
-- `loot()`: the pickup request, until nothing valuable is left in reach.
-- `leave()`: the macro request: save, leave the game, make the next one.
-
-`pending` says why a stage cannot be acted on yet (no mark for it, an object not read); the check
-(routes/check.py) refuses a pending stage whose mark has come to exist, so the list only shrinks.
+A route is a chain of level scripts, a script the ordered stages of one level. Stages name marks by the
+handler's label (levels/handlers/), so the catalogue holds no coordinates: `enter(mark, to)` into level `to`;
+`use(mark)` an object (with `to`, a portal; a label on several objects means each); `stand(mark, by)` with skill
+`by`; `fight(boss, at, opener)`; `clear()` the seek step; `loot()` the pickup request; `leave()` the next game.
+`pending` says why a stage cannot be acted on yet; routes/check.py refuses one whose mark has come to exist.
 """
 
 from dataclasses import dataclass
@@ -40,8 +27,8 @@ class Stage:
     by: int = 0  # stand: the skill that makes the move
     opener: tuple[int, ...] = ()  # fight: skills cast once before attack mode
     pending: str = ''  # why the stage cannot be acted on yet
-    # enter: the levels a tour of the marks with this label leads into, one by one (the Canyon of the Magi's seven
-    # tombs): done once each was entered; the marks gone through are passed (`Progress.lead`)
+    # enter: the levels a tour of this label's marks leads into one by one (the Canyon's seven tombs); done once
+    # each was entered
     tours: tuple[int, ...] = ()
     back: bool = False  # enter: a way back the level's run takes at its end; never done while on the level
 

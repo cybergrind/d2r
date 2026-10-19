@@ -1,21 +1,13 @@
-"""Call to Arms: Battle Command and Battle Orders kept on the character, for any build that wears one.
+"""Call to Arms: Battle Command and Battle Orders kept on the character, for any build that wears one ("we need to use
+it and keep it's buff active", the player, 2026-10-17).
 
-The player, 2026-10-17: "now we have call to arms, so we need to use it and keep it's buff active ... we determine if
-there is cta and use it if we have it ... probably cta cannot be used in town". The game's skills.txt agrees: Battle
-Orders (149), Battle Command (155) and Battle Cry (146) have no `InTown`, where the Warlock's own buffs (Consume,
-Psychic Ward, Hex: Purge) have it. So the town's prebuff cannot cast them: a row of the upkeep does (`ROWS`), the first
-quiet look outside a town with Battle Orders not shown on the character (states.txt `battleorders` 32, game/
-BATTLE_ORDERS_BIT, seen to read in the game at 23:41:01 on 2026-10-17).
+Battle Orders and Battle Command have no `InTown` (skills.txt), so the town prebuff cannot cast them: an upkeep row
+does (`ROWS`), at the first quiet look outside town with Battle Orders not shown (states.txt `battleorders`). At
+Battle Orders 12 a cast lasts ~130 s (skills.txt `auralencalc`), longer than a Lower Kurast stay: one cast a game.
+Battle Command goes first: its +1 to all skills raises the Battle Orders after it.
 
-A cast at Battle Orders 12 (CybergrindAA's CTA +4 and +8 to all skills, 22:58 on 2026-10-17) lasts 750 + 250 per level
-past the first frames (skills.txt `auralencalc` ln12, Param1 and Param2): 130 s, longer than a Lower Kurast game's
-stay, so one cast a game, at its arrival. Battle Command (the same length) goes first: its +1 to all skills raises the
-Battle Orders cast after it.
-
-What is a Call to Arms is read from the item, not named: a weapon that gives Battle Orders as a skill
-(game/records.py `gives_orders`), which the weapon set in hand reads as CTA_CODE (`GameMemory.hands`). The caster swaps
-to it, casts, and swaps back to the set it found in hand: a game is never left holding it (routines.py
-`take_battle_weapons`).
+A Call to Arms is read from the item (a weapon giving Battle Orders, game/records.py `gives_orders`). The caster swaps
+to it, casts, and swaps back to the set it found in hand.
 """
 
 from inventory_tracking.common import LOG
@@ -32,19 +24,17 @@ from inventory_tracking.native.layout import BATTLE_ORDERS_SKILL, TOWN_IDS
 BATTLE_ORDERS = BATTLE_ORDERS_SKILL
 BATTLE_COMMAND = 155
 register_names({BATTLE_ORDERS: 'Battle Orders', BATTLE_COMMAND: 'Battle Command'})
-# Seconds before a try that found no Call to Arms, or its skills on no key, is made again: it is said each time
+# Seconds before a try that found no Call to Arms, or its skills on no key, is made again
 MISSING_WAIT = 300.0
 CAST_OVER = 1.0  # seconds at most for a cast to end before the weapons are swapped
-# Seconds from the last cast's key before a weapon swap is taken: the arrival's swap back 0.39-0.42 s after Battle
-# Orders' key was refused 25 times in 26, though the character's mode read the cast over (01:41-01:56 on 2026-10-18);
-# the caster's own, 0.56-0.61 s after it, was taken 44 times in 44 (2026-10-18 01:05-01:36)
+# Seconds from the last cast's key before a weapon swap is taken, though the mode reads the cast over: 0.4 s was
+# refused 25 in 26, 0.6 s taken 44 in 44 (2026-10-18 01:05-01:56)
 SWAP_AFTER_CAST = 0.6
 
 
 def orders_shown(world: World) -> bool | None:
-    """What the character shows of Battle Orders; None (not kept up) in a town, where it cannot be cast. Not asked of
-    the keys: the Call to Arms' skills are on keys only while it is in hand (the player, 23:40 on 2026-10-17: "swap
-    weapon and there are 7 and 8 bound to skills")."""
+    """Whether the character shows Battle Orders; None in town, where it cannot be cast. Not read from the keys: the
+    Call to Arms' skills are on keys only while it is in hand."""
     player = world.player
     if player is None or player.area in TOWN_IDS:
         return None
@@ -52,8 +42,7 @@ def orders_shown(world: World) -> bool | None:
 
 
 def worn_and_in_front(facts: BuffFacts) -> bool:
-    """A Call to Arms is worn (`BuffFacts.cta`, read from the items), and the game is in front: a swap pressed into
-    another window does nothing."""
+    """A Call to Arms is worn and the game is in front (a swap pressed into another window does nothing)."""
     return facts.cta is True and facts.focused()
 
 
@@ -80,7 +69,6 @@ def call_to_arms(cast: Casting) -> Tried:
             swapped = True
             if not swap_until(run, lambda: bool(holding(run))):
                 raise Abort('no Call to Arms in the other weapon set')
-        # Its keys as the set in hand has them
         held = run.world()
         skills = tuple(skill for skill in (BATTLE_COMMAND, BATTLE_ORDERS) if skill in held.slots)
         if BATTLE_ORDERS not in skills:
@@ -103,10 +91,9 @@ def call_to_arms(cast: Casting) -> Tried:
 
 
 def cast_in_hand(run, key_names) -> bool:
-    """At an arrival's input check, with the other weapon set just swapped in (routines.py `took_input`): Battle Command
-    and Battle Orders when that set is the Call to Arms and Battle Orders is due out of town (`orders_shown`), before
-    the check swaps back. The upkeep row then finds it shown. At Lower Kurast's arrival the check's swap pair and the
-    caster's own came one after the other: 1.5 s for the cast with its own pair (01:15:49-52 on 2026-10-18)."""
+    """At an arrival's input check, with the other weapon set just swapped in (routines.py `took_input`): cast Battle
+    Command and Battle Orders when that set is the Call to Arms and Battle Orders is due, before the check swaps back.
+    Saves the caster's own swap pair (1.5 s, 2026-10-18)."""
     if run.hands is None or not holding(run):
         return False
     world = run.world()
@@ -124,8 +111,7 @@ def cast_in_hand(run, key_names) -> bool:
         pressed = run.clock()
         for skill in skills:
             pressed = cast_free(run, skill)  # the key's down: a cast waits for the one before it to end
-        # The cast over before the check's swap back (SWAP_AFTER_CAST): one pressed 0.4 s after Battle Orders' key was
-        # not taken, and the next 0.6 s later was (01:36:21 on 2026-10-18)
+        # The cast over before the check's swap back (SWAP_AFTER_CAST)
         run.seen(lambda w: w.player is not None and w.player.mode not in ACTING, CAST_OVER)
         run.pace.sleep(max(0.0, pressed + SWAP_AFTER_CAST - run.clock()))
     except (Abort, ValueError) as stop:
@@ -136,6 +122,6 @@ def cast_in_hand(run, key_names) -> bool:
     return True
 
 
-# The rows a build adds to its plan, and the caster they name (`Build.casters`)
+# The rows a build adds to its plan, and their caster (`Build.casters`)
 ROWS: tuple[Buff, ...] = (Buff(BATTLE_ORDERS, 'upkeep', worn_and_in_front, state=orders_shown, caster='cta'),)
 CASTERS = {'cta': call_to_arms}

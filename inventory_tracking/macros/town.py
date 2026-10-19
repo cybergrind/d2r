@@ -1,16 +1,7 @@
-"""One planned town visit (macros/town-plan.md §2): the types, and the stash stop's plan. Pure: no input, no reads.
-
-The player, 2026-10-18 12:55: "when we're putting items to shared stash, we just brute forcing each tab, despite we
-could exactly know where we can put items"; "we visit the stash only ONE time". The stash is read from memory in town
-(game/records.py `StashView`: every page's rows, every resource stack's count), so where each item goes is planned
-before a click: a resource onto its tab only while its stack has room (never a full stack's Ctrl + click), a keeper onto
-the page whose free cells fit it (`place`, shared 3, 4, 5, 2, 1, then personal: no page tried and refused), a
-cube keeper out through the room the inventory's keepers leave, the cube's junk out for Jamella as the room allows, a
-full stack's material put down (no vendor buys one: the player, 10:37, "there is no use for it").
-
-Step 1 of the plan's migration: the stash stop (`stash_stop`). Step 3: the trigger's room (TRADE_ROOM), the stacks no
-longer kept (`sold_full`), the gems sold (`surplus`), the gold deposited (`deposit_to`), the staff topped up (`tops_up`)
-and what a visit leaves (`contract`): macros/visit.py `visit` walks the stops once and checks it.
+"""One planned town visit (macros/town-plan.md §2): the types, the stash stop's plan, the trade trigger's room, the
+gems sold, the gold deposited, the staff topped up and what a visit leaves (`contract`). Pure: no input, no reads;
+macros/visit.py `visit` walks the stops. The stash is read from memory (`StashView`), so every put is planned before a
+click: "we visit the stash only ONE time" (the player, 2026-10-18). Evidence for the tuned numbers: history/town.md.
 """
 
 from collections import Counter
@@ -76,56 +67,36 @@ __all__ = [
 Cell = tuple[int, int, int]  # an item's class and cell, as `Loop.own` tells the player's
 STACK_ROOM = 20  # the player, 2026-10-18: "at least 20 free slots" on a resource stack (step 5)
 RUNES_TAB = 4  # stash.py `resource_tabs`: 2 Gems, 3 Materials, 4 Runes
-# The trade (routes/lower-kurast-loop-plan.md §15; the player, 2026-10-17: "we need to perform mass identify at decard
-# cain -> stash good -> sell junk -> return to loop"; then "probably we need to trade not by 2 junk items, but by
-# remaining free slots"): the loop's unidentified items and its junk wait, in the inventory and the cube, until fewer
-# than TRADE_ROOM cells are free in both together (a 2 x 4 shield, the largest candidate, fits nowhere); then the whole
-# visit at once (macros/visit.py). (Counted by items before, 3 then 4 to Cain, 2 then 3 to her: Cain nearly every game
-# for one item, the trade ~6.8 s a cycle, 12:00-12:30 on 2026-10-17.)
+# The loop's unidentified and junk wait until fewer than this many cells are free in the inventory and cube together,
+# then one whole visit: "trade ... by remaining free slots" (the player, 2026-10-17). A 2 x 4 fits nowhere below it.
 TRADE_ROOM = 8
-# A full stash stack's flawless gems the loop keeps for the cube: at most GEMS_A_KIND of a kind (one transmute's) and
-# GEMS_KEPT in all; the rest are sold at Jamella, but only once the perfect gem's stack is full too (the player, 09:51
-# on 2026-10-18: "we don't need to do gem sale until we have 99 pgems of type and we must cube them up first").
-# Kept with no bound, all seven kinds full, they filled the cube: no transmute had the room to empty it, a trade
-# session every game, then the loop stood by a Flawless Sapphire and a Grand Charm with no room for either (09:22-09:45)
+# A full stack's flawless gems kept for the cube: at most GEMS_A_KIND of a kind, GEMS_KEPT in all (unbounded, they
+# filled the cube); the rest sold only once the perfect stack is full too: "we must cube them up first" (2026-10-18).
 GEMS_A_KIND = 3
 GEMS_KEPT = 6
 DEPOSIT_NEAR = 2 * SALE_MOST  # gold this near the cap is deposited at the stash (macros/stash.py `deposit`)
 DEPOSIT_ROOM = 250_000  # down to the cap less this: room for a session's sales, Teleport still on (loop.py TELEPORT_ON)
 REPAIR_SHARE = 1.2  # the deposit leaves the expected repair and this share over it carried (repairs from carried gold)
-# The stash as a buffer inside its stop (the player, 16:50 on 2026-10-18: "junk can be temporarily stored in stash, but
-# sold after"): the inventory's junk that holds the only block a cube keeper could come out through is put onto a
-# shared page with room, the keeper taken out and stashed, the junk taken back before the stash closes and sold at
-# Jamella. A set Battle Boots (2 x 2) stayed in the cube three visits (16:30-16:35) behind a junk unique Fuscina
-# (2 x 4); 15:06, 15:14 and 15:20 the same class
+# Junk holding the only block a cube keeper could come out through is parked on a shared page and taken back before
+# the stash closes: "junk can be temporarily stored in stash, but sold after" (the player, 2026-10-18).
 PARK_JUNK = True
-# A cube keeper the visit cannot get out (room on a page, none in the inventory to come out through, even with a park)
-# waits in the cube for the next visit: an accepted outcome, named on the contract as deferred, not a miss (the player,
-# 17:50 on 2026-10-18: "keeper can wait in cube"). Not a keeper no page has room for: the stash is full, and the loop
-# stops (`Contract.stash_full`)
+# A cube keeper the visit cannot get out (room on a page, none in the inventory) waits for the next visit, named as
+# deferred, not a miss: "keeper can wait in cube" (the player, 2026-10-18). No page with room: the loop stops.
 KEEPER_IN_CUBE = True
-# The 99 rune stacks (the player, 17:50 on 2026-10-18: "cubed, aim to 80 or lower"; Tal Rune at 99 since 2026-10-17):
-# at the stash stop, three runes of a stack over RUNES_AIM out to the cube and transmuted into the next rune
-# (cubemain.txt by cube.py `rune_recipe`: El to Ort need no gem; Thul to Lem take one more, a chipped or flawed gem,
-# taken from its stack on the Gems tab: the player, 18:31, "yes, loop should use required gems + runes"; Pul up take
-# two runes, not handled), the rune made put onto its stack; the fullest stack first, at most RUNE_TRANSMUTES a visit;
-# never a Ber Rune (BER). The gem transmute's log lines (`Macro: cube:
-# three ...`, 12 of 2026-10-18 04:53-09:13) came 1.9 to 4.0 s after the stash stop's line, 2.8 s the median, the
-# inventory and the cube opened and closed each time; this one stays in the open stash (a right click, the button, a
-# Ctrl + Shift + click): 3 a visit is at most ~8 s and likely ~5 s, and takes 9 runes off: a 99 stack is at 80 within
-# three visits, while the loop brings fewer than one rune of a kind a visit (10 Tal, 19 Ort in 122 visits on 10-18)
+# Rune stacks over RUNES_AIM: three runes out to the cube and transmuted into the next (cube.py `rune_recipe`; Thul to
+# Lem take a gem from the Gems tab, Pul up take two runes: not handled), the fullest first, at most RUNE_TRANSMUTES a
+# visit, never a Ber Rune: "cubed, aim to 80 or lower" (the player, 2026-10-18). Timing evidence: history/town.md.
 RUNES_AIM = 80
 RUNE_TRANSMUTES = 3
 RUNES_A_TAKE = 3  # what a Ctrl + Shift + right click on a stack moves into the cube (the player, 14:28 on 2026-10-18)
-# Ber Runes are kept for Enigma (the player, 2026-10-09): no transmute ever takes one, whatever the data says
+# Ber Runes are kept for Enigma (the player, 2026-10-09)
 BER = next(txt for txt, row in RUNE_CLASSES.items() if row['name'] == 'Ber Rune')
 
 
 @dataclass(frozen=True)
 class Needs:
-    """What the visit leaves the character with, from the build and the run kind: the inventory's free block (the
-    Warlock's 2 x 4: the player, 2026-10-18, "for warlock: this is 2x4 continuous space"), the keys (Kind.keys: LK 24,
-    Andariel 12), how Town Portal is cast, the Tome of Identify's charges and a resource stack's room."""
+    """What the visit leaves the character with: the inventory's free block ("for warlock: this is 2x4 continuous
+    space", the player, 2026-10-18), the keys (Kind.keys), how Town Portal is cast, Identify charges, a stack's room."""
 
     block: tuple[int, int] = BIG_BLOCK
     keys: int = 24
@@ -136,8 +107,7 @@ class Needs:
 
 @dataclass(frozen=True)
 class Holdings:
-    """What is carried: the pack, the player's own items (`Loop.own`), the loop's items judged `vendor` after Cain
-    (unit ids) and those still unidentified."""
+    """What is carried: the pack, the player's own items, the loop's junk after Cain and the unidentified (unit ids)."""
 
     pack: Pack
     own: frozenset[Cell]
@@ -155,9 +125,8 @@ class Exit(Enum):
 
 @dataclass(frozen=True)
 class Put:
-    """An item into the stash: from the inventory (a Ctrl + click) or the cube (a resource by Ctrl + Shift on a
-    resource tab; another out through the inventory first), onto page `to` (0 personal, 1..5 shared) or, negative, a
-    resource tab (-2 Gems, -3 Materials, -4 Runes)."""
+    """An item into the stash from the inventory or the cube, onto page `to` (0 personal, 1..5 shared) or, negative,
+    a resource tab (-2 Gems, -3 Materials, -4 Runes)."""
 
     item: Carried
     source: Literal['inventory', 'cube']
@@ -170,9 +139,7 @@ class Put:
 
 @dataclass(frozen=True)
 class RuneCube:
-    """One transmute at the stash's cube (RUNES_AIM): RUNES_A_TAKE runes of class `txt` taken from its stack into the
-    cube, with one gem of class `gem` from its stack when the recipe takes one, transmuted into one rune of class
-    `into`, which goes onto its own stack."""
+    """One rune transmute at the stash (RUNES_AIM): RUNES_A_TAKE of `txt` plus an optional `gem` into one `into`."""
 
     txt: int
     into: int
@@ -181,19 +148,14 @@ class RuneCube:
 
 @dataclass(frozen=True)
 class StashStop:
-    """The stash stop's plan: the puts grouped (the tabs, the personal page, the shared pages ascending), the cube's
-    junk to the inventory for Jamella while the stash is open, the full stacks' materials put down, the gold to keep
-    when depositing; `shuffles`: the inventory's
-    junk and key stacks moved within it, in order, each to the cell given (its top-left), to free the block a cube
-    keeper comes out into; `into_cube`: junk that finds no cell for it put into the cube instead (sold from there at
-    Jamella), both in the interlude before the cube's keepers come out (`stash_stop` (iv)); `stranded`: the cube's
-    keepers neither gets out, which the inventory's junk sold first would let out; `parks`: the inventory's junk put
-    onto a shared page (`Put.to`) before the moves aside, so such a keeper comes out, and taken back into the inventory
-    once the keepers are in, before the stash closes (PARK_JUNK); `full`: the keepers no page has room for (the stash is
-    full: the loop stops, the player at 16:50 on 2026-10-18); `waits`: the cube's keepers with room on a page that stay
-    in the cube (no way out, even with a park), for the next visit (KEEPER_IN_CUBE); `runes`: the rune transmutes made
-    last, the cube empty, and `rune_puts`: the loop's runes whose stack had no room before them, onto it after
-    (RUNES_AIM)."""
+    """The stash stop's plan.
+
+    `puts`: tabs first, then pages in priority; `out_for_sale`: the cube's junk out for Jamella; `drops`: full stacks'
+    materials put down; `shuffles`: inventory moves (item, top-left cell) freeing a block for a cube keeper;
+    `into_cube`: junk with no cell left, into the cube; `stranded`: cube keepers only selling the junk first would let
+    out; `parks`: junk parked on a shared page and taken back (PARK_JUNK); `full`: keepers no page has room for (the
+    loop stops); `waits`: cube keepers left for the next visit (KEEPER_IN_CUBE); `runes`: transmutes made last, the cube
+    empty; `rune_puts`: runes onto stacks the transmutes made room on."""
 
     puts: tuple[Put, ...] = ()
     out_for_sale: tuple[Carried, ...] = ()
@@ -201,8 +163,6 @@ class StashStop:
     deposit_to: int | None = None
     shuffles: tuple[Move, ...] = ()
     into_cube: tuple[Carried, ...] = ()
-    # The cube's keepers with room on a page that no block, move aside or junk into the cube gets out of it, but the
-    # inventory's junk once sold would: Jamella before the stash (macros/visit.py `visit`; 15:05:53 on 2026-10-18)
     stranded: tuple[Carried, ...] = ()
     parks: tuple[Put, ...] = ()
     full: tuple[Carried, ...] = ()
@@ -212,25 +172,20 @@ class StashStop:
 
     @property
     def idle(self) -> bool:
-        """Whether the stop has nothing to do: no walk to the stash."""
         busy = self.puts or self.out_for_sale or self.drops or self.runes
         return not busy and self.deposit_to is None
 
     def pages(self) -> tuple[int, ...]:
-        """The pages the puts go to, in storage priority (the tabs not among them)."""
+        """The pages the puts go to, in priority (no tabs)."""
         used = {put.to for put in self.puts if not put.tab}
         return tuple(page for page in PAGE_PRIORITY if page in used)
 
 
 @dataclass(frozen=True)
 class Contract:
-    """What a visit leaves (§2.2 6): checked after it, its misses logged. `stash_full`: the keepers no stash page had
-    room for, named (empty when the stash took all it was given): the loop stops on it (the player, 16:50 on 2026-10-18:
-    "if stash is full - we need to stop loop"). Not the stranded case (room on a page, none in the inventory for the
-    keeper to come out through), which a park of the junk makes (PARK_JUNK). `in_stash`: the junk a park left on a
-    page (never meant to happen: a miss). `deferred`: the cube's keepers the visit could not get out, named, waiting in
-    the cube for the next visit (KEEPER_IN_CUBE): neither a miss nor the stash full; their cells are the cube's, which
-    the loop's room counts."""
+    """What a visit leaves (§2.2 6), checked after it, its misses logged. `stash_full`: keepers no page had room for;
+    the loop stops: "if stash is full - we need to stop loop" (the player, 2026-10-18). `in_stash`: junk a park left on
+    a page (a miss). `deferred`: cube keepers waiting for the next visit (KEEPER_IN_CUBE), not a miss."""
 
     cube: int
     block_free: bool
@@ -254,7 +209,6 @@ def _largest_first(items: Iterable[Carried]) -> list[Carried]:
 
 
 def _place(rows: dict[int, tuple[str, ...]], items: Iterable[Carried]) -> dict[int, int]:
-    """`items` largest first, each onto the first priority page with a block for it; `rows` updated."""
     placed: dict[int, int] = {}
     for item in _largest_first(items):
         for index in PAGE_PRIORITY:
@@ -270,14 +224,12 @@ def _place(rows: dict[int, tuple[str, ...]], items: Iterable[Carried]) -> dict[i
 
 
 def place(pages: Sequence[Page], items: Sequence[Carried]) -> dict[int, int]:
-    """The page each item goes onto (unit id -> page index): the largest first, with a free block on shared pages
-    3, 4, 5, 2, 1, then personal. One with no room anywhere stays where it is."""
+    """The page each item goes onto (unit id -> page index), the largest first, by PAGE_PRIORITY; no room: absent."""
     return _place({page.index: page.rows for page in pages}, items)
 
 
 def out_now(rows: Sequence[str], items: Sequence[Carried]) -> tuple[Carried, ...]:
-    """Those of `items` (in their order) that come out of the cube into an inventory of `rows` together, each into the
-    first free block (as `cube.unpack` takes them out)."""
+    """Those of `items`, in order, that fit together into `rows`, each at its first free block (as `cube.unpack`)."""
     lines, out = Grid(rows), []
     for item in items:
         spot = lines.first_spot(item.size)
@@ -293,7 +245,6 @@ def _without(pack: Pack, gone: Iterable[Carried]) -> Pack:
 
 
 def _over(item: Carried, at: tuple[int, int], size: tuple[int, int]) -> bool:
-    """Whether `item` takes a cell of the block of `size` at `at`."""
     return (
         item.x < at[0] + size[0]
         and at[0] < item.x + item.size[0]
@@ -310,15 +261,13 @@ def _settled(
     block: tuple[int, int],
     junk: Set[int],
 ) -> tuple[list[Move], list[Carried], Grid | None, Grid] | None:
-    """Where each of `movers` goes, the largest first, in the inventory `work` (the block to free already taken): a key
-    stack to the cell that leaves the build's block free once the junk is sold (`stay`: what the visit ends with), else
-    its largest free block, as `keys_move` scores; a junk item to its first free block, else into the first block of
-    `cube` (None: no cube to take it); an unidentified item to its first free block (it stays carried, for Cain: never
-    into the cube). The moves, the junk into the cube, the cube's rows and the inventory as the visit ends; None when
-    one finds no room."""
+    """Where each of `movers` goes in `work` (the block to free already taken), the largest first: a key stack where
+    the build's block stays free once the junk is sold (`stay`: what the visit ends with); junk at its first free block,
+    else into `cube`; the unidentified at its first free block, never into the cube (Cain's). Returns the moves, the
+    junk into the cube, the cube's rows and the final inventory; None when one finds no room."""
     moves: list[Move] = []
     into: list[Carried] = []
-    kept: list[Carried] = []  # the keys and the unidentified at their new cells: the visit ends with them
+    kept: list[Carried] = []  # keys and unidentified at their new cells
     for item in _largest_first(movers):
         spots = list(work.spots(item.size))
         if item.txt == KEY_CLASS and spots:
@@ -352,10 +301,8 @@ def _opening(
     cube: Grid | None,
     block: tuple[int, int],
 ) -> tuple[list[Move], list[Carried], Grid | None] | None:
-    """The cheapest way to free a block of `size` in the inventory `lines` (`items` in it, and cells already planned
-    for the cube's keepers) by moving only `movable` items aside (`_settled`; `junk` among them sold at Jamella, the
-    rest carried on): none into the cube when moves within the inventory do it, then the build's block free at the
-    visit's end, then the fewest moves; None when no block can be freed so."""
+    """The cheapest way to free a block of `size` in `lines` by moving only `movable` items (`_settled`): fewest into
+    the cube, then the build's block free at the end, then fewest moves; None when none frees one."""
     best: tuple[tuple[int, bool, int, int, int, int], list[Move], list[Carried], Grid | None] | None = None
     for y in range(len(lines) - size[1] + 1):
         for x in range(len(lines[0]) - size[0] + 1):
@@ -385,11 +332,8 @@ def _opening(
 
 
 def unread_way_for_cube(pack: Pack, keeper: Carried, junk: Set[int], block: tuple[int, int]) -> tuple[Move, ...]:
-    """Inventory-only junk moves that let an unread-stash scan take a cube keeper out (visit.py `_stash`).
-
-    No stash page is predicted here. The caller tries the actual page after moving the junk, and keeps the junk
-    carried for Jamella. The cube is excluded as temporary space so the keeper's space is not consumed by junk.
-    """
+    """Inventory-only junk moves that let an unread-stash scan take a cube keeper out (visit.py `_stash`). No page is
+    predicted; the cube is not used as room, so junk never takes the keeper's space."""
     if pack.inventory.has_room(keeper.size):
         return ()
     found = _opening(pack.inventory, pack.items, junk, junk, keeper.size, None, block)
@@ -405,11 +349,9 @@ def _make_way(
     cube: Grid | None,
     block: tuple[int, int],
 ) -> tuple[tuple[Move, ...], tuple[Carried, ...], tuple[Carried, ...], tuple[Carried, ...]]:
-    """Step (iv)'s moves aside: for each cube keeper (in `keepers`' order) with room on a page but no free block in the
-    inventory as the stash's puts leave it (`items`), the moves of `movable` items (the loop's junk, the key stacks,
-    the unidentified) within it that free one, else the junk into the cube (`cube`: its rows while its keepers are
-    still in it). The moves in order, the junk into the cube, the keepers neither frees a block for that one would have
-    once the inventory's junk is sold (`StashStop.stranded`), and those no page has room for (`StashStop.full`)."""
+    """Step (iv): for each cube keeper with room on a page but no block in the inventory `items`, the moves of
+    `movable` items that free one, else junk into `cube`. Returns the moves, the junk into the cube, the stranded and
+    the homeless keepers (`StashStop.stranded`, `StashStop.full`)."""
     trial = dict(pages)
     now = list(items)
     planned: list[tuple[tuple[int, int], tuple[int, int]]] = []  # the keepers' blocks, as `out_now` takes them
@@ -427,7 +369,7 @@ def _make_way(
     for keeper in keepers:
         if not _place(dict(trial), [keeper]):
             homeless.append(keeper)
-            continue  # no page has room for it: it stays in the cube, nothing moved for it
+            continue
         spot = lines().first_spot(keeper.size)
         if spot is None:
             found = _opening(lines(), now, movable, junk, keeper.size, cube, block)
@@ -454,8 +396,7 @@ def _make_way(
 
 
 def _shuffled(pack: Pack, stop: StashStop) -> Pack:
-    """`pack` with the stop's moves aside made: each moved item at its new cell, the junk into the cube gone from the
-    inventory (`after` puts it in the cube)."""
+    """`pack` with the stop's moves aside made and its junk into the cube gone (`after` puts it in the cube)."""
     items = list(pack.items)
     for moved, (x, y) in stop.shuffles:
         items = [replace(i, x=x, y=y) if i.unit_id == moved.unit_id else i for i in items]
@@ -474,26 +415,19 @@ def stash_stop(
     deposit_to: int | None = None,
     park: bool | None = None,
 ) -> StashStop:
-    """The stash stop's plan (§2.2 2): which of the loop's items goes onto which tab or page, from what is carried and
-    the stash as read. The junk and the unidentified stay (Jamella's, Cain's); the player's own are never among them.
+    """The stash stop's plan (§2.2 2): which of the loop's items goes onto which tab or page. Junk and unidentified stay
+    (Jamella's, Cain's); the player's own are never touched.
 
-    (i), (ii) a resource onto its tab while its stack has room, each one counted (two Tal Runes onto a stack of 98: one
-    goes); a full stack's is never clicked: a material is put down (none buys one), a rune stays for Jamella, a gem
-    stays for the cube's transmutes, a potion is never full (the belt's) and stays. (iii) the inventory's keepers onto
-    the pages `place` chooses. (iv) the cube's keepers out through the room the inventory's leave (the drops' cells
-    too), onto the pages' room still left; one with no room on a page stays in the cube (`full`); one with room on a
-    page but no block in the inventory gets one by moves aside of the loop's junk, key stacks and unidentified items
-    within it (`shuffles`), else by that junk into the cube (`into_cube`), else (`park`) by that junk parked on a shared
-    page for the stop (`parks`); no block freed so, it stays in the cube (`stranded`). (v) the cube's junk, full runes
-    and full materials out to the inventory, as the room left after (iv) allows, for Jamella (none with a park: they
-    wait in the cube for her passes, the room kept for the parked junk to come back). (vii) the key stack's move that
-    frees `needs.block` in the inventory as the stop leaves it. `park` None: PARK_JUNK."""
+    (i, ii) a resource onto its tab while its stack has room, each counted; a full stack's material is put down, its
+    rune or gem stays. (iii) inventory keepers onto `place`'s pages. (iv) cube keepers out through the room left, by
+    moves aside, junk into the cube, or (`park`, default PARK_JUNK) junk parked on a page; else stranded. (v) the cube's
+    junk and full stacks out for Jamella as room allows (none with a park). (vii) the key stack moved to free
+    `needs.block`."""
     stop = _planned(h, view, needs, deposit_to, ())
     assert stop is not None  # nothing parked: always planned
     if not ((PARK_JUNK if park is None else park) and stop.stranded):
         return stop
-    # The park (PARK_JUNK): each of the inventory's junk alone, the largest first, then all of it; the one that lets
-    # the most cube keepers out, then the fewest parked. Never a keeper, the unidentified or the player's own
+    # Try each junk item alone, the largest first, then all: the most cube keepers out, then the fewest parked
     junk = [i for i in loot(h.pack, h.own) if i.unit_id in h.junk and i.unit_id not in h.unknown]
     tries = [(i,) for i in _largest_first(junk)] + ([tuple(junk)] if len(junk) > 1 else [])
     best, rank = stop, (-_through(stop), 0)
@@ -505,13 +439,11 @@ def stash_stop(
 
 
 def _through(stop: StashStop) -> int:
-    """How many of the cube's keepers the stop puts onto a page."""
     return sum(1 for put in stop.puts if put.source == 'cube' and not put.tab)
 
 
 def _lands(rows: dict[int, tuple[str, ...]], puts: Iterable[tuple[Carried, int]]) -> bool:
-    """Whether each of `puts`, in order, finds a block on its page of `rows` (the game's Ctrl + click: its first free
-    block on the page shown); `rows` updated."""
+    """Whether each of `puts`, in order, finds its first free block on its page (as a Ctrl + click); `rows` updated."""
     for item, index in puts:
         spot = Grid(rows[index]).first_spot(item.size) if index in rows else None
         if spot is None:
@@ -523,10 +455,8 @@ def _lands(rows: dict[int, tuple[str, ...]], puts: Iterable[tuple[Carried, int]]
 def _park_pages(
     pages: dict[int, tuple[str, ...]], before: Sequence[Put], later: Sequence[Put], parked: Sequence[Carried]
 ) -> tuple[Put, ...] | None:
-    """The shared page each of `parked` goes onto (the largest first, the first priority page that takes it), as the
-    stop makes its clicks: the puts `before` (the inventory's keepers, the cube's out before the stash), the parks,
-    then the cube keepers `later` out through the room the parks made, each into the first free block of its page;
-    a park never takes the block a later keeper's put needs. None when one finds no such page."""
+    """The shared page each of `parked` goes onto, in click order (`before`, the parks, `later`), so no park takes a
+    block a later keeper's put needs; None when one finds no page."""
     parks: list[Put] = []
     for item in _largest_first(parked):
         for index in SHARED_PRIORITY:
@@ -545,8 +475,7 @@ def _park_pages(
 def _planned(
     h: Holdings, view: StashView, needs: Needs, deposit_to: int | None, parked: Sequence[Carried]
 ) -> StashStop | None:
-    """`stash_stop`'s plan with `parked` (the inventory's junk) out of the inventory for the stop; None when they find
-    no page, or no room to come back into the inventory once the keepers are in."""
+    """`stash_stop`'s plan with `parked` junk out of the inventory; None when one finds no page or no room back."""
     pack, keep = h.pack, h.junk | h.unknown
     mine = [i for i in loot(pack, h.own) if i.unit_id not in keep]
     cubed = [i for i in pack.in_cube if i.unit_id not in keep]
@@ -566,9 +495,7 @@ def _planned(
         if room(item):
             tab_puts.append(Put(item, 'cube', -tabs[item.txt]))
         elif tabs[item.txt] in (RUNES_TAB, MATERIALS_TAB) and not is_potion(item.txt):
-            # A full material out, then put down (loop.py SHOP `discard`); a full rune out too, no longer for Jamella
-            # (the player, 17:50 on 2026-10-18: "cubed, aim to 80 or lower"): the cube emptied for the rune transmutes,
-            # it goes onto its stack once they make room (`rune_puts`)
+            # Out of the cube: a material to be put down, a rune onto its stack after the transmutes
             sale.append(item)
     for item in (i for i in mine if i.txt in RESOURCES):
         if room(item):
@@ -584,18 +511,15 @@ def _planned(
     staying = _without(pack, [*gone, *parked])
     # The cube's keepers come out together, the tallest first (cube.py `unpack`), and only where a page has room
     cube_keepers = sorted((i for i in cubed if i.txt not in RESOURCES), key=lambda i: (-i.size[1], -_cells(i)))
-    # One with no free block in the inventory the puts leave: the loop's junk (sold at Jamella, after the stash) and its
-    # key stacks moved aside within it, else that junk into the cube, to be sold from there. At 14:28 on 2026-10-18 a
-    # unique Embossed Plate (2 x 3) stayed in the cube: the inventory's one 2 x 3 held a set Amulet judged junk (4, 2),
-    # kept for Jamella, and the plan gave the plate no put (rca/2026-10-18/town-remaining-findings.md §1). Never the
-    # player's own (the player, 2026-10-17: "we shouldn't sell our own equipment"); the unidentified moved within the
-    # inventory only (the player, 16:50 on 2026-10-18: "shuffle can move unid items"), never into the cube
+    # Movable aside: the loop's junk, key stacks and the unidentified (rca/2026-10-18/town-remaining-findings.md §1).
+    # Never the player's own: "we shouldn't sell our own equipment" (2026-10-17); "shuffle can move unid items"
+    # (2026-10-18), but never into the cube
     loop_junk = {i.unit_id for i in loot(staying, h.own) if i.unit_id in h.junk and i.unit_id not in h.unknown}
     waiting = {i.unit_id for i in loot(staying, h.own) if i.unit_id in h.unknown}
     keys = {i.unit_id for i in staying.items if i.txt == KEY_CLASS and i.size == (1, 1)}
     cube_then: Grid | None = None
     if any(i.txt == CUBE_CLASS for i in pack.items):
-        # The cube while its keepers are in it: its resources out
+        # The cube with its keepers still in, its resources out
         tabbed = {put.item.unit_id for put in tab_puts if put.source == 'cube'}
         cube_then = Grid.from_items((i for i in pack.in_cube if i.unit_id not in tabbed), CUBE_SIZE)
     shuffles, into_cube, stranded, homeless = _make_way(
@@ -620,8 +544,7 @@ def _planned(
     )
     parks: tuple[Put, ...] = ()
     if parked:
-        # The parks clicked between the puts made with the stash's first opening and the cube keepers' after it (macros/
-        # visit.py `stash_stop`: those out before the stash as the inventory was, the tallest first)
+        # Parks are clicked between the first puts and the cube keepers that come out after them (visit.py)
         tallest = sorted(through, key=lambda i: (-i.size[1], -_cells(i)))
         early = {i.unit_id for i in out_now(pack.inventory, tallest)}
         before = [put for put in by_page if put.source == 'inventory' or put.item.unit_id in early]
@@ -646,9 +569,8 @@ def _planned(
 
 
 def _runes(stop: StashStop, h: Holdings, view: StashView, took: Mapping[int, int]) -> StashStop:
-    """`stop` with the rune transmutes (RUNES_AIM) on the stacks as its tab puts leave them, made last with the cube
-    empty as the stop leaves it (none otherwise: what else the cube holds would join the recipe), and the loop's runes
-    the stacks had no room for onto them after, as the transmutes leave room."""
+    """`stop` with its rune transmutes (RUNES_AIM), only when the stop leaves the cube empty (anything else in it would
+    join the recipe), and the loop's runes onto the stacks the transmutes made room on."""
     if all(i.txt != CUBE_CLASS for i in h.pack.items):
         return stop
     left = after(h.pack, stop)
@@ -674,10 +596,8 @@ def _runes(stop: StashStop, h: Holdings, view: StashView, took: Mapping[int, int
 
 
 def rune_transmutes(counts: Mapping[int, int], most: int = RUNE_TRANSMUTES) -> tuple[RuneCube, ...]:
-    """The rune transmutes a stash stop makes (RUNES_AIM), from the stacks' counts (class -> count, the gems' too): one
-    at a time, the fullest stack over RUNES_AIM first (the smaller rune on a tie) whose recipe (cube.py `rune_recipe`,
-    the game's cubemain.txt) takes RUNES_A_TAKE runes and at most one gem, that gem's stack holding one, while the stack
-    it makes has room; never a Ber Rune; `most` at most."""
+    """Up to `most` rune transmutes from the stacks' counts (class -> count, gems too): one at a time, the fullest stack
+    over RUNES_AIM first (the smaller rune on a tie), each allowed by `_cubed`."""
     counts = Counter(counts)
     made: list[RuneCube] = []
     while len(made) < most:
@@ -696,13 +616,11 @@ def rune_transmutes(counts: Mapping[int, int], most: int = RUNE_TRANSMUTES) -> t
 
 
 def _cubed(txt: int, counts: Mapping[int, int]) -> RuneCube | None:
-    """The transmute of three runes of class `txt`, None when there is no recipe, it takes other than RUNES_A_TAKE runes
-    or more than one gem, its gem's stack is empty, the stack it makes is full, or a Ber Rune would go into it."""
+    """The transmute of `txt` (cubemain.txt via `rune_recipe`), None when `_why_not` names a reason."""
     return _why_not(txt, counts)[0]
 
 
 def _why_not(txt: int, counts: Mapping[int, int]) -> tuple[RuneCube | None, str]:
-    """`_cubed`'s transmute, else why there is none (for the log)."""
     recipe = rune_recipe(txt) if txt in RUNE_CLASSES else None
     if recipe is None:
         return None, 'no recipe'
@@ -725,8 +643,7 @@ def _class_name(txt: int) -> str:
 
 
 def uncubed(counts: Mapping[int, int]) -> tuple[tuple[int, str], ...]:
-    """The rune stacks over RUNES_AIM no transmute takes down, each with why (for the log): the gem its recipe takes is
-    not in the stash, the stack it makes is full, a Ber Rune, a recipe of two runes."""
+    """The rune stacks over RUNES_AIM no transmute takes down, each with why (for the log)."""
     found = []
     for txt, count in sorted(counts.items()):
         if txt not in RUNE_CLASSES or count <= RUNES_AIM or rune_recipe(txt) is None:
@@ -738,10 +655,8 @@ def uncubed(counts: Mapping[int, int]) -> tuple[tuple[int, str], ...]:
 
 
 def after(pack: Pack, stop: StashStop) -> Pack:
-    """`pack` as the stop leaves it, simulated: the puts and the drops gone, the moves aside made, the cube's junk in
-    the inventory (each in the first free block, the tallest first), the junk put into the cube in its first free block
-    as the cube was then (its resources out, its keepers still in), the parked junk back in the inventory (each in the
-    first free block, the largest first), the cube's rows of what is left in it."""
+    """`pack` as the stop leaves it, simulated: puts and drops gone, moves aside made, the cube's junk and the parked
+    junk back in the inventory at first free blocks, the junk into the cube placed as the cube was then."""
     out = {item.unit_id for item in stop.out_for_sale}
     gone = {put.item.unit_id for put in (*stop.puts, *stop.rune_puts)} | {item.unit_id for item in stop.drops}
     parked = {put.item.unit_id for put in stop.parks}
@@ -773,23 +688,17 @@ def after(pack: Pack, stop: StashStop) -> Pack:
 
 
 def sold_full(full: Set[int]) -> frozenset[int]:
-    """The full stacks' classes that are not picked up: the runes and the materials. The ruling was the runes' ("other
-    runes that will have 99"); a Flawless Amethyst whose stack was full was left on the ground twice, the player: "we
-    just left flawlest amethyst and left the game. something is wrong" (15:19 on 2026-10-17). A gem of a full stack is
-    picked up and kept carried, not sold, until the player rules on it. The materials too (the Materials tab: essences,
-    shards, keys; the player, 10:37 on 2026-10-18: "essensies are stacking to 99, when we have full stash cell - just
-    stop picking it up, there is no use for it"), never a potion (the belt's); no vendor buys a material: put down.
-    A full stack's rune is no longer sold (the player, 17:50 on 2026-10-18: "cubed, aim to 80 or lower"): the stash stop
-    transmutes its stack down (RUNES_AIM), and one carried waits for the room that makes (`StashStop.rune_puts`)."""
+    """The full stacks' classes not picked up: runes (transmuted down, RUNES_AIM) and materials, never a potion: "just
+    stop picking it up, there is no use for it" (the player, 2026-10-18). A full stack's gem is still picked up and
+    kept for the cube: "we just left flawlest amethyst ... something is wrong" (2026-10-17)."""
     return frozenset(
         txt for txt in full if txt in RUNE_CLASSES or (resource_tabs().get(txt) == MATERIALS_TAB and not is_potion(txt))
     )
 
 
 def surplus(carried: Sequence[Carried], full: StashView | Set[int]) -> tuple[Carried, ...]:
-    """The flawless gems among `carried` (the loop's items, the cube's too) sold at Jamella, by the `full` stacks (a
-    view's, or the classes): only of a kind whose flawless and perfect stacks are both full; GEMS_A_KIND of a kind and
-    GEMS_KEPT in all stay for the cube, the kinds with the most first, those nearest a transmute."""
+    """The flawless gems of `carried` sold at Jamella: only kinds whose flawless and perfect stacks are both full, less
+    GEMS_A_KIND a kind and GEMS_KEPT in all kept for the cube (the kinds with the most first)."""
     full = full.full() if isinstance(full, StashView) else full
     kinds = Counter(i.txt for i in carried if i.txt in full and perfect_of(i.txt) in full)
     kept: dict[int, int] = {}
@@ -809,18 +718,16 @@ def surplus(carried: Sequence[Carried], full: StashView | Set[int]) -> tuple[Car
 
 
 def deposit_to(coins: int | None, cap: int | None, repair: int = 0) -> int | None:
-    """The carried gold kept when depositing, None for no deposit (§2.3): near the cap a sale drops the gold over it on
-    the ground (the player, 2026-10-17: "probably we need to move extra gold to our cube [stash]"); never below
-    `REPAIR_SHARE` of the expected repair (repairs are paid from carried gold only)."""
+    """The carried gold kept when depositing, None for no deposit (§2.3): near the cap a sale drops the excess on the
+    ground. Never below REPAIR_SHARE of the expected repair (paid from carried gold only)."""
     if coins is None or cap is None or coins < cap - DEPOSIT_NEAR:
         return None
     return max(cap - DEPOSIT_ROOM, round(REPAIR_SHARE * repair))
 
 
 def tops_up(staff: Teleport | None, in_session: bool, reported: bool) -> bool:
-    """Whether a visit repairs any charge missing (the player, 2026-10-17: "we must go to LK with all refilled"): only
-    until it is done (`reported`); one done at a game's start sent the loop to Halbu again at the game's end for 5
-    charges, ~8 s (15:48:43 on 2026-10-17)."""
+    """Whether a visit recharges the staff: "we must go to LK with all refilled" (the player, 2026-10-17), but once a
+    session (`reported`): a second trip to Halbu for 5 charges cost ~8 s."""
     return staff is not None and in_session and not reported and staff.charges < staff.maximum
 
 
@@ -830,8 +737,7 @@ def kept_gem(item: Carried, full: Set[int]) -> bool:
 
 
 def named(items: Iterable[Carried]) -> tuple[str, ...]:
-    """Each item by quality, base name and cell, for the contract and the log (14:28:27 on 2026-10-18: "1 keepers
-    carried", which one unknown): `set Battle Boots at (0, 0)`."""
+    """Each item by quality, base name and cell, for the contract and the log: `set Battle Boots at (0, 0)`."""
     from inventory_tracking.items.metadata import metadata  # late: only the log's
 
     bases = metadata()['bases']
@@ -861,17 +767,12 @@ def contract(
     in_stash: Sequence[Carried] = (),
     deferred: Sequence[Carried] = (),
 ) -> Contract:
-    """What a visit left (§2.2 6), from the pack read after it; `misses` names each part short of the player's
-    contract (2026-10-18 12:55: "after the loop we must have: empty cube, all designated free space cells are free in
-    the inventory"; 2026-10-17: "we must go to LK with all refilled"): the cube's items, the block taken, junk unsold,
-    a keeper not stashed (the unidentified, the full stacks' kept gems aside), the keys under the run kind's (after
-    Jamella) or under MIN_STOCK, the Town Portal charges short (none with the Sling), units left on the ground, junk a
-    park left on a stash page (`in_stash`, read there after the visit). `stash_full`: the keepers no page had room for
-    (`StashStop.full`), told apart from the misses: the loop stops on them. `deferred`: the cube's keepers that wait in
-    it for the next visit (`StashStop.waits`, KEEPER_IN_CUBE): named, neither the cube's miss nor a keeper's."""
+    """What a visit left (§2.2 6), from the pack read after it. `misses` names each part short of the player's
+    contract ("after the loop we must have: empty cube, all designated free space cells are free in the inventory",
+    2026-10-18): cube items, the block taken, junk unsold, a keeper not stashed, keys or portals short, units on the
+    ground, junk parked on a page. `stash_full` and `deferred` are named apart from the misses."""
     later = {i.unit_id for i in deferred if i.unit_id in pack.cube_items}
-    # A full stack's flawless gem kept in the cube for its transmute waits there too (the player, 09:51 on 2026-10-18:
-    # "we must cube them up first"; "cube 1 items (normal Flawless Amethyst at (1, 1))" at 06:18 on 2026-10-19)
+    # A full stack's flawless gem kept in the cube for its transmute is no miss either
     later |= {i.unit_id for i in pack.in_cube if kept_gem(i, full)}
     items = [*loot(pack, own), *pack.in_cube]
     junk_left = sum(1 for i in items if i.unit_id in junk)

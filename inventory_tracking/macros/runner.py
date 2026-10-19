@@ -1,29 +1,9 @@
-"""The macro actions inside the service: start a run, cancel the one running, toggle attack mode.
+"""The macro runner inside the service: starts a run per request, cancels the one running, toggles attack mode.
 
-The compositor bindings (input/compositor.py, the one place that names keys) send a request each
-to the appraisal socket:
-
-- `macro <monotonic>`, the macro request: the routine for where the character is (routines.py).
-- `teleport <monotonic>`, the teleport step: one step toward the level card's mark (teleport.py).
-- `hunt elites <monotonic>`, the seek step: one step toward the nearest elite, else into the room
-  tour's next stop (hunt.py); attack mode is on after it.
-- `hunt any <monotonic>`, the attack mode toggle (hunt.py).
-- `pickup <monotonic>`, the pickup step: pick up what is worth it, else with hostiles near the sweep
-  (attack mode moves on its own), else a seek step toward any hostile or the tour's next stop
-  (pickup.py, hunting/moves.py `step`); inside a fight also a step to a better stand.
-
-A run works on its own thread with its own memory handle and X connection. A request while a run
-works cancels it, except a step's own request during the step, which queues one more: steps are
-asked for again and again. Attack mode is a run that lives until its toggle or the macro request
-ends it (the macro then runs as usual). The teleport and seek steps pause it for their step and it
-resumes after; the pickup step waits for the fight to be over first. Each spoken step and the reason
-a run stopped go to the HUD card and the log; the card outlives the run, never blocking the next
-request.
-
-The runner is handed the builds (macros/build.py) by the process that makes it and imports none. A
-run plays one of them: the one that claims the character in the game (`choose`), named at the run's
-first look that shows a character (`choosing`), with no look of its own for it. It is on the run
-(`Run.build`) for what moves, picks up and prebuffs, and the hunt is told it (`Hunter.use`).
+Requests come from the compositor bindings (input/compositor.py) over the appraisal socket: `macro` (routines.py),
+`teleport` (teleport.py), `hunt elites` (the seek step), `hunt any` (attack mode), `pickup` (pickup.py), `loop` (KP_6).
+A run works on its own thread with its own memory handle and X connection; the cancel rules are `_dispatch`'s. The
+builds (macros/build.py) are handed in; a run plays the one that claims the character (`choosing`).
 """
 
 import dataclasses
@@ -122,72 +102,53 @@ TELEPORT_PREFIX = 'teleport '
 HUNT_ELITES_PREFIX, HUNT_ANY_PREFIX, PICKUP_PREFIX = 'hunt elites ', 'hunt any ', 'pickup '
 LOOP_PREFIX = 'loop '
 PREBUFF, TELEPORT, HUNT_ELITES, HUNT_ANY = 'prebuff', 'teleport', 'hunt elites', 'hunt any'  # routines
-PICKUP = 'pickup'  # the pickup step: pick up what is worth it, else a seek step (pickup.py)
-# The HUD's word for the loop's pickup mode (macros/pickmode.py), with the loop on
+PICKUP = 'pickup'  # pick up what is worth it, else a seek step (pickup.py)
+# The HUD's word for the loop's pickup mode (macros/pickmode.py)
 LOOP_WORDS = {SURE: 'LOOP SURE', TRADE: 'LOOP TRADE', REGULAR: 'LOOP ALL'}
-TRANSMUTES = 3  # a full gem stack's transmutes in one stash visit, at most (macros/cube.py `transmute`)
+TRANSMUTES = 3  # transmutes of one gem kind per stash visit, at most (macros/cube.py `transmute`)
 PICK_SLACK = 3  # pickups past the parked gems' count before the ground is taken for clear (`transmute_gems`)
 MAKE_ROOM_AFTER = 5.0  # seconds stood by a valuable with no room before the loop makes room in the cube
-FOCUS_POLL = 0.5  # seconds between looks for the game window's focus while the loop waits for it
+FOCUS_POLL = 0.5  # seconds between focus checks while the loop waits for the game window
 DROPPED_SECONDS = 600.0  # an item dropped for a valuable's room is not taken up again for this long (a game)
-VERDICT_SECONDS = 4.0  # for the identify watcher's appraisals of the items just identified (it polls once a second)
-LOOP = 'loop'  # the KP_6 loop's toggle (Lower Kurast, Andariel); a run of it is one leg (macros/loop.py)
+VERDICT_SECONDS = 4.0  # wait for the identify watcher's appraisals (it polls once a second)
+LOOP = 'loop'  # the KP_6 loop's toggle; a run of it is one leg (macros/loop.py)
 STEPS = frozenset((TELEPORT, HUNT_ELITES, PICKUP))  # one press is one step; the same key queues another
-# A terror zone's full clear that ends at a door goes on through it with no press (the player, 00:27 on 2026-10-18:
-# "yes, go to next level without press"; up to 21 s and 50 s waited at doors that night): the teleport key's press
-# the player made there, then, the level changed and terrorized, the pickup key's that runs it. Pressed ONWARD_PAUSE
-# after; the door not gone through within ONWARD_SECONDS, nothing more is pressed.
+# A terror zone's full clear that ends at a door goes on through it with no press (the player, 2026-10-18: "yes, go to
+# next level without press"): a teleport press ONWARD_PAUSE after, then the pickup press on the new level; nothing more
+# once ONWARD_SECONDS pass.
 DOOR_PRESS = 'going through takes a press'
 ONWARD_PAUSE = 0.3
 ONWARD_SECONDS = 20.0
 ATTACK = HUNT_ANY  # the attack mode toggle
-# What waits for the run working now, the first to go first: where the player wants to be, then what
-# to fight, then the macro, then what lies on the ground.
+# The order waiting requests run in: where the player wants to be, what to fight, the macro, the ground.
 PRIORITY = (TELEPORT, HUNT_ELITES, PREBUFF, PICKUP)
-# Seconds after its press a request is still worth beginning, and a hop still worth its key (user,
-# 2026-10-12: "teleporting after 2 seconds is way too late, maybe even lower"). Of the teleport
-# presses that waited for a step, 90% had their key within 0.48 s and the slowest two took 0.7 and
-# 1.5 s (21:26 and 21:35 on 2026-10-11). The pickup step that waits for a fight to end has no limit.
+# Seconds after its press a request is still worth starting (user, 2026-10-12: "teleporting after 2 seconds is way too
+# late"); 90 % of waiting teleport presses had their key within 0.48 s (2026-10-11). The fight-waiting pickup has none.
 EXPIRES = {TELEPORT: 1.0, HUNT_ELITES: 1.5, PREBUFF: 3.0, PICKUP: 2.0}
-# Units from the route's door within which a pickup press with nothing to pick up is the route's step, the one that goes
-# through (rca/2026-10-15/kp1-door-findings.md): an object's click range (goals.py USE_NEAR), as a level run ends at a
-# door either within its PLACE_NEAR or where the navigator has no step left toward it.
+# Within this of the route's door an empty pickup press is the step through it (rca/2026-10-15/kp1-door-findings.md).
 DOOR_NEAR = USE_NEAR
-# The stops a lack of room explains (`_loop_stopped`: room made, a trip to town, an item dropped): the pickup's and the
-# pursuit's "inventory full", "no room", and the stand-by by a valuable ("has not moved")
 AT_DROP_UNITS = 3.0  # a trip back to a valuable this near is at it: no move to it first
+# Stop words that mean a lack of room (`classify`'s fallback; "has not moved" is the stand-by by a valuable)
 ROOM_WORDS = ('no room', 'inventory full', 'Inventory full', 'has not moved')
 THROTTLE = 0.3  # seconds between accepted macro requests (a bounce is not a cancel)
 CARD_SECONDS = 4.0
-# A warning of a routine (engine.Run `warn`: the inventory full) stays on the card this long after it was
-# last given, above whatever is said, unless it is taken back sooner.
+# A routine's warning (engine.Run `warn`) stays on the card this long after it was last given, unless taken back.
 WARNING_SECONDS = 30.0
 RESEARCH_ENV = 'D2R_MACRO_RESEARCH'  # set: log which bytes name the unit under the pointer at a Consume
-# Seconds attack mode stays out after a teleport step before it resumes. The next press of a player
-# travelling came 40 to 700 ms after the step before was over (30 presses, 21:26 on 2026-10-11), found
-# the mode running and waited for it to stop, with a strike of its own in flight up to 0.4 s longer:
-# half of those presses took over 250 ms to their Teleport key. The mode needs 0.3 s to its first
-# strike after it starts anyway. 0.2 s at first: 8 of 34 such presses came within it and went to their
-# key in 134 to 205 ms; most came 200 to 600 ms after (21:35 that day), hence 0.5 (user, 2026-10-12:
-# the teleport key is to work instantly).
+# Seconds attack mode stays out after a teleport step, so the next travel press finds no strike in flight (user,
+# 2026-10-12: the teleport key is to work instantly); most presses came 200-600 ms after the step (2026-10-11).
 TRAVEL_QUIET = 0.5
 JOURNEY_SECONDS = 1.0  # how often the game and level are noted between presses
-# A run the game's input mode flipped under ends, and the same request starts again in the new mode (`_guarded`,
-# actuator.py `Flipped`). Its start waits up to FLIP_SETTLE for the flip to be over: the game of 22:04 on 2026-10-14
-# had its four flips done 10-12 ms after they were asked (the probe's `Input mode:` lines). FLIPS_AGAIN restarts within
-# FLIPS_WINDOW seconds: a mode that keeps flipping stops the run instead.
+# A run the input mode flipped under restarts in the new mode (`again`, actuator.py `Flipped`), its start waiting up
+# to FLIP_SETTLE for the flip (flips took 10-12 ms, 2026-10-14). FLIPS_AGAIN restarts within FLIPS_WINDOW s stop it.
 FLIP_SETTLE = 1.0
 FLIP_POLL = 0.02
 FLIPS_AGAIN, FLIPS_WINDOW = 3, 10.0
 
 
 def classify(why: object) -> Cause:
-    """The cause of the stop `why` (actuator.py `Cause`), for `_loop_stopped`: the one its raise named; with none, told
-    as the stop rules told it before causes (2026-10-18): the player's hand by the type (`Hand`), a lack of room by the
-    message's words (ROOM_WORDS, "has not moved" the watchdog's stand), the Gheed's carry-one refusal by the type
-    (`Refused`, after the words: a refusal whose message names no room was never room), the rest 'other'. The words are
-    the fallback only, until every raise the room rules answer names its cause (rca/2026-10-18/
-    arch-loop-orchestration.md Option A)."""
+    """The cause of the stop `why` (actuator.py `Cause`): the one its raise named, else guessed by type and ROOM_WORDS
+    until every room raise names its cause (rca/2026-10-18/arch-loop-orchestration.md Option A)."""
     if isinstance(why, Abort) and why.cause is not None:
         return why.cause
     if isinstance(why, Hand):
@@ -196,7 +157,7 @@ def classify(why: object) -> Cause:
     if 'has not moved' in said:
         return 'stall'
     if any(word in said for word in ROOM_WORDS):
-        # Said so that a day of logs shows whether the words can go (cleanup phase 3, 2026-10-19)
+        # Logged to learn whether the word fallback can go (cleanup phase 3, 2026-10-19)
         LOG.info('Macro: loop: a stop with no cause read as room by its words: %s', said)
         return 'room'
     if isinstance(why, Refused):
@@ -221,13 +182,10 @@ class MacroRunner:
         loop_items: Path | None = None,
     ) -> None:
         self.source = source
-        # The builds a run is played by, in the order they are asked whose the character is, and the one
-        # for a character none of them claims (macros/build.py `choose`). Given by the process that makes
-        # the runner (the composition root: inventory_tracking/builds). Without a fallback nothing runs.
+        # The builds asked in order to claim the character, and the one for none (build.py `choose`)
         self.builds = tuple(builds)
         self.fallback = fallback
-        # The build the last run played: a run starts with it and names its own at its first look that
-        # shows the character (`choosing`). The fallback until a character was seen.
+        # The build the last run played; each run names its own at its first look (`choosing`).
         self.build: Build | None = fallback
         self.capture_lock = capture_lock
         self.saved_games = saved_games
@@ -244,27 +202,23 @@ class MacroRunner:
         self.last_poll = -math.inf
         self.unread = False
         self.target: Callable[[], Target | None] | None = None  # the level card's mark (levels/guide.py)
-        # the routes' stage of each level in this game (routes/progress.py): told the game and level here,
-        # asked by the teleport step; `marks`: the places of the card's marks with a label (levels/guide.py)
+        # the routes' stage of each level this game (routes/progress.py); `marks`: the card's labelled marks
         self.progress: Progress | None = None
         self.marks: Callable[[str], tuple[tuple[float, float], ...]] | None = None
         self.hunter: Hunter | None = None  # the seek step's and attack mode's state and sources (hunt.py)
-        # The level and clock of a terror zone's run that ended at a door (`_run_over`); the level the last poll read
+        # (level, clock) of a terror zone run ended at a door (`_run_over`); the level the last poll read
         self.onward: tuple[int | None, float] | None = None
         self.area_seen: int | None = None
         self.supers: Callable[[int], list[tuple[float, float]]] | None = None  # terror tracker's `supers`
-        # what each belt column last held this game, across presses: an emptied healing column stays one
-        # (rca/2026-10-13/potions-findings.md, step 1); every run's loot carries it (`Loot.columns`)
+        # each belt column's last content this game: an emptied healing column stays one
+        # (rca/2026-10-13/potions-findings.md)
         self.belt = BeltKept()
-        # the items the player put down this game (game/kept.py `PutDown`): out of every run's loot, and of the HUD's
-        # ground marks (the service hands `put_down.at` to loot/watch.py)
+        # the items the player put down this game (game/kept.py): out of every run's loot and the HUD's ground marks
         self.put_down = PutDown()
-        # skill -> clock time of its last cast that took, across runs (`Run.lasting`, macros/buffs.py `took_of`): the
-        # prebuff's Consume, which attack mode renews before a boss's fight rather than let it end inside it
+        # skill -> clock of its last cast that took, across runs (macros/buffs.py `took_of`)
         self.lasting: dict[int, float] = {}
-        # when the healer (`make osd`) last gave the mercenary a potion of a kind: its ledger, read (`Run.given`;
-        # macros/drinking.py keeps the character's own gap for those), and written only by the drinker's claim of the
-        # character's potion before its key (`Run.ledger`, automation/ledger.py `PotionLedger.claim`)
+        # the healer's (`make osd`) potion ledger: read for the mercenary's gaps, written by the drinker's claim
+        # (automation/ledger.py `PotionLedger.claim`)
         self.healer: PotionLedger | None = None
         with suppress(OSError):
             self.healer = PotionLedger(OSD_LEDGER)
@@ -274,52 +228,46 @@ class MacroRunner:
         self.warning: tuple[str, float] | None = None  # (text, the clock it was given at)
         self.standing = False  # the warning is the level run's stand by a valuable with no room (`_stand_by`)
         self.attack_mode = False  # the attack run is wanted, now or once the current step is done
-        # The player's toggle turned the mode off and nothing of theirs has turned it on since: a press of
-        # the teleport key whose goal is a fight leaves it off (read with the pursuit on only: `pursues`)
+        # The player's toggle turned the mode off: a teleport press whose goal is a fight leaves it off (`pursues`)
         self.attack_declined = False
         self.closed = False  # `close` was called: nothing starts any more
-        # The Lower Kurast loop (KP_6, macros/loop.py): on, it is what follows every run that nothing else follows.
+        # The KP_6 loop (macros/loop.py): on, it follows every run that nothing else follows.
         self.loop = Loop(store=loop_items)
-        self.loop.forget = self._forget_given_up  # the Gheed's swap's GHEED_STASH: the level run tries the charm again
+        self.loop.forget = self._forget_given_up  # GHEED_STASH: the level run tries the charm again
         # the game whose stash view was logged, the shared page shown last (macros/visit.py `Remembered`)
         self.stash_memory = Remembered()
         self.where: tuple[float, float] | None = None  # where the character was at the last poll (`_place`)
         self.dead_mode: int | None = None  # the character's mode at the last poll (`_dead`)
-        self.life_seen: tuple[int, int] | None = None  # (life, max life) at the last poll (`poll`: loop.py `beset`)
+        self.life_seen: tuple[int, int] | None = None  # (life, max life) at the last poll (loop.py `beset`)
         self.valuable_left: Callable[[], str | None] = self._valuable_left  # (tests give their own)
         self.carried_now: Callable[[], Pack | None] = self._carried_now  # the inventory now, for `_gheeds_swap`
-        # An item unit's stats, from the run's own memory (world.GameMemory.item_stats): a Gheed's Fortune's Magic Find
+        # An item unit's stats from the run's memory (GameMemory.item_stats)
         self.item_stats: Callable[[int], dict[int, int]] | None = None
-        # The valuables the loop has seen this game and not yet off the ground (macros/sightings.py), and the items the
-        # ground census has said (game/memory.py `_census`), shared by every GameMemory the runner makes
+        # Valuables seen this game and still on the ground (sightings.py); the ground census's items (game/memory.py)
         self.sightings = Sightings()
         self.ground_seen: set[tuple[int, int]] = set()
-        # The appraisal of each item the identify watcher saw identified, by unit id (identify/service.py
-        # `IdentifyWorker.verdicts_now`, set by the service): the loop's junk (macros/junk.py)
+        # The identify watcher's appraisals by unit id (identify/service.py `verdicts_now`): the loop's junk
         self.verdicts: Callable[[], dict[int, str]] = dict
-        # The verdicts of carried, identified items by unit id, read now (`IdentifyWorker.appraise`): the junk judged at
-        # each look in the fortress (macros/junk.py `junk_of`)
+        # The verdicts of carried identified items, read now (`IdentifyWorker.appraise`, macros/junk.py `junk_of`)
         self.appraise: Callable[[list[int]], dict[int, str]] = lambda units: {}
         self.resuming = False  # the loop was on before the service restarted (`resume`): turned on at the next poll
-        # The loop's pickup mode (macros/pickmode.py), switched by a double press of KP_6; the presses of KP_6 not
-        # judged yet (`_loop_tap`) and the timer that judges them once their window is over
+        # The loop's pickup mode (macros/pickmode.py); the KP_6 presses not judged yet and their timer
         self.pickup_mode = MODES[0]
         self.loop_taps: list[float] = []
         self.loop_timer: threading.Timer | None = None
         self.shut = threading.Event()  # set by `close`: a run's card wait ends with it
         self.trace = trace or Trace()  # how long each press takes (latency.py)
-        # the requests whose run has not begun: a step's own key during it, a step during attack mode (waiting.py)
+        # the requests whose run has not begun (waiting.py)
         self.queue = Waiting(PRIORITY, self.trace)
         self.deadline = math.inf  # the run working now is worth its input until then (EXPIRES)
         self.press: Press | None = None  # the press of the run working now
         self.hurry: Callable[[], None] | None = None  # the service reads the level now (teleport.card_for)
-        # told the seconds of each look a run takes at the game (the service's load meter, appraisal/load.py)
+        # told each look's seconds (the service's load meter, appraisal/load.py)
         self.looked: Callable[[float], None] | None = None
         self.quiet_until = -math.inf  # attack mode resumes no sooner (TRAVEL_QUIET)
         # the combat recorder's `note` (takes/record.py): each request and each line said goes into the take
         self.noted: Callable[..., None] | None = None
-        # The pad and the game's input mode, from the service (macros/pad.py): a run in controller mode plays by
-        # the pad. None: every run plays by the keys and the mouse, as before.
+        # The pad and the game's input mode (macros/pad.py); None: every run plays by the keys and the mouse.
         self.pad_play: PadPlay | None = None
         self.flips: list[float] = []  # when a run was made again after a flip of the input mode (`again`)
         self.settling = False  # the next run's start waits for a flip under way to be over (`play_by`)
@@ -330,10 +278,9 @@ class MacroRunner:
         return self._dispatch(requested_at, now, routine, autonomous=False, **notes)
 
     def _dispatch(self, requested_at: float, now: float, routine: str, *, autonomous: bool, **notes: object) -> bool:
-        """Start `routine` (PREBUFF or a step), or toggle attack mode (HUNT_ANY). While a run works, a
-        request cancels it, except a step's own request during the step (one more step) and a step
-        during attack mode (the mode pauses for it and resumes after; the pickup step waits for the
-        fight); the macro request during attack mode ends the mode and runs the macro once it has stopped."""
+        """Start `routine` (PREBUFF or a step), or toggle attack mode (HUNT_ANY). A request cancels the run working,
+        except a step's own key during the step (one more step) and a step during attack mode (the mode pauses; the
+        pickup waits for the fight); the macro request ends the mode and runs once it has stopped."""
         with self.lock:
             during = self.routine if self.working else None
             press = self.trace.press(routine, requested_at, now, during=during, **notes)
@@ -365,17 +312,16 @@ class MacroRunner:
                 return toggled
             if routine == PREBUFF:
                 self.attack_mode = False  # the macro request ends it
-                self.attack_declined = False  # for the game, not by the toggle: the next game's fights want it
+                self.attack_declined = False  # the next game's fights want it
                 self._end_run('the macro request')
             if routine == HUNT_ELITES:
                 self.attack_mode = True  # the mode follows the seek step
                 self.attack_declined = False
-            # Good until: the limit counts from the press, on the clock the queue reads.
+            # The limit counts from the press, on the queue's clock.
             until = time.monotonic() + EXPIRES.get(routine, math.inf) - (now - requested_at)
             if routine == TELEPORT and self.working and self.routine == ATTACK and self.pursuit:
-                # The pursuit (macros/pursuit.py): the press is posted to the mode, which goes for what
-                # the key means at its next look. Nothing is cancelled, the sweep is not ended, and no
-                # quiet follows: a press that resolves to "fight here" costs the fight nothing.
+                # The pursuit (macros/pursuit.py): the press is posted to the mode, nothing is cancelled and no quiet
+                # follows, so a press that resolves to "fight here" costs the fight nothing.
                 assert self.hunter is not None
                 self.hunter.hand_over = self._hand_over
                 self.hunter.post(Pursuit(TELEPORT, time.monotonic() - (now - requested_at)))
@@ -383,11 +329,8 @@ class MacroRunner:
                 self.trace.close(press, outcome='posted to attack mode')
                 return True
             if routine == PICKUP and self.pursuit:
-                # The pickup key with the pursuit on (macros/pursuit.py, the leash): one press runs the
-                # route of this level to its end through attack mode's own loop, which it turns on as the key
-                # always did (the player, 2026-10-13: "one press of KP_1, then it runs the whole level
-                # automatically"; "KP_1 should enable auto-attack"). A step working now is followed by the
-                # mode; a press during the run only renews it.
+                # One press runs the level's route through attack mode (the player, 2026-10-13: "one press of KP_1,
+                # then it runs the whole level automatically"); a press during the run only renews it.
                 assert self.hunter is not None
                 self.hunter.hand_over, self.hunter.run_over = self._hand_over, self._run_over
                 self.hunter.post(Pursuit(PICKUP, time.monotonic() - (now - requested_at), advance=False, leash=FULL))
@@ -400,25 +343,19 @@ class MacroRunner:
             if routine != PICKUP:
                 self.queue.drop(PICKUP, 'the player moved on')  # as the sweep below: no walk back for it
             if routine != PICKUP and self.hunter is not None:
-                # A teleport or seek step, the macro: the player takes the character somewhere, and
-                # the sweep a pickup request started (hunt.py) must not walk it back (Tower Cellar 3,
-                # 2026-10-11 00:49: it walked 25 units back between two teleport steps to the stairs).
+                # The player takes the character somewhere: the pickup's sweep must not walk it back (it walked
+                # 25 units back between two teleport steps, 2026-10-11 00:49).
                 self.hunter.sweep.end()
             if self.working:
                 if routine in STEPS and self.routine == routine:
                     self._wait(press, 'queued behind its own step', until)
                 elif routine == TELEPORT and self.routine == PICKUP:
-                    # The pickup stops and the teleport step follows at once. The step itself takes a
-                    # valuable near before it hops (`worth_a_stop`: that Ring, 17:35:18 on 2026-10-11,
-                    # when the press cancelled its pickup and the next steps left the level without
-                    # it); a potion is not worth the wait. Tower Cellar 5, 22:51:00 that day: the
-                    # press to get out came while the pickup clicked 5 s at a potion among eight
-                    # monsters, waited behind it, and the character died 0.4 s later.
+                    # The pickup stops and the step follows at once; the step itself takes a valuable near first
+                    # (`worth_a_stop`). Waiting behind a potion's pickup got the character killed (2026-10-11 22:51).
                     self.cancelled.set()
                     self._wait(press, 'the pickup stops for it', until)
                 elif self.routine == ATTACK and routine == PICKUP and self.hunter is not None:
-                    # After the fight: the mode pauses itself once nothing is in reach. Inside a fight the
-                    # press is also a step to a better stand, and the mode drops the wait (`_unwait`)
+                    # Inside a fight the press is also a step to a better stand; the mode drops the wait (`_unwait`)
                     # when there is nothing to pick up.
                     self.hunter.unwait = self._unwait
                     self.hunter.after_fight.set()
@@ -437,8 +374,7 @@ class MacroRunner:
             return True
 
     def _wait(self, press: Press, outcome: str, until: float) -> None:
-        """`press` leads to a run that has not begun: it waits in the queue for it, good until `until`
-        (`_start` takes it). Under the lock."""
+        """Queue `press` for its run, good until `until` (`_start` takes it). Under the lock."""
         press.mark('accepted')
         press.notes['outcome'] = outcome
         self.queue.put(press.routine, until, press)
@@ -450,16 +386,15 @@ class MacroRunner:
         return ranked[0] if ranked else None
 
     def _pick(self) -> None:
-        """The sweep found something to pick up (hunting/sweep.py `gather`): the pickup step follows the mode's
-        pause."""
+        """The sweep found something to pick up (hunting/sweep.py `gather`): the pickup step follows the pause."""
         with self.lock:
             if not self.queue.entries and not self.closed:
                 self.queue.put(PICKUP)
 
     @property
     def run_badge(self) -> str | None:
-        """The HUD's words for the run mode (macros/runmode.py `badge`): shown for a full clear of the level the
-        mode last looked at; and with the loop on, its pickup mode (`LOOP_WORDS`). None when neither shows."""
+        """The HUD's words for the run mode (macros/runmode.py `badge`) and, with the loop on, its pickup mode and kind;
+        None when none shows."""
         words = (
             badge(self.hunter.mode) if self.hunter is not None else None,
             LOOP_WORDS[self.pickup_mode] if self.loop.on else None,
@@ -469,27 +404,22 @@ class MacroRunner:
 
     @property
     def pursuit(self) -> bool:
-        """Whether the pursuit loop is on (`BuildSettings.pursuit` of the build the last run played, the
-        one the hunt plays), with a hunt to make it."""
+        """Whether the pursuit is on for the last run's build (`BuildSettings.pursuit`), with a hunt to make it."""
         return self.hunter is not None and self.build is not None and self.build.settings.pursuit
 
     def _hand_over(self, routine: str = TELEPORT) -> None:
-        """The key posted to the mode is the route's own step's after all (hunting/judging.py `defer`: a door, the
-        loot, the leaving), or its own routine's: that routine (the teleport or the pickup step) follows
-        the mode's pause."""
+        """The key posted to the mode is a step of its own after all (hunting/judging.py `defer`: a door, the loot, the
+        leaving): `routine` follows the mode's pause."""
         with self.lock:
             if not self.queue.entries and not self.closed:
                 self.queue.put(routine, time.monotonic() + EXPIRES.get(routine, EXPIRES[TELEPORT]))
 
     def _run_over(self, why: str) -> None:
-        """A level run ended by the hunt itself (hunt.py `end_run`: what is left of the route is not the run's, the
-        character died). With the loop on, the attack mode its chests' leg turned on ends with the run, and the loop's
-        next leg follows (`_follow`); the mode went on sweeping before, until the player pressed KP_6
-        (rca/2026-10-16/loop-chests-findings.md §2). From the run's thread."""
+        """A level run ended by the hunt itself (hunt.py `end_run`). With the loop on, the attack mode its leg turned
+        on ends with it and the next leg follows (rca/2026-10-16/loop-chests-findings.md §2). From the run's thread."""
         with self.lock:
             if self.loop.on and self.loop.kind.agenda and why != 'the level was left':
-                # A terror zone kind's level run ended by itself: its own level worked (macros/agenda.py `Agenda.ran`);
-                # one that ended because the level was left worked nothing
+                # A terror zone kind's run worked its level (macros/agenda.py `Agenda.ran`), unless it left it
                 area = self.hunter.ended_area if self.hunter is not None else None
                 self.loop.agenda.ran(area if area is not None else self.area_seen)
             if not self.loop.on:
@@ -511,9 +441,9 @@ class MacroRunner:
         self._dispatch(now, now, routine, autonomous=True)
 
     def _loop_level_run(self, hunter: Hunter, rush: bool = True, agenda: bool = False) -> None:
-        """The loop's chests leg: the KP_1 level run, as the pickup key starts it (`request`), followed by attack mode;
-        its end is the leg's (`_run_over`). `rush`: past what does not attack (the chests, the Catacombs' stairs); not
-        for Andariel's fight. `agenda`: a terror zone kind's run, its targets the agenda's (macros/goals-plan.md)."""
+        """The loop's chests leg: the KP_1 level run through attack mode; its end is the leg's (`_run_over`). `rush`:
+        past what does not attack (not for Andariel's fight); `agenda`: a terror zone kind's targets
+        (macros/goals-plan.md)."""
         with self.lock:
             hunter.hand_over, hunter.run_over = self._hand_over, self._run_over
             hunter.carry_one = self._carry_one  # a refused unique Grand Charm: the Gheed's swap (macros/pickup.py)
@@ -530,10 +460,8 @@ class MacroRunner:
         return policy_of(area, trip, full_clear(self.loop))
 
     def _way_on(self, run: Run, key_names, take_one: Callable[[], bool], level_run: Callable[[], None]) -> None:
-        """The way on (stairs, a door): at it, what lies there first, then the press through (a level run ends at a
-        warp: going through takes a press, macros/pursuit.py `to_the_door`); else the level run to it. Not before what
-        the run passed by on this level is taken: the level is not come back to (a Sol Rune left for 2 hostiles near
-        it, then the stairs, 11:52:00 on 2026-10-18)."""
+        """At the way on (stairs, a door): what lies there first, then the press through (macros/pursuit.py
+        `to_the_door`); else the level run to it. The level is not come back to, so its loot goes first."""
         player = run.world().player
         if player is not None and self.at_the_way_on(player):
             if take_one():
@@ -547,7 +475,7 @@ class MacroRunner:
         hunter = self.hunter
 
         def labels() -> None:
-            # The item labels on before a level run: what lies on the ground is seen (routines.py `show_items_on`)
+            # Item labels on before a level run (routines.py `show_items_on`)
             world = run.world()
             name = world.player.name if world.player is not None else None
             show_items_on(run, show_items_key(self.saved_games, name) if name else None)
@@ -557,14 +485,14 @@ class MacroRunner:
         def level_run() -> None:
             if hunter is None:
                 raise Abort('no level guide to hunt with')
-            labels()  # the item labels on before a level run (the player's hard rule)
+            labels()  # the player's hard rule
             if agenda:
                 self._loop_level_run(hunter, rush=False, agenda=True)  # the terror zone kinds: the agenda's targets
             else:
                 self._loop_level_run(hunter)
 
         def way_on() -> None:
-            self._way_on(run, key_names, take_one, level_run)  # Andariel's Catacombs rushed; a zone's with the agenda
+            self._way_on(run, key_names, take_one, level_run)
 
         def fight() -> None:
             if hunter is None:
@@ -574,14 +502,11 @@ class MacroRunner:
 
         def take_one() -> bool:
             level = hunter.level() if hunter is not None and hunter.level is not None else None
-            # The loop's press holds a valuable it has no room for, a plain one too (macros/lootpolicy.py
-            # `NO_ROOM_PLAIN`; the player, 2026-10-18 17:50: "we should stop and clear inventory with our designated
-            # town routine"): its stop is cause 'room', and the room rules (`_loop_stopped`) make the room: the
-            # cube, then a trip to town and back through the portal, and the next press takes it
+            # No room for a valuable: a 'room' stop, and the room rules make room (the player, 2026-10-18: "we should
+            # stop and clear inventory with our designated town routine")
             if pick_up(run, level, key_names, lambda: None, threat(run), looped=True):
                 return True
-            # Nothing to pick up here: a valuable seen this game and not picked up is gone back for, so none is
-            # left behind (routes/lower-kurast-loop-plan.md §14: a Flawless Emerald seen in a flight, 08:58:34)
+            # Else a valuable seen this game and not picked up is gone back for (routes/lower-kurast-loop-plan.md §14)
             return self._fetch(run, level, key_names)
 
         def inventory_key() -> str | None:
@@ -589,20 +514,16 @@ class MacroRunner:
             return action_key(self.saved_games, world.player.name, INVENTORY) if world.player is not None else None
 
         def transmute_gems(full: frozenset[int]) -> tuple[int, int]:
-            # A full stack's flawless gems, kept (never sold), three at a time into a perfect one by the cube (the
-            # player, 2026-10-17: "for gems - we need to cube 3 flawless -> perfect"), standing at the stash; the
-            # visit's stash stop takes the perfect gem next. What the inventory has no room for while the cube is
-            # emptied is put down and picked up again after (the player, 09:53 on 2026-10-18: "drop on the ground
-            # then pickup and move to cube"): 19 gems kept, no transmute had the room, a trade session every game
-            # (09:22-09:45). How many were made, how many put down are still on the ground.
+            # Kept flawless gems, three into a perfect one at the stash (the player, 2026-10-17: "we need to cube 3
+            # flawless -> perfect"); what has no room meanwhile is put down and picked up after (2026-10-18: "drop on
+            # the ground then pickup and move to cube"). Returns (made, still on the ground).
             key = inventory_key()
             if key is None:
                 return 0, 0
             parked: list[int] = []
 
             def staying() -> frozenset[tuple[int, int, int]]:
-                # the cube takes the inventory's loop items for the room to pick the parked ones up: not the full
-                # stacks' runes and materials (for Jamella, put down)
+                # the cube takes the loop's items, not the full stacks' runes and materials (for Jamella)
                 pack = run.reads.carried()
                 sold = self.loop.sold_full
                 held = {(i.txt, i.x, i.y) for i in pack.items if i.txt in sold} if pack is not None else set()
@@ -618,7 +539,7 @@ class MacroRunner:
                     done = transmute(run, key, txt, park)
                     made += done
                     if parked:
-                        stash(run, key, staying())  # the inventory's into the cube: room to pick them up
+                        stash(run, key, staying())  # room to pick them up
                         for _ in range(len(parked) + PICK_SLACK):
                             if not pick_up(run, None, key_names, lambda: None):
                                 break
@@ -631,9 +552,8 @@ class MacroRunner:
                     if not done:
                         break
             if made:
-                # A kept gem still carried after the transmutes (a fourth of a kind: at 07:26 on 2026-10-19 it
-                # stayed in the block, "short of the contract: block 2x4 taken") goes into the emptied cube, where
-                # it waits for its next three; the stash stop leaves a full stack's gem there
+                # A kept gem still carried (a fourth of a kind) waits in the emptied cube for its next three; left in
+                # the 2 x 4 block it broke the contract (2026-10-19 07:26)
                 try:
                     stash_only(run, key, self.loop.own or frozenset(), lambda item: kept_gem(item, full))
                 except Abort as stop:
@@ -698,8 +618,7 @@ class MacroRunner:
         )
 
     def _end_run(self, why: str) -> None:
-        """A level run of the pickup key ends with attack mode (macros/pursuit.py, the leash): the mode
-        off by the toggle or on its own, the macro request, the game left, shutdown."""
+        """End the pickup key's level run with attack mode (macros/pursuit.py, the leash)."""
         if self.hunter is not None:
             self.hunter.end_run(None, why)
 
@@ -721,23 +640,22 @@ class MacroRunner:
         return loot
 
     def _sighted(self, memory: GameMemory, loot: Loot) -> Loot:
-        """`loot` (the loop's pickup's drops) noted in the game's sightings (macros/sightings.py), the loop on and the
-        character in Lower Kurast (the loop's town reads, a repair's gold, are no level of its pickup)."""
+        """`loot` noted in the game's sightings (macros/sightings.py), with the loop on and in one of its levels (not
+        its town reads)."""
         if self.loop.on and memory.where_area in self.loop.kind.levels:
             self.sightings.update(loot, memory.where, memory.where_area, time.monotonic())
         return loot
 
     def _fetch(self, run: Run, level, key_names) -> bool:
-        """A trip back to a valuable the loop saw and no press has picked up (macros/sightings.py `fetch`); whether
-        one was made. `Abort` when one is not picked up after its trips back: the leg stops, and the guard
-        (`_valuable_left`) keeps the game for the player."""
+        """A trip back to a valuable the loop saw and no press picked up (macros/sightings.py `fetch`); whether one was
+        made. `Abort` when its trips back fail: the leg stops and the guard (`_valuable_left`) keeps the game."""
         player = run.world().player
         if player is None:
             return False
         trip = self.loop.trip
         if trip is not None and self.loop.returned == trip and self.loop.forgiven != (trip, self.loop.trips):
-            # Back from a trip for room: its valuables' trips back begin again, at each trip's return (the player,
-            # 2026-10-18 16:50: "one game can do several trips to the town")
+            # Back from a trip for room: its valuables' trips back start over (the player, 2026-10-18: "one game can
+            # do several trips to the town")
             self.loop.forgiven = (trip, self.loop.trips)
             self.sightings.again()
         return self.sightings.fetch(
@@ -748,11 +666,8 @@ class MacroRunner:
         )
 
     def _go_back(self, run: Run, found, level, key_names) -> None:
-        """A trip back to `found`: brought within a click (`approach`, the whole way), its give-up by the pickup
-        lifted so the press after tries it again, and, within a click but not at it, a move to it by the movement in
-        hand, so the clicks come from another footing (15:53:05 on 2026-10-18: a set Ring 5 away under the pointer, 11
-        clicks from one place took nothing and the character did not move; both trips back found it given up by the
-        pickup, went nowhere in 0.2 s, and the loop stopped)."""
+        """A trip back to `found`: within a click (`approach`), the pickup's give-up lifted, and, if not at it, a move
+        to it so the clicks come from another footing (11 clicks from one place took nothing, 2026-10-18 15:53)."""
         SHUNNED.pop(found.unit_id, None)
         approach(run, found, level, key_names, FETCH_HOPS)
         player = run.world().player if level is not None else None
@@ -769,10 +684,8 @@ class MacroRunner:
             LOG.info('Macro: a trip back to %s: no move to it (%s); clicked from here', found.label, stop)
 
     def _loop_tap(self, at: float) -> None:
-        """A press of KP_6 at `at` (the request's clock), judged with the presses around it once DOUBLE seconds pass
-        with no other (`_judge_loop_taps`), as KP_1's run mode judges its double press (macros/runmode.py): one press
-        turns the loop on or off, exactly two switch the pickup mode (the player, 2026-10-16), more switch nothing. A
-        group whose window closed before this press is judged first. Under the lock."""
+        """A KP_6 press at `at`, judged with its group once DOUBLE seconds pass with no other: one toggles the loop,
+        two switch the pickup mode (the player, 2026-10-16), three the run's kind. Under the lock."""
         if self.loop_taps and at - self.loop_taps[-1] > DOUBLE:
             self._judge_loop_taps()
         self.loop_taps.append(at)
@@ -800,7 +713,7 @@ class MacroRunner:
             self._say(f'Loop pickup: {self.pickup_mode}')
         elif count == 3:
             # The run's kind (macros/loop.py KINDS; the player, 2026-10-18: "rebuild loop start to accept what type of
-            # run we're going to run"), for a start in the Fortress or the lobby: elsewhere the character's place says
+            # run we're going to run"), for a start in the Fortress or the lobby
             kinds = list(loop_kinds().values())  # the terror zone kinds once promoted (macros/tzloop.py ENABLED)
             self.loop.kind = kinds[(kinds.index(self.loop.kind) + 1) % len(kinds)]
             self.loop.chosen = True  # by hand: no place overrides it
@@ -809,8 +722,8 @@ class MacroRunner:
             self._say(f'KP_6 pressed {count} times together: nothing switched')
 
     def _toggle_loop(self) -> None:
-        """KP_6: the loop on, from where the character is (a run working now is followed by the loop's first
-        leg), or off at once: the run working now is cancelled, the character stays where it is. Under the lock."""
+        """KP_6: the loop on from where the character is (a run working now is followed by its first leg), or off at
+        once (the run cancelled, the character left where it is). Under the lock."""
         if self.loop.on:
             self.loop.stop()
             self.attack_mode = False
@@ -825,8 +738,8 @@ class MacroRunner:
             self._start(LOOP)
 
     def _loop_stopped(self, why: object) -> None:
-        """A leg's stop: the loop leaves the game and goes on (macros/loop.py `recover`), or ends by itself, saying
-        why; the rules are macros/stops.py's. Under the lock or from the run's thread."""
+        """A leg's stop: the loop leaves the game and goes on (macros/loop.py `recover`), or ends, saying why; the
+        rules are macros/stops.py's. Under the lock or from the run's thread."""
         dead = isinstance(why, Dead) or self._dead()
         cause = classify(why)
         early = first(cause, on=self.loop.on, dead=dead)
@@ -900,14 +813,10 @@ class MacroRunner:
         self._show([f'Loop stopped: {why}'])
 
     def _gheeds_swap(self, why: object, left: str | None, game: str | None) -> bool:
-        """Whether the stop `why` is the Gheed's swap's (macros/charms.py; the player, 2026-10-18 13:39: "picking up
-        another gheed ... put our own gheed into SHARED tab"): a unique Grand Charm left on the ground in the Andariel
-        loop with the player's Gheed's Fortune carried, whatever the stop's words (at 13:36-13:39 it was a stand-by,
-        "the character has not moved for 45 s", and the room rules made room, a trip to town and dropped an item for
-        it): the swap is due, once a game; before every room rule. With no 1 x 3 free the cube is tried first (the
-        stop is the swap's still: `make_room`), then the swap all the same (the player, 2026-10-18 16:50: "refused
-        grand charm - should cause a trip"). With the player's already in the stash and the new one still not taken,
-        theirs is fetched back first (`CHOOSE`)."""
+        """Whether the stop `why` is the Gheed's swap's (macros/charms.py; the player, 2026-10-18: "picking up another
+        gheed ... put our own gheed into SHARED tab"): a unique Grand Charm on the ground in the Andariel loop with the
+        player's Gheed's Fortune carried, whatever the stop's words; once a game, before every room rule. No room: the
+        cube first, then the swap all the same. The player's stashed, the new one not taken: theirs back (`CHOOSE`)."""
         loop = self.loop
         if left is None or 'Unique Grand Charm' not in left or not loop.kind.swaps_gheeds or game is None:
             return False
@@ -926,14 +835,13 @@ class MacroRunner:
             return False
         if not pack.inventory.has_room(ours.size):
             if loop.room_tried != game:
-                # Room first, in the cube (a block for the new one, and for the player's to come back to)
+                # Room first, in the cube
                 loop.make_room, loop.room_tried = True, game
                 LOG.info("Macro: charms: %s; %s lies on the ground, the player's Gheed's Fortune carried, and no %d x "
                          '%d free: room is made in the cube first', why, left, *ours.size)  # fmt: skip
                 return True
-            # The cube tried: the swap all the same, the trip to town it is (the player, 2026-10-18 16:50: "refused
-            # grand charm - should cause a trip"; the room rules pass a refusal by, and the loop stood by the charm).
-            # The player's goes onto a shared page and its own block takes the new one (macros/charms.py `choose`)
+            # The cube tried: the swap all the same (the player, 2026-10-18: "refused grand charm - should cause a
+            # trip")
             LOG.info("Macro: charms: %s lies on the ground, the player's Gheed's Fortune carried, no %d x %d free and "
                      "the cube tried: the swap all the same, the player's block takes the new one", left,
                      *ours.size)  # fmt: skip
@@ -943,10 +851,9 @@ class MacroRunner:
         return True
 
     def _carry_one(self, refused: Refused) -> bool:
-        """A unique Grand Charm refused for the Gheed's Fortune carried (macros/pickup.py `Refused`) outside the loop's
-        own routine (the level run's pickup, hunting/choice.py `carry_one_swap`; the pickup step attack mode asked for):
-        whether the swap is due for it (`_gheeds_swap`, the same rules as a stop's); the run stops for it then. With the
-        loop off, or no swap (once a game, no room), False: the run's own rules go on."""
+        """A unique Grand Charm refused for the carried Gheed's Fortune (macros/pickup.py `Refused`) outside the loop's
+        own routine: whether the swap is due for it (`_gheeds_swap`); the run stops for it then. Loop off or no swap:
+        False, the run's own rules go on."""
         with self.lock:
             if not self.loop.on:
                 return False
@@ -975,8 +882,8 @@ class MacroRunner:
             return None
 
     def _toggle_attack_mode(self) -> bool:
-        """The attack mode toggle: the mode on or off. On while a step works, it follows the step; off
-        while it works, it is cancelled. Under the lock (`request`)."""
+        """The attack mode toggle. On while a step works, it follows the step; off while it works, it is cancelled.
+        Under the lock (`request`)."""
         self.attack_mode = not self.attack_mode
         self.attack_declined = not self.attack_mode
         if not self.attack_mode:
@@ -1038,17 +945,15 @@ class MacroRunner:
                 warned = self.warning
                 if (
                     warned is not None
-                    # only the stand-by by a valuable (hunting/choice.py `stay_by`), in a game: a candidate merely left
-                    # on the ground (pickup.py's warning) warned on into the lobby and cancelled the next game's
-                    # creation twice, the loop stopped (12:45:39 on 2026-10-17)
+                    # only the stand-by by a valuable (hunting/choice.py `stay_by`), in a game: a plain warning carried
+                    # into the lobby once cancelled the next game's creation (2026-10-17 12:45)
                     and self.standing
                     and game is not None
                     and now - warned[1] > MAKE_ROOM_AFTER
                     and self.loop.on
                     and self.loop.room_tried != game
                 ):
-                    # Stood by a valuable with no room (hunting/choice.py `stay_by`): made room for before the watchdog;
-                    # the Gheed's swap first when it is one (`_gheeds_swap`)
+                    # Room is made before the watchdog stops the stand; the Gheed's swap first when it is one
                     if not self._gheeds_swap(warned[0], self.valuable_left(), game):
                         self.loop.make_room, self.loop.room_tried = True, game
                         LOG.info('Macro: loop: %s: room is made in the cube', warned[0])
@@ -1065,8 +970,7 @@ class MacroRunner:
                     and not self.attack_mode
                     and self.loop.beset(self.where, self.life_seen, now, game, area)
                 ):
-                    # Hit standing outside a fight (a leg's wait or spin, attack mode off): the game is left at once
-                    # (the player, 2026-10-19: "we stood still while under attack and almost died ... we must not die
+                    # Hit standing outside a fight: the game is left at once (the player, 2026-10-19: "we must not die
                     # or we lose exp and our gear"; rca/2026-10-19/near-death-findings.md)
                     life = self.life_seen or (0, 0)
                     why, cause = f'the character is hit standing outside a fight (life {life[0]}/{life[1]})', 'beset'
@@ -1074,7 +978,7 @@ class MacroRunner:
                     why, cause = f'the character has not moved for {STILL_SECONDS:.0f} s', 'stall'
                 if why is not None:
                     # The loop is stuck (macros/loop.py GAME_SECONDS, STILL_SECONDS): the run is cancelled, the next
-                    # leg leaves the game. The stand names its cause (`ROOM_CAUSES`: a lack of room, ruling pending)
+                    # leg leaves the game
                     self._loop_stopped(Abort(why, cause=cause))
                     self.attack_mode = False
                     if self.working:
@@ -1082,8 +986,7 @@ class MacroRunner:
             if game is None:
                 self.staff_checked = None
             elif game != self.staff_checked and area is not None:
-                # A game begun with the staff in hand was left that way, and the game then drops
-                # Teleport from its key (user, 2026-10-11): said once, before the first step fails.
+                # A game begun with the staff in hand drops Teleport from its key (user, 2026-10-11): said once.
                 held = self.staff_in_hand()
                 if held is not None:
                     self.staff_checked = game
@@ -1112,9 +1015,7 @@ class MacroRunner:
         except Exception as exc:
             LOG.info('Macro: the ground could not be read (%s)', exc)
             return 'unread'
-        # The guard's "must not leave it" is the policy's (macros/lootpolicy.py `verdict`: every valuable but a
-        # candidate for an identify, room or none, shunned or given up; the plain ones with no room by the ruling of
-        # 2026-10-18 17:50, as before it)
+        # What the guard must not leave is the policy's (macros/lootpolicy.py `verdict`)
         found = [
             drop
             for drop in loot.drops
@@ -1124,7 +1025,7 @@ class MacroRunner:
         ]
         if found:
             return found[0].label
-        # One seen this game and not read now (out of the client's reach, macros/sightings.py) lies there all the same
+        # One seen this game and out of the client's reach now lies there all the same (macros/sightings.py)
         return self.sightings.left()
 
     def _dead(self) -> bool:
@@ -1149,8 +1050,7 @@ class MacroRunner:
             memory.close()
 
     def _room_in_cube(self, run: Run) -> int:
-        """Outside the KP_6 loop (it makes its own room: `_loop_stopped`), the valuables the macro picked up itself
-        (pickup.py TAKEN) into the cube; how many went. The player's items, keys, tomes and the cube stay."""
+        """Outside the KP_6 loop, the valuables the macro picked up itself (pickup.py TAKEN) into the cube; how many."""
         if self.loop.on or run.carried is None:
             return 0
         pack = run.carried()
@@ -1176,14 +1076,13 @@ class MacroRunner:
             memory.close()
 
     def resume_state(self) -> dict:
-        """What a restart of the service carries over (appraisal/service.py `Restart`): the loop on or off, its pickup
-        mode."""
+        """What a restart of the service carries over (appraisal/service.py `Restart`)."""
         with self.lock:
             return {
                 'loop': self.loop.on,
                 'pickup_mode': self.pickup_mode,
                 'loop_kind': self.loop.kind.key,
-                'sightings': self.sightings.state(),  # the valuables seen and still on the ground (sightings.py)
+                'sightings': self.sightings.state(),
                 # The player's Gheed's Fortune on a shared page mid-swap (macros/charms.py): fetched back after it
                 'gheeds': self.loop.parked.state() if self.loop.parked is not None else None,
             }
@@ -1196,11 +1095,10 @@ class MacroRunner:
                 self.pickup_mode = state['pickup_mode']
             if state.get('loop_kind') in loop_kinds():
                 self.loop.kind = loop_kinds()[state['loop_kind']]
-                self.loop.chosen = True  # the service's before: kept
+                self.loop.chosen = True  # kept from before the restart
             if isinstance(state.get('sightings'), dict):
                 self.sightings.restore(state['sightings'])
-                # A restart is made for a fix: the valuables' trips back begin again (15:53:19 on 2026-10-18: a Ring
-                # left after its 2 trips back would have stopped the restarted loop again at once)
+                # A restart is made for a fix: the trips back start over, or a valuable out of trips stops it at once
                 self.sightings.again()
             parked = Parked.restore(state.get('gheeds'))
             if parked is not None:
@@ -1216,8 +1114,7 @@ class MacroRunner:
         )
 
     def close(self) -> None:
-        """Shutdown is final: the run is cancelled and nothing follows it (no pending step, no attack
-        mode resumed, no queued repeat), and no request starts another."""
+        """Shutdown is final: the run is cancelled, nothing follows it, and no request starts another."""
         with self.lock:
             self.closed = True
             self.shut.set()
@@ -1250,8 +1147,8 @@ class MacroRunner:
         self.display(([f'Macro: {warning[0]}'] if warning is not None else []) + lines)
 
     def _warn(self, text: str | None) -> None:
-        """A warning that stays on the card (None takes it back): the next line said does not wipe it.
-        user, 2026-10-12: "we should give an active warning that must be visible to the user"."""
+        """A warning that stays on the card until taken back with None (user, 2026-10-12: "we should give an active
+        warning that must be visible to the user")."""
         self.standing = False
         if text is None:
             if self.warning is not None:
@@ -1264,8 +1161,8 @@ class MacroRunner:
         self._show([])
 
     def _stand_by(self, text: str) -> None:
-        """The warning `text` of the level run standing by a valuable it has no room for (engine.Run `stand_by`): the
-        watchdog makes room in the cube after MAKE_ROOM_AFTER (`poll`) while it stands."""
+        """The warning of the level run standing by a valuable with no room (engine.Run `stand_by`): `poll` makes room
+        in the cube after MAKE_ROOM_AFTER."""
         self._warn(text)
         self.standing = True
 
@@ -1333,8 +1230,7 @@ class MacroRunner:
             if routine == LOOP:
                 self._loop_stopped(stop)
             elif isinstance(stop, Refused) and self._carry_one(stop):
-                # The pickup step attack mode asked for (or a teleport press's) met the carry-one refusal: the mode
-                # and its level run end, and the loop's swap leg follows (`_follow`)
+                # A pickup met the carry-one refusal: the mode and its level run end, the loop's swap leg follows
                 with self.lock:
                     self.attack_mode = False
                     self._end_run("the Gheed's swap")
@@ -1359,10 +1255,9 @@ class MacroRunner:
             self._show([])
 
     def again(self, cancelled: threading.Event, routine: str, generation: int, stop: Flipped) -> bool:
-        """The game's input mode flipped under the run of `routine` (`stop`): the same request is made again, to be
-        played in the new mode (`play_by`), and whether it was. Not when the run was cancelled meanwhile, a newer run
-        owns the runner, attack mode was turned off, or the mode has flipped FLIPS_AGAIN times within FLIPS_WINDOW.
-        Said once a flip (`Macro: input mode flipped …`). Under the lock."""
+        """The input mode flipped under the run of `routine`: the same request starts again in the new mode
+        (`play_by`); whether it did. Not when the run was cancelled, a newer run owns the runner, attack mode is off, or
+        the mode flipped FLIPS_AGAIN times within FLIPS_WINDOW. Under the lock."""
         if self.closed or cancelled.is_set() or generation != self.generation:
             return False
         if routine == ATTACK and not self.attack_mode:
@@ -1381,37 +1276,33 @@ class MacroRunner:
         )
         self.settling = True
         if routine != ATTACK:
-            # As a fresh press of the key: good for its own time from now, the flip's settling on top
+            # As a fresh press of the key, the flip's settling on top
             self.queue.put(routine, now + FLIP_SETTLE + EXPIRES.get(routine, math.inf))
         self._start(routine)
         return True
 
     def _follow(self, routine: str) -> bool:
-        """The run of `routine` is over: start what follows it, if anything, and say whether something
-        did. A step asked for during attack mode comes first, then the mode a step paused. Under the
-        lock, in one piece with `working` going off: a request sees either the run or its successor."""
+        """The run of `routine` is over: start what follows it (a queued step, the mode a step paused, the loop's next
+        leg); whether something did. Under the lock, in one piece with `working` going off: a request sees either the
+        run or its successor."""
         self.working = False
         following = self.queue.first()
         if following is None and self.attack_mode and routine != ATTACK:
             following = ATTACK  # the step is done: the mode resumes
         if following is None and self.loop.on:
-            following = LOOP  # its next leg, the level run's end among them
+            following = LOOP  # its next leg
         if following is None or self.closed:
             return False
         if routine == TELEPORT and following == ATTACK and not self.pursuit:
-            # Not with the pursuit on: a strike begun after the step is given up by the mode itself for
-            # the next press's move (hunting/judging.py `key_asks`), so nothing has to be held back for it.
+            # Not with the pursuit on: the mode itself gives up a strike for the next press (hunting/judging.py
+            # `key_asks`).
             self.quiet_until = time.monotonic() + TRAVEL_QUIET
         self._start(following)
         return True
 
     def choosing(self, run: Run) -> None:
-        """Have the run's build chosen at its first look at the game that shows a character: the
-        first of the builds that claims it, else the fallback (macros/build.py `choose`). The look is
-        the routine's own, whichever it is and however light, so choosing costs no look at the game
-        and moves none; a routine reads the build (`Run.build`, and the hunt its own) only after it
-        has seen the character. Chosen anew by every run, so a game with another character is
-        followed; the hunt is told (`Hunter.use`), which keeps its memory while the build stays."""
+        """Have the run's build chosen at its first look that shows a character (macros/build.py `choose`), on the
+        routine's own look so it costs none; anew each run, so another character is followed."""
         fallback = self.fallback
         if fallback is None:
             raise Abort('no build to play: the runner was given none')
@@ -1432,10 +1323,8 @@ class MacroRunner:
             LOG.info('Macro: the build is %s%s', build.name, '' if build.weapons else ', no weapon sets of its own')
         self.build = run.build = build
         if build.weapons is not None:
-            # Every run knows the build's weapon sets, not only the prebuff and attack mode, which set
-            # them themselves: the teleport step's "the staff is empty: the main weapons" (hunt.py
-            # `empty_hop`, `afoot`) asked a run that held none, and did nothing in the game (12 s with
-            # the empty staff in hand through 20 steps, 12:33 on 2026-10-13; the tests' runs had them).
+            # Every run knows the build's weapon sets: the teleport step's empty-staff swap (hunt.py `empty_hop`)
+            # did nothing in a run that held none (2026-10-13 12:33).
             run.prebuff_hands, run.battle_hands = build.weapons.prebuff, build.weapons.battle
         if self.hunter is not None:
             self.hunter.use(build)
@@ -1463,7 +1352,7 @@ class MacroRunner:
             self.focus.wait_ready(timeout=1)
         focus = self.focus
         memory = GameMemory(pid, images['candidate_base'], table)
-        memory.ground_seen = self.ground_seen  # one census across runs: an item is said once (game/memory.py `_census`)
+        memory.ground_seen = self.ground_seen  # one census across runs (game/memory.py `_census`)
         reads = [0, 0.0]  # how many looks at the game this run took, and their seconds (latency.py)
 
         looked = self.looked
@@ -1491,7 +1380,7 @@ class MacroRunner:
                 actuator = Actuator(keys, focused, pace)
                 actuator.mark = mark
                 actuator.cancelled = cancelled
-                actuator.noted = self.noted  # the pointer check's abort as an event of the take (actuator.py)
+                actuator.noted = self.noted  # the pointer check's abort goes into the take (actuator.py)
                 if routine in STEPS or routine in (ATTACK, LOOP):
                     actuator.allow(*STEP_KEYS)  # the binding's own keys; the macro request waits for a release instead
 
@@ -1575,10 +1464,9 @@ class MacroRunner:
                 press.notes.update(reads=reads[0], read_ms=round(1000 * reads[1], 1))
 
     def play_by(self, run: Run, actuator: Actuator, routine: str) -> None:
-        """The run plays by the pad when the game is in controller mode (macros/pad.py `input_policy`: the game's
-        mode followed, never changed; Abort with the reason when the routine cannot be played in it now). The
-        keys' actuator is told the mode either way: it presses no mouse button while the game is in controller
-        mode. The controller's own target stands for the unit under the pointer (`Run.hovered`)."""
+        """The run plays by the pad when the game is in controller mode (macros/pad.py `input_policy`: the game's mode
+        followed, never changed; Abort when the routine cannot be played in it now). The keys' actuator is told the
+        mode either way: it presses no mouse button in controller mode."""
         play = self.pad_play
         if play is None:
             return
@@ -1600,11 +1488,9 @@ class MacroRunner:
         LOG.info('Macro: %s in controller mode, by the pad', routine)
 
     def pursues(self, run: Run, key_names) -> bool:
-        """With the pursuit on for the build this run plays: the teleport key's press made by one pass of
-        the decision attack mode makes (hunting/moves.py `pursue_once`), and whether it was. No look at the game
-        is made for it while no build has the pursuit on. A press whose goal is a fight wants the mode
-        on after it, as the route's fight stage has it (macros/route.py), unless the player's own toggle
-        turned it off: then it stays off, whatever is pressed (rca/2026-10-13/kp4-findings.md §1, §2.8)."""
+        """With the pursuit on for some build: the teleport press made by one pass of attack mode's decision
+        (hunting/moves.py `pursue_once`); whether it was. A press whose goal is a fight turns the mode on, unless the
+        player's toggle turned it off (rca/2026-10-13/kp4-findings.md §1, §2.8)."""
         walker = self.hunter
         if walker is None or not any(build.settings.pursuit for build in (*self.builds, self.fallback) if build):
             return False
@@ -1640,9 +1526,8 @@ class MacroRunner:
         )
 
     def at_the_way_on(self, player: Player) -> bool:
-        """Whether the route's stage on the character's level is its way on to another level (a door, stairs, a
-        portal) and the character stands within DOOR_NEAR of its mark, where a level run ends (pursuit.py
-        `to_the_door`)."""
+        """Whether the route's stage on the character's level is its way on (a door, stairs, a portal) and the
+        character is within DOOR_NEAR of its mark, where a level run ends (pursuit.py `to_the_door`)."""
         staged = route.staged(self.progress, player.area)
         card = self.target() if self.target is not None and staged is not None and staged[1].to else None
         if card is None or staged is None or card.area != player.area or card.label != staged[1].mark:
@@ -1650,8 +1535,8 @@ class MacroRunner:
         return math.dist((player.x, player.y), spot_of(card)) <= DOOR_NEAR
 
     def _teleport_step(self, run: Run, key_names) -> None:
-        """One press of the teleport key with no pursuit to make it: a step of the stage the level is at
-        (`staged`), the plain step without one. Also the Andariel loop's press through the stairs."""
+        """One teleport press with no pursuit to make it: a step of the level's stage (`staged`), else the plain step.
+        Also the Andariel loop's press through the stairs."""
         walker = self.hunter
 
         def empty(target: Target, run=run) -> bool:
@@ -1678,12 +1563,11 @@ class MacroRunner:
                     empty=empty,
                 )
 
-        # One step of the stage the level is at (macros/route.py); the plain step without one.
         self.staged(run, key_names, plain)
 
     def _identify_loot(self, run: Run, items: Sequence) -> None:
-        # All at once at Deckard Cain (the player, 2026-10-17: "we need to perform mass identify at decard cain"), the
-        # Tome of Identify the fallback for the inventory's (macros/cain.py, macros/junk.py)
+        # Mass identify at Deckard Cain (the player, 2026-10-17: "we need to perform mass identify at decard cain"),
+        # the Tome of Identify the fallback (macros/cain.py, macros/junk.py)
         try:
             done = identify_all(run, items)
         except Abort as stop:
@@ -1765,13 +1649,12 @@ class MacroRunner:
                 with run.lightly():
                     player = run.world().player
                 if self.progress is not None and player is not None and self.progress.ending(player.area):
-                    # The route's bosses are dead: nothing is sought any more. The ground is the route's to
-                    # call clean, and the press after that leaves the game, as the teleport key's does.
+                    # The route's bosses are dead: nothing is sought; the press is the route's (the ground called
+                    # clean, then the game left), as the teleport key's is.
                     self.staged(run, key_names, lambda card: None)
                     return
                 if player is not None and self.at_the_way_on(player):
-                    # At the route's door (a level run ends there, U13): the press is the one that goes through
-                    # (rca/2026-10-15/kp1-door-findings.md), as the teleport key's is.
+                    # At the route's door the press goes through (rca/2026-10-15/kp1-door-findings.md).
                     self.staged(run, key_names, lambda card: None)
                     return
                 stepped.append(hunter.step(run, key_names))
@@ -1788,8 +1671,7 @@ class MacroRunner:
                 key = action_key(self.saved_games, world.player.name, INVENTORY) if world.player is not None else None
                 if key is not None and self.loop.own is not None:
                     try:
-                        # A key stack out of the 2 x 4 block first: the room is often there already, in pieces (a
-                        # Unique Brandistock, 12:36 on 2026-10-18); then the loop's items into the cube
+                        # A key stack out of the 2 x 4 block first: the room is often there already, in pieces
                         arrange_keys(run, key)
                         stash(run, key, self.loop.own)  # the loop's items into the cube: room for what lies there
                     except Abort as stop:
@@ -1811,10 +1693,10 @@ class MacroRunner:
                         if gone is not None:
                             SHUNNED[gone.unit_id] = run.clock() + DROPPED_SECONDS  # not taken up again this game
             if actuator.keys.focused_window_rect() is None:
-                # The game's window is not the focused one (the player at another window): nothing can be clicked, and
-                # legs tried meanwhile only count up to a stop (01:30:39 on 2026-10-17); the loop waits for it
+                # The game's window lost the focus (the player at another window): nothing can be clicked, so the loop
+                # waits, and the watchdogs (`poll`) count none of it
                 LOG.info('Macro: loop: waiting for the game window to have the focus')
-                self.loop.waiting = True  # the watchdogs (`poll`) count none of it (01:33:26 on 2026-10-17)
+                self.loop.waiting = True
                 try:
                     while actuator.keys.focused_window_rect() is None:
                         if run.cancelled.wait(FOCUS_POLL):

@@ -1,9 +1,6 @@
-"""Lut Gholein sewers 1-3 and the Ancient Tunnels: stairs, waypoint, Radament and the way back.
+"""Lut Gholein sewers 1-3 and the Ancient Tunnels: stairs, waypoint, Radament, the chest, the way back.
 
-Unconfirmed (D2MOO DRLGMAZE_ScanReplaceSpecialAct2SewersPresets, 2026-10-01; no evidence yet).
-Sewers 1 builds two ladders up to Lut Gholein ('Sewer Prev E' and 'Sewer Prev NS') and 'Next';
-Sewers 2 places 'Prev', 'Waypoint' and 'Next'; Sewers 3 'Prev' and "Radament's Lair"; the
-Ancient Tunnels 'Prev' (to the Lost City) and 'Chest'.
+Unconfirmed (D2MOO DRLGMAZE_ScanReplaceSpecialAct2SewersPresets).
 """
 
 from inventory_tracking.levels.handler import Handler, PoiSpec, previous, stairs_down, waypoint

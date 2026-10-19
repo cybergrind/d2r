@@ -1,8 +1,6 @@
-"""The Echoing Strike Warlock as the one object the framework asks (macros/build.py `Build`).
-
-The attack, movement, the buff plan, the guard Psychic Ward keeps (`Shield`) and the draw of Death Mark (`Draw`).
-The weapon sets are a character's own: the layer of a character gives them (builds/characters.py), and the build as
-it is here has none.
+"""The Echoing Strike Warlock as the one object the framework asks (macros/build.py `Build`): the attack, movement,
+buff plan, Psychic Ward's guard (`Shield`) and Death Mark's draw (`Draw`). Weapon sets come from a character's
+layer (builds/characters.py).
 """
 
 from inventory_tracking.builds.warlock.buffs import BUFFS, ward_shown

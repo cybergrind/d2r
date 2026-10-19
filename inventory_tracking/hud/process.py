@@ -28,9 +28,8 @@ def acquire_instance(scene_dir: Path):
 
 
 def guide_widgets(lines) -> list[Widget]:
-    """The level guide's display lines: the styled rows in the 'guide' slot, its MapCard as a map-only
-    guide widget in the 'map' slot (top centre, user 2026-10-04), and the card's marked dots as ground
-    marks over the game view (hud/ground.py)."""
+    """The level guide's lines: styled rows in the 'guide' slot, the MapCard in the 'map' slot (top centre, user
+    2026-10-04), its marked dots as ground marks (hud/ground.py)."""
     rows = [line for line in lines if isinstance(line, StyledLine)]
     card = next((line for line in lines if isinstance(line, MapCard)), None)
     widgets = [Widget('guide', 'guide', 'guide', guide_payload(rows, None))] if rows else []
@@ -59,8 +58,7 @@ def terror_widgets(lines) -> list[Widget]:
 
 
 class PanelBeacon:
-    """Tells the canvas where the game's open-panel flags are, so it can read them every frame and
-    dim the HUD while the player reads items (hud/live.py OpenPanels). Republished well inside the
+    """Tells the canvas where the open-panel flags and input mode byte are (hud/live.py). Republished inside the
     lease; `source` is asked each time, so a restarted game is followed."""
 
     INTERVAL = LEASE_SECONDS / 3
@@ -74,8 +72,7 @@ class PanelBeacon:
             return
         self.last = now
         base = self.source.images['candidate_base']
-        # The input mode byte too: the canvas lays its slots out for the controller layout while it is 1
-        # (HUD.controller_slots, rca/2026-10-13/controller-mode.md section 5).
+        # Input mode 1: controller slot layout (rca/2026-10-13/controller-mode.md §5).
         payload = {'live': [self.source.pid, base + UI_PANELS_RVA], 'controller': base + CONTROLLER_MODE_RVA}
         self.publish([Widget('panels', 'panels', 'panels', payload)])
 
@@ -90,15 +87,10 @@ def terse_input(mode) -> str | None:
 
 
 class ModeBeacon:
-    """Says on the HUD whether the macro's attack mode is on (user, 2026-10-13: "we need to see some
-    indicator when auto-attack is enabled or not on overlay"; the pickup key turns the mode on, and the
-    attack key then turned it off unseen), the pickup key's run mode when it is a full clear (macros/runmode.py
-    `badge`: 'CLEAR', 'CLEAR TZ'), and the game's input mode beside it: keyboard, controller, or a flip under
-    way (rca/2026-10-13/controller-mode.md); in controller mode, which pad button casts what. Terse words, no
-    sentences (the player, 2026-10-14). Republished well inside the lease, and at once when anything shown
-    changes; nothing is shown out of a game. `state()` gives (in a game, attack mode on); `run_mode()` the run
-    mode's word or None; `input_mode()` a tracking/input_mode.py InputMode or None (unread); `legend()` the
-    bindings the game loaded, as lines ('Y Echoing Strike, ...'), or ()."""
+    """The mode line: attack mode on/off (user, 2026-10-13: "we need to see some indicator when auto-attack is
+    enabled or not on overlay"), the full-clear run mode (macros/runmode.py `badge`), the input mode (kbd, pad, a
+    flip under way) and, on a pad, the button legend. Terse words, no sentences (the player, 2026-10-14).
+    Republished inside the lease and on any change; empty out of a game. `state()` -> (in a game, attack on)."""
 
     INTERVAL = LEASE_SECONDS / 3
 

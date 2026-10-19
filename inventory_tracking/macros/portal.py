@@ -1,22 +1,12 @@
-"""Town Portal out of a level (routes/lower-kurast-loop-plan.md phase 3).
+"""Town Portal out of a level and back (routes/lower-kurast-loop-plan.md phase 3).
 
-The tome's skill (220, Book of Townportal) is cast from its skill key: the slot table and the character's key file
-say which (`key_names`, skills.skill_keys; CybergrindAA's slot 5 is `x`, phase 0), never a key assumed. The cast
-is Quick Cast, as the player's own: the takes of 2026-10-15 in Lower Kurast show the right button's skill 220 for
-0.3 to 0.4 s at each cast. The portal (objects.txt TownPortal, 59) opens beside the character and takes a click
-only once open (mode 2, `Selectable2`); its click box is the permanent portal's, so it is clicked as one
-(teleport.use_thing) and it took when the level changed. The new portal is told from one of an earlier trip by
-its unit: it was not there before the cast.
+The skill is cast from its key as the slot table and key file say, never a key assumed. The portal (objects.txt
+TownPortal) takes a click only once open (mode 2, `Selectable2`) and is clicked like a permanent portal
+(teleport.use_thing); the new one is told from an earlier trip's by its unit id.
 
-No portal after the cast is said, not guessed: the tome empty (its charges are not read yet) or the cast not made.
-The player clicked theirs 0.9 to 1.4 s after the cast (the same takes): it was open by then.
-
-The Sling casts it instead when it is worn (the player, 2026-10-18: "sling provides town teleport skill, that frees two
-slots in inventory (we can replace tome of town portals) ... when we have sling ring equipped - we don't need to run any
-logic in regard of town portal (do not track, do not buy)"): uniqueitems.txt Sling, a Ring, gives `oskill`
-"Townportal O Skill" (skills.txt 411: no mana, no delay, no charges). How the character casts it is one fact,
-`portal_source`, which the cast here, the stock's count (shop.py `short`, `restock`) and the loop's texts all take
-(macros/sling-plan.md).
+The Sling ring's oskill casts it instead when worn (skills.txt 411, no charges; the player, 2026-10-18: "when we have
+sling ring equipped - we don't need to run any logic in regard of town portal (do not track, do not buy)").
+`portal_source` is the one fact the cast, the shop's stock and the loop's texts take (macros/sling-plan.md).
 """
 
 import math
@@ -47,16 +37,15 @@ __all__ = [
 
 @dataclass(frozen=True)
 class PortalSource:
-    """How the character casts Town Portal: the skill pressed, what it is called, and whether its casts are a stock to
-    keep (the tome's charges, Town Portal scrolls bought into it at Jamella: macros/shop.py) or cost nothing."""
+    """How the character casts Town Portal: the skill, its name, and whether its casts are a stock to keep (the
+    tome's charges) or cost nothing."""
 
     skill: int
     name: str
     stocked: bool
 
     def count(self, pack: Pack) -> int | None:
-        """The casts left as the stock goes: the tome's charges (0 with no tome), None with no stock to keep (an unread
-        count, which never makes the loop short: shop.py `short`)."""
+        """The tome's charges (0 with no tome); None with no stock to keep (never short: shop.py `short`)."""
         return pack.portals if self.stocked else None
 
     def said(self, pack: Pack | None) -> str:
@@ -69,10 +58,9 @@ FROM_SLING = PortalSource(SLING_TOWN_PORTAL, 'the Sling', stocked=False)
 
 
 def portal_source(run: Run) -> PortalSource:
-    """The Sling's Town Portal when the worn items give it (`Run.worn_skills`: world.GameMemory.worn_skills, the skill
-    411 a worn item's item_nonclassskill), else the tome's, as before the Sling, unread worn items too. The Sling's is
-    taken whether or not it is on a skill key: the player's ruling is the ring worn, and a cast with no key stops
-    saying so (`to_town`), where the tome's would buy scrolls into cells with no tome to take them."""
+    """The Sling's Town Portal when a worn item gives skill 411, else the tome's (also with unread worn items). The
+    Sling's is taken even when on no key: the ruling is the ring worn, and a keyless cast stops saying so, where the
+    tome's would buy scrolls with no tome to take them."""
     worn = run.reads.worn_skills()
     return FROM_SLING if worn is not None and SLING_TOWN_PORTAL in worn else FROM_TOME
 
@@ -83,7 +71,7 @@ def slot_note(world: World, source: PortalSource) -> str:
 
 
 OPEN = 2  # the portal's mode once it can be clicked (objects.txt Selectable2)
-OPENS = 2.5  # seconds from the cast to the portal open: the player's clicks came 0.9 to 1.4 s after it
+OPENS = 2.5  # seconds from the cast to the portal open (the player clicks 0.9-1.4 s after it)
 POLL = 0.05
 
 
@@ -96,11 +84,9 @@ PICKS_AT_PORTAL = 4
 
 
 def to_town(run: Run, key_names: Callable[..., dict[int, str]], first: Callable[[], bool] | None = None) -> None:
-    """Cast Town Portal (`portal_source`: the Sling's or the tome's) and go through the portal it opens: done in town.
-    `Abort` in town already, with its skill on no skill key (`key_names`), and with no portal open after the cast.
-    `first`: a pickup made once the portal is open, again while it picks something up: a chest's drops come out over a
-    second and more, and a Chipped Ruby that landed 0.8 s after its chest's click, while the portal opened, was left
-    (03:04:17 on 2026-10-18)."""
+    """Cast Town Portal and go through the portal it opens: done in town. `Abort` in town already, with the skill on no
+    key, and with no portal open after the cast. `first`: a pickup made once the portal is open, repeated while it
+    picks something up (a chest's drops land over a second and more)."""
     with run.lightly():
         world, rect = ready_world(run)
     player = world.player
@@ -128,8 +114,7 @@ def to_town(run: Run, key_names: Callable[..., dict[int, str]], first: Callable[
     here = run.world().player or player
     mark = Target(here.area, (), (opened.x / TILE_UNITS, opened.y / TILE_UNITS), 'town', 'target', use=TOWN_PORTAL)
     use_thing(run, mark, here, opened, rect[2] / rect[3])
-    # Not over before the town takes input (rca/2026-10-16/loop-first-game-findings.md §2: the waypoint's aims were
-    # tried 0.002 s after the portal's arrival and found nothing under the pointer)
+    # Not over before the town takes input (rca/2026-10-16/loop-first-game-findings.md §2)
     arrived(run, 'town')
 
 
@@ -137,10 +122,9 @@ PORTAL_SEEN = (0.15, 0.85, 0.15, 0.8)  # window fractions the portal is walked t
 
 
 def through_portal(run: Run, near: tuple[float, float] | None = None) -> None:
-    """Back from town through the character's open Town Portal to its level (macros/loop.py `THROUGH_PORTAL`): walked
-    toward `near` (where the portal left the character in town) until one is in sight, then clicked as `to_town` clicks
-    it. `Abort` out of town and with no portal found."""
-    from inventory_tracking.macros.shop import WALK_SECONDS, WALKING, walk_until  # shop.py imports this module's own
+    """Back from town through the character's open Town Portal: walk toward `near` (where it left the character)
+    until a portal is in sight, then click it. `Abort` out of town and with no portal found."""
+    from inventory_tracking.macros.shop import WALK_SECONDS, WALKING, walk_until  # shop.py imports this module
 
     with run.lightly():
         world, rect = ready_world(run)

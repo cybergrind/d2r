@@ -1,16 +1,10 @@
-"""Where to stand in a fight: one decision for the simulator and for the game.
+"""Where to stand in a fight: one decision for the simulator and for the game. Pure: no game access.
 
-`camp` picks the place within CAMP_REACH of the character, with footing, no hostile within KEEP_AWAY,
-no pack round it (CROWD_MOST) and a walk there (`Field.ways`), that takes the most points from the next
-HORIZON seconds of casting
-(`taken`). Casting is modelled as the best cast at one of the hostiles in reach, by what the build's
-attack takes off each of them with it (`Striker.dealt`); a place where all in reach die early counts up
-to double. The walk
-there costs its seconds without a cast, or a HOP_SECONDS teleport. The place is chosen only when it takes
-CAMP_GAIN times what the character takes where it stands. The distance to a monster is not counted
-(asked `landed`: by how often the attack's casts land that far, `landing`), but no place is jumped to
-that a melee monster reaches before the first cast from it is out (`closes`).
-Pure: no game access.
+`camp` picks the place within CAMP_REACH with footing, no hostile within KEEP_AWAY, no pack round it
+(CROWD_MOST) and a walk there (`Field.ways`) that takes the most points from the next HORIZON seconds of casting
+(`taken`, by the build's `Striker.dealt`; all in reach dead early counts up to double). The way costs its seconds
+without a cast, or HOP_SECONDS for a teleport; a place must be worth CAMP_GAIN times where the character stands.
+No place is jumped to that a melee monster reaches before the first cast is out (`closes`).
 
 History and measurements: combat/plan.md.
 """
@@ -28,40 +22,26 @@ from inventory_tracking.levels.geometry import Point
 
 
 KEEP_AWAY = 6.0  # units: no place with a hostile this near
-# No place in the middle of a pack: one with more than CROWD_MOST hostiles within CROWD_UNITS is left out,
-# unless as many stand that near the character already. Drifter Cavern, 09:55:34 on 2026-10-12 (user: "we
-# positioned ourselves into big mob group and took too much damage"): a walk of 19 units to a place worth
-# 37535 against 6538, with 4 hostiles within 12 units of it when chosen and 5 to 7 on arrival; four Hell
-# Temptresses 8 to 11 units off then took 1,592 points in 6 s with their bolts (missile 665), the life at
-# 37% at its lowest. The places chosen before it had 0 to 2 that near and cost 0 to 297 points.
+# No place in the middle of a pack: more than CROWD_MOST hostiles within CROWD_UNITS rule it out unless as many
+# stand that near the character already (user, 2026-10-12: "we positioned ourselves into big mob group and took
+# too much damage"; Drifter Cavern 09:55:34).
 CROWD_UNITS = 12.0
 CROWD_MOST = 3
-# Out of a pack the character stands in already (more than CROWD_MOST within CROWD_UNITS of it): a place
-# with no pack round it is taken when the next seconds there are worth this share of what they are worth
-# where it stands, whatever `gain` asks of a place otherwise. 0: off, the pack it stands in is the measure
-# of every place (the rule until 2026-10-13: "Standing well" among 24 monsters at the Infector seal, twice,
-# 1,700 and 1,100 points lost). Half: in the replayed seal fight (arena/incident.py, 20 seeds) 0.3, 0.5 and
-# 0.7 came to the same, the life lost 1,062 -> 891 and the least life 923 -> 1,177 at the median, the pack
-# dead later (6 -> 16 alive after 6 s). With the pack counted within ESCAPE_UNITS of 8 and not 12 (user,
-# the same night: "safe and kill most of mobs as fast as before"; 20 seeds, 14 s, the drinking on): the life
-# lost 727 -> 574 at the median and 1,836 -> 1,235 in the worst tenth, 8 alive after 6 s against 6, cleared
-# in 10.8 s against 12.0, 2.0 potions against 2.3. Tighter (6, 5, 4 units) came to the same or a little worse.
+# Out of a pack the character stands in: a place with no pack round it is taken when worth this share of where it
+# stands, whatever `gain` asks (0: off). Tuned on the replayed Infector seal fight (arena/incident.py, 20 seeds,
+# 2026-10-13: life lost 1,062 -> 891 at the median; user: "safe and kill most of mobs as fast as before").
 CROWD_ESCAPE = 0.5
 ESCAPE_UNITS = 8.0  # the pack stood in: more than CROWD_MOST hostiles this near the character
 ESCAPE_MOST = 3  # and at most this many as near the place gone to
-# A melee monster comes on while the character is on its way: units a second per point of its monstats
-# speed (sim/monsters.py PACE: a chasing Blood Clan made 7.5 to 8.3 at 7), counted over the way there
-# and the first cast, CLOSING_MOST at the most. The cow runs of 2026-10-12 (user: "jumping into their
-# groups too aggressively"): a place 6 units from the nearest cow when chosen had it at the character
-# by the time the first blades were out, 0.8 s of Blade Warp and a cast later; 11 of 98 landings had a
-# cow within 5 units and 6 had four or more within 8.
+# A melee monster comes on while the character is on its way: units a second per point of monstats speed
+# (sim/monsters.py PACE), over the way and the first cast, CLOSING_MOST at most (user, 2026-10-12 cow runs:
+# "jumping into their groups too aggressively").
 CLOSING_PACE = 1.1
 CLOSING_MOST = 6.0
 AWARE = 20.0  # units: a monster further from the place than this does not come for it (sim/monsters.py)
 WAY_SAMPLE = 0.5  # units between the points looked at along a straight walk
 HORIZON = 3.0  # seconds the worth of a place is counted over: the pack should be dead well within them
-# One cast of a held strike: the Echoing Strike Warlock's (builds/warlock/echoing_strike/sim/input.py
-# CAST_FRAMES at 25 frames a second), and no other attack has tested it.
+# One cast of a held strike: the Echoing Strike Warlock's (builds/warlock/echoing_strike/sim/input.py CAST_FRAMES).
 CAST_SECONDS = 0.36
 RUN_SPEED = 20.0  # units a second
 WALK_LATENCY = 0.36  # seconds before a walk begins: the cast that has to end, and the click
@@ -78,9 +58,8 @@ class Striker(Protocol):
     `Attack`, which this module cannot import: it is below it)."""
 
     reach: float  # units: a hostile further from a place is not struck from it
-    # Optional, as `engaged` and `landing` read them: units from the furthest hostile counted on that a jump is
-    # best ended at (the build's `Attack.engage`; `reach` without), and `lands(away)`, the share of casts that
-    # hit a monster that far off against those close in (1.0 at every distance without).
+    # Optional (`engaged`, `landing`): `engage`, units from the furthest hostile a jump is best ended at, and
+    # `lands(away)`, the share of casts that hit a monster that far off (1.0 without).
 
     def dealt(
         self, origin: Point, focal: Point, foes: Mapping[int, Foe], blocked: Callable[[Point], bool] | None = None
@@ -111,9 +90,8 @@ def striker(given: Any) -> Striker:
 
 
 def no_footing(ground: Any, doors: Sequence[Any] = ()) -> Callable[[Point], bool] | None:
-    """Whether the character cannot stand on or walk over a point: a cell the read grids do not show
-    as walkable (an unread one too, once the level has walls), or a closed door. None without walls
-    or closed doors: anywhere."""
+    """Whether the character cannot stand on or walk over a point: a cell the grids do not show walkable (unread
+    too, once the level has walls) or a closed door. None without either: anywhere."""
     closed = [door for door in doors if door.closed]
     walked = ground.walkable if ground is not None and len(ground) > 0 else None
     if walked is None and not closed:
@@ -271,20 +249,12 @@ def taken(
     landed: bool = False,
     walls: bool = True,
 ) -> tuple[float, int]:
-    """(worth, casts) of casting from `spot` from `after` seconds on to the HORIZON: cast after cast
-    the best cast at one of the hostiles in reach with a clear line takes off each what the attack
-    deals with it (`Striker.dealt`; with `landed`, as often as its casts hit one that far off:
-    `landing`; capped by what the monster has left, a point off an elite counted ELITE_WEIGHT times).
-    The worth is the points taken, and up to as much again for being done early: all in reach dead at
-    once would double it, dead as the horizon ends adds nothing. `casts` is how many it takes until
-    nothing in reach is left, 0 when the horizon ends first. `landed`: a stand nearer the pack is worth
-    more for the casts that land there (Echoing Strike: 33% of the casts from 18 units or more hit
-    nothing, run-1932-findings.md §4); asked by the places the safety prices (a level run's fight, the
-    firing stand's pace), not by the sweep of the pursuit loop off, whose replays and seal fights
-    were played and measured without it. `walls`: the blades stop at the walls on their line (the
-    field's, `Striker.dealt`'s `blocked`; run-2040-findings.md §3.3: 6% and 23% of the casts of the
-    23:40 game flew into walls); off only for that same sweep, whose goldens and replays were
-    recorded with the blades flying through."""
+    """(worth, casts) of casting from `spot` from `after` seconds to the HORIZON: cast after cast, the best cast at
+    a hostile in reach with a clear line takes what `Striker.dealt` says, capped by what each has left (an elite's
+    point counted ELITE_WEIGHT times). Worth: the points taken, up to double for being done early. `casts`: until
+    nothing in reach is left, 0 when the horizon ends first. `landed`: casts land by distance (`landing`;
+    run-1932-findings.md §4); `walls`: blades stop at walls (run-2040-findings.md §3.3). Both are off only for
+    the pursuit-off sweep, whose goldens were recorded without them."""
     attack = striker(attack)
     lands = landing(attack) if landed else (lambda away: 1.0)
     near = []
@@ -327,15 +297,11 @@ def taken(
 def falls(
     seen: Observation, attack: Striker, field: Field, spot: Point, after: float, horizon: float, pace: float = 1.0
 ) -> dict[int, float]:
-    """Seconds from now until each hostile dies by the strikes cast from `spot`, the first one begun `after`
-    seconds from now and each taking CAST_SECONDS times `pace`: cast after cast the line `taken` would lay (the
-    best at one of the hostiles in reach with a clear line, what the attack deals off each with it, every cast
-    landing: the forecast's pace is the takes' own, `SafetySettings.strike_spread`; elites
-    weighted as the aim weighs them), its points capped by what each has left, and a hit on a monster the
-    observation calls linked (`Observation.linked`) dealt again at `Observation.share` to every other linked
-    one, wherever it stands. Only deaths within `horizon` are given; the others outlive it. What the build's
-    attack does over time, for the safety price (combat/harm.py `harm_path`'s `deaths`): no companion's
-    damage and no monster's move is counted, so a pack coming into reach is not killed by it."""
+    """Seconds from now until each hostile dies by the strikes cast from `spot` (first `after` seconds on, each
+    CAST_SECONDS x `pace`): the line `taken` would lay, every cast landing (the spread is
+    `SafetySettings.strike_spread`'s), a hit on a linked monster dealt again at `Observation.share` to the other
+    linked ones. Only deaths within `horizon`. For combat/harm.py `harm_path`'s `deaths`: no companion's damage,
+    no monster's move."""
     attack = striker(attack)
     near = []
     for unit, foe in seen.foes.items():
@@ -394,18 +360,11 @@ def camp(
     landed: bool = False,
     walls: bool = True,
 ) -> Camp | None:
-    """The place worth going to from where the character stands, or None when it stands well: the
-    place within CAMP_REACH where the next HORIZON seconds take the most, the way there counted
-    as seconds without a cast. A place is walked to when a way of at most DETOUR times the straight
-    line leads there; with `hop` every other place with footing is a teleport of HOP_SECONDS away,
-    and so is a walked one when the hop is faster. `shown(spot)`: whether the window shows the spot
-    (a click or a hop needs it); None: every spot. `gain`: how many times the worth of where the
-    character stands a place has to be. `jumps`: the skills the character can jump by now, the
-    preferred first: a place one of them reaches is priced by the first that does (and walked to only
-    when none does), so the place is chosen for the way the character will take there. `escape`:
-    CROWD_ESCAPE for this fight (0: the character stays in a pack it stands in); None: the module's.
-    `landed`: places priced as the casts land by distance (`taken`); `walls`: as the blades stop at walls
-    (`taken`)."""
+    """The place worth going to, or None when the character stands well (see the module text). A place is walked
+    to by a way of at most DETOUR x the straight line; with `hop` any other with footing is a HOP_SECONDS teleport.
+    `shown(spot)`: the window shows it (None: every spot). `gain`: the worth multiple asked. `jumps`: skills it can
+    jump by, preferred first; a place is priced by the first that reaches it. `escape`: CROWD_ESCAPE override.
+    `landed`, `walls`: as `taken`."""
     attack = striker(attack)
     ring = engaged(attack)
     origin = seen.origin
@@ -453,16 +412,14 @@ def camp(
                 seconds, by_hop = jump.takes(straight), True
             if seconds >= HORIZON:
                 continue
-            # Only a jump: it lands the character there at once and blind, where a walk is seen coming
-            # and is the monsters' way too (held to walks as well, no pack in a row was walked to at all).
+            # Only a jump: it lands blind and at once; a walk is seen coming (held to walks, no pack is walked to).
             if by_hop and any(closes(foe, spot, seconds) for foe in seen.foes.values()):
                 continue
             worth, casts = taken(seen, attack, field, spot, seconds, landed=landed, walls=walls)
             if worth < max(MIN_SCORE, need * here):
                 continue
-            # Of two places as good (a jump takes as long to any of them) the one whose furthest hostile
-            # is nearest the attack's engage ring away (`engaged`): at the end of the blades' flight a step
-            # of a monster's is a miss, and next to the pack is where it strikes.
+            # Of two places as good, the one whose furthest hostile is nearest the engage ring (`engaged`): at the end
+            # of the blades' flight a monster's step is a miss.
             edge = max(
                 (away for foe in seen.foes.values() if (away := math.dist(spot, foe.at)) <= attack.reach), default=0.0
             )

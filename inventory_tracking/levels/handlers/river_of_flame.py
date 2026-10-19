@@ -1,22 +1,8 @@
 """River of Flame: the bridge's end into the Chaos Sanctum first, Hephasto at the Hellforge, the way back.
 
-Unconfirmed (from D2MOO DRLGMAZE_PlaceAct4Lava and d2data, 2026-10-01). A Lava maze of 24x24
-presets: 'Lava Warp N' leads up to the City of the Damned, 'Bridge 1' starts the bridge to the Chaos
-Sanctum (then two 'Bridge 2'), and one 'Lava W' or 'Lava E' room is replaced by 'Lava Forge W/E', the
-Hellforge where Hephasto stands. No preset is named for the waypoint (levels.json Waypoint 29), so
-it isn't marked.
-
-The Chaos Sanctum has no warp (levels.json Warp1 = -1): the bridge's far end is the level border.
-Evidence of 2026-10-09 (runs/levels/evidence/107): Bridge 1 at tile row 1168, the two Bridge 2
-presets at 1144 and 1120, the player in the Sanctum at row 1111 right after row 1120 in the River.
-So the mark is the far edge of the last Bridge 2 (the one furthest from Bridge 1), half a tile
-beyond it, as a door to walk into: the teleport step goes along the bridge and the last one clicks across
-(user, 2026-10-09: repeated teleport steps must bring the character to the Chaos Sanctuary). It is the first
-mark, so the teleport step points at it; Hephasto is a side trip.
-
-No warp joins the two levels, so the way is an open passage (presets.open_passage): the level guide gives the mark
-its far place a tile inside the Sanctuary (levels/exits.py `through`), and a KP_1 level run walks across to it
-(macros/pursuit.py `through`, 2026-10-15). Nothing here is special to the River: the levels.txt row says it.
+No warp joins River and Sanctum (levels.json Warp1 = -1): the mark is an open passage past the far
+Bridge 2 (levels/exits.py `through`; runs/levels/evidence/107). It comes first (user, 2026-10-09:
+repeated teleport steps must bring the character to the Chaos Sanctuary).
 """
 
 import math
@@ -37,8 +23,7 @@ def centre(room: Room) -> tuple[float, float]:
 
 
 def bridge_end(rooms) -> Poi | None:
-    """The Chaos Sanctum mark: half a tile beyond the far edge of the Bridge 2 furthest from Bridge 1,
-    on the side away from it; None without both presets."""
+    """Half a tile past the far edge of the Bridge 2 furthest from Bridge 1; None without both presets."""
     starts = [room for room, _ in instances(r for r in rooms if preset_name(r.preset) == BRIDGE_START)]
     spans = [room for room, _ in instances(r for r in rooms if preset_name(r.preset) == BRIDGE)]
     if len(starts) != 1 or not spans:

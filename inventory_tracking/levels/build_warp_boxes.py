@@ -1,13 +1,8 @@
 """Regenerate levels/data/warp_boxes.json: where each door takes a click, from lvlwarp.txt.
 
-A door (a warp tile unit, unit type 5) takes clicks in a box of classic pixels (600 high) hung
-from the unit's own place on screen: SelectX, SelectY to its top left corner, SelectDX, SelectDY
-its size. The unit's class is the row's Id. Checked on 2026-10-10 against the running game: the
-tower's door in Black Marsh (Id 10, box -10, -50, 150 x 80) stood 6.5, 2.5 units "north-west" of
-the centre of its warp tiles, which puts the box 42 to 122 pixels above that centre; of the aims
-clicked there that day the one on the tiles never took and those 45 pixels above took 5 times of 9.
-An Id with a left and a right row (the Act 5 temples) keeps the part both boxes share; a row
-without a size, or two rows that share nothing, is left out.
+A door (a warp tile unit, type 5, class = the row's Id) takes clicks in a box of classic pixels hung from
+its screen place: SelectX, SelectY the top left, SelectDX, SelectDY the size (checked on the Black Marsh
+tower door, 2026-10-10). An Id with left and right rows keeps the shared part; rows sharing nothing are dropped.
 
 Runtime code reads only the bundled table; the git-ignored checkout is a build input.
 Run: uv run --offline python -m inventory_tracking.levels.build_warp_boxes

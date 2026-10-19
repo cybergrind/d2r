@@ -117,9 +117,14 @@ def static_position(read, unit):
 
 
 def nearby_super_chests(read, table_address) -> list[SuperChest]:
-    """Closed glowing chests among the streamed object units."""
+    """`super_chests_among` of a walk of its own."""
+    return super_chests_among(read, walked(read, table_address, OBJECT_UNIT)['units'])
+
+
+def super_chests_among(read, units) -> list[SuperChest]:
+    """Closed glowing chests among the walked object units."""
     chests = []
-    for unit in walked(read, table_address, OBJECT_UNIT)['units']:
+    for unit in units:
         if unit['txt_id'] != SPARKLY_CHEST or unit['mode'] != CLOSED_CHEST_MODE:
             continue
         try:
@@ -131,9 +136,14 @@ def nearby_super_chests(read, table_address) -> list[SuperChest]:
 
 
 def nearby_shrines(read, table_address, *, types: frozenset[int]) -> list[Shrine]:
-    """Unused shrines of the wanted types among the streamed object units."""
+    """`shrines_among` of a walk of its own."""
+    return shrines_among(read, walked(read, table_address, OBJECT_UNIT)['units'], types=types)
+
+
+def shrines_among(read, units, *, types: frozenset[int]) -> list[Shrine]:
+    """Unused shrines of the wanted types among the walked object units."""
     shrines = []
-    for unit in walked(read, table_address, OBJECT_UNIT)['units']:
+    for unit in units:
         if unit['mode'] != UNUSED_SHRINE_MODE:
             continue
         try:
@@ -318,8 +328,10 @@ def observe_ground(
         location = player_location(read, table)
         ground = ground_items(read, table) if location else []
         runes = runes_among(ground, minimum=minimum)
-        shrines = nearby_shrines(read, table, types=shrine_types) if location and shrine_types else []
-        chests = nearby_super_chests(read, table) if location and super_chests else []
+        wanted = location and (shrine_types or super_chests)
+        objects = walked(read, table, OBJECT_UNIT)['units'] if wanted else []  # one walk for shrines and chests
+        shrines = shrines_among(read, objects, types=shrine_types) if location and shrine_types else []
+        chests = super_chests_among(read, objects) if location and super_chests else []
         uniques = uniques_among(ground, minimum=unique_minimum) if location and unique_minimum is not None else []
         found = materials_among(ground, materials, appraised_classes()) if location and materials else []
     return location, runes, [*uniques, *found, *shrines, *chests]

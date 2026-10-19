@@ -1,13 +1,8 @@
 """Win+C handling inside the Alt+D worker process: dump the current level's structures.
 
-The compositor binding sends `level <monotonic>` to the appraisal socket. The memory
-pass runs under the shared capture lock, then `level.json` (research, unvalidated)
-and `report.json` land in a new run directory under `runs/level/`; `latest.json`
-points at the newest one so an agent can pick it up without a chat reply.
-
-Besides the research survey, the dump carries an `evidence` section: the confirmed
-reader's snapshot plus what the area's handler finds (levels/evidence.py), which converts
-straight into a test fixture. The notification leads with that result.
+The binding sends `level <monotonic>` to the appraisal socket; the read runs under the capture lock, and
+`level.json` (research) plus `report.json` land in a new `runs/level/` run (`latest.json` points at it).
+The dump also carries an `evidence` section (levels/evidence.py), convertible into a test fixture.
 """
 
 import math

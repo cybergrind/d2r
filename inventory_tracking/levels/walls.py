@@ -1,17 +1,10 @@
 """Wall library: walkable sub-tiles learned per preset layout, so unvisited rooms get walls on entry.
 
-The client builds collision grids only for rooms loaded around the player (levels/memory.py
-loaded_walkable). A preset room's walls come from its DS1 file, so every live read is saved under
-(preset, DS1 variant, chunk offset in the preset, size), and any room with the same key, in this
-game or a later one, is drawn from the library. Generated terrain (preset 0) and rooms without a
-readable variant are never learned. A later sighting of the same key replaces the earlier one.
-
-The file (schema 2) holds packed sub-tiles (model.pack_cells) and, since 2026-10-10, the flight
-layer per layout (`flight`: where a missile flies, native/layout.py COLLISION_BLOCK_MISSILE) with a
-door's cells (COLLISION_DOOR) kept open, since the door units say whether one stands closed
-(levels/doors.py) and the learned layout must not keep a door shut forever. A schema 1 file held
-one cell per tile; it is read with each tile filling its 5x5, so those rooms keep their coarse
-walls until a live read or a dump (`main`) replaces them.
+The client builds collision grids only for loaded rooms, but a preset room's walls come from its DS1 file:
+each live read is saved under (preset, variant, chunk offset, size) and any room with that key, this game or
+later, is drawn from the library; the latest sighting wins. Generated terrain (preset 0) and unread variants
+are never learned. Schema 2 holds packed sub-tiles and a flight layer with door cells kept open (the door
+units say whether one is shut, levels/doors.py); schema 1 (one cell per tile) is read as 5x5 blocks.
 """
 
 import json
@@ -107,8 +100,7 @@ class WallLibrary:
         return found
 
 
-# The confirmed grid among research.collision_candidates (native/layout.py): (Room1 pointer offset,
-# bounds offset, mask pointer offset).
+# The confirmed research.collision_candidates entry: (Room1 pointer, bounds, mask pointer) offsets.
 CONFIRMED_CANDIDATE = (ROOM1_COLLISION, COLLISION_BOUNDS, COLLISION_MASK)
 
 

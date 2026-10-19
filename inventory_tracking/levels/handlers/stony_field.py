@@ -1,20 +1,7 @@
-"""Stony Field: the Tristram portal (Cairn Stones), the Underground Passage and the way back.
+"""Stony Field: the Tristram portal first (user, 2026-10-12), the Underground Passage, the way back.
 
-Unconfirmed (from d2data/D2MOO, 2026-09-30; no evidence yet). The portal to Tristram opens at the
-Cairn Stones, one preset ('Act 1 - Cairn Stones'). The level's only warp is the Underground
-Passage: a cave entrance, plain or in a cliff, as in Cold Plains and Tamoe (D2MOO DrlgOutWild).
-Its only border link is Cold Plains (D2MOO DrlgOutPlace: Stony Field and Dark Wood are in
-separate link groups), so its one gap is named by elimination when the far side isn't read yet.
-The Cairn Stones are the level's first mark (user, 2026-10-12): the next level here is Tristram, so
-the teleport step runs Stony Field -> Tristram -> Wirt's body. The way in is a portal object the
-game puts among the stones, not a warp tile, so the mark names the object (`use`) and the step clicks the
-one it finds there (macros/teleport.py `use_thing`).
-
-Tristram is one preset ('Act 1 - Tristram', Tri_Town4.ds1) covering the whole level, so the preset
-gives no direction. The mark is where the file places the WIRT object (objpreset Index 103, read
-from the install on 2026-10-12): (48, 179) units from the preset origin, in the south-west corner.
-The body is clicked the same way (user, 2026-10-12): it drops Wirt's Leg and gold.
-Unconfirmed: no evidence of the level yet.
+The portal and Wirt's body are objects the step clicks (`use`); the body is the WIRT object
+Tri_Town4.ds1 places (objpreset 103). Unconfirmed.
 """
 
 from inventory_tracking.levels.handler import Exit, ExitsHandler, PoiSpec, target

@@ -31,22 +31,14 @@ KINDS = ('physical', 'fire', 'lightning', 'cold', 'poison', 'magic')
 # monstats deathDmg, verified in scenarios/threat/threat_table.json (2026-10-13).
 # A corpse already struck by a projectile can explode before another look.
 EXPLODING = frozenset((214, 215, 216, 441, 442, 443, 690, 691))
-# The life price by fight (the player, 2026-10-13: "probably we need to have it for diablo, baal, nihlathak,
-# mephisto, duriel"): monster classes (monstats.txt `*hcIdx`, pricing/raw/game-excel, the client's txt id; not
-# the row's place among the data rows, one more past the expansion's divider row) whose presence makes a point of
-# life dearer, each with its factor on `life_price`. Their own forms only, no minion: 211 duriel, 708 uberduriel;
-# 242 mephisto, 704 ubermephisto; 243 diablo, 333 diabloclone, 705 uberdiablo; 526 nihlathakboss; 544 baalcrab
-# (the throne's fight), 570 baalclone, 709 uberbaal. The factor: rca/2026-10-13/diablo.md "Hooked in" (the duel's
-# sweep: x10 is where his lightning's median loss is 0 in the short and the long fight, for 9-10% more kill time).
+# Monster classes (monstats.txt `*hcIdx`, the client's txt id) whose presence makes life dearer by DEAR_FACTOR: the
+# bosses' own forms, no minion (the player, 2026-10-13: "probably we need to have it for diablo, baal, nihlathak,
+# mephisto, duriel"). The factor: rca/2026-10-13/diablo.md "Hooked in".
 DEAR_FACTOR = 10.0
 DEAR = tuple((txt, DEAR_FACTOR) for txt in (211, 708, 242, 704, 243, 333, 705, 526, 544, 570, 709))
-# The life budget by the potion stock (the player, 2026-10-15: "keep the full budget down to 4 potions, never below
-# about half"): the share of the budget a look keeps, by the healing potions the belt can give back beyond the ones it
-# keeps for under the floor (macros/supply.py `spendable`, in potions of `healing_points`), as (potions beyond, share)
-# points of a curve, linear between them and flat past its ends. At 1818 life 2 are kept (a stocked rejuvenation
-# reserve): 4 of 8 healing potions and more keep the whole budget, 3 keep 3/4 of it, 2 and fewer half; never nothing.
-# It was the floor raised to where the belt can no longer buy the life back (2 of 8: no budget at all), and in the
-# arena it ended a Chaos Sanctuary run with half its kills (rca/2026-10-14/run-1932-findings.md, "Arena").
+# The share of the life budget a look keeps by the healing potions the belt can spend (macros/supply.py `spendable`):
+# (potions beyond, share) points, linear between, flat past the ends (the player, 2026-10-15: "keep the full budget
+# down to 4 potions, never below about half"; rca/2026-10-14/run-1932-findings.md "Arena").
 STOCK_SHARE = ((0.0, 0.5), (2.0, 1.0))
 
 
@@ -54,16 +46,14 @@ class SafetySettings(Config):
     floor: Percent = 65.0  # Q1/Q6: life is a hard constraint, potions are not borrowed life
     insist_floor: Percent = 40.0
     insist_per_second: Positive = 5.0
-    # A level run (KP_1: "one press, then it runs the whole level") asks for its goal at every look as a held key
-    # does: its blocked goal escalates by the same insistence (the veto stays). Off: only fresh presses insist.
+    # A level run (KP_1) insists on its blocked goal at every look as a held key does (the veto stays).
     run_insists: bool = True
     horizon: Positive = 1.5
     veto_share: Percent = 5.0
     healing_seconds: Positive = 4.0  # Q6, seconds per potion
     rejuvenation_seconds: Positive = 20.0
     healing_points: Positive = 480.0  # named stand-in until the belt's potion quality is priced
-    # (monster class, factor): while a hostile of the class is in the fight (alive, within the AI's awareness of
-    # the character), a point of life costs `factor` times `life_price` (the dearest present). DEAR above.
+    # (monster class, factor): while one is in the fight, life costs `factor` x `life_price` (the dearest present).
     dear: tuple[tuple[int, float], ...] = DEAR
     stock_share: tuple[tuple[float, float], ...] = STOCK_SHARE  # (potions beyond the kept, budget share): STOCK_SHARE
     commit_share: Positive = 0.20  # Q2, improvement required to leave a firing stand
@@ -74,40 +64,31 @@ class SafetySettings(Config):
     press_enables_attack: bool = False  # Q7, intent remains the runner's
     middle_objects_need_press: bool = True  # Q8
     trials: int = 64
-    # Seconds of the game's clock one look's pricing may take before it settles for the best found so far
-    # (macros/safety.py: the plain retreat rays are left out after it); the decision cadence is 0.12 s.
+    # Seconds one look's pricing may take before it settles for the best so far (decision cadence 0.12 s).
     look_seconds: Positive = 0.08
-    # I2, no attack pause: with attack mode on and a hostile in reach, a move or a use is not made when the seconds
-    # since the last strike and the act's own would pass this, while a strike here fits the budget (the strike
-    # first, the act at the next look). The requirement is 2 s; the rest is the next look and the cast's start.
+    # I2, no attack pause (2 s required): with a hostile in reach, a move or use that would leave this long since the
+    # last strike waits for a strike first, if one fits the budget.
     strike_gap: Positive = 1.6
     seed: int = 61013  # same facts, same samples, independent of process hash/random state
     companion_uncertainty: float = 0.15  # nearest wins; companion motion is unobserved over the dwell
     unknown_damage_factor: Positive = 3.0  # an unread boss AI (Diablo): table blow, conservative burst factor
     unknown_period: Positive = 1.0
     unknown_points: Positive = 500.0  # no table row: up to 1500 after the conservative burst factor
-    # An unread AI of an ordinary type is priced by the simulator's own fit on the takes (combat/sim/monsters.py
-    # `swing_of`, `shooter_of`: swings and shots a second, the share that takes life, the fit's upper bound where it
-    # has one) times this margin. Second pass, 2026-10-13: the factor-3 table stand-in priced the River of Flame's
-    # Abyss Knights at 200+ points per 0.72 s each while the take lost no life in 106 s (safety-pricing.md).
+    # An unread AI of an ordinary type: the simulator's fit (combat/sim/monsters.py `swing_of`, `shooter_of`) times
+    # this margin (the table stand-in overpriced Abyss Knights, rca/2026-10-13/safety-pricing.md).
     fitted_margin: Positive = 2.0
-    # The character's own strikes (combat/stance.py `falls`, cast after cast at CAST_SECONDS): each rollout draws
-    # how much later than forecast the hostiles die, one factor for all of them, from these quantiles at even
-    # steps (the least, the deciles, the most), or never with `strike_never` percent. Measured in the arena
-    # (second pass, 2026-10-13: 9,476 forecast deaths within 3 s at the looks that held, seal-pack, vizier-seal,
-    # four-packs; median 1.78; 7.5% never died while the character stayed): the build's engine, not the game.
+    # How much later than forecast (combat/stance.py `falls`) the hostiles die, one factor a rollout drawn from these
+    # quantiles (least, deciles, most), or never with `strike_never` percent. Measured in the arena (2026-10-13).
     strike_spread: tuple[float, ...] = (0.2, 0.43, 0.78, 1.06, 1.38, 1.78, 2.33, 3.13, 4.67, 8.37, 20.0)
     strike_never: Percent = 7.5
-    # A guard the build keeps (macros/build.py `Shield`), shown up at the look: the share of its pool taken to be
-    # left. The client is not told of the pool's fall (rca/2026-10-13/sim-casters.md section 9): a stand-in.
+    # The share of a standing guard's pool taken to be left: the client does not show it (sim-casters.md section 9).
     guard_left: Percent = 50.0
     corpse_radius: Positive = 5.0
     move_overhead: Positive = 0.5
     hold_dwell: Positive = 0.72
     landing_dwell: Positive = 0.36  # following decision and residual cast delay, separate from transit
     operate_dwell: Positive = 1.5  # the hands' time limit at an object or a drop (macros/hunting/moves.py `priced_for`)
-    # Seconds at an object after the walk to it until its use takes: the exposure of the act (second pass: in the
-    # arena a seal 10 units off opened 0.9 to 1.3 s after the decision, the walk included).
+    # Seconds at an object after the walk to it until its use takes.
     use_dwell: Positive = 0.5
 
 
@@ -159,8 +140,7 @@ class Look:
     # Missiles in flight of the classes the read models ask for (combat/threats `missiles`): (owner unit, where,
     # heading in radians, and its class when the look read it: macros/safety.py `in_flight`).
     missiles: tuple[tuple[int, Point, float] | tuple[int, Point, float, int], ...] = ()
-    # A draw priced on the look (`sent_onto`): the hostiles it turns to the companions where they now stand, and
-    # where the companions stood before it, which every other hostile still weighs (`bodies`). None: no draw.
+    # A draw priced on the look (`sent_onto`): the hostiles it turns to the companions; None: no draw.
     drawn: frozenset[int] | None = None
     stood: tuple[Point, ...] = ()
     # What lies on the ground and harms where it lies, by its read model (combat/threats `Lingering`): priced over a
@@ -389,9 +369,8 @@ def hostile_exposure(
 def threat_exposure(
     seen: Look, path: tuple[tuple[Point, float, Hands], ...], protection: Protection, settings: SafetySettings
 ) -> tuple[Exposure, ...]:
-    """The acts of hostiles with a read model (combat/threats), priced over the whole path at once: an act under
-    way (a stream aimed at where the character is at each frame) is not a rate at a place, so the path is not cut
-    into places for it. Their begins and ends are seconds of the path. Each part is one correlated event."""
+    """The acts of hostiles with a read model (combat/threats), priced over the whole path at once: an act under way
+    is not a rate at a place. Each part is one correlated event."""
     found: list[Exposure] = []
     legs = spanned(path, settings)
     start, end = legs[0][0], legs[-1][0]
@@ -422,9 +401,8 @@ def threat_exposure(
 
 
 def spanned(path: tuple[tuple[Point, float, Hands], ...], settings: SafetySettings) -> threats.Legs:
-    """The path as a read model's legs, over the span every candidate of a look is priced over (`horizon`, standing
-    at its end after it): an act under way lands later than a short hold looks, and a step's own path is longer than
-    a hold's. Over their own spans the step would carry missiles the hold leaves to the next look."""
+    """The path as a read model's legs over the span every candidate of a look shares (`horizon`, standing at the
+    end), so a step and a hold are priced over the same missiles."""
     legs = tuple((place, max(0.0, dwell)) for place, dwell, _ in path)
     spent = sum(dwell for _, dwell in legs)
     if spent < settings.horizon:
@@ -494,12 +472,9 @@ def approach(seen: Look, place: Point, elapsed: float) -> Look:
 def sent_onto(
     seen: Look, sent: tuple[int, ...], target: Point, reach: float, beside: float, pack: float = math.inf
 ) -> Look:
-    """The look with the companions at `sent` (indices into `companions`) that stand within `reach` of `target`
-    put `beside` units from it, each on its own side of it (straight from the target where one stood on it): a
-    cast that sends them onto one hostile (macros/build.py `Draw`). The hostiles within `pack` units of the target
-    weigh them where they land, the nearest body by `share` (the client's rule): the target and what stands round
-    it turn to them; every other hostile weighs them where they stood (`bodies`; the build's `Draw.pack`, measured:
-    rca/2026-10-14/death-mark-engage.md §4)."""
+    """The look with the companions `sent` within `reach` of `target` put `beside` units from it, each on its own
+    side (macros/build.py `Draw`). Hostiles within `pack` of the target weigh them where they land; others where
+    they stood (`bodies`; rca/2026-10-14/death-mark-engage.md §4)."""
     moved = list(seen.companions)
     for index in sent:
         if index >= len(moved):
@@ -687,11 +662,9 @@ def budget(
 
 
 def stock_share(settings: SafetySettings, spendable: float | None) -> float:
-    """The share of the life budget the potion stock keeps (`SafetySettings.stock_share`, STOCK_SHARE; the player,
-    2026-10-14: "the life budget scales with the potion stock"; rca/2026-10-14/run-1932-findings.md issue 2: the
-    budget was 636 with 8 of 8 healing potions and with 2 of 8, and the character warped into 21 hostiles with 2).
-    `spendable` is what the belt's healing potions beyond the ones kept for under the floor give back (macros/supply.py
-    `spendable`), counted in potions of `healing_points`. None: the belt not counted (unread), the whole budget."""
+    """The share of the life budget the potion stock keeps (STOCK_SHARE; the player, 2026-10-14: "the life budget
+    scales with the potion stock"; rca/2026-10-14/run-1932-findings.md issue 2). `spendable` in potions of
+    `healing_points`; None (belt unread): the whole budget."""
     if spendable is None:
         return 1.0
     curve = settings.stock_share

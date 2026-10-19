@@ -1,13 +1,9 @@
 """Regenerate terror/data/elites.json: how many elite groups a level has, and which are fixed.
 
-Random groups: levels.txt `MonUMin(H)` / `MonUMax(H)`, the Hell range of unique and champion
-groups the game rolls per level. Fixed groups come on top of them and are placed by the map
-pieces (levels/ds1.py monster objects, named by monpreset.txt): a super unique, a unique pack
-(`place_unique_pack`) or a champion group (`place_champion`), each at its spot in the piece.
-Probe logs against level evidence, 2026-10-06: the Travincal council, Coldcrow and Corpsefire
-were first seen 1-21 units from their object, fixed unique packs 2-11, champion groups 0-4.
-Bosses a script spawns are in no piece: SCRIPTED lists those the logs showed (the seal bosses
-36-38 in the Chaos Sanctuary, Baal's waves 61-65 in the Throne of Destruction).
+Random groups: levels.txt `MonUMin(H)` / `MonUMax(H)`. Fixed groups, on top, are the map pieces'
+monster objects (levels/ds1.py, named by monpreset.txt): a super unique, `place_unique_pack` or
+`place_champion` at its spot (first seen within 21 units of it, probe logs 2026-10-06).
+Script-spawned bosses are in no piece: SCRIPTED lists those the logs showed.
 
 Runtime code reads only the bundled table; the install and the d2data checkout are build inputs.
 Run: uv run --offline python -m inventory_tracking.terror.build_elites "<install>"

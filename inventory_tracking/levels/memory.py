@@ -116,11 +116,8 @@ def neighbour_areas(read, room2, data, level) -> tuple[int, ...]:
 def walkable_tiles(read, room1, cache: dict | None = None) -> Walkable | None:
     """The room's sub-tiles, walkable when the collision mask does not block walking there.
 
-    With `cache` (bounds -> (raw mask, Walkable), kept by the caller between reads) a room whose mask
-    reads the same bytes as last time gives the same Walkable back without converting it again: the
-    conversion is pure Python, ~0.25 ms a room, and the level map re-read every loaded room twice a
-    second while the macro read the same tables (rca/2026-10-13/latency-findings.md, fix 1). A door
-    opened changes the bytes, so it is converted again."""
+    `cache` (bounds -> (raw mask, Walkable), the caller's): unchanged bytes give the same Walkable back,
+    skipping the ~0.25 ms conversion (rca/2026-10-13/latency-findings.md fix 1); an opened door changes them."""
     try:
         grid = pointer(read, room1 + ROOM1_COLLISION)
         header = read(grid, COLLISION_MASK + 8)
@@ -143,11 +140,8 @@ def walkable_tiles(read, room1, cache: dict | None = None) -> Walkable | None:
 
 
 def tiles_from_mask(x, y, w, h, mask) -> Walkable:
-    """Sub-tile collision mask (x, y, w, h in sub-tiles) -> the room's walkable sub-tiles.
-
-    Kept per sub-tile (user, 2026-10-06): a tile-by-majority map lost walls one sub-tile thick,
-    such as most of a Lower Kurast hut.
-    """
+    """Sub-tile collision mask (x, y, w, h in sub-tiles) -> the room's walkable sub-tiles, kept per
+    sub-tile so one-sub-tile walls survive (user, 2026-10-06)."""
     cells = pack_cells(''.join('0' if value & COLLISION_BLOCK_WALK else '1' for value in mask))
     flight = pack_cells(''.join('0' if value & COLLISION_BLOCK_MISSILE else '1' for value in mask))
     return Walkable(x // 5, y // 5, w // 5, h // 5, cells, flight, pack_masks(mask))
@@ -231,8 +225,7 @@ def observe_waypoints(pid, images, capture) -> list[tuple[float, float]]:
 
 
 def observe_walkable(pid, images, capture, *, cache: dict | None = None) -> list[Walkable]:
-    """Walkable tiles of the loaded rooms around the player (read-only, bounded). `cache`: a dict the
-    caller keeps between reads, so unchanged rooms come back as the same objects (`walkable_tiles`)."""
+    """Walkable tiles of the loaded rooms around the player (read-only, bounded; `cache`: `walkable_tiles`)."""
     with game_read(pid, images, capture, changed='Game process changed during the walls read') as (read, table):
         found = player_room(read, table)
         grids = loaded_walkable(read, found[1], found[0].level, cache=cache) if found else []

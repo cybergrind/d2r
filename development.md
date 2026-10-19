@@ -29,14 +29,14 @@ Applies to repository code changes. Linked from [AGENTS.md](AGENTS.md).
   → `tests/inventory_tracking/test_images.py`; `inventory_tracking/osd/presenter.py`
   → `tests/inventory_tracking/osd/test_presenter.py`. Import production modules by
   their absolute package name. Run `uv run pytest tests -v`.
-- Tests run serially, one run on the host at a time (user, 2026-10-15: parallel runs locked the
-  host the player plays on). `tests/conftest.py` turns `-n` off before xdist starts any worker,
-  makes a run wait while another holds the host's one test slot (a `flock` in `.test-slots/`),
-  and runs it at nice 19 with the lowest best-effort I/O priority (`D2R_TEST_PRIORITY=normal`
-  keeps the usual priority for timing measurements). `tests/inventory_tracking` takes about
-  9 minutes and 2 GB; run the files a change touches, and the whole tree once at the end.
-  The `xdist_group` marks and the `loadgroup` scheduler in `tests/inventory_tracking/conftest.py`
-  stay for a run that turns parallel runs back on.
+- One test run on the host at a time (user, 2026-10-15: parallel runs locked the host the player plays on):
+  `tests/conftest.py` makes a run wait while another holds the host's one test slot (a `flock` in `.test-slots/`) and
+  runs it at nice 19 with the lowest best-effort I/O priority (`D2R_TEST_PRIORITY=normal` keeps the usual priority
+  for timing measurements). Within the run, `-n` gives up to 6 workers while D2R.exe is not running, and none while
+  it is (user, 2026-10-19: "use 6 workers"). Routine: `uv run --offline pytest tests/inventory_tracking tests/skills
+  -m "not slow" -n 6` (≈ 35 s); full, slow included, before a commit:
+  `-n 6 --dist loadgroup` (the arena groups first). While working: the files a
+  change touches, and `--collect-only -q` after a move (import errors in seconds).
 
 - External implementation references are checked out under `third-parties/`. Read
   `third-parties/README.md` and use local sources before fetching GitHub pages.

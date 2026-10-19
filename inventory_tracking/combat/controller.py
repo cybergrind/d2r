@@ -1,23 +1,13 @@
-"""The attack controller's decisions, apart from the game: what attack mode decides from what it sees
-and from the clock, with no memory read, key or pointer in it (review.md, findings 2 and 7). The fight
-in the game (macros/hunt.py) asks these and acts on the answers; the simulator asks the same ones
-(sim/policy.py, the `live` candidate), so what is scored is what the game runs, as far as it goes:
+"""The attack controller's decisions, apart from the game: no memory read, key or pointer in it. The fight
+(macros/hunt.py) and the simulator (sim/policy.py, the `live` candidate) ask the same ones, so what is scored is
+what the game runs:
 
-- `aim_choice`: where to cast now. The cast the build's attack names (macros/build.py `Attack.aim`),
-  else straight at what is in reach (the elite first, then the nearest, AIM_BEYOND past it), and
-  always a focal point the window lets the pointer reach (`Observation.aimable`): the attack scores
-  its cast with the focal point it will really have.
-- `LiveAim`: `aim_choice` as a policy for a simulator, with the attack's reach and the window of the game.
-- `Aim`: whether the pointer has to be put on the line again, and whose it is meanwhile (the player's
-  hand taking it somewhere is left alone until it has rested).
-- `CastWatch`: the held strike input: casts seen, a press that brought no cast, a hold gone idle
-  that wants a release and a new press.
-- `serve`: the move the player asked for with the left button while the strikes ran: waited for,
-  clicked again for them when a cast swallowed it, or given up.
+- `aim_choice`, `LiveAim`: where to cast now, always at a focal point the window lets the pointer reach.
+- `Aim`: whether the pointer has to be put on the line again (the player's hand is left alone until it rests).
+- `CastWatch`: the held strike input: casts seen, a press that cast nothing, a hold gone idle.
+- `serve`: the move the player asked for while the strikes ran: waited for, clicked again, or given up.
 
-Each is a small state and a step from (clock, what was seen) to what to do next, so a trace of inputs
-gives a trace of actions without the game. What is still only in the fight's own loop: the order of
-these steps, Death Mark and the sigil, and the weapon swap.
+Each is a small state and a step from (clock, what was seen) to what to do next.
 """
 
 import math
@@ -55,13 +45,10 @@ class Aimer(Protocol):
 def aim_choice(
     attack: Aimer | Policy, seen: Observation, reachable: Iterable[int], first: Collection[int] = ()
 ) -> Choice | None:
-    """Where to cast now: the attack's cast over what is seen, else straight at one of `reachable`
-    (unit ids within the attack's reach with a clear shot): the elite first, then the nearest,
-    AIM_BEYOND past it, so a monster in reach is never left standing for want of a cast. The focal
-    point is one the pointer can be put on (`seen.aimable`); None with nothing reachable to cast at.
-    `first` are the monsters to kill before the rest (a boss): the attack's best cast laid through
-    one of them is taken while there is one, whatever another is worth. A bare policy (the
-    simulator's candidates, a test's) is asked as it is: it has no cast through `first` to give."""
+    """Where to cast now: the attack's cast over what is seen, else straight at one of `reachable` (the elite
+    first, then the nearest, AIM_BEYOND past it), so a monster in reach is never left standing. The focal point
+    is `seen.aimable`; None with nothing reachable. `first` (a boss): the best cast through one of them wins
+    while there is one; a bare policy has no such cast and is asked as it is."""
     aim = getattr(attack, 'aim', None)
     if aim is None:
         assert callable(attack)
@@ -87,10 +74,8 @@ def aim_choice(
 
 @dataclass
 class LiveAim:
-    """The fight's own aim as a policy, for the simulator: `aim_choice` over the monsters within
-    `reach` with a clear line (macros/sight.in_reach), through the window `aimable` (view.Viewport's
-    `reachable_focal` from the character's place; None: any focal point). It yields as the policy
-    does: nothing while the player is moving."""
+    """The fight's own aim as a simulator policy: `aim_choice` over the monsters within `reach` with a clear line,
+    through the window `aimable` (view.Viewport's `reachable_focal`; None: any focal point)."""
 
     policy: Policy
     aimable: Callable[[Point, Point], Point | None] | None = None  # (origin, focal) -> the focal aimed at
@@ -118,10 +103,8 @@ class Aim:
     aimed: tuple[Point, Point] | None = None  # (focal, the character's place) the pointer was put for
 
     def due(self, now: float, pointer: Pixel | None, left_at: Pixel | None, focal: Point, here: Point) -> bool:
-        """Whether to put the pointer on the line now: it was never put, the focal point or the
-        character has moved, or the pointer has strayed from where it was put. A pointer the player's
-        hand is taking somewhere (to click a spot) is not pulled back until it has rested HAND_REST,
-        or their click would land on the line."""
+        """Whether to put the pointer on the line now: never put, the focal point or character moved, or the pointer
+        strayed. A pointer the player's hand moves is left until it rests HAND_REST, or their click lands on it."""
         strayed = pointer is None or left_at is None or math.dist(pointer, left_at) > STRAY_PIXELS
         if pointer != self.hand[0]:
             self.hand = (pointer, now)  # the pointer is somewhere new
@@ -152,9 +135,8 @@ class CastWatch:
     idle_since: float | None = None
 
     def step(self, now: float, acting: bool) -> str | None:
-        """Note whether the character is casting. RETAP when the hold has been idle RETAP_SECONDS (the
-        game casts once per press there: release and press again), NO_CAST when CAST_SECONDS after
-        the press nothing has been cast at all (the strike is not on this input), else None."""
+        """Note whether the character is casting. RETAP: the hold idle RETAP_SECONDS (release and press again);
+        NO_CAST: nothing cast CAST_SECONDS after the press (the strike is not on this input); else None."""
         if acting:
             self.casts += not self.acting
             self.acting, self.idle_since = True, None
@@ -197,14 +179,10 @@ PENDING, DONE, CLICK, GAVE_UP = 'pending', 'done', 'click', 'gave up'
 
 
 def serve(move: Move, now: float, here: Point, *, running: bool, acting: bool, left_down: bool) -> str:
-    """What to do about the move the player asked for; it comes before any strike. The game takes no
-    click while a cast runs, and a click is over before the cast is: so the strike input is let go
-    at the press, nothing is cast while the move is PENDING, and when the character stands free
-    with the button up and has not gone anywhere, a click the cast may have swallowed is to be made
-    again for the player where they made it (CLICK; the caller makes it and calls `Move.clicked`),
-    MOVE_CLICKS times at most. DONE when the character has gone and stands again, or when a click
-    the game did take has had MOVE_QUIET to show a walk; GAVE_UP after MOVE_SECONDS or the clicks
-    with nothing to show."""
+    """What to do about the move the player asked for; it comes before any strike. The game takes no click while
+    a cast runs, so nothing is cast while PENDING, and a click a cast may have swallowed is made again where the
+    player made it (CLICK, MOVE_CLICKS at most; the caller calls `Move.clicked`). DONE when the character has gone
+    and stands again, or a taken click had MOVE_QUIET to show a walk; GAVE_UP after MOVE_SECONDS or the clicks."""
     if move.origin is None:
         move.origin = here
     if running or math.dist(here, move.origin) > MOVED_UNITS:
@@ -217,8 +195,7 @@ def serve(move: Move, now: float, here: Point, *, running: bool, acting: bool, l
     if move.free_at is None:
         move.free_at = now
     if not move.swallowed:
-        # The character was free at the press: the game took the click, and a click that moves nothing
-        # (an item picked up, a chest) is not made again. The strikes wait MOVE_QUIET for a walk to show.
+        # Free at the press: the game took the click; one that moves nothing (a pickup, a chest) is not made again.
         return DONE if now - move.at >= MOVE_QUIET else PENDING
     if now - move.free_at < MOVE_SETTLE or now - move.clicked_at < MOVE_RETRY:
         return PENDING

@@ -1,13 +1,9 @@
-"""Which monsters the emulated blades touch, matched to the recorded life drops (combat/plan.md
-stage 3 hit model, stage 4 calibration gate).
+"""Which monsters the emulated blades touch, matched to the recorded life drops (combat/plan.md stages 3-4).
 
-A contact is the first frame a blade's emulated position comes within CONTACT_RADIUS of a live
-hostile's recorded position, once per blade, monster and leg (missiles.txt NextDelay 20 lets the
-return hit again). Matching to the recorded `hit` events allows HIT_LAG frames: the server's life
-updates reach the client in batches. On the fourth and fifth Chaos Sanctuary takes (2026-10-10)
-19 in 20 contacts had a life drop within the lag (precision), while only half the life drops had
-a contact before them (recall): the rest are the mercenary's, the pets', Death Mark's, later
-batches, or blades the emulation misplaces (the hand moves between the press and the spawn).
+A contact is the first frame a blade comes within CONTACT_RADIUS of a live hostile's recorded position, once per
+blade, monster and leg (missiles.txt NextDelay lets the return hit again). Matching to recorded `hit` events allows
+HIT_LAG frames (the server batches life updates). Precision is high (19 in 20 contacts had a drop), recall about half:
+the other drops are the companions', Death Mark's, later batches or misplaced blades.
 """
 
 import collections

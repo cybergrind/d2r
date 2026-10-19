@@ -1,22 +1,11 @@
-"""The valuables the KP_6 loop has seen this game, kept until they are off the ground (routes/lower-kurast-loop-plan.md
-§14). The player's hard rule (2026-10-17 01:21): never leave a game while a valuable the loop would pick up lies on
-the ground.
+"""The valuables the KP_6 loop has seen this game, kept until off the ground (routes/lower-kurast-loop-plan.md §14):
+never leave a game while a valuable the loop would pick up lies on the ground (the player, 2026-10-17 01:21). The
+pickup reads only what the client holds now, so a drop out of the client's reach was forgotten before this.
 
-The loop forgot what it could no longer read: a Flawless Emerald seen in a Blade Warp's flight off the route
-(08:58:34 on 2026-10-17) was 104 units away when the run ended, and the client no longer had its unit; a Small Charm
-in a pile (04:41:12) whose two presses failed was left when the run moved on. The pickup goes only for what it reads
-now (macros/pickup.py), and so did `runner.valuable_left`.
-
-`Sightings` keeps each valuable the loop's pickup would take (the runner's loot read, after the pickup mode's
-filter), by unit, for the game it was seen in:
-
-- *off the ground*: a read with the character within GONE_UNITS of its place and the unit not in it (taken, or no
-  longer there); resolved, no more wanted;
-- *out of the read*: further off and not read (the client's units do not reach so far): still wanted; said once with
-  the distance, which measures the client's reach;
-- `fetch`: the loop's "what is left" leg, when its press finds nothing to pick up, goes back to the nearest one still
-  wanted (`approach`, as the pickup's far drops); at most FETCH_TRIES times a valuable and FETCH_SECONDS a game, then
-  `Abort`: the leg stops, and the runner's guard (`outstanding`) keeps the game rather than leaving it.
+- *off the ground*: the character within GONE_UNITS of its place and the unit not read: resolved.
+- *out of the read*: further off and not read: still wanted (said once, with the distance).
+- `fetch`: the loop's "what is left" leg goes back to the nearest one; past FETCH_TRIES or FETCH_SECONDS it raises
+  `Abort` and the runner's guard (`outstanding`) keeps the game.
 """
 
 import dataclasses
@@ -32,9 +21,7 @@ from inventory_tracking.macros.lootpolicy import SIGHTINGS, verdict
 
 __all__ = ['FETCH_SECONDS', 'FETCH_TRIES', 'GONE_UNITS', 'Sighting', 'Sightings']
 
-GONE_UNITS = (
-    20.0  # world units: a valuable not read this near is off the ground (the pickup clicks from 20: PICK_UNITS)
-)
+GONE_UNITS = 20.0  # world units: a valuable not read this near is off the ground (the pickup's PICK_UNITS)
 FETCH_TRIES = 2  # trips back to one valuable before the loop stops for the player
 FETCH_SECONDS = 40.0  # a game's trips back, all of them
 
@@ -54,7 +41,7 @@ class Sighting:
 
 
 class Sightings:
-    """The game's valuables seen and not yet off the ground (the module text)."""
+    """The game's valuables seen and not yet off the ground."""
 
     def __init__(self) -> None:
         self.game: tuple[str, int] | None = None
@@ -67,18 +54,13 @@ class Sightings:
             return
         if loot.game != self.game:
             self.game, self.items, self.fetching = loot.game, {}, None
-        # The sightings' "must not leave it" is the policy's (macros/lootpolicy.py `verdict`): a candidate for an
-        # identify (macros/pickmode.py) is no valuable a game is kept for; a plain one with no room is (the ruling of
-        # 2026-10-18 17:50)
         read = {drop.unit_id: drop for drop in loot.drops if self.held(drop, loot)}
         for drop in read.values():
             found = self.items.get(drop.unit_id)
             if found is None:
                 self.items[drop.unit_id] = Sighting(drop.unit_id, drop.label, drop.x, drop.y, area, now)
             else:
-                # Kept where it was first seen: an item on the ground does not move, and a read in the moment of its
-                # pickup had a Chipped Sapphire at its inventory cell (3, 3), 5372 units off: the loop went back for
-                # it and stopped for the player (19:02:23 on 2026-10-17)
+                # Kept at its first place: a read mid-pickup gives inventory-cell coordinates (2026-10-17 19:02:23)
                 found.read = True
         if here is None:
             return
@@ -103,9 +85,8 @@ class Sightings:
         return verdict(drop, SIGHTINGS, room=room, shown=drop.unit_id in loot.shown, looped=True).hold
 
     def state(self) -> dict:
-        """What a restart of the service carries over (runner.py `resume_state`): the game and its valuables still on
-        the ground. A restart forgot a Flawless Topaz 94 units off, and the game was left with it (13:18 on 2026-10-18).
-        The clocks are time.monotonic(), one clock for every process."""
+        """What a service restart carries over (runner.py `resume_state`; a forgotten Flawless Topaz, 2026-10-18 13:18).
+        Clocks are time.monotonic(), shared by every process."""
         return {
             'game': list(self.game) if self.game is not None else None,
             'items': [dataclasses.asdict(found) for found in self.items.values()],
@@ -113,7 +94,7 @@ class Sightings:
         }
 
     def restore(self, state: dict) -> None:
-        """Take up `state` (`state`); a malformed one is none."""
+        """Take up `state`; a malformed one is ignored."""
         try:
             game = tuple(state['game']) if state.get('game') else None
             items = {int(found['unit_id']): Sighting(**found) for found in state.get('items', ())}
@@ -123,9 +104,7 @@ class Sightings:
         self.items, self.fetching = items, state.get('fetching')
 
     def again(self) -> None:
-        """A trip to town for room is over: the valuables' trips back and the game's seconds for them begin again
-        (13:16:00 on 2026-10-18: "not picked up after 2 trips back" 2 s after the return, the seconds counted from
-        before the trip's 37 s)."""
+        """Reset the trips back and their seconds after a trip to town for room (2026-10-18 13:16:00)."""
         self.fetching = None
         for found in self.items.values():
             found.tries = 0
@@ -140,8 +119,8 @@ class Sightings:
         return f'{found[0].label} at ({found[0].x:.0f}, {found[0].y:.0f})' if found else None
 
     def fetch(self, here: tuple[float, float], area: int | None, now: float, go: Callable[[Sighting], None]) -> bool:
-        """One trip back to the nearest valuable still on the ground in `area` (`go`: brings it within a click);
-        whether one was made. `Abort` past FETCH_TRIES for it or FETCH_SECONDS for the game."""
+        """One trip back to the nearest valuable in `area` (`go` brings it within a click); whether one was made.
+        `Abort` past FETCH_TRIES or FETCH_SECONDS."""
         wanted = [found for found in self.items.values() if found.area == area]
         if not wanted:
             return False

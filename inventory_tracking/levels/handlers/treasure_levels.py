@@ -1,15 +1,7 @@
 """Levels that are one fixed preset: the mark is the object the level is gone into for.
 
-Unconfirmed (installed game files, 2026-10-12; no dump of any of these levels yet). The level's one
-preset covers it, so the preset gives no direction; its DS1 file places the object, at another spot
-in each layout, and the mark sits there (`thing`; levels/data/preset_objects.json, levels/routes.md).
-- The second levels of the act 1 caves ('Cave Treasure 2-5': Cave, Underground Passage, Hole, Pit),
-  Swampy Pit 3 ('Dungeon Treasure 1'), Drifter Cavern and the Icy Cellar ('Ice Pool A/B', six
-  layouts): the super chest.
-- Flayer Dungeon 3 ('Dungeon Treasure 2') and Kurast Sewers 2 ('Sewer Treasure X'): Khalim's chests.
-- Frozen River ('Ice River A/B', four layouts) has no super chest: the mark is where Anya stands frozen.
-- Abaddon, the Pit of Acheron and the Infernal Pit are 'Act 5 - Lava' mazes: the second layout of a
-  dead end (N, S, E, W) holds a super chest, the first none, so a level has as many as it rolled.
+The object's spot per layout: levels/data/preset_objects.json. In the Hell pits only a dead end's
+second layout holds a chest, so a level has as many as it rolled.
 """
 
 from inventory_tracking.levels.handler import Handler, PoiSpec, target

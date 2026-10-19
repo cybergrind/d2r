@@ -1,10 +1,6 @@
-"""The characters the macros know: each a layer over its build, with the weapon sets that are its own.
-
-A character's row says which build it plays and which of its weapon sets is for what. As a build of
-its own (`played_by`) it is the build below it with those sets, and it is that character's whatever
-its keys hold at the moment: listed before the build it is a layer of (builds/__init__.py `BUILDS`),
-it is the one chosen for the character, and any other character of the build gets the build as it
-is, with no weapon sets.
+"""The characters the macros know: each a layer over its build, with the weapon sets that are its own. Listed before
+the build (builds/__init__.py `BUILDS`), a layer is chosen for its character; any other character of the build gets
+the build with no weapon sets.
 """
 
 from dataclasses import replace
@@ -15,18 +11,14 @@ from inventory_tracking.game.records import World
 from inventory_tracking.macros.build import Build, Loadout
 
 
-# CybergrindAA: Heart of the Oak (Flail) and Spirit (Monarch) for both. The other set held Naj's Puzzler for its
-# Teleport charges (user, 2026-10-06); since 22:58 on 2026-10-17 it holds Call to Arms (a Flail too) and a second
-# Spirit, Teleport coming from Enigma. The Call to Arms reads as game/memory.py CTA_CODE, not `fla`, and Spirit is in
-# both sets: the Heart of the Oak's Flail alone tells the main set (codes from the collection capture of the equipped
-# items).
+# CybergrindAA: Heart of the Oak (Flail) + Spirit in the main set, Call to Arms + Spirit in the other (since
+# 2026-10-17; Teleport from Enigma). The CTA reads as game/memory.py CTA_CODE, so `fla` alone tells the main set.
 HEART_OF_THE_OAK = frozenset(('fla',))
 CHARACTERS = {'CybergrindAA': Loadout(prebuff=HEART_OF_THE_OAK, battle=HEART_OF_THE_OAK)}
 # The build each character plays.
 PLAYS = {'CybergrindAA': ECHOING_STRIKE_BUILD}
 # Where each character's right-skill selection shows a skill's icon (macros/skillpanel.py: from the window's bottom
-# centre, in window heights). CybergrindAA's Echoing Strike: the player's own click that selected it at 22:09:51 on
-# 2026-10-14 (take 20261014T190924Z-108, the pointer at (0.669, 0.696) of a 2560x1418 window).
+# centre, in window heights; the player's own click in take 20261014T190924Z-108).
 ICONS = {'CybergrindAA': {ECHOING_STRIKE: (0.3046, -0.3039)}}
 
 

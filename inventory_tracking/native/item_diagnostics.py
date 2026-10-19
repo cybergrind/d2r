@@ -1,10 +1,8 @@
 """Bounded, unvalidated modifier-list evidence for selected-item gap research.
 
-Head offsets 0x68/0x90 come from local MapAssist/d2go references. 0xD0 is a
-candidate obtained by applying this build's +0x40 full-array displacement to
-0x90. Other candidates remain research only. The current-build +0xD0 chain can
-supply missing local ED only after items.modifiers validates its exact owner,
-chain links and stable snapshot. Raw diagnostics alone are not decoded.
+Head offsets 0x68/0x90 come from MapAssist/d2go; 0xD0 is 0x90 plus this build's +0x40 displacement. The +0xD0
+chain supplies missing ED only after items.modifiers validates its owner, links and snapshot; raw diagnostics
+are not decoded.
 """
 
 import struct

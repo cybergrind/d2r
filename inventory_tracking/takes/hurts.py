@@ -1,28 +1,16 @@
 """What took the character's life: every drop of it, with who was striking and what flew by.
 
-The recorder writes a `hurt` event at each drop (takes/record.py), and `hurts` derives the same rows
-from a take recorded before it did, so that the size of a blow can be laid against the type, the
-rank and the enchantments of whoever dealt it (user, 2026-10-12: "we need to record such things and
-use it in our threat calculation and tests"). A row:
-
-- `lost`, `life`, `max_life`: the points gone between two frames, what is left and of how many;
-  `dead` when nothing is;
-- `by`: the suspects, nearest first, each `[unit, txt, flags, mode, distance, aimed, mods]`: a
-  hostile within SUSPECT_REACH that is in an attack mode or whose path record names the character
-  as its target (`aimed`: 1, 0, or None without a path record), and anything within BESIDE. `mods`
-  are its enchantments (monumod ids), None when not known;
-- `near`: the missiles within MISSILE_REACH that can hurt, `[txt, distance]`: not the character's own
-  and not those that collide with nothing and carry no damage (blood, ice breaking, a sigil's mark:
-  mechanics/tables.py `harmless_missiles`).
-
-A row does not say who dealt the blow. `sole` picks the rows where one monster alone was striking
-(beside the character or aimed at it) and nothing flew by: those are what a blow's size is fitted on.
+The recorder writes a `hurt` event at each drop (takes/record.py); `hurts` derives the same rows from older takes, so
+a blow's size can be laid against its dealer's type, rank and enchantments (user, 2026-10-12: "we need to record
+such things and use it in our threat calculation and tests"). A row: `lost`, `life`, `max_life`, `dead`; `by`, the
+suspects nearest first `[unit, txt, flags, mode, distance, aimed, mods]` (attacking or aimed within SUSPECT_REACH,
+anything within BESIDE); `near`, harmful missiles within MISSILE_REACH `[txt, distance]`. `sole` picks the rows a
+blow's size is fitted on: one monster alone striking and nothing flying by.
 
     uv run --offline python -m inventory_tracking.takes.hurts [take directories ...]
 
-prints the drops of the takes (default: all under runs/combat) by the rank and enchantment of the one
-that struck alone. A take from before 2026-10-12 does not hold the enchantments: they are then looked
-up in the terror probe logs of the same hours (runs/alt-d/*/terror-probe.jsonl, `--probe`).
+prints the drops (default: all under runs/combat) by the rank and enchantment of the one that struck alone; takes
+before 2026-10-12 get the enchantments from the terror probe logs (`--probe`).
 """
 
 import argparse
@@ -109,11 +97,8 @@ def row(lost: int, life: int, max_life: int, by: list[list[Any]], near: list[lis
 
 
 def lost(life_before: int, most_before: int, life: int, most: int) -> int:
-    """The points a blow took between two frames. When the most the life can be fell with it (a buff
-    ran out, the other weapons were taken), the life is first brought down in the same proportion and
-    that is no blow: of 34 drops in five takes of 2026-10-12 the largest two were Consume ending, 1818
-    of 1818 to 1580 of 1580 and 1612 of 1783 to 1392 of 1540. Not at a death: it ends the buffs itself
-    (Tower Cellar 5: 1051 of 1783 to 0 of 1540), and the whole life was the blow's."""
+    """The points a blow took between two frames. When max life fell with it (a buff such as Consume ran out), the
+    life is first scaled down in proportion and that is no blow; not at a death, where the whole life was the blow's."""
     if life <= 0 or most >= most_before or not most_before:
         return life_before - life
     return round(life_before * most / most_before) - life
@@ -126,10 +111,8 @@ def rank(flags: int) -> str:
 
 
 def sole(hurt: Mapping[str, Any]) -> list[Any] | None:
-    """The one suspect of a drop that was striking, beside the character or with it as its target, with
-    no missile near: the monster the blow can be put on. None when there is none or more than one.
-    (A swing lands from further off than it looks: the Herald of Tower Cellar 5 took 210 points
-    swinging 7.7 units away, with nothing else striking.)"""
+    """The one suspect of a drop that was striking, beside the character or aimed at it, with no missile near; None
+    when there is none or more than one. (A swing lands from further off than it looks: 7.7 units, Tower Cellar 5.)"""
     if hurt['near']:
         return None
     striking = [s for s in hurt['by'] if s[3] in ATTACK_MODES and (s[4] <= BESIDE or s[5])]

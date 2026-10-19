@@ -45,19 +45,15 @@ from inventory_tracking.native.layout import HIRELING_CLASS_ID
 
 # Right of the character, where the user summons; then other sides, a Defiler's width apart.
 SUMMON_SPOTS = ((0.66, 0.42), (0.36, 0.44), (0.5, 0.26), (0.64, 0.62), (0.4, 0.64))
-# The same sides at half the distance, for where the ground is known and narrow: in Cave Level 1 a prebuff
-# summoned nothing at three of the spots above in 5 s (host, 02:43 on 2026-10-12).
+# The same sides at half the distance, for known narrow ground (Cave Level 1: nothing at the far ones, 2026-10-12).
 NEAR_SPOTS = tuple((round((x + FEET[0]) / 2, 3), round((y + FEET[1]) / 2, 3)) for x, y in SUMMON_SPOTS)
 CLEAR = 7.0  # world units around the Defiler that must be empty before Consume
-# A tall monster drawn below the Defiler covers it: the bound demon (class 189) stood 8 world
-# units off, 3 across and 11 down the screen in iso units (x - y, x + y), and Consume took it
-# with the pointer on the Defiler (host, 01:46 on 2026-10-07). So nothing may stand in this
-# column either: so far to a side, so far below (its body rises over the aim) and above.
+# A tall monster drawn below the Defiler covers it (Consume took the bound demon with the pointer on the Defiler,
+# 2026-10-07 01:46), so nothing may stand in this screen column either: across, below and above, in iso units.
 COVER_ACROSS, COVER_BELOW, COVER_ABOVE = 9.0, 26.0, 8.0
 CONSUME_ATTEMPTS = 3
 CONSUME_PAD_WAIT = 10.0  # seconds: Consume due in controller mode is asked again this often (`consume_again`)
-# A Defiler walks after it lands, so Consume is aimed at where it stands when the key goes down:
-# if it moved this many world units while the pointer travelled, the pointer follows (user, 2026-10-07).
+# World units a Defiler may walk while the pointer travels before the pointer follows it (user, 2026-10-07).
 AIM_DRIFT = 1.0
 AIM_TRIES = 4
 PANEL_OPEN = 'a panel is open'  # what stops a summon with the player's panel open (`hand_off`)
@@ -68,11 +64,9 @@ def defilers(world: World) -> list[Monster]:
 
 
 def bystanders(world: World, but: int | None = None) -> list[Monster]:
-    """Every living monster Consume might take in place of the Defiler: the character's own (the
-    bound demon: allied or owned) and any whose stats could not be read, but the mercenary and
-    townsfolk. A hostile monster is not one: Consume cannot take it, and in the middle of a level
-    the monsters around made every Defiler "crowded", so that four more were summoned, each ending
-    the Consume in force or the oldest Defiler, and the press stopped (host, 18:48 on 2026-10-10)."""
+    """Every living monster Consume might take in place of the Defiler: the character's own and any whose stats
+    could not be read, but the mercenary and townsfolk. Not a hostile: Consume cannot take it, and counting them made
+    every Defiler "crowded" mid-level (2026-10-10 18:48)."""
     return [
         m
         for m in world.monsters
@@ -108,10 +102,9 @@ def log_crowd(world: World, unit: int) -> None:
 
 
 def open_spots(run: Run, world: World, skip: int = 0) -> list[tuple[float, float]]:
-    """SUMMON_SPOTS from the `skip`-th on, those with nobody near first: a Defiler next to the
-    bound demon cannot be consumed safely. Skipping used to come after the sorting, which could put
-    a crowded spot back in front for a replacement. Where the level's ground is known (`run.ground`),
-    only the spots a summon can stand on, the NEAR_SPOTS after the others; all of them when none can."""
+    """SUMMON_SPOTS from the `skip`-th on, those with nobody near first (a Defiler next to the bound demon cannot be
+    consumed safely). With the ground known (`run.ground`), only spots a summon can stand on, NEAR_SPOTS last;
+    all of them when none can."""
     spots = list(SUMMON_SPOTS[skip % len(SUMMON_SPOTS) :] + SUMMON_SPOTS[: skip % len(SUMMON_SPOTS)])
     rect = run.actuator.keys.focused_window_rect()
     if rect is None or world.player is None:
@@ -129,8 +122,7 @@ def open_spots(run: Run, world: World, skip: int = 0) -> list[tuple[float, float
 
 
 def summon_defiler(run: Run, *, until: float | None = None, skip: int = 0) -> Monster:
-    """Summon one Defiler. `until` (a clock time) keeps trying that long: a game that has just
-    come up takes no input for a while, and the summon appearing is what shows it does.
+    """Summon one Defiler. `until` (a clock time) keeps trying that long: a new game takes no input for a while.
     `skip` starts that many spots further on, for a Defiler that replaces a crowded one."""
     start = run.world()
     before = {monster.unit_id for monster in defilers(start)}
@@ -190,11 +182,9 @@ def summon_defiler(run: Run, *, until: float | None = None, skip: int = 0) -> Mo
 
 
 def hand_off(world: World) -> None:
-    """No summon into a panel the player has open: at 22:45:01-07 on 2026-10-14 four Summon Defiler keys went out
-    while the player used the inventory and the cube, and no Defiler came (rca/2026-10-14/run-1932-findings.md issue
-    3). Stopped as a key of the player's stops a routine; the caller tries again soon (`consume_again`, CONSUME_SOON;
-    the Defiler's row after DEFILER_RETRY). `world` is the caller's latest look, not a read of its own: a read here
-    was one more world read a tick under the strike (golden loop_counts.json, 2026-10-15)."""
+    """No summon into a panel the player has open (rca/2026-10-14/run-1932-findings.md issue 3): stopped as a key of
+    the player's stops a routine; the caller tries again soon. `world` is the caller's latest look: no read of its
+    own under the strike (golden loop_counts.json)."""
     panels = world.open_panels
     if panels:
         raise Abort(f'{PANEL_OPEN} ({", ".join(panels)}): no summon into it')
@@ -238,9 +228,8 @@ FOLLOW_SECONDS = 2.0  # for a Defiler left behind to come into view (summons fol
 
 
 def in_view(run: Run) -> Monster | None:
-    """A standing Defiler drawn in the window, waited for FOLLOW_SECONDS when one stands out of it; None with none.
-    The first standing one was taken before, and after the KP_6 loop's walk to Jamella (00:42:15 on 2026-10-17) it
-    stood by the game's start, out of view, and the prebuff stopped the loop on "the Defiler is out of view"."""
+    """A standing Defiler drawn in the window, waited for FOLLOW_SECONDS when one stands out of it; None with none
+    (not the first standing one: it may be out of view, which stopped the KP_6 loop on 2026-10-17)."""
     rect = run.actuator.keys.focused_window_rect()
 
     def shown(world: World) -> Monster | None:
@@ -262,9 +251,8 @@ def in_view(run: Run) -> Monster | None:
 
 
 def aim_at(run: Run, unit: int) -> bool:
-    """Put the pointer on this Defiler where it stands now, following it while it walks. False
-    when it never stood still: the pointer is then somewhere it was, where the bound demon may
-    be, and Consume must not be pressed."""
+    """Put the pointer on this Defiler where it stands now, following it while it walks. False when it never stood
+    still: Consume must not be pressed (the bound demon may be under the pointer)."""
     for _ in range(AIM_TRIES):
         world = run.world()
         target = next((m for m in defilers(world) if m.unit_id == unit), None)
@@ -318,15 +306,10 @@ def log_miss(run: Run, world: World, unit: int) -> None:
 
 
 def consume(run: Run, defiler: Monster) -> None:
-    """Consume this Defiler and nothing else. Consume once took the bound demon with the pointer
-    on the Defiler (host, 20:51 on 2026-10-06, and again 01:46 on 2026-10-07), so the key is
-    pressed only while nothing else stands near the Defiler or where its body would be drawn
-    over it (`in_the_way`); if it stays crowded, another Defiler is summoned
-    somewhere open (that cancels an active Consume, which is about to be cast anew anyway). Afterwards the Defiler
-    must be the one gone. Each replacement goes to another spot: three in a row at the first
-    one were all crowded, twice over (host, 13:08 on 2026-10-07, Rogue Encampment).
-    A press that changes nothing (the Defiler stands, no buff: host, 20:04 on 2026-10-07, and
-    about one press in thirty before it) is made again, under the same checks."""
+    """Consume this Defiler and nothing else (it once took the bound demon, 2026-10-06/07): the key is pressed only
+    while nothing stands near the Defiler or over its drawn body (`in_the_way`); if it stays crowded, another
+    Defiler is summoned at another open spot. Afterwards the Defiler must be the one gone. A press that changes
+    nothing (about one in thirty) is made again under the same checks."""
     missed = False
     for attempt in range(CONSUME_ATTEMPTS):
 
@@ -381,12 +364,10 @@ def log_consume(run: Run, when: str) -> None:
 
 
 def defiler_dance(cast: Casting) -> Tried:
-    """End with a newly cast Consume and one Defiler out. Consume is always cast, never taken
-    as good because it is active: how long it has left is not known, and it ran out in the
-    middle of a run (user, 2026-10-06). The bound demon aside, the character has two demon slots
-    and an active Consume holds one (user, 2026-10-10): a Defiler summoned with both taken ends
-    the oldest, the Consume included. So a standing Defiler is the one consumed, never summoned
-    over, and the Defiler that stays out is summoned after the Consume."""
+    """End with a newly cast Consume and one Defiler out. Consume is always cast, never taken as good because it is
+    active: its time left is not known (user, 2026-10-06). Two demon slots besides the bound demon, an active
+    Consume holding one (user, 2026-10-10): a summon with both taken ends the oldest. So a standing Defiler is the
+    one consumed, and the one that stays out is summoned after."""
     run, fresh = cast.run, cast.fresh
     log_consume(run, 'before')
     if fresh is not None:  # a new game: nothing is out, and the first summon may have to wait
@@ -402,12 +383,9 @@ def defiler_dance(cast: Casting) -> Tried:
 
 
 def renew_consume(run: Run) -> None:
-    """Consume cast anew in the middle of a run (attack mode, when the buff has run out: 300 s after
-    its cast, the 15% of life with it; user, 2026-10-12): a Defiler summoned for it is the one consumed,
-    and another is summoned after. Not the standing one: it follows the character and has the bound
-    demon beside it (09:57 to 09:58 on 2026-10-12: one try stopped at "crowded by class 361", the next
-    aimed four times at a Defiler that had moved, and the buff stayed off; user: "auto-attack doesn't
-    refresh consume buff right now"). The one summoned at 09:58:47 had Consume's key 0.6 s later."""
+    """Consume cast anew mid-run when the buff has run out (user, 2026-10-12: "auto-attack doesn't refresh consume
+    buff right now"): a Defiler summoned for it is the one consumed, and another is summoned after. Not the standing
+    one: it follows the character with the bound demon beside it."""
     take_prebuff_weapons(run)
     consume(run, summon_defiler(run))
     if not defilers(run.world()):
@@ -422,10 +400,8 @@ def consume_again(cast: Casting) -> Tried:
     assert cast.key_names is not None
     started = run.clock()
     if run.pad is not None:
-        # Not by the pad for now: a Defiler summoned by the pad lands 2.4-3.4 units from the character whatever the
-        # heading asked (controllerskillsettings.json: usageType 0, distance 2), beside the bound demon, and Consume
-        # was not cast on any of four (22:09:10-15 on 2026-10-14, rca/2026-10-14/run-1904-findings.md §3.6). The pad's
-        # stick lead (macros/pad.py AIM_LEAD) turns a heading, not that distance: renewed in keyboard mode.
+        # Not by the pad: a pad summon lands beside the bound demon whatever the heading, and Consume failed on all of
+        # four (rca/2026-10-14/run-1904-findings.md §3.6). Renewed in keyboard mode.
         LOG.info(
             'Macro: Consume: not renewed by the pad (its Defiler lands at the feet, by the bound demon); renewed in '
             'keyboard mode, asked again in %.0fs', CONSUME_PAD_WAIT,
@@ -440,8 +416,7 @@ def consume_again(cast: Casting) -> Tried:
     except (Abort, ValueError) as stop:
         if run.stops(stop):
             raise
-        # A key of the player's stops any routine: that try was no failure of the cast, so the next
-        # comes soon (09:58:00 on 2026-10-12: stopped by a key, and 20 s without the buff).
+        # A key of the player's stopped it: no failure of the cast, so the next try comes soon.
         wait = CONSUME_RETRY
         tried = Tried(started)
         if 'a key was pressed' in str(stop) or PANEL_OPEN in str(stop):
@@ -453,10 +428,9 @@ def consume_again(cast: Casting) -> Tried:
 
 
 def defiler_out(cast: Casting) -> Tried:
-    """A Defiler summoned where none is alive (defiler.py: its row's `due` holds only then, so the summon ends no
-    Consume). In the quiet by `summon_defiler` (its spots, the summon waited for); under the held strike one key at
-    the first open spot with the strike let go (`Buffs.key`), the next look showing whether it came (the row's
-    DEFILER_RETRY). A try that fails is said and asked again after DEFILER_RETRY."""
+    """A Defiler summoned where none is alive (so it ends no Consume). In the quiet by `summon_defiler`; under the held
+    strike one key at the first open spot (`Buffs.key`), the next look showing whether it came. A failed try is said
+    and asked again after DEFILER_RETRY."""
     run, world = cast.run, cast.world
     assert world is not None
     assert cast.key_names is not None
@@ -509,9 +483,7 @@ def engorge(cast: Casting) -> Tried:
         return Tried.again(run.clock(), ENGORGE_HURT_SECONDS, ENGORGE_RETRY, touched=False)
     run.keys.update(cast.key_names(world, (ENGORGE,)))
     alive = {m.unit_id for m in world.monsters}
-    # The nearest corpse the pointer really has under it: of 12 casts on 2026-10-10 the record
-    # named a monster under the pointer 11 times and an item's label once, and whether that monster
-    # was the corpse was not known (a live one stands on a corpse often: the fight is there).
+    # The nearest corpse the pointer really has under it (a live monster often stands on one).
     for unit, x, y in sorted(near, key=lambda corpse: math.dist(here, corpse[1:]))[:ENGORGE_LOOKS]:
         if run.pad is not None:
             # Controller mode: the client's target has to name the corpse (macros/pad.py).

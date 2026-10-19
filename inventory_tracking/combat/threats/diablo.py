@@ -1,27 +1,11 @@
 """Diablo's red lightning, priced for a place and a way there: what a decision loop needs to choose a stand the stream
-misses (rca/2026-10-13/diablo.md section 5). The rules are sim/diablo.py's (the client's think and the stream as
-read in it and checked on the takes); nothing here is fitted to a tactic.
+misses (rca/2026-10-13/diablo.md section 5). The rules are sim/diablo.py's; nothing here is fitted to a tactic.
 
-What the stream is, in the terms the price needs: from the 10th frame of his SC mode one missile a frame, 39 in all,
-each flying at **where his target stands in the frame it is made**, STREAM_STEP a frame for `missile_life` frames,
-through every body; a body within CONTACT of a missile loses `rate` of the missile's points, once in `every`
-frames from that missile. So a character that stands still is hit by every missile (two hits each, about 190 points
-a cast at this character's resistances); one that leaves the line is missed by every missile already made, and the
-next ones reach it only after the flight from Diablo to its new place (a frame per STREAM_STEP units: 17 frames at
-15 units, 25 at 22).
-
-Two parts are priced:
-
-- **the stream under way** (`Stream`: his mode is SC and how many frames ago it began, or the missiles in flight):
-  its remaining missiles rolled out frame by frame against the character's way (`Way`), each aimed at where the way
-  has the character at that missile's birth;
-- **casts to come**: his lightning chance per think at the place (sim/diablo.py `weights`: in melee, in sight,
-  the distance less size against LIGHTNING_RANGE, the character's fire against lightning resistance) times his
-  thinks a second (the weights' mean action length plus `aidel`), times a standing cast's points at that distance.
-  A stand beyond LIGHTNING_RANGE or out of his sight prices no future stream at all.
-
-The points are the expected raw points of each kind through `Guard` (a physical pool, taken first) and the
-resistances (`stopped`: the share of each kind the character stops), as combat/harm.py takes a blow.
+Each stream missile flies at where his target stands in the frame it is made, so a character that stands still takes
+every missile, and one that leaves the line is missed by those already made. Two parts are priced: the stream under
+way (`Stream`, rolled out frame by frame against the character's `Way`) and the casts to come (his lightning chance
+per think at the place times his thinks a second times a standing cast's points; none beyond LIGHTNING_RANGE or out
+of sight). Points are raw by kind through `Guard` and the resistances, as combat/harm.py takes a blow.
 """
 
 import itertools
@@ -85,9 +69,8 @@ class Way:
 
     @classmethod
     def along(cls, legs: Legs) -> Way:
-        """The way of a decision loop's path ((place, seconds), ...): the first place stood at for its seconds, each
-        next one walked to over its seconds, or jumped to and stood at when it is farther than a walk in that time
-        (WALKS: a hop, a teleport)."""
+        """The way of a decision loop's path ((place, seconds), ...): each next place walked to over its seconds, or
+        jumped to when farther than WALKS allows."""
         found = [(legs[0][0], 0.0, legs[0][1])]
         for (before, _), (place, seconds) in itertools.pairwise(legs):
             walked = math.dist(before, place) <= WALKS * seconds
@@ -305,12 +288,9 @@ def _split(points: float) -> tuple[tuple[str, float], ...]:
 
 
 def _stream(acting: Acting, here: Point) -> tuple[Stream, float]:
-    """The stream under way as the look shows it, and the chance its missiles still to come are made at the
-    character. His SC mode's age is the frames since the look first saw him in it, or, when his missiles are in
-    flight, the frames since the first was made (the farthest has flown that far), whichever is more. When the
-    newest missile's line passes the character he aims at it: the rest of the cast comes at it. When it passes
-    elsewhere he aims at another (a companion): only the missiles in flight are priced. With none yet (the first
-    ten frames) the target is not known: his share of thinks on the character (sim/diablo.py CHARACTER_SHARE)."""
+    """The stream under way as the look shows it, and the chance the rest of it is aimed at the character: 1 when
+    the newest missile's line passes the character, 0 when it passes elsewhere, sim/diablo.py CHARACTER_SHARE before
+    the first missile. Its age: the mode's frames or the farthest missile's flight, whichever is more."""
     if acting.mode != MODE:
         return Stream(acting.at, None, acting.flying), 1.0
     age = acting.frames
@@ -343,14 +323,10 @@ def exposure(
     companions: int = 2,
     resists: Mapping[str, float] | None = None,
 ) -> tuple[Part, ...]:
-    """His lightning over the character's `legs`, in raw points: the stream under way (one event: the missiles in
-    flight and those still to come of this cast, rolled out against the way) and the casts to come at the way's
-    last place for the time left after it (`casts` an expected count, a standing cast's points each; his chance to
-    aim at the character). His wall is priced where it lies (`WALL`, below), his melee and ring not at all. Tried
-    and left out
-    (rca/2026-10-13/diablo.md "Hooked in"): pricing the stream to its end rather than over the common span; in the
-    arena it took more lightning (the step a stream's start then looks useless, and the strike gap allows one step).
-    """
+    """His lightning over the character's `legs`, in raw points: the stream under way (one event) and the casts to
+    come at the way's last place. His wall is priced where it lies (`WALL`), his melee and ring not at all.
+    Pricing the stream to its end instead of the common span was tried and lost (rca/2026-10-13/diablo.md
+    "Hooked in")."""
     way = Way.along(legs)
     stream, chance = _stream(acting, legs[0][0])
     total = way.frames * FRAME
@@ -372,11 +348,9 @@ def exposure(
 
 
 def offered(acting: Acting, here: Point) -> tuple[tuple[Point, str], ...]:
-    """The across-the-line places (`escapes`) while his missiles fly at the character: across the line of the newest
-    (the stream's aim). None before a missile flies, nor while they fly at another: each missile goes at where his
-    target stands when it is made, so a step before the stream is under way only moves where it arrives (the games of
-    00:25 and 06:05 on 2026-10-14: four steps at his cast's start, each followed by a hit at the new place;
-    rca/2026-10-14/run-0305-findings.md §5.2)."""
+    """The across-the-line places (`escapes`) while his missiles fly at the character. None before a missile flies
+    or while they fly at another: a step before the stream only moves where it arrives
+    (rca/2026-10-14/run-0305-findings.md §5.2)."""
     heading = _aim(acting, here)
     if heading is None:
         return ()
@@ -384,11 +358,8 @@ def offered(acting: Acting, here: Point) -> tuple[tuple[Point, str], ...]:
 
 
 # -- his fire wall: what lies on the ground after the cast, and after his death (combat/threats `Lingering`) ---------
-# The game of 06:05 on 2026-10-14 (rca/2026-10-14/run-0305-findings.md §5.6): ten makers 179 one second before he died,
-# 422 flames 180 for three seconds after; the loot walk to his Amulet went through them (266 life, the mercenary 96 %
-# to 43 %), and the 02:19 game's to his Hel Rune the same (261, the mercenary to 17 %). His rules are sim/diablo.py's:
-# a maker goes WALL_STEP a frame for WALL_LIFE frames from where he stood and leaves a flame where it is each frame;
-# a flame stands FLAME_LIFE frames and takes `rate` of its points from every body within CONTACT each frame.
+# It outlives him: loot walks after his death went through it (rca/2026-10-14/run-0305-findings.md §5.6). The rules
+# are sim/diablo.py's (makers leave a flame each frame; flames burn every body within CONTACT).
 
 
 @cache
@@ -400,10 +371,9 @@ def _flame() -> dict[str, float]:
 
 
 def wall_read(missile: int, at: Point, caster: Point | None, seen: float) -> Lying:
-    """A missile of his wall as a look reads it. A maker leaves him straight (sim/diablo.py `wall_headings`): its way
-    is the line from where he stood, and its age the frames that line took at WALL_STEP a frame (or the frames it has
-    been read, whichever is more). A flame stands: its age is the frames it has been read (0 when new: as if made
-    now, the longest it can last). A maker with no caster known is priced as a flame where it is."""
+    """A missile of his wall as a look reads it: a maker's way is the line from where he stood, its age that line at
+    WALL_STEP a frame (or the frames read, if more); a flame's age is the frames read. A maker with no caster known
+    is priced as a flame."""
     frames = round(seen / FRAME)
     if missile == rules.WALL_MAKER and caster is not None:
         gap = math.dist(caster, at)
@@ -473,9 +443,8 @@ WALL_CLEAR = CONTACT + 1.5  # units beyond the outermost maker's line a place ou
 
 
 def wall_escapes(lying: tuple[Lying, ...], here: Point) -> tuple[tuple[Point, str], ...]:
-    """Places out of his wall: its makers leave where he stood in a fan (the take of 06:05 on 2026-10-14: -33 to 57
-    degrees off the line to the character), so a place as far from him as the character, WALL_CLEAR beyond either
-    edge of the fan, is off every line; the nearer edge first. None without a maker whose way is known."""
+    """Places out of his wall: as far from him as the character, WALL_CLEAR beyond either edge of the makers' fan,
+    the nearer edge first. None without a maker whose way is known."""
     makers = [item for item in lying if item.missile == rules.WALL_MAKER and item.heading is not None]
     if not makers:
         return ()

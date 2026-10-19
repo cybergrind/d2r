@@ -1,25 +1,16 @@
 """Boss kills of one game launch, for farming runs (user, 2026-10-05).
 
-A run is: make a game, kill the boss, leave. The probe's 'died' events (terror/probe.py) carry
-the monster's txt id, so a boss kill is one of the ids below; its time is when the probe saw
-the death start (the probe polls four times a second). Per boss the card line gives the kills,
-the average time between consecutive kills (the whole loop, lobby included) and the time since
-the last one, i.e. how long the current run has taken so far. A gap longer than OUTLIER times
-the usual one (the lower median) is a stop, not a run, and is left out of the average (user,
-2026-10-05). A boss not killed for IDLE_SECONDS, or IDLE_GAPS usual gaps if that is longer, is
-not being farmed any more: its line is hidden until its next kill, the stats stay.
+A kill is a probe 'died' event (terror/probe.py) of a boss txt id. Per boss the card line gives
+the kills, the average gap between kills (whole loop, lobby included) and the time since the last.
+A gap over OUTLIER times the lower median is a stop and left out of the average (user, 2026-10-05);
+a boss idle for IDLE_SECONDS (or IDLE_GAPS usual gaps) is hidden until its next kill.
 
-The stats belong to one launch of the game: the process identity (pid and start time,
-native/process.py). Another identity starts from nothing. They are kept in a small file so a
-restarted service continues the launch still running. A boss counts once per game (unit ids
-start over in the next game), so the same unit dying twice in the probe's eyes is one kill.
+Stats belong to one game launch (pid + start time, native/process.py), saved to a file so a
+restarted service continues it. A boss unit counts once per game.
 
-Ids are d2data monstats.json `*hcIdx` (2026-10-05). Pindleskin and the Countess have no row of
-their own: each is the only super unique of its class (superuniques.json), so they are the
-units of that class first seen with the super unique type flag (monster data +0x1A & 0x02,
-terror/tracker.py; the Countess's sightings in the probe logs carry 0x0a and her super unique
-id 6 at +0x2A; Pindleskin's rule has counted his kills on the host since). Eldritch and Shenk
-(2026-10-06) follow the same rule and are unconfirmed in-game.
+Ids: d2data monstats.json `*hcIdx`. A super unique without its own row (SUPER_UNIQUES) is the unit
+of its class seen with the super unique type flag (monster data +0x1A & 0x02); Eldritch and Shenk
+are unconfirmed in-game (2026-10-06).
 """
 
 import json
@@ -32,8 +23,7 @@ from inventory_tracking.common import LOG
 from inventory_tracking.game.layout import SUPER_FLAG as SUPER_UNIQUE_FLAG, TYPE_FLAGS
 
 
-# time.monotonic() of each boss's last kill this service saw (the KP_6 loop waits for a boss's drops to land from it:
-# macros/loop.py DROPS_AFTER_KILL)
+# time.monotonic() of each boss's last kill (macros/loop.py DROPS_AFTER_KILL waits from it)
 KILLED_AT: dict[str, float] = {}
 
 
@@ -47,10 +37,8 @@ BOSSES = {
     256: 'Izual',
     526: 'Nihlathak',
 }
-# reanimatedhorde5, corruptrogue3; minion1 (superuniques 'Megaflow Rectifier', Eldritch the
-# Rectifier by the Frigid Highlands waypoint) and overseer1 ('Siege Boss', Shenk the Overseer
-# below it, at the top of the Bloody Foothills): each the only super unique of its class
-# (2026-10-06). Their packs and the area's own Enslaved are the same classes without the flag.
+# reanimatedhorde5, corruptrogue3, minion1, overseer1: each the only super unique of its class
+# (superuniques.json); their packs are the same classes without the flag.
 SUPER_UNIQUES = {440: 'Pindleskin', 45: 'Countess', 453: 'Eldritch', 479: 'Shenk'}
 OUTLIER = 2.5  # times the median gap: longer is a break
 IDLE_SECONDS, IDLE_GAPS = 600, 3  # without a kill for this long: no longer farmed, not shown

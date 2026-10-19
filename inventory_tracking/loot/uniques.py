@@ -22,10 +22,9 @@ def unique_drop(
 ) -> str | None:
     """The row label for a unique- or set-quality item of this base, or None when it is not worth a mark.
 
-    Worth a mark: some unique (set item, for set quality) of the base asks `minimum` Ist or more
-    for a good roll. `table_id`
-    (ItemData +0x34) names the unique only when it is one of this base; unidentified, it never
-    hides a mark, because that field is unconfirmed before identification.
+    Worth a mark: some unique (set item, for set quality) of the base asks `minimum` Ist or more for a good
+    roll. `table_id` (ItemData +0x34) names the unique when it is one of this base; unidentified, it never hides
+    a mark (the field is unconfirmed before identification).
     """
     base = BASES.get(class_id)
     if base is None or quality not in KINDS:

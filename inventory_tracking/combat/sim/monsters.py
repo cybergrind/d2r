@@ -1,156 +1,15 @@
 """Monsters that walk, strike and shoot by themselves: the least a fight needs to answer what the
-character does.
+character does (sim/engine.py replays a take's monsters open loop instead).
 
-The simulator's engine replays a take's monsters open loop (sim/engine.py): they are where they were,
-whatever the character does. Here a monster moves as the client's code does and hurts as the takes
-show. Three kinds of numbers are in it, and each is said where it is set:
+Three kinds of numbers: read from the game (data/tables.json: blow points, rank/enchantment/Herald
+bonuses, walk chances and speed, enchantment missiles); fitted to one take (Tower Cellar 5, combat/plan.md
+2026-10-11: the walk constants below); fitted to the train half of all takes (data/monsters_fit.json,
+written by tests/inventory_tracking/scenarios/arena/evidence/fit.py, never by hand: swings, staggers,
+targets, spread, reach, shots, novas, sparks). A swing's or shot's chance to take life is one number for a
+miss, a block and this character's protection; it is this character's only.
 
-- **read from the game** (data/tables.json): a blow's points, the bonuses of rank, enchantment and
-  Herald tier, the walk's chances and speed, the missiles of the enchantments;
-- **fitted to one take** (Tower Cellar 5, combat/plan.md 2026-10-11): how a monster walks (the
-  constants below);
-- **fitted to the train half of all takes** (data/monsters_fit.json, written by
-  tests/inventory_tracking/scenarios/arena/evidence/fit.py from that directory's evidence.json,
-  sparks.json and swings.json and never by hand; EVIDENCE.md, SPARKS.md and SWINGS.md there are the
-  measurements): how long a swing is and how long the rest after it, where in it the blow lands, how
-  often a swing that ran out takes life, what a struck monster does, whom a monster goes for, how its
-  blows are spread in size, how far it reaches, how a shooter shoots, the nova of a death, the sparks
-  of a Lightning Enchanted one. Every number there has its n; a type with too little of its own (the
-  evidence's thresholds: 30 s in reach or 10 blows alone for a row; 30 swings run out for a chance of
-  its own; 20 shots) uses the pooled row. 332 takes, 9,828 s, one character.
-
-**Walking** (the think function read in the client, the classic scheme of the monstats row): free,
-with its target out of reach, a roll of 0-99 under `aip1` walks to it, else it stands `aip2` frames;
-a target further off than AWARE is none (Tower Cellar 5: beyond 20 units the Blood Clan and Devilkin
-stood 88 to 100% of the frames). A walk goes straight at the target at the monstats `Velocity` times
-PACE in world units a second, for WALK_FRAMES at most or until the target is in reach.
-
-**Whom it goes for** (fitted, `targets`): the character or the nearest of its companions. The path
-records name the character 0.92 of the time when it is the nearer of the two and 0.51 when a
-companion is (the types fought hand to hand, 4,696 and 5,184 s; 16 types have their own pair). How
-long a monster keeps to one target is not measured: here each monster has one roll for its life, and
-goes for the character when that roll is under the share of the case it is in, so the shares come out
-over a pack and no monster wavers. (Before: the nearest of all, the character first for a Goatman.)
-
-**Swinging** (fitted, `melee`; SWINGS.md): with its target within the swing's reach a monster swings.
-A swing lasts the usual length of the type's attack runs (10 to 24 frames by type; STRIKE_FRAMES
-where not measured), its blow lands two thirds of the way through it (0.67: the median place of 22
-drops put on one monster alone) and after it the monster rests before it thinks again: 15 frames at
-the median of 50 rests, drawn through their deciles (8 to 36). So a monster nobody strikes swings
-every 1.3 s or so. The row's `aip3` and `aip2` do not decide how often it swings in reach: their
-classic meaning gives a Blood Hawk 0.03 swings a second where the takes show 1.5. `aidel` is read
-and still not used.
-
-**A struck monster staggers** (fitted, `melee.stagger`; `Pack.struck` is told what share of its most
-life a hit took). The hits between two steps are one fall of its life, as a take's frames show them,
-and the monster staggers with the chance of a fall of that size: 0.06 under a sixteenth of its life,
-0.24 to two sixteenths, 0.69 and 0.72 to three and four, 0.93 above (4,066, 697, 635, 320 and 3,217
-falls on the train half). It then stands for the frames the takes show (10 at the median of 1,573
-spells, drawn through their deciles) and rests as after a swing before it thinks again (the gap
-from a staggered swing to the same monster's next was 29 frames at the median of 16: the stagger
-and that rest). **A swing whose blow has not landed when the monster staggers is lost.** A dead
-monster is gone with its swing (`died`, `remove`). On the train half 0.23 of the swings at the
-character ran out, 0.35 ended in a stagger and 0.24 in the monster's death (0.17 not seen to
-their end): what the character does to the monsters decides most of what they do to it. Before
-2026-10-13 a share of swings (0.29) was cut short by a roll, whatever the character did. A shooter
-does not stagger here (not measured), and how long a monster of each type staggers is one curve.
-
-**A swing is not a hit** (fitted, `takes_life`). A swing lands if the monster has not staggered and
-the target is still within the swing's reach, and on the character it takes life only with a
-chance: 0.30 pooled (0.15 to 0.44 of 98 swings that ran out at a character standing still; 0.37 of
-the 23 with no other hostile beside it), a Devilkin's own 0.16 (38); no other type has the 30 such
-swings for a chance of its own. That chance is **one number for several things a take cannot tell
-apart**: the miss of the to-hit roll, a block, and a blow that whatever protects the character took
-whole. It was measured on one character and is that character's; another build would need its own.
-Neither the character's leaving nor its strikes are in it: here a blow already fails when the
-target has left the reach or the monster has staggered, so a change of how the character moves or
-strikes is answered by the model, not by this chance. (Before 2026-10-13 it was 0.16 of every
-swing of half its length or more, with the strikes folded in: a character that did not strike for
-two seconds was hurt as seldom as one that did, and a recorded fight showed four times the loss,
-tests/.../arena/fixtures/incidents/INCIDENTS.md.) The bounds are wide: the low one counts the drops
-put on that monster alone, the high one those it shares with other suspects, and the middle is
-used; **in a pack hardly any drop is one monster's alone, so there the middle is too low** by an
-amount the takes do not give (the Chaos Sanctuary's Doom Knights: 0.00 to 0.76 of 21 on the check
-half, 11 of 14 by hand in the recorded fight, 1 such swing on the train half). A blow on a
-companion always lands (nothing was measured there, and nothing here hurts a companion).
-
-**Reach** (REACH for the body of the blows, fitted `reach.tail` beyond): the takes show swings begun
-at the character from further off, ever fewer: 0.41 of the rate within 3.5 units at 3.5 to 4 units,
-0.16 to 5, 0.05 to 6, 0.02 to 12 (18 to 68 swings a band). At each think a monster's reach is drawn
-from that curve; the blow lands if the target is within it. One curve for all: the takes hold 1
-blow of a unique alone on the train half, too few for a rank's own. Beyond 6 units the curve is in
-part the casts of types that are not called ranged (a shaman's): an upper bound there.
-
-**What a blow is worth**, from the tables (raw points, before the resistances of whoever takes it):
-the monster level's `DM(H)` times a roll in the row's `A1MinD(H)..A1MaxD(H)` percent, raised by the
-rank (difficultylevels `UniqueDamageBonus`, `ChampionDamageBonus`), by Extra Strong (monumod's
-constants) and by a Herald's tier (the Terror Zone's config). The bonuses are multiplied here;
-whether the game adds them is not known. An elemental enchantment (Lightning 17, Fire 9, Cold 18)
-adds a roll of monumod's "Elemental Min..Max Damage % Bonus" of the blow's physical points, by rank.
-**Its spread is fitted** (`melee.spread`, `shots.spread`): the table's roll is within a quarter of its
-mean, the drops one monster dealt alone are not (49 of plain monsters: 56 at the median, 118 at the
-90th percentile, 320 the largest, against a heaviest blow of 86 to 102 by the tables; 28 shots: 37,
-254, 449). So the roll is multiplied by a factor drawn through those quantiles over their mean (0.08
-to 5.0 for a strike, 0.06 to 5.1 for a shot): the mean blow stays the table's, one blow in ten is
-over 1.8 times it. What makes the large ones (a curse, an aura, two blows between two frames) is
-not known; the small ones may be blows partly absorbed.
-
-**Shooting** (fitted, `shots`; the cycle was tests/.../arena/mobs.py's, one landed shot a second): a
-monster given a shot (`Pack(shots=...)`) stands and shoots at what it has within SHOT_REACH in sight.
-A shot every 1 / rate seconds (0.43 a second pooled over 2,282 shots; 22 types their own, 0.18 to
-0.72), the gap drawn evenly from half to one and a half of that. Its mark is the character with the
-measured share (0.62: the missiles that flew at where it stood), else the nearest companion. The
-missile flies to where its mark stood at the monstats `MissA1` missile's `Vel` in units a second
-(written into the fit from the game's tables; a type without one: 20.6, the mean by shots) and ends
-on the character if it is within SHOT_CONTACT of that place then: **walking or teleporting out of a
-shot is the flight time, not a factor**. A missile that arrives under the character takes life with
-the measured chance, 0.023 pooled (three types with 390 to 600 shots have their own): the points the
-takes put on a shooter alone and half of its share of the drops it shares, in hits of the mean size
-(79 points, 28 hits), per shot that flew at the character (2,657 shots, 0.62 of them). It folds what
-a swing's chance folds, and the bodies and walls a missile ends on. It is counted in points because
-the counts of drops bound it only between 0.02 and 0.14. A shooter's path record does not say whom
-it shoots at (0.17 of 4,514), so the missiles are what the mark is fitted on.
-
-**A death's nova** (read and fitted, `nova`): a champion or unique carrying Cold Enchanted lets a ring
-of `coldunique` (194) go when it dies (37 of 37 such deaths on the train half showed it, 0 of 373 of
-plain monsters and minions carrying it). It spreads at the missile's `Vel` for its `Range` frames
-(13.4 units; the furthest corpse of a nova drop was 11.7 off) and takes the missile's cold points at
-the monster's level (729 at level 85: 182 through a cold resistance at the cap, the takes' median
-174 of 15) when it passes the character, with the measured chance (0.70 of 37 deaths within 12
-units), twice the points one time in five (5 of the train half's 26 nova drops are over 300 points,
-which one ring does not reach at any level seen). A Fire Enchanted death's
-explosion is in the takes at a median under 10 points and is not modelled; a Lightning Enchanted
-death shows nothing.
-
-**Sparks** (read and fitted, `sparks`; SPARKS.md beside the evidence is the measurement: 51 releases
-and 408 sparks on the train half). A Lightning Enchanted unique or super unique lets sparks of
-`lightunique` (195) go when it is struck (`Pack.struck`); its minions and a plain monster carrying
-the enchantment let none go (0 releases of 296 minions seen struck, 51 of 31 of the 67 leaders).
-A release comes with the time the monster is being struck, not with each hit: a hit stands for the
-frames since the hit before, 10 at most, and a second of that time brings 0.95 releases (51 in
-53.8 s; a chance per hit, 0.25 of 205, gives the monsters' counts worse, and hits a few frames apart
-do not each bring one), never sooner than 5 frames after the one before (the least of 20 gaps). Why
-a release comes the takes do not say, and a Herald's hits are mostly too small to be seen in them.
-Eight sparks to a release (51 of 51), one to each 45 degrees and not at whoever struck; each flies
-at the missile's `Vel` (12 units a second: 0.48 a frame, the takes' 0.483) along its own direction
-or 45 degrees to either side of it, choosing again every 6 frames (the commonest run of 1,774),
-which puts it 28 units out after 70 frames (27.2 at the median of 78), and is gone after 77 frames
-(the most of 408) or on the first body it meets. The character is in its reach within 2.5 units
-(what the evidence calls ended on it), and of the sparks that came that near 0.39 ended on it (11
-of 28): the others fly on past it. **A spark that ends on the character takes life with the fitted
-chance, and that chance is 0**: none of the 11 was followed by a drop, nor by a point less of life,
-so the truth is under 0.24 at 95% (`upper95`) and the size of a spark's blow is not measured at all.
-It stays the missile's by the tables (`EMin` and the per-level columns at the monster's level:
-2 x level - 1), taken only if the chance is ever set above 0. Like a swing's, the chance is one
-number for a miss, a block, a spark of next to no points (the level its missile is cast at may not
-be the monster's) and this character's own protection. A spark on a companion always lands (as a
-swing: not measured, and nothing here hurts a companion). Before the fit (one take, Tower Cellar 5)
-any monster with the enchantment released, with a chance of a third at each frame it was struck in,
-and every spark within 2 units of the character took its points.
-
-Not modelled: damage that is no blow (poison, burning: a third of the life the takes lost has no
-suspect at all), fleeing, bodies in each other's way, walls (a walk is a straight line and a shot
-needs no line here: tests/.../arena/mobs.py adds both), a hurt companion, curses and auras.
+Not modelled: damage that is no blow (poison, burning), fleeing, bodies in the way, walls, a hurt
+companion, curses and auras. The model in full, with its measures: combat/history/sim-monsters.md.
 """
 
 import itertools
@@ -172,31 +31,22 @@ from inventory_tracking.takes.timeline import GAME_RATE
 
 FIT = Path(__file__).parent.parent / 'data' / 'monsters_fit.json'
 STAND, WALK, STRIKE, STAGGER = 'stand', 'walk', 'strike', 'stagger'
-# Units between the middles of a monster and what it strikes. Tower Cellar 5: Blood Clan minions
-# struck from 3.2 units, Devilkin from 1.8 at the median and 2.8 at the most; over all takes the blows
-# of one melee monster alone came from 3.1 at the median (50 on the train half). Further: the fit's tail.
+# Units between the middles of a monster and what it strikes (3.1 at the median over all takes); beyond: the
+# fit's tail.
 REACH = 3.2
 STOP = 0.85  # of the reach: where a walk to a target ends
-# Frames a walk lasts before the monster thinks again (the take: a Blood Clan's walk 22 frames at the
-# median, a Devilkin's 17).
+# Frames a walk lasts before the monster thinks again (Tower Cellar 5's median).
 WALK_FRAMES = 22
-# A melee attack's animation where the fit has no length for the type, and the frame of it the blow
-# landed at before the fit (now the fitted share of whatever length the swing has: frame 11 of 16).
+# Frames of a melee attack where the fit has no length for the type; HIT_FRAME: its blow's frame before the fit.
 STRIKE_FRAMES = 16
 HIT_FRAME = 8
 AWARE = 20.0  # units: a target further off is not gone for
-# World units a second per point of monstats Velocity: a chasing Blood Clan (Velocity 7) made 7.5
-# to 8.3 in the take; the threat scenarios had 1.1 from another take (speed 6 types at 6.0 to 7.25).
+# World units a second per point of monstats Velocity (a chasing Blood Clan, Velocity 7, made 7.5 to 8.3).
 PACE = 1.1
-# World units a second of a type whose walk the take shows far from its monstats row (Devilkin:
-# 14.0 at the median against a Velocity of 6, toward its target and away from it alike).
+# World units a second of a type whose walk the takes show far from its monstats row (Devilkin: 14 against 6).
 SPEED: dict[int, float] = {21: 14.0}
-# By AI (monstats `AI`), from the path records of Tower Cellar 5 (the stop distance the client writes
-# into them, combat/plan.md): how near its first walk takes the type before it charges. A Blood
-# Clan's record held a stop distance of 14 (7 units here) for 762 of 1184, 5 for the rest.
-# Before the fit a type of these AIs went for the character whenever it was within AWARE, and every other for
-# the nearest of all. The pack no longer plays by it (`_target`: the takes' shares); it stays as what
-# the evidence's report lays the takes against.
+# By monstats `AI`, from Tower Cellar 5's path records (combat/plan.md): how near its first walk takes the type
+# before it charges. CHARACTER_FIRST is the pre-fit targeting, kept only for the evidence report (`_target` decides).
 CHARACTER_FIRST = frozenset(('Goatman',))
 HOLD = {'Goatman': 7.0, 'Fallen': 6.5}  # units from the target where the approach ends (a Devilkin's stop 12 or 14)
 CHARGE = 30  # the chance in 100, at a think held there, to go in (four charges seen: not a measurement)
@@ -208,19 +58,16 @@ ELEMENTS = {LIGHTNING: 'lightning', FIRE: 'fire', COLD: 'cold'}  # the enchantme
 MELEE, SPARK, SHOT, NOVA = 'melee', 'spark', 'shot', 'nova'  # the kinds of a blow
 SPARK_MISSILE = 195  # missiles.txt `lightunique`
 NEVER = -(10**9)  # the frame of what has not happened yet
-# Units within which a shooter shoots: the reach the fit's shots a second were counted in (seconds in
-# sight within 30 units). The shots at the character came from 15.0 units at the median, 23.2 at the
-# 90th percentile and 33.0 at the 99th (1,659 on the train half), so few are lost beyond it.
+# Units within which a shooter shoots: the reach the fit's rate was counted in (shots came from 15 at the median).
 SHOT_REACH = 30.0
-# Units from where a missile was sent within which the character is still under it when it arrives:
-# what the evidence calls a missile ended on the character (evidence/rates.py END_ON).
+# Units from where a missile was sent within which it still ends on the character (evidence/rates.py END_ON).
 SHOT_CONTACT = 2.5
 NOVA_MISSILE = 194  # missiles.txt `coldunique`
 
 
 @cache
 def fitted() -> dict[str, Any]:
-    """data/monsters_fit.json: what the train half of the takes gives (the module text)."""
+    """data/monsters_fit.json: the fit to the train half of the takes."""
     return json.loads(FIT.read_text(encoding='utf-8'))
 
 
@@ -237,8 +84,7 @@ def shooter_of(txt: int) -> Mapping[str, Any]:
 
 
 def shoots(txt: int) -> bool:
-    """Whether the takes show the type shooting and not fighting hand to hand: it has a row of shots
-    and none of swings (a Dark Stalker has both: the missiles are its enchantment's, it strikes)."""
+    """Whether the takes show the type shooting and not fighting hand to hand (a fit row of shots, none of swings)."""
     row = fitted()['shots']['types'].get(str(txt))
     return row is not None and not row['melee_too']
 
@@ -249,16 +95,15 @@ def idle(txt: int) -> bool:
 
 
 def favour(txt: int) -> tuple[float, float]:
-    """The share of the time a type goes for the character and not for a companion: when the character
-    is the nearer of the two, and when a companion is."""
+    """The share of the time a type goes for the character over a companion: (character nearer, companion nearer)."""
     found = fitted()['targets']
     row = found['types'].get(str(txt), found['pooled'])
     return row['character_nearer']['value'], row['companion_nearer']['value']
 
 
 def spread(kind: str, roll: float) -> float:
-    """The factor on a blow of `kind` (MELEE or SHOT) at `roll` of 0 to 1: the fitted quantiles of the
-    drops one monster dealt alone, over their mean; between two of them a straight line in the logarithm."""
+    """The size factor on a blow of `kind` (MELEE or SHOT) at `roll` in 0..1: the fitted quantiles over their mean,
+    log-linear between knots."""
     knots = fitted()['shots' if kind == SHOT else 'melee']['spread']['knots']
     for (low, least), (high, most) in itertools.pairwise(knots):
         if roll <= high:
@@ -267,8 +112,7 @@ def spread(kind: str, roll: float) -> float:
 
 
 def drawn(knots: Sequence[float], roll: float) -> float:
-    """The value at `roll` of 0 to 1 of what was measured as `knots`, its quantiles at even steps (the
-    least, the deciles, the most): a straight line between two of them."""
+    """The value at `roll` in 0..1 of a measure given as evenly spaced quantiles `knots`, linear between them."""
     place = roll * (len(knots) - 1)
     low = min(int(place), len(knots) - 2)
     return knots[low] + (knots[low + 1] - knots[low]) * (place - low)
@@ -281,8 +125,7 @@ def stagger_chance(share: float) -> float:
 
 
 def reach_of(roll: float) -> float:
-    """The reach of a swing at `roll` of 0 to 1: the body's for most, further for the share of each
-    band of the fit's tail."""
+    """The reach of a swing at `roll` in 0..1: REACH, or a band of the fit's tail."""
     reach = REACH
     for band in fitted()['reach']['tail']:
         if roll < band['share']:
@@ -361,8 +204,8 @@ class Traits:
 
     @classmethod
     def of(cls, txt: int, level: int | None = None, flags: int = 0, mods: Sequence[int] = (), tier: int = 0) -> Traits:
-        """The traits of a monster of `txt` at monster `level` (None: its row's), with its type `flags`,
-        its enchantments `mods` and, for a Herald or one of its minions, the `tier`."""
+        """The traits of monster type `txt` at `level` (None: its row's), with type `flags`, enchantments `mods`
+        and Herald `tier`."""
         row = {**DEFAULT, **tables()['monsters'].get(str(txt), {})}
 
         def number(name: str, default: float = 0.0) -> float:
@@ -485,34 +328,30 @@ class Blow:
 
 
 class Pack:
-    """Monsters thinking, walking, striking and shooting frame by frame. `targets` at each step are the
-    character first, then its companions, where they stand at that frame. `shots` (unit -> the parts of
-    its shot in raw points by kind of damage) names the shooters: what a type shoots is whoever builds
-    the pack's to say, how it shoots is the fit's."""
+    """Monsters thinking, walking, striking and shooting frame by frame. `targets` at each step: the character,
+    then its companions. `shots` (unit -> raw points by kind of damage) names the shooters; how they shoot is the
+    fit's."""
 
     def __init__(
         self, walkers: Sequence[Walker], seed: int = 1, shots: Mapping[int, Mapping[str, float]] | None = None
     ) -> None:
         self.walkers = {walker.unit: walker for walker in walkers}
-        # One generator per monster, as the game rolls with the unit's own seed: a monster's rolls
-        # do not depend on how many others are alive.
+        # One generator per monster (the game rolls with the unit's own seed): rolls do not depend on the others.
         self.rolls = {walker.unit: random.Random(seed * 1_000_003 + walker.unit) for walker in walkers}
         self.shots = {unit: dict(parts) for unit, parts in (shots or {}).items() if unit in self.walkers}
         self.sparks: list[Spark] = []
         self.arrived = 0  # the sparks that have ended on the character, whether or not they took life
         self.flying: list[Missile] = []
         self.novas: list[Nova] = []
-        # The walkers of a read AI (`Walker.mind`), their missiles and curses. AWARE as it is when the pack is
-        # made: beyond the code's radius it says every monster knows of the character (stage.py `awareness`).
+        # The walkers of a read AI (`Walker.mind`); AWARE as of now (stage.py `awareness` widens it).
         self.minds = casters.Minds(self, aware=AWARE)
-        # The shooters that have had a target within their reach: these come after it. One that
-        # never had stands, as a melee monster does beyond AWARE (an assumption, not a measurement).
+        # Shooters that have had a target within reach come after it; the others stand (an assumption).
         self.awake: set[int] = set()
         for walker in walkers:
             roll = self.rolls[walker.unit]
             walker.favour = roll.random()
             if walker.unit in self.shots:
-                # Each starts its cycle at a frame of its own, or a pack of archers would shoot as one.
+                # Each starts its cycle at its own frame, or a pack of archers would shoot as one.
                 walker.until = roll.randrange(max(round(self._gap(walker)), 1))
 
     def remove(self, unit: int) -> None:
@@ -520,8 +359,7 @@ class Pack:
         self.walkers.pop(unit, None)
 
     def died(self, unit: int, frame: int) -> bool:
-        """The monster died at `frame`: it is gone (its sparks and missiles fly on), and one whose
-        death lets a nova go lets it go. True: a nova spreads."""
+        """The monster died at `frame`: gone (its missiles fly on); True when its death lets a nova go."""
         walker = self.walkers.pop(unit, None)
         if walker is None or not walker.traits.nova:
             return False
@@ -531,15 +369,10 @@ class Pack:
         return True
 
     def struck(self, unit: int, frame: int, share: float = 0.0) -> int:
-        """The monster was struck at `frame` by a hit that took `share` of its most life: the sparks it
-        let go (0 for one that lets none go, and most times for one that does). The share is kept
-        for the next step, where the hits since the last one are one fall of life and the monster
-        may stagger (`_reel`); a caller that gives none staggers nothing.
-
-        For the sparks a hit stands for the time the monster was being struck since the hit before:
-        the frames between them, the fit's window at most, and the window for a first hit. Each
-        second of that time brings the fitted releases, so many hits in one frame or a few apart
-        are no more than the time they span."""
+        """The monster was struck at `frame` by a hit that took `share` of its most life; returns the sparks let go.
+        The share is summed until the next step, where it may stagger the monster (`_reel`). For sparks a hit
+        stands for the frames since the hit before (the fit's window at most): releases come with time struck,
+        not with the count of hits."""
         walker = self.walkers.get(unit)
         if walker is None:
             return 0
@@ -566,9 +399,8 @@ class Pack:
         return count
 
     def stun(self, unit: int, frame: int, frames: int) -> None:
-        """The monster is stunned at `frame` for `frames` (sim/guard.py has when): what it was doing is over (a
-        swing's blow not yet landed and a cast not yet let go are lost, as in a stagger), it does nothing until
-        the stun is over and then thinks at once. A new stun sets the end anew, as the game's does."""
+        """Stun the monster at `frame` for `frames` (sim/guard.py has when): a pending blow or cast is lost, it does
+        nothing until the end and then thinks at once. A new stun resets the end, as the game's does."""
         walker = self.walkers.get(unit)
         if walker is None or frames <= 0:
             return
@@ -579,9 +411,8 @@ class Pack:
 
     @staticmethod
     def _met(spark: Spark, targets: Sequence[Point], found: Mapping[str, Any]) -> int:
-        """The index of the target the spark ends on now, -1 for none: the first it is in reach of. The
-        character it ends on only with the fitted chance, rolled the first time it comes that near;
-        else it flies on past it."""
+        """The index of the target the spark ends on now, -1 for none. On the character only with the fitted chance,
+        rolled once when it first comes near; else it flies on past."""
         for index, body in enumerate(targets):
             if math.dist((spark.x, spark.y), body) > found['contact']:
                 continue
@@ -594,8 +425,8 @@ class Pack:
         return -1
 
     def _fly(self, frame: int, targets: Sequence[Point]) -> list[Blow]:
-        """A frame of the sparks: each a stride on, ending on the first target it meets. One that ends
-        on the character takes life with the fitted chance; on a companion always (as a swing)."""
+        """A frame of the sparks: each a stride on; one ending on the character takes life with the fitted chance,
+        on a companion always."""
         found = fitted()['sparks']
         stride = float(tables()['missiles'][str(SPARK_MISSILE)]['Vel']) / GAME_RATE
         frames, turn = found['flight']['frames']['value'], found['flight']['turn']['value']
@@ -618,8 +449,8 @@ class Pack:
         return blows
 
     def _land(self, frame: int, targets: Sequence[Point]) -> list[Blow]:
-        """A frame of the shots in the air: one that arrives takes life if its target is still within
-        SHOT_CONTACT of where it was sent (and its roll said so)."""
+        """A frame of the shots in the air: one arriving takes life if its roll said so and its target is still
+        within SHOT_CONTACT of where it was sent."""
         blows, flying = [], []
         for missile in self.flying:
             if frame < missile.lands:
@@ -651,8 +482,7 @@ class Pack:
         return blows
 
     def _sized(self, walker: Walker, physical: float, kind: str, parts: Mapping[str, float]) -> dict[str, float]:
-        """A blow's parts: `parts` and `physical` with what the enchantments add to it, all times the
-        fitted spread of a blow's size."""
+        """A blow's parts: `parts`, `physical` and the enchantments' share, all times the fitted size spread."""
         roll = self.rolls[walker.unit]
         found = {**parts, PHYSICAL: physical} if physical or not parts else dict(parts)
         for element, least, most in walker.traits.elements:
@@ -665,10 +495,8 @@ class Pack:
         return Blow(frame, walker.unit, walker.aim, sum(parts.values()), MELEE, parts)
 
     def _reel(self, walker: Walker, frame: int) -> None:
-        """The hits on the walker since the last step, as one fall of its life: with the fitted chance
-        of a fall of that size it staggers for the fitted frames, and a swing whose blow has not
-        landed is lost. After the stagger it rests as after a swing (`step`). A shooter does not
-        stagger (the takes' staggers are tallied of the melee types), nor one that staggers already."""
+        """The hits since the last step as one fall of life: with the fitted chance for its size the walker staggers
+        for the fitted frames and loses an unlanded swing. Shooters do not stagger (only melee types were fitted)."""
         share, walker.fell = walker.fell, 0.0
         if frame < walker.stunned:
             return  # stunned: a hit's reaction does not end the stun (sim/guard.py)
@@ -714,7 +542,7 @@ class Pack:
                 ):  # fmt: skip
                     blows.append(self._blow(walker, frame))
             if frame >= walker.until and walker.doing == STAGGER:
-                # Over it: the rest of a swing before it thinks again (the module text has the measure).
+                # Over it: the rest of a swing before it thinks again.
                 rest = round(drawn(fitted()['melee']['rest']['knots'], self.rolls[walker.unit].random()))
                 walker.doing, walker.until = STAND, frame + max(rest, 1)
             elif frame >= walker.until:
@@ -722,9 +550,8 @@ class Pack:
         return blows
 
     def _target(self, walker: Walker, targets: Sequence[Point]) -> int:
-        """Whom the walker goes for: the character, or the nearest of its companions, by the fitted
-        share of the case (which of the two is nearer) and the walker's own roll. One of them
-        beyond AWARE gives way to the other within it."""
+        """Whom the walker goes for (index into targets): the character or the nearest companion, by the fitted
+        share and its own roll; one beyond AWARE yields to the other within it."""
         if len(targets) < 2:
             return 0
         mate = min(range(1, len(targets)), key=lambda index: math.dist(walker.at, targets[index]))
@@ -781,8 +608,7 @@ class Pack:
     # -- what sim/casters.py `Minds` asks of the pack ---------------------------------------------
 
     def _go(self, walker: Walker, goal: Point, stride: float, stop: float) -> bool:
-        """One stride of `stride` units toward `goal`, ending `stop` from it; False: there is no way (here
-        there always is one)."""
+        """One stride toward `goal`, ending `stop` from it; False: no way (never here)."""
         away = math.dist(walker.at, goal)
         step = min(stride, away - stop)
         if step > 0:
@@ -821,8 +647,8 @@ class Pack:
         return True
 
     def _shoot(self, walker: Walker, frame: int, targets: Sequence[Point]) -> None:
-        """A frame of a shooter: free, it lets a missile go at its mark if it has it in reach and in
-        sight, and without them comes a stride nearer once it has had a target in reach."""
+        """A frame of a shooter: free, it shoots at its mark in reach and sight, else comes a stride nearer once
+        awake."""
         if frame < walker.until:
             return
         found, roll = shooter_of(walker.txt), self.rolls[walker.unit]

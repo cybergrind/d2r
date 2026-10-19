@@ -1,6 +1,4 @@
-"""What a runner keeps across its presses: the belt's history and the items the player put down (moved from
-macros/world.py).
-"""
+"""What a runner keeps across its presses: the belt's history and the items the player put down."""
 
 import math
 import threading
@@ -12,8 +10,8 @@ from inventory_tracking.tracking.belt import BeltColumns, remember
 
 
 class BeltKept:
-    """The belt's history across the presses of a runner: `see` folds a look at the belt into it
-    (tracking/belt.py `remember`) and hands the loot on with it. A loot of no known game is passed as read."""
+    """The belt's history across a runner's presses: `see` folds a look in (tracking/belt.py `remember`) and hands
+    the loot on with it. A loot of no known game is passed as read."""
 
     def __init__(self) -> None:
         self.columns = BeltColumns()
@@ -26,16 +24,12 @@ class BeltKept:
 
 
 class PutDown:
-    """The items the player put down this game, kept across the presses of a runner as `BeltKept` keeps the
-    belt: a ground item whose unit id the character carried this game (`Loot.carried`) was put down by the
-    player, who has looked at it, and is not the macro's to pick up, stand by or warn about again (the player,
-    2026-10-14: "we tried to pickup crystal sword that I've checked and dropped"; rca/2026-10-14/run-0025-findings.md
-    §3, P1). The game streams it out and back in with a new unit id at the same place (00:29:04.9 and 00:30:35.9
-    that game), so it is remembered by its class and place, within NEAR, for the rest of the game. `see` takes it
-    out of a look's drops, so no reader of the loot names it (`choose`, a level run's side drop, `stay_by`,
-    `worth_a_stop`, the "Inventory full" warning); `at` answers the HUD's ground marks (loot/watch.py). Said once a
-    place. A drop the player wants back is picked up by hand. A loot of no known game is passed as read; the
-    next game forgets. Read by the runner's thread and the service's, hence the lock."""
+    """The items the player put down this game: a ground item whose unit id the character carried this game was
+    put down by the player and is not the macro's to pick up, stand by or warn about again (the player, 2026-10-14:
+    "we tried to pickup crystal sword that I've checked and dropped"; rca/2026-10-14/run-0025-findings.md §3).
+    The game streams it back with a new unit id, so it is remembered by class and place (within NEAR) for the
+    game. `see` drops it from a look's drops; `at` answers the HUD's ground marks (loot/watch.py). Shared by the
+    runner's and the service's threads, hence the lock."""
 
     NEAR = 1.0  # world units: the same place (an item's position is whole units)
     KEPT = 4000  # the carried unit ids kept at most in a game (a full stash and inventory hold under 600 items)
@@ -44,8 +38,7 @@ class PutDown:
         self.game: tuple[str, int] | None = None
         self.carried: set[int] = set()
         self.places: list[tuple[int | None, float, float]] = []  # (class, x, y) of each item put down
-        # The units the macro itself put down to take back (macros/cube.py `transmute`'s parked gems): not the
-        # player's, so picked up again and kept in the game's guard (runner `_valuable_left`)
+        # Units the macro itself put down to take back (macros/cube.py `transmute`'s parked gems): not the player's.
         self.parked: set[int] = set()
         self.lock = threading.Lock()
 
@@ -62,9 +55,8 @@ class PutDown:
                 self.game, self.carried, self.places = loot.game, set(), []
             if len(self.carried) > self.KEPT:
                 self.carried.clear()
-            # The drops are tested against the items carried in earlier looks only: one `Loot` reads the drops
-            # first and the grids last, so an item the macro picks up between the two is in both
-            # (rca/2026-10-14/run-0305-findings.md §5.3: the Amulet "put down" while it was being picked up).
+            # Tested against earlier looks' carried items only: a `Loot` reads drops before grids, so an item picked
+            # up between the two is in both (rca/2026-10-14/run-0305-findings.md §5.3).
             kinds = dict(loot.classes)
             kept = []
             for drop in loot.drops:

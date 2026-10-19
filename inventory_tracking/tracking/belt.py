@@ -7,8 +7,7 @@ from inventory_tracking.models import PotionType
 from inventory_tracking.native.layout import BELT_COLUMNS, HEALING_POTIONS, REJUVENATION_POTIONS
 
 
-# The kind of a column that holds nothing and was never seen holding anything this game, with no layout
-# configured (config.BELT): rejuvenation, the rule's default since the belt stock policy (444314f).
+# The kind of a column never seen holding anything this game, with no layout configured (config.BELT).
 UNSEEN = PotionType.REJUVENATION
 
 
@@ -22,11 +21,9 @@ def potion_kind(class_id: int | None) -> PotionType | None:
 
 @dataclass(frozen=True)
 class BeltColumns:
-    """What each belt column last held, for one game and belt (rca/2026-10-13/potions-findings.md §2.1: the
-    healing columns drunk dry read as rejuvenation columns, and the run left two super healing potions at
-    its feet with none on the belt). `kinds[c]`: the kind of column c's lowest potion when it last held
-    one (None: never seen holding one, or it held something that is not a potion). Kept by the caller
-    and folded by `remember`; `column_shortages` reads it."""
+    """What each belt column last held, for one game and belt, so an emptied column keeps its kind
+    (rca/2026-10-13/potions-findings.md §2.1). `kinds[c]`: the kind of column c's lowest potion when it last
+    held one (None: never seen, or not a potion). Folded by `remember`, read by `column_shortages`."""
 
     game: Hashable = None  # whose belt: the caller's identity of the game and character
     rows: int | None = None  # the belt's rows when the caller knows them; another size forgets the kinds
@@ -63,7 +60,6 @@ def column_shortages(
     missing = {PotionType.REJUVENATION: 0, PotionType.HEALING: 0}
     for column in range(BELT_COLUMNS):
         slots = contents[column::BELT_COLUMNS]
-        # If the bottom has a gap, use the lowest remaining item as the target.
         first = lowest(contents, column)
         if first is not None:
             kind = potion_kind(first)

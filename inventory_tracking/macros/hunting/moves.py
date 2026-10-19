@@ -123,10 +123,8 @@ def barred(self: Hunter, act, now: float) -> bool:
 def pursue(
     self: Hunter, run: Run, world: World, foes: list[Monster], ground: Ground, key_names, *, in_reach: bool
 ) -> bool:
-    """One look of the pursuit and its act (macros/pursuit.py): a move toward the goal, what is done
-    at it, the hand-over to the route's own step; whether something was done (the loop then looks at
-    the game again). A hold or a reason said leaves the loop to what it did before. A move or a use decided from
-    a look that took too long is not made (`stale`): the loop looks again."""
+    """One look of the pursuit and its act (pursuit.py): a move, a use, or the hand-over to the route's step.
+    Whether something was done (the loop then looks again). An act from a `stale` look is not made."""
     looked = run.clock()
     with self.way_time():
         found = self.judge(run, world, foes, ground, in_reach=in_reach)
@@ -138,8 +136,7 @@ def pursue(
         supply = on_belt(loot)
         kind = PotionType.REJUVENATION
         settings = self.build.settings
-        # Budget recovery, not borrowed future life: the next look must see
-        # the healing before it can authorize a formerly unaffordable act.
+        # Recover the budget; the next look must see the healing before it allows a costlier act
         if (
             0 < loot.life < loot.max_life * settings.safety.floor / 100
             and not supply[PotionType.HEALING]
@@ -153,8 +150,7 @@ def pursue(
                 self.tell(run, 'recovering the life budget; the next look decides the act')
                 return True
     if isinstance(act, Hold):
-        # A fight may have yielded on the previous look. Its cached request
-        # must not immediately release this newly authorized strike again.
+        # A fight's cached yield from the last look must not release this strike again
         self.judged = (stamp, run.clock(), False)
         if act.reason:
             self.tell(run, act.reason)
@@ -181,8 +177,7 @@ def pursue(
         return False
     if self.stale(run, world, looked, act):
         return True
-    # The pointer held as a step holds it (the mode itself aims once and casts at once), its mark re-based
-    # as the act begins: a hand that moved the mouse before the act stops nothing (`Actuator.held_act`).
+    # The pointer held for the act, its mark re-based as it begins (`Actuator.held_act`)
     try:
         with run.actuator.held_act(), self.way_time():
             if isinstance(act, Advance):
@@ -190,9 +185,8 @@ def pursue(
                 with self.priced_for(run, act_window(act.step)):
                     self.advance(run, world, ground, act, found.place, key_names)
                 if pressed and not running:
-                    # The key took the character somewhere: no step of the sweep's back to what it left
-                    # (Tower Cellar 3, 00:49 on 2026-10-11). A press that moved nothing ends no sweep.
-                    # A level run keeps its sweep for the fights on its way (its own moves are the run's).
+                    # The key moved the character: the sweep does not walk back (2026-10-11 00:49). A level run
+                    # keeps its sweep for the fights on its way
                     self.sweep.end()
             else:
                 with self.priced_for(run, self.build.settings.safety.operate_dwell):
@@ -205,10 +199,8 @@ def pursue(
         if isinstance(stop, Refused) and self.carry_one_swap(run, stop):
             return True  # carry-one: the Gheed's swap, not a try counted toward giving the charm up
         if isinstance(act, Advance) and 'did not move' in str(stop) and not isinstance(stop, Untaken):
-            # Not tried again at once: 22:04:12 on 2026-10-16 made one walk 16 times in 17 s, each "did not move"
-            # (rca/2026-10-16/loop-shack-stalls-findings.md §2). Not a key the game took no cast for (`Untaken`,
-            # its cooldown): the way is not distrusted, and barring its spot left no act priced for DEAD_END_SECONDS
-            # (33 times in 198 games on 2026-10-17, 4.0-4.8 s each: "safety: no act was priced")
+            # Not tried again at once (rca/2026-10-16/loop-shack-stalls-findings.md §2). Not for `Untaken` (a
+            # cooldown): barring its spot left no act priced (2026-10-17: 33 times in 198 games)
             self.dead_end(act.step.spot, run.clock())
         if isinstance(act, Operate) and act.goal.do == PICK_UP and act.goal.unit is not None:
             if len(self.drops.tried) > 200:
@@ -224,9 +216,8 @@ def pursue(
 
 
 def way_time(self: Hunter):
-    """The block the far goal's way is asked for in by the loop outside the safety's own look (travel.py
-    `planning`): the look's share of its time (macros/safety.py WAY_SHARE) from now by the look's clock; none
-    without one (the arena)."""
+    """The time limit for planning the far goal's way outside the safety's look (travel.py `planning`): the
+    look's WAY_SHARE; none without a timer (the arena)."""
     timer = self.safety.timer
     if timer is None:
         return nullcontext()
@@ -234,12 +225,9 @@ def way_time(self: Hunter):
 
 
 def stale(self: Hunter, run: Run, world: World, looked: float, act) -> bool:
-    """Whether the move or use decided from the look begun at `looked` is not made: the look took more than
-    STALE_LOOK, so the game it read is that old (the Plains of Despair, 23:48:52 on 2026-10-14: a Move from a
-    look 5.3 s old, made 36 units from where that look saw the character, into the pack that had come round it;
-    rca/2026-10-14/run-2040-findings.md §1.2.3). The loop looks again. A second slow look in a row whose
-    character stands where it saw it is made: the host is slow, the game has not changed, and a loop that drops
-    every act moves nothing. Said `Macro: look: the act of a look ... is dropped ...`."""
+    """Whether the act of the look begun at `looked` is dropped: the look took over STALE_LOOK, so its game is
+    old (rca/2026-10-14/run-2040-findings.md §1.2.3). A second slow look in a row with the character where it
+    saw it is made: the host is slow, and a loop that drops every act moves nothing."""
     age = run.clock() - looked
     if age <= STALE_LOOK:
         self.dropped = 0
@@ -267,9 +255,8 @@ def stale(self: Hunter, run: Run, world: World, looked: float, act) -> bool:
 
 
 def give_up(self: Hunter, run: Run, reason: str) -> None:
-    """An act of the loop's given up for `reason` is said every time it is, with how many times in a row
-    (I1: the look says why it moved nothing; I6: never silent): run-2110-findings.md M3, where the same abort
-    was said once and then silenced for 9.3 s while the card kept saying "Walking 16 toward Diablo"."""
+    """Says an act given up for `reason` every time, with the count in a row (I1, I6: never silent;
+    run-2110-findings.md M3)."""
     last = self.refused
     count = last[1] + 1 if last is not None and last[0] == reason else 1
     self.refused = (reason, count)
@@ -278,12 +265,8 @@ def give_up(self: Hunter, run: Run, reason: str) -> None:
 
 @contextmanager
 def priced_for(self: Hunter, run: Run, seconds: float):
-    """An act's price is not permission to spend an unbounded time in its hands.
-
-    Existing hands already poll the world. Expiry unwinds them through their
-    normal Abort cleanup; the next loop look prices what actually happened.
-    Preserve the recorder/other observer and restore it even on cancellation.
-    """
+    """Bounds an act's hands to `seconds`: past them the next world poll raises Expired (their Abort cleanup
+    unwinds) and the next look prices what happened. The previous observer is chained and restored."""
     if not self.pursuing or seconds <= 0:
         yield
         return
@@ -305,9 +288,8 @@ def priced_for(self: Hunter, run: Run, seconds: float):
 
 
 def advance(self: Hunter, run: Run, world: World, ground: Ground, act: Advance, place: Point, key_names) -> None:
-    """Make the move the navigator gave toward the goal. A casting delay about to end on the way the
-    set would take is waited out first and the move asked for again (`Travel.pause`); with the staff
-    in hand and no charge on it the main weapons are taken, once (`foot_step` has why)."""
+    """Makes the navigator's move toward the goal. A casting delay about to end is waited out and the move
+    priced again (`Travel.pause`); an empty staff in hand is swapped for the main weapons (`foot_step`)."""
     goal, step = act.goal, act.step
     if act.reason:
         self.tell(run, act.reason)
@@ -320,15 +302,12 @@ def advance(self: Hunter, run: Run, world: World, ground: Ground, act: Advance, 
     rooms = level.rooms if level is not None else ()
     wait = 0.0 if act.reason else self.travel.pause(run, world, ground, aspect, place, goal.spend, rooms)
     if wait > 0:
-        # At a cooldown boundary float subtraction can leave a sub-frame
-        # remainder. The next look must observe a later game frame.
+        # At least a frame: a sub-frame remainder would show the next look the same game frame
         run.pace.sleep(max(FRAME, wait))
-        return  # the next look must reprice a new leg; never execute an unpriced replacement
+        return  # the next look prices the new leg; never an unpriced replacement
     if not act.reason and step.skill is None and self.warp_ready(run, world, ground, aspect, place, goal, rooms):
-        # The look priced a walk with a jump's casting delay further off than PLAN_AHEAD; by now it is within it,
-        # and the goal's way is that jump (`pause` waits for nothing then): the walk would hold the jump back by
-        # its stride. 22:51:10 on 2026-10-16: 1.2 s on foot, the Blade Warp held 0.9 s past its delay; 17 of the
-        # session's 41 walks between two warps were chosen 0.80-0.90 s after the warp's key.
+        # The look priced a walk; the jump's delay is now within PLAN_AHEAD and the walk would hold the jump back
+        # (2026-10-16 22:51: 17 of 41 walks between warps chosen 0.8-0.9 s after the warp)
         run.pace.sleep(FRAME)
         return  # the next look prices the jump
     if step.needs == 'battle' and not self.main_weapons(run, world, key_names):
@@ -341,8 +320,7 @@ def advance(self: Hunter, run: Run, world: World, ground: Ground, act: Advance, 
         take_battle_weapons(run)
     by = 'Walking' if step.skill is None else skill_name(step.skill)
     if goal.crossed and step.skill is None and step.spot == goal.place:
-        # The walk across an open passage into the next level (pursuit.py `through`), said once whether the safety
-        # priced the move (its candidate keeps no reason) or not
+        # The walk across an open passage (pursuit.py `through`), said whether the safety priced it or not
         self.tell(run, f'{goal.label}: {PASSAGE}')
     here = (world.player.x, world.player.y) if world.player is not None else (player.x, player.y)
     LOG.info(
@@ -366,9 +344,8 @@ def warp_ready(
     goal: Goal,
     rooms: tuple[Room, ...],
 ) -> bool:
-    """Whether the goal's way from here is a jump whose casting delay still runs, within PLAN_AHEAD of its end
-    (`Travel.toward` counts it as over), where the look gave a walk. A jump the look did not take for any other
-    reason is not looked again for."""
+    """Whether the goal's way is now a jump whose casting delay ends within PLAN_AHEAD, where the look gave a
+    walk."""
     player = world.player
     if player is None or not self.travel.warped_at > -math.inf:
         return False
@@ -379,18 +356,16 @@ def warp_ready(
 
 
 def operate(self: Hunter, run: Run, world: World, goal: Goal, key_names) -> None:
-    """What is done at a goal reached: its object used and the route told (macros/route.py
-    `note_used`), a stand noted, a drop taken by the pickup step's own hands."""
+    """At a goal reached: its object used and the route told (route.py `note_used`), a stand noted, a drop
+    taken by the pickup step's hands."""
     player, rect = world.player, run.actuator.keys.focused_window_rect()
     assert player is not None
     bearings = self.bearings
     if goal.do == PICK_UP:
         LOG.info('Macro: pursuit: %s is taken first', goal.label)
-        # The hands take the drop the goal names, the one the act was priced for (run-0025-findings.md §2.2:
-        # the goal "5037 gold, on the way" while the hands clicked a Magic Dusk Shroud, valuables first)
+        # The hands take the drop the goal names, the one the act was priced for (run-0025-findings.md §2.2)
         if goal.unit is not None and (self.running or goal.unit in self.restock_said):
-            # A level run (and attack mode's restock, `restock`) goes for one drop GATHER_TRIES times at most: one
-            # no click takes must not hold it
+            # A level run (and `restock`) tries one drop GATHER_TRIES times at most
             self.drops.gathered[goal.unit] = self.drops.gathered.get(goal.unit, 0) + 1
             pick_up(run, self.known_level(player), key_names, lambda: None, threat(run), unit=goal.unit)
         else:
@@ -422,10 +397,9 @@ def operate(self: Hunter, run: Run, world: World, goal: Goal, key_names) -> None
 
 
 def pursue_once(self: Hunter, run: Run, key_names, *, attacking: bool) -> Judged | None:
-    """One press of the teleport key with nothing working: one pass of the same decision the mode
-    makes (`pursue`), the press being this run's own; what was decided, the act made. `attacking`:
-    attack mode is on or follows this press. None: the press is the route's own step's (the pursuit
-    is off for the build played, the town, a goal that step performs), and nothing was done."""
+    """One press of the teleport key with nothing running: one pass of `pursue`'s decision with the press as
+    its own; returns what was decided, the act made. `attacking`: attack mode is on or follows. None: the press
+    is the route's own step's (pursuit off, the town, a goal that step performs); nothing done."""
     player, _ = ready(run)
     if not self.pursuing or player.in_town:
         return None
@@ -441,8 +415,7 @@ def pursue_once(self: Hunter, run: Run, key_names, *, attacking: bool) -> Judged
     try:
         found = self.judge(run, world, foes, ground, in_reach=in_reach, attacking=attacking)
         if isinstance(found.act, Hold) and not (found.goal is not None and found.goal.do == FIGHT):
-            # With the mode not running, a strike is made only when it follows this press, for a fight
-            # (runner.py `pursues`): for any other goal the press is answered without one.
+            # A strike follows this press only for a fight (runner.py `pursues`)
             found = self.judge(run, world, foes, ground, in_reach=in_reach, attacking=False)
         if isinstance(found.act, Defer):
             return None
@@ -468,9 +441,8 @@ def known_level(self: Hunter, player) -> Level | None:
 
 
 def seek(self: Hunter, run: Run, key_names, *, any_hostile: bool = False) -> None:
-    """One seek step: a move toward the nearest elite, or into the unexplored. With `any_hostile`
-    (the pickup request: a Terror Zone's completion counts every kill and every room) toward
-    whatever is nearer by the way, a known hostile of any kind or an unexplored room."""
+    """One seek step toward the nearest elite, or into the unexplored. `any_hostile` (the pickup request: a
+    Terror Zone counts every kill and room): whichever is nearer, any known hostile or an unexplored room."""
     player, rect = ready(run)
     if player.in_town:
         raise Abort('in town: nothing to hunt')
@@ -486,8 +458,7 @@ def seek(self: Hunter, run: Run, key_names, *, any_hostile: bool = False) -> Non
         'Macro: seek: %d hostiles, %d elites, at (%.1f, %.1f); left %s, right %s',
         len(foes), len(leaders), *here, skill_name(player.left_skill), skill_name(player.right_skill),
     )  # fmt: skip
-    # The blades' own reach, not the firing spots': a step toward an elite attack mode already
-    # fights would break that fight off.
+    # The blades' own reach: a step toward an elite already fought would break the fight off
     reach = self.reach
     near = [m for m in leaders if in_reach(ground, here, (m.x, m.y), reach, doors)]
     if near:
@@ -495,7 +466,7 @@ def seek(self: Hunter, run: Run, key_names, *, any_hostile: bool = False) -> Non
         return
     quarry = self.quarry(level.area, here, foes, any_hostile)
     frontier = self.frontier(level, player, rect) if quarry is None or any_hostile else None
-    # Whichever is nearer; the hostile when it is not much further (a room's worth).
+    # The hostile unless a room's worth further than the frontier
     far = frontier is not None and quarry is not None
     if far and math.dist(here, quarry[0]) > frontier[0] * TILE_UNITS + ROOM_UNITS:
         quarry = None
@@ -507,22 +478,19 @@ def seek(self: Hunter, run: Run, key_names, *, any_hostile: bool = False) -> Non
 
 
 def go(self: Hunter, run: Run, level: Level, ground: Ground, player, rect, mob, name: str, doors, key_names) -> None:
-    """A move onto the nearest spot with a shot at `mob`: a walk when it is near over clear ground,
-    else a teleport hop."""
+    """A move onto the nearest spot with a shot at `mob`: a walk when near over clear ground, else a hop."""
     here = (player.x, player.y)
     target = self.firing_target(level, ground, here, mob, name, doors)
     goal = (target.point[0] * TILE_UNITS, target.point[1] * TILE_UNITS)
     if math.dist(here, goal) < MOVED:
-        # Already on a firing spot (the shot from the character's exact place may still read blocked):
-        # a click under its feet moves nothing and would stop the step.
+        # Already on a firing spot: a click under the feet moves nothing and would stop the step
         run.say(f'{name} is in reach: attack mode takes it')
         return
     if math.dist(here, goal) <= WALK_UNITS and clear_shot(ground, here, goal, doors):
         step_walk(run, goal, player, rect[2] / rect[3], attackable(run.world()), name=name, clicks=WALK_CLICKS)
     elif not self.afoot(run, ground, player, rect, goal, name, key_names):
         hop_toward(run, target, player, rect, key_names)
-    # A step that ends where it began is said and logged as such: with the monster out of reach
-    # the mode behind it has nothing to do either, and the press looked dead (that corner).
+    # A step that moved nothing is said, or the press looks dead
     now = run.world().player
     if now is not None and now.area == player.area and math.dist((now.x, now.y), here) < MOVED:
         LOG.warning(
@@ -533,31 +501,23 @@ def go(self: Hunter, run: Run, level: Level, ground: Ground, player, rect, mob, 
 
 
 def own_teleport(self: Hunter, run: Run, now: float) -> bool:
-    """Whether Teleport is the character's own skill (Enigma: game/memory.py `own_teleport`), read again at most every
-    OWN_TELEPORT_SECONDS: the safety prices each look with it."""
+    """Whether Teleport is the character's own skill (Enigma: game/memory.py `own_teleport`), cached for
+    OWN_TELEPORT_SECONDS."""
     if self.own_read is None or now - self.own_read[1] > OWN_TELEPORT_SECONDS or now < self.own_read[1]:
         self.own_read = (bool(run.own_teleport is not None and run.own_teleport()), now)
     return self.own_read[0]
 
 
 def worn(run: Run) -> Teleport | None:
-    """The Teleport staff the character wears, with the charges left on it; None without one
-    (Teleport as a skill, or none at all)."""
+    """The Teleport staff worn, with its charges; None without one."""
     return run.reads.teleport()
 
 
 def afoot(self: Hunter, run: Run, ground: Ground, player, rect, goal: Point, name: str, key_names) -> bool:
-    """A seek step that spares the staff: a stride straight toward `goal` (`stride`). A Blade Warp
-    over a clear line whatever the staff holds (it costs no charge and no weapon swap: of the 106
-    seek hops in the 26 games of 2026-10-11 in the Halls of Vaught, 78 had the line); with fewer
-    than LOW_CHARGES also one click's walk. Whether it was made: with no such stride a hop is
-    still made while a charge is left, and with none the step stops.
-
-    The stride, the wait before it and the way round are the movement set's, asked within SEEK.
-    What stays here is what no set decides: False hands the step to a Teleport hop with a weapon
-    swap (teleport.py `hop_toward`, which plans its own landing), and whether to do so goes by
-    the charges on the staff as they were read here. With no Teleport to spend at all the step is the
-    navigation class's own (`class_step`: the walked way, a Blade Warp over a clear line)."""
+    """A seek step that spares the staff: a stride toward `goal` within SEEK, a Blade Warp over a clear line
+    (no charge, no swap; 2026-10-11: 78 of 106 seek hops had the line), or with few charges a walk. Whether it
+    was made; False hands the step to a Teleport hop (teleport.py `hop_toward`), and with no charge and no
+    stride it stops. With no Teleport at all the step is the class's own (`class_step`)."""
     staff = self.worn(run)
     left = None if staff is None else staff.charges
     low = left is not None and left < SEEK.walks_under
@@ -568,13 +528,10 @@ def afoot(self: Hunter, run: Run, ground: Ground, player, rect, goal: Point, nam
     level = self.known_level(player)
     rooms = level.rooms if level is not None else ()
     if self.travel.means(run, world, ground, aspect, goal, PRESSED, rooms) in NO_HOPS:
-        # No Teleport to spend: the way is the class's own (the walked way, Blade Warp over a clear line), never
-        # a stride and a way round within 70 units toward a place a Teleport hop would land on
+        # No Teleport to spend: the class's own way, not a stride toward a hop's landing
         self.class_step(run, ground, goal, name, key_names, rooms)
         return True
-    # A Blade Warp just made: its casting delay is waited out when the line toward the goal is
-    # clear, as presses come faster than it (0.5 s apart against 0.8 s: in the game of 15:27 on
-    # 2026-10-11, 8 seek hops by Teleport to 4 by Blade Warp before the staff ran low).
+    # A Blade Warp's delay is waited out on a clear line: presses (0.5 s) come faster than it (0.8 s)
     here = (player.x, player.y)
     wait = self.travel.wait(run, world, ground, aspect, here, goal, SEEK, staff)
     if wait > 0:
@@ -602,13 +559,9 @@ def afoot(self: Hunter, run: Run, ground: Ground, player, rect, goal: Point, nam
 
 
 def boss_step(self: Hunter, run: Run, target: Target, key_names) -> bool:
-    """The teleport step on a level whose mark is a boss's place, with the boss in sight and no
-    shot at it from the mark: the step goes onto a firing spot at the boss itself, or stays when
-    the character has the shot already. Whether the step was taken here. Tower Cellar 5, 20:14:33
-    on 2026-10-11: the Countess stood 29 units from the place her map gives her, behind a wall
-    (over 56 visits she was first seen 2 to 29 from it); the third hop had a clear line to her at
-    21.5, the fourth went on to the mark, and the next press said "At Countess" with nothing in
-    reach."""
+    """The teleport step toward a boss's mark with the boss in sight and no shot at it from the mark: onto a
+    firing spot at the boss itself, or stay with the shot already. Whether the step was taken here. (A boss
+    stands up to 29 units off her map mark: the Countess, 56 visits, 2026-10-11.)"""
     if target.warp or target.kind != 'target':
         return False  # a door, a room to explore, a drop: only a handler's own mark (levels/handler.py `target`)
     player, rect = ready(run)
@@ -641,14 +594,9 @@ def boss_step(self: Hunter, run: Run, target: Target, key_names) -> bool:
 
 
 def warp_hop(self: Hunter, run: Run, target: Target, player, spot: Point, key_names) -> bool:
-    """The teleport step's hop toward the landing `spot` made by Blade Warp, and whether it was
-    with fewer than WARP_CHARGES on the staff and the blade's line to the landing clear. Its
-    casting delay is waited out; a wall, or a warp that moved nobody, leaves the hop to Teleport.
-
-    The jump is the build's own that spares the staff (`spare_jump`), and the stride by it is the
-    movement set's, asked within PLAYER_STEP. The order is this caller's, as the hop is not one
-    `leg`: the charges that make the jump come first, the failure forgiven after WARP_RETRY, the
-    line to the landing the way planned, and False for a Teleport hop that swaps weapons."""
+    """The teleport step's hop toward `spot` by the build's staff-sparing jump (`spare_jump`: Blade Warp),
+    made only with few charges left and a clear line; whether it was made. Its delay is waited out; a wall or a
+    failed warp leaves the hop to Teleport (False). An empty staff takes `foot_step` instead."""
     world = run.world()
     rect = run.actuator.keys.focused_window_rect()
     spare = spare_jump(self.build.movement, world.slots)
@@ -657,14 +605,11 @@ def warp_hop(self: Hunter, run: Run, target: Target, player, spot: Point, key_na
     staff = self.worn(run)
     left = None if staff is None else staff.charges
     if left is not None and left < PLAYER_STEP.walks_under:
-        # The staff empty: the step toward the target's own place by the class in hand (`foot_step`), not toward
-        # the landing a Teleport would make (rca/2026-10-14/run-1932-findings.md §1.2.2)
+        # The staff empty: toward the target's own place, not a hop's landing (run-1932-findings.md §1.2.2)
         self.foot_step(run, target, key_names)
         return True
-    # Only to spare the last charges (user, 2026-10-11 evening: "KP_4 when forcing blade warp is
-    # way too slow ... prefer tp for longer distances, until around 15 charges, then blade warp
-    # in priority; this is only for charges"): a warp hop took 0.8 to 1.0 s for 18 to 20 units,
-    # a Teleport hop 0.6 s for 30.
+    # Only to spare the last charges (the player, 2026-10-11: "prefer tp for longer distances, until around 15
+    # charges, then blade warp in priority")
     if left is None or left >= PLAYER_STEP.sparing:
         return False
     ground = Ground(target.ground)
@@ -672,12 +617,10 @@ def warp_hop(self: Hunter, run: Run, target: Target, player, spot: Point, key_na
     here = (player.x, player.y)
     facts = facts_with(run, world, ground, aspect, self.travel, staff)
     failed = self.travel.jump_failed.get(spare.skill, -math.inf)
-    # A jump by it recorded after now (a clock that went back) leaves the hop to Teleport too
+    # A jump recorded after now (a clock that went back) leaves the hop to Teleport too
     if facts.since_used(spare.skill) < 0 or run.clock() - failed < PLAYER_STEP.distrust:
         return False
-    # One warp that moved nobody does not take the skill from the step for JUMP_DISTRUST as it
-    # does from the sweep: Black Marsh, 18:07:38 on 2026-10-11, the third hop's warp failed and
-    # the 43 hops after it were Teleports (3 warps in the game). 44 of 447 warps failed that day.
+    # One failed warp does not bar the skill from the step as from the sweep (2026-10-11: 44 of 447 failed)
     self.travel.jump_failed.pop(spare.skill, None)
     if spare.line and not clear_shot(ground, here, spot, world.doors):
         return False
@@ -703,11 +646,9 @@ def warp_hop(self: Hunter, run: Run, target: Target, player, spot: Point, key_na
 def class_step(
     self: Hunter, run: Run, ground: Ground, goal: Point, name: str, key_names, rooms: tuple[Room, ...] = ()
 ) -> bool:
-    """One move toward a far goal by the navigation class in hand (macros/movement.py `Ways.means`; the player,
-    2026-10-14: "No TP: Blade Warp + walk, and we must use a route that is able to Blade Warp"): the class's own
-    way there (`Travel.toward` within PRESSED: with no charge, the walked way, on which a Blade Warp goes over a
-    clear line where it beats the walk), a casting delay worth it waited out first. Whether a move was made:
-    False when the character is as near as a move brings it. No way of the class stops the step, said."""
+    """One move toward a far goal by the class in hand (movement.py `Ways.means`; the player, 2026-10-14: "No TP:
+    Blade Warp + walk, and we must use a route that is able to Blade Warp"), a casting delay worth it waited
+    out first. False when already as near as a move brings it; no way raises Abort."""
     rect = run.actuator.keys.focused_window_rect()
     if rect is None:
         raise Abort('no game window')
@@ -738,12 +679,10 @@ def class_step(
 
 
 def foot_step(self: Hunter, run: Run, target: Target, key_names) -> None:
-    """The teleport step with the staff empty (teleport.step_toward `afoot`): one move toward the target's own
-    place (a door's entry spot, else its mark) by the class in hand (`class_step`); at a door it is clicked
-    (teleport.py `walk_into`), at any other place said."""
+    """The teleport step with the staff empty: one `class_step` toward the target's own place (a door's entry
+    spot, else its mark); at a door it is clicked (`walk_into`), elsewhere said."""
     player, rect = ready(run)
-    # The staff's set gives nothing more and costs resistances and skill levels (user, 2026-10-13: 17 s with it
-    # in hand and no charge in the Chaos Sanctuary): the main weapons, once.
+    # An empty staff only costs resistances and skill levels (the player, 2026-10-13): the main weapons
     take_battle_weapons(run)
     entry = entry_spot(target)
     goal = scaled(entry) if entry is not None else (target.point[0] * TILE_UNITS, target.point[1] * TILE_UNITS)
@@ -756,11 +695,9 @@ def foot_step(self: Hunter, run: Run, target: Target, key_names) -> None:
 
 
 def step(self: Hunter, run: Run, key_names) -> None:
-    """The pickup request with nothing to pick up. With hostiles within SWEEP_UNITS it starts
-    the sweep (or lets the one under way go on) and moves nothing itself: the mode, which follows
-    this step, takes the steps (`follow_on`, and the look in `fight`). With none that near it is
-    the seek step. Black Marsh, 01:13 on 2026-10-11: this step walked on its own and sought and
-    explored by teleport, press after press, against the sweep's own walks."""
+    """The pickup request with nothing to pick up: with hostiles within SWEEP_UNITS it starts the sweep and
+    moves nothing itself (the mode that follows takes the steps), else the seek step. Moving here fought the
+    sweep's own walks (2026-10-11 01:13)."""
     player, _ = ready(run)
     world = run.world()
     here = (player.x, player.y)
@@ -782,11 +719,9 @@ def better_stand(
     run: Run | None = None,
     landed: bool = False,
 ) -> Camp | None:
-    """The place worth going to from where the character stands (combat/stance.py `camp`), or
-    None: in view, as a click or a jump is aimed at it, and priced by the way the character will
-    take there (`jumps`, with `run`; a walk without). `landed`: as the casts land by distance and as the
-    blades stop at walls (stance `taken` `walls`); without, the sweep of the pursuit loop off as its
-    goldens and replays were recorded."""
+    """The place worth going to (combat/stance.py `camp`) or None: in view, priced by the way there (`jumps`
+    with `run`, else a walk). `landed`: casts land by distance and blades stop at walls; without, the sweep as
+    its goldens were recorded."""
     player = world.player
     assert player is not None
     here = (player.x, player.y)
@@ -802,9 +737,8 @@ def better_stand(
         shown=lambda spot: in_view(ground_fraction(player, spot[0], spot[1], aspect)) and not self.sweep.shuns(spot),
         gain=gain,
         jumps=jumps,
-        # The cows are fought from inside the herd, as the player does it (user, 2026-10-12: "special
-        # tactics for some mob types (cows/...)"): theirs is to be a `Tactic` (Stage 7); until then no
-        # step out of the pack on their level.
+        # Cows are fought from inside the herd (the player, 2026-10-12: "special tactics for some mob types
+        # (cows/...)"); a `Tactic` later
         escape=0.0 if player.area == MOO_MOO_FARM else None,
         landed=landed,
         walls=landed,
@@ -816,9 +750,7 @@ def better_stand(
         and TELEPORT in world.slots
         and run is not None
     ):
-        # A charged staff, a missing own-skill read, or a temporarily unavailable Teleport can all leave a
-        # different jump first. Record the facts at the firing-stand decision, where the route's later
-        # Teleport log cannot explain which source was available to this look.
+        # Why a jump other than Teleport was chosen: the route's later log cannot tell which sources this look had
         staff = run.reads.teleport()
         own = run.reads.own_teleport()
         LOG.info(
@@ -842,12 +774,9 @@ def next_step(
     fighting: bool,
     priced: bool = False,
 ) -> Step | None:
-    """The sweep's one look for a move, from wherever it looks: the place worth going to
-    (`better_stand`), which in a fight has to be worth SWEEP_GAIN times the place the character
-    fights from and with nothing in reach CAMP_GAIN times nothing; and with nothing in reach and
-    no such place, a stride toward the nearest hostile (`toward`). None: stay. `priced`: the safety
-    prices the place found (a level run's fight, `Safety.offer`): CAMP_GAIN of here, the firing
-    stand's commitment keeping it from dithering, and places priced as the casts land by distance."""
+    """The sweep's look for a move: `better_stand` (SWEEP_GAIN over here in a fight, else CAMP_GAIN), else with
+    nothing in reach a stride toward the nearest hostile (`toward`). None: stay. `priced`: the safety prices
+    the place (a level run's fight, `Safety.offer`), at CAMP_GAIN and `landed`."""
     self.sweep.forget(run.clock())
     gain = CAMP_GAIN if priced or not fighting else SWEEP_GAIN
     place = self.better_stand(world, foes, ground, aspect, gain, run, landed=priced)

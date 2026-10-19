@@ -1,15 +1,11 @@
-"""Deckard Cain's Identify Items: the KP_6 loop's mass identify in Pandemonium Fortress
-(routes/lower-kurast-loop-plan.md §15).
+"""Deckard Cain's Identify Items: the KP_6 loop's free mass identify in Pandemonium Fortress
+(routes/lower-kurast-loop-plan.md §15); the Tome (junk.py `identify`) is the fallback.
 
-The player, 2026-10-17: "we need to perform mass identify at decard cain -> stash good -> sell junk -> return to loop";
-"every class specific item can roll 35k". One click at Cain identifies every item carried, the cube's too, for no gold;
-the Tome of Identify takes two clicks an item (macros/junk.py `identify`, kept as the fallback).
+The player, 2026-10-17: "we need to perform mass identify at decard cain -> stash good -> sell junk -> return to loop".
 
-Cain stands in Pandemonium Fortress (monstats *hcIdx 246, `cain4`; the takes of 2026-10-17 put him at (5023, 5033),
-27 units west of where a game starts). The visit is the vendors' (macros/shop.py): walked to until drawn well inside
-the window, his menu opened by a click on him (`_open_menu`, `serving`), then his Identify Items line clicked at each
-of `lifts` until the carried items' flags turn identified; the lift that took is learned (shop.py `learned`), as his
-menu's lines are not measured. A line that opens his talk instead is closed (`_close`) and the next lift tried.
+The visit is the vendors' (shop.py): walk until he is drawn well inside the window, open his menu, click the
+Identify Items line at each of `lifts` until the items turn identified; the lift that took is learned (shop.py
+`learned`). A lift that opens his talk is closed and the next one tried.
 """
 
 from collections.abc import Sequence
@@ -33,26 +29,25 @@ from inventory_tracking.macros.shop import (
 
 __all__ = ['CAIN', 'identify_all']
 
-CAIN = 246  # monstats *hcIdx (`cain4`): Deckard Cain in Pandemonium Fortress (the takes of 2026-10-17)
-SEEN = (0.1, 0.9, 0.42, 0.8)  # window fractions he is walked to be drawn within: his menu is drawn over him
+CAIN = 246  # monstats *hcIdx (`cain4`): Deckard Cain in Pandemonium Fortress
+SEEN = (0.1, 0.9, 0.42, 0.8)  # window fractions he must be drawn within: his menu is drawn over him
 IDENTIFIED_SECONDS = 1.5  # for the items' flags to turn after the click
 
 
 def lifts() -> tuple[float, ...]:
-    """The lifts over his drawn point (as his menu opened) the Identify Items line is clicked at: the learned one (the
-    middle of those that took, shop.py `known`), then those from 0.16 up by half a line (LINE), the nearest it first."""
+    """Lifts over his drawn point to click Identify Items at: the learned one (shop.py `known`), then 0.16 up by
+    half a line, nearest the learned one first."""
     scan = tuple(0.16 + step * LINE / 2 for step in range(12))
     learned_lift = known(CAIN)
     if learned_lift:
-        # Nearest the learned one first: it drifts with where he is drawn, a step or two either way; from 0.16 up it
-        # took four tries, 8.5 s, with the learned one two steps off (17:05:56-17:06:03 on 2026-10-17)
+        # The line drifts a step or two with where he is drawn; scanning from 0.16 took 8.5 s (2026-10-17 17:05:56)
         scan = tuple(sorted(scan, key=lambda lift: abs(lift - learned_lift)))
     return tuple(dict.fromkeys(round(lift, 4) for lift in ((learned_lift,) if learned_lift else ()) + scan))
 
 
 def identify_all(run: Run, unknown: Sequence[Carried]) -> int:
-    """Cain's Identify Items for the carried `unknown` items (the module text); how many turned identified. Mouse mode
-    only. `Abort` with his windows closed when he is not found or no line identified them."""
+    """Identify the carried `unknown` items at Cain; returns how many turned identified. Mouse mode only. `Abort`,
+    his windows closed, when he is not found or no line identified them."""
     if run.pad is not None:
         raise Abort('Cain needs mouse mode')
     rect = run.actuator.keys.focused_window_rect()

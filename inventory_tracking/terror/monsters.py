@@ -17,8 +17,9 @@ from dataclasses import dataclass
 
 from inventory_tracking.common import LOG
 from inventory_tracking.game.decode import monster_table
-from inventory_tracking.game.layout import BASE_STATS, FULL_STATS
+from inventory_tracking.game.layout import BASE_STATS, FULL_STATS, PLAYER_UNIT
 from inventory_tracking.game.records import Bounds, Monster
+from inventory_tracking.game.units import walked
 from inventory_tracking.levels.memory import MAX_LOADED, MAX_NEAR, MAX_ROOMS, player_room, pointer
 from inventory_tracking.levels.model import Location
 from inventory_tracking.loot.ground import ItemSighting, item_units
@@ -40,7 +41,7 @@ from inventory_tracking.native.layout import (
     TERROR_SERVICE_RVA,
 )
 from inventory_tracking.native.memory import game_read
-from inventory_tracking.native.units import read_stats, walk_units
+from inventory_tracking.native.units import read_stats
 
 
 MONSTER_DATA_SIZE = 0x80
@@ -150,9 +151,8 @@ def monster_units(read, table_address, *, known) -> tuple[list[Monster], bool]:
 
 def player_level(read, table_address) -> int | None:
     """The highest level stat (12) among the player units; None when none is readable."""
-    heads = struct.unpack('<128Q', read(table_address, 1024))
     levels = []
-    for unit in walk_units(read, heads, 0)['units']:
+    for unit in walked(read, table_address, PLAYER_UNIT)['units']:
         if not unit['stats_pointer']:
             continue
         for offset in (BASE_STATS, FULL_STATS):
@@ -214,9 +214,8 @@ def player_life(read, table_address) -> tuple[int, int] | None:
 
 def _players(read, table_address) -> list[tuple[int, int, int]]:
     """(life, most life, stats pointer) of every player unit whose life is readable."""
-    heads = struct.unpack('<128Q', read(table_address, 1024))
     found = []
-    for unit in walk_units(read, heads, 0)['units']:
+    for unit in walked(read, table_address, PLAYER_UNIT)['units']:
         if not unit['stats_pointer']:
             continue
         with contextlib.suppress(OSError, ValueError, struct.error):

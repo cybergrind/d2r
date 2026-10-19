@@ -1,16 +1,10 @@
-"""One interaction with the game's UI: look whether its effect is there already, act, wait for the effect, try again a
-bounded number of times, and fail by type (rca/2026-10-18/arch-actions.md §3 Option 1, steps 1 and 2).
+"""One UI interaction: look whether its effect is there already, act, wait for the effect, retry a bounded number of
+times, fail by type (rca/2026-10-18/arch-actions.md §3 Option 1).
 
-Each module waited for its own effects in its own loop, and none looked before acting: seven incidents from
-2026-10-16 to 2026-10-18 (Jamella's menu, the waypoint's panel, the stash, Halbu's menu, Save and Exit) were a click
-made on an effect an earlier click had already brought, each fixed where it surfaced (the study's §2 A). Here:
-
-- `until`: the first look in which a predicate holds within some seconds, or None. Every look goes through the run (a
-  cancelled run stops at the next look, as `Run.world` does), and a world that cannot be read stops as `Run.world`
-  stops (`Abort`), not as "not seen".
-- `perform`: an `Action` done once: nothing pressed when its effect holds already (looked for `grace` seconds first),
-  each try waited for, a repair between tries (`between`), a late effect accepted (`late`), one log line per action
-  (`Macro: act <name>: …`), and `Failed` with the panels open when it never comes.
+- `until`: the first look in which a predicate holds within some seconds, or None. Cancellation and an unreadable
+  world stop as `Run.world` does.
+- `perform`: an `Action` done once: nothing pressed when its effect holds already, a repair between tries, a late
+  effect accepted, one log line per action, `Failed` with the open panels when it never comes.
 """
 
 from collections.abc import Callable
@@ -25,14 +19,13 @@ from inventory_tracking.macros.engine import Run
 
 __all__ = ['NOT_DONE', 'Action', 'Failed', 'Outcome', 'perform', 'until']
 
-POLL = 0.05  # seconds between looks (the stash's and the cube's item waits looked this often)
+POLL = 0.05  # seconds between looks
 NOT_DONE = 'not done'  # `Failed.reason`: no try brought the effect
 
 
 class Failed(Abort):
     """An action whose effect did not come. Callers tell it by type and `reason`, never by its text; the text names the
-    panels open at the end: the aims' "not under the pointer at any aim" did not, and a waypoint panel already open was
-    read as the character's figure covering the aims (2026-10-17, the step back: the study's §2 A)."""
+    panels open at the end (an open waypoint panel once passed for a covered aim, 2026-10-17)."""
 
     def __init__(self, action: str, reason: str, world: World | None) -> None:
         panels = ', '.join(world.open_panels) if world is not None and world.open_panels else 'none'
@@ -74,9 +67,8 @@ def until[T](
 
 
 def until(run, holds, seconds, *, read=None, poll=POLL):
-    """The first look (`run.world()`, or `read()`: a None from it is no look) in which `holds`, within `seconds`;
-    None when none comes. Looked at once first, so 0 seconds is one look. `Cancelled` at the first look after the run
-    was cancelled."""
+    """The first look (`run.world()`, or `read()`; None from it is no look) in which `holds`, within `seconds`, else
+    None. 0 seconds is one look. `Cancelled` at the first look after the run was cancelled."""
     deadline = run.clock() + seconds
     while True:
         if run.cancelled.is_set():
@@ -90,7 +82,7 @@ def until(run, holds, seconds, *, read=None, poll=POLL):
 
 
 def perform(run: Run, action: Action) -> Outcome:
-    """Do `action` (the module text); how it went. `Failed` when no try brought its effect."""
+    """Do `action`; how it went. `Failed` when no try brought its effect."""
     began = run.clock()
 
     def outcome(already: bool, tries: int, how: str) -> Outcome:
@@ -103,7 +95,7 @@ def perform(run: Run, action: Action) -> Outcome:
     for attempt in range(action.tries):
         if attempt:
             world = run.world()
-            if action.done(world):  # came after the last try's wait: no try more
+            if action.done(world):  # came after the last try's wait
                 return outcome(False, attempt, f'done after {attempt} tries, late')
             if action.between is not None:
                 action.between(run, world)
@@ -114,7 +106,7 @@ def perform(run: Run, action: Action) -> Outcome:
             return outcome(False, attempt + 1, f'done after {attempt + 1} tries')
     if action.late and until(run, action.done, action.late) is not None:
         return outcome(False, action.tries, f'done after {action.tries} tries, late')
-    world = run.world()  # the last look: the failure names its panels (`Failed.world`)
+    world = run.world()  # the failure names its panels
     stop = Failed(action.name, NOT_DONE, world)
     LOG.info('Macro: act %s: failed after %d tries in %.0f ms: %s', action.name, action.tries,
              (run.clock() - began) * 1000, stop)  # fmt: skip

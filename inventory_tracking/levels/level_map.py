@@ -10,8 +10,7 @@ from inventory_tracking.levels.route import route
 from inventory_tracking.native.layout import TILE_UNITS
 
 
-# Outdoor level edges (fences, cliffs, ravines): 'Border' in every act's names, e.g. 'Act 1 - Wild
-# Border 3', 'Act 3 - Slums Border NE', 'Act 5 - Barricade Cliff Border 2 Snow' (120 presets).
+# Outdoor level edges (fences, cliffs, ravines): 'Border' in every act's preset names (120 presets).
 EDGE = re.compile(r'\bBorder\b')
 
 
@@ -37,16 +36,10 @@ def build_map(
     routed: bool = True,
     units: tuple[int, int] | None = None,
 ) -> MapCard:
-    """`location` overrides the snapshot's player position (live dot while the card is shown).
-    `visited` (bounds of the rooms ever loaded, terror/tracker.py) shades the rooms: the others
-    are drawn dimmer. `dots` are extra live marks in tiles (monsters, a Herald).
-    `pid` (the game process) lets the HUD follow the player between cards when the location has its path.
-    `whole` draws a big level whole instead of the part around the player (hud/map.py).
-
-    The route is the teleport path to the first POI reachable over rooms (levels/route.py), or to `toward`
-    (tiles: the route's goal, levels/guide.py) when given; none when not `routed` (no goal left).
-    `units`: (unit table address, area) for the HUD's own walk of the monster table (hud/live.py).
-    """
+    """`location` overrides the snapshot's position; `visited` (room bounds ever loaded) shades rooms; `dots` are
+    live marks in tiles; `pid` lets the HUD follow the player; `whole` draws a big level whole; `units` is for
+    the HUD's own monster walk (hud/live.py). The route goes to `toward` (tiles) or the first reachable POI
+    (levels/route.py); none when not `routed`."""
     where = location or snapshot.location
     player = (where.x / TILE_UNITS, where.y / TILE_UNITS)
     pois = tuple(pois)

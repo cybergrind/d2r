@@ -69,22 +69,18 @@ if TYPE_CHECKING:
 def judge(
     self: Hunter, run: Run, world: World, foes: list[Monster], ground: Ground, *, in_reach: bool, attacking: bool = True
 ) -> Judged:
-    """One look of the pursuit: the goal named, the facts read and the decision made
-    (macros/pursuit.py `decide`). Nothing is done here. The place the navigator is asked for is the
-    goal's own, and for a fight the nearest place with a shot at the boss (`firing_target`: the
-    build strikes from a distance, and "near enough" for a fight is a shot)."""
+    """One look of the pursuit: the goal, the facts and the decision (pursuit.py `decide`); nothing is done.
+    A fight's place is the nearest with a shot at the boss (`firing_target`)."""
     player = world.player
     assert player is not None
-    # The mailbox is read once, before the look's clock: every press the look judges was made by then, and
-    # one posted later is the next look's (rca/2026-10-14/run-0025-findings.md §2.1)
+    # Read once, before the look's clock: a press posted later is the next look's (run-0025-findings.md §2.1)
     posted = self.pursuit
     here, now = (player.x, player.y), run.clock()
     if in_reach and self.only_bound(world, foes, ground, here):
-        # What is in reach dies with a summoner standing elsewhere (Baal's clone): it is no fight to hold, and the
-        # goal (the summoner's fight) is gone to (rca/2026-10-14/baal-sim.md fix 2: 17 s on the clone, Baal 33 off)
+        # A summoner's bound units (Baal's clone) are no fight to hold (rca/2026-10-14/baal-sim.md fix 2)
         in_reach = False
     if in_reach and self.nearing_only(world, foes, ground, here, now):
-        in_reach = False  # a boss the strikes did nothing to from here: the run gets back in reach (`untouched`)
+        in_reach = False  # the strikes did nothing from here (`untouched`)
     if posted is not None and posted.leashed and posted.area is None:
         named = replace(posted, area=player.area)  # the level run is of the level it was asked on
         self.swap(posted, named)
@@ -102,7 +98,7 @@ def judge(
         goal = self.nearby(goal, here)
     noted = heading(posted, goal) if posted is not None else None
     if posted is not None and noted is not None and self.swap(posted, noted):
-        posted = noted  # the run goes for its level's open passage: across it, the run goes on (`carry_on`)
+        posted = noted  # across its level's open passage the run goes on (`carry_on`)
     self.pursued = goal
     level = self.known_level(player)
     rect = run.actuator.keys.focused_window_rect()
@@ -112,9 +108,7 @@ def judge(
         if goal.do == FIGHT:
             there = in_reach_of(ground, here, goal.place, goal.near, world.doors)
             if not there and level is not None and goal.known:
-                # As `firing_target` chooses it, without its log line (this is asked at every look), but on the
-                # attack's engage ring first, not the ring just inside the reach (run-1932-findings.md §4.2: the
-                # approaches ended 17 units off, a third of the casts hitting nothing); the safety prices the leg
+                # As `firing_target`, quietly, on the attack's engage ring (run-1932-findings.md §4.2)
                 engage = self.attack.engage
                 spots = firing_spots(ground, goal.place, STRIKE_REACH, here, world.doors, engage) or [goal.place]
                 rooms = level.rooms
@@ -126,13 +120,9 @@ def judge(
             )
             there = thing is not None and near
             if thing is not None and posted is not None and posted.rush and posted.runs:
-                # The KP_6 loop's run opens from beside the object (`OPEN_NEAR`), and its last hop lands short of
-                # it (travel.py LOOPED `short`). The way goes to the object's own place, which stays put from look
-                # to look: a place beside it on the character's side moved with every move, and the walked way
-                # to it was grown afresh each time (the games of 22:50 on 2026-10-16: the goal's cell changed in
-                # 112 of 213 looks; the hop out of a shack after its chest, 13 units the straight line into the
-                # palisade, gained 7 of the way where 27 were in reach)
-                # Nor across a wall: a shack's chest is gone to round it first (travel.py `open_reaches`)
+                # The loop opens from beside the object (`OPEN_NEAR`), never across a wall (`open_reaches`). The
+                # way goes to the object's own place, which stays put; a place beside it moved with every move
+                # (2026-10-16 22:50: the goal's cell changed in 112 of 213 looks)
                 at = (thing.x, thing.y)
                 things = run.things() if run.things is not None else ()
                 near = PAIR_NEAR if paired(things, thing, here) else OPEN_NEAR
@@ -140,8 +130,7 @@ def judge(
                 if not there:
                     place = at
         elif goal.do == PICK_UP:
-            # Near enough to click is a walk within reach, not a straight line: a drop across lava is gone to
-            # by the navigator first (run-0025-findings.md §2.2: 17 straight, 43 by walking, both tries cut)
+            # Near enough to click is a walk within reach, not a straight line (run-0025-findings.md §2.2)
             there = walk_reaches(ground, world.doors, here, goal.place, goal.near)
             if not there and goal.unit is not None and goal.unit not in self.round_said:
                 away = math.dist(here, goal.place)
@@ -168,7 +157,7 @@ def judge(
         now, goal, there, in_reach, attacking, way, player.area, now < self.settled_at,
         beyond=beyond, least_move=AROUND_LEAST,
     )  # fmt: skip
-    # The strike gap counts while a hostile is within the strike's reach, a clear line or not (I2)
+    # The strike gap counts while a hostile is within reach, clear line or not (I2)
     near = any(math.dist(here, (m.x, m.y)) <= self.reach for m in foes)
     rush = posted is not None and posted.rush and posted.runs
     facts = replace(facts, quiet=min(now - self.struck_at, 60.0) if near else 0.0, near=near, rush=rush)
@@ -186,9 +175,8 @@ def judge(
         and goal.do in (LOOT, LEAVE)
         and now - self.hurt_at > HURT_SECONDS
     ):
-        # The KP_6 loop's run with its route's boss dead: her pack is not fought while nothing hurts the character,
-        # the loot and the game's end come next (11.5 s and 30 kills after Andariel's death at 13:26:39 on
-        # 2026-10-18; the player, 2026-10-17: "we don't even need to kill some trash mobs and can loot and leave")
+        # The route's boss dead, her pack is not fought while nothing hurts (the player, 2026-10-17: "we don't even
+        # need to kill some trash mobs and can loot and leave")
         act = Ended(f"the route's boss is dead: {goal.label} next, what does not hurt is not fought")
     if isinstance(act, Advance) and self.barred(act, now):
         act = NoWay(f'{goal.label if goal else "the goal"}: the move there just did not take; looking again')
@@ -210,10 +198,8 @@ def judge(
         and act.reason.startswith('no way toward')
         and (world.game_name, player.area) not in self.wayless
     ):
-        # The route's own goal with no way over the rooms known (Frozenstein's mark 214 away in Frozen River): the
-        # level is explored from here, which grows the way, instead of standing (09:46:02-43 on 2026-10-19: 40 s
-        # idle, the game left by the 45 s watchdog, Frozenstein never reached; the player: "we stuck and exit
-        # without visiting next location and probably without full exploration")
+        # The route's goal with no way over the known rooms: explore to grow the way, never stand (2026-10-19
+        # 09:46, the player: "we stuck and exit without visiting next location")
         self.wayless.add((world.game_name, player.area))
         LOG.info('Macro: agenda: no way to %s: the level is explored for it (cover)', goal.label)
     return Judged(act, goal, place, posted, pressed)
@@ -229,8 +215,7 @@ def safety_priced(
     posted: Pursuit | None,
     rect,
 ) -> Facts:
-    """The facts with the safety's prices (macros/safety.py `Safety.price`): the candidates and the budget the
-    arbiter decides by. As they were with no life read (nothing priced)."""
+    """The facts with the safety's prices (safety.py `Safety.price`); unchanged with no life read."""
     player = world.player
     assert player is not None
     now = facts.now
@@ -272,11 +257,9 @@ def safety_priced(
 
 
 def escorted(self: Hunter, run: Run, world: World, ground: Ground, rect, look, facts: Facts) -> Facts:
-    """The priced facts with the acts that take the mercenary out of a place it dies at (combat/escort.py): a jump
-    that brings the companions along (`JumpSource.brings`: Blade Warp) to a landing round which it lives, priced
-    as the others are (the character's own harm there, the jump's seconds) less what its death would cost. The
-    arbiter chooses among them all (pursuit.py `arbitrate`); said `Macro: pursuit: escorting the mercenary ...`.
-    As they were with nothing priced, no such jump, no mercenary, or none in danger."""
+    """The priced facts plus jumps that bring the mercenary (`JumpSource.brings`: Blade Warp) out of a place it
+    dies at (combat/escort.py), priced as the others less its death's cost. Unchanged with nothing priced, no
+    such jump, or no mercenary in danger."""
     player = world.player
     if not facts.priced or player is None:
         return facts
@@ -302,7 +285,7 @@ def escorted(self: Hunter, run: Run, world: World, ground: Ground, rect, look, f
         seconds = jump.takes(math.dist(here, escort.spot))
         step = PricedStep(escort.spot, jump.skill, None, 'battle', seconds)
         priced = harm(look, escort.spot, settings.horizon, 'battle', settings)
-        # The jump's own seconds and the move's overhead, less the death it spares: one price, the arbiter's unit
+        # The jump's seconds and overhead, less the death it spares
         spent = seconds + settings.move_overhead - escort.credit
         added.append(Candidate(Advance(step, goal, escort.line(), dodge=True), spent, priced, False, seconds))
     if not added:
@@ -311,14 +294,10 @@ def escorted(self: Hunter, run: Run, world: World, ground: Ground, rect, look, f
 
 
 def guard(self: Hunter, run: Run, world: World, foes: list[Monster], ground: Ground) -> Advance | None:
-    """Attack mode with the pursuit loop off (KP_3 as it was, which never moved): the pursuit loop's own safety
-    look and arbiter (`safety_priced`, pursuit.py `decide`), its answer taken only when it is a step the strike
-    goes on from: out of or across a read model's act under way (`Move.dodge`) or to another place a read model
-    or what lies on the ground offers (macros/safety.py STEPPING; not the threat's plain geometry, AWAY), and only
-    one a strike follows from (`Candidate.strikes`). No retreat (not even one within reach: pursuit.py KEEPING),
-    no firing stand, no goal: the mode alone never goes back, so each of those left it out of reach when the boss
-    walked off (the arena, 2026-10-14: fight up to 41 s against 25); rca/2026-10-14/baal-sim.md fix 3. Looked at
-    only with a read model's hostile about (combat/threats `of`) or what lingers after one. None: strike on."""
+    """Attack mode with the pursuit loop off: the pursuit's safety look and arbiter, its answer taken only for a
+    STEPPING move (a dodge, a place a read model offers; not AWAY) that a strike follows from. No retreat, firing
+    stand or goal: the mode alone never goes back, so those left it out of reach (rca/2026-10-14/baal-sim.md
+    fix 3). Looked at only while `guarded`. None: strike on."""
     player = world.player
     if self.pursuing or player is None or run.loot is None or not self.guarded(foes):
         return None
@@ -335,22 +314,18 @@ def guard(self: Hunter, run: Run, world: World, foes: list[Monster], ground: Gro
     act = decide(priced, None)
     if not isinstance(act, Advance) or not act.reason.startswith(STEPPING) or act.reason.endswith(AWAY):
         return None
-    # The strike follows from where it lands, or the mode alone, which never goes back, would stand out of reach
-    # (a dodge out of Baal's inferno ends beyond the blades: baal-sim.md weakness 4)
+    # Only a landing a strike follows from, or the mode would stand out of reach (baal-sim.md weakness 4)
     landing = next((c for c in priced.candidates if isinstance(c.act, Advance) and c.act.step == act.step), None)
     return act if landing is not None and landing.strikes else None
 
 
 def guarded(self: Hunter, foes: Sequence[Monster]) -> bool:
-    """Whether the mode alone looks for a safety step (`guard`): a hostile of a read model about (combat/threats
-    `of`), or what lingers after one. Nothing is read of the game for it."""
+    """Whether `guard` looks: a read model's hostile about (combat/threats `of`) or what lingers after one."""
     return bool(self.safety.casters) or any(threats.of(m.txt_id) is not None for m in foes)
 
 
 def take_guard(self: Hunter, run: Run, aspect: float, key_names, ground: Ground) -> None:
-    """The step `guard` stopped the fight for, made as the pursuit loop makes a dodge (`advance`: its click
-    without the settle, macros/travel.py `step_walk` `hurry`); the player's own move first. Said as
-    `Macro: attack mode: stepping ...`; the mode's next look strikes again."""
+    """Makes the step `guard` chose, as a dodge (`hurry`); the player's own move first. The next look strikes."""
     act, self.guarding = self.guarding, None
     if act is None:
         return  # no look at the game: the mode alone as it was (the loop goldens' reads)
@@ -379,13 +354,10 @@ def take_guard(self: Hunter, run: Run, aspect: float, key_names, ground: Ground)
 def key_asks(
     self: Hunter, run: Run, world: World, foes: list[Monster], ground: Ground, *, unstruck: bool = False
 ) -> bool:
-    """Inside a fight: whether the key pressed asks for something other than the strike now (a move,
-    an object to use, the route's own step), for which the fight lets go as it does for the player's
-    own move. Decided once a press and again every DECIDE_SECONDS while the press is fresh: a goal in
-    reach is held, and the strike is not let go for a press that asks for nothing else. `unstruck`: the
-    strike not pressed yet in this fight: the Hold that began it is its judgement until then, short of a
-    fresh press (a second look and price before the press held the first strike after a landing 0.48 s,
-    44 of 61 landings on Catacombs 4 on 2026-10-18, rca/2026-10-18/andariel-cadence-findings.md F2)."""
+    """Inside a fight: whether the press asks for something other than the strike (a move, a use, the route's
+    step); the fight then lets go. Judged once a press and every DECIDE_SECONDS while fresh. `unstruck`: before
+    the fight's first strike the Hold that began it stands, short of a fresh press
+    (rca/2026-10-18/andariel-cadence-findings.md F2)."""
     now = run.clock()
     if not self.pursuing:
         return False
@@ -400,7 +372,7 @@ def key_asks(
             or (isinstance(act, Ended) and found.posted is not None and found.posted.looped)  # the loop's run over
         )
         if isinstance(act, Hold) and found.pressed:
-            # A fresh press answered by the strike says so at that look (I6), as `pursue` does
+            # A fresh press answered by the strike says so (I6)
             label = found.goal.label if found.goal is not None else 'the goal'
             self.tell(run, act.reason or f'{label}: the least-time safe act is the fight', again=SAID_AGAIN)
         self.judged = (current, now, asks)
@@ -408,10 +380,8 @@ def key_asks(
 
 
 def tell(self: Hunter, run: Run, reason: str | None, *, aloud: bool = True, again: float | None = None) -> None:
-    """A decision that moved nothing is said with its reason, once per change (never once per press).
-    Not `aloud`: to the log alone (what the mode does with no press asking: its idle look, as before).
-    `again`: seconds after which the same reason is said once more (a held key whose act stays the strike
-    hears why at that rate: I6, each press has its line; never at the rate of the presses)."""
+    """Says a decision that moved nothing, once per change of reason. Not `aloud`: the log only. `again`: seconds
+    after which the same reason is said once more (I6)."""
     repeated = (
         again is not None and reason is not None and reason == self.told.reason and run.clock() - self.told_at >= again
     )
@@ -423,11 +393,9 @@ def tell(self: Hunter, run: Run, reason: str | None, *, aloud: bool = True, agai
 
 
 def defer(self: Hunter, run: Run, goal: Goal | None, why: str, seen: Pursuit | bool | None = True) -> None:
-    """The press is the route's own step's (a door, the loot, the leaving; a panel open; the town),
-    or with no goal the key's own routine's: the mode pauses for that step as it does for the pickup
-    step (Cancelled, the runner follows with the key's routine), and the press is taken out of the
-    mailbox. A level run's leash stays: the mode goes on with it after the step. `seen`: the mailbox as
-    the look read it; a press posted since stays for the next look (True: whatever it holds now)."""
+    """Hands the press to the route's own step (a door, the loot, the leaving, a panel, the town) or the key's
+    routine: raises Cancelled and takes the press out of the mailbox (a level run's leash stays). `seen`: the
+    mailbox as the look read it; a press posted since stays (True: whatever it holds now)."""
     with self.mailbox:
         posted = self.pursuit if seen is True else seen
         if not isinstance(posted, Pursuit):

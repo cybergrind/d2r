@@ -1,6 +1,5 @@
-"""Game ticks for a take: the recorder's sample counter `n` goes up by one per sample, but samples come late
-sometimes, so the simulator needs the game frame each sample really belongs to. Also the stays in an area
-and the mouse buttons. Covers review.md finding 6.
+"""Game ticks for a take (review.md finding 6): the game frame each sample really belongs to, since samples come late
+sometimes; also the stays in an area and the mouse buttons.
 """
 
 import math

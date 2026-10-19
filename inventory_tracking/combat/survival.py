@@ -1,13 +1,9 @@
-"""Survival, the pure part: what the character's life has been doing and whether to drink now
-(macros/architecture.md §4.4; the keys are pressed by macros/drinking.py).
+"""Survival, the pure part: what the character's life has been doing and whether to drink now (macros/architecture.md
+§4.4; macros/drinking.py presses the keys). Readings in, a `Pressure` and a potion kind out; no game, no clock.
 
-The user's rulings (2026-10-12): drink when the life is not full, "maybe 90% mark", without wasting the
-potions; rejuvenations for the more severe situations; judge by whether the loss is sustained, how bad it
-is and how many potions the belt and the ground hold. The drinking is `make serve`'s first; `make osd`
-(automation/heal.py) stays the independent last resort: under 40% of the life, or 30% of it lost within
-a second. So the marks here lie above the healer's: where they hold, it has nothing to do.
-
-Nothing here reads the game or a clock: readings in, a `Pressure` and a potion kind out.
+The user's rulings (2026-10-12): drink when the life is not full, "maybe 90% mark", without wasting the potions;
+rejuvenations for the more severe situations. `make osd` (automation/heal.py) stays the independent last resort
+below these marks.
 """
 
 from collections.abc import Mapping, Sequence
@@ -84,8 +80,7 @@ class DrinkSettings(Config):
 
     enabled: bool = True
     healing_below: Percent = 90.0  # user: "maybe 90% mark is good"
-    # A healing potion is drunk under `healing_below` only while life is being lost, or under `idle_below`
-    # whatever happens: a scratch that nothing adds to is left to mend, and no potion is spent on it.
+    # Under `healing_below` only while life is being lost; under `idle_below` whatever happens.
     idle_below: Percent = 75.0
     healing_gap: Positive = 6.0  # seconds a healing potion is given to work before the next one
     hurry_below: Percent = 65.0  # under it the gap is `hurry_gap`

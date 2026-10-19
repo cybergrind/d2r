@@ -1,15 +1,9 @@
 """Where a monster can be struck from: lines of sight over the loaded rooms' walkable sub-tiles.
 
-Echoing Strike's blades fly over the ground (missiles.txt `echoingstrike`, collide type 3: walls stop
-them), so a shot is clear when every sub-tile along the line from the character to the monster is
-walkable by the grids the level guide read (levels/model.Ground), and no closed door stands on it
-(levels/doors.py: the door units' modes, since the Catacombs runs of 2026-10-10 shot through closed
-doors). Sub-tiles no grid covers count as blocked once the level has any walls read: the rooms
-around the character are the loaded ones and have grids, so an unknown cell on the way is a room
-not read (unverified footing is no place to shoot into: those runs teleported to spots with no
-shot); with no grid at all every cell counts as clear. Both ends of the line are skipped by a
-margin, as a monster or the character often stands on a doorway's or a lava bank's edge. The user
-asked for this on 2026-10-09: the hunt must not try to hit through walls.
+Echoing Strike's blades are stopped by walls (missiles.txt `echoingstrike`, collide type 3), so a shot is clear when
+every sub-tile on the line is walkable by levels/model.Ground and no closed door (levels/doors.py) stands on it. Once a
+level has walls read, a cell no grid covers counts as blocked (a room not read); with no grid every cell is clear.
+"The hunt must not try to hit through walls" (the player, 2026-10-09).
 """
 
 import math
@@ -23,9 +17,8 @@ from inventory_tracking.native.layout import TILE_UNITS
 
 
 SAMPLE = 0.5  # world units between the sub-tiles looked at along a shot
-# World units at both ends of a shot not looked at: a monster often stands on a wall's very edge, and so
-# does the character (River of Flame's lava-edge tiles are unwalkable by the grids while the character
-# stands on them, host 2026-10-09: a shot that failed at its own first sample found nothing in reach).
+# World units skipped at both ends of a shot: monster and character often stand on an unwalkable edge (River of
+# Flame's lava bank, 2026-10-09).
 MARGIN = 1.5
 BEARINGS = 16  # spots around a monster tried per ring
 NEAREST_RING = 4.0  # world units: the innermost ring of firing spots
@@ -33,9 +26,8 @@ RING_STEP = 3.0
 
 
 def clear_shot(ground: Ground, start: Point, end: Point, doors: Sequence[Door] = ()) -> bool:
-    """Whether nothing known blocks a line from `start` to `end` (world units): a cell a missile does
-    not fly through (the grid's flight layer; the walk bit where a grid has none), a cell no grid
-    covers when the level has walls, or a closed door."""
+    """Whether nothing known blocks the line: a cell missiles do not fly through (flight layer, else walk bit), an
+    uncovered cell on a walled level, or a closed door."""
     length = math.dist(start, end)
     if length <= 2 * MARGIN:
         return True
@@ -63,12 +55,9 @@ def in_reach(ground: Ground, player: Point, mob: Point, reach: float, doors: Seq
 def firing_spots(
     ground: Ground, mob: Point, reach: float, player: Point, doors: Sequence[Door] = (), engage: float | None = None
 ) -> list[Point]:
-    """Points around `mob` (world units) with footing and a clear shot at it, within `reach`: rings
-    `RING_STEP` apart from just inside the reach down to `NEAREST_RING`, `BEARINGS` points on each.
-    Where no grid is known a spot counts as footing. The nearest to `player` first; with `engage` (the
-    attack's: `Attack.engage`), the ring nearest it first and on it the nearest to `player`: the ring
-    just inside the reach left a level run's approaches 17 units from the monster, where a third of the
-    casts hit nothing (rca/2026-10-14/run-1932-findings.md §4.2, rule 1)."""
+    """Spots around `mob` with footing and a clear shot, on rings from just inside `reach` down to `NEAREST_RING`.
+    Ordered nearest to `player`; with `engage`, the ring nearest it first (the outer ring missed a third of casts:
+    rca/2026-10-14/run-1932-findings.md §4.2)."""
     found = []
     radius = reach - RING_STEP
     while radius >= NEAREST_RING:

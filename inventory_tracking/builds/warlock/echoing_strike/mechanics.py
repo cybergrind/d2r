@@ -1,26 +1,10 @@
 """Echoing Strike's blades as the recordings show them (combat/plan.md stage 3).
 
-Measured on the second Chaos Sanctuary take (2026-10-09, 268 casts of five blades, missile txt
-id 706, owner at unit record offset 0xEC): the five blades spawn AHEAD units in front of the
-caster, LATERAL units across the aim line, and each flies straight at the focal point, so they
-converge there (the recorded convergence lies at 0.98 of the pointer's distance), pass through
-it, reach their furthest point at OUT_FRAMES, then home back on the caster's current position at
-the same SPEED and vanish next to them (LIFE frames in all; recorded lifetime 38). Hits land on
-the way out and on the way back. The focal point is where the pointer stood about POINTER_LAG
-frames before the blades appear (the press, the cast animation, then the spawn). Emulated
-against the recorded blade positions with the focal point fitted from the blades themselves,
-the root mean square error is 1.0 units outbound and 1.6 on the return.
-
-The game's own rows (combat/data/tables.json, 2026-10-10) agree: missiles.txt 706 `echoingstrike`
-has Vel 24, Range 20 frames, ReturnFire 1 (the way back), NextDelay 20 (the same target can be hit
-again twenty frames later: once out, once back), CollideType 3 (walls stop it); skills.txt 388 is
-a weapon attack (SrcDam 116/128 of the weapon's damage plus 8-12 flat, +30% and +5% per level,
-to-hit lvl*10) whose blade count is 1 + Mirrored Blades level / 5 (five at level 20) and whose
-blades after the first deal (100 / count) / 2 percent each: 10% with five. So five blades
-converging on one monster deal 1.4 times one blade, while a line through five monsters deals
-five times: the aim should spread the blades over the pack, not stack them on one body. The
-recorded life drops agree: 30/128 at the median with one blade near the monster, 39/128 with all
-five.
+Five blades (missile 706) spawn AHEAD of the caster LATERAL across the aim line, fly straight at the focal point
+(the pointer POINTER_LAG frames before), converge and pass through it to OUT_FRAMES, then home back on the caster at
+SPEED; hits land out and back. The game's rows agree (missiles.txt 706, skills.txt 388): blades after the first on
+one monster deal (100 / count) / 2 percent, so five on one body deal 1.4 blades and a line through five monsters
+five: spread the blades over the pack. Measures and the fit: builds/history/warlock-echoing_strike-mechanics.md.
 """
 
 import math
@@ -50,10 +34,8 @@ def aim_frame(origin: Point, focal: Point) -> tuple[Point, Point]:
 
 
 def stopped(blocked: Callable[[Point], bool] | None, before: Point, after: Point) -> bool:
-    """Whether a blade flying from `before` to `after` in one frame meets a wall: at the step's
-    middle or its end. A step is SPEED = 1.12 units and a cell 1, so the end alone let blades
-    through walls one cell thick (Catacombs 3, 2026-10-10 21:43: the fight aimed 3 s at a monster
-    behind such a wall, as two of the five blades were counted as reaching it)."""
+    """Whether a blade flying from `before` to `after` in one frame meets a wall, at the step's middle or end: a
+    step (SPEED) is longer than a cell, so the end alone let blades through one-cell walls (Catacombs 3, 2026-10-10)."""
     if blocked is None:
         return False
     middle = ((before[0] + after[0]) / 2, (before[1] + after[1]) / 2)
@@ -99,11 +81,9 @@ def cast(
 
 
 def flown(origin: Point, focal: Point, blocked: Callable[[Point], bool] | None) -> float | None:
-    """Units from `origin` along the aim line the middle blade of `cast` gets on its way out before a wall
-    `blocked` says stops it, with the character standing (its way back retraces the way out): None when it
-    flies its whole way out and comes back. The middle blade flies the aim line itself, the others converge on
-    it, so it says where the cast ends at a fraction of `cast`'s price: a place is priced by it for every
-    hostile in reach (combat/stance.py `taken`)."""
+    """Units from `origin` the middle blade of `cast` gets on its way out before a wall stops it, the character
+    standing; None when it flies out and back. The middle blade flies the aim line, so it says where the cast ends
+    at a fraction of `cast`'s price (combat/stance.py `taken`)."""
     if blocked is None:
         return None
     along, _ = aim_frame(origin, focal)

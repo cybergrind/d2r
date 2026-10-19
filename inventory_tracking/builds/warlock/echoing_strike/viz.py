@@ -1,21 +1,11 @@
-"""Takes exported for the replay viewer (combat_viewer/, a Godot project): one JSON file per take
-holding what stood where at every game tick, the recorded casts and each policy's casts through
-the simulator on the same situation, and the moments where the two differ most.
+"""Takes exported for the replay viewer (combat_viewer/, a Godot project): one JSON file per take holding what stood
+where at every game tick, the recorded casts and each policy's casts through the simulator on the same situation, and
+the moments where the two differ most.
 
 `python -m inventory_tracking.builds.warlock.echoing_strike.viz <take directory>` writes `<take>.json` and refreshes
-`index.json` beside it, printing each stage as `[2/6] the recorded casts` (the viewer runs this for
-one take and shows the line); with a directory of takes it exports every take that holds enough full
-casts and writes the index of all of them. The files go to `runs/combat/viz/` (git-ignored) unless
-`--out` says otherwise. The viewer reads nothing else.
-
-The file's layout is written down once, in combat_viewer/README.md ("The exported file"): this
-module and the viewer's `take_data.gd` are both built against it. In short: every coordinate is an
-integer, `scale` to a world unit, measured from `origin`; every time is a `Situation` tick; a
-position over time is a track (`seen` spans and `k` keyframes), a value over time a step series.
-
-The numbers are the simulator's own (sim/engine.py `simulate`, sim/policy.py `candidate`,
-`run_policy`, `policy_score`, the same calls `compare` makes), and the blades are the mechanics'
-(`echoing_strike.cast` with the origin, the caster's path and the walls the engine gives it).
+`index.json` beside it, printing each stage; with a directory of takes it exports every take with enough full casts.
+Output goes to `runs/combat/viz/` (git-ignored) unless `--out` says otherwise. The layout is written down once, in
+combat_viewer/README.md ("The exported file"). The numbers are the simulator's own (sim/engine.py, sim/policy.py).
 """
 
 import argparse

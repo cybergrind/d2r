@@ -1,10 +1,7 @@
 """Which levels a route may start in and which touch each other without a door.
 
-WAYPOINTS: levels.txt `Waypoint` (d2data levels.json, read 2026-10-12). BORDERS: outdoor levels
-joined edge to edge, which levels.txt's Vis slots (levels/presets.py LEVEL_LINKS) do not list:
-the act's first level beside its town, and the pairs the handlers name by border gap or border
-rooms (levels/handlers/cold_plains.py, pit.py, desert.py, kurast.py, outer_steppes.py,
-act5_outdoors.py). Only the pairs a route uses are here.
+WAYPOINTS: levels.txt `Waypoint` (d2data levels.json, 2026-10-12). BORDERS: outdoor levels joined edge to
+edge, which levels.txt's Vis slots (levels/presets.py LEVEL_LINKS) do not list; only the pairs a route uses.
 """
 
 from inventory_tracking.levels.presets import LEVEL_LINKS

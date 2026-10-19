@@ -1,8 +1,5 @@
-"""What is left of the casts under the held strike once they became a build's buff plan: the plan is
-the build's (builds/warlock/buffs.py for the Warlock, with its casters), and macros/buffs.py runs it.
-
-`Rotation` is the executor under the name the replays patch it by (`Rotation.key`); `ELITE_LIFE` is
-the hunt's own number.
+"""The buff executor (macros/buffs.py) under the name the replays patch (`Rotation.key`); the plan is the build's
+(builds/warlock/buffs.py). `ELITE_LIFE` is the hunt's own number.
 """
 
 from inventory_tracking.macros.buffs import Buffs as Rotation

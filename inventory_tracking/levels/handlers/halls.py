@@ -1,14 +1,4 @@
-"""Halls of Anguish and Halls of Pain (Death's Calling): the stairs-down quadrant.
-
-Confirmed 2026-09-30 in Halls of Pain (fixtures halls_of_pain_nw_down, halls_of_pain_live; the
-user checked the direction in game).
-
-Each level is four 40x40 Temple quadrants (NE, SE up, NW/SW Down, SW/NE Waypoint), each
-split into 25 8x8 Room2 chunks; the POI is the whole 'Down' quadrant (dump
-20260930T082324Z-9fecf33f). The Temple family has no "Next" preset.
-2026-10-06: the Halls of Pain waypoint quadrant ('Temple NW/SE/SW Waypoint' in the evidence) is
-marked too; the stairs up are a warp the generic rule names (levels/exits.py).
-"""
+"""Halls of Anguish and Pain: the whole stairs-down quadrant and the waypoint quadrant (confirmed 2026-09-30)."""
 
 from inventory_tracking.levels.handler import PoiSpec, target
 

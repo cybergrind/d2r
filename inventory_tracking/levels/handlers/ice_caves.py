@@ -1,13 +1,4 @@
-"""Crystalline Passage and Glacial Trail: the level ahead, the side cave, the waypoint and the way back.
-
-Unconfirmed (from d2data levels/lvlprest, 2026-10-01; no evidence yet). Both are 'Act 5 - Ice'
-mazes of 16x16 presets. levels.json: Vis0 is the way back, Vis1 (Warp 74, 'Ice Next') the level
-ahead and Vis2 (Warp 75, 'Ice Down') the side cave: Frozen River (114, Anya) off Crystalline
-Passage (113), Drifter Cavern (116) off Glacial Trail (115). Both place 'Ice waypoint …'. The
-side caves are single fixed presets ('Ice River A/B', 'Ice Pool A/B'): no handler.
-Ancients' Way (118, Glacial Caves 1; 2026-10-01, same DRLGMAZE_PlaceAct5IceStuff) places 'Ice
-Next' (Arreat Summit), 'Ice Down' (the Icy Cellar), 'Ice waypoint' and 'Ice Prev'.
-"""
+"""Act 5 ice mazes: 'Ice Next' (levels.json Vis1) the level ahead, 'Ice Down' (Vis2) the side cave."""
 
 from inventory_tracking.levels.handler import Handler, PoiSpec, previous, waypoint
 

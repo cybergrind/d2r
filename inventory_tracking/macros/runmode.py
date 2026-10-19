@@ -1,28 +1,12 @@
-"""The pickup key's run mode: how much of a level one press runs (the player's ruling of 2026-10-14,
-rca/2026-10-14/kp1-mode.md).
+"""The pickup key's run mode: how much of a level one press runs (the player, 2026-10-14; rca/2026-10-14/kp1-mode.md).
 
-- **goal** (the default): the level run goes to the level's goal (the route's stages of the level: the
-  River of Flame to the door of the Chaos Sanctum, the Chaos Sanctuary to Diablo) and fights what it meets
-  on the way (macros/goals.py `clear_way`). Entered from the waypoint the River is cleared about half way;
-  from the City of the Damned all the way. The rest of the level is left.
-- **full clear**: the whole level first (what is in sight, what the tracker remembers alive, the rooms not
-  explored yet), then the route's stages. The default on a level that is a terror zone now (terror/tracker.py
-  `terrorized`), or when the player switches to it.
+- **goal** (default): go to the route's goal, fighting what is on the way (macros/goals.py `clear_way`).
+- **full clear**: the whole level first, then the route's stages. Default on a terror zone (terror/tracker.py).
 
-The switch is a double press of the pickup key: exactly two presses, the second within DOUBLE seconds of the
-first. Both presses are level-run presses as any other (the run starts or goes on); the mode turns over once
-the window after the second has passed with no third press, so a mashed key (three presses and more, each
-0.19 to 0.4 s apart: 109 KP_1 presses since the level run, rca/2026-10-14/kp1-mode.md §2) switches nothing.
-The switch holds for the level it was made on and lapses on any other (a town visit included).
-
-A double press is judged by the clock, not by when the hunt looks: its window closes DOUBLE after its second press
-whether or not a look comes then, and a pair whose window closed before the next look still switches (`owed`). The
-game of 22:04 on 2026-10-14 (rca/2026-10-14/run-1904-findings.md §3.3) lost two of the player's pairs: a Blade Warp
-in flight and then the paused run made no look in their windows, and the next press 1.2 s and 2.3 s later began a new
-group over them. Every pair is honoured, the one that starts a run included (the player's ruling of 2026-10-14).
-
-Pure: the presses (`Taps`) are recorded by the hunt under its mailbox lock as they are posted, and judged at a
-look (`doubles`); nothing here reads the game.
+A double press (exactly two, within DOUBLE) switches the mode once the window after the second closes, so a mashed
+key switches nothing; the switch lapses on leaving the level. Pairs are judged by the clock, not the hunt's looks:
+a pair whose window closed unseen is `owed` (rca/2026-10-14/run-1904-findings.md §3.3). Pure: the hunt records
+`Taps` under its mailbox lock and judges them at a look (`doubles`).
 """
 
 import math
@@ -31,8 +15,7 @@ from dataclasses import dataclass, replace
 from inventory_tracking.routes.model import ENTER, FIGHT, STAND, USE, Script
 
 
-# Seconds: the second press of a double press comes within this of the first. The player's own pairs since the
-# level run came 0.20 to 0.29 s apart (session logs 2026-10-13 23:56 to 2026-10-14 15:16, kp1-mode.md §2).
+# Seconds between a double press's two presses; the player's pairs came 0.20-0.29 s apart (kp1-mode.md §2).
 DOUBLE = 0.35
 TERROR = 'terror zone'
 AGENDA = 'the terror zone loop'  # macros/tzloop.py: the agenda's targets, then the route's stages
@@ -41,10 +24,8 @@ SWITCHED = 'switched by the player'
 
 @dataclass(frozen=True)
 class Taps:
-    """The pickup key's last presses, one group: each came within DOUBLE of the one before. `judged`: the group
-    has been looked at as a double press (it turns the mode over once). `owed`: the double presses of the groups
-    before it that no look acted on, as (first, last) in the order they were made: each turns the mode over at the
-    next look (`doubles`)."""
+    """The last group of presses, each within DOUBLE of the one before. `judged`: acted on as a double press.
+    `owed`: earlier groups' double presses no look acted on, as (first, last)."""
 
     first: float = -math.inf
     last: float = -math.inf
@@ -54,8 +35,7 @@ class Taps:
 
 
 def tapped(taps: Taps, at: float) -> Taps:
-    """`taps` with a press made at `at`: one more of the group when within DOUBLE of its last, else a new group. A
-    group it ends that was a double press no look acted on is owed (its window closed by the clock)."""
+    """`taps` with a press at `at`: joins the group within DOUBLE, else starts one (an unjudged pair ended is owed)."""
     if 0.0 <= at - taps.last <= DOUBLE:
         return replace(taps, last=at, count=taps.count + 1)
     owed = (*taps.owed, (taps.first, taps.last)) if taps.count == 2 and not taps.judged else taps.owed
@@ -63,14 +43,12 @@ def tapped(taps: Taps, at: float) -> Taps:
 
 
 def doubled(taps: Taps, now: float) -> bool:
-    """Whether the group is a double press to act on now: exactly two presses, the window after the second over
-    (a third would make it a mashed key), not acted on yet."""
+    """Whether the group is an unjudged pair whose window has closed."""
     return taps.count == 2 and not taps.judged and now - taps.last > DOUBLE
 
 
 def doubles(taps: Taps, now: float) -> tuple[tuple[tuple[float, float], ...], Taps]:
-    """The double presses to act on at a look at `now`, in the order made, as (first, last): those owed, then the
-    group's own once its window is over; and the presses with them acted on."""
+    """The double presses to act on at `now` (owed, then the group's own), and the taps with them acted on."""
     found = taps.owed
     if doubled(taps, now):
         found = (*found, (taps.first, taps.last))
@@ -80,19 +58,15 @@ def doubles(taps: Taps, now: float) -> tuple[tuple[tuple[float, float], ...], Ta
 
 @dataclass(frozen=True)
 class Mode:
-    """How much of the level a run works: `clear` the whole of it, else its goal; `why` the mode is not the
-    default (`TERROR`, `SWITCHED`), '' when it is."""
+    """`clear` the whole level, else its goal; `why` it is not the default ('' when it is)."""
 
     clear: bool
     why: str = ''
-    # The terror zone kinds' run (macros/tzloop.py): what of the level is worked is the agenda's (its policy: TZ
-    # leveling's leaders, Full clear TZ's every hostile), then the route's stages
-    agenda: bool = False
+    agenda: bool = False  # the terror zone loop (macros/tzloop.py): the agenda's targets, then the route's stages
 
 
 def mode_of(area: int | None, terror: bool | None, switched: tuple[int, bool] | None) -> Mode:
-    """The mode on level `area`: the player's switch where it was made on this level ((level, full clear)),
-    else full clear on a terror zone, else the goal."""
+    """The mode on `area`: the player's switch made on it, else full clear on a terror zone, else the goal."""
     if switched is not None and area is not None and switched[0] == area:
         return Mode(switched[1], SWITCHED)
     if terror:
@@ -101,8 +75,7 @@ def mode_of(area: int | None, terror: bool | None, switched: tuple[int, bool] | 
 
 
 def aim_of(script: Script | None) -> str | None:
-    """What a level's route goes to in the end, for the log: its last stage that is gone to (a boss fought, a door
-    entered, an object used, a mark stood at), by name. None: the level has no route."""
+    """The name of the route's last boss or mark, for the log; None without a route."""
     if script is None:
         return None
     for stage in reversed(script.stages):

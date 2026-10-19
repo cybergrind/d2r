@@ -1,25 +1,12 @@
-"""The simulator (combat/plan.md stage 4): casts at given frames and focal points, the blades
-emulated (../mechanics.py), contacts with the monsters' recorded positions
-(../hits.py radius), damage per contact from data/damage.json with the duplicate rule
-(skills.txt calc6: blades after the first of a cast on a monster deal DUPLICATE of it), deaths
-when the points run out. Monsters move open loop along their recorded paths; a monster the
-simulation kills takes no more contacts, one it has not killed yet keeps its recorded path to its
-recorded end. The companions (the mercenary, the bound demon, the Defiler) deal a rate of points
-per frame to the nearest live hostile within their reach while they stand there (data/damage.json
-`companions`, from the recorded drops no blade explains, 2026-10-10). The Defiler's Health Link
-(skills.txt 405) links up to LINKS live hostiles nearest it within its aura range; damage to a
-linked monster is dealt again at SHARE to every other linked one (data/damage.json `health_link`;
-user, 2026-10-10: "our companion casts an aura that makes mobs share a portion of damage"). Hex
-Purge (skills.txt 389, a buff on the character) hexes every monster a blade hits; when a hexed
-monster dies it explodes for `points` of magic damage on every live hostile within `radius`
-(data/damage.json `hex_purge`; the trigger taken as death from the takes, user 2026-10-10: "doing
-AoE damage"). Death Mark (skills.txt 375) at the situation's recorded presses makes each hit of a blade or an
-explosion on the marked monster take `points` more for `frames` (data/damage.json `death_mark`: the skill's flat
-reductions, not a percent; the companions' rates are per frame, their hits not counted, so they take none). Sigil:
-Lethargy lowers what monsters deal, not what they take: nothing here.
+"""The simulator (combat/plan.md stage 4): casts at given frames and focal points, the blades emulated
+(../mechanics.py), contacts with the monsters' recorded positions (../hits.py), damage per contact from
+data/damage.json with the duplicate rule, deaths when the points run out. Monsters move open loop along their
+recorded paths until killed. Alongside: the companions' rates on the nearest hostile, the Defiler's Health Link
+(LINKS nearest, SHARE dealt again; user, 2026-10-10: "our companion casts an aura that makes mobs share a portion
+of damage"), Hex Purge's explosion on a hexed monster's death (user, 2026-10-10: "doing AoE damage") and Death
+Mark's flat points at the recorded presses. Sigil: Lethargy changes nothing here.
 
-The calibration gate (`replay`): the recorded casts replayed with their focal points, compared
-with the recorded kills and life drops.
+The calibration gate (`replay`): the recorded casts replayed, compared with the recorded kills and life drops.
 """
 
 import math
@@ -87,9 +74,7 @@ class Outcome:
     linked_damage: dict[int, float] = field(default_factory=dict)  # monster unit -> points shared through Health Link
     explosion_damage: dict[int, float] = field(default_factory=dict)  # monster unit -> points from Hex Purge explosions
     mark_damage: dict[int, float] = field(default_factory=dict)  # monster unit -> the extra points Death Mark added
-    # Source (BLADES, COMPANIONS, LINK, EXPLOSIONS) -> the life it took off the monsters. The bags above hold
-    # the blows as struck (a 1,000-point blow on a monster with 100 left is 1,000 there, 100 here): the
-    # blows are what Health Link shares and what the life curves follow; the life taken is the score.
+    # Source -> the life it took off the monsters (the score). The bags above hold blows as struck, overkill and all.
     removed: dict[str, float] = field(default_factory=dict)
     contacts: int = 0
     casts: int = 0
@@ -132,15 +117,10 @@ def simulate(
     mana: tuple[float, float, float] | None = None,
     mortal: bool = True,
 ) -> Outcome:
-    """Run the situation frame by frame: the given `casts` ((blade birth frame, focal point)) and,
-    with a `policy`, the casts it asks for when the character is free and the mana allows (the
-    cadence of sim/input.py). The companions (`companions`: txt id -> (reach, points per frame), the
-    data file's by default), the Defiler's Health Link (`link`: (range, links, share)), Hex Purge's
-    explosion (`explosion`: (radius, points)), Death Mark (`mark`: (points a hit, frames)) and the
-    mana model (`mana`: (pool, regeneration per frame, cost)) run alongside. With `mortal` off the
-    monsters live exactly as long as the record shows them, whatever the simulation deals (the
-    two-sided gate: what the model deals over the recorded exposure); a hexed monster then explodes
-    at its recorded death."""
+    """Run the situation frame by frame: the given `casts` ((blade birth frame, focal point)) and, with a `policy`,
+    the casts it asks for when the character is free and the mana allows (sim/input.py cadence). `companions`,
+    `link`, `explosion`, `mark` and `mana` override the data file's models. With `mortal` off the monsters live as
+    long as the record shows (the two-sided gate); a hexed one then explodes at its recorded death."""
     from inventory_tracking.builds.warlock.echoing_strike.sim.input import BIRTH_LAG, CAST_FRAMES
 
     damage_of = damage_of or damage_table()
@@ -326,18 +306,11 @@ def score(situation: Situation, outcome: Outcome) -> dict[str, Any]:
 
 
 def curves(situation: Situation, outcome: Outcome, lag: int = HIT_LAG, near: float = COMPANION_NEAR) -> dict[str, Any]:
-    """How far the simulated life curves run ahead of and behind the recorded ones, as a share of a
-    life averaged over each monster's engaged frames (from the first drop, simulated or recorded, to
-    its recorded death or last sight), then over the monsters. `ahead` is the simulated loss above
-    the recorded loss `lag` frames later (the server's batches make the record late, never early);
-    `behind` is the recorded loss above the simulated one at the same frame; `bias` is ahead less
-    behind. A simulator that deals too much has a bias above zero, one that deals too little below:
-    the gate fails either way. Ahead and behind together without a bias are scatter: contacts put on
-    the wrong monster or frame, and the mean damage per contact standing in for a roll (a monster
-    with about one blade's worth of life dies of every first contact here and of most in the game).
-    Monsters
-    no companion came within `near` units of are the blades' own side of the model (`away`); the rest
-    carry the companion model too (`near`)."""
+    """How far the simulated life curves run ahead of and behind the recorded ones, as a share of a life averaged
+    over each monster's engaged frames, then over the monsters. `ahead`: simulated loss above the recorded loss
+    `lag` frames later (the record is late, never early); `behind`: the reverse at the same frame; `bias`: ahead
+    less behind (the gate fails either way; ahead and behind without bias are scatter). `away`: monsters no
+    companion came within `near` of; `near`: the rest."""
     sums = {'away': [0, 0.0, 0.0], 'near': [0, 0.0, 0.0]}
     for unit, track in situation.monsters.items():
         full = track.points * track.life_at_start

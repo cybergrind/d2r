@@ -1,8 +1,4 @@
-"""Win+C research dump: which level/room structures the client holds right now.
-
-Question under study: does the client keep the whole current level (every Room2 and
-its presets, e.g. the Arcane Sanctuary arm with the Summoner) or only the Room1s
-streamed around the player? The dump answers it from memory without deciding it.
+"""Win+C research dump: which level/room structures the client holds (every Room2 or only nearby Room1s).
 
 Layout leads, NOT validated on the supported build (third-parties/, 2026-09-30):
 - unit +0x20 act, +0x38 path; path +0x02/+0x06 dynamic x/y, +0x10/+0x14 static
@@ -184,13 +180,9 @@ MAX_MASK_VALUES = 16  # collision cells are a few flag combinations
 
 
 def collision_candidates(probe, room1, room2):
-    """Research: where the Room1 keeps its collision mask (walkable vs blocked sub-tiles).
-
-    D2MOO's ActiveRoom points at a collision grid holding the room's sub-tile bounds and a
-    u16 mask of width x height cells. Look for the Room2's bounds x5 (tiles -> sub-tiles, the
-    unit of player positions) in the Room1 and in each block it points at, then for a pointer
-    beside them that reads as a width x height u16 array. Every match is kept, with its mask.
-    """
+    """Research: where the Room1 keeps its collision mask (D2MOO ActiveRoom's grid: sub-tile bounds plus a
+    u16 width x height mask). Finds the Room2's bounds x5 in the Room1 or a block it points at, then a pointer
+    beside them reading as that array; every match is kept, with its mask."""
     room1_data, bounds = probe.get(room1, ROOM_SIZE), probe.get(room2 + 0x60, 16) if room2 else None
     if room1_data is None or bounds is None:
         return []

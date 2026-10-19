@@ -35,10 +35,8 @@ if TYPE_CHECKING:
 
 
 def leaves(self: Hunter, spot: Point, now: float) -> bool:
-    """Whether a step of the sweep's own to `spot` would leave the valuable it stays by (`held`):
-    further than HOLD_UNITS from it. The sweep clears what it reaches from within that radius
-    (user, 2026-10-11: "we shouldn't move away from valuable drops", "stay in radius, clear
-    around to be safe")."""
+    """Whether a sweep step to `spot` goes further than HOLD_UNITS from the held valuable
+    (user, 2026-10-11: "stay in radius, clear around to be safe")."""
     held = self.held
     if held is None or math.dist(spot, (held.x, held.y)) <= HOLD_UNITS:
         return False
@@ -52,11 +50,9 @@ def leaves(self: Hunter, spot: Point, now: float) -> bool:
 
 
 def gather(self: Hunter, run: Run, here: Point, foes: Sequence[Monster] = ()) -> None:
-    """The sweep picks up on its way (user, 2026-10-11: "when doing KP_1 auto-movement, we should also
-    auto-pickup items/gold"): with the sweep on and something the pickup step would take
-    (pickup.choose), the mode pauses for that step as for a press (Cancelled) and sweeps on after.
-    A drop is stopped for GATHER_TRIES times at most: one no click takes must not hold the mode, and once
-    given up it is neither chosen nor stayed by (said once, with why: `given_up`)."""
+    """Pick up on the way (user, 2026-10-11: "we should also auto-pickup items/gold"): with something
+    pickup.choose takes, pause the mode for the pickup step (Cancelled) and sweep on after. A drop is
+    tried GATHER_TRIES times at most, then given up: neither chosen nor stayed by."""
     now = run.clock()
     if self.pick is None or run.loot is None or not self.sweep.steps or now > self.sweep.until:
         self.held = None
@@ -74,11 +70,8 @@ def gather(self: Hunter, run: Run, here: Point, foes: Sequence[Monster] = ()) ->
     plan = choose(loot, here)
     guarded: tuple[int, int] | None = None  # (the drop left for later, the hostiles near it or the character)
     if plan is not None:
-        # Not with a hostile beside the character or the drop: the stop ends the fight for the
-        # walk and the clicks. Tower Cellar 5, 22:50:55 on 2026-10-11: the sweep stopped for a
-        # potion 15 away with four hostiles within 10 (eight a second later), the clicks took
-        # nothing for 5 s with a monster over the label, and the character died there, the
-        # last 1000 of its life in under a second. The drop waits until the place is clear.
+        # Not with a hostile by the character or the drop: the stop ends the fight (a death in
+        # Tower Cellar 5, 2026-10-11 22:50:55). The drop waits until the place is clear.
         drop = (plan.drop.x, plan.drop.y)
         close = [m for m in foes if min(math.dist((m.x, m.y), here), math.dist((m.x, m.y), drop)) <= GATHER_CLEAR]
         if close:
@@ -90,19 +83,11 @@ def gather(self: Hunter, run: Run, here: Point, foes: Sequence[Monster] = ()) ->
                 )  # fmt: skip
             guarded = (plan.drop.unit_id, len(close))
             plan = None
-    # A valuable in sight the sweep does not take now (no room for it, or hostiles by it) is stayed by: the
-    # Tower, 17:56:14 on 2026-10-11, a Grand Charm came down 20 away, the sweep said nothing, jumped twice
-    # and stood 31 from it; the player went back for it by hand. Not one given up (above): its tries are
-    # spent, and staying by it holds the sweep for nothing (River of Flame, 00:26:49 on 2026-10-14: 3.9 s
-    # of "no better place" by a Large Charm with six hostiles near, run-0025-findings.md §2.3).
-    # Not by gear the filter shows that there is no room for (game/records.py `prized`): the mode goes on to
-    # the hostiles (Drifter Cavern, 19:59:52 on 2026-10-12: "the sweep stays by Magic Kriss", 13
-    # hostiles 39 away and attack mode idle; user: "allow moving when the item isn't very valuable").
-    # The sweep's "must not leave it" is the policy's (macros/lootpolicy.py `verdict`, step 4 of rca/2026-10-18/
-    # arch-level-behaviour.md); in the KP_6 loop a plain valuable with no room is held too (the player, 2026-10-18
-    # 17:50: "we should stop and clear inventory with our designated town routine"). The loop's attack mode ends
-    # with its level run (runner.py `_run_over`) and the sweep runs only outside one: the loop's press holds it
-    # first (macros/pickup.py `pick_up`), and a stand here is the watchdog's 45 s 'stall', a room cause.
+    # A valuable in sight not taken now (no room, hostiles by it) is stayed by; not one given up (its tries
+    # are spent, run-0025-findings.md §2.3). Which to hold is lootpolicy.verdict's (rca/2026-10-18/
+    # arch-level-behaviour.md step 4): not shown gear without room (user: "allow moving when the item isn't
+    # very valuable"); in the KP_6 loop a plain valuable without room too (the player, 2026-10-18: "we should
+    # stop and clear inventory with our designated town routine").
     looped = self.looping()
     sight = [d for d in loot.drops if d.kind == VALUABLE and math.dist(here, (d.x, d.y)) <= HOLD_SIGHT]
     facts = {d.unit_id: {'room': has_room(loot.room, d.size), 'shown': d.unit_id in loot.shown} for d in sight}
@@ -137,9 +122,8 @@ def gather(self: Hunter, run: Run, here: Point, foes: Sequence[Monster] = ()) ->
 
 
 def follow_on(self: Hunter, run: Run, world: World, foes: list[Monster], ground: Ground, key_names) -> bool:
-    """The sweep with nothing in reach: the next place if one is worth it, else a stride toward
-    the nearest hostile within SWEEP_UNITS, else (a wall between) the seek step's own move onto a
-    firing spot at it. Whether a step was taken."""
+    """The sweep with nothing in reach: the next place worth it, else a stride toward the nearest
+    hostile within SWEEP_UNITS, else (a wall between) the seek move onto a firing spot. Whether a step was taken."""
     player = world.player
     rect = run.actuator.keys.focused_window_rect()
     if run.clock() > self.sweep.until or player is None or rect is None:
@@ -163,8 +147,7 @@ def follow_on(self: Hunter, run: Run, world: World, foes: list[Monster], ground:
     if level is None:
         self.sweep.end()
         return False
-    # A wall between: onto a firing spot at the nearest, as the seek step goes to an elite, with
-    # the pointer held as a step holds it (the mode itself aims once and casts at once).
+    # A wall between: onto a firing spot at the nearest, the pointer held as a step holds it.
     nearest = min(near, key=lambda m: math.dist(here, (m.x, m.y)))
     if self.leaves((nearest.x, nearest.y), run.clock()):
         return False
@@ -190,9 +173,7 @@ def sweep_to(self: Hunter, run: Run, found: Step) -> None:
 
 
 def toward(self: Hunter, run: Run, world: World, near: list[Monster], ground: Ground, aspect: float) -> Step | None:
-    """The sweep with no place worth going to and nothing in reach: a stride toward the nearest
-    hostile, to end STAND_OFF short of it. None when there is none (a wall between: the firing
-    spot's to find)."""
+    """A stride toward the nearest hostile, ending STAND_OFF short of it; None when a wall is between."""
     player = world.player
     assert player is not None
     here = (player.x, player.y)
@@ -202,23 +183,17 @@ def toward(self: Hunter, run: Run, world: World, near: list[Monster], ground: Gr
 
 
 def asked_step(self: Hunter, run: Run, world: World, foes: list[Monster], reachable, ground, aspect) -> Step | None:
-    """The pickup request inside a fight. With anything to pick up (pickup.choose: a valuable, gold
-    within a jump, a potion the belt wants) the fight stops for the pickup step at once (Cancelled,
-    which the runner reads as the mode's pause). With nothing: the step to take now, if one is
-    worth it."""
+    """The pickup request inside a fight: with anything pickup.choose takes, pause the fight for the
+    pickup step at once (Cancelled); with nothing, the step to take now, if one is worth it."""
     player = world.player
     assert player is not None
     here = (player.x, player.y)
     plan = choose(unshunned(run.loot(), run.clock()), here) if run.loot is not None else None
     if plan is not None and plan.drop.kind in (HEALING, REJUVENATION) and threat(run)(here, (plan.drop.x, plan.drop.y)):
-        plan = None  # a potion among monsters is left by the pickup step too: no pause of the fight for it
+        plan = None  # the pickup step leaves a potion among monsters too
     if plan is not None:
-        # What the press asks for comes before the fight: the mode pauses for the pickup step now,
-        # as it does with nothing in reach, and fights on after it. First only a valuable did; gold
-        # and potions waited for the fight's end, and the steps the same presses made meanwhile
-        # took the character away from them (Halls of Vaught, 13:57:08 on 2026-10-11: 5221 gold
-        # 12 away, "pickup after: True" three times, then a Blade Warp of 19 and one of 16, and
-        # the pile was out of a jump's reach; user: "we left gold on the ground and moved away").
+        # The press comes before the fight: waiting for its end, the steps meanwhile carried the
+        # character away (user, 2026-10-11: "we left gold on the ground and moved away").
         LOG.info(
             'Macro: pickup asked in the fight with %d of %d hostiles in reach: %s first, %.0f away',
             len(reachable), len(foes), plan.drop.label, math.dist(here, (plan.drop.x, plan.drop.y)),
@@ -226,7 +201,7 @@ def asked_step(self: Hunter, run: Run, world: World, foes: list[Monster], reacha
         self.after_fight.clear()
         raise Cancelled
     if run.loot is not None and plan is None:
-        self.after_fight.clear()  # nothing to pick up: no pickup step, and so no seek step, after the fight
+        self.after_fight.clear()  # nothing to pick up: no pickup (nor seek) step after the fight
         if self.unwait is not None:
             self.unwait()
     found = self.next_step(run, world, foes, ground, aspect, fighting=True)
@@ -241,9 +216,8 @@ def asked_step(self: Hunter, run: Run, world: World, foes: list[Monster], reacha
 
 
 def take_step(self: Hunter, run: Run, aspect: float, key_names=None, ground: Ground | None = None) -> None:
-    """Go to the place the fight stopped for, or the stride's end, by the way it was chosen for
-    (`travel`). The player's own move comes first: a press of theirs, a held key or a character
-    already going drops the step. A step that fails leaves its place alone for a while."""
+    """Take the chosen step (`travel`). The player's own move drops it; a failed step's place is
+    left alone for a while."""
     found, self.stepping = self.stepping, None
     world = run.world()
     player = world.player

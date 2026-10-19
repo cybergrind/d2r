@@ -1,26 +1,17 @@
 """Statistics for the threat level: the life lost per second against the monsters that stood there.
 
-The probe logs an `around` event every second while live monsters stand within a screen of the
-player: their live positions and modes, and the player's life (terror/probe.py). Two such events
-in a row are one sample: who was there, and how much life went in between (drops only, so a
-potion hides nothing). From the samples:
+A sample is two consecutive `around` probe events (terror/probe.py): the monsters within a screen
+and the life lost between (drops only, so a potion hides nothing). Tables:
 
-- by score: the life lost at each pack score of the model (danger.py). The bands are right when
-  the loss rises with the score and the marked scores hold the heavy seconds.
-- by type: the loss laid on the monster types that stood there (non-negative least squares over
-  all samples), per monster and second, beside the model's threat of that type. `off` is how far
-  the type is from the model's average: above 1 the model underrates it, below 1 it overrates.
+- by score: life lost per pack score of the model (danger.py); the loss should rise with it.
+- by type: loss laid on the types present (non-negative least squares), beside the model's threat;
+  `off` above 1 means the model underrates the type.
+- by state: loss under each state on the player, against seconds with none of the model's.
+- by pack: each sample's loss against other types' at the same score, warned and unwarned seconds
+  apart (a warned player is more careful, user 2026-10-07); a type `OFF` times off with
+  `--min-pack-seconds` behind it is `underrated` or `overrated`.
 
-- by state: the loss under each state on the player (curses, chill; unnamed ids are states the
-  model does not use), against the seconds with none of the model's.
-- by pack: where the model and the loss disagree. Each sample belongs to the type of its highest
-  pack, and its loss is held against what the samples of all other types lost at the same score.
-  A warned player is more careful (user, 2026-10-07), so the seconds with a danger mark shown
-  (`marked` of the `around` event; the replayed band in logs without it) are only held against
-  other warned seconds, and the unwarned against the unwarned. A type `OFF` times off either way
-  with at least `--min-pack-seconds` behind it is called `underrated` or `overrated`.
-
-Nothing here changes the model; the factors in danger.py are tuned from these tables by hand.
+The factors in danger.py are tuned from these tables by hand.
 
     uv run --offline python -m inventory_tracking.terror.exposure    (every run's log; or name the logs)
 """

@@ -1,20 +1,10 @@
 """Drinking beside the fight: the belt key pressed while attack mode works (architecture.md §4.4).
 
-The judgement is combat/survival.py's (`pressure`, `drink`); this keeps what it needs between two looks and
-presses the key. `Drinker.look` is called from attack mode's own look at the game (hunt.py `sense`, every
-pause of the mode), and looks at the life and the belt every EVERY seconds:
-
-- the life of the last seconds is kept for the pressure;
-- a potion gone from the belt since the last look was drunk, by this, by the player or by `make osd`: the
-  time since is counted from it, so two drinkers do not each take one for the same blow;
-- the potions on the ground within NEAR of the character count as supply;
-- the key is the belt column's whose hotkey cell holds a potion of the kind asked for.
-- one drinker per blow: before its key the potion is claimed in the healer's ledger (`claim`), which the healer of
-  `make osd` stands off for; a key of the healer's for the character within STAND_OFF leaves the blow to it.
-
-What stops a key of the macro's stops this one too (a key of the player's held, the focus lost), without
-ending the mode: the drink is left for the next look. Nothing is pressed while a Shift key is down: Shift
-and a belt key give the potion to the mercenary.
+The judgement is combat/survival.py's; this keeps the state between looks and presses the key. `Drinker.look` runs
+in attack mode's every pause (hunt.py `sense`), at most every EVERY seconds. A potion gone from the belt counts as
+drunk whoever drank it (this, the player, `make osd`), so two drinkers do not each take one for the same blow; before
+its key the potion is claimed in the healer's ledger. A stopped key (player's key held, focus lost) leaves the drink
+for the next look. Nothing is pressed with Shift down: Shift and a belt key feed the mercenary.
 """
 
 import math
@@ -39,14 +29,11 @@ NEAR = 20.0  # world units: a potion on the ground this near is at hand
 GROUND = {HEALING: PotionType.HEALING, REJUVENATION: PotionType.REJUVENATION}
 SHIFTS = (b'Shift_L', b'Shift_R')
 NAMES = {PotionType.HEALING: 'Healing potion', PotionType.REJUVENATION: 'Rejuvenation potion'}
-# Seconds from the healer's key for the mercenary (its ledger's stamp) within which a potion of that kind gone from the
-# belt is taken for that one: the healer saw its potion leave the belt 0.17 to 0.19 s after its key (osd.log of
-# 2026-10-14, 06:08:53.19 to 57.72, four potions), and this looks at the belt every EVERY.
+# Seconds after the healer's key for the mercenary within which a potion gone from the belt is taken for that one (it
+# leaves the belt 0.17-0.19 s after the key, osd.log 2026-10-14)
 GIVEN_WITHIN = 1.0
-# Seconds after the healer's key for the character (its ledger's stamp) within which the macro leaves a blow to it:
-# its potion leaves the belt 0.17 to 0.19 s after its key (above), and this looks every EVERY; one look more.
-# The macro's key and the healer's, 50-70 ms apart at the same 65% mark, took two potions for one blow twice in
-# the Icy Cellar on 2026-10-14 (rca/2026-10-14/run-1932-findings.md issue 2).
+# Seconds after the healer's key for the character within which the macro leaves the blow to it: that leave time plus
+# one look (two potions for one blow, rca/2026-10-14/run-1932-findings.md issue 2)
 STAND_OFF = 0.5
 
 
@@ -78,7 +65,7 @@ class Drinker:
         self.last: Loot | None = None  # the loot of the last look (macros/supply.py reads the belt from it)
         self.looked_at = -math.inf
         self.busy = False
-        # A belt key pressed in controller mode, watched for its cell emptying (macros/pad.py `Pad drink:`):
+        # A belt key pressed in controller mode, watched for its cell emptying:
         # (key, kind, potions of the kind on the belt before, clock time of the key)
         self.pad_drink: tuple[str, PotionType, int, float] | None = None
 
@@ -118,22 +105,20 @@ class Drinker:
         return kind if self.take(run, key, kind, loot, felt) else None
 
     def take(self, run: Run, key: str, kind: PotionType, loot: Loot, felt: Pressure) -> bool:
-        """The potion claimed (`claim`) and its key pressed (`press`); whether it went out. A claim whose key did not
-        go out is given back."""
+        """Claim the potion and press its key; whether it went out. A claim whose key did not go out is given back."""
         claim = self.claim(run, kind, run.clock())
         if claim is not None and not claim.taken:
             return False
         if self.press(run, key, kind, loot, felt):
             return True
         if claim is not None and run.ledger is not None:
-            run.ledger.unclaim(Actor.PLAYER, kind, claim)  # no key went out: the healer is not held off for it
+            run.ledger.unclaim(Actor.PLAYER, kind, claim)
         return False
 
     def claim(self, run: Run, kind: PotionType, now: float) -> Claim | None:
-        """One drinker per blow: the character's potion of `kind` claimed in the healer's ledger before the key
-        (automation/ledger.py `PotionLedger.claim`), so `make osd` stands off for its cooldown of that kind; refused
-        while the healer's own key for it is younger than STAND_OFF (its potion not gone from the belt yet: the next
-        look sees it go, and counts it) or the healer is pressing. None: no ledger (no healer), the key goes out."""
+        """One drinker per blow: claim the character's potion of `kind` in the healer's ledger, so `make osd` stands
+        off; refused while the healer's own key for it is younger than STAND_OFF or the healer is pressing. None: no
+        ledger, the key goes out."""
         if run.ledger is None:
             return None
         found = run.ledger.claim(Actor.PLAYER, kind, now, within=STAND_OFF)
@@ -144,10 +129,9 @@ class Drinker:
         return found
 
     def mercenarys(self, run: Run, kind: PotionType, now: float) -> int:
-        """Of the potions of `kind` gone from the belt since the last look, how many the healer gave the mercenary
-        (`Run.given`, its ledger): its key within GIVEN_WITHIN before now, each key counted once. Those do not hold
-        back the character's (the game of 06:05 on 2026-10-14, run-0305-findings.md §5.5: three potions of the
-        mercenary's kept the character at 67-70% without one for 7 s); the rest are taken for the character's."""
+        """How many of the potions of `kind` gone since the last look the healer gave the mercenary (its key within
+        GIVEN_WITHIN, each key counted once). Those do not hold back the character's
+        (rca/2026-10-14/run-0305-findings.md §5.5)."""
         given = run.given(kind) if run.given is not None else None
         if given is None or given == self.given.get(kind) or not 0.0 <= now - given <= GIVEN_WITHIN:
             return 0
@@ -159,8 +143,8 @@ class Drinker:
         return 1
 
     def watch_pad_drink(self, belt: dict[PotionType, int], now: float) -> None:
-        """Whether a belt key acts in controller mode (rca/2026-10-13/controller-mode.md, plan step 8b): said
-        once the cell has emptied, or once DRINK_WATCH has gone by without it."""
+        """Log whether a belt key acts in controller mode (rca/2026-10-13/controller-mode.md): once the cell has
+        emptied, or after DRINK_WATCH without it."""
         if self.pad_drink is None:
             return
         key, kind, before, at = self.pad_drink
@@ -189,7 +173,7 @@ class Drinker:
         return bool(shifts & frozenset(keys.held_keys()))
 
     def press(self, run: Run, key: str, kind: PotionType, loot: Loot, felt: Pressure) -> bool:
-        self.busy = True  # the key's hold is a pause of the mode, and the mode looks here in every pause
+        self.busy = True  # the key's hold is a pause of the mode, which looks here in every pause
         try:
             run.actuator.tap(key)
         except Cancelled:

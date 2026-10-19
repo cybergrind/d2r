@@ -1,21 +1,9 @@
 """The live scorer (combat/plan.md stage 6): what the play is worth right now, from the game's memory.
 
-`LiveScore.note` takes each read of the world while attack mode runs (macros/hunt.py hands them
-over) and keeps the last WINDOW seconds:
-
-- the life points the hostiles lost between two reads (a monster's type and area give its points, the
-  client its life fraction; every source counts, the companions' too);
-- the kills: a hostile that was within COMBAT_REACH and is now among the dead the game holds
-  (`dead`, the unit ids lying in a dead mode), with the life it had left. This is the recorder's
-  `kill` event (takes/record.py);
-- the hostiles only gone: no longer in memory and not seen dead (the character teleported away, the
-  monster left the streamed area). The recorder's `gone`: counted beside the kills, worth nothing;
-- the combat seconds: an interval is combat when a live hostile was within COMBAT_REACH at its start,
-  so the interval a pack's last monster dies in counts.
-
-What is known of the monsters is dropped when the character is in another level or is another unit
-(a new game reuses unit ids). `line` is the HUD card's text: effective damage per combat second and
-kills per minute over the window.
+`LiveScore.note` takes each world read while attack mode runs and keeps the last WINDOW seconds: the hostiles'
+life points lost (every source counts), the kills (a hostile once within COMBAT_REACH now lying dead: the
+recorder's `kill`), the hostiles only gone (the recorder's `gone`, worth nothing) and the combat seconds. A new
+level or unit drops what is known. `line` is the HUD card's text: damage per combat second and kills per minute.
 """
 
 import math

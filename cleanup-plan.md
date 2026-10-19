@@ -64,7 +64,13 @@ Evidence: five read-only studies in `rca/2026-10-19/cleanup/` (git-ignored, loca
     flags and life every pass, the tracker and HUD only a path (data and stats on first sight). `Point` is defined
     once (levels/geometry.py; 59 copies gone). Kept in game/ on reading: `prized`/`shown_source` (the memory reader
     classifies a drop's source as it reads: in lootpolicy, game would import macros). Left: terror's player readers
-    against `local_player`; the world-to-screen projection's copies (`world_point`, hud/ground.py, macros/view.py).
+    against `local_player` (they pick the unit with the most life; they now share `game.units.walked`).
+  - batch A (2026-10-19): the object table walked once a ground look (`shrines_among`, `super_chests_among`); the
+    decoders' caches reset in every test (tests/inventory_tracking/conftest.py); `make test` (routine), `test-all`,
+    `lint`; the six research notes in `inventory_tracking/history/`; tests take up to 6 workers while D2R.exe is not
+    running (routine lane 125 s -> 35 s). Skipped on reading: one world-to-screen projection (`Viewport` is the one
+    the macros use; the HUD, the minimap and `arrow` each have their own scale and origin, sharing only
+    `(dx - dy, dx + dy)`).
   - step 4, second part: the game package is `inventory_tracking/game/`, below macros (study O A2): combat, terror,
     hud and probes read the game without importing macros. Step 8, second part: `inventory_tracking/takes/` holds
     the recorder and the take readers (record, retain, takes, timeline, hurts, macro_state, legs, analysis,
@@ -74,6 +80,13 @@ Evidence: five read-only studies in `rca/2026-10-19/cleanup/` (git-ignored, loca
     tests/pricing/test_api.py); `detail`/`guarded_retrieve` moved to `appraisal/retrieval.py`; the replay and guide
     reports run as `python -m inventory_tracking.corpus.replay [--guides]`. Left: two frozen maintenance tools
     (`named_gate.py`, `maintenance/replay.py`) still import appraisal presentation (study A2).
+
+- 2026-10-19 phase 4 (batch B): comments and docstrings of macros, combat, takes, builds, levels, config, game,
+  terror, hud, loot, routes, tracking, native, osd made terse by five agents; each file's code checked equal to HEAD's
+  but for comments and docstrings (an AST comparison). Prose (comments + docstrings) of inventory_tracking: 32.2 % ->
+  24.1 % (3.84 -> 3.42 M characters); macros 40.6 -> 29.0 %, combat 41.3 -> 31.0 %, levels 37.7 -> 24.3 %. What is left is mostly one-line constant and
+  field comments and dated rulings. Kept stories went to `<package>/history/<module>.md`; the take format is
+  `takes/README.md`. Not in this pass: appraisal/, items/, shop/, identify/, collection/, pricing/, tests/.
 
 ## Where we are
 

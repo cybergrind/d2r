@@ -1,12 +1,9 @@
 """The Warlock's buff plan (macros/build.py `Buff`, run by macros/buffs.py): which buffs, when and on what.
 
-At a game's start (prebuff): Consume cast anew on a Defiler with one Defiler left out, then Hex: Purge
-and Psychic Ward. Outside a fight (upkeep): Battle Command and Battle Orders from a Call to Arms out of town
-(macros/cta.py), Hex: Purge and Psychic Ward kept up, Consume cast again
-when it has run out, a Defiler summoned when none is alive (defiler.py). Under the held strike (fight): Hex:
-Purge and Psychic Ward kept up, a Defiler summoned when none is alive and it pays (defiler.py `price`), Death Mark
-on the monster the demons should hold where it pays (mark.py), Sigil: Lethargy under an elite, Engorge on a
-corpse for the demons. The casts that are more than one aim and one key are in casters.py.
+Prebuff: Consume on a Defiler with one Defiler left out, Hex: Purge, Psychic Ward. Upkeep: Battle Command and
+Battle Orders from a Call to Arms (macros/cta.py), Hex: Purge and Psychic Ward kept up, Consume again when run out,
+a Defiler when none is alive. Fight: Hex: Purge and Psychic Ward, a Defiler where it pays (defiler.py `price`),
+Death Mark (mark.py), Sigil: Lethargy under an elite, Engorge on a corpse. Multi-step casts are in casters.py.
 """
 
 import math
@@ -40,32 +37,26 @@ from inventory_tracking.macros.routines import DEAD
 from inventory_tracking.native.layout import HIRELING_CLASS_ID
 
 
-# Engorge (skills.txt 379, cast on a corpse): heals the demons 30% of their life and more, and cuts the damage
-# they take for 125 + 75 per level frames; cast under the held strike when a demon is hurt, and for the buff
+# Engorge (skills.txt 379, on a corpse): heals the demons and cuts the damage they take; cast when a demon is hurt
+# and for the buff
 ENGORGE_SECONDS = 15.0  # between two Engorges for the buff
 ENGORGE_HURT_SECONDS = 4.0  # between two while a demon is under ENGORGE_BELOW of its life
 ENGORGE_BELOW = 0.7
 ENGORGE_REACH = 20.0  # world units: a corpse further off is not looked for
 ENGORGE_RETRY = 2.0  # seconds before another look when no corpse lay in reach
 ENGORGE_LOOKS = 2  # corpses the pointer is put on for one cast at most
-# Hex: Purge (skills.txt 389, a buff of 3600 + 300 per level frames): the strikes do their damage through it,
-# so attack mode casts it whenever the state does not show it; unseen casts retry after HEX_RETRY, then every
-# HEX_DISTRUST seconds (the executor's rule for a buff whose state reads: macros/buffs.py STATE_RETRY,
-# STATE_DISTRUST, STATE_TRIES)
-# Psychic Ward (skills.txt 387): a shield that takes the next damage, 15 + 10 per level points and 15 per level of
-# Cleave and Levitate (185 for CybergrindAA on 2026-10-12, stats 361 and 362), with no end but being used up.
-# Kept up like Hex: Purge (user, 2026-10-12: "we should keep psychic ward buff: probably it will save us
-# sometimes"); under the strike not more often than WARD_SECONDS, as a pack breaks it faster than it is cast.
+# Hex: Purge (skills.txt 389): the strikes deal their damage through it, so it is cast whenever the state lacks it
+# (macros/buffs.py STATE_RETRY). Psychic Ward (skills.txt 387, a pool used up by damage) is kept up the same way
+# (user, 2026-10-12: "we should keep psychic ward buff: probably it will save us sometimes"), under the strike no
+# more often than WARD_SECONDS: a pack breaks it faster than it is cast.
 WARD_SECONDS = 5.0
 # Death Mark: mark.py (what it buys, when it is cast, its numbers).
 SIGIL_SECONDS = 10.0  # between two sigils under the same monster
-# Under a Herald (macros/hunt.py HERALD_OMEN) a sigil goes first, and again every HERALD_SIGIL_SECONDS: the Herald moves
-# off the one laid (the player, 01:01 on 2026-10-18: "prioritizing keeping herald on sigil lethargy + death mark")
+# Under a Herald (macros/hunt.py HERALD_OMEN) a sigil goes first and again this often: the Herald moves off it (the
+# player, 2026-10-18: "prioritizing keeping herald on sigil lethargy + death mark")
 HERALD_SIGIL_SECONDS = 6.0
-# Consume (skills.txt 381: 15% more life and a faster run for 300 s at CybergrindAA's level) is cast again by
-# attack mode when the character's state reads without it and no hostile is within CONSUME_CLEAR: a Defiler is
-# summoned and the pointer put on it, about two seconds in which nothing is struck. After a try that failed
-# (no ground for a summon, something beside the Defiler) the next comes CONSUME_RETRY later.
+# Consume (skills.txt 381) is cast again when the state lacks it and no hostile is within CONSUME_CLEAR: about two
+# seconds of summon and aim in which nothing is struck.
 CONSUME_CLEAR = 30.0  # world units
 CONSUME_SECONDS = 300.0  # one cast's time (skills.txt 381 at CybergrindAA's level): its row's `lasts`
 CONSUME_SOON = 3.0  # seconds to the next try after one the player's own key stopped
@@ -141,10 +132,9 @@ def engorge_on_a_key(facts: BuffFacts) -> bool:
 
 
 def consume_due(facts: BuffFacts) -> bool:
-    """Whether attack mode casts Consume again now: the state reads without it, or it reads on and would end
-    inside the boss's fight ahead (`BuffFacts.lapsing`: renewed in the quiet before it, rca/2026-10-14/
-    run-1214-findings.md §3.4); its two skills are on keys, no hostile is within CONSUME_CLEAR and the last try
-    is CONSUME_RETRY old."""
+    """Whether attack mode casts Consume again now: the state lacks it, or it would end inside the boss's fight ahead
+    (`BuffFacts.lapsing`, rca/2026-10-14/run-1214-findings.md §3.4); both skills on keys, no hostile within
+    CONSUME_CLEAR, the last try CONSUME_RETRY old."""
     world = facts.world
     player = world.player
     if player is None or player.mode in DEAD:
@@ -154,20 +144,15 @@ def consume_due(facts: BuffFacts) -> bool:
     if not {CONSUME, SUMMON_DEFILER} <= set(world.slots):
         return False
     if not facts.focused():
-        # The game in the background: eleven tries in four minutes, each said and stopped by the lost
-        # focus (09:45 to 09:49 on 2026-10-12, the player in another window).
+        # The game in the background: every try would be stopped by the lost focus.
         return False
     if facts.since(CONSUME) <= CONSUME_RETRY:
         return False
     return all(math.dist((player.x, player.y), (m.x, m.y)) > CONSUME_CLEAR for m in facts.foes)
 
 
-# The plan, each phase in the order it is cast in. The upkeep and the fight keep Hex: Purge and Psychic
-# Ward up by what the character's state shows (`state`: the executor's rule for a cast the state does not
-# show); the ward's floor of WARD_SECONDS holds only under the strike. Consume has no `state`: it is tried
-# every CONSUME_RETRY seconds while it reads missing, by its own `due`, and renewed before a boss's fight when the
-# macro's own last cast (the prebuff's or attack mode's) would end inside it (`lasts`). The prebuff casts all three
-# whatever the state shows (Consume: how long it has left is not read from the game).
+# The plan, each phase in casting order. Hex: Purge and Psychic Ward by the character's state (`state`); Consume by
+# its own `due` and `lasts` (its time left is not read). The prebuff casts all three whatever the state shows.
 BUFFS: tuple[Buff, ...] = (
     Buff(
         CONSUME,
@@ -225,9 +210,8 @@ class Under:
 
 
 class Rotation:
-    """The executor's memory and the due-tests under the names they had in macros/rotation.py
-    (`hunter.rotation` then), for the tests, the replays and the golden adapter written against those:
-    each makes it of the hunt's executor (`Rotation(hunter.buffs)`). Nothing in the hunt asks it."""
+    """The executor's memory and due-tests under their old macros/rotation.py names, for the tests, replays and
+    golden adapter written against those (`Rotation(hunter.buffs)`). Nothing in the hunt asks it."""
 
     def __init__(self, buffs: Buffs) -> None:
         self.buffs = buffs

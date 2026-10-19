@@ -1,22 +1,12 @@
-"""The game tables the combat mechanics key on, bundled from the installed game (as the terror
-module does: runtime reads only `data/tables.json`; the install is a build input).
+"""The game tables the combat mechanics key on, bundled from the installed game (runtime reads only
+`data/tables.json`; the install is a build input, as for the terror module).
 
 Run: PYTHONPATH=. uv run --offline python -m inventory_tracking.combat.mechanics.tables "<install>"
 
-Bundled (2026-10-10): the Warlock skills Echoing Strike (388), Mirrored Blades (392), Blade Warp
-(390), Sigil Lethargy (393) and Death Mark (375) with their parameters and damage columns; the
-blade missiles 706 and 720; every monster's Hell level, HP percentages, defence and resistances
-(monstats, by *hcIdx, the txt id in memory); monlvl's Hell columns (HP, defence, to-hit per
-level); each area's Hell monster level (levels MonLvlEx(H)). A regular monster's points are the
-area level's HP(H) times its MinHP(H)..MaxHP(H) percent (Chaos Sanctuary 108 is level 85: HP(H)
-4637, so a Doom Knight at 120-150% has 5564-6956 points and a Venom Lord 9738-11593).
-
-Since 2026-10-12, for what a unique's enchantments do (sim/monsters.py): the missiles an enchanted
-monster lets go (`coldunique` 194, `lightunique` 195) with their element columns, monumod's constants
-(`unique`: the elemental damage an enchantment adds to a blow, percent of the blow, by rank; the damage
-and life bonuses) and the Terror Zone's Herald tiers (`heralds`: life and damage boosts of a Herald
-and of its minions, terror_zones/data/desecratedzones-game.json), and `harmless_missiles`: the ids of
-the missiles that take nothing off the character (takes/hurts.py leaves them out of a drop's `near`).
+Bundled: the Warlock skills and blade missiles; every monster's Hell level, HP percentages, defence and
+resistances (monstats, by *hcIdx); monlvl's Hell columns; each area's Hell monster level; the enchantment
+missiles, monumod's constants and the Terror Zone Herald tiers (sim/monsters.py); `harmless_missiles`
+(takes/hurts.py). A regular monster's points are the area level's HP(H) times its MinHP(H)..MaxHP(H) percent.
 """
 
 import argparse

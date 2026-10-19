@@ -1,14 +1,10 @@
-"""Build data/containers.json: the objects that are opened for what they hold, from the installed
-game's objects.txt.
+"""Build data/containers.json (objects opened for loot) from the installed game's objects.txt.
 
     uv run --offline python -m inventory_tracking.macros.build_containers <install>
 
-A container is a row with one of the OperateFn values below that can be selected or struck before it
-is operated (`Selectable0`, `IsAttackable0`). The values are told by the rows that carry them: 1 the
-caskets, 3 the urns, jars and baskets, 4 the chests (the sparkly one among them), 5 the barrel, 14 the
-corpses, crates, loose rocks and hidden stashes, 19 the armour stands, 20 the weapon racks. Left out on
-purpose: 7 and 30 (the exploding barrel, cow and chest), 68 (the urn that lets monsters out), the
-quest chests (39 to 41, 57 to 59) and the bookshelves (26: scrolls and tomes).
+A container: an OPERATED OperateFn row selectable or attackable in mode 0. OperateFn 1 caskets, 3 urns/jars/baskets,
+4 chests, 5 barrel, 14 corpses/crates/rocks/stashes, 19 armour stands, 20 weapon racks. Left out: 7 and 30
+(exploding), 68 (monster urn), quest chests (39-41, 57-59), bookshelves (26).
 """
 
 import json
@@ -24,7 +20,7 @@ OPERATED = frozenset(('1', '3', '4', '5', '14', '19', '20'))
 
 
 def modes(row: dict[str, str]) -> list[int]:
-    """The object modes the row can be selected in, and mode 0 for one that is struck instead."""
+    """Modes the row is selectable in, plus 0 when it is attackable."""
     found = {mode for mode in range(8) if row.get(f'Selectable{mode}') == '1'}
     return sorted(found | ({0} if row.get('IsAttackable0') == '1' else set()))
 

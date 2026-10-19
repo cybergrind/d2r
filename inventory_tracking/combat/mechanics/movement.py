@@ -1,13 +1,9 @@
-"""Where a walking monster will be: its own route, read from its path record (combat/plan.md, the
-movement research of 2026-10-11).
+"""Where a walking monster will be: its own route, read from its path record (game/layout.py PATH_RECORD;
+combat/plan.md, 2026-10-11).
 
-The client holds, for every monster, the waypoints it is walking and which one it is going to
-(game/layout.py PATH_RECORD; the recorder writes the records to a take's paths.jsonl). A monster
-walks straight from waypoint to waypoint at its monstats Velocity (Run when it runs), in world units
-a second. On the Far Oasis take of 2026-10-10 22:42 UTC, 15 frames ahead, this put a moving hostile
-1.46 units off on average and more than 2 units off 24% of the time; its last three frames'
-velocity carried on gave 1.82 and 33%, standing still 2.50 and 49%. What it does not know: a monster
-that stops to attack or to think again inside the window, and a speed the monstats row does not give.
+A monster walks straight from waypoint to waypoint at its monstats Velocity (Run when running). 15 frames ahead
+this put a moving hostile 1.46 units off on average (Far Oasis take, 2026-10-10), against 1.82 for its velocity
+carried on. Not known: a monster that stops to attack or think inside the window.
 """
 
 import math

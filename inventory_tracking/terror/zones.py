@@ -1,13 +1,10 @@
 """Herald groups: levels that share one Herald kill counter, with the article's mean population.
 
-Groups, levels and weights are the installed game's (terror_zones/data/desecratedzones-game.json,
-extracted 2026-10-02 with terror_zones/game_files.py): levels with the same `zone_data_id` share
-a counter and each carries a `zone_completion_weight`; `zone` is the Terror Zone they are
-terrorized with. Five levels of Terror Zones have no group at all (Forgotten Tower, Valley of
-Snakes, Harem Level 1, Duriel's Lair, Worldstone Chamber). Names and populations:
-terror_zones/data/article-zones.json (Patch 3.2 article, mean monsters per group). Each Tal
-Rasha tomb is its own group at the article's small-false size (124): which tomb is real (390)
-or the big false one (270) varies per game.
+Groups, levels and weights: the installed game's terror_zones/data/desecratedzones-game.json
+(2026-10-02); levels with one `zone_data_id` share a counter, each with a `zone_completion_weight`.
+Five Terror Zone levels have no group (Forgotten Tower, Valley of Snakes, Harem 1, Duriel's Lair,
+Worldstone Chamber). Populations: terror_zones/data/article-zones.json (Patch 3.2 article). Each
+Tal Rasha tomb is its own group at the small-false size (124); real (390) / big (270) vary per game.
 """
 
 from dataclasses import dataclass

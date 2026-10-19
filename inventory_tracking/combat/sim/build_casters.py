@@ -1,17 +1,10 @@
-"""Writes sim/casters.json: the game's rows the casters of the Chaos Sanctuary think and cast by (sim/casters.py).
+"""Writes sim/casters.json: the game's rows the Chaos Sanctuary casters think and cast by (sim/casters.py).
 
 Run: uv run --offline python -m inventory_tracking.combat.sim.build_casters [<game-excel dir>]
 
-The runtime reads only casters.json (checked in); the extracted tables (pricing/raw/game-excel, the game's
-data/global/excel) are the build input, as for combat/mechanics/tables.py. Kept, all as the files spell them:
-
-- monstats: every row whose `AI` is one of the four routines read in the client (rca/2026-10-13/re/notes-ai.md,
-  notes-ai-74.md, notes-mobs.md): FingerMage, DoomKnight, OblivionKnight, Megademon; their Hell AI parameters,
-  skills with their mode and level, the first attack and its elemental add, speed;
-- skills: the rows those monsters cast and the curses an Oblivion Knight's MonCurseCast puts on;
-- missiles: each skill's server missile (`srvmissilea`), and the client ones the takes show for them;
-- difficultylevels: Hell's `MonsterSkillBonus` and `ResistPenalty`;
-- states: the ids of the curse states.
+The runtime reads only casters.json (checked in); pricing/raw/game-excel is the build input. Kept: the monstats
+rows of the four read AIs (FingerMage, DoomKnight, OblivionKnight, Megademon), the skills they cast and the curses,
+each skill's missiles, Hell's difficultylevels bonuses, the curse state ids.
 """
 
 import csv
@@ -25,9 +18,8 @@ SOURCE = Path(__file__).parents[3] / 'pricing' / 'raw' / 'game-excel'
 TARGET = Path(__file__).parent / 'casters.json'
 AIS = ('FingerMage', 'DoomKnight', 'OblivionKnight', 'Megademon')
 CURSES = ('Amplify Damage', 'Decrepify', 'Lower Resist')
-# Missiles no skill row names as its server missile: the bolts DoomKnightMissile chooses among beside its
-# `srvmissilea` (the takes show 323 to 326 near evenly, notes-ai-74.md), the Venom Lord's flames the client
-# draws, the curses' marks (cs-patterns.txt).
+# Missiles no skill row names as its server missile: DoomKnightMissile's bolts (notes-ai-74.md), the Venom Lord's
+# client flames, the curses' marks (cs-patterns.txt).
 EXTRA_MISSILES = (
     'undeadmissile2', 'undeadmissile3', 'undeadmissile4', 'fetishinferno1', 'fetishinferno2',
     'curseamplifydamage', 'cursedecrepify', 'curselowerresist',

@@ -1,30 +1,12 @@
-"""Baal's acts priced for a place and a way there (combat/threats `Threat`): what a decision loop needs to choose where
-to stand against him. The rules are sim/baal.py's (his rows and skills from the tables; how often he does what by his
-think as read in the client, rca/2026-10-14/re/baal-ai.md). Nothing here is a tactic: the arbiter
-compares the prices of the places it is offered.
+"""Baal's acts priced for a place and a way there (combat/threats `Threat`). The rules are sim/baal.py's (his rows,
+skills and read think, rca/2026-10-14/re/baal-ai.md); nothing here is a tactic.
 
-The model is keyed on his skills (sim/baal.py `casts_baals`: every monstats row that casts Baal Inferno or Baal
-Nova: Baal 544, his clone 570, Uber Baal 709), not on a name, and reads his missile classes off the game:
-
-- **his inferno** (mode SQ, missiles 554): ten missiles, one a frame from frame 11 to 20 of it, each flying at where
-  his target stands when it is made, INFERNO_STEP a frame for 19 frames (21 units), magic, taken each NextDelay 4
-  frames of contact. Under
-  way it is rolled out frame by frame against the character's way (`stream_points`), as Diablo's stream is. Its
-  reach is short: a place beyond it is out of every missile still to come, so that is the place offered;
-- **his nova** (S3, missiles 555): a ring from where he stood, NOVA_STEP a frame to 38 units, fire, once a body.
-  A ring in flight is priced against the way (`ring_points`); it outruns a walk, so no place is offered for it;
-- **his cold missiles** (A1, missiles 589 and 590): one maker at his target that sheds trails both ways across its
-  line each sub-tile it enters (sim/baal.py `cold_missiles`), cold, a cast once a body (`cold_points`, `cold_cast`);
-- **what is to come**: each act's chance at his next thinks, one a second (sim/baal.py `rates`: the read weights at
-  the way's last place, with the look's companions), times its points on a character standing there, for the time
-  the way has left after his next think. Tentacles rise near the character
-  and are monsters of their own once they stand (combat/harm.py prices them as any melee type); the curse takes no
-  life and is not priced.
-
-His target [code]: the best score of the character and its companions, where the damage the character dealt him
-in the last 10 s weighs on top (the threat state 231): while the character fights him he aims at it. So an act not
-yet aimed is taken to be at the character (`AT_CHARACTER`), and one whose missiles fly elsewhere is priced by its
-missiles in flight alone.
+Keyed on his skills (sim/baal.py `casts_baals`: Baal 544, his clone 570, Uber Baal 709), it prices his inferno (SQ,
+554: rolled out against the way, as Diablo's stream; a place beyond its short reach is offered), his nova (S3, 555:
+a ring in flight; it outruns a walk, no place offered), his cold missiles (A1, 589/590: a cast once a body) and his
+acts to come (sim/baal.py `rates` at the way's last place). Tentacles are priced as monsters once they stand; the
+curse takes no life. While the character fights him he aims at it [code: threat state 231], so an act not yet aimed
+is taken to be at the character (`AT_CHARACTER`).
 """
 
 import math
@@ -70,10 +52,8 @@ def _split(skill: str, points: float) -> tuple[tuple[str, float], ...]:
 
 
 def stream_points(origin: Point, births: Sequence[int], flying: Sequence[tuple[Point, float]], way: Way) -> float:
-    """The raw points his inferno takes from a character on `way`: its missiles in flight (`flying`: where, heading;
-    their age reckoned from how far they are from him) and those still to be made `births` frames from now, each
-    made at where the way has the character then; a body within CONTACT of a missile is taken from once in its
-    NextDelay frames."""
+    """The raw points his inferno takes from a character on `way`: missiles in flight (`flying`) and those still to
+    be made `births` frames from now, each aimed where the way has the character then."""
     life, step, gap = rules.inferno_life(_level()), rules.INFERNO_STEP, rules.every(rules.INFERNO_MISSILE)
     missiles: list[list[float]] = []
     for at, heading in flying:
@@ -140,9 +120,8 @@ def _once(missiles: Sequence[Missile], way: Way) -> int:
 def cold_points(
     origin: Point, flying: Sequence[tuple[Point, float]], way: Way, trails: Sequence[tuple[Point, float]] = ()
 ) -> float:
-    """The raw points his cold missiles in flight take from a character on `way`: each maker (`flying`, its age
-    reckoned from how far it is from him) with the trails it is still to shed, and the trails in flight (`trails`,
-    half their life taken as left [inferred]); a cast once a body."""
+    """The raw points his cold missiles in flight take from a character on `way`: each maker (`flying`) with the
+    trails still to shed, and the trails in flight (half their life left [inferred]); a cast once a body."""
     step, life = rules.cold_step(), rules.cold_life()
     hits = 0
     for at, heading in flying:
@@ -226,11 +205,9 @@ def exposure(
     companions: int = 2,
     resists: Mapping[str, float] | None = None,
 ) -> tuple[Part, ...]:
-    """His acts over the character's `legs`, in raw points: the act under way (an inferno rolled out against the way,
-    a nova ring and cold missiles in flight, a nova or a fan about to be let go) and the casts to come at the way's
-    last place for the time left after his next think (THINK_FRAMES after the act under way began), each by its
-    chance at a think there with the look's `companions` (sim/baal.py `rates`). `seen` and `resists` are not
-    weighed: his roll weighs neither the character's resistances nor (in sight) more than the line."""
+    """His acts over the character's `legs`, in raw points: the act under way and the casts to come at the way's last
+    place after his next think (sim/baal.py `rates`, with the look's `companions`). `seen` and `resists` are not
+    weighed: his roll weighs neither."""
     way = Way.along(legs)
     total = way.frames * FRAME
     here = legs[0][0]
@@ -287,10 +264,8 @@ def exposure(
 
 
 def offered(acting: Acting, here: Point) -> tuple[tuple[Point, str], ...]:
-    """Places out of his inferno while it is under way and the character within its reach: on the line from him
-    through the character just beyond the reach (out of every missile still to come: each lives 19 frames), then,
-    while its missiles fly at the character, across their line (out of those in flight). Nothing for his nova (it
-    outruns a walk) or his cold missiles."""
+    """Places out of his inferno under way with the character in reach: just beyond the reach on the line from him,
+    then across the line of missiles flying at the character. Nothing for his nova or cold missiles."""
     flying = _kind(acting, rules.INFERNO_MISSILE)
     if acting.mode != SQ and not flying:
         return ()
@@ -327,10 +302,8 @@ def threat_of(txt: int) -> Threat | None:
 
 @cache
 def masters_of(txt: int) -> frozenset[int]:
-    """The classes whose death ends a hostile of class `txt` (combat/threats `masters`): his clone's (AI BaalCrabClone)
-    are his rows (AI BaalCrab), as sim/baal.py raises it with no time of its own, gone with him [code: 0x1404B9210
-    `ai_d2_ai_baal_spawn_clone`; the probe saw one of three gone within 0.5 s of his death]. His tentacles stand
-    their own time (sim/baal.py): not bound here."""
+    """The classes whose death ends a hostile of class `txt` (combat/threats `masters`): his clone dies with him
+    [code: 0x1404B9210 `ai_d2_ai_baal_spawn_clone`]; his tentacles stand their own time, not bound."""
     found = rules.row(txt)
     if found is None or found.get('AI') != rules.AIS[1]:
         return frozenset()

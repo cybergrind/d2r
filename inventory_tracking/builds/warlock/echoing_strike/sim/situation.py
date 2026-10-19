@@ -1,14 +1,9 @@
-"""A situation cut from a take (combat/plan.md stage 4): the character's recorded positions, the
-monsters' recorded paths (open loop: they move as they did, whatever the simulated damage), the
-companions' recorded paths (the mercenary and the pets, whose damage the engine models as a rate),
-the recorded casts with their focal points, and the recorded kills to compare with.
+"""A situation cut from a take (combat/plan.md stage 4): the character's recorded positions, the monsters' and
+companions' recorded paths (open loop), the recorded casts with their focal points and the recorded kills.
 
-A situation's frames are game ticks, 25 a second, not the recorder's sample numbers: a sample that
-came late takes the ticks it was late by with it (takes/timeline.py), and what stood in the sample
-before it is held through them, so a cast's cadence, a blade's flight and the seconds a score is
-divided by are the game's (review.md, finding 6: a take with 28 late samples ran 10% short). The
-frames of another level than the situation's are left out, and the strike button held when the
-situation starts is a press at its first frame. `Situation.ticks` maps a take's frame numbers to ticks.
+Its frames are game ticks, 25 a second, not sample numbers: a late sample takes the ticks it was late by and what
+stood before is held through them (takes/timeline.py; review.md finding 6). Frames of another level are left out;
+the strike button held at the start is a press at its first frame. `Situation.ticks` maps take frames to ticks.
 """
 
 import bisect
@@ -185,11 +180,8 @@ def routes_of(take: Take, frames: list[dict[str, Any]]) -> dict[int, dict[int, R
 
 
 def own_rows(frames: Iterable[dict[str, Any]], vitals: bool) -> dict[int, PlayerRow]:
-    """The character's row by frame number. Until 2026-10-11 the recorder followed a corpse the
-    character had left on the level instead of the character: another player unit, without life
-    (told only where the rows hold `vitals`). Its rows are left out, except right after the
-    character's own death, where the corpse lies where it died: there they stand for the dead
-    character."""
+    """The character's row by frame number. Takes before 2026-10-11 may follow a corpse the character left (another
+    player unit without life): its rows are left out, except right after the character's own death."""
     found = [(f['n'], row) for f in frames if (row := player_of(f)) is not None]
     living = Counter(row.unit for _, row in found if row.max_life) if vitals else Counter()
     own = living.most_common(1)[0][0] if living else None
@@ -289,10 +281,8 @@ def cut(take: Take, start: int | None = None, end: int | None = None, area: int 
 
 
 def in_ticks(situation: Situation, frames: list[dict[str, Any]]) -> Situation:
-    """`situation`, built over the take's frame numbers, in game ticks: every frame number becomes its
-    tick, and what a sample showed is held through the ticks the next one skipped, HOLD_TICKS at most
-    (a monster only when the next sample still has it; a longer hole stays a hole: nothing is known
-    of it)."""
+    """`situation` in game ticks: what a sample showed is held through the ticks the next one skipped, HOLD_TICKS at
+    most (a monster only when the next sample still has it)."""
     tick = ticks(frames)
     order = [tick[f['n']] for f in frames]
     skipped = [(a, b) for a, b in pairwise(order) if 1 < b - a <= HOLD_TICKS + 1]

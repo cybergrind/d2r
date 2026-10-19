@@ -1,12 +1,8 @@
-"""The regression harness (combat/plan.md, the steer of 2026-10-10): every take through the
-calibration gate and the policies, one scoreboard.
+"""The regression harness (combat/plan.md): every take through the calibration gate and the policies, one scoreboard.
 
-`combat gate [takes directory]` cuts each take that holds full casts, replays its recorded casts
-(the gate: sim/engine.py `gate`, `verdict`) and runs the candidates of sim/policy.py on it, and
-writes `scoreboard.json` beside the takes: per take whether it was fitted on or held out
-(data/damage.json `fit_takes`), the gate's numbers and why it fails if it does, each candidate's
-gain over the recorded casts; then the totals and what changed since the scoreboard before it. The
-numbers a model change moves are read off one file instead of this plan's tables.
+`combat gate [takes directory]` replays each take's recorded casts (sim/engine.py `gate`, `verdict`), runs the
+sim/policy.py candidates and writes `scoreboard.json` beside the takes: fit or held out (data/damage.json
+`fit_takes`), the gate's numbers, each candidate's gain, the totals and what changed since the last scoreboard.
 """
 
 import json

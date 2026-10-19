@@ -1,9 +1,7 @@
 """Discover level handlers (every module in levels/handlers/ exporting HANDLERS) and validate them.
 
-Validation is offline, against the bundled preset table: no area has two handlers, every
-area exists, every POI pattern matches at least one preset name, every match stays inside the
-declared family, and a POI on an object has that object once in every layout of every preset it
-matches (an `each` POI: in at least one layout). The registry test runs it over all discovered handlers.
+Offline, against the bundled tables: no area has two handlers, every area exists, every pattern matches a
+preset inside its family, and a POI on an object finds it once in every layout (`each`: in at least one).
 """
 
 import importlib

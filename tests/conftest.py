@@ -1,10 +1,11 @@
 """Test runs share the host with the game (user, 2026-10-15): the player may be playing while agents run the suites,
 and parallel runs (eight agents at `-n 6`, a pricing worker at 1.5-5 GB) locked the host.
 
-- No parallel tests: a run is one process. `-n`/`--numprocesses` is accepted and turned off here, before xdist
-  reads it, so xdist starts no workers.
+- Workers only while the game is not running: `-n`/`--numprocesses` gives at most MOST_WORKERS (the player,
+  2026-10-19: "use 6 workers"); with D2R.exe running it is turned off here, before xdist reads it, and the run is one
+  process.
 - One run at a time on the host: a run takes the one slot, a `flock` on `.test-slots/slot`, and waits while another
-  run holds it; the lock goes when the run's process ends, however it ends.
+  run holds it; the lock goes when the run's process ends, however it ends. Its workers run under it.
 - Priority: nice 19 and the lowest best-effort I/O priority. Not SCHED_IDLE or the idle I/O class: a process
   starved under them while holding a kernel or filesystem lock stalls everything waiting on that lock.
 
@@ -19,18 +20,26 @@ from pathlib import Path
 
 import pytest
 
+from inventory_tracking.native.process import find_game_processes
+
 
 SLOT = Path(__file__).resolve().parent.parent / '.test-slots' / 'slot'
 WAIT = 1.0  # seconds between looks at the slot while another run holds it
+MOST_WORKERS = 6
 _held: list[int] = []  # the open slot file: its lock lasts as long as this process
 
 
 @pytest.hookimpl(tryfirst=True)
 def pytest_cmdline_main(config: pytest.Config) -> None:
-    if config.pluginmanager.hasplugin('xdist'):
-        config.option.numprocesses = 0
-        config.option.dist = 'no'
-        config.option.tx = []
+    if not config.pluginmanager.hasplugin('xdist'):
+        return
+    asked = getattr(config.option, 'numprocesses', None)
+    if asked and not find_game_processes():
+        config.option.numprocesses = MOST_WORKERS if asked in ('auto', 'logical') else min(int(asked), MOST_WORKERS)
+        return
+    config.option.numprocesses = 0
+    config.option.dist = 'no'
+    config.option.tx = []
 
 
 def lower_priority() -> None:
@@ -56,4 +65,5 @@ def take_slot() -> None:
 def pytest_configure(config: pytest.Config) -> None:
     if os.environ.get('D2R_TEST_PRIORITY') != 'normal':
         lower_priority()
-    take_slot()
+    if 'PYTEST_XDIST_WORKER' not in os.environ:  # a worker runs under its controller's slot
+        take_slot()

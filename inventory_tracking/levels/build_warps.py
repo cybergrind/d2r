@@ -1,12 +1,8 @@
 """Regenerate levels/data/preset_warps.json: where each preset's warps are, from the game's DS1 files.
 
-For every LvlPrest Def and DS1 variant (File1.. order, 0-based as Room.variant) with warp tiles
-(levels/ds1.py): slot -> the centre of its tiles, in tiles from the preset origin. Reads the
-d2data checkout (third-parties/) for the file names and the installed game (read-only) for the
-files themselves. Runtime code reads only the bundled table.
-
-Also `waypoints`: per preset and variant holding exactly one waypoint object (objects.txt
-OperateFn 23, placed through objpreset.txt), its place in tiles from the preset origin.
+Per LvlPrest Def and DS1 variant (0-based as Room.variant) with warp tiles: slot -> the centre of its
+tiles from the preset origin; `waypoints`: the one waypoint object's place (objects.txt OperateFn 23).
+Reads the d2data checkout and the installed game (read-only); runtime reads only the bundled table.
 
 Run: uv run --offline python -m inventory_tracking.levels.build_warps "<game folder>"
 """

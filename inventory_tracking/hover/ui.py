@@ -1,7 +1,7 @@
 """Bounded, unvalidated inventory UI observations; never a selection verdict.
 
 Supported-build runtime evidence: sub_1401ed340 and sub_1402197f0 follow
-[image+1ee5790] -> +d0 -> +178 (mouse) / +190 (controller). See hover_research.md.
+[image+1ee5790] -> +d0 -> +178 (mouse) / +190 (controller). See inventory_tracking/history/hover_research.md.
 """
 
 import struct

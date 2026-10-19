@@ -1,5 +1,4 @@
-"""What a level run tried and gave up on, drop by drop (macros/hunt.py `Hunter.drops`): the tries gone for each drop,
-why the last took nothing, the one more try from near (`Hunter.again`), the give-ups said, the Gheed's swaps asked."""
+"""Per-drop pickup tries and give-ups of a level run (`Hunter.drops`)."""
 
 from dataclasses import dataclass, field
 
@@ -23,8 +22,8 @@ class DropLedger:
         return self.gathered.get(unit, 0) >= GATHER_TRIES
 
     def given_up(self, unit: int) -> str:
-        """Why a drop gone for GATHER_TRIES times is left: what its last try came to, as the hands said it (a priced
-        act that expired mid-walk is not a click that took nothing: run-0025-findings.md §2.3)."""
+        """Why a spent drop is left, from its last try (an act expired mid-walk is not an empty click:
+        run-0025-findings.md §2.3)."""
         tries = self.gathered.get(unit, 0)
         last = self.tried.get(unit)
         if last is None:
@@ -32,9 +31,8 @@ class DropLedger:
         return f'given up after {tries} tries (the last: {last})'
 
     def forget(self) -> None:
-        """Every give-up forgotten: the player's Gheed's Fortune went onto a shared page (macros/loop.py GHEED_STASH),
-        and the charm refused for it is tried again (13:57:50 on 2026-10-18: the new one, the same unit, was never
-        tried, and the level run stood 45 s by it)."""
+        """Forget every give-up once Gheed's Fortune went to the stash (loop.py GHEED_STASH), so the refused charm is
+        tried again."""
         for memory in (self.gathered, self.tried, self.retried, self.left_said, self.swap_asked):
             memory.clear()
 

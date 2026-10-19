@@ -1,22 +1,14 @@
 """Terror Zone research probe, polled from `serve`: what the client shows of monsters and kills.
 
-Writes one JSONL event stream per service run (terror-probe.jsonl in the run directory) to
-answer, from real games: how far monsters are visible, whether they vanish when their rooms
-unload and come back, how many rooms of a level get loaded, and how a Herald looks in memory
-(monster data and stats on first sight). Win+C writes a `mark` with the monsters present, so a
-Herald on screen can be matched to its `seen` record. No display, no game input.
+Writes one JSONL event stream per service run (terror-probe.jsonl in the run directory); Win+C
+writes a `mark` with the monsters present. No display, no game input. With a tracker
+(tracker.py) the same events drive the Terror Zone card while D2R is focused.
 
-With a tracker (tracker.py) the same events drive the Terror Zone card: `tick` publishes the
-current Herald group's lines while D2R is focused.
-
-Events: area (entered; level Room2 count), rooms (newly loaded Room2s), life (the player's life,
-whenever it changed: burst research, terror/bursts.py), around (every second with live monsters
-within a screen: their live positions and modes with the player's life and states, and `marked`,
-the danger marks the player was shown on them: the statistics behind the threat level,
-terror/exposure.py), seen (first sight, with data/stats), died
-(alive -> dead/dying mode: one kill), gone (dropped from the client; alive or not), back
-(reappeared), summary (every few seconds), left_game (menu: the ledger resets), mark, and
-elite_kill / shard (a pack leader's death, a Worldstone Shard first seen on the ground: terror/shards.py).
+Events: area (entered; Room2 count), rooms (newly loaded Room2s), life (on change: bursts.py),
+around (each second with live monsters within a screen: positions, modes, the player's life and
+states, `marked` danger marks: exposure.py), seen (first sight, with data/stats), died (one kill),
+gone (dropped from the client), back, summary, left_game (the ledger resets), mark, and
+elite_kill / shard (shards.py).
 """
 
 import json
@@ -332,8 +324,7 @@ class TerrorProbe:
 
     def note_marks(self, events):
         """Each `around` event gets the danger marks shown on its monsters as of the last pass:
-        a warned player is more careful, so the life lost by a marked pack is not that of an
-        unmarked one (user, 2026-10-07)."""
+        a warned player is more careful (user, 2026-10-07)."""
         if self.tracker is None:
             return
         for event in events:

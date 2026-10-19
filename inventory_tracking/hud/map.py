@@ -1,20 +1,11 @@
 """Level map card: the level's rooms as iso diamonds, a player dot and POI dots.
 
-Coordinates are Room2 tiles (map plane). The screen is isometric like the game: +x runs
-down-right, +y down-left, so the dots sit where the arrow points. The card travels in the
-HUD guide widget's payload (levels/map_card.py) and is drawn by hud/widgets.py; this module has no GTK import so
-it stays unit-testable with cairo alone.
-Room2 carries no walls; loaded rooms add walkable sub-tiles from their collision grids (`walkable`),
-drawn as light floor with rock left transparent, so explored parts show corridors (levels/plan.md).
-Rooms never loaded are drawn slightly dimmer (`visited`, terror/tracker.py). Hostile monsters
-alive are dots at their last seen position: small toned-down red for plain mobs, larger bright
-magenta for a unique, champion or super unique, no rings (user, 2026-10-03: a dot per monster,
-since a tinted room hid where in a big room the pack was).
-A level too big for the card at a readable size is not shrunk to fit (user, 2026-10-06: Great
-Marsh was a speck): one that would fall below `WHOLE_SCALE` shows the part around the player at
-`LOCAL_SCALE` instead, and each of the level's own dots outside it is an arrowhead on the card's edge, towards it.
-That view is much more floor per pixel, so its rooms are fainter (`LOCAL_ALPHA`; user, 2026-10-06:
-too much colour over the game). `MapCard.whole` asks for the whole level anyway (Win+C, levels/guide.py).
+Room2 tiles projected isometric like the game (+x down-right, +y down-left). The card travels in the guide
+widget's payload (levels/map_card.py), drawn by hud/widgets.py; no GTK import, so cairo alone tests it.
+Loaded rooms draw their walkable sub-tiles as floor, rock transparent; never-loaded rooms are dimmer. One dot per
+live hostile (user, 2026-10-03: a tinted room hid where the pack was). A level below `WHOLE_SCALE` is drawn around
+the player at `LOCAL_SCALE`, fainter, with edge arrowheads to its POIs (user, 2026-10-06: Great Marsh was a speck);
+`MapCard.whole` (Win+C) keeps the whole level.
 """
 
 import math
@@ -66,13 +57,9 @@ def project(x: float, y: float) -> tuple[float, float]:
 def fit(
     card: MapCard, width: float, height: float, *, margin: float = 10, min_scale: float = 0.0, local_scale: float = 0.0
 ):
-    """Map-plane (x, y) → pixel transform that fits every room corner, the player and the level's
-    own dots in the box. Monster dots do not count: one with a wrong position must not shrink the map.
-
-    A level that would be drawn below `min_scale` (pixels per projected unit) is drawn at
-    `local_scale` instead (at least `min_scale`), with the player in the middle; the view stops
-    at the level's edge, so the card never shows more empty space than the fitted map would.
-    `card.whole` keeps the whole level."""
+    """Map-plane (x, y) → pixel transform fitting every room, the player and the level's own dots (not monster
+    dots: a wrong position must not shrink the map). Below `min_scale` the view is `local_scale` around the
+    player, stopping at the level's edge; `card.whole` keeps the whole level."""
     return _layout(card, width, height, margin, min_scale, local_scale)[0]
 
 

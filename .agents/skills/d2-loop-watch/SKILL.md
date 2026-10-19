@@ -198,7 +198,8 @@ osd.log` (`make osd`: healer, Show Items presses), `<session>/visits/<HHMMSS>.js
   (`pricing/data/triage/rules.json`) as the rule's importer says. The knowledge test's market-sha check is skipped
   (frozen artifacts, 2026-10-19).
 - A log line changed: `tests/skills/test_loop_watch_lines.py` and `tools/logwords.py` together.
-- Tests run serially at nice 19 (`tests/conftest.py`: one test slot on the host, `-n` is ignored); never with a pipe
+- Tests run at nice 19, one run on the host at a time (`tests/conftest.py`); `-n 6` gives workers only while the game
+  is not running, so during a watched loop they are serial; never with a pipe
   in front of a restart (`pytest ... | tail && restart` restarts on a red suite: the pipe's status is `tail`'s, 13:17
   on 2026-10-17).
 

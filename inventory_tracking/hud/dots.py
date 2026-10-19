@@ -1,25 +1,13 @@
-"""Every monster dot of the level map, read by the canvas itself (rca/2026-10-14/run-1916-hud-findings.md §2).
+"""The level map's monster dots, read by the canvas process itself between level cards, so the dots move and die
+without delay and the reads cost the macro's process nothing (rca/2026-10-14/run-1916-hud-findings.md §2).
 
-The player, 2026-10-14: "monsters on the map appear with a big, visible delay". The dots came with the level card,
-rebuilt every 2 s while the macro works (rca/2026-10-13/latency-findings.md fix 1, which slowed the card and the
-probe to keep the service's reads off the macro's GIL): memory to drawn 1.95 s median, a dead monster's dot 2.10 s
-after its death. The canvas is a process of its own, with its own GIL, so its reads cost the macro nothing; this
-module gives it the dots between cards without the service doing any more:
+- Each frame (`LiveDots.frame`): every dot's unit record (id, mode, path) and position, batched through
+  `process_vm_readv` (else one `pread` each), the MAX_FOLLOWED nearest the player. A dead mode drops the dot; a freed
+  record keeps it where last read, unless within HELD_RANGE of the player (then it is gone).
+- Every WALK_SECONDS (`LiveDots._walk`): the canvas's own walk of the monster table for hostiles the card has no dot
+  for yet, judged by the tracker's `counted` / `leading`.
 
-- **Each frame** (`LiveDots.frame`): every dot carries its unit record's address and id (terror/tracker.py
-  `map_dots`); the canvas reads each record's id, mode and path pointer, then the path's position. A dead mode drops
-  the dot at once; a record freed or reused (another id, not a monster) leaves the dot where it was last read, as the
-  tracker keeps it, unless the client would hold the monster there (within HELD_RANGE of the player: it is gone).
-  The reads are batched: one `process_vm_readv` per batch where the kernel allows it, else one `pread` each; at most
-  MAX_FOLLOWED dots, the nearest the player (the rest stand as published).
-- **Every WALK_SECONDS** (`LiveDots._walk`): the canvas walks the game's monster table itself (terror/monsters.py
-  `monster_units`, the probe's own walk; findings fix 3) for the hostiles the card has no dot for yet, judged by the
-  tracker's own predicates (terror/tracker.py `counted`, `leading`: allies, siege works and scenery are never dots).
-  They are drawn as plain or leader dots (the danger bands come with the next card) and followed each frame.
-
-`DotStats` measures it: once a minute while dots are drawn, hud.log says how many dots were new, which reader saw
-them first, how much later the card brought them, how soon a death was drawn, and what the reads and draws cost
-(the `HUD: dots:` line).
+`DotStats` writes the once-a-minute `HUD: dots:` line to hud.log (latencies and read/draw costs).
 """
 
 import math
@@ -51,8 +39,8 @@ VM_CALL = vm_call()  # None where libc has no process_vm_readv
 
 
 class LiveDots(LiveMemory):
-    """The canvas's reader of the map's monsters (module text). `open_memory(pid)` -> fd, `read(fd, size, address)`
-    a pread; `call` libc's process_vm_readv (None: pread only); `walk(read, table, known)` the probe's walk."""
+    """The canvas's reader of the map's monsters. `call` is libc's process_vm_readv (None: pread only); `walk` the
+    probe's monster-table walk."""
 
     def __init__(
         self,
@@ -210,9 +198,8 @@ def quantiles(values) -> tuple[float, float]:
 
 
 class DotStats:
-    """The `HUD: dots:` line (module text): per unit id, when the canvas first had it and from which reader, when it
-    was first painted, when the card brought a dot the walk had first, when the frame read a death and when the card
-    dropped that dot; and what the frame reads, the walks and the draws cost."""
+    """The `HUD: dots:` line: per unit id, which reader had it first and the latencies to painted, to the card's dot
+    and to the card dropping a dead one; and what reads, walks and draws cost."""
 
     def __init__(self, every: float = STATS_SECONDS, log=LOG.info):
         self.every, self.log = every, log

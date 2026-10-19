@@ -1,9 +1,6 @@
-"""Chaos Sanctuary: Diablo's star, so teleport steps rush to it (user, 2026-10-10 night).
+"""Chaos Sanctuary: Diablo's star, so teleport steps rush to it (user, 2026-10-10), and the seals.
 
-The Sanctuary is five 24x24 presets: 'Diablo Entry', the arms W, E and N with the seals, and
-'Diablo Heart' in the middle. The Heart has one layout (act4/diab/heart.ds1, read from the install
-2026-10-10), which places the object `DiabloStart` at (53, 53) units from the preset's origin: the
-star Diablo rises from. Unconfirmed: the level has no dump yet.
+The star is the `DiabloStart` object of the 'Diablo Heart' preset (heart.ds1). Unconfirmed.
 """
 
 from inventory_tracking.levels.handler import PoiSpec, target
@@ -11,8 +8,7 @@ from inventory_tracking.levels.model import SEALS
 
 
 DIABLO_START = (53, 53)
-# The five seals, where each arm's layout (two per arm) places them (routes.md, 2026-10-12), in the
-# order the routes open them: the Grand Vizier's arm, Lord De Seis's, the Infector's.
+# In the order the routes open them (routes.md): Vizier, De Seis, Infector.
 SEAL_MARKS = (
     ('Vizier seal 1', 'W', SEALS[4]),
     ('Vizier seal 2', 'W', SEALS[3]),

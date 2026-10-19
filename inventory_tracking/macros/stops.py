@@ -1,6 +1,5 @@
-"""What the KP_6 loop does after a leg stops: the rules of runner.py `_loop_stopped` in their order, as pure functions
-of the stop's facts. The runner reads the facts, asks `first`, then the Gheed's swap (runner.py `_gheeds_swap`, which
-reads the inventory), then `decide`, and does what the answer says. Pinned by tests/…/macros/test_stops.py."""
+"""What the KP_6 loop does after a leg stops: runner.py `_loop_stopped`'s rules as pure functions of the stop's facts.
+The runner asks `first`, then tries the Gheed's swap, then asks `decide`."""
 
 from dataclasses import dataclass
 from enum import StrEnum
@@ -10,14 +9,13 @@ from inventory_tracking.macros.actuator import Cause
 
 __all__ = ['ROOM_CAUSES', 'Remedy', 'Stopped', 'decide', 'first']
 
-# The causes the room rules answer. Ruling pending: whether the watchdog's 45 s stand ('stall') is ever a lack of room
-# (rca/2026-10-18/arch-loop-orchestration.md §5); today it is: the stand by a valuable must still reach the cube
-# (04:32:26 on 2026-10-17), and a stand at Andariel's mark with a sighting remembered gets the cube, a trip and a drop
+# The causes the room rules answer. 'stall' counts as room until ruled otherwise
+# (rca/2026-10-18/arch-loop-orchestration.md §5): a stand by a valuable must still reach the cube (2026-10-17 04:32:26).
 ROOM_CAUSES: frozenset[Cause] = frozenset({'room', 'stall'})
 
 
 class Remedy(StrEnum):
-    DEAD = 'dead'  # the loop stops and nothing more is pressed, no recovery's Save and Exit
+    DEAD = 'dead'  # the loop stops and nothing more is pressed, not even Save and Exit
     LEAVE = 'leave'  # hit standing outside a fight: the game is left at once, whatever lies on the ground
     AGAIN = 'again'  # the player's hand: the leg is made again, the game not left
     STOP = 'stop'  # the loop stops where it is (a keeper no stash page takes)
@@ -55,7 +53,7 @@ def first(cause: Cause, *, on: bool, dead: bool) -> Remedy | None:
         # The player, 2026-10-19: "we must not die or we lose exp and our gear": no room rule nor a fetch first
         return Remedy.LEAVE
     if on and cause == 'hand':
-        # The loop left two games for "the mouse was moved" (01:28:48 on 2026-10-17); REPEATS bounds it
+        # Leaving the game for a moved mouse cost two games (2026-10-17 01:28:48); REPEATS bounds it
         return Remedy.AGAIN
     if on and cause == 'stash':
         # The player, 2026-10-18 16:50: "if stash is full - we need to stop loop"
@@ -64,8 +62,8 @@ def first(cause: Cause, *, on: bool, dead: bool) -> Remedy | None:
 
 
 def decide(stop: Stopped) -> Remedy:
-    """The rules after the Gheed's swap, in their order. A trip or a drop only for room: a stop for another cause (a
-    trip back cut short: "Flawless Topaz is 94 away", 13:15:40 on 2026-10-18) bought a trip to town for nothing."""
+    """The rules after the Gheed's swap, in their order. A trip or a drop only for room: for another cause it bought a
+    trip to town for nothing (2026-10-18 13:15:40)."""
     roomy = stop.cause in ROOM_CAUSES
     left, game = stop.left, stop.game
     if left is not None and not roomy and not stop.fetched:

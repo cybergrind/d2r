@@ -1,14 +1,6 @@
-"""Valuable drops other than runes, by item class: Worldstone Shards, flawless and perfect
-gems, the Colossal Ancients' statues and the Pandemonium keys (user, 2026-10-07), and charms of
-every size and quality, since a charm's worth shows only once identified (user, 2026-10-10), and the
-four essences the act bosses drop (the Token of Absolution's parts; user, 2026-10-10 night), and Wirt's
-Leg from his body in Tristram (user, 2026-10-12). Rings,
-amulets and jewels of every quality are groups too, for the pickup step only (config `pickup_also`; user,
-2026-10-10 night): like a charm, either shows its worth only once identified.
-
-Class IDs and names come from the item decoder's bases (items/metadata.py, the game's classid
-column), by item code. The statues' table names are placeholders ('Uber Ancient Summon Material
-Act 1'), so their in-game names are given here (as pricing's quest_materials.NAMES).
+"""Valuable drops other than runes, by item group (config `material_marks`, `pickup_also`; the rulings are
+dated there). Class IDs and names come from the item decoder's bases (items/metadata.py), by item code; the
+statues' table names are placeholders, so their in-game names are given here.
 """
 
 import re
@@ -30,16 +22,16 @@ GROUPS = {
     'statues': r'ua[1-5]',
     'keys': r'pk[1-3]',
     'charms': r'cm[1-3]',
-    'essences': r'tes|ceh|bet|fed',  # Twisted, Charged, Burning, Festering (verified against the bases)
-    'rings': r'rin',  # class 537 (verified against the bases)
+    'essences': r'tes|ceh|bet|fed',  # Twisted, Charged, Burning, Festering
+    'rings': r'rin',  # class 537
     'jewels': r'jew',  # class 658
     'amulets': r'amu',  # class 535
-    'leg': r'leg',  # Wirt's Leg, class 88 (weapons.txt; user, 2026-10-12): the way to the cow level
+    'leg': r'leg',  # Wirt's Leg, class 88 (weapons.txt): the way to the cow level
 }
 
 
-# Groups whose worth shows only once identified: one lying identified on the ground was read and
-# dropped by the player, and is neither marked nor picked up again (user, 2026-10-10 night).
+# Worth shows only once identified: one lying identified was dropped by the player and is not taken again
+# (user, 2026-10-10 night).
 APPRAISED = ('charms', 'rings', 'jewels', 'amulets')
 
 

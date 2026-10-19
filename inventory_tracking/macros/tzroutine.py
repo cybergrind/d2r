@@ -1,20 +1,12 @@
-"""The Terror Zone leveling routine: the game-level goals of a terror zone, for any zone (macros/goals-plan.md §4, §6).
+"""The Terror Zone leveling routine: the game-level goals of any terror zone (macros/goals-plan.md §4, §6). "End goal
+on the level depends on the level itself"; "levels with bosses we end with killing the boss" (the player, 2026-10-19).
 
-The player, 2026-10-19: "this system with priorities will allow us to implement a generic TZ leveling loop: end goal
-on the level depends on the level itself. Some levels just have one location - so we need just explore this location.
-Other locations can have complex goals: TZ-Leveling explore routine -> go next level"; "levels with bosses we end with
-killing the boss"; "some levels already have their goals (like killing diablo/baal). And TZLeveling will just add
-another goal, before boss kill or navigating to the next level".
-
-- `itinerary`: the active zone, matched from the levels the client lists as terrorized (routes/tz_groups.py), covered
-  by catalogue excursions from waypoints (routes/tz_routes.py `zone_route_plan`, Codex's): waypoint -> its hops ->
-  its terminal. An excursion with a blocked hop (a pending stage, a town connector with no stage, a tomb tour) is
-  skipped and said, as is an area no excursion covers.
+- `itinerary`: the active zone (routes/tz_groups.py) covered by catalogue excursions from waypoints
+  (routes/tz_routes.py `zone_route_plan`); an excursion with a blocked hop, or an area none covers, is skipped and said.
 - `policy_of`: how an area is worked (agenda.py COVER / ON_THE_WAY / FULL_CLEAR).
-- `produce`: the game-level goals wanted now (goals-plan.md §3), from a `GameView` of the facts: derived afresh at
-  every leg, so a restart, a recovery or the player's hand leave nothing stale.
+- `produce`: the goals wanted now, derived afresh from a `GameView` at every leg so nothing goes stale.
 
-Pure: the views are read by macros/tzloop.py.
+Pure: macros/tzloop.py reads the views.
 """
 
 import functools
@@ -49,11 +41,10 @@ from inventory_tracking.routes.tz_groups import match_active_zone
 from inventory_tracking.routes.tz_routes import zone_route_plan
 
 
-# Level runs of one area a game that end by themselves before it is taken as worked whatever its route's stage (a
-# boss no run found, an object no run reached): the loop goes on rather than standing (the player, 2026-10-18: "the
-# loop never stands")
+# Self-ended level runs of one area after which it counts as worked whatever its stage ("the loop never stands",
+# the player, 2026-10-18)
 RUNS_AN_AREA = 4
-# Per-area overrides of the policy (goals-plan.md §6; open question 1): none yet, by the player's rulings
+# Per-area policy overrides (goals-plan.md §6, open question 1)
 POLICY: dict[int, str] = {}
 # The route stages a level run performs: an area at one of them is still a level's work
 WORKED_BY_RUNS = frozenset((FIGHT, USE, STAND))
@@ -61,8 +52,7 @@ WORKED_BY_RUNS = frozenset((FIGHT, USE, STAND))
 
 @dataclass(frozen=True)
 class Excursion:
-    """One waypoint's trip through the zone: the levels from the waypoint's on (`areas`), of which `zone` are the
-    terrorized ones worked; the rest are crossed."""
+    """One waypoint's trip: `areas` from the waypoint on; `zone` the terrorized ones worked, the rest crossed."""
 
     route: str
     waypoint: int
@@ -83,7 +73,7 @@ class Excursion:
 
 @dataclass(frozen=True)
 class Itinerary:
-    """The game's plan for the active zone: its name and levels, its excursions in order, what is skipped and why."""
+    """The active zone's plan: its levels, excursions in order, and what is skipped and why."""
 
     zone: str
     areas: frozenset[int]
@@ -91,7 +81,7 @@ class Itinerary:
     skipped: tuple[tuple[int, str], ...] = ()
 
     def excursion_of(self, area: int, finished: Iterable[int]) -> Excursion | None:
-        """The excursion level `area` is on now: the first not over (`finished` holds its terminal) that has it."""
+        """The first unfinished excursion (terminal not in `finished`) that has `area`."""
         done = set(finished)
         return next((trip for trip in self.excursions if area in trip.areas and trip.terminal not in done), None)
 
@@ -103,7 +93,7 @@ class Itinerary:
 
 @functools.cache
 def itinerary(terrorized: frozenset[int]) -> Itinerary | None:
-    """The itinerary of the zone whose levels are `terrorized` (the module text); None: no installed zone matches."""
+    """The itinerary of the zone whose levels are `terrorized`; None when no installed zone matches."""
     zone = match_active_zone(terrorized)
     if zone is None:
         return None
@@ -141,10 +131,8 @@ def boss_areas(route: str) -> frozenset[int]:
 
 
 def policy_of(area: int, trip: Excursion | None, full_clear: bool = False) -> str:
-    """How level `area` is worked (goals-plan.md §6): FULL_CLEAR for the Full clear TZ kind (Herald hunting); else
-    ON_THE_WAY for a level whose excursion goes on to a boss's level, and for that level itself (the player's
-    Catacombs: "we're finding each elite on the way to Andariel, kill her and start a new game"); COVER elsewhere,
-    a level no route knows among them (explore to coverage, every leader found, nearest first)."""
+    """How `area` is worked (goals-plan.md §6): FULL_CLEAR for the Full clear TZ kind; ON_THE_WAY on an excursion
+    still heading to a boss ("finding each elite on the way to Andariel, kill her and start a new game"); else COVER."""
     if full_clear:
         return FULL_CLEAR
     if area in POLICY:
@@ -158,10 +146,9 @@ def policy_of(area: int, trip: Excursion | None, full_clear: bool = False) -> st
 
 @dataclass(frozen=True)
 class GameView:
-    """The facts `produce` derives the game-level goals from (macros/tzloop.py reads them). `stage`, `stage_to`: the
-    route's stage kind at `area` and the level it leads into (routes/progress.py `step`); `worked`: the level runs of
-    each area that ended by themselves; `finished`: the areas left done; `sighted`: a valuable seen in `area` still on
-    the ground (macros/sightings.py); `visit_due`: the town visit is wanted (macros/loop.py `visit_due`)."""
+    """The facts `produce` reads. `stage`, `stage_to`: the route's stage kind at `area` and where it leads
+    (routes/progress.py `step`); `worked`: self-ended level runs per area; `finished`: areas done; `sighted`: a
+    valuable still on the ground here; `visit_due`: the town visit is wanted."""
 
     area: int
     in_town: bool
@@ -175,7 +162,7 @@ class GameView:
 
 
 def produce(view: GameView) -> list[Objective]:
-    """The game-level goals wanted now (goals-plan.md §3). Empty: none, and the agenda's next is LEAVE_GAME."""
+    """The game-level goals wanted now (goals-plan.md §3); empty means LEAVE_GAME next."""
     plan, area = view.itinerary, view.area
     if plan is None:
         return []

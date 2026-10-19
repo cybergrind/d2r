@@ -1,20 +1,9 @@
 """Put a POI on the warp itself instead of its room's centre.
 
-A preset's DS1 file places its warp tiles (levels/ds1.py, bundled as data/preset_warps.json),
-in tiles from the preset origin: the whole preset's bounds (`Room.block`) for chunked presets,
-the room itself otherwise. Checked on 2026-10-03 against the entry fixtures: arriving by stairs
-puts the player within a tile of the way-back warp (Jail 2 and 3, Catacombs 3, Worldstone Keep 3).
-A preset with several warps (Graveyard, Harem, Act 3 Bridge, Baal Entrance) keeps the room
-centre: which slot a POI means is not known here. Only ways out move: bosses, chests and
-waypoints are objects, not warps, and keep their place even in a preset that also holds a warp
-(Nihlathak's 'Temple Final Room' holds the way back; the handler puts him across it). An
-entrance kept as a side trip ('target' colour: Frozen River, the Kurast temples) opts in with
-PoiSpec.warp.
-
-A waypoint is an object, so its place is not in the preset's warp tiles: `on_waypoint` moves the
-POI onto the waypoint object once the game has streamed it (levels/memory.nearby_waypoints).
-Until then the room centre stands; on 2026-10-05 that was about 2 tiles off in Catacombs 2,
-which put the HUD's ground mark (hud/ground.py) beside the waypoint instead of on it.
+Warp tiles come from the preset's DS1 file (data/preset_warps.json), from the preset origin (`Room.block`
+for chunked presets); arriving by stairs lands within a tile of the way-back warp (2026-10-03). A preset with
+several warps keeps the room centre. Only ways out move, plus side-trip entrances that opt in (PoiSpec.warp).
+A waypoint is an object: `on_waypoint` moves it onto the object once streamed (levels/memory.nearby_waypoints).
 """
 
 from dataclasses import replace

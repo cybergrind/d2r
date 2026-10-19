@@ -1,21 +1,13 @@
-"""The goal agenda: a prioritized queue of goals, a stack of packages, and the choice of a level run's next target
-(macros/goals-plan.md, the player's design of 2026-10-19 ~01:57).
+"""The goal agenda: a prioritized queue of goals, a stack of packages, and a level run's next target
+(macros/goals-plan.md, the player's design of 2026-10-19).
 
-The player: "if we have packaged goal (on stack in our case), we get goals from our stack from the top, one by one
-until stack is empty. then we discard stack and continue with prioritized queue"; "we can have clearer signals for
-save/restart - when we have no more goals". So `Agenda.next` gives the stack's top while there is one, else the
-queue's best goal (the lowest tier, then the nearest), else LEAVE_GAME; out of a game NEW_GAME.
+`Agenda.next` gives the stack's top while there is one, else the queue's best goal (lowest tier, then nearest), else
+LEAVE_GAME; out of a game NEW_GAME. "Every loop has it's own metric ... the only thing that has more priority - proper
+interactions with drops" (the player, 2026-10-19): every drop tier is above every metric tier, in a level and at the
+game's level (no LEAVE_GAME with a valuable on the ground).
 
-The player, 2026-10-19 ~02:12: "every loop has it's own metric, that it must optimize: boss kills/elites kill/opened
-chest. the only thing that has more priority - proper interactions with drops (we cannot run without picking desired
-items just with killing boss alone)". Every tier of a drop is above every tier of the metric's goals, in a level
-(`in_level`: a side drop and its guards before any leader, room or boss) and at the game's level (PICKUP before
-LEVEL, LOOT before NEXT_LEVEL, and no LEAVE_GAME with a valuable on the ground).
-
-Two granularities (goals-plan.md §2): the game-level goals are one KP_6 leg each (macros/tzloop.py performs them);
-the in-level ones are a level run's targets, asked at each look of attack mode (`in_level`, from macros/hunt.py
-`Hunter.agenda_target`). Pure: nothing here reads the game or sends input. Safety is no goal here: the arbiter and the
-drinking act inside every look of every leg.
+Game-level goals are one KP_6 leg each (macros/tzloop.py); in-level goals are a level run's targets, asked at each
+look (`in_level`, from `Hunter.agenda_target`). Pure. Safety is no goal: the arbiter and drinking act in every look.
 """
 
 import math
@@ -34,41 +26,31 @@ PORTAL_TO_TOWN, THROUGH_PORTAL, RESUME = 'portal to town', 'through the portal',
 LEVEL, LOOT, PICKUP, NEXT_LEVEL, LEAVE_GAME = 'level', 'loot', 'pickup', 'next level', 'leave game'
 # In-level goals: a level run's targets (PICKUP is both: a side drop in a level, a remembered valuable at a leg)
 KILL, EXPLORE, NAVIGATE = 'kill', 'explore', 'navigate'
-# A closed super chest to open (2026-10-19, the player: "we don't open intermediate goals, like superchests. probably we
-# should add superchests to intemediate goals and open them along the way")
+# A closed super chest ("add superchests to intemediate goals and open them along the way", the player, 2026-10-19)
 OPEN = 'open'
 
-# How a level run works an area (goals-plan.md §6). The player, 2026-10-19 ~02:12: "we're going to have separate
-# mods: - full clear tz : for herald hunting - tz leveling: clear only elites/champs".
+# How a level run works an area (goals-plan.md §6): "full clear tz: for herald hunting - tz leveling: clear only
+# elites/champs" (the player, 2026-10-19).
 COVER = 'cover'  # TZ leveling: every leader found, nearest first, and the unexplored rooms
 ON_THE_WAY = 'on the way'  # TZ leveling: the leaders in the read and remembered near, then the area's end goal
 FULL_CLEAR = 'full clear'  # Full clear TZ: every hostile and every room (the Heralds come of the group's kills)
 
-# The in-level tiers (goals-plan.md §3), lowest first. The drops' (DROP_GUARD, DROP) come before every goal of the
-# metric (the ruling of 02:12); a Herald and its omen are the fight that comes to the character anyway. CHEST
-# (2026-10-19, the player: "we should add superchests to intemediate goals and open them along the way"): a closed super
-# chest within CHEST_NEAR comes after the leaders in the read (they are the metric, and they come at a character that
-# stands at a chest) and before the leaders out of sight, the rooms and the area's end goal; its spill is then the drop
-# tiers'.
+# In-level tiers (goals-plan.md §3), lowest first. Drops come before the metric; a Herald comes to the character
+# anyway. CHEST after the leaders in the read (they come at a character standing at a chest), before the rest.
 HERALD, OMEN, DROP_GUARD, DROP, LEADER, CHEST, LEADER_NEAR, ROOM, LEADER_FAR = range(9)
 # The game-level tiers: the stack (0) first; a valuable on the ground before the metric's legs
 STACK, SIGHTED, ERRAND, WORK, LOOTING, ONWARD, EXCURSION = 0, 10, 20, 30, 40, 50, 60
-# Units: on an ON_THE_WAY area a leader in the read further off than this is not gone for (about two screens' width
-# of the way; open question 1 of goals-plan.md)
+# Units: on an ON_THE_WAY area a leader in the read further off is not gone for (goals-plan.md open question 1)
 WAY_UNITS = 90.0
-# A leader remembered alive this near is gone for before the next room; one further waits for the tour's end
-# (hunt.py REMEMBERED_NEAR, the player 2026-10-18 00:10: "we starts to go from one side to another back and forward";
-# a test holds them equal)
+# A remembered leader this near is gone for before the next room, one further after the tour ("we starts to go from
+# one side to another back and forward", the player, 2026-10-18). A test holds it equal to hunt.py REMEMBERED_NEAR.
 REMEMBERED_NEAR = 45.0
-# Units (2026-10-19): a super chest (objects.txt 397 ConsolationChest, "sparklychest") seen this near the character is
-# opened on the way; one further is not gone for, so no chest seen far off sends the run across the level (a side goal
-# worth a short detour, not a reason to explore: the TZ leveling loop's metric is elite kills an hour). 60 is the full
-# clear's own bound (hunt.py SUPER_NEAR; a test holds them equal): about three Teleport hops of 26, a second or so there
+# Units: a super chest (objects.txt 397 ConsolationChest) this near is opened on the way; one further is a detour the
+# metric does not pay for. A test holds it equal to hunt.py SUPER_NEAR.
 CHEST_NEAR = 60.0
 TRIES = 3  # a goal whose leg stopped this often in a game is dropped, said (progress-or-back-off)
 
-# levels.txt Act (third-parties/d2data/json/levels.json, read 2026-10-19): act 1 levels 0-39, act 2 40-74, act 3
-# 75-102, act 4 103-108, act 5 109-137; each act's town is its first level
+# levels.txt Act (d2data levels.json, 2026-10-19): each act's town is its first level
 TOWNS = (1, 40, 75, 103, 109)
 PANDEMONIUM_FORTRESS = 103
 
@@ -80,9 +62,8 @@ def town_of(area: int) -> int:
 
 @dataclass(frozen=True)
 class Objective:
-    """One goal. `tier` orders it (lowest first; within a tier the nearest); `area` is the level it is of (None: any,
-    a town's or the lobby's); `place` where, in world units; `unit` the monster or the item it is for; `to` the level
-    it leads into (a waypoint, the way on); `exit` how a town routine ends (macros/town.py `Exit` values)."""
+    """One goal. `tier` orders it (lowest first, then nearest); `area` None means any; `place` in world units; `unit`
+    the monster or item; `to` the level it leads into; `exit` how a town routine ends (town.py `Exit`)."""
 
     kind: str
     label: str
@@ -102,8 +83,7 @@ class Objective:
 
 @dataclass(frozen=True)
 class Leader:
-    """A champion, unique, super unique or boss (or, on a full clear, any hostile) the level run knows of: in sight
-    (`live`) or remembered alive where it was last seen."""
+    """A champion, unique or boss (any hostile on a full clear), in sight (`live`) or remembered alive."""
 
     unit: int
     place: Point
@@ -114,11 +94,10 @@ class Leader:
 
 @dataclass(frozen=True)
 class LevelView:
-    """What a level run's look hands the agenda (macros/hunting/choice.py `agenda_target`). `hostiles`: (unit, place) of
-    every hostile in the read, a drop's guards among them; `omens`: (spot, stand) of a Herald coming; `side`: the drop
-    the pickup rules take now (a PICKUP); `frontier()`: the next unexplored room (place, what), asked only when it is
-    wanted; `passed(place, unit)`: a target the run passed for a while (no progress toward it); `chests`: (unit, place)
-    of the closed super chests in the read; `spent`: the super chests seen open, or tried out (never targets again)."""
+    """What a level run's look hands the agenda (hunting/choice.py `agenda_target`). `omens`: (spot, stand) of a
+    Herald coming; `side`: the drop the pickup takes now; `frontier()`: the next unexplored room, asked lazily;
+    `passed(place, unit)`: a target with no progress for a while; `chests`: closed super chests in the read; `spent`:
+    super chests open or tried out."""
 
     area: int
     here: Point
@@ -139,11 +118,8 @@ def kill(area: int, unit: int, place: Point, label: str, tier: int = LEADER) -> 
 
 
 def room_package(area: int) -> tuple[Objective, ...]:
-    """The trip to town for room from level `area` (the player's example: "we need to empty the inventory -> create
-    teleport -> put on stack continue run -> put on stack go back through teleport in town act 1 -> put on stack do
-    town routine (identify/store/etc) -> put on stack go through just create teleport"): Town Portal, the Fortress's
-    visit (macros/visit.py: its Cain, stash, Jamella and Halbu), back to the portal's town, through it, and on. The
-    portal's town in act 4 is the Fortress: no waypoint either way, the visit walks nowhere after (`leave`)."""
+    """The trip to town for room from `area` (the player's example package, 2026-10-19): Town Portal, the Fortress
+    visit (macros/visit.py), back to the portal's town, through the portal, on. In act 4 no waypoint either way."""
     town = town_of(area)
     goals = [Objective(PORTAL_TO_TOWN, 'Town Portal for room', STACK, area, to=town)]
     if town != PANDEMONIUM_FORTRESS:
@@ -160,11 +136,9 @@ def room_package(area: int) -> tuple[Objective, ...]:
 
 @dataclass
 class Agenda:
-    """The game's goals (the module text). `game`: the game they are of (macros/loop.py `GameId`); a new one starts
-    them afresh. `queue`: the game-level goals as the producers last derived them (`refresh`); `stack`: the
-    packages, top last; `kills`: the KILL goals of the leaders the level runs saw, by unit; `chests`: the OPEN goals of
-    the closed super chests seen, by unit, and `opened` those seen open or tried out (never again); `worked`: the level
-    runs of each area that ended by themselves; `finished`: the areas left done; `failures`: stops by goal."""
+    """The game's goals; a new `game` starts them afresh. `queue`: the game-level goals last derived; `stack`: the
+    packages, top last; `kills`/`chests`: KILL/OPEN goals by unit; `opened`: chests never targeted again; `worked`:
+    self-ended level runs per area; `finished`: areas done; `failures`: stops by goal."""
 
     game: object | None = None
     queue: dict[tuple, Objective] = field(default_factory=dict)
@@ -180,7 +154,7 @@ class Agenda:
     plan: object | None = None  # the game's itinerary (macros/tzroutine.py `Itinerary`), set by macros/tzloop.py
 
     def begin(self, game: object) -> bool:
-        """The goals of `game`: another than the last one's starts afresh, the stack discarded. Whether it did."""
+        """Start afresh (stack discarded) when `game` is new; whether it was."""
         if game == self.game:
             return False
         if self.stack:
@@ -192,19 +166,17 @@ class Agenda:
         return True
 
     def push(self, *goals: Objective) -> None:
-        """A package onto the stack: pushed in reverse, so `goals[0]` comes first and the last given last."""
+        """Push a package so `goals[0]` comes first."""
         self.stack.extend(reversed(goals))
         LOG.info('Macro: agenda: package pushed: %s', ' -> '.join(goal.label for goal in goals))
 
     def refresh(self, goals: Iterable[Objective]) -> None:
-        """The game-level goals the producers want now (macros/tzroutine.py `produce`), in place of the last: they are
-        derived from the facts at every leg ("re-plan, never resume"). A goal dropped for its failures stays out."""
+        """Replace the queue with the producers' goals ("re-plan, never resume"); dropped goals stay out."""
         self.queue = {goal.key: goal for goal in goals if goal.key not in self.dropped}
 
     def next(self, here: Point | None, *, in_game: bool = True, valuable: str | None = None) -> Objective:
-        """The goal to work now: the stack's top (a RESUME on it ends its package: popped and said, the queue goes
-        on), else the queue's lowest tier, the nearest of it; else, with a valuable known on the ground (`valuable`,
-        the sightings'), its PICKUP; else LEAVE_GAME: no goals left. Out of a game, NEW_GAME."""
+        """The goal to work now: the stack's top (a RESUME ends its package), else the queue's best, else a PICKUP
+        of `valuable` still on the ground, else LEAVE_GAME. Out of a game, NEW_GAME."""
         if not in_game:
             return Objective(NEW_GAME, 'the next game', STACK)
         while self.stack and self.stack[-1].kind == RESUME:
@@ -219,7 +191,7 @@ class Agenda:
         return self.told(Objective(LEAVE_GAME, 'no goals left', EXCURSION))
 
     def told(self, goal: Objective) -> Objective:
-        """`goal`, said when it is another than the last one given (`Macro: agenda: next ...`)."""
+        """`goal`, logged when it changes."""
         if goal.label != self.said:
             self.said = goal.label
             source = 'stack' if self.stack and self.stack[-1] is goal else 'queue'
@@ -227,14 +199,14 @@ class Agenda:
         return goal
 
     def done(self, goal: Objective) -> None:
-        """`goal`'s leg ended without a stop: off the stack's top, out of the queue."""
+        """`goal`'s leg ended without a stop: remove it."""
         if self.stack and self.stack[-1] == goal:
             self.stack.pop()
         self.queue.pop(goal.key, None)
         self.failures.pop(goal.key, None)
 
     def failed(self, goal: Objective) -> bool:
-        """`goal`'s leg stopped; whether it is dropped for it (TRIES in this game), said."""
+        """`goal`'s leg stopped; whether it is now dropped for the game (TRIES)."""
         self.failures[goal.key] += 1
         if self.failures[goal.key] < TRIES:
             return False
@@ -246,22 +218,19 @@ class Agenda:
         return True
 
     def ran(self, area: int | None) -> None:
-        """A level run of `area` ended by itself (its route's end, nothing left to go for)."""
+        """A level run of `area` ended by itself."""
         if area is not None:
             self.worked[area] += 1
 
     def finish(self, area: int | None) -> None:
-        """Level `area` is left done: its excursion goes on past it."""
+        """Level `area` is done."""
         if area is not None and area not in self.finished:
             self.finished.add(area)
             LOG.info('Macro: agenda: level %d done', area)
 
     def observe(self, view: LevelView) -> None:
-        """The KILL goals of the leaders in `view` (the TZ leveling routine: "creates KillGoal for every elite/champ
-        that it discovers"): each one seen or remembered alive kept with its last place; one of this level that is
-        neither any more is dead or gone where it was seen, and dropped. An OPEN goal for every closed super chest in
-        `view` (kept while it is out of the read: "seen on this level and not yet opened"); one seen open or tried
-        out is dropped for the game."""
+        """Update the KILL goals from `view`'s leaders (one of this level no longer known is dropped) and the OPEN
+        goals from its closed super chests (kept out of the read; dropped for the game once spent)."""
         present = {leader.unit for leader in view.leaders}
         for unit, goal in list(self.kills.items()):
             if goal.area == view.area and unit not in present:
@@ -277,12 +246,9 @@ class Agenda:
                 self.chests[unit] = Objective(OPEN, 'Super chest', CHEST, view.area, place, unit)
 
     def in_level(self, view: LevelView) -> Objective | None:
-        """The level run's next target (goals-plan.md §3), first match: a live Herald; a Herald's omen (the hostile
-        nearest its spot, else the stand by it); the side drop's guards (hostiles within GUARD_NEAR of it or of the
-        character) and then the drop; a leader in sight (ON_THE_WAY: within WAY_UNITS); a closed super chest within
-        CHEST_NEAR (every policy); a leader remembered within REMEMBERED_NEAR; on COVER and FULL_CLEAR the next
-        unexplored room, then the leaders remembered further. None: nothing of the agenda's, and the area's end goal
-        (the route's boss, object or door) is the run's."""
+        """The level run's next target (goals-plan.md §3), first match: a live Herald; a Herald's omen; the side
+        drop's guards, then the drop; a leader in sight; a super chest within CHEST_NEAR; a leader remembered within
+        REMEMBERED_NEAR; on COVER/FULL_CLEAR the next room, then leaders further. None: the area's end goal is next."""
         self.observe(view)
         here = view.here
 
@@ -346,12 +312,12 @@ class Agenda:
         return None
 
     def known(self, area: int) -> int:
-        """The KILL goals of level `area` still open."""
+        """The open KILL goals of `area`."""
         return sum(1 for goal in self.kills.values() if goal.area == area)
 
 
 def cost(goal: Objective, here: Point | None) -> float:
-    """Units from `here` to the goal's place; 0 for a goal with none (a leg's), or with the character unread."""
+    """Units from `here` to the goal's place; 0 without either."""
     if goal.place is None or here is None:
         return 0.0
     return math.dist(here, goal.place)

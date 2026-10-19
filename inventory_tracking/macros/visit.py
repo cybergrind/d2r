@@ -1,44 +1,16 @@
-"""The town visit's executor (macros/town-plan.md §2.1): `visit` walks the itinerary once (step 3), the stash stop by
-plan (`stash_stop`, step 2) its second stop.
+"""The town visit's executor (macros/town-plan.md §2.1): `visit` is the loop's one town leg, `stash_stop` its stash.
 
-`visit`, the loop's one TOWN leg (the player, 2026-10-18 12:55: "identify everything with cain; move to the shared
-stash; put all items that we need to keep in stash ... after stash visit we should carry only junk/sell items in our
-inventory or cube; visit store and sell junk items from inventory and cube; refill the consumables; if we need to repair
-things - repair things; go to waypoint; continue activity"): Deckard Cain for every unidentified item, inventory and
-cube (none: no walk to him); the appraisal's junk told (`Hands.judge`, the full gem stacks' surplus); one stash stop,
-planned from the stash as read, the cube's keepers and its junk out in it; the full gem stacks' transmutes standing
-there, the stop planned again for the perfect gems (no walk); Jamella, the inventory's and the cube's junk sold and the
-keys bought to the run kind's (`Needs.keys`), skipped with nothing to sell and nothing short; Halbu only when a repair
-is due, after her (before her only when the gold is still too near its cap for a sale: no sale is made then); a key
-stack moved out of the build's free block; the exit: the waypoint walked to from her or him (`Exit.WAYPOINT`,
-`Exit.PORTAL`: the next leg takes the waypoint), no walk when the game is left from here (`Exit.LEAVE`). Then the
-contract (town.py `contract`), logged with each stop's seconds. Every stop is planned from memory read at it: a visit
-cut by the player's hand and made again does only what is left.
+`visit`, in the player's order (2026-10-18: "identify everything with cain; move to the shared stash; put all items
+that we need to keep in stash ... visit store and sell junk"): Cain for the unidentified (inventory and cube); the junk
+judged; one stash stop (keepers in, the cube's junk out, full gem stacks transmuted there); Jamella sells the junk and
+buys keys (Halbu first when the gold is near its cap); Halbu when a repair is due; a key stack out of the free block;
+the walk to the waypoint unless the game is left; then the contract (town.py `contract`). Each stop is planned from
+memory read at it, so a visit cut and made again does only what is left.
 
-`stash_stop` makes a stop `town.stash_stop` planned from the stash as read (game/records.py `StashView`): one walk to
-the stash, each put clicked once, onto the page planned and no other. The steps: the cube's keepers that fit the
-inventory now come out first (cube.py `unpack`), with the cube's junk for Jamella when no keeper waits for room; the
-stash opened (stash.py `open_stash`); the cube's resources by Ctrl + Shift on a resource tab, the inventory's by Ctrl +
-click (each onto its own tab whatever tab is shown: the player, 2026-10-18); the keepers onto their pages, the Personal
-tab, then the Shared tab at its first planned page (stash.py `_shared`), its right arrow to each next one; the full
-stacks' materials put down between the panels; the gold deposited; Escape.
-
-A cube keeper the inventory had no room for before the stash took its keepers goes through the room they left: whether a
-Ctrl + click on a cube item in the stash's resource view sends it to the inventory is not known (the plan's probe P1),
-so the stash is closed, the cube's items taken out (`unpack`), and the stash opened again where the character stands
-(no walk), then those keepers put in. Where the inventory's junk or keys hold the only block such a keeper fits, they
-are moved aside first, the stash still open (`_aside`), and junk with no cell left goes into the cube for Jamella
-(`_into_cube`) before the keepers come out (town.py `stash_stop` (iv); 14:28 on 2026-10-18). Where no move frees
-one, the inventory's junk in the way is parked on a shared page with the stash still open (`_park`), and taken back
-into the inventory once the keepers are in, before the stash closes (`_unpark`): sold at Jamella after (the player,
-16:50 on 2026-10-18: "junk can be temporarily stored in stash, but sold after"; town.py PARK_JUNK).
-
-Each put is checked: the item left the grid (stash.py `_sent`: one taken onto the pointer is put back and the stop
-aborts), and the stash read again shows the page it landed on. The Shared tab shows the page last looked at, kept
-between stops (`Remembered`): a stop goes to it with no arrow when it is the page planned. A put refused there is tried
-again from the tab's first page; one that lands on another page is in the stash all the same, and that page is the one
-shown for the next puts (§5). A put still refused goes to today's scan (`stash.unload`) for that item only, with the
-stash closed first.
+`stash_stop`: one walk, each put clicked once onto its planned page and checked; a refused put goes to the scan
+(`stash.unload`). Cube keepers with no room yet come out through the room the inventory's keepers leave (stash closed,
+`unpack`, reopened in place); junk in the way is moved aside, put into the cube, or parked on a page and taken back
+before the stash closes. Rulings and evidence: history/visit.md.
 """
 
 from collections import Counter
@@ -146,16 +118,15 @@ Rect = tuple[int, int, int, int]
 
 @dataclass
 class Remembered:
-    """What the runner keeps between stops: the game whose stash view was logged (`note_view`), and the shared page the
-    Shared tab showed last (the tab shows the page last looked at: stash.py `_shared`), None not known (a restart)."""
+    """Kept between stops: the game whose stash view was logged, and the shared page the Shared tab showed last (the
+    tab reopens on it; None: not known)."""
 
     game: str | None = None
     shared: int | None = None
 
 
 def note_view(run: Run, noted: Remembered) -> None:
-    """Log the stash as read, once a game in Pandemonium Fortress (the plan's step 0: `Macro: stash view: pages free
-    0:n 1:n …; full stacks …`), to measure the view against what the stash stop finds."""
+    """Log the stash as read once a game in Pandemonium Fortress, to measure the view against what the stop finds."""
     if run.stash_view is None:
         return
     world = run.world()
@@ -188,8 +159,8 @@ class Tally:
 def stash_stop(
     run: Run, stop: StashStop, *, inventory_key: str | None, own: frozenset[Cell], memory: Remembered | None = None
 ) -> int:
-    """Make the planned stash stop (the module text); how many items went into the stash. Mouse mode only. `Abort`
-    with the panels closed when the stash does not open or a click takes an item onto the pointer."""
+    """Make the planned stash stop; how many items went in. Mouse mode only. `Abort` (panels closed) when the stash
+    does not open or a click takes an item onto the pointer."""
     if run.pad is not None:
         raise Abort('the stash needs mouse mode')
     pack = run.reads.carried()
@@ -197,9 +168,7 @@ def stash_stop(
         LOG.info("Macro: stash: by the view: nothing of the loop's to put in")
         return 0
     began = run.clock()
-    # In `unpack`'s order, the tallest first: in the puts' order (by page) a Ring for page 2 took the first cell of the
-    # only 2 x 3 a Serpentskin Armor for page 5 came out into, and the armor waited for a second opening (the 15:14
-    # replay on 2026-10-18), where `unpack` would have taken both out at once
+    # Tallest first, as `unpack` orders them: in page order a Ring took an armor's cell (replay 2026-10-18 15:14)
     cube_keepers = sorted(
         (put.item for put in stop.puts if put.source == 'cube' and not put.tab),
         key=lambda i: (-i.size[1], -i.size[0] * i.size[1]),
@@ -222,13 +191,8 @@ def stash_stop(
         _pages(run, rect, ready, tally)
         dropped = _drops(run, rect, stop.drops)
         if later and inventory_key is not None:
-            # The inventory's keepers have made the room: the cube's out through it, the stash opened again in place
-            # (probe P1 unknown: whether a Ctrl + click on a cube item in the stash's resource view takes it out). The
-            # junk and keys in the way moved aside first, with the stash still open (no opening more); junk with no
-            # cell for it into the cube, which the stash's panels hide (14:28 on 2026-10-18: a set Amulet kept for
-            # Jamella held the one 2 x 3 a unique Embossed Plate needed, and the plate stayed in the cube); junk no
-            # move makes room for parked on a page first, taken back once the keepers are in (16:35: a junk Fuscina
-            # held the only 2 x 2 a set Battle Boots could come out into, three visits)
+            # The cube's keepers out through the room the inventory's left, the stash reopened in place (probe P1
+            # unknown). Junk in the way: moved aside, into the cube, or parked and taken back (history/visit.md)
             _park(run, rect, stop.parks, tally, later, parked)
             _aside(run, rect, stop.shuffles, later)
             close_stash(run)
@@ -242,8 +206,7 @@ def stash_stop(
             _pages(run, rect, [put for put in stop.puts if put.item.unit_id in ids], tally)
             parked = _unpark(run, rect, parked, tally)
         if stop.runes:
-            # The 99 rune stacks down to RUNES_AIM (the player, 17:50 on 2026-10-18: "cubed, aim to 80 or lower"), the
-            # cube empty now and the stash open: no walk, no opening more
+            # Rune stacks down to RUNES_AIM (the player, 2026-10-18: "cubed, aim to 80 or lower"), the stash still open
             _cube_runes(run, rect, stop, tally)
         if stop.deposit_to is not None:
             deposit(run, rect, stop.deposit_to)
@@ -315,9 +278,8 @@ def _arrows(run: Run, rect: Rect, steps: int) -> None:
 
 
 def _show(run: Run, rect: Rect, page: int, tally: Tally) -> None:
-    """Show `page`: the Personal tab; a shared page by the arrows from the shared page shown, or the Shared tab and the
-    arrows from the page it showed last (remembered: from page 5 to page 5 no arrow), else from its first page
-    (stash.py `_shared`: the left arrow to the first, then the right one)."""
+    """Show `page`: the Personal tab; a shared page by arrows from the page shown, or from the remembered one, else
+    from the tab's first page (stash.py `_shared`)."""
     if tally.shown == page:
         return
     if page == 0:
@@ -336,11 +298,9 @@ def _show(run: Run, rect: Rect, page: int, tally: Tally) -> None:
 
 
 def _pages(run: Run, rect: Rect, puts: Sequence[Put], tally: Tally) -> None:
-    """The keepers onto their planned pages in priority order, each by a Ctrl + click with its page shown; each checked
-    on the page by the stash read again. One refused on a page told by memory is tried again from the Shared tab's
-    first page;
-    refused there too, it goes to the scan. One that lands on another page is in the stash all the same: that page is
-    the one shown (learned for the next puts: §5)."""
+    """The keepers onto their planned pages in priority order, by Ctrl + click, the landed page re-read. One refused on
+    a remembered page is tried again from the tab's first page, then goes to the scan; one landing elsewhere makes that
+    page the one shown (town-plan.md §5)."""
     for put in sorted(puts, key=lambda p: PAGE_PRIORITY.index(p.to)):
         held, _in_cube = _now(run, put.item.unit_id)
         if held is None:
@@ -379,10 +339,8 @@ def _keepers(items: Sequence[Carried]) -> str:
 
 
 def _aside(run: Run, rect: Rect, moves: Sequence[tuple[Carried, tuple[int, int]]], later: Sequence[Carried]) -> int:
-    """The planned moves aside within the inventory (`StashStop.shuffles`), the stash open: each item taken up by a
-    click and put down by a click on its new cell, checked in memory (as cube.py `arrange_keys` moves a key stack, 14
-    times live by 2026-10-18); put back where it was if it does not land there, `Abort` if it stays on the pointer.
-    How many moved."""
+    """The planned moves within the inventory (`StashStop.shuffles`), the stash open: click up, click down on the new
+    cell, checked in memory; put back if it does not land, `Abort` if it stays on the pointer. How many moved."""
     moved = 0
     for item, (x, y) in moves:
         held, _in_cube = _now(run, item.unit_id)
@@ -422,10 +380,9 @@ def _park(
     later: Sequence[Carried],
     parked: list[tuple[Carried, int]],
 ) -> None:
-    """The inventory's junk planned onto a shared page for the stop (`StashStop.parks`), the stash open: each by a
-    Ctrl + click with its page shown, as a keeper is put (`_pages`), checked to have left the grid; the page it lies on
-    as read again. Never into the scan: one refused stays carried (the keeper it made room for then stays in the cube).
-    Each one parked added to `parked` with its page at once (a stop that gives up after takes it back)."""
+    """The junk planned onto a shared page for the stop (`StashStop.parks`), put as `_pages` puts a keeper. Never into
+    the scan: one refused stays carried. Each parked one goes into `parked` at once, so a stop that gives up takes it
+    back."""
     for put in parks:
         held, _in_cube = _now(run, put.item.unit_id)
         if held is None:
@@ -455,9 +412,8 @@ def _park(
 
 
 def _unpark(run: Run, rect: Rect, parked: Sequence[tuple[Carried, int]], tally: Tally) -> list[tuple[Carried, int]]:
-    """The parked junk back into the inventory, the largest first (as town.py `after` has them come back): each found
-    on its page as read, that page shown, a Ctrl + click on its cell, checked to be carried again. Those still in the
-    stash."""
+    """The parked junk back into the inventory, largest first (as town.py `after` plans it), each found on its page as
+    read. Returns those still in the stash."""
     left: list[tuple[Carried, int]] = []
     for item, page in sorted(parked, key=lambda p: (-p[0].size[0] * p[0].size[1], -p[0].size[1], p[0].unit_id)):
         view = run.reads.stash_view()
@@ -490,8 +446,7 @@ def _unpark(run: Run, rect: Rect, parked: Sequence[tuple[Carried, int]], tally: 
 
 
 def _rescue(run: Run, parked: Sequence[tuple[Carried, int]], tally: Tally) -> list[tuple[Carried, int]]:
-    """The parked junk taken back when the stop gives up after the park (the stash opened again where it stands);
-    those still in the stash. Never raises."""
+    """The parked junk taken back when the stop gives up (the stash reopened in place); those left. Never raises."""
     try:
         close_stash(run)
         rect = open_stash(run)
@@ -503,9 +458,8 @@ def _rescue(run: Run, parked: Sequence[tuple[Carried, int]], tally: Tally) -> li
 
 
 def _into_cube(run: Run, inventory_key: str, items: Sequence[Carried], later: Sequence[Carried]) -> int:
-    """The junk with no cell to move aside to put into the cube (`StashStop.into_cube`), sold from there at Jamella
-    (`visit`'s passes take the cube's junk out): the inventory and the cube opened, a Ctrl + click on each (as cube.py
-    `stash` puts the loop's items in), checked in memory; the panels closed after. How many went in."""
+    """The junk with no cell to move aside to into the cube (`StashStop.into_cube`), sold from there at Jamella: a
+    Ctrl + click each with the cube open, checked in memory. How many went in."""
     rect = run.actuator.keys.focused_window_rect()
     pack = run.reads.carried()
     cube = next((item for item in pack.items if item.txt == CUBE_CLASS), None) if pack is not None else None
@@ -540,18 +494,11 @@ def _into_cube(run: Run, inventory_key: str, items: Sequence[Carried], later: Se
 
 
 def _cube_runes(run: Run, rect: Rect, stop: StashStop, tally: Tally) -> int:
-    """The stop's rune transmutes (`StashStop.runes`, town.py RUNES_AIM), the stash open: the Runes tab shown, for each
-    a Ctrl + Shift + right click on the stack's slot (three of it into the cube: the player, 14:28 on 2026-10-18,
-    "ctrl + shift + right click on resource => move 3 of item to the cube"; live from 18:27), checked to put exactly
-    RUNES_A_TAKE of the class in the cube and nothing else; for a recipe that takes a gem (the player, 18:31: "yes,
-    loop should use required gems + runes") the Gems tab shown and a Ctrl + Shift + left click on the gem's stack, one
-    of it into the cube (the player, 18:48: "ctrl + shift + left - moves 1 item"), the cube checked to hold the three
-    runes and the one gem alone;
-    the tab's Transmute button, checked to leave one rune of the class made; that rune onto its stack by a Ctrl + Shift
-    + click (proven: a cube resource onto its stack, 2026-10-17). Then the loop's runes the stacks had no room for
-    (`StashStop.rune_puts`), each by a Ctrl + click as the stash read now gives its stack room; one refused stays
-    carried (never the scan). Anything unexpected ends the transmutes, the runes and gems taken back onto their stacks
-    first: none is ever left in the cube by them. Never a Ber Rune (town.py BER). How many were made."""
+    """The stop's rune transmutes (`StashStop.runes`, town.py RUNES_AIM), the stash open: Ctrl + Shift + right click
+    moves 3 runes into the cube, Ctrl + Shift + left click 1 gem when the recipe takes one (the player, 2026-10-18),
+    each checked; Transmute; the rune made onto its stack by Ctrl + Shift + click. Then the carried runes the stacks
+    had no room for (`StashStop.rune_puts`); one refused stays carried. Anything unexpected ends the transmutes with
+    the cube emptied back onto the stacks. Never a Ber (town.py BER). How many were made."""
     pack = run.reads.carried()
     if pack is None or pack.in_cube or all(i.txt != CUBE_CLASS for i in pack.items):
         LOG.info('Macro: stash: no rune transmute: %s', 'the inventory is not read' if pack is None
@@ -579,8 +526,7 @@ def _cube_runes(run: Run, rect: Rect, stop: StashStop, tally: Tally) -> int:
             gem = rune.gem
             _tab(run, rect, tab_point(GEMS_INDEX))
             shown = GEMS_INDEX
-            # One gem by a Ctrl + Shift + left click (the player, 18:48 on 2026-10-18: "when cubing runes and we need
-            # to move only 1 gem, we don't need to do right click (moves 3 items), ctrl + shift + left - moves 1 item")
+            # One gem (the player, 2026-10-18: "ctrl + shift + left - moves 1 item")
             run.actuator.move(*panel_point(rect, *gem_slot), scatter=(6, 6))
             run.actuator.click('Control_L', 'Shift_L')
             if not _until(run, lambda p, t=rune.txt, g=gem: _holds_only(p, {t: RUNES_A_TAKE, g: 1})):
@@ -664,9 +610,8 @@ def _rune(txt: int | None) -> str:
 
 
 def _drops(run: Run, rect: Rect, items: Sequence[Carried]) -> int:
-    """The full stacks' materials put down between the panels (no vendor buys one: the player, 10:37 on 2026-10-18,
-    "there is no use for it"): taken up by a click, let fall by a click on the ground; put back where it was if it does
-    not fall, then `Abort`. How many fell."""
+    """The full stacks' materials put down between the panels (no vendor buys one: the player, 2026-10-18, "there is
+    no use for it"); put back, then `Abort`, if one does not fall. How many fell."""
     fell = 0
     for item in items:
         if why := protected(run, item):
@@ -712,10 +657,9 @@ def _scan(run: Run, missed: Sequence[Carried], inventory_key: str | None, own: f
 
 @dataclass
 class Hands:
-    """The runner's closures a visit takes: the key that opens the inventory; Cain's identify (the tome the fallback),
-    the appraisals waited for; the junk among identified items (macros/junk.py `junk_of`); the stash as read
-    (game/ `StashView`, None unread); the full gem stacks' transmutes (cube.py `transmute`, what it puts down
-    picked up again): how many perfect gems were made and how many units it left on the ground."""
+    """The runner's closures a visit takes: the inventory key; Cain's identify (appraisals waited for); the junk among
+    identified items (junk.py `junk_of`); the stash as read (None unread); the full gem stacks' transmutes (cube.py
+    `transmute`): perfect gems made and units left on the ground."""
 
     inventory_key: Callable[[], str | None]
     identify: Callable[[Sequence[Carried]], object]
@@ -726,8 +670,7 @@ class Hands:
 
 @dataclass(frozen=True)
 class TownMap:
-    """A town's places for a visit: its level, its waypoint, its stash, and the units of the one who identifies, the
-    vendor, the one who repairs (each stop's routine walks to its own: shop.py USUAL)."""
+    """A town's places for a visit: level, waypoint, stash, and the identifier's, vendor's and repairer's units."""
 
     area: int
     waypoint: tuple[float, float]
@@ -744,9 +687,8 @@ STOPS = ('cain', 'stash', 'jamella', 'halbu', 'walk')
 
 @dataclass(frozen=True)
 class Visited:
-    """What a visit did: its contract, the stash's full stacks as read after its stop (no potion: the belt's; unread:
-    what was known, and what the scan's refusals taught), whether a repair raised nothing (none tried again for
-    RETRY_GAMES games), and each stop's seconds."""
+    """What a visit did: its contract, the stash's full stacks after its stop (potions excluded), whether a repair
+    failed (not tried again for RETRY_GAMES games), and each stop's seconds."""
 
     contract: Contract
     full: frozenset[int] = frozenset()
@@ -796,10 +738,9 @@ def _stash(
     record: Recorder | None = None,
     plans: list[StashStop] | None = None,
 ) -> frozenset[int]:
-    """The stash stop, planned from the stash as read (`stash_stop`), else today's scan (stash.py `unload`): the loop's
-    items but the junk and the unidentified. The full stacks after it, as read (or learned by the scan's refusals).
-    `record`: the visit's snapshots, told the gold and the stash as read here (no read more); `plans`: the stop's plan
-    added to it (the keepers no page takes, the junk parked)."""
+    """The stash stop planned from the stash as read, else the scan (stash.py `unload`): the loop's items but the junk
+    and the unidentified. Returns the full stacks after it. `record` is told the gold and the view; `plans` gets the
+    stop's plan."""
     pack = _pack(run)
     waiting = frozenset(i.unit_id for i in _unknown(pack, own))
     staff = run.reads.teleport()
@@ -839,9 +780,8 @@ def _stash(
             after = _pack(run)
             remaining = [i for i in after.in_cube if i.unit_id not in stay]
             if key is not None and remaining:
-                # The first scan often frees a keeper's block. If the remaining obstruction is inventory junk,
-                # shift that junk within the inventory here, before Jamella. This keeps the player's one-stash-walk
-                # order even with an unread stash (21:03:47 on 2026-10-18: two rings blocked Humongous).
+                # Inventory junk blocking a cube keeper is moved aside here, before Jamella: one stash walk even
+                # with the stash unread (2026-10-18 21:03:47)
                 blocked = next((i for i in remaining if not after.inventory.has_room(i.size)), None)
                 moves = unread_way_for_cube(after, blocked, junk, needs.block) if blocked is not None else ()
                 if moves:
@@ -860,9 +800,8 @@ def _stash(
                     unload(run, own, key, tried, stay, None, pages)
             guessed = sorted(tried - set(sold_full(full)) - set(full))
             if guessed:
-                # A refusal with the stash unread is a guess, never a full stack: kept carried, neither put down nor
-                # kept in FULL_FILE (the Deep Worldstone Shards "full" at 83 dropped and left, 22:14 on 2026-10-18 and
-                # 01:59 on 2026-10-19; the player: "we need to track this correctly")
+                # A refusal with the stash unread is a guess, never a full stack: kept carried, not in FULL_FILE
+                # (the player, 2026-10-19: "we need to track this correctly")
                 LOG.info('Macro: stash: refused with the stash unread, kept carried, not counted full: %s',
                          ', '.join(_class_name(txt) for txt in guessed))  # fmt: skip
             return full
@@ -881,8 +820,7 @@ def _class_name(txt: int) -> str:
 
 
 def _drop(run: Run, key: str | None, items: Sequence[Carried]) -> None:
-    """The full stacks' materials put down (no vendor buys one, and the stack has no room: the player, 10:37 on
-    2026-10-18, "there is no use for it")."""
+    """The full stacks' materials put down (no vendor buys one)."""
     for item in items:
         if key is not None:
             drop_item(run, key, item, 'in town: its stack is full and no vendor buys it')
@@ -905,8 +843,7 @@ def _repair_due(run: Run, waited: bool) -> bool:
     return due(staff, wear, gold(run), top_up=tops_up(staff, True, False), waited=waited)
 
 
-# The visit's snapshots and its plan in shadow (rca/2026-10-18/arch-town-planning.md §4, steps M0 and M1): no click is
-# made by them, no game read added, nothing raised into the visit
+# The visit's snapshots and its shadow plan (rca/2026-10-18/arch-town-planning.md §4): no clicks, no reads, never raise
 
 
 def _note(
@@ -919,8 +856,7 @@ def _note(
     view: StashView | None = None,
     misses: tuple[str, ...] = (),
 ) -> None:
-    """A snapshot of the visit at `stop` into its file (macros/visitlog.py), from what it has read (the player's own,
-    the junk, the needs and the exit as at its `start`); never raises."""
+    """A snapshot of the visit at `stop` (visitlog.py), the rest as at its `start`; never raises."""
     if not record.active or pack is None:
         return
     try:
@@ -931,9 +867,8 @@ def _note(
 
 
 def _predict(start: Snapshot) -> townplan.VisitPlan | None:
-    """The whole visit simulated from its start (macros/townplan.py `plan_visit`), the rulings as the visit makes them
-    (town.py PARK_JUNK and KEEPER_IN_CUBE, `JAMELLA_FIRST`), its misses logged: `Macro: town plan: predicts <misses
-    or none> (variant …)`; never raises."""
+    """The visit simulated from its start (townplan.py `plan_visit`) under the visit's rulings, its misses logged;
+    never raises."""
     try:
         rulings = townplan.Rulings(park_junk=PARK_JUNK, jamella_first=JAMELLA_FIRST, keeper_in_cube=KEEPER_IN_CUBE)
         plan = townplan.plan_visit(start, rulings)
@@ -948,8 +883,7 @@ def _predict(start: Snapshot) -> townplan.VisitPlan | None:
 
 
 def _matched(plan: townplan.VisitPlan | None, done: Contract) -> None:
-    """Whether the contract the visit left has the misses the plan foresaw (the parts it models: townplan.MODELLED):
-    `Macro: town plan: matched`, else `differs: predicted …; the visit …`; never raises."""
+    """Log whether the visit's misses (those townplan.MODELLED covers) are the ones the plan foresaw; never raises."""
     if plan is None:
         return
     try:
@@ -963,14 +897,13 @@ def _matched(plan: townplan.VisitPlan | None, done: Contract) -> None:
         LOG.info('Macro: town plan: not compared: %r', error)
 
 
-# Jamella before the stash for a cube keeper stranded by the junk (`visit`): off until the player rules on the order
-# (the ruled order is the stash, then her; asked at 15:06 on 2026-10-18)
+# Jamella before the stash for a cube keeper stranded by junk: off until the player rules (asked 2026-10-18 15:06)
 JAMELLA_FIRST = False
 
 
 def _stranded(run: Run, hands: Hands, own: frozenset[Cell], junk: frozenset[int], needs: Needs) -> tuple[Carried, ...]:
-    """The cube's keepers the stash stop as planned now leaves in the cube that the inventory's junk sold first would
-    let out (town.py `StashStop.stranded`); none with the stash unread."""
+    """The cube keepers the planned stop leaves in that selling the junk first would let out; none with the stash
+    unread."""
     view = hands.view()
     pack = run.reads.carried()
     if view is None or pack is None:
@@ -991,10 +924,9 @@ def visit(
     waited: bool = True,
     memory: Remembered | None = None,
 ) -> Visited:
-    """One town visit (the module text): Cain, the stash, Jamella, Halbu, the exit, each once and only when it has
-    something to do; what it left (`Visited`). `full`: the stash's full stacks as last known (FULL_FILE), for a stash
-    that cannot be read; `waited`: a repair may be tried (none for RETRY_GAMES games after one that raised nothing).
-    Mouse mode only. `Abort` from a stop that cannot go on (Jamella's, the stash's for the player's hand)."""
+    """One town visit: Cain, the stash, Jamella, Halbu, the exit, each once and only with something to do. `full`: the
+    full stacks last known, for an unread stash; `waited`: a repair may be tried. Mouse mode only. `Abort` from a stop
+    that cannot go on."""
     if run.pad is not None:
         raise Abort('the town visit needs mouse mode')
     world = run.world()
@@ -1013,13 +945,12 @@ def visit(
     view = hands.view()
     stacks = _full_of(view) if view is not None else frozenset(full)
     carried = [*loot(pack, own), *pack.in_cube]
-    # The best copy of a set or unique item first (the player, 16:50 on 2026-10-18): a copy kept is no junk, so the
-    # stash stop takes it as a keeper (macros/copies.py)
+    # The best copy of a set or unique item is kept (the player, 2026-10-18; copies.py)
     from inventory_tracking.macros.copies import sold
 
     judged = sold(hands.judge([i for i in carried if i.identified]), visitlog.session_directory())
     junk = frozenset(i.unit_id for i in (*judged, *surplus(carried, stacks)))
-    # The player's items and the keepers by their stats are never junk, whatever the appraisal (engine.py `protected`)
+    # The player's items and stat keepers are never junk (engine.py `protected`)
     spared = [(i, why) for i in carried if i.unit_id in junk and (why := protected(run, i))]
     if spared:
         LOG.info('Macro: town visit: %s: kept, not sold', ', '.join(f'{_name(i)} ({why})' for i, why in spared))
@@ -1034,12 +965,10 @@ def visit(
     failed, repaired = False, False
 
     def jamella(stacks: frozenset[int], *, stock: bool) -> bool:
-        """3. Jamella (Halbu first at the gold's cap): the junk sold, the full materials put down; the keys bought
-        (`stock`: also when nothing is sold and a stock is short). Whether she was visited."""
+        """3. Jamella (Halbu first at the gold's cap): junk sold, full materials put down, keys bought (`stock`: also
+        when nothing is sold and a stock is short). Whether she was visited."""
         nonlocal failed, repaired
-        # A full stack's runes are no longer sold (the player, 17:50 on 2026-10-18: "cubed, aim to 80 or lower"; sold
-        # here since 2026-10-17, "probably we better just sell them"): the stash stop transmutes the stack down
-        # (town.py RUNES_AIM) and puts them on it after
+        # A full stack's runes are cubed, not sold (the player, 2026-10-18: "cubed, aim to 80 or lower")
         material = frozenset(txt for txt in sold_full(stacks) if txt not in RUNE_CLASSES)
 
         def selling(p: Pack) -> list[Carried]:
@@ -1056,14 +985,12 @@ def visit(
         coins, cap = gold(run), gold_cap(run)
         capped = coins is not None and cap is not None and coins + SALE_MOST > cap
         if not repaired and capped and (selling(pack) or cubed(pack)) and _repair_due(run, waited):
-            # The gold near its cap, no sale is made: the repair first, its cost the sales' room (15:33:27 on
-            # 2026-10-17)
+            # No sale is made near the gold cap: the repair first makes room (2026-10-17 15:33:27)
             with _timed(run, took, 'halbu'):
                 failed, repaired = _halbu(run), True
         with _timed(run, took, 'jamella'):
             for passes in range(1 + SELL_PASSES):
-                # The cube's junk the stash stop left (no room then, or the stash unread) out as the room takes it, then
-                # sold too (the player: "both from cube and inventory"), pass after pass as the sales make room
+                # The cube's junk out and sold as the sales make room (the player: "both from cube and inventory")
                 out = cubed(_pack(run))
                 if out and key is not None:
                     unpack(run, key, out)
@@ -1076,11 +1003,8 @@ def visit(
                     break
         return True
 
-    # Jamella before the stash when a cube keeper gets out only once the inventory's junk is sold: at 15:05:53 on
-    # 2026-10-18 a junk Fuscina (2 x 4) held the inventory's only room and the cube was full, so the set Boots (2 x 2)
-    # had no way out and stayed in the cube ("short of the contract: cube 1 items"); she is on the way (about 35 units
-    # of walk more, the walk from her to the waypoint saved), not a second walk to the stash. Never with the gold near
-    # its cap: the deposit is the stash's
+    # Jamella before the stash when a cube keeper gets out only once the junk is sold (JAMELLA_FIRST; history/visit.md).
+    # Never near the gold cap: the deposit is the stash's
     early = False
     stranded = _stranded(run, hands, own, junk, needs) if JAMELLA_FIRST else ()
     if stranded:
@@ -1102,14 +1026,12 @@ def visit(
             now = run.reads.carried()  # no transmute (a test): read for the snapshot
         _note(record, start, 'stash', now, view=record.view, full=stacks)
         if hands.transmute is not None and now is not None and _cubable([*loot(now, own), *now.in_cube], stacks):
-            # The full flawless stacks three at a time into a perfect one, standing at the stash; its stop again for
-            # the perfect gems (no walk)
+            # Full flawless stacks cubed into perfect gems at the stash, then the stop again for them (no walk)
             made, parked_left = hands.transmute(stacks)
             if made:
                 stacks = _stash(run, hands, key, own, junk, needs, stacks, memory, plans=plans)
-        # A keeper no page has room for, after every move: the stash is full, and the loop stops on it (the player,
-        # 16:50 on 2026-10-18: "if stash is full - we need to stop loop"; runner.py reads `Contract.stash_full`). Not
-        # the stranded keeper (room on a page, none to come out through), which the park makes
+        # A keeper no page has room for: the stash is full and the loop stops (the player, 2026-10-18: "if stash is
+        # full - we need to stop loop"; runner.py reads `Contract.stash_full`)
         homeless = tuple(dict.fromkeys(name for planned in plans for name in named(planned.full)))
         if homeless:
             LOG.info('Macro: stash: full: %s', ', '.join(homeless))
@@ -1119,7 +1041,7 @@ def visit(
     if not repaired and _repair_due(run, waited):
         with _timed(run, took, 'halbu'):
             failed, repaired = _halbu(run), True
-    # The build's free block: a key stack out of it (the player, 2026-10-18: "we should have 2x4 inventory space")
+    # A key stack out of the free block (the player, 2026-10-18: "we should have 2x4 inventory space")
     pack = _pack(run)
     _note(record, start, 'shops', pack, full=stacks)
     if key is not None and not pack.inventory.has_room(needs.block) and keys_move(pack, needs.block):
@@ -1141,12 +1063,11 @@ def visit(
     pack = _pack(run)
     in_stash: list[Carried] = []
     if any(planned.parks for planned in plans):
-        # The junk a park left on a page, as the stash reads now (`stash_stop` takes every one back, or names it)
+        # Junk a park left on a page (`stash_stop` takes each back or names it)
         after = hands.view()
         in_stash = [i for page in (after.pages if after is not None else ()) for i in page.items if i.unit_id in junk]
-    # A cube keeper the stop could not get out (room on a page, no way out even with a park) waits in the cube for the
-    # next visit (the player, 17:50 on 2026-10-18: "keeper can wait in cube"): named, not a miss; one no page has room
-    # for is the stash full, never this
+    # A cube keeper with no way out waits for the next visit, named, not a miss (the player, 2026-10-18: "keeper can
+    # wait in cube")
     homeless_units = {i.unit_id for planned in plans for i in planned.full}
     waits = {i.unit_id for planned in plans for i in planned.waits} - homeless_units
     deferred = [i for i in pack.in_cube if i.unit_id in waits] if KEEPER_IN_CUBE else []

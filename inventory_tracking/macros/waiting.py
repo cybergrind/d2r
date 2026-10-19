@@ -1,9 +1,7 @@
-"""The requests that wait for the run working now to end: one per routine, taken by priority, each
-with the moment after which it is not worth making any more.
+"""Requests waiting for the current run to end: one per routine, taken by priority, each with an expiry.
 
-A press is the player's wish for now. A teleport step that begins two seconds after its key is a
-surprise, not a step (user, 2026-10-12): what waited too long is dropped, said in the log and in the
-press's trace (latency.py), and the next thing in the queue is looked at.
+A teleport step two seconds after its key is a surprise, not a step (user, 2026-10-12): an expired request is dropped
+and logged (also in its press's trace).
 """
 
 import math

@@ -1,4 +1,4 @@
-"""What a macro knows of the game: the records a look reads (moved from macros/world.py)."""
+"""What a macro knows of the game: the records a look reads."""
 
 from dataclasses import dataclass, field
 
@@ -28,14 +28,14 @@ class Player:
     stats_at: int = field(
         default=0, compare=False, repr=False
     )  # the unit's stat list (takes/record.py reads life and mana)
-    hex_purge: bool | None = None  # the Hex: Purge buff is on the character; None when unreadable
+    hex_purge: bool | None = None  # the Hex: Purge buff is on; None when unreadable
     ward: bool | None = None  # Psychic Ward likewise
     record: bytes = field(default=b'', compare=False, repr=False)  # the unit record as read (research)
-    skill: bytes = field(default=b'', compare=False, repr=False)  # the skill in use, raw (`skill_in_use`)
-    # A casting delay runs on the character (state 185, COOLDOWN_BIT): the next delayed skill's key is
-    # refused until it clears. None when unreadable (macros/travel.py then times the delay by the clock).
+    skill: bytes = field(default=b'', compare=False, repr=False)  # the skill in use, raw
+    # A casting delay runs (state 185, COOLDOWN_BIT): the next delayed skill's key is refused until it clears.
+    # None when unreadable (macros/travel.py then times it by the clock).
     cooldown: bool | None = field(default=None, compare=False)
-    battle_orders: bool | None = None  # Battle Orders (Call to Arms) is on the character; None when unreadable
+    battle_orders: bool | None = None  # Battle Orders is on; None when unreadable
 
     @property
     def in_town(self) -> bool:
@@ -43,8 +43,7 @@ class Player:
 
     @property
     def buffs(self) -> tuple[bool | None, ...]:
-        """The buffs this reader knows of, in the order the combat recorder writes them (record.py `f`):
-        Psychic Ward, Hex: Purge, Consume; None for one that could not be read."""
+        """Psychic Ward, Hex: Purge, Consume (the recorder's `f` order); None for one unread."""
         return (self.ward, self.hex_purge, self.consume)
 
 
@@ -54,12 +53,9 @@ Stats = tuple[tuple[int, int, int], ...]  # (layer, stat id, raw) of a stat list
 
 @dataclass(frozen=True)
 class Monster:
-    """A monster unit as one walk of the unit table read it. Two walks fill it (game/decode.py `monster_table`):
-    the look's (`monsters`, every look: position in fractions of a world unit, then type flags, owner, life,
-    alliance, modifiers and Herald tier from the monster data and stats, read each time) and the Terror Zone
-    probe's and the HUD's (terror/monsters.py `monster_units`: the whole world units of the position, the room's
-    area and bounds, and the monster data and stat lists raw on first sight only). A field the walk does not read
-    keeps its default: no owner, no flags, not an ally (hostile is the safe reading)."""
+    """A monster unit as one walk of the unit table read it: the look's (game/decode.py `monster_table`) or the
+    Terror Zone probe's and HUD's (terror/monsters.py `monster_units`, raw data on first sight only). A field the
+    walk does not read keeps its default: no owner, no flags, not an ally (hostile is the safe reading)."""
 
     unit_id: int
     txt_id: int
@@ -73,23 +69,22 @@ class Monster:
     max_life: int = 0
     raw: bytes = field(default=b'', compare=False, repr=False)  # unit and monster data, Defilers only
     stats_at: int = field(default=0, compare=False, repr=False)  # the unit's stat list, for a full read
-    path: bytes = field(default=b'', compare=False, repr=False)  # the whole path record, on request (PATH_RECORD)
+    path: bytes = field(default=b'', compare=False, repr=False)  # the whole path record, on request
     modifiers: tuple[int, ...] = field(default=(), compare=False)  # monumod ids: Lightning Enchanted is 17
-    tier: int = field(default=0, compare=False)  # the tier of the Herald it is or follows (stat 367); 0: none
-    # On request (`records`): the unit record and the monster data as this walk read them, for the fields
-    # nobody has named yet (the animation frame, the skill in use: takes/record.py `records.jsonl`).
+    tier: int = field(default=0, compare=False)  # its Herald's tier (stat 367); 0: none
+    # On request (`records`): the unit record and monster data raw, for unnamed fields (takes/record.py).
     record: bytes = field(default=b'', compare=False, repr=False)
-    states: bytes = field(default=b'', compare=False, repr=False)  # its state words (STATE_RUN), with `records`
+    states: bytes = field(default=b'', compare=False, repr=False)  # state words (STATE_RUN), with `records`
     skill: bytes = field(default=b'', compare=False, repr=False)  # the skill in use, raw, in a striking mode
-    # The Terror Zone walk's (terror/monsters.py): the level and Room2 the path's Room1 belongs to (None: unread),
-    # and on first sight the monster data (MONSTER_DATA_SIZE bytes, hex) and the full and base stat lists.
+    # The Terror Zone walk's: the level and Room2 of the path's Room1 (None: unread); on first sight the monster
+    # data (hex) and the full and base stat lists.
     area: int | None = None
     room: Bounds | None = None
     data_hex: str | None = None
     stats: Stats | None = None
     base_stats: Stats | None = None
-    path_at: int = field(default=0, compare=False)  # the dynamic path's address: the HUD reads the position live there
-    unit_at: int = field(default=0, compare=False)  # the unit record's address: its mode and path (hud/dots.py)
+    path_at: int = field(default=0, compare=False)  # dynamic path address: the HUD reads live positions there
+    unit_at: int = field(default=0, compare=False)  # unit record address (hud/dots.py)
 
     @property
     def leader(self) -> bool:
@@ -110,39 +105,32 @@ class Drop:
     y: float
     label: str
     kind: str  # VALUABLE, GOLD, HEALING or REJUVENATION
-    size: tuple[int, int] = (1, 1)  # cells across and down it takes in the inventory (loot/data/sizes.json)
-    # One the loot marks point at (`prized`): with no room for it the pickup press stops; for the rest it
-    # warns and goes on. True unless the read says otherwise: a drop of unknown worth stops the press.
+    size: tuple[int, int] = (1, 1)  # inventory cells across and down (loot/data/sizes.json)
+    # With no room for a prized drop the pickup press stops; for the rest it warns and goes on. Unknown worth: prized.
     prized: bool = True
-    # What found it (`prized`: 'rune', 'material', 'unique', NAMED, 'shown'; '' for gold and potions), its item class
-    # (items.txt row, the unit's txt id; 0 unread) and ItemData quality (0 unread): the pickup mode's (pickmode.py)
+    # What found it ('rune', 'material', 'unique', NAMED, 'shown'; '' for gold and potions), its items.txt row and
+    # ItemData quality (0 unread), for pickmode.py.
     source: str = ''
     txt: int = 0
     quality: int = 0
-    # The base's rolls read off the ground (`rolled`) for the bases the loop judges there (pickmode.py `void_base`,
-    # `shield_base`); None unread or of another item
+    # The base's rolls read off the ground for the bases the loop judges there (pickmode.py); None unread or n/a.
     rolls: Rolls | None = None
 
 
-# The source of a unique or set item the loot filter shows (unidentified, or of any size): one a full inventory
-# stops for, as for what the marks point at (the player, 2026-10-14: run-1214-findings.md §3.1).
+# The source of a unique or set item the loot filter shows: a full inventory stops for it (the player, 2026-10-14;
+# rca/2026-10-14/run-1214-findings.md §3.1).
 NAMED = 'named'
 
 
 def prized(source: str, *, marked: bool) -> bool:
-    """Whether a drop is one a full inventory stops the pickup press for, and a level run stands by (user,
-    2026-10-12: "allow moving when the item isn't very valuable"): what the loot marks point at — a rune from the
-    marks' minimum up, a unique or set item worth a mark, a material of the marks — and every unique or set item
-    the loot filter shows (`NAMED`, the player's ruling of 2026-10-14: the run walked past a Unique Plate Mail
-    with the inventory full and the player fetched it by hand, rca/2026-10-14/run-1214-findings.md §3.1). Not
-    what the pickup takes besides: the low runes, every ring and jewel, the gems and the magic, rare and white
-    equipment the loot filter shows."""
+    """Whether a full inventory stops the pickup press for a drop and a level run stands by it (user, 2026-10-12:
+    "allow moving when the item isn't very valuable"): what the loot marks point at, and every unique or set item
+    the filter shows (`NAMED`, 2026-10-14). Not the low runes, rings, jewels, gems or shown magic/rare/white gear."""
     return source in ('unique', NAMED) or (source in ('rune', 'material') and marked)
 
 
 def shown_source(quality: int) -> str:
-    """The source (`prized`) of a ground item the loot filter shows, by its quality: a unique or set one is
-    `NAMED`, the rest (magic, rare, white and gray) 'shown'."""
+    """The `prized` source of a shown ground item: `NAMED` for unique or set, else 'shown'."""
     return NAMED if quality in NAMED_QUALITIES else 'shown'
 
 
@@ -158,23 +146,17 @@ class Loot:
     room: tuple[str, ...] | None = None
     stats: tuple[tuple[int, int], ...] = ()  # current set's full stats, already read with life
     game: tuple[str, int] | None = None  # (game name, the character's unit id) the belt is of; None: unread
-    # What each belt column last held this game (tracking/belt.py `BeltColumns`), as the runner keeps it
-    # (`BeltKept`): an emptied healing column stays one; None: the belt alone decides.
+    # What each belt column last held this game (tracking/belt.py `BeltColumns`, kept by the runner): an emptied
+    # healing column stays one; None: the belt alone decides.
     columns: BeltColumns | None = None
-    # The Horadric Cube's rows as `room` has the inventory's (grid 5, 3x4: rca/2026-10-13/pickup-cube.md §3); read
-    # with the panels closed, wherever the cube is. None: unread, or no cube. Not yet a place the pickup puts
-    # anything (that is the cube work of pickup-cube.md §6): it is said where a drop has no room in the inventory.
+    # The Horadric Cube's rows like `room` (grid 5, 3x4: rca/2026-10-13/pickup-cube.md §3). None: unread or no cube.
     cube: tuple[str, ...] | None = None
-    # The drops (unit ids) taken only because the loot filter shows them (loot/shown.py): magic, rare and white
-    # equipment nothing the marks or the pickup's own rules name. A level run does not stand by one for want of room
-    # (the player, 2026-10-12: "allow moving when the item isn't very valuable"). A unique or set one the filter shows
-    # is not among them: it is prized (`NAMED`, the player, 2026-10-14).
+    # Drops (unit ids) taken only because the filter shows them (loot/shown.py): a level run does not stand by one
+    # for want of room. Shown uniques and sets are not among them (`NAMED`).
     shown: frozenset[int] = frozenset()
-    # The unit ids of the items in the character's grids now (the inventory, the cube, the stash tabs: `held_items`),
-    # read with `room`: what `PutDown` knows the player's own items by.
+    # Unit ids in the character's grids now (inventory, cube, stash: `held_items`): how `PutDown` knows own items.
     carried: frozenset[int] = frozenset()
-    # (unit id, item class: the game's classid) of the drops whose class was read: what `PutDown` knows an item by
-    # once the game has given it a new unit id
+    # (unit id, classid) of drops whose class was read: how `PutDown` knows an item after it gets a new unit id.
     classes: tuple[tuple[int, int], ...] = ()
 
 
@@ -201,8 +183,8 @@ class Wear:
 
 
 def least_worn(items) -> Wear | None:
-    """Of (class, item flags, full stat list) of the worn items, the one with the least share of its durability left;
-    an ethereal one aside (no vendor repairs it), and one without a maximum (indestructible); None with none."""
+    """Of (class, item flags, full stat list) of the worn items, the one with the least durability share left;
+    ethereal (no vendor repairs it) and indestructible ones aside; None with none."""
     found = []
     for txt, flags, stats in items:
         if flags & ETHEREAL_FLAG:
@@ -220,8 +202,8 @@ def gives_orders(stats) -> bool:
 
 
 def given_skills(stats) -> frozenset[int]:
-    """The skills the items' stat lists give as skills of the character's own (NONCLASS_SKILL_STAT, the skill its
-    layer: Enigma's "+1 to Teleport" (97, 54, 1), the Sling's Town Portal (97, 411, 1)), not as charges."""
+    """The skills the items give as the character's own (NONCLASS_SKILL_STAT, the skill its layer: Enigma's
+    Teleport (97, 54, 1)), not as charges."""
     return frozenset(stat['layer'] for found in stats for stat in found if stat['id'] == NONCLASS_SKILL_STAT)
 
 
@@ -236,8 +218,8 @@ class World:
     player: Player | None = None
     monsters: tuple[Monster, ...] = ()  # alive, with a position
     doors: tuple[Door, ...] = ()  # door objects streamed around the character, open or closed
-    dead: frozenset[int] = frozenset()  # unit ids of the monsters lying dead (a kill, where a unit only gone is not)
-    show_items: bool | None = None  # the game's Show Items toggle (item labels on the ground); None: not read
+    dead: frozenset[int] = frozenset()  # unit ids of monsters lying dead (a kill; a unit merely gone is not)
+    show_items: bool | None = None  # the game's Show Items toggle; None: not read
 
     @property
     def quit_menu(self) -> bool:
@@ -254,8 +236,8 @@ class Carried:
     y: int
     size: tuple[int, int]
     quality: int = 0  # ItemData quality (0 unread; 4 magic, 6 rare: macros/junk.py)
-    identified: bool = True  # the ItemData flag (True unread: an item of unknown state is never identified)
-    # ItemData +0x34: a unique's row in uniqueitems.txt once identified (0 before: loot/ground.py; 359 Gheed's Fortune)
+    identified: bool = True  # the ItemData flag (True when unread, so it is never sent to identify)
+    # ItemData +0x34: a unique's uniqueitems.txt row once identified (0 before; 359 Gheed's Fortune)
     unique: int = 0
 
 
@@ -267,19 +249,17 @@ class Pack:
     cube: tuple[str, ...] | None = None
     cube_items: frozenset[int] = frozenset()  # the units in the cube
     in_cube: tuple[Carried, ...] = ()  # the cube's items, each at its first cell there (macros/stash.py)
-    # The keys carried (every stack) and the Town Portal tome's charges (tracking/resources.py, the same stat at the
-    # same offset): None when unread, 0 with none (macros/shop.py restocks under 3)
+    # Keys carried (all stacks) and Town Portal tome charges (tracking/resources.py): None unread, 0 with none.
     keys: int | None = None
     portals: int | None = None
-    # Whether a key stack has room for more (KEY_STACK) or none is carried: a Shift + right click on her key fills it
-    # (macros/shop.py), where with every stack full it would take a cell for a new one; None when unread
+    # A key stack has room (KEY_STACK) or none is carried, so a Shift + right click buys without a new cell; None
+    # unread (macros/shop.py).
     key_room: bool | None = None
-    # The unit id of the item on the pointer (an item unit in CURSOR_MODE), None with none: a click meant to send an
-    # item somewhere that took it up instead (macros/stash.py)
+    # The item on the pointer (CURSOR_MODE), None with none: a click that picked it up instead (macros/stash.py).
     pointer: int | None = None
-    # The Tome of Identify's charges (the same stat as the Town Portal tome's): None unread or no tome (macros/junk.py)
+    # Tome of Identify charges: None unread or no tome (macros/junk.py).
     identifies: int | None = None
-    # The personal stash page's items and rows ('.' free), read whatever panel is open (macros/charms.py)
+    # The personal stash page's items and rows ('.' free), read whatever panel is open (macros/charms.py).
     stashed: tuple[Carried, ...] = ()
     stash: tuple[str, ...] | None = None
 
@@ -291,16 +271,14 @@ class Pack:
 
 @dataclass(frozen=True)
 class Page:
-    """A stash page (macros/town-plan.md §2.1): 0 the personal one, 1..5 the shared ones in the owners' +0xD8 order
-    (collection/research.md R1); its 10 x 10 rows ('.' a free cell), its owner unit and the item units on it."""
+    """A stash page: 0 personal, 1..5 shared in the owners' +0xD8 order (collection/research.md R1); its 10 x 10
+    rows ('.' free), owner unit and item units."""
 
     index: int
     rows: tuple[str, ...]
     owner: int | None = None
     units: frozenset[int] = frozenset()
-    # Its items, each at its first cell (row by row) with its quality, identified flag and unique row as the inventory's
-    # are read (`carried_items`): a Gheed's Fortune taken back from a shared page by a Ctrl + click on its cell
-    # (macros/charms.py)
+    # Its items, each at its first cell, read as the inventory's (`carried_items`; macros/charms.py).
     items: tuple[Carried, ...] = ()
 
     @property
@@ -310,8 +288,7 @@ class Page:
 
 @dataclass(frozen=True)
 class StashView:
-    """The stash as memory holds it in town, its panel shut or open (collection/research.md R2): the pages, and the
-    resource tabs' stacks by item class (a class not held has no unit: count 0)."""
+    """The stash in town, panel shut or open (collection/research.md R2): pages and resource-tab stacks by class."""
 
     pages: tuple[Page, ...]
     stacks: tuple[tuple[int, int], ...] = ()  # (item class, count), sorted
@@ -346,7 +323,7 @@ class Stocked:
     tab: int
     x: int
     y: int
-    unit_id: int = 0  # the item's unit: what the game's record names under the pointer on it
+    unit_id: int = 0  # what the hover record names under the pointer on it
 
 
 def _rows(grid: dict | None) -> Grid | None:
@@ -355,7 +332,7 @@ def _rows(grid: dict | None) -> Grid | None:
 
 
 def has_room(rows: tuple[str, ...] | None, size: tuple[int, int]) -> bool:
-    """Whether a free block of `size` cells is left in the rows; True when they were not read (the pickup sites')."""
+    """Whether a free block of `size` cells is left in the rows; True when they were not read."""
     return rows is None or Grid(rows).has_room(size)
 
 
@@ -365,7 +342,7 @@ class Warp:
 
     unit_id: int
     warp: int  # its lvlwarp Id (levels/presets.warp_box)
-    x: float  # world units: what the door's click box hangs from
+    x: float  # world units: the click box's anchor
     y: float
 
 
@@ -376,17 +353,16 @@ class Thing:
     unit_id: int
     txt_id: int  # objects.txt id
     mode: int  # 0 until it is operated (a body searched, a chest opened)
-    x: float  # world units: what its picture and click box hang from
+    x: float  # world units: the picture's and click box's anchor
     y: float
     selectable: bool | None = field(default=None, compare=False)  # the game's own flag (UNIT_FLAGS); None: unread
 
 
 @dataclass(frozen=True)
 class Rolls:
-    """A base's rolls read off the ground (`base_rolls`): its sockets (stat 194), single class skills ((skill id,
-    level): stat 107, the skill in its layer: a dagger's Warlock staff mods), enhanced defense (stat 16), the least of
-    its four resistances (stats 39, 41, 43, 45: a Paladin shield's all-resistance roll) and the ethereal flag.
-    Items/stat_constants.py `StatId`; the stat ids checked in pricing/raw/game-excel/itemstatcost.txt."""
+    """A base's rolls read off the ground (`base_rolls`; itemstatcost.txt ids): sockets (194), single class skills
+    as (skill id, level) (107, skill in the layer), enhanced defense (16), the least of the four resistances
+    (39, 41, 43, 45) and the ethereal flag."""
 
     sockets: int
     skills: tuple[tuple[int, int], ...] = ()

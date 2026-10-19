@@ -1,9 +1,8 @@
 """Keys, typed text and the pointer for a macro, behind one guarded interface.
 
-Every action first checks that the game still has the focus, that no key is physically held
-and that the pointer is where the macro left it: a player who touches the keyboard or the
-mouse stops the macro (`Abort`) before the next event is sent. Pointer targets are fractions
-of the game window. Keys the OSD presses on its own (`allow`) are not the player's.
+Every action first checks the game's focus, that no key is held and that the pointer is where the macro left it: a
+player who touches keyboard or mouse stops the macro (`Hand`) before the next event. Pointer targets are fractions of
+the game window.
 """
 
 from collections.abc import Callable, Generator
@@ -21,25 +20,20 @@ from inventory_tracking.models import InputMode
 POINTER_DRIFT = 4  # pixels the pointer may differ from where the macro put it
 
 
-# Pixels the pointer may be off the aim when the key goes down; further, it is aimed again. The player's
-# hand works the mouse while tapping the keypad: two hops landed 18 and 23 units off their aim with the
-# pointer far from it (host, 20:07 and 20:09 on 2026-10-09).
+# Pixels the pointer may be off the aim when the key goes down; further, it is aimed again (the player's hand works
+# the mouse while tapping the keypad)
 AIM_TOLERANCE = 25
 AIM_TRIES = 3
 
 
-# Why a macro stopped, as the KP_6 loop's stop rules tell stops apart (runner.py `classify`, `_loop_stopped`): the
-# player's hand, the carry-one refusal of a Gheed's Fortune, no room in the inventory for an item, the watchdog's stand
-# ("has not moved"), a keeper no stash page takes after a town visit (the loop stops: the player, 2026-10-18 16:50),
-# the character hit standing outside a fight (the game left at once: loop.py `beset`, 2026-10-19), anything else.
-# Strings, so a raise names its cause with no import (rca/2026-10-18/arch-loop-orchestration.md Option A, step 1: a
-# message's words stop being the only sign of its cause)
+# Why a macro stopped, for the KP_6 loop's stop rules (runner.py `classify`): the player's hand, a Gheed's Fortune
+# carry-one refusal, no inventory room, the watchdog's stand, a keeper no stash page takes, hit outside a fight
+# (loop.py `beset`), anything else (rca/2026-10-18/arch-loop-orchestration.md Option A)
 Cause = Literal['hand', 'refused', 'room', 'stall', 'stash', 'beset', 'other']
 
 
 class Abort(Exception):
-    """The macro stops here; the message is shown to the player. `cause` why, for the KP_6 loop's stop rules; None:
-    told by the type and the message as before (runner.py `classify`)."""
+    """The macro stops here; the message is shown to the player. `cause`: why, None told by type and message."""
 
     def __init__(self, *args: object, cause: Cause | None = None) -> None:
         super().__init__(*args)
@@ -51,25 +45,20 @@ class Expired(Abort):
 
 
 class Cancelled(Abort):
-    """The run was asked to stop: by a request (runner.py) or, for attack mode, by a step that waited
-    for the fight to be over. The runner tells this from a failure by the type, not the message."""
+    """The run was asked to stop (a request, or a step waiting out attack mode's fight); not a failure."""
 
     def __init__(self, message: str = 'cancelled') -> None:
         super().__init__(message)
 
 
 class Flipped(Abort):
-    """The game's input mode changed under the run (a pad touched in a run by the keys, the game back in keyboard
-    mode under a run by the pad): no input of the run's back end is right any more. Not a failure of the act: the
-    run ends wherever it is caught (no loop gives the act up and looks again, rca/2026-10-14/run-1904-findings.md
-    §3.2: 57 "no move" lines in 7 s), and the runner makes the same request again in the new mode (runner.py
-    `_guarded`)."""
+    """The game's input mode changed under the run: it ends wherever caught (not retried in place,
+    rca/2026-10-14/run-1904-findings.md §3.2) and the runner repeats the request in the new mode (`_guarded`)."""
 
 
 class Hand(Abort):
-    """The player's own input stopped the act: a key pressed or held, the pointer moved, the game's window left. Not a
-    failure of what the act tried (a jump cut by the mouse is not a way that leads nowhere: rca/2026-10-14/
-    run-1932-findings.md §1.2.4, 15 s of walks after the player's mouse cut a Blade Warp); the message is the same."""
+    """The player's own input stopped the act (key, pointer, focus): not a failure of what the act tried
+    (rca/2026-10-14/run-1932-findings.md §1.2.4)."""
 
 
 def eased_path(start, end, steps: int, rng) -> list[tuple[int, int]]:
@@ -91,28 +80,21 @@ class Actuator:
         self.focused = focused
         self.pace = pace
         self.left_at: tuple[int, int] | None = None  # where the macro last put the pointer
-        self.drift = POINTER_DRIFT  # a routine that runs while the player's hand is on the mouse allows more
-        self.steady = True  # `aim` holds the pointer where it put it; off, it moves once and the key follows at once
-        self.allowed: frozenset[int] = frozenset()  # key codes that may be down: see `allow`
-        self.holding: frozenset[int] = frozenset()  # key codes this actuator holds down itself (`hold`)
+        self.drift = POINTER_DRIFT  # more while the player's hand is on the mouse
+        self.steady = True  # `aim` holds the pointer where it put it; off, it moves once
+        self.allowed: frozenset[int] = frozenset()  # key codes that may be down (`allow`)
+        self.holding: frozenset[int] = frozenset()  # key codes held by `hold`
         self.holding_buttons: frozenset[int] = frozenset()  # mouse buttons it holds down itself
         self.mark: Callable[[str], None] = lambda name: None  # a moment of the press's trace (latency.py)
-        self.cancelled: Event | None = None  # the run's: set, no further input is made (`guard`)
-        # The game's input mode (tracking/input_mode.py), when it is read: a mouse button pressed while it reads
-        # controller, or while a flip is pending, would flip the client back to mouse mode (and be thrown away),
-        # so none is pressed then (`mouse_guard`). None: not read, nothing is checked.
+        self.cancelled: Event | None = None  # the run's: set, no further input (`guard`)
+        # The game's input mode (tracking/input_mode.py), None unread: no click in controller mode (`mouse_guard`)
         self.mode: Callable[[], InputMode | None] | None = None
-        # The run plays by the keys and the mouse in keyboard mode (runner.py `play_by`): the game leaving that
-        # mode (the player's pad touched, a flip under way) stops it, as a key of the player's does.
-        self.keyboard_run = False
-        # The combat take's note (record.py `Recorder.note`), set by the runner: the pointer check's abort is a
-        # `pointer_check` event with what it compared (rca/2026-10-13/run-2110-findings.md, moment 3). None: none.
+        self.keyboard_run = False  # a keyboard-mode run (runner.py `play_by`): the game leaving that mode stops it
+        # The combat take's note (record.py `Recorder.note`): the pointer check's abort as a `pointer_check` event
         self.noted: Callable[..., None] | None = None
 
     def allow(self, *names: str) -> None:
-        """Keys another service presses by itself are not the player's. The OSD turns Show Items
-        on a second or two into a new game, and its `z` stopped the first summon there (host,
-        13:11 on 2026-10-07, and seven runs before it)."""
+        """Keys another service presses by itself are not the player's (the OSD's Show Items `z`)."""
         self.allowed |= frozenset(self.keys.keycodes([name.encode() for name in names]) or ())
 
     def key_held(self) -> bool:
@@ -124,10 +106,7 @@ class Actuator:
         return bool(state and state[2] & (1 << (7 + button))) and button not in self.holding_buttons
 
     def guard(self) -> None:
-        # A run asked to stop makes no further input. Attack mode looked at the request only at its
-        # next read of the game, and a strike it had worked out went down after the teleport step's
-        # press: that step then waited for the strike's cast to end (Tower Cellar 1, 21:26:46 on
-        # 2026-10-11: the press at .687, the strike at .849, the Teleport key at 47.273).
+        # A run asked to stop makes no further input: a strike sent after the request delays the next step's cast
         if self.cancelled is not None and self.cancelled.is_set():
             raise Cancelled
         if not self.focused():
@@ -154,8 +133,8 @@ class Actuator:
                 raise Hand('the mouse was moved')
 
     def mouse_guard(self, inputs: list[tuple[bool, int]]) -> None:
-        """No mouse button while the game is in controller mode or switching (rca/2026-10-13/controller-mode.md:
-        a click flips it back and is thrown away). The pad's acts (macros/pad.py) are the way in controller mode."""
+        """No mouse button in controller mode or a pending flip: it flips back and is thrown away
+        (rca/2026-10-13/controller-mode.md); pad.py acts there."""
         if self.mode is None or not any(is_button for is_button, _ in inputs):
             return
         mode = self.mode()
@@ -202,8 +181,7 @@ class Actuator:
         self.keys.sync()
 
     def tap(self, *names: str) -> None:
-        """Press the named keys in order, hold, release in reverse. A `Button<n>` name (a skill on a
-        mouse button, input/keybindings.py) is a press of that button where the pointer is."""
+        """Press the named keys in order, hold, release in reverse; `Button<n>` presses that mouse button."""
         inputs = self._inputs(names)
         own_buttons = frozenset(code for is_button, code in inputs if is_button)
         self.guard()
@@ -218,11 +196,9 @@ class Actuator:
 
     @contextmanager
     def hold(self, *names: str) -> Generator[Callable[[], None]]:
-        """The named keys pressed in order and kept down through the block, as the player holds the
-        mouse button on a skill: the game casts it again and again at its own rate and takes the
-        pointer where it is at each cast (user, 2026-10-09 night). The keys this actuator holds are
-        not the player's for `guard`. Yields a callable that releases and presses again, for a game
-        that casts once per press; it leaves the keys up when the left mouse button is down by then."""
+        """The named keys kept down through the block, as the player holds a skill: the game recasts at its own rate
+        at the pointer. Yields `again` (release and press anew; left up while the player's left button is down) with
+        `again.release`. Held keys are not the player's for `guard`."""
         inputs = self._inputs(names)
         own = frozenset(code for is_button, code in inputs if not is_button)
         own_buttons = frozenset(code for is_button, code in inputs if is_button)
@@ -233,8 +209,7 @@ class Actuator:
         self.holding_buttons |= own_buttons
 
         def release() -> None:
-            """Let the keys go; `again` presses them anew. For a cast of the macro's own under a held
-            strike: held, the character is free only for an instant between two casts."""
+            """Let the keys go, for a cast of the macro's own under a held strike."""
             nonlocal pressed
             released, pressed = pressed, []
             self._release(released)
@@ -249,9 +224,7 @@ class Actuator:
             if not self.focused():
                 raise Hand('the game lost the focus')  # nothing is pressed into another window
             if self.button_held(1):
-                # The player's click came down between the release and the press: no press over it
-                # (review.md, finding 7; the caller's next look at the button yields to the click).
-                return
+                return  # the player's click came down between release and press: no press over it
             self.mouse_guard(inputs)
             pressed = self._press(inputs)
 
@@ -264,21 +237,16 @@ class Actuator:
             self._release(pressed)
 
     def rebase(self) -> None:
-        """The guard's mark (`left_at`) is where the pointer is now: after a panel the macro opened or closed, the game
-        moves the pointer 471 pixels across by itself (the stash and the inventory, 01:33:52 on 2026-10-17: "the mouse
-        was moved" at every one, the player's hand nowhere near)."""
+        """The guard's mark (`left_at`) moved to the pointer: opening or closing a panel moves it by itself."""
         now = self.keys.pointer()
         if now is not None and self.left_at is not None:
             self.left_at = now
 
     @contextmanager
     def held_act(self, drift: int = POINTER_DRIFT) -> Generator[None]:
-        """One act of the loop's own made as a step makes it: the pointer held where it is put (`steady`) and
-        guarded at `drift` pixels, with the guard's mark (`left_at`) re-based to where the pointer is as the act
-        begins. A hand that carries the pointer off during the act still stops it (I7); a hand that moved it
-        before the act and let go does not (rca/2026-10-13/run-2110-findings.md moments M2b, M3: the mark was the
-        macro's last aim, seconds old, and every priced move after the player's hand aborted "the mouse was
-        moved" before any input, 8.3 and 9.3 s). The drift and steadiness the run had are put back after."""
+        """One act of the loop's own: `steady`, guarded at `drift`, the mark re-based as it begins, so a hand moving
+        the pointer during the act stops it but one before it does not (rca/2026-10-13/run-2110-findings.md M2b, M3).
+        The run's drift and steadiness are restored after."""
         drift_was, steady_was = self.drift, self.steady
         self.drift, self.steady = drift, True
         now = self.keys.pointer()
@@ -295,8 +263,7 @@ class Actuator:
             self.pace.pause('type')
 
     def move(self, x: float, y: float, *, scatter: tuple[int, int] = (6, 4), quick: bool = False) -> None:
-        """Move the pointer to the window fraction (x, y), give or take `scatter` pixels. `quick`: a
-        flick in a few steps with a short pause after, for a key the player presses again and again."""
+        """Move the pointer to the window fraction (x, y), give or take `scatter` pixels; `quick`: a few-step flick."""
         self.guard()
         rect = self.keys.focused_window_rect()
         start = self.keys.pointer()
@@ -319,15 +286,9 @@ class Actuator:
         self.pace.pause('flick' if quick else 'aim')
 
     def aim(self, x: float, y: float, *, scatter: tuple[int, int] = (4, 3), near: int = 0) -> None:
-        """A quick move to the window fraction (x, y) that holds: moved again, up to AIM_TRIES times,
-        while the pointer is found more than AIM_TOLERANCE pixels off where it was put. The last try
-        is a jump straight there, looked at at once: a hand sweeping the mouse carries the pointer off
-        during a move's steps and the pause after it, three times in 0.4 s (host, 20:57 and 20:58 on
-        2026-10-10, two seek steps stopped), and has no time to in a jump. With `steady` off (attack
-        mode: the player's hand works the mouse all along) the move is made once and not checked: the
-        game takes the pointer where the key finds it a moment later. `near` (pixels): a pointer the
-        macro already put within that of the aim (macros/travel.py puts it on the next Blade Warp's aim
-        during the flight) is corrected as `snap` does, in one step: the path and its pause were made then."""
+        """A quick move to (x, y) that holds: retried up to AIM_TRIES while the pointer is over AIM_TOLERANCE off, the
+        last try a `jump` (a sweeping hand cannot carry it off in a jump). `steady` off (attack mode): one move,
+        unchecked. `near`: a pointer the macro already put within that many pixels is `snap`ped (travel.py pre-aims)."""
         if near and self.steady and self.left_at is not None:
             rect, now = self.keys.focused_window_rect(), self.keys.pointer()
             put = self.left_at
@@ -354,12 +315,9 @@ class Actuator:
         raise Hand('the mouse is being moved')
 
     def snap(self, x: float, y: float, *, scatter: tuple[int, int] = (4, 3)) -> None:
-        """The pointer put at the window fraction (x, y) in one step and held there, for a key the
-        player has just pressed: the press is the player's own, and what follows it is to come at
-        once (user, 2026-10-12: human-like delays are for what the macro does by itself; the
-        teleport key is to work instantly). `aim`'s path and pause took 70 to 125 ms of every hop.
-        Looked at after a few milliseconds and put again when a hand has carried it off; the last
-        try is looked at at once, as `aim`'s is."""
+        """The pointer put at (x, y) in one step and held, re-put when a hand carries it off, for a key the player
+        just pressed (the player, 2026-10-12: human-like delays are for what the macro does by itself; the teleport
+        key is to work instantly)."""
         for attempt in range(AIM_TRIES):
             self.jump(x, y, scatter=scatter)
             if attempt < AIM_TRIES - 1 or not self.steady:

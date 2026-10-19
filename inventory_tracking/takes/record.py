@@ -1,110 +1,14 @@
-"""Stage 1 of combat/plan.md: takes of real play, sampled at the game's frame rate.
+"""Stage 1 of combat/plan.md: takes of real play, sampled at the game's frame rate. Reads only.
 
-A take is one stay in a recorded level (Chaos Sanctuary first, user 2026-10-09) under
-`runs/combat/<timestamp>-<area>/`: `manifest.json` (character, skills, slots, rate, key names,
-the level map in `level.json` when the guide has one), `frames.jsonl` (one line per frame: the
-player, every monster with its life, dead ones included, every missile raw, the pointer with its
-button mask and the keys down, the macro state), `units.jsonl` (each monster's full stat list on
-first sight: level, defence, resistances for stage 3), `missiles.jsonl` (each missile's whole
-record on first sight: the layout research of stage 1) and `events.jsonl` (casts, hits, kills,
-unloads, button and key changes, derived while recording). Reads only; nothing touches the game.
+A take is one stay in a recorded level under `runs/combat/<timestamp>-<area>/`: `manifest.json` (character, skills,
+keys, clock, game, code), `frames.jsonl` (per frame: the player, monsters, missiles, pointer, keys, and keys that are
+written only when they change: `r` resists, `o` objects, `s` states, `w` staff, `b` belt, `f` buffs, `g` ground,
+`i` inventory, `a` ward, `h` hovered, `k` tick, `sf` server frame), `units.jsonl`, `missiles.jsonl`, `records.jsonl`
+(raw unit records) and `events.jsonl` (casts, hits, kills, `hurt`, the macro's `request`/`press`/`said`/`log`/
+`state`, `sent` inputs, `load`, `input_mode`, `ctl`). The take format, key by key: takes/README.md.
 
-Since 2026-10-12 a take also holds what hurts the character (user: "we need to record such things"):
-each unit's enchantments (`mods`, monumod ids) in `units.jsonl`, the character's own stat list in the
-manifest (`character_stats`: its resistances, which a blow's size is cut by) and a `hurt` event at
-every drop of its life, with who was striking, what flew by (takes/hurts.py) and the character's
-resistances at that frame (`resists`: physical, fire, lightning, cold, poison as the stat list holds
-them, so a curse on it shows). Since 2026-10-13 (schema 3) the same list is in a frame as `r`, in the
-first frame that has the character and in every frame it differs from the one written last: a curse is
-seen when it lands and when it ends, not only at a drop of life (takes.py `resists_by_frame`).
-
-Since 2026-10-13 afternoon (schema 4; user: "if we need to record more information, then we can update
-recorder ... put all we need") a take holds what replaying a whole run in the arena lacked, each written
-in the first frame that has it and in every frame it differs from the one written last (takes.py
-`carried`):
-
-- `o`: the level's objects a mark may name and its containers (seals, chests, portals), as
-  [unit, class, mode, x, y, selectable]: a seal's change of mode is the moment it was opened, which a
-  seal boss's pack is timed from;
-- `s`: the character's state words, raw hex (game/layout.py STATE_RUN): curses, poison, a skill's delay (a
-  Blade Warp the game refuses);
-- `w`: the Teleport staff as [charges, most, in hand]: the weapon set held and what a hop costs;
-- `b`: the belt's cells by item class: a potion drunk by anyone;
-
-and the macro's own word as events: `request` (the routine a key asked for, what ran then), `press`
-(what became of it: the latency trace's record with its outcome), `said` (each line the macro says to
-the player) and `log` (every line the macro logs: its decisions), so a take can be cut into an incident
-with its presses without the session log. They carry their own time, so the events of a take are not
-written in order of time (takes.py sorts them); what is asked and said within NOTE_SECONDS before a take
-opens (town, the way in) is written at its start.
-
-The same day, after a review of the recorder against the goal of re-creating any moment of any game
-(rca/2026-10-13/recorder-review.md), still schema 4:
-
-- `f`: the character's buffs as the reader has them, [Psychic Ward, Hex: Purge, Consume] (None: unread);
-- `g`: what lies on the ground that the pickup step would go for, as [unit, x, y, kind, label, width,
-  height, prized]; `i`: the inventory's rows ('.' free, '#' taken): a pickup press replays against these;
-- a `state` event when a take opens and whenever it changes: what the macro carries between its looks
-  (takes/macro_state.py: attack mode, the routine, the build and its settings, the route's facts and
-  stages, the card's mark);
-- `records.jsonl`: the character's and each monster's unit record raw (0x1C0 bytes, and the 0x58 of
-  monster data after them), its state words and, in a striking mode, the skill it is using (game/
-  `skill_in_use`), as [unit, record, states, skill] in hex, at every change of its mode and once in
-  RECORD_SECONDS. What the client's code says lies in them (rca/2026-10-13/re-findings.md: the animation
-  frame at +0x5C, its length at +0x64, the boss's row at +0x2A of the monster data, state 185 `cooldown`)
-  can be read out of every take that has them, also after it is found;
-- `h`: the unit the game holds under the pointer, as [unit type, unit id] (None: nothing), at a change
-  (game/memory.py `hovered`): what a click landed on (a seal's click that did not take, 12:36:28 that day);
-- `k`: the head of the client's clock object, raw hex, in every frame (game/memory.py `tick`): the game's own
-  tick, to tell a frame sampled twice or never;
-- `units.jsonl` holds the companions too (the mercenary, the pets), with their stat lists;
-- the manifest: `clock` (the frame clock and the wall clock read together), `game` (its name),
-  `previous` (the take before it in the same game), `code` (the commit, the files that differed);
-- towns are recorded like any level (`town`), so a game's takes follow one another without a gap but
-  the loading screens.
-
-The leftovers of that review, the same evening (rca/2026-10-13/recorder-review.md, "Leftovers,
-implemented"), still schema 4 and each optional to a reader:
-
-- `a`: the Psychic Ward's pool as [left, most] in points (itemstatcost 361 `psychicward`, 362
-  `psychicwardmax`, x256 like life; [0, 0] with no ward), from the stat list the vitals are read from:
-  a blow the ward took whole shows here and in no `hurt`;
-- a `hurt` also carries `absorb` (the ward's pool: [left before, left now, most]) and `companions` ([unit, txt, life
-  before, life now, most life] of the mercenary and the pets): what the ward and a Health Link took of
-  the same blow;
-- `sf`: the server's frame (+0x28) of the last life message the client took, read only in a frame
-  whose life differs from the frame before (`server_frame`), and in that frame's `hurt`: two drops of
-  one message, or one drop of two;
-- a monster whose state words change (a curse lands or ends) has its record written again at once,
-  and its stat list read again: a `stats` event when the list differs from the one written last
-  (units.jsonl at first sight), so its resistances under a curse are on record;
-- `g` rows end with the item's code (the game's tables by the class the item's unit record holds) and
-  its quality (item data +0x00), read once a drop;
-- the `state` event carries the macro's memory (takes/macro_state.py `memory`).
-
-The game's input mode (rca/2026-10-13/controller-mode.md, 2026-10-13 night), still schema 4, each optional:
-the manifest's `input_mode` ('keyboard' or 'controller' when the take opened; None: unread); an `input_mode`
-event on each change (`mode`, `pending`, and with a finished flip `flip`: its times in ms,
-tracking/input_mode.py `Flips`); in controller mode a `ctl` event when the client's own target or the pressed
-record changes (`target` [unit type, unit id] or None, `record`, `skill`).
-
-The macro's own input (2026-10-13 night; rca/2026-10-13/recorder-review.md, "Macro inputs recorded"), still
-schema 4, optional: a `sent` event for every input the service sends (input/sent.py), with the time it was sent
-and `input` 'key' (`code`, `down`, `name` where the manifest's `keys` names it), 'move' (`xy` in root coordinates,
-`f` as fractions of the game window of the frame it is written with), 'button' (`button`, `down`) or 'pad'
-(`name`, `value`, `ev` the raw [type, code]), `by` (the sending thread: 'macro' for a macro run, 'MainThread' for
-the service loop's own) and `routine` (the macro run's). A change in a frame's `in` that no `sent` explains is
-the player's (or the healer's, whose presses are in its own log: `make osd` is not recorded here); the d2-rca
-skill's `session.py inputs` lists them. The manifest's `keys` name the belt keys '1'-'4' too.
-
-The service's own load (rca/2026-10-13/latency-findings.md, "Fix 1, built"), still schema 4, optional: a `load` event
-once a second while the character is out of town (appraisal/load.py: the process's CPU, the main
-loop's, the host's load average, involuntary context switches, the main loop's passes and their time by step, the
-macro's looks and their time), and the manifest's `switch_interval` (sys.getswitchinterval of the service).
-
-`Recorder.step` is the per-frame logic with the clock injected; `Recorder.run` paces it on its
-own thread with its own memory handle and display connection (`LiveSampler`), bound to the game
-by `poll` from the service loop as the macro runner is.
+`Recorder.step` is the per-frame logic with the clock injected; `Recorder.run` paces it on its own thread with its
+own memory handle and display connection (`LiveSampler`), bound to the game by `poll` as the macro runner is.
 """
 
 import collections
@@ -143,28 +47,22 @@ LEVEL_SECONDS = 5.0  # between looks at the guide's walls while a take runs (lev
 RECORD_SECONDS = 1.0  # a unit's raw record is written at a change of mode and at least this often
 NOTE_SECONDS = 120.0  # the macro's word from before a take is kept this long for the take's start
 NOTE_MOST = 2000
-# The service's own inputs kept outside a take (NOTE_SECONDS) at most: a move is 4 to 18 pointer steps, so a busy
-# two minutes of town and the way in is a few thousand (the module text, `Recorder.sent`).
+# The service's own inputs kept outside a take (NOTE_SECONDS) at most: a move is 4 to 18 pointer steps.
 SENT_MOST = 8000
 SLOW_SECONDS = 0.2  # between reads of what changes slowly and costs a walk of a unit table (`o`, `w`, `b`)
 CENSUS_SECONDS = 30.0  # between unit table censuses (research: where the missiles hang)
 BUTTON_BITS = {1: 1 << 8, 2: 1 << 9, 3: 1 << 10, 8: 1 << 15, 9: 1 << 16}  # XQueryPointer mask bits
-# life, max life, mana, max mana: itemstatcost ids 6 hitpoints, 7 maxhp, 8 mana, 9 maxmana (values carry 8 fraction
-# bits). Takes before 2026-10-10 10:00 UTC read 9 and 11 (maxmana, maxstamina): their mana columns are those maxima.
+# life, max life, mana, max mana: itemstatcost ids 6-9 (8 fraction bits). Takes before 2026-10-10 10:00 UTC read 9
+# and 11 (maxmana, maxstamina) as mana.
 VITAL_STATS = (6, 7, 8, 9)
-# The character's resistances as its stat list holds them at a frame: itemstatcost 36 damageresist
-# (physical), 39 fire, 41 lightning, 43 cold, 45 poison. Written with each `hurt`: a curse shows in them
-# (Amplify Damage: the physical one read -90 where it is 10, Outer Cloister, 2026-10-12 01:31).
+# The character's resistances as its stat list holds them: itemstatcost 36 damageresist (physical), 39 fire,
+# 41 lightning, 43 cold, 45 poison. A curse shows in them.
 RESIST_STATS = (36, 39, 41, 43, 45)
-# The Psychic Ward's pool (skills.txt 387, state 206): itemstatcost 361 `psychicward`, what is left, and 362
-# `psychicwardmax`, the pool as cast, x256 as life is. In the character's full stat list while the ward is
-# up: the manifests' `character_stats` of 2026-10-13 hold 47360 (185 points) for both in the three takes
-# that open with the ward up and neither in the seven that open with it down. Whether the client is told
-# of the pool falling between casts was not seen yet: `a` changing only at a cast would say it is not.
+# The Psychic Ward's pool (skills.txt 387, state 206): itemstatcost 361 `psychicward` (left) and 362
+# `psychicwardmax` (as cast), x256 as life is; in the stat list only while the ward is up.
 WARD_STATS = (361, 362)
-# The server's frame number (+0x28) of the last life message the client took (0x18, 0x95): the u32 at
-# [[unit +0x10] +0x218] +0xC4 of the character, still between messages (rca/2026-10-13/re-findings.md,
-# "How to read it live", Binary Ninja 2026-10-13: code, not yet seen in a game).
+# The server's frame (+0x28) of the last life message the client took (0x18, 0x95): the u32 at
+# [[unit +0x10] +0x218] +0xC4 of the character (rca/2026-10-13/re-findings.md, "How to read it live").
 PLAYER_DATA, LIFE_BLOCK, LIFE_FRAME = 0x10, 0x218, 0xC4
 # Keys whose codes the manifest names, so the frames' key codes can be read: the skill keys, the
 # teleport key, the modifiers and Show Items.
@@ -248,10 +146,8 @@ def points(raw: int) -> float:
 
 
 def item_identity(read, table: int, unit_id: int) -> tuple[str | None, int | None]:
-    """(code, quality) of the item unit `unit_id`: its class from its unit record, the code from the game's
-    item tables (items/data/item_metadata.json `bases`), the quality from its item data +0x00 (1 low to 8
-    crafted). One chain of the item table is walked, the one the unit id hashes to. (None, None) when it
-    is not found or cannot be read."""
+    """(code, quality) of the item unit `unit_id`: the code by its class (items/data/item_metadata.json `bases`),
+    the quality from item data +0x00 (1 low to 8 crafted); one hash chain walked. (None, None) when unread."""
     try:
         bucket = unit_id % 128
         head = struct.unpack('<Q', read(table + ITEM_UNIT * 1024 + 8 * bucket, 8))[0]
@@ -642,10 +538,9 @@ class Take:
 
 
 class Recorder:
-    """Per-frame logic: opens a take when the character is in a recorded level, closes it after
-    IDLE_SECONDS elsewhere or when the character enters another recorded level (one take per stay in a
-    level, since 2026-10-10: the first Catacombs take spanned three levels and so never matched the
-    guide's level map). `sample()` reads one frame or gives None when the game cannot be read."""
+    """Per-frame logic: opens a take when the character is in a recorded level, closes it after IDLE_SECONDS
+    elsewhere or on entering another recorded level (one take per stay, so a take matches one level map).
+    `sample()` reads one frame or gives None when the game cannot be read."""
 
     def __init__(
         self,
@@ -663,10 +558,9 @@ class Recorder:
         town: bool = False,
         server_frame: Callable[[Player], int | None] | None = None,
     ) -> None:
-        """`areas`: the levels recorded; None for every level that is no town, and with `town` the towns
-        too. `keep`: the bytes the takes
-        under `output` are held to, each packed as it closes (takes/retain.py); None: left as written.
-        `server_frame`: the frame of the character's last life message (`sf`); None: not read."""
+        """`areas`: the levels recorded (None: every non-town level; `town` adds towns). `keep`: the bytes the takes
+        under `output` are held to, each packed as it closes (takes/retain.py; None: as written). `server_frame`:
+        reads `sf` (None: not read)."""
         self.sample, self.output, self.areas, self.rate = sample, output, areas, rate
         self.keep, self.town, self.server_frame = keep, town, server_frame
         self.last: tuple[str, str] | None = None  # (game, take) of the take opened last
@@ -691,9 +585,8 @@ class Recorder:
             self.noted.append((self.clock(), kind, fields))
 
     def sent(self, kind: str, what: tuple[int, ...]) -> None:
-        """input/sent.py's listener: one input the service sent, on the thread that sent it, right after the
-        send. An append to a deque (atomic, no lock: an input never waits for a frame being written), with the
-        clock, the thread's name and, on a macro run's thread, its routine; the frame writes it (`step`)."""
+        """input/sent.py's listener, on the sending thread: a lock-free deque append (an input never waits for a
+        frame being written) with the clock, the thread and its routine; `step` writes it."""
         by = threading.current_thread().name
         routine = self.routine() if by == 'macro' and self.routine is not None else None
         self.inputs.append((self.clock(), kind, what, by, routine))
@@ -731,8 +624,7 @@ class Recorder:
                 self.take.sent(*self.inputs.popleft(), sample.rect)
             self.take.frame(now, sample, late)
         else:
-            # No take to write them in (town, a loading screen, a failed read): kept for the next one,
-            # which so begins with what was asked and said on the way in (the prebuff, the first steps).
+            # No take to write them in: kept, so the next take begins with what was asked and said on the way in.
             with self.noting:
                 self.noted = [note for note in self.noted if now - note[0] <= NOTE_SECONDS][-NOTE_MOST:]
             while self.inputs and now - self.inputs[0][0] > NOTE_SECONDS:

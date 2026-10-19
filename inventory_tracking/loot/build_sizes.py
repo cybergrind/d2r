@@ -1,10 +1,7 @@
 """Regenerate loot/data/sizes.json: the cells an item of each class takes in the inventory.
 
-weapons.txt, armor.txt and misc.txt give `invwidth` and `invheight` per item code; the item class
-ID is the decoder's (items/metadata.py bases). The pickup step reads it to leave alone a drop the
-inventory has no room for (macros/pickup.py; user, 2026-10-10 night).
-
-Runtime code reads only the bundled table; the install is a build input.
+`invwidth`/`invheight` from weapons.txt, armor.txt and misc.txt, by the decoder's class ID (items/metadata.py).
+The pickup step leaves a drop that does not fit (macros/pickup.py). The install is a build input only.
 Run: uv run --offline python -m inventory_tracking.loot.build_sizes "<install>"
 """
 

@@ -1,19 +1,12 @@
-"""The level card's goal: the route's next undone goal, the one the macro goes to.
+"""The level card's goal (the route's next undone goal, the one the macro goes to) and its done marks.
 
-rca/2026-10-14/run-1916-hud-findings.md §1.
+The player, 2026-10-14: "probably we need to remove the arrow when the goal is reached/interacted/killed"
+(rca/2026-10-14/run-1916-hud-findings.md §1). The card asks `goals.route_goal`, as the macro's `goal_of` does, with
+what the service knows between presses: route progress, the card's first mark and the tracker's hostiles. No known
+place, `loot`, `leave` or an ended script: no arrow.
 
-The player, 2026-10-14: "probably we need to remove the arrow when the goal is reached/interacted/killed"; the arrow
-follows the route's next undone goal, shared with the macros' goal model (goals are separate from navigation, no
-level code here), and is hidden when none is left. So the card asks `goals.route_goal`, the function the macro's
-`goal_of` asks for the route's part, with what the service knows between presses: the routes' progress, the card's
-first mark (the teleport step's, levels/guide.py `target`) and the monster tracker's hostiles (terror/tracker.py
-`hostiles`, `remembered`, `supers`). A fight's goal is its boss where the tracker has him; nothing known of him is a
-goal not seen (no arrow); `loot`, `leave` and an ended script have no place on the card (no arrow).
-
-What the card no longer shows (`done`): the marks of the stages done (routes/progress.py `done_marks`). Done is seen
-whoever acted (`note`, at each guide poll): a level entered (the runner's `Progress.note`), a boss killed (the
-tracker), an object of a `use` stage whose mode is no longer 0 (a seal opened by hand counts: R4), and a `stand`
-mark with the character within STAND_NEAR of it.
+Done is noted whoever acted (`note`, each guide poll): a level entered, a boss killed, a `use` object whose mode left
+0 (a seal opened by hand counts), a `stand` mark within STAND_NEAR.
 """
 
 import math
@@ -34,9 +27,7 @@ from inventory_tracking.routes.progress import Place, Progress
 
 
 NOT_SEEN = 'not seen'  # what a goal with no known place is "toward" on the card: no arrow
-# World units: a `use` mark's object is read only with the character this near it. The client holds the objects of
-# the rooms loaded around the character, a room (40 units) or two past its own: further off there is none to read,
-# and the read is the service's (the macro's process, rca/2026-10-13/latency-findings.md).
+# World units: a `use` mark's object is read only this near; the client holds objects a room (40) or two around.
 OBJECT_NEAR = 120.0
 
 
@@ -47,9 +38,8 @@ def world_point(mark: Poi) -> Point:
 
 
 class CardGoals:
-    """The route's goal and done marks for the level card (levels/guide.py `goals`). `hostiles(area)`: (unit id,
-    txt id, type flags, x, y) of the hostiles the tracker holds alive; `remembered(area)`, `supers(area)`: its
-    memory of the level, as the hunt is given them (macros/hunt.py)."""
+    """The route's goal and done marks for the level card (levels/guide.py `goals`). `hostiles(area)`: (unit, txt,
+    flags, x, y) alive in the tracker; `remembered`, `supers`: its memory of the level, as the hunt gets them."""
 
     def __init__(
         self,
@@ -62,11 +52,9 @@ class CardGoals:
         self.progress, self.hostiles, self.remembered, self.supers = progress, hostiles, remembered, supers
 
     def goal(self, area: int, here: Point, first: Target | None) -> Goal | None:
-        """The route's goal on level `area` now, from where the character is (`here`, world units) and the card's
-        first mark (`first`); None: nothing to point at (a `loot` or `leave` stage's goal is where the character
-        stands: no place to show)."""
+        """The route's goal on `area` from `here` (world units) and the card's first mark; None: nothing to point at."""
         if self.progress.chosen(area) is not None and self.progress.step(area) is None:
-            return None  # the level's script is over: no goal left (a level with no script has its card's mark)
+            return None  # script over (a level with no script keeps its card's mark)
         found = staged(self.progress, area)
         foes = [
             Monster(unit, txt, 1, x, y, 0, flags)
@@ -82,18 +70,16 @@ class CardGoals:
             foes=foes,
             remembered=self.remembered(area) if self.remembered is not None else (),
             supers=self.supers(area) if self.supers is not None else (),
-            # Nothing known of a boss: the card says so, with no arrow (the macro's seek looks for him itself).
             elsewhere=lambda: (here, NOT_SEEN),
         )
         return None if goal is None or goal.do in (LOOT, LEAVE) else goal
 
     def done(self, area: int) -> tuple[frozenset[str], frozenset[tuple[str, Place]]]:
-        """(labels, (label, place)) of the marks done with on level `area` (routes/progress.py `done_marks`)."""
+        """(labels, (label, place)) of the marks done on `area`."""
         return self.progress.done_marks(area)
 
     def wanted(self, area: int, here: Point, marks: Iterable[Poi]) -> frozenset[int]:
-        """The object classes whose modes say a `use` stage's mark is done, among `marks` not seen used yet within
-        OBJECT_NEAR of the character (`here`): the guide reads those objects at its poll (nothing: no read)."""
+        """Object classes the guide's poll should read: those of `use` marks not yet done within OBJECT_NEAR."""
         labels, places = self.done(area)
         stages = self._marks(area, USE)
         return frozenset(
@@ -109,8 +95,8 @@ class CardGoals:
         )
 
     def note(self, area: int, here: Point, marks: Sequence[Poi], things: Sequence[Thing]) -> bool:
-        """Tell the progress what the guide's poll sees done, whoever did it: a stage's object operated (`things`,
-        the objects of the classes `wanted` asked for) and a `stand` stage's mark stood at. True: progress changed."""
+        """Note what the poll sees done: a `use` object operated (`things`, of the `wanted` classes), a `stand` mark
+        stood at. True: progress changed."""
         before = self.progress.facts
         uses, stands = self._marks(area, USE), self._marks(area, STAND)
         for mark in marks:
@@ -123,8 +109,7 @@ class CardGoals:
                 continue
             if (area, mark.label, place(mark)) in self.progress.facts.used:
                 continue
-            # The object nearest the mark among its classes, as the step's `marked_thing` takes it: a camp's mark names
-            # any container (macros/teleport.py), and a jar opened beside the chest is not the chest.
+            # The nearest of its classes, as `marked_thing`: a jar opened beside the chest is not the chest.
             near = [t for t in things if t.txt_id in classes(mark.use) and math.dist((t.x, t.y), spot) <= use.near]
             nearest = min(near, key=lambda t: math.dist((t.x, t.y), spot)) if near else None
             if nearest is not None and nearest.mode:
@@ -133,9 +118,8 @@ class CardGoals:
         return self.progress.facts is not before
 
     def absent(self, area: int, labels: frozenset[str]) -> bool:
-        """Tell the progress the `use` stages of level `area` whose label the card knows the level has none of
-        (levels/model.py `Guidance.absent`: Lower Kurast without a camp); the run then ends at the loot as after
-        the last chest, not at the card's first mark. True: progress changed."""
+        """Mark `use` stages absent whose label the level lacks (`Guidance.absent`: Lower Kurast without a camp), so
+        the run ends at the loot. True: progress changed."""
         found = self.progress.chosen(area)
         changed = False
         for label in sorted(labels & self._marks(area, USE)):
@@ -147,7 +131,7 @@ class CardGoals:
         return changed
 
     def _marks(self, area: int, kind: str) -> frozenset[str]:
-        """The marks the stages of `kind` of level `area`'s script name."""
+        """Marks named by the `kind` stages of `area`'s script."""
         found = self.progress.chosen(area)
         stages = found[1].stages if found is not None else ()
         return frozenset(stage.mark for stage in stages if stage.kind == kind and stage.mark)

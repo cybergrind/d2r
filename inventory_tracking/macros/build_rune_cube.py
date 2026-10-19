@@ -1,15 +1,12 @@
-"""Build data/rune_cube.json: the Horadric Cube's rune recipes and where the stash's resource tabs draw each stack, from
-the installed game's cubemain.txt and bankexpansionlayouthd.json (the player, 17:50 on 2026-10-18: "cubed, aim to 80 or
-lower" for the 99 rune stacks; the recipes from the game's data, never from memory).
+"""Build data/rune_cube.json: the cube's rune recipes and the resource tabs' slots, from the installed game's
+cubemain.txt and bankexpansionlayouthd.json ("cubed, aim to 80 or lower", the player, 2026-10-18; recipes from the
+game's data, never from memory).
 
     uv run --offline python -m inventory_tracking.macros.build_rune_cube <install>
 
-A recipe is a row of cubemain.txt, enabled, not ladder-only (`firstLadderSeason` empty: the player is Non-Ladder),
-whose first input is a rune with a quantity (`"r07,qty=3"`) and whose output is the next rune; any other input is a gem
-the recipe also takes (`gcy`, Chipped Topaz, from Thul up). Item codes become classes by the items' metadata. The slots
-are the Runes and Gems tabs' `AdvancedStashSlotWidget` rects (a gem recipe's gem taken from its stack: the player,
-18:31 on 2026-10-18, "yes, loop should use required gems + runes"), the convert button the cube's on a resource tab
-(`advancedstash_horadriccube/convert`, "BankPanelMessage:Convert"), in layout units of the left panel.
+A recipe: an enabled, not ladder-only row (the player is Non-Ladder) turning a rune with a quantity into the next, plus
+any gem it takes ("loop should use required gems + runes", 2026-10-18). Slots and the convert button are in the left
+panel's layout units.
 """
 
 import json
@@ -34,8 +31,7 @@ def classes() -> dict[str, int]:
 
 
 def recipes(table: Iterable[Mapping[str, str]], by_code: Mapping[str, int]) -> dict[str, dict]:
-    """The rune-to-rune recipes of cubemain.txt rows, by the input rune's class: the class made, the runes it takes,
-    the gems (classes) it takes besides, and the row's description."""
+    """Rune-to-rune recipes by input rune class: output class, rune count, extra gem classes, description."""
     found: dict[str, dict] = {}
     for row in table:
         if row.get('enabled') != '1' or row.get('firstLadderSeason'):

@@ -1,22 +1,10 @@
-"""The teleport key on a level that has a route stage (levels/routes.md, the execution layer).
+"""The teleport key on a level with a route stage (levels/routes.md): one press, one step (`press`).
 
-One press performs one step of the stage the level is at (routes/progress.py), `press`:
-- `enter`, `use`, `stand`: the level card leads with the stage's mark (levels/guide.py `lead_first`)
-  and the teleport step goes there and walks in or clicks it, as it does for any first mark. An
-  object that shows operated after the step is noted (`note_used`); a stand is done within
-  STAND_NEAR of its mark.
-- `fight`: the step toward the fight's mark, and attack mode on within FIGHT_NEAR of it; a fight
-  that names no mark is attack mode from where the character stands. Attack mode casts Death Mark
-  and the sigil itself (macros/rotation.py), so a stage's `opener` needs no cast of its own.
-- `loot`: the pickup step. A press that finds nothing left ends the stage and goes on to the next
-  one, unless that is `leave`: then it says so and stops, and only the next press leaves.
-- `leave`: what is on the ground first; with nothing there the game is left, the next one made
-  and the buffs cast (the macro request's own steps, macros/routines.py).
-An `enter` across a border (no door: the Outer Cloister, the Monastery Gate, the Tamoe Highland) is
-walked: from a room that touches the next level the press clicks the ground further out until the
-level changes (`cross`).
-At a level without a stage, or a stage that is `clear` or pending, the press is the plain teleport
-step toward the card's own first mark, as before the routes.
+- `enter`/`use`/`stand`: the card leads with the stage's mark and the teleport step goes to it.
+- `fight`: toward the mark, attack mode within FIGHT_NEAR (no mark: attack mode where it stands).
+- `loot`: the pickup step; nothing left ends the stage. `leave`: pick up, then the next game.
+An `enter` across a border with no door is walked (`cross`). Without a performed stage the press is
+the plain teleport step.
 """
 
 import math
@@ -48,13 +36,13 @@ from inventory_tracking.routes.model import ENTER, FIGHT, LEAVE, LOOT, STAND, US
 from inventory_tracking.routes.progress import Place, Progress
 
 
-PERFORMED = frozenset((ENTER, USE, STAND, FIGHT, LOOT, LEAVE))  # the stage kinds a press performs: all but `clear`
-STAND_NEAR = 12.0  # world units from a mark: the character has stood at it
-# World units from a fight's mark at which attack mode is turned on: its sight (macros/hunt.py SIGHT).
+PERFORMED = frozenset((ENTER, USE, STAND, FIGHT, LOOT, LEAVE))  # all kinds but `clear`
+STAND_NEAR = 12.0  # world units: stood at the mark
+# World units from a fight's mark to turn attack mode on: hunt.py SIGHT.
 FIGHT_NEAR = 40.0
-STAGES = 3  # stages one press may pass: a loot with nothing to take goes on to the next
+STAGES = 3  # stages one press may pass (empty loots)
 CROSS_CLICKS = 3  # ground clicks one press makes toward a level across a border
-CROSS_UNITS = 16.0  # world units each of them is aimed ahead: in view whichever way it lies
+CROSS_UNITS = 16.0  # world units each click aims ahead
 CROSS_SECONDS = 2.0  # one click's walk
 
 
@@ -64,17 +52,15 @@ def card(
     progress: Progress | None,
     seconds: float = CARD_SECONDS,
 ) -> Target | None:
-    """The mark this press goes for: the level card's first (`teleport.card_for`), which is the
-    stage's own when the card holds it. A stage whose mark the card does not hold yet (a border not
-    read, a gap not named) is said, and the press follows the card as it would without a route: the
-    key is not taken from a level the route cannot be followed on yet."""
+    """The card's first mark (`teleport.card_for`). A stage mark not on the card yet is said and the
+    card followed, so the key still works where the route cannot be followed yet."""
     target = card_for(run, read, seconds)
     if target is None or progress is None:
         return target
     with run.lightly():
         player = run.world().player
     if player is None or target.area != player.area:
-        return target  # the step says what is wrong with the card
+        return target
     found = staged(progress, player.area)
     if found is None or not found[1].mark:
         return target
@@ -93,11 +79,8 @@ def note_used(
     progress: Progress | None,
     marks: Callable[[str], tuple[Place, ...]] | None,
 ) -> None:
-    """After a step toward `target`: when it is the object of the level's `use` stage and the game
-    shows that object operated (by this step's click, or before it: a chest the pickup key opened),
-    progress is told. `marks(label)`: the places of the card's marks with the label, so a label on
-    several objects (a hell pit's chests) is done only with each of them used. A portal needs no
-    note: the level behind it is entered."""
+    """Tell progress when `target` is the `use` stage's object and shows operated (by any click).
+    `marks(label)`: every place with the label, so a multi-object mark is done only when all are used."""
     if target is None or progress is None or not target.use or USES[target.use].leaves:
         return
     step = progress.step(target.area)
@@ -112,9 +95,7 @@ def note_used(
 
 
 def note_toured(run: Run, target: Target | None, progress: Progress | None, area: int | None) -> None:
-    """After a step toward `target` from level `area`: when it is a mark of the level's tour (routes/model.py `tour`:
-    the canyon's tombs) and the level changed, that mark is gone through, and the tour passes it from now on
-    (`Progress.lead`'s skip)."""
+    """A tour mark (routes/model.py `tour`) whose step changed the level is gone through: the tour skips it."""
     if target is None or progress is None or area is None or target.area != area:
         return
     step = progress.step(area)
@@ -136,10 +117,8 @@ def note_empty(
     marks: Callable[[str], tuple[Place, ...]] | None,
     why: str = 'none here',
 ) -> bool:
-    """The character is at `target`, a mark of the level's `use` stage, and the game shows none of its objects: when
-    the object may be gone (`Use.gone`: a chest another player opened, a spot left empty) the mark is done with, as
-    if used (the player, 2026-10-16: "count an empty mark as done"), and True. False for an object that is never
-    gone (a seal: none shown is a read that missed it) and for a mark no stage of the level names."""
+    """At a `use` mark showing no object: done with it if the object may be gone (`Use.gone`), True.
+    The player, 2026-10-16: "count an empty mark as done". False for never-gone objects (a seal: a missed read)."""
     if progress is None or not target.use or not USES[target.use].gone:
         return False
     step = progress.step(target.area)
@@ -153,8 +132,7 @@ def note_empty(
 
 
 def leave(run: Run, key_names) -> None:
-    """Leave the game, make the next one and cast the buffs: the macro request's steps for a run
-    that has ended (routines.run_macro), without its own look at whether it has. The route knows."""
+    """Leave the game, make the next one and prebuff (routines.run_macro's steps, without its end check)."""
     world = run.world()
     run.keys = character_keys(run, key_names)
     run.actuator.wait_released()
@@ -167,10 +145,8 @@ def leave(run: Run, key_names) -> None:
 
 
 def borders(area: int | None, stage: Stage, target: Target, player: Player) -> bool:
-    """Whether the press walks over the level's edge: the stage enters a level, the card leads with
-    its mark, that mark is no door (the Outer Cloister and the Monastery Gate, the Tamoe Highland:
-    levels/exits.py "Borders"), and the character stands in a room that touches the level. A room
-    whose preset holds a warp tile in any layout is a door's room, never walked past."""
+    """Whether the press walks over the edge: an `enter` mark with no door (levels/exits.py "Borders") and
+    the character in a room touching the level. A room whose preset has a warp tile is a door's, never walked."""
     if stage.kind != ENTER or area is None or target.area != area or target.label != stage.mark or target.warp:
         return False
     edge = [room for room in target.rooms if stage.to in room.leads_to]
@@ -185,10 +161,8 @@ def left_level(area: int, world: World) -> bool:
 
 
 def cross(run: Run, name: str, target: Target, to: int) -> None:
-    """Walk from a room on the level's edge on into level `to`: CROSS_CLICKS clicks on the ground,
-    each CROSS_UNITS further out, until the level changes. A border has no door to click and a
-    Teleport lands only on the level's own rooms, so the last stretch is walked. Not seen in the game
-    yet (levels/routes.md, Phase 6)."""
+    """Walk on into level `to` with ground clicks: Teleport lands only on the level's own rooms.
+    Not seen in the game yet (levels/routes.md, Phase 6)."""
     way = outward(target.rooms, to)
     rect = run.actuator.keys.focused_window_rect()
     if way is None or rect is None:
@@ -246,9 +220,8 @@ def press(
     attack: Callable[[], None],
     leave: Callable[[Run, object], None] = leave,
 ) -> None:
-    """One press of the teleport key. `plain(target)` is the teleport step toward the card's mark as
-    the runner makes it (a valuable beside the character first, the boss in sight, the staff empty);
-    `level()` the level map for a pickup; `attack()` turns attack mode on for after this press."""
+    """One press. `plain(target)`: the runner's teleport step; `level()`: the map for a pickup;
+    `attack()`: attack mode on after this press."""
     with run.lightly():
         player = run.world().player
     area = player.area if player is not None else None

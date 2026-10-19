@@ -1,19 +1,13 @@
-"""How much of the takes is kept: every level is recorded (user, 2026-10-12: "can we record combat
-logs for all levels? maybe we can retire some very old or have some policy for how much do we
-keep"), so what is written has to stay small by itself.
+"""How much of the takes is kept: every level is recorded (user, 2026-10-12: "maybe we can retire some very old or
+have some policy for how much do we keep"), so what is written has to stay small by itself.
 
-- **A closed take is packed**: its `.jsonl` files become `.jsonl.gz` (the readers take either:
-  takes/takes.py `lines`). A take of 15 MB is about 1 MB packed, and nothing is lost.
-- **Past `keep` bytes in all, the oldest takes go**, a take the character died in last of all (those
-  are what the analyses come back to). Nothing else is ever removed, and only directories a recorder
-  named (`<start>-<area>` with a manifest) are looked at.
-
-The recorder does both when a take closes (takes/record.py), off its own thread.
+A closed take is packed (`.jsonl` -> `.jsonl.gz`, lossless; the readers take either). Past `keep` bytes in all the
+oldest takes go, a take with a death last; only recorder-named directories are touched. The recorder does both
+when a take closes (takes/record.py), off its own thread.
 
     uv run --offline python -m inventory_tracking.takes.retain [--keep-gb N] [--dry-run] [directory]
 
-packs every take under the directory (default: runs/combat) and reports what the limit would remove;
-without `--dry-run` it removes it.
+packs every take under the directory (default: runs/combat) and removes what the limit says (`--dry-run`: reports).
 """
 
 import argparse

@@ -1,9 +1,7 @@
 """Regenerate loot/data/runes.json from the item decoder's d2data copy (a build input only).
 
-Class IDs come from the game's `classid` column (pricing/raw/d2data/misc.json), the source the
-item decoder uses to name real inventory items (items/build_metadata.py). The earlier rule
-"third-parties misc.json lineNumber + 523" matched keys, tomes and potions but was one too high
-for runes: the user saw Ist named Mal and Mal named Um (2026-09-30).
+Class IDs come from the game's `classid` column (pricing/raw/d2data/misc.json), as the item decoder uses
+(items/build_metadata.py); "lineNumber + 523" was one too high for runes (2026-09-30).
 Run: uv run --offline python -m inventory_tracking.loot.build_runes
 """
 

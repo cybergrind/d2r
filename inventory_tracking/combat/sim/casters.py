@@ -1,46 +1,13 @@
-"""The Chaos Sanctuary's monsters as the game's own code plays them: the four AI routines read in the client,
-their skills and missiles from the game's tables, the curses as states on whom they land.
+"""The Chaos Sanctuary's casters as the game's own code plays them: the four AI routines read in the client
+(FingerMage 70, DoomKnight 72, OblivionKnight 74, Megademon 89 and every monstats row with those AIs), their
+skills and missiles from the game's tables, curses as states on whom they land. `Pack` (sim/monsters.py)
+hands such a walker to `Minds`; Diablo and Baal think here too, by sim/diablo.py and sim/baal.py.
 
-sim/monsters.py plays every type by what the takes show of it (a fitted swing, a fitted shot). Four types
-had nothing of their own there, and three of them are casters it played as walkers or as pooled shooters:
-the Storm Caster (306), the Doom Knight (310), the Oblivion Knight (312) and the Venom Lord (362), and every
-row of monstats with the same AI (the seal bosses are such rows with a rank). Here a monster of those AIs
-thinks as the client's code does and casts what its row says; `Pack` hands such a walker to `Minds`.
-
-Sources, as each number below says where it is set:
-
-- **[code]** the think routines read in Binary Ninja (rca/2026-10-13/re/notes-ai.md: the frame every routine
-  runs in, AI 70 FingerMage, AI 72 DoomKnight; notes-ai-74.md: AI 74 OblivionKnight; notes-mobs.md: AI 89
-  Megademon, the target search, the walk helpers), and the damage rules (notes-damage.md: skill and
-  missile damage by level, resistances, to-hit);
-- **[table]** casters.json, written by build_casters.py from the game's tables (monstats, skills, missiles,
-  difficultylevels, states): the AI parameters, skills and their levels, the missiles' speed, range and
-  damage, the curses' effects, lengths and radii;
-- **[take]** measured on the train half of the Chaos Sanctuary takes (rca/2026-10-13/scripts/casters_measure.py,
-  output casters-measure-train.txt): the length of a mode (a cast, a swing), the frame of it a missile is let
-  go at, and how far a missile goes in a frame per point of its `Vel` (the code that turns `Vel` into a step
-  is in the encrypted missiles parser page). The client's animation data would give the first two; it is
-  not on disk;
-- **[inferred]** what neither says and a choice had to be made: named where it is made.
-
-**The frame (all four)** [code]. A monster with no target stands and looks again after 10 frames while the
-character is within 25, `d - 10` frames to 35, 25 frames beyond. Its target is the nearest of the character
-and its companions within the radius (`aidist`, empty for all of them: 35) by the AI's metric, max(|dx|,
-|dy|) + min(|dx|, |dy|) / 2 in sub-tiles (the arena's units); none beyond 55 of the character. Sight is
-needed only until the monster first had a target; after that it finds the nearest through walls. Chosen
-again at every think: no threat, no memory. After an action the next think comes at the end of its mode
-plus `aidel` (13 frames, 11 for a Venom Lord); after an idle of n frames, n frames on. A walk is no mode
-that ends here: the monster walks on toward its goal and thinks again `aidel` frames after it set out
-[inferred: the code schedules the think from the mode's base frame; for a walk that frame is taken as the
-start]. Rolls are 0 to 99 from the monster's own generator (the pack's, one per unit, seeded by the
-play's seed), "roll < aipN" as the code has it.
-
-**What is not the game's**: a monster's body bars nothing; a missile flies through walls (as the pack's other
-missiles) and ends on a body within SHOT_CONTACT of it; melee reach is the pack's REACH for every type;
-a monster in its pack does not wake its pack-mates (the game shares the first-sight flag in a pack: the
-scene has no packs); the companions take blows and do not die (their life in points is in no take) and
-deal nothing; a curse changes the character's resistances only (Decrepify's slower run and attack, and
-its halved damage, are not played).
+Each number is tagged with its source: [code] the think routines in Binary Ninja (rca/2026-10-13/re/notes-*.md),
+[table] casters.json (build_casters.py), [take] measured on the train half of the Chaos Sanctuary takes
+(rca/2026-10-13/scripts/casters_measure.py), [inferred] a choice neither says. Not the game's: bodies bar
+nothing, missiles fly through walls, companions take blows and never die, curses change resistances only.
+The think frame and the full list of departures: combat/history/sim-casters.md.
 """
 
 import math
@@ -57,16 +24,13 @@ from inventory_tracking.levels.geometry import Point
 
 
 DATA = Path(__file__).parent / 'casters.json'
-# False: every type plays by sim/monsters.py's fit as before 2026-10-13 (the before/after comparisons of
-# rca/2026-10-13/sim-casters.md are made by setting it before a play's pack is made).
+# False: every type plays by sim/monsters.py's fit (the before/after switch of rca/2026-10-13/sim-casters.md).
 PLAYED: bool = True
 FINGER_MAGE, DOOM_KNIGHT, OBLIVION_KNIGHT, MEGADEMON = 'FingerMage', 'DoomKnight', 'OblivionKnight', 'Megademon'
 MINDS = (FINGER_MAGE, DOOM_KNIGHT, OBLIVION_KNIGHT, MEGADEMON)
-# Diablo (AI 51) thinks here too, by his own rules and rows (sim/diablo.py, diablo.json). He is not one of MINDS:
-# `mind_of` and `row_of` stay the four's (combat/harm.py prices by them and still takes him for an unread boss).
+# Diablo (AI 51) thinks here by sim/diablo.py, but is not one of MINDS (combat/harm.py prices him as an unread boss).
 DIABLO = 'Diablo'
-# Baal (AI BaalCrab, and his clone's BaalCrabClone) thinks here too, by sim/baal.py: his think as read in the client
-# (2026-10-14, rca/2026-10-14/re/baal-ai.md).
+# Baal (AI BaalCrab, his clone BaalCrabClone) thinks by sim/baal.py (rca/2026-10-14/re/baal-ai.md).
 BAAL = 'Baal'
 BAAL_AWARE = 1020  # [code] ai_d2_ai_baal_target_in_act: every player of the act within 1020 sub-tiles
 STAND, WALK, STRIKE, STAGGER, CAST = 'stand', 'walk', 'strike', 'stagger', 'cast'  # sim/monsters.py's, and a cast
@@ -76,9 +40,8 @@ SPELL, POISON = 'spell', 'poison'  # the kinds of a blow a caster adds to sim/mo
 RADIUS = 35
 PLAYER_REACH = 55
 NEAR_LOOK, FAR_LOOK, LOOK_EDGE = 10, 25, 25
-# [take] casters-measure-train.txt: units a missile goes in a frame per point of its `Vel`. The straight
-# missiles of the four types: undead bolts 323-326 0.956-0.986 a frame at Vel 20, the bone spirit 0.574 at
-# 12, the Venom Lord's flames 0.58 at 12, the Storm Caster's lead 0.283 at 6 (0.047 to 0.049 a point).
+# [take] casters-measure-train.txt: units a missile goes in a frame per point of its `Vel` (0.047 to 0.049
+# over the four types' straight missiles).
 STEP_PER_VEL = 0.048
 # [take] the frames of a mode (the median run of it in the train half) and the frames into a cast at which
 # its missile or its curse is let go (the median first birth after the mode's start).
@@ -94,26 +57,17 @@ RELEASE: dict[tuple[str, str], int] = {
     (OBLIVION_KNIGHT, 'S2'): 16,  # the curse marks 142, 189, 191: 15 to 16
     (MEGADEMON, 'S1'): 1,  # the first flame: frame 1 to 2
 }
-# [inferred] A Venom Lord's Inferno lets a flame go every FLAME_GAP frames from its release to the cast's end:
-# skills.txt MegademonInferno `calc3` is 2, read as that gap; it gives the 5.2 flames (144 and 145) a cast of
-# 12 frames the takes count.
+# [inferred] A Venom Lord's Inferno lets a flame go every FLAME_GAP frames to the cast's end (skills.txt
+# MegademonInferno `calc3`; matches the takes' 5.2 flames a cast).
 FLAME_GAP = 2
 # [take, against a code guess] A flame (megademoninferno, 675: no CollideKill) goes through every body and takes its
-# whole points from each once. Not `DamageRate` 82 / 1024 of them a frame of contact (notes-mobs.md's guess): the
-# takes' drops put on one Venom Lord's flames alone are 8 to 88 points between two recorded frames (16, median 45,
-# fire at 75 %), one to seven flames' whole points, where that rate gives 1 to 4 points a frame of contact (unless
-# the client's life messages sum many frames, which the takes cannot rule out: `sf` of the recorder will). The
-# rate's use is not read; nothing here uses it.
-# [take] the Storm Caster's lead missile (177) drops a trail of 177s where it passed (7.8 a cast, each
-# standing 19 frames: Param2 20 of its row); only the lead is played, the trail is taken to hurt nobody
-# [inferred: it stands where the lead went, which the lead's own hit already covers].
-# The character, as the hit roll needs it [take]: defence (stat 31) 771 and level (stat 12) 94 in the
-# `character_stats` of 20261013T093331Z-108 (notes-mobs.md section 4: a Doom Knight hits it 82 %).
+# whole points from each once, not `DamageRate` a frame of contact (the takes' drops fit whole flames).
+# [inferred] Only the Storm Caster's lead missile (177) is played; its trail stands where the lead already hit.
+# The character, as the hit roll needs it [take]: defence (stat 31) and level (stat 12) of take 20261013T093331Z-108.
 DEFENCE, CHARACTER_LEVEL = 771, 94
 # [code] notes-damage.md B3: a hit chance is clamped to 5..95 %.
 LEAST_HIT, MOST_HIT = 5, 95
-# A body a missile ends on or burns: within this of the missile's middle (sim/monsters.py SHOT_CONTACT, what
-# the evidence calls a missile ended on the character).
+# Units from a missile's middle within which a body is hit (sim/monsters.py SHOT_CONTACT).
 CONTACT = 2.5
 # Kinds of damage by missiles.txt `EType` and by the curses' stats.
 ELEMENTS = {'fire': 'fire', 'ltng': 'lightning', 'cold': 'cold', 'pois': 'poison', 'mag': 'magic'}
@@ -127,9 +81,7 @@ RANDOM_ELEMENTS = ('fire', 'lightning', 'cold', 'poison')
 # 98 and 102 of them (notes-ai-74.md): taken as even.
 BOLTS = (323, 324, 325, 326)
 BONE_SPIRIT = 329
-# [inferred] MonCurseCast (server do-function 112, not read) puts one of these on; the takes' readings of the
-# character show 8 Amplify (physical -100), 6 Decrepify (-50) and 6 Lower Resist (-55) begin (evidence/CURSES.md):
-# taken as even.
+# [inferred] MonCurseCast (server do-function 112, not read) puts one of these on, taken as even (evidence/CURSES.md).
 MON_CURSES = ('Amplify Damage', 'Decrepify', 'Lower Resist')
 # [inferred] the walk around a target (path kind 5 or 6, order block +0x28 = 3): a leg of this many units
 # across the line to the target, the side by the roll.
@@ -186,9 +138,8 @@ def missile_row(missile: int) -> dict[str, str]:
 
 
 def missile_damage(missile: int, level: int) -> dict[str, tuple[float, float]]:
-    """[code + table] a missile's damage at `level`: kind -> (least, most) in points. Physical is
-    (MinDamage + steps) << HitShift / 256, the element (EMin + steps) << HitShift / 256 (notes-damage.md
-    B1); poison is points a frame (it lasts `ELen` frames). An empty HitShift is 0, as the file has it."""
+    """[code + table] a missile's damage at `level`: kind -> (least, most) in points, `<< HitShift / 256`
+    (notes-damage.md B1); poison in points a frame for `ELen` frames."""
     row = missile_row(missile)
     shift = 2 ** number(row, 'HitShift') / 256
     found: dict[str, tuple[float, float]] = {}
@@ -259,10 +210,8 @@ def curse_radius(name: str, level: int) -> float:
 
 @dataclass
 class Bolt:
-    """A caster's missile in the air: it goes `step` a frame along (dx, dy) or, homing, toward its target,
-    until `ends`. One that `kills` (missiles.txt `CollideKill`) ends on the first body within CONTACT and
-    takes its points there; any other (the Venom Lord's flames) goes through every body and takes its
-    points from each once."""
+    """A caster's missile in the air: `step` a frame along (dx, dy) or homing, until `ends`. One that `kills`
+    (missiles.txt `CollideKill`) ends on the first body within CONTACT; others take from each body once."""
 
     unit: int
     txt: int  # the caster's type
@@ -304,9 +253,8 @@ class Bolt:
 
 @dataclass(frozen=True)
 class Summon:
-    """A monster a cast raises (Baal's tentacles and clone, sim/baal.py), for whoever holds the pack to put into the
-    play: its class, where, the frame it rose at, the frames it stands unless killed (None: until its summoner dies)
-    and a seed for its own rolls (drawn from the summoner's)."""
+    """A monster a cast raises (Baal's tentacles and clone), for the pack's holder to put into the play. `frames`
+    None: it stands until its summoner dies."""
 
     unit: int  # the summoner
     txt: int
@@ -365,8 +313,7 @@ class Mind:
 
     @property
     def staggers(self) -> bool:
-        """[take] Diablo never shows the hit mode (mode 3) in 163 s of the takes: he does not stagger. [probe] Nor
-        Baal in 214 looks of eight fights (sim/baal.py)."""
+        """[take] Diablo and Baal never show the hit mode (mode 3) in the takes: they do not stagger."""
         return self.ai not in (DIABLO, BAAL)
 
     def skill_of(self, slot: int) -> str:
@@ -583,10 +530,9 @@ class Host(Protocol):
 
 
 class Minds:
-    """The walkers of a pack that think by a read AI (`walker.mind`), their missiles in the air, the curses on
-    the character and its companions (by their index in the targets: 0 the character), a poison on them, the
-    Storm Casters' marks. `aware` beyond RADIUS: every such monster knows of the character within it from the
-    first frame (a situation's "aware of everyone", stage.py); else the code's radius and first sight."""
+    """The walkers of a pack that think by a read AI (`walker.mind`), their missiles, the curses and poisons on
+    the targets (by index, 0 the character) and the Storm Casters' marks. `aware` beyond RADIUS: each knows of
+    the character within it from the first frame (stage.py); else the code's radius and first sight."""
 
     def __init__(self, host: Host, aware: float = 0.0, defence: float = DEFENCE, level: int = CHARACTER_LEVEL) -> None:
         self.host = host

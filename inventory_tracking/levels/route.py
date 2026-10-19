@@ -1,12 +1,8 @@
 """Route through a level for a player who teleports (the Warlock casts Teleport from a staff).
 
-Teleport ignores walls and doorways: any point on a loaded room is a landing spot, so the route is
-the straight line to the target wherever that line stays over rooms. Only void (no Room2 at all)
-is an obstacle, and a teleport crosses void up to REACH tiles wide: half a screen (geometry.py,
-~40 world units wide). The route is the shortest chain of room instances (levels.handler.instances:
-chunks of a large preset collapse into one) whose gaps a teleport crosses, pulled tight so a
-straight hop replaces every detour that stays passable. The user asked for this on 2026-10-09: the
-doorway walk (the old BFS, in git history) sent them around a maze whose stairs were one teleport away.
+Teleport ignores walls: only void (no Room2) is an obstacle, crossed up to REACH tiles wide. The route
+is the shortest chain of room instances whose gaps a teleport crosses, pulled tight into straight hops
+(user, 2026-10-09: a doorway walk went around a maze whose stairs were one teleport away).
 """
 
 import heapq

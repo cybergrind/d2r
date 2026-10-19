@@ -1,13 +1,6 @@
 """Act 2 desert levels: the dungeon entrance in each, the Dark Elder ruin and the Canyon tombs.
 
-Unconfirmed (from D2MOO DrlgOutDesr, 2026-10-01; no evidence yet). DRLGOUTDESR_AddExits gives each
-level one exit preset: Dry Hills 'Desert Tomb 1' (Halls of the Dead; Rocky Waste has its own
-handler), Far Oasis 'Desert Lair 1' (Maggot Lair), Lost City 'Desert Ruins Sewer' (Ancient
-Tunnels), Valley of Snakes 'Desert Tomb 2' (Claw Viper Temple). Lost City may also place 'Desert
-Ruins Elder', the Dark Elder's ruin. The Canyon of the Magi (DRLGOUTDESR_PlaceTombEntriesInCanyon)
-has seven 'Desert Cliff … King Tomb' entrances (which one is the true tomb isn't in the room
-data) and 'Desert Valley Warp' in the centre, taken to be the waypoint. Act 2 border presets
-have no open variant and the outdoor waypoints are objects, not presets, so neither is marked.
+All seven Canyon tombs are marked: the true one isn't in the room data (D2MOO DrlgOutDesr).
 """
 
 from inventory_tracking.levels.handler import Handler, PoiSpec, target

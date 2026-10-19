@@ -1,19 +1,9 @@
 """The policies of attack.py and combat/policy.py through a take's situation (combat/plan.md stage 5).
 
-`compare` runs the recorded casts and each candidate closed loop on the same situation and scores
-them by blade plus linked points per combat second (the policy-dependent terms):
-
-- `slots`: the line sweep at exactly the recorded cast frames (the aim alone);
-- `yield`: the line sweep whenever the character is free, never while the recorded character ran
-  (what the game runs: takeover with yield);
-- `free`: the line sweep whenever free, the record's runs ignored (the ceiling, not fluent);
-- `nearest`: the hunt's rule of 2026-10-09 (the elite first, then the nearest, one unit past),
-  whenever free: the live macro's aim before the line sweep reached the game;
-- `live`: the aim the game's fight runs today (combat/controller.py `LiveAim`): `yield`'s sweep with
-  the focal points the window lets the pointer reach, and straight at a monster in reach when the
-  sweep finds no line (review.md, finding 2: `yield` alone is not what the game casts);
-- `lead`: `live` with the lines laid and scored where the monsters' routes have them as the blades fly
-  (mechanics/movement.py); only a take with path records tells it from `live`, so it is not in MODES.
+`compare` runs the recorded casts and each candidate closed loop on the same situation, scored by blade plus linked
+points per combat second: `slots` (the sweep at the recorded cast frames), `yield` (whenever free, never while the
+recorded character ran), `free` (the ceiling), `nearest` (the old hunt rule), `live` (combat/controller.py
+`LiveAim`, what the game casts) and `lead` (`live` scored where the monsters' routes have them; not in MODES).
 """
 
 import math

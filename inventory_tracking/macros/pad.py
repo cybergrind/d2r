@@ -1,47 +1,11 @@
-"""The macros' pad back end: the acts of a run made with the virtual pad while the game is in controller mode.
+"""The pad back end: a run's acts made with the virtual pad while the game is in controller mode.
 
-rca/2026-10-13/controller-mode.md (plan step 9). A run plays in one input mode, the game's at its start
-(`input_policy`, asked by runner.py); a flip during the run ends it at the next act (`Flipped`, wherever it is
-caught), and the runner makes the same request again in the new mode. Keyboard mode is the keyboard back end: the
-code of every routine as it was. In controller mode the routines ask `Run.pad` (a `PadActs`) at the few places
-where they would move the pointer, click or tap a skill key, and nowhere else:
-
-- a cast: `aim_unit` (the client picks its own target, +0xD10: the character is turned toward the unit and the
-  target must name it, else nothing is cast) or `aim_place` (a heading: a ground cast lands at its skill's own
-  distance along the character's facing at the button's down, so the stick is held AIM_LEAD toward the heading
-  before the button, and through it), then `cast` (the record's button, LT with it for records 6-11); a jump that
-  still lands more than ASTRAY degrees off has the next leg walked (`walk_owed`);
-- the held strike: `hold`, steered by `steer`;
-- a walk: `walk` (the left stick held toward the place, aimed again at every look, centred in every `finally`);
-- an object or a door: `interact` (stand by it, the target names it, A); an item: `pick_up` (stand on it, so it
-  is the nearest, the Loot record: Loot, else Loot to Cube);
-- what the run may cast: `slots` (the skills on the pad's records stand for the skills on keys), `keys` (the
-  record's label per skill, as skills.py `skill_keys` gives the key).
-
-Records 12-15 have no pad button: with Quick Cast on, the key of keyboard skill slot n casts controller record n
-in controller mode (rca/2026-10-13/controller-gaps.md section 2, read in the client, not yet seen in a game). A
-session uses them only after a probe showed it (`KeyRoute`, `PadActs.probe_key`): once a game, at a quiet moment,
-a buff whose state the character shows is cast by its record's keyboard key instead of its button, and the state
-appearing opens the route. In controller mode every skill key casts a controller record, not the keyboard
-slot's skill: the only skill keys the pad back end presses are this route's.
-
-No act makes a mouse button or a movement key (either flips the client back to mouse mode), and the pad is
-only pressed while the mode byte reads controller with no flip pending (`PadActuator.guard`). Belt keys and the
-weapon swap key are keyboard keys, which flip nothing (gamepad-proton.md §5); whether they act in controller mode
-is measured (`Pad drink:`, `Pad swap:`).
-
-What a log of the next game in controller mode answers (one line each, stable prefixes):
-
-- `Pad target:` how long the controller's target took to name the unit a cast was meant for, or what it held
-  instead after TARGET_WAIT (the auto-target's rule and its settling time);
-- `Pad walk:` the world heading the stick was given against the way the character went over its first
-  MEASURE_UNITS (the stick's sign and its turn into the world: STICK_TURN, STICK_SQUASH, STICK_Y);
-- `Pad jump:` where a jump (Teleport, a build's own) landed against the heading and its fixed reach (`reach`);
-- `Pad drink:` whether the belt cell emptied after a belt key pressed in controller mode;
-- `Pad swap:` whether the weapons changed after the swap key pressed in controller mode;
-- `Pad key:` whether a keyboard skill key cast its controller record (the probe), and so whether records 12-15
-  are used in this session;
-- `Pad act:` each press: the skill, its record and what it was aimed at.
+A run plays in the game's mode at its start (`input_policy`); a flip mid-run raises `Flipped` and the runner
+retries in the new mode. In controller mode the routines ask `Run.pad` (`PadActs`) wherever they would move the
+pointer, click or tap a skill key: aim and cast, hold and steer, walk, interact, pick up. Records 12-15 are cast
+by keyboard keys only after a probe showed it works (`KeyRoute`). No act presses a mouse button or a movement key
+(either flips the client to mouse mode); `PadActuator.guard` stops the run unless the mode reads controller.
+Design notes and the `Pad ...:` log lines: history/pad.md (rca/2026-10-13/controller-mode.md).
 """
 
 import math
@@ -82,29 +46,20 @@ RECORDS = 12  # records 0-5 are A X B Y RB RT, 6-11 the same with LT held (input
 # Unit types as the client's records name them (native units): the controller's target is (type, id).
 MONSTER_UNIT, OBJECT_UNIT, ITEM_UNIT, TILE_UNIT = 1, 2, 4, 5
 
-# World heading -> stick. The client turns the stick's vector by -45 degrees into a world direction (read:
-# 0x1400d7630, the constant 0xbec90fdb), so a world heading is the stick turned by +45 degrees: world +x is down
-# and right on the screen, world +y down and left (view.py). Pad.stick takes screen directions (x right, y down).
-# STICK_SQUASH 1.0 is that pure turn; 0.5 would be the direction the heading is drawn in on the screen (the
-# isometric view halves the height). STICK_Y -1.0 flips the stick's y, should the uinput axis come out the other
-# way round in Wine. All three inferred: `Pad walk:` lines measure them (plan step 8e).
+# World heading -> stick: the client turns the stick by -45 degrees into the world (0x1400d7630, constant
+# 0xbec90fdb). Pad.stick takes screen directions (x right, y down). Squash and y sign inferred (history/pad.md).
 STICK_SQUASH = 1.0
 STICK_Y = 1.0
 WALK_STICK = 1.0  # a walk: the stick all the way (past stickRunToggleThreshold 0.8: a run, inferred)
 FACE_STICK = 0.5  # a nudge that turns the character toward a unit: past the 0.4 dead zone (read)
 FACE_SECONDS = 0.05  # held that long: about three of the game's frames, a turn and not a step (inferred)
 AIM_STICK = 0.6  # held while the button of a cast with a heading goes down (the free target's direction)
-# A cast with a heading has its stick held this long before its button goes down, and through the press. The game of
-# 22:04 on 2026-10-14 (rca/2026-10-14/run-1904-findings.md §3.1, its take's `sent` rows): the stick and the button
-# went out in the same millisecond for all 53 landed Blade Warps (the button held 47-99 ms with the stick held through
-# it), and 36 landed along the character's facing before the press, 3 along the stick alone: the client takes a free
-# target's direction at the button's down, before the stick has turned the character. A pushed stick shows in the
-# game 6-58 ms after it is sent (23 pad walks from a centred stick: the character's mode or place changed at the
-# first recorded frame after the push, median 29 ms; the frames are 40 ms apart, the game's tick): two such frames.
+# Stick held this long before a heading cast's button, and through it: the client takes a free target's direction
+# from the facing at the button's down, and the stick turns the facing a frame or two later
+# (rca/2026-10-14/run-1904-findings.md §3.1).
 AIM_LEAD = 0.08
-# Degrees: a pad jump that lands further off the heading asked than this has the next leg walked (`astray`,
-# macros/travel.py `facts_with`): one wrong landing re-plans from the wrong place, and the next jump went the same
-# wrong way (14 in a row at 90 degrees, 22:06:56-22:07:10). The walk is accurate (off -18..+8 degrees over 22 walks).
+# Degrees: a pad jump landing further off its heading has the next leg walked, since the next jump tends to go the
+# same wrong way (2026-10-14 22:06:56, 14 in a row at 90 degrees); walks are accurate.
 ASTRAY = 60.0
 ASTRAY_SECONDS = 3.0  # an astray jump's walk is owed this long at most (no walk asked meanwhile: a fight, a stop)
 TARGET_WAIT = 0.3  # seconds the controller's target is given to name the unit after the nudge
@@ -151,8 +106,7 @@ def stick_for(heading: Point, magnitude: float = 1.0) -> Point:
 
 
 def records(bindings: Sequence[int] | None, *, by_key: bool = False) -> dict[int, int]:
-    """skill -> the first of records 0-11 that holds it, from the bindings the game loaded (tracking/input_mode.py
-    `read_bindings`); empty while they are not read. `by_key`: records 12-15 too (the key route is open)."""
+    """skill -> the first of records 0-11 holding it (12-15 too `by_key`); empty while bindings are unread."""
     found: dict[int, int] = {}
     for record, skill in enumerate(list(bindings or ())[: KEY_RECORDS.stop if by_key else RECORDS]):
         if skill != -1:
@@ -163,27 +117,20 @@ def records(bindings: Sequence[int] | None, *, by_key: bool = False) -> dict[int
 def pad_slots(
     bindings: Sequence[int] | None, keyed: Sequence[int | None], *, by_key: bool = False
 ) -> tuple[int | None, ...]:
-    """What a run in controller mode can cast, in place of the skills on keys (`World.slots`): the skills of
-    records 0-11 (and 12-15 `by_key`). Teleport counts only when it is on a key as well: it comes from an item
-    (a staff's charges, Enigma), and a record that names it casts nothing without one."""
-    return tuple(
-        skill
-        for skill in records(bindings, by_key=by_key)
-        if skill != TELEPORT or TELEPORT in keyed  # a record's skill the character may not have: Teleport only
-    )
+    """The skills on pad records, standing for `World.slots`. Teleport counts only when also on a key: it comes
+    from an item, and a record naming it casts nothing without one."""
+    return tuple(skill for skill in records(bindings, by_key=by_key) if skill != TELEPORT or TELEPORT in keyed)
 
 
 @dataclass
 class KeyRoute:
-    """Whether the keyboard's skill keys reach the controller records in this session (records 12-15 have no
-    pad button): unknown until a game's probe (`PadActs.probe_key`), open after one whose cast showed, closed
-    again by one that did not. The service keeps one for the session (`PadPlay.route`); `enabled` off (config
-    `controller_key_route`): no probe and no key route."""
+    """Whether keyboard skill keys reach controller records 12-15 (no pad button) this session: unknown until a
+    probe (`PadActs.probe_key`), then open or closed by its outcome. `enabled` is config `controller_key_route`."""
 
     enabled: bool = True
-    ok: bool | None = None  # the last probe's outcome; None: none made in this session
-    probed: set[str] = field(default_factory=set)  # the games a probe was made in (once a game)
-    unkeyed: set[int] = field(default_factory=set)  # records whose keyboard slot has no key to press, said once
+    ok: bool | None = None  # the last probe's outcome; None: none this session
+    probed: set[str] = field(default_factory=set)  # games probed (once a game)
+    unkeyed: set[int] = field(default_factory=set)  # records whose slot has no pressable key, logged once
 
     @property
     def open(self) -> bool:
@@ -195,8 +142,7 @@ class KeyRoute:
 
 
 def hostile_near(world: World, reach: float) -> bool:
-    """Whether a monster nobody owns stands within `reach` of the character (townsfolk aside): the probe waits for
-    a moment with none, so that no fight is in its way and its cast is all that changes."""
+    """Whether an unowned, non-town monster stands within `reach`: the probe waits for a quiet moment."""
     from inventory_tracking.macros.routines import TOWN_NPCS  # late: routines.py is above this module
 
     player = world.player
@@ -214,12 +160,8 @@ def hostile_near(world: World, reach: float) -> bool:
 
 
 def input_policy(mode: InputMode | None, *, enabled: bool) -> bool:
-    """Whether a run plays by the pad (True) or the keys and mouse (False), the game's mode as read at its start;
-    Abort with the reason when it cannot be played now. The game's mode is followed and never changed by the run:
-    a flip asks for a click or a movement key (which acts in the world as well) or a pad press (which is thrown
-    away by the client), takes 1-2 s by players' reports and is not measured yet (plan step 8a); flips by the
-    macros are step 10. What of a routine needs the mouse refuses on its own (a skill on no record: `PadActs.keys`;
-    Save and Exit; a new game). Unreadable: keyboard, as before."""
+    """Whether a run plays by the pad (True) or keys and mouse (False), from the game's mode at its start; Abort
+    when it cannot play now. The run follows the mode and never flips it. Unreadable mode: keyboard."""
     if mode is None:
         return False
     if mode.pending:
@@ -234,22 +176,20 @@ def input_policy(mode: InputMode | None, *, enabled: bool) -> bool:
 
 @dataclass(frozen=True)
 class PadPlay:
-    """What the service hands the runner for controller mode (appraisal/service.py): the pad, made at its first
-    need and kept (input/gamepad.py `PadKeys.device`), and the input mode, the controller's state and the
-    bindings the game loaded, as tracking/input_mode.py `InputModeWatch` reads them."""
+    """What the service hands the runner for controller mode: the lazily made pad, and the input mode, controller
+    state and loaded bindings as `InputModeWatch` reads them."""
 
     device: Callable[[], Pad | None]
     mode: Callable[[], InputMode | None]
     controller: Callable[[], ControllerState | None]
     bindings: Callable[[], Sequence[int] | None]
-    enabled: bool = True  # config `controller_play`: off, a run in controller mode is refused (`input_policy`)
-    route: KeyRoute = field(default_factory=KeyRoute)  # records 12-15 by keyboard key: the session's probe
+    enabled: bool = True  # config `controller_play`
+    route: KeyRoute = field(default_factory=KeyRoute)  # kept for the session
 
 
 class PadActuator:
-    """The pad behind the guard the keys have (actuator.py: the run cancelled, the focus, a key of the player's)
-    and one of its own: a mouse button down, or the game anywhere but in controller mode with no flip pending,
-    stops the run. A press while a flip is due is thrown away by the client, and one in keyboard mode flips it."""
+    """The pad behind the keys' guard (cancel, focus, a player's key) plus its own: a mouse button down, or the
+    game not in controller mode with no flip pending, stops the run (such a press is lost or flips the mode)."""
 
     def __init__(
         self,
@@ -306,8 +246,8 @@ class PadActuator:
             self.release(*names)
 
     def key(self, name: str) -> None:
-        """A keyboard skill key, in controller mode: it casts the controller record of its slot (`KeyRoute`). LT
-        is let go first: held, the client would take the record six further on."""
+        """A keyboard skill key, casting its slot's controller record (`KeyRoute`). LT is let go first: held, the
+        client would take the record six further on."""
         self.guard()
         if self.made is not None and MODIFIER in self.made.down:
             self.made.release(MODIFIER)
@@ -324,7 +264,7 @@ class PadActuator:
         if self.made is not None:
             try:
                 self.made.neutral()
-            except OSError as exc:  # the device gone: nothing is held on it any more, and the run's own end stands
+            except OSError as exc:  # the device gone: nothing is held on it, the run's own end stands
                 LOG.warning('Pad act: the pad could not be let go: %s', exc)
 
 
@@ -355,7 +295,7 @@ class Jumped:
 
 
 class PadActs:
-    """The acts of one run in controller mode (the module's doc)."""
+    """The acts of one run in controller mode."""
 
     def __init__(
         self,
@@ -370,24 +310,20 @@ class PadActs:
         self.controller = controller
         self.bindings = bindings
         self.route = route if route is not None else KeyRoute()
-        self.key_file: Callable[[], bytes] | None = None  # the character's key file (`keys`): the slots' keys
+        self.key_file: Callable[[], bytes] | None = None  # set by `keys`
         self.aimed: Aimed | None = None
-        self.pressed = False  # whether the last `cast` pressed its record (a unit's no longer named: not)
+        self.pressed = False  # whether the last `cast` pressed its record
         self.jumped: Jumped | None = None
-        # (skill, clock) of the last pad jump that landed more than ASTRAY degrees off its heading: the next leg is
-        # a walk (`walk_owed`); a walk made, or ASTRAY_SECONDS, lets it go.
-        self.astray: tuple[int, float] | None = None
+        self.astray: tuple[int, float] | None = None  # (skill, clock) of the last jump off by > ASTRAY
         self.nudged_at = -math.inf
-        self.steered: dict[int, float | None] = {}  # unit id -> when the strike's target first named it (None: not yet)
+        self.steered: dict[int, float | None] = {}  # unit id -> when the strike's target named it (None: not yet)
         self.settled: set[tuple[int, int]] = set()  # units whose settling time is logged
 
     # What the run can cast, and with what.
 
     @property
     def reach(self) -> dict[int, float]:
-        """skill -> units a jump by it lands at in the stick's direction (the controller's fixed distance): the
-        `pad_reach` of the jump sources of the build the run plays (macros/build.py `JumpSource`), Teleport's
-        TELEPORT_REACH among them."""
+        """skill -> the controller's fixed jump distance: the build's `JumpSource.pad_reach`, plus Teleport's."""
         found = {TELEPORT: TELEPORT_REACH}
         for movement in self.run.build.movement:
             for source in movement.sources:
@@ -416,9 +352,8 @@ class PadActs:
         return pad_slots(self.bindings(), keyed, by_key=self.route.open)
 
     def slot_key(self, record: int) -> str | None:
-        """The key of keyboard skill slot `record` in the character's key file, which in controller mode casts
-        controller record `record` (Quick Cast on): None when the slot has none the macro can press (a mouse
-        button flips the game back to mouse mode; keypad 5 is the service's pad hotkey; a modifier)."""
+        """The key of keyboard skill slot `record`, which casts controller record `record` (Quick Cast on); None
+        when it has no pressable key (a mouse button flips the mode; keypad 5 is the service's; a modifier)."""
         if self.key_file is None:
             return None
         try:
@@ -442,8 +377,8 @@ class PadActs:
         return f'key {self.record_key(record)} (record {record})' if record in KEY_RECORDS else record_label(record)
 
     def keys(self, skills: Sequence[int], key_file: Callable[[], bytes]) -> dict[int, str]:
-        """The label of each skill's record ('Y', 'LT+RB', 'key 7 (record 13)'), as skills.py `skill_keys` gives
-        keys; Swap Weapons is its keyboard key (no record holds it). Abort names the first skill on no record."""
+        """Each skill's record label, as `skill_keys` gives keys; Swap Weapons is its keyboard key. Abort names
+        the first skill on no record."""
         self.key_file = key_file
         found = {}
         for skill in skills:
@@ -458,8 +393,7 @@ class PadActs:
         return found
 
     def ring(self, skill: int) -> tuple[float, float] | None:
-        """The distances a jump by `skill` may be planned to land at (its fixed reach, give or take the slack
-        a JumpSource allows), or None for a skill with no fixed reach."""
+        """The distances a jump by `skill` may be planned at (fixed reach ± PAD_SLACK); None: no fixed reach."""
         from inventory_tracking.macros.build import PAD_SLACK  # late: build.py is above this module
 
         reach = self.reach.get(skill)
@@ -468,8 +402,7 @@ class PadActs:
     # Each look at the game.
 
     def seen(self, world: World) -> World:
-        """The world as a run in controller mode sees it: the skills on records stand for the skills on keys.
-        A jump's landing is watched for here (`Pad jump:`)."""
+        """The world with record skills for key skills; also watches a jump's landing (`Pad jump:`)."""
         jumped, player = self.jumped, world.player
         if jumped is not None and player is not None:
             now, here = self.run.clock(), (player.x, player.y)
@@ -505,14 +438,12 @@ class PadActs:
             )  # fmt: skip
 
     def landing(self, here: Point) -> None:
-        """The character seen landed at `here` by the caller that made the jump (macros/travel.py `Travel.jump`):
-        the jump's `Pad jump:` line and its judgement now, before the next leg is chosen, not at a later look."""
+        """The jump's caller saw it land at `here`: judge it now, before the next leg is chosen."""
         if self.jumped is not None and math.dist(here, self.jumped.start) >= MOVED:
             self.landed(self.jumped, here, self.run.clock())
 
     def walk_owed(self, now: float) -> bool:
-        """Whether the next leg is to be walked: the last pad jump landed more than ASTRAY degrees off its heading,
-        less than ASTRAY_SECONDS ago, and no walk has been made since."""
+        """Whether the next leg is walked: a jump went astray < ASTRAY_SECONDS ago, no walk since."""
         return self.astray is not None and now - self.astray[1] < ASTRAY_SECONDS
 
     # Aims, and the press that follows them.
@@ -531,9 +462,8 @@ class PadActs:
             self.actuator.stick(0.0, 0.0)
 
     def aim_unit(self, kind: int, unit: int, here: Point, there: Point, what: str = '') -> bool:
-        """The next cast is for unit (`kind`, `unit`) at `there`: whether the controller's target names it now or
-        within TARGET_WAIT of a nudge toward it. Not named: nothing is aimed, and the caller casts nothing (the
-        client would cast at what it holds, or into the air)."""
+        """Aim the next cast at unit (`kind`, `unit`): whether the controller's target names it, now or within
+        TARGET_WAIT of a nudge. Not named: the caller casts nothing (the client would cast at what it holds)."""
         wanted, began = (kind, unit), self.run.clock()
         aimed = Aimed(here, there, wanted)
         if self.target() == wanted:
@@ -577,10 +507,9 @@ class PadActs:
             self.actuator.tap(record)
 
     def cast(self, skill: int) -> bool:
-        """The skill's record pressed once, toward what `aim_unit` or `aim_place` set (nothing set: a cast on the
-        character itself, the stick centred); whether it was pressed. A cast on a unit is pressed only while the
-        controller's target still names it: the client casts at what it holds (Consume's target group holds the
-        bound demon and the mercenary as well as a Defiler). Swap Weapons is its keyboard key."""
+        """Press the skill's record once toward the last aim (none: on the character); whether it was pressed. A
+        unit cast is pressed only while the target still names it: the client casts at what it holds (Consume's
+        group holds the bound demon and the mercenary too)."""
         aimed, self.aimed = self.aimed, None
         self.pressed = False
         if skill == SWAP_WEAPONS:
@@ -602,10 +531,7 @@ class PadActs:
         if aimed is not None and aimed.unit is None:
             heading = aimed.heading
             try:
-                # The stick first and held AIM_LEAD, then the button with the stick still held: the client takes a
-                # free target's direction from the character's facing at the button's down, and the stick turns the
-                # facing only a frame or two after it is pushed (run-1904-findings.md §3.1: sent together, 36 of 53
-                # jumps went along the facing before the press).
+                # Stick first, AIM_LEAD before the button, and held through it (see AIM_LEAD).
                 self.actuator.stick(*stick_for(heading, AIM_STICK))
                 self.run.pace.sleep(AIM_LEAD)
                 if record in KEY_RECORDS:
@@ -635,12 +561,9 @@ class PadActs:
         return True
 
     def probe_key(self, skill: int, shown: Callable[[], bool | None]) -> bool:
-        """The key route's probe (`KeyRoute`; controller-gaps.md step 2): once a game, at a moment with no hostile
-        within PROBE_CLEAR, `skill` (a cast on the character whose state `shown` reads, now off) is cast by the key
-        of its record's keyboard slot instead of its button, the character free; its state appearing within
-        KEY_WATCH opens the route for the session, its not appearing closes it, and the record's button is pressed
-        then so the cast is made all the same. Whether this made the cast (else the caller makes it as always).
-        Logged `Pad key:` with what the client's pressed record read meanwhile."""
+        """The key route's probe (rca/2026-10-13/controller-gaps.md step 2): once a game, at a quiet moment, cast
+        `skill` (a self buff whose state `shown` reads, now off) by its slot's keyboard key. The state appearing
+        within KEY_WATCH opens the route, else it closes and the button casts it. Whether this made the cast."""
         route = self.route
         world = self.run.world()
         if world.player is None or not route.due(world.game_name):
@@ -658,11 +581,11 @@ class PadActs:
                 )  # fmt: skip
             return False
         if shown() is not False or hostile_near(world, PROBE_CLEAR):
-            return False  # on already (its appearing would say nothing), or not a quiet moment
+            return False  # on already (proves nothing), or not quiet
         route.probed.add(world.game_name)
         began = self.run.clock()
         self.actuator.key(key)
-        pressed: list[tuple[int, int]] = []  # (record, skill) the client's controller state named after the key
+        pressed: list[tuple[int, int]] = []  # (record, skill) the controller state named after the key
         appeared: float | None = None
         while appeared is None and self.run.clock() - began < KEY_WATCH:
             state = self.controller()
@@ -693,9 +616,8 @@ class PadActs:
 
     @contextmanager
     def hold(self, skill: int) -> Generator[Callable[[], None]]:
-        """The skill's record held through the block: the client casts it again and again at its own target.
-        Yields `again` (let go and pressed anew) with `again.release`, as `Actuator.hold` does. A record reached
-        by a key only (12-15) is not held."""
+        """Hold the skill's record through the block (the client recasts at its own target). Yields `again` with
+        `again.release`, as `Actuator.hold` does. Key-only records (12-15) cannot be held."""
         record = self.record(skill)
         if record in KEY_RECORDS:
             raise Abort(f'{skill_name(skill)} is on record {record}, reached by a key only: the pad holds no key')
@@ -728,8 +650,8 @@ class PadActs:
             self.actuator.neutral()
 
     def steer(self, kind: int, unit: int, here: Point, there: Point, what: str = '') -> bool:
-        """Under the held strike: whether the controller's target names the unit; if not, a nudge toward it, at
-        most every STEER_EVERY. The first time a unit is named or missed goes to the log (`Pad target:`)."""
+        """Under the held strike: whether the target names the unit; if not, nudge toward it (at most every
+        STEER_EVERY)."""
         now, held = self.run.clock(), self.target()
         if held == (kind, unit):
             if self.steered.get(unit, 0.0) is None:
@@ -758,10 +680,8 @@ class PadActs:
         done: Callable[[World], bool] | None = None,
         why: str = '',
     ) -> bool:
-        """The left stick held toward `to`, aimed again at each look, until the character is `near` of it, `done`
-        says so, it gains nothing for STALL_SECONDS, or `limit` seconds pass; whether it got there (or `done`).
-        The stick is centred in every case (centring sends the client's stop). The first MEASURE_UNITS walked go
-        to the log against the heading the stick was given (`Pad walk:`)."""
+        """Hold the left stick toward `to` until `near`, `done`, a STALL_SECONDS stall or `limit`; whether it got
+        there (or `done`). The stick is always centred after (centring sends the client's stop)."""
         run = self.run
         world = run.world()
         player = world.player
@@ -804,7 +724,7 @@ class PadActs:
                     self.measure_walk(start, here, first, now - began, why)
                 heading = (to[0] - here[0], to[1] - here[1])
                 stick = stick_for(heading, WALK_STICK)
-                # The first push is kept until the walk under it is measured: then aimed again at each look.
+                # The first push is kept until measured, then re-aimed at each look.
                 turn = 0.0 if sent is None else abs(turned(heading_degrees(stick), heading_degrees(sent)))
                 if sent is None or (measured and turn > math.degrees(WALK_TURN)):
                     self.actuator.stick(*stick)
@@ -845,8 +765,8 @@ class PadActs:
     # Objects and items.
 
     def interact(self, kind: int, unit: int, at: Point, done: Callable[[], bool], what: str) -> bool:
-        """Use an object or a door: stand by it, the controller's target names it, the Attack record (A: the
-        client interacts with what it targets, `allowInteractOnDefaultAttack`), and `done` seen; whether it was."""
+        """Use an object or door: stand by it, target it, press Attack (`allowInteractOnDefaultAttack`), wait for
+        `done`; whether it was used."""
         self.walk(at, near=INTERACT_STAND, why=what)
         player = self.run.world().player
         if player is None:
@@ -869,10 +789,8 @@ class PadActs:
         return False
 
     def pick_up(self, unit: int, at: Point, gone: Callable[[], bool], what: str, others: Sequence[Point] = ()) -> bool:
-        """Pick an item up: stand on it, so that it is the nearest within PICK_REACH (the client's Loot takes the
-        nearest, whatever the loot filter shows), the Loot record (Loot to Cube when Loot is on none), and the
-        item seen leaving the ground. A gold pile is taken by standing on it. With another item the client's
-        target names, nothing is pressed."""
+        """Pick an item up: stand on it so it is the nearest (Loot takes the nearest, whatever the filter shows),
+        press Loot (else Loot to Cube), and see it leave the ground. Another item targeted: nothing is pressed."""
         self.walk(at, near=PICK_STAND, done=lambda world: gone(), why=what)
         if gone():
             LOG.info('Pad pick: %s taken on the walk to it', what)

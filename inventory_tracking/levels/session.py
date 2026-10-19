@@ -1,14 +1,8 @@
 """What one game has taught about its levels' rooms, kept until the game ends.
 
-A room's details arrive late: the levels behind it (Room.leads_to) are readable only after the
-player has been near that edge, and its preset's DS1 variant and bounds are sometimes unreadable
-on entry (21 of the evidence records up to 2026-10-05, giving '25 rooms match' in the Halls of
-Pain). A level's layout is fixed for the whole game, so whatever was read once stays true: each
-read is merged with the earlier ones, and an exit named once keeps its name after a town trip.
-
-The memory is keyed by the level's layout (every room's preset and bounds), so a new game's
-levels never meet an old game's rooms even if leaving the game was missed; `reset()` (the guide
-calls it when the player is in no level, i.e. the menu) only frees the old game's levels.
+Room details arrive late (Room.leads_to once the player was near; a variant sometimes unreadable on entry),
+but a level's layout is fixed for the game, so each read is merged with the earlier ones. Keyed by the
+layout, so a new game never meets an old game's rooms; `reset()` (in the menu) only frees memory.
 """
 
 from collections.abc import Iterable

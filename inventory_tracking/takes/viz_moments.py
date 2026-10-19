@@ -1,17 +1,9 @@
 """Find the moments worth a second look when a recorded fight is replayed with an attack policy.
 
-A moment is an inclusive tick range (start <= first <= last <= end) where the recorded run and the policy run of one
-fight differ in a way a viewer should see. Each moment has a short label and the number that label quotes. The five
-kinds are:
-
-- policy_ahead: a stretch where the policy's casts took more life than the recorded casts did.
-- recorded_ahead: the same stretch measured the other way round, where the recorded casts took more life.
-- idle: a long gap in which the player did not cast, while the policy cast on monsters at least twice.
-- miss: a run of recorded casts in one stretch of play that touched no monster, lasting until their blades would
-  have expired.
-- kill: an elite that died at clearly different ticks in the two runs.
-
-Ticks are integers at a fixed rate (25 a second by default). Only the standard library is used.
+A moment is an inclusive tick range where the recorded and the policy run of one fight differ visibly, with a short
+label and the number it quotes. Kinds: policy_ahead / recorded_ahead (one side's casts took more life), idle (the
+player did not cast while the policy cast twice or more), miss (recorded casts touching nothing), kill (an elite
+dying at clearly different ticks). Ticks are integers at a fixed rate (25 a second by default).
 """
 
 from bisect import bisect_left, bisect_right

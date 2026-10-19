@@ -35,17 +35,17 @@ class HealingConfig(Config):
     cooldowns: Mapping[PotionType, Positive]
     sample_max_age: Positive
     consumption_timeout: Positive
-    # An unconsumed potion is retried after retry_backoff, doubling per consecutive miss up to retry_backoff_max;
-    # max_consecutive_misses in a row pause the actor for suspend_seconds, after which it resumes on its own.
+    # Seconds. An unconsumed potion is retried after retry_backoff, doubling per miss up to retry_backoff_max;
+    # max_consecutive_misses in a row pause the actor for suspend_seconds.
     retry_backoff: Positive
     retry_backoff_max: Positive
     max_consecutive_misses: Annotated[int, Field(gt=0)]
     suspend_seconds: Positive
-    # The burst rule (user, 2026-10-12): this share of the most life lost within burst_window seconds asks for
-    # a rejuvenation whatever life is left. 0: no such rule for the actor.
+    # Burst rule (user, 2026-10-12): losing this share of the most life within burst_window seconds asks for a
+    # rejuvenation whatever life is left. 0: off for the actor.
     burst_share: Percent = 0.0
     burst_window: Positive = 1.0
-    # No rejuvenation for the actor while the belt holds this many or fewer: they are kept for another.
+    # No rejuvenation for the actor while the belt holds this many or fewer: they are kept for the other.
     rejuvenation_reserve: Annotated[int, Field(ge=0)] = 0
 
     @field_validator('thresholds', 'cooldowns', mode='after')
@@ -83,11 +83,8 @@ PLAYER_HEALING = HealingConfig(
     max_consecutive_misses=8,
     suspend_seconds=120.0,
 )
-# Healing potions restore this merc slowly (about +13% over 8 s measured 2026-09-26); rejuvenations are instant.
-# Until 2026-10-13 they took over at 65%, well before the merc was in danger, and he drank the belt's
-# rejuvenations before the character needed one (three of four in the game of 00:09 that day). Now at 40%, and
-# none of the last two: those are the character's (the player, 2026-10-13: "keep at least 2 rev potions for
-# user"; it was the last three until then).
+# Healing potions restore the merc slowly (about +13% over 8 s, 2026-09-26); rejuvenations are instant. Rejuvenation
+# at 40%, never the belt's last two (the player, 2026-10-13: "keep at least 2 rev potions for user").
 MERC_HEALING = HealingConfig(
     actor=Actor.MERC,
     enabled=True,
@@ -104,35 +101,27 @@ MERC_HEALING = HealingConfig(
 
 
 class HealPriorityConfig(Config):
-    """Whom the healer (`make osd`) feeds first, and the healing potions it keeps for the character
-    (automation/priority.py). The player's ruling (2026-10-13): "healer should feed merc, then me. but if
-    situation is critical - then feed player"; "something is wrong if we're empty". Until then the character
-    always came first and nothing was kept: in the game of 21:42 that day the mercenary drank 3 of the belt's
-    last 5 healing potions within 6 s and the belt ran dry (rca/2026-10-13/potions-findings.md)."""
+    """Whom the healer (`make osd`) feeds first, and the healing potions kept for the character
+    (automation/priority.py). The player (2026-10-13): "healer should feed merc, then me. but if situation is
+    critical - then feed player"; "something is wrong if we're empty" (rca/2026-10-13/potions-findings.md)."""
 
-    # Off: the rule before 2026-10-13 (the character first at every sample, no potion kept back).
+    # Off: the character first at every sample, no potion kept back.
     enabled: bool = True
-    # The macro's life budget ends here (combat/harm.py `SafetySettings.floor`, Q1/Q6): life under 65% is no
-    # longer the run's to spend. The character is critical when the life, played `horizon` seconds ahead at the
-    # fall of the last `window` seconds, is under it.
+    # Life %: where the macro's life budget ends (combat/harm.py `SafetySettings.floor`). The character is critical
+    # when life, projected `horizon` seconds ahead at the fall of the last `window` seconds, is under it.
     floor: Percent = 65.0
-    # The fall is read over the last second (the burst rule's window, `HealingConfig.burst_window`) and played
-    # 1.5 s ahead: harm.py's `horizon`, the look ahead the macro's budget is discounted by.
+    # Seconds: the burst rule's window (`HealingConfig.burst_window`) and harm.py's `horizon`.
     window: Positive = 1.0
     horizon: Positive = 1.5
-    # A healing potion's life points: harm.py's named stand-in (`healing_points`) for a super healing potion. The
-    # reserve is what brings the character from the floor back to full life once: ceil((100 - floor)% of the
-    # most life / healing_points) healing potions; 1818 life -> 2, the macro drinker's own `keep_healing`.
+    # Life points of a super healing potion (harm.py `healing_points`). The reserve brings the character from the
+    # floor to full once: ceil((100 - floor)% of the most life / healing_points); 1818 life -> 2.
     healing_points: Positive = 480.0
-    # With no rejuvenation on the belt the character's last resort is a healing potion, which works over
-    # seconds: one more is kept.
+    # One more kept while no rejuvenation is on the belt: a healing potion works over seconds.
     bare_extra: Annotated[int, Field(ge=0)] = 1
-    # Whatever the life reads (unread, or a small one): the last healing potion is never the mercenary's.
+    # The last healing potion is never the mercenary's, whatever the life reads.
     least_reserve: Annotated[int, Field(ge=0)] = 1
-    # Whether the reserve is held back from the mercenary. Off by the player's ruling (2026-10-13, after the
-    # first version kept 2 healing potions from him): "we're trying to heal merc, but keep at least 2 rev potions
-    # for user" - the mercenary is healed from the belt's healing potions (the character first only when
-    # critical), and what is kept for the character is 2 rejuvenations (`MERC_HEALING.rejuvenation_reserve`).
+    # Hold the reserve back from the mercenary. Off (the player, 2026-10-13: "we're trying to heal merc, but keep at
+    # least 2 rev potions for user"): the character keeps 2 rejuvenations instead (`MERC_HEALING.rejuvenation_reserve`).
     # The reserve stays the `Potion stock:` low mark.
     keep_healing: bool = False
 
@@ -227,10 +216,8 @@ class RepairMarkWidgetConfig(Config):
     """Highlight around a smith's Repair All button while equipped Teleport charges are missing."""
 
     enabled: bool = True
-    # Button centre and highlight size as fractions of the game window height; x from the
-    # window's left edge, y from its bottom edge. Measured 2026-09-28 on a 2560x1418 window
-    # (Charsi): centre 768 px from the left, 414 px above the bottom, button about 96 px
-    # (2026-09-28 screenshot check: 426 px sat ~12 px too high).
+    # Button centre and highlight size as fractions of the game window height; x from the window's left edge, y from
+    # its bottom edge. Measured 2026-09-28 on a 2560x1418 window (Charsi): 768 px from the left, 414 px up, ~96 px.
     center_x: Positive = 0.542
     center_y: Positive = 0.292
     size: Positive = 0.085
@@ -317,10 +304,9 @@ class InputConfig(Config):
 class BeltConfig(Config):
     """What the belt's columns are for: the pickup rules (macros/pickup.py) and the OSD belt widget."""
 
-    # The kind of each column 1-4 when it is empty (tracking/belt.py `column_shortages`), e.g.
-    # (REJUVENATION, REJUVENATION, HEALING, HEALING). None: learned from the game, the kind a column last
-    # held (rca/2026-10-13/potions-findings.md, step 1). Set to the player's belt (the player, 2026-10-13: "yes,
-    # use this layout"): the learned kinds reset with each game while the belt carries over between games.
+    # The kind of each column 1-4 when it is empty (tracking/belt.py `column_shortages`). None: learned from the game
+    # (the kind a column last held), which resets each game while the belt carries over. Set to the player's belt
+    # (the player, 2026-10-13: "yes, use this layout").
     layout: tuple[PotionType, PotionType, PotionType, PotionType] | None = (
         PotionType.REJUVENATION,
         PotionType.REJUVENATION,
@@ -380,11 +366,8 @@ class AppraisalConfig(Config):
     publication_poll_interval: Positive = 2.0  # seconds between checks for a newly published KB generation
     focus_cache_seconds: Positive = 0.15  # watchers reuse a D2R focus answer this long
     slow_loop_seconds: Positive = 0.5  # log a per-step breakdown when one service-loop pass takes longer
-    # sys.setswitchinterval for the service process (Python's default 0.005). Every memory field is one pread
-    # that gives up the GIL and must take it back; with another thread running Python each one waited up to the
-    # interval: 532 preads (a full look) 0.6 ms alone, 1.6 s with a busy thread at 5 ms, 0.15 s at 0.5 ms; two
-    # Python threads busy together lose 4-8% of their throughput to the extra switches, one alone nothing
-    # (rca/2026-10-13/latency-findings.md, "Fix 1, built").
+    # sys.setswitchinterval for the service process (Python's default 0.005): each memory pread gives up the GIL and,
+    # with another thread busy, waits up to the interval to take it back (rca/2026-10-13/latency-findings.md, Fix 1).
     switch_interval: Annotated[float, Field(gt=0, le=0.005)] = 0.0005
     reconnect_delay: Positive = 2.0
     shop_auto: bool = True  # watch loaded vendor stock and scan when its first gear item changes
@@ -409,28 +392,27 @@ class AppraisalConfig(Config):
     shrine_marks: tuple[int, ...] = (18,)  # shrine types to point at (d2data shrines.json; 18 = Gem)
     unique_marks: bool = True  # also point at unique drops whose base has an expensive unique (loot/uniques.py)
     # Ist: the good-roll ask (highest bucket median, loot/data/uniques.json) of the base's dearest unique.
-    # 2.5 takes in Harlequin Crest and The Stone of Jordan (user, 2026-10-06; both 2.58 on 2026-09-18).
+    # 2.5 takes in Harlequin Crest and The Stone of Jordan (user, 2026-10-06).
     unique_minimum: Annotated[float, Field(ge=0)] = 2.5
     super_chest_marks: bool = True  # point at closed glowing chests (object class 397)
-    # Other drops to point at, by group (loot/materials.py): Worldstone Shards, flawless and perfect
-    # gems, the Colossal Ancients' statues, the Pandemonium keys (user, 2026-10-07), charms (user, 2026-10-10),
-    # the bosses' essences.
+    # Other drops to point at, by group (loot/materials.py): Worldstone Shards, flawless and perfect gems, the
+    # Colossal Ancients' statues, the Pandemonium keys (user, 2026-10-07), charms and the bosses' essences (user,
+    # 2026-10-10), Wirt's Leg (user, 2026-10-12).
     material_marks: tuple[Literal['shards', 'gems', 'statues', 'keys', 'charms', 'essences', 'leg'], ...] = (
         'shards',
         'gems',
         'statues',
         'keys',
         'charms',
-        'essences',  # user, 2026-10-10 night
-        'leg',  # Wirt's Leg (user, 2026-10-12)
+        'essences',
+        'leg',
     )
     # Groups the pickup step takes besides the marked ones: every ring, jewel and amulet (user, 2026-10-10 night).
     pickup_also: tuple[Literal['rings', 'jewels', 'amulets'], ...] = ('rings', 'jewels', 'amulets')
-    # The pickup step also takes the equipment the loot filter shows (loot/shown.py; user, 2026-10-11):
-    # unique and set items of any size, and of the rare, magic and white ones the bases of at most this
-    # many inventory cells ("prefer smaller types"). 6 (user, the same day; 4 before) takes in Monarchs,
-    # body armours, Phase Blades and the other 2x3 bases and leaves the 2x4 ones: polearms, Colossus
-    # Blades, Zakarum Shields, the Amazon bows and spears.
+    # The pickup step also takes the equipment the loot filter shows (loot/shown.py; user, 2026-10-11): uniques and
+    # sets of any size; rare, magic and white bases of at most `pickup_shown_cells` inventory cells ("prefer smaller
+    # types"). 6 takes the 2x3 bases and leaves the 2x4 ones (polearms, Colossus Blades, Zakarum Shields, Amazon
+    # bows and spears).
     pickup_filter_shown: bool = True
     pickup_shown_cells: Annotated[int, Field(ge=1, le=8)] = 6
     # A gold pile of at least this much is gone to by the pickup step (user, 2026-10-11: "gold >5k"); None: none is.
@@ -445,15 +427,9 @@ class AppraisalConfig(Config):
     terror_card: bool = True  # HUD card: next Herald tier, group kills, breakpoint and spawn odds
     boss_stats: bool = True  # Terror card slot: kills, average time between kills and time since the last, per boss
     combat_record: bool = True  # record takes of play in combat_areas for combat/plan.md (takes/record.py)
-    # Chaos Sanctuary (2026-10-09), Catacombs 1-4 (2026-10-10), Worldstone Keep 1-3 and the Throne
-    # (levels.txt 128-131; the first run there, 2026-10-10 night, left no take to read).
-    # Tower Cellar 1-5 (levels handler areas 21-25): the Tower runs of 2026-10-10 left none either.
-    # Black Marsh (levels.txt 6): the run of 2026-10-11 00:25 left none (user: two minutes for seconds of work).
-    # Far Oasis (levels.txt 43): the path-record probe of 2026-10-11 01:30 left no take.
-    # Frigid Highlands (levels.txt 111): the terrorized run of 2026-10-11 02:40 left none (the huts: are they struck?).
-    # Durance of Hate 1-3 (levels.txt 100-102): the 22 s standstill of 2026-10-11 03:09 on level 2 left none.
-    # Halls of Anguish, Death's Calling and Vaught (levels.txt 122-124): the Nihlathak run of 2026-10-11 left none.
-    # Arcane Sanctuary (levels.txt 74): the Summoner run of 2026-10-11 15:43 left none (where does he stand?).
+    # Levels recorded when `combat_everywhere` is off (levels.txt ids): Chaos Sanctuary, Catacombs 1-4, Worldstone
+    # Keep 1-3 and the Throne, Tower Cellar 1-5, Black Marsh, Far Oasis, Frigid Highlands, Durance of Hate 1-3,
+    # Halls of Anguish, Death's Calling and Vaught, Arcane Sanctuary.
     combat_areas: tuple[int, ...] = (
         108,
         35,
@@ -480,77 +456,57 @@ class AppraisalConfig(Config):
         124,
         74,
     )
-    # Every level that is no town is recorded, whatever the list above holds (user, 2026-10-12: "can we
-    # record combat logs for all levels?"; the cow runs of that night left no take). The list is what
-    # was recorded before, and what is recorded with this off.
+    # Record every level that is no town (user, 2026-10-12: "can we record combat logs for all levels?").
     combat_everywhere: bool = True
-    # With it, the towns too (2026-10-13): a game's takes then follow one another with no gap but the
-    # loading screens, and what is carried into a level (buffs, the belt, the staff's charges) is on record.
+    # The towns too (2026-10-13): takes follow one another with no gap but the loading screens, so what is carried
+    # into a level (buffs, the belt, the staff's charges) is on record.
     combat_town: bool = True
     # The pursuit loop for the builds `make serve` plays (BuildSettings.pursuit, macros/pursuit.py;
-    # rca/2026-10-13/pursuit-v1.md): a teleport-key press posts a goal and cancels nothing. First version,
-    # no safety pricing yet; on for the first games with it (user, 2026-10-13). Off: the keys as before.
+    # rca/2026-10-13/pursuit-v1.md): a teleport-key press posts a goal and cancels nothing. Off: the keys as before.
     macro_pursuit: bool = True
-    # The gamepad experiment (input/gamepad.py; rca/2026-10-13/pickup-cube.md, the controller's "Loot to
-    # Cube"): keypad 5 taps this button of a virtual Xbox pad, made at the first press. None: no such key.
-    # 'x': the bindings' record 1, where Loot to Cube is written below. The bar in controller mode reads
-    # A X B Y RB RT for records 0-5 (2026-10-13: Attack on A, record 2's Miasma Bolt on B, record 1 empty
-    # on X while the client had not read the file again; inferred from one screenshot).
+    # Keypad 5 taps this button of a virtual Xbox pad, made at the first press (input/gamepad.py;
+    # rca/2026-10-13/pickup-cube.md). 'x': bindings record 1, where Loot to Cube is written below. None: no such key.
     gamepad_button: str | None = 'x'
-    # The played characters' controller bindings that `make serve` writes at its start (gamepad.py
-    # `bind_table`; rca/2026-10-13/controller-mode.md section 3: every skill the macros cast is to be on a pad
-    # record, user 2026-10-13: "bind everything we need"): record -> skill (skills.txt). Records 0-5 are
-    # A X B Y RB RT, 6-11 the same with LT held. A record that holds another skill is the player's and is
-    # left alone unless named in `gamepad_overwrite`; a skill already on another record is not written
-    # twice; the file as it was is copied to runs/gamepad first. Written only at the service's start with no
-    # D2R.exe running (the client reads the file at its launch and writes it back on leaving a game: the
-    # two tries of 16:26 and 16:31 wrote while it ran). Kept as they are: 0 Attack (A), 7 Town Portal (LT+X).
-    # Record 2 (B): Summon Defiler in place of the class default Miasma Bolt (rca/2026-10-13/controller-gaps.md
-    # option A; the player 2026-10-13: "we don't use miasma bolt at all"): with it on a record the Consume upkeep,
-    # its re-summon and the prebuff are cast in controller mode too. Records 12-15 have no pad button: the key
-    # of keyboard skill slot n casts record n in controller mode (Quick Cast on), used by the macros only after
-    # a game's `Pad key:` probe showed it (macros/pad.py `KeyRoute`). CybergrindAA's slot 12 is `6`, slot 13 `7`
-    # (key file, 2026-10-13). Bind Demon goes on 12 and Engorge on 13, the other way round from the design: `7`
-    # is Echoing Strike's key in keyboard mode, and a strike held on it while the player's pad flips the game
-    # to controller mode would cast record 13 until the run stops; Engorge there is harmless, Bind Demon would
-    # replace the bound demon. Not bound: Miasma Bolt, Swap Weapons (the keyboard key acts: `Pad swap:`).
+    # Controller bindings `make serve` writes at its start, record -> skill (skills.txt) (gamepad.py `bind_table`;
+    # rca/2026-10-13/controller-mode.md §3; user 2026-10-13: "bind everything we need"). Records 0-5 are
+    # A X B Y RB RT, 6-11 the same with LT held; 12-15 have no pad button and are cast by keyboard slot n's key
+    # (macros/pad.py `KeyRoute`). A record holding another skill is the player's, left alone unless named in
+    # `gamepad_overwrite`; a skill already on a record is not written twice; the file is copied to runs/gamepad
+    # first. Written only while no D2R.exe runs: the client reads the file at launch and writes it back on leaving
+    # a game. Kept as they are: 0 Attack (A), 7 Town Portal (LT+X). Record 2: Summon Defiler over Miasma Bolt (the
+    # player, 2026-10-13: "we don't use miasma bolt at all"), so Consume's upkeep works in controller mode too.
+    # Bind Demon on 12 (key `6`), Engorge on 13 (key `7`): `7` is Echoing Strike's keyboard key, and a strike held
+    # on it after a flip to controller mode recasts record 13 - harmless for Engorge, not for Bind Demon.
     gamepad_bindings: dict[int, int] = {
         1: 370,  # X: Loot to Cube
-        2: 377,  # B: Summon Defiler (overwrites Miasma Bolt: `gamepad_overwrite`)
+        2: 377,  # B: Summon Defiler
         3: 388,  # Y: Echoing Strike
         4: 390,  # RB: Blade Warp
-        5: 54,  # RT: Teleport (the staff's charges; whether a charged skill holds on a record: plan step 8)
+        5: 54,  # RT: Teleport (the staff's charges)
         6: 387,  # LT+A: Psychic Ward
         8: 389,  # LT+B: Hex: Purge
         9: 375,  # LT+Y: Death Mark
         10: 393,  # LT+RB: Sigil: Lethargy
         11: 381,  # LT+RT: Consume
-        12: 382,  # key `6` (keyboard slot 12): Bind Demon, the player's own (the macros never cast it)
-        13: 379,  # key `7` (keyboard slot 13): Engorge
+        12: 382,  # key `6`: Bind Demon, the player's own (the macros never cast it)
+        13: 379,  # key `7`: Engorge
     }
     gamepad_overwrite: tuple[int, ...] = (2,)  # records whose skill the table may replace (the file copied first)
     gamepad_bind: bool = True  # False: the bindings files are never written
-    # The macros play in either input mode (macros/pad.py; rca/2026-10-13/controller-mode.md step 9, the player
-    # 2026-10-13: "thus, we could do full automated runs in controller's mode"): with the game in controller mode
-    # a run casts, walks and picks up by the virtual pad and its records (`gamepad_bindings`); in keyboard mode
-    # nothing changes. False: a run in controller mode is refused with "click once" (no pad input at all).
+    # The macros play in either input mode (macros/pad.py; the player 2026-10-13: "thus, we could do full automated
+    # runs in controller's mode"). False: a run in controller mode is refused with "click once".
     controller_play: bool = True
-    # Records 12-15 by keyboard key in controller mode (macros/pad.py `KeyRoute`; controller-gaps.md step 2): once
-    # a game in controller mode, at a moment with no hostile within 20 units, a Hex: Purge cast is made by
-    # the key of its record's keyboard slot instead of its pad button, and `Pad key:` says whether its state
-    # appeared. Only after one that did are records 12-15 cast (by their keys) in this session. False: no probe,
-    # no key route.
+    # Records 12-15 by keyboard key in controller mode (macros/pad.py `KeyRoute`): once a game is in controller mode,
+    # with no hostile within 20 units, a Hex: Purge cast by its key probes the route (`Pad key:`); records 12-15 are
+    # cast by key in this session only after a probe worked. False: no probe, no key route.
     controller_key_route: bool = True
-    # Reads a second of the game's input mode (tracking/input_mode.py InputModeWatch): flips are timed to
-    # this resolution, the controller's target is followed at it.
+    # Reads per second of the game's input mode (tracking/input_mode.py InputModeWatch).
     input_mode_rate: Positive = 100.0
-    # What the takes are held to (takes/retain.py): each is gzipped as it closes (about a fifteenth of
-    # its size), and past this many gigabytes in all the oldest are removed, one the character died
-    # in last. 3.4 GB were 730 takes unpacked on 2026-10-12; packed, 20 GB are tens of thousands.
+    # Takes are gzipped as they close (about 1/15 of the size); past this many GB in all the oldest are removed, one
+    # the character died in last (takes/retain.py).
     combat_keep_gb: float = 20.0
     combat_rate: Positive = 25.0  # frames per second sampled; the engine's rate
-    # Movement research: also write each monster's whole path record to the take's paths.jsonl when it
-    # changes (about 1 KB a monster a change; on for every take since 2026-10-11, size not yet measured).
+    # Also write each monster's path record to the take's paths.jsonl when it changes (~1 KB per monster per change).
     combat_paths: bool = True
     terror_card_unconfirmed: bool = (
         False  # also show it before any monster says terrorized or not (marked "unconfirmed")
@@ -574,32 +530,28 @@ class HudGroundConfig(Config):
     """Marks on the game view at map positions (hud/ground.py); shown while the level map is."""
 
     enabled: bool = True
-    # Map dot kinds (levels/map_card.py KIND_TONES) that also get a ground mark: unique/champion
-    # monsters, Heralds, the next level, exits and waypoints (user, 2026-10-05).
-    # 'danger': every monster of a deadly pack, 'elite': its leader; 'pack': the arrow to such a
-    # pack out of view (2026-10-06).
+    # Map dot kinds (levels/map_card.py KIND_TONES) that also get a ground mark (user, 2026-10-05). 'danger': every
+    # monster of a deadly pack, 'elite': its leader, 'pack': the arrow to such a pack out of view.
     kinds: tuple[str, ...] = ('leader', 'danger', 'elite', 'pack', 'herald', 'stairs', 'exit', 'waypoint')
     alpha: Annotated[float, Field(gt=0, le=1)] = 0.5  # outline; the fill is fainter still
-    # Where the player stands in the game window, and one tile's floor-diamond height, as window
-    # fractions. Classic 800x600 view values (a tile is 160x80 px there); not calibrated in D2R yet.
+    # Where the player stands in the game window, and one tile's floor-diamond height, as window fractions.
+    # Classic 800x600 values (a tile is 160x80 px there); not calibrated in D2R yet.
     player_x: Annotated[float, Field(ge=0, le=1)] = 0.5
     player_y: Annotated[float, Field(ge=0, le=1)] = 0.46
     tile_height: Positive = 80 / 600
     # Marks beyond the view are drawn this far inside the window edge (fraction of its height).
     edge_inset: Annotated[float, Field(ge=0, lt=0.4)] = 0.04
-    # A mark beyond the view is an arrow towards it on a ring around the player (user, 2026-10-05:
-    # the dot at the window edge was too hard to spot). The ring's radius as a fraction of the
-    # window height: `arrow_near` for `arrow_hold` seconds after entering a level, then it grows
-    # to `arrow_rest` by `arrow_seconds`.
+    # A mark beyond the view is an arrow on a ring around the player (user, 2026-10-05). Ring radius as a fraction of
+    # the window height: `arrow_near` for `arrow_hold` seconds after entering a level, growing to `arrow_rest` by
+    # `arrow_seconds`.
     arrow_near: Annotated[float, Field(gt=0, lt=0.5)] = 0.09
     arrow_rest: Annotated[float, Field(gt=0, lt=0.5)] = 0.24
     arrow_hold: Annotated[float, Field(ge=0)] = 1.0
     arrow_seconds: Positive = 2.5
     arrow_alpha: Annotated[float, Field(gt=0, le=1)] = 0.9
-    # Kinds that get an arrow only within this many tiles of the player (user, 2026-10-05: not an
-    # arrow for every pack of the level); a screen is roughly 15 tiles across. Others always do.
-    # A deadly pack gets one arrow, to its centre, from as far as monsters are remembered; its
-    # members get none.
+    # Kinds that get an arrow only within this many tiles of the player (a screen is ~15 across; user, 2026-10-05:
+    # not an arrow for every pack); other kinds always do. A deadly pack gets one arrow, to its centre; its members
+    # none.
     arrow_range: dict[str, float] = {'leader': 15, 'elite': 15, 'danger': 0, 'pack': 40}
 
 
@@ -611,49 +563,40 @@ class HudConfig(Config):
     refresh_interval: Positive = 0.1
     gap: Annotated[int, Field(ge=0)] = 8
     slots: dict[str, HudSlot] = {
-        # Level guide rows: bottom left, growing up over the life globe's corner (user, 2026-10-06:
-        # at the top left they covered the stash's item tooltips).
+        # Level guide rows: bottom left, growing up (user, 2026-10-06: at the top left they covered stash tooltips).
         'guide': HudSlot(x=0.01, y=0.99, upward=True),
-        # Level map (the guide's MapCard): centred at the top of the window (user, 2026-10-04).
+        # Level map (the guide's MapCard): top centre (user, 2026-10-04).
         'map': HudSlot(x=0.5, y=0.15, centered=True),
         # Alt+D / shop / identify card: at most 45% of the window wide.
         'assessment': HudSlot(x=0.2, y=0.12, max_width=0.45),
-        # Valuable drops on the ground: a third of the way in from the left edge (user, 2026-10-07;
-        # before that at the edge, x=0.03).
+        # Valuable drops on the ground (user, 2026-10-07).
         'loot': HudSlot(x=0.33, y=0.34),
-        # Terror Zone card (terror/tracker.py): right of the widest Alt+D card, at the top (user, 2026-10-04),
-        # and left of the game's own corner text (user, 2026-10-06).
+        # Terror Zone card (terror/tracker.py): right of the widest Alt+D card, left of the game's corner text (user,
+        # 2026-10-04 and 2026-10-06).
         'terror': HudSlot(x=0.68, y=0.02, max_width=0.2),
         # Ground marks (hud/ground.py): the whole game window.
         'ground': HudSlot(x=0, y=0),
-        # Unread Traderie notifications (hud/traderie.py): centred at the top edge, between the
-        # corner portraits and the Terror Zone card.
+        # Unread Traderie notifications (hud/traderie.py): top centre, between the portraits and the Terror card.
         'traderie': HudSlot(x=0.5, y=0.02, max_width=0.3, centered=True),
-        # Whether the macro's attack mode is on (hud/process.py ModeBeacon): one line, centred above the
-        # skill bar (2026-10-13). Not dimmed with the others: it is read at a glance in a fight.
+        # Macro attack mode (hud/process.py ModeBeacon), above the skill bar; never dimmed: read at a glance in a fight.
         'mode': HudSlot(x=0.5, y=0.8, max_width=0.2, centered=True),
     }
-    # Where slots go while the game is in controller mode (hud/live.py InputModeByte; its layout differs:
-    # rca/2026-10-13/controller-mode.md section 5, from the screenshot of 2026-10-13 16:28). The bottom bar
-    # (LT, A X B Y RB RT, the belt with d-pad hints) tops at about 0.89 of the window height and the life
-    # globe begins at x 0.165. Slots not named here keep their places.
+    # Slot places in controller mode (hud/live.py InputModeByte; rca/2026-10-13/controller-mode.md §5): the bottom bar
+    # tops at about 0.89 of the window height and the life globe begins at x 0.165. Unnamed slots keep their places.
     controller_slots: dict[str, HudSlot] = {
-        # The level guide rows stay left of the life globe.
+        # Left of the life globe.
         'guide': HudSlot(x=0.01, y=0.99, max_width=0.155, upward=True),
-        # The attack/input mode line and the pad legend under it: growing up from just above the bar.
+        # The mode line and the pad legend under it, growing up from just above the bar.
         'mode': HudSlot(x=0.5, y=0.88, max_width=0.3, centered=True, upward=True),
     }
-    # Slots also shown while the game is not focused or not running; they are then laid out on
-    # the whole working area of the focused output instead of the game window.
+    # Slots also shown while the game is not focused or not running, laid out on the focused output's working area.
     desktop_slots: tuple[str, ...] = ('traderie',)
-    # The output (niri connector name) the desktop slots are drawn on, on their own surface and
-    # only there (user, 2026-10-09: Traderie on the laptop panel, the game's HUD on DP-5). None,
-    # or an output that is not connected: they share the game's canvas instead.
+    # The niri output the desktop slots are drawn on, on their own surface (user, 2026-10-09: Traderie on the laptop
+    # panel, the game's HUD on DP-5). None, or not connected: they share the game's canvas.
     desktop_output: str | None = 'eDP-1'
     ground: HudGroundConfig = HudGroundConfig()
-    # While one of these panels is open the player is reading items, not navigating, so the
-    # widgets of `dim_slots` are drawn at `dim_alpha` of their opacity (user, 2026-10-07). The
-    # 'assessment' slot (Alt+D / shop / identify cards) is about those items and stays as it is.
+    # While one of these panels is open the `dim_slots` widgets are drawn at `dim_alpha` of their opacity (user,
+    # 2026-10-07); 'assessment' is about those items and stays as it is.
     dim_panels: tuple[str, ...] = ('inventory', 'stash', 'cube', 'npc_shop', 'mercenary')
     dim_slots: tuple[str, ...] = ('guide', 'map', 'ground', 'terror', 'loot')
     dim_alpha: Annotated[float, Field(ge=0, le=1)] = 0.15
@@ -680,14 +623,13 @@ class DCloneConfig(Config):
 
     enabled: bool = True
     url: str = 'https://diablo2.io/dclone_api.php'
-    # The player's economy in the tracker's own codes: ver 2 = RotW (1 = LoD), ladder 2 = Non-Ladder,
-    # hc 2 = Softcore.
+    # The player's economy in the tracker's codes: ver 2 = RotW (1 = LoD), ladder 2 = Non-Ladder, hc 2 = Softcore.
     version: str = '2'
     ladder: str = '2'
     hardcore: str = '2'
     poll_seconds: Positive = 300  # between requests; the tracker bans an address that asks a few times a minute
-    # After a refused or failed request the wait doubles per failure in a row up to this, unless the
-    # tracker names its own (Retry-After).
+    # After a failed request the wait doubles per failure in a row up to this, unless the tracker names its own
+    # (Retry-After).
     backoff_seconds: Positive = 3600
     # The last answer and the time of the next request, kept across restarts of `serve`.
     cache: Path = Path(__file__).resolve().parent / 'runs' / 'dclone' / 'cache.json'

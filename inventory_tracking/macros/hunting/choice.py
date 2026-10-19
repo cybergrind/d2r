@@ -119,21 +119,16 @@ def side_drop(
     *,
     restocking: bool = False,
 ) -> Drop | None:
-    """What a level run takes on its way (the pickup key's own rules, macros/pickup.py `choose`): a
-    valuable within PICK_NEAR, gold within a jump, a potion the belt wants; not a drop gone for
-    GATHER_TRIES times already. A valuable not on the way is no side goal and hides nothing nearer. A wanted
-    potion with hostiles near it or the character is taken all the same, as a goal whose guards are the fight
-    first (`goal`, goals.py `in_the_way`): the pickup itself never begins among them, and a potion they hold
-    BLOCK_SECONDS is left. With none of those: in the quiet, a potion within RESTOCK_UNITS walked that a belt
-    low on potions restocks (`restock`); then, the belt's healing potions below the reserve, a healing potion
-    further off that is worth its detour (`scarce`). `restocking`: attack mode's own look with no level run,
-    which takes only the restock. Every potion left is said once (macros/supply.py `Potions.refuse`)."""
+    """What a level run takes on its way (pickup.py `choose`): a valuable within PICK_NEAR, gold within a jump, a
+    potion the belt wants; not one given up (GATHER_TRIES). A valuable off the way hides nothing nearer. A wanted
+    potion's guards are the fight first (goals.py `in_the_way`); one guarded BLOCK_SECONDS is left. Else `restock`,
+    then `scarce`. `restocking`: attack mode's own look, the restock only."""
     if run.loot is None:
         return None
     now = run.clock()
     loot = unshunned(run.loot(), now)
     self.again(run, loot.drops, here, world)
-    # What the run has given up on is out of the choice, said once each: the next drop is chosen in its place
+    # Given-up drops leave the choice, said once each
     given_up = {unit: self.drops.given_up(unit) for unit in self.drops.gathered if self.drops.spent(unit)}
     given_up |= {
         unit: f'left: guarded {BLOCK_SECONDS:.0f} s'
@@ -150,21 +145,19 @@ def side_drop(
     if restocking:
         return self.restock(run, loot, here, foes, world)
     if self.buffs.quiet_by_the_boss and any(self.boss(m) and math.dist(here, (m.x, m.y)) <= self.reach for m in foes):
-        # No side goal but a potion while the run's boss is in reach (macros/buffs.py QUIET_BY_THE_BOSS, F3 of
-        # rca/2026-10-18/andariel-cadence-findings.md §5): her death first, then her drops land (loop.py DROPS_LAND)
-        # and the ground is looked at again. A Dol Rune 32 away took 5.7 s of Andariel's fight at 11:49:03.
+        # Only potions while the run's boss is in reach: her death first (QUIET_BY_THE_BOSS,
+        # rca/2026-10-18/andariel-cadence-findings.md §5 F3).
         loot = replace(loot, drops=tuple(found for found in loot.drops if found.kind in (HEALING, REJUVENATION)))
     plan = choose(loot, here)
     drop = plan.drop if plan is not None else None
     looped = self.pursuit is not None and self.pursuit.looped
     while drop is not None and drop.kind == VALUABLE and not self.on_the_way(run, here, drop, world, looped=looped):
-        # Out of the choice, and nothing nearer hidden by it: at 22:56:06 on 2026-10-14 a Flawless Sapphire 43
-        # away hid a super healing potion 8 away with the belt 6 short (run-1932-findings.md issue 2)
+        # Out of the choice, hiding nothing nearer (run-1932-findings.md issue 2)
         loot = replace(loot, drops=tuple(found for found in loot.drops if found.unit_id != drop.unit_id))
         plan = choose(loot, here)
         drop = plan.drop if plan is not None else None
     if drop is not None and drop.kind == VALUABLE and looped and not self.walked_near(run, here, drop, world):
-        # The loop's far valuable (beyond PICK_NEAR walked) hides no potion the belt wants nearer: that one first
+        # The loop's far valuable hides no nearer wanted potion: that one first
         supplies = choose(replace(loot, drops=tuple(found for found in loot.drops if found.kind != VALUABLE)), here)
         potion = supplies.drop if supplies is not None else None
         nearer = potion is not None and math.dist(here, (potion.x, potion.y)) < math.dist(here, (drop.x, drop.y))
@@ -193,11 +186,8 @@ def side_drop(
 def restock(
     self: Hunter, run: Run, loot: Loot, here: Point, foes: Sequence[Monster], world: World | None
 ) -> Drop | None:
-    """A potion that a belt low on potions takes before the goal, in the quiet (the player, 2026-10-14): no hostile
-    within QUIET_UNITS, healing potions under half their columns or rejuvenations under the reserve, the potion
-    within RESTOCK_UNITS walked (macros/supply.py `low`, `restock`). At 22:55:31.8 on 2026-10-14 the belt held 2
-    healing potions of 8 with nothing within 30, a full rejuvenation lay 7 away and super healing potions 13 and
-    16, and the run warped on toward Snapchip 84 away (run-1932-findings.md issue 2). Said once a potion."""
+    """A potion a low belt takes before the goal, in the quiet (no hostile within QUIET_UNITS; supply.py `low`,
+    `restock`; the player, 2026-10-14; run-1932-findings.md issue 2). Said once a potion."""
     if any(math.dist(here, (m.x, m.y)) <= QUIET_UNITS for m in foes) or not low(loot):
         return None
     world = world if world is not None else run.world()
@@ -218,10 +208,9 @@ def restock(
 
 
 def given_up_charm(self: Hunter, run: Run, drop: Drop, why: str) -> bool:
-    """The backstop of the Gheed's swap (macros/pickup.py `Refused`): a unique Grand Charm the level run gives up
-    on with a Gheed's Fortune carried is the carry-one refusal, whatever its tries came to (13:56:41 on 2026-10-18:
-    both ended as "priced act expired", no click was refused, and only the 45 s stand reached the swap at
-    13:57:26). Asked once a drop (`swap_asked`); whether the swap starts and the run ended for it."""
+    """The Gheed's swap backstop: a unique Grand Charm given up on with a Gheed's Fortune carried is the carry-one
+    refusal (pickup.py `Refused`), whatever its tries ended as (2026-10-18 13:56:41). Asked once a drop; whether the
+    swap starts (the run then ended)."""
     if self.carry_one is None or drop.kind != VALUABLE or drop.unit_id in self.drops.swap_asked:
         return False
     if not unique_grand_charm(drop) or not gheeds_carried(run):
@@ -232,8 +221,7 @@ def given_up_charm(self: Hunter, run: Run, drop: Drop, why: str) -> bool:
 
 
 def carry_one_swap(self: Hunter, run: Run, refused: Refused) -> bool:
-    """Whether the runner starts the Gheed's swap for `refused` (`carry_one`); the level run ends for it then, so
-    the loop's swap leg follows at once (runner.py `_run_over`)."""
+    """Whether the runner starts the Gheed's swap for `refused`; the level run then ends (runner.py `_run_over`)."""
     if self.carry_one is None or not self.carry_one(refused):
         return False
     self.end_run(run, f"{refused}: the Gheed's swap")
@@ -246,13 +234,9 @@ def forget_given_up(self: Hunter) -> None:
 
 
 def again(self: Hunter, run: Run, drops: Sequence[Drop], here: Point, world: World | None = None) -> None:
-    """A valuable given up (GATHER_TRIES) is tried once more when the character comes within PICK_REACH of it
-    on a clear line (travel.py `clear_line`): a click from there walks. Chaos Sanctuary, 15:18:35-37 on
-    2026-10-14 (rca/2026-10-14/run-1214-findings.md §3.2): the Flawless Emerald clicked four times round a wall
-    corner from 18.3 away was given up, and 2 s later the character passed 5.7 from it on a clear line and went
-    on; the player went back for it by hand. Once a drop: a click that takes nothing from there is not looped
-    on. What the player put down is never among `drops` (game/kept.py `PutDown`: the runner's loot passes through
-    it). The level's ground is read only when a drop is a candidate."""
+    """A given-up valuable is tried once more (once a drop) when the character comes within PICK_REACH of it on a
+    clear line (rca/2026-10-14/run-1214-findings.md §3.2). What the player put down is never among `drops`
+    (game/kept.py `PutDown`)."""
     spent = [
         d
         for d in drops
@@ -303,11 +287,9 @@ def refused_potion(self: Hunter, drop: Drop, here: Point, why: str) -> None:
 
 
 def scarce(self: Hunter, run: Run, loot, here: Point, world: World | None) -> Drop | None:
-    """A healing potion known on the level beyond the pickup key's own POTION_UNITS that is worth its
-    detour now (macros/supply.py `worth`, `detour`): with the belt's healing potions below the reserve the
-    character keeps (automation/priority.py `reserve`), harm's price of a potion for each one short, against
-    the way there and back by the navigator's eta with the movement in hand and the pickup's dwell. Judged
-    once in DECIDE_SECONDS * 4, the nearest two asked; the one found stays the goal until judged again."""
+    """A healing potion beyond POTION_UNITS worth its detour (supply.py `worth`, `detour`) while the belt is below
+    the reserve: the potions short at harm's price against the eta there and back. Judged once in 4 *
+    DECIDE_SECONDS over the nearest two; the one found stays the goal until then."""
     now = run.clock()
     judged, found = self.fetching
     if now - judged < 4 * DECIDE_SECONDS:
@@ -348,14 +330,11 @@ def scarce(self: Hunter, run: Run, loot, here: Point, world: World | None) -> Dr
 
 
 def stay_by(self: Hunter, run: Run, here: Point, *, wanted: bool = True, foes: Sequence[Monster] = ()) -> Drop | None:
-    """A valuable the pickup rules want within PICK_NEAR that neither the inventory has room for (the
-    player, 2026-10-13: "when valuable doesn't fit: we need to stop near it"): the level run stands by it
-    (goals.py `WAIT`). Not magic, rare or white equipment taken only because the loot filter shows it
-    (`Loot.shown`: the player, 2026-10-12, "allow moving when the item isn't very valuable"); a unique or set
-    item the filter shows is stood by (game/records.py `NAMED`: the player, 2026-10-14, the Unique Plate Mail of
-    run-1214-findings.md §3.1), and not one a press went on from
-    (`waived`). The card's warning says it while it lasts; taken back after. Not `wanted`: a drop to take
-    comes first (the room may have come), and only the warning is taken back."""
+    """A wanted valuable within PICK_NEAR with no room for it: the run stands by it (goals.py `WAIT`; the player,
+    2026-10-13: "when valuable doesn't fit: we need to stop near it"). Not equipment taken only because the filter
+    shows it ("allow moving when the item isn't very valuable", 2026-10-12), but a shown unique or set item, yes
+    (2026-10-14); not one a press went on from (`waived`). The card warns meanwhile. Not `wanted`: only the warning
+    is taken back."""
     loot = unshunned(run.loot(), run.clock()) if run.loot is not None and wanted else None
     found = None
     if loot is not None:
@@ -377,9 +356,7 @@ def stay_by(self: Hunter, run: Run, here: Point, *, wanted: bool = True, foes: S
     quiet = all(math.dist(here, (m.x, m.y)) > QUIET_UNITS for m in foes)
     cube_unread = loot is not None and loot.cube is None
     if (cube or cube_unread) and quiet and self.room_maker is not None and self.room_tried != found.unit_id:
-        # The cube has room: the macro's own pickups go into it, and the next look takes the drop (the player,
-        # 23:55 on 2026-10-17: "if we have cube space - we should move items there"; two stands for the player on
-        # 2026-10-17, 47.5 s by an Amulet and one by a Flawed Sapphire)
+        # "if we have cube space - we should move items there" (the player, 2026-10-17): the next look takes it
         self.room_tried = found.unit_id
         try:
             moved = self.room_maker(run)
@@ -406,10 +383,8 @@ def stay_by(self: Hunter, run: Run, here: Point, *, wanted: bool = True, foes: S
 
 
 def shack_goal(self: Hunter, run: Run, world: World, player, route: str) -> Goal | None:
-    """On the KP_6 loop's run, a container of the camp the character stands in, closed, in sight, near and
-    beside one of the camp's chests (macros/shacks.py; routes/lower-kurast-loop-plan.md phase 6c): opened as a
-    mark is, from where the character stands, a side goal of the level's route `route` (with none, the run has no
-    stage to work and ends: pursuit.py `run_level`). One tried SHACK_TRIES times is left."""
+    """On the KP_6 loop, a closed container in sight beside one of the camp's chests (shacks.py;
+    routes/lower-kurast-loop-plan.md phase 6c), a side goal of `route`; left after SHACK_TRIES."""
     level = self.known_level(player)
     if level is None or run.things is None:
         return None
@@ -431,8 +406,7 @@ def shack_goal(self: Hunter, run: Run, world: World, player, route: str) -> Goal
 def super_chest_goal(
     self: Hunter, run: Run, player, here: Point, route: str, spend: Intent, rooms: Sequence[Room] = ()
 ) -> Goal | None:
-    """A full clear's closed super chest within SUPER_NEAR, nearest first, opened as a route's chest is; one tried
-    SUPER_TRIES times is left (its tries counted with the shacks' containers, `act`)."""
+    """A full clear's nearest closed super chest within SUPER_NEAR; left after SUPER_TRIES."""
     if run.things is None:
         return None
     chests = [
@@ -450,16 +424,13 @@ def super_chest_goal(
     thing = min(chests, key=lambda t: math.dist(here, (t.x, t.y)))
     place = (thing.x / TILE_UNITS, thing.y / TILE_UNITS)
     mark = Target(player.area, (), place, 'Super chest', 'target', use=SUPER_CHEST)
-    # A clearing goal: passed like one when it is gone for CLEAR_SECONDS with no progress (`goes_on`)
     return Goal('full clear: Super chest', (thing.x, thing.y), USE, USE_NEAR, spend, unit=thing.unit_id, mark=mark,
                 route=route, clearing=True)  # fmt: skip
 
 
 def at_hand(self: Hunter, found: Goal | None, player, world: World) -> bool:
-    """Whether the route's `found` is a chest the character opens from where it stands (travel.py `open_reaches`):
-    before the shack's container then, not after a hop to the rack and one back (9 of 27 stays 19:45-20:08 on
-    2026-10-17 landed within 4 of the chest and went to the rack first, 2.9 s from there to the chest opened;
-    rca/2026-10-17/slow-legs-findings.md)."""
+    """Whether the route's `found` is a chest opened from where the character stands: then before the shack's
+    container (rca/2026-10-17/slow-legs-findings.md)."""
     level = self.known_level(player)
     if found is None or found.do != USE or level is None:
         return False
@@ -467,8 +438,7 @@ def at_hand(self: Hunter, found: Goal | None, player, world: World) -> bool:
 
 
 def blockers(self: Hunter, goal: Goal | None, foes: Sequence[Monster], now: float) -> list[Monster]:
-    """The hostiles alive that the hands found in the way of `goal`'s act (`Covered`), while that is
-    no older than BLOCK_SECONDS; forgotten once none of them lives or the goal changed."""
+    """Living hostiles the hands found in the way of `goal`'s act (`Covered`), for BLOCK_SECONDS."""
     blocking = self.blocking
     if blocking is None or goal is None:
         return []
@@ -483,12 +453,9 @@ def blockers(self: Hunter, goal: Goal | None, foes: Sequence[Monster], now: floa
 def goal(
     self: Hunter, run: Run, world: World, foes: list[Monster], pressed: bool, posted: Pursuit | None
 ) -> Goal | None:
-    """The goal the key means now (macros/goals.py `goal_of`), from the route's stage, the level
-    card, the hostiles in the world and the tracker's memory. A valuable beside the character comes
-    first for a press (macros/pickup.py `worth_a_stop`, asked once a press: it counts its tries); on a
-    level run a drop the pickup rules take (`side_drop`). Hostiles that bar the goal's act make the
-    fight with them the goal (`first_fight`). `pressed`: a fresh press asks for its goal now; `posted`:
-    the mailbox as the look read it (`judge`). A level run's mode adds to it at the look (`cleared`)."""
+    """The goal the key means now (goals.py `goal_of`) from the route's stage, the card, the hostiles and memory.
+    A press takes a valuable beside the character first (pickup.py `worth_a_stop`, once a press); a level run its
+    side drop. Hostiles barring the act make their fight the goal (`first_fight`). `posted`: the mailbox as read."""
     player = world.player
     assert player is not None
     here, area, bearings = (player.x, player.y), player.area, self.bearings
@@ -506,15 +473,14 @@ def goal(
         side = self.side_drop(run, here, foes, world)
         stay = self.stay_by(run, here, wanted=side is None, foes=foes)
     elif self.pursuing and not pressed:
-        # Attack mode's own goal (no level run, no press): a potion a low belt restocks in the quiet comes first
+        # Attack mode's own goal: a restock potion first
         side = self.side_drop(run, here, foes, world, restocking=True)
     known = self.remembered(area) if self.remembered is not None else []
     live = {m.unit_id for m in foes}
     self.vanished |= {unit for unit, x, y, _ in known if unit not in live and math.dist(here, (x, y)) <= VANISH_UNITS}
 
     def elsewhere() -> tuple[Point, str] | None:
-        # Nothing is known of the boss: whatever of the level is left to look for it in, as the seek
-        # step looks (the nearest hostile known, else the unexplored room nearest by the way).
+        # Nothing known of the boss: the nearest hostile known, else the nearest unexplored room (as seek does).
         quarry = self.quarry(area, here, foes, any_hostile=True)
         if quarry is not None:
             return quarry
@@ -527,7 +493,7 @@ def goal(
 
     opens = None
     if running and posted is not None and posted.rush and side is None and stay is None:
-        # the KP_6 loop's run: a shack's container in sight first, a side goal of the level's route
+        # The KP_6 loop: a shack's container in sight first
         opens = self.shack_goal(run, world, player, staged[0] if staged is not None else '')
     found = goal_of(
         here,
@@ -540,14 +506,12 @@ def goal(
         stage=staged[1] if staged is not None else None,
         route=staged[0] if staged is not None else '',
         card=card,
-        # Every hostile, the ones left alone for a while among them (`untouchable`): a boss the strikes
-        # did nothing to is still where the fight is, and nothing else is sought in its place.
+        # Every hostile, the `untouchable` too: a boss the strikes did nothing to is still where the fight is.
         foes=hostiles(world),
         remembered=known,
         supers=bearings.supers(area) if bearings.supers is not None else (),
         gone=frozenset(self.vanished | set(self.untouchable)),
-        # Only a press or a level run looks for a boss nothing is known of: the mode by itself goes
-        # nowhere for it (macros/pursuit.py `decide`), and the look costs a potential over the whole level.
+        # Only a press or a level run seeks an unknown boss (a potential over the whole level).
         elsewhere=elsewhere if pressed or running else None,
         entry=door_entry(card),
         drop=drop,
@@ -558,17 +522,15 @@ def goal(
         found = opens
     missed = self.missed
     if found is not None and missed is not None and missed[0] == found.label and run.clock() <= missed[1]:
-        found = nearer(found)  # its act did not take from where the character stood: from nearer now
+        found = nearer(found)  # its act missed from there: from nearer now
     if found is not None and found.do == FIGHT and found.unit in self.nearing:
-        # a boss the strikes did nothing to from where they were made: its fight is near enough in the engage ring
+        # strikes did nothing from there: fight from within the engage ring
         found = replace(found, near=min(found.near, self.attack.engage))
     self.base = found
     barring = self.blockers(found, foes, run.clock())
     if found is not None and running and (not self.pursuing or found.guarded):
-        # The run's own move, no press asking for the goal now: what stands where the goal's act is made
-        # is fought first (a pack on a seal, the guards of a wanted potion). A press is never refused this
-        # way (architecture §1). With the safety pricing on, harm prices what stands at an object; a potion's
-        # guards stay a presence floor (no pickup among a pack, Tower Cellar 5) until harm prices the pickup.
+        # The run's own move: what stands where the act is made is fought first (a pack on a seal, a potion's
+        # guards); a press is never refused so (architecture §1).
         known = {m.unit_id for m in barring}
         barring += [m for m in in_the_way(found, foes, here) if m.unit_id not in known]
     return first_fight(found, here, barring, self.reach) if found is not None and barring else found
@@ -577,26 +539,19 @@ def goal(
 def cleared(
     self: Hunter, run: Run, world: World, foes: list[Monster], ground: Ground, found: Goal | None
 ) -> Goal | None:
-    """A level run's goal by its mode (macros/runmode.py; the player, 2026-10-14): the hostiles on its way
-    first, those within CLEAR_WAY with a clear line (goals.py `clear_way`); on a full clear the rest of the
-    level next (`rest_of_level`: what is in sight, what is remembered alive, the rooms not explored); then
-    `found`, the route's. A fight, a drop or a stand-by of `found`'s own is left as it is. Out of a full clear
-    only a way through the level is cleared (WAYS: a door, a place, a stand), not the way to an object: what
-    stands at a seal is priced at it and the seal calls its pack (the arena's seal moment: fighting the 12 by
-    Vizier seal 1 first left the Vizier alive in all ten plays); and a level with no route is the key's old
-    step. What has gone CLEAR_SECONDS with no strike and no progress by the way, or that the navigator had no way
-    to, is passed for PASS_SECONDS (`goes_on`, `judge`); a goal left for another is not taken back while that other
-    is still the one to go for (TAKE_BACK, `taken_back`)."""
+    """A level run's goal by its mode (runmode.py; the player, 2026-10-14): the hostiles on the way (goals.py
+    `clear_way`), on a full clear the rest of the level (`rest_of_level`), then the route's `found`. A fight, drop
+    or stand-by of `found`'s is kept. Out of a full clear only a way through (WAYS) is cleared, not the way to an
+    object: a seal calls its pack (fighting Vizier seal 1's pack first left the Vizier alive in ten arena plays).
+    A goal with no strike or progress for CLEAR_SECONDS is passed (`goes_on`); see `taken_back`."""
     mode = self.mode
     if mode is not None and mode.agenda and self.agenda is not None:
         return self.agenda_cleared(run, world, foes, ground, found)
     clear = mode is not None and mode.clear
     if found is not None and (found.do in (PICK_UP, WAIT, FIGHT) or found.guarded):
         return found
-    # Nor on the KP_6 loop's rushed run (not a full clear): its way out is gone to, a pack beside it fought only
-    # when it hurts or blocks (the player, 2026-10-16: "don't fight what isn't attacking"). Cleared, every pack on
-    # the way down the Catacombs was a goal, and the run stood ~1.8 s at each before its strike (RUSH_UNMOVED): 41
-    # stands, 74 s, at 10:20-10:41 on 2026-10-18 (rca/2026-10-18/freeze-near-mobs-findings.md)
+    # Nor on the KP_6 loop's rushed run: "don't fight what isn't attacking" (the player, 2026-10-16;
+    # rca/2026-10-18/freeze-near-mobs-findings.md)
     if not clear and (self.rushing or found is None or not found.route or found.do not in WAYS):
         return found
     player = world.player
@@ -657,8 +612,7 @@ def _clear_through(
     found: Goal | None,
     now: float,
 ) -> Goal | None:
-    """The goal `candidate` gives, taken back (`taken_back`) and passed when it goes on no more (`goes_on`): a goal
-    passed now gives its place to the next, three times at most; `found` when none holds."""
+    """`candidate`'s goal (`taken_back`); one passed now (`goes_on`) yields to the next, at most three times."""
     chosen = found
     for _ in range(3):
         goal = self.taken_back(candidate, rooms, found)
@@ -672,12 +626,9 @@ def _clear_through(
 def agenda_cleared(
     self: Hunter, run: Run, world: World, foes: list[Monster], ground: Ground, found: Goal | None
 ) -> Goal | None:
-    """The terror zone kinds' run (`cleared`, macros/goals-plan.md §3): the agenda's next target first (agenda.py
-    `Agenda.in_level`: a Herald, its omen, a side drop's guards then the drop, the leaders, the rooms), the
-    route's stage of the level (`found`) after it. Passing, judging and taking back are the full clear's (`goes_on`,
-    `taken_back`), and so are the hostiles on the way (leaders within CLEAR_WAY with a clear line; every one on a
-    Full clear TZ). A drop's guards are the fight first (the player's example: "we may need some kill action near
-    pickup item, then pickup"); a stand-by by a valuable, a guarded potion, a boss's fight are left as they are."""
+    """The terror zone kinds' run (goals-plan.md §3): the agenda's next target (agenda.py `Agenda.in_level`), then
+    the route's `found`; passing and the way cleared as a full clear's (leaders only, unless a Full clear TZ). A
+    drop's guards are the fight first ("we may need some kill action near pickup item, then pickup")."""
     player = world.player
     assert player is not None
     here, now, area = (player.x, player.y), run.clock(), player.area
@@ -692,13 +643,11 @@ def agenda_cleared(
         guard = next((m for m in foes if target is not None and target.kind == KILL and m.unit_id == target.unit), None)
         if guard is None:
             return found
-        # The fight first is the level run's own work (`clearing`): the drop's goal holds no route stage on a level
-        # with no route (Great Marsh), and a fight goal with neither ended the run there, the elite and the gold
-        # left (09:01:51 on 2026-10-19, pursuit.py `run_level`: "nothing is left to go to on this level")
+        # `clearing`: on a level with no route a plain fight goal ended the run (Great Marsh, 2026-10-19 09:01:51)
         return replace(first_fight(found, here, [guard], self.reach), clearing=True)
     spend = found.spend if found is not None else PRESSED
     everyone = self.agenda_policy is not None and self.agenda_policy(area) == FULL_CLEAR
-    things = run.things() if run.things is not None else ()  # read once a look: the super chests (`agenda_chests`)
+    things = run.things() if run.things is not None else ()  # read once a look
 
     def candidate(skip: frozenset[object]) -> Goal | None:
         target = self.agenda_target(run, world, foes, here, skip, rooms, None, things)
@@ -729,10 +678,8 @@ def agenda_target(
     side: Objective | None,
     things: Sequence[Thing] = (),
 ) -> Objective | None:
-    """The agenda's next target on this level (agenda.py `Agenda.in_level`) from what this look knows: the leaders
-    in sight and remembered alive (every hostile on a Full clear TZ), the hostiles (a drop's guards), a Herald's
-    omens, the side drop, the super chests among `things` (`agenda_chests`), the next unexplored room (asked only
-    when wanted), the goals passed."""
+    """The agenda's next target on this level (agenda.py `Agenda.in_level`) from what this look knows: leaders,
+    hostiles, omens, the side drop, super chests, the next unexplored room (lazily), the goals passed."""
     agenda, player = self.agenda, world.player
     assert agenda is not None
     assert player is not None
@@ -784,10 +731,8 @@ def agenda_target(
 
 
 def agenda_chests(self: Hunter, things: Sequence[Thing]) -> tuple[tuple[tuple[int, Point], ...], frozenset[int]]:
-    """The super chests (objects.txt 397, levels/model.py SUPER_CHEST) among the streamed `things`, for the
-    agenda's CHEST tier (2026-10-19, the player: "we don't open intermediate goals, like superchests ... open them
-    along the way"): (unit, place) of the closed ones (mode 0, not flagged unselectable), and the units seen open
-    or tried SUPER_TRIES times (`operate` counts them with the shacks' containers), never targets again."""
+    """Super chests (objects.txt 397) among `things` for the agenda's CHEST tier ("open them along the way", the
+    player, 2026-10-19): (closed (unit, place)s, units open or tried SUPER_TRIES times)."""
     closed, spent = [], set()
     for thing in things:
         if thing.txt_id != SUPER_CHEST:
@@ -800,10 +745,8 @@ def agenda_chests(self: Hunter, things: Sequence[Thing]) -> tuple[tuple[tuple[in
 
 
 def agenda_chest(self: Hunter, area: int, target: Objective, found: Goal | None, spend: Intent) -> Goal:
-    """The agenda's OPEN `target` as the run's goal: the super chest opened as a full clear's is
-    (`super_chest_goal`: a USE of a SUPER_CHEST mark, its tries counted in `operate`), a clearing goal of the
-    run's own (passed by `goes_on` with no progress; never the end of a level with no route, pursuit.py
-    `run_level`), the route of `found` kept for the log. Its spill is the drop tiers' at the next looks."""
+    """The agenda's OPEN `target` as a clearing goal, opened as `super_chest_goal`'s; `found`'s route kept for the
+    log."""
     assert target.place is not None
     x, y = target.place
     mark = Target(area, (), (x / TILE_UNITS, y / TILE_UNITS), 'Super chest', 'target', use=SUPER_CHEST)
@@ -822,9 +765,8 @@ def goal_key(self: Hunter, goal: Goal | None, rooms: Sequence[Room]) -> object |
 def taken_back(
     self: Hunter, candidate: Callable[[frozenset[object]], Goal | None], rooms: Sequence[Room], found: Goal | None
 ) -> Goal | None:
-    """The run's next goal (`candidate`), unless it is a clearing goal left for another less than TAKE_BACK ago
-    while that other would still be the goal without it: then that other (the run goes on with the goal it
-    took). The other gone (reached, dead, passed), the goal left is taken back."""
+    """The run's next goal, unless it is a clearing goal left for another within TAKE_BACK that would still be the
+    goal without it: then that other. The other gone, the goal left is taken back."""
     goal = candidate(frozenset())
     key = self.goal_key(goal, rooms)
     left = self.left_for.get(key) if goal is not None and goal.clearing else None
@@ -837,15 +779,14 @@ def taken_back(
 
 
 def went_for(self: Hunter, chosen: Goal | None, rooms: Sequence[Room], now: float) -> None:
-    """Notes the goal this look went for: a clearing goal the last look went for is left for this one when this
-    is another clearing goal (TAKE_BACK), unless it was passed. The route's own goal is no such other: it is what
-    the run goes to when no clearing goal is left (one out of sight a moment comes back to it at once)."""
+    """Note this look's goal: the last look's clearing goal is left for this one (TAKE_BACK) unless passed. The
+    route's own goal is never left so."""
     key = self.goal_key(chosen, rooms)
     went, self.went = self.went, key
     if went is None or chosen is None or not chosen.clearing or went == key or went in self.passed:
         return
     if isinstance(went, tuple) and went[:1] == ('the run',):
-        return  # the route's own goal is never left so: it is what the run is for
+        return  # the route's own goal: what the run is for
     if len(self.left_for) > 200:
         self.left_for.clear()
     self.left_for[went] = (now + TAKE_BACK, key)
@@ -854,11 +795,9 @@ def went_for(self: Hunter, chosen: Goal | None, rooms: Sequence[Room], now: floa
 def goes_on(
     self: Hunter, run: Run, world: World, ground: Ground, goal: Goal, rooms: Sequence[Room], now: float
 ) -> bool:
-    """Whether a level run's clearing goal is still gone for: True while it has not been gone for CLEAR_SECONDS
-    with no strike and no progress by the way (its way left by the means in hand, `Travel.eta`, down by
-    PROGRESS_SECONDS); else it is passed (`pass_by`) and False. Its judging goes on across other goals
-    (`Judging`). The way left is asked once in PROGRESS_LOOK seconds a goal, and before a pass: a walked field
-    of a far goal on ground just read is a cold Dijkstra (rca/2026-10-14/run-2040-findings.md)."""
+    """Whether a clearing goal is still gone for: False (and passed) after CLEAR_SECONDS with no strike and no eta
+    progress of PROGRESS_SECONDS. The eta is asked once in PROGRESS_LOOK and before a pass (a cold field is costly:
+    rca/2026-10-14/run-2040-findings.md)."""
     key = passing_key(goal.place, goal.unit, rooms)
     judging = self.judging.get(key)
     if judging is None:
@@ -888,11 +827,8 @@ def goes_on(
 
 
 def on_the_way(self: Hunter, run: Run, here: Point, drop: Drop, world: World | None, *, looped: bool = False) -> bool:
-    """Whether a valuable is near enough for a level run to take on its way (`side_drop`): PICK_NEAR by walking
-    (`walked_near`), not in a straight line. The Ith Rune of 22:36:09 on 2026-10-14 was 26 straight
-    and 226 by walking across the lava: taken for "on the way" from one side and not from the other, it had the
-    run warp back and forth 8 times (rca/2026-10-14/run-1932-findings.md §1.2.3). `looped`: the KP_6 loop's run,
-    which takes anything it reads that Teleport brings it to (`teleport_reach`): visible loot is taken now."""
+    """Whether a valuable is on the way: PICK_NEAR walked, not straight (straight made the run warp back and forth:
+    rca/2026-10-14/run-1932-findings.md §1.2.3). `looped`: the KP_6 loop also takes what Teleport brings it to."""
     if self.walked_near(run, here, drop, world):
         return True
     return looped and self.teleport_reach(run, here, drop, world)
@@ -910,10 +846,8 @@ def walked_near(self: Hunter, run: Run, here: Point, drop: Drop, world: World | 
 
 
 def teleport_reach(self: Hunter, run: Run, here: Point, drop: Drop, world: World | None) -> bool:
-    """Whether the navigator's way to `drop` is of Teleport hops (movement.py HOPS: they cross walls and lava) and
-    takes LOOP_PICK_SECONDS at most by its eta: the loop's run goes for it now (`on_the_way`). Judged once in
-    FAR_JUDGED a drop, said once a drop when it is gone for (18:22:17 on 2026-10-18: a Ko Rune 34.5 straight, 117
-    walked behind the character, left)."""
+    """Whether the way to `drop` is Teleport hops within LOOP_PICK_SECONDS (a Ko Rune 117 walked was left,
+    2026-10-18 18:22:17). Judged once in FAR_JUDGED a drop, said on change."""
     now = run.clock()
     judged = self.far_judged.get(drop.unit_id)
     if judged is not None and 0.0 <= now - judged[0] < FAR_JUDGED:
@@ -962,11 +896,9 @@ def rest_of(
     skip: frozenset[object] = frozenset(),
     rooms: Sequence[Room] = (),
 ) -> tuple[Point, str, int | None] | None:
-    """What a full clear goes for next on the character's level: the nearest hostile in sight, else the
-    nearest the tracker remembers alive where it was seen, else the first stop of the tour of the rooms not
-    explored yet (`frontier`, looked for once in REST_SECONDS: a potential over the whole level); as (place,
-    what, unit), no unit for a room. None: the level is clear as far as is known. What is passed, or in `skip`
-    (keys as `passing_key` makes them over `rooms`), is not gone for."""
+    """A full clear's next (place, what, unit): a Herald, an omen's pack or stand, the nearest hostile in sight, the
+    nearest remembered alive, the next unexplored room (unit None), the rest remembered. None: clear as far as
+    known. Passed goals and `skip` (`passing_key`s) are not gone for."""
     player = world.player
     assert player is not None
     area, now = player.area, run.clock()
@@ -1001,7 +933,6 @@ def rest_of(
     if room is not None and passing_key(room[0], None, rooms) not in out:
         return room
     if kept:
-        # The level toured: the ones remembered further off, nearest first
         x, y, unit = min(kept, key=lambda k: math.dist(here, (k[0], k[1])))
         return (x, y), 'the remembered monster', unit
     return None
@@ -1024,21 +955,18 @@ def next_room(self: Hunter, run: Run, player, area: int, now: float) -> tuple[Po
 
 
 def run_mode(self: Hunter, run: Run, area: int, posted: Pursuit | None) -> Mode:
-    """The run mode on level `area` at this look (macros/runmode.py): a double press of the pickup key whose
-    window is over switches it, for this level; a switch made on another level lapses. Said once a run and a
-    change (`Macro: run: ...`) while a level run is held."""
+    """The run mode on `area` (runmode.py): a closed double press of the pickup key switches it for this level; a
+    switch on another level lapses. Said on change."""
     now = run.clock()
     if self.switched is not None and self.switched[0] != area:
         self.switched = None
     with self.mailbox:
         pairs, self.taps = doubles(self.taps, now)
-    # Not on the KP_6 loop's run: its chests first, a terror zone or not (the player, 2026-10-16: "focus on reaching
-    # chests as fast as possible"; at 08:30:26 on 2026-10-17 Lower Kurast was terrorized and the run cleared it)
-    # Nor on any KP_6 loop's run (the player, 2026-10-19 ~02:12: "andy loop shouldn't focus on full clearing level.
-    # we're going to have separate mods"): a terror zone's work is the terror zone kinds' own, by their agenda
+    # No TZ full clear on KP_6 loops: "focus on reaching chests as fast as possible" (the player, 2026-10-16);
+    # "andy loop shouldn't focus on full clearing level. we're going to have separate mods" (2026-10-19)
     terror = self.bearings.terror(area) and not (posted is not None and (posted.rush or posted.looped))
     for first, last in pairs:
-        # Each double press by the clock, also one no look came in the window of (runmode.py `owed`)
+        # Every double press, also one no look saw in its window (runmode.py `owed`)
         before = mode_of(area, terror, self.switched)
         self.switched = (area, not before.clear)
         was, then = ('full clear', 'goal') if before.clear else ('goal', 'full clear')
@@ -1062,12 +990,9 @@ def run_mode(self: Hunter, run: Run, area: int, posted: Pursuit | None) -> Mode:
 
 
 def carry_on(self: Hunter, run: Run, left: Pursuit, onward: Pursuit) -> None:
-    """The level run walked across its level's open passage and goes on as the run of the level it leads into
-    (macros/pursuit.py `carried`; the player, 2026-10-15: "it should carry into the Chaos Sanctuary run"), said
-    `Macro: run: on into <level>`. A full clear the player switched to on the level left holds on this one (a
-    double-pressed full clear stays a full clear); a switch to the goal does not carry (the player, 2026-10-15),
-    and with none the level's own rules decide (`run_mode`: a terror zone is a full clear). The pace of the level
-    left is said, and the next level's counts anew."""
+    """The run walked across an open passage and goes on as the next level's ("it should carry into the Chaos
+    Sanctuary run", the player, 2026-10-15). A switched-to full clear carries; a switch to the goal does not. The
+    left level's pace is said, the next counts anew."""
     assert left.area is not None
     assert onward.area is not None
     if self.switched is not None and self.switched[0] == left.area:
@@ -1080,8 +1005,8 @@ def carry_on(self: Hunter, run: Run, left: Pursuit, onward: Pursuit) -> None:
 
 
 def nearby(self: Hunter, goal: Goal | None, here: Point) -> Goal | None:
-    """Attack mode's own goal (no level run, no fresh press): a boss's fight only within ALONE_BOSS_UNITS, else
-    none, said once a goal (the player, 2026-10-15: "only nearby")."""
+    """Attack mode's own goal: a boss's fight only within ALONE_BOSS_UNITS ("only nearby", the player,
+    2026-10-15), said once a goal."""
     if goal is None or goal.do != FIGHT or not goal.known or goal.gap(here) <= ALONE_BOSS_UNITS:
         return goal
     if self.far_said != goal.label:

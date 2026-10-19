@@ -1,15 +1,10 @@
 """Offline validation of the route catalogue against the level tables and the handlers.
 
-`problems` returns what is wrong, as text; an empty list is a sound catalogue:
-- complete: every level has one main script, or is exempt with a reason, never both;
-- well formed: a script ends by leaving the game or by its one way on; a route's scripts follow
-  each other through those ways on; a route starts at a waypoint;
-- linked: a way on by `enter` goes to a level the game joins to this one (routes/links.py);
-- acted on: an `enter` or `stand` names a mark the level's handler gives (or the level's own way
-  out to that level, which every level gets: levels/exits.py), a `use` a mark that sits on an
-  object, a `fight` a boss the game has; a stage that cannot be is `pending`, and a pending stage
-  that can be is an error too;
-- ending: from every level, following the main scripts' ways on reaches `leave` without a loop.
+`problems` returns what is wrong, as text; an empty list is a sound catalogue: complete (one main script per
+level, or exempt with a reason), well formed (a script ends by leaving or its one way on; routes chain through
+them and start at a waypoint), linked (routes/links.py), acted on (marks the handler gives, `use` on objects,
+`fight` a real boss; otherwise `pending`, and a pending stage that could act is an error) and ending (every
+level reaches `leave` without a loop).
 """
 
 from collections import defaultdict

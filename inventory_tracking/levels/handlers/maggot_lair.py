@@ -1,10 +1,6 @@
 """Maggot Lair 1-3: the stairs down, Coldworm's room and the way back.
 
-Levels 1-2 unconfirmed (D2MOO DRLGMAZE_PlaceAct2LairStuff, 2026-10-01): 'Lair Prev' and 'Lair Next'.
-Level 3 places 'Lair Prev', 'Lair Tight Spot S' (MagQueen.ds1: Coldworm the Burrower and the
-Staff of Kings chest) and 'Lair Treasure W' (a treasure room). Coldworm confirmed 2026-10-01: the
-user pressed Win+C standing at Coldworm, in the Tight Spot room (fixture maggot_lair_3_coldworm).
-The first version pointed at Treasure W.
+Coldworm is in 'Lair Tight Spot S', not 'Treasure W' (fixture maggot_lair_3_coldworm).
 """
 
 from inventory_tracking.levels.handler import Handler, PoiSpec, previous, stairs_down

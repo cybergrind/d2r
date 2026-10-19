@@ -1,8 +1,6 @@
 """Swampy Pit 1-2 and Flayer Dungeon 1-2: the stairs down and the way back.
 
-Unconfirmed (D2MOO DRLGMAZE_PlaceAct3DungeonStuff, 2026-10-01; no evidence yet): each level places
-one 'Dungeon Prev' and one 'Dungeon Next'. Swampy Pit 3 and Flayer Dungeon 3 (Khalim's Brain)
-are single 'Dungeon Treasure' presets covering the level, so they have no handler.
+Unconfirmed (D2MOO DRLGMAZE_PlaceAct3DungeonStuff). Level 3s are in treasure_levels.py.
 """
 
 from inventory_tracking.levels.handler import previous, stairs_down

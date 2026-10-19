@@ -1,15 +1,9 @@
-"""Read DS1 preset files (the game's map pieces, lvlprest File1..): warp tiles.
+"""Read DS1 preset files (the game's map pieces, lvlprest File1..): warp tiles, monsters, objects.
 
-Layout per Paul Siramy's DS1 notes, checked against the installed game on 2026-10-03 (all 2277
-files parse to their end): version, width - 1, height - 1, act (v8+), tag type (v10+), tile
-file names (v3+), two skipped ints (v9-13), wall and floor layer counts (v4+, floors v16+),
-then per wall layer its tiles and orientations, the floors, the shadow and the tags (tag type 1
-or 2), each width x height u32 row by row, then the objects (v2+): a count, and per object its type,
-id, x, y and (v6+) flags. A wall cell's main index is bits 20-25, the sub
-index bits 8-15; orientation is the low byte. Special tiles (orientation 10 and 11) with a
-main index 0-7 are warps: the index is the level's Vis/Warp slot (levels.txt), e.g. the Cold
-Plains Cave Entrance (CaveDr1.ds1) has main 5, and Cold Plains' Vis5 is Cave 1. Other main
-indexes there are markers (doors 8-16, town 30-33). Positions are tiles from the preset origin.
+Layout per Paul Siramy's DS1 notes; all 2277 installed files parse to their end (2026-10-03). A wall
+cell's main index is bits 20-25, orientation the low byte. Special tiles (orientation 10, 11) with main
+index 0-7 are warps: the index is the level's Vis/Warp slot (levels.txt; Cold Plains' CaveDr1.ds1 main 5 =
+Vis5, Cave 1). Other main indexes are markers (doors 8-16, town 30-33). Tile positions from the preset origin.
 """
 
 import struct
@@ -23,7 +17,9 @@ OBJECT = 2  # object type: an object, by its Index among its act's rows of objpr
 
 
 def _read(data: bytes):
-    """(wall layers as (cells, orientations), width, act, objects as (type, id, x, y)) of a DS1 file."""
+    """(wall layers as (cells, orientations), width, act, objects as (type, id, x, y)) of a DS1 file.
+    Order: version, width-1, height-1, act (v8+), tag type (v10+), tile file names (v3+), 2 ints (v9-13),
+    wall/floor layer counts (v4+/v16+), walls, floors, shadow, tags (type 1-2), objects (v2+, flags v6+)."""
     offset = 0
 
     def i32() -> int:
@@ -59,19 +55,15 @@ def _read(data: bytes):
 
 
 def monster_presets(data: bytes) -> tuple[int, list[tuple[int, int, int]]]:
-    """(act, 0-based; [(id, x, y)]) of the file's monsters: `id` is the row of monpreset.txt among
-    its act's rows, x and y are sub-tiles (world units) from the preset origin. Checked on
-    2026-10-06 against first sightings: the Travincal council, Coldcrow, fixed unique and
-    champion packs stood within 0-21 units of their object."""
+    """(act, 0-based; [(id, x, y)]) of the file's monsters: `id` the monpreset.txt row among its act's,
+    x, y sub-tiles from the preset origin (within 0-21 units of first sightings, 2026-10-06)."""
     _layers, _width, act, objects = _read(data)
     return act, [(found, x, y) for kind, found, x, y in objects if kind == MONSTER]
 
 
 def object_presets(data: bytes) -> tuple[int, list[tuple[int, int, int]]]:
-    """(act, 0-based; [(id, x, y)]) of the file's objects: `id` is the objpreset.txt Index among
-    its act's rows, x and y are sub-tiles (world units) from the preset origin. Checked on
-    2026-10-07 against the Catacombs 2 waypoint seen in memory (evidence 35/20261005T064253):
-    the file says (19, 24), the object stood at (20, 26)."""
+    """(act, 0-based; [(id, x, y)]) of the file's objects: `id` the objpreset.txt Index among its act's
+    rows, x, y sub-tiles from the preset origin (Catacombs 2 waypoint within 2 units, 2026-10-07)."""
     _layers, _width, act, objects = _read(data)
     return act, [(found, x, y) for kind, found, x, y in objects if kind == OBJECT]
 

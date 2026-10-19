@@ -2,7 +2,7 @@
 UV ?= uv run --offline
 COLLECTION_HTML ?= inventory_tracking/runs/collection/collection.html
 
-.PHONY: export open serve collect equipped status test hud traderie-preview
+.PHONY: export open serve collect equipped status test test-all lint hud traderie-preview
 
 ## export: write the searchable single-file HTML from the collection database
 export:
@@ -39,9 +39,19 @@ equipped:
 status:
 	$(UV) python -m inventory_tracking.collection status
 
-## test: collection tests
+## test: the routine lane, slow arena plays aside (6 workers while the game is not running, tests/conftest.py)
 test:
-	$(UV) pytest tests/inventory_tracking/collection -q
+	$(UV) pytest tests/inventory_tracking tests/skills -q -m "not slow" -n 6
+
+## test-all: every test, the slow arena plays among them (before a commit)
+test-all:
+	$(UV) pytest tests -q -n 6 --dist loadgroup
+
+## lint: ruff and pyrefly over the repository
+lint:
+	$(UV) ruff check .
+	$(UV) ruff format --check .
+	$(UV) pyrefly check
 
 .PHONY: combat-viz combat-view combat-view-check stance-viz stance-view
 

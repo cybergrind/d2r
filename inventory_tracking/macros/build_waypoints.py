@@ -1,10 +1,9 @@
-"""Build data/waypoints.json: the waypoint panel's tab and row of every level with a waypoint, from the installed
-game's levels.txt (routes/lower-kurast-loop-plan.md phase 2).
+"""Build data/waypoints.json: the waypoint panel's tab and row of every level with a waypoint, from levels.txt.
 
     uv run --offline python -m inventory_tracking.macros.build_waypoints <install>
 
-levels.txt numbers the waypoints in panel order (`Waypoint`, 0 the Rogue Encampment's, 255 none); a level's tab is
-its `Act` and its row the waypoint's place after its act's first (the act's town).
+levels.txt numbers the waypoints in panel order (`Waypoint`, 255 none); the tab is the level's `Act`, the row its
+place after the act's first waypoint (the town's).
 """
 
 import json

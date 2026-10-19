@@ -1,12 +1,6 @@
 """Kurast Bazaar and Upper Kurast: the gates, both temples, both sewer entrances and the waypoint.
 
-Unconfirmed (from D2MOO DrlgOutPlace/DrlgOutJung and d2data, 2026-10-01; no evidence yet). Each
-level has a gate in its north border (the level ahead) and one in its south border (the way
-back), 'Burbs Waypoint', two sewer entrances into Sewers 1 (DS1 files 0 and 1) and two temples.
-A temple preset is spawned once with file 0 and once with file 1; the files are named after the
-level's vis slots (BurbsTemple2/3.ds1, MetroTemple2/3.ds1; levels.json Vis2/Vis3), so file 0
-leads to Vis2 and file 1 to Vis3. Kurast Causeway (82) is one 48x16 'Bridge' preset covering
-the whole level, so it has no handler.
+Temple file 0 leads to Vis2, file 1 to Vis3: the files are named after the slots (BurbsTemple2/3.ds1).
 """
 
 from inventory_tracking.levels.handler import Handler, PoiSpec, waypoint

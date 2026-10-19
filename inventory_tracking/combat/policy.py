@@ -1,23 +1,13 @@
-"""Where to cast now: one decision for the simulator and for the game (combat/plan.md stage 5; the
-steer of 2026-10-10: the simulated gain belonged to code the game never ran).
+"""Where to cast now: one decision for the simulator and for the game (combat/plan.md stage 5).
 
-A policy is a callable from an `Observation` (the character, the live hostiles with the points they
-have left, the monsters a link of the character's own units holds, the walls, whether the player is
-moving) to a `Choice` (the focal point to cast at and the monster the line was laid through) or None.
-A simulator builds the observation from a take's frame (a build's own: builds/warlock/echoing_strike/
-sim/engine.py); the hunt builds it from the game's memory (`observe`, called by macros/hunt.py, and
-the attack's `sees` for the link). What a build's cast is worth and where it goes is the build's
-(macros/build.py `Attack`; the line sweep of the Echoing Strike Warlock is builds/warlock/
-echoing_strike/attack.py `LinePolicy`). One policy is the framework's own:
+A policy maps an `Observation` (the character, live hostiles with their points left, linked monsters, walls,
+whether the player is moving) to a `Choice` (focal point and the monster the line was laid through) or None. A
+build's simulator builds the observation from a take's frame; the hunt from memory (`observe`). What a cast is
+worth is the build's (macros/build.py `Attack`). `NearestPolicy` (the elite first, then the nearest within
+STRIKE_REACH, AIM_BEYOND past it) is the framework's own: the baseline a build's policy is compared with.
 
-`NearestPolicy`, the hunt's rule of 2026-10-09: the elite first, then the nearest monster within
-STRIKE_REACH with a clear line, the focal point AIM_BEYOND past it. It is the historical baseline a
-build's policy is compared with on the same takes. The live fight's own fallback (macros/hunt.py
-`Hunter.choose`, for a monster in reach the attack finds no line for) is a rule of the same shape over
-the attack's full reach, not this class.
-
-`Observation.linked`, `share` and `marked` are the Warlock's facts under plain names (the Defiler's
-Health Link, Death Mark): the fields stay until a second build shows what an attack's own facts are.
+`Observation.linked`, `share` and `marked` are the Warlock's facts (Health Link, Death Mark) under plain names,
+until a second build shows what an attack's own facts are.
 """
 
 import math
@@ -31,9 +21,7 @@ from inventory_tracking.levels.geometry import Point
 
 
 RUN_MODES = frozenset((2, 3, 6))  # walk, run, town walk: the character is going somewhere
-# The two below are read by the framework and by the build's sweep alike, so they stay here. Both were
-# set with the Echoing Strike Warlock's blades (builds/warlock/echoing_strike/attack.py) and no other
-# attack has tested them.
+# Read by the framework and the build's sweep alike; set with the Echoing Strike Warlock's blades only.
 MIN_FOCAL = 4.0  # units: no focal point nearer the character than this
 MIN_SCORE = 1.0  # points: a line worth casting along
 ELITE_WEIGHT = (
@@ -102,8 +90,7 @@ class NearestPolicy:
     yields: bool = False  # the hunt of 2026-10-09 cast whatever the player did
     reach: float = STRIKE_REACH
     beyond: float = AIM_BEYOND
-    # Points a cast takes off a monster of a type: the worth the choice is given, by a build's damage
-    # table. It has no default: the framework has no damage table of its own.
+    # Points a cast takes off a monster of a type (a build's damage table; the framework has none).
     damage_of: Callable[[int], float] = field(kw_only=True)
 
     def __call__(self, seen: Observation) -> Choice | None:
@@ -126,12 +113,9 @@ class NearestPolicy:
 
 
 def walls(ground: Any, doors: Sequence[Any] = ()) -> Callable[[Point], bool] | None:
-    """Whether a point stops a blade: a cell the grid's flight layer says a missile does not fly
-    through (the block-missile bit, native/layout.py), an unread cell when the level has walls (a
-    room not loaded), or a closed door standing there. None without walls or closed doors. A cell
-    that only blocks walking does not stop a blade (the Catacombs takes of 2026-10-10 11:24 UTC:
-    recorded blades over block-walk cells for up to 16 frames), and a grid without a flight layer
-    (a level map before 11:44 UTC) stops none."""
+    """Whether a point stops a blade: a cell with the block-missile bit (native/layout.py), an unread cell when the
+    level has walls, or a closed door. None without walls or doors. Block-walk alone does not stop a blade (blades
+    recorded over such cells, Catacombs 2026-10-10); a grid without a flight layer stops none."""
     closed = [door for door in doors if door.closed]
     walled = ground is not None and len(ground) > 0
     if not walled and not closed:
@@ -155,11 +139,9 @@ def observe(
     moving: bool = False,
     aimable: Callable[[Point], Point | None] | None = None,
 ) -> Observation:
-    """The observation of the running game: `player` and the monsters are game/records.py records
-    (`hostiles` the ones that may be struck). A monster's points are its type's in the character's
-    area by the life fraction the client shows. `companions`, the character's own units, are not
-    read here: what an attack reads off them (a link they hold between monsters) is its `sees`
-    (macros/build.py `Attack`), asked by the caller with the same units."""
+    """The observation of the running game from game/records.py records (`hostiles`: the ones that may be struck).
+    A monster's points: its type's in the area by the client's life fraction. Companions are read by the attack's
+    `sees` (macros/build.py `Attack`), not here."""
     foes = {}
     for m in hostiles:
         full = points_of(m.txt_id, player.area)

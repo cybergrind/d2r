@@ -1,12 +1,8 @@
 """Build-gated live sampling, reconnect lifecycle, and diagnostic publication.
 
-The unit table is found by a code signature (native/capture.py), and D2R.exe's code pages are
-decrypted lazily, so in the menus the signature's page is often still encrypted and the scan finds
-nothing: "unit table unavailable; enter a game with a character". The table's RVA is a constant of
-the build, so a successful scan is remembered per executable sha256, the build gate's own
-fingerprint and not the capture's hash, which is of the memory image (`unit-table.json` beside the
-run directories) and a later attach in the lobby takes it from there (user, 2026-10-10: `make serve`
-restarted in the lobby, then the macro request did nothing because nothing had attached).
+The unit table is found by a code signature (native/capture.py), but D2R.exe's code pages decrypt lazily, so
+in the menus the scan often finds nothing. The table's RVA is a build constant, so a successful scan is
+remembered per executable sha256 (`unit-table.json`) and a later attach in the lobby takes it from there.
 """
 
 import json

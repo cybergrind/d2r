@@ -1,14 +1,10 @@
 """The canvas: one transparent, click-through layer-shell surface over the game's working area.
 
-Anchored to all edges with exclusive zone 0, it covers exactly niri's workspace view, so niri's
-window positions are canvas coordinates. It reads the scene every refresh, lays widgets out in
-game-window slots, redraws only when the layout changes, and unmaps when there is nothing to
-show, so a fullscreen game keeps direct scanout. The widgets of `desktop_slots` have a second
-surface on `desktop_output`, shown whatever has the focus; without that output they fall back to
-this canvas (with the game's focus in the game window, otherwise on the output the canvas is on). While an item
-panel is open (hud/live.py OpenPanels, read every frame) the slots of `dim_slots` are drawn faint. While
-the game is in controller mode (hud/live.py InputModeByte, read every refresh) the slots of
-`controller_slots` replace the others' positions.
+Anchored to all edges (exclusive zone 0), it covers niri's workspace view, so niri's window positions are canvas
+coordinates. Each refresh it reads the scene, lays widgets out in game-window slots, redraws only on a layout change,
+and unmaps when empty, so a fullscreen game keeps direct scanout. `desktop_slots` get a second surface on
+`desktop_output`, shown whatever has the focus (no such output: this canvas). Open item panels dim `dim_slots`;
+controller mode swaps in `controller_slots` (hud/live.py).
 """
 
 import signal

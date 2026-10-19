@@ -5,12 +5,9 @@ Parent ...` rolls `Act N Terrorize Act Consumable` (the five shards, weighted) a
 Terrorize Consumable` (even), and their `ConditionCalc` lets the first pay outside Terror Zones
 and the second inside. Negative `Picks` take the entries in order, each `Prob` times.
 
-Which act's table an elite rolls on is not its monster's own class but the class it is
-*upgraded* to: in Hell the game replaces a monster's class by the last one of the same `group`
-whose `level` its monster level reaches (the classic rule; the levels are in the table). A
-level-73 Catacombs champion (monster level 75) so drops from `Act 3 (H) Champ B`, whose shard
-parent is Act 5's, the Northern one (user, 2026-10-07: Catacombs gave mostly Northern shards).
-Runtime code (terror/shards.py) does the upgrade; this table keeps the classes and their groups.
+An elite rolls on the act table of its *upgraded* class (terror/shards.py does the upgrade;
+this table keeps the classes, levels and groups): a Catacombs champion drops from
+`Act 3 (H) Champ B`, Act 5's Northern parent (user, 2026-10-07: mostly Northern shards there).
 
 Shard class IDs come from the item decoder's d2data copy, as the runes do (loot/build_runes.py).
 Run: uv run --offline python -m inventory_tracking.terror.build_shards "<install>"

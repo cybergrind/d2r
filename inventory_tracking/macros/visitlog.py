@@ -1,18 +1,11 @@
-"""The town visit's snapshots (rca/2026-10-18/arch-town-planning.md §4, step M0): what a visit holds at its start and
-after each stop, written as JSON beside the service's probe.log (`visits/<HHMMSS>.json`, one file a visit), and the
-codec that reads them back, so a visit can be replayed offline (macros/townplan.py `plan_visit`) and today's misses
-kept as test fixtures.
+"""The town visit's snapshots (rca/2026-10-18/arch-town-planning.md §4): what a visit holds at its start and after
+each stop, as JSON beside the service's probe.log (`visits/<HHMMSS>.json`), and the codec reading them back for offline
+replay (townplan.py `plan_visit`) and test fixtures. No game reads of its own; never raises into the visit.
 
-No game read of its own: a snapshot is made of what the visit has already read. Nothing here raises into the visit:
-a file that cannot be written is logged once and the visit goes on (`Recorder`).
-
-The file: `{"version": 1, "visit": "<HHMMSS>", "stops": [<snapshot>, ...]}`, the stops `start` (after Cain and the
-verdicts: the plan's input), `stash` (after the stash stop, before any transmute), `shops` (after Jamella and Halbu),
-`end` (the pack the contract is checked on, with its misses). A snapshot: the pack (inventory items, the cube's rows and
-items, keys, portals, pointer), the stash view (every page's rows and items, the resource stacks; `start` and `stash`
-only), the player's own cells, the junk and the unidentified unit ids, the full stacks, the gold and its cap (once the
-stash stop has read them), the needs, the exit, the contract's misses (`end`) and the plan's predicted misses (`start`).
-An item is `[unit, class, x, y, across, down, quality, identified, unique]`.
+The file: `{"version": 1, "visit": "<HHMMSS>", "stops": [<snapshot>, ...]}`, stops `start` (after Cain and the
+verdicts), `stash` (before any transmute), `shops` (after Jamella and Halbu), `end` (with the contract's misses). The
+stash view is in `start` and `stash` only; the plan's predicted misses in `start`. An item is
+`[unit, class, x, y, across, down, quality, identified, unique]`.
 """
 
 import json
@@ -52,7 +45,7 @@ FOLDER = 'visits'  # beside probe.log: runs/alt-d/<service>/visits/<HHMMSS>.json
 
 @dataclass(frozen=True)
 class Snapshot:
-    """What a visit holds at one of its stops (the module text): enough for `townplan.plan_visit` to replay it."""
+    """What a visit holds at one stop: enough for `townplan.plan_visit` to replay it."""
 
     stop: str
     pack: Pack
@@ -216,8 +209,7 @@ def load(path: Path) -> tuple[Snapshot, ...]:
 
 
 def session_directory() -> Path | None:
-    """The service's run directory: where its probe.log is written (appraisal/service.py `serve`), None with none (a
-    test, the CLI)."""
+    """The service's run directory (where probe.log is written), None outside the service."""
     try:
         for handler in tuple(LOG.handlers):
             if isinstance(handler, logging.FileHandler) and Path(handler.baseFilename).name == 'probe.log':
@@ -229,10 +221,8 @@ def session_directory() -> Path | None:
 
 @dataclass
 class Recorder:
-    """One visit's file: each `note` adds a snapshot and writes the file again (a visit cut short keeps what it had).
-    `directory` None: nothing is written (`active` False). Never raises: a failure is logged once, then it stops.
-    `view`: the stash as the visit read it after its stop; `coins`, `cap`: the gold as read there, told to every
-    snapshot."""
+    """One visit's file, rewritten on each `note` (a visit cut short keeps what it had). `directory` None: nothing is
+    written. Never raises: a failure is logged once, then it stops. `view`, `coins`, `cap`: as read at the stash."""
 
     directory: Path | None = field(default_factory=session_directory)
     clock: Callable[[], datetime] = datetime.now
@@ -272,8 +262,7 @@ class Recorder:
             LOG.info('Macro: visit snapshot: not written: %s', error)
 
     def gold(self, coins: int | None, cap: int | None) -> None:
-        """The gold and its cap as the stash stop read them, told to the snapshots made before (the start's) and after
-        (written with the next `note`)."""
+        """The gold and its cap as the stash stop read them, for the snapshots before and after."""
         self.coins, self.cap = coins, cap
         for stop in self.stops:
             if stop.get('gold') is None:

@@ -273,7 +273,7 @@ unresolved fields.
   panel shows them; resistances are raw (before the Hell −100 and the 75 cap).
 
 - 2026-09-27 — Stash watcher: `native/layout.py` `UI_PANELS_RVA`/`PANEL_FLAGS` (open-panel
-  byte array at `0x1ebd158`, anchored by 129 captured images, layout_notes.md),
+  byte array at `0x1ebd158`, anchored by 129 captured images, inventory_tracking/history/layout_notes.md),
   `tracking/panels.py` `observe_panels`, `collection/watch.py` `StashWatcher` (one
   collection per stash open → closed edge, polled from the service loop),
   `Collector.request(trigger=)` with quiet failures for watcher runs,
@@ -283,7 +283,7 @@ unresolved fields.
 
 ## Steps and gates
 
-0. **Research pass** (R1–R7) → `research.md`, fixtures, updated `layout_notes.md`.
+0. **Research pass** (R1–R7) → `research.md`, fixtures, updated `inventory_tracking/history/layout_notes.md`.
    Gate: tab mapping and fingerprint rule verified on two sessions.
 1. **Models and store**: pydantic models, SQLite schema, upsert and sighting
    closure rules, tested on fixtures. Gate: replaying two fixture captures produces

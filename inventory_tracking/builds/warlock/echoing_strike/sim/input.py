@@ -1,12 +1,7 @@
-"""The input model (combat/plan.md stage 5): presses of the strike button become casts.
-
-From the takes (2026-10-09/10): the game casts every CAST_FRAMES while the button is down or
-tapped (cast bouts of 0.36-0.40 s), a press during a cast queues one more that starts when the
-current one ends (384 presses gave 237 cast animations on the first take), the blades appear
-BIRTH_LAG frames after the cast starts (4-5 recorded), and the focal point is the ground under the
-pointer POINTER_LEAD frames before the cast starts (the pointer 6 frames before the birth).
-`validate_inputs` checks the model against a take: its predicted births against the recorded
-blades' first frames.
+"""The input model (combat/plan.md stage 5): presses of the strike button become casts. The game casts every
+CAST_FRAMES while the button is down or tapped, a press during a cast queues one more, the blades appear BIRTH_LAG
+frames after the cast starts, and the focal point is the ground under the pointer POINTER_LEAD frames before it.
+`validate_inputs` checks the predicted births against a take's recorded blades.
 """
 
 from collections.abc import Callable

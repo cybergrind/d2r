@@ -1,18 +1,13 @@
 """Worldstone Shards: what each elite kill should drop, the kills and the drops seen, and the two compared.
 
-Only Hell champions, uniques, super uniques and Heralds have a shard entry (terror/data/shards.json,
-built by build_shards.py from the installed game). Outside a Terror Zone the shard is drawn from
-one of five act tables; inside, and for every Herald, from the even one. Which act table is the
-elite's *upgraded* class: the last class of its group whose level the monster's level reaches
-(area level, or the monster's own for a boss monster; +2 for a champion, +3 for a unique or a
-super unique). So the mix follows the level of the area, not its act. That rule is the classic
-game's and is unconfirmed on this build beyond the user's Catacombs drops (2026-10-07): the
-report below is how it gets checked.
+Only Hell champions, uniques, super uniques and Heralds drop shards (data/shards.json, built by
+build_shards.py). Outside a Terror Zone the shard comes from one of five act tables, picked by
+the elite's *upgraded* class (the last class of its group the monster's level reaches: area level
+or a boss's own, +2 champion, +3 unique); inside a zone, and for Heralds, from the even table.
+That rule is the classic game's, unconfirmed on this build (2026-10-07): this report checks it.
 
-`ShardWatch` turns the probe's events into two more: `elite_kill` (a pack leader's first death,
-with its kind and whether the area was terrorized) and `shard` (a shard item first seen on the
-ground: carried ones are known from the start, so dropping your own is no drop). Both go to
-terror-probe.jsonl with the rest.
+`ShardWatch` adds two probe events to terror-probe.jsonl: `elite_kill` (a pack leader's first
+death) and `shard` (a shard first seen on the ground; carried ones are known from the start).
 
     uv run --offline python -m inventory_tracking.terror.shards [--levels] [terror-probe.jsonl ...]
 """

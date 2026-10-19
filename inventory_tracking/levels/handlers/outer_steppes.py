@@ -1,10 +1,6 @@
 """Outer Steppes: the gap to the Plains of Despair and the way back to the Pandemonium Fortress.
 
-Unconfirmed (from D2MOO DrlgOutdoors/DrlgOutPlace and d2data, 2026-10-01; no evidence yet). The
-level has no waypoint. The Fortress side is one 'Act 4 - Fortress Transition' preset (8x24,
-spawned in Outer Steppes by the 0x400000/0x800000 outdoor flags). Level links are Act 4 border
-gaps: 'Mesa Border 1-4' in the open DS1 file (Border*o.ds1 = file 3; there is no 'oe' file).
-Its only gap leads to the Plains of Despair, so an unread gap is named by elimination.
+Act 4 border gaps are 'Mesa Border 1-4' file 3 (Border*o.ds1; D2MOO DrlgOutPlace).
 """
 
 from inventory_tracking.levels.handler import ACT4_GAP, Exit, ExitsHandler, PoiSpec

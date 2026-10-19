@@ -1,12 +1,10 @@
 """Threat models a decision loop prices by: one module per kind of hostile whose harm depends on what it is doing
-now and where the character will be, not only on where it stands (rca/2026-10-13/diablo.md section 5).
+now and where the character will be (rca/2026-10-13/diablo.md section 5).
 
-The decision loop (combat/harm.py, macros/safety.py) knows them only through this registry: `of(txt)` gives the
-read model of a monster class or None (the loop's stand-ins then price it). A model says which missile classes it
-needs read off the game (`Threat.missiles`), prices a hostile in its act against the character's way
-(`Threat.exposure`: parts the loop's rollouts draw as events, raw points before the character's protection) and
-offers the places its own geometry makes safer (`Threat.escapes`). No tactic is in a model: the arbiter compares
-the prices of the places it is offered.
+combat/harm.py and macros/safety.py know them only through `of(txt)` (None: their stand-ins price it). A model names
+the missile classes to read (`Threat.missiles`), prices a hostile's act against the character's way
+(`Threat.exposure`, raw points before protection) and offers places its geometry makes safer (`Threat.escapes`).
+No tactic is in a model: the arbiter compares the prices of the places it is offered.
 """
 
 from collections.abc import Callable, Mapping, Sequence
@@ -113,9 +111,8 @@ def masters(txt: int) -> frozenset[int]:
 
 
 def bound(units: Mapping[int, int]) -> dict[int, tuple[int, ...]]:
-    """Of the hostiles `units` (unit -> class), each bound to a summoner among them (`masters`), with the units of its
-    possible summoners there: it dies when they do, so a strike on it is lost while they live (rca/2026-10-14/
-    baal-sim.md fix 2). The client names no summoner: every hostile of a master class about counts."""
+    """Of `units` (unit -> class), each bound to a summoner among them (`masters`) -> its possible summoners' units:
+    a strike on it is lost while they live (rca/2026-10-14/baal-sim.md fix 2). Any hostile of a master class counts."""
     found: dict[int, tuple[int, ...]] = {}
     for unit, txt in units.items():
         classes = masters(txt)

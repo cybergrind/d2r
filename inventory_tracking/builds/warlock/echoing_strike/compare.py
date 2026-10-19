@@ -1,13 +1,9 @@
-"""Macro against manual, from the takes (combat/plan.md stage 6).
+"""Macro against manual, from the takes (combat/plan.md stage 6), no simulator involved.
 
-`combat compare <takes directory>` reads every take and says, per take and per level and side, what
-the play was worth by what the record shows, no simulator involved: the life points the hostiles
-lost per combat second (every source: blades, companions, the link), the kills per combat minute,
-and how the character spent its opportunities: of the frames in which a hostile stood within the
-hunt's reach with a clear line, the share spent casting, running and standing. A take is the
-macro's when most of its casts were made while a macro run was acting (the recorder's `macro` flag),
-else manual. The standing share is the macro's cost: 17-66% in the Catacombs takes of 2026-10-10
-against 12-21% of the player's own play, before the fight became one held strike.
+`combat compare <takes directory>` says per take, level and side what the play was worth: hostile life lost per
+combat second (every source), kills per combat minute, and of the frames with a target in reach and a clear line,
+the shares spent casting, running and standing. A take is the macro's when most of its casts were made while a
+macro run acted (the recorder's `macro` flag).
 """
 
 import statistics

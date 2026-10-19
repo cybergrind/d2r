@@ -67,7 +67,7 @@ research notes in `inventory_tracking/collection/`.
 
 With `--stash-auto` (default since 2026-09-27; `--no-stash-auto` disables it) the
 worker polls the game's open-panel flags twice a second (`--stash-poll-seconds`,
-`layout_notes.md` "Open-panel flags") and runs the Win+S collection by itself every
+`history/layout_notes.md` "Open-panel flags") and runs the Win+S collection by itself every
 time the stash panel goes from open to closed: sort the stash, close it, and the
 database and page are refreshed without a key press. One visit yields one capture;
 a game exit with the stash open is logged, not announced. Reports carry

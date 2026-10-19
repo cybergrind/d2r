@@ -1,17 +1,9 @@
-"""The Teleport staff's charges back by a repair at Halbu (the KP_6 loop's leg in Pandemonium Fortress).
+"""Halbu's Repair All in Pandemonium Fortress: the Teleport staff's charges (and worn gear) back for gold.
 
 The player, 2026-10-17: "we can start thinking on repairing teleport charges and getting some money, to travel more
-efficiently". A repair refills a charged item's charges and costs gold; the loop's level run spares the staff (travel.py
-`LOOPED`: Blade Warp first, Teleport where it does not reach, the last charges kept), so more charges are faster runs.
-
-When: in Pandemonium Fortress before the way to the chests, the staff under REPAIR_BELOW of its maximum charges
-(`wants`); not again for RETRY_GAMES games after a visit that did not raise them (no gold, a click off).
-
-The steps (`repair`): Halbu (monstats *hcIdx 257, shop/capture.py VENDORS) walked to and his menu opened as Jamella's
-is (shop.py, `serving`); his Trade/Repair line clicked at each of `lifts` until his vendor panel shows (his menu has a
-line fewer than hers, Gamble: the line is not where hers is, so a lift a line lower is tried first); the panel's Repair
-All button clicked (the game's vendorpanellayouthd.json, read 2026-10-17: `button_repair_all` at (877, 1277) in the left
-panel, its sprite 116 x 116 a frame); the charges read again; his windows closed. The gold before and after is said.
+efficiently". `wants`/`due` decide a visit; `repair` walks to Halbu, opens his Trade/Repair line (shop.py `menu_line`),
+reads the quoted cost off the Repair All tooltip (OCR) and clicks only when the carried gold covers it. Tuning history:
+history/repair.md.
 """
 
 import re
@@ -42,22 +34,15 @@ from inventory_tracking.macros.waypoint import panel_point
 
 __all__ = ['HALBU', 'REPAIR_BELOW', 'WEAR_BELOW', 'WEAR_CARRIED', 'back', 'due', 'repair', 'wants', 'worn_out']
 
-HALBU = 257
-# Of the staff's maximum charges, for a visit of its own: with Teleport in the loop's moves (~7.5 charges a stay) the
-# visits at half cost 3.9 s a cycle (15:28-15:43 on 2026-10-17); a trade session tops it up anyway (macros/loop.py
-# `topped`), so a visit of its own waits for under 30% (21 of 69: ~1.5 stays over the 10 kept, travel.py LOW_CHARGES)
-# 0.3 → 0.2 at 17:25: each errand is a whole session (loop.py `errand`); 14 of 69 still keeps a stay over the 10
+HALBU = 257  # monstats *hcIdx
+# Of the staff's maximum charges, for a visit of its own; a trade session tops it up anyway (loop.py `topped`)
 REPAIR_BELOW = 0.2
-# Of a worn item's durability, for a visit of its own: Teleport of the character's own (Enigma, 22:26 on 2026-10-17)
-# leaves the staff's charges full, and their repairs had been what mended the rest of the gear on the way. Enigma read
-# 33 of 60 then; at none an item gives nothing (its Teleport gone with it)
-WEAR_BELOW = 0.4
-# A repair for durability alone has no cost to expect (the quotes are the charges', `expected`): only a cost read off
-# the tooltip is paid, and only with this much carried, so that a digit lost to the OCR cannot reach the stash's gold
-WEAR_CARRIED = 200_000
-RETRY_GAMES = 3  # with Teleport in the moves the charges run out in about three games (16:32 on 2026-10-17)
+WEAR_BELOW = 0.4  # of a worn item's durability, for a visit of its own (Enigma's Teleport leaves the staff full)
+WEAR_CARRIED = 200_000  # carried for a durability-only repair: no quote to check its read cost against
+RETRY_GAMES = 3  # games before a visit that raised nothing is tried again
 HIS_SEEN = (0.1, 0.9, 0.42, 0.8)  # window fractions he is walked to be drawn within: his menu is high over him
-REPAIR_ALL = (877 + 116 / 2, 1277 + 116 / 2)  # layout units in the left panel: the Repair All button's middle
+# vendorpanellayouthd.json `button_repair_all` at (877, 1277), sprite 116 x 116: layout units, the button's middle
+REPAIR_ALL = (877 + 116 / 2, 1277 + 116 / 2)
 WAYPOINT_SEEN = (0.15, 0.85, 0.15, 0.8)  # window fractions the waypoint is walked to be drawn within (shop.py)
 REPAIR_SECONDS = 2.0  # for the charges to show the repair
 GOLD_SETTLE_SECONDS = 2.0  # for the gold stats to show it after the charges
@@ -65,30 +50,25 @@ LIFT: list[float] = []  # the lift that opened his panel last
 QUOTED: list[int] = []  # the cost the game quoted at the last visit: none again before the carried gold covers it
 
 
-# A vendor takes what the carried gold does not cover from the stash's (D2MOO SUnitNpc.cpp 1782-1795: STAT_GOLDBANK),
-# so the game's quoted cost is read before the click (`quoted`); the player, 2026-10-17: "you can repair only on
-# collected gold in the inventory". STASH_TOUCHED turns repairs off if the stash's gold ever moves.
+# A vendor takes what the carried gold does not cover from the stash's (D2MOO SUnitNpc.cpp 1782-1795: STAT_GOLDBANK).
+# The player, 2026-10-17: "you can repair only on collected gold in the inventory". STASH_TOUCHED turns repairs off.
 GOLDBANK = 15  # itemstatcost.txt `goldbank`: the stash's gold
-# The share of the carried gold a repair may cost: under it the vendor takes nothing from the stash's. 0.9 refused
-# 101,803 with 107,753 carried (12:41:43 on 2026-10-17), 0.98 102,206 with 104,270 (13:12:13); a misread cost is caught
-# by the quote's gold a charge, and a last digit read wrong is under the 1% left
+# The share of the carried gold a repair may cost (0.9 and 0.98 refused real repairs on 2026-10-17)
 CARRIED_SHARE = 0.99
 UNREAD_COVER, UNREAD_EXTRA = 2.0, 50_000  # an unread cost is safe with this many times the expected, and more, carried
 QUOTE_DRIFT = 0.25  # the share a read cost may differ from the last quote by and be trusted
 TOOLTIP_SECONDS = 0.6  # for the button's tooltip to show
 TOOLTIP_BAND = (720, 90)  # screen pixels: the band read for the cost, across the pointer
 TOOLTIP_ABOVE = 100  # its top over the pointer (the tooltip's line is 30 to 65 over it)
-# tesseract's page modes tried in turn: a line (7) read nothing of "Repair all equipment: 101803" at 12:39:19 on
-# 2026-10-17, where a block (6) read the number in all twelve pictures kept that day, and 13 (a raw line) too
-PAGE_MODES = ('7', '6', '13')
-# English data for tesseract: the system's has none (/usr/share/tessdata held afr and osd on 2026-10-17)
+PAGE_MODES = ('7', '6', '13')  # tesseract page modes in turn: a line alone missed costs a block (6) read
+# English data for tesseract: the system's has none
 TESSDATA = Path(__file__).resolve().parents[2] / 'tmp' / 'item-ocr' / 'tessdata'
 QUOTE_FILE = Path(__file__).resolve().parents[1] / 'runs' / 'alt-d' / 'repair-quote.txt'
 STASH_TOUCHED = Path(__file__).resolve().parents[1] / 'runs' / 'alt-d' / 'repair-touched-stash.txt'
 
 
 def quote() -> int | None:
-    """The cost the game quoted last (QUOTE_FILE: kept across restarts of the service), None none."""
+    """The cost the game quoted last (QUOTE_FILE survives restarts), None none."""
     if not QUOTED:
         try:
             QUOTED[:] = [int(word) for word in QUOTE_FILE.read_text().split()[:2]]
@@ -98,23 +78,19 @@ def quote() -> int | None:
 
 
 def per_charge() -> float | None:
-    """The gold a charge cost at the last quote (QUOTE_FILE's second word: the charges it was for), None unknown."""
+    """The gold a charge cost at the last quote, None unknown."""
     quote()
     return QUOTED[0] / QUOTED[1] if len(QUOTED) > 1 and QUOTED[1] > 0 else None
 
 
 def expected(missing: int) -> int | None:
-    """The cost to look for with `missing` charges to refill: the last quote's gold a charge times them, else the
-    last quote (the cost is the charges': 62,918 for 37 at 12:08:37 on 2026-10-17, 101,677 for 60 at 12:04:09)."""
+    """The cost to expect for `missing` charges (it scales with them), else the last quote."""
     rate = per_charge()
     return round(rate * missing) if rate is not None and missing > 0 else quote()
 
 
 def covered(expected_cost: int | None, coins: int | None) -> bool:
-    """Whether an unread cost is safe to pay: the carried gold far over any cost the charges missing can come to
-    (UNREAD_COVER times the expected and UNREAD_EXTRA more), so the vendor takes none of the stash's (it takes only what
-    the carried gold does not cover; the check after a repair still turns repairs off if the stash's gold moved). OCR
-    read "Tae ee" from a clear "Repair all equipment: 47449" at 16:25:12 on 2026-10-17, eight such misses that day."""
+    """Whether an unread cost is safe to pay: the carried gold far over the expected one (OCR misses it daily)."""
     return expected_cost is not None and coins is not None and coins >= UNREAD_COVER * expected_cost + UNREAD_EXTRA
 
 
@@ -146,24 +122,18 @@ def wants(staff: Teleport | None) -> bool:
 def due(
     staff: Teleport | None, wear: Wear | None, coins: int | None, *, top_up: bool = False, waited: bool = True
 ) -> bool:
-    """Whether Halbu is visited: the staff's charges low (`wants`) or, in a visit, any missing (`top_up`: town.py
-    `tops_up`) with the carried gold covering the cost; a worn item low on durability (its repair of its own, the
-    staff's charges full: Teleport of the character's own) with WEAR_CARRIED carried; his line not learned yet
-    (`unknown`: his panel only opened, no gold spent); none for RETRY_GAMES games after a visit that raised nothing
-    (`waited`)."""
+    """Whether Halbu is visited: charges low or missing in a `top_up`, and affordable; a worn item with WEAR_CARRIED;
+    or his line unlearned. Never before `waited`."""
     charged = (wants(staff) or top_up) and affordable(coins)
     mends = worn_out(wear) and coins is not None and coins >= WEAR_CARRIED
     return (charged or mends or ((staff is not None or wear is not None) and unknown())) and waited
 
 
 def lifts() -> tuple[float, ...]:
-    """The lifts over his drawn point (as his menu opened) his Trade/Repair line is clicked at: the learned one, then
-    from 0.22 up by half a line (LINE). He is taller than Jamella, and his menu with him: none of four clicks 0.184 to
-    0.218 over him took (01:50 on 2026-10-17)."""
+    """The lifts over his drawn point his Trade/Repair line is tried at: the learned one and half a LINE either side
+    (a wide scan once spent 34 s), else from 0.22 up (he is taller than Jamella)."""
     learned_lift = known(HALBU)
     if learned_lift:
-        # Learned: it and half a line either side only. Ten lifts all failed at 16:31:30-16:32:02 on 2026-10-17 (34 s,
-        # the menu open each time, the character two units from him); the learned one had taken all day
         near = (learned_lift, learned_lift + LINE / 2, learned_lift - LINE / 2)
         return tuple(dict.fromkeys(round(lift, 4) for lift in near))
     scan = tuple(0.22 + step * LINE / 2 for step in range(10))
@@ -171,12 +141,12 @@ def lifts() -> tuple[float, ...]:
 
 
 def unknown() -> bool:
-    """Whether his line is still to be learned (a visit that only opens his panel, while repairs are off)."""
+    """Whether his line is still to be learned."""
     return known(HALBU) is None
 
 
 def gold(run: Run, stat: int = GOLD_STAT) -> int | None:
-    """The gold the character carries (the player's stat 14; `GOLDBANK`, 15: the stash's), None unread."""
+    """The carried gold (`GOLDBANK`: the stash's), None unread."""
     loot = run.reads.loot()
     if loot is None or not loot.stats:
         return None
@@ -184,23 +154,19 @@ def gold(run: Run, stat: int = GOLD_STAT) -> int | None:
 
 
 def quoted(run: Run, rect) -> int | None:
-    """The cost the game shows on the Repair All button's tooltip ("Repair all equipment: %d", strings ui.json
-    strThisShouldBeIn104), read by OCR (tesseract) from a picture of the button's surroundings, kept beside the runs
-    for a look; None unread. The pointer is on the button."""
+    """The cost on the Repair All tooltip (ui.json strThisShouldBeIn104) by tesseract, only the tooltip's band (wider
+    reads noise); None unread. The pointer is on the button."""
     run.pace.sleep(TOOLTIP_SECONDS)
     pointer = run.actuator.keys.pointer()
     if pointer is None:
         return None
-    # Only the band the tooltip is drawn in, over the button: a wider picture (1400 x 330, the stash's items and the
-    # panel's art in it) read as noise at 10:31:02 on 2026-10-17 ("REPAIR ALL' ... no number"); this band read the cost
-    # in all ten pictures kept from the night
     left, top = max(rect[0], pointer[0] - TOOLTIP_BAND[0] // 2), max(rect[1], pointer[1] - TOOLTIP_ABOVE)
     path = Path(__file__).resolve().parents[1] / 'runs' / 'alt-d' / f'repair-{time.strftime("%H%M%S")}.png'
     try:
         size = f'{TOOLTIP_BAND[0]}x{TOOLTIP_BAND[1]}'
         subprocess.run(['grim', '-g', f'{left},{top} {size}', str(path)], timeout=3, check=True, capture_output=True)
         text = ''
-        for psm in PAGE_MODES:  # one line first; a block when it reads no cost (repair-123918.png: '' as a line)
+        for psm in PAGE_MODES:
             text = subprocess.run(
                 ['tesseract', str(path), 'stdout', '--psm', psm, '--tessdata-dir', str(TESSDATA)],
                 timeout=10,
@@ -213,16 +179,11 @@ def quoted(run: Run, rect) -> int | None:
     except (OSError, subprocess.SubprocessError) as error:
         LOG.info('Macro: repair: the cost not read: %s', error)
         return None
-    # "Repair all equipment: N": the band holds only the tooltip, its words read loosely ("REPAIRTALE etl 111469",
-    # "Berar ant cum e: 119636"), its number well: the last one of four digits and more. A misread one is caught by
-    # the quote's drift (`repair`, QUOTE_DRIFT)
     LOG.info('Macro: repair: the tooltip read %r (%s)', ' '.join(text.split())[:120], path.name)
     return cost_of(text)
 
 
-# Letters the game's font makes of digits, in a word that holds digits: its 0 is read as Q or O ("1Q1677" for 101677,
-# 11:54:16 and 11:59:59 on 2026-10-17, repair-115959.png)
-# its slashed 0 as @ ("5@548" for 50548, 13:24:09, repair-132409.png)
+# Letters the game's font makes of digits within a word of digits ("1Q1677", "5@548" on 2026-10-17)
 LOOKALIKES = str.maketrans(
     {
         'O': '0',
@@ -242,8 +203,7 @@ LOOKALIKES = str.maketrans(
 
 
 def cost_of(text: str) -> int | None:
-    """The cost in the tooltip band's text: its last number of four digits and more, the font's look-alike letters
-    within a word of digits read as the digits (LOOKALIKES); None with none."""
+    """The tooltip text's last number of four digits and more, LOOKALIKES read as digits; None with none."""
     text = ' '.join(
         word.translate(LOOKALIKES) if sum(c.isdigit() for c in word) >= 2 else word for word in text.split()
     )
@@ -253,8 +213,7 @@ def cost_of(text: str) -> int | None:
 
 
 def repair(run: Run, fix: bool = True) -> bool:
-    """Halbu's Repair All (the module text); whether the staff's charges or the most worn item's durability rose. Mouse
-    mode only. Not `fix`: his panel only opened and closed again, to learn his line (`unknown`)."""
+    """Halbu's Repair All (mouse mode); whether charges or durability rose. Not `fix`: only learn his line."""
     if run.pad is not None:
         raise Abort('the repair needs mouse mode')
     before = run.reads.teleport()
@@ -287,14 +246,10 @@ def repair(run: Run, fix: bool = True) -> bool:
                 LOG.info('Macro: repair: his panel opened; repairs are off: nothing clicked in it')
                 return False
             run.actuator.move(*panel_point(rect, *REPAIR_ALL), scatter=(10, 10))
-            # Only with the game's own cost within the carried gold: a vendor takes the rest from the stash's (the
-            # player, 2026-10-17: "you can repair only on collected gold in the inventory")
             missing = before.maximum - before.charges if before is not None else 0
-            # No charge missing: the durability's cost, which no quote of charges tells (`WEAR_CARRIED`)
             cost, last = quoted(run, rect), expected(missing) if missing else None
             if cost is not None and last is not None and abs(cost - last) > QUOTE_DRIFT * last:
-                # A misread that lowers the cost would pass the check below and spend the stash's gold for the rest:
-                # a read that far from the cost expected for the charges missing is not trusted
+                # A misread lowering the cost would pass the check below and spend the stash's gold
                 LOG.info('Macro: repair: the read cost %d is far from the %d expected for %d charges: not trusted',
                          cost, last, missing)  # fmt: skip
                 cost = None
@@ -324,10 +279,7 @@ def repair(run: Run, fix: bool = True) -> bool:
 
             took = run.seen(rose, REPAIR_SECONDS) is not None
             if took and coins is not None:
-                # The gold stats land after the charges: read at once, the carried gold had not moved (208,801 ->
-                # 208,801 for a 69,696 repair, 12:09:40 on 2026-10-17), and the stash's check would see nothing. Nor
-                # at its first move: 165,932 -> 165,323 for a 61,006 repair (18:44:57), 104,317 a game later. Waited
-                # for most of the cost to be gone, the stash's check after it
+                # The gold lands after the charges, in steps: most of the cost gone before the stash's check
                 least = coins - (1 - QUOTE_DRIFT) * cost
                 run.seen(lambda _w: (gold(run) or coins) <= least, GOLD_SETTLE_SECONDS)
         finally:
@@ -351,10 +303,7 @@ def repair(run: Run, fix: bool = True) -> bool:
 
 
 def back(run: Run) -> None:
-    """Back toward the waypoint after a visit to Halbu, whatever came of it (macros/loop.py's leg), as from Jamella
-    (shop.py `restock`): from beside him it is 37 units off, listed in sight and drawn where no aim reaches it ("the
-    waypoint is not under the pointer at any aim", 12:39:25 on 2026-10-17: a recovery), and the walk from there ran
-    out of clicks at 12:10:04."""
+    """Walk back toward the waypoint: from beside Halbu no aim reaches it."""
     try:
         walk_until(run, _waypoint(run), WAYPOINT_SEEN, 'the waypoint')
     except Abort as stop:

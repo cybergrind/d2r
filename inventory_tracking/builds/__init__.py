@@ -1,9 +1,6 @@
-"""The builds that fill the framework of `macros/build.py`, and the one list of them.
-
-This is the composition root: the only place that knows every build. The framework (macros/,
-combat/) imports none of this; the process that makes the macro runner hands it `BUILDS` and
-`FALLBACK` (appraisal/service.py), and the runner asks them in this order whose the character in the
-game is (macros/build.py `choose`).
+"""The builds that fill the framework of `macros/build.py`, and the one list of them: the composition root. The
+framework (macros/, combat/) imports none of this; appraisal/service.py hands the runner `BUILDS` and `FALLBACK`,
+asked in this order (macros/build.py `choose`).
 """
 
 from dataclasses import replace

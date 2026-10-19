@@ -1,23 +1,15 @@
 """Uber Diablo (Diablo Clone) progress on the HUD: which region he is close to walking in (user, 2026-10-11).
 
-Every region and game mode has its own count of Stones of Jordan sold, in six steps; at the sixth
-Diablo walks in that region's games. `serve` asks diablo2.io's tracker (fed by d2emu.com) every
-`poll_seconds` and shows the regions of the player's mode at `minimum_progress` or more as a text card
-in the Traderie slot, with or without the game.
+Each region and mode counts Stones of Jordan sold in six steps; at the sixth Diablo walks. `serve` polls diablo2.io's
+tracker every `poll_seconds` and shows the player's mode's regions at `minimum_progress` or more in the Traderie slot.
 
-The tracker bans an address that asks a few times a minute (HTTP 429, Cloudflare 1015: four requests
-in a minute on 2026-10-11, and the ban outlasted the evening's restarts of `serve`). So the last answer
-and the time of the next request are kept in a file (`cache`, under runs/): a restart shows the stored
-answer and asks again only when `poll_seconds` have passed since it. A refused or failed request is
-not repeated before the answer's Retry-After, or without one before `poll_seconds` doubled per failure
-in a row up to `backoff_seconds`; that wait is in the file too, so a restart does not ask early.
+The tracker bans an address that asks a few times a minute (2026-10-11: four requests in a minute, a ban that
+outlasted restarts), so the last answer and the next request time live in `cache`; a failure waits for Retry-After,
+else `poll_seconds` doubled per failure up to `backoff_seconds`.
 
-The source is diablo2.io's public API (its forum topic t906872, read 2026-10-11): `ver` 1 = LoD, 2 =
-RotW; `ladder` 2 = Non-Ladder; `hc` 2 = Softcore; requests at least 60 s apart; and the app must show
-"Data courtesy of diablo2.io" by the data, which is the card's last line. d2emu.com, which feeds the
-tracker, gives its own API only to holders of a token it grants on request (its terms), so it is not
-asked. Rows of another version or mode are never shown: an answer without the player's rows is a
-failed check.
+API (diablo2.io forum t906872, read 2026-10-11): `ver` 1 = LoD, 2 = RotW; `ladder` 2 = Non-Ladder; `hc` 2 = Softcore;
+requests ≥ 60 s apart; the card must show "Data courtesy of diablo2.io". d2emu.com needs a granted token: not asked.
+An answer without the player's rows is a failed check.
 """
 
 import email.utils

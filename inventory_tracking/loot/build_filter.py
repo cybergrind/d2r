@@ -1,26 +1,17 @@
 """Generate lootfilter/warlock_lean_v2.json: the Warlock Lean profile with its "SHOW Unique Set" rule
 narrowed to the bases whose unique or set item is worth picking up (user, 2026-10-09).
 
-The game's filter matches a rule by rarity AND (category OR item code) and Show always beats Hide, so
-hiding a unique "by base" means listing the bases worth showing: four Show rules (unique and set, each split
-into armor and weapons; item codes only, no category) replace the one rule that showed every gold and green item.
-Rings, amulets, jewels and charms stay shown by the accessories rule.
+Show beats Hide and a rule matches rarity AND (category OR item code), so four Show rules (unique and set, each
+split into armor and weapons, item codes only) list the bases worth showing; accessories stay shown by their rule.
 
-A named item is worth showing when any of these holds; everything else is hidden, and a base shared with
-a shown item stays shown:
-- it trades: pricing/data/named-trades.json (Traderie Recent Trades, read by pricing/tools/traderie_trades.mjs
-  and summarised by named_trades.py) shows at least TRADES_PER_MONTH sales in the last 30 days, at a median
-  of ASK_MINIMUM Ist or more when priced — or any sale in the last 90 days at a median of SLOW_MINIMUM Ist;
-- a maxroll planner loadout equips it (wp-a-variants/index.json): build demand, kept even when it does not sell;
-- the knowledge base recommends it for leveling (pricing/data/appraisal-recommendations.json) and the player
-  does not own a copy yet (collection database, one of each is kept on the mules): a leveling piece that sells
-  for a perfect gem is not picked up twice;
-- the Chronicle does not have it yet (user, 2026-10-11): the character's Chronicle as read from the game by
-  inventory_tracking.probes.chronicle, for the items the game lists there and monsters drop. Rerun the probe
-  and this generator as it fills; without a Chronicle file the reason is not used.
-For an item the trades file does not cover, the older ask-based reasons apply instead: a good-roll ask of at
-least ASK_MINIMUM Ist (loot/data/uniques.json), a maxroll guide mention (appraisal-demand.json), or an elite
-base (the ask table prices too few elite uniques to call the rest worthless).
+A named item is shown when any holds (a base shared with a shown item stays shown):
+- it trades (pricing/data/named-trades.json): TRADES_PER_MONTH sales in 30 days at a median of ASK_MINIMUM
+  Ist or more, or any sale in 90 days at SLOW_MINIMUM;
+- a maxroll planner loadout equips it (wp-a-variants/index.json);
+- the KB recommends it for leveling (appraisal-recommendations.json) and the player owns no copy yet;
+- the Chronicle lacks it (user, 2026-10-11; inventory_tracking.probes.chronicle; rerun both as it fills).
+Items the trades file does not cover use the ask-based reasons: a good-roll ask of ASK_MINIMUM Ist
+(loot/data/uniques.json), a maxroll guide mention (appraisal-demand.json), or an elite base.
 
 Run: uv run --offline python -m inventory_tracking.loot.build_filter
 The profile is also put on the clipboard (wl-copy), ready for the game's import.

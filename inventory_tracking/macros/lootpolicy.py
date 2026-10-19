@@ -1,25 +1,10 @@
-"""The loot policy: for a valuable on the ground, whether it is taken now and whether it must not be left, as each place
-that decides it answers today (rca/2026-10-18/arch-level-behaviour.md, Option A, steps 1 and 2).
+"""The loot policy: for a valuable on the ground, whether each deciding site takes it now and whether it must not be
+left (rca/2026-10-18/arch-level-behaviour.md, Option A). Every site decides by `verdict` since 2026-10-19; the golden
+table of what each said before is tests/…/macros/test_lootpolicy.py. Supplies (gold, potions) are the belt's and
+gold's rules (pickup.py `choose`, macros/supply.py). Pure.
 
-"Is this worth taking" and "must we not leave it" are answered at several sites, and they disagree (§2.1 of the
-study): the KP_1 press stops for a valuable with no room only when it is prized (macros/pickup.py `stops_for`); a level
-run stands by one the loot filter alone does not show (macros/hunt.py `stands_by`); the sweep stays by one that is
-prized or has room (hunt.py `holds`); the loop's guard keeps the game, and its sightings remember, every one that is
-no identify candidate (runner.py `_valuable_left`, macros/sightings.py: pickmode.py `is_candidate`). `verdict` gives
-each site's answer from explicit facts, so the sites can be switched to one rule later, one at a time (step 4), with a
-test of what each said before (tests/…/macros/test_lootpolicy.py, a golden table over every site's own predicates).
-
-The supplies (gold, potions) are not here: the belt's and gold's rules (pickup.py `choose`, macros/supply.py) decide
-them, and `verdict` calls them neither taken nor held.
-
-Every site decides by `verdict` since 2026-10-19 (cleanup phase 1): the shadow checks beside the old predicates had
-logged no disagreement. Nothing here reads the game.
-
-Step 4 (the player's ruling of Q1, 2026-10-18 17:50: "we should stop and clear inventory with our designated town
-routine"): with the KP_6 loop on (`looped`) the press and the sweep decide `NO_ROOM_PLAIN` by `verdict(...).hold`, as
-the level run, the guard and the sightings already did: the valuable is held, and the loop's room rules (runner.py
-`_loop_stopped`: the cube, then a trip to town and back through the portal) make the room to take it. KP_1 by hand is
-as before: the press and the sweep move on from it.
+"We should stop and clear inventory with our designated town routine" (the player, 2026-10-18 17:50): with the KP_6
+loop on (`looped`) the press and the sweep hold `NO_ROOM_PLAIN` too; KP_1 by hand moves on from it.
 """
 
 from dataclasses import dataclass
@@ -43,7 +28,7 @@ __all__ = [
     'verdict',
 ]
 
-# The sites that ask (the study's N1-N5), named as their own log lines name them
+# The deciding sites (the study's N1-N5), as their log lines name them
 PRESS = 'the press'  # macros/pickup.py `pick_up`: a KP_1 press stops ("inventory full") or goes on to its seek step
 RUN = 'the level run'  # macros/hunting/choice.py `stay_by`: the level run (the KP_1 run, the loop's) stands by it
 SWEEP = 'the sweep'  # macros/hunting/sweep.py `gather`: the sweep stays by it (`held`)
@@ -54,10 +39,8 @@ SITES = (PRESS, RUN, SWEEP, GUARD, SIGHTINGS)
 
 @dataclass(frozen=True)
 class Verdict:
-    """What a site does with a drop. `take`: a mover takes it now (pickup.py `choose`'s valuables: room for it, not
-    left alone a while, not given up by the site). `hold`: the site's "must not leave it" (stand by it, stop for it,
-    keep the game for it). `why`: in a few words, for the log. `disputed`: of the class the sites disagreed on
-    (`NO_ROOM_PLAIN`, ruled 2026-10-18 17:50: held in the loop, moved on from by hand)."""
+    """What a site does with a drop. `take`: taken now. `hold`: must not be left (stand by, stop, keep the game).
+    `why`: for the log. `disputed`: of the `NO_ROOM_PLAIN` class."""
 
     take: bool
     hold: bool
@@ -67,8 +50,7 @@ class Verdict:
 
 @dataclass(frozen=True)
 class Dispute:
-    """A class of drops the sites answered differently: which of them stand by it with KP_1 by hand and which move on,
-    the question put to the player and the player's ruling (every site holds it in the KP_6 loop)."""
+    """A class of drops the sites answered differently by hand, with the question put and the player's ruling."""
 
     name: str
     stands_by: frozenset[str]
@@ -77,16 +59,8 @@ class Dispute:
     ruling: str
 
 
-# Q1 of rca/2026-10-18/arch-level-behaviour.md §5. A valuable that is not prized (game/records.py `prized`: below the
-# marks), not taken only because the loot filter shows it (`Loot.shown`) and no identify candidate (pickmode.py
-# `is_candidate`), with no room for it: a low rune El-Ral (taken from r01, marked from Io), a chipped or plain gem, a
-# jewel or a magic ring or amulet (REGULAR only: the sure mode keeps rings and amulets only when rare, set or unique).
-# By hand the press warns and goes on, and the sweep sweeps on; a level run stands by it. Ruled by the player,
-# 2026-10-18 17:50: "we should stop and clear inventory with our designated town routine": in the KP_6 loop every site
-# holds it (`verdict`'s `looped`), and the loop's room rules make the room (the cube, then a trip to town and back
-# through the portal; the Lower Kurast loop has no trip yet: the cube, an item to identify dropped, the stop for the
-# player). Outside the loop nothing changed. Today's cases (16:34-17:55): a set Amulet (16:59:14) and a magic Jewel
-# (17:26:50) on Catacombs Level 4, both stood by by the level run and taken after the cube made room.
+# Q1 of rca/2026-10-18/arch-level-behaviour.md §5: a valuable not prized, not filter-shown, no identify candidate, with
+# no room (a low rune, a plain gem, a jewel, a magic ring or amulet). Ruled 2026-10-18 17:50 (module text).
 NO_ROOM_PLAIN = Dispute(
     name='a plain valuable with no room',
     stands_by=frozenset((RUN, GUARD, SIGHTINGS)),
@@ -98,8 +72,7 @@ LOOP_HOLDS = 'no room, in the loop: held for its town routine (the ruling of 202
 
 
 def disputed(drop: Drop, *, room: bool, shown: bool) -> bool:
-    """Whether `drop` is of the disputed class (`NO_ROOM_PLAIN`): a valuable, not prized, not `shown`, no identify
-    candidate, and no `room` for it."""
+    """Whether `drop` is of the `NO_ROOM_PLAIN` class."""
     return drop.kind == VALUABLE and not room and not drop.prized and not shown and not is_candidate(drop)
 
 
@@ -124,20 +97,16 @@ def verdict(
     given_up: bool = False,
     looped: bool = False,
 ) -> Verdict:
-    """What `site` (one of SITES) does today with `drop`, of the facts:
+    """What `site` (one of SITES) does with `drop`.
 
-    - `room`: the inventory has room for it (game/records.py `has_room`; True unread).
-    - `shown`: taken only because the loot filter shows it (`drop.unit_id in loot.shown`).
-    - `mode`: the pickup mode the loot was filtered by (runner.py `_picked`: the loop's, REGULAR with the loop off).
-    - `sold_full`: its stack in the stash is full (loop.py `sold_full`): not picked up.
-    - `shunned`: the pickup step leaves it alone a while (pickup.py `SHUNNED`); the guard and the sightings read the
-      ground without it (`_valuable_left`), so it holds them all the same.
-    - `given_up`: the site's own give-up of it: the level run's `waived` (a press went on from it) for its stand and
-      its spent tries for its take, the sweep's spent tries (`GATHER_TRIES`). The press has none; the guard and the
-      sightings ignore every give-up (the study's §2.2).
-    - `looped`: the KP_6 loop is on: the press and the sweep hold `NO_ROOM_PLAIN` too (the player's ruling of Q1).
+    - `room`: inventory room for it (True unread). `shown`: taken only because the loot filter shows it.
+    - `mode`: the pickup mode the loot was filtered by. `sold_full`: its stash stack is full.
+    - `shunned`: the pickup step leaves it alone a while; it still holds the guard and the sightings.
+    - `given_up`: the site's own give-up (run: `waived`/spent tries; sweep: `GATHER_TRIES`). The press has none; the
+      guard and the sightings ignore give-ups (the study's §2.2).
+    - `looped`: the KP_6 loop is on: the press and the sweep hold `NO_ROOM_PLAIN` too.
 
-    How near it lies is the site's own filter (the run's PICK_NEAR, the sweep's HOLD_SIGHT), asked before this."""
+    Distance is the site's own filter, asked before this."""
     if drop.kind != VALUABLE:
         return Verdict(False, False, 'a supply: the belt and gold rules')
     if not kept_by(drop, mode):

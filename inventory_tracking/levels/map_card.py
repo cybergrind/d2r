@@ -8,9 +8,7 @@ from inventory_tracking.presentation import Tone
 
 __all__ = ['KIND_TONES', 'MapCard', 'MapPoi']
 
-# One colour per POI kind for rows, arrows and dots (user, 2026-09-30): next level green,
-# previous level purple, waypoint blue, POI (boss, chest, rune, shrine) bright yellow.
-# Unknown kinds use the POI colour.
+# One colour per POI kind for rows, arrows and dots (user, 2026-09-30); unknown kinds use the POI colour.
 KIND_TONES = {
     'stairs': Tone.LEVEL_NEXT,
     'previous': Tone.LEVEL_PREVIOUS,
@@ -34,12 +32,11 @@ class MapPoi:
     x: float
     y: float
     path: int = 0  # address of a monster's dynamic path, when the HUD can follow it (hud/live.py)
-    # A monster's unit record and id: the HUD reads its mode and position every frame (hud/live.py `LiveDots`)
-    unit: int = 0
+    unit: int = 0  # a monster's unit record, read every frame by hud/live.py `LiveDots`
     uid: int = 0
 
     def row(self) -> list:
-        """The payload row: [label, kind, x, y], plus the path address when known, plus the unit's address and id."""
+        """The payload row: [label, kind, x, y], plus the path address, unit address and id when known."""
         tail = [self.path, self.unit, self.uid] if self.unit else [self.path] if self.path else []
         return [self.label, self.kind, self.x, self.y, *tail]
 
@@ -55,9 +52,7 @@ class MapCard:
     visited: tuple[int, ...] = ()  # per room: ever loaded 0/1; empty = unshaded
     live: tuple[int, int] | None = None  # (pid, player path address): the position's source (hud/live.py)
     whole: bool = False  # draw the whole level however small, not the part around the player
-    # (unit table address, area): the HUD walks the game's monster table for monsters the card has no dot for
-    # yet (hud/live.py `LiveDots`); None: it does not
-    units: tuple[int, int] | None = None
+    units: tuple[int, int] | None = None  # (unit table, area): the HUD walks it for undotted monsters (hud/live.py)
 
     def to_payload(self) -> dict:
         return {

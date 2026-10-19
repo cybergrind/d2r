@@ -12,11 +12,9 @@ from inventory_tracking.tracking.belt import BeltColumns, column_shortages, poti
 class BeltWidget(SampleWidget[BeltWidgetConfig]):
     def reset(self) -> None:
         super().reset()
-        # What each column last held this game (tracking/belt.py `remember`): an emptied healing column
-        # is still counted as healing missing. The presenter resets the widget on a new game.
+        # Each column's last kind this game: an emptied healing column still counts as healing missing.
         self.columns = BeltColumns()
-        # The healing potions fallen to the character's reserve during this game (automation/priority.py): the
-        # card says so until they are above it again (user, 2026-10-13: "something is wrong if we're empty").
+        # Healing at or below the reserve (user, 2026-10-13: "something is wrong if we're empty").
         self.stock = StockWatch(HEAL_PRIORITY)
 
     def update(self, snapshot: State) -> None:

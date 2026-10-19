@@ -1,9 +1,7 @@
 """Which vendor's Trade panel is open, read only after LiveReader's build gate.
 
-The panel flag array says a shop is open but not whose. Vendor stock is generated when
-Trade opens and leaves memory when it closes (shop/README.md), so the one town vendor
-with occupied shop grids is the vendor being traded with. Zero or several loaded
-vendors make the observation unavailable rather than a guess.
+The panel flags say a shop is open but not whose. Stock exists only while Trade is open (shop/README.md),
+so the one vendor with occupied shop grids is the one traded with; zero or several make it unavailable.
 """
 
 import time

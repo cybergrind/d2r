@@ -1,17 +1,6 @@
-"""The order to explore a level's rooms in (macros/hunt.py's seek step): a short tour of places to
-stand so that every unexplored room is seen. Standing in a room shows it and the rooms touching it
-(terror/tracker.py `explore`), so the stops are a cover of the unexplored rooms and the tour a short
-path through them from where the character stands.
-
-The rule before (the unexplored room nearest by the way, a turn counted as some tiles more) left
-strips behind and crossed the explored ground again to fetch them: Far Oasis, 02:16 on 2026-10-11,
-eight hops back from the south-east corner to the middle, and fourteen across the whole map for the
-last three rooms (user: "too many back-and-forward iterations"). Replayed with nothing to fight from
-four starts on each of four recorded layouts (Far Oasis, Black Marsh, Catacombs 2, Tower Cellar 3;
-hops of 5.5 tiles): that rule 612 hops, this tour 442, planned anew at every hop in 1 to 4 ms.
-
-Distances are straight lines between room centres: a teleport crosses what a walk goes around, and
-the hop itself is planned over the real ground (macros/teleport.py).
+"""The order to explore a level's rooms in (the hunt's seek step): a short tour of rooms to stand in so every unexplored
+room is seen (a room shows itself and its neighbours, terror/tracker.py `explore`). Distances are straight lines
+between room centres: a teleport crosses what a walk goes around. History: history/tour.md.
 """
 
 import math
@@ -23,9 +12,8 @@ from inventory_tracking.levels.geometry import Point
 
 Bounds = tuple[int, int, int, int]  # a room's x, y, width, height in tiles
 ROUNDS = 3  # passes of dropping and shifting stops, each followed by a reordering
-# The tour is planned anew at every step, from where the fights left the character. The one before is
-# kept while a new one is not this many tiles shorter (a room's side): two tours as long that start
-# opposite ways would else take a step each in turn.
+# Tiles a new tour must save to replace the last one (a room's side): equal tours starting opposite ways would
+# otherwise alternate.
 KEEP_TILES = 8.0
 
 
@@ -35,8 +23,7 @@ def centre(room: Bounds) -> Point:
 
 @lru_cache(maxsize=4)
 def shown(rooms: tuple[Bounds, ...]) -> tuple[int, ...]:
-    """For each room, the rooms a character standing in it sees: itself and the ones touching it,
-    corners too, as bits by position in `rooms`."""
+    """Per room, the bitmask (by position in `rooms`) of itself and the rooms touching it, corners too."""
     masks = []
     for x, y, width, height in rooms:
         mask = 0
@@ -90,9 +77,8 @@ def tour(
     standable: Collection[Bounds] | None = None,
     before: Sequence[Bounds] = (),
 ) -> list[Bounds]:
-    """The rooms to stand in, in order, to see every unexplored room one of `standable` (all, when
-    not given) shows; `here` in tiles. Empty when nothing of that kind is left. `before` is the tour
-    of the last step: what is left of it is the answer unless the new one is KEEP_TILES shorter."""
+    """The rooms to stand in, in order, to see every unexplored room a `standable` room shows; `here` in tiles.
+    What is left of `before` (the last tour) wins unless the new one is KEEP_TILES shorter."""
     rooms = tuple(rooms)
     sees = shown(rooms)
     index = {room: at for at, room in enumerate(rooms)}

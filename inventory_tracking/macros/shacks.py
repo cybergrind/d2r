@@ -1,22 +1,12 @@
-"""The shacks' other containers on the KP_6 loop's chest run (routes/lower-kurast-loop-plan.md phase 6c).
+"""The shacks' other containers on the KP_6 chest run (routes/lower-kurast-loop-plan.md phase 6c).
 
-The card marks a camp's three chest spots (levels/handlers/lower_kurast.py). In the five camps of the games of
-2026-10-16 (rca/2026-10-16/loop-chests-findings.md §5) each camp also held, fixed by its file, a weapon rack at
-(48, 12) and an armor stand at (12, 23) of the camp, and in some a rolled jungle chest or four baskets; the loop left
-every one of them closed. The player: "we should loot other random chests in these two shacks + weapon rack", then
-"yes, baskets/armor stands too. but do not hunt them, only if we encounter them in shacks and direct visibility +
-close".
+The player: "yes, baskets/armor stands too. but do not hunt them, only if we encounter them in shacks and direct
+visibility + close"; 2026-10-17: "maybe we need to interact only with interactables directly visible from
+superchests within small radius".
 
-So one is opened only when the character stands in a camp and the container stands in the same camp, closed, in
-sight and within REACH: a side goal of the run, as a drop on the way is, never a place gone to for its own sake. The
-camp's chest spots are the card's marks, opened as the route's stage, and are left to it. Pure: the hunt hands in
-what the game shows (hunting/choice.py `shack_goal`).
-
-And only one beside a chest (2026-10-17, the player: "we often diverge from our activities to interact with baskets
-well outside the shacks, maybe we need to interact only with interactables directly visible from superchests within
-small radius"): within BY_CHEST of one of the camp's chest spots, with a clear line from that spot. In the camp's file
-that is the weapon rack (12 units from the chest at (60, 12)); the armor stand (32 to 34 units), the rolled baskets
-(27 to 29) and jungle chests (25 to 35) are left (rca/2026-10-16/loop-chests-findings.md §5).
+So a container is a side goal only when the character and it stand in the same camp, closed, in sight, within REACH,
+and within BY_CHEST of a chest spot in sight of it (in practice the weapon rack; rca/2026-10-16/loop-chests-findings.md
+§5). The chest spots themselves are the route's. Pure: the hunt hands in what the game shows (choice.py `shack_goal`).
 """
 
 import math
@@ -35,8 +25,7 @@ __all__ = ['BY_CHEST', 'CAMP', 'OPENED', 'REACH', 'camps', 'shack_thing']
 Block = tuple[int, int, int, int]  # a preset's x, y, width, height in tiles (`Room.block`)
 
 CAMP = ('Act 3 - Slums 16x16', 1)  # the bonfire camp, preset name and DS1 variant (lower_kurast.py)
-# The containers opened in a camp, by objects.txt id: the classes the takes of 2026-10-16 showed in the camps, named
-# as macros/data/containers.json (the installed game's objects.txt) names them
+# Containers opened in a camp, by objects.txt id (classes seen in the camps on 2026-10-16)
 OPENED = {
     181: 'Jungle chest',  # JungleChest
     183: 'Jungle chest',  # JungleChest2
@@ -46,10 +35,9 @@ OPENED = {
     208: 'Basket',  # Basket1
     209: 'Basket',  # Basket2
 }
-# Units: a container this near is clicked from where the character stands (goals.py USE_NEAR), so none costs a move
-# of its own. From the camp's three chest spots it reaches the rack (12 units) and most of the rest (25 to 35).
+# Units: clicked from where the character stands (goals.py USE_NEAR), no move of its own
 REACH = 25.0
-BY_CHEST = 15.0  # units from a camp's chest spot, in sight of it: a container beside the chest (the module text)
+BY_CHEST = 15.0  # units from a camp's chest spot, in sight of it
 SPOT = 1.0  # units: a container this near a chest spot of the camp is that spot's, the route's own
 
 
@@ -88,10 +76,8 @@ def shack_thing(
     seen: Callable[[Point, Point], bool],
     skip: frozenset[int] = frozenset(),
 ) -> tuple[Thing, str] | None:
-    """The container of the camp the character stands in to open now, with its name: closed (`usable`), in the same
-    camp, within REACH, in sight (`seen(from, to)`: a clear line from the character), within BY_CHEST of one of the
-    camp's chest spots and in sight of it, not at one of them and not in `skip` (tried and not opened); the nearest of
-    them. None: the character is in no camp, or none is."""
+    """The nearest container to open now, with its name, per the module rules; `seen(from, to)`: a clear line;
+    `skip`: tried and not opened. None: not in a camp, or none qualifies."""
     camp = next((block for block in camps(rooms) if _inside(block, here)), None)
     if camp is None:
         return None

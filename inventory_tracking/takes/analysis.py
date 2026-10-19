@@ -1,11 +1,5 @@
-"""Stage 2 of combat/plan.md: what a take says about how the player plays.
-
-The numbers of the first Chaos Sanctuary take (2026-10-09, 4.8 minutes, manual play) set the
-shape: the player taps the right mouse button every 0.2 s (held 0.08-0.12 s) and the game casts
-every 0.4 s (ten frames); the aimed monster is 12 units away at the median (5.5 to 21 between
-the deciles); the pointer sits on the monster or a little short of it, within 4 units across;
-play alternates runs of 0.7 s with casts of 0.4 s. Monster life in memory is a 0-128 fraction of
-the maximum (the client is not told absolute points), so damage here is in 128ths of a life.
+"""Stage 2 of combat/plan.md: what a take says about how the player plays (cast cadence, aim distance and offset,
+runs against casts). Monster life in memory is a 0-128 fraction of the maximum, so damage here is in 128ths of a life.
 """
 
 import json

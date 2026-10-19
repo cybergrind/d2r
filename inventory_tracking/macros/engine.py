@@ -40,8 +40,7 @@ POLL = 0.03
 
 
 class Reads:
-    """A run's optional game reads, None where the run has no reader for one (`Run`'s closures: a test's fake, a
-    harness, the service without memory). Spares each caller its own `run.X() if run.X is not None else None`."""
+    """A run's optional game reads, None where the run has no reader (tests, harnesses, no memory)."""
 
     def __init__(self, run: Run) -> None:
         self._run = run
@@ -100,9 +99,7 @@ class Run:
     ) -> None:
         self.read = read
         self.reads = Reads(self)
-        # The build the run plays (macros/build.py): what the character moves by, casts before a game and holds.
-        # The runner's, chosen again at the run's first look that shows the character (runner.py `choosing`);
-        # until that look, the one it played before.
+        # The build played (macros/build.py); re-chosen at the first look showing the character (runner.py `choosing`)
         self.build = build
         self.actuator = actuator
         self.pace = pace
@@ -112,58 +109,46 @@ class Run:
         self.keys: dict[int, str] = {}
         self.hands = hands  # base codes of the weapon set in hand (world.GameMemory.hands)
         self.teleport = teleport  # the worn Teleport staff (world.GameMemory.teleport)
-        self.loot = loot  # the drops, the belt and the life the pickup step decides on (world.GameMemory.loot)
+        self.loot = loot  # drops, belt and life for the pickup step (world.GameMemory.loot)
         self.prebuff_hands: frozenset[str] = frozenset()  # the set the buffs are cast with
         self.battle_hands: frozenset[str] = frozenset()  # the main set: fought with, and held when a game is left
         self.hovered: Callable[[], tuple[int, int] | None] | None = None  # world.GameMemory.hovered
-        # Whether Teleport is the character's own, given by a worn item (Enigma) and not by charges: None unread
+        # Whether Teleport is the character's own (Enigma), not charges; None unread
         self.own_teleport: Callable[[], bool | None] | None = None  # world.GameMemory.own_teleport
-        # The skills of the character's own the worn items give (world.GameMemory.worn_skills): the Sling's Town Portal
-        # (macros/portal.py `portal_source`); None unread
+        # Skills worn items give (the Sling's Town Portal, portal.py `portal_source`); None unread
         self.worn_skills: Callable[[], frozenset[int] | None] | None = None
         self.wear: Callable[[], Wear | None] | None = None  # the most worn item (world.GameMemory.wear)
         self.cta: Callable[[], bool | None] | None = None  # a Call to Arms worn in either set (world.GameMemory.cta)
-        # What is done with the other weapon set in hand at an arrival's input check, before the swap back
-        # (routines.py `took_input`): the Call to Arms' buffs (macros/cta.py `cast_in_hand`)
+        # Done with the other weapon set at an arrival's input check (routines.py `took_input`; cta.py `cast_in_hand`)
         self.arrival_swap: Callable[[], object] | None = None
-        # skill -> clock time of its last cast that took, kept by the runner across its runs (macros/buffs.py
-        # `Buffs.took_of`): the prebuff's Consume is seen by attack mode, which renews it before a boss. None: this
-        # run's executor keeps its own.
+        # skill -> clock of its last cast that took, kept across runs (buffs.py `Buffs.took_of`); None: per run
         self.lasting: dict[int, float] | None = None
-        # the skill key tapped last, the right-button skill before it, when, and whether the macro held a
-        # key or button then (routines.press_skill)
+        # last skill key tapped, the right skill before it, when, and whether a key was held (routines.press_skill)
         self.quick: tuple[int, int | None, float, bool] | None = None
-        # Whether a look since that key showed its skill on the right button (`world`): its cast was seen, so the
-        # next key waits only for the button to be given back (routines.quick_cast_over). The Chaos Sanctuary on
-        # 2026-10-14: Death Mark showed 0.08 to 0.16 s after its key to the fight's own looks, and the Sigil's key
-        # after it waited out a whole second with the strike let go, the wait's looks having begun after.
+        # Whether a look since that key showed its skill on the right button, so the next key waits only for the
+        # button back (routines.quick_cast_over); fight looks see it 0.08-0.16 s after the key (2026-10-14).
         self.quick_shown = False
         self.hover_note: Callable[[], str] | None = None  # the record it read last, whole (world.GameMemory.hover_note)
         # the monsters lying dead as (unit id, x, y), world units (world.GameMemory.corpses): Engorge needs one
         self.corpses: Callable[[], tuple[tuple[int, float, float], ...]] | None = None
-        # the missiles in flight of some classes as (owner unit, class, x, y) (world.GameMemory.flights): what a
-        # read threat model prices (combat/threats; macros/safety.py reads them only with such a hostile about)
+        # missiles in flight as (owner unit, class, x, y), priced by combat/threats (world.GameMemory.flights)
         self.flights: Callable[[frozenset[int]], tuple[tuple[int, int, float, float], ...]] | None = None
-        # the clock time the healer (`make osd`) last gave the mercenary a potion of a kind, None when never or
-        # not known (automation/ledger.py `given_at`): macros/drinking.py tells the mercenary's from the character's
+        # when the healer (`make osd`) last gave the mercenary a potion of a kind (automation/ledger.py `given_at`)
         self.given: Callable[[PotionType], float | None] | None = None
-        # The healer's ledger, where the macro's drinker claims the character's potion before its key so the healer
-        # stands off for that blow (automation/ledger.py `PotionLedger.claim`); None: no healer's ledger, no claim
+        # The healer's ledger: the drinker claims a potion before its key so the healer stands off
         self.ledger: PotionLedger | None = None
         self.warps: Callable[[], tuple[Warp, ...]] | None = None  # the doors loaded (world.GameMemory.warps)
-        # the walkable ground of the level the character is on, None while not known (the level guide's map)
+        # the current level's walkable ground (the level guide's map); None unknown
         self.ground: Callable[[], Ground | None] | None = None
         self.things: Callable[[], tuple[Thing, ...]] | None = None  # a mark's objects (world.GameMemory.things)
         self.containers: Callable[[], tuple[Thing, ...]] | None = None  # chests and the like (GameMemory.containers)
         self.carried: Callable[[], Pack | None] | None = None  # the inventory's items, the cube's rows (GameMemory)
-        # Whether a carried item is one of the player's by its stats (macros/volatile.py, loop.py `players_item`):
-        # never sold nor dropped, wherever it lies; None: no such check (tests, no loop store)
+        # Whether a carried item is the player's by its stats (loop.py `players_item`): never sold nor dropped
         self.players_item: Callable[[Carried], bool] | None = None
-        # Why a carried item is kept whatever the appraisal says, by its own stats (macros/keepers.py: a rare amulet
-        # with life, FCR or +2 skills), None when nothing keeps it; never sold; None: no such check (tests)
+        # Why a carried item is kept whatever the appraisal says (macros/keepers.py); never sold
         self.kept_item: Callable[[Carried], str | None] | None = None
         self.stock: Callable[[int], tuple[Stocked, ...]] | None = None  # a vendor's stock (GameMemory.stock)
-        # the stash's pages and resource stacks, None unread (world.GameMemory.stash_view, macros/town-plan.md step 0)
+        # the stash's pages and resource stacks, None unread (world.GameMemory.stash_view)
         self.stash_view: Callable[[], StashView | None] | None = None
         # research: every object unit shown, raw (world.GameMemory.objects)
         self.objects: Callable[[], list[dict]] | None = None
@@ -178,16 +163,14 @@ class Run:
         self.mark: Callable[[str], None] = lambda name: None  # a moment of the press's trace (latency.py)
         # a warning that stays on the card until it is taken back with None (runner.py `_warn`)
         self.warn: Callable[[str | None], None] = lambda text: None
-        # the same warning, of the level run standing by a valuable it has no room for (hunting/choice.py `stay_by`):
-        # the loop's watchdog makes room for it by this, not by the text (runner.py `_stand_by`)
+        # the warning of a level run standing by a valuable with no room; the loop's watchdog acts on this call, not
+        # the text (runner.py `_stand_by`)
         self.stand_by: Callable[[str], None] = lambda text: self.warn(text)
         # on `clock`: the press this run answers is not worth an input after it (runner.EXPIRES)
         self.deadline = math.inf
         self.light = 0  # above 0 the looks at the game leave the monsters and doors out (`lightly`)
         self.hurry: Callable[[], None] | None = None  # asks the service to read the level now (teleport.card_for)
-        # The pad back end while the game is in controller mode (macros/pad.py; the runner's `input_policy`):
-        # the routines cast, walk and pick up through it where they would aim the pointer, click or tap a skill
-        # key. None: keys and mouse, as the routines always did.
+        # The pad back end in controller mode (macros/pad.py); None: keys and mouse
         self.pad: PadActs | None = None
 
     def world(self) -> World:
@@ -206,8 +189,8 @@ class Run:
         return world
 
     def stops(self, stop: BaseException) -> bool:
-        """Whether an act's Abort ends the run, whatever the act's caller would do with a failure of it: the run is
-        cancelled, or the game's input mode flipped under it (`Flipped`: the runner plays the request again)."""
+        """Whether an act's Abort ends the run regardless of its caller: cancelled, or the input mode flipped
+        (`Flipped`: the runner replays the request)."""
         return self.cancelled.is_set() or isinstance(stop, Flipped)
 
     @contextmanager
@@ -226,8 +209,7 @@ class Run:
             raise Abort(f'{what} dropped: {late * 1000:.0f} ms too long after its key')
 
     def expect(self, what: str, predicate: Callable[[World], bool], timeout: float, poll: float = POLL) -> World:
-        """The first world in which `predicate` holds, looked for every `poll` seconds; `Abort` when
-        none comes in `timeout` seconds."""
+        """The first world in which `predicate` holds, polled; `Abort` after `timeout` seconds."""
         deadline = self.clock() + timeout
         while True:
             world = self.world()
@@ -253,9 +235,8 @@ class Run:
 
 
 def protected(run: Run, item: Carried) -> str | None:
-    """Why `item` is never sold, dropped or put down: the player's by its stats, or kept by its stats; None when it is
-    the loop's to give up. Every action that gives an item up asks this first (the player, 2026-10-17: "we shouldn't
-    sell our own equipment or valuable items")."""
+    """Why `item` is never sold, dropped or put down; None when the loop may give it up. Every give-up asks this
+    first ("we shouldn't sell our own equipment or valuable items", the player, 2026-10-17)."""
     if run.players_item is not None and run.players_item(item):
         return "the player's by its stats"
     if run.kept_item is not None and (why := run.kept_item(item)):

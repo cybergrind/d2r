@@ -1,13 +1,6 @@
 """Den of Evil, Underground Passage 1, Hole 1, the Crypt and the Mausoleum.
 
-Unconfirmed (D2MOO DrlgMaze, 2026-10-01; no evidence yet). Every Act 1 cave places 'Cave Prev';
-the Den of Evil adds 'Cave Den Of Evil' (Corpsefire's room) instead of stairs down; the others
-place 'Cave Down'; the Underground Passage also places 'Cave Next', its second way up. Its two
-ways up lead to Stony Field (levels.json Vis0) and the Dark Wood (Vis1); 'Prev' is taken to be
-Vis0 and 'Next' Vis1. The Crypt places 'Crypt Prev' and 'Crypt Bonebreak', the Mausoleum
-'Crypt Prev' and 'Crypt Chest'. Level 2s (Cave 2, Hole 2, Pit 2, Underground Passage 2) are
-single fixed presets (treasure_levels.py). The Mausoleum's mark sits on the super chest its room's
-file places (2026-10-12).
+The Underground Passage's 'Cave Next' is taken to be Vis1 (Dark Wood), 'Cave Prev' Vis0.
 """
 
 from inventory_tracking.levels.handler import Handler, PoiSpec, previous, stairs_down

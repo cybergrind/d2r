@@ -2,18 +2,10 @@
 "cube is volatile; empty cells on the start of character - are volatile; then, you have to remember what cells are
 volatile and do not lose this when we restart game, reload `make serve` or for other reasons").
 
-- The cube is volatile: everything in it is the loop's (cube.py `loot` and the visit take `pack.in_cube` whole).
-- An inventory cell is volatile when the character's inventory left it empty at its start (the seed): an item lying
-  only on volatile cells is the loop's; an item on any protected cell is the player's, never moved, stashed, sold or
-  dropped by a macro.
-- The cells are kept per character in STORE_FILE (beside the loop's other files, runs/alt-d/): a new game, a restart
-  of the service and a loop toggle all read the same cells. Only `reset` (the player's rearranged charms) forgets them;
-  the next loop start seeds them again from the inventory as it is then.
-
-A second line of defence for what cannot be undone: the stats of every item seen on a protected cell are kept too
-(`prints`). An item whose stats match one of them is the player's wherever it lies, in the cube too (the player's charms
-moved into the cube by hand were sold at 23:17 on 2026-10-18: rca/2026-10-18/player-items-moved-findings.md): a visit
-never counts it junk, and Jamella and the ground never get it.
+The cube is the loop's. An inventory cell empty at the character's start (the seed) is volatile; an item on any
+protected cell is the player's, never moved, stashed, sold or dropped. Cells are kept per character in STORE_FILE
+across games and restarts; only `reset` forgets them. The stats of every item seen on a protected cell are kept too
+(`prints`): a match is the player's wherever it lies, the cube too (rca/2026-10-18/player-items-moved-findings.md).
 
     uv run --offline python -m inventory_tracking.macros.volatile show
     uv run --offline python -m inventory_tracking.macros.volatile reset CybergrindAA
@@ -36,7 +28,7 @@ from inventory_tracking.items.grid import INVENTORY_SIZE, Grid
 
 STORE_FILE = 'volatile-cells.json'
 SERVE_DIR = Path(__file__).resolve().parents[1] / 'runs' / 'alt-d'  # `make serve`'s output (loop-items.json)
-# Stats that change while an item is carried and so tell nothing about which item it is: its quantity and durability
+# Stats that change while an item is carried, left out of its print
 QUANTITY, DURABILITY = 70, 72
 CHANGING = frozenset({QUANTITY, DURABILITY})
 
@@ -88,9 +80,8 @@ class Volatile:
             return None
 
     def seed(self, name: str, items: Iterable[Carried], why: str) -> frozenset[Cell]:
-        """The cells `items` (the player's, as the character starts) cover, kept as the character's protected cells;
-        every other inventory cell is volatile from now on. The key stack's cell is the player's too (the player,
-        2026-10-19: the volatile cells are the 2 x 4 block and the 2 x 1 left of it)."""
+        """Keep the cells `items` (the player's, at the start) cover as the character's protected cells; every other
+        inventory cell is volatile from now on."""
         cells = frozenset(c for item in items for c in cells_of(item))
         data = self._read()
         found = data.get(name)
@@ -116,7 +107,7 @@ class Volatile:
             return frozenset()
 
     def learn(self, name: str, found: Iterable[Print]) -> int:
-        """`found` (the prints of the items on protected cells) added to the character's; how many were new."""
+        """Add `found` (prints of items on protected cells) to the character's; how many were new."""
         known = self.prints(name)
         new = [p for p in found if p not in known]
         if not new:
@@ -139,7 +130,7 @@ class Volatile:
 
 
 def own_of(pack: Pack, protected: frozenset[Cell]) -> frozenset[tuple[int, int, int]]:
-    """The player's items in the inventory, by class and cell (cube.py `loot`'s `own`): those on a protected cell."""
+    """The player's items in the inventory (on a protected cell), by class and cell."""
     return frozenset((i.txt, i.x, i.y) for i in pack.items if cells_of(i) & protected)
 
 
@@ -155,8 +146,8 @@ def picture(protected: frozenset[Cell]) -> str:
 
 
 def is_players(item: Carried, stats: Mapping[int, int], prints: frozenset[Print]) -> bool:
-    """Whether `item` is one of the player's by its stats (`prints`). Stats unread (`stats` empty): the player's when
-    any of theirs is of its class and quality, for a sale or a drop cannot be undone."""
+    """Whether `item` is the player's by its stats. Stats unread: the player's when any of theirs has its class and
+    quality (a sale or a drop cannot be undone)."""
     if not prints:
         return False
     if not stats:

@@ -1,23 +1,12 @@
 """What is done in this game, and the stage each level is at (levels/routes.md, the progress layer).
 
-`current` is the pure part: a script and the facts of this game in, the stage to do next out. The facts:
-- the levels entered: a way on (`enter`, or a `use` of a portal) is done once its level was;
-- the objects the step saw operated: a `use` of a chest or a seal is done once each mark with its
-  label was;
-- the bosses dead (the monster tracker's word, terror/tracker.py `killed`): a `fight` is done once
-  its boss is; without that word a fight is not judged;
-- where the character stood (`stand`) and the levels whose ground a press found clean (`loot`).
-`clear` is not judged, and `leave` is never done: the game ends.
+`current` is pure: a script and this game's facts in (levels entered, objects seen used, bosses dead per
+terror/tracker.py `killed`, marks stood at, levels found looted), the next stage out. `clear` is not judged;
+`leave` is never done. A stage not judged or not performed yet holds the script, except that a later `use` in
+the same level is gone on to (the next seal with the seal boss alive).
 
-A stage that is not judged or not performed yet holds the script, with one exception: a later
-`use` of an object of the same level is gone on to (the next seal with the seal boss alive, the
-chest past Snapchip Shatter). Nothing else is: not the way out, and not the loot or the leaving.
-
-`Progress` keeps the facts between presses, as `macros/journey.py` keeps the level come from: the
-service notes the game and the level about once a second, the step what it used. The level card and
-the teleport step both ask it, so the arrow and the hop agree. A card leads with a stage's mark only
-when the step performs that kind of stage (`performed`) and the stage is not `pending`; at any other
-stage the card keeps the order its handler gives.
+`Progress` keeps the facts between presses (the service notes game and level about once a second, the step what
+it used). The level card and the teleport step both ask it, so the arrow and the hop agree.
 """
 
 from collections.abc import Callable, Iterable
@@ -86,11 +75,9 @@ class Progress:
         dead: Callable[[], frozenset[str]] | None = None,
         wanted: Callable[[int], bool | None] | None = None,
     ) -> None:
-        """`dead`: the bosses killed this game by name (terror/tracker.py `killed`). Without it a fight
-        cannot be seen to end, so it is not performed: the card keeps its own order there.
-        `wanted`: whether a level is terrorized now (terror/tracker.py `terrorized`): it chooses
-        between a level's scripts (`chosen`)."""
-        # Level -> (route, its main script): the first, should the catalogue hold two (routes/check.py refuses that).
+        """`dead`: bosses killed this game (terror/tracker.py `killed`); without it fights are not performed.
+        `wanted`: whether a level is terrorized now (terror/tracker.py `terrorized`), for `chosen`."""
+        # Level -> (route, main script); the first if the catalogue holds two (routes/check.py refuses that).
         self.scripts: dict[int, tuple[str, Script]] = {}
         # Level -> every script it has, the main one first, each with the levels its route goes on to.
         self.ways: dict[int, list[tuple[str, Script, tuple[int, ...]]]] = {}
@@ -128,10 +115,8 @@ class Progress:
         return True
 
     def chosen(self, area: int) -> tuple[str, Script] | None:
-        """(route, script) the level follows: its main script, unless none of the levels the main
-        route goes on to is terrorized and those of another route through this level are (the
-        Barracks from the Outer Cloister with the Jail terrorized, the Burial Grounds from the Cold
-        Plains). The level itself says nothing: every script of it starts there."""
+        """(route, script) the level follows: the main one, unless only another route through it goes on to a
+        terrorized level (the Barracks from the Outer Cloister with the Jail terrorized)."""
         if area in self.selected:
             return self.selected[area]
         ways = self.ways.get(area)
@@ -154,15 +139,14 @@ class Progress:
         return None if stage is None else Step(route, script, stage)
 
     def ending(self, area: int) -> bool:
-        """Whether the route is at its end on level `area`: what is left of its script is the loot and
-        the leaving (every way on taken, every object used, every boss dead). The macro request leaves
-        the game from there, and the pickup key seeks nothing more."""
+        """Whether only the loot and the leaving are left of level `area`'s script: the macro request leaves the
+        game from there, and the pickup key seeks nothing more."""
         step = self.step(area)
         return step is not None and step.stage.kind in (LOOT, LEAVE)
 
     def used(self, area: int, label: str, place: Place, places: Iterable[Place]) -> None:
-        """The step saw the object at mark `label`, at `place`, operated; `places`: every mark the
-        level's card holds with that label. With each of them used the stage is done."""
+        """The object at mark `label`, `place`, was seen operated; the stage is done once all `places` (the
+        card's marks with that label) were."""
         used = self.facts.used | {(area, label, place)}
         finished = self.facts.finished
         if all((area, label, each) in used for each in places):
@@ -170,8 +154,7 @@ class Progress:
         self.facts = replace(self.facts, used=used, finished=finished)
 
     def absent(self, area: int, label: str) -> None:
-        """Level `area` has no object with mark `label` (its card knows: levels/model.py `Guidance.absent`): the
-        stage is done with, as with each of them used."""
+        """Level `area` has no object with mark `label` (levels/model.py `Guidance.absent`): the stage is done."""
         self.facts = replace(self.facts, finished=self.facts.finished | {(area, label)})
 
     def stood(self, area: int, label: str) -> None:
@@ -183,9 +166,8 @@ class Progress:
         self.facts = replace(self.facts, looted=self.facts.looted | {area})
 
     def done_marks(self, area: int) -> tuple[frozenset[str], frozenset[tuple[str, Place]]]:
-        """(labels, (label, place) pairs) of level `area`'s card marks that are done with in this game: the marks
-        of its script's stages that are done (`done`; a label a stage still to do names stays), and the objects
-        seen used (a hell pit's chest of several). The level card drops their rows (levels/guide.py)."""
+        """(labels, (label, place) pairs) of level `area`'s marks done with this game: done stages' marks (a label
+        a stage still to do names stays) and objects seen used. The level card drops their rows (levels/guide.py)."""
         found = self.chosen(area)
         if found is None:
             return frozenset(), frozenset()

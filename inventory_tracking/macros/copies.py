@@ -1,31 +1,10 @@
 """The best copy of a unique or set item first: the loop sells one the appraisal calls `vendor` only when the player
-already owns a copy at least as good.
+already owns a copy at least as good ("loop should keep the best copy first", the player, 2026-10-18).
 
-The player, 16:50 on 2026-10-18: "loop should keep the best copy first" (the loop had sold a Maelstrom, set rings, a
-Skin of the Flayed One the appraisal called junk), with the standing rule of 2026-10-04: cleanup never drops the last
-copy of a unique or set, only the surplus. So a set or unique item of the loop's junk (macros/junk.py `junk_of`) is
-kept, and stashed like any keeper, when
-
-- no copy is owned (the first copy),
-- every owned copy rolls worse, or better on some stats and worse on others (none at least as good: appraisal/owned.py
-  `overall`, `AT_LEAST_AS_GOOD`), or
-- what is owned cannot be told: its identify read is not found, or the collection cannot be read (the safe side).
-
-The worse stashed copy stays where it is: the stash's cleanup is the player's ("very carefully").
-
-What is owned (`owned_copies`): the collection database (collection/store.py), read only. The stash watcher captures
-the character's stash, inventory, cube, equipment and mercenary and the shared stash each time the stash closes
-(collection/watch.py), so the loop's own stash stops keep it current; the mules are as of their last capture (Win+S, or
-a stash closed on them). The character that played last (`characters.last_seen`) is the loop's: its inventory and cube
-are left out, they hold the loop's items in transit (at 16:54 on 2026-10-18 a junk Cathan's Seal lay in the cube as
-captured, sold a minute later). Not covered: a character never captured, and an item moved on a mule since its last
-capture. Copies matched as appraisal/owned.py matches them: the same unique or set row, ethereal or not; rolls compared
-on the variable stats both share.
-
-The item's own read: the identify watcher keeps each item it reads in the service's run directory
-(identify/service.py `_assess`, corpus/store.py `persist`: `identified/<id>.json`, with its unit id); an item carried
-from an earlier game has a new unit id and no read (kept). Two copies in one visit: the best rolled is judged first and
-counts as owned for the next.
+Kept, and stashed like a keeper: the first copy, one no owned copy rolls at least as well as, and one whose owned
+copies cannot be told (no identify read, unreadable collection). Owned copies come read-only from the collection
+database, less the playing character's inventory and cube (items in transit); the item's own read from the identify
+watcher's `identified/` files. Notes: history/copies.md.
 """
 
 import json
@@ -57,23 +36,21 @@ from inventory_tracking.macros.pickmode import SET, UNIQUE
 __all__ = ['Appraisal', 'keep_copy', 'owned_copies', 'reads', 'sold']
 
 Observation = dict[str, Any]
-TRANSIT = ('inventory', 'cube')  # the playing character's containers that hold the loop's items (the module text)
+TRANSIT = ('inventory', 'cube')  # the playing character's containers that hold the loop's items
 SHOWN = 3  # the better stats told in the log
 
 
 @dataclass(frozen=True)
 class Appraisal:
-    """What the appraisal said of an item: its verdict (identify/service.py `verdict_for`) and its identify read (the
-    decoded observation), None when not found."""
+    """The appraisal's verdict on an item and its identify read (None when not found)."""
 
     verdict: str
     observation: Observation | None = None
 
 
 def keep_copy(item: Carried, appraisal: Appraisal, owned: Sequence[Observation] | None) -> str | None:
-    """Why the set or unique `item` the appraisal calls `vendor` is kept (the module text), None when it is sold: an
-    owned copy (`owned`, the reads of the copies of the same item; None when they cannot be told) rolls at least as
-    well. Any other item or verdict: None (nothing to say: the verdict decides)."""
+    """Why the set or unique `vendor` item is kept; None when an owned copy (`owned`; None: cannot be told) rolls at
+    least as well, or for any other item or verdict (the verdict decides)."""
     if item.quality not in (SET, UNIQUE) or appraisal.verdict != VENDOR:
         return None
     if appraisal.observation is None:
@@ -95,8 +72,8 @@ def keep_copy(item: Carried, appraisal: Appraisal, owned: Sequence[Observation] 
 
 
 def owned_copies(observation: Observation, database: Path = DEFAULT_DATABASE) -> list[Observation] | None:
-    """The reads of the owned copies of the item read as `observation` (the module text), [] with none; None when the
-    collection cannot be read or the item has no match rule."""
+    """The reads of the owned copies of `observation`'s item; None when the collection cannot be read or the item has
+    no match rule."""
     kind = match_kind(observation)
     if kind is None or not database.exists():
         return None
@@ -117,11 +94,11 @@ def owned_copies(observation: Observation, database: Path = DEFAULT_DATABASE) ->
     return [record.observation for record, _ in without_self(observation, rows) if same_item(observation, record)]
 
 
-READ_UNITS: dict[Path, int | None] = {}  # each identify read's unit id by file (read once: `reads`)
+READ_UNITS: dict[Path, int | None] = {}  # each identify read's unit id by file, read once
 
 
 def reads(directory: Path, units: Iterable[int]) -> dict[int, Observation]:
-    """The identify reads of `units` in the service's run directory `directory` (the module text), by unit id."""
+    """The identify reads of `units` in the service's run directory, by unit id."""
     wanted, found = set(units), {}
     for path in sorted((directory / 'identified').glob('*.json')):
         if path not in READ_UNITS or READ_UNITS[path] in wanted:
@@ -159,10 +136,9 @@ def sold(
     directory: Path | None,
     owned: Callable[[Observation], list[Observation] | None] = owned_copies,
 ) -> list[Carried]:
-    """The loop's `junk` less the set and unique copies kept (`keep_copy`), each told: the kept are no junk, so the
-    stash stop takes them as keepers. `directory`: the service's run directory (macros/visitlog.py
-    `session_directory`), None outside the service (a test, the CLI): no reads there, the junk as it is. Never raises:
-    on a failure the set and unique items are kept."""
+    """The loop's `junk` less the set and unique copies kept (`keep_copy`), each logged; the stash stop takes the kept
+    as keepers. `directory`: the service's run directory, None outside the service (junk returned as is). Never
+    raises: on a failure the set and unique items are kept."""
     candidates = [item for item in junk if item.quality in (SET, UNIQUE)]
     if not candidates or directory is None:
         return list(junk)
@@ -188,7 +164,7 @@ def sold(
             kept.add(item.unit_id)
             if observation is not None:
                 held.append(observation)
-    except Exception as error:  # never into the visit: the safe side
+    except Exception as error:  # never into the visit
         LOG.info('Macro: copies: %s: the %d set and unique items kept', error, len(candidates))
         kept = {item.unit_id for item in candidates}
     return [item for item in junk if item.unit_id not in kept]

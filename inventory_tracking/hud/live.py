@@ -1,25 +1,11 @@
-"""Positions read by the canvas itself, every frame (user, 2026-10-05: marks lagged).
+"""Game memory the canvas reads itself each frame, between the producers' payloads (user, 2026-10-05: marks lagged).
 
-Ground marks are map points drawn relative to the player, so they are only as fresh as the
-player position, and a marked monster walks too. The level guide publishes both twice a second;
-in between, the canvas reads the eight position bytes of each unit's dynamic path straight from
-the game: the player's (`live` in the ground payload: pid and address) and every mark that
-carries a path address (a mark with no unit record: hud/dots.py reads those). Nothing notifies another
-process of a memory write without stopping the game, but a read costs microseconds, so polling
-once per frame is as good as instant.
-The path keeps whole world units at +0x02/+0x06 (confirmed, levels/memory.py); +0x00/+0x04 are
-taken as their 16-bit fractions, the classic layout, not confirmed here. A read that fails or
-lands far from the published position (a freed path, another level) leaves that one position as
-published. Every monster dot, on the map card and on the ground, carries its unit record too: hud/dots.py
-reads its mode and position each frame, so a dead monster's dot goes at once and a new monster gets one
-from the canvas's own walk of the monster table (rca/2026-10-14/run-1916-hud-findings.md §2); `follow`
-puts them on both.
-
-The open-panel flags are read the same way (user, 2026-10-07): while the player reads items in
-the inventory, stash, shop or mercenary panel, the canvas draws the slots of HUD.dim_slots faint.
-The producer names the flag array in a 'panels' widget (hud/process.py PanelBeacon), which has
-no slot and is never drawn. The same widget names the game's input mode byte (1: controller), read each
-refresh so the slots are laid out for the layout the game shows (HUD.controller_slots, 2026-10-13).
+- Positions: the eight bytes of each dynamic path (the player's, and marks that carry only a path address; unit
+  marks are hud/dots.py's). Whole units at +0x02/+0x06 (confirmed, levels/memory.py); +0x00/+0x04 taken as 16-bit
+  fractions (classic layout, unconfirmed). A failed or far read keeps the published position.
+- Open panels (user, 2026-10-07): while inventory, stash, shop or mercenary is open, HUD.dim_slots draw faint. The
+  'panels' widget (hud/process.py PanelBeacon, never drawn) names the flag array and the input mode byte
+  (1: controller, HUD.controller_slots).
 """
 
 import os
@@ -43,9 +29,8 @@ def position(data: bytes) -> tuple[float, float]:
 
 
 class LiveMemory:
-    """Keeps /proc/<pid>/mem open for the game the payloads name, rebound when it changes (game/
-    GameMemory is the macro's: one game a run, short reads refused). `read(fd, size, address)`: a pread, whose short
-    reads the callers' decoders reject."""
+    """Keeps /proc/<pid>/mem open for the game the payloads name, rebound when it changes. `read` is a pread; the
+    callers' decoders reject short reads."""
 
     def __init__(self, open_memory=open_memory, read=os.pread):
         self.memory = ProcessMemory(opener=open_memory)
@@ -187,10 +172,8 @@ def map_card_of(boxes) -> dict | None:
 
 
 def follow(boxes, ground, moved=None):
-    """`boxes` with the ground widget's payload replaced by its live one (None = unchanged), and
-    the map card's player moved with it: a map that keeps the player in the middle
-    (hud/map.py LOCAL_SCALE) would otherwise scroll in half-second steps. `moved` (hud/dots.py
-    `LiveDots.frame`): every monster dot where it is now, the dead and gone dropped, the new added."""
+    """`boxes` with the ground payload replaced by its live one (None = unchanged) and the map card's player moved
+    with it, so a player-centred map does not scroll in half-second steps. `moved`: `LiveDots.frame`'s dots."""
     if ground is None and moved is None:
         return boxes
     return [(Widget(w.id, w.kind, w.slot, _followed(w, ground, moved)), box) for w, box in boxes]

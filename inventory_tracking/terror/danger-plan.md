@@ -71,7 +71,7 @@ in the logs. Deliverable: the table above with numbers and a `weight` per family
 | Terror Zone modifier | `ZoneTracker.zone_modifier` (already tracked) | every plain monster of the zone: 'Cursed', 'Extra Strong', 'Extra Fast', 'Lightning Enchanted' zones raise every pack |
 | Terror level | player level + 2, cap 96 | base damage via `monlvl` |
 | density | live positions (0.25 s) | shooters within one screen of each other: threat adds up, across packs too |
-| curse on the player | player states (`buff_probe.py`, buff_research.md) | Amplify Damage / Decrepify / Lower Resist active now |
+| curse on the player | player states (`buff_probe.py`, inventory_tracking/history/buff_research.md) | Amplify Damage / Decrepify / Lower Resist active now |
 | the character | player stats: life, resistances, physical reduction | turns pack damage into "% of life per second" |
 
 Open in R3: (a) re-reading stats 350/351 for present monsters every few passes (cost: one stat

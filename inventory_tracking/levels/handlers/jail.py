@@ -1,11 +1,7 @@
 """Barracks → Jail 1-3 → Inner Cloister: the next level, the waypoint and the way back.
 
-The user tracks three POIs per Jail level (2026-09-30): next level, waypoint ("teleport") and
-the stairs up, named for where they lead (Jail 1: the Barracks). Jail 1 evidence (Win+C dump
-20260930T091905Z-6d876f84, fixture jail_1): one 'Jail Next N', one 'Jail Prev S', one
-'Jail Waypoint W' in 12x12 doorway rooms; Jail 2 and 3 evidence (fixtures jail_2, jail_3).
-Jail 1-3 confirmed 2026-09-30 by the user. Jail 3's exit is 'Jail Cath', toward the Inner
-Cloister. The Barracks comes from lvlprest names only and is unconfirmed (no evidence yet).
+Jail 1-3 confirmed 2026-09-30 (fixtures jail_1..3); Jail 3's exit is 'Jail Cath'. The Barracks is
+from lvlprest names only, unconfirmed.
 """
 
 from inventory_tracking.levels.handler import previous, stairs_down, target, waypoint

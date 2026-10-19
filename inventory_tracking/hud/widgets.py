@@ -131,8 +131,8 @@ class GuideCard:
 
 
 class TextCard:
-    """Assessment / shop / identify card: styled lines, word-wrapped to the slot's width and
-    ellipsized at its height (what the old assessment label did with its width/line caps)."""
+    """Assessment / shop / identify card: styled lines, word-wrapped to the slot's width and ellipsized at its
+    height."""
 
     PAD_X, PAD_Y, SLACK = 10, 6, 4
 

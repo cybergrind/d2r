@@ -1,30 +1,11 @@
 """Ways out every level has, with or without a handler: its warps and the levels it touches.
 
-Warps. A preset's DS1 file numbers each warp with the level's link slot (levels/ds1.py), and
-levels.txt names the level behind that slot (Vis0..7, bundled as LEVEL_LINKS). So a room whose
-preset has warp tiles is a way out to a known level, marked on the warp itself. Checked on
-2026-10-05 against the saved evidence: in all 1152 warp rooms whose far side was readable
-(Room.leads_to), the slot's level was the one read from memory.
-
-Borders. Levels joined without a warp or an open border gap (Rogue Encampment, Monastery Gate,
-the Act 2 deserts, the Outer Cloister behind the Barracks) show only as rooms whose neighbours
-belong to the other level. Such a level is marked at the room nearest the middle of those rooms,
-once any of them has been read (levels/session.py keeps them for the game).
-
-A handler's own marks win: a way out it already marks (by kind, or an entrance it keeps as a side
-trip with PoiSpec.warp) is not repeated, so its label and colour stand; a level its border gaps
-are waiting to name (ExitsHandler.exits) is left to them. The kind is a guess from the area
-numbers, which grow along the story: a lower-numbered level is the way back.
-
-Open passages. A way out with no warp behind it (presets.open_passage: levels.txt, or a border) is crossed by
-walking, not clicked: the River of Flame's bridge into the Chaos Sanctuary, the Outer Cloister's gate into the
-Barracks, every border. Its mark is where the arrow points; `through` gives the place a walk goes to so that the
-level changes, PASSAGE_PAST inside the next level (macros/goals.py `route_goal`, the level run's way through).
-
-Towns. A town marks only its way out to the wilderness (user, 2026-10-06): Lut Gholein's sewer
-ladders and the Harem were noise, its gate to the Rocky Waste is in one of two places. And its
-waypoint (user, 2026-10-07), an object the town's DS1 file places (presets.waypoint_spot): known
-on entry, before the game streams the object (the Rogue Encampment has four layouts).
+Warps: a DS1 warp's link slot names the level behind it (levels.txt Vis0..7), marked on the warp itself.
+Borders: a level joined without a warp shows as rooms whose neighbours belong to it, marked at the room
+nearest their middle. A handler's own marks win and are not repeated; kind is guessed from area numbers
+(lower = the way back). Open passages (presets.open_passage) are walked, not clicked: `through` gives the
+place PASSAGE_PAST inside the next level. Towns mark only their way to the wilderness (user, 2026-10-06)
+and their waypoint (user, 2026-10-07). Rationale and evidence: levels/history/exits.md.
 """
 
 import math
@@ -56,9 +37,8 @@ def kind_for(area: int, target: int) -> str:
 
 
 def warp_exits(snapshot: LevelSnapshot) -> tuple[Poi, ...]:
-    """One POI per (preset instance, level behind its warps), on the warp tiles; the ways on before
-    the ways back, so a level without a handler leads with its next level (the Forgotten Tower's one
-    preset holds both: slot 0 Black Marsh, slot 1 Tower Cellar 1)."""
+    """One POI per (preset instance, level behind its warps), on the warp tiles; ways on before ways back,
+    so a level without a handler leads with its next level."""
     area = snapshot.location.area_id
     pois = []
     for room, _ in instances(snapshot.rooms):
@@ -91,19 +71,16 @@ def border_exits(snapshot: LevelSnapshot, skip: Iterable[int] = ()) -> tuple[Poi
     return tuple(pois)
 
 
-# Tiles past the level's edge an open passage's far place lies: one tile (5 units), inside the next level. The River
-# of Flame's bridge on 2026-10-14 (takes 20261014T190527Z-107 then 190924Z-108, 192208Z-107 then 192338Z-108): the
-# level changed at the rooms' edge (tile row 1120: y 5600.3 in the River, 5599.6 in the Sanctuary a frame later), on
-# walks that went on to y 5595.9, a tile in.
+# Tiles past the level's edge an open passage's far place lies; the level changes at the rooms' edge
+# (River of Flame bridge, take 20261014T190527Z-107).
 PASSAGE_PAST = 1.0
 INWARD_STEP = 0.25  # tiles: the walk along a border room toward its edge, when the mark is inside the level
 INWARD_LIMIT = 200.0  # tiles: no room is that long
 
 
 def outward(rooms: tuple[Room, ...], to: int) -> tuple[int, int] | None:
-    """The map direction from the level toward level `to`, which it touches without a door: from
-    the middle of the level's rooms to the middle of those touching `to`, along the nearer axis.
-    None while no room is known to touch it."""
+    """The axis direction from the middle of the level's rooms to the middle of those touching `to`; None
+    while no room is known to touch it."""
     edge = [room for room in rooms if to in room.leads_to]
     if not edge:
         return None
@@ -128,11 +105,9 @@ def in_rooms(rooms: Iterable[Room], point: tuple[float, float]) -> bool:
 
 
 def through(rooms: tuple[Room, ...], mark: tuple[float, float], to: int) -> tuple[float, float] | None:
-    """The far place of an open passage into level `to` marked at `mark` (tiles), in tiles: PASSAGE_PAST past the
-    edge of the level's `rooms`, along the passage. A mark beyond the rooms (a handler's mark on the far side: the
-    River's bridge end) is crossed from the rooms' nearest point toward it; a mark inside them (a border's room)
-    from it the way the level touches `to` (`outward`) to where its rooms end. None: no room, or the mark inside
-    them and no room known to touch `to`."""
+    """The far place (tiles) of an open passage into `to` marked at `mark`: PASSAGE_PAST past the rooms' edge.
+    A mark beyond the rooms is approached from their nearest point; one inside walks `outward` to the edge.
+    None: no rooms, or a mark inside and no room known to touch `to`."""
     if not rooms:
         return None
     if not in_rooms(rooms, mark):
@@ -160,9 +135,8 @@ def through(rooms: tuple[Room, ...], mark: tuple[float, float], to: int) -> tupl
 
 
 def passage_of(area: int, rooms: tuple[Room, ...], poi: Poi, mark: tuple[float, float]) -> tuple[float, float] | None:
-    """The far place (`through`, tiles) of a way out `poi` of level `area` marked at `mark` that is an open passage
-    (presets.open_passage); None for a warp, an object (a portal: `Poi.use`), a mark that names no level, or a way
-    out that is not one (a waypoint, a boss)."""
+    """`through` for a way out that is an open passage (presets.open_passage); None for a warp, an object
+    (`Poi.use`), a mark naming no level, or no way out."""
     if poi.kind not in WAYS_OUT or poi.area is None or poi.use or not open_passage(area, poi.area):
         return None
     return through(rooms, mark, poi.area)

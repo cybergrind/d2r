@@ -1,10 +1,8 @@
 """Regenerate levels/data/preset_objects.json: where each preset's files place the objects a mark may sit on.
 
-For every LvlPrest Def and DS1 variant (File1.. order, 0-based as Room.variant): the objects of the
-WANTED kinds (objects.txt ids, through objpreset.txt), each at its place in world units from the
-preset origin. `variants` counts the files of every preset that holds one, so a mark can be checked
-to have a spot in each layout (levels/registry.py). Reads the d2data checkout (third-parties/) for
-the tables and the installed game (read-only) for the files. Runtime code reads only the bundled table.
+Per LvlPrest Def and DS1 variant (0-based as Room.variant): the WANTED objects (objects.txt ids) in world
+units from the preset origin; `variants` counts each such preset's files (checked by levels/registry.py).
+Reads the d2data checkout and the installed game (read-only); runtime reads only the bundled table.
 
 Run: uv run --offline python -m inventory_tracking.levels.build_objects "<game folder>"
 """

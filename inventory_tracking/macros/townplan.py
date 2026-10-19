@@ -1,31 +1,12 @@
-"""The whole town visit simulated before its first click (rca/2026-10-18/arch-town-planning.md §3 B, step M1). Pure: no
-input, no reads.
+"""The whole town visit simulated before its first click (rca/2026-10-18/arch-town-planning.md §3 B, step M1). Pure.
 
-From a visit's snapshot (macros/visitlog.py `Snapshot`, the `start` one: after Cain and the verdicts) `plan_visit` runs
-the visit's stops in the ruled order (the player, 2026-10-18 12:55: Cain, the stash, Jamella, Halbu when due, the exit)
-over the inventory, the cube, the stash pages and the resource stacks, and returns the ordered moves, the predicted end
-state and the contract's misses it foresees, named (town.py `contract`). The stops are filled by today's helpers, as
-visit.py makes them: the stash stop by town.py `stash_stop` and `after`, Jamella by the passes of visit.py `jamella`
-(the inventory's junk sold, the cube's junk out as the room allows and sold, pass after pass), the keys moved out of
-the build's block as visit.py does after her. Cain has nothing left to do in a `start` snapshot (the unidentified stay
-unidentified: no verdict is guessed); Halbu and the exit move no item.
+From a visit's `start` snapshot (visitlog.py `Snapshot`, after Cain) `plan_visit` runs the stops in the ruled order
+(the player, 2026-10-18 12:55: Cain, the stash, Jamella, Halbu when due, the exit) with the helpers visit.py uses
+(town.py `stash_stop`/`after`, visit.py `jamella`'s passes), and returns the moves, the end state and the contract
+misses it foresees (town.py `contract`). Halbu and the exit move no item.
 
-The variants behind the player's rulings are `Rulings` (§5 of the study):
-
-1. `park_junk`, on (the player, 16:50 on 2026-10-18: "junk can be temporarily stored in stash, but sold after"):
-   inside the stash stop, the inventory's junk that holds a cube keeper's block put onto a shared page with room and
-   taken back before the stash closes (the cube's junk then waits in it for Jamella's passes). town.py `stash_stop`
-   plans it itself (PARK_JUNK), so the ruled order is simulated with it, as visit.py makes it;
-2. `jamella_first`, off: Jamella before the stash when a cube keeper gets out only once the junk is sold (visit.py
-   `JAMELLA_FIRST`);
-3. `drop_junk`, off: such junk put down in town, its gold given up;
-4. `keeper_in_cube`, on (the player, 17:50 on 2026-10-18: "keeper can wait in cube"): a cube keeper with room on a page
-   that the visit cannot get out is left in the cube for the next visit, not a miss (named `deferred`, as town.py
-   `contract` names it: KEEPER_IN_CUBE); one no page has room for is the stash full, still a miss.
-
-With a variant's ruling on, it is simulated beside the ruled order and the one with the fewest misses (then the fewest
-moves) is the plan. In shadow (step M1) visit.py logs the prediction at the visit's start and whether the contract
-matched it at the end; no click is made by it.
+`Rulings` are the variants (§5 of the study); with one on it is simulated beside the ruled order and the plan with
+the fewest misses wins. In shadow: visit.py logs the prediction and whether the contract matched it; no click.
 """
 
 from collections.abc import Iterable, Sequence
@@ -65,16 +46,19 @@ __all__ = [
     'simulate',
 ]
 
-SELL_PASSES = 4  # visit.py SELL_PASSES: the cube's junk out and sold, pass after pass
-# The contract's parts the plan models (town.py `contract`); the keys bought (where a new stack lands, whether her stock
-# has room), the portals and the units parked on the ground are not (the study's §1.2, row 13)
+SELL_PASSES = 4  # visit.py SELL_PASSES
+# The contract's parts the plan models; keys bought, portals and units on the ground are not (the study's §1.2)
 MODELLED = ('cube', 'block', 'junk', 'keepers', 'parked')
 
 
 @dataclass(frozen=True)
 class Rulings:
-    """The variants the player rules on (the module text): the park on (16:50 on 2026-10-18), a keeper waiting in the
-    cube on (17:50), the rest off."""
+    """The variants the player rules on (2026-10-18).
+
+    `park_junk` (16:50: "junk can be temporarily stored in stash, but sold after"): junk blocking a cube keeper parked
+    on a page and taken back (town.py PARK_JUNK). `jamella_first`: Jamella before the stash. `drop_junk`: such junk put
+    down, its gold given up. `keeper_in_cube` (17:50: "keeper can wait in cube"): a cube keeper some page has room for
+    waits for the next visit (`deferred`), not a miss."""
 
     park_junk: bool = True
     jamella_first: bool = False
@@ -82,14 +66,13 @@ class Rulings:
     keeper_in_cube: bool = True
 
 
-RULED = Rulings()  # the player's, 16:50 and 17:50 on 2026-10-18
+RULED = Rulings()
 
 
 @dataclass(frozen=True)
 class Step:
-    """One move of the plan: its stop, what is done (`tab`, `page`, `aside`, `into cube`, `out`, `park`, `unpark`,
-    `drop`, `sell`, `keys`, `runes`: a rune transmute, the item its input's class, `to` the class made), the item, and
-    where it goes (a page or, negative, a resource tab; an inventory cell)."""
+    """One move of the plan: its stop, the verb (`tab`, `page`, `aside`, `into cube`, `out`, `park`, `unpark`, `drop`,
+    `sell`, `keys`, `runes`: a transmute, `to` the class made), the item, and where it goes."""
 
     stop: str
     verb: str
@@ -99,9 +82,7 @@ class Step:
 
 @dataclass(frozen=True)
 class State:
-    """The visit's world as simulated: the pack (inventory and cube), the stash's pages and stacks, the player's own
-    cells, the junk and the unidentified; what was sold, put down (`ground`), left on a page by a park (`parked`:
-    page, item), and whether Jamella was visited (`shopped`: the contract's `restocked`)."""
+    """The visit's world as simulated; `parked`: (page, item) left by a park; `shopped`: the contract's `restocked`."""
 
     pack: Pack
     pages: tuple[Page, ...]
@@ -134,8 +115,7 @@ class State:
 
 @dataclass(frozen=True)
 class VisitPlan:
-    """The plan of a visit: the variant chosen, its moves in order, the end state, the contract on it, the misses
-    foreseen (named, the modelled parts only) and the keepers left in the cube by ruling (`deferred`)."""
+    """A visit's plan: the variant chosen, its moves, end state, contract, modelled misses and `deferred` keepers."""
 
     variant: str
     steps: tuple[Step, ...]
@@ -150,8 +130,7 @@ class VisitPlan:
 
 
 def kind_of(miss: str) -> str:
-    """The contract's part a miss of town.py `contract` names: cube, block, junk, keepers, keys, portals, ground; a
-    park's `parked`."""
+    """The contract's part a miss of town.py `contract` names."""
     for prefix, kind in (('cube ', 'cube'), ('block ', 'block'), ('junk left', 'junk'), ('keys ', 'keys'),
                          ('portals ', 'portals')):  # fmt: skip
         if miss.startswith(prefix):
@@ -191,9 +170,8 @@ def _without(pack: Pack, gone: Iterable[Carried]) -> Pack:
 
 
 def _unpacked(pack: Pack, items: Sequence[Carried]) -> tuple[Pack, list[Carried]]:
-    """`items` out of the cube (cube.py `unpack`: the tallest first, each one the inventory has a block for, into its
-    first free block, the game's Ctrl + click as everywhere: §1.2); the pack after, and those that came out at their
-    new cells."""
+    """`items` out of the cube as cube.py `unpack` does (tallest first, each into its first free block); the pack
+    after, and those that came out at their new cells."""
     rows, held, out = pack.inventory, list(pack.items), []
     units: set[int] = set()
     for item in _tallest_first(items):
@@ -228,10 +206,8 @@ def _put_on_pages(pages: tuple[Page, ...], puts: Iterable[tuple[Carried, int]]) 
 
 
 def _stash(state: State, needs: Needs, *, park: bool = True, drop: Sequence[Carried] = ()) -> tuple[State, list[Step]]:
-    """The stash stop (town.py `stash_stop`, `after`), the puts made on the pages and the stacks, in the order
-    visit.py `stash_stop` clicks them. `drop`: junk put down first (ruling 3); `park`: the stop's park of the junk that
-    holds a cube keeper's way out (ruling 1, town.py PARK_JUNK): onto a page before the moves aside, back into the
-    inventory once the keepers are in; one with no room back stays on its page (`State.parked`)."""
+    """The stash stop (town.py `stash_stop`, `after`), its moves in visit.py's click order. `drop`: junk put down
+    first; `park`: as `Rulings.park_junk`, a parked item with no room back stays on its page (`State.parked`)."""
     steps = [Step('stash', 'drop', item) for item in drop]
     pack = _without(state.pack, drop)
     stop = stash_stop(Holdings(pack, state.own, state.junk, state.unknown), state.view, needs, park=park)
@@ -277,9 +253,8 @@ def _stash(state: State, needs: Needs, *, park: bool = True, drop: Sequence[Carr
 
 
 def _jamella(state: State, needs: Needs, *, stock: bool) -> tuple[State, list[Step]]:
-    """Jamella (visit.py `jamella`): the full materials put down, the inventory's junk sold, the cube's out as the room
-    allows and sold, pass after pass; skipped with nothing to sell and nothing short (`stock`). No rune sold (the
-    player, 17:50 on 2026-10-18: a full stack is cubed down instead, town.py RUNES_AIM)."""
+    """Jamella (visit.py `jamella`): full materials put down, junk sold, the cube's out and sold pass after pass;
+    skipped with nothing to sell and nothing short (`stock`). No rune sold: full stacks are cubed (RUNES_AIM)."""
     full = state.full
     material = frozenset(txt for txt in sold_full(full) if txt not in RUNE_CLASSES)
     own, junk = state.own, state.junk
@@ -340,9 +315,8 @@ def simulate(
     park: bool = True,
     drop: Sequence[Carried] = (),
 ) -> tuple[State, tuple[Step, ...]]:
-    """The visit's stops over `state`, in the ruled order (Cain: nothing left; the stash; Jamella; Halbu and the exit:
-    no item moved; the keys out of the block), or Jamella first (`jamella_first`); `park`, `drop` as `_stash` takes
-    them. The end state and the moves in order."""
+    """The visit's stops over `state` (stash, Jamella, the keys out of the block), or Jamella first; the end state and
+    the moves in order."""
     steps: list[Step] = []
     early = False
     if jamella_first:
@@ -361,8 +335,7 @@ def simulate(
 
 
 def _keepers_in_cube(state: State) -> tuple[Carried, ...]:
-    """The cube's keepers as the visit leaves it: identified, not junk, not a kept gem or a full stack's (the contract's
-    keepers)."""
+    """The cube's keepers as the visit leaves it (the contract's: identified, not junk, not a full stack's)."""
     full = state.full
     return tuple(
         i
@@ -391,9 +364,8 @@ def _blockers(state: State) -> list[tuple[Carried, ...]]:
 
 
 def plan_visit(snapshot: Snapshot, rulings: Rulings = RULED) -> VisitPlan | None:
-    """The visit's plan from its `start` snapshot (the module text): the ruled order, and each variant a ruling allows
-    when the ruled order leaves a keeper in the cube; the one with the fewest misses, then the fewest keepers deferred,
-    then the fewest moves, the ruled order on a tie. None with the stash unread."""
+    """The visit's plan: the ruled order, and the allowed variants when it leaves a keeper in the cube; the fewest
+    misses, then deferred, then moves wins, the ruled order on a tie. None with the stash unread."""
     state = State.of(snapshot)
     if state is None:
         return None

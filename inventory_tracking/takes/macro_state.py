@@ -1,12 +1,9 @@
 """What the macro holds between its looks at the game, as a plain row for the combat recorder.
 
-A take's frames say what stood where; what the macro did with them also hangs on what it carried:
-whether attack mode is wanted, which routine works, the build chosen, how far the route is in this
-game and the mark the level card leads with. `snapshot` reads those off a `MacroRunner` without
-touching it (attribute reads from the recorder's thread; a value caught mid-change is of the frame
-before or the frame after, and the next snapshot rights it). The recorder writes the row as a `state`
-event when a take opens and whenever it differs from the one written last (takes/record.py), so an
-incident can be replayed "as it was" without anything taken from the log by hand.
+`snapshot` reads off a `MacroRunner`, without touching it, what a take's frames cannot say: attack mode, the routine,
+the build, the route's progress, the level card's mark. Reads race the runner harmlessly (the next snapshot rights a
+value caught mid-change). The recorder writes the row as a `state` event when a take opens and whenever it changes
+(takes/record.py), so an incident can be replayed as it was.
 """
 
 import math
@@ -52,10 +49,8 @@ def card(target: Any) -> list[Any] | None:
 
 
 def pursuit(hunter: Any) -> dict[str, Any]:
-    """The active task with the pursuit loop on (macros/pursuit.py): the goal of the mode's last decision
-    (its label, what is done at it, its place, how near is near enough) and the key in the mailbox with
-    the clock time of its press. The age of the press is the row's time less `pressed_at`: an age written
-    here would make every row differ from the one before."""
+    """The active task with the pursuit loop on (macros/pursuit.py): the last decision's goal and the mailbox key with
+    its press time (a time, not an age: an age would make every row differ)."""
     goal, posted = hunter.pursued, hunter.pursuit
     return {
         'goal': None
@@ -86,12 +81,9 @@ def times(found: dict[Any, float]) -> dict[str, float | None]:
 
 
 def memory(runner: Any) -> dict[str, Any]:
-    """What the hunt and the runner remember between looks, as clock times (rca/2026-10-13/replay-readiness.md
-    §6: a scene staged from a take began with a fresh hunt): the sweep's end, last look, failures and the
-    places it shuns; the jumps last made and last failed by skill and the ways distrusted (travel.py); when
-    each buff was last cast; the monsters left alone and until when, those remembered but gone; the
-    pursuit's last judgement of a press and the drop it stopped for; attack mode's quiet after travel. Each
-    part that cannot be read is left out. A time is kept, never an age: an age would differ in every row."""
+    """What the hunt and the runner remember between looks, as clock times, never ages (rca/2026-10-13/
+    replay-readiness.md §6): the sweep, jumps and distrusted ways, buffs, monsters left alone, the pursuit's last
+    judgement. A part that cannot be read is left out."""
     hunter: Any = getattr(runner, 'hunter', None)
     parts: dict[str, Callable[[], Any]] = {
         'quiet_until': lambda: when(runner.quiet_until),

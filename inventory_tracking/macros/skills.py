@@ -1,8 +1,6 @@
-"""The key that casts a skill, for the character in the game: skill id -> slot -> key.
+"""The key that casts a skill: skill id -> slot (game memory) -> key (the character's key file).
 
-The slot comes from the game's memory (game/), the key from the character's own key file
-(input/keybindings.py). Slot `i` is key action `14 + i` for the first eight slots and
-`46 + (i - 8)` after them (record probe, 2026-10-06: the four keys the user named agree).
+Slot `i` is key action `14 + i` for the first eight slots and `46 + (i - 8)` after them (record probe, 2026-10-06).
 """
 
 from collections.abc import Mapping
@@ -12,17 +10,15 @@ from inventory_tracking.input.keybindings import MODIFIERS, action_keys, key_fil
 
 
 TELEPORT = 54  # from a charged staff or an oskill alike; the slot table holds it either way
-TOWN_PORTAL = 220  # Book of Townportal: a tome in the inventory puts it in the slot table (macros/portal.py)
-# Townportal O Skill (skills.txt 411, no mana, no delay): the Sling's oskill (uniqueitems.txt Sling, a Ring: `oskill`
-# "Townportal O Skill" 1), in place of the tome (the player, 2026-10-18; macros/portal.py `FROM_SLING`)
+TOWN_PORTAL = 220  # Book of Townportal: a tome in the inventory puts it in the slot table
+# Townportal O Skill (skills.txt 411): the Sling ring's oskill (uniqueitems.txt), in place of the tome (the player,
+# 2026-10-18)
 SLING_TOWN_PORTAL = 411
-ATTACK = 0  # the plain attack, what a mouse button holds when no skill is on it
-# Not a skill: the Swap Weapons key action. CybergrindAA has `c` on action 44 and says `c`
-# swaps (user, 2026-10-06); unconfirmed against another character's file.
+ATTACK = 0  # the plain attack
+# Not a skill: the Swap Weapons key action 44 (user, 2026-10-06; checked on one character's file only).
 SWAP_WEAPONS = -1
 ACTIONS = {SWAP_WEAPONS: 44}
-# What a skill is called in the log and to the player. Here the ones any character has; a build's own
-# are added by the build (`register_names`: builds/warlock/skills.py), which this module never imports.
+# Skill names for logs; a build adds its own (`register_names`), this module never imports builds.
 NAMES = {
     TELEPORT: 'Teleport',
     TOWN_PORTAL: 'Town Portal',
@@ -33,9 +29,8 @@ NAMES = {
 
 
 def register_names(names: Mapping[int, str]) -> None:
-    """A build's skills by name, for the texts: called by the module that defines the build's skill
-    ids, so whatever can name one of them has its name here. A skill that has a name keeps it: a
-    second, different one is an error."""
+    """Add a build's skill names (called where the build defines its skill ids). A different second name for a
+    skill is an error."""
     for skill, name in names.items():
         if NAMES.setdefault(skill, name) != name:
             raise ValueError(f'skill {skill} is {NAMES[skill]} already: not also {name}')

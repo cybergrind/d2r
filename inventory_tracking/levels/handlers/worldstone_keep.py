@@ -1,22 +1,7 @@
-"""Worldstone Keep 1-3 (Baal): the next level, the WSK 2 waypoint and the way back.
+"""Worldstone Keep 1-3: the next level, the WSK 2 waypoint and the way back; the Throne of Destruction.
 
-Evidence (Win+C dumps, fixtures worldstone_keep_2 and _3, 2026-09-30): one 'Baal Next',
-one 'Baal Prev' and, in WSK 2, one 'Baal Waypoint', each a 16x16 preset in four 8x8 chunks.
-WSK 3's stairs down lead to the Throne of Destruction, a single whole-level preset
-('Act 5 - ThroneRoom', like the Worldstone Chamber). Confirmed in game
-2026-09-30 by the user (WSK 1 has no fixture of its own yet).
-
-Throne of Destruction (131): the mark is the hall before Baal's throne, so teleport steps rush
-there (user, 2026-10-10 night). The layout file (expansion/baallair/wthrone.ds1, read from the
-install 2026-10-10) seats `baalthrone` at (90, 11) units from the preset's origin, at the head of a
-hall whose torches stand at x 89 and 99 from y 24 to 64; the mark is the hall's middle, (94, 40).
-In the two runs of that night the waves were fought from (74 to 102, 26 to 50).
-
-Since 2026-10-11 the mark is a place to fight the waves from, north-west of where they appear (user:
-"west-north off actual throne"; the teleport step ends there and goes back there after a pickup).
-In the two takes of 2026-10-11 (00:12 and 00:18) 153 wave monsters were first seen around
-(90, 25), nine in ten within x 77 to 97 and y 18 to 31. From (82, 14) nine in ten of those places
-are in a clear line, 85% within 20 units and 1% within 8; the nearest was 5.7 away.
+The Throne mark is where to fight the waves from (user, 2026-10-11: "west-north off actual throne");
+measurements in history/handlers_worldstone_keep.md.
 """
 
 from inventory_tracking.levels.handler import PoiSpec, previous, stairs_down, target, waypoint
@@ -44,7 +29,7 @@ HANDLERS = [
         label='Throne',
         preset=r'Act 5 - ThroneRoom',
         at=THRONE_STAND,
-        # Where the file places the portal Baal leaves by (`FinalPortal`): the routes' way on (routes.md).
+        # The portal Baal leaves by (`FinalPortal`): the routes' way on (routes.md).
         extra=[PoiSpec('Worldstone Chamber', r'Act 5 - ThroneRoom', thing=THRONE_PORTAL)],
     ),
 ]

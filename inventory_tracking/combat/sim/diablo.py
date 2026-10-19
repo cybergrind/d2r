@@ -1,36 +1,12 @@
-"""Diablo (monstats `diablo`, txt 243, AI 51 "Diablo") as the client's code plays him: his think, his red lightning
-stream, his fire ring and fire wall, his swings. sim/casters.py `Minds` plays him (`DIABLO`) as it plays the four
-Chaos Sanctuary casters; this module holds his rules and his rows (diablo.json, written by `build` below from the
-game's tables).
+"""Diablo (monstats `diablo`, txt 243, AI 51) as the client's code plays him: his think, red lightning stream,
+fire ring, fire wall and swings. sim/casters.py `Minds` plays him (`DIABLO`); this module holds his rules and
+rows (diablo.json, written by `build` below).
 
-Sources (rca/2026-10-13/re/notes-ai-diablo.md has the addresses and the decompiled reading; rca/2026-10-13/diablo.md
-the checks against the takes):
-
-- **[code]** read in Binary Ninja: the think `ai_d2_ai_51_think` (0x14047EC70), its weight table
-  `ai_d2_ai_51_decide` (0x14047DD70), the target search `ai_d2_ai_51_find_target` (0x14047E880) and its score
-  (0x14047D4A0), the lightning's start and do functions (srvstfunc 53 0x140470950, srvdofunc 152 0x140470F60) and
-  the aim (0x1403AD6B0: each missile goes at where the target stands when it is made);
-- **[table]** diablo.json from pricing/raw/game-excel: his row, his skills, their missiles;
-- **[take]** measured on the 19 recorded Diablo fights (rca/2026-10-13/scripts/diablo_takes.py, diablo-takes.txt;
-  diablo_releases in diablo.md section 2): a mode's frames, the frame of it a missile is let go at, how many, how
-  fast they go;
-- **[inferred]** what neither settles, named where it is chosen.
-
-**The think** [code]. No target search radius to speak of (anyone in the act within 1020 sub-tiles) and no sight
-needed to notice. Each think draws one of 17 actions with the weights of `weights` (a sum, one roll uniform over it)
-from three tables: the target in melee, out of melee in sight, out of melee out of sight; then changed by the
-target's resistances (he favours the element it resists less: fire raw stat against lightning), the distance (no
-lightning at all beyond LIGHTNING_RANGE: the run and the wall take its place), how many candidates he has, his and
-the target's distance from his home. After an action he thinks again at its mode's end plus `aidel` (12 in Hell).
-
-**The red lightning** (DiabLight, mode SC) [code + take]: the cast puts state 12 `inferno` on him and an end frame
-40 frames on (Param1); from the do frame on (10 frames into SC [take]) one missile 172 a frame [take: 38 to 39 a
-cast], each **aimed at where the target stands at that frame** (it follows the target), flying STREAM_STEP a frame
-[take: 0.88] for Param2 + level - 1 frames (39 at level 10 [code + take]), through every body (Pierce). A missile
-takes its points x `DamageRate` / 1024 (82) **each frame a body is within CONTACT of it** [take-checked: a standing
-character loses 16 points a frame of the stream at 75 % lightning resistance, the table's 34 raw a hit x 0.08 x
-about 6 missiles in contact]. Points at level 10 (Sk1lvl 3 + 7): physical 24.3..26.3, lightning 42.3..52.5
-(HitShift 6) [table + code].
+Sources are tagged [code] (Binary Ninja: `ai_d2_ai_51_think` 0x14047EC70, `ai_d2_ai_51_decide` 0x14047DD70 and
+the lightning's functions; addresses in rca/2026-10-13/re/notes-ai-diablo.md), [table], [take] (the 19 recorded
+Diablo fights, rca/2026-10-13/diablo.md) and [inferred]. Each think draws one of 17 actions by `weights`; the
+lightning aims each missile at where the target stands at that frame. The think and the stream in full:
+combat/history/sim-diablo.md.
 """
 
 import csv
@@ -78,12 +54,9 @@ HOME_PACE = 1.5  # +0x24 = 50 (case 14)
 ROAM_STEP = 5  # `ai_d2_ai_walk_random`(game, unit, 5) (case 16)
 
 # -- his target [code + take] -------------------------------------------------------------------------------------
-# The search scores every player and pet of the act (0x14047D4A0: in melee 100, in sight 75, life under 20 % +300,
-# its resistances, skills and damage) and takes the best. The score's terms are not all read; the takes' path
-# records name the character in 426 of the 518 frames of his casts where they name someone (82 %), a companion in 92.
+# The search (0x14047D4A0) scores every player and pet of the act; its terms are not all read: the takes' share.
 CHARACTER_SHARE = 0.82  # [take] a think's target is the character with this chance, else the nearest companion
-# [take] mobs.py RAW_RESISTS, the main set: fire 90 against lightning 79 after Hell's penalty (stats 39 / 41 of
-# the hurt events: 190 / 179). Only their order matters to him.
+# [take] mobs.py RAW_RESISTS after Hell's penalty (stats 39 / 41). Only their order matters to him.
 CHARACTER_RESISTS = {'fire': 90.0, 'lightning': 79.0}
 SIZE = 1.0  # [inferred] the target's size per axis the distance is taken less of (players' size not read)
 REACH = 4.5  # [inferred] his melee range: monstats2 MeleeRng 3 plus half his SizeX 3
@@ -229,17 +202,14 @@ def skill_level(txt: int, slot: int) -> int:
 
 
 def missile_life(level: int) -> int:
-    """[code 0x140470BB0] the stream missile's life: DiabLight `calc1` is 0, so Param2 of the missile (30, its
-    `Baseline Range`) + level - 1 frames: 39 at level 10 (the takes: 39 at the median)."""
+    """[code 0x140470BB0] the stream missile's life: the missile's Param2 + level - 1 frames (DiabLight `calc1` 0)."""
     return int(float(data()['missiles'][str(LIGHTNING_MISSILE)].get('Param2') or 0)) + level - 1
 
 
 def rate(missile: int) -> float:
-    """A missile that takes from every body in contact each frame: the share of its points a frame. The lightning:
-    `DamageRate` / 1024 [code: notes-mobs.md B3, take-checked with `every`]. The wall's flames: FLAME_SHARE of their
-    table points a frame [take, fitted: a character standing on a wall lost 2 to 4.5 points a frame at 75 % fire
-    (20261013T184953Z-108's hurt events); whole points over the CONTACT flames make 11, the rate's 41 / 1024 a 25th
-    of that; the hit of 180 and DiabWall's do-function 102 are not read]. 0: whole points once (the ring)."""
+    """The share of its points a stream missile takes from each body in contact a frame: the lightning's
+    `DamageRate` / 1024 [code, take-checked]; the wall's flames FLAME_SHARE [take, fitted on 20261013T184953Z-108;
+    their code not read]; 0: whole points once (the ring)."""
     if missile == LIGHTNING_MISSILE:
         return float(data()['missiles'][str(missile)]['DamageRate']) / 1024
     return FLAME_SHARE if missile == WALL_FLAME else 0.0
@@ -247,9 +217,7 @@ def rate(missile: int) -> float:
 
 def every(missile: int) -> int:
     """[table + take] the frames a stream missile waits before it takes from the same body again: missiles.txt
-    `NextDelay` (3 for the lightning; its parser slot is on an encrypted page, notes-damage.md). The takes agree:
-    a character standing in the stream had 220 missile-frames within CONTACT a cast and lost 170 to 312 points
-    (five casts), against 201 by this rule and 603 if every frame took."""
+    `NextDelay` (the takes agree: 201 points a cast by this rule against 170 to 312 lost)."""
     found = data()['missiles'].get(str(missile), {})
     return max(int(float(found.get('NextDelay') or 1)), 1)
 

@@ -1,16 +1,12 @@
 """Elite groups of a level: how many were killed, how many are known alive, out of how many.
 
-A level's elite groups are of two sorts (terror/data/elites.json, built by build_elites.py):
-random ones, a number the game rolls within the level's range and places as rooms come alive,
-so where the unseen ones are is not known; and fixed ones on top, placed by the level's map
-pieces (a super unique, a unique pack or a champion group at a spot of the piece) or spawned
-by a script (seal bosses, Baal's waves). The client holds every room of the level with its
-piece from entry on, so the fixed ones are known before they are seen.
+Two sorts (data/elites.json, built by build_elites.py): random groups, a count rolled within the
+level's Hell range and placed as rooms come alive; and fixed ones, placed by the level's map
+pieces or spawned by a script (seal bosses, Baal's waves), known from entry since the client
+holds every room's piece.
 
-A group is a unique with its minions, a super unique, or the champions of one type that stood
-together when first seen (3,023 champions of the probe logs to 2026-10-06 each had another of
-their type within 10 units). A unique or champion group first seen at a fixed spot is that
-spot's group; every super unique is fixed. The ranges are Hell's. Pure data and arithmetic.
+A group is a unique with its minions, a super unique, or the champions of one type standing
+together at first sight. A group first seen at a fixed spot is that spot's. Pure data and arithmetic.
 """
 
 import json
@@ -83,9 +79,8 @@ class Tally:
 
 
 def fixed_groups(area: int, rooms, elites: Table | None = None) -> list[Fixed]:
-    """The level's fixed groups, from its rooms' pieces and its scripts. A piece whose file is
-    not read yet counts as its first one; a super unique a piece names at several spots, or
-    several pieces name, is one group."""
+    """The level's fixed groups, from its rooms' pieces and its scripts. An unread piece counts
+    as its first variant; a super unique named at several spots is one group."""
     elites = elites or table()
     found: list[Fixed] = []
     pieces, named = set(), set()

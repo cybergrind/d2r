@@ -1,30 +1,13 @@
-"""Echoing Strike as the framework asks an attack (macros/build.py `Attack`): the skill the fight
-holds, how far the blades hurt, what the strike reads off the character's own units, where to cast,
-and what a cast takes off whom when a place to stand is priced. One decision for the simulator
-(sim/engine.py) and for the game (combat/plan.md stage 5; the steer of 2026-10-10: the simulated gain
-belonged to code the game never ran).
+"""Echoing Strike as the framework asks an attack (macros/build.py `Attack`): the skill held, the blades' reach, what
+the strike reads off the character's units, where to cast and what a cast takes off whom when a place is priced.
+One decision for the simulator (sim/engine.py) and for the game (combat/plan.md stage 5).
 
-`LinePolicy`, the line sweep, is a policy (combat/policy.py `Policy`): through each live hostile within
-REACH a virtual cast is laid along the line from the character, with the focal point on, short of and
-past the monster (OFFSETS), and scored by the points the emulated blades would take off the monsters
-where they stand: each contact is worth the blade's damage capped by what the monster has left (no
-credit for overkill), with the duplicate rule, and a hit on a linked monster adds the share of its
-damage to every other linked one, each capped by its own points. The best line is cast when it is
-worth MIN_SCORE. It yields: while the player is moving it casts nothing (takeover with yield;
-`yields=False` is the free variant the simulator scores for comparison).
-
-`EchoingStrike` is that sweep with the rest of the contract on it:
-
-- `aim`: the sweep's best line, and with `through` the best line laid through one of those units;
-  both yield to a moving player and want MIN_SCORE;
-- `sees`: the monsters the Defiler's Health Link holds, and the share of the damage dealt again;
-- `dealt`: the line model a place is priced by, which is not `virtual_cast`: every monster ahead of
-  the character within the blades' contact radius of the line to the focal point takes
-  BLADES_A_CAST blades, up to the wall the blades stop at (the way out only, then).
-
-They are two classes: the simulator, the scoreboard and the harnesses make sweeps of their own (not
-yielding, leading, with a flat damage table) and score them as policies, with no skill and no
-character's units in sight; `EchoingStrike.of` makes the attack of such a sweep.
+`LinePolicy`, the line sweep (a combat/policy.py `Policy`): through each live hostile within REACH a virtual cast
+is laid with the focal point on, short of and past it (OFFSETS), scored by the emulated blades' points capped by
+each monster's life (duplicate rule, Health Link share); the best line worth MIN_SCORE is cast, nothing while the
+player moves (`yields`). `EchoingStrike` adds the rest of the contract: `aim` (and `through` units), `sees` (Health
+Link), `dealt` (the line model a place is priced by: BLADES_A_CAST blades on each monster near the line, up to a
+wall). Two classes, as harnesses score sweeps of their own; `EchoingStrike.of` makes the attack of one.
 """
 
 import math
@@ -54,10 +37,8 @@ OFFSETS = (0.0, -3.0, 4.0)  # focal point along the line relative to the monster
 # What one cast takes off a monster on its line, in blades: the first whole and the rest by the
 # duplicate rule, out and back (`virtual_cast`: 2,800 points of a 1,000-point blade).
 BLADES_A_CAST = 2.8
-# The share of casts whose blades hit the monster aimed at, by its distance at the cast: (the bin's furthest units,
-# the share). The Ancient's Way and Icy Cellar takes of 2026-10-14 (rca/2026-10-14/run-1932-findings.md §4.1,
-# scripts/run1932_stand_casts.py: 694 aimed casts of five blades, standing and moving monsters together, as they
-# were hit as often at the same distance). At the end of the blades' flight a monster's step is a miss.
+# The share of casts whose blades hit the monster aimed at, by its distance: (the bin's furthest units, the share)
+# (rca/2026-10-14/run-1932-findings.md §4.1, 694 casts). At the end of the blades' flight a monster's step is a miss.
 HIT_BY_DISTANCE = ((6.0, 0.743), (10.0, 0.747), (14.0, 0.606), (18.0, 0.493), (REACH, 0.356))
 
 
@@ -79,9 +60,8 @@ def hit_share(away: float) -> float:
 
 
 def engage_ring() -> float:
-    """Units from a monster a stand is best at: where `hit_share` falls half way from its best (the casts close in)
-    to its worst (the edge of the reach). Nearer, a step closer gains little; further, the hit share falls fast.
-    13.9 from the takes of 2026-10-14, as the player engages (12 to 14 at the median, combat/policy.py)."""
+    """Units from a monster a stand is best at: where `hit_share` falls half way from its best to its worst (13.9,
+    as the player engages)."""
     best = max(share for _, share in HIT_MIDDLES)
     half = (best + HIT_MIDDLES[-1][1]) / 2
     for (near, first), (far, second) in pairwise(HIT_MIDDLES):
@@ -233,13 +213,10 @@ class EchoingStrike(LinePolicy):
     def dealt(
         self, origin: Point, focal: Point, foes: Mapping[int, Foe], blocked: Callable[[Point], bool] | None = None
     ) -> Mapping[int, float]:
-        """The points a cast from `origin` at `focal` takes off each of `foes` on its line:
-        BLADES_A_CAST blades off every one ahead of the character and within the contact radius of
-        the straight line through the focal point, however far along it (the caller gives the ones
-        in reach). Nothing from a focal point under the character. The blades stop at the first wall
-        `blocked` says is on the line, as `virtual_cast`'s do (mechanics.py `flown`): one past it takes
-        nothing, one before it the way out only, half the blades (run-2040-findings.md §3.3: 6% and 23%
-        of the casts of the 23:40 game flew into walls, and a place was priced as if they came back)."""
+        """The points a cast from `origin` at `focal` takes off each of `foes` on its line: BLADES_A_CAST blades off
+        every one ahead within the contact radius of the line (the caller gives those in reach); nothing from a focal
+        point under the character. At the first wall `blocked` says (mechanics.py `flown`) one past it takes nothing,
+        one before it half (the way out only; run-2040-findings.md §3.3)."""
         tx, ty = focal[0] - origin[0], focal[1] - origin[1]
         away = math.hypot(tx, ty)
         if not away:

@@ -1,45 +1,35 @@
 """Verified facts about the supported game build: identifiers, sizes and scales.
 
-Memory offsets that gate optional readers stay in `config.RESOURCE_READER`; this
-module holds values that were checked against the d2data dump or controlled
-probes on 2026-09-21 and never change at runtime.
+Offsets that gate optional readers stay in `config.RESOURCE_READER`; these values were checked against the
+d2data dump, controlled probes or memory dumps and never change at runtime. Evidence: history/layout_notes.md.
 """
 
 # Only this D2R.exe is read; `LiveReader.connect` refuses anything else.
 SUPPORTED_SHA256 = '1e2ac459feb3f4bbfa818cdff49800480502beae9f90cfa4cba9e7e1f8bfa3b7'
 
-# Controlled 2026-09-21 OFF/ON/OFF/ON and new-game OFF/ON captures.
-# A byte in the loaded image, not the old UI panel-offset interpretation.
+# A byte in the loaded image (controlled OFF/ON captures, 2026-09-21).
 SHOW_ITEMS_RVA = 0x1EBD164
 
-# Open-panel byte flags (0/1) starting at this RVA; d2go's OpenMenus layout anchored
-# by 129 captured images of this build (layout_notes.md, 2026-09-27): inventory +0x01
-# set in every hover attachment, NPC interact/shop +0x08/+0x0B only in the 31 vendor
-# captures, stash +0x18 only in the 23 stash-session attachments (always with the
-# inventory), cube +0x19 in the cube captures, mercenary +0x1E in the one mercenary
-# panel capture. The Show Items byte above is +0x0C of the same array.
+# Open-panel byte flags (0/1) from this RVA, d2go's OpenMenus layout, anchored by 129 captures of this build
+# (2026-09-27, inventory_tracking/history/layout_notes.md). Show Items is +0x0C of the same array.
 UI_PANELS_RVA = 0x1EBD158
-# The client's Terror Zone service ("ClientTerrorZoneService" in its log lines): a pointer in the
-# image to an object holding the levels terrorized now, an array of 16-byte entries (the level id
-# first) at +0x80 and their number at +0x88. Read off the code that prints the levels' names on the
-# automap (0x140ca6dd9..0x140ca6e80 of the decrypted image, 2026-10-12); not yet seen live.
+# ClientTerrorZoneService: a pointer to an object holding the terrorized levels, 16-byte entries (level id
+# first) at +0x80, their count at +0x88. From the automap name code (0x140ca6dd9, 2026-10-12); not yet seen live.
 TERROR_SERVICE_RVA = 0x1E00508
 TERROR_LEVELS, TERROR_LEVEL_COUNT, TERROR_LEVEL_ENTRY = 0x80, 0x88, 0x10
 UI_PANELS_SIZE = 0x20
-# The input method (rca/2026-10-13/controller-mode.md, read in the decrypted image, not yet seen live): a byte,
-# 1 while the controller is the input method (`ai_d2_g_controller_mode`). A flip is asked by
-# `ai_d2_request_input_mode` (0x14064d4e0): the panel manager (a pointer at PANEL_MANAGER_RVA) gets +0xDB = 1
-# and the mode asked at +0xDC; its reload (0x140682f20) then sets the byte and clears the flag.
+# Input method byte, 1 in controller mode (`ai_d2_g_controller_mode`; rca/2026-10-13/controller-mode.md; not yet
+# seen live). `ai_d2_request_input_mode` (0x14064d4e0) sets panel manager +0xDB = 1 and the wanted mode at +0xDC;
+# its reload (0x140682f20) sets the byte and clears the flag.
 CONTROLLER_MODE_RVA = 0x1EAD337
 PANEL_MANAGER_RVA = 0x1EE5790
 PANEL_PENDING, PANEL_WANTED = 0xDB, 0xDC
-# The controller bindings the game loaded at game entry: 32 records of 0x1C, the skill first (-1: none), the
-# `.ctlo`/`.ctl` file's body (loot-to-cube-mouse.md section 2).
+# Controller bindings loaded at game entry: 32 records of 0x1C, skill first (-1: none); the `.ctlo`/`.ctl` body
+# (loot-to-cube-mouse.md §2).
 CTL_BINDINGS_RVA = 0x1E01370
 CTL_RECORD, CTL_RECORDS = 0x1C, 32
-# The controller's per-player state (`ai_d2_g_controller_state`): a 0xB8 record per player slot (the dword at
-# PLAYER_SLOT_RVA): +0xD10 the client's target (a unit pointer), +0xD44 the pressed button's record, +0xD4C its
-# skill (-1: none pressed).
+# Controller per-player state (`ai_d2_g_controller_state`), a 0xB8 record per player slot (dword at PLAYER_SLOT_RVA):
+# +0xD10 the client's target (unit pointer), +0xD44 the pressed button's record, +0xD4C its skill (-1: none).
 CTL_STATE_RVA = 0x1F6A030
 PLAYER_SLOT_RVA = 0x1EAD46C
 CTL_STATE_STRIDE = 0xB8
@@ -75,10 +65,10 @@ LIFE_STAT = 6
 MAX_LIFE_STAT = 7
 QUANTITY_STAT = 70
 CHARGED_SKILL_STAT = 204
-# item_nonclassskill (itemstatcost.txt): a skill of another class the item gives, the skill id as the layer (Enigma's
-# "+1 to Teleport": (97, 54, 1) on the worn Mage Plate, live capture of 22:26 on 2026-10-17)
+# item_nonclassskill (itemstatcost.txt): another class's skill the item gives, skill id as layer (Enigma's
+# Teleport: (97, 54, 1), live capture 2026-10-17)
 NONCLASS_SKILL_STAT = 97
-BATTLE_ORDERS_SKILL = 149  # skills.txt: what Call to Arms gives (97, 149, n), live capture of 22:58 on 2026-10-17
+BATTLE_ORDERS_SKILL = 149  # skills.txt: what Call to Arms gives (97, 149, n)
 TELEPORT_SKILL = 54
 LIFE_FRACTION_MAX = 32768
 
@@ -98,12 +88,10 @@ BELT_ITEM_MODE = 2
 WEAPON_SLOTS = frozenset((4, 5, 11, 12))
 TOWN_IDS = frozenset((1, 40, 75, 103, 109))
 
-# Level/room chain. Confirmed 2026-09-30 by two Win+C dumps in Arcane Sanctuary
-# (runs/level/, layout_notes.md "Level rooms"): the LvlPrest 527 room predicted from
-# the entrance held the Summoner and the Journal. Path +0x20 Room1, Room1 +0x18 Room2,
-# Room2 +0x90 level, level +0x1F8 area ID; level +0x10 first Room2, Room2 +0x48 next;
-# Room2 +0x40 points at a struct whose first u32 is the LvlPrest Def; Room2 +0x60 holds
-# x, y, width, height as u32 tiles (5 world units per tile).
+# Level/room chain (Win+C dumps 2026-09-30, inventory_tracking/history/layout_notes.md "Level rooms"):
+# Path +0x20 Room1, Room1 +0x18 Room2, Room2 +0x90 level, level +0x1F8 area ID; level +0x10 first Room2,
+# Room2 +0x48 next; Room2 +0x40 -> struct whose first u32 is the LvlPrest Def; Room2 +0x60 x, y, width,
+# height as u32 tiles (5 world units per tile).
 PATH_ROOM1 = 0x20
 ROOM1_ROOM2 = 0x18
 ROOM2_LEVEL = 0x90
@@ -114,45 +102,33 @@ ROOM2_PRESET = 0x40
 ROOM2_BOUNDS = 0x60
 TILE_UNITS = 5
 
-# Room2 neighbours. Confirmed 2026-09-30 in Win+C dump 20260930T124726Z-e166c530 (Lower Kurast):
-# +0x10 points at an array of Room2 pointers, +0x18 is its count (5-9, the room itself included);
-# for 80/80 rooms every entry was a Room2 of the level except at the level edge, where the extra
-# entries are Room2s of the adjacent level (their level pointer and area are not in that dump).
+# Room2 neighbours (dump 20260930T124726Z-e166c530): +0x10 an array of Room2 pointers, +0x18 its count
+# (5-9, the room included); at the level edge the extra entries are the adjacent level's Room2s.
 ROOM2_NEAR = 0x10
 ROOM2_NEAR_COUNT = 0x18
 
-# Room1 (loaded room) neighbours and collision. Room1 +0x00 near-room array, +0x40 its count (the
-# research walk over loaded rooms, levels/research.py). Confirmed 2026-09-30 in Win+C dump
-# 20260930T135418Z-6b2890e1 (Cave 2, 8 of 9 rooms): Room1 +0x38 points at the collision grid,
-# grid +0x00 holds x, y, width, height in sub-tiles (the Room2 bounds x5) and +0x20 points at a
-# width x height u16 mask. Bit 0x1 blocks walking: drawn out, the set cells were the cave's
-# walls and the clear ones its corridors (other bits: 0x4, 0x20, and 0x8000/0x200/0x400 where
-# units stood).
+# Room1 (loaded room) neighbours and collision (dump 20260930T135418Z-6b2890e1): Room1 +0x00 near-room array,
+# +0x40 its count; +0x38 the collision grid: +0x00 x, y, width, height in sub-tiles (Room2 bounds x5), +0x20 a
+# width x height u16 mask. Bit 0x1 blocks walking.
 ROOM1_NEAR = 0x00
 ROOM1_NEAR_COUNT = 0x40
 ROOM1_COLLISION = 0x38
 COLLISION_BOUNDS = 0x00
 COLLISION_MASK = 0x20
 COLLISION_BLOCK_WALK = 0x0001
-# Stops a missile (D2MOO COLLIDE_BLOCK_MISSILE). Empirical, Catacombs takes of 2026-10-10 11:44 UTC
-# (combat/plan.md): the recorded blades crossed 931 cells of 0x0001 alone 148 times and the 26.8k
-# cells with 0x0004 set 26 times (7 at door units whose state had changed since the masks were read).
+# Stops a missile (D2MOO COLLIDE_BLOCK_MISSILE); empirical, Catacombs takes of 2026-10-10 (combat/plan.md).
 COLLISION_BLOCK_MISSILE = 0x0004
 COLLISION_DOOR = 0x0800  # a door unit stands on the cell (D2MOO COLLIDE_DOOR)
 
-# Preset object behind each Room2 preset record. Confirmed 2026-09-30 across 10 Win+C dumps
-# (Arcane, Tower Cellar 1, Halls of Pain, Halls of Vaught): record +0x08 points at an object
-# whose +0x00 repeats the Def, +0x04 is the DS1 file index (always < lvlprest Files when
-# Files > 0: 0/1 for two-file presets, 3 of 4 for Vaught's Nihl*), +0x18 x, y, w, h is the
-# whole preset's bounds in tiles (Temple quadrants 40x40, the Vaught level 84x84). Large
-# presets are split into 8x8 Room2 chunks that all share this one object.
+# Preset object behind each Room2 preset record (10 Win+C dumps, 2026-09-30): record +0x08 -> object with +0x00
+# the Def again, +0x04 the DS1 file index (< lvlprest Files), +0x18 x, y, w, h of the whole preset in tiles.
+# Large presets are 8x8 Room2 chunks sharing this one object.
 PRESET_RECORD_OBJECT = 0x08
 PRESET_OBJECT_FILE = 0x04
 PRESET_OBJECT_BOUNDS = 0x18
 
-# Object data (unit +0x10 for objects). Confirmed 2026-09-30 by a Win+C dump next to a shrine the
-# user identified as a Stamina Shrine (20260930T121835Z-713d7e8a): +0x08 is the shrine type byte
-# (d2data shrines.json code; 14 = Stamina, 18 = Gem), +0x10 a shrine txt pointer that is set only
-# for shrines. MapAssist's byte-packed struct puts that pointer at +0x0C; on this build it is aligned.
+# Object data (unit +0x10 for objects; dump 20260930T121835Z-713d7e8a): +0x08 the shrine type byte (d2data
+# shrines.json; 14 = Stamina, 18 = Gem), +0x10 a shrine txt pointer, set only for shrines (aligned on this build,
+# +0x0C in MapAssist's packed struct).
 OBJECT_SHRINE_TYPE = 0x08
 OBJECT_SHRINE_TABLE = 0x10

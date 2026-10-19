@@ -139,3 +139,13 @@ def snapshot():
         }
 
     return make
+
+
+@pytest.fixture(autouse=True)
+def fresh_read_caches():
+    """The decoders' per-unit caches (game/decode.py `GOLD_SEEN`, `BASE_ROLLS_SEEN`) start empty in every test: unit
+    ids repeat across the fakes."""
+    from inventory_tracking.game import decode
+
+    decode.GOLD_SEEN.clear()
+    decode.BASE_ROLLS_SEEN.clear()

@@ -1,26 +1,9 @@
 """The potions of a level as a level run sees them (rca/2026-10-13/potions-findings.md, steps 2-4).
 
-The pickup key's own rule (macros/pickup.py `choose`) wants a potion of a kind the belt is short of within
-POTION_UNITS, and a level run took such a potion only while no hostile stood within GATHER_CLEAR of it or the
-character, forgetting it silently otherwise (moment M4 of the game of 21:42: three super healing potions left
-6-10 units away while the run warped on toward a seal). What a level run keeps here, beside that rule:
-
-- **what lies on the level** (`Potions.see`): every super healing and full rejuvenation potion seen on the
-  ground of the level, by place and kind, until it is seen gone (the character within SEEN_GONE of its place
-  and the potion not in the look) or the level is left. The client holds only the units of the rooms near the
-  character, so a potion passed is still known after it has left the look;
-- **why one was left** (`Potions.refuse`): said once a potion and reason in the log, and counted for the
-  warning below (never again silent);
-- **its value** (`worth`): a healing potion on the ground is worth what it saves, harm.py's price of one
-  (`SafetySettings.healing_seconds`, Q6) for each potion the belt is below the healing reserve the character
-  keeps (automation/priority.py `reserve`: those that bring him from the life floor back to full once). With the
-  belt at the reserve or above it is worth no detour (U8: no hunger for potions with a full belt; the pickup key's
-  own rule still takes one on the way); below it, a detour of up to that many seconds (`detour`) beats the
-  route's next stage;
-- **empty is a defect** (the player, 2026-10-13: "usually we shouldn't get into situation when we have no
-  potions. something is wrong if we're empty"): the moment the belt's last healing potion goes on a level, one
-  WARNING with what the run can see of why (`Potions.empty`): who took the last ones (the macro's drinker, or
-  not: the healer of `make osd` or a hand), and every healing potion seen on the level with what became of it.
+`Potions` remembers every healing/rejuvenation potion seen on the level until seen gone (the client holds only nearby
+rooms), says once why one was left (`refuse`), and warns when the belt's last healing potion goes (`empty`; the
+player, 2026-10-13: "something is wrong if we're empty"), naming who drank it. `worth`/`detour` price a potion on the
+ground against the route; `low`/`restock` pick one for a belt running short.
 """
 
 import math
@@ -44,17 +27,15 @@ DRUNK_BY = 1.0  # seconds: a potion gone from the belt this soon after the macro
 GONE_KEPT = 8  # potions gone from the belt remembered for the warning
 KINDS = {HEALING: PotionType.HEALING, REJUVENATION: PotionType.REJUVENATION}
 # Walked units within which a potion lying is a restock's goal (the player, 2026-10-14: "potions on the ground within
-# ~40 walked units come before the standing goal"; goals.py PICK_NEAR, a valuable's own measure)
+# ~40 walked units come before the standing goal")
 RESTOCK_UNITS = 40.0
-# The rejuvenations kept for the character (the player, 2026-10-13: "keep at least 2 rev potions for user"; the
-# healer gives the mercenary none of them: config.py MERC_HEALING)
+# The player, 2026-10-13: "keep at least 2 rev potions for user" (config.py MERC_HEALING)
 REJUVENATION_RESERVE = MERC_HEALING.rejuvenation_reserve
 
 
 @dataclass(frozen=True)
 class Seen:
-    """A potion seen on the ground of the level: its unit, kind (game/records.py HEALING or REJUVENATION), place and
-    label."""
+    """A potion seen on the ground of the level (kind: HEALING or REJUVENATION)."""
 
     unit: int
     kind: str
@@ -64,22 +45,20 @@ class Seen:
 
 
 def worth(count: int, reserve: int, seconds: float) -> float:
-    """Seconds of detour a healing potion on the ground is worth with `count` on the belt (the module text):
-    `seconds` for each one the belt is below the `reserve`, none at it or above."""
+    """Seconds of detour a healing potion on the ground is worth: `seconds` (harm.py's price of one) for each the belt
+    is below the `reserve` (automation/priority.py), none at it or above."""
     return seconds * max(0, reserve - count)
 
 
 def unread(loot: Loot) -> bool:
-    """Whether the belt is not known: no life read, or no game it is of (game/records.py `Loot.game`)."""
+    """Whether the belt is not known: no life read, or no game it is of."""
     return not loot.max_life or loot.game is None
 
 
 def low(loot: Loot) -> tuple[str, ...]:
-    """The kinds (game/records.py HEALING, REJUVENATION) a belt low on potions restocks, the rarer first (the player,
-    2026-10-14): rejuvenations under the REJUVENATION_RESERVE kept for the character, healing potions under half of
-    what their columns hold (pickup.py `shortages`: the columns by what they hold, an empty one by the configured
-    layout). At 22:55:31 on 2026-10-14 the belt held 2 healing potions of 8 and the run warped on past three potions
-    13 units and less away (run-1932-findings.md issue 2). None for an unread belt (`unread`)."""
+    """The kinds a belt low on potions restocks, the rarer first (the player, 2026-10-14): rejuvenations under
+    REJUVENATION_RESERVE, healing potions under half of what their columns hold (rca/2026-10-14/run-1932-findings.md
+    issue 2). None for an unread belt."""
     if unread(loot):
         return ()
     belt = on_belt(loot)
@@ -94,8 +73,8 @@ def low(loot: Loot) -> tuple[str, ...]:
 
 
 def restock(loot: Loot, here: Point, ground: Ground | None, doors: Sequence[Door]) -> Drop | None:
-    """The potion a belt low on potions (`low`) takes before the goal: of the rarer kind wanted first, the nearest
-    within RESTOCK_UNITS walked (travel.py `walked_length`). The quiet it is taken in is the caller's."""
+    """The potion a `low` belt takes before the goal: the rarer kind first, the nearest within RESTOCK_UNITS walked.
+    The quiet it is taken in is the caller's."""
     for kind in low(loot):
         near = sorted(
             (d for d in loot.drops if d.kind == kind and math.dist(here, (d.x, d.y)) <= RESTOCK_UNITS),
@@ -108,10 +87,8 @@ def restock(loot: Loot, here: Point, ground: Ground | None, doors: Sequence[Door
 
 
 def spendable(loot: Loot, healing_points: float, floor: float) -> float | None:
-    """Life points the belt can give back beyond what it keeps (combat/harm.py `budget`, `stock`): its healing
-    potions over the ones the character keeps for under the life floor (automation/priority.py `reserve`: from the
-    floor to full life once, at least HEAL_PRIORITY.least_reserve), one more kept for each rejuvenation under
-    REJUVENATION_RESERVE, each potion worth `healing_points`. None for an unread belt (`unread`: nothing counted)."""
+    """Life points the belt can give beyond what it keeps (combat/harm.py `budget`): healing potions over the reserve
+    (floor to full once, at least HEAL_PRIORITY.least_reserve, one more per missing rejuvenation). None unread."""
     if unread(loot):
         return None
     belt = on_belt(loot)
@@ -122,10 +99,8 @@ def spendable(loot: Loot, healing_points: float, floor: float) -> float | None:
 
 
 def detour(there: float, work: float) -> float:
-    """Seconds a side goal `there` seconds away by the movement in hand adds to the route: the way there, the
-    act's own `work`, and the way back as long as the way there. An upper bound of the spec's
-    eta(here -> g) + work + eta(g -> primary) - eta(here -> primary) by the triangle inequality: the
-    navigator's eta is asked from where the character stands only (travel.py `Travel.eta`)."""
+    """Seconds a side goal `there` seconds away adds to the route: there, `work`, and back. An upper bound by the
+    triangle inequality: the navigator's eta is from where the character stands only."""
     return 2 * there + work
 
 
@@ -144,9 +119,8 @@ class Potions:
         self.empty_said = False
 
     def see(self, loot: Loot, area: int, here: tuple[float, float], now: float, pressed: float) -> str | None:
-        """One look at the ground and the belt on level `area` with the character at `here`; `pressed`: when
-        the macro's drinker last pressed a healing potion's key. The warning's text when this look found the
-        belt's last healing potion gone (`empty`), else None."""
+        """One look at the ground and the belt; `pressed`: when the macro last pressed a healing key. The `empty`
+        warning's text when the belt's last healing potion went now, else None."""
         if area != self.area:
             self.area, self.since = area, now
             self.seen, self.fates, self.kinds, self.said = {}, {}, {}, set()

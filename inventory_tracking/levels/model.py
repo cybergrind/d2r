@@ -12,14 +12,12 @@ from inventory_tracking.native.layout import TILE_UNITS
 
 
 # objects.txt ids of the objects a mark may name for the step to click (`Poi.use`).
-PORTAL = 60  # PortalPermanent: the red portal that stays (the Cairn Stones' to Tristram); a town portal is 59
-# TownPortal: the portal a tome or a scroll opens beside the character (macros/portal.py), no mark's; clicked in mode 2
-# only (objects.txt Selectable2: it opens in mode 1)
+PORTAL = 60  # PortalPermanent: the red portal that stays (the Cairn Stones' to Tristram)
+# TownPortal (macros/portal.py), no mark's; clickable in mode 2 only (objects.txt Selectable2)
 TOWN_PORTAL = 59
 WIRTS_BODY = 268
-# Objects the game's map files place at a spot of a preset, which a mark may sit on (`PoiSpec.thing`;
-# levels/data/preset_objects.json, built by build_objects.py). Ids checked against d2data objects.json
-# on 2026-10-12.
+# Objects the map files place at a preset's spot, which a mark may sit on (`PoiSpec.thing`;
+# levels/data/preset_objects.json). Ids checked against d2data objects.json on 2026-10-12.
 SUPER_CHEST = 397  # ConsolationChest, the "sparkly chest"
 SEALS = (392, 393, 394, 395, 396)  # DiabloSeal1-5: arm E holds 392 and 393, arm N 394, arm W 395 and 396
 ARCANE_PORTAL = 298
@@ -31,16 +29,13 @@ HEART_CHEST, BRAIN_CHEST, EYE_CHEST = 405, 406, 407  # Khalim's
 FROZEN_ANYA = 460  # DrehyaOutsideTown
 ANCIENTS_ALTAR, ANCIENTS_GATEWAY = 546, 547
 THRONE_PORTAL = 563  # FinalPortal, to the Worldstone Chamber
-# objpreset.txt's `PlaceUniqueChest`: a spot where the game puts a chest of a class it rolls when the level is made,
-# so it has no objects.txt row; this id is above every row (586 the last in d2data). Lower Kurast's bonfire camp places
-# three ('Act 3 - Slums 16x16' file 1); the 26 level dumps of 2026-09-30 and 2026-10-06 show a JungleChest (181) or a
-# JungleChest2 (183) on each spot, both on every spot (lower-kurast-plan.md). The mark opens whichever container the
-# game put there (macros/teleport.py USES; the player, 2026-10-16).
+# objpreset.txt `PlaceUniqueChest`: a spot where the game rolls a chest class at level creation (JungleChest 181 or
+# 183 in Lower Kurast, lower-kurast-plan.md), so no objects.txt row; an id above every row (586 the last). The mark
+# opens whatever container is there (the player, 2026-10-16).
 UNIQUE_CHEST = 1000
 PLACEHOLDERS = {'PlaceUniqueChest': UNIQUE_CHEST}  # objpreset ObjectClass -> the id it is marked by
-# The placed objects the teleport step clicks at their mark (macros/teleport.py USES): a mark on one of
-# them carries it as `Poi.use`. The Throne's portal is not among them: objects.txt gives it no click
-# box, and none was seen opened yet.
+# Placed objects the teleport step clicks at their mark (macros/teleport.py USES), carried as `Poi.use`.
+# Not the Throne's portal: objects.txt gives it no click box.
 CLICKED = frozenset((SUPER_CHEST, *SEALS, HELL_GATE, ARCANE_PORTAL, UNIQUE_CHEST))
 MARKABLE = frozenset((
     SUPER_CHEST, *SEALS, ARCANE_PORTAL, MEPHISTO_BRIDGE, HELL_GATE, CUBE_CHEST, SCROLL_CHEST, STAFF_CHEST,
@@ -139,36 +134,30 @@ def pack_tiles(tiles: str, width: int) -> str:
 
 @dataclass(frozen=True)
 class Walkable:
-    """A loaded room's walkable sub-tiles. The bounds are the room in tiles; `cells` holds one bit
-    per sub-tile (5x5 a tile, so thin walls survive), row by row, 1 = walkable (`pack_cells`)."""
+    """A loaded room's walkable sub-tiles: bounds in tiles; `cells` one bit per sub-tile (5x5 a tile, so thin
+    walls survive), row by row, 1 = walkable (`pack_cells`)."""
 
     x: int
     y: int
     width: int
     height: int
     cells: str
-    # Where a missile flies, one bit per sub-tile as `cells` (1 = flies): the block-missile bit of the
-    # collision mask (native/layout.py), since 2026-10-10 (the blades fly over block-walk cells). '' when
-    # unknown (old level maps): callers fall back to `cells` or to nothing, as they say.
+    # 1 = a missile flies: the mask's block-missile bit (native/layout.py); '' unknown (old level maps).
     flight: str = ''
-    # The raw u16 collision masks per sub-tile, row by row (`pack_masks`), when read from the game: research
-    # into the bits (combat/plan.md). '' when unknown (the wall library, old level maps).
+    # Raw u16 collision masks per sub-tile (`pack_masks`), for research (combat/plan.md); '' unknown.
     masks: str = ''
 
 
-# A tile's decoded grid: the grid, its walk bits and flight bits ('1'/'0' per sub-tile, None when absent or
-# malformed), its sub-tile columns and its top-left corner in world units.
+# A tile's decoded grid: (grid, walk bits, flight bits (None when absent/malformed), sub-tile columns, left, top).
 type _Tile = tuple[Walkable, str | None, str | None, int, int, int]
-# The tables kept: a look builds a Ground of the level's loaded rooms, and the set grows as rooms load, so the
-# last few sets of a game are enough (each about 1-2 MB for Chaos's 225 rooms). lru_cache is thread-safe and
-# a table is never changed once built, so the service's threads share them.
+# Decoded tables kept: the loaded-room set grows as rooms load, so a game's last few suffice (1-2 MB each for
+# Chaos). Never changed once built, so threads share them.
 TABLES = 16
 
 
 @lru_cache(maxsize=TABLES)
 def _tiles(grids: tuple[Walkable, ...]) -> dict[tuple[int, int], _Tile]:
-    """The decoded grid of each tile, built once for a set of grids and shared by every Ground made of it.
-    A later grid wins a tile two of them cover, as it always did."""
+    """The decoded grid of each tile, built once per set of grids; a later grid wins an overlapped tile."""
     tiles: dict[tuple[int, int], _Tile] = {}
     for grid in grids:
         columns, count = grid.width * TILE_UNITS, grid.width * grid.height * TILE_UNITS * TILE_UNITS
@@ -187,9 +176,8 @@ def _tiles(grids: tuple[Walkable, ...]) -> dict[tuple[int, int], _Tile]:
 
 
 class Ground:
-    """Walkability of world points from the loaded rooms' sub-tile grids, indexed by tile (one
-    sub-tile is one world unit). None where no grid covers the point (room not loaded, no walls read).
-    Cheap to make: the decoded table of a set of grids is shared (`_tiles`)."""
+    """Walkability of world points (one sub-tile = one world unit) from loaded rooms' grids; None where no
+    grid covers the point. Cheap: decoded tables are shared (`_tiles`)."""
 
     def __init__(self, grids: Iterable[Walkable]) -> None:
         self.grids = tuple(grids)
@@ -208,8 +196,7 @@ class Ground:
         return cells[int(y - top) * columns + int(x - left)] == '1'
 
     def flyable(self, x: float, y: float) -> bool | None:
-        """Whether a missile flies through the sub-tile at a world point; None where no grid covers it
-        or the grid has no flight layer (an old level map)."""
+        """Whether a missile flies through the sub-tile at a world point; None without a flight layer."""
         tile = self.tiles.get((math.floor(x / TILE_UNITS), math.floor(y / TILE_UNITS)))
         if tile is None:
             return None
@@ -246,9 +233,7 @@ class Poi:
     spot: tuple[float, float] | None = None  # tiles: the warp itself (levels/spots.py); None = room centre
     area: int | None = None  # the level this way out leads to, when the rule that made it knows
     use: int = 0  # objects.txt id of an object near the mark to click: a portal, a body (PoiSpec.use)
-    # An entrance kept as a side trip (PoiSpec.warp, levels/spots.py `pinpoint`: Frozen River), its spot the warp tile:
-    # a door to walk into whatever its kind (guide.py `_target_of`)
-    entrance: bool = False
+    entrance: bool = False  # a side-trip entrance (PoiSpec.warp): a door to walk into whatever its kind
 
     @property
     def point(self) -> tuple[float, float]:
@@ -264,20 +249,17 @@ class Guidance:
 
     pois: tuple[Poi, ...] = ()
     problems: tuple[str, ...] = ()
-    # Labels the level is known to have no mark of: an `each` spec on what a layout places (Lower Kurast's camp
-    # chests) with every room's layout read and none of them placing it. A route's stage on one is done with.
+    # Labels known to have no mark here (an `each` spec, every layout read, none placing it): their stage is done.
     absent: frozenset[str] = frozenset()
 
 
 @dataclass(frozen=True)
 class Lead:
-    """The mark another layer asks the level card to lead with (routes/progress.py): the stage a route
-    is at in this level. `area`: the level the mark leads into, when it is a way on."""
+    """The mark the level card leads with (routes/progress.py); `area`: the level it leads into, if a way on."""
 
     label: str
     area: int | None = None
-    # Places (tiles, as `Target.point`) of marks with the label that are done with: the next one is led with.
-    skip: frozenset[tuple[float, float]] = frozenset()
+    skip: frozenset[tuple[float, float]] = frozenset()  # places (tiles) of marks with the label done with
 
 
 @dataclass(frozen=True)
@@ -301,10 +283,7 @@ class Target:
     warp: bool = False  # the point is the warp tile itself (levels/spots.py): a door to walk into
     ground: tuple[Walkable, ...] = ()  # walkable sub-tiles of the loaded rooms, when the walls were read
     use: int = 0  # objects.txt id of an object near the point the step clicks: a portal, a body (macros/teleport.py)
-    # An open passage's far place, in tiles (levels/exits.py `through`): a walk to it crosses into the next level, as
-    # no warp joins the two (the River of Flame's bridge into the Chaos Sanctuary, a border). None: a warp, an object
-    # or no way out.
+    # An open passage's far place, in tiles (levels/exits.py `through`): walking there crosses into the next level
+    # with no warp (River of Flame to Chaos Sanctuary). None: a warp, an object or no way out.
     passage: tuple[float, float] | None = None
-    # The level an open passage leads into (the Chaos Sanctuary from the River of Flame's bridge): a level run that
-    # walks across goes on as that level's run (macros/pursuit.py `carried`). None with no `passage`.
-    into: int | None = None
+    into: int | None = None  # the level `passage` leads into (macros/pursuit.py `carried`)

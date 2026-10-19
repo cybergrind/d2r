@@ -1,10 +1,4 @@
-"""Spider Cave and Spider Cavern: the chest room.
-
-Unconfirmed (D2MOO DRLGMAZE_GetRoomPreset, 2026-10-01; no evidence yet). Both are Spider mazes
-of 16x16 rooms. In Spider Cave (84) the 'Spider NE' dead end becomes 'Spider Chest NE'; in
-Spider Cavern (85), where Khalim's Eye is, the 'Spider NW' dead end becomes 'Spider Chest NW'.
-There is no 'Prev' preset: the way out is not a named room.
-"""
+"""Spider Cave and Spider Cavern: the chest room; no 'Prev' preset, so the way out is not marked."""
 
 from inventory_tracking.levels.handler import target
 from inventory_tracking.levels.model import EYE_CHEST, SUPER_CHEST

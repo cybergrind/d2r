@@ -1,41 +1,13 @@
-"""Show where a level's point of interest is for a few seconds after entering the level.
+"""The level card: arrow rows to a level's marks plus its map (levels/level_map.py), shown on entry.
 
-What to point at lives in levels/handlers/ (one file per level). This module only decides
-when: once per entry into a guided area, polled without waiting for the capture lock,
-cleared after `seconds` or when D2R loses focus. Failures are logged at WARNING once
-per distinct message; an earlier DEBUG-only version failed invisibly (2026-09-30).
-
-The card is the arrow line(s) plus a level map (levels/level_map.py). While it is shown,
-each poll re-reads only the player position and rebuilds both, so the dot and arrow follow.
-With `goals` (macros/card_goal.py) the first row is the route's goal, the one the macro goes to: a boss
-where the tracker has him, nothing known of him a row without an arrow, no goal left (loot, leave, the
-script over) no goal row and no route line; the marks of stages done have no row. A goal that changes
-rebuilds the card at the next poll, the walls as they are (rca/2026-10-14/run-1916-hud-findings.md §1).
-
-Win+C calls `press()`: a single press on a shown card switches a big level between the view
-around the player and the whole level (hud/map.py; user, 2026-10-06); with no card up it
-shows the card again. Either way from a fresh room and position read,
-in any level (levels without a handler get the map and their ways out, levels/exits.py), waiting
-up to `lock_timeout` for the capture lock. Two presses within DOUBLE_PRESS seconds (hotkey
-timestamps) toggle a pinned card: it never
-expires, follows the player into every level (map only where no handler exists), hides while
-D2R is unfocused, and is removed by the next double press. `pinned=True` starts that way
-(`APPRAISAL.level_guide_pinned`, what `make serve` does).
-
-Room details arrive late (the level behind an exit only once the player has been near it), so
-while a card is shown the rooms are read again every ROOMS_REFRESH seconds and merged with what
-this game already knew (levels/session.py): an exit named once stays named for the game. The
-memory is dropped when the player is in no level (the menu between games).
-
-The walls and the card itself are read and rebuilt at most every `refresh_interval` seconds while
-the character stays in the level (the waypoints every poll), or sooner once it has moved REFRESH_MOVE world units
-(a room's width: the rooms loaded around it then change) or the rooms said more. 0 (the default)
-is every poll; the service sets 2 s while the macro works (appraisal/cadence.py; the 0.5 s re-read
-was the biggest of the service's slow passes during a level run, rca/2026-10-13/latency-findings.md).
-The area itself is still read every poll: a new level is seen as soon as before.
-
-Each entry into a guided area also yields one evidence record (levels/evidence.py), saved
-after the capture lock is released; a failed lookup is recorded once even while retrying.
+What to mark lives in levels/handlers/; this module decides when. Polled without waiting for the capture lock,
+once per entry into a guided area; cleared after `seconds` or when D2R loses focus; warnings logged once each.
+With `goals` (macros/card_goal.py) the first row is the route's goal; done marks have no row.
+Win+C (`press`): a single press switches a big level between the player's view and the whole level (user,
+2026-10-06) or shows the card; a double press within DOUBLE_PRESS toggles a pinned card that follows into
+every level. Rooms are re-read every ROOMS_REFRESH and merged per game (levels/session.py); walls and card
+are rebuilt every `refresh_interval` or after REFRESH_MOVE (rca/2026-10-13/latency-findings.md).
+Each guided entry yields one evidence record (levels/evidence.py), saved after the lock is released.
 """
 
 import itertools
@@ -76,16 +48,13 @@ def place(poi: Poi) -> tuple[float, float]:
     return poi.spot or centre(poi.room)
 
 
-# Marks of one label the shortest way through is worked out for, every order tried (7! = 5040 at most, a few ms: the
-# card asks at every refresh); past it the nearest leads. Lower Kurast has two camps of three chests.
+# Most marks of one label the shortest tour is brute-forced for (7! orders, a few ms); past it the nearest leads.
 TOUR_MARKS = 7
 
 
 def tour_first(marks: list[Poi], here: tuple[float, float]) -> Poi:
-    """The mark the shortest way from `here` (tiles) through all of `marks` begins with; the nearest past
-    TOUR_MARKS. The loop's game of 2026-10-16 19:56 went nearest first through Lower Kurast's six camp chests, 353
-    units against 266 the shortest way (rca/2026-10-16/loop-chests-findings.md §3); asked again at every mark, the
-    way stays the shortest."""
+    """The first mark of the shortest way from `here` (tiles) through all `marks`; the nearest past TOUR_MARKS.
+    Nearest-first was 33 % longer through Lower Kurast's chests (rca/2026-10-16/loop-chests-findings.md §3)."""
     if len(marks) > TOUR_MARKS:
         return min(marks, key=lambda poi: math.dist(here, place(poi)))
 
@@ -97,13 +66,9 @@ def tour_first(marks: list[Poi], here: tuple[float, float]) -> Poi:
 
 
 def lead_first(pois: tuple[Poi, ...], lead: Lead | None, here: tuple[float, float] | None = None) -> tuple[Poi, ...]:
-    """`pois` with the mark `lead` names put first (levels/routes.md: the stage a route is at); as
-    they are when it names none of them. Of several with the label, the one leading to the level
-    meant, and of those the first of the shortest way from `here` (tiles) through them all (`tour_first`:
-    Lower Kurast's two camps, a hell pit's chests), the card's order without it. A way back that is led
-    with is a way on: the route goes through it (Outer Cloister to the Monastery Gate), and the teleport step refuses a
-    first mark that only leads back. Marks at the places the lead says are done with (`Lead.skip`:
-    chests opened) are passed for the next."""
+    """`pois` with the mark `lead` names first (levels/routes.md); unchanged when it names none. Of several with
+    the label: the one into the level meant, then `tour_first` from `here` (tiles). A led way back becomes stairs
+    (the teleport step refuses a first mark that only leads back). Places in `Lead.skip` are passed."""
     named = [poi for poi in pois if poi.label == lead.label and place(poi) not in lead.skip] if lead else []
     if lead is None or not named:
         return pois
@@ -114,12 +79,9 @@ def lead_first(pois: tuple[Poi, ...], lead: Lead | None, here: tuple[float, floa
 
 
 def goal_rows(goal, first: Poi | None, kept: tuple[Poi, ...], location: Location):
-    """(the card's rows, the route line's end in tiles or None) with the route's goal
-    first (macros/goals.py `route_goal`, duck-typed: `label`, `place` in world units, `unit`, `known`, `mark`,
-    `stage`). On the card's first mark itself: that mark's row. At a unit (a boss where the tracker has him) or
-    another place: a row of its own toward it, the mark it was made from dropped. Nothing known of where it is:
-    a row with no arrow. None (loot, leave, the script over): no goal row, no route line; the other marks keep
-    their rows (ways back, extras: information, not goals)."""
+    """(the card's rows, the route line's end in tiles or None), the route's goal first (macros/goals.py
+    `route_goal`, duck-typed). On the first mark: that mark's row; elsewhere: its own row, its source mark
+    dropped; unknown: a row with no arrow; None: no goal row, no route line."""
     if goal is None:
         return pointer_lines([pointer(poi, location) for poi in kept]), None
     mark = goal.mark.label if goal.mark is not None else None
@@ -173,50 +135,37 @@ class LevelGuide:
         self.last_warning = None
         self.evidence = evidence
         self.recorded = None  # (area, POI presets, problems) of the last saved record this entry
-        # (snapshot, pois) behind the visible card, for live position updates
-        self.shown: tuple[LevelSnapshot, tuple[Poi, ...]] | None = None
-        # Where the last poll found the character on the shown card's level: the route's mark of several with its
-        # label is the nearest to it (`_marks`); the card's snapshot keeps where it stood when its rooms were read.
+        self.shown: tuple[LevelSnapshot, tuple[Poi, ...]] | None = None  # (snapshot, pois) behind the card
+        # The last polled position on the shown level; the snapshot keeps where the rooms were read.
         self.here: Location | None = None
         self.lock_timeout = 1.0  # seconds show() may wait for the capture lock
         self.pinned = pinned
         self.last_press = None  # hotkey timestamp of an unpaired press
         self.whole = False  # big levels: the whole level instead of the part around the player
         self.switched = False  # the unpaired press switched `whole`: a double press takes it back
-        # Walkable tiles of loaded rooms, remembered for the current level (called under the capture lock).
-        # The library (levels/walls.py) draws rooms of already-seen layouts before they load.
+        # Walkable tiles of loaded rooms (called under the capture lock); the library (levels/walls.py) draws
+        # rooms of already-seen layouts before they load.
         self.observe_walls, self.library = observe_walls, library
         self.visited_rooms = visited_rooms  # area -> bounds of rooms the player was in or next to
         self.map_dots = map_dots  # area -> live MapPoi dots: monsters, Heralds (terror/tracker.py)
-        # Called with (area, rooms) whenever a level's rooms are read: the rooms' pieces name the
-        # level's fixed elite groups (terror/tracker.py level_layout).
-        self.on_rooms = on_rooms
-        # Waypoint objects seen in the current level, in tiles (called under the capture lock): the
-        # waypoint POI moves from its room's centre onto the object once it is near (levels/spots.py).
+        self.on_rooms = on_rooms  # (area, rooms) at each room read: fixed elite groups (terror/tracker.py)
+        # Waypoint objects seen in the level, in tiles: the waypoint mark moves onto them (levels/spots.py).
         self.observe_waypoints, self.waypoints = observe_waypoints, set()
         self.walls = {}
         self.rooms: tuple[Room, ...] = ()  # the current level's rooms, for the library
-        # Walls read this game, per level: a trip to town must not lose generated terrain, which
-        # the library never learns. Keyed by the level's layout (session.layout_key: room details
-        # that load later don't change it), so a new game (other rooms) starts blank; the oldest
-        # levels are dropped past MAX_REMEMBERED_LEVELS.
+        # Walls read this game per level layout (session.layout_key), so a town trip keeps generated terrain the
+        # library never learns; oldest dropped past MAX_REMEMBERED_LEVELS.
         self.level_walls: OrderedDict[tuple, dict] = OrderedDict()
-        # area -> the mark to lead the card with, or None: the stage a route is at there (routes/progress.py).
-        # Asked at every card and every target, so the arrow and the teleport step never disagree.
+        # area -> the mark to lead with (routes/progress.py); asked at every card and target so they agree.
         self.lead = lead
-        # The route's goal and the marks done with (macros/card_goal.py CardGoals: `goal`, `done`, `wanted`, `note`):
-        # the card's first row points at the goal the macro goes to, the done marks have no row, and no goal left
-        # is no arrow (rca/2026-10-14/run-1916-hud-findings.md §1). None: the rows are the marks in `_marks` order.
+        # The route's goal and done marks (macros/card_goal.py CardGoals); None: rows in `_marks` order.
         self.goals = goals
-        # (pid, images, capture, classes) -> the object units of those classes near the player (game/
-        # `observe_things`), read at each poll for the marks `goals.wanted` names: a seal opened by hand is done.
+        # Object units of given classes near the player (game/ `observe_things`): a seal opened by hand is done.
         self.observe_things = observe_things
         self.drawn: tuple | None = None  # the goal and done marks the visible card was drawn with
         self.memory = LevelMemory()  # room details read this game (exits' levels, preset variants)
         self.rooms_read = -math.inf  # clock time of the last room read
-        # Seconds between re-reads of the walls and rebuilds of the card while it is shown in the same level;
-        # 0 every poll (set by the service's cadence, appraisal/cadence.py).
-        self.refresh_interval = 0.0
+        self.refresh_interval = 0.0  # seconds between wall re-reads and card rebuilds; 0 = every poll (cadence.py)
         self.refreshed: tuple[float, tuple[int, int] | None] = (-math.inf, None)  # (clock, where) of the last
 
     def _enter_rooms(self, area, rooms):
@@ -282,8 +231,7 @@ class LevelGuide:
             return
         try:
             grids = list(self.observe_walls(self.source.pid, self.source.images, self.source.capture))
-            # Only the grids not already held as they are (the reader gives an unchanged room back as the
-            # same object, levels/memory.py `walkable_tiles`) are stored and taught to the library.
+            # An unchanged room comes back as the same object (levels/memory.py `walkable_tiles`).
             fresh = [grid for grid in grids if self.walls.get((grid.x, grid.y)) is not grid]
             for grid in fresh:
                 self.walls[grid.x, grid.y] = grid
@@ -333,8 +281,7 @@ class LevelGuide:
                 self.here = location
             if self.visible is not None and self.shown is not None and location is not None:
                 renamed = self._refresh_rooms()
-                # Every poll: the teleport step's mark moves onto a waypoint's object as soon as it is seen (`target`).
-                self._read_waypoints()
+                self._read_waypoints()  # every poll: the teleport mark moves onto a waypoint as soon as seen
                 self._read_progress(location)
                 if renamed or self._refresh_due(location):
                     self._read_walls()
@@ -436,8 +383,7 @@ class LevelGuide:
         return True
 
     def _marks(self, snapshot: LevelSnapshot, pois: tuple[Poi, ...]) -> tuple[Poi, ...]:
-        """The card's marks in the order shown: waypoints on their objects, the route's mark first, the nearest
-        of its label to where the shown card has the character."""
+        """The card's marks in order: waypoints on their objects, the route's mark first (`lead_first`)."""
         pois = tuple(on_waypoint(poi, self.waypoints) for poi in pois)
         if self.lead is None:
             return pois
@@ -448,14 +394,13 @@ class LevelGuide:
         return lead_first(pois, self.lead(location.area_id), here)
 
     def _absent(self, area: int, guidance: Guidance) -> None:
-        """Tell the route's goals the marks the level is known to have none of (`Guidance.absent`), with the card it
-        is shown with: the stage on them is done before the macro's next look at the card."""
+        """Tell the goals which marks the level lacks (`Guidance.absent`), so their stages are done."""
         if self.goals is not None and guidance.absent:
             self.goals.absent(area, guidance.absent)
 
     def _read_progress(self, location: Location) -> None:
-        """At each poll with a card up: tell the route's progress what is done whoever did it (macros/card_goal.py
-        `note`): a mark stood at, and the objects of its `use` marks read (`observe_things`) when any is left."""
+        """Each poll with a card up: note what is done, by anyone (macros/card_goal.py `note`): marks stood at
+        and the objects of `use` marks (`observe_things`)."""
         if self.goals is None or self.shown is None:
             return
         snapshot, pois = self.shown
@@ -473,8 +418,7 @@ class LevelGuide:
         self.goals.note(area, (location.x, location.y), marks, things)
 
     def _goal(self, location: Location):
-        """(the marks in card order, the route's goal or None, the marks done with, the key the card is drawn
-        with): `goals` asked from where the character is, with the teleport step's mark (`target`) as the card's."""
+        """(marks in card order, the route's goal or None, done marks, the key the card is drawn with)."""
         assert self.shown is not None
         snapshot, pois = self.shown
         area = snapshot.location.area_id
@@ -487,7 +431,7 @@ class LevelGuide:
         aim = None
         if goal is not None:
             mark = goal.mark.label if goal.mark is not None else None
-            # A unit's goal moves with it: the card follows it at its own pace, not at each step it takes.
+            # A unit's goal moves: the card follows at its own pace, not each step.
             where = None if goal.unit is not None else (round(goal.place[0]), round(goal.place[1]))
             aim = (goal.label, goal.unit, goal.known, mark, where)
         return pois, goal, done, (area, aim, done)
@@ -525,9 +469,8 @@ class LevelGuide:
         return (tables.pop(), area) if len(tables) == 1 and None not in tables else None
 
     def _target_of(self, snapshot: LevelSnapshot, poi: Poi) -> Target:
-        # An entrance kept as a side trip is a door too (Poi.entrance): as a mere place, Crystalline Passage's way into
-        # Frozen River was stood beside and never gone through, "TZ next level" again and again, the game left (09:32:49
-        # and every game after on 2026-10-19)
+        # A side-trip entrance is a door too (Poi.entrance): as a mere place it was stood beside, never entered
+        # (Crystalline Passage to Frozen River, 2026-10-19 09:32:49).
         warp = (poi.kind in WAYS_OUT or poi.entrance) and poi.spot is not None
         area, mark = snapshot.location.area_id, place(poi)
         passage = passage_of(area, snapshot.rooms, poi, mark)
@@ -535,8 +478,8 @@ class LevelGuide:
         return Target(area, snapshot.rooms, mark, poi.label, poi.kind, warp, self._ground(), poi.use, passage, into)
 
     def target(self) -> Target | None:
-        """The shown card's first mark, the one the first arrow line points at (the teleport step, macros/teleport.py).
-        None with no card up or nothing marked. Read from the macro's thread: one reference, no lock."""
+        """The shown card's first mark (the teleport step, macros/teleport.py); None with nothing marked.
+        Read from the macro's thread: one reference, no lock."""
         shown = self.shown
         if shown is None or not shown[1]:
             return None
@@ -544,16 +487,14 @@ class LevelGuide:
         return self._target_of(snapshot, self._marks(snapshot, pois)[0])
 
     def marks(self, label: str) -> tuple[tuple[float, float], ...]:
-        """The places of the shown card's marks with `label` (a hell pit's chests), in tiles: the
-        route step sees from them when each was used (macros/route.py). Read from the macro's thread."""
+        """Places (tiles) of the shown card's marks with `label`, for macros/route.py. Macro thread."""
         shown = self.shown
         if shown is None:
             return ()
         return tuple(place(poi) for poi in shown[1] if poi.label == label)
 
     def level(self) -> Level | None:
-        """The shown card's level: its rooms and the walls read so far, for a macro that chooses its own
-        mark (the seek step and attack mode, macros/hunt.py). None with no card up. Read from the macro's thread."""
+        """The shown card's level (rooms, walls so far) for macros/hunt.py; None with no card. Macro thread."""
         shown = self.shown
         if shown is None:
             return None

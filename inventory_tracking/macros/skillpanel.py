@@ -1,18 +1,12 @@
-"""The right mouse skill put back by the macro in keyboard mode, in the game's skill selection, as a player does it:
-a click on the right skill's button on the HUD opens the selection (the `skill_select` panel, read), a click on the
-skill's icon there puts it on the right button and closes the panel. The right skill read after it is the evidence.
+"""Put a skill back on the right mouse button in keyboard mode through the game's skill selection panel: a click on
+the HUD's right skill button opens it, a click on the skill's icon sets the skill and closes it.
 
-Why (rca/2026-10-14/run-1904-findings.md §3.7): in controller mode the client writes the pad's skills into the mouse
-buttons' fields, and after a stint the right button held Summon Defiler (the pad's B) back in keyboard mode. Attack
-mode by the keys needs the strike on the right button or a key; three runs stopped in 19.4 s until the player
-selected it by hand (the player's ruling of 2026-10-14: the macro selects it itself).
+Why: controller mode leaves the pad's skills on the mouse buttons (rca/2026-10-14/run-1904-findings.md §3.7); the
+player's ruling of 2026-10-14: the macro selects it itself.
 
-Where (window fractions are not kept: the HUD is drawn to the window's height and centred, so a place is an offset
-from the window's bottom centre in window heights, `Place`). The player's own selection at 22:09:50-51 on 2026-10-14
-(take 20261014T190924Z-108, a 2560x1418 window): the panel opened with the pointer at (0.536, 0.978) of the window,
-the right skill's button (RIGHT_BUTTON); the click that put Echoing Strike on the right button was at (0.669, 0.696).
-An icon's place depends on the skills the character has (the panel's rows): it is the character's, given by its
-build layer (`Build.skill_icons`, builds/characters.py). A skill with no place there is not selected.
+Places are offsets from the window's bottom centre in window heights (`Place`): the HUD scales with the window's
+height. Icon places are the character's (`Build.skill_icons`, builds/characters.py); a skill with none is not
+selected. Measured from take 20261014T190924Z-108.
 """
 
 from inventory_tracking.common import LOG
@@ -23,9 +17,9 @@ from inventory_tracking.macros.skills import skill_name
 
 
 Place = tuple[float, float]  # (right of the window's centre, below its bottom edge), in window heights
-RIGHT_BUTTON: Place = (0.0652, -0.0215)  # the right skill's button on the HUD (the module text)
+RIGHT_BUTTON: Place = (0.0652, -0.0215)  # the right skill's button on the HUD
 PANEL = 'skill_select'  # native/layout.py PANEL_FLAGS
-PANEL_WAIT = 0.6  # seconds for the panel to open after the click, and to close with the skill on the button after
+PANEL_WAIT = 0.6  # seconds for the panel to open, and to close after the icon click
 SCATTER = (3, 2)  # pixels: an icon is about 60 wide on a 1418-high window
 
 
@@ -40,10 +34,8 @@ def holds(world: World, skill: int) -> bool:
 
 
 def select_right(run: Run, skill: int, icon: Place) -> None:
-    """Put `skill` on the right mouse button by the skill selection (the module text): the right skill's button
-    clicked, the panel seen open, the skill's icon at `icon` clicked, the skill seen on the right button with the
-    panel closed. Keyboard mode only (a click flips controller mode back). Abort, the panel closed again, when a step
-    is not seen; nothing is clicked with another panel open (a click there is the panel's)."""
+    """Put `skill` on the right button via the skill selection, each step seen. Keyboard mode only (a click flips
+    controller mode back); never over another open panel. Abort, the panel closed again, when a step is not seen."""
     if run.pad is not None:
         raise Abort('the skill selection takes the mouse: not in controller mode')
     world = run.world()
@@ -72,7 +64,7 @@ def select_right(run: Run, skill: int, icon: Place) -> None:
     now = run.world()
     if PANEL in now.open_panels:
         run.actuator.aim(*window_point(RIGHT_BUTTON, rect), scatter=SCATTER)
-        run.actuator.click()  # the button again closes the selection: no click of the run's lands in it
+        run.actuator.click()  # closes the selection
     held = now.player.right_skill if now.player is not None else None
     raise Abort(
         f'the skill selection did not put {skill_name(skill)} on the right button (it holds {skill_name(held)}; '

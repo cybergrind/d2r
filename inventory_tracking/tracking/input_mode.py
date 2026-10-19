@@ -1,15 +1,13 @@
 """The game's input method, read only: keyboard and mouse, or controller (rca/2026-10-13/controller-mode.md).
 
-The client keeps the mode in one byte and asks for a flip by setting a flag on its panel manager; the flip is
-a reload of the whole interface, done a moment later (native/layout.py CONTROLLER_MODE_RVA). Both are read here:
+The client keeps the mode in one byte and asks for a flip with a flag on its panel manager; the flip reloads
+the whole interface a moment later (native/layout.py CONTROLLER_MODE_RVA).
 
 - `read_input_mode`: the mode, whether a flip is pending, and to which mode;
-- `Flips`: from successive readings, each flip with its duration (asked -> byte changed -> reload done), logged
-  and given to the combat take, so the time of a flip is measured in every game (gamepad-proton.md step 5);
-- `read_bindings`: the controller records the game loaded at game entry (what a file write gave);
-- `read_controller`: in controller mode, the client's own target and the pressed record and skill;
-- `InputModeWatch`: all of it on a thread of `make serve`, at `rate` reads a second with its own memory handle,
-  bound to the game by `poll` from the service loop. Nothing is ever written.
+- `Flips`: each flip with its durations (asked -> byte changed -> reload done), logged and noted in the take;
+- `read_bindings`: the controller records the game loaded at game entry;
+- `read_controller`: in controller mode, the client's target and the pressed record and skill;
+- `InputModeWatch`: all of it on a `make serve` thread with its own memory handle. Nothing is ever written.
 """
 
 import logging

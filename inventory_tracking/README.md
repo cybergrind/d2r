@@ -11,8 +11,8 @@ as of 2026-10-13; dated probe evidence is linked separately.
 - [Input sub-module design](input/design.md): guarded facade for focus and key delivery.
 - [Input sub-module plan](input/plan.md): resolved contract and implementation steps.
 - Guard-only host check: `uv run -m inventory_tracking.input --check`; [runbook](osd/README.md#input-guard-check).
-- [Layout reference](layout_notes.md): supported build, memory fields and evidence.
-- [Merc HP research](merc_health_research.md): unresolved panel mismatch and external readers.
+- [Layout reference](history/layout_notes.md): supported build, memory fields and evidence.
+- [Merc HP research](history/merc_health_research.md): unresolved panel mismatch and external readers.
 - [Appraisal and collection](APPRAISAL.md): Alt+D, identify/stash automation and persisted reports.
 - [Assessment contract](../pricing/knowledge/assessment/planning/COMPLETION_CONTRACT.md): current item-assessment work; use its Current contract section.
 
@@ -119,7 +119,7 @@ and does not automatically wake a later chat turn.
   Optional failures produce unavailable resource observations, without disabling
   otherwise valid health/belt input decisions.
 
-For interpretation after a game update, use the [layout reference](layout_notes.md).
+For interpretation after a game update, use the [layout reference](history/layout_notes.md).
 Linux access references: [Yama](https://www.kernel.org/doc/html/latest/admin-guide/LSM/Yama.html),
 [process_vm_readv](https://man7.org/linux/man-pages/man2/process_vm_readv.2.html).
 
@@ -140,7 +140,7 @@ PE parsing/capture, bounded unit/resource reads, and report publication.
 
 ## Historical evidence
 
-[Research history](RESEARCH_HISTORY.md) preserves the original external-reference
+[Research history](history/RESEARCH_HISTORY.md) preserves the original external-reference
 survey and hover prototypes. Their “not implemented” statements describe those
 prototypes, not the current service. Read only the relevant probe when investigating
 its evidence. `handoff.md` remains frozen and does not drive current work.

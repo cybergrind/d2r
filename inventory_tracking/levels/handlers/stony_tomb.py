@@ -1,10 +1,6 @@
-"""Rocky Waste → Stony Tomb 1 → Stony Tomb 2: the tomb entrance, the stairs down, the super
-chest, Creeping Feature and the way back.
+"""Rocky Waste → Stony Tomb 1-2: the tomb entrance, the stairs down, the super chest, Creeping Feature.
 
-Unconfirmed (from D2MOO DrlgOutDesr/DrlgMaze; no evidence yet). Rocky Waste's only exit preset
-is 'Desert Tomb 1' (Dry Hills uses it too, for the Halls of the Dead). Every Tomb level starts
-in a 'Tomb Prev NSW/NEW/NSE/SEW' room. Stony Tomb 2 places 'Tomb Treasure' (the super chest),
-'Tomb Leatherarm' (superunique Leatherarm = Creeping Feature in allstrings) and 'Tomb Chest'.
+Unconfirmed (D2MOO DrlgOutDesr/DrlgMaze). 'Tomb Leatherarm' is Creeping Feature (allstrings).
 """
 
 from inventory_tracking.levels.handler import Handler, PoiSpec, previous, stairs_down, target

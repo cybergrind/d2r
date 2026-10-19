@@ -1,31 +1,18 @@
-"""The KP_6 loop's efficiency, read from its takes: how the time on a level goes from one container opened to the next.
+"""The KP_6 loop's efficiency, read from its takes: how the time on a level goes from one container opened to the next
+(the player, 2026-10-16: "minimal time on the map and maximizing number of opened chests per hour").
 
-The player, 2026-10-16: "can you think about some efficiency metric for runs analysis ... linear distance we need to
-travel vs actual distance travelled and time, then find some clear outliers and analyze and test navigation
-improvements"; the aim, "minimal time on the map and maximizing number of opened chests per hour".
+A leg runs from the arrival, or the last container opened, to the next one opened; the last leg (`tail`) to the
+level left. For each:
 
-A leg runs from the character's arrival, or the last container opened, to the next container opened (its mode leaves
-0 in the take's objects, `o`); the take's last leg runs from the last one to the level left (`tail`). For each:
+- `line`, `way`: the straight line to the container and what the character went;
+- seconds by mode: `casting`, `moving`, `standing`; `arrival`: the load before the game took input;
+- `stalls`: standing STALL_SECONDS and more, with the log lines said most in them (`Stall.mine`: the player's);
+- `lost`: seconds over the straight line at REFERENCE units a second (the outlier rank);
+- `idle`: still, not casting nor moving, no input sent within QUIET (the player, 2026-10-17: "measure inactive
+  time"); within DELAY of a cast it is `delay`. `quiet` measures it over a whole take;
+- `away`: units moved further from the container (backtracking).
 
-- `line`: the straight line from where the character stood to the container; `way`: what it went (frame to frame);
-- the seconds, split by the character's mode: `casting` (an action under way, a jump's cast among them), `moving` (a
-  walk or a run), `standing` (the rest: a look, a casting delay waited out, a stall);
-- `stalls`: the stretches standing STALL_SECONDS and more (a Blade Warp's whole delay and a look are under it), each
-  with the log lines said most in it (`reasons`, numbers folded): the first clue to why;
-- the first leg begins when the game took input (the log's `took input N s after the arrival`, macros/routines.py
-  `took_input`): the level's load before it is the game's, reported as `arrival`;
-- a stall the player's hand made (the loop toggled, the run paused) is told apart (`Stall.mine`);
-- `lost`: the seconds over the straight line at REFERENCE units a second (Blade Warp's pace: its 22 units every
-  1.05 s), the measure the outliers are ranked by;
-- `idle`: the seconds the character stood still (under STILL units frame to frame), neither casting nor moving, with
-  no input the service sent within QUIET of it: time nothing was done at all (the player, 2026-10-17: "measure
-  inactive time (when we're not moving or not doing anything)"). Idle within DELAY of a cast's start is a skill's delay
-  waited out (`delay`, Blade Warp's 1.05 s), not counted as idle. `quiet` measures it over a whole take, the towns'
-  takes too;
-- `away`: the units moved that took the character further from the leg's container: going back ("backtracking
-  movements").
-
-Read-only, over the takes on disk (takes/record.py writes them): `python -m inventory_tracking.takes.legs <take>...`.
+Read-only, over the takes on disk: `python -m inventory_tracking.takes.legs <take>...`.
 """
 
 import argparse
@@ -270,8 +257,7 @@ def playable(take: Take, first: float) -> float:
 
 
 def legs_of(take: Take) -> list[Leg]:
-    """The take's legs (the module text): from the first frame the character stands in the level to each container
-    opened, then the tail to the take's end."""
+    """The take's legs (the module text), then the tail to the take's end."""
     frames = [frame for frame in take.frames if frame.get('p')]
     if len(frames) < 2:
         return []

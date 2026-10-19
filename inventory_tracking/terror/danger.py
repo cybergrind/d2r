@@ -1,32 +1,11 @@
 """Deadly packs: which groups of live monsters can kill by burst (danger-plan.md; user, 2026-10-06).
 
-A monster's threat is the product of three things (user, 2026-10-07):
-
-- its hit: the type's Hell damage (terror/data/threats.json: multiples of the monster level's
-  base damage, physical and elemental apart), raised by its rank (a unique's or champion's own
-  bonus, a Herald's tier and its minions'), by its own modifiers (monster data +0x20..,
-  inherited ones on minions, the Terror Zone's forced one on plain monsters), the aura it stands
-  in (stat 350 on first sight, or an aura owner within the aura's range) and curses nearby;
-- its rate: Extra Fast, Fanatic, Multiple Shots;
-- its reach: whether the hit lands at all. A ranged attacker's does, from off screen, so it
-  counts in full. A melee attacker has to catch the player: one no faster than `still` never
-  does and scores nothing whatever raises its hit (zombies, skeletons), one as fast as the
-  player's run always does, and of those only a few stand next to the player at once. Extra
-  Fast, Teleportation and a Holy Freeze on the player are what turn slow melee into a threat.
-
-The player's own states (monsters.py `player_states`) count as facts, for every pack: Amplify
-Damage and Decrepify raise physical damage, Lower Resist and Conviction elemental, and a frozen,
-decrepified or Holy Frozen player is reached by melee (a chill is not counted: marked Ghoul packs
-took 0.29% of the life a second with it and 0.68% without, probe logs to 2026-10-07). A curse or
-Conviction that is on the player is not counted again for its source standing near, which is only
-the guess made before it lands.
-
-Monsters within LINK of each other are one pack and its score is the sum, so density is the
-score itself: two archer packs standing together are one deadly pack.
-
-The factors are estimates, not the game's formulas, and the bands are set so that plain packs
-stay unmarked. They are to be tuned from burst events once the probe logs carry the player's
-life (terror/bursts.py). Pure data and arithmetic: no memory reads, no GTK.
+A monster's threat = hit x rate x reach (user, 2026-10-07). Hit: the type's Hell damage
+(data/threats.json) raised by rank, modifiers, auras and curses. Rate: Extra Fast, Fanatic,
+Multiple Shots. Reach: a ranged hit counts in full; melee by its speed against the player's run.
+The player's own states (monsters.py `player_states`) count as facts for every pack.
+Monsters within `link` of each other are one pack, scored by the sum. The factors are estimates
+tuned from the probe logs (danger-plan.md); pure data and arithmetic, no memory reads, no GTK.
 """
 
 import json
@@ -68,67 +47,43 @@ AIMED_AT_PLAYER = frozenset((CONVICTION, HOLY_FREEZE))  # never a stat on monste
 
 
 class DangerConfig(Config):
-    # Pack scores from which a pack is marked. Replay of the 50 probe logs to 2026-10-06 (first-sight
-    # positions, the three highest packs every 3 s): 16% of those packs reach 9, 9.6% reach 12.
+    # Pack scores from which a pack is marked (probe-log replay, danger-plan.md).
     caution: float = 9.0
     deadly: float = 12.0
-    # A pack marked on the last pass keeps its mark down to this share of the score that gives
-    # it: a kill, a step out of an aura or a pack splitting no longer toggles it (user, 2026-10-06).
+    # A marked pack keeps its mark down to this share of its band, so it does not toggle (user, 2026-10-06).
     release: float = 0.75
     reason_share: float = 0.15  # a reason is named when it is behind this share of the pack's score
     link: float = 30.0  # world units: monsters this close are one pack (6 tiles)
-    # An aura that acts on the player (Conviction, Holy Freeze) counts for monsters this near its
-    # owner, about a screen: whoever fights them stands in it.
+    # A player-aimed aura (Conviction, Holy Freeze) counts for monsters this near its owner (about a screen).
     player_aura_reach: float = 60.0
     curse_reach: float = 60.0  # a Cursed monster or a curse caster this near raises physical damage
-    # The share of elemental damage that gets through: resistances at the Hell cap of 75%. To be
-    # replaced by the character's own resistances (danger-plan.md, phase 6).
-    resisted: float = 0.25
+    resisted: float = 0.25  # elemental share that gets through: 75% Hell-cap resistances (danger-plan.md phase 6)
     melee: float = 0.5  # the share of a ranged one's threat of a melee attacker that reaches the player
     melee_count: int = 8  # melee attackers of a pack that reach the player at once
-    # Reach of a melee attacker by its speed (monstats Velocity / Run, the unit of the player's
-    # own 6 walking and 9 running): none up to `still`, full from `player_run`, linear between.
+    # Melee reach by speed (monstats Velocity / Run; the player walks 6, runs 9): none up to
+    # `still`, full from `player_run`, linear between.
     still: float = 3.0  # zombies, skeletons, mummies, brutes
     player_run: float = 9.0
-    # Extra Fast: movement speed factor (an estimate). Was 2.0: Extra Fast Ghouls were the most
-    # marked packs of the probe logs to 2026-10-07 at a quarter of the other marked packs' life lost.
-    fast_move: float = 1.5
+    fast_move: float = 1.5  # Extra Fast movement factor, an estimate (2.0 overrated, danger-plan.md)
     slowed: float = 0.7  # the player's run under Holy Freeze
     arrives: float = (
         0.5  # the least reach of one that teleports, charges or leaps: it arrives, then hits at its own pace
     )
     frenzy: float = 1.5  # attacks per second factor of a Frenzy user
-    # Families (monstats BaseId) or single types (by name, which comes first) whose hit is not
-    # their monstats number, as a factor on it. Souls: four
-    # plain Gloams took 18% of the life within a second (probe log 20261006T161833Z, area 77),
-    # as much as fourteen slingers under Fanaticism in the same log.
-    # Abyss Knights: six took 18% twice at a score of 8.4 (20261006T175752Z, area 107); their bolt
-    # is a skill, the number a stand-in. Undead dolls blow up when killed (no log event: an estimate).
-    # From the `around` samples to 2026-10-07 (77 minutes, Catacombs 2-4; exposure.py): where Tainted
-    # were the highest pack 2.1 times the life of other types at the same score went unwarned and
-    # 3.5 times warned, and they stood in 12 of the 21 seconds that took 15%, while the Afflicted
-    # of the same family and numbers lost 0.8 times. Dark Ones: 0.2 times the model's average
-    # per monster over 27,720 monster-seconds.
+    # Factor on the monstats hit of families (BaseId) or single types (by name, checked first)
+    # that hit harder or softer than their number; evidence per entry in danger-plan.md.
     hard: Mapping[str, float] = {
         'willowisp1': 5.0, 'doomknight2': 1.25, 'bonefetish1': 2.0, 'Tainted': 2.0, 'fallen1': 0.5,
     }  # fmt: skip
-    # Own modifier -> physical damage factor. Extra Strong was 2.0: packs named for it lost 0.7
-    # times the life of others at their score (392 s, the same samples).
-    physical: Mapping[int, float] = {STRONG: 1.5, BERSERKER: 2.0}
+    physical: Mapping[int, float] = {STRONG: 1.5, BERSERKER: 2.0}  # own modifier -> physical damage factor
     speed: Mapping[int, float] = {FAST: 1.25, FANATIC: 1.25}  # own modifier -> attacks per second factor
-    # An elemental enchantment adds a share of the monster's own physical hit to each of its hits, by
-    # rank: monumod.txt's constants, "Elemental Min..Max Damage % Bonus (Hell)" 66..100 for a unique and
-    # 33..50 for a champion or a unique's minion (taken for a Terror Zone's plain monster too), the
-    # middle of each. Before 2026-10-12 a flat 0.5 of the level's base damage (0.3 for cold) whatever
-    # the monster: a Lightning Enchanted Herald then added to its hit what a Fallen's would.
+    # An elemental enchantment adds a share of the monster's own physical hit: monumod.txt
+    # "Elemental Min..Max Damage % Bonus (Hell)", the middle of 66..100 (unique) and 33..50 (others).
     elements: tuple[int, ...] = (FIRE, LIGHTNING, COLD)
     enchanted: float = 0.415
     enchanted_unique: float = 0.83
-    # The hit of a unique, a super unique or a champion (difficultylevels.txt Hell: UniqueDamageBonus
-    # and ChampionDamageBonus, both 66).
-    leader: float = 1.66
-    # A Herald's hit and its minions', by tier (the Terror Zone's config of the installed game,
-    # herald_damage_boost_percent and minion_damage_boost_percent; terror_zones/data).
+    leader: float = 1.66  # unique / champion hit: difficultylevels.txt Hell Unique/ChampionDamageBonus 66
+    # A Herald's and its minions' hit by tier: installed game's TZ config (terror_zones/data).
     herald: Mapping[int, float] = {1: 1.5, 2: 1.75, 3: 2.0, 4: 2.25, 5: 2.5}
     herald_minion: Mapping[int, float] = {1: 1.1, 2: 1.2, 3: 1.3, 4: 1.4, 5: 1.5}
     multishot: float = 2.0  # Multiple Shots on a ranged attacker
@@ -137,10 +92,8 @@ class DangerConfig(Config):
     conviction: float = 3.0  # elemental damage factor: resistances 75% -> about 25% at aura level 9
     holy_freeze: float = 1.2  # everything: the player is slowed
     curse: float = 1.5  # physical damage factor near a curse source (Amplify Damage, Decrepify)
-    # The player's own states. Physical: Amplify Damage takes 100% of the physical resistance,
-    # Decrepify 50%. Elemental: Lower Resist takes about as much resistance as Conviction.
-    # Amplify Damage was 2.0: packs named for it lost 0.6 times the life of others at their score
-    # (552 s of the `around` samples to 2026-10-07).
+    # The player's own states: Amplify Damage / Decrepify raise physical damage, Lower Resist about
+    # as much as Conviction (tuned down from 2.0, danger-plan.md).
     player_physical: Mapping[int, float] = {AMPLIFIED: 1.5, DECREPIFIED: 1.5}
     player_elemental: Mapping[int, float] = {LOWER_RESIST: 2.5}
     player_slowed: tuple[int, ...] = (DECREPIFIED, HOLY_FROZEN, FROZEN, SLOWED)  # the first found is named
@@ -307,8 +260,8 @@ def threat(
 
 
 def melee_reach(unit: Unit, row: Threat, slow: str | None, threats: Table, config: DangerConfig, reasons) -> float:
-    """The share of a melee attacker's hits that land, 0..1: by its speed against the player's.
-    What raised it is added to `reasons` (all of it, for a monster that had no reach without)."""
+    """The share of a melee attacker's hits that land, 0..1, by its speed against the player's;
+    what raised it is added to `reasons`."""
 
     def share(speed: float, run: float) -> float:
         return min(max((speed - config.still) / (run - config.still), 0.0), 1.0)

@@ -1,18 +1,13 @@
-"""The navigation controller: the means a loop's goals are gone to by, from what the character has (macros/goals-plan.md
-§5; the player, 2026-10-19: "navigation to the point: is some kind of goal, handled by navigation controller, that
-knows our abilities/equipment (enigma? teleport charges in staff, blade warp, walking, something else, regular sorc
-teleport)").
+"""The navigation controller: which means a loop's goals are reached by, from what the character has
+(macros/goals-plan.md §5; the player, 2026-10-19: "handled by navigation controller, that knows our
+abilities/equipment").
 
-It names the navigation class (macros/movement.py HOPS / WARPS / WALKS) and the loop's move intent (travel.py LOOPED or
-LOOPED_TELEPORT); it moves nothing. Every move is still the movement set's (`Ways.means`, `Ways.leg`): a hop that
-cannot be made now is walked or warped by the set itself. The order:
+It names the navigation class (movement.py HOPS / WARPS / WALKS) and the move intent; it moves nothing (the movement
+set does, walking or warping a hop it cannot make). The order:
 
-1. Teleport of the character's own (Enigma, a Sorceress: Teleport on a key with no staff worn): every move, no charge
-   (runner.py LOOPED_TELEPORT for `own_teleport`, 2026-10-18).
-2. The staff's charges, while the carried gold pays for them (macros/loop.py `teleports`: from TELEPORT_ON of the gold
-   cap until under TELEPORT_OFF) and the staff holds more than LOW_CHARGES (the player's own steps keep those).
-3. A jump that costs nothing on a key (the Warlock's Blade Warp: the build's movement sets name it; this module names
-   no skill): the walked way, warped where it beats the walk.
+1. Teleport of the character's own (Enigma, a Sorceress): every move, no charge.
+2. The staff's charges, while the gold pays for them (loop.py `teleports`) and more than LOW_CHARGES are left.
+3. A free jump on a key (Blade Warp; named by the build), warped where it beats the walk.
 4. The walk.
 """
 
@@ -26,10 +21,8 @@ from inventory_tracking.macros.travel import LOOPED, LOOPED_TELEPORT, LOW_CHARGE
 
 @dataclass(frozen=True)
 class Abilities:
-    """What the character can move by now. `own_teleport`: Teleport is its own (None: unread); `staff`: the worn staff
-    with Teleport charges (None: none worn, or unread); `pays`: the gold carried pays for the staff's charges this
-    game (macros/loop.py `teleports`; None: not decided); `free_jump`: the name of a jump that costs nothing on a key
-    (None: none)."""
+    """What the character can move by now; None is unread or undecided. `staff`: the worn staff with Teleport
+    charges; `pays`: the gold pays for its charges this game; `free_jump`: the name of a no-cost jump on a key."""
 
     own_teleport: bool | None = None
     staff: Teleport | None = None
@@ -47,7 +40,7 @@ class Means:
 
 
 def means(abilities: Abilities) -> Means:
-    """The means in hand (the module text)."""
+    """The means in hand, in the module's order."""
     if abilities.own_teleport:
         return Means(HOPS, LOOPED_TELEPORT, "Teleport of the character's own: every move")
     staff = abilities.staff

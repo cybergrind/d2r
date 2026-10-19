@@ -1,13 +1,9 @@
 """Regenerate terror/data/threats.json from the installed game's tables (danger-plan.md R1/R2).
 
-Per monster type the numbers the danger model (terror/danger.py) weighs: Hell physical, elemental
-and magic damage as multiples of the monster level's base damage (monlvl.txt `DM(H)`; monstats
-damage columns are percents of it; d2data's monstats.json has the same values, 2026-10-06),
-whether it attacks from range (then the numbers are the ranged attack's), how fast it moves (the
-faster of `Velocity` and `Run`: what a melee attacker needs to reach the player), whether a skill
-closes the distance for it (Charge, Leap) or doubles its swings (Frenzy), and the curses it casts. Also
-the auras an aura-enchanted monster can carry (skills.txt rows by id, with their range) and the
-names of the unique modifiers (monumod.txt ids).
+Per monster type, what terror/danger.py weighs: Hell physical, elemental and magic damage as
+multiples of the monster level's base damage (monstats columns are percents of monlvl.txt `DM(H)`),
+ranged or not, speed (max of Velocity and Run), Charge/Leap, Frenzy and curses. Also the auras
+an aura-enchanted monster can carry (skills.txt, with range) and unique modifier names (monumod.txt).
 
 Runtime code reads only the bundled table; the install is a build input.
 Run: uv run --offline python -m inventory_tracking.terror.build_threats "<install>"
@@ -86,9 +82,8 @@ def damage(row, modes) -> tuple[float, float, float]:
 
 
 def ranged_damage(row) -> tuple[float, float, float]:
-    """What the ranged attack does: the attack that fires the missile, with its elements. A caster
-    without a missile column does its damage in a skill the monstats row does not hold: the
-    elements of its skill modes count, or else its melee swing stands in, as magic."""
+    """The damage of the attack that fires the missile. A caster without a missile column damages
+    by a skill monstats does not hold: its skill modes' elements count, else its swing, as magic."""
     for column, mode in (('MissA1', 'A1'), ('MissA2', 'A2'), ('MissS1', 'S1'), ('MissC', 'SC')):
         if row.get(column):
             found = damage(row, (mode,))

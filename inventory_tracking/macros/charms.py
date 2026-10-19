@@ -1,18 +1,11 @@
 """Gheed's Fortune is carry-one: no second is picked up while the player's is carried (routes/andariel-loop-plan.md).
+"You cannot pickup another gheed if you have another in inventory/private tab" (the player, 2026-10-18).
 
-The player, 2026-10-18 13:39-13:41: "picking up another gheed principal algo: go to town; put our own gheed into
-SHARED tab; go back and pick new one; go to town, identify; check what is better (magic find roll); keep in own
-inventory better one"; "you cannot pickup another gheed if you have another in inventory/private tab". In the d2data
-dump (`uniqueitems.json`) row 359, Gheed's Fortune, is a Grand Charm (`cm3`) with `carry1` 1001 and `mag%` 20-40; the
-Latent Sunder charms that drop (rows 426, 428-432, `cm3` too) have none. On the ground the two are alike: a unique Grand
-Charm, its row unread until identified (ItemData +0x34 is 0), so one left on the ground while the player's is carried
-tells it (macros/runner.py `_loop_stopped`).
-
-The legs are the loop's (macros/loop.py SWAP_OUT, GHEED_STASH, SWAP_BACK, GHEED_CHOOSE); here the stash's part:
-`park` puts the player's charm onto a shared page with room (the stash as read, game/records.py `StashView`; each shared
-page tried when it is unread), never the personal page, which blocks the pickup as the inventory does; `choose` compares
-the two Magic Find rolls (itemstatcost.txt `item_magicbonus`, stat 80) once the new one is identified, the better one
-carried at the player's cell, the other on a shared page (a tie keeps the player's).
+On the ground Gheed's (uniqueitems row 359, `cm3`, carry1) and the Latent Sunder charms are alike: a unique Grand Charm,
+its row unread until identified, so one left on the ground while the player's is carried tells it (runner.py
+`_loop_stopped`). The legs are the loop's (loop.py SWAP_OUT, GHEED_STASH, SWAP_BACK, GHEED_CHOOSE); here the stash's
+part: `park` puts the player's charm on a shared page (never the personal one, which blocks the pickup too); `choose`
+keeps the better Magic Find roll at the player's cell, the other on a shared page (a tie keeps the player's).
 """
 
 from collections.abc import Callable, Mapping, Sequence
@@ -45,8 +38,7 @@ __all__ = [
 
 GHEEDS_FORTUNE = 359  # uniqueitems.txt row (d2data dump, 2026-10-18): `cm3`, carry1 1001, mag% 20-40
 UNIQUE = 7  # ItemData quality
-# itemstatcost.txt `item_magicbonus` *ID 80 (pricing/raw/game-excel/itemstatcost.txt, third-parties/d2data, read
-# 2026-10-18): the "mag%" property of Gheed's Fortune
+# itemstatcost.txt `item_magicbonus` (game-excel, d2data, 2026-10-18): Gheed's "mag%"
 MAGIC_FIND = 80
 GRAND_CHARM_SIZE = (1, 3)
 
@@ -80,9 +72,8 @@ def gheeds(pack: Pack, own: frozenset[Cell]) -> Carried | None:
 
 @dataclass(frozen=True)
 class Parked:
-    """The player's Gheed's Fortune on a shared stash page while the new one is fetched: its unit, the page it went
-    onto (None: not read), the inventory cell it was carried at (the player's, `Loop.own`), its Magic Find (%) as read
-    while carried (None unread)."""
+    """The player's Gheed's Fortune parked on a shared page (None: unread) while the new one is fetched; `cell` the
+    player's inventory cell (`Loop.own`); `magic_find` as read while carried."""
 
     unit_id: int
     page: int | None
@@ -94,7 +85,7 @@ class Parked:
 
     @classmethod
     def restore(cls, state: object) -> Parked | None:
-        """From `state` (a restart's, runner.py `resume`); None when it is not one."""
+        """From a restart's `state`; None when malformed."""
         try:
             assert isinstance(state, dict)
             txt, x, y = (int(v) for v in state['cell'])
@@ -110,7 +101,7 @@ class Parked:
 
 
 def magic_find(stats: Stats | None, unit_id: int) -> int | None:
-    """The item's Magic Find roll (%) as memory holds it; None unread (or no such stat: not a Gheed's Fortune)."""
+    """The item's Magic Find roll (%); None unread or absent."""
     if stats is None:
         return None
     try:
@@ -122,8 +113,7 @@ def magic_find(stats: Stats | None, unit_id: int) -> int | None:
 
 
 def candidates(pack: Pack, parked: Parked, before: frozenset[int]) -> list[Carried]:
-    """The new Gheed's Fortune among the carried items (the inventory and the cube): a unique Grand Charm not carried
-    when the player's went away (`before`), unidentified or of Gheed's row."""
+    """Carried unique Grand Charms new since `before`, unidentified or of Gheed's row."""
     return [
         item
         for item in (*pack.items, *pack.in_cube)
@@ -135,8 +125,7 @@ def candidates(pack: Pack, parked: Parked, before: frozenset[int]) -> list[Carri
 
 
 def newcomers(pack: Pack, parked: Parked, before: frozenset[int]) -> list[Carried]:
-    """The unique Grand Charms in the inventory not carried when the player's went away (`before`) and not of Gheed's
-    row as read: a Latent Sunder charm picked up in the swap, or one still unidentified (`choose`'s `others`)."""
+    """Inventory unique Grand Charms new since `before` and not read as Gheed's (`choose`'s `others`)."""
     return [
         item
         for item in pack.items
@@ -167,9 +156,8 @@ def shared_pages(view: StashView | None, size: tuple[int, int]) -> list[int]:
 
 
 def _onto_shared(run: Run, rect, item: Carried, tally: Tally, pages: Sequence[int]) -> int | None:
-    """`item` from the inventory onto the first of the shared `pages` that takes it, each shown and Ctrl + clicked; the
-    page it lies on (as read again, else the page shown), None when none took it. `Abort` when it went onto the pointer
-    (put back first) or onto the personal page (taken back first: it would block a pickup there too)."""
+    """Ctrl+click `item` onto the first shared page of `pages` that takes it; the page, None if none did. `Abort`
+    (taken back first) when it lands on the personal page: it would block a pickup there too."""
     for page in pages:
         _show(run, rect, page, tally)
         run.actuator.move(*cell_point(rect, INVENTORY, (item.x, item.y), item.size), scatter=(4, 4))
@@ -190,7 +178,7 @@ def _onto_shared(run: Run, rect, item: Carried, tally: Tally, pages: Sequence[in
 
 
 def _lying(view: StashView | None, unit_id: int) -> tuple[int, Carried] | None:
-    """The page and cell the stash item `unit_id` lies at, as read; None when it is not read there."""
+    """The page and item of stash unit `unit_id`; None when not read."""
     for page in view.pages if view is not None else ():
         for item in page.items:
             if item.unit_id == unit_id:
@@ -199,8 +187,8 @@ def _lying(view: StashView | None, unit_id: int) -> tuple[int, Carried] | None:
 
 
 def _take(run: Run, rect, tally: Tally, unit_id: int, page: int | None) -> Carried:
-    """The stash item `unit_id` back into the inventory by a Ctrl + click on its cell, its page shown; as it lies there
-    now. `Abort` when its cell is not read or it does not come (it stays in the stash: the log says where)."""
+    """Ctrl+click stash unit `unit_id` back into the inventory; the item as it lies now. `Abort` when unread or it
+    does not come."""
     found = _lying(_view(run), unit_id)
     if found is None:
         where = f'shared page {page}' if page is not None else 'the stash'
@@ -217,15 +205,14 @@ def _take(run: Run, rect, tally: Tally, unit_id: int, page: int | None) -> Carri
 
 
 def _free_for(pack: Pack, item: Carried, at: tuple[int, int]) -> bool:
-    """Whether `item`'s block at `at` is free in the inventory, the item's own cells counted free."""
+    """Whether `item`'s block at `at` is free, its own cells counted free."""
     others = (i for i in pack.items if i.unit_id != item.unit_id)
     return Grid.from_items(others, INVENTORY_SIZE).fits(at, item.size)
 
 
 def settle(run: Run, rect, item: Carried, cell: Cell) -> Carried:
-    """`item` (carried, the inventory open) moved to the player's cell `cell` when it is elsewhere and that block is
-    free: taken up by a click and put down by a click on the block's middle; as it lies after. Where it does not go it
-    is put back where it was, and stays there (the cell then is the player's: `Loop.own`)."""
+    """Move carried `item` to the player's `cell` when that block is free; the item as it lies after. If it does not
+    go it is put back where it was."""
     at = (cell[1], cell[2])
     if (item.x, item.y) == at or not _free_for(_pack(run), item, at):
         return item
@@ -251,10 +238,8 @@ def settle(run: Run, rect, item: Carried, cell: Cell) -> Carried:
 
 
 def _make_way(run: Run, rect, tally: Tally, others: Sequence[Carried]) -> None:
-    """`others` onto shared pages while the inventory has no Grand Charm's block free for the player's to come back to:
-    the swap made with no 1 x 3 free but the player's own cell (the player, 2026-10-18 16:50: "refused grand charm -
-    should cause a trip"), which the new charm took. A unique Grand Charm is a keeper: the stash is where a visit puts
-    it too."""
+    """Stash `others` until a Grand Charm block is free for the player's to come back to ("refused grand charm -
+    should cause a trip", the player, 2026-10-18)."""
     for other in others:
         pack = _pack(run)
         if pack.inventory.has_room(GRAND_CHARM_SIZE):
@@ -270,8 +255,8 @@ def _make_way(run: Run, rect, tally: Tally, others: Sequence[Carried]) -> None:
 
 
 def park(run: Run, item: Carried, stats: Stats | None, memory: Remembered | None = None) -> Parked:
-    """`item`, the player's Gheed's Fortune, from the inventory onto a shared stash page with room (the stash open, at
-    the stash in sight); where it lies. `Abort` when no shared page has room or none takes it: it stays carried."""
+    """Put the player's Gheed's Fortune on a shared page with room (stash in sight); where it lies. `Abort` when
+    none takes it: it stays carried."""
     found = magic_find(stats, item.unit_id)
     pages = shared_pages(_view(run), item.size)
     if not pages:
@@ -297,12 +282,9 @@ def choose(
     memory: Remembered | None = None,
     others: Sequence[Carried] = (),
 ) -> Carried:
-    """The better of the player's Gheed's Fortune (`parked`) and the `new` one (identified, carried; None: no new one
-    of Gheed's row) by their Magic Find rolls, a tie the player's: the better carried at the player's cell where it is
-    free, the other on a shared page (the player's old one stays there only when the new one is better); the carried
-    one, the player's from now on. `others` (`newcomers`: a Latent Sunder charm picked up in the swap) go onto a shared
-    page when the player's has no block in the inventory to come back to. `Abort` when a move fails (the log says where
-    each lies)."""
+    """Carry the better Magic Find roll of `parked` and `new` (a tie keeps the player's) at the player's cell, the
+    other on a shared page; the carried one. `others` are stashed when the player's has no block to come back to.
+    `Abort` when a move fails."""
     mine = magic_find(stats, parked.unit_id)
     mine = mine if mine is not None else parked.magic_find
     theirs = magic_find(stats, new.unit_id) if new is not None else None

@@ -1,14 +1,6 @@
 """Bloody Foothills, Frigid Highlands, Arreat Plateau and Frozen Tundra.
 
-Unconfirmed (D2MOO DrlgOutSiege, 2026-10-01; no evidence yet). Bloody Foothills is a row of 16x48
-siege strips from 'Siege To Town' (Harrogath) to 'Siege To Barricade' (Frigid Highlands).
-Frigid Highlands starts at 'Barricade To Siege'. Barricade levels place 'Barricade Entrance/
-Exit' presets on their level-link edges (which neighbour each leads to isn't known, so they
-are plain exits), may place a hell portal ('Barricade Hell Portal N/W': Abaddon, the Pit of
-Acheron, the Infernal Pit) and a waypoint preset (Arreat Plateau dirt, Frozen Tundra snow;
-the Frigid Highlands waypoint has no preset of its own). Arreat Plateau's 'Barricade To Cave'
-leads to the Crystalline Passage; Frozen Tundra's snow 'From Cave' is the Glacial Trail side
-and 'To Cave' the Ancients' Way.
+'Barricade Entrance/Exit' are plain exits: which neighbour each leads to isn't known.
 """
 
 from inventory_tracking.levels.handler import Handler, PoiSpec

@@ -1,7 +1,4 @@
-"""Human-like pauses and key holds: short, never the same twice, skewed towards the quick end.
-
-One seeded generator and an injected `sleep`, so tests are exact and take no time.
-"""
+"""Human-like pauses and key holds, skewed short; seeded rng and injected `sleep` for tests."""
 
 import random
 import time
@@ -15,7 +12,7 @@ PAUSES = {
     'type': (0.06, 0.17),  # between typed characters
     'aim': (0.1, 0.24),  # pointer arrived, before the key or click
     'flick': (0.03, 0.09),  # the same for a quick move (a step the macro makes by itself)
-    # after the pointer was put down in one step for a key the player has just pressed (`Actuator.snap`)
+    # pointer put down in one step for a key the player just pressed (`Actuator.snap`)
     'snap': (0.008, 0.016),
     'screen': (0.35, 0.75),  # a menu or screen has just appeared
 }
@@ -46,9 +43,8 @@ class Pace:
 
     @contextmanager
     def watched(self, look: Callable[[], object], every: float, clock: Callable[[], float]) -> Generator[None]:
-        """Within the block every pause made through this pace, whoever makes it (a routine's own
-        waits, a key hold, a pointer step), calls `look` every `every` seconds: attack mode looks at
-        the player's mouse button there, so no click goes unseen while the macro waits on something."""
+        """Within the block every pause made through this pace calls `look` every `every` seconds, so attack
+        mode sees the player's clicks while the macro waits."""
         before = (self.look, self.every, self.clock)
         self.look, self.every, self.clock = look, every, clock
         try:

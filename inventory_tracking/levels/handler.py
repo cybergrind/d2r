@@ -1,20 +1,10 @@
-"""Handler building blocks. A level handler file declares HANDLERS with these helpers.
+"""Handler building blocks: a level handler file declares HANDLERS with these helpers.
 
-A POI spec is a full-match regex over bundled LvlPrest names, never a single Def: boss and
-stairs rooms exist once per doorway orientation (Arcane Summoner N/S/E/W = 525-528; game 1
-used 527, game 2 used 525). A required POI that matches no room, or several, is a problem
-for the framework to log; it is never guessed. Optional POIs (waypoints) are silent when absent.
-Chunks of one large preset (8x8 Room2s sharing the preset's bounds, e.g. a 40x40 Temple
-quadrant) count as one match, and the POI covers the whole preset. A preset that comes in
-DS1 variants can place its POI by variant: `sides` maps the file index (lvlprest File1..
-order) to the edge of the preset the POI is on (map axes, north = -y). `variants` restricts a
-spec to some DS1 variants, and `each` marks every matching instance instead of requiring one.
-`boss` puts the POI on a super unique the preset's DS1 file places (terror/data/elites.json).
-`at` puts it on a fixed spot of a preset that has one layout (the Throne's hall, Diablo's star).
-`thing` puts it on an object the preset's DS1 file places, whichever layout the level got (a super
-chest, Anya): the spot comes from the bundled object table (presets.object_spots).
-
-A level with logic that doesn't fit a pattern can subclass Handler and override `guide`.
+A POI spec is a full-match regex over LvlPrest names, never one Def: boss and stairs rooms exist once per
+doorway orientation (Arcane Summoner N/S/E/W = 525-528). A required POI matching no room or several is a
+problem to log, never guessed; optional POIs (waypoints) are silent when absent. Chunks of one large preset
+(8x8 Room2s sharing its bounds) count as one match covering the whole preset. `sides`, `at`, `boss` and
+`thing` place the POI inside the preset (see PoiSpec). Logic that fits no pattern subclasses Handler.
 """
 
 import re
@@ -35,20 +25,17 @@ class PoiSpec:
     kind: str = 'target'
     optional: bool = False
     family: str | None = None  # every matching preset name must start with it (checked offline)
-    sides: tuple[str, ...] = ()  # per DS1 variant: 'N'/'S'/'E'/'W' edge of the preset holding the POI
+    sides: tuple[str, ...] = ()  # per DS1 variant (File1.. order): 'N'/'S'/'E'/'W' edge holding the POI, north = -y
     inset: float | None = None  # how far inside that edge (fraction of the preset); None = SIDE_INSET
     variants: tuple[int, ...] = ()  # only these DS1 variants (file index) match; empty = any
     each: bool = False  # mark every matching instance (none is fine), e.g. Lower Kurast's camps
     warp: bool = False  # an entrance of another kind (a side trip as 'target'): mark its warp tile too
     boss: str = ''  # the POI is where the preset's DS1 file places this super unique (terror/elites.py)
-    at: tuple[float, float] | None = None  # the POI is this far (world units) from the preset's origin
-    # As `at`, by the preset's name, for a POI in one of several presets (the Summoner's four arms).
-    at_in: tuple[tuple[str, tuple[float, float]], ...] = ()
+    at: tuple[float, float] | None = None  # a one-layout preset: the POI this far (world units) from its origin
+    at_in: tuple[tuple[str, tuple[float, float]], ...] = ()  # `at` by preset name (the Summoner's four arms)
     stand: tuple[int, int] = (0, 0)  # tiles from the `sides` spot to where the mark goes: a place to fight from
-    # objects.txt id of an object near the POI that the step clicks (levels/model.py PORTAL, WIRTS_BODY)
-    use: int = 0
-    # objects.txt id of an object the preset's file places: the POI is on it (levels/model.py MARKABLE)
-    thing: int = 0
+    use: int = 0  # objects.txt id of an object near the POI the step clicks (levels/model.py PORTAL)
+    thing: int = 0  # objects.txt id of an object the preset's file places: the POI is on it (presets.object_spots)
 
     def matches(self, name: str) -> bool:
         return re.fullmatch(self.pattern, name) is not None
@@ -77,10 +64,8 @@ class Handler:
                 groups = [group for group in groups if group[0].variant in spec.variants]
             found = [room for room, _ in groups]
             if spec.each and spec.thing:
-                # Every room whose layout holds the object; one that holds none, or is unread, has no mark.
                 pois.extend(poi for room in found for poi in thing_pois(spec, room))
-                # The client holds every room of the level from entry: with each layout of the name read and no mark,
-                # the level has none (lower-kurast-plan.md task 5). A layout unread may still hold one.
+                # The client holds every room from entry: every layout read and no mark = none (lower-kurast-plan.md).
                 named = instances(room for room in snapshot.rooms if spec.matches(preset_name(room.preset)))
                 if len(pois) == start and all(room.variant is not None for room, _ in named):
                     absent.add(spec.label)
@@ -128,10 +113,7 @@ class Handler:
                 else:
                     pois.append(Poi(spec.label, room, spec.kind))
             elif len(found) == 1 and whole_level_around(groups[0], snapshot):
-                # The target is a whole-level layout the player stands in: no direction (Tower
-                # Cellar 5 until its handler named the Countess as `boss`). Any smaller preset the
-                # player stands in (the waypoint they arrived by, WSK's 16x16 stairs) is a normal
-                # POI, shown as "here".
+                # A whole-level layout the player stands in gives no direction; a smaller one is "here".
                 if spec.optional:
                     continue
                 problems.append(
@@ -162,7 +144,7 @@ def instances(rooms: Iterable[Room]) -> list[tuple[Room, int]]:
             if key in found:
                 found[key][1] += 1
                 if found[key][0].variant is None and room.variant is not None:
-                    # The layout is read chunk by chunk as rooms load: any chunk's reading is the preset's.
+                    # Layouts are read chunk by chunk as rooms load: any chunk's reading is the preset's.
                     found[key][0] = replace(found[key][0], variant=room.variant)
             else:
                 found[key] = [Room(room.preset, *room.block, room.variant, room.block, room.leads_to), 1]
@@ -213,8 +195,7 @@ def thing_pois(spec: PoiSpec, room: Room) -> list[Poi]:
 
 
 def boss_room(room: Room, name: str) -> Room | None:
-    """A marker room on the super unique `name` as `room`'s DS1 file places it; None when the
-    variant is unread or its file has no such monster."""
+    """A marker room on the super unique `name` as `room`'s DS1 file places it; None if unread or absent."""
     if room.variant is None:
         return None
     spots = [
@@ -275,9 +256,8 @@ def waypoint(family: str) -> PoiSpec:
     return PoiSpec('Waypoint', rf'{re.escape(family)} [Ww]aypoint.*', 'waypoint', optional=True, family=family)
 
 
-# Act 1 wilderness border presets whose open DS1 files (Bord*o.ds1 = 3, Bord*oe.ds1 = 4) are the
-# walkable gaps between levels (D2MOO DrlgOutPlace: level links pick file 3, or 4 in the Burial
-# Grounds; Black Marsh and Cold Plains evidence: one variant-3 border room per exit).
+# Act 1 border presets whose open DS1 files (Bord*o.ds1 = 3, Bord*oe.ds1 = 4) are the walkable gaps
+# between levels (D2MOO DrlgOutPlace).
 ACT1_GAP = r'Act 1 - Wild Border [1-4]'
 # Act 4 Mesa borders have one open DS1 file (Border*o.ds1 = 3) and no 'oe' file (d2data lvlprest).
 ACT4_GAP = r'Act 4 - Mesa Border [1-4]'
@@ -292,13 +272,10 @@ class Exit:
 
 @dataclass(frozen=True)
 class ExitsHandler(Handler):
-    """Outdoor level: every open border gap is a POI (before the `pois` specs).
+    """Outdoor level: every open border gap is a POI, before the `pois` specs unless `pois_first`.
 
-    A gap is named by the level behind it (Room.leads_to, readable only once the player has been
-    near that edge); the last unknown gap takes the last unseen exit by elimination; any other
-    gap is a plain 'Exit'. Missing or extra gaps are not problems: the gaps are what the level has.
-    `pois_first` puts the `pois` specs before the gaps: the first mark is the one the teleport step
-    follows (Black Marsh's Forgotten Tower).
+    A gap is named by the level behind it (Room.leads_to, read once the player was near); the last unknown gap
+    takes the last unseen exit by elimination; others are plain 'Exit'. Missing or extra gaps are no problem.
     """
 
     exits: tuple[Exit, ...] = ()
